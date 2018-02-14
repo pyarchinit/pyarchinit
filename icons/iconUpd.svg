@@ -1,0 +1,128 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- Created with Inkscape (http://www.inkscape.org/) -->
+
+<svg
+   xmlns:dc="http://purl.org/dc/elements/1.1/"
+   xmlns:cc="http://creativecommons.org/ns#"
+   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+   xmlns:svg="http://www.w3.org/2000/svg"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   id="svg2894"
+   version="1.1"
+   inkscape:version="0.47 r22583"
+   width="25"
+   height="25"
+   sodipodi:docname="iconUpd.png">
+  <metadata
+     id="metadata2900">
+    <rdf:RDF>
+      <cc:Work
+         rdf:about="">
+        <dc:format>image/svg+xml</dc:format>
+        <dc:type
+           rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
+        <dc:title></dc:title>
+      </cc:Work>
+    </rdf:RDF>
+  </metadata>
+  <defs
+     id="defs2898">
+    <inkscape:path-effect
+       effect="spiro"
+       id="path-effect3754"
+       is_visible="true" />
+    <inkscape:path-effect
+       effect="spiro"
+       id="path-effect3750"
+       is_visible="true" />
+    <inkscape:perspective
+       sodipodi:type="inkscape:persp3d"
+       inkscape:vp_x="0 : 0.5 : 1"
+       inkscape:vp_y="0 : 1000 : 0"
+       inkscape:vp_z="1 : 0.5 : 1"
+       inkscape:persp3d-origin="0.5 : 0.33333333 : 1"
+       id="perspective2902" />
+    <inkscape:perspective
+       id="perspective3713"
+       inkscape:persp3d-origin="0.5 : 0.33333333 : 1"
+       inkscape:vp_z="1 : 0.5 : 1"
+       inkscape:vp_y="0 : 1000 : 0"
+       inkscape:vp_x="0 : 0.5 : 1"
+       sodipodi:type="inkscape:persp3d" />
+    <inkscape:perspective
+       id="perspective3740"
+       inkscape:persp3d-origin="0.5 : 0.33333333 : 1"
+       inkscape:vp_z="1 : 0.5 : 1"
+       inkscape:vp_y="0 : 1000 : 0"
+       inkscape:vp_x="0 : 0.5 : 1"
+       sodipodi:type="inkscape:persp3d" />
+  </defs>
+  <sodipodi:namedview
+     pagecolor="#ffffff"
+     bordercolor="#666666"
+     borderopacity="1"
+     objecttolerance="10"
+     gridtolerance="10"
+     guidetolerance="10"
+     inkscape:pageopacity="0"
+     inkscape:pageshadow="2"
+     inkscape:window-width="1200"
+     inkscape:window-height="798"
+     id="namedview2896"
+     showgrid="false"
+     inkscape:zoom="18.88"
+     inkscape:cx="2.073947"
+     inkscape:cy="13.314447"
+     inkscape:window-x="0"
+     inkscape:window-y="0"
+     inkscape:window-maximized="0"
+     inkscape:current-layer="svg2894"
+     inkscape:snap-grids="false" />
+  <g
+     id="g3772"
+     transform="matrix(1.0698604,0,0,1.06739,2.2391277,-2.6993304)">
+    <path
+       sodipodi:nodetypes="cc"
+       id="path3690"
+       d="m -1.0105195,12.571565 c -0.900979,13.623932 16.1945715,11.675111 14.7917715,0.10515"
+       style="fill:none;stroke:#000000;stroke-width:1.3593812px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1" />
+    <path
+       style="fill:none;stroke:#000000;stroke-width:1.3593812px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+       d="M 4.7089654,14.093608 C 3.8079863,0.46967672 20.903537,2.4184971 19.500737,13.988459"
+       id="path3746"
+       sodipodi:nodetypes="cc" />
+    <g
+       id="g3756">
+      <path
+         style="fill:none;stroke:#000000;stroke-width:0.94800735px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+         d="m 4.3833601,13.759162 -2.7175595,-3.501404 0,0"
+         id="path3748"
+         inkscape:path-effect="#path-effect3750"
+         inkscape:original-d="m 4.3833601,13.759162 -2.7175595,-3.501404 0,0" />
+      <path
+         style="fill:none;stroke:#000000;stroke-width:1.00921798px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+         d="M 4.9392766,13.724793 7.9648288,10.494905"
+         id="path3752"
+         inkscape:path-effect="#path-effect3754"
+         inkscape:original-d="M 4.9392766,13.724793 7.9648288,10.494905" />
+    </g>
+    <g
+       transform="matrix(1,0,0,-1,9.1631356,26.718191)"
+       id="g3766">
+      <path
+         inkscape:original-d="m 4.3833601,13.759162 -2.7175595,-3.501404 0,0"
+         inkscape:path-effect="#path-effect3750"
+         id="path3768"
+         d="m 4.3833601,13.759162 -2.7175595,-3.501404 0,0"
+         style="fill:none;stroke:#000000;stroke-width:0.94800735px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1" />
+      <path
+         inkscape:original-d="M 4.9392766,13.724793 7.9648288,10.494905"
+         inkscape:path-effect="#path-effect3754"
+         id="path3770"
+         d="M 4.9392766,13.724793 7.9648288,10.494905"
+         style="fill:none;stroke:#000000;stroke-width:1.00921798px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1" />
+    </g>
+  </g>
+</svg>

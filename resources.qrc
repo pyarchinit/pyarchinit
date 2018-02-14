@@ -1,0 +1,5 @@
+<RCC> 
+  <qresource prefix="/plugins/ChartMaker" > 
+    <file>icon.png</file> 
+  </qresource> 
+</RCC> 

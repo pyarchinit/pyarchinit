@@ -1,0 +1,38 @@
+# This file contains metadata for your plugin. Beginning
+# with version 1.8 this is the preferred way to supply information about a
+# plugin. The current method of embedding metadata in __init__.py will
+# be supported until version 2.0
+
+# This file should be included when you package your plugin.
+
+# Mandatory items:
+
+
+[general]
+name=pyArchInit
+qgisMinimumVersion=2.0
+description=pyarchinit archaeological tools: added logo system for PDF- tocheck
+version=0.2.0
+author=Luca Mandolesi
+email=pyarchinit@gmail.com
+
+# end of mandatory metadata
+
+# Optional items:
+
+# Uncomment the following line and add your changelog entries:
+changelog= bug in pdf tafonomy fixed
+
+# tags are comma separated with spaces allowed
+tags=archaeology, analysis, database, digitizing, postgres, postgis, spatialite, sqlite, archeologia, funerary archaeology, pottery, bones, excavations, scavi, archeologici, siti, carte, archeologiche, carta di potenzialita, strutture, antiche, tempio, medioevo, romana, preistoria, roman, medieval, prehistoric
+
+homepage=https://sites.google.com/site/pyarchinit/
+tracker=https://github.com/pyarchinit/pyarchinit_beta_test_dev/issues?direction=asc&labels=enhancement&milestone=1&sort=created&state=open
+repository=https://github.com/pyarchinit/pyarchinit_beta_test_dev
+icon=icon.png
+# experimental flag
+experimental=True
+
+# deprecated flag (applies to the whole plugin, not just a single version)
+deprecated=False
+

@@ -1,0 +1,40 @@
+<RCC>
+  <qresource prefix="/">
+    <file>images/champion.png</file>
+    <file>images/iconIND.png</file>
+    <file>images/photo.png</file>
+    <file>images/iconStrutt.png</file>
+    <file>images/finds.png</file>
+    <file>images/banner.png</file>
+    <file>images/iconPER.png</file>
+    <file>images/iconConn.png</file>
+    <file>images/iconPAI.png</file>
+    <file>images/iconSite.png</file>
+    <file>images/4_leftArrow.png</file>
+    <file>images/5_leftArrows.png</file>
+    <file>images/6_rightArrow.png</file>
+    <file>images/7_rightArrows.png</file>
+    <file>images/GIS.png</file>
+    <file>images/b_save.png</file>
+    <file>images/delete.png</file>
+    <file>images/mActionAddLayer.png</file>
+    <file>images/mActionPan.png</file>
+    <file>images/mActionZoomIn.png</file>
+    <file>images/mActionZoomOut.png</file>
+    <file>images/new_search copy.png</file>
+    <file>images/new_search.png</file>
+    <file>images/newrec.png</file>
+    <file>images/iconGrave.png</file>
+    <file>images/pai_us.png</file>
+    <file>images/s_error.png</file>
+    <file>images/search.png</file>
+    <file>images/sheet.png</file>
+    <file>images/sort.png</file>
+    <file>images/view_all.png</file>
+    <file>images/iconTimeControll.png</file>
+    <file>images/directoryExp.png</file>
+    <file>images/sfondo.png</file>
+    <file>images/iconUT.png</file>
+    <file>images/pdf-icon.png</file>
+  </qresource>
+</RCC>
