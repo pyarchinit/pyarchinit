@@ -19,8 +19,14 @@
  *                                                                         *
  ***************************************************************************/
 """
-from sqlalchemy import *
-from pyarchinit_conn_strings import *
+from msilib import Table
+
+import sqlalchemy
+from sqlalchemy.engine import create_engine
+from sqlalchemy.sql.schema import MetaData
+
+from modules.db.pyarchinit_conn_strings import Connection
+
 
 class DB_update:
 

@@ -8,6 +8,8 @@
 # WARNING! All changes made in this file will be lost!
 
 from PyQt4 import QtCore, QtGui
+import resources_rc
+
 
 try:
     _fromUtf8 = QtCore.QString.fromUtf8
@@ -1202,4 +1204,3 @@ class Ui_Dialog_tafonomia(object):
         self.comboBox_rito.setItemText(3, QtGui.QApplication.translate("Dialog_tafonomia", "Ad incinerazione indiretta", None, QtGui.QApplication.UnicodeUTF8))
         self.comboBox_rito.setItemText(4, QtGui.QApplication.translate("Dialog_tafonomia", "Mummuficazione", None, QtGui.QApplication.UnicodeUTF8))
 
-import resources_rc

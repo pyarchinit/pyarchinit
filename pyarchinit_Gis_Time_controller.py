@@ -19,29 +19,31 @@
  *                                                                         *
  ***************************************************************************/
 """
-import sys, os
+import sys
+
+from olefile.olefile import v
+
 from PyQt4 import QtCore, QtGui
-from PyQt4.QtCore import *
-from PyQt4.QtGui import *
-import PyQt4.QtGui
+from modules.db.pyarchinit_conn_strings import Connection
+from modules.db.pyarchinit_db_manager import Pyarchinit_db_management
+from modules.gis.pyarchinit_pyqgis import Pyarchinit_pyqgis
+from modules.gui.pyarchinit_gis_time_controller import Ui_DialogGisTimeController
+from psycopg2 import *
+from pyarchinit_US_mainapp import pyarchinit_US
+from  pyarchinit_db_manager import *
+from  pyarchinit_utility import *
+
+
 try:
 	from qgis.core import *
 	from qgis.gui import *
 except:
 	pass
 
-from  pyarchinit_db_manager import *
 
-from datetime import date
-from psycopg2 import *
 
 #--import pyArchInit modules--#
-from  .pyarchinit_gis_time_controller import Ui_DialogGisTimeController
-from  .pyarchinit_gis_time_controller import *
-from  pyarchinit_utility import *
 
-from  pyarchinit_pyqgis import Pyarchinit_pyqgis
-from  sortpanelmain import SortPanelMain
 
 class pyarchinit_Gis_Time_Controller(QDialog, Ui_DialogGisTimeController):
 	MSG_BOX_TITLE = "PyArchInit - Gis Time Management"

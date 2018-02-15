@@ -8,6 +8,8 @@
 # WARNING! All changes made in this file will be lost!
 
 from PyQt4 import QtCore, QtGui
+from mplwidgetmatrix import MplwidgetMatrix
+
 
 try:
     _fromUtf8 = QtCore.QString.fromUtf8
@@ -35,4 +37,3 @@ class Ui_DialogInteractiveMatrix(object):
     def retranslateUi(self, DialogInteractiveMatrix):
         DialogInteractiveMatrix.setWindowTitle(QtGui.QApplication.translate("DialogInteractiveMatrix", "pyArchInit Gestione Scavi - Sistema Matrix Interattivo", None, QtGui.QApplication.UnicodeUTF8))
 
-from mplwidgetmatrix import MplwidgetMatrix

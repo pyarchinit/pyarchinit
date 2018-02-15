@@ -19,27 +19,27 @@
  *                                                                                                                      *
  ***************************************************************************/
 """
-import sys, os
+import os
+
+from modules.db.entities.Documentazione import DOCUMENTAZIONE
+
+from modules.db.pyarchinit_db_mapper import US, UT, SITE, PERIODIZZAZIONE, \
+    INVENTARIO_MATERIALI, STRUTTURA, SCHEDAIND, DETSESSO, DETETA, MEDIA, \
+    MEDIA_THUMB, MEDIATOENTITY, TAFONOMIA, CAMPIONI, PYARCHINIT_THESAURUS_SIGLE, \
+    ARCHEOZOOLOGY, INVENTARIO_LAPIDEI, PDF_ADMINISTRATOR
+from modules.db.pyarchinit_db_update import DB_update
+from modules.db.pyarchinit_utility import Utility
+from msilib import Table
+import psycopg2
 from sqlalchemy import and_, or_
 from sqlalchemy import distinct
-
+from sqlalchemy.engine import create_engine
 from sqlalchemy.orm import sessionmaker
+from sqlalchemy.sql.schema import MetaData
 
-import pyarchinit_db_mapper
-from pyarchinit_db_mapper import *
-from pyarchinit_db_structure import *
-
-from pyarchinit_utility import *
-from pyarchinit_OS_utility import *
-from pyarchinit_conn_strings import *
-from pyarchinit_db_update import *
-
-import psycopg2
-from psycopg2 import *
-from psycopg2 import extensions
 
 class Pyarchinit_db_management:
-	metadata = ''
+	metadata = ''  
 	engine = ''
 	boolean = ''
 	

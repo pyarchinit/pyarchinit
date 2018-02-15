@@ -8,6 +8,8 @@
 # WARNING! All changes made in this file will be lost!
 
 from PyQt4 import QtCore, QtGui
+import resources_rc
+
 
 try:
     _fromUtf8 = QtCore.QString.fromUtf8
@@ -453,4 +455,3 @@ class Ui_PyarchinitPlugin(object):
         self.label_13.setText(QtGui.QApplication.translate("PyarchinitPlugin", "Supporto online", None, QtGui.QApplication.UnicodeUTF8))
         self.tabWidget.setTabText(self.tabWidget.indexOf(self.account), QtGui.QApplication.translate("PyarchinitPlugin", "Supporto online", None, QtGui.QApplication.UnicodeUTF8))
 
-import resources_rc

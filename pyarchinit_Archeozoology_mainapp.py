@@ -21,22 +21,37 @@
  ***************************************************************************/
 """
 
-import sys
+from datetime import date
 import os
+import sys
+from test.test_heapq import R
+
 from PyQt4 import QtCore, QtGui
 from PyQt4.QtCore import *
 from PyQt4.QtGui import *
 import PyQt4.QtGui
+from modules.db.pyarchinit_conn_strings import Connection
+from modules.db.pyarchinit_db_manager import Pyarchinit_db_management
+from modules.db.pyarchinit_utility import Utility
+from modules.utility.pyarchinit_error_check import Error_check
+from psycopg2 import *
+from pyarchinit_Archeozoology_ui import *
+from pyarchinit_Archeozoology_ui import Ui_DialogArcheoZoology
+from pyarchinit_US_mainapp import pyarchinit_US
+from pyarchinit_db_manager import *
+from pyarchinit_error_check import *
+from pyarchinit_pyqgis_archeozoo import Pyarchinit_pyqgis
+from pyarchinit_utility import *
+
+from .quantpanelmain_zoo import QuantPanelMain
+from .sortpanelmain import SortPanelMain
+
+
 try:
     from qgis.core import *
     from qgis.gui import *
 except:
     pass
-
-from pyarchinit_db_manager import *
-
-from datetime import date
-from psycopg2 import *
 
 # --import rpy
 
@@ -45,18 +60,6 @@ try:
 except:
     pass
 
-# --import pyArchInit modules--#
-
-from pyarchinit_Archeozoology_ui import Ui_DialogArcheoZoology
-from pyarchinit_Archeozoology_ui import *
-from pyarchinit_utility import *
-from pyarchinit_error_check import *
-
-from pyarchinit_pyqgis_archeozoo import Pyarchinit_pyqgis
-from .sortpanelmain import SortPanelMain
-from .quantpanelmain_zoo import QuantPanelMain
-
-# are all dependecies satisfied?
 
 valid = True
 
@@ -3197,12 +3200,6 @@ title(sub="Rosso = coppie con r>|0.5|, Verde = coppie con |0.25|<r<|0.5|;
             return 1
 
     def update_record(self):
-        """
-........txt=self.rec_to_update()
-........f = open("/test_coord_x.txt", 'w')
-........f.write(str(txt))
-........f.close()
-........"""
 
         self.DB_MANAGER.update(self.MAPPER_TABLE_CLASS, self.ID_TABLE,
                                [eval('int(self.DATA_LIST[self.REC_CORR].'

@@ -1,17 +1,17 @@
-import os
 import copy
-from reportlab.lib.testutils import makeSuiteForClasses, outputfile, printLocation
+from datetime import date, time
+import os
+
+from modules.utility.pyarchinit_exp_USsheet_pdf import US_index_pdf_sheet
+from pyarchinit_OS_utility import *
 from reportlab.lib import colors
-from reportlab.lib.units import inch, cm, mm
-from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
 from reportlab.lib.enums import TA_JUSTIFY
+from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
+from reportlab.lib.testutils import makeSuiteForClasses, outputfile, printLocation
+from reportlab.lib.units import inch, cm, mm
 from reportlab.pdfgen import canvas
 from reportlab.platypus import Table, PageBreak, SimpleDocTemplate, Paragraph, Spacer, TableStyle, Image
 from reportlab.platypus.paragraph import Paragraph
-
-from datetime import date, time
-
-from pyarchinit_OS_utility import *
 
 
 class NumberedCanvas_Findssheet(canvas.Canvas):

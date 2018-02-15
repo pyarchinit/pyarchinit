@@ -1,9 +1,8 @@
 import sys, os
-from PyQt4.QtCore import *
-from PyQt4.QtGui import *
-from PyQt4 import QtGui
+
 from PyQt4 import QtCore, QtGui
 from imageViewer_ui import Ui_DialogViewer
+
 
 class ImageViewer(QDialog, Ui_DialogViewer):
 	def __init__(self, parent=None, origPixmap=None):

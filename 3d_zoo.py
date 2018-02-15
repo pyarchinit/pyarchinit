@@ -1,3 +1,14 @@
+from pygments.console import x
+
+from matplotlib import cm
+from matplotlib.mlab import griddata
+import matplotlib.pyplot as plt
+from mpl_toolkits.mplot3d.axes3d import *
+import numpy as np
+import scipy as sp
+import scipy.interpolate
+
+
 def tre_d(layer):
 	layer.select([])
 	layer.setSelectedFeatures([obj.id() for obj in layer])
@@ -27,15 +38,10 @@ def tre_d(layer):
 		y.append(geom.asPoint()[1])
 		z.append(elem.attributeMap()[15].toFloat()[0])
 
-from mpl_toolkits.mplot3d.axes3d import *
-import matplotlib.pyplot as plt
-from matplotlib import cm
 fig = plt.figure()
 ax = Axes3D(fig)
 ax.scatter3D(x,y,z,c=z,cmap=plt.cm.jet)
 plt.show()
-import numpy as np
-from matplotlib.mlab import griddata
 # création d'une grille 2D
 xi = np.linspace(min(x), max(x))
 yi = np.linspace(min(y), max(y))
@@ -46,8 +52,6 @@ fig = plt.figure()
 ax = Axes3D(fig)
 ax.plot_surface(X, Y, Z, rstride=1, cstride=1,cmap=cm.jet,linewidth=1, antialiased=True)
 plt.show()
-import scipy as sp
-import scipy.interpolate
 # construction de la grille
 spline = sp.interpolate.Rbf(x,y,z,function='thin-plate')
 xi = np.linspace(min(x), max(x))

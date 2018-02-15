@@ -18,32 +18,35 @@
  *   (at your option) any later version.                                  	*																		*
  ***************************************************************************/
 """
-import sys, os
+from datetime import date
+import os
+
 from PyQt4 import QtCore, QtGui
 from PyQt4.QtCore import *
 from PyQt4.QtGui import *
-import PyQt4.QtGui
-
+from  delegateComboBox import *
+from modules.db.pyarchinit_conn_strings import Connection
+from modules.db.pyarchinit_db_manager import Pyarchinit_db_management
+from modules.db.pyarchinit_utility import Utility
+from modules.gis.pyarchinit_pyqgis import Pyarchinit_pyqgis, Order_layer_v2
+from modules.gui.imageViewer import ImageViewer
+from modules.gui.pyarchinit_US_ui import Ui_DialogUS
+from modules.utility.delegateComboBox import ComboBoxDelegate
+from modules.utility.pyarchinit_error_check import Error_check
+from modules.utility.pyarchinit_exp_Periodosheet_pdf import generate_US_pdf
+from modules.utility.pyarchinit_print_utility import Print_utility
+from psycopg2 import *
+from  pyarchinit_US_ui import *
+from  pyarchinit_db_manager import *
+from  pyarchinit_error_check import *
+from  pyarchinit_exp_USsheet_pdf import *
+from  pyarchinit_utility import *
 from qgis.core import *
 from qgis.gui import *
+from  sortpanelmain import SortPanelMain
 
-from datetime import date
-from psycopg2 import *
 
 #--import pyArchInit modules--#
-from  pyarchinit_US_ui import Ui_DialogUS
-from  pyarchinit_US_ui import *
-from  pyarchinit_utility import *
-from pyarchinit_print_utility import Print_utility
-from  pyarchinit_error_check import *
-
-from  pyarchinit_pyqgis import Pyarchinit_pyqgis, Order_layer_v2
-from  sortpanelmain import SortPanelMain
-from  pyarchinit_db_manager import *
-from  pyarchinit_exp_USsheet_pdf import *
-from  delegateComboBox import *
-from  imageViewer import ImageViewer
-
 try:
 	from .pyarchinit_interactive_matrix_main import pyarchinit_Interactive_Matrix
 	from  pyarchinit_matrix_exp import *

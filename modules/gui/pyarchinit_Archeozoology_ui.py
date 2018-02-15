@@ -8,6 +8,8 @@
 # WARNING! All changes made in this file will be lost!
 
 from PyQt4 import QtCore, QtGui
+import resources_rc
+
 
 try:
     _fromUtf8 = QtCore.QString.fromUtf8
@@ -1729,7 +1731,6 @@ class Ui_DialogArcheoZoology(object):
         self.label_49.setText(_translate("DialogArcheoZoology", "imposta il numero di colonna", None))
         self.tabWidget.setTabText(self.tabWidget.indexOf(self.tab_2), _translate("DialogArcheoZoology", "Tool", None))
 
-import resources_rc
 
 if __name__ == "__main__":
     import sys

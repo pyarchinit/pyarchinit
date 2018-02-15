@@ -19,8 +19,8 @@
  *                                                                         *
  ***************************************************************************/
 """
+from modules.db.pyarchinit_conn_strings import Connection
 from sqlalchemy import Table, Column, Integer, Date, String, Text, Float, Numeric, MetaData, ForeignKey, engine, create_engine, UniqueConstraint
-from pyarchinit_conn_strings import *
 
 
 class US_table:
@@ -198,151 +198,6 @@ class US_table_toimp:
 	)
 
 	metadata.create_all(engine)
-
-class Site_table:
-	# connection string postgres"
-	internal_connection = Connection()
-
-	# create engine and metadata
-
-	engine = create_engine(internal_connection.conn_str(), echo=True, convert_unicode = True)
-	metadata = MetaData(engine)
-
-	# define tables
-	site_table = Table('site_table', metadata,
-	Column('id_sito', Integer, primary_key=True),
-	Column('sito', Text),
-	Column('nazione', String(100)),
-	Column('regione', String(100)),
-	Column('comune', String(100)),
-	Column('descrizione', Text),
-	Column('provincia', Text),
-	Column('definizione_sito', Text),
-	Column('find_check', Integer),
-
-	# explicit/composite unique constraint.  'name' is optional.
-	UniqueConstraint('sito', name='ID_sito_unico')
-	)
-
-	metadata.create_all(engine)
-
-
-
-class Periodizzazione_table:
-	# connection string postgres"
-	internal_connection = Connection()
-
-	# create engine and metadata
-
-	engine = create_engine(internal_connection.conn_str(), echo=False, convert_unicode=True)
-	metadata = MetaData(engine)
-
-	# define tables
-	periodizzazione_table = Table('periodizzazione_table', metadata,
-	Column('id_perfas', Integer, primary_key=True),
-	Column('sito', Text),
-	Column('periodo', Integer),
-	Column('fase', Integer),
-	Column('cron_iniziale', Integer),
-	Column('cron_finale', Integer),
-	Column('descrizione', Text),
-	Column('datazione_estesa', String(300)),
-	Column('cont_per', Integer),
-
-	# explicit/composite unique constraint.  'name' is optional.
-	UniqueConstraint('sito', 'periodo', 'fase', name='ID_perfas_unico')
-	)
-
-	metadata.create_all(engine)
-
-
-class Inventario_materiali_table:
-	# connection string postgres"
-	internal_connection = Connection()
-
-	# create engine and metadata
-
-	engine = create_engine(internal_connection.conn_str(), echo=False, convert_unicode = True)
-	metadata = MetaData(engine)
-
-	# define tables
-	inventario_materiali_table = Table('inventario_materiali_table', metadata,
-	Column('id_invmat', Integer, primary_key=True),
-	Column('sito', Text),
-	Column('numero_inventario', Integer),
-	Column('tipo_reperto', Text),
-	Column('criterio_schedatura', Text),
-	Column('definizione', Text),
-	Column('descrizione', Text),
-	Column('area', Integer),
-	Column('us', Integer),
-	Column('lavato', String(2)),
-	Column('nr_cassa', Integer),
-	Column('luogo_conservazione', Text),
-	Column('stato_conservazione', String(20)),
-	Column('datazione_reperto', String(100)),
-	Column('elementi_reperto', Text),
-	Column('misurazioni', Text),
-	Column('rif_biblio', Text),
-	Column('tecnologie', Text),
-	Column('forme_minime', Integer),
-	Column('forme_massime', Integer),
-	Column('totale_frammenti', Integer),
-	Column('corpo_ceramico', String(20)),
-	Column('rivestimento', String(20)),
-	Column('diametro_orlo', Numeric(7,3)),
-	Column('peso', Numeric(9,3)),
-	Column('tipo', String(100)),
-	Column('eve_orlo', Numeric(7,3)),
-	Column('repertato', String(2)),
-	Column('diagnostico', String(2)),
-	# explicit/composite unique constraint.  'name' is optional.
-	UniqueConstraint('sito', 'numero_inventario', name='ID_invmat_unico')
-	)
-
-	metadata.create_all(engine)
-
-class Inventario_materiali_table_toimp:
-	# connection string postgres"
-	internal_connection = Connection()
-
-	# create engine and metadata
-
-	engine = create_engine(internal_connection.conn_str(), echo=False, convert_unicode = True)
-	metadata = MetaData(engine)
-
-	# define tables
-	inventario_materiali_table_toimp = Table('inventario_materiali_table_toimp', metadata,
-	Column('id_invmat', Integer, primary_key=True),
-	Column('sito', Text),
-	Column('numero_inventario', Integer),
-	Column('tipo_reperto', Text),
-	Column('criterio_schedatura', Text),
-	Column('definizione', Text),
-	Column('descrizione', Text),
-	Column('area', Integer),
-	Column('us', Integer),
-	Column('lavato', String(2)),
-	Column('nr_cassa', Integer),
-	Column('luogo_conservazione', Text),
-	Column('stato_conservazione', String(20)),
-	Column('datazione_reperto', String(30)),
-	Column('elementi_reperto', Text),
-	Column('misurazioni', Text),
-	Column('rif_biblio', Text),
-	Column('tecnologie', Text),
-	Column('forme_minime', Integer),
-	Column('forme_massime', Integer),
-	Column('totale_frammenti', Integer),
-	Column('corpo_ceramico', String(20)),
-	Column('rivestimento', String(20)),
-
-	# explicit/composite unique constraint.  'name' is optional.
-    UniqueConstraint('sito', 'numero_inventario', name='ID_invmat_unico_toimp')
-	)
-
-	metadata.create_all(engine)
-
 
 class Struttura_table:
 	# connection string postgres"
@@ -843,30 +698,3 @@ class Campioni_table:
 
 	metadata.create_all(engine)
 
-
-class Documentazione_table:
-	# connection string postgres"
-	internal_connection = Connection()
-
-	# create engine and metadata
-
-	engine = create_engine(internal_connection.conn_str(), echo=True, convert_unicode = True)
-	metadata = MetaData(engine)
-
-	# define tables
-	documentazione_table = Table('documentazione_table', metadata,
-	Column('id_documentazione', Integer, primary_key=True),
-	Column('sito', Text),
-	Column('nome_doc', Text),
-	Column('data', Text),
-	Column('tipo_documentazione', Text),
-	Column('sorgente', Text),
-	Column('scala', Text),
-	Column('disegnatore', Text),
-	Column('note', Text),
-
-	# explicit/composite unique constraint.  'name' is optional.
-	UniqueConstraint('sito', 'tipo_documentazione', 'nome_doc', name='ID_invdoc_unico')
-	)
-
-	metadata.create_all(engine)

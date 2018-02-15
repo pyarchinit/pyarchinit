@@ -2,32 +2,22 @@
 # -*- coding: utf-8 -*-
 
 import os
+import sys
 import time
 
-import sys
-from PyQt4 import QtCore, QtGui
-from PyQt4.QtCore import *
-from PyQt4.QtGui import *
-import PyQt4.QtGui
+from PyQt5 import QtGui
+
+from modules.gis.pyarchinit_pyqgis import Pyarchinit_pyqgis
+from modules.gui.dbmanagment_ui import Ui_DBmanagment
+
+
 try:
     from qgis.core import *
     from qgis.gui import *
 except:
     pass
 
-from pyarchinit_db_manager import *
-
-from psycopg2 import *
-
 # --import pyArchInit modules--#
-
-from dbmanagment_ui import Ui_DBmanagment
-from dbmanagment_ui import *
-from pyarchinit_utility import *
-from pyarchinit_error_check import *
-
-from pyarchinit_pyqgis import Pyarchinit_pyqgis
-
 
 class pyarchinit_dbmanagment(QDialog, Ui_DBmanagment):
 
@@ -56,7 +46,6 @@ class pyarchinit_dbmanagment(QDialog, Ui_DBmanagment):
         self.beckup.setEnabled(n)
 
     def on_backupsqlite_pressed(self):
-        import time
         import shutil
 
         if os.name == 'posix':
@@ -88,7 +77,6 @@ class pyarchinit_dbmanagment(QDialog, Ui_DBmanagment):
         import subprocess
         import os
         import glob
-        import time
 
         if os.name == 'posix':
             home = os.environ['HOME']
@@ -146,8 +134,6 @@ class pyarchinit_dbmanagment(QDialog, Ui_DBmanagment):
     def on_beckup_total_pressed(self):
 
         from pyarchinit_OS_utility import *
-        import os
-        import time
 
         if os.name == 'posix':
             home = os.environ['HOME']
@@ -247,5 +233,5 @@ if __name__ == '__main__':
     app = QApplication(sys.argv)
     ui = pyarchinit_dbmanagment()
     ui.show()
-    barra.show()
+    ##barra.show()
     sys.exit(app.exec_())

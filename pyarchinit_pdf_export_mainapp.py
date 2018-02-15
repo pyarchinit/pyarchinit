@@ -20,31 +20,34 @@
  ***************************************************************************/
 """
 #from PyQt4 import QtCore, QtGui
-import sys, os
-
-from pyarchinit_pdf_exp_ui import Ui_Dialog_pdf_exp
-from pyarchinit_pdf_exp_ui import *
-from PyQt4.QtCore import *
-from PyQt4.QtGui import *
-
-from  pyarchinit_utility import *
-from  pyarchinit_db_manager import *
-from  pyarchinit_OS_utility import pyarchinit_OS_Utility
-
-from  pyarchinit_exp_USsheet_pdf import *
-from  pyarchinit_exp_Periodizzazionesheet_pdf import *
-from  pyarchinit_exp_Strutturasheet_pdf import *
-from  pyarchinit_exp_Findssheet_pdf import *
-from  pyarchinit_exp_Tafonomiasheet_pdf import *
-from  pyarchinit_exp_Individui_pdf import *
-
-import os
 import platform
 import subprocess
+import os
+
+from PyQt4.QtCore import *
+from PyQt4.QtGui import *
+from modules.db.pyarchinit_OS_Utility import Pyarchinit_OS_Utility
+from modules.db.pyarchinit_conn_strings import Connection
+from modules.db.pyarchinit_db_manager import Pyarchinit_db_management
+from modules.db.pyarchinit_exp_Findssheet_pdf import *
+from modules.db.pyarchinit_exp_Individui_pdf import *
+from modules.db.pyarchinit_exp_Periodizzazionesheet_pdf import *
+from modules.db.pyarchinit_exp_Strutturasheet_pdf import *
+from modules.db.pyarchinit_exp_Tafonomiasheet_pdf import *
+from modules.db.pyarchinit_exp_USsheet_pdf import *
+from modules.db.pyarchinit_pdf_exp_ui import *
+from modules.db.pyarchinit_utility import *
+from modules.gui.pyarchinit_pdf_exp_ui import Ui_Dialog_pdf_exp
+from modules.utility.pyarchinit_exp_Findssheet_pdf import generate_reperti_pdf
+from modules.utility.pyarchinit_exp_Periodizzazionesheet_pdf import generate_Periodizzazione_pdf
+from modules.utility.pyarchinit_exp_Periodosheet_pdf import generate_US_pdf
+from modules.utility.pyarchinit_exp_Strutturasheet_pdf import generate_struttura_pdf
+from modules.utility.pyarchinit_exp_Tafonomiasheet_pdf import generate_tafonomia_pdf
+
 
 class pyarchinit_pdf_export(QDialog, Ui_Dialog_pdf_exp):
 	UTILITY = Utility()
-	OS_UTILITY = pyarchinit_OS_Utility()
+	OS_UTILITY = Pyarchinit_OS_Utility()
 	DB_MANAGER = ""
 	HOME = ""
 	DATA_LIST = []

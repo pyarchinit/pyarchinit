@@ -9,6 +9,7 @@
 
 from PyQt4 import QtCore, QtGui
 
+
 class Ui_DialogViewer(object):
     def setupUi(self, DialogView):
         DialogView.setObjectName("DialogView")

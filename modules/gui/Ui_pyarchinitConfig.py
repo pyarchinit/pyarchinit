@@ -8,6 +8,8 @@
 # WARNING! All changes made in this file will be lost!
 
 from PyQt4 import QtCore, QtGui
+import resources_rc
+
 
 try:
     _fromUtf8 = QtCore.QString.fromUtf8
@@ -466,4 +468,3 @@ class Ui_Dialog_Config(object):
         self.comboBox_server_wt.setItemText(1, _translate("Dialog_Config", "sqlite", None))
         self.tabWidget.setTabText(self.tabWidget.indexOf(self.tab_3), _translate("Dialog_Config", "Tool di importazione", None))
 
-import resources_rc

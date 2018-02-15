@@ -19,46 +19,58 @@
  *                                                                         *
  ***************************************************************************/
 """
-import csv_writer
-from csv_writer import *
+from datetime import date
+from numpy import *
+import random
 import sys, os
+
 from PyQt4 import QtCore, QtGui
 from PyQt4.QtCore import *
 from PyQt4.QtGui import *
 import PyQt4.QtGui
+from csv_writer import *
+import csv_writer
+from  delegateComboBox import *
+from  imageViewer import ImageViewer
+from media_ponderata_sperimentale import *
+import media_ponderata_sperimentale
+from modules.db.pyarchinit_conn_strings import Connection
+from modules.db.pyarchinit_db_manager import Pyarchinit_db_management
+from modules.db.pyarchinit_utility import Utility
+from modules.gui.pyarchinit_inventario_reperti_ui import Ui_DialogInventarioMateriali
+from modules.utility.csv_writer import UnicodeWriter
+from modules.utility.delegateComboBox import ComboBoxDelegate
+from modules.utility.pyarchinit_error_check import Error_check
+from modules.utility.pyarchinit_exp_Findssheet_pdf import generate_reperti_pdf
+import numpy as np
+from psycopg2 import *
+from pyarchinit_US_mainapp import pyarchinit_US
+from  pyarchinit_error_check import *
+from  pyarchinit_exp_Findssheet_pdf import *
+from  pyarchinit_inventario_reperti_ui import *
+from  pyarchinit_utility import *
+from  quantpanelmain import QuantPanelMain
+from  sortpanelmain import SortPanelMain
+
+
 try:
 	from qgis.core import *
 	from qgis.gui import *
 except:
 	pass
 
-from datetime import date
-from psycopg2 import *
 
 #--import pyArchInit modules--#
 #from  pyarchinit_inventario_reperti_ui import Ui_DialogInventarioMateriali
-from  pyarchinit_inventario_reperti_ui import *
-from  pyarchinit_utility import *
-from  pyarchinit_error_check import *
 
 try:
 	from  pyarchinit_db_manager import *
 except:
 	pass
-from  sortpanelmain import SortPanelMain
-from  quantpanelmain import QuantPanelMain
 
-from  pyarchinit_exp_Findssheet_pdf import *
 
-from  imageViewer import ImageViewer
-import numpy as np
-import random
-from numpy import *
 
-from media_ponderata_sperimentale import *
-import media_ponderata_sperimentale
 
-from  delegateComboBox import *
 
 
 class pyarchinit_Inventario_reperti(QDialog, Ui_DialogInventarioMateriali):

@@ -19,13 +19,21 @@ Copyright (c) 2010 __MyCompanyName__. All rights reserved.
 # the GNU General Public License for more details.
 
 
-import PIL as Image
-import sys
-import os
-import numpy as np
-import random
 from numpy import *
+import os
+import random
+import sys
 
+import PIL as Image
+from PyQt4 import QtCore, QtGui
+from modules.db.pyarchinit_conn_strings import Connection
+from modules.db.pyarchinit_db_manager import Pyarchinit_db_management
+from modules.db.pyarchinit_utility import Utility
+from modules.gui.pyarchinit_images_comparision import Ui_DialogImagesComparision
+import numpy as np
+from pyarchinit_conn_strings  import *
+from pyarchinit_media_utility import *
+from pyarchinit_utility import *
 
 
 filepath = os.path.dirname(__file__)
@@ -41,22 +49,14 @@ sys.path.insert(2,db_path)
 sys.path.insert(3,utility)
 sys.path.insert(4,filepath)
 
-from PyQt4 import QtCore, QtGui
-from PyQt4.QtCore import *
-from PyQt4.QtGui import *
 
 
-from pyarchinit_images_comparision import *
-from pyarchinit_images_comparision import Ui_DialogImagesComparision
 
-from pyarchinit_utility import *
 try:
 	from  pyarchinit_db_manager import *
 except:
 	pass
 
-from pyarchinit_media_utility import *
-from pyarchinit_conn_strings  import *
 
 class Comparision(QDialog, Ui_DialogImagesComparision):
 	delegateSites = ''

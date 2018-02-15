@@ -19,36 +19,46 @@
  *                                                                         *
  ***************************************************************************/
 """
-import sys, os
+from datetime import date
+import sys
+
 from PyQt4 import QtCore, QtGui
 from PyQt4.QtCore import *
 from PyQt4.QtGui import *
 import PyQt4.QtGui
+from modules.db.pyarchinit_conn_strings import Connection
+from modules.db.pyarchinit_db_manager import Pyarchinit_db_management
+from modules.db.pyarchinit_utility import Utility
+from modules.utility.pyarchinit_error_check import Error_check
+from modules.utility.pyarchinit_exp_Periodizzazionesheet_pdf import generate_Periodizzazione_pdf
+from psycopg2 import *
+from  pyarchinit_Periodo_fase_ui import *
+from  pyarchinit_Periodo_fase_ui import Ui_DialogPeriodoFase
+from pyarchinit_US_mainapp import pyarchinit_US
+from  pyarchinit_error_check import *
+from  pyarchinit_exp_Periodizzazionesheet_pdf import *
+from  pyarchinit_pyqgis import Pyarchinit_pyqgis
+from  pyarchinit_utility import *
+from  sortpanelmain import SortPanelMain
+
+from .pyarchinit_PDF_administrator_mainapp import pyarchinit_PDFAdministrator  # sistema sperimentale non attivo
+
+
 try:
 	from qgis.core import *
 	from qgis.gui import *
 except:
 	pass
 
-from datetime import date
-from psycopg2 import *
 
 #--import pyArchInit modules--#
-from  pyarchinit_Periodo_fase_ui import Ui_DialogPeriodoFase
-from  pyarchinit_Periodo_fase_ui import *
-from  pyarchinit_pyqgis import Pyarchinit_pyqgis
-from  pyarchinit_utility import *
-from  pyarchinit_error_check import *
 
 try:
 	from  pyarchinit_db_manager import *
 except:
 	pass
 
-from  sortpanelmain import SortPanelMain
 
-from .pyarchinit_PDF_administrator_mainapp import pyarchinit_PDFAdministrator  #sistema sperimentale non attivo
-from  pyarchinit_exp_Periodizzazionesheet_pdf import *
 
 class pyarchinit_Periodizzazione(QDialog, Ui_DialogPeriodoFase):
 	MSG_BOX_TITLE = "PyArchInit - Scheda Periodizzazione"

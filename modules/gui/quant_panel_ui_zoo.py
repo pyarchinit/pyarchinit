@@ -8,6 +8,8 @@
 # WARNING! All changes made in this file will be lost!
 
 from PyQt4 import QtCore, QtGui
+import resources_rc
+
 
 try:
     _fromUtf8 = QtCore.QString.fromUtf8
@@ -90,7 +92,6 @@ class Ui_quantPanel_zoo(object):
         self.label_2.setText(QtGui.QApplication.translate("quantPanel_zoo", "Model", None, QtGui.QApplication.UnicodeUTF8))
         self.calcola1.setText(QtGui.QApplication.translate("quantPanel_zoo", "Genera Semivariogramma", None, QtGui.QApplication.UnicodeUTF8))
 
-import resources_rc
 
 if __name__ == "__main__":
     import sys

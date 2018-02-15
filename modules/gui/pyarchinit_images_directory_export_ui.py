@@ -8,6 +8,8 @@
 # WARNING! All changes made in this file will be lost!
 
 from PyQt4 import QtCore, QtGui
+import resources_rc
+
 
 try:
     _fromUtf8 = QtCore.QString.fromUtf8
@@ -160,4 +162,3 @@ class Ui_Dialog_img_exp(object):
         self.pushButton_exp_images.setText(QtGui.QApplication.translate("Dialog_img_exp", "Esporta le immagini", None, QtGui.QApplication.UnicodeUTF8))
         self.tabWidget.setTabText(self.tabWidget.indexOf(self.tab), QtGui.QApplication.translate("Dialog_img_exp", "Parametri di esportazione", None, QtGui.QApplication.UnicodeUTF8))
 
-import resources_rc

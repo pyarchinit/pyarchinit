@@ -18,8 +18,35 @@
  *                                                                         *
  ***************************************************************************/
 """
-import sys
 import os
+import sys
+
+from dbmanagment import pyarchinit_dbmanagment
+from modules.gui import pyarchinit_Archeozoology
+from modules.utility.pyarchinit_folder_installation import pyarchinit_Folder_installation
+from pyarchinitConfigDialog import pyArchInitDialog_Config
+from pyarchinitInfoDialog import pyArchInitDialog_Info
+from pyarchinit_Campioni_mainapp import pyarchinit_Campioni
+from pyarchinit_Deteta_mainapp import pyarchinit_Deteta
+from pyarchinit_Detsesso_mainapp import pyarchinit_Detsesso
+from pyarchinit_Documentazione_mainapp import pyarchinit_Documentazione
+from pyarchinit_Gis_Time_controller import pyarchinit_Gis_Time_Controller
+from pyarchinit_Inv_Lapidei import pyarchinit_Inventario_Lapidei
+from pyarchinit_Inv_Materiali_mainapp import pyarchinit_Inventario_reperti
+from pyarchinit_Periodizzazione_mainapp import pyarchinit_Periodizzazione
+from pyarchinit_Schedaind_mainapp import pyarchinit_Schedaind
+from pyarchinit_Site_mainapp import pyarchinit_Site
+from pyarchinit_Struttura_mainapp import pyarchinit_Struttura
+from pyarchinit_Tafonomia_mainapp import pyarchinit_Tafonomia
+from pyarchinit_Thesaurus_mainapp import pyarchinit_Thesaurus
+from pyarchinit_US_mainapp import pyarchinit_US
+from pyarchinit_UT_mainapp import pyarchinit_UT
+from pyarchinit_folder_installation import *
+from pyarchinit_image_viewer_main import Main
+from pyarchinit_images_comparision_main import Comparision
+from pyarchinit_images_directory_export_mainapp import pyarchinit_Images_directory_export
+from pyarchinit_pdf_export_mainapp import pyarchinit_pdf_export
+from pyarchinitplugindialog import PyarchinitPluginDialog
 
 
 filepath = os.path.dirname(__file__)
@@ -35,44 +62,16 @@ sys.path.insert(2,db_path)
 sys.path.insert(3,utility)
 sys.path.insert(4,filepath)
 
-from PyQt4.QtCore import *
-from PyQt4.QtGui import *
 try:
 	from qgis.core import *
 	from qgis.gui import *
 except:
 	pass
 
-from pyarchinit_folder_installation import *
 fi = pyarchinit_Folder_installation()
 fi.install_dir()
 
 # Import the code for the dialog
-from pyarchinit_US_mainapp import pyarchinit_US
-from pyarchinit_Site_mainapp import pyarchinit_Site
-from .pyarchinit_Periodizzazione_mainapp import pyarchinit_Periodizzazione
-from pyarchinit_Struttura_mainapp import pyarchinit_Struttura
-from .pyarchinit_Inv_Materiali_mainapp import pyarchinit_Inventario_reperti
-from pyarchinit_Upd_mainapp import pyarchinit_Upd_Values
-from pyarchinitConfigDialog import pyArchInitDialog_Config
-from pyarchinitInfoDialog import pyArchInitDialog_Info
-from .pyarchinit_Gis_Time_controller import pyarchinit_Gis_Time_Controller
-from .pyarchinit_image_viewer_main import Main
-from pyarchinit_Schedaind_mainapp import pyarchinit_Schedaind
-from .pyarchinit_Detsesso_mainapp import pyarchinit_Detsesso
-from .pyarchinit_Deteta_mainapp import pyarchinit_Deteta
-from pyarchinit_Tafonomia_mainapp import pyarchinit_Tafonomia
-from .pyarchinit_Archeozoology_mainapp import pyarchinit_Archeozoology
-from pyarchinit_UT_mainapp import pyarchinit_UT
-from .pyarchinit_images_directory_export_mainapp import pyarchinit_Images_directory_export
-from .pyarchinit_images_comparision_main import Comparision
-from .dbmanagment import pyarchinit_dbmanagment
-from pyarchinitplugindialog import PyarchinitPluginDialog
-from .pyarchinit_pdf_export_mainapp import pyarchinit_pdf_export
-from .pyarchinit_Campioni_mainapp import pyarchinit_Campioni
-from pyarchinit_Thesaurus_mainapp import pyarchinit_Thesaurus
-from .pyarchinit_Documentazione_mainapp import pyarchinit_Documentazione
-from .pyarchinit_Inv_Lapidei import pyarchinit_Inventario_Lapidei
 
 class PyArchInitPlugin:
 
@@ -131,7 +130,6 @@ class PyArchInitPlugin:
 
 		# dock widget
 		self.dockWidget = PyarchinitPluginDialog(self.iface)
-		self.iface.addDockWidget(Qt.LeftDockWidgetArea, self.dockWidget)
 
 		#TOOLBAR
 		self.toolBar = self.iface.addToolBar("pyArchInit")

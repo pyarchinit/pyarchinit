@@ -19,26 +19,29 @@
  *                                                                         *
  ***************************************************************************/
 """
-import sys, os
+import os
+
 from PyQt4 import QtCore, QtGui
-from PyQt4.QtCore import *
-from PyQt4.QtGui import *
-import PyQt4.QtGui
+from modules.db.pyarchinit_conn_strings import Connection
+from modules.db.pyarchinit_db_manager import Pyarchinit_db_management
+from modules.gis.pyarchinit_pyqgis import Pyarchinit_pyqgis
+from modules.gui.pyarchinit_preview_doc_gui import Ui_DialogPreviewDoc
+from psycopg2 import *
+from  pyarchinit_error_check import *
+from  pyarchinit_utility import *
+
+
 try:
 	from qgis.core import *
 	from qgis.gui import *
 except:
 	pass
 
-from datetime import date
-from psycopg2 import *
 
 
 
 #--import pyArchInit modules--#
 #from  pyarchinit_inventario_reperti_ui import Ui_DialogInventarioMateriali
-from  pyarchinit_utility import *
-from  pyarchinit_error_check import *
 
 
 try:
@@ -46,9 +49,7 @@ try:
 except:
 	pass
 
-from  pyarchinit_pyqgis import Pyarchinit_pyqgis
 
-from pyarchinit_preview_doc_gui import Ui_DialogPreviewDoc
 
 class pyarchinit_doc_preview(QDialog, Ui_DialogPreviewDoc):
 	MSG_BOX_TITLE = "pyArchInit - Scheda Sistema Preview Documentazione"

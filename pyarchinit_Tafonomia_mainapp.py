@@ -19,36 +19,38 @@
  *                                                                         *
  ***************************************************************************/
 """
-import sys, os
+from datetime import date
+
 from PyQt4 import QtCore, QtGui
 from PyQt4.QtCore import *
 from PyQt4.QtGui import *
 import PyQt4.QtGui
-
+from delegateComboBox import *
+from modules.db.pyarchinit_conn_strings import Connection
+from modules.db.pyarchinit_db_manager import Pyarchinit_db_management
+from modules.db.pyarchinit_utility import Utility
+from modules.gis.pyarchinit_pyqgis import Pyarchinit_pyqgis
+from modules.gui.pyarchinit_Tafonomia_ui import Ui_Dialog_tafonomia
+from modules.utility.pyarchinit_error_check import Error_check
+from modules.utility.pyarchinit_exp_Tafonomiasheet_pdf import generate_tafonomia_pdf
+from psycopg2 import *
+from  pyarchinit_Tafonomia_ui import *
+from  pyarchinit_db_manager import *
+from  pyarchinit_error_check import *
+from  pyarchinit_exp_Tafonomiasheet_pdf import *
+from  pyarchinit_exp_USsheet_pdf import *
+from  pyarchinit_utility import *
 from qgis.core import *
 from qgis.gui import *
+from  sortpanelmain import SortPanelMain
 
-
-from datetime import date
-from psycopg2 import *
 
 #--import pyArchInit modules--#
-from  pyarchinit_Tafonomia_ui import Ui_Dialog_tafonomia
-from  pyarchinit_Tafonomia_ui import *
-from  pyarchinit_utility import *
-from  pyarchinit_error_check import *
 try:
 	from  pyarchinit_matrix_exp import *
 except:
 	pass
-from  pyarchinit_pyqgis import Pyarchinit_pyqgis
-from  sortpanelmain import SortPanelMain
-from  pyarchinit_db_manager import *
-from  pyarchinit_exp_USsheet_pdf import *
-from delegateComboBox import *
-from imageViewer import ImageViewer
 
-from  pyarchinit_exp_Tafonomiasheet_pdf import *
 
 class pyarchinit_Tafonomia(QDialog, Ui_Dialog_tafonomia):
 	MSG_BOX_TITLE = "PyArchInit - Scheda Tafonomica"

@@ -23,7 +23,7 @@
 import os
 import shutil
 
-class pyarchinit_OS_Utility:
+class Pyarchinit_OS_Utility:
 
 	def create_dir(self, d):
 		dirname = d

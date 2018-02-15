@@ -8,6 +8,8 @@
 # WARNING! All changes made in this file will be lost!
 
 from PyQt4 import QtCore, QtGui
+from mplwidget import Mplwidget
+
 
 try:
     _fromUtf8 = QtCore.QString.fromUtf8
@@ -79,4 +81,3 @@ class Ui_DialogImagesComparision(object):
         self.pushButton_run.setToolTip(QtGui.QApplication.translate("DialogImagesComparision", "Last rec", None, QtGui.QApplication.UnicodeUTF8))
         self.pushButton_run.setText(QtGui.QApplication.translate("DialogImagesComparision", "Run", None, QtGui.QApplication.UnicodeUTF8))
 
-from mplwidget import Mplwidget

@@ -8,6 +8,8 @@
 # WARNING! All changes made in this file will be lost!
 
 from PyQt4 import QtCore, QtGui
+import resources_rc
+
 
 try:
     _fromUtf8 = QtCore.QString.fromUtf8
@@ -1879,4 +1881,3 @@ class Ui_DialogUS(object):
         self.toolBox.setItemText(self.toolBox.indexOf(self.page_3), _translate("DialogUS", "Esportazioni", None))
         self.tabWidget.setTabText(self.tabWidget.indexOf(self.tab_4), _translate("DialogUS", "Tools", None))
 
-import resources_rc
