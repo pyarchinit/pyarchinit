@@ -19,36 +19,43 @@
  *                                                                         *
  ***************************************************************************/
 """
-import sys, os
+from datetime import date
+
 from PyQt4 import QtCore, QtGui
 from PyQt4.QtCore import *
 from PyQt4.QtGui import *
 import PyQt4.QtGui
+from delegateComboBox import *
+from modules.db.pyarchinit_conn_strings import Connection
+from modules.db.pyarchinit_db_manager import Pyarchinit_db_management
+from modules.db.pyarchinit_utility import Utility
+from modules.utility.pdf_models.pyarchinit_exp_Findssheet_pdf import generate_pdf
+from modules.utility.pyarchinit_error_check import Error_check
+from psycopg2 import *
+from  pyarchinit_error_check import *
+from pyarchinit_exp_Individui_pdf import *
+from  pyarchinit_pyqgis import Pyarchinit_pyqgis
+from  pyarchinit_schedaind_ui import *
+from  pyarchinit_schedaind_ui import Ui_DialogInd
+from  pyarchinit_utility import *
+from  sortpanelmain import SortPanelMain
+
+
 try:
 	from qgis.core import *
 	from qgis.gui import *
 except:
 	pass
 
-from datetime import date
-from psycopg2 import *
 
 #--import pyArchInit modules--#
-from  pyarchinit_schedaind_ui import Ui_DialogInd
-from  pyarchinit_schedaind_ui import *
-from  pyarchinit_utility import *
-from  pyarchinit_error_check import *
 
-from  pyarchinit_pyqgis import Pyarchinit_pyqgis
-from  sortpanelmain import SortPanelMain
 try:
 	from  pyarchinit_db_manager import *
 except:
 	pass
 
-from pyarchinit_exp_Individui_pdf import *
 
-from delegateComboBox import *
 
 class pyarchinit_Schedaind(QDialog, Ui_DialogInd):
 	MSG_BOX_TITLE = "PyArchInit - pyarchinit_US_version 0.4 - Scheda Individuo"

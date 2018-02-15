@@ -9,6 +9,7 @@
 
 from PyQt4 import QtCore
 
+
 qt_resource_data = "\
 \x00\x00\x10\xd8\
 \x89\

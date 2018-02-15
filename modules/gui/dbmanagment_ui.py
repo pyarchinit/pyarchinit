@@ -7,7 +7,8 @@
 #
 # WARNING! All changes made in this file will be lost!
 
-from PyQt4 import QtCore, QtGui
+from PyQt5 import QtCore, QtGui
+
 
 class Ui_DBmanagment(object):
     def setupUi(self, DBmanagment):
@@ -65,7 +66,6 @@ class Ui_DBmanagment(object):
         self.label_5.setText(QtGui.QApplication.translate("DBmanagment", "Scegli un file del beckup e ripristinalo", None, QtGui.QApplication.UnicodeUTF8))
         self.backupsqlite.setText(QtGui.QApplication.translate("DBmanagment", "Backup sqlite", None, QtGui.QApplication.UnicodeUTF8))
 
-import resources_rc
 
 if __name__ == "__main__":
     import sys

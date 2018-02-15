@@ -8,6 +8,8 @@
 # WARNING! All changes made in this file will be lost!
 
 from PyQt4 import QtCore, QtGui
+import resources_rc
+
 
 try:
     _fromUtf8 = QtCore.QString.fromUtf8
@@ -108,4 +110,3 @@ class Ui_DialogGisTimeController(object):
         self.tabWidget.setTabText(self.tabWidget.indexOf(self.tab), QtGui.QApplication.translate("DialogGisTimeController", "Absolute cronology system", None, QtGui.QApplication.UnicodeUTF8))
         self.tabWidget.setTabText(self.tabWidget.indexOf(self.tab_2), QtGui.QApplication.translate("DialogGisTimeController", "Relative cronology system", None, QtGui.QApplication.UnicodeUTF8))
 
-import resources_rc

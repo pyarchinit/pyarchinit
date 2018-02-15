@@ -1,4 +1,6 @@
 # -*- coding: utf-8 -*-
+from PyQt5 import QtGui, QtCore
+
 
 # Form implementation generated from reading ui file 'imageView.ui'
 #
@@ -6,9 +8,6 @@
 #      by: PyQt4 UI code generator 4.6.2
 #
 # WARNING! All changes made in this file will be lost!
-
-from PyQt4 import QtCore, QtGui
-
 class Ui_DialogViewer(object):
     def setupUi(self, DialogView):
         DialogView.setObjectName("DialogView")

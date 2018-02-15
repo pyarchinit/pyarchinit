@@ -8,6 +8,8 @@
 # WARNING! All changes made in this file will be lost!
 
 from PyQt4 import QtCore, QtGui
+import resources_rc
+
 
 try:
     _fromUtf8 = QtCore.QString.fromUtf8
@@ -235,4 +237,3 @@ class Ui_Dialog_pdf_exp(object):
         self.tabWidget.setTabText(self.tabWidget.indexOf(self.tab), QtGui.QApplication.translate("Dialog_pdf_exp", "Parametri di esportazione", None, QtGui.QApplication.UnicodeUTF8))
         self.pushButton_exp_pdf.setText(QtGui.QApplication.translate("Dialog_pdf_exp", "Esporta PDF", None, QtGui.QApplication.UnicodeUTF8))
 
-import resources_rc

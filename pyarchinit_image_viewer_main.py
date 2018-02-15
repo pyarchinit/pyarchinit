@@ -22,6 +22,21 @@ Copyright (c) 2010 __MyCompanyName__. All rights reserved.
 import os
 import sys
 
+from PyQt4 import QtCore, QtGui
+from delegateComboBox import *
+from modules.db.pyarchinit_conn_strings import Connection
+from modules.db.pyarchinit_db_manager import Pyarchinit_db_management
+from modules.db.pyarchinit_utility import Utility
+from modules.gui.imageViewer import ImageViewer
+from modules.gui.pyarchinit_image_viewer_dialog import Ui_DialogImageViewer
+from modules.utility.delegateComboBox import ComboBoxDelegate
+from modules.utility.pyarchinit_media_utility import Media_utility
+from pyarchinit_conn_strings  import *
+from pyarchinit_image_viewer_dialog import *
+from pyarchinit_media_utility import *
+from pyarchinit_utility import *
+
+
 filepath = os.path.dirname(__file__)
 
 gui_path = ('%s%s') % (filepath, os.path.join(os.sep, 'modules', 'gui'))
@@ -35,22 +50,12 @@ sys.path.insert(2,db_path)
 sys.path.insert(3,utility)
 sys.path.insert(4,filepath)
 
-from PyQt4 import QtCore, QtGui
-from PyQt4.QtCore import *
-from PyQt4.QtGui import *
 
-from imageViewer import ImageViewer
-from pyarchinit_image_viewer_dialog import *
-from pyarchinit_image_viewer_dialog import Ui_DialogImageViewer
 
-from pyarchinit_utility import *
 try:
 	from  pyarchinit_db_manager import *
 except:
 	pass
-from delegateComboBox import *
-from pyarchinit_media_utility import *
-from pyarchinit_conn_strings  import *
 
 
 class Main(QDialog, Ui_DialogImageViewer):

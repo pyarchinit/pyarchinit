@@ -8,6 +8,8 @@
 # WARNING! All changes made in this file will be lost!
 
 from PyQt4 import QtCore, QtGui
+import resources_rc
+
 
 try:
     _fromUtf8 = QtCore.QString.fromUtf8
@@ -743,4 +745,3 @@ class Ui_DialogStruttura(object):
         self.toolButton_draw_strutture.setText(QtGui.QApplication.translate("DialogStruttura", "Abilita il caricamento delle ricerche", None, QtGui.QApplication.UnicodeUTF8))
         self.tabWidget.setTabText(self.tabWidget.indexOf(self.tab_4), QtGui.QApplication.translate("DialogStruttura", "Tools", None, QtGui.QApplication.UnicodeUTF8))
 
-import resources_rc

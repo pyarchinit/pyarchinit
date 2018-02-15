@@ -17,32 +17,40 @@
  *                                                                         *
  ***************************************************************************/
 """
-import sys, os
+from datetime import date
+import sys
+
 from PyQt4 import QtCore, QtGui
 from PyQt4.QtCore import *
 from PyQt4.QtGui import *
 import PyQt4.QtGui
+from modules.db.pyarchinit_conn_strings import Connection
+from modules.db.pyarchinit_db_manager import Pyarchinit_db_management
+from modules.db.pyarchinit_utility import Utility
+from modules.gis.pyarchinit_pyqgis import Pyarchinit_pyqgis
+from modules.gui.pyarchinit_Site_ui import Ui_DialogSite
+from modules.utility.print_relazione_pdf import exp_rel_pdf
+from modules.utility.pyarchinit_error_check import Error_check
+from psycopg2 import *
+from  pyarchinit_Site_ui import *
+from pyarchinit_US_mainapp import pyarchinit_US
+from  pyarchinit_db_manager import *
+from  pyarchinit_error_check import *
+from  pyarchinit_utility import *
+from  sortpanelmain import SortPanelMain
+from test_area import Test_area
+
+
 try:
 	from qgis.core import *
 	from qgis.gui import *
 except:
 	pass
 
-from  pyarchinit_db_manager import *
 
-from datetime import date
-from psycopg2 import *
 
 #--import pyArchInit modules--#
-from  pyarchinit_Site_ui import Ui_DialogSite
-from  pyarchinit_Site_ui import *
-from  pyarchinit_utility import *
-from  pyarchinit_error_check import *
 
-from  pyarchinit_pyqgis import Pyarchinit_pyqgis
-from  sortpanelmain import SortPanelMain
-from print_relazione_pdf import exp_rel_pdf
-from test_area import Test_area
 
 ##from 
 

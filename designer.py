@@ -24,8 +24,11 @@ __version__ = "1.01e"
 
 import os, sys
 import wx
+
 import wx.lib.ogl as ogl
 from wx.lib.wordwrap import wordwrap
+
+
 try:
     from fpdf.template import Template
 except ImportError:

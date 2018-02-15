@@ -15,22 +15,18 @@ Eli Bendersky (eliben@gmail.com)
 License: this code is in the public domain
 Last modified: 19.01.2009
 """
-import sys, os, random
-from PyQt4.QtCore import *
-from PyQt4.QtGui import *
+import sys
 
-import matplotlib
+from sqlalchemy.sql.sqltypes import Text
+
+from matplotlib import *
 from matplotlib.backends.backend_qt4agg import FigureCanvasQTAgg as FigureCanvas
 from matplotlib.backends.backend_qt4agg import NavigationToolbar2QTAgg as NavigationToolbar
 from matplotlib.figure import Figure
-#added
-import pygraphviz as pgv
-from networkx import *
-##import matplotlib
-import matplotlib.pyplot as plt
-import numpy as np
 from matplotlib.pyplot import *
-from matplotlib import *
+import matplotlib.pyplot as plt
+import pygraphviz as pgv
+
 
 class AppForm(QMainWindow):
 	def __init__(self, parent=None):

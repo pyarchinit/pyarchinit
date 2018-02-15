@@ -8,6 +8,8 @@
 # WARNING! All changes made in this file will be lost!
 
 from PyQt4 import QtCore, QtGui
+import resources_rc
+
 
 try:
     _fromUtf8 = QtCore.QString.fromUtf8
@@ -524,4 +526,3 @@ class Ui_DialogPDFManager(object):
         self.pushButton_remove_row_cell.setText(QtGui.QApplication.translate("DialogPDFManager", "-", None, QtGui.QApplication.UnicodeUTF8))
         self.tabWidget.setTabText(self.tabWidget.indexOf(self.tab_2), QtGui.QApplication.translate("DialogPDFManager", "Fusione celle", None, QtGui.QApplication.UnicodeUTF8))
 
-import resources_rc

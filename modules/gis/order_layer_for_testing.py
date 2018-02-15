@@ -1,4 +1,6 @@
 import os
+
+
 class Order_layers_non_funzia:
 
 	if os.name == 'posix':
@@ -25,7 +27,7 @@ class Order_layers_non_funzia:
 		self.status = len(self.LISTA_RAPPORTI) #assegna la lunghezza della lista dei rapporti per verificare se cambia nel corso del loop
 		#print self.lista_rapporti
 
-	def progress(data, *args):
+	def progress(self, data, *args):
 		it=iter(data)
 		widget = QtGui.QProgressDialog(*args+(0,it.__length_hint__()))
 		c=0
@@ -115,7 +117,7 @@ class Order_layers_non_funzia:
 					f = open(filename_check_position, "w")
 					f.write(msg)
 					f.close()
-					self.stop_while = "stop" ## STOP_WHILE in questa posizione e'ininfluente. Il blocco continua ignorando l'errore!!! vedi test_while
+					self.stop_while = "stop"
 			self.TUPLE_TO_REMOVING = []
 			#la funzione ritorna il valore 1
 			return 1

@@ -8,6 +8,8 @@
 # WARNING! All changes made in this file will be lost!
 
 from PyQt4 import QtCore, QtGui
+import resources_rc
+
 
 try:
     _fromUtf8 = QtCore.QString.fromUtf8
@@ -1247,4 +1249,3 @@ class Ui_DialogDetsesso(object):
         self.comboBox_arco_c_sex_2.setItemText(3, QtGui.QApplication.translate("DialogDetsesso", "F", None, QtGui.QApplication.UnicodeUTF8))
         self.toolBox.setItemText(self.toolBox.indexOf(self.toolBoxPage2), QtGui.QApplication.translate("DialogDetsesso", "Bacino", None, QtGui.QApplication.UnicodeUTF8))
 
-import resources_rc

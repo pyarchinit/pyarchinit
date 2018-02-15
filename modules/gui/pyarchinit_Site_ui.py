@@ -8,6 +8,8 @@
 # WARNING! All changes made in this file will be lost!
 
 from PyQt4 import QtCore, QtGui
+import resources_rc
+
 
 try:
     _fromUtf8 = QtCore.QString.fromUtf8
@@ -577,4 +579,3 @@ class Ui_DialogSite(object):
 "Step 3 - Riavviare Qgis e cliccare sul pulsante Run Test per verificare l\'output della vostra funzione.", None))
         self.tabWidget.setTabText(self.tabWidget.indexOf(self.tabWidgetPage3), _translate("DialogSite", "Python test area", None))
 
-import resources_rc

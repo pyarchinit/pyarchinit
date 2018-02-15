@@ -8,6 +8,8 @@
 # WARNING! All changes made in this file will be lost!
 
 from PyQt4 import QtCore, QtGui
+import resources_rc
+
 
 try:
     _fromUtf8 = QtCore.QString.fromUtf8
@@ -66,4 +68,3 @@ class Ui_DialogInfo(object):
 "<p align=\"justify\" style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\"><span style=\" font-family:\'Lucida Grande\'; font-size:9pt;\">Site:</span></p>\n"
 "<p align=\"justify\" style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\"><a href=\"https://sites.google.com/site/pyarchinit/\"><span style=\" font-size:9pt; text-decoration: underline; color:#0000ff;\">https://sites.google.com/site/pyarchinit/</span></a></p></body></html>", None, QtGui.QApplication.UnicodeUTF8))
 
-import resources_rc

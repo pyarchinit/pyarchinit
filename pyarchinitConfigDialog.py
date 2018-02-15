@@ -19,22 +19,21 @@
 *                                                                          *
 /***************************************************************************/
 """
-from sqlalchemy.orm import sessionmaker
-from Ui_pyarchinitConfig import Ui_Dialog_Config
-from Ui_pyarchinitConfig import *
+import os
 
 from PyQt4.QtCore import *
 from PyQt4.QtGui import *
-
+from Ui_pyarchinitConfig import *
+from modules.db.pyarchinit_conn_strings import Connection
+from modules.db.pyarchinit_db_manager import Pyarchinit_db_management
+from modules.gui.Ui_pyarchinitConfig import Ui_Dialog_Config
+from pyarchinit_OS_utility import *
 from pyarchinit_db_manager import *
 from pyarchinit_db_mapper import *
 from pyarchinit_db_structure import *
 
-from pyarchinit_OS_utility import *
 
 #from PyQt4 import QtCore, QtGui
-import sys, os
-
 class pyArchInitDialog_Config(QDialog, Ui_Dialog_Config):
 	if os.name == 'posix':
 		HOME = os.environ['HOME']
@@ -151,7 +150,7 @@ class pyArchInitDialog_Config(QDialog, Ui_Dialog_Config):
 		db_copy_from_path = ('%s%s') % (module_path, db_copy_from_path_rel)						#
 		db_copy_to_path = ('%s%s%s') % (home_DB_path, os.sep, 'pyarchinit_db.sqlite')				#
 																																	#
-		OS_utility = pyarchinit_OS_Utility()																				#
+		OS_utility = Pyarchinit_OS_Utility()																				#
 																																	#
 		OS_utility.create_dir(str(home_DB_path))										
 
@@ -186,7 +185,6 @@ class pyArchInitDialog_Config(QDialog, Ui_Dialog_Config):
 			QMessageBox.warning(self, "opss", "qualcosa non va" + str(e),  QMessageBox.Ok)
 
 	def on_pushButton_crea_layer_pressed(self):
-		from pyarchinit_OS_utility import *
 		import time
 		if os.name == 'posix':
 			home = os.environ['HOME']

@@ -19,62 +19,57 @@
  *                                                                         *
  ***************************************************************************/
 """
-import csv_writer
-from csv_writer import *
-import sys, os
+from numpy import *
+import os
+
 from PyQt4 import QtCore, QtGui
 from PyQt4.QtCore import *
 from PyQt4.QtGui import *
 import PyQt4.QtGui
+from csv_writer import *
+import csv_writer
+from  imageViewer import ImageViewer
+from matplotlib import *
+import matplotlib
+from matplotlib.backends.backend_qt4agg import FigureCanvasQTAgg as FigureCanvas
+from matplotlib.backends.backend_qt4agg import NavigationToolbar2QTAgg as NavigationToolbar
+from matplotlib.figure import Figure
+from matplotlib.pyplot import *
+import matplotlib.pyplot as plt
+from modules.db.pyarchinit_conn_strings import Connection
+from modules.db.pyarchinit_db_manager import Pyarchinit_db_management
+from modules.gui.pyarchinit_interactive_matrix_gui import Ui_DialogInteractiveMatrix
+from modules.utility.pyarchinit_matrix_exp import HARRIS_MATRIX_EXP
+from psycopg2 import *
+from pyarchinit_US_mainapp import pyarchinit_US
+from  pyarchinit_error_check import *
+from  pyarchinit_exp_Findssheet_pdf import *
+from  pyarchinit_interactive_matrix_gui import *
+from  pyarchinit_matrix_exp import *
+from  pyarchinit_pyqgis import Pyarchinit_pyqgis
+from  pyarchinit_utility import *
+
+
 try:
 	from qgis.core import *
 	from qgis.gui import *
 except:
 	pass
 
-from datetime import date
-from psycopg2 import *
-
-
-
 #--import pyArchInit modules--#
 #from  pyarchinit_inventario_reperti_ui import Ui_DialogInventarioMateriali
-from  pyarchinit_interactive_matrix_gui import *
-from  pyarchinit_utility import *
-from  pyarchinit_error_check import *
 try:
 	import pygraphviz as pgv
 except:
 	pass
-from networkx import *
-import matplotlib
-import matplotlib.pyplot as plt
-import numpy as np
-from matplotlib.pyplot import *
-from matplotlib import *
 
 
-from  pyarchinit_matrix_exp import *
 
 
 try:
 	from  pyarchinit_db_manager import *
 except:
 	pass
-
-from  pyarchinit_exp_Findssheet_pdf import *
-
-from  imageViewer import ImageViewer
-import numpy as np
-import random
-from numpy import *
-
-import matplotlib
-from matplotlib.backends.backend_qt4agg import FigureCanvasQTAgg as FigureCanvas
-from matplotlib.backends.backend_qt4agg import NavigationToolbar2QTAgg as NavigationToolbar
-from matplotlib.figure import Figure
-
-from  pyarchinit_pyqgis import Pyarchinit_pyqgis
 
 class pyarchinit_Interactive_Matrix(QDialog, Ui_DialogInteractiveMatrix):
 	MSG_BOX_TITLE = "PyArchInit - Scheda Sistema Matrix Interattivo"

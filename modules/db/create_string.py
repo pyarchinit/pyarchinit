@@ -1,9 +1,8 @@
 #!/usr/bin/python
  # This Python file uses the following encoding: latin-1
+from modules.db.pyarchinit_conn_strings import Connection
+from modules.db.pyarchinit_db_manager import Pyarchinit_db_management
 
-from pyarchinit_db_manager import *
-
-from pyarchinit_conn_strings import *
 
 def convert_cell_schema(s, c):
 	cell_schema = s #riceve lo schema delle celle in formato lista di liste [['Nr. US: /us', '02', '03', 'Area: /area','05', '06', '07', '09']]

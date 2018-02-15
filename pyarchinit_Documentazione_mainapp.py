@@ -20,35 +20,41 @@
  ***************************************************************************/
 """
 
+from datetime import date
 import sys, os
+
 from PyQt4 import QtCore, QtGui
-from PyQt4.QtCore import *
-from PyQt4.QtGui import *
-import PyQt4.QtGui
+from modules.db.pyarchinit_conn_strings import Connection
+from modules.db.pyarchinit_db_manager import Pyarchinit_db_management
+from modules.db.pyarchinit_utility import Utility
+from modules.gis.pyarchinit_pyqgis import Pyarchinit_pyqgis
+from modules.gui.pyarchinit_documentazione_ui import Ui_DialogDocumentazione_tipo_doc
+from modules.utility.pyarchinit_error_check import Error_check
+from modules.utility.pyarchinit_exp_Documentazionesheet_pdf import generate_documentazione_pdf
+from psycopg2 import *
+from pyarchinit_US_mainapp import pyarchinit_US
+from  pyarchinit_db_manager import *
+from pyarchinit_documentazione_preview_mainapp import pyarchinit_doc_preview
+from  pyarchinit_documentazione_ui import *
+from  pyarchinit_error_check import *
+from  pyarchinit_exp_Documentazionesheet_pdf import *
+from  pyarchinit_utility import *
+from  sortpanelmain import SortPanelMain
+
+
 try:
 	from qgis.core import *
 	from qgis.gui import *
 except:
 	pass
 
-from  pyarchinit_db_manager import *
 
-from datetime import date
-from psycopg2 import *
 
 #--import pyArchInit modules--#
-from  pyarchinit_documentazione_ui import Ui_DialogDocumentazione_tipo_doc
-from  pyarchinit_documentazione_ui import *
-from  pyarchinit_utility import *
-from  pyarchinit_error_check import *
 #buttare
-from  pyarchinit_exp_Documentazionesheet_pdf import *
 #buttare
 
-from  pyarchinit_pyqgis import Pyarchinit_pyqgis
-from  sortpanelmain import SortPanelMain
 
-from pyarchinit_documentazione_preview_mainapp import pyarchinit_doc_preview
 
 #from  pyarchinit_exp_Campsheet_pdf import *
 

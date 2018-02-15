@@ -8,6 +8,8 @@
 # WARNING! All changes made in this file will be lost!
 
 from PyQt4 import QtCore, QtGui
+import resources_rc
+
 
 try:
     _fromUtf8 = QtCore.QString.fromUtf8
@@ -656,4 +658,3 @@ class Ui_DialogInd(object):
         self.label_2.setText(QtGui.QApplication.translate("DialogInd", "Area", None, QtGui.QApplication.UnicodeUTF8))
         self.label_3.setText(QtGui.QApplication.translate("DialogInd", "US", None, QtGui.QApplication.UnicodeUTF8))
 
-import resources_rc

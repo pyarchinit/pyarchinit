@@ -19,12 +19,13 @@
  *                                                                         *
  ***************************************************************************/
 """
-from quant_panel_ui_zoo import Ui_quantPanel_zoo
-
 from PyQt4.QtCore import *
 from PyQt4.QtGui import *
+from modules.gui.quant_panel_ui_zoo import Ui_quantPanel_zoo
+from sortpanelmain import SortPanelMain
+
+
 #from PyQt4 import QtCore, QtGui
-import sys
 class QuantPanelMain(QDialog, Ui_quantPanel_zoo):
 	ITEMS = []
 	TYPE_QUANT = ""
@@ -69,5 +70,5 @@ if __name__ == '__main__':
 	a = QApplication(sys.argv)
 	dlg = SortPanelMain()
 	dlg.show()
-	barra.show()
+	'''barra.show()'''
 	sys.exit(a.exec_())

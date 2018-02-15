@@ -8,6 +8,8 @@
 # WARNING! All changes made in this file will be lost!
 
 from PyQt4 import QtCore, QtGui
+import resources_rc
+
 
 try:
     _fromUtf8 = QtCore.QString.fromUtf8
@@ -115,4 +117,3 @@ class Ui_quantPanel(object):
         self.radioButtonFrammenti.setText(QtGui.QApplication.translate("quantPanel", "Frammenti", None, QtGui.QApplication.UnicodeUTF8))
         self.radioButtonPeso.setText(QtGui.QApplication.translate("quantPanel", "Peso", None, QtGui.QApplication.UnicodeUTF8))
 
-import resources_rc

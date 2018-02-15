@@ -8,6 +8,8 @@
 # WARNING! All changes made in this file will be lost!
 
 from PyQt4 import QtCore, QtGui
+import resources_rc
+
 
 try:
     _fromUtf8 = QtCore.QString.fromUtf8
@@ -1785,7 +1787,6 @@ class Ui_Dialog_eta(object):
         self.pushButton_4.setText(_translate("Dialog_eta", "Apri tavola", None))
         self.tabWidget.setTabText(self.tabWidget.indexOf(self.tabWidgetPage5), _translate("Dialog_eta", "Suture ectocraniche", None))
 
-import resources_rc
 
 if __name__ == "__main__":
     import sys

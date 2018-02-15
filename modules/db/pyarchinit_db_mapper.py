@@ -19,12 +19,10 @@
  *                                                                         *
  ***************************************************************************/
 """
-import sqlalchemy
+from modules.db.pyarchinit_db_structure import PDF_administrator, US_table, UT_table, US_table_toimp, Site_table, Periodizzazione_table, Inventario_materiali_table, Struttura_table, Media_table, Media_thumb_table, Media_to_Entity_table, Tafonomia_table, Inventario_materiali_table_toimp, Pyarchinit_thesaurus_sigle, SCHEDAIND_table, DETSESSO_table, DETETA_table, Archeozoology_table, Campioni_table, Inventario_Lapidei_table
 from sqlalchemy import *
-
+import sqlalchemy
 from sqlalchemy.orm import mapper
-
-from pyarchinit_db_structure import  Documentazione_table, PDF_administrator, US_table, UT_table, US_table_toimp, Site_table, Periodizzazione_table, Inventario_materiali_table, Struttura_table, Media_table, Media_thumb_table,Media_to_Entity_table, Tafonomia_table, Inventario_materiali_table_toimp, Pyarchinit_thesaurus_sigle, SCHEDAIND_table, DETSESSO_table, DETETA_table, Archeozoology_table, Campioni_table, Inventario_Lapidei_table
 
 
 try:
@@ -425,185 +423,10 @@ try:
 	#mapper
 	mapper(US_TOIMP, US_table_toimp.us_table_toimp)
 
-	class SITE(object):
-		#def __init__"
-		def __init__(self,
-		id_sito,
-		sito,
-		nazione,
-		regione,
-		comune,
-		descrizione,
-		provincia,
-		definizione_sito,
-		find_check
-		):
-			self.id_sito = id_sito 							#0
-			self.sito = sito 								#1
-			self.nazione = nazione 						#2
-			self.regione = regione 						#3
-			self.comune = comune 					#4
-			self.descrizione = descrizione 				#5
-			self.provincia = provincia 					#6
-			self.definizione_sito = definizione_sito	#7
-			self.find_check = find_check 				#8
-
-		#def __repr__"
-		def __repr__(self):
-			return "<SITE('%d','%s', '%s',%s,'%s','%s', '%s', '%s', '%d')>" % (
-			self.id_sito,
-			self.sito,
-			self.nazione,
-			self.regione,
-			self.comune,
-			self.descrizione,
-			self.provincia,
-			self.definizione_sito,
-			self.find_check
-			)
-	#mapper
-	mapper(SITE, Site_table.site_table)
+	
 
 
-	class PERIODIZZAZIONE(object):
-		#def __init__"
-		def __init__(self,
-		id_perfas,
-		sito,
-		periodo,
-		fase,
-		cron_iniziale,
-		cron_finale,
-		descrizione,
-		datazione_estesa,
-		cont_per
-		):
-			self.id_perfas = id_perfas #0
-			self.sito = sito #1
-			self.periodo = periodo #2
-			self.fase = fase #3
-			self.cron_iniziale = cron_iniziale #4
-			self.cron_finale = cron_finale #5
-			self.descrizione = descrizione #6
-			self.datazione_estesa = datazione_estesa #7
-			self.cont_per = cont_per #8
-
-		#def __repr__"
-		def __repr__(self):
-			return "<PERIODIZZAZIONE('%d', '%s', '%d', '%d', '%d', '%d', '%s', '%s', '%d')>" % (
-			self.id_perfas,
-			self.sito,
-			self.periodo,
-			self.fase,
-			self.cron_iniziale,
-			self.cron_finale,
-			self.descrizione,
-			self.datazione_estesa,
-			self.cont_per
-			)
-	#mapper
-
-	mapper(PERIODIZZAZIONE, Periodizzazione_table.periodizzazione_table)
-
-	class INVENTARIO_MATERIALI(object):
-		#def __init__"
-		def __init__(self,
-		id_invmat,
-		sito,
-		numero_inventario,
-		tipo_reperto,
-		criterio_schedatura,
-		definizione,
-		descrizione,
-		area,
-		us,
-		lavato,
-		nr_cassa,
-		luogo_conservazione,
-		stato_conservazione,
-		datazione_reperto,
-		elementi_reperto,
-		misurazioni,
-		rif_biblio,
-		tecnologie,
-		forme_minime,
-		forme_massime,
-		totale_frammenti,
-		corpo_ceramico,
-		rivestimento,
-		diametro_orlo,
-		peso,
-		tipo,
-		eve_orlo,
-		repertato,
-		diagnostico
-		):
-			self.id_invmat = id_invmat 									#0
-			self.sito = sito 											#1
-			self.numero_inventario = numero_inventario 					#2
-			self.tipo_reperto = tipo_reperto 							#3
-			self.criterio_schedatura = criterio_schedatura 				#4
-			self.definizione = definizione 								#5
-			self.descrizione = descrizione 								#6
-			self.area = area 											#7
-			self.us = us 												#8
-			self.lavato = lavato 										#9
-			self.nr_cassa = nr_cassa 									#10
-			self.luogo_conservazione = luogo_conservazione 				#11
-			self.stato_conservazione = stato_conservazione 				#12
-			self.datazione_reperto = datazione_reperto 					#13
-			self.elementi_reperto = elementi_reperto					#14
-			self.misurazioni = misurazioni 								#15
-			self.rif_biblio = rif_biblio 								#16
-			self.tecnologie = tecnologie 								#17
-			self.forme_minime = forme_minime 							#18
-			self.forme_massime =  forme_massime 						#19
-			self.totale_frammenti = totale_frammenti 					#20
-			self.corpo_ceramico =  corpo_ceramico 						#21
-			self.rivestimento = rivestimento 							#22
-			self.diametro_orlo = diametro_orlo							#23
-			self.peso = peso											#24
-			self.tipo = tipo											#25
-			self.eve_orlo = eve_orlo									#26
-			self.repertato = repertato									#27
-			self.diagnostico = diagnostico								#28
-
-		#def __repr__"
-		def __repr__(self):
-			return "<INVENTARIO_MATERIALI('%d', '%s', '%d', '%s', '%s', '%s', '%s', '%d', '%d', '%s', '%d', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%d', '%d', '%d', '%s', '%s', '%r', '%r','%s', '%r', '%s', '%s' )>" % (
-			self.id_invmat,
-			self.sito,
-			self.numero_inventario,
-			self.tipo_reperto,
-			self.criterio_schedatura,
-			self.definizione,
-			self.descrizione,
-			self.area,
-			self.us,
-			self.lavato,
-			self.nr_cassa,
-			self.luogo_conservazione,
-			self.stato_conservazione,
-			self.datazione_reperto,
-			self.elementi_reperto,
-			self.misurazioni,
-			self.rif_biblio,
-			self.tecnologie,
-			self.forme_minime,
-			self.forme_massime,
-			self.totale_frammenti,
-			self.corpo_ceramico,
-			self.rivestimento,
-			self.diametro_orlo,
-			self.peso,
-			self.tipo,
-			self.eve_orlo,
-			self.repertato,
-			self.diagnostico
-			)
-	#mapper
-
-	mapper(INVENTARIO_MATERIALI, Inventario_materiali_table.inventario_materiali_table)
+	
 
 	class INVENTARIO_MATERIALI_TOIMP(object):
 		#def __init__"
@@ -808,7 +631,7 @@ try:
 		#def __repr__"
 		def __repr__(self):
 			return "<MEDIA('%d', '%d', '%s', '%s', %s, '%s', '%s')>" % (
-			sekf.id_media_thumb,
+			self.id_media_thumb,
 			self.id_media,
 			self.mediatype,
 			self.media_filename,
@@ -1557,44 +1380,7 @@ try:
 	mapper(CAMPIONI, Campioni_table.campioni_table)
 
 
-	class DOCUMENTAZIONE(object):
-		#def __init__"
-		def __init__(self,
-		id_documentazione, #0
-		sito, #1
-		nome_doc, #2
-		data, #3
-		tipo_documentazione, #4
-		sorgente,  #5
-		scala, #6
-		disegnatore, #7
-		note, #8
-		):
-			self.id_documentazione = id_documentazione  #0
-			self.sito =sito  #1
-			self.nome_doc =nome_doc  #2
-			self.data =data #3
-			self.tipo_documentazione =tipo_documentazione  #4
-			self.sorgente =sorgente  #5
-			self.scala =scala  #6
-			self.disegnatore = disegnatore  #7
-			self.note = note  #8
-
-		#def __repr__"
-		def __repr__(self):
-			return "<DOCUMENTAZIONE('%d', '%s', '%s', '%s', '%s', '%s', '%s', '%s')>" % (
-			self.id_documentazione,#0
-			self.sito,#1
-			self.nome_doc, #2
-			self.data, #3
-			self.tipo_documentazione, #4
-			self.sorgente,#5
-			self.scala,#6
-			self.disegnatore,#7
-			self.note,#8
-			)
-	#mapper
-	mapper(DOCUMENTAZIONE, Documentazione_table.documentazione_table)
+	
 
 	class PDF_ADMINISTRATOR(object):
 		#def __init__"

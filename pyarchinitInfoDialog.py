@@ -20,11 +20,9 @@
  ***************************************************************************/
 """
 
-from info import Ui_DialogInfo
-from info import *
 from PyQt4.QtCore import *
 from PyQt4.QtGui import *
-import sys, os
+from modules.gui.info import Ui_DialogInfo
 
 
 class pyArchInitDialog_Info(QDialog, Ui_DialogInfo):

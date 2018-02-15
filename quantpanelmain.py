@@ -19,12 +19,13 @@
  *                                                                         *
  ***************************************************************************/
 """
-from quant_panel_ui import Ui_quantPanel
-
 from PyQt4.QtCore import *
 from PyQt4.QtGui import *
+from modules.gui.quant_panel_ui import Ui_quantPanel
+from sortpanelmain import SortPanelMain
+
+
 #from PyQt4 import QtCore, QtGui
-import sys
 class QuantPanelMain(QDialog, Ui_quantPanel):
 	ITEMS = []
 	TYPE_QUANT = ""

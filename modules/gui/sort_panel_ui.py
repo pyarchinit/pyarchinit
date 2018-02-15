@@ -8,6 +8,8 @@
 # WARNING! All changes made in this file will be lost!
 
 from PyQt4 import QtCore, QtGui
+import resources_rc
+
 
 class Ui_sortPanel(object):
     def setupUi(self, sortPanel):
@@ -97,4 +99,3 @@ class Ui_sortPanel(object):
         self.radioButtonDisc.setText(QtGui.QApplication.translate("sortPanel", "Discendente", None, QtGui.QApplication.UnicodeUTF8))
         self.pushButtonSort.setText(QtGui.QApplication.translate("sortPanel", "Ordina", None, QtGui.QApplication.UnicodeUTF8))
 
-import resources_rc
