@@ -42,6 +42,3 @@ class SITE(object):
             self.definizione_sito,
             self.find_check
             )
-
-#mapper
-mapper(SITE, Site_table.site_table)
