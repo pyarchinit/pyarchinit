@@ -43,6 +43,3 @@ class PERIODIZZAZIONE(object):
             self.datazione_estesa,
             self.cont_per
             )
-    #mapper
-
-mapper(PERIODIZZAZIONE, Periodizzazione_table.periodizzazione_table)

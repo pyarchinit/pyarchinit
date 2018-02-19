@@ -6,8 +6,7 @@ Created on 15 feb 2018
 from modules.db.pyarchinit_conn_strings import Connection
 from sqlalchemy import Table, Column, Integer, Date, String, Text, Float, Numeric, MetaData, ForeignKey, engine, create_engine, UniqueConstraint
 
-
-class Documentazione_table:
+class Campioni_table:
     # connection string postgres"
     internal_connection = Connection()
 
@@ -17,19 +16,20 @@ class Documentazione_table:
     metadata = MetaData(engine)
 
     # define tables
-    documentazione_table = Table('documentazione_table', metadata,
-    Column('id_documentazione', Integer, primary_key=True),
+    campioni_table = Table('campioni_table', metadata,
+    Column('id_campione', Integer, primary_key=True),
     Column('sito', Text),
-    Column('nome_doc', Text),
-    Column('data', Text),
-    Column('tipo_documentazione', Text),
-    Column('sorgente', Text),
-    Column('scala', Text),
-    Column('disegnatore', Text),
-    Column('note', Text),
+    Column('nr_campione', Integer),
+    Column('tipo_campione', Text),
+    Column('descrizione', Text),
+    Column('area', String(4)),
+    Column('us', Integer),
+    Column('numero_inventario_materiale', Integer),
+    Column('nr_cassa', Integer),
+    Column('luogo_conservazione', Text),
 
     # explicit/composite unique constraint.  'name' is optional.
-    UniqueConstraint('sito', 'tipo_documentazione', 'nome_doc', name='ID_invdoc_unico')
+    UniqueConstraint('sito', 'nr_campione', name='ID_invcamp_unico')
     )
 
     metadata.create_all(engine)

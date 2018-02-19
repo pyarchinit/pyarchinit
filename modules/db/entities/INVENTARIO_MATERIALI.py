@@ -102,6 +102,3 @@ class INVENTARIO_MATERIALI(object):
             self.repertato,
             self.diagnostico
             )
-    #mapper
-
-mapper(INVENTARIO_MATERIALI, Inventario_materiali_table.inventario_materiali_table)

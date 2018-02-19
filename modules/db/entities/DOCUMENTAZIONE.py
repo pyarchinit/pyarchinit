@@ -43,6 +43,3 @@ class DOCUMENTAZIONE(object):
             self.disegnatore,#7
             self.note,#8
             )
-    #mapper
-
-mapper(DOCUMENTAZIONE, Documentazione_table.documentazione_table)
