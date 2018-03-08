@@ -13,7 +13,7 @@
   <property name="windowTitle">
    <string>Dialog</string>
   </property>
-  <widget class="QPushButton" name="beckup">
+  <widget class="QPushButton" name="backup">
    <property name="geometry">
     <rect>
      <x>350</x>
@@ -36,7 +36,7 @@
     </rect>
    </property>
    <property name="text">
-    <string>             BeckUP e Restore DB Pyarchinit</string>
+    <string>             Backup e Restore DB Pyarchinit</string>
    </property>
   </widget>
   <widget class="QPushButton" name="restore">
@@ -84,7 +84,7 @@
     <string>Scegli il file da ripristinare</string>
    </property>
   </widget>
-  <widget class="QPushButton" name="beckup_total">
+  <widget class="QPushButton" name="backup_total">
    <property name="geometry">
     <rect>
      <x>420</x>
@@ -133,7 +133,7 @@
     </rect>
    </property>
    <property name="text">
-    <string>Beckup totale di tutti i db postgres (solo per linux)</string>
+    <string>Backup totale di tutti i db postgres (solo per linux)</string>
    </property>
   </widget>
   <widget class="QLabel" name="label_5">
@@ -146,7 +146,7 @@
     </rect>
    </property>
    <property name="text">
-    <string>Scegli un file del beckup e ripristinalo</string>
+    <string>Scegli un file del backup e ripristinalo</string>
    </property>
   </widget>
   <widget class="QPushButton" name="backupsqlite">

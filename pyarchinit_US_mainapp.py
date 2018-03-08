@@ -53,8 +53,6 @@ try:
 except:
 	pass
 
-##from interactivematrix import *
-##import interactivematrix
 
 class pyarchinit_US(QDialog, Ui_DialogUS):
 	MSG_BOX_TITLE = "PyArchInit - Scheda US"

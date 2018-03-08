@@ -11,7 +11,6 @@ from matplotlib.figure import Figure
 import matplotlib.pyplot as plt
 
 
-##import matplotlib.pyplot.figure as Figure
 class MplCanvas(FigureCanvas):
 	def __init__(self):
 		
@@ -25,7 +24,6 @@ class MplwidgetMatrix(QWidget):
 	def __init__(self, parent=None):
 		QWidget.__init__(self, parent)
 		self.canvas = MplCanvas()
-		#self.canvas = FigureCanvas(self.fig)
 		
 		self.navBar = NavigationToolbar(self.canvas, self)
 		self.vbl = QVBoxLayout()

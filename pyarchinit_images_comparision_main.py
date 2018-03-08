@@ -7,18 +7,6 @@ Created by Pyarchinit on 2010-05-02.
 Copyright (c) 2010 __MyCompanyName__. All rights reserved.
 """
 
-#!/usr/bin/env python
-# Copyright (c) 2007-8 Qtrac Ltd. All rights reserved.
-# This program or module is free software: you can redistribute it and/or
-# modify it under the terms of the GNU General Public License as published
-# by the Free Software Foundation, either version 2 of the License, or
-# version 3 of the License, or (at your option) any later version. It is
-# provided for educational purposes and is distributed in the hope that
-# it will be useful, but WITHOUT ANY WARRANTY; without even the implied
-# warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See
-# the GNU General Public License for more details.
-
-
 from numpy import *
 import os
 import random
@@ -48,9 +36,6 @@ sys.path.insert(1,gis_path)
 sys.path.insert(2,db_path)
 sys.path.insert(3,utility)
 sys.path.insert(4,filepath)
-
-
-
 
 try:
 	from  pyarchinit_db_manager import *
@@ -84,8 +69,6 @@ class Comparision(QDialog, Ui_DialogImagesComparision):
 	def __init__(self):
 		QtGui.QMainWindow.__init__(self)
 		self.ui= Ui_DialogImagesComparision()
-		#QMessageBox.warning(self, "Messaggio", str(dir(self.ui)), QMessageBox.Ok)
-		# This is always the same
 		QDialog.__init__(self)
 		self.setupUi(self)
 		self.setWindowTitle("pyArchInit - Images Comparision Tools")
@@ -112,11 +95,9 @@ class Comparision(QDialog, Ui_DialogImagesComparision):
 
 	def on_pushButton_chose_file_pressed(self):
 		self.FILE = QtGui.QFileDialog.getOpenFileName(self, 'Open file', '/')
-		#QMessageBox.warning(self, "Messaggio", str(self.FILE), QMessageBox.Ok)
 
 	def on_pushButton_run_pressed(self):
 		file_list = self.generate_files_couples()
-		#QMessageBox.warning(self, "Messaggio", str(file_list), QMessageBox.Ok)
 		lista = []
 		lunghezza = len(file_list)
 		calculate_res = None
@@ -128,7 +109,6 @@ class Comparision(QDialog, Ui_DialogImagesComparision):
 				 lista.append(tupla_di_ritorno)
 				 lunghezza -=1
 			calculate_res = None
-		#QMessageBox.warning(self, "Messaggio", str(lista), QMessageBox.Ok)
 		self.plot_chart(lista)
 
 	def calculate(self, imgs):
@@ -183,25 +163,19 @@ class Comparision(QDialog, Ui_DialogImagesComparision):
 			values = list(data_diz.values())
 			teams = list(data_diz.keys())
 			ind = np.arange(n_bars)
-			#randomNumbers = random.sample(range(0, 10), 10)
 			self.widget.canvas.ax.clear()
-			#QMessageBox.warning(self, "Alert", str(dir(self.widget.canvas.ax)) ,  QMessageBox.Ok)
 
 			bars = self.widget.canvas.ax.bar(left=x, height=values, width=0.3, align='center', alpha=0.4,picker=5)
 			
 			self.widget.canvas.ax.set_title('Classifica')
 			self.widget.canvas.ax.set_ylabel('Indice di differenza')
-			#self.widget.canvas.ax.set_xticklabels(ind + x , teams, size = 'x-small', rotation = 90)
 			n = 0
 			for bar in bars:
 				val = int(bar.get_height())
 				x_pos = bar.get_x()+0.2
 				y_pos = 1.5 #bar.get_height() - 1
-				#self.widget.canvas.ax.xticks(ind + width , teams, size = 'x-small', rotation = 90)
-				#self.widget.canvas.ax.set_xticklabels(ind + x, label = 'gigi', position = (x_pos, y_pos), size = 'x-small', rotation = 90)
 				self.widget.canvas.ax.text(x_pos, y_pos, teams[n],zorder=0, ha='center', va='center',size = 'x-small', rotation = 90)
 				n+=1
-			#self.widget.canvas.ax.plot(randomNumbers)
 		except:
 			QMessageBox.warning(self, "self.data_list", str(self.data_list) ,  QMessageBox.Ok)
 			pass

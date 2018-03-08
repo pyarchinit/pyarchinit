@@ -15,7 +15,7 @@
     </message>
     <message>
         <location filename="modules/gui/dbmanagment_ui.py" line="59"/>
-        <source>             BeckUP e Restore DB Pyarchinit</source>
+        <source>             Backup e Restore DB Pyarchinit</source>
         <translation type="unfinished">Backup and Restore Postgres</translation>
     </message>
     <message>
@@ -40,12 +40,12 @@
     </message>
     <message>
         <location filename="modules/gui/dbmanagment_ui.py" line="64"/>
-        <source>Beckup totale di tutti i db postgres (solo per linux)</source>
+        <source>Backup totale di tutti i db postgres (solo per linux)</source>
         <translation type="unfinished">Back any Postgres DB (only for linux)</translation>
     </message>
     <message>
         <location filename="modules/gui/dbmanagment_ui.py" line="65"/>
-        <source>Scegli un file del beckup e ripristinalo</source>
+        <source>Scegli un file del backup e ripristinalo</source>
         <translation type="unfinished">Choose a backup file and reload it</translation>
     </message>
     <message>

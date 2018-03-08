@@ -7,16 +7,16 @@
 #
 # WARNING! All changes made in this file will be lost!
 
-from PyQt5 import QtCore, QtGui
+from PyQt4 import QtCore, QtGui
 
 
 class Ui_DBmanagment(object):
     def setupUi(self, DBmanagment):
         DBmanagment.setObjectName("DBmanagment")
         DBmanagment.resize(666, 285)
-        self.beckup = QtGui.QPushButton(DBmanagment)
-        self.beckup.setGeometry(QtCore.QRect(350, 70, 131, 31))
-        self.beckup.setObjectName("beckup")
+        self.backup = QtGui.QPushButton(DBmanagment)
+        self.backup.setGeometry(QtCore.QRect(350, 70, 131, 31))
+        self.backup.setObjectName("backup")
         self.label = QtGui.QLabel(DBmanagment)
         self.label.setGeometry(QtCore.QRect(170, -10, 291, 51))
         self.label.setObjectName("label")
@@ -31,9 +31,9 @@ class Ui_DBmanagment(object):
         self.upload = QtGui.QPushButton(DBmanagment)
         self.upload.setGeometry(QtCore.QRect(40, 240, 221, 31))
         self.upload.setObjectName("upload")
-        self.beckup_total = QtGui.QPushButton(DBmanagment)
-        self.beckup_total.setGeometry(QtCore.QRect(420, 140, 131, 31))
-        self.beckup_total.setObjectName("beckup_total")
+        self.backup_total = QtGui.QPushButton(DBmanagment)
+        self.backup_total.setGeometry(QtCore.QRect(420, 140, 131, 31))
+        self.backup_total.setObjectName("backup_total")
         self.label_2 = QtGui.QLabel(DBmanagment)
         self.label_2.setGeometry(QtCore.QRect(420, 20, 161, 51))
         self.label_2.setText("")
@@ -56,14 +56,14 @@ class Ui_DBmanagment(object):
 
     def retranslateUi(self, DBmanagment):
         DBmanagment.setWindowTitle(QtGui.QApplication.translate("DBmanagment", "Dialog", None, QtGui.QApplication.UnicodeUTF8))
-        self.beckup.setText(QtGui.QApplication.translate("DBmanagment", "Backup postgres", None, QtGui.QApplication.UnicodeUTF8))
-        self.label.setText(QtGui.QApplication.translate("DBmanagment", "             BeckUP e Restore DB Pyarchinit", None, QtGui.QApplication.UnicodeUTF8))
+        self.backup.setText(QtGui.QApplication.translate("DBmanagment", "Backup postgres", None, QtGui.QApplication.UnicodeUTF8))
+        self.label.setText(QtGui.QApplication.translate("DBmanagment", "             BackUP e Restore DB Pyarchinit", None, QtGui.QApplication.UnicodeUTF8))
         self.restore.setText(QtGui.QApplication.translate("DBmanagment", "Ripristina", None, QtGui.QApplication.UnicodeUTF8))
         self.upload.setText(QtGui.QApplication.translate("DBmanagment", "Scegli il file da ripristinare", None, QtGui.QApplication.UnicodeUTF8))
-        self.beckup_total.setText(QtGui.QApplication.translate("DBmanagment", "Backup totale", None, QtGui.QApplication.UnicodeUTF8))
+        self.backup_total.setText(QtGui.QApplication.translate("DBmanagment", "Backup totale", None, QtGui.QApplication.UnicodeUTF8))
         self.label_3.setText(QtGui.QApplication.translate("DBmanagment", "Backup db pyarchinit (per win e linux)", None, QtGui.QApplication.UnicodeUTF8))
-        self.label_4.setText(QtGui.QApplication.translate("DBmanagment", "Beckup totale di tutti i db postgres (solo per linux)", None, QtGui.QApplication.UnicodeUTF8))
-        self.label_5.setText(QtGui.QApplication.translate("DBmanagment", "Scegli un file del beckup e ripristinalo", None, QtGui.QApplication.UnicodeUTF8))
+        self.label_4.setText(QtGui.QApplication.translate("DBmanagment", "Backup totale di tutti i db postgres (solo per linux)", None, QtGui.QApplication.UnicodeUTF8))
+        self.label_5.setText(QtGui.QApplication.translate("DBmanagment", "Scegli un file del backup e ripristinalo", None, QtGui.QApplication.UnicodeUTF8))
         self.backupsqlite.setText(QtGui.QApplication.translate("DBmanagment", "Backup sqlite", None, QtGui.QApplication.UnicodeUTF8))
 
 

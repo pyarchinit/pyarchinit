@@ -20,18 +20,6 @@ class MainWindow(QtGui.QMainWindow):
         self.progressBar.setRange(0, 100)
         self.progressBar.setValue(0)
         self.progressBar.setTextVisible(True)
-
-##............  self.button = QtGui.QPushButton('Start', widget)
-##............  self.connect(self.button, QtCore.SIGNAL('clicked()'), self.StartProgress)
-##
-##............  self.horiz = QtGui.QPushButton('Vertical', widget)
-##............  self.horiz.setCheckable(True)
-##............  self.connect(self.horiz, QtCore.SIGNAL('clicked()'), self.changeOrientation)
-##
-##............  self.direction = QtGui.QPushButton('Reverse', widget)
-##............  self.direction.setCheckable(True)
-##............  self.connect(self.direction, QtCore.SIGNAL('clicked()'), self.Reverse)
-
         grid.addWidget(self.progressBar, 0, 0, 1, 3)
         grid.addWidget(self.button, 1, 0)
         grid.addWidget(self.horiz, 1, 1)
@@ -43,17 +31,7 @@ class MainWindow(QtGui.QMainWindow):
         widget.setLayout(grid)
         self.setCentralWidget(widget)
 
-##....  def Reverse(self):
-##............  if self.direction.isChecked():
-##....................  self.progressBar.setInvertedAppearance(True)
-##............  else:
-##....................  self.progressBar.setInvertedAppearance(False)
-##
-##....  def changeOrientation(self):
-##............  if self.horiz.isChecked():
-##....................  self.progressBar.setOrientation(QtCore.Qt.Vertical)
-##............  else:
-##....................  self.progressBar.setOrientation(QtCore.Qt.Horizontal)
+
 
     def timerEvent(self, event):
         if self.step >= 100:
@@ -63,17 +41,7 @@ class MainWindow(QtGui.QMainWindow):
         self.progressBar.setValue(self.step)
 
 
-##....  def StartProgress(self):
-##............  if self.timer.isActive():
-##....................  self.timer.stop()
-##....................  self.button.setText('Start')
-##............  else:
-##....................  self.timer.start(100, self)
-##....................  self.button.setText('Stop')
-
 app = QtGui.QApplication(sys.argv)
 main = MainWindow()
 main.show()
-sys.exit(app.exec_())
-
-			
+sys.exit(app.exec_())		

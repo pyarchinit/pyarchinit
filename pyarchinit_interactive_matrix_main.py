@@ -23,10 +23,6 @@ from numpy import *
 import os
 
 from PyQt4 import QtCore, QtGui
-from PyQt4.QtCore import *
-from PyQt4.QtGui import *
-import PyQt4.QtGui
-from csv_writer import *
 import csv_writer
 from  imageViewer import ImageViewer
 from matplotlib import *

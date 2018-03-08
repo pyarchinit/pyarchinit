@@ -134,28 +134,6 @@ class pyArchInitDialog_Config(QDialog, Ui_Dialog_Config):
 		QMessageBox.warning(self, "ok","Per rendere effettive le modifiche e' necessario riavviare Qgis. Grazie.",  QMessageBox.Ok)
 		self.on_pushButton_save_pressed()
 
-
-	"""
-	def on_pushButton_exp_directories_pressed(self):																#
-		module_path_rel = os.path.join(os.sep, '.qgis', 'python','plugins', 'pyarchinit', 'modules', 'utility')		#
-		module_path = ('%s%s') % (home, module_path_rel)													#
-																																	#
-		home_DB_path = ('%s%s%s') % (home, os.sep, 'pyarchinit_DB_folder')							#
-																																	#
-		config_copy_from_path_rel = os.path.join(os.sep, 'DBfiles', 'config.cfg')								#
-		config_copy_from_path =  ('%s%s') % (module_path, config_copy_from_path_rel)				#
-		config_copy_to_path = ('%s%s%s') % (home_DB_path, os.sep, 'config.cfg')						#
-																																	#
-		db_copy_from_path_rel = os.path.join(os.sep, 'DBfiles', 'pyarchinit_db.sqlite')						#
-		db_copy_from_path = ('%s%s') % (module_path, db_copy_from_path_rel)						#
-		db_copy_to_path = ('%s%s%s') % (home_DB_path, os.sep, 'pyarchinit_db.sqlite')				#
-																																	#
-		OS_utility = Pyarchinit_OS_Utility()																				#
-																																	#
-		OS_utility.create_dir(str(home_DB_path))										
-
-	"""
-
 	def on_pushButton_save_pressed(self):
 		self.PARAMS_DICT['SERVER'] = str(self.comboBox_Database.currentText())
 		self.PARAMS_DICT['HOST'] =  str(self.lineEdit_Host.text())
@@ -174,7 +152,6 @@ class pyArchInitDialog_Config(QDialog, Ui_Dialog_Config):
 		try:
 			db = os.popen("createdb -U postgres -p %s -h localhost -E UTF8  -T %s -e %s" % (str(self.lineEdit_port_db.text()), str(self.lineEdit_template_postgis.text()), str(self.lineEdit_dbname.text())))
 			barra = self.pyarchinit_progressBar_db
-			#barra.show()
 			barra.setMinimum(0)
 			barra.setMaximum(9)
 			for a in range(10):
@@ -243,11 +220,6 @@ class pyArchInitDialog_Config(QDialog, Ui_Dialog_Config):
 		from pyarchinit_conn_strings import *
 		conn = Connection()
 		conn_str = conn.conn_str()
-		
-		#f = open("C:\\Users\\Luca\\pyarchinit_Test_folder\\conn_str_from_config.txt", "w")
-		#f.write(str(conn_str))
-		#f.close
-		
 		
 		from  pyarchinit_db_manager import *
 		self.DB_MANAGER = Pyarchinit_db_management(conn_str)  #sqlite:///\Users\Windows\pyarchinit_DB_folder\pyarchinit_db.sqlite 

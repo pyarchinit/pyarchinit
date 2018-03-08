@@ -38,17 +38,10 @@ except:
 	pass
 
 
-
-
-#--import pyArchInit modules--#
-#from  pyarchinit_inventario_reperti_ui import Ui_DialogInventarioMateriali
-
-
 try:
 	from  pyarchinit_db_manager import *
 except:
 	pass
-
 
 
 class pyarchinit_doc_preview(QDialog, Ui_DialogPreviewDoc):
@@ -73,7 +66,6 @@ class pyarchinit_doc_preview(QDialog, Ui_DialogPreviewDoc):
 		self.pyQGIS = Pyarchinit_pyqgis(self.iface)
 		self.DOC_STR = docstr
 
-##		self.ID_US_DICT = id_us_dict
 		QDialog.__init__(self)
 		self.setupUi(self)
 
@@ -83,8 +75,6 @@ class pyarchinit_doc_preview(QDialog, Ui_DialogPreviewDoc):
 		self.gridLayout.addWidget(self.widgetPreviewDoc, 0, 0, 1, 1)
 		self.draw_preview()
 
-##		self.textbox.setText('1 2 3 4')
-		#self.on_draw()
 		try:
 			self.DB_connect()
 		except:
@@ -103,34 +93,15 @@ class pyarchinit_doc_preview(QDialog, Ui_DialogPreviewDoc):
 			QMessageBox.warning(self, "Alert", "Attenzione rilevato bug! Segnalarlo allo sviluppatore <br> Errore: <br>" + str(e) ,  QMessageBox.Ok)
 
 	def draw_preview(self):
-		#self.pyQGIS.charge_vector_layers_doc(draw_preview)
-##		if mode == 0:
 		self.layerToSet = self.pyQGIS.loadMapPreviewDoc(self.DOC_STR)
 		self.vlayer = self.layerToSet[0].layer()
 
-		#self.mapPreview.setLayerSet(self.layerToSet)
 		self.mapPreview.setLayerSet(self.vlayer)
 		self.mapPreview.zoomToFullExtent()
-		#extention = self.vlayer.extent()
-
-		#self.mapPreview.zoomToFullExtent()
-
-		#self.vlayer.selectAll()
-		#self.mapPreview.setExtent(extention)
-		#self.mapPreview.zoomToSelected()
 
 		QMessageBox.warning(self, "layer to set", str(self.layerToSet), QMessageBox.Ok)
-
-##
-##		self.vlayer.removeSelection()
-##		self.mapPreview.zoomToFullExtent()
-##		elif mode == 1:
-##			self.mapPreview.setLayerSet( [ ] )
-##			self.mapPreview.zoomToFullExtent()
 
 	def testing(self, name_file, message):
 		f = open(str(name_file), 'w')
 		f.write(str(message))
 		f.close()
-
-## Class end

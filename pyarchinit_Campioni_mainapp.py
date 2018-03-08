@@ -640,16 +640,6 @@ class pyarchinit_Campioni(QDialog, Ui_DialogCampioni):
 		data_list =  self.generate_list_pdf()
 		Champ_pdf_sheet.build_Champ_sheets(data_list)
 
-##	def on_pushButton_elenco_casse_pressed(self):
-##		if self.records_equal_check() == 1:
-##			self.update_if(QMessageBox.warning(self,'Errore',u"Il record è stato modificato. Vuoi salvare le modifiche?", QMessageBox.Cancel,1))
-##
-##		sito_ec = unicode(self.comboBox_sito.currentText())
-##		Mat_casse_pdf = generate_reperti_pdf()
-##		data_list = self.generate_el_casse_pdf(sito_ec)
-##
-##		Mat_casse_pdf.build_index_Casse(data_list, sito_ec)
-##		Mat_casse_pdf.build_box_labels_Finds(data_list, sito_ec)
 
 #********************************************************************************
 	def generate_el_casse_pdf(self, sito):
@@ -662,7 +652,6 @@ class pyarchinit_Campioni(QDialog, Ui_DialogCampioni):
 
 		data_for_pdf = [] #contiene i singoli dati per l'esportazione dell'elenco casse
 
-		#QMessageBox.warning(self,'elenco casse',str(elenco_casse_list), QMessageBox.Ok)
 		elenco_casse_list.sort()
 		for cassa in elenco_casse_list:
 			single_cassa = [] #contiene i dati della singola cassa

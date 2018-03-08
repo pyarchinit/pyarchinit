@@ -22,9 +22,6 @@ from datetime import date
 import sys, os
 
 from PyQt4 import QtCore, QtGui
-from PyQt4.QtCore import *
-from PyQt4.QtGui import *
-import PyQt4.QtGui
 from modules.db.pyarchinit_conn_strings import Connection
 from modules.db.pyarchinit_db_manager import Pyarchinit_db_management
 from modules.db.pyarchinit_utility import Utility

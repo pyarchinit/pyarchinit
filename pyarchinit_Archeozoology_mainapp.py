@@ -27,15 +27,11 @@ import sys
 from test.test_heapq import R
 
 from PyQt4 import QtCore, QtGui
-from PyQt4.QtCore import *
-from PyQt4.QtGui import *
-import PyQt4.QtGui
 from modules.db.pyarchinit_conn_strings import Connection
 from modules.db.pyarchinit_db_manager import Pyarchinit_db_management
 from modules.db.pyarchinit_utility import Utility
 from modules.utility.pyarchinit_error_check import Error_check
 from psycopg2 import *
-from pyarchinit_Archeozoology_ui import *
 from pyarchinit_Archeozoology_ui import Ui_DialogArcheoZoology
 from pyarchinit_US_mainapp import pyarchinit_US
 from pyarchinit_db_manager import *
@@ -52,8 +48,6 @@ try:
     from qgis.gui import *
 except:
     pass
-
-# --import rpy
 
 try:
     from pyper import *
