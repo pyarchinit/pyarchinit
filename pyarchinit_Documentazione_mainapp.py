@@ -49,17 +49,6 @@ except:
 	pass
 
 
-
-#--import pyArchInit modules--#
-#buttare
-#buttare
-
-
-
-#from  pyarchinit_exp_Campsheet_pdf import *
-
-##from 
-
 class pyarchinit_Documentazione(QDialog, Ui_DialogDocumentazione_tipo_doc):
 	MSG_BOX_TITLE = "PyArchInit - pyarchinit_version 0.4 - Scheda Documentazione"
 	DATA_LIST = []
@@ -307,7 +296,6 @@ class pyarchinit_Documentazione(QDialog, Ui_DialogDocumentazione_tipo_doc):
 		Documentazione_index_pdf.build_index_Documentazione(data_list, data_list[0][0])
 
 	def on_pushButtonPreview_pressed(self):
-		#sing_layer =self.DATA_LIST[self.REC_CORR]
 
 		docstr = (' \"%s\"=\'%s\' AND \"%s\"=\'%s\' AND \"%s\"=\'%s\' ')  % ('sito',
 																											str(self.DATA_LIST[self.REC_CORR].sito),
@@ -456,25 +444,6 @@ class pyarchinit_Documentazione(QDialog, Ui_DialogDocumentazione_tipo_doc):
 
 	def insert_new_rec(self):
 		try:
-##			if self.lineEdit_nr_campione.text() == "":
-##				nr_campione = None
-##			else:
-##				nr_campione = int(self.lineEdit_nr_campione.text())
-##
-##			if self.lineEdit_us.text() == "":
-##				us = None
-##			else:
-##				us = int(self.lineEdit_us.text())
-##
-##			if self.lineEdit_cassa.text() == "":
-##				nr_cassa = None
-##			else:
-##				nr_cassa = int(self.lineEdit_cassa.text())
-##
-##			if self.lineEdit_n_inv_mat.text() == "":
-##				numero_inventario_materiale = None
-##			else:
-##				numero_inventario_materiale = int(self.lineEdit_n_inv_mat.text())
 
 			data = self.DB_MANAGER.insert_values_documentazione(
 			self.DB_MANAGER.max_num_id(self.MAPPER_TABLE_CLASS, self.ID_TABLE)+1,
@@ -528,21 +497,6 @@ class pyarchinit_Documentazione(QDialog, Ui_DialogDocumentazione_tipo_doc):
 			self.REC_TOT, self.REC_CORR = len(self.DATA_LIST), 0
 			self.DATA_LIST_REC_TEMP = self.DATA_LIST_REC_CORR = self.DATA_LIST[0]
 			self.label_sort.setText(self.SORTED_ITEMS["n"])
-
-
-
-
-##	def on_pushButton_disegno_doc_pressed(self):
-##		"""
-##		for sing_us in range(len(self.DATA_LIST)):
-##			sing_layer = [self.DATA_LIST[sing_us]]
-##			self.pyQGIS.charge_vector_layers(sing_layer)
-##		"""
-##
-##		sing_layer = [self.DATA_LIST[self.REC_CORR]]
-##		self.pyQGIS.charge_vector_layers_doc(sing_layer)
-
-
 
 	#records surf functions
 	def on_pushButton_first_rec_pressed(self):
@@ -665,27 +619,6 @@ class pyarchinit_Documentazione(QDialog, Ui_DialogDocumentazione_tipo_doc):
 		if self.BROWSE_STATUS != "f":
 			QMessageBox.warning(self, "ATTENZIONE", "Per eseguire una nuova ricerca clicca sul pulsante 'new search' ",  QMessageBox.Ok)
 		else:
-
-##			if self.lineEdit_nr_campione.text() == "":
-##				nr_campione = None
-##			else:
-##				nr_campione = int(self.lineEdit_nr_campione.text())
-##
-##			if self.lineEdit_us.text() == "":
-##				us = None
-##			else:
-##				us = int(self.lineEdit_us.text())
-##
-##			if self.lineEdit_cassa.text() == "":
-##				nr_cassa = None
-##			else:
-##				nr_cassa = int(self.lineEdit_cassa.text())
-##
-##			if self.lineEdit_n_inv_mat.text() == "":
-##				numero_inventario_materiale = None
-##			else:
-##				numero_inventario_materiale = int(self.lineEdit_n_inv_mat.text())
-
 			search_dict = {
 			self.TABLE_FIELDS[0] : "'"+str(self.comboBox_sito_doc.currentText())+"'",				#1 - Sito
 			self.TABLE_FIELDS[1] : "'"+str(self.lineEdit_nome_doc.text())+"'" , 					#2 - Nome Documentazione
@@ -750,39 +683,6 @@ class pyarchinit_Documentazione(QDialog, Ui_DialogDocumentazione_tipo_doc):
 
 	def on_pushButton_test_pressed(self):
 		pass
-##		data = "Sito: " + str(self.comboBox_sito.currentText())
-##
-##		test = Test_area(data)
-##		test.run_test()
-##
-##	def on_pushButton_draw_pressed(self):
-##		self.pyQGIS.charge_layers_for_draw(["1", "2", "3", "4", "5", "7", "8", "9", "10", "12"])
-##
-##
-##	def on_pushButton_sites_geometry_pressed(self):
-##		sito = unicode(self.comboBox_sito.currentText())
-##		self.pyQGIS.charge_sites_geometry(["1", "2", "3", "4", "8"], "sito", sito)
-
-##	def on_pushButton_rel_pdf_pressed(self):
-##		check=QMessageBox.warning(self, "Attention", "Under testing: this method can contains some bugs. Do you want proceed?", QMessageBox.Cancel,1)
-##		if check == 1:
-##			erp = exp_rel_pdf(unicode(self.comboBox_sito.currentText()))
-##			erp.export_rel_pdf()
-
-#********************************************************************************
-
-##	def on_pushButton_elenco_casse_pressed(self):
-##		if self.records_equal_check() == 1:
-##			self.update_if(QMessageBox.warning(self,'Errore',u"Il record è stato modificato. Vuoi salvare le modifiche?", QMessageBox.Cancel,1))
-##
-##		sito_ec = unicode(self.comboBox_sito.currentText())
-##		Mat_casse_pdf = generate_reperti_pdf()
-##		data_list = self.generate_el_casse_pdf(sito_ec)
-##
-##		Mat_casse_pdf.build_index_Casse(data_list, sito_ec)
-##		Mat_casse_pdf.build_box_labels_Finds(data_list, sito_ec)
-
-#********************************************************************************
 
 	def update_if(self, msg):
 		rec_corr = self.REC_CORR
@@ -860,26 +760,6 @@ class pyarchinit_Documentazione(QDialog, Ui_DialogDocumentazione_tipo_doc):
 
 	def fill_fields(self, n=0):
 		self.rec_num = n
-##		if str(self.DATA_LIST[self.rec_num].nr_campione) == 'None':
-##			numero_campione = ''
-##		else:
-##			numero_campione = str(self.DATA_LIST[self.rec_num].nr_campione)
-##
-##		if str(self.DATA_LIST[self.rec_num].us) == 'None':
-##			us = ''
-##		else:
-##			us = str(self.DATA_LIST[self.rec_num].us)
-##
-##		if str(self.DATA_LIST[self.rec_num].numero_inventario_materiale) == 'None':
-##			numero_inventario_materiale = ''
-##		else:
-##			numero_inventario_materiale = str(self.DATA_LIST[self.rec_num].numero_inventario_materiale)
-##
-##		if str(self.DATA_LIST[self.rec_num].nr_cassa) == 'None':
-##			nr_cassa = ''
-##		else:
-##			nr_cassa = str(self.DATA_LIST[self.rec_num].nr_cassa)
-
 
 		str(self.comboBox_sito_doc.setEditText(self.DATA_LIST[self.rec_num].sito))										#1 - Sito
 		str(self.lineEdit_nome_doc.setText(self.DATA_LIST[self.rec_num].nome_doc))										#2 - Nome Dcumentazione
@@ -898,26 +778,6 @@ class pyarchinit_Documentazione(QDialog, Ui_DialogDocumentazione_tipo_doc):
 		self.label_rec_corrente.setText(str(self.rec_corr))
 
 	def set_LIST_REC_TEMP(self):
-
-##		if self.lineEdit_nr_campione.text() == "":
-##			nr_campione = None
-##		else:
-##			nr_campione = int(self.lineEdit_nr_campione.text())
-##
-##		if self.lineEdit_us.text() == "":
-##			us = None
-##		else:
-##			us = int(self.lineEdit_us.text())
-##
-##		if self.lineEdit_cassa.text() == "":
-##			nr_cassa = None
-##		else:
-##			nr_cassa = int(self.lineEdit_cassa.text())
-##
-##		if self.lineEdit_n_inv_mat.text() == "":
-##			numero_inventario_materiale = None
-##		else:
-##			numero_inventario_materiale = int(self.lineEdit_n_inv_mat.text())
 
 		#data
 		self.DATA_LIST_REC_TEMP = [

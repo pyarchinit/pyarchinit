@@ -28,10 +28,6 @@ import sys, os
 from sqlalchemy.sql.functions import mode
 
 from PyQt4 import QtCore, QtGui
-from PyQt4.QtCore import *
-from PyQt4.QtGui import *
-import PyQt4.QtGui
-from csv_writer import *
 import csv_writer
 from  delegateComboBox import *
 from  imageViewer import ImageViewer

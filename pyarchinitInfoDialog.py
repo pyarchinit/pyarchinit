@@ -32,7 +32,6 @@ class pyArchInitDialog_Info(QDialog, Ui_DialogInfo):
 		self.setupUi(self)
 
 
-
 if __name__ == '__main__':
 	import sys
 	app = QApplication(sys.argv)

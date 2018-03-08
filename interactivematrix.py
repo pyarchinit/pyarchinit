@@ -1,20 +1,3 @@
-"""
-This demo demonstrates how to embed a matplotlib (mpl) plot 
-into a PyQt4 GUI application, including:
-
-* Using the navigation toolbar
-* Adding data to the plot
-* Dynamically modifying the plot's properties
-* Processing mpl events
-* Saving the plot to a file from a menu
-
-The main goal is to serve as a basis for developing rich PyQt GUI
-applications featuring mpl plots (using the mpl OO API).
-
-Eli Bendersky (eliben@gmail.com)
-License: this code is in the public domain
-Last modified: 19.01.2009
-"""
 import sys
 
 from sqlalchemy.sql.sqltypes import Text

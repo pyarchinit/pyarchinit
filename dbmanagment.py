@@ -5,8 +5,7 @@ import os
 import sys
 import time
 
-from PyQt5 import QtGui
-
+from PyQt4 import QtGui
 from modules.gis.pyarchinit_pyqgis import Pyarchinit_pyqgis
 from modules.gui.dbmanagment_ui import Ui_DBmanagment
 
@@ -39,11 +38,11 @@ class pyarchinit_dbmanagment(QDialog, Ui_DBmanagment):
 
     def enable_button(self, n):
 
-        self.beckup.setEnabled(n)
+        self.backup.setEnabled(n)
 
     def enable_button_search(self, n):
 
-        self.beckup.setEnabled(n)
+        self.backup.setEnabled(n)
 
     def on_backupsqlite_pressed(self):
         import shutil
@@ -56,7 +55,7 @@ class pyarchinit_dbmanagment(QDialog, Ui_DBmanagment):
                                   'pyarchinit_DB_folder/pyarchinit_db.sqlite'
                                   )
         conn_export = '%s%s%s' % (home, os.sep,
-                                  'pyarchinit_db_beckup/pyarchinit_db_'
+                                  'pyarchinit_db_backup/pyarchinit_db_'
                                   + time.strftime('%Y%m%d_%H_%M_%S_')
                                   + '.sqlite')
         backupdir = conn_export
@@ -71,7 +70,7 @@ class pyarchinit_dbmanagment(QDialog, Ui_DBmanagment):
             time.sleep(1)
             barra.setValue(a)
 
-    def on_beckup_pressed(self):
+    def on_backup_pressed(self):
         from pyarchinit_OS_utility import *
         from time import gmtime, strftime
         import subprocess
@@ -82,7 +81,7 @@ class pyarchinit_dbmanagment(QDialog, Ui_DBmanagment):
             home = os.environ['HOME']
         elif os.name == 'nt':
             home = os.environ['HOMEPATH']
-        PDF_path = '%s%s%s' % (home, os.sep, 'pyarchinit_db_beckup/')
+        PDF_path = '%s%s%s' % (home, os.sep, 'pyarchinit_db_backup/')
 
         # filename = ('%s%s%s') % (PDF_path, os.sep, 'semivariogramma.png')
 
@@ -131,7 +130,7 @@ class pyarchinit_dbmanagment(QDialog, Ui_DBmanagment):
                                     'Backup fallito!!' + str(e),
                                     QMessageBox.Ok)
 
-    def on_beckup_total_pressed(self):
+    def on_backup_total_pressed(self):
 
         from pyarchinit_OS_utility import *
 
@@ -139,7 +138,7 @@ class pyarchinit_dbmanagment(QDialog, Ui_DBmanagment):
             home = os.environ['HOME']
         elif os.name == 'nt':
             home = os.environ['HOMEPATH']
-        PDF_path = '%s%s%s' % (home, os.sep, 'pyarchinit_db_beckup/')
+        PDF_path = '%s%s%s' % (home, os.sep, 'pyarchinit_db_backup/')
         filename = '%s%s%s' % (PDF_path, os.sep, 'semivariogramma.png')
 
         username = 'postgres'

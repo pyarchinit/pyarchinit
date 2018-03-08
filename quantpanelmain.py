@@ -19,13 +19,11 @@
  *                                                                         *
  ***************************************************************************/
 """
-from PyQt4.QtCore import *
-from PyQt4.QtGui import *
+from PyQt4 import QtCore, QtGui
 from modules.gui.quant_panel_ui import Ui_quantPanel
 from sortpanelmain import SortPanelMain
 
 
-#from PyQt4 import QtCore, QtGui
 class QuantPanelMain(QDialog, Ui_quantPanel):
 	ITEMS = []
 	TYPE_QUANT = ""
@@ -42,8 +40,6 @@ class QuantPanelMain(QDialog, Ui_quantPanel):
 			self.TYPE_QUANT = "Forme minime"
 		elif self.radioButtonFrammenti.isChecked() == True:
 			self.TYPE_QUANT = "Frammenti"
-##		if self.radioButtonFormeMax.isChecked() == True:
-##			self.TYPE_ORDER = "Forme massime"
 	
 		if bool(self.ITEMS) == False:
 			ttl = QString("Non e' stato impostata alcun criterio. Vuoi uscire?")

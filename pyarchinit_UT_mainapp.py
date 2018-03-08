@@ -23,8 +23,6 @@ from datetime import date
 import sys
 
 from PyQt4 import QtCore, QtGui
-from PyQt4.QtCore import *
-from PyQt4.QtGui import *
 from delegateComboBox import *
 from modules.db.pyarchinit_conn_strings import Connection
 from modules.db.pyarchinit_db_manager import Pyarchinit_db_management
@@ -48,12 +46,6 @@ try:
 	from qgis.gui import *
 except:
 	pass
-
-
-
-#--import pyArchInit modules--#
-
-
 
 
 class pyarchinit_UT(QDialog, Ui_DialogUT):
@@ -312,30 +304,9 @@ class pyarchinit_UT(QDialog, Ui_DialogUT):
 		self.tableWidget_documentazione.setColumnWidth(0,150)
 		self.tableWidget_documentazione.setColumnWidth(1,300)
 
-		"""
-		valuesDoc = ["Fotografie", "Diapositive", "Sezioni", "Planimetrie", "Prospetti", "Video", "Fotopiano"]
-		self.delegateDoc = ComboBoxDelegate()
-		self.delegateDoc.def_values(valuesDoc)
-		self.delegateDoc.def_editable('False')
-		self.tableWidget_documentazione.setItemDelegateForColumn(0,self.delegateDoc)
-		"""
-
 
 	def charge_list(self):
 		
-		"""
-		sito_vl = self.UTILITY.tup_2_list_III(self.DB_MANAGER.group_by('site_table', 'sito', 'SITE'))
-
-		try:
-			sito_vl.remove('')
-		except:
-			pass
-		self.comboBox_sito.clear()
-		sito_vl.sort()
-		self.comboBox_sito.addItems(sito_vl)
-		
-		"""
-
 		regioni_list = ['Abruzzo','Basilicata','Calabria','Campania','Emilia-Romagna','Friuli Venezia Giulia','Lazio','Liguria','Lombardia','Marche','Molise','Piemonte','Puglia','Sardegna','Sicilia','Toscana','Trentino Alto Adige','Umbria','Valle d\'Aosta','Veneto']
 		self.comboBox_regione.addItems(regioni_list)
 

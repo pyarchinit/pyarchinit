@@ -39,8 +39,6 @@ except:
 	pass
 
 
-#--import pyArchInit modules--#
-
 try:
 	from  pyarchinit_db_manager import *
 except:

@@ -34,7 +34,6 @@ from  pyarchinit_db_manager import *
 from  pyarchinit_utility import *
 
 
-#from PyQt4 import QtCore, QtGui
 class pyarchinit_Images_directory_export(QDialog, Ui_Dialog_img_exp):
 	UTILITY = Utility()
 	OS_UTILITY = Pyarchinit_OS_Utility()

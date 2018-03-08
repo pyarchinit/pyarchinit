@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
-from PyQt5 import QtGui, QtCore
-
+from PyQt4 import QtGui, QtCore
 
 # Form implementation generated from reading ui file 'imageView.ui'
 #

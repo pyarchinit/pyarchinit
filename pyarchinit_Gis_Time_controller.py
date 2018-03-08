@@ -41,10 +41,6 @@ except:
 	pass
 
 
-
-#--import pyArchInit modules--#
-
-
 class pyarchinit_Gis_Time_Controller(QDialog, Ui_DialogGisTimeController):
 	MSG_BOX_TITLE = "PyArchInit - Gis Time Management"
 	DB_MANAGER = ""
@@ -96,7 +92,6 @@ class pyarchinit_Gis_Time_Controller(QDialog, Ui_DialogGisTimeController):
 			self.ORDER_LAYER_VALUE= v
 			layer = self.iface.mapCanvas().currentLayer().dataProvider()
 			originalSubsetString = layer.subsetString()
-			#if originalSubsetString != "":
 			newSubSetString = "order_layer <= %s" % (self.ORDER_LAYER_VALUE) #4D dimension
 			layer.setSubsetString(newSubSetString)
 			layer = self.iface.mapCanvas().currentLayer()
@@ -104,12 +99,7 @@ class pyarchinit_Gis_Time_Controller(QDialog, Ui_DialogGisTimeController):
 			
 		except Exception as e:
 			QgsMessageLog.logMessage("You must to load pyarchinit_us_view and/or select it from pyarchinit GeoDatabase"+ str(e))
-			#QMessageBox.warning(self.iface.mainWindow(), "Help", "You must to load pyarchinit_us_view from pyarchinit GeoDatabase")
 			self.iface.messageBar().pushMessage("Help", "You must to load pyarchinit_us_view and/or select it from pyarchinit GeoDatabase", level=QgsMessageBar.WARNING)
-		#self.iface.mapCanvas().refresh()
-##		f = open("C:/test_dial.txt", "w")
-##		f.write(str(self.ORDER_LAYER_VALUE))
-##		f.close()
 
 	def reset_query(self):
 		self.ORDER_LAYER_VALUE = v

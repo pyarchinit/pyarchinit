@@ -24,7 +24,6 @@ from PyQt4.QtGui import *
 from modules.gui.sort_panel_ui import Ui_sortPanel
 
 
-#from PyQt4 import QtCore, QtGui
 class SortPanelMain(QDialog, Ui_sortPanel):
 	ITEMS = []
 	TYPE_ORDER = ""

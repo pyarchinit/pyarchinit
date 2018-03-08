@@ -43,14 +43,10 @@ except:
 	pass
 
 
-#--import pyArchInit modules--#
-
 try:
 	from  pyarchinit_db_manager import *
 except:
 	pass
-
-
 
 
 class pyarchinit_Detsesso(QDialog, Ui_DialogDetsesso):
@@ -338,36 +334,9 @@ class pyarchinit_Detsesso(QDialog, Ui_DialogDetsesso):
 
 	def customize_GUI(self):
 		pass
-		"""
-		self.tableWidget_rapporti.setColumnWidth(0,380)
-		self.tableWidget_rapporti.setColumnWidth(1,110)
-
-		self.mapPreview = QgsMapCanvas(self)
-		self.mapPreview.setCanvasColor(QColor(225,225,225))
-		self.tabWidget.addTab(self.mapPreview, "Piante")
-		
-		#self.setComboBoxEditable(["self.comboBox_per_iniz"],1)
-		#self.setComboBoxEditable(["self.comboBox_fas_iniz"],1)
-		#self.setComboBoxEditable(["self.comboBox_per_fin"],1)
-		#self.setComboBoxEditable(["self.comboBox_fas_fin"],1)
-		
-		valuesRS = ["Uguale_a", "Si_lega_a", "Copre", "Coperto da", "Riempie", "Riempito da", "Taglia", "Tagliato da", "Si appoggia a", "Gli si appoggia"]
-		self.delegateRS = ComboBoxDelegate()
-		self.delegateRS.def_values(valuesRS)
-		self.tableWidget_rapporti.setItemDelegateForColumn(0,self.delegateRS)
-
-		valuesINCL_CAMP = ["Terra", "Pietre", "Laterzio", "Ciottoli", "Calcare", "Calce", "Carboni", "Concotto", "Ghiaia", "Cariossidi", "Malacofauna", "Sabbia", "Malta"]
-		self.delegateINCL_CAMP = ComboBoxDelegate()
-		valuesINCL_CAMP.sort()
-		self.delegateINCL_CAMP.def_values(valuesINCL_CAMP)
-		self.tableWidget_inclusi.setItemDelegateForColumn(0,self.delegateINCL_CAMP)
-		self.tableWidget_campioni.setItemDelegateForColumn(0,self.delegateINCL_CAMP)
-		"""
 
 	def loadMapPreview(self, mode = 0):
 		pass
-			
-
 
 	def charge_list(self):
 		sito_vl = self.UTILITY.tup_2_list_III(self.DB_MANAGER.group_by('site_table', 'sito', 'SITE'))
@@ -383,101 +352,14 @@ class pyarchinit_Detsesso(QDialog, Ui_DialogDetsesso):
 
 	def charge_periodo_list(self):
 		pass
-		"""
-		try:
-			search_dict = {
-			'sito'  : "'"+str(self.comboBox_sito.currentText())+"'",
-			}
-		
-			periodo_vl = self.DB_MANAGER.query_bool(search_dict, 'PERIODIZZAZIONE')
-		
-			periodo_list = []
-
-			for i in range(len(periodo_vl)):
-				periodo_list.append(str(periodo_vl[i].periodo))
-			try:
-				periodo_vl.remove('')
-			except:
-				pass
-
-			periodo_list.sort()
-
-			self.comboBox_per_iniz.clear()
-			self.comboBox_per_iniz.addItems(periodo_list)
-			self.comboBox_per_iniz.setEditText(self.DATA_LIST[self.rec_num].periodo_iniziale)
-			self.comboBox_per_fin.clear()
-			self.comboBox_per_fin.addItems(periodo_list)
-			self.comboBox_per_fin.setEditText(self.DATA_LIST[self.rec_num].periodo_finale)
-		except:
-			pass
-		"""
 
 	def charge_fase_iniz_list(self):
 		pass
-		"""
-		try:
-			search_dict = {
-			'sito'  : "'"+str(self.comboBox_sito.currentText())+"'",
-			'periodo'  : "'"+str(self.comboBox_per_iniz.currentText())+"'",
-			}
-		
-			fase_list_vl = self.DB_MANAGER.query_bool(search_dict, 'PERIODIZZAZIONE')
-		
-			fase_list = []
-
-			for i in range(len(fase_list_vl)):
-				fase_list.append(str(fase_list_vl[i].fase))
-		
-			try:
-				fase_list.remove('')
-			except:
-				pass
-
-			self.comboBox_fas_iniz.clear()
-
-			fase_list.sort()
-			self.comboBox_fas_iniz.addItems(fase_list)
-			self.comboBox_fas_iniz.setEditText(self.DATA_LIST[self.rec_num].fase_iniziale)
-
-		except:
-			pass
-		"""
-
 
 	def charge_fase_fin_list(self):
 		pass
-		"""
-		try:
-			search_dict = {
-			'sito'  : "'"+str(self.comboBox_sito.currentText())+"'",
-			'periodo'  : "'"+str(self.comboBox_per_fin.currentText())+"'",
-			}
-
-			fase_list_vl = self.DB_MANAGER.query_bool(search_dict, 'PERIODIZZAZIONE')
-
-			fase_list = []
-
-			for i in range(len(fase_list_vl)):
-				fase_list.append(str(fase_list_vl[i].fase))
-
-			try:
-				fase_list.remove('')
-			except:
-				pass
-
-			self.comboBox_fas_fin.clear()
-
-			fase_list.sort()
-			self.comboBox_fas_fin.addItems(fase_list)
-			self.comboBox_fas_fin.setEditText(self.DATA_LIST[self.rec_num].fase_finale)
-
-		except:
-			pass
-		"""
-
 
 	#buttons functions
-
 
 	def generate_list_pdf(self):
 		data_list = []
@@ -538,51 +420,10 @@ class pyarchinit_Detsesso(QDialog, Ui_DialogDetsesso):
 			str(self.DATA_LIST[i].ind_bac_sex)			#53 - Indice sessualizzazione bacino
 		])
 		return data_list
-	"""
-	def on_pushButton_pdf_exp_pressed(self):
-		US_pdf_sheet = generate_US_sheet_pdf()
-		data_list = self.generate_list_pdf()
-		US_pdf_sheet.build_pdf(data_list)
-	"""
+
 	def on_toolButtonPan_toggled(self):
 		self.toolPan = QgsMapToolPan(self.mapPreview)
 		self.mapPreview.setMapTool(self.toolPan)
-
-	"""
-	def on_pushButton_showSelectedFeatures_pressed(self):
-		pass
-		
-		field_position = self.pyQGIS.findFieldFrDict(self.ID_TABLE)
-
-		field_list = self.pyQGIS.selectedFeatures()
-
-		id_list_sf = self.pyQGIS.findItemInAttributeMap(field_position, field_list)
-		id_list = []
-		for idl in id_list_sf:
-			sid = idl.toInt()
-			id_list.append(sid[0])
-
-		items,order_type = [self.ID_TABLE], "asc"
-		self.empty_fields()
-
-		self.DATA_LIST = []
-		
-		temp_data_list = self.DB_MANAGER.query_sort(id_list, items, order_type, self.MAPPER_TABLE_CLASS, self.ID_TABLE)
-
-		for us in temp_data_list:
-			self.DATA_LIST.append(us)
-
-		self.fill_fields()
-		self.label_status.setText(self.STATUS["usa"])
-		if type(self.REC_CORR) == "<type 'str'>":
-			corr = 0
-		else:
-			corr = self.REC_CORR
-
-		self.set_rec_counter(len(self.DATA_LIST), self.REC_CORR+1)
-		self.REC_TOT, self.REC_CORR = len(self.DATA_LIST), 0
-		self.DATA_LIST_REC_TEMP = self.DATA_LIST_REC_CORR = self.DATA_LIST[0]
-	"""
 
 	#buttons functions
 	def on_pushButton_sort_pressed(self):
@@ -698,23 +539,6 @@ class pyarchinit_Detsesso(QDialog, Ui_DialogDetsesso):
 
 	def insert_new_rec(self):
 		
-		"""
-		if self.comboBox_eta_min.currentText() == "":
-			eta_min = None
-		else:
-			eta_min = int(self.comboBox_eta_min.currentText())
-
-		if self.comboBox_eta_max.currentText() == "":
-			eta_max = None
-		else:
-			eta_max = int(self.comboBox_eta_max.currentText())
-		
-		if self.comboBox_classi_eta.currentText() == "":
-			classi_eta = ''
-		else:
-			classi_eta = str(self.comboBox_classi_eta.currentText())
-		"""
-
 		if self.comboBox_glab_valori.currentText() == "":
 			glab_valori = None
 		else:
@@ -1015,8 +839,6 @@ class pyarchinit_Detsesso(QDialog, Ui_DialogDetsesso):
 		else:
 			self.enable_button_search(0)
 
-			#self.setComboBoxEditable(["self.comboBox_sito"],1)
-
 			#set the GUI for a new search
 
 			if self.BROWSE_STATUS != "f":
@@ -1026,39 +848,12 @@ class pyarchinit_Detsesso(QDialog, Ui_DialogDetsesso):
 				self.set_rec_counter('','')
 				self.label_sort.setText(self.SORTED_ITEMS["n"])
 
-				#self.setComboBoxEditable(["self.comboBox_sito"],1)
-				#self.setComboBoxEnable(["self.comboBox_sito"],"True")
-				#self.setComboBoxEnable(["self.lineEdit_individuo"],"True")
-
-
 	def on_pushButton_search_go_pressed(self):
 		if self.BROWSE_STATUS != "f":
 			QMessageBox.warning(self, "ATTENZIONE", "Per eseguire una nuova ricerca clicca sul pulsante 'new search' ",  QMessageBox.Ok)
 		else:
 
 			#TableWidget
-			"""
-		if self.lineEdit_us.text() != "":
-				us = int(self.lineEdit_us.text())
-			else:
-				us = ""
-				
-		if self.lineEdit_individuo.text() != "":
-				individuo = int(self.lineEdit_individuo.text())
-			else:
-				individuo = ""
-					
-		if self.comboBox_eta_min.currentText() != "":
-				eta_min = int(self.comboBox_eta_min.currentText())
-			else:
-				eta_min = ""
-
-		if self.comboBox_eta_max.currentText() != "":
-				eta_max = int(self.comboBox_eta_max.currentText())
-			else:
-				eta_max = ""
-			"""
-			
 			search_dict = {
 			self.TABLE_FIELDS[0]  : "'" + str(self.comboBox_sito.currentText())+"'",		#0 - Sito
 			self.TABLE_FIELDS[1]  : int(self.lineEdit_nr_individuo.text()),			#1 - Numero individuo
@@ -1131,10 +926,6 @@ class pyarchinit_Detsesso(QDialog, Ui_DialogDetsesso):
 					self.BROWSE_STATUS = "b"
 					self.label_status.setText(self.STATUS_ITEMS[self.BROWSE_STATUS])
 
-					#self.setComboBoxEnable(["self.comboBox_sito"],"False")
-					#self.setComboBoxEnable(["self.lineEdit_us"],"False")
-					#self.setComboBoxEnable(["self.lineEdit_individuo"],"False")
-
 				else:
 					self.DATA_LIST = []
 					for i in res:
@@ -1157,10 +948,6 @@ class pyarchinit_Detsesso(QDialog, Ui_DialogDetsesso):
 						if self.toolButtonGis.isChecked() == True:
 							id_us_list = self.charge_id_us_for_individuo()
 							self.pyQGIS.charge_individui_us(id_us_list)
-
-					#self.setComboBoxEnable(["self.comboBox_sito"],"False")
-					#self.setComboBoxEnable(["self.lineEdit_us"],"False")
-					#self.setComboBoxEnable(["self.lineEdit_individuo"],"False")
 
 					QMessageBox.warning(self, "Messaggio", "%s %d %s" % strings,  QMessageBox.Ok)
 
@@ -1211,35 +998,6 @@ class pyarchinit_Detsesso(QDialog, Ui_DialogDetsesso):
 
 	def tableInsertData(self, t, d):
 		pass
-		"""
-		self.table_name = t
-		self.data_list = eval(d)
-		self.data_list.sort()
-
-		#column table count
-		table_col_count_cmd = ("%s.columnCount()") % (self.table_name)
-		table_col_count = eval(table_col_count_cmd)
-
-		#clear table
-		table_clear_cmd = ("%s.clearContents()") % (self.table_name)
-		eval(table_clear_cmd)
-
-		for i in range(table_col_count):
-			table_rem_row_cmd = ("%s.removeRow(%d)") % (self.table_name, i)
-			eval(table_rem_row_cmd)
-
-		#for i in range(len(self.data_list)):
-			#self.insert_new_row(self.table_name)
-		
-		for row in range(len(self.data_list)):
-			cmd = ('%s.insertRow(%s)') % (self.table_name, row)
-			eval(cmd)
-			for col in range(len(self.data_list[row])):
-				#item = self.comboBox_sito.setEditText(self.data_list[0][col]
-				item = QTableWidgetItem(self.data_list[row][col])
-				exec_str = ('%s.setItem(%d,%d,item)') % (self.table_name,row,col)
-				eval(exec_str)
-		"""
 
 	def insert_new_row(self, table_name):
 		"""insert new row into a table based on table_name"""
@@ -1411,22 +1169,6 @@ class pyarchinit_Detsesso(QDialog, Ui_DialogDetsesso):
 			self.comboBox_prop_ip_sex.setEditText(self.DATA_LIST[self.rec_num].prop_ip_sex)			#52 - Proporzioni ischio pubiche sesso
 			self.comboBox_ind_bac_sex.setEditText(self.DATA_LIST[self.rec_num].ind_bac_sex)				#53 - Indice sessualizzazione bacino
 
-			"""
-			if self.DATA_LIST[self.rec_num].eta_min == None:												#4 - cronologia iniziale
-					self.comboBox_eta_min.setEditText("")
-				else:
-					self.comboBox_eta_min.setEditText(str(self.DATA_LIST[self.rec_num].eta_min))
-
-			if self.DATA_LIST[self.rec_num].eta_max == None:												#4 - cronologia iniziale
-					self.comboBox_eta_max.setEditText("")
-				else:
-					self.comboBox_eta_max.setEditText(str(self.DATA_LIST[self.rec_num].eta_max))
-
-				self.comboBox_classi_eta.setEditText(str(self.DATA_LIST[self.rec_num].eta_max))
-
-			if self.toolButtonPreview.isChecked() == True:
-				self.loadMapPreview()
-			"""
 		except Exception as e:
 			QMessageBox.warning(self, "Errore", "giigi" + str(e),  QMessageBox.Ok)
 
@@ -1437,17 +1179,6 @@ class pyarchinit_Detsesso(QDialog, Ui_DialogDetsesso):
 		self.label_rec_corrente.setText(str(self.rec_corr))
 
 	def set_LIST_REC_TEMP(self):
-		"""
-		if self.comboBox_eta_min.currentText() == "":
-			eta_min = None
-		else:
-			eta_min = self.comboBox_eta_min.currentText()
-
-		if self.comboBox_eta_max.currentText() == "":
-			eta_max = None
-		else:
-			eta_max = self.comboBox_eta_max.currentText()
-		"""
 
 		if self.comboBox_glab_valori.currentText() == "":
 			glab_valori = None

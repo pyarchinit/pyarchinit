@@ -82,8 +82,8 @@ class pyarchinit_Folder_installation:
 		home_TEST_path = ('%s%s%s') % (home, os.sep, 'pyarchinit_Test_folder')
 		OS_utility.create_dir(home_TEST_path)
 
-		home_BECKUP_linux_path = ('%s%s%s') % (home, os.sep,'pyarchinit_db_beckup')
-		OS_utility.create_dir(home_BECKUP_linux_path)
+		home_BACKUP_linux_path = ('%s%s%s') % (home, os.sep,'pyarchinit_db_backup')
+		OS_utility.create_dir(home_BACKUP_linux_path)
 	
 		#experimental
 		#il sistema funziona ma sovrascrive ogni volta il file. aggiungere sistema di verifica di presenza del file.
