@@ -320,49 +320,6 @@ class pyarchinit_Tafonomia(QDialog, Ui_Dialog_tafonomia):
 		self.setComboBoxEditable(["self.comboBox_per_fin"],1)
 		self.setComboBoxEditable(["self.comboBox_fas_fin"],1)
 
-		#map prevew system
-		#self.mapPreview = QgsMapCanvas(self)
-		#self.mapPreview.setCanvasColor(QColor(225,225,225))
-		#self.tabWidget.addTab(self.mapPreview, "Piante")
-		"""
-		#media prevew system
-		self.iconListWidget = QtGui.QListWidget(self)
-		self.iconListWidget.setFrameShape(QtGui.QFrame.StyledPanel)
-		self.iconListWidget.setFrameShadow(QtGui.QFrame.Sunken)
-		self.iconListWidget.setLineWidth(2)
-		self.iconListWidget.setMidLineWidth(2)
-		self.iconListWidget.setProperty("showDropIndicator", False)
-		self.iconListWidget.setIconSize(QtCore.QSize(150, 150))
-		self.iconListWidget.setMovement(QtGui.QListView.Snap)
-		self.iconListWidget.setResizeMode(QtGui.QListView.Adjust)
-		self.iconListWidget.setLayoutMode(QtGui.QListView.Batched)
-		self.iconListWidget.setGridSize(QtCore.QSize(160, 160))
-		self.iconListWidget.setViewMode(QtGui.QListView.IconMode)
-		self.iconListWidget.setUniformItemSizes(True)
-		self.iconListWidget.setBatchSize(1000)
-		self.iconListWidget.setObjectName("iconListWidget")
-		self.iconListWidget.SelectionMode()
-		self.iconListWidget.setSelectionMode(QtGui.QAbstractItemView.MultiSelection)
-		self.connect(self.iconListWidget, SIGNAL("itemDoubleClicked(QListWidgetItem *)"),self.openWide_image)
-		self.tabWidget.addTab(self.iconListWidget, "Media")
-
-
-
-		valuesRS = ["Uguale a", "Si lega a", "Copre", "Coperto da", "Riempie", "Riempito da", "Taglia", "Tagliato da", "Si appoggia a", "Gli si appoggia", ""]
-		self.delegateRS = ComboBoxDelegate()
-		self.delegateRS.def_values(valuesRS)
-		self.delegateRS.def_editable('False')
-		self.tableWidget_rapporti.setItemDelegateForColumn(0,self.delegateRS)
-
-		valuesINCL_CAMP = ["Terra", "Pietre", "Laterizio", "Ciottoli", "Calcare", "Calce", "Carboni", "Concotto", "Ghiaia", "Cariossidi", "Malacofauna", "Sabbia", "Malta"]
-		self.delegateINCL_CAMP = ComboBoxDelegate()
-		valuesINCL_CAMP.sort()
-		self.delegateINCL_CAMP.def_values(valuesINCL_CAMP)
-		self.delegateINCL_CAMP.def_editable('False')
-		self.tableWidget_inclusi.setItemDelegateForColumn(0,self.delegateINCL_CAMP)
-		self.tableWidget_campioni.setItemDelegateForColumn(0,self.delegateINCL_CAMP)
-		"""
-
 	def loadMapPreview(self, mode = 0):
 		if mode == 0:
 			""" if has geometry column load to map canvas """
@@ -378,56 +335,9 @@ class pyarchinit_Tafonomia(QDialog, Ui_Dialog_tafonomia):
 
 	def loadMediaPreview(self, mode = 0):
 		pass
-		"""
-		self.iconListWidget.clear()
-		if mode == 0:
-			#if has geometry column load to map canvas
-
-			rec_list =  self.ID_TABLE + " = " + str(eval("self.DATA_LIST[int(self.REC_CORR)]." + self.ID_TABLE))
-			search_dict = {'id_us'  : "'"+str(eval("self.DATA_LIST[int(self.REC_CORR)]." + self.ID_TABLE))+"'"}
-			record_us_list = self.DB_MANAGER.query_bool(search_dict, 'MEDIATOUS')
-			for i in record_us_list:
-				search_dict = {'id_media' : "'"+str(i.id_media)+"'"}
-
-				u = Utility()
-				search_dict = u.remove_empty_items_fr_dict(search_dict)
-				mediathumb_data = self.DB_MANAGER.query_bool(search_dict, "MEDIA_THUMB")
-				thumb_path = str(mediathumb_data[0].filepath)
-
-				item = QListWidgetItem(str(i.id_media))
-
-				item.setData(QtCore.Qt.UserRole,str(i.id_media))
-				icon = QIcon(thumb_path)
-				item.setIcon(icon)
-				self.iconListWidget.addItem(item)
-
-		elif mode == 1:
-			self.iconListWidget.clear()
-		"""
-
 
 	def openWide_image(self):
 		pass
-		"""
-		items = self.iconListWidget.selectedItems()
-		for item in items:
-			dlg = ImageViewer(self)
-			id_orig_item = item.text() #return the name of original file
-
-			search_dict = {'id_media' : "'"+str(id_orig_item)+"'"}
-
-			u = Utility()
-			search_dict = u.remove_empty_items_fr_dict(search_dict)
-
-			try:
-				res = self.DB_MANAGER.query_bool(search_dict, "MEDIA")
-				file_path = str(res[0].filepath)
-			except Exception, e:
-				QMessageBox.warning(self, "Errore", "Attenzione 1 file: "+ str(e),  QMessageBox.Ok)
-
-			dlg.show_image(unicode(file_path)) #item.data(QtCore.Qt.UserRole).toString()))
-			dlg.exec_()
-		"""
 
 	def charge_list(self):
 		#lista sito
@@ -448,7 +358,6 @@ class pyarchinit_Tafonomia(QDialog, Ui_Dialog_tafonomia):
 
 	def charge_periodo_iniz_list(self):
 		sito =str(self.comboBox_sito.currentText())
-		#sitob = sito.decode('utf-8')
 
 		search_dict = {
 		'sito'  : "'"+sito+"'"
@@ -640,8 +549,6 @@ class pyarchinit_Tafonomia(QDialog, Ui_Dialog_tafonomia):
 
 
 	#buttons functions
-
-
 	def on_pushButton_exp_index_pressed(self):
 		Tafonomia_index_pdf = generate_tafonomia_pdf()
 		data_list = self.generate_list_pdf()
@@ -780,8 +687,6 @@ class pyarchinit_Tafonomia(QDialog, Ui_Dialog_tafonomia):
 			self.label_sort_2.setText(self.SORTED_ITEMS[self.SORT_STATUS])
 
 			self.enable_button(0)
-
-
 
 	def on_pushButton_save_pressed(self):
 		#save record
@@ -929,7 +834,6 @@ class pyarchinit_Tafonomia(QDialog, Ui_Dialog_tafonomia):
 			QMessageBox.warning(self, "Errore imm2", "Errore di immisione 2 \n"+str(e),  QMessageBox.Ok)
 			return 0
 
-
 	#insert new row into tableWidget
 	def on_pushButton_insert_row_corredo_pressed(self):
 		self.insert_new_row('self.tableWidget_corredo_tipo')
@@ -1074,7 +978,6 @@ class pyarchinit_Tafonomia(QDialog, Ui_Dialog_tafonomia):
 			self.enable_button_search(0)
 
 			#set the GUI for a new search
-
 			if self.BROWSE_STATUS != "f":
 				self.BROWSE_STATUS = "f"
 				###
@@ -1282,17 +1185,7 @@ class pyarchinit_Tafonomia(QDialog, Ui_Dialog_tafonomia):
 			nr_individuo_find = int(self.DATA_LIST[i].nr_individuo)
 			sigla_struttura = ('%s%s') % (str(self.DATA_LIST[i].sigla_struttura), str(self.DATA_LIST[i].nr_struttura))
 
-			#res_ind = self.DB_MANAGER.query_bool({"sito":"'"+ str(sito)+"'","nr_individuo":"'"+str(nr_individuo)+"'"},"SCHEDAIND")
-			#res_ind = self.DB_MANAGER.query_bool({"sito":'"Rimini_(RN)_via_Arnaldo_da_Brescia_Scuole_XX_Settembre_2015"',"nr_individuo":'"23"'},"SCHEDAIND")
-			#res_ind = self.DB_MANAGER.query_bool({"sito":"'"+ sito + "'","nr_individuo":"'"+ nr_individuo + "'"},"SCHEDAIND")
-
 			res_ind = self.DB_MANAGER.query_bool({"sito":"'" + sito + "'","nr_individuo": nr_individuo_find},"SCHEDAIND")
-			#ls = []
-			#for ns in res_ind:
-				#ls.append(ns.us)
-			#test = str(ns.us)
-
-			#self.testing("C:\\Users\\Luca\pyarchinit_Test_folder\\res_individuo.txt", test)
 
 			us_ind_list = []
 			if bool(res_ind) == True:
@@ -1335,11 +1228,9 @@ class pyarchinit_Tafonomia(QDialog, Ui_Dialog_tafonomia):
 				us_strutt_list.sort()
 
 			quote_strutt = []
-			#self.testing("/res_struttura.txt", str(us_strutt_list))
 			if bool(us_strutt_list) == True:
 				for sing_us in us_strutt_list:
 					res_quote_strutt = self.DB_MANAGER.select_quote_from_db_sql(sing_us[0], sing_us[1], sing_us[2])
-					#self.testing("/res_quote_strutt.txt", str(res_quote_strutt))
 					if bool(res_quote_strutt) == True:
 						for sing_us in res_quote_strutt:
 							sing_quota_value = str(sing_us[5])
@@ -1448,7 +1339,6 @@ class pyarchinit_Tafonomia(QDialog, Ui_Dialog_tafonomia):
 		rec_to_update = self.UTILITY.pos_none_in_list(self.DATA_LIST_REC_TEMP)
 		return rec_to_update
 
-
 	#custom functions
 	def charge_records(self):
 		self.DATA_LIST = []
@@ -1466,13 +1356,10 @@ class pyarchinit_Tafonomia(QDialog, Ui_Dialog_tafonomia):
 			for i in temp_data_list:
 				self.DATA_LIST.append(i)
 
-
-
 	def datestrfdate(self):
 		now = date.today()
 		today = now.strftime("%d-%m-%Y")
 		return today
-
 
 	def table2dict(self, n):
 		self.tablename = n
@@ -1489,7 +1376,6 @@ class pyarchinit_Tafonomia(QDialog, Ui_Dialog_tafonomia):
 			if bool(sub_list) == True:
 				lista.append(sub_list)
 		return lista
-
 
 	def tableInsertData(self, t, d):
 		"""Set the value into alls Grid"""
@@ -1509,14 +1395,10 @@ class pyarchinit_Tafonomia(QDialog, Ui_Dialog_tafonomia):
 			table_rem_row_cmd = ("%s.removeRow(%d)") % (self.table_name, i)
 			eval(table_rem_row_cmd)
 
-		#for i in range(len(self.data_list)):
-			#self.insert_new_row(self.table_name)
-		
 		for row in range(len(self.data_list)):
 			cmd = ('%s.insertRow(%s)') % (self.table_name, row)
 			eval(cmd)
 			for col in range(len(self.data_list[row])):
-				#item = self.comboBox_sito.setEditText(self.data_list[0][col]
 				item = QTableWidgetItem(self.data_list[row][col])
 				exec_str = ('%s.setItem(%d,%d,item)') % (self.table_name,row,col)
 				eval(exec_str)

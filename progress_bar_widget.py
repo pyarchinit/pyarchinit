@@ -31,8 +31,6 @@ class MainWindow(QtGui.QMainWindow):
         widget.setLayout(grid)
         self.setCentralWidget(widget)
 
-
-
     def timerEvent(self, event):
         if self.step >= 100:
             self.timer.stop()

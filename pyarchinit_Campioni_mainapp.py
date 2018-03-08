@@ -602,24 +602,6 @@ class pyarchinit_Campioni(QDialog, Ui_DialogCampioni):
 
 	def on_pushButton_test_pressed(self):
 		pass
-##		data = "Sito: " + str(self.comboBox_sito.currentText())
-##
-##		test = Test_area(data)
-##		test.run_test()
-##
-##	def on_pushButton_draw_pressed(self):
-##		self.pyQGIS.charge_layers_for_draw(["1", "2", "3", "4", "5", "7", "8", "9", "10", "12"])
-##
-##
-##	def on_pushButton_sites_geometry_pressed(self):
-##		sito = unicode(self.comboBox_sito.currentText())
-##		self.pyQGIS.charge_sites_geometry(["1", "2", "3", "4", "8"], "sito", sito)
-
-##	def on_pushButton_rel_pdf_pressed(self):
-##		check=QMessageBox.warning(self, "Attention", "Under testing: this method can contains some bugs. Do you want proceed?", QMessageBox.Cancel,1)
-##		if check == 1:
-##			erp = exp_rel_pdf(unicode(self.comboBox_sito.currentText()))
-##			erp.export_rel_pdf()
 
 	def on_pushButton_index_pdf_pressed(self):
 		Camp_index_pdf = generate_campioni_pdf()

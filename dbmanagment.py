@@ -95,8 +95,6 @@ class pyarchinit_dbmanagment(QDialog, Ui_DBmanagment):
         for db_name in db_names:
             try:
 
-            # app = QtGui.QApplication(sys.argv)
-
                 barra = QtGui.QProgressBar(self)
                 barra.show()
                 barra.setMinimum(0)
@@ -105,17 +103,12 @@ class pyarchinit_dbmanagment(QDialog, Ui_DBmanagment):
                     time.sleep(1)
                     barra.setValue(a)
 
-                # app.exec_()........
-
                 file_path = ''
                 dumper = ' -U %s -Z 9 -f %s -F c %s  '
 
-                #        os.putenv('PGPASSWORD', db_password)
 
                 bkp_file = '%s_%s.sql' % (db_name,
                         time.strftime('%Y%m%d_%H_%M_%S'))
-
-                #        glob_list = glob.glob(dump_dir + db_name + '*' + '.pgdump')
 
                 file_path = os.path.join(dump_dir, bkp_file)
                 command = 'pg_dump' + dumper % (db_username, file_path,
@@ -202,8 +195,6 @@ class pyarchinit_dbmanagment(QDialog, Ui_DBmanagment):
     def on_restore_pressed(self):
         try:
 
-        # app = QtGui.QApplication(sys.argv)
-
             barra = QtGui.QProgressBar(self)
             barra.show()
             barra.setMinimum(0)
@@ -211,8 +202,6 @@ class pyarchinit_dbmanagment(QDialog, Ui_DBmanagment):
             for a in range(10):
                 time.sleep(1)
                 barra.setValue(a)
-
-            # app.exec_()........
 
             path = self.percorso
             os.popen('dropdb -U postgres pyarchinit')
@@ -232,5 +221,4 @@ if __name__ == '__main__':
     app = QApplication(sys.argv)
     ui = pyarchinit_dbmanagment()
     ui.show()
-    ##barra.show()
     sys.exit(app.exec_())
