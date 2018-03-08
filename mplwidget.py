@@ -9,7 +9,6 @@ from matplotlib.figure import Figure
 import matplotlib.pyplot as plt
 
 
-##import matplotlib.pyplot.figure as Figure
 class MplCanvas(FigureCanvas):
     def __init__(self):
         

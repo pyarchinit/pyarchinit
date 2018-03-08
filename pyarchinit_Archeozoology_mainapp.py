@@ -42,7 +42,6 @@ from pyarchinit_utility import *
 from .quantpanelmain_zoo import QuantPanelMain
 from .sortpanelmain import SortPanelMain
 
-
 try:
     from qgis.core import *
     from qgis.gui import *
@@ -53,7 +52,6 @@ try:
     from pyper import *
 except:
     pass
-
 
 valid = True
 
@@ -472,10 +470,6 @@ class pyarchinit_Archeozoology(QDialog, Ui_DialogArcheoZoology):
             coord_x = None
         else:
             coord_x = float(self.lineEdit_coord_x.text())
-
-        # f = open("test_coord.txt", "w")
-        # f.write(str(coord_x))
-        # f.close()
 
         if self.lineEdit_coord_y.text() == '':
             coord_y = None
@@ -2250,17 +2244,6 @@ do.it <- function (x) {
           )
         r('par(op)')
 
-        # q= "r('abline(v=mean(archezoology_table$%s), lty=2, col=4, lwd=4)')"%str(self.plot.currentText())
-        # eval(q)
-        # w= "r('abline(v=mean(archezoology_table$%s)+sd(archezoology_table$%s), lty=3, col=3, lwd=2)')"%(str(self.plot.currentText()), str(self.plot.currentText()))
-        # eval(w)
-        # e= "r('abline(v=mean(archezoology_table$%s)­-sd(archezoology_table$%s), lty=3, col=3, lwd=2)')"%(str(self.plot.currentText()), str(self.plot.currentText()))
-        # eval(e)
-        # r= "r('abline(v=median(archezoology_table$%s), lty=4, col=2, lwd=2)')"%str(self.plot.currentText())
-        # eval(r)
-        # t= "r('rug(archezoology_table$%s, col=\"red\")')"%str(self.plot.currentText())
-        # eval(t)
-
     def on_coplot_pressed(self):
         from pyarchinit_conn_strings import *
         self.ITEMS = []
@@ -2545,16 +2528,7 @@ title(sub="Rosso = coppie con r>|0.5|, Verde = coppie con |0.25|<r<|0.5|;
 
     def on_tre_d_pressed(self):
 
-        # layer.select([])
-        # layer.setSelectedFeatures([obj.id() for obj in layer])
-        # tre_d =''
-
         mylayer = self.iface.activeLayer()
-
-        # self.iface.activeLayer().select([])
-        # self.iface.activeLayer().setSelectedFeatures([obj.id() for obj in mylayer])
-        # tre_d(mylayer)....
-        # edge_id = getIntAttributeByIndex(feature, edge_id_fno)
 
         if self.tab_5.text() == '':
             tab_5 = 0

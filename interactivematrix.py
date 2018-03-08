@@ -20,7 +20,6 @@ class AppForm(QMainWindow):
 		self.create_main_frame()
 		self.create_status_bar()
 
-##		self.textbox.setText('1 2 3 4')
 		self.on_draw()
 
 	def save_plot(self):
@@ -56,8 +55,6 @@ class AppForm(QMainWindow):
 			text = event.artist
 			value = text.get_prop_tup()
 			text_to_pass = value[2]
-##				print('Hai selezionato l\'US:', text.get_text())
-##		box_points = event.artist.get_bbox().get_points()
 			msg = "'Hai selezionato l\'US:' %s" % text_to_pass #str(dir(text.get_label))
 		
 			QMessageBox.information(self, "Click!", msg)
@@ -101,8 +98,6 @@ class AppForm(QMainWindow):
 
 		pos=nx.graphviz_layout(G1,prog='dot')
 
-		#self.fig = plt.figure()
-
 		ax = self.fig.add_subplot(111)
 		
 		
@@ -126,24 +121,6 @@ class AppForm(QMainWindow):
 						node_shape= 's',
 						node_size=400),'o',picker=10000)
 
-##		str = unicode(self.textbox.text())
-##		self.data = map(int, str.split())
-##		
-##		x = range(len(self.data))
-##
-##		# clear the axes and redraw the plot anew
-##		#
-##		self.axes.clear()        
-##		self.axes.grid(self.grid_cb.isChecked())
-##		
-##		self.axes.bar(
-##			left=x, 
-##			height=self.data, 
-##			width=self.slider.value() / 100.0, 
-##			align='center', 
-##			alpha=0.44,
-##			picker=5)
-		
 		self.canvas.draw()
 	
 	def create_main_frame(self):
