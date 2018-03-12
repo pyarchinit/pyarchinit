@@ -1011,7 +1011,7 @@ class Pyarchinit_db_management:
 
 		string = ('%s%s%s%s%s') %  ('session.query(US).filter_by(', 'sito', "='", str(self.sito), "')")
 		#print string
-		lista_us = eval(string)
+		lista_us = ast.literal_eval(string)
 
 		for i in lista_us:
 			if bool(i.periodo_finale) == False:
@@ -1118,7 +1118,7 @@ class Pyarchinit_db_management:
 ##
 ##		Session = sessionmaker(bind=self.engine, autoflush=True, autocommit=True)
 ##		session = Session()
-##		res = eval(query_string_execute)
+##		res = ast.literal_eval(query_string_execute)
 ##
 ##		return res
 

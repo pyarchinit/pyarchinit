@@ -162,8 +162,8 @@ class single_Invlap_pdf_sheet:
 
 		#18 row
 		bibliografia = ''
-		if eval(self.bibliografia) > 0:
-			for i in eval(self.bibliografia): #gigi
+		if ast.literal_eval(self.bibliografia) > 0:
+			for i in ast.literal_eval(self.bibliografia): #gigi
 				if bibliografia == '':
 					try:
 						bibliografia += ("<b>Autore: %s, Anno: %s, Titolo: %s, Pag.: %s, Fig.: %s") % (str(i[0]), str(i[1]), str(i[2]), str(i[3]),str(i[4]))

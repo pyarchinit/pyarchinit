@@ -86,72 +86,6 @@ class single_Finds_pdf_sheet:
 		self.rif_biblio = data[16]
 		self.tecnologie = data[17]
 
-	"""
-	def unzip_rapporti_stratigrafici(self):
-		rapporti = eval(self.rapporti)
-
-		for rapporto in rapporti:
-			if len(rapporto) == 2:
-				if rapporto[0] == 'Si lega a' or rapporto[0] == 'si lega a':
-					if self.si_lega_a == '':
-						self.si_lega_a += str(rapporto[1])
-					else:
-						self.si_lega_a += ', ' + str(rapporto[1])
-
-				if rapporto[0] == 'Uguale a' or rapporto[0] == 'uguale a':
-					if self.uguale_a == '':
-						self.uguale_a += str(rapporto[1])
-					else:
-						self.uguale_a += ', ' + str(rapporto[1])
-
-				if rapporto[0] == 'Copre' or rapporto[0] == 'copre':
-					if self.copre == '':
-						self.copre += str(rapporto[1])
-					else:
-						self.copre += ', ' + str(rapporto[1])
-
-				if rapporto[0] == 'Coperto da' or rapporto[0] == 'coperto da':
-					if self.coperto_da == '':
-						self.coperto_da += str(rapporto[1])
-					else:
-						self.coperto_da += ', ' + str(rapporto[1])
-
-				if rapporto[0] == 'Riempie' or rapporto[0] == 'riempie':
-					if self.riempie == '':
-						self.riempie += str(rapporto[1])
-					else:
-						self.riempie += ', ' + str(rapporto[1])
-
-				if rapporto[0] == 'Riempito da' or rapporto[0] == 'riempito da':
-					if self.riempito_da == '':
-						self.riempito_da += str(rapporto[1])
-					else:
-						self.riempito_da += ', ' + str(rapporto[1])
-				if rapporto[0] == 'Taglia' or rapporto[0] == 'taglia':
-					if self.taglia == '':
-						self.taglia += str(rapporto[1])
-					else:
-						self.taglia += ', ' + str(rapporto[1])
-
-				if rapporto[0] == 'Tagliato da' or rapporto[0] == 'tagliato da':
-					if self.tagliato_da == '':
-						self.tagliato_da += str(rapporto[1])
-					else:
-						self.tagliato_da += ', ' + str(rapporto[1])
-
-				if rapporto[0] == 'Si appoggia a' or rapporto[0] == 'si appoggia a':
-					if self.si_appoggia_a == '':
-						self.si_appoggia_a+= str(rapporto[1])
-					else:
-						self.si_appoggia_a += ', ' + str(rapporto[1])
-
-				if rapporto[0] == 'Gli si appoggia' or rapporto[0] == 'gli si appoggia a':
-					if self.gli_si_appoggia == '':
-						self.gli_si_appoggia += str(rapporto[1])
-					else:
-						self.gli_si_appoggia += ', ' + str(rapporto[1])
-	"""
-
 	def datestrfdate(self):
 		now = date.today()
 		today = now.strftime("%d-%m-%Y")
@@ -200,8 +134,8 @@ class single_Finds_pdf_sheet:
 
 		#5 row
 		elementi_reperto = ''
-		if eval(self.elementi_reperto) > 0 :
-			for i in eval(self.elementi_reperto):
+		if ast.literal_eval(self.elementi_reperto) > 0 :
+			for i in ast.literal_eval(self.elementi_reperto):
 				if elementi_reperto == '':
 					try:
 						elementi_reperto += ("Elemento rinvenuto: %s, Unita' di musura: %s, Quantita': %s") % (str(i[0]), str(i[1]), str(i[2]))
@@ -217,8 +151,8 @@ class single_Finds_pdf_sheet:
 
 		#6 row
 		misurazioni = ''
-		if eval(self.misurazioni) > 0:
-			for i in eval(self.misurazioni):
+		if ast.literal_eval(self.misurazioni) > 0:
+			for i in ast.literal_eval(self.misurazioni):
 				if misurazioni == '':
 					try:
 						misurazioni += ("<b>Tipo di misura: %s, Unita' di musura: %s, Quantita': %s") % (str(i[0]), str(i[2]), str(i[1]))
@@ -233,8 +167,8 @@ class single_Finds_pdf_sheet:
 
 		#7 row
 		tecnologie = ''
-		if eval(self.tecnologie) > 0:
-			for i in eval(self.tecnologie):
+		if ast.literal_eval(self.tecnologie) > 0:
+			for i in ast.literal_eval(self.tecnologie):
 				if tecnologie == '':
 					try:
 						tecnologie += ("<b>Tipo tecnologia: %s, Posizione: %s, Tipo quantita': %s, Unita' di musura: %s, Quantita': %s") % (str(i[0]), str(i[1]), str(i[2]), str(i[3]),str(i[4]))
@@ -249,8 +183,8 @@ class single_Finds_pdf_sheet:
 
 		#8 row
 		rif_biblio = ''
-		if eval(self.rif_biblio) > 0:
-			for i in eval(self.rif_biblio): #gigi
+		if ast.literal_eval(self.rif_biblio) > 0:
+			for i in ast.literal_eval(self.rif_biblio): #gigi
 				if rif_biblio == '':
 					try:
 						rif_biblio += ("<b>Autore: %s, Anno: %s, Titolo: %s, Pag.: %s, Fig.: %s") % (str(i[0]), str(i[1]), str(i[2]), str(i[3]),str(i[4]))

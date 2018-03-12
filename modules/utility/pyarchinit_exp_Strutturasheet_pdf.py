@@ -250,8 +250,8 @@ class single_Struttura_pdf_sheet:
 
 		#7 row
 		materiali_impiegati = ''
-		if eval(self.materiali_impiegati) > 0 :
-			for i in eval(self.materiali_impiegati):
+		if ast.literal_eval(self.materiali_impiegati) > 0 :
+			for i in ast.literal_eval(self.materiali_impiegati):
 				if materiali_impiegati == '':
 					try:
 						materiali_impiegati += ("%s") % (str(i[0]))
@@ -267,8 +267,8 @@ class single_Struttura_pdf_sheet:
 
 		#8 row
 		elementi_strutturali = ''
-		if eval(self.elementi_strutturali) > 0 :
-			for i in eval(self.elementi_strutturali):
+		if ast.literal_eval(self.elementi_strutturali) > 0 :
+			for i in ast.literal_eval(self.elementi_strutturali):
 				if elementi_strutturali == '':
 					try:
 						elementi_strutturali += ("Tipologia elemento: %s, quantita: %s") % (str(i[0]), str(i[1]))
@@ -284,8 +284,8 @@ class single_Struttura_pdf_sheet:
 
 		#9 row
 		rapporti_struttura = ''
-		if eval(self.rapporti_struttura) > 0 :
-			for i in eval(self.rapporti_struttura):
+		if ast.literal_eval(self.rapporti_struttura) > 0 :
+			for i in ast.literal_eval(self.rapporti_struttura):
 				if rapporti_struttura == '':
 					try:
 						rapporti_struttura += ("Tipo rapporto: %s, sito: %s, sigla: %s, nr.: %s") % (str(i[0]), str(i[1]), str(i[2]), str(i[3]))
@@ -302,8 +302,8 @@ class single_Struttura_pdf_sheet:
 
 		#10 row
 		misure_struttura = ''
-		if eval(self.misure_struttura) > 0:
-			for i in eval(self.misure_struttura):
+		if ast.literal_eval(self.misure_struttura) > 0:
+			for i in ast.literal_eval(self.misure_struttura):
 				if misure_struttura == '':
 					try:
 						misure_struttura += ("Tipo di misura: %s = %s %s") % (str(i[0]), str(i[2]), str(i[1]))
