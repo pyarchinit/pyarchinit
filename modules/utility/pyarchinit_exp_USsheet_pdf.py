@@ -115,7 +115,7 @@ class single_US_pdf_sheet:
 		self.documentazione =					data[28]
 
 	def unzip_rapporti_stratigrafici(self):
-		rapporti = eval(self.rapporti)
+		rapporti = ast.literal_eval(self.rapporti)
 		for rapporto in rapporti:
 			if len(rapporto) == 2:
 				if rapporto[0] == 'Si lega a' or rapporto[0] == 'si lega a':
@@ -181,7 +181,7 @@ class single_US_pdf_sheet:
 		if self.documentazione == '':
 			pass
 		else:
-			for string_doc in eval(self.documentazione):
+			for string_doc in ast.literal_eval(self.documentazione):
 				if len(string_doc) == 2:
 					self.documentazione_print += str(string_doc[0]) + ": " + str(string_doc[1]) + "<br/>"
 				if len(string_doc) == 1:
@@ -245,9 +245,9 @@ class single_US_pdf_sheet:
 		colore = Paragraph("<b>Colore</b><br/>"  + self.colore, styNormal)
 
 		#4 row
-		inclusi_list = eval(self.inclusi)
+		inclusi_list = ast.literal_eval(self.inclusi)
 		inclusi = ''
-		for i in eval(self.inclusi):
+		for i in ast.literal_eval(self.inclusi):
 			if inclusi == '':
 				try:
 					inclusi += str(i[0])
@@ -259,9 +259,9 @@ class single_US_pdf_sheet:
 				except:
 					pass
 		inclusi = Paragraph("<b>Inclusi</b><br/>"  + inclusi, styNormal)
-		campioni_list = eval(self.campioni)
+		campioni_list = ast.literal_eval(self.campioni)
 		campioni = ''
-		for i in eval(self.campioni):
+		for i in ast.literal_eval(self.campioni):
 			if campioni == '':
 				try:
 					campioni += str(i[0])
@@ -478,7 +478,7 @@ class US_index_pdf_sheet:
 		self.rapporti = 						data[17]
 
 	def unzip_rapporti_stratigrafici(self):
-		rapporti = eval(self.rapporti)
+		rapporti = ast.literal_eval(self.rapporti)
 
 		rapporti.sort()
 

@@ -1396,7 +1396,7 @@ class pyarchinit_US(QDialog, Ui_DialogUS):
 							#new system rapp_check
 
 						else:
-							rapporti_check = eval(us_rapp[0].rapporti)
+							rapporti_check = ast.literal_eval(us_rapp[0].rapporti)
 							us_rapp_check = ('%s') % str(us)
 							if rapporti_check.count([rapp_converted, us_rapp_check]) == 1:
 								report = "" #"Errore generico. Probabile presenza di rapporti vuoti o scritti non correttamente: " + str([rapp_converted, us_rapp_check])

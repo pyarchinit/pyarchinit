@@ -483,7 +483,7 @@ class single_Tafonomia_pdf_sheet:
 
 		#12 row
 		caratteristiche_tafonomiche = ''
-		caratteristiche_list = eval(self.caratteristiche)
+		caratteristiche_list = ast.literal_eval(self.caratteristiche)
 		if len(caratteristiche_list) > 0 :
 			for i in caratteristiche_list:
 				if caratteristiche_tafonomiche == '':
@@ -518,8 +518,8 @@ class single_Tafonomia_pdf_sheet:
 
 		#17 row
 		corredo_tipo = ''
-		if eval(self.corredo_tipo) > 0 :
-			for i in eval(self.corredo_tipo):
+		if ast.literal_eval(self.corredo_tipo) > 0 :
+			for i in ast.literal_eval(self.corredo_tipo):
 				if corredo_tipo == '':
 					try:
 						corredo_tipo += ("Nr. reperto %s, tipo corredo: %s, descrizione: %s") % (str(i[0]), str(i[1]), str(i[2]))
@@ -535,8 +535,8 @@ class single_Tafonomia_pdf_sheet:
 		
 		#18 row
 		misure_tafonomia = ''
-		if eval(self.misure_tafonomia) > 0 :
-			for i in eval(self.misure_tafonomia):
+		if ast.literal_eval(self.misure_tafonomia) > 0 :
+			for i in ast.literal_eval(self.misure_tafonomia):
 				if misure_tafonomia == '':
 					try:
 						misure_tafonomia += ("%s: %s %s") % (str(i[0]), str(i[2]), str(i[1]))
