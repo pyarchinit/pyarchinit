@@ -191,7 +191,7 @@ class pyarchinit_PDFAdministrator(QDialog, Ui_DialogPDFManager):
 		#QMessageBox.warning(self, "Alert", str(self.ROW),  QMessageBox.Ok)
 		item = QTableWidgetItem(str(self.comboBox_elenco_campi.currentText()))
 		exec_str = ('self.tableWidget_schema_griglia.setItem(%d,%d,item)') % (self.ROW,self.COL)
-		eval(exec_str)
+		ast.literal_ast.literal_eval(exec_str)
 
 	def cell_click_ed(self):
 		pass
@@ -243,7 +243,7 @@ class pyarchinit_PDFAdministrator(QDialog, Ui_DialogPDFManager):
 
 		id_list = []
 		for i in self.DATA_LIST:
-			id_list.append(eval("i." + self.ID_TABLE))
+			id_list.append(ast.literal_ast.literal_eval("i." + self.ID_TABLE))
 		self.DATA_LIST = []
 
 		temp_data_list = self.DB_MANAGER.query_sort(id_list, self.SORT_ITEMS_CONVERTED, self.SORT_MODE, self.MAPPER_TABLE_CLASS, self.ID_TABLE)
@@ -426,7 +426,7 @@ class pyarchinit_PDFAdministrator(QDialog, Ui_DialogPDFManager):
 			QMessageBox.warning(self,"Messagio!!!","Azione Annullata!")
 		else:
 			try:
-				id_to_delete = eval("self.DATA_LIST[self.REC_CORR]." + self.ID_TABLE)
+				id_to_delete = ast.literal_ast.literal_eval("self.DATA_LIST[self.REC_CORR]." + self.ID_TABLE)
 				self.DB_MANAGER.delete_one_record(self.TABLE_NAME, self.ID_TABLE, id_to_delete)
 				self.charge_records() #charge records from DB
 				QMessageBox.warning(self,"Messaggio!!!","Record eliminato!")
@@ -539,7 +539,7 @@ class pyarchinit_PDFAdministrator(QDialog, Ui_DialogPDFManager):
 			self.update_record()
 			id_list = []
 			for i in self.DATA_LIST:
-				id_list.append(eval("i."+ self.ID_TABLE))
+				id_list.append(ast.literal_ast.literal_eval("i."+ self.ID_TABLE))
 			self.DATA_LIST = []
 			if self.SORT_STATUS == "n":
 				temp_data_list = self.DB_MANAGER.query_sort(id_list, [self.ID_TABLE], 'asc', self.MAPPER_TABLE_CLASS, self.ID_TABLE)
@@ -559,8 +559,8 @@ class pyarchinit_PDFAdministrator(QDialog, Ui_DialogPDFManager):
 	def charge_records(self):
 		self.DATA_LIST = []
 		id_list = []
-		for i in self.DB_MANAGER.query(eval(self.MAPPER_TABLE_CLASS)):
-			id_list.append(eval("i."+ self.ID_TABLE))
+		for i in self.DB_MANAGER.query(ast.literal_ast.literal_eval(self.MAPPER_TABLE_CLASS)):
+			id_list.append(ast.literal_ast.literal_eval("i."+ self.ID_TABLE))
 		temp_data_list = self.DB_MANAGER.query_sort(id_list, [self.ID_TABLE], 'asc', self.MAPPER_TABLE_CLASS, self.ID_TABLE)
 		for i in temp_data_list:
 			self.DATA_LIST.append(i)
@@ -572,13 +572,13 @@ class pyarchinit_PDFAdministrator(QDialog, Ui_DialogPDFManager):
 
 	def table2dict(self, n):
 		self.tablename = n
-		row = eval(self.tablename+".rowCount()")
-		col = eval(self.tablename+".columnCount()")
+		row = ast.literal_ast.literal_eval(self.tablename+".rowCount()")
+		col = ast.literal_ast.literal_eval(self.tablename+".columnCount()")
 		lista=[]
 		for r in range(row):
 			sub_list = []
 			for c in range(col):
-				value = eval(self.tablename+".item(r,c)")
+				value = ast.literal_ast.literal_eval(self.tablename+".item(r,c)")
 				if bool(value) == True:
 					sub_list.append(str(value.text()))
 			lista.append(sub_list)
@@ -628,7 +628,7 @@ class pyarchinit_PDFAdministrator(QDialog, Ui_DialogPDFManager):
 	def set_LIST_REC_CORR(self):
 		self.DATA_LIST_REC_CORR = []
 		for i in self.TABLE_FIELDS:
-			self.DATA_LIST_REC_CORR.append(eval("unicode(self.DATA_LIST[self.REC_CORR]." + i + ")"))
+			self.DATA_LIST_REC_CORR.append(ast.literal_ast.literal_eval("unicode(self.DATA_LIST[self.REC_CORR]." + i + ")"))
 
 	def setComboBoxEnable(self, f, v):
 		field_names = f
@@ -636,7 +636,7 @@ class pyarchinit_PDFAdministrator(QDialog, Ui_DialogPDFManager):
 
 		for fn in field_names:
 			cmd = ('%s%s%s%s') % (fn, '.setEnabled(', v, ')')
-			eval(cmd)
+			ast.literal_ast.literal_eval(cmd)
 
 	def setComboBoxEditable(self, f, n):
 		field_names = f
@@ -644,7 +644,7 @@ class pyarchinit_PDFAdministrator(QDialog, Ui_DialogPDFManager):
 
 		for fn in field_names:
 			cmd = ('%s%s%d%s') % (fn, '.setEditable(', n, ')')
-			eval(cmd)
+			ast.literal_ast.literal_eval(cmd)
 
 	def rec_toupdate(self):
 		rec_to_update = self.UTILITY.pos_none_in_list(self.DATA_LIST_REC_TEMP)
@@ -662,7 +662,7 @@ class pyarchinit_PDFAdministrator(QDialog, Ui_DialogPDFManager):
 	def update_record(self):
 		self.DB_MANAGER.update(self.MAPPER_TABLE_CLASS, 
 						self.ID_TABLE,
-						[eval("int(self.DATA_LIST[self.REC_CORR]." + self.ID_TABLE+")")],
+						[ast.literal_ast.literal_eval("int(self.DATA_LIST[self.REC_CORR]." + self.ID_TABLE+")")],
 						self.TABLE_FIELDS,
 						self.rec_toupdate())
 
@@ -673,13 +673,13 @@ class pyarchinit_PDFAdministrator(QDialog, Ui_DialogPDFManager):
 
 	def table2dict(self, n):
 		self.tablename = n
-		row = eval(self.tablename+".rowCount()")
-		col = eval(self.tablename+".columnCount()")
+		row = ast.literal_ast.literal_eval(self.tablename+".rowCount()")
+		col = ast.literal_ast.literal_eval(self.tablename+".columnCount()")
 		lista=[]
 		for r in range(row):
 			sub_list = []
 			for c in range(col):
-				value = eval(self.tablename+".item(r,c)")
+				value = ast.literal_ast.literal_eval(self.tablename+".item(r,c)")
 				if value != None:
 					sub_list.append(str(value.text()))
 			if bool(sub_list) == True:
@@ -690,32 +690,32 @@ class pyarchinit_PDFAdministrator(QDialog, Ui_DialogPDFManager):
 	def tableInsertData(self, t, d):
 		"""Set the value into alls Grid"""
 		self.table_name = t
-		self.data_list = eval(d)
+		self.data_list = ast.literal_ast.literal_eval(d)
 		self.data_list.sort()
 
 		table_col_count_cmd = ("%s.columnCount()") % (self.table_name)
-		table_col_count = eval(table_col_count_cmd)
+		table_col_count = ast.literal_ast.literal_eval(table_col_count_cmd)
 
 		#clear table
 		table_clear_cmd = ("%s.clearContents()") % (self.table_name)
-		eval(table_clear_cmd)
+		ast.literal_ast.literal_eval(table_clear_cmd)
 
 		for i in range(table_col_count):
 			table_rem_row_cmd = ("%s.removeRow(%d)") % (self.table_name, i)
-			eval(table_rem_row_cmd)
+			ast.literal_ast.literal_eval(table_rem_row_cmd)
 
 		#for i in range(len(self.data_list)):
 			#self.insert_new_row(self.table_name)
 		#QMessageBox.warning(self,"Messagio!!!","numero_righe" + str(len(self.data_list)))
 		for row in range(len(self.data_list)):
 			cmd = ('%s.insertRow(%s)') % (self.table_name, row)
-			eval(cmd)
+			ast.literal_ast.literal_eval(cmd)
 			#QMessageBox.warning(self,"Messagio!!!","numero colonne" + str(len(self.data_list[row])))
 			for col in range(len(self.data_list[row])):
 				#item = self.comboBox_sito.setEditText(self.data_list[0][col]
 				item = QTableWidgetItem(str(self.data_list[row][col]))
 				exec_str = ('%s.setItem(%d,%d,item)') % (self.table_name,row,col)
-				eval(exec_str)
+				ast.literal_ast.literal_eval(exec_str)
 
 	def on_pushButton_add_row_griglia_pressed(self):
 		self.insert_new_row('self.tableWidget_schema_griglia')
@@ -730,17 +730,17 @@ class pyarchinit_PDFAdministrator(QDialog, Ui_DialogPDFManager):
 	def insert_new_row(self, table_name):
 		"""insert new row into a table based on table_name"""
 		cmd = table_name+".insertRow(0)"
-		eval(cmd)
+		ast.literal_ast.literal_eval(cmd)
 
 	def remove_row(self, table_name):
 		"""insert new row into a table based on table_name"""
 		table_row_count_cmd = ("%s.rowCount()") % (table_name)
-		table_row_count = eval(table_row_count_cmd)
+		table_row_count = ast.literal_ast.literal_eval(table_row_count_cmd)
 		rowSelected_cmd = ("%s.selectedIndexes()") % (table_name)
-		rowSelected = eval(rowSelected_cmd)
+		rowSelected = ast.literal_ast.literal_eval(rowSelected_cmd)
 		rowIndex = (rowSelected[0].row())
 		cmd = ("%s.removeRow(%d)") % (table_name, rowIndex)
-		eval(cmd)
+		ast.literal_ast.literal_eval(cmd)
 
 	def setComboBoxEditable(self, f, n):
 		field_names = f
@@ -748,7 +748,7 @@ class pyarchinit_PDFAdministrator(QDialog, Ui_DialogPDFManager):
 
 		for fn in field_names:
 			cmd = ('%s%s%d%s') % (fn, '.setEditable(', n, ')')
-			eval(cmd)
+			ast.literal_ast.literal_eval(cmd)
 
 	def setComboBoxEnable(self, f, v):
 		field_names = f

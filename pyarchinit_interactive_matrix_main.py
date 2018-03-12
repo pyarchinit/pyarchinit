@@ -111,7 +111,7 @@ class pyarchinit_Interactive_Matrix(QDialog, Ui_DialogInteractiveMatrix):
 		data = []
 		for sing_rec in self.DATA_LIST:
 			us = str(sing_rec.us)
-			rapporti_stratigrafici = eval(sing_rec.rapporti)
+			rapporti_stratigrafici = ast.literal_eval(sing_rec.rapporti)
 			for sing_rapp in rapporti_stratigrafici:
 				try:
 					if sing_rapp[0] == 'Taglia' or  sing_rapp[0] == 'Copre' or  sing_rapp[0] == 'Si appoggia a' or  sing_rapp[0] == 'Riempie' or sing_rapp[0] == 'Si lega a' or  sing_rapp[0] == 'Uguale a':

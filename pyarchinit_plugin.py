@@ -93,7 +93,7 @@ class PyArchInitPlugin:
 	path_rel = os.path.join(os.sep, str(HOME), 'pyarchinit_DB_folder', 'config.cfg')
 	conf = open(path_rel, "r")
 	data = conf.read()
-	PARAMS_DICT = eval(data)
+	PARAMS_DICT = ast.literal_eval(data)
 	if ('EXPERIMENTAL' in PARAMS_DICT) == False:
 		PARAMS_DICT['EXPERIMENTAL'] = 'No'
 		f = open(path_rel, "w")
