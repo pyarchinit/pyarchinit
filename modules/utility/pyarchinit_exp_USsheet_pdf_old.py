@@ -561,9 +561,6 @@ class US_index_pdf_sheet:
 		return data
 
 	def makeStyles(self):
-		styles
-
-	def makeStyles(self):
 		styles =TableStyle([('GRID',(0,0),(-1,-1),0.0,colors.black),('VALIGN', (0,0), (-1,-1), 'TOP')
 		])  #finale
 
