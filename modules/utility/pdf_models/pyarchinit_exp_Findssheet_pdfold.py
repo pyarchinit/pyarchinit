@@ -9,8 +9,6 @@ from reportlab.pdfgen import canvas
 from reportlab.platypus import Table, PageBreak, SimpleDocTemplate, Paragraph, Spacer, TableStyle
 from reportlab.platypus.paragraph import Paragraph
 
-from datetime import date, time
-
 from pyarchinit_OS_utility import *
 
 

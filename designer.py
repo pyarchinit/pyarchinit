@@ -569,7 +569,6 @@ class AppFrame(wx.Frame):
             os.rename(self.filename, self.filename + ts + ".bak")
         except Exception as e:
             if DEBUG: print(e)
-            pass
         
         def csv_repr(v, decimal_sep="."):
             if isinstance(v, float):
