@@ -121,7 +121,7 @@ class pyArchInitDialog_Config(QDialog, Ui_Dialog_Config):
 		path_rel = os.path.join(os.sep, str(self.HOME), 'pyarchinit_DB_folder', 'config.cfg')
 		conf = open(path_rel, "r")
 		data = conf.read()
-		self.PARAMS_DICT = eval(data)
+		self.PARAMS_DICT = ast.literal_eval(data)
 
 	def save_dict(self):
 		#save data into config.cfg file

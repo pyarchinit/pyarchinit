@@ -355,7 +355,7 @@ class pyarchinit_Archeozoology(QDialog, Ui_DialogArcheoZoology):
 
         id_list = []
         for i in self.DATA_LIST:
-            id_list.append(eval('i.' + self.ID_TABLE))
+            id_list.append(ast.literal_eval('i.' + self.ID_TABLE))
         self.DATA_LIST = []
 
         temp_data_list = self.DB_MANAGER.query_sort(id_list,
@@ -684,7 +684,7 @@ class pyarchinit_Archeozoology(QDialog, Ui_DialogArcheoZoology):
                                 )
         else:
             try:
-                id_to_delete = eval('self.DATA_LIST[self.REC_CORR].'
+                id_to_delete = ast.literal_eval('self.DATA_LIST[self.REC_CORR].'
                                     + self.ID_TABLE)
                 self.DB_MANAGER.delete_one_record(self.TABLE_NAME,
                         self.ID_TABLE, id_to_delete)
@@ -1018,17 +1018,17 @@ class pyarchinit_Archeozoology(QDialog, Ui_DialogArcheoZoology):
             % (str(self.host.currentText()), str(self.db.text()),
                int(self.port.currentText()), str(self.password.text()),
                str(self.user.currentText()))
-        eval(n)
+        ast.literal_eval(n)
         con = \
             'r(\'archezoology_table<-dbGetQuery(con,"select * from archeozoology_table where us = %d AND bos_bison IS NOT NULL")\')' \
             % int(self.DATA_LIST[i].us)
-        eval(con)
+        ast.literal_eval(con)
         if self.bos.isChecked() == True:
             x1 = \
                 'r(\'VGM_PARAM_A3 <- gstat(id="%s", formula=%s~1,locations=~coord_x+coord_y, data=archezoology_table, nmax = 10)\')' \
                 % (str(self.lineEdit_bos_2.currentText()),
                    str(self.c1.currentText()))
-            eval(x1)
+            ast.literal_eval(x1)
         else:
             pass
         if self.calcinati.isChecked() == True:
@@ -1036,7 +1036,7 @@ class pyarchinit_Archeozoology(QDialog, Ui_DialogArcheoZoology):
                 'r(\'VGM_PARAM_A3 <- gstat(VGM_PARAM_A3, "%s", %s~1, locations=~coord_x+coord_y, archezoology_table, nmax = 10)\')' \
                 % (str(self.lineEdit_calcinati_2.text()),
                    str(self.c2.currentText()))
-            eval(x2)
+            ast.literal_eval(x2)
         else:
             pass
         if self.camoscio.isChecked() == True:
@@ -1044,7 +1044,7 @@ class pyarchinit_Archeozoology(QDialog, Ui_DialogArcheoZoology):
                 'r(\'VGM_PARAM_A3 <- gstat(VGM_PARAM_A3,"%s", %s~1, locations=~coord_x+coord_y,archezoology_table, nmax = 10)\')' \
                 % (str(self.lineEdit_camoscio_2.text()),
                    str(self.c3.currentText()))
-            eval(x3)
+            ast.literal_eval(x3)
         else:
             pass
         if self.capriolo.isChecked() == True:
@@ -1052,7 +1052,7 @@ class pyarchinit_Archeozoology(QDialog, Ui_DialogArcheoZoology):
                 'r(\'VGM_PARAM_A3 <- gstat(VGM_PARAM_A3, "%s", %s~1, locations=~coord_x+coord_y,archezoology_table, nmax = 10)\')' \
                 % (str(self.lineEdit_capriolo_2.text()),
                    str(self.c4.currentText()))
-            eval(x4)
+            ast.literal_eval(x4)
         else:
             pass
         if self.cervi.isChecked() == True:
@@ -1060,7 +1060,7 @@ class pyarchinit_Archeozoology(QDialog, Ui_DialogArcheoZoology):
                 'r(\'VGM_PARAM_A3 <- gstat(VGM_PARAM_A3, "%s", %s~1, locations=~coord_x+coord_y,archezoology_table, nmax = 10)\')' \
                 % (str(self.lineEdit_cervo_2.text()),
                    str(self.c5.currentText()))
-            eval(x5)
+            ast.literal_eval(x5)
         else:
             pass
         if self.combuste.isChecked() == True:
@@ -1068,7 +1068,7 @@ class pyarchinit_Archeozoology(QDialog, Ui_DialogArcheoZoology):
                 'r(\'VGM_PARAM_A3 <- gstat(VGM_PARAM_A3, "%s", %s~1, locations=~coord_x+coord_y,archezoology_table, nmax = 10)\')' \
                 % (str(self.lineEdit_combusto_2.text()),
                    str(self.c6.currentText()))
-            eval(x6)
+            ast.literal_eval(x6)
         else:
             pass
         if self.coni.isChecked() == True:
@@ -1076,7 +1076,7 @@ class pyarchinit_Archeozoology(QDialog, Ui_DialogArcheoZoology):
                 'r(\'VGM_PARAM_A3 <- gstat(VGM_PARAM_A3, "%s", %s~1, locations=~coord_x+coord_y,archezoology_table, nmax = 10)\')' \
                 % (str(self.lineEdit_coni_2.text()),
                    str(self.c7.currentText()))
-            eval(x7)
+            ast.literal_eval(x7)
         else:
             pass
         if self.pdi.isChecked() == True:
@@ -1084,7 +1084,7 @@ class pyarchinit_Archeozoology(QDialog, Ui_DialogArcheoZoology):
                 'r(\'VGM_PARAM_A3 <- gstat(VGM_PARAM_A3, "%s", %s~1, locations=~coord_x+coord_y,archezoology_table, nmax = 10)\')' \
                 % (str(self.lineEdit_pdi_2.text()),
                    str(self.c8.currentText()))
-            eval(x8)
+            ast.literal_eval(x8)
         else:
             pass
         if self.stambecco.isChecked() == True:
@@ -1092,7 +1092,7 @@ class pyarchinit_Archeozoology(QDialog, Ui_DialogArcheoZoology):
                 'r(\'VGM_PARAM_A3 <- gstat(VGM_PARAM_A3, "%s", %s~1, locations=~coord_x+coord_y,archezoology_table, nmax = 10)\')' \
                 % (str(self.lineEdit_stambecco_2.text()),
                    str(self.c9.currentText()))
-            eval(x9)
+            ast.literal_eval(x9)
         else:
             pass
         if self.strie.isChecked() == True:
@@ -1107,7 +1107,7 @@ class pyarchinit_Archeozoology(QDialog, Ui_DialogArcheoZoology):
                 'r(\'VGM_PARAM_A3 <- gstat(VGM_PARAM_A3, "%s", %s~1, locations=~coord_x+coord_y,archezoology_table, nmax = 10)\')' \
                 % (str(self.lineEdit_megacero_2.text()),
                    str(self.c13.currentText()))
-            eval(x11)
+            ast.literal_eval(x11)
         else:
             pass
         if self.ursidi.isChecked() == True:
@@ -1115,7 +1115,7 @@ class pyarchinit_Archeozoology(QDialog, Ui_DialogArcheoZoology):
                 'r(\'VGM_PARAM_A3 <- gstat(VGM_PARAM_A3, "%s", %s~1, locations=~coord_x+coord_y,archezoology_table, nmax = 10)\')' \
                 % (str(self.lineEdit_ursidi_2.text()),
                    str(self.c12.currentText()))
-            eval(x12)
+            ast.literal_eval(x12)
         else:
             pass
         if self.canidi.isChecked() == True:
@@ -1123,7 +1123,7 @@ class pyarchinit_Archeozoology(QDialog, Ui_DialogArcheoZoology):
                 'r(\'VGM_PARAM_A3 <- gstat(VGM_PARAM_A3, "%s", %s~1, locations=~coord_x+coord_y,archezoology_table, nmax = 10)\')' \
                 % (str(self.lineEdit_canidi_2.text()),
                    str(self.c11.currentText()))
-            eval(x13)
+            ast.literal_eval(x13)
         else:
             pass
             c = \
@@ -1132,11 +1132,11 @@ class pyarchinit_Archeozoology(QDialog, Ui_DialogArcheoZoology):
                    str(self.model.currentText()),
                    str(self.rang.text()), int(self.nugget_2.text()),
                    str(self.kappa.text()))
-            eval(c)
+            ast.literal_eval(c)
             d = "r('ESV_A3 <- variogram(A3, width=%s, cutoff=%d)')" \
                 % (str(self.lineEdit_width.text()),
                    int(self.cutoff.text()))
-            eval(d)
+            ast.literal_eval(d)
 
             fittare = \
                 'r(\'VARMODEL_A3 = fit.lmc(ESV_A3, A3,model=vgm(%d,"%s",%s, nugget = %d, kappa= %s))\')' \
@@ -1144,7 +1144,7 @@ class pyarchinit_Archeozoology(QDialog, Ui_DialogArcheoZoology):
                    str(self.model.currentText()),
                    str(self.rang.text()), int(self.nugget_2.text()),
                    str(self.kappa.text()))
-            eval(fittare)
+            ast.literal_eval(fittare)
             a = \
                 'r(\'png("%s/A%d_semivariogram.png", width=%d, height=%d, res=400); plot(ESV_A3, model=VARMODEL_A3,xlab=,ylab=,pch=20, cex=0.7, col="red", main="Linear Model of Coregionalization A%d")\')' \
                 % (str(self.lineEdit_esp_generale.text()),
@@ -1152,7 +1152,7 @@ class pyarchinit_Archeozoology(QDialog, Ui_DialogArcheoZoology):
                    int(self.set_size_plot.text()),
                    int(self.set_size_plot.text()),
                    int(self.DATA_LIST[i].us))
-            eval(a)
+            ast.literal_eval(a)
 
     def on_mappa_pressed(self):  # ####modifiche apportate per il calcolo statistico con R
 
@@ -1430,17 +1430,17 @@ class pyarchinit_Archeozoology(QDialog, Ui_DialogArcheoZoology):
             % (str(self.host.currentText()), str(self.db.text()),
                int(self.port.currentText()), str(self.password.text()),
                str(self.user.currentText()))
-        eval(n)
+        ast.literal_eval(n)
         con = \
             'r(\'archezoology_table<-dbGetQuery(con,"select * from archeozoology_table where us = %d AND bos_bison IS NOT NULL")\')' \
             % int(self.DATA_LIST[i].us)
-        eval(con)
+        ast.literal_eval(con)
         if self.bos.isChecked() == True:
             x1 = \
                 'r(\'VGM_PARAM_A3 <- gstat(id="%s", formula=%s~1,locations=~coord_x+coord_y, data=archezoology_table, nmax = 10)\')' \
                 % (str(self.lineEdit_bos_2.currentText()),
                    str(self.c1.currentText()))
-            eval(x1)
+            ast.literal_eval(x1)
         else:
             pass
         if self.calcinati.isChecked() == True:
@@ -1448,7 +1448,7 @@ class pyarchinit_Archeozoology(QDialog, Ui_DialogArcheoZoology):
                 'r(\'VGM_PARAM_A3 <- gstat(VGM_PARAM_A3, "%s", %s~1, locations=~coord_x+coord_y, archezoology_table, nmax = 10)\')' \
                 % (str(self.lineEdit_calcinati_2.text()),
                    str(self.c2.currentText()))
-            eval(x2)
+            ast.literal_eval(x2)
         else:
             pass
         if self.camoscio.isChecked() == True:
@@ -1456,7 +1456,7 @@ class pyarchinit_Archeozoology(QDialog, Ui_DialogArcheoZoology):
                 'r(\'VGM_PARAM_A3 <- gstat(VGM_PARAM_A3,"%s", %s~1, locations=~coord_x+coord_y,archezoology_table, nmax = 10)\')' \
                 % (str(self.lineEdit_camoscio_2.text()),
                    str(self.c3.currentText()))
-            eval(x3)
+            ast.literal_eval(x3)
         else:
             pass
         if self.capriolo.isChecked() == True:
@@ -1464,7 +1464,7 @@ class pyarchinit_Archeozoology(QDialog, Ui_DialogArcheoZoology):
                 'r(\'VGM_PARAM_A3 <- gstat(VGM_PARAM_A3, "%s", %s~1, locations=~coord_x+coord_y,archezoology_table, nmax = 10)\')' \
                 % (str(self.lineEdit_capriolo_2.text()),
                    str(self.c4.currentText()))
-            eval(x4)
+            ast.literal_eval(x4)
         else:
             pass
         if self.cervi.isChecked() == True:
@@ -1472,7 +1472,7 @@ class pyarchinit_Archeozoology(QDialog, Ui_DialogArcheoZoology):
                 'r(\'VGM_PARAM_A3 <- gstat(VGM_PARAM_A3, "%s", %s~1, locations=~coord_x+coord_y,archezoology_table, nmax = 10)\')' \
                 % (str(self.lineEdit_cervo_2.text()),
                    str(self.c5.currentText()))
-            eval(x5)
+            ast.literal_eval(x5)
         else:
             pass
         if self.combuste.isChecked() == True:
@@ -1480,7 +1480,7 @@ class pyarchinit_Archeozoology(QDialog, Ui_DialogArcheoZoology):
                 'r(\'VGM_PARAM_A3 <- gstat(VGM_PARAM_A3, "%s", %s~1, locations=~coord_x+coord_y,archezoology_table, nmax = 10)\')' \
                 % (str(self.lineEdit_combusto_2.text()),
                    str(self.c6.currentText()))
-            eval(x6)
+            ast.literal_eval(x6)
         else:
             pass
         if self.coni.isChecked() == True:
@@ -1488,7 +1488,7 @@ class pyarchinit_Archeozoology(QDialog, Ui_DialogArcheoZoology):
                 'r(\'VGM_PARAM_A3 <- gstat(VGM_PARAM_A3, "%s", %s~1, locations=~coord_x+coord_y,archezoology_table, nmax = 10)\')' \
                 % (str(self.lineEdit_coni_2.text()),
                    str(self.c7.currentText()))
-            eval(x7)
+            ast.literal_eval(x7)
         else:
             pass
         if self.pdi.isChecked() == True:
@@ -1496,7 +1496,7 @@ class pyarchinit_Archeozoology(QDialog, Ui_DialogArcheoZoology):
                 'r(\'VGM_PARAM_A3 <- gstat(VGM_PARAM_A3, "%s", %s~1, locations=~coord_x+coord_y,archezoology_table, nmax = 10)\')' \
                 % (str(self.lineEdit_pdi_2.text()),
                    str(self.c8.currentText()))
-            eval(x8)
+            ast.literal_eval(x8)
         else:
             pass
         if self.stambecco.isChecked() == True:
@@ -1504,7 +1504,7 @@ class pyarchinit_Archeozoology(QDialog, Ui_DialogArcheoZoology):
                 'r(\'VGM_PARAM_A3 <- gstat(VGM_PARAM_A3, "%s", %s~1, locations=~coord_x+coord_y,archezoology_table, nmax = 10)\')' \
                 % (str(self.lineEdit_stambecco_2.text()),
                    str(self.c9.currentText()))
-            eval(x9)
+            ast.literal_eval(x9)
         else:
             pass
         if self.strie.isChecked() == True:
@@ -1519,7 +1519,7 @@ class pyarchinit_Archeozoology(QDialog, Ui_DialogArcheoZoology):
                 'r(\'VGM_PARAM_A3 <- gstat(VGM_PARAM_A3, "%s", %s~1, locations=~coord_x+coord_y,archezoology_table, nmax = 10)\')' \
                 % (str(self.lineEdit_megacero_2.text()),
                    str(self.c13.currentText()))
-            eval(x11)
+            ast.literal_eval(x11)
         else:
             pass
         if self.ursidi.isChecked() == True:
@@ -1527,7 +1527,7 @@ class pyarchinit_Archeozoology(QDialog, Ui_DialogArcheoZoology):
                 'r(\'VGM_PARAM_A3 <- gstat(VGM_PARAM_A3, "%s", %s~1, locations=~coord_x+coord_y,archezoology_table, nmax = 10)\')' \
                 % (str(self.lineEdit_ursidi_2.text()),
                    str(self.c12.currentText()))
-            eval(x12)
+            ast.literal_eval(x12)
         else:
             pass
         if self.canidi.isChecked() == True:
@@ -1535,7 +1535,7 @@ class pyarchinit_Archeozoology(QDialog, Ui_DialogArcheoZoology):
                 'r(\'VGM_PARAM_A3 <- gstat(VGM_PARAM_A3, "%s", %s~1, locations=~coord_x+coord_y,archezoology_table, nmax = 10)\')' \
                 % (str(self.lineEdit_canidi_2.text()),
                    str(self.c11.currentText()))
-            eval(x13)
+            ast.literal_eval(x13)
         else:
             pass
             c = \
@@ -1544,12 +1544,12 @@ class pyarchinit_Archeozoology(QDialog, Ui_DialogArcheoZoology):
                    str(self.model.currentText()),
                    str(self.rang.text()), int(self.nugget_2.text()),
                    str(self.kappa.text()))
-            eval(c)
+            ast.literal_eval(c)
             d = \
                 "r('ESV_A3 <- variogram(VGM_PARAM_A3, map=TRUE, width=%s, cutoff=%d)')" \
                 % (str(self.lineEdit_width.text()),
                    int(self.cutoff.text()))
-            eval(d)
+            ast.literal_eval(d)
             r('VARMODEL_A3 = fit.lmc(ESV_A3, VGM_PARAM_A3)')
             a = \
                 'r(\'png("%s/A%d_semivariogram_map.png", width=%d, height=%d, res=400); plot(ESV_A3, threshold = 5, col.regions = terrain.colors, model=vgm(%d,"%s",%s,%d),xlab=,ylab=, main="Linear Model of Coregionalization A%d")\')' \
@@ -1564,7 +1564,7 @@ class pyarchinit_Archeozoology(QDialog, Ui_DialogArcheoZoology):
                 int(self.nugget_2.text()),
                 int(self.DATA_LIST[i].us),
                 )
-            eval(a)
+            ast.literal_eval(a)
 
     def on_automap_pressed(self):  # ####modifiche apportate per il calcolo statistico con R
         from PyQt4.QtCore import *
@@ -1662,11 +1662,11 @@ class pyarchinit_Archeozoology(QDialog, Ui_DialogArcheoZoology):
             % (str(self.host.currentText()), str(self.db.text()),
                int(self.port.currentText()), str(self.password.text()),
                str(self.user.currentText()))
-        eval(n)
+        ast.literal_eval(n)
         con = \
             'r(\'archezoology_table<-dbGetQuery(con,"select * from archeozoology_table where us = %d AND bos_bison IS NOT NULL")\')' \
             % int(self.DATA_LIST[i].us)
-        eval(con)
+        ast.literal_eval(con)
 
         r('coordinates(archezoology_table) =~coord_x+coord_y')
 
@@ -1676,40 +1676,40 @@ class pyarchinit_Archeozoology(QDialog, Ui_DialogArcheoZoology):
                str(self.model_2.currentText()),
                str(self.nugget_3.text()), str(self.rang_2.text()),
                str(self.psill_2.text()))
-        eval(kr)
+        ast.literal_eval(kr)
 
         plotkr = \
             'r(\'png("%s/A%d_kriging_%s.png", width=3500, height=3500, res=400); plot(kriging_result)\')' \
             % (str(self.lineEdit_esp_generale.text()),
                int(self.DATA_LIST[i].us),
                str(self.lineEdit_automap.currentText()))
-        eval(plotkr)
+        ast.literal_eval(plotkr)
 
         plot2 = \
             'r(\'png("%s/A%d_kriging_predict_%s.png", width=3500, height=3500, res=400); automapPlot(kriging_result$krige_output, "var1.pred", sp.layout = list("sp.points", archezoology_table))\')' \
             % (str(self.lineEdit_esp_generale.text()),
                int(self.DATA_LIST[i].us),
                str(self.lineEdit_automap.currentText()))
-        eval(plot2)
+        ast.literal_eval(plot2)
         raster = \
             'r(\'writeRaster(raster(kriging_result$krige_output),"%s/A%d_kriging_predict_%s.tif","GTiff")\')' \
             % (str(self.lineEdit_esp_generale.text()),
                int(self.DATA_LIST[i].us),
                str(self.lineEdit_automap.currentText()))
-        eval(raster)
+        ast.literal_eval(raster)
         add_map = \
             'self.iface.addRasterLayer("%s/A%d_kriging_predict_%s.tif")' \
             % (str(self.lineEdit_esp_generale.text()),
                int(self.DATA_LIST[i].us),
                str(self.lineEdit_automap.currentText()))
-        eval(add_map)
+        ast.literal_eval(add_map)
         test = \
             'r(\'verifica_errore <- krige.cv(%s~1, archezoology_table, model=vgm(%s,"%s",%s,%s),nfold=nrow(archezoology_table))\')' \
             % (str(self.lineEdit_automap.currentText()),
                str(self.psill_2.text()),
                str(self.model_2.currentText()),
                str(self.rang_2.text()), str(self.nugget_3.text()))
-        eval(test)
+        ast.literal_eval(test)
 
         r('''
 ME <- function(xv.obj){
@@ -1738,7 +1738,7 @@ MSDR <- function(xv.obj){
             % (str(self.lineEdit_esp_generale.text()),
                str(self.lineEdit_esp_generale.text()),
                str(self.lineEdit_esp_generale.text()))
-        eval(error)
+        ast.literal_eval(error)
 
     def on_report_pressed(self):
         from pyarchinit_conn_strings import *
@@ -1832,31 +1832,31 @@ MSDR <- function(xv.obj){
             % (str(self.host.currentText()), str(self.db.text()),
                int(self.port.currentText()), str(self.password.text()),
                str(self.user.currentText()))
-        eval(con)
+        ast.literal_eval(con)
         query = \
             'r(\'archezoology_table<-dbGetQuery(con,"select * from archeozoology_table where us = %d AND bos_bison IS NOT NULL")\')' \
             % int(self.DATA_LIST[i].us)
-        eval(query)
+        ast.literal_eval(query)
         direc = 'r(\'directory = setwd("%s")\')' \
             % str(self.lineEdit_esp_generale.text())
-        eval(direc)
+        ast.literal_eval(direc)
         test1 = 'r(\'myfile<-file.path(getwd(),"%s.html")\')' \
             % str(self.plot.currentText())
-        eval(test1)
+        ast.literal_eval(test1)
         test2 = 'r(\'HTMLoutput=file.path(getwd(),"%s.html")\')' \
             % str(self.plot.currentText())
-        eval(test2)
+        ast.literal_eval(test2)
         nome = 'r(\'graf="%s.png"\')' % str(self.plot.currentText())
-        eval(nome)
+        ast.literal_eval(nome)
         r('png(file.path(getwd(),graf))')
         data = "r('dat <- rnorm(archezoology_table$%s)')" \
             % str(self.plot.currentText())
-        eval(data)
+        ast.literal_eval(data)
         r('cex_brks <- quantile(dat, c(0.25,0.5,0.75))')
         r('cex_size <- c(1)')
         cex = "r('cex=(archezoology_table$%s)/%d')" \
             % (str(self.plot.currentText()), int(self.size.text()))
-        eval(cex)
+        ast.literal_eval(cex)
         r('''
 			for (i in 1:3) {
 			    cex[is.na(cex) & dat<=cex_brks[[i]]] <- cex_size[[i]]
@@ -1866,16 +1866,16 @@ MSDR <- function(xv.obj){
         plot = \
             'r(\'plot(archezoology_table$coord_x,archezoology_table$coord_y, cex=cex,xlab="x axis", ylab="y axis", main="Pianta a dispersione di A%d - %s", ylim=c(0,10), xlim=c(0,10), pch=1,col="red")\')' \
             % (int(self.DATA_LIST[i].us), str(self.plot.currentText()))
-        eval(plot)
+        ast.literal_eval(plot)
         legend = \
             'r(\'legend(9,10, pch = 1, c(1:%d),pt.cex = (1:%d/%d), cex = cex_size, col="red")\')' \
             % (int(self.size.text()), int(self.size.text()),
                int(self.size.text()))
-        eval(legend)
+        ast.literal_eval(legend)
         r('dev.off()')
         test3 = "r('tab<-summary(archezoology_table[%d:%d])')" \
             % (int(self.l1.currentText()), int(self.l2.currentText()))
-        eval(test3)
+        ast.literal_eval(test3)
 
         r('''
 			cat("<table border=0><td width=50%>",file=HTMLoutput, append=TRUE)
@@ -1976,12 +1976,12 @@ MSDR <- function(xv.obj){
             % (str(self.host.currentText()), str(self.db.text()),
                int(self.port.currentText()), str(self.password.text()),
                str(self.user.currentText()))
-        eval(con)
+        ast.literal_eval(con)
 
         query = \
             'r(\'archezoology_table<-dbGetQuery(con,"select * from archeozoology_table where us = %d AND bos_bison IS NOT NULL")\')' \
             % int(self.DATA_LIST[i].us)
-        eval(query)
+        ast.literal_eval(query)
 
         histogram = \
             "r('png(\"%s/%s_histogram.png\", width=2500, height=2500, res=400); hist(archezoology_table$%s, col=\"yellow\",xlab=\"Quantità\", ylab=\"Frequenza\",labels=TRUE, main=\"Distribuzione di frequenza %s\")')" \
@@ -1989,21 +1989,21 @@ MSDR <- function(xv.obj){
                str(self.plot.currentText()),
                str(self.plot.currentText()),
                str(self.plot.currentText()))
-        eval(histogram)
+        ast.literal_eval(histogram)
         abline1 = \
             'r(\'abline(v=mean(archezoology_table$%s, na.rm=TRUE),col="red", lwd=2)\')' \
             % str(self.plot.currentText())
-        eval(abline1)
+        ast.literal_eval(abline1)
         abline2 = \
             "r('abline(v=mean(archezoology_table$%s, na.rm=TRUE)+sd(archezoology_table$%s, na.rm=TRUE),col=3, lty=2)')" \
             % (str(self.plot.currentText()),
                str(self.plot.currentText()))
-        eval(abline2)
+        ast.literal_eval(abline2)
         abline3 = \
             "r('abline(v=mean(archezoology_table$%s, na.rm=TRUE)-sd(archezoology_table$%s, na.rm=TRUE),col=3, lty=2)')" \
             % (str(self.plot.currentText()),
                str(self.plot.currentText()))
-        eval(abline3)
+        ast.literal_eval(abline3)
 
     def on_hist_period_pressed(self):
         from pyarchinit_conn_strings import *
@@ -2107,18 +2107,18 @@ MSDR <- function(xv.obj){
             % (str(self.host.currentText()), str(self.db.text()),
                int(self.port.currentText()), str(self.password.text()),
                str(self.user.currentText()))
-        eval(con)
+        ast.literal_eval(con)
 
         query = \
             'r(\'archezoology_table<-dbGetQuery(con,"select * from archeozoology_table where us=%d AND bos_bison IS NOT NULL")\')' \
             % int(self.DATA_LIST[i].us)
-        eval(query)
+        ast.literal_eval(query)
 
         histogram1 = \
             'r(\'png("%s/A%d/histogram/test.png", width=7000, height=3500, res=400)\')' \
             % (str(self.lineEdit_esp_generale.text()),
                int(self.DATA_LIST[i].us))
-        eval(histogram1)
+        ast.literal_eval(histogram1)
 
         r('''
 		
@@ -2151,7 +2151,7 @@ do.it <- function (x) {
             str(self.c4_2.currentText()),
             str(self.c4_2.currentText()),
             )
-        eval(histogram2)
+        ast.literal_eval(histogram2)
 
     def on_boxplot_pressed(self):
         from pyarchinit_conn_strings import *
@@ -2224,22 +2224,22 @@ do.it <- function (x) {
             % (str(self.host.currentText()), str(self.db.text()),
                int(self.port.currentText()), str(self.password.text()),
                str(self.user.currentText()))
-        eval(con)
+        ast.literal_eval(con)
 
         query = \
             'r(\'archezoology_table<-dbGetQuery(con,"select * from archeozoology_table where us=%d AND bos_bison IS NOT NULL")\')' \
             % int(self.DATA_LIST[i].us)
-        eval(query)
+        ast.literal_eval(query)
 
         boxplot = \
             'r(\'png("%s/A%d/boxplot/%s_boxplot.png", width=3500, height=3500, res=400)\')' \
             % (str(self.lineEdit_esp_generale.text()),
                int(self.DATA_LIST[i].us), str(self.plot.currentText()))
-        eval(boxplot)
+        ast.literal_eval(boxplot)
         r('op=par(mar=c(0,5,0,0)); layout(matrix(c(1,1,1,2), nc=1))')
         codice = "r('a=archezoology_table$%s')" \
             % str(self.plot.currentText())
-        eval(codice)
+        ast.literal_eval(codice)
         r('y=ppoints(length(a));x=sort(a);plot(y ~ x, type="l", lwd=2, ylab="percent", main="");abline(h=c(0,.25,.5,.75,1), col=1, lwd=2,lty=3);abline(v=quantile(a), col=2, lwd=2, lty=2);abline(v=mean(a), col=3, lwd=1.5, lty=4);points(quantile(a), c(0,.25,.5,.75,1), lwd=5,col=4);legend(1000,0.1,"legend");boxplot(a, horizontal=TRUE, notch=FALSE, col=5, lwd=2, cex=2);abline(v=quantile(a), col=2, lwd=2, lty=2);abline(v=mean(a), col=3, lwd=1.5, lty=4)'
           )
         r('par(op)')
@@ -2335,17 +2335,17 @@ do.it <- function (x) {
             % (str(self.host.currentText()), str(self.db.text()),
                int(self.port.currentText()), str(self.password.text()),
                str(self.user.currentText()))
-        eval(con)
+        ast.literal_eval(con)
         query = \
             'r(\'archezoology_table<-dbGetQuery(con,"select * from archeozoology_table" )\')'
-        eval(query)
+        ast.literal_eval(query)
 
         coplot = \
             'r(\'png("%s/%s_coplot.png", width=3500, height=3500, res=400); coplot(coord_y ~ coord_x | us*%s , data= archezoology_table, overlap=0, cex=1,pch=20,col=4)\')' \
             % (str(self.lineEdit_esp_generale.text()),
                str(self.plot.currentText()),
                str(self.plot.currentText()))
-        eval(coplot)
+        ast.literal_eval(coplot)
 
     def on_clipper_pressed(self):
         from tools.doClipper import GdalToolsDialog as Clipper
@@ -2469,16 +2469,16 @@ do.it <- function (x) {
             % (str(self.host.currentText()), str(self.db.text()),
                int(self.port.currentText()), str(self.password.text()),
                str(self.user.currentText()))
-        eval(con)
+        ast.literal_eval(con)
         g = \
             'r(\'png("%s/A%d_correlation_matrix.png", width=2500, height=2500, pointsize=20)\')' \
             % (str(self.lineEdit_esp_generale.text()),
                int(self.DATA_LIST[i].us))
-        eval(g)
+        ast.literal_eval(g)
         h = \
             'r(\'archezoology_table<-dbGetQuery(con,"select * from archeozoology_table where us = %d AND bos_bison IS NOT NULL")\')' \
             % int(self.DATA_LIST[i].us)
-        eval(h)
+        ast.literal_eval(h)
 
         r('''
 panel.hist <- function(x, ...)      {
@@ -2560,7 +2560,7 @@ title(sub="Rosso = coppie con r>|0.5|, Verde = coppie con |0.25|<r<|0.5|;
             y.append(geom.asPoint()[1])
             tab = '(z.append(elem.attributes()[%d]))' \
                 % int(self.tab_5.text())
-            eval(tab)
+            ast.literal_eval(tab)
 
         from mpl_toolkits.mplot3d.axes3d import *
         import matplotlib.pyplot as plt
@@ -2847,7 +2847,7 @@ title(sub="Rosso = coppie con r>|0.5|, Verde = coppie con |0.25|<r<|0.5|;
             self.update_record()
             id_list = []
             for i in self.DATA_LIST:
-                id_list.append(eval('i.' + self.ID_TABLE))
+                id_list.append(ast.literal_eval('i.' + self.ID_TABLE))
             self.DATA_LIST = []
             if self.SORT_STATUS == 'n':
 
@@ -2875,8 +2875,8 @@ title(sub="Rosso = coppie con r>|0.5|, Verde = coppie con |0.25|<r<|0.5|;
     def charge_records(self):
         self.DATA_LIST = []
         id_list = []
-        for i in self.DB_MANAGER.query(eval(self.MAPPER_TABLE_CLASS)):
-            id_list.append(eval('i.' + self.ID_TABLE))
+        for i in self.DB_MANAGER.query(ast.literal_eval(self.MAPPER_TABLE_CLASS)):
+            id_list.append(ast.literal_eval('i.' + self.ID_TABLE))
         temp_data_list = self.DB_MANAGER.query_sort(id_list,
                 [self.ID_TABLE], 'asc', self.MAPPER_TABLE_CLASS,
                 self.ID_TABLE)
@@ -2890,13 +2890,13 @@ title(sub="Rosso = coppie con r>|0.5|, Verde = coppie con |0.25|<r<|0.5|;
 
     def table2dict(self, n):
         self.tablename = n
-        row = eval(self.tablename + '.rowCount()')
-        col = eval(self.tablename + '.columnCount()')
+        row = ast.literal_eval(self.tablename + '.rowCount()')
+        col = ast.literal_eval(self.tablename + '.columnCount()')
         lista = []
         for r in range(row):
             sub_list = []
             for c in range(col):
-                value = eval(self.tablename + '.item(r,c)')
+                value = ast.literal_eval(self.tablename + '.item(r,c)')
                 if bool(value) == True:
                     sub_list.append(str(value.text()))
             lista.append(sub_list)
@@ -3147,7 +3147,7 @@ title(sub="Rosso = coppie con r>|0.5|, Verde = coppie con |0.25|<r<|0.5|;
     def set_LIST_REC_CORR(self):
         self.DATA_LIST_REC_CORR = []
         for i in self.TABLE_FIELDS:
-            self.DATA_LIST_REC_CORR.append(eval('str(self.DATA_LIST[self.REC_CORR].'
+            self.DATA_LIST_REC_CORR.append(ast.literal_eval('str(self.DATA_LIST[self.REC_CORR].'
                      + i + ')'))
 
     def setComboBoxEnable(self, f, v):
@@ -3156,7 +3156,7 @@ title(sub="Rosso = coppie con r>|0.5|, Verde = coppie con |0.25|<r<|0.5|;
 
         for fn in field_names:
             cmd = '%s%s%s%s' % (fn, '.setEnabled(', v, ')')
-            eval(cmd)
+            ast.literal_eval(cmd)
 
     def records_equal_check(self):
         self.set_LIST_REC_TEMP()
@@ -3170,7 +3170,7 @@ title(sub="Rosso = coppie con r>|0.5|, Verde = coppie con |0.25|<r<|0.5|;
     def update_record(self):
 
         self.DB_MANAGER.update(self.MAPPER_TABLE_CLASS, self.ID_TABLE,
-                               [eval('int(self.DATA_LIST[self.REC_CORR].'
+                               [ast.literal_eval('int(self.DATA_LIST[self.REC_CORR].'
                                 + self.ID_TABLE + ')')],
                                self.TABLE_FIELDS, self.rec_toupdate())
 

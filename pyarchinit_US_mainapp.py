@@ -317,7 +317,7 @@ class pyarchinit_US(QDialog, Ui_DialogUS):
 
 		table_name = "self.tableWidget_documentazione"
 		rowSelected_cmd = ("%s.selectedIndexes()") % (table_name)
-		rowSelected = eval(rowSelected_cmd)
+		rowSelected = ast.literal_eval(rowSelected_cmd)
 		rowIndex = (rowSelected[0].row())
 
 
@@ -335,7 +335,7 @@ class pyarchinit_US(QDialog, Ui_DialogUS):
 		try:
 			table_name = "self.tableWidget_rapporti"
 			rowSelected_cmd = ("%s.selectedIndexes()") % (table_name)
-			rowSelected = eval(rowSelected_cmd)
+			rowSelected = ast.literal_eval(rowSelected_cmd)
 			rowIndex = (rowSelected[0].row())
 
 			sito = str(self.comboBox_sito.currentText())
@@ -564,7 +564,7 @@ class pyarchinit_US(QDialog, Ui_DialogUS):
 	def loadMapPreview(self, mode = 0):
 		if mode == 0:
 			""" if has geometry column load to map canvas """
-			gidstr =  self.ID_TABLE + " = " + str(eval("self.DATA_LIST[int(self.REC_CORR)]." + self.ID_TABLE))
+			gidstr =  self.ID_TABLE + " = " + str(ast.literal_eval("self.DATA_LIST[int(self.REC_CORR)]." + self.ID_TABLE))
 			layerToSet = self.pyQGIS.loadMapPreview(gidstr)
 
 			QMessageBox.warning(self, "layer to set", str(layerToSet), QMessageBox.Ok)
@@ -580,8 +580,8 @@ class pyarchinit_US(QDialog, Ui_DialogUS):
 		if mode == 0:
 			""" if has geometry column load to map canvas """
 
-			rec_list =  self.ID_TABLE + " = " + str(eval("self.DATA_LIST[int(self.REC_CORR)]." + self.ID_TABLE))
-			search_dict = {'id_entity'  : "'"+str(eval("self.DATA_LIST[int(self.REC_CORR)]." + self.ID_TABLE))+"'", 'entity_type' : "'US'"}
+			rec_list =  self.ID_TABLE + " = " + str(ast.literal_eval("self.DATA_LIST[int(self.REC_CORR)]." + self.ID_TABLE))
+			search_dict = {'id_entity'  : "'"+str(ast.literal_eval("self.DATA_LIST[int(self.REC_CORR)]." + self.ID_TABLE))+"'", 'entity_type' : "'US'"}
 			record_us_list = self.DB_MANAGER.query_bool(search_dict, 'MEDIATOENTITY')
 			for i in record_us_list:
 				search_dict = {'id_media' : "'"+str(i.id_media)+"'"}
@@ -838,97 +838,12 @@ class pyarchinit_US(QDialog, Ui_DialogUS):
 		else:
 			pass
 
-
 	def on_pushButton_orderLayers_pressed(self):
 		QMessageBox.warning(self,'ATTENZIONE',"""Il sistema accetta come dataset da elaborare ricerche su singolo SITO e AREA. Se state lanciando il sistema su siti o aree differenti, i dati di siti differenti saranno sovrascritti. Per terminare il sistema dopo l'Ok premere Cancel.""", QMessageBox.Ok)
 
 		self.launch_matrix_exp_if(QMessageBox.warning(self,'ATTENZIONE',"Si consiglia di lanciare il matrix e controllare se sono presenti paradossi stratigrafici prima di proseguire", QMessageBox.Cancel,1))
 
 		self.launch_order_layer_if(QMessageBox.warning(self,'ATTENZIONE',"Sei sicuro di voler proseguire? Se saranno presenti paradossi stratigrafici il sistema potrebbe andare in crush!", QMessageBox.Cancel,1))
-
-
-
-##	def launch_order_layer_if(self, msg):
-##		if msg == 1:
-##
-##			#report errori rapporti stratigrafici
-##			msg_tipo_rapp = "Manca il tipo di rapporto nell'US: \n"
-##			msg_nr_rapp = "Manca il numero del rapporto nell'US: \n"
-##			msg_paradx_rapp = "Paradosso nei rapporti: \n"
-##			msg_us_mancanti = "Mancano le seguenti schede US presenti nei rapporti: \n"
-##			#report errori rapporti stratigrafici
-##
-##			data = []
-##			for sing_rec in self.DATA_LIST:
-##				us = sing_rec.us
-##				rapporti_stratigrafici = eval(sing_rec.rapporti)
-##				for sing_rapp in rapporti_stratigrafici:
-##					if len(sing_rapp) != 2:
-##						msg_nr_rapp = msg_nr_rapp + str(sing_rapp) + "relativo a: " + str(us) + " \n"
-##						
-##					try:
-##						if sing_rapp[0] == 'Taglia' or  sing_rapp[0] == 'Copre' or  sing_rapp[0] == 'Si appoggia a' or  sing_rapp[0] == 'Riempie':  #or sing_rapp[0] == 'Si lega a' or  sing_rapp[0] == 'Uguale a'
-##							try:
-##								if sing_rapp[1] != '':
-##									harris_rapp = (int(us), int(sing_rapp[1]))
-####									if harris_rapp== (1, 67):
-####										QMessageBox.warning(self, "Messaggio", "Magagna", QMessageBox.Ok)
-##									data.append(harris_rapp)
-##							except:
-##								msg_nr_rapp = msg_nr_rapp + str(us) + " \n"
-##					except:
-##						msg_tipo_rapp = msg_tipo_rapp + str(us) + " \n"
-##
-##			for i in data:
-##				temp_tup = (i[1],i[0]) #controlla che nn vi siano rapporti inversi dentro la lista DA PROBLEMI CON GLI UGUALE A E I SI LEGA A
-##				#QMessageBox.warning(self, "Messaggio", "Temp_tup" + str(temp_tup), QMessageBox.Ok)
-##				if data.count(temp_tup) != 0:
-##					msg_paradx_rapp = msg_paradx_rapp + '\n'+str(i) + '\n' + str(temp_tup)
-##					data.remove(i)
-##			#OK
-####			QMessageBox.warning(self, "Messaggio", "DATA LIST" + str(data), QMessageBox.Ok)
-##
-##			#script order layer from pyqgis
-##			OL = Order_layer_v2(self.DB_MANAGER)
-##			order_layer_dict = OL.main_order_layer()
-##			#script order layer from pyqgis
-##			QMessageBox.warning(self,u'ATTENZIONE',str(order_layer_dict), QMessageBox.Cancel,1)
-##			
-####			if order_layer_dict == "error":
-####				QMessageBox.warning(self, "Messaggio", "Errore nei rapporti stratigrafici", QMessageBox.Ok)
-####			else:
-##			sito = self.DATA_LIST[0].sito #self.comboBox_sito_rappcheck.currentText()
-##			area = self.DATA_LIST[0].area #self.comboBox_area.currentText()
-##			order_number = ""
-##			us = ""
-##			for k,v in order_layer_dict.items():
-##				order_number = str(k)
-##				us = v
-##				for sing_us in v:
-##					search_dict = {'sito' : "'"+unicode(sito)+"'", 'area':"'"+unicode(area)+"'", 'us' : int(sing_us)}
-##					try:
-##						records = self.DB_MANAGER.query_bool(search_dict, self.MAPPER_TABLE_CLASS) #carica tutti i dati di uno scavo ordinati per numero di US
-##
-##						self.DB_MANAGER.update(self.MAPPER_TABLE_CLASS, self.ID_TABLE, [int(records[0].id_us)], ['order_layer'], [order_number])
-##						self.lineEditOrderLayer.setText(unicode(order_number))
-##					except Exception, e:
-##						msg_us_mancanti = str(e) #msg_us_mancanti + "\n"+str(sito) + "area: " + str(area) + " us: " + (us)
-##			
-##			#blocco output errori
-##			filename_tipo_rapporti_mancanti = ('%s%s%s') % (self.REPORT_PATH, os.sep, 'tipo_rapporti_mancanti.txt')
-##			filename_nr_rapporti_mancanti = ('%s%s%s') % (self.REPORT_PATH, os.sep, 'nr_rapporti_mancanti.txt')
-##			filename_paradosso_rapporti = ('%s%s%s') % (self.REPORT_PATH, os.sep, 'paradosso_rapporti.txt')
-##			filename_us_mancanti = ('%s%s%s') % (self.REPORT_PATH, os.sep, 'us_mancanti.txt')
-##
-##			self.testing(filename_tipo_rapporti_mancanti, str(msg_tipo_rapp))
-##			self.testing(filename_nr_rapporti_mancanti, str(msg_nr_rapp))
-##			self.testing(filename_paradosso_rapporti, str(msg_paradx_rapp))
-##			self.testing(filename_us_mancanti, str(msg_us_mancanti))
-##		else:
-##			QMessageBox.warning(self,u'ATTENZIONE',u"Sistema di ordinamento US abortito", QMessageBox.Ok)
-##		#blocco output errori
-####
-
 
 	def launch_order_layer_if(self, msg):
 		if msg == 1:
@@ -943,7 +858,7 @@ class pyarchinit_US(QDialog, Ui_DialogUS):
 			data = []
 			for sing_rec in self.DATA_LIST:
 				us = sing_rec.us
-				rapporti_stratigrafici = eval(sing_rec.rapporti)
+				rapporti_stratigrafici = ast.literal_eval(sing_rec.rapporti)
 				for sing_rapp in rapporti_stratigrafici:
 					if len(sing_rapp) != 2:
 						msg_nr_rapp = msg_nr_rapp + str(sing_rapp) + "relativo a: " + str(us) + " \n"
@@ -979,12 +894,6 @@ class pyarchinit_US(QDialog, Ui_DialogUS):
 			order_layer_dict = OL.main_order_layer()
 
 			QMessageBox.warning(self, "Uscita dal sistema order layer", "Uscita dal sistema order layer",  QMessageBox.Ok)
-
-			#script order layer from pyqgis
-			
-##			if order_layer_dict == "error":
-##				QMessageBox.warning(self, "Messaggio", "Errore nei rapporti stratigrafici", QMessageBox.Ok)
-##			else:
 
 			order_number = ""
 			us = ""
@@ -1042,7 +951,7 @@ class pyarchinit_US(QDialog, Ui_DialogUS):
 			data = []
 			for sing_rec in self.DATA_LIST:
 				us = sing_rec.us
-				rapporti_stratigrafici = eval(sing_rec.rapporti)
+				rapporti_stratigrafici = ast.literal_eval(sing_rec.rapporti)
 				for sing_rapp in rapporti_stratigrafici:
 					if len(sing_rapp) != 2:
 						msg_nr_rapp = msg_nr_rapp + str(sing_rapp) + "relativo a: " + str(us) + " \n"
@@ -1052,8 +961,6 @@ class pyarchinit_US(QDialog, Ui_DialogUS):
 							try:
 								if sing_rapp[1] != '':
 									harris_rapp = (int(us), int(sing_rapp[1]))
-##									if harris_rapp== (1, 67):
-##										QMessageBox.warning(self, "Messaggio", "Magagna", QMessageBox.Ok)
 									data.append(harris_rapp)
 							except:
 								msg_nr_rapp = msg_nr_rapp + str(us) + " \n"
@@ -1079,10 +986,6 @@ class pyarchinit_US(QDialog, Ui_DialogUS):
 
 			QMessageBox.warning(self, "Uscita dal sistema order layer", "Uscita dal sistema order layer",  QMessageBox.Ok)
 			#script order layer from pyqgis
-
-##			if order_layer_dict == "error":
-##				QMessageBox.warning(self, "Messaggio", "Errore nei rapporti stratigrafici", QMessageBox.Ok)
-##			else:
 
 			order_number = ""
 			us = ""
@@ -1195,7 +1098,7 @@ class pyarchinit_US(QDialog, Ui_DialogUS):
 
 			id_list = []
 			for i in self.DATA_LIST:
-				id_list.append(eval("i." + self.ID_TABLE))
+				id_list.append(ast.literal_eval("i." + self.ID_TABLE))
 			self.DATA_LIST = []
 
 			temp_data_list = self.DB_MANAGER.query_sort(id_list, self.SORT_ITEMS_CONVERTED, self.SORT_MODE, self.MAPPER_TABLE_CLASS, self.ID_TABLE)
@@ -1477,7 +1380,7 @@ class pyarchinit_US(QDialog, Ui_DialogUS):
 			us = int(records[rec].us)
 
 			rapporti = records[rec].rapporti #caricati i rapporti nella variabile
-			rapporti = eval(rapporti)
+			rapporti = ast.literal_eval(rapporti)
 
 			for sing_rapp in rapporti:  #itera sulla serie di rapporti
 				report = ''
@@ -1540,7 +1443,7 @@ class pyarchinit_US(QDialog, Ui_DialogUS):
 			def_stratigrafica = "'"+str(records[rec].d_stratigrafica)+"'"
 
 			rapporti = records[rec].rapporti #caricati i rapporti nella variabile
-			rapporti = eval(rapporti)
+			rapporti = ast.literal_eval(rapporti)
 	
 			for sing_rapp in rapporti:  #itera sulla serie di rapporti
 				report = ""
@@ -1832,7 +1735,7 @@ class pyarchinit_US(QDialog, Ui_DialogUS):
 			QMessageBox.warning(self,"Messagio!!!","Azione Annullata!")
 		else:
 			try:
-				id_to_delete = eval("self.DATA_LIST[self.REC_CORR]." + self.ID_TABLE)
+				id_to_delete = ast.literal_eval("self.DATA_LIST[self.REC_CORR]." + self.ID_TABLE)
 				self.DB_MANAGER.delete_one_record(self.TABLE_NAME, self.ID_TABLE, id_to_delete)
 				self.charge_records() #charge records from DB
 				QMessageBox.warning(self,"Messaggio!!!","Record eliminato!")
@@ -2053,7 +1956,7 @@ class pyarchinit_US(QDialog, Ui_DialogUS):
 			if test == 1:
 				id_list = []
 				for i in self.DATA_LIST:
-					id_list.append(eval("i."+ self.ID_TABLE))
+					id_list.append(ast.literal_eval("i."+ self.ID_TABLE))
 				self.DATA_LIST = []
 				if self.SORT_STATUS == "n":
 					temp_data_list = self.DB_MANAGER.query_sort(id_list, [self.ID_TABLE], 'asc', self.MAPPER_TABLE_CLASS, self.ID_TABLE) #self.DB_MANAGER.query_bool(self.SEARCH_DICT_TEMP, self.MAPPER_TABLE_CLASS) #
@@ -2075,7 +1978,7 @@ class pyarchinit_US(QDialog, Ui_DialogUS):
 		try:
 			self.DB_MANAGER.update(self.MAPPER_TABLE_CLASS, 
 						self.ID_TABLE,
-						[eval("int(self.DATA_LIST[self.REC_CORR]." + self.ID_TABLE+")")],
+						[ast.literal_eval("int(self.DATA_LIST[self.REC_CORR]." + self.ID_TABLE+")")],
 						self.TABLE_FIELDS,
 						self.rec_toupdate())
 			return 1
@@ -2093,12 +1996,12 @@ class pyarchinit_US(QDialog, Ui_DialogUS):
 		self.DATA_LIST = []
 
 		if self.DB_SERVER == 'sqlite':
-			for i in self.DB_MANAGER.query(eval(self.MAPPER_TABLE_CLASS)):
+			for i in self.DB_MANAGER.query(ast.literal_eval(self.MAPPER_TABLE_CLASS)):
 				self.DATA_LIST.append(i)
 		else:
 			id_list = []
-			for i in self.DB_MANAGER.query(eval(self.MAPPER_TABLE_CLASS)):
-				id_list.append(eval("i."+ self.ID_TABLE))
+			for i in self.DB_MANAGER.query(ast.literal_eval(self.MAPPER_TABLE_CLASS)):
+				id_list.append(ast.literal_eval("i."+ self.ID_TABLE))
 
 			temp_data_list = self.DB_MANAGER.query_sort(id_list, [self.ID_TABLE], 'asc', self.MAPPER_TABLE_CLASS, self.ID_TABLE)
 
@@ -2117,13 +2020,13 @@ class pyarchinit_US(QDialog, Ui_DialogUS):
 
 	def table2dict(self, n):
 		self.tablename = n
-		row = eval(self.tablename+".rowCount()")
-		col = eval(self.tablename+".columnCount()")
+		row = ast.literal_eval(self.tablename+".rowCount()")
+		col = ast.literal_eval(self.tablename+".columnCount()")
 		lista=[]
 		for r in range(row):
 			sub_list = []
 			for c in range(col):
-				value = eval(self.tablename+".item(r,c)")
+				value = ast.literal_eval(self.tablename+".item(r,c)")
 				if value != None:
 					sub_list.append(str(value.text()))
 					
@@ -2136,54 +2039,47 @@ class pyarchinit_US(QDialog, Ui_DialogUS):
 	def tableInsertData(self, t, d):
 		"""Set the value into alls Grid"""
 		self.table_name = t
-		self.data_list = eval(d)
+		self.data_list = ast.literal_eval(d)
 		self.data_list.sort()
 
 		#column table count
 		table_col_count_cmd = ("%s.columnCount()") % (self.table_name)
-		table_col_count = eval(table_col_count_cmd)
+		table_col_count = ast.literal_eval(table_col_count_cmd)
 
 		#clear table
 		table_clear_cmd = ("%s.clearContents()") % (self.table_name)
-		eval(table_clear_cmd)
+		ast.literal_eval(table_clear_cmd)
 
 		for i in range(table_col_count):
 			table_rem_row_cmd = ("%s.removeRow(%d)") % (self.table_name, i)
-			eval(table_rem_row_cmd)
+			ast.literal_eval(table_rem_row_cmd)
 
 		#for i in range(len(self.data_list)):
 			#self.insert_new_row(self.table_name)
 		
 		for row in range(len(self.data_list)):
 			cmd = ('%s.insertRow(%s)') % (self.table_name, row)
-			eval(cmd)
+			ast.literal_eval(cmd)
 			for col in range(len(self.data_list[row])):
 				#item = self.comboBox_sito.setEditText(self.data_list[0][col]
 				item = QTableWidgetItem(str(self.data_list[row][col]))
 				exec_str = ('%s.setItem(%d,%d,item)') % (self.table_name,row,col)
-				eval(exec_str)
-
-##		max_row_num = len(self.data_list)
-##		value = eval(self.table_name+".item(max_row_num,1)")
-##		if value == '':
-##			cmd = ("%s.removeRow(%d)") % (self.table_name, max_row_num)
-##			eval(cmd)
-
+				ast.literal_eval(exec_str)
 
 	def insert_new_row(self, table_name):
 		"""insert new row into a table based on table_name"""
 		cmd = table_name+".insertRow(0)"
-		eval(cmd)
+		ast.literal_eval(cmd)
 
 	def remove_row(self, table_name):
 		"""insert new row into a table based on table_name"""
 		table_row_count_cmd = ("%s.rowCount()") % (table_name)
-		table_row_count = eval(table_row_count_cmd)
+		table_row_count = ast.literal_eval(table_row_count_cmd)
 		rowSelected_cmd = ("%s.selectedIndexes()") % (table_name)
-		rowSelected = eval(rowSelected_cmd)
+		rowSelected = ast.literal_eval(rowSelected_cmd)
 		rowIndex = (rowSelected[0].row())
 		cmd = ("%s.removeRow(%d)") % (table_name, rowIndex)
-		eval(cmd)
+		ast.literal_eval(cmd)
 
 
 	def empty_fields(self):
@@ -2445,7 +2341,7 @@ class pyarchinit_US(QDialog, Ui_DialogUS):
 	def set_LIST_REC_CORR(self):
 		self.DATA_LIST_REC_CORR = []
 		for i in self.TABLE_FIELDS:
-			self.DATA_LIST_REC_CORR.append(eval("unicode(self.DATA_LIST[self.REC_CORR]." + i + ")"))
+			self.DATA_LIST_REC_CORR.append(ast.literal_eval("unicode(self.DATA_LIST[self.REC_CORR]." + i + ")"))
 
 	def records_equal_check(self):
 		self.set_LIST_REC_TEMP()
@@ -2468,7 +2364,7 @@ class pyarchinit_US(QDialog, Ui_DialogUS):
 
 		for fn in field_names:
 			cmd = ('%s%s%d%s') % (fn, '.setEditable(', n, ')')
-			eval(cmd)
+			ast.literal_eval(cmd)
 
 	def setComboBoxEnable(self, f, v):
 		field_names = f
@@ -2476,7 +2372,7 @@ class pyarchinit_US(QDialog, Ui_DialogUS):
 
 		for fn in field_names:
 			cmd = ('%s%s%s%s') % (fn, '.setEnabled(', v, ')')
-			eval(cmd)
+			ast.literal_eval(cmd)
 			
 	def setTableEnable(self, t, v):
 		tab_names = t
@@ -2484,7 +2380,7 @@ class pyarchinit_US(QDialog, Ui_DialogUS):
 
 		for tn in tab_names:
 			cmd = ('%s%s%s%s') % (tn, '.setEnabled(', v, ')')
-			eval(cmd)
+			ast.literal_eval(cmd)
 
 	def testing(self, name_file, message):
 		f = open(str(name_file), 'w')
