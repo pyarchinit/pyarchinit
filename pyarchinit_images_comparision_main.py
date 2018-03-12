@@ -178,5 +178,4 @@ class Comparision(QDialog, Ui_DialogImagesComparision):
 				n+=1
 		except:
 			QMessageBox.warning(self, "self.data_list", str(self.data_list) ,  QMessageBox.Ok)
-			pass
 		self.widget.canvas.draw()

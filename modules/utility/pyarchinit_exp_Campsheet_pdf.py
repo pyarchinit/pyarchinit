@@ -1,6 +1,5 @@
 import os
 import copy
-from reportlab.lib.testutils import makeSuiteForClasses, outputfile, printLocation
 from reportlab.lib import colors
 from reportlab.lib.units import inch, cm, mm
 from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle

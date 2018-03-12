@@ -6,7 +6,6 @@ from reportlab.lib.testutils import makeSuiteForClasses, outputfile, printLocati
 from reportlab.lib import colors
 from reportlab.lib.units import inch, cm, mm
 from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
-from reportlab.lib.enums import TA_JUSTIFY
 from reportlab.pdfgen import canvas
 from reportlab.platypus import Table, PageBreak, SimpleDocTemplate, Paragraph, Spacer, TableStyle, Image
 from reportlab.platypus.paragraph import Paragraph

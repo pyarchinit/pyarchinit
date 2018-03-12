@@ -154,7 +154,6 @@ class exp_rel_pdf:
 		Story=[]
 		logo = "/Users/Windows/.qgis/python/plugins/pyarchinit/iconadarte.png"
 		magName = "Pythonista"
-		issueNum = 12
 		subPrice = "99.00"
 		limitedDate = "03/05/2010"
 		freeGift = "tin foil hat"
