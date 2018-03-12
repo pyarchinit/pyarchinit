@@ -472,65 +472,6 @@ class pyarchinit_PDFAdministrator(QDialog, Ui_DialogPDFManager):
 
 	def on_pushButton_search_go_pressed(self):
 		pass
-##		
-##		if self.BROWSE_STATUS != "f":
-##			QMessageBox.warning(self, "ATTENZIONE", "Per eseguire una nuova ricerca clicca sul pulsante 'new search' ",  QMessageBox.Ok)
-##		else:
-##			search_dict = {
-##			'sito' : "'"+unicode(self.comboBox_sito.currentText())+"'",                     #1 - Sito
-##			'nazione': "'"+unicode(self.comboBox_nazione.currentText())+"'",			#2 - Nazione
-##			'regione': "'" + unicode(self.comboBox_regione.currentText())+"'",			#3 - Regione
-##			'comune': "'" + unicode(self.comboBox_comune.currentText())+"'",		#4 - Comune
-##			'descrizione': unicode(self.textEdit_descrizione_site.toPlainText()),				#5 - Descrizione
-##			'provincia': "'" + unicode(self.comboBox_provincia.currentText())+"'"		#4 - Provincia
-##			}
-##
-##			u = Utility()
-##			search_dict = u.remove_empty_items_fr_dict(search_dict)
-##
-##			if bool(search_dict) == False:
-##				QMessageBox.warning(self, "ATTENZIONE", "Non e' stata impostata alcuna ricerca!!!",  QMessageBox.Ok)
-##			else:
-##				res = self.DB_MANAGER.query_bool(search_dict, "SITE")
-##				if bool(search_dict) == False:
-##					QMessageBox.warning(self, "ATTENZIONE", "Non e' stata impostata alcuna ricerca!!!",  QMessageBox.Ok)
-##				else:
-##					res = self.DB_MANAGER.query_bool(search_dict, self.MAPPER_TABLE_CLASS)
-##
-##					if bool(res) == False:
-##						QMessageBox.warning(self, "ATTENZIONE", "Non e' stato trovato alcun record!",  QMessageBox.Ok)
-##
-##						self.set_rec_counter(len(self.DATA_LIST), self.REC_CORR+1)
-##						self.DATA_LIST_REC_TEMP = self.DATA_LIST_REC_CORR = self.DATA_LIST[0]
-##						self.fill_fields(self.REC_CORR)
-##						self.BROWSE_STATUS = "b"
-##						self.label_status.setText(self.STATUS_ITEMS[self.BROWSE_STATUS])
-##
-####						self.setComboBoxEnable(["self.comboBox_sito"],"False")
-####						self.setComboBoxEnable(["self.textEdit_descrizione_site"],"True")
-##
-##					else:
-##						self.DATA_LIST = []
-##						for i in res:
-##							self.DATA_LIST.append(i)
-##						self.REC_TOT, self.REC_CORR = len(self.DATA_LIST), 0
-##						self.DATA_LIST_REC_TEMP = self.DATA_LIST_REC_CORR = self.DATA_LIST[0]
-##						self.fill_fields()
-##						self.BROWSE_STATUS = "b"
-##						self.label_status.setText(self.STATUS_ITEMS[self.BROWSE_STATUS])
-##						self.set_rec_counter(len(self.DATA_LIST), self.REC_CORR+1)
-##
-##						if self.REC_TOT == 1:
-##							strings = ("E' stato trovato", self.REC_TOT, "record")
-##						else:
-##							strings = ("Sono stati trovati", self.REC_TOT, "records")
-##
-####						self.setComboBoxEnable(["self.comboBox_sito"],"False")
-####						self.setComboBoxEnable(["self.textEdit_descrizione_site"],"True")
-##
-##						QMessageBox.warning(self, "Messaggio", "%s %d %s" % strings,  QMessageBox.Ok)
-##
-##		self.enable_button_search(1)
 
 	def update_if(self, msg):
 		rec_corr = self.REC_CORR
@@ -569,20 +510,6 @@ class pyarchinit_PDFAdministrator(QDialog, Ui_DialogPDFManager):
 		now = date.today()
 		today = now.strftime("%d-%m-%Y")
 		return today
-
-	def table2dict(self, n):
-		self.tablename = n
-		row = ast.literal_ast.literal_eval(self.tablename+".rowCount()")
-		col = ast.literal_ast.literal_eval(self.tablename+".columnCount()")
-		lista=[]
-		for r in range(row):
-			sub_list = []
-			for c in range(col):
-				value = ast.literal_ast.literal_eval(self.tablename+".item(r,c)")
-				if bool(value) == True:
-					sub_list.append(str(value.text()))
-			lista.append(sub_list)
-		return lista
 
 	def empty_fields(self):
 		schema_griglia = self.tableWidget_schema_griglia.rowCount()
@@ -644,7 +571,7 @@ class pyarchinit_PDFAdministrator(QDialog, Ui_DialogPDFManager):
 
 		for fn in field_names:
 			cmd = ('%s%s%d%s') % (fn, '.setEditable(', n, ')')
-			ast.literal_ast.literal_eval(cmd)
+			ast.literal_eval(cmd)
 
 	def rec_toupdate(self):
 		rec_to_update = self.UTILITY.pos_none_in_list(self.DATA_LIST_REC_TEMP)
@@ -679,7 +606,7 @@ class pyarchinit_PDFAdministrator(QDialog, Ui_DialogPDFManager):
 		for r in range(row):
 			sub_list = []
 			for c in range(col):
-				value = ast.literal_ast.literal_eval(self.tablename+".item(r,c)")
+				value = ast.literal_eval(self.tablename+".item(r,c)")
 				if value != None:
 					sub_list.append(str(value.text()))
 			if bool(sub_list) == True:
@@ -742,17 +669,6 @@ class pyarchinit_PDFAdministrator(QDialog, Ui_DialogPDFManager):
 		cmd = ("%s.removeRow(%d)") % (table_name, rowIndex)
 		ast.literal_ast.literal_eval(cmd)
 
-	def setComboBoxEditable(self, f, n):
-		field_names = f
-		value = n
-
-		for fn in field_names:
-			cmd = ('%s%s%d%s') % (fn, '.setEditable(', n, ')')
-			ast.literal_ast.literal_eval(cmd)
-
-	def setComboBoxEnable(self, f, v):
-		field_names = f
-		value = v
 ## Class end
 
 if __name__ == "__main__":
