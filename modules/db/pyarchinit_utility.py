@@ -19,6 +19,10 @@
  *																		   *
  ***************************************************************************/
 """
+
+import os
+
+
 class Utility:
 	def pos_none_in_list(self, l):
 		
@@ -323,70 +327,16 @@ class Utility:
 
 		return res
 
-
-
-
-#print dir(Utility())
-#Samples - uncomment and run the module to view the functions
-##u = Utility()
-##print u.conversione_numeri(45.0000000)
-##print u.sum_list_of_tuples_for_value([("a", 1), ("b", 2), ("a", 3)])
-#print u.remove_dup_from_list([1,1, 2, 2, 2, 3, 4, 5, 5, 6, 6, 7])
-#print u.findFieldFrDict((2))
-#print "----------tup_to_list--------------"
-#print ""
-#print u.tup_2_list(("a", "b", "c"))
-###print ""
-#print u.tup_2_list(("a", "b", "c"), "lettera: ")
-###print ""
-# u.tup_2_list( (("a", "b"), ("c", "d")), "", 1)
-###print ""
-###print "----------
-###print ""
-###print "----------tup_to_list_II--------------"
-###print ""
-#print u.list_tup_2_list([(1, ), (2, ), ("dssa", )])
-##print u.tup_2_list_II([["a", "b", "c"]])
-###print ""
-###print ""
-###print "----------
-###print u.select_in_list([12, 5, 7, 3, 3], 1)
-###print ""
-###print u.select_in_list([[12, 5], [7, 3, 3]], 0)
-###print ""
-###print "----------pos_in_list------------------------"
-###print ""
-##print u.pos_in_list(["", '', 7, 'None', 3])
-##print u.pos_none_in_list(['None', '', 7, 'None', 3])
-###print ""
-###print "----------count_list_eq_v--------------------"
-###print ""
-###print u.count_list_eq_v([12, 34, 78, 34, 12, "a", "b", "a"], 2)
-###print ""
-###print "----------find_list_in_dict------------------"
-###print ""
-###print u.find_list_in_dict({"a": ["1"], "b": [[12, 34]], "c": (1, 2, 3)})
-###print ""
-###print "----------add_item_to_dict------------------"
-###print ""
-#print u.add_item_to_dict( {"a": [1, 2, 3]}, [("b", [4, 5, 6]), ("c",2)] )
-###print ""
-###print "----------list_col_index_value------------------"
-###print ""
-###print u.list_col_index_value([1, 2, 3, 4, "a", "b"], [5, 2, 7, 8, "a", "d"])
-###print ""
-###print "----------deunicode_list------------------"
-###print ""
-#print u.deunicode_list([u'"1"', u'"2"', u'"""b"""'])
-###print ""
-##print "----------zip_lists------------------"
-##print ""
-##print u.zip_lists(["a", "b", "c", 1, 3], ["a", "b", "c", 1, "r"])
-###print ""
-###print "----------join_list_if------------------"
-###print ""
-###print u.join_list_if([[1, "b", "c"], ["d", "c", "e"], ["r", "d", "c"]], [["1", "4", "2"], ["3", "b", "b"], ["a", "c", "6"]],2,1)
-###print ""
-###print "----------extract_from_list------------------"
-###print ""
-###print u.extract_from_list([[1, 2, 3], [4, 5, 6]], 1)
+	def getQuery(name):
+	    query = ""
+	    try:
+	        with open('queries.txt') as query_file:
+	            for line in query_file:
+	                if name in line:
+	                    print('Query trovata')
+	                    query = line.split("=")
+	                    break
+	    except Exception as e: 
+	        print(e)
+	        print('Impossibile recuperare file')
+	    return query

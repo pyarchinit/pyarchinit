@@ -42,6 +42,7 @@ from pyarchinit_utility import *
 from .quantpanelmain_zoo import QuantPanelMain
 from .sortpanelmain import SortPanelMain
 
+
 try:
     from qgis.core import *
     from qgis.gui import *
@@ -1019,8 +1020,9 @@ class pyarchinit_Archeozoology(QDialog, Ui_DialogArcheoZoology):
                int(self.port.currentText()), str(self.password.text()),
                str(self.user.currentText()))
         ast.literal_eval(n)
+        #TODO: gestire TUTTE le queries come di seguito
         con = \
-            'r(\'archezoology_table<-dbGetQuery(con,"select * from archeozoology_table where us = %d AND bos_bison IS NOT NULL")\')' \
+            'r(\'archezoology_table<-dbGetQuery(con,"'+self.UTILITY.getQuery(select_archeozoology_by_us_bos_bison)+'")\')' \
             % int(self.DATA_LIST[i].us)
         ast.literal_eval(con)
         if self.bos.isChecked() == True:

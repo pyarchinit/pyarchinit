@@ -1,0 +1,1 @@
+select_archeozoology_by_us_bos_bison=select * from archeozoology_table where us = %d AND bos_bison IS NOT NULL
