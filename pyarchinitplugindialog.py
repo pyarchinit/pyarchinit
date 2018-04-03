@@ -23,6 +23,8 @@ Code from QgisCloudPluginDialog
 from PyQt4.QtCore import *
 from PyQt4.QtGui import *
 from PyQt4.QtXml import *
+from qgis.core import *
+
 from modules.gui.ui_pyarchinitplugin import Ui_PyarchinitPlugin
 from pyarchinitConfigDialog import pyArchInitDialog_Config
 from pyarchinitInfoDialog import pyArchInitDialog_Info
@@ -42,124 +44,121 @@ from pyarchinit_Upd_mainapp import pyarchinit_Upd_Values
 from pyarchinit_image_viewer_main import Main
 from pyarchinit_images_directory_export_mainapp import pyarchinit_Images_directory_export
 from pyarchinit_pdf_export_mainapp import pyarchinit_pdf_export
-from qgis.core import *
 
 
 class PyarchinitPluginDialog(QDockWidget):
-	
+    def __init__(self, iface):
+        QDockWidget.__init__(self, None)
+        self.iface = iface
+        ##        self.version = version
+        # Set up the user interface from Designer.
+        self.ui = Ui_PyarchinitPlugin()
+        self.ui.setupUi(self)
+        QObject.connect(self.ui.btnUStable, SIGNAL("clicked()"), self.runUS)
+        QObject.connect(self.ui.btnUStable_2, SIGNAL("clicked()"), self.runUS)
 
-	def __init__(self, iface):
-		QDockWidget.__init__(self, None)
-		self.iface = iface
-##        self.version = version
-		# Set up the user interface from Designer.
-		self.ui = Ui_PyarchinitPlugin()
-		self.ui.setupUi(self)
-		QObject.connect(self.ui.btnUStable, SIGNAL("clicked()"), self.runUS)
-		QObject.connect(self.ui.btnUStable_2, SIGNAL("clicked()"), self.runUS)
+        QObject.connect(self.ui.btnStrutturatable, SIGNAL("clicked()"), self.runStruttura)
+        QObject.connect(self.ui.btnPeriodotable, SIGNAL("clicked()"), self.runPer)
 
-		QObject.connect(self.ui.btnStrutturatable, SIGNAL("clicked()"), self.runStruttura)
-		QObject.connect(self.ui.btnPeriodotable, SIGNAL("clicked()"), self.runPer)
+        QObject.connect(self.ui.btnSitotable, SIGNAL("clicked()"), self.runSite)
+        QObject.connect(self.ui.btnSitotable_2, SIGNAL("clicked()"), self.runSite)
 
-		QObject.connect(self.ui.btnSitotable, SIGNAL("clicked()"), self.runSite)
-		QObject.connect(self.ui.btnSitotable_2, SIGNAL("clicked()"), self.runSite)
+        QObject.connect(self.ui.btnReptable, SIGNAL("clicked()"), self.runInr)
+        QObject.connect(self.ui.btnReptable_2, SIGNAL("clicked()"), self.runInr)
+        QObject.connect(self.ui.btnReptable_3, SIGNAL("clicked()"), self.runInr)
 
-		QObject.connect(self.ui.btnReptable, SIGNAL("clicked()"), self.runInr)
-		QObject.connect(self.ui.btnReptable_2, SIGNAL("clicked()"), self.runInr)
-		QObject.connect(self.ui.btnReptable_3, SIGNAL("clicked()"), self.runInr)
-	
-		QObject.connect(self.ui.btnMedtable, SIGNAL("clicked()"), self.runImageViewer)
-		QObject.connect(self.ui.btnExptable, SIGNAL("clicked()"), self.runImages_directory_export)
-		
-		QObject.connect(self.ui.btnPDFmen, SIGNAL("clicked()"), self.runPDFadministrator)
-		QObject.connect(self.ui.btnUTtable, SIGNAL("clicked()"), self.runUT)
+        QObject.connect(self.ui.btnMedtable, SIGNAL("clicked()"), self.runImageViewer)
+        QObject.connect(self.ui.btnExptable, SIGNAL("clicked()"), self.runImages_directory_export)
 
-	def runSite(self):
-		pluginGui = pyarchinit_Site(self.iface)
-		pluginGui.show()
-		self.pluginGui = pluginGui # save
-		
-	def runPer(self):
-		pluginGui = pyarchinit_Periodizzazione(self.iface)
-		pluginGui.show()
-		self.pluginGui = pluginGui # save
+        QObject.connect(self.ui.btnPDFmen, SIGNAL("clicked()"), self.runPDFadministrator)
+        QObject.connect(self.ui.btnUTtable, SIGNAL("clicked()"), self.runUT)
 
-	def runStruttura(self):
-		pluginGui = pyarchinit_Struttura(self.iface)
-		pluginGui.show()
-		self.pluginGui = pluginGui # save
+    def runSite(self):
+        pluginGui = pyarchinit_Site(self.iface)
+        pluginGui.show()
+        self.pluginGui = pluginGui  # save
 
-	def runUS(self):
-		pluginGui = pyarchinit_US(self.iface)
-		pluginGui.show()
-		self.pluginGui = pluginGui # save
+    def runPer(self):
+        pluginGui = pyarchinit_Periodizzazione(self.iface)
+        pluginGui.show()
+        self.pluginGui = pluginGui  # save
 
-	def runInr(self):
-		pluginGui = pyarchinit_Inventario_reperti(self.iface)
-		pluginGui.show()
-		self.pluginGui = pluginGui # save
+    def runStruttura(self):
+        pluginGui = pyarchinit_Struttura(self.iface)
+        pluginGui.show()
+        self.pluginGui = pluginGui  # save
 
-	def runGisTimeController(self):
-		pluginGui = pyarchinit_Gis_Time_Controller(self.iface)
-		pluginGui.show()
-		self.pluginGui = pluginGui # save
+    def runUS(self):
+        pluginGui = pyarchinit_US(self.iface)
+        pluginGui.show()
+        self.pluginGui = pluginGui  # save
 
-	def runUpd(self):
-		pluginGui = pyarchinit_Upd_Values(self.iface)
-		pluginGui.show()
-		self.pluginGui = pluginGui # save
+    def runInr(self):
+        pluginGui = pyarchinit_Inventario_reperti(self.iface)
+        pluginGui.show()
+        self.pluginGui = pluginGui  # save
 
-	def runConf(self):
-		pluginConfGui = pyArchInitDialog_Config()
-		pluginConfGui.show()
-		self.pluginGui = pluginConfGui # save
+    def runGisTimeController(self):
+        pluginGui = pyarchinit_Gis_Time_Controller(self.iface)
+        pluginGui.show()
+        self.pluginGui = pluginGui  # save
 
-	def runInfo(self):
-		pluginInfoGui = pyArchInitDialog_Info()
-		pluginInfoGui.show()
-		self.pluginGui = pluginInfoGui # save
+    def runUpd(self):
+        pluginGui = pyarchinit_Upd_Values(self.iface)
+        pluginGui.show()
+        self.pluginGui = pluginGui  # save
 
-	def runImageViewer(self):
-		pluginImageView = Main()
-		pluginImageView.show()
-		self.pluginGui = pluginImageView # save
-		
-	def runImages_directory_export(self):
-		pluginImage_directory_export = pyarchinit_Images_directory_export()
-		pluginImage_directory_export.show()
-		self.pluginGui = pluginImage_directory_export # save
+    def runConf(self):
+        pluginConfGui = pyArchInitDialog_Config()
+        pluginConfGui.show()
+        self.pluginGui = pluginConfGui  # save
 
-	def runTafonomia(self):
-		pluginTafonomia = pyarchinit_Tafonomia(self.iface)
-		pluginTafonomia.show()
-		self.pluginGui = pluginTafonomia # save
+    def runInfo(self):
+        pluginInfoGui = pyArchInitDialog_Info()
+        pluginInfoGui.show()
+        self.pluginGui = pluginInfoGui  # save
 
-	def runSchedaind(self):
-		pluginIndividui = pyarchinit_Schedaind(self.iface)
-		pluginIndividui.show()
-		self.pluginGui = pluginIndividui # save
+    def runImageViewer(self):
+        pluginImageView = Main()
+        pluginImageView.show()
+        self.pluginGui = pluginImageView  # save
 
-	def runDetsesso(self):
-		pluginSesso = pyarchinit_Detsesso(self.iface)
-		pluginSesso.show()
-		self.pluginGui = pluginSesso # save
+    def runImages_directory_export(self):
+        pluginImage_directory_export = pyarchinit_Images_directory_export()
+        pluginImage_directory_export.show()
+        self.pluginGui = pluginImage_directory_export  # save
 
-	def runDeteta(self):
-		pluginEta = pyarchinit_Deteta(self.iface)
-		pluginEta.show()
-		self.pluginGui = pluginEta # save
+    def runTafonomia(self):
+        pluginTafonomia = pyarchinit_Tafonomia(self.iface)
+        pluginTafonomia.show()
+        self.pluginGui = pluginTafonomia  # save
 
-	def runArcheozoology(self):
-		pluginArchezoology = pyarchinit_Archeozoology(self.iface)
-		pluginArchezoology.show()
-		self.pluginGui = pluginArchezoology # save
+    def runSchedaind(self):
+        pluginIndividui = pyarchinit_Schedaind(self.iface)
+        pluginIndividui.show()
+        self.pluginGui = pluginIndividui  # save
 
-	def runUT(self):
-		pluginUT = pyarchinit_UT(self.iface)
-		pluginUT.show()
-		self.pluginGui = pluginUT # save
+    def runDetsesso(self):
+        pluginSesso = pyarchinit_Detsesso(self.iface)
+        pluginSesso.show()
+        self.pluginGui = pluginSesso  # save
 
-	def runPDFadministrator(self):
-		pluginPDFadmin = pyarchinit_pdf_export()
-		pluginPDFadmin.show()
-		self.pluginGui = pluginPDFadmin # save
+    def runDeteta(self):
+        pluginEta = pyarchinit_Deteta(self.iface)
+        pluginEta.show()
+        self.pluginGui = pluginEta  # save
+
+    def runArcheozoology(self):
+        pluginArchezoology = pyarchinit_Archeozoology(self.iface)
+        pluginArchezoology.show()
+        self.pluginGui = pluginArchezoology  # save
+
+    def runUT(self):
+        pluginUT = pyarchinit_UT(self.iface)
+        pluginUT.show()
+        self.pluginGui = pluginUT  # save
+
+    def runPDFadministrator(self):
+        pluginPDFadmin = pyarchinit_pdf_export()
+        pluginPDFadmin.show()
+        self.pluginGui = pluginPDFadmin  # save

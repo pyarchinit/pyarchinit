@@ -7,7 +7,6 @@ from PyQt4 import QtGui, QtCore
 
 
 class MainWindow(QtGui.QMainWindow):
-
     def __init__(self):
         QtGui.QMainWindow.__init__(self)
 
@@ -42,4 +41,4 @@ class MainWindow(QtGui.QMainWindow):
 app = QtGui.QApplication(sys.argv)
 main = MainWindow()
 main.show()
-sys.exit(app.exec_())		
+sys.exit(app.exec_())

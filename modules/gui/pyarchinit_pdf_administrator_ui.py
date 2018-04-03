@@ -8,13 +8,12 @@
 # WARNING! All changes made in this file will be lost!
 
 from PyQt4 import QtCore, QtGui
-import resources_rc
-
 
 try:
     _fromUtf8 = QtCore.QString.fromUtf8
 except AttributeError:
     _fromUtf8 = lambda s: s
+
 
 class Ui_DialogPDFManager(object):
     def setupUi(self, DialogPDFManager):
@@ -471,58 +470,116 @@ class Ui_DialogPDFManager(object):
         QtCore.QMetaObject.connectSlotsByName(DialogPDFManager)
 
     def retranslateUi(self, DialogPDFManager):
-        DialogPDFManager.setWindowTitle(QtGui.QApplication.translate("DialogPDFManager", "pyArchInit Gestione Scavi - Periodizzazione di scavo", None, QtGui.QApplication.UnicodeUTF8))
-        self.label_29.setText(QtGui.QApplication.translate("DialogPDFManager", "DBMS Toolbar", None, QtGui.QApplication.UnicodeUTF8))
-        self.pushButton_connect.setText(QtGui.QApplication.translate("DialogPDFManager", "Reload DB", None, QtGui.QApplication.UnicodeUTF8))
-        self.pushButton_first_rec.setToolTip(QtGui.QApplication.translate("DialogPDFManager", "First rec", None, QtGui.QApplication.UnicodeUTF8))
-        self.pushButton_prev_rec.setToolTip(QtGui.QApplication.translate("DialogPDFManager", "Prev rec", None, QtGui.QApplication.UnicodeUTF8))
-        self.pushButton_next_rec.setToolTip(QtGui.QApplication.translate("DialogPDFManager", "Next rec", None, QtGui.QApplication.UnicodeUTF8))
-        self.pushButton_last_rec.setToolTip(QtGui.QApplication.translate("DialogPDFManager", "Last rec", None, QtGui.QApplication.UnicodeUTF8))
-        self.pushButton_new_rec.setToolTip(QtGui.QApplication.translate("DialogPDFManager", "New record", None, QtGui.QApplication.UnicodeUTF8))
-        self.pushButton_save.setToolTip(QtGui.QApplication.translate("DialogPDFManager", "Save", None, QtGui.QApplication.UnicodeUTF8))
-        self.pushButton_delete.setToolTip(QtGui.QApplication.translate("DialogPDFManager", "Delete record", None, QtGui.QApplication.UnicodeUTF8))
-        self.pushButton_new_search.setToolTip(QtGui.QApplication.translate("DialogPDFManager", "new search", None, QtGui.QApplication.UnicodeUTF8))
-        self.pushButton_search_go.setToolTip(QtGui.QApplication.translate("DialogPDFManager", "search !!!", None, QtGui.QApplication.UnicodeUTF8))
-        self.pushButton_sort.setToolTip(QtGui.QApplication.translate("DialogPDFManager", "Order by", None, QtGui.QApplication.UnicodeUTF8))
-        self.pushButton_view_all.setToolTip(QtGui.QApplication.translate("DialogPDFManager", "View alls records", None, QtGui.QApplication.UnicodeUTF8))
-        self.label_42.setText(QtGui.QApplication.translate("DialogPDFManager", "DB Info", None, QtGui.QApplication.UnicodeUTF8))
-        self.label_43.setText(QtGui.QApplication.translate("DialogPDFManager", "Ordinamento", None, QtGui.QApplication.UnicodeUTF8))
-        self.label_34.setText(QtGui.QApplication.translate("DialogPDFManager", "Status", None, QtGui.QApplication.UnicodeUTF8))
-        self.label_27.setText(QtGui.QApplication.translate("DialogPDFManager", "record n.", None, QtGui.QApplication.UnicodeUTF8))
-        self.label_rec_corrente.setText(QtGui.QApplication.translate("DialogPDFManager", "1", None, QtGui.QApplication.UnicodeUTF8))
-        self.label_28.setText(QtGui.QApplication.translate("DialogPDFManager", "record tot.", None, QtGui.QApplication.UnicodeUTF8))
-        self.label_rec_tot.setText(QtGui.QApplication.translate("DialogPDFManager", "1", None, QtGui.QApplication.UnicodeUTF8))
-        self.label_6.setText(QtGui.QApplication.translate("DialogPDFManager", "Tabella corrente: ", None, QtGui.QApplication.UnicodeUTF8))
-        self.label_4.setText(QtGui.QApplication.translate("DialogPDFManager", "Modello", None, QtGui.QApplication.UnicodeUTF8))
-        self.label_13.setText(QtGui.QApplication.translate("DialogPDFManager", "Schema griglia", None, QtGui.QApplication.UnicodeUTF8))
-        self.tableWidget_schema_griglia.horizontalHeaderItem(0).setText(QtGui.QApplication.translate("DialogPDFManager", "Col 0", None, QtGui.QApplication.UnicodeUTF8))
-        self.tableWidget_schema_griglia.horizontalHeaderItem(1).setText(QtGui.QApplication.translate("DialogPDFManager", "Col 1", None, QtGui.QApplication.UnicodeUTF8))
-        self.tableWidget_schema_griglia.horizontalHeaderItem(2).setText(QtGui.QApplication.translate("DialogPDFManager", "Col 2", None, QtGui.QApplication.UnicodeUTF8))
-        self.tableWidget_schema_griglia.horizontalHeaderItem(3).setText(QtGui.QApplication.translate("DialogPDFManager", "Col 3", None, QtGui.QApplication.UnicodeUTF8))
-        self.tableWidget_schema_griglia.horizontalHeaderItem(4).setText(QtGui.QApplication.translate("DialogPDFManager", "Col 4", None, QtGui.QApplication.UnicodeUTF8))
-        self.tableWidget_schema_griglia.horizontalHeaderItem(5).setText(QtGui.QApplication.translate("DialogPDFManager", "Col 5", None, QtGui.QApplication.UnicodeUTF8))
-        self.tableWidget_schema_griglia.horizontalHeaderItem(6).setText(QtGui.QApplication.translate("DialogPDFManager", "Col 6", None, QtGui.QApplication.UnicodeUTF8))
-        self.tableWidget_schema_griglia.horizontalHeaderItem(7).setText(QtGui.QApplication.translate("DialogPDFManager", "Col 7", None, QtGui.QApplication.UnicodeUTF8))
-        self.tableWidget_schema_griglia.horizontalHeaderItem(8).setText(QtGui.QApplication.translate("DialogPDFManager", "Col 8", None, QtGui.QApplication.UnicodeUTF8))
-        self.label_14.setText(QtGui.QApplication.translate("DialogPDFManager", "Gestione schema griglia", None, QtGui.QApplication.UnicodeUTF8))
-        self.label.setText(QtGui.QApplication.translate("DialogPDFManager", "Righe", None, QtGui.QApplication.UnicodeUTF8))
-        self.pushButton_add_row_griglia.setText(QtGui.QApplication.translate("DialogPDFManager", "+", None, QtGui.QApplication.UnicodeUTF8))
-        self.pushButton_remove_row_griglia.setText(QtGui.QApplication.translate("DialogPDFManager", "-", None, QtGui.QApplication.UnicodeUTF8))
-        self.label_2.setText(QtGui.QApplication.translate("DialogPDFManager", "Colonne", None, QtGui.QApplication.UnicodeUTF8))
-        self.pushButton_add_row_2.setText(QtGui.QApplication.translate("DialogPDFManager", "+", None, QtGui.QApplication.UnicodeUTF8))
-        self.pushButton_remove_row_2.setText(QtGui.QApplication.translate("DialogPDFManager", "-", None, QtGui.QApplication.UnicodeUTF8))
-        self.pushButton_charge_default_schema.setText(QtGui.QApplication.translate("DialogPDFManager", "Carica lo schema predefinito", None, QtGui.QApplication.UnicodeUTF8))
-        self.label_9.setText(QtGui.QApplication.translate("DialogPDFManager", "Elenco Campi:", None, QtGui.QApplication.UnicodeUTF8))
-        self.pushButton_inserisci_nome_campo.setText(QtGui.QApplication.translate("DialogPDFManager", "Inserisci nome del campo", None, QtGui.QApplication.UnicodeUTF8))
-        self.tabWidget.setTabText(self.tabWidget.indexOf(self.tab), QtGui.QApplication.translate("DialogPDFManager", "Schema griglia", None, QtGui.QApplication.UnicodeUTF8))
-        self.label_16.setText(QtGui.QApplication.translate("DialogPDFManager", "Schema fusione celle", None, QtGui.QApplication.UnicodeUTF8))
-        self.tableWidget_gestione_celle.horizontalHeaderItem(0).setText(QtGui.QApplication.translate("DialogPDFManager", "Comando", None, QtGui.QApplication.UnicodeUTF8))
-        self.tableWidget_gestione_celle.horizontalHeaderItem(1).setText(QtGui.QApplication.translate("DialogPDFManager", "Cella iniziale", None, QtGui.QApplication.UnicodeUTF8))
-        self.tableWidget_gestione_celle.horizontalHeaderItem(2).setText(QtGui.QApplication.translate("DialogPDFManager", "Cella finale", None, QtGui.QApplication.UnicodeUTF8))
-        self.tableWidget_gestione_celle.horizontalHeaderItem(3).setText(QtGui.QApplication.translate("DialogPDFManager", "Riferimento", None, QtGui.QApplication.UnicodeUTF8))
-        self.label_15.setText(QtGui.QApplication.translate("DialogPDFManager", "Gestione fusione celle", None, QtGui.QApplication.UnicodeUTF8))
-        self.label_3.setText(QtGui.QApplication.translate("DialogPDFManager", "Righe", None, QtGui.QApplication.UnicodeUTF8))
-        self.pushButton_add_row_cell.setText(QtGui.QApplication.translate("DialogPDFManager", "+", None, QtGui.QApplication.UnicodeUTF8))
-        self.pushButton_remove_row_cell.setText(QtGui.QApplication.translate("DialogPDFManager", "-", None, QtGui.QApplication.UnicodeUTF8))
-        self.tabWidget.setTabText(self.tabWidget.indexOf(self.tab_2), QtGui.QApplication.translate("DialogPDFManager", "Fusione celle", None, QtGui.QApplication.UnicodeUTF8))
-
+        DialogPDFManager.setWindowTitle(
+            QtGui.QApplication.translate("DialogPDFManager", "pyArchInit Gestione Scavi - Periodizzazione di scavo",
+                                         None, QtGui.QApplication.UnicodeUTF8))
+        self.label_29.setText(
+            QtGui.QApplication.translate("DialogPDFManager", "DBMS Toolbar", None, QtGui.QApplication.UnicodeUTF8))
+        self.pushButton_connect.setText(
+            QtGui.QApplication.translate("DialogPDFManager", "Reload DB", None, QtGui.QApplication.UnicodeUTF8))
+        self.pushButton_first_rec.setToolTip(
+            QtGui.QApplication.translate("DialogPDFManager", "First rec", None, QtGui.QApplication.UnicodeUTF8))
+        self.pushButton_prev_rec.setToolTip(
+            QtGui.QApplication.translate("DialogPDFManager", "Prev rec", None, QtGui.QApplication.UnicodeUTF8))
+        self.pushButton_next_rec.setToolTip(
+            QtGui.QApplication.translate("DialogPDFManager", "Next rec", None, QtGui.QApplication.UnicodeUTF8))
+        self.pushButton_last_rec.setToolTip(
+            QtGui.QApplication.translate("DialogPDFManager", "Last rec", None, QtGui.QApplication.UnicodeUTF8))
+        self.pushButton_new_rec.setToolTip(
+            QtGui.QApplication.translate("DialogPDFManager", "New record", None, QtGui.QApplication.UnicodeUTF8))
+        self.pushButton_save.setToolTip(
+            QtGui.QApplication.translate("DialogPDFManager", "Save", None, QtGui.QApplication.UnicodeUTF8))
+        self.pushButton_delete.setToolTip(
+            QtGui.QApplication.translate("DialogPDFManager", "Delete record", None, QtGui.QApplication.UnicodeUTF8))
+        self.pushButton_new_search.setToolTip(
+            QtGui.QApplication.translate("DialogPDFManager", "new search", None, QtGui.QApplication.UnicodeUTF8))
+        self.pushButton_search_go.setToolTip(
+            QtGui.QApplication.translate("DialogPDFManager", "search !!!", None, QtGui.QApplication.UnicodeUTF8))
+        self.pushButton_sort.setToolTip(
+            QtGui.QApplication.translate("DialogPDFManager", "Order by", None, QtGui.QApplication.UnicodeUTF8))
+        self.pushButton_view_all.setToolTip(
+            QtGui.QApplication.translate("DialogPDFManager", "View alls records", None, QtGui.QApplication.UnicodeUTF8))
+        self.label_42.setText(
+            QtGui.QApplication.translate("DialogPDFManager", "DB Info", None, QtGui.QApplication.UnicodeUTF8))
+        self.label_43.setText(
+            QtGui.QApplication.translate("DialogPDFManager", "Ordinamento", None, QtGui.QApplication.UnicodeUTF8))
+        self.label_34.setText(
+            QtGui.QApplication.translate("DialogPDFManager", "Status", None, QtGui.QApplication.UnicodeUTF8))
+        self.label_27.setText(
+            QtGui.QApplication.translate("DialogPDFManager", "record n.", None, QtGui.QApplication.UnicodeUTF8))
+        self.label_rec_corrente.setText(
+            QtGui.QApplication.translate("DialogPDFManager", "1", None, QtGui.QApplication.UnicodeUTF8))
+        self.label_28.setText(
+            QtGui.QApplication.translate("DialogPDFManager", "record tot.", None, QtGui.QApplication.UnicodeUTF8))
+        self.label_rec_tot.setText(
+            QtGui.QApplication.translate("DialogPDFManager", "1", None, QtGui.QApplication.UnicodeUTF8))
+        self.label_6.setText(QtGui.QApplication.translate("DialogPDFManager", "Tabella corrente: ", None,
+                                                          QtGui.QApplication.UnicodeUTF8))
+        self.label_4.setText(
+            QtGui.QApplication.translate("DialogPDFManager", "Modello", None, QtGui.QApplication.UnicodeUTF8))
+        self.label_13.setText(
+            QtGui.QApplication.translate("DialogPDFManager", "Schema griglia", None, QtGui.QApplication.UnicodeUTF8))
+        self.tableWidget_schema_griglia.horizontalHeaderItem(0).setText(
+            QtGui.QApplication.translate("DialogPDFManager", "Col 0", None, QtGui.QApplication.UnicodeUTF8))
+        self.tableWidget_schema_griglia.horizontalHeaderItem(1).setText(
+            QtGui.QApplication.translate("DialogPDFManager", "Col 1", None, QtGui.QApplication.UnicodeUTF8))
+        self.tableWidget_schema_griglia.horizontalHeaderItem(2).setText(
+            QtGui.QApplication.translate("DialogPDFManager", "Col 2", None, QtGui.QApplication.UnicodeUTF8))
+        self.tableWidget_schema_griglia.horizontalHeaderItem(3).setText(
+            QtGui.QApplication.translate("DialogPDFManager", "Col 3", None, QtGui.QApplication.UnicodeUTF8))
+        self.tableWidget_schema_griglia.horizontalHeaderItem(4).setText(
+            QtGui.QApplication.translate("DialogPDFManager", "Col 4", None, QtGui.QApplication.UnicodeUTF8))
+        self.tableWidget_schema_griglia.horizontalHeaderItem(5).setText(
+            QtGui.QApplication.translate("DialogPDFManager", "Col 5", None, QtGui.QApplication.UnicodeUTF8))
+        self.tableWidget_schema_griglia.horizontalHeaderItem(6).setText(
+            QtGui.QApplication.translate("DialogPDFManager", "Col 6", None, QtGui.QApplication.UnicodeUTF8))
+        self.tableWidget_schema_griglia.horizontalHeaderItem(7).setText(
+            QtGui.QApplication.translate("DialogPDFManager", "Col 7", None, QtGui.QApplication.UnicodeUTF8))
+        self.tableWidget_schema_griglia.horizontalHeaderItem(8).setText(
+            QtGui.QApplication.translate("DialogPDFManager", "Col 8", None, QtGui.QApplication.UnicodeUTF8))
+        self.label_14.setText(QtGui.QApplication.translate("DialogPDFManager", "Gestione schema griglia", None,
+                                                           QtGui.QApplication.UnicodeUTF8))
+        self.label.setText(
+            QtGui.QApplication.translate("DialogPDFManager", "Righe", None, QtGui.QApplication.UnicodeUTF8))
+        self.pushButton_add_row_griglia.setText(
+            QtGui.QApplication.translate("DialogPDFManager", "+", None, QtGui.QApplication.UnicodeUTF8))
+        self.pushButton_remove_row_griglia.setText(
+            QtGui.QApplication.translate("DialogPDFManager", "-", None, QtGui.QApplication.UnicodeUTF8))
+        self.label_2.setText(
+            QtGui.QApplication.translate("DialogPDFManager", "Colonne", None, QtGui.QApplication.UnicodeUTF8))
+        self.pushButton_add_row_2.setText(
+            QtGui.QApplication.translate("DialogPDFManager", "+", None, QtGui.QApplication.UnicodeUTF8))
+        self.pushButton_remove_row_2.setText(
+            QtGui.QApplication.translate("DialogPDFManager", "-", None, QtGui.QApplication.UnicodeUTF8))
+        self.pushButton_charge_default_schema.setText(
+            QtGui.QApplication.translate("DialogPDFManager", "Carica lo schema predefinito", None,
+                                         QtGui.QApplication.UnicodeUTF8))
+        self.label_9.setText(
+            QtGui.QApplication.translate("DialogPDFManager", "Elenco Campi:", None, QtGui.QApplication.UnicodeUTF8))
+        self.pushButton_inserisci_nome_campo.setText(
+            QtGui.QApplication.translate("DialogPDFManager", "Inserisci nome del campo", None,
+                                         QtGui.QApplication.UnicodeUTF8))
+        self.tabWidget.setTabText(self.tabWidget.indexOf(self.tab),
+                                  QtGui.QApplication.translate("DialogPDFManager", "Schema griglia", None,
+                                                               QtGui.QApplication.UnicodeUTF8))
+        self.label_16.setText(QtGui.QApplication.translate("DialogPDFManager", "Schema fusione celle", None,
+                                                           QtGui.QApplication.UnicodeUTF8))
+        self.tableWidget_gestione_celle.horizontalHeaderItem(0).setText(
+            QtGui.QApplication.translate("DialogPDFManager", "Comando", None, QtGui.QApplication.UnicodeUTF8))
+        self.tableWidget_gestione_celle.horizontalHeaderItem(1).setText(
+            QtGui.QApplication.translate("DialogPDFManager", "Cella iniziale", None, QtGui.QApplication.UnicodeUTF8))
+        self.tableWidget_gestione_celle.horizontalHeaderItem(2).setText(
+            QtGui.QApplication.translate("DialogPDFManager", "Cella finale", None, QtGui.QApplication.UnicodeUTF8))
+        self.tableWidget_gestione_celle.horizontalHeaderItem(3).setText(
+            QtGui.QApplication.translate("DialogPDFManager", "Riferimento", None, QtGui.QApplication.UnicodeUTF8))
+        self.label_15.setText(QtGui.QApplication.translate("DialogPDFManager", "Gestione fusione celle", None,
+                                                           QtGui.QApplication.UnicodeUTF8))
+        self.label_3.setText(
+            QtGui.QApplication.translate("DialogPDFManager", "Righe", None, QtGui.QApplication.UnicodeUTF8))
+        self.pushButton_add_row_cell.setText(
+            QtGui.QApplication.translate("DialogPDFManager", "+", None, QtGui.QApplication.UnicodeUTF8))
+        self.pushButton_remove_row_cell.setText(
+            QtGui.QApplication.translate("DialogPDFManager", "-", None, QtGui.QApplication.UnicodeUTF8))
+        self.tabWidget.setTabText(self.tabWidget.indexOf(self.tab_2),
+                                  QtGui.QApplication.translate("DialogPDFManager", "Fusione celle", None,
+                                                               QtGui.QApplication.UnicodeUTF8))

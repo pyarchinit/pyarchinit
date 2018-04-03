@@ -8,9 +8,8 @@
 # WARNING! All changes made in this file will be lost!
 
 from PyQt4 import QtCore, QtGui
-from mplwidget import Mplwidget
-import resources_rc
 
+from mplwidget import Mplwidget
 
 try:
     _fromUtf8 = QtCore.QString.fromUtf8
@@ -20,11 +19,14 @@ except AttributeError:
 
 try:
     _encoding = QtGui.QApplication.UnicodeUTF8
+
+
     def _translate(context, text, disambig):
         return QtGui.QApplication.translate(context, text, disambig, _encoding)
 except AttributeError:
     def _translate(context, text, disambig):
         return QtGui.QApplication.translate(context, text, disambig)
+
 
 class Ui_DialogInventarioMateriali(object):
     def setupUi(self, DialogInventarioMateriali):
@@ -523,7 +525,8 @@ class Ui_DialogInventarioMateriali(object):
         self.tableWidget_elementi_reperto.setFrameShadow(QtGui.QFrame.Raised)
         self.tableWidget_elementi_reperto.setVerticalScrollBarPolicy(QtCore.Qt.ScrollBarAsNeeded)
         self.tableWidget_elementi_reperto.setHorizontalScrollBarPolicy(QtCore.Qt.ScrollBarAsNeeded)
-        self.tableWidget_elementi_reperto.setEditTriggers(QtGui.QAbstractItemView.AnyKeyPressed|QtGui.QAbstractItemView.DoubleClicked|QtGui.QAbstractItemView.EditKeyPressed)
+        self.tableWidget_elementi_reperto.setEditTriggers(
+            QtGui.QAbstractItemView.AnyKeyPressed | QtGui.QAbstractItemView.DoubleClicked | QtGui.QAbstractItemView.EditKeyPressed)
         self.tableWidget_elementi_reperto.setSelectionMode(QtGui.QAbstractItemView.SingleSelection)
         self.tableWidget_elementi_reperto.setSelectionBehavior(QtGui.QAbstractItemView.SelectRows)
         self.tableWidget_elementi_reperto.setRowCount(1)
@@ -623,7 +626,8 @@ class Ui_DialogInventarioMateriali(object):
         self.tableWidget_misurazioni.setFrameShadow(QtGui.QFrame.Raised)
         self.tableWidget_misurazioni.setVerticalScrollBarPolicy(QtCore.Qt.ScrollBarAsNeeded)
         self.tableWidget_misurazioni.setHorizontalScrollBarPolicy(QtCore.Qt.ScrollBarAsNeeded)
-        self.tableWidget_misurazioni.setEditTriggers(QtGui.QAbstractItemView.AnyKeyPressed|QtGui.QAbstractItemView.DoubleClicked|QtGui.QAbstractItemView.EditKeyPressed)
+        self.tableWidget_misurazioni.setEditTriggers(
+            QtGui.QAbstractItemView.AnyKeyPressed | QtGui.QAbstractItemView.DoubleClicked | QtGui.QAbstractItemView.EditKeyPressed)
         self.tableWidget_misurazioni.setSelectionMode(QtGui.QAbstractItemView.SingleSelection)
         self.tableWidget_misurazioni.setSelectionBehavior(QtGui.QAbstractItemView.SelectRows)
         self.tableWidget_misurazioni.setRowCount(1)
@@ -677,7 +681,8 @@ class Ui_DialogInventarioMateriali(object):
         self.tableWidget_tecnologie.setFrameShadow(QtGui.QFrame.Raised)
         self.tableWidget_tecnologie.setVerticalScrollBarPolicy(QtCore.Qt.ScrollBarAsNeeded)
         self.tableWidget_tecnologie.setHorizontalScrollBarPolicy(QtCore.Qt.ScrollBarAsNeeded)
-        self.tableWidget_tecnologie.setEditTriggers(QtGui.QAbstractItemView.AnyKeyPressed|QtGui.QAbstractItemView.DoubleClicked|QtGui.QAbstractItemView.EditKeyPressed)
+        self.tableWidget_tecnologie.setEditTriggers(
+            QtGui.QAbstractItemView.AnyKeyPressed | QtGui.QAbstractItemView.DoubleClicked | QtGui.QAbstractItemView.EditKeyPressed)
         self.tableWidget_tecnologie.setSelectionMode(QtGui.QAbstractItemView.SingleSelection)
         self.tableWidget_tecnologie.setSelectionBehavior(QtGui.QAbstractItemView.SelectRows)
         self.tableWidget_tecnologie.setRowCount(1)
@@ -735,7 +740,8 @@ class Ui_DialogInventarioMateriali(object):
         self.tableWidget_rif_biblio.setFrameShadow(QtGui.QFrame.Raised)
         self.tableWidget_rif_biblio.setVerticalScrollBarPolicy(QtCore.Qt.ScrollBarAsNeeded)
         self.tableWidget_rif_biblio.setHorizontalScrollBarPolicy(QtCore.Qt.ScrollBarAsNeeded)
-        self.tableWidget_rif_biblio.setEditTriggers(QtGui.QAbstractItemView.AnyKeyPressed|QtGui.QAbstractItemView.DoubleClicked|QtGui.QAbstractItemView.EditKeyPressed)
+        self.tableWidget_rif_biblio.setEditTriggers(
+            QtGui.QAbstractItemView.AnyKeyPressed | QtGui.QAbstractItemView.DoubleClicked | QtGui.QAbstractItemView.EditKeyPressed)
         self.tableWidget_rif_biblio.setSelectionMode(QtGui.QAbstractItemView.SingleSelection)
         self.tableWidget_rif_biblio.setSelectionBehavior(QtGui.QAbstractItemView.SelectRows)
         self.tableWidget_rif_biblio.setRowCount(1)
@@ -958,16 +964,21 @@ class Ui_DialogInventarioMateriali(object):
         DialogInventarioMateriali.setTabOrder(self.pushButton_tot_fram, self.pushButton_insert_row_misure)
         DialogInventarioMateriali.setTabOrder(self.pushButton_insert_row_misure, self.pushButton_remove_row_misure)
         DialogInventarioMateriali.setTabOrder(self.pushButton_remove_row_misure, self.pushButton_remove_row_tecnologie)
-        DialogInventarioMateriali.setTabOrder(self.pushButton_remove_row_tecnologie, self.pushButton_insert_row_tecnologie)
-        DialogInventarioMateriali.setTabOrder(self.pushButton_insert_row_tecnologie, self.pushButton_insert_row_rif_biblio)
-        DialogInventarioMateriali.setTabOrder(self.pushButton_insert_row_rif_biblio, self.pushButton_remove_row_rif_biblio)
-        DialogInventarioMateriali.setTabOrder(self.pushButton_remove_row_rif_biblio, self.pushButton_insert_row_elementi)
+        DialogInventarioMateriali.setTabOrder(self.pushButton_remove_row_tecnologie,
+                                              self.pushButton_insert_row_tecnologie)
+        DialogInventarioMateriali.setTabOrder(self.pushButton_insert_row_tecnologie,
+                                              self.pushButton_insert_row_rif_biblio)
+        DialogInventarioMateriali.setTabOrder(self.pushButton_insert_row_rif_biblio,
+                                              self.pushButton_remove_row_rif_biblio)
+        DialogInventarioMateriali.setTabOrder(self.pushButton_remove_row_rif_biblio,
+                                              self.pushButton_insert_row_elementi)
         DialogInventarioMateriali.setTabOrder(self.pushButton_insert_row_elementi, self.pushButton_remove_row_elementi)
         DialogInventarioMateriali.setTabOrder(self.pushButton_remove_row_elementi, self.comboBox_sito)
         DialogInventarioMateriali.setTabOrder(self.comboBox_sito, self.pushButtonQuant)
 
     def retranslateUi(self, DialogInventarioMateriali):
-        DialogInventarioMateriali.setWindowTitle(_translate("DialogInventarioMateriali", "pyArchInit Gestione Scavi - Inventario materiali", None))
+        DialogInventarioMateriali.setWindowTitle(
+            _translate("DialogInventarioMateriali", "pyArchInit Gestione Scavi - Inventario materiali", None))
         self.label_32.setText(_translate("DialogInventarioMateriali", "DBMS Toolbar", None))
         self.pushButton_first_rec.setToolTip(_translate("DialogInventarioMateriali", "First rec", None))
         self.pushButton_next_rec.setToolTip(_translate("DialogInventarioMateriali", "Next rec", None))
@@ -999,15 +1010,21 @@ class Ui_DialogInventarioMateriali(object):
         self.comboBox_tipo_reperto.setItemText(3, _translate("DialogInventarioMateriali", "Reperto ceramico", None))
         self.comboBox_tipo_reperto.setItemText(4, _translate("DialogInventarioMateriali", "Reperto ligneo", None))
         self.comboBox_tipo_reperto.setItemText(5, _translate("DialogInventarioMateriali", "Reperto metallico", None))
-        self.comboBox_tipo_reperto.setItemText(6, _translate("DialogInventarioMateriali", "Reperto osseo lavorato", None))
-        self.comboBox_tipo_reperto.setItemText(7, _translate("DialogInventarioMateriali", "Reperto osteologico animale", None))
-        self.comboBox_tipo_reperto.setItemText(8, _translate("DialogInventarioMateriali", "Reperto osteologico umano", None))
+        self.comboBox_tipo_reperto.setItemText(6,
+                                               _translate("DialogInventarioMateriali", "Reperto osseo lavorato", None))
+        self.comboBox_tipo_reperto.setItemText(7, _translate("DialogInventarioMateriali", "Reperto osteologico animale",
+                                                             None))
+        self.comboBox_tipo_reperto.setItemText(8, _translate("DialogInventarioMateriali", "Reperto osteologico umano",
+                                                             None))
         self.comboBox_tipo_reperto.setItemText(9, _translate("DialogInventarioMateriali", "Reperto vitreo", None))
         self.comboBox_criterio_schedatura.setItemText(0, _translate("DialogInventarioMateriali", "Acroma grezza", None))
-        self.comboBox_criterio_schedatura.setItemText(1, _translate("DialogInventarioMateriali", "Acroma depurata", None))
-        self.comboBox_criterio_schedatura.setItemText(2, _translate("DialogInventarioMateriali", "Maiolica arcaica", None))
+        self.comboBox_criterio_schedatura.setItemText(1,
+                                                      _translate("DialogInventarioMateriali", "Acroma depurata", None))
+        self.comboBox_criterio_schedatura.setItemText(2,
+                                                      _translate("DialogInventarioMateriali", "Maiolica arcaica", None))
         self.comboBox_criterio_schedatura.setItemText(3, _translate("DialogInventarioMateriali", "Vernice nera", None))
-        self.comboBox_criterio_schedatura.setItemText(4, _translate("DialogInventarioMateriali", "Terra sigillata", None))
+        self.comboBox_criterio_schedatura.setItemText(4,
+                                                      _translate("DialogInventarioMateriali", "Terra sigillata", None))
         self.comboBox_definizione.setItemText(0, _translate("DialogInventarioMateriali", "Bicchiere", None))
         self.comboBox_definizione.setItemText(1, _translate("DialogInventarioMateriali", "Boccale", None))
         self.comboBox_definizione.setItemText(2, _translate("DialogInventarioMateriali", "Brocca", None))
@@ -1030,7 +1047,8 @@ class Ui_DialogInventarioMateriali(object):
         self.label_26.setText(_translate("DialogInventarioMateriali", "Stato di conservazione", None))
         self.label_13.setText(_translate("DialogInventarioMateriali", "Tipo", None))
         self.label_41.setText(_translate("DialogInventarioMateriali", "Datazione reperto", None))
-        self.tabWidget.setTabText(self.tabWidget.indexOf(self.tab), _translate("DialogInventarioMateriali", "Dati descrittivi", None))
+        self.tabWidget.setTabText(self.tabWidget.indexOf(self.tab),
+                                  _translate("DialogInventarioMateriali", "Dati descrittivi", None))
         self.label_20.setText(_translate("DialogInventarioMateriali", "Elementi reperto", None))
         self.pushButton_insert_row_elementi.setText(_translate("DialogInventarioMateriali", "inserisci riga", None))
         self.pushButton_remove_row_elementi.setText(_translate("DialogInventarioMateriali", "rimuovi riga", None))
@@ -1059,7 +1077,8 @@ class Ui_DialogInventarioMateriali(object):
         item.setText(_translate("DialogInventarioMateriali", "Unita\' di misura", None))
         item = self.tableWidget_misurazioni.horizontalHeaderItem(2)
         item.setText(_translate("DialogInventarioMateriali", "Quantita\'", None))
-        self.tabWidget.setTabText(self.tabWidget.indexOf(self.tab_3), _translate("DialogInventarioMateriali", "Dati quantitativi", None))
+        self.tabWidget.setTabText(self.tabWidget.indexOf(self.tab_3),
+                                  _translate("DialogInventarioMateriali", "Dati quantitativi", None))
         self.label_23.setText(_translate("DialogInventarioMateriali", "Tecnologie", None))
         self.pushButton_remove_row_tecnologie.setText(_translate("DialogInventarioMateriali", "rimuovi riga", None))
         self.pushButton_insert_row_tecnologie.setText(_translate("DialogInventarioMateriali", "inserisci riga", None))
@@ -1075,7 +1094,8 @@ class Ui_DialogInventarioMateriali(object):
         item.setText(_translate("DialogInventarioMateriali", "Qtà", None))
         self.label_12.setText(_translate("DialogInventarioMateriali", "Corpo ceramico", None))
         self.label_11.setText(_translate("DialogInventarioMateriali", "Rivestimento", None))
-        self.tabWidget.setTabText(self.tabWidget.indexOf(self.tab_4), _translate("DialogInventarioMateriali", "Tecnologie", None))
+        self.tabWidget.setTabText(self.tabWidget.indexOf(self.tab_4),
+                                  _translate("DialogInventarioMateriali", "Tecnologie", None))
         self.label_22.setText(_translate("DialogInventarioMateriali", "Rif. Bibliografici", None))
         self.pushButton_insert_row_rif_biblio.setText(_translate("DialogInventarioMateriali", "inserisci riga", None))
         self.pushButton_remove_row_rif_biblio.setText(_translate("DialogInventarioMateriali", "rimuovi riga", None))
@@ -1089,7 +1109,8 @@ class Ui_DialogInventarioMateriali(object):
         item.setText(_translate("DialogInventarioMateriali", "Pag.", None))
         item = self.tableWidget_rif_biblio.horizontalHeaderItem(4)
         item.setText(_translate("DialogInventarioMateriali", "Fig.", None))
-        self.tabWidget.setTabText(self.tabWidget.indexOf(self.tab_7), _translate("DialogInventarioMateriali", "Rif Biblio", None))
+        self.tabWidget.setTabText(self.tabWidget.indexOf(self.tab_7),
+                                  _translate("DialogInventarioMateriali", "Rif Biblio", None))
         self.label_18.setText(_translate("DialogInventarioMateriali", "Dati stratigrafici", None))
         self.label_37.setText(_translate("DialogInventarioMateriali", "Area", None))
         self.label_38.setText(_translate("DialogInventarioMateriali", "US", None))
@@ -1099,12 +1120,14 @@ class Ui_DialogInventarioMateriali(object):
         self.comboBox_lavato.setItemText(1, _translate("DialogInventarioMateriali", "No", None))
         self.label_2.setText(_translate("DialogInventarioMateriali", "Lavato", None))
         self.label_40.setText(_translate("DialogInventarioMateriali", "Luogo di conservazione", None))
-        self.tabWidget.setTabText(self.tabWidget.indexOf(self.tab_2), _translate("DialogInventarioMateriali", "Rif. stratigrafici", None))
+        self.tabWidget.setTabText(self.tabWidget.indexOf(self.tab_2),
+                                  _translate("DialogInventarioMateriali", "Rif. stratigrafici", None))
         self.pushButtonQuant.setText(_translate("DialogInventarioMateriali", "Impostazione quantificazione", None))
-        self.tabWidget.setTabText(self.tabWidget.indexOf(self.tab_6), _translate("DialogInventarioMateriali", "Quantificazioni", None))
+        self.tabWidget.setTabText(self.tabWidget.indexOf(self.tab_6),
+                                  _translate("DialogInventarioMateriali", "Quantificazioni", None))
         self.pushButton_exp_pdf_sheet.setText(_translate("DialogInventarioMateriali", "Exp schede Pdf ", None))
         self.pushButton_exp_index_mat.setText(_translate("DialogInventarioMateriali", "Exp indice  Pdf ", None))
         self.pushButton_elenco_casse.setText(_translate("DialogInventarioMateriali", "Elenco casse", None))
         self.toolButtonPreviewMedia.setText(_translate("DialogInventarioMateriali", "Media Preview", None))
-        self.tabWidget.setTabText(self.tabWidget.indexOf(self.tab_5), _translate("DialogInventarioMateriali", "Tools", None))
-
+        self.tabWidget.setTabText(self.tabWidget.indexOf(self.tab_5),
+                                  _translate("DialogInventarioMateriali", "Tools", None))

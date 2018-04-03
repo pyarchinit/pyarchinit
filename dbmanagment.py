@@ -2,13 +2,13 @@
 # -*- coding: utf-8 -*-
 
 import os
+
 import sys
 import time
-
 from PyQt4 import QtGui
+
 from modules.gis.pyarchinit_pyqgis import Pyarchinit_pyqgis
 from modules.gui.dbmanagment_ui import Ui_DBmanagment
-
 
 try:
     from qgis.core import *
@@ -16,10 +16,10 @@ try:
 except:
     pass
 
+
 # --import pyArchInit modules--#
 
 class pyarchinit_dbmanagment(QDialog, Ui_DBmanagment):
-
     MSG_BOX_TITLE = \
         'PyArchInit - pyarchinit_version 0.4 - Scheda gestione DB'
 
@@ -72,10 +72,8 @@ class pyarchinit_dbmanagment(QDialog, Ui_DBmanagment):
 
     def on_backup_pressed(self):
         from pyarchinit_OS_utility import *
-        from time import gmtime, strftime
         import subprocess
         import os
-        import glob
 
         if os.name == 'posix':
             home = os.environ['HOME']
@@ -88,7 +86,7 @@ class pyarchinit_dbmanagment(QDialog, Ui_DBmanagment):
         dump_dir = PDF_path
         db_username = 'postgres'
 
-                # db_password = ''
+        # db_password = ''
 
         db_names = ['pyarchinit']
 
@@ -106,13 +104,12 @@ class pyarchinit_dbmanagment(QDialog, Ui_DBmanagment):
                 file_path = ''
                 dumper = ' -U %s -Z 9 -f %s -F c %s  '
 
-
                 bkp_file = '%s_%s.sql' % (db_name,
-                        time.strftime('%Y%m%d_%H_%M_%S'))
+                                          time.strftime('%Y%m%d_%H_%M_%S'))
 
                 file_path = os.path.join(dump_dir, bkp_file)
                 command = 'pg_dump' + dumper % (db_username, file_path,
-                        db_name)
+                                                db_name)
                 subprocess.call(command, shell=True)
                 subprocess.call('gzip ' + file_path, shell=True)
 
@@ -160,7 +157,7 @@ class pyarchinit_dbmanagment(QDialog, Ui_DBmanagment):
         for base in os.popen(get_db_names).readlines():
             try:
 
-            # app = QtGui.QApplication(sys.argv)
+                # app = QtGui.QApplication(sys.argv)
 
                 barra = QtGui.QProgressBar(self)
                 barra.show()
@@ -188,7 +185,7 @@ class pyarchinit_dbmanagment(QDialog, Ui_DBmanagment):
 
     def on_upload_pressed(self):
         self.percorso = QtGui.QFileDialog.getOpenFileName(self,
-                'Open file', '/')
+                                                          'Open file', '/')
 
         # QMessageBox.warning(self, "Messaggio", str(self.FILE), QMessageBox.Ok)
 
@@ -207,8 +204,9 @@ class pyarchinit_dbmanagment(QDialog, Ui_DBmanagment):
             os.popen('dropdb -U postgres pyarchinit')
             os.popen('createdb -U postgres -p 5432 -h localhost -E UTF8  -T template_postgis_20 -e pyarchinit'
                      )
-            os.popen('pg_restore --host localhost --port 5432 --username postgres --dbname pyarchinit --role postgres --no-password  --verbose %s'
-                      % str(path))
+            os.popen(
+                'pg_restore --host localhost --port 5432 --username postgres --dbname pyarchinit --role postgres --no-password  --verbose %s'
+                % str(path))
             QMessageBox.warning(self, 'Messaggio',
                                 'Ripristino completato', QMessageBox.Ok)
         except Exception as e:

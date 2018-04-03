@@ -8,13 +8,12 @@
 # WARNING! All changes made in this file will be lost!
 
 from PyQt4 import QtCore, QtGui
-import resources_rc
-
 
 try:
     _fromUtf8 = QtCore.QString.fromUtf8
 except AttributeError:
     _fromUtf8 = lambda s: s
+
 
 class Ui_DialogDetsesso(object):
     def setupUi(self, DialogDetsesso):
@@ -311,12 +310,14 @@ class Ui_DialogDetsesso(object):
         self.gridLayout_7.addWidget(self.label_2, 0, 0, 1, 1)
         self.lineEdit_mfmand_grado_imp = QtGui.QLineEdit(self.toolBoxPage1)
         self.lineEdit_mfmand_grado_imp.setEnabled(False)
-        self.lineEdit_mfmand_grado_imp.setAlignment(QtCore.Qt.AlignRight|QtCore.Qt.AlignTrailing|QtCore.Qt.AlignVCenter)
+        self.lineEdit_mfmand_grado_imp.setAlignment(
+            QtCore.Qt.AlignRight | QtCore.Qt.AlignTrailing | QtCore.Qt.AlignVCenter)
         self.lineEdit_mfmand_grado_imp.setObjectName(_fromUtf8("lineEdit_mfmand_grado_imp"))
         self.gridLayout_7.addWidget(self.lineEdit_mfmand_grado_imp, 4, 5, 1, 1)
         self.lineEdit_msorb_grado_imp = QtGui.QLineEdit(self.toolBoxPage1)
         self.lineEdit_msorb_grado_imp.setEnabled(False)
-        self.lineEdit_msorb_grado_imp.setAlignment(QtCore.Qt.AlignRight|QtCore.Qt.AlignTrailing|QtCore.Qt.AlignVCenter)
+        self.lineEdit_msorb_grado_imp.setAlignment(
+            QtCore.Qt.AlignRight | QtCore.Qt.AlignTrailing | QtCore.Qt.AlignVCenter)
         self.lineEdit_msorb_grado_imp.setObjectName(_fromUtf8("lineEdit_msorb_grado_imp"))
         self.gridLayout_7.addWidget(self.lineEdit_msorb_grado_imp, 12, 1, 1, 1)
         self.comboBox_pzig_valori = QtGui.QComboBox(self.toolBoxPage1)
@@ -410,7 +411,8 @@ class Ui_DialogDetsesso(object):
         self.label_87_inclinazione_frontale_3.setObjectName(_fromUtf8("label_87_inclinazione_frontale_3"))
         self.gridLayout_7.addWidget(self.label_87_inclinazione_frontale_3, 10, 0, 1, 1)
         self.label_86_protuberanza_occipitale_esterna_3 = QtGui.QLabel(self.toolBoxPage1)
-        self.label_86_protuberanza_occipitale_esterna_3.setObjectName(_fromUtf8("label_86_protuberanza_occipitale_esterna_3"))
+        self.label_86_protuberanza_occipitale_esterna_3.setObjectName(
+            _fromUtf8("label_86_protuberanza_occipitale_esterna_3"))
         self.gridLayout_7.addWidget(self.label_86_protuberanza_occipitale_esterna_3, 9, 0, 1, 1)
         self.label_70_morfologia_mandibola_3 = QtGui.QLabel(self.toolBoxPage1)
         self.label_70_morfologia_mandibola_3.setObjectName(_fromUtf8("label_70_morfologia_mandibola_3"))
@@ -435,13 +437,15 @@ class Ui_DialogDetsesso(object):
         self.gridLayout_7.addWidget(self.pushButton_calcola_ind_sex, 14, 4, 1, 3)
         self.lineEdit_zig_grado_imp = QtGui.QLineEdit(self.toolBoxPage1)
         self.lineEdit_zig_grado_imp.setEnabled(False)
-        self.lineEdit_zig_grado_imp.setAlignment(QtCore.Qt.AlignRight|QtCore.Qt.AlignTrailing|QtCore.Qt.AlignVCenter)
+        self.lineEdit_zig_grado_imp.setAlignment(
+            QtCore.Qt.AlignRight | QtCore.Qt.AlignTrailing | QtCore.Qt.AlignVCenter)
         self.lineEdit_zig_grado_imp.setObjectName(_fromUtf8("lineEdit_zig_grado_imp"))
         self.gridLayout_7.addWidget(self.lineEdit_zig_grado_imp, 11, 1, 1, 1)
         self.lineEdit_pocc_grado_imp = QtGui.QLineEdit(self.toolBoxPage1)
         self.lineEdit_pocc_grado_imp.setEnabled(False)
         self.lineEdit_pocc_grado_imp.setLayoutDirection(QtCore.Qt.LeftToRight)
-        self.lineEdit_pocc_grado_imp.setAlignment(QtCore.Qt.AlignRight|QtCore.Qt.AlignTrailing|QtCore.Qt.AlignVCenter)
+        self.lineEdit_pocc_grado_imp.setAlignment(
+            QtCore.Qt.AlignRight | QtCore.Qt.AlignTrailing | QtCore.Qt.AlignVCenter)
         self.lineEdit_pocc_grado_imp.setObjectName(_fromUtf8("lineEdit_pocc_grado_imp"))
         self.gridLayout_7.addWidget(self.lineEdit_pocc_grado_imp, 9, 1, 1, 1)
         self.comboBox_condm_valori = QtGui.QComboBox(self.toolBoxPage1)
@@ -458,18 +462,21 @@ class Ui_DialogDetsesso(object):
         self.lineEdit_arcsop_grado_imp = QtGui.QLineEdit(self.toolBoxPage1)
         self.lineEdit_arcsop_grado_imp.setEnabled(False)
         self.lineEdit_arcsop_grado_imp.setLayoutDirection(QtCore.Qt.LeftToRight)
-        self.lineEdit_arcsop_grado_imp.setAlignment(QtCore.Qt.AlignRight|QtCore.Qt.AlignTrailing|QtCore.Qt.AlignVCenter)
+        self.lineEdit_arcsop_grado_imp.setAlignment(
+            QtCore.Qt.AlignRight | QtCore.Qt.AlignTrailing | QtCore.Qt.AlignVCenter)
         self.lineEdit_arcsop_grado_imp.setObjectName(_fromUtf8("lineEdit_arcsop_grado_imp"))
         self.gridLayout_7.addWidget(self.lineEdit_arcsop_grado_imp, 7, 1, 1, 1)
         self.lineEdit_palato_grado_imp = QtGui.QLineEdit(self.toolBoxPage1)
         self.lineEdit_palato_grado_imp.setEnabled(False)
-        self.lineEdit_palato_grado_imp.setAlignment(QtCore.Qt.AlignRight|QtCore.Qt.AlignTrailing|QtCore.Qt.AlignVCenter)
+        self.lineEdit_palato_grado_imp.setAlignment(
+            QtCore.Qt.AlignRight | QtCore.Qt.AlignTrailing | QtCore.Qt.AlignVCenter)
         self.lineEdit_palato_grado_imp.setObjectName(_fromUtf8("lineEdit_palato_grado_imp"))
         self.gridLayout_7.addWidget(self.lineEdit_palato_grado_imp, 3, 5, 1, 1)
         self.lineEdit_tub_grado_imp = QtGui.QLineEdit(self.toolBoxPage1)
         self.lineEdit_tub_grado_imp.setEnabled(False)
         self.lineEdit_tub_grado_imp.setLayoutDirection(QtCore.Qt.LeftToRight)
-        self.lineEdit_tub_grado_imp.setAlignment(QtCore.Qt.AlignRight|QtCore.Qt.AlignTrailing|QtCore.Qt.AlignVCenter)
+        self.lineEdit_tub_grado_imp.setAlignment(
+            QtCore.Qt.AlignRight | QtCore.Qt.AlignTrailing | QtCore.Qt.AlignVCenter)
         self.lineEdit_tub_grado_imp.setObjectName(_fromUtf8("lineEdit_tub_grado_imp"))
         self.gridLayout_7.addWidget(self.lineEdit_tub_grado_imp, 8, 1, 1, 1)
         self.label_90_indice_sessualizzazione_cranio = QtGui.QLabel(self.toolBoxPage1)
@@ -546,7 +553,8 @@ class Ui_DialogDetsesso(object):
         self.gridLayout_7.addWidget(self.label_89_margine_sopraorbitale_3, 12, 0, 1, 1)
         self.lineEdit_minf_grado_imp = QtGui.QLineEdit(self.toolBoxPage1)
         self.lineEdit_minf_grado_imp.setEnabled(False)
-        self.lineEdit_minf_grado_imp.setAlignment(QtCore.Qt.AlignRight|QtCore.Qt.AlignTrailing|QtCore.Qt.AlignVCenter)
+        self.lineEdit_minf_grado_imp.setAlignment(
+            QtCore.Qt.AlignRight | QtCore.Qt.AlignTrailing | QtCore.Qt.AlignVCenter)
         self.lineEdit_minf_grado_imp.setObjectName(_fromUtf8("lineEdit_minf_grado_imp"))
         self.gridLayout_7.addWidget(self.lineEdit_minf_grado_imp, 7, 5, 1, 1)
         self.label_48_caratteri_cranio_6 = QtGui.QLabel(self.toolBoxPage1)
@@ -572,7 +580,8 @@ class Ui_DialogDetsesso(object):
         self.gridLayout_7.addWidget(self.comboBox_pocc_valori, 9, 2, 1, 1)
         self.lineEdit_anmand_grado_imp = QtGui.QLineEdit(self.toolBoxPage1)
         self.lineEdit_anmand_grado_imp.setEnabled(False)
-        self.lineEdit_anmand_grado_imp.setAlignment(QtCore.Qt.AlignRight|QtCore.Qt.AlignTrailing|QtCore.Qt.AlignVCenter)
+        self.lineEdit_anmand_grado_imp.setAlignment(
+            QtCore.Qt.AlignRight | QtCore.Qt.AlignTrailing | QtCore.Qt.AlignVCenter)
         self.lineEdit_anmand_grado_imp.setObjectName(_fromUtf8("lineEdit_anmand_grado_imp"))
         self.gridLayout_7.addWidget(self.lineEdit_anmand_grado_imp, 6, 5, 1, 1)
         self.label_90_angolo_mandibolare = QtGui.QLabel(self.toolBoxPage1)
@@ -603,12 +612,14 @@ class Ui_DialogDetsesso(object):
         self.gridLayout_7.addWidget(self.label_20, 1, 6, 1, 1)
         self.lineEdit_inclfr_grado_imp = QtGui.QLineEdit(self.toolBoxPage1)
         self.lineEdit_inclfr_grado_imp.setEnabled(False)
-        self.lineEdit_inclfr_grado_imp.setAlignment(QtCore.Qt.AlignRight|QtCore.Qt.AlignTrailing|QtCore.Qt.AlignVCenter)
+        self.lineEdit_inclfr_grado_imp.setAlignment(
+            QtCore.Qt.AlignRight | QtCore.Qt.AlignTrailing | QtCore.Qt.AlignVCenter)
         self.lineEdit_inclfr_grado_imp.setObjectName(_fromUtf8("lineEdit_inclfr_grado_imp"))
         self.gridLayout_7.addWidget(self.lineEdit_inclfr_grado_imp, 10, 1, 1, 1)
         self.lineEdit_brmont_grado_imp = QtGui.QLineEdit(self.toolBoxPage1)
         self.lineEdit_brmont_grado_imp.setEnabled(False)
-        self.lineEdit_brmont_grado_imp.setAlignment(QtCore.Qt.AlignRight|QtCore.Qt.AlignTrailing|QtCore.Qt.AlignVCenter)
+        self.lineEdit_brmont_grado_imp.setAlignment(
+            QtCore.Qt.AlignRight | QtCore.Qt.AlignTrailing | QtCore.Qt.AlignVCenter)
         self.lineEdit_brmont_grado_imp.setObjectName(_fromUtf8("lineEdit_brmont_grado_imp"))
         self.gridLayout_7.addWidget(self.lineEdit_brmont_grado_imp, 8, 5, 1, 1)
         self.comboBox_msorb_valori = QtGui.QComboBox(self.toolBoxPage1)
@@ -659,11 +670,13 @@ class Ui_DialogDetsesso(object):
         self.label_84_arcata_sopraciliare_3.setObjectName(_fromUtf8("label_84_arcata_sopraciliare_3"))
         self.gridLayout_7.addWidget(self.label_84_arcata_sopraciliare_3, 7, 0, 1, 1)
         self.label_85_tuberosita_frontale_e_parietale_3 = QtGui.QLabel(self.toolBoxPage1)
-        self.label_85_tuberosita_frontale_e_parietale_3.setObjectName(_fromUtf8("label_85_tuberosita_frontale_e_parietale_3"))
+        self.label_85_tuberosita_frontale_e_parietale_3.setObjectName(
+            _fromUtf8("label_85_tuberosita_frontale_e_parietale_3"))
         self.gridLayout_7.addWidget(self.label_85_tuberosita_frontale_e_parietale_3, 8, 0, 1, 1)
         self.lineEdit_mento_grado_imp = QtGui.QLineEdit(self.toolBoxPage1)
         self.lineEdit_mento_grado_imp.setEnabled(False)
-        self.lineEdit_mento_grado_imp.setAlignment(QtCore.Qt.AlignRight|QtCore.Qt.AlignTrailing|QtCore.Qt.AlignVCenter)
+        self.lineEdit_mento_grado_imp.setAlignment(
+            QtCore.Qt.AlignRight | QtCore.Qt.AlignTrailing | QtCore.Qt.AlignVCenter)
         self.lineEdit_mento_grado_imp.setObjectName(_fromUtf8("lineEdit_mento_grado_imp"))
         self.gridLayout_7.addWidget(self.lineEdit_mento_grado_imp, 5, 5, 1, 1)
         self.comboBox_ind_cr_sex = QtGui.QComboBox(self.toolBoxPage1)
@@ -693,7 +706,8 @@ class Ui_DialogDetsesso(object):
         self.gridLayout_7.addWidget(self.comboBox_mento_valori, 5, 6, 1, 1)
         self.lineEdit_condm_grado_imp = QtGui.QLineEdit(self.toolBoxPage1)
         self.lineEdit_condm_grado_imp.setEnabled(False)
-        self.lineEdit_condm_grado_imp.setAlignment(QtCore.Qt.AlignRight|QtCore.Qt.AlignTrailing|QtCore.Qt.AlignVCenter)
+        self.lineEdit_condm_grado_imp.setAlignment(
+            QtCore.Qt.AlignRight | QtCore.Qt.AlignTrailing | QtCore.Qt.AlignVCenter)
         self.lineEdit_condm_grado_imp.setObjectName(_fromUtf8("lineEdit_condm_grado_imp"))
         self.gridLayout_7.addWidget(self.lineEdit_condm_grado_imp, 9, 5, 1, 1)
         self.label_18 = QtGui.QLabel(self.toolBoxPage1)
@@ -712,13 +726,15 @@ class Ui_DialogDetsesso(object):
         self.lineEdit_glab_grado_imp.setEnabled(False)
         self.lineEdit_glab_grado_imp.setLayoutDirection(QtCore.Qt.LeftToRight)
         self.lineEdit_glab_grado_imp.setMaxLength(32768)
-        self.lineEdit_glab_grado_imp.setAlignment(QtCore.Qt.AlignRight|QtCore.Qt.AlignTrailing|QtCore.Qt.AlignVCenter)
+        self.lineEdit_glab_grado_imp.setAlignment(
+            QtCore.Qt.AlignRight | QtCore.Qt.AlignTrailing | QtCore.Qt.AlignVCenter)
         self.lineEdit_glab_grado_imp.setObjectName(_fromUtf8("lineEdit_glab_grado_imp"))
         self.gridLayout_7.addWidget(self.lineEdit_glab_grado_imp, 3, 1, 1, 1)
         self.lineEdit_pmast_grado_imp = QtGui.QLineEdit(self.toolBoxPage1)
         self.lineEdit_pmast_grado_imp.setEnabled(False)
         self.lineEdit_pmast_grado_imp.setLayoutDirection(QtCore.Qt.LeftToRight)
-        self.lineEdit_pmast_grado_imp.setAlignment(QtCore.Qt.AlignRight|QtCore.Qt.AlignTrailing|QtCore.Qt.AlignVCenter)
+        self.lineEdit_pmast_grado_imp.setAlignment(
+            QtCore.Qt.AlignRight | QtCore.Qt.AlignTrailing | QtCore.Qt.AlignVCenter)
         self.lineEdit_pmast_grado_imp.setObjectName(_fromUtf8("lineEdit_pmast_grado_imp"))
         self.gridLayout_7.addWidget(self.lineEdit_pmast_grado_imp, 4, 1, 1, 1)
         self.label_47_glabella_3 = QtGui.QLabel(self.toolBoxPage1)
@@ -733,13 +749,15 @@ class Ui_DialogDetsesso(object):
         self.lineEdit_pnuc_grado_imp = QtGui.QLineEdit(self.toolBoxPage1)
         self.lineEdit_pnuc_grado_imp.setEnabled(False)
         self.lineEdit_pnuc_grado_imp.setLayoutDirection(QtCore.Qt.LeftToRight)
-        self.lineEdit_pnuc_grado_imp.setAlignment(QtCore.Qt.AlignRight|QtCore.Qt.AlignTrailing|QtCore.Qt.AlignVCenter)
+        self.lineEdit_pnuc_grado_imp.setAlignment(
+            QtCore.Qt.AlignRight | QtCore.Qt.AlignTrailing | QtCore.Qt.AlignVCenter)
         self.lineEdit_pnuc_grado_imp.setObjectName(_fromUtf8("lineEdit_pnuc_grado_imp"))
         self.gridLayout_7.addWidget(self.lineEdit_pnuc_grado_imp, 5, 1, 1, 1)
         self.lineEdit_pzig_grado_imp = QtGui.QLineEdit(self.toolBoxPage1)
         self.lineEdit_pzig_grado_imp.setEnabled(False)
         self.lineEdit_pzig_grado_imp.setLayoutDirection(QtCore.Qt.LeftToRight)
-        self.lineEdit_pzig_grado_imp.setAlignment(QtCore.Qt.AlignRight|QtCore.Qt.AlignTrailing|QtCore.Qt.AlignVCenter)
+        self.lineEdit_pzig_grado_imp.setAlignment(
+            QtCore.Qt.AlignRight | QtCore.Qt.AlignTrailing | QtCore.Qt.AlignVCenter)
         self.lineEdit_pzig_grado_imp.setObjectName(_fromUtf8("lineEdit_pzig_grado_imp"))
         self.gridLayout_7.addWidget(self.lineEdit_pzig_grado_imp, 6, 1, 1, 1)
         self.label_90_mento = QtGui.QLabel(self.toolBoxPage1)
@@ -972,7 +990,8 @@ class Ui_DialogDetsesso(object):
         self.pushButton_bacino_sup_preauricolare.setObjectName(_fromUtf8("pushButton_bacino_sup_preauricolare"))
         self.gridLayout_8.addWidget(self.pushButton_bacino_sup_preauricolare, 2, 0, 1, 1)
         self.pushButton_bacino_grande_incisura_ischiatica = QtGui.QPushButton(self.toolBoxPage2)
-        self.pushButton_bacino_grande_incisura_ischiatica.setObjectName(_fromUtf8("pushButton_bacino_grande_incisura_ischiatica"))
+        self.pushButton_bacino_grande_incisura_ischiatica.setObjectName(
+            _fromUtf8("pushButton_bacino_grande_incisura_ischiatica"))
         self.gridLayout_8.addWidget(self.pushButton_bacino_grande_incisura_ischiatica, 11, 0, 1, 1)
         self.pushButton_bacino_ramo_ischio_pubico = QtGui.QPushButton(self.toolBoxPage2)
         self.pushButton_bacino_ramo_ischio_pubico.setObjectName(_fromUtf8("pushButton_bacino_ramo_ischio_pubico"))
@@ -1009,243 +1028,499 @@ class Ui_DialogDetsesso(object):
         QtCore.QMetaObject.connectSlotsByName(DialogDetsesso)
 
     def retranslateUi(self, DialogDetsesso):
-        DialogDetsesso.setWindowTitle(QtGui.QApplication.translate("DialogDetsesso", "pyArchInit Gestione Scavi - Scheda Determinazione Sesso", None, QtGui.QApplication.UnicodeUTF8))
-        self.label_29.setText(QtGui.QApplication.translate("DialogDetsesso", "DBMS Toolbar", None, QtGui.QApplication.UnicodeUTF8))
-        self.pushButton_connect.setText(QtGui.QApplication.translate("DialogDetsesso", "Connection test", None, QtGui.QApplication.UnicodeUTF8))
-        self.pushButton_first_rec.setToolTip(QtGui.QApplication.translate("DialogDetsesso", "First rec", None, QtGui.QApplication.UnicodeUTF8))
-        self.pushButton_next_rec.setToolTip(QtGui.QApplication.translate("DialogDetsesso", "Next rec", None, QtGui.QApplication.UnicodeUTF8))
-        self.pushButton_last_rec.setToolTip(QtGui.QApplication.translate("DialogDetsesso", "Last rec", None, QtGui.QApplication.UnicodeUTF8))
-        self.pushButton_new_rec.setToolTip(QtGui.QApplication.translate("DialogDetsesso", "New record", None, QtGui.QApplication.UnicodeUTF8))
-        self.pushButton_save.setToolTip(QtGui.QApplication.translate("DialogDetsesso", "Save", None, QtGui.QApplication.UnicodeUTF8))
-        self.pushButton_new_search.setToolTip(QtGui.QApplication.translate("DialogDetsesso", "new search", None, QtGui.QApplication.UnicodeUTF8))
-        self.pushButton_search_go.setToolTip(QtGui.QApplication.translate("DialogDetsesso", "search !!!", None, QtGui.QApplication.UnicodeUTF8))
-        self.pushButton_sort.setToolTip(QtGui.QApplication.translate("DialogDetsesso", "Order by", None, QtGui.QApplication.UnicodeUTF8))
-        self.pushButton_view_all.setToolTip(QtGui.QApplication.translate("DialogDetsesso", "View alls records", None, QtGui.QApplication.UnicodeUTF8))
-        self.pushButton_delete.setToolTip(QtGui.QApplication.translate("DialogDetsesso", "Delete record", None, QtGui.QApplication.UnicodeUTF8))
-        self.pushButton_prev_rec.setToolTip(QtGui.QApplication.translate("DialogDetsesso", "Prev rec", None, QtGui.QApplication.UnicodeUTF8))
-        self.label_42.setText(QtGui.QApplication.translate("DialogDetsesso", "DB Info", None, QtGui.QApplication.UnicodeUTF8))
-        self.label_43.setText(QtGui.QApplication.translate("DialogDetsesso", "Ordinamento", None, QtGui.QApplication.UnicodeUTF8))
-        self.label_34.setText(QtGui.QApplication.translate("DialogDetsesso", "Status", None, QtGui.QApplication.UnicodeUTF8))
-        self.label_27.setText(QtGui.QApplication.translate("DialogDetsesso", "record n.", None, QtGui.QApplication.UnicodeUTF8))
-        self.label_rec_corrente.setText(QtGui.QApplication.translate("DialogDetsesso", "1", None, QtGui.QApplication.UnicodeUTF8))
-        self.label_28.setText(QtGui.QApplication.translate("DialogDetsesso", "record tot.", None, QtGui.QApplication.UnicodeUTF8))
-        self.label_rec_tot.setText(QtGui.QApplication.translate("DialogDetsesso", "1", None, QtGui.QApplication.UnicodeUTF8))
-        self.comboBox_sito.setItemText(0, QtGui.QApplication.translate("DialogDetsesso", "Inserisci un valore pippo", None, QtGui.QApplication.UnicodeUTF8))
-        self.label_numero_individuo.setText(QtGui.QApplication.translate("DialogDetsesso", "N. individuo", None, QtGui.QApplication.UnicodeUTF8))
-        self.label_sito.setText(QtGui.QApplication.translate("DialogDetsesso", "Sito ", None, QtGui.QApplication.UnicodeUTF8))
-        self.label_15.setText(QtGui.QApplication.translate("DialogDetsesso", "Indice di sessualizzazione", None, QtGui.QApplication.UnicodeUTF8))
-        self.toolBox.setToolTip(QtGui.QApplication.translate("DialogDetsesso", "Grado/importanza", None, QtGui.QApplication.UnicodeUTF8))
-        self.label_2.setText(QtGui.QApplication.translate("DialogDetsesso", "Acsadi e Nemeskeri, 1970", None, QtGui.QApplication.UnicodeUTF8))
-        self.lineEdit_mfmand_grado_imp.setText(QtGui.QApplication.translate("DialogDetsesso", "3", None, QtGui.QApplication.UnicodeUTF8))
-        self.lineEdit_msorb_grado_imp.setText(QtGui.QApplication.translate("DialogDetsesso", "1", None, QtGui.QApplication.UnicodeUTF8))
-        self.comboBox_pzig_valori.setItemText(1, QtGui.QApplication.translate("DialogDetsesso", "-2", None, QtGui.QApplication.UnicodeUTF8))
-        self.comboBox_pzig_valori.setItemText(2, QtGui.QApplication.translate("DialogDetsesso", "-1", None, QtGui.QApplication.UnicodeUTF8))
-        self.comboBox_pzig_valori.setItemText(3, QtGui.QApplication.translate("DialogDetsesso", "0", None, QtGui.QApplication.UnicodeUTF8))
-        self.comboBox_pzig_valori.setItemText(4, QtGui.QApplication.translate("DialogDetsesso", "+1", None, QtGui.QApplication.UnicodeUTF8))
-        self.comboBox_pzig_valori.setItemText(5, QtGui.QApplication.translate("DialogDetsesso", "+2", None, QtGui.QApplication.UnicodeUTF8))
-        self.comboBox_pnuc_valori.setItemText(1, QtGui.QApplication.translate("DialogDetsesso", "-2", None, QtGui.QApplication.UnicodeUTF8))
-        self.comboBox_pnuc_valori.setItemText(2, QtGui.QApplication.translate("DialogDetsesso", "-1", None, QtGui.QApplication.UnicodeUTF8))
-        self.comboBox_pnuc_valori.setItemText(3, QtGui.QApplication.translate("DialogDetsesso", "0", None, QtGui.QApplication.UnicodeUTF8))
-        self.comboBox_pnuc_valori.setItemText(4, QtGui.QApplication.translate("DialogDetsesso", "+1", None, QtGui.QApplication.UnicodeUTF8))
-        self.comboBox_pnuc_valori.setItemText(5, QtGui.QApplication.translate("DialogDetsesso", "+2", None, QtGui.QApplication.UnicodeUTF8))
-        self.comboBox_zig_valori.setItemText(1, QtGui.QApplication.translate("DialogDetsesso", "-2", None, QtGui.QApplication.UnicodeUTF8))
-        self.comboBox_zig_valori.setItemText(2, QtGui.QApplication.translate("DialogDetsesso", "-1", None, QtGui.QApplication.UnicodeUTF8))
-        self.comboBox_zig_valori.setItemText(3, QtGui.QApplication.translate("DialogDetsesso", "0", None, QtGui.QApplication.UnicodeUTF8))
-        self.comboBox_zig_valori.setItemText(4, QtGui.QApplication.translate("DialogDetsesso", "+1", None, QtGui.QApplication.UnicodeUTF8))
-        self.comboBox_zig_valori.setItemText(5, QtGui.QApplication.translate("DialogDetsesso", "+2", None, QtGui.QApplication.UnicodeUTF8))
-        self.comboBox_brmont_valori.setItemText(1, QtGui.QApplication.translate("DialogDetsesso", "-2", None, QtGui.QApplication.UnicodeUTF8))
-        self.comboBox_brmont_valori.setItemText(2, QtGui.QApplication.translate("DialogDetsesso", "-1", None, QtGui.QApplication.UnicodeUTF8))
-        self.comboBox_brmont_valori.setItemText(3, QtGui.QApplication.translate("DialogDetsesso", "0", None, QtGui.QApplication.UnicodeUTF8))
-        self.comboBox_brmont_valori.setItemText(4, QtGui.QApplication.translate("DialogDetsesso", "+1", None, QtGui.QApplication.UnicodeUTF8))
-        self.comboBox_brmont_valori.setItemText(5, QtGui.QApplication.translate("DialogDetsesso", "+2", None, QtGui.QApplication.UnicodeUTF8))
-        self.comboBox_glab_valori.setItemText(1, QtGui.QApplication.translate("DialogDetsesso", "-2", None, QtGui.QApplication.UnicodeUTF8))
-        self.comboBox_glab_valori.setItemText(2, QtGui.QApplication.translate("DialogDetsesso", "-1", None, QtGui.QApplication.UnicodeUTF8))
-        self.comboBox_glab_valori.setItemText(3, QtGui.QApplication.translate("DialogDetsesso", "0", None, QtGui.QApplication.UnicodeUTF8))
-        self.comboBox_glab_valori.setItemText(4, QtGui.QApplication.translate("DialogDetsesso", "1", None, QtGui.QApplication.UnicodeUTF8))
-        self.comboBox_glab_valori.setItemText(5, QtGui.QApplication.translate("DialogDetsesso", "2", None, QtGui.QApplication.UnicodeUTF8))
-        self.label_90_condilo_mandibolare.setText(QtGui.QApplication.translate("DialogDetsesso", "Condilo mandibolare", None, QtGui.QApplication.UnicodeUTF8))
-        self.comboBox_mfmand_valori.setItemText(1, QtGui.QApplication.translate("DialogDetsesso", "-2", None, QtGui.QApplication.UnicodeUTF8))
-        self.comboBox_mfmand_valori.setItemText(2, QtGui.QApplication.translate("DialogDetsesso", "-1", None, QtGui.QApplication.UnicodeUTF8))
-        self.comboBox_mfmand_valori.setItemText(3, QtGui.QApplication.translate("DialogDetsesso", "0", None, QtGui.QApplication.UnicodeUTF8))
-        self.comboBox_mfmand_valori.setItemText(4, QtGui.QApplication.translate("DialogDetsesso", "+1", None, QtGui.QApplication.UnicodeUTF8))
-        self.comboBox_mfmand_valori.setItemText(5, QtGui.QApplication.translate("DialogDetsesso", "+2", None, QtGui.QApplication.UnicodeUTF8))
-        self.label_87_inclinazione_frontale_3.setText(QtGui.QApplication.translate("DialogDetsesso", "Inclinazione frontale", None, QtGui.QApplication.UnicodeUTF8))
-        self.label_86_protuberanza_occipitale_esterna_3.setText(QtGui.QApplication.translate("DialogDetsesso", "Protuberanza occipitale est.", None, QtGui.QApplication.UnicodeUTF8))
-        self.label_70_morfologia_mandibola_3.setText(QtGui.QApplication.translate("DialogDetsesso", "Morfologia mandibola", None, QtGui.QApplication.UnicodeUTF8))
-        self.label_90_palato.setText(QtGui.QApplication.translate("DialogDetsesso", "Palato", None, QtGui.QApplication.UnicodeUTF8))
-        self.label_83_processo_zigomatico_3.setText(QtGui.QApplication.translate("DialogDetsesso", "Processo zigomatico", None, QtGui.QApplication.UnicodeUTF8))
-        self.label_82_piano_nucale_3.setText(QtGui.QApplication.translate("DialogDetsesso", "Piano nucale", None, QtGui.QApplication.UnicodeUTF8))
-        self.pushButton_calcola_ind_sex.setText(QtGui.QApplication.translate("DialogDetsesso", "calcola", None, QtGui.QApplication.UnicodeUTF8))
-        self.lineEdit_zig_grado_imp.setText(QtGui.QApplication.translate("DialogDetsesso", "2", None, QtGui.QApplication.UnicodeUTF8))
-        self.lineEdit_pocc_grado_imp.setText(QtGui.QApplication.translate("DialogDetsesso", "2", None, QtGui.QApplication.UnicodeUTF8))
-        self.comboBox_condm_valori.setItemText(1, QtGui.QApplication.translate("DialogDetsesso", "-2", None, QtGui.QApplication.UnicodeUTF8))
-        self.comboBox_condm_valori.setItemText(2, QtGui.QApplication.translate("DialogDetsesso", "-1", None, QtGui.QApplication.UnicodeUTF8))
-        self.comboBox_condm_valori.setItemText(3, QtGui.QApplication.translate("DialogDetsesso", "0", None, QtGui.QApplication.UnicodeUTF8))
-        self.comboBox_condm_valori.setItemText(4, QtGui.QApplication.translate("DialogDetsesso", "+1", None, QtGui.QApplication.UnicodeUTF8))
-        self.comboBox_condm_valori.setItemText(5, QtGui.QApplication.translate("DialogDetsesso", "+2", None, QtGui.QApplication.UnicodeUTF8))
-        self.lineEdit_arcsop_grado_imp.setText(QtGui.QApplication.translate("DialogDetsesso", "2", None, QtGui.QApplication.UnicodeUTF8))
-        self.lineEdit_palato_grado_imp.setText(QtGui.QApplication.translate("DialogDetsesso", "1", None, QtGui.QApplication.UnicodeUTF8))
-        self.lineEdit_tub_grado_imp.setText(QtGui.QApplication.translate("DialogDetsesso", "2", None, QtGui.QApplication.UnicodeUTF8))
-        self.label_90_indice_sessualizzazione_cranio.setText(QtGui.QApplication.translate("DialogDetsesso", "Indice sessualizzazione", None, QtGui.QApplication.UnicodeUTF8))
-        self.comboBox_arcsop_valori.setItemText(1, QtGui.QApplication.translate("DialogDetsesso", "-2", None, QtGui.QApplication.UnicodeUTF8))
-        self.comboBox_arcsop_valori.setItemText(2, QtGui.QApplication.translate("DialogDetsesso", "-1", None, QtGui.QApplication.UnicodeUTF8))
-        self.comboBox_arcsop_valori.setItemText(3, QtGui.QApplication.translate("DialogDetsesso", "0", None, QtGui.QApplication.UnicodeUTF8))
-        self.comboBox_arcsop_valori.setItemText(4, QtGui.QApplication.translate("DialogDetsesso", "+1", None, QtGui.QApplication.UnicodeUTF8))
-        self.comboBox_arcsop_valori.setItemText(5, QtGui.QApplication.translate("DialogDetsesso", "+2", None, QtGui.QApplication.UnicodeUTF8))
-        self.label_78_processo_mastoideo_3.setText(QtGui.QApplication.translate("DialogDetsesso", "Processo mastoideo", None, QtGui.QApplication.UnicodeUTF8))
-        self.comboBox_palato_valori.setItemText(1, QtGui.QApplication.translate("DialogDetsesso", "-2", None, QtGui.QApplication.UnicodeUTF8))
-        self.comboBox_palato_valori.setItemText(2, QtGui.QApplication.translate("DialogDetsesso", "-1", None, QtGui.QApplication.UnicodeUTF8))
-        self.comboBox_palato_valori.setItemText(3, QtGui.QApplication.translate("DialogDetsesso", "0", None, QtGui.QApplication.UnicodeUTF8))
-        self.comboBox_palato_valori.setItemText(4, QtGui.QApplication.translate("DialogDetsesso", "+1", None, QtGui.QApplication.UnicodeUTF8))
-        self.comboBox_palato_valori.setItemText(5, QtGui.QApplication.translate("DialogDetsesso", "+2", None, QtGui.QApplication.UnicodeUTF8))
-        self.label_89_valore_totale_sex_cranio.setText(QtGui.QApplication.translate("DialogDetsesso", "Valore totale", None, QtGui.QApplication.UnicodeUTF8))
-        self.comboBox_pmast_valori.setItemText(1, QtGui.QApplication.translate("DialogDetsesso", "-2", None, QtGui.QApplication.UnicodeUTF8))
-        self.comboBox_pmast_valori.setItemText(2, QtGui.QApplication.translate("DialogDetsesso", "-1", None, QtGui.QApplication.UnicodeUTF8))
-        self.comboBox_pmast_valori.setItemText(3, QtGui.QApplication.translate("DialogDetsesso", "0", None, QtGui.QApplication.UnicodeUTF8))
-        self.comboBox_pmast_valori.setItemText(4, QtGui.QApplication.translate("DialogDetsesso", "1", None, QtGui.QApplication.UnicodeUTF8))
-        self.comboBox_pmast_valori.setItemText(5, QtGui.QApplication.translate("DialogDetsesso", "2", None, QtGui.QApplication.UnicodeUTF8))
-        self.comboBox_inclfr_valori.setItemText(1, QtGui.QApplication.translate("DialogDetsesso", "-2", None, QtGui.QApplication.UnicodeUTF8))
-        self.comboBox_inclfr_valori.setItemText(2, QtGui.QApplication.translate("DialogDetsesso", "-1", None, QtGui.QApplication.UnicodeUTF8))
-        self.comboBox_inclfr_valori.setItemText(3, QtGui.QApplication.translate("DialogDetsesso", "0", None, QtGui.QApplication.UnicodeUTF8))
-        self.comboBox_inclfr_valori.setItemText(4, QtGui.QApplication.translate("DialogDetsesso", "+1", None, QtGui.QApplication.UnicodeUTF8))
-        self.comboBox_inclfr_valori.setItemText(5, QtGui.QApplication.translate("DialogDetsesso", "+2", None, QtGui.QApplication.UnicodeUTF8))
-        self.label_89_margine_sopraorbitale_3.setText(QtGui.QApplication.translate("DialogDetsesso", "Margine sopraorbitale", None, QtGui.QApplication.UnicodeUTF8))
-        self.lineEdit_minf_grado_imp.setText(QtGui.QApplication.translate("DialogDetsesso", "1", None, QtGui.QApplication.UnicodeUTF8))
-        self.label_48_caratteri_cranio_6.setText(QtGui.QApplication.translate("DialogDetsesso", "Caratteri", None, QtGui.QApplication.UnicodeUTF8))
-        self.label_90_margine_inferiore.setText(QtGui.QApplication.translate("DialogDetsesso", "Margine inferiore", None, QtGui.QApplication.UnicodeUTF8))
-        self.comboBox_pocc_valori.setItemText(1, QtGui.QApplication.translate("DialogDetsesso", "-2", None, QtGui.QApplication.UnicodeUTF8))
-        self.comboBox_pocc_valori.setItemText(2, QtGui.QApplication.translate("DialogDetsesso", "-1", None, QtGui.QApplication.UnicodeUTF8))
-        self.comboBox_pocc_valori.setItemText(3, QtGui.QApplication.translate("DialogDetsesso", "0", None, QtGui.QApplication.UnicodeUTF8))
-        self.comboBox_pocc_valori.setItemText(4, QtGui.QApplication.translate("DialogDetsesso", "+1", None, QtGui.QApplication.UnicodeUTF8))
-        self.comboBox_pocc_valori.setItemText(5, QtGui.QApplication.translate("DialogDetsesso", "+2", None, QtGui.QApplication.UnicodeUTF8))
-        self.lineEdit_anmand_grado_imp.setText(QtGui.QApplication.translate("DialogDetsesso", "1", None, QtGui.QApplication.UnicodeUTF8))
-        self.label_90_angolo_mandibolare.setText(QtGui.QApplication.translate("DialogDetsesso", "Angolo mandibolare", None, QtGui.QApplication.UnicodeUTF8))
-        self.comboBox_anmand_valori.setItemText(1, QtGui.QApplication.translate("DialogDetsesso", "-2", None, QtGui.QApplication.UnicodeUTF8))
-        self.comboBox_anmand_valori.setItemText(2, QtGui.QApplication.translate("DialogDetsesso", "-1", None, QtGui.QApplication.UnicodeUTF8))
-        self.comboBox_anmand_valori.setItemText(3, QtGui.QApplication.translate("DialogDetsesso", "0", None, QtGui.QApplication.UnicodeUTF8))
-        self.comboBox_anmand_valori.setItemText(4, QtGui.QApplication.translate("DialogDetsesso", "+1", None, QtGui.QApplication.UnicodeUTF8))
-        self.comboBox_anmand_valori.setItemText(5, QtGui.QApplication.translate("DialogDetsesso", "+2", None, QtGui.QApplication.UnicodeUTF8))
-        self.label_19.setText(QtGui.QApplication.translate("DialogDetsesso", "Valori", None, QtGui.QApplication.UnicodeUTF8))
-        self.label_20.setText(QtGui.QApplication.translate("DialogDetsesso", "Valori", None, QtGui.QApplication.UnicodeUTF8))
-        self.lineEdit_inclfr_grado_imp.setText(QtGui.QApplication.translate("DialogDetsesso", "1", None, QtGui.QApplication.UnicodeUTF8))
-        self.lineEdit_brmont_grado_imp.setText(QtGui.QApplication.translate("DialogDetsesso", "1", None, QtGui.QApplication.UnicodeUTF8))
-        self.comboBox_msorb_valori.setItemText(1, QtGui.QApplication.translate("DialogDetsesso", "-2", None, QtGui.QApplication.UnicodeUTF8))
-        self.comboBox_msorb_valori.setItemText(2, QtGui.QApplication.translate("DialogDetsesso", "-1", None, QtGui.QApplication.UnicodeUTF8))
-        self.comboBox_msorb_valori.setItemText(3, QtGui.QApplication.translate("DialogDetsesso", "0", None, QtGui.QApplication.UnicodeUTF8))
-        self.comboBox_msorb_valori.setItemText(4, QtGui.QApplication.translate("DialogDetsesso", "+1", None, QtGui.QApplication.UnicodeUTF8))
-        self.comboBox_msorb_valori.setItemText(5, QtGui.QApplication.translate("DialogDetsesso", "+2", None, QtGui.QApplication.UnicodeUTF8))
-        self.label_48_caratteri_cranio_5.setText(QtGui.QApplication.translate("DialogDetsesso", "<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.0//EN\" \"http://www.w3.org/TR/REC-html40/strict.dtd\">\n"
-"<html><head><meta name=\"qrichtext\" content=\"1\" /><style type=\"text/css\">\n"
-"p, li { white-space: pre-wrap; }\n"
-"</style></head><body style=\" font-family:\'Lucida Grande\'; font-size:16pt; font-weight:400; font-style:normal;\">\n"
-"<p style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\">Caratteri</p></body></html>", None, QtGui.QApplication.UnicodeUTF8))
-        self.comboBox_tub_valori.setItemText(1, QtGui.QApplication.translate("DialogDetsesso", "-2", None, QtGui.QApplication.UnicodeUTF8))
-        self.comboBox_tub_valori.setItemText(2, QtGui.QApplication.translate("DialogDetsesso", "-1", None, QtGui.QApplication.UnicodeUTF8))
-        self.comboBox_tub_valori.setItemText(3, QtGui.QApplication.translate("DialogDetsesso", "0", None, QtGui.QApplication.UnicodeUTF8))
-        self.comboBox_tub_valori.setItemText(4, QtGui.QApplication.translate("DialogDetsesso", "+1", None, QtGui.QApplication.UnicodeUTF8))
-        self.comboBox_tub_valori.setItemText(5, QtGui.QApplication.translate("DialogDetsesso", "+2", None, QtGui.QApplication.UnicodeUTF8))
-        self.comboBox_minf_valori.setItemText(1, QtGui.QApplication.translate("DialogDetsesso", "-2", None, QtGui.QApplication.UnicodeUTF8))
-        self.comboBox_minf_valori.setItemText(2, QtGui.QApplication.translate("DialogDetsesso", "-1", None, QtGui.QApplication.UnicodeUTF8))
-        self.comboBox_minf_valori.setItemText(3, QtGui.QApplication.translate("DialogDetsesso", "0", None, QtGui.QApplication.UnicodeUTF8))
-        self.comboBox_minf_valori.setItemText(4, QtGui.QApplication.translate("DialogDetsesso", "+1", None, QtGui.QApplication.UnicodeUTF8))
-        self.comboBox_minf_valori.setItemText(5, QtGui.QApplication.translate("DialogDetsesso", "+2", None, QtGui.QApplication.UnicodeUTF8))
-        self.label_88_osso_zigomatico_3.setText(QtGui.QApplication.translate("DialogDetsesso", "Osso zigomatico", None, QtGui.QApplication.UnicodeUTF8))
-        self.label_84_arcata_sopraciliare_3.setText(QtGui.QApplication.translate("DialogDetsesso", "Arcata sopraciliare", None, QtGui.QApplication.UnicodeUTF8))
-        self.label_85_tuberosita_frontale_e_parietale_3.setText(QtGui.QApplication.translate("DialogDetsesso", "Tuberosità front. e par.", None, QtGui.QApplication.UnicodeUTF8))
-        self.lineEdit_mento_grado_imp.setText(QtGui.QApplication.translate("DialogDetsesso", "2", None, QtGui.QApplication.UnicodeUTF8))
-        self.comboBox_ind_cr_sex.setItemText(1, QtGui.QApplication.translate("DialogDetsesso", "Maschio", None, QtGui.QApplication.UnicodeUTF8))
-        self.comboBox_ind_cr_sex.setItemText(2, QtGui.QApplication.translate("DialogDetsesso", "Femmina", None, QtGui.QApplication.UnicodeUTF8))
-        self.comboBox_ind_cr_sex.setItemText(4, QtGui.QApplication.translate("DialogDetsesso", "Non determinabile", None, QtGui.QApplication.UnicodeUTF8))
-        self.comboBox_mento_valori.setItemText(1, QtGui.QApplication.translate("DialogDetsesso", "-2", None, QtGui.QApplication.UnicodeUTF8))
-        self.comboBox_mento_valori.setItemText(2, QtGui.QApplication.translate("DialogDetsesso", "-1", None, QtGui.QApplication.UnicodeUTF8))
-        self.comboBox_mento_valori.setItemText(3, QtGui.QApplication.translate("DialogDetsesso", "0", None, QtGui.QApplication.UnicodeUTF8))
-        self.comboBox_mento_valori.setItemText(4, QtGui.QApplication.translate("DialogDetsesso", "+1", None, QtGui.QApplication.UnicodeUTF8))
-        self.comboBox_mento_valori.setItemText(5, QtGui.QApplication.translate("DialogDetsesso", "+2", None, QtGui.QApplication.UnicodeUTF8))
-        self.lineEdit_condm_grado_imp.setText(QtGui.QApplication.translate("DialogDetsesso", "1", None, QtGui.QApplication.UnicodeUTF8))
-        self.label_18.setText(QtGui.QApplication.translate("DialogDetsesso", "Grado imp", None, QtGui.QApplication.UnicodeUTF8))
-        self.label_3.setText(QtGui.QApplication.translate("DialogDetsesso", "Grado imp", None, QtGui.QApplication.UnicodeUTF8))
-        self.lineEdit_glab_grado_imp.setText(QtGui.QApplication.translate("DialogDetsesso", "3", None, QtGui.QApplication.UnicodeUTF8))
-        self.lineEdit_pmast_grado_imp.setText(QtGui.QApplication.translate("DialogDetsesso", "3", None, QtGui.QApplication.UnicodeUTF8))
-        self.label_47_glabella_3.setToolTip(QtGui.QApplication.translate("DialogDetsesso", "<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.0//EN\" \"http://www.w3.org/TR/REC-html40/strict.dtd\">\n"
-"<html><head><meta name=\"qrichtext\" content=\"1\" /><style type=\"text/css\">\n"
-"p, li { white-space: pre-wrap; }\n"
-"</style></head><body style=\" font-family:\'MS Shell Dlg 2\'; font-size:8.25pt; font-weight:400; font-style:normal;\">\n"
-"<p style=\" margin-to", None, QtGui.QApplication.UnicodeUTF8))
-        self.label_47_glabella_3.setText(QtGui.QApplication.translate("DialogDetsesso", "Glabella", None, QtGui.QApplication.UnicodeUTF8))
-        self.label_90_branca_montante.setText(QtGui.QApplication.translate("DialogDetsesso", "Branca montante", None, QtGui.QApplication.UnicodeUTF8))
-        self.lineEdit_pnuc_grado_imp.setText(QtGui.QApplication.translate("DialogDetsesso", "3", None, QtGui.QApplication.UnicodeUTF8))
-        self.lineEdit_pzig_grado_imp.setText(QtGui.QApplication.translate("DialogDetsesso", "3", None, QtGui.QApplication.UnicodeUTF8))
-        self.label_90_mento.setText(QtGui.QApplication.translate("DialogDetsesso", "Mento", None, QtGui.QApplication.UnicodeUTF8))
-        self.pushButton_cranio.setText(QtGui.QApplication.translate("DialogDetsesso", "Apri tavola", None, QtGui.QApplication.UnicodeUTF8))
-        self.toolBox.setItemText(self.toolBox.indexOf(self.toolBoxPage1), QtGui.QApplication.translate("DialogDetsesso", "Cranio", None, QtGui.QApplication.UnicodeUTF8))
-        self.label_4.setText(QtGui.QApplication.translate("DialogDetsesso", "Caratteri", None, QtGui.QApplication.UnicodeUTF8))
-        self.label_6.setText(QtGui.QApplication.translate("DialogDetsesso", "Sesso stimato", None, QtGui.QApplication.UnicodeUTF8))
-        self.label_5.setText(QtGui.QApplication.translate("DialogDetsesso", "Indice di sessualizzazione", None, QtGui.QApplication.UnicodeUTF8))
-        self.label_12.setText(QtGui.QApplication.translate("DialogDetsesso", "I: sviluppo negativo dei rilievi ", None, QtGui.QApplication.UnicodeUTF8))
-        self.label_13.setText(QtGui.QApplication.translate("DialogDetsesso", "II: aspetto incavo o puntinato", None, QtGui.QApplication.UnicodeUTF8))
-        self.label_14.setText(QtGui.QApplication.translate("DialogDetsesso", "III: sviluppo positivo dei rilievi ", None, QtGui.QApplication.UnicodeUTF8))
-        self.label_16.setText(QtGui.QApplication.translate("DialogDetsesso", "Sesso stimato", None, QtGui.QApplication.UnicodeUTF8))
-        self.comboBox_sup_p_I.setItemText(1, QtGui.QApplication.translate("DialogDetsesso", "M", None, QtGui.QApplication.UnicodeUTF8))
-        self.comboBox_sup_p_I.setItemText(2, QtGui.QApplication.translate("DialogDetsesso", "I", None, QtGui.QApplication.UnicodeUTF8))
-        self.comboBox_sup_p_I.setItemText(3, QtGui.QApplication.translate("DialogDetsesso", "F", None, QtGui.QApplication.UnicodeUTF8))
-        self.comboBox_sup_p_II.setItemText(1, QtGui.QApplication.translate("DialogDetsesso", "M", None, QtGui.QApplication.UnicodeUTF8))
-        self.comboBox_sup_p_II.setItemText(2, QtGui.QApplication.translate("DialogDetsesso", "I", None, QtGui.QApplication.UnicodeUTF8))
-        self.comboBox_sup_p_II.setItemText(3, QtGui.QApplication.translate("DialogDetsesso", "F", None, QtGui.QApplication.UnicodeUTF8))
-        self.comboBox_sup_p_III.setItemText(1, QtGui.QApplication.translate("DialogDetsesso", "M", None, QtGui.QApplication.UnicodeUTF8))
-        self.comboBox_sup_p_III.setItemText(2, QtGui.QApplication.translate("DialogDetsesso", "I", None, QtGui.QApplication.UnicodeUTF8))
-        self.comboBox_sup_p_III.setItemText(3, QtGui.QApplication.translate("DialogDetsesso", "F", None, QtGui.QApplication.UnicodeUTF8))
-        self.comboBox_sup_p_sex.setItemText(1, QtGui.QApplication.translate("DialogDetsesso", "M", None, QtGui.QApplication.UnicodeUTF8))
-        self.comboBox_sup_p_sex.setItemText(2, QtGui.QApplication.translate("DialogDetsesso", "I", None, QtGui.QApplication.UnicodeUTF8))
-        self.comboBox_sup_p_sex.setItemText(3, QtGui.QApplication.translate("DialogDetsesso", "F", None, QtGui.QApplication.UnicodeUTF8))
-        self.comboBox_in_isch_I.setItemText(1, QtGui.QApplication.translate("DialogDetsesso", "M", None, QtGui.QApplication.UnicodeUTF8))
-        self.comboBox_in_isch_I.setItemText(2, QtGui.QApplication.translate("DialogDetsesso", "I", None, QtGui.QApplication.UnicodeUTF8))
-        self.comboBox_in_isch_I.setItemText(3, QtGui.QApplication.translate("DialogDetsesso", "F", None, QtGui.QApplication.UnicodeUTF8))
-        self.label_37.setText(QtGui.QApplication.translate("DialogDetsesso", "II: forma contorno dell\'arco incisura ischiatica", None, QtGui.QApplication.UnicodeUTF8))
-        self.label_36.setText(QtGui.QApplication.translate("DialogDetsesso", "III: contorno della corda dell\'arco posteriore relativo alla linea dal punto A all\'incisura ischiatica", None, QtGui.QApplication.UnicodeUTF8))
-        self.comboBox_in_isch_II.setItemText(1, QtGui.QApplication.translate("DialogDetsesso", "M", None, QtGui.QApplication.UnicodeUTF8))
-        self.comboBox_in_isch_II.setItemText(2, QtGui.QApplication.translate("DialogDetsesso", "I", None, QtGui.QApplication.UnicodeUTF8))
-        self.comboBox_in_isch_II.setItemText(3, QtGui.QApplication.translate("DialogDetsesso", "F", None, QtGui.QApplication.UnicodeUTF8))
-        self.comboBox_in_isch_III.setItemText(1, QtGui.QApplication.translate("DialogDetsesso", "M", None, QtGui.QApplication.UnicodeUTF8))
-        self.comboBox_in_isch_III.setItemText(2, QtGui.QApplication.translate("DialogDetsesso", "I", None, QtGui.QApplication.UnicodeUTF8))
-        self.comboBox_in_isch_III.setItemText(3, QtGui.QApplication.translate("DialogDetsesso", "F", None, QtGui.QApplication.UnicodeUTF8))
-        self.label_41.setText(QtGui.QApplication.translate("DialogDetsesso", "I: caratterizzazione del margine inf. dell\'osso coxale ", None, QtGui.QApplication.UnicodeUTF8))
-        self.label_40.setText(QtGui.QApplication.translate("DialogDetsesso", "II: assenza o presenza della cresta fallica", None, QtGui.QApplication.UnicodeUTF8))
-        self.label_39.setText(QtGui.QApplication.translate("DialogDetsesso", "III: aspetto del ramo ischio-pubico", None, QtGui.QApplication.UnicodeUTF8))
-        self.comboBox_in_isch_sex.setItemText(1, QtGui.QApplication.translate("DialogDetsesso", "M", None, QtGui.QApplication.UnicodeUTF8))
-        self.comboBox_in_isch_sex.setItemText(2, QtGui.QApplication.translate("DialogDetsesso", "I", None, QtGui.QApplication.UnicodeUTF8))
-        self.comboBox_in_isch_sex.setItemText(3, QtGui.QApplication.translate("DialogDetsesso", "F", None, QtGui.QApplication.UnicodeUTF8))
-        self.comboBox_ramo_ip_III.setItemText(1, QtGui.QApplication.translate("DialogDetsesso", "M", None, QtGui.QApplication.UnicodeUTF8))
-        self.comboBox_ramo_ip_III.setItemText(2, QtGui.QApplication.translate("DialogDetsesso", "I", None, QtGui.QApplication.UnicodeUTF8))
-        self.comboBox_ramo_ip_III.setItemText(3, QtGui.QApplication.translate("DialogDetsesso", "F", None, QtGui.QApplication.UnicodeUTF8))
-        self.comboBox_ramo_ip_II.setItemText(1, QtGui.QApplication.translate("DialogDetsesso", "M", None, QtGui.QApplication.UnicodeUTF8))
-        self.comboBox_ramo_ip_II.setItemText(2, QtGui.QApplication.translate("DialogDetsesso", "I", None, QtGui.QApplication.UnicodeUTF8))
-        self.comboBox_ramo_ip_II.setItemText(3, QtGui.QApplication.translate("DialogDetsesso", "F", None, QtGui.QApplication.UnicodeUTF8))
-        self.comboBox_ramo_ip_I.setItemText(1, QtGui.QApplication.translate("DialogDetsesso", "M", None, QtGui.QApplication.UnicodeUTF8))
-        self.comboBox_ramo_ip_I.setItemText(2, QtGui.QApplication.translate("DialogDetsesso", "I", None, QtGui.QApplication.UnicodeUTF8))
-        self.comboBox_ramo_ip_I.setItemText(3, QtGui.QApplication.translate("DialogDetsesso", "F", None, QtGui.QApplication.UnicodeUTF8))
-        self.comboBox_ramo_ip_sex.setItemText(1, QtGui.QApplication.translate("DialogDetsesso", "M", None, QtGui.QApplication.UnicodeUTF8))
-        self.comboBox_ramo_ip_sex.setItemText(2, QtGui.QApplication.translate("DialogDetsesso", "I", None, QtGui.QApplication.UnicodeUTF8))
-        self.comboBox_ramo_ip_sex.setItemText(3, QtGui.QApplication.translate("DialogDetsesso", "F", None, QtGui.QApplication.UnicodeUTF8))
-        self.label_45.setText(QtGui.QApplication.translate("DialogDetsesso", "Relazione tra la lunghezza dell\'ischio e del pube ", None, QtGui.QApplication.UnicodeUTF8))
-        self.label_38.setText(QtGui.QApplication.translate("DialogDetsesso", "I: proporz. della lunghezza dell\'arco incisura ischiatica", None, QtGui.QApplication.UnicodeUTF8))
-        self.label.setText(QtGui.QApplication.translate("DialogDetsesso", "Bruzek, 2002", None, QtGui.QApplication.UnicodeUTF8))
-        self.comboBox_prop_ip_sex_2.setItemText(1, QtGui.QApplication.translate("DialogDetsesso", "M", None, QtGui.QApplication.UnicodeUTF8))
-        self.comboBox_prop_ip_sex_2.setItemText(2, QtGui.QApplication.translate("DialogDetsesso", "I", None, QtGui.QApplication.UnicodeUTF8))
-        self.comboBox_prop_ip_sex_2.setItemText(3, QtGui.QApplication.translate("DialogDetsesso", "F", None, QtGui.QApplication.UnicodeUTF8))
-        self.comboBox_ind_bac_sex.setItemText(1, QtGui.QApplication.translate("DialogDetsesso", "Maschio", None, QtGui.QApplication.UnicodeUTF8))
-        self.comboBox_ind_bac_sex.setItemText(2, QtGui.QApplication.translate("DialogDetsesso", "Femmina", None, QtGui.QApplication.UnicodeUTF8))
-        self.comboBox_ind_bac_sex.setItemText(3, QtGui.QApplication.translate("DialogDetsesso", "Indeterminato", None, QtGui.QApplication.UnicodeUTF8))
-        self.comboBox_ind_bac_sex.setItemText(4, QtGui.QApplication.translate("DialogDetsesso", "Non determinabile", None, QtGui.QApplication.UnicodeUTF8))
-        self.pushButton_calcola_ind_sex_bac.setText(QtGui.QApplication.translate("DialogDetsesso", "calcola", None, QtGui.QApplication.UnicodeUTF8))
-        self.label_17.setText(QtGui.QApplication.translate("DialogDetsesso", "Indice di sessualizzazione", None, QtGui.QApplication.UnicodeUTF8))
-        self.pushButton_bacino_sup_preauricolare.setText(QtGui.QApplication.translate("DialogDetsesso", "Superficie preauricolare", None, QtGui.QApplication.UnicodeUTF8))
-        self.pushButton_bacino_grande_incisura_ischiatica.setText(QtGui.QApplication.translate("DialogDetsesso", "Grande inc. ischiatica", None, QtGui.QApplication.UnicodeUTF8))
-        self.pushButton_bacino_ramo_ischio_pubico.setText(QtGui.QApplication.translate("DialogDetsesso", "Ramo ischio-pubico", None, QtGui.QApplication.UnicodeUTF8))
-        self.pushButton_proporzioni_ischio_pubiche.setText(QtGui.QApplication.translate("DialogDetsesso", "Prop. ischio-pubiche", None, QtGui.QApplication.UnicodeUTF8))
-        self.pushButton_bacino_arco_composito.setText(QtGui.QApplication.translate("DialogDetsesso", "Arco composito", None, QtGui.QApplication.UnicodeUTF8))
-        self.label_44.setText(QtGui.QApplication.translate("DialogDetsesso", "Relazione tra il contorno dell\'arco dell\'ischio e della sup. auricolare", None, QtGui.QApplication.UnicodeUTF8))
-        self.comboBox_arco_c_sex_2.setItemText(1, QtGui.QApplication.translate("DialogDetsesso", "M", None, QtGui.QApplication.UnicodeUTF8))
-        self.comboBox_arco_c_sex_2.setItemText(2, QtGui.QApplication.translate("DialogDetsesso", "I", None, QtGui.QApplication.UnicodeUTF8))
-        self.comboBox_arco_c_sex_2.setItemText(3, QtGui.QApplication.translate("DialogDetsesso", "F", None, QtGui.QApplication.UnicodeUTF8))
-        self.toolBox.setItemText(self.toolBox.indexOf(self.toolBoxPage2), QtGui.QApplication.translate("DialogDetsesso", "Bacino", None, QtGui.QApplication.UnicodeUTF8))
-
+        DialogDetsesso.setWindowTitle(
+            QtGui.QApplication.translate("DialogDetsesso", "pyArchInit Gestione Scavi - Scheda Determinazione Sesso",
+                                         None, QtGui.QApplication.UnicodeUTF8))
+        self.label_29.setText(
+            QtGui.QApplication.translate("DialogDetsesso", "DBMS Toolbar", None, QtGui.QApplication.UnicodeUTF8))
+        self.pushButton_connect.setText(
+            QtGui.QApplication.translate("DialogDetsesso", "Connection test", None, QtGui.QApplication.UnicodeUTF8))
+        self.pushButton_first_rec.setToolTip(
+            QtGui.QApplication.translate("DialogDetsesso", "First rec", None, QtGui.QApplication.UnicodeUTF8))
+        self.pushButton_next_rec.setToolTip(
+            QtGui.QApplication.translate("DialogDetsesso", "Next rec", None, QtGui.QApplication.UnicodeUTF8))
+        self.pushButton_last_rec.setToolTip(
+            QtGui.QApplication.translate("DialogDetsesso", "Last rec", None, QtGui.QApplication.UnicodeUTF8))
+        self.pushButton_new_rec.setToolTip(
+            QtGui.QApplication.translate("DialogDetsesso", "New record", None, QtGui.QApplication.UnicodeUTF8))
+        self.pushButton_save.setToolTip(
+            QtGui.QApplication.translate("DialogDetsesso", "Save", None, QtGui.QApplication.UnicodeUTF8))
+        self.pushButton_new_search.setToolTip(
+            QtGui.QApplication.translate("DialogDetsesso", "new search", None, QtGui.QApplication.UnicodeUTF8))
+        self.pushButton_search_go.setToolTip(
+            QtGui.QApplication.translate("DialogDetsesso", "search !!!", None, QtGui.QApplication.UnicodeUTF8))
+        self.pushButton_sort.setToolTip(
+            QtGui.QApplication.translate("DialogDetsesso", "Order by", None, QtGui.QApplication.UnicodeUTF8))
+        self.pushButton_view_all.setToolTip(
+            QtGui.QApplication.translate("DialogDetsesso", "View alls records", None, QtGui.QApplication.UnicodeUTF8))
+        self.pushButton_delete.setToolTip(
+            QtGui.QApplication.translate("DialogDetsesso", "Delete record", None, QtGui.QApplication.UnicodeUTF8))
+        self.pushButton_prev_rec.setToolTip(
+            QtGui.QApplication.translate("DialogDetsesso", "Prev rec", None, QtGui.QApplication.UnicodeUTF8))
+        self.label_42.setText(
+            QtGui.QApplication.translate("DialogDetsesso", "DB Info", None, QtGui.QApplication.UnicodeUTF8))
+        self.label_43.setText(
+            QtGui.QApplication.translate("DialogDetsesso", "Ordinamento", None, QtGui.QApplication.UnicodeUTF8))
+        self.label_34.setText(
+            QtGui.QApplication.translate("DialogDetsesso", "Status", None, QtGui.QApplication.UnicodeUTF8))
+        self.label_27.setText(
+            QtGui.QApplication.translate("DialogDetsesso", "record n.", None, QtGui.QApplication.UnicodeUTF8))
+        self.label_rec_corrente.setText(
+            QtGui.QApplication.translate("DialogDetsesso", "1", None, QtGui.QApplication.UnicodeUTF8))
+        self.label_28.setText(
+            QtGui.QApplication.translate("DialogDetsesso", "record tot.", None, QtGui.QApplication.UnicodeUTF8))
+        self.label_rec_tot.setText(
+            QtGui.QApplication.translate("DialogDetsesso", "1", None, QtGui.QApplication.UnicodeUTF8))
+        self.comboBox_sito.setItemText(0,
+                                       QtGui.QApplication.translate("DialogDetsesso", "Inserisci un valore pippo", None,
+                                                                    QtGui.QApplication.UnicodeUTF8))
+        self.label_numero_individuo.setText(
+            QtGui.QApplication.translate("DialogDetsesso", "N. individuo", None, QtGui.QApplication.UnicodeUTF8))
+        self.label_sito.setText(
+            QtGui.QApplication.translate("DialogDetsesso", "Sito ", None, QtGui.QApplication.UnicodeUTF8))
+        self.label_15.setText(QtGui.QApplication.translate("DialogDetsesso", "Indice di sessualizzazione", None,
+                                                           QtGui.QApplication.UnicodeUTF8))
+        self.toolBox.setToolTip(
+            QtGui.QApplication.translate("DialogDetsesso", "Grado/importanza", None, QtGui.QApplication.UnicodeUTF8))
+        self.label_2.setText(QtGui.QApplication.translate("DialogDetsesso", "Acsadi e Nemeskeri, 1970", None,
+                                                          QtGui.QApplication.UnicodeUTF8))
+        self.lineEdit_mfmand_grado_imp.setText(
+            QtGui.QApplication.translate("DialogDetsesso", "3", None, QtGui.QApplication.UnicodeUTF8))
+        self.lineEdit_msorb_grado_imp.setText(
+            QtGui.QApplication.translate("DialogDetsesso", "1", None, QtGui.QApplication.UnicodeUTF8))
+        self.comboBox_pzig_valori.setItemText(1, QtGui.QApplication.translate("DialogDetsesso", "-2", None,
+                                                                              QtGui.QApplication.UnicodeUTF8))
+        self.comboBox_pzig_valori.setItemText(2, QtGui.QApplication.translate("DialogDetsesso", "-1", None,
+                                                                              QtGui.QApplication.UnicodeUTF8))
+        self.comboBox_pzig_valori.setItemText(3, QtGui.QApplication.translate("DialogDetsesso", "0", None,
+                                                                              QtGui.QApplication.UnicodeUTF8))
+        self.comboBox_pzig_valori.setItemText(4, QtGui.QApplication.translate("DialogDetsesso", "+1", None,
+                                                                              QtGui.QApplication.UnicodeUTF8))
+        self.comboBox_pzig_valori.setItemText(5, QtGui.QApplication.translate("DialogDetsesso", "+2", None,
+                                                                              QtGui.QApplication.UnicodeUTF8))
+        self.comboBox_pnuc_valori.setItemText(1, QtGui.QApplication.translate("DialogDetsesso", "-2", None,
+                                                                              QtGui.QApplication.UnicodeUTF8))
+        self.comboBox_pnuc_valori.setItemText(2, QtGui.QApplication.translate("DialogDetsesso", "-1", None,
+                                                                              QtGui.QApplication.UnicodeUTF8))
+        self.comboBox_pnuc_valori.setItemText(3, QtGui.QApplication.translate("DialogDetsesso", "0", None,
+                                                                              QtGui.QApplication.UnicodeUTF8))
+        self.comboBox_pnuc_valori.setItemText(4, QtGui.QApplication.translate("DialogDetsesso", "+1", None,
+                                                                              QtGui.QApplication.UnicodeUTF8))
+        self.comboBox_pnuc_valori.setItemText(5, QtGui.QApplication.translate("DialogDetsesso", "+2", None,
+                                                                              QtGui.QApplication.UnicodeUTF8))
+        self.comboBox_zig_valori.setItemText(1, QtGui.QApplication.translate("DialogDetsesso", "-2", None,
+                                                                             QtGui.QApplication.UnicodeUTF8))
+        self.comboBox_zig_valori.setItemText(2, QtGui.QApplication.translate("DialogDetsesso", "-1", None,
+                                                                             QtGui.QApplication.UnicodeUTF8))
+        self.comboBox_zig_valori.setItemText(3, QtGui.QApplication.translate("DialogDetsesso", "0", None,
+                                                                             QtGui.QApplication.UnicodeUTF8))
+        self.comboBox_zig_valori.setItemText(4, QtGui.QApplication.translate("DialogDetsesso", "+1", None,
+                                                                             QtGui.QApplication.UnicodeUTF8))
+        self.comboBox_zig_valori.setItemText(5, QtGui.QApplication.translate("DialogDetsesso", "+2", None,
+                                                                             QtGui.QApplication.UnicodeUTF8))
+        self.comboBox_brmont_valori.setItemText(1, QtGui.QApplication.translate("DialogDetsesso", "-2", None,
+                                                                                QtGui.QApplication.UnicodeUTF8))
+        self.comboBox_brmont_valori.setItemText(2, QtGui.QApplication.translate("DialogDetsesso", "-1", None,
+                                                                                QtGui.QApplication.UnicodeUTF8))
+        self.comboBox_brmont_valori.setItemText(3, QtGui.QApplication.translate("DialogDetsesso", "0", None,
+                                                                                QtGui.QApplication.UnicodeUTF8))
+        self.comboBox_brmont_valori.setItemText(4, QtGui.QApplication.translate("DialogDetsesso", "+1", None,
+                                                                                QtGui.QApplication.UnicodeUTF8))
+        self.comboBox_brmont_valori.setItemText(5, QtGui.QApplication.translate("DialogDetsesso", "+2", None,
+                                                                                QtGui.QApplication.UnicodeUTF8))
+        self.comboBox_glab_valori.setItemText(1, QtGui.QApplication.translate("DialogDetsesso", "-2", None,
+                                                                              QtGui.QApplication.UnicodeUTF8))
+        self.comboBox_glab_valori.setItemText(2, QtGui.QApplication.translate("DialogDetsesso", "-1", None,
+                                                                              QtGui.QApplication.UnicodeUTF8))
+        self.comboBox_glab_valori.setItemText(3, QtGui.QApplication.translate("DialogDetsesso", "0", None,
+                                                                              QtGui.QApplication.UnicodeUTF8))
+        self.comboBox_glab_valori.setItemText(4, QtGui.QApplication.translate("DialogDetsesso", "1", None,
+                                                                              QtGui.QApplication.UnicodeUTF8))
+        self.comboBox_glab_valori.setItemText(5, QtGui.QApplication.translate("DialogDetsesso", "2", None,
+                                                                              QtGui.QApplication.UnicodeUTF8))
+        self.label_90_condilo_mandibolare.setText(
+            QtGui.QApplication.translate("DialogDetsesso", "Condilo mandibolare", None, QtGui.QApplication.UnicodeUTF8))
+        self.comboBox_mfmand_valori.setItemText(1, QtGui.QApplication.translate("DialogDetsesso", "-2", None,
+                                                                                QtGui.QApplication.UnicodeUTF8))
+        self.comboBox_mfmand_valori.setItemText(2, QtGui.QApplication.translate("DialogDetsesso", "-1", None,
+                                                                                QtGui.QApplication.UnicodeUTF8))
+        self.comboBox_mfmand_valori.setItemText(3, QtGui.QApplication.translate("DialogDetsesso", "0", None,
+                                                                                QtGui.QApplication.UnicodeUTF8))
+        self.comboBox_mfmand_valori.setItemText(4, QtGui.QApplication.translate("DialogDetsesso", "+1", None,
+                                                                                QtGui.QApplication.UnicodeUTF8))
+        self.comboBox_mfmand_valori.setItemText(5, QtGui.QApplication.translate("DialogDetsesso", "+2", None,
+                                                                                QtGui.QApplication.UnicodeUTF8))
+        self.label_87_inclinazione_frontale_3.setText(
+            QtGui.QApplication.translate("DialogDetsesso", "Inclinazione frontale", None,
+                                         QtGui.QApplication.UnicodeUTF8))
+        self.label_86_protuberanza_occipitale_esterna_3.setText(
+            QtGui.QApplication.translate("DialogDetsesso", "Protuberanza occipitale est.", None,
+                                         QtGui.QApplication.UnicodeUTF8))
+        self.label_70_morfologia_mandibola_3.setText(
+            QtGui.QApplication.translate("DialogDetsesso", "Morfologia mandibola", None,
+                                         QtGui.QApplication.UnicodeUTF8))
+        self.label_90_palato.setText(
+            QtGui.QApplication.translate("DialogDetsesso", "Palato", None, QtGui.QApplication.UnicodeUTF8))
+        self.label_83_processo_zigomatico_3.setText(
+            QtGui.QApplication.translate("DialogDetsesso", "Processo zigomatico", None, QtGui.QApplication.UnicodeUTF8))
+        self.label_82_piano_nucale_3.setText(
+            QtGui.QApplication.translate("DialogDetsesso", "Piano nucale", None, QtGui.QApplication.UnicodeUTF8))
+        self.pushButton_calcola_ind_sex.setText(
+            QtGui.QApplication.translate("DialogDetsesso", "calcola", None, QtGui.QApplication.UnicodeUTF8))
+        self.lineEdit_zig_grado_imp.setText(
+            QtGui.QApplication.translate("DialogDetsesso", "2", None, QtGui.QApplication.UnicodeUTF8))
+        self.lineEdit_pocc_grado_imp.setText(
+            QtGui.QApplication.translate("DialogDetsesso", "2", None, QtGui.QApplication.UnicodeUTF8))
+        self.comboBox_condm_valori.setItemText(1, QtGui.QApplication.translate("DialogDetsesso", "-2", None,
+                                                                               QtGui.QApplication.UnicodeUTF8))
+        self.comboBox_condm_valori.setItemText(2, QtGui.QApplication.translate("DialogDetsesso", "-1", None,
+                                                                               QtGui.QApplication.UnicodeUTF8))
+        self.comboBox_condm_valori.setItemText(3, QtGui.QApplication.translate("DialogDetsesso", "0", None,
+                                                                               QtGui.QApplication.UnicodeUTF8))
+        self.comboBox_condm_valori.setItemText(4, QtGui.QApplication.translate("DialogDetsesso", "+1", None,
+                                                                               QtGui.QApplication.UnicodeUTF8))
+        self.comboBox_condm_valori.setItemText(5, QtGui.QApplication.translate("DialogDetsesso", "+2", None,
+                                                                               QtGui.QApplication.UnicodeUTF8))
+        self.lineEdit_arcsop_grado_imp.setText(
+            QtGui.QApplication.translate("DialogDetsesso", "2", None, QtGui.QApplication.UnicodeUTF8))
+        self.lineEdit_palato_grado_imp.setText(
+            QtGui.QApplication.translate("DialogDetsesso", "1", None, QtGui.QApplication.UnicodeUTF8))
+        self.lineEdit_tub_grado_imp.setText(
+            QtGui.QApplication.translate("DialogDetsesso", "2", None, QtGui.QApplication.UnicodeUTF8))
+        self.label_90_indice_sessualizzazione_cranio.setText(
+            QtGui.QApplication.translate("DialogDetsesso", "Indice sessualizzazione", None,
+                                         QtGui.QApplication.UnicodeUTF8))
+        self.comboBox_arcsop_valori.setItemText(1, QtGui.QApplication.translate("DialogDetsesso", "-2", None,
+                                                                                QtGui.QApplication.UnicodeUTF8))
+        self.comboBox_arcsop_valori.setItemText(2, QtGui.QApplication.translate("DialogDetsesso", "-1", None,
+                                                                                QtGui.QApplication.UnicodeUTF8))
+        self.comboBox_arcsop_valori.setItemText(3, QtGui.QApplication.translate("DialogDetsesso", "0", None,
+                                                                                QtGui.QApplication.UnicodeUTF8))
+        self.comboBox_arcsop_valori.setItemText(4, QtGui.QApplication.translate("DialogDetsesso", "+1", None,
+                                                                                QtGui.QApplication.UnicodeUTF8))
+        self.comboBox_arcsop_valori.setItemText(5, QtGui.QApplication.translate("DialogDetsesso", "+2", None,
+                                                                                QtGui.QApplication.UnicodeUTF8))
+        self.label_78_processo_mastoideo_3.setText(
+            QtGui.QApplication.translate("DialogDetsesso", "Processo mastoideo", None, QtGui.QApplication.UnicodeUTF8))
+        self.comboBox_palato_valori.setItemText(1, QtGui.QApplication.translate("DialogDetsesso", "-2", None,
+                                                                                QtGui.QApplication.UnicodeUTF8))
+        self.comboBox_palato_valori.setItemText(2, QtGui.QApplication.translate("DialogDetsesso", "-1", None,
+                                                                                QtGui.QApplication.UnicodeUTF8))
+        self.comboBox_palato_valori.setItemText(3, QtGui.QApplication.translate("DialogDetsesso", "0", None,
+                                                                                QtGui.QApplication.UnicodeUTF8))
+        self.comboBox_palato_valori.setItemText(4, QtGui.QApplication.translate("DialogDetsesso", "+1", None,
+                                                                                QtGui.QApplication.UnicodeUTF8))
+        self.comboBox_palato_valori.setItemText(5, QtGui.QApplication.translate("DialogDetsesso", "+2", None,
+                                                                                QtGui.QApplication.UnicodeUTF8))
+        self.label_89_valore_totale_sex_cranio.setText(
+            QtGui.QApplication.translate("DialogDetsesso", "Valore totale", None, QtGui.QApplication.UnicodeUTF8))
+        self.comboBox_pmast_valori.setItemText(1, QtGui.QApplication.translate("DialogDetsesso", "-2", None,
+                                                                               QtGui.QApplication.UnicodeUTF8))
+        self.comboBox_pmast_valori.setItemText(2, QtGui.QApplication.translate("DialogDetsesso", "-1", None,
+                                                                               QtGui.QApplication.UnicodeUTF8))
+        self.comboBox_pmast_valori.setItemText(3, QtGui.QApplication.translate("DialogDetsesso", "0", None,
+                                                                               QtGui.QApplication.UnicodeUTF8))
+        self.comboBox_pmast_valori.setItemText(4, QtGui.QApplication.translate("DialogDetsesso", "1", None,
+                                                                               QtGui.QApplication.UnicodeUTF8))
+        self.comboBox_pmast_valori.setItemText(5, QtGui.QApplication.translate("DialogDetsesso", "2", None,
+                                                                               QtGui.QApplication.UnicodeUTF8))
+        self.comboBox_inclfr_valori.setItemText(1, QtGui.QApplication.translate("DialogDetsesso", "-2", None,
+                                                                                QtGui.QApplication.UnicodeUTF8))
+        self.comboBox_inclfr_valori.setItemText(2, QtGui.QApplication.translate("DialogDetsesso", "-1", None,
+                                                                                QtGui.QApplication.UnicodeUTF8))
+        self.comboBox_inclfr_valori.setItemText(3, QtGui.QApplication.translate("DialogDetsesso", "0", None,
+                                                                                QtGui.QApplication.UnicodeUTF8))
+        self.comboBox_inclfr_valori.setItemText(4, QtGui.QApplication.translate("DialogDetsesso", "+1", None,
+                                                                                QtGui.QApplication.UnicodeUTF8))
+        self.comboBox_inclfr_valori.setItemText(5, QtGui.QApplication.translate("DialogDetsesso", "+2", None,
+                                                                                QtGui.QApplication.UnicodeUTF8))
+        self.label_89_margine_sopraorbitale_3.setText(
+            QtGui.QApplication.translate("DialogDetsesso", "Margine sopraorbitale", None,
+                                         QtGui.QApplication.UnicodeUTF8))
+        self.lineEdit_minf_grado_imp.setText(
+            QtGui.QApplication.translate("DialogDetsesso", "1", None, QtGui.QApplication.UnicodeUTF8))
+        self.label_48_caratteri_cranio_6.setText(
+            QtGui.QApplication.translate("DialogDetsesso", "Caratteri", None, QtGui.QApplication.UnicodeUTF8))
+        self.label_90_margine_inferiore.setText(
+            QtGui.QApplication.translate("DialogDetsesso", "Margine inferiore", None, QtGui.QApplication.UnicodeUTF8))
+        self.comboBox_pocc_valori.setItemText(1, QtGui.QApplication.translate("DialogDetsesso", "-2", None,
+                                                                              QtGui.QApplication.UnicodeUTF8))
+        self.comboBox_pocc_valori.setItemText(2, QtGui.QApplication.translate("DialogDetsesso", "-1", None,
+                                                                              QtGui.QApplication.UnicodeUTF8))
+        self.comboBox_pocc_valori.setItemText(3, QtGui.QApplication.translate("DialogDetsesso", "0", None,
+                                                                              QtGui.QApplication.UnicodeUTF8))
+        self.comboBox_pocc_valori.setItemText(4, QtGui.QApplication.translate("DialogDetsesso", "+1", None,
+                                                                              QtGui.QApplication.UnicodeUTF8))
+        self.comboBox_pocc_valori.setItemText(5, QtGui.QApplication.translate("DialogDetsesso", "+2", None,
+                                                                              QtGui.QApplication.UnicodeUTF8))
+        self.lineEdit_anmand_grado_imp.setText(
+            QtGui.QApplication.translate("DialogDetsesso", "1", None, QtGui.QApplication.UnicodeUTF8))
+        self.label_90_angolo_mandibolare.setText(
+            QtGui.QApplication.translate("DialogDetsesso", "Angolo mandibolare", None, QtGui.QApplication.UnicodeUTF8))
+        self.comboBox_anmand_valori.setItemText(1, QtGui.QApplication.translate("DialogDetsesso", "-2", None,
+                                                                                QtGui.QApplication.UnicodeUTF8))
+        self.comboBox_anmand_valori.setItemText(2, QtGui.QApplication.translate("DialogDetsesso", "-1", None,
+                                                                                QtGui.QApplication.UnicodeUTF8))
+        self.comboBox_anmand_valori.setItemText(3, QtGui.QApplication.translate("DialogDetsesso", "0", None,
+                                                                                QtGui.QApplication.UnicodeUTF8))
+        self.comboBox_anmand_valori.setItemText(4, QtGui.QApplication.translate("DialogDetsesso", "+1", None,
+                                                                                QtGui.QApplication.UnicodeUTF8))
+        self.comboBox_anmand_valori.setItemText(5, QtGui.QApplication.translate("DialogDetsesso", "+2", None,
+                                                                                QtGui.QApplication.UnicodeUTF8))
+        self.label_19.setText(
+            QtGui.QApplication.translate("DialogDetsesso", "Valori", None, QtGui.QApplication.UnicodeUTF8))
+        self.label_20.setText(
+            QtGui.QApplication.translate("DialogDetsesso", "Valori", None, QtGui.QApplication.UnicodeUTF8))
+        self.lineEdit_inclfr_grado_imp.setText(
+            QtGui.QApplication.translate("DialogDetsesso", "1", None, QtGui.QApplication.UnicodeUTF8))
+        self.lineEdit_brmont_grado_imp.setText(
+            QtGui.QApplication.translate("DialogDetsesso", "1", None, QtGui.QApplication.UnicodeUTF8))
+        self.comboBox_msorb_valori.setItemText(1, QtGui.QApplication.translate("DialogDetsesso", "-2", None,
+                                                                               QtGui.QApplication.UnicodeUTF8))
+        self.comboBox_msorb_valori.setItemText(2, QtGui.QApplication.translate("DialogDetsesso", "-1", None,
+                                                                               QtGui.QApplication.UnicodeUTF8))
+        self.comboBox_msorb_valori.setItemText(3, QtGui.QApplication.translate("DialogDetsesso", "0", None,
+                                                                               QtGui.QApplication.UnicodeUTF8))
+        self.comboBox_msorb_valori.setItemText(4, QtGui.QApplication.translate("DialogDetsesso", "+1", None,
+                                                                               QtGui.QApplication.UnicodeUTF8))
+        self.comboBox_msorb_valori.setItemText(5, QtGui.QApplication.translate("DialogDetsesso", "+2", None,
+                                                                               QtGui.QApplication.UnicodeUTF8))
+        self.label_48_caratteri_cranio_5.setText(QtGui.QApplication.translate("DialogDetsesso",
+                                                                              "<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.0//EN\" \"http://www.w3.org/TR/REC-html40/strict.dtd\">\n"
+                                                                              "<html><head><meta name=\"qrichtext\" content=\"1\" /><style type=\"text/css\">\n"
+                                                                              "p, li { white-space: pre-wrap; }\n"
+                                                                              "</style></head><body style=\" font-family:\'Lucida Grande\'; font-size:16pt; font-weight:400; font-style:normal;\">\n"
+                                                                              "<p style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\">Caratteri</p></body></html>",
+                                                                              None, QtGui.QApplication.UnicodeUTF8))
+        self.comboBox_tub_valori.setItemText(1, QtGui.QApplication.translate("DialogDetsesso", "-2", None,
+                                                                             QtGui.QApplication.UnicodeUTF8))
+        self.comboBox_tub_valori.setItemText(2, QtGui.QApplication.translate("DialogDetsesso", "-1", None,
+                                                                             QtGui.QApplication.UnicodeUTF8))
+        self.comboBox_tub_valori.setItemText(3, QtGui.QApplication.translate("DialogDetsesso", "0", None,
+                                                                             QtGui.QApplication.UnicodeUTF8))
+        self.comboBox_tub_valori.setItemText(4, QtGui.QApplication.translate("DialogDetsesso", "+1", None,
+                                                                             QtGui.QApplication.UnicodeUTF8))
+        self.comboBox_tub_valori.setItemText(5, QtGui.QApplication.translate("DialogDetsesso", "+2", None,
+                                                                             QtGui.QApplication.UnicodeUTF8))
+        self.comboBox_minf_valori.setItemText(1, QtGui.QApplication.translate("DialogDetsesso", "-2", None,
+                                                                              QtGui.QApplication.UnicodeUTF8))
+        self.comboBox_minf_valori.setItemText(2, QtGui.QApplication.translate("DialogDetsesso", "-1", None,
+                                                                              QtGui.QApplication.UnicodeUTF8))
+        self.comboBox_minf_valori.setItemText(3, QtGui.QApplication.translate("DialogDetsesso", "0", None,
+                                                                              QtGui.QApplication.UnicodeUTF8))
+        self.comboBox_minf_valori.setItemText(4, QtGui.QApplication.translate("DialogDetsesso", "+1", None,
+                                                                              QtGui.QApplication.UnicodeUTF8))
+        self.comboBox_minf_valori.setItemText(5, QtGui.QApplication.translate("DialogDetsesso", "+2", None,
+                                                                              QtGui.QApplication.UnicodeUTF8))
+        self.label_88_osso_zigomatico_3.setText(
+            QtGui.QApplication.translate("DialogDetsesso", "Osso zigomatico", None, QtGui.QApplication.UnicodeUTF8))
+        self.label_84_arcata_sopraciliare_3.setText(
+            QtGui.QApplication.translate("DialogDetsesso", "Arcata sopraciliare", None, QtGui.QApplication.UnicodeUTF8))
+        self.label_85_tuberosita_frontale_e_parietale_3.setText(
+            QtGui.QApplication.translate("DialogDetsesso", "Tuberosità front. e par.", None,
+                                         QtGui.QApplication.UnicodeUTF8))
+        self.lineEdit_mento_grado_imp.setText(
+            QtGui.QApplication.translate("DialogDetsesso", "2", None, QtGui.QApplication.UnicodeUTF8))
+        self.comboBox_ind_cr_sex.setItemText(1, QtGui.QApplication.translate("DialogDetsesso", "Maschio", None,
+                                                                             QtGui.QApplication.UnicodeUTF8))
+        self.comboBox_ind_cr_sex.setItemText(2, QtGui.QApplication.translate("DialogDetsesso", "Femmina", None,
+                                                                             QtGui.QApplication.UnicodeUTF8))
+        self.comboBox_ind_cr_sex.setItemText(4,
+                                             QtGui.QApplication.translate("DialogDetsesso", "Non determinabile", None,
+                                                                          QtGui.QApplication.UnicodeUTF8))
+        self.comboBox_mento_valori.setItemText(1, QtGui.QApplication.translate("DialogDetsesso", "-2", None,
+                                                                               QtGui.QApplication.UnicodeUTF8))
+        self.comboBox_mento_valori.setItemText(2, QtGui.QApplication.translate("DialogDetsesso", "-1", None,
+                                                                               QtGui.QApplication.UnicodeUTF8))
+        self.comboBox_mento_valori.setItemText(3, QtGui.QApplication.translate("DialogDetsesso", "0", None,
+                                                                               QtGui.QApplication.UnicodeUTF8))
+        self.comboBox_mento_valori.setItemText(4, QtGui.QApplication.translate("DialogDetsesso", "+1", None,
+                                                                               QtGui.QApplication.UnicodeUTF8))
+        self.comboBox_mento_valori.setItemText(5, QtGui.QApplication.translate("DialogDetsesso", "+2", None,
+                                                                               QtGui.QApplication.UnicodeUTF8))
+        self.lineEdit_condm_grado_imp.setText(
+            QtGui.QApplication.translate("DialogDetsesso", "1", None, QtGui.QApplication.UnicodeUTF8))
+        self.label_18.setText(
+            QtGui.QApplication.translate("DialogDetsesso", "Grado imp", None, QtGui.QApplication.UnicodeUTF8))
+        self.label_3.setText(
+            QtGui.QApplication.translate("DialogDetsesso", "Grado imp", None, QtGui.QApplication.UnicodeUTF8))
+        self.lineEdit_glab_grado_imp.setText(
+            QtGui.QApplication.translate("DialogDetsesso", "3", None, QtGui.QApplication.UnicodeUTF8))
+        self.lineEdit_pmast_grado_imp.setText(
+            QtGui.QApplication.translate("DialogDetsesso", "3", None, QtGui.QApplication.UnicodeUTF8))
+        self.label_47_glabella_3.setToolTip(QtGui.QApplication.translate("DialogDetsesso",
+                                                                         "<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.0//EN\" \"http://www.w3.org/TR/REC-html40/strict.dtd\">\n"
+                                                                         "<html><head><meta name=\"qrichtext\" content=\"1\" /><style type=\"text/css\">\n"
+                                                                         "p, li { white-space: pre-wrap; }\n"
+                                                                         "</style></head><body style=\" font-family:\'MS Shell Dlg 2\'; font-size:8.25pt; font-weight:400; font-style:normal;\">\n"
+                                                                         "<p style=\" margin-to", None,
+                                                                         QtGui.QApplication.UnicodeUTF8))
+        self.label_47_glabella_3.setText(
+            QtGui.QApplication.translate("DialogDetsesso", "Glabella", None, QtGui.QApplication.UnicodeUTF8))
+        self.label_90_branca_montante.setText(
+            QtGui.QApplication.translate("DialogDetsesso", "Branca montante", None, QtGui.QApplication.UnicodeUTF8))
+        self.lineEdit_pnuc_grado_imp.setText(
+            QtGui.QApplication.translate("DialogDetsesso", "3", None, QtGui.QApplication.UnicodeUTF8))
+        self.lineEdit_pzig_grado_imp.setText(
+            QtGui.QApplication.translate("DialogDetsesso", "3", None, QtGui.QApplication.UnicodeUTF8))
+        self.label_90_mento.setText(
+            QtGui.QApplication.translate("DialogDetsesso", "Mento", None, QtGui.QApplication.UnicodeUTF8))
+        self.pushButton_cranio.setText(
+            QtGui.QApplication.translate("DialogDetsesso", "Apri tavola", None, QtGui.QApplication.UnicodeUTF8))
+        self.toolBox.setItemText(self.toolBox.indexOf(self.toolBoxPage1),
+                                 QtGui.QApplication.translate("DialogDetsesso", "Cranio", None,
+                                                              QtGui.QApplication.UnicodeUTF8))
+        self.label_4.setText(
+            QtGui.QApplication.translate("DialogDetsesso", "Caratteri", None, QtGui.QApplication.UnicodeUTF8))
+        self.label_6.setText(
+            QtGui.QApplication.translate("DialogDetsesso", "Sesso stimato", None, QtGui.QApplication.UnicodeUTF8))
+        self.label_5.setText(QtGui.QApplication.translate("DialogDetsesso", "Indice di sessualizzazione", None,
+                                                          QtGui.QApplication.UnicodeUTF8))
+        self.label_12.setText(QtGui.QApplication.translate("DialogDetsesso", "I: sviluppo negativo dei rilievi ", None,
+                                                           QtGui.QApplication.UnicodeUTF8))
+        self.label_13.setText(QtGui.QApplication.translate("DialogDetsesso", "II: aspetto incavo o puntinato", None,
+                                                           QtGui.QApplication.UnicodeUTF8))
+        self.label_14.setText(
+            QtGui.QApplication.translate("DialogDetsesso", "III: sviluppo positivo dei rilievi ", None,
+                                         QtGui.QApplication.UnicodeUTF8))
+        self.label_16.setText(
+            QtGui.QApplication.translate("DialogDetsesso", "Sesso stimato", None, QtGui.QApplication.UnicodeUTF8))
+        self.comboBox_sup_p_I.setItemText(1, QtGui.QApplication.translate("DialogDetsesso", "M", None,
+                                                                          QtGui.QApplication.UnicodeUTF8))
+        self.comboBox_sup_p_I.setItemText(2, QtGui.QApplication.translate("DialogDetsesso", "I", None,
+                                                                          QtGui.QApplication.UnicodeUTF8))
+        self.comboBox_sup_p_I.setItemText(3, QtGui.QApplication.translate("DialogDetsesso", "F", None,
+                                                                          QtGui.QApplication.UnicodeUTF8))
+        self.comboBox_sup_p_II.setItemText(1, QtGui.QApplication.translate("DialogDetsesso", "M", None,
+                                                                           QtGui.QApplication.UnicodeUTF8))
+        self.comboBox_sup_p_II.setItemText(2, QtGui.QApplication.translate("DialogDetsesso", "I", None,
+                                                                           QtGui.QApplication.UnicodeUTF8))
+        self.comboBox_sup_p_II.setItemText(3, QtGui.QApplication.translate("DialogDetsesso", "F", None,
+                                                                           QtGui.QApplication.UnicodeUTF8))
+        self.comboBox_sup_p_III.setItemText(1, QtGui.QApplication.translate("DialogDetsesso", "M", None,
+                                                                            QtGui.QApplication.UnicodeUTF8))
+        self.comboBox_sup_p_III.setItemText(2, QtGui.QApplication.translate("DialogDetsesso", "I", None,
+                                                                            QtGui.QApplication.UnicodeUTF8))
+        self.comboBox_sup_p_III.setItemText(3, QtGui.QApplication.translate("DialogDetsesso", "F", None,
+                                                                            QtGui.QApplication.UnicodeUTF8))
+        self.comboBox_sup_p_sex.setItemText(1, QtGui.QApplication.translate("DialogDetsesso", "M", None,
+                                                                            QtGui.QApplication.UnicodeUTF8))
+        self.comboBox_sup_p_sex.setItemText(2, QtGui.QApplication.translate("DialogDetsesso", "I", None,
+                                                                            QtGui.QApplication.UnicodeUTF8))
+        self.comboBox_sup_p_sex.setItemText(3, QtGui.QApplication.translate("DialogDetsesso", "F", None,
+                                                                            QtGui.QApplication.UnicodeUTF8))
+        self.comboBox_in_isch_I.setItemText(1, QtGui.QApplication.translate("DialogDetsesso", "M", None,
+                                                                            QtGui.QApplication.UnicodeUTF8))
+        self.comboBox_in_isch_I.setItemText(2, QtGui.QApplication.translate("DialogDetsesso", "I", None,
+                                                                            QtGui.QApplication.UnicodeUTF8))
+        self.comboBox_in_isch_I.setItemText(3, QtGui.QApplication.translate("DialogDetsesso", "F", None,
+                                                                            QtGui.QApplication.UnicodeUTF8))
+        self.label_37.setText(
+            QtGui.QApplication.translate("DialogDetsesso", "II: forma contorno dell\'arco incisura ischiatica", None,
+                                         QtGui.QApplication.UnicodeUTF8))
+        self.label_36.setText(QtGui.QApplication.translate("DialogDetsesso",
+                                                           "III: contorno della corda dell\'arco posteriore relativo alla linea dal punto A all\'incisura ischiatica",
+                                                           None, QtGui.QApplication.UnicodeUTF8))
+        self.comboBox_in_isch_II.setItemText(1, QtGui.QApplication.translate("DialogDetsesso", "M", None,
+                                                                             QtGui.QApplication.UnicodeUTF8))
+        self.comboBox_in_isch_II.setItemText(2, QtGui.QApplication.translate("DialogDetsesso", "I", None,
+                                                                             QtGui.QApplication.UnicodeUTF8))
+        self.comboBox_in_isch_II.setItemText(3, QtGui.QApplication.translate("DialogDetsesso", "F", None,
+                                                                             QtGui.QApplication.UnicodeUTF8))
+        self.comboBox_in_isch_III.setItemText(1, QtGui.QApplication.translate("DialogDetsesso", "M", None,
+                                                                              QtGui.QApplication.UnicodeUTF8))
+        self.comboBox_in_isch_III.setItemText(2, QtGui.QApplication.translate("DialogDetsesso", "I", None,
+                                                                              QtGui.QApplication.UnicodeUTF8))
+        self.comboBox_in_isch_III.setItemText(3, QtGui.QApplication.translate("DialogDetsesso", "F", None,
+                                                                              QtGui.QApplication.UnicodeUTF8))
+        self.label_41.setText(
+            QtGui.QApplication.translate("DialogDetsesso", "I: caratterizzazione del margine inf. dell\'osso coxale ",
+                                         None, QtGui.QApplication.UnicodeUTF8))
+        self.label_40.setText(
+            QtGui.QApplication.translate("DialogDetsesso", "II: assenza o presenza della cresta fallica", None,
+                                         QtGui.QApplication.UnicodeUTF8))
+        self.label_39.setText(
+            QtGui.QApplication.translate("DialogDetsesso", "III: aspetto del ramo ischio-pubico", None,
+                                         QtGui.QApplication.UnicodeUTF8))
+        self.comboBox_in_isch_sex.setItemText(1, QtGui.QApplication.translate("DialogDetsesso", "M", None,
+                                                                              QtGui.QApplication.UnicodeUTF8))
+        self.comboBox_in_isch_sex.setItemText(2, QtGui.QApplication.translate("DialogDetsesso", "I", None,
+                                                                              QtGui.QApplication.UnicodeUTF8))
+        self.comboBox_in_isch_sex.setItemText(3, QtGui.QApplication.translate("DialogDetsesso", "F", None,
+                                                                              QtGui.QApplication.UnicodeUTF8))
+        self.comboBox_ramo_ip_III.setItemText(1, QtGui.QApplication.translate("DialogDetsesso", "M", None,
+                                                                              QtGui.QApplication.UnicodeUTF8))
+        self.comboBox_ramo_ip_III.setItemText(2, QtGui.QApplication.translate("DialogDetsesso", "I", None,
+                                                                              QtGui.QApplication.UnicodeUTF8))
+        self.comboBox_ramo_ip_III.setItemText(3, QtGui.QApplication.translate("DialogDetsesso", "F", None,
+                                                                              QtGui.QApplication.UnicodeUTF8))
+        self.comboBox_ramo_ip_II.setItemText(1, QtGui.QApplication.translate("DialogDetsesso", "M", None,
+                                                                             QtGui.QApplication.UnicodeUTF8))
+        self.comboBox_ramo_ip_II.setItemText(2, QtGui.QApplication.translate("DialogDetsesso", "I", None,
+                                                                             QtGui.QApplication.UnicodeUTF8))
+        self.comboBox_ramo_ip_II.setItemText(3, QtGui.QApplication.translate("DialogDetsesso", "F", None,
+                                                                             QtGui.QApplication.UnicodeUTF8))
+        self.comboBox_ramo_ip_I.setItemText(1, QtGui.QApplication.translate("DialogDetsesso", "M", None,
+                                                                            QtGui.QApplication.UnicodeUTF8))
+        self.comboBox_ramo_ip_I.setItemText(2, QtGui.QApplication.translate("DialogDetsesso", "I", None,
+                                                                            QtGui.QApplication.UnicodeUTF8))
+        self.comboBox_ramo_ip_I.setItemText(3, QtGui.QApplication.translate("DialogDetsesso", "F", None,
+                                                                            QtGui.QApplication.UnicodeUTF8))
+        self.comboBox_ramo_ip_sex.setItemText(1, QtGui.QApplication.translate("DialogDetsesso", "M", None,
+                                                                              QtGui.QApplication.UnicodeUTF8))
+        self.comboBox_ramo_ip_sex.setItemText(2, QtGui.QApplication.translate("DialogDetsesso", "I", None,
+                                                                              QtGui.QApplication.UnicodeUTF8))
+        self.comboBox_ramo_ip_sex.setItemText(3, QtGui.QApplication.translate("DialogDetsesso", "F", None,
+                                                                              QtGui.QApplication.UnicodeUTF8))
+        self.label_45.setText(
+            QtGui.QApplication.translate("DialogDetsesso", "Relazione tra la lunghezza dell\'ischio e del pube ", None,
+                                         QtGui.QApplication.UnicodeUTF8))
+        self.label_38.setText(
+            QtGui.QApplication.translate("DialogDetsesso", "I: proporz. della lunghezza dell\'arco incisura ischiatica",
+                                         None, QtGui.QApplication.UnicodeUTF8))
+        self.label.setText(
+            QtGui.QApplication.translate("DialogDetsesso", "Bruzek, 2002", None, QtGui.QApplication.UnicodeUTF8))
+        self.comboBox_prop_ip_sex_2.setItemText(1, QtGui.QApplication.translate("DialogDetsesso", "M", None,
+                                                                                QtGui.QApplication.UnicodeUTF8))
+        self.comboBox_prop_ip_sex_2.setItemText(2, QtGui.QApplication.translate("DialogDetsesso", "I", None,
+                                                                                QtGui.QApplication.UnicodeUTF8))
+        self.comboBox_prop_ip_sex_2.setItemText(3, QtGui.QApplication.translate("DialogDetsesso", "F", None,
+                                                                                QtGui.QApplication.UnicodeUTF8))
+        self.comboBox_ind_bac_sex.setItemText(1, QtGui.QApplication.translate("DialogDetsesso", "Maschio", None,
+                                                                              QtGui.QApplication.UnicodeUTF8))
+        self.comboBox_ind_bac_sex.setItemText(2, QtGui.QApplication.translate("DialogDetsesso", "Femmina", None,
+                                                                              QtGui.QApplication.UnicodeUTF8))
+        self.comboBox_ind_bac_sex.setItemText(3, QtGui.QApplication.translate("DialogDetsesso", "Indeterminato", None,
+                                                                              QtGui.QApplication.UnicodeUTF8))
+        self.comboBox_ind_bac_sex.setItemText(4,
+                                              QtGui.QApplication.translate("DialogDetsesso", "Non determinabile", None,
+                                                                           QtGui.QApplication.UnicodeUTF8))
+        self.pushButton_calcola_ind_sex_bac.setText(
+            QtGui.QApplication.translate("DialogDetsesso", "calcola", None, QtGui.QApplication.UnicodeUTF8))
+        self.label_17.setText(QtGui.QApplication.translate("DialogDetsesso", "Indice di sessualizzazione", None,
+                                                           QtGui.QApplication.UnicodeUTF8))
+        self.pushButton_bacino_sup_preauricolare.setText(
+            QtGui.QApplication.translate("DialogDetsesso", "Superficie preauricolare", None,
+                                         QtGui.QApplication.UnicodeUTF8))
+        self.pushButton_bacino_grande_incisura_ischiatica.setText(
+            QtGui.QApplication.translate("DialogDetsesso", "Grande inc. ischiatica", None,
+                                         QtGui.QApplication.UnicodeUTF8))
+        self.pushButton_bacino_ramo_ischio_pubico.setText(
+            QtGui.QApplication.translate("DialogDetsesso", "Ramo ischio-pubico", None, QtGui.QApplication.UnicodeUTF8))
+        self.pushButton_proporzioni_ischio_pubiche.setText(
+            QtGui.QApplication.translate("DialogDetsesso", "Prop. ischio-pubiche", None,
+                                         QtGui.QApplication.UnicodeUTF8))
+        self.pushButton_bacino_arco_composito.setText(
+            QtGui.QApplication.translate("DialogDetsesso", "Arco composito", None, QtGui.QApplication.UnicodeUTF8))
+        self.label_44.setText(QtGui.QApplication.translate("DialogDetsesso",
+                                                           "Relazione tra il contorno dell\'arco dell\'ischio e della sup. auricolare",
+                                                           None, QtGui.QApplication.UnicodeUTF8))
+        self.comboBox_arco_c_sex_2.setItemText(1, QtGui.QApplication.translate("DialogDetsesso", "M", None,
+                                                                               QtGui.QApplication.UnicodeUTF8))
+        self.comboBox_arco_c_sex_2.setItemText(2, QtGui.QApplication.translate("DialogDetsesso", "I", None,
+                                                                               QtGui.QApplication.UnicodeUTF8))
+        self.comboBox_arco_c_sex_2.setItemText(3, QtGui.QApplication.translate("DialogDetsesso", "F", None,
+                                                                               QtGui.QApplication.UnicodeUTF8))
+        self.toolBox.setItemText(self.toolBox.indexOf(self.toolBoxPage2),
+                                 QtGui.QApplication.translate("DialogDetsesso", "Bacino", None,
+                                                              QtGui.QApplication.UnicodeUTF8))

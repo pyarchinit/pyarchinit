@@ -8,13 +8,12 @@
 # WARNING! All changes made in this file will be lost!
 
 from PyQt4 import QtCore, QtGui
-import resources_rc
-
 
 try:
     _fromUtf8 = QtCore.QString.fromUtf8
 except AttributeError:
     _fromUtf8 = lambda s: s
+
 
 class Ui_DialogGisTimeController(object):
     def setupUi(self, DialogGisTimeController):
@@ -79,7 +78,8 @@ class Ui_DialogGisTimeController(object):
         self.horizontalLayout.addWidget(self.dial_relative_cronology)
         self.spinBox_relative_cronology = QtGui.QSpinBox(self.tab_2)
         self.spinBox_relative_cronology.setMaximumSize(QtCore.QSize(100, 16777215))
-        self.spinBox_relative_cronology.setAlignment(QtCore.Qt.AlignRight|QtCore.Qt.AlignTrailing|QtCore.Qt.AlignVCenter)
+        self.spinBox_relative_cronology.setAlignment(
+            QtCore.Qt.AlignRight | QtCore.Qt.AlignTrailing | QtCore.Qt.AlignVCenter)
         self.spinBox_relative_cronology.setAccelerated(False)
         self.spinBox_relative_cronology.setMinimum(0)
         self.spinBox_relative_cronology.setMaximum(1000)
@@ -94,19 +94,33 @@ class Ui_DialogGisTimeController(object):
         QtCore.QMetaObject.connectSlotsByName(DialogGisTimeController)
 
     def retranslateUi(self, DialogGisTimeController):
-        DialogGisTimeController.setWindowTitle(QtGui.QApplication.translate("DialogGisTimeController", "pyArchInit Gestione Scavi - Time Controller", None, QtGui.QApplication.UnicodeUTF8))
-        self.textEdit.setHtml(QtGui.QApplication.translate("DialogGisTimeController", "<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.0//EN\" \"http://www.w3.org/TR/REC-html40/strict.dtd\">\n"
-"<html><head><meta name=\"qrichtext\" content=\"1\" /><style type=\"text/css\">\n"
-"p, li { white-space: pre-wrap; }\n"
-"</style></head><body style=\" font-family:\'MS Shell Dlg 2\'; font-size:8.25pt; font-weight:400; font-style:normal;\">\n"
-"<p align=\"justify\" style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\"><span style=\" font-size:9pt; font-weight:600;\">Per funzionare il sistema di ricerca per cronologie assolute richiede la creazione dei periodi di scavo nella scheda Periodizzazione. La cronologia assoluta qui utilizzata viene riferita ai termini &quot;avanti Cristo&quot; e &quot;dopo Cristo&quot;. Per settare valori avanti Cristo utilizzare il segno &quot;-&quot; davanti all\'anno (ex: 268 a.C. = -268). Per settare valori dopo Cristo utilizzare non e\' necessario utilizzare alcun segno (1400 d.C. = 1440).</span></p>\n"
-"<p align=\"justify\" style=\"-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px; font-size:9pt; font-weight:600;\"></p></body></html>", None, QtGui.QApplication.UnicodeUTF8))
-        self.label_2.setText(QtGui.QApplication.translate("DialogGisTimeController", "Visualizza l\'intervallo di tempo compreso tra l\'anno:", None, QtGui.QApplication.UnicodeUTF8))
-        self.label.setText(QtGui.QApplication.translate("DialogGisTimeController", "Cronologia iniziale", None, QtGui.QApplication.UnicodeUTF8))
-        self.label_4.setText(QtGui.QApplication.translate("DialogGisTimeController", "e l\'anno", None, QtGui.QApplication.UnicodeUTF8))
-        self.label_3.setText(QtGui.QApplication.translate("DialogGisTimeController", "Cronologia finale", None, QtGui.QApplication.UnicodeUTF8))
-        self.pushButton_visualize.setToolTip(QtGui.QApplication.translate("DialogGisTimeController", "Prev rec", None, QtGui.QApplication.UnicodeUTF8))
-        self.pushButton_visualize.setText(QtGui.QApplication.translate("DialogGisTimeController", "Visualizza", None, QtGui.QApplication.UnicodeUTF8))
-        self.tabWidget.setTabText(self.tabWidget.indexOf(self.tab), QtGui.QApplication.translate("DialogGisTimeController", "Absolute cronology system", None, QtGui.QApplication.UnicodeUTF8))
-        self.tabWidget.setTabText(self.tabWidget.indexOf(self.tab_2), QtGui.QApplication.translate("DialogGisTimeController", "Relative cronology system", None, QtGui.QApplication.UnicodeUTF8))
-
+        DialogGisTimeController.setWindowTitle(
+            QtGui.QApplication.translate("DialogGisTimeController", "pyArchInit Gestione Scavi - Time Controller", None,
+                                         QtGui.QApplication.UnicodeUTF8))
+        self.textEdit.setHtml(QtGui.QApplication.translate("DialogGisTimeController",
+                                                           "<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.0//EN\" \"http://www.w3.org/TR/REC-html40/strict.dtd\">\n"
+                                                           "<html><head><meta name=\"qrichtext\" content=\"1\" /><style type=\"text/css\">\n"
+                                                           "p, li { white-space: pre-wrap; }\n"
+                                                           "</style></head><body style=\" font-family:\'MS Shell Dlg 2\'; font-size:8.25pt; font-weight:400; font-style:normal;\">\n"
+                                                           "<p align=\"justify\" style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\"><span style=\" font-size:9pt; font-weight:600;\">Per funzionare il sistema di ricerca per cronologie assolute richiede la creazione dei periodi di scavo nella scheda Periodizzazione. La cronologia assoluta qui utilizzata viene riferita ai termini &quot;avanti Cristo&quot; e &quot;dopo Cristo&quot;. Per settare valori avanti Cristo utilizzare il segno &quot;-&quot; davanti all\'anno (ex: 268 a.C. = -268). Per settare valori dopo Cristo utilizzare non e\' necessario utilizzare alcun segno (1400 d.C. = 1440).</span></p>\n"
+                                                           "<p align=\"justify\" style=\"-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px; font-size:9pt; font-weight:600;\"></p></body></html>",
+                                                           None, QtGui.QApplication.UnicodeUTF8))
+        self.label_2.setText(QtGui.QApplication.translate("DialogGisTimeController",
+                                                          "Visualizza l\'intervallo di tempo compreso tra l\'anno:",
+                                                          None, QtGui.QApplication.UnicodeUTF8))
+        self.label.setText(QtGui.QApplication.translate("DialogGisTimeController", "Cronologia iniziale", None,
+                                                        QtGui.QApplication.UnicodeUTF8))
+        self.label_4.setText(
+            QtGui.QApplication.translate("DialogGisTimeController", "e l\'anno", None, QtGui.QApplication.UnicodeUTF8))
+        self.label_3.setText(QtGui.QApplication.translate("DialogGisTimeController", "Cronologia finale", None,
+                                                          QtGui.QApplication.UnicodeUTF8))
+        self.pushButton_visualize.setToolTip(
+            QtGui.QApplication.translate("DialogGisTimeController", "Prev rec", None, QtGui.QApplication.UnicodeUTF8))
+        self.pushButton_visualize.setText(
+            QtGui.QApplication.translate("DialogGisTimeController", "Visualizza", None, QtGui.QApplication.UnicodeUTF8))
+        self.tabWidget.setTabText(self.tabWidget.indexOf(self.tab),
+                                  QtGui.QApplication.translate("DialogGisTimeController", "Absolute cronology system",
+                                                               None, QtGui.QApplication.UnicodeUTF8))
+        self.tabWidget.setTabText(self.tabWidget.indexOf(self.tab_2),
+                                  QtGui.QApplication.translate("DialogGisTimeController", "Relative cronology system",
+                                                               None, QtGui.QApplication.UnicodeUTF8))

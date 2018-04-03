@@ -8,8 +8,6 @@
 # WARNING! All changes made in this file will be lost!
 
 from PyQt4 import QtCore, QtGui
-import resources_rc
-
 
 try:
     _fromUtf8 = QtCore.QString.fromUtf8
@@ -19,11 +17,14 @@ except AttributeError:
 
 try:
     _encoding = QtGui.QApplication.UnicodeUTF8
+
+
     def _translate(context, text, disambig):
         return QtGui.QApplication.translate(context, text, disambig, _encoding)
 except AttributeError:
     def _translate(context, text, disambig):
         return QtGui.QApplication.translate(context, text, disambig)
+
 
 class Ui_DialogArcheoZoology(object):
     def setupUi(self, DialogArcheoZoology):
@@ -373,12 +374,12 @@ class Ui_DialogArcheoZoology(object):
         self.lineEdit_combuste.setObjectName(_fromUtf8("lineEdit_combuste"))
         self.gridLayout_6.addWidget(self.lineEdit_combuste, 2, 3, 1, 1)
         self.label_4 = QtGui.QLabel(self.layoutWidget)
-        self.label_4.setAlignment(QtCore.Qt.AlignHCenter|QtCore.Qt.AlignTop)
+        self.label_4.setAlignment(QtCore.Qt.AlignHCenter | QtCore.Qt.AlignTop)
         self.label_4.setIndent(0)
         self.label_4.setObjectName(_fromUtf8("label_4"))
         self.gridLayout_6.addWidget(self.label_4, 1, 2, 1, 1)
         self.label_5 = QtGui.QLabel(self.layoutWidget)
-        self.label_5.setAlignment(QtCore.Qt.AlignHCenter|QtCore.Qt.AlignTop)
+        self.label_5.setAlignment(QtCore.Qt.AlignHCenter | QtCore.Qt.AlignTop)
         self.label_5.setIndent(0)
         self.label_5.setObjectName(_fromUtf8("label_5"))
         self.gridLayout_6.addWidget(self.label_5, 1, 3, 1, 1)
@@ -437,7 +438,7 @@ class Ui_DialogArcheoZoology(object):
         self.lineEdit_cervi.setObjectName(_fromUtf8("lineEdit_cervi"))
         self.gridLayout_6.addWidget(self.lineEdit_cervi, 4, 1, 1, 1)
         self.label_10 = QtGui.QLabel(self.layoutWidget)
-        self.label_10.setAlignment(QtCore.Qt.AlignHCenter|QtCore.Qt.AlignTop)
+        self.label_10.setAlignment(QtCore.Qt.AlignHCenter | QtCore.Qt.AlignTop)
         self.label_10.setObjectName(_fromUtf8("label_10"))
         self.gridLayout_6.addWidget(self.label_10, 1, 4, 1, 1)
         self.lineEdit_strie = QtGui.QLineEdit(self.layoutWidget)
@@ -1276,7 +1277,8 @@ class Ui_DialogArcheoZoology(object):
         QtCore.QMetaObject.connectSlotsByName(DialogArcheoZoology)
 
     def retranslateUi(self, DialogArcheoZoology):
-        DialogArcheoZoology.setWindowTitle(_translate("DialogArcheoZoology", "pyArchInit Gestione Scavi - Archeozoologia Quantificazioni", None))
+        DialogArcheoZoology.setWindowTitle(
+            _translate("DialogArcheoZoology", "pyArchInit Gestione Scavi - Archeozoologia Quantificazioni", None))
         self.label_29.setText(_translate("DialogArcheoZoology", "DBMS Toolbar", None))
         self.pushButton_connect.setText(_translate("DialogArcheoZoology", "Reload DB", None))
         self.pushButton_first_rec.setToolTip(_translate("DialogArcheoZoology", "First rec", None))
@@ -1342,13 +1344,16 @@ class Ui_DialogArcheoZoology(object):
         self.label_50.setText(_translate("DialogArcheoZoology", "choose path to exportation", None))
         self.set_size_plot.setText(_translate("DialogArcheoZoology", "3500", None))
         self.label_45.setText(_translate("DialogArcheoZoology", "set pixel size plot x-y (es: 3500)", None))
-        self.tabWidget.setTabText(self.tabWidget.indexOf(self.tab_7), _translate("DialogArcheoZoology", "Parametri di connessione", None))
+        self.tabWidget.setTabText(self.tabWidget.indexOf(self.tab_7),
+                                  _translate("DialogArcheoZoology", "Parametri di connessione", None))
         self.label_39.setText(_translate("DialogArcheoZoology", "set size point ", None))
-        self.report.setWhatsThis(_translate("DialogArcheoZoology", "<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.0//EN\" \"http://www.w3.org/TR/REC-html40/strict.dtd\">\n"
-"<html><head><meta name=\"qrichtext\" content=\"1\" /><style type=\"text/css\">\n"
-"p, li { white-space: pre-wrap; }\n"
-"</style></head><body style=\" font-family:\'Sans\'; font-size:8pt; font-weight:400; font-style:normal;\">\n"
-"<p style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\">Genera un report in html con grafico a dispersione e statistica descrittiva, aggiungi una grandezza per la simbologia in set size point</p></body></html>", None))
+        self.report.setWhatsThis(_translate("DialogArcheoZoology",
+                                            "<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.0//EN\" \"http://www.w3.org/TR/REC-html40/strict.dtd\">\n"
+                                            "<html><head><meta name=\"qrichtext\" content=\"1\" /><style type=\"text/css\">\n"
+                                            "p, li { white-space: pre-wrap; }\n"
+                                            "</style></head><body style=\" font-family:\'Sans\'; font-size:8pt; font-weight:400; font-style:normal;\">\n"
+                                            "<p style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\">Genera un report in html con grafico a dispersione e statistica descrittiva, aggiungi una grandezza per la simbologia in set size point</p></body></html>",
+                                            None))
         self.report.setText(_translate("DialogArcheoZoology", "Report", None))
         self.size.setWhatsThis(_translate("DialogArcheoZoology", "da usare per il report", None))
         self.size.setText(_translate("DialogArcheoZoology", "2", None))
@@ -1365,7 +1370,8 @@ class Ui_DialogArcheoZoology(object):
         self.plot.setItemText(10, _translate("DialogArcheoZoology", "canidi", None))
         self.plot.setItemText(11, _translate("DialogArcheoZoology", "ursidi", None))
         self.plot.setItemText(12, _translate("DialogArcheoZoology", "megacero", None))
-        self.l1.setWhatsThis(_translate("DialogArcheoZoology", "indica la posizione della colonna che si vuole descrivere", None))
+        self.l1.setWhatsThis(
+            _translate("DialogArcheoZoology", "indica la posizione della colonna che si vuole descrivere", None))
         self.l1.setItemText(0, _translate("DialogArcheoZoology", "9", None))
         self.l1.setItemText(1, _translate("DialogArcheoZoology", "10", None))
         self.l1.setItemText(2, _translate("DialogArcheoZoology", "11", None))
@@ -1379,11 +1385,13 @@ class Ui_DialogArcheoZoology(object):
         self.l1.setItemText(10, _translate("DialogArcheoZoology", "19", None))
         self.l1.setItemText(11, _translate("DialogArcheoZoology", "20", None))
         self.l1.setItemText(12, _translate("DialogArcheoZoology", "21", None))
-        self.hist.setWhatsThis(_translate("DialogArcheoZoology", "<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.0//EN\" \"http://www.w3.org/TR/REC-html40/strict.dtd\">\n"
-"<html><head><meta name=\"qrichtext\" content=\"1\" /><style type=\"text/css\">\n"
-"p, li { white-space: pre-wrap; }\n"
-"</style></head><body style=\" font-family:\'Sans\'; font-size:10pt; font-weight:400; font-style:normal;\">\n"
-"<p style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\"><span style=\" font-size:8pt;\">Genera un istogramma con la linea di mediana. Scegliere dalla &quot;lista fauna&quot; la variabile da analizzare oppure flegga il checkbox per generare un grafico con tutte le variabili a confronto</span></p></body></html>", None))
+        self.hist.setWhatsThis(_translate("DialogArcheoZoology",
+                                          "<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.0//EN\" \"http://www.w3.org/TR/REC-html40/strict.dtd\">\n"
+                                          "<html><head><meta name=\"qrichtext\" content=\"1\" /><style type=\"text/css\">\n"
+                                          "p, li { white-space: pre-wrap; }\n"
+                                          "</style></head><body style=\" font-family:\'Sans\'; font-size:10pt; font-weight:400; font-style:normal;\">\n"
+                                          "<p style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\"><span style=\" font-size:8pt;\">Genera un istogramma con la linea di mediana. Scegliere dalla &quot;lista fauna&quot; la variabile da analizzare oppure flegga il checkbox per generare un grafico con tutte le variabili a confronto</span></p></body></html>",
+                                          None))
         self.hist.setText(_translate("DialogArcheoZoology", "Histogram", None))
         self.label_38.setText(_translate("DialogArcheoZoology", "lista table ", None))
         self.label_37.setText(_translate("DialogArcheoZoology", "lista fauna", None))
@@ -1400,11 +1408,13 @@ class Ui_DialogArcheoZoology(object):
         self.l2.setItemText(10, _translate("DialogArcheoZoology", "19", None))
         self.l2.setItemText(11, _translate("DialogArcheoZoology", "20", None))
         self.l2.setItemText(12, _translate("DialogArcheoZoology", "21", None))
-        self.boxplot.setWhatsThis(_translate("DialogArcheoZoology", "<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.0//EN\" \"http://www.w3.org/TR/REC-html40/strict.dtd\">\n"
-"<html><head><meta name=\"qrichtext\" content=\"1\" /><style type=\"text/css\">\n"
-"p, li { white-space: pre-wrap; }\n"
-"</style></head><body style=\" font-family:\'Sans\'; font-size:10pt; font-weight:400; font-style:normal;\">\n"
-"<p style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\"><span style=\" font-size:8pt;\">Genera un boxplot. Scegliere dalla lista fauna la variabile da analizzare oppure flegga il checkbox per generare un grafico con tutte le variabili a confronto</span></p></body></html>", None))
+        self.boxplot.setWhatsThis(_translate("DialogArcheoZoology",
+                                             "<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.0//EN\" \"http://www.w3.org/TR/REC-html40/strict.dtd\">\n"
+                                             "<html><head><meta name=\"qrichtext\" content=\"1\" /><style type=\"text/css\">\n"
+                                             "p, li { white-space: pre-wrap; }\n"
+                                             "</style></head><body style=\" font-family:\'Sans\'; font-size:10pt; font-weight:400; font-style:normal;\">\n"
+                                             "<p style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\"><span style=\" font-size:8pt;\">Genera un boxplot. Scegliere dalla lista fauna la variabile da analizzare oppure flegga il checkbox per generare un grafico con tutte le variabili a confronto</span></p></body></html>",
+                                             None))
         self.boxplot.setText(_translate("DialogArcheoZoology", "Boxplot", None))
         self.hist_period.setText(_translate("DialogArcheoZoology", "run!", None))
         self.c3_2.setItemText(0, _translate("DialogArcheoZoology", "coni", None))
@@ -1459,20 +1469,26 @@ class Ui_DialogArcheoZoology(object):
         self.c4_2.setItemText(10, _translate("DialogArcheoZoology", "canidi", None))
         self.c4_2.setItemText(11, _translate("DialogArcheoZoology", "ursidi", None))
         self.c4_2.setItemText(12, _translate("DialogArcheoZoology", "megacero", None))
-        self.textBrowser.setHtml(_translate("DialogArcheoZoology", "<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.0//EN\" \"http://www.w3.org/TR/REC-html40/strict.dtd\">\n"
-"<html><head><meta name=\"qrichtext\" content=\"1\" /><style type=\"text/css\">\n"
-"p, li { white-space: pre-wrap; }\n"
-"</style></head><body style=\" font-family:\'MS Shell Dlg 2\'; font-size:8.25pt; font-weight:400; font-style:normal;\">\n"
-"<p style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\"><span style=\" font-family:\'Sans\'; font-size:10pt;\">Crea un confronto a 4 variabili con istogramma di frequenza, curva di densità e curva cumulativa</span></p></body></html>", None))
-        self.tabWidget.setTabText(self.tabWidget.indexOf(self.tab_4), _translate("DialogArcheoZoology", "Statistica univariata", None))
+        self.textBrowser.setHtml(_translate("DialogArcheoZoology",
+                                            "<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.0//EN\" \"http://www.w3.org/TR/REC-html40/strict.dtd\">\n"
+                                            "<html><head><meta name=\"qrichtext\" content=\"1\" /><style type=\"text/css\">\n"
+                                            "p, li { white-space: pre-wrap; }\n"
+                                            "</style></head><body style=\" font-family:\'MS Shell Dlg 2\'; font-size:8.25pt; font-weight:400; font-style:normal;\">\n"
+                                            "<p style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\"><span style=\" font-family:\'Sans\'; font-size:10pt;\">Crea un confronto a 4 variabili con istogramma di frequenza, curva di densità e curva cumulativa</span></p></body></html>",
+                                            None))
+        self.tabWidget.setTabText(self.tabWidget.indexOf(self.tab_4),
+                                  _translate("DialogArcheoZoology", "Statistica univariata", None))
         self.matrix.setText(_translate("DialogArcheoZoology", "Genera una Matrice di Correlazione", None))
-        self.coplot.setWhatsThis(_translate("DialogArcheoZoology", "<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.0//EN\" \"http://www.w3.org/TR/REC-html40/strict.dtd\">\n"
-"<html><head><meta name=\"qrichtext\" content=\"1\" /><style type=\"text/css\">\n"
-"p, li { white-space: pre-wrap; }\n"
-"</style></head><body style=\" font-family:\'Sans\'; font-size:8pt; font-weight:400; font-style:normal;\">\n"
-"<p style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\">genera un co-plot </p></body></html>", None))
+        self.coplot.setWhatsThis(_translate("DialogArcheoZoology",
+                                            "<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.0//EN\" \"http://www.w3.org/TR/REC-html40/strict.dtd\">\n"
+                                            "<html><head><meta name=\"qrichtext\" content=\"1\" /><style type=\"text/css\">\n"
+                                            "p, li { white-space: pre-wrap; }\n"
+                                            "</style></head><body style=\" font-family:\'Sans\'; font-size:8pt; font-weight:400; font-style:normal;\">\n"
+                                            "<p style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\">genera un co-plot </p></body></html>",
+                                            None))
         self.coplot.setText(_translate("DialogArcheoZoology", "Co-plot", None))
-        self.tabWidget.setTabText(self.tabWidget.indexOf(self.tab_6), _translate("DialogArcheoZoology", "Statistica multivariata", None))
+        self.tabWidget.setTabText(self.tabWidget.indexOf(self.tab_6),
+                                  _translate("DialogArcheoZoology", "Statistica multivariata", None))
         self.label_26.setText(_translate("DialogArcheoZoology", "Cutoff", None))
         self.nugget.setText(_translate("DialogArcheoZoology", "Nugget", None))
         self.label_25.setText(_translate("DialogArcheoZoology", "Parameter vgm", None))
@@ -1688,7 +1704,8 @@ class Ui_DialogArcheoZoology(object):
         self.nugget_6.setText(_translate("DialogArcheoZoology", "Lag", None))
         self.nugget_7.setText(_translate("DialogArcheoZoology", "Kappa", None))
         self.kappa.setText(_translate("DialogArcheoZoology", "0.1", None))
-        self.toolBox.setItemText(self.toolBox.indexOf(self.page), _translate("DialogArcheoZoology", "Costruisci un semivariogramma", None))
+        self.toolBox.setItemText(self.toolBox.indexOf(self.page),
+                                 _translate("DialogArcheoZoology", "Costruisci un semivariogramma", None))
         self.label_46.setText(_translate("DialogArcheoZoology", "Genera un mappa di predizione in automatico", None))
         self.lineEdit_automap.setItemText(0, _translate("DialogArcheoZoology", "calcinati", None))
         self.lineEdit_automap.setItemText(1, _translate("DialogArcheoZoology", "bos_bison", None))
@@ -1703,11 +1720,13 @@ class Ui_DialogArcheoZoology(object):
         self.lineEdit_automap.setItemText(10, _translate("DialogArcheoZoology", "canidi", None))
         self.lineEdit_automap.setItemText(11, _translate("DialogArcheoZoology", "ursidi", None))
         self.lineEdit_automap.setItemText(12, _translate("DialogArcheoZoology", "megacero", None))
-        self.automap.setWhatsThis(_translate("DialogArcheoZoology", "<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.0//EN\" \"http://www.w3.org/TR/REC-html40/strict.dtd\">\n"
-"<html><head><meta name=\"qrichtext\" content=\"1\" /><style type=\"text/css\">\n"
-"p, li { white-space: pre-wrap; }\n"
-"</style></head><body style=\" font-family:\'Sans\'; font-size:8pt; font-weight:400; font-style:normal;\">\n"
-"<p style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\">genera una mappa di predizione </p></body></html>", None))
+        self.automap.setWhatsThis(_translate("DialogArcheoZoology",
+                                             "<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.0//EN\" \"http://www.w3.org/TR/REC-html40/strict.dtd\">\n"
+                                             "<html><head><meta name=\"qrichtext\" content=\"1\" /><style type=\"text/css\">\n"
+                                             "p, li { white-space: pre-wrap; }\n"
+                                             "</style></head><body style=\" font-family:\'Sans\'; font-size:8pt; font-weight:400; font-style:normal;\">\n"
+                                             "<p style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\">genera una mappa di predizione </p></body></html>",
+                                             None))
         self.automap.setText(_translate("DialogArcheoZoology", "Automap", None))
         self.range_2.setText(_translate("DialogArcheoZoology", "Range", None))
         self.nugget_3.setText(_translate("DialogArcheoZoology", "NA", None))
@@ -1723,7 +1742,8 @@ class Ui_DialogArcheoZoology(object):
         self.label_48.setText(_translate("DialogArcheoZoology", "Sill", None))
         self.clipper.setText(_translate("DialogArcheoZoology", "Clipper", None))
         self.toolBox.setItemText(self.toolBox.indexOf(self.page_2), _translate("DialogArcheoZoology", "Automap", None))
-        self.tabWidget.setTabText(self.tabWidget.indexOf(self.tab_3), _translate("DialogArcheoZoology", "Geostatistica", None))
+        self.tabWidget.setTabText(self.tabWidget.indexOf(self.tab_3),
+                                  _translate("DialogArcheoZoology", "Geostatistica", None))
         self.label_75.setText(_translate("DialogArcheoZoology", "Tools", None))
         self.label_76.setText(_translate("DialogArcheoZoology", "Visualizzazione GIS", None))
         self.toolButtonGis.setShortcut(_translate("DialogArcheoZoology", "Ctrl+G", None))
@@ -1734,10 +1754,10 @@ class Ui_DialogArcheoZoology(object):
 
 if __name__ == "__main__":
     import sys
+
     app = QtGui.QApplication(sys.argv)
     DialogArcheoZoology = QtGui.QDialog()
     ui = Ui_DialogArcheoZoology()
     ui.setupUi(DialogArcheoZoology)
     DialogArcheoZoology.show()
     sys.exit(app.exec_())
-

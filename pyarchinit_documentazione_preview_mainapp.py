@@ -21,87 +21,86 @@
 """
 import os
 
-from PyQt4 import QtCore, QtGui
+from  pyarchinit_error_check import *
+from  pyarchinit_utility import *
+
 from modules.db.pyarchinit_conn_strings import Connection
 from modules.db.pyarchinit_db_manager import Pyarchinit_db_management
 from modules.gis.pyarchinit_pyqgis import Pyarchinit_pyqgis
 from modules.gui.pyarchinit_preview_doc_gui import Ui_DialogPreviewDoc
-from psycopg2 import *
-from  pyarchinit_error_check import *
-from  pyarchinit_utility import *
-
 
 try:
-	from qgis.core import *
-	from qgis.gui import *
+    from qgis.core import *
+    from qgis.gui import *
 except:
-	pass
-
+    pass
 
 try:
-	from  pyarchinit_db_manager import *
+    from  pyarchinit_db_manager import *
 except:
-	pass
+    pass
 
 
 class pyarchinit_doc_preview(QDialog, Ui_DialogPreviewDoc):
-	MSG_BOX_TITLE = "pyArchInit - Scheda Sistema Preview Documentazione"
-	DB_MANAGER = ""
-	DATA_LIST = ""
-	ID_US_DICT = {}
-	mapPreview = ""
-	DOC_STR  = ""
-	vlayer = ""
-	layerToSet = ""
+    MSG_BOX_TITLE = "pyArchInit - Scheda Sistema Preview Documentazione"
+    DB_MANAGER = ""
+    DATA_LIST = ""
+    ID_US_DICT = {}
+    mapPreview = ""
+    DOC_STR = ""
+    vlayer = ""
+    layerToSet = ""
 
-	if os.name == 'posix':
-		HOME = os.environ['HOME']
-	elif os.name == 'nt':
-		HOME = os.environ['HOMEPATH']
-	
-	QUANT_PATH = ('%s%s%s') % (HOME, os.sep, "pyarchinit_Quantificazioni_folder")
+    if os.name == 'posix':
+        HOME = os.environ['HOME']
+    elif os.name == 'nt':
+        HOME = os.environ['HOMEPATH']
 
-	def __init__(self, iface, docstr):
-		self.iface = iface
-		self.pyQGIS = Pyarchinit_pyqgis(self.iface)
-		self.DOC_STR = docstr
+    QUANT_PATH = ('%s%s%s') % (HOME, os.sep, "pyarchinit_Quantificazioni_folder")
 
-		QDialog.__init__(self)
-		self.setupUi(self)
+    def __init__(self, iface, docstr):
+        self.iface = iface
+        self.pyQGIS = Pyarchinit_pyqgis(self.iface)
+        self.DOC_STR = docstr
 
-		self.mapPreview = QgsMapCanvas(self)
-		self.mapPreview.setCanvasColor(QColor(255,255,255))
-		self.gridLayout_2.addWidget(self.mapPreview, 0, 0, 1, 1)
-		self.gridLayout.addWidget(self.widgetPreviewDoc, 0, 0, 1, 1)
-		self.draw_preview()
+        QDialog.__init__(self)
+        self.setupUi(self)
 
-		try:
-			self.DB_connect()
-		except:
-			pass
+        self.mapPreview = QgsMapCanvas(self)
+        self.mapPreview.setCanvasColor(QColor(255, 255, 255))
+        self.gridLayout_2.addWidget(self.mapPreview, 0, 0, 1, 1)
+        self.gridLayout.addWidget(self.widgetPreviewDoc, 0, 0, 1, 1)
+        self.draw_preview()
 
-	def DB_connect(self):
-		from pyarchinit_conn_strings import *
-		conn = Connection()
-		conn_str = conn.conn_str()
+        try:
+            self.DB_connect()
+        except:
+            pass
 
-		try:
-			self.DB_MANAGER = Pyarchinit_db_management(conn_str)
-			self.DB_MANAGER.connection()
-		except Exception as e:
-			e = str(e)
-			QMessageBox.warning(self, "Alert", "Attenzione rilevato bug! Segnalarlo allo sviluppatore <br> Errore: <br>" + str(e) ,  QMessageBox.Ok)
+    def DB_connect(self):
+        from pyarchinit_conn_strings import *
+        conn = Connection()
+        conn_str = conn.conn_str()
 
-	def draw_preview(self):
-		self.layerToSet = self.pyQGIS.loadMapPreviewDoc(self.DOC_STR)
-		self.vlayer = self.layerToSet[0].layer()
+        try:
+            self.DB_MANAGER = Pyarchinit_db_management(conn_str)
+            self.DB_MANAGER.connection()
+        except Exception as e:
+            e = str(e)
+            QMessageBox.warning(self, "Alert",
+                                "Attenzione rilevato bug! Segnalarlo allo sviluppatore <br> Errore: <br>" + str(e),
+                                QMessageBox.Ok)
 
-		self.mapPreview.setLayerSet(self.vlayer)
-		self.mapPreview.zoomToFullExtent()
+    def draw_preview(self):
+        self.layerToSet = self.pyQGIS.loadMapPreviewDoc(self.DOC_STR)
+        self.vlayer = self.layerToSet[0].layer()
 
-		QMessageBox.warning(self, "layer to set", str(self.layerToSet), QMessageBox.Ok)
+        self.mapPreview.setLayerSet(self.vlayer)
+        self.mapPreview.zoomToFullExtent()
 
-	def testing(self, name_file, message):
-		f = open(str(name_file), 'w')
-		f.write(str(message))
-		f.close()
+        QMessageBox.warning(self, "layer to set", str(self.layerToSet), QMessageBox.Ok)
+
+    def testing(self, name_file, message):
+        f = open(str(name_file), 'w')
+        f.write(str(message))
+        f.close()

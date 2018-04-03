@@ -1,25 +1,25 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-from PyQt4.QtGui import *
 from PyQt4.QtCore import *
+from PyQt4.QtGui import *
 from matplotlib.backends.backend_qt4agg import FigureCanvasQTAgg as FigureCanvas
 from matplotlib.backends.backend_qt4agg import NavigationToolbar2QT as NavigationToolbar
 from matplotlib.figure import Figure
-##import matplotlib.pyplot.figure as Figure
-import matplotlib.pyplot as plt
 
+
+##import matplotlib.pyplot.figure as Figure
 
 
 class MplCanvas(FigureCanvas):
     def __init__(self):
-        
         self.fig = Figure()
         self.ax = self.fig.add_subplot(111)
 
         FigureCanvas.__init__(self, self.fig)
-        FigureCanvas.setSizePolicy(self, QSizePolicy.Expanding,QSizePolicy.Expanding)
+        FigureCanvas.setSizePolicy(self, QSizePolicy.Expanding, QSizePolicy.Expanding)
         FigureCanvas.updateGeometry(self)
+
 
 class Mplwidget(QWidget):
     def __init__(self, parent=None):

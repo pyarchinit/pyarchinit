@@ -61,14 +61,28 @@ class Ui_DialogSostituisciValori(object):
         QtCore.QMetaObject.connectSlotsByName(DialogSostituisciValori)
 
     def retranslateUi(self, DialogSostituisciValori):
-        DialogSostituisciValori.setWindowTitle(QtGui.QApplication.translate("DialogSostituisciValori", "Dialog", None, QtGui.QApplication.UnicodeUTF8))
-        self.nome_campoLabel.setText(QtGui.QApplication.translate("DialogSostituisciValori", "Sostituisci i valori nel campo", None, QtGui.QApplication.UnicodeUTF8))
-        self.nome_campoLineEdit.setText(QtGui.QApplication.translate("DialogSostituisciValori", "nome del campo", None, QtGui.QApplication.UnicodeUTF8))
-        self.sostituisci_conLabel.setText(QtGui.QApplication.translate("DialogSostituisciValori", "con il valore", None, QtGui.QApplication.UnicodeUTF8))
-        self.sostituisci_conLineEdit.setText(QtGui.QApplication.translate("DialogSostituisciValori", "inserisci un valore", None, QtGui.QApplication.UnicodeUTF8))
-        self.pushButton.setText(QtGui.QApplication.translate("DialogSostituisciValori", "Sostituisci", None, QtGui.QApplication.UnicodeUTF8))
-        self.campoIDLabel.setText(QtGui.QApplication.translate("DialogSostituisciValori", "In base ai valori selezionati sul GIS nel campo", None, QtGui.QApplication.UnicodeUTF8))
-        self.campoIDLineEdit.setText(QtGui.QApplication.translate("DialogSostituisciValori", "nome del campo", None, QtGui.QApplication.UnicodeUTF8))
-        self.nometabellaLabel.setText(QtGui.QApplication.translate("DialogSostituisciValori", "Sostituisci i valori nella tabella", None, QtGui.QApplication.UnicodeUTF8))
-        self.nome_tabellaLineEdit.setText(QtGui.QApplication.translate("DialogSostituisciValori", "nome del layer", None, QtGui.QApplication.UnicodeUTF8))
-
+        DialogSostituisciValori.setWindowTitle(
+            QtGui.QApplication.translate("DialogSostituisciValori", "Dialog", None, QtGui.QApplication.UnicodeUTF8))
+        self.nome_campoLabel.setText(
+            QtGui.QApplication.translate("DialogSostituisciValori", "Sostituisci i valori nel campo", None,
+                                         QtGui.QApplication.UnicodeUTF8))
+        self.nome_campoLineEdit.setText(QtGui.QApplication.translate("DialogSostituisciValori", "nome del campo", None,
+                                                                     QtGui.QApplication.UnicodeUTF8))
+        self.sostituisci_conLabel.setText(QtGui.QApplication.translate("DialogSostituisciValori", "con il valore", None,
+                                                                       QtGui.QApplication.UnicodeUTF8))
+        self.sostituisci_conLineEdit.setText(
+            QtGui.QApplication.translate("DialogSostituisciValori", "inserisci un valore", None,
+                                         QtGui.QApplication.UnicodeUTF8))
+        self.pushButton.setText(QtGui.QApplication.translate("DialogSostituisciValori", "Sostituisci", None,
+                                                             QtGui.QApplication.UnicodeUTF8))
+        self.campoIDLabel.setText(
+            QtGui.QApplication.translate("DialogSostituisciValori", "In base ai valori selezionati sul GIS nel campo",
+                                         None, QtGui.QApplication.UnicodeUTF8))
+        self.campoIDLineEdit.setText(QtGui.QApplication.translate("DialogSostituisciValori", "nome del campo", None,
+                                                                  QtGui.QApplication.UnicodeUTF8))
+        self.nometabellaLabel.setText(
+            QtGui.QApplication.translate("DialogSostituisciValori", "Sostituisci i valori nella tabella", None,
+                                         QtGui.QApplication.UnicodeUTF8))
+        self.nome_tabellaLineEdit.setText(
+            QtGui.QApplication.translate("DialogSostituisciValori", "nome del layer", None,
+                                         QtGui.QApplication.UnicodeUTF8))

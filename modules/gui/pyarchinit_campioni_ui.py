@@ -8,13 +8,12 @@
 # WARNING! All changes made in this file will be lost!
 
 from PyQt4 import QtCore, QtGui
-import resources_rc
-
 
 try:
     _fromUtf8 = QtCore.QString.fromUtf8
 except AttributeError:
     _fromUtf8 = lambda s: s
+
 
 class Ui_DialogCampioni(object):
     def setupUi(self, DialogCampioni):
@@ -453,67 +452,138 @@ class Ui_DialogCampioni(object):
         QtCore.QMetaObject.connectSlotsByName(DialogCampioni)
 
     def retranslateUi(self, DialogCampioni):
-        DialogCampioni.setWindowTitle(QtGui.QApplication.translate("DialogCampioni", "pyArchInit Gestione Scavi - Scheda Campioni", None, QtGui.QApplication.UnicodeUTF8))
-        self.label_29.setText(QtGui.QApplication.translate("DialogCampioni", "DBMS Toolbar", None, QtGui.QApplication.UnicodeUTF8))
-        self.label_42.setText(QtGui.QApplication.translate("DialogCampioni", "DB Info", None, QtGui.QApplication.UnicodeUTF8))
-        self.label_43.setText(QtGui.QApplication.translate("DialogCampioni", "Ordinamento", None, QtGui.QApplication.UnicodeUTF8))
-        self.label_34.setText(QtGui.QApplication.translate("DialogCampioni", "Status", None, QtGui.QApplication.UnicodeUTF8))
-        self.label_27.setText(QtGui.QApplication.translate("DialogCampioni", "record n.", None, QtGui.QApplication.UnicodeUTF8))
-        self.label_rec_corrente.setText(QtGui.QApplication.translate("DialogCampioni", "1", None, QtGui.QApplication.UnicodeUTF8))
-        self.label_28.setText(QtGui.QApplication.translate("DialogCampioni", "record tot.", None, QtGui.QApplication.UnicodeUTF8))
-        self.label_rec_tot.setText(QtGui.QApplication.translate("DialogCampioni", "1", None, QtGui.QApplication.UnicodeUTF8))
-        self.pushButton_last_rec.setToolTip(QtGui.QApplication.translate("DialogCampioni", "Last rec", None, QtGui.QApplication.UnicodeUTF8))
-        self.pushButton_new_rec.setToolTip(QtGui.QApplication.translate("DialogCampioni", "New record", None, QtGui.QApplication.UnicodeUTF8))
-        self.pushButton_save.setToolTip(QtGui.QApplication.translate("DialogCampioni", "Save", None, QtGui.QApplication.UnicodeUTF8))
-        self.pushButton_new_search.setToolTip(QtGui.QApplication.translate("DialogCampioni", "new search", None, QtGui.QApplication.UnicodeUTF8))
-        self.pushButton_search_go.setToolTip(QtGui.QApplication.translate("DialogCampioni", "search !!!", None, QtGui.QApplication.UnicodeUTF8))
-        self.pushButton_sort.setToolTip(QtGui.QApplication.translate("DialogCampioni", "Order by", None, QtGui.QApplication.UnicodeUTF8))
-        self.pushButton_view_all.setToolTip(QtGui.QApplication.translate("DialogCampioni", "View alls records", None, QtGui.QApplication.UnicodeUTF8))
-        self.pushButton_next_rec.setToolTip(QtGui.QApplication.translate("DialogCampioni", "Next rec", None, QtGui.QApplication.UnicodeUTF8))
-        self.pushButton_prev_rec.setToolTip(QtGui.QApplication.translate("DialogCampioni", "Prev rec", None, QtGui.QApplication.UnicodeUTF8))
-        self.pushButton_first_rec.setToolTip(QtGui.QApplication.translate("DialogCampioni", "First rec", None, QtGui.QApplication.UnicodeUTF8))
-        self.pushButton_delete.setToolTip(QtGui.QApplication.translate("DialogCampioni", "Delete record", None, QtGui.QApplication.UnicodeUTF8))
-        self.pushButton_connect.setText(QtGui.QApplication.translate("DialogCampioni", "Connection test", None, QtGui.QApplication.UnicodeUTF8))
-        self.comboBox_sito.setItemText(0, QtGui.QApplication.translate("DialogCampioni", "Inserisci un valore", None, QtGui.QApplication.UnicodeUTF8))
-        self.comboBox_tipo_campione.setItemText(0, QtGui.QApplication.translate("DialogCampioni", "Argilla", None, QtGui.QApplication.UnicodeUTF8))
-        self.comboBox_tipo_campione.setItemText(1, QtGui.QApplication.translate("DialogCampioni", "Calce", None, QtGui.QApplication.UnicodeUTF8))
-        self.comboBox_tipo_campione.setItemText(2, QtGui.QApplication.translate("DialogCampioni", "Carbone", None, QtGui.QApplication.UnicodeUTF8))
-        self.comboBox_tipo_campione.setItemText(3, QtGui.QApplication.translate("DialogCampioni", "Cocciopesto", None, QtGui.QApplication.UnicodeUTF8))
-        self.comboBox_tipo_campione.setItemText(4, QtGui.QApplication.translate("DialogCampioni", "Concotto", None, QtGui.QApplication.UnicodeUTF8))
-        self.comboBox_tipo_campione.setItemText(5, QtGui.QApplication.translate("DialogCampioni", "Intonaco", None, QtGui.QApplication.UnicodeUTF8))
-        self.comboBox_tipo_campione.setItemText(6, QtGui.QApplication.translate("DialogCampioni", "Laterizio", None, QtGui.QApplication.UnicodeUTF8))
-        self.comboBox_tipo_campione.setItemText(7, QtGui.QApplication.translate("DialogCampioni", "Legno", None, QtGui.QApplication.UnicodeUTF8))
-        self.comboBox_tipo_campione.setItemText(8, QtGui.QApplication.translate("DialogCampioni", "Minerale", None, QtGui.QApplication.UnicodeUTF8))
-        self.comboBox_tipo_campione.setItemText(9, QtGui.QApplication.translate("DialogCampioni", "Malta", None, QtGui.QApplication.UnicodeUTF8))
-        self.comboBox_tipo_campione.setItemText(10, QtGui.QApplication.translate("DialogCampioni", "Ossa", None, QtGui.QApplication.UnicodeUTF8))
-        self.comboBox_tipo_campione.setItemText(11, QtGui.QApplication.translate("DialogCampioni", "Ossa combuste", None, QtGui.QApplication.UnicodeUTF8))
-        self.comboBox_tipo_campione.setItemText(12, QtGui.QApplication.translate("DialogCampioni", "Pietrisco", None, QtGui.QApplication.UnicodeUTF8))
-        self.comboBox_tipo_campione.setItemText(13, QtGui.QApplication.translate("DialogCampioni", "Scoria", None, QtGui.QApplication.UnicodeUTF8))
-        self.comboBox_tipo_campione.setItemText(14, QtGui.QApplication.translate("DialogCampioni", "Scoria di ceramica", None, QtGui.QApplication.UnicodeUTF8))
-        self.comboBox_tipo_campione.setItemText(15, QtGui.QApplication.translate("DialogCampioni", "Scoria di metallo", None, QtGui.QApplication.UnicodeUTF8))
-        self.comboBox_tipo_campione.setItemText(16, QtGui.QApplication.translate("DialogCampioni", "Scoria di vetro", None, QtGui.QApplication.UnicodeUTF8))
-        self.comboBox_tipo_campione.setItemText(17, QtGui.QApplication.translate("DialogCampioni", "Terra", None, QtGui.QApplication.UnicodeUTF8))
-        self.comboBox_tipo_campione.setItemText(18, QtGui.QApplication.translate("DialogCampioni", "Terra e carboni", None, QtGui.QApplication.UnicodeUTF8))
-        self.label_2.setText(QtGui.QApplication.translate("DialogCampioni", "Tipo campione", None, QtGui.QApplication.UnicodeUTF8))
-        self.label_13.setText(QtGui.QApplication.translate("DialogCampioni", "Dati descrittivi", None, QtGui.QApplication.UnicodeUTF8))
-        self.label_6.setText(QtGui.QApplication.translate("DialogCampioni", "Descrizione ", None, QtGui.QApplication.UnicodeUTF8))
-        self.toolBox.setItemText(self.toolBox.indexOf(self.page), QtGui.QApplication.translate("DialogCampioni", "Dati descrittivi", None, QtGui.QApplication.UnicodeUTF8))
-        self.label_15.setText(QtGui.QApplication.translate("DialogCampioni", "Riferimenti stratigraific e Inventario Materiali", None, QtGui.QApplication.UnicodeUTF8))
-        self.label_7.setText(QtGui.QApplication.translate("DialogCampioni", "Riferimento Nr. Inventario Materiale", None, QtGui.QApplication.UnicodeUTF8))
-        self.label_14.setText(QtGui.QApplication.translate("DialogCampioni", "Riferimenti collocazione", None, QtGui.QApplication.UnicodeUTF8))
-        self.label_11.setText(QtGui.QApplication.translate("DialogCampioni", "Luogo di conservazione", None, QtGui.QApplication.UnicodeUTF8))
-        self.label_12.setText(QtGui.QApplication.translate("DialogCampioni", "Cassa", None, QtGui.QApplication.UnicodeUTF8))
-        self.label_4.setText(QtGui.QApplication.translate("DialogCampioni", "Area", None, QtGui.QApplication.UnicodeUTF8))
+        DialogCampioni.setWindowTitle(
+            QtGui.QApplication.translate("DialogCampioni", "pyArchInit Gestione Scavi - Scheda Campioni", None,
+                                         QtGui.QApplication.UnicodeUTF8))
+        self.label_29.setText(
+            QtGui.QApplication.translate("DialogCampioni", "DBMS Toolbar", None, QtGui.QApplication.UnicodeUTF8))
+        self.label_42.setText(
+            QtGui.QApplication.translate("DialogCampioni", "DB Info", None, QtGui.QApplication.UnicodeUTF8))
+        self.label_43.setText(
+            QtGui.QApplication.translate("DialogCampioni", "Ordinamento", None, QtGui.QApplication.UnicodeUTF8))
+        self.label_34.setText(
+            QtGui.QApplication.translate("DialogCampioni", "Status", None, QtGui.QApplication.UnicodeUTF8))
+        self.label_27.setText(
+            QtGui.QApplication.translate("DialogCampioni", "record n.", None, QtGui.QApplication.UnicodeUTF8))
+        self.label_rec_corrente.setText(
+            QtGui.QApplication.translate("DialogCampioni", "1", None, QtGui.QApplication.UnicodeUTF8))
+        self.label_28.setText(
+            QtGui.QApplication.translate("DialogCampioni", "record tot.", None, QtGui.QApplication.UnicodeUTF8))
+        self.label_rec_tot.setText(
+            QtGui.QApplication.translate("DialogCampioni", "1", None, QtGui.QApplication.UnicodeUTF8))
+        self.pushButton_last_rec.setToolTip(
+            QtGui.QApplication.translate("DialogCampioni", "Last rec", None, QtGui.QApplication.UnicodeUTF8))
+        self.pushButton_new_rec.setToolTip(
+            QtGui.QApplication.translate("DialogCampioni", "New record", None, QtGui.QApplication.UnicodeUTF8))
+        self.pushButton_save.setToolTip(
+            QtGui.QApplication.translate("DialogCampioni", "Save", None, QtGui.QApplication.UnicodeUTF8))
+        self.pushButton_new_search.setToolTip(
+            QtGui.QApplication.translate("DialogCampioni", "new search", None, QtGui.QApplication.UnicodeUTF8))
+        self.pushButton_search_go.setToolTip(
+            QtGui.QApplication.translate("DialogCampioni", "search !!!", None, QtGui.QApplication.UnicodeUTF8))
+        self.pushButton_sort.setToolTip(
+            QtGui.QApplication.translate("DialogCampioni", "Order by", None, QtGui.QApplication.UnicodeUTF8))
+        self.pushButton_view_all.setToolTip(
+            QtGui.QApplication.translate("DialogCampioni", "View alls records", None, QtGui.QApplication.UnicodeUTF8))
+        self.pushButton_next_rec.setToolTip(
+            QtGui.QApplication.translate("DialogCampioni", "Next rec", None, QtGui.QApplication.UnicodeUTF8))
+        self.pushButton_prev_rec.setToolTip(
+            QtGui.QApplication.translate("DialogCampioni", "Prev rec", None, QtGui.QApplication.UnicodeUTF8))
+        self.pushButton_first_rec.setToolTip(
+            QtGui.QApplication.translate("DialogCampioni", "First rec", None, QtGui.QApplication.UnicodeUTF8))
+        self.pushButton_delete.setToolTip(
+            QtGui.QApplication.translate("DialogCampioni", "Delete record", None, QtGui.QApplication.UnicodeUTF8))
+        self.pushButton_connect.setText(
+            QtGui.QApplication.translate("DialogCampioni", "Connection test", None, QtGui.QApplication.UnicodeUTF8))
+        self.comboBox_sito.setItemText(0, QtGui.QApplication.translate("DialogCampioni", "Inserisci un valore", None,
+                                                                       QtGui.QApplication.UnicodeUTF8))
+        self.comboBox_tipo_campione.setItemText(0, QtGui.QApplication.translate("DialogCampioni", "Argilla", None,
+                                                                                QtGui.QApplication.UnicodeUTF8))
+        self.comboBox_tipo_campione.setItemText(1, QtGui.QApplication.translate("DialogCampioni", "Calce", None,
+                                                                                QtGui.QApplication.UnicodeUTF8))
+        self.comboBox_tipo_campione.setItemText(2, QtGui.QApplication.translate("DialogCampioni", "Carbone", None,
+                                                                                QtGui.QApplication.UnicodeUTF8))
+        self.comboBox_tipo_campione.setItemText(3, QtGui.QApplication.translate("DialogCampioni", "Cocciopesto", None,
+                                                                                QtGui.QApplication.UnicodeUTF8))
+        self.comboBox_tipo_campione.setItemText(4, QtGui.QApplication.translate("DialogCampioni", "Concotto", None,
+                                                                                QtGui.QApplication.UnicodeUTF8))
+        self.comboBox_tipo_campione.setItemText(5, QtGui.QApplication.translate("DialogCampioni", "Intonaco", None,
+                                                                                QtGui.QApplication.UnicodeUTF8))
+        self.comboBox_tipo_campione.setItemText(6, QtGui.QApplication.translate("DialogCampioni", "Laterizio", None,
+                                                                                QtGui.QApplication.UnicodeUTF8))
+        self.comboBox_tipo_campione.setItemText(7, QtGui.QApplication.translate("DialogCampioni", "Legno", None,
+                                                                                QtGui.QApplication.UnicodeUTF8))
+        self.comboBox_tipo_campione.setItemText(8, QtGui.QApplication.translate("DialogCampioni", "Minerale", None,
+                                                                                QtGui.QApplication.UnicodeUTF8))
+        self.comboBox_tipo_campione.setItemText(9, QtGui.QApplication.translate("DialogCampioni", "Malta", None,
+                                                                                QtGui.QApplication.UnicodeUTF8))
+        self.comboBox_tipo_campione.setItemText(10, QtGui.QApplication.translate("DialogCampioni", "Ossa", None,
+                                                                                 QtGui.QApplication.UnicodeUTF8))
+        self.comboBox_tipo_campione.setItemText(11,
+                                                QtGui.QApplication.translate("DialogCampioni", "Ossa combuste", None,
+                                                                             QtGui.QApplication.UnicodeUTF8))
+        self.comboBox_tipo_campione.setItemText(12, QtGui.QApplication.translate("DialogCampioni", "Pietrisco", None,
+                                                                                 QtGui.QApplication.UnicodeUTF8))
+        self.comboBox_tipo_campione.setItemText(13, QtGui.QApplication.translate("DialogCampioni", "Scoria", None,
+                                                                                 QtGui.QApplication.UnicodeUTF8))
+        self.comboBox_tipo_campione.setItemText(14, QtGui.QApplication.translate("DialogCampioni", "Scoria di ceramica",
+                                                                                 None, QtGui.QApplication.UnicodeUTF8))
+        self.comboBox_tipo_campione.setItemText(15, QtGui.QApplication.translate("DialogCampioni", "Scoria di metallo",
+                                                                                 None, QtGui.QApplication.UnicodeUTF8))
+        self.comboBox_tipo_campione.setItemText(16,
+                                                QtGui.QApplication.translate("DialogCampioni", "Scoria di vetro", None,
+                                                                             QtGui.QApplication.UnicodeUTF8))
+        self.comboBox_tipo_campione.setItemText(17, QtGui.QApplication.translate("DialogCampioni", "Terra", None,
+                                                                                 QtGui.QApplication.UnicodeUTF8))
+        self.comboBox_tipo_campione.setItemText(18,
+                                                QtGui.QApplication.translate("DialogCampioni", "Terra e carboni", None,
+                                                                             QtGui.QApplication.UnicodeUTF8))
+        self.label_2.setText(
+            QtGui.QApplication.translate("DialogCampioni", "Tipo campione", None, QtGui.QApplication.UnicodeUTF8))
+        self.label_13.setText(
+            QtGui.QApplication.translate("DialogCampioni", "Dati descrittivi", None, QtGui.QApplication.UnicodeUTF8))
+        self.label_6.setText(
+            QtGui.QApplication.translate("DialogCampioni", "Descrizione ", None, QtGui.QApplication.UnicodeUTF8))
+        self.toolBox.setItemText(self.toolBox.indexOf(self.page),
+                                 QtGui.QApplication.translate("DialogCampioni", "Dati descrittivi", None,
+                                                              QtGui.QApplication.UnicodeUTF8))
+        self.label_15.setText(
+            QtGui.QApplication.translate("DialogCampioni", "Riferimenti stratigraific e Inventario Materiali", None,
+                                         QtGui.QApplication.UnicodeUTF8))
+        self.label_7.setText(
+            QtGui.QApplication.translate("DialogCampioni", "Riferimento Nr. Inventario Materiale", None,
+                                         QtGui.QApplication.UnicodeUTF8))
+        self.label_14.setText(QtGui.QApplication.translate("DialogCampioni", "Riferimenti collocazione", None,
+                                                           QtGui.QApplication.UnicodeUTF8))
+        self.label_11.setText(QtGui.QApplication.translate("DialogCampioni", "Luogo di conservazione", None,
+                                                           QtGui.QApplication.UnicodeUTF8))
+        self.label_12.setText(
+            QtGui.QApplication.translate("DialogCampioni", "Cassa", None, QtGui.QApplication.UnicodeUTF8))
+        self.label_4.setText(
+            QtGui.QApplication.translate("DialogCampioni", "Area", None, QtGui.QApplication.UnicodeUTF8))
         self.label_5.setText(QtGui.QApplication.translate("DialogCampioni", "US", None, QtGui.QApplication.UnicodeUTF8))
-        self.toolBox.setItemText(self.toolBox.indexOf(self.page_4), QtGui.QApplication.translate("DialogCampioni", "Dati stratigrafici e collocazione", None, QtGui.QApplication.UnicodeUTF8))
-        self.pushButton_exp_champ_sheet_pdf.setText(QtGui.QApplication.translate("DialogCampioni", "Esporta scheda campioni", None, QtGui.QApplication.UnicodeUTF8))
-        self.pushButton_index_pdf.setText(QtGui.QApplication.translate("DialogCampioni", "Esporta elenco campioni PDF", None, QtGui.QApplication.UnicodeUTF8))
-        self.label_8.setToolTip(QtGui.QApplication.translate("DialogCampioni", "Carica tutti layer che contengono geometrie relative a questo sito", None, QtGui.QApplication.UnicodeUTF8))
+        self.toolBox.setItemText(self.toolBox.indexOf(self.page_4),
+                                 QtGui.QApplication.translate("DialogCampioni", "Dati stratigrafici e collocazione",
+                                                              None, QtGui.QApplication.UnicodeUTF8))
+        self.pushButton_exp_champ_sheet_pdf.setText(
+            QtGui.QApplication.translate("DialogCampioni", "Esporta scheda campioni", None,
+                                         QtGui.QApplication.UnicodeUTF8))
+        self.pushButton_index_pdf.setText(
+            QtGui.QApplication.translate("DialogCampioni", "Esporta elenco campioni PDF", None,
+                                         QtGui.QApplication.UnicodeUTF8))
+        self.label_8.setToolTip(QtGui.QApplication.translate("DialogCampioni",
+                                                             "Carica tutti layer che contengono geometrie relative a questo sito",
+                                                             None, QtGui.QApplication.UnicodeUTF8))
         self.label_8.setText(QtGui.QApplication.translate("DialogCampioni", "..", None, QtGui.QApplication.UnicodeUTF8))
-        self.pushButton_sites_geometry.setText(QtGui.QApplication.translate("DialogCampioni", "Carica", None, QtGui.QApplication.UnicodeUTF8))
-        self.label_9.setText(QtGui.QApplication.translate("DialogCampioni", "...", None, QtGui.QApplication.UnicodeUTF8))
-        self.pushButton_rel_pdf.setText(QtGui.QApplication.translate("DialogCampioni", "Esporta", None, QtGui.QApplication.UnicodeUTF8))
-        self.toolBox.setItemText(self.toolBox.indexOf(self.page_3), QtGui.QApplication.translate("DialogCampioni", "Tools", None, QtGui.QApplication.UnicodeUTF8))
-        self.label_10.setText(QtGui.QApplication.translate("DialogCampioni", "Nr Campione", None, QtGui.QApplication.UnicodeUTF8))
+        self.pushButton_sites_geometry.setText(
+            QtGui.QApplication.translate("DialogCampioni", "Carica", None, QtGui.QApplication.UnicodeUTF8))
+        self.label_9.setText(
+            QtGui.QApplication.translate("DialogCampioni", "...", None, QtGui.QApplication.UnicodeUTF8))
+        self.pushButton_rel_pdf.setText(
+            QtGui.QApplication.translate("DialogCampioni", "Esporta", None, QtGui.QApplication.UnicodeUTF8))
+        self.toolBox.setItemText(self.toolBox.indexOf(self.page_3),
+                                 QtGui.QApplication.translate("DialogCampioni", "Tools", None,
+                                                              QtGui.QApplication.UnicodeUTF8))
+        self.label_10.setText(
+            QtGui.QApplication.translate("DialogCampioni", "Nr Campione", None, QtGui.QApplication.UnicodeUTF8))
         self.label.setText(QtGui.QApplication.translate("DialogCampioni", "Sito", None, QtGui.QApplication.UnicodeUTF8))
-

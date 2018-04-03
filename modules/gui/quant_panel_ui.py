@@ -8,13 +8,12 @@
 # WARNING! All changes made in this file will be lost!
 
 from PyQt4 import QtCore, QtGui
-import resources_rc
-
 
 try:
     _fromUtf8 = QtCore.QString.fromUtf8
 except AttributeError:
     _fromUtf8 = lambda s: s
+
 
 class Ui_quantPanel(object):
     def setupUi(self, quantPanel):
@@ -33,7 +32,8 @@ class Ui_quantPanel(object):
         self.gridlayout.addItem(spacerItem, 0, 1, 1, 4)
         self.FieldsList = QtGui.QListWidget(quantPanel)
         self.FieldsList.setAcceptDrops(True)
-        self.FieldsList.setEditTriggers(QtGui.QAbstractItemView.DoubleClicked|QtGui.QAbstractItemView.EditKeyPressed|QtGui.QAbstractItemView.SelectedClicked)
+        self.FieldsList.setEditTriggers(
+            QtGui.QAbstractItemView.DoubleClicked | QtGui.QAbstractItemView.EditKeyPressed | QtGui.QAbstractItemView.SelectedClicked)
         self.FieldsList.setDragEnabled(True)
         self.FieldsList.setDragDropOverwriteMode(True)
         self.FieldsList.setDragDropMode(QtGui.QAbstractItemView.NoDragDrop)
@@ -47,7 +47,8 @@ class Ui_quantPanel(object):
         self.FieldListsort = QtGui.QListWidget(quantPanel)
         self.FieldListsort.setAcceptDrops(True)
         self.FieldListsort.setAutoScroll(False)
-        self.FieldListsort.setEditTriggers(QtGui.QAbstractItemView.DoubleClicked|QtGui.QAbstractItemView.EditKeyPressed)
+        self.FieldListsort.setEditTriggers(
+            QtGui.QAbstractItemView.DoubleClicked | QtGui.QAbstractItemView.EditKeyPressed)
         self.FieldListsort.setProperty(_fromUtf8("showDropIndicator"), False)
         self.FieldListsort.setDragEnabled(False)
         self.FieldListsort.setDragDropOverwriteMode(False)
@@ -109,11 +110,17 @@ class Ui_quantPanel(object):
         QtCore.QMetaObject.connectSlotsByName(quantPanel)
 
     def retranslateUi(self, quantPanel):
-        quantPanel.setWindowTitle(QtGui.QApplication.translate("quantPanel", "Ordina", None, QtGui.QApplication.UnicodeUTF8))
-        self.label.setText(QtGui.QApplication.translate("quantPanel", "Criteri di ordinamento", None, QtGui.QApplication.UnicodeUTF8))
-        self.radioButtonFormeMin.setText(QtGui.QApplication.translate("quantPanel", "Forme minime", None, QtGui.QApplication.UnicodeUTF8))
-        self.radioButtonFormeMax.setText(QtGui.QApplication.translate("quantPanel", "Forme Massime", None, QtGui.QApplication.UnicodeUTF8))
-        self.pushButtonQuant.setText(QtGui.QApplication.translate("quantPanel", "Quantifica", None, QtGui.QApplication.UnicodeUTF8))
-        self.radioButtonFrammenti.setText(QtGui.QApplication.translate("quantPanel", "Frammenti", None, QtGui.QApplication.UnicodeUTF8))
-        self.radioButtonPeso.setText(QtGui.QApplication.translate("quantPanel", "Peso", None, QtGui.QApplication.UnicodeUTF8))
-
+        quantPanel.setWindowTitle(
+            QtGui.QApplication.translate("quantPanel", "Ordina", None, QtGui.QApplication.UnicodeUTF8))
+        self.label.setText(
+            QtGui.QApplication.translate("quantPanel", "Criteri di ordinamento", None, QtGui.QApplication.UnicodeUTF8))
+        self.radioButtonFormeMin.setText(
+            QtGui.QApplication.translate("quantPanel", "Forme minime", None, QtGui.QApplication.UnicodeUTF8))
+        self.radioButtonFormeMax.setText(
+            QtGui.QApplication.translate("quantPanel", "Forme Massime", None, QtGui.QApplication.UnicodeUTF8))
+        self.pushButtonQuant.setText(
+            QtGui.QApplication.translate("quantPanel", "Quantifica", None, QtGui.QApplication.UnicodeUTF8))
+        self.radioButtonFrammenti.setText(
+            QtGui.QApplication.translate("quantPanel", "Frammenti", None, QtGui.QApplication.UnicodeUTF8))
+        self.radioButtonPeso.setText(
+            QtGui.QApplication.translate("quantPanel", "Peso", None, QtGui.QApplication.UnicodeUTF8))

@@ -1,67 +1,68 @@
 import os
-from reportlab.lib.testutils import makeSuiteForClasses, outputfile, printLocation
-from reportlab.lib import colors
-from reportlab.lib.units import inch, cm, mm
-from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
-from reportlab.lib.enums import TA_JUSTIFY, TA_LEFT
-from reportlab.pdfgen import canvas
-from reportlab.platypus import Table, PageBreak, SimpleDocTemplate, Paragraph, Spacer, TableStyle, Image
-from reportlab.platypus.paragraph import Paragraph
-
-from datetime import date, time
+from datetime import date
 
 from pyarchinit_OS_utility import *
+from reportlab.lib import colors
+from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
+from reportlab.lib.units import inch, cm, mm
+from reportlab.pdfgen import canvas
+from reportlab.platypus import Table, PageBreak, SimpleDocTemplate, TableStyle, Image
+from reportlab.platypus.paragraph import Paragraph
 
 
 class NumberedCanvas_Documentazionesheet(canvas.Canvas):
-	def __init__(self, *args, **kwargs):
-		canvas.Canvas.__init__(self, *args, **kwargs)
-		self._saved_page_states = []
-		
-	def define_position(self, pos):
-		self.page_position(pos)
+    def __init__(self, *args, **kwargs):
+        canvas.Canvas.__init__(self, *args, **kwargs)
+        self._saved_page_states = []
 
-	def showPage(self):
-		self._saved_page_states.append(dict(self.__dict__))
-		self._startPage()
+    def define_position(self, pos):
+        self.page_position(pos)
 
-	def save(self):
-		"""add page info to each page (page x of y)"""
-		num_pages = len(self._saved_page_states)
-		for state in self._saved_page_states:
-			self.__dict__.update(state)
-			self.draw_page_number(num_pages)
-			canvas.Canvas.showPage(self)
-		canvas.Canvas.save(self)
+    def showPage(self):
+        self._saved_page_states.append(dict(self.__dict__))
+        self._startPage()
 
-	def draw_page_number(self, page_count):
-		self.setFont("Helvetica", 8)
-		self.drawRightString(200*mm, 20*mm, "Pag. %d di %d" % (self._pageNumber, page_count)) #scheda us verticale 200mm x 20 mm
+    def save(self):
+        """add page info to each page (page x of y)"""
+        num_pages = len(self._saved_page_states)
+        for state in self._saved_page_states:
+            self.__dict__.update(state)
+            self.draw_page_number(num_pages)
+            canvas.Canvas.showPage(self)
+        canvas.Canvas.save(self)
+
+    def draw_page_number(self, page_count):
+        self.setFont("Helvetica", 8)
+        self.drawRightString(200 * mm, 20 * mm,
+                             "Pag. %d di %d" % (self._pageNumber, page_count))  # scheda us verticale 200mm x 20 mm
+
 
 class NumberedCanvas_Documentazioneindex(canvas.Canvas):
-	def __init__(self, *args, **kwargs):
-		canvas.Canvas.__init__(self, *args, **kwargs)
-		self._saved_page_states = []
+    def __init__(self, *args, **kwargs):
+        canvas.Canvas.__init__(self, *args, **kwargs)
+        self._saved_page_states = []
 
-	def define_position(self, pos):
-		self.page_position(pos)
+    def define_position(self, pos):
+        self.page_position(pos)
 
-	def showPage(self):
-		self._saved_page_states.append(dict(self.__dict__))
-		self._startPage()
+    def showPage(self):
+        self._saved_page_states.append(dict(self.__dict__))
+        self._startPage()
 
-	def save(self):
-		"""add page info to each page (page x of y)"""
-		num_pages = len(self._saved_page_states)
-		for state in self._saved_page_states:
-			self.__dict__.update(state)
-			self.draw_page_number(num_pages)
-			canvas.Canvas.showPage(self)
-		canvas.Canvas.save(self)
+    def save(self):
+        """add page info to each page (page x of y)"""
+        num_pages = len(self._saved_page_states)
+        for state in self._saved_page_states:
+            self.__dict__.update(state)
+            self.draw_page_number(num_pages)
+            canvas.Canvas.showPage(self)
+        canvas.Canvas.save(self)
 
-	def draw_page_number(self, page_count):
-		self.setFont("Helvetica", 8)
-		self.drawRightString(270*mm, 10*mm, "Pag. %d di %d" % (self._pageNumber, page_count)) #scheda us verticale 200mm x 20 mm
+    def draw_page_number(self, page_count):
+        self.setFont("Helvetica", 8)
+        self.drawRightString(270 * mm, 10 * mm,
+                             "Pag. %d di %d" % (self._pageNumber, page_count))  # scheda us verticale 200mm x 20 mm
+
 
 '''
 class NumberedCanvas_CASSEindex(canvas.Canvas):
@@ -90,116 +91,119 @@ class NumberedCanvas_CASSEindex(canvas.Canvas):
 		self.drawRightString(270*mm, 10*mm, "Pag. %d di %d" % (self._pageNumber, page_count)) #scheda us verticale 200mm x 20 mm
 
 '''
+
+
 class single_Documentazione_pdf_sheet:
+    def __init__(self, data):
+        self.sito = data[0]  # 1 - Sito
+        self.nome_doc = data[1]  # 2 - Numero campione
+        self.data = data[2]  # 3 - Tipo campione
+        self.tipo_documentazione = data[3]  # 4 - Descrizione
+        self.sorgente = data[4]  # 5 - Area
+        self.scala = data[5]  # 6 - us
+        self.disegnatore = data[6]  # 7 - numero inventario materiale
+        self.note = data[7]  # 8 - luogo_conservazione
 
-	def __init__(self, data):
-		self.sito = data[0]											#1 - Sito
-		self.nome_doc = data[1]										#2 - Numero campione
-		self.data = data[2]											#3 - Tipo campione
-		self.tipo_documentazione = data[3]							#4 - Descrizione
-		self.sorgente = data[4]										#5 - Area
-		self.scala = data[5]										#6 - us
-		self.disegnatore =  data[6]									#7 - numero inventario materiale
-		self.note = data[7]											#8 - luogo_conservazione
-#		self.nr_cassa = data[8]									#9 - nr cassa
+    #		self.nr_cassa = data[8]									#9 - nr cassa
 
-	def datestrfdate(self):
-		now = date.today()
-		today = now.strftime("%d-%m-%Y")
-		return today
+    def datestrfdate(self):
+        now = date.today()
+        today = now.strftime("%d-%m-%Y")
+        return today
 
-	def create_sheet(self):
-		styleSheet = getSampleStyleSheet()
-		styNormal = styleSheet['Normal']
-		styNormal.spaceBefore = 20
-		styNormal.spaceAfter = 20
-		styNormal.alignment = 0 #LEFT
+    def create_sheet(self):
+        styleSheet = getSampleStyleSheet()
+        styNormal = styleSheet['Normal']
+        styNormal.spaceBefore = 20
+        styNormal.spaceAfter = 20
+        styNormal.alignment = 0  # LEFT
 
-		styleSheet = getSampleStyleSheet()
-		styDescrizione = styleSheet['Normal']
-		styDescrizione.spaceBefore = 20
-		styDescrizione.spaceAfter = 20
-		styDescrizione.alignment = 4 #Justified
+        styleSheet = getSampleStyleSheet()
+        styDescrizione = styleSheet['Normal']
+        styDescrizione.spaceBefore = 20
+        styDescrizione.spaceAfter = 20
+        styDescrizione.alignment = 4  # Justified
 
-		#format labels
+        # format labels
 
-		#0 row
-		intestazione = Paragraph("<b>SCHEDA DOCUMENTAZIONE<br/>" + str(self.datestrfdate()) + "</b>", styNormal)
+        # 0 row
+        intestazione = Paragraph("<b>SCHEDA DOCUMENTAZIONE<br/>" + str(self.datestrfdate()) + "</b>", styNormal)
 
-		if os.name == 'posix':
-			home = os.environ['HOME']
-		elif os.name == 'nt':
-			home = os.environ['HOMEPATH']
+        if os.name == 'posix':
+            home = os.environ['HOME']
+        elif os.name == 'nt':
+            home = os.environ['HOMEPATH']
 
-		home_DB_path = ('%s%s%s') % (home, os.sep, 'pyarchinit_DB_folder')
-		logo_path = ('%s%s%s') % (home_DB_path, os.sep, 'logo.jpg')
-		logo = Image(logo_path)
+        home_DB_path = ('%s%s%s') % (home, os.sep, 'pyarchinit_DB_folder')
+        logo_path = ('%s%s%s') % (home_DB_path, os.sep, 'logo.jpg')
+        logo = Image(logo_path)
 
-		##		if test_image.drawWidth < 800:
+        ##		if test_image.drawWidth < 800:
 
-		logo.drawHeight = 1.5*inch*logo.drawHeight / logo.drawWidth
-		logo.drawWidth = 1.5*inch
+        logo.drawHeight = 1.5 * inch * logo.drawHeight / logo.drawWidth
+        logo.drawWidth = 1.5 * inch
 
-		#1 row
-		sito = Paragraph("<b>Sito</b><br/>"  + str(self.sito), styNormal)
-		nome_doc = Paragraph("<b>Nome documentazione</b><br/>"  + str(self.nome_doc), styNormal)
-		data = Paragraph("<b>Data</b><br/>"  + str(self.data), styNormal)
+        # 1 row
+        sito = Paragraph("<b>Sito</b><br/>" + str(self.sito), styNormal)
+        nome_doc = Paragraph("<b>Nome documentazione</b><br/>" + str(self.nome_doc), styNormal)
+        data = Paragraph("<b>Data</b><br/>" + str(self.data), styNormal)
 
-		#2 row
-		tipo_documentazione = Paragraph("<b>Tipo documentazione</b><br/>"  + str(self.tipo_documentazione), styNormal)
-		sorgente = Paragraph("<b>Sorgente</b><br/>"  + str(self.sorgente), styNormal)
-		scala = Paragraph("<b>Scala</b><br/>"  + str(self.scala), styNormal)
-		
-		#4 row
-		disegnatore = Paragraph("<b>Disegnatore</b><br/>" + str(self.disegnatore), styNormal)
+        # 2 row
+        tipo_documentazione = Paragraph("<b>Tipo documentazione</b><br/>" + str(self.tipo_documentazione), styNormal)
+        sorgente = Paragraph("<b>Sorgente</b><br/>" + str(self.sorgente), styNormal)
+        scala = Paragraph("<b>Scala</b><br/>" + str(self.scala), styNormal)
 
-		#4 row
-		note = Paragraph("<b>Note</b><br/>" + str(self.note), styDescrizione)
-#		nr_cassa = Paragraph("<b>Nr. Cassa</b><br/>" + unicode(self.nr_cassa), styNormal)
+        # 4 row
+        disegnatore = Paragraph("<b>Disegnatore</b><br/>" + str(self.disegnatore), styNormal)
 
-		#schema
-		cell_schema = [ #00, 01, 02, 03, 04, 05, 06, 07, 08, 09 rows
-							[intestazione, '01', '02', '03', '04','05', '06', logo, '08', '09'],						#0 row ok
-							[sito, '01', '02', '03', '04','05','06', '07', '08', '09'],									#1 row ok
-							[tipo_documentazione, '01', '02',nome_doc, '04','05','06',scala, '08', '09'], 	#2 row ok
-							[note, '01','02', '03', '04', '05','06', '07', '08', '09'],									#3 row ok
-							[data,'01', '02', '03', '04', disegnatore, '06', '07', '08', '09']						#4 row ok
-							]
+        # 4 row
+        note = Paragraph("<b>Note</b><br/>" + str(self.note), styDescrizione)
+        #		nr_cassa = Paragraph("<b>Nr. Cassa</b><br/>" + unicode(self.nr_cassa), styNormal)
+
+        # schema
+        cell_schema = [  # 00, 01, 02, 03, 04, 05, 06, 07, 08, 09 rows
+            [intestazione, '01', '02', '03', '04', '05', '06', logo, '08', '09'],  # 0 row ok
+            [sito, '01', '02', '03', '04', '05', '06', '07', '08', '09'],  # 1 row ok
+            [tipo_documentazione, '01', '02', nome_doc, '04', '05', '06', scala, '08', '09'],  # 2 row ok
+            [note, '01', '02', '03', '04', '05', '06', '07', '08', '09'],  # 3 row ok
+            [data, '01', '02', '03', '04', disegnatore, '06', '07', '08', '09']  # 4 row ok
+        ]
+
+        # table style
+        table_style = [
+
+            ('GRID', (0, 0), (-1, -1), 0.5, colors.black),
+            # 0 row
+            ('SPAN', (0, 0), (6, 0)),  # intestazione
+            ('SPAN', (7, 0), (9, 0)),  # logo
+
+            # 1 row
+            ('SPAN', (0, 1), (9, 1)),  # sito
+            #					('SPAN', (7,1),(9,1)),   #data
+
+            # 2 row
+            ('SPAN', (0, 2), (2, 2)),  # tipo_documentazione
+            ('SPAN', (3, 2), (6, 2)),  # nome_doc
+            ('SPAN', (7, 2), (9, 2)),  # scala
+            #					('VALIGN',(0,2),(9,2),'TOP'),
+
+            # 3 row
+            ('SPAN', (0, 3), (9, 3)),  # note
+            ('VALIGN', (0, 3), (9, 3), 'TOP'),
+
+            # 5 row
+            ('SPAN', (0, 4), (4, 4)),  # data
+            ('SPAN', (5, 4), (9, 4)),  # disegnatore
+
+            ('VALIGN', (0, 0), (-1, -1), 'TOP')
+
+        ]
+
+        t = Table(cell_schema, colWidths=50, rowHeights=None, style=table_style)
+
+        return t
 
 
-		#table style
-		table_style=[
-
-					('GRID',(0,0),(-1,-1),0.5,colors.black),
-					#0 row
-					('SPAN', (0,0),(6,0)),  #intestazione
-					('SPAN', (7,0),(9,0)),  #logo
-
-					#1 row
-					('SPAN', (0,1),(9,1)),   #sito
-#					('SPAN', (7,1),(9,1)),   #data
-
-					#2 row
-					('SPAN', (0,2),(2,2)),  #tipo_documentazione
-					('SPAN', (3,2),(6,2)),  #nome_doc
-					('SPAN', (7,2),(9,2)),  #scala
-#					('VALIGN',(0,2),(9,2),'TOP'), 
-
-					#3 row
-					('SPAN', (0,3),(9,3)),  #note
-					('VALIGN',(0,3),(9,3),'TOP'),
-
-					#5 row
-					('SPAN', (0,4),(4,4)),  #data
-					('SPAN', (5,4),(9,4)),  #disegnatore
-
-					('VALIGN',(0,0),(-1,-1),'TOP')
-
-					]
-
-		t=Table(cell_schema, colWidths=50, rowHeights=None,style= table_style)
-
-		return t
 '''
 
 class Box_labels_Campioni_pdf_sheet:
@@ -364,152 +368,154 @@ class CASSE_index_pdf_sheet:
 		return styles
 
 '''
+
+
 class Documentazione_index_pdf_sheet:
+    def __init__(self, data):
+        self.sito = data[0]  # 1 - Sito
+        self.nome_doc = data[1]  # 2 - Nome documentazione
+        self.data = data[2]  # 3 - Data
+        self.tipo_documentazione = data[3]  # 4 - Tipo documentazione
+        self.sorgente = data[4]  # 5 - Sorgente
+        self.scala = data[5]  # 6 - Scala
+        self.disegnatore = data[6]  # 7 - Disegnatore
+        self.us = data[8]  # 8 - Note
 
-	def __init__(self, data):
-		self.sito = data[0]											#1 - Sito
-		self.nome_doc = data[1]										#2 - Nome documentazione
-		self.data = data[2]											#3 - Data
-		self.tipo_documentazione = data[3]							#4 - Tipo documentazione
-		self.sorgente = data[4]										#5 - Sorgente
-		self.scala = data[5]										#6 - Scala
-		self.disegnatore =  data[6]									#7 - Disegnatore
-		self.us = data[8]											#8 - Note
-#		self.nr_cassa = data[8]									#9 - nr cassa
+    #		self.nr_cassa = data[8]									#9 - nr cassa
 
-	def getTable(self):
-		styleSheet = getSampleStyleSheet()
-		styNormal = styleSheet['Normal']
-		styNormal.spaceBefore = 20
-		styNormal.spaceAfter = 20
-		styNormal.alignment = 0 #LEFT
-		styNormal.fontSize = 9
+    def getTable(self):
+        styleSheet = getSampleStyleSheet()
+        styNormal = styleSheet['Normal']
+        styNormal.spaceBefore = 20
+        styNormal.spaceAfter = 20
+        styNormal.alignment = 0  # LEFT
+        styNormal.fontSize = 9
 
-		#self.unzip_rapporti_stratigrafici()
+        # self.unzip_rapporti_stratigrafici()
 
-#		num_campione = Paragraph("<b>N. Camp.</b><br/>" + str(self.numero_campione),styNormal)
+        #		num_campione = Paragraph("<b>N. Camp.</b><br/>" + str(self.numero_campione),styNormal)
 
 
-		if self.tipo_documentazione == "":
-			tipo_documentazione = Paragraph("<b>Tipo</b><br/>",styNormal)
-		else:
-			tipo_documentazione = Paragraph("<b>Tipo</b><br/>" + str(self.tipo_documentazione),styNormal)
+        if self.tipo_documentazione == "":
+            tipo_documentazione = Paragraph("<b>Tipo</b><br/>", styNormal)
+        else:
+            tipo_documentazione = Paragraph("<b>Tipo</b><br/>" + str(self.tipo_documentazione), styNormal)
 
-		if self.nome_doc == "":
-			nome_doc = Paragraph("<b>Nome documentazione</b><br/>",styNormal)
-		else:
-			nome_doc = Paragraph("<b>Nome documentazione</b><br/>" + str(self.nome_doc),styNormal)
+        if self.nome_doc == "":
+            nome_doc = Paragraph("<b>Nome documentazione</b><br/>", styNormal)
+        else:
+            nome_doc = Paragraph("<b>Nome documentazione</b><br/>" + str(self.nome_doc), styNormal)
 
-		if self.scala == "":
-			scala = Paragraph("<b>Scala</b><br/>",styNormal)
-		else:
-			scala = Paragraph("<b>Scala</b><br/>" + str(self.scala),styNormal)
+        if self.scala == "":
+            scala = Paragraph("<b>Scala</b><br/>", styNormal)
+        else:
+            scala = Paragraph("<b>Scala</b><br/>" + str(self.scala), styNormal)
 
-		if self.sorgente == "":
-			sorgente = Paragraph("<b>Sorgente</b><br/>",styNormal)
-		else:
-			sorgente = Paragraph("<b>Sorgente</b><br/>" + str(self.sorgente),styNormal)
+        if self.sorgente == "":
+            sorgente = Paragraph("<b>Sorgente</b><br/>", styNormal)
+        else:
+            sorgente = Paragraph("<b>Sorgente</b><br/>" + str(self.sorgente), styNormal)
 
-		if self.data == "":
-			data = Paragraph("<b>Data</b><br/>",styNormal)
-		else:
-			data = Paragraph("<b>Data</b><br/>" + str(self.data),styNormal)
+        if self.data == "":
+            data = Paragraph("<b>Data</b><br/>", styNormal)
+        else:
+            data = Paragraph("<b>Data</b><br/>" + str(self.data), styNormal)
 
-		if self.disegnatore == "":
-			disegnatore = Paragraph("<b>Disegnatore</b><br/>",styNormal)
-		else:
-			disegnatore = Paragraph("<b>Disegnatore</b><br/>" + str(self.disegnatore),styNormal)
+        if self.disegnatore == "":
+            disegnatore = Paragraph("<b>Disegnatore</b><br/>", styNormal)
+        else:
+            disegnatore = Paragraph("<b>Disegnatore</b><br/>" + str(self.disegnatore), styNormal)
 
-		if self.us == "":
-			us = Paragraph("<b>Note</b><br/>",styNormal)
-		else:
-			us = Paragraph("<b>Note</b><br/>" + str(self.us),styNormal)
+        if self.us == "":
+            us = Paragraph("<b>Note</b><br/>", styNormal)
+        else:
+            us = Paragraph("<b>Note</b><br/>" + str(self.us), styNormal)
 
-		data = [tipo_documentazione,
-				nome_doc,
-				scala,
-				sorgente,
-				data,
-				disegnatore,
-				us]
+        data = [tipo_documentazione,
+                nome_doc,
+                scala,
+                sorgente,
+                data,
+                disegnatore,
+                us]
 
-		return data
+        return data
 
-	def makeStyles(self):
-		styles =TableStyle([('GRID',(0,0),(-1,-1),0.0,colors.black),('VALIGN', (0,0), (-1,-1), 'TOP')
-		])  #finale
+    def makeStyles(self):
+        styles = TableStyle([('GRID', (0, 0), (-1, -1), 0.0, colors.black), ('VALIGN', (0, 0), (-1, -1), 'TOP')
+                             ])  # finale
 
-		return styles
+        return styles
+
 
 class generate_documentazione_pdf:
-	if os.name == 'posix':
-		HOME = os.environ['HOME']
-	elif os.name == 'nt':
-		HOME = os.environ['HOMEPATH']
-	
-	PDF_path = ('%s%s%s') % (HOME, os.sep, "pyarchinit_PDF_folder")
+    if os.name == 'posix':
+        HOME = os.environ['HOME']
+    elif os.name == 'nt':
+        HOME = os.environ['HOMEPATH']
 
-	def datestrfdate(self):
-		now = date.today()
-		today = now.strftime("%d-%m-%Y")
-		return today
+    PDF_path = ('%s%s%s') % (HOME, os.sep, "pyarchinit_PDF_folder")
 
-	def build_Documentazione_sheets(self, records):
-		elements = []
-		for i in range(len(records)):
-			single_Documentazione_sheet = single_Documentazione_pdf_sheet(records[i])
-			elements.append(single_Documentazione_sheet.create_sheet())
-			elements.append(PageBreak())
-		filename = ('%s%s%s') % (self.PDF_path, os.sep, 'scheda_Documentazione.pdf')
-		f = open(filename, "wb")
-		doc = SimpleDocTemplate(f)
-		doc.build(elements, canvasmaker=NumberedCanvas_Documentazionesheet)
-		f.close()
+    def datestrfdate(self):
+        now = date.today()
+        today = now.strftime("%d-%m-%Y")
+        return today
 
-	def build_index_Documentazione(self, records, sito):
-		if os.name == 'posix':
-			home = os.environ['HOME']
-		elif os.name == 'nt':
-			home = os.environ['HOMEPATH']
+    def build_Documentazione_sheets(self, records):
+        elements = []
+        for i in range(len(records)):
+            single_Documentazione_sheet = single_Documentazione_pdf_sheet(records[i])
+            elements.append(single_Documentazione_sheet.create_sheet())
+            elements.append(PageBreak())
+        filename = ('%s%s%s') % (self.PDF_path, os.sep, 'scheda_Documentazione.pdf')
+        f = open(filename, "wb")
+        doc = SimpleDocTemplate(f)
+        doc.build(elements, canvasmaker=NumberedCanvas_Documentazionesheet)
+        f.close()
 
-		home_DB_path = ('%s%s%s') % (home, os.sep, 'pyarchinit_DB_folder')
-		logo_path = ('%s%s%s') % (home_DB_path, os.sep, 'logo.jpg')
+    def build_index_Documentazione(self, records, sito):
+        if os.name == 'posix':
+            home = os.environ['HOME']
+        elif os.name == 'nt':
+            home = os.environ['HOMEPATH']
 
-		logo = Image(logo_path) 
-		logo.drawHeight = 1.5*inch*logo.drawHeight / logo.drawWidth
-		logo.drawWidth = 1.5*inch
-		logo.hAlign = "LEFT"
+        home_DB_path = ('%s%s%s') % (home, os.sep, 'pyarchinit_DB_folder')
+        logo_path = ('%s%s%s') % (home_DB_path, os.sep, 'logo.jpg')
 
-		styleSheet = getSampleStyleSheet()
-		styNormal = styleSheet['Normal']
-		styBackground = ParagraphStyle('background', parent=styNormal, backColor=colors.pink)
-		styH1 = styleSheet['Heading3']
+        logo = Image(logo_path)
+        logo.drawHeight = 1.5 * inch * logo.drawHeight / logo.drawWidth
+        logo.drawWidth = 1.5 * inch
+        logo.hAlign = "LEFT"
 
-		data = self.datestrfdate()
+        styleSheet = getSampleStyleSheet()
+        styNormal = styleSheet['Normal']
+        styBackground = ParagraphStyle('background', parent=styNormal, backColor=colors.pink)
+        styH1 = styleSheet['Heading3']
 
-		lst = []
-		lst.append(logo)
-		lst.append(Paragraph("<b>ELENCO DOCUMENTAZIONE</b><br/><b>Scavo: %s,  Data: %s</b>" % (sito, data), styH1))
+        data = self.datestrfdate()
 
-		table_data = []
-		for i in range(len(records)):
-			exp_index = Documentazione_index_pdf_sheet(records[i])
-			table_data.append(exp_index.getTable())
-		
-		styles = exp_index.makeStyles()
-		colWidths=[100, 100, 60, 60, 60, 150]
+        lst = []
+        lst.append(logo)
+        lst.append(Paragraph("<b>ELENCO DOCUMENTAZIONE</b><br/><b>Scavo: %s,  Data: %s</b>" % (sito, data), styH1))
 
-		table_data_formatted = Table(table_data, colWidths, style=styles)
-		table_data_formatted.hAlign = "LEFT"
+        table_data = []
+        for i in range(len(records)):
+            exp_index = Documentazione_index_pdf_sheet(records[i])
+            table_data.append(exp_index.getTable())
 
-		lst.append(table_data_formatted)
-		#lst.append(Spacer(0,2))
+        styles = exp_index.makeStyles()
+        colWidths = [100, 100, 60, 60, 60, 150]
 
-		filename = ('%s%s%s') % (self.PDF_path, os.sep, 'elenco_documentazione.pdf')
-		f = open(filename, "wb")
+        table_data_formatted = Table(table_data, colWidths, style=styles)
+        table_data_formatted.hAlign = "LEFT"
 
-		doc = SimpleDocTemplate(f, pagesize=(29*cm, 21*cm), showBoundary=0)
-		doc.build(lst, canvasmaker=NumberedCanvas_Documentazioneindex)
+        lst.append(table_data_formatted)
+        # lst.append(Spacer(0,2))
 
-		f.close()
+        filename = ('%s%s%s') % (self.PDF_path, os.sep, 'elenco_documentazione.pdf')
+        f = open(filename, "wb")
 
+        doc = SimpleDocTemplate(f, pagesize=(29 * cm, 21 * cm), showBoundary=0)
+        doc.build(lst, canvasmaker=NumberedCanvas_Documentazioneindex)
+
+        f.close()

@@ -9,7 +9,6 @@
 
 from PyQt4 import QtCore, QtGui
 
-
 try:
     _fromUtf8 = QtCore.QString.fromUtf8
 except AttributeError:
@@ -18,11 +17,14 @@ except AttributeError:
 
 try:
     _encoding = QtGui.QApplication.UnicodeUTF8
+
+
     def _translate(context, text, disambig):
         return QtGui.QApplication.translate(context, text, disambig, _encoding)
 except AttributeError:
     def _translate(context, text, disambig):
         return QtGui.QApplication.translate(context, text, disambig)
+
 
 class Ui_DialogSchedaLapidei(object):
     def setupUi(self, DialogSchedaLapidei):
@@ -552,7 +554,8 @@ class Ui_DialogSchedaLapidei(object):
         self.gridLayout = QtGui.QGridLayout()
         self.gridLayout.setObjectName(_fromUtf8("gridLayout"))
         self.textEdit_lavorazione_e_stato_di_conservazione = QtGui.QTextEdit(self.tab_4)
-        self.textEdit_lavorazione_e_stato_di_conservazione.setObjectName(_fromUtf8("textEdit_lavorazione_e_stato_di_conservazione"))
+        self.textEdit_lavorazione_e_stato_di_conservazione.setObjectName(
+            _fromUtf8("textEdit_lavorazione_e_stato_di_conservazione"))
         self.gridLayout.addWidget(self.textEdit_lavorazione_e_stato_di_conservazione, 0, 2, 1, 1)
         self.label_11 = QtGui.QLabel(self.tab_4)
         self.label_11.setObjectName(_fromUtf8("label_11"))
@@ -631,7 +634,8 @@ class Ui_DialogSchedaLapidei(object):
         self.tableWidget_bibliografia.setFrameShadow(QtGui.QFrame.Raised)
         self.tableWidget_bibliografia.setVerticalScrollBarPolicy(QtCore.Qt.ScrollBarAsNeeded)
         self.tableWidget_bibliografia.setHorizontalScrollBarPolicy(QtCore.Qt.ScrollBarAsNeeded)
-        self.tableWidget_bibliografia.setEditTriggers(QtGui.QAbstractItemView.AnyKeyPressed|QtGui.QAbstractItemView.DoubleClicked|QtGui.QAbstractItemView.EditKeyPressed)
+        self.tableWidget_bibliografia.setEditTriggers(
+            QtGui.QAbstractItemView.AnyKeyPressed | QtGui.QAbstractItemView.DoubleClicked | QtGui.QAbstractItemView.EditKeyPressed)
         self.tableWidget_bibliografia.setSelectionMode(QtGui.QAbstractItemView.SingleSelection)
         self.tableWidget_bibliografia.setSelectionBehavior(QtGui.QAbstractItemView.SelectRows)
         self.tableWidget_bibliografia.setRowCount(1)
@@ -682,7 +686,8 @@ class Ui_DialogSchedaLapidei(object):
         DialogSchedaLapidei.setTabOrder(self.lineEdit_toro, self.tableWidget_bibliografia)
         DialogSchedaLapidei.setTabOrder(self.tableWidget_bibliografia, self.tabWidget)
         DialogSchedaLapidei.setTabOrder(self.tabWidget, self.pushButton_insert_row_bibliografia)
-        DialogSchedaLapidei.setTabOrder(self.pushButton_insert_row_bibliografia, self.pushButton_remove_row_bibliografia)
+        DialogSchedaLapidei.setTabOrder(self.pushButton_insert_row_bibliografia,
+                                        self.pushButton_remove_row_bibliografia)
 
     def retranslateUi(self, DialogSchedaLapidei):
         DialogSchedaLapidei.setWindowTitle(_translate("DialogSchedaLapidei", "Scheda reperti lapidei", None))
@@ -782,15 +787,20 @@ class Ui_DialogSchedaLapidei(object):
         self.label_9.setText(_translate("DialogSchedaLapidei", "d(letto attesa)", None))
         self.label_13.setText(_translate("DialogSchedaLapidei", "h", None))
         self.label_24.setText(_translate("DialogSchedaLapidei", "Toro", None))
-        self.tabWidget.setTabText(self.tabWidget.indexOf(self.tab_3), _translate("DialogSchedaLapidei", "Dimensioni", None))
+        self.tabWidget.setTabText(self.tabWidget.indexOf(self.tab_3),
+                                  _translate("DialogSchedaLapidei", "Dimensioni", None))
         self.label_6.setText(_translate("DialogSchedaLapidei", "Descrizione ", None))
-        self.tabWidget.setTabText(self.tabWidget.indexOf(self.tab), _translate("DialogSchedaLapidei", "Descrizione", None))
+        self.tabWidget.setTabText(self.tabWidget.indexOf(self.tab),
+                                  _translate("DialogSchedaLapidei", "Descrizione", None))
         self.label_11.setText(_translate("DialogSchedaLapidei", "Lavorazione", None))
-        self.tabWidget.setTabText(self.tabWidget.indexOf(self.tab_4), _translate("DialogSchedaLapidei", "Lavorazione e stato di conservazione", None))
+        self.tabWidget.setTabText(self.tabWidget.indexOf(self.tab_4),
+                                  _translate("DialogSchedaLapidei", "Lavorazione e stato di conservazione", None))
         self.label_12.setText(_translate("DialogSchedaLapidei", "Cronologia", None))
-        self.tabWidget.setTabText(self.tabWidget.indexOf(self.tab_2), _translate("DialogSchedaLapidei", "Cronologia", None))
+        self.tabWidget.setTabText(self.tabWidget.indexOf(self.tab_2),
+                                  _translate("DialogSchedaLapidei", "Cronologia", None))
         self.label_18.setText(_translate("DialogSchedaLapidei", "Confronti", None))
-        self.tabWidget.setTabText(self.tabWidget.indexOf(self.tab_8), _translate("DialogSchedaLapidei", "Confronti", None))
+        self.tabWidget.setTabText(self.tabWidget.indexOf(self.tab_8),
+                                  _translate("DialogSchedaLapidei", "Confronti", None))
         self.label_22.setText(_translate("DialogSchedaLapidei", "Bibliografia", None))
         self.pushButton_insert_row_bibliografia.setText(_translate("DialogSchedaLapidei", "inserisci riga", None))
         self.pushButton_remove_row_bibliografia.setText(_translate("DialogSchedaLapidei", "rimuovi riga", None))
@@ -804,8 +814,8 @@ class Ui_DialogSchedaLapidei(object):
         item.setText(_translate("DialogSchedaLapidei", "Pag.", None))
         item = self.tableWidget_bibliografia.horizontalHeaderItem(4)
         item.setText(_translate("DialogSchedaLapidei", "Fig.", None))
-        self.tabWidget.setTabText(self.tabWidget.indexOf(self.tab_7), _translate("DialogSchedaLapidei", "Bibliografia", None))
+        self.tabWidget.setTabText(self.tabWidget.indexOf(self.tab_7),
+                                  _translate("DialogSchedaLapidei", "Bibliografia", None))
         self.pushButton_exp_pdf_sheet.setText(_translate("DialogSchedaLapidei", "Exp schede Pdf ", None))
         self.pushButton_image.setText(_translate("DialogSchedaLapidei", "Charge image", None))
         self.tabWidget.setTabText(self.tabWidget.indexOf(self.tab_5), _translate("DialogSchedaLapidei", "Tools", None))
-

@@ -8,13 +8,12 @@
 # WARNING! All changes made in this file will be lost!
 
 from PyQt4 import QtCore, QtGui
-import resources_rc
-
 
 try:
     _fromUtf8 = QtCore.QString.fromUtf8
 except AttributeError:
     _fromUtf8 = lambda s: s
+
 
 class Ui_Dialog_pdf_exp(object):
     def setupUi(self, Dialog_pdf_exp):
@@ -214,26 +213,49 @@ class Ui_Dialog_pdf_exp(object):
         QtCore.QMetaObject.connectSlotsByName(Dialog_pdf_exp)
 
     def retranslateUi(self, Dialog_pdf_exp):
-        Dialog_pdf_exp.setWindowTitle(QtGui.QApplication.translate("Dialog_pdf_exp", "Impostazioni del sistema", None, QtGui.QApplication.UnicodeUTF8))
-        self.pushButton_open_dir.setText(QtGui.QApplication.translate("Dialog_pdf_exp", "Apri la cartella di esportazione PDF", None, QtGui.QApplication.UnicodeUTF8))
-        self.label.setText(QtGui.QApplication.translate("Dialog_pdf_exp", "Seleziona un sito da esportare...", None, QtGui.QApplication.UnicodeUTF8))
-        self.comboBox_sito.setItemText(0, QtGui.QApplication.translate("Dialog_pdf_exp", "Seleziona un valore...", None, QtGui.QApplication.UnicodeUTF8))
-        self.label_2.setText(QtGui.QApplication.translate("Dialog_pdf_exp", "Sito", None, QtGui.QApplication.UnicodeUTF8))
-        self.checkBox_site.setToolTip(QtGui.QApplication.translate("Dialog_pdf_exp", "Scheda US", None, QtGui.QApplication.UnicodeUTF8))
-        self.label_3.setText(QtGui.QApplication.translate("Dialog_pdf_exp", "Unità Stratigrafiche", None, QtGui.QApplication.UnicodeUTF8))
-        self.checkBox_US.setToolTip(QtGui.QApplication.translate("Dialog_pdf_exp", "Scheda US", None, QtGui.QApplication.UnicodeUTF8))
-        self.label_4.setText(QtGui.QApplication.translate("Dialog_pdf_exp", "Individuo", None, QtGui.QApplication.UnicodeUTF8))
-        self.checkBox_individui.setToolTip(QtGui.QApplication.translate("Dialog_pdf_exp", "Individui", None, QtGui.QApplication.UnicodeUTF8))
-        self.label_7.setText(QtGui.QApplication.translate("Dialog_pdf_exp", "Tafonomia", None, QtGui.QApplication.UnicodeUTF8))
-        self.checkBox_tafonomia.setToolTip(QtGui.QApplication.translate("Dialog_pdf_exp", "Tafonomia", None, QtGui.QApplication.UnicodeUTF8))
-        self.label_5.setText(QtGui.QApplication.translate("Dialog_pdf_exp", "Reperti", None, QtGui.QApplication.UnicodeUTF8))
-        self.checkBox_reperti.setToolTip(QtGui.QApplication.translate("Dialog_pdf_exp", "Inventario Materiali", None, QtGui.QApplication.UnicodeUTF8))
-        self.label_6.setText(QtGui.QApplication.translate("Dialog_pdf_exp", "Campionature", None, QtGui.QApplication.UnicodeUTF8))
-        self.checkBox_campioni.setToolTip(QtGui.QApplication.translate("Dialog_pdf_exp", "Tafonomia", None, QtGui.QApplication.UnicodeUTF8))
-        self.label_9.setText(QtGui.QApplication.translate("Dialog_pdf_exp", "Periodizzazione", None, QtGui.QApplication.UnicodeUTF8))
-        self.checkBox_periodo.setToolTip(QtGui.QApplication.translate("Dialog_pdf_exp", "Periodizzazione", None, QtGui.QApplication.UnicodeUTF8))
-        self.label_8.setText(QtGui.QApplication.translate("Dialog_pdf_exp", "Strutture", None, QtGui.QApplication.UnicodeUTF8))
-        self.checkBox_struttura.setToolTip(QtGui.QApplication.translate("Dialog_pdf_exp", "Strutture", None, QtGui.QApplication.UnicodeUTF8))
-        self.tabWidget.setTabText(self.tabWidget.indexOf(self.tab), QtGui.QApplication.translate("Dialog_pdf_exp", "Parametri di esportazione", None, QtGui.QApplication.UnicodeUTF8))
-        self.pushButton_exp_pdf.setText(QtGui.QApplication.translate("Dialog_pdf_exp", "Esporta PDF", None, QtGui.QApplication.UnicodeUTF8))
-
+        Dialog_pdf_exp.setWindowTitle(QtGui.QApplication.translate("Dialog_pdf_exp", "Impostazioni del sistema", None,
+                                                                   QtGui.QApplication.UnicodeUTF8))
+        self.pushButton_open_dir.setText(
+            QtGui.QApplication.translate("Dialog_pdf_exp", "Apri la cartella di esportazione PDF", None,
+                                         QtGui.QApplication.UnicodeUTF8))
+        self.label.setText(QtGui.QApplication.translate("Dialog_pdf_exp", "Seleziona un sito da esportare...", None,
+                                                        QtGui.QApplication.UnicodeUTF8))
+        self.comboBox_sito.setItemText(0, QtGui.QApplication.translate("Dialog_pdf_exp", "Seleziona un valore...", None,
+                                                                       QtGui.QApplication.UnicodeUTF8))
+        self.label_2.setText(
+            QtGui.QApplication.translate("Dialog_pdf_exp", "Sito", None, QtGui.QApplication.UnicodeUTF8))
+        self.checkBox_site.setToolTip(
+            QtGui.QApplication.translate("Dialog_pdf_exp", "Scheda US", None, QtGui.QApplication.UnicodeUTF8))
+        self.label_3.setText(QtGui.QApplication.translate("Dialog_pdf_exp", "Unità Stratigrafiche", None,
+                                                          QtGui.QApplication.UnicodeUTF8))
+        self.checkBox_US.setToolTip(
+            QtGui.QApplication.translate("Dialog_pdf_exp", "Scheda US", None, QtGui.QApplication.UnicodeUTF8))
+        self.label_4.setText(
+            QtGui.QApplication.translate("Dialog_pdf_exp", "Individuo", None, QtGui.QApplication.UnicodeUTF8))
+        self.checkBox_individui.setToolTip(
+            QtGui.QApplication.translate("Dialog_pdf_exp", "Individui", None, QtGui.QApplication.UnicodeUTF8))
+        self.label_7.setText(
+            QtGui.QApplication.translate("Dialog_pdf_exp", "Tafonomia", None, QtGui.QApplication.UnicodeUTF8))
+        self.checkBox_tafonomia.setToolTip(
+            QtGui.QApplication.translate("Dialog_pdf_exp", "Tafonomia", None, QtGui.QApplication.UnicodeUTF8))
+        self.label_5.setText(
+            QtGui.QApplication.translate("Dialog_pdf_exp", "Reperti", None, QtGui.QApplication.UnicodeUTF8))
+        self.checkBox_reperti.setToolTip(QtGui.QApplication.translate("Dialog_pdf_exp", "Inventario Materiali", None,
+                                                                      QtGui.QApplication.UnicodeUTF8))
+        self.label_6.setText(
+            QtGui.QApplication.translate("Dialog_pdf_exp", "Campionature", None, QtGui.QApplication.UnicodeUTF8))
+        self.checkBox_campioni.setToolTip(
+            QtGui.QApplication.translate("Dialog_pdf_exp", "Tafonomia", None, QtGui.QApplication.UnicodeUTF8))
+        self.label_9.setText(
+            QtGui.QApplication.translate("Dialog_pdf_exp", "Periodizzazione", None, QtGui.QApplication.UnicodeUTF8))
+        self.checkBox_periodo.setToolTip(
+            QtGui.QApplication.translate("Dialog_pdf_exp", "Periodizzazione", None, QtGui.QApplication.UnicodeUTF8))
+        self.label_8.setText(
+            QtGui.QApplication.translate("Dialog_pdf_exp", "Strutture", None, QtGui.QApplication.UnicodeUTF8))
+        self.checkBox_struttura.setToolTip(
+            QtGui.QApplication.translate("Dialog_pdf_exp", "Strutture", None, QtGui.QApplication.UnicodeUTF8))
+        self.tabWidget.setTabText(self.tabWidget.indexOf(self.tab),
+                                  QtGui.QApplication.translate("Dialog_pdf_exp", "Parametri di esportazione", None,
+                                                               QtGui.QApplication.UnicodeUTF8))
+        self.pushButton_exp_pdf.setText(
+            QtGui.QApplication.translate("Dialog_pdf_exp", "Esporta PDF", None, QtGui.QApplication.UnicodeUTF8))

@@ -8,13 +8,12 @@
 # WARNING! All changes made in this file will be lost!
 
 from PyQt4 import QtCore, QtGui
-import resources_rc
-
 
 try:
     _fromUtf8 = QtCore.QString.fromUtf8
 except AttributeError:
     _fromUtf8 = lambda s: s
+
 
 class Ui_DialogPeriodoFase(object):
     def setupUi(self, DialogPeriodoFase):
@@ -474,69 +473,135 @@ class Ui_DialogPeriodoFase(object):
         QtCore.QMetaObject.connectSlotsByName(DialogPeriodoFase)
 
     def retranslateUi(self, DialogPeriodoFase):
-        DialogPeriodoFase.setWindowTitle(QtGui.QApplication.translate("DialogPeriodoFase", "pyArchInit Gestione Scavi - Periodizzazione di scavo", None, QtGui.QApplication.UnicodeUTF8))
-        self.label_29.setText(QtGui.QApplication.translate("DialogPeriodoFase", "DBMS Toolbar", None, QtGui.QApplication.UnicodeUTF8))
-        self.pushButton_first_rec.setToolTip(QtGui.QApplication.translate("DialogPeriodoFase", "First rec", None, QtGui.QApplication.UnicodeUTF8))
-        self.pushButton_next_rec.setToolTip(QtGui.QApplication.translate("DialogPeriodoFase", "Next rec", None, QtGui.QApplication.UnicodeUTF8))
-        self.pushButton_last_rec.setToolTip(QtGui.QApplication.translate("DialogPeriodoFase", "Last rec", None, QtGui.QApplication.UnicodeUTF8))
-        self.pushButton_new_rec.setToolTip(QtGui.QApplication.translate("DialogPeriodoFase", "New record", None, QtGui.QApplication.UnicodeUTF8))
-        self.pushButton_save.setToolTip(QtGui.QApplication.translate("DialogPeriodoFase", "Save", None, QtGui.QApplication.UnicodeUTF8))
-        self.pushButton_new_search.setToolTip(QtGui.QApplication.translate("DialogPeriodoFase", "new search", None, QtGui.QApplication.UnicodeUTF8))
-        self.pushButton_search_go.setToolTip(QtGui.QApplication.translate("DialogPeriodoFase", "search !!!", None, QtGui.QApplication.UnicodeUTF8))
-        self.pushButton_sort.setToolTip(QtGui.QApplication.translate("DialogPeriodoFase", "Order by", None, QtGui.QApplication.UnicodeUTF8))
-        self.pushButton_view_all.setToolTip(QtGui.QApplication.translate("DialogPeriodoFase", "View alls records", None, QtGui.QApplication.UnicodeUTF8))
-        self.pushButton_delete.setToolTip(QtGui.QApplication.translate("DialogPeriodoFase", "Delete record", None, QtGui.QApplication.UnicodeUTF8))
-        self.pushButton_prev_rec.setToolTip(QtGui.QApplication.translate("DialogPeriodoFase", "Prev rec", None, QtGui.QApplication.UnicodeUTF8))
-        self.pushButton_connect.setText(QtGui.QApplication.translate("DialogPeriodoFase", "Connection test", None, QtGui.QApplication.UnicodeUTF8))
-        self.label_42.setText(QtGui.QApplication.translate("DialogPeriodoFase", "DB Info", None, QtGui.QApplication.UnicodeUTF8))
-        self.label_43.setText(QtGui.QApplication.translate("DialogPeriodoFase", "Ordinamento", None, QtGui.QApplication.UnicodeUTF8))
-        self.label_34.setText(QtGui.QApplication.translate("DialogPeriodoFase", "Status", None, QtGui.QApplication.UnicodeUTF8))
-        self.label_27.setText(QtGui.QApplication.translate("DialogPeriodoFase", "record n.", None, QtGui.QApplication.UnicodeUTF8))
-        self.label_rec_corrente.setText(QtGui.QApplication.translate("DialogPeriodoFase", "1", None, QtGui.QApplication.UnicodeUTF8))
-        self.label_28.setText(QtGui.QApplication.translate("DialogPeriodoFase", "record tot.", None, QtGui.QApplication.UnicodeUTF8))
-        self.label_rec_tot.setText(QtGui.QApplication.translate("DialogPeriodoFase", "1", None, QtGui.QApplication.UnicodeUTF8))
-        self.comboBox_sito.setItemText(0, QtGui.QApplication.translate("DialogPeriodoFase", "Inserisci un valore", None, QtGui.QApplication.UnicodeUTF8))
-        self.label.setText(QtGui.QApplication.translate("DialogPeriodoFase", "Sito", None, QtGui.QApplication.UnicodeUTF8))
-        self.comboBox_periodo.setItemText(0, QtGui.QApplication.translate("DialogPeriodoFase", "1", None, QtGui.QApplication.UnicodeUTF8))
-        self.comboBox_periodo.setItemText(1, QtGui.QApplication.translate("DialogPeriodoFase", "2", None, QtGui.QApplication.UnicodeUTF8))
-        self.comboBox_periodo.setItemText(2, QtGui.QApplication.translate("DialogPeriodoFase", "3", None, QtGui.QApplication.UnicodeUTF8))
-        self.comboBox_periodo.setItemText(3, QtGui.QApplication.translate("DialogPeriodoFase", "4", None, QtGui.QApplication.UnicodeUTF8))
-        self.comboBox_periodo.setItemText(4, QtGui.QApplication.translate("DialogPeriodoFase", "5", None, QtGui.QApplication.UnicodeUTF8))
-        self.comboBox_periodo.setItemText(5, QtGui.QApplication.translate("DialogPeriodoFase", "6", None, QtGui.QApplication.UnicodeUTF8))
-        self.comboBox_periodo.setItemText(6, QtGui.QApplication.translate("DialogPeriodoFase", "7", None, QtGui.QApplication.UnicodeUTF8))
-        self.comboBox_periodo.setItemText(7, QtGui.QApplication.translate("DialogPeriodoFase", "8", None, QtGui.QApplication.UnicodeUTF8))
-        self.comboBox_periodo.setItemText(8, QtGui.QApplication.translate("DialogPeriodoFase", "9", None, QtGui.QApplication.UnicodeUTF8))
-        self.comboBox_periodo.setItemText(9, QtGui.QApplication.translate("DialogPeriodoFase", "10", None, QtGui.QApplication.UnicodeUTF8))
-        self.comboBox_periodo.setItemText(10, QtGui.QApplication.translate("DialogPeriodoFase", "11", None, QtGui.QApplication.UnicodeUTF8))
-        self.comboBox_periodo.setItemText(11, QtGui.QApplication.translate("DialogPeriodoFase", "13", None, QtGui.QApplication.UnicodeUTF8))
-        self.comboBox_periodo.setItemText(12, QtGui.QApplication.translate("DialogPeriodoFase", "15", None, QtGui.QApplication.UnicodeUTF8))
-        self.comboBox_fase.setItemText(0, QtGui.QApplication.translate("DialogPeriodoFase", "1", None, QtGui.QApplication.UnicodeUTF8))
-        self.comboBox_fase.setItemText(1, QtGui.QApplication.translate("DialogPeriodoFase", "2", None, QtGui.QApplication.UnicodeUTF8))
-        self.comboBox_fase.setItemText(2, QtGui.QApplication.translate("DialogPeriodoFase", "3", None, QtGui.QApplication.UnicodeUTF8))
-        self.comboBox_fase.setItemText(3, QtGui.QApplication.translate("DialogPeriodoFase", "4", None, QtGui.QApplication.UnicodeUTF8))
-        self.comboBox_fase.setItemText(4, QtGui.QApplication.translate("DialogPeriodoFase", "5", None, QtGui.QApplication.UnicodeUTF8))
-        self.comboBox_fase.setItemText(5, QtGui.QApplication.translate("DialogPeriodoFase", "6", None, QtGui.QApplication.UnicodeUTF8))
-        self.comboBox_fase.setItemText(6, QtGui.QApplication.translate("DialogPeriodoFase", "7", None, QtGui.QApplication.UnicodeUTF8))
-        self.comboBox_fase.setItemText(7, QtGui.QApplication.translate("DialogPeriodoFase", "8", None, QtGui.QApplication.UnicodeUTF8))
-        self.comboBox_fase.setItemText(8, QtGui.QApplication.translate("DialogPeriodoFase", "9", None, QtGui.QApplication.UnicodeUTF8))
-        self.comboBox_fase.setItemText(9, QtGui.QApplication.translate("DialogPeriodoFase", "10", None, QtGui.QApplication.UnicodeUTF8))
-        self.comboBox_fase.setItemText(10, QtGui.QApplication.translate("DialogPeriodoFase", "11", None, QtGui.QApplication.UnicodeUTF8))
-        self.comboBox_fase.setItemText(11, QtGui.QApplication.translate("DialogPeriodoFase", "12", None, QtGui.QApplication.UnicodeUTF8))
-        self.comboBox_fase.setItemText(12, QtGui.QApplication.translate("DialogPeriodoFase", "13", None, QtGui.QApplication.UnicodeUTF8))
-        self.comboBox_fase.setItemText(13, QtGui.QApplication.translate("DialogPeriodoFase", "14", None, QtGui.QApplication.UnicodeUTF8))
-        self.comboBox_fase.setItemText(14, QtGui.QApplication.translate("DialogPeriodoFase", "15", None, QtGui.QApplication.UnicodeUTF8))
-        self.label_8.setText(QtGui.QApplication.translate("DialogPeriodoFase", "Fase", None, QtGui.QApplication.UnicodeUTF8))
-        self.label_7.setText(QtGui.QApplication.translate("DialogPeriodoFase", "Periodo", None, QtGui.QApplication.UnicodeUTF8))
-        self.label_2.setText(QtGui.QApplication.translate("DialogPeriodoFase", "Codice periodo", None, QtGui.QApplication.UnicodeUTF8))
-        self.pushButton_show_periodo.setText(QtGui.QApplication.translate("DialogPeriodoFase", "Visualizza il periodo sul GIS", None, QtGui.QApplication.UnicodeUTF8))
-        self.pushButton_pdf_lista_exp.setText(QtGui.QApplication.translate("DialogPeriodoFase", "Elenco PDF", None, QtGui.QApplication.UnicodeUTF8))
-        self.pushButton_pdf_scheda_exp.setText(QtGui.QApplication.translate("DialogPeriodoFase", "Scheda PDF", None, QtGui.QApplication.UnicodeUTF8))
-        self.label_6.setText(QtGui.QApplication.translate("DialogPeriodoFase", "Descrizione ", None, QtGui.QApplication.UnicodeUTF8))
-        self.label_38.setText(QtGui.QApplication.translate("DialogPeriodoFase", "Cronologia ", None, QtGui.QApplication.UnicodeUTF8))
-        self.lineEdit_cron_iniz.setText(QtGui.QApplication.translate("DialogPeriodoFase", "0", None, QtGui.QApplication.UnicodeUTF8))
-        self.label_37.setText(QtGui.QApplication.translate("DialogPeriodoFase", "Iniziale ", None, QtGui.QApplication.UnicodeUTF8))
-        self.label_14.setText(QtGui.QApplication.translate("DialogPeriodoFase", "Finale ", None, QtGui.QApplication.UnicodeUTF8))
-        self.lineEdit_cron_fin.setText(QtGui.QApplication.translate("DialogPeriodoFase", "0", None, QtGui.QApplication.UnicodeUTF8))
-        self.label_13.setText(QtGui.QApplication.translate("DialogPeriodoFase", "Dati descrittivi", None, QtGui.QApplication.UnicodeUTF8))
-        self.label_25.setText(QtGui.QApplication.translate("DialogPeriodoFase", "Estesa letterale ", None, QtGui.QApplication.UnicodeUTF8))
-
+        DialogPeriodoFase.setWindowTitle(
+            QtGui.QApplication.translate("DialogPeriodoFase", "pyArchInit Gestione Scavi - Periodizzazione di scavo",
+                                         None, QtGui.QApplication.UnicodeUTF8))
+        self.label_29.setText(
+            QtGui.QApplication.translate("DialogPeriodoFase", "DBMS Toolbar", None, QtGui.QApplication.UnicodeUTF8))
+        self.pushButton_first_rec.setToolTip(
+            QtGui.QApplication.translate("DialogPeriodoFase", "First rec", None, QtGui.QApplication.UnicodeUTF8))
+        self.pushButton_next_rec.setToolTip(
+            QtGui.QApplication.translate("DialogPeriodoFase", "Next rec", None, QtGui.QApplication.UnicodeUTF8))
+        self.pushButton_last_rec.setToolTip(
+            QtGui.QApplication.translate("DialogPeriodoFase", "Last rec", None, QtGui.QApplication.UnicodeUTF8))
+        self.pushButton_new_rec.setToolTip(
+            QtGui.QApplication.translate("DialogPeriodoFase", "New record", None, QtGui.QApplication.UnicodeUTF8))
+        self.pushButton_save.setToolTip(
+            QtGui.QApplication.translate("DialogPeriodoFase", "Save", None, QtGui.QApplication.UnicodeUTF8))
+        self.pushButton_new_search.setToolTip(
+            QtGui.QApplication.translate("DialogPeriodoFase", "new search", None, QtGui.QApplication.UnicodeUTF8))
+        self.pushButton_search_go.setToolTip(
+            QtGui.QApplication.translate("DialogPeriodoFase", "search !!!", None, QtGui.QApplication.UnicodeUTF8))
+        self.pushButton_sort.setToolTip(
+            QtGui.QApplication.translate("DialogPeriodoFase", "Order by", None, QtGui.QApplication.UnicodeUTF8))
+        self.pushButton_view_all.setToolTip(QtGui.QApplication.translate("DialogPeriodoFase", "View alls records", None,
+                                                                         QtGui.QApplication.UnicodeUTF8))
+        self.pushButton_delete.setToolTip(
+            QtGui.QApplication.translate("DialogPeriodoFase", "Delete record", None, QtGui.QApplication.UnicodeUTF8))
+        self.pushButton_prev_rec.setToolTip(
+            QtGui.QApplication.translate("DialogPeriodoFase", "Prev rec", None, QtGui.QApplication.UnicodeUTF8))
+        self.pushButton_connect.setText(
+            QtGui.QApplication.translate("DialogPeriodoFase", "Connection test", None, QtGui.QApplication.UnicodeUTF8))
+        self.label_42.setText(
+            QtGui.QApplication.translate("DialogPeriodoFase", "DB Info", None, QtGui.QApplication.UnicodeUTF8))
+        self.label_43.setText(
+            QtGui.QApplication.translate("DialogPeriodoFase", "Ordinamento", None, QtGui.QApplication.UnicodeUTF8))
+        self.label_34.setText(
+            QtGui.QApplication.translate("DialogPeriodoFase", "Status", None, QtGui.QApplication.UnicodeUTF8))
+        self.label_27.setText(
+            QtGui.QApplication.translate("DialogPeriodoFase", "record n.", None, QtGui.QApplication.UnicodeUTF8))
+        self.label_rec_corrente.setText(
+            QtGui.QApplication.translate("DialogPeriodoFase", "1", None, QtGui.QApplication.UnicodeUTF8))
+        self.label_28.setText(
+            QtGui.QApplication.translate("DialogPeriodoFase", "record tot.", None, QtGui.QApplication.UnicodeUTF8))
+        self.label_rec_tot.setText(
+            QtGui.QApplication.translate("DialogPeriodoFase", "1", None, QtGui.QApplication.UnicodeUTF8))
+        self.comboBox_sito.setItemText(0, QtGui.QApplication.translate("DialogPeriodoFase", "Inserisci un valore", None,
+                                                                       QtGui.QApplication.UnicodeUTF8))
+        self.label.setText(
+            QtGui.QApplication.translate("DialogPeriodoFase", "Sito", None, QtGui.QApplication.UnicodeUTF8))
+        self.comboBox_periodo.setItemText(0, QtGui.QApplication.translate("DialogPeriodoFase", "1", None,
+                                                                          QtGui.QApplication.UnicodeUTF8))
+        self.comboBox_periodo.setItemText(1, QtGui.QApplication.translate("DialogPeriodoFase", "2", None,
+                                                                          QtGui.QApplication.UnicodeUTF8))
+        self.comboBox_periodo.setItemText(2, QtGui.QApplication.translate("DialogPeriodoFase", "3", None,
+                                                                          QtGui.QApplication.UnicodeUTF8))
+        self.comboBox_periodo.setItemText(3, QtGui.QApplication.translate("DialogPeriodoFase", "4", None,
+                                                                          QtGui.QApplication.UnicodeUTF8))
+        self.comboBox_periodo.setItemText(4, QtGui.QApplication.translate("DialogPeriodoFase", "5", None,
+                                                                          QtGui.QApplication.UnicodeUTF8))
+        self.comboBox_periodo.setItemText(5, QtGui.QApplication.translate("DialogPeriodoFase", "6", None,
+                                                                          QtGui.QApplication.UnicodeUTF8))
+        self.comboBox_periodo.setItemText(6, QtGui.QApplication.translate("DialogPeriodoFase", "7", None,
+                                                                          QtGui.QApplication.UnicodeUTF8))
+        self.comboBox_periodo.setItemText(7, QtGui.QApplication.translate("DialogPeriodoFase", "8", None,
+                                                                          QtGui.QApplication.UnicodeUTF8))
+        self.comboBox_periodo.setItemText(8, QtGui.QApplication.translate("DialogPeriodoFase", "9", None,
+                                                                          QtGui.QApplication.UnicodeUTF8))
+        self.comboBox_periodo.setItemText(9, QtGui.QApplication.translate("DialogPeriodoFase", "10", None,
+                                                                          QtGui.QApplication.UnicodeUTF8))
+        self.comboBox_periodo.setItemText(10, QtGui.QApplication.translate("DialogPeriodoFase", "11", None,
+                                                                           QtGui.QApplication.UnicodeUTF8))
+        self.comboBox_periodo.setItemText(11, QtGui.QApplication.translate("DialogPeriodoFase", "13", None,
+                                                                           QtGui.QApplication.UnicodeUTF8))
+        self.comboBox_periodo.setItemText(12, QtGui.QApplication.translate("DialogPeriodoFase", "15", None,
+                                                                           QtGui.QApplication.UnicodeUTF8))
+        self.comboBox_fase.setItemText(0, QtGui.QApplication.translate("DialogPeriodoFase", "1", None,
+                                                                       QtGui.QApplication.UnicodeUTF8))
+        self.comboBox_fase.setItemText(1, QtGui.QApplication.translate("DialogPeriodoFase", "2", None,
+                                                                       QtGui.QApplication.UnicodeUTF8))
+        self.comboBox_fase.setItemText(2, QtGui.QApplication.translate("DialogPeriodoFase", "3", None,
+                                                                       QtGui.QApplication.UnicodeUTF8))
+        self.comboBox_fase.setItemText(3, QtGui.QApplication.translate("DialogPeriodoFase", "4", None,
+                                                                       QtGui.QApplication.UnicodeUTF8))
+        self.comboBox_fase.setItemText(4, QtGui.QApplication.translate("DialogPeriodoFase", "5", None,
+                                                                       QtGui.QApplication.UnicodeUTF8))
+        self.comboBox_fase.setItemText(5, QtGui.QApplication.translate("DialogPeriodoFase", "6", None,
+                                                                       QtGui.QApplication.UnicodeUTF8))
+        self.comboBox_fase.setItemText(6, QtGui.QApplication.translate("DialogPeriodoFase", "7", None,
+                                                                       QtGui.QApplication.UnicodeUTF8))
+        self.comboBox_fase.setItemText(7, QtGui.QApplication.translate("DialogPeriodoFase", "8", None,
+                                                                       QtGui.QApplication.UnicodeUTF8))
+        self.comboBox_fase.setItemText(8, QtGui.QApplication.translate("DialogPeriodoFase", "9", None,
+                                                                       QtGui.QApplication.UnicodeUTF8))
+        self.comboBox_fase.setItemText(9, QtGui.QApplication.translate("DialogPeriodoFase", "10", None,
+                                                                       QtGui.QApplication.UnicodeUTF8))
+        self.comboBox_fase.setItemText(10, QtGui.QApplication.translate("DialogPeriodoFase", "11", None,
+                                                                        QtGui.QApplication.UnicodeUTF8))
+        self.comboBox_fase.setItemText(11, QtGui.QApplication.translate("DialogPeriodoFase", "12", None,
+                                                                        QtGui.QApplication.UnicodeUTF8))
+        self.comboBox_fase.setItemText(12, QtGui.QApplication.translate("DialogPeriodoFase", "13", None,
+                                                                        QtGui.QApplication.UnicodeUTF8))
+        self.comboBox_fase.setItemText(13, QtGui.QApplication.translate("DialogPeriodoFase", "14", None,
+                                                                        QtGui.QApplication.UnicodeUTF8))
+        self.comboBox_fase.setItemText(14, QtGui.QApplication.translate("DialogPeriodoFase", "15", None,
+                                                                        QtGui.QApplication.UnicodeUTF8))
+        self.label_8.setText(
+            QtGui.QApplication.translate("DialogPeriodoFase", "Fase", None, QtGui.QApplication.UnicodeUTF8))
+        self.label_7.setText(
+            QtGui.QApplication.translate("DialogPeriodoFase", "Periodo", None, QtGui.QApplication.UnicodeUTF8))
+        self.label_2.setText(
+            QtGui.QApplication.translate("DialogPeriodoFase", "Codice periodo", None, QtGui.QApplication.UnicodeUTF8))
+        self.pushButton_show_periodo.setText(
+            QtGui.QApplication.translate("DialogPeriodoFase", "Visualizza il periodo sul GIS", None,
+                                         QtGui.QApplication.UnicodeUTF8))
+        self.pushButton_pdf_lista_exp.setText(
+            QtGui.QApplication.translate("DialogPeriodoFase", "Elenco PDF", None, QtGui.QApplication.UnicodeUTF8))
+        self.pushButton_pdf_scheda_exp.setText(
+            QtGui.QApplication.translate("DialogPeriodoFase", "Scheda PDF", None, QtGui.QApplication.UnicodeUTF8))
+        self.label_6.setText(
+            QtGui.QApplication.translate("DialogPeriodoFase", "Descrizione ", None, QtGui.QApplication.UnicodeUTF8))
+        self.label_38.setText(
+            QtGui.QApplication.translate("DialogPeriodoFase", "Cronologia ", None, QtGui.QApplication.UnicodeUTF8))
+        self.lineEdit_cron_iniz.setText(
+            QtGui.QApplication.translate("DialogPeriodoFase", "0", None, QtGui.QApplication.UnicodeUTF8))
+        self.label_37.setText(
+            QtGui.QApplication.translate("DialogPeriodoFase", "Iniziale ", None, QtGui.QApplication.UnicodeUTF8))
+        self.label_14.setText(
+            QtGui.QApplication.translate("DialogPeriodoFase", "Finale ", None, QtGui.QApplication.UnicodeUTF8))
+        self.lineEdit_cron_fin.setText(
+            QtGui.QApplication.translate("DialogPeriodoFase", "0", None, QtGui.QApplication.UnicodeUTF8))
+        self.label_13.setText(
+            QtGui.QApplication.translate("DialogPeriodoFase", "Dati descrittivi", None, QtGui.QApplication.UnicodeUTF8))
+        self.label_25.setText(QtGui.QApplication.translate("DialogPeriodoFase", "Estesa letterale ", None,
+                                                           QtGui.QApplication.UnicodeUTF8))

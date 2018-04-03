@@ -22,8 +22,6 @@
 # Use pdb for debugging
 
 
-import sys
-
 ##def name():
 ##  return "pyArchinit Dev - Archeological GIS Tools"
 ##
@@ -46,5 +44,5 @@ import sys
 ##	return "2.99"
 ##"""
 def classFactory(iface):
-    from pyarchinit_plugin import PyArchInitPlugin 
+    from pyarchinit_plugin import PyArchInitPlugin
     return PyArchInitPlugin(iface)

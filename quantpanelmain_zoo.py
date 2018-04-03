@@ -24,41 +24,43 @@ from sortpanelmain import SortPanelMain
 
 
 class QuantPanelMain(QDialog, Ui_quantPanel_zoo):
-	ITEMS = []
-	TYPE_QUANT = ""
-	def __init__(self, parent=None, db=None):
-		QDialog.__init__(self, parent)
-		self.setupUi(self)
-		
-	def on_calcola1_pressed(self):
-		
-		self.ITEMS = []
-			
-		if self.radioButtonUsMin.isChecked():
-			self.TYPE_QUANT = "US"
-		
-		else:
-			self.close()
-			
-		if self.psill.text() == "":
-			psill = ''
-		else:
-			psill = int(self.psill.text())
+    ITEMS = []
+    TYPE_QUANT = ""
 
-		if self.model.currentText() == "":
-			model = ''
-		else:
-			model = str(self.model.currentText())
+    def __init__(self, parent=None, db=None):
+        QDialog.__init__(self, parent)
+        self.setupUi(self)
 
-		if self.rang.text() == "":
-			rang = ''
-		else:
-			rang = int(self.rang.text())
-				
-				
+    def on_calcola1_pressed(self):
+
+        self.ITEMS = []
+
+        if self.radioButtonUsMin.isChecked():
+            self.TYPE_QUANT = "US"
+
+        else:
+            self.close()
+
+        if self.psill.text() == "":
+            psill = ''
+        else:
+            psill = int(self.psill.text())
+
+        if self.model.currentText() == "":
+            model = ''
+        else:
+            model = str(self.model.currentText())
+
+        if self.rang.text() == "":
+            rang = ''
+        else:
+            rang = int(self.rang.text())
+
+
 if __name__ == '__main__':
-	import sys
-	a = QApplication(sys.argv)
-	dlg = SortPanelMain()
-	dlg.show()
-	sys.exit(a.exec_())
+    import sys
+
+    a = QApplication(sys.argv)
+    dlg = SortPanelMain()
+    dlg.show()
+    sys.exit(a.exec_())

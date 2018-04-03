@@ -27,16 +27,15 @@ from settings import *
 
 
 class Test_area:
-	if os.name == 'posix':
-		HOME = os.environ['HOME']
-	elif os.name == 'nt':
-		HOME = os.environ['HOMEPATH']
+    if os.name == 'posix':
+        HOME = os.environ['HOME']
+    elif os.name == 'nt':
+        HOME = os.environ['HOMEPATH']
 
-	REPORT_PATH = ('%s%s%s') % (HOME, os.sep, "pyarchinit_Test_folder")
+    REPORT_PATH = ('%s%s%s') % (HOME, os.sep, "pyarchinit_Test_folder")
 
-	def __init__(self, data):
-		self.data = data
+    def __init__(self, data):
+        self.data = data
 
-
-	def run_test(self):
-		pass
+    def run_test(self):
+        pass

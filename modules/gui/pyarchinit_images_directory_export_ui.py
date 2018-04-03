@@ -8,13 +8,12 @@
 # WARNING! All changes made in this file will be lost!
 
 from PyQt4 import QtCore, QtGui
-import resources_rc
-
 
 try:
     _fromUtf8 = QtCore.QString.fromUtf8
 except AttributeError:
     _fromUtf8 = lambda s: s
+
 
 class Ui_Dialog_img_exp(object):
     def setupUi(self, Dialog_img_exp):
@@ -148,17 +147,32 @@ class Ui_Dialog_img_exp(object):
         QtCore.QMetaObject.connectSlotsByName(Dialog_img_exp)
 
     def retranslateUi(self, Dialog_img_exp):
-        Dialog_img_exp.setWindowTitle(QtGui.QApplication.translate("Dialog_img_exp", "Sistema di esportazione delle immagini", None, QtGui.QApplication.UnicodeUTF8))
-        self.checkBox_tipo_reperto.setText(QtGui.QApplication.translate("Dialog_img_exp", "Tipo reperto", None, QtGui.QApplication.UnicodeUTF8))
-        self.checkBox_fase.setText(QtGui.QApplication.translate("Dialog_img_exp", "Fase", None, QtGui.QApplication.UnicodeUTF8))
-        self.checkBox_criterio_schedatura.setText(QtGui.QApplication.translate("Dialog_img_exp", "Criterio schedatura", None, QtGui.QApplication.UnicodeUTF8))
-        self.checkBox_definizione_materiale.setText(QtGui.QApplication.translate("Dialog_img_exp", "Definizione materiale", None, QtGui.QApplication.UnicodeUTF8))
-        self.checkBox_periodo.setText(QtGui.QApplication.translate("Dialog_img_exp", "Periodo", None, QtGui.QApplication.UnicodeUTF8))
-        self.checkBox_US.setText(QtGui.QApplication.translate("Dialog_img_exp", "Unità Stratigrafiche", None, QtGui.QApplication.UnicodeUTF8))
-        self.checkBox_struttura.setText(QtGui.QApplication.translate("Dialog_img_exp", "Struttura", None, QtGui.QApplication.UnicodeUTF8))
-        self.checkBox_reperti.setText(QtGui.QApplication.translate("Dialog_img_exp", "Reperti", None, QtGui.QApplication.UnicodeUTF8))
-        self.label.setText(QtGui.QApplication.translate("Dialog_img_exp", "Seleziona un sito da esportare...", None, QtGui.QApplication.UnicodeUTF8))
-        self.comboBox_sito.setItemText(0, QtGui.QApplication.translate("Dialog_img_exp", "Seleziona un valore...", None, QtGui.QApplication.UnicodeUTF8))
-        self.pushButton_exp_images.setText(QtGui.QApplication.translate("Dialog_img_exp", "Esporta le immagini", None, QtGui.QApplication.UnicodeUTF8))
-        self.tabWidget.setTabText(self.tabWidget.indexOf(self.tab), QtGui.QApplication.translate("Dialog_img_exp", "Parametri di esportazione", None, QtGui.QApplication.UnicodeUTF8))
-
+        Dialog_img_exp.setWindowTitle(
+            QtGui.QApplication.translate("Dialog_img_exp", "Sistema di esportazione delle immagini", None,
+                                         QtGui.QApplication.UnicodeUTF8))
+        self.checkBox_tipo_reperto.setText(
+            QtGui.QApplication.translate("Dialog_img_exp", "Tipo reperto", None, QtGui.QApplication.UnicodeUTF8))
+        self.checkBox_fase.setText(
+            QtGui.QApplication.translate("Dialog_img_exp", "Fase", None, QtGui.QApplication.UnicodeUTF8))
+        self.checkBox_criterio_schedatura.setText(
+            QtGui.QApplication.translate("Dialog_img_exp", "Criterio schedatura", None, QtGui.QApplication.UnicodeUTF8))
+        self.checkBox_definizione_materiale.setText(
+            QtGui.QApplication.translate("Dialog_img_exp", "Definizione materiale", None,
+                                         QtGui.QApplication.UnicodeUTF8))
+        self.checkBox_periodo.setText(
+            QtGui.QApplication.translate("Dialog_img_exp", "Periodo", None, QtGui.QApplication.UnicodeUTF8))
+        self.checkBox_US.setText(QtGui.QApplication.translate("Dialog_img_exp", "Unità Stratigrafiche", None,
+                                                              QtGui.QApplication.UnicodeUTF8))
+        self.checkBox_struttura.setText(
+            QtGui.QApplication.translate("Dialog_img_exp", "Struttura", None, QtGui.QApplication.UnicodeUTF8))
+        self.checkBox_reperti.setText(
+            QtGui.QApplication.translate("Dialog_img_exp", "Reperti", None, QtGui.QApplication.UnicodeUTF8))
+        self.label.setText(QtGui.QApplication.translate("Dialog_img_exp", "Seleziona un sito da esportare...", None,
+                                                        QtGui.QApplication.UnicodeUTF8))
+        self.comboBox_sito.setItemText(0, QtGui.QApplication.translate("Dialog_img_exp", "Seleziona un valore...", None,
+                                                                       QtGui.QApplication.UnicodeUTF8))
+        self.pushButton_exp_images.setText(
+            QtGui.QApplication.translate("Dialog_img_exp", "Esporta le immagini", None, QtGui.QApplication.UnicodeUTF8))
+        self.tabWidget.setTabText(self.tabWidget.indexOf(self.tab),
+                                  QtGui.QApplication.translate("Dialog_img_exp", "Parametri di esportazione", None,
+                                                               QtGui.QApplication.UnicodeUTF8))

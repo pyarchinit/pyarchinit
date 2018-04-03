@@ -24,78 +24,80 @@ from sortpanelmain import SortPanelMain
 
 
 class QuantPanelMain(QDialog, Ui_quantPanel):
-	ITEMS = []
-	TYPE_QUANT = ""
-	def __init__(self, parent=None, db=None):
-		QDialog.__init__(self, parent)
-		self.setupUi(self)
-		
-	def on_pushButtonQuant_pressed(self):
-		self.ITEMS = []
-		for index in range(self.FieldListsort.count()):
-			self.ITEMS.append(str(self.FieldListsort.item(index).text()))
-		
-		if self.radioButtonFormeMin.isChecked():
-			self.TYPE_QUANT = "Forme minime"
-		elif self.radioButtonFrammenti.isChecked():
-			self.TYPE_QUANT = "Frammenti"
-	
-		if not bool(self.ITEMS):
-			ttl = QString("Non e' stato impostata alcun criterio. Vuoi uscire?")
-			msg = QMessageBox.warning(self,'ATTENZIONE',ttl, QMessageBox.Cancel,1)
-			if msg == 1:
-				self.close()
-			else:
-				pass
-		else:
-			self.close()
+    ITEMS = []
+    TYPE_QUANT = ""
 
-	def on_pushButtonRight_pressed(self):
-		all_items = []
+    def __init__(self, parent=None, db=None):
+        QDialog.__init__(self, parent)
+        self.setupUi(self)
 
-		for index in range(self.FieldsList.count()):
-			all_items.append(str(self.FieldsList.item(index).text()))
+    def on_pushButtonQuant_pressed(self):
+        self.ITEMS = []
+        for index in range(self.FieldListsort.count()):
+            self.ITEMS.append(str(self.FieldListsort.item(index).text()))
 
-		item_selected = self.FieldsList.selectedItems()
+        if self.radioButtonFormeMin.isChecked():
+            self.TYPE_QUANT = "Forme minime"
+        elif self.radioButtonFrammenti.isChecked():
+            self.TYPE_QUANT = "Frammenti"
 
-		all_items.remove(item_selected[0].text())
-		try:
-			all_items.remove('')
-		except:
-			pass
-		self.FieldListsort.addItem(item_selected[0].text())
+        if not bool(self.ITEMS):
+            ttl = QString("Non e' stato impostata alcun criterio. Vuoi uscire?")
+            msg = QMessageBox.warning(self, 'ATTENZIONE', ttl, QMessageBox.Cancel, 1)
+            if msg == 1:
+                self.close()
+            else:
+                pass
+        else:
+            self.close()
 
-		self.FieldsList.clear()
-		
-		for item in all_items:
-			self.FieldsList.addItem(item)
+    def on_pushButtonRight_pressed(self):
+        all_items = []
 
-	def on_pushButtonLeft_pressed(self):
-		all_items = []
+        for index in range(self.FieldsList.count()):
+            all_items.append(str(self.FieldsList.item(index).text()))
 
-		for index in range(self.FieldListsort.count()):
-			all_items.append(str(self.FieldListsort.item(index).text()))
-		
-		item_selected = self.FieldListsort.selectedItems()
-		try:
-			all_items.remove(item_selected[0].text())
-		except:
-			pass
-		self.FieldsList.addItem(item_selected[0].text())
+        item_selected = self.FieldsList.selectedItems()
 
-		self.FieldListsort.clear()
-		
-		if len(all_items) >0:
-			for item in all_items:
-				self.FieldListsort.addItem(item)
+        all_items.remove(item_selected[0].text())
+        try:
+            all_items.remove('')
+        except:
+            pass
+        self.FieldListsort.addItem(item_selected[0].text())
 
-	def insertItems(self, lv):
-		self.FieldsList.insertItems(0,lv)
-		
+        self.FieldsList.clear()
+
+        for item in all_items:
+            self.FieldsList.addItem(item)
+
+    def on_pushButtonLeft_pressed(self):
+        all_items = []
+
+        for index in range(self.FieldListsort.count()):
+            all_items.append(str(self.FieldListsort.item(index).text()))
+
+        item_selected = self.FieldListsort.selectedItems()
+        try:
+            all_items.remove(item_selected[0].text())
+        except:
+            pass
+        self.FieldsList.addItem(item_selected[0].text())
+
+        self.FieldListsort.clear()
+
+        if len(all_items) > 0:
+            for item in all_items:
+                self.FieldListsort.addItem(item)
+
+    def insertItems(self, lv):
+        self.FieldsList.insertItems(0, lv)
+
 
 if __name__ == '__main__':
-	import sys
-	a = QApplication(sys.argv)
-	dlg = SortPanelMain()
-	dlg.show()
-	sys.exit(a.exec_())
+    import sys
+
+    a = QApplication(sys.argv)
+    dlg = SortPanelMain()
+    dlg.show()
+    sys.exit(a.exec_())
