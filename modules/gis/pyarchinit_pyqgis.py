@@ -3,29 +3,32 @@
 """
 /***************************************************************************
         pyArchInit Plugin  - A QGIS plugin to manage archaeological dataset
-        					 stored in Postgres
                              -------------------
-    begin                : 2007-12-01
-    copyright            : (C) 2008 by Luca Mandolesi
-    email                : mandoluca at gmail.com
+        begin                : 2007-12-01
+        copyright            : (C) 2008 by Luca Mandolesi
+        email                : mandoluca at gmail.com
  ***************************************************************************/
+
 /***************************************************************************
- *                                                                                              *
- *   This program is free software; you can redistribute it and/or modify   *
+ *                                                                         *
+ *   This program is free software; you can redistribute it and/or modify  *
  *   it under the terms of the GNU General Public License as published by  *
- *   the Free Software Foundation; either version 2 of the License, or       *
- *   (at your option) any later version.                                               *
- *                                                                                              *
+ *   the Free Software Foundation; either version 2 of the License, or     *
+ *   (at your option) any later version.                                   *
+ *                                                                         *
  ***************************************************************************/
 """
+
 import os
 
-from PyQt4 import QtGui
-from PyQt4.QtCore import *
-from PyQt4.QtGui import *
+from builtins import object
+from builtins import range
+from builtins import str
+from qgis.PyQt.QtWidgets import QDialog, QMessageBox
 from qgis.core import *
 from qgis.gui import *
-from settings import *
+
+from .settings import Settings
 
 
 class Pyarchinit_pyqgis(QDialog, Settings):
@@ -1513,7 +1516,7 @@ class Pyarchinit_pyqgis(QDialog, Settings):
                 QMessageBox.warning(self, "TESTER", "Layer Individui non valido", QMessageBox.Ok)
 
 
-class Order_layers_DEPRECATED:
+class Order_layers_DEPRECATED(object):
     if os.name == 'posix':
         HOME = os.environ['HOME']
     elif os.name == 'nt':
@@ -1655,7 +1658,7 @@ class Order_layers_DEPRECATED:
             self.MAX_VALUE_KEYS] = self.num_us_value  # viene assegnata una nuova coppia di chiavi-valori
 
 
-class Order_layer_v2:
+class Order_layer_v2(object):
     order_dict = {}
     order_count = 0
     db = ''  # Pyarchinit_db_management('sqlite:////Users//Windows//pyarchinit_DB_folder//pyarchinit_db.sqlite')
@@ -1768,20 +1771,10 @@ class Order_layer_v2:
         return
 
 
-"""
-	def print_values(self):
-		print "dizionario_valori per successione stratigrafica: ",self.DIZ_ORDER_LAYERS
-		print "ordine di successione delle US: "
-		for k in self.DIZ_ORDER_LAYERS.keys():
-			print k
-"""
-
-
 class MyError(Exception):
+
     def __init__(self, value):
         self.value = value
 
     def __str__(self):
         return repr(self.value)
-
-# !/usr/bin/python
