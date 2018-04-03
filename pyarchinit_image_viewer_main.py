@@ -8,10 +8,15 @@ Copyright (c) 2010 __MyCompanyName__. All rights reserved.
 """
 
 import os
-import sys
 
+import sys
 from PyQt4 import QtCore, QtGui
 from delegateComboBox import *
+from pyarchinit_conn_strings import *
+from pyarchinit_image_viewer_dialog import *
+from pyarchinit_media_utility import *
+from pyarchinit_utility import *
+
 from modules.db.pyarchinit_conn_strings import Connection
 from modules.db.pyarchinit_db_manager import Pyarchinit_db_management
 from modules.db.pyarchinit_utility import Utility
@@ -19,11 +24,6 @@ from modules.gui.imageViewer import ImageViewer
 from modules.gui.pyarchinit_image_viewer_dialog import Ui_DialogImageViewer
 from modules.utility.delegateComboBox import ComboBoxDelegate
 from modules.utility.pyarchinit_media_utility import Media_utility
-from pyarchinit_conn_strings  import *
-from pyarchinit_image_viewer_dialog import *
-from pyarchinit_media_utility import *
-from pyarchinit_utility import *
-
 
 filepath = os.path.dirname(__file__)
 
@@ -128,7 +128,7 @@ class Main(QDialog, Ui_DialogImageViewer):
 				filepath = directory+'/'+filename+"."+filetype 			#db definisce il path immagine originale
 				idunique_image_check = self.db_search_check(self.MAPPER_TABLE_CLASS, 'filepath', filepath) #controlla che l'immagine non sia già presente nel db sulla base del suo path
 
-				if bool(idunique_image_check) == False:
+        if not bool(idunique_image_check):
 					mediatype = 'image'													#db definisce il tipo di immagine originale
 					self.insert_record_media(mediatype, filename, filetype, filepath) 	#db inserisce i dati nella tabella media originali
 					MU = Media_utility()
@@ -159,7 +159,7 @@ class Main(QDialog, Ui_DialogImageViewer):
 					item.setIcon(icon)
 					self.iconListWidget.addItem(item)
 
-				elif bool(idunique_image_check) == True:
+        elif bool(idunique_image_check):
 
 					#recupero il valore id_media basato sul path dell'immagine
 
@@ -383,7 +383,7 @@ class Main(QDialog, Ui_DialogImageViewer):
 				if value != None:
 					sub_list.append(str(value.text()))
 
-			if bool(sub_list) == True:
+    if bool(sub_list):
 				lista.append(sub_list)
 
 		return lista
@@ -526,7 +526,8 @@ class Main(QDialog, Ui_DialogImageViewer):
 			self.open_tags()
 
 	def open_tags(self):
-		if self.toolButton_tags_on_off.isChecked() == True:
+
+        if self.toolButton_tags_on_off.isChecked():
 			items = self.iconListWidget.selectedItems()
 			items_list = []
 			mediaToEntity_list = []
@@ -545,7 +546,7 @@ class Main(QDialog, Ui_DialogImageViewer):
 ##					u = Utility()
 ##					search_dict = u.remove_empty_items_fr_dict(search_dict)
 ##					res_media = self.DB_MANAGER.query_bool(search_dict, "MEDIA")
-				if bool(res_media) == True:
+    if bool(res_media):
 
 					for sing_media in res_media:
 						search_dict = {'id_media' : "'"+str(id_orig_item)+"'"}
@@ -553,7 +554,7 @@ class Main(QDialog, Ui_DialogImageViewer):
 						search_dict = u.remove_empty_items_fr_dict(search_dict)
 						res_mediaToEntity = self.DB_MANAGER.query_bool(search_dict, "MEDIATOENTITY")
 
-					if bool(res_mediaToEntity) == True:
+    if bool(res_mediaToEntity):
 						for sing_res_media in res_mediaToEntity:
 							if sing_res_media.entity_type == 'US':
 								search_dict = {'id_us' : "'"+str(sing_res_media.id_entity)+"'"}
@@ -572,16 +573,17 @@ class Main(QDialog, Ui_DialogImageViewer):
 							
 								Rep_string = ( 'Sito: %s - N. Inv.: %d') % (rep_data[0].sito, rep_data[0].numero_inventario)
 	##				#else
-								mediaToEntity_list.append([str(sing_res_media.id_entity),sing_res_media.entity_type,Rep_string])	
-	
-			if bool(mediaToEntity_list) == True:
+                                mediaToEntity_list.append(
+                                    [str(sing_res_media.id_entity), sing_res_media.entity_type, Rep_string])
+
+    if bool(mediaToEntity_list):
 				tags_row_count = self.tableWidget_tags.rowCount()
 				for i in range(tags_row_count):
 					self.tableWidget_tags.removeRow(0)
 
 				self.tableInsertData('self.tableWidget_tags', str(mediaToEntity_list))
-			
-			if bool(items) == False:
+
+    if not bool(items):
 				tags_row_count = self.tableWidget_tags.rowCount()
 				for i in range(tags_row_count):
 					self.tableWidget_tags.removeRow(0)

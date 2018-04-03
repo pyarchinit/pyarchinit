@@ -20,10 +20,9 @@
 """
 import os
 
-from PyQt4 import QtGui, QtCore
+from PyQt4 import QtGui
 from PyQt4.QtCore import *
 from PyQt4.QtGui import *
-import PyQt4.QtGui
 from qgis.core import *
 from qgis.gui import *
 from settings import *
@@ -135,7 +134,8 @@ class Pyarchinit_pyqgis(QDialog, Settings):
 			uri.setDataSource('','pyarchinit_us_view', 'Geometry', gidstr, "gid")
 			layerUS=QgsVectorLayer(uri.uri(), 'pyarchinit_us_view', 'spatialite')
 ###################################################################
-			if  layerUS.isValid() == True:
+
+    if layerUS.isValid():
 				#self.USLayerId = layerUS.getLayerID()
 				#style_path = ('%s%s') % (self.LAYER_STYLE_PATH_SPATIALITE, 'us_caratterizzazioni.qml')
 				#layerUS.loadNamedStyle(style_path)
@@ -144,7 +144,8 @@ class Pyarchinit_pyqgis(QDialog, Settings):
 			uri.setDataSource('','pyarchinit_quote_view', 'Geometry', gidstr, "gid")
 			layerQUOTE=QgsVectorLayer(uri.uri(), 'pyarchinit_quote_view', 'spatialite')
 
-			if  layerQUOTE.isValid() == True:
+
+if layerQUOTE.isValid():
 				QgsMapLayerRegistry.instance().addMapLayers([layerQUOTE], True)
 
 
@@ -164,8 +165,8 @@ class Pyarchinit_pyqgis(QDialog, Settings):
 
 			uri.setDataSource("public", "pyarchinit_us_view", "the_geom", gidstr, "gid")
 			layerUS = QgsVectorLayer(uri.uri(), "Unita' Stratigrafiche", "postgres")
-		
-			if  layerUS.isValid() == True:
+
+if layerUS.isValid():
 				layerUS.setCrs(srs)
 				#self.USLayerId = layerUS.getLayerID()
 				#style_path = ('%s%s') % (self.LAYER_STYLE_PATH, 'us_caratterizzazioni.qml')
@@ -176,7 +177,7 @@ class Pyarchinit_pyqgis(QDialog, Settings):
 			uri.setDataSource("public", "pyarchinit_quote_view", "the_geom", gidstr, "gid")
 			layerQUOTE = QgsVectorLayer(uri.uri(), "Quote Unita' Stratigrafiche", "postgres")
 
-			if layerQUOTE.isValid() == True:
+if layerQUOTE.isValid():
 				layerQUOTE.setCrs(srs)
 				style_path = ('%s%s') % (self.LAYER_STYLE_PATH, 'stile_quote.qml')
 				layerQUOTE.loadNamedStyle(style_path)
@@ -217,7 +218,8 @@ class Pyarchinit_pyqgis(QDialog, Settings):
 			uri.setDataSource('','pyarchinit_us_view', 'the_geom', gidstr, "ROWID")
 			layerUS=QgsVectorLayer(uri.uri(), 'pyarchinit_us_view', 'spatialite')
 
-			if  layerUS.isValid() == True:
+
+if layerUS.isValid():
 				QMessageBox.warning(self, "TESTER", "OK Layer US valido",QMessageBox.Ok)
 
 				#self.USLayerId = layerUS.getLayerID()
@@ -229,8 +231,8 @@ class Pyarchinit_pyqgis(QDialog, Settings):
 
 			uri.setDataSource('','pyarchinit_quote_view', 'the_geom', gidstr, "ROWID")
 			layerQUOTE=QgsVectorLayer(uri.uri(), 'pyarchinit_quote_view', 'spatialite')
-			
-			if  layerQUOTE.isValid() == True:
+
+if layerQUOTE.isValid():
 				#self.USLayerId = layerUS.getLayerID()
 				style_path = ('%s%s') % (self.LAYER_STYLE_PATH_SPATIALITE, 'quote_us_view.qml')
 				layerQUOTE.loadNamedStyle(style_path)
@@ -252,8 +254,8 @@ class Pyarchinit_pyqgis(QDialog, Settings):
 
 			uri.setDataSource("public", "pyarchinit_us_view", "the_geom", gidstr, "gid")
 			layerUS = QgsVectorLayer(uri.uri(), "Unita' Stratigrafiche", "postgres")
-		
-			if  layerUS.isValid() == True:
+
+if layerUS.isValid():
 				layerUS.setCrs(srs)
 				#self.USLayerId = layerUS.getLayersID()
 				#style_path = ('%s%s') % (self.LAYER_STYLE_PATH, 'us_caratterizzazioni.qml')
@@ -266,7 +268,7 @@ class Pyarchinit_pyqgis(QDialog, Settings):
 			uri.setDataSource("public", "pyarchinit_quote_view", "the_geom", gidstr, "gid")
 			layerQUOTE = QgsVectorLayer(uri.uri(), "Quote Unita' Stratigrafiche", "postgres")
 
-			if layerQUOTE.isValid() == True:
+if layerQUOTE.isValid():
 				layerQUOTE.setCrs(srs)
 				style_path = ('%s%s') % (self.LAYER_STYLE_PATH, 'stile_quote.qml')
 				layerQUOTE.loadNamedStyle(style_path)
@@ -320,7 +322,8 @@ class Pyarchinit_pyqgis(QDialog, Settings):
 ##			uri.setDataSource('','pyarchinit_doc_view_b', 'the_geom', docstr, "ROWID")
 			layerPos=QgsVectorLayer(uri.uri(), layer_name_pos, 'spatialite')
 
-			if  layerPos.isValid() == True:
+
+if layerPos.isValid():
 				QMessageBox.warning(self, "TESTER", "OK Layer US valido",QMessageBox.Ok)
 				QgsMapLayerRegistry.instance().addMapLayers([layerPos], True)
 				self.canvas = QgsMapCanvas()
@@ -347,7 +350,7 @@ class Pyarchinit_pyqgis(QDialog, Settings):
 			uri.setDataSource('','pyarchinit_us_negative_doc_view', 'geom', docstrn, "ROWID")
 			layerNeg=QgsVectorLayer(uri.uri(), layer_name_neg, 'spatialite')
 
-			if  layerNeg.isValid() == True:
+if layerNeg.isValid():
 				QMessageBox.warning(self, "TESTER", "OK Layer US Negative valido",QMessageBox.Ok)
 				QgsMapLayerRegistry.instance().addMapLayers([layerNeg], True)
 
@@ -469,7 +472,8 @@ class Pyarchinit_pyqgis(QDialog, Settings):
 			uri.setDataSource('','pyarchinit_us_view', 'the_geom', doc_from_us_str, "ROWID")
 			layerUS=QgsVectorLayer(uri.uri(), 'US in doc', 'spatialite')
 
-			if  layerUS.isValid() == True:
+
+if layerUS.isValid():
 				QMessageBox.warning(self, "TESTER", "OK Layer US valido",QMessageBox.Ok)
 
 				#self.USLayerId = layerUS.getLayerID()
@@ -494,7 +498,7 @@ class Pyarchinit_pyqgis(QDialog, Settings):
 			uri.setDataSource('','pyarchinit_us_negative_doc_view', 'geom', doc_from_us_neg_str, "ROWID")
 			layerUSneg=QgsVectorLayer(uri.uri(), 'US Negative in doc', 'spatialite')
 
-			if  layerUSneg.isValid() == True:
+if layerUSneg.isValid():
 				QMessageBox.warning(self, "TESTER", "OK Layer US negative valido",QMessageBox.Ok)
 
 				#self.USLayerId = layerUS.getLayerID()
@@ -520,7 +524,7 @@ class Pyarchinit_pyqgis(QDialog, Settings):
 			uri.setDataSource('','pyarchinit_us_view', 'the_geom', doc_from_us_str, "ROWID")
 			layerUS=QgsVectorLayer(uri.uri(), 'Documentazione intera', 'spatialite')
 
-			if  layerUS.isValid() == True:
+if layerUS.isValid():
 				QMessageBox.warning(self, "TESTER", "OK Layer US valido",QMessageBox.Ok)
 
 				#self.USLayerId = layerUS.getLayerID()
@@ -630,7 +634,8 @@ class Pyarchinit_pyqgis(QDialog, Settings):
 			uri.setDataSource('','pyarchinit_us_view', 'the_geom', gidstr, "ROWID")
 			layerUS=QgsVectorLayer(uri.uri(), 'pyarchinit_us_view', 'spatialite')
 
-			if  layerUS.isValid() == True:
+
+if layerUS.isValid():
 				QMessageBox.warning(self, "TESTER", "OK Layer US valido",QMessageBox.Ok)
 
 				#self.USLayerId = layerUS.getLayerID()
@@ -649,8 +654,8 @@ class Pyarchinit_pyqgis(QDialog, Settings):
 
 			uri.setDataSource('','pyarchinit_quote_view', 'the_geom', gidstr, "ROWID")
 			layerQUOTE=QgsVectorLayer(uri.uri(), 'pyarchinit_quote_view', 'spatialite')
-			
-			if  layerQUOTE.isValid() == True:
+
+if layerQUOTE.isValid():
 				#self.USLayerId = layerUS.getLayerID()
 				style_path = ('%s%s') % (self.LAYER_STYLE_PATH_SPATIALITE, 'quote_us_view.qml')
 				layerQUOTE.loadNamedStyle(style_path)
@@ -675,8 +680,8 @@ class Pyarchinit_pyqgis(QDialog, Settings):
 
 			uri.setDataSource("public", "pyarchinit_us_view", "the_geom", gidstr, "gid")
 			layerUS = QgsVectorLayer(uri.uri(), "Unita' Stratigrafiche", "postgres")
-		
-			if  layerUS.isValid() == True:
+
+if layerUS.isValid():
 				layerUS.setCrs(srs)
 				#self.USLayerId = layerUS.getLayersID()
 				#style_path = ('%s%s') % (self.LAYER_STYLE_PATH, 'us_caratterizzazioni.qml')
@@ -689,7 +694,7 @@ class Pyarchinit_pyqgis(QDialog, Settings):
 			uri.setDataSource("public", "pyarchinit_quote_view", "the_geom", gidstr, "gid")
 			layerQUOTE = QgsVectorLayer(uri.uri(), "Quote Unita' Stratigrafiche", "postgres")
 
-			if layerQUOTE.isValid() == True:
+if layerQUOTE.isValid():
 				layerQUOTE.setCrs(srs)
 				style_path = ('%s%s') % (self.LAYER_STYLE_PATH, 'stile_quote.qml')
 				layerQUOTE.loadNamedStyle(style_path)
@@ -737,7 +742,8 @@ class Pyarchinit_pyqgis(QDialog, Settings):
 			
 			srs = QgsCoordinateReferenceSystem(self.SRS, QgsCoordinateReferenceSystem.PostgisCrsId)
 
-			if  layerUS.isValid() == True:
+
+if layerUS.isValid():
 				QMessageBox.warning(self, "TESTER", "OK Layer US valido",QMessageBox.Ok)
 
 				#self.USLayerId = layerUS.getLayerID()
@@ -749,8 +755,8 @@ class Pyarchinit_pyqgis(QDialog, Settings):
 
 			uri.setDataSource('','pyarchinit_quote_view', 'the_geom', cont_per_string, "ROWID")
 			layerQUOTE=QgsVectorLayer(uri.uri(), layer_name_label_quote, 'spatialite')
-			
-			if  layerQUOTE.isValid() == True:
+
+if layerQUOTE.isValid():
 				#self.USLayerId = layerUS.getLayerID()
 				style_path = ('%s%s') % (self.LAYER_STYLE_PATH_SPATIALITE, 'quote_us_view.qml')
 				layerQUOTE.loadNamedStyle(style_path)
@@ -765,7 +771,7 @@ class Pyarchinit_pyqgis(QDialog, Settings):
 			srs = QgsCoordinateReferenceSystem(self.SRS, QgsCoordinateReferenceSystem.PostgisCrsId)
 			uri.setDataSource("public", "pyarchinit_us_view", "the_geom", cont_per_string, "gid")
 			layerUS = QgsVectorLayer(uri.uri(), layer_name_label_us, "postgres")
-			if  layerUS.isValid() == True:
+if layerUS.isValid():
 				layerUS.setCrs(srs)
 				#self.USLayerId = layerUS.getLayerID()
 				#style_path = ('%s%s') % (self.LAYER_STYLE_PATH, 'us_caratterizzazioni.qml')
@@ -777,7 +783,7 @@ class Pyarchinit_pyqgis(QDialog, Settings):
 
 			uri.setDataSource("public", "pyarchinit_quote_view", "the_geom", cont_per_string, "gid")
 			layerQUOTE = QgsVectorLayer(uri.uri(), layer_name_label_quote, "postgres")
-			if layerQUOTE.isValid() == True:
+if layerQUOTE.isValid():
 				layerQUOTE.setCrs(srs)
 				style_path = ('%s%s') % (self.LAYER_STYLE_PATH, 'stile_quote.qml')
 				layerQUOTE.loadNamedStyle(style_path)
@@ -826,7 +832,8 @@ class Pyarchinit_pyqgis(QDialog, Settings):
 			uri.setDataSource("public", "pyarchinit_us_view", "the_geom", gidstr, "id_us")
 			layerUS = QgsVectorLayer(uri.uri(), "Unita' Stratigrafiche", "postgres")
 
-			if layerUS.isValid() == True:
+
+if layerUS.isValid():
 				#self.USLayerId = layerUS.getLayerID()
 				#style_path = ('%s%s') % (self.LAYER_STYLE_PATH, 'us_caratterizzazioni.qml')
 				#layerUS.loadNamedStyle(style_path)
@@ -837,7 +844,7 @@ class Pyarchinit_pyqgis(QDialog, Settings):
 			uri.setDataSource("public", "pyarchinit_quote_view", "the_geom", gidstr, "id_us")
 			layerQUOTE = QgsVectorLayer(uri.uri(), "Quote", "postgres")
 
-			if layerQUOTE.isValid() == True:
+if layerQUOTE.isValid():
 				#style_path = ('%s%s') % (self.LAYER_STYLE_PATH, 'stile_quote.qml')
 				#layerQUOTE.loadNamedStyle(style_path)
 				QgsMapLayerRegistry.instance().addMapLayers([layerQUOTE], False)
@@ -855,7 +862,7 @@ class Pyarchinit_pyqgis(QDialog, Settings):
 			uri.setDataSource('','pyarchinit_quote_view', 'the_geom', gidstr, "ROWID")
 			layerQUOTE=QgsVectorLayer(uri.uri(), 'pyarchinit_quote_view', 'spatialite')
 
-			if layerQUOTE.isValid() == True:
+if layerQUOTE.isValid():
 				###QMessageBox.warning(self, "TESTER", "OK Layer Quote valido",#QMessageBox.Ok)
 				style_path = ('%s%s') % (self.LAYER_STYLE_PATH_SPATIALITE, 'quote_us_view.qml')
 				layerQUOTE.loadNamedStyle(style_path)
@@ -868,7 +875,7 @@ class Pyarchinit_pyqgis(QDialog, Settings):
 			uri.setDataSource('','pyarchinit_us_view', 'the_geom', gidstr, "ROWID")
 			layerUS=QgsVectorLayer(uri.uri(), 'pyarchinit_us_view', 'spatialite')
 
-			if layerUS.isValid() == True:
+if layerUS.isValid():
 				#QMessageBox.warning(self, "TESTER", "OK ayer US valido",	 #QMessageBox.Ok)
 				style_path = ('%s%s') % (self.LAYER_STYLE_PATH_SPATIALITE, 'us_view_splite.qml')
 				layerUS.loadNamedStyle(style_path)
@@ -903,7 +910,8 @@ class Pyarchinit_pyqgis(QDialog, Settings):
 			uri.setDataSource("public", "pyarchinit_doc_view_b", "the_geom", sing_layer, "id_us")
 			layerUS = QgsVectorLayer(uri.uri(), "Unita' Stratigrafiche", "postgres")
 
-			if layerUS.isValid() == True:
+
+if layerUS.isValid():
 				#self.USLayerId = layerUS.getLayerID()
 				#style_path = ('%s%s') % (self.LAYER_STYLE_PATH, 'us_caratterizzazioni.qml')
 				#layerUS.loadNamedStyle(style_path)
@@ -935,7 +943,7 @@ class Pyarchinit_pyqgis(QDialog, Settings):
 			
 			layerUS=QgsVectorLayer(uri.uri(), 'pyarchinit_us_view', 'spatialite')
 
-			if layerUS.isValid() == True:
+if layerUS.isValid():
 				QMessageBox.warning(self, "TESTER", "OK ayer US valido",QMessageBox.Ok)
 ##				style_path = ('%s%s') % (self.LAYER_STYLE_PATH_SPATIALITE, 'us_view_splite.qml')
 ##				layerUS.loadNamedStyle(style_path)
@@ -1059,7 +1067,7 @@ class Pyarchinit_pyqgis(QDialog, Settings):
 				cmq_set_vector_layer = "QgsVectorLayer(uri.uri(), %s, 'spatialite')" % (layer_label_conv)
 				layer= ast.literal_eval(cmq_set_vector_layer)
 
-				if  layer.isValid() == True:
+        if layer.isValid():
 					#self.USLayerId = layerUS.getLayerID()
 					##style_path = ('%s%s') % (self.LAYER_STYLE_PATH_SPATIALITE, 'us_view.qml')
 					##ayerUS.loadNamedStyle(style_path)
@@ -1085,7 +1093,8 @@ class Pyarchinit_pyqgis(QDialog, Settings):
 				cmq_set_vector_layer = "QgsVectorLayer(uri.uri(), %s, 'postgres')" % (layer_label_conv)
 				layer= ast.literal_eval(cmq_set_vector_layer)
 
-				if  layer.isValid() == True:
+
+if layer.isValid():
 					#self.USLayerId = layerUS.getLayerID()
 					##style_path = ('%s%s') % (self.LAYER_STYLE_PATH_SPATIALITE, 'us_view.qml')
 					##ayerUS.loadNamedStyle(style_path)
@@ -1125,7 +1134,7 @@ class Pyarchinit_pyqgis(QDialog, Settings):
 				cmq_set_vector_layer = "QgsVectorLayer(uri.uri(), %s, 'spatialite')" % (layer_label_conv)
 				layer= ast.literal_eval(cmq_set_vector_layer)
 
-				if  layer.isValid() == True:
+        if layer.isValid():
 					#self.USLayerId = layerUS.getLayerID()
 					##style_path = ('%s%s') % (self.LAYER_STYLE_PATH_SPATIALITE, 'us_view.qml')
 					##ayerUS.loadNamedStyle(style_path)
@@ -1145,7 +1154,8 @@ class Pyarchinit_pyqgis(QDialog, Settings):
 			cmq_set_vector_layer = "QgsVectorLayer(uri.uri(), %s, 'spatialite')" % (layer_label_conv)
 			layer= ast.literal_eval(cmq_set_vector_layer)
 
-			if  layer.isValid() == True:
+
+if layer.isValid():
 				#self.USLayerId = layerUS.getLayerID()
 				##style_path = ('%s%s') % (self.LAYER_STYLE_PATH_SPATIALITE, 'us_view.qml')
 				##ayerUS.loadNamedStyle(style_path)
@@ -1163,7 +1173,7 @@ class Pyarchinit_pyqgis(QDialog, Settings):
 			cmq_set_vector_layer = "QgsVectorLayer(uri.uri(), %s, 'spatialite')" % (layer_label_conv)
 			layer= ast.literal_eval(cmq_set_vector_layer)
 
-			if  layer.isValid() == True:
+if layer.isValid():
 				#self.USLayerId = layerUS.getLayerID()
 				##style_path = ('%s%s') % (self.LAYER_STYLE_PATH_SPATIALITE, 'us_view.qml')
 				##ayerUS.loadNamedStyle(style_path)
@@ -1181,7 +1191,7 @@ class Pyarchinit_pyqgis(QDialog, Settings):
 			cmq_set_vector_layer = "QgsVectorLayer(uri.uri(), %s, 'spatialite')" % (layer_label_conv)
 			layer= ast.literal_eval(cmq_set_vector_layer)
 
-			if  layer.isValid() == True:
+if layer.isValid():
 				QgsMapLayerRegistry.instance().addMapLayers([layer], True)
 			else:
 				QMessageBox.warning(self, "TESTER", "Layer non valido",QMessageBox.Ok)
@@ -1196,7 +1206,7 @@ class Pyarchinit_pyqgis(QDialog, Settings):
 			cmq_set_vector_layer = "QgsVectorLayer(uri.uri(), %s, 'spatialite')" % (layer_label_conv)
 			layer= ast.literal_eval(cmq_set_vector_layer)
 
-			if  layer.isValid() == True:
+if layer.isValid():
 				QgsMapLayerRegistry.instance().addMapLayers([layer], True)
 			else:
 				QMessageBox.warning(self, "TESTER", "Layer non valido",QMessageBox.Ok)
@@ -1211,7 +1221,7 @@ class Pyarchinit_pyqgis(QDialog, Settings):
 			cmq_set_vector_layer = "QgsVectorLayer(uri.uri(), %s, 'spatialite')" % (layer_label_conv)
 			layer= ast.literal_eval(cmq_set_vector_layer)
 
-			if  layer.isValid() == True:
+if layer.isValid():
 				QgsMapLayerRegistry.instance().addMapLayers([layer], True)
 			else:
 				QMessageBox.warning(self, "TESTER", "Layer non valido",QMessageBox.Ok)
@@ -1236,7 +1246,7 @@ class Pyarchinit_pyqgis(QDialog, Settings):
 				cmq_set_vector_layer = "QgsVectorLayer(uri.uri(), %s, 'postgres')" % (layer_label_conv)
 				layer= ast.literal_eval(cmq_set_vector_layer)
 
-				if  layer.isValid() == True:
+if layer.isValid():
 					#self.USLayerId = layerUS.getLayerID()
 					##style_path = ('%s%s') % (self.LAYER_STYLE_PATH_SPATIALITE, 'us_view.qml')
 					##ayerUS.loadNamedStyle(style_path)
@@ -1255,7 +1265,7 @@ class Pyarchinit_pyqgis(QDialog, Settings):
 			cmq_set_vector_layer = "QgsVectorLayer(uri.uri(), %s, 'postgres')" % (layer_label_conv)
 			layer= ast.literal_eval(cmq_set_vector_layer)
 
-			if  layer.isValid() == True:
+if layer.isValid():
 				QgsMapLayerRegistry.instance().addMapLayers([layer], True)
 			else:
 				QMessageBox.warning(self, "TESTER", "Layer non valido",QMessageBox.Ok)
@@ -1270,7 +1280,7 @@ class Pyarchinit_pyqgis(QDialog, Settings):
 			cmq_set_vector_layer = "QgsVectorLayer(uri.uri(), %s, 'postgres')" % (layer_label_conv)
 			layer= ast.literal_eval(cmq_set_vector_layer)
 
-			if  layer.isValid() == True:
+if layer.isValid():
 				QgsMapLayerRegistry.instance().addMapLayers([layer], True)
 			else:
 				QMessageBox.warning(self, "TESTER", "Layer non valido",QMessageBox.Ok)
@@ -1285,7 +1295,7 @@ class Pyarchinit_pyqgis(QDialog, Settings):
 			cmq_set_vector_layer = "QgsVectorLayer(uri.uri(), %s, 'postgres')" % (layer_label_conv)
 			layer= ast.literal_eval(cmq_set_vector_layer)
 
-			if  layer.isValid() == True:
+if layer.isValid():
 				QgsMapLayerRegistry.instance().addMapLayers([layer], True)
 			else:
 				QMessageBox.warning(self, "TESTER", "Layer non valido",QMessageBox.Ok)
@@ -1300,7 +1310,7 @@ class Pyarchinit_pyqgis(QDialog, Settings):
 			cmq_set_vector_layer = "QgsVectorLayer(uri.uri(), %s, 'postgres')" % (layer_label_conv)
 			layer= ast.literal_eval(cmq_set_vector_layer)
 
-			if  layer.isValid() == True:
+if layer.isValid():
 				QgsMapLayerRegistry.instance().addMapLayers([layer], True)
 			else:
 				QMessageBox.warning(self, "TESTER", "Layer non valido",QMessageBox.Ok)
@@ -1315,7 +1325,7 @@ class Pyarchinit_pyqgis(QDialog, Settings):
 			cmq_set_vector_layer = "QgsVectorLayer(uri.uri(), %s, 'postgres')" % (layer_label_conv)
 			layer= ast.literal_eval(cmq_set_vector_layer)
 
-			if  layer.isValid() == True:
+if layer.isValid():
 				QgsMapLayerRegistry.instance().addMapLayers([layer], True)
 			else:
 				QMessageBox.warning(self, "TESTER", "Layer non valido",QMessageBox.Ok)
@@ -1353,7 +1363,8 @@ class Pyarchinit_pyqgis(QDialog, Settings):
 			uri.setDataSource('','pyarchinit_site_view', 'the_geom', gidstr, "ROWID")
 			layerSITE=QgsVectorLayer(uri.uri(), 'pyarchinit_site_view', 'spatialite')
 
-			if layerSITE.isValid() == True:
+
+if layerSITE.isValid():
 				QMessageBox.warning(self, "TESTER", "OK Layer Sito valido",QMessageBox.Ok)
 
 				self.iface.mapCanvas().setExtent(layerSITE.extent())
@@ -1378,7 +1389,7 @@ class Pyarchinit_pyqgis(QDialog, Settings):
 			uri.setDataSource('','pyarchinit_site_view', 'the_geom', gidstr, "ROWID")
 			layerSITE=QgsVectorLayer(uri.uri(), 'pyarchinit_site_view', 'postgres')
 
-			if layerSITE.isValid() == True:
+if layerSITE.isValid():
 				QMessageBox.warning(self, "TESTER", "OK Layer Sito valido",QMessageBox.Ok)
 
 				#self.USLayerId = layerUS.getLayerID()
@@ -1420,7 +1431,8 @@ class Pyarchinit_pyqgis(QDialog, Settings):
 			uri.setDataSource('','pyarchinit_strutture_view', 'the_geom', gidstr, "ROWID")
 			layerSTRUTTURA=QgsVectorLayer(uri.uri(), 'pyarchinit_strutture_view', 'spatialite')
 
-			if layerSTRUTTURA.isValid() == True:
+
+if layerSTRUTTURA.isValid():
 				QMessageBox.warning(self, "TESTER", "OK Layer Struttura valido",QMessageBox.Ok)
 
 				self.iface.mapCanvas().setExtent(layerSTRUTTURA.extent())
@@ -1443,7 +1455,7 @@ class Pyarchinit_pyqgis(QDialog, Settings):
 			uri.setDataSource("public",'pyarchinit_strutture_view', 'the_geom', gidstr, "gid")
 			layerSTRUTTURA=QgsVectorLayer(uri.uri(), 'pyarchinit_strutture_view', 'postgres')
 
-			if layerSTRUTTURA.isValid() == True:
+if layerSTRUTTURA.isValid():
 				QMessageBox.warning(self, "TESTER", "OK Layer Struttura valido",QMessageBox.Ok)
 
 				self.iface.mapCanvas().setExtent(layerSTRUTTURA.extent())
@@ -1482,7 +1494,8 @@ class Pyarchinit_pyqgis(QDialog, Settings):
 			uri.setDataSource('','pyarchinit_individui_view', 'the_geom', gidstr, "ROWID")
 			layerIndividui=QgsVectorLayer(uri.uri(), 'pyarchinit_individui_view', 'spatialite')
 
-			if layerIndividui.isValid() == True:
+
+if layerIndividui.isValid():
 				QMessageBox.warning(self, "TESTER", "OK Layer Individui valido",QMessageBox.Ok)
 
 				#self.USLayerId = layerUS.getLayerID()
@@ -1510,7 +1523,7 @@ class Pyarchinit_pyqgis(QDialog, Settings):
 			uri.setDataSource('','pyarchinit_individui_view', 'the_geom', gidstr, "ROWID")
 			layerIndividui=QgsVectorLayer(uri.uri(), 'pyarchinit_individui_view', 'postgres')
 
-			if layerIndividui.isValid() == True:
+if layerIndividui.isValid():
 				QMessageBox.warning(self, "TESTER", "OK Layer Individui valido",QMessageBox.Ok)
 
 				#self.USLayerId = layerUS.getLayerID()
@@ -1636,7 +1649,8 @@ class Order_layers_DEPRECATED:
 				f.close()
 				self.TUPLE_TO_REMOVING.append(i)
 		#se alla fine dell'iterazione check e' rimasto 0, significa che quell'US e' in cima ai rapporti stratigrafici e si passa all'assegnazione di un nuovo livello stratigrafico nel dizionario
-		if bool(self.TUPLE_TO_REMOVING) == True:
+
+    if bool(self.TUPLE_TO_REMOVING):
 			#viene eseguita la funzione di aggiunta valori al dizionario passandogli il numero di US
 			self.add_key_value_to_diz(num_us)
 			#vengono rimosse tutte le tuple in cui e' presente l'us assegnata al dizionario e la lista di tuple viene svuotata
@@ -1691,7 +1705,8 @@ class Order_layer_v2:
 			matrix_us_equal_level = []
 			for r in res:
 				matrix_us_equal_level.append(str(r.us))
-			if bool(matrix_us_equal_level) == True:
+
+    if bool(matrix_us_equal_level):
 				self.insert_into_dict(matrix_us_equal_level,1)
 			#se res bool == True 
 			
@@ -1705,7 +1720,9 @@ class Order_layer_v2:
 			matrix_us_level = []
 			for r in res:
 				matrix_us_level.append(str(r.us))
-			if bool(matrix_us_level) == False:
+
+
+if not bool(matrix_us_level):
 				test = 1
 				return self.order_dict
 			elif self.order_count >= 50:

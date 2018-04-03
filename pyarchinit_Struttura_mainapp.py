@@ -20,9 +20,7 @@
  ***************************************************************************/
 """
 from datetime import date
-import sys
 
-from PyQt4 import QtCore, QtGui
 from delegateComboBox import *
 from modules.db.pyarchinit_conn_strings import Connection
 from modules.db.pyarchinit_db_manager import Pyarchinit_db_management
@@ -225,7 +223,8 @@ class pyarchinit_Struttura(QDialog, Ui_DialogStruttura):
 			self.DB_MANAGER.connection()
 			self.charge_records() #charge records from DB
 			#check if DB is empty
-			if bool(self.DATA_LIST) == True:
+
+    if bool(self.DATA_LIST):
 				self.REC_TOT, self.REC_CORR = len(self.DATA_LIST), 0
 				self.DATA_LIST_REC_TEMP = self.DATA_LIST_REC_CORR = self.DATA_LIST[0]
 				self.BROWSE_STATUS = "b"
@@ -463,12 +462,14 @@ class pyarchinit_Struttura(QDialog, Ui_DialogStruttura):
 
 
 	def on_pushButton_new_rec_pressed(self):
-		if bool(self.DATA_LIST) == True:
+
+
+    if bool(self.DATA_LIST):
 			if self.data_error_check() == 1:
 				pass
 			else:
 				if self.BROWSE_STATUS == "b":
-					if bool(self.DATA_LIST) == True:
+if bool(self.DATA_LIST):
 						if self.records_equal_check() == 1:
 							msg = self.update_if(QMessageBox.warning(self,'Errore',"Il record e' stato modificato. Vuoi salvare le modifiche?", QMessageBox.Cancel,1))
 		#set the GUI for a new record
@@ -720,7 +721,9 @@ class pyarchinit_Struttura(QDialog, Ui_DialogStruttura):
 				QMessageBox.warning(self,"Messaggio!!!","Record eliminato!")
 			except Exception as e:
 				QMessageBox.warning(self,"Messaggio!!!","Tipo di errore: "+str(e))
-			if bool(self.DATA_LIST) == False:
+
+
+if not bool(self.DATA_LIST):
 				QMessageBox.warning(self, "Attenzione", "Il database è vuoto!",  QMessageBox.Ok)
 				self.DATA_LIST = []
 				self.DATA_LIST_REC_CORR = []
@@ -730,7 +733,7 @@ class pyarchinit_Struttura(QDialog, Ui_DialogStruttura):
 				self.empty_fields()
 				self.set_rec_counter(0, 0)
 			#check if DB is empty
-			if bool(self.DATA_LIST) == True:
+if bool(self.DATA_LIST):
 				self.REC_TOT, self.REC_CORR = len(self.DATA_LIST), 0
 				self.DATA_LIST_REC_TEMP = self.DATA_LIST_REC_CORR = self.DATA_LIST[0]
 
@@ -817,13 +820,13 @@ class pyarchinit_Struttura(QDialog, Ui_DialogStruttura):
 			u = Utility()
 			search_dict = u.remove_empty_items_fr_dict(search_dict)
 
-			if bool(search_dict) == False:
+
+if not bool(search_dict):
 				QMessageBox.warning(self, "ATTENZIONE", "Non e' stata impostata alcuna ricerca!!!",  QMessageBox.Ok)
 			else:
 				res = self.DB_MANAGER.query_bool(search_dict, self.MAPPER_TABLE_CLASS)
-				
-				
-				if bool(res) == False:
+
+if not bool(res):
 					QMessageBox.warning(self, "ATTENZIONE", "Non e' stato trovato alcun record!",  QMessageBox.Ok)
 
 					self.set_rec_counter(len(self.DATA_LIST), self.REC_CORR+1)
@@ -857,12 +860,12 @@ class pyarchinit_Struttura(QDialog, Ui_DialogStruttura):
 
 					if self.REC_TOT == 1:
 						strings = ("E' stato trovato", self.REC_TOT, "record")
-						if self.toolButton_draw_strutture.isChecked() == True:
+if self.toolButton_draw_strutture.isChecked():
 							#sing_layer = [self.DATA_LIST[self.REC_CORR]]
 							self.pyQGIS.charge_structure_from_research(self.DATA_LIST)
 					else:
 						strings = ("Sono stati trovati", self.REC_TOT, "records")
-						if self.toolButton_draw_strutture.isChecked() == True:
+if self.toolButton_draw_strutture.isChecked():
 							#sing_layer = [self.DATA_LIST[self.REC_CORR]]
 							self.pyQGIS.charge_structure_from_research(self.DATA_LIST)
 
@@ -900,15 +903,17 @@ class pyarchinit_Struttura(QDialog, Ui_DialogStruttura):
 
 			res_strutt = self.DB_MANAGER.query_bool({"sito": "'" + str(sito) + "'", "struttura":"'"+str(sigla_struttura)+"'"}, "US")
 			us_strutt_list = []
-			if bool(res_strutt) == True:
+
+
+if bool(res_strutt):
 				for rs in res_strutt:
 					us_strutt_list.append([str(rs.sito), str(rs.area), str(rs.us)])
 
 			quote_strutt = []
-			if bool(us_strutt_list) == True:
+if bool(us_strutt_list):
 				for sing_us in us_strutt_list:
 					res_quote_strutt = self.DB_MANAGER.select_quote_from_db_sql(sing_us[0], sing_us[1], sing_us[2])
-					if bool(res_quote_strutt) == True:
+if bool(res_quote_strutt):
 						for sing_us in res_quote_strutt:
 							sing_quota_value = str(sing_us[5])
 							if sing_quota_value[0] == '-':
@@ -920,7 +925,7 @@ class pyarchinit_Struttura(QDialog, Ui_DialogStruttura):
 							quote_strutt.append(sing_quota)
 						quote_strutt.sort()
 
-			if bool(quote_strutt) == True:
+if bool(quote_strutt):
 				quota_min_strutt = '%s %s' % (quote_strutt[0][0], quote_strutt[0][1])
 				quota_max_strutt = '%s %s' % (quote_strutt[-1][0], quote_strutt[-1][1])
 			else:
@@ -952,7 +957,9 @@ class pyarchinit_Struttura(QDialog, Ui_DialogStruttura):
 
 
 	def on_toolButton_draw_strutture_toggled(self):
-		if self.toolButton_draw_strutture.isChecked() == True:
+
+
+    if self.toolButton_draw_strutture.isChecked():
 			QMessageBox.warning(self, "Messaggio", "DA DEBUGGARE Modalita' GIS attiva. Da ora le tue ricerche verranno visualizzate sul GIS", QMessageBox.Ok)
 		else:
 			QMessageBox.warning(self, "Messaggio", " DA DEBUGGARE Modalita' GIS disattivata. Da ora le tue ricerche non verranno piu' visualizzate sul GIS", QMessageBox.Ok)
@@ -1039,7 +1046,7 @@ class pyarchinit_Struttura(QDialog, Ui_DialogStruttura):
 			sub_list = []
 			for c in range(col):
 				value = ast.literal_eval(self.tablename+".item(r,c)")
-				if bool(value) == True:
+        if bool(value):
 					sub_list.append(str(value.text()))
 			lista.append(sub_list)
 		return lista

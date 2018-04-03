@@ -19,17 +19,20 @@
  *                                                                         *
  ***************************************************************************/
 """
+import os
 from datetime import date
-from numpy import *
-import random
-import sys, os
 
+import numpy as np
 from PyQt4 import QtCore, QtGui
-import csv_writer
 from  delegateComboBox import *
 from  imageViewer import ImageViewer
 from media_ponderata_sperimentale import *
-import media_ponderata_sperimentale
+from numpy import *
+from  pyarchinit_error_check import *
+from  pyarchinit_exp_Findssheet_pdf import *
+from  pyarchinit_inventario_reperti_ui import *
+from  pyarchinit_utility import *
+
 from modules.db.pyarchinit_conn_strings import Connection
 from modules.db.pyarchinit_db_manager import Pyarchinit_db_management
 from modules.db.pyarchinit_utility import Utility
@@ -38,16 +41,8 @@ from modules.utility.csv_writer import UnicodeWriter
 from modules.utility.delegateComboBox import ComboBoxDelegate
 from modules.utility.pyarchinit_error_check import Error_check
 from modules.utility.pyarchinit_exp_Findssheet_pdf import generate_reperti_pdf
-import numpy as np
-from psycopg2 import *
-from pyarchinit_US_mainapp import pyarchinit_US
-from  pyarchinit_error_check import *
-from  pyarchinit_exp_Findssheet_pdf import *
-from  pyarchinit_inventario_reperti_ui import *
-from  pyarchinit_utility import *
 from  quantpanelmain import QuantPanelMain
 from  sortpanelmain import SortPanelMain
-
 
 try:
 	from qgis.core import *
@@ -263,7 +258,8 @@ class pyarchinit_Inventario_reperti(QDialog, Ui_DialogInventarioMateriali):
 					pass
 
 			#QMessageBox.warning(self, "Totale", str(contatore),  QMessageBox.Ok)
-			if bool(dataset) == True:
+
+    if bool(dataset):
 				dataset_sum = self.UTILITY.sum_list_of_tuples_for_value(dataset)
 				csv_dataset = []
 				for sing_tup in dataset_sum:
@@ -293,7 +289,9 @@ class pyarchinit_Inventario_reperti(QDialog, Ui_DialogInventarioMateriali):
 				dataset.append(temp_dataset)
 		
 			#QMessageBox.warning(self, "Totale", str(contatore),  QMessageBox.Ok)
-			if bool(dataset) == True:
+
+
+if bool(dataset):
 				dataset_sum = self.UTILITY.sum_list_of_tuples_for_value(dataset)
 
 				#csv export block
@@ -490,7 +488,9 @@ class pyarchinit_Inventario_reperti(QDialog, Ui_DialogInventarioMateriali):
 			self.DB_MANAGER.connection()
 			self.charge_records()
 			#check if DB is empty
-			if bool(self.DATA_LIST) == True:
+
+
+if bool(self.DATA_LIST):
 				self.REC_TOT, self.REC_CORR = len(self.DATA_LIST), 0
 				self.DATA_LIST_REC_TEMP = self.DATA_LIST_REC_CORR = self.DATA_LIST[0]
 				self.BROWSE_STATUS = "b"
@@ -645,19 +645,23 @@ class pyarchinit_Inventario_reperti(QDialog, Ui_DialogInventarioMateriali):
 			self.fill_fields()
 
 	def on_toolButtonPreviewMedia_toggled(self):
-		if self.toolButtonPreviewMedia.isChecked() == True:
+
+
+    if self.toolButtonPreviewMedia.isChecked():
 			QMessageBox.warning(self, "Messaggio", "Modalita' Preview Media Reperti attivata. Le immagini dei Reperti saranno visualizzate nella sezione Media", QMessageBox.Ok)
 			self.loadMediaPreview()
 		else:
 			self.loadMediaPreview(1)
 
 	def on_pushButton_new_rec_pressed(self):
-		if bool(self.DATA_LIST) == True:
+
+
+    if bool(self.DATA_LIST):
 			if self.data_error_check() == 1:
 				pass
 			else:
 				if self.BROWSE_STATUS == "b":
-					if bool(self.DATA_LIST) == True:
+if bool(self.DATA_LIST):
 						if self.records_equal_check() == 1:
 							msg = self.update_if(QMessageBox.warning(self,'Errore',"Il record e' stato modificato. Vuoi salvare le modifiche?", QMessageBox.Cancel,1))
 
@@ -949,7 +953,9 @@ class pyarchinit_Inventario_reperti(QDialog, Ui_DialogInventarioMateriali):
 		res = self.DB_MANAGER.query_bool(search_dict, self.MAPPER_TABLE_CLASS)
 
 		for rec in range(len(res)):
-			if bool(res[rec].us) == True:
+
+
+if bool(res[rec].us):
 				elenco_us_per_cassa.append((res[rec].sito,res[rec].area, res[rec].us))
 		return elenco_us_per_cassa
 
@@ -970,7 +976,9 @@ class pyarchinit_Inventario_reperti(QDialog, Ui_DialogInventarioMateriali):
 		res = self.DB_MANAGER.query_bool(search_dict,"US")
 
 		for rec in range(len(res)):
-			if bool(res[rec].struttura) == True:
+
+
+if bool(res[rec].struttura):
 				elenco_strutture_per_us.append((res[rec].sito, res[rec].struttura))
 		return elenco_strutture_per_us
 
@@ -1174,13 +1182,17 @@ class pyarchinit_Inventario_reperti(QDialog, Ui_DialogInventarioMateriali):
 			self.REC_TOT, self.REC_CORR = len(self.DATA_LIST), 0
 			self.DATA_LIST_REC_TEMP = self.DATA_LIST_REC_CORR = self.DATA_LIST[0]
 			self.label_sort.setText(self.SORTED_ITEMS["n"])
-			if self.toolButtonPreviewMedia.isChecked() == True:
+
+
+if self.toolButtonPreviewMedia.isChecked():
 				self.loadMediaPreview(1)
 
 	#records surf functions
 	def on_pushButton_first_rec_pressed(self):
 		if self.check_record_state() == 1:
-			if self.toolButtonPreviewMedia.isChecked() == True:
+
+
+if self.toolButtonPreviewMedia.isChecked():
 				self.loadMediaPreview(1)
 		else:
 			try:
@@ -1188,14 +1200,16 @@ class pyarchinit_Inventario_reperti(QDialog, Ui_DialogInventarioMateriali):
 				self.REC_TOT, self.REC_CORR = len(self.DATA_LIST), 0
 				self.fill_fields(0)
 				self.set_rec_counter(self.REC_TOT, self.REC_CORR+1)
-				if self.toolButtonPreviewMedia.isChecked() == True:
+if self.toolButtonPreviewMedia.isChecked():
 					self.loadMediaPreview(0)
 			except Exception as e:
 				QMessageBox.warning(self, "Errore", str(e),  QMessageBox.Ok)
 
 	def on_pushButton_last_rec_pressed(self):
 		if self.check_record_state() == 1:
-			if self.toolButtonPreviewMedia.isChecked() == True:
+
+
+if self.toolButtonPreviewMedia.isChecked():
 				self.loadMediaPreview(0)		
 		else:
 
@@ -1204,7 +1218,7 @@ class pyarchinit_Inventario_reperti(QDialog, Ui_DialogInventarioMateriali):
 				self.REC_TOT, self.REC_CORR = len(self.DATA_LIST), len(self.DATA_LIST)-1
 				self.fill_fields(self.REC_CORR)
 				self.set_rec_counter(self.REC_TOT, self.REC_CORR+1)
-				if self.toolButtonPreviewMedia.isChecked() == True:
+if self.toolButtonPreviewMedia.isChecked():
 					self.loadMediaPreview(0)
 			except Exception as e:
 				QMessageBox.warning(self, "Errore", str(e),  QMessageBox.Ok)
@@ -1222,7 +1236,7 @@ class pyarchinit_Inventario_reperti(QDialog, Ui_DialogInventarioMateriali):
 					self.empty_fields()
 					self.fill_fields(self.REC_CORR)
 					self.set_rec_counter(self.REC_TOT, self.REC_CORR+1)
-					if self.toolButtonPreviewMedia.isChecked() == True:
+        if self.toolButtonPreviewMedia.isChecked():
 						self.loadMediaPreview(0)
 				except Exception as e:
 					QMessageBox.warning(self, "Errore", str(e),  QMessageBox.Ok)
@@ -1240,7 +1254,7 @@ class pyarchinit_Inventario_reperti(QDialog, Ui_DialogInventarioMateriali):
 					self.empty_fields()
 					self.fill_fields(self.REC_CORR)
 					self.set_rec_counter(self.REC_TOT, self.REC_CORR+1)
-					if self.toolButtonPreviewMedia.isChecked() == True:
+        if self.toolButtonPreviewMedia.isChecked():
 						self.loadMediaPreview(0)
 				except Exception as e:
 					QMessageBox.warning(self, "Errore", str(e),  QMessageBox.Ok)
@@ -1257,7 +1271,9 @@ class pyarchinit_Inventario_reperti(QDialog, Ui_DialogInventarioMateriali):
 				QMessageBox.warning(self,"Messaggio!!!","Record eliminato!")
 			except Exception as e:
 				QMessageBox.warning(self,"Messaggio!!!","Tipo di errore: "+str(e))
-			if bool(self.DATA_LIST) == False:
+
+
+if not bool(self.DATA_LIST):
 				QMessageBox.warning(self, "Attenzione", "Il database è vuoto!",  QMessageBox.Ok)
 				self.DATA_LIST = []
 				self.DATA_LIST_REC_CORR = []
@@ -1267,7 +1283,7 @@ class pyarchinit_Inventario_reperti(QDialog, Ui_DialogInventarioMateriali):
 				self.empty_fields()
 				self.set_rec_counter(0, 0)
 			#check if DB is empty
-			if bool(self.DATA_LIST) == True:
+if bool(self.DATA_LIST):
 				self.REC_TOT, self.REC_CORR = len(self.DATA_LIST), 0
 				self.DATA_LIST_REC_TEMP = self.DATA_LIST_REC_CORR = self.DATA_LIST[0]
 
@@ -1391,13 +1407,14 @@ class pyarchinit_Inventario_reperti(QDialog, Ui_DialogInventarioMateriali):
 			u = Utility()
 			search_dict = u.remove_empty_items_fr_dict(search_dict)
 
-			if bool(search_dict) == False:
+
+if not bool(search_dict):
 				QMessageBox.warning(self, "ATTENZIONE", "Non e' stata impostata alcuna ricerca!!!",  QMessageBox.Ok)
 				
 			else:
 				self.SEARCH_DICT_TEMP = search_dict
 				res = self.DB_MANAGER.query_bool(search_dict, self.MAPPER_TABLE_CLASS)
-				if bool(res) == False:
+if not bool(res):
 					QMessageBox.warning(self, "ATTENZIONE", "Non e' stato trovato alcun record!",  QMessageBox.Ok)
 					
 					self.set_rec_counter(len(self.DATA_LIST), self.REC_CORR+1)
@@ -1465,7 +1482,7 @@ class pyarchinit_Inventario_reperti(QDialog, Ui_DialogInventarioMateriali):
 				temp_dataset = ()
 				id_invmat = self.DATA_LIST[i].id_invmat
 				elementi_reperto = ast.literal_eval(self.DATA_LIST[i].elementi_reperto)
-				if bool(elementi_reperto) == True:
+        if bool(elementi_reperto):
 					tot_framm = 0
 					for elrep in elementi_reperto:
 						if elrep[1] == 'frammenti' or elrep[1] == 'frammento':
@@ -1593,7 +1610,8 @@ class pyarchinit_Inventario_reperti(QDialog, Ui_DialogInventarioMateriali):
 				if value != None:
 					sub_list.append(str(value.text()))
 
-			if bool(sub_list) == True:
+
+if bool(sub_list):
 				lista.append(sub_list)
 
 		return lista

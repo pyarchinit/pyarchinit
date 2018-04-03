@@ -18,13 +18,21 @@
  *   (at your option) any later version.                                  	*																		*
  ***************************************************************************/
 """
-from datetime import date
 import os
+from datetime import date
 
 from PyQt4 import QtCore, QtGui
 from PyQt4.QtCore import *
 from PyQt4.QtGui import *
 from  delegateComboBox import *
+from  pyarchinit_US_ui import *
+from  pyarchinit_db_manager import *
+from  pyarchinit_error_check import *
+from  pyarchinit_exp_USsheet_pdf import *
+from  pyarchinit_utility import *
+from qgis.core import *
+from qgis.gui import *
+
 from modules.db.pyarchinit_conn_strings import Connection
 from modules.db.pyarchinit_db_manager import Pyarchinit_db_management
 from modules.db.pyarchinit_utility import Utility
@@ -35,16 +43,7 @@ from modules.utility.delegateComboBox import ComboBoxDelegate
 from modules.utility.pyarchinit_error_check import Error_check
 from modules.utility.pyarchinit_exp_Periodosheet_pdf import generate_US_pdf
 from modules.utility.pyarchinit_print_utility import Print_utility
-from psycopg2 import *
-from  pyarchinit_US_ui import *
-from  pyarchinit_db_manager import *
-from  pyarchinit_error_check import *
-from  pyarchinit_exp_USsheet_pdf import *
-from  pyarchinit_utility import *
-from qgis.core import *
-from qgis.gui import *
 from  sortpanelmain import SortPanelMain
-
 
 #--import pyArchInit modules--#
 try:
@@ -352,7 +351,8 @@ class pyarchinit_US(QDialog, Ui_DialogUS):
 			search_dict = u.remove_empty_items_fr_dict(search_dict)
 
 			res = self.DB_MANAGER.query_bool(search_dict, self.MAPPER_TABLE_CLASS)
-			if bool(res) == False:
+
+    if not bool(res):
 				QMessageBox.warning(self, "ATTENZIONE", "Non e' stato trovato alcun record!",  QMessageBox.Ok)
 
 				self.set_rec_counter(len(self.DATA_LIST), self.REC_CORR+1)
@@ -378,11 +378,11 @@ class pyarchinit_US(QDialog, Ui_DialogUS):
 
 				if self.REC_TOT == 1:
 					strings = ("E' stato trovato", self.REC_TOT, "record")
-					if self.toolButtonGis.isChecked() == True:
+    if self.toolButtonGis.isChecked():
 						self.pyQGIS.charge_vector_layers(self.DATA_LIST)
 				else:
 					strings = ("Sono stati trovati", self.REC_TOT, "records")
-					if self.toolButtonGis.isChecked() == True:
+    if self.toolButtonGis.isChecked():
 						self.pyQGIS.charge_vector_layers(self.DATA_LIST)
 
 				self.setComboBoxEnable(["self.comboBox_sito"],"False")
@@ -464,7 +464,9 @@ class pyarchinit_US(QDialog, Ui_DialogUS):
 			self.DB_MANAGER.connection()
 			self.charge_records() #charge records from DB
 			#check if DB is empty
-			if bool(self.DATA_LIST) == True:
+
+
+if bool(self.DATA_LIST):
 				self.REC_TOT, self.REC_CORR = len(self.DATA_LIST), 0
 				self.DATA_LIST_REC_TEMP = self.DATA_LIST_REC_CORR = self.DATA_LIST[0]
 				self.BROWSE_STATUS = 'b'
@@ -741,7 +743,8 @@ class pyarchinit_US(QDialog, Ui_DialogUS):
 				quote.append(sing_quota)
 			quote.sort()
 
-			if bool(quote) == True:
+
+if bool(quote):
 				quota_min = '%s %s' % (quote[0][0], quote[0][1])
 				quota_max = '%s %s' % (quote[-1][0], quote[-1][1])
 			else:
@@ -754,7 +757,7 @@ class pyarchinit_US(QDialog, Ui_DialogUS):
 			for us in resus:
 				elenco_record.append(us)
 
-			if bool(elenco_record) == True:
+if bool(elenco_record):
 				sing_rec = elenco_record[0]
 				elenco_piante = sing_rec[6]
 				if elenco_piante != None:
@@ -1120,36 +1123,46 @@ class pyarchinit_US(QDialog, Ui_DialogUS):
 			self.fill_fields()
 
 	def on_toolButtonGis_toggled(self):
-		if self.toolButtonGis.isChecked() == True:
+
+
+    if self.toolButtonGis.isChecked():
 			QMessageBox.warning(self, "Messaggio", "Modalita' GIS attiva. Da ora le tue ricerche verranno visualizzate sul GIS", QMessageBox.Ok)
 		else:
 			QMessageBox.warning(self, "Messaggio", "Modalita' GIS disattivata. Da ora le tue ricerche non verranno piu' visualizzate sul GIS", QMessageBox.Ok)
 
 	def on_toolButtonPreview_toggled(self):
-		if self.toolButtonPreview.isChecked() == True:
+
+
+    if self.toolButtonPreview.isChecked():
 			QMessageBox.warning(self, "Messaggio", "Modalita' Preview US attivata. Le piante delle US saranno visualizzate nella sezione Piante", QMessageBox.Ok)
 			self.loadMapPreview()
 		else:
 			self.loadMapPreview(1)
 
 	def on_toolButtonPreviewMedia_toggled(self):
-		if self.toolButtonPreviewMedia.isChecked() == True:
+
+
+    if self.toolButtonPreviewMedia.isChecked():
 			QMessageBox.warning(self, "Messaggio", "Modalita' Preview Media US attivata. Le immagini delle US saranno visualizzate nella sezione Media", QMessageBox.Ok)
 			self.loadMediaPreview()
 		else:
 			self.loadMediaPreview(1)
 
 	def on_pushButton_addRaster_pressed(self):
-		if self.toolButtonGis.isChecked() == True:
+
+
+    if self.toolButtonGis.isChecked():
 			self.pyQGIS.addRasterLayer()
 
 	def on_pushButton_new_rec_pressed(self):
-		if bool(self.DATA_LIST) == True:
+
+
+    if bool(self.DATA_LIST):
 			if self.data_error_check() == 1:
 				pass
 			else:
 				if self.BROWSE_STATUS == "b":
-					if bool(self.DATA_LIST) == True:
+if bool(self.DATA_LIST):
 						if self.records_equal_check() == 1:
 							msg = self.update_if(QMessageBox.warning(self,'Errore',"Il record e' stato modificato. Vuoi salvare le modifiche?", QMessageBox.Cancel,1))
 
@@ -1390,7 +1403,7 @@ class pyarchinit_US(QDialog, Ui_DialogUS):
 						serch_dict_rapp = {'sito': sito, 'area': area, 'us': sing_rapp[1]}
 						us_rapp = self.DB_MANAGER.query_bool(serch_dict_rapp, self.MAPPER_TABLE_CLASS)
 
-						if bool(us_rapp) == False:
+            if not bool(us_rapp):
 							report = '\bSito: %s, \bArea: %s, \bUS: %d %s US: %d: Scheda US non esistente' % (sito, area, int(us), sing_rapp[0], int(sing_rapp[1]))
 						
 							#new system rapp_check
@@ -1741,7 +1754,9 @@ class pyarchinit_US(QDialog, Ui_DialogUS):
 				QMessageBox.warning(self,"Messaggio!!!","Record eliminato!")
 			except Exception as e:
 				QMessageBox.warning(self,"Messaggio!!!","Tipo di errore: "+str(e))
-			if bool(self.DATA_LIST) == False:
+
+
+if not bool(self.DATA_LIST):
 				QMessageBox.warning(self, "Attenzione", "Il database è vuoto!",  QMessageBox.Ok)
 				self.DATA_LIST = []
 				self.DATA_LIST_REC_CORR = []
@@ -1751,7 +1766,7 @@ class pyarchinit_US(QDialog, Ui_DialogUS):
 				self.empty_fields()
 				self.set_rec_counter(0, 0)
 			#check if DB is empty
-			if bool(self.DATA_LIST) == True:
+if bool(self.DATA_LIST):
 				self.REC_TOT, self.REC_CORR = len(self.DATA_LIST), 0
 				self.DATA_LIST_REC_TEMP = self.DATA_LIST_REC_CORR = self.DATA_LIST[0]
 				self.BROWSE_STATUS = "b"
@@ -1894,11 +1909,12 @@ class pyarchinit_US(QDialog, Ui_DialogUS):
 			u = Utility()
 			search_dict = u.remove_empty_items_fr_dict(search_dict)
 
-			if bool(search_dict) == False:
+
+if not bool(search_dict):
 				QMessageBox.warning(self, "ATTENZIONE", "Non è stata impostata nessuna ricerca!!!",  QMessageBox.Ok)
 			else:
 				res = self.DB_MANAGER.query_bool(search_dict, self.MAPPER_TABLE_CLASS)
-				if bool(res) == False:
+if not bool(res):
 					QMessageBox.warning(self, "ATTENZIONE", "Non è stato trovato nessun record!",  QMessageBox.Ok)
 
 					self.set_rec_counter(len(self.DATA_LIST), self.REC_CORR+1)
@@ -1929,11 +1945,11 @@ class pyarchinit_US(QDialog, Ui_DialogUS):
 
 					if self.REC_TOT == 1:
 						strings = ("E' stato trovato", self.REC_TOT, "record")
-						if self.toolButtonGis.isChecked() == True:
+if self.toolButtonGis.isChecked():
 							self.pyQGIS.charge_vector_layers(self.DATA_LIST)
 					else:
 						strings = ("Sono stati trovati", self.REC_TOT, "records")
-						if self.toolButtonGis.isChecked() == True:
+if self.toolButtonGis.isChecked():
 							self.pyQGIS.charge_vector_layers(self.DATA_LIST)
 
 					self.setComboBoxEnable(["self.comboBox_sito"],"False")
@@ -2029,8 +2045,9 @@ class pyarchinit_US(QDialog, Ui_DialogUS):
 				value = ast.literal_eval(self.tablename+".item(r,c)")
 				if value != None:
 					sub_list.append(str(value.text()))
-					
-			if bool(sub_list) == True:
+
+
+if bool(sub_list):
 				lista.append(sub_list)
 
 		return lista
@@ -2239,9 +2256,11 @@ class pyarchinit_US(QDialog, Ui_DialogUS):
 
 
 		#gestione tool
-			if self.toolButtonPreview.isChecked() == True:
+
+
+if self.toolButtonPreview.isChecked():
 				self.loadMapPreview()
-			if self.toolButtonPreviewMedia.isChecked() == True:
+if self.toolButtonPreviewMedia.isChecked():
 				self.loadMediaPreview()
 		except Exception as e:
 			QMessageBox.warning(self, "Errore Fill Fields", str(e),  QMessageBox.Ok)

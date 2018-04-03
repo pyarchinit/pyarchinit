@@ -22,7 +22,6 @@
 """
 import os
 
-from PyQt4 import QtCore, QtGui
 from PyQt4.QtCore import *
 from PyQt4.QtGui import *
 import PyQt4.QtGui
@@ -356,7 +355,7 @@ class Print_utility:
 		uri.setDataSource('','pyarchinit_us_view', 'the_geom', gidstr, "ROWID")
 		self.layerUS=QgsVectorLayer(uri.uri(), 'pyarchinit_us_view', 'spatialite')
 
-		if self.layerUS.isValid() == True:
+    if self.layerUS.isValid():
 			self.layerUS.setCrs(srs)
 			self.USLayerId = self.layerUS.getLayerID()
 			#self.mapLayerRegistry.append(USLayerId)
@@ -373,7 +372,8 @@ class Print_utility:
 		uri.setDataSource('','pyarchinit_quote_view', 'the_geom', gidstr, "ROWID")
 		self.layerQuote=QgsVectorLayer(uri.uri(), 'pyarchinit_quote_view', 'spatialite')
 
-		if self.layerQuote.isValid() == True:
+
+if self.layerQuote.isValid():
 			self.layerQuote.setCrs(srs)
 			self.QuoteLayerId = self.layerQuote.getLayerID()
 			#self.mapLayerRegistry.append(QuoteLayerId)
@@ -406,7 +406,8 @@ class Print_utility:
 
 		self.layerUS = QgsVectorLayer(self.uri.uri(), "US", "postgres")
 
-		if self.layerUS.isValid() == True:
+
+if self.layerUS.isValid():
 			self.layerUS.setCrs(srs)
 			self.USLayerId = self.layerUS.getLayerID()
 			#self.mapLayerRegistry.append(USLayerId)
@@ -422,7 +423,7 @@ class Print_utility:
 		self.uri.setDataSource("public", "pyarchinit_quote", "the_geom", gidstr, 'gid')
 		self.layerQuote = QgsVectorLayer(self.uri.uri(), "Quote", "postgres")
 
-		if self.layerQuote.isValid() == True:
+if self.layerQuote.isValid():
 			self.layerQuote.setCrs(srs)
 			self.QuoteLayerId = self.layerQuote.getLayerID()
 			#self.mapLayerRegistry.append(QuoteLayerId)

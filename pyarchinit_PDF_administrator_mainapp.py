@@ -19,14 +19,11 @@
  ***************************************************************************/
 """
 from datetime import date
-import sys, os
 
-from PyQt4 import QtCore, QtGui
 from modules.db.pyarchinit_conn_strings import Connection
 from modules.db.pyarchinit_db_manager import Pyarchinit_db_management
 from modules.db.pyarchinit_utility import Utility
 from psycopg2 import *
-from pyarchinit_US_mainapp import pyarchinit_US
 from pyarchinit_db_manager import *
 from  pyarchinit_error_check import *
 from  pyarchinit_pdf_administrator_ui import  Ui_DialogPDFManager
@@ -161,7 +158,8 @@ class pyarchinit_PDFAdministrator(QDialog, Ui_DialogPDFManager):
 			self.DB_MANAGER.connection()
 			self.charge_records() #charge records from DB
 			#check if DB is empty
-			if bool(self.DATA_LIST) == True:
+
+    if bool(self.DATA_LIST):
 				self.REC_TOT, self.REC_CORR = len(self.DATA_LIST), 0
 				self.DATA_LIST_REC_TEMP = self.DATA_LIST_REC_CORR = self.DATA_LIST[0]
 				self.BROWSE_STATUS = 'b'
@@ -267,7 +265,9 @@ class pyarchinit_PDFAdministrator(QDialog, Ui_DialogPDFManager):
 
 	def on_pushButton_new_rec_pressed(self):
 		if self.BROWSE_STATUS == "b":
-			if bool(self.DATA_LIST) == True:
+
+
+if bool(self.DATA_LIST):
 				if self.records_equal_check() == 1:
 					msg = self.update_if(QMessageBox.warning(self,'Errore',"Il record e' stato modificato. Vuoi salvare le modifiche?", QMessageBox.Cancel,1))
 
@@ -434,7 +434,8 @@ class pyarchinit_PDFAdministrator(QDialog, Ui_DialogPDFManager):
 			except:
 				QMessageBox.warning(self, "Attenzione", "Il database e' vuoto!",  QMessageBox.Ok)
 
-			if bool(self.DATA_LIST) == False:
+
+if not bool(self.DATA_LIST):
 
 				self.DATA_LIST = []
 				self.DATA_LIST_REC_CORR = []
@@ -444,7 +445,7 @@ class pyarchinit_PDFAdministrator(QDialog, Ui_DialogPDFManager):
 				self.empty_fields()
 				self.set_rec_counter(0, 0)
 			#check if DB is empty
-			if bool(self.DATA_LIST) == True:
+if bool(self.DATA_LIST):
 				self.REC_TOT, self.REC_CORR = len(self.DATA_LIST), 0
 				self.DATA_LIST_REC_TEMP = self.DATA_LIST_REC_CORR = self.DATA_LIST[0]
 
@@ -609,7 +610,9 @@ class pyarchinit_PDFAdministrator(QDialog, Ui_DialogPDFManager):
 				value = ast.literal_eval(self.tablename+".item(r,c)")
 				if value != None:
 					sub_list.append(str(value.text()))
-			if bool(sub_list) == True:
+
+
+if bool(sub_list):
 				lista.append(sub_list)
 
 		return lista

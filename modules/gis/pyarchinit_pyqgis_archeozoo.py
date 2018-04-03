@@ -18,17 +18,13 @@
  *                                                                                              *
  ***************************************************************************/
 """
-import sys, os, time
+import os
 
+from PyQt4 import QtGui
 from PyQt4.QtCore import *
 from PyQt4.QtGui import *
-import PyQt4.QtGui
-
-from PyQt4 import QtGui, QtCore
-
 from qgis.core import *
 from qgis.gui import *
-
 from settings import *
 
 class Pyarchinit_pyqgis(QDialog, Settings):
@@ -82,8 +78,9 @@ class Pyarchinit_pyqgis(QDialog, Settings):
 
 			uri.setDataSource('','pyarchinit_us_view', 'Geometry', gidstr, "gid")
 			layerUS=QgsVectorLayer(uri.uri(), 'pyarchinit_us_view', 'spatialite')
-###################################################################à
-			if  layerUS.isValid() == True:
+###################################################################ï¿½
+
+    if layerUS.isValid():
 				#self.USLayerId = layerUS.getLayerID()
 				#style_path = ('%s%s') % (self.LAYER_STYLE_PATH_SPATIALITE, 'us_caratterizzazioni.qml')
 				#layerUS.loadNamedStyle(style_path)
@@ -92,7 +89,8 @@ class Pyarchinit_pyqgis(QDialog, Settings):
 			uri.setDataSource('','pyarchinit_quote_view', 'Geometry', gidstr, "gid")
 			layerQUOTE=QgsVectorLayer(uri.uri(), 'pyarchinit_quote_view', 'spatialite')
 
-			if  layerQUOTE.isValid() == True:
+
+if layerQUOTE.isValid():
 				QgsMapLayerRegistry.instance().addMapLayers([layerQUOTE], True)
 
 
@@ -112,8 +110,8 @@ class Pyarchinit_pyqgis(QDialog, Settings):
 
 			uri.setDataSource("public", "pyarchinit_archeozoo_view", "the_geom", gidstr, "gid")
 			layerUS = QgsVectorLayer(uri.uri(), "Fauna", "postgres")
-		
-			if  layerUS.isValid() == True:
+
+if layerUS.isValid():
 				layerUS.setCrs(srs)
 				#self.USLayerId = layerUS.getLayerID()
 				#style_path = ('%s%s') % (self.LAYER_STYLE_PATH, 'us_caratterizzazioni.qml')
@@ -124,7 +122,7 @@ class Pyarchinit_pyqgis(QDialog, Settings):
 			uri.setDataSource("public", "pyarchinit_quote_view", "the_geom", gidstr, "gid")
 			layerQUOTE = QgsVectorLayer(uri.uri(), "Quote Unita' Stratigrafiche", "postgres")
 
-			if layerQUOTE.isValid() == True:
+if layerQUOTE.isValid():
 				layerQUOTE.setCrs(srs)
 				style_path = ('%s%s') % (self.LAYER_STYLE_PATH, 'stile_quote.qml')
 				layerQUOTE.loadNamedStyle(style_path)
@@ -167,7 +165,8 @@ class Pyarchinit_pyqgis(QDialog, Settings):
 			uri.setDataSource('','pyarchinit_us_view', 'the_geom', gidstr, "ROWID")
 			layerUS=QgsVectorLayer(uri.uri(), 'pyarchinit_us_view', 'spatialite')
 
-			if  layerUS.isValid() == True:
+
+if layerUS.isValid():
 				QMessageBox.warning(self, "TESTER", "OK Layer US valido",QMessageBox.Ok)
 
 				#self.USLayerId = layerUS.getLayerID()
@@ -180,8 +179,8 @@ class Pyarchinit_pyqgis(QDialog, Settings):
 
 			uri.setDataSource('','pyarchinit_quote_view', 'the_geom', gidstr, "ROWID")
 			layerQUOTE=QgsVectorLayer(uri.uri(), 'pyarchinit_quote_view', 'spatialite')
-			
-			if  layerQUOTE.isValid() == True:
+
+if layerQUOTE.isValid():
 				#self.USLayerId = layerUS.getLayerID()
 				style_path = ('%s%s') % (self.LAYER_STYLE_PATH_SPATIALITE, 'quote_us_view.qml')
 				layerQUOTE.loadNamedStyle(style_path)
@@ -206,8 +205,8 @@ class Pyarchinit_pyqgis(QDialog, Settings):
 
 			uri.setDataSource("public", "pyarchinit_archeozoo_view", "the_geom", gidstr, "id")
 			layerUS = QgsVectorLayer(uri.uri(), "Fauna", "postgres")
-		
-			if  layerUS.isValid() == True:
+
+if layerUS.isValid():
 				layerUS.setCrs(srs)
 				#self.USLayerId = layerUS.getLayersID()
 				#style_path = ('%s%s') % (self.LAYER_STYLE_PATH_SPATIALITE, 'us_caratterizzazioni.qml')
@@ -220,7 +219,7 @@ class Pyarchinit_pyqgis(QDialog, Settings):
 			uri.setDataSource("public", "pyarchinit_quote_view", "the_geom", gidstr, "gid")
 			layerQUOTE = QgsVectorLayer(uri.uri(), "Quote Unita' Stratigrafiche", "postgres")
 
-			if layerQUOTE.isValid() == True:
+if layerQUOTE.isValid():
 				layerQUOTE.setCrs(srs)
 				style_path = ('%s%s') % (self.LAYER_STYLE_PATH, 'stile_quote.qml')
 				layerQUOTE.loadNamedStyle(style_path)
@@ -262,7 +261,8 @@ class Pyarchinit_pyqgis(QDialog, Settings):
 			
 			srs = QgsCoordinateReferenceSystem(self.SRS, QgsCoordinateReferenceSystem.PostgisCrsId)
 
-			if  layerUS.isValid() == True:
+
+if layerUS.isValid():
 				QMessageBox.warning(self, "TESTER", "OK Layer US valido",QMessageBox.Ok)
 
 				#self.USLayerId = layerUS.getLayerID()
@@ -275,8 +275,8 @@ class Pyarchinit_pyqgis(QDialog, Settings):
 
 			uri.setDataSource('','pyarchinit_quote_view', 'the_geom', cont_per_string, "ROWID")
 			layerQUOTE=QgsVectorLayer(uri.uri(), 'pyarchinit_quote_view', 'spatialite')
-			
-			if  layerQUOTE.isValid() == True:
+
+if layerQUOTE.isValid():
 				#self.USLayerId = layerUS.getLayerID()
 				style_path = ('%s%s') % (self.LAYER_STYLE_PATH_SPATIALITE, 'quote_us_view.qml')
 				layerQUOTE.loadNamedStyle(style_path)
@@ -290,7 +290,7 @@ class Pyarchinit_pyqgis(QDialog, Settings):
 			srs = QgsCoordinateReferenceSystem(self.SRS, QgsCoordinateReferenceSystem.PostgisCrsId)
 			uri.setDataSource("public", "pyarchinit_archeozoo_view", "the_geom", cont_per_string, "id")
 			layerUS = QgsVectorLayer(uri.uri(), "Fauna", "postgres")
-			if  layerUS.isValid() == True:
+if layerUS.isValid():
 				layerUS.setCrs(srs)
 				#self.USLayerId = layerUS.getLayerID()
 				#style_path = ('%s%s') % (self.LAYER_STYLE_PATH, 'us_caratterizzazioni.qml')
@@ -299,7 +299,7 @@ class Pyarchinit_pyqgis(QDialog, Settings):
 				QgsMapLayerRegistry.instance().addMapLayers([layerUS], True)
 			uri.setDataSource("public", "pyarchinit_quote_view", "the_geom", cont_per_string, "gid")
 			layerQUOTE = QgsVectorLayer(uri.uri(), "Quote Unita' Stratigrafiche", "postgres")
-			if layerQUOTE.isValid() == True:
+if layerQUOTE.isValid():
 				layerQUOTE.setCrs(srs)
 				style_path = ('%s%s') % (self.LAYER_STYLE_PATH, 'stile_quote.qml')
 				layerQUOTE.loadNamedStyle(style_path)
@@ -348,7 +348,8 @@ class Pyarchinit_pyqgis(QDialog, Settings):
 			uri.setDataSource("public", "pyarchinit_archeozoo_view", "the_geom", gidstr, "id_archzoo")
 			layerUS = QgsVectorLayer(uri.uri(), "Fauna", "postgres")
 
-			if layerUS.isValid() == True:
+
+if layerUS.isValid():
 				#self.USLayerId = layerUS.getLayerID()
 				#style_path = ('%s%s') % (self.LAYER_STYLE_PATH, 'us_caratterizzazioni.qml')
 				#layerUS.loadNamedStyle(style_path)
@@ -359,7 +360,7 @@ class Pyarchinit_pyqgis(QDialog, Settings):
 			uri.setDataSource("public", "pyarchinit_quote_view", "the_geom", gidstr, "id_us")
 			layerQUOTE = QgsVectorLayer(uri.uri(), "Quote", "postgres")
 
-			if layerQUOTE.isValid() == True:
+if layerQUOTE.isValid():
 				#style_path = ('%s%s') % (self.LAYER_STYLE_PATH, 'stile_quote.qml')
 				#layerQUOTE.loadNamedStyle(style_path)
 				QgsMapLayerRegistry.instance().addMapLayers([layerQUOTE], False)
@@ -377,7 +378,7 @@ class Pyarchinit_pyqgis(QDialog, Settings):
 			uri.setDataSource('','pyarchinit_quote_view', 'the_geom', gidstr, "ROWID")
 			layerQUOTE=QgsVectorLayer(uri.uri(), 'pyarchinit_quote_view', 'spatialite')
 
-			if layerQUOTE.isValid() == True:
+if layerQUOTE.isValid():
 				###QMessageBox.warning(self, "TESTER", "OK Layer Quote valido",#QMessageBox.Ok)
 				style_path = ('%s%s') % (self.LAYER_STYLE_PATH_SPATIALITE, 'quote_us_view.qml')
 				layerQUOTE.loadNamedStyle(style_path)
@@ -390,7 +391,7 @@ class Pyarchinit_pyqgis(QDialog, Settings):
 			uri.setDataSource('','pyarchinit_us_view', 'the_geom', gidstr, "ROWID")
 			layerUS=QgsVectorLayer(uri.uri(), 'pyarchinit_us_view', 'spatialite')
 
-			if layerUS.isValid() == True:
+if layerUS.isValid():
 				#QMessageBox.warning(self, "TESTER", "OK ayer US valido",	 #QMessageBox.Ok)
 				style_path = ('%s%s') % (self.LAYER_STYLE_PATH_SPATIALITE, 'us_view.qml')
 				layerUS.loadNamedStyle(style_path)
@@ -565,7 +566,8 @@ class Order_layers:
 				f.close()
 				self.TUPLE_TO_REMOVING.append(i)
 		#se alla fine dell'iterazione check e' rimasto 0, significa che quell'US e' in cima ai rapporti stratigrafici e si passa all'assegnazione di un nuovo livello stratigrafico nel dizionario
-		if bool(self.TUPLE_TO_REMOVING) == True:
+
+    if bool(self.TUPLE_TO_REMOVING):
 			#viene eseguita la funzione di aggiunta valori al dizionario passandogli il numero di US
 			self.add_key_value_to_diz(num_us)
 			#vengono rimosse tutte le tuple in cui e' presente l'us assegnata al dizionario e la lista di tuple viene svuotata

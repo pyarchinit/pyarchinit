@@ -22,19 +22,21 @@
 
 from PyQt4.QtCore import *
 from PyQt4.QtGui import *
+
 from modules.gui.info import Ui_DialogInfo
 
 
 class pyArchInitDialog_Info(QDialog, Ui_DialogInfo):
-	def __init__(self, parent=None, db=None):
-		QDialog.__init__(self, parent)
-		# Set up the user interface from Designer.
-		self.setupUi(self)
+    def __init__(self, parent=None, db=None):
+        QDialog.__init__(self, parent)
+        # Set up the user interface from Designer.
+        self.setupUi(self)
 
 
 if __name__ == '__main__':
-	import sys
-	app = QApplication(sys.argv)
-	ui = pyArchInitDialog_Info()
-	ui.show()
-	sys.exit(app.exec_())
+    import sys
+
+    app = QApplication(sys.argv)
+    ui = pyArchInitDialog_Info()
+    ui.show()
+    sys.exit(app.exec_())
