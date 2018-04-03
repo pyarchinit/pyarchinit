@@ -1,25 +1,24 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 
+from __future__ import absolute_import
+
 import os
+import subprocess
 
 import sys
 import time
-from PyQt4 import QtGui
+from builtins import range
+from builtins import str
+from qgis.PyQt.QtWidgets import QApplication, QDialog, QMessageBox
+from qgis.PyQt.uic import loadUiType
 
-from modules.gis.pyarchinit_pyqgis import Pyarchinit_pyqgis
-from modules.gui.dbmanagment_ui import Ui_DBmanagment
+from .modules.gis.pyarchinit_pyqgis import Pyarchinit_pyqgis
 
-try:
-    from qgis.core import *
-    from qgis.gui import *
-except:
-    pass
+MAIN_DIALOG_CLASS, _ = loadUiType(os.path.join(os.path.dirname(__file__), 'modules', 'gui', 'dbmanagment_ui.ui'))
 
 
-# --import pyArchInit modules--#
-
-class pyarchinit_dbmanagment(QDialog, Ui_DBmanagment):
+class pyarchinit_dbmanagment(QDialog, MAIN_DIALOG_CLASS):
     MSG_BOX_TITLE = \
         'PyArchInit - pyarchinit_version 0.4 - Scheda gestione DB'
 
@@ -71,14 +70,12 @@ class pyarchinit_dbmanagment(QDialog, Ui_DBmanagment):
             barra.setValue(a)
 
     def on_backup_pressed(self):
-        from pyarchinit_OS_utility import *
-        import subprocess
-        import os
 
         if os.name == 'posix':
             home = os.environ['HOME']
         elif os.name == 'nt':
             home = os.environ['HOMEPATH']
+
         PDF_path = '%s%s%s' % (home, os.sep, 'pyarchinit_db_backup/')
 
         # filename = ('%s%s%s') % (PDF_path, os.sep, 'semivariogramma.png')
@@ -121,8 +118,6 @@ class pyarchinit_dbmanagment(QDialog, Ui_DBmanagment):
                                     QMessageBox.Ok)
 
     def on_backup_total_pressed(self):
-
-        from pyarchinit_OS_utility import *
 
         if os.name == 'posix':
             home = os.environ['HOME']
