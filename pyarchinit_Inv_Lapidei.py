@@ -19,25 +19,31 @@
  *                                                                         *
  ***************************************************************************/
 """
-import os
 from datetime import date
+from numpy import *
+import random
+import shutil
+import sys, os
 
-import numpy as np
-from PyQt4 import QtCore, QtGui
-from  delegateComboBox import *
-from  imageViewer import ImageViewer
-from  pyarchinit_error_check import *
-from  pyarchinit_exp_Invlapsheet_pdf import *
-from  pyarchinit_scheda_Lapidei_ui import *
-from  pyarchinit_utility import *
 from sqlalchemy.sql.functions import mode
 
+from PyQt4 import QtCore, QtGui
+import csv_writer
+from  delegateComboBox import *
+from  imageViewer import ImageViewer
 from modules.db.pyarchinit_conn_strings import Connection
 from modules.db.pyarchinit_db_manager import Pyarchinit_db_management
 from modules.db.pyarchinit_utility import Utility
 from modules.gui.pyarchinit_scheda_Lapidei_ui import Ui_DialogSchedaLapidei
 from modules.utility.pyarchinit_error_check import Error_check
 from modules.utility.pyarchinit_exp_Findssheet_pdf import generate_reperti_pdf
+import numpy as np
+from psycopg2 import *
+from  pyarchinit_error_check import *
+from  pyarchinit_exp_Invlapsheet_pdf import *
+from  pyarchinit_scheda_Lapidei_ui import *
+from  pyarchinit_utility import *
+from  quantpanelmain import QuantPanelMain
 from  sortpanelmain import SortPanelMain
 
 try:
@@ -251,8 +257,7 @@ class pyarchinit_Inventario_Lapidei(QDialog, Ui_DialogSchedaLapidei):
 			self.DB_MANAGER.connection()
 			self.charge_records()
 			#check if DB is empty
-
-if bool(self.DATA_LIST):
+			if bool(self.DATA_LIST) == True:
 				self.REC_TOT, self.REC_CORR = len(self.DATA_LIST), 0
 				self.DATA_LIST_REC_TEMP = self.DATA_LIST_REC_CORR = self.DATA_LIST[0]
 				self.BROWSE_STATUS = "b"
@@ -426,14 +431,12 @@ if bool(self.DATA_LIST):
 ##			self.loadMediaPreview(1)
 
 	def on_pushButton_new_rec_pressed(self):
-
-
-    if bool(self.DATA_LIST):
+		if bool(self.DATA_LIST) == True:
 			if self.data_error_check() == 1:
 				pass
 			else:
 				if self.BROWSE_STATUS == "b":
-if bool(self.DATA_LIST):
+					if bool(self.DATA_LIST) == True:
 						if self.records_equal_check() == 1:
 							msg = self.update_if(QMessageBox.warning(self,'Errore',"Il record e' stato modificato. Vuoi salvare le modifiche?", QMessageBox.Cancel,1))
 
@@ -814,9 +817,7 @@ if bool(self.DATA_LIST):
 				QMessageBox.warning(self,"Messaggio!!!","Record eliminato!")
 			except Exception as e:
 				QMessageBox.warning(self,"Messaggio!!!","Tipo di errore: "+str(e))
-
-
-if not bool(self.DATA_LIST):
+			if bool(self.DATA_LIST) == False:
 				QMessageBox.warning(self, "Attenzione", "Il database è vuoto!",  QMessageBox.Ok)
 				self.DATA_LIST = []
 				self.DATA_LIST_REC_CORR = []
@@ -826,7 +827,7 @@ if not bool(self.DATA_LIST):
 				self.empty_fields()
 				self.set_rec_counter(0, 0)
 			#check if DB is empty
-if bool(self.DATA_LIST):
+			if bool(self.DATA_LIST) == True:
 				self.REC_TOT, self.REC_CORR = len(self.DATA_LIST), 0
 				self.DATA_LIST_REC_TEMP = self.DATA_LIST_REC_CORR = self.DATA_LIST[0]
 
@@ -934,14 +935,13 @@ if bool(self.DATA_LIST):
 			u = Utility()
 			search_dict = u.remove_empty_items_fr_dict(search_dict)
 
-
-if not bool(search_dict):
+			if bool(search_dict) == False:
 				QMessageBox.warning(self, "ATTENZIONE", "Non e' stata impostata alcuna ricerca!!!",  QMessageBox.Ok)
 				
 			else:
 				self.SEARCH_DICT_TEMP = search_dict
 				res = self.DB_MANAGER.query_bool(search_dict, self.MAPPER_TABLE_CLASS)
-if not bool(res):
+				if bool(res) == False:
 					QMessageBox.warning(self, "ATTENZIONE", "Non e' stato trovato alcun record!",  QMessageBox.Ok)
 					
 					self.set_rec_counter(len(self.DATA_LIST), self.REC_CORR+1)
@@ -1096,8 +1096,7 @@ if not bool(res):
 				if value != None:
 					sub_list.append(str(value.text()))
 
-
-if bool(sub_list):
+			if bool(sub_list) == True:
 				lista.append(sub_list)
 
 		return lista

@@ -21,6 +21,7 @@
 """
 from datetime import date
 
+from PyQt4 import QtCore, QtGui
 from delegateComboBox import *
 from modules.db.pyarchinit_conn_strings import Connection
 from modules.db.pyarchinit_db_manager import Pyarchinit_db_management
@@ -29,6 +30,7 @@ from modules.gis.pyarchinit_pyqgis import Pyarchinit_pyqgis
 from modules.gui.pyarchinit_Tafonomia_ui import Ui_Dialog_tafonomia
 from modules.utility.pyarchinit_error_check import Error_check
 from modules.utility.pyarchinit_exp_Tafonomiasheet_pdf import generate_tafonomia_pdf
+from psycopg2 import *
 from  pyarchinit_Tafonomia_ui import *
 from  pyarchinit_db_manager import *
 from  pyarchinit_error_check import *
@@ -276,8 +278,7 @@ class pyarchinit_Tafonomia(QDialog, Ui_Dialog_tafonomia):
 			self.DB_MANAGER.connection()
 			self.charge_records() #charge records from DB
 			#check if DB is empty
-
-    if bool(self.DATA_LIST):
+			if bool(self.DATA_LIST) == True:
 				self.REC_TOT, self.REC_CORR = len(self.DATA_LIST), 0
 				self.DATA_LIST_REC_TEMP = self.DATA_LIST_REC_CORR = self.DATA_LIST[0]
 				self.BROWSE_STATUS = 'b'
@@ -631,45 +632,37 @@ class pyarchinit_Tafonomia(QDialog, Ui_Dialog_tafonomia):
 			self.fill_fields()
 
 	def on_toolButtonGis_toggled(self):
-
-
-    if self.toolButtonGis.isChecked():
+		if self.toolButtonGis.isChecked() == True:
 			QMessageBox.warning(self, "Messaggio", "Modalita' GIS attiva. Da ora le tue ricerche verranno visualizzate sul GIS", QMessageBox.Ok)
 		else:
 			QMessageBox.warning(self, "Messaggio", "Modalita' GIS disattivata. Da ora le tue ricerche non verranno piu' visualizzate sul GIS", QMessageBox.Ok)
 
 	def on_toolButtonPreview_toggled(self):
-
-
-    if self.toolButtonPreview.isChecked():
+		if self.toolButtonPreview.isChecked() == True:
 			QMessageBox.warning(self, "Messaggio", "Modalita' Preview US attivata. Le piante delle US saranno visualizzate nella sezione Piante", QMessageBox.Ok)
 			self.loadMapPreview()
 		else:
 			self.loadMapPreview(1)
 
 	def on_toolButtonPreviewMedia_toggled(self):
-
-
-    if self.toolButtonPreviewMedia.isChecked():
+		if self.toolButtonPreviewMedia.isChecked() == True:
 			QMessageBox.warning(self, "Messaggio", "Modalita' Preview Media US attivata. Le immagini delle US saranno visualizzate nella sezione Media", QMessageBox.Ok)
 			self.loadMediaPreview()
 		else:
 			self.loadMediaPreview(1)
 
 	def on_pushButton_addRaster_pressed(self):
-
-
-    if self.toolButtonGis.isChecked():
+		if self.toolButtonGis.isChecked() == True:
 			self.pyQGIS.addRasterLayer()
 
 	def on_pushButton_new_rec_pressed(self):
 		#set the GUI for a new record
-if bool(self.DATA_LIST):
+		if bool(self.DATA_LIST) == True:
 			if self.data_error_check() == 1:
 				pass
 			else:
 				if self.BROWSE_STATUS == "b":
-if bool(self.DATA_LIST):
+					if bool(self.DATA_LIST) == True:
 						if self.records_equal_check() == 1:
 							msg = self.update_if(QMessageBox.warning(self,'Errore',"Il record e' stato modificato. Vuoi salvare le modifiche?", QMessageBox.Cancel,1))
 
@@ -957,9 +950,7 @@ if bool(self.DATA_LIST):
 				self.charge_list()
 			except:
 					QMessageBox.warning(self, "Attenzione", "Il database e' vuoto!",  QMessageBox.Ok)
-
-
-if not bool(self.DATA_LIST):
+			if bool(self.DATA_LIST) == False:
 				self.DATA_LIST = []
 				self.DATA_LIST_REC_CORR = []
 				self.DATA_LIST_REC_TEMP = []
@@ -968,7 +959,7 @@ if not bool(self.DATA_LIST):
 				self.empty_fields()
 				self.set_rec_counter(0, 0)
 			#check if DB is empty
-if bool(self.DATA_LIST):
+			if bool(self.DATA_LIST) == True:
 				self.REC_TOT, self.REC_CORR = len(self.DATA_LIST), 0
 				self.DATA_LIST_REC_TEMP = self.DATA_LIST_REC_CORR = self.DATA_LIST[0]
 
@@ -1117,12 +1108,11 @@ if bool(self.DATA_LIST):
 			u = Utility()
 			search_dict = u.remove_empty_items_fr_dict(search_dict)
 
-
-if not bool(search_dict):
+			if bool(search_dict) == False:
 				QMessageBox.warning(self, "ATTENZIONE", "Non e' stata impostata alcuna ricerca!!!",  QMessageBox.Ok)
 			else:
 				res = self.DB_MANAGER.query_bool(search_dict, self.MAPPER_TABLE_CLASS)
-if not bool(res):
+				if bool(res) == False:
 					QMessageBox.warning(self, "ATTENZIONE", "Non e' stato trovato alcun record!",  QMessageBox.Ok)
 
 					self.set_rec_counter(len(self.DATA_LIST), self.REC_CORR+1)
@@ -1157,11 +1147,11 @@ if not bool(res):
 
 					if self.REC_TOT == 1:
 						strings = ("E' stato trovato", self.REC_TOT, "record")
-if self.toolButtonGis.isChecked():
+						if self.toolButtonGis.isChecked() == True:
 							self.pyQGIS.charge_vector_layers(self.DATA_LIST)
 					else:
 						strings = ("Sono stati trovati", self.REC_TOT, "records")
-if self.toolButtonGis.isChecked():
+						if self.toolButtonGis.isChecked() == True:
 							self.pyQGIS.charge_vector_layers(self.DATA_LIST)
 
 					self.setComboBoxEditable(["self.comboBox_sito"],1)
@@ -1198,9 +1188,7 @@ if self.toolButtonGis.isChecked():
 			res_ind = self.DB_MANAGER.query_bool({"sito":"'" + sito + "'","nr_individuo": nr_individuo_find},"SCHEDAIND")
 
 			us_ind_list = []
-
-
-if bool(res_ind):
+			if bool(res_ind) == True:
 				for ri in res_ind:
 					us_ind_list.append([str(ri.sito), str(ri.area), str(ri.us)])
 				us_ind_list.sort()
@@ -1208,7 +1196,7 @@ if bool(res_ind):
 			#self.testing('C:\Users\Luca\pyarchinit_Test_folder\lista_strutture.txt', str(res_ind))
 
 			quote_ind = []
-if bool(us_ind_list):
+			if bool(us_ind_list) == True:
 				res_quote_ind = self.DB_MANAGER.select_quote_from_db_sql(us_ind_list[0][0], us_ind_list[0][1], us_ind_list[0][2])
 
 				for sing_us in res_quote_ind:
@@ -1222,7 +1210,7 @@ if bool(us_ind_list):
 					quote_ind.append(sing_quota)
 				quote_ind.sort()
 
-if bool(quote_ind):
+			if bool(quote_ind) == True:
 				quota_min_ind = '%s %s' % (quote_ind[0][0], quote_ind[0][1])
 				quota_max_ind = '%s %s' % (quote_ind[-1][0], quote_ind[-1][1])
 			else:
@@ -1234,16 +1222,16 @@ if bool(quote_ind):
 			res_strutt = self.DB_MANAGER.query_bool({"sito": "'" + str(sito) + "'", "struttura":"'"+str(sigla_struttura)+"'"}, "US")
 			#res = db.query_distinct('INVENTARIO_MATERIALI',[['sito','"Sito archeologico"']], ['area', 'us'])
 			us_strutt_list = []
-if bool(res_strutt):
+			if bool(res_strutt) == True:
 				for rs in res_strutt:
 					us_strutt_list.append([str(rs.sito), str(rs.area), str(rs.us)])
 				us_strutt_list.sort()
 
 			quote_strutt = []
-if bool(us_strutt_list):
+			if bool(us_strutt_list) == True:
 				for sing_us in us_strutt_list:
 					res_quote_strutt = self.DB_MANAGER.select_quote_from_db_sql(sing_us[0], sing_us[1], sing_us[2])
-if bool(res_quote_strutt):
+					if bool(res_quote_strutt) == True:
 						for sing_us in res_quote_strutt:
 							sing_quota_value = str(sing_us[5])
 							if sing_quota_value[0] == '-':
@@ -1255,7 +1243,7 @@ if bool(res_quote_strutt):
 							quote_strutt.append(sing_quota)
 						quote_strutt.sort()
 
-if bool(quote_strutt):
+			if bool(quote_strutt) == True:
 				quota_min_strutt = '%s %s' % (quote_strutt[0][0], quote_strutt[0][1])
 				quota_max_strutt = '%s %s' % (quote_strutt[-1][0], quote_strutt[-1][1])
 			else:
@@ -1384,9 +1372,8 @@ if bool(quote_strutt):
 				value = ast.literal_eval(self.tablename+".item(r,c)")
 				if value != None:
 					sub_list.append(str(value.text()))
-
-
-if bool(sub_list):
+					
+			if bool(sub_list) == True:
 				lista.append(sub_list)
 		return lista
 
@@ -1483,9 +1470,7 @@ if bool(sub_list):
 
 	def fill_fields(self, n=0):
 		self.rec_num = n
-
-
-if bool(self.DATA_LIST):
+		if bool(self.DATA_LIST) == True:
 			try:
 
 				self.comboBox_sito.setEditText(str(self.DATA_LIST[self.rec_num].sito))															#1 - Sito
@@ -1550,9 +1535,9 @@ if bool(self.DATA_LIST):
 
 
 				#gestione tool
-if self.toolButtonPreview.isChecked():
+				if self.toolButtonPreview.isChecked() == True:
 					self.loadMapPreview()
-if self.toolButtonPreviewMedia.isChecked():
+				if self.toolButtonPreviewMedia.isChecked() == True:
 					self.loadMediaPreview()
 			except Exception as e:
 				QMessageBox.warning(self, "Errore fill", str(e),  QMessageBox.Ok)

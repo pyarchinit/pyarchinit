@@ -20,6 +20,8 @@
  ***************************************************************************/
 """
 
+import os
+
 
 class Utility:
 	def pos_none_in_list(self, l):
@@ -124,13 +126,12 @@ class Utility:
 		res_list = []
 		ret= []
 		for key,value in list(self.dict.items()):
-
-    if bool(value):
+			if bool(value) == True:
 				if type(value[0]) is list:
 					res_list.append((key,value))
 					del self.dict[key]
 
-    if bool(res_list):
+		if bool(res_list) == True:
 			for i in res_list:
 				cont = 0
 				for n in range(len(i)):
@@ -194,8 +195,8 @@ class Utility:
 		for i in eq_list:
 			if i[0]==i[1]:
 				lr.append(i[0])
-
-    if bool(lr):
+				
+		if bool(lr)==True:
 			return lr
 
 	def join_list_if(self,l1,l2,v1,v2):
@@ -213,11 +214,11 @@ class Utility:
 					else:
 						if l1[self.value_pos_1].strip()==l2[self.value_pos_2]:
 							sublist+=l2[self.value_pos_2+1:]
-
-    if bool(sublist):
+						
+			if bool(sublist) == True:
 				r_list.append(l1+sublist)
-
-    if bool(r_list):
+					
+		if bool(r_list) == True:
 			return r_list
 
 	def extract_from_list(self, l, p):

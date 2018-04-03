@@ -22,6 +22,7 @@
 from datetime import date
 import os
 
+from PyQt4 import QtCore, QtGui
 from delegateComboBox import *
 from modules.db.pyarchinit_conn_strings import Connection
 from modules.db.pyarchinit_db_manager import Pyarchinit_db_management
@@ -310,8 +311,7 @@ class pyarchinit_Detsesso(QDialog, Ui_DialogDetsesso):
 			self.DB_MANAGER.connection()
 			self.charge_records() #charge records from DB
 			#check if DB is empty
-
-    if bool(self.DATA_LIST):
+			if bool(self.DATA_LIST) == True:
 				self.REC_TOT, self.REC_CORR = len(self.DATA_LIST), 0
 				self.DATA_LIST_REC_TEMP = self.DATA_LIST_REC_CORR = self.DATA_LIST[0]
 				self.BROWSE_STATUS = "b"
@@ -464,33 +464,25 @@ class pyarchinit_Detsesso(QDialog, Ui_DialogDetsesso):
 		self.fill_fields()
 
 	def on_toolButtonGis_toggled(self):
-
-
-    if self.toolButtonGis.isChecked():
+		if self.toolButtonGis.isChecked() == True:
 			QMessageBox.warning(self, "Messaggio", "Modalita' GIS attiva. Da ora le tue ricerche verranno visualizzate sul GIS", QMessageBox.Ok)
 		else:
 			QMessageBox.warning(self, "Messaggio", "Modalita' GIS disattivata. Da ora le tue ricerche non verranno piu' visualizzate sul GIS", QMessageBox.Ok)
 
 	def on_toolButtonPreview_toggled(self):
-
-
-    if self.toolButtonPreview.isChecked():
+		if self.toolButtonPreview.isChecked() == True:
 			QMessageBox.warning(self, "Messaggio", "Modalita' Preview US attivata. Le piante delle US saranno visualizzate nella sezione Piante", QMessageBox.Ok)
 			self.loadMapPreview()
 		else:
 			self.loadMapPreview(1)
 
 	def on_pushButton_addRaster_pressed(self):
-
-
-    if self.toolButtonGis.isChecked():
+		if self.toolButtonGis.isChecked() == True:
 			self.pyQGIS.addRasterLayer()
 
 	def on_pushButton_new_rec_pressed(self):
 		if self.BROWSE_STATUS == "b":
-
-
-if bool(self.DATA_LIST):
+			if bool(self.DATA_LIST) == True:
 				if self.records_equal_check() == 1:
 					msg = self.update_if(QMessageBox.warning(self,'Errore',"Il record e' stato modificato. Vuoi salvare le modifiche?", QMessageBox.Cancel,1))
 
@@ -818,9 +810,7 @@ if bool(self.DATA_LIST):
 				QMessageBox.warning(self,"Messaggio!!!","Record eliminato!")
 			except Exception as e:
 				QMessageBox.warning(self,"Messaggio!!!","Tipo di errore: "+str(e))
-
-
-if not bool(self.DATA_LIST):
+			if bool(self.DATA_LIST) == False:
 				QMessageBox.warning(self, "Attenzione", "Il database è vuoto!",  QMessageBox.Ok)
 				self.DATA_LIST = []
 				self.DATA_LIST_REC_CORR = []
@@ -830,7 +820,7 @@ if not bool(self.DATA_LIST):
 				self.empty_fields()
 				self.set_rec_counter(0, 0)
 			#check if DB is empty
-if bool(self.DATA_LIST):
+			if bool(self.DATA_LIST) == True:
 				self.REC_TOT, self.REC_CORR = len(self.DATA_LIST), 0
 				self.DATA_LIST_REC_TEMP = self.DATA_LIST_REC_CORR = self.DATA_LIST[0]
 
@@ -923,12 +913,11 @@ if bool(self.DATA_LIST):
 			u = Utility()
 			search_dict = u.remove_empty_items_fr_dict(search_dict)
 
-
-if not bool(search_dict):
+			if bool(search_dict) == False:
 				QMessageBox.warning(self, "ATTENZIONE", "Non e' stata impostata alcuna ricerca!!!",  QMessageBox.Ok)
 			else:
 				res = self.DB_MANAGER.query_bool(search_dict, self.MAPPER_TABLE_CLASS)
-if not bool(res):
+				if bool(res) == False:
 					QMessageBox.warning(self, "ATTENZIONE", "Non e' stato trovato alcun record!",  QMessageBox.Ok)
 
 					self.set_rec_counter(len(self.DATA_LIST), self.REC_CORR+1)
@@ -951,12 +940,12 @@ if not bool(res):
 
 					if self.REC_TOT == 1:
 						strings = ("E' stato trovato", self.REC_TOT, "record")
-if self.toolButtonGis.isChecked():
+						if self.toolButtonGis.isChecked() == True:
 							id_us_list = self.charge_id_us_for_individuo()
 							self.pyQGIS.charge_individui_us(id_us_list)
 					else:
 						strings = ("Sono stati trovati", self.REC_TOT, "records")
-if self.toolButtonGis.isChecked():
+						if self.toolButtonGis.isChecked() == True:
 							id_us_list = self.charge_id_us_for_individuo()
 							self.pyQGIS.charge_individui_us(id_us_list)
 
@@ -1000,9 +989,8 @@ if self.toolButtonGis.isChecked():
 				value = ast.literal_eval(self.tablename+".item(r,c)")
 			if value != None:
 					sub_list.append(str(value.text()))
-
-
-if bool(sub_list):
+					
+		if bool(sub_list) == True:
 				lista.append(sub_list)
 
 		return lista

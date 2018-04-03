@@ -22,8 +22,7 @@
 class Error_check:
 
 	def data_is_empty(self, d):
-
-        if not bool(d):
+		if bool(d) == False:
 			return 0
 		else:
 			return 1

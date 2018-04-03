@@ -21,13 +21,7 @@
 """
 import os
 
-import psycopg2
 from modules.db.entities.Documentazione import DOCUMENTAZIONE
-from msilib import Table
-from sqlalchemy import and_, or_
-from sqlalchemy.engine import create_engine
-from sqlalchemy.orm import sessionmaker
-from sqlalchemy.sql.schema import MetaData
 
 from modules.db.pyarchinit_db_mapper import US, UT, SITE, PERIODIZZAZIONE, \
     INVENTARIO_MATERIALI, STRUTTURA, SCHEDAIND, DETSESSO, DETETA, MEDIA, \
@@ -35,6 +29,13 @@ from modules.db.pyarchinit_db_mapper import US, UT, SITE, PERIODIZZAZIONE, \
     ARCHEOZOOLOGY, INVENTARIO_LAPIDEI, PDF_ADMINISTRATOR
 from modules.db.pyarchinit_db_update import DB_update
 from modules.db.pyarchinit_utility import Utility
+from msilib import Table
+import psycopg2
+from sqlalchemy import and_, or_
+from sqlalchemy import distinct
+from sqlalchemy.engine import create_engine
+from sqlalchemy.orm import sessionmaker
+from sqlalchemy.sql.schema import MetaData
 
 
 class Pyarchinit_db_management:
@@ -899,8 +900,7 @@ class Pyarchinit_db_management:
 		max_id_func = ast.literal_eval(exec_str)
 		res_all = max_id_func.all()
 		res_max_num_id = res_all[0][0]
-
-    if not bool(res_max_num_id):
+		if bool(res_max_num_id) == False:
 			return 0
 		else:
 			return int(res_max_num_id)
@@ -921,7 +921,7 @@ class Pyarchinit_db_management:
 		self.sing_column = s
 		table = Table(self.table_name, self.metadata, autoload=True)
 
-    if not bool(str(s)):
+		if bool(str(s)) == False:
 			return [c.name for c in table.columns]
 		else:
 			return [c.name for c in table.columns][int(s)]
@@ -1014,9 +1014,8 @@ class Pyarchinit_db_management:
 		lista_us = ast.literal_eval(string)
 
 		for i in lista_us:
-
-    if not bool(i.periodo_finale):
-        if bool(i.periodo_iniziale):
+			if bool(i.periodo_finale) == False:
+				if bool(i.periodo_iniziale) == True:
 					periodiz = self.query_bool({'sito': "'"+str(self.sito)+"'", 'periodo': i.periodo_iniziale, 'fase': i.fase_iniziale}, 'PERIODIZZAZIONE')
 					self.update('US', 'id_us', [int(i.id_us)], ['cont_per'], [periodiz[0].cont_per])
 			elif bool(i.periodo_iniziale) == True and bool(i.periodo_finale) == True:

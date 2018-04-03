@@ -23,6 +23,7 @@ import sys
 
 from olefile.olefile import v
 
+from PyQt4 import QtCore, QtGui
 from modules.db.pyarchinit_conn_strings import Connection
 from modules.db.pyarchinit_db_manager import Pyarchinit_db_management
 from modules.gis.pyarchinit_pyqgis import Pyarchinit_pyqgis
@@ -113,7 +114,7 @@ class pyarchinit_Gis_Time_Controller(QDialog, Ui_DialogGisTimeController):
 								['cron_iniziale', op_cron_iniz, int(self.spinBox_cron_fin.text())],
 								],'PERIODIZZAZIONE')
 
-    if not bool(per_res):
+		if bool(per_res) == False:
 			QMessageBox.warning(self, "Alert", "Non vi sono Periodizzazioni in questo intervallo di tempo" ,  QMessageBox.Ok)
 		else:
 			us_res = []
@@ -129,7 +130,7 @@ class pyarchinit_Gis_Time_Controller(QDialog, Ui_DialogGisTimeController):
 				for n in i:
 					us_res_dep.append(n)
 
-    if not bool(us_res_dep):
+			if bool(us_res_dep) == False:
 				QMessageBox.warning(self, "Alert", "Non ci sono geometrie da visualizzare" ,  QMessageBox.Ok)
 			else:
 				self.pyQGIS.charge_vector_layers(us_res_dep)
