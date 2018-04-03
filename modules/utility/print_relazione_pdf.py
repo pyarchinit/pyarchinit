@@ -1,14 +1,14 @@
 import time
+from  pyarchinit_db_manager import *
 from reportlab.lib.enums import TA_JUSTIFY, TA_CENTER
 from reportlab.lib.pagesizes import A4
-from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer, Image
 from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
-from reportlab.lib.units import inch, cm, mm
-from reportlab.platypus import PageBreak
+from reportlab.lib.units import inch
 from reportlab.pdfgen import canvas
+from reportlab.platypus import PageBreak
+from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer, Image
 from reportlab.rl_config import defaultPageSize
 
-from  pyarchinit_db_manager import *
 
 ##############################################################
 #####MODELLO RELAZIONE
@@ -209,7 +209,7 @@ class exp_rel_pdf:
 		#cerca se e' presente una scansione cronologica del sito
 		self.DATA_LIST = []
 		periodizzazione_records = self.search_records('sito', self.SITO, 'PERIODIZZAZIONE')
-		if bool(periodizzazione_records) == True:
+		if bool(periodizzazione_records):
 			Story.append(PageBreak())
 			#crea l'intestazione della Periodizzazione
 			ptext = '<font size=16 ><b>Periodizzazione di scavo</b><br/><br/></font>'
@@ -241,7 +241,7 @@ class exp_rel_pdf:
 		#cerca se sono presenti strutture
 		self.DATA_LIST = []
 		strutture_records = self.search_records('sito', self.SITO, 'STRUTTURA')
-		if bool(strutture_records) == True:
+		if bool(strutture_records):
 			Story.append(PageBreak())
 			#crea l'intestazione delle Strutture
 			ptext = '<font size=16 ><b>Strutture di scavo</b><br/><br/></font>'

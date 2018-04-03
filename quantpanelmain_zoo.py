@@ -19,8 +19,6 @@
  *                                                                         *
  ***************************************************************************/
 """
-from PyQt4 import QtCore
-from PyQt4 import QtGui
 from modules.gui.quant_panel_ui_zoo import Ui_quantPanel_zoo
 from sortpanelmain import SortPanelMain
 
@@ -36,7 +34,7 @@ class QuantPanelMain(QDialog, Ui_quantPanel_zoo):
 		
 		self.ITEMS = []
 			
-		if self.radioButtonUsMin.isChecked() == True:
+		if self.radioButtonUsMin.isChecked():
 			self.TYPE_QUANT = "US"
 		
 		else:
