@@ -22,7 +22,6 @@
 from datetime import date
 import sys
 
-from PyQt4 import QtCore, QtGui
 from delegateComboBox import *
 from modules.db.pyarchinit_conn_strings import Connection
 from modules.db.pyarchinit_db_manager import Pyarchinit_db_management
@@ -31,7 +30,6 @@ from modules.gis.pyarchinit_pyqgis import Pyarchinit_pyqgis
 from modules.gui.pyarchinit_UT_ui import Ui_DialogUT
 from modules.utility.pdf_models.pyarchinit_exp_Findssheet_pdf import generate_pdf
 from modules.utility.pyarchinit_error_check import Error_check
-from psycopg2 import *
 from pyarchinit_US_mainapp import pyarchinit_US
 from  pyarchinit_UT_ui import *
 from  pyarchinit_db_manager import *
@@ -277,7 +275,8 @@ class pyarchinit_UT(QDialog, Ui_DialogUT):
 			self.DB_MANAGER.connection()
 			self.charge_records() #charge records from DB
 			#check if DB is empty
-			if bool(self.DATA_LIST) == True:
+
+    if bool(self.DATA_LIST):
 				self.REC_TOT, self.REC_CORR = len(self.DATA_LIST), 0
 				self.DATA_LIST_REC_TEMP = self.DATA_LIST_REC_CORR = self.DATA_LIST[0]
 				self.BROWSE_STATUS = 'b'
@@ -357,12 +356,14 @@ class pyarchinit_UT(QDialog, Ui_DialogUT):
 			self.fill_fields()
 
 	def on_pushButton_new_rec_pressed(self):
-		if bool(self.DATA_LIST) == True:
+
+
+    if bool(self.DATA_LIST):
 			if self.data_error_check() == 1:
 				pass
 			else:
 				if self.BROWSE_STATUS == "b":
-					if bool(self.DATA_LIST) == True:
+if bool(self.DATA_LIST):
 						if self.records_equal_check() == 1:
 							msg = self.update_if(QMessageBox.warning(self,'Errore',"Il record e' stato modificato. Vuoi salvare le modifiche?", QMessageBox.Cancel,1))
 
@@ -629,7 +630,9 @@ class pyarchinit_UT(QDialog, Ui_DialogUT):
 					QMessageBox.warning(self,"Messaggio!!!","Record eliminato!")
 				except Exception as e:
 					QMessageBox.warning(self,"Messaggio!!!","Tipo di errore: "+str(e))
-				if bool(self.DATA_LIST) == False:
+
+
+if not bool(self.DATA_LIST):
 					QMessageBox.warning(self, "Attenzione", "Il database è vuoto!",  QMessageBox.Ok)
 					self.DATA_LIST = []
 					self.DATA_LIST_REC_CORR = []
@@ -639,7 +642,7 @@ class pyarchinit_UT(QDialog, Ui_DialogUT):
 					self.empty_fields()
 					self.set_rec_counter(0, 0)
 				#check if DB is empty
-				if bool(self.DATA_LIST) == True:
+if bool(self.DATA_LIST):
 					self.REC_TOT, self.REC_CORR = len(self.DATA_LIST), 0
 					self.DATA_LIST_REC_TEMP = self.DATA_LIST_REC_CORR = self.DATA_LIST[0]
 					self.BROWSE_STATUS = "b"
@@ -730,17 +733,17 @@ class pyarchinit_UT(QDialog, Ui_DialogUT):
 			u = Utility()
 			search_dict = u.remove_empty_items_fr_dict(search_dict)
 
-			if bool(search_dict) == False:
+
+if not bool(search_dict):
 				QMessageBox.warning(self, "ATTENZIONE", "Non e' stata impostata alcuna ricerca!!!",  QMessageBox.Ok)
 			else:
 				res = self.DB_MANAGER.query_bool(search_dict, self.MAPPER_TABLE_CLASS)
-				if bool(search_dict) == False:
+if not bool(search_dict):
 					QMessageBox.warning(self, "ATTENZIONE", "Non e' stata impostata alcuna ricerca!!!",  QMessageBox.Ok)
 				else:
 					res = self.DB_MANAGER.query_bool(search_dict, self.MAPPER_TABLE_CLASS)
 
-
-					if bool(res) == False:
+if not bool(res):
 						QMessageBox.warning(self, "ATTENZIONE", "Non e' stato trovato alcun record!",  QMessageBox.Ok)
 
 						self.set_rec_counter(len(self.DATA_LIST), self.REC_CORR+1)
@@ -841,7 +844,7 @@ class pyarchinit_UT(QDialog, Ui_DialogUT):
 			sub_list = []
 			for c in range(col):
 				value = ast.literal_eval(self.tablename+".item(r,c)")
-				if bool(value) == True:
+        if bool(value):
 					sub_list.append(str(value.text()))
 			lista.append(sub_list)
 		return lista

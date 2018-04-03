@@ -22,7 +22,6 @@
 from datetime import date
 import os
 
-from PyQt4 import QtCore, QtGui
 from delegateComboBox import *
 from imageViewer import ImageViewer
 from modules.db.pyarchinit_conn_strings import Connection
@@ -513,7 +512,8 @@ class pyarchinit_Deteta(QDialog, Ui_Dialog_eta):
 			self.DB_MANAGER.connection()
 			self.charge_records() #charge records from DB
 			#check if DB is empty
-			if bool(self.DATA_LIST) == True:
+
+    if bool(self.DATA_LIST):
 				self.REC_TOT, self.REC_CORR = len(self.DATA_LIST), 0
 				self.DATA_LIST_REC_TEMP = self.DATA_LIST_REC_CORR = self.DATA_LIST[0]
 				self.BROWSE_STATUS = "b"
@@ -536,7 +536,9 @@ class pyarchinit_Deteta(QDialog, Ui_Dialog_eta):
 
 	def customize_GUI(self):
 		query_res = self.sex_from_individuo_table()
-		if bool(query_res) == False:
+
+
+if not bool(query_res):
 			self.enable_button_Kimmerle_f(0)
 			self.enable_button_Kimmerle_m(0)
 			self.enable_button_Suchey_Brooks(0)
@@ -693,13 +695,17 @@ class pyarchinit_Deteta(QDialog, Ui_Dialog_eta):
 			self.customize_GUI()
 
 	def on_toolButtonGis_toggled(self):
-		if self.toolButtonGis.isChecked() == True:
+
+
+    if self.toolButtonGis.isChecked():
 			QMessageBox.warning(self, "Messaggio", "Modalita' GIS attiva. Da ora le tue ricerche verranno visualizzate sul GIS", QMessageBox.Ok)
 		else:
 			QMessageBox.warning(self, "Messaggio", "Modalita' GIS disattivata. Da ora le tue ricerche non verranno piu' visualizzate sul GIS", QMessageBox.Ok)
 
 	def on_toolButtonPreview_toggled(self):
-		if self.toolButtonPreview.isChecked() == True:
+
+
+    if self.toolButtonPreview.isChecked():
 			QMessageBox.warning(self, "Messaggio", "Modalita' Preview US attivata. Le piante delle US saranno visualizzate nella sezione Piante", QMessageBox.Ok)
 			self.loadMapPreview()
 		else:
@@ -710,12 +716,14 @@ class pyarchinit_Deteta(QDialog, Ui_Dialog_eta):
 			self.pyQGIS.addRasterLayer()
 	"""
 	def on_pushButton_new_rec_pressed(self):
-		if bool(self.DATA_LIST) == True:
+
+
+    if bool(self.DATA_LIST):
 			if self.data_error_check() == 1:
 				pass
 			else:
 				if self.BROWSE_STATUS == "b":
-					if bool(self.DATA_LIST) == True:
+if bool(self.DATA_LIST):
 						if self.records_equal_check() == 1:
 							msg = self.update_if(QMessageBox.warning(self,'Errore',"Il record e' stato modificato. Vuoi salvare le modifiche?", QMessageBox.Cancel,1))
 
@@ -1575,7 +1583,9 @@ class pyarchinit_Deteta(QDialog, Ui_Dialog_eta):
 				QMessageBox.warning(self,"Messaggio!!!","Record eliminato!")
 			except Exception as e:
 				QMessageBox.warning(self,"Messaggio!!!","Tipo di errore: "+str(e))
-			if bool(self.DATA_LIST) == False:
+
+
+if not bool(self.DATA_LIST):
 				QMessageBox.warning(self, "Attenzione", "Il database è vuoto!",  QMessageBox.Ok)
 				self.DATA_LIST = []
 				self.DATA_LIST_REC_CORR = []
@@ -1585,7 +1595,7 @@ class pyarchinit_Deteta(QDialog, Ui_Dialog_eta):
 				self.empty_fields()
 				self.set_rec_counter(0, 0)
 			#check if DB is empty
-			if bool(self.DATA_LIST) == True:
+if bool(self.DATA_LIST):
 				self.REC_TOT, self.REC_CORR = len(self.DATA_LIST), 0
 				self.DATA_LIST_REC_TEMP = self.DATA_LIST_REC_CORR = self.DATA_LIST[0]
 
@@ -1706,11 +1716,12 @@ class pyarchinit_Deteta(QDialog, Ui_Dialog_eta):
 			u = Utility()
 			search_dict = u.remove_empty_items_fr_dict(search_dict)
 
-			if bool(search_dict) == False:
+
+if not bool(search_dict):
 				QMessageBox.warning(self, "ATTENZIONE", "Non e' stata impostata alcuna ricerca!!!",  QMessageBox.Ok)
 			else:
 				res = self.DB_MANAGER.query_bool(search_dict, self.MAPPER_TABLE_CLASS)
-				if bool(res) == False:
+if not bool(res):
 					QMessageBox.warning(self, "ATTENZIONE", "Non e' stato trovato alcun record!",  QMessageBox.Ok)
 
 					self.set_rec_counter(len(self.DATA_LIST), self.REC_CORR+1)
@@ -1733,12 +1744,12 @@ class pyarchinit_Deteta(QDialog, Ui_Dialog_eta):
 					
 					if self.REC_TOT == 1:
 						strings = ("E' stato trovato", self.REC_TOT, "record")
-						if self.toolButtonGis.isChecked() == True:
+if self.toolButtonGis.isChecked():
 							id_us_list = self.charge_id_us_for_individuo()
 							self.pyQGIS.charge_individui_us(id_us_list)
 					else:
 						strings = ("Sono stati trovati", self.REC_TOT, "records")
-						if self.toolButtonGis.isChecked() == True:
+if self.toolButtonGis.isChecked():
 							id_us_list = self.charge_id_us_for_individuo()
 							self.pyQGIS.charge_individui_us(id_us_list)
 					
@@ -1809,8 +1820,9 @@ class pyarchinit_Deteta(QDialog, Ui_Dialog_eta):
 				value = ast.literal_eval(self.tablename+".item(r,c)")
 				if value != None:
 					sub_list.append(str(value.text()))
-					
-			if bool(sub_list) == True:
+
+
+if bool(sub_list):
 				lista.append(sub_list)
 
 		return lista
@@ -2578,7 +2590,9 @@ class pyarchinit_Deteta(QDialog, Ui_Dialog_eta):
 	def on_pushButton_openSinfisi_pubica_pressed(self):
 		#apre la tabella di determinazione dell'eta in base al sesso ricavato dalla scheda individuo
 		query_res = self.sex_from_individuo_table()
-		if bool(query_res) == False:
+
+
+if not bool(query_res):
 			QMessageBox.warning(self, "Errore", "Crea prima la scheda individuo e segnala il sesso per poter utilizzare la determinazione dell'eta' in base alla sinfisi pubica",  QMessageBox.Ok)
 		else:
 			sesso = query_res[0].sesso
@@ -2592,7 +2606,9 @@ class pyarchinit_Deteta(QDialog, Ui_Dialog_eta):
 	def on_pushButton_openSinfisi_pubica_2_pressed(self):
 		#apre la tabella di determinazione dell'eta in base al sesso ricavato dalla scheda individuo
 		query_res = self.sex_from_individuo_table()
-		if bool(query_res) == False:
+
+
+if not bool(query_res):
 			QMessageBox.warning(self, "Errore", "Crea prima la scheda individuo e segnala il sesso per poter utilizzare la determinazione dell'eta' in base alla sinfisi pubica",  QMessageBox.Ok)
 		else:
 			sesso = query_res[0].sesso
@@ -2751,7 +2767,9 @@ class pyarchinit_Deteta(QDialog, Ui_Dialog_eta):
 
 	def on_pushButton_I_fase_pressed(self):
 		query_res = self.sex_from_individuo_table()
-		if bool(query_res) == False:
+
+
+if not bool(query_res):
 			QMessageBox.warning(self, "Errore", "Crea prima la scheda individuo e segnala il sesso per poter utilizzare la determinazione dell'eta' in base alla sinfisi pubica",  QMessageBox.Ok)
 		else:
 			sesso = query_res[0].sesso
@@ -2762,8 +2780,8 @@ class pyarchinit_Deteta(QDialog, Ui_Dialog_eta):
 				range_sex = self.DIZ_VALORI_SINFISI_FEMMINA_Suchey_Brooks[1]
 			else:
 				QMessageBox.warning(self, "Errore", "Tipo di sesso: " + str(sesso) + "\nNon e' possibile stimare l'eta' di morte in base alla sinfisi pubica",  QMessageBox.Ok)
-			
-			if bool(range_sex) == True:
+
+if bool(range_sex):
 				val_min, val_max = range_sex[0], range_sex[1]
 				self.lineEdit_sinf_min.setText(str(val_min))
 				self.lineEdit_sinf_max.setText(str(val_max))
@@ -2771,7 +2789,9 @@ class pyarchinit_Deteta(QDialog, Ui_Dialog_eta):
 
 	def on_pushButton_II_fase_pressed(self):
 		query_res = self.sex_from_individuo_table()
-		if bool(query_res) == False:
+
+
+if not bool(query_res):
 			QMessageBox.warning(self, "Errore", "Crea prima la scheda individuo e segnala il sesso per poter utilizzare la determinazione dell'eta' in base alla sinfisi pubica",  QMessageBox.Ok)
 		else:
 			sesso = query_res[0].sesso
@@ -2783,7 +2803,7 @@ class pyarchinit_Deteta(QDialog, Ui_Dialog_eta):
 			else:
 				QMessageBox.warning(self, "Errore", "Tipo di sesso: " + str(sesso) + "\nNon e' possibile stimare l'eta' di morte in base alla sinfisi pubica",  QMessageBox.Ok)
 
-			if bool(range_sex) == True:
+if bool(range_sex):
 				val_min, val_max = range_sex[0], range_sex[1]
 				self.lineEdit_sinf_min.setText(str(val_min))
 				self.lineEdit_sinf_max.setText(str(val_max))
@@ -2791,7 +2811,9 @@ class pyarchinit_Deteta(QDialog, Ui_Dialog_eta):
 
 	def on_pushButton_III_fase_pressed(self):
 		query_res = self.sex_from_individuo_table()
-		if bool(query_res) == False:
+
+
+if not bool(query_res):
 			QMessageBox.warning(self, "Errore", "Crea prima la scheda individuo e segnala il sesso per poter utilizzare la determinazione dell'eta' in base alla sinfisi pubica",  QMessageBox.Ok)
 		else:
 			sesso = query_res[0].sesso
@@ -2803,7 +2825,7 @@ class pyarchinit_Deteta(QDialog, Ui_Dialog_eta):
 			else:
 				QMessageBox.warning(self, "Errore", "Tipo di sesso: " + str(sesso) + "\nNon e' possibile stimare l'eta' di morte in base alla sinfisi pubica",  QMessageBox.Ok)
 
-			if bool(range_sex) == True:
+if bool(range_sex):
 				val_min, val_max = range_sex[0], range_sex[1]
 				self.lineEdit_sinf_min.setText(str(val_min))
 				self.lineEdit_sinf_max.setText(str(val_max))
@@ -2811,7 +2833,9 @@ class pyarchinit_Deteta(QDialog, Ui_Dialog_eta):
 
 	def on_pushButton_IV_fase_pressed(self):
 		query_res = self.sex_from_individuo_table()
-		if bool(query_res) == False:
+
+
+if not bool(query_res):
 			QMessageBox.warning(self, "Errore", "Crea prima la scheda individuo e segnala il sesso per poter utilizzare la determinazione dell'eta' in base alla sinfisi pubica",  QMessageBox.Ok)
 		else:
 			sesso = query_res[0].sesso
@@ -2823,7 +2847,7 @@ class pyarchinit_Deteta(QDialog, Ui_Dialog_eta):
 			else:
 				QMessageBox.warning(self, "Errore", "Tipo di sesso: " + str(sesso) + "\nNon e' possibile stimare l'eta' di morte in base alla sinfisi pubica",  QMessageBox.Ok)
 
-			if bool(range_sex) == True:
+if bool(range_sex):
 				val_min, val_max = range_sex[0], range_sex[1]
 				self.lineEdit_sinf_min.setText(str(val_min))
 				self.lineEdit_sinf_max.setText(str(val_max))
@@ -2831,7 +2855,9 @@ class pyarchinit_Deteta(QDialog, Ui_Dialog_eta):
 
 	def on_pushButton_V_fase_pressed(self):
 		query_res = self.sex_from_individuo_table()
-		if bool(query_res) == False:
+
+
+if not bool(query_res):
 			QMessageBox.warning(self, "Errore", "Crea prima la scheda individuo e segnala il sesso per poter utilizzare la determinazione dell'eta' in base alla sinfisi pubica",  QMessageBox.Ok)
 		else:
 			sesso = query_res[0].sesso
@@ -2843,7 +2869,7 @@ class pyarchinit_Deteta(QDialog, Ui_Dialog_eta):
 			else:
 				QMessageBox.warning(self, "Errore", "Tipo di sesso: " + str(sesso) + "\nNon e' possibile stimare l'eta' di morte in base alla sinfisi pubica",  QMessageBox.Ok)
 
-			if bool(range_sex) == True:
+if bool(range_sex):
 				val_min, val_max = range_sex[0], range_sex[1]
 				self.lineEdit_sinf_min.setText(str(val_min))
 				self.lineEdit_sinf_max.setText(str(val_max))
@@ -2851,7 +2877,9 @@ class pyarchinit_Deteta(QDialog, Ui_Dialog_eta):
 
 	def on_pushButton_VI_fase_pressed(self):
 		query_res = self.sex_from_individuo_table()
-		if bool(query_res) == False:
+
+
+if not bool(query_res):
 			QMessageBox.warning(self, "Errore", "Crea prima la scheda individuo e segnala il sesso per poter utilizzare la determinazione dell'eta' in base alla sinfisi pubica",  QMessageBox.Ok)
 		else:
 			sesso = query_res[0].sesso
@@ -2863,7 +2891,7 @@ class pyarchinit_Deteta(QDialog, Ui_Dialog_eta):
 			else:
 				QMessageBox.warning(self, "Errore", "Tipo di sesso: " + str(sesso) + "\nNon e' possibile stimare l'eta' di morte in base alla sinfisi pubica",  QMessageBox.Ok)
 
-			if bool(range_sex) == True:
+if bool(range_sex):
 				val_min, val_max = range_sex[0], range_sex[1]
 				self.lineEdit_sinf_min.setText(str(val_min))
 				self.lineEdit_sinf_max.setText(str(val_max))
