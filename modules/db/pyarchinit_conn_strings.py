@@ -26,54 +26,59 @@ from modules.db.settings import Settings
 
 class Connection:
     def conn_str(self):
-        
+
         if os.name == 'posix':
             home = os.environ['HOME']
         elif os.name == 'nt':
             home = os.environ['HOMEPATH']
 
-        cfg_rel_path = os.path.join(os.sep,'pyarchinit_DB_folder', 'config.cfg')
+        cfg_rel_path = os.path.join(os.sep, 'pyarchinit_DB_folder', 'config.cfg')
         file_path = ('%s%s') % (home, cfg_rel_path)
         conf = open(file_path, "r")
-        
+
         data = conf.read()
         settings = Settings(data)
         settings.set_configuration()
 
-        conn_str_dict = {"server":settings.SERVER, 
-                        "user": settings.USER, 
-                        "host": settings.HOST,
-                        "port": settings.PORT,
-                        "db_name": settings.DATABASE,
-                        "password" : settings.PASSWORD}
+        conn_str_dict = {"server": settings.SERVER,
+                         "user": settings.USER,
+                         "host": settings.HOST,
+                         "port": settings.PORT,
+                         "db_name": settings.DATABASE,
+                         "password": settings.PASSWORD}
 
         if conn_str_dict["server"] == 'postgres':
             try:
-                conn_str = "%s://%s:%s@%s:%s/%s%s?charset=utf8" % ("postgresql", conn_str_dict["user"],conn_str_dict["password"], conn_str_dict["host"], conn_str_dict["port"], conn_str_dict["db_name"], "?sslmode=allow")
+                conn_str = "%s://%s:%s@%s:%s/%s%s?charset=utf8" % (
+                "postgresql", conn_str_dict["user"], conn_str_dict["password"], conn_str_dict["host"],
+                conn_str_dict["port"], conn_str_dict["db_name"], "?sslmode=allow")
             except:
-                conn_str = "%s://%s:%s@%s:%d/%s" % ("postgresql", conn_str_dict["user"],conn_str_dict["password"], conn_str_dict["host"], conn_str_dict["port"], conn_str_dict["db_name"])
+                conn_str = "%s://%s:%s@%s:%d/%s" % (
+                "postgresql", conn_str_dict["user"], conn_str_dict["password"], conn_str_dict["host"],
+                conn_str_dict["port"], conn_str_dict["db_name"])
 
         elif conn_str_dict["server"] == 'sqlite':
-            sqlite_DB_path = ('%s%s%s') % (home, os.sep, "pyarchinit_DB_folder") #"C:\\Users\\Windows\\Dropbox\\pyarchinit_san_marco\\" fare modifiche anche in pyarchinit_pyqgis
-            
+            sqlite_DB_path = ('%s%s%s') % (home, os.sep,
+                                           "pyarchinit_DB_folder")  # "C:\\Users\\Windows\\Dropbox\\pyarchinit_san_marco\\" fare modifiche anche in pyarchinit_pyqgis
+
             dbname_abs = sqlite_DB_path + os.sep + conn_str_dict["db_name"]
 
             conn_str = "%s:///%s" % (conn_str_dict["server"], dbname_abs)
         return conn_str
-        
+
     def thumb_path(self):
         if os.name == 'posix':
             home = os.environ['HOME']
         elif os.name == 'nt':
             home = os.environ['HOMEPATH']
 
-        cfg_rel_path = os.path.join(os.sep,'pyarchinit_DB_folder', 'config.cfg')
+        cfg_rel_path = os.path.join(os.sep, 'pyarchinit_DB_folder', 'config.cfg')
         file_path = ('%s%s') % (home, cfg_rel_path)
         conf = open(file_path, "r")
 
         data = conf.read()
         settings = Settings(data)
         settings.set_configuration()
-        thumb_path = {"thumb_path" : settings.THUMB_PATH}
-        
+        thumb_path = {"thumb_path": settings.THUMB_PATH}
+
         return thumb_path

@@ -8,13 +8,12 @@
 # WARNING! All changes made in this file will be lost!
 
 from PyQt4 import QtCore, QtGui
-import resources_rc
-
 
 try:
     _fromUtf8 = QtCore.QString.fromUtf8
 except AttributeError:
     _fromUtf8 = lambda s: s
+
 
 class Ui_quantPanel_zoo(object):
     def setupUi(self, quantPanel_zoo):
@@ -80,25 +79,36 @@ class Ui_quantPanel_zoo(object):
         QtCore.QMetaObject.connectSlotsByName(quantPanel_zoo)
 
     def retranslateUi(self, quantPanel_zoo):
-        quantPanel_zoo.setWindowTitle(QtGui.QApplication.translate("quantPanel_zoo", "Ordina", None, QtGui.QApplication.UnicodeUTF8))
-        self.radioButtonUsMin.setText(QtGui.QApplication.translate("quantPanel_zoo", "US", None, QtGui.QApplication.UnicodeUTF8))
-        self.nugget.setText(QtGui.QApplication.translate("quantPanel_zoo", "Nugget", None, QtGui.QApplication.UnicodeUTF8))
-        self.label.setText(QtGui.QApplication.translate("quantPanel_zoo", "Psill", None, QtGui.QApplication.UnicodeUTF8))
-        self.model.setItemText(0, QtGui.QApplication.translate("quantPanel_zoo", "Sph", None, QtGui.QApplication.UnicodeUTF8))
-        self.model.setItemText(1, QtGui.QApplication.translate("quantPanel_zoo", "Exp ", None, QtGui.QApplication.UnicodeUTF8))
-        self.model.setItemText(2, QtGui.QApplication.translate("quantPanel_zoo", "Gau", None, QtGui.QApplication.UnicodeUTF8))
-        self.model.setItemText(3, QtGui.QApplication.translate("quantPanel_zoo", "Mat", None, QtGui.QApplication.UnicodeUTF8))
-        self.range.setText(QtGui.QApplication.translate("quantPanel_zoo", "Range", None, QtGui.QApplication.UnicodeUTF8))
-        self.label_2.setText(QtGui.QApplication.translate("quantPanel_zoo", "Model", None, QtGui.QApplication.UnicodeUTF8))
-        self.calcola1.setText(QtGui.QApplication.translate("quantPanel_zoo", "Genera Semivariogramma", None, QtGui.QApplication.UnicodeUTF8))
+        quantPanel_zoo.setWindowTitle(
+            QtGui.QApplication.translate("quantPanel_zoo", "Ordina", None, QtGui.QApplication.UnicodeUTF8))
+        self.radioButtonUsMin.setText(
+            QtGui.QApplication.translate("quantPanel_zoo", "US", None, QtGui.QApplication.UnicodeUTF8))
+        self.nugget.setText(
+            QtGui.QApplication.translate("quantPanel_zoo", "Nugget", None, QtGui.QApplication.UnicodeUTF8))
+        self.label.setText(
+            QtGui.QApplication.translate("quantPanel_zoo", "Psill", None, QtGui.QApplication.UnicodeUTF8))
+        self.model.setItemText(0, QtGui.QApplication.translate("quantPanel_zoo", "Sph", None,
+                                                               QtGui.QApplication.UnicodeUTF8))
+        self.model.setItemText(1, QtGui.QApplication.translate("quantPanel_zoo", "Exp ", None,
+                                                               QtGui.QApplication.UnicodeUTF8))
+        self.model.setItemText(2, QtGui.QApplication.translate("quantPanel_zoo", "Gau", None,
+                                                               QtGui.QApplication.UnicodeUTF8))
+        self.model.setItemText(3, QtGui.QApplication.translate("quantPanel_zoo", "Mat", None,
+                                                               QtGui.QApplication.UnicodeUTF8))
+        self.range.setText(
+            QtGui.QApplication.translate("quantPanel_zoo", "Range", None, QtGui.QApplication.UnicodeUTF8))
+        self.label_2.setText(
+            QtGui.QApplication.translate("quantPanel_zoo", "Model", None, QtGui.QApplication.UnicodeUTF8))
+        self.calcola1.setText(QtGui.QApplication.translate("quantPanel_zoo", "Genera Semivariogramma", None,
+                                                           QtGui.QApplication.UnicodeUTF8))
 
 
 if __name__ == "__main__":
     import sys
+
     app = QtGui.QApplication(sys.argv)
     quantPanel_zoo = QtGui.QDialog()
     ui = Ui_quantPanel_zoo()
     ui.setupUi(quantPanel_zoo)
     quantPanel_zoo.show()
     sys.exit(app.exec_())
-

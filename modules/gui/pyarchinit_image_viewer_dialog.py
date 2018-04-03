@@ -9,11 +9,11 @@
 
 from PyQt4 import QtCore, QtGui
 
-
 try:
     _fromUtf8 = QtCore.QString.fromUtf8
 except AttributeError:
     _fromUtf8 = lambda s: s
+
 
 class Ui_DialogImageViewer(object):
     def setupUi(self, DialogImageViewer):
@@ -412,57 +412,117 @@ class Ui_DialogImageViewer(object):
         QtCore.QMetaObject.connectSlotsByName(DialogImageViewer)
 
     def retranslateUi(self, DialogImageViewer):
-        DialogImageViewer.setWindowTitle(QtGui.QApplication.translate("DialogImageViewer", "Dialog", None, QtGui.QApplication.UnicodeUTF8))
-        self.label_2.setText(QtGui.QApplication.translate("DialogImageViewer", "Numero Totale Immagini", None, QtGui.QApplication.UnicodeUTF8))
-        self.label_4.setText(QtGui.QApplication.translate("DialogImageViewer", "Immagini visualizzate", None, QtGui.QApplication.UnicodeUTF8))
-        self.pushButton_delete.setToolTip(QtGui.QApplication.translate("DialogImageViewer", "Delete record", None, QtGui.QApplication.UnicodeUTF8))
-        self.pushButton_new_search.setToolTip(QtGui.QApplication.translate("DialogImageViewer", "new search", None, QtGui.QApplication.UnicodeUTF8))
-        self.pushButton_search_go.setToolTip(QtGui.QApplication.translate("DialogImageViewer", "search !!!", None, QtGui.QApplication.UnicodeUTF8))
-        self.pushButton_sort.setToolTip(QtGui.QApplication.translate("DialogImageViewer", "Order by", None, QtGui.QApplication.UnicodeUTF8))
-        self.pushButton_view_all.setToolTip(QtGui.QApplication.translate("DialogImageViewer", "View alls records", None, QtGui.QApplication.UnicodeUTF8))
-        self.pushButton_last_rec.setToolTip(QtGui.QApplication.translate("DialogImageViewer", "Last rec", None, QtGui.QApplication.UnicodeUTF8))
-        self.pushButton_first_rec.setToolTip(QtGui.QApplication.translate("DialogImageViewer", "First rec", None, QtGui.QApplication.UnicodeUTF8))
-        self.pushButton_prev_rec.setToolTip(QtGui.QApplication.translate("DialogImageViewer", "Prev rec", None, QtGui.QApplication.UnicodeUTF8))
-        self.pushButton_next_rec.setToolTip(QtGui.QApplication.translate("DialogImageViewer", "Next rec", None, QtGui.QApplication.UnicodeUTF8))
-        self.pushButton_new_rec.setToolTip(QtGui.QApplication.translate("DialogImageViewer", "New record", None, QtGui.QApplication.UnicodeUTF8))
-        self.pushButton_save.setToolTip(QtGui.QApplication.translate("DialogImageViewer", "Save", None, QtGui.QApplication.UnicodeUTF8))
-        self.label_29.setText(QtGui.QApplication.translate("DialogImageViewer", "DBMS Toolbar", None, QtGui.QApplication.UnicodeUTF8))
-        self.pushButton_openMedia.setText(QtGui.QApplication.translate("DialogImageViewer", "Apri Immagini", None, QtGui.QApplication.UnicodeUTF8))
-        self.pushButton_chose_dir.setText(QtGui.QApplication.translate("DialogImageViewer", "Carica le immagini nel DB", None, QtGui.QApplication.UnicodeUTF8))
-        self.label_5.setText(QtGui.QApplication.translate("DialogImageViewer", "Tags", None, QtGui.QApplication.UnicodeUTF8))
-        self.tableWidget_tags.horizontalHeaderItem(0).setText(QtGui.QApplication.translate("DialogImageViewer", "ID tag", None, QtGui.QApplication.UnicodeUTF8))
-        self.tableWidget_tags.horizontalHeaderItem(1).setText(QtGui.QApplication.translate("DialogImageViewer", "Categoria Tag", None, QtGui.QApplication.UnicodeUTF8))
-        self.tableWidget_tags.horizontalHeaderItem(2).setText(QtGui.QApplication.translate("DialogImageViewer", "Tag", None, QtGui.QApplication.UnicodeUTF8))
-        self.toolButton_tags_on_off.setToolTip(QtGui.QApplication.translate("DialogImageViewer", "Attiva/disattiva la visualizzazione dei tags", None, QtGui.QApplication.UnicodeUTF8))
-        self.toolButton_tags_on_off.setText(QtGui.QApplication.translate("DialogImageViewer", "Tags viewer on/off", None, QtGui.QApplication.UnicodeUTF8))
-        self.pushButton_remove_tags.setText(QtGui.QApplication.translate("DialogImageViewer", "Rimuovi tags", None, QtGui.QApplication.UnicodeUTF8))
-        self.tabWidget.setTabText(self.tabWidget.indexOf(self.tab_1), QtGui.QApplication.translate("DialogImageViewer", "Toolbar", None, QtGui.QApplication.UnicodeUTF8))
-        self.label.setText(QtGui.QApplication.translate("DialogImageViewer", "Tags manager", None, QtGui.QApplication.UnicodeUTF8))
-        self.pushButton_addRow_US.setText(QtGui.QApplication.translate("DialogImageViewer", "+", None, QtGui.QApplication.UnicodeUTF8))
-        self.pushButton_removeRow_US.setText(QtGui.QApplication.translate("DialogImageViewer", "-", None, QtGui.QApplication.UnicodeUTF8))
-        self.tableWidgetTags_US.horizontalHeaderItem(0).setText(QtGui.QApplication.translate("DialogImageViewer", "Sito", None, QtGui.QApplication.UnicodeUTF8))
-        self.tableWidgetTags_US.horizontalHeaderItem(1).setText(QtGui.QApplication.translate("DialogImageViewer", "Area", None, QtGui.QApplication.UnicodeUTF8))
-        self.tableWidgetTags_US.horizontalHeaderItem(2).setText(QtGui.QApplication.translate("DialogImageViewer", "US", None, QtGui.QApplication.UnicodeUTF8))
-        self.pushButton_assignTags_US.setText(QtGui.QApplication.translate("DialogImageViewer", "Assegna i tags", None, QtGui.QApplication.UnicodeUTF8))
-        self.tabWidget.setTabText(self.tabWidget.indexOf(self.tab_2), QtGui.QApplication.translate("DialogImageViewer", "Tags Unita\' Stratigrafiche", None, QtGui.QApplication.UnicodeUTF8))
-        self.label_3.setText(QtGui.QApplication.translate("DialogImageViewer", "Tags manager", None, QtGui.QApplication.UnicodeUTF8))
-        self.pushButton_addRow_MAT.setText(QtGui.QApplication.translate("DialogImageViewer", "+", None, QtGui.QApplication.UnicodeUTF8))
-        self.pushButton_removeRow_MAT.setText(QtGui.QApplication.translate("DialogImageViewer", "-", None, QtGui.QApplication.UnicodeUTF8))
-        self.tableWidgetTags_MAT.horizontalHeaderItem(0).setText(QtGui.QApplication.translate("DialogImageViewer", "Sito", None, QtGui.QApplication.UnicodeUTF8))
-        self.tableWidgetTags_MAT.horizontalHeaderItem(1).setText(QtGui.QApplication.translate("DialogImageViewer", "Numero Inventario", None, QtGui.QApplication.UnicodeUTF8))
-        self.pushButton_assignTags_MAT.setText(QtGui.QApplication.translate("DialogImageViewer", "Assegna i tags", None, QtGui.QApplication.UnicodeUTF8))
-        self.tabWidget.setTabText(self.tabWidget.indexOf(self.tab), QtGui.QApplication.translate("DialogImageViewer", "Tags Inventario Materiali", None, QtGui.QApplication.UnicodeUTF8))
-        self.pushButton_delete_2.setToolTip(QtGui.QApplication.translate("DialogImageViewer", "Delete record", None, QtGui.QApplication.UnicodeUTF8))
-        self.pushButton_new_search_2.setToolTip(QtGui.QApplication.translate("DialogImageViewer", "new search", None, QtGui.QApplication.UnicodeUTF8))
-        self.pushButton_search_go_2.setToolTip(QtGui.QApplication.translate("DialogImageViewer", "search !!!", None, QtGui.QApplication.UnicodeUTF8))
-        self.pushButton_sort_2.setToolTip(QtGui.QApplication.translate("DialogImageViewer", "Order by", None, QtGui.QApplication.UnicodeUTF8))
-        self.pushButton_view_all_2.setToolTip(QtGui.QApplication.translate("DialogImageViewer", "View alls records", None, QtGui.QApplication.UnicodeUTF8))
-        self.pushButton_last_rec_2.setToolTip(QtGui.QApplication.translate("DialogImageViewer", "Last rec", None, QtGui.QApplication.UnicodeUTF8))
-        self.pushButton_first_rec_2.setToolTip(QtGui.QApplication.translate("DialogImageViewer", "First rec", None, QtGui.QApplication.UnicodeUTF8))
-        self.pushButton_prev_rec_2.setToolTip(QtGui.QApplication.translate("DialogImageViewer", "Prev rec", None, QtGui.QApplication.UnicodeUTF8))
-        self.pushButton_next_rec_2.setToolTip(QtGui.QApplication.translate("DialogImageViewer", "Next rec", None, QtGui.QApplication.UnicodeUTF8))
-        self.pushButton_new_rec_2.setToolTip(QtGui.QApplication.translate("DialogImageViewer", "New record", None, QtGui.QApplication.UnicodeUTF8))
-        self.pushButton_save_2.setToolTip(QtGui.QApplication.translate("DialogImageViewer", "Save", None, QtGui.QApplication.UnicodeUTF8))
-        self.label_30.setText(QtGui.QApplication.translate("DialogImageViewer", "DBMS Toolbar", None, QtGui.QApplication.UnicodeUTF8))
-        self.pushButton_openMedia_2.setText(QtGui.QApplication.translate("DialogImageViewer", "Apri Immagini", None, QtGui.QApplication.UnicodeUTF8))
-
+        DialogImageViewer.setWindowTitle(
+            QtGui.QApplication.translate("DialogImageViewer", "Dialog", None, QtGui.QApplication.UnicodeUTF8))
+        self.label_2.setText(QtGui.QApplication.translate("DialogImageViewer", "Numero Totale Immagini", None,
+                                                          QtGui.QApplication.UnicodeUTF8))
+        self.label_4.setText(QtGui.QApplication.translate("DialogImageViewer", "Immagini visualizzate", None,
+                                                          QtGui.QApplication.UnicodeUTF8))
+        self.pushButton_delete.setToolTip(
+            QtGui.QApplication.translate("DialogImageViewer", "Delete record", None, QtGui.QApplication.UnicodeUTF8))
+        self.pushButton_new_search.setToolTip(
+            QtGui.QApplication.translate("DialogImageViewer", "new search", None, QtGui.QApplication.UnicodeUTF8))
+        self.pushButton_search_go.setToolTip(
+            QtGui.QApplication.translate("DialogImageViewer", "search !!!", None, QtGui.QApplication.UnicodeUTF8))
+        self.pushButton_sort.setToolTip(
+            QtGui.QApplication.translate("DialogImageViewer", "Order by", None, QtGui.QApplication.UnicodeUTF8))
+        self.pushButton_view_all.setToolTip(QtGui.QApplication.translate("DialogImageViewer", "View alls records", None,
+                                                                         QtGui.QApplication.UnicodeUTF8))
+        self.pushButton_last_rec.setToolTip(
+            QtGui.QApplication.translate("DialogImageViewer", "Last rec", None, QtGui.QApplication.UnicodeUTF8))
+        self.pushButton_first_rec.setToolTip(
+            QtGui.QApplication.translate("DialogImageViewer", "First rec", None, QtGui.QApplication.UnicodeUTF8))
+        self.pushButton_prev_rec.setToolTip(
+            QtGui.QApplication.translate("DialogImageViewer", "Prev rec", None, QtGui.QApplication.UnicodeUTF8))
+        self.pushButton_next_rec.setToolTip(
+            QtGui.QApplication.translate("DialogImageViewer", "Next rec", None, QtGui.QApplication.UnicodeUTF8))
+        self.pushButton_new_rec.setToolTip(
+            QtGui.QApplication.translate("DialogImageViewer", "New record", None, QtGui.QApplication.UnicodeUTF8))
+        self.pushButton_save.setToolTip(
+            QtGui.QApplication.translate("DialogImageViewer", "Save", None, QtGui.QApplication.UnicodeUTF8))
+        self.label_29.setText(
+            QtGui.QApplication.translate("DialogImageViewer", "DBMS Toolbar", None, QtGui.QApplication.UnicodeUTF8))
+        self.pushButton_openMedia.setText(
+            QtGui.QApplication.translate("DialogImageViewer", "Apri Immagini", None, QtGui.QApplication.UnicodeUTF8))
+        self.pushButton_chose_dir.setText(
+            QtGui.QApplication.translate("DialogImageViewer", "Carica le immagini nel DB", None,
+                                         QtGui.QApplication.UnicodeUTF8))
+        self.label_5.setText(
+            QtGui.QApplication.translate("DialogImageViewer", "Tags", None, QtGui.QApplication.UnicodeUTF8))
+        self.tableWidget_tags.horizontalHeaderItem(0).setText(
+            QtGui.QApplication.translate("DialogImageViewer", "ID tag", None, QtGui.QApplication.UnicodeUTF8))
+        self.tableWidget_tags.horizontalHeaderItem(1).setText(
+            QtGui.QApplication.translate("DialogImageViewer", "Categoria Tag", None, QtGui.QApplication.UnicodeUTF8))
+        self.tableWidget_tags.horizontalHeaderItem(2).setText(
+            QtGui.QApplication.translate("DialogImageViewer", "Tag", None, QtGui.QApplication.UnicodeUTF8))
+        self.toolButton_tags_on_off.setToolTip(
+            QtGui.QApplication.translate("DialogImageViewer", "Attiva/disattiva la visualizzazione dei tags", None,
+                                         QtGui.QApplication.UnicodeUTF8))
+        self.toolButton_tags_on_off.setText(
+            QtGui.QApplication.translate("DialogImageViewer", "Tags viewer on/off", None,
+                                         QtGui.QApplication.UnicodeUTF8))
+        self.pushButton_remove_tags.setText(
+            QtGui.QApplication.translate("DialogImageViewer", "Rimuovi tags", None, QtGui.QApplication.UnicodeUTF8))
+        self.tabWidget.setTabText(self.tabWidget.indexOf(self.tab_1),
+                                  QtGui.QApplication.translate("DialogImageViewer", "Toolbar", None,
+                                                               QtGui.QApplication.UnicodeUTF8))
+        self.label.setText(
+            QtGui.QApplication.translate("DialogImageViewer", "Tags manager", None, QtGui.QApplication.UnicodeUTF8))
+        self.pushButton_addRow_US.setText(
+            QtGui.QApplication.translate("DialogImageViewer", "+", None, QtGui.QApplication.UnicodeUTF8))
+        self.pushButton_removeRow_US.setText(
+            QtGui.QApplication.translate("DialogImageViewer", "-", None, QtGui.QApplication.UnicodeUTF8))
+        self.tableWidgetTags_US.horizontalHeaderItem(0).setText(
+            QtGui.QApplication.translate("DialogImageViewer", "Sito", None, QtGui.QApplication.UnicodeUTF8))
+        self.tableWidgetTags_US.horizontalHeaderItem(1).setText(
+            QtGui.QApplication.translate("DialogImageViewer", "Area", None, QtGui.QApplication.UnicodeUTF8))
+        self.tableWidgetTags_US.horizontalHeaderItem(2).setText(
+            QtGui.QApplication.translate("DialogImageViewer", "US", None, QtGui.QApplication.UnicodeUTF8))
+        self.pushButton_assignTags_US.setText(
+            QtGui.QApplication.translate("DialogImageViewer", "Assegna i tags", None, QtGui.QApplication.UnicodeUTF8))
+        self.tabWidget.setTabText(self.tabWidget.indexOf(self.tab_2),
+                                  QtGui.QApplication.translate("DialogImageViewer", "Tags Unita\' Stratigrafiche", None,
+                                                               QtGui.QApplication.UnicodeUTF8))
+        self.label_3.setText(
+            QtGui.QApplication.translate("DialogImageViewer", "Tags manager", None, QtGui.QApplication.UnicodeUTF8))
+        self.pushButton_addRow_MAT.setText(
+            QtGui.QApplication.translate("DialogImageViewer", "+", None, QtGui.QApplication.UnicodeUTF8))
+        self.pushButton_removeRow_MAT.setText(
+            QtGui.QApplication.translate("DialogImageViewer", "-", None, QtGui.QApplication.UnicodeUTF8))
+        self.tableWidgetTags_MAT.horizontalHeaderItem(0).setText(
+            QtGui.QApplication.translate("DialogImageViewer", "Sito", None, QtGui.QApplication.UnicodeUTF8))
+        self.tableWidgetTags_MAT.horizontalHeaderItem(1).setText(
+            QtGui.QApplication.translate("DialogImageViewer", "Numero Inventario", None,
+                                         QtGui.QApplication.UnicodeUTF8))
+        self.pushButton_assignTags_MAT.setText(
+            QtGui.QApplication.translate("DialogImageViewer", "Assegna i tags", None, QtGui.QApplication.UnicodeUTF8))
+        self.tabWidget.setTabText(self.tabWidget.indexOf(self.tab),
+                                  QtGui.QApplication.translate("DialogImageViewer", "Tags Inventario Materiali", None,
+                                                               QtGui.QApplication.UnicodeUTF8))
+        self.pushButton_delete_2.setToolTip(
+            QtGui.QApplication.translate("DialogImageViewer", "Delete record", None, QtGui.QApplication.UnicodeUTF8))
+        self.pushButton_new_search_2.setToolTip(
+            QtGui.QApplication.translate("DialogImageViewer", "new search", None, QtGui.QApplication.UnicodeUTF8))
+        self.pushButton_search_go_2.setToolTip(
+            QtGui.QApplication.translate("DialogImageViewer", "search !!!", None, QtGui.QApplication.UnicodeUTF8))
+        self.pushButton_sort_2.setToolTip(
+            QtGui.QApplication.translate("DialogImageViewer", "Order by", None, QtGui.QApplication.UnicodeUTF8))
+        self.pushButton_view_all_2.setToolTip(
+            QtGui.QApplication.translate("DialogImageViewer", "View alls records", None,
+                                         QtGui.QApplication.UnicodeUTF8))
+        self.pushButton_last_rec_2.setToolTip(
+            QtGui.QApplication.translate("DialogImageViewer", "Last rec", None, QtGui.QApplication.UnicodeUTF8))
+        self.pushButton_first_rec_2.setToolTip(
+            QtGui.QApplication.translate("DialogImageViewer", "First rec", None, QtGui.QApplication.UnicodeUTF8))
+        self.pushButton_prev_rec_2.setToolTip(
+            QtGui.QApplication.translate("DialogImageViewer", "Prev rec", None, QtGui.QApplication.UnicodeUTF8))
+        self.pushButton_next_rec_2.setToolTip(
+            QtGui.QApplication.translate("DialogImageViewer", "Next rec", None, QtGui.QApplication.UnicodeUTF8))
+        self.pushButton_new_rec_2.setToolTip(
+            QtGui.QApplication.translate("DialogImageViewer", "New record", None, QtGui.QApplication.UnicodeUTF8))
+        self.pushButton_save_2.setToolTip(
+            QtGui.QApplication.translate("DialogImageViewer", "Save", None, QtGui.QApplication.UnicodeUTF8))
+        self.label_30.setText(
+            QtGui.QApplication.translate("DialogImageViewer", "DBMS Toolbar", None, QtGui.QApplication.UnicodeUTF8))
+        self.pushButton_openMedia_2.setText(
+            QtGui.QApplication.translate("DialogImageViewer", "Apri Immagini", None, QtGui.QApplication.UnicodeUTF8))

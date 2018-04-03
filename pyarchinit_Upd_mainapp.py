@@ -20,109 +20,97 @@
  ***************************************************************************/
 """
 
-
-from  pyarchinit_utility import *
-from PyQt4 import QtCore, QtGui
 from PyQt4.QtCore import *
 from PyQt4.QtGui import *
+from  pyarchinit_utility import *
+
 from modules.db.pyarchinit_conn_strings import Connection
 from modules.db.pyarchinit_db_manager import Pyarchinit_db_management
 from modules.db.pyarchinit_utility import Utility
 from modules.gis.pyarchinit_pyqgis import Pyarchinit_pyqgis
 from modules.gui.Ui_UpdValues import Ui_DialogSostituisciValori
-from psycopg2 import *
 
 try:
-	from qgis.core import *
-	from qgis.gui import *
+    from qgis.core import *
+    from qgis.gui import *
 except:
-	pass
-
+    pass
 
 try:
-	from  pyarchinit_db_manager import *
+    from  pyarchinit_db_manager import *
 except:
-	pass
+    pass
+
 
 class pyarchinit_Upd_Values(QDialog, Ui_DialogSostituisciValori):
-	MSG_BOX_TITLE = "PyArchInit - Aggiornamento Valori"
-	DATA_LIST = []
-	DATA_LIST_REC_CORR = []
-	DATA_LIST_REC_TEMP = []
-	REC_CORR = 0
-	REC_TOT = 0
-	STATUS = {"usa": "Usa", "trova": "Trova", "nuovo_record": "Nuovo Record"}
-	SORT_MODE = 'asc'
-	SORTED = {"n": "Non ordinati", "o": "Ordinati"}
-	UTILITY = Utility()
-	DB_MANAGER = ""
-	TABLE_NAME = 'us_table'
-	MAPPER_TABLE_CLASS = "US"
-	NOME_SCHEDA = "Scheda US"
-	ID_TABLE = "id_us"
-	CONVERSION_DICT = {}
-	SORT_ITEMS = []
-				
-	TABLE_FIELDS = []
-					
+    MSG_BOX_TITLE = "PyArchInit - Aggiornamento Valori"
+    DATA_LIST = []
+    DATA_LIST_REC_CORR = []
+    DATA_LIST_REC_TEMP = []
+    REC_CORR = 0
+    REC_TOT = 0
+    STATUS = {"usa": "Usa", "trova": "Trova", "nuovo_record": "Nuovo Record"}
+    SORT_MODE = 'asc'
+    SORTED = {"n": "Non ordinati", "o": "Ordinati"}
+    UTILITY = Utility()
+    DB_MANAGER = ""
+    TABLE_NAME = 'us_table'
+    MAPPER_TABLE_CLASS = "US"
+    NOME_SCHEDA = "Scheda US"
+    ID_TABLE = "id_us"
+    CONVERSION_DICT = {}
+    SORT_ITEMS = []
 
-	def __init__(self, iface):
-		self.iface = iface
-		self.pyQGIS = Pyarchinit_pyqgis(self.iface)
+    TABLE_FIELDS = []
 
-		QDialog.__init__(self)
-		self.setupUi(self)
-		self.currentLayerId = None
-		self.load_connection()
+    def __init__(self, iface):
+        self.iface = iface
+        self.pyQGIS = Pyarchinit_pyqgis(self.iface)
 
+        QDialog.__init__(self)
+        self.setupUi(self)
+        self.currentLayerId = None
+        self.load_connection()
 
-	def load_connection(self):
-		QMessageBox.warning(self, "Alert", "Sistema in corso di abbandono. A breve verra' eliminato." ,  QMessageBox.Ok)
-		from pyarchinit_conn_strings import *
+    def load_connection(self):
+        QMessageBox.warning(self, "Alert", "Sistema in corso di abbandono. A breve verra' eliminato.", QMessageBox.Ok)
+        from pyarchinit_conn_strings import *
 
-		conn = Connection()
-		conn_str = conn.conn_str()
-		try:
-			self.DB_MANAGER = Pyarchinit_db_management(conn_str)
-			self.DB_MANAGER.connection()
-		except:
-			pass
+        conn = Connection()
+        conn_str = conn.conn_str()
+        try:
+            self.DB_MANAGER = Pyarchinit_db_management(conn_str)
+            self.DB_MANAGER.connection()
+        except:
+            pass
 
+    def on_pushButton_pressed(self):
 
-	def on_pushButton_pressed(self):
+        field_position = self.pyQGIS.findFieldFrDict('gid')
 
-		field_position = self.pyQGIS.findFieldFrDict('gid')
-		
+        field_list = self.pyQGIS.selectedFeatures()
 
-		field_list = self.pyQGIS.selectedFeatures()
+        id_list_sf = self.pyQGIS.findItemInAttributeMap(field_position, field_list)
 
+        id_list = []
+        for idl in id_list_sf:
+            sid = idl.toInt()
+            id_list.append(sid[0])
 
-		id_list_sf = self.pyQGIS.findItemInAttributeMap(field_position, field_list)
-		
-		
-		id_list = []
-		for idl in id_list_sf:
-			sid = idl.toInt()
-			id_list.append(sid[0])
-			
-		
-		table_name = str(self.nome_tabellaLineEdit.text())
-		
-		id_field = str(self.campoIDLineEdit.text())
-			
-		
-		field_2_upd = str(self.nome_campoLineEdit.text())
+        table_name = str(self.nome_tabellaLineEdit.text())
 
-		value_2_upd = str(self.sostituisci_conLineEdit.text())
+        id_field = str(self.campoIDLineEdit.text())
 
-		for i in id_list:
-			self.update_record(table_name, id_field, [i], [field_2_upd], [value_2_upd])
+        field_2_upd = str(self.nome_campoLineEdit.text())
 
+        value_2_upd = str(self.sostituisci_conLineEdit.text())
 
-	def update_record(self, table_value, id_field_value, id_value_list, table_fields_list, data_list):
-		self.DB_MANAGER.update(table_value, 
-						id_field_value,
-						id_value_list,
-						table_fields_list,
-						data_list)
+        for i in id_list:
+            self.update_record(table_name, id_field, [i], [field_2_upd], [value_2_upd])
 
+    def update_record(self, table_value, id_field_value, id_value_list, table_fields_list, data_list):
+        self.DB_MANAGER.update(table_value,
+                               id_field_value,
+                               id_value_list,
+                               table_fields_list,
+                               data_list)

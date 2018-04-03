@@ -19,26 +19,22 @@
  *                                                                         *
  ***************************************************************************/
 """
-#from settings import *
+# from settings import *
 import os
 
+import psycopg2
 from PyQt4.QtCore import *
 from PyQt4.QtGui import *
-from psycopg2 import *
-import psycopg2
-from psycopg2.extensions import *
 from sqlalchemy import *
 
-
-#settings = Settings()
+# settings = Settings()
 db_engine = "postgres"
 
 if db_engine == "sqlite":
     current_path = os.path.dirname(os.path.abspath(__file__))
     db_file = os.path.join(current_path, 'pyarchinit.db')
-    dsn = 'sqlite:///'+db_file
+    dsn = 'sqlite:///' + db_file
     db = create_engine(dsn)
-    import pyarchinit_db_structure
 
 elif db_engine == "postgres":
     engine = create_engine("postgres://postgres:@127.0.0.1:5432/postgres")
@@ -47,4 +43,3 @@ elif db_engine == "postgres":
     os.system('/usr/local/pgsql/bin/createlang plpgsql pippo')
     os.system('/usr/local/bin/psql -d pippo -f  "/usr/local/pgsql/share/contrib/lwpostgis.sql"')
     os.system('/usr/local/bin/psql -d pippo -f  "/usr/local/pgsql/share/contrib/spatial_ref_sys.sql"')
-    import pyarchinit_db_structure

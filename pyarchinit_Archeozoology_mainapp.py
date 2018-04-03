@@ -22,25 +22,21 @@
 """
 
 from datetime import date
-import os
-import sys
 from test.test_heapq import R
 
-from modules.db.pyarchinit_conn_strings import Connection
-from modules.db.pyarchinit_db_manager import Pyarchinit_db_management
-from modules.db.pyarchinit_utility import Utility
-from modules.utility.pyarchinit_error_check import Error_check
-from psycopg2 import *
+import sys
 from pyarchinit_Archeozoology_ui import Ui_DialogArcheoZoology
-from pyarchinit_US_mainapp import pyarchinit_US
 from pyarchinit_db_manager import *
 from pyarchinit_error_check import *
 from pyarchinit_pyqgis_archeozoo import Pyarchinit_pyqgis
 from pyarchinit_utility import *
 
-from .quantpanelmain_zoo import QuantPanelMain
+from modules.db.pyarchinit_conn_strings import Connection
+from modules.db.pyarchinit_db_manager import Pyarchinit_db_management
+from modules.db.pyarchinit_utility import Utility
+from modules.utility.pyarchinit_error_check import Error_check
+from pyarchinit_US_mainapp import pyarchinit_US
 from .sortpanelmain import SortPanelMain
-
 
 try:
     from qgis.core import *
@@ -64,37 +60,38 @@ try:
 except ImportError as e:
     valid = False
 
-  # if the plugin is shipped with QGis catch the exception and
-  # display an error message
+    # if the plugin is shipped with QGis catch the exception and
+    # display an error message
 
     import os.path
+
     qgisUserPluginPath = \
         os.path.abspath(os.path.join(str(QgsApplication.qgisSettingsDirPath()),
-                        'python'))
+                                     'python'))
     if not os.path.dirname(__file__).startswith(qgisUserPluginPath):
         title = QCoreApplication.translate('GdalTools', 'Plugin error')
         message = QCoreApplication.translate('GdalTools',
-                '''Unable to load %1 plugin. 
-The required "%2" module is missing. 
-Install it and try again.''')
+                                             '''Unable to load %1 plugin.
+                             The required "%2" module is missing.
+                             Install it and try again.''')
         import qgis.utils
+
         QMessageBox.warning(qgis.utils.iface.mainWindow(), title,
                             message.arg('GdalTools'
-                            ).arg(req_mods['osgeo']))
+                                        ).arg(req_mods['osgeo']))
     else:
 
-    # if a module is missing show a more friendly module's name
+        # if a module is missing show a more friendly module's name
 
         error_str = e.args[0]
         error_mod = error_str.replace('No module named ', '')
         if error_mod in req_mods:
             error_str = error_str.replace(error_mod,
-                    req_mods[error_mod])
+                                          req_mods[error_mod])
         raise ImportError(error_str)
 
 
 class pyarchinit_Archeozoology(QDialog, Ui_DialogArcheoZoology):
-
     MSG_BOX_TITLE = \
         'PyArchInit - pyarchinit_version 0.4 - Scheda Archeozoologia Quantificazioni'
     DATA_LIST = []
@@ -135,7 +132,7 @@ class pyarchinit_Archeozoology(QDialog, Ui_DialogArcheoZoology):
         'Canidi': 'canidi',
         'Ursidi': 'ursidi',
         'Megacero': 'megacero',
-        }
+    }
     SORT_ITEMS = [
         ID_TABLE,
         'Sito',
@@ -158,7 +155,7 @@ class pyarchinit_Archeozoology(QDialog, Ui_DialogArcheoZoology):
         'Canidi',
         'Ursidi',
         'Megacero',
-        ]
+    ]
 
     TABLE_FIELDS = [
         'sito',
@@ -181,7 +178,7 @@ class pyarchinit_Archeozoology(QDialog, Ui_DialogArcheoZoology):
         'canidi',
         'ursidi',
         'megacero',
-        ]
+    ]
 
     def __init__(self, iface):
         self.iface = iface
@@ -302,7 +299,7 @@ class pyarchinit_Archeozoology(QDialog, Ui_DialogArcheoZoology):
                 self.label_status.setText(self.STATUS_ITEMS[self.BROWSE_STATUS])
                 self.label_sort.setText(self.SORTED_ITEMS['n'])
                 self.set_rec_counter(len(self.DATA_LIST), self.REC_CORR
-                        + 1)
+                                     + 1)
                 self.charge_list()
                 self.fill_fields()
             else:
@@ -318,16 +315,16 @@ class pyarchinit_Archeozoology(QDialog, Ui_DialogArcheoZoology):
             if e.find('no such table'):
                 QMessageBox.warning(self, 'Alert 1',
                                     "La connessione e' fallita <br><br> Tabella non presente. E' NECESSARIO RIAVVIARE QGIS"
-                                     + str(e), QMessageBox.Ok)
+                                    + str(e), QMessageBox.Ok)
             else:
                 QMessageBox.warning(self, 'Alert 2',
                                     "La connessione e' fallita <br> Errore: <br>"
-                                     + str(e), QMessageBox.Ok)
+                                    + str(e), QMessageBox.Ok)
 
     def charge_list(self):
         sito_vl = \
             self.UTILITY.tup_2_list_III(self.DB_MANAGER.group_by('site_table'
-                , 'sito', 'SITE'))
+                                                                 , 'sito', 'SITE'))
 
         try:
             sito_vl.remove('')
@@ -359,8 +356,8 @@ class pyarchinit_Archeozoology(QDialog, Ui_DialogArcheoZoology):
         self.DATA_LIST = []
 
         temp_data_list = self.DB_MANAGER.query_sort(id_list,
-                self.SORT_ITEMS_CONVERTED, self.SORT_MODE,
-                self.MAPPER_TABLE_CLASS, self.ID_TABLE)
+                                                    self.SORT_ITEMS_CONVERTED, self.SORT_MODE,
+                                                    self.MAPPER_TABLE_CLASS, self.ID_TABLE)
 
         for i in temp_data_list:
             self.DATA_LIST.append(i)
@@ -414,8 +411,8 @@ class pyarchinit_Archeozoology(QDialog, Ui_DialogArcheoZoology):
         if self.BROWSE_STATUS == 'b':
             if self.records_equal_check() == 1:
                 self.update_if(QMessageBox.warning(self, 'ATTENZIONE',
-                               "Il record e' stato modificato. Vuoi salvare le modifiche?"
-                               , QMessageBox.Cancel, 1))
+                                                   "Il record e' stato modificato. Vuoi salvare le modifiche?"
+                                                   , QMessageBox.Cancel, 1))
                 self.label_sort.setText(self.SORTED_ITEMS['n'])
                 self.enable_button(1)
             else:
@@ -435,10 +432,10 @@ class pyarchinit_Archeozoology(QDialog, Ui_DialogArcheoZoology):
                     (self.REC_TOT, self.REC_CORR) = \
                         (len(self.DATA_LIST), len(self.DATA_LIST) - 1)
                     self.set_rec_counter(self.REC_TOT, self.REC_CORR
-                            + 1)
+                                         + 1)
                     self.fill_fields(self.REC_CORR)
                     self.setComboBoxEnable(['self.comboBox_sito'],
-                            'False')
+                                           'False')
                     self.enable_button(1)
                 else:
                     pass
@@ -549,7 +546,7 @@ class pyarchinit_Archeozoology(QDialog, Ui_DialogArcheoZoology):
         try:
             data = self.DB_MANAGER.insert_values_archeozoology(  # 1 - Sito
                 self.DB_MANAGER.max_num_id(self.MAPPER_TABLE_CLASS,
-                        self.ID_TABLE) + 1,
+                                           self.ID_TABLE) + 1,
                 str(self.comboBox_sito.currentText()),
                 str(self.lineEdit_area.text()),
                 us,
@@ -570,7 +567,7 @@ class pyarchinit_Archeozoology(QDialog, Ui_DialogArcheoZoology):
                 canidi,
                 ursidi,
                 megacero,
-                )
+            )
 
             try:
                 self.DB_MANAGER.insert_data_session(data)
@@ -610,8 +607,8 @@ class pyarchinit_Archeozoology(QDialog, Ui_DialogArcheoZoology):
     def on_pushButton_first_rec_pressed(self):
         if self.records_equal_check() == 1:
             self.update_if(QMessageBox.warning(self, 'Errore',
-                           "Il record e' stato modificato. Vuoi salvare le modifiche?"
-                           , QMessageBox.Cancel, 1))
+                                               "Il record e' stato modificato. Vuoi salvare le modifiche?"
+                                               , QMessageBox.Cancel, 1))
         try:
             self.empty_fields()
             (self.REC_TOT, self.REC_CORR) = (len(self.DATA_LIST), 0)
@@ -623,12 +620,12 @@ class pyarchinit_Archeozoology(QDialog, Ui_DialogArcheoZoology):
     def on_pushButton_last_rec_pressed(self):
         if self.records_equal_check() == 1:
             self.update_if(QMessageBox.warning(self, 'Errore',
-                           "Il record e' stato modificato. Vuoi salvare le modifiche?"
-                           , QMessageBox.Cancel, 1))
+                                               "Il record e' stato modificato. Vuoi salvare le modifiche?"
+                                               , QMessageBox.Cancel, 1))
         try:
             self.empty_fields()
             (self.REC_TOT, self.REC_CORR) = (len(self.DATA_LIST),
-                    len(self.DATA_LIST) - 1)
+                                             len(self.DATA_LIST) - 1)
             self.fill_fields(self.REC_CORR)
             self.set_rec_counter(self.REC_TOT, self.REC_CORR + 1)
         except Exception as e:
@@ -637,8 +634,8 @@ class pyarchinit_Archeozoology(QDialog, Ui_DialogArcheoZoology):
     def on_pushButton_prev_rec_pressed(self):
         if self.records_equal_check() == 1:
             self.update_if(QMessageBox.warning(self, 'Errore',
-                           "Il record e' stato modificato. Vuoi salvare le modifiche?"
-                           , QMessageBox.Cancel, 1))
+                                               "Il record e' stato modificato. Vuoi salvare le modifiche?"
+                                               , QMessageBox.Cancel, 1))
 
         self.REC_CORR = self.REC_CORR - 1
         if self.REC_CORR == -1:
@@ -658,8 +655,8 @@ class pyarchinit_Archeozoology(QDialog, Ui_DialogArcheoZoology):
 
         if self.records_equal_check() == 1:
             self.update_if(QMessageBox.warning(self, 'Errore',
-                           "Il record e' stato modificato. Vuoi salvare le modifiche?"
-                           , QMessageBox.Cancel, 1))
+                                               "Il record e' stato modificato. Vuoi salvare le modifiche?"
+                                               , QMessageBox.Cancel, 1))
 
         self.REC_CORR = self.REC_CORR + 1
         if self.REC_CORR >= self.REC_TOT:
@@ -685,9 +682,9 @@ class pyarchinit_Archeozoology(QDialog, Ui_DialogArcheoZoology):
         else:
             try:
                 id_to_delete = ast.literal_eval('self.DATA_LIST[self.REC_CORR].'
-                                    + self.ID_TABLE)
+                                                + self.ID_TABLE)
                 self.DB_MANAGER.delete_one_record(self.TABLE_NAME,
-                        self.ID_TABLE, id_to_delete)
+                                                  self.ID_TABLE, id_to_delete)
                 self.charge_records()  # charge records from DB
                 QMessageBox.warning(self, 'Messaggio!!!',
                                     'Record eliminato!')
@@ -698,7 +695,6 @@ class pyarchinit_Archeozoology(QDialog, Ui_DialogArcheoZoology):
                                     QMessageBox.Ok)
 
             if not bool(self.DATA_LIST):
-
                 self.DATA_LIST = []
                 self.DATA_LIST_REC_CORR = []
                 self.DATA_LIST_REC_TEMP = []
@@ -717,7 +713,7 @@ class pyarchinit_Archeozoology(QDialog, Ui_DialogArcheoZoology):
                 self.BROWSE_STATUS = 'b'
                 self.label_status.setText(self.STATUS_ITEMS[self.BROWSE_STATUS])
                 self.set_rec_counter(len(self.DATA_LIST), self.REC_CORR
-                        + 1)
+                                     + 1)
         self.label_sort.setText(self.SORTED_ITEMS['n'])
 
     def on_pushButton_new_search_pressed(self):
@@ -741,7 +737,7 @@ class pyarchinit_Archeozoology(QDialog, Ui_DialogArcheoZoology):
 
     def on_toolButton_esp_generale_pressed(self):
         self.percorso = QFileDialog.getExistingDirectory(self,
-                'Choose Save Directory')
+                                                         'Choose Save Directory')
         self.lineEdit_esp_generale.setText(self.percorso)
 
     def on_calcola_pressed(self):  # ####modifiche apportate per il calcolo statistico con R
@@ -750,7 +746,7 @@ class pyarchinit_Archeozoology(QDialog, Ui_DialogArcheoZoology):
         test = 0
         EC = Error_check()
         if EC.data_is_empty(str(self.lineEdit_esp_generale.text())) \
-            == 0:
+                == 0:
             QMessageBox.warning(self, 'ATTENZIONE',
                                 "Campo scegli la path. \n Aggiungi path per l'sportazione"
                                 , QMessageBox.Ok)
@@ -992,8 +988,8 @@ class pyarchinit_Archeozoology(QDialog, Ui_DialogArcheoZoology):
         else:
             kappa = str(self.kappa.text())
 
-             # bottone per creare semivariogrammi
-                # dlg = QuantPanelMain(self)
+            # bottone per creare semivariogrammi
+            # dlg = QuantPanelMain(self)
         # dlg.exec_()
         # dataset = []
 
@@ -1019,10 +1015,11 @@ class pyarchinit_Archeozoology(QDialog, Ui_DialogArcheoZoology):
                int(self.port.currentText()), str(self.password.text()),
                str(self.user.currentText()))
         ast.literal_eval(n)
-        #TODO: gestire TUTTE le queries come di seguito
+        # TODO: gestire TUTTE le queries come di seguito
         con = \
-            'r(\'archezoology_table<-dbGetQuery(con,"'+self.UTILITY.getQuery(select_archeozoology_by_us_bos_bison)+'")\')' \
-            % int(self.DATA_LIST[i].us)
+            'r(\'archezoology_table<-dbGetQuery(con,"' + self.UTILITY.getQuery(
+                select_archeozoology_by_us_bos_bison) + '")\')' \
+                                                        % int(self.DATA_LIST[i].us)
         ast.literal_eval(con)
         if self.bos.isChecked():
             x1 = \
@@ -1163,7 +1160,7 @@ class pyarchinit_Archeozoology(QDialog, Ui_DialogArcheoZoology):
         test = 0
         EC = Error_check()
         if EC.data_is_empty(str(self.lineEdit_esp_generale.text())) \
-            == 0:
+                == 0:
             QMessageBox.warning(self, 'ATTENZIONE',
                                 "Campo scegli la path. \n Aggiungi path per l'sportazione"
                                 , QMessageBox.Ok)
@@ -1405,8 +1402,8 @@ class pyarchinit_Archeozoology(QDialog, Ui_DialogArcheoZoology):
         else:
             kappa = str(self.kappa.text())
 
-             # bottone per creare semivariogrammi
-                # dlg = QuantPanelMain(self)
+            # bottone per creare semivariogrammi
+            # dlg = QuantPanelMain(self)
         # dlg.exec_()
         # dataset = []
 
@@ -1555,15 +1552,15 @@ class pyarchinit_Archeozoology(QDialog, Ui_DialogArcheoZoology):
             a = \
                 'r(\'png("%s/A%d_semivariogram_map.png", width=%d, height=%d, res=400); plot(ESV_A3, threshold = 5, col.regions = terrain.colors, model=vgm(%d,"%s",%s,%d),xlab=,ylab=, main="Linear Model of Coregionalization A%d")\')' \
                 % (
-                str(self.lineEdit_esp_generale.text()),
-                int(self.DATA_LIST[i].us),
-                int(self.set_size_plot.text()),
-                int(self.set_size_plot.text()),
-                int(self.psill.text()),
-                str(self.model.currentText()),
-                str(self.rang.text()),
-                int(self.nugget_2.text()),
-                int(self.DATA_LIST[i].us),
+                    str(self.lineEdit_esp_generale.text()),
+                    int(self.DATA_LIST[i].us),
+                    int(self.set_size_plot.text()),
+                    int(self.set_size_plot.text()),
+                    int(self.psill.text()),
+                    str(self.model.currentText()),
+                    str(self.rang.text()),
+                    int(self.nugget_2.text()),
+                    int(self.DATA_LIST[i].us),
                 )
             ast.literal_eval(a)
 
@@ -1574,7 +1571,7 @@ class pyarchinit_Archeozoology(QDialog, Ui_DialogArcheoZoology):
         test = 0
         EC = Error_check()
         if EC.data_is_empty(str(self.lineEdit_esp_generale.text())) \
-            == 0:
+                == 0:
             QMessageBox.warning(self, 'ATTENZIONE',
                                 "Campo scegli la path. \n Aggiungi path per l'sportazione"
                                 , QMessageBox.Ok)
@@ -1747,7 +1744,7 @@ MSDR <- function(xv.obj){
         test = 0
         EC = Error_check()
         if EC.data_is_empty(str(self.lineEdit_esp_generale.text())) \
-            == 0:
+                == 0:
             QMessageBox.warning(self, 'ATTENZIONE',
                                 "Campo scegli la path. \n Aggiungi path per l'sportazione"
                                 , QMessageBox.Ok)
@@ -1839,24 +1836,24 @@ MSDR <- function(xv.obj){
             % int(self.DATA_LIST[i].us)
         ast.literal_eval(query)
         direc = 'r(\'directory = setwd("%s")\')' \
-            % str(self.lineEdit_esp_generale.text())
+                % str(self.lineEdit_esp_generale.text())
         ast.literal_eval(direc)
         test1 = 'r(\'myfile<-file.path(getwd(),"%s.html")\')' \
-            % str(self.plot.currentText())
+                % str(self.plot.currentText())
         ast.literal_eval(test1)
         test2 = 'r(\'HTMLoutput=file.path(getwd(),"%s.html")\')' \
-            % str(self.plot.currentText())
+                % str(self.plot.currentText())
         ast.literal_eval(test2)
         nome = 'r(\'graf="%s.png"\')' % str(self.plot.currentText())
         ast.literal_eval(nome)
         r('png(file.path(getwd(),graf))')
         data = "r('dat <- rnorm(archezoology_table$%s)')" \
-            % str(self.plot.currentText())
+               % str(self.plot.currentText())
         ast.literal_eval(data)
         r('cex_brks <- quantile(dat, c(0.25,0.5,0.75))')
         r('cex_size <- c(1)')
         cex = "r('cex=(archezoology_table$%s)/%d')" \
-            % (str(self.plot.currentText()), int(self.size.text()))
+              % (str(self.plot.currentText()), int(self.size.text()))
         ast.literal_eval(cex)
         r('''
 			for (i in 1:3) {
@@ -1875,7 +1872,7 @@ MSDR <- function(xv.obj){
         ast.literal_eval(legend)
         r('dev.off()')
         test3 = "r('tab<-summary(archezoology_table[%d:%d])')" \
-            % (int(self.l1.currentText()), int(self.l2.currentText()))
+                % (int(self.l1.currentText()), int(self.l2.currentText()))
         ast.literal_eval(test3)
 
         r('''
@@ -1893,7 +1890,7 @@ MSDR <- function(xv.obj){
         test = 0
         EC = Error_check()
         if EC.data_is_empty(str(self.lineEdit_esp_generale.text())) \
-            == 0:
+                == 0:
             QMessageBox.warning(self, 'ATTENZIONE',
                                 "Campo scegli la path. \n Aggiungi path per l'sportazione"
                                 , QMessageBox.Ok)
@@ -2012,7 +2009,7 @@ MSDR <- function(xv.obj){
         test = 0
         EC = Error_check()
         if EC.data_is_empty(str(self.lineEdit_esp_generale.text())) \
-            == 0:
+                == 0:
             QMessageBox.warning(self, 'ATTENZIONE',
                                 "Campo scegli la path. \n Aggiungi path per l'sportazione"
                                 , QMessageBox.Ok)
@@ -2138,19 +2135,19 @@ do.it <- function (x) {
      abline(h=c(.25,.5,.75), lty=3, lwd=3, col='blue')  #3 linee orizzontali
  }''')
 
- # Ora applico la funzione appena creata a 4 variabili del dataframe "dati.na"
+        # Ora applico la funzione appena creata a 4 variabili del dataframe "dati.na"
 
         histogram2 = \
             'r(\'do.it(archezoology_table$%s); title("%s"); do.it(archezoology_table$%s); title("%s"); do.it(archezoology_table$%s); title("%s"); do.it(archezoology_table$%s); title("%s"); par(op)\')' \
             % (
-            str(self.c1_2.currentText()),
-            str(self.c1_2.currentText()),
-            str(self.c2_2.currentText()),
-            str(self.c2_2.currentText()),
-            str(self.c3_2.currentText()),
-            str(self.c3_2.currentText()),
-            str(self.c4_2.currentText()),
-            str(self.c4_2.currentText()),
+                str(self.c1_2.currentText()),
+                str(self.c1_2.currentText()),
+                str(self.c2_2.currentText()),
+                str(self.c2_2.currentText()),
+                str(self.c3_2.currentText()),
+                str(self.c3_2.currentText()),
+                str(self.c4_2.currentText()),
+                str(self.c4_2.currentText()),
             )
         ast.literal_eval(histogram2)
 
@@ -2160,7 +2157,7 @@ do.it <- function (x) {
         test = 0
         EC = Error_check()
         if EC.data_is_empty(str(self.lineEdit_esp_generale.text())) \
-            == 0:
+                == 0:
             QMessageBox.warning(self, 'ATTENZIONE',
                                 "Campo scegli la path. \n Aggiungi path per l'sportazione"
                                 , QMessageBox.Ok)
@@ -2239,10 +2236,11 @@ do.it <- function (x) {
         ast.literal_eval(boxplot)
         r('op=par(mar=c(0,5,0,0)); layout(matrix(c(1,1,1,2), nc=1))')
         codice = "r('a=archezoology_table$%s')" \
-            % str(self.plot.currentText())
+                 % str(self.plot.currentText())
         ast.literal_eval(codice)
-        r('y=ppoints(length(a));x=sort(a);plot(y ~ x, type="l", lwd=2, ylab="percent", main="");abline(h=c(0,.25,.5,.75,1), col=1, lwd=2,lty=3);abline(v=quantile(a), col=2, lwd=2, lty=2);abline(v=mean(a), col=3, lwd=1.5, lty=4);points(quantile(a), c(0,.25,.5,.75,1), lwd=5,col=4);legend(1000,0.1,"legend");boxplot(a, horizontal=TRUE, notch=FALSE, col=5, lwd=2, cex=2);abline(v=quantile(a), col=2, lwd=2, lty=2);abline(v=mean(a), col=3, lwd=1.5, lty=4)'
-          )
+        r(
+            'y=ppoints(length(a));x=sort(a);plot(y ~ x, type="l", lwd=2, ylab="percent", main="");abline(h=c(0,.25,.5,.75,1), col=1, lwd=2,lty=3);abline(v=quantile(a), col=2, lwd=2, lty=2);abline(v=mean(a), col=3, lwd=1.5, lty=4);points(quantile(a), c(0,.25,.5,.75,1), lwd=5,col=4);legend(1000,0.1,"legend");boxplot(a, horizontal=TRUE, notch=FALSE, col=5, lwd=2, cex=2);abline(v=quantile(a), col=2, lwd=2, lty=2);abline(v=mean(a), col=3, lwd=1.5, lty=4)'
+            )
         r('par(op)')
 
     def on_coplot_pressed(self):
@@ -2251,7 +2249,7 @@ do.it <- function (x) {
         test = 0
         EC = Error_check()
         if EC.data_is_empty(str(self.lineEdit_esp_generale.text())) \
-            == 0:
+                == 0:
             QMessageBox.warning(self, 'ATTENZIONE',
                                 "Campo scegli la path. \n Aggiungi path per l'sportazione"
                                 , QMessageBox.Ok)
@@ -2354,10 +2352,10 @@ do.it <- function (x) {
         self.runToolDialog(d)
         self.clipper = QAction(QIcon(':icons/raster-clip.png'),
                                QCoreApplication.translate('GdalTools',
-                               'Clipper'), self.iface.mainWindow())
+                                                          'Clipper'), self.iface.mainWindow())
 
-              # self.clipper.setStatusTip( QCoreApplication.translate( "GdalTools", "Converts raster data between different formats") )
-              # QObject.connect( self.clipper, SIGNAL( "triggered()" ), self.doClipper )
+        # self.clipper.setStatusTip( QCoreApplication.translate( "GdalTools", "Converts raster data between different formats") )
+        # QObject.connect( self.clipper, SIGNAL( "triggered()" ), self.doClipper )
 
     def unload(self):
         if not valid:
@@ -2381,7 +2379,7 @@ do.it <- function (x) {
         test = 0
         EC = Error_check()
         if EC.data_is_empty(str(self.lineEdit_esp_generale.text())) \
-            == 0:
+                == 0:
             QMessageBox.warning(self, 'ATTENZIONE',
                                 "Campo scegli la path. \n Aggiungi path per l'sportazione"
                                 , QMessageBox.Ok)
@@ -2542,7 +2540,6 @@ title(sub="Rosso = coppie con r>|0.5|, Verde = coppie con |0.25|<r<|0.5|;
         y = []
         z = []
         for elem in mylayer.selectedFeatures():
-
             geom = elem.geometry()
             wkb = geom.asWkb()
             data = loads(wkb)
@@ -2555,12 +2552,11 @@ title(sub="Rosso = coppie con r>|0.5|, Verde = coppie con |0.25|<r<|0.5|;
         y = []
         z = []
         for elem in mylayer.selectedFeatures():
-
             geom = elem.geometry()
             x.append(geom.asPoint()[0])
             y.append(geom.asPoint()[1])
             tab = '(z.append(elem.attributes()[%d]))' \
-                % int(self.tab_5.text())
+                  % int(self.tab_5.text())
             ast.literal_eval(tab)
 
         from mpl_toolkits.mplot3d.axes3d import *
@@ -2588,7 +2584,7 @@ title(sub="Rosso = coppie con r>|0.5|, Verde = coppie con |0.25|<r<|0.5|;
             mw=2,
             lw=2,
             ms='.',
-            )
+        )
         f.daspect = (1, 1, 10)  # z x 10
 
         import numpy as np
@@ -2725,32 +2721,32 @@ title(sub="Rosso = coppie con r>|0.5|, Verde = coppie con |0.25|<r<|0.5|;
                 megacero = int(self.lineEdit_megacero.text())
 
             search_dict = {  # 1 - Sito
-                             # 2 - Area
-                             # 3 - US
-                             # 4 - Definizione stratigrafica
-                             # 5 - Definizione intepretata
-                             # 6 - descrizione
-                             # 7 - interpretazione
-                             # 8 - periodo iniziale
-                             # 9 - fase iniziale
-                             # 10 - periodo finale iniziale
-                             # 11 - fase finale
-                             # 12 - attivita
-                             # 13 - attivita
-                             # 14 - anno scavo
-                             # 15 - metodo
-                             # 16 - data schedatura
-                             # 17 - schedatore
-                             # 18 - formazione
-                             # 19 - conservazione
-                             # 20 - colore
+                # 2 - Area
+                # 3 - US
+                # 4 - Definizione stratigrafica
+                # 5 - Definizione intepretata
+                # 6 - descrizione
+                # 7 - interpretazione
+                # 8 - periodo iniziale
+                # 9 - fase iniziale
+                # 10 - periodo finale iniziale
+                # 11 - fase finale
+                # 12 - attivita
+                # 13 - attivita
+                # 14 - anno scavo
+                # 15 - metodo
+                # 16 - data schedatura
+                # 17 - schedatore
+                # 18 - formazione
+                # 19 - conservazione
+                # 20 - colore
                 self.TABLE_FIELDS[0]: "'" \
-                    + str(self.comboBox_sito.currentText()) + "'",
+                                      + str(self.comboBox_sito.currentText()) + "'",
                 self.TABLE_FIELDS[1]: "'" \
-                    + str(self.lineEdit_area.text()) + "'",
+                                      + str(self.lineEdit_area.text()) + "'",
                 self.TABLE_FIELDS[2]: us,
                 self.TABLE_FIELDS[3]: "'" \
-                    + str(self.lineEdit_quadrato.text()) + "'",
+                                      + str(self.lineEdit_quadrato.text()) + "'",
                 self.TABLE_FIELDS[4]: coord_x,
                 self.TABLE_FIELDS[5]: coord_y,
                 self.TABLE_FIELDS[6]: coord_z,
@@ -2767,7 +2763,7 @@ title(sub="Rosso = coppie con r>|0.5|, Verde = coppie con |0.25|<r<|0.5|;
                 self.TABLE_FIELDS[17]: canidi,
                 self.TABLE_FIELDS[18]: ursidi,
                 self.TABLE_FIELDS[19]: megacero,
-                }
+            }
 
             u = Utility()
             search_dict = u.remove_empty_items_fr_dict(search_dict)
@@ -2778,14 +2774,14 @@ title(sub="Rosso = coppie con r>|0.5|, Verde = coppie con |0.25|<r<|0.5|;
                                     , QMessageBox.Ok)
             else:
                 res = self.DB_MANAGER.query_bool(search_dict,
-                        self.MAPPER_TABLE_CLASS)
+                                                 self.MAPPER_TABLE_CLASS)
                 if not bool(res):
                     QMessageBox.warning(self, 'ATTENZIONE',
-                            "Non è¨ stato trovato nessun record!",
-                            QMessageBox.Ok)
+                                        "Non è¨ stato trovato nessun record!",
+                                        QMessageBox.Ok)
 
                     self.set_rec_counter(len(self.DATA_LIST),
-                            self.REC_CORR + 1)
+                                         self.REC_CORR + 1)
                     self.DATA_LIST_REC_TEMP = self.DATA_LIST_REC_CORR = \
                         self.DATA_LIST[0]
                     self.fill_fields(self.REC_CORR)
@@ -2793,13 +2789,13 @@ title(sub="Rosso = coppie con r>|0.5|, Verde = coppie con |0.25|<r<|0.5|;
                     self.label_status.setText(self.STATUS_ITEMS[self.BROWSE_STATUS])
 
                     self.setComboBoxEnable(['self.comboBox_sito'],
-                            'False')
+                                           'False')
                     self.setComboBoxEnable(['self.lineEdit_area'],
-                            'False')
+                                           'False')
                     self.setComboBoxEnable(['self.lineEdit_us'], 'False'
-                            )
+                                           )
                     self.setComboBoxEnable(['self.lineEdit_quadrato'],
-                            'False')
+                                           'False')
                 else:
 
                     self.DATA_LIST = []
@@ -2813,7 +2809,7 @@ title(sub="Rosso = coppie con r>|0.5|, Verde = coppie con |0.25|<r<|0.5|;
                     self.BROWSE_STATUS = 'b'
                     self.label_status.setText(self.STATUS_ITEMS[self.BROWSE_STATUS])
                     self.set_rec_counter(len(self.DATA_LIST),
-                            self.REC_CORR + 1)
+                                         self.REC_CORR + 1)
 
                     if self.REC_TOT == 1:
                         strings = ("E' stato trovato", self.REC_TOT,
@@ -2827,16 +2823,16 @@ title(sub="Rosso = coppie con r>|0.5|, Verde = coppie con |0.25|<r<|0.5|;
                             self.pyQGIS.charge_vector_layers(self.DATA_LIST)
 
                     self.setComboBoxEnable(['self.comboBox_sito'],
-                            'False')
+                                           'False')
                     self.setComboBoxEnable(['self.lineEdit_area'],
-                            'False')
+                                           'False')
                     self.setComboBoxEnable(['self.lineEdit_us'], 'False'
-                            )
+                                           )
                     self.setComboBoxEnable(['self.lineEdit_quadrato'],
-                            'False')
+                                           'False')
 
                     QMessageBox.warning(self, 'Messaggio', '%s %d %s'
-                            % strings, QMessageBox.Ok)
+                                        % strings, QMessageBox.Ok)
         self.enable_button_search(1)
 
     def update_if(self, msg):
@@ -2853,12 +2849,12 @@ title(sub="Rosso = coppie con r>|0.5|, Verde = coppie con |0.25|<r<|0.5|;
                 # self.testing('test_sort.txt', 'qua')
 
                 temp_data_list = self.DB_MANAGER.query_sort(id_list,
-                        [self.ID_TABLE], 'asc',
-                        self.MAPPER_TABLE_CLASS, self.ID_TABLE)
+                                                            [self.ID_TABLE], 'asc',
+                                                            self.MAPPER_TABLE_CLASS, self.ID_TABLE)
             else:
                 temp_data_list = self.DB_MANAGER.query_sort(id_list,
-                        self.SORT_ITEMS_CONVERTED, self.SORT_MODE,
-                        self.MAPPER_TABLE_CLASS, self.ID_TABLE)
+                                                            self.SORT_ITEMS_CONVERTED, self.SORT_MODE,
+                                                            self.MAPPER_TABLE_CLASS, self.ID_TABLE)
 
             for i in temp_data_list:
                 self.DATA_LIST.append(i)
@@ -2877,8 +2873,8 @@ title(sub="Rosso = coppie con r>|0.5|, Verde = coppie con |0.25|<r<|0.5|;
         for i in self.DB_MANAGER.query(ast.literal_eval(self.MAPPER_TABLE_CLASS)):
             id_list.append(ast.literal_eval('i.' + self.ID_TABLE))
         temp_data_list = self.DB_MANAGER.query_sort(id_list,
-                [self.ID_TABLE], 'asc', self.MAPPER_TABLE_CLASS,
-                self.ID_TABLE)
+                                                    [self.ID_TABLE], 'asc', self.MAPPER_TABLE_CLASS,
+                                                    self.ID_TABLE)
         for i in temp_data_list:
             self.DATA_LIST.append(i)
 
@@ -2934,7 +2930,7 @@ title(sub="Rosso = coppie con r>|0.5|, Verde = coppie con |0.25|<r<|0.5|;
             else:
                 self.lineEdit_us.setText(str(self.DATA_LIST[self.rec_num].us))
 
-                                     # 2 - Periodo
+                # 2 - Periodo
 
             self.lineEdit_quadrato.setText(str(self.DATA_LIST[self.rec_num].quadrato))  # 2 - Periodo
 
@@ -3118,9 +3114,9 @@ title(sub="Rosso = coppie con r>|0.5|, Verde = coppie con |0.25|<r<|0.5|;
             megacero = str(self.lineEdit_megacero.text())
 
         self.DATA_LIST_REC_TEMP = [  # 1 - Sito
-                                     # 2 - periodo
-                                     # 3 - fase
-                                     # 8 - cont_per provvisorio
+            # 2 - periodo
+            # 3 - fase
+            # 8 - cont_per provvisorio
             str(self.comboBox_sito.currentText()),
             str(self.lineEdit_area.text()),
             str(us),
@@ -3141,13 +3137,13 @@ title(sub="Rosso = coppie con r>|0.5|, Verde = coppie con |0.25|<r<|0.5|;
             str(canidi),
             str(ursidi),
             str(megacero),
-            ]
+        ]
 
     def set_LIST_REC_CORR(self):
         self.DATA_LIST_REC_CORR = []
         for i in self.TABLE_FIELDS:
             self.DATA_LIST_REC_CORR.append(ast.literal_eval('str(self.DATA_LIST[self.REC_CORR].'
-                     + i + ')'))
+                                                            + i + ')'))
 
     def setComboBoxEnable(self, f, v):
         field_names = f
@@ -3170,7 +3166,7 @@ title(sub="Rosso = coppie con r>|0.5|, Verde = coppie con |0.25|<r<|0.5|;
 
         self.DB_MANAGER.update(self.MAPPER_TABLE_CLASS, self.ID_TABLE,
                                [ast.literal_eval('int(self.DATA_LIST[self.REC_CORR].'
-                                + self.ID_TABLE + ')')],
+                                                 + self.ID_TABLE + ')')],
                                self.TABLE_FIELDS, self.rec_toupdate())
 
     def rec_toupdate(self):

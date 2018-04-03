@@ -22,31 +22,31 @@ __version__ = "1.01e"
 #  * OGL.py and other wxPython demo modules
 
 
-import os, sys
-import wx
+import os
 
+import sys
+import wx
 import wx.lib.ogl as ogl
 from wx.lib.wordwrap import wordwrap
-
 
 try:
     from fpdf.template import Template
 except ImportError:
     # we are frozen? replace pyfpdf_hg with the proper directory for template.py
     from pyfpdf_hg.template import Template
-    
+
 DEBUG = True
 
 
 class CustomDialog(wx.Dialog):
     "A dinamyc dialog to ask user about arbitrary fields"
-    
-    def __init__(
-            self, parent, ID, title, size=wx.DefaultSize, pos=wx.DefaultPosition, 
-            style=wx.DEFAULT_DIALOG_STYLE, fields=None, data=None,
-            ):
 
-        wx.Dialog.__init__ (self, parent, ID, title, pos, size, style)
+    def __init__(
+            self, parent, ID, title, size=wx.DefaultSize, pos=wx.DefaultPosition,
+            style=wx.DEFAULT_DIALOG_STYLE, fields=None, data=None,
+    ):
+
+        wx.Dialog.__init__(self, parent, ID, title, pos, size, style)
 
         sizer = wx.BoxSizer(wx.VERTICAL)
 
@@ -55,20 +55,20 @@ class CustomDialog(wx.Dialog):
             box = wx.BoxSizer(wx.HORIZONTAL)
             label = wx.StaticText(self, -1, field)
             label.SetHelpText("This is the help text for the label")
-            box.Add(label, 1, wx.ALIGN_CENTRE|wx.ALL, 5)
-            text = wx.TextCtrl(self, -1, "", size=(80,-1))
+            box.Add(label, 1, wx.ALIGN_CENTRE | wx.ALL, 5)
+            text = wx.TextCtrl(self, -1, "", size=(80, -1))
             text.SetHelpText("Here's some help text for field #1")
             if field in data:
                 text.SetValue(repr(data[field]))
-            box.Add(text, 1, wx.ALIGN_CENTRE|wx.ALL, 1)
-            sizer.Add(box, 0, wx.GROW|wx.ALIGN_CENTER_VERTICAL|wx.ALL, 1)
+            box.Add(text, 1, wx.ALIGN_CENTRE | wx.ALL, 1)
+            sizer.Add(box, 0, wx.GROW | wx.ALIGN_CENTER_VERTICAL | wx.ALL, 1)
             self.textctrls[field] = text
-            
-        line = wx.StaticLine(self, -1, size=(20,-1), style=wx.LI_HORIZONTAL)
-        sizer.Add(line, 0, wx.GROW|wx.ALIGN_CENTER_VERTICAL|wx.RIGHT|wx.TOP, 5)
+
+        line = wx.StaticLine(self, -1, size=(20, -1), style=wx.LI_HORIZONTAL)
+        sizer.Add(line, 0, wx.GROW | wx.ALIGN_CENTER_VERTICAL | wx.RIGHT | wx.TOP, 5)
 
         btnsizer = wx.StdDialogButtonSizer()
-                
+
         btn = wx.Button(self, wx.ID_OK)
         btn.SetHelpText("The OK button completes the dialog")
         btn.SetDefault()
@@ -79,7 +79,7 @@ class CustomDialog(wx.Dialog):
         btnsizer.AddButton(btn)
         btnsizer.Realize()
 
-        sizer.Add(btnsizer, 0, wx.ALIGN_CENTER_VERTICAL|wx.ALL, 5)
+        sizer.Add(btnsizer, 0, wx.ALIGN_CENTER_VERTICAL | wx.ALL, 5)
 
         self.SetSizer(sizer)
         sizer.Fit(self)
@@ -87,9 +87,9 @@ class CustomDialog(wx.Dialog):
     @classmethod
     def do_input(Class, parent, title, fields, data):
         dlg = Class(parent, -1, title, size=(350, 200),
-                         style=wx.DEFAULT_DIALOG_STYLE, # & ~wx.CLOSE_BOX,
-                        fields=fields, data=data
-                         )
+                    style=wx.DEFAULT_DIALOG_STYLE,  # & ~wx.CLOSE_BOX,
+                    fields=fields, data=data
+                    )
         dlg.CenterOnScreen()
         while 1:
             val = dlg.ShowModal()
@@ -100,9 +100,9 @@ class CustomDialog(wx.Dialog):
                         values[field] = ast.literal_eval(dlg.textctrls[field].GetValue())
                     except Exception as e:
                         msg = wx.MessageDialog(parent, str(e),
-                               "Error in field %s" % field,
-                               wx.OK | wx.ICON_INFORMATION
-                               )
+                                               "Error in field %s" % field,
+                                               wx.OK | wx.ICON_INFORMATION
+                                               )
                         msg.ShowModal()
                         msg.Destroy()
                         break
@@ -114,6 +114,7 @@ class CustomDialog(wx.Dialog):
 
 class MyEvtHandler(ogl.ShapeEvtHandler):
     "Custom Event Handler for Shapes"
+
     def __init__(self, callback):
         ogl.ShapeEvtHandler.__init__(self)
         self.callback = callback
@@ -126,7 +127,7 @@ class MyEvtHandler(ogl.ShapeEvtHandler):
 
         if shape.Selected() and keys & ogl.KEY_SHIFT:
             shape.Select(False, dc)
-            #canvas.Redraw(dc)
+            # canvas.Redraw(dc)
             canvas.Refresh(False)
         else:
             redraw = False
@@ -170,23 +171,23 @@ class MyEvtHandler(ogl.ShapeEvtHandler):
         if "wxMac" in wx.PlatformInfo:
             shape.GetCanvas().Refresh(False)
 
-    def OnLeftDoubleClick(self, x, y, keys = 0, attachment = 0):
+    def OnLeftDoubleClick(self, x, y, keys=0, attachment=0):
         self.callback("LeftDoubleClick")
-        
+
     def OnRightClick(self, *dontcare):
         self.callback("RightClick")
 
 
 class Element(object):
     "Visual class that represent a placeholder in the template"
-    
+
     fields = ['name', 'type',
-                  'x1', 'y1', 'x2', 'y2',
-                  'font', 'size',
-                  'bold', 'italic', 'underline', 
-                  'foreground', 'background',
-                  'align', 'text', 'priority',]
-                
+              'x1', 'y1', 'x2', 'y2',
+              'font', 'size',
+              'bold', 'italic', 'underline',
+              'foreground', 'background',
+              'align', 'text', 'priority', ]
+
     def __init__(self, canvas=None, frame=None, zoom=5.0, static=False, **kwargs):
         self.kwargs = kwargs
         self.zoom = zoom
@@ -197,20 +198,20 @@ class Element(object):
         name = kwargs['name']
         kwargs['type']
         type = kwargs['type']
-        
+
         x, y, w, h = self.set_coordinates(kwargs['x1'], kwargs['y1'], kwargs['x2'], kwargs['y2'])
 
         text = kwargs['text']
-     
+
         shape = self.shape = ogl.RectangleShape(w, h)
-            
+
         if not static:
-            shape.SetDraggable(True, True)        
+            shape.SetDraggable(True, True)
 
         shape.SetX(x)
         shape.SetY(y)
-        #if pen:    shape.SetPen(pen)
-        #if brush:  shape.SetBrush(brush)
+        # if pen:    shape.SetPen(pen)
+        # if brush:  shape.SetBrush(brush)
         shape.SetBrush(wx.TRANSPARENT_BRUSH)
 
         if type not in ('L', 'B', 'BC'):
@@ -221,7 +222,7 @@ class Element(object):
             shape.SetPen(pen)
 
         self.text = kwargs['text']
-        
+
         evthandler = MyEvtHandler(self.evt_callback)
         evthandler.SetShape(shape)
         evthandler.SetPreviousHandler(shape.GetEventHandler())
@@ -229,20 +230,20 @@ class Element(object):
         shape.SetCentreResize(False)
         shape.SetMaintainAspectRatio(False)
 
-        canvas.AddShape( shape ) 
-                
+        canvas.AddShape(shape)
+
     @classmethod
     def new(Class, parent):
         data = dict(name='some_name', type='T',
                     x1=5.0, y1=5.0, x2=100.0, y2=10.0,
                     font="Arial", size=12,
-                 bold=False, italic=False, underline=False, 
-                    foreground= 0x000000, background=0xFFFFFF,
+                    bold=False, italic=False, underline=False,
+                    foreground=0x000000, background=0xFFFFFF,
                     align="L", text="", priority=0)
         data = CustomDialog.do_input(parent, 'New element', Class.fields, data)
         if data:
             return Class(canvas=parent.canvas, frame=parent, **data)
-    
+
     def edit(self):
         "Edit current element (show a dialog box with all fields)"
         data = self.kwargs.copy()
@@ -250,20 +251,20 @@ class Element(object):
         data.update(dict(name=self.name,
                          text=self.text,
                          x1=x1, y1=y1, x2=x2, y2=y2,
-                       ))
+                         ))
         data = CustomDialog.do_input(self.frame, 'Edit element', self.fields, data)
         if data:
             self.kwargs.update(data)
             self.name = data['name']
             self.text = data['text']
-            x,y, w, h = self.set_coordinates(data['x1'], data['y1'], data['x2'], data['y2'])        
+            x, y, w, h = self.set_coordinates(data['x1'], data['y1'], data['x2'], data['y2'])
             self.shape.SetX(x)
             self.shape.SetY(y)
             self.shape.SetWidth(w)
             self.shape.SetHeight(h)
             self.canvas.Refresh(False)
             self.canvas.GetDiagram().ShowAll(1)
-        
+
     def edit_text(self):
         "Allow text edition (i.e. for doubleclick)"
         dlg = wx.TextEntryDialog(
@@ -273,8 +274,8 @@ class Element(object):
             dlg.SetValue(self.text)
         if dlg.ShowModal() == wx.ID_OK:
             self.text = dlg.GetValue().encode("latin1")
-        dlg.Destroy()         
-    
+        dlg.Destroy()
+
     def copy(self):
         "Return an identical duplicate"
         kwargs = self.as_dict()
@@ -298,15 +299,15 @@ class Element(object):
 
     def evt_callback(self, evt_type=None):
         "Event dispatcher"
-        if evt_type=="LeftDoubleClick":
+        if evt_type == "LeftDoubleClick":
             self.edit_text()
-        if evt_type=='RightClick':
+        if evt_type == 'RightClick':
             self.edit()
-        
+
         # update the status bar
         x1, y1, x2, y2 = self.get_coordinates()
         self.frame.SetStatusText("%s (%0.2f, %0.2f) - (%0.2f, %0.2f)" %
-                                        (self.name, x1, y1, x2, y2))
+                                 (self.name, x1, y1, x2, y2))
 
     def get_coordinates(self):
         "Convert from wx to pdf coordinates"
@@ -314,10 +315,10 @@ class Element(object):
         w, h = self.shape.GetBoundingBoxMax()
         w -= 1
         h -= 1
-        x1 = x/self.zoom - w/self.zoom/2.0
-        x2 = x/self.zoom + w/self.zoom/2.0
-        y1 = y/self.zoom - h/self.zoom/2.0
-        y2 = y/self.zoom + h/self.zoom/2.0
+        x1 = x / self.zoom - w / self.zoom / 2.0
+        x2 = x / self.zoom + w / self.zoom / 2.0
+        y1 = y / self.zoom - h / self.zoom / 2.0
+        y2 = y / self.zoom + h / self.zoom / 2.0
         return x1, y1, x2, y2
 
     def set_coordinates(self, x1, y1, x2, y2):
@@ -326,17 +327,17 @@ class Element(object):
         x2 = x2 * self.zoom
         y1 = y1 * self.zoom
         y2 = y2 * self.zoom
-        
+
         # shapes seems to be centred, pdf coord not
         w = max(x1, x2) - min(x1, x2) + 1
         h = max(y1, y2) - min(y1, y2) + 1
-        x = (min(x1, x2) + w/2.0) 
-        y = (min(y1, y2) + h/2.0) 
+        x = (min(x1, x2) + w / 2.0)
+        y = (min(y1, y2) + h / 2.0)
         return x, y, w, h
 
     def text(self, txt=None):
         if txt is not None:
-            if not isinstance(txt,str):
+            if not isinstance(txt, str):
                 txt = str(txt)
             self.kwargs['text'] = txt
             self.shape.ClearText()
@@ -344,37 +345,43 @@ class Element(object):
                 self.shape.AddText(str(line, "latin1"))
             self.canvas.Refresh(False)
         return self.kwargs['text']
+
     text = property(text, text)
 
     def set_x(self, x):
         self.shape.SetX(x)
         self.canvas.Refresh(False)
         self.evt_callback()
+
     def set_y(self, y):
         self.shape.SetY(y)
         self.canvas.Refresh(False)
         self.evt_callback()
+
     def get_x(self):
         return self.shape.GetX()
+
     def get_y(self):
         return self.shape.GetY()
 
     x = property(get_x, set_x)
     y = property(get_y, set_y)
-    
+
     def selected(self, sel=None):
         if sel is not None:
             print("Setting Select(%s)" % sel)
             self.shape.Select(sel)
         return self.shape.Selected()
+
     selected = property(selected, selected)
-    
+
     def name(self, name=None):
         if name is not None:
             self.kwargs['name'] = name
         return self.kwargs['name']
+
     name = property(name, name)
-        
+
     def __contains__(self, k):
         "Implement in keyword for searchs"
         return k in self.name.lower() or self.text and k in self.text.lower()
@@ -384,24 +391,24 @@ class Element(object):
         d = self.kwargs
         x1, y1, x2, y2 = self.get_coordinates()
         d.update({
-                'x1': x1, 'y1': y1, 'x2': x2, 'y2': y2, 
-                'text': self.text})
+            'x1': x1, 'y1': y1, 'x2': x2, 'y2': y2,
+            'text': self.text})
         return d
 
-        
+
 class AppFrame(wx.Frame):
     "OGL Designer main window"
     title = "PyFPDF Template Designer (wx OGL)"
-    
+
     def __init__(self):
-        wx.Frame.__init__( self,
+        wx.Frame.__init__(self,
                           None, -1, self.title,
-                          size=(640,480),
-                          style=wx.DEFAULT_FRAME_STYLE )
-        sys.excepthook  = self.except_hook
+                          size=(640, 480),
+                          style=wx.DEFAULT_FRAME_STYLE)
+        sys.excepthook = self.except_hook
         self.filename = ""
         # Create a toolbar:
-        tsize = (16,16)
+        tsize = (16, 16)
         self.toolbar = self.CreateToolBar(wx.TB_HORIZONTAL | wx.NO_BORDER | wx.TB_FLAT)
 
         artBmp = wx.ArtProvider.GetBitmap
@@ -414,14 +421,14 @@ class AppFrame(wx.Frame):
         self.toolbar.AddSimpleTool(
             wx.ID_SAVEAS, artBmp(wx.ART_FILE_SAVE_AS, wx.ART_TOOLBAR, tsize),
             "Save As...")
-        #-------
+        # -------
         self.toolbar.AddSeparator()
         self.toolbar.AddSimpleTool(
             wx.ID_UNDO, artBmp(wx.ART_UNDO, wx.ART_TOOLBAR, tsize), "Undo")
         self.toolbar.AddSimpleTool(
             wx.ID_REDO, artBmp(wx.ART_REDO, wx.ART_TOOLBAR, tsize), "Redo")
         self.toolbar.AddSeparator()
-        #-------
+        # -------
         self.toolbar.AddSimpleTool(
             wx.ID_CUT, artBmp(wx.ART_CUT, wx.ART_TOOLBAR, tsize), "Remove")
         self.toolbar.AddSimpleTool(
@@ -441,9 +448,9 @@ class AppFrame(wx.Frame):
 
         self.toolbar.Realize()
 
-        self.toolbar.EnableTool(wx.ID_SAVEAS,       False)
-        self.toolbar.EnableTool(wx.ID_UNDO,         False)
-        self.toolbar.EnableTool(wx.ID_REDO,         False)
+        self.toolbar.EnableTool(wx.ID_SAVEAS, False)
+        self.toolbar.EnableTool(wx.ID_UNDO, False)
+        self.toolbar.EnableTool(wx.ID_REDO, False)
 
         menu_handlers = [
             (wx.ID_NEW, self.do_new),
@@ -458,26 +465,26 @@ class AppFrame(wx.Frame):
             (wx.ID_ABOUT, self.do_about),
         ]
         for menu_id, handler in menu_handlers:
-            self.Bind(wx.EVT_MENU, handler, id = menu_id)
+            self.Bind(wx.EVT_MENU, handler, id=menu_id)
 
         sizer = wx.BoxSizer(wx.VERTICAL)
         # put stuff into sizer
 
         self.CreateStatusBar()
 
-        canvas = self.canvas = ogl.ShapeCanvas( self )
-        maxWidth  = 2000
+        canvas = self.canvas = ogl.ShapeCanvas(self)
+        maxWidth = 2000
         maxHeight = 2000
-        canvas.SetScrollbars(20, 20, maxWidth/20, maxHeight/20)
-        sizer.Add( canvas, 1, wx.GROW )
+        canvas.SetScrollbars(20, 20, maxWidth / 20, maxHeight / 20)
+        sizer.Add(canvas, 1, wx.GROW)
 
-        canvas.SetBackgroundColour("WHITE") #
+        canvas.SetBackgroundColour("WHITE")  #
 
         diagram = self.diagram = ogl.Diagram()
-        canvas.SetDiagram( diagram )
-        diagram.SetCanvas( canvas )
-        diagram.SetSnapToGrid( False )
-        
+        canvas.SetDiagram(diagram)
+        diagram.SetCanvas(canvas)
+        diagram.SetSnapToGrid(False)
+
         # apply sizer
         self.SetSizer(sizer)
         self.SetAutoLayout(1)
@@ -515,52 +522,52 @@ class AppFrame(wx.Frame):
         self.elements = []
         # draw paper size guides
         for k, (w, h) in [('legal', (216, 356)), ('A4', (210, 297)), ('letter', (216, 279))]:
-            self.create_elements( 
+            self.create_elements(
                 k, 'R', 0, 0, w, h,
                 size=70, foreground=0x808080, priority=-100,
                 canvas=self.canvas, frame=self, static=True)
-        self.diagram.ShowAll( 1 )
-        
+        self.diagram.ShowAll(1)
+
     def do_open(self, evt):
         dlg = wx.FileDialog(
             self, message="Choose a file",
-            defaultDir=os.getcwd(), 
+            defaultDir=os.getcwd(),
             defaultFile="invoice.csv",
             wildcard="CSV Files (*.csv)|*.csv",
-            style=wx.OPEN 
-            )
-        
+            style=wx.OPEN
+        )
+
         if dlg.ShowModal() == wx.ID_OK:
             # This returns a Python list of files that were selected.
             self.filename = dlg.GetPaths()[0]
-        
+
         dlg.Destroy()
         self.SetTitle(self.filename + " - " + self.title)
-        
+
         self.do_new()
         tmp = []
         for lno, linea in enumerate(open(self.filename).readlines()):
             if DEBUG: print("processing line", lno, linea)
             args = []
-            for i,v in enumerate(linea.split(";")):
-                if not v.startswith("'"): 
-                    v = v.replace(",",".")
+            for i, v in enumerate(linea.split(";")):
+                if not v.startswith("'"):
+                    v = v.replace(",", ".")
                 else:
-                    v = v#.decode('latin1')
-                if v.strip()=='':
+                    v = v  # .decode('latin1')
+                if v.strip() == '':
                     v = None
                 else:
                     v = ast.literal_eval(v.strip())
                 args.append(v)
             tmp.append(args)
-        
+
         # sort by z-order (priority)
         for args in sorted(tmp, key=lambda t: t[-1]):
             if DEBUG: print(args)
             self.create_elements(*args)
-        self.diagram.ShowAll( 1 )                       #
+        self.diagram.ShowAll(1)  #
 
-        return True      
+        return True
 
     def do_save(self, evt, filename=None):
         try:
@@ -569,49 +576,49 @@ class AppFrame(wx.Frame):
             os.rename(self.filename, self.filename + ts + ".bak")
         except Exception as e:
             if DEBUG: print(e)
-        
+
         def csv_repr(v, decimal_sep="."):
             if isinstance(v, float):
                 return ("%0.2f" % v).replace(".", decimal_sep)
             else:
                 return repr(v)
-        
+
         f = open(self.filename, "w")
-        for element in sorted(self.elements, key=lambda e:e.name):
+        for element in sorted(self.elements, key=lambda e: e.name):
             if element.static:
                 continue
             d = element.as_dict()
             l = [d['name'], d['type'],
                  d['x1'], d['y1'], d['x2'], d['y2'],
                  d['font'], d['size'],
-                 d['bold'], d['italic'], d['underline'], 
+                 d['bold'], d['italic'], d['underline'],
                  d['foreground'], d['background'],
-                 d['align'], d['text'], d['priority'], 
-                ]
+                 d['align'], d['text'], d['priority'],
+                 ]
             f.write(";".join([csv_repr(v) for v in l]))
             f.write("\n")
         f.close()
-        
+
     def do_print(self, evt):
         # genero el renderizador con propiedades del PDF
         t = Template(elements=[e.as_dict() for e in self.elements if not e.static])
         t.add_page()
         if not t['logo'] or not os.path.exists(t['logo']):
             # put a default logo so it doesn't trow an exception
-            logo = os.path.join(os.path.dirname(__file__), 'tutorial','logo.png')
+            logo = os.path.join(os.path.dirname(__file__), 'tutorial', 'logo.png')
             t.set('logo', logo)
         try:
-            t.render(self.filename +".pdf")
+            t.render(self.filename + ".pdf")
         except:
             if DEBUG and False:
                 import pdb;
                 pdb.pm()
             else:
                 raise
-        if sys.platform=="linux2":
-            os.system("evince ""%s""" % self.filename +".pdf")
+        if sys.platform == "linux2":
+            os.system("evince ""%s""" % self.filename + ".pdf")
         else:
-            os.startfile(self.filename +".pdf")
+            os.startfile(self.filename + ".pdf")
 
     def do_find(self, evt):
         # busco nombre o texto
@@ -625,7 +632,7 @@ class AppFrame(wx.Frame):
                     element.selected = True
                     print("Found:", element.name)
             self.canvas.Refresh(False)
-        dlg.Destroy()              
+        dlg.Destroy()
 
     def do_cut(self, evt=None):
         "Delete selected elements"
@@ -640,7 +647,7 @@ class AppFrame(wx.Frame):
                 new_elements.append(element)
         self.elements = new_elements
         self.canvas.Refresh(False)
-        self.diagram.ShowAll( 1 )                   
+        self.diagram.ShowAll(1)
 
     def do_copy(self, evt):
         "Duplicate selected elements"
@@ -649,22 +656,22 @@ class AppFrame(wx.Frame):
         data = CustomDialog.do_input(self, 'Copy elements', fields, data)
         if data:
             new_elements = []
-            for i in range(1, data['qty']+1):
+            for i in range(1, data['qty'] + 1):
                 for element in self.elements:
                     if element.selected:
                         print("Copying:", element.name)
                         new_element = element.copy()
                         name = new_element.name
-                        if len(name)>2 and name[-2:].isdigit():
-                            new_element.name = name[:-2] + "%02d" % (int(name[-2:])+i)
+                        if len(name) > 2 and name[-2:].isdigit():
+                            new_element.name = name[:-2] + "%02d" % (int(name[-2:]) + i)
                         else:
                             new_element.name = new_element.name + "_copy"
                         new_element.selected = False
-                        new_element.move(data['dx']*i, data['dy']*i)
+                        new_element.move(data['dx'] * i, data['dy'] * i)
                         new_elements.append(new_element)
             self.elements.extend(new_elements)
             self.canvas.Refresh(False)
-            self.diagram.ShowAll( 1 )                   
+            self.diagram.ShowAll(1)
 
     def do_paste(self, evt):
         "Insert new elements"
@@ -672,7 +679,7 @@ class AppFrame(wx.Frame):
         if element:
             self.canvas.Refresh(False)
             self.elements.append(element)
-            self.diagram.ShowAll( 1 )                   
+            self.diagram.ShowAll(1)
 
     def do_modify(self, evt):
         "Modify selected elements"
@@ -682,21 +689,21 @@ class AppFrame(wx.Frame):
         if data:
             self.move_elements(data['dx'], data['dy'])
             self.canvas.Refresh(False)
-            self.diagram.ShowAll( 1 )                   
+            self.diagram.ShowAll(1)
 
-    def create_elements(self, name, type, x1, y1, x2, y2, 
-                   font="Arial", size=12,
-                   bold=False, italic=False, underline=False, 
-                   foreground= 0x000000, background=0xFFFFFF,
-                   align="L", text="", priority=0, canvas=None, frame=None, static=False,
-                   **kwargs):
-        element = Element(name=name, type=type, x1=x1, y1=y1, x2=x2, y2=y2, 
-                   font=font, size=size,
-                   bold=bold, italic=italic, underline=underline, 
-                   foreground= foreground, background=background,
-                   align=align, text=text, priority=priority, 
-                   canvas=canvas or self.canvas, frame=frame or self, 
-                   static=static)
+    def create_elements(self, name, type, x1, y1, x2, y2,
+                        font="Arial", size=12,
+                        bold=False, italic=False, underline=False,
+                        foreground=0x000000, background=0xFFFFFF,
+                        align="L", text="", priority=0, canvas=None, frame=None, static=False,
+                        **kwargs):
+        element = Element(name=name, type=type, x1=x1, y1=y1, x2=x2, y2=y2,
+                          font=font, size=size,
+                          bold=bold, italic=italic, underline=underline,
+                          foreground=foreground, background=background,
+                          align=align, text=text, priority=priority,
+                          canvas=canvas or self.canvas, frame=frame or self,
+                          static=static)
         self.elements.append(element)
 
     def move_elements(self, x, y):
@@ -721,21 +728,21 @@ class AppFrame(wx.Frame):
             "Multiple element can be selected with shift left click. \n"
             "Use arrow keys or drag-and-drop to move elements.\n"
             "For further information see project webpage:"
-            )
-        info.WebSite = ("http://code.google.com/p/pyfpdf/wiki/Templates", 
+        )
+        info.WebSite = ("http://code.google.com/p/pyfpdf/wiki/Templates",
                         "pyfpdf Google Code Project")
-        info.Developers = [ __author__, ]
+        info.Developers = [__author__, ]
 
         info.License = wordwrap(__license__, 500, wx.ClientDC(self))
 
         # Then we call wx.AboutBox giving it that info object
         wx.AboutBox(info)
-        
-    def except_hook(self, type, value, trace): 
+
+    def except_hook(self, type, value, trace):
         import traceback
-        exc = traceback.format_exception(type, value, trace) 
-        for e in exc: wx.LogError(e) 
-        wx.LogError('Unhandled Error: %s: %s'%(str(type), str(value))) 
+        exc = traceback.format_exception(type, value, trace)
+        for e in exc: wx.LogError(e)
+        wx.LogError('Unhandled Error: %s: %s' % (str(type), str(value)))
 
 
 if __name__ == "__main__":

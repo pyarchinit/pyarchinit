@@ -8,7 +8,6 @@
 # WARNING! All changes made in this file will be lost!
 
 from PyQt4 import QtCore, QtGui
-import resources_rc
 
 
 class Ui_sortPanel(object):
@@ -28,7 +27,8 @@ class Ui_sortPanel(object):
         self.gridlayout.addItem(spacerItem, 0, 1, 1, 4)
         self.FieldsList = QtGui.QListWidget(sortPanel)
         self.FieldsList.setAcceptDrops(True)
-        self.FieldsList.setEditTriggers(QtGui.QAbstractItemView.DoubleClicked|QtGui.QAbstractItemView.EditKeyPressed|QtGui.QAbstractItemView.SelectedClicked)
+        self.FieldsList.setEditTriggers(
+            QtGui.QAbstractItemView.DoubleClicked | QtGui.QAbstractItemView.EditKeyPressed | QtGui.QAbstractItemView.SelectedClicked)
         self.FieldsList.setDragEnabled(True)
         self.FieldsList.setDragDropOverwriteMode(True)
         self.FieldsList.setDragDropMode(QtGui.QAbstractItemView.NoDragDrop)
@@ -42,7 +42,8 @@ class Ui_sortPanel(object):
         self.FieldListsort = QtGui.QListWidget(sortPanel)
         self.FieldListsort.setAcceptDrops(True)
         self.FieldListsort.setAutoScroll(False)
-        self.FieldListsort.setEditTriggers(QtGui.QAbstractItemView.DoubleClicked|QtGui.QAbstractItemView.EditKeyPressed)
+        self.FieldListsort.setEditTriggers(
+            QtGui.QAbstractItemView.DoubleClicked | QtGui.QAbstractItemView.EditKeyPressed)
         self.FieldListsort.setProperty("showDropIndicator", False)
         self.FieldListsort.setDragEnabled(False)
         self.FieldListsort.setDragDropOverwriteMode(False)
@@ -93,9 +94,13 @@ class Ui_sortPanel(object):
         QtCore.QMetaObject.connectSlotsByName(sortPanel)
 
     def retranslateUi(self, sortPanel):
-        sortPanel.setWindowTitle(QtGui.QApplication.translate("sortPanel", "Ordina", None, QtGui.QApplication.UnicodeUTF8))
-        self.label.setText(QtGui.QApplication.translate("sortPanel", "Criteri di ordinamento", None, QtGui.QApplication.UnicodeUTF8))
-        self.radioButtonAsc.setText(QtGui.QApplication.translate("sortPanel", "Ascendente", None, QtGui.QApplication.UnicodeUTF8))
-        self.radioButtonDisc.setText(QtGui.QApplication.translate("sortPanel", "Discendente", None, QtGui.QApplication.UnicodeUTF8))
-        self.pushButtonSort.setText(QtGui.QApplication.translate("sortPanel", "Ordina", None, QtGui.QApplication.UnicodeUTF8))
-
+        sortPanel.setWindowTitle(
+            QtGui.QApplication.translate("sortPanel", "Ordina", None, QtGui.QApplication.UnicodeUTF8))
+        self.label.setText(
+            QtGui.QApplication.translate("sortPanel", "Criteri di ordinamento", None, QtGui.QApplication.UnicodeUTF8))
+        self.radioButtonAsc.setText(
+            QtGui.QApplication.translate("sortPanel", "Ascendente", None, QtGui.QApplication.UnicodeUTF8))
+        self.radioButtonDisc.setText(
+            QtGui.QApplication.translate("sortPanel", "Discendente", None, QtGui.QApplication.UnicodeUTF8))
+        self.pushButtonSort.setText(
+            QtGui.QApplication.translate("sortPanel", "Ordina", None, QtGui.QApplication.UnicodeUTF8))

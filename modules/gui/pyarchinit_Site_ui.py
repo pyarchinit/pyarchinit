@@ -8,8 +8,6 @@
 # WARNING! All changes made in this file will be lost!
 
 from PyQt4 import QtCore, QtGui
-import resources_rc
-
 
 try:
     _fromUtf8 = QtCore.QString.fromUtf8
@@ -19,11 +17,14 @@ except AttributeError:
 
 try:
     _encoding = QtGui.QApplication.UnicodeUTF8
+
+
     def _translate(context, text, disambig):
         return QtGui.QApplication.translate(context, text, disambig, _encoding)
 except AttributeError:
     def _translate(context, text, disambig):
         return QtGui.QApplication.translate(context, text, disambig)
+
 
 class Ui_DialogSite(object):
     def setupUi(self, DialogSite):
@@ -545,37 +546,46 @@ class Ui_DialogSite(object):
         self.label_2.setText(_translate("DialogSite", "Comune", None))
         self.label_7.setText(_translate("DialogSite", "Provincia", None))
         self.label_5.setText(_translate("DialogSite", "Regione", None))
-        self.tabWidget.setTabText(self.tabWidget.indexOf(self.tabWidgetPage1), _translate("DialogSite", "Dati descrittivi", None))
-        self.label_8.setToolTip(_translate("DialogSite", "Carica tutti layer che contengono geometrie relative a questo sito", None))
+        self.tabWidget.setTabText(self.tabWidget.indexOf(self.tabWidgetPage1),
+                                  _translate("DialogSite", "Dati descrittivi", None))
+        self.label_8.setToolTip(
+            _translate("DialogSite", "Carica tutti layer che contengono geometrie relative a questo sito", None))
         self.label_8.setText(_translate("DialogSite", "Carica i layer per questo sito", None))
         self.pushButton_sites_geometry.setText(_translate("DialogSite", "Carica", None))
-        self.label_14.setText(_translate("DialogSite", "Genera un numero arbitrario di schede US per il sito corrente", None))
+        self.label_14.setText(
+            _translate("DialogSite", "Genera un numero arbitrario di schede US per il sito corrente", None))
         self.pushButton_genera_us.setText(_translate("DialogSite", "Genera US (Azione irreversibile)", None))
         self.label_16.setText(_translate("DialogSite", "Numero Area", None))
         self.label_15.setText(_translate("DialogSite", "Numero di schede da creare", None))
-        self.label_3.setToolTip(_translate("DialogSite", "Carica tutti i layer per poter inserire nuove geometrie", None))
+        self.label_3.setToolTip(
+            _translate("DialogSite", "Carica tutti i layer per poter inserire nuove geometrie", None))
         self.label_3.setText(_translate("DialogSite", "Carica layer per il disegno", None))
         self.pushButton_draw.setText(_translate("DialogSite", "Carica", None))
-        self.label_9.setText(_translate("DialogSite", "Esporta relazione di scavo per questo sito (Versione di sviluppo)", None))
+        self.label_9.setText(
+            _translate("DialogSite", "Esporta relazione di scavo per questo sito (Versione di sviluppo)", None))
         self.pushButton_rel_pdf.setText(_translate("DialogSite", "Esporta", None))
         self.label_10.setText(_translate("DialogSite", "GIS Tools", None))
-        self.label_12.setToolTip(_translate("DialogSite", "Carica tutti i layer per poter inserire nuove geometrie", None))
+        self.label_12.setToolTip(
+            _translate("DialogSite", "Carica tutti i layer per poter inserire nuove geometrie", None))
         self.label_12.setText(_translate("DialogSite", "Gis viewer", None))
         self.toolButton_draw_siti.setText(_translate("DialogSite", "Abilita il caricamento delle ricerche", None))
-        self.label_11.setToolTip(_translate("DialogSite", "Carica tutti i layer per poter inserire nuove geometrie", None))
+        self.label_11.setToolTip(
+            _translate("DialogSite", "Carica tutti i layer per poter inserire nuove geometrie", None))
         self.label_11.setText(_translate("DialogSite", "Carica il puntuale del sito", None))
         self.pushButton_draw_sito.setText(_translate("DialogSite", "Carica", None))
         self.label_17.setText(_translate("DialogSite", "Numero di scheda US da cui partire", None))
         self.tabWidget.setTabText(self.tabWidget.indexOf(self.tabWidgetPage2), _translate("DialogSite", "Tools", None))
         self.pushButton_test.setText(_translate("DialogSite", "Run test", None))
-        self.plainTextEdit.setPlainText(_translate("DialogSite", "Questa è una sezione di testing per sperimentare funzioni.\n"
-"\n"
-"\n"
-"Procedura\n"
-"Step 1 - Aprire il file test_area.py dentro alla cartella pyarchinit (la cartella si trova dentro al vostro utente /.qgis/python/plugins/pyarchinit)\n"
-"\n"
-"Step 2 - editare la funzione def run_test e salvare il file.\n"
-"\n"
-"Step 3 - Riavviare Qgis e cliccare sul pulsante Run Test per verificare l\'output della vostra funzione.", None))
-        self.tabWidget.setTabText(self.tabWidget.indexOf(self.tabWidgetPage3), _translate("DialogSite", "Python test area", None))
-
+        self.plainTextEdit.setPlainText(
+            _translate("DialogSite", "Questa è una sezione di testing per sperimentare funzioni.\n"
+                                     "\n"
+                                     "\n"
+                                     "Procedura\n"
+                                     "Step 1 - Aprire il file test_area.py dentro alla cartella pyarchinit (la cartella si trova dentro al vostro utente /.qgis/python/plugins/pyarchinit)\n"
+                                     "\n"
+                                     "Step 2 - editare la funzione def run_test e salvare il file.\n"
+                                     "\n"
+                                     "Step 3 - Riavviare Qgis e cliccare sul pulsante Run Test per verificare l\'output della vostra funzione.",
+                       None))
+        self.tabWidget.setTabText(self.tabWidget.indexOf(self.tabWidgetPage3),
+                                  _translate("DialogSite", "Python test area", None))

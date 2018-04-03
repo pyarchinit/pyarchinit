@@ -9,11 +9,11 @@
 
 from PyQt4 import QtCore, QtGui
 
-
 try:
     _fromUtf8 = QtCore.QString.fromUtf8
 except AttributeError:
     _fromUtf8 = lambda s: s
+
 
 class Ui_DialogPreviewDoc(object):
     def setupUi(self, DialogPreviewDoc):
@@ -37,5 +37,6 @@ class Ui_DialogPreviewDoc(object):
         QtCore.QMetaObject.connectSlotsByName(DialogPreviewDoc)
 
     def retranslateUi(self, DialogPreviewDoc):
-        DialogPreviewDoc.setWindowTitle(QtGui.QApplication.translate("DialogPreviewDoc", "pyArchInit Gestione Scavi - Preview Documetazione", None, QtGui.QApplication.UnicodeUTF8))
-
+        DialogPreviewDoc.setWindowTitle(
+            QtGui.QApplication.translate("DialogPreviewDoc", "pyArchInit Gestione Scavi - Preview Documetazione", None,
+                                         QtGui.QApplication.UnicodeUTF8))

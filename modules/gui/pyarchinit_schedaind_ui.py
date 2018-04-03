@@ -8,13 +8,12 @@
 # WARNING! All changes made in this file will be lost!
 
 from PyQt4 import QtCore, QtGui
-import resources_rc
-
 
 try:
     _fromUtf8 = QtCore.QString.fromUtf8
 except AttributeError:
     _fromUtf8 = lambda s: s
+
 
 class Ui_DialogInd(object):
     def setupUi(self, DialogInd):
@@ -598,63 +597,119 @@ class Ui_DialogInd(object):
         QtCore.QMetaObject.connectSlotsByName(DialogInd)
 
     def retranslateUi(self, DialogInd):
-        DialogInd.setWindowTitle(QtGui.QApplication.translate("DialogInd", "pyArchInit Gestione Scavi - Scheda Individuo", None, QtGui.QApplication.UnicodeUTF8))
-        self.label_29.setText(QtGui.QApplication.translate("DialogInd", "DBMS Toolbar", None, QtGui.QApplication.UnicodeUTF8))
-        self.label_42.setText(QtGui.QApplication.translate("DialogInd", "DB Info", None, QtGui.QApplication.UnicodeUTF8))
-        self.label_43.setText(QtGui.QApplication.translate("DialogInd", "Ordinamento", None, QtGui.QApplication.UnicodeUTF8))
+        DialogInd.setWindowTitle(
+            QtGui.QApplication.translate("DialogInd", "pyArchInit Gestione Scavi - Scheda Individuo", None,
+                                         QtGui.QApplication.UnicodeUTF8))
+        self.label_29.setText(
+            QtGui.QApplication.translate("DialogInd", "DBMS Toolbar", None, QtGui.QApplication.UnicodeUTF8))
+        self.label_42.setText(
+            QtGui.QApplication.translate("DialogInd", "DB Info", None, QtGui.QApplication.UnicodeUTF8))
+        self.label_43.setText(
+            QtGui.QApplication.translate("DialogInd", "Ordinamento", None, QtGui.QApplication.UnicodeUTF8))
         self.label_34.setText(QtGui.QApplication.translate("DialogInd", "Status", None, QtGui.QApplication.UnicodeUTF8))
-        self.label_27.setText(QtGui.QApplication.translate("DialogInd", "record n.", None, QtGui.QApplication.UnicodeUTF8))
-        self.label_rec_corrente.setText(QtGui.QApplication.translate("DialogInd", "1", None, QtGui.QApplication.UnicodeUTF8))
-        self.label_28.setText(QtGui.QApplication.translate("DialogInd", "record tot.", None, QtGui.QApplication.UnicodeUTF8))
+        self.label_27.setText(
+            QtGui.QApplication.translate("DialogInd", "record n.", None, QtGui.QApplication.UnicodeUTF8))
+        self.label_rec_corrente.setText(
+            QtGui.QApplication.translate("DialogInd", "1", None, QtGui.QApplication.UnicodeUTF8))
+        self.label_28.setText(
+            QtGui.QApplication.translate("DialogInd", "record tot.", None, QtGui.QApplication.UnicodeUTF8))
         self.label_rec_tot.setText(QtGui.QApplication.translate("DialogInd", "1", None, QtGui.QApplication.UnicodeUTF8))
-        self.pushButton_last_rec.setToolTip(QtGui.QApplication.translate("DialogInd", "Last rec", None, QtGui.QApplication.UnicodeUTF8))
-        self.pushButton_new_rec.setToolTip(QtGui.QApplication.translate("DialogInd", "New record", None, QtGui.QApplication.UnicodeUTF8))
-        self.pushButton_save.setToolTip(QtGui.QApplication.translate("DialogInd", "Save", None, QtGui.QApplication.UnicodeUTF8))
-        self.pushButton_new_search.setToolTip(QtGui.QApplication.translate("DialogInd", "new search", None, QtGui.QApplication.UnicodeUTF8))
-        self.pushButton_search_go.setToolTip(QtGui.QApplication.translate("DialogInd", "search !!!", None, QtGui.QApplication.UnicodeUTF8))
-        self.pushButton_sort.setToolTip(QtGui.QApplication.translate("DialogInd", "Order by", None, QtGui.QApplication.UnicodeUTF8))
-        self.pushButton_view_all.setToolTip(QtGui.QApplication.translate("DialogInd", "View alls records", None, QtGui.QApplication.UnicodeUTF8))
-        self.pushButton_next_rec.setToolTip(QtGui.QApplication.translate("DialogInd", "Next rec", None, QtGui.QApplication.UnicodeUTF8))
-        self.pushButton_prev_rec.setToolTip(QtGui.QApplication.translate("DialogInd", "Prev rec", None, QtGui.QApplication.UnicodeUTF8))
-        self.pushButton_first_rec.setToolTip(QtGui.QApplication.translate("DialogInd", "First rec", None, QtGui.QApplication.UnicodeUTF8))
-        self.pushButton_delete.setToolTip(QtGui.QApplication.translate("DialogInd", "Delete record", None, QtGui.QApplication.UnicodeUTF8))
-        self.pushButton_connect.setText(QtGui.QApplication.translate("DialogInd", "Connection test", None, QtGui.QApplication.UnicodeUTF8))
-        self.comboBox_sito.setItemText(0, QtGui.QApplication.translate("DialogInd", "Inserisci un valore", None, QtGui.QApplication.UnicodeUTF8))
+        self.pushButton_last_rec.setToolTip(
+            QtGui.QApplication.translate("DialogInd", "Last rec", None, QtGui.QApplication.UnicodeUTF8))
+        self.pushButton_new_rec.setToolTip(
+            QtGui.QApplication.translate("DialogInd", "New record", None, QtGui.QApplication.UnicodeUTF8))
+        self.pushButton_save.setToolTip(
+            QtGui.QApplication.translate("DialogInd", "Save", None, QtGui.QApplication.UnicodeUTF8))
+        self.pushButton_new_search.setToolTip(
+            QtGui.QApplication.translate("DialogInd", "new search", None, QtGui.QApplication.UnicodeUTF8))
+        self.pushButton_search_go.setToolTip(
+            QtGui.QApplication.translate("DialogInd", "search !!!", None, QtGui.QApplication.UnicodeUTF8))
+        self.pushButton_sort.setToolTip(
+            QtGui.QApplication.translate("DialogInd", "Order by", None, QtGui.QApplication.UnicodeUTF8))
+        self.pushButton_view_all.setToolTip(
+            QtGui.QApplication.translate("DialogInd", "View alls records", None, QtGui.QApplication.UnicodeUTF8))
+        self.pushButton_next_rec.setToolTip(
+            QtGui.QApplication.translate("DialogInd", "Next rec", None, QtGui.QApplication.UnicodeUTF8))
+        self.pushButton_prev_rec.setToolTip(
+            QtGui.QApplication.translate("DialogInd", "Prev rec", None, QtGui.QApplication.UnicodeUTF8))
+        self.pushButton_first_rec.setToolTip(
+            QtGui.QApplication.translate("DialogInd", "First rec", None, QtGui.QApplication.UnicodeUTF8))
+        self.pushButton_delete.setToolTip(
+            QtGui.QApplication.translate("DialogInd", "Delete record", None, QtGui.QApplication.UnicodeUTF8))
+        self.pushButton_connect.setText(
+            QtGui.QApplication.translate("DialogInd", "Connection test", None, QtGui.QApplication.UnicodeUTF8))
+        self.comboBox_sito.setItemText(0, QtGui.QApplication.translate("DialogInd", "Inserisci un valore", None,
+                                                                       QtGui.QApplication.UnicodeUTF8))
         self.label.setText(QtGui.QApplication.translate("DialogInd", "Sito ", None, QtGui.QApplication.UnicodeUTF8))
-        self.label_19.setText(QtGui.QApplication.translate("DialogInd", "N. INDIVIDUO", None, QtGui.QApplication.UnicodeUTF8))
-        self.tabWidget.setToolTip(QtGui.QApplication.translate("DialogInd", "Grado/importanza", None, QtGui.QApplication.UnicodeUTF8))
-        self.label_20.setText(QtGui.QApplication.translate("DialogInd", "STIMA DEL SESSO", None, QtGui.QApplication.UnicodeUTF8))
-        self.comboBox_sesso.setItemText(0, QtGui.QApplication.translate("DialogInd", "Non identificabile", None, QtGui.QApplication.UnicodeUTF8))
-        self.comboBox_sesso.setItemText(1, QtGui.QApplication.translate("DialogInd", "Maschio", None, QtGui.QApplication.UnicodeUTF8))
-        self.comboBox_sesso.setItemText(2, QtGui.QApplication.translate("DialogInd", "Femmina", None, QtGui.QApplication.UnicodeUTF8))
-        self.comboBox_sesso.setItemText(3, QtGui.QApplication.translate("DialogInd", "Indeterminato", None, QtGui.QApplication.UnicodeUTF8))
-        self.label_22.setText(QtGui.QApplication.translate("DialogInd", "STIMA DELL\'ETA\' DI MORTE (in anni)", None, QtGui.QApplication.UnicodeUTF8))
-        self.comboBox_eta_min.setItemText(0, QtGui.QApplication.translate("DialogInd", "0", None, QtGui.QApplication.UnicodeUTF8))
+        self.label_19.setText(
+            QtGui.QApplication.translate("DialogInd", "N. INDIVIDUO", None, QtGui.QApplication.UnicodeUTF8))
+        self.tabWidget.setToolTip(
+            QtGui.QApplication.translate("DialogInd", "Grado/importanza", None, QtGui.QApplication.UnicodeUTF8))
+        self.label_20.setText(
+            QtGui.QApplication.translate("DialogInd", "STIMA DEL SESSO", None, QtGui.QApplication.UnicodeUTF8))
+        self.comboBox_sesso.setItemText(0, QtGui.QApplication.translate("DialogInd", "Non identificabile", None,
+                                                                        QtGui.QApplication.UnicodeUTF8))
+        self.comboBox_sesso.setItemText(1, QtGui.QApplication.translate("DialogInd", "Maschio", None,
+                                                                        QtGui.QApplication.UnicodeUTF8))
+        self.comboBox_sesso.setItemText(2, QtGui.QApplication.translate("DialogInd", "Femmina", None,
+                                                                        QtGui.QApplication.UnicodeUTF8))
+        self.comboBox_sesso.setItemText(3, QtGui.QApplication.translate("DialogInd", "Indeterminato", None,
+                                                                        QtGui.QApplication.UnicodeUTF8))
+        self.label_22.setText(QtGui.QApplication.translate("DialogInd", "STIMA DELL\'ETA\' DI MORTE (in anni)", None,
+                                                           QtGui.QApplication.UnicodeUTF8))
+        self.comboBox_eta_min.setItemText(0, QtGui.QApplication.translate("DialogInd", "0", None,
+                                                                          QtGui.QApplication.UnicodeUTF8))
         self.label_24.setText(QtGui.QApplication.translate("DialogInd", "-", None, QtGui.QApplication.UnicodeUTF8))
-        self.comboBox_eta_max.setItemText(0, QtGui.QApplication.translate("DialogInd", "0", None, QtGui.QApplication.UnicodeUTF8))
-        self.label_26.setText(QtGui.QApplication.translate("DialogInd", "CLASSI DI ETA\'", None, QtGui.QApplication.UnicodeUTF8))
-        self.comboBox_classi_eta.setItemText(1, QtGui.QApplication.translate("DialogInd", "Adulto giovane (20-29)", None, QtGui.QApplication.UnicodeUTF8))
-        self.comboBox_classi_eta.setItemText(2, QtGui.QApplication.translate("DialogInd", "Adulto maturo (30-50)", None, QtGui.QApplication.UnicodeUTF8))
-        self.comboBox_classi_eta.setItemText(3, QtGui.QApplication.translate("DialogInd", "Adulto di eta\' avanzata (>50)", None, QtGui.QApplication.UnicodeUTF8))
-        self.label_23.setText(QtGui.QApplication.translate("DialogInd", "OSSERVAZIONI", None, QtGui.QApplication.UnicodeUTF8))
+        self.comboBox_eta_max.setItemText(0, QtGui.QApplication.translate("DialogInd", "0", None,
+                                                                          QtGui.QApplication.UnicodeUTF8))
+        self.label_26.setText(
+            QtGui.QApplication.translate("DialogInd", "CLASSI DI ETA\'", None, QtGui.QApplication.UnicodeUTF8))
+        self.comboBox_classi_eta.setItemText(1,
+                                             QtGui.QApplication.translate("DialogInd", "Adulto giovane (20-29)", None,
+                                                                          QtGui.QApplication.UnicodeUTF8))
+        self.comboBox_classi_eta.setItemText(2, QtGui.QApplication.translate("DialogInd", "Adulto maturo (30-50)", None,
+                                                                             QtGui.QApplication.UnicodeUTF8))
+        self.comboBox_classi_eta.setItemText(3,
+                                             QtGui.QApplication.translate("DialogInd", "Adulto di eta\' avanzata (>50)",
+                                                                          None, QtGui.QApplication.UnicodeUTF8))
+        self.label_23.setText(
+            QtGui.QApplication.translate("DialogInd", "OSSERVAZIONI", None, QtGui.QApplication.UnicodeUTF8))
         self.label_15.setText(QtGui.QApplication.translate("DialogInd", "DATA", None, QtGui.QApplication.UnicodeUTF8))
-        self.label_16.setText(QtGui.QApplication.translate("DialogInd", "SCHEDATORE", None, QtGui.QApplication.UnicodeUTF8))
-        self.tabWidget.setTabText(self.tabWidget.indexOf(self.tab_7), QtGui.QApplication.translate("DialogInd", "Dati descrittivi", None, QtGui.QApplication.UnicodeUTF8))
-        self.label_68.setText(QtGui.QApplication.translate("DialogInd", "Toolbar", None, QtGui.QApplication.UnicodeUTF8))
-        self.label_71.setText(QtGui.QApplication.translate("DialogInd", "Visualizzazione GIS", None, QtGui.QApplication.UnicodeUTF8))
-        self.toolButtonGis.setShortcut(QtGui.QApplication.translate("DialogInd", "Ctrl+G", None, QtGui.QApplication.UnicodeUTF8))
-        self.label_72.setText(QtGui.QApplication.translate("DialogInd", "Attivazione Preview pianta US", None, QtGui.QApplication.UnicodeUTF8))
-        self.toolButtonPreview.setText(QtGui.QApplication.translate("DialogInd", "Preview pianta US", None, QtGui.QApplication.UnicodeUTF8))
-        self.toolButtonPreview.setShortcut(QtGui.QApplication.translate("DialogInd", "Ctrl+G", None, QtGui.QApplication.UnicodeUTF8))
-        self.toolButtonPan.setToolTip(QtGui.QApplication.translate("DialogInd", "Pan tool", None, QtGui.QApplication.UnicodeUTF8))
-        self.toolButtonPan.setShortcut(QtGui.QApplication.translate("DialogInd", "Ctrl+G", None, QtGui.QApplication.UnicodeUTF8))
-        self.label_74.setText(QtGui.QApplication.translate("DialogInd", "Esportain formato PDF", None, QtGui.QApplication.UnicodeUTF8))
-        self.pushButton_pdf_exp.setToolTip(QtGui.QApplication.translate("DialogInd", "Export PDF", None, QtGui.QApplication.UnicodeUTF8))
-        self.pushButton_pdf_exp.setText(QtGui.QApplication.translate("DialogInd", "Singole schede", None, QtGui.QApplication.UnicodeUTF8))
-        self.pushButton_exp_index_ind.setText(QtGui.QApplication.translate("DialogInd", "Elenco Individui", None, QtGui.QApplication.UnicodeUTF8))
-        self.label_75.setText(QtGui.QApplication.translate("DialogInd", "Mostra immagini", None, QtGui.QApplication.UnicodeUTF8))
-        self.toolButtonPreviewMedia.setText(QtGui.QApplication.translate("DialogInd", "Mostra immagini", None, QtGui.QApplication.UnicodeUTF8))
-        self.tabWidget.setTabText(self.tabWidget.indexOf(self.tab_12), QtGui.QApplication.translate("DialogInd", "Tools", None, QtGui.QApplication.UnicodeUTF8))
+        self.label_16.setText(
+            QtGui.QApplication.translate("DialogInd", "SCHEDATORE", None, QtGui.QApplication.UnicodeUTF8))
+        self.tabWidget.setTabText(self.tabWidget.indexOf(self.tab_7),
+                                  QtGui.QApplication.translate("DialogInd", "Dati descrittivi", None,
+                                                               QtGui.QApplication.UnicodeUTF8))
+        self.label_68.setText(
+            QtGui.QApplication.translate("DialogInd", "Toolbar", None, QtGui.QApplication.UnicodeUTF8))
+        self.label_71.setText(
+            QtGui.QApplication.translate("DialogInd", "Visualizzazione GIS", None, QtGui.QApplication.UnicodeUTF8))
+        self.toolButtonGis.setShortcut(
+            QtGui.QApplication.translate("DialogInd", "Ctrl+G", None, QtGui.QApplication.UnicodeUTF8))
+        self.label_72.setText(QtGui.QApplication.translate("DialogInd", "Attivazione Preview pianta US", None,
+                                                           QtGui.QApplication.UnicodeUTF8))
+        self.toolButtonPreview.setText(
+            QtGui.QApplication.translate("DialogInd", "Preview pianta US", None, QtGui.QApplication.UnicodeUTF8))
+        self.toolButtonPreview.setShortcut(
+            QtGui.QApplication.translate("DialogInd", "Ctrl+G", None, QtGui.QApplication.UnicodeUTF8))
+        self.toolButtonPan.setToolTip(
+            QtGui.QApplication.translate("DialogInd", "Pan tool", None, QtGui.QApplication.UnicodeUTF8))
+        self.toolButtonPan.setShortcut(
+            QtGui.QApplication.translate("DialogInd", "Ctrl+G", None, QtGui.QApplication.UnicodeUTF8))
+        self.label_74.setText(
+            QtGui.QApplication.translate("DialogInd", "Esportain formato PDF", None, QtGui.QApplication.UnicodeUTF8))
+        self.pushButton_pdf_exp.setToolTip(
+            QtGui.QApplication.translate("DialogInd", "Export PDF", None, QtGui.QApplication.UnicodeUTF8))
+        self.pushButton_pdf_exp.setText(
+            QtGui.QApplication.translate("DialogInd", "Singole schede", None, QtGui.QApplication.UnicodeUTF8))
+        self.pushButton_exp_index_ind.setText(
+            QtGui.QApplication.translate("DialogInd", "Elenco Individui", None, QtGui.QApplication.UnicodeUTF8))
+        self.label_75.setText(
+            QtGui.QApplication.translate("DialogInd", "Mostra immagini", None, QtGui.QApplication.UnicodeUTF8))
+        self.toolButtonPreviewMedia.setText(
+            QtGui.QApplication.translate("DialogInd", "Mostra immagini", None, QtGui.QApplication.UnicodeUTF8))
+        self.tabWidget.setTabText(self.tabWidget.indexOf(self.tab_12),
+                                  QtGui.QApplication.translate("DialogInd", "Tools", None,
+                                                               QtGui.QApplication.UnicodeUTF8))
         self.label_2.setText(QtGui.QApplication.translate("DialogInd", "Area", None, QtGui.QApplication.UnicodeUTF8))
         self.label_3.setText(QtGui.QApplication.translate("DialogInd", "US", None, QtGui.QApplication.UnicodeUTF8))
-

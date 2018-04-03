@@ -8,13 +8,12 @@
 # WARNING! All changes made in this file will be lost!
 
 from PyQt4 import QtCore, QtGui
-import resources_rc
-
 
 try:
     _fromUtf8 = QtCore.QString.fromUtf8
 except AttributeError:
     _fromUtf8 = lambda s: s
+
 
 class Ui_DialogDocumentazione_tipo_doc(object):
     def setupUi(self, DialogDocumentazione_tipo_doc):
@@ -386,56 +385,135 @@ class Ui_DialogDocumentazione_tipo_doc(object):
         QtCore.QMetaObject.connectSlotsByName(DialogDocumentazione_tipo_doc)
 
     def retranslateUi(self, DialogDocumentazione_tipo_doc):
-        DialogDocumentazione_tipo_doc.setWindowTitle(QtGui.QApplication.translate("DialogDocumentazione_tipo_doc", "pyArchInit Gestione Scavi - Scheda Documentazione", None, QtGui.QApplication.UnicodeUTF8))
-        self.comboBox_sito_doc.setItemText(0, QtGui.QApplication.translate("DialogDocumentazione_tipo_doc", "Inserisci un valore", None, QtGui.QApplication.UnicodeUTF8))
-        self.label_sito_doc.setText(QtGui.QApplication.translate("DialogDocumentazione_tipo_doc", "Sito", None, QtGui.QApplication.UnicodeUTF8))
-        self.label_29.setText(QtGui.QApplication.translate("DialogDocumentazione_tipo_doc", "DBMS Toolbar", None, QtGui.QApplication.UnicodeUTF8))
-        self.label_42.setText(QtGui.QApplication.translate("DialogDocumentazione_tipo_doc", "DB Info", None, QtGui.QApplication.UnicodeUTF8))
-        self.label_34.setText(QtGui.QApplication.translate("DialogDocumentazione_tipo_doc", "Status", None, QtGui.QApplication.UnicodeUTF8))
-        self.label_43.setText(QtGui.QApplication.translate("DialogDocumentazione_tipo_doc", "Ordinamento", None, QtGui.QApplication.UnicodeUTF8))
-        self.label_27.setText(QtGui.QApplication.translate("DialogDocumentazione_tipo_doc", "record n.", None, QtGui.QApplication.UnicodeUTF8))
-        self.label_rec_corrente.setText(QtGui.QApplication.translate("DialogDocumentazione_tipo_doc", "1", None, QtGui.QApplication.UnicodeUTF8))
-        self.label_28.setText(QtGui.QApplication.translate("DialogDocumentazione_tipo_doc", "record tot.", None, QtGui.QApplication.UnicodeUTF8))
-        self.label_rec_tot.setText(QtGui.QApplication.translate("DialogDocumentazione_tipo_doc", "1", None, QtGui.QApplication.UnicodeUTF8))
-        self.pushButton_connect.setText(QtGui.QApplication.translate("DialogDocumentazione_tipo_doc", "Connection test", None, QtGui.QApplication.UnicodeUTF8))
-        self.pushButton_first_rec.setToolTip(QtGui.QApplication.translate("DialogDocumentazione_tipo_doc", "First rec", None, QtGui.QApplication.UnicodeUTF8))
-        self.pushButton_prev_rec.setToolTip(QtGui.QApplication.translate("DialogDocumentazione_tipo_doc", "Prev rec", None, QtGui.QApplication.UnicodeUTF8))
-        self.pushButton_next_rec.setToolTip(QtGui.QApplication.translate("DialogDocumentazione_tipo_doc", "Next rec", None, QtGui.QApplication.UnicodeUTF8))
-        self.pushButton_last_rec.setToolTip(QtGui.QApplication.translate("DialogDocumentazione_tipo_doc", "Last rec", None, QtGui.QApplication.UnicodeUTF8))
-        self.pushButton_new_rec.setToolTip(QtGui.QApplication.translate("DialogDocumentazione_tipo_doc", "New record", None, QtGui.QApplication.UnicodeUTF8))
-        self.pushButton_save.setToolTip(QtGui.QApplication.translate("DialogDocumentazione_tipo_doc", "Save", None, QtGui.QApplication.UnicodeUTF8))
-        self.pushButton_delete.setToolTip(QtGui.QApplication.translate("DialogDocumentazione_tipo_doc", "Delete record", None, QtGui.QApplication.UnicodeUTF8))
-        self.pushButton_new_search.setToolTip(QtGui.QApplication.translate("DialogDocumentazione_tipo_doc", "new search", None, QtGui.QApplication.UnicodeUTF8))
-        self.pushButton_search_go.setToolTip(QtGui.QApplication.translate("DialogDocumentazione_tipo_doc", "search !!!", None, QtGui.QApplication.UnicodeUTF8))
-        self.pushButton_sort.setToolTip(QtGui.QApplication.translate("DialogDocumentazione_tipo_doc", "Order by", None, QtGui.QApplication.UnicodeUTF8))
-        self.pushButton_view_all.setToolTip(QtGui.QApplication.translate("DialogDocumentazione_tipo_doc", "View alls records", None, QtGui.QApplication.UnicodeUTF8))
-        self.label.setText(QtGui.QApplication.translate("DialogDocumentazione_tipo_doc", "Nome documentazione", None, QtGui.QApplication.UnicodeUTF8))
-        self.label_2_tipo_doc.setText(QtGui.QApplication.translate("DialogDocumentazione_tipo_doc", "Tipo documentazione", None, QtGui.QApplication.UnicodeUTF8))
-        self.comboBox_tipo_doc.setItemText(0, QtGui.QApplication.translate("DialogDocumentazione_tipo_doc", "Fotopiano", None, QtGui.QApplication.UnicodeUTF8))
-        self.comboBox_tipo_doc.setItemText(1, QtGui.QApplication.translate("DialogDocumentazione_tipo_doc", "Pianta", None, QtGui.QApplication.UnicodeUTF8))
-        self.comboBox_tipo_doc.setItemText(2, QtGui.QApplication.translate("DialogDocumentazione_tipo_doc", "Prospetto", None, QtGui.QApplication.UnicodeUTF8))
-        self.comboBox_tipo_doc.setItemText(3, QtGui.QApplication.translate("DialogDocumentazione_tipo_doc", "Sezione", None, QtGui.QApplication.UnicodeUTF8))
-        self.comboBox_sorgente_doc.setItemText(0, QtGui.QApplication.translate("DialogDocumentazione_tipo_doc", "Foto", None, QtGui.QApplication.UnicodeUTF8))
-        self.comboBox_sorgente_doc.setItemText(1, QtGui.QApplication.translate("DialogDocumentazione_tipo_doc", "Fotomosaico", None, QtGui.QApplication.UnicodeUTF8))
-        self.comboBox_sorgente_doc.setItemText(2, QtGui.QApplication.translate("DialogDocumentazione_tipo_doc", "Lucido", None, QtGui.QApplication.UnicodeUTF8))
-        self.comboBox_sorgente_doc.setItemText(3, QtGui.QApplication.translate("DialogDocumentazione_tipo_doc", "Rilievo diretto (tablet)", None, QtGui.QApplication.UnicodeUTF8))
-        self.label_2_sorgente_doc.setText(QtGui.QApplication.translate("DialogDocumentazione_tipo_doc", "Sorgente", None, QtGui.QApplication.UnicodeUTF8))
-        self.comboBox_scala_doc.setItemText(0, QtGui.QApplication.translate("DialogDocumentazione_tipo_doc", "1 : 1", None, QtGui.QApplication.UnicodeUTF8))
-        self.comboBox_scala_doc.setItemText(1, QtGui.QApplication.translate("DialogDocumentazione_tipo_doc", "1 : 2", None, QtGui.QApplication.UnicodeUTF8))
-        self.comboBox_scala_doc.setItemText(2, QtGui.QApplication.translate("DialogDocumentazione_tipo_doc", "1 : 10", None, QtGui.QApplication.UnicodeUTF8))
-        self.comboBox_scala_doc.setItemText(3, QtGui.QApplication.translate("DialogDocumentazione_tipo_doc", "1 : 20", None, QtGui.QApplication.UnicodeUTF8))
-        self.comboBox_scala_doc.setItemText(4, QtGui.QApplication.translate("DialogDocumentazione_tipo_doc", "1 : 30", None, QtGui.QApplication.UnicodeUTF8))
-        self.comboBox_scala_doc.setItemText(5, QtGui.QApplication.translate("DialogDocumentazione_tipo_doc", "1 : 50", None, QtGui.QApplication.UnicodeUTF8))
-        self.comboBox_scala_doc.setItemText(6, QtGui.QApplication.translate("DialogDocumentazione_tipo_doc", "1 : 100", None, QtGui.QApplication.UnicodeUTF8))
-        self.label_2_scala_doc.setText(QtGui.QApplication.translate("DialogDocumentazione_tipo_doc", "Scala", None, QtGui.QApplication.UnicodeUTF8))
-        self.label_2_disegnatore_doc.setText(QtGui.QApplication.translate("DialogDocumentazione_tipo_doc", "Disegnatore", None, QtGui.QApplication.UnicodeUTF8))
-        self.label_2_data_doc.setText(QtGui.QApplication.translate("DialogDocumentazione_tipo_doc", "Data", None, QtGui.QApplication.UnicodeUTF8))
-        self.pushButton_disegno_doc.setText(QtGui.QApplication.translate("DialogDocumentazione_tipo_doc", "Visualizza documentazione", None, QtGui.QApplication.UnicodeUTF8))
-        self.tabWidget_tab_doc.setTabText(self.tabWidget_tab_doc.indexOf(self.tab_1_doc), QtGui.QApplication.translate("DialogDocumentazione_tipo_doc", "Dati generali", None, QtGui.QApplication.UnicodeUTF8))
-        self.label_2_note_doc.setText(QtGui.QApplication.translate("DialogDocumentazione_tipo_doc", "Note", None, QtGui.QApplication.UnicodeUTF8))
-        self.tabWidget_tab_doc.setTabText(self.tabWidget_tab_doc.indexOf(self.tab_2_doc), QtGui.QApplication.translate("DialogDocumentazione_tipo_doc", "Note", None, QtGui.QApplication.UnicodeUTF8))
-        self.pushButton_exp_elenco_doc.setText(QtGui.QApplication.translate("DialogDocumentazione_tipo_doc", "Esporta elenco documentazione", None, QtGui.QApplication.UnicodeUTF8))
-        self.pushButtonPreview.setText(QtGui.QApplication.translate("DialogDocumentazione_tipo_doc", "Open Preview", None, QtGui.QApplication.UnicodeUTF8))
-        self.pushButton_exp_scheda_doc.setText(QtGui.QApplication.translate("DialogDocumentazione_tipo_doc", "Esporta scheda documentazione", None, QtGui.QApplication.UnicodeUTF8))
-        self.tabWidget_tab_doc.setTabText(self.tabWidget_tab_doc.indexOf(self.tab), QtGui.QApplication.translate("DialogDocumentazione_tipo_doc", "Tools", None, QtGui.QApplication.UnicodeUTF8))
-
+        DialogDocumentazione_tipo_doc.setWindowTitle(QtGui.QApplication.translate("DialogDocumentazione_tipo_doc",
+                                                                                  "pyArchInit Gestione Scavi - Scheda Documentazione",
+                                                                                  None, QtGui.QApplication.UnicodeUTF8))
+        self.comboBox_sito_doc.setItemText(0, QtGui.QApplication.translate("DialogDocumentazione_tipo_doc",
+                                                                           "Inserisci un valore", None,
+                                                                           QtGui.QApplication.UnicodeUTF8))
+        self.label_sito_doc.setText(
+            QtGui.QApplication.translate("DialogDocumentazione_tipo_doc", "Sito", None, QtGui.QApplication.UnicodeUTF8))
+        self.label_29.setText(QtGui.QApplication.translate("DialogDocumentazione_tipo_doc", "DBMS Toolbar", None,
+                                                           QtGui.QApplication.UnicodeUTF8))
+        self.label_42.setText(QtGui.QApplication.translate("DialogDocumentazione_tipo_doc", "DB Info", None,
+                                                           QtGui.QApplication.UnicodeUTF8))
+        self.label_34.setText(QtGui.QApplication.translate("DialogDocumentazione_tipo_doc", "Status", None,
+                                                           QtGui.QApplication.UnicodeUTF8))
+        self.label_43.setText(QtGui.QApplication.translate("DialogDocumentazione_tipo_doc", "Ordinamento", None,
+                                                           QtGui.QApplication.UnicodeUTF8))
+        self.label_27.setText(QtGui.QApplication.translate("DialogDocumentazione_tipo_doc", "record n.", None,
+                                                           QtGui.QApplication.UnicodeUTF8))
+        self.label_rec_corrente.setText(
+            QtGui.QApplication.translate("DialogDocumentazione_tipo_doc", "1", None, QtGui.QApplication.UnicodeUTF8))
+        self.label_28.setText(QtGui.QApplication.translate("DialogDocumentazione_tipo_doc", "record tot.", None,
+                                                           QtGui.QApplication.UnicodeUTF8))
+        self.label_rec_tot.setText(
+            QtGui.QApplication.translate("DialogDocumentazione_tipo_doc", "1", None, QtGui.QApplication.UnicodeUTF8))
+        self.pushButton_connect.setText(
+            QtGui.QApplication.translate("DialogDocumentazione_tipo_doc", "Connection test", None,
+                                         QtGui.QApplication.UnicodeUTF8))
+        self.pushButton_first_rec.setToolTip(
+            QtGui.QApplication.translate("DialogDocumentazione_tipo_doc", "First rec", None,
+                                         QtGui.QApplication.UnicodeUTF8))
+        self.pushButton_prev_rec.setToolTip(
+            QtGui.QApplication.translate("DialogDocumentazione_tipo_doc", "Prev rec", None,
+                                         QtGui.QApplication.UnicodeUTF8))
+        self.pushButton_next_rec.setToolTip(
+            QtGui.QApplication.translate("DialogDocumentazione_tipo_doc", "Next rec", None,
+                                         QtGui.QApplication.UnicodeUTF8))
+        self.pushButton_last_rec.setToolTip(
+            QtGui.QApplication.translate("DialogDocumentazione_tipo_doc", "Last rec", None,
+                                         QtGui.QApplication.UnicodeUTF8))
+        self.pushButton_new_rec.setToolTip(
+            QtGui.QApplication.translate("DialogDocumentazione_tipo_doc", "New record", None,
+                                         QtGui.QApplication.UnicodeUTF8))
+        self.pushButton_save.setToolTip(
+            QtGui.QApplication.translate("DialogDocumentazione_tipo_doc", "Save", None, QtGui.QApplication.UnicodeUTF8))
+        self.pushButton_delete.setToolTip(
+            QtGui.QApplication.translate("DialogDocumentazione_tipo_doc", "Delete record", None,
+                                         QtGui.QApplication.UnicodeUTF8))
+        self.pushButton_new_search.setToolTip(
+            QtGui.QApplication.translate("DialogDocumentazione_tipo_doc", "new search", None,
+                                         QtGui.QApplication.UnicodeUTF8))
+        self.pushButton_search_go.setToolTip(
+            QtGui.QApplication.translate("DialogDocumentazione_tipo_doc", "search !!!", None,
+                                         QtGui.QApplication.UnicodeUTF8))
+        self.pushButton_sort.setToolTip(QtGui.QApplication.translate("DialogDocumentazione_tipo_doc", "Order by", None,
+                                                                     QtGui.QApplication.UnicodeUTF8))
+        self.pushButton_view_all.setToolTip(
+            QtGui.QApplication.translate("DialogDocumentazione_tipo_doc", "View alls records", None,
+                                         QtGui.QApplication.UnicodeUTF8))
+        self.label.setText(QtGui.QApplication.translate("DialogDocumentazione_tipo_doc", "Nome documentazione", None,
+                                                        QtGui.QApplication.UnicodeUTF8))
+        self.label_2_tipo_doc.setText(
+            QtGui.QApplication.translate("DialogDocumentazione_tipo_doc", "Tipo documentazione", None,
+                                         QtGui.QApplication.UnicodeUTF8))
+        self.comboBox_tipo_doc.setItemText(0, QtGui.QApplication.translate("DialogDocumentazione_tipo_doc", "Fotopiano",
+                                                                           None, QtGui.QApplication.UnicodeUTF8))
+        self.comboBox_tipo_doc.setItemText(1,
+                                           QtGui.QApplication.translate("DialogDocumentazione_tipo_doc", "Pianta", None,
+                                                                        QtGui.QApplication.UnicodeUTF8))
+        self.comboBox_tipo_doc.setItemText(2, QtGui.QApplication.translate("DialogDocumentazione_tipo_doc", "Prospetto",
+                                                                           None, QtGui.QApplication.UnicodeUTF8))
+        self.comboBox_tipo_doc.setItemText(3, QtGui.QApplication.translate("DialogDocumentazione_tipo_doc", "Sezione",
+                                                                           None, QtGui.QApplication.UnicodeUTF8))
+        self.comboBox_sorgente_doc.setItemText(0, QtGui.QApplication.translate("DialogDocumentazione_tipo_doc", "Foto",
+                                                                               None, QtGui.QApplication.UnicodeUTF8))
+        self.comboBox_sorgente_doc.setItemText(1, QtGui.QApplication.translate("DialogDocumentazione_tipo_doc",
+                                                                               "Fotomosaico", None,
+                                                                               QtGui.QApplication.UnicodeUTF8))
+        self.comboBox_sorgente_doc.setItemText(2,
+                                               QtGui.QApplication.translate("DialogDocumentazione_tipo_doc", "Lucido",
+                                                                            None, QtGui.QApplication.UnicodeUTF8))
+        self.comboBox_sorgente_doc.setItemText(3, QtGui.QApplication.translate("DialogDocumentazione_tipo_doc",
+                                                                               "Rilievo diretto (tablet)", None,
+                                                                               QtGui.QApplication.UnicodeUTF8))
+        self.label_2_sorgente_doc.setText(
+            QtGui.QApplication.translate("DialogDocumentazione_tipo_doc", "Sorgente", None,
+                                         QtGui.QApplication.UnicodeUTF8))
+        self.comboBox_scala_doc.setItemText(0,
+                                            QtGui.QApplication.translate("DialogDocumentazione_tipo_doc", "1 : 1", None,
+                                                                         QtGui.QApplication.UnicodeUTF8))
+        self.comboBox_scala_doc.setItemText(1,
+                                            QtGui.QApplication.translate("DialogDocumentazione_tipo_doc", "1 : 2", None,
+                                                                         QtGui.QApplication.UnicodeUTF8))
+        self.comboBox_scala_doc.setItemText(2, QtGui.QApplication.translate("DialogDocumentazione_tipo_doc", "1 : 10",
+                                                                            None, QtGui.QApplication.UnicodeUTF8))
+        self.comboBox_scala_doc.setItemText(3, QtGui.QApplication.translate("DialogDocumentazione_tipo_doc", "1 : 20",
+                                                                            None, QtGui.QApplication.UnicodeUTF8))
+        self.comboBox_scala_doc.setItemText(4, QtGui.QApplication.translate("DialogDocumentazione_tipo_doc", "1 : 30",
+                                                                            None, QtGui.QApplication.UnicodeUTF8))
+        self.comboBox_scala_doc.setItemText(5, QtGui.QApplication.translate("DialogDocumentazione_tipo_doc", "1 : 50",
+                                                                            None, QtGui.QApplication.UnicodeUTF8))
+        self.comboBox_scala_doc.setItemText(6, QtGui.QApplication.translate("DialogDocumentazione_tipo_doc", "1 : 100",
+                                                                            None, QtGui.QApplication.UnicodeUTF8))
+        self.label_2_scala_doc.setText(QtGui.QApplication.translate("DialogDocumentazione_tipo_doc", "Scala", None,
+                                                                    QtGui.QApplication.UnicodeUTF8))
+        self.label_2_disegnatore_doc.setText(
+            QtGui.QApplication.translate("DialogDocumentazione_tipo_doc", "Disegnatore", None,
+                                         QtGui.QApplication.UnicodeUTF8))
+        self.label_2_data_doc.setText(
+            QtGui.QApplication.translate("DialogDocumentazione_tipo_doc", "Data", None, QtGui.QApplication.UnicodeUTF8))
+        self.pushButton_disegno_doc.setText(
+            QtGui.QApplication.translate("DialogDocumentazione_tipo_doc", "Visualizza documentazione", None,
+                                         QtGui.QApplication.UnicodeUTF8))
+        self.tabWidget_tab_doc.setTabText(self.tabWidget_tab_doc.indexOf(self.tab_1_doc),
+                                          QtGui.QApplication.translate("DialogDocumentazione_tipo_doc", "Dati generali",
+                                                                       None, QtGui.QApplication.UnicodeUTF8))
+        self.label_2_note_doc.setText(
+            QtGui.QApplication.translate("DialogDocumentazione_tipo_doc", "Note", None, QtGui.QApplication.UnicodeUTF8))
+        self.tabWidget_tab_doc.setTabText(self.tabWidget_tab_doc.indexOf(self.tab_2_doc),
+                                          QtGui.QApplication.translate("DialogDocumentazione_tipo_doc", "Note", None,
+                                                                       QtGui.QApplication.UnicodeUTF8))
+        self.pushButton_exp_elenco_doc.setText(
+            QtGui.QApplication.translate("DialogDocumentazione_tipo_doc", "Esporta elenco documentazione", None,
+                                         QtGui.QApplication.UnicodeUTF8))
+        self.pushButtonPreview.setText(
+            QtGui.QApplication.translate("DialogDocumentazione_tipo_doc", "Open Preview", None,
+                                         QtGui.QApplication.UnicodeUTF8))
+        self.pushButton_exp_scheda_doc.setText(
+            QtGui.QApplication.translate("DialogDocumentazione_tipo_doc", "Esporta scheda documentazione", None,
+                                         QtGui.QApplication.UnicodeUTF8))
+        self.tabWidget_tab_doc.setTabText(self.tabWidget_tab_doc.indexOf(self.tab),
+                                          QtGui.QApplication.translate("DialogDocumentazione_tipo_doc", "Tools", None,
+                                                                       QtGui.QApplication.UnicodeUTF8))

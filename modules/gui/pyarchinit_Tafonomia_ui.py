@@ -8,13 +8,12 @@
 # WARNING! All changes made in this file will be lost!
 
 from PyQt4 import QtCore, QtGui
-import resources_rc
-
 
 try:
     _fromUtf8 = QtCore.QString.fromUtf8
 except AttributeError:
     _fromUtf8 = lambda s: s
+
 
 class Ui_Dialog_tafonomia(object):
     def setupUi(self, Dialog_tafonomia):
@@ -363,7 +362,7 @@ class Ui_Dialog_tafonomia(object):
         font = QtGui.QFont()
         font.setPointSize(10)
         self.label_3.setFont(font)
-        self.label_3.setAlignment(QtCore.Qt.AlignRight|QtCore.Qt.AlignTrailing|QtCore.Qt.AlignVCenter)
+        self.label_3.setAlignment(QtCore.Qt.AlignRight | QtCore.Qt.AlignTrailing | QtCore.Qt.AlignVCenter)
         self.label_3.setObjectName(_fromUtf8("label_3"))
         self.gridLayout_9.addWidget(self.label_3, 0, 0, 1, 1)
         self.comboBox_segnacoli = QtGui.QComboBox(self.tab)
@@ -400,7 +399,7 @@ class Ui_Dialog_tafonomia(object):
         font = QtGui.QFont()
         font.setPointSize(10)
         self.label_30.setFont(font)
-        self.label_30.setAlignment(QtCore.Qt.AlignRight|QtCore.Qt.AlignTrailing|QtCore.Qt.AlignVCenter)
+        self.label_30.setAlignment(QtCore.Qt.AlignRight | QtCore.Qt.AlignTrailing | QtCore.Qt.AlignVCenter)
         self.label_30.setObjectName(_fromUtf8("label_30"))
         self.gridLayout_9.addWidget(self.label_30, 1, 0, 1, 1)
         self.comboBox_conservazione_taf = QtGui.QComboBox(self.tab)
@@ -543,7 +542,8 @@ class Ui_Dialog_tafonomia(object):
         self.tableWidget_corredo_tipo.setFrameShadow(QtGui.QFrame.Raised)
         self.tableWidget_corredo_tipo.setVerticalScrollBarPolicy(QtCore.Qt.ScrollBarAsNeeded)
         self.tableWidget_corredo_tipo.setHorizontalScrollBarPolicy(QtCore.Qt.ScrollBarAsNeeded)
-        self.tableWidget_corredo_tipo.setEditTriggers(QtGui.QAbstractItemView.AnyKeyPressed|QtGui.QAbstractItemView.DoubleClicked|QtGui.QAbstractItemView.EditKeyPressed)
+        self.tableWidget_corredo_tipo.setEditTriggers(
+            QtGui.QAbstractItemView.AnyKeyPressed | QtGui.QAbstractItemView.DoubleClicked | QtGui.QAbstractItemView.EditKeyPressed)
         self.tableWidget_corredo_tipo.setSelectionMode(QtGui.QAbstractItemView.SingleSelection)
         self.tableWidget_corredo_tipo.setSelectionBehavior(QtGui.QAbstractItemView.SelectRows)
         self.tableWidget_corredo_tipo.setRowCount(1)
@@ -685,7 +685,7 @@ class Ui_Dialog_tafonomia(object):
         font = QtGui.QFont()
         font.setPointSize(11)
         self.label_11.setFont(font)
-        self.label_11.setAlignment(QtCore.Qt.AlignRight|QtCore.Qt.AlignTrailing|QtCore.Qt.AlignVCenter)
+        self.label_11.setAlignment(QtCore.Qt.AlignRight | QtCore.Qt.AlignTrailing | QtCore.Qt.AlignVCenter)
         self.label_11.setObjectName(_fromUtf8("label_11"))
         self.gridLayout_12.addWidget(self.label_11, 0, 0, 1, 1)
         self.comboBox_disturbato = QtGui.QComboBox(self.tab_2)
@@ -702,7 +702,7 @@ class Ui_Dialog_tafonomia(object):
         font = QtGui.QFont()
         font.setPointSize(11)
         self.label_12.setFont(font)
-        self.label_12.setAlignment(QtCore.Qt.AlignRight|QtCore.Qt.AlignTrailing|QtCore.Qt.AlignVCenter)
+        self.label_12.setAlignment(QtCore.Qt.AlignRight | QtCore.Qt.AlignTrailing | QtCore.Qt.AlignVCenter)
         self.label_12.setObjectName(_fromUtf8("label_12"))
         self.gridLayout_12.addWidget(self.label_12, 1, 0, 1, 1)
         self.comboBox_completo = QtGui.QComboBox(self.tab_2)
@@ -719,7 +719,7 @@ class Ui_Dialog_tafonomia(object):
         font = QtGui.QFont()
         font.setPointSize(11)
         self.label_14.setFont(font)
-        self.label_14.setAlignment(QtCore.Qt.AlignRight|QtCore.Qt.AlignTrailing|QtCore.Qt.AlignVCenter)
+        self.label_14.setAlignment(QtCore.Qt.AlignRight | QtCore.Qt.AlignTrailing | QtCore.Qt.AlignVCenter)
         self.label_14.setObjectName(_fromUtf8("label_14"))
         self.gridLayout_12.addWidget(self.label_14, 2, 0, 1, 1)
         self.comboBox_in_connessione = QtGui.QComboBox(self.tab_2)
@@ -761,7 +761,8 @@ class Ui_Dialog_tafonomia(object):
         self.tableWidget_misurazioni.setFrameShadow(QtGui.QFrame.Raised)
         self.tableWidget_misurazioni.setVerticalScrollBarPolicy(QtCore.Qt.ScrollBarAlwaysOn)
         self.tableWidget_misurazioni.setHorizontalScrollBarPolicy(QtCore.Qt.ScrollBarAlwaysOff)
-        self.tableWidget_misurazioni.setEditTriggers(QtGui.QAbstractItemView.AnyKeyPressed|QtGui.QAbstractItemView.DoubleClicked|QtGui.QAbstractItemView.EditKeyPressed)
+        self.tableWidget_misurazioni.setEditTriggers(
+            QtGui.QAbstractItemView.AnyKeyPressed | QtGui.QAbstractItemView.DoubleClicked | QtGui.QAbstractItemView.EditKeyPressed)
         self.tableWidget_misurazioni.setRowCount(1)
         self.tableWidget_misurazioni.setColumnCount(3)
         self.tableWidget_misurazioni.setObjectName(_fromUtf8("tableWidget_misurazioni"))
@@ -853,7 +854,8 @@ class Ui_Dialog_tafonomia(object):
         self.tableWidget_caratteristiche.setFrameShadow(QtGui.QFrame.Raised)
         self.tableWidget_caratteristiche.setVerticalScrollBarPolicy(QtCore.Qt.ScrollBarAlwaysOn)
         self.tableWidget_caratteristiche.setHorizontalScrollBarPolicy(QtCore.Qt.ScrollBarAlwaysOff)
-        self.tableWidget_caratteristiche.setEditTriggers(QtGui.QAbstractItemView.AnyKeyPressed|QtGui.QAbstractItemView.DoubleClicked|QtGui.QAbstractItemView.EditKeyPressed)
+        self.tableWidget_caratteristiche.setEditTriggers(
+            QtGui.QAbstractItemView.AnyKeyPressed | QtGui.QAbstractItemView.DoubleClicked | QtGui.QAbstractItemView.EditKeyPressed)
         self.tableWidget_caratteristiche.setRowCount(1)
         self.tableWidget_caratteristiche.setColumnCount(2)
         self.tableWidget_caratteristiche.setObjectName(_fromUtf8("tableWidget_caratteristiche"))
@@ -1012,7 +1014,7 @@ class Ui_Dialog_tafonomia(object):
         font.setPointSize(11)
         self.label_18.setFont(font)
         self.label_18.setLayoutDirection(QtCore.Qt.LeftToRight)
-        self.label_18.setAlignment(QtCore.Qt.AlignRight|QtCore.Qt.AlignTrailing|QtCore.Qt.AlignVCenter)
+        self.label_18.setAlignment(QtCore.Qt.AlignRight | QtCore.Qt.AlignTrailing | QtCore.Qt.AlignVCenter)
         self.label_18.setObjectName(_fromUtf8("label_18"))
         self.gridLayout.addWidget(self.label_18, 4, 0, 1, 1)
         self.comboBox_rito = QtGui.QComboBox(Dialog_tafonomia)
@@ -1036,171 +1038,375 @@ class Ui_Dialog_tafonomia(object):
         QtCore.QMetaObject.connectSlotsByName(Dialog_tafonomia)
 
     def retranslateUi(self, Dialog_tafonomia):
-        Dialog_tafonomia.setWindowTitle(QtGui.QApplication.translate("Dialog_tafonomia", "pyArchInit Gestione Scavi - Scheda Tafonomica", None, QtGui.QApplication.UnicodeUTF8))
-        self.label_45.setText(QtGui.QApplication.translate("Dialog_tafonomia", "DBMS Toolbar", None, QtGui.QApplication.UnicodeUTF8))
-        self.pushButton_first_rec.setToolTip(QtGui.QApplication.translate("Dialog_tafonomia", "First rec", None, QtGui.QApplication.UnicodeUTF8))
-        self.pushButton_next_rec.setToolTip(QtGui.QApplication.translate("Dialog_tafonomia", "Next rec", None, QtGui.QApplication.UnicodeUTF8))
-        self.pushButton_last_rec.setToolTip(QtGui.QApplication.translate("Dialog_tafonomia", "Last rec", None, QtGui.QApplication.UnicodeUTF8))
-        self.pushButton_new_rec.setToolTip(QtGui.QApplication.translate("Dialog_tafonomia", "New record", None, QtGui.QApplication.UnicodeUTF8))
-        self.pushButton_save.setToolTip(QtGui.QApplication.translate("Dialog_tafonomia", "Save", None, QtGui.QApplication.UnicodeUTF8))
-        self.pushButton_new_search.setToolTip(QtGui.QApplication.translate("Dialog_tafonomia", "new search", None, QtGui.QApplication.UnicodeUTF8))
-        self.pushButton_search_go.setToolTip(QtGui.QApplication.translate("Dialog_tafonomia", "search !!!", None, QtGui.QApplication.UnicodeUTF8))
-        self.pushButton_sort.setToolTip(QtGui.QApplication.translate("Dialog_tafonomia", "Order by", None, QtGui.QApplication.UnicodeUTF8))
-        self.pushButton_view_all.setToolTip(QtGui.QApplication.translate("Dialog_tafonomia", "View alls records", None, QtGui.QApplication.UnicodeUTF8))
-        self.pushButton_delete.setToolTip(QtGui.QApplication.translate("Dialog_tafonomia", "Delete record", None, QtGui.QApplication.UnicodeUTF8))
-        self.pushButton_prev_rec.setToolTip(QtGui.QApplication.translate("Dialog_tafonomia", "Prev rec", None, QtGui.QApplication.UnicodeUTF8))
-        self.pushButton_connect.setText(QtGui.QApplication.translate("Dialog_tafonomia", "Connection test", None, QtGui.QApplication.UnicodeUTF8))
-        self.label_46.setText(QtGui.QApplication.translate("Dialog_tafonomia", "DB Info", None, QtGui.QApplication.UnicodeUTF8))
-        self.label_48.setText(QtGui.QApplication.translate("Dialog_tafonomia", "Ordinamento", None, QtGui.QApplication.UnicodeUTF8))
-        self.label_49.setText(QtGui.QApplication.translate("Dialog_tafonomia", "Status", None, QtGui.QApplication.UnicodeUTF8))
-        self.label_50.setText(QtGui.QApplication.translate("Dialog_tafonomia", "record n.", None, QtGui.QApplication.UnicodeUTF8))
-        self.label_rec_corrente_2.setText(QtGui.QApplication.translate("Dialog_tafonomia", "1", None, QtGui.QApplication.UnicodeUTF8))
-        self.label_51.setText(QtGui.QApplication.translate("Dialog_tafonomia", "record tot.", None, QtGui.QApplication.UnicodeUTF8))
-        self.label_rec_tot_2.setText(QtGui.QApplication.translate("Dialog_tafonomia", "1", None, QtGui.QApplication.UnicodeUTF8))
-        self.label.setText(QtGui.QApplication.translate("Dialog_tafonomia", "Sito ", None, QtGui.QApplication.UnicodeUTF8))
-        self.comboBox_sito.setItemText(0, QtGui.QApplication.translate("Dialog_tafonomia", "Inserisci un valore", None, QtGui.QApplication.UnicodeUTF8))
-        self.label_2.setText(QtGui.QApplication.translate("Dialog_tafonomia", "Nr Scheda", None, QtGui.QApplication.UnicodeUTF8))
-        self.label_32.setText(QtGui.QApplication.translate("Dialog_tafonomia", "Rif. struttura", None, QtGui.QApplication.UnicodeUTF8))
-        self.label_19.setText(QtGui.QApplication.translate("Dialog_tafonomia", "Nr Individuo        ", None, QtGui.QApplication.UnicodeUTF8))
-        self.label_3.setText(QtGui.QApplication.translate("Dialog_tafonomia", "Segnacoli", None, QtGui.QApplication.UnicodeUTF8))
-        self.comboBox_segnacoli.setItemText(1, QtGui.QApplication.translate("Dialog_tafonomia", "Si", None, QtGui.QApplication.UnicodeUTF8))
-        self.comboBox_segnacoli.setItemText(2, QtGui.QApplication.translate("Dialog_tafonomia", "No", None, QtGui.QApplication.UnicodeUTF8))
-        self.comboBox_segnacoli.setItemText(3, QtGui.QApplication.translate("Dialog_tafonomia", "Non determinabile", None, QtGui.QApplication.UnicodeUTF8))
-        self.comboBox_canale_libatorio.setItemText(1, QtGui.QApplication.translate("Dialog_tafonomia", "Si", None, QtGui.QApplication.UnicodeUTF8))
-        self.comboBox_canale_libatorio.setItemText(2, QtGui.QApplication.translate("Dialog_tafonomia", "No", None, QtGui.QApplication.UnicodeUTF8))
-        self.comboBox_canale_libatorio.setItemText(3, QtGui.QApplication.translate("Dialog_tafonomia", "Non determinabile", None, QtGui.QApplication.UnicodeUTF8))
-        self.comboBox_oggetti_esterno.setItemText(1, QtGui.QApplication.translate("Dialog_tafonomia", "Si", None, QtGui.QApplication.UnicodeUTF8))
-        self.comboBox_oggetti_esterno.setItemText(2, QtGui.QApplication.translate("Dialog_tafonomia", "No", None, QtGui.QApplication.UnicodeUTF8))
-        self.comboBox_oggetti_esterno.setItemText(3, QtGui.QApplication.translate("Dialog_tafonomia", "Non determinabile", None, QtGui.QApplication.UnicodeUTF8))
-        self.label_30.setText(QtGui.QApplication.translate("Dialog_tafonomia", "Stato di conserv.", None, QtGui.QApplication.UnicodeUTF8))
-        self.comboBox_conservazione_taf.setItemText(0, QtGui.QApplication.translate("Dialog_tafonomia", "Insufficiente", None, QtGui.QApplication.UnicodeUTF8))
-        self.comboBox_conservazione_taf.setItemText(1, QtGui.QApplication.translate("Dialog_tafonomia", "Scarso", None, QtGui.QApplication.UnicodeUTF8))
-        self.comboBox_conservazione_taf.setItemText(2, QtGui.QApplication.translate("Dialog_tafonomia", "Sufficiente", None, QtGui.QApplication.UnicodeUTF8))
-        self.comboBox_conservazione_taf.setItemText(3, QtGui.QApplication.translate("Dialog_tafonomia", "Discreto", None, QtGui.QApplication.UnicodeUTF8))
-        self.comboBox_conservazione_taf.setItemText(4, QtGui.QApplication.translate("Dialog_tafonomia", "Buono", None, QtGui.QApplication.UnicodeUTF8))
-        self.comboBox_conservazione_taf.setItemText(5, QtGui.QApplication.translate("Dialog_tafonomia", "Ottimo", None, QtGui.QApplication.UnicodeUTF8))
-        self.label_8.setText(QtGui.QApplication.translate("Dialog_tafonomia", "Canale libatorio", None, QtGui.QApplication.UnicodeUTF8))
-        self.label_4.setText(QtGui.QApplication.translate("Dialog_tafonomia", "Ogg. rinv. all\'esterno", None, QtGui.QApplication.UnicodeUTF8))
-        self.comboBox_copertura_tipo.setItemText(0, QtGui.QApplication.translate("Dialog_tafonomia", "Non rilevabile", None, QtGui.QApplication.UnicodeUTF8))
-        self.comboBox_copertura_tipo.setItemText(1, QtGui.QApplication.translate("Dialog_tafonomia", "Copertura assente", None, QtGui.QApplication.UnicodeUTF8))
-        self.comboBox_copertura_tipo.setItemText(2, QtGui.QApplication.translate("Dialog_tafonomia", "Tegole alla cappuccina", None, QtGui.QApplication.UnicodeUTF8))
-        self.comboBox_copertura_tipo.setItemText(3, QtGui.QApplication.translate("Dialog_tafonomia", "In cassa", None, QtGui.QApplication.UnicodeUTF8))
-        self.comboBox_tipo_contenitore_resti.setItemText(0, QtGui.QApplication.translate("Dialog_tafonomia", "Entro sudario", None, QtGui.QApplication.UnicodeUTF8))
-        self.comboBox_tipo_contenitore_resti.setItemText(1, QtGui.QApplication.translate("Dialog_tafonomia", "In cassa fittile", None, QtGui.QApplication.UnicodeUTF8))
-        self.comboBox_tipo_contenitore_resti.setItemText(2, QtGui.QApplication.translate("Dialog_tafonomia", "In cassa lignea", None, QtGui.QApplication.UnicodeUTF8))
-        self.comboBox_tipo_contenitore_resti.setItemText(3, QtGui.QApplication.translate("Dialog_tafonomia", "In urna litica", None, QtGui.QApplication.UnicodeUTF8))
-        self.comboBox_tipo_contenitore_resti.setItemText(4, QtGui.QApplication.translate("Dialog_tafonomia", "Nella terra", None, QtGui.QApplication.UnicodeUTF8))
-        self.label_85.setText(QtGui.QApplication.translate("Dialog_tafonomia", "Tipo copertura", None, QtGui.QApplication.UnicodeUTF8))
-        self.label_35.setText(QtGui.QApplication.translate("Dialog_tafonomia", "Tipo contenitore resti", None, QtGui.QApplication.UnicodeUTF8))
-        self.label_15.setText(QtGui.QApplication.translate("Dialog_tafonomia", "Orientamento", None, QtGui.QApplication.UnicodeUTF8))
-        self.lineEdit_orientamento_azimut.setText(QtGui.QApplication.translate("Dialog_tafonomia", "0", None, QtGui.QApplication.UnicodeUTF8))
-        self.label_31.setText(QtGui.QApplication.translate("Dialog_tafonomia", "Asse", None, QtGui.QApplication.UnicodeUTF8))
-        self.label_47.setText(QtGui.QApplication.translate("Dialog_tafonomia", "Azimut", None, QtGui.QApplication.UnicodeUTF8))
-        self.label_6.setText(QtGui.QApplication.translate("Dialog_tafonomia", "Descrizione ", None, QtGui.QApplication.UnicodeUTF8))
-        self.label_7.setText(QtGui.QApplication.translate("Dialog_tafonomia", "Interpretazione ", None, QtGui.QApplication.UnicodeUTF8))
-        self.textEdit_descrizione_taf.setHtml(QtGui.QApplication.translate("Dialog_tafonomia", "<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.0//EN\" \"http://www.w3.org/TR/REC-html40/strict.dtd\">\n"
-"<html><head><meta name=\"qrichtext\" content=\"1\" /><style type=\"text/css\">\n"
-"p, li { white-space: pre-wrap; }\n"
-"</style></head><body style=\" font-family:\'MS Shell Dlg 2\'; font-size:10pt; font-weight:400; font-style:normal;\">\n"
-"<p style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\"><span style=\" font-family:\'Lucida Grande\'; font-size:13pt;\"><br /></span></p></body></html>", None, QtGui.QApplication.UnicodeUTF8))
-        self.tabWidget.setTabText(self.tabWidget.indexOf(self.tab), QtGui.QApplication.translate("Dialog_tafonomia", "Dati descrittivi", None, QtGui.QApplication.UnicodeUTF8))
-        self.label_17.setText(QtGui.QApplication.translate("Dialog_tafonomia", "Corredo ", None, QtGui.QApplication.UnicodeUTF8))
-        self.comboBox_corredo_presenza.setItemText(0, QtGui.QApplication.translate("Dialog_tafonomia", "Corredo assente", None, QtGui.QApplication.UnicodeUTF8))
-        self.comboBox_corredo_presenza.setItemText(1, QtGui.QApplication.translate("Dialog_tafonomia", "Corredo presente", None, QtGui.QApplication.UnicodeUTF8))
-        self.comboBox_corredo_presenza.setItemText(2, QtGui.QApplication.translate("Dialog_tafonomia", "Non determinabile", None, QtGui.QApplication.UnicodeUTF8))
-        self.tableWidget_corredo_tipo.horizontalHeaderItem(0).setText(QtGui.QApplication.translate("Dialog_tafonomia", "Nr. reperto", None, QtGui.QApplication.UnicodeUTF8))
-        self.tableWidget_corredo_tipo.horizontalHeaderItem(1).setText(QtGui.QApplication.translate("Dialog_tafonomia", "Tipo di corredo", None, QtGui.QApplication.UnicodeUTF8))
-        self.tableWidget_corredo_tipo.horizontalHeaderItem(2).setText(QtGui.QApplication.translate("Dialog_tafonomia", "Descrizione", None, QtGui.QApplication.UnicodeUTF8))
-        self.pushButton_insert_row_corredo.setText(QtGui.QApplication.translate("Dialog_tafonomia", "+", None, QtGui.QApplication.UnicodeUTF8))
-        self.pushButton_remove_row_corredo.setText(QtGui.QApplication.translate("Dialog_tafonomia", "-", None, QtGui.QApplication.UnicodeUTF8))
-        self.textEdit_descrizione_corredo.setHtml(QtGui.QApplication.translate("Dialog_tafonomia", "<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.0//EN\" \"http://www.w3.org/TR/REC-html40/strict.dtd\">\n"
-"<html><head><meta name=\"qrichtext\" content=\"1\" /><style type=\"text/css\">\n"
-"p, li { white-space: pre-wrap; }\n"
-"</style></head><body style=\" font-family:\'MS Shell Dlg 2\'; font-size:10pt; font-weight:400; font-style:normal;\">\n"
-"<p style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\"><span style=\" font-family:\'Lucida Grande\'; font-size:13pt;\"><br /></span></p></body></html>", None, QtGui.QApplication.UnicodeUTF8))
-        self.label_9.setText(QtGui.QApplication.translate("Dialog_tafonomia", "Descrizione ", None, QtGui.QApplication.UnicodeUTF8))
-        self.tabWidget.setTabText(self.tabWidget.indexOf(self.tab_5), QtGui.QApplication.translate("Dialog_tafonomia", "Corredo", None, QtGui.QApplication.UnicodeUTF8))
-        self.comboBox_posizione_scheletro.setItemText(1, QtGui.QApplication.translate("Dialog_tafonomia", "Non determinabile", None, QtGui.QApplication.UnicodeUTF8))
-        self.comboBox_posizione_scheletro.setItemText(2, QtGui.QApplication.translate("Dialog_tafonomia", "Supino", None, QtGui.QApplication.UnicodeUTF8))
-        self.comboBox_posizione_scheletro.setItemText(3, QtGui.QApplication.translate("Dialog_tafonomia", "Prono", None, QtGui.QApplication.UnicodeUTF8))
-        self.comboBox_posizione_scheletro.setItemText(4, QtGui.QApplication.translate("Dialog_tafonomia", "Posizione fetale", None, QtGui.QApplication.UnicodeUTF8))
-        self.comboBox_posizione_scheletro.setItemText(5, QtGui.QApplication.translate("Dialog_tafonomia", "Su lato dx", None, QtGui.QApplication.UnicodeUTF8))
-        self.comboBox_posizione_scheletro.setItemText(6, QtGui.QApplication.translate("Dialog_tafonomia", "Su lato sx", None, QtGui.QApplication.UnicodeUTF8))
-        self.comboBox_posizione_cranio.setItemText(1, QtGui.QApplication.translate("Dialog_tafonomia", "Non determinabile", None, QtGui.QApplication.UnicodeUTF8))
-        self.comboBox_posizione_cranio.setItemText(2, QtGui.QApplication.translate("Dialog_tafonomia", "Nord", None, QtGui.QApplication.UnicodeUTF8))
-        self.comboBox_posizione_cranio.setItemText(3, QtGui.QApplication.translate("Dialog_tafonomia", "Est", None, QtGui.QApplication.UnicodeUTF8))
-        self.comboBox_posizione_cranio.setItemText(4, QtGui.QApplication.translate("Dialog_tafonomia", "Ovest", None, QtGui.QApplication.UnicodeUTF8))
-        self.comboBox_posizione_cranio.setItemText(5, QtGui.QApplication.translate("Dialog_tafonomia", "Sud", None, QtGui.QApplication.UnicodeUTF8))
-        self.comboBox_posizione_cranio.setItemText(6, QtGui.QApplication.translate("Dialog_tafonomia", "Nord-Est", None, QtGui.QApplication.UnicodeUTF8))
-        self.comboBox_posizione_cranio.setItemText(7, QtGui.QApplication.translate("Dialog_tafonomia", "Nord-Ovest", None, QtGui.QApplication.UnicodeUTF8))
-        self.comboBox_posizione_cranio.setItemText(8, QtGui.QApplication.translate("Dialog_tafonomia", "Sud-Est", None, QtGui.QApplication.UnicodeUTF8))
-        self.comboBox_posizione_cranio.setItemText(9, QtGui.QApplication.translate("Dialog_tafonomia", "Sud-Ovest", None, QtGui.QApplication.UnicodeUTF8))
-        self.label_33.setText(QtGui.QApplication.translate("Dialog_tafonomia", "Lunghezza scheletro", None, QtGui.QApplication.UnicodeUTF8))
-        self.label_37.setText(QtGui.QApplication.translate("Dialog_tafonomia", "Posizione scheletro", None, QtGui.QApplication.UnicodeUTF8))
-        self.label_86.setText(QtGui.QApplication.translate("Dialog_tafonomia", "Posizione cranio", None, QtGui.QApplication.UnicodeUTF8))
-        self.comboBox_arti_superiori.setItemText(1, QtGui.QApplication.translate("Dialog_tafonomia", "Non determinabile", None, QtGui.QApplication.UnicodeUTF8))
-        self.comboBox_arti_superiori.setItemText(2, QtGui.QApplication.translate("Dialog_tafonomia", "Braccia lungo il corpo", None, QtGui.QApplication.UnicodeUTF8))
-        self.comboBox_arti_superiori.setItemText(3, QtGui.QApplication.translate("Dialog_tafonomia", "Braccia Incrociate sul petto", None, QtGui.QApplication.UnicodeUTF8))
-        self.comboBox_arti_superiori.setItemText(4, QtGui.QApplication.translate("Dialog_tafonomia", "Braccia Incrociate sul bacino", None, QtGui.QApplication.UnicodeUTF8))
-        self.comboBox_arti_superiori.setItemText(5, QtGui.QApplication.translate("Dialog_tafonomia", "Mani congiunte sul petto", None, QtGui.QApplication.UnicodeUTF8))
-        self.comboBox_arti_superiori.setItemText(6, QtGui.QApplication.translate("Dialog_tafonomia", "Mani congiunte sul bacino  ", None, QtGui.QApplication.UnicodeUTF8))
-        self.label_5.setText(QtGui.QApplication.translate("Dialog_tafonomia", "Posizione arti superiori", None, QtGui.QApplication.UnicodeUTF8))
-        self.comboBox_arti_inferiori.setItemText(1, QtGui.QApplication.translate("Dialog_tafonomia", "Distesi", None, QtGui.QApplication.UnicodeUTF8))
-        self.comboBox_arti_inferiori.setItemText(2, QtGui.QApplication.translate("Dialog_tafonomia", "Incrociati", None, QtGui.QApplication.UnicodeUTF8))
-        self.comboBox_arti_inferiori.setItemText(3, QtGui.QApplication.translate("Dialog_tafonomia", "Asimmetrici", None, QtGui.QApplication.UnicodeUTF8))
-        self.comboBox_arti_inferiori.setItemText(4, QtGui.QApplication.translate("Dialog_tafonomia", "Non determinabile", None, QtGui.QApplication.UnicodeUTF8))
-        self.label_10.setText(QtGui.QApplication.translate("Dialog_tafonomia", "Posizione arti infeiori", None, QtGui.QApplication.UnicodeUTF8))
-        self.label_11.setText(QtGui.QApplication.translate("Dialog_tafonomia", "Disturbato", None, QtGui.QApplication.UnicodeUTF8))
-        self.comboBox_disturbato.setItemText(0, QtGui.QApplication.translate("Dialog_tafonomia", "Si", None, QtGui.QApplication.UnicodeUTF8))
-        self.comboBox_disturbato.setItemText(1, QtGui.QApplication.translate("Dialog_tafonomia", "No", None, QtGui.QApplication.UnicodeUTF8))
-        self.label_12.setText(QtGui.QApplication.translate("Dialog_tafonomia", "Completo", None, QtGui.QApplication.UnicodeUTF8))
-        self.comboBox_completo.setItemText(0, QtGui.QApplication.translate("Dialog_tafonomia", "Si", None, QtGui.QApplication.UnicodeUTF8))
-        self.comboBox_completo.setItemText(1, QtGui.QApplication.translate("Dialog_tafonomia", "No", None, QtGui.QApplication.UnicodeUTF8))
-        self.label_14.setText(QtGui.QApplication.translate("Dialog_tafonomia", "In connessione", None, QtGui.QApplication.UnicodeUTF8))
-        self.comboBox_in_connessione.setItemText(0, QtGui.QApplication.translate("Dialog_tafonomia", "Si", None, QtGui.QApplication.UnicodeUTF8))
-        self.comboBox_in_connessione.setItemText(1, QtGui.QApplication.translate("Dialog_tafonomia", "No", None, QtGui.QApplication.UnicodeUTF8))
-        self.tabWidget.setTabText(self.tabWidget.indexOf(self.tab_2), QtGui.QApplication.translate("Dialog_tafonomia", "Resti osteologici", None, QtGui.QApplication.UnicodeUTF8))
-        self.pushButton_insert_row_misure.setText(QtGui.QApplication.translate("Dialog_tafonomia", "+", None, QtGui.QApplication.UnicodeUTF8))
-        self.pushButton_remove_row_misure.setText(QtGui.QApplication.translate("Dialog_tafonomia", "-", None, QtGui.QApplication.UnicodeUTF8))
-        self.tableWidget_misurazioni.horizontalHeaderItem(0).setText(QtGui.QApplication.translate("Dialog_tafonomia", "Tipo misura", None, QtGui.QApplication.UnicodeUTF8))
-        self.tableWidget_misurazioni.horizontalHeaderItem(1).setText(QtGui.QApplication.translate("Dialog_tafonomia", "Unita\' di misura", None, QtGui.QApplication.UnicodeUTF8))
-        self.tableWidget_misurazioni.horizontalHeaderItem(2).setText(QtGui.QApplication.translate("Dialog_tafonomia", "Valore", None, QtGui.QApplication.UnicodeUTF8))
-        self.tabWidget.setTabText(self.tabWidget.indexOf(self.tab_6), QtGui.QApplication.translate("Dialog_tafonomia", "Misure", None, QtGui.QApplication.UnicodeUTF8))
-        self.label_13.setText(QtGui.QApplication.translate("Dialog_tafonomia", "Periodizzazione ", None, QtGui.QApplication.UnicodeUTF8))
-        self.label_42.setText(QtGui.QApplication.translate("Dialog_tafonomia", "Iniziale ", None, QtGui.QApplication.UnicodeUTF8))
-        self.label_16.setText(QtGui.QApplication.translate("Dialog_tafonomia", "Finale ", None, QtGui.QApplication.UnicodeUTF8))
-        self.label_21.setText(QtGui.QApplication.translate("Dialog_tafonomia", "Periodo ", None, QtGui.QApplication.UnicodeUTF8))
-        self.label_34.setText(QtGui.QApplication.translate("Dialog_tafonomia", "Fase ", None, QtGui.QApplication.UnicodeUTF8))
-        self.label_22.setText(QtGui.QApplication.translate("Dialog_tafonomia", "Fase ", None, QtGui.QApplication.UnicodeUTF8))
-        self.label_24.setText(QtGui.QApplication.translate("Dialog_tafonomia", "Periodo ", None, QtGui.QApplication.UnicodeUTF8))
-        self.label_20.setText(QtGui.QApplication.translate("Dialog_tafonomia", "Datazione estesa", None, QtGui.QApplication.UnicodeUTF8))
-        self.tabWidget.setTabText(self.tabWidget.indexOf(self.tab_7), QtGui.QApplication.translate("Dialog_tafonomia", "Periodizzazione", None, QtGui.QApplication.UnicodeUTF8))
-        self.pushButton_remove_row_caratteristiche.setText(QtGui.QApplication.translate("Dialog_tafonomia", "-", None, QtGui.QApplication.UnicodeUTF8))
-        self.pushButton_insert_row_caratteristiche.setText(QtGui.QApplication.translate("Dialog_tafonomia", "+", None, QtGui.QApplication.UnicodeUTF8))
-        self.tableWidget_caratteristiche.horizontalHeaderItem(0).setText(QtGui.QApplication.translate("Dialog_tafonomia", "Tipo caratteristica", None, QtGui.QApplication.UnicodeUTF8))
-        self.tableWidget_caratteristiche.horizontalHeaderItem(1).setText(QtGui.QApplication.translate("Dialog_tafonomia", "Posizione", None, QtGui.QApplication.UnicodeUTF8))
-        self.tabWidget.setTabText(self.tabWidget.indexOf(self.tab_3), QtGui.QApplication.translate("Dialog_tafonomia", "Caratteristiche", None, QtGui.QApplication.UnicodeUTF8))
-        self.label_38.setText(QtGui.QApplication.translate("Dialog_tafonomia", "Visualizzazione GIS", None, QtGui.QApplication.UnicodeUTF8))
-        self.toolButtonGis.setShortcut(QtGui.QApplication.translate("Dialog_tafonomia", "Ctrl+G", None, QtGui.QApplication.UnicodeUTF8))
-        self.label_39.setText(QtGui.QApplication.translate("Dialog_tafonomia", "Attivazione Preview pianta US", None, QtGui.QApplication.UnicodeUTF8))
-        self.toolButtonPreview.setText(QtGui.QApplication.translate("Dialog_tafonomia", "Preview pianta US", None, QtGui.QApplication.UnicodeUTF8))
-        self.toolButtonPreview.setShortcut(QtGui.QApplication.translate("Dialog_tafonomia", "Ctrl+G", None, QtGui.QApplication.UnicodeUTF8))
-        self.toolButtonPan.setToolTip(QtGui.QApplication.translate("Dialog_tafonomia", "Pan tool", None, QtGui.QApplication.UnicodeUTF8))
-        self.toolButtonPan.setShortcut(QtGui.QApplication.translate("Dialog_tafonomia", "Ctrl+G", None, QtGui.QApplication.UnicodeUTF8))
-        self.label_44.setText(QtGui.QApplication.translate("Dialog_tafonomia", "Mostra immagini", None, QtGui.QApplication.UnicodeUTF8))
-        self.toolButtonPreviewMedia.setText(QtGui.QApplication.translate("Dialog_tafonomia", "Mostra immagini", None, QtGui.QApplication.UnicodeUTF8))
-        self.label_41.setText(QtGui.QApplication.translate("Dialog_tafonomia", "Esporta schede Tafonomiche in formato PDF", None, QtGui.QApplication.UnicodeUTF8))
-        self.pushButton_pdf_exp.setToolTip(QtGui.QApplication.translate("Dialog_tafonomia", "Export PDF", None, QtGui.QApplication.UnicodeUTF8))
-        self.pushButton_pdf_exp.setText(QtGui.QApplication.translate("Dialog_tafonomia", "Singole schede", None, QtGui.QApplication.UnicodeUTF8))
-        self.pushButton_exp_index.setText(QtGui.QApplication.translate("Dialog_tafonomia", "Elenco ", None, QtGui.QApplication.UnicodeUTF8))
-        self.label_40.setText(QtGui.QApplication.translate("Dialog_tafonomia", "Apri schede US selezionate", None, QtGui.QApplication.UnicodeUTF8))
-        self.pushButton_showSelectedFeatures.setToolTip(QtGui.QApplication.translate("Dialog_tafonomia", "Show Selcted Features", None, QtGui.QApplication.UnicodeUTF8))
-        self.pushButton_showSelectedFeatures.setText(QtGui.QApplication.translate("Dialog_tafonomia", "apri schede US", None, QtGui.QApplication.UnicodeUTF8))
-        self.tabWidget.setTabText(self.tabWidget.indexOf(self.tab_4), QtGui.QApplication.translate("Dialog_tafonomia", "Tools", None, QtGui.QApplication.UnicodeUTF8))
-        self.label_18.setText(QtGui.QApplication.translate("Dialog_tafonomia", "Rito", None, QtGui.QApplication.UnicodeUTF8))
-        self.comboBox_rito.setItemText(0, QtGui.QApplication.translate("Dialog_tafonomia", "Riduzione", None, QtGui.QApplication.UnicodeUTF8))
-        self.comboBox_rito.setItemText(1, QtGui.QApplication.translate("Dialog_tafonomia", "Ad inumazione", None, QtGui.QApplication.UnicodeUTF8))
-        self.comboBox_rito.setItemText(2, QtGui.QApplication.translate("Dialog_tafonomia", "Ad incinerazione diretta", None, QtGui.QApplication.UnicodeUTF8))
-        self.comboBox_rito.setItemText(3, QtGui.QApplication.translate("Dialog_tafonomia", "Ad incinerazione indiretta", None, QtGui.QApplication.UnicodeUTF8))
-        self.comboBox_rito.setItemText(4, QtGui.QApplication.translate("Dialog_tafonomia", "Mummuficazione", None, QtGui.QApplication.UnicodeUTF8))
-
+        Dialog_tafonomia.setWindowTitle(
+            QtGui.QApplication.translate("Dialog_tafonomia", "pyArchInit Gestione Scavi - Scheda Tafonomica", None,
+                                         QtGui.QApplication.UnicodeUTF8))
+        self.label_45.setText(
+            QtGui.QApplication.translate("Dialog_tafonomia", "DBMS Toolbar", None, QtGui.QApplication.UnicodeUTF8))
+        self.pushButton_first_rec.setToolTip(
+            QtGui.QApplication.translate("Dialog_tafonomia", "First rec", None, QtGui.QApplication.UnicodeUTF8))
+        self.pushButton_next_rec.setToolTip(
+            QtGui.QApplication.translate("Dialog_tafonomia", "Next rec", None, QtGui.QApplication.UnicodeUTF8))
+        self.pushButton_last_rec.setToolTip(
+            QtGui.QApplication.translate("Dialog_tafonomia", "Last rec", None, QtGui.QApplication.UnicodeUTF8))
+        self.pushButton_new_rec.setToolTip(
+            QtGui.QApplication.translate("Dialog_tafonomia", "New record", None, QtGui.QApplication.UnicodeUTF8))
+        self.pushButton_save.setToolTip(
+            QtGui.QApplication.translate("Dialog_tafonomia", "Save", None, QtGui.QApplication.UnicodeUTF8))
+        self.pushButton_new_search.setToolTip(
+            QtGui.QApplication.translate("Dialog_tafonomia", "new search", None, QtGui.QApplication.UnicodeUTF8))
+        self.pushButton_search_go.setToolTip(
+            QtGui.QApplication.translate("Dialog_tafonomia", "search !!!", None, QtGui.QApplication.UnicodeUTF8))
+        self.pushButton_sort.setToolTip(
+            QtGui.QApplication.translate("Dialog_tafonomia", "Order by", None, QtGui.QApplication.UnicodeUTF8))
+        self.pushButton_view_all.setToolTip(
+            QtGui.QApplication.translate("Dialog_tafonomia", "View alls records", None, QtGui.QApplication.UnicodeUTF8))
+        self.pushButton_delete.setToolTip(
+            QtGui.QApplication.translate("Dialog_tafonomia", "Delete record", None, QtGui.QApplication.UnicodeUTF8))
+        self.pushButton_prev_rec.setToolTip(
+            QtGui.QApplication.translate("Dialog_tafonomia", "Prev rec", None, QtGui.QApplication.UnicodeUTF8))
+        self.pushButton_connect.setText(
+            QtGui.QApplication.translate("Dialog_tafonomia", "Connection test", None, QtGui.QApplication.UnicodeUTF8))
+        self.label_46.setText(
+            QtGui.QApplication.translate("Dialog_tafonomia", "DB Info", None, QtGui.QApplication.UnicodeUTF8))
+        self.label_48.setText(
+            QtGui.QApplication.translate("Dialog_tafonomia", "Ordinamento", None, QtGui.QApplication.UnicodeUTF8))
+        self.label_49.setText(
+            QtGui.QApplication.translate("Dialog_tafonomia", "Status", None, QtGui.QApplication.UnicodeUTF8))
+        self.label_50.setText(
+            QtGui.QApplication.translate("Dialog_tafonomia", "record n.", None, QtGui.QApplication.UnicodeUTF8))
+        self.label_rec_corrente_2.setText(
+            QtGui.QApplication.translate("Dialog_tafonomia", "1", None, QtGui.QApplication.UnicodeUTF8))
+        self.label_51.setText(
+            QtGui.QApplication.translate("Dialog_tafonomia", "record tot.", None, QtGui.QApplication.UnicodeUTF8))
+        self.label_rec_tot_2.setText(
+            QtGui.QApplication.translate("Dialog_tafonomia", "1", None, QtGui.QApplication.UnicodeUTF8))
+        self.label.setText(
+            QtGui.QApplication.translate("Dialog_tafonomia", "Sito ", None, QtGui.QApplication.UnicodeUTF8))
+        self.comboBox_sito.setItemText(0, QtGui.QApplication.translate("Dialog_tafonomia", "Inserisci un valore", None,
+                                                                       QtGui.QApplication.UnicodeUTF8))
+        self.label_2.setText(
+            QtGui.QApplication.translate("Dialog_tafonomia", "Nr Scheda", None, QtGui.QApplication.UnicodeUTF8))
+        self.label_32.setText(
+            QtGui.QApplication.translate("Dialog_tafonomia", "Rif. struttura", None, QtGui.QApplication.UnicodeUTF8))
+        self.label_19.setText(QtGui.QApplication.translate("Dialog_tafonomia", "Nr Individuo        ", None,
+                                                           QtGui.QApplication.UnicodeUTF8))
+        self.label_3.setText(
+            QtGui.QApplication.translate("Dialog_tafonomia", "Segnacoli", None, QtGui.QApplication.UnicodeUTF8))
+        self.comboBox_segnacoli.setItemText(1, QtGui.QApplication.translate("Dialog_tafonomia", "Si", None,
+                                                                            QtGui.QApplication.UnicodeUTF8))
+        self.comboBox_segnacoli.setItemText(2, QtGui.QApplication.translate("Dialog_tafonomia", "No", None,
+                                                                            QtGui.QApplication.UnicodeUTF8))
+        self.comboBox_segnacoli.setItemText(3,
+                                            QtGui.QApplication.translate("Dialog_tafonomia", "Non determinabile", None,
+                                                                         QtGui.QApplication.UnicodeUTF8))
+        self.comboBox_canale_libatorio.setItemText(1, QtGui.QApplication.translate("Dialog_tafonomia", "Si", None,
+                                                                                   QtGui.QApplication.UnicodeUTF8))
+        self.comboBox_canale_libatorio.setItemText(2, QtGui.QApplication.translate("Dialog_tafonomia", "No", None,
+                                                                                   QtGui.QApplication.UnicodeUTF8))
+        self.comboBox_canale_libatorio.setItemText(3,
+                                                   QtGui.QApplication.translate("Dialog_tafonomia", "Non determinabile",
+                                                                                None, QtGui.QApplication.UnicodeUTF8))
+        self.comboBox_oggetti_esterno.setItemText(1, QtGui.QApplication.translate("Dialog_tafonomia", "Si", None,
+                                                                                  QtGui.QApplication.UnicodeUTF8))
+        self.comboBox_oggetti_esterno.setItemText(2, QtGui.QApplication.translate("Dialog_tafonomia", "No", None,
+                                                                                  QtGui.QApplication.UnicodeUTF8))
+        self.comboBox_oggetti_esterno.setItemText(3,
+                                                  QtGui.QApplication.translate("Dialog_tafonomia", "Non determinabile",
+                                                                               None, QtGui.QApplication.UnicodeUTF8))
+        self.label_30.setText(
+            QtGui.QApplication.translate("Dialog_tafonomia", "Stato di conserv.", None, QtGui.QApplication.UnicodeUTF8))
+        self.comboBox_conservazione_taf.setItemText(0, QtGui.QApplication.translate("Dialog_tafonomia", "Insufficiente",
+                                                                                    None,
+                                                                                    QtGui.QApplication.UnicodeUTF8))
+        self.comboBox_conservazione_taf.setItemText(1, QtGui.QApplication.translate("Dialog_tafonomia", "Scarso", None,
+                                                                                    QtGui.QApplication.UnicodeUTF8))
+        self.comboBox_conservazione_taf.setItemText(2, QtGui.QApplication.translate("Dialog_tafonomia", "Sufficiente",
+                                                                                    None,
+                                                                                    QtGui.QApplication.UnicodeUTF8))
+        self.comboBox_conservazione_taf.setItemText(3,
+                                                    QtGui.QApplication.translate("Dialog_tafonomia", "Discreto", None,
+                                                                                 QtGui.QApplication.UnicodeUTF8))
+        self.comboBox_conservazione_taf.setItemText(4, QtGui.QApplication.translate("Dialog_tafonomia", "Buono", None,
+                                                                                    QtGui.QApplication.UnicodeUTF8))
+        self.comboBox_conservazione_taf.setItemText(5, QtGui.QApplication.translate("Dialog_tafonomia", "Ottimo", None,
+                                                                                    QtGui.QApplication.UnicodeUTF8))
+        self.label_8.setText(
+            QtGui.QApplication.translate("Dialog_tafonomia", "Canale libatorio", None, QtGui.QApplication.UnicodeUTF8))
+        self.label_4.setText(QtGui.QApplication.translate("Dialog_tafonomia", "Ogg. rinv. all\'esterno", None,
+                                                          QtGui.QApplication.UnicodeUTF8))
+        self.comboBox_copertura_tipo.setItemText(0, QtGui.QApplication.translate("Dialog_tafonomia", "Non rilevabile",
+                                                                                 None, QtGui.QApplication.UnicodeUTF8))
+        self.comboBox_copertura_tipo.setItemText(1,
+                                                 QtGui.QApplication.translate("Dialog_tafonomia", "Copertura assente",
+                                                                              None, QtGui.QApplication.UnicodeUTF8))
+        self.comboBox_copertura_tipo.setItemText(2, QtGui.QApplication.translate("Dialog_tafonomia",
+                                                                                 "Tegole alla cappuccina", None,
+                                                                                 QtGui.QApplication.UnicodeUTF8))
+        self.comboBox_copertura_tipo.setItemText(3, QtGui.QApplication.translate("Dialog_tafonomia", "In cassa", None,
+                                                                                 QtGui.QApplication.UnicodeUTF8))
+        self.comboBox_tipo_contenitore_resti.setItemText(0, QtGui.QApplication.translate("Dialog_tafonomia",
+                                                                                         "Entro sudario", None,
+                                                                                         QtGui.QApplication.UnicodeUTF8))
+        self.comboBox_tipo_contenitore_resti.setItemText(1, QtGui.QApplication.translate("Dialog_tafonomia",
+                                                                                         "In cassa fittile", None,
+                                                                                         QtGui.QApplication.UnicodeUTF8))
+        self.comboBox_tipo_contenitore_resti.setItemText(2, QtGui.QApplication.translate("Dialog_tafonomia",
+                                                                                         "In cassa lignea", None,
+                                                                                         QtGui.QApplication.UnicodeUTF8))
+        self.comboBox_tipo_contenitore_resti.setItemText(3, QtGui.QApplication.translate("Dialog_tafonomia",
+                                                                                         "In urna litica", None,
+                                                                                         QtGui.QApplication.UnicodeUTF8))
+        self.comboBox_tipo_contenitore_resti.setItemText(4,
+                                                         QtGui.QApplication.translate("Dialog_tafonomia", "Nella terra",
+                                                                                      None,
+                                                                                      QtGui.QApplication.UnicodeUTF8))
+        self.label_85.setText(
+            QtGui.QApplication.translate("Dialog_tafonomia", "Tipo copertura", None, QtGui.QApplication.UnicodeUTF8))
+        self.label_35.setText(QtGui.QApplication.translate("Dialog_tafonomia", "Tipo contenitore resti", None,
+                                                           QtGui.QApplication.UnicodeUTF8))
+        self.label_15.setText(
+            QtGui.QApplication.translate("Dialog_tafonomia", "Orientamento", None, QtGui.QApplication.UnicodeUTF8))
+        self.lineEdit_orientamento_azimut.setText(
+            QtGui.QApplication.translate("Dialog_tafonomia", "0", None, QtGui.QApplication.UnicodeUTF8))
+        self.label_31.setText(
+            QtGui.QApplication.translate("Dialog_tafonomia", "Asse", None, QtGui.QApplication.UnicodeUTF8))
+        self.label_47.setText(
+            QtGui.QApplication.translate("Dialog_tafonomia", "Azimut", None, QtGui.QApplication.UnicodeUTF8))
+        self.label_6.setText(
+            QtGui.QApplication.translate("Dialog_tafonomia", "Descrizione ", None, QtGui.QApplication.UnicodeUTF8))
+        self.label_7.setText(
+            QtGui.QApplication.translate("Dialog_tafonomia", "Interpretazione ", None, QtGui.QApplication.UnicodeUTF8))
+        self.textEdit_descrizione_taf.setHtml(QtGui.QApplication.translate("Dialog_tafonomia",
+                                                                           "<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.0//EN\" \"http://www.w3.org/TR/REC-html40/strict.dtd\">\n"
+                                                                           "<html><head><meta name=\"qrichtext\" content=\"1\" /><style type=\"text/css\">\n"
+                                                                           "p, li { white-space: pre-wrap; }\n"
+                                                                           "</style></head><body style=\" font-family:\'MS Shell Dlg 2\'; font-size:10pt; font-weight:400; font-style:normal;\">\n"
+                                                                           "<p style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\"><span style=\" font-family:\'Lucida Grande\'; font-size:13pt;\"><br /></span></p></body></html>",
+                                                                           None, QtGui.QApplication.UnicodeUTF8))
+        self.tabWidget.setTabText(self.tabWidget.indexOf(self.tab),
+                                  QtGui.QApplication.translate("Dialog_tafonomia", "Dati descrittivi", None,
+                                                               QtGui.QApplication.UnicodeUTF8))
+        self.label_17.setText(
+            QtGui.QApplication.translate("Dialog_tafonomia", "Corredo ", None, QtGui.QApplication.UnicodeUTF8))
+        self.comboBox_corredo_presenza.setItemText(0,
+                                                   QtGui.QApplication.translate("Dialog_tafonomia", "Corredo assente",
+                                                                                None, QtGui.QApplication.UnicodeUTF8))
+        self.comboBox_corredo_presenza.setItemText(1,
+                                                   QtGui.QApplication.translate("Dialog_tafonomia", "Corredo presente",
+                                                                                None, QtGui.QApplication.UnicodeUTF8))
+        self.comboBox_corredo_presenza.setItemText(2,
+                                                   QtGui.QApplication.translate("Dialog_tafonomia", "Non determinabile",
+                                                                                None, QtGui.QApplication.UnicodeUTF8))
+        self.tableWidget_corredo_tipo.horizontalHeaderItem(0).setText(
+            QtGui.QApplication.translate("Dialog_tafonomia", "Nr. reperto", None, QtGui.QApplication.UnicodeUTF8))
+        self.tableWidget_corredo_tipo.horizontalHeaderItem(1).setText(
+            QtGui.QApplication.translate("Dialog_tafonomia", "Tipo di corredo", None, QtGui.QApplication.UnicodeUTF8))
+        self.tableWidget_corredo_tipo.horizontalHeaderItem(2).setText(
+            QtGui.QApplication.translate("Dialog_tafonomia", "Descrizione", None, QtGui.QApplication.UnicodeUTF8))
+        self.pushButton_insert_row_corredo.setText(
+            QtGui.QApplication.translate("Dialog_tafonomia", "+", None, QtGui.QApplication.UnicodeUTF8))
+        self.pushButton_remove_row_corredo.setText(
+            QtGui.QApplication.translate("Dialog_tafonomia", "-", None, QtGui.QApplication.UnicodeUTF8))
+        self.textEdit_descrizione_corredo.setHtml(QtGui.QApplication.translate("Dialog_tafonomia",
+                                                                               "<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.0//EN\" \"http://www.w3.org/TR/REC-html40/strict.dtd\">\n"
+                                                                               "<html><head><meta name=\"qrichtext\" content=\"1\" /><style type=\"text/css\">\n"
+                                                                               "p, li { white-space: pre-wrap; }\n"
+                                                                               "</style></head><body style=\" font-family:\'MS Shell Dlg 2\'; font-size:10pt; font-weight:400; font-style:normal;\">\n"
+                                                                               "<p style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\"><span style=\" font-family:\'Lucida Grande\'; font-size:13pt;\"><br /></span></p></body></html>",
+                                                                               None, QtGui.QApplication.UnicodeUTF8))
+        self.label_9.setText(
+            QtGui.QApplication.translate("Dialog_tafonomia", "Descrizione ", None, QtGui.QApplication.UnicodeUTF8))
+        self.tabWidget.setTabText(self.tabWidget.indexOf(self.tab_5),
+                                  QtGui.QApplication.translate("Dialog_tafonomia", "Corredo", None,
+                                                               QtGui.QApplication.UnicodeUTF8))
+        self.comboBox_posizione_scheletro.setItemText(1, QtGui.QApplication.translate("Dialog_tafonomia",
+                                                                                      "Non determinabile", None,
+                                                                                      QtGui.QApplication.UnicodeUTF8))
+        self.comboBox_posizione_scheletro.setItemText(2,
+                                                      QtGui.QApplication.translate("Dialog_tafonomia", "Supino", None,
+                                                                                   QtGui.QApplication.UnicodeUTF8))
+        self.comboBox_posizione_scheletro.setItemText(3, QtGui.QApplication.translate("Dialog_tafonomia", "Prono", None,
+                                                                                      QtGui.QApplication.UnicodeUTF8))
+        self.comboBox_posizione_scheletro.setItemText(4, QtGui.QApplication.translate("Dialog_tafonomia",
+                                                                                      "Posizione fetale", None,
+                                                                                      QtGui.QApplication.UnicodeUTF8))
+        self.comboBox_posizione_scheletro.setItemText(5, QtGui.QApplication.translate("Dialog_tafonomia", "Su lato dx",
+                                                                                      None,
+                                                                                      QtGui.QApplication.UnicodeUTF8))
+        self.comboBox_posizione_scheletro.setItemText(6, QtGui.QApplication.translate("Dialog_tafonomia", "Su lato sx",
+                                                                                      None,
+                                                                                      QtGui.QApplication.UnicodeUTF8))
+        self.comboBox_posizione_cranio.setItemText(1,
+                                                   QtGui.QApplication.translate("Dialog_tafonomia", "Non determinabile",
+                                                                                None, QtGui.QApplication.UnicodeUTF8))
+        self.comboBox_posizione_cranio.setItemText(2, QtGui.QApplication.translate("Dialog_tafonomia", "Nord", None,
+                                                                                   QtGui.QApplication.UnicodeUTF8))
+        self.comboBox_posizione_cranio.setItemText(3, QtGui.QApplication.translate("Dialog_tafonomia", "Est", None,
+                                                                                   QtGui.QApplication.UnicodeUTF8))
+        self.comboBox_posizione_cranio.setItemText(4, QtGui.QApplication.translate("Dialog_tafonomia", "Ovest", None,
+                                                                                   QtGui.QApplication.UnicodeUTF8))
+        self.comboBox_posizione_cranio.setItemText(5, QtGui.QApplication.translate("Dialog_tafonomia", "Sud", None,
+                                                                                   QtGui.QApplication.UnicodeUTF8))
+        self.comboBox_posizione_cranio.setItemText(6, QtGui.QApplication.translate("Dialog_tafonomia", "Nord-Est", None,
+                                                                                   QtGui.QApplication.UnicodeUTF8))
+        self.comboBox_posizione_cranio.setItemText(7,
+                                                   QtGui.QApplication.translate("Dialog_tafonomia", "Nord-Ovest", None,
+                                                                                QtGui.QApplication.UnicodeUTF8))
+        self.comboBox_posizione_cranio.setItemText(8, QtGui.QApplication.translate("Dialog_tafonomia", "Sud-Est", None,
+                                                                                   QtGui.QApplication.UnicodeUTF8))
+        self.comboBox_posizione_cranio.setItemText(9,
+                                                   QtGui.QApplication.translate("Dialog_tafonomia", "Sud-Ovest", None,
+                                                                                QtGui.QApplication.UnicodeUTF8))
+        self.label_33.setText(QtGui.QApplication.translate("Dialog_tafonomia", "Lunghezza scheletro", None,
+                                                           QtGui.QApplication.UnicodeUTF8))
+        self.label_37.setText(QtGui.QApplication.translate("Dialog_tafonomia", "Posizione scheletro", None,
+                                                           QtGui.QApplication.UnicodeUTF8))
+        self.label_86.setText(
+            QtGui.QApplication.translate("Dialog_tafonomia", "Posizione cranio", None, QtGui.QApplication.UnicodeUTF8))
+        self.comboBox_arti_superiori.setItemText(1,
+                                                 QtGui.QApplication.translate("Dialog_tafonomia", "Non determinabile",
+                                                                              None, QtGui.QApplication.UnicodeUTF8))
+        self.comboBox_arti_superiori.setItemText(2, QtGui.QApplication.translate("Dialog_tafonomia",
+                                                                                 "Braccia lungo il corpo", None,
+                                                                                 QtGui.QApplication.UnicodeUTF8))
+        self.comboBox_arti_superiori.setItemText(3, QtGui.QApplication.translate("Dialog_tafonomia",
+                                                                                 "Braccia Incrociate sul petto", None,
+                                                                                 QtGui.QApplication.UnicodeUTF8))
+        self.comboBox_arti_superiori.setItemText(4, QtGui.QApplication.translate("Dialog_tafonomia",
+                                                                                 "Braccia Incrociate sul bacino", None,
+                                                                                 QtGui.QApplication.UnicodeUTF8))
+        self.comboBox_arti_superiori.setItemText(5, QtGui.QApplication.translate("Dialog_tafonomia",
+                                                                                 "Mani congiunte sul petto", None,
+                                                                                 QtGui.QApplication.UnicodeUTF8))
+        self.comboBox_arti_superiori.setItemText(6, QtGui.QApplication.translate("Dialog_tafonomia",
+                                                                                 "Mani congiunte sul bacino  ", None,
+                                                                                 QtGui.QApplication.UnicodeUTF8))
+        self.label_5.setText(QtGui.QApplication.translate("Dialog_tafonomia", "Posizione arti superiori", None,
+                                                          QtGui.QApplication.UnicodeUTF8))
+        self.comboBox_arti_inferiori.setItemText(1, QtGui.QApplication.translate("Dialog_tafonomia", "Distesi", None,
+                                                                                 QtGui.QApplication.UnicodeUTF8))
+        self.comboBox_arti_inferiori.setItemText(2, QtGui.QApplication.translate("Dialog_tafonomia", "Incrociati", None,
+                                                                                 QtGui.QApplication.UnicodeUTF8))
+        self.comboBox_arti_inferiori.setItemText(3,
+                                                 QtGui.QApplication.translate("Dialog_tafonomia", "Asimmetrici", None,
+                                                                              QtGui.QApplication.UnicodeUTF8))
+        self.comboBox_arti_inferiori.setItemText(4,
+                                                 QtGui.QApplication.translate("Dialog_tafonomia", "Non determinabile",
+                                                                              None, QtGui.QApplication.UnicodeUTF8))
+        self.label_10.setText(QtGui.QApplication.translate("Dialog_tafonomia", "Posizione arti infeiori", None,
+                                                           QtGui.QApplication.UnicodeUTF8))
+        self.label_11.setText(
+            QtGui.QApplication.translate("Dialog_tafonomia", "Disturbato", None, QtGui.QApplication.UnicodeUTF8))
+        self.comboBox_disturbato.setItemText(0, QtGui.QApplication.translate("Dialog_tafonomia", "Si", None,
+                                                                             QtGui.QApplication.UnicodeUTF8))
+        self.comboBox_disturbato.setItemText(1, QtGui.QApplication.translate("Dialog_tafonomia", "No", None,
+                                                                             QtGui.QApplication.UnicodeUTF8))
+        self.label_12.setText(
+            QtGui.QApplication.translate("Dialog_tafonomia", "Completo", None, QtGui.QApplication.UnicodeUTF8))
+        self.comboBox_completo.setItemText(0, QtGui.QApplication.translate("Dialog_tafonomia", "Si", None,
+                                                                           QtGui.QApplication.UnicodeUTF8))
+        self.comboBox_completo.setItemText(1, QtGui.QApplication.translate("Dialog_tafonomia", "No", None,
+                                                                           QtGui.QApplication.UnicodeUTF8))
+        self.label_14.setText(
+            QtGui.QApplication.translate("Dialog_tafonomia", "In connessione", None, QtGui.QApplication.UnicodeUTF8))
+        self.comboBox_in_connessione.setItemText(0, QtGui.QApplication.translate("Dialog_tafonomia", "Si", None,
+                                                                                 QtGui.QApplication.UnicodeUTF8))
+        self.comboBox_in_connessione.setItemText(1, QtGui.QApplication.translate("Dialog_tafonomia", "No", None,
+                                                                                 QtGui.QApplication.UnicodeUTF8))
+        self.tabWidget.setTabText(self.tabWidget.indexOf(self.tab_2),
+                                  QtGui.QApplication.translate("Dialog_tafonomia", "Resti osteologici", None,
+                                                               QtGui.QApplication.UnicodeUTF8))
+        self.pushButton_insert_row_misure.setText(
+            QtGui.QApplication.translate("Dialog_tafonomia", "+", None, QtGui.QApplication.UnicodeUTF8))
+        self.pushButton_remove_row_misure.setText(
+            QtGui.QApplication.translate("Dialog_tafonomia", "-", None, QtGui.QApplication.UnicodeUTF8))
+        self.tableWidget_misurazioni.horizontalHeaderItem(0).setText(
+            QtGui.QApplication.translate("Dialog_tafonomia", "Tipo misura", None, QtGui.QApplication.UnicodeUTF8))
+        self.tableWidget_misurazioni.horizontalHeaderItem(1).setText(
+            QtGui.QApplication.translate("Dialog_tafonomia", "Unita\' di misura", None, QtGui.QApplication.UnicodeUTF8))
+        self.tableWidget_misurazioni.horizontalHeaderItem(2).setText(
+            QtGui.QApplication.translate("Dialog_tafonomia", "Valore", None, QtGui.QApplication.UnicodeUTF8))
+        self.tabWidget.setTabText(self.tabWidget.indexOf(self.tab_6),
+                                  QtGui.QApplication.translate("Dialog_tafonomia", "Misure", None,
+                                                               QtGui.QApplication.UnicodeUTF8))
+        self.label_13.setText(
+            QtGui.QApplication.translate("Dialog_tafonomia", "Periodizzazione ", None, QtGui.QApplication.UnicodeUTF8))
+        self.label_42.setText(
+            QtGui.QApplication.translate("Dialog_tafonomia", "Iniziale ", None, QtGui.QApplication.UnicodeUTF8))
+        self.label_16.setText(
+            QtGui.QApplication.translate("Dialog_tafonomia", "Finale ", None, QtGui.QApplication.UnicodeUTF8))
+        self.label_21.setText(
+            QtGui.QApplication.translate("Dialog_tafonomia", "Periodo ", None, QtGui.QApplication.UnicodeUTF8))
+        self.label_34.setText(
+            QtGui.QApplication.translate("Dialog_tafonomia", "Fase ", None, QtGui.QApplication.UnicodeUTF8))
+        self.label_22.setText(
+            QtGui.QApplication.translate("Dialog_tafonomia", "Fase ", None, QtGui.QApplication.UnicodeUTF8))
+        self.label_24.setText(
+            QtGui.QApplication.translate("Dialog_tafonomia", "Periodo ", None, QtGui.QApplication.UnicodeUTF8))
+        self.label_20.setText(
+            QtGui.QApplication.translate("Dialog_tafonomia", "Datazione estesa", None, QtGui.QApplication.UnicodeUTF8))
+        self.tabWidget.setTabText(self.tabWidget.indexOf(self.tab_7),
+                                  QtGui.QApplication.translate("Dialog_tafonomia", "Periodizzazione", None,
+                                                               QtGui.QApplication.UnicodeUTF8))
+        self.pushButton_remove_row_caratteristiche.setText(
+            QtGui.QApplication.translate("Dialog_tafonomia", "-", None, QtGui.QApplication.UnicodeUTF8))
+        self.pushButton_insert_row_caratteristiche.setText(
+            QtGui.QApplication.translate("Dialog_tafonomia", "+", None, QtGui.QApplication.UnicodeUTF8))
+        self.tableWidget_caratteristiche.horizontalHeaderItem(0).setText(
+            QtGui.QApplication.translate("Dialog_tafonomia", "Tipo caratteristica", None,
+                                         QtGui.QApplication.UnicodeUTF8))
+        self.tableWidget_caratteristiche.horizontalHeaderItem(1).setText(
+            QtGui.QApplication.translate("Dialog_tafonomia", "Posizione", None, QtGui.QApplication.UnicodeUTF8))
+        self.tabWidget.setTabText(self.tabWidget.indexOf(self.tab_3),
+                                  QtGui.QApplication.translate("Dialog_tafonomia", "Caratteristiche", None,
+                                                               QtGui.QApplication.UnicodeUTF8))
+        self.label_38.setText(QtGui.QApplication.translate("Dialog_tafonomia", "Visualizzazione GIS", None,
+                                                           QtGui.QApplication.UnicodeUTF8))
+        self.toolButtonGis.setShortcut(
+            QtGui.QApplication.translate("Dialog_tafonomia", "Ctrl+G", None, QtGui.QApplication.UnicodeUTF8))
+        self.label_39.setText(QtGui.QApplication.translate("Dialog_tafonomia", "Attivazione Preview pianta US", None,
+                                                           QtGui.QApplication.UnicodeUTF8))
+        self.toolButtonPreview.setText(
+            QtGui.QApplication.translate("Dialog_tafonomia", "Preview pianta US", None, QtGui.QApplication.UnicodeUTF8))
+        self.toolButtonPreview.setShortcut(
+            QtGui.QApplication.translate("Dialog_tafonomia", "Ctrl+G", None, QtGui.QApplication.UnicodeUTF8))
+        self.toolButtonPan.setToolTip(
+            QtGui.QApplication.translate("Dialog_tafonomia", "Pan tool", None, QtGui.QApplication.UnicodeUTF8))
+        self.toolButtonPan.setShortcut(
+            QtGui.QApplication.translate("Dialog_tafonomia", "Ctrl+G", None, QtGui.QApplication.UnicodeUTF8))
+        self.label_44.setText(
+            QtGui.QApplication.translate("Dialog_tafonomia", "Mostra immagini", None, QtGui.QApplication.UnicodeUTF8))
+        self.toolButtonPreviewMedia.setText(
+            QtGui.QApplication.translate("Dialog_tafonomia", "Mostra immagini", None, QtGui.QApplication.UnicodeUTF8))
+        self.label_41.setText(
+            QtGui.QApplication.translate("Dialog_tafonomia", "Esporta schede Tafonomiche in formato PDF", None,
+                                         QtGui.QApplication.UnicodeUTF8))
+        self.pushButton_pdf_exp.setToolTip(
+            QtGui.QApplication.translate("Dialog_tafonomia", "Export PDF", None, QtGui.QApplication.UnicodeUTF8))
+        self.pushButton_pdf_exp.setText(
+            QtGui.QApplication.translate("Dialog_tafonomia", "Singole schede", None, QtGui.QApplication.UnicodeUTF8))
+        self.pushButton_exp_index.setText(
+            QtGui.QApplication.translate("Dialog_tafonomia", "Elenco ", None, QtGui.QApplication.UnicodeUTF8))
+        self.label_40.setText(QtGui.QApplication.translate("Dialog_tafonomia", "Apri schede US selezionate", None,
+                                                           QtGui.QApplication.UnicodeUTF8))
+        self.pushButton_showSelectedFeatures.setToolTip(
+            QtGui.QApplication.translate("Dialog_tafonomia", "Show Selcted Features", None,
+                                         QtGui.QApplication.UnicodeUTF8))
+        self.pushButton_showSelectedFeatures.setText(
+            QtGui.QApplication.translate("Dialog_tafonomia", "apri schede US", None, QtGui.QApplication.UnicodeUTF8))
+        self.tabWidget.setTabText(self.tabWidget.indexOf(self.tab_4),
+                                  QtGui.QApplication.translate("Dialog_tafonomia", "Tools", None,
+                                                               QtGui.QApplication.UnicodeUTF8))
+        self.label_18.setText(
+            QtGui.QApplication.translate("Dialog_tafonomia", "Rito", None, QtGui.QApplication.UnicodeUTF8))
+        self.comboBox_rito.setItemText(0, QtGui.QApplication.translate("Dialog_tafonomia", "Riduzione", None,
+                                                                       QtGui.QApplication.UnicodeUTF8))
+        self.comboBox_rito.setItemText(1, QtGui.QApplication.translate("Dialog_tafonomia", "Ad inumazione", None,
+                                                                       QtGui.QApplication.UnicodeUTF8))
+        self.comboBox_rito.setItemText(2, QtGui.QApplication.translate("Dialog_tafonomia", "Ad incinerazione diretta",
+                                                                       None, QtGui.QApplication.UnicodeUTF8))
+        self.comboBox_rito.setItemText(3, QtGui.QApplication.translate("Dialog_tafonomia", "Ad incinerazione indiretta",
+                                                                       None, QtGui.QApplication.UnicodeUTF8))
+        self.comboBox_rito.setItemText(4, QtGui.QApplication.translate("Dialog_tafonomia", "Mummuficazione", None,
+                                                                       QtGui.QApplication.UnicodeUTF8))

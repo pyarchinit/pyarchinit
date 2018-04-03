@@ -20,25 +20,26 @@
  ***************************************************************************/
 """
 
-class Settings:
-	SERVER = ""
-	HOST = ""
-	DATABASE = ""
-	PASSWORD = ""
-	PORT = ""
-	USER = ""
-	THUMB_PATH = ""
-	
-	def __init__(self, s):
-		self.configuration = ast.literal_eval(s)
-	
-	def set_configuration(self):
-		self.SERVER = self.configuration['SERVER']
-		self.HOST = self.configuration['HOST']
-		self.DATABASE = self.configuration['DATABASE']
-		self.PASSWORD = self.configuration['PASSWORD']
-		self.PORT = self.configuration['PORT']
-		self.USER = self.configuration['USER']
-		self.THUMB_PATH = self.configuration['THUMB_PATH']
 
-		PLUGIN_PATH = path = os.path.dirname(__file__)
+class Settings:
+    SERVER = ""
+    HOST = ""
+    DATABASE = ""
+    PASSWORD = ""
+    PORT = ""
+    USER = ""
+    THUMB_PATH = ""
+
+    def __init__(self, s):
+        self.configuration = ast.literal_eval(s)
+
+    def set_configuration(self):
+        self.SERVER = self.configuration['SERVER']
+        self.HOST = self.configuration['HOST']
+        self.DATABASE = self.configuration['DATABASE']
+        self.PASSWORD = self.configuration['PASSWORD']
+        self.PORT = self.configuration['PORT']
+        self.USER = self.configuration['USER']
+        self.THUMB_PATH = self.configuration['THUMB_PATH']
+
+        PLUGIN_PATH = path = os.path.dirname(__file__)

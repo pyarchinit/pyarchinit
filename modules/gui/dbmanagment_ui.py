@@ -55,24 +55,37 @@ class Ui_DBmanagment(object):
         QtCore.QMetaObject.connectSlotsByName(DBmanagment)
 
     def retranslateUi(self, DBmanagment):
-        DBmanagment.setWindowTitle(QtGui.QApplication.translate("DBmanagment", "Dialog", None, QtGui.QApplication.UnicodeUTF8))
-        self.backup.setText(QtGui.QApplication.translate("DBmanagment", "Backup postgres", None, QtGui.QApplication.UnicodeUTF8))
-        self.label.setText(QtGui.QApplication.translate("DBmanagment", "             BackUP e Restore DB Pyarchinit", None, QtGui.QApplication.UnicodeUTF8))
-        self.restore.setText(QtGui.QApplication.translate("DBmanagment", "Ripristina", None, QtGui.QApplication.UnicodeUTF8))
-        self.upload.setText(QtGui.QApplication.translate("DBmanagment", "Scegli il file da ripristinare", None, QtGui.QApplication.UnicodeUTF8))
-        self.backup_total.setText(QtGui.QApplication.translate("DBmanagment", "Backup totale", None, QtGui.QApplication.UnicodeUTF8))
-        self.label_3.setText(QtGui.QApplication.translate("DBmanagment", "Backup db pyarchinit (per win e linux)", None, QtGui.QApplication.UnicodeUTF8))
-        self.label_4.setText(QtGui.QApplication.translate("DBmanagment", "Backup totale di tutti i db postgres (solo per linux)", None, QtGui.QApplication.UnicodeUTF8))
-        self.label_5.setText(QtGui.QApplication.translate("DBmanagment", "Scegli un file del backup e ripristinalo", None, QtGui.QApplication.UnicodeUTF8))
-        self.backupsqlite.setText(QtGui.QApplication.translate("DBmanagment", "Backup sqlite", None, QtGui.QApplication.UnicodeUTF8))
+        DBmanagment.setWindowTitle(
+            QtGui.QApplication.translate("DBmanagment", "Dialog", None, QtGui.QApplication.UnicodeUTF8))
+        self.backup.setText(
+            QtGui.QApplication.translate("DBmanagment", "Backup postgres", None, QtGui.QApplication.UnicodeUTF8))
+        self.label.setText(
+            QtGui.QApplication.translate("DBmanagment", "             BackUP e Restore DB Pyarchinit", None,
+                                         QtGui.QApplication.UnicodeUTF8))
+        self.restore.setText(
+            QtGui.QApplication.translate("DBmanagment", "Ripristina", None, QtGui.QApplication.UnicodeUTF8))
+        self.upload.setText(QtGui.QApplication.translate("DBmanagment", "Scegli il file da ripristinare", None,
+                                                         QtGui.QApplication.UnicodeUTF8))
+        self.backup_total.setText(
+            QtGui.QApplication.translate("DBmanagment", "Backup totale", None, QtGui.QApplication.UnicodeUTF8))
+        self.label_3.setText(QtGui.QApplication.translate("DBmanagment", "Backup db pyarchinit (per win e linux)", None,
+                                                          QtGui.QApplication.UnicodeUTF8))
+        self.label_4.setText(
+            QtGui.QApplication.translate("DBmanagment", "Backup totale di tutti i db postgres (solo per linux)", None,
+                                         QtGui.QApplication.UnicodeUTF8))
+        self.label_5.setText(
+            QtGui.QApplication.translate("DBmanagment", "Scegli un file del backup e ripristinalo", None,
+                                         QtGui.QApplication.UnicodeUTF8))
+        self.backupsqlite.setText(
+            QtGui.QApplication.translate("DBmanagment", "Backup sqlite", None, QtGui.QApplication.UnicodeUTF8))
 
 
 if __name__ == "__main__":
     import sys
+
     app = QtGui.QApplication(sys.argv)
     DBmanagment = QtGui.QDialog()
     ui = Ui_DBmanagment()
     ui.setupUi(DBmanagment)
     DBmanagment.show()
     sys.exit(app.exec_())
-

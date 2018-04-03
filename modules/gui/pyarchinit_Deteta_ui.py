@@ -8,8 +8,6 @@
 # WARNING! All changes made in this file will be lost!
 
 from PyQt4 import QtCore, QtGui
-import resources_rc
-
 
 try:
     _fromUtf8 = QtCore.QString.fromUtf8
@@ -19,11 +17,14 @@ except AttributeError:
 
 try:
     _encoding = QtGui.QApplication.UnicodeUTF8
+
+
     def _translate(context, text, disambig):
         return QtGui.QApplication.translate(context, text, disambig, _encoding)
 except AttributeError:
     def _translate(context, text, disambig):
         return QtGui.QApplication.translate(context, text, disambig)
+
 
 class Ui_Dialog_eta(object):
     def setupUi(self, Dialog_eta):
@@ -1420,7 +1421,8 @@ class Ui_Dialog_eta(object):
         QtCore.QMetaObject.connectSlotsByName(Dialog_eta)
 
     def retranslateUi(self, Dialog_eta):
-        Dialog_eta.setWindowTitle(_translate("Dialog_eta", "pyArchInit Gestione Scavi - Scheda Determinazione Età di Morte", None))
+        Dialog_eta.setWindowTitle(
+            _translate("Dialog_eta", "pyArchInit Gestione Scavi - Scheda Determinazione Età di Morte", None))
         self.label_29.setText(_translate("Dialog_eta", "DBMS Toolbar", None))
         self.pushButton_connect.setText(_translate("Dialog_eta", "Connection test", None))
         self.pushButton_first_rec.setToolTip(_translate("Dialog_eta", "First rec", None))
@@ -1478,36 +1480,46 @@ class Ui_Dialog_eta(object):
         self.label_4_sistema_latero_anteriore_67.setText(_translate("Dialog_eta", "RANGE SINFISI PUBICA", None))
         self.label_5_1_s_56.setText(_translate("Dialog_eta", "-", None))
         self.label_5_1_s_57.setText(_translate("Dialog_eta", "anni", None))
-        self.tabWidget.setTabText(self.tabWidget.indexOf(self.tabWidgetPage1), _translate("Dialog_eta", "Sinfisi pubica", None))
+        self.tabWidget.setTabText(self.tabWidget.indexOf(self.tabWidgetPage1),
+                                  _translate("Dialog_eta", "Sinfisi pubica", None))
         self.label_4_sistema_latero_anteriore_68.setText(_translate("Dialog_eta", "Schmitt,  2005", None))
         self.label_20.setText(_translate("Dialog_eta", "SCORE 0 = Elemento non presente", None))
-        self.label_4_sistema_latero_anteriore_41.setText(_translate("Dialog_eta", "Modificazione della superficie auricolare", None))
+        self.label_4_sistema_latero_anteriore_41.setText(
+            _translate("Dialog_eta", "Modificazione della superficie auricolare", None))
         self.label_4_sistema_latero_anteriore_38.setText(_translate("Dialog_eta", "SCORE 1", None))
-        self.label_4_sistema_latero_anteriore_40.setText(_translate("Dialog_eta", "<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.0//EN\" \"http://www.w3.org/TR/REC-html40/strict.dtd\">\n"
-"<html><head><meta name=\"qrichtext\" content=\"1\" /><style type=\"text/css\">\n"
-"p, li { white-space: pre-wrap; }\n"
-"</style></head><body style=\" font-family:\'Lucida Grande\'; font-size:13pt; font-weight:400; font-style:normal;\">\n"
-"<p style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\"><span style=\" font-family:\'MS Shell Dlg 2\'; font-size:10pt;\"> Assenza di granulosità; è possibile un\'isolata e fine porosità.</span></p></body></html>", None))
+        self.label_4_sistema_latero_anteriore_40.setText(_translate("Dialog_eta",
+                                                                    "<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.0//EN\" \"http://www.w3.org/TR/REC-html40/strict.dtd\">\n"
+                                                                    "<html><head><meta name=\"qrichtext\" content=\"1\" /><style type=\"text/css\">\n"
+                                                                    "p, li { white-space: pre-wrap; }\n"
+                                                                    "</style></head><body style=\" font-family:\'Lucida Grande\'; font-size:13pt; font-weight:400; font-style:normal;\">\n"
+                                                                    "<p style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\"><span style=\" font-family:\'MS Shell Dlg 2\'; font-size:10pt;\"> Assenza di granulosità; è possibile un\'isolata e fine porosità.</span></p></body></html>",
+                                                                    None))
         self.label_4_sistema_latero_anteriore_39.setText(_translate("Dialog_eta", "SCORE 2", None))
-        self.label_4_sistema_latero_anteriore_44.setText(_translate("Dialog_eta", "<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.0//EN\" \"http://www.w3.org/TR/REC-html40/strict.dtd\">\n"
-"<html><head><meta name=\"qrichtext\" content=\"1\" /><style type=\"text/css\">\n"
-"p, li { white-space: pre-wrap; }\n"
-"</style></head><body style=\" font-family:\'Lucida Grande\'; font-size:13pt; font-weight:400; font-style:normal;\">\n"
-"<p style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\"><span style=\" font-family:\'MS Shell Dlg 2\'; font-size:10pt;\">Il bordo è fine e può essere a filo con la superficie auricolare, </span></p>\n"
-"<p style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\"><span style=\" font-family:\'MS Shell Dlg 2\'; font-size:10pt;\">o leggermente sollevato e forma un angolo.</span></p></body></html>", None))
-        self.label_4_sistema_latero_anteriore_37.setText(_translate("Dialog_eta", "<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.0//EN\" \"http://www.w3.org/TR/REC-html40/strict.dtd\">\n"
-"<html><head><meta name=\"qrichtext\" content=\"1\" /><style type=\"text/css\">\n"
-"p, li { white-space: pre-wrap; }\n"
-"</style></head><body style=\" font-family:\'Lucida Grande\'; font-size:13pt; font-weight:400; font-style:normal;\">\n"
-"<p style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\"><span style=\" font-family:\'MS Shell Dlg 2\'; font-size:10pt;\">Il bordo è fine e può essere a filo con la superficie auricolare, </span></p>\n"
-"<p style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\"><span style=\" font-family:\'MS Shell Dlg 2\'; font-size:10pt;\">o leggermente sollevato e forma un angolo.</span></p></body></html>", None))
+        self.label_4_sistema_latero_anteriore_44.setText(_translate("Dialog_eta",
+                                                                    "<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.0//EN\" \"http://www.w3.org/TR/REC-html40/strict.dtd\">\n"
+                                                                    "<html><head><meta name=\"qrichtext\" content=\"1\" /><style type=\"text/css\">\n"
+                                                                    "p, li { white-space: pre-wrap; }\n"
+                                                                    "</style></head><body style=\" font-family:\'Lucida Grande\'; font-size:13pt; font-weight:400; font-style:normal;\">\n"
+                                                                    "<p style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\"><span style=\" font-family:\'MS Shell Dlg 2\'; font-size:10pt;\">Il bordo è fine e può essere a filo con la superficie auricolare, </span></p>\n"
+                                                                    "<p style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\"><span style=\" font-family:\'MS Shell Dlg 2\'; font-size:10pt;\">o leggermente sollevato e forma un angolo.</span></p></body></html>",
+                                                                    None))
+        self.label_4_sistema_latero_anteriore_37.setText(_translate("Dialog_eta",
+                                                                    "<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.0//EN\" \"http://www.w3.org/TR/REC-html40/strict.dtd\">\n"
+                                                                    "<html><head><meta name=\"qrichtext\" content=\"1\" /><style type=\"text/css\">\n"
+                                                                    "p, li { white-space: pre-wrap; }\n"
+                                                                    "</style></head><body style=\" font-family:\'Lucida Grande\'; font-size:13pt; font-weight:400; font-style:normal;\">\n"
+                                                                    "<p style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\"><span style=\" font-family:\'MS Shell Dlg 2\'; font-size:10pt;\">Il bordo è fine e può essere a filo con la superficie auricolare, </span></p>\n"
+                                                                    "<p style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\"><span style=\" font-family:\'MS Shell Dlg 2\'; font-size:10pt;\">o leggermente sollevato e forma un angolo.</span></p></body></html>",
+                                                                    None))
         self.label_4_sistema_latero_anteriore_45.setText(_translate("Dialog_eta", "SCORE 3", None))
-        self.label_4_sistema_latero_anteriore_46.setText(_translate("Dialog_eta", "<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.0//EN\" \"http://www.w3.org/TR/REC-html40/strict.dtd\">\n"
-"<html><head><meta name=\"qrichtext\" content=\"1\" /><style type=\"text/css\">\n"
-"p, li { white-space: pre-wrap; }\n"
-"</style></head><body style=\" font-family:\'Lucida Grande\'; font-size:13pt; font-weight:400; font-style:normal;\">\n"
-"<p style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\"><span style=\" font-family:\'MS Shell Dlg 2\'; font-size:10pt;\">Il bordo è fine e può essere a filo con la superficie auricolare, </span></p>\n"
-"<p style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\"><span style=\" font-family:\'MS Shell Dlg 2\'; font-size:10pt;\">o leggermente sollevato e forma un angolo.</span></p></body></html>", None))
+        self.label_4_sistema_latero_anteriore_46.setText(_translate("Dialog_eta",
+                                                                    "<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.0//EN\" \"http://www.w3.org/TR/REC-html40/strict.dtd\">\n"
+                                                                    "<html><head><meta name=\"qrichtext\" content=\"1\" /><style type=\"text/css\">\n"
+                                                                    "p, li { white-space: pre-wrap; }\n"
+                                                                    "</style></head><body style=\" font-family:\'Lucida Grande\'; font-size:13pt; font-weight:400; font-style:normal;\">\n"
+                                                                    "<p style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\"><span style=\" font-family:\'MS Shell Dlg 2\'; font-size:10pt;\">Il bordo è fine e può essere a filo con la superficie auricolare, </span></p>\n"
+                                                                    "<p style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\"><span style=\" font-family:\'MS Shell Dlg 2\'; font-size:10pt;\">o leggermente sollevato e forma un angolo.</span></p></body></html>",
+                                                                    None))
         self.label_4_sistema_latero_anteriore_43.setText(_translate("Dialog_eta", "SCORE 4", None))
         self.comboBox_SSPIB.setItemText(0, _translate("Dialog_eta", "1", None))
         self.comboBox_SSPIB.setItemText(1, _translate("Dialog_eta", "2", None))
@@ -1516,47 +1528,59 @@ class Ui_Dialog_eta(object):
         self.pushButton_SSPIB.setText(_translate("Dialog_eta", "SSPIB", None))
         self.label_4_sistema_latero_anteriore_32.setText(_translate("Dialog_eta", "Organizzazione trasversale", None))
         self.label_4_sistema_latero_anteriore_34.setText(_translate("Dialog_eta", "SCORE 1", None))
-        self.label_4_sistema_latero_anteriore_33.setText(_translate("Dialog_eta", "<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.0//EN\" \"http://www.w3.org/TR/REC-html40/strict.dtd\">\n"
-"<html><head><meta name=\"qrichtext\" content=\"1\" /><style type=\"text/css\">\n"
-"p, li { white-space: pre-wrap; }\n"
-"</style></head><body style=\" font-family:\'Lucida Grande\'; font-size:13pt; font-weight:400; font-style:normal;\">\n"
-"<p style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\"><span style=\" font-family:\'MS Shell Dlg 2\'; font-size:10pt;\"> Ondulazioni o strie su una parte o su tutta la sup. auricolare.</span></p></body></html>", None))
+        self.label_4_sistema_latero_anteriore_33.setText(_translate("Dialog_eta",
+                                                                    "<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.0//EN\" \"http://www.w3.org/TR/REC-html40/strict.dtd\">\n"
+                                                                    "<html><head><meta name=\"qrichtext\" content=\"1\" /><style type=\"text/css\">\n"
+                                                                    "p, li { white-space: pre-wrap; }\n"
+                                                                    "</style></head><body style=\" font-family:\'Lucida Grande\'; font-size:13pt; font-weight:400; font-style:normal;\">\n"
+                                                                    "<p style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\"><span style=\" font-family:\'MS Shell Dlg 2\'; font-size:10pt;\"> Ondulazioni o strie su una parte o su tutta la sup. auricolare.</span></p></body></html>",
+                                                                    None))
         self.label_4_sistema_latero_anteriore_36.setText(_translate("Dialog_eta", "SCORE 2", None))
-        self.label_4_sistema_latero_anteriore_35.setText(_translate("Dialog_eta", "<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.0//EN\" \"http://www.w3.org/TR/REC-html40/strict.dtd\">\n"
-"<html><head><meta name=\"qrichtext\" content=\"1\" /><style type=\"text/css\">\n"
-"p, li { white-space: pre-wrap; }\n"
-"</style></head><body style=\" font-family:\'Lucida Grande\'; font-size:13pt; font-weight:400; font-style:normal;\">\n"
-"<p style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\"><span style=\" font-family:\'MS Shell Dlg 2\'; font-size:10pt;\"> Assenza di granulosità; è possibile un\'isolata e fine porosità.</span></p></body></html>", None))
+        self.label_4_sistema_latero_anteriore_35.setText(_translate("Dialog_eta",
+                                                                    "<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.0//EN\" \"http://www.w3.org/TR/REC-html40/strict.dtd\">\n"
+                                                                    "<html><head><meta name=\"qrichtext\" content=\"1\" /><style type=\"text/css\">\n"
+                                                                    "p, li { white-space: pre-wrap; }\n"
+                                                                    "</style></head><body style=\" font-family:\'Lucida Grande\'; font-size:13pt; font-weight:400; font-style:normal;\">\n"
+                                                                    "<p style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\"><span style=\" font-family:\'MS Shell Dlg 2\'; font-size:10pt;\"> Assenza di granulosità; è possibile un\'isolata e fine porosità.</span></p></body></html>",
+                                                                    None))
         self.comboBox_SSPIA.setItemText(0, _translate("Dialog_eta", "1", None))
         self.comboBox_SSPIA.setItemText(1, _translate("Dialog_eta", "2", None))
         self.pushButton_5.setText(_translate("Dialog_eta", "SSPIA", None))
         self.label_4_sistema_latero_anteriore_51.setText(_translate("Dialog_eta", "Modificazione apicale", None))
         self.label_4_sistema_latero_anteriore_47.setText(_translate("Dialog_eta", "SCORE 1", None))
-        self.label_4_sistema_latero_anteriore_49.setText(_translate("Dialog_eta", "<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.0//EN\" \"http://www.w3.org/TR/REC-html40/strict.dtd\">\n"
-"<html><head><meta name=\"qrichtext\" content=\"1\" /><style type=\"text/css\">\n"
-"p, li { white-space: pre-wrap; }\n"
-"</style></head><body style=\" font-family:\'Lucida Grande\'; font-size:13pt; font-weight:400; font-style:normal;\">\n"
-"<p style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\"><span style=\" font-family:\'MS Shell Dlg 2\'; font-size:10pt;\">Il bordo è fine e può essere a filo con la superficie auricolare, </span></p>\n"
-"<p style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\"><span style=\" font-family:\'MS Shell Dlg 2\'; font-size:10pt;\">o leggermente sollevato e forma un angolo.</span></p></body></html>", None))
+        self.label_4_sistema_latero_anteriore_49.setText(_translate("Dialog_eta",
+                                                                    "<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.0//EN\" \"http://www.w3.org/TR/REC-html40/strict.dtd\">\n"
+                                                                    "<html><head><meta name=\"qrichtext\" content=\"1\" /><style type=\"text/css\">\n"
+                                                                    "p, li { white-space: pre-wrap; }\n"
+                                                                    "</style></head><body style=\" font-family:\'Lucida Grande\'; font-size:13pt; font-weight:400; font-style:normal;\">\n"
+                                                                    "<p style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\"><span style=\" font-family:\'MS Shell Dlg 2\'; font-size:10pt;\">Il bordo è fine e può essere a filo con la superficie auricolare, </span></p>\n"
+                                                                    "<p style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\"><span style=\" font-family:\'MS Shell Dlg 2\'; font-size:10pt;\">o leggermente sollevato e forma un angolo.</span></p></body></html>",
+                                                                    None))
         self.label_4_sistema_latero_anteriore_48.setText(_translate("Dialog_eta", "SCORE 2", None))
-        self.label_4_sistema_latero_anteriore_50.setText(_translate("Dialog_eta", "<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.0//EN\" \"http://www.w3.org/TR/REC-html40/strict.dtd\">\n"
-"<html><head><meta name=\"qrichtext\" content=\"1\" /><style type=\"text/css\">\n"
-"p, li { white-space: pre-wrap; }\n"
-"</style></head><body style=\" font-family:\'Lucida Grande\'; font-size:13pt; font-weight:400; font-style:normal;\">\n"
-"<p style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\"><span style=\" font-family:\'MS Shell Dlg 2\'; font-size:10pt;\">Il bordo è fine e può essere a filo con la superficie auricolare, </span></p>\n"
-"<p style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\"><span style=\" font-family:\'MS Shell Dlg 2\'; font-size:10pt;\">o leggermente sollevato e forma un angolo.</span></p></body></html>", None))
+        self.label_4_sistema_latero_anteriore_50.setText(_translate("Dialog_eta",
+                                                                    "<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.0//EN\" \"http://www.w3.org/TR/REC-html40/strict.dtd\">\n"
+                                                                    "<html><head><meta name=\"qrichtext\" content=\"1\" /><style type=\"text/css\">\n"
+                                                                    "p, li { white-space: pre-wrap; }\n"
+                                                                    "</style></head><body style=\" font-family:\'Lucida Grande\'; font-size:13pt; font-weight:400; font-style:normal;\">\n"
+                                                                    "<p style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\"><span style=\" font-family:\'MS Shell Dlg 2\'; font-size:10pt;\">Il bordo è fine e può essere a filo con la superficie auricolare, </span></p>\n"
+                                                                    "<p style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\"><span style=\" font-family:\'MS Shell Dlg 2\'; font-size:10pt;\">o leggermente sollevato e forma un angolo.</span></p></body></html>",
+                                                                    None))
         self.comboBox_SSPIC.setItemText(0, _translate("Dialog_eta", "1", None))
         self.comboBox_SSPIC.setItemText(1, _translate("Dialog_eta", "2", None))
         self.pushButton_SSPIC.setText(_translate("Dialog_eta", "SSPIC", None))
-        self.label_4_sistema_latero_anteriore_58.setText(_translate("Dialog_eta", "Modificazione della tuberosità iliaca", None))
+        self.label_4_sistema_latero_anteriore_58.setText(
+            _translate("Dialog_eta", "Modificazione della tuberosità iliaca", None))
         self.label_4_sistema_latero_anteriore_54.setText(_translate("Dialog_eta", "SCORE 1", None))
-        self.label_4_sistema_latero_anteriore_53.setText(_translate("Dialog_eta", "<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.0//EN\" \"http://www.w3.org/TR/REC-html40/strict.dtd\">\n"
-"<html><head><meta name=\"qrichtext\" content=\"1\" /><style type=\"text/css\">\n"
-"p, li { white-space: pre-wrap; }\n"
-"</style></head><body style=\" font-family:\'Lucida Grande\'; font-size:13pt; font-weight:400; font-style:normal;\">\n"
-"<p style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\"><span style=\" font-family:\'MS Shell Dlg 2\'; font-size:10pt;\">Superficie liscia e non ci sono segni di rimpasti ossei.</span></p></body></html>", None))
+        self.label_4_sistema_latero_anteriore_53.setText(_translate("Dialog_eta",
+                                                                    "<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.0//EN\" \"http://www.w3.org/TR/REC-html40/strict.dtd\">\n"
+                                                                    "<html><head><meta name=\"qrichtext\" content=\"1\" /><style type=\"text/css\">\n"
+                                                                    "p, li { white-space: pre-wrap; }\n"
+                                                                    "</style></head><body style=\" font-family:\'Lucida Grande\'; font-size:13pt; font-weight:400; font-style:normal;\">\n"
+                                                                    "<p style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\"><span style=\" font-family:\'MS Shell Dlg 2\'; font-size:10pt;\">Superficie liscia e non ci sono segni di rimpasti ossei.</span></p></body></html>",
+                                                                    None))
         self.label_4_sistema_latero_anteriore_56.setText(_translate("Dialog_eta", "SCORE 2", None))
-        self.label_4_sistema_latero_anteriore_55.setText(_translate("Dialog_eta", "Rimpasti ossei o entesi fini.", None))
+        self.label_4_sistema_latero_anteriore_55.setText(
+            _translate("Dialog_eta", "Rimpasti ossei o entesi fini.", None))
         self.comboBox_SSPID.setItemText(0, _translate("Dialog_eta", "1", None))
         self.comboBox_SSPID.setItemText(1, _translate("Dialog_eta", "2", None))
         self.pushButton_SSPID.setText(_translate("Dialog_eta", "SSPID", None))
@@ -1564,10 +1588,12 @@ class Ui_Dialog_eta(object):
         self.pushButton_sup_aur.setText(_translate("Dialog_eta", "CALCOLA", None))
         self.label_5_1_s_55.setText(_translate("Dialog_eta", "-", None))
         self.label_5_1_s_54.setText(_translate("Dialog_eta", "anni", None))
-        self.label_4_sistema_latero_anteriore_69.setText(_translate("Dialog_eta", "RANGE SUPERFICIE AURICOLARE II", None))
+        self.label_4_sistema_latero_anteriore_69.setText(
+            _translate("Dialog_eta", "RANGE SUPERFICIE AURICOLARE II", None))
         self.label_5_1_s_60.setText(_translate("Dialog_eta", "-", None))
         self.label_5_1_s_59.setText(_translate("Dialog_eta", "anni", None))
-        self.tabWidget.setTabText(self.tabWidget.indexOf(self.tabWidgetPage2), _translate("Dialog_eta", "Superficie auricolare", None))
+        self.tabWidget.setTabText(self.tabWidget.indexOf(self.tabWidgetPage2),
+                                  _translate("Dialog_eta", "Superficie auricolare", None))
         self.pushButton_ms_sup_12_18.setText(_translate("Dialog_eta", "12-18", None))
         self.pushButton_ms_sup_16_20.setText(_translate("Dialog_eta", "16-20", None))
         self.pushButton_ms_sup_18_22.setText(_translate("Dialog_eta", "18-22", None))
@@ -1581,7 +1607,8 @@ class Ui_Dialog_eta(object):
         self.pushButton_ms_sup_30_35.setText(_translate("Dialog_eta", "30-35", None))
         self.pushButton_ms_sup_24_30.setText(_translate("Dialog_eta", "24-30", None))
         self.pushButton.setText(_translate("Dialog_eta", "Apri tavola", None))
-        self.tabWidget.setTabText(self.tabWidget.indexOf(self.tabWidgetPage3), _translate("Dialog_eta", "Usura dentaria ", None))
+        self.tabWidget.setTabText(self.tabWidget.indexOf(self.tabWidgetPage3),
+                                  _translate("Dialog_eta", "Usura dentaria ", None))
         self.pushButton_ms_inf_12_18.setText(_translate("Dialog_eta", "12-18", None))
         self.pushButton_ms_inf_16_20.setText(_translate("Dialog_eta", "16-20", None))
         self.pushButton_ms_inf_18_22.setText(_translate("Dialog_eta", "18-22", None))
@@ -1599,7 +1626,8 @@ class Ui_Dialog_eta(object):
         self.label_5_1_s_58.setText(_translate("Dialog_eta", "anni", None))
         self.label_15.setText(_translate("Dialog_eta", "Lovejoy, 1985", None))
         self.pushButton_2.setText(_translate("Dialog_eta", "Apri tavola", None))
-        self.tabWidget.setTabText(self.tabWidget.indexOf(self.tabWidgetPage4), _translate("Dialog_eta", "Usura dentaria totale", None))
+        self.tabWidget.setTabText(self.tabWidget.indexOf(self.tabWidgetPage4),
+                                  _translate("Dialog_eta", "Usura dentaria totale", None))
         self.label_4_sistema_della_volta_5.setText(_translate("Dialog_eta", "SUTURE", None))
         self.label_4_sistema_della_volta_4.setText(_translate("Dialog_eta", "GRADO", None))
         self.label_5_1_s_2.setText(_translate("Dialog_eta", "1 d", None))
@@ -1706,7 +1734,8 @@ class Ui_Dialog_eta(object):
         self.label_5_1_s_19.setText(_translate("Dialog_eta", "anni", None))
         self.pushButton_range_sut_end.setText(_translate("Dialog_eta", "calcola", None))
         self.pushButton_3.setText(_translate("Dialog_eta", "Apri tavola ", None))
-        self.tabWidget.setTabText(self.tabWidget.indexOf(self.tabWidgetPage6), _translate("Dialog_eta", "Suture endocraniche", None))
+        self.tabWidget.setTabText(self.tabWidget.indexOf(self.tabWidgetPage6),
+                                  _translate("Dialog_eta", "Suture endocraniche", None))
         self.label_4_sistema_della_volta.setText(_translate("Dialog_eta", "SISTEMA DELLA VOLTA", None))
         self.label_4_sistema_latero_anteriore.setText(_translate("Dialog_eta", "SISTEMA ANTERO- LATERALE", None))
         self.label_5_1_s.setText(_translate("Dialog_eta", "1 ", None))
@@ -1785,15 +1814,16 @@ class Ui_Dialog_eta(object):
         self.label_4_sistema_latero_anteriore_2.setText(_translate("Dialog_eta", "Acsadi e Nemeskéri, 1970", None))
         self.pushButton_calcola_volta_ant_lat.setText(_translate("Dialog_eta", "calcola", None))
         self.pushButton_4.setText(_translate("Dialog_eta", "Apri tavola", None))
-        self.tabWidget.setTabText(self.tabWidget.indexOf(self.tabWidgetPage5), _translate("Dialog_eta", "Suture ectocraniche", None))
+        self.tabWidget.setTabText(self.tabWidget.indexOf(self.tabWidgetPage5),
+                                  _translate("Dialog_eta", "Suture ectocraniche", None))
 
 
 if __name__ == "__main__":
     import sys
+
     app = QtGui.QApplication(sys.argv)
     Dialog_eta = QtGui.QDialog()
     ui = Ui_Dialog_eta()
     ui.setupUi(Dialog_eta)
     Dialog_eta.show()
     sys.exit(app.exec_())
-

@@ -9,7 +9,6 @@
 
 from PyQt4 import QtCore, QtGui
 
-
 try:
     _fromUtf8 = QtCore.QString.fromUtf8
 except AttributeError:
@@ -18,11 +17,14 @@ except AttributeError:
 
 try:
     _encoding = QtGui.QApplication.UnicodeUTF8
+
+
     def _translate(context, text, disambig):
         return QtGui.QApplication.translate(context, text, disambig, _encoding)
 except AttributeError:
     def _translate(context, text, disambig):
         return QtGui.QApplication.translate(context, text, disambig)
+
 
 class Ui_DialogUT(object):
     def setupUi(self, DialogUT):
@@ -872,7 +874,8 @@ class Ui_DialogUT(object):
         self.tableWidget_documentazione.setFrameShadow(QtGui.QFrame.Raised)
         self.tableWidget_documentazione.setVerticalScrollBarPolicy(QtCore.Qt.ScrollBarAsNeeded)
         self.tableWidget_documentazione.setHorizontalScrollBarPolicy(QtCore.Qt.ScrollBarAsNeeded)
-        self.tableWidget_documentazione.setEditTriggers(QtGui.QAbstractItemView.AnyKeyPressed|QtGui.QAbstractItemView.DoubleClicked|QtGui.QAbstractItemView.EditKeyPressed)
+        self.tableWidget_documentazione.setEditTriggers(
+            QtGui.QAbstractItemView.AnyKeyPressed | QtGui.QAbstractItemView.DoubleClicked | QtGui.QAbstractItemView.EditKeyPressed)
         self.tableWidget_documentazione.setSelectionMode(QtGui.QAbstractItemView.SingleSelection)
         self.tableWidget_documentazione.setSelectionBehavior(QtGui.QAbstractItemView.SelectRows)
         self.tableWidget_documentazione.setRowCount(1)
@@ -911,7 +914,8 @@ class Ui_DialogUT(object):
         self.tableWidget_bibliografia.setFrameShadow(QtGui.QFrame.Raised)
         self.tableWidget_bibliografia.setVerticalScrollBarPolicy(QtCore.Qt.ScrollBarAsNeeded)
         self.tableWidget_bibliografia.setHorizontalScrollBarPolicy(QtCore.Qt.ScrollBarAsNeeded)
-        self.tableWidget_bibliografia.setEditTriggers(QtGui.QAbstractItemView.AnyKeyPressed|QtGui.QAbstractItemView.DoubleClicked|QtGui.QAbstractItemView.EditKeyPressed)
+        self.tableWidget_bibliografia.setEditTriggers(
+            QtGui.QAbstractItemView.AnyKeyPressed | QtGui.QAbstractItemView.DoubleClicked | QtGui.QAbstractItemView.EditKeyPressed)
         self.tableWidget_bibliografia.setSelectionMode(QtGui.QAbstractItemView.SingleSelection)
         self.tableWidget_bibliografia.setSelectionBehavior(QtGui.QAbstractItemView.SelectRows)
         self.tableWidget_bibliografia.setRowCount(1)
@@ -1041,15 +1045,18 @@ class Ui_DialogUT(object):
         self.label_2.setText(_translate("DialogUT", "UT", None))
         self.label_3.setText(_translate("DialogUT", "UTabc", None))
         self.label_13.setText(_translate("DialogUT", "Dati descrittivi", None))
-        self.textEdit_descrizione_ut.setHtml(_translate("DialogUT", "<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.0//EN\" \"http://www.w3.org/TR/REC-html40/strict.dtd\">\n"
-"<html><head><meta name=\"qrichtext\" content=\"1\" /><style type=\"text/css\">\n"
-"p, li { white-space: pre-wrap; }\n"
-"</style></head><body style=\" font-family:\'MS Shell Dlg 2\'; font-size:10pt; font-weight:400; font-style:normal;\">\n"
-"<p style=\"-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px; font-family:\'Lucida Grande\'; font-size:13pt;\"><br /></p></body></html>", None))
+        self.textEdit_descrizione_ut.setHtml(_translate("DialogUT",
+                                                        "<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.0//EN\" \"http://www.w3.org/TR/REC-html40/strict.dtd\">\n"
+                                                        "<html><head><meta name=\"qrichtext\" content=\"1\" /><style type=\"text/css\">\n"
+                                                        "p, li { white-space: pre-wrap; }\n"
+                                                        "</style></head><body style=\" font-family:\'MS Shell Dlg 2\'; font-size:10pt; font-weight:400; font-style:normal;\">\n"
+                                                        "<p style=\"-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px; font-family:\'Lucida Grande\'; font-size:13pt;\"><br /></p></body></html>",
+                                                        None))
         self.label_6.setText(_translate("DialogUT", "Descrizione ", None))
         self.label_7.setText(_translate("DialogUT", "Interpretazione ", None))
         self.label_5.setText(_translate("DialogUT", "Definizione UT", None))
-        self.tabWidget_ut.setTabText(self.tabWidget_ut.indexOf(self.tab), _translate("DialogUT", "Dati descrittivi", None))
+        self.tabWidget_ut.setTabText(self.tabWidget_ut.indexOf(self.tab),
+                                     _translate("DialogUT", "Dati descrittivi", None))
         self.label_9.setText(_translate("DialogUT", "Nazione", None))
         self.label_48.setText(_translate("DialogUT", "Regione", None))
         self.label_4.setText(_translate("DialogUT", "Localizzazione non georeferenziata", None))
@@ -1059,22 +1066,27 @@ class Ui_DialogUT(object):
         self.label_31.setText(_translate("DialogUT", "Localita\'", None))
         self.label_49.setText(_translate("DialogUT", "Indirizzo", None))
         self.label_50.setText(_translate("DialogUT", "nr civico", None))
-        self.tabWidget_ut.setTabText(self.tabWidget_ut.indexOf(self.tab_6), _translate("DialogUT", "Localizzazione", None))
+        self.tabWidget_ut.setTabText(self.tabWidget_ut.indexOf(self.tab_6),
+                                     _translate("DialogUT", "Localizzazione", None))
         self.label_12.setText(_translate("DialogUT", "Localizzazione georeferenziata", None))
         self.label_10.setText(_translate("DialogUT", "Carta topografica IGM", None))
         self.label_14.setText(_translate("DialogUT", "Carta CTR", None))
         self.label_16.setText(_translate("DialogUT", "Foglio catastale", None))
         self.label_17.setText(_translate("DialogUT", "Descrizione sito", None))
-        self.textEdit_descrizione_empirica_suolo.setHtml(_translate("DialogUT", "<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.0//EN\" \"http://www.w3.org/TR/REC-html40/strict.dtd\">\n"
-"<html><head><meta name=\"qrichtext\" content=\"1\" /><style type=\"text/css\">\n"
-"p, li { white-space: pre-wrap; }\n"
-"</style></head><body style=\" font-family:\'MS Shell Dlg 2\'; font-size:10pt; font-weight:400; font-style:normal;\">\n"
-"<p style=\"-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px; font-family:\'Lucida Grande\'; font-size:13pt;\"><br /></p></body></html>", None))
-        self.textEdit_descrizione_luogo.setHtml(_translate("DialogUT", "<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.0//EN\" \"http://www.w3.org/TR/REC-html40/strict.dtd\">\n"
-"<html><head><meta name=\"qrichtext\" content=\"1\" /><style type=\"text/css\">\n"
-"p, li { white-space: pre-wrap; }\n"
-"</style></head><body style=\" font-family:\'MS Shell Dlg 2\'; font-size:10pt; font-weight:400; font-style:normal;\">\n"
-"<p style=\"-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px; font-family:\'Lucida Grande\'; font-size:13pt;\"><br /></p></body></html>", None))
+        self.textEdit_descrizione_empirica_suolo.setHtml(_translate("DialogUT",
+                                                                    "<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.0//EN\" \"http://www.w3.org/TR/REC-html40/strict.dtd\">\n"
+                                                                    "<html><head><meta name=\"qrichtext\" content=\"1\" /><style type=\"text/css\">\n"
+                                                                    "p, li { white-space: pre-wrap; }\n"
+                                                                    "</style></head><body style=\" font-family:\'MS Shell Dlg 2\'; font-size:10pt; font-weight:400; font-style:normal;\">\n"
+                                                                    "<p style=\"-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px; font-family:\'Lucida Grande\'; font-size:13pt;\"><br /></p></body></html>",
+                                                                    None))
+        self.textEdit_descrizione_luogo.setHtml(_translate("DialogUT",
+                                                           "<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.0//EN\" \"http://www.w3.org/TR/REC-html40/strict.dtd\">\n"
+                                                           "<html><head><meta name=\"qrichtext\" content=\"1\" /><style type=\"text/css\">\n"
+                                                           "p, li { white-space: pre-wrap; }\n"
+                                                           "</style></head><body style=\" font-family:\'MS Shell Dlg 2\'; font-size:10pt; font-weight:400; font-style:normal;\">\n"
+                                                           "<p style=\"-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px; font-family:\'Lucida Grande\'; font-size:13pt;\"><br /></p></body></html>",
+                                                           None))
         self.label_37.setText(_translate("DialogUT", "Descrizione  luogo", None))
         self.label_51.setText(_translate("DialogUT", "Rilievo e Ricognizione", None))
         self.label_52.setText(_translate("DialogUT", "Geometria", None))
@@ -1107,12 +1119,14 @@ class Ui_DialogUT(object):
         item.setText(_translate("DialogUT", "Tipo documentazione", None))
         item = self.tableWidget_documentazione.horizontalHeaderItem(1)
         item.setText(_translate("DialogUT", "Riferimenti", None))
-        self.tabWidget_ut.setTabText(self.tabWidget_ut.indexOf(self.tab_7), _translate("DialogUT", "Documentazione", None))
+        self.tabWidget_ut.setTabText(self.tabWidget_ut.indexOf(self.tab_7),
+                                     _translate("DialogUT", "Documentazione", None))
         self.pushButton_insert_row_bibliografia.setText(_translate("DialogUT", "inserisci riga", None))
         self.pushButton_remove_row_bibliografia.setText(_translate("DialogUT", "rimuovi riga", None))
         item = self.tableWidget_bibliografia.horizontalHeaderItem(0)
         item.setText(_translate("DialogUT", "Riferimenti bibliografici", None))
-        self.tabWidget_ut.setTabText(self.tabWidget_ut.indexOf(self.tab_5), _translate("DialogUT", "Bibliografia", None))
+        self.tabWidget_ut.setTabText(self.tabWidget_ut.indexOf(self.tab_5),
+                                     _translate("DialogUT", "Bibliografia", None))
         self.pushButton_showLayer.setToolTip(_translate("DialogUT", "Show Selcted Features", None))
         self.pushButton_showLayer.setText(_translate("DialogUT", "Visualizza UT", None))
         self.pushButton_pdf_exp.setToolTip(_translate("DialogUT", "Export PDF", None))
@@ -1127,10 +1141,10 @@ class Ui_DialogUT(object):
 
 if __name__ == "__main__":
     import sys
+
     app = QtGui.QApplication(sys.argv)
     DialogUT = QtGui.QDialog()
     ui = Ui_DialogUT()
     ui.setupUi(DialogUT)
     DialogUT.show()
     sys.exit(app.exec_())
-

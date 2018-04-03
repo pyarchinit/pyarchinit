@@ -19,6 +19,8 @@
  *                                                                         *
  ***************************************************************************/
 """
+from sqlalchemy.orm import mapper
+
 from modules.db.entities.ARCHEOZOOLOGY import ARCHEOZOOLOGY
 from modules.db.entities.CAMPIONI import CAMPIONI
 from modules.db.entities.DETETA import DETETA
@@ -57,73 +59,70 @@ from modules.db.structures.Tafonomia_table import Tafonomia_table
 from modules.db.structures.US_table import US_table
 from modules.db.structures.US_table_toimp import US_table_toimp
 from modules.db.structures.UT_table import UT_table
-import sqlalchemy
-from sqlalchemy.orm import mapper
-
 
 try:
-    #mapper
+    # mapper
     mapper(ARCHEOZOOLOGY, Archeozoology_table.archeozoology_table)
-    
-    #mapper
-    mapper(CAMPIONI, Campioni_table.campioni_table)
-    
-    #mapper
-    mapper(DETETA, DETETA_table.deteta_table)
-    
-    #mapper
-    mapper(DETSESSO, DETSESSO_table.detsesso_table)
-    
-    #mapper
-    #mapper(DOCUMENTAZIONE, Documentazione_table.documentazione_table)
-    
-    #mapper
-    mapper(INVENTARIO_LAPIDEI, Inventario_Lapidei_table.inventario_lapidei_table)
-    
-    #mapper
-    mapper(INVENTARIO_MATERIALI_TOIMP, Inventario_materiali_table_toimp.inventario_materiali_table_toimp)
-    
-    #mapper
-    #mapper(INVENTARIO_MATERIALI, Inventario_materiali_table.inventario_materiali_table)
 
-    #mapper
+    # mapper
+    mapper(CAMPIONI, Campioni_table.campioni_table)
+
+    # mapper
+    mapper(DETETA, DETETA_table.deteta_table)
+
+    # mapper
+    mapper(DETSESSO, DETSESSO_table.detsesso_table)
+
+    # mapper
+    # mapper(DOCUMENTAZIONE, Documentazione_table.documentazione_table)
+
+    # mapper
+    mapper(INVENTARIO_LAPIDEI, Inventario_Lapidei_table.inventario_lapidei_table)
+
+    # mapper
+    mapper(INVENTARIO_MATERIALI_TOIMP, Inventario_materiali_table_toimp.inventario_materiali_table_toimp)
+
+    # mapper
+    # mapper(INVENTARIO_MATERIALI, Inventario_materiali_table.inventario_materiali_table)
+
+    # mapper
     mapper(US, US_table.us_table)
 
-    #mapper
+    # mapper
     mapper(UT, UT_table.ut_table)
-    
-    #mapper
+
+    # mapper
     mapper(US_TOIMP, US_table_toimp.us_table_toimp)
-    
-    #mapper
+
+    # mapper
     mapper(STRUTTURA, Struttura_table.struttura_table)
-    
-    #mapper
+
+    # mapper
     mapper(MEDIA, Media_table.media_table)
-    
-    #mapper
+
+    # mapper
     mapper(MEDIA_THUMB, Media_thumb_table.media_thumb_table)
-    
-    #mapper
+
+    # mapper
     mapper(MEDIATOENTITY, Media_to_Entity_table.media_to_entity_table)
 
-    #mapper
+    # mapper
     mapper(PERIODIZZAZIONE, Periodizzazione_table.periodizzazione_table)
-    
-    #mapper
+
+    # mapper
     mapper(PDF_ADMINISTRATOR, PDF_administrator_table.pdf_administrator_table)
-    
-    #mapper
+
+    # mapper
     mapper(PYARCHINIT_THESAURUS_SIGLE, Pyarchinit_thesaurus_sigle.pyarchinit_thesaurus_sigle)
 
-    #mapper
+    # mapper
     mapper(SCHEDAIND, SCHEDAIND_table.individui_table)
-    
-    #mapper
+
+    # mapper
     mapper(SITE, Site_table.site_table)
-    
-    #mapper
+
+    # mapper
     mapper(TAFONOMIA, Tafonomia_table.tafonomia_table)
-    
+
 except:
     pass

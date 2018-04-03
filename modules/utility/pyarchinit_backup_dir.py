@@ -20,19 +20,20 @@
  ***************************************************************************/
 """
 
-import sys
-import os
-from datetime import *
 import shutil
+from datetime import *
+
 PYARCHINIT_PATH = '/pyarchinit'
+
+
 def main():
-	now_day, now_time = date.today(), datetime.now()
-	today, hour = now_day.strftime("_%d_%m_%Y_"), now_time.strftime('%H_%M_%S')
-	today_time = today+hour
-	dest = ('%s/backup/pyarchinit_US_back_up_%s') % (PYARCHINIT_PATH,str(today_time))
-	src = ('%s/pyarchinit_US') % (PYARCHINIT_PATH)
-	shutil.copytree(src, dest)
+    now_day, now_time = date.today(), datetime.now()
+    today, hour = now_day.strftime("_%d_%m_%Y_"), now_time.strftime('%H_%M_%S')
+    today_time = today + hour
+    dest = ('%s/backup/pyarchinit_US_back_up_%s') % (PYARCHINIT_PATH, str(today_time))
+    src = ('%s/pyarchinit_US') % (PYARCHINIT_PATH)
+    shutil.copytree(src, dest)
+
 
 if __name__ == '__main__':
-	main()
-
+    main()

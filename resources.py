@@ -9,7 +9,6 @@
 
 from PyQt4 import QtCore
 
-
 qt_resource_data = "\
 \x00\x00\x12\xc3\
 \x89\
@@ -338,10 +337,13 @@ qt_resource_struct = "\
 \x00\x00\x00\x2e\x00\x00\x00\x00\x00\x01\x00\x00\x00\x00\
 "
 
+
 def qInitResources():
     QtCore.qRegisterResourceData(0x01, qt_resource_struct, qt_resource_name, qt_resource_data)
 
+
 def qCleanupResources():
     QtCore.qUnregisterResourceData(0x01, qt_resource_struct, qt_resource_name, qt_resource_data)
+
 
 qInitResources()

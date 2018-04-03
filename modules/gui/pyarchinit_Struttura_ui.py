@@ -8,13 +8,12 @@
 # WARNING! All changes made in this file will be lost!
 
 from PyQt4 import QtCore, QtGui
-import resources_rc
-
 
 try:
     _fromUtf8 = QtCore.QString.fromUtf8
 except AttributeError:
     _fromUtf8 = lambda s: s
+
 
 class Ui_DialogStruttura(object):
     def setupUi(self, DialogStruttura):
@@ -490,7 +489,8 @@ class Ui_DialogStruttura(object):
         self.tableWidget_rapporti.setFrameShadow(QtGui.QFrame.Raised)
         self.tableWidget_rapporti.setVerticalScrollBarPolicy(QtCore.Qt.ScrollBarAsNeeded)
         self.tableWidget_rapporti.setHorizontalScrollBarPolicy(QtCore.Qt.ScrollBarAsNeeded)
-        self.tableWidget_rapporti.setEditTriggers(QtGui.QAbstractItemView.AnyKeyPressed|QtGui.QAbstractItemView.DoubleClicked|QtGui.QAbstractItemView.EditKeyPressed)
+        self.tableWidget_rapporti.setEditTriggers(
+            QtGui.QAbstractItemView.AnyKeyPressed | QtGui.QAbstractItemView.DoubleClicked | QtGui.QAbstractItemView.EditKeyPressed)
         self.tableWidget_rapporti.setRowCount(1)
         self.tableWidget_rapporti.setColumnCount(4)
         self.tableWidget_rapporti.setObjectName(_fromUtf8("tableWidget_rapporti"))
@@ -534,7 +534,8 @@ class Ui_DialogStruttura(object):
         self.tableWidget_materiali_impiegati.setFrameShadow(QtGui.QFrame.Raised)
         self.tableWidget_materiali_impiegati.setVerticalScrollBarPolicy(QtCore.Qt.ScrollBarAlwaysOn)
         self.tableWidget_materiali_impiegati.setHorizontalScrollBarPolicy(QtCore.Qt.ScrollBarAlwaysOff)
-        self.tableWidget_materiali_impiegati.setEditTriggers(QtGui.QAbstractItemView.AnyKeyPressed|QtGui.QAbstractItemView.DoubleClicked|QtGui.QAbstractItemView.EditKeyPressed)
+        self.tableWidget_materiali_impiegati.setEditTriggers(
+            QtGui.QAbstractItemView.AnyKeyPressed | QtGui.QAbstractItemView.DoubleClicked | QtGui.QAbstractItemView.EditKeyPressed)
         self.tableWidget_materiali_impiegati.setRowCount(1)
         self.tableWidget_materiali_impiegati.setColumnCount(1)
         self.tableWidget_materiali_impiegati.setObjectName(_fromUtf8("tableWidget_materiali_impiegati"))
@@ -548,7 +549,8 @@ class Ui_DialogStruttura(object):
         self.tableWidget_elementi_strutturali.setFrameShadow(QtGui.QFrame.Raised)
         self.tableWidget_elementi_strutturali.setVerticalScrollBarPolicy(QtCore.Qt.ScrollBarAlwaysOn)
         self.tableWidget_elementi_strutturali.setHorizontalScrollBarPolicy(QtCore.Qt.ScrollBarAlwaysOff)
-        self.tableWidget_elementi_strutturali.setEditTriggers(QtGui.QAbstractItemView.AnyKeyPressed|QtGui.QAbstractItemView.DoubleClicked|QtGui.QAbstractItemView.EditKeyPressed)
+        self.tableWidget_elementi_strutturali.setEditTriggers(
+            QtGui.QAbstractItemView.AnyKeyPressed | QtGui.QAbstractItemView.DoubleClicked | QtGui.QAbstractItemView.EditKeyPressed)
         self.tableWidget_elementi_strutturali.setRowCount(1)
         self.tableWidget_elementi_strutturali.setColumnCount(2)
         self.tableWidget_elementi_strutturali.setObjectName(_fromUtf8("tableWidget_elementi_strutturali"))
@@ -612,7 +614,8 @@ class Ui_DialogStruttura(object):
         self.tableWidget_misurazioni.setFrameShadow(QtGui.QFrame.Raised)
         self.tableWidget_misurazioni.setVerticalScrollBarPolicy(QtCore.Qt.ScrollBarAlwaysOn)
         self.tableWidget_misurazioni.setHorizontalScrollBarPolicy(QtCore.Qt.ScrollBarAlwaysOff)
-        self.tableWidget_misurazioni.setEditTriggers(QtGui.QAbstractItemView.AnyKeyPressed|QtGui.QAbstractItemView.DoubleClicked|QtGui.QAbstractItemView.EditKeyPressed)
+        self.tableWidget_misurazioni.setEditTriggers(
+            QtGui.QAbstractItemView.AnyKeyPressed | QtGui.QAbstractItemView.DoubleClicked | QtGui.QAbstractItemView.EditKeyPressed)
         self.tableWidget_misurazioni.setRowCount(1)
         self.tableWidget_misurazioni.setColumnCount(3)
         self.tableWidget_misurazioni.setObjectName(_fromUtf8("tableWidget_misurazioni"))
@@ -663,85 +666,173 @@ class Ui_DialogStruttura(object):
         QtCore.QMetaObject.connectSlotsByName(DialogStruttura)
 
     def retranslateUi(self, DialogStruttura):
-        DialogStruttura.setWindowTitle(QtGui.QApplication.translate("DialogStruttura", "pyArchInit Gestione Scavi - Scheda Struttura", None, QtGui.QApplication.UnicodeUTF8))
-        self.label_29.setText(QtGui.QApplication.translate("DialogStruttura", "DBMS Toolbar", None, QtGui.QApplication.UnicodeUTF8))
-        self.pushButton_first_rec.setToolTip(QtGui.QApplication.translate("DialogStruttura", "First rec", None, QtGui.QApplication.UnicodeUTF8))
-        self.pushButton_next_rec.setToolTip(QtGui.QApplication.translate("DialogStruttura", "Next rec", None, QtGui.QApplication.UnicodeUTF8))
-        self.pushButton_last_rec.setToolTip(QtGui.QApplication.translate("DialogStruttura", "Last rec", None, QtGui.QApplication.UnicodeUTF8))
-        self.pushButton_new_rec.setToolTip(QtGui.QApplication.translate("DialogStruttura", "New record", None, QtGui.QApplication.UnicodeUTF8))
-        self.pushButton_save.setToolTip(QtGui.QApplication.translate("DialogStruttura", "Save", None, QtGui.QApplication.UnicodeUTF8))
-        self.pushButton_new_search.setToolTip(QtGui.QApplication.translate("DialogStruttura", "new search", None, QtGui.QApplication.UnicodeUTF8))
-        self.pushButton_search_go.setToolTip(QtGui.QApplication.translate("DialogStruttura", "search !!!", None, QtGui.QApplication.UnicodeUTF8))
-        self.pushButton_sort.setToolTip(QtGui.QApplication.translate("DialogStruttura", "Order by", None, QtGui.QApplication.UnicodeUTF8))
-        self.pushButton_view_all.setToolTip(QtGui.QApplication.translate("DialogStruttura", "View alls records", None, QtGui.QApplication.UnicodeUTF8))
-        self.pushButton_delete.setToolTip(QtGui.QApplication.translate("DialogStruttura", "Delete record", None, QtGui.QApplication.UnicodeUTF8))
-        self.pushButton_prev_rec.setToolTip(QtGui.QApplication.translate("DialogStruttura", "Prev rec", None, QtGui.QApplication.UnicodeUTF8))
-        self.pushButton_connect.setText(QtGui.QApplication.translate("DialogStruttura", "Connection test", None, QtGui.QApplication.UnicodeUTF8))
-        self.label_42.setText(QtGui.QApplication.translate("DialogStruttura", "DB Info", None, QtGui.QApplication.UnicodeUTF8))
-        self.label_43.setText(QtGui.QApplication.translate("DialogStruttura", "Ordinamento", None, QtGui.QApplication.UnicodeUTF8))
-        self.label_34.setText(QtGui.QApplication.translate("DialogStruttura", "Status", None, QtGui.QApplication.UnicodeUTF8))
-        self.label_27.setText(QtGui.QApplication.translate("DialogStruttura", "record n.", None, QtGui.QApplication.UnicodeUTF8))
-        self.label_rec_corrente.setText(QtGui.QApplication.translate("DialogStruttura", "1", None, QtGui.QApplication.UnicodeUTF8))
-        self.label_28.setText(QtGui.QApplication.translate("DialogStruttura", "record tot.", None, QtGui.QApplication.UnicodeUTF8))
-        self.label_rec_tot.setText(QtGui.QApplication.translate("DialogStruttura", "1", None, QtGui.QApplication.UnicodeUTF8))
-        self.label.setText(QtGui.QApplication.translate("DialogStruttura", "Sito ", None, QtGui.QApplication.UnicodeUTF8))
-        self.label_2.setText(QtGui.QApplication.translate("DialogStruttura", "Sigla struttura", None, QtGui.QApplication.UnicodeUTF8))
-        self.label_3.setText(QtGui.QApplication.translate("DialogStruttura", "N°", None, QtGui.QApplication.UnicodeUTF8))
-        self.comboBox_sigla_struttura.setItemText(0, QtGui.QApplication.translate("DialogStruttura", "Aggiungi un valore...", None, QtGui.QApplication.UnicodeUTF8))
-        self.comboBox_sigla_struttura.setItemText(1, QtGui.QApplication.translate("DialogStruttura", "-", None, QtGui.QApplication.UnicodeUTF8))
-        self.label_4.setText(QtGui.QApplication.translate("DialogStruttura", "Categoria", None, QtGui.QApplication.UnicodeUTF8))
-        self.label_5.setText(QtGui.QApplication.translate("DialogStruttura", "Tipologia", None, QtGui.QApplication.UnicodeUTF8))
-        self.label_9.setText(QtGui.QApplication.translate("DialogStruttura", "Definizione", None, QtGui.QApplication.UnicodeUTF8))
-        self.label_13.setText(QtGui.QApplication.translate("DialogStruttura", "Dati descrittivi", None, QtGui.QApplication.UnicodeUTF8))
-        self.textEdit_descrizione_struttura.setHtml(QtGui.QApplication.translate("DialogStruttura", "<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.0//EN\" \"http://www.w3.org/TR/REC-html40/strict.dtd\">\n"
-"<html><head><meta name=\"qrichtext\" content=\"1\" /><style type=\"text/css\">\n"
-"p, li { white-space: pre-wrap; }\n"
-"</style></head><body style=\" font-family:\'MS Shell Dlg 2\'; font-size:10pt; font-weight:400; font-style:normal;\">\n"
-"<p style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\"><span style=\" font-family:\'Lucida Grande\'; font-size:13pt;\"><br /></span></p></body></html>", None, QtGui.QApplication.UnicodeUTF8))
-        self.label_7.setText(QtGui.QApplication.translate("DialogStruttura", "Interpretazione ", None, QtGui.QApplication.UnicodeUTF8))
-        self.label_6.setText(QtGui.QApplication.translate("DialogStruttura", "Descrizione ", None, QtGui.QApplication.UnicodeUTF8))
-        self.tabWidget.setTabText(self.tabWidget.indexOf(self.tab), QtGui.QApplication.translate("DialogStruttura", "Dati descrittivi", None, QtGui.QApplication.UnicodeUTF8))
-        self.label_12.setText(QtGui.QApplication.translate("DialogStruttura", "Periodizzazione ", None, QtGui.QApplication.UnicodeUTF8))
-        self.label_37.setText(QtGui.QApplication.translate("DialogStruttura", "Iniziale ", None, QtGui.QApplication.UnicodeUTF8))
-        self.label_14.setText(QtGui.QApplication.translate("DialogStruttura", "Finale ", None, QtGui.QApplication.UnicodeUTF8))
-        self.label_10.setText(QtGui.QApplication.translate("DialogStruttura", "Periodo ", None, QtGui.QApplication.UnicodeUTF8))
-        self.label_32.setText(QtGui.QApplication.translate("DialogStruttura", "Fase ", None, QtGui.QApplication.UnicodeUTF8))
-        self.label_16.setText(QtGui.QApplication.translate("DialogStruttura", "Fase ", None, QtGui.QApplication.UnicodeUTF8))
-        self.label_24.setText(QtGui.QApplication.translate("DialogStruttura", "Periodo ", None, QtGui.QApplication.UnicodeUTF8))
-        self.label_17.setText(QtGui.QApplication.translate("DialogStruttura", "Datazione estesa", None, QtGui.QApplication.UnicodeUTF8))
-        self.tabWidget.setTabText(self.tabWidget.indexOf(self.tab_2), QtGui.QApplication.translate("DialogStruttura", "Periodizzazione", None, QtGui.QApplication.UnicodeUTF8))
-        self.label_19.setText(QtGui.QApplication.translate("DialogStruttura", "Rapporti struttura", None, QtGui.QApplication.UnicodeUTF8))
-        self.pushButton_insert_row_rapporti.setText(QtGui.QApplication.translate("DialogStruttura", "inserisci riga", None, QtGui.QApplication.UnicodeUTF8))
-        self.pushButton_remove_row_rapporti.setText(QtGui.QApplication.translate("DialogStruttura", "rimuovi riga", None, QtGui.QApplication.UnicodeUTF8))
-        self.tableWidget_rapporti.horizontalHeaderItem(0).setText(QtGui.QApplication.translate("DialogStruttura", "Tipo di rapporto", None, QtGui.QApplication.UnicodeUTF8))
-        self.tableWidget_rapporti.horizontalHeaderItem(1).setText(QtGui.QApplication.translate("DialogStruttura", "Sito", None, QtGui.QApplication.UnicodeUTF8))
-        self.tableWidget_rapporti.horizontalHeaderItem(2).setText(QtGui.QApplication.translate("DialogStruttura", "Sigla", None, QtGui.QApplication.UnicodeUTF8))
-        self.tableWidget_rapporti.horizontalHeaderItem(3).setText(QtGui.QApplication.translate("DialogStruttura", "Numero", None, QtGui.QApplication.UnicodeUTF8))
-        self.tabWidget.setTabText(self.tabWidget.indexOf(self.tab_5), QtGui.QApplication.translate("DialogStruttura", "Rapporti", None, QtGui.QApplication.UnicodeUTF8))
-        self.label_8.setText(QtGui.QApplication.translate("DialogStruttura", "Materiali impiegati", None, QtGui.QApplication.UnicodeUTF8))
-        self.label_11.setText(QtGui.QApplication.translate("DialogStruttura", "Elementi strutturali", None, QtGui.QApplication.UnicodeUTF8))
-        self.tableWidget_materiali_impiegati.horizontalHeaderItem(0).setText(QtGui.QApplication.translate("DialogStruttura", "Materiali", None, QtGui.QApplication.UnicodeUTF8))
-        self.tableWidget_elementi_strutturali.horizontalHeaderItem(0).setText(QtGui.QApplication.translate("DialogStruttura", "Tipologia elemento", None, QtGui.QApplication.UnicodeUTF8))
-        self.tableWidget_elementi_strutturali.horizontalHeaderItem(1).setText(QtGui.QApplication.translate("DialogStruttura", "Quantità", None, QtGui.QApplication.UnicodeUTF8))
-        self.pushButton_insert_row_materiali.setText(QtGui.QApplication.translate("DialogStruttura", "inserisci riga", None, QtGui.QApplication.UnicodeUTF8))
-        self.pushButton_remove_row_materiali.setText(QtGui.QApplication.translate("DialogStruttura", "rimuovi riga", None, QtGui.QApplication.UnicodeUTF8))
-        self.pushButton_insert_row_elementi.setText(QtGui.QApplication.translate("DialogStruttura", "inserisci riga", None, QtGui.QApplication.UnicodeUTF8))
-        self.pushButton_remove_row_elementi.setText(QtGui.QApplication.translate("DialogStruttura", "rimuovi riga", None, QtGui.QApplication.UnicodeUTF8))
-        self.tabWidget.setTabText(self.tabWidget.indexOf(self.tab_3), QtGui.QApplication.translate("DialogStruttura", "Elementi costruttivi", None, QtGui.QApplication.UnicodeUTF8))
-        self.label_15.setText(QtGui.QApplication.translate("DialogStruttura", "Misurazione", None, QtGui.QApplication.UnicodeUTF8))
-        self.pushButton_insert_row_misurazioni.setText(QtGui.QApplication.translate("DialogStruttura", "inserisci riga", None, QtGui.QApplication.UnicodeUTF8))
-        self.pushButton_remove_row_misurazioni.setText(QtGui.QApplication.translate("DialogStruttura", "rimuovi riga", None, QtGui.QApplication.UnicodeUTF8))
-        self.tableWidget_misurazioni.horizontalHeaderItem(0).setText(QtGui.QApplication.translate("DialogStruttura", "Tipo misura", None, QtGui.QApplication.UnicodeUTF8))
-        self.tableWidget_misurazioni.horizontalHeaderItem(1).setText(QtGui.QApplication.translate("DialogStruttura", "Unita\' di misura", None, QtGui.QApplication.UnicodeUTF8))
-        self.tableWidget_misurazioni.horizontalHeaderItem(2).setText(QtGui.QApplication.translate("DialogStruttura", "Valore", None, QtGui.QApplication.UnicodeUTF8))
-        self.tabWidget.setTabText(self.tabWidget.indexOf(self.tab_6), QtGui.QApplication.translate("DialogStruttura", "Misure", None, QtGui.QApplication.UnicodeUTF8))
-        self.pushButton_pdf_exp.setText(QtGui.QApplication.translate("DialogStruttura", "PDF scheda exp", None, QtGui.QApplication.UnicodeUTF8))
-        self.label_18.setToolTip(QtGui.QApplication.translate("DialogStruttura", "Carica tutti i layer per poter inserire nuove geometrie", None, QtGui.QApplication.UnicodeUTF8))
-        self.label_18.setText(QtGui.QApplication.translate("DialogStruttura", "Carica i poligoni di struttura", None, QtGui.QApplication.UnicodeUTF8))
-        self.label_20.setToolTip(QtGui.QApplication.translate("DialogStruttura", "Carica tutti i layer per poter inserire nuove geometrie", None, QtGui.QApplication.UnicodeUTF8))
-        self.label_20.setText(QtGui.QApplication.translate("DialogStruttura", "Gis viewer", None, QtGui.QApplication.UnicodeUTF8))
-        self.pushButton_pdf_index_exp.setText(QtGui.QApplication.translate("DialogStruttura", "PDF indice exp", None, QtGui.QApplication.UnicodeUTF8))
-        self.pushButton_draw_struttura.setText(QtGui.QApplication.translate("DialogStruttura", "Carica", None, QtGui.QApplication.UnicodeUTF8))
-        self.toolButton_draw_strutture.setText(QtGui.QApplication.translate("DialogStruttura", "Abilita il caricamento delle ricerche", None, QtGui.QApplication.UnicodeUTF8))
-        self.tabWidget.setTabText(self.tabWidget.indexOf(self.tab_4), QtGui.QApplication.translate("DialogStruttura", "Tools", None, QtGui.QApplication.UnicodeUTF8))
-
+        DialogStruttura.setWindowTitle(
+            QtGui.QApplication.translate("DialogStruttura", "pyArchInit Gestione Scavi - Scheda Struttura", None,
+                                         QtGui.QApplication.UnicodeUTF8))
+        self.label_29.setText(
+            QtGui.QApplication.translate("DialogStruttura", "DBMS Toolbar", None, QtGui.QApplication.UnicodeUTF8))
+        self.pushButton_first_rec.setToolTip(
+            QtGui.QApplication.translate("DialogStruttura", "First rec", None, QtGui.QApplication.UnicodeUTF8))
+        self.pushButton_next_rec.setToolTip(
+            QtGui.QApplication.translate("DialogStruttura", "Next rec", None, QtGui.QApplication.UnicodeUTF8))
+        self.pushButton_last_rec.setToolTip(
+            QtGui.QApplication.translate("DialogStruttura", "Last rec", None, QtGui.QApplication.UnicodeUTF8))
+        self.pushButton_new_rec.setToolTip(
+            QtGui.QApplication.translate("DialogStruttura", "New record", None, QtGui.QApplication.UnicodeUTF8))
+        self.pushButton_save.setToolTip(
+            QtGui.QApplication.translate("DialogStruttura", "Save", None, QtGui.QApplication.UnicodeUTF8))
+        self.pushButton_new_search.setToolTip(
+            QtGui.QApplication.translate("DialogStruttura", "new search", None, QtGui.QApplication.UnicodeUTF8))
+        self.pushButton_search_go.setToolTip(
+            QtGui.QApplication.translate("DialogStruttura", "search !!!", None, QtGui.QApplication.UnicodeUTF8))
+        self.pushButton_sort.setToolTip(
+            QtGui.QApplication.translate("DialogStruttura", "Order by", None, QtGui.QApplication.UnicodeUTF8))
+        self.pushButton_view_all.setToolTip(
+            QtGui.QApplication.translate("DialogStruttura", "View alls records", None, QtGui.QApplication.UnicodeUTF8))
+        self.pushButton_delete.setToolTip(
+            QtGui.QApplication.translate("DialogStruttura", "Delete record", None, QtGui.QApplication.UnicodeUTF8))
+        self.pushButton_prev_rec.setToolTip(
+            QtGui.QApplication.translate("DialogStruttura", "Prev rec", None, QtGui.QApplication.UnicodeUTF8))
+        self.pushButton_connect.setText(
+            QtGui.QApplication.translate("DialogStruttura", "Connection test", None, QtGui.QApplication.UnicodeUTF8))
+        self.label_42.setText(
+            QtGui.QApplication.translate("DialogStruttura", "DB Info", None, QtGui.QApplication.UnicodeUTF8))
+        self.label_43.setText(
+            QtGui.QApplication.translate("DialogStruttura", "Ordinamento", None, QtGui.QApplication.UnicodeUTF8))
+        self.label_34.setText(
+            QtGui.QApplication.translate("DialogStruttura", "Status", None, QtGui.QApplication.UnicodeUTF8))
+        self.label_27.setText(
+            QtGui.QApplication.translate("DialogStruttura", "record n.", None, QtGui.QApplication.UnicodeUTF8))
+        self.label_rec_corrente.setText(
+            QtGui.QApplication.translate("DialogStruttura", "1", None, QtGui.QApplication.UnicodeUTF8))
+        self.label_28.setText(
+            QtGui.QApplication.translate("DialogStruttura", "record tot.", None, QtGui.QApplication.UnicodeUTF8))
+        self.label_rec_tot.setText(
+            QtGui.QApplication.translate("DialogStruttura", "1", None, QtGui.QApplication.UnicodeUTF8))
+        self.label.setText(
+            QtGui.QApplication.translate("DialogStruttura", "Sito ", None, QtGui.QApplication.UnicodeUTF8))
+        self.label_2.setText(
+            QtGui.QApplication.translate("DialogStruttura", "Sigla struttura", None, QtGui.QApplication.UnicodeUTF8))
+        self.label_3.setText(
+            QtGui.QApplication.translate("DialogStruttura", "N°", None, QtGui.QApplication.UnicodeUTF8))
+        self.comboBox_sigla_struttura.setItemText(0, QtGui.QApplication.translate("DialogStruttura",
+                                                                                  "Aggiungi un valore...", None,
+                                                                                  QtGui.QApplication.UnicodeUTF8))
+        self.comboBox_sigla_struttura.setItemText(1, QtGui.QApplication.translate("DialogStruttura", "-", None,
+                                                                                  QtGui.QApplication.UnicodeUTF8))
+        self.label_4.setText(
+            QtGui.QApplication.translate("DialogStruttura", "Categoria", None, QtGui.QApplication.UnicodeUTF8))
+        self.label_5.setText(
+            QtGui.QApplication.translate("DialogStruttura", "Tipologia", None, QtGui.QApplication.UnicodeUTF8))
+        self.label_9.setText(
+            QtGui.QApplication.translate("DialogStruttura", "Definizione", None, QtGui.QApplication.UnicodeUTF8))
+        self.label_13.setText(
+            QtGui.QApplication.translate("DialogStruttura", "Dati descrittivi", None, QtGui.QApplication.UnicodeUTF8))
+        self.textEdit_descrizione_struttura.setHtml(QtGui.QApplication.translate("DialogStruttura",
+                                                                                 "<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.0//EN\" \"http://www.w3.org/TR/REC-html40/strict.dtd\">\n"
+                                                                                 "<html><head><meta name=\"qrichtext\" content=\"1\" /><style type=\"text/css\">\n"
+                                                                                 "p, li { white-space: pre-wrap; }\n"
+                                                                                 "</style></head><body style=\" font-family:\'MS Shell Dlg 2\'; font-size:10pt; font-weight:400; font-style:normal;\">\n"
+                                                                                 "<p style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\"><span style=\" font-family:\'Lucida Grande\'; font-size:13pt;\"><br /></span></p></body></html>",
+                                                                                 None, QtGui.QApplication.UnicodeUTF8))
+        self.label_7.setText(
+            QtGui.QApplication.translate("DialogStruttura", "Interpretazione ", None, QtGui.QApplication.UnicodeUTF8))
+        self.label_6.setText(
+            QtGui.QApplication.translate("DialogStruttura", "Descrizione ", None, QtGui.QApplication.UnicodeUTF8))
+        self.tabWidget.setTabText(self.tabWidget.indexOf(self.tab),
+                                  QtGui.QApplication.translate("DialogStruttura", "Dati descrittivi", None,
+                                                               QtGui.QApplication.UnicodeUTF8))
+        self.label_12.setText(
+            QtGui.QApplication.translate("DialogStruttura", "Periodizzazione ", None, QtGui.QApplication.UnicodeUTF8))
+        self.label_37.setText(
+            QtGui.QApplication.translate("DialogStruttura", "Iniziale ", None, QtGui.QApplication.UnicodeUTF8))
+        self.label_14.setText(
+            QtGui.QApplication.translate("DialogStruttura", "Finale ", None, QtGui.QApplication.UnicodeUTF8))
+        self.label_10.setText(
+            QtGui.QApplication.translate("DialogStruttura", "Periodo ", None, QtGui.QApplication.UnicodeUTF8))
+        self.label_32.setText(
+            QtGui.QApplication.translate("DialogStruttura", "Fase ", None, QtGui.QApplication.UnicodeUTF8))
+        self.label_16.setText(
+            QtGui.QApplication.translate("DialogStruttura", "Fase ", None, QtGui.QApplication.UnicodeUTF8))
+        self.label_24.setText(
+            QtGui.QApplication.translate("DialogStruttura", "Periodo ", None, QtGui.QApplication.UnicodeUTF8))
+        self.label_17.setText(
+            QtGui.QApplication.translate("DialogStruttura", "Datazione estesa", None, QtGui.QApplication.UnicodeUTF8))
+        self.tabWidget.setTabText(self.tabWidget.indexOf(self.tab_2),
+                                  QtGui.QApplication.translate("DialogStruttura", "Periodizzazione", None,
+                                                               QtGui.QApplication.UnicodeUTF8))
+        self.label_19.setText(
+            QtGui.QApplication.translate("DialogStruttura", "Rapporti struttura", None, QtGui.QApplication.UnicodeUTF8))
+        self.pushButton_insert_row_rapporti.setText(
+            QtGui.QApplication.translate("DialogStruttura", "inserisci riga", None, QtGui.QApplication.UnicodeUTF8))
+        self.pushButton_remove_row_rapporti.setText(
+            QtGui.QApplication.translate("DialogStruttura", "rimuovi riga", None, QtGui.QApplication.UnicodeUTF8))
+        self.tableWidget_rapporti.horizontalHeaderItem(0).setText(
+            QtGui.QApplication.translate("DialogStruttura", "Tipo di rapporto", None, QtGui.QApplication.UnicodeUTF8))
+        self.tableWidget_rapporti.horizontalHeaderItem(1).setText(
+            QtGui.QApplication.translate("DialogStruttura", "Sito", None, QtGui.QApplication.UnicodeUTF8))
+        self.tableWidget_rapporti.horizontalHeaderItem(2).setText(
+            QtGui.QApplication.translate("DialogStruttura", "Sigla", None, QtGui.QApplication.UnicodeUTF8))
+        self.tableWidget_rapporti.horizontalHeaderItem(3).setText(
+            QtGui.QApplication.translate("DialogStruttura", "Numero", None, QtGui.QApplication.UnicodeUTF8))
+        self.tabWidget.setTabText(self.tabWidget.indexOf(self.tab_5),
+                                  QtGui.QApplication.translate("DialogStruttura", "Rapporti", None,
+                                                               QtGui.QApplication.UnicodeUTF8))
+        self.label_8.setText(QtGui.QApplication.translate("DialogStruttura", "Materiali impiegati", None,
+                                                          QtGui.QApplication.UnicodeUTF8))
+        self.label_11.setText(QtGui.QApplication.translate("DialogStruttura", "Elementi strutturali", None,
+                                                           QtGui.QApplication.UnicodeUTF8))
+        self.tableWidget_materiali_impiegati.horizontalHeaderItem(0).setText(
+            QtGui.QApplication.translate("DialogStruttura", "Materiali", None, QtGui.QApplication.UnicodeUTF8))
+        self.tableWidget_elementi_strutturali.horizontalHeaderItem(0).setText(
+            QtGui.QApplication.translate("DialogStruttura", "Tipologia elemento", None, QtGui.QApplication.UnicodeUTF8))
+        self.tableWidget_elementi_strutturali.horizontalHeaderItem(1).setText(
+            QtGui.QApplication.translate("DialogStruttura", "Quantità", None, QtGui.QApplication.UnicodeUTF8))
+        self.pushButton_insert_row_materiali.setText(
+            QtGui.QApplication.translate("DialogStruttura", "inserisci riga", None, QtGui.QApplication.UnicodeUTF8))
+        self.pushButton_remove_row_materiali.setText(
+            QtGui.QApplication.translate("DialogStruttura", "rimuovi riga", None, QtGui.QApplication.UnicodeUTF8))
+        self.pushButton_insert_row_elementi.setText(
+            QtGui.QApplication.translate("DialogStruttura", "inserisci riga", None, QtGui.QApplication.UnicodeUTF8))
+        self.pushButton_remove_row_elementi.setText(
+            QtGui.QApplication.translate("DialogStruttura", "rimuovi riga", None, QtGui.QApplication.UnicodeUTF8))
+        self.tabWidget.setTabText(self.tabWidget.indexOf(self.tab_3),
+                                  QtGui.QApplication.translate("DialogStruttura", "Elementi costruttivi", None,
+                                                               QtGui.QApplication.UnicodeUTF8))
+        self.label_15.setText(
+            QtGui.QApplication.translate("DialogStruttura", "Misurazione", None, QtGui.QApplication.UnicodeUTF8))
+        self.pushButton_insert_row_misurazioni.setText(
+            QtGui.QApplication.translate("DialogStruttura", "inserisci riga", None, QtGui.QApplication.UnicodeUTF8))
+        self.pushButton_remove_row_misurazioni.setText(
+            QtGui.QApplication.translate("DialogStruttura", "rimuovi riga", None, QtGui.QApplication.UnicodeUTF8))
+        self.tableWidget_misurazioni.horizontalHeaderItem(0).setText(
+            QtGui.QApplication.translate("DialogStruttura", "Tipo misura", None, QtGui.QApplication.UnicodeUTF8))
+        self.tableWidget_misurazioni.horizontalHeaderItem(1).setText(
+            QtGui.QApplication.translate("DialogStruttura", "Unita\' di misura", None, QtGui.QApplication.UnicodeUTF8))
+        self.tableWidget_misurazioni.horizontalHeaderItem(2).setText(
+            QtGui.QApplication.translate("DialogStruttura", "Valore", None, QtGui.QApplication.UnicodeUTF8))
+        self.tabWidget.setTabText(self.tabWidget.indexOf(self.tab_6),
+                                  QtGui.QApplication.translate("DialogStruttura", "Misure", None,
+                                                               QtGui.QApplication.UnicodeUTF8))
+        self.pushButton_pdf_exp.setText(
+            QtGui.QApplication.translate("DialogStruttura", "PDF scheda exp", None, QtGui.QApplication.UnicodeUTF8))
+        self.label_18.setToolTip(
+            QtGui.QApplication.translate("DialogStruttura", "Carica tutti i layer per poter inserire nuove geometrie",
+                                         None, QtGui.QApplication.UnicodeUTF8))
+        self.label_18.setText(QtGui.QApplication.translate("DialogStruttura", "Carica i poligoni di struttura", None,
+                                                           QtGui.QApplication.UnicodeUTF8))
+        self.label_20.setToolTip(
+            QtGui.QApplication.translate("DialogStruttura", "Carica tutti i layer per poter inserire nuove geometrie",
+                                         None, QtGui.QApplication.UnicodeUTF8))
+        self.label_20.setText(
+            QtGui.QApplication.translate("DialogStruttura", "Gis viewer", None, QtGui.QApplication.UnicodeUTF8))
+        self.pushButton_pdf_index_exp.setText(
+            QtGui.QApplication.translate("DialogStruttura", "PDF indice exp", None, QtGui.QApplication.UnicodeUTF8))
+        self.pushButton_draw_struttura.setText(
+            QtGui.QApplication.translate("DialogStruttura", "Carica", None, QtGui.QApplication.UnicodeUTF8))
+        self.toolButton_draw_strutture.setText(
+            QtGui.QApplication.translate("DialogStruttura", "Abilita il caricamento delle ricerche", None,
+                                         QtGui.QApplication.UnicodeUTF8))
+        self.tabWidget.setTabText(self.tabWidget.indexOf(self.tab_4),
+                                  QtGui.QApplication.translate("DialogStruttura", "Tools", None,
+                                                               QtGui.QApplication.UnicodeUTF8))

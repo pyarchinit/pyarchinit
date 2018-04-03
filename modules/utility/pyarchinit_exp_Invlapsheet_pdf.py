@@ -1,306 +1,299 @@
 import os
-import copy
-from reportlab.lib.testutils import makeSuiteForClasses, outputfile, printLocation
-from reportlab.lib import colors
-from reportlab.lib.units import inch, cm, mm
-from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
-from reportlab.lib.enums import TA_JUSTIFY, TA_LEFT
-from reportlab.pdfgen import canvas
-from reportlab.platypus import Table, PageBreak, SimpleDocTemplate, Paragraph, Spacer, TableStyle, Image
-from reportlab.platypus.paragraph import Paragraph
-
-from datetime import date, time
+from datetime import date
 
 from pyarchinit_OS_utility import *
+from reportlab.lib import colors
+from reportlab.lib.styles import getSampleStyleSheet
+from reportlab.lib.units import inch, mm
+from reportlab.pdfgen import canvas
+from reportlab.platypus import Table, PageBreak, SimpleDocTemplate, Image
+from reportlab.platypus.paragraph import Paragraph
 
 
 class NumberedCanvas_Invlapsheet(canvas.Canvas):
-	def __init__(self, *args, **kwargs):
-		canvas.Canvas.__init__(self, *args, **kwargs)
-		self._saved_page_states = []
-		
-	def define_position(self, pos):
-		self.page_position(pos)
+    def __init__(self, *args, **kwargs):
+        canvas.Canvas.__init__(self, *args, **kwargs)
+        self._saved_page_states = []
 
-	def showPage(self):
-		self._saved_page_states.append(dict(self.__dict__))
-		self._startPage()
+    def define_position(self, pos):
+        self.page_position(pos)
 
-	def save(self):
-		"""add page info to each page (page x of y)"""
-		num_pages = len(self._saved_page_states)
-		for state in self._saved_page_states:
-			self.__dict__.update(state)
-			self.draw_page_number(num_pages)
-			canvas.Canvas.showPage(self)
-		canvas.Canvas.save(self)
+    def showPage(self):
+        self._saved_page_states.append(dict(self.__dict__))
+        self._startPage()
 
-	def draw_page_number(self, page_count):
-		self.setFont("Helvetica", 8)
-		self.drawRightString(200*mm, 20*mm, "Pag. %d di %d" % (self._pageNumber, page_count)) #scheda us verticale 200mm x 20 mm
+    def save(self):
+        """add page info to each page (page x of y)"""
+        num_pages = len(self._saved_page_states)
+        for state in self._saved_page_states:
+            self.__dict__.update(state)
+            self.draw_page_number(num_pages)
+            canvas.Canvas.showPage(self)
+        canvas.Canvas.save(self)
+
+    def draw_page_number(self, page_count):
+        self.setFont("Helvetica", 8)
+        self.drawRightString(200 * mm, 20 * mm,
+                             "Pag. %d di %d" % (self._pageNumber, page_count))  # scheda us verticale 200mm x 20 mm
 
 
 class single_Invlap_pdf_sheet:
+    def __init__(self, data):
+        self.id_invlap = data[0]
+        self.sito = data[1]
+        self.scheda_numero = data[2]
+        self.collocazione = data[3]
+        self.oggetto = data[4]
+        self.tipologia = data[5]
+        self.materiale = data[6]
+        self.d_letto_posa = data[7]
+        self.d_letto_attesa = data[8]
+        self.toro = data[9]
+        self.spessore = data[10]
+        self.larghezza = data[11]
+        self.lunghezza = data[12]
+        self.h = data[13]
+        self.descrizione = data[14]
+        self.lavorazione_e_stato_di_conservazione = data[15]
+        self.confronti = data[16]
+        self.cronologia = data[17]
+        self.bibliografia = data[18]
+        self.compilatore = data[19]
 
-	def __init__(self, data):
-		self.id_invlap = data[0]
-		self.sito = data[1]
-		self.scheda_numero = data[2]
-		self.collocazione = data[3]
-		self.oggetto = data[4]
-		self.tipologia = data[5]
-		self.materiale = data[6]
-		self.d_letto_posa = data[7]
-		self.d_letto_attesa = data[8]
-		self.toro =  data[9]
-		self.spessore = data[10]
-		self.larghezza = data[11]
-		self.lunghezza = data[12]
-		self.h = data[13]
-		self.descrizione = data[14]
-		self.lavorazione_e_stato_di_conservazione = data[15]
-		self.confronti = data[16]
-		self.cronologia = data[17]
-		self.bibliografia = data[18]
-		self.compilatore = data[19]
+    def datestrfdate(self):
+        now = date.today()
+        today = now.strftime("%d-%m-%Y")
+        return today
 
-	def datestrfdate(self):
-		now = date.today()
-		today = now.strftime("%d-%m-%Y")
-		return today
+    def create_sheet(self):
+        styleSheet = getSampleStyleSheet()
+        styNormal = styleSheet['Normal']
+        styNormal.spaceBefore = 20
+        styNormal.spaceAfter = 20
+        styNormal.alignment = 0  # LEFT
 
-	def create_sheet(self):
-		styleSheet = getSampleStyleSheet()
-		styNormal = styleSheet['Normal']
-		styNormal.spaceBefore = 20
-		styNormal.spaceAfter = 20
-		styNormal.alignment = 0 #LEFT
+        styleSheet = getSampleStyleSheet()
+        styDescrizione = styleSheet['Normal']
+        styDescrizione.spaceBefore = 20
+        styDescrizione.spaceAfter = 20
+        styDescrizione.alignment = 4  # Justified
 
-		styleSheet = getSampleStyleSheet()
-		styDescrizione = styleSheet['Normal']
-		styDescrizione.spaceBefore = 20
-		styDescrizione.spaceAfter = 20
-		styDescrizione.alignment = 4 #Justified
+        # format labels
 
-		#format labels
+        # 0 row
+        intestazione = Paragraph("<b>SCHEDA REPERTI LAPIDEI<br/>" + str(self.datestrfdate()) + "</b>", styNormal)
+        # intestazione2 = Paragraph("<b>pyArchInit</b>", styNormal)
 
-		#0 row
-		intestazione = Paragraph("<b>SCHEDA REPERTI LAPIDEI<br/>" + str(self.datestrfdate()) + "</b>", styNormal)
-		#intestazione2 = Paragraph("<b>pyArchInit</b>", styNormal)
+        if os.name == 'posix':
+            home = os.environ['HOME']
+        elif os.name == 'nt':
+            home = os.environ['HOMEPATH']
 
-		if os.name == 'posix':
-			home = os.environ['HOME']
-		elif os.name == 'nt':
-			home = os.environ['HOMEPATH']
+        home_DB_path = ('%s%s%s') % (home, os.sep, 'pyarchinit_DB_folder')
+        alma_path = ('%s%s%s') % (home_DB_path, os.sep, 'alma.jpg')
+        alma = Image(alma_path)
 
-		home_DB_path = ('%s%s%s') % (home, os.sep, 'pyarchinit_DB_folder')
-		alma_path = ('%s%s%s') % (home_DB_path, os.sep, 'alma.jpg')
-		alma = Image(alma_path)
+        ##		if test_image.drawWidth < 800:
 
-		##		if test_image.drawWidth < 800:
+        alma.drawHeight = 1.5 * inch * alma.drawHeight / alma.drawWidth
+        alma.drawWidth = 1.5 * inch
 
-		alma.drawHeight = 1.5*inch*alma.drawHeight / alma.drawWidth
-		alma.drawWidth = 1.5*inch
+        # 1 row
+        sito = Paragraph("<b>Contesto/Provenienza</b><br/>" + str(self.sito), styNormal)
+        scheda_numero = Paragraph("<b>Scheda Numero</b><br/>" + str(self.scheda_numero), styNormal)
 
-		#1 row
-		sito = Paragraph("<b>Contesto/Provenienza</b><br/>"  + str(self.sito), styNormal)
-		scheda_numero = Paragraph("<b>Scheda Numero</b><br/>"  + str(self.scheda_numero), styNormal)
+        # 2 row
+        collocazione = Paragraph("<b>Collocazione</b><br/>" + str(self.collocazione), styNormal)
 
-		#2 row
-		collocazione = Paragraph("<b>Collocazione</b><br/>"  + str(self.collocazione), styNormal)
+        # 3 row
+        materiale = Paragraph("<b>Materiale</b><br/>" + self.materiale, styNormal)
 
-		#3 row
-		materiale = Paragraph("<b>Materiale</b><br/>"  + self.materiale, styNormal)
+        # 4 row
+        oggetto = Paragraph("<b>Oggetto</b><br/>" + str(self.oggetto), styNormal)
 
-		#4 row
-		oggetto = Paragraph("<b>Oggetto</b><br/>"  + str(self.oggetto), styNormal)
+        # 5 row
+        tipologia = Paragraph("<b>Tipologia</b><br/>" + self.tipologia, styNormal)
 
-		#5 row
-		tipologia= Paragraph("<b>Tipologia</b><br/>"  + self.tipologia, styNormal)
+        # 6 row
+        d_letto_posa = Paragraph("<b>D (letto posa)</b><br/>" + self.d_letto_posa, styNormal)
 
-		#6 row
-		d_letto_posa = Paragraph("<b>D (letto posa)</b><br/>"  + self.d_letto_posa, styNormal)
+        # 7 row
+        d_letto_attesa = Paragraph("<b>D (letto attesa)</b><br/>" + self.d_letto_attesa, styNormal)
 
-		#7 row
-		d_letto_attesa = Paragraph("<b>D (letto attesa)</b><br/>"  + self.d_letto_attesa, styNormal)
+        # 8 row
+        toro = Paragraph("<b>Toro</b><br/>" + self.toro, styNormal)
 
-		#8 row
-		toro = Paragraph("<b>Toro</b><br/>"  + self.toro, styNormal)
+        # 9 row
+        spessore = Paragraph("<b>Spessore</b><br/>" + self.spessore, styNormal)
 
-		#9 row
-		spessore = Paragraph("<b>Spessore</b><br/>"  + self.spessore, styNormal)
+        # 10 row
+        lunghezza = Paragraph("<b>Lunghezza</b><br/>" + self.lunghezza, styNormal)
 
-		#10 row
-		lunghezza = Paragraph("<b>Lunghezza</b><br/>"  + self.lunghezza, styNormal)
+        # 11 row
+        larghezza = Paragraph("<b>Larghezza</b><br/>" + self.larghezza, styNormal)
 
-		#11 row
-		larghezza = Paragraph("<b>Larghezza</b><br/>"  + self.larghezza, styNormal)
+        # 12 row
+        h = Paragraph("<b>h</b><br/>" + self.h, styNormal)
 
-		#12 row
-		h = Paragraph("<b>h</b><br/>"  + self.h, styNormal)
+        # 13row
+        lavorazione_e_stato_di_conservazione = Paragraph(
+            "<b>Lavorazione e stato di conservazione</b><br/>" + self.lavorazione_e_stato_di_conservazione, styNormal)
 
-		#13row
-		lavorazione_e_stato_di_conservazione = Paragraph("<b>Lavorazione e stato di conservazione</b><br/>"  + self.lavorazione_e_stato_di_conservazione, styNormal)
+        # 14 row
+        confronti = Paragraph("<b>Confronti</b><br/>" + self.confronti, styNormal)
 
-		#14 row
-		confronti = Paragraph("<b>Confronti</b><br/>"  + self.confronti, styNormal)
+        # 15 row
+        cronologia = Paragraph("<b>Cronologia</b><br/>" + self.cronologia, styNormal)
 
-		#15 row
-		cronologia = Paragraph("<b>Cronologia</b><br/>"  + self.cronologia, styNormal)
+        # 16 row
+        compilatore = Paragraph("<b>Autore scheda</b><br/>" + self.compilatore, styNormal)
 
-		#16 row
-		compilatore = Paragraph("<b>Autore scheda</b><br/>"  + self.compilatore, styNormal)
+        # 17 row
+        descrizione = ''
+        try:
+            descrizione = Paragraph("<b>Descrizione</b><br/>" + self.descrizione, styDescrizione)
+        except:
+            pass
 
+            # 18 row
+        bibliografia = ''
+        if ast.literal_eval(self.bibliografia) > 0:
+            for i in ast.literal_eval(self.bibliografia):  # gigi
+                if bibliografia == '':
+                    try:
+                        bibliografia += ("<b>Autore: %s, Anno: %s, Titolo: %s, Pag.: %s, Fig.: %s") % (
+                        str(i[0]), str(i[1]), str(i[2]), str(i[3]), str(i[4]))
+                    except:
+                        pass
+                else:
+                    try:
+                        bibliografia += ("<b>Autore: %s, Anno: %s, Titolo: %s, Pag.: %s, Fig.: %s") % (
+                        str(i[0]), str(i[1]), str(i[2]), str(i[3]), str(i[4]))
+                    except:
+                        pass
 
-		#17 row
-		descrizione = ''
-		try:
-			descrizione = Paragraph("<b>Descrizione</b><br/>" + self.descrizione, styDescrizione)
-		except:
-			pass
+        bibliografia = Paragraph("<b>Bibliografia</b><br/>" + bibliografia, styNormal)
 
+        # schema
+        cell_schema = [  # 00, 01, 02, 03, 04, 05, 06, 07, 08, 09 rows
+            [alma, '01', '02', '03', '04', '05', '06', intestazione, '08', '09'],  # 0 row ok
+            [sito, '01', '02', '03', '04', '05', '06', '07', scheda_numero, '09'],  # 1 row ok
+            [collocazione, '01', '02', '03', '04', '05', '06', '07', '08', '09'],  # 2 row ok
+            [materiale, '01', '02', '03', '04', '05', '06', '07', '08', '09'],  # 3 row ok
+            [oggetto, '01', '02', '03', '04', '05', '06', '07', '08', '09'],  # 4 row ok
+            [tipologia, '01', '02', '03', '04', '05', '06', '07', '08', '09'],  # 5 row ok
+            [d_letto_posa, '01', '02', '03', '04', '05', '06', '07', '08', '09'],  # 6 row ok
+            [d_letto_attesa, '01', '02', '03', '04', '05', '06', '07', '08', '09'],  # 7 row ok
+            [toro, '01', '02', '03', '04', '05', '06', '07', '08', '09'],  # 8 row ok
+            [spessore, '02', '03', '04', '05', '06', '07', '08', '09'],  # 9 row ok
+            [larghezza, '01', '02', '03', '04', '05', '06', '07', '08', '09'],  # 10 row ok
+            [lunghezza, '01', '02', '03', '04', '05', '06', '07', '08', '09'],  # 11 row ok
+            [h, '01', '02', '03', '04', '05', '06', '07', '08', '09'],  # 12 row ok
+            [descrizione, '01', '02', '03', '04', '05', '06', '07', '08', '09'],  # 13 row ok
+            [lavorazione_e_stato_di_conservazione, '01', '02', '03', '04', '05', '06', '07', '08', '09'],
+            # 14 row ok
+            [confronti, '01', '02', '03', '04', '05', '06', '07', '08', '09'],  # 15 row ok
+            [cronologia, '01', '02', '03', '04', '05', '06', '07', '08', '09'],  # 16 row ok
+            [bibliografia, '01', '02', '03', '04', '05', '06', '07', '08', '09'],  # 17 row ok
+            [compilatore, '01', '02', '03', '04', '05', '06', '07', '08', '09'],  # 18 row ok
+        ]
 
-		#18 row
-		bibliografia = ''
-		if ast.literal_eval(self.bibliografia) > 0:
-			for i in ast.literal_eval(self.bibliografia): #gigi
-				if bibliografia == '':
-					try:
-						bibliografia += ("<b>Autore: %s, Anno: %s, Titolo: %s, Pag.: %s, Fig.: %s") % (str(i[0]), str(i[1]), str(i[2]), str(i[3]),str(i[4]))
-					except:
-						pass
-				else:
-					try:
-						bibliografia += ("<b>Autore: %s, Anno: %s, Titolo: %s, Pag.: %s, Fig.: %s") % (str(i[0]), str(i[1]), str(i[2]), str(i[3]),str(i[4]))
-					except:
-						pass
+        # table style
+        table_style = [
 
-		bibliografia = Paragraph("<b>Bibliografia</b><br/>"  + bibliografia, styNormal)
+            ('GRID', (0, 0), (-1, -1), 0.5, colors.black),
+            # 0 row
+            ('SPAN', (0, 0), (6, 0)),  # intestazione
+            ('SPAN', (7, 0), (9, 0)),  # logo
 
-		#schema
-		cell_schema =  [ #00, 01, 02, 03, 04, 05, 06, 07, 08, 09 rows
-						[alma, '01', '02', '03', '04','05', '06', intestazione, '08', '09'], #0 row ok
-						[sito, '01', '02', '03', '04', '05','06', '07', scheda_numero, '09'], #1 row ok
-						[collocazione, '01', '02', '03','04', '05','06', '07', '08', '09'], #2 row ok
-						[materiale, '01', '02', '03', '04', '05', '06', '07', '08', '09'], #3 row ok
-						[oggetto, '01', '02', '03', '04', '05', '06', '07', '08', '09'], #4 row ok
-						[tipologia, '01','02', '03', '04', '05','06', '07', '08', '09'], #5 row ok
-						[d_letto_posa, '01', '02', '03', '04', '05', '06', '07', '08', '09'], #6 row ok
-						[d_letto_attesa, '01', '02', '03', '04', '05', '06', '07', '08', '09'], #7 row ok
-						[toro, '01', '02', '03', '04', '05', '06', '07', '08', '09'], #8 row ok
-						[spessore, '02', '03', '04', '05', '06', '07', '08', '09'], #9 row ok
-						[larghezza, '01', '02', '03','04', '05', '06', '07', '08', '09'], #10 row ok
-						[lunghezza, '01', '02', '03', '04', '05', '06', '07', '08', '09'], #11 row ok
-						[h, '01', '02', '03', '04', '05', '06', '07', '08', '09'], #12 row ok
-						[descrizione, '01', '02', '03', '04', '05', '06', '07', '08', '09'], #13 row ok
-						[lavorazione_e_stato_di_conservazione, '01', '02', '03', '04', '05', '06', '07', '08', '09'], #14 row ok
-						[confronti, '01', '02', '03', '04', '05', '06', '07', '08', '09'], #15 row ok
-						[cronologia, '01', '02', '03', '04', '05', '06', '07', '08', '09'], #16 row ok
-						[bibliografia, '01', '02', '03', '04', '05', '06', '07', '08', '09'], #17 row ok
-						[compilatore, '01', '02', '03', '04', '05', '06', '07', '08', '09'], #18 row ok
-						]
+            # 1 row
+            ('SPAN', (0, 1), (7, 1)),  # sito
+            ('SPAN', (8, 1), (9, 1)),  # scheda numero
 
+            # 2 row
+            ('SPAN', (0, 2), (9, 2)),  # collocazione
+            #					('VALIGN',(0,2),(9,2),'TOP'),
 
-		#table style
-		table_style=[
+            # 3 row
+            ('SPAN', (0, 3), (9, 3)),  # materiale
 
-					('GRID',(0,0),(-1,-1),0.5,colors.black),
-					#0 row
-					('SPAN', (0,0),(6,0)),  #intestazione
-					('SPAN', (7,0),(9,0)), #logo
+            # 4 row
+            ('SPAN', (0, 4), (9, 4)),  # oggetto
 
-					#1 row
-					('SPAN', (0,1),(7,1)),  #sito
-					('SPAN', (8,1),(9,1)),  #scheda numero
+            # 5row
+            ('SPAN', (0, 5), (9, 5)),  # tipologia
 
-					#2 row
-					('SPAN', (0,2),(9,2)),  #collocazione
-#					('VALIGN',(0,2),(9,2),'TOP'), 
+            # 6 row
+            ('SPAN', (0, 6), (9, 6)),  # d_letto_posa
 
-					#3 row
-					('SPAN', (0,3),(9,3)),  #materiale
+            # 7 row
+            ('SPAN', (0, 7), (9, 7)),  # d_letto_attesa
 
-					#4 row
-					('SPAN', (0,4),(9,4)), #oggetto
+            # 8 row
+            ('SPAN', (0, 8), (9, 8)),  # toro
 
-					#5row
-					('SPAN', (0,5),(9,5)),  #tipologia
+            # 9 row
+            ('SPAN', (0, 9), (9, 9)),  # spessore
 
-					#6 row
-					('SPAN', (0,6),(9,6)),  #d_letto_posa
+            # 10 row
+            ('SPAN', (0, 10), (9, 10)),  # larghezza
 
-					#7 row
-					('SPAN', (0,7),(9,7)),  #d_letto_attesa
-					
-					#8 row
-					('SPAN', (0,8),(9,8)),  #toro
+            # 11 row
+            ('SPAN', (0, 11), (9, 11)),  # lunghezza
 
-					#9 row
-					('SPAN', (0,9),(9,9)),  #spessore
-					
-					#10 row
-					('SPAN', (0,10),(9,10)),  # larghezza
+            # 12row
+            ('SPAN', (0, 12), (9, 12)),  # h
 
-					#11 row
-					('SPAN', (0,11),(9,11)),  #lunghezza
+            # 13 row
+            ('SPAN', (0, 13), (9, 13)),  # descrizione
 
-					#12row
-					('SPAN', (0,12),(9,12)),  #h
+            # 14 row
+            ('SPAN', (0, 14), (9, 14)),  # lavorazione
 
-					#13 row
-					('SPAN', (0,13),(9,13)),  #descrizione
+            # 15 row
+            ('SPAN', (0, 15), (9, 15)),  # confronti
 
-					#14 row
-					('SPAN', (0,14),(9,14)),  #lavorazione
+            # 16 row
+            ('SPAN', (0, 16), (9, 16)),  # cronologia
 
-					#15 row
-					('SPAN', (0,15),(9,15)),  #confronti
+            # 17 row
+            ('SPAN', (0, 17), (9, 17)),  # bibliografia
 
-					#16 row
-					('SPAN', (0,16),(9,16)),  #cronologia
+            # 18 row
+            ('SPAN', (0, 18), (9, 18)),  # autore scheda
+            ('VALIGN', (0, 0), (-1, -1), 'TOP')
 
-					#17 row
-					('SPAN', (0,17),(9,17)),  #bibliografia
+        ]
 
-					#18 row
-					('SPAN', (0,18),(9,18)),  #autore scheda
-					('VALIGN',(0,0),(-1,-1),'TOP')
+        t = Table(cell_schema, colWidths=50, rowHeights=None, style=table_style)
 
-					]
-
-		t=Table(cell_schema, colWidths=50, rowHeights=None,style= table_style)
-
-		return t
+        return t
 
 
 class generate_reperti_pdf:
+    if os.name == 'posix':
+        HOME = os.environ['HOME']
+    elif os.name == 'nt':
+        HOME = os.environ['HOMEPATH']
 
-	if os.name == 'posix':
-		HOME = os.environ['HOME']
-	elif os.name == 'nt':
-		HOME = os.environ['HOMEPATH']
-	
-	PDF_path = ('%s%s%s') % (HOME, os.sep, "pyarchinit_PDF_folder")
+    PDF_path = ('%s%s%s') % (HOME, os.sep, "pyarchinit_PDF_folder")
 
-	def datestrfdate(self):
-		now = date.today()
-		today = now.strftime("%d-%m-%Y")
-		return today
+    def datestrfdate(self):
+        now = date.today()
+        today = now.strftime("%d-%m-%Y")
+        return today
 
-	def build_Invlap_sheets(self, records):
-		elements = []
-		for i in range(len(records)):
-			single_invlap_sheet = single_Invlap_pdf_sheet(records[i])
-			elements.append(single_invlap_sheet.create_sheet())
-			elements.append(PageBreak())
-		filename = ('%s%s%s') % (self.PDF_path, os.sep, 'scheda_reperti_lapidei.pdf')
-		f = open(filename, "wb")
-		doc = SimpleDocTemplate(f)
-		doc.build(elements, canvasmaker=NumberedCanvas_Invlapsheet)
-		f.close()
-
-
-
+    def build_Invlap_sheets(self, records):
+        elements = []
+        for i in range(len(records)):
+            single_invlap_sheet = single_Invlap_pdf_sheet(records[i])
+            elements.append(single_invlap_sheet.create_sheet())
+            elements.append(PageBreak())
+        filename = ('%s%s%s') % (self.PDF_path, os.sep, 'scheda_reperti_lapidei.pdf')
+        f = open(filename, "wb")
+        doc = SimpleDocTemplate(f)
+        doc.build(elements, canvasmaker=NumberedCanvas_Invlapsheet)
+        f.close()
 
 ##class Box_labels_Finds_pdf_sheet:
 
@@ -718,4 +711,3 @@ class generate_reperti_pdf:
 ##		doc = SimpleDocTemplate(f, pagesize=(29*cm, 21*cm), showBoundary=0.0, topMargin = 20, bottomMargin = 20, leftMargin = 20, rightMargin = 20)
 ##		doc.build(elements)
 ##		f.close()
-

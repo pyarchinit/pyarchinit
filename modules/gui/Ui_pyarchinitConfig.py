@@ -8,8 +8,6 @@
 # WARNING! All changes made in this file will be lost!
 
 from PyQt4 import QtCore, QtGui
-import resources_rc
-
 
 try:
     _fromUtf8 = QtCore.QString.fromUtf8
@@ -19,11 +17,14 @@ except AttributeError:
 
 try:
     _encoding = QtGui.QApplication.UnicodeUTF8
+
+
     def _translate(context, text, disambig):
         return QtGui.QApplication.translate(context, text, disambig, _encoding)
 except AttributeError:
     def _translate(context, text, disambig):
         return QtGui.QApplication.translate(context, text, disambig)
+
 
 class Ui_Dialog_Config(object):
     def setupUi(self, Dialog_Config):
@@ -411,24 +412,34 @@ class Ui_Dialog_Config(object):
         self.comboBox_experimental.setItemText(0, _translate("Dialog_Config", "Si", None))
         self.comboBox_experimental.setItemText(1, _translate("Dialog_Config", "No", None))
         self.label_26.setText(_translate("Dialog_Config", "Experimental", None))
-        self.tabWidget.setTabText(self.tabWidget.indexOf(self.tab), _translate("Dialog_Config", "Parametri di connessione", None))
+        self.tabWidget.setTabText(self.tabWidget.indexOf(self.tab),
+                                  _translate("Dialog_Config", "Parametri di connessione", None))
         self.label_6.setText(_translate("Dialog_Config", "Installa il database", None))
         self.lineEdit_dbname.setText(_translate("Dialog_Config", "pyarchinit", None))
-        self.label_12.setToolTip(_translate("Dialog_Config", "<html><head/><body><p><span style=\" font-size:10pt;\">Puoi inserire un nome differente da quello presente</span></p></body></html>", None))
+        self.label_12.setToolTip(_translate("Dialog_Config",
+                                            "<html><head/><body><p><span style=\" font-size:10pt;\">Puoi inserire un nome differente da quello presente</span></p></body></html>",
+                                            None))
         self.label_12.setText(_translate("Dialog_Config", "inserisci nome db", None))
         self.pushButton_crea_database.setText(_translate("Dialog_Config", "Installa", None))
         self.lineEdit_template_postgis.setText(_translate("Dialog_Config", "template_postgis_20", None))
-        self.label_13.setToolTip(_translate("Dialog_Config", "<html><head/><body><p>qui devi inserire il nome del template che vuoi usare. Ricorda di usare il template specifico a seconda di quale postgis usi</p></body></html>", None))
+        self.label_13.setToolTip(_translate("Dialog_Config",
+                                            "<html><head/><body><p>qui devi inserire il nome del template che vuoi usare. Ricorda di usare il template specifico a seconda di quale postgis usi</p></body></html>",
+                                            None))
         self.label_13.setText(_translate("Dialog_Config", "inserisci nome template", None))
         self.lineEdit_port_db.setText(_translate("Dialog_Config", "5432", None))
-        self.label_15.setToolTip(_translate("Dialog_Config", "<html><head/><body><p><span style=\" font-size:10pt;\">puoi inserire il numero di porta differente</span></p></body></html>", None))
+        self.label_15.setToolTip(_translate("Dialog_Config",
+                                            "<html><head/><body><p><span style=\" font-size:10pt;\">puoi inserire il numero di porta differente</span></p></body></html>",
+                                            None))
         self.label_15.setText(_translate("Dialog_Config", "inserisci numero porta", None))
         self.pushButton_crea_layer.setText(_translate("Dialog_Config", "Installa", None))
         self.label_8.setText(_translate("Dialog_Config", "Installa il db geografico su Postgres per postgis 1.5", None))
-        self.label_14.setText(_translate("Dialog_Config", "<html><head/><body><p align=\"center\"><span style=\" font-size:10pt; font-weight:600;\">OPPURE</span></p></body></html>", None))
+        self.label_14.setText(_translate("Dialog_Config",
+                                         "<html><head/><body><p align=\"center\"><span style=\" font-size:10pt; font-weight:600;\">OPPURE</span></p></body></html>",
+                                         None))
         self.label_9.setText(_translate("Dialog_Config", "Installa il db geografico su Postgres per postgis 2.x", None))
         self.pushButton_crea_layer_2.setText(_translate("Dialog_Config", "Installa", None))
-        self.tabWidget.setTabText(self.tabWidget.indexOf(self.tab_2), _translate("Dialog_Config", "Installazione layers", None))
+        self.tabWidget.setTabText(self.tabWidget.indexOf(self.tab_2),
+                                  _translate("Dialog_Config", "Installazione layers", None))
         self.comboBox_mapper_read.setItemText(0, _translate("Dialog_Config", "US", None))
         self.comboBox_mapper_read.setItemText(1, _translate("Dialog_Config", "UT", None))
         self.comboBox_mapper_read.setItemText(2, _translate("Dialog_Config", "SITE", None))
@@ -466,5 +477,5 @@ class Ui_Dialog_Config(object):
         self.label_57.setText(_translate("Dialog_Config", "Port", None))
         self.comboBox_server_wt.setItemText(0, _translate("Dialog_Config", "postgres", None))
         self.comboBox_server_wt.setItemText(1, _translate("Dialog_Config", "sqlite", None))
-        self.tabWidget.setTabText(self.tabWidget.indexOf(self.tab_3), _translate("Dialog_Config", "Tool di importazione", None))
-
+        self.tabWidget.setTabText(self.tabWidget.indexOf(self.tab_3),
+                                  _translate("Dialog_Config", "Tool di importazione", None))

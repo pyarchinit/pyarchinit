@@ -7,175 +7,177 @@ Created by Pyarchinit on 2010-05-02.
 Copyright (c) 2010 __MyCompanyName__. All rights reserved.
 """
 
-from numpy import *
 import os
-import random
-import sys
 
 import PIL as Image
-from PyQt4 import QtCore, QtGui
+import numpy as np
+import sys
+from PyQt4 import QtGui
+from pyarchinit_conn_strings import *
+from pyarchinit_media_utility import *
+from pyarchinit_utility import *
+
 from modules.db.pyarchinit_conn_strings import Connection
 from modules.db.pyarchinit_db_manager import Pyarchinit_db_management
 from modules.db.pyarchinit_utility import Utility
 from modules.gui.pyarchinit_images_comparision import Ui_DialogImagesComparision
-import numpy as np
-from pyarchinit_conn_strings  import *
-from pyarchinit_media_utility import *
-from pyarchinit_utility import *
-
 
 filepath = os.path.dirname(__file__)
 
 gui_path = ('%s%s') % (filepath, os.path.join(os.sep, 'modules', 'gui'))
 gis_path = ('%s%s') % (filepath, os.path.join(os.sep, 'modules', 'gis'))
-db_path  = ('%s%s') % (filepath, os.path.join(os.sep, 'modules', 'db'))
-utility  = ('%s%s') % (filepath, os.path.join(os.sep, 'modules', 'utility'))
+db_path = ('%s%s') % (filepath, os.path.join(os.sep, 'modules', 'db'))
+utility = ('%s%s') % (filepath, os.path.join(os.sep, 'modules', 'utility'))
 
-sys.path.insert(0,gui_path)
-sys.path.insert(1,gis_path)
-sys.path.insert(2,db_path)
-sys.path.insert(3,utility)
-sys.path.insert(4,filepath)
+sys.path.insert(0, gui_path)
+sys.path.insert(1, gis_path)
+sys.path.insert(2, db_path)
+sys.path.insert(3, utility)
+sys.path.insert(4, filepath)
 
 try:
-	from  pyarchinit_db_manager import *
+    from  pyarchinit_db_manager import *
 except:
-	pass
+    pass
 
 
 class Comparision(QDialog, Ui_DialogImagesComparision):
-	delegateSites = ''
-	DB_MANAGER = ""
-	TABLE_NAME = 'media_table'
-	MAPPER_TABLE_CLASS = "MEDIA"
-	ID_TABLE = "id_media"
-	MAPPER_TABLE_CLASS_mediatoentity = 'MEDIATOENTITY'
-	ID_TABLE_mediatoentity = 'id_mediaToEntity'
-	NOME_SCHEDA = "Scheda Media Manager"
-	
-	TABLE_THUMB_NAME = 'media_thumb_table'
-	MAPPER_TABLE_CLASS_thumb = 'MEDIA_THUMB'
-	ID_TABLE_THUMB = "id_media_thumb"
-	
-	UTILITY = Utility()
-	
-	DATA = ''
-	NUM_DATA_BEGIN = 0
-	NUM_DATA_END = 25
-	
-	PATH = ""
-	FILE = ""
+    delegateSites = ''
+    DB_MANAGER = ""
+    TABLE_NAME = 'media_table'
+    MAPPER_TABLE_CLASS = "MEDIA"
+    ID_TABLE = "id_media"
+    MAPPER_TABLE_CLASS_mediatoentity = 'MEDIATOENTITY'
+    ID_TABLE_mediatoentity = 'id_mediaToEntity'
+    NOME_SCHEDA = "Scheda Media Manager"
 
-	def __init__(self):
-		QtGui.QMainWindow.__init__(self)
-		self.ui= Ui_DialogImagesComparision()
-		QDialog.__init__(self)
-		self.setupUi(self)
-		self.setWindowTitle("pyArchInit - Images Comparision Tools")
-		QMessageBox.warning(self, "Alert", "Sistema sperimentale solo per lo sviluppo" ,  QMessageBox.Ok)
+    TABLE_THUMB_NAME = 'media_thumb_table'
+    MAPPER_TABLE_CLASS_thumb = 'MEDIA_THUMB'
+    ID_TABLE_THUMB = "id_media_thumb"
 
-	def connection(self):
+    UTILITY = Utility()
 
-		from pyarchinit_conn_strings import *
-		conn = Connection()
-		conn_str = conn.conn_str()
-		try:
-			self.DB_MANAGER = Pyarchinit_db_management(conn_str)
-			self.DB_MANAGER.connection()
-		except Exception as e:
-			e = str(e)
-			if e.find("no such table"):
-				QMessageBox.warning(self, "Alert", "La connessione e' fallita <br><br> Tabella non presente. E' NECESSARIO RIAVVIARE QGIS" ,  QMessageBox.Ok)
-			else:
-				QMessageBox.warning(self, "Alert", "Attenzione rilevato bug! Segnalarlo allo sviluppatore<br> Errore: <br>" + str(e) ,  QMessageBox.Ok)
+    DATA = ''
+    NUM_DATA_BEGIN = 0
+    NUM_DATA_END = 25
 
+    PATH = ""
+    FILE = ""
 
-	def on_pushButton_chose_dir_pressed(self):
-		self.PATH = QtGui.QFileDialog.getExistingDirectory(self, "Scegli una directory", "Seleziona una directory:", QtGui.QFileDialog.ShowDirsOnly)
+    def __init__(self):
+        QtGui.QMainWindow.__init__(self)
+        self.ui = Ui_DialogImagesComparision()
+        QDialog.__init__(self)
+        self.setupUi(self)
+        self.setWindowTitle("pyArchInit - Images Comparision Tools")
+        QMessageBox.warning(self, "Alert", "Sistema sperimentale solo per lo sviluppo", QMessageBox.Ok)
 
-	def on_pushButton_chose_file_pressed(self):
-		self.FILE = QtGui.QFileDialog.getOpenFileName(self, 'Open file', '/')
+    def connection(self):
 
-	def on_pushButton_run_pressed(self):
-		file_list = self.generate_files_couples()
-		lista = []
-		lunghezza = len(file_list)
-		calculate_res = None
-		for i in file_list:
-			calculate_res = self.calculate([i[0],i[1]])
-			
-			if calculate_res != None:
-				 tupla_di_ritorno = calculate_res
-				 lista.append(tupla_di_ritorno)
-				 lunghezza -=1
-			calculate_res = None
-		self.plot_chart(lista)
+        from pyarchinit_conn_strings import *
+        conn = Connection()
+        conn_str = conn.conn_str()
+        try:
+            self.DB_MANAGER = Pyarchinit_db_management(conn_str)
+            self.DB_MANAGER.connection()
+        except Exception as e:
+            e = str(e)
+            if e.find("no such table"):
+                QMessageBox.warning(self, "Alert",
+                                    "La connessione e' fallita <br><br> Tabella non presente. E' NECESSARIO RIAVVIARE QGIS",
+                                    QMessageBox.Ok)
+            else:
+                QMessageBox.warning(self, "Alert",
+                                    "Attenzione rilevato bug! Segnalarlo allo sviluppatore<br> Errore: <br>" + str(e),
+                                    QMessageBox.Ok)
 
-	def calculate(self, imgs):
-		try:
-			img1 = Image.open(str(imgs[0]))
-			img2 = Image.open(str(imgs[1]))
+    def on_pushButton_chose_dir_pressed(self):
+        self.PATH = QtGui.QFileDialog.getExistingDirectory(self, "Scegli una directory", "Seleziona una directory:",
+                                                           QtGui.QFileDialog.ShowDirsOnly)
 
+    def on_pushButton_chose_file_pressed(self):
+        self.FILE = QtGui.QFileDialog.getOpenFileName(self, 'Open file', '/')
 
-			if img1.size != img2.size or img1.getbands() != img2.getbands():
-				return -1
+    def on_pushButton_run_pressed(self):
+        file_list = self.generate_files_couples()
+        lista = []
+        lunghezza = len(file_list)
+        calculate_res = None
+        for i in file_list:
+            calculate_res = self.calculate([i[0], i[1]])
 
-			s = 0
-			for band_index, band in enumerate(img1.getbands()):
-				m1 = np.array([p[band_index] for p in img1.getdata()]).reshape(*img1.size)
-				m2 = np.array([p[band_index] for p in img2.getdata()]).reshape(*img2.size)
-				s += np.sum(np.abs(m1-m2))
-			s = s/1000000
+            if calculate_res != None:
+                tupla_di_ritorno = calculate_res
+                lista.append(tupla_di_ritorno)
+                lunghezza -= 1
+            calculate_res = None
+        self.plot_chart(lista)
 
-			(filepath1, filename1) = os.path.split(str(imgs[0]))
-			(filepath2, filename2) = os.path.split(str(imgs[1]))
-			label = filename1 + "-" + filename2
+    def calculate(self, imgs):
+        try:
+            img1 = Image.open(str(imgs[0]))
+            img2 = Image.open(str(imgs[1]))
 
-			return (label, s)
-		except Exception as e:
-			QMessageBox.warning(self, "Messaggio", str(e), QMessageBox.Ok)
+            if img1.size != img2.size or img1.getbands() != img2.getbands():
+                return -1
 
-	def generate_files_couples(self):
-		path = self.PATH
+            s = 0
+            for band_index, band in enumerate(img1.getbands()):
+                m1 = np.array([p[band_index] for p in img1.getdata()]).reshape(*img1.size)
+                m2 = np.array([p[band_index] for p in img2.getdata()]).reshape(*img2.size)
+                s += np.sum(np.abs(m1 - m2))
+            s = s / 1000000
 
-		lista_files = os.listdir(path)
-		lista_files_dup = lista_files
-		
-		lista_con_coppie = []
-		
-		for sing_file in lista_files:
-			path1 = self.FILE
-			path2 = path + os.sep + str(sing_file)
-			lista_con_coppie.append([path1, path2])
-				
-		return lista_con_coppie
+            (filepath1, filename1) = os.path.split(str(imgs[0]))
+            (filepath2, filename2) = os.path.split(str(imgs[1]))
+            label = filename1 + "-" + filename2
 
-	def plot_chart(self, d):
-		self.data_list = d
-		QMessageBox.warning(self, "self.data_list", str(self.data_list) ,  QMessageBox.Ok)
-		try:
-			if type(self.data_list) == list:
-				data_diz = {}
-				for item in self.data_list:
-					data_diz[item[0]] = item[1]
-			x = list(range(len(data_diz)))
-			n_bars = len(data_diz)
-			values = list(data_diz.values())
-			teams = list(data_diz.keys())
-			ind = np.arange(n_bars)
-			self.widget.canvas.ax.clear()
+            return (label, s)
+        except Exception as e:
+            QMessageBox.warning(self, "Messaggio", str(e), QMessageBox.Ok)
 
-			bars = self.widget.canvas.ax.bar(left=x, height=values, width=0.3, align='center', alpha=0.4,picker=5)
-			
-			self.widget.canvas.ax.set_title('Classifica')
-			self.widget.canvas.ax.set_ylabel('Indice di differenza')
-			n = 0
-			for bar in bars:
-				val = int(bar.get_height())
-				x_pos = bar.get_x()+0.2
-				y_pos = 1.5 #bar.get_height() - 1
-				self.widget.canvas.ax.text(x_pos, y_pos, teams[n],zorder=0, ha='center', va='center',size = 'x-small', rotation = 90)
-				n+=1
-		except:
-			QMessageBox.warning(self, "self.data_list", str(self.data_list) ,  QMessageBox.Ok)
-		self.widget.canvas.draw()
+    def generate_files_couples(self):
+        path = self.PATH
+
+        lista_files = os.listdir(path)
+        lista_files_dup = lista_files
+
+        lista_con_coppie = []
+
+        for sing_file in lista_files:
+            path1 = self.FILE
+            path2 = path + os.sep + str(sing_file)
+            lista_con_coppie.append([path1, path2])
+
+        return lista_con_coppie
+
+    def plot_chart(self, d):
+        self.data_list = d
+        QMessageBox.warning(self, "self.data_list", str(self.data_list), QMessageBox.Ok)
+        try:
+            if type(self.data_list) == list:
+                data_diz = {}
+                for item in self.data_list:
+                    data_diz[item[0]] = item[1]
+            x = list(range(len(data_diz)))
+            n_bars = len(data_diz)
+            values = list(data_diz.values())
+            teams = list(data_diz.keys())
+            ind = np.arange(n_bars)
+            self.widget.canvas.ax.clear()
+
+            bars = self.widget.canvas.ax.bar(left=x, height=values, width=0.3, align='center', alpha=0.4, picker=5)
+
+            self.widget.canvas.ax.set_title('Classifica')
+            self.widget.canvas.ax.set_ylabel('Indice di differenza')
+            n = 0
+            for bar in bars:
+                val = int(bar.get_height())
+                x_pos = bar.get_x() + 0.2
+                y_pos = 1.5  # bar.get_height() - 1
+                self.widget.canvas.ax.text(x_pos, y_pos, teams[n], zorder=0, ha='center', va='center', size='x-small',
+                                           rotation=90)
+                n += 1
+        except:
+            QMessageBox.warning(self, "self.data_list", str(self.data_list), QMessageBox.Ok)
+        self.widget.canvas.draw()

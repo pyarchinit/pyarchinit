@@ -19,24 +19,25 @@
  *                                                                         *
  ***************************************************************************/
 """
+
+
 class Error_check:
+    def data_is_empty(self, d):
+        if not bool(d):
+            return 0
+        else:
+            return 1
 
-	def data_is_empty(self, d):
-		if not bool(d):
-			return 0
-		else:
-			return 1
+    def data_is_int(self, d):
+        try:
+            int(d)
+        except:
+            return 0
+        else:
+            return 1
 
-	def data_is_int(self, d):
-		try:
-			int(d)
-		except:
-			return 0
-		else:
-			return 1
-
-	def data_lenght(self, d, l):
-		if len(d) > l:
-			return 0
-		else:
-			return 1
+    def data_lenght(self, d, l):
+        if len(d) > l:
+            return 0
+        else:
+            return 1

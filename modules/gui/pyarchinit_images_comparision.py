@@ -8,13 +8,14 @@
 # WARNING! All changes made in this file will be lost!
 
 from PyQt4 import QtCore, QtGui
-from mplwidget import Mplwidget
 
+from mplwidget import Mplwidget
 
 try:
     _fromUtf8 = QtCore.QString.fromUtf8
 except AttributeError:
     _fromUtf8 = lambda s: s
+
 
 class Ui_DialogImagesComparision(object):
     def setupUi(self, DialogImagesComparision):
@@ -42,7 +43,8 @@ class Ui_DialogImagesComparision(object):
         self.verticalLayout_3.addItem(spacerItem)
         self.buttonBox = QtGui.QDialogButtonBox(DialogImagesComparision)
         self.buttonBox.setOrientation(QtCore.Qt.Horizontal)
-        self.buttonBox.setStandardButtons(QtGui.QDialogButtonBox.Cancel|QtGui.QDialogButtonBox.Help|QtGui.QDialogButtonBox.Ok)
+        self.buttonBox.setStandardButtons(
+            QtGui.QDialogButtonBox.Cancel | QtGui.QDialogButtonBox.Help | QtGui.QDialogButtonBox.Ok)
         self.buttonBox.setObjectName(_fromUtf8("buttonBox"))
         self.verticalLayout_3.addWidget(self.buttonBox)
         self.gridLayout.addLayout(self.verticalLayout_3, 1, 2, 6, 1)
@@ -75,9 +77,15 @@ class Ui_DialogImagesComparision(object):
         QtCore.QMetaObject.connectSlotsByName(DialogImagesComparision)
 
     def retranslateUi(self, DialogImagesComparision):
-        DialogImagesComparision.setWindowTitle(QtGui.QApplication.translate("DialogImagesComparision", "ChartMaker", None, QtGui.QApplication.UnicodeUTF8))
-        self.pushButton_chose_file.setText(QtGui.QApplication.translate("DialogImagesComparision", "Scegli un file", None, QtGui.QApplication.UnicodeUTF8))
-        self.pushButton_chose_dir.setText(QtGui.QApplication.translate("DialogImagesComparision", "Scegli la directory", None, QtGui.QApplication.UnicodeUTF8))
-        self.pushButton_run.setToolTip(QtGui.QApplication.translate("DialogImagesComparision", "Last rec", None, QtGui.QApplication.UnicodeUTF8))
-        self.pushButton_run.setText(QtGui.QApplication.translate("DialogImagesComparision", "Run", None, QtGui.QApplication.UnicodeUTF8))
-
+        DialogImagesComparision.setWindowTitle(
+            QtGui.QApplication.translate("DialogImagesComparision", "ChartMaker", None, QtGui.QApplication.UnicodeUTF8))
+        self.pushButton_chose_file.setText(
+            QtGui.QApplication.translate("DialogImagesComparision", "Scegli un file", None,
+                                         QtGui.QApplication.UnicodeUTF8))
+        self.pushButton_chose_dir.setText(
+            QtGui.QApplication.translate("DialogImagesComparision", "Scegli la directory", None,
+                                         QtGui.QApplication.UnicodeUTF8))
+        self.pushButton_run.setToolTip(
+            QtGui.QApplication.translate("DialogImagesComparision", "Last rec", None, QtGui.QApplication.UnicodeUTF8))
+        self.pushButton_run.setText(
+            QtGui.QApplication.translate("DialogImagesComparision", "Run", None, QtGui.QApplication.UnicodeUTF8))

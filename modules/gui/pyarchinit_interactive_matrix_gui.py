@@ -8,13 +8,14 @@
 # WARNING! All changes made in this file will be lost!
 
 from PyQt4 import QtCore, QtGui
-from mplwidgetmatrix import MplwidgetMatrix
 
+from mplwidgetmatrix import MplwidgetMatrix
 
 try:
     _fromUtf8 = QtCore.QString.fromUtf8
 except AttributeError:
     _fromUtf8 = lambda s: s
+
 
 class Ui_DialogInteractiveMatrix(object):
     def setupUi(self, DialogInteractiveMatrix):
@@ -35,5 +36,6 @@ class Ui_DialogInteractiveMatrix(object):
         QtCore.QMetaObject.connectSlotsByName(DialogInteractiveMatrix)
 
     def retranslateUi(self, DialogInteractiveMatrix):
-        DialogInteractiveMatrix.setWindowTitle(QtGui.QApplication.translate("DialogInteractiveMatrix", "pyArchInit Gestione Scavi - Sistema Matrix Interattivo", None, QtGui.QApplication.UnicodeUTF8))
-
+        DialogInteractiveMatrix.setWindowTitle(QtGui.QApplication.translate("DialogInteractiveMatrix",
+                                                                            "pyArchInit Gestione Scavi - Sistema Matrix Interattivo",
+                                                                            None, QtGui.QApplication.UnicodeUTF8))

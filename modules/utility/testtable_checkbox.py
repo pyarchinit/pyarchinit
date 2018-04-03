@@ -1,5 +1,6 @@
 from PyQt4 import QtGui, QtCore
 
+
 class Window(QtGui.QWidget):
     def __init__(self, rows, columns):
         QtGui.QWidget.__init__(self)
@@ -25,9 +26,10 @@ class Window(QtGui.QWidget):
         else:
             print(('"%s" Clicked' % item.text()))
 
-if __name__ == '__main__':
 
+if __name__ == '__main__':
     import sys
+
     app = QtGui.QApplication(sys.argv)
     window = Window(6, 3)
     window.resize(350, 300)

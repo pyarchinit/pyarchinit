@@ -18,7 +18,7 @@ class Ui_DialogViewer(object):
         self.gridLayout.setObjectName("gridLayout")
         self.buttonBox = QtGui.QDialogButtonBox(DialogView)
         self.buttonBox.setOrientation(QtCore.Qt.Horizontal)
-        self.buttonBox.setStandardButtons(QtGui.QDialogButtonBox.Cancel|QtGui.QDialogButtonBox.Ok)
+        self.buttonBox.setStandardButtons(QtGui.QDialogButtonBox.Cancel | QtGui.QDialogButtonBox.Ok)
         self.buttonBox.setObjectName("buttonBox")
         self.gridLayout.addWidget(self.buttonBox, 1, 0, 1, 1)
         self.scrollArea = QtGui.QScrollArea(DialogView)
@@ -41,5 +41,5 @@ class Ui_DialogViewer(object):
         QtCore.QMetaObject.connectSlotsByName(DialogView)
 
     def retranslateUi(self, DialogView):
-        DialogView.setWindowTitle(QtGui.QApplication.translate("DialogView", "Dialog", None, QtGui.QApplication.UnicodeUTF8))
-
+        DialogView.setWindowTitle(
+            QtGui.QApplication.translate("DialogView", "Dialog", None, QtGui.QApplication.UnicodeUTF8))

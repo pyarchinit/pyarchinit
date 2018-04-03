@@ -23,38 +23,38 @@
 import os
 import shutil
 
+
 class Pyarchinit_OS_Utility:
+    def create_dir(self, d):
+        dirname = d
 
-	def create_dir(self, d):
-		dirname = d
+        try:
+            os.makedirs(dirname)
+            return 1
+        except OSError:
+            if os.path.exists(dirname):
+                # We are nearly safe
+                return 0  # la cartella esiste
+            else:
+                # There was an error on creation, so make sure we know about it
+                raise
 
-		try:
-			os.makedirs(dirname)
-			return 1
-		except OSError:
-			if os.path.exists(dirname):
-				# We are nearly safe
-				return 0 #la cartella esiste
-			else:
-				# There was an error on creation, so make sure we know about it
-				raise
+    def copy_file_img(self, f, d):
+        file_path = f
+        destination = d
+        shutil.copy(file_path, destination)
 
-	def copy_file_img(self, f, d):
-		file_path = f
-		destination = d
-		shutil.copy(file_path, destination)
-
-	def copy_file(self, f, d):
-		file_path = f
-		destination = d
-		if os.access(destination, 0):
-			return 0 #la cartella esiste
-		else:
-			try:
-				shutil.copy(file_path, destination)
-				return 1
-			except OSError:
-				if os.path.exists(destination):
-					return 0
-				else:
-					raise
+    def copy_file(self, f, d):
+        file_path = f
+        destination = d
+        if os.access(destination, 0):
+            return 0  # la cartella esiste
+        else:
+            try:
+                shutil.copy(file_path, destination)
+                return 1
+            except OSError:
+                if os.path.exists(destination):
+                    return 0
+                else:
+                    raise

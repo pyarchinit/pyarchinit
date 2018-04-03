@@ -8,8 +8,6 @@
 # WARNING! All changes made in this file will be lost!
 
 from PyQt4 import QtCore, QtGui
-import resources_rc
-
 
 try:
     _fromUtf8 = QtCore.QString.fromUtf8
@@ -19,11 +17,14 @@ except AttributeError:
 
 try:
     _encoding = QtGui.QApplication.UnicodeUTF8
+
+
     def _translate(context, text, disambig):
         return QtGui.QApplication.translate(context, text, disambig, _encoding)
 except AttributeError:
     def _translate(context, text, disambig):
         return QtGui.QApplication.translate(context, text, disambig)
+
 
 class Ui_DialogUS(object):
     def setupUi(self, DialogUS):
@@ -913,7 +914,8 @@ class Ui_DialogUS(object):
         self.tableWidget_inclusi_materiali_usm.setFrameShadow(QtGui.QFrame.Raised)
         self.tableWidget_inclusi_materiali_usm.setVerticalScrollBarPolicy(QtCore.Qt.ScrollBarAsNeeded)
         self.tableWidget_inclusi_materiali_usm.setHorizontalScrollBarPolicy(QtCore.Qt.ScrollBarAsNeeded)
-        self.tableWidget_inclusi_materiali_usm.setEditTriggers(QtGui.QAbstractItemView.AnyKeyPressed|QtGui.QAbstractItemView.DoubleClicked|QtGui.QAbstractItemView.EditKeyPressed)
+        self.tableWidget_inclusi_materiali_usm.setEditTriggers(
+            QtGui.QAbstractItemView.AnyKeyPressed | QtGui.QAbstractItemView.DoubleClicked | QtGui.QAbstractItemView.EditKeyPressed)
         self.tableWidget_inclusi_materiali_usm.setSelectionMode(QtGui.QAbstractItemView.SingleSelection)
         self.tableWidget_inclusi_materiali_usm.setSelectionBehavior(QtGui.QAbstractItemView.SelectRows)
         self.tableWidget_inclusi_materiali_usm.setRowCount(1)
@@ -1102,7 +1104,8 @@ class Ui_DialogUS(object):
         self.tableWidget_rapporti.setFrameShadow(QtGui.QFrame.Raised)
         self.tableWidget_rapporti.setVerticalScrollBarPolicy(QtCore.Qt.ScrollBarAsNeeded)
         self.tableWidget_rapporti.setHorizontalScrollBarPolicy(QtCore.Qt.ScrollBarAsNeeded)
-        self.tableWidget_rapporti.setEditTriggers(QtGui.QAbstractItemView.AnyKeyPressed|QtGui.QAbstractItemView.DoubleClicked|QtGui.QAbstractItemView.EditKeyPressed)
+        self.tableWidget_rapporti.setEditTriggers(
+            QtGui.QAbstractItemView.AnyKeyPressed | QtGui.QAbstractItemView.DoubleClicked | QtGui.QAbstractItemView.EditKeyPressed)
         self.tableWidget_rapporti.setSelectionMode(QtGui.QAbstractItemView.SingleSelection)
         self.tableWidget_rapporti.setSelectionBehavior(QtGui.QAbstractItemView.SelectRows)
         self.tableWidget_rapporti.setRowCount(1)
@@ -1139,7 +1142,8 @@ class Ui_DialogUS(object):
         self.tableWidget_inclusi.setFrameShadow(QtGui.QFrame.Raised)
         self.tableWidget_inclusi.setVerticalScrollBarPolicy(QtCore.Qt.ScrollBarAsNeeded)
         self.tableWidget_inclusi.setHorizontalScrollBarPolicy(QtCore.Qt.ScrollBarAsNeeded)
-        self.tableWidget_inclusi.setEditTriggers(QtGui.QAbstractItemView.AnyKeyPressed|QtGui.QAbstractItemView.DoubleClicked|QtGui.QAbstractItemView.EditKeyPressed)
+        self.tableWidget_inclusi.setEditTriggers(
+            QtGui.QAbstractItemView.AnyKeyPressed | QtGui.QAbstractItemView.DoubleClicked | QtGui.QAbstractItemView.EditKeyPressed)
         self.tableWidget_inclusi.setSelectionMode(QtGui.QAbstractItemView.SingleSelection)
         self.tableWidget_inclusi.setSelectionBehavior(QtGui.QAbstractItemView.SelectRows)
         self.tableWidget_inclusi.setRowCount(1)
@@ -1153,7 +1157,8 @@ class Ui_DialogUS(object):
         self.tableWidget_campioni.setFrameShadow(QtGui.QFrame.Raised)
         self.tableWidget_campioni.setVerticalScrollBarPolicy(QtCore.Qt.ScrollBarAlwaysOn)
         self.tableWidget_campioni.setHorizontalScrollBarPolicy(QtCore.Qt.ScrollBarAlwaysOff)
-        self.tableWidget_campioni.setEditTriggers(QtGui.QAbstractItemView.AnyKeyPressed|QtGui.QAbstractItemView.DoubleClicked|QtGui.QAbstractItemView.EditKeyPressed)
+        self.tableWidget_campioni.setEditTriggers(
+            QtGui.QAbstractItemView.AnyKeyPressed | QtGui.QAbstractItemView.DoubleClicked | QtGui.QAbstractItemView.EditKeyPressed)
         self.tableWidget_campioni.setSelectionMode(QtGui.QAbstractItemView.SingleSelection)
         self.tableWidget_campioni.setSelectionBehavior(QtGui.QAbstractItemView.SelectRows)
         self.tableWidget_campioni.setRowCount(1)
@@ -1322,7 +1327,8 @@ class Ui_DialogUS(object):
         self.tableWidget_documentazione.setFrameShadow(QtGui.QFrame.Raised)
         self.tableWidget_documentazione.setVerticalScrollBarPolicy(QtCore.Qt.ScrollBarAsNeeded)
         self.tableWidget_documentazione.setHorizontalScrollBarPolicy(QtCore.Qt.ScrollBarAsNeeded)
-        self.tableWidget_documentazione.setEditTriggers(QtGui.QAbstractItemView.AnyKeyPressed|QtGui.QAbstractItemView.DoubleClicked|QtGui.QAbstractItemView.EditKeyPressed)
+        self.tableWidget_documentazione.setEditTriggers(
+            QtGui.QAbstractItemView.AnyKeyPressed | QtGui.QAbstractItemView.DoubleClicked | QtGui.QAbstractItemView.EditKeyPressed)
         self.tableWidget_documentazione.setSelectionMode(QtGui.QAbstractItemView.SingleSelection)
         self.tableWidget_documentazione.setSelectionBehavior(QtGui.QAbstractItemView.SelectRows)
         self.tableWidget_documentazione.setRowCount(1)
@@ -1349,7 +1355,7 @@ class Ui_DialogUS(object):
         self.dockWidget = QtGui.QDockWidget(self.tab_4)
         self.dockWidget.setFloating(False)
         self.dockWidget.setFeatures(QtGui.QDockWidget.AllDockWidgetFeatures)
-        self.dockWidget.setAllowedAreas(QtCore.Qt.LeftDockWidgetArea|QtCore.Qt.RightDockWidgetArea)
+        self.dockWidget.setAllowedAreas(QtCore.Qt.LeftDockWidgetArea | QtCore.Qt.RightDockWidgetArea)
         self.dockWidget.setObjectName(_fromUtf8("dockWidget"))
         self.dockWidgetContents = QtGui.QWidget()
         self.dockWidgetContents.setObjectName(_fromUtf8("dockWidgetContents"))
@@ -1705,11 +1711,13 @@ class Ui_DialogUS(object):
         self.label_4.setText(_translate("DialogUS", "Definizione stratigrafica", None))
         self.label_5.setText(_translate("DialogUS", "Definizione Interpretata", None))
         self.label_13.setText(_translate("DialogUS", "Dati descrittivi", None))
-        self.textEdit_descrizione.setHtml(_translate("DialogUS", "<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.0//EN\" \"http://www.w3.org/TR/REC-html40/strict.dtd\">\n"
-"<html><head><meta name=\"qrichtext\" content=\"1\" /><style type=\"text/css\">\n"
-"p, li { white-space: pre-wrap; }\n"
-"</style></head><body style=\" font-family:\'MS Shell Dlg 2\'; font-size:10pt; font-weight:400; font-style:normal;\">\n"
-"<p style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\"><span style=\" font-family:\'Lucida Grande\'; font-size:13pt;\"><br /></span></p></body></html>", None))
+        self.textEdit_descrizione.setHtml(_translate("DialogUS",
+                                                     "<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.0//EN\" \"http://www.w3.org/TR/REC-html40/strict.dtd\">\n"
+                                                     "<html><head><meta name=\"qrichtext\" content=\"1\" /><style type=\"text/css\">\n"
+                                                     "p, li { white-space: pre-wrap; }\n"
+                                                     "</style></head><body style=\" font-family:\'MS Shell Dlg 2\'; font-size:10pt; font-weight:400; font-style:normal;\">\n"
+                                                     "<p style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\"><span style=\" font-family:\'Lucida Grande\'; font-size:13pt;\"><br /></span></p></body></html>",
+                                                     None))
         self.label_6.setText(_translate("DialogUS", "Descrizione ", None))
         self.label_7.setText(_translate("DialogUS", "Interpretazione ", None))
         self.label_60.setText(_translate("DialogUS", "Elementi datanti", None))
@@ -1783,7 +1791,8 @@ class Ui_DialogUS(object):
         item = self.tableWidget_rapporti.horizontalHeaderItem(1)
         item.setText(_translate("DialogUS", "US", None))
         self.pushButton_go_to_us.setText(_translate("DialogUS", "Vai all\'US", None))
-        self.tabWidget.setTabText(self.tabWidget.indexOf(self.tab_2), _translate("DialogUS", "Periodizzazione - Rapporti Stratigrafici", None))
+        self.tabWidget.setTabText(self.tabWidget.indexOf(self.tab_2),
+                                  _translate("DialogUS", "Periodizzazione - Rapporti Stratigrafici", None))
         self.comboBox_formazione.setItemText(0, _translate("DialogUS", "Antropico", None))
         self.comboBox_formazione.setItemText(1, _translate("DialogUS", "Naturale", None))
         item = self.tableWidget_inclusi.horizontalHeaderItem(0)
@@ -1821,7 +1830,8 @@ class Ui_DialogUS(object):
         self.label_25.setText(_translate("DialogUS", "Data schedatura", None))
         self.comboBox_schedatore.setItemText(0, _translate("DialogUS", "Luca Mandolesi", None))
         self.label_35.setText(_translate("DialogUS", "Schedatore", None))
-        self.tabWidget.setTabText(self.tabWidget.indexOf(self.tab_3), _translate("DialogUS", "Dati Fisici - Dati Schedatore", None))
+        self.tabWidget.setTabText(self.tabWidget.indexOf(self.tab_3),
+                                  _translate("DialogUS", "Dati Fisici - Dati Schedatore", None))
         self.pushButton_insert_row_documentazione.setText(_translate("DialogUS", "inserisci riga", None))
         self.pushButton_remove_row_documentazione.setText(_translate("DialogUS", "rimuovi riga", None))
         item = self.tableWidget_documentazione.horizontalHeaderItem(0)
@@ -1872,7 +1882,8 @@ class Ui_DialogUS(object):
         self.toolButtonPreviewMedia.setText(_translate("DialogUS", "Mostra immagini", None))
         self.pushButton_showLayer.setToolTip(_translate("DialogUS", "Show Selcted Features", None))
         self.pushButton_showLayer.setText(_translate("DialogUS", "Disegna US", None))
-        self.toolBox.setItemText(self.toolBox.indexOf(self.page_2), _translate("DialogUS", "Funzioni di controllo", None))
+        self.toolBox.setItemText(self.toolBox.indexOf(self.page_2),
+                                 _translate("DialogUS", "Funzioni di controllo", None))
         self.pushButton_exp_index_us.setText(_translate("DialogUS", "Elenco US", None))
         self.label_41.setText(_translate("DialogUS", "Esportazioni PDF/PNG", None))
         self.pushButton_pdf_exp.setToolTip(_translate("DialogUS", "Export PDF", None))
@@ -1880,4 +1891,3 @@ class Ui_DialogUS(object):
         self.pushButton_exp_tavole.setText(_translate("DialogUS", "Espotazione Tavole", None))
         self.toolBox.setItemText(self.toolBox.indexOf(self.page_3), _translate("DialogUS", "Esportazioni", None))
         self.tabWidget.setTabText(self.tabWidget.indexOf(self.tab_4), _translate("DialogUS", "Tools", None))
-
