@@ -20,13 +20,15 @@
  ***************************************************************************/
 """
 #from PyQt4 import QtCore, QtGui
-import os
 import platform
 import subprocess
+import os
 
 from PyQt4.QtCore import *
 from PyQt4.QtGui import *
 from modules.db.pyarchinit_OS_Utility import Pyarchinit_OS_Utility
+from modules.db.pyarchinit_conn_strings import Connection
+from modules.db.pyarchinit_db_manager import Pyarchinit_db_management
 from modules.db.pyarchinit_exp_Findssheet_pdf import *
 from modules.db.pyarchinit_exp_Individui_pdf import *
 from modules.db.pyarchinit_exp_Periodizzazionesheet_pdf import *
@@ -34,9 +36,6 @@ from modules.db.pyarchinit_exp_Strutturasheet_pdf import *
 from modules.db.pyarchinit_exp_Tafonomiasheet_pdf import *
 from modules.db.pyarchinit_exp_USsheet_pdf import *
 from modules.db.pyarchinit_pdf_exp_ui import *
-
-from modules.db.pyarchinit_conn_strings import Connection
-from modules.db.pyarchinit_db_manager import Pyarchinit_db_management
 from modules.db.pyarchinit_utility import *
 from modules.gui.pyarchinit_pdf_exp_ui import Ui_Dialog_pdf_exp
 from modules.utility.pyarchinit_exp_Findssheet_pdf import generate_reperti_pdf
@@ -130,11 +129,11 @@ class pyarchinit_pdf_export(QDialog, Ui_Dialog_pdf_exp):
 		sito = str(self.comboBox_sito.currentText())
 
 		####Esportazione della Scheda e indice US
-    if self.checkBox_US.isChecked():
+		if self.checkBox_US.isChecked() == True:
 
 			us_res = self.db_search_DB('US','sito', sito)
 
-    if bool(us_res):
+			if bool(us_res) == True:
 				id_list = []
 				for i in range(len(us_res)):
 					id_list.append(us_res[i].id_us)
@@ -154,11 +153,11 @@ class pyarchinit_pdf_export(QDialog, Ui_Dialog_pdf_exp):
 			self.DATA_LIST = []
 
 		####Esportazione della Scheda e indice Periodizzazione
-    if self.checkBox_periodo.isChecked():
+		if self.checkBox_periodo.isChecked() == True:
 			
 			periodizzazione_res = self.db_search_DB('PERIODIZZAZIONE','sito', sito)
 
-    if bool(periodizzazione_res):
+			if bool(periodizzazione_res) == True:
 				id_list = []
 				for i in range(len(periodizzazione_res)):
 					id_list.append(periodizzazione_res[i].id_perfas)
@@ -176,10 +175,10 @@ class pyarchinit_pdf_export(QDialog, Ui_Dialog_pdf_exp):
 			self.DATA_LIST = []
 
 		####Esportazione della Scheda e indice Struttura
-    if self.checkBox_struttura.isChecked():
+		if self.checkBox_struttura.isChecked() == True:
 			struttura_res = self.db_search_DB('STRUTTURA','sito', sito)
 
-    if bool(struttura_res):
+			if bool(struttura_res) == True:
 				id_list = []
 				for i in range(len(struttura_res)):
 					id_list.append(struttura_res[i].id_struttura)
@@ -196,10 +195,10 @@ class pyarchinit_pdf_export(QDialog, Ui_Dialog_pdf_exp):
 
 			self.DATA_LIST = []
 
-    if self.checkBox_reperti.isChecked():
+		if self.checkBox_reperti.isChecked() == True:
 			reperti_res = self.db_search_DB('INVENTARIO_MATERIALI','sito', sito)
 
-    if bool(reperti_res):
+			if bool(reperti_res) == True:
 				id_list = []
 				for i in range(len(reperti_res)):
 					id_list.append(reperti_res[i].id_invmat)
@@ -216,10 +215,10 @@ class pyarchinit_pdf_export(QDialog, Ui_Dialog_pdf_exp):
 
 			self.DATA_LIST = []
 
-    if self.checkBox_tafonomia.isChecked():
+		if self.checkBox_tafonomia.isChecked() == True:
 			tafonomia_res = self.db_search_DB('TAFONOMIA','sito', sito)
 
-    if bool(tafonomia_res):
+			if bool(tafonomia_res) == True:
 				id_list = []
 				for i in range(len(tafonomia_res)):
 					id_list.append(tafonomia_res[i].id_tafonomia)
@@ -292,7 +291,7 @@ class pyarchinit_pdf_export(QDialog, Ui_Dialog_pdf_exp):
 				quote.append(sing_quota)
 			quote.sort()
 
-    if bool(quote):
+			if bool(quote) == True:
 				quota_min = '%s %s' % (quote[0][0], quote[0][1])
 				quota_max = '%s %s' % (quote[-1][0], quote[-1][1])
 			else:
@@ -305,8 +304,7 @@ class pyarchinit_pdf_export(QDialog, Ui_Dialog_pdf_exp):
 			for us in resus:
 				elenco_record.append(us)
 
-
-if bool(elenco_record):
+			if bool(elenco_record) == True:
 				sing_rec = elenco_record[0]
 				elenco_piante = sing_rec[7]
 				if elenco_piante != None:
@@ -407,17 +405,15 @@ if bool(elenco_record):
 
 			res_strutt = self.DB_MANAGER.query_bool({"sito": "'" + str(sito) + "'", "struttura":"'"+str(sigla_struttura)+"'"}, "US")
 			us_strutt_list = []
-
-
-if bool(res_strutt):
+			if bool(res_strutt) == True:
 				for rs in res_strutt:
 					us_strutt_list.append([str(rs.sito), str(rs.area), str(rs.area)])
 
 			quote_strutt = []
-if bool(us_strutt_list):
+			if bool(us_strutt_list) == True:
 				for sing_us in us_strutt_list:
 					res_quote_strutt = self.DB_MANAGER.select_quote_from_db_sql(sing_us[0], sing_us[1], sing_us[2])
-if bool(res_quote_strutt):
+					if bool(res_quote_strutt) == True:
 						for sing_us in res_quote_strutt:
 							sing_quota_value = str(sing_us[5])
 							if sing_quota_value[0] == '-':
@@ -429,7 +425,7 @@ if bool(res_quote_strutt):
 							quote_strutt.append(sing_quota)
 						quote_strutt.sort()
 
-if bool(quote_strutt):
+			if bool(quote_strutt) == True:
 				quota_min_strutt = '%s %s' % (quote_strutt[0][0], quote_strutt[0][1])
 				quota_max_strutt = '%s %s' % (quote_strutt[-1][0], quote_strutt[-1][1])
 			else:
@@ -517,14 +513,12 @@ if bool(quote_strutt):
 			res_ind = self.DB_MANAGER.query_bool({"sito": "'" + str(sito) + "'", "nr_individuo" : "'" + str(nr_individuo) + "'"}, "SCHEDAIND")
 			#res = db.query_distinct('INVENTARIO_MATERIALI',[['sito','"Sito archeologico"']], ['area', 'us'])
 			us_ind_list = []
-
-
-if bool(res_ind):
+			if bool(res_ind) == True:
 				for ri in res_ind:
 					us_ind_list.append([str(ri.sito), str(ri.area), str(ri.us)])
 
 			quote_ind = []
-if bool(us_ind_list):
+			if bool(us_ind_list) == True:
 				res_quote_ind = self.DB_MANAGER.select_quote_from_db_sql(us_ind_list[0][0], us_ind_list[0][1], us_ind_list[0][2])
 
 				for sing_us in res_quote_ind:
@@ -538,7 +532,7 @@ if bool(us_ind_list):
 					quote_ind.append(sing_quota)
 				quote_ind.sort()
 
-if bool(quote_ind):
+			if bool(quote_ind) == True:
 				quota_min_ind = '%s %s' % (quote_ind[0][0], quote_ind[0][1])
 				quota_max_ind = '%s %s' % (quote_ind[-1][0], quote_ind[-1][1])
 			else:
@@ -550,15 +544,15 @@ if bool(quote_ind):
 			res_strutt = self.DB_MANAGER.query_bool({"sito": "'" + str(sito) + "'", "struttura":"'"+str(sigla_struttura)+"'"}, "US")
 			#res = db.query_distinct('INVENTARIO_MATERIALI',[['sito','"Sito archeologico"']], ['area', 'us'])
 			us_strutt_list = []
-if bool(res_strutt):
+			if bool(res_strutt) == True:
 				for rs in res_strutt:
 					us_strutt_list.append([str(rs.sito), str(rs.area), str(rs.area)])
 
 			quote_strutt = []
-if bool(us_strutt_list):
+			if bool(us_strutt_list) == True:
 				for sing_us in us_strutt_list:
 					res_quote_strutt = self.DB_MANAGER.select_quote_from_db_sql(sing_us[0], sing_us[1], sing_us[2])
-if bool(res_quote_strutt):
+					if bool(res_quote_strutt) == True:
 						for sing_us in res_quote_strutt:
 							sing_quota_value = str(sing_us[5])
 							if sing_quota_value[0] == '-':
@@ -570,7 +564,7 @@ if bool(res_quote_strutt):
 							quote_strutt.append(sing_quota)
 						quote_strutt.sort()
 
-if bool(quote_strutt):
+			if bool(quote_strutt) == True:
 				quota_min_strutt = '%s %s' % (quote_strutt[0][0], quote_strutt[0][1])
 				quota_max_strutt = '%s %s' % (quote_strutt[-1][0], quote_strutt[-1][1])
 			else:

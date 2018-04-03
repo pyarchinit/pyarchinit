@@ -10,9 +10,9 @@
 
 [general]
 name=pyArchInit
-qgisMinimumVersion=3.0
+qgisMinimumVersion=2.0
 description=pyarchinit archaeological tools: added logo system for PDF- tocheck
-version=0.3.0
+version=0.2.0
 author=Luca Mandolesi
 email=pyarchinit@gmail.com
 

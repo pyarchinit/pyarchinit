@@ -104,7 +104,7 @@ class Order_layers_non_funzia:
 			elif i[0] == num_us:
 				self.TUPLE_TO_REMOVING.append(i)
 		#se alla fine dell'iterazione check e' rimasto 0, significa che quell'US e' in cima ai rapporti stratigrafici e si passa all'assegnazione di un nuovo livello stratigrafico nel dizionario
-		if bool(self.TUPLE_TO_REMOVING):
+		if bool(self.TUPLE_TO_REMOVING) == True:
 			#viene eseguita la funzione di aggiunta valori al dizionario passandogli il numero di US
 			self.add_key_value_to_diz(num_us)
 			#vengono rimosse tutte le tuple in cui e' presente l'us assegnata al dizionario e la lista di tuple viene svuotata
@@ -218,7 +218,7 @@ class Order_layers_funzia:
 			elif i[0] == num_us:
 				self.TUPLE_TO_REMOVING.append(i)
 		#se alla fine dell'iterazione check e' rimasto 0, significa che quell'US e' in cima ai rapporti stratigrafici e si passa all'assegnazione di un nuovo livello stratigrafico nel dizionario
-		if bool(self.TUPLE_TO_REMOVING):
+		if bool(self.TUPLE_TO_REMOVING) == True:
 			#viene eseguita la funzione di aggiunta valori al dizionario passandogli il numero di US
 			self.add_key_value_to_diz(num_us)
 			#vengono rimosse tutte le tuple in cui e' presente l'us assegnata al dizionario e la lista di tuple viene svuotata

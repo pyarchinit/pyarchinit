@@ -2,17 +2,22 @@
 # -*- coding: utf-8 -*-
 
 import os
-from datetime import date
+import copy
+from reportlab.lib.testutils import makeSuiteForClasses, outputfile, printLocation
+from reportlab.lib import colors
+from reportlab.lib.units import inch, cm, mm
+from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
+from reportlab.lib.enums import TA_JUSTIFY
+from reportlab.pdfgen import canvas
+from reportlab.platypus import Table, PageBreak, SimpleDocTemplate, Paragraph, Spacer, TableStyle, Image
+from reportlab.platypus.paragraph import Paragraph
+
+from datetime import date, time
 
 from pyarchinit_OS_utility import *
 from pyarchinit_utility import Utility
-from reportlab.lib import colors
-from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
-from reportlab.lib.units import inch, cm, mm
-from reportlab.pdfgen import canvas
-from reportlab.platypus import Table, PageBreak, SimpleDocTemplate, TableStyle, Image
-from reportlab.platypus.paragraph import Paragraph
 
+from decimal import *
 
 class NumberedCanvas_TAFONOMIAsheet(canvas.Canvas):
 	def __init__(self, *args, **kwargs):
@@ -255,7 +260,7 @@ class Tafonomia_index_II_pdf_sheet:
 			orientamento_azimut_conv = self.PU.conversione_numeri(self.orientamento_azimut)
 			orientamento_azimut = Paragraph("<b>Azimut</b><br/>"  + orientamento_azimut_conv + "°", styNormal)
 
-    if bool(self.us_ind_list):
+		if bool(self.us_ind_list) == True:
 			us_ind_temp = ""
 			for us_ind in self.us_ind_list:
 				if us_ind_temp == '':
@@ -267,7 +272,8 @@ class Tafonomia_index_II_pdf_sheet:
 		else:
 			self.us_ind_print = Paragraph("<b>US Ind.<br/>(Area/US)</b><br/>",styNormal)
 
-    if bool(self.us_str_list):
+
+		if bool(self.us_str_list) == True:
 			us_str_temp = ""
 			for us_str in self.us_str_list:
 				if us_str_temp == '':

@@ -19,9 +19,7 @@
  ***************************************************************************/
 """
 import os
-
 import sys
-from pyarchinit_folder_installation import *
 
 from dbmanagment import pyarchinit_dbmanagment
 from modules.gui import pyarchinit_Archeozoology
@@ -43,11 +41,13 @@ from pyarchinit_Tafonomia_mainapp import pyarchinit_Tafonomia
 from pyarchinit_Thesaurus_mainapp import pyarchinit_Thesaurus
 from pyarchinit_US_mainapp import pyarchinit_US
 from pyarchinit_UT_mainapp import pyarchinit_UT
+from pyarchinit_folder_installation import *
 from pyarchinit_image_viewer_main import Main
 from pyarchinit_images_comparision_main import Comparision
 from pyarchinit_images_directory_export_mainapp import pyarchinit_Images_directory_export
 from pyarchinit_pdf_export_mainapp import pyarchinit_pdf_export
 from pyarchinitplugindialog import PyarchinitPluginDialog
+
 
 filepath = os.path.dirname(__file__)
 
@@ -94,9 +94,7 @@ class PyArchInitPlugin:
 	conf = open(path_rel, "r")
 	data = conf.read()
 	PARAMS_DICT = ast.literal_eval(data)
-
-
-if not ('EXPERIMENTAL' in PARAMS_DICT):
+	if ('EXPERIMENTAL' in PARAMS_DICT) == False:
 		PARAMS_DICT['EXPERIMENTAL'] = 'No'
 		f = open(path_rel, "w")
 		f.write(str(PARAMS_DICT))

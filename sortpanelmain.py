@@ -21,7 +21,6 @@
 """
 from PyQt4.QtCore import *
 from PyQt4.QtGui import *
-
 from modules.gui.sort_panel_ui import Ui_sortPanel
 
 
@@ -36,13 +35,13 @@ class SortPanelMain(QDialog, Ui_sortPanel):
 		self.ITEMS = []
 		for index in range(self.FieldListsort.count()):
 			self.ITEMS.append(self.FieldListsort.item(index).text())
-
-    if self.radioButtonAsc.isChecked():
+		
+		if self.radioButtonAsc.isChecked() == True:
 			self.TYPE_ORDER = "asc"
 		else:
 			self.TYPE_ORDER = "desc"
-
-    if not bool(self.ITEMS):
+	
+		if bool(self.ITEMS) == False:
 			ttl = QString("Non è stato impostata alcun criterio. Vuoi uscire?")
 			msg = QMessageBox.warning(self,'ATTENZIONE',ttl, QMessageBox.Cancel,1)
 			if msg == 1:
