@@ -21,9 +21,8 @@
 """
 
 from datetime import date
-import sys, os
+import sys
 
-from PyQt4 import QtCore, QtGui
 from modules.db.pyarchinit_conn_strings import Connection
 from modules.db.pyarchinit_db_manager import Pyarchinit_db_management
 from modules.db.pyarchinit_utility import Utility
@@ -31,7 +30,6 @@ from modules.gis.pyarchinit_pyqgis import Pyarchinit_pyqgis
 from modules.gui.pyarchinit_documentazione_ui import Ui_DialogDocumentazione_tipo_doc
 from modules.utility.pyarchinit_error_check import Error_check
 from modules.utility.pyarchinit_exp_Documentazionesheet_pdf import generate_documentazione_pdf
-from psycopg2 import *
 from pyarchinit_US_mainapp import pyarchinit_US
 from  pyarchinit_db_manager import *
 from pyarchinit_documentazione_preview_mainapp import pyarchinit_doc_preview
@@ -172,7 +170,7 @@ class pyarchinit_Documentazione(QDialog, Ui_DialogDocumentazione_tipo_doc):
 			self.DB_MANAGER.connection()
 			self.charge_records() #charge records from DB
 			#check if DB is empty
-			if bool(self.DATA_LIST) == True:
+			if bool(self.DATA_LIST):
 				self.REC_TOT, self.REC_CORR = len(self.DATA_LIST), 0
 				self.DATA_LIST_REC_TEMP = self.DATA_LIST_REC_CORR = self.DATA_LIST[0]
 				self.BROWSE_STATUS = 'b'
@@ -226,12 +224,12 @@ class pyarchinit_Documentazione(QDialog, Ui_DialogDocumentazione_tipo_doc):
 			elenco_us_doc = []
 			elenco_usneg_doc = []
 
-			if bool(res_us_doc) == True:
+			if bool(res_us_doc):
 				for sing_rec in res_us_doc:
 					tup_area_us = (int(sing_rec[1]),int(sing_rec[3]))
 					elenco_us_doc.append(tup_area_us)
 
-			if bool(res_usneg_doc) == True:
+			if bool(res_usneg_doc):
 				for sing_rec in res_usneg_doc:
 					tup_area_usneg = (int(sing_rec[2]),int(sing_rec[3]))
 					elenco_usneg_doc.append(tup_area_usneg)
@@ -240,7 +238,7 @@ class pyarchinit_Documentazione(QDialog, Ui_DialogDocumentazione_tipo_doc):
 
 			string_to_pdf = ""
 
-			if bool(elenco_us_pdf) == True:
+			if bool(elenco_us_pdf):
 
 				elenco_us_pdf.sort()
 
@@ -352,12 +350,12 @@ class pyarchinit_Documentazione(QDialog, Ui_DialogDocumentazione_tipo_doc):
 			self.fill_fields()
 
 	def on_pushButton_new_rec_pressed(self):
-		if bool(self.DATA_LIST) == True:
+		if bool(self.DATA_LIST):
 			if self.data_error_check() == 1:
 				pass
 			else:
 				if self.BROWSE_STATUS == "b":
-					if bool(self.DATA_LIST) == True:
+					if bool(self.DATA_LIST):
 						if self.records_equal_check() == 1:
 							msg = self.update_if(QMessageBox.warning(self,'Errore',"Il record e' stato modificato. Vuoi salvare le modifiche?", QMessageBox.Cancel,1))
 
@@ -567,7 +565,7 @@ class pyarchinit_Documentazione(QDialog, Ui_DialogDocumentazione_tipo_doc):
 				QMessageBox.warning(self,"Messaggio!!!","Record eliminato!")
 			except Exception as e:
 				QMessageBox.warning(self,"Messaggio!!!","Tipo di errore: "+str(e))
-			if bool(self.DATA_LIST) == False:
+			if not bool(self.DATA_LIST):
 				QMessageBox.warning(self, "Attenzione", "Il database è vuoto!",  QMessageBox.Ok)
 				self.DATA_LIST = []
 				self.DATA_LIST_REC_CORR = []
@@ -577,7 +575,7 @@ class pyarchinit_Documentazione(QDialog, Ui_DialogDocumentazione_tipo_doc):
 				self.empty_fields()
 				self.set_rec_counter(0, 0)
 			#check if DB is empty
-			if bool(self.DATA_LIST) == True:
+			if bool(self.DATA_LIST):
 				self.REC_TOT, self.REC_CORR = len(self.DATA_LIST), 0
 				self.DATA_LIST_REC_TEMP = self.DATA_LIST_REC_CORR = self.DATA_LIST[0]
 
@@ -632,11 +630,11 @@ class pyarchinit_Documentazione(QDialog, Ui_DialogDocumentazione_tipo_doc):
 			u = Utility()
 			search_dict = u.remove_empty_items_fr_dict(search_dict)
 
-			if bool(search_dict) == False:
+			if not bool(search_dict):
 				QMessageBox.warning(self, "ATTENZIONE", "Non e' stata impostata alcuna ricerca!!!",  QMessageBox.Ok)
 			else:
 				res = self.DB_MANAGER.query_bool(search_dict, self.MAPPER_TABLE_CLASS)
-				if bool(res) == False:
+				if not bool(res):
 					QMessageBox.warning(self, "ATTENZIONE", "Non e' stato trovato alcun record!",  QMessageBox.Ok)
 
 					self.set_rec_counter(len(self.DATA_LIST), self.REC_CORR+1)
@@ -743,7 +741,7 @@ class pyarchinit_Documentazione(QDialog, Ui_DialogDocumentazione_tipo_doc):
 			sub_list = []
 			for c in range(col):
 				value = ast.literal_eval(self.tablename+".item(r,c)")
-				if bool(value) == True:
+				if bool(value):
 					sub_list.append(str(value.text()))
 			lista.append(sub_list)
 		return lista

@@ -19,7 +19,6 @@
  *                                                                         *
  ***************************************************************************/
 """
-from PyQt4 import QtCore, QtGui
 from modules.gui.quant_panel_ui import Ui_quantPanel
 from sortpanelmain import SortPanelMain
 
@@ -36,12 +35,12 @@ class QuantPanelMain(QDialog, Ui_quantPanel):
 		for index in range(self.FieldListsort.count()):
 			self.ITEMS.append(str(self.FieldListsort.item(index).text()))
 		
-		if self.radioButtonFormeMin.isChecked() == True:
+		if self.radioButtonFormeMin.isChecked():
 			self.TYPE_QUANT = "Forme minime"
-		elif self.radioButtonFrammenti.isChecked() == True:
+		elif self.radioButtonFrammenti.isChecked():
 			self.TYPE_QUANT = "Frammenti"
 	
-		if bool(self.ITEMS) == False:
+		if not bool(self.ITEMS):
 			ttl = QString("Non e' stato impostata alcun criterio. Vuoi uscire?")
 			msg = QMessageBox.warning(self,'ATTENZIONE',ttl, QMessageBox.Cancel,1)
 			if msg == 1:

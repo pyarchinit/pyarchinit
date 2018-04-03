@@ -21,7 +21,6 @@
 """
 from datetime import date
 
-from PyQt4 import QtCore, QtGui
 from delegateComboBox import *
 from modules.db.pyarchinit_conn_strings import Connection
 from modules.db.pyarchinit_db_manager import Pyarchinit_db_management
@@ -278,7 +277,7 @@ class pyarchinit_Tafonomia(QDialog, Ui_Dialog_tafonomia):
 			self.DB_MANAGER.connection()
 			self.charge_records() #charge records from DB
 			#check if DB is empty
-			if bool(self.DATA_LIST) == True:
+			if bool(self.DATA_LIST):
 				self.REC_TOT, self.REC_CORR = len(self.DATA_LIST), 0
 				self.DATA_LIST_REC_TEMP = self.DATA_LIST_REC_CORR = self.DATA_LIST[0]
 				self.BROWSE_STATUS = 'b'
@@ -632,37 +631,37 @@ class pyarchinit_Tafonomia(QDialog, Ui_Dialog_tafonomia):
 			self.fill_fields()
 
 	def on_toolButtonGis_toggled(self):
-		if self.toolButtonGis.isChecked() == True:
+		if self.toolButtonGis.isChecked():
 			QMessageBox.warning(self, "Messaggio", "Modalita' GIS attiva. Da ora le tue ricerche verranno visualizzate sul GIS", QMessageBox.Ok)
 		else:
 			QMessageBox.warning(self, "Messaggio", "Modalita' GIS disattivata. Da ora le tue ricerche non verranno piu' visualizzate sul GIS", QMessageBox.Ok)
 
 	def on_toolButtonPreview_toggled(self):
-		if self.toolButtonPreview.isChecked() == True:
+		if self.toolButtonPreview.isChecked():
 			QMessageBox.warning(self, "Messaggio", "Modalita' Preview US attivata. Le piante delle US saranno visualizzate nella sezione Piante", QMessageBox.Ok)
 			self.loadMapPreview()
 		else:
 			self.loadMapPreview(1)
 
 	def on_toolButtonPreviewMedia_toggled(self):
-		if self.toolButtonPreviewMedia.isChecked() == True:
+		if self.toolButtonPreviewMedia.isChecked():
 			QMessageBox.warning(self, "Messaggio", "Modalita' Preview Media US attivata. Le immagini delle US saranno visualizzate nella sezione Media", QMessageBox.Ok)
 			self.loadMediaPreview()
 		else:
 			self.loadMediaPreview(1)
 
 	def on_pushButton_addRaster_pressed(self):
-		if self.toolButtonGis.isChecked() == True:
+		if self.toolButtonGis.isChecked():
 			self.pyQGIS.addRasterLayer()
 
 	def on_pushButton_new_rec_pressed(self):
 		#set the GUI for a new record
-		if bool(self.DATA_LIST) == True:
+		if bool(self.DATA_LIST):
 			if self.data_error_check() == 1:
 				pass
 			else:
 				if self.BROWSE_STATUS == "b":
-					if bool(self.DATA_LIST) == True:
+					if bool(self.DATA_LIST):
 						if self.records_equal_check() == 1:
 							msg = self.update_if(QMessageBox.warning(self,'Errore',"Il record e' stato modificato. Vuoi salvare le modifiche?", QMessageBox.Cancel,1))
 
@@ -950,7 +949,7 @@ class pyarchinit_Tafonomia(QDialog, Ui_Dialog_tafonomia):
 				self.charge_list()
 			except:
 					QMessageBox.warning(self, "Attenzione", "Il database e' vuoto!",  QMessageBox.Ok)
-			if bool(self.DATA_LIST) == False:
+			if not bool(self.DATA_LIST):
 				self.DATA_LIST = []
 				self.DATA_LIST_REC_CORR = []
 				self.DATA_LIST_REC_TEMP = []
@@ -959,7 +958,7 @@ class pyarchinit_Tafonomia(QDialog, Ui_Dialog_tafonomia):
 				self.empty_fields()
 				self.set_rec_counter(0, 0)
 			#check if DB is empty
-			if bool(self.DATA_LIST) == True:
+			if bool(self.DATA_LIST):
 				self.REC_TOT, self.REC_CORR = len(self.DATA_LIST), 0
 				self.DATA_LIST_REC_TEMP = self.DATA_LIST_REC_CORR = self.DATA_LIST[0]
 
@@ -1108,11 +1107,11 @@ class pyarchinit_Tafonomia(QDialog, Ui_Dialog_tafonomia):
 			u = Utility()
 			search_dict = u.remove_empty_items_fr_dict(search_dict)
 
-			if bool(search_dict) == False:
+			if not bool(search_dict):
 				QMessageBox.warning(self, "ATTENZIONE", "Non e' stata impostata alcuna ricerca!!!",  QMessageBox.Ok)
 			else:
 				res = self.DB_MANAGER.query_bool(search_dict, self.MAPPER_TABLE_CLASS)
-				if bool(res) == False:
+				if not bool(res):
 					QMessageBox.warning(self, "ATTENZIONE", "Non e' stato trovato alcun record!",  QMessageBox.Ok)
 
 					self.set_rec_counter(len(self.DATA_LIST), self.REC_CORR+1)
@@ -1147,11 +1146,11 @@ class pyarchinit_Tafonomia(QDialog, Ui_Dialog_tafonomia):
 
 					if self.REC_TOT == 1:
 						strings = ("E' stato trovato", self.REC_TOT, "record")
-						if self.toolButtonGis.isChecked() == True:
+						if self.toolButtonGis.isChecked():
 							self.pyQGIS.charge_vector_layers(self.DATA_LIST)
 					else:
 						strings = ("Sono stati trovati", self.REC_TOT, "records")
-						if self.toolButtonGis.isChecked() == True:
+						if self.toolButtonGis.isChecked():
 							self.pyQGIS.charge_vector_layers(self.DATA_LIST)
 
 					self.setComboBoxEditable(["self.comboBox_sito"],1)
@@ -1188,7 +1187,7 @@ class pyarchinit_Tafonomia(QDialog, Ui_Dialog_tafonomia):
 			res_ind = self.DB_MANAGER.query_bool({"sito":"'" + sito + "'","nr_individuo": nr_individuo_find},"SCHEDAIND")
 
 			us_ind_list = []
-			if bool(res_ind) == True:
+			if bool(res_ind):
 				for ri in res_ind:
 					us_ind_list.append([str(ri.sito), str(ri.area), str(ri.us)])
 				us_ind_list.sort()
@@ -1196,7 +1195,7 @@ class pyarchinit_Tafonomia(QDialog, Ui_Dialog_tafonomia):
 			#self.testing('C:\Users\Luca\pyarchinit_Test_folder\lista_strutture.txt', str(res_ind))
 
 			quote_ind = []
-			if bool(us_ind_list) == True:
+			if bool(us_ind_list):
 				res_quote_ind = self.DB_MANAGER.select_quote_from_db_sql(us_ind_list[0][0], us_ind_list[0][1], us_ind_list[0][2])
 
 				for sing_us in res_quote_ind:
@@ -1210,7 +1209,7 @@ class pyarchinit_Tafonomia(QDialog, Ui_Dialog_tafonomia):
 					quote_ind.append(sing_quota)
 				quote_ind.sort()
 
-			if bool(quote_ind) == True:
+			if bool(quote_ind):
 				quota_min_ind = '%s %s' % (quote_ind[0][0], quote_ind[0][1])
 				quota_max_ind = '%s %s' % (quote_ind[-1][0], quote_ind[-1][1])
 			else:
@@ -1222,16 +1221,16 @@ class pyarchinit_Tafonomia(QDialog, Ui_Dialog_tafonomia):
 			res_strutt = self.DB_MANAGER.query_bool({"sito": "'" + str(sito) + "'", "struttura":"'"+str(sigla_struttura)+"'"}, "US")
 			#res = db.query_distinct('INVENTARIO_MATERIALI',[['sito','"Sito archeologico"']], ['area', 'us'])
 			us_strutt_list = []
-			if bool(res_strutt) == True:
+			if bool(res_strutt):
 				for rs in res_strutt:
 					us_strutt_list.append([str(rs.sito), str(rs.area), str(rs.us)])
 				us_strutt_list.sort()
 
 			quote_strutt = []
-			if bool(us_strutt_list) == True:
+			if bool(us_strutt_list):
 				for sing_us in us_strutt_list:
 					res_quote_strutt = self.DB_MANAGER.select_quote_from_db_sql(sing_us[0], sing_us[1], sing_us[2])
-					if bool(res_quote_strutt) == True:
+					if bool(res_quote_strutt):
 						for sing_us in res_quote_strutt:
 							sing_quota_value = str(sing_us[5])
 							if sing_quota_value[0] == '-':
@@ -1243,7 +1242,7 @@ class pyarchinit_Tafonomia(QDialog, Ui_Dialog_tafonomia):
 							quote_strutt.append(sing_quota)
 						quote_strutt.sort()
 
-			if bool(quote_strutt) == True:
+			if bool(quote_strutt):
 				quota_min_strutt = '%s %s' % (quote_strutt[0][0], quote_strutt[0][1])
 				quota_max_strutt = '%s %s' % (quote_strutt[-1][0], quote_strutt[-1][1])
 			else:
@@ -1373,7 +1372,7 @@ class pyarchinit_Tafonomia(QDialog, Ui_Dialog_tafonomia):
 				if value != None:
 					sub_list.append(str(value.text()))
 					
-			if bool(sub_list) == True:
+			if bool(sub_list):
 				lista.append(sub_list)
 		return lista
 
@@ -1470,7 +1469,7 @@ class pyarchinit_Tafonomia(QDialog, Ui_Dialog_tafonomia):
 
 	def fill_fields(self, n=0):
 		self.rec_num = n
-		if bool(self.DATA_LIST) == True:
+		if bool(self.DATA_LIST):
 			try:
 
 				self.comboBox_sito.setEditText(str(self.DATA_LIST[self.rec_num].sito))															#1 - Sito
@@ -1535,9 +1534,9 @@ class pyarchinit_Tafonomia(QDialog, Ui_Dialog_tafonomia):
 
 
 				#gestione tool
-				if self.toolButtonPreview.isChecked() == True:
+				if self.toolButtonPreview.isChecked():
 					self.loadMapPreview()
-				if self.toolButtonPreviewMedia.isChecked() == True:
+				if self.toolButtonPreviewMedia.isChecked():
 					self.loadMediaPreview()
 			except Exception as e:
 				QMessageBox.warning(self, "Errore fill", str(e),  QMessageBox.Ok)

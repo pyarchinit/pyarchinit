@@ -20,8 +20,6 @@
  ***************************************************************************/
 """
 from msilib import Table
-
-import sqlalchemy
 from sqlalchemy.engine import create_engine
 from sqlalchemy.sql.schema import MetaData
 
@@ -44,15 +42,15 @@ class DB_update:
 		for i in table.columns:
 			table_column_names_list.append(str(i.name))
 
-		if table_column_names_list.__contains__('provincia') == False:
+		if not table_column_names_list.__contains__('provincia'):
 			self.engine.execute("ALTER TABLE site_table ADD COLUMN provincia varchar DEFAULT 'inserici un valore' ")
 
 
-		if table_column_names_list.__contains__('definizione_sito') == False:
+		if not table_column_names_list.__contains__('definizione_sito'):
 			self.engine.execute("ALTER TABLE site_table ADD COLUMN definizione_sito varchar DEFAULT 'inserici un valore' ")
 
 
-		if table_column_names_list.__contains__('find_check') == False:
+		if not table_column_names_list.__contains__('find_check'):
 			self.engine.execute("ALTER TABLE site_table ADD COLUMN find_check INTEGER DEFAULT 0")
 
 		####US_table
@@ -62,83 +60,83 @@ class DB_update:
 		for i in table.columns:
 			table_column_names_list.append(str(i.name))
 
-		if table_column_names_list.__contains__('cont_per') == False:
+		if not table_column_names_list.__contains__('cont_per'):
 			self.engine.execute("ALTER TABLE us_table ADD COLUMN cont_per varchar DEFAULT")
 
-		if table_column_names_list.__contains__('documentazione') == False:
+		if not table_column_names_list.__contains__('documentazione'):
 			self.engine.execute("ALTER TABLE us_table ADD COLUMN documentazione varchar")
 		
 		#nuovi campi per USM 1/9/2016 generati correttamente
-		if table_column_names_list.__contains__('unita_tipo') == False:
+		if not table_column_names_list.__contains__('unita_tipo'):
 			self.engine.execute("ALTER TABLE us_table ADD COLUMN unita_tipo varchar DEFAULT 'US' ")
 
-		if table_column_names_list.__contains__('settore') == False:
+		if not table_column_names_list.__contains__('settore'):
 			self.engine.execute("ALTER TABLE us_table ADD COLUMN settore text DEFAULT '' ")
 
-		if table_column_names_list.__contains__('quad_par') == False:
+		if not table_column_names_list.__contains__('quad_par'):
 			self.engine.execute("ALTER TABLE us_table ADD COLUMN quad_par text DEFAULT '' ")
 
-		if table_column_names_list.__contains__('ambient') == False:
+		if not table_column_names_list.__contains__('ambient'):
 			self.engine.execute("ALTER TABLE us_table ADD COLUMN ambient text DEFAULT '' ")
 
-		if table_column_names_list.__contains__('saggio') == False:
+		if not table_column_names_list.__contains__('saggio'):
 			self.engine.execute("ALTER TABLE us_table ADD COLUMN saggio text DEFAULT '' ")
 
-		if table_column_names_list.__contains__('elem_datanti') == False:
+		if not table_column_names_list.__contains__('elem_datanti'):
 			self.engine.execute("ALTER TABLE us_table ADD COLUMN elem_datanti text DEFAULT '' ")
 
-		if table_column_names_list.__contains__('funz_statica') == False:
+		if not table_column_names_list.__contains__('funz_statica'):
 			self.engine.execute("ALTER TABLE us_table ADD COLUMN funz_statica text DEFAULT '' ")
 
-		if table_column_names_list.__contains__('lavorazione') == False:
+		if not table_column_names_list.__contains__('lavorazione'):
 			self.engine.execute("ALTER TABLE us_table ADD COLUMN lavorazione text DEFAULT '' ")
 
-		if table_column_names_list.__contains__('spess_giunti') == False:
+		if not table_column_names_list.__contains__('spess_giunti'):
 			self.engine.execute("ALTER TABLE us_table ADD COLUMN spess_giunti text DEFAULT '' ")
 
-		if table_column_names_list.__contains__('letti_posa') == False:
+		if not table_column_names_list.__contains__('letti_posa'):
 			self.engine.execute("ALTER TABLE us_table ADD COLUMN letti_posa text DEFAULT '' ")
 
-		if table_column_names_list.__contains__('alt_mod') == False:
+		if not table_column_names_list.__contains__('alt_mod'):
 			self.engine.execute("ALTER TABLE us_table ADD COLUMN alt_mod text DEFAULT '' ")
 		
-		if table_column_names_list.__contains__('un_ed_riass') == False:
+		if not table_column_names_list.__contains__('un_ed_riass'):
 			self.engine.execute("ALTER TABLE us_table ADD COLUMN un_ed_riass text DEFAULT '' ")
 
-		if table_column_names_list.__contains__('reimp') == False:
+		if not table_column_names_list.__contains__('reimp'):
 			self.engine.execute("ALTER TABLE us_table ADD COLUMN reimp text DEFAULT '' ")
 
 
-		if table_column_names_list.__contains__('posa_opera') == False:
+		if not table_column_names_list.__contains__('posa_opera'):
 			self.engine.execute("ALTER TABLE us_table ADD COLUMN posa_opera text DEFAULT '' ")
 
-		if table_column_names_list.__contains__('quota_min_usm') == False:
+		if not table_column_names_list.__contains__('quota_min_usm'):
 			self.engine.execute("ALTER TABLE us_table ADD COLUMN quota_min_usm NUMERIC(6,2)")
 
 
-		if table_column_names_list.__contains__('quota_max_usm') == False:
+		if not table_column_names_list.__contains__('quota_max_usm'):
 			self.engine.execute("ALTER TABLE us_table ADD COLUMN quota_max_usm NUMERIC(6,2)")
 
 
-		if table_column_names_list.__contains__('cons_legante') == False:
+		if not table_column_names_list.__contains__('cons_legante'):
 			self.engine.execute("ALTER TABLE us_table ADD COLUMN cons_legante text DEFAULT '' ")
 
-		if table_column_names_list.__contains__('col_legante') == False:
+		if not table_column_names_list.__contains__('col_legante'):
 			self.engine.execute("ALTER TABLE us_table ADD COLUMN col_legante text DEFAULT '' ")
 
 
-		if table_column_names_list.__contains__('aggreg_legante') == False:
+		if not table_column_names_list.__contains__('aggreg_legante'):
 			self.engine.execute("ALTER TABLE us_table ADD COLUMN aggreg_legante text DEFAULT '' ")
 
 
-		if table_column_names_list.__contains__('con_text_mat') == False:
+		if not table_column_names_list.__contains__('con_text_mat'):
 			self.engine.execute("ALTER TABLE us_table ADD COLUMN con_text_mat text DEFAULT '' ")
 
 
-		if table_column_names_list.__contains__('col_materiale') == False:
+		if not table_column_names_list.__contains__('col_materiale'):
 			self.engine.execute("ALTER TABLE us_table ADD COLUMN col_materiale text DEFAULT '' ")
 
-		if table_column_names_list.__contains__('inclusi_materiali_usm') == False:
+		if not table_column_names_list.__contains__('inclusi_materiali_usm'):
 			self.engine.execute("ALTER TABLE us_table ADD COLUMN inclusi_materiali_usm text DEFAULT '[]' ")
 
 		####periodizzazione_table
@@ -147,7 +145,7 @@ class DB_update:
 		for i in table.columns:
 			table_column_names_list.append(str(i.name))
 
-		if table_column_names_list.__contains__('cont_per') == False:
+		if not table_column_names_list.__contains__('cont_per'):
 			self.engine.execute("ALTER TABLE periodizzazione_table ADD COLUMN cont_per integer DEFAULT 0 ")
 		
 		####inventario_materiali_table
@@ -156,59 +154,59 @@ class DB_update:
 		for i in table.columns:
 			table_column_names_list.append(str(i.name))
 
-		if table_column_names_list.__contains__('stato_conservazione') == False:
+		if not table_column_names_list.__contains__('stato_conservazione'):
 			self.engine.execute("ALTER TABLE inventario_materiali_table ADD COLUMN stato_conservazione varchar DEFAULT ''")
 
-		if table_column_names_list.__contains__('datazione_reperto') == False:
+		if not table_column_names_list.__contains__('datazione_reperto'):
 			self.engine.execute("ALTER TABLE inventario_materiali_table ADD COLUMN datazione_reperto varchar(30) DEFAULT 'inserisci un valore'")
 
-		if table_column_names_list.__contains__('elementi_reperto') == False:
+		if not table_column_names_list.__contains__('elementi_reperto'):
 			self.engine.execute("ALTER TABLE inventario_materiali_table ADD COLUMN elementi_reperto text")
 
-		if table_column_names_list.__contains__('misurazioni') == False:
+		if not table_column_names_list.__contains__('misurazioni'):
 			self.engine.execute("ALTER TABLE inventario_materiali_table ADD COLUMN misurazioni text")
 
-		if table_column_names_list.__contains__('rif_biblio') == False:
+		if not table_column_names_list.__contains__('rif_biblio'):
 			self.engine.execute("ALTER TABLE inventario_materiali_table ADD COLUMN rif_biblio text")
 
-		if table_column_names_list.__contains__('tecnologie') == False:
+		if not table_column_names_list.__contains__('tecnologie'):
 			self.engine.execute("ALTER TABLE inventario_materiali_table ADD COLUMN tecnologie text")
 		
-		if table_column_names_list.__contains__('forme_minime') == False:
+		if not table_column_names_list.__contains__('forme_minime'):
 			self.engine.execute("ALTER TABLE inventario_materiali_table ADD COLUMN forme_minime integer DEFAULT 0")
 		
-		if table_column_names_list.__contains__('forme_massime') == False:
+		if not table_column_names_list.__contains__('forme_massime'):
 			self.engine.execute("ALTER TABLE inventario_materiali_table ADD COLUMN forme_massime integer DEFAULT 0")
 		
-		if table_column_names_list.__contains__('totale_frammenti') == False:
+		if not table_column_names_list.__contains__('totale_frammenti'):
 			self.engine.execute("ALTER TABLE inventario_materiali_table ADD COLUMN totale_frammenti integer DEFAULT 0")
 
-		if table_column_names_list.__contains__('corpo_ceramico') == False:
+		if not table_column_names_list.__contains__('corpo_ceramico'):
 			self.engine.execute("ALTER TABLE inventario_materiali_table ADD COLUMN corpo_ceramico varchar(20)")
 			self.engine.execute("update inventario_materiali_table set corpo_ceramico = ''")
 		
-		if table_column_names_list.__contains__('rivestimento') == False:
+		if not table_column_names_list.__contains__('rivestimento'):
 			self.engine.execute("ALTER TABLE inventario_materiali_table ADD COLUMN rivestimento varchar(20)")
 			self.engine.execute("update inventario_materiali_table set rivestimento = ''")
 		
-		if table_column_names_list.__contains__('diametro_orlo') == False:
+		if not table_column_names_list.__contains__('diametro_orlo'):
 			self.engine.execute("ALTER TABLE inventario_materiali_table ADD COLUMN diametro_orlo Numeric(7,3) DEFAULT 0")
 
-		if table_column_names_list.__contains__('peso') == False:
+		if not table_column_names_list.__contains__('peso'):
 			self.engine.execute("ALTER TABLE inventario_materiali_table ADD COLUMN peso Numeric(9,3) DEFAULT 0")
 
-		if table_column_names_list.__contains__('tipo') == False:
+		if not table_column_names_list.__contains__('tipo'):
 			self.engine.execute("ALTER TABLE inventario_materiali_table ADD COLUMN tipo varchar(20)")
 			self.engine.execute("update inventario_materiali_table set tipo = ''")
 
-		if table_column_names_list.__contains__('eve_orlo') == False:
+		if not table_column_names_list.__contains__('eve_orlo'):
 			self.engine.execute("ALTER TABLE inventario_materiali_table ADD COLUMN eve_orlo Numeric(7,3) DEFAULT 0")
 			
-		if table_column_names_list.__contains__('repertato') == False:
+		if not table_column_names_list.__contains__('repertato'):
 			self.engine.execute("ALTER TABLE inventario_materiali_table ADD COLUMN repertato varchar(2)")
 			self.engine.execute("update inventario_materiali_table set repertato = ''No")
 
-		if table_column_names_list.__contains__('diagnostico') == False:
+		if not table_column_names_list.__contains__('diagnostico'):
 			self.engine.execute("ALTER TABLE inventario_materiali_table ADD COLUMN diagnostico varchar(2)")
 			self.engine.execute("update inventario_materiali_table set diagnostico = ''No")
 
@@ -218,22 +216,22 @@ class DB_update:
 		for i in table.columns:
 			table_column_names_list.append(str(i.name))
 
-		if table_column_names_list.__contains__('periodo_iniziale') == False:
+		if not table_column_names_list.__contains__('periodo_iniziale'):
 			self.engine.execute("ALTER TABLE tafonomia_table ADD COLUMN periodo_iniziale integer")
 
-		if table_column_names_list.__contains__('fase_iniziale') == False:
+		if not table_column_names_list.__contains__('fase_iniziale'):
 			self.engine.execute("ALTER TABLE tafonomia_table ADD COLUMN fase_iniziale integer")
 
-		if table_column_names_list.__contains__('periodo_finale') == False:
+		if not table_column_names_list.__contains__('periodo_finale'):
 			self.engine.execute("ALTER TABLE tafonomia_table ADD COLUMN periodo_finale integer")
 
-		if table_column_names_list.__contains__('fase_finale') == False:
+		if not table_column_names_list.__contains__('fase_finale'):
 			self.engine.execute("ALTER TABLE tafonomia_table ADD COLUMN fase_finale integer")
 
-		if table_column_names_list.__contains__('datazione_estesa') == False:
+		if not table_column_names_list.__contains__('datazione_estesa'):
 			self.engine.execute("ALTER TABLE tafonomia_table ADD COLUMN datazione_estesa text")
 
-		if table_column_names_list.__contains__('misure_tafonomia') == False:
+		if not table_column_names_list.__contains__('misure_tafonomia'):
 			self.engine.execute("ALTER TABLE tafonomia_table ADD COLUMN misure_tafonomia text DEFAULT '[]' ")
 
 		####aggiornamento tabelle geografiche

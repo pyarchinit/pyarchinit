@@ -20,18 +20,19 @@
  ***************************************************************************/
 """
 
-import sys, os
-
+import os
+import sys
 from PyQt4.QtCore import *
 from PyQt4.QtGui import *
+from  pyarchinit_db_manager import *
+from  pyarchinit_utility import *
+
 from modules.db.pyarchinit_conn_strings import Connection
 from modules.db.pyarchinit_db_manager import Pyarchinit_db_management
 from modules.db.pyarchinit_utility import Utility
 from modules.gui.pyarchinit_images_directory_export_ui import Ui_Dialog_img_exp
 from modules.utility.pyarchinit_OS_utility import Pyarchinit_OS_Utility
 from pyarchinitConfigDialog import pyArchInitDialog_Config
-from  pyarchinit_db_manager import *
-from  pyarchinit_utility import *
 
 
 class pyarchinit_Images_directory_export(QDialog, Ui_Dialog_img_exp):
@@ -106,11 +107,11 @@ class pyarchinit_Images_directory_export(QDialog, Ui_Dialog_img_exp):
 		
 	def on_pushButton_exp_images_pressed(self):
 		sito = str(self.comboBox_sito.currentText())
-		if self.checkBox_US.isChecked() == True:
+		if self.checkBox_US.isChecked():
 			us_res = self.db_search_DB('US','sito', sito)
 			sito_path = ('%s%s%s') % (self.HOME, os.sep, 'Esportazione')
 			self.OS_UTILITY.create_dir(sito_path)
-			if bool(us_res) == True:
+			if bool(us_res):
 				US_path = ('%s%s%s') % (sito_path, os.sep, 'Unita_Stratigrafiche')
 				self.OS_UTILITY.create_dir(US_path)			
 				for sing_us in us_res:
