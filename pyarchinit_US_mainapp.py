@@ -18,32 +18,24 @@
  *   (at your option) any later version.                                  	*																		*
  ***************************************************************************/
 """
-import os
-from datetime import date
+from __future__ import absolute_import
 
-from PyQt4 import QtCore, QtGui
-from PyQt4.QtCore import *
-from PyQt4.QtGui import *
-from  delegateComboBox import *
-from  pyarchinit_US_ui import *
-from  pyarchinit_db_manager import *
-from  pyarchinit_error_check import *
-from  pyarchinit_exp_USsheet_pdf import *
-from  pyarchinit_utility import *
-from qgis.core import *
-from qgis.gui import *
+from builtins import range
+from builtins import str
+from qgis.PyQt.QtWidgets import QDialog, QMessageBox
+from qgis.PyQt.uic import loadUiType
 
-from modules.db.pyarchinit_conn_strings import Connection
-from modules.db.pyarchinit_db_manager import Pyarchinit_db_management
-from modules.db.pyarchinit_utility import Utility
-from modules.gis.pyarchinit_pyqgis import Pyarchinit_pyqgis, Order_layer_v2
-from modules.gui.imageViewer import ImageViewer
-from modules.gui.pyarchinit_US_ui import Ui_DialogUS
-from modules.utility.delegateComboBox import ComboBoxDelegate
-from modules.utility.pyarchinit_error_check import Error_check
-from modules.utility.pyarchinit_exp_Periodosheet_pdf import generate_US_pdf
-from modules.utility.pyarchinit_print_utility import Print_utility
-from  sortpanelmain import SortPanelMain
+from .modules.db.pyarchinit_conn_strings import Connection
+from .modules.db.pyarchinit_db_manager import Pyarchinit_db_management
+from .modules.db.pyarchinit_utility import Utility
+from .modules.gis.pyarchinit_pyqgis import Pyarchinit_pyqgis, Order_layer_v2
+from .modules.gui.imageViewer import ImageViewer
+from .modules.utility.delegateComboBox import ComboBoxDelegate
+from .modules.utility.pyarchinit_error_check import Error_check
+from .modules.utility.pyarchinit_exp_Periodosheet_pdf import generate_US_pdf
+from .modules.utility.pyarchinit_exp_USsheet_pdf import *
+from .modules.utility.pyarchinit_print_utility import Print_utility
+from  .sortpanelmain import SortPanelMain
 
 # --import pyArchInit modules--#
 try:
@@ -52,8 +44,10 @@ try:
 except:
     pass
 
+MAIN_DIALOG_CLASS, _ = loadUiType(os.path.join(os.path.dirname(__file__), 'modules', 'gui', 'pyarchinit_US_ui.ui'))
 
-class pyarchinit_US(QDialog, Ui_DialogUS):
+
+class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
     MSG_BOX_TITLE = "PyArchInit - Scheda US"
     DATA_LIST = []
     DATA_LIST_REC_CORR = []
@@ -231,17 +225,17 @@ class pyarchinit_US(QDialog, Ui_DialogUS):
             QMessageBox.warning(self, "Sistema di connessione", str(e), QMessageBox.Ok)
 
             # SIGNALS & SLOTS Functions
-        self.connect(self.comboBox_sito, SIGNAL("editTextChanged (const QString&)"), self.charge_periodo_iniz_list)
-        self.connect(self.comboBox_sito, SIGNAL("editTextChanged (const QString&)"), self.charge_periodo_fin_list)
+        self.comboBox_sito.editTextChanged .connect(self.charge_periodo_iniz_list)
+        self.comboBox_sito.editTextChanged .connect(self.charge_periodo_fin_list)
 
-        self.connect(self.comboBox_sito, SIGNAL("currentIndexChanged(int)"), self.charge_periodo_iniz_list)
-        self.connect(self.comboBox_sito, SIGNAL("currentIndexChanged(int)"), self.charge_periodo_fin_list)
+        self.comboBox_sito.currentIndexChanged.connect(self.charge_periodo_iniz_list)
+        self.comboBox_sito.currentIndexChanged.connect(self.charge_periodo_fin_list)
 
-        self.connect(self.comboBox_per_iniz, SIGNAL("editTextChanged (const QString&)"), self.charge_fase_iniz_list)
-        self.connect(self.comboBox_per_iniz, SIGNAL("currentIndexChanged(int)"), self.charge_fase_iniz_list)
+        self.comboBox_per_iniz.editTextChanged .connect(self.charge_fase_iniz_list)
+        self.comboBox_per_iniz.currentIndexChanged.connect(self.charge_fase_iniz_list)
 
-        self.connect(self.comboBox_per_fin, SIGNAL("editTextChanged (const QString&)"), self.charge_fase_fin_list)
-        self.connect(self.comboBox_per_fin, SIGNAL("currentIndexChanged(int)"), self.charge_fase_fin_list)
+        self.comboBox_per_fin.editTextChanged .connect(self.charge_fase_fin_list)
+        self.comboBox_per_fin.currentIndexChanged.connect(self.charge_fase_fin_list)
 
         sito = self.comboBox_sito.currentText()
         self.comboBox_sito.setEditText(sito)
@@ -449,7 +443,6 @@ class pyarchinit_US(QDialog, Ui_DialogUS):
         self.pushButton_remove_row_documentazione.setEnabled(n)
 
     def on_pushButton_connect_pressed(self):
-        from pyarchinit_conn_strings import *
 
         conn = Connection()
         conn_str = conn.conn_str()
@@ -517,7 +510,7 @@ class pyarchinit_US(QDialog, Ui_DialogUS):
         self.iconListWidget.setObjectName("iconListWidget")
         self.iconListWidget.SelectionMode()
         self.iconListWidget.setSelectionMode(QtGui.QAbstractItemView.MultiSelection)
-        self.connect(self.iconListWidget, SIGNAL("itemDoubleClicked(QListWidgetItem *)"), self.openWide_image)
+        self.iconListWidget.itemDoubleClicked.connect(self.openWide_image)
         self.tabWidget.addTab(self.iconListWidget, "Media")
 
         # comboBox customizations

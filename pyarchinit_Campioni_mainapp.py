@@ -19,32 +19,29 @@
  *                                                                         *
  ***************************************************************************/
 """
-from datetime import date
+from __future__ import absolute_import
 
 import sys
-from  pyarchinit_db_manager import *
-from  pyarchinit_error_check import *
-from  pyarchinit_exp_Campsheet_pdf import *
-from  pyarchinit_utility import *
+from builtins import range
+from builtins import str
+from qgis.PyQt.QtWidgets import QApplication, QDialog, QMessageBox
+from qgis.PyQt.uic import loadUiType
 
-from modules.db.pyarchinit_conn_strings import Connection
-from modules.db.pyarchinit_db_manager import Pyarchinit_db_management
-from modules.db.pyarchinit_utility import Utility
-from modules.gis.pyarchinit_pyqgis import Pyarchinit_pyqgis
-from modules.gui.pyarchinit_campioni_ui import Ui_DialogCampioni
-from modules.utility.pyarchinit_error_check import Error_check
-from modules.utility.pyarchinit_exp_Campsheet_pdf import generate_campioni_pdf
-from pyarchinit_US_mainapp import pyarchinit_US
-from  sortpanelmain import SortPanelMain
+from .modules.db.pyarchinit_conn_strings import *
+from .modules.db.pyarchinit_conn_strings import Connection
+from .modules.db.pyarchinit_db_manager import Pyarchinit_db_management
+from .modules.db.pyarchinit_utility import Utility
+from .modules.gis.pyarchinit_pyqgis import Pyarchinit_pyqgis
+from .modules.utility.pyarchinit_error_check import Error_check
+from .modules.utility.pyarchinit_exp_Campsheet_pdf import *
+from .modules.utility.pyarchinit_exp_Campsheet_pdf import generate_campioni_pdf
+from .pyarchinit_US_mainapp import pyarchinit_US
+from .sortpanelmain import SortPanelMain
 
-try:
-    from qgis.core import *
-    from qgis.gui import *
-except:
-    pass
+MAIN_DIALOG_CLASS, _ = loadUiType(os.path.join(os.path.dirname(__file__), 'modules', 'gui', 'pyarchinit_campioni_ui.ui'))
 
 
-class pyarchinit_Campioni(QDialog, Ui_DialogCampioni):
+class pyarchinit_Campioni(QDialog, MAIN_DIALOG_CLASS):
     MSG_BOX_TITLE = "PyArchInit - pyarchinit_version 0.4 - Scheda Campioni"
     DATA_LIST = []
     DATA_LIST_REC_CORR = []
@@ -158,7 +155,6 @@ class pyarchinit_Campioni(QDialog, Ui_DialogCampioni):
         self.pushButton_sort.setEnabled(n)
 
     def on_pushButton_connect_pressed(self):
-        from pyarchinit_conn_strings import *
         conn = Connection()
         conn_str = conn.conn_str()
         test_conn = conn_str.find('sqlite')

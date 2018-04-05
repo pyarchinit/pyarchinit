@@ -20,13 +20,15 @@
  ***************************************************************************/
 """
 
-from PyQt4.QtCore import *
-from PyQt4.QtGui import *
+import os
 
-from modules.gui.info import Ui_DialogInfo
+from qgis.PyQt.QtWidgets import QApplication, QDialog
+from qgis.PyQt.uic import loadUiType
+
+MAIN_DIALOG_CLASS, _ = loadUiType(os.path.join(os.path.dirname(__file__), 'modules', 'gui', 'info.ui'))
 
 
-class pyArchInitDialog_Info(QDialog, Ui_DialogInfo):
+class pyArchInitDialog_Info(QDialog, MAIN_DIALOG_CLASS):
     def __init__(self, parent=None, db=None):
         QDialog.__init__(self, parent)
         # Set up the user interface from Designer.
