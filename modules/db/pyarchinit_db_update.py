@@ -19,14 +19,18 @@
  *                                                                         *
  ***************************************************************************/
 """
-from msilib import Table
+
+# TODO: must be fixed
+# from msilib import Table
+from builtins import object
+from builtins import str
 from sqlalchemy.engine import create_engine
 from sqlalchemy.sql.schema import MetaData
 
 from modules.db.pyarchinit_conn_strings import Connection
 
 
-class DB_update:
+class DB_update(object):
     # connection string postgres"
 
     # create engine and metadata

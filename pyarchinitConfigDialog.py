@@ -19,23 +19,21 @@
 *                                                                          *
 /***************************************************************************/
 """
-import os
+from __future__ import absolute_import
 
-from PyQt4.QtCore import *
-from PyQt4.QtGui import *
-from Ui_pyarchinitConfig import *
-from pyarchinit_OS_utility import *
-from pyarchinit_db_manager import *
-from pyarchinit_db_mapper import *
-from pyarchinit_db_structure import *
+from builtins import range
+from builtins import str
+from qgis.PyQt.QtWidgets import QApplication, QDialog, QMessageBox
+from qgis.PyQt.uic import loadUiType
 
-from modules.db.pyarchinit_conn_strings import Connection
-from modules.db.pyarchinit_db_manager import Pyarchinit_db_management
-from modules.gui.Ui_pyarchinitConfig import Ui_Dialog_Config
+from .modules.db.pyarchinit_conn_strings import Connection
+from .modules.db.pyarchinit_db_manager import *
+from .modules.db.pyarchinit_db_manager import Pyarchinit_db_management
+
+MAIN_DIALOG_CLASS, _ = loadUiType(os.path.join(os.path.dirname(__file__), 'modules', 'gui', 'Ui_pyarchinitConfig.ui'))
 
 
-# from PyQt4 import QtCore, QtGui
-class pyArchInitDialog_Config(QDialog, Ui_Dialog_Config):
+class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
     if os.name == 'posix':
         HOME = os.environ['HOME']
     elif os.name == 'nt':
@@ -56,12 +54,10 @@ class pyArchInitDialog_Config(QDialog, Ui_Dialog_Config):
         self.setupUi(self)
         self.load_dict()
         self.charge_data()
-        self.connect(self.comboBox_Database, SIGNAL("editTextChanged (const QString&)"), self.set_db_parameter)
-        self.connect(self.comboBox_server_rd, SIGNAL("editTextChanged (const QString&)"),
-                     self.set_db_import_from_parameter)
-        self.connect(self.comboBox_server_wt, SIGNAL("editTextChanged (const QString&)"),
-                     self.set_db_import_to_parameter)
-        self.connect(self.comboBox_experimental, SIGNAL("editTextChanged (const QString&)"), self.message)
+        self.comboBox_Database.editTextChanged .connect(self.set_db_parameter)
+        self.comboBox_server_rd.editTextChanged .connect(self.set_db_import_from_parameter)
+        self.comboBox_server_wt.editTextChanged .connect(self.set_db_import_to_parameter)
+        self.comboBox_experimental.editTextChanged .connect(self.message)
 
     def set_db_parameter(self):
         if str(self.comboBox_Database.currentText()) == 'postgres':
@@ -187,7 +183,6 @@ class pyArchInitDialog_Config(QDialog, Ui_Dialog_Config):
             QMessageBox.warning(self, "opss", "qualcosa non va" + str(e), QMessageBox.Ok)
 
     def on_pushButton_crea_layer_2_pressed(self):
-        from pyarchinit_OS_utility import *
         import time
         if os.name == 'posix':
             home = os.environ['HOME']
@@ -212,10 +207,8 @@ class pyArchInitDialog_Config(QDialog, Ui_Dialog_Config):
 
     def on_pushButton_crea_db_sqlite_pressed(self):
         try:
-            from pyarchinit_conn_strings import *
             conn = Connection()
             conn_str = conn.conn_str()
-            from  pyarchinit_db_manager import *
             self.DB_MANAGER = Pyarchinit_db_management(conn_str)
             self.DB_MANAGER.connection()
             self.DB_MANAGER.execute_sql_create_spatialite_db()
@@ -227,11 +220,9 @@ class pyArchInitDialog_Config(QDialog, Ui_Dialog_Config):
             QMessageBox.warning(self, "Alert", "L'installazione ha avuto successo!", QMessageBox.Ok)
 
     def try_connection(self):
-        from pyarchinit_conn_strings import *
         conn = Connection()
         conn_str = conn.conn_str()
 
-        from  pyarchinit_db_manager import *
         self.DB_MANAGER = Pyarchinit_db_management(
             conn_str)  # sqlite:///\Users\Windows\pyarchinit_DB_folder\pyarchinit_db.sqlite
         test = self.DB_MANAGER.connection()

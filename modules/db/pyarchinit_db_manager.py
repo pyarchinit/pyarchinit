@@ -1,43 +1,46 @@
-#! /usr/bin/env python
+#!/usr/bin/python
 # -*- coding: utf-8 -*-
 """
 /***************************************************************************
         pyArchInit Plugin  - A QGIS plugin to manage archaeological dataset
-        					 stored in Postgres
                              -------------------
-    begin                : 2007-12-01
-    copyright            : (C) 2008 by Luca Mandolesi
-    email                : mandoluca at gmail.com
+        begin                : 2007-12-01
+        copyright            : (C) 2008 by Luca Mandolesi
+        email                : mandoluca at gmail.com
  ***************************************************************************/
 
 /***************************************************************************
- *                                                                                                                      *
- *   This program is free software; you can redistribute it and/or modify                           *
- *   it under the terms of the GNU General Public License as published by                          *
- *   the Free Software Foundation; either version 2 of the License, or                               *
- *   (at your option) any later version.                                                                       *
- *                                                                                                                      *
+ *                                                                         *
+ *   This program is free software; you can redistribute it and/or modify  *
+ *   it under the terms of the GNU General Public License as published by  *
+ *   the Free Software Foundation; either version 2 of the License, or     *
+ *   (at your option) any later version.                                   *
+ *                                                                         *
  ***************************************************************************/
 """
+
 import os
 
 import psycopg2
-from modules.db.entities.Documentazione import DOCUMENTAZIONE
-from msilib import Table
+from builtins import object
+from builtins import range
+from builtins import str
+from builtins import zip
 from sqlalchemy import and_, or_
 from sqlalchemy.engine import create_engine
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.sql.schema import MetaData
 
+from modules.db.entities import DOCUMENTAZIONE
 from modules.db.pyarchinit_db_mapper import US, UT, SITE, PERIODIZZAZIONE, \
-    INVENTARIO_MATERIALI, STRUTTURA, SCHEDAIND, DETSESSO, DETETA, MEDIA, \
+    STRUTTURA, SCHEDAIND, DETSESSO, DETETA, MEDIA, \
     MEDIA_THUMB, MEDIATOENTITY, TAFONOMIA, CAMPIONI, PYARCHINIT_THESAURUS_SIGLE, \
     ARCHEOZOOLOGY, INVENTARIO_LAPIDEI, PDF_ADMINISTRATOR
 from modules.db.pyarchinit_db_update import DB_update
 from modules.db.pyarchinit_utility import Utility
 
 
-class Pyarchinit_db_management:
+class Pyarchinit_db_management(object):
     metadata = ''
     engine = ''
     boolean = ''
