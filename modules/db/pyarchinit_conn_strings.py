@@ -21,10 +21,12 @@
 """
 import os
 
-from modules.db.settings import Settings
+from builtins import object
+
+from .settings import Settings
 
 
-class Connection:
+class Connection(object):
     def conn_str(self):
 
         if os.name == 'posix':
