@@ -23,7 +23,8 @@
 import os
 
 from qgis.PyQt.QtCore import Qt
-from qgis.PyQt.QtWidgets import QDialog, QGraphicsView
+from qgis.PyQt.QtGui import QPixmap
+from qgis.PyQt.QtWidgets import QDialog, QGraphicsView, QGraphicsScene
 from qgis.PyQt.uic import loadUiType
 
 MAIN_DIALOG_CLASS, _ = loadUiType(os.path.join(os.path.dirname(__file__), 'imageViewer_ui.ui'))
