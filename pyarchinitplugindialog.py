@@ -20,60 +20,41 @@ Code from QgisCloudPluginDialog
  ***************************************************************************/
 """
 from __future__ import absolute_import
+
 import os
 
-from qgis.PyQt.QtCore import Qt, QFileInfo, QTranslator
-from qgis.PyQt.QtWidgets import QAction, QApplication, QToolButton, QMenu, QDockWidget
-from qgis.PyQt.QtGui import QIcon
 from qgis.PyQt.QtXml import *
 from qgis.PyQt.uic import loadUiType
-
-from qgis.core import QgsApplication, QgsSettings
 from qgis.gui import QgsDockWidget
 
-from .pyarchinit_US_mainapp import pyarchinit_US
-from .pyarchinit_Site_mainapp import pyarchinit_Site
-from .pyarchinit_Periodizzazione_mainapp import pyarchinit_Periodizzazione
-from .pyarchinit_Struttura_mainapp import pyarchinit_Struttura
-from .pyarchinit_Inv_Materiali_mainapp import pyarchinit_Inventario_reperti
-from .pyarchinit_Upd_mainapp import pyarchinit_Upd_Values
 from .pyarchinitConfigDialog import pyArchInitDialog_Config
 from .pyarchinitInfoDialog import pyArchInitDialog_Info
-from .pyarchinit_Gis_Time_controller import pyarchinit_Gis_Time_Controller
-from .pyarchinit_image_viewer_main import Main
-from .pyarchinit_Schedaind_mainapp import pyarchinit_Schedaind
-from .pyarchinit_Detsesso_mainapp import pyarchinit_Detsesso
-from .pyarchinit_Deteta_mainapp import pyarchinit_Deteta
-from .pyarchinit_Tafonomia_mainapp import pyarchinit_Tafonomia
 from .pyarchinit_Archeozoology_mainapp import pyarchinit_Archeozoology
+from .pyarchinit_Deteta_mainapp import pyarchinit_Deteta
+from .pyarchinit_Detsesso_mainapp import pyarchinit_Detsesso
+from .pyarchinit_Gis_Time_controller import pyarchinit_Gis_Time_Controller
+from .pyarchinit_Inv_Materiali_mainapp import pyarchinit_Inventario_reperti
+from .pyarchinit_Periodizzazione_mainapp import pyarchinit_Periodizzazione
+from .pyarchinit_Schedaind_mainapp import pyarchinit_Schedaind
+from .pyarchinit_Site_mainapp import pyarchinit_Site
+from .pyarchinit_Struttura_mainapp import pyarchinit_Struttura
+from .pyarchinit_Tafonomia_mainapp import pyarchinit_Tafonomia
+from .pyarchinit_US_mainapp import pyarchinit_US
 from .pyarchinit_UT_mainapp import pyarchinit_UT
+from .pyarchinit_Upd_mainapp import pyarchinit_Upd_Values
+from .pyarchinit_image_viewer_main import Main
 from .pyarchinit_images_directory_export_mainapp import pyarchinit_Images_directory_export
-# from pyarchinit_PDF_administrator_mainapp import pyarchinit_PDFAdministrator
 from .pyarchinit_pdf_export_mainapp import pyarchinit_pdf_export
 
 MAIN_DIALOG_CLASS, _ = loadUiType(os.path.join(os.path.dirname(__file__), 'modules', 'gui', 'ui_pyarchinitplugin.ui'))
-
-# from ui_login import Ui_LoginDialog
-##from qgiscloudapi.qgiscloudapi import *
-##from db_connections import DbConnections
-##from local_data_sources import LocalDataSources
-##from data_upload import DataUpload
-##import os.path
-##import sys
-##import urllib
-##import traceback
-##import re
-##import time
-##import platform
 
 
 class PyarchinitPluginDialog(QgsDockWidget, MAIN_DIALOG_CLASS):
     def __init__(self, iface):
         super(PyarchinitPluginDialog, self).__init__()
-        self.iface = iface
-        ##        self.version = version
-        # Set up the user interface from Designer.
         self.setupUi(self)
+
+        self.iface = iface
         self.btnUStable.clicked.connect(self.runUS)
         self.btnUStable_2.clicked.connect(self.runUS)
 
