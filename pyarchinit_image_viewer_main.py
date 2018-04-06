@@ -27,7 +27,7 @@ import os
 import sys
 from builtins import range
 from builtins import str
-from qgis.PyQt.QtWidgets import QDialog, QMessageBox
+from qgis.PyQt.QtWidgets import QDialog, QMessageBox, QAbstractItemView
 from qgis.PyQt.uic import loadUiType
 
 from .modules.db.pyarchinit_conn_strings import Connection
@@ -79,15 +79,13 @@ class Main(QDialog, MAIN_DIALOG_CLASS):
     NUM_DATA_END = 25
 
     def __init__(self):
-        QtGui.QMainWindow.__init__(self)
-
         # This is always the same
         QDialog.__init__(self)
         self.connection()
         self.setupUi(self)
         self.customize_gui()
         self.iconListWidget.SelectionMode()
-        self.iconListWidget.setSelectionMode(QtGui.QAbstractItemView.MultiSelection)
+        self.iconListWidget.setSelectionMode(QAbstractItemView.MultiSelection)
         self.iconListWidget.itemDoubleClicked.connect(self.openWide_image)
         # self.connect(self.iconListWidget, SIGNAL("itemClicked(QListWidgetItem *)"),self.open_tags)
         self.iconListWidget.itemSelectionChanged.connect(self.open_tags)

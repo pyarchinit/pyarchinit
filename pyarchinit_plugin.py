@@ -19,44 +19,43 @@
  ***************************************************************************/
 """
 from __future__ import absolute_import
-from builtins import str
-from builtins import object
-import sys
+
+import ast
 import os
 
+import sys
+from builtins import object
+from builtins import str
 from qgis.PyQt.QtCore import Qt, QFileInfo, QTranslator, QVariant, QCoreApplication
-from qgis.PyQt.QtWidgets import QAction, QApplication, QToolButton, QMenu
 from qgis.PyQt.QtGui import QIcon
-
+from qgis.PyQt.QtWidgets import QAction, QToolButton, QMenu
 from qgis.core import QgsApplication, QgsSettings
-from .modules.utility.pyarchinit_folder_installation import pyarchinit_Folder_installation
 
-# Import the code for the dialog
-from .pyarchinit_US_mainapp import pyarchinit_US
-from .pyarchinit_Site_mainapp import pyarchinit_Site
-from .pyarchinit_Periodizzazione_mainapp import pyarchinit_Periodizzazione
-from .pyarchinit_Struttura_mainapp import pyarchinit_Struttura
-from .pyarchinit_Inv_Materiali_mainapp import pyarchinit_Inventario_reperti
-from .pyarchinit_Upd_mainapp import pyarchinit_Upd_Values
+from .dbmanagment import pyarchinit_dbmanagment
+from .modules.utility.pyarchinit_folder_installation import pyarchinit_Folder_installation
 from .pyarchinitConfigDialog import pyArchInitDialog_Config
 from .pyarchinitInfoDialog import pyArchInitDialog_Info
-from .pyarchinit_Gis_Time_controller import pyarchinit_Gis_Time_Controller
-from .pyarchinit_image_viewer_main import Main
-from .pyarchinit_Schedaind_mainapp import pyarchinit_Schedaind
-from .pyarchinit_Detsesso_mainapp import pyarchinit_Detsesso
-from .pyarchinit_Deteta_mainapp import pyarchinit_Deteta
-from .pyarchinit_Tafonomia_mainapp import pyarchinit_Tafonomia
 from .pyarchinit_Archeozoology_mainapp import pyarchinit_Archeozoology
-from .pyarchinit_UT_mainapp import pyarchinit_UT
-from .pyarchinit_images_directory_export_mainapp import pyarchinit_Images_directory_export
-from .pyarchinit_images_comparision_main import Comparision
-from .dbmanagment import pyarchinit_dbmanagment
-from .pyarchinitplugindialog import PyarchinitPluginDialog
-from .pyarchinit_pdf_export_mainapp import pyarchinit_pdf_export
 from .pyarchinit_Campioni_mainapp import pyarchinit_Campioni
-from .pyarchinit_Thesaurus_mainapp import pyarchinit_Thesaurus
+from .pyarchinit_Deteta_mainapp import pyarchinit_Deteta
+from .pyarchinit_Detsesso_mainapp import pyarchinit_Detsesso
 from .pyarchinit_Documentazione_mainapp import pyarchinit_Documentazione
+from .pyarchinit_Gis_Time_controller import pyarchinit_Gis_Time_Controller
 from .pyarchinit_Inv_Lapidei import pyarchinit_Inventario_Lapidei
+from .pyarchinit_Inv_Materiali_mainapp import pyarchinit_Inventario_reperti
+from .pyarchinit_Periodizzazione_mainapp import pyarchinit_Periodizzazione
+from .pyarchinit_Schedaind_mainapp import pyarchinit_Schedaind
+from .pyarchinit_Site_mainapp import pyarchinit_Site
+from .pyarchinit_Struttura_mainapp import pyarchinit_Struttura
+from .pyarchinit_Tafonomia_mainapp import pyarchinit_Tafonomia
+from .pyarchinit_Thesaurus_mainapp import pyarchinit_Thesaurus
+from .pyarchinit_US_mainapp import pyarchinit_US
+from .pyarchinit_UT_mainapp import pyarchinit_UT
+from .pyarchinit_image_viewer_main import Main
+from .pyarchinit_images_comparision_main import Comparision
+from .pyarchinit_images_directory_export_mainapp import pyarchinit_Images_directory_export
+from .pyarchinit_pdf_export_mainapp import pyarchinit_pdf_export
+from .pyarchinitplugindialog import PyarchinitPluginDialog
 
 filepath = os.path.dirname(__file__)
 
@@ -93,8 +92,8 @@ class PyArchInitPlugin(object):
     path_rel = os.path.join(os.sep, str(HOME), 'pyarchinit_DB_folder', 'config.cfg')
     conf = open(path_rel, "r")
     data = conf.read()
-    PARAMS_DICT = eval(data)
-    if ('EXPERIMENTAL' in PARAMS_DICT) == False:
+    PARAMS_DICT = ast.literal_eval(data)
+    if 'EXPERIMENTAL' in PARAMS_DICT:
         PARAMS_DICT['EXPERIMENTAL'] = 'No'
         f = open(path_rel, "w")
         f.write(str(PARAMS_DICT))
@@ -609,6 +608,9 @@ class PyArchInitPlugin(object):
         self.iface.removeToolBarIcon(self.actionThesaurus)
         self.iface.removeToolBarIcon(self.actionInfo)
         self.iface.removeToolBarIcon(self.actionDbmanagment)
+
+        self.dockWidget.setVisible(False)
+        self.iface.removeDockWidget(self.dockWidget)
 
         # remove tool bar
         del self.toolBar
