@@ -19,13 +19,19 @@
  *                                                                         *
  ***************************************************************************/
 """
-from PyQt4.QtCore import *
-from PyQt4.QtGui import *
-
-from modules.gui.sort_panel_ui import Ui_sortPanel
+from __future__ import absolute_import
 
 
-class SortPanelMain(QDialog, Ui_sortPanel):
+from builtins import range
+from qgis.PyQt.QtWidgets import QApplication, QDialog, QMessageBox
+from qgis.PyQt.uic import loadUiType
+
+import os
+
+MAIN_DIALOG_CLASS, _ = loadUiType(os.path.join(os.path.dirname(__file__), 'modules', 'gui', 'sort_panel_ui.ui'))
+
+
+class SortPanelMain(QDialog, MAIN_DIALOG_CLASS):
     ITEMS = []
     TYPE_ORDER = ""
 
@@ -44,7 +50,7 @@ class SortPanelMain(QDialog, Ui_sortPanel):
             self.TYPE_ORDER = "desc"
 
         if not bool(self.ITEMS):
-            ttl = QString("Non è stato impostata alcun criterio. Vuoi uscire?")
+            ttl = "Non è stato impostata alcun criterio. Vuoi uscire?"
             msg = QMessageBox.warning(self, 'ATTENZIONE', ttl, QMessageBox.Cancel, 1)
             if msg == 1:
                 self.close()

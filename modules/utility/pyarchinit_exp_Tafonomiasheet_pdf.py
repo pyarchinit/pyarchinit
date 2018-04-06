@@ -1,11 +1,33 @@
 #! /usr/bin/env python
 # -*- coding: utf-8 -*-
+"""
+/***************************************************************************
+        pyArchInit Plugin  - A QGIS plugin to manage archaeological dataset
+                             stored in Postgres
+                             -------------------
+    begin                : 2007-12-01
+    copyright            : (C) 2008 by Luca Mandolesi
+    email                : mandoluca at gmail.com
+ ***************************************************************************/
 
+/***************************************************************************
+ *                                                                         *
+ *   This program is free software; you can redistribute it and/or modify  *
+ *   it under the terms of the GNU General Public License as published by  *
+ *   the Free Software Foundation; either version 2 of the License, or     *
+ *   (at your option) any later version.                                   *
+ *                                                                         *
+ ***************************************************************************/
+"""
+
+from builtins import str
+from builtins import range
+from builtins import object
 import os
 from datetime import date
 
-from pyarchinit_OS_utility import *
-from pyarchinit_utility import Utility
+from .pyarchinit_OS_utility import *
+from ..db.pyarchinit_utility import Utility
 from reportlab.lib import colors
 from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
 from reportlab.lib.units import inch, cm, mm
@@ -68,7 +90,7 @@ class NumberedCanvas_TAFONOMIAindex(canvas.Canvas):
                              "Pag. %d di %d" % (self._pageNumber, page_count))  # scheda us verticale 200mm x 20 mm
 
 
-class Tafonomia_index_pdf_sheet:
+class Tafonomia_index_pdf_sheet(object):
     def __init__(self, data):
         self.nr_scheda_taf = data[1]
         self.sigla_struttura = data[2]
@@ -193,7 +215,7 @@ class Tafonomia_index_pdf_sheet:
         return styles
 
 
-class Tafonomia_index_II_pdf_sheet:
+class Tafonomia_index_II_pdf_sheet(object):
     PU = Utility()
     # this model includes str.n., area/sett, descrizione, rito
     # corredo,orient., UUSS/UUSSMM, quotemax, misure, datazione
@@ -308,7 +330,7 @@ class Tafonomia_index_II_pdf_sheet:
         return styles
 
 
-class single_Tafonomia_pdf_sheet:
+class single_Tafonomia_pdf_sheet(object):
     PU = Utility()
 
     # rapporti stratigrafici
@@ -691,7 +713,7 @@ class single_Tafonomia_pdf_sheet:
         return t
 
 
-class generate_tafonomia_pdf:
+class generate_tafonomia_pdf(object):
     if os.name == 'posix':
         HOME = os.environ['HOME']
     elif os.name == 'nt':

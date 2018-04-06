@@ -19,10 +19,13 @@
  ***************************************************************************/
 """
 
+from builtins import str
+from builtins import range
+from builtins import object
 import os
 from datetime import date
 
-from pyarchinit_OS_utility import *
+from .pyarchinit_OS_utility import *
 from reportlab.lib import colors
 from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
 from reportlab.lib.units import inch, cm, mm
@@ -85,7 +88,7 @@ class NumberedCanvas_Individuiindex(canvas.Canvas):
                              "Pag. %d di %d" % (self._pageNumber, page_count))  # scheda us verticale 200mm x 20 mm
 
 
-class Individui_index_pdf_sheet:
+class Individui_index_pdf_sheet(object):
     def __init__(self, data):
         self.area = data[1]
         self.us = data[2]
@@ -148,7 +151,7 @@ class Individui_index_pdf_sheet:
         return styles
 
 
-class single_Individui_pdf_sheet:
+class single_Individui_pdf_sheet(object):
     def __init__(self, data):
         self.sito = data[0]
         self.area = data[1]
@@ -300,7 +303,7 @@ class single_Individui_pdf_sheet:
         return t
 
 
-class generate_pdf:
+class generate_pdf(object):
     if os.name == 'posix':
         HOME = os.environ['HOME']
     elif os.name == 'nt':

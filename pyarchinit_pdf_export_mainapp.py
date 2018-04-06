@@ -19,34 +19,35 @@
  *                                                                         *
  ***************************************************************************/
 """
-# from PyQt4 import QtCore, QtGui
+from __future__ import absolute_import
+from builtins import str
+from builtins import range
+
+from qgis.PyQt.QtWidgets import QDialog, QMessageBox
+from qgis.PyQt.uic import loadUiType
+
 import os
 import platform
 import subprocess
 
-from PyQt4.QtCore import *
-from PyQt4.QtGui import *
-from modules.db.pyarchinit_OS_Utility import Pyarchinit_OS_Utility
-from modules.db.pyarchinit_exp_Findssheet_pdf import *
-from modules.db.pyarchinit_exp_Individui_pdf import *
-from modules.db.pyarchinit_exp_Periodizzazionesheet_pdf import *
-from modules.db.pyarchinit_exp_Strutturasheet_pdf import *
-from modules.db.pyarchinit_exp_Tafonomiasheet_pdf import *
-from modules.db.pyarchinit_exp_USsheet_pdf import *
-from modules.db.pyarchinit_pdf_exp_ui import *
 
-from modules.db.pyarchinit_conn_strings import Connection
-from modules.db.pyarchinit_db_manager import Pyarchinit_db_management
-from modules.db.pyarchinit_utility import *
-from modules.gui.pyarchinit_pdf_exp_ui import Ui_Dialog_pdf_exp
-from modules.utility.pyarchinit_exp_Findssheet_pdf import generate_reperti_pdf
-from modules.utility.pyarchinit_exp_Periodizzazionesheet_pdf import generate_Periodizzazione_pdf
-from modules.utility.pyarchinit_exp_Periodosheet_pdf import generate_US_pdf
-from modules.utility.pyarchinit_exp_Strutturasheet_pdf import generate_struttura_pdf
-from modules.utility.pyarchinit_exp_Tafonomiasheet_pdf import generate_tafonomia_pdf
+# from .modules.utility.pyarchinit_OS_Utility import Pyarchinit_OS_Utility
+from .modules.utility.pyarchinit_exp_Individui_pdf import *
+from .modules.utility.pyarchinit_exp_USsheet_pdf import *
+
+from .modules.db.pyarchinit_conn_strings import Connection
+from .modules.db.pyarchinit_db_manager import Pyarchinit_db_management
+from .modules.db.pyarchinit_utility import *
+from .modules.utility.pyarchinit_exp_Findssheet_pdf import generate_reperti_pdf
+from .modules.utility.pyarchinit_exp_Periodizzazionesheet_pdf import generate_Periodizzazione_pdf
+from .modules.utility.pyarchinit_exp_Periodosheet_pdf import generate_US_pdf
+from .modules.utility.pyarchinit_exp_Strutturasheet_pdf import generate_struttura_pdf
+from .modules.utility.pyarchinit_exp_Tafonomiasheet_pdf import generate_tafonomia_pdf
+
+MAIN_DIALOG_CLASS, _ = loadUiType(os.path.join(os.path.dirname(__file__), 'modules', 'gui', 'pyarchinit_pdf_exp_ui.ui'))
 
 
-class pyarchinit_pdf_export(QDialog, Ui_Dialog_pdf_exp):
+class pyarchinit_pdf_export(QDialog, MAIN_DIALOG_CLASS):
     UTILITY = Utility()
     OS_UTILITY = Pyarchinit_OS_Utility()
     DB_MANAGER = ""
@@ -86,7 +87,6 @@ class pyarchinit_pdf_export(QDialog, Ui_Dialog_pdf_exp):
         QMessageBox.warning(self, "Alert",
                             "Sistema sperimentale. Esporta le schede PDF in /vostro_utente/pyarchinit_DB_folder. Sostituisce i documenti gia' presenti. Se volete conservarli fatene una copia o rinominateli.",
                             QMessageBox.Ok)
-        from pyarchinit_conn_strings import *
 
         conn = Connection()
         conn_str = conn.conn_str()

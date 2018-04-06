@@ -20,10 +20,10 @@
  ***************************************************************************/
 """
 
-import os
-
 from qgis.PyQt.QtWidgets import QApplication, QDialog
 from qgis.PyQt.uic import loadUiType
+
+import os
 
 MAIN_DIALOG_CLASS, _ = loadUiType(os.path.join(os.path.dirname(__file__), 'modules', 'gui', 'info.ui'))
 

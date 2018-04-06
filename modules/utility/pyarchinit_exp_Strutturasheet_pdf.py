@@ -1,7 +1,32 @@
+#! /usr/bin/env python
+# -*- coding: utf-8 -*-
+"""
+/***************************************************************************
+        pyArchInit Plugin  - A QGIS plugin to manage archaeological dataset
+                             stored in Postgres
+                             -------------------
+    begin                : 2007-12-01
+    copyright            : (C) 2008 by Luca Mandolesi
+    email                : mandoluca at gmail.com
+ ***************************************************************************/
+
+/***************************************************************************
+ *                                                                         *
+ *   This program is free software; you can redistribute it and/or modify  *
+ *   it under the terms of the GNU General Public License as published by  *
+ *   the Free Software Foundation; either version 2 of the License, or     *
+ *   (at your option) any later version.                                   *
+ *                                                                         *
+ ***************************************************************************/
+"""
+
+from builtins import str
+from builtins import range
+from builtins import object
 import os
 from datetime import date
 
-from pyarchinit_OS_utility import *
+from .pyarchinit_OS_utility import *
 from reportlab.lib import colors
 from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
 from reportlab.lib.units import inch, cm, mm
@@ -64,7 +89,7 @@ class NumberedCanvas_STRUTTURAsheet(canvas.Canvas):
                              "Pag. %d di %d" % (self._pageNumber, page_count))  # scheda us verticale 200mm x 20 mm
 
 
-class Struttura_index_pdf_sheet:
+class Struttura_index_pdf_sheet(object):
     def __init__(self, data):
         self.sigla_struttura = data[1]
         self.numero_struttura = data[2]
@@ -128,7 +153,7 @@ class Struttura_index_pdf_sheet:
         return styles
 
 
-class single_Struttura_pdf_sheet:
+class single_Struttura_pdf_sheet(object):
     # rapporti stratigrafici
 
     materiali_print = ''
@@ -402,7 +427,7 @@ class single_Struttura_pdf_sheet:
         return t
 
 
-class generate_struttura_pdf:
+class generate_struttura_pdf(object):
     if os.name == 'posix':
         HOME = os.environ['HOME']
     elif os.name == 'nt':

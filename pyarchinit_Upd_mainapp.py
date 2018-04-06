@@ -19,16 +19,17 @@
  *                                                                         *
  ***************************************************************************/
 """
+from __future__ import absolute_import
+from builtins import str
+import os
 
-from PyQt4.QtCore import *
-from PyQt4.QtGui import *
-from  pyarchinit_utility import *
+from qgis.PyQt.QtWidgets import QDialog, QMessageBox
+from qgis.PyQt.uic import loadUiType
 
-from modules.db.pyarchinit_conn_strings import Connection
-from modules.db.pyarchinit_db_manager import Pyarchinit_db_management
-from modules.db.pyarchinit_utility import Utility
-from modules.gis.pyarchinit_pyqgis import Pyarchinit_pyqgis
-from modules.gui.Ui_UpdValues import Ui_DialogSostituisciValori
+from .modules.db.pyarchinit_conn_strings import Connection
+from .modules.db.pyarchinit_db_manager import Pyarchinit_db_management
+from .modules.db.pyarchinit_utility import Utility
+from .modules.gis.pyarchinit_pyqgis import Pyarchinit_pyqgis
 
 try:
     from qgis.core import *
@@ -36,13 +37,10 @@ try:
 except:
     pass
 
-try:
-    from  pyarchinit_db_manager import *
-except:
-    pass
+MAIN_DIALOG_CLASS, _ = loadUiType(os.path.join(os.path.dirname(__file__), 'modules', 'gui', 'Ui_UpdValues.ui'))
 
 
-class pyarchinit_Upd_Values(QDialog, Ui_DialogSostituisciValori):
+class pyarchinit_Upd_Values(QDialog, MAIN_DIALOG_CLASS):
     MSG_BOX_TITLE = "PyArchInit - Aggiornamento Valori"
     DATA_LIST = []
     DATA_LIST_REC_CORR = []
@@ -74,7 +72,6 @@ class pyarchinit_Upd_Values(QDialog, Ui_DialogSostituisciValori):
 
     def load_connection(self):
         QMessageBox.warning(self, "Alert", "Sistema in corso di abbandono. A breve verra' eliminato.", QMessageBox.Ok)
-        from pyarchinit_conn_strings import *
 
         conn = Connection()
         conn_str = conn.conn_str()

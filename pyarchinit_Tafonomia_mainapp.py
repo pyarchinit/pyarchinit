@@ -19,26 +19,28 @@
  *                                                                         *
  ***************************************************************************/
 """
+from __future__ import absolute_import
+from builtins import str
+from builtins import range
 from datetime import date
 
-from delegateComboBox import *
-from  pyarchinit_Tafonomia_ui import *
-from  pyarchinit_db_manager import *
-from  pyarchinit_error_check import *
-from  pyarchinit_exp_Tafonomiasheet_pdf import *
-from  pyarchinit_exp_USsheet_pdf import *
-from  pyarchinit_utility import *
+from qgis.PyQt.QtWidgets import QDialog, QMessageBox
+from qgis.PyQt.uic import loadUiType
+
+import os
+
 from qgis.core import *
 from qgis.gui import *
 
-from modules.db.pyarchinit_conn_strings import Connection
-from modules.db.pyarchinit_db_manager import Pyarchinit_db_management
-from modules.db.pyarchinit_utility import Utility
-from modules.gis.pyarchinit_pyqgis import Pyarchinit_pyqgis
-from modules.gui.pyarchinit_Tafonomia_ui import Ui_Dialog_tafonomia
-from modules.utility.pyarchinit_error_check import Error_check
-from modules.utility.pyarchinit_exp_Tafonomiasheet_pdf import generate_tafonomia_pdf
-from  sortpanelmain import SortPanelMain
+from .modules.db.pyarchinit_conn_strings import Connection
+from .modules.db.pyarchinit_db_manager import Pyarchinit_db_management
+from .modules.db.pyarchinit_utility import Utility
+from .modules.gis.pyarchinit_pyqgis import Pyarchinit_pyqgis
+from .modules.utility.pyarchinit_error_check import Error_check
+from .modules.utility.pyarchinit_exp_Tafonomiasheet_pdf import generate_tafonomia_pdf
+from .modules.utility.delegateComboBox import ComboBoxDelegate
+from .modules.utility.pyarchinit_exp_USsheet_pdf import *
+from .sortpanelmain import SortPanelMain
 
 # --import pyArchInit modules--#
 try:
@@ -46,8 +48,10 @@ try:
 except:
     pass
 
+MAIN_DIALOG_CLASS, _ = loadUiType(os.path.join(os.path.dirname(__file__), 'modules', 'gui', 'pyarchinit_Tafonomia_ui.ui'))
 
-class pyarchinit_Tafonomia(QDialog, Ui_Dialog_tafonomia):
+
+class pyarchinit_Tafonomia(QDialog, MAIN_DIALOG_CLASS):
     MSG_BOX_TITLE = "PyArchInit - Scheda Tafonomica"
     DATA_LIST = []
     DATA_LIST_REC_CORR = []
@@ -192,21 +196,21 @@ class pyarchinit_Tafonomia(QDialog, Ui_Dialog_tafonomia):
         self.customize_GUI()  # call for GUI customizations
 
         # SIGNALS & SLOTS Functions
-        self.connect(self.comboBox_sito, SIGNAL("currentIndexChanged(int)"), self.charge_struttura_list)
-        self.connect(self.comboBox_sito, SIGNAL("currentIndexChanged(int)"), self.charge_individuo_list)
+        self.comboBox_sito.currentIndexChanged.connect(self.charge_struttura_list)
+        self.comboBox_sito.currentIndexChanged.connect(self.charge_individuo_list)
 
         # SIGNALS & SLOTS Functions
-        self.connect(self.comboBox_sito, SIGNAL("editTextChanged (const QString&)"), self.charge_periodo_iniz_list)
-        self.connect(self.comboBox_sito, SIGNAL("editTextChanged (const QString&)"), self.charge_periodo_fin_list)
+        self.comboBox_sito.editTextChanged .connect(self.charge_periodo_iniz_list)
+        self.comboBox_sito.editTextChanged .connect(self.charge_periodo_fin_list)
 
-        self.connect(self.comboBox_sito, SIGNAL("currentIndexChanged(int)"), self.charge_periodo_iniz_list)
-        self.connect(self.comboBox_sito, SIGNAL("currentIndexChanged(int)"), self.charge_periodo_fin_list)
+        self.comboBox_sito.currentIndexChanged.connect(self.charge_periodo_iniz_list)
+        self.comboBox_sito.currentIndexChanged.connect(self.charge_periodo_fin_list)
 
-        self.connect(self.comboBox_per_iniz, SIGNAL("editTextChanged (const QString&)"), self.charge_fase_iniz_list)
-        self.connect(self.comboBox_per_iniz, SIGNAL("currentIndexChanged(int)"), self.charge_fase_iniz_list)
+        self.comboBox_per_iniz.editTextChanged .connect(self.charge_fase_iniz_list)
+        self.comboBox_per_iniz.currentIndexChanged.connect(self.charge_fase_iniz_list)
 
-        self.connect(self.comboBox_per_fin, SIGNAL("editTextChanged (const QString&)"), self.charge_fase_fin_list)
-        self.connect(self.comboBox_per_fin, SIGNAL("currentIndexChanged(int)"), self.charge_fase_fin_list)
+        self.comboBox_per_fin.editTextChanged .connect(self.charge_fase_fin_list)
+        self.comboBox_per_fin.currentIndexChanged.connect(self.charge_fase_fin_list)
 
         sito = self.comboBox_sito.currentText()
         self.comboBox_sito.setEditText(sito)
@@ -259,7 +263,6 @@ class pyarchinit_Tafonomia(QDialog, Ui_Dialog_tafonomia):
         self.pushButton_sort.setEnabled(n)
 
     def on_pushButton_connect_pressed(self):
-        from pyarchinit_conn_strings import *
         conn = Connection()
         conn_str = conn.conn_str()
         test_conn = conn_str.find('sqlite')

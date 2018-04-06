@@ -19,27 +19,29 @@
  *                                                                         *
  ***************************************************************************/
 """
+from __future__ import absolute_import
+from builtins import str
+from builtins import range
 import os
 from datetime import date
 
+from qgis.PyQt.QtWidgets import QDialog, QMessageBox
+from qgis.PyQt.uic import loadUiType
+
 import numpy as np
 import sys
-from PyQt4 import QtCore, QtGui
-from  delegateComboBox import *
-from  imageViewer import ImageViewer
-from  pyarchinit_error_check import *
-from  pyarchinit_exp_Invlapsheet_pdf import *
-from  pyarchinit_scheda_Lapidei_ui import *
-from  pyarchinit_utility import *
+from .modules.utility.delegateComboBox import ComboBoxDelegate
+from .modules.gui.imageViewer import ImageViewer
+from .modules.utility.pyarchinit_exp_Invlapsheet_pdf import *
+from .modules.utility.pyarchinit_print_utility import Print_utility
 from sqlalchemy.sql.functions import mode
 
-from modules.db.pyarchinit_conn_strings import Connection
-from modules.db.pyarchinit_db_manager import Pyarchinit_db_management
-from modules.db.pyarchinit_utility import Utility
-from modules.gui.pyarchinit_scheda_Lapidei_ui import Ui_DialogSchedaLapidei
-from modules.utility.pyarchinit_error_check import Error_check
-from modules.utility.pyarchinit_exp_Findssheet_pdf import generate_reperti_pdf
-from  sortpanelmain import SortPanelMain
+from .modules.db.pyarchinit_conn_strings import Connection
+from .modules.db.pyarchinit_db_manager import Pyarchinit_db_management
+from .modules.db.pyarchinit_utility import Utility
+from .modules.utility.pyarchinit_error_check import Error_check
+from .modules.utility.pyarchinit_exp_Findssheet_pdf import generate_reperti_pdf
+from .sortpanelmain import SortPanelMain
 
 try:
     from qgis.core import *
@@ -47,23 +49,15 @@ try:
 except:
     pass
 
-# --import pyArchInit modules--#
-# from  pyarchinit_inventario_reperti_ui import Ui_DialogSchedaRavenna
-
 try:
     from  pyarchinit_db_manager import *
 except:
     pass
 
-
-##from  pyarchinit_exp_Findssheet_pdf import *
-
+MAIN_DIALOG_CLASS, _ = loadUiType(os.path.join(os.path.dirname(__file__), 'modules', 'gui', 'pyarchinit_scheda_Lapidei_ui.ui'))
 
 
-
-
-
-class pyarchinit_Inventario_Lapidei(QDialog, Ui_DialogSchedaLapidei):
+class pyarchinit_Inventario_Lapidei(QDialog, MAIN_DIALOG_CLASS):
     ##	MSG_BOX_TITLE = "PyArchInit - Scheda Inventario Lapidei"
     DATA_LIST = []
     DATA_LIST_REC_CORR = []
@@ -236,7 +230,6 @@ class pyarchinit_Inventario_Lapidei(QDialog, Ui_DialogSchedaLapidei):
         self.widget.canvas.draw()
 
     def on_pushButton_connect_pressed(self):
-        from pyarchinit_conn_strings import *
         # self.setComboBoxEditable(["self.comboBox_sito"],1)
         conn = Connection()
         conn_str = conn.conn_str()
@@ -297,7 +290,7 @@ class pyarchinit_Inventario_Lapidei(QDialog, Ui_DialogSchedaLapidei):
         self.iconListWidget.setObjectName("iconListWidget")
         self.iconListWidget.SelectionMode()
         self.iconListWidget.setSelectionMode(QtGui.QAbstractItemView.MultiSelection)
-        self.connect(self.iconListWidget, SIGNAL("itemDoubleClicked(QListWidgetItem *)"), self.openWide_image)
+        self.iconListWidget.itemDoubleClicked.connect(self.openWide_image)
         self.tabWidget.addTab(self.iconListWidget, "Media")
 
         # delegate combobox

@@ -19,16 +19,22 @@
  *                                                                         *
  ***************************************************************************/
 """
-import sys
-from olefile.olefile import v
-from  pyarchinit_db_manager import *
-from  pyarchinit_utility import *
 
-from modules.db.pyarchinit_conn_strings import Connection
-from modules.db.pyarchinit_db_manager import Pyarchinit_db_management
-from modules.gis.pyarchinit_pyqgis import Pyarchinit_pyqgis
-from modules.gui.pyarchinit_gis_time_controller import Ui_DialogGisTimeController
-from pyarchinit_US_mainapp import pyarchinit_US
+from __future__ import absolute_import
+from builtins import str
+from builtins import range
+import sys
+import os
+# TODO: must be fixed
+# from olefile.olefile import v
+
+from qgis.PyQt.QtWidgets import QApplication, QDialog, QMessageBox
+from qgis.PyQt.uic import loadUiType
+
+from .modules.db.pyarchinit_conn_strings import Connection
+from .modules.db.pyarchinit_db_manager import Pyarchinit_db_management
+from .modules.gis.pyarchinit_pyqgis import Pyarchinit_pyqgis
+from .pyarchinit_US_mainapp import pyarchinit_US
 
 try:
     from qgis.core import *
@@ -36,8 +42,10 @@ try:
 except:
     pass
 
+MAIN_DIALOG_CLASS, _ = loadUiType(os.path.join(os.path.dirname(__file__), 'modules', 'gui', 'pyarchinit_gis_time_controller.ui'))
 
-class pyarchinit_Gis_Time_Controller(QDialog, Ui_DialogGisTimeController):
+
+class pyarchinit_Gis_Time_Controller(QDialog, MAIN_DIALOG_CLASS):
     MSG_BOX_TITLE = "PyArchInit - Gis Time Management"
     DB_MANAGER = ""
     ORDER_LAYER_VALUE = ""
@@ -55,19 +63,16 @@ class pyarchinit_Gis_Time_Controller(QDialog, Ui_DialogGisTimeController):
         except:
             pass
 
-        QObject.connect(self.dial_relative_cronology, SIGNAL("valueChanged(int)"), self.set_max_num)
-        QObject.connect(self.spinBox_relative_cronology, SIGNAL("valueChanged(int)"), self.set_max_num)
+        self.dial_relative_cronology.valueChanged.connect(self.set_max_num)
+        self.spinBox_relative_cronology.valueChanged.connect(self.set_max_num)
 
-        QObject.connect(self.dial_relative_cronology, SIGNAL("valueChanged(int)"), self.define_order_layer_value)
-        QObject.connect(self.dial_relative_cronology, SIGNAL("valueChanged(int)"),
-                        self.spinBox_relative_cronology.setValue)
+        self.dial_relative_cronology.valueChanged.connect(self.define_order_layer_value)
+        self.dial_relative_cronology.valueChanged.connect(self.spinBox_relative_cronology.setValue)
 
-        QObject.connect(self.spinBox_relative_cronology, SIGNAL("valueChanged(int)"), self.define_order_layer_value)
-        QObject.connect(self.spinBox_relative_cronology, SIGNAL("valueChanged(int)"),
-                        self.dial_relative_cronology.setValue)
+        self.spinBox_relative_cronology.valueChanged.connect(self.define_order_layer_value)
+        self.spinBox_relative_cronology.valueChanged.connect(self.dial_relative_cronology.setValue)
 
     def connect(self):
-        from pyarchinit_conn_strings import *
         conn = Connection()
         conn_str = conn.conn_str()
         try:

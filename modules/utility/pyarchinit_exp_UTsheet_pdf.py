@@ -1,13 +1,38 @@
-import os
+#! /usr/bin/env python
+# -*- coding: utf-8 -*-
+"""
+/***************************************************************************
+        pyArchInit Plugin  - A QGIS plugin to manage archaeological dataset
+                             stored in Postgres
+                             -------------------
+    begin                : 2007-12-01
+    copyright            : (C) 2008 by Luca Mandolesi
+    email                : mandoluca at gmail.com
+ ***************************************************************************/
+
+/***************************************************************************
+ *                                                                         *
+ *   This program is free software; you can redistribute it and/or modify  *
+ *   it under the terms of the GNU General Public License as published by  *
+ *   the Free Software Foundation; either version 2 of the License, or     *
+ *   (at your option) any later version.                                   *
+ *                                                                         *
+ ***************************************************************************/
+"""
+
 from datetime import date
 
-from pyarchinit_OS_utility import *
+from builtins import object
+from builtins import range
+from builtins import str
 from reportlab.lib import colors
 from reportlab.lib.styles import getSampleStyleSheet
 from reportlab.lib.units import inch, mm
 from reportlab.pdfgen import canvas
 from reportlab.platypus import Table, PageBreak, SimpleDocTemplate, TableStyle, Image
 from reportlab.platypus.paragraph import Paragraph
+
+from .pyarchinit_OS_utility import *
 
 
 class NumberedCanvas_UTsheet(canvas.Canvas):
@@ -64,7 +89,7 @@ class NumberedCanvas_UTindex(canvas.Canvas):
                              "Pag. %d di %d" % (self._pageNumber, page_count))  # scheda us verticale 200mm x 20 mm
 
 
-class single_UT_pdf_sheet:
+class single_UT_pdf_sheet(object):
     def __init__(self, data):
         self.progetto = data[0]  # 1
         self.nr_ut = data[1]  # 2
@@ -305,7 +330,7 @@ class single_UT_pdf_sheet:
         return styles
 
 
-class generate_pdf:
+class generate_pdf(object):
     if os.name == 'posix':
         HOME = os.environ['HOME']
     elif os.name == 'nt':

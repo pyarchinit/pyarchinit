@@ -19,23 +19,24 @@
  *                                                                         *
  ***************************************************************************/
 """
+from __future__ import absolute_import
+from builtins import str
+from builtins import range
 from datetime import date
 
-import sys
-from  pyarchinit_Periodo_fase_ui import *
-from  pyarchinit_Periodo_fase_ui import Ui_DialogPeriodoFase
-from  pyarchinit_error_check import *
-from  pyarchinit_exp_Periodizzazionesheet_pdf import *
-from  pyarchinit_pyqgis import Pyarchinit_pyqgis
-from  pyarchinit_utility import *
+from qgis.PyQt.QtWidgets import QDialog, QMessageBox
+from qgis.PyQt.uic import loadUiType
 
-from modules.db.pyarchinit_conn_strings import Connection
-from modules.db.pyarchinit_db_manager import Pyarchinit_db_management
-from modules.db.pyarchinit_utility import Utility
-from modules.utility.pyarchinit_error_check import Error_check
-from modules.utility.pyarchinit_exp_Periodizzazionesheet_pdf import generate_Periodizzazione_pdf
-from pyarchinit_US_mainapp import pyarchinit_US
-from  sortpanelmain import SortPanelMain
+import sys
+import os
+from .modules.gis.pyarchinit_pyqgis import Pyarchinit_pyqgis
+from .modules.db.pyarchinit_conn_strings import Connection
+from .modules.db.pyarchinit_db_manager import Pyarchinit_db_management
+from .modules.db.pyarchinit_utility import Utility
+from .modules.utility.pyarchinit_error_check import Error_check
+from .modules.utility.pyarchinit_exp_Periodizzazionesheet_pdf import generate_Periodizzazione_pdf
+from .pyarchinit_US_mainapp import pyarchinit_US
+from .sortpanelmain import SortPanelMain
 
 try:
     from qgis.core import *
@@ -43,15 +44,15 @@ try:
 except:
     pass
 
-# --import pyArchInit modules--#
-
 try:
     from  pyarchinit_db_manager import *
 except:
     pass
 
+MAIN_DIALOG_CLASS, _ = loadUiType(os.path.join(os.path.dirname(__file__), 'modules', 'gui', 'pyarchinit_Periodo_fase_ui.ui'))
 
-class pyarchinit_Periodizzazione(QDialog, Ui_DialogPeriodoFase):
+
+class pyarchinit_Periodizzazione(QDialog, MAIN_DIALOG_CLASS):
     MSG_BOX_TITLE = "PyArchInit - Scheda Periodizzazione"
     DATA_LIST = []
     DATA_LIST_REC_CORR = []
@@ -161,7 +162,6 @@ class pyarchinit_Periodizzazione(QDialog, Ui_DialogPeriodoFase):
         self.pushButton_sort.setEnabled(n)
 
     def on_pushButton_connect_pressed(self):
-        from pyarchinit_conn_strings import *
         conn = Connection()
         conn_str = conn.conn_str()
         test_conn = conn_str.find('sqlite')

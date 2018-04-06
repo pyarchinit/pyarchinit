@@ -19,11 +19,9 @@
  *                                                                         *
  ***************************************************************************/
 """
-
-# TODO: must be fixed
 # from msilib import Table
-from builtins import object
 from builtins import str
+from builtins import object
 from sqlalchemy.engine import create_engine
 from sqlalchemy.sql.schema import MetaData
 

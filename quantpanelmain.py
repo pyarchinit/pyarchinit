@@ -19,11 +19,18 @@
  *                                                                         *
  ***************************************************************************/
 """
-from modules.gui.quant_panel_ui import Ui_quantPanel
-from sortpanelmain import SortPanelMain
+
+from builtins import str
+from builtins import range
+from qgis.PyQt.QtWidgets import QDialog, QMessageBox
+from qgis.PyQt.uic import loadUiType
+from .sortpanelmain import SortPanelMain
+import os
+
+MAIN_DIALOG_CLASS, _ = loadUiType(os.path.join(os.path.dirname(__file__), 'modules', 'gui', 'pyarchinit_US_ui.ui'))
 
 
-class QuantPanelMain(QDialog, Ui_quantPanel):
+class QuantPanelMain(QDialog, MAIN_DIALOG_CLASS):
     ITEMS = []
     TYPE_QUANT = ""
 

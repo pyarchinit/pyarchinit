@@ -18,38 +18,45 @@
  *                                                                         *
  ***************************************************************************/
 """
+from __future__ import absolute_import
+from builtins import str
+from builtins import object
+import sys
 import os
 
-import sys
-from builtins import object
-from builtins import str
-from qgis.core import QgsApplication
+from qgis.PyQt.QtCore import Qt, QFileInfo, QTranslator, QVariant, QCoreApplication
+from qgis.PyQt.QtWidgets import QAction, QApplication, QToolButton, QMenu
+from qgis.PyQt.QtGui import QIcon
 
-from .dbmanagment import pyarchinit_dbmanagment
-from .modules.gui import pyarchinit_Archeozoology
+from qgis.core import QgsApplication, QgsSettings
 from .modules.utility.pyarchinit_folder_installation import pyarchinit_Folder_installation
+
+# Import the code for the dialog
+from .pyarchinit_US_mainapp import pyarchinit_US
+from .pyarchinit_Site_mainapp import pyarchinit_Site
+from .pyarchinit_Periodizzazione_mainapp import pyarchinit_Periodizzazione
+from .pyarchinit_Struttura_mainapp import pyarchinit_Struttura
+from .pyarchinit_Inv_Materiali_mainapp import pyarchinit_Inventario_reperti
+from .pyarchinit_Upd_mainapp import pyarchinit_Upd_Values
 from .pyarchinitConfigDialog import pyArchInitDialog_Config
 from .pyarchinitInfoDialog import pyArchInitDialog_Info
-from .pyarchinit_Campioni_mainapp import pyarchinit_Campioni
-from .pyarchinit_Deteta_mainapp import pyarchinit_Deteta
-from .pyarchinit_Detsesso_mainapp import pyarchinit_Detsesso
-from .pyarchinit_Documentazione_mainapp import pyarchinit_Documentazione
 from .pyarchinit_Gis_Time_controller import pyarchinit_Gis_Time_Controller
-from .pyarchinit_Inv_Lapidei import pyarchinit_Inventario_Lapidei
-from .pyarchinit_Inv_Materiali_mainapp import pyarchinit_Inventario_reperti
-from .pyarchinit_Periodizzazione_mainapp import pyarchinit_Periodizzazione
-from .pyarchinit_Schedaind_mainapp import pyarchinit_Schedaind
-from .pyarchinit_Site_mainapp import pyarchinit_Site
-from .pyarchinit_Struttura_mainapp import pyarchinit_Struttura
-from .pyarchinit_Tafonomia_mainapp import pyarchinit_Tafonomia
-from .pyarchinit_Thesaurus_mainapp import pyarchinit_Thesaurus
-from .pyarchinit_US_mainapp import pyarchinit_US
-from .pyarchinit_UT_mainapp import pyarchinit_UT
 from .pyarchinit_image_viewer_main import Main
-from .pyarchinit_images_comparision_main import Comparision
+from .pyarchinit_Schedaind_mainapp import pyarchinit_Schedaind
+from .pyarchinit_Detsesso_mainapp import pyarchinit_Detsesso
+from .pyarchinit_Deteta_mainapp import pyarchinit_Deteta
+from .pyarchinit_Tafonomia_mainapp import pyarchinit_Tafonomia
+from .pyarchinit_Archeozoology_mainapp import pyarchinit_Archeozoology
+from .pyarchinit_UT_mainapp import pyarchinit_UT
 from .pyarchinit_images_directory_export_mainapp import pyarchinit_Images_directory_export
-from .pyarchinit_pdf_export_mainapp import pyarchinit_pdf_export
+from .pyarchinit_images_comparision_main import Comparision
+from .dbmanagment import pyarchinit_dbmanagment
 from .pyarchinitplugindialog import PyarchinitPluginDialog
+from .pyarchinit_pdf_export_mainapp import pyarchinit_pdf_export
+from .pyarchinit_Campioni_mainapp import pyarchinit_Campioni
+from .pyarchinit_Thesaurus_mainapp import pyarchinit_Thesaurus
+from .pyarchinit_Documentazione_mainapp import pyarchinit_Documentazione
+from .pyarchinit_Inv_Lapidei import pyarchinit_Inventario_Lapidei
 
 filepath = os.path.dirname(__file__)
 
@@ -67,8 +74,6 @@ sys.path.insert(4, filepath)
 fi = pyarchinit_Folder_installation()
 fi.install_dir()
 
-
-# Import the code for the dialog
 
 class PyArchInitPlugin(object):
     if os.name == 'posix':
@@ -88,8 +93,8 @@ class PyArchInitPlugin(object):
     path_rel = os.path.join(os.sep, str(HOME), 'pyarchinit_DB_folder', 'config.cfg')
     conf = open(path_rel, "r")
     data = conf.read()
-    PARAMS_DICT = ast.literal_eval(data)
-    if not ('EXPERIMENTAL' in PARAMS_DICT):
+    PARAMS_DICT = eval(data)
+    if ('EXPERIMENTAL' in PARAMS_DICT) == False:
         PARAMS_DICT['EXPERIMENTAL'] = 'No'
         f = open(path_rel, "w")
         f.write(str(PARAMS_DICT))
@@ -97,14 +102,14 @@ class PyArchInitPlugin(object):
 
     def __init__(self, iface):
         self.iface = iface
-        userPluginPath = QFileInfo(QgsApplication.qgisUserDbFilePath()).path() + "/python/plugins/pyarchinit"
+        userPluginPath = os.path.dirname(__file__)
         systemPluginPath = QgsApplication.prefixPath() + "/python/plugins/pyarchinit"
 
-        overrideLocale = QSettings().value("locale/overrideFlag", QVariant)  # .toBool()
+        overrideLocale = QgsSettings().value("locale/overrideFlag", QVariant)  # .toBool()
         if not overrideLocale:
             localeFullName = QLocale.system().name()
         else:
-            localeFullName = QSettings().value("locale/userLocale", QVariant)  # .toString()
+            localeFullName = QgsSettings().value("locale/userLocale", QVariant)  # .toString()
 
         if QFileInfo(userPluginPath).exists():
             translationPath = userPluginPath + "/i18n/pyarchinit_plugin_" + localeFullName + ".qm"
@@ -118,13 +123,14 @@ class PyArchInitPlugin(object):
             QCoreApplication.installTranslator(self.translator)
 
     def initGui(self):
-        settings = QSettings()
+        settings = QgsSettings()
         self.action = QAction(QIcon(":/plugins/pyarchinit/icons/pai_us.png"), "pyArchInit Main Panel",
                               self.iface.mainWindow())
         self.action.triggered.connect(self.showHideDockWidget)
 
         # dock widget
         self.dockWidget = PyarchinitPluginDialog(self.iface)
+        self.iface.addDockWidget(Qt.LeftDockWidgetArea, self.dockWidget)
 
         # TOOLBAR
         self.toolBar = self.iface.addToolBar("pyArchInit")
@@ -141,8 +147,8 @@ class PyArchInitPlugin(object):
         self.actionSite.triggered.connect(self.runSite)
 
         icon_US = ('%s%s') % (filepath, os.path.join(os.sep, 'icons', 'iconSus.png'))
-        self.actionUS = QAction(QIcon((icon_US)), "US", self.iface.mainWindow())
-        self.actionUS.setWhatsThis("US")
+        self.actionUS = QAction(QIcon((icon_US)), u"US", self.iface.mainWindow())
+        self.actionUS.setWhatsThis(u"US")
         self.actionUS.triggered.connect(self.runUS)
 
         icon_Finds = ('%s%s') % (filepath, os.path.join(os.sep, 'icons', 'iconFinds.png'))
@@ -221,8 +227,8 @@ class PyArchInitPlugin(object):
             self.actionDetsesso.triggered.connect(self.runDetsesso)
 
             icon_Deteta = ('%s%s') % (filepath, os.path.join(os.sep, 'icons', 'iconEta.png'))
-            self.actionDeteta = QAction(QIcon(icon_Deteta), "Determinazione dell'età", self.iface.mainWindow())
-            self.actionSchedaind.setWhatsThis("Determinazione dell'età")
+            self.actionDeteta = QAction(QIcon(icon_Deteta), u"Determinazione dell'età", self.iface.mainWindow())
+            self.actionSchedaind.setWhatsThis(u"Determinazione dell'età")
             self.actionDeteta.triggered.connect(self.runDeteta)
 
         self.funeraryToolButton.addActions([self.actionSchedaind, self.actionTafonomia])
@@ -244,8 +250,8 @@ class PyArchInitPlugin(object):
             self.topoToolButton.setPopupMode(QToolButton.MenuButtonPopup)
 
             icon_UT = ('%s%s') % (filepath, os.path.join(os.sep, 'icons', 'iconUT.png'))
-            self.actionUT = QAction(QIcon(icon_UT), "Unità Topografiche", self.iface.mainWindow())
-            self.actionUT.setWhatsThis("Unità Topografiche")
+            self.actionUT = QAction(QIcon(icon_UT), u"Unità Topografiche", self.iface.mainWindow())
+            self.actionUT.setWhatsThis(u"Unità Topografiche")
             self.actionUT.triggered.connect(self.runUT)
 
             self.topoToolButton.addActions([self.actionUT])

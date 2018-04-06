@@ -1,26 +1,41 @@
-#!/usr/bin/env python
-# encoding: utf-8
+#! /usr/bin/env python
+# -*- coding: utf-8 -*-
 """
-pyarchinit_image_d_d.py
+/***************************************************************************
+        pyArchInit Plugin  - A QGIS plugin to manage archaeological dataset
+                             stored in Postgres
+                             -------------------
+    begin                : 2007-12-01
+    copyright            : (C) 2008 by Luca Mandolesi
+    email                : mandoluca at gmail.com
+ ***************************************************************************/
 
-Created by Pyarchinit on 2010-05-02.
-Copyright (c) 2010 __MyCompanyName__. All rights reserved.
+/***************************************************************************
+ *                                                                         *
+ *   This program is free software; you can redistribute it and/or modify  *
+ *   it under the terms of the GNU General Public License as published by  *
+ *   the Free Software Foundation; either version 2 of the License, or     *
+ *   (at your option) any later version.                                   *
+ *                                                                         *
+ ***************************************************************************/
 """
+from __future__ import absolute_import
 
+from builtins import str
+from builtins import range
 import os
+
+from qgis.PyQt.QtWidgets import QDialog, QMessageBox
+from qgis.PyQt.uic import loadUiType
 
 import PIL as Image
 import numpy as np
 import sys
-from PyQt4 import QtGui
-from pyarchinit_conn_strings import *
-from pyarchinit_media_utility import *
-from pyarchinit_utility import *
 
-from modules.db.pyarchinit_conn_strings import Connection
-from modules.db.pyarchinit_db_manager import Pyarchinit_db_management
-from modules.db.pyarchinit_utility import Utility
-from modules.gui.pyarchinit_images_comparision import Ui_DialogImagesComparision
+from .modules.utility.pyarchinit_media_utility import *
+from .modules.db.pyarchinit_conn_strings import Connection
+from .modules.db.pyarchinit_db_manager import Pyarchinit_db_management
+from .modules.db.pyarchinit_utility import Utility
 
 filepath = os.path.dirname(__file__)
 
@@ -40,8 +55,10 @@ try:
 except:
     pass
 
+MAIN_DIALOG_CLASS, _ = loadUiType(os.path.join(os.path.dirname(__file__), 'modules', 'gui', 'pyarchinit_images_comparision.ui'))
 
-class Comparision(QDialog, Ui_DialogImagesComparision):
+
+class Comparision(QDialog, MAIN_DIALOG_CLASS):
     delegateSites = ''
     DB_MANAGER = ""
     TABLE_NAME = 'media_table'
@@ -74,7 +91,6 @@ class Comparision(QDialog, Ui_DialogImagesComparision):
 
     def connection(self):
 
-        from pyarchinit_conn_strings import *
         conn = Connection()
         conn_str = conn.conn_str()
         try:

@@ -19,25 +19,26 @@
  *                                                                         *
  ***************************************************************************/
 """
+from __future__ import absolute_import
+from builtins import str
+from builtins import range
 from datetime import date
 
-import sys
-from delegateComboBox import *
-from  pyarchinit_UT_ui import *
-from  pyarchinit_db_manager import *
-from  pyarchinit_error_check import *
-from  pyarchinit_exp_UTsheet_pdf import *
-from  pyarchinit_utility import *
+from qgis.PyQt.QtWidgets import QDialog, QMessageBox
+from qgis.PyQt.uic import loadUiType
 
-from modules.db.pyarchinit_conn_strings import Connection
-from modules.db.pyarchinit_db_manager import Pyarchinit_db_management
-from modules.db.pyarchinit_utility import Utility
-from modules.gis.pyarchinit_pyqgis import Pyarchinit_pyqgis
-from modules.gui.pyarchinit_UT_ui import Ui_DialogUT
-from modules.utility.pdf_models.pyarchinit_exp_Findssheet_pdf import generate_pdf
-from modules.utility.pyarchinit_error_check import Error_check
-from pyarchinit_US_mainapp import pyarchinit_US
-from  sortpanelmain import SortPanelMain
+import sys
+import os
+from .modules.utility.delegateComboBox import ComboBoxDelegate
+from .modules.db.pyarchinit_conn_strings import Connection
+from .modules.db.pyarchinit_db_manager import Pyarchinit_db_management
+from .modules.db.pyarchinit_utility import Utility
+from .modules.gis.pyarchinit_pyqgis import Pyarchinit_pyqgis
+from .modules.utility.pdf_models.pyarchinit_exp_Findssheet_pdf import generate_pdf
+from .modules.utility.pyarchinit_error_check import Error_check
+from .modules.utility.pyarchinit_exp_UTsheet_pdf import *
+from .pyarchinit_US_mainapp import pyarchinit_US
+from .sortpanelmain import SortPanelMain
 
 try:
     from qgis.core import *
@@ -45,8 +46,10 @@ try:
 except:
     pass
 
+MAIN_DIALOG_CLASS, _ = loadUiType(os.path.join(os.path.dirname(__file__), 'modules', 'gui', 'pyarchinit_UT_ui.ui'))
 
-class pyarchinit_UT(QDialog, Ui_DialogUT):
+
+class pyarchinit_UT(QDialog, MAIN_DIALOG_CLASS):
     MSG_BOX_TITLE = "PyArchInit - pyarchinit_version 0.4 - Scheda UT"
     DATA_LIST = []
     DATA_LIST_REC_CORR = []
@@ -261,7 +264,6 @@ class pyarchinit_UT(QDialog, Ui_DialogUT):
         self.pushButton_remove_row_bibliografia.setEnabled(n)
 
     def on_pushButton_connect_pressed(self):
-        from pyarchinit_conn_strings import *
         conn = Connection()
         conn_str = conn.conn_str()
         test_conn = conn_str.find('sqlite')

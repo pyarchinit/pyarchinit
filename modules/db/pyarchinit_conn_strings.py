@@ -19,9 +19,8 @@
  *                                                                         *
  ***************************************************************************/
 """
-import os
-
 from builtins import object
+import os
 
 from .settings import Settings
 

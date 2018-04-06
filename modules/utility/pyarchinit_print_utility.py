@@ -2,37 +2,36 @@
 # -*- coding: utf-8 -*-
 """
 /***************************************************************************
- testerDialog
-								 A QGIS plugin
- test print
-							 -------------------
-		begin				 : 2012-06-20
-		copyright			 : (C) 2012 by luca
-		email				 : pyarchinit@gmail.com
+        pyArchInit Plugin  - A QGIS plugin to manage archaeological dataset
+        					 stored in Postgres
+                             -------------------
+    begin                : 2007-12-01
+    copyright            : (C) 2008 by Luca Mandolesi
+    email                : mandoluca at gmail.com
  ***************************************************************************/
 
 /***************************************************************************
- *																		   *
- *	 This program is free software; you can redistribute it and/or modify  *
- *	 it under the terms of the GNU General Public License as published by  *
- *	 the Free Software Foundation; either version 2 of the License, or	   *
- *	 (at your option) any later version.								   *
- *																		   *
+ *                                                                         *
+ *   This program is free software; you can redistribute it and/or modify  *
+ *   it under the terms of the GNU General Public License as published by  *
+ *   the Free Software Foundation; either version 2 of the License, or     *
+ *   (at your option) any later version.                                   *
+ *                                                                         *
  ***************************************************************************/
 """
+
+from builtins import str
+from builtins import range
+from builtins import object
 import os
 
-from PyQt4.QtCore import *
-from PyQt4.QtGui import *
-from qgis.core import *
-from qgis.gui import *
-from settings import *
+from .settings import Settings
 
 
 # from ui_tester import Ui_tester
 # create the dialog for zoom to point
 
-class Print_utility:
+class Print_utility(object):
     if os.name == 'posix':
         HOME = os.environ['HOME']
     elif os.name == 'nt':
