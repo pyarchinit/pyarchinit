@@ -19,18 +19,19 @@
  ***************************************************************************/
 """
 
-from builtins import str
-from builtins import range
-from builtins import object
 import os
 
-from qgis.PyQt.QtWidgets import QApplication, QDialog, QMessageBox
+from builtins import object
+from builtins import range
+from builtins import str
+from qgis.PyQt.QtWidgets import QDialog, QMessageBox
 from qgis.core import *
 from qgis.gui import *
+
 from .settings import Settings
 
 
-class Pyarchinit_pyqgis(QDialog, Settings):
+class Pyarchinit_pyqgis(QDialog):
     if os.name == 'posix':
         HOME = os.environ['HOME']
     elif os.name == 'nt':
@@ -95,8 +96,8 @@ class Pyarchinit_pyqgis(QDialog, Settings):
                           }
 
     def __init__(self, iface):
+        super().__init__()
         self.iface = iface
-        QDialog.__init__(self)
 
     def remove_USlayer_from_registry(self):
         QgsMapLayerRegistry.instance().removeMapLayer(self.USLayerId)

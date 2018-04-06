@@ -19,20 +19,20 @@
  ***************************************************************************/
 """
 
-from builtins import zip
-from builtins import str
-from builtins import range
-from builtins import object
+import ast
 import os
 
 import psycopg2
-from modules.db.entities import DOCUMENTAZIONE
-# from msilib import Table
+from builtins import object
+from builtins import range
+from builtins import str
+from builtins import zip
 from sqlalchemy import and_, or_
 from sqlalchemy.engine import create_engine
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.sql.schema import MetaData
 
+from modules.db.entities import DOCUMENTAZIONE
 from modules.db.pyarchinit_db_mapper import US, UT, SITE, PERIODIZZAZIONE, \
     STRUTTURA, SCHEDAIND, DETSESSO, DETETA, MEDIA, \
     MEDIA_THUMB, MEDIATOENTITY, TAFONOMIA, CAMPIONI, PYARCHINIT_THESAURUS_SIGLE, \

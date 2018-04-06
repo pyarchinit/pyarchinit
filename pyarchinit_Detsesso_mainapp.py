@@ -21,23 +21,20 @@
 """
 
 from __future__ import absolute_import
-from builtins import str
-from builtins import range
-import os
-from datetime import date
 
+import ast
+
+from builtins import range
+from builtins import str
 from qgis.PyQt.QtWidgets import QDialog, QMessageBox
 from qgis.PyQt.uic import loadUiType
-
-from .modules.utility.delegateComboBox import ComboBoxDelegate
-from .modules.utility.pyarchinit_exp_USsheet_pdf import *
-from .modules.utility.pyarchinit_print_utility import Print_utility
 
 from .modules.db.pyarchinit_conn_strings import Connection
 from .modules.db.pyarchinit_db_manager import Pyarchinit_db_management
 from .modules.db.pyarchinit_utility import Utility
 from .modules.gis.pyarchinit_pyqgis import Pyarchinit_pyqgis
 from .modules.gui.imageViewer import ImageViewer
+from .modules.utility.pyarchinit_exp_USsheet_pdf import *
 from .sortpanelmain import SortPanelMain
 
 try:

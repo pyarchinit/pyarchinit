@@ -20,15 +20,14 @@
 """
 from __future__ import absolute_import
 
-from builtins import str
-from builtins import range
+import os
 from datetime import date
 
+import sys
+from builtins import range
+from builtins import str
 from qgis.PyQt.QtWidgets import QDialog, QMessageBox
 from qgis.PyQt.uic import loadUiType
-
-import sys
-import os
 
 from .modules.db.pyarchinit_conn_strings import Connection
 from .modules.db.pyarchinit_db_manager import Pyarchinit_db_management
@@ -102,9 +101,9 @@ class pyarchinit_Site(QDialog, MAIN_DIALOG_CLASS):
     DB_SERVER = "not defined"  ####nuovo sistema sort
 
     def __init__(self, iface):
+        super().__init__()
         self.iface = iface
-        self.pyQGIS = Pyarchinit_pyqgis(self.iface)
-        QDialog.__init__(self)
+        self.pyQGIS = Pyarchinit_pyqgis(iface)
         self.setupUi(self)
         self.currentLayerId = None
         try:
