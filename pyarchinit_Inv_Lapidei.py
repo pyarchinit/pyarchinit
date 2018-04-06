@@ -20,27 +20,24 @@
  ***************************************************************************/
 """
 from __future__ import absolute_import
-from builtins import str
-from builtins import range
-import os
-from datetime import date
 
-from qgis.PyQt.QtWidgets import QDialog, QMessageBox
-from qgis.PyQt.uic import loadUiType
+import ast
 
 import numpy as np
 import sys
-from .modules.utility.delegateComboBox import ComboBoxDelegate
-from .modules.gui.imageViewer import ImageViewer
-from .modules.utility.pyarchinit_exp_Invlapsheet_pdf import *
-from .modules.utility.pyarchinit_print_utility import Print_utility
+from builtins import range
+from builtins import str
+from qgis.PyQt.QtWidgets import QDialog, QMessageBox
+from qgis.PyQt.uic import loadUiType
 from sqlalchemy.sql.functions import mode
 
 from .modules.db.pyarchinit_conn_strings import Connection
 from .modules.db.pyarchinit_db_manager import Pyarchinit_db_management
 from .modules.db.pyarchinit_utility import Utility
+from .modules.gui.imageViewer import ImageViewer
 from .modules.utility.pyarchinit_error_check import Error_check
 from .modules.utility.pyarchinit_exp_Findssheet_pdf import generate_reperti_pdf
+from .modules.utility.pyarchinit_exp_Invlapsheet_pdf import *
 from .sortpanelmain import SortPanelMain
 
 try:

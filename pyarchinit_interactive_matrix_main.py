@@ -19,20 +19,25 @@
  *                                                                         *
  ***************************************************************************/
 """
+from __future__ import absolute_import
 
+import ast
+
+from builtins import range
+from builtins import str
 from matplotlib import *
-from  pyarchinit_error_check import *
-from  pyarchinit_exp_Findssheet_pdf import *
-from  pyarchinit_interactive_matrix_gui import *
-from  pyarchinit_matrix_exp import *
-from  pyarchinit_pyqgis import Pyarchinit_pyqgis
-from  pyarchinit_utility import *
+from qgis.PyQt.QtWidgets import QDialog, QMessageBox
+from qgis.PyQt.uic import loadUiType
 
-from modules.db.pyarchinit_conn_strings import Connection
-from modules.db.pyarchinit_db_manager import Pyarchinit_db_management
-from modules.gui.pyarchinit_interactive_matrix_gui import Ui_DialogInteractiveMatrix
-from modules.utility.pyarchinit_matrix_exp import HARRIS_MATRIX_EXP
-from pyarchinit_US_mainapp import pyarchinit_US
+from .modules.db.pyarchinit_conn_strings import Connection
+from .modules.db.pyarchinit_db_manager import Pyarchinit_db_management
+from .modules.db.pyarchinit_error_check import *
+from .modules.db.pyarchinit_exp_Findssheet_pdf import *
+from .modules.db.pyarchinit_matrix_exp import *
+from .modules.gis.pyarchinit_pyqgis import Pyarchinit_pyqgis
+from .modules.utility.pyarchinit_matrix_exp import HARRIS_MATRIX_EXP
+from .modules.utility.pyarchinit_utility import *
+from .pyarchinit_US_mainapp import pyarchinit_US
 
 try:
     from qgis.core import *
@@ -40,20 +45,20 @@ try:
 except:
     pass
 
-# --import pyArchInit modules--#
-# from  pyarchinit_inventario_reperti_ui import Ui_DialogInventarioMateriali
 try:
     import pygraphviz as pgv
 except:
     pass
 
 try:
-    from  pyarchinit_db_manager import *
+    from pyarchinit_db_manager import *
 except:
     pass
 
+MAIN_DIALOG_CLASS, _ = loadUiType(os.path.join(os.path.dirname(__file__), 'modules', 'gui', 'pyarchinit_interactive_matrix_gui.ui'))
 
-class pyarchinit_Interactive_Matrix(QDialog, Ui_DialogInteractiveMatrix):
+
+class pyarchinit_Interactive_Matrix(QDialog, MAIN_DIALOG_CLASS):
     MSG_BOX_TITLE = "PyArchInit - Scheda Sistema Matrix Interattivo"
     DB_MANAGER = ""
     DATA_LIST = ""

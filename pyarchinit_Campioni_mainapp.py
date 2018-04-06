@@ -21,25 +21,21 @@
 """
 from __future__ import absolute_import
 
-from builtins import str
-from builtins import range
-from qgis.PyQt.QtWidgets import QApplication, QDialog, QMessageBox
-from qgis.PyQt.uic import loadUiType
-from datetime import date
+import ast
 
 import sys
-import os
-from .modules.db.pyarchinit_db_manager import *
-from .modules.utility.pyarchinit_error_check import *
-from .modules.utility.pyarchinit_exp_Campsheet_pdf import *
-from .modules.db.pyarchinit_utility import *
-from .modules.db.pyarchinit_conn_strings import *
+from builtins import range
+from builtins import str
+from qgis.PyQt.QtWidgets import QApplication, QDialog, QMessageBox
+from qgis.PyQt.uic import loadUiType
 
+from .modules.db.pyarchinit_conn_strings import *
 from .modules.db.pyarchinit_conn_strings import Connection
 from .modules.db.pyarchinit_db_manager import Pyarchinit_db_management
 from .modules.db.pyarchinit_utility import Utility
 from .modules.gis.pyarchinit_pyqgis import Pyarchinit_pyqgis
 from .modules.utility.pyarchinit_error_check import Error_check
+from .modules.utility.pyarchinit_exp_Campsheet_pdf import *
 from .modules.utility.pyarchinit_exp_Campsheet_pdf import generate_campioni_pdf
 from .pyarchinit_US_mainapp import pyarchinit_US
 from .sortpanelmain import SortPanelMain
