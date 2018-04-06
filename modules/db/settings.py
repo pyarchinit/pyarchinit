@@ -20,10 +20,9 @@
  ***************************************************************************/
 """
 
-import ast
-import os
-
 from builtins import object
+import os
+import ast
 
 
 class Settings(object):

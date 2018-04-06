@@ -20,12 +20,14 @@
  ***************************************************************************/
 """
 
+from builtins import str
+from builtins import range
+from builtins import object
 import datetime
+import os
 from datetime import date
 
-from builtins import object
-from builtins import range
-from builtins import str
+from .pyarchinit_OS_utility import *
 from reportlab.lib import colors
 from reportlab.lib.pagesizes import (A4)
 from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
@@ -33,8 +35,6 @@ from reportlab.lib.units import inch, cm, mm
 from reportlab.pdfgen import canvas
 from reportlab.platypus import Table, PageBreak, SimpleDocTemplate, Spacer, TableStyle, Image
 from reportlab.platypus.paragraph import Paragraph
-
-from .pyarchinit_OS_utility import *
 
 
 class NumberedCanvas_USsheet(canvas.Canvas):

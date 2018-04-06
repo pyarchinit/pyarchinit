@@ -4,27 +4,25 @@
 /***************************************************************************
         pyArchInit Plugin  - A QGIS plugin to manage archaeological dataset
         					 stored in Postgres
-                             -------------------
+    ------------------------------------------------------------------------
     begin                : 2007-12-01
     copyright            : (C) 2008 by Luca Mandolesi
-    email                : mandoluca at gmail.com
+    email                : pyarchinit at gmail.com
  ***************************************************************************/
 
-/***************************************************************************
- *                                                                         *
- *   This program is free software; you can redistribute it and/or modify  *
- *   it under the terms of the GNU General Public License as published by  *
- *   the Free Software Foundation; either version 2 of the License, or     *
- *   (at your option) any later version.                                   *
- *                                                                         *
- ***************************************************************************/
+/***************************************************************************/
+*                                                                         	*
+*   This program is free software; you can redistribute it and/or modify   *
+*   it under the terms of the GNU General Public License as published by    *
+*   the Free Software Foundation; either version 2 of the License, or      *
+*   (at your option) any later version.                                     *
+*                                                                          *
+/***************************************************************************/
 """
-
 import os
 
 from qgis.PyQt.QtCore import Qt
-from qgis.PyQt.QtGui import QPixmap
-from qgis.PyQt.QtWidgets import QDialog, QGraphicsView, QGraphicsScene
+from qgis.PyQt.QtWidgets import QDialog, QGraphicsView
 from qgis.PyQt.uic import loadUiType
 
 MAIN_DIALOG_CLASS, _ = loadUiType(os.path.join(os.path.dirname(__file__), 'imageViewer_ui.ui'))

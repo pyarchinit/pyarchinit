@@ -1,40 +1,43 @@
 #! /usr/bin/env python
-# -*- coding: utf-8 -*-
+# -*- coding: utf 8 -*-
 """
 /***************************************************************************
-	pyArchInit Plugin  - A QGIS plugin to manage archaeological dataset stored in Database
-	begin                : 2007-12-01
-	copyright            : (C) 2008 by Luca Mandolesi
-	email                : mandoluca at gmail.com
-***************************************************************************/
+        pyArchInit Plugin  - A QGIS plugin to manage archaeological dataset
+        					 stored in Postgres
+                             -------------------
+    begin                : 2007-12-01
+    copyright            : (C) 2008 by Luca Mandolesi
+    email                : mandoluca at gmail.com
+ ***************************************************************************/
 
 /***************************************************************************
- *                                                                         *
- *   This program is free software; you can redistribute it and/or modify  *
- *   it under the terms of the GNU General Public License as published by  *
- *   the Free Software Foundation; either version 2 of the License, or     *
- *   (at your option) any later version.                                   *
- *                                                                         *
+ *                                                                         	*
+ *   This program is free software; you can redistribute it and/or modify 	*
+ *   it under the terms of the GNU General Public License as published by  	*
+ *   the Free Software Foundation; either version 2 of the License, or    	*
+ *   (at your option) any later version.                                  	*																		*
  ***************************************************************************/
 """
+from __future__ import absolute_import
+
+from builtins import str
+from builtins import range
 from datetime import date
 
-import sys
-from  pyarchinit_Site_ui import *
-from  pyarchinit_db_manager import *
-from  pyarchinit_error_check import *
-from  pyarchinit_utility import *
+from qgis.PyQt.QtWidgets import QDialog, QMessageBox
+from qgis.PyQt.uic import loadUiType
 
-from modules.db.pyarchinit_conn_strings import Connection
-from modules.db.pyarchinit_db_manager import Pyarchinit_db_management
-from modules.db.pyarchinit_utility import Utility
-from modules.gis.pyarchinit_pyqgis import Pyarchinit_pyqgis
-from modules.gui.pyarchinit_Site_ui import Ui_DialogSite
-from modules.utility.print_relazione_pdf import exp_rel_pdf
-from modules.utility.pyarchinit_error_check import Error_check
-from pyarchinit_US_mainapp import pyarchinit_US
-from  sortpanelmain import SortPanelMain
-from test_area import Test_area
+import sys
+import os
+
+from .modules.db.pyarchinit_conn_strings import Connection
+from .modules.db.pyarchinit_db_manager import Pyarchinit_db_management
+from .modules.db.pyarchinit_utility import Utility
+from .modules.gis.pyarchinit_pyqgis import Pyarchinit_pyqgis
+from .modules.utility.pyarchinit_error_check import Error_check
+from .pyarchinit_US_mainapp import pyarchinit_US
+from .sortpanelmain import SortPanelMain
+from .test_area import Test_area
 
 try:
     from qgis.core import *
@@ -42,13 +45,10 @@ try:
 except:
     pass
 
+MAIN_DIALOG_CLASS, _ = loadUiType(os.path.join(os.path.dirname(__file__), 'modules', 'gui', 'pyarchinit_Site_ui.ui'))
 
-# --import pyArchInit modules--#
 
-
-##from 
-
-class pyarchinit_Site(QDialog, Ui_DialogSite):
+class pyarchinit_Site(QDialog, MAIN_DIALOG_CLASS):
     """This class provides to manage the Site Sheet"""
 
     MSG_BOX_TITLE = "pyArchInit - Scheda Sito"
@@ -163,7 +163,6 @@ class pyarchinit_Site(QDialog, Ui_DialogSite):
     def on_pushButton_connect_pressed(self):
         """This method establishes a connection between GUI and database"""
 
-        from pyarchinit_conn_strings import *
         conn = Connection()
 
         conn_str = conn.conn_str()

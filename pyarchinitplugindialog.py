@@ -19,59 +19,79 @@ Code from QgisCloudPluginDialog
  *                                                                         *
  ***************************************************************************/
 """
+from __future__ import absolute_import
+import os
 
-from PyQt4.QtCore import *
-from PyQt4.QtGui import *
-from PyQt4.QtXml import *
-from qgis.core import *
+from qgis.PyQt.QtCore import Qt, QFileInfo, QTranslator
+from qgis.PyQt.QtWidgets import QAction, QApplication, QToolButton, QMenu, QDockWidget
+from qgis.PyQt.QtGui import QIcon
+from qgis.PyQt.QtXml import *
+from qgis.PyQt.uic import loadUiType
 
-from modules.gui.ui_pyarchinitplugin import Ui_PyarchinitPlugin
-from pyarchinitConfigDialog import pyArchInitDialog_Config
-from pyarchinitInfoDialog import pyArchInitDialog_Info
-from pyarchinit_Archeozoology_mainapp import pyarchinit_Archeozoology
-from pyarchinit_Deteta_mainapp import pyarchinit_Deteta
-from pyarchinit_Detsesso_mainapp import pyarchinit_Detsesso
-from pyarchinit_Gis_Time_controller import pyarchinit_Gis_Time_Controller
-from pyarchinit_Inv_Materiali_mainapp import pyarchinit_Inventario_reperti
-from pyarchinit_Periodizzazione_mainapp import pyarchinit_Periodizzazione
-from pyarchinit_Schedaind_mainapp import pyarchinit_Schedaind
-from pyarchinit_Site_mainapp import pyarchinit_Site
-from pyarchinit_Struttura_mainapp import pyarchinit_Struttura
-from pyarchinit_Tafonomia_mainapp import pyarchinit_Tafonomia
-from pyarchinit_US_mainapp import pyarchinit_US
-from pyarchinit_UT_mainapp import pyarchinit_UT
-from pyarchinit_Upd_mainapp import pyarchinit_Upd_Values
-from pyarchinit_image_viewer_main import Main
-from pyarchinit_images_directory_export_mainapp import pyarchinit_Images_directory_export
-from pyarchinit_pdf_export_mainapp import pyarchinit_pdf_export
+from qgis.core import QgsApplication, QgsSettings
+from qgis.gui import QgsDockWidget
+
+from .pyarchinit_US_mainapp import pyarchinit_US
+from .pyarchinit_Site_mainapp import pyarchinit_Site
+from .pyarchinit_Periodizzazione_mainapp import pyarchinit_Periodizzazione
+from .pyarchinit_Struttura_mainapp import pyarchinit_Struttura
+from .pyarchinit_Inv_Materiali_mainapp import pyarchinit_Inventario_reperti
+from .pyarchinit_Upd_mainapp import pyarchinit_Upd_Values
+from .pyarchinitConfigDialog import pyArchInitDialog_Config
+from .pyarchinitInfoDialog import pyArchInitDialog_Info
+from .pyarchinit_Gis_Time_controller import pyarchinit_Gis_Time_Controller
+from .pyarchinit_image_viewer_main import Main
+from .pyarchinit_Schedaind_mainapp import pyarchinit_Schedaind
+from .pyarchinit_Detsesso_mainapp import pyarchinit_Detsesso
+from .pyarchinit_Deteta_mainapp import pyarchinit_Deteta
+from .pyarchinit_Tafonomia_mainapp import pyarchinit_Tafonomia
+from .pyarchinit_Archeozoology_mainapp import pyarchinit_Archeozoology
+from .pyarchinit_UT_mainapp import pyarchinit_UT
+from .pyarchinit_images_directory_export_mainapp import pyarchinit_Images_directory_export
+# from pyarchinit_PDF_administrator_mainapp import pyarchinit_PDFAdministrator
+from .pyarchinit_pdf_export_mainapp import pyarchinit_pdf_export
+
+MAIN_DIALOG_CLASS, _ = loadUiType(os.path.join(os.path.dirname(__file__), 'modules', 'gui', 'ui_pyarchinitplugin.ui'))
+
+# from ui_login import Ui_LoginDialog
+##from qgiscloudapi.qgiscloudapi import *
+##from db_connections import DbConnections
+##from local_data_sources import LocalDataSources
+##from data_upload import DataUpload
+##import os.path
+##import sys
+##import urllib
+##import traceback
+##import re
+##import time
+##import platform
 
 
-class PyarchinitPluginDialog(QDockWidget):
+class PyarchinitPluginDialog(QgsDockWidget, MAIN_DIALOG_CLASS):
     def __init__(self, iface):
-        QDockWidget.__init__(self, None)
+        super(PyarchinitPluginDialog, self).__init__()
         self.iface = iface
         ##        self.version = version
         # Set up the user interface from Designer.
-        self.ui = Ui_PyarchinitPlugin()
-        self.ui.setupUi(self)
-        QObject.connect(self.ui.btnUStable, SIGNAL("clicked()"), self.runUS)
-        QObject.connect(self.ui.btnUStable_2, SIGNAL("clicked()"), self.runUS)
+        self.setupUi(self)
+        self.btnUStable.clicked.connect(self.runUS)
+        self.btnUStable_2.clicked.connect(self.runUS)
 
-        QObject.connect(self.ui.btnStrutturatable, SIGNAL("clicked()"), self.runStruttura)
-        QObject.connect(self.ui.btnPeriodotable, SIGNAL("clicked()"), self.runPer)
+        self.btnStrutturatable.clicked.connect(self.runStruttura)
+        self.btnPeriodotable.clicked.connect(self.runPer)
 
-        QObject.connect(self.ui.btnSitotable, SIGNAL("clicked()"), self.runSite)
-        QObject.connect(self.ui.btnSitotable_2, SIGNAL("clicked()"), self.runSite)
+        self.btnSitotable.clicked.connect(self.runSite)
+        self.btnSitotable_2.clicked.connect(self.runSite)
 
-        QObject.connect(self.ui.btnReptable, SIGNAL("clicked()"), self.runInr)
-        QObject.connect(self.ui.btnReptable_2, SIGNAL("clicked()"), self.runInr)
-        QObject.connect(self.ui.btnReptable_3, SIGNAL("clicked()"), self.runInr)
+        self.btnReptable.clicked.connect(self.runInr)
+        self.btnReptable_2.clicked.connect(self.runInr)
+        self.btnReptable_3.clicked.connect(self.runInr)
 
-        QObject.connect(self.ui.btnMedtable, SIGNAL("clicked()"), self.runImageViewer)
-        QObject.connect(self.ui.btnExptable, SIGNAL("clicked()"), self.runImages_directory_export)
+        self.btnMedtable.clicked.connect(self.runImageViewer)
+        self.btnExptable.clicked.connect(self.runImages_directory_export)
 
-        QObject.connect(self.ui.btnPDFmen, SIGNAL("clicked()"), self.runPDFadministrator)
-        QObject.connect(self.ui.btnUTtable, SIGNAL("clicked()"), self.runUT)
+        self.btnPDFmen.clicked.connect(self.runPDFadministrator)
+        self.btnUTtable.clicked.connect(self.runUT)
 
     def runSite(self):
         pluginGui = pyarchinit_Site(self.iface)

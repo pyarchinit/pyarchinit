@@ -19,10 +19,9 @@
  ***************************************************************************/
 """
 
-import os
-
-from builtins import object
 from builtins import str
+from builtins import object
+import os
 
 from .pyarchinit_OS_utility import Pyarchinit_OS_Utility
 

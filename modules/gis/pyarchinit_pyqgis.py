@@ -19,15 +19,14 @@
  ***************************************************************************/
 """
 
+from builtins import str
+from builtins import range
+from builtins import object
 import os
 
-from builtins import object
-from builtins import range
-from builtins import str
-from qgis.PyQt.QtWidgets import QDialog, QMessageBox
+from qgis.PyQt.QtWidgets import QApplication, QDialog, QMessageBox
 from qgis.core import *
 from qgis.gui import *
-
 from .settings import Settings
 
 

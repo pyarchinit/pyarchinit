@@ -20,14 +20,19 @@
 /***************************************************************************/
 """
 from __future__ import absolute_import
-
-from builtins import range
 from builtins import str
+from builtins import range
+import os
+import ast
+
 from qgis.PyQt.QtWidgets import QApplication, QDialog, QMessageBox
 from qgis.PyQt.uic import loadUiType
+from .modules.db.pyarchinit_OS_utility import *
+from .modules.db.pyarchinit_db_manager import *
+from .modules.db.pyarchinit_db_mapper import *
+from .modules.db.pyarchinit_db_structure import *
 
 from .modules.db.pyarchinit_conn_strings import Connection
-from .modules.db.pyarchinit_db_manager import *
 from .modules.db.pyarchinit_db_manager import Pyarchinit_db_management
 
 MAIN_DIALOG_CLASS, _ = loadUiType(os.path.join(os.path.dirname(__file__), 'modules', 'gui', 'Ui_pyarchinitConfig.ui'))

@@ -3,29 +3,34 @@
 """
 /***************************************************************************
         pyArchInit Plugin  - A QGIS plugin to manage archaeological dataset
-        					 stored in Postgres
+                             stored in Postgres
                              -------------------
     begin                : 2007-12-01
     copyright            : (C) 2008 by Luca Mandolesi
     email                : mandoluca at gmail.com
  ***************************************************************************/
+
 /***************************************************************************
- *                                                                                              *
- *   This program is free software; you can redistribute it and/or modify   *
+ *                                                                         *
+ *   This program is free software; you can redistribute it and/or modify  *
  *   it under the terms of the GNU General Public License as published by  *
- *   the Free Software Foundation; either version 2 of the License, or       *
- *   (at your option) any later version.                                               *
- *                                                                                              *
+ *   the Free Software Foundation; either version 2 of the License, or     *
+ *   (at your option) any later version.                                   *
+ *                                                                         *
  ***************************************************************************/
 """
+
+from builtins import str
+from builtins import range
+from builtins import object
 import os
 
-from PyQt4 import QtGui
-from PyQt4.QtCore import *
-from PyQt4.QtGui import *
+from qgis.PyQt import QtGui
+from qgis.PyQt.QtWidgets import QDialog, QMessageBox
+
 from qgis.core import *
 from qgis.gui import *
-from settings import *
+from .settings import *
 
 
 class Pyarchinit_pyqgis(QDialog, Settings):
@@ -447,7 +452,7 @@ class Pyarchinit_pyqgis(QDialog, Settings):
         return value_list
 
 
-class Order_layers:
+class Order_layers(object):
     if os.name == 'posix':
         HOME = os.environ['HOME']
     elif os.name == 'nt':

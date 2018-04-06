@@ -22,8 +22,10 @@
 
 import os
 
+from builtins import object
 
-class Settings:
+
+class Settings(object):
     SERVER = ""
     HOST = ""
     DATABASE = ""

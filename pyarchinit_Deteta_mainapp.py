@@ -19,38 +19,39 @@
  *                                                                         *
  ***************************************************************************/
 """
+
+from __future__ import absolute_import
+
+from builtins import str
+from builtins import range
 import os
 from datetime import date
 
-from delegateComboBox import *
-from imageViewer import ImageViewer
-from  pyarchinit_Deteta_ui import *
-from  pyarchinit_error_check import *
-from  pyarchinit_exp_USsheet_pdf import *
-from  pyarchinit_utility import *
+from qgis.PyQt.QtWidgets import QApplication, QDialog, QMessageBox
+from qgis.PyQt.uic import loadUiType
 
-from modules.db.pyarchinit_conn_strings import Connection
-from modules.db.pyarchinit_db_manager import Pyarchinit_db_management
-from modules.db.pyarchinit_utility import Utility
-from modules.gis.pyarchinit_pyqgis import Pyarchinit_pyqgis
-from modules.gui.pyarchinit_Deteta_ui import Ui_Dialog_eta
-from modules.utility.pyarchinit_error_check import Error_check
-from  sortpanelmain import SortPanelMain
+from .modules.utility.delegateComboBox import ComboBoxDelegate
+from .modules.gui.imageViewer import ImageViewer
+from .modules.utility.pyarchinit_error_check import Error_check
+from .modules.utility.pyarchinit_exp_USsheet_pdf import *
+from .modules.utility.pyarchinit_print_utility import Print_utility
+
+from .modules.db.pyarchinit_conn_strings import Connection
+from .modules.db.pyarchinit_db_manager import Pyarchinit_db_management
+from .modules.db.pyarchinit_utility import Utility
+from .modules.gis.pyarchinit_pyqgis import Pyarchinit_pyqgis
+from .modules.utility.pyarchinit_error_check import Error_check
+from .sortpanelmain import SortPanelMain
 
 try:
-    from qgis.core import *
-    from qgis.gui import *
+    from pyarchinit_db_manager import *
 except:
     pass
 
-# --import pyArchInit modules--#
-try:
-    from  pyarchinit_db_manager import *
-except:
-    pass
+MAIN_DIALOG_CLASS, _ = loadUiType(os.path.join(os.path.dirname(__file__), 'modules', 'gui', 'pyarchinit_Deteta_ui.ui'))
 
 
-class pyarchinit_Deteta(QDialog, Ui_Dialog_eta):
+class pyarchinit_Deteta(QDialog, MAIN_DIALOG_CLASS):
     MSG_BOX_TITLE = "PyArchInit - pyarchinit_US_version 0.4 - Scheda Determinazione età"
     DATA_LIST = []
     DATA_LIST_REC_CORR = []
@@ -490,7 +491,6 @@ class pyarchinit_Deteta(QDialog, Ui_Dialog_eta):
         self.pushButton_f_8.setEnabled(n)
 
     def on_pushButton_connect_pressed(self):
-        from pyarchinit_conn_strings import *
         conn = Connection()
         conn_str = conn.conn_str()
 

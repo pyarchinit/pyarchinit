@@ -19,24 +19,26 @@
  *                                                                         *
  ***************************************************************************/
 """
+from __future__ import absolute_import
+
+from builtins import str
+
+from qgis.PyQt.QtWidgets import QDialog, QMessageBox
+from qgis.PyQt.uic import loadUiType
 
 import os
-
 import sys
-from PyQt4.QtCore import *
-from PyQt4.QtGui import *
-from  pyarchinit_db_manager import *
-from  pyarchinit_utility import *
 
-from modules.db.pyarchinit_conn_strings import Connection
-from modules.db.pyarchinit_db_manager import Pyarchinit_db_management
-from modules.db.pyarchinit_utility import Utility
-from modules.gui.pyarchinit_images_directory_export_ui import Ui_Dialog_img_exp
-from modules.utility.pyarchinit_OS_utility import Pyarchinit_OS_Utility
-from pyarchinitConfigDialog import pyArchInitDialog_Config
+from .modules.db.pyarchinit_conn_strings import Connection
+from .modules.db.pyarchinit_db_manager import Pyarchinit_db_management
+from .modules.db.pyarchinit_utility import Utility
+from .modules.utility.pyarchinit_OS_utility import Pyarchinit_OS_Utility
+from .pyarchinitConfigDialog import pyArchInitDialog_Config
+
+MAIN_DIALOG_CLASS, _ = loadUiType(os.path.join(os.path.dirname(__file__), 'modules', 'gui', 'pyarchinit_images_directory_export_ui.ui'))
 
 
-class pyarchinit_Images_directory_export(QDialog, Ui_Dialog_img_exp):
+class pyarchinit_Images_directory_export(QDialog, MAIN_DIALOG_CLASS):
     UTILITY = Utility()
     OS_UTILITY = Pyarchinit_OS_Utility()
     DB_MANAGER = ""
@@ -73,7 +75,6 @@ class pyarchinit_Images_directory_export(QDialog, Ui_Dialog_img_exp):
 
     def connect(self):
         QMessageBox.warning(self, "Alert", "Sistema sperimentale solo per lo sviluppo", QMessageBox.Ok)
-        from pyarchinit_conn_strings import *
 
         conn = Connection()
         conn_str = conn.conn_str()

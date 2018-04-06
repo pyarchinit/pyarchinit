@@ -1,29 +1,41 @@
-#!/usr/bin/env python
-# encoding: utf-8
+#! /usr/bin/env python
+# -*- coding: utf-8 -*-
 """
-pyarchinit_image_d_d.py
+/***************************************************************************
+        pyArchInit Plugin  - A QGIS plugin to manage archaeological dataset
+                             stored in Postgres
+                             -------------------
+    begin                : 2007-12-01
+    copyright            : (C) 2008 by Luca Mandolesi
+    email                : mandoluca at gmail.com
+ ***************************************************************************/
 
-Created by Pyarchinit on 2010-05-02.
-Copyright (c) 2010 __MyCompanyName__. All rights reserved.
+/***************************************************************************
+ *                                                                         *
+ *   This program is free software; you can redistribute it and/or modify  *
+ *   it under the terms of the GNU General Public License as published by  *
+ *   the Free Software Foundation; either version 2 of the License, or     *
+ *   (at your option) any later version.                                   *
+ *                                                                         *
+ ***************************************************************************/
 """
+from __future__ import absolute_import
+
+from builtins import str
+from builtins import range
+
+from qgis.PyQt.QtWidgets import QDialog, QMessageBox
+from qgis.PyQt.uic import loadUiType
 
 import os
-
 import sys
-from PyQt4 import QtCore, QtGui
-from delegateComboBox import *
-from pyarchinit_conn_strings import *
-from pyarchinit_image_viewer_dialog import *
-from pyarchinit_media_utility import *
-from pyarchinit_utility import *
 
-from modules.db.pyarchinit_conn_strings import Connection
-from modules.db.pyarchinit_db_manager import Pyarchinit_db_management
-from modules.db.pyarchinit_utility import Utility
-from modules.gui.imageViewer import ImageViewer
-from modules.gui.pyarchinit_image_viewer_dialog import Ui_DialogImageViewer
-from modules.utility.delegateComboBox import ComboBoxDelegate
-from modules.utility.pyarchinit_media_utility import Media_utility
+from .modules.db.pyarchinit_conn_strings import Connection
+from .modules.db.pyarchinit_db_manager import Pyarchinit_db_management
+from .modules.db.pyarchinit_utility import Utility
+from .modules.gui.imageViewer import ImageViewer
+from .modules.utility.delegateComboBox import ComboBoxDelegate
+from .modules.utility.pyarchinit_media_utility import Media_utility
 
 filepath = os.path.dirname(__file__)
 
@@ -39,12 +51,14 @@ sys.path.insert(3, utility)
 sys.path.insert(4, filepath)
 
 try:
-    from  pyarchinit_db_manager import *
+    from pyarchinit_db_manager import *
 except:
     pass
 
+MAIN_DIALOG_CLASS, _ = loadUiType(os.path.join(os.path.dirname(__file__), 'modules', 'gui', 'pyarchinit_image_viewer_dialog.ui'))
 
-class Main(QDialog, Ui_DialogImageViewer):
+
+class Main(QDialog, MAIN_DIALOG_CLASS):
     delegateSites = ''
     DB_MANAGER = ""
     TABLE_NAME = 'media_table'
@@ -74,9 +88,9 @@ class Main(QDialog, Ui_DialogImageViewer):
         self.customize_gui()
         self.iconListWidget.SelectionMode()
         self.iconListWidget.setSelectionMode(QtGui.QAbstractItemView.MultiSelection)
-        self.connect(self.iconListWidget, SIGNAL("itemDoubleClicked(QListWidgetItem *)"), self.openWide_image)
+        self.iconListWidget.itemDoubleClicked.connect(self.openWide_image)
         # self.connect(self.iconListWidget, SIGNAL("itemClicked(QListWidgetItem *)"),self.open_tags)
-        self.connect(self.iconListWidget, SIGNAL("itemSelectionChanged()"), self.open_tags)
+        self.iconListWidget.itemSelectionChanged.connect(self.open_tags)
         self.setWindowTitle("pyArchInit - Media Manager")
         self.charge_data()
         self.view_num_rec()
@@ -102,7 +116,6 @@ class Main(QDialog, Ui_DialogImageViewer):
     def connection(self):
         QMessageBox.warning(self, "Alert", "Sistema solo per sperimentazioni per lo sviluppo", QMessageBox.Ok)
 
-        from pyarchinit_conn_strings import *
         conn = Connection()
         conn_str = conn.conn_str()
         try:

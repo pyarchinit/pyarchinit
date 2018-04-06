@@ -20,25 +20,20 @@
  ***************************************************************************/
 """
 
-from datetime import date
+from builtins import str
+from builtins import range
+from qgis.PyQt.QtWidgets import QDialog, QMessageBox
+from qgis.PyQt.uic import loadUiType
 
 import sys
-from  pyarchinit_db_manager import *
-from  pyarchinit_documentazione_ui import *
-from  pyarchinit_error_check import *
-from  pyarchinit_exp_Documentazionesheet_pdf import *
-from  pyarchinit_utility import *
 
-from modules.db.pyarchinit_conn_strings import Connection
-from modules.db.pyarchinit_db_manager import Pyarchinit_db_management
-from modules.db.pyarchinit_utility import Utility
-from modules.gis.pyarchinit_pyqgis import Pyarchinit_pyqgis
-from modules.gui.pyarchinit_documentazione_ui import Ui_DialogDocumentazione_tipo_doc
-from modules.utility.pyarchinit_error_check import Error_check
-from modules.utility.pyarchinit_exp_Documentazionesheet_pdf import generate_documentazione_pdf
-from pyarchinit_US_mainapp import pyarchinit_US
-from pyarchinit_documentazione_preview_mainapp import pyarchinit_doc_preview
-from  sortpanelmain import SortPanelMain
+from .modules.db.pyarchinit_conn_strings import Connection
+from .modules.db.pyarchinit_db_manager import Pyarchinit_db_management
+from .modules.db.pyarchinit_utility import Utility
+from .modules.gis.pyarchinit_pyqgis import Pyarchinit_pyqgis
+from .modules.utility.pyarchinit_error_check import Error_check
+from .modules.utility.pyarchinit_exp_USsheet_pdf import *
+from .sortpanelmain import SortPanelMain
 
 try:
     from qgis.core import *
@@ -46,8 +41,10 @@ try:
 except:
     pass
 
+MAIN_DIALOG_CLASS, _ = loadUiType(os.path.join(os.path.dirname(__file__), 'modules', 'gui', 'pyarchinit_documentazione_ui.ui'))
 
-class pyarchinit_Documentazione(QDialog, Ui_DialogDocumentazione_tipo_doc):
+
+class pyarchinit_Documentazione(QDialog, MAIN_DIALOG_CLASS):
     MSG_BOX_TITLE = "PyArchInit - pyarchinit_version 0.4 - Scheda Documentazione"
     DATA_LIST = []
     DATA_LIST_REC_CORR = []
@@ -158,7 +155,6 @@ class pyarchinit_Documentazione(QDialog, Ui_DialogDocumentazione_tipo_doc):
         self.pushButton_sort.setEnabled(n)
 
     def on_pushButton_connect_pressed(self):
-        from pyarchinit_conn_strings import *
         conn = Connection()
         conn_str = conn.conn_str()
         test_conn = conn_str.find('sqlite')

@@ -21,10 +21,6 @@
 """
 import os
 
-from qgis.core import *
-from qgis.gui import *
-from settings import *
-
 
 class Test_area:
     if os.name == 'posix':

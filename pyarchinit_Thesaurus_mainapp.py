@@ -19,22 +19,23 @@
  *                                                                         *
  ***************************************************************************/
 """
+from __future__ import absolute_import
+from builtins import str
+from builtins import range
 from datetime import date
 
-import sys
-from  pyarchinit_db_manager import *
-from  pyarchinit_error_check import *
-from  pyarchinit_thesaurus_ui import *
-from  pyarchinit_utility import *
+from qgis.PyQt.QtWidgets import QDialog, QMessageBox
+from qgis.PyQt.uic import loadUiType
 
-from modules.db.pyarchinit_conn_strings import Connection
-from modules.db.pyarchinit_db_manager import Pyarchinit_db_management
-from modules.db.pyarchinit_utility import Utility
-from modules.gis.pyarchinit_pyqgis import Pyarchinit_pyqgis
-from modules.gui.pyarchinit_thesaurus_ui import Ui_DialogThesaurus
-from modules.utility.pyarchinit_error_check import Error_check
-from pyarchinit_US_mainapp import pyarchinit_US
-from  sortpanelmain import SortPanelMain
+import sys
+import os
+from .modules.db.pyarchinit_conn_strings import Connection
+from .modules.db.pyarchinit_db_manager import Pyarchinit_db_management
+from .modules.db.pyarchinit_utility import Utility
+from .modules.gis.pyarchinit_pyqgis import Pyarchinit_pyqgis
+from .modules.utility.pyarchinit_error_check import Error_check
+from .pyarchinit_US_mainapp import pyarchinit_US
+from .sortpanelmain import SortPanelMain
 
 try:
     from qgis.core import *
@@ -42,13 +43,10 @@ try:
 except:
     pass
 
+MAIN_DIALOG_CLASS, _ = loadUiType(os.path.join(os.path.dirname(__file__), 'modules', 'gui', 'pyarchinit_thesaurus_ui.ui'))
 
-# --import pyArchInit modules--#
 
-
-##from 
-
-class pyarchinit_Thesaurus(QDialog, Ui_DialogThesaurus):
+class pyarchinit_Thesaurus(QDialog, MAIN_DIALOG_CLASS):
     MSG_BOX_TITLE = "PyArchInit - pyarchinit_version 0.4 - Scheda Campioni"
     DATA_LIST = []
     DATA_LIST_REC_CORR = []
@@ -149,7 +147,6 @@ class pyarchinit_Thesaurus(QDialog, Ui_DialogThesaurus):
         self.pushButton_sort.setEnabled(n)
 
     def on_pushButton_connect_pressed(self):
-        from pyarchinit_conn_strings import *
         conn = Connection()
         conn_str = conn.conn_str()
         test_conn = conn_str.find('sqlite')
