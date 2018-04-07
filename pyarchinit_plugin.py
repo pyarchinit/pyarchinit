@@ -23,7 +23,6 @@ from __future__ import absolute_import
 import ast
 import os
 
-import sys
 from builtins import object
 from builtins import str
 from qgis.PyQt.QtCore import Qt, QFileInfo, QTranslator, QVariant, QCoreApplication
@@ -57,21 +56,9 @@ from .pyarchinit_images_directory_export_mainapp import pyarchinit_Images_direct
 from .pyarchinit_pdf_export_mainapp import pyarchinit_pdf_export
 from .pyarchinitplugindialog import PyarchinitPluginDialog
 
-filepath = os.path.dirname(__file__)
-
-gui_path = ('%s%s') % (filepath, os.path.join(os.sep, 'modules', 'gui'))
-gis_path = ('%s%s') % (filepath, os.path.join(os.sep, 'modules', 'gis'))
-db_path = ('%s%s') % (filepath, os.path.join(os.sep, 'modules', 'db'))
-utility = ('%s%s') % (filepath, os.path.join(os.sep, 'modules', 'utility'))
-
-sys.path.insert(0, gui_path)
-sys.path.insert(1, gis_path)
-sys.path.insert(2, db_path)
-sys.path.insert(3, utility)
-sys.path.insert(4, filepath)
-
 fi = pyarchinit_Folder_installation()
 fi.install_dir()
+filepath = os.path.dirname(__file__)
 
 
 class PyArchInitPlugin(object):
@@ -123,7 +110,8 @@ class PyArchInitPlugin(object):
 
     def initGui(self):
         settings = QgsSettings()
-        self.action = QAction(QIcon(":/plugins/pyarchinit/icons/pai_us.png"), "pyArchInit Main Panel",
+        icon_paius = ('%s%s') % (filepath, os.path.join(os.sep, 'icons', 'pai_us.png'))
+        self.action = QAction(QIcon(icon_paius), "pyArchInit Main Panel",
                               self.iface.mainWindow())
         self.action.triggered.connect(self.showHideDockWidget)
 
@@ -134,6 +122,7 @@ class PyArchInitPlugin(object):
         # TOOLBAR
         self.toolBar = self.iface.addToolBar("pyArchInit")
         self.toolBar.setObjectName("pyArchInit")
+        self.toolBar.addAction(self.action)
 
         self.dataToolButton = QToolButton(self.toolBar)
         self.dataToolButton.setPopupMode(QToolButton.MenuButtonPopup)
