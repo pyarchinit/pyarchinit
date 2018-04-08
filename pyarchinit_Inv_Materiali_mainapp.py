@@ -29,7 +29,8 @@ import numpy as np
 import sys
 from builtins import range
 from builtins import str
-from qgis.PyQt.QtWidgets import QDialog, QMessageBox
+from qgis.PyQt.QtCore import QSize
+from qgis.PyQt.QtWidgets import QDialog, QMessageBox, QListWidget, QListView, QFrame, QAbstractItemView
 from qgis.PyQt.uic import loadUiType
 
 from .modules.db.pyarchinit_conn_strings import Connection
@@ -42,17 +43,6 @@ from .modules.utility.pyarchinit_exp_Findssheet_pdf import generate_reperti_pdf
 from .pyarchinit_US_mainapp import pyarchinit_US
 from .quantpanelmain import QuantPanelMain
 from .sortpanelmain import SortPanelMain
-
-try:
-    from qgis.core import *
-    from qgis.gui import *
-except:
-    pass
-
-try:
-    from pyarchinit_db_manager import *
-except:
-    pass
 
 MAIN_DIALOG_CLASS, _ = loadUiType(os.path.join(os.path.dirname(__file__), 'modules', 'gui', 'pyarchinit_inventario_reperti_ui.ui'))
 
@@ -503,23 +493,23 @@ class pyarchinit_Inventario_reperti(QDialog, MAIN_DIALOG_CLASS):
 
     def customize_gui(self):
         # media prevew system
-        self.iconListWidget = QtGui.QListWidget(self)
-        self.iconListWidget.setFrameShape(QtGui.QFrame.StyledPanel)
-        self.iconListWidget.setFrameShadow(QtGui.QFrame.Sunken)
+        self.iconListWidget = QListWidget(self)
+        self.iconListWidget.setFrameShape(QFrame.StyledPanel)
+        self.iconListWidget.setFrameShadow(QFrame.Sunken)
         self.iconListWidget.setLineWidth(2)
         self.iconListWidget.setMidLineWidth(2)
         self.iconListWidget.setProperty("showDropIndicator", False)
-        self.iconListWidget.setIconSize(QtCore.QSize(150, 150))
-        self.iconListWidget.setMovement(QtGui.QListView.Snap)
-        self.iconListWidget.setResizeMode(QtGui.QListView.Adjust)
-        self.iconListWidget.setLayoutMode(QtGui.QListView.Batched)
-        self.iconListWidget.setGridSize(QtCore.QSize(160, 160))
-        self.iconListWidget.setViewMode(QtGui.QListView.IconMode)
+        self.iconListWidget.setIconSize(QSize(150, 150))
+        self.iconListWidget.setMovement(QListView.Snap)
+        self.iconListWidget.setResizeMode(QListView.Adjust)
+        self.iconListWidget.setLayoutMode(QListView.Batched)
+        self.iconListWidget.setGridSize(QSize(160, 160))
+        self.iconListWidget.setViewMode(QListView.IconMode)
         self.iconListWidget.setUniformItemSizes(True)
         self.iconListWidget.setBatchSize(1000)
         self.iconListWidget.setObjectName("iconListWidget")
         self.iconListWidget.SelectionMode()
-        self.iconListWidget.setSelectionMode(QtGui.QAbstractItemView.MultiSelection)
+        self.iconListWidget.setSelectionMode(QAbstractItemView.MultiSelection)
         self.iconListWidget.itemDoubleClicked.connect(self.openWide_image)
         self.tabWidget.addTab(self.iconListWidget, "Media")
 
