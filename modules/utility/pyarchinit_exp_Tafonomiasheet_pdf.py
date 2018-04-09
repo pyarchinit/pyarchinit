@@ -20,20 +20,20 @@
  ***************************************************************************/
 """
 
-from builtins import str
-from builtins import range
-from builtins import object
-import os
 from datetime import date
 
-from .pyarchinit_OS_utility import *
-from ..db.pyarchinit_utility import Utility
+from builtins import object
+from builtins import range
+from builtins import str
 from reportlab.lib import colors
 from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
 from reportlab.lib.units import inch, cm, mm
 from reportlab.pdfgen import canvas
 from reportlab.platypus import Table, PageBreak, SimpleDocTemplate, TableStyle, Image
 from reportlab.platypus.paragraph import Paragraph
+
+from .pyarchinit_OS_utility import *
+from ..db.pyarchinit_utility import Utility
 
 
 class NumberedCanvas_TAFONOMIAsheet(canvas.Canvas):
@@ -500,7 +500,7 @@ class single_Tafonomia_pdf_sheet(object):
 
         # 12 row
         caratteristiche_tafonomiche = ''
-        caratteristiche_list = ast.literal_eval(self.caratteristiche)
+        caratteristiche_list = eval(self.caratteristiche)
         if len(caratteristiche_list) > 0:
             for i in caratteristiche_list:
                 if caratteristiche_tafonomiche == '':
@@ -536,8 +536,8 @@ class single_Tafonomia_pdf_sheet(object):
 
         # 17 row
         corredo_tipo = ''
-        if ast.literal_eval(self.corredo_tipo) > 0:
-            for i in ast.literal_eval(self.corredo_tipo):
+        if eval(self.corredo_tipo) > 0:
+            for i in eval(self.corredo_tipo):
                 if corredo_tipo == '':
                     try:
                         corredo_tipo += ("Nr. reperto %s, tipo corredo: %s, descrizione: %s") % (
@@ -555,8 +555,8 @@ class single_Tafonomia_pdf_sheet(object):
 
         # 18 row
         misure_tafonomia = ''
-        if ast.literal_eval(self.misure_tafonomia) > 0:
-            for i in ast.literal_eval(self.misure_tafonomia):
+        if eval(self.misure_tafonomia) > 0:
+            for i in eval(self.misure_tafonomia):
                 if misure_tafonomia == '':
                     try:
                         misure_tafonomia += ("%s: %s %s") % (str(i[0]), str(i[2]), str(i[1]))

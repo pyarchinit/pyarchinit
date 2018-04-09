@@ -68,5 +68,5 @@ conn = Connection()
 conn_str = conn.conn_str()
 
 db = Pyarchinit_db_management(conn_str)
-print(db.query(ast.literal_eval('SITE')))
+print(db.query(eval('SITE')))
 # print convert_cell_schema(cell_schema, ['/us', '/area'])

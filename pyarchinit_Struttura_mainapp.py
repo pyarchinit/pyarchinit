@@ -20,15 +20,16 @@
  ***************************************************************************/
 """
 from __future__ import absolute_import
-from builtins import str
-from builtins import range
+
+import os
 from datetime import date
 
+import sys
+from builtins import range
+from builtins import str
 from qgis.PyQt.QtWidgets import QDialog, QMessageBox
 from qgis.PyQt.uic import loadUiType
 
-import sys
-import os
 from .modules.db.pyarchinit_conn_strings import Connection
 from .modules.db.pyarchinit_db_manager import Pyarchinit_db_management
 from .modules.db.pyarchinit_utility import Utility
@@ -428,7 +429,7 @@ class pyarchinit_Struttura(QDialog, MAIN_DIALOG_CLASS):
 
             id_list = []
             for i in self.DATA_LIST:
-                id_list.append(ast.literal_eval("i." + self.ID_TABLE))
+                id_list.append(eval("i." + self.ID_TABLE))
             self.DATA_LIST = []
 
             temp_data_list = self.DB_MANAGER.query_sort(id_list, items_converted, order_type, self.MAPPER_TABLE_CLASS,
@@ -712,7 +713,7 @@ class pyarchinit_Struttura(QDialog, MAIN_DIALOG_CLASS):
             QMessageBox.warning(self, "Messagio!!!", "Azione Annullata!")
         else:
             try:
-                id_to_delete = ast.literal_eval("self.DATA_LIST[self.REC_CORR]." + self.ID_TABLE)
+                id_to_delete = eval("self.DATA_LIST[self.REC_CORR]." + self.ID_TABLE)
                 self.DB_MANAGER.delete_one_record(self.TABLE_NAME, self.ID_TABLE, id_to_delete)
                 self.charge_records()  # charge records from DB
                 QMessageBox.warning(self, "Messaggio!!!", "Record eliminato!")
@@ -982,7 +983,7 @@ class pyarchinit_Struttura(QDialog, MAIN_DIALOG_CLASS):
             if test == 1:
                 id_list = []
                 for i in self.DATA_LIST:
-                    id_list.append(ast.literal_eval("i." + self.ID_TABLE))
+                    id_list.append(eval("i." + self.ID_TABLE))
                 self.DATA_LIST = []
                 if self.SORT_STATUS == "n":
                     temp_data_list = self.DB_MANAGER.query_sort(id_list, [self.ID_TABLE], 'asc',
@@ -1009,12 +1010,12 @@ class pyarchinit_Struttura(QDialog, MAIN_DIALOG_CLASS):
         self.DATA_LIST = []
 
         if self.DB_SERVER == 'sqlite':
-            for i in self.DB_MANAGER.query(ast.literal_eval(self.MAPPER_TABLE_CLASS)):
+            for i in self.DB_MANAGER.query(eval(self.MAPPER_TABLE_CLASS)):
                 self.DATA_LIST.append(i)
         else:
             id_list = []
-            for i in self.DB_MANAGER.query(ast.literal_eval(self.MAPPER_TABLE_CLASS)):
-                id_list.append(ast.literal_eval("i." + self.ID_TABLE))
+            for i in self.DB_MANAGER.query(eval(self.MAPPER_TABLE_CLASS)):
+                id_list.append(eval("i." + self.ID_TABLE))
 
             temp_data_list = self.DB_MANAGER.query_sort(id_list, [self.ID_TABLE], 'asc', self.MAPPER_TABLE_CLASS,
                                                         self.ID_TABLE)
@@ -1028,7 +1029,7 @@ class pyarchinit_Struttura(QDialog, MAIN_DIALOG_CLASS):
 
         for fn in field_names:
             cmd = ('%s%s%d%s') % (fn, '.setEditable(', n, ')')
-            ast.literal_eval(cmd)
+            eval(cmd)
 
     def setComboBoxEnable(self, f, v):
         field_names = f
@@ -1036,7 +1037,7 @@ class pyarchinit_Struttura(QDialog, MAIN_DIALOG_CLASS):
 
         for fn in field_names:
             cmd = ('%s%s%s%s') % (fn, '.setEnabled(', v, ')')
-            ast.literal_eval(cmd)
+            eval(cmd)
 
     def datestrfdate(self):
         now = date.today()
@@ -1045,13 +1046,13 @@ class pyarchinit_Struttura(QDialog, MAIN_DIALOG_CLASS):
 
     def table2dict(self, n):
         self.tablename = n
-        row = ast.literal_eval(self.tablename + ".rowCount()")
-        col = ast.literal_eval(self.tablename + ".columnCount()")
+        row = eval(self.tablename + ".rowCount()")
+        col = eval(self.tablename + ".columnCount()")
         lista = []
         for r in range(row):
             sub_list = []
             for c in range(col):
-                value = ast.literal_eval(self.tablename + ".item(r,c)")
+                value = eval(self.tablename + ".item(r,c)")
                 if bool(value):
                     sub_list.append(str(value.text()))
             lista.append(sub_list)
@@ -1063,7 +1064,7 @@ class pyarchinit_Struttura(QDialog, MAIN_DIALOG_CLASS):
 
         for tn in tab_names:
             cmd = ('%s%s%s%s') % (tn, '.setEnabled(', v, ')')
-            ast.literal_eval(cmd)
+            eval(cmd)
 
     def empty_fields(self):
 
@@ -1223,7 +1224,7 @@ class pyarchinit_Struttura(QDialog, MAIN_DIALOG_CLASS):
     def set_LIST_REC_CORR(self):
         self.DATA_LIST_REC_CORR = []
         for i in self.TABLE_FIELDS:
-            self.DATA_LIST_REC_CORR.append(ast.literal_eval("unicode(self.DATA_LIST[self.REC_CORR]." + i + ")"))
+            self.DATA_LIST_REC_CORR.append(eval("unicode(self.DATA_LIST[self.REC_CORR]." + i + ")"))
 
     def records_equal_check(self):
         self.set_LIST_REC_TEMP()
@@ -1236,32 +1237,32 @@ class pyarchinit_Struttura(QDialog, MAIN_DIALOG_CLASS):
     def tableInsertData(self, t, d):
         """Set the value into alls Grid"""
         self.table_name = t
-        self.data_list = ast.literal_eval(d)
+        self.data_list = eval(d)
         self.data_list.sort()
 
         # column table count
         table_col_count_cmd = ("%s.columnCount()") % (self.table_name)
-        table_col_count = ast.literal_eval(table_col_count_cmd)
+        table_col_count = eval(table_col_count_cmd)
 
         # clear table
         table_clear_cmd = ("%s.clearContents()") % (self.table_name)
-        ast.literal_eval(table_clear_cmd)
+        eval(table_clear_cmd)
 
         for i in range(table_col_count):
             table_rem_row_cmd = ("%s.removeRow(%d)") % (self.table_name, i)
-            ast.literal_eval(table_rem_row_cmd)
+            eval(table_rem_row_cmd)
 
             # for i in range(len(self.data_list)):
             # self.insert_new_row(self.table_name)
 
         for row in range(len(self.data_list)):
             cmd = ('%s.insertRow(%s)') % (self.table_name, row)
-            ast.literal_eval(cmd)
+            eval(cmd)
             for col in range(len(self.data_list[row])):
                 # item = self.comboBox_sito.setEditText(self.data_list[0][col]
                 item = QTableWidgetItem(self.data_list[row][col])
                 exec_str = ('%s.setItem(%d,%d,item)') % (self.table_name, row, col)
-                ast.literal_eval(exec_str)
+                eval(exec_str)
 
                 # insert new row into tableWidget
 
@@ -1295,23 +1296,23 @@ class pyarchinit_Struttura(QDialog, MAIN_DIALOG_CLASS):
     def insert_new_row(self, table_name):
         """insert new row into a table based on table_name"""
         cmd = table_name + ".insertRow(0)"
-        ast.literal_eval(cmd)
+        eval(cmd)
 
     def remove_row(self, table_name):
         """insert new row into a table based on table_name"""
         table_row_count_cmd = ("%s.rowCount()") % (table_name)
-        table_row_count = ast.literal_eval(table_row_count_cmd)
+        table_row_count = eval(table_row_count_cmd)
         rowSelected_cmd = ("%s.selectedIndexes()") % (table_name)
-        rowSelected = ast.literal_eval(rowSelected_cmd)
+        rowSelected = eval(rowSelected_cmd)
         rowIndex = (rowSelected[0].row())
         cmd = ("%s.removeRow(%d)") % (table_name, rowIndex)
-        ast.literal_eval(cmd)
+        eval(cmd)
 
     def update_record(self):
         try:
             self.DB_MANAGER.update(self.MAPPER_TABLE_CLASS,
                                    self.ID_TABLE,
-                                   [ast.literal_eval("int(self.DATA_LIST[self.REC_CORR]." + self.ID_TABLE + ")")],
+                                   [eval("int(self.DATA_LIST[self.REC_CORR]." + self.ID_TABLE + ")")],
                                    self.TABLE_FIELDS,
                                    self.rec_toupdate())
             return 1

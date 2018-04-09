@@ -21,8 +21,6 @@
 """
 from __future__ import absolute_import
 
-import ast
-
 from builtins import range
 from builtins import str
 from matplotlib import *
@@ -103,7 +101,7 @@ class pyarchinit_Interactive_Matrix(QDialog, MAIN_DIALOG_CLASS):
         data = []
         for sing_rec in self.DATA_LIST:
             us = str(sing_rec.us)
-            rapporti_stratigrafici = ast.literal_eval(sing_rec.rapporti)
+            rapporti_stratigrafici = eval(sing_rec.rapporti)
             for sing_rapp in rapporti_stratigrafici:
                 try:
                     if sing_rapp[0] == 'Taglia' or sing_rapp[0] == 'Copre' or sing_rapp[0] == 'Si appoggia a' or \

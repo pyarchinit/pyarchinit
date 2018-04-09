@@ -19,7 +19,6 @@
  ***************************************************************************/
 """
 
-import ast
 import os
 
 import psycopg2
@@ -61,9 +60,9 @@ class Pyarchinit_db_management(object):
             test_conn = self.conn_str.find("sqlite")
 
             if test_conn == 0:
-                self.engine = create_engine(self.conn_str, echo=ast.literal_eval(self.boolean))
+                self.engine = create_engine(self.conn_str, echo=eval(self.boolean))
             else:
-                self.engine = create_engine(self.conn_str, max_overflow=-1, echo=ast.literal_eval(self.boolean))
+                self.engine = create_engine(self.conn_str, max_overflow=-1, echo=eval(self.boolean))
             self.metadata = MetaData(self.engine)
             self.engine.connect()
         except Exception as e:
@@ -713,7 +712,7 @@ class Pyarchinit_db_management(object):
         t.write(str(query_str))
         t.close()
         '''
-        return ast.literal_eval(query_str)
+        return eval(query_str)
 
     def query_operator(self, params, table):
         u = Utility()
@@ -731,7 +730,7 @@ class Pyarchinit_db_management(object):
         Session = sessionmaker(bind=self.engine, autoflush=True, autocommit=True)
         session = Session()
 
-        return ast.literal_eval(query_str)
+        return eval(query_str)
 
     def query_distinct(self, table, query_params, distinct_field_name_params):
         # u = Utility()
@@ -757,7 +756,7 @@ class Pyarchinit_db_management(object):
         Session = sessionmaker(bind=self.engine, autoflush=True, autocommit=True)
         session = Session()
 
-        return ast.literal_eval(query_cmd)
+        return eval(query_cmd)
 
     def query_distinct_sql(self, table, query_params, distinct_field_name_params):
         # u = Utility()
@@ -850,7 +849,7 @@ class Pyarchinit_db_management(object):
         # f.write(str(session_exec_str))
         # f.close()
 
-        ast.literal_eval(session_exec_str)
+        eval(session_exec_str)
 
     def update_find_check(self, table_class_str, id_table_str, value_id, find_check_value):
         self.table_class_str = table_class_str
@@ -864,7 +863,7 @@ class Pyarchinit_db_management(object):
         session_exec_str = 'session.query(%s).filter(%s.%s == %s)).update(values = {"find_check": %d})' % (
         self.table_class_str, self.table_class_str, self.id_table_str, self.value_id, find_check_value)
 
-        ast.literal_eval(session_exec_str)
+        eval(session_exec_str)
 
     def empty_find_check(self, table_class_str, find_check_value):
         self.table_class_str = table_class_str
@@ -875,7 +874,7 @@ class Pyarchinit_db_management(object):
 
         session_exec_str = 'session.query(%s).update(values = {"find_check": %d})' % (self.table_class_str, 0)
 
-        ast.literal_eval(session_exec_str)
+        eval(session_exec_str)
 
     def delete_one_record(self, tn, id_col, id_rec):
         self.table_name = tn
@@ -885,7 +884,7 @@ class Pyarchinit_db_management(object):
         table = Table(self.table_name, self.metadata, autoload=True)
         exec_str = ('%s%s%s%d%s') % ('table.delete(table.c.', self.id_column, ' == ', self.id_rec, ').execute()')
 
-        ast.literal_eval(exec_str)
+        eval(exec_str)
 
     def max_num_id(self, tc, f):
         self.table_class = tc
@@ -893,7 +892,7 @@ class Pyarchinit_db_management(object):
         exec_str = 'session.query(func.max(%s.%s))' % (self.table_class, self.field_id)
         Session = sessionmaker(bind=self.engine, autoflush=True, autocommit=True)
         session = Session()
-        max_id_func = ast.literal_eval(exec_str)
+        max_id_func = eval(exec_str)
         res_all = max_id_func.all()
         res_max_num_id = res_all[0][0]
         if not bool(res_max_num_id):
@@ -946,7 +945,7 @@ class Pyarchinit_db_management(object):
 
         cmd_str = "session.query(" + self.table_class + ").filter(" + self.table_class + "." + self.id_name + ".in_(id_list)).order_by(" + filter_params + ").all()"
 
-        return ast.literal_eval(cmd_str)
+        return eval(cmd_str)
 
     def run(self, stmt):
         rs = stmt.execute()
@@ -984,7 +983,7 @@ class Pyarchinit_db_management(object):
         session = Session()
         string = ('%s%s%s%s%s%s%s%s%s') % (
         'select([', self.table_class, '.', self.field_name, ']).group_by(', self.table_class, '.', self.field_name, ')')
-        s = ast.literal_eval(string)
+        s = eval(string)
         return self.engine.execute(s).fetchall()
 
     def query_where_text(self, c, v):
@@ -996,7 +995,7 @@ class Pyarchinit_db_management(object):
 
         string = ('%s%s%s%s%s') % ('session.query(PERIODIZZAZIONE).filter_by(', self.c, "='", self.v, "')")
 
-        res = ast.literal_eval(string)
+        res = eval(string)
         return res
 
     def update_cont_per(self, s):
@@ -1007,7 +1006,7 @@ class Pyarchinit_db_management(object):
 
         string = ('%s%s%s%s%s') % ('session.query(US).filter_by(', 'sito', "='", str(self.sito), "')")
         # print string
-        lista_us = ast.literal_eval(string)
+        lista_us = eval(string)
 
         for i in lista_us:
             if not bool(i.periodo_finale):
@@ -1128,7 +1127,7 @@ class Pyarchinit_db_management(object):
     ##
     ##		Session = sessionmaker(bind=self.engine, autoflush=True, autocommit=True)
     ##		session = Session()
-    ##		res = ast.literal_eval(query_string_execute)
+    ##		res = eval(query_string_execute)
     ##
     ##		return res
 

@@ -20,19 +20,19 @@
  ***************************************************************************/
 """
 
-from builtins import str
-from builtins import range
-from builtins import object
-import os
 from datetime import date
 
-from .pyarchinit_OS_utility import *
+from builtins import object
+from builtins import range
+from builtins import str
 from reportlab.lib import colors
 from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
 from reportlab.lib.units import inch, cm, mm
 from reportlab.pdfgen import canvas
 from reportlab.platypus import Table, PageBreak, SimpleDocTemplate, TableStyle, Image
 from reportlab.platypus.paragraph import Paragraph
+
+from .pyarchinit_OS_utility import *
 
 
 class NumberedCanvas_STRUTTURAindex(canvas.Canvas):
@@ -272,8 +272,8 @@ class single_Struttura_pdf_sheet(object):
 
         # 7 row
         materiali_impiegati = ''
-        if ast.literal_eval(self.materiali_impiegati) > 0:
-            for i in ast.literal_eval(self.materiali_impiegati):
+        if eval(self.materiali_impiegati) > 0:
+            for i in eval(self.materiali_impiegati):
                 if materiali_impiegati == '':
                     try:
                         materiali_impiegati += ("%s") % (str(i[0]))
@@ -289,8 +289,8 @@ class single_Struttura_pdf_sheet(object):
 
         # 8 row
         elementi_strutturali = ''
-        if ast.literal_eval(self.elementi_strutturali) > 0:
-            for i in ast.literal_eval(self.elementi_strutturali):
+        if eval(self.elementi_strutturali) > 0:
+            for i in eval(self.elementi_strutturali):
                 if elementi_strutturali == '':
                     try:
                         elementi_strutturali += ("Tipologia elemento: %s, quantita: %s") % (str(i[0]), str(i[1]))
@@ -306,8 +306,8 @@ class single_Struttura_pdf_sheet(object):
 
         # 9 row
         rapporti_struttura = ''
-        if ast.literal_eval(self.rapporti_struttura) > 0:
-            for i in ast.literal_eval(self.rapporti_struttura):
+        if eval(self.rapporti_struttura) > 0:
+            for i in eval(self.rapporti_struttura):
                 if rapporti_struttura == '':
                     try:
                         rapporti_struttura += ("Tipo rapporto: %s, sito: %s, sigla: %s, nr.: %s") % (
@@ -325,8 +325,8 @@ class single_Struttura_pdf_sheet(object):
 
         # 10 row
         misure_struttura = ''
-        if ast.literal_eval(self.misure_struttura) > 0:
-            for i in ast.literal_eval(self.misure_struttura):
+        if eval(self.misure_struttura) > 0:
+            for i in eval(self.misure_struttura):
                 if misure_struttura == '':
                     try:
                         misure_struttura += ("Tipo di misura: %s = %s %s") % (str(i[0]), str(i[2]), str(i[1]))

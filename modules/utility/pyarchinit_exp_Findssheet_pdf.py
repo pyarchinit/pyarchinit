@@ -20,19 +20,19 @@
  ***************************************************************************/
 """
 
-from builtins import str
-from builtins import range
-from builtins import object
-import os
 from datetime import date
 
-from .pyarchinit_OS_utility import *
+from builtins import object
+from builtins import range
+from builtins import str
 from reportlab.lib import colors
 from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
 from reportlab.lib.units import inch, cm, mm
 from reportlab.pdfgen import canvas
 from reportlab.platypus import Table, PageBreak, SimpleDocTemplate, Spacer, TableStyle, Image
 from reportlab.platypus.paragraph import Paragraph
+
+from .pyarchinit_OS_utility import *
 
 
 class NumberedCanvas_Findssheet(canvas.Canvas):
@@ -204,8 +204,8 @@ class single_Finds_pdf_sheet(object):
 
             # 6 row
         elementi_reperto = ''
-        if ast.literal_eval(self.elementi_reperto) > 0:
-            for i in ast.literal_eval(self.elementi_reperto):
+        if eval(self.elementi_reperto) > 0:
+            for i in eval(self.elementi_reperto):
                 if elementi_reperto == '':
                     try:
                         elementi_reperto += ("Elemento rinvenuto: %s, Unita' di misura: %s, Quantita': %s") % (
@@ -223,8 +223,8 @@ class single_Finds_pdf_sheet(object):
 
         # 7 row
         misurazioni = ''
-        if ast.literal_eval(self.misurazioni) > 0:
-            for i in ast.literal_eval(self.misurazioni):
+        if eval(self.misurazioni) > 0:
+            for i in eval(self.misurazioni):
                 if misurazioni == '':
                     try:
                         misurazioni += ("%s: %s %s") % (str(i[0]), str(i[1]), str(i[2]))
@@ -239,8 +239,8 @@ class single_Finds_pdf_sheet(object):
 
         # 8 row
         tecnologie = ''
-        if ast.literal_eval(self.tecnologie) > 0:
-            for i in ast.literal_eval(self.tecnologie):
+        if eval(self.tecnologie) > 0:
+            for i in eval(self.tecnologie):
                 if tecnologie == '':
                     try:
                         tecnologie += (
@@ -259,8 +259,8 @@ class single_Finds_pdf_sheet(object):
 
         # 9 row
         rif_biblio = ''
-        if ast.literal_eval(self.rif_biblio) > 0:
-            for i in ast.literal_eval(self.rif_biblio):  # gigi
+        if eval(self.rif_biblio) > 0:
+            for i in eval(self.rif_biblio):  # gigi
                 if rif_biblio == '':
                     try:
                         rif_biblio += ("<b>Autore: %s, Anno: %s, Titolo: %s, Pag.: %s, Fig.: %s") % (

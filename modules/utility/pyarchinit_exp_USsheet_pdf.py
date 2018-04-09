@@ -20,14 +20,12 @@
  ***************************************************************************/
 """
 
-from builtins import str
-from builtins import range
-from builtins import object
 import datetime
-import os
 from datetime import date
 
-from .pyarchinit_OS_utility import *
+from builtins import object
+from builtins import range
+from builtins import str
 from reportlab.lib import colors
 from reportlab.lib.pagesizes import (A4)
 from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
@@ -35,6 +33,8 @@ from reportlab.lib.units import inch, cm, mm
 from reportlab.pdfgen import canvas
 from reportlab.platypus import Table, PageBreak, SimpleDocTemplate, Spacer, TableStyle, Image
 from reportlab.platypus.paragraph import Paragraph
+
+from .pyarchinit_OS_utility import *
 
 
 class NumberedCanvas_USsheet(canvas.Canvas):
@@ -138,7 +138,7 @@ class single_US_pdf_sheet(object):
         self.documentazione = data[28]
 
     def unzip_rapporti_stratigrafici(self):
-        rapporti = ast.literal_eval(self.rapporti)
+        rapporti = eval(self.rapporti)
         for rapporto in rapporti:
             if len(rapporto) == 2:
                 if rapporto[0] == 'Si lega a' or rapporto[0] == 'si lega a':
@@ -204,7 +204,7 @@ class single_US_pdf_sheet(object):
         if self.documentazione == '':
             pass
         else:
-            for string_doc in ast.literal_eval(self.documentazione):
+            for string_doc in eval(self.documentazione):
                 if len(string_doc) == 2:
                     self.documentazione_print += str(string_doc[0]) + ": " + str(string_doc[1]) + "<br/>"
                 if len(string_doc) == 1:
@@ -267,9 +267,9 @@ class single_US_pdf_sheet(object):
         colore = Paragraph("<b>Colore</b><br/>" + self.colore, styNormal)
 
         # 4 row
-        inclusi_list = ast.literal_eval(self.inclusi)
+        inclusi_list = eval(self.inclusi)
         inclusi = ''
-        for i in ast.literal_eval(self.inclusi):
+        for i in eval(self.inclusi):
             if inclusi == '':
                 try:
                     inclusi += str(i[0])
@@ -281,9 +281,9 @@ class single_US_pdf_sheet(object):
                 except:
                     pass
         inclusi = Paragraph("<b>Inclusi</b><br/>" + inclusi, styNormal)
-        campioni_list = ast.literal_eval(self.campioni)
+        campioni_list = eval(self.campioni)
         campioni = ''
-        for i in ast.literal_eval(self.campioni):
+        for i in eval(self.campioni):
             if campioni == '':
                 try:
                     campioni += str(i[0])
@@ -500,7 +500,7 @@ class US_index_pdf_sheet(object):
         self.rapporti = data[17]
 
     def unzip_rapporti_stratigrafici(self):
-        rapporti = ast.literal_eval(self.rapporti)
+        rapporti = eval(self.rapporti)
 
         rapporti.sort()
 

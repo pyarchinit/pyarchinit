@@ -21,7 +21,6 @@
 """
 from __future__ import absolute_import
 
-import ast
 import os
 
 import sys
@@ -319,15 +318,15 @@ class Main(QDialog, MAIN_DIALOG_CLASS):
     def insert_new_row(self, table_name):
         """insert new row into a table based on table_name"""
         cmd = table_name + ".insertRow(0)"
-        ast.literal_eval(cmd)
+        eval(cmd)
 
     def remove_row(self, table_name):
         """insert new row into a table based on table_name"""
         table_row_count_cmd = ("%s.rowCount()") % (table_name)
-        table_row_count = ast.literal_eval(table_row_count_cmd)
+        table_row_count = eval(table_row_count_cmd)
         row_index = table_row_count - 1
         cmd = ("%s.removeRow(%d)") % (table_name, row_index)
-        ast.literal_eval(cmd)
+        eval(cmd)
 
     def openWide_image(self):
         items = self.iconListWidget.selectedItems()
@@ -390,13 +389,13 @@ class Main(QDialog, MAIN_DIALOG_CLASS):
 
     def table2dict(self, n):
         self.tablename = n
-        row = ast.literal_eval(self.tablename + ".rowCount()")
-        col = ast.literal_eval(self.tablename + ".columnCount()")
+        row = eval(self.tablename + ".rowCount()")
+        col = eval(self.tablename + ".columnCount()")
         lista = []
         for r in range(row):
             sub_list = []
             for c in range(col):
-                value = ast.literal_eval(self.tablename + ".item(r,c)")
+                value = eval(self.tablename + ".item(r,c)")
                 if value != None:
                     sub_list.append(str(value.text()))
 
@@ -406,7 +405,7 @@ class Main(QDialog, MAIN_DIALOG_CLASS):
         return lista
 
     def charge_data(self):
-        self.DATA = self.DB_MANAGER.query(ast.literal_eval(self.MAPPER_TABLE_CLASS_thumb))
+        self.DATA = self.DB_MANAGER.query(eval(self.MAPPER_TABLE_CLASS_thumb))
         self.open_images()
 
     def clear_thumb_images(self):
@@ -615,32 +614,32 @@ class Main(QDialog, MAIN_DIALOG_CLASS):
     def tableInsertData(self, t, d):
         """Set the value into alls Grid"""
         self.table_name = t
-        self.data_list = ast.literal_eval(d)
+        self.data_list = eval(d)
         self.data_list.sort()
 
         # column table count
         table_col_count_cmd = ("%s.columnCount()") % (self.table_name)
-        table_col_count = ast.literal_eval(table_col_count_cmd)
+        table_col_count = eval(table_col_count_cmd)
 
         # clear table
         table_clear_cmd = ("%s.clearContents()") % (self.table_name)
-        ast.literal_eval(table_clear_cmd)
+        eval(table_clear_cmd)
 
         for i in range(table_col_count):
             table_rem_row_cmd = ("%s.removeRow(%d)") % (self.table_name, i)
-            ast.literal_eval(table_rem_row_cmd)
+            eval(table_rem_row_cmd)
 
             # for i in range(len(self.data_list)):
             # self.insert_new_row(self.table_name)
 
         for row in range(len(self.data_list)):
             cmd = ('%s.insertRow(%s)') % (self.table_name, row)
-            ast.literal_eval(cmd)
+            eval(cmd)
             for col in range(len(self.data_list[row])):
                 # item = self.comboBox_sito.setEditText(self.data_list[0][col]
                 item = QTableWidgetItem(self.data_list[row][col])
                 exec_str = ('%s.setItem(%d,%d,item)') % (self.table_name, row, col)
-                ast.literal_eval(exec_str)
+                eval(exec_str)
 
 
 if __name__ == "__main__":

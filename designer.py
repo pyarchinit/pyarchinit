@@ -97,7 +97,7 @@ class CustomDialog(wx.Dialog):
                 values = {}
                 for field in fields:
                     try:
-                        values[field] = ast.literal_eval(dlg.textctrls[field].GetValue())
+                        values[field] = eval(dlg.textctrls[field].GetValue())
                     except Exception as e:
                         msg = wx.MessageDialog(parent, str(e),
                                                "Error in field %s" % field,
@@ -557,7 +557,7 @@ class AppFrame(wx.Frame):
                 if v.strip() == '':
                     v = None
                 else:
-                    v = ast.literal_eval(v.strip())
+                    v = eval(v.strip())
                 args.append(v)
             tmp.append(args)
 

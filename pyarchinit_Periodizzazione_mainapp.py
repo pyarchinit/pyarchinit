@@ -20,19 +20,20 @@
  ***************************************************************************/
 """
 from __future__ import absolute_import
-from builtins import str
-from builtins import range
+
+import os
 from datetime import date
 
+import sys
+from builtins import range
+from builtins import str
 from qgis.PyQt.QtWidgets import QDialog, QMessageBox
 from qgis.PyQt.uic import loadUiType
 
-import sys
-import os
-from .modules.gis.pyarchinit_pyqgis import Pyarchinit_pyqgis
 from .modules.db.pyarchinit_conn_strings import Connection
 from .modules.db.pyarchinit_db_manager import Pyarchinit_db_management
 from .modules.db.pyarchinit_utility import Utility
+from .modules.gis.pyarchinit_pyqgis import Pyarchinit_pyqgis
 from .modules.utility.pyarchinit_error_check import Error_check
 from .modules.utility.pyarchinit_exp_Periodizzazionesheet_pdf import generate_Periodizzazione_pdf
 from .pyarchinit_US_mainapp import pyarchinit_US
@@ -241,7 +242,7 @@ class pyarchinit_Periodizzazione(QDialog, MAIN_DIALOG_CLASS):
         id_list = []
 
         for i in self.DATA_LIST:
-            id_list.append(ast.literal_eval("i." + self.ID_TABLE))
+            id_list.append(eval("i." + self.ID_TABLE))
         dlg.add_id_list(id_list)
 
         dlg.exec_()
@@ -308,7 +309,7 @@ class pyarchinit_Periodizzazione(QDialog, MAIN_DIALOG_CLASS):
 
             id_list = []
             for i in self.DATA_LIST:
-                id_list.append(ast.literal_eval("i." + self.ID_TABLE))
+                id_list.append(eval("i." + self.ID_TABLE))
             self.DATA_LIST = []
 
             temp_data_list = self.DB_MANAGER.query_sort(id_list, self.SORT_ITEMS_CONVERTED, self.SORT_MODE,
@@ -587,7 +588,7 @@ class pyarchinit_Periodizzazione(QDialog, MAIN_DIALOG_CLASS):
             QMessageBox.warning(self, "Messagio!!!", "Azione Annullata!")
         else:
             try:
-                id_to_delete = ast.literal_eval("self.DATA_LIST[self.REC_CORR]." + self.ID_TABLE)
+                id_to_delete = eval("self.DATA_LIST[self.REC_CORR]." + self.ID_TABLE)
                 self.DB_MANAGER.delete_one_record(self.TABLE_NAME, self.ID_TABLE, id_to_delete)
                 self.charge_records()  # charge records from DB
                 QMessageBox.warning(self, "Messaggio!!!", "Record eliminato!")
@@ -749,7 +750,7 @@ class pyarchinit_Periodizzazione(QDialog, MAIN_DIALOG_CLASS):
             if test == 1:
                 id_list = []
                 for i in self.DATA_LIST:
-                    id_list.append(ast.literal_eval("i." + self.ID_TABLE))
+                    id_list.append(eval("i." + self.ID_TABLE))
                 self.DATA_LIST = []
                 if self.SORT_STATUS == "n":
                     temp_data_list = self.DB_MANAGER.query_sort(id_list, [self.ID_TABLE], 'asc',
@@ -776,12 +777,12 @@ class pyarchinit_Periodizzazione(QDialog, MAIN_DIALOG_CLASS):
         self.DATA_LIST = []
 
         if self.DB_SERVER == 'sqlite':
-            for i in self.DB_MANAGER.query(ast.literal_eval(self.MAPPER_TABLE_CLASS)):
+            for i in self.DB_MANAGER.query(eval(self.MAPPER_TABLE_CLASS)):
                 self.DATA_LIST.append(i)
         else:
             id_list = []
-            for i in self.DB_MANAGER.query(ast.literal_eval(self.MAPPER_TABLE_CLASS)):
-                id_list.append(ast.literal_eval("i." + self.ID_TABLE))
+            for i in self.DB_MANAGER.query(eval(self.MAPPER_TABLE_CLASS)):
+                id_list.append(eval("i." + self.ID_TABLE))
 
             temp_data_list = self.DB_MANAGER.query_sort(id_list, [self.ID_TABLE], 'asc', self.MAPPER_TABLE_CLASS,
                                                         self.ID_TABLE)
@@ -795,7 +796,7 @@ class pyarchinit_Periodizzazione(QDialog, MAIN_DIALOG_CLASS):
 
         for fn in field_names:
             cmd = ('%s%s%d%s') % (fn, '.setEditable(', n, ')')
-            ast.literal_eval(cmd)
+            eval(cmd)
 
     def setComboBoxEnable(self, f, v):
         field_names = f
@@ -803,7 +804,7 @@ class pyarchinit_Periodizzazione(QDialog, MAIN_DIALOG_CLASS):
 
         for fn in field_names:
             cmd = ('%s%s%s%s') % (fn, '.setEnabled(', v, ')')
-            ast.literal_eval(cmd)
+            eval(cmd)
 
     def datestrfdate(self):
         now = date.today()
@@ -812,13 +813,13 @@ class pyarchinit_Periodizzazione(QDialog, MAIN_DIALOG_CLASS):
 
     def table2dict(self, n):
         self.tablename = n
-        row = ast.literal_eval(self.tablename + ".rowCount()")
-        col = ast.literal_eval(self.tablename + ".columnCount()")
+        row = eval(self.tablename + ".rowCount()")
+        col = eval(self.tablename + ".columnCount()")
         lista = []
         for r in range(row):
             sub_list = []
             for c in range(col):
-                value = ast.literal_eval(self.tablename + ".item(r,c)")
+                value = eval(self.tablename + ".item(r,c)")
                 if bool(value):
                     sub_list.append(str(value.text()))
             lista.append(sub_list)
@@ -899,7 +900,7 @@ class pyarchinit_Periodizzazione(QDialog, MAIN_DIALOG_CLASS):
     def set_LIST_REC_CORR(self):
         self.DATA_LIST_REC_CORR = []
         for i in self.TABLE_FIELDS:
-            self.DATA_LIST_REC_CORR.append(ast.literal_eval("unicode(self.DATA_LIST[self.REC_CORR]." + i + ")"))
+            self.DATA_LIST_REC_CORR.append(eval("unicode(self.DATA_LIST[self.REC_CORR]." + i + ")"))
 
     def records_equal_check(self):
         self.set_LIST_REC_TEMP()
@@ -914,7 +915,7 @@ class pyarchinit_Periodizzazione(QDialog, MAIN_DIALOG_CLASS):
         try:
             self.DB_MANAGER.update(self.MAPPER_TABLE_CLASS,
                                    self.ID_TABLE,
-                                   [ast.literal_eval("int(self.DATA_LIST[self.REC_CORR]." + self.ID_TABLE + ")")],
+                                   [eval("int(self.DATA_LIST[self.REC_CORR]." + self.ID_TABLE + ")")],
                                    self.TABLE_FIELDS,
                                    self.rec_toupdate())
             return 1

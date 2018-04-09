@@ -31,7 +31,7 @@ class Settings:
     THUMB_PATH = ""
 
     def __init__(self, s):
-        self.configuration = ast.literal_eval(s)
+        self.configuration = eval(s)
 
     def set_configuration(self):
         self.SERVER = self.configuration['SERVER']
