@@ -34,12 +34,6 @@ from .modules.utility.pyarchinit_error_check import Error_check
 from .modules.utility.pyarchinit_exp_USsheet_pdf import *
 from .sortpanelmain import SortPanelMain
 
-try:
-    from qgis.core import *
-    from qgis.gui import *
-except:
-    pass
-
 MAIN_DIALOG_CLASS, _ = loadUiType(os.path.join(os.path.dirname(__file__), 'modules', 'gui', 'pyarchinit_documentazione_ui.ui'))
 
 

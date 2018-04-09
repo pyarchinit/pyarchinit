@@ -36,24 +36,6 @@ from .modules.gui.imageViewer import ImageViewer
 from .modules.utility.delegateComboBox import ComboBoxDelegate
 from .modules.utility.pyarchinit_media_utility import Media_utility
 
-filepath = os.path.dirname(__file__)
-
-gui_path = ('%s%s') % (filepath, os.path.join(os.sep, 'modules', 'gui'))
-gis_path = ('%s%s') % (filepath, os.path.join(os.sep, 'modules', 'gis'))
-db_path = ('%s%s') % (filepath, os.path.join(os.sep, 'modules', 'db'))
-utility = ('%s%s') % (filepath, os.path.join(os.sep, 'modules', 'utility'))
-
-sys.path.insert(0, gui_path)
-sys.path.insert(1, gis_path)
-sys.path.insert(2, db_path)
-sys.path.insert(3, utility)
-sys.path.insert(4, filepath)
-
-try:
-    from pyarchinit_db_manager import *
-except:
-    pass
-
 MAIN_DIALOG_CLASS, _ = loadUiType(os.path.join(os.path.dirname(__file__), 'modules', 'gui', 'pyarchinit_image_viewer_dialog.ui'))
 
 

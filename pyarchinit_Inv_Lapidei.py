@@ -38,17 +38,6 @@ from .modules.utility.pyarchinit_exp_Findssheet_pdf import generate_reperti_pdf
 from .modules.utility.pyarchinit_exp_Invlapsheet_pdf import *
 from .sortpanelmain import SortPanelMain
 
-try:
-    from qgis.core import *
-    from qgis.gui import *
-except:
-    pass
-
-try:
-    from  pyarchinit_db_manager import *
-except:
-    pass
-
 MAIN_DIALOG_CLASS, _ = loadUiType(os.path.join(os.path.dirname(__file__), 'modules', 'gui', 'pyarchinit_scheda_Lapidei_ui.ui'))
 
 
