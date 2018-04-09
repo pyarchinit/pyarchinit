@@ -140,8 +140,8 @@ class single_Finds_pdf_sheet:
 
             # 5 row
         elementi_reperto = ''
-        if ast.literal_eval(self.elementi_reperto) > 0:
-            for i in ast.literal_eval(self.elementi_reperto):
+        if eval(self.elementi_reperto) > 0:
+            for i in eval(self.elementi_reperto):
                 if elementi_reperto == '':
                     try:
                         elementi_reperto += ("%s: %s %s") % (str(i[0]), str(i[2]), str(i[1]))
@@ -157,8 +157,8 @@ class single_Finds_pdf_sheet:
 
         # 6 row
         misurazioni = ''
-        if ast.literal_eval(self.misurazioni) > 0:
-            for i in ast.literal_eval(self.misurazioni):
+        if eval(self.misurazioni) > 0:
+            for i in eval(self.misurazioni):
                 if misurazioni == '':
                     try:
                         misurazioni += ("%s: %s %s") % (str(i[0]), str(i[2]), str(i[1]))
@@ -173,8 +173,8 @@ class single_Finds_pdf_sheet:
 
         # 7 row
         tecnologie = ''
-        if ast.literal_eval(self.tecnologie) > 0:
-            for i in ast.literal_eval(self.tecnologie):
+        if eval(self.tecnologie) > 0:
+            for i in eval(self.tecnologie):
                 if tecnologie == '':
                     try:
                         # tecnologie += ("%s %s: %s %s") % (str(i[0]), str(i[1]), str(i[4]),str(i[3]))
@@ -193,8 +193,8 @@ class single_Finds_pdf_sheet:
 
         # 8 row
         rif_biblio = ''
-        if ast.literal_eval(self.rif_biblio) > 0:
-            for i in ast.literal_eval(self.rif_biblio):  # gigi
+        if eval(self.rif_biblio) > 0:
+            for i in eval(self.rif_biblio):  # gigi
                 if rif_biblio == '':
                     try:
                         rif_biblio += ("%s, %s, %s, pag.: %s, fig.: %s") % (

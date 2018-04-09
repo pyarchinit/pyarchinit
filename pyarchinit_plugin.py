@@ -20,7 +20,6 @@
 """
 from __future__ import absolute_import
 
-import ast
 import os
 
 from builtins import object
@@ -79,7 +78,7 @@ class PyArchInitPlugin(object):
     path_rel = os.path.join(os.sep, str(HOME), 'pyarchinit_DB_folder', 'config.cfg')
     conf = open(path_rel, "r")
     data = conf.read()
-    PARAMS_DICT = ast.literal_eval(data)
+    PARAMS_DICT = eval(data)
     if 'EXPERIMENTAL' in PARAMS_DICT:
         PARAMS_DICT['EXPERIMENTAL'] = 'No'
         f = open(path_rel, "w")

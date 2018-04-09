@@ -22,23 +22,22 @@
 """
 from __future__ import absolute_import
 
-from builtins import str
-from builtins import range
+import os
 from datetime import date
-
-from qgis.PyQt.QtCore import Qt, QFileInfo, QTranslator, QCoreApplication
-from qgis.PyQt.QtWidgets import QAction, QApplication, QToolButton, QMenu, QDialog
-from qgis.PyQt.QtGui import QIcon
-from qgis.PyQt.uic import loadUiType
-
 from test.test_heapq import R
 
 import sys
-import os
-from .modules.gis.pyarchinit_pyqgis_archeozoo import Pyarchinit_pyqgis
+from builtins import range
+from builtins import str
+from qgis.PyQt.QtCore import QCoreApplication
+from qgis.PyQt.QtGui import QIcon
+from qgis.PyQt.QtWidgets import QAction, QApplication, QDialog
+from qgis.PyQt.uic import loadUiType
+
 from .modules.db.pyarchinit_conn_strings import Connection
 from .modules.db.pyarchinit_db_manager import Pyarchinit_db_management
 from .modules.db.pyarchinit_utility import Utility
+from .modules.gis.pyarchinit_pyqgis_archeozoo import Pyarchinit_pyqgis
 from .modules.utility.pyarchinit_error_check import Error_check
 from .pyarchinit_US_mainapp import pyarchinit_US
 from .sortpanelmain import SortPanelMain
@@ -2365,7 +2364,6 @@ title(sub="Rosso = coppie con r>|0.5|, Verde = coppie con |0.25|<r<|0.5|;
         m.colormap = visvis.CM_JET
 
         import scipy as sp
-        import scipy.interpolate
         # construction de la grille
         spline = sp.interpolate.Rbf(x, y, z, function='thin-plate')
         xi = np.linspace(min(x), max(x))

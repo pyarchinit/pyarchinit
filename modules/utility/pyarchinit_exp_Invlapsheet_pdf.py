@@ -1,13 +1,13 @@
-import os
 from datetime import date
 
-from .pyarchinit_OS_utility import *
 from reportlab.lib import colors
 from reportlab.lib.styles import getSampleStyleSheet
 from reportlab.lib.units import inch, mm
 from reportlab.pdfgen import canvas
 from reportlab.platypus import Table, PageBreak, SimpleDocTemplate, Image
 from reportlab.platypus.paragraph import Paragraph
+
+from .pyarchinit_OS_utility import *
 
 
 class NumberedCanvas_Invlapsheet(canvas.Canvas):
@@ -157,8 +157,8 @@ class single_Invlap_pdf_sheet:
 
             # 18 row
         bibliografia = ''
-        if ast.literal_eval(self.bibliografia) > 0:
-            for i in ast.literal_eval(self.bibliografia):  # gigi
+        if eval(self.bibliografia) > 0:
+            for i in eval(self.bibliografia):  # gigi
                 if bibliografia == '':
                     try:
                         bibliografia += ("<b>Autore: %s, Anno: %s, Titolo: %s, Pag.: %s, Fig.: %s") % (

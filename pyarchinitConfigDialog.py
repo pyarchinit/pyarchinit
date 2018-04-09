@@ -20,19 +20,14 @@
 /***************************************************************************/
 """
 from __future__ import absolute_import
-from builtins import str
-from builtins import range
-import os
-import ast
 
+from builtins import range
+from builtins import str
 from qgis.PyQt.QtWidgets import QApplication, QDialog, QMessageBox
 from qgis.PyQt.uic import loadUiType
-from .modules.db.pyarchinit_OS_utility import *
-from .modules.db.pyarchinit_db_manager import *
-from .modules.db.pyarchinit_db_mapper import *
-from .modules.db.pyarchinit_db_structure import *
 
 from .modules.db.pyarchinit_conn_strings import Connection
+from .modules.db.pyarchinit_db_manager import *
 from .modules.db.pyarchinit_db_manager import Pyarchinit_db_management
 
 MAIN_DIALOG_CLASS, _ = loadUiType(os.path.join(os.path.dirname(__file__), 'modules', 'gui', 'Ui_pyarchinitConfig.ui'))
@@ -121,7 +116,7 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
         path_rel = os.path.join(os.sep, str(self.HOME), 'pyarchinit_DB_folder', 'config.cfg')
         conf = open(path_rel, "r")
         data = conf.read()
-        self.PARAMS_DICT = ast.literal_eval(data)
+        self.PARAMS_DICT = eval(data)
 
     def save_dict(self):
         # save data into config.cfg file

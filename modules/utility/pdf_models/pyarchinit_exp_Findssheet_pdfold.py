@@ -132,8 +132,8 @@ class single_Finds_pdf_sheet:
 
             # 5 row
         elementi_reperto = ''
-        if ast.literal_eval(self.elementi_reperto) > 0:
-            for i in ast.literal_eval(self.elementi_reperto):
+        if eval(self.elementi_reperto) > 0:
+            for i in eval(self.elementi_reperto):
                 if elementi_reperto == '':
                     try:
                         elementi_reperto += ("Elemento rinvenuto: %s, Unita' di musura: %s, Quantita': %s") % (
@@ -151,8 +151,8 @@ class single_Finds_pdf_sheet:
 
         # 6 row
         misurazioni = ''
-        if ast.literal_eval(self.misurazioni) > 0:
-            for i in ast.literal_eval(self.misurazioni):
+        if eval(self.misurazioni) > 0:
+            for i in eval(self.misurazioni):
                 if misurazioni == '':
                     try:
                         misurazioni += ("<b>Tipo di misura: %s, Unita' di musura: %s, Quantita': %s") % (
@@ -169,8 +169,8 @@ class single_Finds_pdf_sheet:
 
         # 7 row
         tecnologie = ''
-        if ast.literal_eval(self.tecnologie) > 0:
-            for i in ast.literal_eval(self.tecnologie):
+        if eval(self.tecnologie) > 0:
+            for i in eval(self.tecnologie):
                 if tecnologie == '':
                     try:
                         tecnologie += (
@@ -189,8 +189,8 @@ class single_Finds_pdf_sheet:
 
         # 8 row
         rif_biblio = ''
-        if ast.literal_eval(self.rif_biblio) > 0:
-            for i in ast.literal_eval(self.rif_biblio):  # gigi
+        if eval(self.rif_biblio) > 0:
+            for i in eval(self.rif_biblio):  # gigi
                 if rif_biblio == '':
                     try:
                         rif_biblio += ("<b>Autore: %s, Anno: %s, Titolo: %s, Pag.: %s, Fig.: %s") % (
