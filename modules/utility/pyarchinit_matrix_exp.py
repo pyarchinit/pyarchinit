@@ -22,15 +22,6 @@
 import os
 
 import pygraphviz as p
-from PyQt4.QtCore import *
-from PyQt4.QtGui import *
-from qgis.core import *
-from qgis.gui import *
-
-try:
-    import pygraphviz as pgv
-except:
-    pass
 from networkx import *
 
 

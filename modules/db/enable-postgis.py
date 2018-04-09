@@ -23,8 +23,6 @@
 import os
 
 import psycopg2
-from PyQt4.QtCore import *
-from PyQt4.QtGui import *
 from sqlalchemy import *
 
 # settings = Settings()

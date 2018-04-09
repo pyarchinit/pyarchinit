@@ -1,36 +1,62 @@
-from PyQt4 import QtGui, QtCore
+#! /usr/bin/env python
+# -*- coding: utf-8 -*-
+"""
+/***************************************************************************
+        pyArchInit Plugin  - A QGIS plugin to manage archaeological dataset
+        					 stored in Postgres
+                             -------------------
+    begin                : 2007-12-01
+    copyright            : (C) 2008 by Luca Mandolesi
+    email                : mandoluca at gmail.com
+ ***************************************************************************/
+
+/***************************************************************************
+ *                                                                         *
+ *   This program is free software; you can redistribute it and/or modify  *
+ *   it under the terms of the GNU General Public License as published by  *
+ *   the Free Software Foundation; either version 2 of the License, or     *
+ *   (at your option) any later version.                                   *
+ *                                                                         *
+ ***************************************************************************/
+"""
+
+from __future__ import print_function
+
+from builtins import range
+from qgis.PyQt.QtCore import Qt
+from qgis.PyQt.QtWidgets import QWidget, QTableWidget, QTableWidgetItem, QVBoxLayout, QApplication
 
 
-class Window(QtGui.QWidget):
+class Window(QWidget):
     def __init__(self, rows, columns):
-        QtGui.QWidget.__init__(self)
-        self.table = QtGui.QTableWidget(rows, columns, self)
+        QWidget.__init__(self)
+        self.table = QTableWidget(rows, columns, self)
         for column in range(columns):
             for row in range(rows):
-                item = QtGui.QTableWidgetItem('Text%d' % row)
+                item = QTableWidgetItem('Text%d' % row)
                 if row % 2:
-                    item.setFlags(QtCore.Qt.ItemIsUserCheckable |
-                                  QtCore.Qt.ItemIsEnabled)
-                    item.setCheckState(QtCore.Qt.Unchecked)
+                    item.setFlags(Qt.ItemIsUserCheckable |
+                                  Qt.ItemIsEnabled)
+                    item.setCheckState(Qt.Unchecked)
                 self.table.setItem(row, column, item)
         self.table.itemClicked.connect(self.handleItemClicked)
-        layout = QtGui.QVBoxLayout(self)
+        layout = QVBoxLayout(self)
         layout.addWidget(self.table)
         self._list = []
 
     def handleItemClicked(self, item):
-        if item.checkState() == QtCore.Qt.Checked:
+        if item.checkState() == Qt.Checked:
             print(('"%s" Checked' % item.text()))
             self._list.append(item.row())
-            print((self._list))
+            print(self._list)
         else:
-            print(('"%s" Clicked' % item.text()))
+            print('"%s" Clicked' % item.text())
 
 
 if __name__ == '__main__':
     import sys
 
-    app = QtGui.QApplication(sys.argv)
+    app = QApplication(sys.argv)
     window = Window(6, 3)
     window.resize(350, 300)
     window.show()
