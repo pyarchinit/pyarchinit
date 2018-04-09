@@ -23,35 +23,15 @@ from __future__ import absolute_import
 
 from builtins import range
 from builtins import str
-from matplotlib import *
 from qgis.PyQt.QtWidgets import QDialog, QMessageBox
 from qgis.PyQt.uic import loadUiType
 
 from .modules.db.pyarchinit_conn_strings import Connection
 from .modules.db.pyarchinit_db_manager import Pyarchinit_db_management
-from .modules.db.pyarchinit_error_check import *
-from .modules.db.pyarchinit_exp_Findssheet_pdf import *
-from .modules.db.pyarchinit_matrix_exp import *
 from .modules.gis.pyarchinit_pyqgis import Pyarchinit_pyqgis
+from .modules.utility.pyarchinit_matrix_exp import *
 from .modules.utility.pyarchinit_matrix_exp import HARRIS_MATRIX_EXP
-from .modules.utility.pyarchinit_utility import *
 from .pyarchinit_US_mainapp import pyarchinit_US
-
-try:
-    from qgis.core import *
-    from qgis.gui import *
-except:
-    pass
-
-try:
-    import pygraphviz as pgv
-except:
-    pass
-
-try:
-    from pyarchinit_db_manager import *
-except:
-    pass
 
 MAIN_DIALOG_CLASS, _ = loadUiType(os.path.join(os.path.dirname(__file__), 'modules', 'gui', 'pyarchinit_interactive_matrix_gui.ui'))
 
@@ -156,10 +136,9 @@ class pyarchinit_Interactive_Matrix(QDialog, MAIN_DIALOG_CLASS):
 
         matrix_exp = HARRIS_MATRIX_EXP(data, periodi_us_list)
         data_plotting = matrix_exp.export_matrix()
+        QMessageBox.warning(self, "Messaggio", "Esportazione del Matrix terminata", QMessageBox.Ok)
 
         return data_plotting
-
-        QMessageBox.warning(self, "Messaggio", "Esportazione del Matrix terminata", QMessageBox.Ok)
 
     def plot_matrix(self, dp):
         self.data_plot = dp

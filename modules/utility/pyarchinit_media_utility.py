@@ -22,11 +22,10 @@
 
 from __future__ import print_function
 
-from builtins import str
-from builtins import object
-import os
-
 import PIL.Image as Image
+from builtins import object
+from builtins import str
+
 from ..db.pyarchinit_conn_strings import *
 
 

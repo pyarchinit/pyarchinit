@@ -1,13 +1,12 @@
-#! /usr/bin/env python
+#!/usr/bin/python
 # -*- coding: utf-8 -*-
 """
 /***************************************************************************
         pyArchInit Plugin  - A QGIS plugin to manage archaeological dataset
-        					 stored in Postgres
                              -------------------
-    begin                : 2007-12-01
-    copyright            : (C) 2008 by Luca Mandolesi
-    email                : mandoluca at gmail.com
+        begin                : 2007-12-01
+        copyright            : (C) 2008 by Luca Mandolesi
+        email                : mandoluca at gmail.com
  ***************************************************************************/
 
 /***************************************************************************
