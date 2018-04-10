@@ -22,8 +22,12 @@ from __future__ import absolute_import
 
 from builtins import range
 from builtins import str
-from qgis.PyQt.QtWidgets import QDialog, QMessageBox
+from qgis.PyQt.QtCore import Qt, QSize
+from qgis.PyQt.QtGui import QColor
+from qgis.PyQt.QtWidgets import QDialog, QMessageBox, QListWidget, QListView, QFrame, QAbstractItemView
 from qgis.PyQt.uic import loadUiType
+from qgis.core import Qgis
+from qgis.gui import QgsMapCanvas
 
 from .modules.db.pyarchinit_conn_strings import Connection
 from .modules.db.pyarchinit_db_manager import Pyarchinit_db_management
@@ -250,8 +254,12 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
 
         periodo_list = []
 
+        if not periodo_list:
+            return
+
         for i in range(len(periodo_vl)):
             periodo_list.append(str(periodo_vl[i].periodo))
+
         try:
             periodo_vl.remove('')
         except:
@@ -276,6 +284,9 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
 
         periodo_vl = self.DB_MANAGER.query_bool(search_dict, 'PERIODIZZAZIONE')
         periodo_list = []
+
+        if not periodo_list:
+            return
 
         for i in range(len(periodo_vl)):
             periodo_list.append(str(periodo_vl[i].periodo))
@@ -467,13 +478,12 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
         except Exception as e:
             e = str(e)
             if e.find("no such table"):
-                QMessageBox.warning(self, "Alert -A",
-                                    "La connessione e' fallita <br><br> %s. E' NECESSARIO RIAVVIARE QGIS oppure rilevato bug! Segnalarlo allo sviluppatore" % (
-                                    str(e)), QMessageBox.Ok)
+                msg = "La connessione e' fallita {}. " \
+                      "E' NECESSARIO RIAVVIARE QGIS oppure rilevato bug! Segnalarlo allo sviluppatore".format(str(e))
+                self.iface.messageBar().pushMessage(self.tr(msg), Qgis.Warning, 0)
             else:
-                QMessageBox.warning(self, "Alert -B",
-                                    "Attenzione rilevato bug! Segnalarlo allo sviluppatore<br> Errore: <br>" + str(e),
-                                    QMessageBox.Ok)
+                msg = "Attenzione rilevato bug! Segnalarlo allo sviluppatore. Errore: ".format(str(e))
+                self.iface.messageBar().pushMessage(self.tr(msg), Qgis.Warning, 0)
 
     def customize_GUI(self):
         self.tableWidget_rapporti.setColumnWidth(0, 380)
@@ -487,23 +497,23 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
         self.tabWidget.addTab(self.mapPreview, "Piante")
 
         # media prevew system
-        self.iconListWidget = QtGui.QListWidget(self)
-        self.iconListWidget.setFrameShape(QtGui.QFrame.StyledPanel)
-        self.iconListWidget.setFrameShadow(QtGui.QFrame.Sunken)
+        self.iconListWidget = QListWidget(self)
+        self.iconListWidget.setFrameShape(QFrame.StyledPanel)
+        self.iconListWidget.setFrameShadow(QFrame.Sunken)
         self.iconListWidget.setLineWidth(2)
         self.iconListWidget.setMidLineWidth(2)
         self.iconListWidget.setProperty("showDropIndicator", False)
-        self.iconListWidget.setIconSize(QtCore.QSize(150, 150))
-        self.iconListWidget.setMovement(QtGui.QListView.Snap)
-        self.iconListWidget.setResizeMode(QtGui.QListView.Adjust)
-        self.iconListWidget.setLayoutMode(QtGui.QListView.Batched)
-        self.iconListWidget.setGridSize(QtCore.QSize(160, 160))
-        self.iconListWidget.setViewMode(QtGui.QListView.IconMode)
+        self.iconListWidget.setIconSize(QSize(150, 150))
+        self.iconListWidget.setMovement(QListView.Snap)
+        self.iconListWidget.setResizeMode(QListView.Adjust)
+        self.iconListWidget.setLayoutMode(QListView.Batched)
+        self.iconListWidget.setGridSize(QSize(160, 160))
+        self.iconListWidget.setViewMode(QListView.IconMode)
         self.iconListWidget.setUniformItemSizes(True)
         self.iconListWidget.setBatchSize(1000)
         self.iconListWidget.setObjectName("iconListWidget")
         self.iconListWidget.SelectionMode()
-        self.iconListWidget.setSelectionMode(QtGui.QAbstractItemView.MultiSelection)
+        self.iconListWidget.setSelectionMode(QAbstractItemView.MultiSelection)
         self.iconListWidget.itemDoubleClicked.connect(self.openWide_image)
         self.tabWidget.addTab(self.iconListWidget, "Media")
 
@@ -588,7 +598,7 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
 
                 item = QListWidgetItem(str(i.id_media))
 
-                item.setData(QtCore.Qt.UserRole, str(i.id_media))
+                item.setData(Qt.UserRole, str(i.id_media))
                 icon = QIcon(thumb_path)
                 item.setIcon(icon)
                 self.iconListWidget.addItem(item)
