@@ -21,8 +21,11 @@
 """
 import os
 
-import pygraphviz as p
-from networkx import *
+try:
+    import pygraphviz as p
+    from networkx import *
+except:
+    pass
 
 
 class HARRIS_MATRIX_EXP:

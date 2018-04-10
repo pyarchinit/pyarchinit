@@ -26,14 +26,14 @@ from builtins import object
 from builtins import range
 from builtins import str
 from builtins import zip
-from sqlalchemy import and_, or_
+from sqlalchemy import and_, or_, Table, select
 from sqlalchemy.engine import create_engine
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.sql.schema import MetaData
 
 from modules.db.entities import DOCUMENTAZIONE
 from modules.db.pyarchinit_db_mapper import US, UT, SITE, PERIODIZZAZIONE, \
-    STRUTTURA, SCHEDAIND, DETSESSO, DETETA, MEDIA, \
+    STRUTTURA, SCHEDAIND, INVENTARIO_MATERIALI, DETSESSO, DOCUMENTAZIONE, DETETA, MEDIA, \
     MEDIA_THUMB, MEDIATOENTITY, TAFONOMIA, CAMPIONI, PYARCHINIT_THESAURUS_SIGLE, \
     ARCHEOZOOLOGY, INVENTARIO_LAPIDEI, PDF_ADMINISTRATOR
 from modules.db.pyarchinit_db_update import DB_update
@@ -58,7 +58,6 @@ class Pyarchinit_db_management(object):
 
         try:
             test_conn = self.conn_str.find("sqlite")
-
             if test_conn == 0:
                 self.engine = create_engine(self.conn_str, echo=eval(self.boolean))
             else:
@@ -67,6 +66,7 @@ class Pyarchinit_db_management(object):
             self.engine.connect()
         except Exception as e:
             test = str(e)
+
         try:
             db_upd = DB_update()
             db_upd.update_table()
@@ -663,7 +663,7 @@ class Pyarchinit_db_management(object):
 
     #
     def query(self, n):
-        class_name = n
+        class_name = eval(n)
         # engine = self.connection()
         Session = sessionmaker(bind=self.engine, autoflush=True, autocommit=True)
         session = Session()
@@ -981,9 +981,8 @@ class Pyarchinit_db_management(object):
 
         Session = sessionmaker(bind=self.engine, autoflush=True, autocommit=True)
         session = Session()
-        string = ('%s%s%s%s%s%s%s%s%s') % (
-        'select([', self.table_class, '.', self.field_name, ']).group_by(', self.table_class, '.', self.field_name, ')')
-        s = eval(string)
+        string = "{0}.{1}".format(self.table_class, self.field_name)
+        s = select([string]).group_by(string)
         return self.engine.execute(s).fetchall()
 
     def query_where_text(self, c, v):

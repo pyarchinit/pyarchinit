@@ -19,8 +19,9 @@
  *                                                                         *
  ***************************************************************************/
 """
-from builtins import object
 import os
+
+from builtins import object
 
 from .settings import Settings
 
@@ -58,6 +59,8 @@ class Connection(object):
                 "postgresql", conn_str_dict["user"], conn_str_dict["password"], conn_str_dict["host"],
                 conn_str_dict["port"], conn_str_dict["db_name"])
 
+            return conn_str
+
         elif conn_str_dict["server"] == 'sqlite':
             sqlite_DB_path = ('%s%s%s') % (home, os.sep,
                                            "pyarchinit_DB_folder")  # "C:\\Users\\Windows\\Dropbox\\pyarchinit_san_marco\\" fare modifiche anche in pyarchinit_pyqgis
@@ -65,7 +68,8 @@ class Connection(object):
             dbname_abs = sqlite_DB_path + os.sep + conn_str_dict["db_name"]
 
             conn_str = "%s:///%s" % (conn_str_dict["server"], dbname_abs)
-        return conn_str
+
+            return conn_str
 
     def thumb_path(self):
         if os.name == 'posix':

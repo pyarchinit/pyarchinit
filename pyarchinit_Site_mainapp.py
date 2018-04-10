@@ -38,12 +38,6 @@ from .pyarchinit_US_mainapp import pyarchinit_US
 from .sortpanelmain import SortPanelMain
 from .test_area import Test_area
 
-try:
-    from qgis.core import *
-    from qgis.gui import *
-except:
-    pass
-
 MAIN_DIALOG_CLASS, _ = loadUiType(os.path.join(os.path.dirname(__file__), 'modules', 'gui', 'pyarchinit_Site_ui.ui'))
 
 
@@ -213,7 +207,6 @@ class pyarchinit_Site(QDialog, MAIN_DIALOG_CLASS):
         self.comboBox_sito.clear()
         sito_vl.sort()
         self.comboBox_sito.addItems(sito_vl)
-
         regioni_list = ['Abruzzo', 'Basilicata', 'Calabria', 'Campania', 'Emilia-Romagna', 'Friuli Venezia Giulia',
                         'Lazio', 'Liguria', 'Lombardia', 'Marche', 'Molise', 'Piemonte', 'Puglia', 'Sardegna',
                         'Sicilia', 'Toscana', 'Trentino Alto Adige', 'Umbria', 'Valle d\'Aosta', 'Veneto']
@@ -694,13 +687,12 @@ class pyarchinit_Site(QDialog, MAIN_DIALOG_CLASS):
 
     def charge_records(self):
         self.DATA_LIST = []
-
         if self.DB_SERVER == 'sqlite':
-            for i in self.DB_MANAGER.query(eval(self.MAPPER_TABLE_CLASS)):
+            for i in self.DB_MANAGER.query(self.MAPPER_TABLE_CLASS):
                 self.DATA_LIST.append(i)
         else:
             id_list = []
-            for i in self.DB_MANAGER.query(eval(self.MAPPER_TABLE_CLASS)):
+            for i in self.DB_MANAGER.query(self.MAPPER_TABLE_CLASS):
                 id_list.append(eval("i." + self.ID_TABLE))
 
             temp_data_list = self.DB_MANAGER.query_sort(id_list, [self.ID_TABLE], 'asc', self.MAPPER_TABLE_CLASS,
@@ -708,12 +700,6 @@ class pyarchinit_Site(QDialog, MAIN_DIALOG_CLASS):
 
             for i in temp_data_list:
                 self.DATA_LIST.append(i)
-
-            ##		id_list = []
-            ##		for i in self.DB_MANAGER.query(eval(self.MAPPER_TABLE_CLASS)):
-            ##			id_list.append(eval("i."+ self.ID_TABLE))
-            ##
-            ##		temp_data_list = self.DB_MANAGER.query_sort([1], [self.ID_TABLE], 'asc', self.MAPPER_TABLE_CLASS, self.ID_TABLE)
 
     def datestrfdate(self):
         now = date.today()

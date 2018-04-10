@@ -3,6 +3,7 @@ Created on 15 feb 2018
 
 @author: Serena Sensini
 '''
+
 from sqlalchemy import Table, Column, Integer, String, Text, Numeric, MetaData, create_engine, UniqueConstraint
 
 from modules.db.pyarchinit_conn_strings import Connection

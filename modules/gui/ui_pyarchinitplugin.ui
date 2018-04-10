@@ -149,9 +149,9 @@ selection-color: rgb(140, 140, 105);</string>
            <widget class="QLabel" name="label">
             <property name="geometry">
              <rect>
-              <x>116</x>
+              <x>110</x>
               <y>179</y>
-              <width>21</width>
+              <width>22</width>
               <height>16</height>
              </rect>
             </property>
@@ -162,7 +162,7 @@ selection-color: rgb(140, 140, 105);</string>
            <widget class="Line" name="line_2">
             <property name="geometry">
              <rect>
-              <x>129</x>
+              <x>135</x>
               <y>178</y>
               <width>31</width>
               <height>20</height>

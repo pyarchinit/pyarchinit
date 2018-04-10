@@ -30,7 +30,7 @@ class DOCUMENTAZIONE(object):
 
     # def __repr__"
     def __repr__(self):
-        return "<DOCUMENTAZIONE('%d', '%s', '%s', '%s', '%s', '%s', '%s', '%s')>" % (
+        return "<DOCUMENTAZIONE('%d', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s')>" % (
             self.id_documentazione,  # 0
             self.sito,  # 1
             self.nome_doc,  # 2

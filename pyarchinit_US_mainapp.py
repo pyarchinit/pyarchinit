@@ -24,7 +24,7 @@ from builtins import range
 from builtins import str
 from qgis.PyQt.QtCore import Qt, QSize
 from qgis.PyQt.QtGui import QColor
-from qgis.PyQt.QtWidgets import QDialog, QMessageBox, QListWidget, QListView, QFrame, QAbstractItemView
+from qgis.PyQt.QtWidgets import QDialog, QMessageBox, QListWidget, QListView, QFrame, QAbstractItemView, QTableWidgetItem
 from qgis.PyQt.uic import loadUiType
 from qgis.core import Qgis
 from qgis.gui import QgsMapCanvas
@@ -1171,12 +1171,12 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
             self.pyQGIS.addRasterLayer()
 
     def on_pushButton_new_rec_pressed(self):
-        if bool(self.DATA_LIST):
+        if self.DATA_LIST:
             if self.data_error_check() == 1:
                 pass
             else:
                 if self.BROWSE_STATUS == "b":
-                    if bool(self.DATA_LIST):
+                    if self.DATA_LIST:
                         if self.records_equal_check() == 1:
                             msg = self.update_if(QMessageBox.warning(self, 'Errore',
                                                                      "Il record e' stato modificato. Vuoi salvare le modifiche?",
@@ -2062,11 +2062,11 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
         self.DATA_LIST = []
 
         if self.DB_SERVER == 'sqlite':
-            for i in self.DB_MANAGER.query(eval(self.MAPPER_TABLE_CLASS)):
+            for i in self.DB_MANAGER.query(self.MAPPER_TABLE_CLASS):
                 self.DATA_LIST.append(i)
         else:
             id_list = []
-            for i in self.DB_MANAGER.query(eval(self.MAPPER_TABLE_CLASS)):
+            for i in self.DB_MANAGER.query(self.MAPPER_TABLE_CLASS):
                 id_list.append(eval("i." + self.ID_TABLE))
 
             temp_data_list = self.DB_MANAGER.query_sort(id_list, [self.ID_TABLE], 'asc', self.MAPPER_TABLE_CLASS,

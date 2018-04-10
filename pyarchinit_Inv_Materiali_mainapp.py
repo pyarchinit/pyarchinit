@@ -463,7 +463,7 @@ class pyarchinit_Inventario_reperti(QDialog, MAIN_DIALOG_CLASS):
             self.DB_MANAGER.connection()
             self.charge_records()
             # check if DB is empty
-            if bool(self.DATA_LIST):
+            if self.DATA_LIST:
                 self.REC_TOT, self.REC_CORR = len(self.DATA_LIST), 0
                 self.DATA_LIST_REC_TEMP = self.DATA_LIST_REC_CORR = self.DATA_LIST[0]
                 self.BROWSE_STATUS = "b"
@@ -1577,11 +1577,11 @@ class pyarchinit_Inventario_reperti(QDialog, MAIN_DIALOG_CLASS):
         self.DATA_LIST = []
 
         if self.DB_SERVER == 'sqlite':
-            for i in self.DB_MANAGER.query(eval(self.MAPPER_TABLE_CLASS)):
+            for i in self.DB_MANAGER.query(self.MAPPER_TABLE_CLASS):
                 self.DATA_LIST.append(i)
         else:
             id_list = []
-            for i in self.DB_MANAGER.query(eval(self.MAPPER_TABLE_CLASS)):
+            for i in self.DB_MANAGER.query(self.MAPPER_TABLE_CLASS):
                 id_list.append(eval("i." + self.ID_TABLE))
 
             temp_data_list = self.DB_MANAGER.query_sort(id_list, [self.ID_TABLE], 'asc', self.MAPPER_TABLE_CLASS,
