@@ -701,11 +701,10 @@ class Pyarchinit_db_management(object):
         stringhe e numeri
         #field_value_string = ", ".join([table + ".%s.like(%s)" % (k, v) for k, v in params.items()])
         """
-
-        query_str = "session.query(" + table + ").filter(and_(" + field_value_string + ")).all()"
         # self.connection()
         Session = sessionmaker(bind=self.engine, autoflush=True, autocommit=True)
         session = Session()
+        query_str = "session.query(" + table + ").filter(and_(" + field_value_string + ")).all()"
 
         '''
         t = open("/test_import.txt", "w")

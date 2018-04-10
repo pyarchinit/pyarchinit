@@ -28,7 +28,8 @@ class DOCUMENTAZIONE(object):
         self.disegnatore = disegnatore  # 7
         self.note = note  # 8
 
-    # def __repr__"
+        # def __repr__"
+
     def __repr__(self):
         return "<DOCUMENTAZIONE('%d', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s')>" % (
             self.id_documentazione,  # 0
@@ -39,5 +40,5 @@ class DOCUMENTAZIONE(object):
             self.sorgente,  # 5
             self.scala,  # 6
             self.disegnatore,  # 7
-            self.note,  # 8
+            self.note  # 8
         )
