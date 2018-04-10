@@ -20,8 +20,12 @@
  ***************************************************************************/
 """
 
+import os
 
-class Settings:
+from builtins import object
+
+
+class Settings(object):
     SERVER = ""
     HOST = ""
     DATABASE = ""

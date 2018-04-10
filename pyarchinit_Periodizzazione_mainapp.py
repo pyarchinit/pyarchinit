@@ -39,17 +39,6 @@ from .modules.utility.pyarchinit_exp_Periodizzazionesheet_pdf import generate_Pe
 from .pyarchinit_US_mainapp import pyarchinit_US
 from .sortpanelmain import SortPanelMain
 
-try:
-    from qgis.core import *
-    from qgis.gui import *
-except:
-    pass
-
-try:
-    from  pyarchinit_db_manager import *
-except:
-    pass
-
 MAIN_DIALOG_CLASS, _ = loadUiType(os.path.join(os.path.dirname(__file__), 'modules', 'gui', 'pyarchinit_Periodo_fase_ui.ui'))
 
 
@@ -777,11 +766,11 @@ class pyarchinit_Periodizzazione(QDialog, MAIN_DIALOG_CLASS):
         self.DATA_LIST = []
 
         if self.DB_SERVER == 'sqlite':
-            for i in self.DB_MANAGER.query(eval(self.MAPPER_TABLE_CLASS)):
+            for i in self.DB_MANAGER.query(self.MAPPER_TABLE_CLASS):
                 self.DATA_LIST.append(i)
         else:
             id_list = []
-            for i in self.DB_MANAGER.query(eval(self.MAPPER_TABLE_CLASS)):
+            for i in self.DB_MANAGER.query(self.MAPPER_TABLE_CLASS):
                 id_list.append(eval("i." + self.ID_TABLE))
 
             temp_data_list = self.DB_MANAGER.query_sort(id_list, [self.ID_TABLE], 'asc', self.MAPPER_TABLE_CLASS,
@@ -843,12 +832,12 @@ class pyarchinit_Periodizzazione(QDialog, MAIN_DIALOG_CLASS):
             self.comboBox_periodo.setEditText(str(self.DATA_LIST[self.rec_num].periodo))  # 2 - Periodo
             self.comboBox_fase.setEditText(str(self.DATA_LIST[self.rec_num].fase))  # 3 - Fase
 
-            if self.DATA_LIST[self.rec_num].cron_iniziale == None:  # 4 - Cronologia iniziale
+            if self.DATA_LIST[self.rec_num].cron_iniziale:  # 4 - Cronologia iniziale
                 self.lineEdit_cron_iniz.setText("")
             else:
                 self.lineEdit_cron_iniz.setText(str(self.DATA_LIST[self.rec_num].cron_iniziale))
 
-            if self.DATA_LIST[self.rec_num].cron_finale == None:  # 5 - Cronologia finale
+            if self.DATA_LIST[self.rec_num].cron_finale:  # 5 - Cronologia finale
                 self.lineEdit_cron_fin.setText("")
             else:
                 self.lineEdit_cron_fin.setText(str(self.DATA_LIST[self.rec_num].cron_finale))
@@ -856,7 +845,7 @@ class pyarchinit_Periodizzazione(QDialog, MAIN_DIALOG_CLASS):
             str(self.lineEdit_per_estesa.setText(self.DATA_LIST[self.rec_num].datazione_estesa))  # 6 - Datazione estesa
             str(self.textEdit_descrizione_per.setText(self.DATA_LIST[self.rec_num].descrizione))  # 7 - Descrizione
 
-            if self.DATA_LIST[self.rec_num].cont_per == None:  # 8 - Codice periodo
+            if self.DATA_LIST[self.rec_num].cont_per:  # 8 - Codice periodo
                 self.lineEdit_codice_periodo.setText("")
             else:
                 self.lineEdit_codice_periodo.setText(str(self.DATA_LIST[self.rec_num].cont_per))
