@@ -46,6 +46,7 @@ from modules.db.structures.Archeozoology_table import Archeozoology_table
 from modules.db.structures.Campioni_table import Campioni_table
 from modules.db.structures.DETETA_table import DETETA_table
 from modules.db.structures.DETSESSO_table import DETSESSO_table
+from modules.db.structures.Documentazione_table import Documentazione_table
 from modules.db.structures.Inventario_Lapidei_table import Inventario_Lapidei_table
 from modules.db.structures.Inventario_materiali_table import Inventario_materiali_table, Inventario_materiali_table_toimp
 from modules.db.structures.Media_table import Media_table
