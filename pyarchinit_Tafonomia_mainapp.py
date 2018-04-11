@@ -39,7 +39,7 @@ from .sortpanelmain import SortPanelMain
 
 # --import pyArchInit modules--#
 try:
-    from  pyarchinit_matrix_exp import *
+    from pyarchinit_matrix_exp import *
 except:
     pass
 
@@ -1375,11 +1375,11 @@ class pyarchinit_Tafonomia(QDialog, MAIN_DIALOG_CLASS):
         self.DATA_LIST = []
 
         if self.DB_SERVER == 'sqlite':
-            for i in self.DB_MANAGER.query(eval(self.MAPPER_TABLE_CLASS)):
+            for i in self.DB_MANAGER.query(self.MAPPER_TABLE_CLASS):
                 self.DATA_LIST.append(i)
         else:
             id_list = []
-            for i in self.DB_MANAGER.query(eval(self.MAPPER_TABLE_CLASS)):
+            for i in self.DB_MANAGER.query(self.MAPPER_TABLE_CLASS):
                 id_list.append(eval("i." + self.ID_TABLE))
 
             temp_data_list = self.DB_MANAGER.query_sort(id_list, [self.ID_TABLE], 'asc', self.MAPPER_TABLE_CLASS,

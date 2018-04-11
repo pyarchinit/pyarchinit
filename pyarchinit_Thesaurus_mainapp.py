@@ -38,12 +38,6 @@ from .modules.utility.pyarchinit_error_check import Error_check
 from .pyarchinit_US_mainapp import pyarchinit_US
 from .sortpanelmain import SortPanelMain
 
-try:
-    from qgis.core import *
-    from qgis.gui import *
-except:
-    pass
-
 MAIN_DIALOG_CLASS, _ = loadUiType(os.path.join(os.path.dirname(__file__), 'modules', 'gui', 'pyarchinit_thesaurus_ui.ui'))
 
 
@@ -664,11 +658,11 @@ class pyarchinit_Thesaurus(QDialog, MAIN_DIALOG_CLASS):
         self.DATA_LIST = []
 
         if self.DB_SERVER == 'sqlite':
-            for i in self.DB_MANAGER.query(eval(self.MAPPER_TABLE_CLASS)):
+            for i in self.DB_MANAGER.query(self.MAPPER_TABLE_CLASS):
                 self.DATA_LIST.append(i)
         else:
             id_list = []
-            for i in self.DB_MANAGER.query(eval(self.MAPPER_TABLE_CLASS)):
+            for i in self.DB_MANAGER.query(self.MAPPER_TABLE_CLASS):
                 id_list.append(eval("i." + self.ID_TABLE))
 
             temp_data_list = self.DB_MANAGER.query_sort(id_list, [self.ID_TABLE], 'asc', self.MAPPER_TABLE_CLASS,
