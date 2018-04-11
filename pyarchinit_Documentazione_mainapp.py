@@ -93,9 +93,9 @@ class pyarchinit_Documentazione(QDialog, MAIN_DIALOG_CLASS):
     DB_SERVER = "not defined"  ####nuovo sistema sort
 
     def __init__(self, iface):
+        super().__init__()
         self.iface = iface
-        self.pyQGIS = Pyarchinit_pyqgis(self.iface)
-        QDialog.__init__(self)
+        self.pyQGIS = Pyarchinit_pyqgis(iface)
         self.setupUi(self)
         self.currentLayerId = None
         try:
@@ -760,7 +760,7 @@ class pyarchinit_Documentazione(QDialog, MAIN_DIALOG_CLASS):
 
     def fill_fields(self, n=0):
         self.rec_num = n
-
+        print(self.DATA_LIST)
         str(self.comboBox_sito_doc.setEditText(self.DATA_LIST[self.rec_num].sito))  # 1 - Sito
         str(self.lineEdit_nome_doc.setText(self.DATA_LIST[self.rec_num].nome_doc))  # 2 - Nome Dcumentazione
         str(self.lineEdit_data_doc.setText(self.DATA_LIST[self.rec_num].data))  # 3 - Data
