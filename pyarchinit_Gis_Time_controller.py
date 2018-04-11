@@ -30,17 +30,12 @@ import os
 
 from qgis.PyQt.QtWidgets import QApplication, QDialog, QMessageBox
 from qgis.PyQt.uic import loadUiType
+from qgis.core import Qgis, QgsMessageLog
 
 from .modules.db.pyarchinit_conn_strings import Connection
 from .modules.db.pyarchinit_db_manager import Pyarchinit_db_management
 from .modules.gis.pyarchinit_pyqgis import Pyarchinit_pyqgis
 from .pyarchinit_US_mainapp import pyarchinit_US
-
-try:
-    from qgis.core import *
-    from qgis.gui import *
-except:
-    pass
 
 MAIN_DIALOG_CLASS, _ = loadUiType(os.path.join(os.path.dirname(__file__), 'modules', 'gui', 'pyarchinit_gis_time_controller.ui'))
 
@@ -109,7 +104,7 @@ class pyarchinit_Gis_Time_Controller(QDialog, MAIN_DIALOG_CLASS):
                 "You must to load pyarchinit_us_view and/or select it from pyarchinit GeoDatabase" + str(e))
             self.iface.messageBar().pushMessage("Help",
                                                 "You must to load pyarchinit_us_view and/or select it from pyarchinit GeoDatabase",
-                                                level=QgsMessageBar.WARNING)
+                                                level=Qgis.Warning)
 
     def reset_query(self):
         self.ORDER_LAYER_VALUE = v

@@ -23,14 +23,12 @@ from __future__ import absolute_import
 
 from builtins import str
 from builtins import range
-import os
 
-from qgis.PyQt.QtWidgets import QDialog, QMessageBox
+from qgis.PyQt.QtWidgets import QDialog, QMessageBox, QFileDialog
 from qgis.PyQt.uic import loadUiType
 
 import PIL as Image
 import numpy as np
-import sys
 
 from .modules.utility.pyarchinit_media_utility import *
 from .modules.db.pyarchinit_conn_strings import Connection
@@ -38,17 +36,6 @@ from .modules.db.pyarchinit_db_manager import Pyarchinit_db_management
 from .modules.db.pyarchinit_utility import Utility
 
 filepath = os.path.dirname(__file__)
-
-gui_path = ('%s%s') % (filepath, os.path.join(os.sep, 'modules', 'gui'))
-gis_path = ('%s%s') % (filepath, os.path.join(os.sep, 'modules', 'gis'))
-db_path = ('%s%s') % (filepath, os.path.join(os.sep, 'modules', 'db'))
-utility = ('%s%s') % (filepath, os.path.join(os.sep, 'modules', 'utility'))
-
-sys.path.insert(0, gui_path)
-sys.path.insert(1, gis_path)
-sys.path.insert(2, db_path)
-sys.path.insert(3, utility)
-sys.path.insert(4, filepath)
 
 try:
     from  pyarchinit_db_manager import *
@@ -82,8 +69,6 @@ class Comparision(QDialog, MAIN_DIALOG_CLASS):
     FILE = ""
 
     def __init__(self):
-        QtGui.QMainWindow.__init__(self)
-        self.ui = Ui_DialogImagesComparision()
         QDialog.__init__(self)
         self.setupUi(self)
         self.setWindowTitle("pyArchInit - Images Comparision Tools")
@@ -108,11 +93,11 @@ class Comparision(QDialog, MAIN_DIALOG_CLASS):
                                     QMessageBox.Ok)
 
     def on_pushButton_chose_dir_pressed(self):
-        self.PATH = QtGui.QFileDialog.getExistingDirectory(self, "Scegli una directory", "Seleziona una directory:",
-                                                           QtGui.QFileDialog.ShowDirsOnly)
+        self.PATH = QFileDialog.getExistingDirectory(self, "Scegli una directory", "Seleziona una directory:",
+                                                           QFileDialog.ShowDirsOnly)
 
     def on_pushButton_chose_file_pressed(self):
-        self.FILE = QtGui.QFileDialog.getOpenFileName(self, 'Open file', '/')
+        self.FILE = QFileDialog.getOpenFileName(self, 'Open file', '/')
 
     def on_pushButton_run_pressed(self):
         file_list = self.generate_files_couples()
