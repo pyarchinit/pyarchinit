@@ -212,9 +212,9 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
     DB_SERVER = "not defined"  ####nuovo sistema sort
 
     def __init__(self, iface):
+        super().__init__()
         self.iface = iface
-        self.pyQGIS = Pyarchinit_pyqgis(self.iface)
-        QDialog.__init__(self)
+        self.pyQGIS = Pyarchinit_pyqgis(iface)
         self.setupUi(self)
         self.currentLayerId = None
         try:
@@ -223,16 +223,16 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
             QMessageBox.warning(self, "Sistema di connessione", str(e), QMessageBox.Ok)
 
             # SIGNALS & SLOTS Functions
-        self.comboBox_sito.editTextChanged .connect(self.charge_periodo_iniz_list)
-        self.comboBox_sito.editTextChanged .connect(self.charge_periodo_fin_list)
+        self.comboBox_sito.editTextChanged.connect(self.charge_periodo_iniz_list)
+        self.comboBox_sito.editTextChanged.connect(self.charge_periodo_fin_list)
 
         self.comboBox_sito.currentIndexChanged.connect(self.charge_periodo_iniz_list)
         self.comboBox_sito.currentIndexChanged.connect(self.charge_periodo_fin_list)
 
-        self.comboBox_per_iniz.editTextChanged .connect(self.charge_fase_iniz_list)
+        self.comboBox_per_iniz.editTextChanged.connect(self.charge_fase_iniz_list)
         self.comboBox_per_iniz.currentIndexChanged.connect(self.charge_fase_iniz_list)
 
-        self.comboBox_per_fin.editTextChanged .connect(self.charge_fase_fin_list)
+        self.comboBox_per_fin.editTextChanged.connect(self.charge_fase_fin_list)
         self.comboBox_per_fin.currentIndexChanged.connect(self.charge_fase_fin_list)
 
         sito = self.comboBox_sito.currentText()
@@ -459,7 +459,7 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
             self.DB_MANAGER.connection()
             self.charge_records()  # charge records from DB
             # check if DB is empty
-            if bool(self.DATA_LIST):
+            if self.DATA_LIST:
                 self.REC_TOT, self.REC_CORR = len(self.DATA_LIST), 0
                 self.DATA_LIST_REC_TEMP = self.DATA_LIST_REC_CORR = self.DATA_LIST[0]
                 self.BROWSE_STATUS = 'b'
@@ -1178,7 +1178,7 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
                 if self.BROWSE_STATUS == "b":
                     if self.DATA_LIST:
                         if self.records_equal_check() == 1:
-                            msg = self.update_if(QMessageBox.warning(self, 'Errore',
+                            self.update_if(QMessageBox.warning(self, 'Errore',
                                                                      "Il record e' stato modificato. Vuoi salvare le modifiche?",
                                                                      QMessageBox.Cancel, 1))
 
