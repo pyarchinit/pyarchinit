@@ -26,7 +26,7 @@ from builtins import object
 from builtins import range
 from builtins import str
 from builtins import zip
-from sqlalchemy import and_, or_, Table, select
+from sqlalchemy import and_, or_, Table, select, func
 from sqlalchemy.engine import create_engine
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.sql.schema import MetaData
