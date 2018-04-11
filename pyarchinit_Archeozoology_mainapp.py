@@ -31,8 +31,9 @@ from builtins import range
 from builtins import str
 from qgis.PyQt.QtCore import QCoreApplication
 from qgis.PyQt.QtGui import QIcon
-from qgis.PyQt.QtWidgets import QAction, QApplication, QDialog
+from qgis.PyQt.QtWidgets import QAction, QApplication, QDialog, QMessageBox
 from qgis.PyQt.uic import loadUiType
+from qgis.core import QgsApplication
 
 from .modules.db.pyarchinit_conn_strings import Connection
 from .modules.db.pyarchinit_db_manager import Pyarchinit_db_management
@@ -42,21 +43,7 @@ from .modules.utility.pyarchinit_error_check import Error_check
 from .pyarchinit_US_mainapp import pyarchinit_US
 from .sortpanelmain import SortPanelMain
 
-try:
-    from qgis.core import *
-    from qgis.gui import *
-except:
-    pass
-
-try:
-    from pyper import *
-except:
-    pass
-
 valid = True
-
-# Import required modules
-
 req_mods = {'osgeo': 'osgeo [python-gdal]'}
 try:
     from osgeo import gdal
@@ -187,9 +174,9 @@ class pyarchinit_Archeozoology(QDialog, MAIN_DIALOG_CLASS):
     ]
 
     def __init__(self, iface):
+        super().__init__()
         self.iface = iface
-        self.pyQGIS = Pyarchinit_pyqgis(self.iface)
-        QDialog.__init__(self)
+        self.pyQGIS = Pyarchinit_pyqgis(iface)
         self.setupUi(self)
         self.currentLayerId = None
 
@@ -2568,7 +2555,7 @@ title(sub="Rosso = coppie con r>|0.5|, Verde = coppie con |0.25|<r<|0.5|;
     def charge_records(self):
         self.DATA_LIST = []
         id_list = []
-        for i in self.DB_MANAGER.query(eval(self.MAPPER_TABLE_CLASS)):
+        for i in self.DB_MANAGER.query(self.MAPPER_TABLE_CLASS):
             id_list.append(eval("i." + self.ID_TABLE))
         temp_data_list = self.DB_MANAGER.query_sort(id_list, [self.ID_TABLE], 'asc', self.MAPPER_TABLE_CLASS,
                                                     self.ID_TABLE)
