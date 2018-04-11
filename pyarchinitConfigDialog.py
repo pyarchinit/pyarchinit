@@ -54,10 +54,10 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
         self.setupUi(self)
         self.load_dict()
         self.charge_data()
-        self.comboBox_Database.editTextChanged .connect(self.set_db_parameter)
-        self.comboBox_server_rd.editTextChanged .connect(self.set_db_import_from_parameter)
-        self.comboBox_server_wt.editTextChanged .connect(self.set_db_import_to_parameter)
-        self.comboBox_experimental.editTextChanged .connect(self.message)
+        self.comboBox_Database.editTextChanged.connect(self.set_db_parameter)
+        self.comboBox_server_rd.editTextChanged.connect(self.set_db_import_from_parameter)
+        self.comboBox_server_wt.editTextChanged.connect(self.set_db_import_to_parameter)
+        self.pushButton_save.clicked.connect(self.on_pushButton_save_pressed)
 
     def set_db_parameter(self):
         if str(self.comboBox_Database.currentText()) == 'postgres':
@@ -125,11 +125,6 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
         f.write(str(self.PARAMS_DICT))
         f.close()
 
-    def message(self):
-        QMessageBox.warning(self, "ok", "Per rendere effettive le modifiche e' necessario riavviare Qgis. Grazie.",
-                            QMessageBox.Ok)
-        self.on_pushButton_save_pressed()
-
     def on_pushButton_save_pressed(self):
         self.PARAMS_DICT['SERVER'] = str(self.comboBox_Database.currentText())
         self.PARAMS_DICT['HOST'] = str(self.lineEdit_Host.text())
@@ -142,6 +137,8 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
 
         self.save_dict()
         self.try_connection()
+        QMessageBox.warning(self, "ok", "Per rendere effettive le modifiche e' necessario riavviare Qgis. Grazie.",
+                            QMessageBox.Ok)
 
     def on_pushButton_crea_database_pressed(self):
         import time

@@ -90,6 +90,3 @@ class pyarchinit_Folder_installation(object):
         # il sistema funziona ma sovrascrive ogni volta il file. aggiungere sistema di verifica di presenza del file.
         # urllib.urlretrieve( "https://raw.github.com/pyarchinit/pyarchinit_beta_test_dev/master/pyarchinit_dev20130710/modules/utility/DBfiles/pyarchinit_db.sqlite",db_copy_to_path)
 
-
-a = pyarchinit_Folder_installation()
-a.install_dir()

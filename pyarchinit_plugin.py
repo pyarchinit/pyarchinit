@@ -79,11 +79,12 @@ class PyArchInitPlugin(object):
     conf = open(path_rel, "r")
     data = conf.read()
     PARAMS_DICT = eval(data)
-    if 'EXPERIMENTAL' in PARAMS_DICT:
-        PARAMS_DICT['EXPERIMENTAL'] = 'No'
-        f = open(path_rel, "w")
-        f.write(str(PARAMS_DICT))
-        f.close()
+    #TODO: find a better way to settings config
+    # if 'EXPERIMENTAL' in PARAMS_DICT:
+    #     PARAMS_DICT['EXPERIMENTAL'] = 'No'
+    #     f = open(path_rel, "w")
+    #     f.write(str(PARAMS_DICT))
+    #     f.close()
 
     def __init__(self, iface):
         self.iface = iface
