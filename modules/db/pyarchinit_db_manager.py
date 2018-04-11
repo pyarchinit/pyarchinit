@@ -888,9 +888,10 @@ class Pyarchinit_db_management(object):
     def max_num_id(self, tc, f):
         self.table_class = tc
         self.field_id = f
-        exec_str = 'session.query(func.max(%s.%s))' % (self.table_class, self.field_id)
+
         Session = sessionmaker(bind=self.engine, autoflush=True, autocommit=True)
         session = Session()
+        exec_str = "session.query(func.max({}.{}))".format(self.table_class, self.field_id)
         max_id_func = eval(exec_str)
         res_all = max_id_func.all()
         res_max_num_id = res_all[0][0]
