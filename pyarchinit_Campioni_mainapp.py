@@ -796,8 +796,9 @@ class pyarchinit_Campioni(QDialog, MAIN_DIALOG_CLASS):
     def charge_records(self):
         self.DATA_LIST = []
         id_list = []
-        for i in self.DB_MANAGER.query(eval(self.MAPPER_TABLE_CLASS)):
+        for i in self.DB_MANAGER.query(self.MAPPER_TABLE_CLASS):
             id_list.append(eval("i." + self.ID_TABLE))
+
         temp_data_list = self.DB_MANAGER.query_sort(id_list, [self.ID_TABLE], 'asc', self.MAPPER_TABLE_CLASS,
                                                     self.ID_TABLE)
         for i in temp_data_list:

@@ -942,8 +942,9 @@ class Pyarchinit_db_management(object):
         Session = sessionmaker(bind=self.engine, autoflush=True, autocommit=True)
         session = Session()
 
-        cmd_str = "session.query(" + self.table_class + ").filter(" + self.table_class + "." + self.id_name + ".in_(id_list)).order_by(" + filter_params + ").all()"
-
+        cmd_str = "session.query({0}).filter({0}.{1}.in_(id_list)).order_by({2}).all()".format(self.table_class,
+                                                                                               self.id_name,
+                                                                                               filter_params)
         return eval(cmd_str)
 
     def run(self, stmt):
