@@ -26,7 +26,9 @@ import os
 import sys
 from builtins import range
 from builtins import str
-from qgis.PyQt.QtWidgets import QDialog, QMessageBox, QAbstractItemView
+from qgis.PyQt.QtCore import Qt
+from qgis.PyQt.QtGui import QIcon
+from qgis.PyQt.QtWidgets import QDialog, QMessageBox, QAbstractItemView, QListWidgetItem, QFileDialog
 from qgis.PyQt.uic import loadUiType
 
 from .modules.db.pyarchinit_conn_strings import Connection
@@ -112,8 +114,12 @@ class Main(QDialog, MAIN_DIALOG_CLASS):
                                     QMessageBox.Ok)
 
     def getDirectory(self):
-        directory = QtGui.QFileDialog.getExistingDirectory(self, "Scegli una directory", "Seleziona una directory:",
-                                                           QtGui.QFileDialog.ShowDirsOnly)
+        directory = QFileDialog.getExistingDirectory(self, "Scegli una directory", "Seleziona una directory:",
+                                                           QFileDialog.ShowDirsOnly)
+
+        if not directory:
+            return
+
         QMessageBox.warning(self, "Alert", str(dir(directory)), QMessageBox.Ok)
         for image in sorted(os.listdir(directory)):
             if image.endswith(".png") or image.endswith(".PNG") or image.endswith(".JPG") or image.endswith(
@@ -154,7 +160,7 @@ class Main(QDialog, MAIN_DIALOG_CLASS):
 
                     # visualizza le immagini nella gui
                     item = QListWidgetItem(str(media_max_num_id))
-                    item.setData(QtCore.Qt.UserRole, str(media_max_num_id))
+                    item.setData(Qt.UserRole, str(media_max_num_id))
                     icon = QIcon(filepath_thumb)  # os.path.join('%s/%s' % (directory.toUtf8(), image)))
                     item.setIcon(icon)
                     self.iconListWidget.addItem(item)
@@ -173,7 +179,7 @@ class Main(QDialog, MAIN_DIALOG_CLASS):
                                                           id_media)  # recupera i valori della thumb in base al valore id_media del file originale
 
                     thumb_path = data_for_thumb[0].filepath
-                    item.setData(QtCore.Qt.UserRole, thumb_path)
+                    item.setData(Qt.UserRole, thumb_path)
                     icon = QIcon(thumb_path)  # os.path.join('%s/%s' % (directory.toUtf8(), image)))
                     item.setIcon(icon)
                     self.iconListWidget.addItem(item)
@@ -387,7 +393,7 @@ class Main(QDialog, MAIN_DIALOG_CLASS):
         return lista
 
     def charge_data(self):
-        self.DATA = self.DB_MANAGER.query(eval(self.MAPPER_TABLE_CLASS_thumb))
+        self.DATA = self.DB_MANAGER.query(self.MAPPER_TABLE_CLASS_thumb)
         self.open_images()
 
     def clear_thumb_images(self):
@@ -414,7 +420,7 @@ class Main(QDialog, MAIN_DIALOG_CLASS):
 
                 thumb_path = data[i].filepath
                 # QMessageBox.warning(self, "Errore",str(thumb_path),  QMessageBox.Ok)
-                item.setData(QtCore.Qt.UserRole, str(data[i].media_filename))
+                item.setData(Qt.UserRole, str(data[i].media_filename))
                 icon = QIcon(thumb_path)  # os.path.join('%s/%s' % (directory.toUtf8(), image)))
                 item.setIcon(icon)
                 self.iconListWidget.addItem(item)
