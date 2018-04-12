@@ -30,7 +30,6 @@ from qgis.PyQt.QtWidgets import QAction, QToolButton, QMenu
 from qgis.core import QgsApplication, QgsSettings
 
 from .dbmanagment import pyarchinit_dbmanagment
-from .modules.utility.pyarchinit_folder_installation import pyarchinit_Folder_installation
 from .pyarchinitConfigDialog import pyArchInitDialog_Config
 from .pyarchinitInfoDialog import pyArchInitDialog_Info
 from .pyarchinit_Archeozoology_mainapp import pyarchinit_Archeozoology
@@ -55,8 +54,6 @@ from .pyarchinit_images_directory_export_mainapp import pyarchinit_Images_direct
 from .pyarchinit_pdf_export_mainapp import pyarchinit_pdf_export
 from .pyarchinitplugindialog import PyarchinitPluginDialog
 
-fi = pyarchinit_Folder_installation()
-fi.install_dir()
 filepath = os.path.dirname(__file__)
 
 
