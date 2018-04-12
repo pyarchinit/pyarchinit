@@ -24,7 +24,7 @@ from __future__ import absolute_import
 import sys
 from builtins import range
 from builtins import str
-from qgis.PyQt.QtWidgets import QDialog, QMessageBox
+from qgis.PyQt.QtWidgets import QDialog, QMessageBox, QTableWidgetItem
 from qgis.PyQt.uic import loadUiType
 
 from .modules.db.pyarchinit_conn_strings import Connection
@@ -34,7 +34,6 @@ from .modules.gis.pyarchinit_pyqgis import Pyarchinit_pyqgis
 from .modules.utility.pdf_models.pyarchinit_exp_Findssheet_pdf import generate_pdf
 from .modules.utility.pyarchinit_error_check import Error_check
 from .modules.utility.pyarchinit_exp_UTsheet_pdf import *
-from .pyarchinit_US_mainapp import pyarchinit_US
 from .sortpanelmain import SortPanelMain
 
 MAIN_DIALOG_CLASS, _ = loadUiType(os.path.join(os.path.dirname(__file__), 'modules', 'gui', 'pyarchinit_UT_ui.ui'))
@@ -194,9 +193,9 @@ class pyarchinit_UT(QDialog, MAIN_DIALOG_CLASS):
     DB_SERVER = "not defined"  ####nuovo sistema sort
 
     def __init__(self, iface):
+        super().__init__()
         self.iface = iface
-        self.pyQGIS = Pyarchinit_pyqgis(self.iface)
-        QDialog.__init__(self)
+        self.pyQGIS = Pyarchinit_pyqgis(iface)
         self.setupUi(self)
         self.currentLayerId = None
         try:
@@ -1162,6 +1161,6 @@ class pyarchinit_UT(QDialog, MAIN_DIALOG_CLASS):
 
 if __name__ == "__main__":
     app = QApplication(sys.argv)
-    ui = pyarchinit_US()
+    ui = pyarchinit_UT()
     ui.show()
     sys.exit(app.exec_())
