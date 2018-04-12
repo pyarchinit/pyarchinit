@@ -20,7 +20,8 @@
  ***************************************************************************/
 """
 
-from qgis.PyQt.QtWidgets import QApplication, QDialog, QMessageBox, QItemDelegate
+from qgis.PyQt.QtCore import Qt
+from qgis.PyQt.QtWidgets import QApplication, QDialog, QMessageBox, QItemDelegate, QComboBox
 
 
 class ComboBoxDelegate(QItemDelegate):
@@ -37,13 +38,13 @@ class ComboBoxDelegate(QItemDelegate):
         self.editable = editable
 
     def createEditor(self, parent, option, index):
-        editor = QtGui.QComboBox(parent)
+        editor = QComboBox(parent)
         editor.addItems(self.values)
         editor.setEditable(eval(self.editable))
         return editor
 
     def setEditorData(self, editor, index):
-        text = index.model().data(index, QtCore.Qt.DisplayRole)  # .String()
+        text = index.model().data(index, Qt.DisplayRole)  # .String()
         i = editor.findText(text)
         if i == -1:
             i = 0
