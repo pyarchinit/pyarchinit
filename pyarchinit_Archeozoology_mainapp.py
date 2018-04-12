@@ -24,7 +24,7 @@ from __future__ import absolute_import
 
 import os
 from datetime import date
-from test.test_heapq import R
+# from test.test_heapq import R
 
 import sys
 from builtins import range
