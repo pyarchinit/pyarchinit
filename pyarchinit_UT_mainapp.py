@@ -298,6 +298,20 @@ class pyarchinit_UT(QDialog, MAIN_DIALOG_CLASS):
         self.tableWidget_documentazione.setColumnWidth(1, 300)
 
     def charge_list(self):
+        # lista sito
+        sito_vl = self.UTILITY.tup_2_list_III(self.DB_MANAGER.group_by('site_table', 'sito', 'SITE'))
+        try:
+            sito_vl.remove('')
+        except Exception as e:
+            if str(e) == "list.remove(x): x not in list":
+                pass
+            else:
+                QMessageBox.warning(self, "Messaggio", "Sistema di aggiornamento lista Sito: " + str(e), QMessageBox.Ok)
+
+        self.comboBox_progetto.clear()
+
+        sito_vl.sort()
+        self.comboBox_progetto.addItems(sito_vl)
 
         regioni_list = ['Abruzzo', 'Basilicata', 'Calabria', 'Campania', 'Emilia-Romagna', 'Friuli Venezia Giulia',
                         'Lazio', 'Liguria', 'Lombardia', 'Marche', 'Molise', 'Piemonte', 'Puglia', 'Sardegna',
