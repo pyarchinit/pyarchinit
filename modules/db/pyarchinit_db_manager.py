@@ -981,8 +981,7 @@ class Pyarchinit_db_management(object):
 
         Session = sessionmaker(bind=self.engine, autoflush=True, autocommit=True)
         session = Session()
-        string = "{0}.{1}".format(self.table_class, self.field_name)
-        s = select([string]).group_by(string)
+        s = eval('select([{0}.{1}]).group_by({0}.{1})'.format(self.table_class, self.field_name))
         return self.engine.execute(s).fetchall()
 
     def query_where_text(self, c, v):
