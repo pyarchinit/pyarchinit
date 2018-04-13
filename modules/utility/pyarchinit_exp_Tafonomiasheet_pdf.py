@@ -90,7 +90,7 @@ class NumberedCanvas_TAFONOMIAindex(canvas.Canvas):
                              "Pag. %d di %d" % (self._pageNumber, page_count))  # scheda us verticale 200mm x 20 mm
 
 
-class Tafonomia_index_pdf_sheet(object):
+class Tafonomia_index_pdf_sheet:
     def __init__(self, data):
         self.nr_scheda_taf = data[1]
         self.sigla_struttura = data[2]
@@ -215,7 +215,7 @@ class Tafonomia_index_pdf_sheet(object):
         return styles
 
 
-class Tafonomia_index_II_pdf_sheet(object):
+class Tafonomia_index_II_pdf_sheet:
     PU = Utility()
     # this model includes str.n., area/sett, descrizione, rito
     # corredo,orient., UUSS/UUSSMM, quotemax, misure, datazione
@@ -330,7 +330,7 @@ class Tafonomia_index_II_pdf_sheet(object):
         return styles
 
 
-class single_Tafonomia_pdf_sheet(object):
+class single_Tafonomia_pdf_sheet:
     PU = Utility()
 
     # rapporti stratigrafici
@@ -446,14 +446,14 @@ class single_Tafonomia_pdf_sheet(object):
         else:
             fase_finale = Paragraph("<b>Fase finale</b><br/>" + str(self.fase_finale), styNormal)
 
-            # 4 row
+        # 4 row
         if str(self.datazione_estesa) == "None":
             datazione_estesa = Paragraph("<b>Datazione estesa</b><br/>", styNormal)
         else:
             datazione_estesa = Paragraph("<b>Datazione estesa</b><br/>" + self.datazione_estesa, styNormal)
 
-            # 5 row
-        elementi_strutturali = Paragraph("<b>ELEMENTI STRUTTURALI</b></b>", styNormal)
+        # 5 row
+        elementi_strutturali = Paragraph("<b>ELEMENTI STRUTTURALI</b><br/>", styNormal)
 
         # 6row
         tipo_contenitore_resti = Paragraph("<b>Tipo contenitore resti</b><br/>" + self.tipo_contenitore_resti,
@@ -463,7 +463,7 @@ class single_Tafonomia_pdf_sheet(object):
         canale_libatorio = Paragraph("<b>Canale libatorio</b><br/>" + self.canale_libatorio_si_no, styNormal)
 
         # 7 row
-        dati_deposizionali = Paragraph("<b>DATI DEPOSIZIONALI INUMATO<b></b>", styNormal)
+        dati_deposizionali = Paragraph("<b>DATI DEPOSIZIONALI INUMATO</b><br/>", styNormal)
 
         # 8 row
         rito = Paragraph("<b>Rito</b><br/>" + self.rito, styNormal)
@@ -489,7 +489,7 @@ class single_Tafonomia_pdf_sheet(object):
             "<b>Posizione arti inferiori</b><br/>" + str(self.posizione_arti_inferiori), styNormal)
 
         # 10 row
-        dati_postdeposizionali = Paragraph("<b>DATI POSTDEPOSIZIONALI<b></b>", styNormal)
+        dati_postdeposizionali = Paragraph("<b>DATI POSTDEPOSIZIONALI</b><br/>", styNormal)
 
         # 11 row
         stato_conservazione = Paragraph("<b>Stato di conservazione</b><br/>" + str(self.stato_di_conservazione),
@@ -525,8 +525,8 @@ class single_Tafonomia_pdf_sheet(object):
         except:
             pass
 
-            # 14 row
-        corredo = Paragraph("<b>CORREDO</b></b>", styNormal)
+        # 14 row
+        corredo = Paragraph("<b>CORREDO</b><br/>", styNormal)
 
         # 15 row
         corredo_presente = Paragraph("<b>Presenza</b><br/>" + self.corredo_presenza, styDescrizione)
@@ -536,7 +536,7 @@ class single_Tafonomia_pdf_sheet(object):
 
         # 17 row
         corredo_tipo = ''
-        if eval(self.corredo_tipo) > 0:
+        if eval(len(self.corredo_tipo)) > 0:
             for i in eval(self.corredo_tipo):
                 if corredo_tipo == '':
                     try:
@@ -583,8 +583,7 @@ class single_Tafonomia_pdf_sheet(object):
         cell_schema = [  # 00, 01, 02, 03, 04, 05, 06, 07, 08, 09 rows
             [intestazione, '01', '02', '03', '04', '05', '06', logo, '08', '09'],  # 0 row  ok
             [sito, '01', '02', '03', '04', '05', '06', '07', '08', '09'],  # 1 row ok
-            [sigla_struttura, '01', '02', '03', '04', nr_individuo, '06', '07', nr_scheda, '09'],
-            # 1 row ok
+            [sigla_struttura, '01', '02', '03', '04', nr_individuo, '06', '07', nr_scheda, '09'],  # 1 row ok
             [periodizzazione, '01', '02', '03', '04', '07', '06', '07', '08', '09'],  # 2 row ok
             [periodo_iniziale, '01', '02', fase_iniziale, '04', periodo_finale, '06', fase_finale, '08', '09'],
             # 3 row ok
@@ -596,13 +595,10 @@ class single_Tafonomia_pdf_sheet(object):
             [rito, '01', '02', orientamento_asse, '04', orientamento_azimut, '06', posizione_cranio, '08', '09'],
             # 8 row ok
             [posizione_scheletro, '01', lunghezza_scheletro, '03', posizione_arti_superiori, '05', '06',
-             posizione_arti_inferiori, '08', '09'],
-            # 9 row ok
+             posizione_arti_inferiori, '08', '09'],  # 9 row ok
             [dati_postdeposizionali, '01', '02', '03', '04', '05', '06', '07', '08', '09'],  # 10 row ok
-            [stato_conservazione, '01', '02', disturbato, '04', completo, '06', in_connessione, '08'],
-            # 11 row ok
-            [caratteristiche_tafonomiche_txt, '01', '02', '03', '04', '05', '06', '07', '08', '09'],
-            # 12 row ok
+            [stato_conservazione, '01', '02', disturbato, '04', completo, '06', in_connessione, '08'],  # 11 row ok
+            [caratteristiche_tafonomiche_txt, '01', '02', '03', '04', '05', '06', '07', '08', '09'],  # 12 row ok
             [descrizione, '01', '02', '03', '04', interpretazione, '06', '07', '08', '09'],  # 13 row ok
             [corredo, '01', '02', '03', '04', '05', '06', '07', '08', '09'],  # 14 row ok
             [corredo_presente, '01', '02', '03', '04', '05', '06', '07', '08', '09'],  # 15 ow
@@ -713,7 +709,7 @@ class single_Tafonomia_pdf_sheet(object):
         return t
 
 
-class generate_tafonomia_pdf(object):
+class generate_tafonomia_pdf:
     if os.name == 'posix':
         HOME = os.environ['HOME']
     elif os.name == 'nt':
