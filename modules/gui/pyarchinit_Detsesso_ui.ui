@@ -579,8 +579,8 @@
        <rect>
         <x>0</x>
         <y>0</y>
-        <width>635</width>
-        <height>401</height>
+        <width>710</width>
+        <height>461</height>
        </rect>
       </property>
       <attribute name="label">
@@ -1884,8 +1884,8 @@ p, li { white-space: pre-wrap; }
        <rect>
         <x>0</x>
         <y>0</y>
-        <width>572</width>
-        <height>468</height>
+        <width>699</width>
+        <height>658</height>
        </rect>
       </property>
       <attribute name="label">
@@ -1919,7 +1919,7 @@ p, li { white-space: pre-wrap; }
           <string>I: sviluppo negativo dei rilievi </string>
          </property>
          <property name="textFormat">
-          <enum>Qt::LogText</enum>
+          <enum>Qt::PlainText</enum>
          </property>
          <property name="wordWrap">
           <bool>true</bool>
