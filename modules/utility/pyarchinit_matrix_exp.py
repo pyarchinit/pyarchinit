@@ -62,7 +62,8 @@ class HARRIS_MATRIX_EXP:
             d.attr(label=i[2])
             d.attr(font_color='Blue')
 
-        G.subgraph(d)
+        # TODO: it is necessary reworking on it
+        #G.subgraph(d)
 
         try:
             data_to_plot = G.tred()
