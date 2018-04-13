@@ -35,11 +35,6 @@ from .modules.gui.imageViewer import ImageViewer
 from .modules.utility.pyarchinit_exp_USsheet_pdf import *
 from .sortpanelmain import SortPanelMain
 
-try:
-    from pyarchinit_db_manager import *
-except:
-    pass
-
 MAIN_DIALOG_CLASS, _ = loadUiType(os.path.join(os.path.dirname(__file__), 'modules', 'gui', 'pyarchinit_Detsesso_ui.ui'))
 
 
@@ -233,10 +228,9 @@ class pyarchinit_Detsesso(QDialog, MAIN_DIALOG_CLASS):
     DB_SERVER = "not defined"  ####nuovo sistema sort
 
     def __init__(self, iface):
+        super().__init__()
         self.iface = iface
-        self.pyQGIS = Pyarchinit_pyqgis(self.iface)
-
-        QDialog.__init__(self)
+        self.pyQGIS = Pyarchinit_pyqgis(iface)
         self.setupUi(self)
 
         self.customize_GUI()  # call for GUI customizations
@@ -489,9 +483,9 @@ class pyarchinit_Detsesso(QDialog, MAIN_DIALOG_CLASS):
         if self.BROWSE_STATUS == "b":
             if bool(self.DATA_LIST):
                 if self.records_equal_check() == 1:
-                    msg = self.update_if(
-                        QMessageBox.warning(self, 'Errore', "Il record e' stato modificato. Vuoi salvare le modifiche?",
-                                            QMessageBox.Cancel, 1))
+                    self.update_if(QMessageBox.warning(self, 'Errore',
+                                                       "Il record e' stato modificato. Vuoi salvare le modifiche?",
+                                                       QMessageBox.Ok | QMessageBox.Cancel))
 
                     # set the GUI for a new record
         if self.BROWSE_STATUS != "n":
@@ -514,7 +508,7 @@ class pyarchinit_Detsesso(QDialog, MAIN_DIALOG_CLASS):
                 if self.records_equal_check() == 1:
                     self.update_if(QMessageBox.warning(self, 'ATTENZIONE',
                                                        "Il record e' stato modificato. Vuoi salvare le modifiche?",
-                                                       QMessageBox.Cancel, 1))
+                                                       QMessageBox.Ok | QMessageBox.Cancel))
                     self.label_sort.setText(self.SORTED_ITEMS["n"])
                     self.enable_button(1)
                 else:
@@ -717,7 +711,7 @@ class pyarchinit_Detsesso(QDialog, MAIN_DIALOG_CLASS):
         elif self.records_equal_check() == 1 and ec == 0:
             self.update_if(
                 QMessageBox.warning(self, 'Errore', "Il record e' stato modificato. Vuoi salvare le modifiche?",
-                                    QMessageBox.Cancel, 1))
+                                    QMessageBox.Ok | QMessageBox.Cancel))
             # self.charge_records() incasina lo stato trova
             return 0  # non ci sono errori di immissione
 
@@ -811,8 +805,8 @@ class pyarchinit_Detsesso(QDialog, MAIN_DIALOG_CLASS):
     def on_pushButton_delete_pressed(self):
         msg = QMessageBox.warning(self, "Attenzione!!!",
                                   "Vuoi veramente eliminare il record? \n L'azione è irreversibile", QMessageBox.Cancel,
-                                  1)
-        if msg != 1:
+                                  QMessageBox.Ok | QMessageBox.Cancel)
+        if msg == QMessageBox.Cancel:
             QMessageBox.warning(self, "Messagio!!!", "Azione Annullata!")
         else:
             try:
@@ -1408,8 +1402,7 @@ class pyarchinit_Detsesso(QDialog, MAIN_DIALOG_CLASS):
 
     def update_if(self, msg):
         rec_corr = self.REC_CORR
-        self.msg = msg
-        if self.msg == 1:
+        if msg == QMessageBox.Ok:
             test = self.update_record()
             if test == 1:
                 id_list = []

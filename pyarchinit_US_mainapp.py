@@ -1179,8 +1179,8 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
                     if self.DATA_LIST:
                         if self.records_equal_check() == 1:
                             self.update_if(QMessageBox.warning(self, 'Errore',
-                                                                     "Il record e' stato modificato. Vuoi salvare le modifiche?",
-                                                                     QMessageBox.Cancel, 1))
+                                                                "Il record e' stato modificato. Vuoi salvare le modifiche?",
+                                                                QMessageBox.Ok | QMessageBox.Cancel))
 
         if self.BROWSE_STATUS != "n":
             self.BROWSE_STATUS = "n"
@@ -1210,7 +1210,7 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
                 if self.records_equal_check() == 1:
                     self.update_if(QMessageBox.warning(self, 'ATTENZIONE',
                                                        "Il record e' stato modificato. Vuoi salvare le modifiche?",
-                                                       QMessageBox.Cancel, 1))
+                                                       QMessageBox.Ok | QMessageBox.Cancel))
                     self.SORT_STATUS = "n"
                     self.label_sort.setText(self.SORTED_ITEMS[self.SORT_STATUS])
                     self.enable_button(1)
@@ -1666,7 +1666,7 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
         elif self.records_equal_check() == 1 and ec == 0:
             self.update_if(
                 QMessageBox.warning(self, 'Errore', "Il record e' stato modificato. Vuoi salvare le modifiche?",
-                                    QMessageBox.Cancel, 1))
+                                    QMessageBox.Ok | QMessageBox.Cancel))
             # self.charge_records()
             return 0  # non ci sono errori di immissione
 
@@ -1784,8 +1784,8 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
     def on_pushButton_delete_pressed(self):
         msg = QMessageBox.warning(self, "Attenzione!!!",
                                   "Vuoi veramente eliminare il record? \n L'azione è irreversibile", QMessageBox.Cancel,
-                                  1)
-        if msg != 1:
+                                  QMessageBox.Ok | QMessageBox.Cancel)
+        if msg == QMessageBox.Cancel:
             QMessageBox.warning(self, "Messagio!!!", "Azione Annullata!")
         else:
             try:
@@ -2011,8 +2011,7 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
 
     def update_if(self, msg):
         rec_corr = self.REC_CORR
-        self.msg = msg
-        if self.msg == 1:
+        if self.msg == QMessageBox.Ok:
             test = self.update_record()
             if test == 1:
                 id_list = []

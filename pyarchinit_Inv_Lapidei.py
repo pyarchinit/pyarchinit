@@ -159,9 +159,8 @@ class pyarchinit_Inventario_Lapidei(QDialog, MAIN_DIALOG_CLASS):
     DB_SERVER = 'not defined'
 
     def __init__(self, iface):
+        super().__init__()
         self.iface = iface
-
-        QDialog.__init__(self)
         self.setupUi(self)
         self.currentLayerId = None
         try:
@@ -416,9 +415,9 @@ class pyarchinit_Inventario_Lapidei(QDialog, MAIN_DIALOG_CLASS):
                 if self.BROWSE_STATUS == "b":
                     if bool(self.DATA_LIST):
                         if self.records_equal_check() == 1:
-                            msg = self.update_if(QMessageBox.warning(self, 'Errore',
-                                                                     "Il record e' stato modificato. Vuoi salvare le modifiche?",
-                                                                     QMessageBox.Cancel, 1))
+                            self.update_if(QMessageBox.warning(self, 'Errore',
+                                                                "Il record e' stato modificato. Vuoi salvare le modifiche?",
+                                                                QMessageBox.Ok | QMessageBox.Cancel))
 
         if self.BROWSE_STATUS != "n":
             self.BROWSE_STATUS = "n"
@@ -446,7 +445,7 @@ class pyarchinit_Inventario_Lapidei(QDialog, MAIN_DIALOG_CLASS):
                 if self.records_equal_check() == 1:
                     self.update_if(QMessageBox.warning(self, 'ATTENZIONE',
                                                        "Il record e' stato modificato. Vuoi salvare le modifiche?",
-                                                       QMessageBox.Cancel, 1))
+                                                       QMessageBox.Ok | QMessageBox.Cancel))
                     self.SORT_STATUS = "n"
                     self.label_sort.setText(self.SORTED_ITEMS[self.SORT_STATUS])
                     self.enable_button(1)
@@ -506,7 +505,7 @@ class pyarchinit_Inventario_Lapidei(QDialog, MAIN_DIALOG_CLASS):
         if self.records_equal_check() == 1:
             self.update_if(
                 QMessageBox.warning(self, 'Errore', "Il record è stato modificato. Vuoi salvare le modifiche?",
-                                    QMessageBox.Cancel, 1))
+                                    QMessageBox.Ok | QMessageBox.Cancel))
 
         Invlap_pdf_sheet = generate_reperti_pdf()
         data_list = self.generate_list_pdf()
@@ -697,7 +696,7 @@ class pyarchinit_Inventario_Lapidei(QDialog, MAIN_DIALOG_CLASS):
         elif self.records_equal_check() == 1 and ec == 0:
             self.update_if(
                 QMessageBox.warning(self, 'Errore', "Il record e' stato modificato. Vuoi salvare le modifiche?",
-                                    QMessageBox.Cancel, 1))
+                                    QMessageBox.Ok | QMessageBox.Cancel))
             # self.charge_records() incasina lo stato trova
             return 0  # non ci sono errori di immissione
 
@@ -794,8 +793,8 @@ class pyarchinit_Inventario_Lapidei(QDialog, MAIN_DIALOG_CLASS):
     def on_pushButton_delete_pressed(self):
         msg = QMessageBox.warning(self, "Attenzione!!!",
                                   "Vuoi veramente eliminare il record? \n L'azione è irreversibile", QMessageBox.Cancel,
-                                  1)
-        if msg != 1:
+                                  QMessageBox.Ok | QMessageBox.Cancel)
+        if msg == QMessageBox.Cancel:
             QMessageBox.warning(self, "Messagio!!!", "Azione Annullata!")
         else:
             try:
@@ -981,8 +980,7 @@ class pyarchinit_Inventario_Lapidei(QDialog, MAIN_DIALOG_CLASS):
 
     def update_if(self, msg):
         rec_corr = self.REC_CORR
-        self.msg = msg
-        if self.msg == 1:
+        if self.msg == QMessageBox.Ok:
             test = self.update_record()
             if test == 1:
                 id_list = []

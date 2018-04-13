@@ -18,36 +18,24 @@
  *                                                                         *
  ***************************************************************************/
 """
+from __future__ import absolute_import
+from builtins import str
+from builtins import range
 from datetime import date
 
 import sys
-from pyarchinit_db_manager import *
-from  pyarchinit_error_check import *
-from  pyarchinit_pdf_administrator_ui import *
-from  pyarchinit_pdf_administrator_ui import Ui_DialogPDFManager
-from  pyarchinit_utility import *
+import os
 
-from modules.db.pyarchinit_conn_strings import Connection
-from modules.db.pyarchinit_db_manager import Pyarchinit_db_management
-from modules.db.pyarchinit_utility import Utility
-from pyarchinit_US_mainapp import pyarchinit_US
-from  sortpanelmain import SortPanelMain
+from .modules.db.pyarchinit_conn_strings import Connection
+from .modules.db.pyarchinit_db_manager import Pyarchinit_db_management
+from .modules.db.pyarchinit_utility import Utility
+from .pyarchinit_US_mainapp import pyarchinit_US
+from .sortpanelmain import SortPanelMain
 
-try:
-    from qgis.core import *
-    from qgis.gui import *
-except:
-    pass
+MAIN_DIALOG_CLASS, _ = loadUiType(os.path.join(os.path.dirname(__file__), 'modules', 'gui', 'pyarchinit_pdf_administrator_ui.ui'))
 
 
-# --import pyArchInit modules--#
-
-
-##from  pyarchinit_pyqgis import Pyarchinit_pyqgis
-
-##from 
-
-class pyarchinit_PDFAdministrator(QDialog, Ui_DialogPDFManager):
+class pyarchinit_PDFAdministrator(QDialog, MAIN_DIALOG_CLASS):
     MSG_BOX_TITLE = "PyArchInit - pyarchinit_version 0.4 - Gestione PDF"
     DATA_LIST = []
     DATA_LIST_REC_CORR = []
@@ -94,7 +82,7 @@ class pyarchinit_PDFAdministrator(QDialog, Ui_DialogPDFManager):
     ID_LIST = ''
 
     def __init__(self, parent=None, db=None):
-        QDialog.__init__(self, parent)
+        super().__init__()
         self.setupUi(self)
         ##	def __init__(self, iface):
         ##		self.iface = iface
@@ -275,9 +263,9 @@ class pyarchinit_PDFAdministrator(QDialog, Ui_DialogPDFManager):
         if self.BROWSE_STATUS == "b":
             if bool(self.DATA_LIST):
                 if self.records_equal_check() == 1:
-                    msg = self.update_if(
-                        QMessageBox.warning(self, 'Errore', "Il record e' stato modificato. Vuoi salvare le modifiche?",
-                                            QMessageBox.Cancel, 1))
+                    self.update_if(QMessageBox.warning(self,
+                                                       'Errore', "Il record e' stato modificato. Vuoi salvare le modifiche?",
+                                                        QMessageBox.Ok | QMessageBox.Cancel))
 
                     # set the GUI for a new record
         if self.BROWSE_STATUS != "n":
@@ -294,7 +282,7 @@ class pyarchinit_PDFAdministrator(QDialog, Ui_DialogPDFManager):
             if self.records_equal_check() == 1:
                 self.update_if(
                     QMessageBox.warning(self, 'ATTENZIONE', "Il record e' stato modificato. Vuoi salvare le modifiche?",
-                                        QMessageBox.Cancel, 1))
+                                        QMessageBox.Ok | QMessageBox.Cancel))
                 self.label_sort.setText(self.SORTED_ITEMS["n"])
                 self.enable_button(1)
             else:
@@ -376,7 +364,7 @@ class pyarchinit_PDFAdministrator(QDialog, Ui_DialogPDFManager):
         if self.records_equal_check() == 1:
             self.update_if(
                 QMessageBox.warning(self, 'Errore', "Il record e' stato modificato. Vuoi salvare le modifiche?",
-                                    QMessageBox.Cancel, 1))
+                                    QMessageBox.Ok | QMessageBox.Cancel))
         try:
             self.empty_fields()
             self.REC_TOT, self.REC_CORR = len(self.DATA_LIST), 0
@@ -390,7 +378,7 @@ class pyarchinit_PDFAdministrator(QDialog, Ui_DialogPDFManager):
         if self.records_equal_check() == 1:
             self.update_if(
                 QMessageBox.warning(self, 'Errore', "Il record e' stato modificato. Vuoi salvare le modifiche?",
-                                    QMessageBox.Cancel, 1))
+                                    QMessageBox.Ok | QMessageBox.Cancel))
         try:
             self.empty_fields()
             self.REC_TOT, self.REC_CORR = len(self.DATA_LIST), len(self.DATA_LIST) - 1
@@ -404,7 +392,7 @@ class pyarchinit_PDFAdministrator(QDialog, Ui_DialogPDFManager):
         if self.records_equal_check() == 1:
             self.update_if(
                 QMessageBox.warning(self, 'Errore', "Il record e' stato modificato. Vuoi salvare le modifiche?",
-                                    QMessageBox.Cancel, 1))
+                                    QMessageBox.Ok | QMessageBox.Cancel))
 
         self.REC_CORR = self.REC_CORR - 1
         if self.REC_CORR == -1:
@@ -424,7 +412,7 @@ class pyarchinit_PDFAdministrator(QDialog, Ui_DialogPDFManager):
         if self.records_equal_check() == 1:
             self.update_if(
                 QMessageBox.warning(self, 'Errore', "Il record e' stato modificato. Vuoi salvare le modifiche?",
-                                    QMessageBox.Cancel, 1))
+                                    QMessageBox.Ok | QMessageBox.Cancel))
 
         self.REC_CORR = self.REC_CORR + 1
         if self.REC_CORR >= self.REC_TOT:
@@ -442,8 +430,8 @@ class pyarchinit_PDFAdministrator(QDialog, Ui_DialogPDFManager):
     def on_pushButton_delete_pressed(self):
         msg = QMessageBox.warning(self, "Attenzione!!!",
                                   "Vuoi veramente eliminare il record? \n L'azione e' irreversibile",
-                                  QMessageBox.Cancel, 1)
-        if msg != 1:
+                                  QMessageBox.Ok | QMessageBox.Cancel)
+        if msg == QMessageBox.Cancel:
             QMessageBox.warning(self, "Messagio!!!", "Azione Annullata!")
         else:
             try:
@@ -477,9 +465,9 @@ class pyarchinit_PDFAdministrator(QDialog, Ui_DialogPDFManager):
     def on_pushButton_new_search_pressed(self):
         # self.setComboBoxEditable()
         if self.records_equal_check() == 1 and self.BROWSE_STATUS == "b":
-            msg = self.update_if(
-                QMessageBox.warning(self, 'Errore', "Il record e' stato modificato. Vuoi salvare le modifiche?",
-                                    QMessageBox.Cancel, 1))
+            self.update_if(QMessageBox.warning(self, 'Errore',
+                                               "Il record e' stato modificato. Vuoi salvare le modifiche?",
+                                                QMessageBox.Ok | QMessageBox.Cancel))
             # else:
         self.enable_button_search(0)
 
@@ -496,8 +484,7 @@ class pyarchinit_PDFAdministrator(QDialog, Ui_DialogPDFManager):
 
     def update_if(self, msg):
         rec_corr = self.REC_CORR
-        self.msg = msg
-        if self.msg == 1:
+        if self.msg == QMessageBox.Ok:
             self.update_record()
             id_list = []
             for i in self.DATA_LIST:
