@@ -194,7 +194,7 @@ class single_Periodizzazione_pdf_sheet(object):
         fase = Paragraph("<b>Fase</b><br/>" + str(self.fase), styNormal)
 
         # 2 row
-        cronologia = Paragraph("<b>CRONOLOGIA</b></b>", styNormal)
+        cronologia = Paragraph("<b>CRONOLOGIA</b><br/>", styNormal)
 
         # 3 row
         cronologia_iniziale = Paragraph("<b>Cronologia iniziale</b><br/>" + str(self.cron_iniziale), styNormal)

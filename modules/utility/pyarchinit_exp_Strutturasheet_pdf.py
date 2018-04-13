@@ -243,7 +243,7 @@ class single_Struttura_pdf_sheet(object):
             pass
 
             # 4 row
-        periodizzazione = Paragraph("<b>PERIODIZZAZIONE</b></b>", styNormal)
+        periodizzazione = Paragraph("<b>PERIODIZZAZIONE</b><br/>", styNormal)
 
         # 5 row
         iniziale = Paragraph("<b>INIZIALE</b>", styNormal)
