@@ -29,7 +29,8 @@ import sys
 from builtins import range
 from builtins import str
 from qgis.PyQt.QtCore import QSize
-from qgis.PyQt.QtWidgets import QDialog, QMessageBox, QListWidget, QListView, QFrame, QAbstractItemView
+from qgis.PyQt.QtWidgets import QDialog, QMessageBox, QListWidget, QListView, QFrame, QAbstractItemView, \
+    QTableWidgetItem, QListWidgetItem
 from qgis.PyQt.uic import loadUiType
 
 from .modules.db.pyarchinit_conn_strings import Connection
