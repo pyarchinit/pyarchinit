@@ -625,7 +625,7 @@ class pyarchinit_Thesaurus(QDialog, MAIN_DIALOG_CLASS):
 
     def update_if(self, msg):
         rec_corr = self.REC_CORR
-        if self.msg == QMessageBox.Ok:
+        if msg == QMessageBox.Ok:
             test = self.update_record()
             if test == 1:
                 id_list = []

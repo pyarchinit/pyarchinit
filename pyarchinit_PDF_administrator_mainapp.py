@@ -484,7 +484,7 @@ class pyarchinit_PDFAdministrator(QDialog, MAIN_DIALOG_CLASS):
 
     def update_if(self, msg):
         rec_corr = self.REC_CORR
-        if self.msg == QMessageBox.Ok:
+        if msg == QMessageBox.Ok:
             self.update_record()
             id_list = []
             for i in self.DATA_LIST:
