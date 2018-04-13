@@ -32,6 +32,7 @@ from .modules.db.pyarchinit_conn_strings import Connection
 from .modules.db.pyarchinit_db_manager import Pyarchinit_db_management
 from .modules.gis.pyarchinit_pyqgis import Pyarchinit_pyqgis
 from .modules.utility.pyarchinit_matrix_exp import HARRIS_MATRIX_EXP
+import networkx as nx
 
 MAIN_DIALOG_CLASS, _ = loadUiType(os.path.join(os.path.dirname(__file__), 'modules', 'gui', 'pyarchinit_interactive_matrix_gui.ui'))
 
