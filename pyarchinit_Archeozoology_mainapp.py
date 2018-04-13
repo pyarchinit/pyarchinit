@@ -388,7 +388,7 @@ class pyarchinit_Archeozoology(QDialog, MAIN_DIALOG_CLASS):
             if self.records_equal_check() == 1:
                 self.update_if(
                     QMessageBox.warning(self, 'ATTENZIONE', "Il record e' stato modificato. Vuoi salvare le modifiche?",
-                                        QMessageBox.Cancel, 1))
+                                        QMessageBox.Ok | QMessageBox.Cancel))
                 self.label_sort.setText(self.SORTED_ITEMS["n"])
                 self.enable_button(1)
             else:
@@ -573,7 +573,7 @@ class pyarchinit_Archeozoology(QDialog, MAIN_DIALOG_CLASS):
         if self.records_equal_check() == 1:
             self.update_if(
                 QMessageBox.warning(self, 'Errore', "Il record e' stato modificato. Vuoi salvare le modifiche?",
-                                    QMessageBox.Cancel, 1))
+                                    QMessageBox.Ok | QMessageBox.Cancel))
         try:
             self.empty_fields()
             self.REC_TOT, self.REC_CORR = len(self.DATA_LIST), 0
@@ -586,7 +586,7 @@ class pyarchinit_Archeozoology(QDialog, MAIN_DIALOG_CLASS):
         if self.records_equal_check() == 1:
             self.update_if(
                 QMessageBox.warning(self, 'Errore', "Il record e' stato modificato. Vuoi salvare le modifiche?",
-                                    QMessageBox.Cancel, 1))
+                                    QMessageBox.Ok | QMessageBox.Cancel))
         try:
             self.empty_fields()
             self.REC_TOT, self.REC_CORR = len(self.DATA_LIST), len(self.DATA_LIST) - 1
@@ -599,7 +599,7 @@ class pyarchinit_Archeozoology(QDialog, MAIN_DIALOG_CLASS):
         if self.records_equal_check() == 1:
             self.update_if(
                 QMessageBox.warning(self, 'Errore', "Il record e' stato modificato. Vuoi salvare le modifiche?",
-                                    QMessageBox.Cancel, 1))
+                                    QMessageBox.Ok | QMessageBox.Cancel))
 
         self.REC_CORR = self.REC_CORR - 1
         if self.REC_CORR == -1:
@@ -618,7 +618,7 @@ class pyarchinit_Archeozoology(QDialog, MAIN_DIALOG_CLASS):
         if self.records_equal_check() == 1:
             self.update_if(
                 QMessageBox.warning(self, 'Errore', "Il record e' stato modificato. Vuoi salvare le modifiche?",
-                                    QMessageBox.Cancel, 1))
+                                    QMessageBox.Ok | QMessageBox.Cancel))
 
         self.REC_CORR = self.REC_CORR + 1
         if self.REC_CORR >= self.REC_TOT:
@@ -635,8 +635,8 @@ class pyarchinit_Archeozoology(QDialog, MAIN_DIALOG_CLASS):
     def on_pushButton_delete_pressed(self):
         msg = QMessageBox.warning(self, "Attenzione!!!",
                                   "Vuoi veramente eliminare il record? \n L'azione e' irreversibile",
-                                  QMessageBox.Cancel, 1)
-        if msg != 1:
+                                  QMessageBox.Ok | QMessageBox.Cancel)
+        if msg == QMessageBox.Cancel:
             QMessageBox.warning(self, "Messagio!!!", "Azione Annullata!")
         else:
             try:
@@ -2527,8 +2527,7 @@ title(sub="Rosso = coppie con r>|0.5|, Verde = coppie con |0.25|<r<|0.5|;
 
     def update_if(self, msg):
         rec_corr = self.REC_CORR
-        self.msg = msg
-        if self.msg == 1:
+        if msg == QMessageBox.Ok:
             self.update_record()
             id_list = []
             for i in self.DATA_LIST:
