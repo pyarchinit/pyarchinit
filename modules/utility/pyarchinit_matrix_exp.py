@@ -69,13 +69,24 @@ class HARRIS_MATRIX_EXP:
         except:
             data_to_plot = G
 
-        matrix_path = ('%s%s%s') % (self.HOME, os.sep, "pyarchinit_Matrix_folder")
-        filename_svg = ('%s%s%s') % (matrix_path, os.sep, 'Harris_matrix.svg')
-        filename_png = ('%s%s%s') % (matrix_path, os.sep, 'Harris_matrix.png')
-        G.format = 'svg'
-        G.render(filename_svg)
-        G.format = 'png'
-        G.render(filename_png)
+        Matrix_path = ('%s%s%s') % (self.HOME, os.sep, "pyarchinit_Matrix_folder")
+
+        if os.name == 'posix':
+            filename_svg = ('%s%s%s') % (Matrix_path, os.sep, 'Harris_matrix.svg')
+            filename_png = ('%s%s%s') % (Matrix_path, os.sep, 'Harris_matrix.png')
+            G.format = 'svg'
+            G.render(filename_svg)
+            G.format = 'png'
+            G.render(filename_png)
+        elif os.name == 'nt':
+            filename_dot = ('%s%s%s') % (Matrix_path, os.sep, 'Harris_matrix_win.dot')
+            # G.write(filename_dot)
+            filename_png = ('%s%s%s') % (Matrix_path, os.sep, 'Harris_matrix_win.png')
+            filename_svg = ('%s%s%s') % (Matrix_path, os.sep, 'Harris_matrix_win.svg')
+            G.format = 'svg'
+            G.render(filename_svg)
+            G.format = 'png'
+            G.render(filename_png)
 
         return data_to_plot
 
