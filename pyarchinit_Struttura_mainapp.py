@@ -696,7 +696,7 @@ class pyarchinit_Struttura(QDialog, MAIN_DIALOG_CLASS):
 
     def on_pushButton_delete_pressed(self):
         msg = QMessageBox.warning(self, "Attenzione!!!",
-                                  "Vuoi veramente eliminare il record? \n L'azione è irreversibile", QMessageBox.Cancel,
+                                  "Vuoi veramente eliminare il record? \n L'azione è irreversibile",
                                   QMessageBox.Ok | QMessageBox.Cancel)
         if msg == QMessageBox.Cancel:
             QMessageBox.warning(self, "Messagio!!!", "Azione Annullata!")
