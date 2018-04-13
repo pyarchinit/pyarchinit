@@ -21,11 +21,8 @@
 """
 import os
 
-try:
-    import pygraphviz as p
-    from networkx import *
-except:
-    pass
+from graphviz import Digraph
+from networkx import *
 
 
 class HARRIS_MATRIX_EXP:
@@ -39,9 +36,10 @@ class HARRIS_MATRIX_EXP:
         self.periodi = periodi
 
     def export_matrix(self):
-        G = p.AGraph(directed=True)
-        G.graph_attr['dpi'] = 300
-        G.graph_attr['label'] = 'pyArchInit - Harris Matrix Export System'
+        G = Digraph()
+        # G.directed = True
+        # G.attr(dpi=300)
+        # G.attr(label='pyArchInit - Harris Matrix Export System')
 
         elist = []
 
@@ -49,20 +47,20 @@ class HARRIS_MATRIX_EXP:
             a = (i[0], i[1])
             elist.append(a)
 
-        G.add_edges_from(elist)
+        G.edges(elist)
 
         G.node_attr['shape'] = 'box'
         G.node_attr['style'] = 'strocked'
         G.node_attr['color'] = 'red'
 
+        d = Digraph(G)
         for i in self.periodi:
-            G.subgraph(nbunch=i[0],
-                       name=i[1],
-                       style='strocked',
-                       shape='square',
-                       color='blue',
-                       label=i[2],
-                       font_color='Blue')
+            d.attr(name=i[1])
+            d.attr(style='strocked')
+            d.attr(shape='square')
+            d.attr(color='blue')
+            d.attr(label=i[2])
+            d.attr(font_color='Blue')
 
         try:
             data_to_plot = G.tred()
@@ -74,15 +72,15 @@ class HARRIS_MATRIX_EXP:
         if os.name == 'posix':
             filename_svg = ('%s%s%s') % (Matrix_path, os.sep, 'Harris_matrix.svg')
             filename_png = ('%s%s%s') % (Matrix_path, os.sep, 'Harris_matrix.png')
-            G.draw(filename_svg, prog='dot')
-            G.draw(filename_png, prog='dot')
+            G.render(filename_svg)
+            G.render(filename_png)
         elif os.name == 'nt':
             filename_dot = ('%s%s%s') % (Matrix_path, os.sep, 'Harris_matrix_win.dot')
-            G.write(filename_dot)
+            # G.write(filename_dot)
             filename_png = ('%s%s%s') % (Matrix_path, os.sep, 'Harris_matrix_win.png')
             filename_svg = ('%s%s%s') % (Matrix_path, os.sep, 'Harris_matrix_win.svg')
-            G.draw(filename_svg, prog='dot')
-            G.draw(filename_png, prog='dot')
+            G.render(filename_svg, prog='dot')
+            G.render(filename_png, prog='dot')
 
         return data_to_plot
 
