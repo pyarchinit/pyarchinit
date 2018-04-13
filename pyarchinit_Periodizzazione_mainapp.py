@@ -245,22 +245,22 @@ class pyarchinit_Periodizzazione(QDialog, MAIN_DIALOG_CLASS):
         data_list = []
         for i in range(len(self.DATA_LIST)):
 
-            if self.DATA_LIST[i].periodo == None:
+            if not self.DATA_LIST[i].periodo:
                 periodo = ""
             else:
                 periodo = str(self.DATA_LIST[i].periodo)
 
-            if self.DATA_LIST[i].fase == None:
+            if not self.DATA_LIST[i].fase:
                 fase = ""
             else:
                 fase = str(self.DATA_LIST[i].fase)
 
-            if self.DATA_LIST[i].cron_iniziale == None:
+            if not self.DATA_LIST[i].cron_iniziale:
                 cron_iniz = ""
             else:
                 cron_iniz = str(self.DATA_LIST[i].cron_iniziale)
 
-            if self.DATA_LIST[i].cron_finale == None:
+            if not self.DATA_LIST[i].cron_finale:
                 cron_fin = ""
             else:
                 cron_fin = str(self.DATA_LIST[i].cron_finale)
@@ -440,18 +440,18 @@ class pyarchinit_Periodizzazione(QDialog, MAIN_DIALOG_CLASS):
     def insert_new_rec(self):
         cont_per = 0
         try:
-            if self.lineEdit_cron_iniz.text() == "":
-                cron_iniz = None
+            if not self.lineEdit_cron_iniz.text():
+                cron_iniz = ''
             else:
                 cron_iniz = int(self.lineEdit_cron_iniz.text())
 
-            if self.lineEdit_cron_fin.text() == "":
-                cron_fin = None
+            if not self.lineEdit_cron_fin.text():
+                cron_fin = ''
             else:
                 cron_fin = int(self.lineEdit_cron_fin.text())
 
-            if self.lineEdit_codice_periodo.text() == "":
-                cont_per = None
+            if not self.lineEdit_codice_periodo.text():
+                cont_per = ''
             else:
                 cont_per = int(self.lineEdit_codice_periodo.text())
 
@@ -721,7 +721,7 @@ class pyarchinit_Periodizzazione(QDialog, MAIN_DIALOG_CLASS):
         self.enable_button_search(1)
 
     def on_pushButton_show_periodo_pressed(self):
-        if self.lineEdit_codice_periodo.text() == "":
+        if not self.lineEdit_codice_periodo.text():
             QMessageBox.warning(self, "Messaggio", "Codice periodo non assegnato", QMessageBox.Ok)
         else:
             sito_p = self.comboBox_sito.currentText()
@@ -859,18 +859,18 @@ class pyarchinit_Periodizzazione(QDialog, MAIN_DIALOG_CLASS):
 
     def set_LIST_REC_TEMP(self):
         # data
-        if self.lineEdit_cron_iniz.text() == "":
-            cron_iniz = None
+        if not self.lineEdit_cron_iniz.text():
+            cron_iniz = ''
         else:
             cron_iniz = str(self.lineEdit_cron_iniz.text())
 
-        if self.lineEdit_cron_fin.text() == "":
-            cron_fin = None
+        if not self.lineEdit_cron_fin.text():
+            cron_fin = ''
         else:
             cron_fin = str(self.lineEdit_cron_fin.text())
 
-        if self.lineEdit_codice_periodo.text() == "":
-            cont_per = None
+        if not self.lineEdit_codice_periodo.text():
+            cont_per = ''
         else:
             cont_per = str(self.lineEdit_codice_periodo.text())
 
