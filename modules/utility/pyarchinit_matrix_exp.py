@@ -62,6 +62,8 @@ class HARRIS_MATRIX_EXP:
             d.attr(label=i[2])
             d.attr(font_color='Blue')
 
+        G.subgraph(d)
+
         try:
             data_to_plot = G.tred()
         except:
@@ -72,15 +74,19 @@ class HARRIS_MATRIX_EXP:
         if os.name == 'posix':
             filename_svg = ('%s%s%s') % (Matrix_path, os.sep, 'Harris_matrix.svg')
             filename_png = ('%s%s%s') % (Matrix_path, os.sep, 'Harris_matrix.png')
+            G.format = 'svg'
             G.render(filename_svg)
+            G.format = 'png'
             G.render(filename_png)
         elif os.name == 'nt':
             filename_dot = ('%s%s%s') % (Matrix_path, os.sep, 'Harris_matrix_win.dot')
             # G.write(filename_dot)
             filename_png = ('%s%s%s') % (Matrix_path, os.sep, 'Harris_matrix_win.png')
             filename_svg = ('%s%s%s') % (Matrix_path, os.sep, 'Harris_matrix_win.svg')
-            G.render(filename_svg, prog='dot')
-            G.render(filename_png, prog='dot')
+            G.format = 'svg'
+            G.render(filename_svg)
+            G.format = 'png'
+            G.render(filename_png)
 
         return data_to_plot
 
