@@ -945,7 +945,8 @@ class Pyarchinit_db_management(object):
         cmd_str = "session.query({0}).filter({0}.{1}.in_(id_list)).order_by({2}).all()".format(self.table_class,
                                                                                                self.id_name,
                                                                                                filter_params)
-        return eval(cmd_str)
+        s = eval(cmd_str)
+        return s
 
     def run(self, stmt):
         rs = stmt.execute()
