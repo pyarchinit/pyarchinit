@@ -90,7 +90,7 @@ class NumberedCanvas_TAFONOMIAindex(canvas.Canvas):
                              "Pag. %d di %d" % (self._pageNumber, page_count))  # scheda us verticale 200mm x 20 mm
 
 
-class Tafonomia_index_pdf_sheet:
+class Tafonomia_index_pdf_sheet(object):
     def __init__(self, data):
         self.nr_scheda_taf = data[1]
         self.sigla_struttura = data[2]
@@ -215,7 +215,7 @@ class Tafonomia_index_pdf_sheet:
         return styles
 
 
-class Tafonomia_index_II_pdf_sheet:
+class Tafonomia_index_II_pdf_sheet(object):
     PU = Utility()
     # this model includes str.n., area/sett, descrizione, rito
     # corredo,orient., UUSS/UUSSMM, quotemax, misure, datazione
@@ -330,7 +330,7 @@ class Tafonomia_index_II_pdf_sheet:
         return styles
 
 
-class single_Tafonomia_pdf_sheet:
+class single_Tafonomia_pdf_sheet(object):
     PU = Utility()
 
     # rapporti stratigrafici
@@ -709,7 +709,7 @@ class single_Tafonomia_pdf_sheet:
         return t
 
 
-class generate_tafonomia_pdf:
+class generate_tafonomia_pdf(object):
     if os.name == 'posix':
         HOME = os.environ['HOME']
     elif os.name == 'nt':
