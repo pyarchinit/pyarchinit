@@ -232,8 +232,10 @@ class Tafonomia_index_II_pdf_sheet(object):
         self.corredo_presenza = data[16]
         self.orientamento_asse = data[14]
         self.orientamento_azimut = data[15]
-        self.us_ind_list = data[38]
-        self.us_str_list = data[39]
+
+        # self.us_ind_list = data[38]
+        # self.us_str_list = data[39]
+
         self.quota_min_strutt = data[36]
         self.quota_max_strutt = data[37]
         self.misure_tafonomia = data[33]
@@ -536,7 +538,7 @@ class single_Tafonomia_pdf_sheet(object):
 
         # 17 row
         corredo_tipo = ''
-        if eval(len(self.corredo_tipo)) > 0:
+        if len(self.corredo_tipo) > 0:
             for i in eval(self.corredo_tipo):
                 if corredo_tipo == '':
                     try:
@@ -555,7 +557,7 @@ class single_Tafonomia_pdf_sheet(object):
 
         # 18 row
         misure_tafonomia = ''
-        if eval(self.misure_tafonomia) > 0:
+        if len(self.misure_tafonomia) > 0:
             for i in eval(self.misure_tafonomia):
                 if misure_tafonomia == '':
                     try:
