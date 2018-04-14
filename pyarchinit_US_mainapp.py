@@ -558,7 +558,7 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
 
         self.delegateINCL_CAMP = ComboBoxDelegate()
         valuesINCL_CAMP.sort()
-        self.delegateINCL_CAMP.def_values(valuesINCL_CAMP.sort())
+        self.delegateINCL_CAMP.def_values(valuesINCL_CAMP)
         self.delegateINCL_CAMP.def_editable('False')
         self.tableWidget_inclusi.setItemDelegateForColumn(0, self.delegateINCL_CAMP)
         self.tableWidget_campioni.setItemDelegateForColumn(0, self.delegateINCL_CAMP)
