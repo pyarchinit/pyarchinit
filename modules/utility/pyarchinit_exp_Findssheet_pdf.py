@@ -204,7 +204,7 @@ class single_Finds_pdf_sheet(object):
 
             # 6 row
         elementi_reperto = ''
-        if eval(self.elementi_reperto) > 0:
+        if eval(self.elementi_reperto):
             for i in eval(self.elementi_reperto):
                 if elementi_reperto == '':
                     try:
@@ -223,7 +223,7 @@ class single_Finds_pdf_sheet(object):
 
         # 7 row
         misurazioni = ''
-        if eval(self.misurazioni) > 0:
+        if eval(self.misurazioni):
             for i in eval(self.misurazioni):
                 if misurazioni == '':
                     try:
@@ -239,7 +239,7 @@ class single_Finds_pdf_sheet(object):
 
         # 8 row
         tecnologie = ''
-        if eval(self.tecnologie) > 0:
+        if eval(self.tecnologie):
             for i in eval(self.tecnologie):
                 if tecnologie == '':
                     try:
@@ -259,7 +259,7 @@ class single_Finds_pdf_sheet(object):
 
         # 9 row
         rif_biblio = ''
-        if eval(self.rif_biblio) > 0:
+        if eval(self.rif_biblio):
             for i in eval(self.rif_biblio):  # gigi
                 if rif_biblio == '':
                     try:
