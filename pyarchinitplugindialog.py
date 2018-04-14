@@ -160,6 +160,6 @@ class PyarchinitPluginDialog(QgsDockWidget, MAIN_DIALOG_CLASS):
         self.pluginGui = pluginUT  # save
 
     def runPDFadministrator(self):
-        pluginPDFadmin = pyarchinit_pdf_export()
+        pluginPDFadmin = pyarchinit_pdf_export(self.iface)
         pluginPDFadmin.show()
         self.pluginGui = pluginPDFadmin  # save

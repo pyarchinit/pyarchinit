@@ -25,6 +25,7 @@ from builtins import range
 
 from qgis.PyQt.QtWidgets import QDialog, QMessageBox
 from qgis.PyQt.uic import loadUiType
+from qgis.core import Qgis
 
 import platform
 import subprocess
@@ -64,11 +65,12 @@ class pyarchinit_pdf_export(QDialog, MAIN_DIALOG_CLASS):
     ##				'USER':'',
     ##				'THUMB_PATH':''}
 
-
-    def __init__(self, parent=None, db=None):
-        QDialog.__init__(self, parent)
+    def __init__(self, iface):
+        super().__init__()
         # Set up the user interface from Designer.
         self.setupUi(self)
+
+        self.iface = iface
 
         try:
             self.connect()
@@ -130,9 +132,15 @@ class pyarchinit_pdf_export(QDialog, MAIN_DIALOG_CLASS):
         else:
             subprocess.Popen(["xdg-open", path])
 
+    def messageOnSuccess(self, printed):
+        if printed:
+            self.iface.messageBar().pushMessage("Esportazione avvenuta con successo", Qgis.Success)
+        else:
+            self.iface.messageBar().pushMessage("Non ci sono dati da esportare", Qgis.Info)
+
     def on_pushButton_exp_pdf_pressed(self):
         sito = str(self.comboBox_sito.currentText())
-
+        printed = False
         ####Esportazione della Scheda e indice US
         if self.checkBox_US.isChecked():
 
@@ -155,7 +163,9 @@ class pyarchinit_pdf_export(QDialog, MAIN_DIALOG_CLASS):
                     US_pdf_sheet.build_US_sheets(data_list)  # export sheet
                     US_pdf_sheet.build_index_US(data_list, data_list[0][0])  # export list
 
-            self.DATA_LIST = []
+            if self.DATA_LIST:
+                printed = True
+                self.DATA_LIST = []
 
         ####Esportazione della Scheda e indice Periodizzazione
         if self.checkBox_periodo.isChecked():
@@ -178,7 +188,9 @@ class pyarchinit_pdf_export(QDialog, MAIN_DIALOG_CLASS):
                 Periodizzazione_pdf_sheet.build_Periodizzazione_sheets(data_list)  # deve essere aggiunto il file per generare i pdf
                 Periodizzazione_pdf_sheet.build_index_Periodizzazione(data_list, data_list[0][0])  # deve essere aggiunto il file per generare i pdf
 
-            self.DATA_LIST = []
+            if self.DATA_LIST:
+                printed = True
+                self.DATA_LIST = []
 
         ####Esportazione della Scheda e indice Struttura
         if self.checkBox_struttura.isChecked():
@@ -201,7 +213,9 @@ class pyarchinit_pdf_export(QDialog, MAIN_DIALOG_CLASS):
                     data_list)  # deve essere aggiunto il file per generare i pdf
                 Struttura_pdf_sheet.build_index_Struttura(data_list, data_list[0][0])
 
-            self.DATA_LIST = []
+            if self.DATA_LIST:
+                printed = True
+                self.DATA_LIST = []
 
         if self.checkBox_reperti.isChecked():
             reperti_res = self.db_search_DB('INVENTARIO_MATERIALI', 'sito', sito)
@@ -220,9 +234,11 @@ class pyarchinit_pdf_export(QDialog, MAIN_DIALOG_CLASS):
                 Finds_pdf_sheet = generate_reperti_pdf()
                 data_list = self.generate_list_reperti_pdf()
                 Finds_pdf_sheet.build_Finds_sheets(data_list)
-                Finds_pdf_sheet.build_index_Finds(data_list, data_list[0][1])
+                Finds_pdf_sheet.build_index_Finds(data_list, data_list[0][0])
 
-            self.DATA_LIST = []
+            if self.DATA_LIST:
+                printed = True
+                self.DATA_LIST = []
 
         if self.checkBox_tafonomia.isChecked():
             tafonomia_res = self.db_search_DB('TAFONOMIA', 'sito', sito)
@@ -243,7 +259,9 @@ class pyarchinit_pdf_export(QDialog, MAIN_DIALOG_CLASS):
                 Tafonomia_pdf_sheet.build_Tafonomia_sheets(data_list)
                 Tafonomia_pdf_sheet.build_index_Tafonomia(data_list, data_list[0][0])
 
-            self.DATA_LIST = []
+            if self.DATA_LIST:
+                printed = True
+                self.DATA_LIST = []
 
         ##		if self.checkBox_individui.isChecked() == True:
         ##			individui_res = self.db_search_DB('SCHEDAIND','sito', sito)
@@ -264,6 +282,7 @@ class pyarchinit_pdf_export(QDialog, MAIN_DIALOG_CLASS):
         ##				Individui_pdf_sheet.build_index_individui(self.DATA_LIST, self.DATA_LIST[0][0])
         ##
         ##			self.DATA_LIST = []
+        self.messageOnSuccess(printed)
 
     def db_search_DB(self, table_class, field, value):
         self.table_class = table_class
@@ -324,9 +343,9 @@ class pyarchinit_pdf_export(QDialog, MAIN_DIALOG_CLASS):
             else:
                 piante = "US disegnata su base GIS"
 
-            d_str = str(self.DATA_LIST[i].d_stratigrafica)
-            QMessageBox.warning(self, "Alert", str(self.DATA_LIST[i]), QMessageBox.Ok)
-            sito = str(self.DATA_LIST[i].sito)
+            # d_str = str(self.DATA_LIST[i].d_stratigrafica)
+            # QMessageBox.warning(self, "Alert", str(self.DATA_LIST[i]), QMessageBox.Ok)
+            # sito = str(self.DATA_LIST[i].sito)
 
             data_list.append([
                 str(self.DATA_LIST[i].sito),  # 1 - Sito
