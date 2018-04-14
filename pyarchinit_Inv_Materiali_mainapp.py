@@ -1475,13 +1475,12 @@ class pyarchinit_Inventario_reperti(QDialog, MAIN_DIALOG_CLASS):
     def on_pushButton_tot_fram_pressed(self):
         self.update_tot_frammenti(QMessageBox.warning(self, 'ATTENZIONE',
                                                       "Vuoi aggiornare tutti i frammenti (OK), oppure solo il record corrente (Cancel)?",
-                                                      QMessageBox.Cancel, 1))
+                                                      QMessageBox.Ok | QMessageBox.Cancel))
 
         # blocco per quantificare dalla tabella interna il numero totale di frammenti
 
     def update_tot_frammenti(self, c):
-        self.choice = c
-        if self.choice == 1:
+        if c == QMessageBox.Ok:
             for i in range(len(self.DATA_LIST)):
                 temp_dataset = ()
                 id_invmat = self.DATA_LIST[i].id_invmat
