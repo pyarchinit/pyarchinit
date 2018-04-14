@@ -222,6 +222,8 @@ class Tafonomia_index_II_pdf_sheet(object):
 
     us_ind_print = ''
     us_str_print = ''
+    us_ind_list = ''
+    us_str_list = ''
 
     def __init__(self, data):
         self.nr_scheda_taf = data[1]
@@ -233,8 +235,11 @@ class Tafonomia_index_II_pdf_sheet(object):
         self.orientamento_asse = data[14]
         self.orientamento_azimut = data[15]
 
-        # self.us_ind_list = data[38]
-        # self.us_str_list = data[39]
+        try:
+            self.us_ind_list = data[38]
+            self.us_str_list = data[39]
+        except:
+            pass
 
         self.quota_min_strutt = data[36]
         self.quota_max_strutt = data[37]
@@ -279,7 +284,7 @@ class Tafonomia_index_II_pdf_sheet(object):
             orientamento_azimut_conv = self.PU.conversione_numeri(self.orientamento_azimut)
             orientamento_azimut = Paragraph("<b>Azimut</b><br/>" + orientamento_azimut_conv + "°", styNormal)
 
-        if bool(self.us_ind_list):
+        if self.us_ind_list:
             us_ind_temp = ""
             for us_ind in self.us_ind_list:
                 if us_ind_temp == '':
@@ -291,7 +296,7 @@ class Tafonomia_index_II_pdf_sheet(object):
         else:
             self.us_ind_print = Paragraph("<b>US Ind.<br/>(Area/US)</b><br/>", styNormal)
 
-        if bool(self.us_str_list):
+        if self.us_str_list:
             us_str_temp = ""
             for us_str in self.us_str_list:
                 if us_str_temp == '':

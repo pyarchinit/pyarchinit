@@ -528,7 +528,7 @@ class PyArchInitPlugin(object):
         self.pluginGui = pluginDbmanagment  # save
 
     def runPdfexp(self):
-        pluginPdfexp = pyarchinit_pdf_export()
+        pluginPdfexp = pyarchinit_pdf_export(self.iface)
         pluginPdfexp.show()
         self.pluginGui = pluginPdfexp  # save
 
