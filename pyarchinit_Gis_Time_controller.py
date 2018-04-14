@@ -47,9 +47,9 @@ class pyarchinit_Gis_Time_Controller(QDialog, MAIN_DIALOG_CLASS):
     MAPPER_TABLE_CLASS = "US"
 
     def __init__(self, iface):
+        super().__init__()
         self.iface = iface
-        self.pyQGIS = Pyarchinit_pyqgis(self.iface)
-        QDialog.__init__(self)
+        self.pyQGIS = Pyarchinit_pyqgis(iface)
         self.setupUi(self)
 
         self.currentLayerId = None
