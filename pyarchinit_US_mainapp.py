@@ -832,7 +832,7 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
         dlg.exec_()
 
     def launch_matrix_exp_if(self, msg):
-        if msg == 1:
+        if msg == QMessageBox.Ok:
             self.on_pushButton_export_matrix_pressed()
         else:
             pass
@@ -844,14 +844,14 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
 
         self.launch_matrix_exp_if(QMessageBox.warning(self, 'ATTENZIONE',
                                                       "Si consiglia di lanciare il matrix e controllare se sono presenti paradossi stratigrafici prima di proseguire",
-                                                      QMessageBox.Cancel, 1))
+                                                      QMessageBox.Ok | QMessageBox.Cancel))
 
         self.launch_order_layer_if(QMessageBox.warning(self, 'ATTENZIONE',
                                                        "Sei sicuro di voler proseguire? Se saranno presenti paradossi stratigrafici il sistema potrebbe andare in crush!",
-                                                       QMessageBox.Cancel, 1))
+                                                       QMessageBox.Ok | QMessageBox.Cancel))
 
     def launch_order_layer_if(self, msg):
-        if msg == 1:
+        if msg == QMessageBox.Ok:
 
             # report errori rapporti stratigrafici
             msg_tipo_rapp = "Manca il tipo di rapporto nell'US: \n"
