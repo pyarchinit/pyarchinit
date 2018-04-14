@@ -53,17 +53,14 @@ class HARRIS_MATRIX_EXP:
         G.node_attr['style'] = 'strocked'
         G.node_attr['color'] = 'red'
 
-        d = Digraph(G)
-        for i in self.periodi:
-            d.attr(name=i[1])
-            d.attr(style='strocked')
-            d.attr(shape='square')
-            d.attr(color='blue')
-            d.attr(label=i[2])
-            d.attr(font_color='Blue')
-
-        # TODO: it is necessary reworking on it
-        #G.subgraph(d)
+        with G.subgraph() as c:
+            for i in self.periodi:
+                c.attr(name=i[1])
+                c.attr(style='strocked')
+                c.attr(shape='square')
+                c.attr(color='blue')
+                c.attr(label=i[2])
+                c.attr(font_color='Blue')
 
         try:
             data_to_plot = G.tred()
