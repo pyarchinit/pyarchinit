@@ -27,7 +27,7 @@ from qgis.PyQt.uic import loadUiType
 from .sortpanelmain import SortPanelMain
 import os
 
-MAIN_DIALOG_CLASS, _ = loadUiType(os.path.join(os.path.dirname(__file__), 'modules', 'gui', 'pyarchinit_US_ui.ui'))
+MAIN_DIALOG_CLASS, _ = loadUiType(os.path.join(os.path.dirname(__file__), 'modules', 'gui', 'quant_panel_ui.ui'))
 
 
 class QuantPanelMain(QDialog, MAIN_DIALOG_CLASS):
@@ -49,9 +49,9 @@ class QuantPanelMain(QDialog, MAIN_DIALOG_CLASS):
             self.TYPE_QUANT = "Frammenti"
 
         if not bool(self.ITEMS):
-            ttl = QString("Non e' stato impostata alcun criterio. Vuoi uscire?")
-            msg = QMessageBox.warning(self, 'ATTENZIONE', ttl, QMessageBox.Cancel, 1)
-            if msg == 1:
+            ttl = "Non e' stato impostata alcun criterio. Vuoi uscire?"
+            msg = QMessageBox.warning(self, 'ATTENZIONE', ttl, QMessageBox.Ok | QMessageBox.Cancel)
+            if msg == QMessageBox.Ok:
                 self.close()
             else:
                 pass
