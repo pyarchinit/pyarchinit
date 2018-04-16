@@ -894,7 +894,7 @@ class Pyarchinit_db_management(object):
         max_id_func = eval(exec_str)
         res_all = max_id_func.all()
         res_max_num_id = res_all[0][0]
-        if not bool(res_max_num_id):
+        if not res_max_num_id:
             return 0
         else:
             return int(res_max_num_id)
@@ -916,7 +916,7 @@ class Pyarchinit_db_management(object):
         self.sing_column = s
         table = Table(self.table_name, self.metadata, autoload=True)
 
-        if not bool(str(s)):
+        if not str(s):
             return [c.name for c in table.columns]
         else:
             return [c.name for c in table.columns][int(s)]
@@ -1008,13 +1008,12 @@ class Pyarchinit_db_management(object):
         lista_us = eval(string)
 
         for i in lista_us:
-            if not bool(i.periodo_finale):
-                if bool(i.periodo_iniziale):
+            if not i.periodo_finale and i.periodo_iniziale:
                     periodiz = self.query_bool(
                         {'sito': "'" + str(self.sito) + "'", 'periodo': i.periodo_iniziale, 'fase': i.fase_iniziale},
                         'PERIODIZZAZIONE')
                     self.update('US', 'id_us', [int(i.id_us)], ['cont_per'], [periodiz[0].cont_per])
-            elif bool(i.periodo_iniziale) == True and bool(i.periodo_finale) == True:
+            elif i.periodo_finale and i.periodo_iniziale:
                 cod_cont_iniz_temp = self.query_bool(
                     {'sito': "'" + str(self.sito) + "'", 'periodo': int(i.periodo_iniziale),
                      'fase': int(i.fase_iniziale)}, 'PERIODIZZAZIONE')
@@ -1023,17 +1022,12 @@ class Pyarchinit_db_management(object):
                     'PERIODIZZAZIONE')
 
                 cod_cont_iniz = cod_cont_iniz_temp[0].cont_per
-
-                f = open('C:\\users\\luca\\testcodper.txt', 'w')
-                f.write(str(int(i.id_us)))
-                f.close()
-
                 cod_cont_fin = cod_cont_fin_temp[0].cont_per
 
                 cod_cont_var_n = cod_cont_iniz
                 cod_cont_var_txt = str(cod_cont_iniz)
 
-                while (cod_cont_var_n != cod_cont_fin):
+                while cod_cont_var_n != cod_cont_fin:
                     cod_cont_var_n += 1
 
                     cod_cont_var_txt = cod_cont_var_txt + "/" + str(cod_cont_var_n)
