@@ -171,8 +171,8 @@ class Utility:
         # f.write(str(self.list))
         # f.close()
         for i in range(len(self.list)):
-            if str(type(self.list[i])) != "<type 'int'>" and str(type(self.list[i])) != "<type 'float'>":
-                if self.list[i] == None:
+            if str(type(self.list[i])) != "<class 'int'>" and str(type(self.list[i])) != "<class 'float'>":
+                if not self.list[i]:
                     pass
                 elif self.list[i][0:3] == '"""':
                     self.list[i] = self.list[i][3:-3]
