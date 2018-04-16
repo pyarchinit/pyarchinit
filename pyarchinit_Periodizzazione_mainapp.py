@@ -460,11 +460,11 @@ class pyarchinit_Periodizzazione(QDialog, MAIN_DIALOG_CLASS):
                 str(self.comboBox_sito.currentText()),  # 1 - Sito
                 int(self.comboBox_periodo.currentText()),  # 2 - Periodo
                 int(self.comboBox_fase.currentText()),  # 3 - Fase
-                cron_iniz,  # 4 - Cron iniziale
-                cron_fin,  # 5 - Cron finale
+                int(cron_iniz),  # 4 - Cron iniziale
+                int(cron_fin),  # 5 - Cron finale
                 str(self.textEdit_descrizione_per.toPlainText()),  # 6 - Descrizione
                 str(self.lineEdit_per_estesa.text()),  # 7 - Periodizzazione estesa
-                cont_per)  # 8 - Cont_per
+                int(cont_per))  # 8 - Cont_per
 
             try:
                 self.DB_MANAGER.insert_data_session(data)
@@ -830,12 +830,12 @@ class pyarchinit_Periodizzazione(QDialog, MAIN_DIALOG_CLASS):
             self.comboBox_periodo.setEditText(str(self.DATA_LIST[self.rec_num].periodo))  # 2 - Periodo
             self.comboBox_fase.setEditText(str(self.DATA_LIST[self.rec_num].fase))  # 3 - Fase
 
-            if self.DATA_LIST[self.rec_num].cron_iniziale:  # 4 - Cronologia iniziale
+            if not self.DATA_LIST[self.rec_num].cron_iniziale:  # 4 - Cronologia iniziale
                 self.lineEdit_cron_iniz.setText("")
             else:
                 self.lineEdit_cron_iniz.setText(str(self.DATA_LIST[self.rec_num].cron_iniziale))
 
-            if self.DATA_LIST[self.rec_num].cron_finale:  # 5 - Cronologia finale
+            if not self.DATA_LIST[self.rec_num].cron_finale:  # 5 - Cronologia finale
                 self.lineEdit_cron_fin.setText("")
             else:
                 self.lineEdit_cron_fin.setText(str(self.DATA_LIST[self.rec_num].cron_finale))
