@@ -843,7 +843,7 @@ class pyarchinit_Periodizzazione(QDialog, MAIN_DIALOG_CLASS):
             str(self.lineEdit_per_estesa.setText(self.DATA_LIST[self.rec_num].datazione_estesa))  # 6 - Datazione estesa
             str(self.textEdit_descrizione_per.setText(self.DATA_LIST[self.rec_num].descrizione))  # 7 - Descrizione
 
-            if self.DATA_LIST[self.rec_num].cont_per:  # 8 - Codice periodo
+            if not self.DATA_LIST[self.rec_num].cont_per:  # 8 - Codice periodo
                 self.lineEdit_codice_periodo.setText("")
             else:
                 self.lineEdit_codice_periodo.setText(str(self.DATA_LIST[self.rec_num].cont_per))
