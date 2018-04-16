@@ -179,7 +179,7 @@ class single_Invlap_pdf_sheet:
 
             # 18 row
         bibliografia = ''
-        if eval(self.bibliografia) > 0:
+        if len(eval(self.bibliografia)) > 0:
             for i in eval(self.bibliografia):  # gigi
                 if bibliografia == '':
                     try:
