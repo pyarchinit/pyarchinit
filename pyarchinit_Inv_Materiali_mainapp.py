@@ -28,7 +28,8 @@ import numpy as np
 import sys
 from builtins import range
 from builtins import str
-from qgis.PyQt.QtCore import QSize
+from qgis.PyQt.QtCore import Qt, QSize
+from qgis.pyQt.QtGui import QIcon
 from qgis.PyQt.QtWidgets import QDialog, QMessageBox, QListWidget, QListView, QFrame, QAbstractItemView, \
     QTableWidgetItem, QListWidgetItem
 from qgis.PyQt.uic import loadUiType
@@ -36,6 +37,7 @@ from qgis.PyQt.uic import loadUiType
 from .modules.db.pyarchinit_conn_strings import Connection
 from .modules.db.pyarchinit_db_manager import Pyarchinit_db_management
 from .modules.db.pyarchinit_utility import Utility
+from .modules.gui.imageViewer import ImageViewer
 from .modules.utility.csv_writer import UnicodeWriter
 from .modules.utility.delegateComboBox import ComboBoxDelegate
 from .modules.utility.pyarchinit_error_check import Error_check
@@ -541,7 +543,7 @@ class pyarchinit_Inventario_reperti(QDialog, MAIN_DIALOG_CLASS):
 
                 item = QListWidgetItem(str(i.id_media))
 
-                item.setData(QtCore.Qt.UserRole, str(i.id_media))
+                item.setData(Qt.UserRole, str(i.id_media))
                 icon = QIcon(thumb_path)
                 item.setIcon(icon)
                 self.iconListWidget.addItem(item)
