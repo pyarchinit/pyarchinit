@@ -2265,12 +2265,12 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
             str(self.comboBox_consistenza.setEditText(self.DATA_LIST[self.rec_num].consistenza))  # 25 - consistenza
             str(self.lineEdit_struttura.setText(self.DATA_LIST[self.rec_num].struttura))
             # 26 - struttura
-            if self.DATA_LIST[self.rec_num].cont_per == None:
+            if not self.DATA_LIST[self.rec_num].cont_per:
                 str(self.lineEdit_codice_periodo.setText(""))
             else:
                 str(self.lineEdit_codice_periodo.setText(self.DATA_LIST[self.rec_num].cont_per))  # 27 - codice periodo
                 # 27 - codice periodo
-            if self.DATA_LIST[self.rec_num].order_layer == None:
+            if not self.DATA_LIST[self.rec_num].order_layer:
                 self.lineEditOrderLayer.setText("")
             else:
                 self.lineEditOrderLayer.setText(str(self.DATA_LIST[self.rec_num].order_layer))  # 28 - order layer
