@@ -1061,7 +1061,9 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
 
         layer = self.iface.mapCanvas().currentLayer()
         fieldname = self.ID_TABLE
-        features_list = self.iface.mapCanvas().currentLayer().selectedFeatures()
+        if not layer:
+            QMessageBox.warning(self, 'ATTENZIONE', "Nessun elemento selezionato", QMessageBox.Ok)
+        features_list = layer.selectedFeatures()
 
         field_position = ""
         for single in layer.getFeatures():
