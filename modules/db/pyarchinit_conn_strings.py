@@ -41,6 +41,7 @@ class Connection(object):
         data = conf.read()
         settings = Settings(data)
         settings.set_configuration()
+        conf.close()
 
         conn_str_dict = {"server": settings.SERVER,
                          "user": settings.USER,
@@ -84,6 +85,7 @@ class Connection(object):
         data = conf.read()
         settings = Settings(data)
         settings.set_configuration()
+        conf.close()
         thumb_path = {"thumb_path": settings.THUMB_PATH}
 
         return thumb_path
