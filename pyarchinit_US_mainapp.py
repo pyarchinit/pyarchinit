@@ -838,9 +838,9 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
             pass
 
     def on_pushButton_orderLayers_pressed(self):
-        QMessageBox.warning(self, 'ATTENZIONE',
-                            """Il sistema accetta come dataset da elaborare ricerche su singolo SITO e AREA. Se state lanciando il sistema su siti o aree differenti, i dati di siti differenti saranno sovrascritti. Per terminare il sistema dopo l'Ok premere Cancel.""",
-                            QMessageBox.Ok)
+        # QMessageBox.warning(self, 'ATTENZIONE',
+        #                     """Il sistema accetta come dataset da elaborare ricerche su singolo SITO e AREA. Se state lanciando il sistema su siti o aree differenti, i dati di siti differenti saranno sovrascritti. Per terminare il sistema dopo l'Ok premere Cancel.""",
+        #                     QMessageBox.Ok)
 
         # self.launch_matrix_exp_if(QMessageBox.warning(self, 'ATTENZIONE',
         #                                               "Si consiglia di lanciare il matrix e controllare se sono presenti paradossi stratigrafici prima di proseguire",
