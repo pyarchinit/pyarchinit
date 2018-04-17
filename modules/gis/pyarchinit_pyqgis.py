@@ -829,7 +829,7 @@ class Pyarchinit_pyqgis(QDialog):
                 # style_path = ('%s%s') % (self.LAYER_STYLE_PATH, 'us_caratterizzazioni.qml')
                 # layerUS.loadNamedStyle(style_path)
                 QgsProject.instance().addMapLayers([layerUS], False)
-                layerToSet.append(QgsMapCanvas(layerUS, True, False))
+                layerToSet.append(layerUS)
 
                 # layerQuote
             uri.setDataSource("public", "pyarchinit_quote_view", "the_geom", gidstr, "id_us")
@@ -839,7 +839,7 @@ class Pyarchinit_pyqgis(QDialog):
                 # style_path = ('%s%s') % (self.LAYER_STYLE_PATH, 'stile_quote.qml')
                 # layerQUOTE.loadNamedStyle(style_path)
                 QgsProject.instance().addMapLayers([layerQUOTE], False)
-                layerToSet.append(QgsMapCanvas(layerQUOTE, True, False))
+                layerToSet.append(layerQUOTE)
 
             return layerToSet
 
@@ -858,7 +858,7 @@ class Pyarchinit_pyqgis(QDialog):
                 style_path = ('%s%s') % (self.LAYER_STYLE_PATH_SPATIALITE, 'quote_us_view.qml')
                 layerQUOTE.loadNamedStyle(style_path)
                 QgsProject.instance().addMapLayers([layerQUOTE], False)
-                #layerToSet.append(QgsMapCanvas(layerQUOTE, True, False))
+                layerToSet.append(layerQUOTE)
             else:
                 pass
                 # QMessageBox.warning(self, "TESTER", "OK Layer Quote non valido",	 #QMessageBox.Ok)
@@ -871,7 +871,7 @@ class Pyarchinit_pyqgis(QDialog):
                 style_path = ('%s%s') % (self.LAYER_STYLE_PATH_SPATIALITE, 'us_view_splite.qml')
                 layerUS.loadNamedStyle(style_path)
                 QgsProject.instance().addMapLayers([layerUS], False)
-                #layerToSet.append(QgsMapCanvas(layerUS, True, False))
+                layerToSet.append(layerUS)
             else:
                 pass
                 # QMessageBox.warning(self, "TESTER", "NOT! Layer US not valid",#QMessageBox.Ok)
@@ -906,7 +906,7 @@ class Pyarchinit_pyqgis(QDialog):
                 # style_path = ('%s%s') % (self.LAYER_STYLE_PATH, 'us_caratterizzazioni.qml')
                 # layerUS.loadNamedStyle(style_path)
                 QgsProject.instance().addMapLayers([layerUS], False)
-                layerToSet.append(QgsMapCanvas(layerUS, True, False))
+                layerToSet.append(layerUS)
 
                 # layerQuote
             ##			uri.setDataSource("public", "pyarchinit_quote_view", "the_geom", gidstr, "id_us")
@@ -938,7 +938,7 @@ class Pyarchinit_pyqgis(QDialog):
                 ##				style_path = ('%s%s') % (self.LAYER_STYLE_PATH_SPATIALITE, 'us_view_splite.qml')
                 ##				layerUS.loadNamedStyle(style_path)
                 QgsProject.instance().addMapLayers([layerUS], False)
-                layerToSet.append(QgsMapCanvas(layerUS, True, False))
+                layerToSet.append(layerUS)
             else:
                 QMessageBox.warning(self, "TESTER", "NOT! Layer US not valid", QMessageBox.Ok)
 

@@ -24,11 +24,10 @@ from builtins import str
 from builtins import range
 from builtins import object
 
-from qgis.PyQt import QtGui
-from qgis.PyQt.QtWidgets import QDialog, QMessageBox
+from qgis.PyQt.QtWidgets import QDialog, QMessageBox, QFileDialog
+from qgis.core import QgsProject, QgsDataSourceUri, QgsVectorLayer, QgsCoordinateReferenceSystem
+# from qgis.gui import QgsMapCanvas
 
-from qgis.core import *
-from qgis.gui import *
 from .settings import *
 
 
@@ -49,7 +48,7 @@ class Pyarchinit_pyqgis(QDialog):
         self.iface = iface
 
     def remove_USlayer_from_registry(self):
-        QgsMapLayerRegistry.instance().removeMapLayer(self.USLayerId)
+        QgsProject.instance().removeMapLayer(self.USLayerId)
         return 0
 
     def charge_individui_us(self, data):
@@ -77,7 +76,7 @@ class Pyarchinit_pyqgis(QDialog):
                 for i in range(len(data)):
                     gidstr += " OR id_us = '" + str(data[i]) + "'"
 
-            uri = QgsDataSourceURI()
+            uri = QgsDataSourceUri()
             uri.setDatabase(db_file_path)
 
             uri.setDataSource('', 'pyarchinit_us_view', 'Geometry', gidstr, "gid")
@@ -87,18 +86,18 @@ class Pyarchinit_pyqgis(QDialog):
                 # self.USLayerId = layerUS.getLayerID()
                 # style_path = ('%s%s') % (self.LAYER_STYLE_PATH_SPATIALITE, 'us_caratterizzazioni.qml')
                 # layerUS.loadNamedStyle(style_path)
-                QgsMapLayerRegistry.instance().addMapLayers([layerUS], True)
+                QgsProject.instance().addMapLayers([layerUS], True)
 
             uri.setDataSource('', 'pyarchinit_quote_view', 'Geometry', gidstr, "gid")
             layerQUOTE = QgsVectorLayer(uri.uri(), 'pyarchinit_quote_view', 'spatialite')
 
             if layerQUOTE.isValid():
-                QgsMapLayerRegistry.instance().addMapLayers([layerQUOTE], True)
+                QgsProject.instance().addMapLayers([layerQUOTE], True)
 
 
         elif settings.SERVER == 'postgres':
 
-            uri = QgsDataSourceURI()
+            uri = QgsDataSourceUri()
             # set host name, port, database name, username and password
 
             uri.setConnection(settings.HOST, settings.PORT, settings.DATABASE, settings.USER, settings.PASSWORD)
@@ -117,9 +116,9 @@ class Pyarchinit_pyqgis(QDialog):
                 layerUS.setCrs(srs)
                 # self.USLayerId = layerUS.getLayerID()
                 # style_path = ('%s%s') % (self.LAYER_STYLE_PATH, 'us_caratterizzazioni.qml')
-                style_path = QtGui.QFileDialog.getOpenFileName(self, 'Open file', self.LAYER_STYLE_PATH)
+                style_path = QFileDialog.getOpenFileName(self, 'Open file', self.LAYER_STYLE_PATH)
                 layerUS.loadNamedStyle(style_path)
-                QgsMapLayerRegistry.instance().addMapLayers([layerUS], True)
+                QgsProject.instance().addMapLayers([layerUS], True)
 
             uri.setDataSource("public", "pyarchinit_quote_view", "the_geom", gidstr, "gid")
             layerQUOTE = QgsVectorLayer(uri.uri(), "Quote Unita' Stratigrafiche", "postgres")
@@ -129,7 +128,7 @@ class Pyarchinit_pyqgis(QDialog):
                 style_path = ('%s%s') % (self.LAYER_STYLE_PATH, 'stile_quote.qml')
                 layerQUOTE.loadNamedStyle(style_path)
                 try:
-                    QgsMapLayerRegistry.instance().addMapLayers([layerQUOTE], True)
+                    QgsProject.instance().addMapLayers([layerQUOTE], True)
                 except Exception as e:
                     pass
                     # f = open('/test_ok.txt','w')
@@ -161,7 +160,7 @@ class Pyarchinit_pyqgis(QDialog):
                 for i in range(len(data)):
                     gidstr += " OR id_us = '" + str(data[i].id_us) + "'"
 
-            uri = QgsDataSourceURI()
+            uri = QgsDataSourceUri()
             uri.setDatabase(db_file_path)
 
             uri.setDataSource('', 'pyarchinit_us_view', 'the_geom', gidstr, "ROWID")
@@ -172,9 +171,9 @@ class Pyarchinit_pyqgis(QDialog):
 
                 # self.USLayerId = layerUS.getLayerID()
                 # style_path = ('%s%s') % (self.LAYER_STYLE_PATH_SPATIALITE, 'us_view.qml')
-                style_path = QtGui.QFileDialog.getOpenFileName(self, 'Open file', self.LAYER_STYLE_PATH)
+                style_path = QFileDialog.getOpenFileName(self, 'Open file', self.LAYER_STYLE_PATH)
                 layerUS.loadNamedStyle(style_path)
-                QgsMapLayerRegistry.instance().addMapLayers([layerUS], True)
+                QgsProject.instance().addMapLayers([layerUS], True)
             else:
                 QMessageBox.warning(self, "TESTER", "Layer US non valido", QMessageBox.Ok)
 
@@ -185,13 +184,13 @@ class Pyarchinit_pyqgis(QDialog):
                 # self.USLayerId = layerUS.getLayerID()
                 style_path = ('%s%s') % (self.LAYER_STYLE_PATH_SPATIALITE, 'quote_us_view.qml')
                 layerQUOTE.loadNamedStyle(style_path)
-                QgsMapLayerRegistry.instance().addMapLayers([layerQUOTE], True)
+                QgsProject.instance().addMapLayers([layerQUOTE], True)
             else:
                 QMessageBox.warning(self, "TESTER", "OK Layer Quote non valido", QMessageBox.Ok)
 
         elif settings.SERVER == 'postgres':
 
-            uri = QgsDataSourceURI()
+            uri = QgsDataSourceUri()
             # set host name, port, database name, username and password
 
             uri.setConnection(settings.HOST, settings.PORT, settings.DATABASE, settings.USER, settings.PASSWORD)
@@ -210,9 +209,9 @@ class Pyarchinit_pyqgis(QDialog):
                 layerUS.setCrs(srs)
                 # self.USLayerId = layerUS.getLayersID()
                 # style_path = ('%s%s') % (self.LAYER_STYLE_PATH_SPATIALITE, 'us_caratterizzazioni.qml')
-                style_path = QtGui.QFileDialog.getOpenFileName(self, 'Open file', self.LAYER_STYLE_PATH)
+                style_path = QFileDialog.getOpenFileName(self, 'Open file', self.LAYER_STYLE_PATH)
                 layerUS.loadNamedStyle(style_path)
-                QgsMapLayerRegistry.instance().addMapLayers([layerUS], True)
+                QgsProject.instance().addMapLayers([layerUS], True)
             else:
                 QMessageBox.warning(self, "TESTER", "OK Layer US non valido", QMessageBox.Ok)
 
@@ -224,7 +223,7 @@ class Pyarchinit_pyqgis(QDialog):
                 style_path = ('%s%s') % (self.LAYER_STYLE_PATH, 'stile_quote.qml')
                 layerQUOTE.loadNamedStyle(style_path)
                 try:
-                    QgsMapLayerRegistry.instance().addMapLayers([layerQUOTE], True)
+                    QgsProject.instance().addMapLayers([layerQUOTE], True)
                 except Exception as e:
                     pass
                     # f = open('/test_ok.txt','w')
@@ -251,7 +250,7 @@ class Pyarchinit_pyqgis(QDialog):
             sqliteDB_path = os.path.join(os.sep, 'pyarchinit_DB_folder', 'pyarchinit_db.sqlite')
             db_file_path = ('%s%s') % (self.HOME, sqliteDB_path)
 
-            uri = QgsDataSourceURI()
+            uri = QgsDataSourceUri()
             uri.setDatabase(db_file_path)
 
             cont_per_string = "cont_per = '" + self.cont_per + "' OR cont_per LIKE '" + self.cont_per + "/%' OR cont_per LIKE '%/" + self.cont_per + "' OR cont_per LIKE '%/" + self.cont_per + "/%'"
@@ -266,9 +265,9 @@ class Pyarchinit_pyqgis(QDialog):
 
                 # self.USLayerId = layerUS.getLayerID()
                 # style_path = ('%s%s') % (self.LAYER_STYLE_PATH_SPATIALITE, 'us_view.qml')
-                style_path = QtGui.QFileDialog.getOpenFileName(self, 'Open file', self.LAYER_STYLE_PATH)
+                style_path = QFileDialog.getOpenFileName(self, 'Open file', self.LAYER_STYLE_PATH)
                 layerUS.loadNamedStyle(style_path)
-                QgsMapLayerRegistry.instance().addMapLayers([layerUS], True)
+                QgsProject.instance().addMapLayers([layerUS], True)
             else:
                 QMessageBox.warning(self, "TESTER", "OK Layer US non valido", QMessageBox.Ok)
 
@@ -279,10 +278,10 @@ class Pyarchinit_pyqgis(QDialog):
                 # self.USLayerId = layerUS.getLayerID()
                 style_path = ('%s%s') % (self.LAYER_STYLE_PATH_SPATIALITE, 'quote_us_view.qml')
                 layerQUOTE.loadNamedStyle(style_path)
-                QgsMapLayerRegistry.instance().addMapLayers([layerQUOTE], True)
+                QgsProject.instance().addMapLayers([layerQUOTE], True)
 
         elif settings.SERVER == 'postgres':
-            uri = QgsDataSourceURI()
+            uri = QgsDataSourceUri()
             # set host name, port, database name, username and password
             uri.setConnection(settings.HOST, settings.PORT, settings.DATABASE, settings.USER, settings.PASSWORD)
             # cont_per_string =  "cont_per = '" + self.cont_per + "' OR cont_per LIKE '" + self.cont_per + "/%' OR cont_per LIKE '%/" + self.cont_per + "' OR cont_per LIKE '%/" + self.cont_per + "/%'"
@@ -293,9 +292,9 @@ class Pyarchinit_pyqgis(QDialog):
                 layerUS.setCrs(srs)
                 # self.USLayerId = layerUS.getLayerID()
                 # style_path = ('%s%s') % (self.LAYER_STYLE_PATH, 'us_caratterizzazioni.qml')
-                style_path = QtGui.QFileDialog.getOpenFileName(self, 'Open file', self.LAYER_STYLE_PATH)
+                style_path = QFileDialog.getOpenFileName(self, 'Open file', self.LAYER_STYLE_PATH)
                 layerUS.loadNamedStyle(style_path)
-                QgsMapLayerRegistry.instance().addMapLayers([layerUS], True)
+                QgsProject.instance().addMapLayers([layerUS], True)
             uri.setDataSource("public", "pyarchinit_quote_view", "the_geom", cont_per_string, "gid")
             layerQUOTE = QgsVectorLayer(uri.uri(), "Quote Unita' Stratigrafiche", "postgres")
             if layerQUOTE.isValid():
@@ -303,7 +302,7 @@ class Pyarchinit_pyqgis(QDialog):
                 style_path = ('%s%s') % (self.LAYER_STYLE_PATH, 'stile_quote.qml')
                 layerQUOTE.loadNamedStyle(style_path)
                 try:
-                    QgsMapLayerRegistry.instance().addMapLayers([layerQUOTE], True)
+                    QgsProject.instance().addMapLayers([layerQUOTE], True)
                 except Exception as e:
                     pass
                     # f = open('/test_ok.txt','w')
@@ -338,7 +337,7 @@ class Pyarchinit_pyqgis(QDialog):
         settings.set_configuration()
 
         if settings.SERVER == 'postgres':
-            uri = QgsDataSourceURI()
+            uri = QgsDataSourceUri()
             # set host name, port, database name, username and password
 
             uri.setConnection(settings.HOST, settings.PORT, settings.DATABASE, settings.USER, settings.PASSWORD)
@@ -351,8 +350,8 @@ class Pyarchinit_pyqgis(QDialog):
                 # self.USLayerId = layerUS.getLayerID()
                 # style_path = ('%s%s') % (self.LAYER_STYLE_PATH, 'us_caratterizzazioni.qml')
                 # layerUS.loadNamedStyle(style_path)
-                QgsMapLayerRegistry.instance().addMapLayers([layerUS], False)
-                layerToSet.append(QgsMapCanvasLayer(layerUS, True, False))
+                QgsProject.instance().addMapLayers([layerUS], False)
+                layerToSet.append(layerUS)
 
                 # layerQuote
             uri.setDataSource("public", "pyarchinit_quote_view", "the_geom", gidstr, "id_us")
@@ -361,15 +360,15 @@ class Pyarchinit_pyqgis(QDialog):
             if layerQUOTE.isValid():
                 # style_path = ('%s%s') % (self.LAYER_STYLE_PATH, 'stile_quote.qml')
                 # layerQUOTE.loadNamedStyle(style_path)
-                QgsMapLayerRegistry.instance().addMapLayers([layerQUOTE], False)
-                layerToSet.append(QgsMapCanvasLayer(layerQUOTE, True, False))
+                QgsProject.instance().addMapLayers([layerQUOTE], False)
+                layerToSet.append(layerQUOTE)
 
             return layerToSet
 
         elif settings.SERVER == 'sqlite':
             sqliteDB_path = os.path.join(os.sep, 'pyarchinit_DB_folder', 'pyarchinit_db.sqlite')
             db_file_path = ('%s%s') % (self.HOME, sqliteDB_path)
-            uri = QgsDataSourceURI()
+            uri = QgsDataSourceUri()
             uri.setDatabase(db_file_path)
 
             # layerQuote
@@ -380,8 +379,8 @@ class Pyarchinit_pyqgis(QDialog):
                 ###QMessageBox.warning(self, "TESTER", "OK Layer Quote valido",#QMessageBox.Ok)
                 style_path = ('%s%s') % (self.LAYER_STYLE_PATH_SPATIALITE, 'quote_us_view.qml')
                 layerQUOTE.loadNamedStyle(style_path)
-                QgsMapLayerRegistry.instance().addMapLayers([layerQUOTE], False)
-                layerToSet.append(QgsMapCanvasLayer(layerQUOTE, True, False))
+                QgsProject.instance().addMapLayers([layerQUOTE], False)
+                layerToSet.append(layerQUOTE)
             else:
                 pass
                 # QMessageBox.warning(self, "TESTER", "OK Layer Quote non valido",	 #QMessageBox.Ok)
@@ -393,8 +392,8 @@ class Pyarchinit_pyqgis(QDialog):
                 # QMessageBox.warning(self, "TESTER", "OK ayer US valido",	 #QMessageBox.Ok)
                 style_path = ('%s%s') % (self.LAYER_STYLE_PATH_SPATIALITE, 'us_view.qml')
                 layerUS.loadNamedStyle(style_path)
-                QgsMapLayerRegistry.instance().addMapLayers([layerUS], False)
-                layerToSet.append(QgsMapCanvasLayer(layerUS, True, False))
+                QgsProject.instance().addMapLayers([layerUS], False)
+                layerToSet.append(layerQUOTE)
             else:
                 pass
                 # QMessageBox.warning(self, "TESTER", "NOT! Layer US not valid",#QMessageBox.Ok)
