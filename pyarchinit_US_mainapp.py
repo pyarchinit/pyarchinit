@@ -572,10 +572,10 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
 
             QMessageBox.warning(self, "layer to set", str(layerToSet), QMessageBox.Ok)
 
-            self.mapPreview.setLayerSet(layerToSet)
+            self.mapPreview.setLayers(layerToSet)
             self.mapPreview.zoomToFullExtent()
         elif mode == 1:
-            self.mapPreview.setLayerSet([])
+            self.mapPreview.setLayers([])
             self.mapPreview.zoomToFullExtent()
 
     def loadMediaPreview(self, mode=0):

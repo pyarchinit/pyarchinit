@@ -325,11 +325,11 @@ class pyarchinit_Tafonomia(QDialog, MAIN_DIALOG_CLASS):
             gidstr = self.ID_TABLE + " = " + str(
                 eval("self.DATA_LIST[int(self.REC_CORR)]." + self.ID_TABLE))
             layerToSet = self.pyQGIS.loadMapPreview(gidstr)
-            self.mapPreview.setLayerSet(layerToSet)
+            self.mapPreview.setLayers(layerToSet)
             self.mapPreview.zoomToFullExtent()
 
         elif mode == 1:
-            self.mapPreview.setLayerSet([])
+            self.mapPreview.setLayers([])
             self.mapPreview.zoomToFullExtent()
 
     def loadMediaPreview(self, mode=0):

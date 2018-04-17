@@ -19,29 +19,21 @@
  *                                                                         *
  ***************************************************************************/
 """
+from __future__ import absolute_import
+from builtins import str
 import os
 
-from  pyarchinit_error_check import *
-from  pyarchinit_utility import *
+from pyarchinit_error_check import *
+from pyarchinit_utility import *
 
-from modules.db.pyarchinit_conn_strings import Connection
-from modules.db.pyarchinit_db_manager import Pyarchinit_db_management
-from modules.gis.pyarchinit_pyqgis import Pyarchinit_pyqgis
-from modules.gui.pyarchinit_preview_doc_gui import Ui_DialogPreviewDoc
+from .modules.db.pyarchinit_conn_strings import Connection
+from .modules.db.pyarchinit_db_manager import Pyarchinit_db_management
+from .modules.gis.pyarchinit_pyqgis import Pyarchinit_pyqgis
 
-try:
-    from qgis.core import *
-    from qgis.gui import *
-except:
-    pass
-
-try:
-    from  pyarchinit_db_manager import *
-except:
-    pass
+MAIN_DIALOG_CLASS, _ = loadUiType(os.path.join(os.path.dirname(__file__), 'modules', 'gui', 'pyarchinit_preview_doc_gui.ui'))
 
 
-class pyarchinit_doc_preview(QDialog, Ui_DialogPreviewDoc):
+class pyarchinit_doc_preview(QDialog, MAIN_DIALOG_CLASS):
     MSG_BOX_TITLE = "pyArchInit - Scheda Sistema Preview Documentazione"
     DB_MANAGER = ""
     DATA_LIST = ""
@@ -59,12 +51,11 @@ class pyarchinit_doc_preview(QDialog, Ui_DialogPreviewDoc):
     QUANT_PATH = ('%s%s%s') % (HOME, os.sep, "pyarchinit_Quantificazioni_folder")
 
     def __init__(self, iface, docstr):
+        super().__init__()
         self.iface = iface
-        self.pyQGIS = Pyarchinit_pyqgis(self.iface)
-        self.DOC_STR = docstr
-
-        QDialog.__init__(self)
+        self.pyQGIS = Pyarchinit_pyqgis(iface)
         self.setupUi(self)
+        self.DOC_STR = docstr
 
         self.mapPreview = QgsMapCanvas(self)
         self.mapPreview.setCanvasColor(QColor(255, 255, 255))
@@ -78,7 +69,6 @@ class pyarchinit_doc_preview(QDialog, Ui_DialogPreviewDoc):
             pass
 
     def DB_connect(self):
-        from pyarchinit_conn_strings import *
         conn = Connection()
         conn_str = conn.conn_str()
 
@@ -95,7 +85,7 @@ class pyarchinit_doc_preview(QDialog, Ui_DialogPreviewDoc):
         self.layerToSet = self.pyQGIS.loadMapPreviewDoc(self.DOC_STR)
         self.vlayer = self.layerToSet[0].layer()
 
-        self.mapPreview.setLayerSet(self.vlayer)
+        self.mapPreview.setLayers(self.vlayer)
         self.mapPreview.zoomToFullExtent()
 
         QMessageBox.warning(self, "layer to set", str(self.layerToSet), QMessageBox.Ok)
