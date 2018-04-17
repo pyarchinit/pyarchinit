@@ -1705,7 +1705,7 @@ class Order_layer_v2(object):
                 return self.order_dict
             elif self.order_count >= 50:
                 test = 1
-                QMessageBox.warning(self, "Errore", str(self.order_count), QMessageBox.Ok)
+                QMessageBox.warning(None, "Errore", str(self.order_count), QMessageBox.Ok)
 
                 return "error"
             else:
