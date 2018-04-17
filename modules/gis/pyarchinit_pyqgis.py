@@ -24,9 +24,9 @@ import os
 from builtins import object
 from builtins import range
 from builtins import str
-from qgis.PyQt.QtWidgets import QDialog, QMessageBox
-from qgis.core import *
-from qgis.gui import *
+from qgis.PyQt.QtWidgets import QDialog, QMessageBox, QFileDialog
+from qgis.core import QgsProject, QgsDataSourceUri, QgsVectorLayer, QgsCoordinateReferenceSystem
+from qgis.gui import QgsMapCanvas
 
 from .settings import Settings
 
@@ -168,7 +168,7 @@ class Pyarchinit_pyqgis(QDialog):
                 layerUS.setCrs(srs)
                 # self.USLayerId = layerUS.getLayerID()
                 # style_path = ('%s%s') % (self.LAYER_STYLE_PATH, 'us_caratterizzazioni.qml')
-                style_path = QtGui.QFileDialog.getOpenFileName(self, 'Open file', self.LAYER_STYLE_PATH)
+                style_path = QFileDialog.getOpenFileName(self, 'Open file', self.LAYER_STYLE_PATH)
                 layerUS.loadNamedStyle(style_path)
                 QgsProject.instance().addMapLayers([layerUS], True)
 
@@ -255,7 +255,7 @@ class Pyarchinit_pyqgis(QDialog):
                 layerUS.setCrs(srs)
                 # self.USLayerId = layerUS.getLayersID()
                 # style_path = ('%s%s') % (self.LAYER_STYLE_PATH, 'us_caratterizzazioni.qml')
-                style_path = QtGui.QFileDialog.getOpenFileName(self, 'Open file', self.LAYER_STYLE_PATH)
+                style_path = QFileDialog.getOpenFileName(self, 'Open file', self.LAYER_STYLE_PATH)
                 layerUS.loadNamedStyle(style_path)
                 QgsProject.instance().addMapLayers([layerUS], True)
             else:
@@ -678,7 +678,7 @@ class Pyarchinit_pyqgis(QDialog):
                 layerUS.setCrs(srs)
                 # self.USLayerId = layerUS.getLayersID()
                 # style_path = ('%s%s') % (self.LAYER_STYLE_PATH, 'us_caratterizzazioni.qml')
-                style_path = QtGui.QFileDialog.getOpenFileName(self, 'Open file', self.LAYER_STYLE_PATH)
+                style_path = QFileDialog.getOpenFileName(self, 'Open file', self.LAYER_STYLE_PATH)
                 layerUS.loadNamedStyle(style_path)
                 QgsProject.instance().addMapLayers([layerUS], True)
             else:
@@ -767,7 +767,7 @@ class Pyarchinit_pyqgis(QDialog):
                 layerUS.setCrs(srs)
                 # self.USLayerId = layerUS.getLayerID()
                 # style_path = ('%s%s') % (self.LAYER_STYLE_PATH, 'us_caratterizzazioni.qml')
-                style_path = QtGui.QFileDialog.getOpenFileName(self, 'Open file', self.LAYER_STYLE_PATH)
+                style_path = QFileDialog.getOpenFileName(self, 'Open file', self.LAYER_STYLE_PATH)
                 layerUS.loadNamedStyle(style_path)
                 QgsProject.instance().addMapLayers([layerUS], True)
             else:
