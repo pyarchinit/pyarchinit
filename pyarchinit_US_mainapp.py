@@ -28,7 +28,7 @@ from qgis.PyQt.QtWidgets import QDialog, QMessageBox, QListWidget, QListView, QF
     QTableWidgetItem, QListWidgetItem
 from qgis.PyQt.uic import loadUiType
 from qgis.core import Qgis
-from qgis.gui import QgsMapCanvas
+from qgis.gui import QgsMapCanvas, QgsMapToolPan
 
 from .modules.db.pyarchinit_conn_strings import Connection
 from .modules.db.pyarchinit_db_manager import Pyarchinit_db_management
