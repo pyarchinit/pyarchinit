@@ -570,7 +570,7 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
                 eval("self.DATA_LIST[int(self.REC_CORR)]." + self.ID_TABLE))
             layerToSet = self.pyQGIS.loadMapPreview(gidstr)
 
-            QMessageBox.warning(self, "layer to set", str(layerToSet), QMessageBox.Ok)
+            QMessageBox.warning(self, "layer to set", '\n'.join([l.name() for l in layerToSet]), QMessageBox.Ok)
 
             self.mapPreview.setLayers(layerToSet)
             self.mapPreview.zoomToFullExtent()
