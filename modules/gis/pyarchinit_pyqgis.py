@@ -1359,16 +1359,12 @@ class Pyarchinit_pyqgis(QDialog):
         elif settings.SERVER == 'postgres':
 
             uri = QgsDataSourceUri()
-
             uri.setConnection(settings.HOST, settings.PORT, settings.DATABASE, settings.USER, settings.PASSWORD)
 
             gidstr = "sito_nome= '" + str(data[0].sito) + "'"
             if len(data) > 1:
                 for i in range(len(data)):
                     gidstr += " OR sito_nome = '" + str(data[i].sito) + "'"
-
-            uri = QgsDataSourceUri()
-            uri.setDatabase(db_file_path)
 
             uri.setDataSource('', 'pyarchinit_site_view', 'the_geom', gidstr, "ROWID")
             layerSITE = QgsVectorLayer(uri.uri(), 'pyarchinit_site_view', 'postgres')
