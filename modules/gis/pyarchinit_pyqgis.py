@@ -1069,8 +1069,8 @@ class Pyarchinit_pyqgis(QDialog):
 
             uri = QgsDataSourceUri()
             # set host name, port, database name, username and password
-
             uri.setConnection(settings.HOST, settings.PORT, settings.DATABASE, settings.USER, settings.PASSWORD)
+            srs = QgsCoordinateReferenceSystem(self.SRS, QgsCoordinateReferenceSystem.PostgisCrsId)
 
             for option in self.options:
                 layer_name = self.LAYERS_DIZ[option]
@@ -1083,6 +1083,7 @@ class Pyarchinit_pyqgis(QDialog):
                 layer = eval(cmq_set_vector_layer)
 
                 if layer.isValid():
+                    layer.setCrs(srs)
                     # self.USLayerId = layerUS.getLayerID()
                     ##style_path = ('%s%s') % (self.LAYER_STYLE_PATH_SPATIALITE, 'us_view.qml')
                     ##ayerUS.loadNamedStyle(style_path)
@@ -1218,8 +1219,8 @@ class Pyarchinit_pyqgis(QDialog):
         elif settings.SERVER == 'postgres':
 
             uri = QgsDataSourceUri()
-
             uri.setConnection(settings.HOST, settings.PORT, settings.DATABASE, settings.USER, settings.PASSWORD)
+            srs = QgsCoordinateReferenceSystem(self.SRS, QgsCoordinateReferenceSystem.PostgisCrsId)
 
             for option in self.options:
                 layer_name = self.LAYERS_DIZ[option]
@@ -1234,6 +1235,7 @@ class Pyarchinit_pyqgis(QDialog):
                 layer = eval(cmq_set_vector_layer)
 
                 if layer.isValid():
+                    layer.setCrs(srs)
                     # self.USLayerId = layerUS.getLayerID()
                     ##style_path = ('%s%s') % (self.LAYER_STYLE_PATH_SPATIALITE, 'us_view.qml')
                     ##ayerUS.loadNamedStyle(style_path)
@@ -1253,6 +1255,7 @@ class Pyarchinit_pyqgis(QDialog):
             layer = eval(cmq_set_vector_layer)
 
             if layer.isValid():
+                layer.setCrs(srs)
                 QgsProject.instance().addMapLayers([layer], True)
             else:
                 QMessageBox.warning(self, "TESTER", "Layer non valido", QMessageBox.Ok)
@@ -1268,6 +1271,7 @@ class Pyarchinit_pyqgis(QDialog):
             layer = eval(cmq_set_vector_layer)
 
             if layer.isValid():
+                layer.setCrs(srs)
                 QgsProject.instance().addMapLayers([layer], True)
             else:
                 QMessageBox.warning(self, "TESTER", "Layer non valido", QMessageBox.Ok)
@@ -1283,6 +1287,7 @@ class Pyarchinit_pyqgis(QDialog):
             layer = eval(cmq_set_vector_layer)
 
             if layer.isValid():
+                layer.setCrs(srs)
                 QgsProject.instance().addMapLayers([layer], True)
             else:
                 QMessageBox.warning(self, "TESTER", "Layer non valido", QMessageBox.Ok)
@@ -1298,6 +1303,7 @@ class Pyarchinit_pyqgis(QDialog):
             layer = eval(cmq_set_vector_layer)
 
             if layer.isValid():
+                layer.setCrs(srs)
                 QgsProject.instance().addMapLayers([layer], True)
             else:
                 QMessageBox.warning(self, "TESTER", "Layer non valido", QMessageBox.Ok)
@@ -1313,6 +1319,7 @@ class Pyarchinit_pyqgis(QDialog):
             layer = eval(cmq_set_vector_layer)
 
             if layer.isValid():
+                layer.setCrs(srs)
                 QgsProject.instance().addMapLayers([layer], True)
             else:
                 QMessageBox.warning(self, "TESTER", "Layer non valido", QMessageBox.Ok)
