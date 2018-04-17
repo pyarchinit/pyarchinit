@@ -1129,7 +1129,7 @@ class Pyarchinit_pyqgis(QDialog):
                     self.iface.mapCanvas().setExtent(layer.extent())
                     QgsProject.instance().addMapLayers([layer], True)
                 else:
-                    QMessageBox.warning(self, "TESTER", "Layer non valido", QMessageBox.Ok)
+                    QMessageBox.warning(self, "TESTER", "Layer non valido: {}".format(layer.name()), QMessageBox.Ok)
 
                     # pyunitastratigrafiche e pyarchinit_quote nn possono essere aggiornate dinamicamente perche non hanno il campo sito. Da moficare?
             layer_name = 'pyunitastratigrafiche'

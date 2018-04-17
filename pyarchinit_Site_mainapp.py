@@ -623,7 +623,7 @@ class pyarchinit_Site(QDialog, MAIN_DIALOG_CLASS):
 
     def on_pushButton_sites_geometry_pressed(self):
         sito = str(self.comboBox_sito.currentText())
-        self.pyQGIS.charge_sites_geometry(["1", "2", "3", "4", "5", "7", "8", "9", "10", "11", "12", "13", "14", "16"],
+        self.pyQGIS.charge_sites_geometry(["1", "2", "3", "4", "8"],
                                           "sito", sito)
 
     def on_pushButton_draw_sito_pressed(self):
