@@ -1692,7 +1692,8 @@ class Order_layer_v2(object):
             matrix_us_equal_level = []
             for r in res:
                 matrix_us_equal_level.append(str(r.us))
-            if bool(matrix_us_equal_level):
+
+            if matrix_us_equal_level:
                 self.insert_into_dict(matrix_us_equal_level, 1)
                 # se res bool == True
 
@@ -1707,7 +1708,8 @@ class Order_layer_v2(object):
             matrix_us_level = []
             for r in res:
                 matrix_us_level.append(str(r.us))
-            if not bool(matrix_us_level):
+
+            if not matrix_us_level:
                 test = 1
                 return self.order_dict
             elif self.order_count >= 50:
@@ -1717,8 +1719,6 @@ class Order_layer_v2(object):
                 return "error"
             else:
                 self.insert_into_dict(matrix_us_level, 1)
-
-                # print bool()
 
     def find_base_matrix(self):
         res = self.db.select_not_like_from_db_sql(self.SITO, self.AREA)
