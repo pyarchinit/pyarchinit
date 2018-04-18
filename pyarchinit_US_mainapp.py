@@ -907,7 +907,7 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
             order_number = ""
             us = ""
             try:
-                for k, v in list(order_layer_dict.items()):
+                for k, v in order_layer_dict.items():
                     order_number = str(k)
                     us = v
                     for sing_us in v:
@@ -1005,7 +1005,7 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
             order_number = ""
             us = ""
             try:
-                for k, v in list(order_layer_dict.items()):
+                for k, v in order_layer_dict.items():
                     order_number = str(k)
                     us = v
                     for sing_us in v:
