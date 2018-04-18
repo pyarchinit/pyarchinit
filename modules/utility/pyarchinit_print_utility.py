@@ -25,6 +25,8 @@ from builtins import range
 from builtins import object
 import os
 
+from qgis.core import QgsProject, QgsDataSourceUri, QgsVectorLayer, QgsCoordinateReferenceSystem, QgsFeature, QgsRectangle
+
 from .settings import Settings
 
 
@@ -316,12 +318,12 @@ class Print_utility(object):
         conf.close()
         settings = Settings(con_sett)
         settings.set_configuration()
-        self.uri = QgsDataSourceURI()
+        self.uri = QgsDataSourceUri()
         self.uri.setConnection(settings.HOST, settings.PORT, settings.DATABASE, settings.USER, settings.PASSWORD)
 
     def remove_layer(self):
         if self.USLayerId != "":
-            QgsMapLayerRegistry.instance().removeMapLayer(self.USLayerId)
+            QgsProject.instance().removeMapLayer(self.USLayerId)
             self.USLayerId = ""
 
         ##		if self.CLayerId != "":
@@ -329,7 +331,7 @@ class Print_utility(object):
         ##			self.CLayerId = ""
 
         if self.QuoteLayerId != "":
-            QgsMapLayerRegistry.instance().removeMapLayer(self.QuoteLayerId)
+            QgsProject.instance().removeMapLayer(self.QuoteLayerId)
             self.QuoteLayerId = ""
             # sperimentale da riattivare
         ##		if self.GrigliaLayerId != "":
@@ -345,7 +347,7 @@ class Print_utility(object):
 
         gidstr = ("scavo_s = '%s' and area_s = '%s' and us_s = '%d'") % (sito, area, us)
 
-        uri = QgsDataSourceURI()
+        uri = QgsDataSourceUri()
         uri.setDatabase(db_file_path)
 
         uri.setDataSource('', 'pyarchinit_us_view', 'the_geom', gidstr, "ROWID")
@@ -358,7 +360,7 @@ class Print_utility(object):
             style_path = ('%s%s') % (self.LAYER_STYLE_PATH_SPATIALITE, 'us_view.qml')
             self.layerUS.loadNamedStyle(style_path)
             self.iface.mapCanvas().setExtent(self.layerUS.extent())
-            QgsMapLayerRegistry.instance().addMapLayer(self.layerUS, True)
+            QgsProject.instance().addMapLayer(self.layerUS, True)
         else:
             return 0
             # QMessageBox.warning(self, "Messaggio", "Geometria inesistente", QMessageBox.Ok)
@@ -374,7 +376,7 @@ class Print_utility(object):
             # self.mapLayerRegistry.append(QuoteLayerId)
             style_path = ('%s%s') % (self.LAYER_STYLE_PATH_SPATIALITE, 'stile_quote.qml')
             self.layerQuote.loadNamedStyle(style_path)
-            QgsMapLayerRegistry.instance().addMapLayer(self.layerQuote, True)
+            QgsProject.instance().addMapLayer(self.layerQuote, True)
 
             # SPERIMENTALE DA RIATTIVARE
         ##		gidstr = ("sito = '%s' AND def_punto = 'Griglia'") % (sito)
@@ -408,7 +410,7 @@ class Print_utility(object):
             style_path = ('%s%s') % (self.LAYER_STYLE_PATH, 'us_caratterizzazioni.qml')
             self.layerUS.loadNamedStyle(style_path)
             self.iface.mapCanvas().setExtent(self.layerUS.extent())
-            QgsMapLayerRegistry.instance().addMapLayer(self.layerUS, True)
+            QgsProject.instance().addMapLayer(self.layerUS, True)
         else:
             return 0
 
@@ -423,7 +425,7 @@ class Print_utility(object):
             # self.mapLayerRegistry.append(QuoteLayerId)
             style_path = ('%s%s') % (self.LAYER_STYLE_PATH, 'stile_quote.qml')
             self.layerQuote.loadNamedStyle(style_path)
-            QgsMapLayerRegistry.instance().addMapLayer(self.layerQuote, True)
+            QgsProject.instance().addMapLayer(self.layerQuote, True)
 
 # SPERIMENTALE DA RIATTIVARE
 ##		gidstr = ("sito = '%s' AND def_punto = 'Griglia'") % (sito)
