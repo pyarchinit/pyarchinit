@@ -1563,7 +1563,7 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
         self.fill_fields()
         self.BROWSE_STATUS = "b"
         self.label_status.setText(self.STATUS_ITEMS[self.BROWSE_STATUS])
-        if type(self.REC_CORR) == "<type 'str'>":
+        if type(self.REC_CORR) == "<class 'str'>":
             corr = 0
         else:
             corr = self.REC_CORR
