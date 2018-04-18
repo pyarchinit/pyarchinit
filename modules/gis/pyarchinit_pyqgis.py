@@ -1734,7 +1734,7 @@ class Order_layer_v2(object):
         value_list_to_find = []
         for sing_value in self.value_list:
             for sing_rapp in self.rapp_type_list:
-                sql_query_string = "[u'%s', u'%s']" % (sing_rapp, sing_value)  # funziona!!!
+                sql_query_string = "['%s', '%s']" % (sing_rapp, sing_value)  # funziona!!!
                 value_list_to_find.append(sql_query_string)
         return value_list_to_find
 
