@@ -355,7 +355,7 @@ class Print_utility(object):
 
         if self.layerUS.isValid():
             self.layerUS.setCrs(srs)
-            self.USLayerId = self.layerUS.getLayerID()
+            self.USLayerId = self.layerUS.id()
             # self.mapLayerRegistry.append(USLayerId)
             style_path = ('%s%s') % (self.LAYER_STYLE_PATH_SPATIALITE, 'us_view.qml')
             self.layerUS.loadNamedStyle(style_path)
@@ -372,7 +372,7 @@ class Print_utility(object):
 
         if self.layerQuote.isValid():
             self.layerQuote.setCrs(srs)
-            self.QuoteLayerId = self.layerQuote.getLayerID()
+            self.QuoteLayerId = self.layerQuote.id()
             # self.mapLayerRegistry.append(QuoteLayerId)
             style_path = ('%s%s') % (self.LAYER_STYLE_PATH_SPATIALITE, 'stile_quote.qml')
             self.layerQuote.loadNamedStyle(style_path)
@@ -405,7 +405,7 @@ class Print_utility(object):
 
         if self.layerUS.isValid():
             self.layerUS.setCrs(srs)
-            self.USLayerId = self.layerUS.getLayerID()
+            self.USLayerId = self.layerUS.id()
             # self.mapLayerRegistry.append(USLayerId)
             style_path = ('%s%s') % (self.LAYER_STYLE_PATH, 'us_caratterizzazioni.qml')
             self.layerUS.loadNamedStyle(style_path)
@@ -421,7 +421,7 @@ class Print_utility(object):
 
         if self.layerQuote.isValid():
             self.layerQuote.setCrs(srs)
-            self.QuoteLayerId = self.layerQuote.getLayerID()
+            self.QuoteLayerId = self.layerQuote.id()
             # self.mapLayerRegistry.append(QuoteLayerId)
             style_path = ('%s%s') % (self.LAYER_STYLE_PATH, 'stile_quote.qml')
             self.layerQuote.loadNamedStyle(style_path)
