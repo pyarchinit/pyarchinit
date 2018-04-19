@@ -20,7 +20,10 @@
  ***************************************************************************/
 """
 import os
-import pygraphviz as p
+try:
+    import pygraphviz as p
+except:
+    pass
 
 
 class HARRIS_MATRIX_EXP:
