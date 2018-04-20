@@ -20,27 +20,38 @@
  ***************************************************************************/
 """
 
-from builtins import str
-from builtins import range
-from builtins import object
 import os
 
-from qgis.core import QgsProject, QgsDataSourceUri, QgsVectorLayer, QgsCoordinateReferenceSystem, QgsFeature, QgsRectangle
+from builtins import range
+from builtins import str
+from qgis.PyQt.QtCore import QRectF, pyqtSignal, QObject
+from qgis.PyQt.QtWidgets import QMessageBox
+from qgis.core import (QgsProject,
+                       QgsDataSourceUri,
+                       QgsVectorLayer,
+                       QgsCoordinateReferenceSystem,
+                       QgsRectangle,
+                       QgsLayout,
+                       QgsLayoutSize,
+                       QgsLayoutItemMap,
+                       QgsLayoutPoint,
+                       QgsLayoutItemLabel,
+                       QgsLayoutItemScaleBar,
+                       QgsLayoutExporter)
 
 from .settings import Settings
 
 
-# from ui_tester import Ui_tester
-# create the dialog for zoom to point
+class Print_utility(QObject):
+    prograssBarUpdated = pyqtSignal(int, int)
 
-class Print_utility(object):
     if os.name == 'posix':
         HOME = os.environ['HOME']
     elif os.name == 'nt':
         HOME = os.environ['HOMEPATH']
     FILEPATH = os.path.dirname(__file__)
-    LAYER_STYLE_PATH = ('%s%s%s%s') % (FILEPATH, os.sep, 'styles', os.sep)
-    LAYER_STYLE_PATH_SPATIALITE = ('%s%s%s%s') % (FILEPATH, os.sep, 'styles_spatialite', os.sep)
+    LAYER_STYLE_PATH = '{}{}{}{}'.format(FILEPATH, os.sep, 'styles', os.sep)
+    LAYER_STYLE_PATH_SPATIALITE = '{}{}{}{}'.format(FILEPATH, os.sep, 'styles_spatialite', os.sep)
     SRS = 3004
 
     layerUS = ""
@@ -61,6 +72,7 @@ class Print_utility(object):
     uri = ""
 
     def __init__(self, iface, data):
+        super().__init__()
         self.iface = iface
         self.data = data
         # self.area = area
@@ -76,9 +88,6 @@ class Print_utility(object):
 
     def first_batch_try(self, server):
         self.server = server
-        ##		f = open("C:\Users\Windows\pyarchinit_Report_folder\test.txt", "w")
-        ##		f.write(str(server))
-        ##		f.close()
         if self.server == 'postgres':
             for i in range(len(self.data)):
                 test = self.charge_layer_postgis(self.data[i].sito, self.data[i].area, self.data[i].us)
@@ -88,13 +97,14 @@ class Print_utility(object):
                         self.test_bbox()
                         tav_num = i
                         self.print_map(tav_num)
+                        self.prograssBarUpdated.emit(i, len(self.data))
                     else:
                         self.remove_layer()
-            if test == 0:
-                Report_path = ('%s%s%s') % (self.HOME, os.sep, "pyarchinit_Report_folder/report_errori.txt")
-                f = open(Report_path, "w")
-                f.write(str("Presenza di errori nel layer"))
-                f.close()
+                if test == 0:
+                    Report_path = '{}{}{}'.format(self.HOME, os.sep, "pyarchinit_Report_folder/report_errori.txt")
+                    f = open(Report_path, "w")
+                    f.write(str("Presenza di errori nel layer"))
+                    f.close()
 
         elif self.server == 'sqlite':
             for i in range(len(self.data)):
@@ -105,6 +115,7 @@ class Print_utility(object):
                         self.test_bbox()
                         tav_num = i
                         self.print_map(tav_num)
+                        self.prograssBarUpdated.emit(i, len(self.data))
                     else:
                         self.remove_layer()
                 else:
@@ -128,13 +139,13 @@ class Print_utility(object):
         # ff.close()
 
         self.layerUS.select([])  # recuperi tutte le geometrie senza attributi
-        featPoly = QgsFeature()  # crei una feature vuota per il poligono
+        #  featPoly = QgsFeature()  # crei una feature vuota per il poligono
 
         dizionario_id_contains = {}
         lista_quote = []
 
-        self.layerUS.nextFeature(
-            featPoly)  # cicli sulle feature recuperate, featPoly conterra la feature poligonale attuale
+        it = self.layerUS.getFeatures()
+        featPoly = next(it)  # cicli sulle feature recuperate, featPoly conterra la feature poligonale attuale
         bbox = featPoly.geometry().boundingBox()  # recupera i punti nel bbox del poligono
         self.height = self.converter_1_20(float(bbox.height())) * 10  # la misura da cm e' portata in mm
         self.width = self.converter_1_20(float(bbox.width())) * 10  # la misura da cm e' portata in mm
@@ -171,144 +182,84 @@ class Print_utility(object):
     def print_map(self, tav_num):
         self.tav_num = tav_num
 
-        mapRenderer = self.iface.mapCanvas().mapRenderer()
+        p = QgsProject.instance()
+        crs = QgsCoordinateReferenceSystem()
+        crs.createFromSrid(self.SRS)
+        p.setCrs(crs)
 
-        c = QgsComposition(mapRenderer)
-        c.setPlotStyle(QgsComposition.Print)
+        l = QgsLayout(p)
+        l.initializeDefaults()
+        page = l.pageCollection().page(0)
 
         # map - this item tells the libraries where to put the map itself. Here we create a map and stretch it over the whole paper size:
         x, y = 0, 0  # angolo 0, o in alto a sx
 
-        if (self.width >= 0 and self.width <= 297) and (self.height >= 0 and self.height <= 210):
+        if (0 <= self.width <= 297) and (0 <= self.height <= 210):
             width, height = 297, 210  # Formato A4 Landscape
-        elif (self.height >= 0 and self.height <= 297) and (self.width >= 0 and self.width <= 210):
+        elif (0 <= self.height <= 297) and (0 <= self.width <= 210):
             width, height = 210, 297  # Formato A4
 
-        elif (self.width >= 0 and self.width <= 420) and (self.height >= 0 and self.height <= 297):
+        elif (0 <= self.width <= 420) and (0 <= self.height <= 297):
             width, height = 297, 420  # Formato A3 Landscape
-        elif (self.height >= 0 and self.height <= 420) and (self.width >= 0 and self.width <= 297):
+        elif (0 <= self.height <= 420) and (0 <= self.width <= 297):
             width, height = 240, 297  # Formato A4
 
-        elif (self.width >= 0 and self.width <= 1189) and (self.height >= 0 and self.height <= 841):
+        elif (0 <= self.width <= 1189) and (0 <= self.height <= 841):
             width, height = 1189, 841  # Formato A0 Landscape
-        elif (self.height >= 0 and self.height <= 1189) and (self.width >= 0 and self.width <= 841):
+        elif (0 <= self.height <= 1189) and (0 <= self.width <= 841):
             width, height = 841, 1189  # Formato A0
         else:
             width, height = self.width * 1.2, self.height * 1.2  # self.width*10, self.height*10 da un valore alla larghezza e altezza del foglio aumentato di 5 per dare un margine
 
-        dpi = 100  # viene settata la risoluzione di stampa
+        size = QgsLayoutSize(width, height)
+        page.setPageSize(size)
 
-        c.setPaperSize(width, height)  # setta le dimensioni della pagina
-        composerMap = QgsComposerMap(c, x, y, width,
-                                     height)  # crea un mapComposer passandogli la classere Composition che a sua volta ha incapsulato con la classe mapRenderer il canvas corrente
-        rect = self.getMapExtentFromMapCanvas(c.paperWidth(), c.paperHeight(),
-                                              20.0)  # ricava la mappa in scala da inserire nel compositore passando le dimensioni di pagina in mm e ricavandoli in punti
-        composerMap.setNewExtent(rect)  # setta l'estensione della mappa
-        c.addItem(composerMap)  # aggiunge la mappa alla composizione c
+        map = QgsLayoutItemMap(l)
 
-        intestazioneLabel = QgsComposerLabel(c)
+        rect = self.getMapExtentFromMapCanvas(page.pageSize().width(), page.pageSize().height(), 20.0)
+
+        map.attemptSetSceneRect(QRectF(0, 0, page.pageSize().width(), page.pageSize().height()))
+        map.setExtent(rect)
+        map.setLayers([self.layerUS])
+        l.setReferenceMap(map)
+        l.addLayoutItem(map)
+
+        intestazioneLabel = QgsLayoutItemLabel(l)
         txt = "Tavola %s - US:%d" % (self.tav_num + 1, self.us)
         intestazioneLabel.setText(txt)
         intestazioneLabel.adjustSizeToText()
-        # set label 1cm from the top and 2cm from the left of the page
-        # intestazioneLabel.setItemPosition(1,0)
-        # set both label's position and size (width 10cm, height 3cm)
-        intestazioneLabel.setItemPosition(1, 0)
-        # A frame is drawn around each item by default. How to remove the frame:
-        intestazioneLabel.setFrame(False)
-        c.addItem(intestazioneLabel)
+        intestazioneLabel.attemptMove(QgsLayoutPoint(1, 0), page=0)
+        intestazioneLabel.setFrameEnabled(False)
+        l.addLayoutItem(intestazioneLabel)
 
-        scaleLabel = QgsComposerLabel(c)
+        scaleLabel = QgsLayoutItemLabel(l)
         txt = "Scala: "
         scaleLabel.setText(txt)
         scaleLabel.adjustSizeToText()
-        # set label 1cm from the top and 2cm from the left of the page
-        scaleLabel.setItemPosition(1, 5)
-        # set both label's position and size (width 10cm, height 3cm)
-        # composerLabel.setItemPosition(20,10, 100, 30)
-        # A frame is drawn around each item by default. How to remove the frame:
-        scaleLabel.setFrame(False)
-        c.addItem(scaleLabel)
+        scaleLabel.attemptMove(QgsLayoutPoint(1, 5), page=0)
+        scaleLabel.setFrameEnabled(False)
+        l.addLayoutItem(scaleLabel)
 
         # aggiunge la scale bar
-        scaleBarItem = QgsComposerScaleBar(c)
+        scaleBarItem = QgsLayoutItemScaleBar(l)
         scaleBarItem.setStyle('Numeric')  # optionally modify the style
-        scaleBarItem.setComposerMap(composerMap)
+        scaleBarItem.setLinkedMap(map)
         scaleBarItem.applyDefaultSize()
-        scaleBarItem.setItemPosition(10, 5)
-        scaleBarItem.setFrame(False)
-        c.addItem(scaleBarItem)
+        scaleBarItem.attemptMove(QgsLayoutPoint(10, 5), page=0)
+        scaleBarItem.setFrameEnabled(False)
+        l.addLayoutItem(scaleBarItem)
 
-        # ff = open("/test_scaleBar.txt", "w")
-        # ff.write(str(dir(scaleBarItem)))
-        # ff.close()
+        le = QgsLayoutExporter(l)
+        settings = QgsLayoutExporter.ImageExportSettings()
+        settings.dpi = 100
 
+        MAPS_path = '{}{}{}'.format(self.HOME, os.sep, "pyarchinit_MAPS_folder")
+        tav_name = "Tavola_{}_us_{}.png".format(self.tav_num + 1, self.us)
+        filename_png = '{}{}{}'.format(MAPS_path, os.sep, tav_name)
 
-        """
-        #aggiunge la scale bar
-        scaleBarLine = QgsComposerScaleBar(c)
-        scaleBarLine.setStyle('Line Ticks Middle') # optionally modify the style
-        scaleBarLine.setUnitLabeling('m')
-        scaleBarLine.setComposerMap(composerMap)
-        scaleBarLine.applyDefaultSize()
-        scaleBarLine.setItemPosition(0,50)
-        scaleBarLine.setFrame(False)
-        c.addItem(scaleBarLine)
-        """
-
-        c.setPrintResolution(dpi)  # setta la risoluzione di stampa
-
-        # Output to a raster image
-        # The following code fragment shows how to render a composition to a raster image:
-        dpmm = dpi / 25.4  # ricava il valore dei punti per mm
-        width_point = float(dpmm * c.paperWidth())
-        height_point = float(dpmm * c.paperHeight())
-
-        # create output image and initialize it
-        image = QImage(QSize(width_point, height_point), QImage.Format_ARGB32)
-        image.setDotsPerMeterX(dpmm * 1000)
-        image.setDotsPerMeterY(dpmm * 1000)
-        image.fill(0)
-
-        # render the composition
-        imagePainter = QPainter(image)
-        sourceArea = QRectF(0, 0, c.paperWidth(),
-                            c.paperHeight())  # viene settata l'area sorgente con le misure in mm della carta
-        targetArea = QRectF(0, 0, width_point,
-                            height_point)  # viene settata l'area in cui inserire la mappa con le misure in punti per mm
-        c.render(imagePainter, targetArea, sourceArea)
-        imagePainter.end()
-
-        MAPS_path = ('%s%s%s') % (self.HOME, os.sep, "pyarchinit_MAPS_folder")
-        tav_name = ("Tavola_%d_us_%d.png") % (self.tav_num + 1, self.us)
-        filename_png = ('%s%s%s') % (MAPS_path, os.sep, tav_name)
-        image.save(str(filename_png), "png")
+        le.exportToImage(filename_png, settings)
 
         self.remove_layer()
-
-        # f = open("/test_registry.txt", "w")
-        # f.write(str(type(self.USLayerId)))
-        # f.close()
-
-        # QgsMapLayerRegistry.instance().removeMapLayer(layer_id)
-
-        # Output to PDF
-        # The following code fragment renders a composition to a PDF file:
-        """
-        printer = QPrinter()
-        printer.setOutputFormat(QPrinter.PdfFormat)
-        printer.setOutputFileName("/out.pdf")
-        printer.setPaperSize(QSizeF(self.mapWidth, self.mapHeight), QPrinter.Millimeter)
-        printer.setFullPage(True)
-        printer.setColorMode(QPrinter.Color)
-        printer.setResolution(c.printResolution())
-
-        pdfPainter = QPainter(printer)
-        paperRectMM = printer.pageRect(QPrinter.Millimeter)
-        paperRectPixel = printer.pageRect(QPrinter.DevicePixel)
-        c.render(pdfPainter, paperRectPixel, paperRectMM)
-        pdfPainter.end()
-        """
 
     def open_connection_postgis(self):
         cfg_rel_path = os.path.join(os.sep, 'pyarchinit_DB_folder', 'config.cfg')
@@ -326,26 +277,18 @@ class Print_utility(object):
             QgsProject.instance().removeMapLayer(self.USLayerId)
             self.USLayerId = ""
 
-        ##		if self.CLayerId != "":
-        ##			QgsMapLayerRegistry.instance().removeMapLayer(self.CLayerId)
-        ##			self.CLayerId = ""
-
         if self.QuoteLayerId != "":
             QgsProject.instance().removeMapLayer(self.QuoteLayerId)
             self.QuoteLayerId = ""
-            # sperimentale da riattivare
-        ##		if self.GrigliaLayerId != "":
-        ##			QgsMapLayerRegistry.instance().removeMapLayer(self.GrigliaLayerId)
-        ##			self.GrigliaLayerId = ""
 
     def charge_layer_sqlite(self, sito, area, us):
         sqliteDB_path = os.path.join(os.sep, 'pyarchinit_DB_folder', 'pyarchinit_db.sqlite')
 
-        db_file_path = ('%s%s') % (self.HOME, sqliteDB_path)
+        db_file_path = '{}{}'.format(self.HOME, sqliteDB_path)
 
         srs = QgsCoordinateReferenceSystem(3004, QgsCoordinateReferenceSystem.PostgisCrsId)
 
-        gidstr = ("scavo_s = '%s' and area_s = '%s' and us_s = '%d'") % (sito, area, us)
+        gidstr = "scavo_s = '%s' and area_s = '%s' and us_s = '%d'" % (sito, area, us)
 
         uri = QgsDataSourceUri()
         uri.setDatabase(db_file_path)
@@ -362,10 +305,11 @@ class Print_utility(object):
             self.iface.mapCanvas().setExtent(self.layerUS.extent())
             QgsProject.instance().addMapLayer(self.layerUS, True)
         else:
+            QMessageBox.warning(None, "Errore", "Non Valido", QMessageBox.Ok)
             return 0
             # QMessageBox.warning(self, "Messaggio", "Geometria inesistente", QMessageBox.Ok)
 
-        gidstr = ("sito_q = '%s' and area_q = '%s' and us_q = '%d'") % (sito, area, us)
+        gidstr = "sito_q = '%s' and area_q = '%s' and us_q = '%d'" % (sito, area, us)
 
         uri.setDataSource('', 'pyarchinit_quote_view', 'the_geom', gidstr, "ROWID")
         self.layerQuote = QgsVectorLayer(uri.uri(), 'pyarchinit_quote_view', 'spatialite')
@@ -378,26 +322,12 @@ class Print_utility(object):
             self.layerQuote.loadNamedStyle(style_path)
             QgsProject.instance().addMapLayer(self.layerQuote, True)
 
-            # SPERIMENTALE DA RIATTIVARE
-        ##		gidstr = ("sito = '%s' AND def_punto = 'Griglia'") % (sito)
-        ##
-        ##		self.uri.setDataSource("public", "pyarchinit_punti_rif", "the_geom", gidstr)
-        ##		self.layerGriglia = QgsVectorLayer(self.uri.uri(), "Quote", "postgres")
-        ##
-        ##		if self.layerGriglia.isValid() == True:
-        ##			self.layerGriglia.setCrs(srs)
-        ##			self.GrigliaLayerId =  self.layerGriglia.getLayerID()
-        ##			#self.mapLayerRegistry.append(USLayerId)
-        ##			style_path = ('%s%s') % (self.LAYER_STYLE_PATH, 'stile_griglia.qml')
-        ##			self.layerGriglia.loadNamedStyle(style_path)
-        ##			QgsMapLayerRegistry.instance().addMapLayer( self.layerGriglia, True)
-
     def charge_layer_postgis(self, sito, area, us):
         self.open_connection_postgis()
 
         srs = QgsCoordinateReferenceSystem(3004, QgsCoordinateReferenceSystem.PostgisCrsId)
 
-        gidstr = ("scavo_s = '%s' and area_s = '%s' and us_s = '%d'") % (sito, area, us)
+        gidstr = "scavo_s = '%s' and area_s = '%s' and us_s = '%d'" % (sito, area, us)
 
         self.uri.setDataSource("public", "pyarchinit_us_view", "the_geom", gidstr, 'gid')
 
@@ -414,7 +344,7 @@ class Print_utility(object):
         else:
             return 0
 
-        gidstr = ("sito_q = '%s' and area_q = '%s' and us_q = '%d'") % (sito, area, us)
+        gidstr = "sito_q = '%s' and area_q = '%s' and us_q = '%d'" % (sito, area, us)
 
         self.uri.setDataSource("public", "pyarchinit_quote", "the_geom", gidstr, 'gid')
         self.layerQuote = QgsVectorLayer(self.uri.uri(), "Quote", "postgres")
@@ -426,17 +356,3 @@ class Print_utility(object):
             style_path = ('%s%s') % (self.LAYER_STYLE_PATH, 'stile_quote.qml')
             self.layerQuote.loadNamedStyle(style_path)
             QgsProject.instance().addMapLayer(self.layerQuote, True)
-
-# SPERIMENTALE DA RIATTIVARE
-##		gidstr = ("sito = '%s' AND def_punto = 'Griglia'") % (sito)
-##
-##		self.uri.setDataSource("public", "pyarchinit_punti_rif", "the_geom", gidstr)
-##		self.layerGriglia = QgsVectorLayer(self.uri.uri(), "Quote", "postgres")
-##
-##		if self.layerGriglia.isValid() == True:
-##			self.layerGriglia.setCrs(srs)
-##			self.GrigliaLayerId =  self.layerGriglia.getLayerID()
-##			#self.mapLayerRegistry.append(USLayerId)
-##			style_path = ('%s%s') % (self.LAYER_STYLE_PATH, 'stile_griglia.qml')
-##			self.layerGriglia.loadNamedStyle(style_path)
-##			QgsMapLayerRegistry.instance().addMapLayer( self.layerGriglia, True)
