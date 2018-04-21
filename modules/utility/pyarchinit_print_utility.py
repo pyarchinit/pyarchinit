@@ -25,7 +25,7 @@ import os
 from builtins import range
 from builtins import str
 from qgis.PyQt.QtCore import QRectF, pyqtSignal, QObject
-from qgis.PyQt.QtWidgets import QMessageBox
+from qgis.PyQt.QtWidgets import QMessageBox, QApplication
 from qgis.core import (QgsProject,
                        QgsDataSourceUri,
                        QgsVectorLayer,
@@ -43,7 +43,7 @@ from .settings import Settings
 
 
 class Print_utility(QObject):
-    prograssBarUpdated = pyqtSignal(int, int)
+    progressBarUpdated = pyqtSignal(int, int)
 
     HOME = os.environ['PYARCHINIT_HOME']
     FILEPATH = os.path.dirname(__file__)
@@ -84,8 +84,8 @@ class Print_utility(QObject):
     """
 
     def first_batch_try(self, server):
-        self.server = server
-        if self.server == 'postgres':
+
+        if server == 'postgres':
             for i in range(len(self.data)):
                 test = self.charge_layer_postgis(self.data[i].sito, self.data[i].area, self.data[i].us)
                 self.us = self.data[i].us
@@ -94,7 +94,8 @@ class Print_utility(QObject):
                         self.test_bbox()
                         tav_num = i
                         self.print_map(tav_num)
-                        self.prograssBarUpdated.emit(i, len(self.data))
+                        self.progressBarUpdated.emit(i, len(self.data)-1)
+                        QApplication.processEvents()
                     else:
                         self.remove_layer()
                 if test == 0:
@@ -103,7 +104,7 @@ class Print_utility(QObject):
                     f.write(str("Presenza di errori nel layer"))
                     f.close()
 
-        elif self.server == 'sqlite':
+        elif server == 'sqlite':
             for i in range(len(self.data)):
                 test = self.charge_layer_sqlite(self.data[i].sito, self.data[i].area, self.data[i].us)
                 self.us = self.data[i].us
@@ -112,18 +113,12 @@ class Print_utility(QObject):
                         self.test_bbox()
                         tav_num = i
                         self.print_map(tav_num)
-                        self.prograssBarUpdated.emit(i, len(self.data))
+                        self.progressBarUpdated.emit(i, len(self.data)-1)
+                        QApplication.processEvents()
                     else:
                         self.remove_layer()
                 else:
                     pass
-
-            """
-            for i in self.data:
-                self.charge_layer_postgis(i.sito,i.area,i.us)
-                self.test_bbox()
-                self.print_map(i)
-            """
 
     def converter_1_20(self, n):
         n *= 100

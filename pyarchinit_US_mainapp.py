@@ -233,7 +233,7 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
         self.comboBox_per_fin.editTextChanged.connect(self.charge_fase_fin_list)
         self.comboBox_per_fin.currentIndexChanged.connect(self.charge_fase_fin_list)
 
-        self.progressBar.setValue(0)
+        self.progressBar.setTextVisible(True)
 
         sito = self.comboBox_sito.currentText()
         self.comboBox_sito.setEditText(sito)
@@ -803,7 +803,7 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
         conn_str = conn.conn_str()
         # QMessageBox.warning(self, "Messaggio", str(conn_str), QMessageBox.Ok)
         PU = Print_utility(self.iface, self.DATA_LIST)
-        PU.prograssBarUpdated.connect(self.updateProgressBar)
+        PU.progressBarUpdated.connect(self.updateProgressBar)
         if conn_str.find("postgresql") == 0:
             PU.first_batch_try("postgres")
         else:
@@ -811,8 +811,10 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
 
     @pyqtSlot(int, int)
     def updateProgressBar(self, tav, tot):
-        value = (tav/tot) * 100
+        value = (float(tav)/float(tot)) * 100
         self.progressBar.setValue(value)
+        # text = ' di '.join([str(tav), str(tot)])
+        # self.countLabel.setText(text)
 
     def on_pushButton_pdf_exp_pressed(self):
         US_pdf_sheet = generate_US_pdf()
