@@ -916,14 +916,13 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
                                                ['order_layer'], [order_number])
                         self.on_pushButton_view_all_pressed()
                     except Exception as e:
-                        msg_us_mancanti = str(
-                            e)  # msg_us_mancanti + "\n"+str(sito) + "area: " + str(area) + " us: " + (us)
+                        msg_us_mancanti = str(e)  # msg_us_mancanti + "\n"+str(sito) + "area: " + str(area) + " us: " + (us)
 
             # blocco output errori
-            filename_tipo_rapporti_mancanti = ('%s%s%s') % (self.REPORT_PATH, os.sep, 'tipo_rapporti_mancanti.txt')
-            filename_nr_rapporti_mancanti = ('%s%s%s') % (self.REPORT_PATH, os.sep, 'nr_rapporti_mancanti.txt')
-            filename_paradosso_rapporti = ('%s%s%s') % (self.REPORT_PATH, os.sep, 'paradosso_rapporti.txt')
-            filename_us_mancanti = ('%s%s%s') % (self.REPORT_PATH, os.sep, 'us_mancanti.txt')
+            filename_tipo_rapporti_mancanti = '{}{}{}'.format(self.REPORT_PATH, os.sep, 'tipo_rapporti_mancanti.txt')
+            filename_nr_rapporti_mancanti = '{}{}{}'.format(self.REPORT_PATH, os.sep, 'nr_rapporti_mancanti.txt')
+            filename_paradosso_rapporti = '{}{}{}'.format(self.REPORT_PATH, os.sep, 'paradosso_rapporti.txt')
+            filename_us_mancanti = '{}{}{}'.format(self.REPORT_PATH, os.sep, 'us_mancanti.txt')
 
             self.testing(filename_tipo_rapporti_mancanti, str(msg_tipo_rapp))
             self.testing(filename_nr_rapporti_mancanti, str(msg_nr_rapp))
