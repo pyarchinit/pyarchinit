@@ -43,10 +43,7 @@ class pyarchinit_Interactive_Matrix(QDialog, MAIN_DIALOG_CLASS):
     DATA_LIST = ""
     ID_US_DICT = {}
 
-    if os.name == 'posix':
-        HOME = os.environ['HOME']
-    elif os.name == 'nt':
-        HOME = os.environ['HOMEPATH']
+    HOME = os.environ['PYARCHINIT_HOME']
 
     QUANT_PATH = ('%s%s%s') % (HOME, os.sep, "pyarchinit_Quantificazioni_folder")
 

@@ -23,10 +23,7 @@ import os
 
 
 class Test_area:
-    if os.name == 'posix':
-        HOME = os.environ['HOME']
-    elif os.name == 'nt':
-        HOME = os.environ['HOMEPATH']
+    HOME = os.environ['PYARCHINIT_HOME']
 
     REPORT_PATH = ('%s%s%s') % (HOME, os.sep, "pyarchinit_Test_folder")
 

@@ -34,10 +34,7 @@ MAIN_DIALOG_CLASS, _ = loadUiType(os.path.join(os.path.dirname(__file__), 'modul
 
 
 class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
-    if os.name == 'posix':
-        HOME = os.environ['HOME']
-    elif os.name == 'nt':
-        HOME = os.environ['HOMEPATH']
+    HOME = os.environ['PYARCHINIT_HOME']
 
     PARAMS_DICT = {'SERVER': '',
                    'HOST': '',
@@ -158,10 +155,7 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
 
     def on_pushButton_crea_layer_pressed(self):
         import time
-        if os.name == 'posix':
-            home = os.environ['HOME']
-        elif os.name == 'nt':
-            home = os.environ['HOMEPATH']
+        home = os.environ['PYARCHINIT_HOME']
         try:
             module_path_rel = os.path.join(os.sep, '.qgis2', 'python', 'plugins', 'pyarchinit', 'modules', 'utility',
                                            'DBfiles', 'pyarchinit_postgis15_empty.dump')

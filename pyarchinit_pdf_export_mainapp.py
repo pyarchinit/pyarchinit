@@ -117,10 +117,7 @@ class pyarchinit_pdf_export(QDialog, MAIN_DIALOG_CLASS):
         self.comboBox_sito.addItems(sito_vl)
 
     def set_home_path(self):
-        if os.name == 'posix':
-            self.HOME = os.environ['HOME']
-        elif os.name == 'nt':
-            self.HOME = os.environ['HOMEPATH']
+        self.HOME = os.environ['PYARCHINIT_HOME']
 
     def on_pushButton_open_dir_pressed(self):
         path = ('%s%s%s') % (self.HOME, os.sep, "pyarchinit_PDF_folder")

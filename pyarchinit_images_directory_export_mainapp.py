@@ -106,10 +106,7 @@ class pyarchinit_Images_directory_export(QDialog, MAIN_DIALOG_CLASS):
         self.comboBox_sito.addItems(sito_vl)
 
     def set_home_path(self):
-        if os.name == 'posix':
-            self.HOME = os.environ['HOME']
-        elif os.name == 'nt':
-            self.HOME = os.environ['HOMEPATH']
+        self.HOME = os.environ['PYARCHINIT_HOME']
 
     def on_pushButton_exp_images_pressed(self):
         sito = str(self.comboBox_sito.currentText())

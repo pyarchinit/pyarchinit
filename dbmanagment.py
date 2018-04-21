@@ -64,10 +64,7 @@ class pyarchinit_dbmanagment(QDialog, MAIN_DIALOG_CLASS):
     def on_backupsqlite_pressed(self):
         import shutil
 
-        if os.name == 'posix':
-            home = os.environ['HOME']
-        elif os.name == 'nt':
-            home = os.environ['HOMEPATH']
+        home = os.environ['PYARCHINIT_HOME']
         conn_import = '%s%s%s' % (home, os.sep,
                                   'pyarchinit_DB_folder/pyarchinit_db.sqlite'
                                   )
@@ -89,10 +86,7 @@ class pyarchinit_dbmanagment(QDialog, MAIN_DIALOG_CLASS):
 
     def on_backup_pressed(self):
 
-        if os.name == 'posix':
-            home = os.environ['HOME']
-        elif os.name == 'nt':
-            home = os.environ['HOMEPATH']
+        home = os.environ['PYARCHINIT_HOME']
 
         PDF_path = '%s%s%s' % (home, os.sep, 'pyarchinit_db_backup/')
 
@@ -137,10 +131,7 @@ class pyarchinit_dbmanagment(QDialog, MAIN_DIALOG_CLASS):
 
     def on_backup_total_pressed(self):
 
-        if os.name == 'posix':
-            home = os.environ['HOME']
-        elif os.name == 'nt':
-            home = os.environ['HOMEPATH']
+        home = os.environ['PYARCHINIT_HOME']
         PDF_path = '%s%s%s' % (home, os.sep, 'pyarchinit_db_backup/')
         filename = '%s%s%s' % (PDF_path, os.sep, 'semivariogramma.png')
 

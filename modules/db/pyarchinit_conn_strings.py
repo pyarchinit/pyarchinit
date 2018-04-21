@@ -29,10 +29,7 @@ from .settings import Settings
 class Connection(object):
     def conn_str(self):
 
-        if os.name == 'posix':
-            home = os.environ['HOME']
-        elif os.name == 'nt':
-            home = os.environ['HOMEPATH']
+        home = os.environ['PYARCHINIT_HOME']
 
         cfg_rel_path = os.path.join(os.sep, 'pyarchinit_DB_folder', 'config.cfg')
         file_path = ('%s%s') % (home, cfg_rel_path)
@@ -73,10 +70,7 @@ class Connection(object):
             return conn_str
 
     def thumb_path(self):
-        if os.name == 'posix':
-            home = os.environ['HOME']
-        elif os.name == 'nt':
-            home = os.environ['HOMEPATH']
+        home = os.environ['PYARCHINIT_HOME']
 
         cfg_rel_path = os.path.join(os.sep, 'pyarchinit_DB_folder', 'config.cfg')
         file_path = ('%s%s') % (home, cfg_rel_path)

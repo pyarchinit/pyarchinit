@@ -43,10 +43,7 @@ class pyarchinit_doc_preview(QDialog, MAIN_DIALOG_CLASS):
     vlayer = ""
     layerToSet = ""
 
-    if os.name == 'posix':
-        HOME = os.environ['HOME']
-    elif os.name == 'nt':
-        HOME = os.environ['HOMEPATH']
+    HOME = os.environ['PYARCHINIT_HOME']
 
     QUANT_PATH = ('%s%s%s') % (HOME, os.sep, "pyarchinit_Quantificazioni_folder")
 

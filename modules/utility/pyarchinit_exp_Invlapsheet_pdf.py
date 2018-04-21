@@ -106,10 +106,7 @@ class single_Invlap_pdf_sheet:
         intestazione = Paragraph("<b>SCHEDA REPERTI LAPIDEI<br/>" + str(self.datestrfdate()) + "</b>", styNormal)
         # intestazione2 = Paragraph("<b>pyArchInit</b>", styNormal)
 
-        if os.name == 'posix':
-            home = os.environ['HOME']
-        elif os.name == 'nt':
-            home = os.environ['HOMEPATH']
+        home = os.environ['PYARCHINIT_HOME']
 
         home_DB_path = ('%s%s%s') % (home, os.sep, 'pyarchinit_DB_folder')
         alma_path = ('%s%s%s') % (home_DB_path, os.sep, 'alma.jpg')
@@ -293,10 +290,7 @@ class single_Invlap_pdf_sheet:
 
 
 class generate_reperti_pdf:
-    if os.name == 'posix':
-        HOME = os.environ['HOME']
-    elif os.name == 'nt':
-        HOME = os.environ['HOMEPATH']
+    HOME = os.environ['PYARCHINIT_HOME']
 
     PDF_path = ('%s%s%s') % (HOME, os.sep, "pyarchinit_PDF_folder")
 

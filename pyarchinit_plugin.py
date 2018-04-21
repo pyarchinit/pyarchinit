@@ -58,10 +58,7 @@ filepath = os.path.dirname(__file__)
 
 
 class PyArchInitPlugin(object):
-    if os.name == 'posix':
-        HOME = os.environ['HOME']
-    elif os.name == 'nt':
-        HOME = os.environ['HOMEPATH']
+    HOME = os.environ['PYARCHINIT_HOME']
 
     PARAMS_DICT = {'SERVER': '',
                    'HOST': '',
