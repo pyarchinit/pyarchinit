@@ -34,7 +34,6 @@ from .modules.db.pyarchinit_conn_strings import Connection
 from .modules.db.pyarchinit_db_manager import Pyarchinit_db_management
 from .modules.db.pyarchinit_utility import Utility
 from .modules.gis.pyarchinit_pyqgis import Pyarchinit_pyqgis, Order_layer_v2
-from .modules.gui.imageViewer import ImageViewer
 from .modules.utility.delegateComboBox import ComboBoxDelegate
 from .modules.utility.pyarchinit_error_check import Error_check
 from .modules.utility.pyarchinit_exp_Periodosheet_pdf import generate_US_pdf
@@ -44,6 +43,7 @@ from .pyarchinit_interactive_matrix_main import pyarchinit_Interactive_Matrix
 from .sortpanelmain import SortPanelMain
 
 MAIN_DIALOG_CLASS, _ = loadUiType(os.path.join(os.path.dirname(__file__), 'modules', 'gui', 'pyarchinit_US_ui.ui'))
+IMAGE_VIEWER, _ = loadUiType(os.path.join(os.path.dirname(__file__), 'modules', 'gui', 'imageViewer_ui.ui'))
 
 
 class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
@@ -611,7 +611,7 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
     def openWide_image(self):
         items = self.iconListWidget.selectedItems()
         for item in items:
-            dlg = ImageViewer(self)
+            dlg = IMAGE_VIEWER(self)
             id_orig_item = item.text()  # return the name of original file
 
             search_dict = {'id_media': "'" + str(id_orig_item) + "'"}
