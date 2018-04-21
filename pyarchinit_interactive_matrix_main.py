@@ -45,14 +45,14 @@ class pyarchinit_Interactive_Matrix(QDialog, MAIN_DIALOG_CLASS):
 
     HOME = os.environ['PYARCHINIT_HOME']
 
-    QUANT_PATH = ('%s%s%s') % (HOME, os.sep, "pyarchinit_Quantificazioni_folder")
+    QUANT_PATH = '{}{}{}'.format(HOME, os.sep, "pyarchinit_Quantificazioni_folder")
 
     def __init__(self, iface, data_list, id_us_dict):
+        super().__init__()
         self.iface = iface
-        self.pyQGIS = Pyarchinit_pyqgis(self.iface)
+        self.pyQGIS = Pyarchinit_pyqgis(iface)
         self.DATA_LIST = data_list
         self.ID_US_DICT = id_us_dict
-        QDialog.__init__(self)
         self.setupUi(self)
 
         ##		self.textbox.setText('1 2 3 4')
@@ -82,8 +82,7 @@ class pyarchinit_Interactive_Matrix(QDialog, MAIN_DIALOG_CLASS):
             for sing_rapp in rapporti_stratigrafici:
                 try:
                     if sing_rapp[0] == 'Taglia' or sing_rapp[0] == 'Copre' or sing_rapp[0] == 'Si appoggia a' or \
-                                    sing_rapp[0] == 'Riempie' or sing_rapp[0] == 'Si lega a' or sing_rapp[
-                        0] == 'Uguale a':
+                                    sing_rapp[0] == 'Riempie' or sing_rapp[0] == 'Si lega a' or sing_rapp[0] == 'Uguale a':
                         if sing_rapp[1] != '':
                             harris_rapp = (us, str(sing_rapp[1]))
                             data.append(harris_rapp)

@@ -34,9 +34,10 @@ class HARRIS_MATRIX_EXP:
         self.periodi = periodi
 
     def export_matrix(self):
-        G = p.AGraph(directed=True)
+        G = p.AGraph(directed=False)
         G.graph_attr['dpi'] = 300
-        G.graph_attr['label'] = 'pyArchInit - Harris Matrix Export System'
+        G.graph_attr['splines'] = 'ortho'
+        G.graph_attr['label'] = 'pyArchInit - Harris Matrix Exportation System'
 
         elist = []
 
@@ -64,20 +65,15 @@ class HARRIS_MATRIX_EXP:
         except:
             data_to_plot = G
 
-        Matrix_path = ('%s%s%s') % (self.HOME, os.sep, "pyarchinit_Matrix_folder")
+        Matrix_path = '{}{}{}'.format(self.HOME, os.sep, "pyarchinit_Matrix_folder")
 
-        if os.name == 'posix':
-            filename_svg = ('%s%s%s') % (Matrix_path, os.sep, 'Harris_matrix.svg')
-            filename_png = ('%s%s%s') % (Matrix_path, os.sep, 'Harris_matrix.png')
-            G.draw(filename_svg, prog='dot')
-            G.draw(filename_png, prog='dot')
-        elif os.name == 'nt':
-            filename_dot = ('%s%s%s') % (Matrix_path, os.sep, 'Harris_matrix_win.dot')
-            G.write(filename_dot)
-            filename_png = ('%s%s%s') % (Matrix_path, os.sep, 'Harris_matrix_win.png')
-            filename_svg = ('%s%s%s') % (Matrix_path, os.sep, 'Harris_matrix_win.svg')
-            G.draw(filename_svg, prog='dot')
-            G.draw(filename_png, prog='dot')
+        filename_svg = '{}{}{}'.format(Matrix_path, os.sep, 'Harris_matrix.svg')
+        filename_png = '{}{}{}'.format(Matrix_path, os.sep, 'Harris_matrix.png')
+        filename_dot = '{}{}{}'.format(Matrix_path, os.sep, 'Harris_matrix_win.dot')
+
+        G.draw(filename_svg, prog='dot')
+        G.draw(filename_png, prog='dot')
+        G.write(filename_dot)
 
         return data_to_plot
 

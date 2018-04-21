@@ -831,7 +831,7 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
         for i in range(len(self.DATA_LIST)):
             id_us_dict[self.DATA_LIST[i].us] = self.DATA_LIST[i].id_us
 
-        dlg = pyarchinit_Interactive_Matrix(self, self.DATA_LIST, id_us_dict)
+        dlg = pyarchinit_Interactive_Matrix(self.iface, self.DATA_LIST, id_us_dict)
         data_plot = dlg.generate_matrix()
         dlg.plot_matrix(data_plot)
         dlg.exec_()
