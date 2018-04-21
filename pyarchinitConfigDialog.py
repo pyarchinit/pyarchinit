@@ -25,6 +25,7 @@ from builtins import range
 from builtins import str
 from qgis.PyQt.QtWidgets import QApplication, QDialog, QMessageBox
 from qgis.PyQt.uic import loadUiType
+from qgis.core import QgsApplication
 
 from .modules.db.pyarchinit_conn_strings import Connection
 from .modules.db.pyarchinit_db_manager import *
@@ -155,11 +156,11 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
 
     def on_pushButton_crea_layer_pressed(self):
         import time
-        home = os.environ['PYARCHINIT_HOME']
         try:
-            module_path_rel = os.path.join(os.sep, '.qgis2', 'python', 'plugins', 'pyarchinit', 'modules', 'utility',
+            qgis_dir = QgsApplication.qgisSettingsDirPath()
+            module_path_rel = os.path.join(os.sep, 'python', 'plugins', 'pyarchinit', 'modules', 'utility',
                                            'DBfiles', 'pyarchinit_postgis15_empty.dump')
-            module_path = ('%s%s') % (home, module_path_rel)
+            module_path = '{}{}'.format(qgis_dir, module_path_rel)
             postgis15 = os.popen(
                 "pg_restore --host localhost --port %s --username postgres --dbname %s --role postgres --no-password  --verbose %s" % (
                 str(self.lineEdit_port_db.text()), str(self.lineEdit_dbname.text()), str(module_path)))
@@ -175,14 +176,11 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
 
     def on_pushButton_crea_layer_2_pressed(self):
         import time
-        if os.name == 'posix':
-            home = os.environ['HOME']
-        elif os.name == 'nt':
-            home = os.environ['HOMEPATH']
         try:
-            module_path_rel = os.path.join(os.sep, '.qgis2', 'python', 'plugins', 'pyarchinit', 'modules', 'utility',
+            qgis_dir = QgsApplication.qgisSettingsDirPath()
+            module_path_rel = os.path.join(os.sep, 'python', 'plugins', 'pyarchinit', 'modules', 'utility',
                                            'DBfiles', 'pyarchinit_postgis20_empty.dump')
-            module_path = ('%s%s') % (home, module_path_rel)
+            module_path = '{}{}'.format(qgis_dir, module_path_rel)
             postgis15 = os.popen(
                 "pg_restore --host localhost --port %s --username postgres --dbname %s --role postgres --no-password  --verbose %s" % (
                 str(self.lineEdit_port_db.text()), str(self.lineEdit_dbname.text()), str(module_path)))
