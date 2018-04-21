@@ -32,11 +32,11 @@ from .modules.db.pyarchinit_conn_strings import Connection
 from .modules.db.pyarchinit_db_manager import Pyarchinit_db_management
 from .modules.db.pyarchinit_utility import Utility
 from .modules.gis.pyarchinit_pyqgis import Pyarchinit_pyqgis
-from .modules.gui.imageViewer import ImageViewer
 from .modules.utility.pyarchinit_exp_USsheet_pdf import *
 from .sortpanelmain import SortPanelMain
 
 MAIN_DIALOG_CLASS, _ = loadUiType(os.path.join(os.path.dirname(__file__), 'modules', 'gui', 'pyarchinit_Detsesso_ui.ui'))
+IMAGE_VIEWER, _ = loadUiType(os.path.join(os.path.dirname(__file__), 'modules', 'gui', 'imageViewer_ui.ui'))
 
 
 class pyarchinit_Detsesso(QDialog, MAIN_DIALOG_CLASS):
@@ -1613,7 +1613,7 @@ class pyarchinit_Detsesso(QDialog, MAIN_DIALOG_CLASS):
     def open_tables_det_eta(self, n):
         # apre la finestra di visualizzazione delle immagini in base al valore n
         filepath = os.path.dirname(__file__)
-        dlg = ImageViewer(self)
+        dlg = IMAGE_VIEWER(self)
 
         if n == 1:  # tavola sinfisi pubica femmminile
             try:
