@@ -27,10 +27,7 @@ except:
 
 
 class HARRIS_MATRIX_EXP:
-    if os.name == 'posix':
-        HOME = os.environ['HOME']
-    elif os.name == 'nt':
-        HOME = os.environ['HOMEPATH']
+    HOME = os.environ['PYARCHINIT_HOME']
 
     def __init__(self, sequence, periodi):
         self.sequence = sequence

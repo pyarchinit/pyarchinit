@@ -151,10 +151,7 @@ class single_Documentazione_pdf_sheet:
         # 0 row
         intestazione = Paragraph("<b>SCHEDA DOCUMENTAZIONE<br/>" + str(self.datestrfdate()) + "</b>", styNormal)
 
-        if os.name == 'posix':
-            home = os.environ['HOME']
-        elif os.name == 'nt':
-            home = os.environ['HOMEPATH']
+        home = os.environ['PYARCHINIT_HOME']
 
         home_DB_path = ('%s%s%s') % (home, os.sep, 'pyarchinit_DB_folder')
         logo_path = ('%s%s%s') % (home_DB_path, os.sep, 'logo.jpg')
@@ -471,10 +468,7 @@ class Documentazione_index_pdf_sheet:
 
 
 class generate_documentazione_pdf:
-    if os.name == 'posix':
-        HOME = os.environ['HOME']
-    elif os.name == 'nt':
-        HOME = os.environ['HOMEPATH']
+    HOME = os.environ['PYARCHINIT_HOME']
 
     PDF_path = ('%s%s%s') % (HOME, os.sep, "pyarchinit_PDF_folder")
 
@@ -496,10 +490,7 @@ class generate_documentazione_pdf:
         f.close()
 
     def build_index_Documentazione(self, records, sito):
-        if os.name == 'posix':
-            home = os.environ['HOME']
-        elif os.name == 'nt':
-            home = os.environ['HOMEPATH']
+        home = os.environ['PYARCHINIT_HOME']
 
         home_DB_path = ('%s%s%s') % (home, os.sep, 'pyarchinit_DB_folder')
         logo_path = ('%s%s%s') % (home_DB_path, os.sep, 'logo.jpg')

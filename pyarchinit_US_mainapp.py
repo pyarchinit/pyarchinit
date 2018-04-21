@@ -203,10 +203,7 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
         'inclusi_materiali_usm'
     ]
 
-    if os.name == 'posix':
-        HOME = os.environ['HOME']
-    elif os.name == 'nt':
-        HOME = os.environ['HOMEPATH']
+    HOME = os.environ['PYARCHINIT_HOME']
 
     REPORT_PATH = ('%s%s%s') % (HOME, os.sep, "pyarchinit_Report_folder")
 
@@ -1338,10 +1335,8 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
                         report = "Problema di conversione rapporto: " + str(e)
                     if report != "":
                         report_rapporti = report_rapporti + report + '\n'
-        if os.name == 'posix':
-            HOME = os.environ['HOME']
-        elif os.name == 'nt':
-            HOME = os.environ['HOMEPATH']
+
+        HOME = os.environ['PYARCHINIT_HOME']
 
         report_path = ('%s%s%s') % (HOME, os.sep, "pyarchinit_Report_folder")
         filename = ('%s%s%s') % (report_path, os.sep, 'rapporti_US.txt')
@@ -1398,10 +1393,7 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
                 if report != "":
                     report_rapporti = report_rapporti + report + '\n'
 
-        if os.name == 'posix':
-            HOME = os.environ['HOME']
-        elif os.name == 'nt':
-            HOME = os.environ['HOMEPATH']
+        HOME = os.environ['PYARCHINIT_HOME']
 
         report_path = ('%s%s%s') % (HOME, os.sep, "pyarchinit_Report_folder")
         filename = ('%s%s%s') % (report_path, os.sep, 'def_strat_a_rapporti_US.txt')

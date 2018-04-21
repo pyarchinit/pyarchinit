@@ -163,10 +163,7 @@ class single_Finds_pdf_sheet(object):
         intestazione = Paragraph("<b>SCHEDA INVENTARIO REPERTI<br/>" + str(self.datestrfdate()) + "</b>", styNormal)
         # intestazione2 = Paragraph("<b>pyArchInit</b>", styNormal)
 
-        if os.name == 'posix':
-            home = os.environ['HOME']
-        elif os.name == 'nt':
-            home = os.environ['HOMEPATH']
+        home = os.environ['PYARCHINIT_HOME']
 
         home_DB_path = ('%s%s%s') % (home, os.sep, 'pyarchinit_DB_folder')
         logo_path = ('%s%s%s') % (home_DB_path, os.sep, 'logo.jpg')
@@ -417,10 +414,7 @@ class Box_labels_Finds_pdf_sheet(object):
         styNormal.leading = 15
 
         # format labels
-        if os.name == 'posix':
-            home = os.environ['HOME']
-        elif os.name == 'nt':
-            home = os.environ['HOMEPATH']
+        home = os.environ['PYARCHINIT_HOME']
 
         home_DB_path = ('%s%s%s') % (home, os.sep, 'pyarchinit_DB_folder')
         logo_path = ('%s%s%s') % (home_DB_path, os.sep, 'logo.jpg')
@@ -624,10 +618,7 @@ class FINDS_index_pdf_sheet(object):
 
 
 class generate_reperti_pdf(object):
-    if os.name == 'posix':
-        HOME = os.environ['HOME']
-    elif os.name == 'nt':
-        HOME = os.environ['HOMEPATH']
+    HOME = os.environ['PYARCHINIT_HOME']
 
     PDF_path = ('%s%s%s') % (HOME, os.sep, "pyarchinit_PDF_folder")
 
@@ -649,10 +640,7 @@ class generate_reperti_pdf(object):
         f.close()
 
     def build_index_Finds(self, records, sito):
-        if os.name == 'posix':
-            home = os.environ['HOME']
-        elif os.name == 'nt':
-            home = os.environ['HOMEPATH']
+        home = os.environ['PYARCHINIT_HOME']
 
         home_DB_path = ('%s%s%s') % (home, os.sep, 'pyarchinit_DB_folder')
         logo_path = ('%s%s%s') % (home_DB_path, os.sep, 'logo.jpg')
@@ -697,10 +685,7 @@ class generate_reperti_pdf(object):
         f.close()
 
     def build_index_Casse(self, records, sito):
-        if os.name == 'posix':
-            home = os.environ['HOME']
-        elif os.name == 'nt':
-            home = os.environ['HOMEPATH']
+        home = os.environ['PYARCHINIT_HOME']
 
         home_DB_path = ('%s%s%s') % (home, os.sep, 'pyarchinit_DB_folder')
         logo_path = ('%s%s%s') % (home_DB_path, os.sep, 'logo.jpg')

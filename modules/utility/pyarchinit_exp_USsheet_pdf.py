@@ -238,10 +238,7 @@ class single_US_pdf_sheet(object):
                                  styNormal)
         # intestazione2 = Paragraph("<b>Pyarchinit</b><br/>https://sites.google.com/site/pyarchinit/", styNormal)
 
-        if os.name == 'posix':
-            home = os.environ['HOME']
-        elif os.name == 'nt':
-            home = os.environ['HOMEPATH']
+        home = os.environ['PYARCHINIT_HOME']
 
         home_DB_path = ('%s%s%s') % (home, os.sep, 'pyarchinit_DB_folder')
         logo_path = ('%s%s%s') % (home_DB_path, os.sep, 'logo.jpg')
@@ -631,10 +628,7 @@ class US_index_pdf_sheet(object):
 
 
 class generate_US_pdf(object):
-    if os.name == 'posix':
-        HOME = os.environ['HOME']
-    elif os.name == 'nt':
-        HOME = os.environ['HOMEPATH']
+    HOME = os.environ['PYARCHINIT_HOME']
 
     PDF_path = ('%s%s%s') % (HOME, os.sep, "pyarchinit_PDF_folder")
 
@@ -662,10 +656,7 @@ class generate_US_pdf(object):
         f.close()
 
     def build_index_US(self, records, sito):
-        if os.name == 'posix':
-            home = os.environ['HOME']
-        elif os.name == 'nt':
-            home = os.environ['HOMEPATH']
+        home = os.environ['PYARCHINIT_HOME']
 
         home_DB_path = ('%s%s%s') % (home, os.sep, 'pyarchinit_DB_folder')
         logo_path = ('%s%s%s') % (home_DB_path, os.sep, 'logo.jpg')

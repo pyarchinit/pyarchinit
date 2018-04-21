@@ -76,10 +76,7 @@ class exp_rel_pdf:
     DATA_LIST = []
     SITO = ""
 
-    if os.name == 'posix':
-        HOME = os.environ['HOME']
-    elif os.name == 'nt':
-        HOME = os.environ['HOMEPATH']
+    HOME = os.environ['PYARCHINIT_HOME']
 
     PDF_path = ('%s%s%s') % (HOME, os.sep, "pyarchinit_PDF_folder")
     Title = "Controllo in corso d'opera di via Parini 60"

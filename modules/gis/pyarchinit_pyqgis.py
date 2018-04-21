@@ -32,10 +32,7 @@ from .settings import Settings
 
 
 class Pyarchinit_pyqgis(QDialog):
-    if os.name == 'posix':
-        HOME = os.environ['HOME']
-    elif os.name == 'nt':
-        HOME = os.environ['HOMEPATH']
+    HOME = os.environ['PYARCHINIT_HOME']
     FILEPATH = os.path.dirname(__file__)
     LAYER_STYLE_PATH = ('%s%s%s%s') % (FILEPATH, os.sep, 'styles', os.sep)
     LAYER_STYLE_PATH_SPATIALITE = ('%s%s%s%s') % (FILEPATH, os.sep, 'styles_spatialite', os.sep)
@@ -1520,10 +1517,7 @@ class Pyarchinit_pyqgis(QDialog):
 
 
 class Order_layers_DEPRECATED(object):
-    if os.name == 'posix':
-        HOME = os.environ['HOME']
-    elif os.name == 'nt':
-        HOME = os.environ['HOMEPATH']
+    HOME = os.environ['PYARCHINIT_HOME']
 
     REPORT_PATH = ('%s%s%s') % (HOME, os.sep, "pyarchinit_Report_folder")
 

@@ -22,37 +22,33 @@
 from builtins import str
 from builtins import object
 import os
+from os.path import expanduser
 
 from .pyarchinit_OS_utility import Pyarchinit_OS_Utility
 
 
-# import urllib
-
 class pyarchinit_Folder_installation(object):
+
     def install_dir(self):
-        if os.name == 'posix':
-            home = os.environ['HOME']
-        elif os.name == 'nt':
-            home = os.environ['HOMEPATH']
+        home = expanduser("~")
+        home += os.sep + 'pyarchinit'
+        os.environ['PYARCHINIT_HOME'] = home
 
         module_path = os.path.dirname(__file__)
 
-        # module_path_rel = os.path.join(os.sep, '.qgis2', 'python','plugins', 'pyarchinit', 'modules', 'utility')
-        # module_path = "/Users/adarteprivate/Documents/pyarchinit_beta_test_dev/pyarchinit/modules/utility/" #('%s%s') % (home, module_path_rel)
-
-        home_DB_path = ('%s%s%s') % (home, os.sep, 'pyarchinit_DB_folder')
+        home_DB_path = '{}{}{}'.format(home, os.sep, 'pyarchinit_DB_folder')
 
         config_copy_from_path_rel = os.path.join(os.sep, 'DBfiles', 'config.cfg')
-        config_copy_from_path = ('%s%s') % (module_path, config_copy_from_path_rel)
-        config_copy_to_path = ('%s%s%s') % (home_DB_path, os.sep, 'config.cfg')
+        config_copy_from_path = '{}{}'.format(module_path, config_copy_from_path_rel)
+        config_copy_to_path = '{}{}{}'.format(home_DB_path, os.sep, 'config.cfg')
 
         db_copy_from_path_rel = os.path.join(os.sep, 'DBfiles', 'pyarchinit_db.sqlite')
-        db_copy_from_path = ('%s%s') % (module_path, db_copy_from_path_rel)
-        db_copy_to_path = ('%s%s%s') % (home_DB_path, os.sep, 'pyarchinit_db.sqlite')
+        db_copy_from_path = '{}{}'.format(module_path, db_copy_from_path_rel)
+        db_copy_to_path = '{}{}{}'.format(home_DB_path, os.sep, 'pyarchinit_db.sqlite')
 
         logo_copy_from_path_rel = os.path.join(os.sep, 'DBfiles', 'logo.jpg')
-        logo_copy_from_path = ('%s%s') % (module_path, logo_copy_from_path_rel)
-        logo_copy_to_path = ('%s%s%s') % (home_DB_path, os.sep, 'logo.jpg')
+        logo_copy_from_path = '{}{}'.format(module_path, logo_copy_from_path_rel)
+        logo_copy_to_path = '{}{}{}'.format(home_DB_path, os.sep, 'logo.jpg')
 
         OS_utility = Pyarchinit_OS_Utility()
 
@@ -62,31 +58,27 @@ class pyarchinit_Folder_installation(object):
         OS_utility.copy_file(db_copy_from_path, db_copy_to_path)
         OS_utility.copy_file(logo_copy_from_path, logo_copy_to_path)
 
-        home_PDF_path = ('%s%s%s') % (home, os.sep, 'pyarchinit_PDF_folder')
+        home_PDF_path = '{}{}{}'.format(home, os.sep, 'pyarchinit_PDF_folder')
         OS_utility.create_dir(home_PDF_path)
 
-        home_MATRIX_path = ('%s%s%s') % (home, os.sep, 'pyarchinit_Matrix_folder')
+        home_MATRIX_path = '{}{}{}'.format(home, os.sep, 'pyarchinit_Matrix_folder')
         OS_utility.create_dir(home_MATRIX_path)
 
-        home_THUMBNAILS_path = ('%s%s%s') % (home, os.sep, 'pyarchinit_Thumbnails_folder')
+        home_THUMBNAILS_path = '{}{}{}'.format(home, os.sep, 'pyarchinit_Thumbnails_folder')
         OS_utility.create_dir(home_THUMBNAILS_path)
 
-        home_MAPS_path = ('%s%s%s') % (home, os.sep, 'pyarchinit_MAPS_folder')
+        home_MAPS_path = '{}{}{}'.format(home, os.sep, 'pyarchinit_MAPS_folder')
         OS_utility.create_dir(home_MAPS_path)
 
-        home_REPORT_path = ('%s%s%s') % (home, os.sep, 'pyarchinit_Report_folder')
+        home_REPORT_path = '{}{}{}'.format(home, os.sep, 'pyarchinit_Report_folder')
         OS_utility.create_dir(home_REPORT_path)
 
-        home_QUANT_path = ('%s%s%s') % (home, os.sep, 'pyarchinit_Quantificazioni_folder')
+        home_QUANT_path = '{}{}{}'.format(home, os.sep, 'pyarchinit_Quantificazioni_folder')
         OS_utility.create_dir(home_QUANT_path)
 
-        home_TEST_path = ('%s%s%s') % (home, os.sep, 'pyarchinit_Test_folder')
+        home_TEST_path = '{}{}{}'.format(home, os.sep, 'pyarchinit_Test_folder')
         OS_utility.create_dir(home_TEST_path)
 
-        home_BACKUP_linux_path = ('%s%s%s') % (home, os.sep, 'pyarchinit_db_backup')
+        home_BACKUP_linux_path = '{}{}{}'.format(home, os.sep, 'pyarchinit_db_backup')
         OS_utility.create_dir(home_BACKUP_linux_path)
-
-        # experimental
-        # il sistema funziona ma sovrascrive ogni volta il file. aggiungere sistema di verifica di presenza del file.
-        # urllib.urlretrieve( "https://raw.github.com/pyarchinit/pyarchinit_beta_test_dev/master/pyarchinit_dev20130710/modules/utility/DBfiles/pyarchinit_db.sqlite",db_copy_to_path)
 
