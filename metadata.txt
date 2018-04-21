@@ -21,7 +21,7 @@ email=pyarchinit@gmail.com
 # Optional items:
 
 # Uncomment the following line and add your changelog entries:
-changelog= new versione for QGIS 3
+changelog= new version for QGIS 3
 
 # tags are comma separated with spaces allowed
 tags=archaeology, analysis, database, digitizing, postgres, postgis, spatialite, sqlite, archeologia, funerary archaeology, pottery, bones, excavations, scavi, archeologici, siti, carte, archeologiche, carta di potenzialita, strutture, antiche, tempio, medioevo, romana, preistoria, roman, medieval, prehistoric
