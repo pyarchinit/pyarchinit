@@ -3387,7 +3387,7 @@ p, li { white-space: pre-wrap; }
                <rect>
                 <x>0</x>
                 <y>0</y>
-                <width>586</width>
+                <width>350</width>
                 <height>274</height>
                </rect>
               </property>
@@ -3728,7 +3728,7 @@ p, li { white-space: pre-wrap; }
                 <rect>
                  <x>10</x>
                  <y>60</y>
-                 <width>531</width>
+                 <width>551</width>
                  <height>32</height>
                 </rect>
                </property>
@@ -3743,7 +3743,14 @@ p, li { white-space: pre-wrap; }
                 <item>
                  <widget class="QProgressBar" name="progressBar">
                   <property name="value">
-                   <number>24</number>
+                   <number>0</number>
+                  </property>
+                 </widget>
+                </item>
+                <item>
+                 <widget class="QLabel" name="countLabel">
+                  <property name="text">
+                   <string/>
                   </property>
                  </widget>
                 </item>
