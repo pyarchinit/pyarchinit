@@ -26,13 +26,13 @@ from datetime import date
 import sys
 import os
 
-from .modules.db.pyarchinit_conn_strings import Connection
-from .modules.db.pyarchinit_db_manager import Pyarchinit_db_management
-from .modules.db.pyarchinit_utility import Utility
+from ..modules.db.pyarchinit_conn_strings import Connection
+from ..modules.db.pyarchinit_db_manager import Pyarchinit_db_management
+from ..modules.db.pyarchinit_utility import Utility
 from .pyarchinit_US_mainapp import pyarchinit_US
-from .sortpanelmain import SortPanelMain
+from ..sortpanelmain import SortPanelMain
 
-MAIN_DIALOG_CLASS, _ = loadUiType(os.path.join(os.path.dirname(__file__), 'modules', 'gui', 'pyarchinit_pdf_administrator_ui.ui'))
+MAIN_DIALOG_CLASS, _ = loadUiType(os.path.join(os.path.dirname(__file__), '..', 'modules', 'gui', 'pyarchinit_pdf_administrator_ui.ui'))
 
 
 class pyarchinit_PDFAdministrator(QDialog, MAIN_DIALOG_CLASS):
