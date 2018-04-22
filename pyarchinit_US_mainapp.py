@@ -833,8 +833,8 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
 
         dlg = pyarchinit_Interactive_Matrix(self.iface, self.DATA_LIST, id_us_dict)
         data_plot = dlg.generate_matrix()
-        dlg.plot_matrix(data_plot)
-        dlg.exec_()
+        # dlg.plot_matrix(data_plot)
+        # dlg.exec_()
 
     def launch_matrix_exp_if(self, msg):
         if msg == QMessageBox.Ok:

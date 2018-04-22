@@ -23,8 +23,10 @@ from __future__ import absolute_import
 
 import os
 
+import networkx as nx
 from builtins import range
 from builtins import str
+from networkx.drawing.nx_agraph import graphviz_layout
 from qgis.PyQt.QtWidgets import QDialog, QMessageBox
 from qgis.PyQt.uic import loadUiType
 
@@ -32,7 +34,6 @@ from .modules.db.pyarchinit_conn_strings import Connection
 from .modules.db.pyarchinit_db_manager import Pyarchinit_db_management
 from .modules.gis.pyarchinit_pyqgis import Pyarchinit_pyqgis
 from .modules.utility.pyarchinit_matrix_exp import HARRIS_MATRIX_EXP
-import networkx as nx
 
 MAIN_DIALOG_CLASS, _ = loadUiType(os.path.join(os.path.dirname(__file__), 'modules', 'gui', 'pyarchinit_interactive_matrix_gui.ui'))
 
@@ -137,13 +138,11 @@ class pyarchinit_Interactive_Matrix(QDialog, MAIN_DIALOG_CLASS):
         return data_plotting
 
     def plot_matrix(self, dp):
-        self.data_plot = dp
-
-        G1 = nx.DiGraph(self.data_plot)  # now make it a Graph
+        G1 = nx.DiGraph(dp)  # now make it a Graph
         # G1.write_dot(G1,'test.dot')
         # nx.write_dot(G1,'test.dot')
         # plt.title("draw_networkx")
-        pos = nx.graphviz_layout(G1, prog='dot')
+        pos = graphviz_layout(G1, prog='dot')
         # fig = plt.figure()
 
         # self.widgetMatrix.canvas.ax = self.fig.add_subplot(111)
