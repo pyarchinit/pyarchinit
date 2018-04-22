@@ -34,7 +34,7 @@ class HARRIS_MATRIX_EXP:
         self.periodi = periodi
 
     def export_matrix(self):
-        G = p.AGraph(directed=False)
+        G = p.AGraph(directed=True)
         G.graph_attr['dpi'] = 300
         G.graph_attr['splines'] = 'ortho'
         G.graph_attr['label'] = 'pyArchInit - Harris Matrix Exportation System'
