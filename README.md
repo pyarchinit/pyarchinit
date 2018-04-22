@@ -1,3 +1,5 @@
+![](https://avatars2.githubusercontent.com/u/1929829?s=400&v=4)
+
 # PyArchInit3
 
 ## Porting to QGIS3
@@ -6,7 +8,7 @@
 
 ### Linux/Windows/MacOS
 1. Download the zip archive from github
-* Open QGIS from Plugin manager use Install from ZIP to install the plugin
+2. Open QGIS from Plugin manager use Install from ZIP to install the plugin
 
 #### Dependencies
 * Networkx
@@ -21,7 +23,7 @@ The dependencies can be installed via pip module i.e.
 
 ### Contribute
 1. Fork the repository
-* Make your changes
-* Commit to your repository
-* Create a pull request
+2. Make your changes
+3. Commit to your repository
+4. Create a pull request
 
