@@ -30,10 +30,10 @@ from qgis.PyQt.uic import loadUiType
 import PIL as Image
 import numpy as np
 
-from .modules.utility.pyarchinit_media_utility import *
-from .modules.db.pyarchinit_conn_strings import Connection
-from .modules.db.pyarchinit_db_manager import Pyarchinit_db_management
-from .modules.db.pyarchinit_utility import Utility
+from ..modules.utility.pyarchinit_media_utility import *
+from ..modules.db.pyarchinit_conn_strings import Connection
+from ..modules.db.pyarchinit_db_manager import Pyarchinit_db_management
+from ..modules.db.pyarchinit_utility import Utility
 
 filepath = os.path.dirname(__file__)
 
@@ -42,7 +42,7 @@ try:
 except:
     pass
 
-MAIN_DIALOG_CLASS, _ = loadUiType(os.path.join(os.path.dirname(__file__), 'modules', 'gui', 'pyarchinit_images_comparision.ui'))
+MAIN_DIALOG_CLASS, _ = loadUiType(os.path.join(os.path.dirname(__file__), '..', 'modules', 'gui', 'pyarchinit_images_comparision.ui'))
 
 
 class Comparision(QDialog, MAIN_DIALOG_CLASS):

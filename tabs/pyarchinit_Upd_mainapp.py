@@ -26,10 +26,10 @@ import os
 from qgis.PyQt.QtWidgets import QDialog, QMessageBox
 from qgis.PyQt.uic import loadUiType
 
-from .modules.db.pyarchinit_conn_strings import Connection
-from .modules.db.pyarchinit_db_manager import Pyarchinit_db_management
-from .modules.db.pyarchinit_utility import Utility
-from .modules.gis.pyarchinit_pyqgis import Pyarchinit_pyqgis
+from ..modules.db.pyarchinit_conn_strings import Connection
+from ..modules.db.pyarchinit_db_manager import Pyarchinit_db_management
+from ..modules.db.pyarchinit_utility import Utility
+from ..modules.gis.pyarchinit_pyqgis import Pyarchinit_pyqgis
 
 try:
     from qgis.core import *
@@ -37,7 +37,7 @@ try:
 except:
     pass
 
-MAIN_DIALOG_CLASS, _ = loadUiType(os.path.join(os.path.dirname(__file__), 'modules', 'gui', 'Ui_UpdValues.ui'))
+MAIN_DIALOG_CLASS, _ = loadUiType(os.path.join(os.path.dirname(__file__), '..', 'modules', 'gui', 'Ui_UpdValues.ui'))
 
 
 class pyarchinit_Upd_Values(QDialog, MAIN_DIALOG_CLASS):

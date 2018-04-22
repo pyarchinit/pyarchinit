@@ -35,13 +35,13 @@ from qgis.PyQt.QtWidgets import QAction, QApplication, QDialog, QMessageBox
 from qgis.PyQt.uic import loadUiType
 from qgis.core import QgsApplication
 
-from .modules.db.pyarchinit_conn_strings import Connection
-from .modules.db.pyarchinit_db_manager import Pyarchinit_db_management
-from .modules.db.pyarchinit_utility import Utility
-from .modules.gis.pyarchinit_pyqgis_archeozoo import Pyarchinit_pyqgis
-from .modules.utility.pyarchinit_error_check import Error_check
+from ..modules.db.pyarchinit_conn_strings import Connection
+from ..modules.db.pyarchinit_db_manager import Pyarchinit_db_management
+from ..modules.db.pyarchinit_utility import Utility
+from ..modules.gis.pyarchinit_pyqgis_archeozoo import Pyarchinit_pyqgis
+from ..modules.utility.pyarchinit_error_check import Error_check
 from .pyarchinit_US_mainapp import pyarchinit_US
-from .sortpanelmain import SortPanelMain
+from ..sortpanelmain import SortPanelMain
 
 valid = True
 req_mods = {'osgeo': 'osgeo [python-gdal]'}
@@ -82,7 +82,7 @@ except ImportError as e:
         raise ImportError(error_str)
 
 MAIN_DIALOG_CLASS, _ = loadUiType(
-    os.path.join(os.path.dirname(__file__), 'modules', 'gui', 'pyarchinit_Archeozoology_ui.ui'))
+    os.path.join(os.path.dirname(__file__), '..', 'modules', 'gui', 'pyarchinit_Archeozoology_ui.ui'))
 
 
 class pyarchinit_Archeozoology(QDialog, MAIN_DIALOG_CLASS):

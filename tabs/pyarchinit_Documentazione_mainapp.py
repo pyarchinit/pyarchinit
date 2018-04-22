@@ -26,15 +26,15 @@ from builtins import str
 from qgis.PyQt.QtWidgets import QDialog, QMessageBox
 from qgis.PyQt.uic import loadUiType
 
-from .modules.db.pyarchinit_conn_strings import Connection
-from .modules.db.pyarchinit_db_manager import Pyarchinit_db_management
-from .modules.db.pyarchinit_utility import Utility
-from .modules.gis.pyarchinit_pyqgis import Pyarchinit_pyqgis
-from .modules.utility.pyarchinit_error_check import Error_check
-from .modules.utility.pyarchinit_exp_USsheet_pdf import *
-from .sortpanelmain import SortPanelMain
+from ..modules.db.pyarchinit_conn_strings import Connection
+from ..modules.db.pyarchinit_db_manager import Pyarchinit_db_management
+from ..modules.db.pyarchinit_utility import Utility
+from ..modules.gis.pyarchinit_pyqgis import Pyarchinit_pyqgis
+from ..modules.utility.pyarchinit_error_check import Error_check
+from ..modules.utility.pyarchinit_exp_USsheet_pdf import *
+from ..sortpanelmain import SortPanelMain
 
-MAIN_DIALOG_CLASS, _ = loadUiType(os.path.join(os.path.dirname(__file__), 'modules', 'gui', 'pyarchinit_documentazione_ui.ui'))
+MAIN_DIALOG_CLASS, _ = loadUiType(os.path.join(os.path.dirname(__file__), '..', 'modules', 'gui', 'pyarchinit_documentazione_ui.ui'))
 
 
 class pyarchinit_Documentazione(QDialog, MAIN_DIALOG_CLASS):

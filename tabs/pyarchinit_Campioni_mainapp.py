@@ -21,79 +21,82 @@
 """
 from __future__ import absolute_import
 
-import os
-from datetime import date
-
 import sys
 from builtins import range
 from builtins import str
-from qgis.PyQt.QtWidgets import QDialog, QMessageBox
+from qgis.PyQt.QtWidgets import QApplication, QDialog, QMessageBox
 from qgis.PyQt.uic import loadUiType
 
-from .modules.db.pyarchinit_conn_strings import Connection
-from .modules.db.pyarchinit_db_manager import Pyarchinit_db_management
-from .modules.db.pyarchinit_utility import Utility
-from .modules.gis.pyarchinit_pyqgis import Pyarchinit_pyqgis
-from .modules.utility.pyarchinit_error_check import Error_check
-from .modules.utility.pyarchinit_exp_Periodizzazionesheet_pdf import generate_Periodizzazione_pdf
+from ..modules.db.pyarchinit_conn_strings import Connection
+from ..modules.db.pyarchinit_db_manager import Pyarchinit_db_management
+from ..modules.db.pyarchinit_utility import Utility
+from ..modules.gis.pyarchinit_pyqgis import Pyarchinit_pyqgis
+from ..modules.utility.pyarchinit_error_check import Error_check
+from ..modules.utility.pyarchinit_exp_Campsheet_pdf import *
+from ..modules.utility.pyarchinit_exp_Campsheet_pdf import generate_campioni_pdf
 from .pyarchinit_US_mainapp import pyarchinit_US
-from .sortpanelmain import SortPanelMain
+from ..sortpanelmain import SortPanelMain
 
-MAIN_DIALOG_CLASS, _ = loadUiType(os.path.join(os.path.dirname(__file__), 'modules', 'gui', 'pyarchinit_Periodo_fase_ui.ui'))
+MAIN_DIALOG_CLASS, _ = loadUiType(os.path.join(os.path.dirname(__file__),'..', 'modules', 'gui', 'pyarchinit_campioni_ui.ui'))
 
 
-class pyarchinit_Periodizzazione(QDialog, MAIN_DIALOG_CLASS):
-    MSG_BOX_TITLE = "PyArchInit - Scheda Periodizzazione"
+class pyarchinit_Campioni(QDialog, MAIN_DIALOG_CLASS):
+    MSG_BOX_TITLE = "PyArchInit - pyarchinit_version 0.4 - Scheda Campioni"
     DATA_LIST = []
     DATA_LIST_REC_CORR = []
     DATA_LIST_REC_TEMP = []
     REC_CORR = 0
     REC_TOT = 0
-    BROWSE_STATUS = "b"
     STATUS_ITEMS = {"b": "Usa", "f": "Trova", "n": "Nuovo Record"}
+    BROWSE_STATUS = "b"
     SORT_MODE = 'asc'
     SORTED_ITEMS = {"n": "Non ordinati", "o": "Ordinati"}
     SORT_STATUS = "n"
     UTILITY = Utility()
     DB_MANAGER = ""
-    TABLE_NAME = 'periodizzazione_table'
-    MAPPER_TABLE_CLASS = "PERIODIZZAZIONE"
-    NOME_SCHEDA = "Scheda Periodizzazione"
-    ID_TABLE = "id_perfas"
+    TABLE_NAME = 'campioni_table'
+    MAPPER_TABLE_CLASS = "CAMPIONI"
+    NOME_SHEDA = "Scheda Campioni"
+    ID_TABLE = "id_campione"
     CONVERSION_DICT = {
         ID_TABLE: ID_TABLE,
         "Sito": "sito",
-        "Periodo": "periodo",
-        "Fase": "fase",
-        "Cronologia iniziale": "cron_iniziale",
-        "Cronologia finale": "cron_finale",
+        "Nr Campione": "nr_campione",
+        "Tipo campione": "tipo_campione",
         "Descrizione": "descrizione",
-        "Datazione estesa": "datazione_estesa",
-        "Codice periodo": "cont_per"
+        "Area": "area",
+        "US": "us",
+        "Nr. Inventario Materiale": "numero_inventario_materiale",
+        "Nr Cassa": "nr_cassa",
+        "Luogo di conservazione": "luogo_conservazione"
     }
+
     SORT_ITEMS = [
         ID_TABLE,
         "Sito",
-        "Periodo",
-        "Fase",
+        "Nr Campione",
+        "Tipo campione",
         "Descrizione",
-        "Cronologia iniziale",
-        "Cronologia finale",
-        "Codice periodo"
+        "Area",
+        "US",
+        "Nr. Inventario Materiale",
+        "Nr Cassa",
+        "Luogo di conservazione"
     ]
 
     TABLE_FIELDS = [
-        'sito',
-        'periodo',
-        'fase',
-        'cron_iniziale',
-        'cron_finale',
-        'descrizione',
-        'datazione_estesa',
-        'cont_per'
+        "sito",
+        "nr_campione",
+        "tipo_campione",
+        "descrizione",
+        "area",
+        "us",
+        "numero_inventario_materiale",
+        "nr_cassa",
+        "luogo_conservazione"
     ]
 
-    DB_SERVER = "not defined"  ####nuovo sistema sort
+    DB_SERVER = 'not defined'
 
     def __init__(self, iface):
         super().__init__()
@@ -103,8 +106,8 @@ class pyarchinit_Periodizzazione(QDialog, MAIN_DIALOG_CLASS):
         self.currentLayerId = None
         try:
             self.on_pushButton_connect_pressed()
-        except:
-            pass
+        except Exception as e:
+            QMessageBox.warning(self, "Sistema di connessione", str(e), QMessageBox.Ok)
 
     def enable_button(self, n):
         self.pushButton_connect.setEnabled(n)
@@ -157,7 +160,6 @@ class pyarchinit_Periodizzazione(QDialog, MAIN_DIALOG_CLASS):
 
         if test_conn == 0:
             self.DB_SERVER = "sqlite"
-
         try:
             self.DB_MANAGER = Pyarchinit_db_management(conn_str)
             self.DB_MANAGER.connection()
@@ -166,35 +168,33 @@ class pyarchinit_Periodizzazione(QDialog, MAIN_DIALOG_CLASS):
             if bool(self.DATA_LIST):
                 self.REC_TOT, self.REC_CORR = len(self.DATA_LIST), 0
                 self.DATA_LIST_REC_TEMP = self.DATA_LIST_REC_CORR = self.DATA_LIST[0]
-                self.BROWSE_STATUS = "b"
+                self.BROWSE_STATUS = 'b'
                 self.label_status.setText(self.STATUS_ITEMS[self.BROWSE_STATUS])
                 self.label_sort.setText(self.SORTED_ITEMS["n"])
                 self.set_rec_counter(len(self.DATA_LIST), self.REC_CORR + 1)
-                self.charge_list_sito()
+                self.charge_list()
                 self.fill_fields()
             else:
                 QMessageBox.warning(self, "BENVENUTO",
                                     "Benvenuto in pyArchInit" + self.NOME_SCHEDA + ". Il database e' vuoto. Premi 'Ok' e buon lavoro!",
                                     QMessageBox.Ok)
-                self.charge_list_sito()
+                self.charge_list()
                 self.BROWSE_STATUS = 'x'
                 self.on_pushButton_new_rec_pressed()
         except Exception as e:
             e = str(e)
             if e.find("no such table"):
                 QMessageBox.warning(self, "Alert",
-                                    "La connessione e' fallita <br><br> Tabella non presente. E' NECESSARIO RIAVVIARE QGIS",
-                                    QMessageBox.Ok)
+                                    "La connessione e' fallita <br><br> Tabella non presente. E' NECESSARIO RIAVVIARE QGIS" + str(
+                                        e), QMessageBox.Ok)
             else:
                 QMessageBox.warning(self, "Alert",
                                     "Attenzione rilevato bug! Segnalarlo allo sviluppatore<br> Errore: <br>" + str(e),
                                     QMessageBox.Ok)
 
     def charge_list(self):
-        pass
-
-    def charge_list_sito(self):
         sito_vl = self.UTILITY.tup_2_list_III(self.DB_MANAGER.group_by('site_table', 'sito', 'SITE'))
+
         try:
             sito_vl.remove('')
         except:
@@ -203,80 +203,10 @@ class pyarchinit_Periodizzazione(QDialog, MAIN_DIALOG_CLASS):
         sito_vl.sort()
         self.comboBox_sito.addItems(sito_vl)
 
-    def on_pushButton_pdf_scheda_exp_pressed(self):
-        Periodizzazione_pdf_sheet = generate_Periodizzazione_pdf()  # deve essere importata la classe
-        data_list = self.generate_list_pdf()  # deve essere aggiunta la funzione
-        Periodizzazione_pdf_sheet.build_Periodizzazione_sheets(
-            data_list)  # deve essere aggiunto il file per generare i pdf
-
-    def on_pushButton_pdf_lista_exp_pressed(self):
-        Periodizzazione_pdf_list = generate_Periodizzazione_pdf()  # deve essere importata la classe
-        data_list = self.generate_list_pdf()  # deve essere aggiunta la funzione
-        Periodizzazione_pdf_list.build_index_Periodizzazione(data_list, data_list[0][
-            0])  # deve essere aggiunto il file per generare i pdf
-
-        # codice per l'esportazione sperimentale dei PDF #
-        """
-        dlg = pyarchinit_PDFAdministrator()
-        dlg.set_table_name(self.TABLE_NAME)
-        dlg.connect()
-        msg = QMessageBox.warning(self,'ATTENZIONE',"Vuoi creare un nuovo layout PFD?", QMessageBox.Cancel,1)
-        dlg.connect()
-        ##		dlg.on_pushButton_connect_pressed()
-        if msg == 1:
-            dlg.on_pushButton_new_rec_pressed()
-            dlg.charge_list()
-
-        id_list = []
-
-        for i in self.DATA_LIST:
-            id_list.append(eval("i." + self.ID_TABLE))
-        dlg.add_id_list(id_list)
-
-        dlg.exec_()
-        """
-
-    def generate_list_pdf(self):
-        periodo = ""
-        fase = ""
-        cron_iniz = ""
-        cron_fin = ""
-
-        data_list = []
-        for i in range(len(self.DATA_LIST)):
-
-            if not self.DATA_LIST[i].periodo:
-                periodo = ""
-            else:
-                periodo = str(self.DATA_LIST[i].periodo)
-
-            if not self.DATA_LIST[i].fase:
-                fase = ""
-            else:
-                fase = str(self.DATA_LIST[i].fase)
-
-            if not self.DATA_LIST[i].cron_iniziale:
-                cron_iniz = ""
-            else:
-                cron_iniz = str(self.DATA_LIST[i].cron_iniziale)
-
-            if not self.DATA_LIST[i].cron_finale:
-                cron_fin = ""
-            else:
-                cron_fin = str(self.DATA_LIST[i].cron_finale)
-
-            data_list.append([
-                str(self.DATA_LIST[i].sito),  # 1 - Sito
-                str(periodo),  # 2 - periodo
-                str(fase),  # 3 - fase
-                str(cron_iniz),  # 4 - cron iniz
-                str(cron_fin),  # 5 - cron fin
-                str(self.DATA_LIST[i].datazione_estesa),  # 6 - datazione_estesa
-                str(self.DATA_LIST[i].descrizione)  # 7 - descrizione
-            ])
-        return data_list
-
         # buttons functions
+
+    def on_pushButton_pdf_pressed(self):
+        pass
 
     def on_pushButton_sort_pressed(self):
         if self.check_record_state() == 1:
@@ -328,29 +258,22 @@ class pyarchinit_Periodizzazione(QDialog, MAIN_DIALOG_CLASS):
                     if bool(self.DATA_LIST):
                         if self.records_equal_check() == 1:
                             self.update_if(QMessageBox.warning(self, 'Errore',
-                                                                "Il record e' stato modificato. Vuoi salvare le modifiche?",
+                                                               "Il record e' stato modificato. Vuoi salvare le modifiche?",
                                                                 QMessageBox.Ok | QMessageBox.Cancel))
 
+                            # set the GUI for a new record
         if self.BROWSE_STATUS != "n":
             self.BROWSE_STATUS = "n"
-
-            ###
-
-            self.setComboBoxEditable(["self.comboBox_sito"], 0)
-            self.setComboBoxEditable(["self.comboBox_periodo"], 0)
-            self.setComboBoxEditable(["self.comboBox_fase"], 0)
-            self.setComboBoxEnable(["self.comboBox_sito"], "True")
-            self.setComboBoxEnable(["self.comboBox_periodo"], "True")
-            self.setComboBoxEnable(["self.comboBox_fase"], "True")
-
-            ###
-            self.label_sort.setText(self.SORTED_ITEMS[self.SORT_STATUS])
-
             self.label_status.setText(self.STATUS_ITEMS[self.BROWSE_STATUS])
-            self.set_rec_counter('', '')
-            self.label_sort.setText(self.SORTED_ITEMS["n"])
             self.empty_fields()
+            self.label_sort.setText(self.SORTED_ITEMS["n"])
 
+            self.setComboBoxEditable(["self.comboBox_sito"], 1)
+
+            self.setComboBoxEnable(["self.comboBox_sito"], "True")
+            self.setComboBoxEnable(["self.lineEdit_nr_campione"], "True")
+
+            self.set_rec_counter('', '')
             self.enable_button(0)
 
     def on_pushButton_save_pressed(self):
@@ -361,8 +284,7 @@ class pyarchinit_Periodizzazione(QDialog, MAIN_DIALOG_CLASS):
                     self.update_if(QMessageBox.warning(self, 'ATTENZIONE',
                                                        "Il record e' stato modificato. Vuoi salvare le modifiche?",
                                                        QMessageBox.Ok | QMessageBox.Cancel))
-                    self.SORT_STATUS = "n"
-                    self.label_sort.setText(self.SORTED_ITEMS[self.SORT_STATUS])
+                    self.label_sort.setText(self.SORTED_ITEMS["n"])
                     self.enable_button(1)
                     self.fill_fields(self.REC_CORR)
                 else:
@@ -372,99 +294,78 @@ class pyarchinit_Periodizzazione(QDialog, MAIN_DIALOG_CLASS):
                 test_insert = self.insert_new_rec()
                 if test_insert == 1:
                     self.empty_fields()
-                    self.SORT_STATUS = "n"
-                    self.label_sort.setText(self.SORTED_ITEMS[self.SORT_STATUS])
-                    self.charge_records()
+                    self.label_sort.setText(self.SORTED_ITEMS["n"])
                     self.charge_list()
+                    self.charge_records()
                     self.BROWSE_STATUS = "b"
                     self.label_status.setText(self.STATUS_ITEMS[self.BROWSE_STATUS])
                     self.REC_TOT, self.REC_CORR = len(self.DATA_LIST), len(self.DATA_LIST) - 1
                     self.set_rec_counter(self.REC_TOT, self.REC_CORR + 1)
+
                     self.setComboBoxEditable(["self.comboBox_sito"], 1)
-                    self.setComboBoxEditable(["self.comboBox_periodo"], 1)
-                    self.setComboBoxEditable(["self.comboBox_fase"], 1)
                     self.setComboBoxEnable(["self.comboBox_sito"], "False")
-                    self.setComboBoxEnable(["self.comboBox_periodo"], "False")
-                    self.setComboBoxEnable(["self.comboBox_fase"], "False")
+                    self.setComboBoxEnable(["self.lineEdit_nr_campione"], "False")
                     self.fill_fields(self.REC_CORR)
                     self.enable_button(1)
-            else:
-                QMessageBox.warning(self, "ATTENZIONE", "Problema nell'inserimento dati", QMessageBox.Ok)
+                else:
+                    pass
 
     def data_error_check(self):
         test = 0
         EC = Error_check()
 
-        data_estesa = self.lineEdit_per_estesa.text()
+        if EC.data_is_empty(str(self.comboBox_sito.currentText())) == 0:
+            QMessageBox.warning(self, "ATTENZIONE", "Campo Sito. \n Il campo non deve essere vuoto", QMessageBox.Ok)
+            test = 1
 
-        if data_estesa != "":
-            if EC.data_lenght(data_estesa, 299) == 0:
-                QMessageBox.warning(self, "ATTENZIONE",
-                                    "Campo Datazione estesa. \n non deve superare i 300 caratteri alfanumerici",
+        if EC.data_is_empty(str(self.lineEdit_nr_campione.text())) == 0:
+            QMessageBox.warning(self, "ATTENZIONE", "Campo nr_campione \n Il campo non deve essere vuoto",
+                                QMessageBox.Ok)
+            test = 1
+
+        nr_campione = self.lineEdit_nr_campione.text()
+
+        if nr_campione != "":
+            if EC.data_is_int(nr_campione) == 0:
+                QMessageBox.warning(self, "ATTENZIONE", "Campo Nr Campione \n Il valore deve essere di tipo numerico",
                                     QMessageBox.Ok)
-                test = 1
-
-        periodo = self.comboBox_periodo.currentText()
-        cron_iniz = self.lineEdit_cron_iniz.text()
-        cron_fin = self.lineEdit_cron_fin.text()
-        cod_per = self.lineEdit_codice_periodo.text()
-
-        if periodo != "":
-            if EC.data_is_int(periodo) == 0:
-                QMessageBox.warning(self, "ATTENZIONE", "Campo Periodo. \n Il valore deve essere di tipo numerico",
-                                    QMessageBox.Ok)
-                test = 1
-
-        if cron_iniz != "":
-            if EC.data_is_int(cron_iniz) == 0:
-                QMessageBox.warning(self, "ATTENZIONE",
-                                    "Campo Cronologia Iniziale. \n Il valore deve essere di tipo numerico",
-                                    QMessageBox.Ok)
-                test = 1
-
-        if cron_fin != "":
-            if EC.data_is_int(cron_fin) == 0:
-                QMessageBox.warning(self, "ATTENZIONE",
-                                    "Campo Cronologia Finale. \n Il valore deve essere di tipo numerico",
-                                    QMessageBox.Ok)
-                test = 1
-
-        if cod_per != "":
-            if EC.data_is_int(cod_per) == 0:
-                QMessageBox.warning(self, "ATTENZIONE",
-                                    "Campo Codice Periodo \n Il valore deve essere di tipo numerico", QMessageBox.Ok)
                 test = 1
 
         return test
 
     def insert_new_rec(self):
-        cont_per = 0
         try:
-            if not self.lineEdit_cron_iniz.text():
-                cron_iniz = ''
+            if self.lineEdit_nr_campione.text() == "":
+                nr_campione = None
             else:
-                cron_iniz = int(self.lineEdit_cron_iniz.text())
+                nr_campione = int(self.lineEdit_nr_campione.text())
 
-            if not self.lineEdit_cron_fin.text():
-                cron_fin = ''
+            if self.lineEdit_us.text() == "":
+                us = None
             else:
-                cron_fin = int(self.lineEdit_cron_fin.text())
+                us = int(self.lineEdit_us.text())
 
-            if not self.lineEdit_codice_periodo.text():
-                cont_per = ''
+            if self.lineEdit_cassa.text() == "":
+                nr_cassa = None
             else:
-                cont_per = int(self.lineEdit_codice_periodo.text())
+                nr_cassa = int(self.lineEdit_cassa.text())
 
-            data = self.DB_MANAGER.insert_periodizzazione_values(
-                self.DB_MANAGER.max_num_id(self.MAPPER_TABLE_CLASS, self.ID_TABLE) + 1,  # 0 - max num id
+            if self.lineEdit_n_inv_mat.text() == "":
+                numero_inventario_materiale = None
+            else:
+                numero_inventario_materiale = int(self.lineEdit_n_inv_mat.text())
+
+            data = self.DB_MANAGER.insert_campioni_values(
+                self.DB_MANAGER.max_num_id(self.MAPPER_TABLE_CLASS, self.ID_TABLE) + 1,
                 str(self.comboBox_sito.currentText()),  # 1 - Sito
-                int(self.comboBox_periodo.currentText()),  # 2 - Periodo
-                int(self.comboBox_fase.currentText()),  # 3 - Fase
-                int(cron_iniz),  # 4 - Cron iniziale
-                int(cron_fin),  # 5 - Cron finale
-                str(self.textEdit_descrizione_per.toPlainText()),  # 6 - Descrizione
-                str(self.lineEdit_per_estesa.text()),  # 7 - Periodizzazione estesa
-                int(cont_per))  # 8 - Cont_per
+                nr_campione,  # 2 - nr campione
+                str(self.comboBox_tipo_campione.currentText()),  # 3 - tipo_campione
+                str(self.textEdit_descrizione_camp.toPlainText()),  # 4 - descrizione
+                str(self.lineEdit_area.text()),  # 5 - area
+                us,  # 6 - us
+                numero_inventario_materiale,  # 7 - inv materiale
+                nr_cassa,  # 8 - nr_cassa
+                str(self.lineEdit_luogo_conservazione.text()))  # 9 - luogo conservazione
 
             try:
                 self.DB_MANAGER.insert_data_session(data)
@@ -475,10 +376,10 @@ class pyarchinit_Periodizzazione(QDialog, MAIN_DIALOG_CLASS):
                     msg = self.ID_TABLE + " gia' presente nel database"
                 else:
                     msg = e
-                QMessageBox.warning(self, "Errore", "immisione 1 \n" + str(msg), QMessageBox.Ok)
+                QMessageBox.warning(self, "Errore", "Attenzione 1 ! \n" + str(msg), QMessageBox.Ok)
                 return 0
         except Exception as e:
-            QMessageBox.warning(self, "Errore", "Errore di immissione 2 \n" + str(e), QMessageBox.Ok)
+            QMessageBox.warning(self, "Errore", "Attenzione 2 ! \n" + str(e), QMessageBox.Ok)
             return 0
 
     def check_record_state(self):
@@ -610,59 +511,56 @@ class pyarchinit_Periodizzazione(QDialog, MAIN_DIALOG_CLASS):
         else:
             self.enable_button_search(0)
 
-            self.setComboBoxEditable(["self.comboBox_sito"], 1)
-
             # set the GUI for a new search
-
             if self.BROWSE_STATUS != "f":
                 self.BROWSE_STATUS = "f"
                 self.label_status.setText(self.STATUS_ITEMS[self.BROWSE_STATUS])
-                self.empty_fields()
+                ###
+                self.setComboBoxEnable(["self.comboBox_sito"], "True")
+                self.setComboBoxEnable(["self.lineEdit_nr_campione"], "True")
+                self.setComboBoxEnable(["self.textEdit_descrizione_camp"], "False")
+                ###
+                self.label_status.setText(self.STATUS_ITEMS[self.BROWSE_STATUS])
                 self.set_rec_counter('', '')
                 self.label_sort.setText(self.SORTED_ITEMS["n"])
-
-                self.setComboBoxEditable(["self.comboBox_sito"], 1)
-                self.setComboBoxEditable(["self.comboBox_periodo"], 1)
-                self.setComboBoxEditable(["self.comboBox_fase"], 1)
-                self.setComboBoxEnable(["self.comboBox_sito"], "True")
-                self.setComboBoxEnable(["self.comboBox_periodo"], "True")
-                self.setComboBoxEnable(["self.comboBox_fase"], "True")
-                self.setComboBoxEnable(["self.textEdit_descrizione_per"], "False")
+                self.charge_list()
+                self.empty_fields()
 
     def on_pushButton_search_go_pressed(self):
         if self.BROWSE_STATUS != "f":
             QMessageBox.warning(self, "ATTENZIONE", "Per eseguire una nuova ricerca clicca sul pulsante 'new search' ",
                                 QMessageBox.Ok)
         else:
-            if self.lineEdit_cron_iniz.text() != "":
-                cron_iniziale = "'" + str(self.lineEdit_cron_iniz.text()) + "'"
-            else:
-                cron_iniziale = ""
 
-            if self.lineEdit_cron_fin.text() != "":
-                cron_finale = "'" + str(self.lineEdit_cron_fin.text()) + "'"
+            if self.lineEdit_nr_campione.text() == "":
+                nr_campione = None
             else:
-                cron_finale = ""
+                nr_campione = int(self.lineEdit_nr_campione.text())
 
-            if self.comboBox_periodo.currentText() != "":
-                periodo = "'" + str(self.comboBox_periodo.currentText()) + "'"
+            if self.lineEdit_us.text() == "":
+                us = None
             else:
-                periodo = ""
+                us = int(self.lineEdit_us.text())
 
-            if self.comboBox_fase.currentText() != "":
-                fase = "'" + str(self.comboBox_fase.currentText()) + "'"
+            if self.lineEdit_cassa.text() == "":
+                nr_cassa = None
             else:
-                fase = ""
+                nr_cassa = int(self.lineEdit_cassa.text())
+
+            if self.lineEdit_n_inv_mat.text() == "":
+                numero_inventario_materiale = None
+            else:
+                numero_inventario_materiale = int(self.lineEdit_n_inv_mat.text())
 
             search_dict = {
-                'sito': "'" + str(self.comboBox_sito.currentText()) + "'",  # 1 - Sito
-                'periodo': periodo,  # 2 - Periodo
-                'fase': fase,  # 3 - Fase
-                'cron_iniziale': cron_iniziale,  # 4 - Cron iniziale
-                'cron_finale': cron_finale,  # 5 - Crion finale
-                'descrizione': str(self.textEdit_descrizione_per.toPlainText()),  # 6 - Descrizione
-                'datazione_estesa': "'" + str(self.lineEdit_per_estesa.text()) + "'",  # 7 - Periodizzazione estesa
-                'cont_per': "'" + str(self.lineEdit_codice_periodo.text()) + "'"  # 8 - Codice periodo
+                self.TABLE_FIELDS[0]: "'" + str(self.comboBox_sito.currentText()) + "'",  # 1 - Sito
+                self.TABLE_FIELDS[1]: nr_campione,  # 2 - numero_campione
+                self.TABLE_FIELDS[2]: "'" + str(self.comboBox_tipo_campione.currentText()) + "'",  # 3 - tipo campione
+                self.TABLE_FIELDS[4]: "'" + str(self.lineEdit_area.text()) + "'",  # 4- area
+                self.TABLE_FIELDS[5]: us,  # 5 - us
+                self.TABLE_FIELDS[6]: numero_inventario_materiale,  # 6 - numero inventario materiale
+                self.TABLE_FIELDS[7]: nr_cassa,  # 7- nr cassa
+                self.TABLE_FIELDS[8]: "'" + str(self.lineEdit_luogo_conservazione.text()) + "'"  # 8 - periodo finale
             }
 
             u = Utility()
@@ -682,20 +580,16 @@ class pyarchinit_Periodizzazione(QDialog, MAIN_DIALOG_CLASS):
                     self.BROWSE_STATUS = "b"
                     self.label_status.setText(self.STATUS_ITEMS[self.BROWSE_STATUS])
 
-                    self.setComboBoxEditable(["self.comboBox_sito"], 1)
-                    self.setComboBoxEditable(["self.comboBox_periodo"], 1)
-                    self.setComboBoxEditable(["self.comboBox_fase"], 1)
-
                     self.setComboBoxEnable(["self.comboBox_sito"], "False")
-                    self.setComboBoxEnable(["self.comboBox_periodo"], "False")
-                    self.setComboBoxEnable(["self.comboBox_fase"], "False")
-
-                    self.setComboBoxEnable(["self.textEdit_descrizione_per"], "True")
+                    self.setComboBoxEnable(["self.lineEdit_nr_campione"], "True")
+                    self.setComboBoxEnable(["self.textEdit_descrizione_camp"], "True")
 
                 else:
                     self.DATA_LIST = []
+
                     for i in res:
                         self.DATA_LIST.append(i)
+
                     self.REC_TOT, self.REC_CORR = len(self.DATA_LIST), 0
                     self.DATA_LIST_REC_TEMP = self.DATA_LIST_REC_CORR = self.DATA_LIST[0]
                     self.fill_fields()
@@ -708,27 +602,165 @@ class pyarchinit_Periodizzazione(QDialog, MAIN_DIALOG_CLASS):
                     else:
                         strings = ("Sono stati trovati", self.REC_TOT, "records")
 
-                    self.setComboBoxEditable(["self.comboBox_sito"], 1)
-                    self.setComboBoxEditable(["self.comboBox_periodo"], 1)
-                    self.setComboBoxEditable(["self.comboBox_fase"], 1)
                     self.setComboBoxEnable(["self.comboBox_sito"], "False")
-                    self.setComboBoxEnable(["self.comboBox_periodo"], "False")
-                    self.setComboBoxEnable(["self.comboBox_fase"], "False")
-                    self.setComboBoxEnable(["self.textEdit_descrizione_per"], "True")
+                    self.setComboBoxEnable(["self.lineEdit_nr_campione"], "True")
+                    self.setComboBoxEnable(["self.textEdit_descrizione_camp"], "True")
 
                     QMessageBox.warning(self, "Messaggio", "%s %d %s" % strings, QMessageBox.Ok)
 
         self.enable_button_search(1)
 
-    def on_pushButton_show_periodo_pressed(self):
-        if not self.lineEdit_codice_periodo.text():
-            QMessageBox.warning(self, "Messaggio", "Codice periodo non assegnato", QMessageBox.Ok)
-        else:
-            sito_p = self.comboBox_sito.currentText()
-            cont_per = self.lineEdit_codice_periodo.text()
-            per_label = self.comboBox_periodo.currentText()
-            fas_label = self.comboBox_fase.currentText()
-            self.pyQGIS.charge_vector_layers_periodo(sito_p, int(cont_per), per_label, fas_label)
+    def on_pushButton_test_pressed(self):
+        pass
+
+    def on_pushButton_index_pdf_pressed(self):
+        Camp_index_pdf = generate_campioni_pdf()
+        data_list = self.generate_list_pdf()
+        Camp_index_pdf.build_index_Campioni(data_list, data_list[0][0])
+
+        sito_ec = str(self.comboBox_sito.currentText())
+        Mat_casse_pdf = generate_campioni_pdf()
+        data_list = self.generate_el_casse_pdf(sito_ec)
+        Mat_casse_pdf.build_index_Casse(data_list, sito_ec)
+        Mat_casse_pdf.build_box_labels_Campioni(data_list, sito_ec)
+
+    def on_pushButton_exp_champ_sheet_pdf_pressed(self):
+        if self.records_equal_check() == 1:
+            self.update_if(
+                QMessageBox.warning(self, 'Errore', "Il record è stato modificato. Vuoi salvare le modifiche?",
+                                    QMessageBox.Ok | QMessageBox.Cancel))
+
+        Champ_pdf_sheet = generate_campioni_pdf()
+        data_list = self.generate_list_pdf()
+        Champ_pdf_sheet.build_Champ_sheets(data_list)
+
+        # ********************************************************************************
+
+    def generate_el_casse_pdf(self, sito):
+        self.sito_ec = sito
+        elenco_casse_res = self.DB_MANAGER.query_distinct('CAMPIONI', [['sito', '"' + str(self.sito_ec) + '"']],
+                                                          ['nr_cassa'])
+
+        elenco_casse_list = []  # accoglie la sigla numerica delle casse presenti per un determinato sito.
+        for i in elenco_casse_res:
+            elenco_casse_list.append(i.nr_cassa)
+
+        data_for_pdf = []  # contiene i singoli dati per l'esportazione dell'elenco casse
+
+        elenco_casse_list.sort()
+        for cassa in elenco_casse_list:
+            single_cassa = []  # contiene i dati della singola cassa
+
+            str_cassa = "<b>" + str(cassa) + "</b>"
+            single_cassa.append(str_cassa)  # inserisce la sigla di cassa
+
+            ###cerca le singole area/us presenti in quella cassa
+            res_inv = self.DB_MANAGER.query_distinct('CAMPIONI',
+                                                     [['sito', '"' + str(self.sito_ec) + '"'], ['nr_cassa', cassa]],
+                                                     ['nr_campione', 'tipo_campione'])
+
+            res_inv_list = []
+            for i in res_inv:
+                res_inv_list.append(i)
+
+            n_inv_res_list = ""
+            for i in range(len(res_inv_list)):
+                if i != len(res_inv_list) - 1:
+                    n_inv_res_list += " N.inv:" + str(res_inv_list[i].nr_campione) + "/" + str(
+                        res_inv_list[i].tipo_campione) + ","
+                else:
+                    n_inv_res_list += " N.inv:" + str(res_inv_list[i].nr_campione) + "/" + str(
+                        res_inv_list[i].tipo_campione)
+
+                    # inserisce l'elenco degli inventari
+            single_cassa.append(n_inv_res_list)
+
+            ###cerca le singole area/us presenti in quella cassa
+            res_us = self.DB_MANAGER.query_distinct('CAMPIONI',
+                                                    [['sito', '"' + str(self.sito_ec) + '"'], ['nr_cassa', cassa]],
+                                                    ['area', 'us'])
+
+            res_us_list = []
+            for i in res_us:
+                res_us_list.append(i)
+
+            us_res_list = ""  # [] #accoglie l'elenco delle US presenti in quella cassa
+            for i in range(len(res_us_list)):
+                params_dict = {'sito': '"' + str(self.sito_ec) + '"', 'area': '"' + str(res_us_list[i].area) + '"',
+                               'us': '"' + str(res_us_list[i].us) + '"'}
+                res_struct = self.DB_MANAGER.query_bool(params_dict, 'US')
+
+                res_struct_list = []
+                for s_strutt in res_struct:
+                    res_struct_list.append(s_strutt)
+
+                structure_string = ""
+                if len(res_struct_list) > 0:
+                    for sing_us in res_struct_list:
+                        if sing_us.struttura != '':
+                            structure_string += "(" + str(sing_us.struttura) + '/'
+
+                    if structure_string != "":
+                        structure_string += ")"
+
+                if i != len(res_us_list) - 1:
+                    us_res_list += "Area:" + str(res_us_list[i].area) + ",US:" + str(
+                        res_us_list[i].us) + structure_string + ", "  # .append("Area:"+str(i.area) + ",US:"+str(i.us))
+                else:
+                    us_res_list += "Area:" + str(res_us_list[i].area) + ",US:" + str(
+                        res_us_list[i].us) + structure_string  # .append("Area:"+str(i.area) + ",US:"+str(i.us))
+
+                    # us_res_list.sort()
+                    # inserisce l'elenco delle us
+            single_cassa.append(us_res_list)
+
+            ###cerca il luogo di conservazione della cassa
+            params_dict = {'sito': '"' + str(self.sito_ec) + '"', 'nr_cassa': '"' + str(cassa) + '"'}
+            res_luogo_conservazione = self.DB_MANAGER.query_bool(params_dict, 'CAMPIONI')
+            luogo_conservazione = res_luogo_conservazione[0].luogo_conservazione
+            single_cassa.append(luogo_conservazione)  # inserisce la sigla di cassa
+
+            data_for_pdf.append(single_cassa)
+
+            # QMessageBox.warning(self,'tk',str(data_for_pdf), QMessageBox.Ok)
+        return data_for_pdf
+
+    def generate_list_pdf(self):
+        data_list = []
+        for i in range(len(self.DATA_LIST)):
+            if str(self.DATA_LIST[i].nr_campione) == 'None':
+                numero_campione = ''
+            else:
+                numero_campione = str(self.DATA_LIST[i].nr_campione)
+
+            if str(self.DATA_LIST[i].us) == 'None':
+                us = ''
+            else:
+                us = str(self.DATA_LIST[i].us)
+
+            if str(self.DATA_LIST[i].numero_inventario_materiale) == 'None':
+                numero_inventario_materiale = ''
+            else:
+                numero_inventario_materiale = str(self.DATA_LIST[i].numero_inventario_materiale)
+
+            if str(self.DATA_LIST[i].nr_cassa) == 'None':
+                nr_cassa = ''
+            else:
+                nr_cassa = str(self.DATA_LIST[i].nr_cassa)
+
+            data_list.append([
+                str(self.DATA_LIST[i].sito),  # 1 - Sito
+                str(numero_campione),  # 2 - Numero campione
+                str(self.DATA_LIST[i].tipo_campione),  # 3 - Tipo campione
+                str(self.DATA_LIST[i].descrizione),  # 4 - Descrizione
+                str(self.DATA_LIST[i].area),  # 5 - Area
+                str(us),  # 6 - us
+                str(numero_inventario_materiale),  # 7 - numero inventario materiale
+                str(self.DATA_LIST[i].luogo_conservazione),  # 8 - luogo_conservazione
+                str(nr_cassa)  # 9 - nr cassa
+            ])
+
+        return data_list
 
     def update_if(self, msg):
         rec_corr = self.REC_CORR
@@ -762,36 +794,14 @@ class pyarchinit_Periodizzazione(QDialog, MAIN_DIALOG_CLASS):
 
     def charge_records(self):
         self.DATA_LIST = []
+        id_list = []
+        for i in self.DB_MANAGER.query(self.MAPPER_TABLE_CLASS):
+            id_list.append(eval("i." + self.ID_TABLE))
 
-        if self.DB_SERVER == 'sqlite':
-            for i in self.DB_MANAGER.query(self.MAPPER_TABLE_CLASS):
-                self.DATA_LIST.append(i)
-        else:
-            id_list = []
-            for i in self.DB_MANAGER.query(self.MAPPER_TABLE_CLASS):
-                id_list.append(eval("i." + self.ID_TABLE))
-
-            temp_data_list = self.DB_MANAGER.query_sort(id_list, [self.ID_TABLE], 'asc', self.MAPPER_TABLE_CLASS,
-                                                        self.ID_TABLE)
-
-            for i in temp_data_list:
-                self.DATA_LIST.append(i)
-
-    def setComboBoxEditable(self, f, n):
-        field_names = f
-        value = n
-
-        for fn in field_names:
-            cmd = ('%s%s%d%s') % (fn, '.setEditable(', n, ')')
-            eval(cmd)
-
-    def setComboBoxEnable(self, f, v):
-        field_names = f
-        value = v
-
-        for fn in field_names:
-            cmd = ('%s%s%s%s') % (fn, '.setEnabled(', v, ')')
-            eval(cmd)
+        temp_data_list = self.DB_MANAGER.query_sort(id_list, [self.ID_TABLE], 'asc', self.MAPPER_TABLE_CLASS,
+                                                    self.ID_TABLE)
+        for i in temp_data_list:
+            self.DATA_LIST.append(i)
 
     def datestrfdate(self):
         now = date.today()
@@ -814,42 +824,48 @@ class pyarchinit_Periodizzazione(QDialog, MAIN_DIALOG_CLASS):
 
     def empty_fields(self):
         self.comboBox_sito.setEditText("")  # 1 - Sito
-        self.comboBox_periodo.setEditText("")  # 2 - Periodo
-        self.comboBox_fase.setEditText("")  # 3 - Fase
-        self.lineEdit_cron_iniz.clear()  # 4 - Cronologia iniziale
-        self.lineEdit_cron_fin.clear()  # 5 - Cronologia finale
-        self.lineEdit_per_estesa.clear()  # 6 - Datazione estesa
-        self.textEdit_descrizione_per.clear()  # 7 - Descrizione
-        self.lineEdit_codice_periodo.clear()  # 8 - Codice periodo
+        self.lineEdit_nr_campione.clear()  # 2 - Nr campione
+        self.comboBox_tipo_campione.setEditText("")  # 3 - Sito
+        self.textEdit_descrizione_camp.clear()  # 4 - descrizione
+        self.lineEdit_nr_campione.clear()  # 5 - Nr campione
+        self.lineEdit_area.clear()  # 6 - area
+        self.lineEdit_us.clear()  # 7 - us
+        self.lineEdit_n_inv_mat.clear()  # 8 - numero inventario_materiale
+        self.lineEdit_luogo_conservazione.clear()  # 9 - luogo di conservazione
+        self.lineEdit_cassa.clear()  # 10 - cassa
 
     def fill_fields(self, n=0):
         self.rec_num = n
-        try:
-            str(self.comboBox_sito.setEditText(self.DATA_LIST[self.rec_num].sito))  # 1 - Sito
+        if str(self.DATA_LIST[self.rec_num].nr_campione) == 'None':
+            numero_campione = ''
+        else:
+            numero_campione = str(self.DATA_LIST[self.rec_num].nr_campione)
 
-            self.comboBox_periodo.setEditText(str(self.DATA_LIST[self.rec_num].periodo))  # 2 - Periodo
-            self.comboBox_fase.setEditText(str(self.DATA_LIST[self.rec_num].fase))  # 3 - Fase
+        if str(self.DATA_LIST[self.rec_num].us) == 'None':
+            us = ''
+        else:
+            us = str(self.DATA_LIST[self.rec_num].us)
 
-            if not self.DATA_LIST[self.rec_num].cron_iniziale:  # 4 - Cronologia iniziale
-                self.lineEdit_cron_iniz.setText("")
-            else:
-                self.lineEdit_cron_iniz.setText(str(self.DATA_LIST[self.rec_num].cron_iniziale))
+        if str(self.DATA_LIST[self.rec_num].numero_inventario_materiale) == 'None':
+            numero_inventario_materiale = ''
+        else:
+            numero_inventario_materiale = str(self.DATA_LIST[self.rec_num].numero_inventario_materiale)
 
-            if not self.DATA_LIST[self.rec_num].cron_finale:  # 5 - Cronologia finale
-                self.lineEdit_cron_fin.setText("")
-            else:
-                self.lineEdit_cron_fin.setText(str(self.DATA_LIST[self.rec_num].cron_finale))
+        if str(self.DATA_LIST[self.rec_num].nr_cassa) == 'None':
+            nr_cassa = ''
+        else:
+            nr_cassa = str(self.DATA_LIST[self.rec_num].nr_cassa)
 
-            str(self.lineEdit_per_estesa.setText(self.DATA_LIST[self.rec_num].datazione_estesa))  # 6 - Datazione estesa
-            str(self.textEdit_descrizione_per.setText(self.DATA_LIST[self.rec_num].descrizione))  # 7 - Descrizione
-
-            if not self.DATA_LIST[self.rec_num].cont_per:  # 8 - Codice periodo
-                self.lineEdit_codice_periodo.setText("")
-            else:
-                self.lineEdit_codice_periodo.setText(str(self.DATA_LIST[self.rec_num].cont_per))
-
-        except Exception as e:
-            QMessageBox.warning(self, "Errore Fill Fields", str(e), QMessageBox.Ok)
+        str(self.comboBox_sito.setEditText(self.DATA_LIST[self.rec_num].sito))  # 1 - Sito
+        str(self.lineEdit_nr_campione.setText(numero_campione))  # 2 - Numero campione
+        str(self.comboBox_tipo_campione.setEditText(self.DATA_LIST[self.rec_num].tipo_campione))  # 3 - Tipo campione
+        str(self.textEdit_descrizione_camp.setText(self.DATA_LIST[self.rec_num].descrizione))  # 4 - Descrizione
+        str(self.lineEdit_area.setText(self.DATA_LIST[self.rec_num].area))  # 5 - Area
+        str(self.lineEdit_us.setText(us))  # 6 - us
+        str(self.lineEdit_n_inv_mat.setText(numero_inventario_materiale))  # 7 - numero inventario materiale
+        str(self.lineEdit_luogo_conservazione.setText(
+            self.DATA_LIST[self.rec_num].luogo_conservazione))  # 8 - luogo_conservazione
+        str(self.lineEdit_cassa.setText(nr_cassa))  # 9 - nr cassa
 
     def set_rec_counter(self, t, c):
         self.rec_tot = t
@@ -858,36 +874,64 @@ class pyarchinit_Periodizzazione(QDialog, MAIN_DIALOG_CLASS):
         self.label_rec_corrente.setText(str(self.rec_corr))
 
     def set_LIST_REC_TEMP(self):
-        # data
-        if not self.lineEdit_cron_iniz.text():
-            cron_iniz = ''
-        else:
-            cron_iniz = str(self.lineEdit_cron_iniz.text())
 
-        if not self.lineEdit_cron_fin.text():
-            cron_fin = ''
+        if self.lineEdit_nr_campione.text() == "":
+            nr_campione = None
         else:
-            cron_fin = str(self.lineEdit_cron_fin.text())
+            nr_campione = int(self.lineEdit_nr_campione.text())
 
-        if not self.lineEdit_codice_periodo.text():
-            cont_per = ''
+        if self.lineEdit_us.text() == "":
+            us = None
         else:
-            cont_per = str(self.lineEdit_codice_periodo.text())
+            us = int(self.lineEdit_us.text())
 
+        if self.lineEdit_cassa.text() == "":
+            nr_cassa = None
+        else:
+            nr_cassa = int(self.lineEdit_cassa.text())
+
+        if self.lineEdit_n_inv_mat.text() == "":
+            numero_inventario_materiale = None
+        else:
+            numero_inventario_materiale = int(self.lineEdit_n_inv_mat.text())
+
+            # data
         self.DATA_LIST_REC_TEMP = [
             str(self.comboBox_sito.currentText()),  # 1 - Sito
-            str(self.comboBox_periodo.currentText()),  # 2 - Periodo
-            str(self.comboBox_fase.currentText()),  # 3 - Fase
-            str(cron_iniz),  # 4 - Cron iniziale
-            str(cron_fin),  # 5 - Cron finale
-            str(self.textEdit_descrizione_per.toPlainText()),  # 6 - Descrizioene
-            str(self.lineEdit_per_estesa.text()),  # 7 - Cron estesa
-            str(cont_per)]  # 8 - Cont_per
+            str(nr_campione),  # 2 - nr campione
+            str(self.comboBox_tipo_campione.currentText()),  # 3 - tipo campione
+            str(self.textEdit_descrizione_camp.toPlainText()),  # 4 - descrizione
+            str(self.lineEdit_area.text()),  # 5 - area
+            str(us),  # 6 - us
+            str(numero_inventario_materiale),  # 7 - numero_inventario_materiale
+            str(nr_cassa),  # 8 - numero cassa
+            str(self.lineEdit_luogo_conservazione.text())  # 9 - luogo conservazione
+        ]
 
     def set_LIST_REC_CORR(self):
         self.DATA_LIST_REC_CORR = []
         for i in self.TABLE_FIELDS:
             self.DATA_LIST_REC_CORR.append(eval("unicode(self.DATA_LIST[self.REC_CORR]." + i + ")"))
+
+    def setComboBoxEnable(self, f, v):
+        field_names = f
+        value = v
+
+        for fn in field_names:
+            cmd = ('%s%s%s%s') % (fn, '.setEnabled(', v, ')')
+            eval(cmd)
+
+    def setComboBoxEditable(self, f, n):
+        field_names = f
+        value = n
+
+        for fn in field_names:
+            cmd = ('%s%s%d%s') % (fn, '.setEditable(', n, ')')
+            eval(cmd)
+
+    def rec_toupdate(self):
+        rec_to_update = self.UTILITY.pos_none_in_list(self.DATA_LIST_REC_TEMP)
+        return rec_to_update
 
     def records_equal_check(self):
         self.set_LIST_REC_TEMP()
@@ -911,10 +955,6 @@ class pyarchinit_Periodizzazione(QDialog, MAIN_DIALOG_CLASS):
                                 "Problema di encoding: sono stati inseriti accenti o caratteri non accettati dal database. Se chiudete ora la scheda senza correggere gli errori perderete i dati. Fare una copia di tutto su un foglio word a parte. Errore :" + str(
                                     e), QMessageBox.Ok)
             return 0
-
-    def rec_toupdate(self):
-        rec_to_update = self.UTILITY.pos_none_in_list(self.DATA_LIST_REC_TEMP)
-        return rec_to_update
 
     def testing(self, name_file, message):
         f = open(str(name_file), 'w')

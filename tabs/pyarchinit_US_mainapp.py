@@ -30,20 +30,20 @@ from qgis.PyQt.uic import loadUiType
 from qgis.core import Qgis
 from qgis.gui import QgsMapCanvas, QgsMapToolPan
 
-from .modules.db.pyarchinit_conn_strings import Connection
-from .modules.db.pyarchinit_db_manager import Pyarchinit_db_management
-from .modules.db.pyarchinit_utility import Utility
-from .modules.gis.pyarchinit_pyqgis import Pyarchinit_pyqgis, Order_layer_v2
-from .modules.utility.delegateComboBox import ComboBoxDelegate
-from .modules.utility.pyarchinit_error_check import Error_check
-from .modules.utility.pyarchinit_exp_Periodosheet_pdf import generate_US_pdf
-from .modules.utility.pyarchinit_exp_USsheet_pdf import *
-from .modules.utility.pyarchinit_print_utility import Print_utility
+from ..modules.db.pyarchinit_conn_strings import Connection
+from ..modules.db.pyarchinit_db_manager import Pyarchinit_db_management
+from ..modules.db.pyarchinit_utility import Utility
+from ..modules.gis.pyarchinit_pyqgis import Pyarchinit_pyqgis, Order_layer_v2
+from ..modules.utility.delegateComboBox import ComboBoxDelegate
+from ..modules.utility.pyarchinit_error_check import Error_check
+from ..modules.utility.pyarchinit_exp_Periodosheet_pdf import generate_US_pdf
+from ..modules.utility.pyarchinit_exp_USsheet_pdf import *
+from ..modules.utility.pyarchinit_print_utility import Print_utility
 from .pyarchinit_interactive_matrix_main import pyarchinit_Interactive_Matrix
-from .sortpanelmain import SortPanelMain
+from ..sortpanelmain import SortPanelMain
 
-MAIN_DIALOG_CLASS, _ = loadUiType(os.path.join(os.path.dirname(__file__), 'modules', 'gui', 'pyarchinit_US_ui.ui'))
-IMAGE_VIEWER, _ = loadUiType(os.path.join(os.path.dirname(__file__), 'modules', 'gui', 'imageViewer_ui.ui'))
+MAIN_DIALOG_CLASS, _ = loadUiType(os.path.join(os.path.dirname(__file__), '..', 'modules', 'gui', 'pyarchinit_US_ui.ui'))
+IMAGE_VIEWER, _ = loadUiType(os.path.join(os.path.dirname(__file__), '..', 'modules', 'gui', 'imageViewer_ui.ui'))
 
 
 class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):

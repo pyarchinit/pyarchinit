@@ -28,6 +28,8 @@ sys.path.insert(0, os.path.join(os.path.dirname(__file__), 'modules', 'gui'))
 sys.path.insert(1, os.path.join(os.path.dirname(__file__), 'modules', 'gis'))
 sys.path.insert(2, os.path.join(os.path.dirname(__file__), 'modules', 'db'))
 sys.path.insert(3, os.path.join(os.path.dirname(__file__), 'modules', 'utility'))
+sys.path.insert(4, os.path.join(os.path.dirname(__file__), 'tabs'))
+
 # TODO: to delete, only for testing
 sys.path.insert(4, os.path.join(os.path.dirname(__file__), 'ext-libs'))
 

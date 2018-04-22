@@ -29,13 +29,13 @@ from qgis.PyQt.uic import loadUiType
 import os
 import sys
 
-from .modules.db.pyarchinit_conn_strings import Connection
-from .modules.db.pyarchinit_db_manager import Pyarchinit_db_management
-from .modules.db.pyarchinit_utility import Utility
-from .modules.utility.pyarchinit_OS_utility import Pyarchinit_OS_Utility
-from .pyarchinitConfigDialog import pyArchInitDialog_Config
+from ..modules.db.pyarchinit_conn_strings import Connection
+from ..modules.db.pyarchinit_db_manager import Pyarchinit_db_management
+from ..modules.db.pyarchinit_utility import Utility
+from ..modules.utility.pyarchinit_OS_utility import Pyarchinit_OS_Utility
+from ..pyarchinitConfigDialog import pyArchInitDialog_Config
 
-MAIN_DIALOG_CLASS, _ = loadUiType(os.path.join(os.path.dirname(__file__), 'modules', 'gui', 'pyarchinit_images_directory_export_ui.ui'))
+MAIN_DIALOG_CLASS, _ = loadUiType(os.path.join(os.path.dirname(__file__), '..', 'modules', 'gui', 'pyarchinit_images_directory_export_ui.ui'))
 
 
 class pyarchinit_Images_directory_export(QDialog, MAIN_DIALOG_CLASS):

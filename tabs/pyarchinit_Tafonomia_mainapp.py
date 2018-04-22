@@ -27,22 +27,22 @@ from qgis.PyQt.QtWidgets import QDialog, QMessageBox
 from qgis.PyQt.uic import loadUiType
 from qgis.gui import QgsMapToolPan
 
-from .modules.db.pyarchinit_conn_strings import Connection
-from .modules.db.pyarchinit_db_manager import Pyarchinit_db_management
-from .modules.db.pyarchinit_utility import Utility
-from .modules.gis.pyarchinit_pyqgis import Pyarchinit_pyqgis
-from .modules.utility.pyarchinit_error_check import Error_check
-from .modules.utility.pyarchinit_exp_Tafonomiasheet_pdf import generate_tafonomia_pdf
-from .modules.utility.pyarchinit_exp_USsheet_pdf import *
-from .sortpanelmain import SortPanelMain
+from ..modules.db.pyarchinit_conn_strings import Connection
+from ..modules.db.pyarchinit_db_manager import Pyarchinit_db_management
+from ..modules.db.pyarchinit_utility import Utility
+from ..modules.gis.pyarchinit_pyqgis import Pyarchinit_pyqgis
+from ..modules.utility.pyarchinit_error_check import Error_check
+from ..modules.utility.pyarchinit_exp_Tafonomiasheet_pdf import generate_tafonomia_pdf
+from ..modules.utility.pyarchinit_exp_USsheet_pdf import *
+from ..sortpanelmain import SortPanelMain
 
-# --import pyArchInit modules--#
+# --import pyArchInit..modules--#
 try:
     from pyarchinit_matrix_exp import *
 except:
     pass
 
-MAIN_DIALOG_CLASS, _ = loadUiType(os.path.join(os.path.dirname(__file__), 'modules', 'gui', 'pyarchinit_Tafonomia_ui.ui'))
+MAIN_DIALOG_CLASS, _ = loadUiType(os.path.join(os.path.dirname(__file__), '..', 'modules', 'gui', 'pyarchinit_Tafonomia_ui.ui'))
 
 
 class pyarchinit_Tafonomia(QDialog, MAIN_DIALOG_CLASS):
