@@ -1,4 +1,4 @@
-![](https://avatars2.githubusercontent.com/u/1929829?s=400&v=4)
+![](modules/utility/DBFiles/logo.jpg)
 
 # PyArchInit3
 
@@ -8,7 +8,7 @@
 
 ### Linux/Windows/MacOS
 1. Download the zip archive from github
-2. Open QGIS from Plugin manager use Install from ZIP to install the plugin
+2. Open QGIS and from Plugin manager use Install from ZIP to install the plugin
 
 #### Dependencies
 * Networkx
