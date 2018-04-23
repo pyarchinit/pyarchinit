@@ -734,7 +734,7 @@ class pyarchinit_Thesaurus(QDialog, MAIN_DIALOG_CLASS):
         value = v
 
         for fn in field_names:
-            cmd = ('%s%s%s%s') % (fn, '.setEnabled(', v, ')')
+            cmd = '{}{}{}{}'.format(fn, '.setEnabled(', v, ')')
             eval(cmd)
 
     def setComboBoxEditable(self, f, n):

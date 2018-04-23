@@ -1723,7 +1723,7 @@ class pyarchinit_Tafonomia(QDialog, MAIN_DIALOG_CLASS):
         value = v
 
         for fn in field_names:
-            cmd = ('%s%s%s%s') % (fn, '.setEnabled(', v, ')')
+            cmd = '{}{}{}{}'.format(fn, '.setEnabled(', v, ')')
             eval(cmd)
 
     def setTableEnable(self, t, v):
@@ -1731,7 +1731,7 @@ class pyarchinit_Tafonomia(QDialog, MAIN_DIALOG_CLASS):
         value = v
 
         for tn in tab_names:
-            cmd = ('%s%s%s%s') % (tn, '.setEnabled(', v, ')')
+            cmd = '{}{}{}{}'.format(tn, '.setEnabled(', v, ')')
             eval(cmd)
 
     def testing(self, name_file, message):
