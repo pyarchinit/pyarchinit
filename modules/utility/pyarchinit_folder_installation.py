@@ -19,16 +19,16 @@
  ***************************************************************************/
 """
 
-from builtins import str
-from builtins import object
 import os
 from os.path import expanduser
+
+from builtins import object
+from builtins import str
 
 from .pyarchinit_OS_utility import Pyarchinit_OS_Utility
 
 
 class pyarchinit_Folder_installation(object):
-
     def install_dir(self):
         home = expanduser("~")
         home += os.sep + 'pyarchinit'
@@ -81,4 +81,3 @@ class pyarchinit_Folder_installation(object):
 
         home_BACKUP_linux_path = '{}{}{}'.format(home, os.sep, 'pyarchinit_db_backup')
         OS_utility.create_dir(home_BACKUP_linux_path)
-
