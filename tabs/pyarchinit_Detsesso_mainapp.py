@@ -1617,7 +1617,7 @@ class pyarchinit_Detsesso(QDialog, MAIN_DIALOG_CLASS):
 
         if n == 1:  # tavola sinfisi pubica femmminile
             try:
-                anthropo_image_path = ('%s%s') % (
+                anthropo_image_path = '{}{}'.format(
                 filepath, os.path.join(os.sep, 'anthropo_images/sinfisi_pubica_femmine.jpg'))
                 dlg.show_image(str(anthropo_image_path))  # item.data(QtCore.Qt.UserRole).toString()))
                 dlg.exec_()
@@ -1626,7 +1626,7 @@ class pyarchinit_Detsesso(QDialog, MAIN_DIALOG_CLASS):
 
         if n == 2:  # tavola sinfisi pubica maschile
             try:
-                anthropo_image_path = ('%s%s') % (
+                anthropo_image_path = '{}{}'.format(
                 filepath, os.path.join(os.sep, 'anthropo_images/sinfisi_pubica_maschi.jpg'))
                 dlg.show_image(str(anthropo_image_path))  # item.data(QtCore.Qt.UserRole).toString()))
                 dlg.exec_()
@@ -1635,7 +1635,7 @@ class pyarchinit_Detsesso(QDialog, MAIN_DIALOG_CLASS):
 
         if n == 3:  # tavola superficie auricolare SSPIA
             try:
-                anthropo_image_path = ('%s%s') % (
+                anthropo_image_path = '{}{}'.format(
                 filepath, os.path.join(os.sep, 'anthropo_images/sinfisi_pubica_maschi.jpg'))
                 dlg.show_image(str(anthropo_image_path))  # item.data(QtCore.Qt.UserRole).toString()))
                 dlg.exec_()
@@ -1644,7 +1644,7 @@ class pyarchinit_Detsesso(QDialog, MAIN_DIALOG_CLASS):
 
         if n == 13:  # tavola cranio
             try:
-                anthropo_images_path = ('%s%s') % (
+                anthropo_images_path = '{}{}'.format(
                 filepath, os.path.join(os.sep, 'anthropo_images/detsesso_cranio.jpg'))
                 dlg.show_image(str(anthropo_images_path))  # item.data(QtCore.Qt.UserRole).toString()))
                 dlg.exec_()
@@ -1653,7 +1653,7 @@ class pyarchinit_Detsesso(QDialog, MAIN_DIALOG_CLASS):
 
         if n == 14:  # tavola bacino sup. preauricolare
             try:
-                anthropo_images_path = ('%s%s') % (
+                anthropo_images_path = '{}{}'.format(
                 filepath, os.path.join(os.sep, 'anthropo_images/detsesso_bacino_sup_preauricolare.jpg'))
                 dlg.show_image(str(anthropo_images_path))  # item.data(QtCore.Qt.UserRole).toString()))
                 dlg.exec_()
@@ -1662,7 +1662,7 @@ class pyarchinit_Detsesso(QDialog, MAIN_DIALOG_CLASS):
 
         if n == 15:  # tavola bacino incisura ischiatica
             try:
-                anthropo_images_path = ('%s%s') % (
+                anthropo_images_path = '{}{}'.format(
                 filepath, os.path.join(os.sep, 'anthropo_images/detsesso_bacino_grande incisura ischiatica.jpg'))
                 dlg.show_image(str(anthropo_images_path))  # item.data(QtCore.Qt.UserRole).toString()))
                 dlg.exec_()
@@ -1671,7 +1671,7 @@ class pyarchinit_Detsesso(QDialog, MAIN_DIALOG_CLASS):
 
         if n == 16:  # tavola bacino arco composito
             try:
-                anthropo_images_path = ('%s%s') % (
+                anthropo_images_path = '{}{}'.format(
                 filepath, os.path.join(os.sep, 'anthropo_images/detsesso_bacino_arco composito.jpg'))
                 dlg.show_image(str(anthropo_images_path))  # item.data(QtCore.Qt.UserRole).toString()))
                 dlg.exec_()
@@ -1680,7 +1680,7 @@ class pyarchinit_Detsesso(QDialog, MAIN_DIALOG_CLASS):
 
         if n == 17:  # tavola bacino ramo ischio-pubico
             try:
-                anthropo_images_path = ('%s%s') % (
+                anthropo_images_path = '{}{}'.format(
                 filepath, os.path.join(os.sep, 'anthropo_images/detsesso_bacino_ramo ischio-pubico.jpg'))
                 dlg.show_image(str(anthropo_images_path))  # item.data(QtCore.Qt.UserRole).toString()))
                 dlg.exec_()
@@ -1689,7 +1689,7 @@ class pyarchinit_Detsesso(QDialog, MAIN_DIALOG_CLASS):
 
         if n == 18:  # tavola bacino proporzioni ischio-pubiche
             try:
-                anthropo_images_path = ('%s%s') % (
+                anthropo_images_path = '{}{}'.format(
                 filepath, os.path.join(os.sep, 'anthropo_images/detsesso_bacino_proporzioni ischio-pubiche.jpg'))
                 dlg.show_image(str(anthropo_images_path))  # item.data(QtCore.Qt.UserRole).toString()))
                 dlg.exec_()

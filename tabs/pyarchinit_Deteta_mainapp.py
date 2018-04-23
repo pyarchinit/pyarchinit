@@ -2760,7 +2760,7 @@ class pyarchinit_Deteta(QDialog, MAIN_DIALOG_CLASS):
 
         if n == 1:  # tavola sinfisi pubica femmminile
             try:
-                anthropo_images_path = ('%s%s') % (
+                anthropo_images_path = '{}{}'.format(
                 filepath, os.path.join(os.sep, 'anthropo_images/det_eta_sinfisi_pubica_femmine.jpg'))
                 dlg.show_image(str(anthropo_images_path))  # item.data(QtCore.Qt.UserRole).toString()))
                 dlg.exec_()
@@ -2769,7 +2769,7 @@ class pyarchinit_Deteta(QDialog, MAIN_DIALOG_CLASS):
 
         if n == 2:  # tavola sinfisi pubica maschile
             try:
-                anthropo_images_path = ('%s%s') % (
+                anthropo_images_path = '{}{}'.format(
                 filepath, os.path.join(os.sep, 'anthropo_images/det_eta_sinfisi_pubica_maschi.jpg'))
                 dlg.show_image(str(anthropo_images_path))  # item.data(QtCore.Qt.UserRole).toString()))
                 dlg.exec_()
@@ -2778,7 +2778,7 @@ class pyarchinit_Deteta(QDialog, MAIN_DIALOG_CLASS):
 
         if n == 3:  # tavola sinfisi pubica femmminile Kimmerle
             try:
-                anthropo_images_path = ('%s%s') % (
+                anthropo_images_path = '{}{}'.format(
                 filepath, os.path.join(os.sep, 'anthropo_images/det_eta_Kimmerle_femmine.jpg'))
                 dlg.show_image(str(anthropo_images_path))  # item.data(QtCore.Qt.UserRole).toString()))
                 dlg.exec_()
@@ -2787,7 +2787,7 @@ class pyarchinit_Deteta(QDialog, MAIN_DIALOG_CLASS):
 
         if n == 4:  # tavola sinfisi pubica maschi Kimmerle
             try:
-                anthropo_images_path = ('%s%s') % (
+                anthropo_images_path = '{}{}'.format(
                 filepath, os.path.join(os.sep, 'anthropo_images/det_eta_Kimmerle_maschi.jpg'))
                 dlg.show_image(str(anthropo_images_path))  # item.data(QtCore.Qt.UserRole).toString()))
                 dlg.exec_()
@@ -2796,7 +2796,7 @@ class pyarchinit_Deteta(QDialog, MAIN_DIALOG_CLASS):
 
         if n == 5:  # tavola superficie auricolare SSPIA
             try:
-                anthropo_images_path = ('%s%s') % (filepath, os.path.join(os.sep, 'anthropo_images/deteta_SSPIA.jpg'))
+                anthropo_images_path = '{}{}'.format(filepath, os.path.join(os.sep, 'anthropo_images/deteta_SSPIA.jpg'))
                 dlg.show_image(str(anthropo_images_path))  # item.data(QtCore.Qt.UserRole).toString()))
                 dlg.exec_()
             except Exception as e:
@@ -2804,7 +2804,7 @@ class pyarchinit_Deteta(QDialog, MAIN_DIALOG_CLASS):
 
         if n == 6:  # tavola superficie auricolare SSPIB
             try:
-                anthropo_images_path = ('%s%s') % (filepath, os.path.join(os.sep, 'anthropo_images/deteta_SSPIB.jpg'))
+                anthropo_images_path = '{}{}'.format(filepath, os.path.join(os.sep, 'anthropo_images/deteta_SSPIB.jpg'))
                 dlg.show_image(str(anthropo_images_path))  # item.data(QtCore.Qt.UserRole).toString()))
                 dlg.exec_()
             except Exception as e:
@@ -2812,7 +2812,7 @@ class pyarchinit_Deteta(QDialog, MAIN_DIALOG_CLASS):
 
         if n == 7:  # tavola superficie auricolare SSPIC
             try:
-                anthropo_images_path = ('%s%s') % (filepath, os.path.join(os.sep, 'anthropo_images/deteta_SSPIC.jpg'))
+                anthropo_images_path = '{}{}'.format(filepath, os.path.join(os.sep, 'anthropo_images/deteta_SSPIC.jpg'))
                 dlg.show_image(str(anthropo_images_path))  # item.data(QtCore.Qt.UserRole).toString()))
                 dlg.exec_()
             except Exception as e:
@@ -2820,7 +2820,7 @@ class pyarchinit_Deteta(QDialog, MAIN_DIALOG_CLASS):
 
         if n == 8:  # tavola superficie auricolare SSPID
             try:
-                anthropo_images_path = ('%s%s') % (filepath, os.path.join(os.sep, 'anthropo_images/deteta_SSPID.jpg'))
+                anthropo_images_path = '{}{}'.format(filepath, os.path.join(os.sep, 'anthropo_images/deteta_SSPID.jpg'))
                 dlg.show_image(str(anthropo_images_path))  # item.data(QtCore.Qt.UserRole).toString()))
                 dlg.exec_()
             except Exception as e:
@@ -2828,7 +2828,7 @@ class pyarchinit_Deteta(QDialog, MAIN_DIALOG_CLASS):
 
         if n == 9:  # tavola usura dentaria mascellare superiore
             try:
-                anthropo_images_path = ('%s%s') % (
+                anthropo_images_path = '{}{}'.format(
                 filepath, os.path.join(os.sep, 'anthropo_images/deteta_usura_masc_superiore.jpg'))
                 dlg.show_image(str(anthropo_images_path))  # item.data(QtCore.Qt.UserRole).toString()))
                 dlg.exec_()
@@ -2837,7 +2837,7 @@ class pyarchinit_Deteta(QDialog, MAIN_DIALOG_CLASS):
 
         if n == 10:  # tavola usura dentaria mascellare inferiore
             try:
-                anthropo_images_path = ('%s%s') % (
+                anthropo_images_path = '{}{}'.format(
                 filepath, os.path.join(os.sep, 'anthropo_images/deteta_usura_masc_inferiore.jpg'))
                 dlg.show_image(str(anthropo_images_path))  # item.data(QtCore.Qt.UserRole).toString()))
                 dlg.exec_()
@@ -2846,7 +2846,7 @@ class pyarchinit_Deteta(QDialog, MAIN_DIALOG_CLASS):
 
         if n == 11:  # tavola suture endocraniche
             try:
-                anthropo_images_path = ('%s%s') % (
+                anthropo_images_path = '{}{}'.format(
                 filepath, os.path.join(os.sep, 'anthropo_images/deteta_suture_endocraniche.jpg'))
                 dlg.show_image(str(anthropo_images_path))  # item.data(QtCore.Qt.UserRole).toString()))
                 dlg.exec_()
@@ -2855,7 +2855,7 @@ class pyarchinit_Deteta(QDialog, MAIN_DIALOG_CLASS):
 
         if n == 12:  # tavola suture ectocraniche
             try:
-                anthropo_images_path = ('%s%s') % (
+                anthropo_images_path = '{}{}'.format(
                 filepath, os.path.join(os.sep, 'anthropo_images/deteta_suture_ectocraniche.jpg'))
                 dlg.show_image(str(anthropo_images_path))  # item.data(QtCore.Qt.UserRole).toString()))
                 dlg.exec_()

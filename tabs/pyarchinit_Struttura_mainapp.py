@@ -892,7 +892,7 @@ class pyarchinit_Struttura(QDialog, MAIN_DIALOG_CLASS):
 
         for i in range(len(self.DATA_LIST)):
             sito = str(self.DATA_LIST[i].sito)
-            sigla_struttura = ('%s%s') % (
+            sigla_struttura = '{}{}'.format(
             str(self.DATA_LIST[i].sigla_struttura), str(self.DATA_LIST[i].numero_struttura))
 
             res_strutt = self.DB_MANAGER.query_bool(

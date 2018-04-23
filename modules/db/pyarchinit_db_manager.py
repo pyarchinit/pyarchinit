@@ -621,7 +621,7 @@ class Pyarchinit_db_management(object):
     def execute_sql_create_db(self):
         path = os.path.dirname(__file__)
         rel_path = os.path.join(os.sep, 'query_sql', 'pyarchinit_create_db.sql')
-        qyery_sql_path = ('%s%s') % (path, rel_path)
+        qyery_sql_path = '{}{}'.format(path, rel_path)
         create = open(qyery_sql_path, "r")
         stringa = create.read()
         create.close()
@@ -631,7 +631,7 @@ class Pyarchinit_db_management(object):
     def execute_sql_create_spatialite_db(self):
         path = os.path.dirname(__file__)
         rel_path = os.path.join(os.sep, 'query_sql', 'pyarchinit_create_spatialite_db.sql')
-        qyery_sql_path = ('%s%s') % (path, rel_path)
+        qyery_sql_path = '{}{}'.format(path, rel_path)
         create = open(qyery_sql_path, "r")
         stringa = create.read()
         create.close()
@@ -646,7 +646,7 @@ class Pyarchinit_db_management(object):
     def execute_sql_create_layers(self):
         path = os.path.dirname(__file__)
         rel_path = os.path.join(os.sep, 'query_sql', 'pyarchinit_layers_postgis.sql')
-        qyery_sql_path = ('%s%s') % (path, rel_path)
+        qyery_sql_path = '{}{}'.format(path, rel_path)
         create = open(qyery_sql_path, "r")
         stringa = create.read()
         create.close()
