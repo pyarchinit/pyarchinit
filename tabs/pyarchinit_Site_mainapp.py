@@ -29,6 +29,7 @@ from builtins import str
 from qgis.PyQt.QtWidgets import QDialog, QMessageBox
 from qgis.PyQt.uic import loadUiType
 
+from ..modules.utility.print_relazione_pdf import exp_rel_pdf
 from ..modules.db.pyarchinit_conn_strings import Connection
 from ..modules.db.pyarchinit_db_manager import Pyarchinit_db_management
 from ..modules.db.pyarchinit_utility import Utility
@@ -633,8 +634,8 @@ class pyarchinit_Site(QDialog, MAIN_DIALOG_CLASS):
     def on_pushButton_rel_pdf_pressed(self):
         check = QMessageBox.warning(self, "Attention",
                                     "Under testing: this method can contains some bugs. Do you want proceed?",
-                                    QMessageBox.Cancel, 1)
-        if check == 1:
+                                    QMessageBox.Ok | QMessageBox.Cancel)
+        if check == QMessageBox.Ok:
             erp = exp_rel_pdf(str(self.comboBox_sito.currentText()))
             erp.export_rel_pdf()
 
