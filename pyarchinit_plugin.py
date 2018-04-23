@@ -32,6 +32,7 @@ from qgis.core import QgsApplication, QgsSettings
 from .dbmanagment import pyarchinit_dbmanagment
 from .pyarchinitConfigDialog import pyArchInitDialog_Config
 from .pyarchinitInfoDialog import pyArchInitDialog_Info
+from .pyarchinitplugindialog import PyarchinitPluginDialog
 from .tabs.pyarchinit_Archeozoology_mainapp import pyarchinit_Archeozoology
 from .tabs.pyarchinit_Campioni_mainapp import pyarchinit_Campioni
 from .tabs.pyarchinit_Deteta_mainapp import pyarchinit_Deteta
@@ -52,7 +53,6 @@ from .tabs.pyarchinit_image_viewer_main import Main
 from .tabs.pyarchinit_images_comparision_main import Comparision
 from .tabs.pyarchinit_images_directory_export_mainapp import pyarchinit_Images_directory_export
 from .tabs.pyarchinit_pdf_export_mainapp import pyarchinit_pdf_export
-from .pyarchinitplugindialog import PyarchinitPluginDialog
 
 filepath = os.path.dirname(__file__)
 
@@ -73,7 +73,8 @@ class PyArchInitPlugin(object):
     conf = open(path_rel, "r")
     data = conf.read()
     PARAMS_DICT = eval(data)
-    #TODO: find a better way to settings config
+
+    # TODO: find a better way to settings config
     # if 'EXPERIMENTAL' in PARAMS_DICT:
     #     PARAMS_DICT['EXPERIMENTAL'] = 'No'
     #     f = open(path_rel, "w")
