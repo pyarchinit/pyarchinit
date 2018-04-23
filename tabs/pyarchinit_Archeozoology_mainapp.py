@@ -2824,7 +2824,7 @@ title(sub="Rosso = coppie con r>|0.5|, Verde = coppie con |0.25|<r<|0.5|;
         value = v
 
         for fn in field_names:
-            cmd = ('%s%s%s%s') % (fn, '.setEnabled(', v, ')')
+            cmd = '{}{}{}{}'.format(fn, '.setEnabled(', v, ')')
             eval(cmd)
 
     def records_equal_check(self):

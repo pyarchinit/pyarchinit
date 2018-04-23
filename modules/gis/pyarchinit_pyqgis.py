@@ -34,8 +34,8 @@ from .settings import Settings
 class Pyarchinit_pyqgis(QDialog):
     HOME = os.environ['PYARCHINIT_HOME']
     FILEPATH = os.path.dirname(__file__)
-    LAYER_STYLE_PATH = ('%s%s%s%s') % (FILEPATH, os.sep, 'styles', os.sep)
-    LAYER_STYLE_PATH_SPATIALITE = ('%s%s%s%s') % (FILEPATH, os.sep, 'styles_spatialite', os.sep)
+    LAYER_STYLE_PATH = '{}{}{}{}'.format(FILEPATH, os.sep, 'styles', os.sep)
+    LAYER_STYLE_PATH_SPATIALITE = '{}{}{}{}'.format(FILEPATH, os.sep, 'styles_spatialite', os.sep)
     SRS = 3004
 
     USLayerId = ""
