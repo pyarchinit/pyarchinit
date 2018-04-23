@@ -3,8 +3,8 @@
 /***************************************************************************
     pyArchInit Plugin  - A QGIS plugin to manage archaeological dataset
     stored in Postgres
-                             -------------------
-    begin                : 2007-12-01
+    -------------------
+    begin                : 2018-04-22
     copyright            : (C) 2008 by Salvatore Larosa
     email                : lrssvtml (at) gmail (dot) com
  ***************************************************************************/
