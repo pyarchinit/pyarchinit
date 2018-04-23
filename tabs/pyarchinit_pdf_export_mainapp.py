@@ -120,7 +120,7 @@ class pyarchinit_pdf_export(QDialog, MAIN_DIALOG_CLASS):
         self.HOME = os.environ['PYARCHINIT_HOME']
 
     def on_pushButton_open_dir_pressed(self):
-        path = ('%s%s%s') % (self.HOME, os.sep, "pyarchinit_PDF_folder")
+        path = '{}{}{}'.format(self.HOME, os.sep, "pyarchinit_PDF_folder")
 
         if platform.system() == "Windows":
             os.startfile(path)

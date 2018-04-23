@@ -90,7 +90,7 @@ class pyarchinit_dbmanagment(QDialog, MAIN_DIALOG_CLASS):
 
         PDF_path = '%s%s%s' % (home, os.sep, 'pyarchinit_db_backup/')
 
-        # filename = ('%s%s%s') % (PDF_path, os.sep, 'semivariogramma.png')
+        # filename = '{}{}{}'.format(PDF_path, os.sep, 'semivariogramma.png')
 
         dump_dir = PDF_path
         db_username = 'postgres'

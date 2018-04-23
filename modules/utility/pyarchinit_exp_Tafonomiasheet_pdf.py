@@ -410,8 +410,8 @@ class single_Tafonomia_pdf_sheet(object):
         # intestazione2  = Paragraph("<b>Ditta esecutrice</b><br/>", styNormal)
         home = os.environ['PYARCHINIT_HOME']
 
-        home_DB_path = ('%s%s%s') % (home, os.sep, 'pyarchinit_DB_folder')
-        logo_path = ('%s%s%s') % (home_DB_path, os.sep, 'logo.jpg')
+        home_DB_path = '{}{}{}'.format(home, os.sep, 'pyarchinit_DB_folder')
+        logo_path = '{}{}{}'.format(home_DB_path, os.sep, 'logo.jpg')
         logo = Image(logo_path)
 
         ##		if test_image.drawWidth < 800:
@@ -716,7 +716,7 @@ class single_Tafonomia_pdf_sheet(object):
 class generate_tafonomia_pdf(object):
     HOME = os.environ['PYARCHINIT_HOME']
 
-    PDF_path = ('%s%s%s') % (HOME, os.sep, "pyarchinit_PDF_folder")
+    PDF_path = '{}{}{}'.format(HOME, os.sep, "pyarchinit_PDF_folder")
 
     def datestrfdate(self):
         now = date.today()
@@ -729,7 +729,7 @@ class generate_tafonomia_pdf(object):
             single_tafonomia_sheet = single_Tafonomia_pdf_sheet(records[i])
             elements.append(single_tafonomia_sheet.create_sheet())
             elements.append(PageBreak())
-        filename = ('%s%s%s') % (self.PDF_path, os.sep, 'scheda_Tafonomica.pdf')
+        filename = '{}{}{}'.format(self.PDF_path, os.sep, 'scheda_Tafonomica.pdf')
         f = open(filename, "wb")
         doc = SimpleDocTemplate(f)
         doc.build(elements, canvasmaker=NumberedCanvas_TAFONOMIAsheet)
@@ -739,8 +739,8 @@ class generate_tafonomia_pdf(object):
 
         home = os.environ['PYARCHINIT_HOME']
 
-        home_DB_path = ('%s%s%s') % (home, os.sep, 'pyarchinit_DB_folder')
-        logo_path = ('%s%s%s') % (home_DB_path, os.sep, 'logo.jpg')
+        home_DB_path = '{}{}{}'.format(home, os.sep, 'pyarchinit_DB_folder')
+        logo_path = '{}{}{}'.format(home_DB_path, os.sep, 'logo.jpg')
 
         logo = Image(logo_path)
         logo.drawHeight = 1.5 * inch * logo.drawHeight / logo.drawWidth
@@ -776,7 +776,7 @@ class generate_tafonomia_pdf(object):
         lst.append(table_data_formatted)
         # lst.append(Spacer(0,2))
 
-        filename = ('%s%s%s') % (self.PDF_path, os.sep, 'elenco_tafonomia.pdf')
+        filename = '{}{}{}'.format(self.PDF_path, os.sep, 'elenco_tafonomia.pdf')
         f = open(filename, "wb")
 
         doc = SimpleDocTemplate(f, pagesize=(29 * cm, 21 * cm), showBoundary=0)
@@ -807,7 +807,7 @@ class generate_tafonomia_pdf(object):
         lst.append(table_data_formatted)
         # lst.append(Spacer(0,2))
 
-        filename = ('%s%s%s') % (self.PDF_path, os.sep, 'elenco_strutture_tafonomia.pdf')
+        filename = '{}{}{}'.format(self.PDF_path, os.sep, 'elenco_strutture_tafonomia.pdf')
         f = open(filename, "wb")
 
         doc = SimpleDocTemplate(f, pagesize=(29 * cm, 21 * cm), showBoundary=0)

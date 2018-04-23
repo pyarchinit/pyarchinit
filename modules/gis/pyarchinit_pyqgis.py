@@ -803,8 +803,8 @@ class Pyarchinit_pyqgis(QDialog):
         """ if has geometry column load to map canvas """
         layerToSet = []
         srs = QgsCoordinateReferenceSystem(self.SRS, QgsCoordinateReferenceSystem.PostgisCrsId)
-        sqlite_DB_path = ('%s%s%s') % (self.HOME, os.sep, "pyarchinit_DB_folder")
-        path_cfg = ('%s%s%s') % (sqlite_DB_path, os.sep, 'config.cfg')
+        sqlite_DB_path = '{}{}{}'.format(self.HOME, os.sep, "pyarchinit_DB_folder")
+        path_cfg = '{}{}{}'.format(sqlite_DB_path, os.sep, 'config.cfg')
         conf = open(path_cfg, "r")
         con_sett = conf.read()
         conf.close()
@@ -879,8 +879,8 @@ class Pyarchinit_pyqgis(QDialog):
         """ if has geometry column load to map canvas """
         layerToSet = []
         srs = QgsCoordinateReferenceSystem(self.SRS, QgsCoordinateReferenceSystem.PostgisCrsId)
-        sqlite_DB_path = ('%s%s%s') % (self.HOME, os.sep, "pyarchinit_DB_folder")
-        path_cfg = ('%s%s%s') % (sqlite_DB_path, os.sep, 'config.cfg')
+        sqlite_DB_path = '{}{}{}'.format(self.HOME, os.sep, "pyarchinit_DB_folder")
+        path_cfg = '{}{}{}'.format(sqlite_DB_path, os.sep, 'config.cfg')
         conf = open(path_cfg, "r")
         con_sett = conf.read()
         conf.close()
@@ -1519,7 +1519,7 @@ class Pyarchinit_pyqgis(QDialog):
 class Order_layers_DEPRECATED(object):
     HOME = os.environ['PYARCHINIT_HOME']
 
-    REPORT_PATH = ('%s%s%s') % (HOME, os.sep, "pyarchinit_Report_folder")
+    REPORT_PATH = '{}{}{}'.format(HOME, os.sep, "pyarchinit_Report_folder")
 
     LISTA_US = []  # lista che contiene tutte le US singole prese dai singoli rapporti stratigrafici
     DIZ_ORDER_LAYERS = {}  # contiene una serie di chiavi valori dove la chiave e' il livello di ordinamento e il valore l'US relativa
@@ -1566,7 +1566,7 @@ class Order_layers_DEPRECATED(object):
         for i in self.LISTA_RAPPORTI:
             if i[0] == i[1]:
                 msg = str(i)
-                filename_errori_in_add_value = ('%s%s%s') % (self.REPORT_PATH, os.sep, 'errori_in_add_value.txt')
+                filename_errori_in_add_value = '{}{}{}'.format(self.REPORT_PATH, os.sep, 'errori_in_add_value.txt')
                 f = open(filename_errori_in_add_value, "w")
                 f.write(msg)
                 f.close()
@@ -1578,7 +1578,7 @@ class Order_layers_DEPRECATED(object):
                     self.LISTA_US.append(i[1])
         self.LISTA_US.sort()
 
-        filename_errori_in_add_value = ('%s%s%s') % (self.REPORT_PATH, os.sep, 'test_lista_us.txt')
+        filename_errori_in_add_value = '{}{}{}'.format(self.REPORT_PATH, os.sep, 'test_lista_us.txt')
         f = open(filename_errori_in_add_value, "w")
         f.write(str(self.LISTA_US))
         f.close()
@@ -1624,7 +1624,7 @@ class Order_layers_DEPRECATED(object):
             elif i[0] == num_us:
                 msg = "check_tuple: \n" + str(i) + "  Lista rapporti presenti: \n" + str(
                     self.LISTA_RAPPORTI) + '---' + str(i)
-                filename_check_position = ('%s%s%s') % (self.REPORT_PATH, os.sep, 'check_tuple.txt')
+                filename_check_position = '{}{}{}'.format(self.REPORT_PATH, os.sep, 'check_tuple.txt')
                 f = open(filename_check_position, "w")
                 f.write(msg)
                 f.close()
@@ -1640,7 +1640,7 @@ class Order_layers_DEPRECATED(object):
                 except Exception as e:
                     msg = "check_position: \n" + str(i) + "  Lista rapporti presenti: \n" + str(
                         self.LISTA_RAPPORTI) + str(e)
-                    filename_check_position = ('%s%s%s') % (self.REPORT_PATH, os.sep, 'check_position.txt')
+                    filename_check_position = '{}{}{}'.format(self.REPORT_PATH, os.sep, 'check_position.txt')
                     f = open(filename_check_position, "w")
                     f.write(msg)
                     f.close()

@@ -45,7 +45,7 @@ class pyarchinit_doc_preview(QDialog, MAIN_DIALOG_CLASS):
 
     HOME = os.environ['PYARCHINIT_HOME']
 
-    QUANT_PATH = ('%s%s%s') % (HOME, os.sep, "pyarchinit_Quantificazioni_folder")
+    QUANT_PATH = '{}{}{}'.format(HOME, os.sep, "pyarchinit_Quantificazioni_folder")
 
     def __init__(self, iface, docstr):
         super().__init__()

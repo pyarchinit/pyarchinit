@@ -112,10 +112,10 @@ class pyarchinit_Images_directory_export(QDialog, MAIN_DIALOG_CLASS):
         sito = str(self.comboBox_sito.currentText())
         if self.checkBox_US.isChecked():
             us_res = self.db_search_DB('US', 'sito', sito)
-            sito_path = ('%s%s%s') % (self.HOME, os.sep, 'Esportazione')
+            sito_path = '{}{}{}'.format(self.HOME, os.sep, 'Esportazione')
             self.OS_UTILITY.create_dir(sito_path)
             if bool(us_res):
-                US_path = ('%s%s%s') % (sito_path, os.sep, 'Unita_Stratigrafiche')
+                US_path = '{}{}{}'.format(sito_path, os.sep, 'Unita_Stratigrafiche')
                 self.OS_UTILITY.create_dir(US_path)
                 for sing_us in us_res:
                     sing_us_num = str(sing_us.us)

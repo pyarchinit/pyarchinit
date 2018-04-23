@@ -159,8 +159,8 @@ class single_UT_pdf_sheet(object):
                                  styNormal)
         home = os.environ['PYARCHINIT_HOME']
 
-        home_DB_path = ('%s%s%s') % (home, os.sep, 'pyarchinit_DB_folder')
-        logo_path = ('%s%s%s') % (home_DB_path, os.sep, 'logo.jpg')
+        home_DB_path = '{}{}{}'.format(home, os.sep, 'pyarchinit_DB_folder')
+        logo_path = '{}{}{}'.format(home_DB_path, os.sep, 'logo.jpg')
         logo = Image(logo_path)
 
         ##		if test_image.drawWidth < 800:
@@ -330,7 +330,7 @@ class single_UT_pdf_sheet(object):
 class generate_pdf(object):
     HOME = os.environ['PYARCHINIT_HOME']
 
-    PDF_path = ('%s%s%s') % (HOME, os.sep, "pyarchinit_PDF_folder")
+    PDF_path = '{}{}{}'.format(HOME, os.sep, "pyarchinit_PDF_folder")
 
     def datestrfdate(self):
         now = date.today()
@@ -343,7 +343,7 @@ class generate_pdf(object):
             single_us_sheet = single_UT_pdf_sheet(records[i])
             elements.append(single_us_sheet.create_sheet())
             elements.append(PageBreak())
-        filename = ('%s%s%s') % (self.PDF_path, os.sep, 'scheda_UT.pdf')
+        filename = '{}{}{}'.format(self.PDF_path, os.sep, 'scheda_UT.pdf')
         f = open(filename, "wb")
         doc = SimpleDocTemplate(f)
         doc.build(elements, canvasmaker=NumberedCanvas_UTsheet)

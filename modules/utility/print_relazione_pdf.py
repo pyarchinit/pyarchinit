@@ -106,7 +106,7 @@ class exp_rel_pdf(object):
 
     HOME = os.environ['PYARCHINIT_HOME']
 
-    PDF_path = ('%s%s%s') % (HOME, os.sep, "pyarchinit_PDF_folder")
+    PDF_path = '{}{}{}'.format(HOME, os.sep, "pyarchinit_PDF_folder")
     Title = "Controllo in corso d'opera di via Parini 60"
     pageinfo = "platypus example"
 
@@ -402,7 +402,7 @@ class exp_rel_pdf(object):
         Story.append(Spacer(1, 50))
 
         # Chiusura del documento
-        filename = ('%s%s%s') % (self.PDF_path, os.sep, 'relazione.pdf')
+        filename = '{}{}{}'.format(self.PDF_path, os.sep, 'relazione.pdf')
         f = open(filename, "wb")
         # doc = SimpleDocTemplate(f)
         # doc.build(elements, canvasmaker=NumberedCanvas_Periodizzazionesheet)
