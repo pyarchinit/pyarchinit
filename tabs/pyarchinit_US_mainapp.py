@@ -205,7 +205,7 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
 
     HOME = os.environ['PYARCHINIT_HOME']
 
-    REPORT_PATH = ('%s%s%s') % (HOME, os.sep, "pyarchinit_Report_folder")
+    REPORT_PATH = '{}{}{}'.format(HOME, os.sep, "pyarchinit_Report_folder")
 
     DB_SERVER = "not defined"  ####nuovo sistema sort
 
@@ -1340,8 +1340,8 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
 
         HOME = os.environ['PYARCHINIT_HOME']
 
-        report_path = ('%s%s%s') % (HOME, os.sep, "pyarchinit_Report_folder")
-        filename = ('%s%s%s') % (report_path, os.sep, 'rapporti_US.txt')
+        report_path = '{}{}{}'.format(HOME, os.sep, "pyarchinit_Report_folder")
+        filename = '{}{}{}'.format(report_path, os.sep, 'rapporti_US.txt')
         f = open(filename, "w")
         f.write(report_rapporti)
         f.close()
@@ -1397,8 +1397,8 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
 
         HOME = os.environ['PYARCHINIT_HOME']
 
-        report_path = ('%s%s%s') % (HOME, os.sep, "pyarchinit_Report_folder")
-        filename = ('%s%s%s') % (report_path, os.sep, 'def_strat_a_rapporti_US.txt')
+        report_path = '{}{}{}'.format(HOME, os.sep, "pyarchinit_Report_folder")
+        filename = '{}{}{}'.format(report_path, os.sep, 'def_strat_a_rapporti_US.txt')
         f = open(filename, "w")
         f.write(report_rapporti)
         f.close()

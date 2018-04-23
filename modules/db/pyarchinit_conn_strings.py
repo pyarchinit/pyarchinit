@@ -60,7 +60,7 @@ class Connection(object):
             return conn_str
 
         elif conn_str_dict["server"] == 'sqlite':
-            sqlite_DB_path = ('%s%s%s') % (home, os.sep,
+            sqlite_DB_path = '{}{}{}'.format(home, os.sep,
                                            "pyarchinit_DB_folder")  # "C:\\Users\\Windows\\Dropbox\\pyarchinit_san_marco\\" fare modifiche anche in pyarchinit_pyqgis
 
             dbname_abs = sqlite_DB_path + os.sep + conn_str_dict["db_name"]

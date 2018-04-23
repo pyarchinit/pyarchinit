@@ -591,7 +591,7 @@ class US_index_pdf_sheet:
 class generate_pdf:
     HOME = os.environ['PYARCHINIT_HOME']
 
-    PDF_path = ('%s%s%s') % (HOME, os.sep, "pyarchinit_PDF_folder")
+    PDF_path = '{}{}{}'.format(HOME, os.sep, "pyarchinit_PDF_folder")
 
     def datestrfdate(self):
         now = date.today()
@@ -604,7 +604,7 @@ class generate_pdf:
             single_us_sheet = single_US_pdf_sheet(records[i])
             elements.append(single_us_sheet.create_sheet())
             elements.append(PageBreak())
-        filename = ('%s%s%s') % (self.PDF_path, os.sep, 'scheda_US.pdf')
+        filename = '{}{}{}'.format(self.PDF_path, os.sep, 'scheda_US.pdf')
         f = open(filename, "wb")
         doc = SimpleDocTemplate(f)
         doc.build(elements, canvasmaker=NumberedCanvas_USsheet)
@@ -633,7 +633,7 @@ class generate_pdf:
         lst.append(table_data_formatted)
         lst.append(Spacer(0, 12))
 
-        filename = ('%s%s%s') % (self.PDF_path, os.sep, 'indice_us.pdf')
+        filename = '{}{}{}'.format(self.PDF_path, os.sep, 'indice_us.pdf')
         f = open(filename, "wb")
 
         doc = SimpleDocTemplate(f, pagesize=(29 * cm, 21 * cm), showBoundary=0)

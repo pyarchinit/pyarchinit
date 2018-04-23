@@ -26,7 +26,7 @@ import os
 class Order_layers_non_funzia:
     HOME = os.environ['PYARCHINIT_HOME']
 
-    REPORT_PATH = ('%s%s%s') % (HOME, os.sep, "pyarchinit_PDF_folder")
+    REPORT_PATH = '{}{}{}'.format(HOME, os.sep, "pyarchinit_PDF_folder")
 
     LISTA_US = []  # lista che contiene tutte le US singole prese dai singoli rapporti stratigrafici
     DIZ_ORDER_LAYERS = {}  # contiene una serie di chiavi valori dove la chiave e' il livello di ordinamento e il valore l'US relativa
@@ -96,7 +96,7 @@ class Order_layers_non_funzia:
         for i in self.LISTA_RAPPORTI:
             if i[0] == i[1]:
                 msg = str(i)
-                filename_errori_in_add_value = ('%s%s%s') % (self.REPORT_PATH, os.sep, 'errori_in_add_value.txt')
+                filename_errori_in_add_value = '{}{}{}'.format(self.REPORT_PATH, os.sep, 'errori_in_add_value.txt')
                 f = open(filename_errori_in_add_value, "w")
                 f.write(msg)
                 f.close()
@@ -135,7 +135,7 @@ class Order_layers_non_funzia:
                 except Exception as e:
                     msg = "check_position: \n" + str(i) + "  Lista rapporti presenti: \n" + str(
                         self.LISTA_RAPPORTI) + str(e)
-                    filename_check_position = ('%s%s%s') % (self.REPORT_PATH, os.sep, 'check_position.txt')
+                    filename_check_position = '{}{}{}'.format(self.REPORT_PATH, os.sep, 'check_position.txt')
                     f = open(filename_check_position, "w")
                     f.write(msg)
                     f.close()

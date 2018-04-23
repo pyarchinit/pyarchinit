@@ -197,7 +197,7 @@ class single_pdf_sheet:
 class generate_pdf:
     HOME = os.environ['PYARCHINIT_HOME']
 
-    PDF_path = ('%s%s%s') % (HOME, os.sep, "pyarchinit_PDF_folder")
+    PDF_path = '{}{}{}'.format(HOME, os.sep, "pyarchinit_PDF_folder")
 
     def datestrfdate(self):
         now = date.today()
@@ -210,7 +210,7 @@ class generate_pdf:
             single_pdf_sheet_class = single_pdf_sheet(records[i])
             elements.append(single_pdf_sheet_class.create_sheet())
             elements.append(PageBreak())
-        filename = ('%s%s%s') % (self.PDF_path, os.sep, 'scheda_Individui.pdf')
+        filename = '{}{}{}'.format(self.PDF_path, os.sep, 'scheda_Individui.pdf')
         ##		print "pippo"
         f = open(filename, "wb")
         doc = SimpleDocTemplate(f)

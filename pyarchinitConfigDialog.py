@@ -284,7 +284,7 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
                 "postgresql", conn_str_dict_read["user"], conn_str_dict_read["password"], conn_str_dict_read["host"],
                 conn_str_dict_read["port"], conn_str_dict_read["db_name"])
         elif conn_str_dict_read["server"] == 'sqlite':
-            sqlite_DB_path = ('%s%s%s') % (home, os.sep,
+            sqlite_DB_path = '{}{}{}'.format(home, os.sep,
                                            "pyarchinit_DB_folder")  # "C:\\Users\\Windows\\Dropbox\\pyarchinit_san_marco\\" fare modifiche anche in pyarchinit_pyqgis
             dbname_abs = sqlite_DB_path + os.sep + conn_str_dict_read["db_name"]
             conn_str_read = "%s:///%s" % (conn_str_dict_read["server"], dbname_abs)
@@ -339,7 +339,7 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
                 "postgresql", conn_str_dict_write["user"], conn_str_dict_write["password"], conn_str_dict_write["host"],
                 int(conn_str_dict_write["port"]), conn_str_dict_write["db_name"])
         elif conn_str_dict_write["server"] == 'sqlite':
-            sqlite_DB_path = ('%s%s%s') % (home, os.sep,
+            sqlite_DB_path = '{}{}{}'.format(home, os.sep,
                                            "pyarchinit_DB_folder")  # "C:\\Users\\Windows\\Dropbox\\pyarchinit_san_marco\\" fare modifiche anche in pyarchinit_pyqgis
             dbname_abs = sqlite_DB_path + os.sep + conn_str_dict_write["db_name"]
             conn_str_write = "%s:///%s" % (conn_str_dict_write["server"], dbname_abs)

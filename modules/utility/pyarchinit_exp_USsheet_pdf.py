@@ -240,8 +240,8 @@ class single_US_pdf_sheet(object):
 
         home = os.environ['PYARCHINIT_HOME']
 
-        home_DB_path = ('%s%s%s') % (home, os.sep, 'pyarchinit_DB_folder')
-        logo_path = ('%s%s%s') % (home_DB_path, os.sep, 'logo.jpg')
+        home_DB_path = '{}{}{}'.format(home, os.sep, 'pyarchinit_DB_folder')
+        logo_path = '{}{}{}'.format(home_DB_path, os.sep, 'logo.jpg')
         logo = Image(logo_path)
 
         ##		if test_image.drawWidth < 800:
@@ -630,7 +630,7 @@ class US_index_pdf_sheet(object):
 class generate_US_pdf(object):
     HOME = os.environ['PYARCHINIT_HOME']
 
-    PDF_path = ('%s%s%s') % (HOME, os.sep, "pyarchinit_PDF_folder")
+    PDF_path = '{}{}{}'.format(HOME, os.sep, "pyarchinit_PDF_folder")
 
     def datestrfdate(self):
         now = date.today()
@@ -658,8 +658,8 @@ class generate_US_pdf(object):
     def build_index_US(self, records, sito):
         home = os.environ['PYARCHINIT_HOME']
 
-        home_DB_path = ('%s%s%s') % (home, os.sep, 'pyarchinit_DB_folder')
-        logo_path = ('%s%s%s') % (home_DB_path, os.sep, 'logo.jpg')
+        home_DB_path = '{}{}{}'.format(home, os.sep, 'pyarchinit_DB_folder')
+        logo_path = '{}{}{}'.format(home_DB_path, os.sep, 'logo.jpg')
 
         logo = Image(logo_path)
         logo.drawHeight = 1.5 * inch * logo.drawHeight / logo.drawWidth

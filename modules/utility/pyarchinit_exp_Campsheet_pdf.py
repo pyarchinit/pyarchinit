@@ -153,8 +153,8 @@ class single_Campioni_pdf_sheet(object):
 
         home = os.environ['PYARCHINIT_HOME']
 
-        home_DB_path = ('%s%s%s') % (home, os.sep, 'pyarchinit_DB_folder')
-        logo_path = ('%s%s%s') % (home_DB_path, os.sep, 'logo.jpg')
+        home_DB_path = '{}{}{}'.format(home, os.sep, 'pyarchinit_DB_folder')
+        logo_path = '{}{}{}'.format(home_DB_path, os.sep, 'logo.jpg')
         logo = Image(logo_path)
 
         ##		if test_image.drawWidth < 800:
@@ -271,8 +271,8 @@ class Box_labels_Campioni_pdf_sheet(object):
         # format labels
         HOME = os.environ['PYARCHINIT_HOME']
 
-        home_DB_path = ('%s%s%s') % (home, os.sep, 'pyarchinit_DB_folder')
-        logo_path = ('%s%s%s') % (home_DB_path, os.sep, 'logo.jpg')
+        home_DB_path = '{}{}{}'.format(home, os.sep, 'pyarchinit_DB_folder')
+        logo_path = '{}{}{}'.format(home_DB_path, os.sep, 'logo.jpg')
         logo = Image(logo_path)
 
         ##		if test_image.drawWidth < 800:
@@ -457,7 +457,7 @@ class Campioni_index_pdf_sheet(object):
 class generate_campioni_pdf(object):
     HOME = os.environ['PYARCHINIT_HOME']
 
-    PDF_path = ('%s%s%s') % (HOME, os.sep, "pyarchinit_PDF_folder")
+    PDF_path = '{}{}{}'.format(HOME, os.sep, "pyarchinit_PDF_folder")
 
     def datestrfdate(self):
         now = date.today()
@@ -470,7 +470,7 @@ class generate_campioni_pdf(object):
             single_Campioni_sheet = single_Campioni_pdf_sheet(records[i])
             elements.append(single_Campioni_sheet.create_sheet())
             elements.append(PageBreak())
-        filename = ('%s%s%s') % (self.PDF_path, os.sep, 'scheda_Campioni.pdf')
+        filename = '{}{}{}'.format(self.PDF_path, os.sep, 'scheda_Campioni.pdf')
         f = open(filename, "wb")
         doc = SimpleDocTemplate(f)
         doc.build(elements, canvasmaker=NumberedCanvas_Campionisheet)
@@ -479,8 +479,8 @@ class generate_campioni_pdf(object):
     def build_index_Campioni(self, records, sito):
         home = os.environ['PYARCHINIT_HOME']
 
-        home_DB_path = ('%s%s%s') % (home, os.sep, 'pyarchinit_DB_folder')
-        logo_path = ('%s%s%s') % (home_DB_path, os.sep, 'logo.jpg')
+        home_DB_path = '{}{}{}'.format(home, os.sep, 'pyarchinit_DB_folder')
+        logo_path = '{}{}{}'.format(home_DB_path, os.sep, 'logo.jpg')
 
         logo = Image(logo_path)
         logo.drawHeight = 1.5 * inch * logo.drawHeight / logo.drawWidth
@@ -512,7 +512,7 @@ class generate_campioni_pdf(object):
         lst.append(table_data_formatted)
         # lst.append(Spacer(0,2))
 
-        filename = ('%s%s%s') % (self.PDF_path, os.sep, 'elenco_campioni.pdf')
+        filename = '{}{}{}'.format(self.PDF_path, os.sep, 'elenco_campioni.pdf')
         f = open(filename, "wb")
 
         doc = SimpleDocTemplate(f, pagesize=(29 * cm, 21 * cm), showBoundary=0)
@@ -523,8 +523,8 @@ class generate_campioni_pdf(object):
     def build_index_Casse(self, records, sito):
         home = os.environ['PYARCHINIT_HOME']
 
-        home_DB_path = ('%s%s%s') % (home, os.sep, 'pyarchinit_DB_folder')
-        logo_path = ('%s%s%s') % (home_DB_path, os.sep, 'logo.jpg')
+        home_DB_path = '{}{}{}'.format(home, os.sep, 'pyarchinit_DB_folder')
+        logo_path = '{}{}{}'.format(home_DB_path, os.sep, 'logo.jpg')
 
         logo = Image(logo_path)
         logo.drawHeight = 1.5 * inch * logo.drawHeight / logo.drawWidth
@@ -556,7 +556,7 @@ class generate_campioni_pdf(object):
         lst.append(table_data_formatted)
         lst.append(Spacer(0, 0))
 
-        filename = ('%s%s%s') % (self.PDF_path, os.sep, 'elenco_casse_campioni.pdf')
+        filename = '{}{}{}'.format(self.PDF_path, os.sep, 'elenco_casse_campioni.pdf')
         f = open(filename, "wb")
 
         doc = SimpleDocTemplate(f, pagesize=(29 * cm, 21 * cm), showBoundary=0, topMargin=15, bottomMargin=40,
@@ -572,7 +572,7 @@ class generate_campioni_pdf(object):
             single_finds_sheet = Box_labels_Campioni_pdf_sheet(records[i], sito)
             elements.append(single_finds_sheet.create_sheet())
             elements.append(PageBreak())
-        filename = ('%s%s%s') % (self.PDF_path, os.sep, 'etichette_casse_campioni.pdf')
+        filename = '{}{}{}'.format(self.PDF_path, os.sep, 'etichette_casse_campioni.pdf')
         f = open(filename, "wb")
         doc = SimpleDocTemplate(f, pagesize=(29 * cm, 21 * cm), showBoundary=0.0, topMargin=20, bottomMargin=20,
                                 leftMargin=20, rightMargin=20)

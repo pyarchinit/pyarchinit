@@ -25,7 +25,7 @@ import os
 class Test_area:
     HOME = os.environ['PYARCHINIT_HOME']
 
-    REPORT_PATH = ('%s%s%s') % (HOME, os.sep, "pyarchinit_Test_folder")
+    REPORT_PATH = '{}{}{}'.format(HOME, os.sep, "pyarchinit_Test_folder")
 
     def __init__(self, data):
         self.data = data

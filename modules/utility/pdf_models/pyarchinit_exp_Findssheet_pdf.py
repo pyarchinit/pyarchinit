@@ -335,7 +335,7 @@ class single_Finds_pdf_sheet(object):
 class generate_pdf(object):
     HOME = os.environ['PYARCHINIT_HOME']
 
-    PDF_path = ('%s%s%s') % (HOME, os.sep, "pyarchinit_PDF_folder")
+    PDF_path = '{}{}{}'.format(HOME, os.sep, "pyarchinit_PDF_folder")
 
     def datestrfdate(self):
         now = date.today()
@@ -348,7 +348,7 @@ class generate_pdf(object):
             single_finds_sheet = single_Finds_pdf_sheet(records[i])
             elements.append(single_finds_sheet.create_sheet())
             elements.append(PageBreak())
-        filename = ('%s%s%s') % (self.PDF_path, os.sep, 'scheda_Finds.pdf')
+        filename = '{}{}{}'.format(self.PDF_path, os.sep, 'scheda_Finds.pdf')
         f = open(filename, "wb")
         doc = SimpleDocTemplate(f)
         doc.build(elements, canvasmaker=NumberedCanvas_Findssheet)
@@ -377,7 +377,7 @@ class generate_pdf(object):
         lst.append(table_data_formatted)
         lst.append(Spacer(0, 12))
 
-        filename = ('%s%s%s') % (self.PDF_path, os.sep, 'indice_us.pdf')
+        filename = '{}{}{}'.format(self.PDF_path, os.sep, 'indice_us.pdf')
         f = open(filename, "wb")
 
         doc = SimpleDocTemplate(f, pagesize=(29 * cm, 21 * cm), showBoundary=0)
