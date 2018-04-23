@@ -1,4 +1,4 @@
-![](modules/utility/DBFiles/logo.jpg)
+![](/modules/utility/DBFiles/logo.jpg)
 
 # PyArchInit3
 
@@ -8,7 +8,7 @@
 
 ### Linux/Windows/MacOS
 1. Download the zip archive from github
-2. Open QGIS and from Plugin manager use Install from ZIP to install the plugin
+2. Open QGIS and then from Plugin manager use Install from ZIP to install the plugin
 
 #### Dependencies
 * Networkx
