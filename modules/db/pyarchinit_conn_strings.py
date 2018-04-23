@@ -32,7 +32,7 @@ class Connection(object):
         home = os.environ['PYARCHINIT_HOME']
 
         cfg_rel_path = os.path.join(os.sep, 'pyarchinit_DB_folder', 'config.cfg')
-        file_path = ('%s%s') % (home, cfg_rel_path)
+        file_path = '{}{}'.format(home, cfg_rel_path)
         conf = open(file_path, "r")
 
         data = conf.read()
@@ -73,7 +73,7 @@ class Connection(object):
         home = os.environ['PYARCHINIT_HOME']
 
         cfg_rel_path = os.path.join(os.sep, 'pyarchinit_DB_folder', 'config.cfg')
-        file_path = ('%s%s') % (home, cfg_rel_path)
+        file_path = '{}{}'.format(home, cfg_rel_path)
         conf = open(file_path, "r")
 
         data = conf.read()

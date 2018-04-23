@@ -255,7 +255,7 @@ class Print_utility(QObject):
 
     def open_connection_postgis(self):
         cfg_rel_path = os.path.join(os.sep, 'pyarchinit_DB_folder', 'config.cfg')
-        file_path = ('%s%s') % (self.HOME, cfg_rel_path)
+        file_path = '{}{}'.format(self.HOME, cfg_rel_path)
         conf = open(file_path, "r")
         con_sett = conf.read()
         conf.close()
@@ -292,7 +292,7 @@ class Print_utility(QObject):
             self.layerUS.setCrs(srs)
             self.USLayerId = self.layerUS.id()
             # self.mapLayerRegistry.append(USLayerId)
-            style_path = ('%s%s') % (self.LAYER_STYLE_PATH_SPATIALITE, 'us_view.qml')
+            style_path = '{}{}'.format(self.LAYER_STYLE_PATH_SPATIALITE, 'us_view.qml')
             self.layerUS.loadNamedStyle(style_path)
             self.iface.mapCanvas().setExtent(self.layerUS.extent())
             QgsProject.instance().addMapLayer(self.layerUS, True)
@@ -310,7 +310,7 @@ class Print_utility(QObject):
             self.layerQuote.setCrs(srs)
             self.QuoteLayerId = self.layerQuote.id()
             # self.mapLayerRegistry.append(QuoteLayerId)
-            style_path = ('%s%s') % (self.LAYER_STYLE_PATH_SPATIALITE, 'stile_quote.qml')
+            style_path = '{}{}'.format(self.LAYER_STYLE_PATH_SPATIALITE, 'stile_quote.qml')
             self.layerQuote.loadNamedStyle(style_path)
             QgsProject.instance().addMapLayer(self.layerQuote, True)
 
@@ -329,7 +329,7 @@ class Print_utility(QObject):
             self.layerUS.setCrs(srs)
             self.USLayerId = self.layerUS.id()
             # self.mapLayerRegistry.append(USLayerId)
-            style_path = ('%s%s') % (self.LAYER_STYLE_PATH, 'us_caratterizzazioni.qml')
+            style_path = '{}{}'.format(self.LAYER_STYLE_PATH, 'us_caratterizzazioni.qml')
             self.layerUS.loadNamedStyle(style_path)
             self.iface.mapCanvas().setExtent(self.layerUS.extent())
             QgsProject.instance().addMapLayer(self.layerUS, True)
@@ -345,6 +345,6 @@ class Print_utility(QObject):
             self.layerQuote.setCrs(srs)
             self.QuoteLayerId = self.layerQuote.id()
             # self.mapLayerRegistry.append(QuoteLayerId)
-            style_path = ('%s%s') % (self.LAYER_STYLE_PATH, 'stile_quote.qml')
+            style_path = '{}{}'.format(self.LAYER_STYLE_PATH, 'stile_quote.qml')
             self.layerQuote.loadNamedStyle(style_path)
             QgsProject.instance().addMapLayer(self.layerQuote, True)

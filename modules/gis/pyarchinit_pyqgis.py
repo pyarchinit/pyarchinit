@@ -108,7 +108,7 @@ class Pyarchinit_pyqgis(QDialog):
         # self.find_us_cutted(data)
 
         cfg_rel_path = os.path.join(os.sep, 'pyarchinit_DB_folder', 'config.cfg')
-        file_path = ('%s%s') % (self.HOME, cfg_rel_path)
+        file_path = '{}{}'.format(self.HOME, cfg_rel_path)
         conf = open(file_path, "r")
         con_sett = conf.read()
         conf.close()
@@ -118,7 +118,7 @@ class Pyarchinit_pyqgis(QDialog):
 
         if settings.SERVER == 'sqlite':
             sqliteDB_path = os.path.join(os.sep, 'pyarchinit_DB_folder', 'pyarchinit_db.sqlite')
-            db_file_path = ('%s%s') % (self.HOME, sqliteDB_path)
+            db_file_path = '{}{}'.format(self.HOME, sqliteDB_path)
 
             gidstr = "id_us = '" + str(data[0]) + "'"
             if len(data) > 1:
@@ -133,7 +133,7 @@ class Pyarchinit_pyqgis(QDialog):
             ###################################################################
             if layerUS.isValid():
                 # self.USLayerId = layerUS.getLayerID()
-                # style_path = ('%s%s') % (self.LAYER_STYLE_PATH_SPATIALITE, 'us_caratterizzazioni.qml')
+                # style_path = '{}{}'.format(self.LAYER_STYLE_PATH_SPATIALITE, 'us_caratterizzazioni.qml')
                 # layerUS.loadNamedStyle(style_path)
                 QgsProject.instance().addMapLayers([layerUS], True)
 
@@ -164,7 +164,7 @@ class Pyarchinit_pyqgis(QDialog):
             if layerUS.isValid():
                 layerUS.setCrs(srs)
                 # self.USLayerId = layerUS.getLayerID()
-                style_path = ('%s%s') % (self.LAYER_STYLE_PATH, 'us_caratterizzazioni.qml')
+                style_path = '{}{}'.format(self.LAYER_STYLE_PATH, 'us_caratterizzazioni.qml')
                 # style_path = QFileDialog.getOpenFileName(self, 'Open file', self.LAYER_STYLE_PATH)
                 layerUS.loadNamedStyle(style_path)
                 QgsProject.instance().addMapLayers([layerUS], True)
@@ -174,7 +174,7 @@ class Pyarchinit_pyqgis(QDialog):
 
             if layerQUOTE.isValid():
                 layerQUOTE.setCrs(srs)
-                style_path = ('%s%s') % (self.LAYER_STYLE_PATH, 'stile_quote.qml')
+                style_path = '{}{}'.format(self.LAYER_STYLE_PATH, 'stile_quote.qml')
                 layerQUOTE.loadNamedStyle(style_path)
                 try:
                     QgsProject.instance().addMapLayers([layerQUOTE], True)
@@ -193,7 +193,7 @@ class Pyarchinit_pyqgis(QDialog):
         self.idus = idus
 
         cfg_rel_path = os.path.join(os.sep, 'pyarchinit_DB_folder', 'config.cfg')
-        file_path = ('%s%s') % (self.HOME, cfg_rel_path)
+        file_path = '{}{}'.format(self.HOME, cfg_rel_path)
         conf = open(file_path, "r")
         con_sett = conf.read()
         conf.close()
@@ -203,7 +203,7 @@ class Pyarchinit_pyqgis(QDialog):
 
         if settings.SERVER == 'sqlite':
             sqliteDB_path = os.path.join(os.sep, 'pyarchinit_DB_folder', 'pyarchinit_db.sqlite')
-            db_file_path = ('%s%s') % (self.HOME, sqliteDB_path)
+            db_file_path = '{}{}'.format(self.HOME, sqliteDB_path)
 
             gidstr = "id_us = '" + str(self.idus) + "'"
 
@@ -217,7 +217,7 @@ class Pyarchinit_pyqgis(QDialog):
                 QMessageBox.warning(self, "TESTER", "OK Layer US valido", QMessageBox.Ok)
 
                 # self.USLayerId = layerUS.getLayerID()
-                style_path = ('%s%s') % (self.LAYER_STYLE_PATH_SPATIALITE, 'us_view_splite.qml')
+                style_path = '{}{}'.format(self.LAYER_STYLE_PATH_SPATIALITE, 'us_view_splite.qml')
                 layerUS.loadNamedStyle(style_path)
                 QgsProject.instance().addMapLayers([layerUS], True)
             else:
@@ -228,7 +228,7 @@ class Pyarchinit_pyqgis(QDialog):
 
             if layerQUOTE.isValid():
                 # self.USLayerId = layerUS.getLayerID()
-                style_path = ('%s%s') % (self.LAYER_STYLE_PATH_SPATIALITE, 'quote_us_view.qml')
+                style_path = '{}{}'.format(self.LAYER_STYLE_PATH_SPATIALITE, 'quote_us_view.qml')
                 layerQUOTE.loadNamedStyle(style_path)
                 QgsProject.instance().addMapLayers([layerQUOTE], True)
             else:
@@ -251,7 +251,7 @@ class Pyarchinit_pyqgis(QDialog):
             if layerUS.isValid():
                 layerUS.setCrs(srs)
                 # self.USLayerId = layerUS.getLayersID()
-                style_path = ('%s%s') % (self.LAYER_STYLE_PATH, 'us_caratterizzazioni.qml')
+                style_path = '{}{}'.format(self.LAYER_STYLE_PATH, 'us_caratterizzazioni.qml')
                 # style_path = QFileDialog.getOpenFileName(self, 'Open file', self.LAYER_STYLE_PATH)
                 layerUS.loadNamedStyle(style_path)
                 QgsProject.instance().addMapLayers([layerUS], True)
@@ -263,7 +263,7 @@ class Pyarchinit_pyqgis(QDialog):
 
             if layerQUOTE.isValid():
                 layerQUOTE.setCrs(srs)
-                style_path = ('%s%s') % (self.LAYER_STYLE_PATH, 'stile_quote.qml')
+                style_path = '{}{}'.format(self.LAYER_STYLE_PATH, 'stile_quote.qml')
                 layerQUOTE.loadNamedStyle(style_path)
                 try:
                     QgsProject.instance().addMapLayers([layerQUOTE], True)
@@ -283,7 +283,7 @@ class Pyarchinit_pyqgis(QDialog):
         # self.find_us_cutted(data)
 
         cfg_rel_path = os.path.join(os.sep, 'pyarchinit_DB_folder', 'config.cfg')
-        file_path = ('%s%s') % (self.HOME, cfg_rel_path)
+        file_path = '{}{}'.format(self.HOME, cfg_rel_path)
         conf = open(file_path, "r")
         con_sett = conf.read()
         conf.close()
@@ -295,7 +295,7 @@ class Pyarchinit_pyqgis(QDialog):
 
         if settings.SERVER == 'sqlite':
             sqliteDB_path = os.path.join(os.sep, 'pyarchinit_DB_folder', 'pyarchinit_db.sqlite')
-            db_file_path = ('%s%s') % (self.HOME, sqliteDB_path)
+            db_file_path = '{}{}'.format(self.HOME, sqliteDB_path)
 
             docstr = ""
             if len(data) == 1:
@@ -325,7 +325,7 @@ class Pyarchinit_pyqgis(QDialog):
                 self.canvas.setExtent(layerPos.extent())
 
                 # self.USLayerId = layerUS.getLayerID()
-                # style_path = ('%s%s') % (self.LAYER_STYLE_PATH_SPATIALITE, 'us_view_splite.qml')
+                # style_path = '{}{}'.format(self.LAYER_STYLE_PATH_SPATIALITE, 'us_view_splite.qml')
                 # style_path = QtGui.QFileDialog.getOpenFileName(self, 'Open file',self.LAYER_STYLE_PATH)
 
                 # layerUS.loadNamedStyle(style_path)
@@ -352,7 +352,7 @@ class Pyarchinit_pyqgis(QDialog):
                 QgsProject.instance().addMapLayers([layerNeg], True)
 
                 # self.USLayerId = layerUS.getLayerID()
-                # style_path = ('%s%s') % (self.LAYER_STYLE_PATH_SPATIALITE, 'us_view_splite.qml')
+                # style_path = '{}{}'.format(self.LAYER_STYLE_PATH_SPATIALITE, 'us_view_splite.qml')
                 # style_path = QtGui.QFileDialog.getOpenFileName(self, 'Open file',self.LAYER_STYLE_PATH)
 
                 # layerUS.loadNamedStyle(style_path)
@@ -372,7 +372,7 @@ class Pyarchinit_pyqgis(QDialog):
 
             if  layerQUOTE.isValid() == True:
                 #self.USLayerId = layerUS.getLayerID()
-                style_path = ('%s%s') % (self.LAYER_STYLE_PATH_SPATIALITE, 'quote_us_view.qml')
+                style_path = '{}{}'.format(self.LAYER_STYLE_PATH_SPATIALITE, 'quote_us_view.qml')
                 layerQUOTE.loadNamedStyle(style_path)
                 QgsProject.instance().addMapLayers([layerQUOTE], True)
             else:
@@ -401,7 +401,7 @@ class Pyarchinit_pyqgis(QDialog):
             if  layerUS.isValid() == True:
                 layerUS.setCrs(srs)
                 #self.USLayerId = layerUS.getLayersID()
-                #style_path = ('%s%s') % (self.LAYER_STYLE_PATH, 'us_caratterizzazioni.qml')
+                #style_path = '{}{}'.format(self.LAYER_STYLE_PATH, 'us_caratterizzazioni.qml')
                 style_path = QtGui.QFileDialog.getOpenFileName(self, 'Open file',self.LAYER_STYLE_PATH)
                 layerUS.loadNamedStyle(style_path)
                 QgsProject.instance().addMapLayers([layerUS], True)
@@ -413,7 +413,7 @@ class Pyarchinit_pyqgis(QDialog):
 
             if layerQUOTE.isValid() == True:
                 layerQUOTE.setCrs(srs)
-                style_path = ('%s%s') % (self.LAYER_STYLE_PATH, 'stile_quote.qml')
+                style_path = '{}{}'.format(self.LAYER_STYLE_PATH, 'stile_quote.qml')
                 layerQUOTE.loadNamedStyle(style_path)
                 try:
                     QgsProject.instance().addMapLayers([layerQUOTE], True)
@@ -440,7 +440,7 @@ class Pyarchinit_pyqgis(QDialog):
         nome_doc = lista_draw_doc[4]
 
         cfg_rel_path = os.path.join(os.sep, 'pyarchinit_DB_folder', 'config.cfg')
-        file_path = ('%s%s') % (self.HOME, cfg_rel_path)
+        file_path = '{}{}'.format(self.HOME, cfg_rel_path)
         conf = open(file_path, "r")
         con_sett = conf.read()
         conf.close()
@@ -454,7 +454,7 @@ class Pyarchinit_pyqgis(QDialog):
 
         if settings.SERVER == 'sqlite':
             sqliteDB_path = os.path.join(os.sep, 'pyarchinit_DB_folder', 'pyarchinit_db.sqlite')
-            db_file_path = ('%s%s') % (self.HOME, sqliteDB_path)
+            db_file_path = '{}{}'.format(self.HOME, sqliteDB_path)
 
             doc_from_us_str = "sito = '" + sito + "' AND area = '" + area + "' AND us = '" + us + "' AND tipo_doc = '" + tipo_documentazione + "' AND nome_doc = '" + nome_doc + "'"
             # if len(data) > 1:
@@ -471,7 +471,7 @@ class Pyarchinit_pyqgis(QDialog):
                 QMessageBox.warning(self, "TESTER", "OK Layer US valido", QMessageBox.Ok)
 
                 # self.USLayerId = layerUS.getLayerID()
-                # style_path = ('%s%s') % (self.LAYER_STYLE_PATH_SPATIALITE, 'us_view_splite.qml')
+                # style_path = '{}{}'.format(self.LAYER_STYLE_PATH_SPATIALITE, 'us_view_splite.qml')
                 # style_path = QtGui.QFileDialog.getOpenFileName(self, 'Open file',self.LAYER_STYLE_PATH)
 
                 # layerUS.loadNamedStyle(style_path)
@@ -496,7 +496,7 @@ class Pyarchinit_pyqgis(QDialog):
                 QMessageBox.warning(self, "TESTER", "OK Layer US negative valido", QMessageBox.Ok)
 
                 # self.USLayerId = layerUS.getLayerID()
-                # style_path = ('%s%s') % (self.LAYER_STYLE_PATH_SPATIALITE, 'us_view_splite.qml')
+                # style_path = '{}{}'.format(self.LAYER_STYLE_PATH_SPATIALITE, 'us_view_splite.qml')
                 # style_path = QtGui.QFileDialog.getOpenFileName(self, 'Open file',self.LAYER_STYLE_PATH)
 
                 # layerUS.loadNamedStyle(style_path)
@@ -521,7 +521,7 @@ class Pyarchinit_pyqgis(QDialog):
                 QMessageBox.warning(self, "TESTER", "OK Layer US valido", QMessageBox.Ok)
 
                 # self.USLayerId = layerUS.getLayerID()
-                # style_path = ('%s%s') % (self.LAYER_STYLE_PATH_SPATIALITE, 'us_view_splite.qml')
+                # style_path = '{}{}'.format(self.LAYER_STYLE_PATH_SPATIALITE, 'us_view_splite.qml')
                 # style_path = QtGui.QFileDialog.getOpenFileName(self, 'Open file',self.LAYER_STYLE_PATH)
 
                 # layerUS.loadNamedStyle(style_path)
@@ -541,7 +541,7 @@ class Pyarchinit_pyqgis(QDialog):
 
             if  layerQUOTE.isValid() == True:
                 #self.USLayerId = layerUS.getLayerID()
-                style_path = ('%s%s') % (self.LAYER_STYLE_PATH_SPATIALITE, 'quote_us_view.qml')
+                style_path = '{}{}'.format(self.LAYER_STYLE_PATH_SPATIALITE, 'quote_us_view.qml')
                 layerQUOTE.loadNamedStyle(style_path)
                 QgsProject.instance().addMapLayers([layerQUOTE], True)
             else:
@@ -570,7 +570,7 @@ class Pyarchinit_pyqgis(QDialog):
             if  layerUS.isValid() == True:
                 layerUS.setCrs(srs)
                 #self.USLayerId = layerUS.getLayersID()
-                #style_path = ('%s%s') % (self.LAYER_STYLE_PATH, 'us_caratterizzazioni.qml')
+                #style_path = '{}{}'.format(self.LAYER_STYLE_PATH, 'us_caratterizzazioni.qml')
                 style_path = QtGui.QFileDialog.getOpenFileName(self, 'Open file',self.LAYER_STYLE_PATH)
                 layerUS.loadNamedStyle(style_path)
                 QgsProject.instance().addMapLayers([layerUS], True)
@@ -582,7 +582,7 @@ class Pyarchinit_pyqgis(QDialog):
 
             if layerQUOTE.isValid() == True:
                 layerQUOTE.setCrs(srs)
-                style_path = ('%s%s') % (self.LAYER_STYLE_PATH, 'stile_quote.qml')
+                style_path = '{}{}'.format(self.LAYER_STYLE_PATH, 'stile_quote.qml')
                 layerQUOTE.loadNamedStyle(style_path)
                 try:
                     QgsProject.instance().addMapLayers([layerQUOTE], True)
@@ -603,7 +603,7 @@ class Pyarchinit_pyqgis(QDialog):
         # self.find_us_cutted(data)
 
         cfg_rel_path = os.path.join(os.sep, 'pyarchinit_DB_folder', 'config.cfg')
-        file_path = ('%s%s') % (self.HOME, cfg_rel_path)
+        file_path = '{}{}'.format(self.HOME, cfg_rel_path)
         conf = open(file_path, "r")
         con_sett = conf.read()
         conf.close()
@@ -613,7 +613,7 @@ class Pyarchinit_pyqgis(QDialog):
 
         if settings.SERVER == 'sqlite':
             sqliteDB_path = os.path.join(os.sep, 'pyarchinit_DB_folder', 'pyarchinit_db.sqlite')
-            db_file_path = ('%s%s') % (self.HOME, sqliteDB_path)
+            db_file_path = '{}{}'.format(self.HOME, sqliteDB_path)
 
             gidstr = "id_us = '" + str(data[0].id_us) + "'"
             if len(data) > 1:
@@ -630,7 +630,7 @@ class Pyarchinit_pyqgis(QDialog):
                 QMessageBox.warning(self, "TESTER", "OK Layer US valido", QMessageBox.Ok)
 
                 # self.USLayerId = layerUS.getLayerID()
-                style_path = ('%s%s') % (self.LAYER_STYLE_PATH_SPATIALITE, 'us_view_splite.qml')
+                style_path = '{}{}'.format(self.LAYER_STYLE_PATH_SPATIALITE, 'us_view_splite.qml')
                 # style_path = QtGui.QFileDialog.getOpenFileName(self, 'Open file',self.LAYER_STYLE_PATH)
 
                 layerUS.loadNamedStyle(style_path)
@@ -648,7 +648,7 @@ class Pyarchinit_pyqgis(QDialog):
 
             if layerQUOTE.isValid():
                 # self.USLayerId = layerUS.getLayerID()
-                style_path = ('%s%s') % (self.LAYER_STYLE_PATH_SPATIALITE, 'quote_us_view.qml')
+                style_path = '{}{}'.format(self.LAYER_STYLE_PATH_SPATIALITE, 'quote_us_view.qml')
                 layerQUOTE.loadNamedStyle(style_path)
                 QgsProject.instance().addMapLayers([layerQUOTE], True)
             else:
@@ -674,7 +674,7 @@ class Pyarchinit_pyqgis(QDialog):
             if layerUS.isValid():
                 layerUS.setCrs(srs)
                 # self.USLayerId = layerUS.getLayersID()
-                style_path = ('%s%s') % (self.LAYER_STYLE_PATH, 'us_caratterizzazioni.qml')
+                style_path = '{}{}'.format(self.LAYER_STYLE_PATH, 'us_caratterizzazioni.qml')
                 # style_path = QFileDialog.getOpenFileName(self, 'Open file', self.LAYER_STYLE_PATH)
                 layerUS.loadNamedStyle(style_path)
                 QgsProject.instance().addMapLayers([layerUS], True)
@@ -686,7 +686,7 @@ class Pyarchinit_pyqgis(QDialog):
 
             if layerQUOTE.isValid():
                 layerQUOTE.setCrs(srs)
-                style_path = ('%s%s') % (self.LAYER_STYLE_PATH, 'stile_quote.qml')
+                style_path = '{}{}'.format(self.LAYER_STYLE_PATH, 'stile_quote.qml')
                 layerQUOTE.loadNamedStyle(style_path)
                 try:
                     QgsProject.instance().addMapLayers([layerQUOTE], True)
@@ -708,7 +708,7 @@ class Pyarchinit_pyqgis(QDialog):
         # Get the user input, starting with the table name
         # self.find_us_cutted(data)
         cfg_rel_path = os.path.join(os.sep, 'pyarchinit_DB_folder', 'config.cfg')
-        file_path = ('%s%s') % (self.HOME, cfg_rel_path)
+        file_path = '{}{}'.format(self.HOME, cfg_rel_path)
         conf = open(file_path, "r")
         con_sett = conf.read()
         conf.close()
@@ -720,7 +720,7 @@ class Pyarchinit_pyqgis(QDialog):
 
         if settings.SERVER == 'sqlite':
             sqliteDB_path = os.path.join(os.sep, 'pyarchinit_DB_folder', 'pyarchinit_db.sqlite')
-            db_file_path = ('%s%s') % (self.HOME, sqliteDB_path)
+            db_file_path = '{}{}'.format(self.HOME, sqliteDB_path)
 
             uri = QgsDataSourceUri()
             uri.setDatabase(db_file_path)
@@ -736,7 +736,7 @@ class Pyarchinit_pyqgis(QDialog):
                 QMessageBox.warning(self, "TESTER", "OK Layer US valido", QMessageBox.Ok)
 
                 # self.USLayerId = layerUS.getLayerID()
-                style_path = ('%s%s') % (self.LAYER_STYLE_PATH_SPATIALITE, 'us_view_splite.qml')
+                style_path = '{}{}'.format(self.LAYER_STYLE_PATH_SPATIALITE, 'us_view_splite.qml')
                 layerUS.loadNamedStyle(style_path)
                 QgsProject.instance().addMapLayers([layerUS], True)
             else:
@@ -747,7 +747,7 @@ class Pyarchinit_pyqgis(QDialog):
 
             if layerQUOTE.isValid():
                 # self.USLayerId = layerUS.getLayerID()
-                style_path = ('%s%s') % (self.LAYER_STYLE_PATH_SPATIALITE, 'quote_us_view.qml')
+                style_path = '{}{}'.format(self.LAYER_STYLE_PATH_SPATIALITE, 'quote_us_view.qml')
                 layerQUOTE.loadNamedStyle(style_path)
                 QgsProject.instance().addMapLayers([layerQUOTE], True)
 
@@ -763,7 +763,7 @@ class Pyarchinit_pyqgis(QDialog):
             if layerUS.isValid():
                 layerUS.setCrs(srs)
                 # self.USLayerId = layerUS.getLayerID()
-                style_path = ('%s%s') % (self.LAYER_STYLE_PATH, 'us_caratterizzazioni.qml')
+                style_path = '{}{}'.format(self.LAYER_STYLE_PATH, 'us_caratterizzazioni.qml')
                 # style_path = QFileDialog.getOpenFileName(self, 'Open file', self.LAYER_STYLE_PATH)
                 layerUS.loadNamedStyle(style_path)
                 QgsProject.instance().addMapLayers([layerUS], True)
@@ -774,7 +774,7 @@ class Pyarchinit_pyqgis(QDialog):
             layerQUOTE = QgsVectorLayer(uri.uri(), layer_name_label_quote, "postgres")
             if layerQUOTE.isValid():
                 layerQUOTE.setCrs(srs)
-                style_path = ('%s%s') % (self.LAYER_STYLE_PATH, 'stile_quote.qml')
+                style_path = '{}{}'.format(self.LAYER_STYLE_PATH, 'stile_quote.qml')
                 layerQUOTE.loadNamedStyle(style_path)
                 try:
                     QgsProject.instance().addMapLayers([layerQUOTE], True)
@@ -823,7 +823,7 @@ class Pyarchinit_pyqgis(QDialog):
 
             if layerUS.isValid():
                 # self.USLayerId = layerUS.getLayerID()
-                # style_path = ('%s%s') % (self.LAYER_STYLE_PATH, 'us_caratterizzazioni.qml')
+                # style_path = '{}{}'.format(self.LAYER_STYLE_PATH, 'us_caratterizzazioni.qml')
                 # layerUS.loadNamedStyle(style_path)
                 QgsProject.instance().addMapLayers([layerUS], False)
                 layerToSet.append(layerUS)
@@ -833,7 +833,7 @@ class Pyarchinit_pyqgis(QDialog):
             layerQUOTE = QgsVectorLayer(uri.uri(), "Quote", "postgres")
 
             if layerQUOTE.isValid():
-                # style_path = ('%s%s') % (self.LAYER_STYLE_PATH, 'stile_quote.qml')
+                # style_path = '{}{}'.format(self.LAYER_STYLE_PATH, 'stile_quote.qml')
                 # layerQUOTE.loadNamedStyle(style_path)
                 QgsProject.instance().addMapLayers([layerQUOTE], False)
                 layerToSet.append(layerQUOTE)
@@ -842,7 +842,7 @@ class Pyarchinit_pyqgis(QDialog):
 
         elif settings.SERVER == 'sqlite':
             sqliteDB_path = os.path.join(os.sep, 'pyarchinit_DB_folder', 'pyarchinit_db.sqlite')
-            db_file_path = ('%s%s') % (self.HOME, sqliteDB_path)
+            db_file_path = '{}{}'.format(self.HOME, sqliteDB_path)
             uri = QgsDataSourceUri()
             uri.setDatabase(db_file_path)
 
@@ -852,7 +852,7 @@ class Pyarchinit_pyqgis(QDialog):
 
             if layerQUOTE.isValid():
                 ###QMessageBox.warning(self, "TESTER", "OK Layer Quote valido",#QMessageBox.Ok)
-                style_path = ('%s%s') % (self.LAYER_STYLE_PATH_SPATIALITE, 'quote_us_view.qml')
+                style_path = '{}{}'.format(self.LAYER_STYLE_PATH_SPATIALITE, 'quote_us_view.qml')
                 layerQUOTE.loadNamedStyle(style_path)
                 QgsProject.instance().addMapLayers([layerQUOTE], False)
                 layerToSet.append(layerQUOTE)
@@ -865,7 +865,7 @@ class Pyarchinit_pyqgis(QDialog):
 
             if layerUS.isValid():
                 # QMessageBox.warning(self, "TESTER", "OK ayer US valido",	 #QMessageBox.Ok)
-                style_path = ('%s%s') % (self.LAYER_STYLE_PATH_SPATIALITE, 'us_view_splite.qml')
+                style_path = '{}{}'.format(self.LAYER_STYLE_PATH_SPATIALITE, 'us_view_splite.qml')
                 layerUS.loadNamedStyle(style_path)
                 QgsProject.instance().addMapLayers([layerUS], False)
                 layerToSet.append(layerUS)
@@ -900,7 +900,7 @@ class Pyarchinit_pyqgis(QDialog):
 
             if layerUS.isValid():
                 # self.USLayerId = layerUS.getLayerID()
-                # style_path = ('%s%s') % (self.LAYER_STYLE_PATH, 'us_caratterizzazioni.qml')
+                # style_path = '{}{}'.format(self.LAYER_STYLE_PATH, 'us_caratterizzazioni.qml')
                 # layerUS.loadNamedStyle(style_path)
                 QgsProject.instance().addMapLayers([layerUS], False)
                 layerToSet.append(layerUS)
@@ -910,7 +910,7 @@ class Pyarchinit_pyqgis(QDialog):
             ##			layerQUOTE = QgsVectorLayer(uri.uri(), "Quote", "postgres")
 
             ##			if layerQUOTE.isValid() == True:
-            ##				#style_path = ('%s%s') % (self.LAYER_STYLE_PATH, 'stile_quote.qml')
+            ##				#style_path = '{}{}'.format(self.LAYER_STYLE_PATH, 'stile_quote.qml')
             ##				#layerQUOTE.loadNamedStyle(style_path)
             ##				QgsProject.instance().addMapLayers([layerQUOTE], False)
             ##				layerToSet.append(QgsMapCanvas(layerQUOTE, True, False))
@@ -919,7 +919,7 @@ class Pyarchinit_pyqgis(QDialog):
 
         elif settings.SERVER == 'sqlite':
             sqliteDB_path = os.path.join(os.sep, 'pyarchinit_DB_folder', 'pyarchinit_db.sqlite')
-            db_file_path = ('%s%s') % (self.HOME, sqliteDB_path)
+            db_file_path = '{}{}'.format(self.HOME, sqliteDB_path)
             uri = QgsDataSourceUri()
             uri.setDatabase(db_file_path)
 
@@ -932,7 +932,7 @@ class Pyarchinit_pyqgis(QDialog):
 
             if layerUS.isValid():
                 QMessageBox.warning(self, "TESTER", "OK ayer US valido", QMessageBox.Ok)
-                ##				style_path = ('%s%s') % (self.LAYER_STYLE_PATH_SPATIALITE, 'us_view_splite.qml')
+                ##				style_path = '{}{}'.format(self.LAYER_STYLE_PATH_SPATIALITE, 'us_view_splite.qml')
                 ##				layerUS.loadNamedStyle(style_path)
                 QgsProject.instance().addMapLayers([layerUS], False)
                 layerToSet.append(layerUS)
@@ -953,7 +953,7 @@ class Pyarchinit_pyqgis(QDialog):
             ##
             ##			if layerUSn.isValid() == True:
             ##				#QMessageBox.warning(self, "TESTER", "OK ayer US valido",	 #QMessageBox.Ok)
-            ####				style_path = ('%s%s') % (self.LAYER_STYLE_PATH_SPATIALITE, 'us_view_splite.qml')
+            ####				style_path = '{}{}'.format(self.LAYER_STYLE_PATH_SPATIALITE, 'us_view_splite.qml')
             ####				layerUSn.loadNamedStyle(style_path)
             ##				QgsProject.instance().addMapLayers([layerUSn], False)
             ##				layerToSet.append(QgsMapCanvas(layerUSn, True, False))
@@ -1029,7 +1029,7 @@ class Pyarchinit_pyqgis(QDialog):
         # self.find_us_cutted(data)
 
         cfg_rel_path = os.path.join(os.sep, 'pyarchinit_DB_folder', 'config.cfg')
-        file_path = ('%s%s') % (self.HOME, cfg_rel_path)
+        file_path = '{}{}'.format(self.HOME, cfg_rel_path)
         conf = open(file_path, "r")
         con_sett = conf.read()
         conf.close()
@@ -1039,7 +1039,7 @@ class Pyarchinit_pyqgis(QDialog):
 
         if settings.SERVER == 'sqlite':
             sqliteDB_path = os.path.join(os.sep, 'pyarchinit_DB_folder', 'pyarchinit_db.sqlite')
-            db_file_path = ('%s%s') % (self.HOME, sqliteDB_path)
+            db_file_path = '{}{}'.format(self.HOME, sqliteDB_path)
             uri = QgsDataSourceUri()
             uri.setDatabase(db_file_path)
 
@@ -1055,7 +1055,7 @@ class Pyarchinit_pyqgis(QDialog):
 
                 if layer.isValid():
                     # self.USLayerId = layerUS.getLayerID()
-                    ##style_path = ('%s%s') % (self.LAYER_STYLE_PATH_SPATIALITE, 'us_view.qml')
+                    ##style_path = '{}{}'.format(self.LAYER_STYLE_PATH_SPATIALITE, 'us_view.qml')
                     ##ayerUS.loadNamedStyle(style_path)
                     QgsProject.instance().addMapLayers([layer], True)
                 else:
@@ -1082,7 +1082,7 @@ class Pyarchinit_pyqgis(QDialog):
                 if layer.isValid():
                     layer.setCrs(srs)
                     # self.USLayerId = layerUS.getLayerID()
-                    ##style_path = ('%s%s') % (self.LAYER_STYLE_PATH_SPATIALITE, 'us_view.qml')
+                    ##style_path = '{}{}'.format(self.LAYER_STYLE_PATH_SPATIALITE, 'us_view.qml')
                     ##ayerUS.loadNamedStyle(style_path)
                     QgsProject.instance().addMapLayers([layer], True)
                 else:
@@ -1094,7 +1094,7 @@ class Pyarchinit_pyqgis(QDialog):
         self.val = val
 
         cfg_rel_path = os.path.join(os.sep, 'pyarchinit_DB_folder', 'config.cfg')
-        file_path = ('%s%s') % (self.HOME, cfg_rel_path)
+        file_path = '{}{}'.format(self.HOME, cfg_rel_path)
         conf = open(file_path, "r")
         con_sett = conf.read()
         conf.close()
@@ -1104,7 +1104,7 @@ class Pyarchinit_pyqgis(QDialog):
 
         if settings.SERVER == 'sqlite':
             sqliteDB_path = os.path.join(os.sep, 'pyarchinit_DB_folder', 'pyarchinit_db.sqlite')
-            db_file_path = ('%s%s') % (self.HOME, sqliteDB_path)
+            db_file_path = '{}{}'.format(self.HOME, sqliteDB_path)
             uri = QgsDataSourceUri()
             uri.setDatabase(db_file_path)
 
@@ -1122,7 +1122,7 @@ class Pyarchinit_pyqgis(QDialog):
 
                 if layer.isValid():
                     # self.USLayerId = layerUS.getLayerID()
-                    ##style_path = ('%s%s') % (self.LAYER_STYLE_PATH_SPATIALITE, 'us_view.qml')
+                    ##style_path = '{}{}'.format(self.LAYER_STYLE_PATH_SPATIALITE, 'us_view.qml')
                     ##ayerUS.loadNamedStyle(style_path)
                     self.iface.mapCanvas().setExtent(layer.extent())
                     QgsProject.instance().addMapLayers([layer], True)
@@ -1142,7 +1142,7 @@ class Pyarchinit_pyqgis(QDialog):
 
             if layer.isValid():
                 # self.USLayerId = layerUS.getLayerID()
-                ##style_path = ('%s%s') % (self.LAYER_STYLE_PATH_SPATIALITE, 'us_view.qml')
+                ##style_path = '{}{}'.format(self.LAYER_STYLE_PATH_SPATIALITE, 'us_view.qml')
                 ##ayerUS.loadNamedStyle(style_path)
                 QgsProject.instance().addMapLayers([layer], True)
             else:
@@ -1160,7 +1160,7 @@ class Pyarchinit_pyqgis(QDialog):
 
             if layer.isValid():
                 # self.USLayerId = layerUS.getLayerID()
-                ##style_path = ('%s%s') % (self.LAYER_STYLE_PATH_SPATIALITE, 'us_view.qml')
+                ##style_path = '{}{}'.format(self.LAYER_STYLE_PATH_SPATIALITE, 'us_view.qml')
                 ##ayerUS.loadNamedStyle(style_path)
                 QgsProject.instance().addMapLayers([layer], True)
             else:
@@ -1234,7 +1234,7 @@ class Pyarchinit_pyqgis(QDialog):
                 if layer.isValid():
                     layer.setCrs(srs)
                     # self.USLayerId = layerUS.getLayerID()
-                    ##style_path = ('%s%s') % (self.LAYER_STYLE_PATH_SPATIALITE, 'us_view.qml')
+                    ##style_path = '{}{}'.format(self.LAYER_STYLE_PATH_SPATIALITE, 'us_view.qml')
                     ##ayerUS.loadNamedStyle(style_path)
                     QgsProject.instance().addMapLayers([layer], True)
                 else:
@@ -1329,7 +1329,7 @@ class Pyarchinit_pyqgis(QDialog):
         # self.find_us_cutted(data)
 
         cfg_rel_path = os.path.join(os.sep, 'pyarchinit_DB_folder', 'config.cfg')
-        file_path = ('%s%s') % (self.HOME, cfg_rel_path)
+        file_path = '{}{}'.format(self.HOME, cfg_rel_path)
         conf = open(file_path, "r")
         con_sett = conf.read()
         conf.close()
@@ -1339,7 +1339,7 @@ class Pyarchinit_pyqgis(QDialog):
 
         if settings.SERVER == 'sqlite':
             sqliteDB_path = os.path.join(os.sep, 'pyarchinit_DB_folder', 'pyarchinit_db.sqlite')
-            db_file_path = ('%s%s') % (self.HOME, sqliteDB_path)
+            db_file_path = '{}{}'.format(self.HOME, sqliteDB_path)
 
             gidstr = "sito_nome= '" + str(data[0].sito) + "'"
             if len(data) > 1:
@@ -1377,7 +1377,7 @@ class Pyarchinit_pyqgis(QDialog):
                 QMessageBox.warning(self, "TESTER", "OK Layer Sito valido", QMessageBox.Ok)
 
                 # self.USLayerId = layerUS.getLayerID()
-                ##				style_path = ('%s%s') % (self.LAYER_STYLE_PATH_SPATIALITE, 'us_view.qml')
+                ##				style_path = '{}{}'.format(self.LAYER_STYLE_PATH_SPATIALITE, 'us_view.qml')
                 ##				layerUS.loadNamedStyle(style_path)
                 self.iface.mapCanvas().setExtent(layerSITE.extent())
                 QgsProject.instance().addMapLayers([layerSITE], True)
@@ -1392,7 +1392,7 @@ class Pyarchinit_pyqgis(QDialog):
         # self.find_us_cutted(data)
 
         cfg_rel_path = os.path.join(os.sep, 'pyarchinit_DB_folder', 'config.cfg')
-        file_path = ('%s%s') % (self.HOME, cfg_rel_path)
+        file_path = '{}{}'.format(self.HOME, cfg_rel_path)
         conf = open(file_path, "r")
         con_sett = conf.read()
         conf.close()
@@ -1402,7 +1402,7 @@ class Pyarchinit_pyqgis(QDialog):
 
         if settings.SERVER == 'sqlite':
             sqliteDB_path = os.path.join(os.sep, 'pyarchinit_DB_folder', 'pyarchinit_db.sqlite')
-            db_file_path = ('%s%s') % (self.HOME, sqliteDB_path)
+            db_file_path = '{}{}'.format(self.HOME, sqliteDB_path)
 
             gidstr = "id_struttura = '" + str(data[0].id_struttura) + "'"
             if len(data) > 1:
@@ -1453,7 +1453,7 @@ class Pyarchinit_pyqgis(QDialog):
         # self.find_us_cutted(data)
 
         cfg_rel_path = os.path.join(os.sep, 'pyarchinit_DB_folder', 'config.cfg')
-        file_path = ('%s%s') % (self.HOME, cfg_rel_path)
+        file_path = '{}{}'.format(self.HOME, cfg_rel_path)
         conf = open(file_path, "r")
         con_sett = conf.read()
         conf.close()
@@ -1463,7 +1463,7 @@ class Pyarchinit_pyqgis(QDialog):
 
         if settings.SERVER == 'sqlite':
             sqliteDB_path = os.path.join(os.sep, 'pyarchinit_DB_folder', 'pyarchinit_db.sqlite')
-            db_file_path = ('%s%s') % (self.HOME, sqliteDB_path)
+            db_file_path = '{}{}'.format(self.HOME, sqliteDB_path)
 
             gidstr = "id_scheda_ind = '" + str(data[0].id_scheda_ind) + "'"
             if len(data) > 1:
@@ -1480,7 +1480,7 @@ class Pyarchinit_pyqgis(QDialog):
                 QMessageBox.warning(self, "TESTER", "OK Layer Individui valido", QMessageBox.Ok)
 
                 # self.USLayerId = layerUS.getLayerID()
-                ##				style_path = ('%s%s') % (self.LAYER_STYLE_PATH_SPATIALITE, 'us_view.qml')
+                ##				style_path = '{}{}'.format(self.LAYER_STYLE_PATH_SPATIALITE, 'us_view.qml')
                 ##				layerUS.loadNamedStyle(style_path)
                 self.iface.mapCanvas().setExtent(layerIndividui.extent())
                 QgsProject.instance().addMapLayers([layerIndividui], True)
@@ -1508,7 +1508,7 @@ class Pyarchinit_pyqgis(QDialog):
                 QMessageBox.warning(self, "TESTER", "OK Layer Individui valido", QMessageBox.Ok)
 
                 # self.USLayerId = layerUS.getLayerID()
-                ##				style_path = ('%s%s') % (self.LAYER_STYLE_PATH_SPATIALITE, 'us_view.qml')
+                ##				style_path = '{}{}'.format(self.LAYER_STYLE_PATH_SPATIALITE, 'us_view.qml')
                 ##				layerUS.loadNamedStyle(style_path)
                 self.iface.mapCanvas().setExtent(layerIndividui.extent())
                 QgsProject.instance().addMapLayers([layerIndividui], True)

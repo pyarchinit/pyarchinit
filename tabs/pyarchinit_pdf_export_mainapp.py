@@ -423,7 +423,7 @@ class pyarchinit_pdf_export(QDialog, MAIN_DIALOG_CLASS):
 
         for i in range(len(self.DATA_LIST)):
             sito = str(self.DATA_LIST[i].sito)
-            sigla_struttura = ('%s%s') % (
+            sigla_struttura = '{}{}'.format(
             str(self.DATA_LIST[i].sigla_struttura), str(self.DATA_LIST[i].numero_struttura))
 
             res_strutt = self.DB_MANAGER.query_bool(
@@ -530,7 +530,7 @@ class pyarchinit_pdf_export(QDialog, MAIN_DIALOG_CLASS):
         for i in range(len(self.DATA_LIST)):
             sito = str(self.DATA_LIST[i].sito)
             nr_individuo = str(self.DATA_LIST[i].nr_individuo)
-            sigla_struttura = ('%s%s') % (str(self.DATA_LIST[i].sigla_struttura), str(self.DATA_LIST[i].nr_struttura))
+            sigla_struttura = '{}{}'.format(str(self.DATA_LIST[i].sigla_struttura), str(self.DATA_LIST[i].nr_struttura))
 
             res_ind = self.DB_MANAGER.query_bool(
                 {"sito": "'" + str(sito) + "'", "nr_individuo": "'" + str(nr_individuo) + "'"}, "SCHEDAIND")

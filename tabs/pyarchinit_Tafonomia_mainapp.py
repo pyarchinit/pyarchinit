@@ -1206,7 +1206,7 @@ class pyarchinit_Tafonomia(QDialog, MAIN_DIALOG_CLASS):
             sito = str(self.DATA_LIST[i].sito)
             nr_individuo = str(self.DATA_LIST[i].nr_individuo)
             nr_individuo_find = int(self.DATA_LIST[i].nr_individuo)
-            sigla_struttura = ('%s%s') % (str(self.DATA_LIST[i].sigla_struttura), str(self.DATA_LIST[i].nr_struttura))
+            sigla_struttura = '{}{}'.format(str(self.DATA_LIST[i].sigla_struttura), str(self.DATA_LIST[i].nr_struttura))
 
             res_ind = self.DB_MANAGER.query_bool({"sito": "'" + sito + "'", "nr_individuo": nr_individuo_find},
                                                  "SCHEDAIND")
