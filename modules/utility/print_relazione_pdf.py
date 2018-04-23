@@ -1,5 +1,32 @@
+#! /usr/bin/env python
+# -*- coding: utf 8 -*-
+"""
+/***************************************************************************
+        pyArchInit Plugin  - A QGIS plugin to manage archaeological dataset
+        					 stored in Postgres
+                             -------------------
+    begin                : 2007-12-01
+    copyright            : (C) 2008 by Luca Mandolesi
+    email                : mandoluca at gmail.com
+ ***************************************************************************/
+
+/***************************************************************************
+ *                                                                         	*
+ *   This program is free software; you can redistribute it and/or modify 	*
+ *   it under the terms of the GNU General Public License as published by  	*
+ *   the Free Software Foundation; either version 2 of the License, or    	*
+ *   (at your option) any later version.                                  	*																		*
+ ***************************************************************************/
+"""
+
+from builtins import str
+from builtins import range
+from builtins import object
 import time
-from  pyarchinit_db_manager import *
+import os
+
+from ..db.pyarchinit_conn_strings import Connection
+from ..db.pyarchinit_db_manager import Pyarchinit_db_management
 from reportlab.lib.enums import TA_JUSTIFY, TA_CENTER
 from reportlab.lib.pagesizes import A4
 from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
@@ -36,6 +63,7 @@ from reportlab.rl_config import defaultPageSize
 ###Sezione 6 - ALLEGATO 1 - schede US
 ####Dati dei periodi
 ######Elenco periodi Periodo - Fase - Datazione estesa
+
 class NumberedCanvas_Relazione(canvas.Canvas):
     def __init__(self, *args, **kwargs):
         canvas.Canvas.__init__(self, *args, **kwargs)
@@ -61,7 +89,7 @@ class NumberedCanvas_Relazione(canvas.Canvas):
         if self._pageNumber == 1:
             pass
         else:
-            logo = "/Users/Windows/.qgis/python/plugins/pyarchinit/iconadarte.png"
+            logo = os.path.join(os.path.dirname(__file__), "..", "..", "iconadarte.png")
             self.drawInlineImage(logo, 250, 780, width=120, height=40)
             self.line(35, 775, 550, 775)
             self.line(35, 40, 550, 40)
@@ -71,7 +99,7 @@ class NumberedCanvas_Relazione(canvas.Canvas):
             self.drawCentredString(300, 10, "via San Lorenzo in Monte 7 - 47923 - Rimini")
 
 
-class exp_rel_pdf:
+class exp_rel_pdf(object):
     DB_MANAGER = ""
     DATA_LIST = []
     SITO = ""
@@ -91,7 +119,6 @@ class exp_rel_pdf:
         self.connection_db()
 
     def connection_db(self):
-        from pyarchinit_conn_strings import *
         conn = Connection()
         conn_str = conn.conn_str()
         try:
@@ -106,7 +133,7 @@ class exp_rel_pdf:
         self.mapper_table_class = m
         search_dict = {self.field: "'" + str(self.value) + "'"}
         res = self.DB_MANAGER.query_bool(search_dict, self.mapper_table_class)
-
+        print(res)
         return res
 
     def extract_id_list(self, rec, idf):
@@ -146,7 +173,7 @@ class exp_rel_pdf:
 
     def export_rel_pdf(self):
         Story = []
-        logo = "/Users/Windows/.qgis/python/plugins/pyarchinit/iconadarte.png"
+        logo = os.path.join("..", "..", "iconadarte.png")
         magName = "Pythonista"
         subPrice = "99.00"
         limitedDate = "03/05/2010"
@@ -190,12 +217,12 @@ class exp_rel_pdf:
         self.DATA_LIST = self.DB_MANAGER.query_bool(search_dict, "SITE")
 
         # formattazione del testo
-        ptext = '<font size=14 ><b>Sito: %s</font>' % (self.DATA_LIST[0].sito)
+        ptext = '<font size=14><b>Sito: %s</b></font>' % self.DATA_LIST[0].sito
 
         Story.append(Paragraph(ptext, styles["Normal"]))
         Story.append(Spacer(1, 12))
         # Descrizione sito
-        ptext = """<font size=12> <b>Descrizione del sito </b><br/> %s </font>""" % (self.DATA_LIST[0].descrizione)
+        ptext = """<font size=12> <b>Descrizione del sito </b><br/> %s </font>""" % self.DATA_LIST[0].descrizione
         Story.append(Paragraph(ptext, styles["Justify"]))
         Story.append(Spacer(1, 12))
 
@@ -215,7 +242,7 @@ class exp_rel_pdf:
             self.load_data_sorted(id_list_periodo, ['cont_per'], 'asc', 'PERIODIZZAZIONE', 'id_perfas')
 
             for sing_rec in range(len(self.DATA_LIST)):
-                ptext = '<font size=12 ><b>Periodo: %s - Fase %s - Datazione estesa: %s</font><br/>' % (
+                ptext = '<font size=12 ><b>Periodo: %s - Fase %s - Datazione estesa: %s</b></font><br/>' % (
                 self.DATA_LIST[sing_rec].periodo, self.DATA_LIST[sing_rec].fase,
                 self.DATA_LIST[sing_rec].datazione_estesa)
                 Story.append(Paragraph(ptext, styles["Normal"]))
@@ -224,7 +251,7 @@ class exp_rel_pdf:
             Story.append(PageBreak())
 
             for sing_rec in range(len(self.DATA_LIST)):
-                ptext = '<font size=12 ><b>Periodo: %s - Fase %s </font><br/>' % (
+                ptext = '<font size=12 ><b>Periodo: %s - Fase %s </b></font><br/>' % (
                 self.DATA_LIST[sing_rec].periodo, self.DATA_LIST[sing_rec].fase)
                 Story.append(Paragraph(ptext, styles["Normal"]))
                 Story.append(Spacer(1, 12))
@@ -323,7 +350,7 @@ class exp_rel_pdf:
         Story.append(PageBreak())
 
         # Titolo dati di cantiere
-        ptext = '<font size=14 ><b>Dati Cantiere</font>'
+        ptext = '<font size=14 ><b>Dati Cantiere</b></font>'
 
         Story.append(Paragraph(ptext, styles["Normal"]))
         Story.append(Spacer(1, 12))
@@ -343,20 +370,20 @@ class exp_rel_pdf:
         Story.append(PageBreak())
 
         # Immagini
-        logo = "/Users/Windows/.qgis/python/plugins/pyarchinit/iconadarte.png"
+        logo = os.path.join(os.path.dirname(__file__), "..", "..", "iconadarte.png")
         im = Image(logo)
         Story.append(im)
         # Didascalia
-        ptext = '<font size=10><b>Figura 1 - Esempio di foto</font>'
+        ptext = '<font size=10><b>Figura 1 - Esempio di foto</b></font>'
 
         Story.append(Paragraph(ptext, styles["Normal"]))
         Story.append(Spacer(1, 200))
 
-        logo = "/Users/Windows/.qgis/python/plugins/pyarchinit/iconadarte.png"
+        logo = os.path.join(os.path.dirname(__file__), "..", "..", "iconadarte.png")
         im = Image(logo)
         Story.append(im)
         # Didascalia
-        ptext = '<font size=10><b>Figura 2 - Esempio di foto</font>'
+        ptext = '<font size=10><b>Figura 2 - Esempio di foto</b></font>'
 
         Story.append(Paragraph(ptext, styles["Normal"]))
         Story.append(Spacer(1, 12))
