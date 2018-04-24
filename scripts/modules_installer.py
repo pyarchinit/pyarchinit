@@ -26,7 +26,8 @@ import sys
 # package list in order to install via pip module
 packages = ['networkx',
             'pyper',
-            'pygraphviz==1.4rc1']
+            'sqlalchemy'
+            'graphviz']
 
 for p in packages:
     if p.startswith('pygraphviz'):
