@@ -1,5 +1,5 @@
 #! /usr/bin/env python
-# -*- coding: utf 8 -*-
+# -*- coding: utf-8 -*-
 """
 /***************************************************************************
         pyArchInit Plugin  - A QGIS plugin to manage archaeological dataset
@@ -11,11 +11,12 @@
  ***************************************************************************/
 
 /***************************************************************************
- *                                                                         	*
- *   This program is free software; you can redistribute it and/or modify 	*
- *   it under the terms of the GNU General Public License as published by  	*
- *   the Free Software Foundation; either version 2 of the License, or    	*
- *   (at your option) any later version.                                  	*																		*
+ *                                                                         *
+ *   This program is free software; you can redistribute it and/or modify  *
+ *   it under the terms of the GNU General Public License as published by  *
+ *   the Free Software Foundation; either version 2 of the License, or     *
+ *   (at your option) any later version.                                   *
+ *                                                                         *
  ***************************************************************************/
 """
 from __future__ import absolute_import
@@ -29,23 +30,19 @@ from builtins import str
 from qgis.PyQt.QtWidgets import QDialog, QMessageBox
 from qgis.PyQt.uic import loadUiType
 
-from ..modules.utility.print_relazione_pdf import exp_rel_pdf
 from ..modules.db.pyarchinit_conn_strings import Connection
 from ..modules.db.pyarchinit_db_manager import Pyarchinit_db_management
 from ..modules.db.pyarchinit_utility import Utility
 from ..modules.gis.pyarchinit_pyqgis import Pyarchinit_pyqgis
 from ..modules.utility.pyarchinit_error_check import Error_check
-from .pyarchinit_US_mainapp import pyarchinit_US
+from .US_USM import pyarchinit_US
 from ..sortpanelmain import SortPanelMain
-from ..test_area import Test_area
 
-MAIN_DIALOG_CLASS, _ = loadUiType(os.path.join(os.path.dirname(__file__), '..', 'modules', 'gui', 'pyarchinit_Site_ui.ui'))
+MAIN_DIALOG_CLASS, _ = loadUiType(os.path.join(os.path.dirname(__file__), '..', 'modules', 'gui', 'pyarchinit_thesaurus_ui.ui'))
 
 
-class pyarchinit_Site(QDialog, MAIN_DIALOG_CLASS):
-    """This class provides to manage the Site Sheet"""
-
-    MSG_BOX_TITLE = "pyArchInit - Scheda Sito"
+class pyarchinit_Thesaurus(QDialog, MAIN_DIALOG_CLASS):
+    MSG_BOX_TITLE = "PyArchInit - pyarchinit_version 0.4 - Scheda Campioni"
     DATA_LIST = []
     DATA_LIST_REC_CORR = []
     DATA_LIST_REC_TEMP = []
@@ -58,41 +55,35 @@ class pyarchinit_Site(QDialog, MAIN_DIALOG_CLASS):
     SORT_STATUS = "n"
     UTILITY = Utility()
     DB_MANAGER = ""
-    TABLE_NAME = 'site_table'
-    MAPPER_TABLE_CLASS = "SITE"
-    NOME_SCHEDA = "Scheda di Sito"
-    ID_TABLE = "id_sito"
+    TABLE_NAME = 'pyarchinit_thesaurus_sigle'
+    MAPPER_TABLE_CLASS = "PYARCHINIT_THESAURUS_SIGLE"
+    NOME_SCHEDA = "Scheda Thesaurus Sigle"
+    ID_TABLE = "id_thesaurus_sigle"
     CONVERSION_DICT = {
         ID_TABLE: ID_TABLE,
-        "Sito": "sito",
-        "Nazione": "nazione",
-        "Regione": "regione",
+        "Nome tabella": "nome_tabella",
+        "Sigla": "sigla",
+        "Sigla estesa": "sigla_estesa",
         "Descrizione": "descrizione",
-        "Comune": "comune",
-        "Provincia": "provincia",
-        "Definizione sito": "definizione_sito"
+        "Tipologia sigla": "tipologia_sigla"
     }
+
     SORT_ITEMS = [
         ID_TABLE,
-        "Sito",
+        "Nome tabella",
+        "Sigla",
+        "Sigla estesa",
         "Descrizione",
-        "Nazione",
-        "Regione",
-        "Comune",
-        "Provincia",
-        "Definizione sito"
+        "Tipologia sigla"
     ]
 
     TABLE_FIELDS = [
-        "sito",
-        "nazione",
-        "regione",
-        "comune",
+        "nome_tabella",
+        "sigla",
+        "sigla_estesa",
         "descrizione",
-        "provincia",
-        "definizione_sito"
+        "tipologia_sigla"
     ]
-
     DB_SERVER = "not defined"  ####nuovo sistema sort
 
     def __init__(self, iface):
@@ -107,8 +98,6 @@ class pyarchinit_Site(QDialog, MAIN_DIALOG_CLASS):
             QMessageBox.warning(self, "Sistema di connessione", str(e), QMessageBox.Ok)
 
     def enable_button(self, n):
-        """This method Unable or Enable the GUI buttons on browse modality"""
-
         self.pushButton_connect.setEnabled(n)
 
         self.pushButton_new_rec.setEnabled(n)
@@ -132,8 +121,6 @@ class pyarchinit_Site(QDialog, MAIN_DIALOG_CLASS):
         self.pushButton_sort.setEnabled(n)
 
     def enable_button_search(self, n):
-        """This method Unable or Enable the GUI buttons on searching modality"""
-
         self.pushButton_connect.setEnabled(n)
 
         self.pushButton_new_rec.setEnabled(n)
@@ -155,12 +142,8 @@ class pyarchinit_Site(QDialog, MAIN_DIALOG_CLASS):
         self.pushButton_sort.setEnabled(n)
 
     def on_pushButton_connect_pressed(self):
-        """This method establishes a connection between GUI and database"""
-
         conn = Connection()
-
         conn_str = conn.conn_str()
-
         test_conn = conn_str.find('sqlite')
 
         if test_conn == 0:
@@ -199,56 +182,19 @@ class pyarchinit_Site(QDialog, MAIN_DIALOG_CLASS):
                                     QMessageBox.Ok)
 
     def charge_list(self):
-        sito_vl = self.UTILITY.tup_2_list_III(self.DB_MANAGER.group_by('site_table', 'sito', 'SITE'))
+        pass
 
-        try:
-            sito_vl.remove('')
-        except:
-            pass
-        self.comboBox_sito.clear()
-        sito_vl.sort()
-        self.comboBox_sito.addItems(sito_vl)
-        regioni_list = ['Abruzzo', 'Basilicata', 'Calabria', 'Campania', 'Emilia-Romagna', 'Friuli Venezia Giulia',
-                        'Lazio', 'Liguria', 'Lombardia', 'Marche', 'Molise', 'Piemonte', 'Puglia', 'Sardegna',
-                        'Sicilia', 'Toscana', 'Trentino Alto Adige', 'Umbria', 'Valle d\'Aosta', 'Veneto']
-        self.comboBox_regione.addItems(regioni_list)
+    ##		sito_vl = self.UTILITY.tup_2_list_III(self.DB_MANAGER.group_by('site_table', 'sito', 'SITE'))
+    ##
+    ##		try:
+    ##			sito_vl.remove('')
+    ##		except:
+    ##			pass
+    ##		self.comboBox_sito.clear()
+    ##		sito_vl.sort()
+    ##		self.comboBox_sito.addItems(sito_vl)
 
-        province_list = ['Agrigento', 'Alessandria', 'Ancona', 'Aosta', 'Arezzo', 'Ascoli Piceno', 'Asti', 'Avellino',
-                         'Bari', 'Barletta-Andria-Trani', 'Basilicata', 'Belluno', 'Benevento', 'Bergamo', 'Biella',
-                         'Bologna', 'Bolzano', 'Brescia', 'Brindisi', 'Cagliari', 'Calabria', 'Caltanissetta',
-                         'Campania', 'Campobasso', 'Carbonia-Iglesias', 'Caserta', 'Catania', 'Catanzaro', 'Chieti',
-                         'Como', 'Cosenza', 'Cremona', 'Crotone', 'Cuneo', 'Emilia-Romagna', 'Enna', 'Fermo', 'Ferrara',
-                         'Firenze', 'Foggia', "Forl'-Cesena", 'Frosinone', 'Genova', 'Gorizia', 'Grosseto', 'Imperia',
-                         'Isernia', "L'Aquila", 'La Spezia', 'Latina', 'Lecce', 'Lecco', 'Livorno', 'Lodi', 'Lucca',
-                         'Macerata', 'Mantova', 'Massa e Carrara', 'Matera', 'Medio Campidano', 'Messina', 'Milano',
-                         'Modena', 'Monza e Brianza', 'Napoli', 'Novara', 'Nuoro', 'Ogliastra', 'Olbia-Tempio',
-                         'Oristano', 'Padova', 'Palermo', 'Parma', 'Pavia', 'Perugia', 'Pesaro e Urbino', 'Pescara',
-                         'Piacenza', 'Pisa', 'Pistoia', 'Pordenone', 'Potenza', 'Prato', 'Ragusa', 'Ravenna',
-                         'Reggio Calabria', 'Reggio Emilia', 'Rieti', 'Rimini', 'Roma', 'Rovigo', 'Salerno', 'Sassari',
-                         'Savona', 'Siena', 'Siracusa', 'Sondrio', 'Taranto', 'Teramo', 'Terni', 'Torino', 'Trapani',
-                         'Trento', 'Treviso', 'Trieste', 'Udine', 'Varese', 'Venezia', 'Verbano-Cusio-Ossola',
-                         'Vercelli', 'Verona', 'Vibo Valentia', 'Vicenza', 'Viterbo']
-
-        self.comboBox_provincia.addItems(province_list)
-
-        # lista definizione_sito
-        search_dict = {
-            'nome_tabella': "'" + 'site_table' + "'",
-            'tipologia_sigla': "'" + 'definizione sito' + "'"
-        }
-
-        d_sito = self.DB_MANAGER.query_bool(search_dict, 'PYARCHINIT_THESAURUS_SIGLE')
-
-        d_sito_vl = []
-
-        for i in range(len(d_sito)):
-            d_sito_vl.append(d_sito[i].sigla_estesa)
-
-        d_sito_vl.sort()
-        self.comboBox_definizione_sito.addItems(d_sito_vl)
-
-        # buttons functions
-
+    # buttons functions
     def on_pushButton_pdf_pressed(self):
         pass
 
@@ -272,7 +218,6 @@ class pyarchinit_Site(QDialog, MAIN_DIALOG_CLASS):
             id_list = []
             for i in self.DATA_LIST:
                 id_list.append(eval("i." + self.ID_TABLE))
-
             self.DATA_LIST = []
 
             temp_data_list = self.DB_MANAGER.query_sort(id_list, self.SORT_ITEMS_CONVERTED, self.SORT_MODE,
@@ -305,6 +250,7 @@ class pyarchinit_Site(QDialog, MAIN_DIALOG_CLASS):
                             self.update_if(QMessageBox.warning(self, 'Errore',
                                                                 "Il record e' stato modificato. Vuoi salvare le modifiche?",
                                                                 QMessageBox.Ok | QMessageBox.Cancel))
+
                             # set the GUI for a new record
         if self.BROWSE_STATUS != "n":
             self.BROWSE_STATUS = "n"
@@ -312,10 +258,15 @@ class pyarchinit_Site(QDialog, MAIN_DIALOG_CLASS):
             self.empty_fields()
             self.label_sort.setText(self.SORTED_ITEMS["n"])
 
-            self.setComboBoxEnable(["self.comboBox_sito"], "True")
-            self.setComboBoxEditable(["self.comboBox_sito"], 1)
-            self.setComboBoxEnable(["self.comboBox_definizione_sito"], "True")
-            self.setComboBoxEditable(["self.comboBox_definizione_sito"], 1)
+            self.setComboBoxEditable(["self.comboBox_sigla"], 1)
+            self.setComboBoxEditable(["self.comboBox_sigla_estesa"], 1)
+            self.setComboBoxEditable(["self.comboBox_tipologia_sigla"], 1)
+            self.setComboBoxEditable(["self.comboBox_nome_tabella"], 1)
+
+            self.setComboBoxEnable(["self.comboBox_sigla"], "True")
+            self.setComboBoxEnable(["self.comboBox_sigla_estesa"], "True")
+            self.setComboBoxEnable(["self.comboBox_tipologia_sigla"], "True")
+            self.setComboBoxEnable(["self.comboBox_nome_tabella"], "True")
 
             self.set_rec_counter('', '')
             self.enable_button(0)
@@ -346,7 +297,17 @@ class pyarchinit_Site(QDialog, MAIN_DIALOG_CLASS):
                     self.label_status.setText(self.STATUS_ITEMS[self.BROWSE_STATUS])
                     self.REC_TOT, self.REC_CORR = len(self.DATA_LIST), len(self.DATA_LIST) - 1
                     self.set_rec_counter(self.REC_TOT, self.REC_CORR + 1)
-                    self.setComboBoxEnable(["self.comboBox_sito"], "False")
+
+                    self.setComboBoxEditable(["self.comboBox_sigla"], 1)
+                    self.setComboBoxEditable(["self.comboBox_sigla_estesa"], 1)
+                    self.setComboBoxEditable(["self.comboBox_tipologia_sigla"], 1)
+                    self.setComboBoxEditable(["self.comboBox_nome_tabella"], 1)
+
+                    self.setComboBoxEnable(["self.comboBox_sigla"], "False")
+                    self.setComboBoxEnable(["self.comboBox_sigla_estesa"], "False")
+                    self.setComboBoxEnable(["self.comboBox_tipologia_sigla"], "False")
+                    self.setComboBoxEnable(["self.comboBox_nome_tabella"], "False")
+
                     self.fill_fields(self.REC_CORR)
                     self.enable_button(1)
                 else:
@@ -356,24 +317,41 @@ class pyarchinit_Site(QDialog, MAIN_DIALOG_CLASS):
         test = 0
         EC = Error_check()
 
-        if EC.data_is_empty(str(self.comboBox_sito.currentText())) == 0:
-            QMessageBox.warning(self, "ATTENZIONE", "Campo Sito. \n Il campo non deve essere vuoto", QMessageBox.Ok)
+        if EC.data_is_empty(str(self.comboBox_sigla.currentText())) == 0:
+            QMessageBox.warning(self, "ATTENZIONE", "Campo Sigla \n Il campo non deve essere vuoto", QMessageBox.Ok)
+            test = 1
+
+        if EC.data_is_empty(str(self.comboBox_sigla_estesa.currentText())) == 0:
+            QMessageBox.warning(self, "ATTENZIONE", "Campo Sigla estesa \n Il campo non deve essere vuoto",
+                                QMessageBox.Ok)
+            test = 1
+
+        if EC.data_is_empty(str(self.comboBox_tipologia_sigla.currentText())) == 0:
+            QMessageBox.warning(self, "ATTENZIONE", "Tipologia sigla. \n Il campo non deve essere vuoto",
+                                QMessageBox.Ok)
+            test = 1
+
+        if EC.data_is_empty(str(self.comboBox_nome_tabella.currentText())) == 0:
+            QMessageBox.warning(self, "ATTENZIONE", "Campo Nome tabella \n Il campo non deve essere vuoto",
+                                QMessageBox.Ok)
+            test = 1
+
+        if EC.data_is_empty(str(self.textEdit_descrizione_sigla.toPlainText())) == 0:
+            QMessageBox.warning(self, "ATTENZIONE", "Campo Descrizione \n Il campo non deve essere vuoto",
+                                QMessageBox.Ok)
             test = 1
 
         return test
 
     def insert_new_rec(self):
         try:
-            data = self.DB_MANAGER.insert_site_values(
+            data = self.DB_MANAGER.insert_values_thesaurus(
                 self.DB_MANAGER.max_num_id(self.MAPPER_TABLE_CLASS, self.ID_TABLE) + 1,
-                str(self.comboBox_sito.currentText()),  # 1 - Sito
-                str(self.comboBox_nazione.currentText()),  # 2 - nazione
-                str(self.comboBox_regione.currentText()),  # 3 - regione
-                str(self.comboBox_comune.currentText()),  # 4 - comune
-                str(self.textEdit_descrizione_site.toPlainText()),  # 5 - descrizione
-                str(self.comboBox_provincia.currentText()),  # 6 - comune
-                str(self.comboBox_definizione_sito.currentText()),  # 7 - definizione sito
-                0)  # 8 - find check
+                str(self.comboBox_nome_tabella.currentText()),  # 1 - nome tabella
+                str(self.comboBox_sigla.currentText()),  # 2 - sigla
+                str(self.comboBox_sigla_estesa.currentText()),  # 3 - sigla estesa
+                str(self.textEdit_descrizione_sigla.toPlainText()),  # 4 - descrizione
+                str(self.comboBox_tipologia_sigla.currentText()))  # 5 - tipologia sigla
 
             try:
                 self.DB_MANAGER.insert_data_session(data)
@@ -402,7 +380,6 @@ class pyarchinit_Site(QDialog, MAIN_DIALOG_CLASS):
             return 0  # non ci sono errori di immissione
 
     def on_pushButton_view_all_pressed(self):
-
         if self.check_record_state() == 1:
             pass
         else:
@@ -519,14 +496,23 @@ class pyarchinit_Site(QDialog, MAIN_DIALOG_CLASS):
             pass
         else:
             self.enable_button_search(0)
+
             # set the GUI for a new search
             if self.BROWSE_STATUS != "f":
                 self.BROWSE_STATUS = "f"
                 self.label_status.setText(self.STATUS_ITEMS[self.BROWSE_STATUS])
                 ###
-                self.setComboBoxEnable(["self.comboBox_sito"], "True")
-                self.setComboBoxEnable(["self.comboBox_definizione_sito"], "True")
-                self.setComboBoxEnable(["self.textEdit_descrizione_site"], "False")
+                self.setComboBoxEditable(["self.comboBox_sigla"], 1)
+                self.setComboBoxEditable(["self.comboBox_sigla_estesa"], 1)
+                self.setComboBoxEditable(["self.comboBox_tipologia_sigla"], 1)
+                self.setComboBoxEditable(["self.comboBox_nome_tabella"], 1)
+
+                self.setComboBoxEnable(["self.comboBox_sigla"], "True")
+                self.setComboBoxEnable(["self.comboBox_sigla_estesa"], "True")
+                self.setComboBoxEnable(["self.comboBox_tipologia_sigla"], "True")
+                self.setComboBoxEnable(["self.comboBox_nome_tabella"], "True")
+
+                self.setComboBoxEnable(["self.textEdit_descrizione_sigla"], "False")
                 ###
                 self.label_status.setText(self.STATUS_ITEMS[self.BROWSE_STATUS])
                 self.set_rec_counter('', '')
@@ -540,14 +526,11 @@ class pyarchinit_Site(QDialog, MAIN_DIALOG_CLASS):
                                 QMessageBox.Ok)
         else:
             search_dict = {
-                'sito': "'" + str(self.comboBox_sito.currentText()) + "'",  # 1 - Sito
-                'nazione': "'" + str(self.comboBox_nazione.currentText()) + "'",  # 2 - Nazione
-                'regione': "'" + str(self.comboBox_regione.currentText()) + "'",  # 3 - Regione
-                'comune': "'" + str(self.comboBox_comune.currentText()) + "'",  # 4 - Comune
-                'descrizione': str(self.textEdit_descrizione_site.toPlainText()),  # 5 - Descrizione
-                'provincia': "'" + str(self.comboBox_provincia.currentText()) + "'",  # 6 - Provincia
-                'definizione_sito': "'" + str(self.comboBox_definizione_sito.currentText()) + "'"
-            # 67- definizione_sito
+                self.TABLE_FIELDS[0]: "'" + str(self.comboBox_nome_tabella.currentText()) + "'",  # 1 - Nome tabella
+                self.TABLE_FIELDS[1]: "'" + str(self.comboBox_sigla.currentText()) + "'",  # 2 - sigla
+                self.TABLE_FIELDS[2]: "'" + str(self.comboBox_sigla_estesa.currentText()) + "'",  # 3 - sigla estesa
+                self.TABLE_FIELDS[4]: "'" + str(self.comboBox_tipologia_sigla.currentText()) + "'"
+            # 3 - tipologia sigla
             }
 
             u = Utility()
@@ -557,7 +540,6 @@ class pyarchinit_Site(QDialog, MAIN_DIALOG_CLASS):
                 QMessageBox.warning(self, "ATTENZIONE", "Non e' stata impostata alcuna ricerca!!!", QMessageBox.Ok)
             else:
                 res = self.DB_MANAGER.query_bool(search_dict, self.MAPPER_TABLE_CLASS)
-
                 if not bool(res):
                     QMessageBox.warning(self, "ATTENZIONE", "Non e' stato trovato alcun record!", QMessageBox.Ok)
 
@@ -568,20 +550,26 @@ class pyarchinit_Site(QDialog, MAIN_DIALOG_CLASS):
                     self.BROWSE_STATUS = "b"
                     self.label_status.setText(self.STATUS_ITEMS[self.BROWSE_STATUS])
 
-                    self.setComboBoxEnable(["self.comboBox_sito"], "False")
-                    self.setComboBoxEnable(["self.comboBox_definizione_sito"], "True")
-                    self.setComboBoxEnable(["self.textEdit_descrizione_site"], "True")
+                    self.setComboBoxEditable(["self.comboBox_sigla"], 1)
+                    self.setComboBoxEditable(["self.comboBox_sigla_estesa"], 1)
+                    self.setComboBoxEditable(["self.comboBox_tipologia_sigla"], 1)
+                    self.setComboBoxEditable(["self.comboBox_nome_tabella"], 1)
+
+                    self.setComboBoxEnable(["self.comboBox_sigla"], "False")
+                    self.setComboBoxEnable(["self.comboBox_sigla_estesa"], "False")
+                    self.setComboBoxEnable(["self.comboBox_tipologia_sigla"], "False")
+                    self.setComboBoxEnable(["self.comboBox_nome_tabella"], "False")
+
+                    self.setComboBoxEnable(["self.textEdit_descrizione_sigla"], "True")
+
                 else:
                     self.DATA_LIST = []
+
                     for i in res:
                         self.DATA_LIST.append(i)
 
-                    ##					if self.DB_SERVER == 'sqlite':
-                    ##						for i in self.DATA_LIST:
-                    ##							self.DB_MANAGER.update(self.MAPPER_TABLE_CLASS, self.ID_TABLE, [i.id_sito], ['find_check'], [1])
-
                     self.REC_TOT, self.REC_CORR = len(self.DATA_LIST), 0
-                    self.DATA_LIST_REC_TEMP = self.DATA_LIST_REC_CORR = self.DATA_LIST[0]  ####darivedere
+                    self.DATA_LIST_REC_TEMP = self.DATA_LIST_REC_CORR = self.DATA_LIST[0]
                     self.fill_fields()
                     self.BROWSE_STATUS = "b"
                     self.label_status.setText(self.STATUS_ITEMS[self.BROWSE_STATUS])
@@ -589,71 +577,51 @@ class pyarchinit_Site(QDialog, MAIN_DIALOG_CLASS):
 
                     if self.REC_TOT == 1:
                         strings = ("E' stato trovato", self.REC_TOT, "record")
-                        if self.toolButton_draw_siti.isChecked():
-                            sing_layer = [self.DATA_LIST[self.REC_CORR]]
-                            self.pyQGIS.charge_sites_from_research(sing_layer)
                     else:
                         strings = ("Sono stati trovati", self.REC_TOT, "records")
-                        self.pyQGIS.charge_sites_from_research(self.DATA_LIST)
 
-                    self.setComboBoxEnable(["self.comboBox_sito"], "False")
-                    self.setComboBoxEnable(["self.comboBox_definizione_sito"], "True")
-                    self.setComboBoxEnable(["self.textEdit_descrizione_site"], "True")
+                        self.setComboBoxEditable(["self.comboBox_sigla"], 1)
+                        self.setComboBoxEditable(["self.comboBox_sigla_estesa"], 1)
+                        self.setComboBoxEditable(["self.comboBox_tipologia_sigla"], 1)
+                        self.setComboBoxEditable(["self.comboBox_nome_tabella"], 1)
+
+                        self.setComboBoxEnable(["self.comboBox_sigla"], "False")
+                        self.setComboBoxEnable(["self.comboBox_sigla_estesa"], "False")
+                        self.setComboBoxEnable(["self.comboBox_tipologia_sigla"], "False")
+                        self.setComboBoxEnable(["self.comboBox_nome_tabella"], "False")
+
+                        self.setComboBoxEnable(["self.textEdit_descrizione_sigla"], "True")
 
                     QMessageBox.warning(self, "Messaggio", "%s %d %s" % strings, QMessageBox.Ok)
 
         self.enable_button_search(1)
 
     def on_pushButton_test_pressed(self):
+        pass
 
-        data = "Sito: " + str(self.comboBox_sito.currentText())
-
-        ##		data = [
-        ##		unicode(self.comboBox_sito.currentText()), 								#1 - Sito
-        ##		unicode(self.comboBox_nazione.currentText()), 						#2 - Nazione
-        ##		unicode(self.comboBox_regione.currentText()), 						#3 - Regione
-        ##		unicode(self.comboBox_comune.currentText()), 						#4 - Comune
-        ##		unicode(self.textEdit_descrizione_site.toPlainText()),    				#5 - Descrizione
-        ##		unicode(self.comboBox_provincia.currentText())]                     	#6 - Provincia
-
-        test = Test_area(data)
-        test.run_test()
+    ##		data = "Sito: " + str(self.comboBox_sito.currentText())
+    ##
+    ##		test = Test_area(data)
+    ##		test.run_test()
 
     def on_pushButton_draw_pressed(self):
-        self.pyQGIS.charge_layers_for_draw(["1", "2", "3", "4", "5", "7", "8", "9", "10", "12"])
+        pass
+
+        # self.pyQGIS.charge_layers_for_draw(["1", "2", "3", "4", "5", "7", "8", "9", "10", "12"])
 
     def on_pushButton_sites_geometry_pressed(self):
-        sito = str(self.comboBox_sito.currentText())
-        self.pyQGIS.charge_sites_geometry(["1", "2", "3", "4", "8"],
-                                          "sito", sito)
+        pass
 
-    def on_pushButton_draw_sito_pressed(self):
-        sing_layer = [self.DATA_LIST[self.REC_CORR]]
-        self.pyQGIS.charge_sites_from_research(sing_layer)
+    ##		sito = unicode(self.comboBox_sito.currentText())
+    ##		self.pyQGIS.charge_sites_geometry(["1", "2", "3", "4", "8"], "sito", sito)
 
     def on_pushButton_rel_pdf_pressed(self):
-        check = QMessageBox.warning(self, "Attention",
-                                    "Under testing: this method can contains some bugs. Do you want proceed?",
-                                    QMessageBox.Ok | QMessageBox.Cancel)
-        if check == QMessageBox.Ok:
-            erp = exp_rel_pdf(str(self.comboBox_sito.currentText()))
-            erp.export_rel_pdf()
+        pass
 
-    def on_toolButton_draw_siti_toggled(self):
-        if self.toolButton_draw_siti.isChecked():
-            QMessageBox.warning(self, "Messaggio",
-                                "Modalita' GIS attiva. Da ora le tue ricerche verranno visualizzate sul GIS",
-                                QMessageBox.Ok)
-        else:
-            QMessageBox.warning(self, "Messaggio",
-                                "Modalita' GIS disattivata. Da ora le tue ricerche non verranno piu' visualizzate sul GIS",
-                                QMessageBox.Ok)
-
-    def on_pushButton_genera_us_pressed(self):
-        self.DB_MANAGER.insert_arbitrary_number_of_us_records(int(self.lineEdit_us_range.text()),
-                                                              str(self.comboBox_sito.currentText()),
-                                                              int(self.lineEdit_area.text()),
-                                                              int(self.lineEdit_n_us.text()))
+    ##		check=QMessageBox.warning(self, "Attention", "Under testing: this method can contains some bugs. Do you want proceed?",QMessageBox.Cancel,1)
+    ##		if check == 1:
+    ##			erp = exp_rel_pdf(unicode(self.comboBox_sito.currentText()))
+    ##			erp.export_rel_pdf()
 
     def update_if(self, msg):
         rec_corr = self.REC_CORR
@@ -687,6 +655,7 @@ class pyarchinit_Site(QDialog, MAIN_DIALOG_CLASS):
 
     def charge_records(self):
         self.DATA_LIST = []
+
         if self.DB_SERVER == 'sqlite':
             for i in self.DB_MANAGER.query(self.MAPPER_TABLE_CLASS):
                 self.DATA_LIST.append(i)
@@ -721,25 +690,22 @@ class pyarchinit_Site(QDialog, MAIN_DIALOG_CLASS):
         return lista
 
     def empty_fields(self):
-        self.comboBox_sito.setEditText("")  # 1 - Sito
-        self.comboBox_nazione.setEditText("")  # 2 - Nazione
-        self.comboBox_regione.setEditText("")  # 3 - Regione
-        self.comboBox_comune.setEditText("")  # 4 - Comune
-        self.textEdit_descrizione_site.clear()  # 5 - Descrizione
-        self.comboBox_provincia.setEditText("")  # 6 - Provincia
-        self.comboBox_definizione_sito.setEditText("")  # 7 - definizione_sito
+        self.comboBox_sigla.setEditText("")  # 1 - Sigla
+        self.comboBox_sigla_estesa.setEditText("")  # 2 - Sigla estesa
+        self.comboBox_tipologia_sigla.setEditText("")  # 1 - Tipologia sigla
+        self.comboBox_nome_tabella.setEditText("")  # 2 - Nome tabella
+        self.textEdit_descrizione_sigla.clear()  # 4 - Descrizione
 
     def fill_fields(self, n=0):
         self.rec_num = n
 
-        str(self.comboBox_sito.setEditText(self.DATA_LIST[self.rec_num].sito))  # 1 - Sito
-        str(self.comboBox_nazione.setEditText(self.DATA_LIST[self.rec_num].nazione))  # 2 - Nazione
-        str(self.comboBox_regione.setEditText(self.DATA_LIST[self.rec_num].regione))  # 3 - Regione
-        str(self.comboBox_comune.setEditText(self.DATA_LIST[self.rec_num].comune))  # 4 - Comune
-        str(self.textEdit_descrizione_site.setText(self.DATA_LIST[self.rec_num].descrizione))  # 5 - Descrizione
-        str(self.comboBox_provincia.setEditText(self.DATA_LIST[self.rec_num].provincia))  # 6 - Provincia
-        str(self.comboBox_definizione_sito.setEditText(
-            self.DATA_LIST[self.rec_num].definizione_sito))  # 7 - definizione_sito
+        str(self.comboBox_sigla.setEditText(self.DATA_LIST[self.rec_num].sigla))  # 1 - Sigla
+        str(self.comboBox_sigla_estesa.setEditText(self.DATA_LIST[self.rec_num].sigla_estesa))  # 2 - Sigla estesa
+        str(self.comboBox_tipologia_sigla.setEditText(
+            self.DATA_LIST[self.rec_num].tipologia_sigla))  # 3 - tipologia sigla
+        str(self.comboBox_nome_tabella.setEditText(self.DATA_LIST[self.rec_num].nome_tabella))  # 4 - nome tabella
+        str(str(
+            self.textEdit_descrizione_sigla.setText(self.DATA_LIST[self.rec_num].descrizione)))  # 5 - descrizione sigla
 
     def set_rec_counter(self, t, c):
         self.rec_tot = t
@@ -748,15 +714,15 @@ class pyarchinit_Site(QDialog, MAIN_DIALOG_CLASS):
         self.label_rec_corrente.setText(str(self.rec_corr))
 
     def set_LIST_REC_TEMP(self):
+
         # data
         self.DATA_LIST_REC_TEMP = [
-            str(self.comboBox_sito.currentText()),  # 1 - Sito
-            str(self.comboBox_nazione.currentText()),  # 2 - Nazione
-            str(self.comboBox_regione.currentText()),  # 3 - Regione
-            str(self.comboBox_comune.currentText()),  # 4 - Comune
-            str(self.textEdit_descrizione_site.toPlainText()),  # 5 - Descrizione
-            str(self.comboBox_provincia.currentText()),  # 6 - Provincia
-            str(self.comboBox_definizione_sito.currentText())]  # 7 - Definizione sito
+            str(self.comboBox_nome_tabella.currentText()),  # 1 - Nome tabella
+            str(self.comboBox_sigla.currentText()),  # 2 - sigla
+            str(self.comboBox_sigla_estesa.currentText()),  # 3 - sigla estesa
+            str(self.textEdit_descrizione_sigla.toPlainText()),  # 4 - descrizione
+            str(self.comboBox_tipologia_sigla.currentText())  # 3 - tipologia sigla
+        ]
 
     def set_LIST_REC_CORR(self):
         self.DATA_LIST_REC_CORR = []

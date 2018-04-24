@@ -35,7 +35,7 @@ from qgis.core import Qgis, QgsMessageLog
 from ..modules.db.pyarchinit_conn_strings import Connection
 from ..modules.db.pyarchinit_db_manager import Pyarchinit_db_management
 from ..modules.gis.pyarchinit_pyqgis import Pyarchinit_pyqgis
-from .pyarchinit_US_mainapp import pyarchinit_US
+from .US_USM import pyarchinit_US
 
 MAIN_DIALOG_CLASS, _ = loadUiType(os.path.join(os.path.dirname(__file__), '..', 'modules', 'gui', 'pyarchinit_gis_time_controller.ui'))
 

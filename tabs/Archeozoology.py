@@ -40,7 +40,7 @@ from ..modules.db.pyarchinit_db_manager import Pyarchinit_db_management
 from ..modules.db.pyarchinit_utility import Utility
 from ..modules.gis.pyarchinit_pyqgis_archeozoo import Pyarchinit_pyqgis
 from ..modules.utility.pyarchinit_error_check import Error_check
-from .pyarchinit_US_mainapp import pyarchinit_US
+from .US_USM import pyarchinit_US
 from ..sortpanelmain import SortPanelMain
 
 valid = True

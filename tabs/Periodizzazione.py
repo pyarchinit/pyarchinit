@@ -35,55 +35,64 @@ from ..modules.db.pyarchinit_db_manager import Pyarchinit_db_management
 from ..modules.db.pyarchinit_utility import Utility
 from ..modules.gis.pyarchinit_pyqgis import Pyarchinit_pyqgis
 from ..modules.utility.pyarchinit_error_check import Error_check
-from .pyarchinit_US_mainapp import pyarchinit_US
+from ..modules.utility.pyarchinit_exp_Periodizzazionesheet_pdf import generate_Periodizzazione_pdf
+from .US_USM import pyarchinit_US
 from ..sortpanelmain import SortPanelMain
 
-MAIN_DIALOG_CLASS, _ = loadUiType(os.path.join(os.path.dirname(__file__), '..', 'modules', 'gui', 'pyarchinit_thesaurus_ui.ui'))
+MAIN_DIALOG_CLASS, _ = loadUiType(os.path.join(os.path.dirname(__file__), '..', 'modules', 'gui', 'pyarchinit_Periodo_fase_ui.ui'))
 
 
-class pyarchinit_Thesaurus(QDialog, MAIN_DIALOG_CLASS):
-    MSG_BOX_TITLE = "PyArchInit - pyarchinit_version 0.4 - Scheda Campioni"
+class pyarchinit_Periodizzazione(QDialog, MAIN_DIALOG_CLASS):
+    MSG_BOX_TITLE = "PyArchInit - Scheda Periodizzazione"
     DATA_LIST = []
     DATA_LIST_REC_CORR = []
     DATA_LIST_REC_TEMP = []
     REC_CORR = 0
     REC_TOT = 0
-    STATUS_ITEMS = {"b": "Usa", "f": "Trova", "n": "Nuovo Record"}
     BROWSE_STATUS = "b"
+    STATUS_ITEMS = {"b": "Usa", "f": "Trova", "n": "Nuovo Record"}
     SORT_MODE = 'asc'
     SORTED_ITEMS = {"n": "Non ordinati", "o": "Ordinati"}
     SORT_STATUS = "n"
     UTILITY = Utility()
     DB_MANAGER = ""
-    TABLE_NAME = 'pyarchinit_thesaurus_sigle'
-    MAPPER_TABLE_CLASS = "PYARCHINIT_THESAURUS_SIGLE"
-    NOME_SCHEDA = "Scheda Thesaurus Sigle"
-    ID_TABLE = "id_thesaurus_sigle"
+    TABLE_NAME = 'periodizzazione_table'
+    MAPPER_TABLE_CLASS = "PERIODIZZAZIONE"
+    NOME_SCHEDA = "Scheda Periodizzazione"
+    ID_TABLE = "id_perfas"
     CONVERSION_DICT = {
         ID_TABLE: ID_TABLE,
-        "Nome tabella": "nome_tabella",
-        "Sigla": "sigla",
-        "Sigla estesa": "sigla_estesa",
+        "Sito": "sito",
+        "Periodo": "periodo",
+        "Fase": "fase",
+        "Cronologia iniziale": "cron_iniziale",
+        "Cronologia finale": "cron_finale",
         "Descrizione": "descrizione",
-        "Tipologia sigla": "tipologia_sigla"
+        "Datazione estesa": "datazione_estesa",
+        "Codice periodo": "cont_per"
     }
-
     SORT_ITEMS = [
         ID_TABLE,
-        "Nome tabella",
-        "Sigla",
-        "Sigla estesa",
+        "Sito",
+        "Periodo",
+        "Fase",
         "Descrizione",
-        "Tipologia sigla"
+        "Cronologia iniziale",
+        "Cronologia finale",
+        "Codice periodo"
     ]
 
     TABLE_FIELDS = [
-        "nome_tabella",
-        "sigla",
-        "sigla_estesa",
-        "descrizione",
-        "tipologia_sigla"
+        'sito',
+        'periodo',
+        'fase',
+        'cron_iniziale',
+        'cron_finale',
+        'descrizione',
+        'datazione_estesa',
+        'cont_per'
     ]
+
     DB_SERVER = "not defined"  ####nuovo sistema sort
 
     def __init__(self, iface):
@@ -94,8 +103,8 @@ class pyarchinit_Thesaurus(QDialog, MAIN_DIALOG_CLASS):
         self.currentLayerId = None
         try:
             self.on_pushButton_connect_pressed()
-        except Exception as e:
-            QMessageBox.warning(self, "Sistema di connessione", str(e), QMessageBox.Ok)
+        except:
+            pass
 
     def enable_button(self, n):
         self.pushButton_connect.setEnabled(n)
@@ -157,25 +166,25 @@ class pyarchinit_Thesaurus(QDialog, MAIN_DIALOG_CLASS):
             if bool(self.DATA_LIST):
                 self.REC_TOT, self.REC_CORR = len(self.DATA_LIST), 0
                 self.DATA_LIST_REC_TEMP = self.DATA_LIST_REC_CORR = self.DATA_LIST[0]
-                self.BROWSE_STATUS = 'b'
+                self.BROWSE_STATUS = "b"
                 self.label_status.setText(self.STATUS_ITEMS[self.BROWSE_STATUS])
                 self.label_sort.setText(self.SORTED_ITEMS["n"])
                 self.set_rec_counter(len(self.DATA_LIST), self.REC_CORR + 1)
-                self.charge_list()
+                self.charge_list_sito()
                 self.fill_fields()
             else:
                 QMessageBox.warning(self, "BENVENUTO",
                                     "Benvenuto in pyArchInit" + self.NOME_SCHEDA + ". Il database e' vuoto. Premi 'Ok' e buon lavoro!",
                                     QMessageBox.Ok)
-                self.charge_list()
+                self.charge_list_sito()
                 self.BROWSE_STATUS = 'x'
                 self.on_pushButton_new_rec_pressed()
         except Exception as e:
             e = str(e)
             if e.find("no such table"):
                 QMessageBox.warning(self, "Alert",
-                                    "La connessione e' fallita <br><br> Tabella non presente. E' NECESSARIO RIAVVIARE QGIS" + str(
-                                        e), QMessageBox.Ok)
+                                    "La connessione e' fallita <br><br> Tabella non presente. E' NECESSARIO RIAVVIARE QGIS",
+                                    QMessageBox.Ok)
             else:
                 QMessageBox.warning(self, "Alert",
                                     "Attenzione rilevato bug! Segnalarlo allo sviluppatore<br> Errore: <br>" + str(e),
@@ -184,19 +193,90 @@ class pyarchinit_Thesaurus(QDialog, MAIN_DIALOG_CLASS):
     def charge_list(self):
         pass
 
-    ##		sito_vl = self.UTILITY.tup_2_list_III(self.DB_MANAGER.group_by('site_table', 'sito', 'SITE'))
-    ##
-    ##		try:
-    ##			sito_vl.remove('')
-    ##		except:
-    ##			pass
-    ##		self.comboBox_sito.clear()
-    ##		sito_vl.sort()
-    ##		self.comboBox_sito.addItems(sito_vl)
+    def charge_list_sito(self):
+        sito_vl = self.UTILITY.tup_2_list_III(self.DB_MANAGER.group_by('site_table', 'sito', 'SITE'))
+        try:
+            sito_vl.remove('')
+        except:
+            pass
+        self.comboBox_sito.clear()
+        sito_vl.sort()
+        self.comboBox_sito.addItems(sito_vl)
 
-    # buttons functions
-    def on_pushButton_pdf_pressed(self):
-        pass
+    def on_pushButton_pdf_scheda_exp_pressed(self):
+        Periodizzazione_pdf_sheet = generate_Periodizzazione_pdf()  # deve essere importata la classe
+        data_list = self.generate_list_pdf()  # deve essere aggiunta la funzione
+        Periodizzazione_pdf_sheet.build_Periodizzazione_sheets(
+            data_list)  # deve essere aggiunto il file per generare i pdf
+
+    def on_pushButton_pdf_lista_exp_pressed(self):
+        Periodizzazione_pdf_list = generate_Periodizzazione_pdf()  # deve essere importata la classe
+        data_list = self.generate_list_pdf()  # deve essere aggiunta la funzione
+        Periodizzazione_pdf_list.build_index_Periodizzazione(data_list, data_list[0][
+            0])  # deve essere aggiunto il file per generare i pdf
+
+        # codice per l'esportazione sperimentale dei PDF #
+        """
+        dlg = pyarchinit_PDFAdministrator()
+        dlg.set_table_name(self.TABLE_NAME)
+        dlg.connect()
+        msg = QMessageBox.warning(self,'ATTENZIONE',"Vuoi creare un nuovo layout PFD?", QMessageBox.Cancel,1)
+        dlg.connect()
+        ##		dlg.on_pushButton_connect_pressed()
+        if msg == 1:
+            dlg.on_pushButton_new_rec_pressed()
+            dlg.charge_list()
+
+        id_list = []
+
+        for i in self.DATA_LIST:
+            id_list.append(eval("i." + self.ID_TABLE))
+        dlg.add_id_list(id_list)
+
+        dlg.exec_()
+        """
+
+    def generate_list_pdf(self):
+        periodo = ""
+        fase = ""
+        cron_iniz = ""
+        cron_fin = ""
+
+        data_list = []
+        for i in range(len(self.DATA_LIST)):
+
+            if not self.DATA_LIST[i].periodo:
+                periodo = ""
+            else:
+                periodo = str(self.DATA_LIST[i].periodo)
+
+            if not self.DATA_LIST[i].fase:
+                fase = ""
+            else:
+                fase = str(self.DATA_LIST[i].fase)
+
+            if not self.DATA_LIST[i].cron_iniziale:
+                cron_iniz = ""
+            else:
+                cron_iniz = str(self.DATA_LIST[i].cron_iniziale)
+
+            if not self.DATA_LIST[i].cron_finale:
+                cron_fin = ""
+            else:
+                cron_fin = str(self.DATA_LIST[i].cron_finale)
+
+            data_list.append([
+                str(self.DATA_LIST[i].sito),  # 1 - Sito
+                str(periodo),  # 2 - periodo
+                str(fase),  # 3 - fase
+                str(cron_iniz),  # 4 - cron iniz
+                str(cron_fin),  # 5 - cron fin
+                str(self.DATA_LIST[i].datazione_estesa),  # 6 - datazione_estesa
+                str(self.DATA_LIST[i].descrizione)  # 7 - descrizione
+            ])
+        return data_list
+
+        # buttons functions
 
     def on_pushButton_sort_pressed(self):
         if self.check_record_state() == 1:
@@ -251,24 +331,26 @@ class pyarchinit_Thesaurus(QDialog, MAIN_DIALOG_CLASS):
                                                                 "Il record e' stato modificato. Vuoi salvare le modifiche?",
                                                                 QMessageBox.Ok | QMessageBox.Cancel))
 
-                            # set the GUI for a new record
         if self.BROWSE_STATUS != "n":
             self.BROWSE_STATUS = "n"
+
+            ###
+
+            self.setComboBoxEditable(["self.comboBox_sito"], 0)
+            self.setComboBoxEditable(["self.comboBox_periodo"], 0)
+            self.setComboBoxEditable(["self.comboBox_fase"], 0)
+            self.setComboBoxEnable(["self.comboBox_sito"], "True")
+            self.setComboBoxEnable(["self.comboBox_periodo"], "True")
+            self.setComboBoxEnable(["self.comboBox_fase"], "True")
+
+            ###
+            self.label_sort.setText(self.SORTED_ITEMS[self.SORT_STATUS])
+
             self.label_status.setText(self.STATUS_ITEMS[self.BROWSE_STATUS])
-            self.empty_fields()
-            self.label_sort.setText(self.SORTED_ITEMS["n"])
-
-            self.setComboBoxEditable(["self.comboBox_sigla"], 1)
-            self.setComboBoxEditable(["self.comboBox_sigla_estesa"], 1)
-            self.setComboBoxEditable(["self.comboBox_tipologia_sigla"], 1)
-            self.setComboBoxEditable(["self.comboBox_nome_tabella"], 1)
-
-            self.setComboBoxEnable(["self.comboBox_sigla"], "True")
-            self.setComboBoxEnable(["self.comboBox_sigla_estesa"], "True")
-            self.setComboBoxEnable(["self.comboBox_tipologia_sigla"], "True")
-            self.setComboBoxEnable(["self.comboBox_nome_tabella"], "True")
-
             self.set_rec_counter('', '')
+            self.label_sort.setText(self.SORTED_ITEMS["n"])
+            self.empty_fields()
+
             self.enable_button(0)
 
     def on_pushButton_save_pressed(self):
@@ -290,68 +372,99 @@ class pyarchinit_Thesaurus(QDialog, MAIN_DIALOG_CLASS):
                 test_insert = self.insert_new_rec()
                 if test_insert == 1:
                     self.empty_fields()
-                    self.label_sort.setText(self.SORTED_ITEMS["n"])
-                    self.charge_list()
+                    self.SORT_STATUS = "n"
+                    self.label_sort.setText(self.SORTED_ITEMS[self.SORT_STATUS])
                     self.charge_records()
+                    self.charge_list()
                     self.BROWSE_STATUS = "b"
                     self.label_status.setText(self.STATUS_ITEMS[self.BROWSE_STATUS])
                     self.REC_TOT, self.REC_CORR = len(self.DATA_LIST), len(self.DATA_LIST) - 1
                     self.set_rec_counter(self.REC_TOT, self.REC_CORR + 1)
-
-                    self.setComboBoxEditable(["self.comboBox_sigla"], 1)
-                    self.setComboBoxEditable(["self.comboBox_sigla_estesa"], 1)
-                    self.setComboBoxEditable(["self.comboBox_tipologia_sigla"], 1)
-                    self.setComboBoxEditable(["self.comboBox_nome_tabella"], 1)
-
-                    self.setComboBoxEnable(["self.comboBox_sigla"], "False")
-                    self.setComboBoxEnable(["self.comboBox_sigla_estesa"], "False")
-                    self.setComboBoxEnable(["self.comboBox_tipologia_sigla"], "False")
-                    self.setComboBoxEnable(["self.comboBox_nome_tabella"], "False")
-
+                    self.setComboBoxEditable(["self.comboBox_sito"], 1)
+                    self.setComboBoxEditable(["self.comboBox_periodo"], 1)
+                    self.setComboBoxEditable(["self.comboBox_fase"], 1)
+                    self.setComboBoxEnable(["self.comboBox_sito"], "False")
+                    self.setComboBoxEnable(["self.comboBox_periodo"], "False")
+                    self.setComboBoxEnable(["self.comboBox_fase"], "False")
                     self.fill_fields(self.REC_CORR)
                     self.enable_button(1)
-                else:
-                    pass
+            else:
+                QMessageBox.warning(self, "ATTENZIONE", "Problema nell'inserimento dati", QMessageBox.Ok)
 
     def data_error_check(self):
         test = 0
         EC = Error_check()
 
-        if EC.data_is_empty(str(self.comboBox_sigla.currentText())) == 0:
-            QMessageBox.warning(self, "ATTENZIONE", "Campo Sigla \n Il campo non deve essere vuoto", QMessageBox.Ok)
-            test = 1
+        data_estesa = self.lineEdit_per_estesa.text()
 
-        if EC.data_is_empty(str(self.comboBox_sigla_estesa.currentText())) == 0:
-            QMessageBox.warning(self, "ATTENZIONE", "Campo Sigla estesa \n Il campo non deve essere vuoto",
-                                QMessageBox.Ok)
-            test = 1
+        if data_estesa != "":
+            if EC.data_lenght(data_estesa, 299) == 0:
+                QMessageBox.warning(self, "ATTENZIONE",
+                                    "Campo Datazione estesa. \n non deve superare i 300 caratteri alfanumerici",
+                                    QMessageBox.Ok)
+                test = 1
 
-        if EC.data_is_empty(str(self.comboBox_tipologia_sigla.currentText())) == 0:
-            QMessageBox.warning(self, "ATTENZIONE", "Tipologia sigla. \n Il campo non deve essere vuoto",
-                                QMessageBox.Ok)
-            test = 1
+        periodo = self.comboBox_periodo.currentText()
+        cron_iniz = self.lineEdit_cron_iniz.text()
+        cron_fin = self.lineEdit_cron_fin.text()
+        cod_per = self.lineEdit_codice_periodo.text()
 
-        if EC.data_is_empty(str(self.comboBox_nome_tabella.currentText())) == 0:
-            QMessageBox.warning(self, "ATTENZIONE", "Campo Nome tabella \n Il campo non deve essere vuoto",
-                                QMessageBox.Ok)
-            test = 1
+        if periodo != "":
+            if EC.data_is_int(periodo) == 0:
+                QMessageBox.warning(self, "ATTENZIONE", "Campo Periodo. \n Il valore deve essere di tipo numerico",
+                                    QMessageBox.Ok)
+                test = 1
 
-        if EC.data_is_empty(str(self.textEdit_descrizione_sigla.toPlainText())) == 0:
-            QMessageBox.warning(self, "ATTENZIONE", "Campo Descrizione \n Il campo non deve essere vuoto",
-                                QMessageBox.Ok)
-            test = 1
+        if cron_iniz != "":
+            if EC.data_is_int(cron_iniz) == 0:
+                QMessageBox.warning(self, "ATTENZIONE",
+                                    "Campo Cronologia Iniziale. \n Il valore deve essere di tipo numerico",
+                                    QMessageBox.Ok)
+                test = 1
+
+        if cron_fin != "":
+            if EC.data_is_int(cron_fin) == 0:
+                QMessageBox.warning(self, "ATTENZIONE",
+                                    "Campo Cronologia Finale. \n Il valore deve essere di tipo numerico",
+                                    QMessageBox.Ok)
+                test = 1
+
+        if cod_per != "":
+            if EC.data_is_int(cod_per) == 0:
+                QMessageBox.warning(self, "ATTENZIONE",
+                                    "Campo Codice Periodo \n Il valore deve essere di tipo numerico", QMessageBox.Ok)
+                test = 1
 
         return test
 
     def insert_new_rec(self):
+        cont_per = 0
         try:
-            data = self.DB_MANAGER.insert_values_thesaurus(
-                self.DB_MANAGER.max_num_id(self.MAPPER_TABLE_CLASS, self.ID_TABLE) + 1,
-                str(self.comboBox_nome_tabella.currentText()),  # 1 - nome tabella
-                str(self.comboBox_sigla.currentText()),  # 2 - sigla
-                str(self.comboBox_sigla_estesa.currentText()),  # 3 - sigla estesa
-                str(self.textEdit_descrizione_sigla.toPlainText()),  # 4 - descrizione
-                str(self.comboBox_tipologia_sigla.currentText()))  # 5 - tipologia sigla
+            if not self.lineEdit_cron_iniz.text():
+                cron_iniz = ''
+            else:
+                cron_iniz = int(self.lineEdit_cron_iniz.text())
+
+            if not self.lineEdit_cron_fin.text():
+                cron_fin = ''
+            else:
+                cron_fin = int(self.lineEdit_cron_fin.text())
+
+            if not self.lineEdit_codice_periodo.text():
+                cont_per = ''
+            else:
+                cont_per = int(self.lineEdit_codice_periodo.text())
+
+            data = self.DB_MANAGER.insert_periodizzazione_values(
+                self.DB_MANAGER.max_num_id(self.MAPPER_TABLE_CLASS, self.ID_TABLE) + 1,  # 0 - max num id
+                str(self.comboBox_sito.currentText()),  # 1 - Sito
+                int(self.comboBox_periodo.currentText()),  # 2 - Periodo
+                int(self.comboBox_fase.currentText()),  # 3 - Fase
+                int(cron_iniz),  # 4 - Cron iniziale
+                int(cron_fin),  # 5 - Cron finale
+                str(self.textEdit_descrizione_per.toPlainText()),  # 6 - Descrizione
+                str(self.lineEdit_per_estesa.text()),  # 7 - Periodizzazione estesa
+                int(cont_per))  # 8 - Cont_per
 
             try:
                 self.DB_MANAGER.insert_data_session(data)
@@ -362,10 +475,10 @@ class pyarchinit_Thesaurus(QDialog, MAIN_DIALOG_CLASS):
                     msg = self.ID_TABLE + " gia' presente nel database"
                 else:
                     msg = e
-                QMessageBox.warning(self, "Errore", "Attenzione 1 ! \n" + str(msg), QMessageBox.Ok)
+                QMessageBox.warning(self, "Errore", "immisione 1 \n" + str(msg), QMessageBox.Ok)
                 return 0
         except Exception as e:
-            QMessageBox.warning(self, "Errore", "Attenzione 2 ! \n" + str(e), QMessageBox.Ok)
+            QMessageBox.warning(self, "Errore", "Errore di immissione 2 \n" + str(e), QMessageBox.Ok)
             return 0
 
     def check_record_state(self):
@@ -497,40 +610,59 @@ class pyarchinit_Thesaurus(QDialog, MAIN_DIALOG_CLASS):
         else:
             self.enable_button_search(0)
 
+            self.setComboBoxEditable(["self.comboBox_sito"], 1)
+
             # set the GUI for a new search
+
             if self.BROWSE_STATUS != "f":
                 self.BROWSE_STATUS = "f"
                 self.label_status.setText(self.STATUS_ITEMS[self.BROWSE_STATUS])
-                ###
-                self.setComboBoxEditable(["self.comboBox_sigla"], 1)
-                self.setComboBoxEditable(["self.comboBox_sigla_estesa"], 1)
-                self.setComboBoxEditable(["self.comboBox_tipologia_sigla"], 1)
-                self.setComboBoxEditable(["self.comboBox_nome_tabella"], 1)
-
-                self.setComboBoxEnable(["self.comboBox_sigla"], "True")
-                self.setComboBoxEnable(["self.comboBox_sigla_estesa"], "True")
-                self.setComboBoxEnable(["self.comboBox_tipologia_sigla"], "True")
-                self.setComboBoxEnable(["self.comboBox_nome_tabella"], "True")
-
-                self.setComboBoxEnable(["self.textEdit_descrizione_sigla"], "False")
-                ###
-                self.label_status.setText(self.STATUS_ITEMS[self.BROWSE_STATUS])
+                self.empty_fields()
                 self.set_rec_counter('', '')
                 self.label_sort.setText(self.SORTED_ITEMS["n"])
-                self.charge_list()
-                self.empty_fields()
+
+                self.setComboBoxEditable(["self.comboBox_sito"], 1)
+                self.setComboBoxEditable(["self.comboBox_periodo"], 1)
+                self.setComboBoxEditable(["self.comboBox_fase"], 1)
+                self.setComboBoxEnable(["self.comboBox_sito"], "True")
+                self.setComboBoxEnable(["self.comboBox_periodo"], "True")
+                self.setComboBoxEnable(["self.comboBox_fase"], "True")
+                self.setComboBoxEnable(["self.textEdit_descrizione_per"], "False")
 
     def on_pushButton_search_go_pressed(self):
         if self.BROWSE_STATUS != "f":
             QMessageBox.warning(self, "ATTENZIONE", "Per eseguire una nuova ricerca clicca sul pulsante 'new search' ",
                                 QMessageBox.Ok)
         else:
+            if self.lineEdit_cron_iniz.text() != "":
+                cron_iniziale = "'" + str(self.lineEdit_cron_iniz.text()) + "'"
+            else:
+                cron_iniziale = ""
+
+            if self.lineEdit_cron_fin.text() != "":
+                cron_finale = "'" + str(self.lineEdit_cron_fin.text()) + "'"
+            else:
+                cron_finale = ""
+
+            if self.comboBox_periodo.currentText() != "":
+                periodo = "'" + str(self.comboBox_periodo.currentText()) + "'"
+            else:
+                periodo = ""
+
+            if self.comboBox_fase.currentText() != "":
+                fase = "'" + str(self.comboBox_fase.currentText()) + "'"
+            else:
+                fase = ""
+
             search_dict = {
-                self.TABLE_FIELDS[0]: "'" + str(self.comboBox_nome_tabella.currentText()) + "'",  # 1 - Nome tabella
-                self.TABLE_FIELDS[1]: "'" + str(self.comboBox_sigla.currentText()) + "'",  # 2 - sigla
-                self.TABLE_FIELDS[2]: "'" + str(self.comboBox_sigla_estesa.currentText()) + "'",  # 3 - sigla estesa
-                self.TABLE_FIELDS[4]: "'" + str(self.comboBox_tipologia_sigla.currentText()) + "'"
-            # 3 - tipologia sigla
+                'sito': "'" + str(self.comboBox_sito.currentText()) + "'",  # 1 - Sito
+                'periodo': periodo,  # 2 - Periodo
+                'fase': fase,  # 3 - Fase
+                'cron_iniziale': cron_iniziale,  # 4 - Cron iniziale
+                'cron_finale': cron_finale,  # 5 - Crion finale
+                'descrizione': str(self.textEdit_descrizione_per.toPlainText()),  # 6 - Descrizione
+                'datazione_estesa': "'" + str(self.lineEdit_per_estesa.text()) + "'",  # 7 - Periodizzazione estesa
+                'cont_per': "'" + str(self.lineEdit_codice_periodo.text()) + "'"  # 8 - Codice periodo
             }
 
             u = Utility()
@@ -550,24 +682,20 @@ class pyarchinit_Thesaurus(QDialog, MAIN_DIALOG_CLASS):
                     self.BROWSE_STATUS = "b"
                     self.label_status.setText(self.STATUS_ITEMS[self.BROWSE_STATUS])
 
-                    self.setComboBoxEditable(["self.comboBox_sigla"], 1)
-                    self.setComboBoxEditable(["self.comboBox_sigla_estesa"], 1)
-                    self.setComboBoxEditable(["self.comboBox_tipologia_sigla"], 1)
-                    self.setComboBoxEditable(["self.comboBox_nome_tabella"], 1)
+                    self.setComboBoxEditable(["self.comboBox_sito"], 1)
+                    self.setComboBoxEditable(["self.comboBox_periodo"], 1)
+                    self.setComboBoxEditable(["self.comboBox_fase"], 1)
 
-                    self.setComboBoxEnable(["self.comboBox_sigla"], "False")
-                    self.setComboBoxEnable(["self.comboBox_sigla_estesa"], "False")
-                    self.setComboBoxEnable(["self.comboBox_tipologia_sigla"], "False")
-                    self.setComboBoxEnable(["self.comboBox_nome_tabella"], "False")
+                    self.setComboBoxEnable(["self.comboBox_sito"], "False")
+                    self.setComboBoxEnable(["self.comboBox_periodo"], "False")
+                    self.setComboBoxEnable(["self.comboBox_fase"], "False")
 
-                    self.setComboBoxEnable(["self.textEdit_descrizione_sigla"], "True")
+                    self.setComboBoxEnable(["self.textEdit_descrizione_per"], "True")
 
                 else:
                     self.DATA_LIST = []
-
                     for i in res:
                         self.DATA_LIST.append(i)
-
                     self.REC_TOT, self.REC_CORR = len(self.DATA_LIST), 0
                     self.DATA_LIST_REC_TEMP = self.DATA_LIST_REC_CORR = self.DATA_LIST[0]
                     self.fill_fields()
@@ -580,48 +708,27 @@ class pyarchinit_Thesaurus(QDialog, MAIN_DIALOG_CLASS):
                     else:
                         strings = ("Sono stati trovati", self.REC_TOT, "records")
 
-                        self.setComboBoxEditable(["self.comboBox_sigla"], 1)
-                        self.setComboBoxEditable(["self.comboBox_sigla_estesa"], 1)
-                        self.setComboBoxEditable(["self.comboBox_tipologia_sigla"], 1)
-                        self.setComboBoxEditable(["self.comboBox_nome_tabella"], 1)
-
-                        self.setComboBoxEnable(["self.comboBox_sigla"], "False")
-                        self.setComboBoxEnable(["self.comboBox_sigla_estesa"], "False")
-                        self.setComboBoxEnable(["self.comboBox_tipologia_sigla"], "False")
-                        self.setComboBoxEnable(["self.comboBox_nome_tabella"], "False")
-
-                        self.setComboBoxEnable(["self.textEdit_descrizione_sigla"], "True")
+                    self.setComboBoxEditable(["self.comboBox_sito"], 1)
+                    self.setComboBoxEditable(["self.comboBox_periodo"], 1)
+                    self.setComboBoxEditable(["self.comboBox_fase"], 1)
+                    self.setComboBoxEnable(["self.comboBox_sito"], "False")
+                    self.setComboBoxEnable(["self.comboBox_periodo"], "False")
+                    self.setComboBoxEnable(["self.comboBox_fase"], "False")
+                    self.setComboBoxEnable(["self.textEdit_descrizione_per"], "True")
 
                     QMessageBox.warning(self, "Messaggio", "%s %d %s" % strings, QMessageBox.Ok)
 
         self.enable_button_search(1)
 
-    def on_pushButton_test_pressed(self):
-        pass
-
-    ##		data = "Sito: " + str(self.comboBox_sito.currentText())
-    ##
-    ##		test = Test_area(data)
-    ##		test.run_test()
-
-    def on_pushButton_draw_pressed(self):
-        pass
-
-        # self.pyQGIS.charge_layers_for_draw(["1", "2", "3", "4", "5", "7", "8", "9", "10", "12"])
-
-    def on_pushButton_sites_geometry_pressed(self):
-        pass
-
-    ##		sito = unicode(self.comboBox_sito.currentText())
-    ##		self.pyQGIS.charge_sites_geometry(["1", "2", "3", "4", "8"], "sito", sito)
-
-    def on_pushButton_rel_pdf_pressed(self):
-        pass
-
-    ##		check=QMessageBox.warning(self, "Attention", "Under testing: this method can contains some bugs. Do you want proceed?",QMessageBox.Cancel,1)
-    ##		if check == 1:
-    ##			erp = exp_rel_pdf(unicode(self.comboBox_sito.currentText()))
-    ##			erp.export_rel_pdf()
+    def on_pushButton_show_periodo_pressed(self):
+        if not self.lineEdit_codice_periodo.text():
+            QMessageBox.warning(self, "Messaggio", "Codice periodo non assegnato", QMessageBox.Ok)
+        else:
+            sito_p = self.comboBox_sito.currentText()
+            cont_per = self.lineEdit_codice_periodo.text()
+            per_label = self.comboBox_periodo.currentText()
+            fas_label = self.comboBox_fase.currentText()
+            self.pyQGIS.charge_vector_layers_periodo(sito_p, int(cont_per), per_label, fas_label)
 
     def update_if(self, msg):
         rec_corr = self.REC_CORR
@@ -670,6 +777,22 @@ class pyarchinit_Thesaurus(QDialog, MAIN_DIALOG_CLASS):
             for i in temp_data_list:
                 self.DATA_LIST.append(i)
 
+    def setComboBoxEditable(self, f, n):
+        field_names = f
+        value = n
+
+        for fn in field_names:
+            cmd = ('%s%s%d%s') % (fn, '.setEditable(', n, ')')
+            eval(cmd)
+
+    def setComboBoxEnable(self, f, v):
+        field_names = f
+        value = v
+
+        for fn in field_names:
+            cmd = '{}{}{}{}'.format(fn, '.setEnabled(', v, ')')
+            eval(cmd)
+
     def datestrfdate(self):
         now = date.today()
         today = now.strftime("%d-%m-%Y")
@@ -690,22 +813,43 @@ class pyarchinit_Thesaurus(QDialog, MAIN_DIALOG_CLASS):
         return lista
 
     def empty_fields(self):
-        self.comboBox_sigla.setEditText("")  # 1 - Sigla
-        self.comboBox_sigla_estesa.setEditText("")  # 2 - Sigla estesa
-        self.comboBox_tipologia_sigla.setEditText("")  # 1 - Tipologia sigla
-        self.comboBox_nome_tabella.setEditText("")  # 2 - Nome tabella
-        self.textEdit_descrizione_sigla.clear()  # 4 - Descrizione
+        self.comboBox_sito.setEditText("")  # 1 - Sito
+        self.comboBox_periodo.setEditText("")  # 2 - Periodo
+        self.comboBox_fase.setEditText("")  # 3 - Fase
+        self.lineEdit_cron_iniz.clear()  # 4 - Cronologia iniziale
+        self.lineEdit_cron_fin.clear()  # 5 - Cronologia finale
+        self.lineEdit_per_estesa.clear()  # 6 - Datazione estesa
+        self.textEdit_descrizione_per.clear()  # 7 - Descrizione
+        self.lineEdit_codice_periodo.clear()  # 8 - Codice periodo
 
     def fill_fields(self, n=0):
         self.rec_num = n
+        try:
+            str(self.comboBox_sito.setEditText(self.DATA_LIST[self.rec_num].sito))  # 1 - Sito
 
-        str(self.comboBox_sigla.setEditText(self.DATA_LIST[self.rec_num].sigla))  # 1 - Sigla
-        str(self.comboBox_sigla_estesa.setEditText(self.DATA_LIST[self.rec_num].sigla_estesa))  # 2 - Sigla estesa
-        str(self.comboBox_tipologia_sigla.setEditText(
-            self.DATA_LIST[self.rec_num].tipologia_sigla))  # 3 - tipologia sigla
-        str(self.comboBox_nome_tabella.setEditText(self.DATA_LIST[self.rec_num].nome_tabella))  # 4 - nome tabella
-        str(str(
-            self.textEdit_descrizione_sigla.setText(self.DATA_LIST[self.rec_num].descrizione)))  # 5 - descrizione sigla
+            self.comboBox_periodo.setEditText(str(self.DATA_LIST[self.rec_num].periodo))  # 2 - Periodo
+            self.comboBox_fase.setEditText(str(self.DATA_LIST[self.rec_num].fase))  # 3 - Fase
+
+            if not self.DATA_LIST[self.rec_num].cron_iniziale:  # 4 - Cronologia iniziale
+                self.lineEdit_cron_iniz.setText("")
+            else:
+                self.lineEdit_cron_iniz.setText(str(self.DATA_LIST[self.rec_num].cron_iniziale))
+
+            if not self.DATA_LIST[self.rec_num].cron_finale:  # 5 - Cronologia finale
+                self.lineEdit_cron_fin.setText("")
+            else:
+                self.lineEdit_cron_fin.setText(str(self.DATA_LIST[self.rec_num].cron_finale))
+
+            str(self.lineEdit_per_estesa.setText(self.DATA_LIST[self.rec_num].datazione_estesa))  # 6 - Datazione estesa
+            str(self.textEdit_descrizione_per.setText(self.DATA_LIST[self.rec_num].descrizione))  # 7 - Descrizione
+
+            if not self.DATA_LIST[self.rec_num].cont_per:  # 8 - Codice periodo
+                self.lineEdit_codice_periodo.setText("")
+            else:
+                self.lineEdit_codice_periodo.setText(str(self.DATA_LIST[self.rec_num].cont_per))
+
+        except Exception as e:
+            QMessageBox.warning(self, "Errore Fill Fields", str(e), QMessageBox.Ok)
 
     def set_rec_counter(self, t, c):
         self.rec_tot = t
@@ -714,40 +858,36 @@ class pyarchinit_Thesaurus(QDialog, MAIN_DIALOG_CLASS):
         self.label_rec_corrente.setText(str(self.rec_corr))
 
     def set_LIST_REC_TEMP(self):
-
         # data
+        if not self.lineEdit_cron_iniz.text():
+            cron_iniz = ''
+        else:
+            cron_iniz = str(self.lineEdit_cron_iniz.text())
+
+        if not self.lineEdit_cron_fin.text():
+            cron_fin = ''
+        else:
+            cron_fin = str(self.lineEdit_cron_fin.text())
+
+        if not self.lineEdit_codice_periodo.text():
+            cont_per = ''
+        else:
+            cont_per = str(self.lineEdit_codice_periodo.text())
+
         self.DATA_LIST_REC_TEMP = [
-            str(self.comboBox_nome_tabella.currentText()),  # 1 - Nome tabella
-            str(self.comboBox_sigla.currentText()),  # 2 - sigla
-            str(self.comboBox_sigla_estesa.currentText()),  # 3 - sigla estesa
-            str(self.textEdit_descrizione_sigla.toPlainText()),  # 4 - descrizione
-            str(self.comboBox_tipologia_sigla.currentText())  # 3 - tipologia sigla
-        ]
+            str(self.comboBox_sito.currentText()),  # 1 - Sito
+            str(self.comboBox_periodo.currentText()),  # 2 - Periodo
+            str(self.comboBox_fase.currentText()),  # 3 - Fase
+            str(cron_iniz),  # 4 - Cron iniziale
+            str(cron_fin),  # 5 - Cron finale
+            str(self.textEdit_descrizione_per.toPlainText()),  # 6 - Descrizioene
+            str(self.lineEdit_per_estesa.text()),  # 7 - Cron estesa
+            str(cont_per)]  # 8 - Cont_per
 
     def set_LIST_REC_CORR(self):
         self.DATA_LIST_REC_CORR = []
         for i in self.TABLE_FIELDS:
             self.DATA_LIST_REC_CORR.append(eval("unicode(self.DATA_LIST[self.REC_CORR]." + i + ")"))
-
-    def setComboBoxEnable(self, f, v):
-        field_names = f
-        value = v
-
-        for fn in field_names:
-            cmd = '{}{}{}{}'.format(fn, '.setEnabled(', v, ')')
-            eval(cmd)
-
-    def setComboBoxEditable(self, f, n):
-        field_names = f
-        value = n
-
-        for fn in field_names:
-            cmd = ('%s%s%d%s') % (fn, '.setEditable(', n, ')')
-            eval(cmd)
-
-    def rec_toupdate(self):
-        rec_to_update = self.UTILITY.pos_none_in_list(self.DATA_LIST_REC_TEMP)
-        return rec_to_update
 
     def records_equal_check(self):
         self.set_LIST_REC_TEMP()
@@ -771,6 +911,10 @@ class pyarchinit_Thesaurus(QDialog, MAIN_DIALOG_CLASS):
                                 "Problema di encoding: sono stati inseriti accenti o caratteri non accettati dal database. Se chiudete ora la scheda senza correggere gli errori perderete i dati. Fare una copia di tutto su un foglio word a parte. Errore :" + str(
                                     e), QMessageBox.Ok)
             return 0
+
+    def rec_toupdate(self):
+        rec_to_update = self.UTILITY.pos_none_in_list(self.DATA_LIST_REC_TEMP)
+        return rec_to_update
 
     def testing(self, name_file, message):
         f = open(str(name_file), 'w')

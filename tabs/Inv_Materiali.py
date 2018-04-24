@@ -41,7 +41,7 @@ from ..modules.utility.csv_writer import UnicodeWriter
 from ..modules.utility.delegateComboBox import ComboBoxDelegate
 from ..modules.utility.pyarchinit_error_check import Error_check
 from ..modules.utility.pyarchinit_exp_Findssheet_pdf import generate_reperti_pdf
-from .pyarchinit_US_mainapp import pyarchinit_US
+from .US_USM import pyarchinit_US
 from ..quantpanelmain import QuantPanelMain
 from ..sortpanelmain import SortPanelMain
 
