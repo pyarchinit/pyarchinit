@@ -52,7 +52,7 @@ from .tabs.UT import pyarchinit_UT
 from .tabs.Image_viewer import Main
 from .tabs.Images_comparision import Comparision
 from .tabs.Images_directory_export import pyarchinit_Images_directory_export
-from .tabs.pdf_export import pyarchinit_pdf_export
+from .tabs.Pdf_export import pyarchinit_pdf_export
 
 filepath = os.path.dirname(__file__)
 
