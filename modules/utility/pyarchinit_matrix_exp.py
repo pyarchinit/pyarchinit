@@ -32,6 +32,7 @@ class HARRIS_MATRIX_EXP:
 
     def export_matrix(self):
         G = Digraph(engine='dot')
+        G.graph_attr['splines'] = 'ortho'
         elist = []
 
         for i in self.sequence:
