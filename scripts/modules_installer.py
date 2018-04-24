@@ -25,7 +25,7 @@ import sys
 # Adding the dependencies python modules in
 # package list in order to install via pip module
 packages = ['pyper',
-            'sqlalchemy'
+            'sqlalchemy',
             'graphviz',
             'reportlab']
 
