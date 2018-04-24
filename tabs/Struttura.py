@@ -37,7 +37,7 @@ from ..modules.gis.pyarchinit_pyqgis import Pyarchinit_pyqgis
 from ..modules.utility.delegateComboBox import ComboBoxDelegate
 from ..modules.utility.pyarchinit_error_check import Error_check
 from ..modules.utility.pyarchinit_exp_Strutturasheet_pdf import generate_struttura_pdf
-from .pyarchinit_US_mainapp import pyarchinit_US
+from .US_USM import pyarchinit_US
 from ..sortpanelmain import SortPanelMain
 
 MAIN_DIALOG_CLASS, _ = loadUiType(os.path.join(os.path.dirname(__file__), '..', 'modules', 'gui', 'pyarchinit_Struttura_ui.ui'))

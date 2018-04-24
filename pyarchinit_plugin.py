@@ -33,26 +33,26 @@ from .dbmanagment import pyarchinit_dbmanagment
 from .pyarchinitConfigDialog import pyArchInitDialog_Config
 from .pyarchinitInfoDialog import pyArchInitDialog_Info
 from .pyarchinitplugindialog import PyarchinitPluginDialog
-from .tabs.pyarchinit_Archeozoology_mainapp import pyarchinit_Archeozoology
-from .tabs.pyarchinit_Campioni_mainapp import pyarchinit_Campioni
-from .tabs.pyarchinit_Deteta_mainapp import pyarchinit_Deteta
-from .tabs.pyarchinit_Detsesso_mainapp import pyarchinit_Detsesso
-from .tabs.pyarchinit_Documentazione_mainapp import pyarchinit_Documentazione
-from .tabs.pyarchinit_Gis_Time_controller import pyarchinit_Gis_Time_Controller
-from .tabs.pyarchinit_Inv_Lapidei import pyarchinit_Inventario_Lapidei
-from .tabs.pyarchinit_Inv_Materiali_mainapp import pyarchinit_Inventario_reperti
-from .tabs.pyarchinit_Periodizzazione_mainapp import pyarchinit_Periodizzazione
-from .tabs.pyarchinit_Schedaind_mainapp import pyarchinit_Schedaind
-from .tabs.pyarchinit_Site_mainapp import pyarchinit_Site
-from .tabs.pyarchinit_Struttura_mainapp import pyarchinit_Struttura
-from .tabs.pyarchinit_Tafonomia_mainapp import pyarchinit_Tafonomia
-from .tabs.pyarchinit_Thesaurus_mainapp import pyarchinit_Thesaurus
-from .tabs.pyarchinit_US_mainapp import pyarchinit_US
-from .tabs.pyarchinit_UT_mainapp import pyarchinit_UT
-from .tabs.pyarchinit_image_viewer_main import Main
-from .tabs.pyarchinit_images_comparision_main import Comparision
-from .tabs.pyarchinit_images_directory_export_mainapp import pyarchinit_Images_directory_export
-from .tabs.pyarchinit_pdf_export_mainapp import pyarchinit_pdf_export
+from .tabs.Archeozoology import pyarchinit_Archeozoology
+from .tabs.Campioni import pyarchinit_Campioni
+from .tabs.Deteta import pyarchinit_Deteta
+from .tabs.Detsesso import pyarchinit_Detsesso
+from .tabs.Documentazione import pyarchinit_Documentazione
+from .tabs.Gis_Time_controller import pyarchinit_Gis_Time_Controller
+from .tabs.Inv_Lapidei import pyarchinit_Inventario_Lapidei
+from .tabs.Inv_Materiali import pyarchinit_Inventario_reperti
+from .tabs.Periodizzazione import pyarchinit_Periodizzazione
+from .tabs.Schedaind import pyarchinit_Schedaind
+from .tabs.Site import pyarchinit_Site
+from .tabs.Struttura import pyarchinit_Struttura
+from .tabs.Tafonomia import pyarchinit_Tafonomia
+from .tabs.Thesaurus import pyarchinit_Thesaurus
+from .tabs.US_USM import pyarchinit_US
+from .tabs.UT import pyarchinit_UT
+from .tabs.Image_viewer import Main
+from .tabs.Images_comparision import Comparision
+from .tabs.Images_directory_export import pyarchinit_Images_directory_export
+from .tabs.pdf_export import pyarchinit_pdf_export
 
 filepath = os.path.dirname(__file__)
 
