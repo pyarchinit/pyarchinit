@@ -1213,7 +1213,7 @@
       </font>
      </property>
      <property name="currentIndex">
-      <number>5</number>
+      <number>0</number>
      </property>
      <widget class="QWidget" name="tab">
       <attribute name="title">
@@ -3212,7 +3212,7 @@ p, li { white-space: pre-wrap; }
                   </font>
                  </property>
                  <property name="toolTip">
-                  <string>Show Selcted Features</string>
+                  <string>Crea codice periodo</string>
                  </property>
                  <property name="text">
                   <string>Crea codice periodo</string>
@@ -3257,10 +3257,10 @@ p, li { white-space: pre-wrap; }
                   </font>
                  </property>
                  <property name="toolTip">
-                  <string>Export PDF</string>
+                  <string>Export Matrix</string>
                  </property>
                  <property name="text">
-                  <string>export Matrix</string>
+                  <string>Export Matrix</string>
                  </property>
                  <property name="icon">
                   <iconset resource="resources.qrc">
@@ -3362,7 +3362,7 @@ p, li { white-space: pre-wrap; }
                   </font>
                  </property>
                  <property name="toolTip">
-                  <string>Export PDF</string>
+                  <string>Check, go!!!!</string>
                  </property>
                  <property name="text">
                   <string>Check, go!!!!</string>
@@ -3671,6 +3671,9 @@ p, li { white-space: pre-wrap; }
                  <pointsize>9</pointsize>
                 </font>
                </property>
+               <property name="toolTip">
+                <string>Elenco US</string>
+               </property>
                <property name="text">
                 <string>Elenco US</string>
                </property>
@@ -3713,7 +3716,7 @@ p, li { white-space: pre-wrap; }
                 </font>
                </property>
                <property name="toolTip">
-                <string>Export PDF</string>
+                <string>Singole schede US</string>
                </property>
                <property name="text">
                 <string>Singole schede US</string>
@@ -3723,7 +3726,7 @@ p, li { white-space: pre-wrap; }
                  <normaloff>:/images/sheet.png</normaloff>:/images/sheet.png</iconset>
                </property>
               </widget>
-              <widget class="QWidget" name="">
+              <widget class="QWidget" name="layoutWidget">
                <property name="geometry">
                 <rect>
                  <x>10</x>
@@ -3735,8 +3738,11 @@ p, li { white-space: pre-wrap; }
                <layout class="QHBoxLayout" name="horizontalLayout">
                 <item>
                  <widget class="QPushButton" name="pushButton_exp_tavole">
+                  <property name="toolTip">
+                   <string>Esportazione Tavole</string>
+                  </property>
                   <property name="text">
-                   <string>Espotazione Tavole</string>
+                   <string>Esportazione Tavole</string>
                   </property>
                  </widget>
                 </item>

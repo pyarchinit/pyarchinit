@@ -29,6 +29,7 @@ from .pyarchinit_OS_utility import Pyarchinit_OS_Utility
 
 
 class pyarchinit_Folder_installation(object):
+
     def install_dir(self):
         home = expanduser("~")
         home += os.sep + 'pyarchinit'

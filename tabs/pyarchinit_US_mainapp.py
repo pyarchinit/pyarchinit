@@ -39,6 +39,7 @@ from ..modules.utility.pyarchinit_error_check import Error_check
 from ..modules.utility.pyarchinit_exp_Periodosheet_pdf import generate_US_pdf
 from ..modules.utility.pyarchinit_exp_USsheet_pdf import *
 from ..modules.utility.pyarchinit_print_utility import Print_utility
+from ..modules.utility.pyarchinit_OS_utility import Pyarchinit_OS_Utility
 from .pyarchinit_interactive_matrix_main import pyarchinit_Interactive_Matrix
 from ..sortpanelmain import SortPanelMain
 
@@ -486,6 +487,8 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
                 self.iface.messageBar().pushMessage(self.tr(msg), Qgis.Warning, 0)
 
     def customize_GUI(self):
+        self.pushButton_export_matrix.setEnabled(Pyarchinit_OS_Utility.checkGraphvizInstallation())
+        self.pushButton_export_matrix.setToolTip("Funzione disabilitata")
         self.tableWidget_rapporti.setColumnWidth(0, 380)
         self.tableWidget_rapporti.setColumnWidth(1, 110)
         self.tableWidget_documentazione.setColumnWidth(0, 150)

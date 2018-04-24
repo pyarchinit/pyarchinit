@@ -22,9 +22,10 @@
 
 import os
 import shutil
+import subprocess
 
 
-class Pyarchinit_OS_Utility:
+class Pyarchinit_OS_Utility(object):
     def create_dir(self, d):
         dirname = d
 
@@ -58,3 +59,11 @@ class Pyarchinit_OS_Utility:
                     return 0
                 else:
                     raise
+
+    @staticmethod
+    def checkGraphvizInstallation():
+        try:
+            subprocess.call(['dot', '-V'])
+            return False
+        except Exception as e:
+            return False
