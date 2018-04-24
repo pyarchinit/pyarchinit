@@ -30,11 +30,11 @@ packages = ['pyper',
             'reportlab']
 
 for p in packages:
-    if p.startswith('pygraphviz'):
+    if p.startswith('graphviz'):
         try:
             subprocess.call(['dot', '-V'])
         except Exception as e:
-            print('ERROR: Is Graphviz installed on your system?')
-            print('ERROR: pygraphviz cannot be installed, install Graphviz and try again.')
-            break
+            print('WARNING: It seems that Graphviz is not installed on your system, ')
+            print('WARNING: anyway the graphviz python module will be installed on your system, ')
+            print('WARNING: but the export matrix functionality from pyarchinit plugin will be disabled.')
     subprocess.check_call([sys.executable, '-m', 'pip', 'install', p], shell=False)
