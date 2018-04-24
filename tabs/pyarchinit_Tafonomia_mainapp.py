@@ -23,7 +23,7 @@ from __future__ import absolute_import
 
 from builtins import range
 from builtins import str
-from qgis.PyQt.QtWidgets import QDialog, QMessageBox
+from qgis.PyQt.QtWidgets import QDialog, QMessageBox, QTableWidgetItem
 from qgis.PyQt.uic import loadUiType
 from qgis.gui import QgsMapToolPan
 
