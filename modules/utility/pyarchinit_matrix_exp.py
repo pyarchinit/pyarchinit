@@ -1,13 +1,12 @@
-#! /usr/bin/env python
 # -*- coding: utf-8 -*-
 """
 /***************************************************************************
-        pyArchInit Plugin  - A QGIS plugin to manage archaeological dataset
-        					 stored in Postgres
-                             -------------------
-    begin                : 2007-12-01
-    copyright            : (C) 2008 by Luca Mandolesi
-    email                : mandoluca at gmail.com
+    pyArchInit Plugin  - A QGIS plugin to manage archaeological dataset
+    stored in Postgres
+    -------------------
+    begin                : 2018-04-24
+    copyright            : (C) 2018 by Salvatore Larosa
+    email                : lrssvtml (at) gmail (dot) com
  ***************************************************************************/
 
 /***************************************************************************
@@ -32,51 +31,40 @@ class HARRIS_MATRIX_EXP:
         self.periodi = periodi
 
     def export_matrix(self):
-        G = Digraph()
-        # G.directed = True
-        # G.attr(dpi=300)
-        # G.attr(label='pyArchInit - Harris Matrix Export System')
-
+        G = Digraph(engine='dot')
         elist = []
 
         for i in self.sequence:
             a = (i[0], i[1])
             elist.append(a)
 
-        G.edges(elist)
+        with G.subgraph(name='main') as d:
+            d.edges(elist)
+            d.node_attr['shape'] = 'box'
+            d.node_attr['style'] = 'strocked'
+            d.node_attr['color'] = 'red'
+            d.attr(label='pyArchInit - Harris Matrix Export System')
 
-        G.node_attr['shape'] = 'box'
-        G.node_attr['style'] = 'strocked'
-        G.node_attr['color'] = 'red'
-
-        with G.subgraph() as c:
-            for i in self.periodi:
-                c.attr(name=i[1])
-                c.attr(style='strocked')
-                c.attr(shape='square')
+        for i in self.periodi:
+            with G.subgraph(name=i[1]) as c:
+                # c.attr(bgcolor='lightgrey')
+                for n in i[0]:
+                    c.attr('node', shape='square', label=str(n), color='blue')
+                    c.node(str(n))
                 c.attr(color='blue')
                 c.attr(label=i[2])
-                c.attr(font_color='Blue')
-
-        try:
-            data_to_plot = G.tred()
-        except:
-            data_to_plot = G
 
         Matrix_path = '{}{}{}'.format(self.HOME, os.sep, "pyarchinit_Matrix_folder")
-
-        filename_svg = '{}{}{}'.format(Matrix_path, os.sep, 'Harris_matrix.svg')
-        filename_png = '{}{}{}'.format(Matrix_path, os.sep, 'Harris_matrix.png')
-        filename_dot = '{}{}{}'.format(Matrix_path, os.sep, 'Harris_matrix_win.dot')
+        filename = '{}{}{}'.format(Matrix_path, os.sep, 'Harris_matrix')
 
         G.format = 'svg'
-        G.render(filename_svg)
+        G.render(filename)
         G.format = 'png'
-        G.render(filename_png)
+        G.render(filename)
         G.format = 'dot'
-        G.render(filename_dot)
+        G.render(filename)
 
-        return data_to_plot
+        return G
 
 
 if __name__ == "__main__":
