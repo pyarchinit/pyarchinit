@@ -44,7 +44,7 @@ from .tabs.UT import pyarchinit_UT
 from .tabs.Upd import pyarchinit_Upd_Values
 from .tabs.Image_viewer import Main
 from .tabs.Images_directory_export import pyarchinit_Images_directory_export
-from .tabs.pdf_export import pyarchinit_pdf_export
+from .tabs.Pdf_export import pyarchinit_pdf_export
 
 MAIN_DIALOG_CLASS, _ = loadUiType(os.path.join(os.path.dirname(__file__), 'modules', 'gui', 'ui_pyarchinitplugin.ui'))
 
