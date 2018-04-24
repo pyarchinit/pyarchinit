@@ -20,10 +20,8 @@
  ***************************************************************************/
 """
 import os
-try:
-    import pygraphviz as p
-except:
-    pass
+
+from graphviz import Digraph
 
 
 class HARRIS_MATRIX_EXP:
@@ -34,10 +32,10 @@ class HARRIS_MATRIX_EXP:
         self.periodi = periodi
 
     def export_matrix(self):
-        G = p.AGraph(directed=True)
-        G.graph_attr['dpi'] = 300
-        G.graph_attr['splines'] = 'ortho'
-        G.graph_attr['label'] = 'pyArchInit - Harris Matrix Exportation System'
+        G = Digraph()
+        # G.directed = True
+        # G.attr(dpi=300)
+        # G.attr(label='pyArchInit - Harris Matrix Export System')
 
         elist = []
 
@@ -45,20 +43,20 @@ class HARRIS_MATRIX_EXP:
             a = (i[0], i[1])
             elist.append(a)
 
-        G.add_edges_from(elist)
+        G.edges(elist)
 
         G.node_attr['shape'] = 'box'
         G.node_attr['style'] = 'strocked'
         G.node_attr['color'] = 'red'
 
-        for i in self.periodi:
-            G.subgraph(nbunch=i[0],
-                       name=i[1],
-                       style='strocked',
-                       shape='square',
-                       color='blue',
-                       label=i[2],
-                       font_color='Blue')
+        with G.subgraph() as c:
+            for i in self.periodi:
+                c.attr(name=i[1])
+                c.attr(style='strocked')
+                c.attr(shape='square')
+                c.attr(color='blue')
+                c.attr(label=i[2])
+                c.attr(font_color='Blue')
 
         try:
             data_to_plot = G.tred()
@@ -71,9 +69,12 @@ class HARRIS_MATRIX_EXP:
         filename_png = '{}{}{}'.format(Matrix_path, os.sep, 'Harris_matrix.png')
         filename_dot = '{}{}{}'.format(Matrix_path, os.sep, 'Harris_matrix_win.dot')
 
-        G.draw(filename_svg, prog='dot')
-        G.draw(filename_png, prog='dot')
-        G.write(filename_dot)
+        G.format = 'svg'
+        G.render(filename_svg)
+        G.format = 'png'
+        G.render(filename_png)
+        G.format = 'dot'
+        G.render(filename_dot)
 
         return data_to_plot
 
