@@ -34,7 +34,7 @@ for p in packages:
         try:
             subprocess.call(['dot', '-V'])
         except Exception as e:
-            print('WARNING: It seems that Graphviz is not installed on your system, ')
-            print('WARNING: anyway the graphviz python module will be installed on your system, ')
-            print('WARNING: but the export matrix functionality from pyarchinit plugin will be disabled.')
+            print('INFO: It seems that Graphviz is not installed on your system, ')
+            print('INFO: anyway the graphviz python module will be installed on your system, ')
+            print('INFO: but the export matrix functionality from pyarchinit plugin will be disabled.')
     subprocess.check_call([sys.executable, '-m', 'pip', 'install', p], shell=False)
