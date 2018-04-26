@@ -65,7 +65,7 @@ class Pyarchinit_OS_Utility(object):
     def checkGraphvizInstallation():
         try:
             subprocess.call(['dot', '-V'])
-            return False
+            return True
         except Exception as e:
             return False
 
