@@ -74,8 +74,8 @@ class HARRIS_MATRIX_EXP:
                 open(matrix_path + '/matrix_error.txt', "wb") as err:
             subprocess.Popen(['tred', dot_file],
                              stdout=out,
-                             stderr=err,
-                             startupinfo=si if Pyarchinit_OS_Utility.isWindows() else None)
+                             stderr=err)
+                             # startupinfo=si if Pyarchinit_OS_Utility.isWindows() else None)
 
         g = Source.from_file(filename + '_tred.dot')
         g.format = 'svg'
