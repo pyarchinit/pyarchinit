@@ -31,8 +31,6 @@ from builtins import str
 from qgis.PyQt.QtWidgets import QApplication, QDialog, QMessageBox, QFileDialog
 from qgis.PyQt.uic import loadUiType
 
-from .modules.gis.pyarchinit_pyqgis import Pyarchinit_pyqgis
-
 MAIN_DIALOG_CLASS, _ = loadUiType(os.path.join(os.path.dirname(__file__), 'modules', 'gui', 'dbmanagment_ui.ui'))
 
 
