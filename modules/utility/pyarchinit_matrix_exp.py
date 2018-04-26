@@ -19,8 +19,10 @@
  ***************************************************************************/
 """
 import os
+import subprocess
 
-from graphviz import Digraph
+from graphviz import Digraph, Source
+from .pyarchinit_OS_utility import Pyarchinit_OS_Utility
 
 
 class HARRIS_MATRIX_EXP:
@@ -31,7 +33,7 @@ class HARRIS_MATRIX_EXP:
         self.periodi = periodi
 
     def export_matrix(self):
-        G = Digraph(engine='dot')
+        G = Digraph(engine='dot', strict=True)
         G.graph_attr['splines'] = 'ortho'
         G.graph_attr['dpi'] = '300'
         elist = []
@@ -56,17 +58,32 @@ class HARRIS_MATRIX_EXP:
                 c.attr(color='blue')
                 c.attr(label=i[2])
 
-        Matrix_path = '{}{}{}'.format(self.HOME, os.sep, "pyarchinit_Matrix_folder")
-        filename = '{}{}{}'.format(Matrix_path, os.sep, 'Harris_matrix')
+        matrix_path = '{}{}{}'.format(self.HOME, os.sep, "pyarchinit_Matrix_folder")
+        filename = '{}{}{}'.format(matrix_path, os.sep, 'Harris_matrix')
 
-        G.format = 'svg'
-        G.render(filename)
-        G.format = 'png'
-        G.render(filename)
         G.format = 'dot'
-        G.render(filename)
+        dot_file = G.render(filename, cleanup=True)
 
-        return G
+        # For MS-Windows, we need to hide the console window.
+        if Pyarchinit_OS_Utility.isWindows():
+            si = subprocess.STARTUPINFO()
+            si.dwFlags |= subprocess.STARTF_USESHOWWINDOW
+            si.wShowWindow = subprocess.SW_HIDE
+
+        with open(filename + '_tred.dot', "wb") as out, \
+                open(matrix_path + '/matrix_error.txt', "wb") as err:
+            subprocess.Popen(['tred', dot_file],
+                             stdout=out,
+                             stderr=err,
+                             startupinfo=si if Pyarchinit_OS_Utility.isWindows() else None)
+
+        g = Source.from_file(filename + '_tred.dot')
+        g.format = 'svg'
+        g.render(filename, cleanup=True)
+        g.format = 'png'
+        g.render(filename, cleanup=True)
+
+        return g
 
 
 if __name__ == "__main__":

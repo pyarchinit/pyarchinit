@@ -487,8 +487,9 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
                 self.iface.messageBar().pushMessage(self.tr(msg), Qgis.Warning, 0)
 
     def customize_GUI(self):
-        self.pushButton_export_matrix.setEnabled(Pyarchinit_OS_Utility.checkGraphvizInstallation())
-        self.pushButton_export_matrix.setToolTip("Funzione disabilitata")
+        if not Pyarchinit_OS_Utility.checkGraphvizInstallation():
+            self.pushButton_export_matrix.setEnabled(False)
+            self.pushButton_export_matrix.setToolTip("Funzione disabilitata")
         self.tableWidget_rapporti.setColumnWidth(0, 380)
         self.tableWidget_rapporti.setColumnWidth(1, 110)
         self.tableWidget_documentazione.setColumnWidth(0, 150)
