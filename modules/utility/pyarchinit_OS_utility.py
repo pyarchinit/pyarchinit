@@ -21,6 +21,7 @@
 """
 
 import os
+import sys
 import shutil
 import subprocess
 
@@ -67,3 +68,11 @@ class Pyarchinit_OS_Utility(object):
             return False
         except Exception as e:
             return False
+
+    @staticmethod
+    def isWindows():
+        return os.name == 'nt'
+
+    @staticmethod
+    def isMac():
+        return sys.platform == 'darwin'
