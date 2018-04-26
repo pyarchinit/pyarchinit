@@ -28,7 +28,7 @@ import sys
 import time
 from builtins import range
 from builtins import str
-from qgis.PyQt.QtWidgets import QApplication, QDialog, QMessageBox
+from qgis.PyQt.QtWidgets import QApplication, QDialog, QMessageBox, QFileDialog
 from qgis.PyQt.uic import loadUiType
 
 from .modules.gis.pyarchinit_pyqgis import Pyarchinit_pyqgis
@@ -41,9 +41,8 @@ class pyarchinit_dbmanagment(QDialog, MAIN_DIALOG_CLASS):
         'PyArchInit - pyarchinit_version 0.4 - Scheda gestione DB'
 
     def __init__(self, iface):
+        super().__init__()
         self.iface = iface
-        self.pyQGIS = Pyarchinit_pyqgis(self.iface)
-        QDialog.__init__(self)
         self.setupUi(self)
         QMessageBox.warning(self, 'Alert',
                             'Sistema sperimentale solo per lo sviluppo'
@@ -76,7 +75,7 @@ class pyarchinit_dbmanagment(QDialog, MAIN_DIALOG_CLASS):
 
         shutil.copy(conn_import, conn_export)
 
-        barra = QtGui.QProgressBar(self)
+        barra = QProgressBar(self)
         barra.show()
         barra.setMinimum(0)
         barra.setMaximum(9)
@@ -102,7 +101,7 @@ class pyarchinit_dbmanagment(QDialog, MAIN_DIALOG_CLASS):
         for db_name in db_names:
             try:
 
-                barra = QtGui.QProgressBar(self)
+                barra = QProgressBar(self)
                 barra.show()
                 barra.setMinimum(0)
                 barra.setMaximum(9)
@@ -163,7 +162,7 @@ class pyarchinit_dbmanagment(QDialog, MAIN_DIALOG_CLASS):
 
                 # app = QtGui.QApplication(sys.argv)
 
-                barra = QtGui.QProgressBar(self)
+                barra = QProgressBar(self)
                 barra.show()
                 barra.setMinimum(0)
                 barra.setMaximum(9)
@@ -188,7 +187,7 @@ class pyarchinit_dbmanagment(QDialog, MAIN_DIALOG_CLASS):
                                     QMessageBox.Ok)
 
     def on_upload_pressed(self):
-        self.percorso = QtGui.QFileDialog.getOpenFileName(self,
+        self.percorso = QFileDialog.getOpenFileName(self,
                                                           'Open file', '/')
 
         # QMessageBox.warning(self, "Messaggio", str(self.FILE), QMessageBox.Ok)
@@ -196,7 +195,7 @@ class pyarchinit_dbmanagment(QDialog, MAIN_DIALOG_CLASS):
     def on_restore_pressed(self):
         try:
 
-            barra = QtGui.QProgressBar(self)
+            barra = QProgressBar(self)
             barra.show()
             barra.setMinimum(0)
             barra.setMaximum(9)
