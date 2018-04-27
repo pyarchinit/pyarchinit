@@ -25,7 +25,7 @@ from builtins import range
 from builtins import str
 from qgis.PyQt.QtWidgets import QApplication, QDialog, QMessageBox, QFileDialog
 from qgis.PyQt.uic import loadUiType
-from qgis.core import QgsApplication
+from qgis.core import QgsApplication, QgsSettings
 
 from .modules.db.pyarchinit_conn_strings import Connection
 from .modules.db.pyarchinit_db_manager import *
@@ -50,6 +50,8 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
         QDialog.__init__(self, parent)
         # Set up the user interface from Designer.
         self.setupUi(self)
+
+        s = QgsSettings()
         self.load_dict()
         self.charge_data()
         self.comboBox_Database.editTextChanged.connect(self.set_db_parameter)
@@ -57,18 +59,29 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
         self.comboBox_server_wt.editTextChanged.connect(self.set_db_import_to_parameter)
         self.pushButton_save.clicked.connect(self.on_pushButton_save_pressed)
         self.pushButtonGraphviz.clicked.connect(self.setPathGraphviz)
+        self.pbnSaveEnvironPath.clicked.connect(self.setEnvironPath)
+
+        self.graphviz_bin = s.value('pyArchInit/graphvizBinPath', None, type=str)
+        if self.graphviz_bin:
+            self.lineEditGraphviz.setText(self.graphviz_bin)
 
     def setPathGraphviz(self):
-        graphviz_bin = QFileDialog.getExistingDirectory(
+        s = QgsSettings()
+        self.graphviz_bin = QFileDialog.getExistingDirectory(
             self,
-            "Open a folder",
+            "Set path directory",
             self.HOME,
             QFileDialog.ShowDirsOnly
         )
 
-        if graphviz_bin:
-            self.lineEditGraphviz.setText(graphviz_bin)
-            os.environ['PATH'] += os.pathsep + graphviz_bin
+        if self.graphviz_bin:
+            self.lineEditGraphviz.setText(self.graphviz_bin)
+            s.setValue('pyArchInit/graphvizBinPath', self.graphviz_bin)
+
+    def setEnvironPath(self):
+        os.environ['PATH'] += os.pathsep + self.graphviz_bin
+        QMessageBox.warning(self, "Set Environmental Variable", "The path has been set successful", QMessageBox.Ok)
+
 
     def set_db_parameter(self):
         if str(self.comboBox_Database.currentText()) == 'postgres':
