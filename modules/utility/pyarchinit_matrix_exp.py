@@ -26,7 +26,7 @@ from graphviz import Digraph, Source
 from .pyarchinit_OS_utility import Pyarchinit_OS_Utility
 
 
-class HARRIS_MATRIX_EXP:
+class HarrisMatrix:
     HOME = os.environ['PYARCHINIT_HOME']
 
     def __init__(self, sequence, periodi):
