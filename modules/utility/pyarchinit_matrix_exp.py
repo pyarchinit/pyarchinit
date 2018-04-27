@@ -19,6 +19,7 @@
  ***************************************************************************/
 """
 import os
+import shlex
 import subprocess
 
 from graphviz import Digraph, Source
@@ -69,12 +70,16 @@ class HARRIS_MATRIX_EXP:
             si.dwFlags |= subprocess.STARTF_USESHOWWINDOW
             si.wShowWindow = subprocess.SW_HIDE
 
+        cmd = ' '.join(['tred', dot_file])
+        dotargs = shlex.split(cmd)
+
         with open(os.path.join(matrix_path, filename + '_tred'), "wb") as out, \
-                open(os.path.join(matrix_path,'matrix_error.txt'), "wb") as err:
-            subprocess.Popen(['tred', dot_file],
+                open(os.path.join(matrix_path, 'matrix_error.txt'), "wb") as err:
+            subprocess.Popen(dotargs,
+                             shell=False,
                              stdout=out,
-                             stderr=err)
-                             # startupinfo=si if Pyarchinit_OS_Utility.isWindows() else None)
+                             stderr=err,
+                             startupinfo=si if Pyarchinit_OS_Utility.isWindows() else None)
 
         tred_file = os.path.join(matrix_path, filename + '_tred')
         g = Source.from_file(tred_file, format='svg')
