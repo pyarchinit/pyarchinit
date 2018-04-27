@@ -7,8 +7,8 @@
 ## Installing
 
 ### Linux/Windows/MacOS
-1. see [Dependencies](#dependencies) paragraph
-2. Download the zip archive from github
+1. Download the zip archive from github
+2. see [Dependencies](#dependencies) paragraph
 3. Open QGIS and then from Plugin manager use Install from ZIP to install the plugin
 
 #### Dependencies
