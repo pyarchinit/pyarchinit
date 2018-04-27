@@ -4,7 +4,7 @@
 
 ### Linux/Windows/MacOS
 1. Download the zip archive from github
-2. Install requirements (see [Dependencies](#dependencies) paragraph)
+2. Install the python packages requirements (see [Dependencies](#dependencies) paragraph)
 3. Open QGIS and then from Plugin manager use Install from ZIP to install the plugin
 
 #### Dependencies
