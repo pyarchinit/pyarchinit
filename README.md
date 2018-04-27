@@ -1,6 +1,4 @@
-# ![](icon.png) PyArchInit3
-
-## Porting to QGIS3
+# ![](icon.png) PyArchInit3 - QGIS plugin
 
 ## Installing
 
