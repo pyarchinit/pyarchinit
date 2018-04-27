@@ -33,7 +33,7 @@ class HARRIS_MATRIX_EXP:
         self.periodi = periodi
 
     def export_matrix(self):
-        G = Digraph(engine='dot', strict=True)
+        G = Digraph(engine='dot', strict=False)
         G.graph_attr['splines'] = 'ortho'
         G.graph_attr['dpi'] = '300'
         elist = []
@@ -59,10 +59,9 @@ class HARRIS_MATRIX_EXP:
                 c.attr(label=i[2])
 
         matrix_path = '{}{}{}'.format(self.HOME, os.sep, "pyarchinit_Matrix_folder")
-        filename = '{}{}{}'.format(matrix_path, os.sep, 'Harris_matrix')
+        filename = 'Harris_matrix'
 
-        G.format = 'dot'
-        dot_file = G.render(filename, cleanup=True)
+        dot_file = G.save(filename + '.dot', matrix_path)
 
         # For MS-Windows, we need to hide the console window.
         if Pyarchinit_OS_Utility.isWindows():
@@ -70,23 +69,17 @@ class HARRIS_MATRIX_EXP:
             si.dwFlags |= subprocess.STARTF_USESHOWWINDOW
             si.wShowWindow = subprocess.SW_HIDE
 
-        with open(filename + '_tred.dot', "wb") as out, \
-                open(matrix_path + '/matrix_error.txt', "wb") as err:
+        with open(os.path.join(matrix_path, filename + '_tred'), "wb") as out, \
+                open(os.path.join(matrix_path,'matrix_error.txt'), "wb") as err:
             subprocess.Popen(['tred', dot_file],
                              stdout=out,
                              stderr=err)
                              # startupinfo=si if Pyarchinit_OS_Utility.isWindows() else None)
 
-        g = Source.from_file(filename + '_tred.dot')
-        g.format = 'svg'
-        g.render(filename, cleanup=True)
-        g.format = 'png'
-        g.render(filename, cleanup=True)
+        tred_file = os.path.join(matrix_path, filename + '_tred')
+        g = Source.from_file(tred_file, format='svg')
+        g.render()
+        f = Source.from_file(tred_file, format='png')
+        f.render(cleanup=True)
 
         return g
-
-
-if __name__ == "__main__":
-    data = [(1, 2), (2, 4), ]
-    Harris_matrix_exp = HARRIS_MATRIX_EXP(data)
-    Harris_matrix_exp.export_matrix()
