@@ -1,6 +1,4 @@
-![](/modules/utility/DBFiles/logo.jpg)
-
-# PyArchInit3
+# ![](icon.png) PyArchInit3
 
 ## Porting to QGIS3
 
