@@ -21,6 +21,7 @@
 """
 from __future__ import absolute_import
 
+import os
 from builtins import range
 from builtins import str
 from qgis.PyQt.QtWidgets import QApplication, QDialog, QMessageBox, QFileDialog
@@ -28,8 +29,8 @@ from qgis.PyQt.uic import loadUiType
 from qgis.core import QgsApplication, QgsSettings
 
 from .modules.db.pyarchinit_conn_strings import Connection
-from .modules.db.pyarchinit_db_manager import *
 from .modules.db.pyarchinit_db_manager import Pyarchinit_db_management
+from .modules.utility.pyarchinit_OS_utility import Pyarchinit_OS_Utility
 
 MAIN_DIALOG_CLASS, _ = loadUiType(os.path.join(os.path.dirname(__file__), 'modules', 'gui', 'Ui_pyarchinitConfig.ui'))
 
@@ -64,6 +65,11 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
         self.graphviz_bin = s.value('pyArchInit/graphvizBinPath', None, type=str)
         if self.graphviz_bin:
             self.lineEditGraphviz.setText(self.graphviz_bin)
+
+        if Pyarchinit_OS_Utility.checkGraphvizInstallation():
+            self.pushButtonGraphviz.setEnabled(False)
+            self.pbnSaveEnvironPath.setEnabled(False)
+            self.lineEditGraphviz.setEnabled(False)
 
     def setPathGraphviz(self):
         s = QgsSettings()
