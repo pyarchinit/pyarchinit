@@ -28,7 +28,7 @@ from qgis.PyQt.QtWidgets import QDialog, QMessageBox, QFileDialog
 from qgis.core import QgsProject, QgsDataSourceUri, QgsVectorLayer, QgsCoordinateReferenceSystem
 from qgis.gui import QgsMapCanvas
 
-from .settings import Settings
+from ..utility.settings import Settings
 
 
 class Pyarchinit_pyqgis(QDialog):

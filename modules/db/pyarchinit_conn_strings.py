@@ -23,7 +23,7 @@ import os
 
 from builtins import object
 
-from .settings import Settings
+from ..utility.settings import Settings
 
 
 class Connection(object):
