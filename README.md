@@ -7,19 +7,21 @@
 ## Installing
 
 ### Linux/Windows/MacOS
-1. Download the zip archive from github
-2. Open QGIS and then from Plugin manager use Install from ZIP to install the plugin
+1. see Dependencies paragraph
+2. Download the zip archive from github
+3. Open QGIS and then from Plugin manager use Install from ZIP to install the plugin
 
 #### Dependencies
 * Networkx
 * Maptplotlib
-* Pyper (use R)
-* Graphviz
-* pygraphviz
+* Pyper (for R)
+* [Graphviz Visualization Software](https://www.graphviz.org/)
+* [graphviz python module](https://github.com/xflr6/graphviz)
 
-The dependencies can be installed via pip module i.e.
+The dependencies can be installed using the [modules_installer.py](/scripts/modules_installer.py)
+and run it from within a python shell:
 
-```pip3 install pygraphviz==1.4rc1```
+```python modules_installer.py```
 
 ### Contribute
 1. Fork the repository
