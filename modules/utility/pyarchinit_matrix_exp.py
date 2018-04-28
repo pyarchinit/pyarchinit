@@ -73,7 +73,7 @@ class HarrisMatrix:
         # cmd = ' '.join(['tred', dot_file])
         # dotargs = shlex.split(cmd)
 
-        with open(os.path.join(matrix_path, '_tred.dot'), "wb") as out, \
+        with open(os.path.join(matrix_path, filename + '_tred.dot'), "wb") as out, \
                 open(os.path.join(matrix_path, 'matrix_error.txt'), "wb") as err:
             subprocess.Popen(['tred', dot_file],
                              #shell=False,
@@ -81,7 +81,7 @@ class HarrisMatrix:
                              stderr=err)
                              #startupinfo=si if Pyarchinit_OS_Utility.isWindows() else None)
 
-        tred_file = os.path.join(matrix_path, '_tred.dot')
+        tred_file = os.path.join(matrix_path, filename + '_tred.dot')
         g = Source.from_file(tred_file, format='svg')
         g.render()
         f = Source.from_file(tred_file, format='png')
