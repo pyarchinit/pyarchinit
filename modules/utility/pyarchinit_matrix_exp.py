@@ -71,12 +71,12 @@ class HarrisMatrix:
             si.dwFlags |= subprocess.STARTF_USESHOWWINDOW
             si.wShowWindow = subprocess.SW_HIDE
 
-        cmd = ' '.join(['tred', dot_file])
-        dotargs = shlex.split(cmd)
+        # cmd = ' '.join(['tred', dot_file])
+        # dotargs = shlex.split(cmd)
 
         with open(os.path.join(matrix_path, filename + '_tred.dot'), "wb") as out, \
                 open(os.path.join(matrix_path, 'matrix_error.txt'), "wb") as err:
-            subprocess.Popen(dotargs,
+            subprocess.Popen(['tred', dot_file],
                              #shell=False,
                              stdout=out,
                              stderr=err)
