@@ -63,7 +63,7 @@ class HarrisMatrix:
         filename = 'Harris_matrix'
 
         G.format = 'dot'
-        dot_file = G.render(filename, matrix_path, cleanup=True)
+        dot_file = G.render(filename=filename, directory=matrix_path, cleanup=True)
 
         # For MS-Windows, we need to hide the console window.
         if Pyarchinit_OS_Utility.isWindows():
