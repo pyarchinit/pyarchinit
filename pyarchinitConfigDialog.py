@@ -85,7 +85,7 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
             s.setValue('pyArchInit/graphvizBinPath', self.graphviz_bin)
 
     def setEnvironPath(self):
-        os.environ['PATH'] += os.pathsep + self.graphviz_bin
+        os.environ['PATH'] += os.pathsep + os.path.normpath(self.graphviz_bin)
         QMessageBox.warning(self, "Set Environmental Variable", "The path has been set successful", QMessageBox.Ok)
 
 
