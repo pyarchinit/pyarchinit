@@ -19,7 +19,6 @@
  ***************************************************************************/
 """
 import os
-import shlex
 import subprocess
 
 from graphviz import Digraph, Source
@@ -63,7 +62,7 @@ class HarrisMatrix:
         filename = 'Harris_matrix'
 
         G.format = 'dot'
-        dot_file = G.render(filename=filename, directory=matrix_path, cleanup=True)
+        dot_file = G.render(filename=filename, directory=matrix_path)
 
         # For MS-Windows, we need to hide the console window.
         if Pyarchinit_OS_Utility.isWindows():
