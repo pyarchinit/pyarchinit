@@ -62,7 +62,8 @@ class HarrisMatrix:
         matrix_path = '{}{}{}'.format(self.HOME, os.sep, "pyarchinit_Matrix_folder")
         filename = 'Harris_matrix'
 
-        dot_file = G.save(filename + '.dot', matrix_path)
+        G.format = 'dot'
+        dot_file = G.render(filename, matrix_path, cleanup=True)
 
         # For MS-Windows, we need to hide the console window.
         if Pyarchinit_OS_Utility.isWindows():
@@ -73,7 +74,7 @@ class HarrisMatrix:
         cmd = ' '.join(['tred', dot_file])
         dotargs = shlex.split(cmd)
 
-        with open(os.path.join(matrix_path, filename + '_tred'), "wb") as out, \
+        with open(os.path.join(matrix_path, filename + '_tred.dot'), "wb") as out, \
                 open(os.path.join(matrix_path, 'matrix_error.txt'), "wb") as err:
             subprocess.Popen(dotargs,
                              shell=False,
@@ -81,10 +82,10 @@ class HarrisMatrix:
                              stderr=err,
                              startupinfo=si if Pyarchinit_OS_Utility.isWindows() else None)
 
-        tred_file = os.path.join(matrix_path, filename + '_tred')
+        tred_file = os.path.join(matrix_path, filename + '_tred.dot')
         g = Source.from_file(tred_file, format='svg')
         g.render()
         f = Source.from_file(tred_file, format='png')
-        f.render(cleanup=True)
+        f.render()
 
         return g
