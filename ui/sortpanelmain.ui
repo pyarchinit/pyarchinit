@@ -160,7 +160,7 @@
      </property>
      <property name="icon">
       <iconset resource="resources.qrc">
-       <normaloff>:/icons/6_rightArrow.png</normaloff>:/images/6_rightArrow.png</iconset>
+       <normaloff>:/icons/6_rightArrow.png</normaloff>:/icons/6_rightArrow.png</iconset>
      </property>
      <property name="checkable">
       <bool>false</bool>
@@ -180,7 +180,7 @@
      </property>
      <property name="icon">
       <iconset resource="resources.qrc">
-       <normaloff>:/icons/4_leftArrow.png</normaloff>:/images/4_leftArrow.png</iconset>
+       <normaloff>:/icons/4_leftArrow.png</normaloff>:/icons/4_leftArrow.png</iconset>
      </property>
      <property name="checkable">
       <bool>false</bool>

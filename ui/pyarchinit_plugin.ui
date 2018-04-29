@@ -12,7 +12,7 @@
   </property>
   <property name="windowIcon">
    <iconset resource="resources.qrc">
-    <normaloff>:/icons/pai_us.png</normaloff>:/images/pai_us.png</iconset>
+    <normaloff>:/icons/pai_us.png</normaloff>:/icons/pai_us.png</iconset>
   </property>
   <property name="styleSheet">
    <string notr="true">background-color: qlineargradient(spread:reflect, x1:0, y1:0, x2:1, y2:0, stop:0 rgba(99, 138, 146, 255), stop:1 rgba(255, 255, 255, 255));
@@ -124,7 +124,7 @@ selection-color: rgb(140, 140, 105);</string>
             </property>
             <property name="icon">
              <iconset resource="resources.qrc">
-              <normaloff>:/icons/iconStrutt.png</normaloff>:/images/iconStrutt.png</iconset>
+              <normaloff>:/icons/iconStrutt.png</normaloff>:/icons/iconStrutt.png</iconset>
             </property>
             <property name="iconSize">
              <size>
@@ -342,7 +342,7 @@ selection-color: rgb(140, 140, 105);</string>
             </property>
             <property name="icon">
              <iconset resource="resources.qrc">
-              <normaloff>:/icons/iconPAI.png</normaloff>:/images/iconPAI.png</iconset>
+              <normaloff>:/icons/iconPAI.png</normaloff>:/icons/iconPAI.png</iconset>
             </property>
             <property name="iconSize">
              <size>
@@ -394,7 +394,7 @@ selection-color: rgb(140, 140, 105);</string>
             </property>
             <property name="icon">
              <iconset resource="resources.qrc">
-              <normaloff>:/icons/finds.png</normaloff>:/images/finds.png</iconset>
+              <normaloff>:/icons/finds.png</normaloff>:/icons/finds.png</iconset>
             </property>
             <property name="iconSize">
              <size>
@@ -512,7 +512,7 @@ selection-color: rgb(140, 140, 105);</string>
             </property>
             <property name="icon">
              <iconset resource="resources.qrc">
-              <normaloff>:/icons/iconSite.png</normaloff>:/images/iconSite.png</iconset>
+              <normaloff>:/icons/iconSite.png</normaloff>:/icons/iconSite.png</iconset>
             </property>
             <property name="iconSize">
              <size>
@@ -538,7 +538,7 @@ selection-color: rgb(140, 140, 105);</string>
             </property>
             <property name="icon">
              <iconset resource="resources.qrc">
-              <normaloff>:/icons/iconPER.png</normaloff>:/images/iconPER.png</iconset>
+              <normaloff>:/icons/iconPER.png</normaloff>:/icons/iconPER.png</iconset>
             </property>
             <property name="iconSize">
              <size>
@@ -690,7 +690,7 @@ selection-color: rgb(140, 140, 105);</string>
             </property>
             <property name="icon">
              <iconset resource="resources.qrc">
-              <normaloff>:/icons/finds.png</normaloff>:/images/finds.png</iconset>
+              <normaloff>:/icons/finds.png</normaloff>:/icons/finds.png</iconset>
             </property>
             <property name="iconSize">
              <size>
@@ -726,7 +726,7 @@ selection-color: rgb(140, 140, 105);</string>
             </property>
             <property name="icon">
              <iconset resource="resources.qrc">
-              <normaloff>:/icons/iconUT.png</normaloff>:/images/iconUT.png</iconset>
+              <normaloff>:/icons/iconUT.png</normaloff>:/icons/iconUT.png</iconset>
             </property>
             <property name="iconSize">
              <size>
@@ -786,7 +786,7 @@ selection-color: rgb(140, 140, 105);</string>
             </property>
             <property name="icon">
              <iconset resource="resources.qrc">
-              <normaloff>:/icons/iconSite.png</normaloff>:/images/iconSite.png</iconset>
+              <normaloff>:/icons/iconSite.png</normaloff>:/icons/iconSite.png</iconset>
             </property>
             <property name="iconSize">
              <size>
@@ -912,7 +912,7 @@ selection-color: rgb(140, 140, 105);</string>
             </property>
             <property name="icon">
              <iconset resource="resources.qrc">
-              <normaloff>:/icons/iconPAI.png</normaloff>:/images/iconPAI.png</iconset>
+              <normaloff>:/icons/iconPAI.png</normaloff>:/icons/iconPAI.png</iconset>
             </property>
             <property name="iconSize">
              <size>
@@ -964,7 +964,7 @@ selection-color: rgb(140, 140, 105);</string>
             </property>
             <property name="icon">
              <iconset resource="resources.qrc">
-              <normaloff>:/icons/finds.png</normaloff>:/images/finds.png</iconset>
+              <normaloff>:/icons/finds.png</normaloff>:/icons/finds.png</iconset>
             </property>
             <property name="iconSize">
              <size>
@@ -1029,7 +1029,7 @@ selection-color: rgb(140, 140, 105);</string>
             </property>
             <property name="icon">
              <iconset resource="resources.qrc">
-              <normaloff>:/icons/photo.png</normaloff>:/images/photo.png</iconset>
+              <normaloff>:/icons/photo.png</normaloff>:/icons/photo.png</iconset>
             </property>
             <property name="iconSize">
              <size>
@@ -1055,7 +1055,7 @@ selection-color: rgb(140, 140, 105);</string>
             </property>
             <property name="icon">
              <iconset resource="resources.qrc">
-              <normaloff>:/icons/directoryExp.png</normaloff>:/images/directoryExp.png</iconset>
+              <normaloff>:/icons/directoryExp.png</normaloff>:/icons/directoryExp.png</iconset>
             </property>
             <property name="iconSize">
              <size>
@@ -1110,7 +1110,7 @@ selection-color: rgb(140, 140, 105);</string>
             </property>
             <property name="icon">
              <iconset resource="resources.qrc">
-              <normaloff>:/icons/pdf-icon.png</normaloff>:/images/pdf-icon.png</iconset>
+              <normaloff>:/icons/pdf-icon.png</normaloff>:/icons/pdf-icon.png</iconset>
             </property>
             <property name="iconSize">
              <size>

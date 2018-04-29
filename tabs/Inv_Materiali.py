@@ -44,9 +44,9 @@ from ..modules.utility.pyarchinit_exp_Findssheet_pdf import generate_reperti_pdf
 from .US_USM import pyarchinit_US
 from ..quantpanelmain import QuantPanelMain
 from ..sortpanelmain import SortPanelMain
+from ..imageViewer import ImageViewer
 
 MAIN_DIALOG_CLASS, _ = loadUiType(os.path.join(os.path.dirname(__file__), '..', 'ui', 'Inv_Materiali.ui'))
-IMAGE_VIEWER, _ = loadUiType(os.path.join(os.path.dirname(__file__), '..', 'ui', 'Image_Viewer.ui'))
 
 
 class pyarchinit_Inventario_reperti(QDialog, MAIN_DIALOG_CLASS):
@@ -550,7 +550,7 @@ class pyarchinit_Inventario_reperti(QDialog, MAIN_DIALOG_CLASS):
     def openWide_image(self):
         items = self.iconListWidget.selectedItems()
         for item in items:
-            dlg = IMAGE_VIEWER(self)
+            dlg = ImageViewer(self)
             id_orig_item = item.text()  # return the name of original file
 
             search_dict = {'id_media': "'" + str(id_orig_item) + "'"}

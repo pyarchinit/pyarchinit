@@ -36,10 +36,10 @@ from ..modules.db.pyarchinit_utility import Utility
 from ..modules.utility.pyarchinit_error_check import Error_check
 from ..modules.utility.pyarchinit_exp_Findssheet_pdf import generate_reperti_pdf
 from ..modules.utility.pyarchinit_exp_Invlapsheet_pdf import *
+from ..imageViewer import ImageViewer
 from ..sortpanelmain import SortPanelMain
 
 MAIN_DIALOG_CLASS, _ = loadUiType(os.path.join(os.path.dirname(__file__), '..', 'ui', 'Inv_Lapidei.ui'))
-IMAGE_VIEWER, _ = loadUiType(os.path.join(os.path.dirname(__file__), '..', 'ui', 'Image_Viewer.ui'))
 
 
 class pyarchinit_Inventario_Lapidei(QDialog, MAIN_DIALOG_CLASS):
@@ -314,7 +314,7 @@ class pyarchinit_Inventario_Lapidei(QDialog, MAIN_DIALOG_CLASS):
     def openWide_image(self):
         items = self.iconListWidget.selectedItems()
         for item in items:
-            dlg = IMAGE_VIEWER(self)
+            dlg = ImageViewer(self)
             id_orig_item = item.text()  # return the name of original file
 
             search_dict = {'id_media': "'" + str(id_orig_item) + "'"}

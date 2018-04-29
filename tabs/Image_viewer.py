@@ -36,9 +36,9 @@ from ..modules.db.pyarchinit_db_manager import Pyarchinit_db_management
 from ..modules.db.pyarchinit_utility import Utility
 from ..modules.utility.delegateComboBox import ComboBoxDelegate
 from ..modules.utility.pyarchinit_media_utility import Media_utility
+from ..imageViewer import ImageViewer
 
 MAIN_DIALOG_CLASS, _ = loadUiType(os.path.join(os.path.dirname(__file__), '..', 'ui', 'pyarchinit_image_viewer_dialog.ui'))
-IMAGE_VIEWER, _ = loadUiType(os.path.join(os.path.dirname(__file__), '..', 'ui', 'Image_Viewer.ui'))
 
 
 class Main(QDialog, MAIN_DIALOG_CLASS):
@@ -319,7 +319,7 @@ class Main(QDialog, MAIN_DIALOG_CLASS):
     def openWide_image(self):
         items = self.iconListWidget.selectedItems()
         for item in items:
-            dlg = IMAGE_VIEWER(self)
+            dlg = ImageViewer(self)
             id_orig_item = item.text()  # return the name of original file
 
             search_dict = {'id_media': "'" + str(id_orig_item) + "'"}

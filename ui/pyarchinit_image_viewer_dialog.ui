@@ -155,7 +155,7 @@
              </property>
              <property name="icon">
               <iconset>
-               <normaloff>:/icons/delete.png</normaloff>:/images/delete.png</iconset>
+               <normaloff>:/icons/delete.png</normaloff>:/icons/delete.png</iconset>
              </property>
             </widget>
            </item>
@@ -174,7 +174,7 @@
              </property>
              <property name="icon">
               <iconset>
-               <normaloff>:/icons/new_search.png</normaloff>:/images/new_search.png</iconset>
+               <normaloff>:/icons/new_search.png</normaloff>:/icons/new_search.png</iconset>
              </property>
             </widget>
            </item>
@@ -193,7 +193,7 @@
              </property>
              <property name="icon">
               <iconset>
-               <normaloff>:/icons/search.png</normaloff>:/images/search.png</iconset>
+               <normaloff>:/icons/search.png</normaloff>:/icons/search.png</iconset>
              </property>
             </widget>
            </item>
@@ -212,7 +212,7 @@
              </property>
              <property name="icon">
               <iconset>
-               <normaloff>:/icons/sort.png</normaloff>:/images/sort.png</iconset>
+               <normaloff>:/icons/sort.png</normaloff>:/icons/sort.png</iconset>
              </property>
             </widget>
            </item>
@@ -231,7 +231,7 @@
              </property>
              <property name="icon">
               <iconset>
-               <normaloff>:/icons/view_all.png</normaloff>:/images/view_all.png</iconset>
+               <normaloff>:/icons/view_all.png</normaloff>:/icons/view_all.png</iconset>
              </property>
             </widget>
            </item>
@@ -245,7 +245,7 @@
              </property>
              <property name="icon">
               <iconset>
-               <normaloff>:/icons/7_rightArrows.png</normaloff>:/images/7_rightArrows.png</iconset>
+               <normaloff>:/icons/7_rightArrows.png</normaloff>:/icons/7_rightArrows.png</iconset>
              </property>
             </widget>
            </item>
@@ -259,7 +259,7 @@
              </property>
              <property name="icon">
               <iconset>
-               <normaloff>:/icons/5_leftArrows.png</normaloff>:/images/5_leftArrows.png</iconset>
+               <normaloff>:/icons/5_leftArrows.png</normaloff>:/icons/5_leftArrows.png</iconset>
              </property>
             </widget>
            </item>
@@ -273,7 +273,7 @@
              </property>
              <property name="icon">
               <iconset>
-               <normaloff>:/icons/4_leftArrow.png</normaloff>:/images/4_leftArrow.png</iconset>
+               <normaloff>:/icons/4_leftArrow.png</normaloff>:/icons/4_leftArrow.png</iconset>
              </property>
             </widget>
            </item>
@@ -287,7 +287,7 @@
              </property>
              <property name="icon">
               <iconset>
-               <normaloff>:/icons/6_rightArrow.png</normaloff>:/images/6_rightArrow.png</iconset>
+               <normaloff>:/icons/6_rightArrow.png</normaloff>:/icons/6_rightArrow.png</iconset>
              </property>
             </widget>
            </item>
@@ -306,7 +306,7 @@
              </property>
              <property name="icon">
               <iconset>
-               <normaloff>:/icons/newrec.png</normaloff>:/images/newrec.png</iconset>
+               <normaloff>:/icons/newrec.png</normaloff>:/icons/newrec.png</iconset>
              </property>
             </widget>
            </item>
@@ -325,7 +325,7 @@
              </property>
              <property name="icon">
               <iconset>
-               <normaloff>:/icons/b_save.png</normaloff>:/images/b_save.png</iconset>
+               <normaloff>:/icons/b_save.png</normaloff>:/icons/b_save.png</iconset>
              </property>
              <property name="autoDefault">
               <bool>false</bool>
@@ -648,7 +648,7 @@
             </property>
             <property name="icon">
              <iconset>
-              <normaloff>:/icons/delete.png</normaloff>:/images/delete.png</iconset>
+              <normaloff>:/icons/delete.png</normaloff>:/icons/delete.png</iconset>
             </property>
            </widget>
           </item>
@@ -667,7 +667,7 @@
             </property>
             <property name="icon">
              <iconset>
-              <normaloff>:/icons/new_search.png</normaloff>:/images/new_search.png</iconset>
+              <normaloff>:/icons/new_search.png</normaloff>:/icons/new_search.png</iconset>
             </property>
            </widget>
           </item>
@@ -686,7 +686,7 @@
             </property>
             <property name="icon">
              <iconset>
-              <normaloff>:/icons/search.png</normaloff>:/images/search.png</iconset>
+              <normaloff>:/icons/search.png</normaloff>:/icons/search.png</iconset>
             </property>
            </widget>
           </item>
@@ -705,7 +705,7 @@
             </property>
             <property name="icon">
              <iconset>
-              <normaloff>:/icons/sort.png</normaloff>:/images/sort.png</iconset>
+              <normaloff>:/icons/sort.png</normaloff>:/icons/sort.png</iconset>
             </property>
            </widget>
           </item>
@@ -724,7 +724,7 @@
             </property>
             <property name="icon">
              <iconset>
-              <normaloff>:/icons/view_all.png</normaloff>:/images/view_all.png</iconset>
+              <normaloff>:/icons/view_all.png</normaloff>:/icons/view_all.png</iconset>
             </property>
            </widget>
           </item>
@@ -738,7 +738,7 @@
             </property>
             <property name="icon">
              <iconset>
-              <normaloff>:/icons/7_rightArrows.png</normaloff>:/images/7_rightArrows.png</iconset>
+              <normaloff>:/icons/7_rightArrows.png</normaloff>:/icons/7_rightArrows.png</iconset>
             </property>
            </widget>
           </item>
@@ -752,7 +752,7 @@
             </property>
             <property name="icon">
              <iconset>
-              <normaloff>:/icons/5_leftArrows.png</normaloff>:/images/5_leftArrows.png</iconset>
+              <normaloff>:/icons/5_leftArrows.png</normaloff>:/icons/5_leftArrows.png</iconset>
             </property>
            </widget>
           </item>
@@ -766,7 +766,7 @@
             </property>
             <property name="icon">
              <iconset>
-              <normaloff>:/icons/4_leftArrow.png</normaloff>:/images/4_leftArrow.png</iconset>
+              <normaloff>:/icons/4_leftArrow.png</normaloff>:/icons/4_leftArrow.png</iconset>
             </property>
            </widget>
           </item>
@@ -780,7 +780,7 @@
             </property>
             <property name="icon">
              <iconset>
-              <normaloff>:/icons/6_rightArrow.png</normaloff>:/images/6_rightArrow.png</iconset>
+              <normaloff>:/icons/6_rightArrow.png</normaloff>:/icons/6_rightArrow.png</iconset>
             </property>
            </widget>
           </item>
@@ -799,7 +799,7 @@
             </property>
             <property name="icon">
              <iconset>
-              <normaloff>:/icons/newrec.png</normaloff>:/images/newrec.png</iconset>
+              <normaloff>:/icons/newrec.png</normaloff>:/icons/newrec.png</iconset>
             </property>
            </widget>
           </item>
@@ -818,7 +818,7 @@
             </property>
             <property name="icon">
              <iconset>
-              <normaloff>:/icons/b_save.png</normaloff>:/images/b_save.png</iconset>
+              <normaloff>:/icons/b_save.png</normaloff>:/icons/b_save.png</iconset>
             </property>
             <property name="autoDefault">
              <bool>false</bool>
