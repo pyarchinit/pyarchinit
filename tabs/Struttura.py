@@ -40,7 +40,7 @@ from ..modules.utility.pyarchinit_exp_Strutturasheet_pdf import generate_struttu
 from .US_USM import pyarchinit_US
 from ..sortpanelmain import SortPanelMain
 
-MAIN_DIALOG_CLASS, _ = loadUiType(os.path.join(os.path.dirname(__file__), '..', 'modules', 'gui', 'pyarchinit_Struttura_ui.ui'))
+MAIN_DIALOG_CLASS, _ = loadUiType(os.path.join(os.path.dirname(__file__), '..', 'modules', 'ui', 'pyarchinit_Struttura_ui.ui'))
 
 
 class pyarchinit_Struttura(QDialog, MAIN_DIALOG_CLASS):

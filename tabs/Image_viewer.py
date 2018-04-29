@@ -37,8 +37,8 @@ from ..modules.db.pyarchinit_utility import Utility
 from ..modules.utility.delegateComboBox import ComboBoxDelegate
 from ..modules.utility.pyarchinit_media_utility import Media_utility
 
-MAIN_DIALOG_CLASS, _ = loadUiType(os.path.join(os.path.dirname(__file__), '..', 'modules', 'gui', 'pyarchinit_image_viewer_dialog.ui'))
-IMAGE_VIEWER, _ = loadUiType(os.path.join(os.path.dirname(__file__), '..', 'modules', 'gui', 'imageViewer_ui.ui'))
+MAIN_DIALOG_CLASS, _ = loadUiType(os.path.join(os.path.dirname(__file__), '..', 'modules', 'ui', 'pyarchinit_image_viewer_dialog.ui'))
+IMAGE_VIEWER, _ = loadUiType(os.path.join(os.path.dirname(__file__), '..', 'modules', 'ui', 'imageViewer_ui.ui'))
 
 
 class Main(QDialog, MAIN_DIALOG_CLASS):
@@ -158,7 +158,7 @@ class Main(QDialog, MAIN_DIALOG_CLASS):
                     self.insert_record_mediathumb(media_max_num_id, mediatype, filename, filename_thumb, filetype,
                                                   filepath_thumb)
 
-                    # visualizza le immagini nella gui
+                    # visualizza le immagini nella ui
                     item = QListWidgetItem(str(media_max_num_id))
                     item.setData(Qt.UserRole, str(media_max_num_id))
                     icon = QIcon(filepath_thumb)  # os.path.join('%s/%s' % (directory.toUtf8(), image)))
@@ -172,7 +172,7 @@ class Main(QDialog, MAIN_DIALOG_CLASS):
                     data = idunique_image_check
                     id_media = data[0].id_media
 
-                    # visualizza le immagini nella gui
+                    # visualizza le immagini nella ui
                     item = QListWidgetItem(str(id_media))
 
                     data_for_thumb = self.db_search_check(self.MAPPER_TABLE_CLASS_thumb, 'id_media',

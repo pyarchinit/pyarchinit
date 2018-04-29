@@ -42,7 +42,7 @@ try:
 except:
     pass
 
-MAIN_DIALOG_CLASS, _ = loadUiType(os.path.join(os.path.dirname(__file__), '..', 'modules', 'gui', 'pyarchinit_images_comparision.ui'))
+MAIN_DIALOG_CLASS, _ = loadUiType(os.path.join(os.path.dirname(__file__), '..', 'modules', 'ui', 'pyarchinit_images_comparision.ui'))
 
 
 class Comparision(QDialog, MAIN_DIALOG_CLASS):
