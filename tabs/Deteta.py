@@ -2755,7 +2755,7 @@ class pyarchinit_Deteta(QDialog, MAIN_DIALOG_CLASS):
 
     def open_tables_det_eta(self, n):
         # apre la finestra di visualizzazione delle immagini in base al valore n
-        filepath = os.path.dirname(__file__)
+        filepath = os.path.join(os.path.dirname(__file__), '..')
         dlg = ImageViewer(self)
 
         if n == 1:  # tavola sinfisi pubica femmminile
