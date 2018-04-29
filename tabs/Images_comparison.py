@@ -42,7 +42,7 @@ try:
 except:
     pass
 
-MAIN_DIALOG_CLASS, _ = loadUiType(os.path.join(os.path.dirname(__file__), '..', 'ui', 'Images_comparison.ui'))
+MAIN_DIALOG_CLASS, _ = loadUiType(os.path.join(os.path.dirname(__file__), os.pardir, 'ui', 'Images_comparison.ui'))
 
 
 class Comparision(QDialog, MAIN_DIALOG_CLASS):

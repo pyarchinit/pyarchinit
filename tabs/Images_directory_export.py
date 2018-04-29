@@ -35,7 +35,7 @@ from ..modules.db.pyarchinit_utility import Utility
 from ..modules.utility.pyarchinit_OS_utility import Pyarchinit_OS_Utility
 from ..pyarchinitConfigDialog import pyArchInitDialog_Config
 
-MAIN_DIALOG_CLASS, _ = loadUiType(os.path.join(os.path.dirname(__file__), '..', 'ui', 'Images_directory_export.ui'))
+MAIN_DIALOG_CLASS, _ = loadUiType(os.path.join(os.path.dirname(__file__), os.pardir, 'ui', 'Images_directory_export.ui'))
 
 
 class pyarchinit_Images_directory_export(QDialog, MAIN_DIALOG_CLASS):

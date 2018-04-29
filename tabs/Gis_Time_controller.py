@@ -37,7 +37,7 @@ from ..modules.db.pyarchinit_db_manager import Pyarchinit_db_management
 from ..modules.gis.pyarchinit_pyqgis import Pyarchinit_pyqgis
 from .US_USM import pyarchinit_US
 
-MAIN_DIALOG_CLASS, _ = loadUiType(os.path.join(os.path.dirname(__file__), '..', 'ui', 'Gis_Time_controller.ui'))
+MAIN_DIALOG_CLASS, _ = loadUiType(os.path.join(os.path.dirname(__file__), os.pardir, 'ui', 'Gis_Time_controller.ui'))
 
 
 class pyarchinit_Gis_Time_Controller(QDialog, MAIN_DIALOG_CLASS):

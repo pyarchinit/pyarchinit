@@ -35,7 +35,7 @@ from ..modules.db.pyarchinit_db_manager import Pyarchinit_db_management
 from ..modules.gis.pyarchinit_pyqgis import Pyarchinit_pyqgis
 from ..modules.utility.pyarchinit_matrix_exp import HarrisMatrix
 
-MAIN_DIALOG_CLASS, _ = loadUiType(os.path.join(os.path.dirname(__file__), '..', 'ui', 'Interactive_matrix.ui'))
+MAIN_DIALOG_CLASS, _ = loadUiType(os.path.join(os.path.dirname(__file__), os.pardir, 'ui', 'Interactive_matrix.ui'))
 
 
 class pyarchinit_Interactive_Matrix(QDialog, MAIN_DIALOG_CLASS):

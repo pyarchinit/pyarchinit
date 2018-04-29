@@ -82,7 +82,7 @@ except ImportError as e:
         raise ImportError(error_str)
 
 MAIN_DIALOG_CLASS, _ = loadUiType(
-    os.path.join(os.path.dirname(__file__), '..', 'ui', 'Archeozoology.ui'))
+    os.path.join(os.path.dirname(__file__), os.pardir, 'ui', 'Archeozoology.ui'))
 
 
 class pyarchinit_Archeozoology(QDialog, MAIN_DIALOG_CLASS):

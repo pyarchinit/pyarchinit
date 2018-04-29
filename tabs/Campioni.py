@@ -37,7 +37,7 @@ from ..modules.utility.pyarchinit_exp_Campsheet_pdf import generate_campioni_pdf
 from .US_USM import pyarchinit_US
 from ..sortpanelmain import SortPanelMain
 
-MAIN_DIALOG_CLASS, _ = loadUiType(os.path.join(os.path.dirname(__file__),'..', 'ui', 'Campioni.ui'))
+MAIN_DIALOG_CLASS, _ = loadUiType(os.path.join(os.path.dirname(__file__),os.pardir, 'ui', 'Campioni.ui'))
 
 
 class pyarchinit_Campioni(QDialog, MAIN_DIALOG_CLASS):
