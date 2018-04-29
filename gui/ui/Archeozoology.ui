@@ -20,7 +20,7 @@
    <string>pyArchInit Gestione Scavi - Archeozoologia Quantificazioni</string>
   </property>
   <property name="windowIcon">
-   <iconset>
+   <iconset resource="../../resources/resources.qrc">
     <normaloff>:/icons/iconSite.png</normaloff>:/icons/iconSite.png</iconset>
   </property>
   <layout class="QGridLayout" name="gridLayout_9">
@@ -63,7 +63,7 @@
                 <string/>
                </property>
                <property name="icon">
-                <iconset>
+                <iconset resource="../../resources/resources.qrc">
                  <normaloff>:/icons/5_leftArrows.png</normaloff>:/icons/5_leftArrows.png</iconset>
                </property>
               </widget>
@@ -77,7 +77,7 @@
                 <string/>
                </property>
                <property name="icon">
-                <iconset>
+                <iconset resource="../../resources/resources.qrc">
                  <normaloff>:/icons/4_leftArrow.png</normaloff>:/icons/4_leftArrow.png</iconset>
                </property>
               </widget>
@@ -91,7 +91,7 @@
                 <string/>
                </property>
                <property name="icon">
-                <iconset>
+                <iconset resource="../../resources/resources.qrc">
                  <normaloff>:/icons/6_rightArrow.png</normaloff>:/icons/6_rightArrow.png</iconset>
                </property>
               </widget>
@@ -105,7 +105,7 @@
                 <string/>
                </property>
                <property name="icon">
-                <iconset>
+                <iconset resource="../../resources/resources.qrc">
                  <normaloff>:/icons/7_rightArrows.png</normaloff>:/icons/7_rightArrows.png</iconset>
                </property>
               </widget>
@@ -124,7 +124,7 @@
                 <string/>
                </property>
                <property name="icon">
-                <iconset>
+                <iconset resource="../../resources/resources.qrc">
                  <normaloff>:/icons/newrec.png</normaloff>:/icons/newrec.png</iconset>
                </property>
               </widget>
@@ -143,7 +143,7 @@
                 <string/>
                </property>
                <property name="icon">
-                <iconset>
+                <iconset resource="../../resources/resources.qrc">
                  <normaloff>:/icons/b_save.png</normaloff>:/icons/b_save.png</iconset>
                </property>
                <property name="autoDefault">
@@ -165,7 +165,7 @@
                 <string/>
                </property>
                <property name="icon">
-                <iconset>
+                <iconset resource="../../resources/resources.qrc">
                  <normaloff>:/icons/delete.png</normaloff>:/icons/delete.png</iconset>
                </property>
               </widget>
@@ -197,7 +197,7 @@
                 <string/>
                </property>
                <property name="icon">
-                <iconset>
+                <iconset resource="../../resources/resources.qrc">
                  <normaloff>:/icons/new_search.png</normaloff>:/icons/new_search.png</iconset>
                </property>
               </widget>
@@ -216,7 +216,7 @@
                 <string/>
                </property>
                <property name="icon">
-                <iconset>
+                <iconset resource="../../resources/resources.qrc">
                  <normaloff>:/icons/search.png</normaloff>:/icons/search.png</iconset>
                </property>
               </widget>
@@ -235,7 +235,7 @@
                 <string/>
                </property>
                <property name="icon">
-                <iconset>
+                <iconset resource="../../resources/resources.qrc">
                  <normaloff>:/icons/sort.png</normaloff>:/icons/sort.png</iconset>
                </property>
               </widget>
@@ -254,7 +254,7 @@
                 <string/>
                </property>
                <property name="icon">
-                <iconset>
+                <iconset resource="../../resources/resources.qrc">
                  <normaloff>:/icons/view_all.png</normaloff>:/icons/view_all.png</iconset>
                </property>
               </widget>
@@ -1987,7 +1987,7 @@ p, li { white-space: pre-wrap; }
           <string>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
 &lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
 p, li { white-space: pre-wrap; }
-&lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:'MS Shell Dlg 2'; font-size:8.25pt; font-weight:400; font-style:normal;&quot;&gt;
+&lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:'.SF NS Text'; font-size:13pt; font-weight:400; font-style:normal;&quot;&gt;
 &lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-family:'Sans'; font-size:10pt;&quot;&gt;Crea un confronto a 4 variabili con istogramma di frequenza, curva di densità e curva cumulativa&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
          </property>
         </widget>
@@ -2074,8 +2074,8 @@ p, li { white-space: pre-wrap; }
            <rect>
             <x>0</x>
             <y>0</y>
-            <width>669</width>
-            <height>345</height>
+            <width>98</width>
+            <height>28</height>
            </rect>
           </property>
           <attribute name="label">
@@ -3757,8 +3757,8 @@ p, li { white-space: pre-wrap; }
            <rect>
             <x>0</x>
             <y>0</y>
-            <width>669</width>
-            <height>345</height>
+            <width>98</width>
+            <height>28</height>
            </rect>
           </property>
           <attribute name="label">
@@ -4094,7 +4094,7 @@ p, li { white-space: pre-wrap; }
           <string/>
          </property>
          <property name="icon">
-          <iconset>
+          <iconset resource="../../resources/resources.qrc">
            <normaloff>:/icons/GIS.png</normaloff>:/icons/GIS.png</iconset>
          </property>
          <property name="shortcut">
@@ -4164,7 +4164,7 @@ p, li { white-space: pre-wrap; }
   </layout>
  </widget>
  <resources>
-  <include location="../../../pyarchinit__/modules/gui/resources.qrc"/>
+  <include location="../../resources/resources.qrc"/>
  </resources>
  <connections/>
 </ui>

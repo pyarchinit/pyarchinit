@@ -19,20 +19,21 @@
  ***************************************************************************/
 """
 from __future__ import absolute_import
-from builtins import str
-from builtins import range
+
+import os
 from datetime import date
 
 import sys
-import os
+from builtins import range
+from builtins import str
 
+from gui.sortpanelmain import SortPanelMain
+from .US_USM import pyarchinit_US
 from ..modules.db.pyarchinit_conn_strings import Connection
 from ..modules.db.pyarchinit_db_manager import Pyarchinit_db_management
 from ..modules.db.pyarchinit_utility import Utility
-from .US_USM import pyarchinit_US
-from ..sortpanelmain import SortPanelMain
 
-MAIN_DIALOG_CLASS, _ = loadUiType(os.path.join(os.path.dirname(__file__), os.pardir, 'ui', 'Pdf_administrator.ui'))
+MAIN_DIALOG_CLASS, _ = loadUiType(os.path.join(os.path.dirname(__file__), os.pardir, 'gui', 'ui', 'Pdf_administrator.ui'))
 
 
 class pyarchinit_PDFAdministrator(QDialog, MAIN_DIALOG_CLASS):

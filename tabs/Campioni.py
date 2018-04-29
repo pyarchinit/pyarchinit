@@ -27,6 +27,8 @@ from builtins import str
 from qgis.PyQt.QtWidgets import QApplication, QDialog, QMessageBox
 from qgis.PyQt.uic import loadUiType
 
+from gui.sortpanelmain import SortPanelMain
+from .US_USM import pyarchinit_US
 from ..modules.db.pyarchinit_conn_strings import Connection
 from ..modules.db.pyarchinit_db_manager import Pyarchinit_db_management
 from ..modules.db.pyarchinit_utility import Utility
@@ -34,10 +36,8 @@ from ..modules.gis.pyarchinit_pyqgis import Pyarchinit_pyqgis
 from ..modules.utility.pyarchinit_error_check import Error_check
 from ..modules.utility.pyarchinit_exp_Campsheet_pdf import *
 from ..modules.utility.pyarchinit_exp_Campsheet_pdf import generate_campioni_pdf
-from .US_USM import pyarchinit_US
-from ..sortpanelmain import SortPanelMain
 
-MAIN_DIALOG_CLASS, _ = loadUiType(os.path.join(os.path.dirname(__file__),os.pardir, 'ui', 'Campioni.ui'))
+MAIN_DIALOG_CLASS, _ = loadUiType(os.path.join(os.path.dirname(__file__),os.pardir, 'gui', 'ui', 'Campioni.ui'))
 
 
 class pyarchinit_Campioni(QDialog, MAIN_DIALOG_CLASS):

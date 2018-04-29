@@ -20,7 +20,7 @@
    <string>pyArchInit Gestione Scavi - Scheda Individuo</string>
   </property>
   <property name="windowIcon">
-   <iconset resource="resources.qrc">
+   <iconset resource="../../resources/resources.qrc">
     <normaloff>:/icons/iconPAI.png</normaloff>:/icons/iconPAI.png</iconset>
   </property>
   <layout class="QGridLayout" name="gridLayout_6">
@@ -278,7 +278,7 @@
           <string/>
          </property>
          <property name="icon">
-          <iconset resource="resources.qrc">
+          <iconset resource="../../resources/resources.qrc">
            <normaloff>:/icons/7_rightArrows.png</normaloff>:/icons/7_rightArrows.png</iconset>
          </property>
         </widget>
@@ -297,7 +297,7 @@
           <string/>
          </property>
          <property name="icon">
-          <iconset resource="resources.qrc">
+          <iconset resource="../../resources/resources.qrc">
            <normaloff>:/icons/newrec.png</normaloff>:/icons/newrec.png</iconset>
          </property>
         </widget>
@@ -316,7 +316,7 @@
           <string/>
          </property>
          <property name="icon">
-          <iconset resource="resources.qrc">
+          <iconset resource="../../resources/resources.qrc">
            <normaloff>:/icons/b_save.png</normaloff>:/icons/b_save.png</iconset>
          </property>
          <property name="autoDefault">
@@ -338,7 +338,7 @@
           <string/>
          </property>
          <property name="icon">
-          <iconset resource="resources.qrc">
+          <iconset resource="../../resources/resources.qrc">
            <normaloff>:/icons/new_search.png</normaloff>:/icons/new_search.png</iconset>
          </property>
         </widget>
@@ -357,7 +357,7 @@
           <string/>
          </property>
          <property name="icon">
-          <iconset resource="resources.qrc">
+          <iconset resource="../../resources/resources.qrc">
            <normaloff>:/icons/search.png</normaloff>:/icons/search.png</iconset>
          </property>
         </widget>
@@ -376,7 +376,7 @@
           <string/>
          </property>
          <property name="icon">
-          <iconset resource="resources.qrc">
+          <iconset resource="../../resources/resources.qrc">
            <normaloff>:/icons/sort.png</normaloff>:/icons/sort.png</iconset>
          </property>
         </widget>
@@ -395,7 +395,7 @@
           <string/>
          </property>
          <property name="icon">
-          <iconset resource="resources.qrc">
+          <iconset resource="../../resources/resources.qrc">
            <normaloff>:/icons/view_all.png</normaloff>:/icons/view_all.png</iconset>
          </property>
         </widget>
@@ -409,7 +409,7 @@
           <string/>
          </property>
          <property name="icon">
-          <iconset resource="resources.qrc">
+          <iconset resource="../../resources/resources.qrc">
            <normaloff>:/icons/6_rightArrow.png</normaloff>:/icons/6_rightArrow.png</iconset>
          </property>
         </widget>
@@ -429,7 +429,7 @@
           <string/>
          </property>
          <property name="icon">
-          <iconset resource="resources.qrc">
+          <iconset resource="../../resources/resources.qrc">
            <normaloff>:/icons/4_leftArrow.png</normaloff>:/icons/4_leftArrow.png</iconset>
          </property>
         </widget>
@@ -443,7 +443,7 @@
           <string/>
          </property>
          <property name="icon">
-          <iconset resource="resources.qrc">
+          <iconset resource="../../resources/resources.qrc">
            <normaloff>:/icons/5_leftArrows.png</normaloff>:/icons/5_leftArrows.png</iconset>
          </property>
         </widget>
@@ -468,7 +468,7 @@
           <string/>
          </property>
          <property name="icon">
-          <iconset resource="resources.qrc">
+          <iconset resource="../../resources/resources.qrc">
            <normaloff>:/icons/delete.png</normaloff>:/icons/delete.png</iconset>
          </property>
         </widget>
@@ -909,7 +909,7 @@
               <string/>
              </property>
              <property name="icon">
-              <iconset resource="resources.qrc">
+              <iconset resource="../../resources/resources.qrc">
                <normaloff>:/icons/GIS.png</normaloff>:/icons/GIS.png</iconset>
              </property>
              <property name="shortcut">
@@ -971,7 +971,7 @@
               <string>Preview pianta US</string>
              </property>
              <property name="icon">
-              <iconset resource="resources.qrc">
+              <iconset resource="../../resources/resources.qrc">
                <normaloff>:/icons/GIS.png</normaloff>:/icons/GIS.png</iconset>
              </property>
              <property name="shortcut">
@@ -1009,7 +1009,7 @@
               <string/>
              </property>
              <property name="icon">
-              <iconset resource="resources.qrc">
+              <iconset resource="../../resources/resources.qrc">
                <normaloff>:/icons/mActionPan.png</normaloff>:/icons/mActionPan.png</iconset>
              </property>
              <property name="shortcut">
@@ -1076,7 +1076,7 @@
               <string>Singole schede</string>
              </property>
              <property name="icon">
-              <iconset resource="resources.qrc">
+              <iconset resource="../../resources/resources.qrc">
                <normaloff>:/icons/sheet.png</normaloff>:/icons/sheet.png</iconset>
              </property>
             </widget>
@@ -1095,7 +1095,7 @@
               <string>Elenco Individui</string>
              </property>
              <property name="icon">
-              <iconset resource="resources.qrc">
+              <iconset resource="../../resources/resources.qrc">
                <normaloff>:/icons/sheet.png</normaloff>:/icons/sheet.png</iconset>
              </property>
             </widget>
@@ -1145,7 +1145,7 @@
               <string>Mostra immagini</string>
              </property>
              <property name="icon">
-              <iconset resource="resources.qrc">
+              <iconset resource="../../resources/resources.qrc">
                <normaloff>:/icons/photo.png</normaloff>:/icons/photo.png</iconset>
              </property>
              <property name="checkable">
@@ -1287,7 +1287,7 @@
   </layout>
  </widget>
  <resources>
-  <include location="resources.qrc"/>
+  <include location="../../resources/resources.qrc"/>
  </resources>
  <connections/>
 </ui>

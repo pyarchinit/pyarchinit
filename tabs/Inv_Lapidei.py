@@ -26,20 +26,19 @@ import sys
 from builtins import range
 from builtins import str
 from qgis.PyQt.QtGui import QIcon
-from qgis.PyQt.QtWidgets import QDialog, QMessageBox, QListWidget, QListView, QFrame, QAbstractItemView, \
-    QTableWidgetItem, QListWidgetItem
+from qgis.PyQt.QtWidgets import QDialog, QMessageBox, QTableWidgetItem, QListWidgetItem
 from qgis.PyQt.uic import loadUiType
 
+from gui.imageViewer import ImageViewer
 from ..modules.db.pyarchinit_conn_strings import Connection
 from ..modules.db.pyarchinit_db_manager import Pyarchinit_db_management
 from ..modules.db.pyarchinit_utility import Utility
 from ..modules.utility.pyarchinit_error_check import Error_check
 from ..modules.utility.pyarchinit_exp_Findssheet_pdf import generate_reperti_pdf
 from ..modules.utility.pyarchinit_exp_Invlapsheet_pdf import *
-from ..imageViewer import ImageViewer
-from ..sortpanelmain import SortPanelMain
+from ..gui.sortpanelmain import SortPanelMain
 
-MAIN_DIALOG_CLASS, _ = loadUiType(os.path.join(os.path.dirname(__file__), os.pardir, 'ui', 'Inv_Lapidei.ui'))
+MAIN_DIALOG_CLASS, _ = loadUiType(os.path.join(os.path.dirname(__file__), os.pardir, 'gui', 'ui', 'Inv_Lapidei.ui'))
 
 
 class pyarchinit_Inventario_Lapidei(QDialog, MAIN_DIALOG_CLASS):

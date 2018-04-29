@@ -24,24 +24,24 @@ from __future__ import absolute_import
 
 import os
 from datetime import date
-from pyper import R
 
 import sys
 from builtins import range
 from builtins import str
+from pyper import R
 from qgis.PyQt.QtCore import QCoreApplication
 from qgis.PyQt.QtGui import QIcon
 from qgis.PyQt.QtWidgets import QAction, QApplication, QDialog, QMessageBox
 from qgis.PyQt.uic import loadUiType
 from qgis.core import QgsApplication
 
+from ..gui.sortpanelmain import SortPanelMain
+from .US_USM import pyarchinit_US
 from ..modules.db.pyarchinit_conn_strings import Connection
 from ..modules.db.pyarchinit_db_manager import Pyarchinit_db_management
 from ..modules.db.pyarchinit_utility import Utility
 from ..modules.gis.pyarchinit_pyqgis_archeozoo import Pyarchinit_pyqgis
 from ..modules.utility.pyarchinit_error_check import Error_check
-from .US_USM import pyarchinit_US
-from ..sortpanelmain import SortPanelMain
 
 valid = True
 req_mods = {'osgeo': 'osgeo [python-gdal]'}
@@ -82,7 +82,7 @@ except ImportError as e:
         raise ImportError(error_str)
 
 MAIN_DIALOG_CLASS, _ = loadUiType(
-    os.path.join(os.path.dirname(__file__), os.pardir, 'ui', 'Archeozoology.ui'))
+    os.path.join(os.path.dirname(__file__), os.pardir, 'gui', 'ui', 'Archeozoology.ui'))
 
 
 class pyarchinit_Archeozoology(QDialog, MAIN_DIALOG_CLASS):

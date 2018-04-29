@@ -27,13 +27,14 @@ from qgis.PyQt.QtXml import *
 from qgis.PyQt.uic import loadUiType
 from qgis.gui import QgsDockWidget
 
-from .pyarchinitConfigDialog import pyArchInitDialog_Config
-from .pyarchinitInfoDialog import pyArchInitDialog_Info
 from .tabs.Archeozoology import pyarchinit_Archeozoology
 from .tabs.Deteta import pyarchinit_Deteta
 from .tabs.Detsesso import pyarchinit_Detsesso
 from .tabs.Gis_Time_controller import pyarchinit_Gis_Time_Controller
+from .tabs.Image_viewer import Main
+from .tabs.Images_directory_export import pyarchinit_Images_directory_export
 from .tabs.Inv_Materiali import pyarchinit_Inventario_reperti
+from .tabs.Pdf_export import pyarchinit_pdf_export
 from .tabs.Periodizzazione import pyarchinit_Periodizzazione
 from .tabs.Schedaind import pyarchinit_Schedaind
 from .tabs.Site import pyarchinit_Site
@@ -42,12 +43,11 @@ from .tabs.Tafonomia import pyarchinit_Tafonomia
 from .tabs.US_USM import pyarchinit_US
 from .tabs.UT import pyarchinit_UT
 from .tabs.Upd import pyarchinit_Upd_Values
-from .tabs.Image_viewer import Main
-from .tabs.Images_directory_export import pyarchinit_Images_directory_export
-from .tabs.Pdf_export import pyarchinit_pdf_export
+from .gui.pyarchinitConfigDialog import pyArchInitDialog_Config
+from .gui.pyarchinitInfoDialog import pyArchInitDialog_Info
 
 MAIN_DIALOG_CLASS, _ = loadUiType(os.path.abspath(
-    os.path.join(os.path.dirname(__file__), 'ui', 'pyarchinit_plugin.ui')))
+    os.path.join(os.path.dirname(__file__), 'gui', 'ui', 'pyarchinit_plugin.ui')))
 
 
 class PyarchinitPluginDialog(QgsDockWidget, MAIN_DIALOG_CLASS):
