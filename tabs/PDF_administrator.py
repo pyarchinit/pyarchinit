@@ -32,7 +32,7 @@ from ..modules.db.pyarchinit_utility import Utility
 from .US_USM import pyarchinit_US
 from ..sortpanelmain import SortPanelMain
 
-MAIN_DIALOG_CLASS, _ = loadUiType(os.path.join(os.path.dirname(__file__), '..', 'modules', 'gui', 'pyarchinit_pdf_administrator_ui.ui'))
+MAIN_DIALOG_CLASS, _ = loadUiType(os.path.join(os.path.dirname(__file__), '..', 'modules', 'ui', 'pyarchinit_pdf_administrator_ui.ui'))
 
 
 class pyarchinit_PDFAdministrator(QDialog, MAIN_DIALOG_CLASS):

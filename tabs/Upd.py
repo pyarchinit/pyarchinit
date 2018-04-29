@@ -37,7 +37,7 @@ try:
 except:
     pass
 
-MAIN_DIALOG_CLASS, _ = loadUiType(os.path.join(os.path.dirname(__file__), '..', 'modules', 'gui', 'Ui_UpdValues.ui'))
+MAIN_DIALOG_CLASS, _ = loadUiType(os.path.join(os.path.dirname(__file__), '..', 'modules', 'ui', 'Ui_UpdValues.ui'))
 
 
 class pyarchinit_Upd_Values(QDialog, MAIN_DIALOG_CLASS):
