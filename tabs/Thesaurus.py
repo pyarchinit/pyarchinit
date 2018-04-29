@@ -38,7 +38,7 @@ from ..modules.utility.pyarchinit_error_check import Error_check
 from .US_USM import pyarchinit_US
 from ..sortpanelmain import SortPanelMain
 
-MAIN_DIALOG_CLASS, _ = loadUiType(os.path.join(os.path.dirname(__file__), '..', 'ui', 'pyarchinit_thesaurus_ui.ui'))
+MAIN_DIALOG_CLASS, _ = loadUiType(os.path.join(os.path.dirname(__file__), '..', 'ui', 'Thesaurus.ui'))
 
 
 class pyarchinit_Thesaurus(QDialog, MAIN_DIALOG_CLASS):

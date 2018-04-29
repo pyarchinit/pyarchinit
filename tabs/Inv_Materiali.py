@@ -45,8 +45,8 @@ from .US_USM import pyarchinit_US
 from ..quantpanelmain import QuantPanelMain
 from ..sortpanelmain import SortPanelMain
 
-MAIN_DIALOG_CLASS, _ = loadUiType(os.path.join(os.path.dirname(__file__), '..', 'ui', 'pyarchinit_inventario_reperti_ui.ui'))
-IMAGE_VIEWER, _ = loadUiType(os.path.join(os.path.dirname(__file__), '..', 'ui', 'imageViewer_ui.ui'))
+MAIN_DIALOG_CLASS, _ = loadUiType(os.path.join(os.path.dirname(__file__), '..', 'ui', 'Inv_Materiali.ui'))
+IMAGE_VIEWER, _ = loadUiType(os.path.join(os.path.dirname(__file__), '..', 'ui', 'Image_Viewer.ui'))
 
 
 class pyarchinit_Inventario_reperti(QDialog, MAIN_DIALOG_CLASS):

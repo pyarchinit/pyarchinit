@@ -35,8 +35,8 @@ from ..modules.gis.pyarchinit_pyqgis import Pyarchinit_pyqgis
 from ..modules.utility.pyarchinit_exp_USsheet_pdf import *
 from ..sortpanelmain import SortPanelMain
 
-MAIN_DIALOG_CLASS, _ = loadUiType(os.path.join(os.path.dirname(__file__), '..', 'ui', 'pyarchinit_Detsesso_ui.ui'))
-IMAGE_VIEWER, _ = loadUiType(os.path.join(os.path.dirname(__file__), '..', 'ui', 'imageViewer_ui.ui'))
+MAIN_DIALOG_CLASS, _ = loadUiType(os.path.join(os.path.dirname(__file__), '..', 'ui', 'Detsesso.ui'))
+IMAGE_VIEWER, _ = loadUiType(os.path.join(os.path.dirname(__file__), '..', 'ui', 'Image_Viewer.ui'))
 
 
 class pyarchinit_Detsesso(QDialog, MAIN_DIALOG_CLASS):

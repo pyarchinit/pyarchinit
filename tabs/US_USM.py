@@ -43,8 +43,8 @@ from ..modules.utility.pyarchinit_print_utility import Print_utility
 from ..sortpanelmain import SortPanelMain
 
 MAIN_DIALOG_CLASS, _ = loadUiType(
-    os.path.join(os.path.dirname(__file__), '..', 'ui', 'pyarchinit_US_ui.ui'))
-IMAGE_VIEWER, _ = loadUiType(os.path.join(os.path.dirname(__file__), '..', 'ui', 'imageViewer_ui.ui'))
+    os.path.join(os.path.dirname(__file__), '..', 'ui', 'US_USM.ui'))
+IMAGE_VIEWER, _ = loadUiType(os.path.join(os.path.dirname(__file__), '..', 'ui', 'Image_Viewer.ui'))
 
 
 class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
