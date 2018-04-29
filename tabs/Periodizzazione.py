@@ -39,7 +39,7 @@ from ..modules.utility.pyarchinit_exp_Periodizzazionesheet_pdf import generate_P
 from .US_USM import pyarchinit_US
 from ..sortpanelmain import SortPanelMain
 
-MAIN_DIALOG_CLASS, _ = loadUiType(os.path.join(os.path.dirname(__file__), '..', 'modules', 'ui', 'pyarchinit_Periodo_fase_ui.ui'))
+MAIN_DIALOG_CLASS, _ = loadUiType(os.path.join(os.path.dirname(__file__), '..', 'ui', 'pyarchinit_Periodo_fase_ui.ui'))
 
 
 class pyarchinit_Periodizzazione(QDialog, MAIN_DIALOG_CLASS):

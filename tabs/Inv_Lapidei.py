@@ -38,8 +38,8 @@ from ..modules.utility.pyarchinit_exp_Findssheet_pdf import generate_reperti_pdf
 from ..modules.utility.pyarchinit_exp_Invlapsheet_pdf import *
 from ..sortpanelmain import SortPanelMain
 
-MAIN_DIALOG_CLASS, _ = loadUiType(os.path.join(os.path.dirname(__file__), '..', 'modules', 'ui', 'pyarchinit_scheda_Lapidei_ui.ui'))
-IMAGE_VIEWER, _ = loadUiType(os.path.join(os.path.dirname(__file__), '..', 'modules', 'ui', 'imageViewer_ui.ui'))
+MAIN_DIALOG_CLASS, _ = loadUiType(os.path.join(os.path.dirname(__file__), '..', 'ui', 'pyarchinit_scheda_Lapidei_ui.ui'))
+IMAGE_VIEWER, _ = loadUiType(os.path.join(os.path.dirname(__file__), '..', 'ui', 'imageViewer_ui.ui'))
 
 
 class pyarchinit_Inventario_Lapidei(QDialog, MAIN_DIALOG_CLASS):

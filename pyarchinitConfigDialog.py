@@ -32,7 +32,7 @@ from .modules.db.pyarchinit_conn_strings import Connection
 from .modules.db.pyarchinit_db_manager import Pyarchinit_db_management
 from .modules.utility.pyarchinit_OS_utility import Pyarchinit_OS_Utility
 
-MAIN_DIALOG_CLASS, _ = loadUiType(os.path.join(os.path.dirname(__file__), 'modules', 'ui', 'Ui_pyarchinitConfig.ui'))
+MAIN_DIALOG_CLASS, _ = loadUiType(os.path.join(os.path.dirname(__file__), 'ui', 'Ui_pyarchinitConfig.ui'))
 
 
 class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):

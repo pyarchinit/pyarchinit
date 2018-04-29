@@ -39,7 +39,7 @@ from .US_USM import pyarchinit_US
 from ..sortpanelmain import SortPanelMain
 from ..test_area import Test_area
 
-MAIN_DIALOG_CLASS, _ = loadUiType(os.path.join(os.path.dirname(__file__), '..', 'modules', 'ui', 'pyarchinit_Site_ui.ui'))
+MAIN_DIALOG_CLASS, _ = loadUiType(os.path.join(os.path.dirname(__file__), '..', 'ui', 'pyarchinit_Site_ui.ui'))
 
 
 class pyarchinit_Site(QDialog, MAIN_DIALOG_CLASS):
