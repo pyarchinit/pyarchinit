@@ -26,7 +26,7 @@
   </property>
   <property name="windowIcon">
    <iconset resource="resources.qrc">
-    <normaloff>:/icons/iconPAI.png</normaloff>:/images/iconPAI.png</iconset>
+    <normaloff>:/icons/iconPAI.png</normaloff>:/icons/iconPAI.png</iconset>
   </property>
   <layout class="QGridLayout" name="gridLayout_24">
    <item row="0" column="0" colspan="7">
@@ -289,7 +289,7 @@
          </property>
          <property name="icon">
           <iconset resource="resources.qrc">
-           <normaloff>:/icons/sort.png</normaloff>:/images/sort.png</iconset>
+           <normaloff>:/icons/sort.png</normaloff>:/icons/sort.png</iconset>
          </property>
         </widget>
        </item>
@@ -309,7 +309,7 @@
          </property>
          <property name="icon">
           <iconset resource="resources.qrc">
-           <normaloff>:/icons/4_leftArrow.png</normaloff>:/images/4_leftArrow.png</iconset>
+           <normaloff>:/icons/4_leftArrow.png</normaloff>:/icons/4_leftArrow.png</iconset>
          </property>
         </widget>
        </item>
@@ -323,7 +323,7 @@
          </property>
          <property name="icon">
           <iconset resource="resources.qrc">
-           <normaloff>:/icons/6_rightArrow.png</normaloff>:/images/6_rightArrow.png</iconset>
+           <normaloff>:/icons/6_rightArrow.png</normaloff>:/icons/6_rightArrow.png</iconset>
          </property>
         </widget>
        </item>
@@ -337,7 +337,7 @@
          </property>
          <property name="icon">
           <iconset resource="resources.qrc">
-           <normaloff>:/icons/5_leftArrows.png</normaloff>:/images/5_leftArrows.png</iconset>
+           <normaloff>:/icons/5_leftArrows.png</normaloff>:/icons/5_leftArrows.png</iconset>
          </property>
         </widget>
        </item>
@@ -362,7 +362,7 @@
          </property>
          <property name="icon">
           <iconset resource="resources.qrc">
-           <normaloff>:/icons/delete.png</normaloff>:/images/delete.png</iconset>
+           <normaloff>:/icons/delete.png</normaloff>:/icons/delete.png</iconset>
          </property>
         </widget>
        </item>
@@ -381,7 +381,7 @@
          </property>
          <property name="icon">
           <iconset resource="resources.qrc">
-           <normaloff>:/icons/view_all.png</normaloff>:/images/view_all.png</iconset>
+           <normaloff>:/icons/view_all.png</normaloff>:/icons/view_all.png</iconset>
          </property>
         </widget>
        </item>
@@ -395,7 +395,7 @@
          </property>
          <property name="icon">
           <iconset resource="resources.qrc">
-           <normaloff>:/icons/7_rightArrows.png</normaloff>:/images/7_rightArrows.png</iconset>
+           <normaloff>:/icons/7_rightArrows.png</normaloff>:/icons/7_rightArrows.png</iconset>
          </property>
         </widget>
        </item>
@@ -414,7 +414,7 @@
          </property>
          <property name="icon">
           <iconset resource="resources.qrc">
-           <normaloff>:/icons/newrec.png</normaloff>:/images/newrec.png</iconset>
+           <normaloff>:/icons/newrec.png</normaloff>:/icons/newrec.png</iconset>
          </property>
         </widget>
        </item>
@@ -433,7 +433,7 @@
          </property>
          <property name="icon">
           <iconset resource="resources.qrc">
-           <normaloff>:/icons/b_save.png</normaloff>:/images/b_save.png</iconset>
+           <normaloff>:/icons/b_save.png</normaloff>:/icons/b_save.png</iconset>
          </property>
          <property name="autoDefault">
           <bool>false</bool>
@@ -455,7 +455,7 @@
          </property>
          <property name="icon">
           <iconset resource="resources.qrc">
-           <normaloff>:/icons/new_search.png</normaloff>:/images/new_search.png</iconset>
+           <normaloff>:/icons/new_search.png</normaloff>:/icons/new_search.png</iconset>
          </property>
         </widget>
        </item>
@@ -474,7 +474,7 @@
          </property>
          <property name="icon">
           <iconset resource="resources.qrc">
-           <normaloff>:/icons/search.png</normaloff>:/images/search.png</iconset>
+           <normaloff>:/icons/search.png</normaloff>:/icons/search.png</iconset>
          </property>
         </widget>
        </item>
@@ -3219,7 +3219,7 @@ p, li { white-space: pre-wrap; }
                  </property>
                  <property name="icon">
                   <iconset resource="resources.qrc">
-                   <normaloff>:/icons/sheet.png</normaloff>:/images/sheet.png</iconset>
+                   <normaloff>:/icons/sheet.png</normaloff>:/icons/sheet.png</iconset>
                  </property>
                 </widget>
                </item>
@@ -3264,7 +3264,7 @@ p, li { white-space: pre-wrap; }
                  </property>
                  <property name="icon">
                   <iconset resource="resources.qrc">
-                   <normaloff>:/icons/sheet.png</normaloff>:/images/sheet.png</iconset>
+                   <normaloff>:/icons/sheet.png</normaloff>:/icons/sheet.png</iconset>
                  </property>
                 </widget>
                </item>
@@ -3369,7 +3369,7 @@ p, li { white-space: pre-wrap; }
                  </property>
                  <property name="icon">
                   <iconset resource="resources.qrc">
-                   <normaloff>:/icons/sheet.png</normaloff>:/images/sheet.png</iconset>
+                   <normaloff>:/icons/sheet.png</normaloff>:/icons/sheet.png</iconset>
                  </property>
                 </widget>
                </item>
@@ -3437,7 +3437,7 @@ p, li { white-space: pre-wrap; }
                  </property>
                  <property name="icon">
                   <iconset resource="resources.qrc">
-                   <normaloff>:/icons/GIS.png</normaloff>:/images/GIS.png</iconset>
+                   <normaloff>:/icons/GIS.png</normaloff>:/icons/GIS.png</iconset>
                  </property>
                  <property name="shortcut">
                   <string>Ctrl+G</string>
@@ -3484,7 +3484,7 @@ p, li { white-space: pre-wrap; }
                  </property>
                  <property name="icon">
                   <iconset resource="resources.qrc">
-                   <normaloff>:/icons/sheet.png</normaloff>:/images/sheet.png</iconset>
+                   <normaloff>:/icons/sheet.png</normaloff>:/icons/sheet.png</iconset>
                  </property>
                 </widget>
                </item>
@@ -3511,7 +3511,7 @@ p, li { white-space: pre-wrap; }
                  </property>
                  <property name="icon">
                   <iconset resource="resources.qrc">
-                   <normaloff>:/icons/GIS.png</normaloff>:/images/GIS.png</iconset>
+                   <normaloff>:/icons/GIS.png</normaloff>:/icons/GIS.png</iconset>
                  </property>
                  <property name="shortcut">
                   <string>Ctrl+G</string>
@@ -3546,7 +3546,7 @@ p, li { white-space: pre-wrap; }
                  </property>
                  <property name="icon">
                   <iconset resource="resources.qrc">
-                   <normaloff>:/icons/mActionPan.png</normaloff>:/images/mActionPan.png</iconset>
+                   <normaloff>:/icons/mActionPan.png</normaloff>:/icons/mActionPan.png</iconset>
                  </property>
                  <property name="shortcut">
                   <string>Ctrl+G</string>
@@ -3591,7 +3591,7 @@ p, li { white-space: pre-wrap; }
                  </property>
                  <property name="icon">
                   <iconset resource="resources.qrc">
-                   <normaloff>:/icons/photo.png</normaloff>:/images/photo.png</iconset>
+                   <normaloff>:/icons/photo.png</normaloff>:/icons/photo.png</iconset>
                  </property>
                  <property name="checkable">
                   <bool>true</bool>
@@ -3639,7 +3639,7 @@ p, li { white-space: pre-wrap; }
                  </property>
                  <property name="icon">
                   <iconset resource="resources.qrc">
-                   <normaloff>:/icons/sheet.png</normaloff>:/images/sheet.png</iconset>
+                   <normaloff>:/icons/sheet.png</normaloff>:/icons/sheet.png</iconset>
                  </property>
                 </widget>
                </item>
@@ -3679,7 +3679,7 @@ p, li { white-space: pre-wrap; }
                </property>
                <property name="icon">
                 <iconset resource="resources.qrc">
-                 <normaloff>:/icons/sheet.png</normaloff>:/images/sheet.png</iconset>
+                 <normaloff>:/icons/sheet.png</normaloff>:/icons/sheet.png</iconset>
                </property>
               </widget>
               <widget class="QLabel" name="label_41">
@@ -3723,7 +3723,7 @@ p, li { white-space: pre-wrap; }
                </property>
                <property name="icon">
                 <iconset resource="resources.qrc">
-                 <normaloff>:/icons/sheet.png</normaloff>:/images/sheet.png</iconset>
+                 <normaloff>:/icons/sheet.png</normaloff>:/icons/sheet.png</iconset>
                </property>
               </widget>
               <widget class="QWidget" name="layoutWidget">

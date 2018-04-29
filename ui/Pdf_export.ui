@@ -36,7 +36,7 @@
   </property>
   <property name="windowIcon">
    <iconset resource="resources.qrc">
-    <normaloff>:/icons/directoryExp.png</normaloff>:/images/directoryExp.png</iconset>
+    <normaloff>:/icons/directoryExp.png</normaloff>:/icons/directoryExp.png</iconset>
   </property>
   <property name="styleSheet">
    <string notr="true">background-color: rgb(170, 170, 127);</string>
@@ -49,7 +49,7 @@
      </property>
      <property name="icon">
       <iconset resource="resources.qrc">
-       <normaloff>:/icons/directoryExp.png</normaloff>:/images/directoryExp.png</iconset>
+       <normaloff>:/icons/directoryExp.png</normaloff>:/icons/directoryExp.png</iconset>
      </property>
     </widget>
    </item>
@@ -60,7 +60,7 @@
      </property>
      <property name="icon">
       <iconset>
-       <normaloff>:/icons/pdf-icon.jpg</normaloff>:/images/pdf-icon.jpg</iconset>
+       <normaloff>:/icons/pdf-icon.jpg</normaloff>:/icons/pdf-icon.jpg</iconset>
      </property>
     </widget>
    </item>
@@ -188,7 +188,7 @@
            </property>
            <property name="icon">
             <iconset resource="resources.qrc">
-             <normaloff>:/icons/iconSite.png</normaloff>:/images/iconSite.png</iconset>
+             <normaloff>:/icons/iconSite.png</normaloff>:/icons/iconSite.png</iconset>
            </property>
            <property name="iconSize">
             <size>
@@ -238,7 +238,7 @@
            </property>
            <property name="icon">
             <iconset resource="resources.qrc">
-             <normaloff>:/icons/iconPAI.png</normaloff>:/images/iconPAI.png</iconset>
+             <normaloff>:/icons/iconPAI.png</normaloff>:/icons/iconPAI.png</iconset>
            </property>
            <property name="iconSize">
             <size>
@@ -288,7 +288,7 @@
            </property>
            <property name="icon">
             <iconset resource="resources.qrc">
-             <normaloff>:/icons/iconIND.png</normaloff>:/images/iconIND.png</iconset>
+             <normaloff>:/icons/iconIND.png</normaloff>:/icons/iconIND.png</iconset>
            </property>
            <property name="iconSize">
             <size>
@@ -325,7 +325,7 @@
            </property>
            <property name="icon">
             <iconset resource="resources.qrc">
-             <normaloff>:/icons/iconGrave.png</normaloff>:/images/iconGrave.png</iconset>
+             <normaloff>:/icons/iconGrave.png</normaloff>:/icons/iconGrave.png</iconset>
            </property>
            <property name="iconSize">
             <size>
@@ -365,7 +365,7 @@
            </property>
            <property name="icon">
             <iconset resource="resources.qrc">
-             <normaloff>:/icons/finds.png</normaloff>:/images/finds.png</iconset>
+             <normaloff>:/icons/finds.png</normaloff>:/icons/finds.png</iconset>
            </property>
            <property name="iconSize">
             <size>
@@ -402,7 +402,7 @@
            </property>
            <property name="icon">
             <iconset resource="resources.qrc">
-             <normaloff>:/icons/champion.png</normaloff>:/images/champion.png</iconset>
+             <normaloff>:/icons/champion.png</normaloff>:/icons/champion.png</iconset>
            </property>
            <property name="iconSize">
             <size>
@@ -455,7 +455,7 @@
            </property>
            <property name="icon">
             <iconset resource="resources.qrc">
-             <normaloff>:/icons/iconPER.png</normaloff>:/images/iconPER.png</iconset>
+             <normaloff>:/icons/iconPER.png</normaloff>:/icons/iconPER.png</iconset>
            </property>
            <property name="iconSize">
             <size>
@@ -495,7 +495,7 @@
            </property>
            <property name="icon">
             <iconset resource="resources.qrc">
-             <normaloff>:/icons/iconStrutt.png</normaloff>:/images/iconStrutt.png</iconset>
+             <normaloff>:/icons/iconStrutt.png</normaloff>:/icons/iconStrutt.png</iconset>
            </property>
            <property name="iconSize">
             <size>
