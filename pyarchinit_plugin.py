@@ -50,7 +50,7 @@ from .tabs.Thesaurus import pyarchinit_Thesaurus
 from .tabs.US_USM import pyarchinit_US
 from .tabs.UT import pyarchinit_UT
 from .tabs.Image_viewer import Main
-from .tabs.Images_comparision import Comparision
+from .tabs.Images_comparison import Comparision
 from .tabs.Images_directory_export import pyarchinit_Images_directory_export
 from .tabs.Pdf_export import pyarchinit_pdf_export
 

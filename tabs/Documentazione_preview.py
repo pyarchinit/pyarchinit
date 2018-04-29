@@ -30,7 +30,7 @@ from ..modules.db.pyarchinit_conn_strings import Connection
 from ..modules.db.pyarchinit_db_manager import Pyarchinit_db_management
 from ..modules.gis.pyarchinit_pyqgis import Pyarchinit_pyqgis
 
-MAIN_DIALOG_CLASS, _ = loadUiType(os.path.join(os.path.dirname(__file__), '..', 'ui', 'pyarchinit_preview_doc_gui.ui'))
+MAIN_DIALOG_CLASS, _ = loadUiType(os.path.join(os.path.dirname(__file__), '..', 'ui', 'Documentazione_preview.ui'))
 
 
 class pyarchinit_doc_preview(QDialog, MAIN_DIALOG_CLASS):

@@ -36,8 +36,8 @@ from ..modules.utility.pyarchinit_error_check import Error_check
 from ..modules.utility.pyarchinit_exp_USsheet_pdf import *
 from ..sortpanelmain import SortPanelMain
 
-MAIN_DIALOG_CLASS, _ = loadUiType(os.path.join(os.path.dirname(__file__), '..', 'ui', 'pyarchinit_Deteta_ui.ui'))
-IMAGE_VIEWER, _ = loadUiType(os.path.join(os.path.dirname(__file__), '..', 'ui', 'imageViewer_ui.ui'))
+MAIN_DIALOG_CLASS, _ = loadUiType(os.path.join(os.path.dirname(__file__), '..', 'ui', 'Deteta.ui'))
+IMAGE_VIEWER, _ = loadUiType(os.path.join(os.path.dirname(__file__), '..', 'ui', 'Image_Viewer.ui'))
 
 
 class pyarchinit_Deteta(QDialog, MAIN_DIALOG_CLASS):

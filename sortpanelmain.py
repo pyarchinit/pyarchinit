@@ -28,7 +28,7 @@ from qgis.PyQt.uic import loadUiType
 
 import os
 
-MAIN_DIALOG_CLASS, _ = loadUiType(os.path.join(os.path.dirname(__file__), 'ui', 'sort_panel_ui.ui'))
+MAIN_DIALOG_CLASS, _ = loadUiType(os.path.join(os.path.dirname(__file__), 'ui', 'sortpanelmain.ui'))
 
 
 class SortPanelMain(QDialog, MAIN_DIALOG_CLASS):
