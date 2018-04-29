@@ -175,9 +175,6 @@ class PyArchInitPlugin(object):
         self.interprToolButton.addActions([self.actionStruttura, self.actionPer])
         self.interprToolButton.setDefaultAction(self.actionStruttura)
 
-        ##		self.actionPer.setCheckable(True)
-        ##		self.actionStruttura.setCheckable(True)
-
         self.toolBar.addWidget(self.interprToolButton)
 
         self.toolBar.addSeparator()
@@ -214,9 +211,6 @@ class PyArchInitPlugin(object):
         if self.PARAMS_DICT['EXPERIMENTAL'] == 'Si':
             self.funeraryToolButton.addActions([self.actionDetsesso, self.actionDeteta])
 
-        ##		self.actionSchedaind.setCheckable(True)
-        ##		self.actionTafonomia.setCheckable(True)
-
         self.toolBar.addWidget(self.funeraryToolButton)
 
         self.toolBar.addSeparator()
@@ -233,8 +227,6 @@ class PyArchInitPlugin(object):
 
             self.topoToolButton.addActions([self.actionUT])
             self.topoToolButton.setDefaultAction(self.actionUT)
-
-            ##			self.actionUT.setCheckable(True)
 
             self.toolBar.addWidget(self.topoToolButton)
 
@@ -276,8 +268,6 @@ class PyArchInitPlugin(object):
 
         self.docToolButton.setDefaultAction(self.actionDocumentazione)
 
-        ##		self.actionDocumentazione.setCheckable(True)
-
         if self.PARAMS_DICT['EXPERIMENTAL'] == 'Si':
             self.actionImages_Directory_export.setCheckable(True)
             self.actionpdfExp.setCheckable(True)
@@ -313,10 +303,6 @@ class PyArchInitPlugin(object):
             self.elabToolButton.addActions(
                 [self.actionArcheozoology, self.actionComparision, self.actionGisTimeController])
             self.elabToolButton.setDefaultAction(self.actionArcheozoology)
-
-            ##			self.actionArcheozoology.setCheckable(True)
-            ##			self.actionComparision.setCheckable(True)
-            ##			self.actionGisTimeController.setCheckable(True)
 
             self.toolBar.addWidget(self.elabToolButton)
 
