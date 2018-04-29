@@ -42,7 +42,7 @@ try:
 except:
     pass
 
-MAIN_DIALOG_CLASS, _ = loadUiType(os.path.join(os.path.dirname(__file__), '..', 'ui', 'Tafonomia.ui'))
+MAIN_DIALOG_CLASS, _ = loadUiType(os.path.join(os.path.dirname(__file__), os.pardir, 'ui', 'Tafonomia.ui'))
 
 
 class pyarchinit_Tafonomia(QDialog, MAIN_DIALOG_CLASS):

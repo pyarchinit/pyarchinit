@@ -39,7 +39,7 @@ from ..modules.utility.pyarchinit_exp_Invlapsheet_pdf import *
 from ..imageViewer import ImageViewer
 from ..sortpanelmain import SortPanelMain
 
-MAIN_DIALOG_CLASS, _ = loadUiType(os.path.join(os.path.dirname(__file__), '..', 'ui', 'Inv_Lapidei.ui'))
+MAIN_DIALOG_CLASS, _ = loadUiType(os.path.join(os.path.dirname(__file__), os.pardir, 'ui', 'Inv_Lapidei.ui'))
 
 
 class pyarchinit_Inventario_Lapidei(QDialog, MAIN_DIALOG_CLASS):

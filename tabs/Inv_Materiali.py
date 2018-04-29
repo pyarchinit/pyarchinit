@@ -46,7 +46,7 @@ from ..quantpanelmain import QuantPanelMain
 from ..sortpanelmain import SortPanelMain
 from ..imageViewer import ImageViewer
 
-MAIN_DIALOG_CLASS, _ = loadUiType(os.path.join(os.path.dirname(__file__), '..', 'ui', 'Inv_Materiali.ui'))
+MAIN_DIALOG_CLASS, _ = loadUiType(os.path.join(os.path.dirname(__file__), os.pardir, 'ui', 'Inv_Materiali.ui'))
 
 
 class pyarchinit_Inventario_reperti(QDialog, MAIN_DIALOG_CLASS):

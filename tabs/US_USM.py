@@ -44,7 +44,7 @@ from ..imageViewer import ImageViewer
 from ..sortpanelmain import SortPanelMain
 
 MAIN_DIALOG_CLASS, _ = loadUiType(
-    os.path.join(os.path.dirname(__file__), '..', 'ui', 'US_USM.ui'))
+    os.path.join(os.path.dirname(__file__), os.pardir, 'ui', 'US_USM.ui'))
 
 
 class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):

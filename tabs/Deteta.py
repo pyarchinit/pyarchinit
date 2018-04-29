@@ -37,7 +37,7 @@ from ..modules.utility.pyarchinit_exp_USsheet_pdf import *
 from ..imageViewer import ImageViewer
 from ..sortpanelmain import SortPanelMain
 
-MAIN_DIALOG_CLASS, _ = loadUiType(os.path.join(os.path.dirname(__file__), '..', 'ui', 'Deteta.ui'))
+MAIN_DIALOG_CLASS, _ = loadUiType(os.path.join(os.path.dirname(__file__), os.pardir, 'ui', 'Deteta.ui'))
 
 
 class pyarchinit_Deteta(QDialog, MAIN_DIALOG_CLASS):
@@ -2755,7 +2755,7 @@ class pyarchinit_Deteta(QDialog, MAIN_DIALOG_CLASS):
 
     def open_tables_det_eta(self, n):
         # apre la finestra di visualizzazione delle immagini in base al valore n
-        filepath = os.path.join(os.path.dirname(__file__), '..')
+        filepath = os.path.join(os.path.dirname(__file__), os.pardir)
         dlg = ImageViewer(self)
 
         if n == 1:  # tavola sinfisi pubica femmminile

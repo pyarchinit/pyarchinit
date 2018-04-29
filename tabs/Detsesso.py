@@ -36,7 +36,7 @@ from ..modules.utility.pyarchinit_exp_USsheet_pdf import *
 from ..imageViewer import ImageViewer
 from ..sortpanelmain import SortPanelMain
 
-MAIN_DIALOG_CLASS, _ = loadUiType(os.path.join(os.path.dirname(__file__), '..', 'ui', 'Detsesso.ui'))
+MAIN_DIALOG_CLASS, _ = loadUiType(os.path.join(os.path.dirname(__file__), os.pardir, 'ui', 'Detsesso.ui'))
 
 
 class pyarchinit_Detsesso(QDialog, MAIN_DIALOG_CLASS):

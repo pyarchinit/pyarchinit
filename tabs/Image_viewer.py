@@ -38,7 +38,7 @@ from ..modules.utility.delegateComboBox import ComboBoxDelegate
 from ..modules.utility.pyarchinit_media_utility import Media_utility
 from ..imageViewer import ImageViewer
 
-MAIN_DIALOG_CLASS, _ = loadUiType(os.path.join(os.path.dirname(__file__), '..', 'ui', 'pyarchinit_image_viewer_dialog.ui'))
+MAIN_DIALOG_CLASS, _ = loadUiType(os.path.join(os.path.dirname(__file__), os.pardir, 'ui', 'pyarchinit_image_viewer_dialog.ui'))
 
 
 class Main(QDialog, MAIN_DIALOG_CLASS):
