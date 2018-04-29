@@ -25,7 +25,7 @@ from qgis.PyQt.uic import loadUiType
 
 import os
 
-MAIN_DIALOG_CLASS, _ = loadUiType(os.path.join(os.path.dirname(__file__), 'modules', 'ui', 'info.ui'))
+MAIN_DIALOG_CLASS, _ = loadUiType(os.path.join(os.path.dirname(__file__), 'ui', 'info.ui'))
 
 
 class pyArchInitDialog_Info(QDialog, MAIN_DIALOG_CLASS):
