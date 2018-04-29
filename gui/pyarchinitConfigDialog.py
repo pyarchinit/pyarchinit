@@ -28,9 +28,9 @@ from qgis.PyQt.QtWidgets import QApplication, QDialog, QMessageBox, QFileDialog
 from qgis.PyQt.uic import loadUiType
 from qgis.core import QgsApplication, QgsSettings
 
-from .modules.db.pyarchinit_conn_strings import Connection
-from .modules.db.pyarchinit_db_manager import Pyarchinit_db_management
-from .modules.utility.pyarchinit_OS_utility import Pyarchinit_OS_Utility
+from modules.db.pyarchinit_conn_strings import Connection
+from modules.db.pyarchinit_db_manager import Pyarchinit_db_management
+from modules.utility.pyarchinit_OS_utility import Pyarchinit_OS_Utility
 
 MAIN_DIALOG_CLASS, _ = loadUiType(os.path.join(os.path.dirname(__file__), 'ui', 'pyarchinitConfigDialog.ui'))
 

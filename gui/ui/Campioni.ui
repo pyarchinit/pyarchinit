@@ -20,7 +20,7 @@
    <string>pyArchInit Gestione Scavi - Scheda Campioni</string>
   </property>
   <property name="windowIcon">
-   <iconset resource="resources.qrc">
+   <iconset resource="../../resources/resources.qrc">
     <normaloff>:/icons/iconSite.png</normaloff>:/icons/iconSite.png</iconset>
   </property>
   <layout class="QGridLayout" name="gridLayout_7">
@@ -278,7 +278,7 @@
           <string/>
          </property>
          <property name="icon">
-          <iconset resource="resources.qrc">
+          <iconset resource="../../resources/resources.qrc">
            <normaloff>:/icons/7_rightArrows.png</normaloff>:/icons/7_rightArrows.png</iconset>
          </property>
         </widget>
@@ -297,7 +297,7 @@
           <string/>
          </property>
          <property name="icon">
-          <iconset resource="resources.qrc">
+          <iconset resource="../../resources/resources.qrc">
            <normaloff>:/icons/newrec.png</normaloff>:/icons/newrec.png</iconset>
          </property>
         </widget>
@@ -316,7 +316,7 @@
           <string/>
          </property>
          <property name="icon">
-          <iconset resource="resources.qrc">
+          <iconset resource="../../resources/resources.qrc">
            <normaloff>:/icons/b_save.png</normaloff>:/icons/b_save.png</iconset>
          </property>
          <property name="autoDefault">
@@ -338,7 +338,7 @@
           <string/>
          </property>
          <property name="icon">
-          <iconset resource="resources.qrc">
+          <iconset resource="../../resources/resources.qrc">
            <normaloff>:/icons/new_search.png</normaloff>:/icons/new_search.png</iconset>
          </property>
         </widget>
@@ -357,7 +357,7 @@
           <string/>
          </property>
          <property name="icon">
-          <iconset resource="resources.qrc">
+          <iconset resource="../../resources/resources.qrc">
            <normaloff>:/icons/search.png</normaloff>:/icons/search.png</iconset>
          </property>
         </widget>
@@ -376,7 +376,7 @@
           <string/>
          </property>
          <property name="icon">
-          <iconset resource="resources.qrc">
+          <iconset resource="../../resources/resources.qrc">
            <normaloff>:/icons/sort.png</normaloff>:/icons/sort.png</iconset>
          </property>
         </widget>
@@ -395,7 +395,7 @@
           <string/>
          </property>
          <property name="icon">
-          <iconset resource="resources.qrc">
+          <iconset resource="../../resources/resources.qrc">
            <normaloff>:/icons/view_all.png</normaloff>:/icons/view_all.png</iconset>
          </property>
         </widget>
@@ -409,7 +409,7 @@
           <string/>
          </property>
          <property name="icon">
-          <iconset resource="resources.qrc">
+          <iconset resource="../../resources/resources.qrc">
            <normaloff>:/icons/6_rightArrow.png</normaloff>:/icons/6_rightArrow.png</iconset>
          </property>
         </widget>
@@ -429,7 +429,7 @@
           <string/>
          </property>
          <property name="icon">
-          <iconset resource="resources.qrc">
+          <iconset resource="../../resources/resources.qrc">
            <normaloff>:/icons/4_leftArrow.png</normaloff>:/icons/4_leftArrow.png</iconset>
          </property>
         </widget>
@@ -443,7 +443,7 @@
           <string/>
          </property>
          <property name="icon">
-          <iconset resource="resources.qrc">
+          <iconset resource="../../resources/resources.qrc">
            <normaloff>:/icons/5_leftArrows.png</normaloff>:/icons/5_leftArrows.png</iconset>
          </property>
         </widget>
@@ -468,7 +468,7 @@
           <string/>
          </property>
          <property name="icon">
-          <iconset resource="resources.qrc">
+          <iconset resource="../../resources/resources.qrc">
            <normaloff>:/icons/delete.png</normaloff>:/icons/delete.png</iconset>
          </property>
         </widget>
@@ -676,8 +676,8 @@
        <rect>
         <x>0</x>
         <y>0</y>
-        <width>522</width>
-        <height>146</height>
+        <width>516</width>
+        <height>96</height>
        </rect>
       </property>
       <attribute name="label">
@@ -736,8 +736,8 @@
        <rect>
         <x>0</x>
         <y>0</y>
-        <width>505</width>
-        <height>186</height>
+        <width>443</width>
+        <height>233</height>
        </rect>
       </property>
       <attribute name="label">
@@ -856,8 +856,8 @@
        <rect>
         <x>0</x>
         <y>0</y>
-        <width>522</width>
-        <height>146</height>
+        <width>449</width>
+        <height>140</height>
        </rect>
       </property>
       <attribute name="label">
@@ -951,7 +951,7 @@
   </layout>
  </widget>
  <resources>
-  <include location="resources.qrc"/>
+  <include location="../../resources/resources.qrc"/>
  </resources>
  <connections/>
 </ui>

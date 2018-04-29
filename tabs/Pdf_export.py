@@ -42,7 +42,7 @@ from ..modules.utility.pyarchinit_exp_Periodosheet_pdf import generate_US_pdf
 from ..modules.utility.pyarchinit_exp_Strutturasheet_pdf import generate_struttura_pdf
 from ..modules.utility.pyarchinit_exp_Tafonomiasheet_pdf import generate_tafonomia_pdf
 
-MAIN_DIALOG_CLASS, _ = loadUiType(os.path.join(os.path.dirname(__file__), os.pardir, 'ui', 'Pdf_export.ui'))
+MAIN_DIALOG_CLASS, _ = loadUiType(os.path.join(os.path.dirname(__file__), os.pardir, 'gui', 'ui', 'Pdf_export.ui'))
 
 
 class pyarchinit_pdf_export(QDialog, MAIN_DIALOG_CLASS):

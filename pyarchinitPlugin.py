@@ -29,18 +29,19 @@ from qgis.PyQt.QtGui import QIcon
 from qgis.PyQt.QtWidgets import QAction, QToolButton, QMenu
 from qgis.core import QgsApplication, QgsSettings
 
-from .dbmanagment import pyarchinit_dbmanagment
-from .pyarchinitConfigDialog import pyArchInitDialog_Config
-from .pyarchinitInfoDialog import pyArchInitDialog_Info
-from .pyarchinitplugindialog import PyarchinitPluginDialog
+from .pyarchinitDockWidget import PyarchinitPluginDialog
 from .tabs.Archeozoology import pyarchinit_Archeozoology
 from .tabs.Campioni import pyarchinit_Campioni
 from .tabs.Deteta import pyarchinit_Deteta
 from .tabs.Detsesso import pyarchinit_Detsesso
 from .tabs.Documentazione import pyarchinit_Documentazione
 from .tabs.Gis_Time_controller import pyarchinit_Gis_Time_Controller
+from .tabs.Image_viewer import Main
+from .tabs.Images_comparison import Comparision
+from .tabs.Images_directory_export import pyarchinit_Images_directory_export
 from .tabs.Inv_Lapidei import pyarchinit_Inventario_Lapidei
 from .tabs.Inv_Materiali import pyarchinit_Inventario_reperti
+from .tabs.Pdf_export import pyarchinit_pdf_export
 from .tabs.Periodizzazione import pyarchinit_Periodizzazione
 from .tabs.Schedaind import pyarchinit_Schedaind
 from .tabs.Site import pyarchinit_Site
@@ -49,10 +50,9 @@ from .tabs.Tafonomia import pyarchinit_Tafonomia
 from .tabs.Thesaurus import pyarchinit_Thesaurus
 from .tabs.US_USM import pyarchinit_US
 from .tabs.UT import pyarchinit_UT
-from .tabs.Image_viewer import Main
-from .tabs.Images_comparison import Comparision
-from .tabs.Images_directory_export import pyarchinit_Images_directory_export
-from .tabs.Pdf_export import pyarchinit_pdf_export
+from .gui.pyarchinitConfigDialog import pyArchInitDialog_Config
+from .gui.dbmanagment import pyarchinit_dbmanagment
+from .gui.pyarchinitInfoDialog import pyArchInitDialog_Info
 
 filepath = os.path.dirname(__file__)
 
@@ -105,7 +105,7 @@ class PyArchInitPlugin(object):
 
     def initGui(self):
         settings = QgsSettings()
-        icon_paius = '{}{}'.format(filepath, os.path.join(os.sep, 'ui', 'icons', 'pai_us.png'))
+        icon_paius = '{}{}'.format(filepath, os.path.join(os.sep, 'resources', 'icons', 'pai_us.png'))
         self.action = QAction(QIcon(icon_paius), "pyArchInit Main Panel",
                               self.iface.mainWindow())
         self.action.triggered.connect(self.showHideDockWidget)
@@ -124,27 +124,27 @@ class PyArchInitPlugin(object):
 
         ######  Section dedicated to the basic data entry
         # add Actions data
-        icon_site = '{}{}'.format(filepath, os.path.join(os.sep, 'ui', 'icons', 'iconSite.png'))
+        icon_site = '{}{}'.format(filepath, os.path.join(os.sep, 'resources', 'icons', 'iconSite.png'))
         self.actionSite = QAction(QIcon(icon_site), "Siti", self.iface.mainWindow())
         self.actionSite.setWhatsThis("Siti")
         self.actionSite.triggered.connect(self.runSite)
 
-        icon_US = '{}{}'.format(filepath, os.path.join(os.sep, 'ui', 'icons', 'iconSus.png'))
+        icon_US = '{}{}'.format(filepath, os.path.join(os.sep, 'resources', 'icons', 'iconSus.png'))
         self.actionUS = QAction(QIcon((icon_US)), u"US", self.iface.mainWindow())
         self.actionUS.setWhatsThis(u"US")
         self.actionUS.triggered.connect(self.runUS)
 
-        icon_Finds = '{}{}'.format(filepath, os.path.join(os.sep, 'ui', 'icons', 'iconFinds.png'))
+        icon_Finds = '{}{}'.format(filepath, os.path.join(os.sep, 'resources', 'icons', 'iconFinds.png'))
         self.actionInr = QAction(QIcon(icon_Finds), "Reperti", self.iface.mainWindow())
         self.actionInr.setWhatsThis("Reperti")
         self.actionInr.triggered.connect(self.runInr)
 
-        icon_camp_exp = '{}{}'.format(filepath, os.path.join(os.sep, 'ui', 'icons', 'champion.png'))
+        icon_camp_exp = '{}{}'.format(filepath, os.path.join(os.sep, 'resources', 'icons', 'champion.png'))
         self.actionCampioni = QAction(QIcon(icon_camp_exp), "Campioni", self.iface.mainWindow())
         self.actionCampioni.setWhatsThis("Campioni")
         self.actionCampioni.triggered.connect(self.runCampioni)
 
-        icon_Lapidei = '{}{}'.format(filepath, os.path.join(os.sep, 'ui', 'icons', 'iconAlma.png'))
+        icon_Lapidei = '{}{}'.format(filepath, os.path.join(os.sep, 'resources', 'icons', 'iconAlma.png'))
         self.actionLapidei = QAction(QIcon(icon_Lapidei), "Lapidei", self.iface.mainWindow())
         self.actionLapidei.setWhatsThis("Lapidei")
         self.actionLapidei.triggered.connect(self.runLapidei)
@@ -152,12 +152,6 @@ class PyArchInitPlugin(object):
         self.dataToolButton.addActions(
             [self.actionSite, self.actionUS, self.actionInr, self.actionCampioni, self.actionLapidei])
         self.dataToolButton.setDefaultAction(self.actionSite)
-
-        ##		self.actionSite.setCheckable(True)
-        ##		self.actionUS.setCheckable(True)
-        ##		self.actionInr.setCheckable(True)
-        ##		self.actionCampioni.setCheckable(True)
-        ##		self.actionLapidei.setCheckable(True)
 
         self.toolBar.addWidget(self.dataToolButton)
 
@@ -168,12 +162,12 @@ class PyArchInitPlugin(object):
         self.interprToolButton = QToolButton(self.toolBar)
         self.interprToolButton.setPopupMode(QToolButton.MenuButtonPopup)
 
-        icon_per = '{}{}'.format(filepath, os.path.join(os.sep, 'ui', 'icons', 'iconPer.png'))
+        icon_per = '{}{}'.format(filepath, os.path.join(os.sep, 'resources', 'icons', 'iconPer.png'))
         self.actionPer = QAction(QIcon(icon_per), "Periodizzazione", self.iface.mainWindow())
         self.actionPer.setWhatsThis("Periodizzazione")
         self.actionPer.triggered.connect(self.runPer)
 
-        icon_Struttura = '{}{}'.format(filepath, os.path.join(os.sep, 'ui', 'icons', 'iconStrutt.png'))
+        icon_Struttura = '{}{}'.format(filepath, os.path.join(os.sep, 'resources', 'icons', 'iconStrutt.png'))
         self.actionStruttura = QAction(QIcon(icon_Struttura), "Strutture", self.iface.mainWindow())
         self.actionPer.setWhatsThis("Strutture")
         self.actionStruttura.triggered.connect(self.runStruttura)
@@ -193,23 +187,23 @@ class PyArchInitPlugin(object):
         self.funeraryToolButton = QToolButton(self.toolBar)
         self.funeraryToolButton.setPopupMode(QToolButton.MenuButtonPopup)
 
-        icon_Schedaind = '{}{}'.format(filepath, os.path.join(os.sep, 'ui', 'icons', 'iconIND.png'))
+        icon_Schedaind = '{}{}'.format(filepath, os.path.join(os.sep, 'resources', 'icons', 'iconIND.png'))
         self.actionSchedaind = QAction(QIcon(icon_Schedaind), "Individui", self.iface.mainWindow())
         self.actionSchedaind.setWhatsThis("Individui")
         self.actionSchedaind.triggered.connect(self.runSchedaind)
 
-        icon_Tafonomia = '{}{}'.format(filepath, os.path.join(os.sep, 'ui', 'icons', 'iconGrave.png'))
+        icon_Tafonomia = '{}{}'.format(filepath, os.path.join(os.sep, 'resources', 'icons', 'iconGrave.png'))
         self.actionTafonomia = QAction(QIcon(icon_Tafonomia), "Tafonomica/Sepolture", self.iface.mainWindow())
         self.actionTafonomia.setWhatsThis("Tafonomica/Sepolture")
         self.actionTafonomia.triggered.connect(self.runTafonomia)
 
         if self.PARAMS_DICT['EXPERIMENTAL'] == 'Si':
-            icon_Detsesso = '{}{}'.format(filepath, os.path.join(os.sep, 'ui', 'icons', 'iconSesso.png'))
+            icon_Detsesso = '{}{}'.format(filepath, os.path.join(os.sep, 'resources', 'icons', 'iconSesso.png'))
             self.actionDetsesso = QAction(QIcon(icon_Detsesso), "Determinazione Sesso", self.iface.mainWindow())
             self.actionDetsesso.setWhatsThis("Determinazione del sesso")
             self.actionDetsesso.triggered.connect(self.runDetsesso)
 
-            icon_Deteta = '{}{}'.format(filepath, os.path.join(os.sep, 'ui', 'icons', 'iconEta.png'))
+            icon_Deteta = '{}{}'.format(filepath, os.path.join(os.sep, 'resources', 'icons', 'iconEta.png'))
             self.actionDeteta = QAction(QIcon(icon_Deteta), u"Determinazione dell'età", self.iface.mainWindow())
             self.actionSchedaind.setWhatsThis(u"Determinazione dell'età")
             self.actionDeteta.triggered.connect(self.runDeteta)
@@ -232,7 +226,7 @@ class PyArchInitPlugin(object):
             self.topoToolButton = QToolButton(self.toolBar)
             self.topoToolButton.setPopupMode(QToolButton.MenuButtonPopup)
 
-            icon_UT = '{}{}'.format(filepath, os.path.join(os.sep, 'ui', 'icons', 'iconUT.png'))
+            icon_UT = '{}{}'.format(filepath, os.path.join(os.sep, 'resources', 'icons', 'iconUT.png'))
             self.actionUT = QAction(QIcon(icon_UT), u"Unità Topografiche", self.iface.mainWindow())
             self.actionUT.setWhatsThis(u"Unità Topografiche")
             self.actionUT.triggered.connect(self.runUT)
@@ -251,25 +245,25 @@ class PyArchInitPlugin(object):
         self.docToolButton = QToolButton(self.toolBar)
         self.docToolButton.setPopupMode(QToolButton.MenuButtonPopup)
 
-        icon_documentazione = '{}{}'.format(filepath, os.path.join(os.sep, 'ui', 'icons', 'icondoc.png'))
+        icon_documentazione = '{}{}'.format(filepath, os.path.join(os.sep, 'resources', 'icons', 'icondoc.png'))
         self.actionDocumentazione = QAction(QIcon(icon_documentazione), "Scheda Documentazione",
                                             self.iface.mainWindow())
         self.actionDocumentazione.setWhatsThis("Documentazione")
         self.actionDocumentazione.triggered.connect(self.runDocumentazione)
 
         if self.PARAMS_DICT['EXPERIMENTAL'] == 'Si':
-            icon_imageViewer = '{}{}'.format(filepath, os.path.join(os.sep, 'ui', 'icons', 'photo.png'))
+            icon_imageViewer = '{}{}'.format(filepath, os.path.join(os.sep, 'resources', 'icons', 'photo.png'))
             self.actionimageViewer = QAction(QIcon(icon_imageViewer), "Gestione immagini", self.iface.mainWindow())
             self.actionimageViewer.setWhatsThis("Gestione immagini")
             self.actionimageViewer.triggered.connect(self.runImageViewer)
 
-            icon_Directory_export = '{}{}'.format(filepath, os.path.join(os.sep, 'ui', 'icons', 'directoryExp.png'))
+            icon_Directory_export = '{}{}'.format(filepath, os.path.join(os.sep, 'resources', 'icons', 'directoryExp.png'))
             self.actionImages_Directory_export = QAction(QIcon(icon_Directory_export), "Esportazione immagini",
                                                          self.iface.mainWindow())
             self.actionImages_Directory_export.setWhatsThis("Esportazione immagini")
             self.actionImages_Directory_export.triggered.connect(self.runImages_directory_export)
 
-            icon_pdf_exp = '{}{}'.format(filepath, os.path.join(os.sep, 'ui', 'icons', 'pdf-icon.png'))
+            icon_pdf_exp = '{}{}'.format(filepath, os.path.join(os.sep, 'resources', 'icons', 'pdf-icon.png'))
             self.actionpdfExp = QAction(QIcon(icon_pdf_exp), "Esportazione PDF", self.iface.mainWindow())
             self.actionpdfExp.setWhatsThis("Esportazione PDF")
             self.actionpdfExp.triggered.connect(self.runPdfexp)
@@ -299,19 +293,19 @@ class PyArchInitPlugin(object):
             self.elabToolButton.setPopupMode(QToolButton.MenuButtonPopup)
 
             # add Actions elaboration
-            icon_Archeozoology = '{}{}'.format(filepath, os.path.join(os.sep, 'ui', 'icons', 'iconMegacero.png'))
+            icon_Archeozoology = '{}{}'.format(filepath, os.path.join(os.sep, 'resources', 'icons', 'iconMegacero.png'))
             self.actionArcheozoology = QAction(QIcon(icon_Archeozoology), "Statistiche Archeozoologiche",
                                                self.iface.mainWindow())
             self.actionArcheozoology.setWhatsThis("Statistiche Archeozoologiche")
             self.actionArcheozoology.triggered.connect(self.runArcheozoology)
 
-            icon_GisTimeController = '{}{}'.format(filepath, os.path.join(os.sep, 'ui', 'icons', 'iconTimeControll.png'))
+            icon_GisTimeController = '{}{}'.format(filepath, os.path.join(os.sep, 'resources', 'icons', 'iconTimeControll.png'))
             self.actionGisTimeController = QAction(QIcon(icon_GisTimeController), "Time Manager",
                                                    self.iface.mainWindow())
             self.actionGisTimeController.setWhatsThis("Time Manager")
             self.actionGisTimeController.triggered.connect(self.runGisTimeController)
 
-            icon_Comparision = '{}{}'.format(filepath, os.path.join(os.sep, 'ui', 'icons', 'comparision.png'))
+            icon_Comparision = '{}{}'.format(filepath, os.path.join(os.sep, 'resources', 'icons', 'comparision.png'))
             self.actionComparision = QAction(QIcon(icon_Comparision), "Comparazione immagini", self.iface.mainWindow())
             self.actionComparision.setWhatsThis("Comparazione immagini")
             self.actionComparision.triggered.connect(self.runComparision)
@@ -333,22 +327,22 @@ class PyArchInitPlugin(object):
         self.manageToolButton = QToolButton(self.toolBar)
         self.manageToolButton.setPopupMode(QToolButton.MenuButtonPopup)
 
-        icon_thesaurus = '{}{}'.format(filepath, os.path.join(os.sep, 'ui', 'icons', 'thesaurusicon.png'))
+        icon_thesaurus = '{}{}'.format(filepath, os.path.join(os.sep, 'resources', 'icons', 'thesaurusicon.png'))
         self.actionThesaurus = QAction(QIcon(icon_thesaurus), "Thesaurus sigle", self.iface.mainWindow())
         self.actionThesaurus.setWhatsThis("Thesaurus sigle")
         self.actionThesaurus.triggered.connect(self.runThesaurus)
 
-        icon_Con = '{}{}'.format(filepath, os.path.join(os.sep, 'ui', 'icons', 'iconConn.png'))
+        icon_Con = '{}{}'.format(filepath, os.path.join(os.sep, 'resources', 'icons', 'iconConn.png'))
         self.actionConf = QAction(QIcon(icon_Con), "Configurazione plugin", self.iface.mainWindow())
         self.actionConf.setWhatsThis("Configurazione plugin")
         self.actionConf.triggered.connect(self.runConf)
 
-        icon_Dbmanagment = '{}{}'.format(filepath, os.path.join(os.sep, 'ui', 'icons', 'backup.png'))
+        icon_Dbmanagment = '{}{}'.format(filepath, os.path.join(os.sep, 'resources', 'icons', 'backup.png'))
         self.actionDbmanagment = QAction(QIcon(icon_Dbmanagment), "Gestione database", self.iface.mainWindow())
         self.actionDbmanagment.setWhatsThis("Gestione database")
         self.actionDbmanagment.triggered.connect(self.runDbmanagment)
 
-        icon_Info = '{}{}'.format(filepath, os.path.join(os.sep, 'ui', 'icons', 'iconInfo.png'))
+        icon_Info = '{}{}'.format(filepath, os.path.join(os.sep, 'resources', 'icons', 'iconInfo.png'))
         self.actionInfo = QAction(QIcon(icon_Info), "Plugin info", self.iface.mainWindow())
         self.actionInfo.setWhatsThis("Plugin info")
         self.actionInfo.triggered.connect(self.runInfo)
@@ -356,11 +350,6 @@ class PyArchInitPlugin(object):
         self.manageToolButton.addActions(
             [self.actionConf, self.actionThesaurus, self.actionDbmanagment, self.actionInfo])
         self.manageToolButton.setDefaultAction(self.actionConf)
-
-        ##			self.actionThesaurus.setCheckable(True)
-        ##			self.actionConf.setCheckable(True)
-        ##			self.actionDbmanagment.setCheckable(True)
-        ##			self.actionInfo.setCheckable(True)
 
         self.toolBar.addWidget(self.manageToolButton)
 

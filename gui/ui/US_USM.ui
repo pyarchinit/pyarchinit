@@ -25,7 +25,7 @@
    <string>pyArchInit Gestione Scavi - Scheda US/USM</string>
   </property>
   <property name="windowIcon">
-   <iconset resource="resources.qrc">
+   <iconset resource="../../resources/resources.qrc">
     <normaloff>:/icons/iconPAI.png</normaloff>:/icons/iconPAI.png</iconset>
   </property>
   <layout class="QGridLayout" name="gridLayout_24">
@@ -288,7 +288,7 @@
           <string/>
          </property>
          <property name="icon">
-          <iconset resource="resources.qrc">
+          <iconset resource="../../resources/resources.qrc">
            <normaloff>:/icons/sort.png</normaloff>:/icons/sort.png</iconset>
          </property>
         </widget>
@@ -308,7 +308,7 @@
           <string/>
          </property>
          <property name="icon">
-          <iconset resource="resources.qrc">
+          <iconset resource="../../resources/resources.qrc">
            <normaloff>:/icons/4_leftArrow.png</normaloff>:/icons/4_leftArrow.png</iconset>
          </property>
         </widget>
@@ -322,7 +322,7 @@
           <string/>
          </property>
          <property name="icon">
-          <iconset resource="resources.qrc">
+          <iconset resource="../../resources/resources.qrc">
            <normaloff>:/icons/6_rightArrow.png</normaloff>:/icons/6_rightArrow.png</iconset>
          </property>
         </widget>
@@ -336,7 +336,7 @@
           <string/>
          </property>
          <property name="icon">
-          <iconset resource="resources.qrc">
+          <iconset resource="../../resources/resources.qrc">
            <normaloff>:/icons/5_leftArrows.png</normaloff>:/icons/5_leftArrows.png</iconset>
          </property>
         </widget>
@@ -361,7 +361,7 @@
           <string/>
          </property>
          <property name="icon">
-          <iconset resource="resources.qrc">
+          <iconset resource="../../resources/resources.qrc">
            <normaloff>:/icons/delete.png</normaloff>:/icons/delete.png</iconset>
          </property>
         </widget>
@@ -380,7 +380,7 @@
           <string/>
          </property>
          <property name="icon">
-          <iconset resource="resources.qrc">
+          <iconset resource="../../resources/resources.qrc">
            <normaloff>:/icons/view_all.png</normaloff>:/icons/view_all.png</iconset>
          </property>
         </widget>
@@ -394,7 +394,7 @@
           <string/>
          </property>
          <property name="icon">
-          <iconset resource="resources.qrc">
+          <iconset resource="../../resources/resources.qrc">
            <normaloff>:/icons/7_rightArrows.png</normaloff>:/icons/7_rightArrows.png</iconset>
          </property>
         </widget>
@@ -413,7 +413,7 @@
           <string/>
          </property>
          <property name="icon">
-          <iconset resource="resources.qrc">
+          <iconset resource="../../resources/resources.qrc">
            <normaloff>:/icons/newrec.png</normaloff>:/icons/newrec.png</iconset>
          </property>
         </widget>
@@ -432,7 +432,7 @@
           <string/>
          </property>
          <property name="icon">
-          <iconset resource="resources.qrc">
+          <iconset resource="../../resources/resources.qrc">
            <normaloff>:/icons/b_save.png</normaloff>:/icons/b_save.png</iconset>
          </property>
          <property name="autoDefault">
@@ -454,7 +454,7 @@
           <string/>
          </property>
          <property name="icon">
-          <iconset resource="resources.qrc">
+          <iconset resource="../../resources/resources.qrc">
            <normaloff>:/icons/new_search.png</normaloff>:/icons/new_search.png</iconset>
          </property>
         </widget>
@@ -473,7 +473,7 @@
           <string/>
          </property>
          <property name="icon">
-          <iconset resource="resources.qrc">
+          <iconset resource="../../resources/resources.qrc">
            <normaloff>:/icons/search.png</normaloff>:/icons/search.png</iconset>
          </property>
         </widget>
@@ -3218,7 +3218,7 @@ p, li { white-space: pre-wrap; }
                   <string>Crea codice periodo</string>
                  </property>
                  <property name="icon">
-                  <iconset resource="resources.qrc">
+                  <iconset resource="../../resources/resources.qrc">
                    <normaloff>:/icons/sheet.png</normaloff>:/icons/sheet.png</iconset>
                  </property>
                 </widget>
@@ -3263,7 +3263,7 @@ p, li { white-space: pre-wrap; }
                   <string>Export Matrix</string>
                  </property>
                  <property name="icon">
-                  <iconset resource="resources.qrc">
+                  <iconset resource="../../resources/resources.qrc">
                    <normaloff>:/icons/sheet.png</normaloff>:/icons/sheet.png</iconset>
                  </property>
                 </widget>
@@ -3368,7 +3368,7 @@ p, li { white-space: pre-wrap; }
                   <string>Check, go!!!!</string>
                  </property>
                  <property name="icon">
-                  <iconset resource="resources.qrc">
+                  <iconset resource="../../resources/resources.qrc">
                    <normaloff>:/icons/sheet.png</normaloff>:/icons/sheet.png</iconset>
                  </property>
                 </widget>
@@ -3436,7 +3436,7 @@ p, li { white-space: pre-wrap; }
                   <string>GIS Data Visualizer</string>
                  </property>
                  <property name="icon">
-                  <iconset resource="resources.qrc">
+                  <iconset resource="../../resources/resources.qrc">
                    <normaloff>:/icons/GIS.png</normaloff>:/icons/GIS.png</iconset>
                  </property>
                  <property name="shortcut">
@@ -3483,7 +3483,7 @@ p, li { white-space: pre-wrap; }
                   <string>Apri schede US</string>
                  </property>
                  <property name="icon">
-                  <iconset resource="resources.qrc">
+                  <iconset resource="../../resources/resources.qrc">
                    <normaloff>:/icons/sheet.png</normaloff>:/icons/sheet.png</iconset>
                  </property>
                 </widget>
@@ -3510,7 +3510,7 @@ p, li { white-space: pre-wrap; }
                   <string>Preview pianta US</string>
                  </property>
                  <property name="icon">
-                  <iconset resource="resources.qrc">
+                  <iconset resource="../../resources/resources.qrc">
                    <normaloff>:/icons/GIS.png</normaloff>:/icons/GIS.png</iconset>
                  </property>
                  <property name="shortcut">
@@ -3545,7 +3545,7 @@ p, li { white-space: pre-wrap; }
                   <string>Pan</string>
                  </property>
                  <property name="icon">
-                  <iconset resource="resources.qrc">
+                  <iconset resource="../../resources/resources.qrc">
                    <normaloff>:/icons/mActionPan.png</normaloff>:/icons/mActionPan.png</iconset>
                  </property>
                  <property name="shortcut">
@@ -3590,7 +3590,7 @@ p, li { white-space: pre-wrap; }
                   <string>Mostra immagini</string>
                  </property>
                  <property name="icon">
-                  <iconset resource="resources.qrc">
+                  <iconset resource="../../resources/resources.qrc">
                    <normaloff>:/icons/photo.png</normaloff>:/icons/photo.png</iconset>
                  </property>
                  <property name="checkable">
@@ -3638,7 +3638,7 @@ p, li { white-space: pre-wrap; }
                   <string>Disegna US</string>
                  </property>
                  <property name="icon">
-                  <iconset resource="resources.qrc">
+                  <iconset resource="../../resources/resources.qrc">
                    <normaloff>:/icons/sheet.png</normaloff>:/icons/sheet.png</iconset>
                  </property>
                 </widget>
@@ -3650,8 +3650,8 @@ p, li { white-space: pre-wrap; }
                <rect>
                 <x>0</x>
                 <y>0</y>
-                <width>586</width>
-                <height>251</height>
+                <width>100</width>
+                <height>30</height>
                </rect>
               </property>
               <attribute name="label">
@@ -3678,7 +3678,7 @@ p, li { white-space: pre-wrap; }
                 <string>Elenco US</string>
                </property>
                <property name="icon">
-                <iconset resource="resources.qrc">
+                <iconset resource="../../resources/resources.qrc">
                  <normaloff>:/icons/sheet.png</normaloff>:/icons/sheet.png</iconset>
                </property>
               </widget>
@@ -3722,7 +3722,7 @@ p, li { white-space: pre-wrap; }
                 <string>Singole schede US</string>
                </property>
                <property name="icon">
-                <iconset resource="resources.qrc">
+                <iconset resource="../../resources/resources.qrc">
                  <normaloff>:/icons/sheet.png</normaloff>:/icons/sheet.png</iconset>
                </property>
               </widget>
@@ -3780,7 +3780,7 @@ p, li { white-space: pre-wrap; }
   <zorder>label_50</zorder>
  </widget>
  <resources>
-  <include location="resources.qrc"/>
+  <include location="../../resources/resources.qrc"/>
  </resources>
  <connections/>
 </ui>

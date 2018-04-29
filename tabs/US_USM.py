@@ -30,6 +30,7 @@ from qgis.PyQt.uic import loadUiType
 from qgis.core import Qgis
 from qgis.gui import QgsMapCanvas, QgsMapToolPan
 
+from ..gui.imageViewer import ImageViewer
 from .Interactive_matrix import pyarchinit_Interactive_Matrix
 from ..modules.db.pyarchinit_conn_strings import Connection
 from ..modules.db.pyarchinit_db_manager import Pyarchinit_db_management
@@ -40,11 +41,10 @@ from ..modules.utility.pyarchinit_error_check import Error_check
 from ..modules.utility.pyarchinit_exp_Periodosheet_pdf import generate_US_pdf
 from ..modules.utility.pyarchinit_exp_USsheet_pdf import *
 from ..modules.utility.pyarchinit_print_utility import Print_utility
-from ..imageViewer import ImageViewer
-from ..sortpanelmain import SortPanelMain
+from ..gui.sortpanelmain import SortPanelMain
 
 MAIN_DIALOG_CLASS, _ = loadUiType(
-    os.path.join(os.path.dirname(__file__), os.pardir, 'ui', 'US_USM.ui'))
+    os.path.join(os.path.dirname(__file__), os.pardir, 'gui', 'ui', 'US_USM.ui'))
 
 
 class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
