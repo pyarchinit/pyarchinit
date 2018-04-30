@@ -1569,14 +1569,12 @@ class pyarchinit_Detsesso(QDialog, MAIN_DIALOG_CLASS):
                                               "indeterminato_valore_min": -0.4, "indeterminato_valore_max": 0.4,
                                               "maschio_valore_min": 0.41, "maschio_valore_max": 2}
 
-            if valore_totale >= valori_indice_sessualizzazione["femmina_valore_min"] and valore_totale <= \
-                    valori_indice_sessualizzazione["femmina_valore_max"]:
+            if valori_indice_sessualizzazione["femmina_valore_min"] <= valore_totale <= valori_indice_sessualizzazione["femmina_valore_max"]:
                 indice_sessualizzazione = "Femmina"
-            elif valore_totale >= valori_indice_sessualizzazione["indeterminato_valore_min"] and valore_totale <= \
+            elif valori_indice_sessualizzazione["indeterminato_valore_min"] <= valore_totale <= \
                     valori_indice_sessualizzazione["indeterminato_valore_max"]:
                 indice_sessualizzazione = "Indeterminato"
-            elif valore_totale >= valori_indice_sessualizzazione["maschio_valore_min"] and valore_totale <= \
-                    valori_indice_sessualizzazione["maschio_valore_max"]:
+            elif valori_indice_sessualizzazione["maschio_valore_min"] <= valore_totale <= valori_indice_sessualizzazione["maschio_valore_max"]:
                 indice_sessualizzazione = "Maschio"
 
             dati = "somma_gradi_utilizzati " + str(somma_gradi_utilizzati) + " \n somma gxv utilizzati " + str(
