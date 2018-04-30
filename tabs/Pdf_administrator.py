@@ -585,7 +585,7 @@ class pyarchinit_PDFAdministrator(QDialog, MAIN_DIALOG_CLASS):
         value = n
 
         for fn in field_names:
-            cmd = ('%s%s%d%s') % (fn, '.setEditable(', n, ')')
+            cmd = '{}{}{}{}'.format(fn, '.setEditable(', n, ')')
             eval(cmd)
 
     def rec_toupdate(self):
