@@ -503,7 +503,9 @@ class pyarchinit_pdf_export(QDialog, MAIN_DIALOG_CLASS):
                 str(self.DATA_LIST[i].tecnologie),  # 18 - misurazioni
                 str(self.DATA_LIST[i].tipo),  # 19 - tipo
                 str(self.DATA_LIST[i].corpo_ceramico),  # 20 - corpo_ceramico
-                str(self.DATA_LIST[i].rivestimento)  # 21- rivestimento
+                str(self.DATA_LIST[i].rivestimento),  # 21 - rivestimento
+                str(self.DATA_LIST[i].repertato),  # 22 - repertato
+                str(self.DATA_LIST[i].diagnostico)  # 23 - diagnostico
             ])
         return data_list
 
