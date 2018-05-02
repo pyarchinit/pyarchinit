@@ -37,11 +37,6 @@ from ..modules.db.pyarchinit_utility import Utility
 
 filepath = os.path.dirname(__file__)
 
-try:
-    from  pyarchinit_db_manager import *
-except:
-    pass
-
 MAIN_DIALOG_CLASS, _ = loadUiType(os.path.join(os.path.dirname(__file__), os.pardir, 'gui', 'ui', 'Images_comparison.ui'))
 
 
@@ -93,11 +88,16 @@ class Comparision(QDialog, MAIN_DIALOG_CLASS):
                                     QMessageBox.Ok)
 
     def on_pushButton_chose_dir_pressed(self):
-        self.PATH = QFileDialog.getExistingDirectory(self, "Scegli una directory", "Seleziona una directory:",
+        path = QFileDialog.getExistingDirectory(self, "Scegli una directory", "Seleziona una directory:",
                                                            QFileDialog.ShowDirsOnly)
+        if path:
+            self.PATH = path
 
     def on_pushButton_chose_file_pressed(self):
-        self.FILE = QFileDialog.getOpenFileName(self, 'Open file', '/')
+        file = QFileDialog.getOpenFileName(self, 'Open file', '', 'Images (*.png *.xpm *.jpg)')
+        if file:
+            self.FILE = file
+
 
     def on_pushButton_run_pressed(self):
         file_list = self.generate_files_couples()
