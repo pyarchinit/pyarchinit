@@ -31,12 +31,6 @@ from ..modules.db.pyarchinit_db_manager import Pyarchinit_db_management
 from ..modules.db.pyarchinit_utility import Utility
 from ..modules.gis.pyarchinit_pyqgis import Pyarchinit_pyqgis
 
-try:
-    from qgis.core import *
-    from qgis.gui import *
-except:
-    pass
-
 MAIN_DIALOG_CLASS, _ = loadUiType(os.path.join(os.path.dirname(__file__), os.pardir, 'gui', 'ui', 'Upd.ui'))
 
 

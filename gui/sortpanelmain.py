@@ -32,15 +32,21 @@ MAIN_DIALOG_CLASS, _ = loadUiType(os.path.join(os.path.dirname(__file__), 'ui', 
 
 
 class SortPanelMain(QDialog, MAIN_DIALOG_CLASS):
-    ITEMS = []
     TYPE_ORDER = ""
 
     def __init__(self, parent=None, db=None):
         QDialog.__init__(self, parent)
         self.setupUi(self)
+        self.ITEMS = []
+
+    def closeEvent(self, event):
+        if not self.ITEMS:
+            self.ITEMS.append(self.FieldsList.item(0).text())
+
+        self.deleteLater()
+        QDialog.closeEvent(self, event)
 
     def on_pushButtonSort_pressed(self):
-        self.ITEMS = []
         for index in range(self.FieldListsort.count()):
             self.ITEMS.append(self.FieldListsort.item(index).text())
 
@@ -49,10 +55,10 @@ class SortPanelMain(QDialog, MAIN_DIALOG_CLASS):
         else:
             self.TYPE_ORDER = "desc"
 
-        if not bool(self.ITEMS):
+        if not self.ITEMS:
             ttl = "Non è stato impostata alcun criterio. Vuoi uscire?"
-            msg = QMessageBox.warning(self, 'ATTENZIONE', ttl, QMessageBox.Cancel, 1)
-            if msg == 1:
+            msg = QMessageBox.warning(self, 'ATTENZIONE', ttl, QMessageBox.Ok | QMessageBox.Cancel)
+            if msg == QMessageBox.Ok:
                 self.close()
             else:
                 pass

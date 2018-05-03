@@ -34,8 +34,6 @@ from qgis.PyQt.QtWidgets import QDialog, QMessageBox, QListWidget, QListView, QF
     QTableWidgetItem, QListWidgetItem
 from qgis.PyQt.uic import loadUiType
 
-from gui.imageViewer import ImageViewer
-from .US_USM import pyarchinit_US
 from ..modules.db.pyarchinit_conn_strings import Connection
 from ..modules.db.pyarchinit_db_manager import Pyarchinit_db_management
 from ..modules.db.pyarchinit_utility import Utility
@@ -43,6 +41,7 @@ from ..modules.utility.csv_writer import UnicodeWriter
 from ..modules.utility.delegateComboBox import ComboBoxDelegate
 from ..modules.utility.pyarchinit_error_check import Error_check
 from ..modules.utility.pyarchinit_exp_Findssheet_pdf import generate_reperti_pdf
+from ..gui.imageViewer import ImageViewer
 from ..gui.quantpanelmain import QuantPanelMain
 from ..gui.sortpanelmain import SortPanelMain
 
