@@ -2634,7 +2634,7 @@ class pyarchinit_Deteta(QDialog, MAIN_DIALOG_CLASS):
         value = n
 
         for fn in field_names:
-            cmd = ('%s%s%d%s') % (fn, '.setEditable(', n, ')')
+            cmd = '{}{}{}{}'.format(fn, '.setEditable(', n, ')')
             eval(cmd)
 
     def setComboBoxEnable(self, f, v):
@@ -3231,13 +3231,13 @@ class pyarchinit_Deteta(QDialog, MAIN_DIALOG_CLASS):
 
         media = float(valore_dividendo) / float(valore_divisore_media)
 
-        if media >= 0.400 and media <= 1.599:
+        if 0.400 <= media <= 1.599:
             range_eta = (15, 40)
-        elif media >= 1.600 and media <= 2.599:
+        elif 1.600 <= media <= 2.599:
             range_eta = (30, 60)
-        elif media >= 2.600 and media <= 2.999:
+        elif 2.600 <= media <= 2.999:
             range_eta = (35, 65)
-        elif media >= 3.000 and media <= 3.999:
+        elif 3.000 <= media <= 3.999:
             range_eta = (45, 75)
         elif media >= 4.000:
             range_eta = (50, 80)
@@ -3287,15 +3287,15 @@ class pyarchinit_Deteta(QDialog, MAIN_DIALOG_CLASS):
                 range_eta_volta = (0, 35)
             elif somma_volta == 1 or somma_volta == 2:
                 range_eta_volta = (19, 44)
-            elif somma_volta >= 3 and somma_volta <= 6:
+            elif 3 <= somma_volta <= 6:
                 range_eta_volta = (23, 45)
-            elif somma_volta >= 7 and somma_volta <= 11:
+            elif 7 <= somma_volta <= 11:
                 range_eta_volta = (28, 44)
-            elif somma_volta >= 12 and somma_volta <= 15:
+            elif 12 <= somma_volta <= 15:
                 range_eta_volta = (31, 65)
-            elif somma_volta >= 16 and somma_volta <= 18:
+            elif 16 <= somma_volta <= 18:
                 range_eta_volta = (35, 60)
-            elif somma_volta >= 19 and somma_volta <= 20:
+            elif 19 <= somma_volta <= 20:
                 range_eta_volta = (34, 63)
             elif somma_volta == 21:
                 range_eta_volta = (43, 100)
@@ -3329,7 +3329,7 @@ class pyarchinit_Deteta(QDialog, MAIN_DIALOG_CLASS):
                 range_eta_ant_lat = (21, 42)
             elif somma_ant_lat == 2:
                 range_eta_ant_lat = (29, 44)
-            elif somma_ant_lat >= 3 and somma_ant_lat <= 5:
+            elif 3 <= somma_ant_lat <= 5:
                 range_eta_ant_lat = (28, 52)
             elif somma_ant_lat == 6:
                 range_eta_ant_lat = (30, 54)
@@ -3337,7 +3337,7 @@ class pyarchinit_Deteta(QDialog, MAIN_DIALOG_CLASS):
                 range_eta_ant_lat = (35, 57)
             elif somma_ant_lat == 9 or somma_ant_lat == 10:
                 range_eta_ant_lat = (39, 69)
-            elif somma_ant_lat >= 11 and somma_ant_lat <= 14:
+            elif 11 <= somma_ant_lat <= 14:
                 range_eta_ant_lat = (49, 65)
             elif somma_ant_lat == 15:
                 range_eta_ant_lat = ("", "")

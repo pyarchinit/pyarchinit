@@ -27,8 +27,8 @@ changelog= new version for QGIS 3
 tags=archaeology, analysis, database, digitizing, postgres, postgis, spatialite, sqlite, archeologia, funerary archaeology, pottery, bones, excavations, scavi, archeologici, siti, carte, archeologiche, carta di potenzialita, strutture, antiche, tempio, medioevo, romana, preistoria, roman, medieval, prehistoric
 
 homepage=https://sites.google.com/site/pyarchinit/
-tracker=https://github.com/pyarchinit/pyarchinit_beta_test_dev/issues?direction=asc&labels=enhancement&milestone=1&sort=created&state=open
-repository=https://github.com/pyarchinit/pyarchinit_beta_test_dev
+tracker=https://github.com/pyarchinit/pyarchinit/issues
+repository=https://github.com/pyarchinit/pyarchinit
 icon=icon.png
 # experimental flag
 experimental=True
