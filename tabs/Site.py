@@ -266,9 +266,6 @@ class pyarchinit_Site(QDialog, MAIN_DIALOG_CLASS):
             for i in items:
                 self.SORT_ITEMS_CONVERTED.append(self.CONVERSION_DICT[str(i)])
 
-            if not self.SORT_ITEMS_CONVERTED:
-                return
-
             self.SORT_MODE = order_type
             self.empty_fields()
 
