@@ -269,7 +269,7 @@ class single_Struttura_pdf_sheet(object):
 
         # 7 row
         materiali_impiegati = ''
-        if eval(self.materiali_impiegati) > 0:
+        if eval(self.materiali_impiegati):
             for i in eval(self.materiali_impiegati):
                 if materiali_impiegati == '':
                     try:
@@ -286,7 +286,7 @@ class single_Struttura_pdf_sheet(object):
 
         # 8 row
         elementi_strutturali = ''
-        if eval(self.elementi_strutturali) > 0:
+        if eval(self.elementi_strutturali):
             for i in eval(self.elementi_strutturali):
                 if elementi_strutturali == '':
                     try:
@@ -303,7 +303,7 @@ class single_Struttura_pdf_sheet(object):
 
         # 9 row
         rapporti_struttura = ''
-        if eval(self.rapporti_struttura) > 0:
+        if eval(self.rapporti_struttura):
             for i in eval(self.rapporti_struttura):
                 if rapporti_struttura == '':
                     try:
@@ -322,7 +322,7 @@ class single_Struttura_pdf_sheet(object):
 
         # 10 row
         misure_struttura = ''
-        if eval(self.misure_struttura) > 0:
+        if eval(self.misure_struttura):
             for i in eval(self.misure_struttura):
                 if misure_struttura == '':
                     try:

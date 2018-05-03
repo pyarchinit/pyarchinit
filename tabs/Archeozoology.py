@@ -281,7 +281,7 @@ class pyarchinit_Archeozoology(QDialog, MAIN_DIALOG_CLASS):
             self.DB_MANAGER.connection()
             self.charge_records()  # charge records from DB
             # check if DB is empty
-            if bool(self.DATA_LIST) == True:
+            if bool(self.DATA_LIST):
                 self.REC_TOT, self.REC_CORR = len(self.DATA_LIST), 0
                 self.DATA_LIST_REC_TEMP = self.DATA_LIST_REC_CORR = self.DATA_LIST[0]
                 self.BROWSE_STATUS = 'b'
@@ -357,7 +357,7 @@ class pyarchinit_Archeozoology(QDialog, MAIN_DIALOG_CLASS):
         self.fill_fields()
 
     def on_toolButtonGis_toggled(self):
-        if self.toolButtonGis.isChecked() == True:
+        if self.toolButtonGis.isChecked():
             QMessageBox.warning(self, "Messaggio",
                                 "Modalita' GIS attiva. Da ora le tue ricerche verranno visualizzate sul GIS",
                                 QMessageBox.Ok)
@@ -648,7 +648,7 @@ class pyarchinit_Archeozoology(QDialog, MAIN_DIALOG_CLASS):
             except:
                 QMessageBox.warning(self, "Attenzione", "Il database e' vuoto!", QMessageBox.Ok)
 
-            if bool(self.DATA_LIST) == False:
+            if not bool(self.DATA_LIST):
                 self.DATA_LIST = []
                 self.DATA_LIST_REC_CORR = []
                 self.DATA_LIST_REC_TEMP = []
@@ -657,7 +657,7 @@ class pyarchinit_Archeozoology(QDialog, MAIN_DIALOG_CLASS):
                 self.empty_fields()
                 self.set_rec_counter(0, 0)
             # check if DB is empty
-            if bool(self.DATA_LIST) == True:
+            if bool(self.DATA_LIST):
                 self.REC_TOT, self.REC_CORR = len(self.DATA_LIST), 0
                 self.DATA_LIST_REC_TEMP = self.DATA_LIST_REC_CORR = self.DATA_LIST[0]
                 self.fill_fields()
@@ -701,60 +701,60 @@ class pyarchinit_Archeozoology(QDialog, MAIN_DIALOG_CLASS):
         else:
             lineEdit_esp_generale = str(self.lineEdit_esp_generale.text())
 
-        if self.radioButtonUsMin.isChecked() == True:
+        if self.radioButtonUsMin.isChecked():
             self.TYPE_QUANT = "US"
         else:
             self.close()
 
-        if self.bos.isChecked() == True:
+        if self.bos.isChecked():
             self.TYPE_QUANT = ""
         else:
             pass
-        if self.calcinati.isChecked() == True:
+        if self.calcinati.isChecked():
             self.TYPE_QUANT = ""
         else:
             pass
-        if self.camoscio.isChecked() == True:
+        if self.camoscio.isChecked():
             self.TYPE_QUANT = ""
         else:
             pass
-        if self.combuste.isChecked() == True:
+        if self.combuste.isChecked():
             self.TYPE_QUANT = ""
         else:
             pass
-        if self.coni.isChecked() == True:
+        if self.coni.isChecked():
             self.TYPE_QUANT = ""
         else:
             pass
-        if self.pdi.isChecked() == True:
+        if self.pdi.isChecked():
             self.TYPE_QUANT = ""
         else:
             pass
-        if self.capriolo.isChecked() == True:
+        if self.capriolo.isChecked():
             self.TYPE_QUANT = ""
         else:
             pass
-        if self.cervi.isChecked() == True:
+        if self.cervi.isChecked():
             self.TYPE_QUANT = ""
         else:
             pass
-        if self.stambecco.isChecked() == True:
+        if self.stambecco.isChecked():
             self.TYPE_QUANT = ""
         else:
             pass
-        if self.strie.isChecked() == True:
+        if self.strie.isChecked():
             self.TYPE_QUANT = ""
         else:
             pass
-        if self.canidi.isChecked() == True:
+        if self.canidi.isChecked():
             self.TYPE_QUANT = ""
         else:
             pass
-        if self.ursidi.isChecked() == True:
+        if self.ursidi.isChecked():
             self.TYPE_QUANT = ""
         else:
             pass
-        if self.megacero.isChecked() == True:
+        if self.megacero.isChecked():
             self.TYPE_QUANT = ""
         else:
             pass
@@ -956,78 +956,78 @@ class pyarchinit_Archeozoology(QDialog, MAIN_DIALOG_CLASS):
         con = "r('archezoology_table<-dbGetQuery(con,\"select * from archeozoology_table where us = %d AND bos_bison IS NOT NULL\")')" % int(
             self.DATA_LIST[i].us)
         eval(con)
-        if self.bos.isChecked() == True:
+        if self.bos.isChecked():
             x1 = "r('VGM_PARAM_A3 <- gstat(id=\"%s\", formula=%s~1,locations=~coord_x+coord_y, data=archezoology_table, nmax = 10)')" % (
                 str(self.lineEdit_bos_2.currentText()), str(self.c1.currentText()))
             eval(x1)
         else:
             pass
-        if self.calcinati.isChecked() == True:
+        if self.calcinati.isChecked():
             x2 = "r('VGM_PARAM_A3 <- gstat(VGM_PARAM_A3, \"%s\", %s~1, locations=~coord_x+coord_y, archezoology_table, nmax = 10)')" % (
                 str(self.lineEdit_calcinati_2.text()), str(self.c2.currentText()))
             eval(x2)
         else:
             pass
-        if self.camoscio.isChecked() == True:
+        if self.camoscio.isChecked():
             x3 = "r('VGM_PARAM_A3 <- gstat(VGM_PARAM_A3,\"%s\", %s~1, locations=~coord_x+coord_y,archezoology_table, nmax = 10)')" % (
                 str(self.lineEdit_camoscio_2.text()), str(self.c3.currentText()))
             eval(x3)
         else:
             pass
-        if self.capriolo.isChecked() == True:
+        if self.capriolo.isChecked():
             x4 = "r('VGM_PARAM_A3 <- gstat(VGM_PARAM_A3, \"%s\", %s~1, locations=~coord_x+coord_y,archezoology_table, nmax = 10)')" % (
                 str(self.lineEdit_capriolo_2.text()), str(self.c4.currentText()))
             eval(x4)
         else:
             pass
-        if self.cervi.isChecked() == True:
+        if self.cervi.isChecked():
             x5 = "r('VGM_PARAM_A3 <- gstat(VGM_PARAM_A3, \"%s\", %s~1, locations=~coord_x+coord_y,archezoology_table, nmax = 10)')" % (
                 str(self.lineEdit_cervo_2.text()), str(self.c5.currentText()))
             eval(x5)
         else:
             pass
-        if self.combuste.isChecked() == True:
+        if self.combuste.isChecked():
             x6 = "r('VGM_PARAM_A3 <- gstat(VGM_PARAM_A3, \"%s\", %s~1, locations=~coord_x+coord_y,archezoology_table, nmax = 10)')" % (
                 str(self.lineEdit_combusto_2.text()), str(self.c6.currentText()))
             eval(x6)
         else:
             pass
-        if self.coni.isChecked() == True:
+        if self.coni.isChecked():
             x7 = "r('VGM_PARAM_A3 <- gstat(VGM_PARAM_A3, \"%s\", %s~1, locations=~coord_x+coord_y,archezoology_table, nmax = 10)')" % (
                 str(self.lineEdit_coni_2.text()), str(self.c7.currentText()))
             eval(x7)
         else:
             pass
-        if self.pdi.isChecked() == True:
+        if self.pdi.isChecked():
             x8 = "r('VGM_PARAM_A3 <- gstat(VGM_PARAM_A3, \"%s\", %s~1, locations=~coord_x+coord_y,archezoology_table, nmax = 10)')" % (
                 str(self.lineEdit_pdi_2.text()), str(self.c8.currentText()))
             eval(x8)
         else:
             pass
-        if self.stambecco.isChecked() == True:
+        if self.stambecco.isChecked():
             x9 = "r('VGM_PARAM_A3 <- gstat(VGM_PARAM_A3, \"%s\", %s~1, locations=~coord_x+coord_y,archezoology_table, nmax = 10)')" % (
                 str(self.lineEdit_stambecco_2.text()), str(self.c9.currentText()))
             eval(x9)
         else:
             pass
-        if self.strie.isChecked() == True:
+        if self.strie.isChecked():
             x10 = "r('VGM_PARAM_A3 <- gstat(VGM_PARAM_A3, \"%s\", %s~1, locations=~coord_x+coord_y,archezoology_table, nmax = 10)')" % (
                 str(self.lineEdit_strie_2.text()), str(self.c10.currentText()))
         else:
             pass
-        if self.megacero.isChecked() == True:
+        if self.megacero.isChecked():
             x11 = "r('VGM_PARAM_A3 <- gstat(VGM_PARAM_A3, \"%s\", %s~1, locations=~coord_x+coord_y,archezoology_table, nmax = 10)')" % (
                 str(self.lineEdit_megacero_2.text()), str(self.c13.currentText()))
             eval(x11)
         else:
             pass
-        if self.ursidi.isChecked() == True:
+        if self.ursidi.isChecked():
             x12 = "r('VGM_PARAM_A3 <- gstat(VGM_PARAM_A3, \"%s\", %s~1, locations=~coord_x+coord_y,archezoology_table, nmax = 10)')" % (
                 str(self.lineEdit_ursidi_2.text()), str(self.c12.currentText()))
             eval(x12)
         else:
             pass
-        if self.canidi.isChecked() == True:
+        if self.canidi.isChecked():
             x13 = "r('VGM_PARAM_A3 <- gstat(VGM_PARAM_A3, \"%s\", %s~1, locations=~coord_x+coord_y,archezoology_table, nmax = 10)')" % (
                 str(self.lineEdit_canidi_2.text()), str(self.c11.currentText()))
             eval(x13)
@@ -1066,7 +1066,7 @@ class pyarchinit_Archeozoology(QDialog, MAIN_DIALOG_CLASS):
         else:
             lineEdit_esp_generale = str(self.lineEdit_esp_generale.text())
 
-        if self.radioButtonUsMin.isChecked() == True:
+        if self.radioButtonUsMin.isChecked():
             self.TYPE_QUANT = "US"
 
 
@@ -1074,55 +1074,55 @@ class pyarchinit_Archeozoology(QDialog, MAIN_DIALOG_CLASS):
 
         else:
             self.close()
-        if self.bos.isChecked() == True:
+        if self.bos.isChecked():
             self.TYPE_QUANT = ""
         else:
             pass
-        if self.calcinati.isChecked() == True:
+        if self.calcinati.isChecked():
             self.TYPE_QUANT = ""
         else:
             pass
-        if self.camoscio.isChecked() == True:
+        if self.camoscio.isChecked():
             self.TYPE_QUANT = ""
         else:
             pass
-        if self.combuste.isChecked() == True:
+        if self.combuste.isChecked():
             self.TYPE_QUANT = ""
         else:
             pass
-        if self.coni.isChecked() == True:
+        if self.coni.isChecked():
             self.TYPE_QUANT = ""
         else:
             pass
-        if self.pdi.isChecked() == True:
+        if self.pdi.isChecked():
             self.TYPE_QUANT = ""
         else:
             pass
-        if self.capriolo.isChecked() == True:
+        if self.capriolo.isChecked():
             self.TYPE_QUANT = ""
         else:
             pass
-        if self.cervi.isChecked() == True:
+        if self.cervi.isChecked():
             self.TYPE_QUANT = ""
         else:
             pass
-        if self.stambecco.isChecked() == True:
+        if self.stambecco.isChecked():
             self.TYPE_QUANT = ""
         else:
             pass
-        if self.strie.isChecked() == True:
+        if self.strie.isChecked():
             self.TYPE_QUANT = ""
         else:
             pass
-        if self.canidi.isChecked() == True:
+        if self.canidi.isChecked():
             self.TYPE_QUANT = ""
         else:
             pass
-        if self.ursidi.isChecked() == True:
+        if self.ursidi.isChecked():
             self.TYPE_QUANT = ""
         else:
             pass
-        if self.megacero.isChecked() == True:
+        if self.megacero.isChecked():
             self.TYPE_QUANT = ""
         else:
             pass
@@ -1324,78 +1324,78 @@ class pyarchinit_Archeozoology(QDialog, MAIN_DIALOG_CLASS):
         con = "r('archezoology_table<-dbGetQuery(con,\"select * from archeozoology_table where us = %d AND bos_bison IS NOT NULL\")')" % int(
             self.DATA_LIST[i].us)
         eval(con)
-        if self.bos.isChecked() == True:
+        if self.bos.isChecked():
             x1 = "r('VGM_PARAM_A3 <- gstat(id=\"%s\", formula=%s~1,locations=~coord_x+coord_y, data=archezoology_table, nmax = 10)')" % (
                 str(self.lineEdit_bos_2.currentText()), str(self.c1.currentText()))
             eval(x1)
         else:
             pass
-        if self.calcinati.isChecked() == True:
+        if self.calcinati.isChecked():
             x2 = "r('VGM_PARAM_A3 <- gstat(VGM_PARAM_A3, \"%s\", %s~1, locations=~coord_x+coord_y, archezoology_table, nmax = 10)')" % (
                 str(self.lineEdit_calcinati_2.text()), str(self.c2.currentText()))
             eval(x2)
         else:
             pass
-        if self.camoscio.isChecked() == True:
+        if self.camoscio.isChecked():
             x3 = "r('VGM_PARAM_A3 <- gstat(VGM_PARAM_A3,\"%s\", %s~1, locations=~coord_x+coord_y,archezoology_table, nmax = 10)')" % (
                 str(self.lineEdit_camoscio_2.text()), str(self.c3.currentText()))
             eval(x3)
         else:
             pass
-        if self.capriolo.isChecked() == True:
+        if self.capriolo.isChecked():
             x4 = "r('VGM_PARAM_A3 <- gstat(VGM_PARAM_A3, \"%s\", %s~1, locations=~coord_x+coord_y,archezoology_table, nmax = 10)')" % (
                 str(self.lineEdit_capriolo_2.text()), str(self.c4.currentText()))
             eval(x4)
         else:
             pass
-        if self.cervi.isChecked() == True:
+        if self.cervi.isChecked():
             x5 = "r('VGM_PARAM_A3 <- gstat(VGM_PARAM_A3, \"%s\", %s~1, locations=~coord_x+coord_y,archezoology_table, nmax = 10)')" % (
                 str(self.lineEdit_cervo_2.text()), str(self.c5.currentText()))
             eval(x5)
         else:
             pass
-        if self.combuste.isChecked() == True:
+        if self.combuste.isChecked():
             x6 = "r('VGM_PARAM_A3 <- gstat(VGM_PARAM_A3, \"%s\", %s~1, locations=~coord_x+coord_y,archezoology_table, nmax = 10)')" % (
                 str(self.lineEdit_combusto_2.text()), str(self.c6.currentText()))
             eval(x6)
         else:
             pass
-        if self.coni.isChecked() == True:
+        if self.coni.isChecked():
             x7 = "r('VGM_PARAM_A3 <- gstat(VGM_PARAM_A3, \"%s\", %s~1, locations=~coord_x+coord_y,archezoology_table, nmax = 10)')" % (
                 str(self.lineEdit_coni_2.text()), str(self.c7.currentText()))
             eval(x7)
         else:
             pass
-        if self.pdi.isChecked() == True:
+        if self.pdi.isChecked():
             x8 = "r('VGM_PARAM_A3 <- gstat(VGM_PARAM_A3, \"%s\", %s~1, locations=~coord_x+coord_y,archezoology_table, nmax = 10)')" % (
                 str(self.lineEdit_pdi_2.text()), str(self.c8.currentText()))
             eval(x8)
         else:
             pass
-        if self.stambecco.isChecked() == True:
+        if self.stambecco.isChecked():
             x9 = "r('VGM_PARAM_A3 <- gstat(VGM_PARAM_A3, \"%s\", %s~1, locations=~coord_x+coord_y,archezoology_table, nmax = 10)')" % (
                 str(self.lineEdit_stambecco_2.text()), str(self.c9.currentText()))
             eval(x9)
         else:
             pass
-        if self.strie.isChecked() == True:
+        if self.strie.isChecked():
             x10 = "r('VGM_PARAM_A3 <- gstat(VGM_PARAM_A3, \"%s\", %s~1, locations=~coord_x+coord_y,archezoology_table, nmax = 10)')" % (
                 str(self.lineEdit_strie_2.text()), str(self.c10.currentText()))
         else:
             pass
-        if self.megacero.isChecked() == True:
+        if self.megacero.isChecked():
             x11 = "r('VGM_PARAM_A3 <- gstat(VGM_PARAM_A3, \"%s\", %s~1, locations=~coord_x+coord_y,archezoology_table, nmax = 10)')" % (
                 str(self.lineEdit_megacero_2.text()), str(self.c13.currentText()))
             eval(x11)
         else:
             pass
-        if self.ursidi.isChecked() == True:
+        if self.ursidi.isChecked():
             x12 = "r('VGM_PARAM_A3 <- gstat(VGM_PARAM_A3, \"%s\", %s~1, locations=~coord_x+coord_y,archezoology_table, nmax = 10)')" % (
                 str(self.lineEdit_ursidi_2.text()), str(self.c12.currentText()))
             eval(x12)
         else:
             pass
-        if self.canidi.isChecked() == True:
+        if self.canidi.isChecked():
             x13 = "r('VGM_PARAM_A3 <- gstat(VGM_PARAM_A3, \"%s\", %s~1, locations=~coord_x+coord_y,archezoology_table, nmax = 10)')" % (
                 str(self.lineEdit_canidi_2.text()), str(self.c11.currentText()))
             eval(x13)
@@ -1423,7 +1423,7 @@ class pyarchinit_Archeozoology(QDialog, MAIN_DIALOG_CLASS):
             QMessageBox.warning(self, "ATTENZIONE", "Campo scegli la path. \n Aggiungi path per l'sportazione",
                                 QMessageBox.Ok)
             test = 1
-        if self.radioButtonUsMin.isChecked() == True:
+        if self.radioButtonUsMin.isChecked():
             self.TYPE_QUANT = "US"
         else:
             self.close()
@@ -1568,7 +1568,7 @@ MSDR <- function(xv.obj){
             QMessageBox.warning(self, "ATTENZIONE", "Campo scegli la path. \n Aggiungi path per l'sportazione",
                                 QMessageBox.Ok)
             test = 1
-        if self.radioButtonUsMin.isChecked() == True:
+        if self.radioButtonUsMin.isChecked():
             self.TYPE_QUANT = "US"
 
 
@@ -1701,7 +1701,7 @@ MSDR <- function(xv.obj){
             QMessageBox.warning(self, "ATTENZIONE", "Campo scegli la path. \n Aggiungi path per l'sportazione",
                                 QMessageBox.Ok)
             test = 1
-        if self.radioButtonUsMin.isChecked() == True:
+        if self.radioButtonUsMin.isChecked():
             self.TYPE_QUANT = "US"
 
 
@@ -2026,7 +2026,7 @@ do.it <- function (x) {
             QMessageBox.warning(self, "ATTENZIONE", "Campo scegli la path. \n Aggiungi path per l'sportazione",
                                 QMessageBox.Ok)
             test = 1
-        if self.radioButtonUsMin.isChecked() == True:
+        if self.radioButtonUsMin.isChecked():
             self.TYPE_QUANT = "US"
 
 
@@ -2145,7 +2145,7 @@ do.it <- function (x) {
             QMessageBox.warning(self, "ATTENZIONE", "Campo scegli la path. \n Aggiungi path per l'sportazione",
                                 QMessageBox.Ok)
             test = 1
-        if self.radioButtonUsMin.isChecked() == True:
+        if self.radioButtonUsMin.isChecked():
             self.TYPE_QUANT = "US"
 
 
@@ -2479,11 +2479,11 @@ title(sub="Rosso = coppie con r>|0.5|, Verde = coppie con |0.25|<r<|0.5|;
             u = Utility()
             search_dict = u.remove_empty_items_fr_dict(search_dict)
 
-            if bool(search_dict) == False:
+            if not bool(search_dict):
                 QMessageBox.warning(self, "ATTENZIONE", "Non e' stata impostata alcuna ricerca!!!", QMessageBox.Ok)
             else:
                 res = self.DB_MANAGER.query_bool(search_dict, self.MAPPER_TABLE_CLASS)
-                if bool(res) == False:
+                if not bool(res):
                     QMessageBox.warning(self, "ATTENZIONE", "Non è¨ stato trovato nessun record!", QMessageBox.Ok)
 
                     self.set_rec_counter(len(self.DATA_LIST), self.REC_CORR + 1)
@@ -2510,11 +2510,11 @@ title(sub="Rosso = coppie con r>|0.5|, Verde = coppie con |0.25|<r<|0.5|;
 
                     if self.REC_TOT == 1:
                         strings = ("E' stato trovato", self.REC_TOT, "record")
-                        if self.toolButtonGis.isChecked() == True:
+                        if self.toolButtonGis.isChecked():
                             self.pyQGIS.charge_vector_layers(self.DATA_LIST)
                     else:
                         strings = ("Sono stati trovati", self.REC_TOT, "records")
-                        if self.toolButtonGis.isChecked() == True:
+                        if self.toolButtonGis.isChecked():
                             self.pyQGIS.charge_vector_layers(self.DATA_LIST)
 
                     self.setComboBoxEnable(["self.comboBox_sito"], "False")
@@ -2575,7 +2575,7 @@ title(sub="Rosso = coppie con r>|0.5|, Verde = coppie con |0.25|<r<|0.5|;
             sub_list = []
             for c in range(col):
                 value = eval(self.tablename + ".item(r,c)")
-                if bool(value) == True:
+                if bool(value):
                     sub_list.append(str(value.text()))
             lista.append(sub_list)
         return lista
