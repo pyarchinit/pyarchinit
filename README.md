@@ -7,7 +7,7 @@
 2. Install the python packages requirements (see [Dependencies](#dependencies) paragraph)
 3. Open QGIS and then from Plugin manager use Install from ZIP to install the plugin
 
-```Note: While installing a message box could be prompted which warn you on missing python packages required from the plugin```
+**Note:** _While installing a message box could be prompted which warn you on missing python packages required from the plugin_
 
 #### Dependencies
 * SQLAlchemy
