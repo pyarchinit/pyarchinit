@@ -23,9 +23,9 @@ The dependencies can be installed using the [modules_installer.py](/scripts/modu
 ```python modules_installer.py```
 
 ### Contribute
-1. Fork ad clone the repository: ```git clone https://github.com/pyarchinit/pyarchinit.git```
+1. Fork ad clone the repository: ```git clone https://github.com/<user>/pyarchinit.git```
 2. Make your changes
 3. Commit to your repository: ```git commit -am 'your_message'```
-4. Create a pull request: ```git push origin <your_branch>```
+4. Create a pull request: ```git push -u origin <your_branch>```
 
 ![PR](https://services.github.com/on-demand/images/gifs/github-cli/push-and-pull.gif)
