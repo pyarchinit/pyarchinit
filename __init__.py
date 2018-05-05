@@ -20,6 +20,7 @@
 """
 
 import os
+import re
 
 import sys
 
@@ -65,15 +66,26 @@ try:
 except Exception as e:
     missing_libraries.append(str(e))
 
-if missing_libraries:
+install_libraries = []
+for l in missing_libraries:
+    p = re.findall(r"'(.*?)'", l)
+    install_libraries.append(p[0])
+
+if install_libraries:
     from qgis.PyQt.QtWidgets import QMessageBox
-    res = QMessageBox.warning(None, 'PyArchInit',"Some of the required packages are missing from your machine:\n{}\n\n"
-                                                 "Do you want install the missing packages?".format(',\n'.join(missing_libraries)), QMessageBox.Ok | QMessageBox.Cancel)
+
+    res = QMessageBox.warning(None, 'PyArchInit', "Some of the required packages are missing from your machine:\n{}\n\n"
+                                                  "Do you want install the missing packages?".format(
+        ',\n'.join(missing_libraries)), QMessageBox.Ok | QMessageBox.Cancel)
     if res == QMessageBox.Ok:
         import subprocess
-        subprocess.call(['python3', '{}'.format(os.path.join(os.path.dirname(__file__), 'scripts', 'modules_installer.py'))])
+        cmd = 'python3'
+
+        subprocess.call([cmd, '{}'.format(
+            os.path.join(os.path.dirname(__file__), 'scripts', 'modules_installer.py')), ','.join(install_libraries)])
     else:
         pass
+
 
 def classFactory(iface):
     from .pyarchinitPlugin import PyArchInitPlugin
