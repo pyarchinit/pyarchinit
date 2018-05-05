@@ -27,7 +27,9 @@ import sys
 packages = ['PypeR',
             'SQLAlchemy',
             'graphviz',
-            'reportlab']
+            'reportlab',
+            'networkx',
+            'matplotlib']
 
 for p in packages:
     if p.startswith('graphviz'):

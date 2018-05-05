@@ -55,6 +55,16 @@ try:
 except Exception as e:
     missing_libraries.append(str(e))
 
+try:
+    import matplotlib
+except Exception as e:
+    missing_libraries.append(str(e))
+
+try:
+    import networkx
+except Exception as e:
+    missing_libraries.append(str(e))
+
 if missing_libraries:
     from qgis.PyQt.QtWidgets import QMessageBox
     res = QMessageBox.warning(None, 'PyArchInit',"Some of the required packages are missing from your machine:\n{}\n\n"
