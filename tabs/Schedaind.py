@@ -363,8 +363,8 @@ class pyarchinit_Schedaind(QDialog, MAIN_DIALOG_CLASS):
                     if bool(self.DATA_LIST):
                         if self.records_equal_check() == 1:
                             self.update_if(QMessageBox.warning(self, 'Errore',
-                                                                "Il record e' stato modificato. Vuoi salvare le modifiche?",
-                                                                QMessageBox.Ok | QMessageBox.Cancel))
+                                                               "Il record e' stato modificato. Vuoi salvare le modifiche?",
+                                                               QMessageBox.Ok | QMessageBox.Cancel))
                             # set the GUI for a new record
         if self.BROWSE_STATUS != "n":
             self.BROWSE_STATUS = "n"

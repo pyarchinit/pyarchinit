@@ -302,8 +302,8 @@ class pyarchinit_Site(QDialog, MAIN_DIALOG_CLASS):
                     if bool(self.DATA_LIST):
                         if self.records_equal_check() == 1:
                             self.update_if(QMessageBox.warning(self, 'Errore',
-                                                                "Il record e' stato modificato. Vuoi salvare le modifiche?",
-                                                                QMessageBox.Ok | QMessageBox.Cancel))
+                                                               "Il record e' stato modificato. Vuoi salvare le modifiche?",
+                                                               QMessageBox.Ok | QMessageBox.Cancel))
                             # set the GUI for a new record
         if self.BROWSE_STATUS != "n":
             self.BROWSE_STATUS = "n"
@@ -546,7 +546,7 @@ class pyarchinit_Site(QDialog, MAIN_DIALOG_CLASS):
                 'descrizione': str(self.textEdit_descrizione_site.toPlainText()),  # 5 - Descrizione
                 'provincia': "'" + str(self.comboBox_provincia.currentText()) + "'",  # 6 - Provincia
                 'definizione_sito': "'" + str(self.comboBox_definizione_sito.currentText()) + "'"
-            # 67- definizione_sito
+                # 67- definizione_sito
             }
 
             u = Utility()

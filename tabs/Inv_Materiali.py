@@ -641,8 +641,8 @@ class pyarchinit_Inventario_reperti(QDialog, MAIN_DIALOG_CLASS):
                     if bool(self.DATA_LIST):
                         if self.records_equal_check() == 1:
                             self.update_if(QMessageBox.warning(self, 'Errore',
-                                                                "Il record e' stato modificato. Vuoi salvare le modifiche?",
-                                                                QMessageBox.Ok | QMessageBox.Cancel))
+                                                               "Il record e' stato modificato. Vuoi salvare le modifiche?",
+                                                               QMessageBox.Ok | QMessageBox.Cancel))
 
         if self.BROWSE_STATUS != "n":
             self.BROWSE_STATUS = "n"
@@ -1810,7 +1810,7 @@ class pyarchinit_Inventario_reperti(QDialog, MAIN_DIALOG_CLASS):
                 self.lineEdit_eve_orlo.setText(str(self.DATA_LIST[self.rec_num].eve_orlo))
 
 
-            ##########
+                ##########
         except Exception as e:
             QMessageBox.warning(self, "Errore Fill Fields", str(e), QMessageBox.Ok)
 
