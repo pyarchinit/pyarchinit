@@ -35,7 +35,7 @@ from ..modules.utility.pyarchinit_error_check import Error_check
 from ..modules.utility.pyarchinit_exp_Campsheet_pdf import generate_campioni_pdf
 from ..gui.sortpanelmain import SortPanelMain
 
-MAIN_DIALOG_CLASS, _ = loadUiType(os.path.join(os.path.dirname(__file__),os.pardir, 'gui', 'ui', 'Campioni.ui'))
+MAIN_DIALOG_CLASS, _ = loadUiType(os.path.join(os.path.dirname(__file__), os.pardir, 'gui', 'ui', 'Campioni.ui'))
 
 
 class pyarchinit_Campioni(QDialog, MAIN_DIALOG_CLASS):
@@ -257,7 +257,7 @@ class pyarchinit_Campioni(QDialog, MAIN_DIALOG_CLASS):
                         if self.records_equal_check() == 1:
                             self.update_if(QMessageBox.warning(self, 'Errore',
                                                                "Il record e' stato modificato. Vuoi salvare le modifiche?",
-                                                                QMessageBox.Ok | QMessageBox.Cancel))
+                                                               QMessageBox.Ok | QMessageBox.Cancel))
 
                             # set the GUI for a new record
         if self.BROWSE_STATUS != "n":

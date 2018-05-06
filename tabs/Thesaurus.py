@@ -247,8 +247,8 @@ class pyarchinit_Thesaurus(QDialog, MAIN_DIALOG_CLASS):
                     if bool(self.DATA_LIST):
                         if self.records_equal_check() == 1:
                             self.update_if(QMessageBox.warning(self, 'Errore',
-                                                                "Il record e' stato modificato. Vuoi salvare le modifiche?",
-                                                                QMessageBox.Ok | QMessageBox.Cancel))
+                                                               "Il record e' stato modificato. Vuoi salvare le modifiche?",
+                                                               QMessageBox.Ok | QMessageBox.Cancel))
 
                             # set the GUI for a new record
         if self.BROWSE_STATUS != "n":
@@ -529,7 +529,7 @@ class pyarchinit_Thesaurus(QDialog, MAIN_DIALOG_CLASS):
                 self.TABLE_FIELDS[1]: "'" + str(self.comboBox_sigla.currentText()) + "'",  # 2 - sigla
                 self.TABLE_FIELDS[2]: "'" + str(self.comboBox_sigla_estesa.currentText()) + "'",  # 3 - sigla estesa
                 self.TABLE_FIELDS[4]: "'" + str(self.comboBox_tipologia_sigla.currentText()) + "'"
-            # 3 - tipologia sigla
+                # 3 - tipologia sigla
             }
 
             u = Utility()

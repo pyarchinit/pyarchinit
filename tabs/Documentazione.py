@@ -185,7 +185,7 @@ class pyarchinit_Documentazione(QDialog, MAIN_DIALOG_CLASS):
                                     "Attenzione rilevato bug! Segnalarlo allo sviluppatore<br> Errore: <br>" + str(e),
                                     QMessageBox.Ok)
 
-            ####################################
+                ####################################
 
     def charge_list(self):
         sito_vl = self.UTILITY.tup_2_list_III(self.DB_MANAGER.group_by('site_table', 'sito', 'SITE'))
@@ -351,9 +351,9 @@ class pyarchinit_Documentazione(QDialog, MAIN_DIALOG_CLASS):
                     if bool(self.DATA_LIST):
                         if self.records_equal_check() == 1:
                             self.update_if(QMessageBox.warning(self, 'Errore',
-                                                                "Il record e' stato modificato. Vuoi salvare le modifiche?",
-                                                                QMessageBox.Ok | QMessageBox.Cancel))
-                        # set the GUI for a new record
+                                                               "Il record e' stato modificato. Vuoi salvare le modifiche?",
+                                                               QMessageBox.Ok | QMessageBox.Cancel))
+                            # set the GUI for a new record
         if self.BROWSE_STATUS != "n":
             self.BROWSE_STATUS = "n"
             self.label_status.setText(self.STATUS_ITEMS[self.BROWSE_STATUS])
@@ -369,7 +369,7 @@ class pyarchinit_Documentazione(QDialog, MAIN_DIALOG_CLASS):
             self.enable_button(0)
 
 
-        ###########################################
+            ###########################################
 
     def on_pushButton_save_pressed(self):
         # save record
@@ -409,7 +409,7 @@ class pyarchinit_Documentazione(QDialog, MAIN_DIALOG_CLASS):
                 else:
                     pass
 
-                ##################################################
+                    ##################################################
 
     def data_error_check(self):
         test = 0
@@ -606,7 +606,7 @@ class pyarchinit_Documentazione(QDialog, MAIN_DIALOG_CLASS):
                 self.charge_list()
                 self.empty_fields()
 
-            ################################################
+                ################################################
 
     def on_pushButton_search_go_pressed(self):
         if self.BROWSE_STATUS != "f":

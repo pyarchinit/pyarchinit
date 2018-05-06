@@ -38,7 +38,8 @@ from ..modules.db.pyarchinit_utility import Utility
 from ..modules.utility.delegateComboBox import ComboBoxDelegate
 from ..modules.utility.pyarchinit_media_utility import Media_utility
 
-MAIN_DIALOG_CLASS, _ = loadUiType(os.path.join(os.path.dirname(__file__), os.pardir, 'gui', 'ui', 'pyarchinit_image_viewer_dialog.ui'))
+MAIN_DIALOG_CLASS, _ = loadUiType(
+    os.path.join(os.path.dirname(__file__), os.pardir, 'gui', 'ui', 'pyarchinit_image_viewer_dialog.ui'))
 
 
 class Main(QDialog, MAIN_DIALOG_CLASS):
@@ -115,7 +116,7 @@ class Main(QDialog, MAIN_DIALOG_CLASS):
 
     def getDirectory(self):
         directory = QFileDialog.getExistingDirectory(self, "Scegli una directory", "Seleziona una directory:",
-                                                           QFileDialog.ShowDirsOnly)
+                                                     QFileDialog.ShowDirsOnly)
 
         if not directory:
             return
@@ -124,7 +125,7 @@ class Main(QDialog, MAIN_DIALOG_CLASS):
         for image in sorted(os.listdir(directory)):
             if image.endswith(".png") or image.endswith(".PNG") or image.endswith(".JPG") or image.endswith(
                     ".jpg") or image.endswith(".jpeg") or image.endswith(".JPEG") or image.endswith(
-                    ".tif") or image.endswith(".TIF") or image.endswith(".tiff") or image.endswith(".TIFF"):
+                ".tif") or image.endswith(".TIF") or image.endswith(".tiff") or image.endswith(".TIFF"):
 
                 filename, filetype = image.split(".")[0], image.split(".")[1]  # db definisce nome immagine originale
                 filepath = directory + '/' + filename + "." + filetype  # db definisce il path immagine originale
@@ -569,7 +570,7 @@ class Main(QDialog, MAIN_DIALOG_CLASS):
                                 us_data = self.DB_MANAGER.query_bool(search_dict, "US")
 
                                 US_string = ('Sito: %s - Area: %s - US: %d') % (
-                                us_data[0].sito, us_data[0].area, us_data[0].us)
+                                    us_data[0].sito, us_data[0].area, us_data[0].us)
                                 ##				#else
                                 mediaToEntity_list.append(
                                     [str(sing_res_media.id_entity), sing_res_media.entity_type, US_string])
@@ -580,7 +581,7 @@ class Main(QDialog, MAIN_DIALOG_CLASS):
                                 rep_data = self.DB_MANAGER.query_bool(search_dict, "INVENTARIO_MATERIALI")
 
                                 Rep_string = ('Sito: %s - N. Inv.: %d') % (
-                                rep_data[0].sito, rep_data[0].numero_inventario)
+                                    rep_data[0].sito, rep_data[0].numero_inventario)
                                 ##				#else
                                 mediaToEntity_list.append(
                                     [str(sing_res_media.id_entity), sing_res_media.entity_type, Rep_string])

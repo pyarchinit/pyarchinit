@@ -35,7 +35,8 @@ from ..modules.db.pyarchinit_db_manager import Pyarchinit_db_management
 from ..modules.gis.pyarchinit_pyqgis import Pyarchinit_pyqgis
 from ..modules.utility.pyarchinit_matrix_exp import HarrisMatrix
 
-MAIN_DIALOG_CLASS, _ = loadUiType(os.path.join(os.path.dirname(__file__), os.pardir, 'gui', 'ui', 'Interactive_matrix.ui'))
+MAIN_DIALOG_CLASS, _ = loadUiType(
+    os.path.join(os.path.dirname(__file__), os.pardir, 'gui', 'ui', 'Interactive_matrix.ui'))
 
 
 class pyarchinit_Interactive_Matrix(QDialog, MAIN_DIALOG_CLASS):
@@ -83,7 +84,8 @@ class pyarchinit_Interactive_Matrix(QDialog, MAIN_DIALOG_CLASS):
             for sing_rapp in rapporti_stratigrafici:
                 try:
                     if sing_rapp[0] == 'Taglia' or sing_rapp[0] == 'Copre' or sing_rapp[0] == 'Si appoggia a' or \
-                                    sing_rapp[0] == 'Riempie' or sing_rapp[0] == 'Si lega a' or sing_rapp[0] == 'Uguale a':
+                                    sing_rapp[0] == 'Riempie' or sing_rapp[0] == 'Si lega a' or sing_rapp[
+                        0] == 'Uguale a':
                         if sing_rapp[1] != '':
                             harris_rapp = (us, str(sing_rapp[1]))
                             data.append(harris_rapp)

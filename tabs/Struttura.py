@@ -127,19 +127,19 @@ class pyarchinit_Struttura(QDialog, MAIN_DIALOG_CLASS):
             QMessageBox.warning(self, "Sistema di connessione", str(e), QMessageBox.Ok)
 
             # SIGNALS & SLOTS Functions
-        self.comboBox_sigla_struttura.editTextChanged .connect(self.add_value_to_categoria)
+        self.comboBox_sigla_struttura.editTextChanged.connect(self.add_value_to_categoria)
 
         # SIGNALS & SLOTS Functions
-        self.comboBox_sito.editTextChanged .connect(self.charge_periodo_iniz_list)
-        self.comboBox_sito.editTextChanged .connect(self.charge_periodo_fin_list)
+        self.comboBox_sito.editTextChanged.connect(self.charge_periodo_iniz_list)
+        self.comboBox_sito.editTextChanged.connect(self.charge_periodo_fin_list)
 
         self.comboBox_sito.currentIndexChanged.connect(self.charge_periodo_iniz_list)
         self.comboBox_sito.currentIndexChanged.connect(self.charge_periodo_fin_list)
 
-        self.comboBox_per_iniz.editTextChanged .connect(self.charge_fase_iniz_list)
+        self.comboBox_per_iniz.editTextChanged.connect(self.charge_fase_iniz_list)
         self.comboBox_per_iniz.currentIndexChanged.connect(self.charge_fase_iniz_list)
 
-        self.comboBox_per_fin.editTextChanged .connect(self.charge_fase_fin_list)
+        self.comboBox_per_fin.editTextChanged.connect(self.charge_fase_fin_list)
         self.comboBox_per_fin.currentIndexChanged.connect(self.charge_fase_fin_list)
 
         sito = self.comboBox_sito.currentText()
@@ -451,8 +451,8 @@ class pyarchinit_Struttura(QDialog, MAIN_DIALOG_CLASS):
                     if bool(self.DATA_LIST):
                         if self.records_equal_check() == 1:
                             self.update_if(QMessageBox.warning(self, 'Errore',
-                                                                "Il record e' stato modificato. Vuoi salvare le modifiche?",
-                                                                QMessageBox.Ok | QMessageBox.Cancel))
+                                                               "Il record e' stato modificato. Vuoi salvare le modifiche?",
+                                                               QMessageBox.Ok | QMessageBox.Cancel))
                             # set the GUI for a new record
         if self.BROWSE_STATUS != "n":
             self.BROWSE_STATUS = "n"
@@ -790,7 +790,7 @@ class pyarchinit_Struttura(QDialog, MAIN_DIALOG_CLASS):
             search_dict = {
                 self.TABLE_FIELDS[0]: "'" + str(self.comboBox_sito.currentText()) + "'",  # 1 - Sito
                 self.TABLE_FIELDS[1]: "'" + str(self.comboBox_sigla_struttura.currentText()) + "'",
-            # 2 - Sigla struttura
+                # 2 - Sigla struttura
                 self.TABLE_FIELDS[2]: numero_struttura,  # 3 - numero struttura
                 self.TABLE_FIELDS[3]: "'" + str(self.comboBox_categoria_struttura.currentText()) + "'",
                 # 4 - categoria struttura
@@ -892,7 +892,7 @@ class pyarchinit_Struttura(QDialog, MAIN_DIALOG_CLASS):
         for i in range(len(self.DATA_LIST)):
             sito = str(self.DATA_LIST[i].sito)
             sigla_struttura = '{}{}'.format(
-            str(self.DATA_LIST[i].sigla_struttura), str(self.DATA_LIST[i].numero_struttura))
+                str(self.DATA_LIST[i].sigla_struttura), str(self.DATA_LIST[i].numero_struttura))
 
             res_strutt = self.DB_MANAGER.query_bool(
                 {"sito": "'" + str(sito) + "'", "struttura": "'" + str(sigla_struttura) + "'"}, "US")
