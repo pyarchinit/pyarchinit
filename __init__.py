@@ -32,8 +32,12 @@ sys.path.insert(0, os.path.abspath(
 sys.path.insert(0, os.path.abspath(
     os.path.join(os.path.dirname(__file__), 'gui', 'ui')))
 
-fi = pyarchinit_Folder_installation()
-fi.install_dir()
+pyarchinit_home = os.path.expanduser("~") + os.sep + 'pyarchinit'
+if not os.path.exists(pyarchinit_home):
+    fi = pyarchinit_Folder_installation()
+    fi.install_dir()
+else:
+    os.environ['PYARCHINIT_HOME'] = pyarchinit_home
 
 missing_libraries = []
 try:
