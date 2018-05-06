@@ -22,8 +22,7 @@ import subprocess
 
 import sys
 
-packages = sys.argv[1].split(',') if len(sys.argv) > 2 else []
-print(packages)
+packages = sys.argv[1].split(',') if len(sys.argv) >= 2 else []
 
 # Adding the dependencies python modules in
 # package list in order to install via pip module

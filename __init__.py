@@ -79,10 +79,10 @@ if install_libraries:
         ',\n'.join(missing_libraries)), QMessageBox.Ok | QMessageBox.Cancel)
     if res == QMessageBox.Ok:
         import subprocess
-        cmd = 'python3'
 
-        subprocess.call([cmd, '{}'.format(
-            os.path.join(os.path.dirname(__file__), 'scripts', 'modules_installer.py')), ','.join(install_libraries)])
+        cmd = 'python3'
+        subprocess.call(['{}'.format(os.path.join(os.path.dirname(__file__), 'scripts', 'modules_installer.py')),
+                         ','.join(install_libraries)])
     else:
         pass
 
