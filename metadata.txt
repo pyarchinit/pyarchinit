@@ -12,7 +12,7 @@
 name=pyArchInit
 qgisMinimumVersion=3.0
 description=pyarchinit archaeological tools: added logo system for PDF- tocheck
-version=0.3.1
+version=0.3.2
 author=Luca Mandolesi
 email=pyarchinit@gmail.com
 
@@ -21,7 +21,7 @@ email=pyarchinit@gmail.com
 # Optional items:
 
 # Uncomment the following line and add your changelog entries:
-changelog= Allow to run modules installer at the first start from QGIS
+changelog= Bug fixing release
 
 # tags are comma separated with spaces allowed
 tags=archaeology, analysis, database, digitizing, postgres, postgis, spatialite, sqlite, archeologia, funerary archaeology, pottery, bones, excavations, scavi, archeologici, siti, carte, archeologiche, carta di potenzialita, strutture, antiche, tempio, medioevo, romana, preistoria, roman, medieval, prehistoric
