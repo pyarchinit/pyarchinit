@@ -95,9 +95,9 @@ class Comparision(QDialog, MAIN_DIALOG_CLASS):
             self.PATH = path
 
     def on_pushButton_chose_file_pressed(self):
-        file = QFileDialog.getOpenFileName(self, 'Open file', '', 'Images (*.png *.xpm *.jpg)')
+        file = QFileDialog.getOpenFileName(self, 'Open file', os.environ['PYARCHINIT_HOME'], '(*.png *.xpm *.jpg)')
         if file:
-            self.FILE = file
+            self.FILE = str(file[0])
 
     def on_pushButton_run_pressed(self):
         file_list = self.generate_files_couples()
@@ -107,7 +107,7 @@ class Comparision(QDialog, MAIN_DIALOG_CLASS):
         for i in file_list:
             calculate_res = self.calculate([i[0], i[1]])
 
-            if calculate_res != None:
+            if calculate_res is not None:
                 tupla_di_ritorno = calculate_res
                 lista.append(tupla_di_ritorno)
                 lunghezza -= 1
