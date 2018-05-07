@@ -19,9 +19,11 @@
  ***************************************************************************/
 """
 from __future__ import absolute_import
-import os
 from builtins import range
 from builtins import str
+
+import os
+from datetime import date
 from qgis.PyQt.QtCore import Qt, QSize, pyqtSlot
 from qgis.PyQt.QtGui import QColor, QIcon
 from qgis.PyQt.QtWidgets import QDialog, QMessageBox, QListWidget, QListView, QFrame, QAbstractItemView, \
@@ -256,7 +258,7 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
 
         periodo_list = []
 
-        if not periodo_list:
+        if not periodo_vl:
             return
 
         for i in range(len(periodo_vl)):
