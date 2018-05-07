@@ -357,6 +357,9 @@ class Main(QDialog, MAIN_DIALOG_CLASS):
                            }
             record_us_list.append(self.DB_MANAGER.query_bool(search_dict, 'US'))
 
+        if not record_us_list:
+            QMessageBox.warning(self, "Errore", "Scheda US non presente.", QMessageBox.Ok)
+
         us_list = []
         for r in record_us_list:
             us_list.append([r[0].id_us, 'US', 'us_table'])
@@ -370,6 +373,9 @@ class Main(QDialog, MAIN_DIALOG_CLASS):
                            'numero_inventario': "'" + str(sing_tags[1]) + "'"
                            }
             record_rep_list.append(self.DB_MANAGER.query_bool(search_dict, 'INVENTARIO_MATERIALI'))
+
+        if not record_rep_list:
+            QMessageBox.warning(self, "Errore", "Scheda Inventario materiali non presente", QMessageBox.Ok)
 
         rep_list = []
         for r in record_rep_list:
