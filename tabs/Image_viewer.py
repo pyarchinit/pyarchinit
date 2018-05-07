@@ -357,8 +357,9 @@ class Main(QDialog, MAIN_DIALOG_CLASS):
                            }
             record_us_list.append(self.DB_MANAGER.query_bool(search_dict, 'US'))
 
-        if not record_us_list:
+        if not record_us_list[0]:
             QMessageBox.warning(self, "Errore", "Scheda US non presente.", QMessageBox.Ok)
+            return
 
         us_list = []
         for r in record_us_list:
@@ -374,8 +375,9 @@ class Main(QDialog, MAIN_DIALOG_CLASS):
                            }
             record_rep_list.append(self.DB_MANAGER.query_bool(search_dict, 'INVENTARIO_MATERIALI'))
 
-        if not record_rep_list:
+        if not record_rep_list[0]:
             QMessageBox.warning(self, "Errore", "Scheda Inventario materiali non presente", QMessageBox.Ok)
+            return
 
         rep_list = []
         for r in record_rep_list:
@@ -456,6 +458,8 @@ class Main(QDialog, MAIN_DIALOG_CLASS):
         """
         items_selected = self.iconListWidget.selectedItems()
         us_list = self.generate_US()
+        if not us_list:
+            return
 
         for item in items_selected:
             for us_data in us_list:
@@ -478,6 +482,8 @@ class Main(QDialog, MAIN_DIALOG_CLASS):
         """
         items_selected = self.iconListWidget.selectedItems()
         reperti_list = self.generate_Reperti()
+        if not reperti_list:
+            return
 
         for item in items_selected:
             for reperti_data in reperti_list:
