@@ -1291,6 +1291,9 @@ class pyarchinit_Struttura(QDialog, MAIN_DIALOG_CLASS):
         table_row_count = eval(table_row_count_cmd)
         rowSelected_cmd = ("%s.selectedIndexes()") % (table_name)
         rowSelected = eval(rowSelected_cmd)
+        if not rowSelected:
+            QMessageBox.warning(self, "Errore", "Nessun record selezionato", QMessageBox.Ok)
+            return
         rowIndex = (rowSelected[0].row())
         cmd = ("%s.removeRow(%d)") % (table_name, rowIndex)
         eval(cmd)
