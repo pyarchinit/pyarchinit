@@ -90,6 +90,7 @@ if install_libraries:
     else:
         pass
 
+
 def classFactory(iface):
     from .pyarchinitPlugin import PyArchInitPlugin
     return PyArchInitPlugin(iface)
