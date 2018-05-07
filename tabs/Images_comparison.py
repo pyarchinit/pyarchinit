@@ -154,12 +154,12 @@ class Comparision(QDialog, MAIN_DIALOG_CLASS):
 
     def plot_chart(self, d):
         self.data_list = d
-        QMessageBox.warning(self, "self.data_list", str(self.data_list), QMessageBox.Ok)
         try:
-            if type(self.data_list) == list:
+            if isinstance(self.data_list, list):
                 data_diz = {}
                 for item in self.data_list:
-                    data_diz[item[0]] = item[1]
+                    if not isinstance(item, int):
+                        data_diz[item[0]] = item[1]
             x = list(range(len(data_diz)))
             n_bars = len(data_diz)
             values = list(data_diz.values())
@@ -181,4 +181,5 @@ class Comparision(QDialog, MAIN_DIALOG_CLASS):
                 n += 1
         except:
             QMessageBox.warning(self, "self.data_list", str(self.data_list), QMessageBox.Ok)
+
         self.widget.canvas.draw()
