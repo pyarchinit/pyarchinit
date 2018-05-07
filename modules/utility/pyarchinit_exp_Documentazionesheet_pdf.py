@@ -23,7 +23,7 @@
 import os
 from datetime import date
 
-from pyarchinit_OS_utility import *
+from .pyarchinit_OS_utility import *
 from reportlab.lib import colors
 from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
 from reportlab.lib.units import inch, cm, mm
