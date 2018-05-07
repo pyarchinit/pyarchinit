@@ -1,5 +1,5 @@
 # ![](icon.png) PyArchInit3 - QGIS plugin
-[![GitHub version](https://badge.fury.io/gh/pyarchinit%2Fpyarchinit.svg)](https://badge.fury.io/gh/pyarchinit%2Fpyarchinit)
+[![GitHub release](https://img.shields.io/github/release/pyarchinit/pyarchinit.svg)](https://github.com/pyarchinit/pyarchinit)
 [![Github All Releases](https://img.shields.io/github/downloads/pyarchinit/pyarchinit/total.svg)](https://github.com/pyarchinit/pyarchinit)
 
 ## Installing from zip
