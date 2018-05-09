@@ -1,5 +1,6 @@
 # ![](icon.png) PyArchInit3 - QGIS plugin
 [![GitHub release](https://img.shields.io/github/release/pyarchinit/pyarchinit.svg)](https://github.com/pyarchinit/pyarchinit)
+[![HitCount](http://hits.dwyl.io/pyarchinit/pyarchinit.svg)](http://hits.dwyl.io/pyarchinit/pyarchinit)
 [![GitHub repo size in bytes](https://img.shields.io/github/repo-size/pyarchinit/pyarchinit.svg)](https://github.com/pyarchinit/pyarchinit)
 [![Donate to QGIS](https://img.shields.io/badge/donate%20to-QGIS-green.svg)](http://qgis.org/en/site/getinvolved/donations.html)
 
