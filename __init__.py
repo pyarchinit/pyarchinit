@@ -21,11 +21,13 @@
 
 import os
 import re
+import traceback
 
 import sys
+from qgis.core import QgsMessageLog, Qgis
 
-from .modules.utility.pyarchinit_folder_installation import pyarchinit_Folder_installation
 from .modules.utility.pyarchinit_OS_utility import Pyarchinit_OS_Utility
+from .modules.utility.pyarchinit_folder_installation import pyarchinit_Folder_installation
 
 sys.path.append(os.path.dirname(__file__))
 sys.path.insert(0, os.path.abspath(
@@ -85,9 +87,13 @@ if install_libraries:
     if res == QMessageBox.Ok:
         import subprocess
 
-        cmd = 'python3'
-        subprocess.call(['{}'.format(os.path.join(os.path.dirname(__file__), 'scripts', 'modules_installer.py')),
-                         ','.join(install_libraries)], shell=True if Pyarchinit_OS_Utility.isWindows() else False)
+        try:
+            cmd = 'python3'
+            subprocess.call(['{}'.format(os.path.join(os.path.dirname(__file__), 'scripts', 'modules_installer.py')),
+                             ','.join(install_libraries)], shell=True if Pyarchinit_OS_Utility.isWindows() else False)
+        except Exception as e:
+            error = traceback.format_exc()
+            QgsMessageLog.logMessage(error, tag="PyArchInit", level=Qgis.Critical)
     else:
         pass
 
