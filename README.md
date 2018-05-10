@@ -13,7 +13,7 @@
 
 **Note:** _While installing a message box could be prompted to warn you about missing python packages required from the plugin._
 
-**Note2:** _Under Windows is necessary to start QGIS as Administrator when you install the plugin. It is necessary to install all the dependencies properly._
+**Note2:** _Under Windows is necessary to start QGIS as Administrator when you install the plugin for the first time in order to install all the dependencies properly._
 
 #### Dependencies
 * SQLAlchemy
