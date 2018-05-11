@@ -24,7 +24,7 @@ import re
 import traceback
 
 import sys
-from qgis.core import QgsMessageLog, Qgis
+from qgis.core import QgsMessageLog, Qgis, QgsSettings
 
 from .modules.utility.pyarchinit_OS_utility import Pyarchinit_OS_Utility
 from .modules.utility.pyarchinit_folder_installation import pyarchinit_Folder_installation
@@ -96,6 +96,10 @@ if install_libraries:
             QgsMessageLog.logMessage(error, tag="PyArchInit", level=Qgis.Critical)
     else:
         pass
+
+s = QgsSettings()
+if not Pyarchinit_OS_Utility.checkGraphvizInstallation() and s.value('pyArchInit/graphvizBinPath'):
+    os.environ['PATH'] += os.pathsep + os.path.normpath(s.value('pyArchInit/graphvizBinPath'))
 
 
 def classFactory(iface):
