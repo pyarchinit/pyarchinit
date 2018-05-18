@@ -72,6 +72,7 @@ class PyArchInitPlugin(object):
     path_rel = os.path.join(os.sep, str(HOME), 'pyarchinit_DB_folder', 'config.cfg')
     conf = open(path_rel, "r")
     data = conf.read()
+    conf.close()
     PARAMS_DICT = eval(data)
 
     # TODO: find a better way to settings config
