@@ -38,6 +38,7 @@ class pyarchinit_Folder_installation(object):
 
     def install_dir(self):
         home_DB_path = '{}{}{}'.format(self.HOME, os.sep, 'pyarchinit_DB_folder')
+        self.OS_UTILITY.create_dir(home_DB_path)
 
         self.installConfigFile(home_DB_path)
 
@@ -48,8 +49,6 @@ class pyarchinit_Folder_installation(object):
         logo_copy_from_path_rel = os.path.join(os.sep, 'DBfiles', 'logo.jpg')
         logo_copy_from_path = '{}{}'.format(self.MODULE_PATH, logo_copy_from_path_rel)
         logo_copy_to_path = '{}{}{}'.format(home_DB_path, os.sep, 'logo.jpg')
-
-        self.OS_UTILITY.create_dir(str(home_DB_path))
 
         self.OS_UTILITY.copy_file(db_copy_from_path, db_copy_to_path)
         self.OS_UTILITY.copy_file(logo_copy_from_path, logo_copy_to_path)
