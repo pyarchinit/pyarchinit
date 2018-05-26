@@ -27,7 +27,7 @@ from builtins import range
 from qgis.PyQt.QtWidgets import QDialog, QMessageBox, QFileDialog
 from qgis.PyQt.uic import loadUiType
 
-import PIL as Image
+from PIL import Image
 import numpy as np
 
 from ..modules.utility.pyarchinit_media_utility import *
