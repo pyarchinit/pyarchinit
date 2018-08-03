@@ -71,52 +71,50 @@ class US_table:
                      Column('col_materiale', Text),  # 49
                      Column('inclusi_materiali_usm', Text),  # 50
                      Column('n_catalogo_generale', Text),  # 51 campi aggiunti per archeo 3.0 e allineamento ICCD
-                     Column('n_catalogo_interno', Text),
-                     Column('n_catalogo_internazionale', Text),
-                     Column('soprintendenza', Text),
-                     Column('quota_relativa', Numeric(6, 2)),
-                     Column('quota_abs', Numeric(6, 2)),
-                     Column('ref_tm', Text),
-                     Column('ref_ra', Text),
-                     Column('ref_n', Text),
-                     Column('posizione', Text),
-                     Column('criteri_distinzione', Text),
-                     Column('modo_formazione', Text),
-                     Column('componenti_organici', Text),
-                     Column('componenti_inorganici', Text),
-                     Column('lunghezza_max', Numeric(6,2)),
-                     Column('altezza_max', Numeric(6,2)),
-                     Column('altezza_min', Numeric(6,2)),
-                     Column('profondità_max', Numeric(6,2)),
-                     Column('profondità_min', Numeric(6,2)),
-                     Column('larghezza_media', Numeric(6,2)),
-                     Column('quota_max_abs', Numeric(6,2)),
-                     Column('quota_max_rel', Numeric(6,2)),
-                     Column('quota_min_abs', Numeric(6,2)),
-                     Column('quota_min_rel', Numeric(6,2)),
-                     Column('osservazioni', Text),
-                     Column('datazione', Text),
-                     Column('flottazione', Text),
-                     Column('setacciatura', Text),
-                     Column('affidabilita', Text),
-                     Column('direttore_us', Text),
-                     Column('responsabile_us', Text),
-                     Column('responsabile_us', Text),
-                     Column('cod_ente_schedatore', Text),
-                     Column('responsabile_usm', Text),
-                     Column('data_rilevazione', String(20)),
-                     Column('data_rielaborazione', String(20)),
-                     Column('lunghezza_usm', Numeric(6,2)),
-                     Column('altezza_usm', Numeric(6,2)),
-                     Column('spessore_usm', Numeric(6,2)),
-                     Column('tecnica_muraria_usm', Numeric(6,2)),
-                     Column('modulo_usm', Text),
-                     Column('campioni_malta_usm', Text),
-                     Column('campioni_mattone_usm', Text),
-                     Column('campioni_pietra_usm', Text),
-                     Column('provenienza_materiali_usm', Text),
-                     Column('criteri_distinzione_usm', Text),
-                     Column('uso_primario_usm', Text),
+                     Column('n_catalogo_interno', Text),  # 52
+                     Column('n_catalogo_internazionale', Text),  #53
+                     Column('soprintendenza', Text),  #54
+                     Column('quota_relativa', Numeric(6, 2)),  #55
+                     Column('quota_abs', Numeric(6, 2)),  #56
+                     Column('ref_tm', Text),  #57
+                     Column('ref_ra', Text),  #58
+                     Column('ref_n', Text),  #59 OK
+                     Column('posizione', Text),  #60
+                     Column('criteri_distinzione', Text),  #61
+                     Column('modo_formazione', Text),  #62
+                     Column('componenti_organici', Text),  #63
+                     Column('componenti_inorganici', Text),  #64
+                     Column('lunghezza_max', Numeric(6, 2)),  #65
+                     Column('altezza_max', Numeric(6, 2)),  #66 ok
+                     Column('altezza_min', Numeric(6, 2)),  #67
+                     Column('profondita_max', Numeric(6, 2)),  #68
+                     Column('profondita_min', Numeric(6, 2)),  #69 ok
+                     Column('larghezza_media', Numeric(6, 2)),  #70
+                     Column('quota_max_abs', Numeric(6, 2)),  #71
+                     Column('quota_max_rel', Numeric(6, 2)),  #72
+                     Column('quota_min_abs', Numeric(6, 2)),  #73
+                     Column('quota_min_rel', Numeric(6, 2)),  #74
+                     Column('osservazioni', Text),  #75
+                     Column('datazione', Text),  #76
+                     Column('flottazione', Text),  #77
+                     Column('setacciatura', Text),  #78
+                     Column('affidabilita', Text),  #79
+                     Column('direttore_us', Text),  #80
+                     Column('responsabile_us', Text),  #81
+                     Column('cod_ente_schedatore', Text),  #82
+                     Column('data_rilevazione', String(20)),  #83
+                     Column('data_rielaborazione', String(20)),  #84
+                     Column('lunghezza_usm', Numeric(6, 2)),  #85
+                     Column('altezza_usm', Numeric(6, 2)),  #86
+                     Column('spessore_usm', Numeric(6, 2)),  #87
+                     Column('tecnica_muraria_usm', Numeric(6, 2)),  #88 ok
+                     Column('modulo_usm', Text),  #89
+                     Column('campioni_malta_usm', Text),  #90
+                     Column('campioni_mattone_usm', Text),  #91
+                     Column('campioni_pietra_usm', Text),  #92 ok
+                     Column('provenienza_materiali_usm', Text),  #93
+                     Column('criteri_distinzione_usm', Text),  #94
+                     Column('uso_primario_usm', Text),  #95 ok
 
                      # explicit/composite unique constraint.  'name' is optional.
                      UniqueConstraint('sito', 'area', 'us', name='ID_us_unico')
