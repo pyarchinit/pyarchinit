@@ -641,7 +641,7 @@ class Pyarchinit_db_management(object):
         session.begin()
         session.execute(stringa)
         session.commit()
-        session.close()
+        session.remove()
 
     def execute_sql_create_layers(self):
         path = os.path.dirname(__file__)
@@ -656,7 +656,7 @@ class Pyarchinit_db_management(object):
         session.begin()
         session.execute(stringa)
         session.commit()
-        session.close()
+        session.remove()
 
         # query statement
 
@@ -667,7 +667,9 @@ class Pyarchinit_db_management(object):
         Session = sessionmaker(bind=self.engine, autoflush=True, autocommit=True)
         session = Session()
         query = session.query(class_name)
-        return query.all()
+        res = query.all()
+        session.remove()
+        return res
 
     def query_bool(self, params, table):
         u = Utility()
@@ -710,6 +712,7 @@ class Pyarchinit_db_management(object):
         t.write(str(query_str))
         t.close()
         '''
+        session.remove()
         return eval(query_str)
 
     def query_operator(self, params, table):
@@ -727,7 +730,7 @@ class Pyarchinit_db_management(object):
         # self.connection()
         Session = sessionmaker(bind=self.engine, autoflush=True, autocommit=True)
         session = Session()
-
+        session.remove()
         return eval(query_str)
 
     def query_distinct(self, table, query_params, distinct_field_name_params):
@@ -753,7 +756,7 @@ class Pyarchinit_db_management(object):
         # self.connection()
         Session = sessionmaker(bind=self.engine, autoflush=True, autocommit=True)
         session = Session()
-
+        session.remove()
         return eval(query_cmd)
 
     def query_distinct_sql(self, table, query_params, distinct_field_name_params):
@@ -788,7 +791,7 @@ class Pyarchinit_db_management(object):
         session = Session()
         session.add(data)
         session.commit()
-        session.close()
+        session.remove()
 
     def update(self, table_class_str, id_table_str, value_id_list, columns_name_list, values_update_list):
         """
@@ -848,6 +851,7 @@ class Pyarchinit_db_management(object):
         # f.close()
 
         eval(session_exec_str)
+        session.remove()
 
     def update_find_check(self, table_class_str, id_table_str, value_id, find_check_value):
         self.table_class_str = table_class_str
@@ -862,6 +866,7 @@ class Pyarchinit_db_management(object):
         self.table_class_str, self.table_class_str, self.id_table_str, self.value_id, find_check_value)
 
         eval(session_exec_str)
+        session.remove()
 
     def empty_find_check(self, table_class_str, find_check_value):
         self.table_class_str = table_class_str
@@ -873,6 +878,7 @@ class Pyarchinit_db_management(object):
         session_exec_str = 'session.query(%s).update(values = {"find_check": %d})' % (self.table_class_str, 0)
 
         eval(session_exec_str)
+        session.remove()
 
     def delete_one_record(self, tn, id_col, id_rec):
         self.table_name = tn
@@ -908,6 +914,7 @@ class Pyarchinit_db_management(object):
         # return os.environ['HOME']
 
         # managements utilities
+        session.remove()
 
     def fields_list(self, t, s=''):
         """return the list of columns in a table. If s is set a int,
@@ -924,7 +931,9 @@ class Pyarchinit_db_management(object):
     def query_in_idus(self, id_list):
         Session = sessionmaker(bind=self.engine, autoflush=True, autocommit=True)
         session = Session()
-        return session.query(US).filter(US.id_us.in_(id_list)).all()
+        res = session.query(US).filter(US.id_us.in_(id_list)).all()
+        session.remove()
+        return res
 
     def query_sort(self, id_list, op, to, tc, idn):
         self.order_params = op
@@ -946,6 +955,7 @@ class Pyarchinit_db_management(object):
                                                                                                self.id_name,
                                                                                                filter_params)
         s = eval(cmd_str)
+        session.remove()
         return s
 
     def run(self, stmt):
@@ -983,6 +993,7 @@ class Pyarchinit_db_management(object):
         Session = sessionmaker(bind=self.engine, autoflush=True, autocommit=True)
         session = Session()
         s = eval('select([{0}.{1}]).group_by({0}.{1})'.format(self.table_class, self.field_name))
+        session.remove()
         return self.engine.execute(s).fetchall()
 
     def query_where_text(self, c, v):
@@ -995,6 +1006,7 @@ class Pyarchinit_db_management(object):
         string = ('%s%s%s%s%s') % ('session.query(PERIODIZZAZIONE).filter_by(', self.c, "='", self.v, "')")
 
         res = eval(string)
+        session.remove()
         return res
 
     def update_cont_per(self, s):
@@ -1004,6 +1016,7 @@ class Pyarchinit_db_management(object):
         session = Session()
 
         string = ('%s%s%s%s%s') % ('session.query(US).filter_by(', 'sito', "='", str(self.sito), "')")
+        session.remove()
         # print string
         lista_us = eval(string)
 
@@ -1080,7 +1093,7 @@ class Pyarchinit_db_management(object):
             res_list.extend(session.query(US).filter_by(sito=sitof).filter_by(area=areaf).filter(
                 or_(*[US.rapporti.contains(v) for v in chunk])))
             # res_list.extend(us for us, in session.query(US.us).filter(or_(*[US.rapporti.contains(v) for v in chunk])))
-
+        session.remove()
         return res_list
 
     def insert_arbitrary_number_of_us_records(self, us_range, sito, area, n_us):
@@ -1132,6 +1145,7 @@ class Pyarchinit_db_management(object):
             and_(~US.rapporti.like("%'Taglia'%"), ~US.rapporti.like("%'Si appoggia a'%"),
                  ~US.rapporti.like("%'Copre'%"), ~US.rapporti.like("%'Riempie'%")))
         # MyModel.query.filter(sqlalchemy.not_(Mymodel.name.contains('a_string')))
+        session.remove()
         return res
 
     def query_in_idusb(self):
