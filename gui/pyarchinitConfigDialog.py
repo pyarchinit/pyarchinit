@@ -90,13 +90,13 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
 
 
     def set_db_parameter(self):
-        if str(self.comboBox_Database.currentText()) == 'postgres':
+        if self.comboBox_Database.currentText() == 'postgres':
             self.lineEdit_DBname.setText("pyarchinit")
             self.lineEdit_Host.setText('127.0.0.1')
             self.lineEdit_Port.setText('5432')
             self.lineEdit_User.setText('postgres')
 
-        if str(self.comboBox_Database.currentText()) == 'sqlite':
+        if self.comboBox_Database.currentText() == 'sqlite':
             self.lineEdit_DBname.setText("pyarchinit_db.sqlite")
             self.lineEdit_Host.setText('')
             self.lineEdit_Password.setText('')
@@ -106,14 +106,14 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
     def set_db_import_from_parameter(self):
         QMessageBox.warning(self, "ok", "entrato in read.", QMessageBox.Ok)
 
-        if str(self.comboBox_server_rd.currentText()) == 'postgres':
+        if self.comboBox_server_rd.currentText() == 'postgres':
             QMessageBox.warning(self, "ok", "entrato in if", QMessageBox.Ok)
             self.lineEdit_host_rd.setText('127.0.0.1')
             self.lineEdit_username_rd.setText('postgres')
             self.lineEdit_database_rd.setText('pyarchinit')
             self.lineEdit_port_rd.setText('5432')
 
-        if str(self.comboBox_server_rd.currentText()) == 'sqlite':
+        if self.comboBox_server_rd.currentText() == 'sqlite':
             QMessageBox.warning(self, "ok", "entrato in if", QMessageBox.Ok)
 
             self.lineEdit_host_rd.setText.setText('')
@@ -125,7 +125,7 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
     def set_db_import_to_parameter(self):
         QMessageBox.warning(self, "ok", "entrato in write", QMessageBox.Ok)
 
-        if str(self.comboBox_server_wt.currentText()) == 'postgres':
+        if self.comboBox_server_wt.currentText() == 'postgres':
             QMessageBox.warning(self, "ok", "entrato in if", QMessageBox.Ok)
 
             self.lineEdit_host_wt.setText('127.0.0.1')
@@ -133,7 +133,7 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
             self.lineEdit_database_wt.setText('pyarchinit')
             self.lineEdit_port_wt.setText('5432')
 
-        if str(self.comboBox_server_wt.currentText()) == 'sqlite':
+        if self.comboBox_server_wt.currentText() == 'sqlite':
             QMessageBox.warning(self, "ok", "entrato in if", QMessageBox.Ok)
 
             self.lineEdit_host_wt.setText.setText('')
@@ -174,8 +174,8 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
         import time
         try:
             db = os.popen("createdb -U postgres -p %s -h localhost -E UTF8  -T %s -e %s" % (
-                str(self.lineEdit_port_db.text()), str(self.lineEdit_template_postgis.text()),
-                str(self.lineEdit_dbname.text())))
+                self.lineEdit_port_db.text(), self.lineEdit_template_postgis.text(),
+                self.lineEdit_dbname.text()))
             barra = self.pyarchinit_progressBar_db
             barra.setMinimum(0)
             barra.setMaximum(9)
@@ -195,7 +195,7 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
             module_path = '{}{}'.format(qgis_dir, module_path_rel)
             postgis15 = os.popen(
                 "pg_restore --host localhost --port %s --username postgres --dbname %s --role postgres --no-password  --verbose %s" % (
-                    str(self.lineEdit_port_db.text()), str(self.lineEdit_dbname.text()), str(module_path)))
+                    self.lineEdit_port_db.text(), self.lineEdit_dbname.text(), module_path))
             barra2 = self.pyarchinit_progressBar_template
             barra2.setMinimum(0)
             barra2.setMaximum(9)
@@ -215,7 +215,7 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
             module_path = '{}{}'.format(qgis_dir, module_path_rel)
             postgis15 = os.popen(
                 "pg_restore --host localhost --port %s --username postgres --dbname %s --role postgres --no-password  --verbose %s" % (
-                    str(self.lineEdit_port_db.text()), str(self.lineEdit_dbname.text()), str(module_path)))
+                    self.lineEdit_port_db.text(), self.lineEdit_dbname.text(), module_path))
             barra2 = self.pyarchinit_progressBar_template
             barra2.setMinimum(0)
             barra2.setMaximum(9)
@@ -247,16 +247,15 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
         self.DB_MANAGER = Pyarchinit_db_management(
             conn_str)  # sqlite:///\Users\Windows\pyarchinit_DB_folder\pyarchinit_db.sqlite
         test = self.DB_MANAGER.connection()
-        test = str(test)
-        if test == "":
+        if test:
             QMessageBox.warning(self, "Messaggio", "Connessione avvenuta con successo", QMessageBox.Ok)
         elif test.find("create_engine") != -1:
             QMessageBox.warning(self, "Alert",
                                 "Verifica i parametri di connessione. <br> Se sono corretti RIAVVIA QGIS",
                                 QMessageBox.Ok)
         else:
-            QMessageBox.warning(self, "Alert", "Errore di connessione: <br>" + str(
-                test) + "<br> Cambia i parametri e riprova a connetterti. Se cambi server (Postgres o Sqlite) ricordati di cliccare su connetti e RIAVVIARE Qgis",
+            QMessageBox.warning(self, "Alert", "Errore di connessione: <br>" +
+                test + "<br> Cambia i parametri e riprova a connetterti. Se cambi server (Postgres o Sqlite) ricordati di cliccare su connetti e RIAVVIARE Qgis",
                                 QMessageBox.Ok)
 
     def charge_data(self):
@@ -326,15 +325,14 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
         ####SI CONNETTE AL DATABASE
         self.DB_MANAGER_read = Pyarchinit_db_management(conn_str_read)
         test = self.DB_MANAGER_read.connection()
-        test = str(test)
-        if test == "":
+        if test:
             QMessageBox.warning(self, "Messaggio", "Connessione avvenuta con successo", QMessageBox.Ok)
         elif test.find("create_engine") != -1:
             QMessageBox.warning(self, "Alert",
                                 "Verifica i parametri di connessione. <br> Se sono corretti RIAVVIA QGIS",
                                 QMessageBox.Ok)
         else:
-            QMessageBox.warning(self, "Alert", "Errore di connessione: <br>" + str(test), QMessageBox.Ok)
+            QMessageBox.warning(self, "Alert", "Errore di connessione: <br>" + test, QMessageBox.Ok)
 
         ####LEGGE I RECORD IN BASE AL PARAMETRO CAMPO=VALORE
         search_dict = {
@@ -859,10 +857,3 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
 ##					QMessageBox.warning(self, "Errore", "Attenzione 1 ! \n"+ str(msg),  QMessageBox.Ok)
 ##					return 0
 ##
-if __name__ == '__main__':
-    import sys
-
-    app = QApplication(sys.argv)
-    ui = pyArchInitDialog_Config()
-    ui.show()
-    sys.exit(app.exec_())
