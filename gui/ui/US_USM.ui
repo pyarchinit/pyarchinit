@@ -40,7 +40,7 @@
         </font>
        </property>
        <property name="text">
-        <string>DBMS Toolbar</string>
+        <string>DBMS Toolbar (testing)</string>
        </property>
       </widget>
      </item>
@@ -3106,8 +3106,8 @@ p, li { white-space: pre-wrap; }
                <rect>
                 <x>0</x>
                 <y>0</y>
-                <width>586</width>
-                <height>275</height>
+                <width>621</width>
+                <height>318</height>
                </rect>
               </property>
               <attribute name="label">
@@ -3387,8 +3387,8 @@ p, li { white-space: pre-wrap; }
                <rect>
                 <x>0</x>
                 <y>0</y>
-                <width>350</width>
-                <height>274</height>
+                <width>314</width>
+                <height>222</height>
                </rect>
               </property>
               <attribute name="label">
@@ -3650,8 +3650,8 @@ p, li { white-space: pre-wrap; }
                <rect>
                 <x>0</x>
                 <y>0</y>
-                <width>100</width>
-                <height>30</height>
+                <width>98</width>
+                <height>28</height>
                </rect>
               </property>
               <attribute name="label">
