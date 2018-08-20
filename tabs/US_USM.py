@@ -108,22 +108,68 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
         "Aggregati legante": "aggreg_legante",
         "Consistenza-Texture": "con_text_mat",
         "Colore materiale": "col_materiale",
-        "Inclusi materiali usm": "inclusi_materiali_usm"
+        "Inclusi materiali usm": "inclusi_materiali_usm",
+        "n catalogo generale" : "n_catalogo_generale",  # campi aggiunti per archeo 3.0 e allineamento ICCD
+        "n catalogo interno" : "n_catalogo_interno",
+        "n catalogo internazionale" : "n_catalogo_internazionale",
+        "soprintendenza" : "soprintendenza",
+        "quota relativa" : "quota_relativa",
+        "quota abs" : "quota_abs",
+        "ref tm" : "ref_tm",
+        "ref ra" : "ref_ra",
+        "ref n" : "ref_n",
+        "posizione" : "posizione",
+        "criteri distinzione" : "criteri_distinzione",
+        "modo formazione" : "modo_formazione",
+        "componenti organici" : "componenti_organici",
+        "componenti inorganici" : "componenti_inorganici",
+        "lunghezza max" : "lunghezza_max",
+        "altezza max" : "altezza_max",
+        "altezza min" : "altezza_min",
+        "profondita max" : "profondita_max",
+        "profondita min" : "profondita_min",
+        "larghezza media" : "larghezza_media",
+        "quota max abs" : "quota_max_abs",
+        "quota max rel" : "quota_max_rel",
+        "quota min abs" : "quota_min_abs",
+        "quota min rel" : "quota_min_rel",
+        "osservazioni" : "osservazioni",
+        "datazione" : "datazione",
+        "flottazione" : "flottazione",
+        "setacciatura" : "setacciatura",
+        "affidabilita" : "affidabilita",
+        "direttore us" : "direttore_us",
+        "responsabile us" : "responsabile_us",
+        "cod ente schedatore" : "cod_ente_schedatore",
+        "data rilevazione" : "data_rilevazione",
+        "data rielaborazione" : "data_rielaborazione",
+        "lunghezza usm" : "lunghezza_usm",
+        "altezza usm" : "altezza_usm",
+        "spessore usm" : "spessore_usm",
+        "tecnica muraria usm" : "tecnica_muraria_usm",
+        "modulo usm" : "modulo_usm",
+        "campioni malta usm" : "campioni_malta_usm",
+        "campioni mattone usm" : "campioni_mattone_usm",
+        "campioni pietra usm" : "campioni_pietra_usm",
+        "provenienza materiali usm" : "provenienza_materiali_usm",
+        "criteri distinzione usm" : "criteri_distinzione_usm",
+        "uso primario usm" : "uso_primario_usm"
+
     }
 
     SORT_ITEMS = [
-        ID_TABLE,
-        "Sito",
-        "Area",
-        'US',
-        "Definizione stratigrafica",
-        "Definizione interpretata",
-        "Descrizione",
-        "Interpretazione",
-        "Periodo Iniziale",
-        "Periodo Finale",
-        "Fase Iniziale",
-        "Fase Finale",
+        ID_TABLE,  #0
+        "Sito", #1
+        "Area", #2
+        'US', #3
+        "Definizione stratigrafica", #4
+        "Definizione interpretata",  #5
+        "Descrizione",               #6
+        "Interpretazione",           #7
+        "Periodo Iniziale",          #8
+        "Periodo Finale",            #9
+        "Fase Iniziale",             #10
+        "Fase Finale",               #11
         "Attività",
         "Anno di scavo",
         "Sigla struttura",
@@ -151,7 +197,54 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
         "Aggregati legante",
         "Consistenza-Texture",
         "Colore materiale",
-        "Inclusi materiali usm"
+        "Inclusi materiali usm",
+        "n catalogo generale",  #campi aggiunti per archeo 3.0 e allineamento ICCD
+        "n catalogo interno",
+        "n catalogo internazionale",
+        "soprintendenza",
+        "quota relativa",
+        "quota abs",
+        "ref tm",
+        "ref ra",
+        "ref n",
+        "posizione",
+        "criteri distinzione",
+        "modo formazione",
+        "componenti organici",
+        "componenti inorganici",
+        "lunghezza max",
+        "altezza max",
+        "altezza min",
+        "profondita max",
+        "profondita min",
+        "larghezza media",
+        "quota max abs",
+        "quota max rel",
+        "quota min abs",
+        "quota min rel",
+        "osservazioni",
+        "datazione",
+        "flottazione",
+        "setacciatura",
+        "affidabilita",
+        "direttore us",
+        "responsabile us",
+        "cod ente schedatore",
+        "data rilevazione",
+        "data rielaborazione",
+        "lunghezza usm",
+        "altezza usm",
+        "spessore usm",
+        "tecnica muraria usm",
+        "modulo usm",
+        "campioni malta usm",
+        "campioni mattone usm",
+        "campioni pietra usm",
+        "provenienza materiali usm",
+        "criteri distinzione usm",
+        "uso primario usm"
+
+
     ]
 
     TABLE_FIELDS = [
@@ -204,7 +297,53 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
         'aggreg_legante',
         'con_text_mat',
         'col_materiale',
-        'inclusi_materiali_usm'
+        'inclusi_materiali_usm',
+        'n_catalogo_generale',  # 51 campi aggiunti per archeo 3.0 e allineamento ICCD
+        'n_catalogo_interno',  # 52
+        'n_catalogo_internazionale',  # 53
+        'soprintendenza',  # 54
+        'quota_relativa',  # 55
+        'quota_abs',  # 56
+        'ref_tm',  # 57
+        'ref_ra',  # 58
+        'ref_n',  # 59
+        'posizione',  # 60
+        'criteri_distinzione',  # 61
+        'modo_formazione',  # 62
+        'componenti_organici',  # 63
+        'componenti_inorganici',  # 64
+        'lunghezza_max',  # 65
+        'altezza_max',  # 66
+        'altezza_min',  # 67
+        'profondita_max',  # 68
+        'profondita_min',  # 69
+        'larghezza_media',  # 70
+        'quota_max_abs',  # 71
+        'quota_max_rel',  # 72
+        'quota_min_abs',  # 73
+        'quota_min_rel',  # 74
+        'osservazioni',  # 75
+        'datazione',  # 76
+        'flottazione',  # 77
+        'setacciatura',  # 78
+        'affidabilita',  # 79
+        'direttore_us',  # 80
+        'responsabile_us',  # 81
+        'cod_ente_schedatore',  # 82
+        'data_rilevazione',  # 83
+        'data_rielaborazione',  # 84
+        'lunghezza_usm',  # 85
+        'altezza_usm',  # 86
+        'spessore_usm',  # 87
+        'tecnica_muraria_usm',  # 88
+        'modulo_usm',  # 89
+        'campioni_malta_usm',  # 90
+        'campioni_mattone_usm',  # 91
+        'campioni_pietra_usm',  # 92
+        'provenienza_materiali_usm',  # 93
+        'criteri_distinzione_usm',  # 94
+        'uso_primario_usm'  # 95
+
     ]
 
     HOME = os.environ['PYARCHINIT_HOME']
