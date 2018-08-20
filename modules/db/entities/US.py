@@ -285,7 +285,8 @@ class US(object):
             self.datazione,  # 76
             self.flottazione,  # 77
             self.setacciatura,  # 78
-            self.affidabilita,  # 80
+            self.affidabilita,  # 79
+            self.direttore_us,  #80
             self.responsabile_us,  # 81
             self.cod_ente_schedatore,  # 82 ok
             self.data_rilevazione,  # 83
