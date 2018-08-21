@@ -1552,16 +1552,18 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
 
     def insert_new_rec(self):
         # TableWidget
-        ##Rapporti
+        #Rapporti
         rapporti = self.table2dict("self.tableWidget_rapporti")
-        ##Inclusi
+        #Inclusi
         inclusi = self.table2dict("self.tableWidget_inclusi")
-        ##Campioni
+        #Campioni
         campioni = self.table2dict("self.tableWidget_campioni")
-        ##Documentazione
+        #Documentazione
         documentazione = self.table2dict("self.tableWidget_documentazione")
-        ##Inclusi materiali usm
+        #Inclusi materiali usm
         inclusi_mat_usm = self.table2dict("self.tableWidget_inclusi_materiali_usm")
+        #Inclusi leganti usm
+        aggreg_legante_usm = self.table2dict("self.tableWidget_aggreg_legante_usm")
 
         if self.lineEditOrderLayer.text() == "":
             order_layer = 0
@@ -1579,6 +1581,97 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
             qmax_usm = None
         else:
             qmax_usm = float(self.lineEdit_qmax_usm.text())
+
+        ##quota relativa
+        if self.lineEdit_quota_relativa.text() == "":
+            quota_relativa = None
+        else:
+            quota_relativa = float(self.lineEdit_quota_relativa.text())
+
+        ##quota abs
+        if self.lineEdit_quota_abs.text() == "":
+            quota_abs = None
+        else:
+            quota_abs = float(self.lineEdit_quota_abs.text())
+
+        ##lunghezza max
+        if self.lineEdit_lunghezza_max.text() == "":
+            lunghezza_max = None
+        else:
+            lunghezza_max = float(self.lineEdit_lunghezza_max.text())
+
+        ##altezza max
+        if self.lineEdit_altezza_max.text() == "":
+            altezza_max = None
+        else:
+            altezza_max = float(self.lineEdit_altezza_max.text())
+
+        ##altezza min
+        if self.lineEdit_altezza_min.text() == "":
+            altezza_min = None
+        else:
+            altezza_min = float(self.lineEdit_altezza_min.text())
+
+        ##profondita max
+        if self.lineEdit_profondita_max.text() == "":
+            profondita_max = None
+        else:
+            profondita_max = float(self.lineEdit_profondita_max.text())
+
+        ##profondita min
+        if self.lineEdit_profondita_min.text() == "":
+            profondita_min = None
+        else:
+            profondita_min = float(self.lineEdit_profondita_min.text())
+
+        ##larghezza media
+        if self.lineEdit_larghezza_media.text() == "":
+            larghezza_media = None
+        else:
+            larghezza_media = float(self.lineEdit_larghezza_media.text())
+
+        ##quota max abs
+        if self.lineEdit_quota_max_abs.text() == "":
+            quota_max_abs = None
+        else:
+            quota_max_abs = float(self.lineEdit_quota_max_abs.text())
+
+        ##quota max relativa
+        if self.lineEdit_quota_max_rel.text() == "":
+            quota_max_rel = None
+        else:
+            quota_max_rel = float(self.lineEdit_quota_max_rel.text())
+
+
+        ##quota min abs
+        if self.lineEdit_quota_min_abs.text() == "":
+            quota_min_abs = None
+        else:
+            quota_min_abs = float(self.lineEdit_quota_min_abs.text())
+
+        ##quota min relativa
+        if self.lineEdit_quota_min_rel.text() == "":
+            quota_min_rel = None
+        else:
+            quota_min_rel = float(self.lineEdit_quota_min_rel.text())
+
+        ##lunghezza usm
+        if self.lineEdit_lunghezza_usm.text() == "":
+            lunghezza_usm = None
+        else:
+            lunghezza_usm = float(self.lineEdit_lunghezza_usm.text())
+
+        ##altezza usm
+        if self.lineEdit_altezza_usm.text() == "":
+            altezza_usm = None
+        else:
+            altezza_usm = float(self.lineEdit_altezza_usm.text())
+
+        ##spessore usm
+        if self.lineEdit_spessore_usm.text() == "":
+            spessore_usm = None
+        else:
+            spessore_usm = float(self.lineEdit_spessore_usm.text())
 
         try:
             # data
@@ -1630,12 +1723,57 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
                 qmax_usm,  # 44 quota massima
                 str(self.comboBox_consistenza_legante_usm.currentText()),  # 45 consitenza legante usm
                 str(self.comboBox_colore_legante_usm.currentText()),  # 46 colore legante usm
-                str(self.lineEdit_aggregati_legante_usm.text()),  # 47 aggregati usm
+                str(aggreg_legante_usm)),  # 47 aggreg legante usm
                 str(self.comboBox_consistenza_texture_mat_usm.currentText()),  # 48 consistenza text mat
                 str(self.comboBox_colore_materiale_usm.currentText()),  # 49 colore materiale usm
                 str(inclusi_mat_usm)  # 50 inclusi_mat_usm
-
+                str(self.lineEdit_n_catalogo_generale.text()), # 51 nr catalogo generale campi aggiunti per archeo 3.0 e allineamento ICCD
+                str(self.lineEdit_n_catalogo_interno.text()), # 52 nr catalogo interno
+                str(self.lineEdit_n_catalogo_internazionale.text()), # 53 nr catalogo internazionale
+                str(self.comboBox_soprintendenza.currentText()), # 54 nr soprintendenza
+                quota_relativa, #55 quota relativa
+                quota_abs, #56 quota abs
+                str(self.lineEdit_ref_tm.text()),  # 57 ref tm
+                str(self.lineEdit_ref_ra.text()),  # 58 ref ra
+                str(self.lineEdit_ref_n.text()),  # 59 ref n
+                str(self.lineEdit_posizione.text()),  # 60 posizione
+                str(self.lineEdit_criteri_distinzione.text()),  # 61 criteri distinzione
+                str(self.comboBox_modo_formazione.currentText()),  # 62 modo formazione
+                str(self.comboBox_componenti_organici.currentText()),  # 63 componenti organici
+                str(self.comboBox_componenti_inorganici.currentText()),  # 64 componenti inorganici
+                lunghezza_max,  # 65
+                altezza_max,  # 66
+                altezza_min,  # 67
+                profondita_max,  # 68
+                profondita_min,  # 69
+                larghezza_media,  # 70
+                quota_max_abs,  # 71
+                quota_max_rel,  # 72
+                quota_min_abs,  # 73
+                quota_min_rel,  # 74
+                str(self.textEdit_osservazioni.toPlainText()),  # 75 osservazioni
+                str(self.lineEdit_datazione.text()),  # 76 datazione
+                str(self.lineEdit_flottazione.text()),  # 77 flottazione
+                str(self.lineEdit_setacciatura.text()),  # 78 setacciatura
+                str(self.lineEdit_affidabilita.text()),  # 79 affidabilita
+                str(self.comboBox_direttore_us.currentText()),  # 80 direttore us
+                str(self.comboBox_responsabile_us.currentText()),  # 81 responsabile us
+                str(self.lineEdit_cod_ente_schedatore.text()),  # 82 cod ente schedatore
+                str(self.lineEdit_data_rilevazione.text()),  # 83 data rilevazione
+                str(self.lineEdit_data_rielaborazione.text()),  # 84 data rielaborazione
+                lunghezza_usm,  # 85
+                altezza_usm,  # 86
+                spessore_usm,  # 87
+                str(self.lineEdit_tecnica_muraria_usm.text()),  # 88 tecnica muraria usm
+                str(self.lineEdit_modulo_usm.text()),  # 89 modulo usm
+                str(self.lineEdit_campioni_malta_usm.text()),  # 90 campioni malta usm
+                str(self.lineEdit_campioni_mattone_usm.text()),  # 91 campioni mattone usm
+                str(self.lineEdit_campioni_pietra_usm.text()),  # 92 campioni pietra usm
+                str(self.lineEdit_provenienza_materiali_usm.text()),  # 93 provenienza_materiali_usm
+                str(self.lineEdit_criteri_distinzione_usm.text()),  # 94 criteri distinzione usm
+                str(self.lineEdit_uso_primario_usm.text()),  # 95 uso primario usm
             )
+
             # todelete
             # f = open("C:\\Users\\Luca\\pyarchinit_Report_folder\\data_insert_list.txt", "w")
             # f.write(str(data))
