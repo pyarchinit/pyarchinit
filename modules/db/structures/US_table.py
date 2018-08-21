@@ -107,7 +107,7 @@ class US_table:
                      Column('lunghezza_usm', Numeric(6, 2)),  #85
                      Column('altezza_usm', Numeric(6, 2)),  #86
                      Column('spessore_usm', Numeric(6, 2)),  #87
-                     Column('tecnica_muraria_usm', Numeric(6, 2)),  #88 ok
+                     Column('tecnica_muraria_usm', Text),  #88 ok
                      Column('modulo_usm', Text),  #89
                      Column('campioni_malta_usm', Text),  #90
                      Column('campioni_mattone_usm', Text),  #91
