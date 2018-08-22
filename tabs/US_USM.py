@@ -296,9 +296,9 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
         'col_legante',
         'aggreg_legante',
         'con_text_mat',
-        'col_materiale',
-        'inclusi_materiali_usm',
-        'n_catalogo_generale',  # 51 campi aggiunti per archeo 3.0 e allineamento ICCD
+        'col_materiale', #48
+        'inclusi_materiali_usm', #49
+        'n_catalogo_generale',  # 51 campi aggiunti per archeo 3.0 e allineamento ICCD #50
         'n_catalogo_interno',  # 52
         'n_catalogo_internazionale',  # 53
         'soprintendenza',  # 54
@@ -1723,10 +1723,10 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
                 qmax_usm,  # 44 quota massima
                 str(self.comboBox_consistenza_legante_usm.currentText()),  # 45 consitenza legante usm
                 str(self.comboBox_colore_legante_usm.currentText()),  # 46 colore legante usm
-                str(aggreg_legante_usm)),  # 47 aggreg legante usm
+                str(aggreg_legante_usm),  # 47 aggreg legante usm
                 str(self.comboBox_consistenza_texture_mat_usm.currentText()),  # 48 consistenza text mat
                 str(self.comboBox_colore_materiale_usm.currentText()),  # 49 colore materiale usm
-                str(inclusi_mat_usm)  # 50 inclusi_mat_usm
+                str(inclusi_mat_usm), # 50 inclusi_mat_usm
                 str(self.lineEdit_n_catalogo_generale.text()), # 51 nr catalogo generale campi aggiunti per archeo 3.0 e allineamento ICCD
                 str(self.lineEdit_n_catalogo_interno.text()), # 52 nr catalogo interno
                 str(self.lineEdit_n_catalogo_internazionale.text()), # 53 nr catalogo internazionale
@@ -1771,7 +1771,7 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
                 str(self.lineEdit_campioni_pietra_usm.text()),  # 92 campioni pietra usm
                 str(self.lineEdit_provenienza_materiali_usm.text()),  # 93 provenienza_materiali_usm
                 str(self.lineEdit_criteri_distinzione_usm.text()),  # 94 criteri distinzione usm
-                str(self.lineEdit_uso_primario_usm.text()),  # 95 uso primario usm
+                str(self.lineEdit_uso_primario_usm.text())  # 95 uso primario usm
             )
 
             # todelete
@@ -1826,6 +1826,12 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
         self.insert_new_row('self.tableWidget_inclusi_materiali_usm')
 
     def on_pushButton_remove_row_inclusi_materiali_pressed(self):
+        self.remove_row('self.tableWidget_inclusi_materiali_usm')
+
+    def on_pushButton_insert_row_inclusi_leganti_pressed(self):
+        self.insert_new_row('self.tableWidget_inclusi_materiali_usm')
+
+    def on_pushButton_remove_row_inclusi_leganti_pressed(self):
         self.remove_row('self.tableWidget_inclusi_materiali_usm')
 
     def check_record_state(self):
@@ -2061,6 +2067,98 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
             else:
                 qmax_usm = None
 
+            #pre pyarchinit 3.0
+
+            ##quota relativa
+            if self.lineEdit_quota_relativa.text() == "":
+                quota_relativa = None
+            else:
+                quota_relativa = float(self.lineEdit_quota_relativa.text())
+
+            ##quota abs
+            if self.lineEdit_quota_abs.text() == "":
+                quota_abs = None
+            else:
+                quota_abs = float(self.lineEdit_quota_abs.text())
+
+            ##lunghezza max
+            if self.lineEdit_lunghezza_max.text() == "":
+                lunghezza_max = None
+            else:
+                lunghezza_max = float(self.lineEdit_lunghezza_max.text())
+
+            ##altezza max
+            if self.lineEdit_altezza_max.text() == "":
+                altezza_max = None
+            else:
+                altezza_max = float(self.lineEdit_altezza_max.text())
+
+            ##altezza min
+            if self.lineEdit_altezza_min.text() == "":
+                altezza_min = None
+            else:
+                altezza_min = float(self.lineEdit_altezza_min.text())
+
+            ##profondita max
+            if self.lineEdit_profondita_max.text() == "":
+                profondita_max = None
+            else:
+                profondita_max = float(self.lineEdit_profondita_max.text())
+
+            ##profondita min
+            if self.lineEdit_profondita_min.text() == "":
+                profondita_min = None
+            else:
+                profondita_min = float(self.lineEdit_profondita_min.text())
+
+            ##larghezza media
+            if self.lineEdit_larghezza_media.text() == "":
+                larghezza_media = None
+            else:
+                larghezza_media = float(self.lineEdit_larghezza_media.text())
+
+            ##quota max abs
+            if self.lineEdit_quota_max_abs.text() == "":
+                quota_max_abs = None
+            else:
+                quota_max_abs = float(self.lineEdit_quota_max_abs.text())
+
+            ##quota max relativa
+            if self.lineEdit_quota_max_rel.text() == "":
+                quota_max_rel = None
+            else:
+                quota_max_rel = float(self.lineEdit_quota_max_rel.text())
+
+            ##quota min abs
+            if self.lineEdit_quota_min_abs.text() == "":
+                quota_min_abs = None
+            else:
+                quota_min_abs = float(self.lineEdit_quota_min_abs.text())
+
+            ##quota min relativa
+            if self.lineEdit_quota_min_rel.text() == "":
+                quota_min_rel = None
+            else:
+                quota_min_rel = float(self.lineEdit_quota_min_rel.text())
+
+            ##lunghezza usm
+            if self.lineEdit_lunghezza_usm.text() == "":
+                lunghezza_usm = None
+            else:
+                lunghezza_usm = float(self.lineEdit_lunghezza_usm.text())
+
+            ##altezza usm
+            if self.lineEdit_altezza_usm.text() == "":
+                altezza_usm = None
+            else:
+                altezza_usm = float(self.lineEdit_altezza_usm.text())
+
+            ##spessore usm
+            if self.lineEdit_spessore_usm.text() == "":
+                spessore_usm = None
+            else:
+                spessore_usm = float(self.lineEdit_spessore_usm.text())
+
             search_dict = {
                 self.TABLE_FIELDS[0]: "'" + str(self.comboBox_sito.currentText()) + "'",  # 1 - Sito
                 self.TABLE_FIELDS[1]: "'" + str(self.comboBox_area.currentText()) + "'",  # 2 - Area
@@ -2110,11 +2208,73 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
                 # 24 - order layer
                 self.TABLE_FIELDS[45]: "'" + str(self.comboBox_colore_legante_usm.currentText()) + "'",
                 # 24 - order layer
-                self.TABLE_FIELDS[46]: "'" + str(self.lineEdit_aggregati_legante_usm.text()) + "'",
                 self.TABLE_FIELDS[47]: "'" + str(self.comboBox_consistenza_texture_mat_usm.currentText()) + "'",
                 # 24 - order layer
-                self.TABLE_FIELDS[48]: "'" + str(self.comboBox_colore_materiale_usm.currentText()) + "'"
+                self.TABLE_FIELDS[48]: "'" + str(self.comboBox_colore_materiale_usm.currentText()) + "'",
                 # 24 - order layer
+                self.TABLE_FIELDS[50]: "'" + str(self.lineEdit_n_catalogo_generale.text()) + "'",
+            # 51 nr catalogo generale campi aggiunti per archeo 3.0 e allineamento ICCD
+                self.TABLE_FIELDS[51]: "'" + str(self.lineEdit_n_catalogo_interno.text()) + "'",
+            # 52 nr catalogo interno
+                self.TABLE_FIELDS[52]: "'" + str(self.lineEdit_n_catalogo_internazionale.text()) + "'",
+            # 53 nr catalogo internazionale
+                self.TABLE_FIELDS[53]: "'" + str(self.comboBox_soprintendenza.currentText()) + "'",
+            # 54 nr soprintendenza
+                self.TABLE_FIELDS[54]:  quota_relativa,  # 55 quota relativa
+                self.TABLE_FIELDS[55]:  quota_abs,  # 56 quota abs
+                self.TABLE_FIELDS[56]: "'" + str(self.lineEdit_ref_tm.text()) + "'",  # 57 ref tm
+                self.TABLE_FIELDS[57]: "'" + str(self.lineEdit_ref_ra.text()) + "'",  # 58 ref ra
+                self.TABLE_FIELDS[58]: "'" + str(self.lineEdit_ref_n.text()) + "'",  # 59 ref n
+                self.TABLE_FIELDS[59]: "'" + str(self.lineEdit_posizione.text()) + "'",  # 60 posizione
+                self.TABLE_FIELDS[60]: "'" + str(self.lineEdit_criteri_distinzione.text()) + "'",
+            # 61 criteri distinzione
+                self.TABLE_FIELDS[61]: "'" + str(self.comboBox_modo_formazione.currentText()) + "'",
+            # 62 modo formazione
+                self.TABLE_FIELDS[62]: "'" + str(self.comboBox_componenti_organici.currentText()) + "'",
+            # 63 componenti organici
+                self.TABLE_FIELDS[63]: "'" + str(self.comboBox_componenti_inorganici.currentText()) + "'",
+            # 64 componenti inorganici
+                self.TABLE_FIELDS[64]:lunghezza_max,  # 65
+                self.TABLE_FIELDS[65]:altezza_max,  # 66
+                self.TABLE_FIELDS[66]:altezza_min,  # 67
+                self.TABLE_FIELDS[67]:profondita_max,  # 68
+                self.TABLE_FIELDS[68]:profondita_min,  # 69
+                self.TABLE_FIELDS[69]:larghezza_media,  # 70
+                self.TABLE_FIELDS[70]:quota_max_abs,  # 71
+                self.TABLE_FIELDS[71]:quota_max_rel,  # 72
+                self.TABLE_FIELDS[72]:quota_min_abs,  # 73
+                self.TABLE_FIELDS[73]:quota_min_rel,  # 74
+                self.TABLE_FIELDS[74]: "'" + str(self.textEdit_osservazioni.toPlainText()) + "'",  # 75 osservazioni
+                self.TABLE_FIELDS[75]: "'" + str(self.lineEdit_datazione.text()) + "'",  # 76 datazione
+                self.TABLE_FIELDS[76]: "'" + str(self.lineEdit_flottazione.text()) + "'",  # 77 flottazione
+                self.TABLE_FIELDS[77]: "'" + str(self.lineEdit_setacciatura.text()) + "'",  # 78 setacciatura
+                self.TABLE_FIELDS[78]: "'" + str(self.lineEdit_affidabilita.text()) + "'",  # 79 affidabilita
+                self.TABLE_FIELDS[79]: "'" + str(self.comboBox_direttore_us.currentText()) + "'",  # 80 direttore us
+                self.TABLE_FIELDS[80]: "'" + str(self.comboBox_responsabile_us.currentText()) + "'",
+            # 81 responsabile us
+                self.TABLE_FIELDS[81]: "'" + str(self.lineEdit_cod_ente_schedatore.text()) + "'",
+            # 82 cod ente schedatore
+                self.TABLE_FIELDS[82]: "'" + str(self.lineEdit_data_rilevazione.text()) + "'",  # 83 data rilevazione
+                self.TABLE_FIELDS[83]: "'" + str(self.lineEdit_data_rielaborazione.text()) + "'",
+            # 84 data rielaborazione
+                self.TABLE_FIELDS[84]: lunghezza_usm,  # 85
+                self.TABLE_FIELDS[85]: altezza_usm,  # 86
+                self.TABLE_FIELDS[86]: spessore_usm,  # 87
+                self.TABLE_FIELDS[87]: "'" + str(self.lineEdit_tecnica_muraria_usm.text()) + "'",
+            # 88 tecnica muraria usm
+                self.TABLE_FIELDS[88]: "'" + str(self.lineEdit_modulo_usm.text()) + "'",  # 89 modulo usm
+                self.TABLE_FIELDS[89]: "'" + str(self.lineEdit_campioni_malta_usm.text()) + "'",
+            # 90 campioni malta usm
+                self.TABLE_FIELDS[90]: "'" + str(self.lineEdit_campioni_mattone_usm.text()) + "'",
+            # 91 campioni mattone usm
+                self.TABLE_FIELDS[91]: "'" + str(self.lineEdit_campioni_pietra_usm.text()) + "'",
+            # 92 campioni pietra usm
+                self.TABLE_FIELDS[92]: "'" + str(self.lineEdit_provenienza_materiali_usm.text()) + "'",
+            # 93 provenienza_materiali_usm
+                self.TABLE_FIELDS[93]: "'" + str(self.lineEdit_criteri_distinzione_usm.text()) + "'",
+            # 94 criteri distinzione usm
+                self.TABLE_FIELDS[94]: "'" + str(self.lineEdit_uso_primario_usm.text())  # 95 uso primario usm
+
 
             }
 
@@ -2422,9 +2582,8 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
             self.tableInsertData("self.tableWidget_campioni", self.DATA_LIST[self.rec_num].campioni)  # 17 - campioni
             self.tableInsertData("self.tableWidget_rapporti", self.DATA_LIST[self.rec_num].rapporti)  # 18 - rapporti
             self.tableInsertData("self.tableWidget_documentazione",
-                                 self.DATA_LIST[self.rec_num].documentazione)  # 19 - documentazione
-            str(self.lineEdit_data_schedatura.setText(
-                self.DATA_LIST[self.rec_num].data_schedatura))  # 20 - data schedatura
+            self.DATA_LIST[self.rec_num].documentazione)  # 19 - documentazione
+            str(self.lineEdit_data_schedatura.setText(self.DATA_LIST[self.rec_num].data_schedatura))  # 20 - data schedatura
             str(self.comboBox_schedatore.setEditText(self.DATA_LIST[self.rec_num].schedatore))  # 21 - schedatore
             str(self.comboBox_formazione.setEditText(self.DATA_LIST[self.rec_num].formazione))  # 22 - formazione
             str(self.comboBox_conservazione.setEditText(
@@ -2449,8 +2608,7 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
             str(self.lineEdit_ambiente.setText(self.DATA_LIST[self.rec_num].ambient))  # 30 quadrato
             str(self.lineEdit_saggio.setText(self.DATA_LIST[self.rec_num].saggio))  # 30 quadrato
             str(self.textEdit_elementi_datanti.setText(self.DATA_LIST[self.rec_num].elem_datanti))  # 6 - descrizione
-            str(self.comboBox_funz_statica_usm.setEditText(
-                self.DATA_LIST[self.rec_num].funz_statica))  # 24 - order layer
+            str(self.comboBox_funz_statica_usm.setEditText(self.DATA_LIST[self.rec_num].funz_statica))  # 24 - order layer
             str(self.lineEdit_lavorazione_usm.setText(self.DATA_LIST[self.rec_num].lavorazione))  # 30 quadrato
             str(self.lineEdit_spessore_giunti_usm.setText(self.DATA_LIST[self.rec_num].spess_giunti))  # 30 quadrato
             str(self.lineEdit_letti_di_posa_giunti_usm.setText(self.DATA_LIST[self.rec_num].letti_posa))
@@ -2479,7 +2637,7 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
             str(self.comboBox_colore_materiale_usm.setEditText(
                 self.DATA_LIST[self.rec_num].col_materiale))  # 24 - order layer
             self.tableInsertData("self.tableWidget_inclusi_materiali_usm",
-                                 self.DATA_LIST[self.rec_num].inclusi_materiali_usm)  # 19 - documentazione
+            self.DATA_LIST[self.rec_num].inclusi_materiali_usm)  # 19 - documentazione
 
             # gestione tool
             if self.toolButtonPreview.isChecked():
