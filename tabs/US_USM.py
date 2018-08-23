@@ -2553,6 +2553,55 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
         self.lineEdit_aggregati_legante_usm.clear()  # 47 aggregati usm
         self.comboBox_consistenza_texture_mat_usm.setEditText("")  # 48 consistenza text mat
         self.comboBox_colore_materiale_usm.setEditText("")  # 49 colore materiale usm
+        #50 è un table widget
+        self.lineEdit_n_catalogo_generale.clear()  # 51 nr catalogo generale campi aggiunti per archeo 3.0 e allineamento ICCD
+        self.lineEdit_n_catalogo_interno.clear()  # 52 nr catalogo interno
+        self.lineEdit_n_catalogo_internazionale.clear()  # 53 nr catalogo internazionale
+        self.comboBox_soprintendenza.setEditText("")  # 54 nr soprintendenza
+        self.lineEdit_quota_relativa.clear()  # 55
+        self.lineEdit_quota_abs.clear()  # 56
+        self.lineEdit_ref_tm.clear()  # 57 ref tm
+        self.lineEdit_ref_ra.clear()  # 58 ref ra
+        self.lineEdit_ref_n.clear()  # 59 ref n
+        self.lineEdit_posizione.clear()  # 60 posizione
+        self.lineEdit_criteri_distinzione.clear()  # 61 criteri distinzione
+        self.comboBox_modo_formazione.setEditText("")  # 62 modo formazione
+        self.comboBox_componenti_organici.setEditText("")  # 63 componenti organici
+        self.comboBox_componenti_inorganici.setEditText("")  # 64 componenti inorganici
+        self.lineEdit_lunghezza_max.text()  # 65
+        self.lineEdit_altezza_max.text()  # 66
+        self.lineEdit_altezza_min.text()  # 67
+        self.lineEdit_profondita_max.text()  # 68
+        self.lineEdit_profondita_min.text()  # 69
+        self.lineEdit_larghezza_media.text()  # 70
+        self.lineEdit_quota_max_abs.text()  # 71
+        self.lineEdit_quota_max_rel.text()  # 72
+        self.lineEdit_quota_min_abs.text()  # 73
+        self.lineEdit_quota_min_rel.text()  # 74
+        self.textEdit_osservazioni.clear()  # 75 osservazioni
+        self.lineEdit_datazione.clear()  # 76 datazione
+        self.lineEdit_flottazione.clear()  # 77 flottazione
+        self.lineEdit_setacciatura.clear()  # 78 setacciatura
+        self.lineEdit_affidabilita.clear()  # 79 affidabilita
+        self.comboBox_direttore_us.setEditText("")  # 80 direttore us
+        self.comboBox_responsabile_us.setEditText("")  # 81 responsabile us
+        self.lineEdit_cod_ente_schedatore.clear()  # 82 cod ente schedatore
+        self.lineEdit_data_rilevazione.clear()  # 83 data rilevazione
+        self.lineEdit_data_rielaborazione.clear()  # 84 data rielaborazione
+        self.lineEdit_lunghezza_usm.text()  # 85
+        self.lineEdit_altezza_usm.text()  # 86
+        self.lineEdit_spessore_usm.text()  # 87
+        self.lineEdit_tecnica_muraria_usm.clear()  # 88 tecnica muraria usm
+        self.lineEdit_modulo_usm.clear()  # 89 modulo usm
+        self.lineEdit_campioni_malta_usm.clear()  # 90 campioni malta usm
+        self.lineEdit_campioni_mattone_usm.clear()  # 91 campioni mattone usm
+        self.lineEdit_campioni_pietra_usm.clear()  # 92 campioni pietra usm
+        self.lineEdit_provenienza_materiali_usm.clear()  # 93 provenienza_materiali_usm
+        self.lineEdit_criteri_distinzione_usm.clear()  # 94 criteri distinzione usm
+        self.lineEdit_uso_primario_usm.clear())  # 95 uso primario usm
+
+
+
 
     def fill_fields(self, n=0):
         self.rec_num = n
@@ -2578,66 +2627,176 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
             str(self.lineEdit_attivita.setText(self.DATA_LIST[self.rec_num].attivita))  # 13 - attivita
             str(self.lineEdit_anno.setText(self.DATA_LIST[self.rec_num].anno_scavo))  # 14 - anno scavo
             str(self.comboBox_metodo.setEditText(self.DATA_LIST[self.rec_num].metodo_di_scavo))  # 15 - metodo
+
             self.tableInsertData("self.tableWidget_inclusi", self.DATA_LIST[self.rec_num].inclusi)  # 16 - inclusi
             self.tableInsertData("self.tableWidget_campioni", self.DATA_LIST[self.rec_num].campioni)  # 17 - campioni
             self.tableInsertData("self.tableWidget_rapporti", self.DATA_LIST[self.rec_num].rapporti)  # 18 - rapporti
-            self.tableInsertData("self.tableWidget_documentazione",
-            self.DATA_LIST[self.rec_num].documentazione)  # 19 - documentazione
-            str(self.lineEdit_data_schedatura.setText(self.DATA_LIST[self.rec_num].data_schedatura))  # 20 - data schedatura
-            str(self.comboBox_schedatore.setEditText(self.DATA_LIST[self.rec_num].schedatore))  # 21 - schedatore
-            str(self.comboBox_formazione.setEditText(self.DATA_LIST[self.rec_num].formazione))  # 22 - formazione
-            str(self.comboBox_conservazione.setEditText(
-                self.DATA_LIST[self.rec_num].stato_di_conservazione))  # 23 - conservazione
-            str(self.comboBox_colore.setEditText(self.DATA_LIST[self.rec_num].colore))  # 24 - colore
-            str(self.comboBox_consistenza.setEditText(self.DATA_LIST[self.rec_num].consistenza))  # 25 - consistenza
-            str(self.lineEdit_struttura.setText(self.DATA_LIST[self.rec_num].struttura))
-            # 26 - struttura
+
+            str(self.lineEdit_data_schedatura.setText(self.DATA_LIST[self.rec_num].data_schedatura))  # 19 - data schedatura
+            str(self.comboBox_schedatore.setEditText(self.DATA_LIST[self.rec_num].schedatore))  # 20 - schedatore
+            str(self.comboBox_formazione.setEditText(self.DATA_LIST[self.rec_num].formazione))  # 21 - formazione
+            str(self.comboBox_conservazione.setEditText(self.DATA_LIST[self.rec_num].stato_di_conservazione))  # 22 - conservazione
+            str(self.comboBox_colore.setEditText(self.DATA_LIST[self.rec_num].colore))  # 23 - colore
+            str(self.comboBox_consistenza.setEditText(self.DATA_LIST[self.rec_num].consistenza))  # 24 - consistenza
+            str(self.lineEdit_struttura.setText(self.DATA_LIST[self.rec_num].struttura)) # 25 - struttura
+
             if not self.DATA_LIST[self.rec_num].cont_per:
                 str(self.lineEdit_codice_periodo.setText(""))
             else:
-                str(self.lineEdit_codice_periodo.setText(self.DATA_LIST[self.rec_num].cont_per))  # 27 - codice periodo
-                # 27 - codice periodo
+                str(self.lineEdit_codice_periodo.setText(self.DATA_LIST[self.rec_num].cont_per))  # 26 - codice periodo
+
             if not self.DATA_LIST[self.rec_num].order_layer:
                 self.lineEditOrderLayer.setText("")
             else:
-                self.lineEditOrderLayer.setText(str(self.DATA_LIST[self.rec_num].order_layer))  # 28 - order layer
+                self.lineEditOrderLayer.setText(str(self.DATA_LIST[self.rec_num].order_layer))  # 27 - order layer
 
-            str(self.comboBox_unita_tipo.setEditText(self.DATA_LIST[self.rec_num].unita_tipo))  # 24 - order layer
-            str(self.comboBox_settore.setEditText(self.DATA_LIST[self.rec_num].settore))  # 24 - order layer
-            str(self.lineEdit_quadrato.setText(self.DATA_LIST[self.rec_num].quad_par))  # 30 quadrato
-            str(self.lineEdit_ambiente.setText(self.DATA_LIST[self.rec_num].ambient))  # 30 quadrato
-            str(self.lineEdit_saggio.setText(self.DATA_LIST[self.rec_num].saggio))  # 30 quadrato
-            str(self.textEdit_elementi_datanti.setText(self.DATA_LIST[self.rec_num].elem_datanti))  # 6 - descrizione
-            str(self.comboBox_funz_statica_usm.setEditText(self.DATA_LIST[self.rec_num].funz_statica))  # 24 - order layer
-            str(self.lineEdit_lavorazione_usm.setText(self.DATA_LIST[self.rec_num].lavorazione))  # 30 quadrato
-            str(self.lineEdit_spessore_giunti_usm.setText(self.DATA_LIST[self.rec_num].spess_giunti))  # 30 quadrato
-            str(self.lineEdit_letti_di_posa_giunti_usm.setText(self.DATA_LIST[self.rec_num].letti_posa))
-            str(self.lineEdit_h_modulo_c_corsi_usm.setText(self.DATA_LIST[self.rec_num].alt_mod))
-            str(self.lineEdit_unita_edilizia_riassuntiva_usm.setText(self.DATA_LIST[self.rec_num].un_ed_riass))
-            str(self.lineEdit_reimpiego_usm.setText(self.DATA_LIST[self.rec_num].reimp))
-            str(self.lineEdit_posa_in_opera_usm.setText(self.DATA_LIST[self.rec_num].posa_opera))
+            self.tableInsertData("self.tableWidget_documentazione",self.DATA_LIST[self.rec_num].documentazione)  # 28 - documentazione
 
-            if self.DATA_LIST[self.rec_num].quota_min_usm == None:
-                str(self.lineEdit_qmin_usm.setText(""))
+            str(self.comboBox_unita_tipo.setEditText(self.DATA_LIST[self.rec_num].unita_tipo))  # 29 unita tipo
+            str(self.comboBox_settore.setEditText(self.DATA_LIST[self.rec_num].settore))  # 30 - settore
+            str(self.lineEdit_quadrato.setText(self.DATA_LIST[self.rec_num].quad_par))  # 31 quadrato
+            str(self.lineEdit_ambiente.setText(self.DATA_LIST[self.rec_num].ambient))  # 32 ambiente
+            str(self.lineEdit_saggio.setText(self.DATA_LIST[self.rec_num].saggio))  # 33 saggio
+            str(self.textEdit_elementi_datanti.setText(self.DATA_LIST[self.rec_num].elem_datanti))  # 34 - elemtenti_datanti
+            str(self.comboBox_funz_statica_usm.setEditText(self.DATA_LIST[self.rec_num].funz_statica))  # 35 - funz statica
+            str(self.lineEdit_lavorazione_usm.setText(self.DATA_LIST[self.rec_num].lavorazione))  # 36 lavorazione usm
+            str(self.lineEdit_spessore_giunti_usm.setText(self.DATA_LIST[self.rec_num].spess_giunti))  # 37 spessore giunti usm
+            str(self.lineEdit_letti_di_posa_giunti_usm.setText(self.DATA_LIST[self.rec_num].letti_posa)) #38 letti_posa
+            str(self.lineEdit_h_modulo_c_corsi_usm.setText(self.DATA_LIST[self.rec_num].alt_mod)) #39 altezza modulo corsi
+            str(self.lineEdit_unita_edilizia_riassuntiva_usm.setText(self.DATA_LIST[self.rec_num].un_ed_riass)) #40 unita edilizia riassuntiva
+            str(self.lineEdit_reimpiego_usm.setText(self.DATA_LIST[self.rec_num].reimp))  #41 reimpiego
+            str(self.lineEdit_posa_in_opera_usm.setText(self.DATA_LIST[self.rec_num].posa_opera)) #42 posa opera
+
+            if not self.DATA_LIST[self.rec_num].quota_min_usm:
+                self.lineEdit_qmin_usm.setText("")
             else:
-                self.lineEdit_qmin_usm.setText(str(self.DATA_LIST[self.rec_num].quota_min_usm))  # 27 - codice periodo
+                self.lineEdit_qmin_usm.setText(str(self.DATA_LIST[self.rec_num].quota_min_usm))  # 43 - qmin usm
 
-            if self.DATA_LIST[self.rec_num].quota_max_usm == None:
-                str(self.lineEdit_qmax_usm.setText(""))
+            if not self.DATA_LIST[self.rec_num].quota_max_usm:
+                self.lineEdit_qmax_usm.setText("")
             else:
-                self.lineEdit_qmax_usm.setText(str(self.DATA_LIST[self.rec_num].quota_max_usm))  # 27 - codice periodo
+                self.lineEdit_qmax_usm.setText(str(self.DATA_LIST[self.rec_num].quota_max_usm))  # 44 - qmax usm
 
-            str(self.comboBox_consistenza_legante_usm.setEditText(
-                self.DATA_LIST[self.rec_num].cons_legante))  # 24 - order layer
-            str(self.comboBox_colore_legante_usm.setEditText(
-                self.DATA_LIST[self.rec_num].col_legante))  # 24 - order layer
-            str(self.lineEdit_aggregati_legante_usm.setText(self.DATA_LIST[self.rec_num].aggreg_legante))
-            str(self.comboBox_consistenza_texture_mat_usm.setEditText(
-                self.DATA_LIST[self.rec_num].con_text_mat))  # 24 - order layer
-            str(self.comboBox_colore_materiale_usm.setEditText(
-                self.DATA_LIST[self.rec_num].col_materiale))  # 24 - order layer
-            self.tableInsertData("self.tableWidget_inclusi_materiali_usm",
-            self.DATA_LIST[self.rec_num].inclusi_materiali_usm)  # 19 - documentazione
+            str(self.comboBox_consistenza_legante_usm.setEditText(self.DATA_LIST[self.rec_num].cons_legante))  # 45 - cons legante
+            str(self.comboBox_colore_legante_usm.setEditText(self.DATA_LIST[self.rec_num].col_legante))  # 46 - col legante
+            str(self.lineEdit_aggregati_legante_usm.setText(self.DATA_LIST[self.rec_num].aggreg_legante))  #47 aggreg legante
+            str(self.comboBox_consistenza_texture_mat_usm.setEditText(self.DATA_LIST[self.rec_num].con_text_mat))  # 48 - con text mat
+            str(self.comboBox_colore_materiale_usm.setEditText(self.DATA_LIST[self.rec_num].col_materiale))  # 49 - col mat
+
+            self.tableInsertData("self.tableWidget_inclusi_materiali_usm",self.DATA_LIST[self.rec_num].inclusi_materiali_usm)  # 50  inclusi materiali usm
+
+            str(self.lineEdit_n_catalogo_generale.setText(self.DATA_LIST[self.rec_num].n_catalogo_generale))  # 51 nr catalogo generale campi aggiunti per archeo 3.0 e allineamento ICCD
+            str(self.lineEdit_n_catalogo_interno.setText(self.DATA_LIST[self.rec_num].n_catalogo_interno))  # 52 nr catalogo interno
+            str(self.lineEdit_n_catalogo_internazionale.setText(self.DATA_LIST[self.rec_num].n_catalogo_internazionale)  # 53 nr catalogo internazionale
+            str(self.comboBox_soprintendenza.setEditText(self.DATA_LIST[self.rec_num].soprintendenza))  # 54 nr soprintendenza
+
+            if not self.DATA_LIST[self.rec_num].quote_relativa:
+                self.lineEdit_quota_relativa.setText("")                   # 55
+            else:
+                self.lineEdit_quota_relativa.setText(str(self.DATA_LIST[self.rec_num].quota_relativa))
+
+            if not self.DATA_LIST[self.rec_num].quota_abs:
+                self.lineEdit_quota_abs.setText("")                   # 56
+            else:
+                self.lineEdit_quota_abs.setText(str(self.DATA_LIST[self.rec_num].quota_abs))
+
+            str(self.lineEdit_ref_tm.setText(self.DATA_LIST[self.rec_num].ref_tm))  # 57 ref tm
+            str(self.lineEdit_ref_ra.setText(self.DATA_LIST[self.rec_num].ref_ra))  # 58 ref ra
+            str(self.lineEdit_ref_n.setText(self.DATA_LIST[self.rec_num].ref_n))  # 59 ref n
+            str(self.lineEdit_posizione.setText(self.DATA_LIST[self.rec_num].posizione))  # 60 posizione
+            str(self.lineEdit_criteri_distinzione.setText(self.DATA_LIST[self.rec_num].criteri_distinzione))  # 61 criteri distinzione
+            str(self.comboBox_modo_formazione.setEditText(self.DATA_LIST[self.rec_num].modo_formazione))  # 62 modo formazione
+            str(self.comboBox_componenti_organici.setEditText(self.DATA_LIST[self.rec_num].componenti_organici))  # 63 componenti organici
+            str(self.comboBox_componenti_inorganici.setEditText(self.DATA_LIST[self.rec_num].componenti_inorganici))  # 64 componenti inorganici
+
+            if not self.DATA_LIST[self.rec_num].lunghezza_max:
+                str(self.lineEdit_lunghezza_max.setText(""))
+            else:
+                str(self.lineEdit_lunghezza_max.setText(self.DATA_LIST[self.rec_num].lunghezza_max))  # 65 lunghezza max
+
+            if not self.DATA_LIST[self.rec_num].altezza_max:
+                str(self.lineEdit_altezza_max.setText(""))
+            else:
+                str(self.lineEdit_altezza_max.setText(self.DATA_LIST[self.rec_num].altezza_max))  # 66 altezza max
+
+            if not self.DATA_LIST[self.rec_num].altezza_min:
+                str(self.lineEdit_altezza_min.setText(""))
+            else:
+                str(self.lineEdit_altezza_min.setText(self.DATA_LIST[self.rec_num].altezza_min))  # 67 altezza min
+
+            if not self.DATA_LIST[self.rec_num].profondita_max:
+                str(self.lineEdit_profondita_max.setText(""))
+            else:
+                str(self.lineEdit_profondita_max.setText(
+                    self.DATA_LIST[self.rec_num].profondita_max))  # 68 profondita_max
+
+            if not self.DATA_LIST[self.rec_num].profondita_min:
+                str(self.lineEdit_profondita_min.setText(""))
+            else:
+                str(self.lineEdit_profondita_min.setText(
+                    self.DATA_LIST[self.rec_num].profondita_min))  # 69 profondita min
+
+            if not self.DATA_LIST[self.rec_num].larghezza_media:
+                str(self.lineEdit_larghezza_media.setText(""))
+            else:
+                str(self.lineEdit_larghezza_media.setText(
+                    self.DATA_LIST[self.rec_num].larghezza_media))  # 70 larghezza media
+
+            if not self.DATA_LIST[self.rec_num].quota_max_abs:
+                str(self.lineEdit_quota_max_abs.setText(""))
+            else:
+                str(self.lineEdit_quota_max_abs.setText(self.DATA_LIST[self.rec_num].quota_max_abs))  # 71 quota_max_abs
+
+            if not self.DATA_LIST[self.rec_num].quota_max_rel:
+                str(self.lineEdit_quota_max_rel.setText(""))
+            else:
+                str(self.lineEdit_quota_max_rel.setText(
+                    self.DATA_LIST[self.rec_num].quota_max_rel))  # 72 quota_max_rel
+
+            if not self.DATA_LIST[self.rec_num].quota_min_abs:
+                str(self.lineEdit_quota_min_abs.setText(""))
+            else:
+                str(self.lineEdit_quota_min_abs.setText(self.DATA_LIST[self.rec_num].quota_min_abs))  # 73 quota_min_abs
+
+            if not self.DATA_LIST[self.rec_num].quota_min_rel:
+                str(self.lineEdit_quota_min_rel.setText(""))
+            else:
+                str(self.lineEdit_quota_min_rel.setText(self.DATA_LIST[self.rec_num].quota_min_rel))  # 74 quota_min_rel
+
+            str(self.textEdit_osservazioni.setText(self.DATA_LIST[self.rec_num].osservazioni))  # 75 osservazioni
+            str(self.lineEdit_datazione.setText(self.DATA_LIST[self.rec_num].datazione))  # 76 datazione
+            str(self.lineEdit_flottazione.setText(self.DATA_LIST[self.rec_num].flottazione))  # 77 flottazione
+            str(self.lineEdit_setacciatura.setText(self.DATA_LIST[self.rec_num].setacciatura)  # 78 setacciatura
+            str(self.lineEdit_affidabilita.setText(self.DATA_LIST[self.rec_num].affidabilita))  # 79 affidabilita
+            str(self.comboBox_direttore_us.setEditText(self.DATA_LIST[self.rec_num].direttore_us))  # 80 direttore us
+            str(self.comboBox_responsabile_us.setEditText(self.DATA_LIST[self.rec_num].responabile_us))  # 81 responsabile us
+            str(self.lineEdit_cod_ente_schedatore.setText(self.DATA_LIST[self.rec_num].cod_ente_schedatore))  # 82 cod ente schedatore
+            str(self.lineEdit_data_rilevazione.setText(self.DATA_LIST[self.rec_num].data_rilevazione))  # 83 data rilevazione
+            str(self.lineEdit_data_rielaborazione.setText(self.DATA_LIST[self.rec_num].data_rielaborazione))  # 84 data rielaborazione
+
+            if not self.DATA_LIST[self.rec_num].lunghezza_usm:
+                str(self.lineEdit_lunghezza_usm.setText(""))
+            else:
+                str(self.lineEdit_lunghezza_usm.setText(self.DATA_LIST[self.rec_num].lunghezza_usm))  # 85 lunghezza usm
+
+            if not self.DATA_LIST[self.rec_num].altezza_usm:
+                str(self.lineEdit_altezza_usm.setText(""))
+            else:
+                str(self.lineEdit_altezza_usm.setText(self.DATA_LIST[self.rec_num].altezza_usm))  # 86 altezza usm
+
+            if not self.DATA_LIST[self.rec_num].spessore_usm:
+                str(self.lineEdit_spessore_usm.setText(""))
+            else:
+                str(self.lineEdit_spessore_usm.setText(self.DATA_LIST[self.rec_num].spessore_usm))  # 87 spessore usm
+
+            str(self.lineEdit_tecnica_muraria_usm.setText(self.DATA_LIST[self.rec_num].tecnica_muraria))  # 88 tecnica muraria usm
+            str(self.lineEdit_modulo_usm.setText(self.DATA_LIST[self.rec_num].modulo_usm))  # 89 modulo usm
+            str(self.lineEdit_campioni_malta_usm.setText(self.DATA_LIST[self.rec_num].campioni_malta_usm))  # 90 campioni malta usm
+            str(self.lineEdit_campioni_mattone_usm.setText(self.DATA_LIST[self.rec_num].campioni_mattoni_usm))  # 91 campioni mattone usm
+            str(self.lineEdit_campioni_pietra_usm.setText(self.DATA_LIST[self.rec_num].campioni_pietra_usm))  # 92 campioni pietra usm
+            str(self.lineEdit_provenienza_materiali_usm.setText(self.DATA_LIST[self.rec_num].provenienza_materiali_usm))  # 93 provenienza_materiali_usm
+            str(self.lineEdit_criteri_distinzione_usm.setText(self.DATA_LIST[self.rec_num].criteri_distinzione_sum))  # 94 criteri distinzione usm
+            str(self.lineEdit_uso_primario_usm.setText(self.DATA_LIST[self.rec_num].uso_primario_usm))  # 95 uso primario usm
 
             # gestione tool
             if self.toolButtonPreview.isChecked():
