@@ -2598,7 +2598,7 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
         self.lineEdit_campioni_pietra_usm.clear()  # 92 campioni pietra usm
         self.lineEdit_provenienza_materiali_usm.clear()  # 93 provenienza_materiali_usm
         self.lineEdit_criteri_distinzione_usm.clear()  # 94 criteri distinzione usm
-        self.lineEdit_uso_primario_usm.clear())  # 95 uso primario usm
+        self.lineEdit_uso_primario_usm.clear()  # 95 uso primario usm
 
 
 
@@ -2687,7 +2687,7 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
 
             str(self.lineEdit_n_catalogo_generale.setText(self.DATA_LIST[self.rec_num].n_catalogo_generale))  # 51 nr catalogo generale campi aggiunti per archeo 3.0 e allineamento ICCD
             str(self.lineEdit_n_catalogo_interno.setText(self.DATA_LIST[self.rec_num].n_catalogo_interno))  # 52 nr catalogo interno
-            str(self.lineEdit_n_catalogo_internazionale.setText(self.DATA_LIST[self.rec_num].n_catalogo_internazionale)  # 53 nr catalogo internazionale
+            str(self.lineEdit_n_catalogo_internazionale.setText(self.DATA_LIST[self.rec_num].n_catalogo_internazionale))  # 53 nr catalogo internazionale
             str(self.comboBox_soprintendenza.setEditText(self.DATA_LIST[self.rec_num].soprintendenza))  # 54 nr soprintendenza
 
             if not self.DATA_LIST[self.rec_num].quote_relativa:
@@ -2766,8 +2766,8 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
             str(self.textEdit_osservazioni.setText(self.DATA_LIST[self.rec_num].osservazioni))  # 75 osservazioni
             str(self.lineEdit_datazione.setText(self.DATA_LIST[self.rec_num].datazione))  # 76 datazione
             str(self.lineEdit_flottazione.setText(self.DATA_LIST[self.rec_num].flottazione))  # 77 flottazione
-            str(self.lineEdit_setacciatura.setText(self.DATA_LIST[self.rec_num].setacciatura)  # 78 setacciatura
-            str(self.lineEdit_affidabilita.setText(self.DATA_LIST[self.rec_num].affidabilita))  # 79 affidabilita
+            str(self.lineEdit_setacciatura.setText(self.DATA_LIST[self.rec_num].setacciatura))  # 78 setacciatura
+            str(self.lineEdit_affidabilita.setText(self.DATA_LIST[self.rec_num].affidabilita))        # 79 affidabilita
             str(self.comboBox_direttore_us.setEditText(self.DATA_LIST[self.rec_num].direttore_us))  # 80 direttore us
             str(self.comboBox_responsabile_us.setEditText(self.DATA_LIST[self.rec_num].responabile_us))  # 81 responsabile us
             str(self.lineEdit_cod_ente_schedatore.setText(self.DATA_LIST[self.rec_num].cod_ente_schedatore))  # 82 cod ente schedatore
