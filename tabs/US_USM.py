@@ -2842,6 +2842,97 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
         else:
             qmax_usm = self.lineEdit_qmax_usm.text()
 
+
+        ##quota relativa
+        if self.lineEdit_quota_relativa.text() == "":
+            quota_relativa = None
+        else:
+            quota_relativa = self.lineEdit_quota_relativa.text()
+
+        ##quota abs
+        if self.lineEdit_quota_abs.text() == "":
+            quota_abs = None
+        else:
+            quota_abs = self.lineEdit_quota_abs.text()
+
+        ##lunghezza max
+        if self.lineEdit_lunghezza_max.text() == "":
+            lunghezza_max = None
+        else:
+            lunghezza_max = self.lineEdit_lunghezza_max.text()
+
+        ##altezza max
+        if self.lineEdit_altezza_max.text() == "":
+            altezza_max = None
+        else:
+            altezza_max = self.lineEdit_altezza_max.text()
+
+        ##altezza min
+        if self.lineEdit_altezza_min.text() == "":
+            altezza_min = None
+        else:
+            altezza_min = self.lineEdit_altezza_min.text()
+
+        ##profondita max
+        if self.lineEdit_profondita_max.text() == "":
+            profondita_max = None
+        else:
+            profondita_max = self.lineEdit_profondita_max.text()
+
+        ##profondita min
+        if self.lineEdit_profondita_min.text() == "":
+            profondita_min = None
+        else:
+            profondita_min = self.lineEdit_profondita_min.text()
+
+        ##larghezza media
+        if self.lineEdit_larghezza_media.text() == "":
+            larghezza_media = None
+        else:
+            larghezza_media = self.lineEdit_larghezza_media.text()
+
+        ##quota max abs
+        if self.lineEdit_quota_max_abs.text() == "":
+            quota_max_abs = None
+        else:
+            quota_max_abs = self.lineEdit_quota_max_abs.text()
+
+        ##quota max relativa
+        if self.lineEdit_quota_max_rel.text() == "":
+            quota_max_rel = None
+        else:
+            quota_max_rel = self.lineEdit_quota_max_rel.text()
+
+        ##quota min abs
+        if self.lineEdit_quota_min_abs.text() == "":
+            quota_min_abs = None
+        else:
+            quota_min_abs = self.lineEdit_quota_min_abs.text()
+
+        ##quota min relativa
+        if self.lineEdit_quota_min_rel.text() == "":
+            quota_min_rel = None
+        else:
+            quota_min_rel = self.lineEdit_quota_min_rel.text()
+
+        ##lunghezza usm
+        if self.lineEdit_lunghezza_usm.text() == "":
+            lunghezza_usm = None
+        else:
+            lunghezza_usm = self.lineEdit_lunghezza_usm.text()
+
+        ##altezza usm
+        if self.lineEdit_altezza_usm.text() == "":
+            altezza_usm = None
+        else:
+            altezza_usm = self.lineEdit_altezza_usm.text()
+
+        ##spessore usm
+        if self.lineEdit_spessore_usm.text() == "":
+            spessore_usm = None
+        else:
+            spessore_usm = self.lineEdit_spessore_usm.text()
+
             # data
         self.DATA_LIST_REC_TEMP = [
             str(self.comboBox_sito.currentText()),  # 1 - Sito
@@ -2893,7 +2984,52 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
             str(self.lineEdit_aggregati_legante_usm.text()),  # 47 aggregati usm
             str(self.comboBox_consistenza_texture_mat_usm.currentText()),  # 48 consistenza text mat
             str(self.comboBox_colore_materiale_usm.currentText()),  # 49 colore materiale usm
-            str(inclusi_mat_usm)  # 50 inclusi_mat_usm
+            str(inclusi_mat_usm), # 50 inclusi_mat_usm
+            str(self.lineEdit_n_catalogo_generale.text()), # 51 nr catalogo generale campi aggiunti per archeo 3.0 e allineamento ICCD
+            str(self.lineEdit_n_catalogo_interno.text()), # 52 nr catalogo interno
+            str(self.lineEdit_n_catalogo_internazionale.text()), # 53 nr catalogo internazionale
+            str(self.comboBox_soprintendenza.currentText()), # 54 nr soprintendenza
+            str(quota_relativa),  # 55 quota relativa
+            str(quota_abs),  # 56 quota abs
+            str(self.lineEdit_ref_tm.text()),  # 57 ref tm
+            str(self.lineEdit_ref_ra.text()),  # 58 ref ra
+            str(self.lineEdit_ref_n.text()),  # 59 ref n
+            str(self.lineEdit_posizione.text()),  # 60 posizione
+            str(self.lineEdit_criteri_distinzione.text()), # 61 criteri distinzione
+            str(self.comboBox_modo_formazione.currentText()), # 62 modo formazione
+            str(self.comboBox_componenti_organici.currentText()), # 63 componenti organici
+            str(self.comboBox_componenti_inorganici.currentText()), # 64 componenti inorganici
+            str(lunghezza_max),  # 65
+            str(altezza_max),  # 66
+            str(altezza_min),  # 67
+            str(profondita_max),  # 68
+            str(profondita_min),  # 69
+            str(larghezza_media),  # 70
+            str(quota_max_abs),  # 71
+            str(quota_max_rel),  # 72
+            str(quota_min_abs),  # 73
+            str(quota_min_rel),  # 74
+            str(self.textEdit_osservazioni.toPlainText()),  # 75 osservazioni
+            str(self.lineEdit_datazione.text()),  # 76 datazione
+            str(self.lineEdit_flottazione.text()),  # 77 flottazione
+            str(self.lineEdit_setacciatura.text()),  # 78 setacciatura
+            str(self.lineEdit_affidabilita.text()),  # 79 affidabilita
+            str(self.comboBox_direttore_us.currentText()),  # 80 direttore us
+            str(self.comboBox_responsabile_us.currentText()), # 81 responsabile us
+            str(self.lineEdit_cod_ente_schedatore.text()), # 82 cod ente schedatore
+            str(self.lineEdit_data_rilevazione.text()),  # 83 data rilevazione
+            str(self.lineEdit_data_rielaborazione.text()), # 84 data rielaborazione
+            str(lunghezza_usm),  # 85
+            str(altezza_usm),  # 86
+            str(spessore_usm),  # 87
+            str(self.lineEdit_tecnica_muraria_usm.text()), # 88 tecnica muraria usm
+            str(self.lineEdit_modulo_usm.text()),  # 89 modulo usm
+            str(self.lineEdit_campioni_malta_usm.text()), # 90 campioni malta usm
+            str(self.lineEdit_campioni_mattone_usm.text()), # 91 campioni mattone usm
+            str(self.lineEdit_campioni_pietra_usm.text()), # 92 campioni pietra usm
+            str(self.lineEdit_provenienza_materiali_usm.text()), # 93 provenienza_materiali_usm
+            str(self.lineEdit_criteri_distinzione_usm.text()), # 94 criteri distinzione usm
+            str(self.lineEdit_uso_primario_usm.text())  # 95 uso primario usm
         ]
 
     def set_LIST_REC_CORR(self):
