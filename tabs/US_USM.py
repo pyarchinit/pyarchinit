@@ -1563,7 +1563,7 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
         #Inclusi materiali usm
         inclusi_mat_usm = self.table2dict("self.tableWidget_inclusi_materiali_usm")
         #Inclusi leganti usm
-        aggreg_legante_usm = self.table2dict("self.tableWidget_aggreg_legante_usm")
+        aggreg_legante_usm = self.table2dict("self.tableWidget_inclusi_leganti_usm")
 
         if self.lineEditOrderLayer.text() == "":
             order_layer = 0
@@ -2481,6 +2481,7 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
         inclusi_row_count = self.tableWidget_inclusi.rowCount()
         documentazione_row_count = self.tableWidget_documentazione.rowCount()
         aggregati_row_count = self.tableWidget_inclusi_materiali_usm.rowCount()
+        inclusi_leganti_row_count = self.tableWidget_inclusi_leganti_usm.rowCount()
 
         self.comboBox_sito.setEditText("")  # 1 - Sito
         self.comboBox_area.setEditText("")  # 2 - Area
@@ -2516,7 +2517,10 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
         self.insert_new_row("self.tableWidget_documentazione")  # 19 - documentazione
         for i in range(aggregati_row_count):
             self.tableWidget_inclusi_materiali_usm.removeRow(0)
-        self.insert_new_row("self.tableWidget_inclusi_materiali_usm")  # 19 - aggregati
+        self.insert_new_row("self.tableWidget_inclusi_materiali_usm")  # 19 - aggregati        for i in range(aggregati_row_count):
+        for i in range(inclusi_leganti_row_count):
+            self.tableWidget_inclusi_leganti_usm.removeRow(0)
+        self.insert_new_row("self.tableWidget_inclusi_leganti_usm")  # 19 - aggregati
 
         if self.BROWSE_STATUS == "n":
             self.lineEdit_data_schedatura.setText(self.datestrfdate())  # 20 - data schedatura
