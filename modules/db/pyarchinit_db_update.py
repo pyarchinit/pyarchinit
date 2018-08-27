@@ -149,7 +149,7 @@ class DB_update(object):
             self.engine.execute("ALTER TABLE us_table ADD COLUMN quota_relativa NUMERIC(6,2)")
 
         if not table_column_names_list.__contains__('quota_abs'):
-            self.engine.execute("ALTER TABLE us_table ADD COLUMN quota_relativa NUMERIC(6,2)")
+            self.engine.execute("ALTER TABLE us_table ADD COLUMN quota_abs   NUMERIC(6,2)")
 
         if not table_column_names_list.__contains__('ref_tm'):
             self.engine.execute("ALTER TABLE us_table ADD COLUMN ref_tm text DEFAULT '[]' ")
