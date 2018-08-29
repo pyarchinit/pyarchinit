@@ -2554,7 +2554,7 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
         self.lineEdit_qmax_usm.clear()  # 3 - US
         self.comboBox_consistenza_legante_usm.setEditText("")  # 45 consitenza legante usm
         self.comboBox_colore_legante_usm.setEditText("")  # 46 colore legante usm
-        self.lineEdit_aggregati_legante_usm.clear()  # 47 aggregati usm
+        # 47 aggregati usm è un tableWidget
         self.comboBox_consistenza_texture_mat_usm.setEditText("")  # 48 consistenza text mat
         self.comboBox_colore_materiale_usm.setEditText("")  # 49 colore materiale usm
         #50 è un table widget
@@ -2614,18 +2614,13 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
             str(self.comboBox_sito.setEditText(self.DATA_LIST[self.rec_num].sito))  # 1 - Sito
             str(self.comboBox_area.setEditText(self.DATA_LIST[self.rec_num].area))  # 2 - Area
             self.lineEdit_us.setText(str(self.DATA_LIST[self.rec_num].us))  # 3 - US
-            str(self.comboBox_def_strat.setEditText(
-                self.DATA_LIST[self.rec_num].d_stratigrafica))  # 4 - Definizione stratigrafica
-            str(self.comboBox_def_intepret.setEditText(
-                self.DATA_LIST[self.rec_num].d_interpretativa))  # 5 - Definizione intepretata
+            str(self.comboBox_def_strat.setEditText(self.DATA_LIST[self.rec_num].d_stratigrafica))  # 4 - Definizione stratigrafica
+            str(self.comboBox_def_intepret.setEditText(self.DATA_LIST[self.rec_num].d_interpretativa))  # 5 - Definizione intepretata
             str(self.textEdit_descrizione.setText(self.DATA_LIST[self.rec_num].descrizione))  # 6 - descrizione
-            str(self.textEdit_interpretazione.setText(
-                self.DATA_LIST[self.rec_num].interpretazione))  # 7 - interpretazione
-            str(self.comboBox_per_iniz.setEditText(
-                self.DATA_LIST[self.rec_num].periodo_iniziale))  # 8 - periodo iniziale
+            str(self.textEdit_interpretazione.setText(self.DATA_LIST[self.rec_num].interpretazione))  # 7 - interpretazione
+            str(self.comboBox_per_iniz.setEditText(self.DATA_LIST[self.rec_num].periodo_iniziale))  # 8 - periodo iniziale
             str(self.comboBox_fas_iniz.setEditText(self.DATA_LIST[self.rec_num].fase_iniziale))  # 9 - fase iniziale
-            str(self.comboBox_per_fin.setEditText(
-                self.DATA_LIST[self.rec_num].periodo_finale))  # 10 - periodo finale iniziale
+            str(self.comboBox_per_fin.setEditText(self.DATA_LIST[self.rec_num].periodo_finale))  # 10 - periodo finale iniziale
             str(self.comboBox_fas_fin.setEditText(self.DATA_LIST[self.rec_num].fase_finale))  # 11 - fase finale
             str(self.comboBox_scavato.setEditText(self.DATA_LIST[self.rec_num].scavato))  # 12 - scavato
             str(self.lineEdit_attivita.setText(self.DATA_LIST[self.rec_num].attivita))  # 13 - attivita
@@ -2683,7 +2678,7 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
 
             str(self.comboBox_consistenza_legante_usm.setEditText(self.DATA_LIST[self.rec_num].cons_legante))  # 45 - cons legante
             str(self.comboBox_colore_legante_usm.setEditText(self.DATA_LIST[self.rec_num].col_legante))  # 46 - col legante
-            str(self.lineEdit_aggregati_legante_usm.setText(self.DATA_LIST[self.rec_num].aggreg_legante))  #47 aggreg legante
+            self.tableInsertData("self.tableWidget_inclusi_leganti_usm", self.DATA_LIST[self.rec_num].aggreg_legante) #aggregati legante usm
             str(self.comboBox_consistenza_texture_mat_usm.setEditText(self.DATA_LIST[self.rec_num].con_text_mat))  # 48 - con text mat
             str(self.comboBox_colore_materiale_usm.setEditText(self.DATA_LIST[self.rec_num].col_materiale))  # 49 - col mat
 
@@ -2694,7 +2689,7 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
             str(self.lineEdit_n_catalogo_internazionale.setText(self.DATA_LIST[self.rec_num].n_catalogo_internazionale))  # 53 nr catalogo internazionale
             str(self.comboBox_soprintendenza.setEditText(self.DATA_LIST[self.rec_num].soprintendenza))  # 54 nr soprintendenza
 
-            if not self.DATA_LIST[self.rec_num].quote_relativa:
+            if not self.DATA_LIST[self.rec_num].quota_relativa:
                 self.lineEdit_quota_relativa.setText("")                   # 55
             else:
                 self.lineEdit_quota_relativa.setText(str(self.DATA_LIST[self.rec_num].quota_relativa))
@@ -2773,7 +2768,7 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
             str(self.lineEdit_setacciatura.setText(self.DATA_LIST[self.rec_num].setacciatura))  # 78 setacciatura
             str(self.lineEdit_affidabilita.setText(self.DATA_LIST[self.rec_num].affidabilita))        # 79 affidabilita
             str(self.comboBox_direttore_us.setEditText(self.DATA_LIST[self.rec_num].direttore_us))  # 80 direttore us
-            str(self.comboBox_responsabile_us.setEditText(self.DATA_LIST[self.rec_num].responabile_us))  # 81 responsabile us
+            str(self.comboBox_responsabile_us.setEditText(self.DATA_LIST[self.rec_num].responsabile_us))  # 81 responsabile us
             str(self.lineEdit_cod_ente_schedatore.setText(self.DATA_LIST[self.rec_num].cod_ente_schedatore))  # 82 cod ente schedatore
             str(self.lineEdit_data_rilevazione.setText(self.DATA_LIST[self.rec_num].data_rilevazione))  # 83 data rilevazione
             str(self.lineEdit_data_rielaborazione.setText(self.DATA_LIST[self.rec_num].data_rielaborazione))  # 84 data rielaborazione
@@ -2793,7 +2788,7 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
             else:
                 str(self.lineEdit_spessore_usm.setText(self.DATA_LIST[self.rec_num].spessore_usm))  # 87 spessore usm
 
-            str(self.lineEdit_tecnica_muraria_usm.setText(self.DATA_LIST[self.rec_num].tecnica_muraria))  # 88 tecnica muraria usm
+            str(self.lineEdit_tecnica_muraria_usm.setText(self.DATA_LIST[self.rec_num].tecnica_muraria_usm))  # 88 tecnica muraria usm
             str(self.lineEdit_modulo_usm.setText(self.DATA_LIST[self.rec_num].modulo_usm))  # 89 modulo usm
             str(self.lineEdit_campioni_malta_usm.setText(self.DATA_LIST[self.rec_num].campioni_malta_usm))  # 90 campioni malta usm
             str(self.lineEdit_campioni_mattone_usm.setText(self.DATA_LIST[self.rec_num].campioni_mattoni_usm))  # 91 campioni mattone usm
@@ -2829,7 +2824,9 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
         documentazione = self.table2dict("self.tableWidget_documentazione")
 
         ##Inclusi materiali aggregati
-        inclusi_mat_usm = self.table2dict("self.tableWidget_inclusi_materiali_usm")
+        inclusi_mat_usm = self.table2dict("self.tableWidget_inclusi_materiali_usm")        ##Inclusi materiali aggregati
+        ##Inclusi leganti usm
+        inclusi_leganti_usm = self.table2dict("self.tableWidget_inclusi_leganti_usm")
 
         if self.lineEditOrderLayer.text() == "":
             order_layer = None
@@ -2985,7 +2982,7 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
             str(qmax_usm),  # 44 quota massima
             str(self.comboBox_consistenza_legante_usm.currentText()),  # 45 consitenza legante usm
             str(self.comboBox_colore_legante_usm.currentText()),  # 46 colore legante usm
-            str(self.lineEdit_aggregati_legante_usm.text()),  # 47 aggregati usm
+            str(inclusi_leganti_usm),  # 47 aggregati leganti usm
             str(self.comboBox_consistenza_texture_mat_usm.currentText()),  # 48 consistenza text mat
             str(self.comboBox_colore_materiale_usm.currentText()),  # 49 colore materiale usm
             str(inclusi_mat_usm), # 50 inclusi_mat_usm
