@@ -1829,10 +1829,10 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
         self.remove_row('self.tableWidget_inclusi_materiali_usm')
 
     def on_pushButton_insert_row_inclusi_leganti_pressed(self):
-        self.insert_new_row('self.tableWidget_inclusi_materiali_usm')
+        self.insert_new_row('self.tableWidget_inclusi_leganti_usm')
 
     def on_pushButton_remove_row_inclusi_leganti_pressed(self):
-        self.remove_row('self.tableWidget_inclusi_materiali_usm')
+        self.remove_row('self.tableWidget_inclusi_leganti_usm')
 
     def check_record_state(self):
         ec = self.data_error_check()
@@ -2791,10 +2791,10 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
             str(self.lineEdit_tecnica_muraria_usm.setText(self.DATA_LIST[self.rec_num].tecnica_muraria_usm))  # 88 tecnica muraria usm
             str(self.lineEdit_modulo_usm.setText(self.DATA_LIST[self.rec_num].modulo_usm))  # 89 modulo usm
             str(self.lineEdit_campioni_malta_usm.setText(self.DATA_LIST[self.rec_num].campioni_malta_usm))  # 90 campioni malta usm
-            str(self.lineEdit_campioni_mattone_usm.setText(self.DATA_LIST[self.rec_num].campioni_mattoni_usm))  # 91 campioni mattone usm
+            str(self.lineEdit_campioni_mattone_usm.setText(self.DATA_LIST[self.rec_num].campioni_mattone_usm))  # 91 campioni mattone usm
             str(self.lineEdit_campioni_pietra_usm.setText(self.DATA_LIST[self.rec_num].campioni_pietra_usm))  # 92 campioni pietra usm
             str(self.lineEdit_provenienza_materiali_usm.setText(self.DATA_LIST[self.rec_num].provenienza_materiali_usm))  # 93 provenienza_materiali_usm
-            str(self.lineEdit_criteri_distinzione_usm.setText(self.DATA_LIST[self.rec_num].criteri_distinzione_sum))  # 94 criteri distinzione usm
+            str(self.lineEdit_criteri_distinzione_usm.setText(self.DATA_LIST[self.rec_num].criteri_distinzione_usm))  # 94 criteri distinzione usm
             str(self.lineEdit_uso_primario_usm.setText(self.DATA_LIST[self.rec_num].uso_primario_usm))  # 95 uso primario usm
 
             # gestione tool
