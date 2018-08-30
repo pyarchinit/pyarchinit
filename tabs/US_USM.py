@@ -2273,7 +2273,7 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
             # 93 provenienza_materiali_usm
                 self.TABLE_FIELDS[93]: "'" + str(self.lineEdit_criteri_distinzione_usm.text()) + "'",
             # 94 criteri distinzione usm
-                self.TABLE_FIELDS[94]: "'" + str(self.lineEdit_uso_primario_usm.text())  # 95 uso primario usm
+                self.TABLE_FIELDS[94]: "'" + str(self.lineEdit_uso_primario_usm.text()) + "'"  # 95 uso primario usm
 
 
             }

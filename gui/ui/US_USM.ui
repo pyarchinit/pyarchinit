@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>751</width>
-    <height>779</height>
+    <height>861</height>
    </rect>
   </property>
   <property name="minimumSize">
@@ -3596,6 +3596,9 @@ p, li { white-space: pre-wrap; }
          </item>
          <item row="7" column="4">
           <widget class="QComboBox" name="comboBox_componenti_organici">
+           <property name="editable">
+            <bool>true</bool>
+           </property>
            <item>
             <property name="text">
              <string>Si</string>
@@ -3610,6 +3613,9 @@ p, li { white-space: pre-wrap; }
          </item>
          <item row="7" column="5">
           <widget class="QComboBox" name="comboBox_componenti_inorganici">
+           <property name="editable">
+            <bool>true</bool>
+           </property>
            <item>
             <property name="text">
              <string>Si</string>
@@ -4416,8 +4422,8 @@ p, li { white-space: pre-wrap; }
                <rect>
                 <x>0</x>
                 <y>0</y>
-                <width>937</width>
-                <height>373</height>
+                <width>689</width>
+                <height>339</height>
                </rect>
               </property>
               <attribute name="label">
@@ -4960,8 +4966,8 @@ p, li { white-space: pre-wrap; }
                <rect>
                 <x>0</x>
                 <y>0</y>
-                <width>100</width>
-                <height>30</height>
+                <width>98</width>
+                <height>28</height>
                </rect>
               </property>
               <attribute name="label">
