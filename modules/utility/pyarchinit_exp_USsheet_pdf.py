@@ -881,7 +881,7 @@ class single_US_pdf_sheet(object):
 
         # 21 row
         periodizzazione = Paragraph("<b>PERIODIZZAZIONE</b>", styNormal)
-        datazione_ipostesi = Paragraph("<b>datazione ipotesi</b></br>" + self.datazione, styNormal)
+        datazione_ipotesi = Paragraph("<b>datazione ipotesi</b></br>" + self.datazione, styNormal)
 
         # 22 row
         iniziale = Paragraph("<b>INIZIALE</b>", styNormal)
@@ -947,40 +947,35 @@ class single_US_pdf_sheet(object):
             [sabap_data, '01', '02', '03', '04', '05', '06', '07', '08', '09'],                                         # 2 row ok dati sabap ok archeo 3
             [d_stratigrafica, '01', '02', '03', '04', d_interpretativa, '06', '07', '08', '09'],                        # 3 row def stratigrafiche e interpretate
             [settore, '01', quadrato, '03', ambiente, '05', saggio, '07', '08', '09'],                                  # 4 row ok settore quadrato ambiente saggio archeo 3
-            [stato_conservazione, '01', consistenza, '03', colore, '05',formazione , '07', modo_formazione, '09'],            # 5 row ok  stato_conservazione, consistenza, colore, formazione, modo_formazione
-
-
-
-            [inclusi, '01', '02', '03', campioni, '05', '06', '07', formazione, '09'],                                  # 5 row ok
-            [descrizione, '01', '02', '03', '04', '05', '06', '07', '08', '09'],                                        # 6 row ok
-            [interpretazione, '01', '02', '03', '04', '05', '06', '07', '08', '09'],                                    # 7 row ok
-            [attivita, '01', '02', struttura, '04', '05', quota_min, '07', quota_max, '09'],                            # 8 row
-            [usm_section, '01', '02', '03', '04', '05', '06', '07', '08', '09'],                                        # 9 row
-            [settore, '01', '02', quadrato, '04', '05', ambiente, '07', saggio, '09'],                                  # 10 row
-            [elem_datanti, '01', '02', funz_statica, '04', '05', lavorazione, '07', spess_giunti, '09'],                # 11 row
-            [letti_posa, '01', '02', alt_modulo, '04', '05', un_ed_riass, '07', reimp, '09'],                           # 12 row
-            [posa_opera, '01', '02', quota_min_usm, '04', '05', quota_max_usm, '07', '08', '09'],                       # 13 row
-            [col_legante, '01', '02', aggreg_legante, '04', '05', con_text_mat, '07', col_mat, '09'],                   # 14 row
-            [inclusi_mat_usm, '01', '02', '03', '04', '05', '06', '07', '08', '09'],                                    # 15 row
-            [periodizzazione, '01', '02', '03', '04', '05', '06', '07', '08', '09'],                                    # 16 row
-            [iniziale, '01', periodo_iniziale, '03', fase_iniziale, finale, '06', periodo_finale, '08', fase_finale],   # 17 row
-            [rapporti_stratigrafici, '01', '02', '03', '04', piante, '06', '07', '08', '09'],                           # 18 row
-            [si_lega_a, '01', '02', '03', '04', uguale_a, '06', '07', '08', '09'],                                      # 19 row
-            [copre, '01', '02', '03', '04', coperto_da, '06', '07', '08', '09'],                                        # 20 row
-            [riempie, '01', '02', '03', '04', riempito_da, '06', '07', '08', '09'],                                     # 21 row
-            [taglia, '01', '02', '03', '04', tagliato_da, '06', '07', '08', '09'],                                      # 22 row
-            [si_appoggia_a, '01', '02', '03', '04', gli_si_appoggia, '06', '07', '08', '09'],                           # 23 row
-            [self.documentazione_print, '01', '02', '03', '04', '05', '06', '07', '08', '09'],                          # 24 row
-            [scavato, anno_di_scavo, '02', metodo_di_scavo, '04', data_schedatura, '06', schedatore, '08', '09'],        # 25 row
-            [scavato, anno_di_scavo, '02', metodo_di_scavo, '04', data_schedatura, '06', schedatore, '08', '09'],        # 26 row
-            [scavato, anno_di_scavo, '02', metodo_di_scavo, '04', data_schedatura, '06', schedatore, '08', '09'],        # 27 row
-            [scavato, anno_di_scavo, '02', metodo_di_scavo, '04', data_schedatura, '06', schedatore, '08', '09'],        # 28 row
-            [scavato, anno_di_scavo, '02', metodo_di_scavo, '04', data_schedatura, '06', schedatore, '08', '09'],        # 29 row
-            [scavato, anno_di_scavo, '02', metodo_di_scavo, '04', data_schedatura, '06', schedatore, '08', '09'],        # 30 row
-            [scavato, anno_di_scavo, '02', metodo_di_scavo, '04', data_schedatura, '06', schedatore, '08', '09'],        # 31 row
-            [scavato, anno_di_scavo, '02', metodo_di_scavo, '04', data_schedatura, '06', schedatore, '08', '09']        # 32 row
-
-        ]
+            [stato_conservazione, '01', consistenza, '03', colore, '05',formazione , '07', modo_formazione, '09'],      # 5 row ok  stato_conservazione, consistenza, colore, formazione, modo_formazione
+            [posizione, '01', criteri_distinzione, '03', flottazione, '05',setacciatura , '07', affidabilita, '09'],    # 6 row ok  posizione, criteri_distinzione, flottazione, setacciatura, affidabilita
+            [comp_organici, '01', comp_inorganici, '03', inclusi, '05', '06', campioni,'08', '09'],                     # 7 row ok  comp_organici, comp_inorganici, inclusi, campioni
+            [descrizione, '01', '02', '03', '04', '05', '06', '07', '08', '09'],                                        # 8 row ok  descrizione
+            [interpretazione, '01', '02', '03', '04', '05', '06', '07', '08', '09'],                                    # 9 row ok  interpretazione
+            [elementi_datanti, '01', '02', '03', '04', '05', '06', '07', '08', '09'],                                   # 10 row ok  elementi datanti
+            [osservazioni, '01', '02', '03', '04', '05', '06', '07', '08', '09'],                                       # 11 row ok  osservazioni
+            [attivita, '01', '02', struttura, '04', '05', quota_min, '07', quota_max, '09'],                            # 12 row ok attivita struttura quota min quota max
+            [usm_section, '01', '02', '03', '04', '05', '06', '07', '08', '09'],                                        # 13 row ok USM section intestazione
+            [funz_statica, '01', lavorazione, '03', spess_giunti, '05', letti_posa, '07', alt_modulo, '09'],            # 14 row ok funz statica, lavorazione, spess_giunti, letti_posa, alt_modulo
+            [un_ed_riass, '01', uso_primario, '03', reimp, '05', posa_opera, '07', tec_muraria, '09'],                  # 15 row ok un_ed_riass, uso_primario, reimpiego, posa_opera, tec_muraria
+            [col_legante, '01', '02', aggreg_legante, '04', '05', con_text_mat, '07', col_mat, '09'],                   # 16 row ok col legante, cons_legante, cont text mat, col mat
+            [inclusi_mat_usm, '01', '02', '03', '04', '05', '06', '07', '08', '09'],                                    # 17 row ok inclusi_materiale
+            [aggreg_legante_usm, '01', '02', '03', '04', '05', '06', '07', '08', '09'],                                 # 18 row ok aggreg_legante_usm
+            [campioni_malta, '01', '02', campioni_pietra, '04', '05', campioni_mattone, '07', '08', '09'],              # 19 row ok campioni pietra, campioni malta, campioni mattone
+            [quota_min_usm, '01', quota_max_usm, '03', spessore, '05', lunghezza, '07', altezza, '09' ],                # 20 row quota min usm, quota max usm, spessore, lugnhezza, altezza
+            [periodizzazione, '01', '02', '03', '04', '05', datazione_ipotesi, '07', '08', '09' ],                      # 21 row periodizzazione, ipotesi datazione
+            [iniziale, '01', periodo_iniziale, '03', fase_iniziale, finale, '06', periodo_finale, '08', fase_finale],   # 22 row periodi
+            [rapporti_stratigrafici, '01', '02', '03', '04', piante, '06', '07', '08', '09'],                           # 23 row
+            [si_lega_a, '01', '02', '03', '04', uguale_a, '06', '07', '08', '09'],                                      # 24 row
+            [copre, '01', '02', '03', '04', coperto_da, '06', '07', '08', '09'],                                        # 25 row
+            [riempie, '01', '02', '03', '04', riempito_da, '06', '07', '08', '09'],                                     # 26 row
+            [taglia, '01', '02', '03', '04', tagliato_da, '06', '07', '08', '09'],                                      # 27 row
+            [si_appoggia_a, '01', '02', '03', '04', gli_si_appoggia, '06', '07', '08', '09'],                           # 28 row
+            [self.documentazione_print, '01', '02', '03', '04', '05', '06', '07', '08', '09'],                          # 29 row
+            [scavato, anno_di_scavo, '02', metodo_di_scavo, '04', data_schedatura, '06', schedatore, '08', '09'],       # 30 row scavato, anno scavo, metodo scavo, data schedatura, schedatore
+            [data_rilevazione, '01', data_rielaborazione, '03', direttore_us, '05', responsabile_us, '07', cod_ente_schedatore, '09'],  # 31 row data_rilevazione, '01', data_rielaborazione, '03', direttore_us, '05', responsabile_us, '07', cod_ente_schedatore, '09']
+            [ref_tm, '01', ref_n, '03', ref_ra, '05', '06', '07', '08', '09']                                           # 31 row ref tm, ref n, ref ra
+            ]
 
         # table style
         table_style = [
@@ -1013,109 +1008,147 @@ class single_US_pdf_sheet(object):
             ('SPAN', (6, 5), (7, 5)),  #
             ('SPAN', (8, 5), (9, 5)),  #
 
+            # 6 row ok archeo 3 posizione, criteri_distinzione, flottazione, setacciatura, affidabilita
+            ('SPAN', (0, 6), (1, 6)),  #
+            ('SPAN', (2, 6), (3, 6)),  #
+            ('SPAN', (4, 6), (5, 6)),  #
+            ('SPAN', (6, 6), (7, 6)),  #
+            ('SPAN', (8, 6), (9, 6)),  #
 
 
+            # 7 row  ok archeo 3  [comp_organici, '01', comp_inorganici, '03', inclusi, '05', '06', campioni, '08', '09'],
+            ('SPAN', (0, 7), (1, 7)),  #
+            ('SPAN', (2, 7), (3, 7)),  #
+            ('SPAN', (4, 7), (6, 7)),  #
+            ('SPAN', (7, 7), (9, 7)),  #
 
+            # 8 row ok archeo 3
+            ('SPAN', (0, 8), (9, 8)),  # descrizione
+            ('VALIGN', (0, 8), (9, 8), 'TOP'),
 
-            # 4 row
-            ('SPAN', (0, 5), (3, 5)),  # inclusi - campioni - formazione
-            ('SPAN', (4, 5), (7, 5)),  # inclusi - campioni - formazione
-            ('SPAN', (8, 5), (9, 5)),  # inclusi - campioni - formazione
+            # 9 row ok archeo 3
+            ('SPAN', (0, 9), (9, 9)),  # interpretazione
+            ('VALIGN', (0, 9), (9, 9), 'TOP'),
 
-            # 6 row
-            ('SPAN', (0, 6), (9, 6)),  # descrizione
+            # 10 row ok archeo 3
+            ('SPAN', (0, 10), (9, 10)),  # elementi datanti
+            ('VALIGN', (0, 10), (9, 10), 'TOP'),
 
-            # 7 row
-            ('SPAN', (0, 7), (9, 7)),  # interpretazione #6 row
-            ('VALIGN', (0, 6), (9, 6), 'TOP'),
+            # 11 row ok archeo 3
+            ('SPAN', (0, 11), (9, 11)),  # osservazioni
+            ('VALIGN', (0, 11), (9, 11), 'TOP'),
 
-            # 8 row
-            ('SPAN', (0, 8), (2, 8)),  # Attivita - Struttura - Quota min - Quota max
-            ('SPAN', (3, 8), (5, 8)),  # Attivita - Struttura - Quota min - Quota max
-            ('SPAN', (6, 8), (7, 8)),  # Attivita - Struttura - Quota min - Quota max
-            ('SPAN', (8, 8), (9, 8)),  # Attivita - Struttura - Quota min - Quota max
-
-            ('SPAN', (0, 9), (9, 9)),  # USM
-
-            # 10 row
-            ('SPAN', (0, 10), (2, 10)),
-            ('SPAN', (3, 10), (5, 10)),
-            ('SPAN', (6, 10), (7, 10)),
-            ('SPAN', (8, 10), (9, 10)),
-
-            # 11 row
-            ('SPAN', (0, 11), (2, 11)),
-            ('SPAN', (3, 11), (5, 11)),
-            ('SPAN', (6, 11), (7, 11)),
-            ('SPAN', (8, 11), (9, 11)),
-
-            # 12 row
+            # 12 row archeo 3  # Attivita - Struttura - Quota min - Quota max
             ('SPAN', (0, 12), (2, 12)),
             ('SPAN', (3, 12), (5, 12)),
             ('SPAN', (6, 12), (7, 12)),
             ('SPAN', (8, 12), (9, 12)),
 
-            # 13row
-            ('SPAN', (0, 13), (2, 13)),
-            ('SPAN', (3, 13), (5, 13)),
-            ('SPAN', (6, 13), (9, 13)),
+            # 13 row archeo 3  # Aintestazione USM
+            ('SPAN', (0, 13), (9, 13)),
 
-            # 14 row
-            ('SPAN', (0, 14), (2, 14)),
-            ('SPAN', (3, 14), (5, 14)),
-            ('SPAN', (6, 14), (7, 14)),
-            ('SPAN', (8, 14), (9, 14)),
+            # 14 row ok archeo 3 funz_statica, lavorazione, spess_giunti, letti_posa, alt_modulo
+            ('SPAN', (0, 14), (1, 14)),  #
+            ('SPAN', (2, 14), (3, 14)),  #
+            ('SPAN', (4, 14), (5, 14)),  #
+            ('SPAN', (6, 14), (7, 14)),  #
+            ('SPAN', (8, 14), (9, 14)),  #
 
-            # 15 row
+            # 15 row ok archeo 3 un_ed_riass, uso_primario, reimpiego, posa_opera, tec_muraria
+            ('SPAN', (0, 15), (1, 15)),  #
+            ('SPAN', (2, 15), (3, 15)),  #
+            ('SPAN', (4, 15), (5, 15)),  #
+            ('SPAN', (6, 15), (7, 15)),  #
+            ('SPAN', (8, 15), (9, 15)),  #
 
-            ('SPAN', (0, 15), (9, 15)),  # Periodizzazione - Titolo
+            #16 row ok col legante, cons_legante, cont text mat, col mat
+            ('SPAN', (0, 16), (2, 16)),
+            ('SPAN', (3, 16), (5, 16)),
+            ('SPAN', (6, 16), (7, 16)),
+            ('SPAN', (8, 16), (9, 16)),
 
-            # 16 row
-            ('SPAN', (0, 16), (9, 16)),  # Periodizzazione - Titolo
+            # 17 row ok archeo 3 inclusi materiale
+            ('SPAN', (0, 17), (9, 17)),
 
-            # 17 row
+            # 18 row ok archeo 3 inclusi aggreg legante
+            ('SPAN', (0, 18), (9, 18)),
+
+            # 19 row ok archeo 3 campioni pietra, campioni malta, campioni mattone
+            ('SPAN', (0, 19), (2, 19)),
+            ('SPAN', (3, 19), (5, 19)),
+            ('SPAN', (6, 19), (9, 19)),
+
+            #20 row quota min usm, quota max usm, spessore, lugnhezza, altezza
+            ('SPAN', (0, 20), (1, 20)),  #
+            ('SPAN', (2, 20), (3, 20)),  #
+            ('SPAN', (4, 20), (5, 20)),  #
+            ('SPAN', (6, 20), (7, 20)),  #
+            ('SPAN', (8, 20), (9, 20)),  #
+
+            # 21 row ok archeo 3 periodizzazione ipotesi_datazione
+            ('SPAN', (0, 21), (5, 21)),  #
+            ('SPAN', (6, 21), (9, 21)),  #
+
+            # 22 row ok archeo e periodi iniziale e finale
             ('SPAN', (0, 17), (1, 17)),  # iniziale
             ('SPAN', (2, 17), (3, 17)),  # periodo inizlae
+            ('SPAN', (4, 17), (4, 17)),  # periodo inizlae
             ('SPAN', (5, 17), (6, 17)),  # fase iniziale
             ('SPAN', (7, 17), (8, 17)),  # finale
+            ('SPAN', (9, 17), (9, 17)),  # finale
             ('VALIGN', (0, 17), (0, 17), 'TOP'),
             ('VALIGN', (5, 17), (5, 17), 'TOP'),
 
-            # 18row
-            ('SPAN', (0, 18), (4, 18)),  # Rapporti stratigrafici - Titolo
-            ('SPAN', (5, 18), (9, 18)),  # Piante - Titolo
+            # 23 row ok archeo 3
+            ('SPAN', (0, 23), (4, 23)),  # Rapporti stratigrafici - Titolo
+            ('SPAN', (5, 23), (9, 23)),  # Piante - Titolo
 
-            # 19 row
-            ('SPAN', (0, 19), (4, 19)),  # Rapporti stratigrafici - Si lega a - Uguale a
-            ('SPAN', (5, 19), (9, 19)),  # Rapporti stratigrafici - Si lega a - Uguale a
+            # 24 row ok archeo 3
+            ('SPAN', (0, 24), (4, 24)),  # Rapporti stratigrafici - Si lega a - Uguale a
+            ('SPAN', (5, 24), (9, 24)),  # Rapporti stratigrafici - Si lega a - Uguale a
 
-            # 20 row
-            ('SPAN', (0, 20), (4, 20)),  # Rapporti stratigrafici - Copre - Coperto da
-            ('SPAN', (5, 20), (9, 20)),  # Rapporti stratigrafici - Copre - Coperto da
+            # 25 row ok archeo 3
+            ('SPAN', (0, 25), (4, 25)),  # Rapporti stratigrafici - Copre - Coperto da
+            ('SPAN', (5, 25), (9, 25)),  # Rapporti stratigrafici - Copre - Coperto da
 
-            # 21 row
-            ('SPAN', (0, 21), (4, 21)),  # Rapporti stratigrafici - Riempie - Riempito da
-            ('SPAN', (5, 21), (9, 21)),  # Rapporti stratigrafici - Riempie - Riempito da
+            # 26 row ok archeo 3
+            ('SPAN', (0, 26), (4, 26)),  # Rapporti stratigrafici - Riempie - Riempito da
+            ('SPAN', (5, 26), (9, 26)),  # Rapporti stratigrafici - Riempie - Riempito da
 
-            # 22 row
-            ('SPAN', (0, 22), (4, 22)),  # Rapporti stratigrafici - Taglia - Tagliato da
-            ('SPAN', (5, 22), (9, 22)),  # Rapporti stratigrafici - Taglia - Tagliato da
+            # 27 row ok archeo 3
+            ('SPAN', (0, 27), (4, 27)),  # Rapporti stratigrafici - Taglia - Tagliato da
+            ('SPAN', (5, 27), (9, 27)),  # Rapporti stratigrafici - Taglia - Tagliato da
 
-            # 23 row
-            ('SPAN', (0, 23), (4, 23)),  # Rapporti stratigrafici - Si appoggia a - Gli si appoggia
-            ('SPAN', (5, 23), (9, 23)),  # Rapporti stratigrafici - Si appoggia a - Gli si appoggia
+            # 28 row
+            ('SPAN', (0, 28), (4, 28)),  # Rapporti stratigrafici - Si appoggia a - Gli si appoggia
+            ('SPAN', (5, 28), (9, 28)),  # Rapporti stratigrafici - Si appoggia a - Gli si appoggia
 
             ('VALIGN', (0, 0), (-1, -1), 'TOP'),
 
-            # 24 row
-            ('SPAN', (0, 24), (9, 24)),  # pie' di pagina
-            ('ALIGN', (0, 24), (9, 24), 'CENTER'),
+            # 29 row Documentazione
+            ('SPAN', (0, 29), (9, 29)),  # pie' di pagina
+            ('ALIGN', (0, 29), (9, 29), 'CENTER'),
 
-            # 25 row
-            ('SPAN', (1, 25), (2, 25)),  # scavato anno_di_scavo - metodo_di_scavo, data_schedatura
-            ('SPAN', (3, 25), (4, 25)),  # scavato anno_di_scavo - metodo_di_scavo, data_schedatura
-            ('SPAN', (5, 25), (6, 25)),  # scavato anno_di_scavo - metodo_di_scavo, data_schedatura
-            ('SPAN', (7, 25), (9, 25)),  # scavato anno_di_scavo - metodo_di_scavo, data_schedatura
+            # 30 row ok archeo 3 scavato, anno scavo, metodo scavo, data schedatura, schedatore
+            ('SPAN', (0, 30), (0, 30)),
+            ('SPAN', (1, 30), (2, 30)),
+            ('SPAN', (3, 30), (4, 30)),
+            ('SPAN', (5, 30), (6, 30)),
+            ('SPAN', (7, 30), (9, 30)),
+
+
+            # 31 row ok archeo 3 data_rilevazione, '01', data_rielaborazione, '03', direttore_us, '05', responsabile_us, cod_ente_schedatore, '09'
+            ('SPAN', (0, 31), (1, 31)),
+            ('SPAN', (2, 31), (3, 31)),
+            ('SPAN', (4, 31), (5, 31)),
+            ('SPAN', (6, 31), (7, 31)),
+            ('SPAN', (8, 31), (9, 31)),
+
+
+            # 32 row ok archeo 3 ref_tm, '01', ref_n, '03', ref_ra,
+            ('SPAN', (0, 31), (1, 31)),
+            ('SPAN', (2, 31), (3, 31)),
+            ('SPAN', (4, 31), (9, 31))
         ]
 
         t = Table(cell_schema, colWidths=55, rowHeights=None, style=table_style)
