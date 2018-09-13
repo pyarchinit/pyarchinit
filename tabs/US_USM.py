@@ -999,106 +999,106 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
                     spessore_usm = str(self.DATA_LIST[i].spessore_usm)  # 87 spessore usm
 
             data_list.append([
-                str(self.DATA_LIST[i].sito),  # 1 - Sito
-                str(self.DATA_LIST[i].area),  # 2 - Area
-                int(self.DATA_LIST[i].us),  # 3 - US
-                str(self.DATA_LIST[i].d_stratigrafica),  # 4 - definizione stratigrafica
-                str(self.DATA_LIST[i].d_interpretativa),  # 5 - definizione intepretata
-                str(self.DATA_LIST[i].descrizione),  # 6 - descrizione
-                str(self.DATA_LIST[i].interpretazione),  # 7 - interpretazione
-                str(self.DATA_LIST[i].periodo_iniziale),  # 8 - periodo iniziale
-                str(self.DATA_LIST[i].fase_iniziale),  # 9 - fase iniziale
-                str(self.DATA_LIST[i].periodo_finale),  # 10 - periodo finale iniziale
-                str(self.DATA_LIST[i].fase_finale),  # 11 - fase finale
-                str(self.DATA_LIST[i].scavato),  # 12 - scavato
-                str(self.DATA_LIST[i].attivita),  # 13 - attivita
-                str(self.DATA_LIST[i].anno_scavo),  # 14 - anno scavo
-                str(self.DATA_LIST[i].metodo_di_scavo),  # 15 - metodo
-                str(self.DATA_LIST[i].inclusi),  # 16 - inclusi
-                str(self.DATA_LIST[i].campioni),  # 17 - campioni
-                str(self.DATA_LIST[i].rapporti),  # 18 - rapporti
-                str(self.DATA_LIST[i].data_schedatura),  # 19 - data schedatura
-                str(self.DATA_LIST[i].schedatore),  # 20 - schedatore
-                str(self.DATA_LIST[i].formazione),  # 21 - formazione
-                str(self.DATA_LIST[i].stato_di_conservazione),  # 22 - conservazione
-                str(self.DATA_LIST[i].colore),  # 23 - colore
-                str(self.DATA_LIST[i].consistenza),  # 24 - consistenza
-                str(self.DATA_LIST[i].struttura),  # 25 - struttura
-                str(quota_min),  # 26 - quota_min
-                str(quota_max),  # 27 - quota_max
-                str(piante),  # 28 - piante CAMPO RICAVATO DA GIS CON VALORI SI/NO
-                str(self.DATA_LIST[i].documentazione),  # 29 - documentazione
+                str(self.DATA_LIST[i].sito),  # 0 - Sito
+                str(self.DATA_LIST[i].area),  # 1 - Area
+                int(self.DATA_LIST[i].us),  # 2 - US
+                str(self.DATA_LIST[i].d_stratigrafica),  # 3 - definizione stratigrafica
+                str(self.DATA_LIST[i].d_interpretativa),  # 4 - definizione intepretata
+                str(self.DATA_LIST[i].descrizione),  # 5 - descrizione
+                str(self.DATA_LIST[i].interpretazione),  # 6 - interpretazione
+                str(self.DATA_LIST[i].periodo_iniziale),  # 7 - periodo iniziale
+                str(self.DATA_LIST[i].fase_iniziale),  # 8 - fase iniziale
+                str(self.DATA_LIST[i].periodo_finale),  # 9 - periodo finale iniziale
+                str(self.DATA_LIST[i].fase_finale),  # 10 - fase finale
+                str(self.DATA_LIST[i].scavato),  # 11 - scavato
+                str(self.DATA_LIST[i].attivita),  # 12 - attivita
+                str(self.DATA_LIST[i].anno_scavo),  # 13 - anno scavo
+                str(self.DATA_LIST[i].metodo_di_scavo),  # 14 - metodo
+                str(self.DATA_LIST[i].inclusi),  # 15 - inclusi
+                str(self.DATA_LIST[i].campioni),  # 16 - campioni
+                str(self.DATA_LIST[i].rapporti),            # 17 - rapporti
+                str(self.DATA_LIST[i].data_schedatura),  # 18 - data schedatura
+                str(self.DATA_LIST[i].schedatore),  # 19 - schedatore
+                str(self.DATA_LIST[i].formazione),  # 20 - formazione
+                str(self.DATA_LIST[i].stato_di_conservazione),  # 21 - conservazione
+                str(self.DATA_LIST[i].colore),  # 22 - colore
+                str(self.DATA_LIST[i].consistenza),  # 23 - consistenza
+                str(self.DATA_LIST[i].struttura),  # 24 - struttura
+                str(quota_min),  # 25 - quota_min
+                str(quota_max),  # 26 - quota_max
+                str(piante),  # 27 - piante CAMPO RICAVATO DA GIS CON VALORI SI/NO
+                str(self.DATA_LIST[i].documentazione),  # 28 - documentazione
 
                 #campi USM
-                str(self.DATA_LIST[i].unita_tipo),  # 30 - unita tipo
-                str(self.DATA_LIST[i].settore),  # 31 - settore
-                str(self.DATA_LIST[i].quad_par),  # 32 quadrato
-                str(self.DATA_LIST[i].ambient),  # 33 ambiente
-                str(self.DATA_LIST[i].saggio),  # 34 saggio
-                str(self.DATA_LIST[i].elem_datanti),  # 35 - elem_datanti
-                str(self.DATA_LIST[i].funz_statica),  # 36 - funz_statica
-                str(self.DATA_LIST[i].lavorazione),  # 37 lavorazione
-                str(self.DATA_LIST[i].spess_giunti),  # 38 spess_giunti
-                str(self.DATA_LIST[i].letti_posa),            #39 letti posa
-                str(self.DATA_LIST[i].alt_mod),               #40  al modulo
-                str(self.DATA_LIST[i].un_ed_riass),           #41 unita edilizia riassuntiva
-                str(self.DATA_LIST[i].reimp),                 #42 reimpiego
-                str(self.DATA_LIST[i].posa_opera),            #43 posa opera
-                str(quota_min_usm),                           #44 quota min usm
-                str(quota_max_usm),                           #45 quota max usm
-                str(self.DATA_LIST[i].cons_legante),          #46 cons legante
-                str(self.DATA_LIST[i].col_legante),           #47 col legante
-                str(self.DATA_LIST[i].aggreg_legante),        #48 aggreg legante
-                str(self.DATA_LIST[i].con_text_mat),          #49  con text mat
-                str(self.DATA_LIST[i].col_materiale),         #50  col materiale
-                str(self.DATA_LIST[i].inclusi_materiali_usm),  #51 inclusi materili usm
+                str(self.DATA_LIST[i].unita_tipo),  # 29 - unita tipo
+                str(self.DATA_LIST[i].settore),  # 30 - settore
+                str(self.DATA_LIST[i].quad_par),  # 31 quadrato
+                str(self.DATA_LIST[i].ambient),  # 32 ambiente
+                str(self.DATA_LIST[i].saggio),  # 33 saggio
+                str(self.DATA_LIST[i].elem_datanti),  # 34 - elem_datanti
+                str(self.DATA_LIST[i].funz_statica),  # 35 - funz_statica
+                str(self.DATA_LIST[i].lavorazione),  # 36 lavorazione
+                str(self.DATA_LIST[i].spess_giunti),  # 37 spess_giunti
+                str(self.DATA_LIST[i].letti_posa),            #38 letti posa
+                str(self.DATA_LIST[i].alt_mod),               #39  al modulo
+                str(self.DATA_LIST[i].un_ed_riass),           #40 unita edilizia riassuntiva
+                str(self.DATA_LIST[i].reimp),                 #41 reimpiego
+                str(self.DATA_LIST[i].posa_opera),            #42 posa opera
+                str(quota_min_usm),                           #43 quota min usm
+                str(quota_max_usm),                           #44 quota max usm
+                str(self.DATA_LIST[i].cons_legante),          #45 cons legante
+                str(self.DATA_LIST[i].col_legante),           #46 col legante
+                str(self.DATA_LIST[i].aggreg_legante),        #47 aggreg legante
+                str(self.DATA_LIST[i].con_text_mat),          #48  con text mat
+                str(self.DATA_LIST[i].col_materiale),         #49  col materiale
+                str(self.DATA_LIST[i].inclusi_materiali_usm),  #50 inclusi materili usm
 
                 #NUOVI CAMPI PER ARCHEO3
-                str(self.DATA_LIST[i].n_catalogo_generale),  # 52 nr catalogo generale campi aggiunti per archeo 3.0 e allineamento ICCD
-                str(self.DATA_LIST[i].n_catalogo_interno),  # 53 nr catalogo interno
-                str(self.DATA_LIST[i].n_catalogo_internazionale),  # 54 nr catalogo internazionale
-                str(self.DATA_LIST[i].soprintendenza),  # 55 nr soprintendenza
-                str(quota_relativa), #56 quota relativa
-                str(quota_abs),   #57 quota assoluta
-                str(self.DATA_LIST[i].ref_tm),  # 58 ref tm
-                str(self.DATA_LIST[i].ref_ra),  # 59 ref ra
-                str(self.DATA_LIST[i].ref_n),  # 60 ref n
-                str(self.DATA_LIST[i].posizione),  # 61 posizione
-                str(self.DATA_LIST[i].criteri_distinzione),  #62 criteri distinzione
-                str(self.DATA_LIST[i].modo_formazione),  # 63 modo formazione
-                str(self.DATA_LIST[i].componenti_organici),  # 64 componenti organici
-                str(self.DATA_LIST[i].componenti_inorganici),  # 65 componenti inorganici
-                str(lunghezza_max), #66 lunghezza max
-                str(altezza_max), #67 altezza max
-                str(altezza_min),  #68 altezza min
-                str(profondita_max),  #69 profondita max
-                str(profondita_min),  #70 profondita min
-                str(larghezza_media),  #71 larghezza media
-                str(quota_max_abs),   #72 quota max assoluta
-                str(quota_max_rel),   #73 quota max rel
-                str(quota_min_abs),   #74 quota min assoluta
-                str(quota_min_rel),   #75 quota min relativa
-                str(self.DATA_LIST[i].osservazioni),  # 76 osservazioni
-                str(self.DATA_LIST[i].datazione), # 77 datazione
-                str(self.DATA_LIST[i].flottazione),  # 78 flottazione
-                str(self.DATA_LIST[i].setacciatura),  # 79 setacciatura
-                str(self.DATA_LIST[i].affidabilita),  # 80 affidabilita
-                str(self.DATA_LIST[i].direttore_us),  # 81 direttore us
-                str(self.DATA_LIST[i].responsabile_us),  # 82 responsabile us
-                str(self.DATA_LIST[i].cod_ente_schedatore),  # 83 cod ente schedatore
-                str(self.DATA_LIST[i].data_rilevazione),  # 84 data rilevazione
-                str(self.DATA_LIST[i].data_rielaborazione),  # 85 data rielaborazione
-                str(lunghezza_usm), #86 lunghezza usm
-                str(altezza_usm),  #87 altezza usm
-                str(spessore_usm),  #88 spessore usm
-                str(self.DATA_LIST[i].tecnica_muraria_usm),  # 89 tecnica muraria usm
-                str(self.DATA_LIST[i].modulo_usm),  # 90 modulo usm
-                str(self.DATA_LIST[i].campioni_malta_usm),  # 91 campioni malta usm
-                str(self.DATA_LIST[i].campioni_mattone_usm),  # 92 campioni mattone usm
-                str(self.DATA_LIST[i].campioni_pietra_usm),  # 93 campioni pietra usm
-                str(self.DATA_LIST[i].provenienza_materiali_usm),  # 94 provenienza_materiali_usm
-                str(self.DATA_LIST[i].criteri_distinzione_usm),  # 95 criteri distinzione usm
-                str(self.DATA_LIST[i].uso_primario_usm)  #96 uso primario
+                str(self.DATA_LIST[i].n_catalogo_generale),  # 51 nr catalogo generale campi aggiunti per archeo 3.0 e allineamento ICCD
+                str(self.DATA_LIST[i].n_catalogo_interno),  # 52 nr catalogo interno
+                str(self.DATA_LIST[i].n_catalogo_internazionale),  # 53 nr catalogo internazionale
+                str(self.DATA_LIST[i].soprintendenza),  # 54 nr soprintendenza
+                str(quota_relativa), #55 quota relativa
+                str(quota_abs),   #56 quota assoluta
+                str(self.DATA_LIST[i].ref_tm),  # 57 ref tm
+                str(self.DATA_LIST[i].ref_ra),  # 58 ref ra
+                str(self.DATA_LIST[i].ref_n),  # 59 ref n
+                str(self.DATA_LIST[i].posizione),  # 60 posizione
+                str(self.DATA_LIST[i].criteri_distinzione),  #61 criteri distinzione
+                str(self.DATA_LIST[i].modo_formazione),  # 62 modo formazione
+                str(self.DATA_LIST[i].componenti_organici),  # 63 componenti organici
+                str(self.DATA_LIST[i].componenti_inorganici),  # 64 #  componenti inorganici
+                str(lunghezza_max), #65 lunghezza max
+                str(altezza_max), #66 altezza max
+                str(altezza_min),  #67 altezza min
+                str(profondita_max),  #68 profondita max
+                str(profondita_min),  #69 profondita min
+                str(larghezza_media),  #70 larghezza media
+                str(quota_max_abs),   #71 quota max assoluta
+                str(quota_max_rel),   #72 quota max rel
+                str(quota_min_abs),   #73 quota min assoluta
+                str(quota_min_rel),   #74 quota min relativa
+                str(self.DATA_LIST[i].osservazioni),  # 75 osservazioni
+                str(self.DATA_LIST[i].datazione), # 76 datazione
+                str(self.DATA_LIST[i].flottazione),  # 77 flottazione
+                str(self.DATA_LIST[i].setacciatura),  # 78 setacciatura
+                str(self.DATA_LIST[i].affidabilita),  # 79 affidabilita
+                str(self.DATA_LIST[i].direttore_us),  # 80 direttore us
+                str(self.DATA_LIST[i].responsabile_us),  # 81 responsabile us
+                str(self.DATA_LIST[i].cod_ente_schedatore),  # 82 cod ente schedatore
+                str(self.DATA_LIST[i].data_rilevazione),  # 83 data rilevazione
+                str(self.DATA_LIST[i].data_rielaborazione),  # 84 data rielaborazione
+                str(lunghezza_usm), #85 lunghezza usm
+                str(altezza_usm),  #86 altezza usm
+                str(spessore_usm),  #87 spessore usm
+                str(self.DATA_LIST[i].tecnica_muraria_usm),  # 88 tecnica muraria usm
+                str(self.DATA_LIST[i].modulo_usm),  # 89 modulo usm
+                str(self.DATA_LIST[i].campioni_malta_usm),  # 90 campioni malta usm
+                str(self.DATA_LIST[i].campioni_mattone_usm),  # 91 campioni mattone usm
+                str(self.DATA_LIST[i].campioni_pietra_usm),  # 92 campioni pietra usm
+                str(self.DATA_LIST[i].provenienza_materiali_usm),  # 93 provenienza_materiali_usm
+                str(self.DATA_LIST[i].criteri_distinzione_usm),  # 94 criteri distinzione usm
+                str(self.DATA_LIST[i].uso_primario_usm)  #95 uso primario
 
             ])
         return data_list
