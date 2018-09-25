@@ -526,6 +526,7 @@ class PyArchInitPlugin(object):
         self.iface.removePluginMenu("&pyArchInit - Archaeological GIS Tools", self.actionCampioni)
         self.iface.removePluginMenu("&pyArchInit - Archaeological GIS Tools", self.actionLapidei)
         self.iface.removePluginMenu("&pyArchInit - Archaeological GIS Tools", self.actionSchedaind)
+        self.iface.removePluginMenu("&pyArchInit - Archaeological GIS Tools", self.actionTafonomia)
         self.iface.removePluginMenu("&pyArchInit - Archaeological GIS Tools", self.actionDocumentazione)
         if self.PARAMS_DICT['EXPERIMENTAL'] == 'Si':
             self.iface.removePluginMenu("&pyArchInit - Archaeological GIS Tools", self.actionDetsesso)
