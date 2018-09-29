@@ -830,10 +830,54 @@ class single_US_pdf_sheet(object):
         tecnica_muraria = Paragraph("<b>Tecnica</b><br/>" + self.tecnica_muraria_usm, styNormal)
 
         # 16 row
-        col_legante = Paragraph("<b>Colore legante</b><br/>" + self.col_legante, styNormal)
+        col_legante_usm = ''
+        for i in eval(self.col_legante):
+            if col_legante_usm == '':
+                try:
+                    col_legante_usm += str(i[0])
+                except:
+                    pass
+            else:
+                try:
+                    col_legante_usm += ', ' + str(i[0])
+                except:
+                    pass
+        col_legante_usm = Paragraph("<b>Colore legante usm</b><br/>" + col_legante_usm, styNormal)
+
         cons_legante = Paragraph("<b>Cons. legante:</b><br/>" + self.cons_legante, styNormal)
-        con_text_mat = Paragraph("<b>Texture Materiali</b><br/>" + self.con_text_mat, styNormal)
-        col_mat = Paragraph("<b>Colore materiale</b><br/>" + self.col_materiale, styNormal)
+
+
+        #block
+        con_text_mat_usm = ''
+        for i in eval(self.con_text_mat):
+            if con_text_mat_usm == '':
+                try:
+                    con_text_mat_usm += str(i[0])
+                except:
+                    pass
+            else:
+                try:
+                    con_text_mat_usm += ', ' + str(i[0])
+                except:
+                    pass
+        con_text_mat_usm = Paragraph("<b>Consiste/texture materiale usm</b><br/>" + con_text_mat_usm, styNormal)
+        #/block
+
+        #block
+        col_mat_usm = ''
+        for i in eval(self.col_materiale):
+            if col_mat_usm == '':
+                try:
+                    col_mat_usm += str(i[0])
+                except:
+                    pass
+            else:
+                try:
+                    col_mat_usm += ', ' + str(i[0])
+                except:
+                    pass
+        col_mat_usm = Paragraph("<b>Colore materiale</b><br/>" + col_mat_usm, styNormal)
+        #/block
 
         # 17 row
         inclusi_materiali_usm_list = eval(self.inclusi_materiali_usm)
@@ -958,7 +1002,7 @@ class single_US_pdf_sheet(object):
             [usm_section, '01', '02', '03', '04', '05', '06', '07', '08', '09'],                                        # 13 row ok USM section intestazione
             [funz_statica, '01', lavorazione, '03', spess_giunti, '05', letti_posa, '07', alt_modulo, '09'],            # 14 row ok funz statica, lavorazione, spess_giunti, letti_posa, alt_modulo
             [un_ed_riass, '01', uso_primario, '03', reimp, '05', posa_opera, '07', tecnica_muraria, '09'],              # 15 row ok un_ed_riass, uso_primario, reimpiego, posa_opera, tec_muraria
-            [col_legante, '01', '02', cons_legante, '04', '05', con_text_mat, '07', col_mat, '09'],                     # 16 row ok col legante, cons_legante, cont text mat, col mat
+            [col_legante_usm, '01', '02', cons_legante, '04', '05', con_text_mat_usm, '07', col_mat_usm, '09'],                     # 16 row ok col legante, cons_legante, cont text mat, col mat
             [inclusi_mat_usm, '01', '02', '03', '04', '05', '06', '07', '08', '09'],                                    # 17 row ok inclusi_materiale
             [aggreg_legante_usm, '01', '02', '03', '04', '05', '06', '07', '08', '09'],                                 # 18 row ok aggreg_legante_usm
             [campioni_malta, '01', '02', campioni_pietra, '04', '05', campioni_mattone, '07', '08', '09'],              # 19 row ok campioni pietra, campioni malta, campioni mattone

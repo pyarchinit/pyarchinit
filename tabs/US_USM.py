@@ -1719,10 +1719,23 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
         campioni = self.table2dict("self.tableWidget_campioni")
         #Documentazione
         documentazione = self.table2dict("self.tableWidget_documentazione")
-        #Inclusi materiali usm
-        inclusi_mat_usm = self.table2dict("self.tableWidget_inclusi_materiali_usm")
+
+        #Colore legante usm
+        colore_legante_usm = self.table2dict("self.tableWidget_colore_legante_usm")
+
         #Inclusi leganti usm
         aggreg_legante_usm = self.table2dict("self.tableWidget_inclusi_leganti_usm")
+
+        #Consistenza texture mat_usm
+        consistenza_texture_mat_usm = self.table2dict("self.tableWidget_consistenza_texture_mat_usm")
+
+        #inclusi_materiali_usm
+        inclusi_materiali_usm = self.table2dict("self.tableWidget_inclusi_materiali_usm")
+
+        #colore_materiale_usm
+        colore_materiale_usm = self.table2dict("self.tableWidget_colore_materiale_usm")
+
+
 
         if self.lineEditOrderLayer.text() == "":
             order_layer = 0
@@ -1880,12 +1893,12 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
                 str(self.lineEdit_posa_in_opera_usm.text()),  # 42 posa in opera
                 qmin_usm,  # 43 quota minima
                 qmax_usm,  # 44 quota massima
-                str(self.comboBox_consistenza_legante_usm.currentText()),  # 45 consitenza legante usm
-                str(self.comboBox_colore_legante_usm.currentText()),  # 46 colore legante usm
-                str(aggreg_legante_usm),  # 47 aggreg legante usm
-                str(self.comboBox_consistenza_texture_mat_usm.currentText()),  # 48 consistenza text mat
-                str(self.comboBox_colore_materiale_usm.currentText()),  # 49 colore materiale usm
-                str(inclusi_mat_usm), # 50 inclusi_mat_usm
+                str(self.comboBox_consistenza_legante_usm.currentText()),  #  1 45 consitenza legante usm
+                str(colore_legante_usm),  # 2 46 colore legante usm
+                str(aggreg_legante_usm),  # 47 3 aggreg legante usm
+                str(consistenza_texture_mat_usm),  # 4 48 consistenza text mat
+                str(colore_materiale_usm),  # 5 49 colore materiale usm
+                str(inclusi_materiali_usm), # 6 50 inclusi_mat_usm
                 str(self.lineEdit_n_catalogo_generale.text()), # 51 nr catalogo generale campi aggiunti per archeo 3.0 e allineamento ICCD
                 str(self.lineEdit_n_catalogo_interno.text()), # 52 nr catalogo interno
                 str(self.lineEdit_n_catalogo_internazionale.text()), # 53 nr catalogo internazionale
@@ -1992,6 +2005,25 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
 
     def on_pushButton_remove_row_inclusi_leganti_pressed(self):
         self.remove_row('self.tableWidget_inclusi_leganti_usm')
+
+    def on_pushButton_insert_row_colore_legante_usm_pressed(self):
+        self.insert_new_row('self.tableWidget_colore_legante_usm')
+
+    def on_pushButton_remove_row_colore_legante_usm_pressed(self):
+        self.remove_row('self.tableWidget_colore_legante_usm')
+
+    def on_pushButton_insert_row_consistenza_texture_mat_usm_pressed(self):
+        self.insert_new_row('self.tableWidget_consistenza_texture_mat_usm')
+
+    def on_pushButton_remove_row_consistenza_texture_mat_usm_pressed(self):
+        self.remove_row('self.tableWidget_consistenza_texture_mat_usm')
+
+    def on_pushButton_insert_row_colore_materiale_usm_pressed(self):
+        self.insert_new_row('self.tableWidget_colore_materiale_usm')
+
+    def on_pushButton_remove_row_colore_materiale_usm_pressed(self):
+        self.remove_row('self.tableWidget_colore_materiale_usm')
+
 
     def check_record_state(self):
         ec = self.data_error_check()
@@ -2173,8 +2205,15 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
                 self.setComboBoxEnable(["self.textEdit_descrizione"], "False")
                 self.setComboBoxEnable(["self.textEdit_interpretazione"], "False")
                 self.setTableEnable(
-                    ["self.tableWidget_campioni", "self.tableWidget_rapporti", "self.tableWidget_inclusi",
-                     "self.tableWidget_documentazione", "self.tableWidget_inclusi_materiali_usm"], "False")
+                    ["self.tableWidget_campioni",
+                     "self.tableWidget_rapporti",
+                     "self.tableWidget_inclusi",
+                     "self.tableWidget_documentazione",
+                     "self.tableWidget_inclusi_materiali_usm",
+                     "self.tableWidget_colore_legante_usm",
+                     "self.tableWidget_inclusi_leganti_usm",
+                     "self.tableWidget_consistenza_texture_mat_usm",
+                     "self.tableWidget_colore_materiale_usm"], "False")
                 ###
                 self.label_status.setText(self.STATUS_ITEMS[self.BROWSE_STATUS])
                 self.set_rec_counter('', '')
@@ -2364,13 +2403,6 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
                 self.TABLE_FIELDS[42]: qmin_usm,
                 self.TABLE_FIELDS[43]: qmax_usm,
                 self.TABLE_FIELDS[44]: "'" + str(self.comboBox_consistenza_legante_usm.currentText()) + "'",
-                # 24 - order layer
-                self.TABLE_FIELDS[45]: "'" + str(self.comboBox_colore_legante_usm.currentText()) + "'",
-                # 24 - order layer
-                self.TABLE_FIELDS[47]: "'" + str(self.comboBox_consistenza_texture_mat_usm.currentText()) + "'",
-                # 24 - order layer
-                self.TABLE_FIELDS[48]: "'" + str(self.comboBox_colore_materiale_usm.currentText()) + "'",
-                # 24 - order layer
                 self.TABLE_FIELDS[50]: "'" + str(self.lineEdit_n_catalogo_generale.text()) + "'",
             # 51 nr catalogo generale campi aggiunti per archeo 3.0 e allineamento ICCD
                 self.TABLE_FIELDS[51]: "'" + str(self.lineEdit_n_catalogo_interno.text()) + "'",
@@ -2480,8 +2512,15 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
                     self.setComboBoxEnable(["self.lineEdit_us"], "False")
 
                     self.setTableEnable(
-                        ["self.tableWidget_campioni", "self.tableWidget_rapporti", "self.tableWidget_inclusi",
-                         "self.tableWidget_documentazione"], "True")
+                        ["self.tableWidget_campioni",
+                     "self.tableWidget_rapporti",
+                     "self.tableWidget_inclusi",
+                     "self.tableWidget_documentazione",
+                     "self.tableWidget_inclusi_materiali_usm",
+                     "self.tableWidget_colore_legante_usm",
+                     "self.tableWidget_inclusi_leganti_usm",
+                     "self.tableWidget_consistenza_texture_mat_usm",
+                     "self.tableWidget_colore_materiale_usm"], "True")
                     self.setComboBoxEnable(["self.textEdit_descrizione"], "True")
                     self.setComboBoxEnable(["self.textEdit_interpretazione"], "True")
 
@@ -2630,8 +2669,6 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
         campioni_row_count = self.tableWidget_campioni.rowCount()
         inclusi_row_count = self.tableWidget_inclusi.rowCount()
         documentazione_row_count = self.tableWidget_documentazione.rowCount()
-        aggregati_row_count = self.tableWidget_inclusi_materiali_usm.rowCount()
-        inclusi_leganti_row_count = self.tableWidget_inclusi_leganti_usm.rowCount()
 
         self.comboBox_sito.setEditText("")  # 1 - Sito
         self.comboBox_area.setEditText("")  # 2 - Area
@@ -2661,16 +2698,37 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
         self.insert_new_row("self.tableWidget_campioni")  # 17 - campioni
         for i in range(rapporti_row_count):
             self.tableWidget_rapporti.removeRow(0)
-            # self.insert_new_row("self.tableWidget_rapporti")				#18 - rapporti
+        self.insert_new_row("self.tableWidget_rapporti")				#18 - rapporti
+
         for i in range(documentazione_row_count):
             self.tableWidget_documentazione.removeRow(0)
         self.insert_new_row("self.tableWidget_documentazione")  # 19 - documentazione
-        for i in range(aggregati_row_count):
-            self.tableWidget_inclusi_materiali_usm.removeRow(0)
-        self.insert_new_row("self.tableWidget_inclusi_materiali_usm")  # 19 - aggregati        for i in range(aggregati_row_count):
-        for i in range(inclusi_leganti_row_count):
+
+        colore_legante_usm_row_count = self.tableWidget_colore_legante_usm.rowCount()
+        for i in range(colore_legante_usm_row_count):
+            self.tableWidget_colore_legante_usm.removeRow(0)
+        self.insert_new_row("self.tableWidget_colore_legante_usm")  # 19 - aggregati
+
+        inclusi_leganti_usm_row_count = self.tableWidget_inclusi_leganti_usm.rowCount()
+        for i in range(inclusi_leganti_usm_row_count):
             self.tableWidget_inclusi_leganti_usm.removeRow(0)
         self.insert_new_row("self.tableWidget_inclusi_leganti_usm")  # 19 - aggregati
+
+        cont_text_mat_row_count = self.tableWidget_consistenza_texture_mat_usm.rowCount()
+        for i in range(cont_text_mat_row_count):
+            self.tableWidget_consistenza_texture_mat_usm.removeRow(0)
+        self.insert_new_row("self.tableWidget_consistenza_texture_mat_usm")  # 19 - colore legante usm
+
+        aggreg_inclusi_materiale_row_count = self.tableWidget_inclusi_materiali_usm.rowCount()
+        for i in range(aggreg_inclusi_materiale_row_count):
+            self.tableWidget_inclusi_materiali_usm.removeRow(0)
+        self.insert_new_row("self.tableWidget_inclusi_materiali_usm")  # 19 - aggregati
+
+
+        colore_materiali_usm_row_count = self.tableWidget_colore_materiale_usm.rowCount()
+        for i in range(colore_materiali_usm_row_count):
+            self.tableWidget_colore_materiale_usm.removeRow(0)
+        self.insert_new_row("self.tableWidget_colore_materiale_usm")  # 19 - aggregati
 
         if self.BROWSE_STATUS == "n":
             self.lineEdit_data_schedatura.setText(self.datestrfdate())  # 20 - data schedatura
@@ -2702,12 +2760,12 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
         self.lineEdit_posa_in_opera_usm.clear()  # 42 posa in opera
         self.lineEdit_qmin_usm.clear()  # 3 - US
         self.lineEdit_qmax_usm.clear()  # 3 - US
+        # 46 colore legante usm è un tableWidget
         self.comboBox_consistenza_legante_usm.setEditText("")  # 45 consitenza legante usm
-        self.comboBox_colore_legante_usm.setEditText("")  # 46 colore legante usm
-        # 47 aggregati usm è un tableWidget
-        self.comboBox_consistenza_texture_mat_usm.setEditText("")  # 48 consistenza text mat
-        self.comboBox_colore_materiale_usm.setEditText("")  # 49 colore materiale usm
-        #50 è un table widget
+        # 47 inclusi leganti usm è un tableWidget
+        # 48 consistenza text mat è un tableWidget
+        # 49 inclusi materiale usm  è un tableWidget
+        # 50 colore materiale usm  è un tableWidget
         self.lineEdit_n_catalogo_generale.clear()  # 51 nr catalogo generale campi aggiunti per archeo 3.0 e allineamento ICCD
         self.lineEdit_n_catalogo_interno.clear()  # 52 nr catalogo interno
         self.lineEdit_n_catalogo_internazionale.clear()  # 53 nr catalogo internazionale
@@ -2827,11 +2885,10 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
                 self.lineEdit_qmax_usm.setText(str(self.DATA_LIST[self.rec_num].quota_max_usm))  # 44 - qmax usm
 
             str(self.comboBox_consistenza_legante_usm.setEditText(self.DATA_LIST[self.rec_num].cons_legante))  # 45 - cons legante
-            str(self.comboBox_colore_legante_usm.setEditText(self.DATA_LIST[self.rec_num].col_legante))  # 46 - col legante
-            self.tableInsertData("self.tableWidget_inclusi_leganti_usm", self.DATA_LIST[self.rec_num].aggreg_legante) #aggregati legante usm
-            str(self.comboBox_consistenza_texture_mat_usm.setEditText(self.DATA_LIST[self.rec_num].con_text_mat))  # 48 - con text mat
-            str(self.comboBox_colore_materiale_usm.setEditText(self.DATA_LIST[self.rec_num].col_materiale))  # 49 - col mat
-
+            self.tableInsertData("self.tableWidget_colore_legante_usm", self.DATA_LIST[self.rec_num].col_legante) ## 46 - col legante usm
+            self.tableInsertData("self.tableWidget_inclusi_leganti_usm", self.DATA_LIST[self.rec_num].aggreg_legante) # 47 aggregati legante usm
+            self.tableInsertData("self.tableWidget_consistenza_texture_mat_usm", self.DATA_LIST[self.rec_num].con_text_mat) # 48 - con text mat
+            self.tableInsertData("self.tableWidget_colore_materiale_usm", self.DATA_LIST[self.rec_num].col_materiale) # 49 - col mat
             self.tableInsertData("self.tableWidget_inclusi_materiali_usm",self.DATA_LIST[self.rec_num].inclusi_materiali_usm)  # 50  inclusi materiali usm
 
             str(self.lineEdit_n_catalogo_generale.setText(self.DATA_LIST[self.rec_num].n_catalogo_generale))  # 51 nr catalogo generale campi aggiunti per archeo 3.0 e allineamento ICCD
@@ -2974,9 +3031,16 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
         documentazione = self.table2dict("self.tableWidget_documentazione")
 
         ##Inclusi materiali aggregati
-        inclusi_mat_usm = self.table2dict("self.tableWidget_inclusi_materiali_usm")        ##Inclusi materiali aggregati
+        inclusi_mat_usm = self.table2dict("self.tableWidget_inclusi_materiali_usm")
+
         ##Inclusi leganti usm
         inclusi_leganti_usm = self.table2dict("self.tableWidget_inclusi_leganti_usm")
+
+        colore_legante_usm = self.table2dict("self.tableWidget_colore_legante_usm")
+
+        con_text_materiale_usm = self.table2dict("self.tableWidget_consistenza_texture_mat_usm")
+
+        col_materiale_usm = self.table2dict("self.tableWidget_colore_materiale_usm")
 
         if self.lineEditOrderLayer.text() == "":
             order_layer = None
@@ -3131,10 +3195,10 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
             str(qmin_usm),  # 43 quota minima
             str(qmax_usm),  # 44 quota massima
             str(self.comboBox_consistenza_legante_usm.currentText()),  # 45 consitenza legante usm
-            str(self.comboBox_colore_legante_usm.currentText()),  # 46 colore legante usm
+            str(colore_legante_usm),  # 46 colore legante usm
             str(inclusi_leganti_usm),  # 47 aggregati leganti usm
-            str(self.comboBox_consistenza_texture_mat_usm.currentText()),  # 48 consistenza text mat
-            str(self.comboBox_colore_materiale_usm.currentText()),  # 49 colore materiale usm
+            str(con_text_materiale_usm),  # 48 consistenza text mat
+            str(col_materiale_usm),  # 49 colore materiale usm
             str(inclusi_mat_usm), # 50 inclusi_mat_usm
             str(self.lineEdit_n_catalogo_generale.text()), # 51 nr catalogo generale campi aggiunti per archeo 3.0 e allineamento ICCD
             str(self.lineEdit_n_catalogo_interno.text()), # 52 nr catalogo interno

@@ -119,16 +119,16 @@ class DB_update(object):
             self.engine.execute("ALTER TABLE us_table ADD COLUMN cons_legante text DEFAULT '' ")
 
         if not table_column_names_list.__contains__('col_legante'):
-            self.engine.execute("ALTER TABLE us_table ADD COLUMN col_legante text DEFAULT '' ")
+            self.engine.execute("ALTER TABLE us_table ADD COLUMN col_legante text DEFAULT '[]' ")
 
         if not table_column_names_list.__contains__('aggreg_legante'):
             self.engine.execute("ALTER TABLE us_table ADD COLUMN aggreg_legante text DEFAULT '[]' ")
 
         if not table_column_names_list.__contains__('con_text_mat'):
-            self.engine.execute("ALTER TABLE us_table ADD COLUMN con_text_mat text DEFAULT '' ")
+            self.engine.execute("ALTER TABLE us_table ADD COLUMN con_text_mat text DEFAULT '[]' ")
 
         if not table_column_names_list.__contains__('col_materiale'):
-            self.engine.execute("ALTER TABLE us_table ADD COLUMN col_materiale text DEFAULT '' ")
+            self.engine.execute("ALTER TABLE us_table ADD COLUMN col_materiale text DEFAULT '[]' ")
 
         if not table_column_names_list.__contains__('inclusi_materiali_usm'):
             self.engine.execute("ALTER TABLE us_table ADD COLUMN inclusi_materiali_usm text DEFAULT '[]' ")
