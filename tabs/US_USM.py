@@ -933,70 +933,70 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
             else:
                 quota_abs = str(self.DATA_LIST[i].quota_abs)
 
-                if not self.DATA_LIST[i].lunghezza_max:
-                    lunghezza_max = ""
-                else:
-                    lunghezza_max = str(self.DATA_LIST[i].lunghezza_max)  # 65 lunghezza max
+            if not self.DATA_LIST[i].lunghezza_max:
+                lunghezza_max = ""
+            else:
+                lunghezza_max = str(self.DATA_LIST[i].lunghezza_max)  # 65 lunghezza max
 
-                if not self.DATA_LIST[i].altezza_max:
-                    altezza_max = ""
-                else:
-                    altezza_max = str(self.DATA_LIST[i].altezza_max)  # 66 altezza max
+            if not self.DATA_LIST[i].altezza_max:
+                altezza_max = ""
+            else:
+                altezza_max = str(self.DATA_LIST[i].altezza_max)  # 66 altezza max
 
-                if not self.DATA_LIST[i].altezza_min:
-                    altezza_min = ""
-                else:
-                    altezza_min = str(self.DATA_LIST[i].altezza_min)  # 67 altezza min
+            if not self.DATA_LIST[i].altezza_min:
+                altezza_min = ""
+            else:
+                altezza_min = str(self.DATA_LIST[i].altezza_min)  # 67 altezza min
 
-                if not self.DATA_LIST[i].profondita_max:
-                    profondita_max = ""
-                else:
-                    profondita_max = str(self.DATA_LIST[i].profondita_max)  # 68 profondita_max
+            if not self.DATA_LIST[i].profondita_max:
+                profondita_max = ""
+            else:
+                profondita_max = str(self.DATA_LIST[i].profondita_max)  # 68 profondita_max
 
-                if not self.DATA_LIST[i].profondita_min:
-                    profondita_min = ""
-                else:
-                    profondita_min = str(self.DATA_LIST[i].profondita_min)  # 69 profondita min
+            if not self.DATA_LIST[i].profondita_min:
+                profondita_min = ""
+            else:
+                profondita_min = str(self.DATA_LIST[i].profondita_min)  # 69 profondita min
 
-                if not self.DATA_LIST[i].larghezza_media:
-                    larghezza_media = ""
-                else:
-                    larghezza_media = str(self.DATA_LIST[i].larghezza_media)  # 70 larghezza media
+            if not self.DATA_LIST[i].larghezza_media:
+                larghezza_media = ""
+            else:
+                larghezza_media = str(self.DATA_LIST[i].larghezza_media)  # 70 larghezza media
 
-                if not self.DATA_LIST[i].quota_max_abs:
-                    quota_max_abs = ""
-                else:
-                    quota_max_abs = str(self.DATA_LIST[i].quota_max_abs)  # 71 quota_max_abs
+            if not self.DATA_LIST[i].quota_max_abs:
+                quota_max_abs = ""
+            else:
+                quota_max_abs = str(self.DATA_LIST[i].quota_max_abs)  # 71 quota_max_abs
 
-                if not self.DATA_LIST[i].quota_max_rel:
-                    quota_max_rel = ""
-                else:
-                    quota_max_rel = str(self.DATA_LIST[i].quota_max_rel)  # 72 quota_max_rel
+            if not self.DATA_LIST[i].quota_max_rel:
+                quota_max_rel = ""
+            else:
+                quota_max_rel = str(self.DATA_LIST[i].quota_max_rel)  # 72 quota_max_rel
 
-                if not self.DATA_LIST[i].quota_min_abs:
-                    quota_min_abs = ""
-                else:
-                    quota_min_abs = str(self.DATA_LIST[i].quota_min_abs)  # 73 quota_min_abs
+            if not self.DATA_LIST[i].quota_min_abs:
+                quota_min_abs = ""
+            else:
+                quota_min_abs = str(self.DATA_LIST[i].quota_min_abs)  # 73 quota_min_abs
 
-                if not self.DATA_LIST[i].quota_min_rel:
-                    quota_min_rel = ""
-                else:
-                    quota_min_rel = str(self.DATA_LIST[i].quota_min_rel)  # 74 quota_min_rel
+            if not self.DATA_LIST[i].quota_min_rel:
+                quota_min_rel = ""
+            else:
+                quota_min_rel = str(self.DATA_LIST[i].quota_min_rel)  # 74 quota_min_rel
 
-                if not self.DATA_LIST[i].lunghezza_usm:
-                    lunghezza_usm = ""
-                else:
-                    lunghezza_usm = str(self.DATA_LIST[i].lunghezza_usm)  # 85 lunghezza usm
+            if not self.DATA_LIST[i].lunghezza_usm:
+                lunghezza_usm = ""
+            else:
+                lunghezza_usm = str(self.DATA_LIST[i].lunghezza_usm)  # 85 lunghezza usm
 
-                if not self.DATA_LIST[i].altezza_usm:
-                    altezza_usm = ""
-                else:
-                    altezza_usm = str(self.DATA_LIST[i].altezza_usm)  # 86 altezza usm
+            if not self.DATA_LIST[i].altezza_usm:
+                altezza_usm = ""
+            else:
+                altezza_usm = str(self.DATA_LIST[i].altezza_usm)  # 86 altezza usm
 
-                if not self.DATA_LIST[i].spessore_usm:
-                    spessore_usm = ""
-                else:
-                    spessore_usm = str(self.DATA_LIST[i].spessore_usm)  # 87 spessore usm
+            if not self.DATA_LIST[i].spessore_usm:
+                spessore_usm = ""
+            else:
+                spessore_usm = str(self.DATA_LIST[i].spessore_usm)  # 87 spessore usm
 
             data_list.append([
                 str(self.DATA_LIST[i].sito),  # 0 - Sito
@@ -2409,29 +2409,20 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
                 self.TABLE_FIELDS[77]: "'" + str(self.lineEdit_setacciatura.text()) + "'",  # 78 setacciatura
                 self.TABLE_FIELDS[78]: "'" + str(self.lineEdit_affidabilita.text()) + "'",  # 79 affidabilita
                 self.TABLE_FIELDS[79]: "'" + str(self.comboBox_direttore_us.currentText()) + "'",  # 80 direttore us
-                self.TABLE_FIELDS[80]: "'" + str(self.comboBox_responsabile_us.currentText()) + "'",
-            # 81 responsabile us
-                self.TABLE_FIELDS[81]: "'" + str(self.lineEdit_cod_ente_schedatore.text()) + "'",
-            # 82 cod ente schedatore
+                self.TABLE_FIELDS[80]: "'" + str(self.comboBox_responsabile_us.currentText()) + "'", # 81 responsabile us
+                self.TABLE_FIELDS[81]: "'" + str(self.lineEdit_cod_ente_schedatore.text()) + "'", # 82 cod ente schedatore
                 self.TABLE_FIELDS[82]: "'" + str(self.lineEdit_data_rilevazione.text()) + "'",  # 83 data rilevazione
-                self.TABLE_FIELDS[83]: "'" + str(self.lineEdit_data_rielaborazione.text()) + "'",
-            # 84 data rielaborazione
+                self.TABLE_FIELDS[83]: "'" + str(self.lineEdit_data_rielaborazione.text()) + "'", # 84 data rielaborazione
                 self.TABLE_FIELDS[84]: lunghezza_usm,  # 85
                 self.TABLE_FIELDS[85]: altezza_usm,  # 86
                 self.TABLE_FIELDS[86]: spessore_usm,  # 87
-                self.TABLE_FIELDS[87]: "'" + str(self.lineEdit_tecnica_muraria_usm.text()) + "'",
-            # 88 tecnica muraria usm
-                self.TABLE_FIELDS[88]: "'" + str(self.lineEdit_modulo_usm.text()) + "'",  # 89 modulo usm
-                self.TABLE_FIELDS[89]: "'" + str(self.lineEdit_campioni_malta_usm.text()) + "'",
-            # 90 campioni malta usm
-                self.TABLE_FIELDS[90]: "'" + str(self.lineEdit_campioni_mattone_usm.text()) + "'",
-            # 91 campioni mattone usm
-                self.TABLE_FIELDS[91]: "'" + str(self.lineEdit_campioni_pietra_usm.text()) + "'",
-            # 92 campioni pietra usm
-                self.TABLE_FIELDS[92]: "'" + str(self.lineEdit_provenienza_materiali_usm.text()) + "'",
-            # 93 provenienza_materiali_usm
-                self.TABLE_FIELDS[93]: "'" + str(self.lineEdit_criteri_distinzione_usm.text()) + "'",
-            # 94 criteri distinzione usm
+                self.TABLE_FIELDS[87]: "'" + str(self.lineEdit_tecnica_muraria_usm.text()) + "'", # 88 tecnica muraria usm
+                self.TABLE_FIELDS[88]: "'" + str(self.lineEdit_modulo_usm.text()) + "'", # 89 modulo usm
+                self.TABLE_FIELDS[89]: "'" + str(self.lineEdit_campioni_malta_usm.text()) + "'", # 90 campioni malta usm
+                self.TABLE_FIELDS[90]: "'" + str(self.lineEdit_campioni_mattone_usm.text()) + "'", # 91 campioni mattone usm
+                self.TABLE_FIELDS[91]: "'" + str(self.lineEdit_campioni_pietra_usm.text()) + "'", # 92 campioni pietra usm
+                self.TABLE_FIELDS[92]: "'" + str(self.lineEdit_provenienza_materiali_usm.text()) + "'", # 93 provenienza_materiali_usm
+                self.TABLE_FIELDS[93]: "'" + str(self.lineEdit_criteri_distinzione_usm.text()) + "'", # 94 criteri distinzione usm
                 self.TABLE_FIELDS[94]: "'" + str(self.lineEdit_uso_primario_usm.text()) + "'"  # 95 uso primario usm
 
 
