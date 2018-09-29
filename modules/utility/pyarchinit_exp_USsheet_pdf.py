@@ -708,17 +708,16 @@ class single_US_pdf_sheet(object):
         #1 row Nome del sito (si consiglia di lasciarlo così a se stante per la lunghezza dei nomi in alcuni casi
         sito = Paragraph("<b>Sito</b><br/>" + str(self.sito), styNormal)
 
-        area = Paragraph("<b>Area: </b>" + str(self.area), styNormal)
-        unita_tipo_label = "<b>" + str(self.unita_tipo) + "</b>"
-        us = Paragraph(area + '</br>' + unita_tipo_label + " "+str(self.us), styNormal)
+        area = "<b>Area: </b>" + str(self.area)
+        unita_tipo_label = "<br/><b>" + str(self.unita_tipo) + ": </b>"
+        us = Paragraph(area + unita_tipo_label + str(self.us), styNormal)
 
         #2 row Soprintenza - nr catalogo generale - nr catalogo interno n cataologo internazione
-        sabap_data  = Paragraph("<b>Soprintendenza</b>" + str(self.soprintendenza) +
-                                "</br><b>N° Catalogo generale=</b>" + str(self.n_catalogo_generale) +
-                                "</br><b>N° Catalogo interno=</b>" + str(self.n_catalogo_interno) +
-                                "</br><b>N° Catalogo internazionale=</b>" + str(self.n_catalogo_internazionale),
+        sabap_data  = Paragraph("<b>Soprintendenza</b><br/>" + str(self.soprintendenza) +
+                                "<b>N. Catalogo generale</b><br/>" + str(self.n_catalogo_generale) +
+                                "<b>N. Catalogo interno</b><br/>" + str(self.n_catalogo_interno) +
+                                "<b>N. Catalogo internazionale</b><br/>" + str(self.n_catalogo_internazionale),
                                 styNormal)
-
 
         #3 row
         d_stratigrafica = Paragraph("<b>Definizione stratigrafica</b><br/>" + self.d_stratigrafica, styNormal)
@@ -731,23 +730,24 @@ class single_US_pdf_sheet(object):
         saggio = Paragraph("<b>Saggio</b><br/>" + self.saggio, styNormal)
 
         # 5 row
-        stato_conservazione = Paragraph("<b>Conservaz<br/></b>" + self.stato_di_conservazione, styNormal)
-        consistenza = Paragraph("<b>Consistenza<br/></b>" + self.consistenza, styNormal)
+        stato_conservazione = Paragraph("<b>Conservazione</b><br/>" + self.stato_di_conservazione, styNormal)
+        consistenza = Paragraph("<b>Consistenza</b><br/>" + self.consistenza, styNormal)
         colore = Paragraph("<b>Colore</b><br/>" + self.colore, styNormal)
-        formazione = Paragraph("<b>Formazione<br/></b>" + self.formazione, styNormal)
-        modo_formazione = Paragraph("<b>Formazione<br/></b>" + self.modo_formazione, styNormal)
+        formazione = Paragraph("<b>Formazione</b><br/>" + self.formazione, styNormal)
+        modo_formazione = Paragraph("<b>Modo formazione</b><br/>" + self.modo_formazione, styNormal)
 
 
         # 6 row
-        criteri_distinzione = Paragraph("<b>Criteri distinzione: </b>" + self.criteri_distinzione, styNormal)
-        flottazione = Paragraph("<b>Flottazione </b>" + self.flottazione, styNormal)
-        setacciatura = Paragraph("<b>Setacciatura </b>" + self.setacciatura, styNormal)
-        affidabilita = Paragraph("<b>Affidabilita </b>" + self.affidabilita, styNormal)
+        posizione = Paragraph("<b>Posizione</b>" + self.posizione, styNormal)
+        criteri_distinzione = Paragraph("<b>Criteri distinzione</b><br/>" + self.criteri_distinzione, styNormal)
+        flottazione = Paragraph("<b>Flottazione</b><br/>" + self.flottazione, styNormal)
+        setacciatura = Paragraph("<b>Setacciatura</b><br/>" + self.setacciatura, styNormal)
+        affidabilita = Paragraph("<b>Affidabilita</b><br/>" + self.affidabilita, styNormal)
 
 
         # 7 row
-        comp_organici = Paragraph("<b>Comp. organici</b>" + self.componenti_organici, styNormal)
-        comp_inorganici = Paragraph("<b>Comp. inorganici </b>" + self.componenti_inorganici, styNormal)
+        comp_organici = Paragraph("<b>Comp. organici</b><br/>" + self.componenti_organici, styNormal)
+        comp_inorganici = Paragraph("<b>Comp. inorganici</b><br/>" + self.componenti_inorganici, styNormal)
         inclusi_list = eval(self.inclusi)
         inclusi = ''
         for i in eval(self.inclusi):
@@ -849,13 +849,13 @@ class single_US_pdf_sheet(object):
                     inclusi_materiali_usm += ', ' + str(i[0])
                 except:
                     pass
-        inclusi_mat_usm = Paragraph("<b>Inclusi mat. usm</b><br/>" + inclusi_materiali_usm, styNormal)
+        inclusi_mat_usm = Paragraph("<b>Inclusi materiale usm</b><br/>" + inclusi_materiali_usm, styNormal)
 
         # 18 row
         aggreg_legante_usm_list = eval(self.aggreg_legante)
         aggreg_legante_usm = ''
         for i in eval(self.aggreg_legante):
-            if inclusi_materiali_usm == '':
+            if aggreg_legante_usm == '':
                 try:
                     aggreg_legante_usm += str(i[0])
                 except:
@@ -865,7 +865,7 @@ class single_US_pdf_sheet(object):
                     aggreg_legante_usm += ', ' + str(i[0])
                 except:
                     pass
-        aggreg_legante_usm = Paragraph("<b>Inclus. aggreg. legante/b><br/>" + aggreg_legante_usm, styNormal)
+        aggreg_legante_usm = Paragraph("<b>Inclusi aggreganti legante usm</b><br/>" + aggreg_legante_usm, styNormal)
 
         # 19 row
         campioni_malta = Paragraph("<b>Campioni malta</b><br/>" + self.campioni_malta_usm, styNormal)
@@ -876,12 +876,12 @@ class single_US_pdf_sheet(object):
         quota_min_usm = Paragraph("<b>Quota Min.</b><br/>" + self.quota_min_usm, styNormal)
         quota_max_usm = Paragraph("<b>Quota Max.</b><br/>" + self.quota_max_usm, styNormal)
         spessore_usm = Paragraph("<b>Spessore</b><br/>" + self.spessore_usm, styNormal)
-        lunghezza_usm =  Paragraph("<b>Lunghezza_usm</b><br/>" + self.lunghezza_usm, styNormal)
-        altezza_usm = Paragraph("<b>Altezza_usm</b><br/>" + self.altezza_usm, styNormal)
+        lunghezza_usm =  Paragraph("<b>Lunghezza usm</b><br/>" + self.lunghezza_usm, styNormal)
+        altezza_usm = Paragraph("<b>Altezza usm</b><br/>" + self.altezza_usm, styNormal)
 
         # 21 row
         periodizzazione = Paragraph("<b>PERIODIZZAZIONE</b>", styNormal)
-        datazione_ipotesi = Paragraph("<b>datazione ipotesi</b></br>" + self.datazione, styNormal)
+        datazione_ipotesi = Paragraph("<b>datazione ipotesi</b><br/>" + str(self.datazione), styNormal)
 
         # 22 row
         iniziale = Paragraph("<b>INIZIALE</b>", styNormal)
@@ -957,12 +957,12 @@ class single_US_pdf_sheet(object):
             [attivita, '01', '02', struttura, '04', '05', quota_min, '07', quota_max, '09'],                            # 12 row ok attivita struttura quota min quota max
             [usm_section, '01', '02', '03', '04', '05', '06', '07', '08', '09'],                                        # 13 row ok USM section intestazione
             [funz_statica, '01', lavorazione, '03', spess_giunti, '05', letti_posa, '07', alt_modulo, '09'],            # 14 row ok funz statica, lavorazione, spess_giunti, letti_posa, alt_modulo
-            [un_ed_riass, '01', uso_primario, '03', reimp, '05', posa_opera, '07', tec_muraria, '09'],                  # 15 row ok un_ed_riass, uso_primario, reimpiego, posa_opera, tec_muraria
-            [col_legante, '01', '02', aggreg_legante, '04', '05', con_text_mat, '07', col_mat, '09'],                   # 16 row ok col legante, cons_legante, cont text mat, col mat
+            [un_ed_riass, '01', uso_primario, '03', reimp, '05', posa_opera, '07', tecnica_muraria, '09'],              # 15 row ok un_ed_riass, uso_primario, reimpiego, posa_opera, tec_muraria
+            [col_legante, '01', '02', cons_legante, '04', '05', con_text_mat, '07', col_mat, '09'],                     # 16 row ok col legante, cons_legante, cont text mat, col mat
             [inclusi_mat_usm, '01', '02', '03', '04', '05', '06', '07', '08', '09'],                                    # 17 row ok inclusi_materiale
             [aggreg_legante_usm, '01', '02', '03', '04', '05', '06', '07', '08', '09'],                                 # 18 row ok aggreg_legante_usm
             [campioni_malta, '01', '02', campioni_pietra, '04', '05', campioni_mattone, '07', '08', '09'],              # 19 row ok campioni pietra, campioni malta, campioni mattone
-            [quota_min_usm, '01', quota_max_usm, '03', spessore, '05', lunghezza, '07', altezza, '09' ],                # 20 row quota min usm, quota max usm, spessore, lugnhezza, altezza
+            [quota_min_usm, '01', quota_max_usm, '03', spessore_usm, '05', lunghezza_usm, '07', altezza_usm, '09' ],                # 20 row quota min usm, quota max usm, spessore, lugnhezza, altezza
             [periodizzazione, '01', '02', '03', '04', '05', datazione_ipotesi, '07', '08', '09' ],                      # 21 row periodizzazione, ipotesi datazione
             [iniziale, '01', periodo_iniziale, '03', fase_iniziale, finale, '06', periodo_finale, '08', fase_finale],   # 22 row periodi
             [rapporti_stratigrafici, '01', '02', '03', '04', piante, '06', '07', '08', '09'],                           # 23 row
@@ -1090,14 +1090,14 @@ class single_US_pdf_sheet(object):
             ('SPAN', (6, 21), (9, 21)),  #
 
             # 22 row ok archeo e periodi iniziale e finale
-            ('SPAN', (0, 17), (1, 17)),  # iniziale
-            ('SPAN', (2, 17), (3, 17)),  # periodo inizlae
-            ('SPAN', (4, 17), (4, 17)),  # periodo inizlae
-            ('SPAN', (5, 17), (6, 17)),  # fase iniziale
-            ('SPAN', (7, 17), (8, 17)),  # finale
-            ('SPAN', (9, 17), (9, 17)),  # finale
-            ('VALIGN', (0, 17), (0, 17), 'TOP'),
-            ('VALIGN', (5, 17), (5, 17), 'TOP'),
+            ('SPAN', (0, 22), (1, 22)),  # iniziale
+            ('SPAN', (2, 22), (3, 22)),  # periodo inizlae
+            ('SPAN', (4, 22), (4, 22)),  # periodo inizlae
+            ('SPAN', (5, 22), (6, 22)),  # fase iniziale
+            ('SPAN', (7, 22), (8, 22)),  # finale
+            ('SPAN', (9, 22), (9, 22)),  # finale
+            ('VALIGN', (0, 22), (0, 22), 'TOP'),
+            ('VALIGN', (5, 22), (5, 22), 'TOP'),
 
             # 23 row ok archeo 3
             ('SPAN', (0, 23), (4, 23)),  # Rapporti stratigrafici - Titolo
@@ -1146,9 +1146,9 @@ class single_US_pdf_sheet(object):
 
 
             # 32 row ok archeo 3 ref_tm, '01', ref_n, '03', ref_ra,
-            ('SPAN', (0, 31), (1, 31)),
-            ('SPAN', (2, 31), (3, 31)),
-            ('SPAN', (4, 31), (9, 31))
+            ('SPAN', (0, 32), (1, 32)),
+            ('SPAN', (2, 32), (3, 32)),
+            ('SPAN', (4, 32), (9, 32))
         ]
 
         t = Table(cell_schema, colWidths=55, rowHeights=None, style=table_style)
@@ -1321,7 +1321,8 @@ class generate_US_pdf(object):
         elements = []
         for i in range(len(records)):
             single_us_sheet = single_US_pdf_sheet(records[i])
-            elements.append(single_us_sheet.create_sheet())
+            #elements.append(single_us_sheet.create_sheet())
+            elements.append(single_us_sheet.create_sheet_archeo3())
             elements.append(PageBreak())
 
         dt = datetime.datetime.now()
