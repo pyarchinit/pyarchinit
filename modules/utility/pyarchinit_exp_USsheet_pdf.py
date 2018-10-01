@@ -671,7 +671,7 @@ class single_US_pdf_sheet(object):
         return t
 
 
-    def create_sheet_archeo3(self):
+    def create_sheet_archeo3_usm_fields(self):
         self.unzip_rapporti_stratigrafici()
         self.unzip_documentazione()
 
@@ -1365,8 +1365,8 @@ class generate_US_pdf(object):
         elements = []
         for i in range(len(records)):
             single_us_sheet = single_US_pdf_sheet(records[i])
-            elements.append(single_us_sheet.create_sheet())
-            elements.append(PageBreak())
+            #elements.append(single_us_sheet.create_sheet())
+            #elements.append(PageBreak())
             elements.append(single_us_sheet.create_sheet_archeo3_usm_fields())
             elements.append(PageBreak())
 
