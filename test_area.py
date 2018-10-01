@@ -32,3 +32,7 @@ class Test_area:
 
     def run_test(self):
         pass
+
+    def test_comment(selfself):
+        ###this is a comment to test commit###
+        pass
