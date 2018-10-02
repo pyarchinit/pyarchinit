@@ -69,7 +69,7 @@ class PyArchInitPlugin(object):
                    'THUMB_PATH': '',
                    'EXPERIMENTAL': ''}
 
-    path_rel = os.path.join(os.sep, str(HOME), 'pyarchinit_DB_folder', 'config.cfg')
+    path_rel = os.path.join(os.sep, HOME, 'pyarchinit_DB_folder', 'config.cfg')
     conf = open(path_rel, "r")
     data = conf.read()
     conf.close()
