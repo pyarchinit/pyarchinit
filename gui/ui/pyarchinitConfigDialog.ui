@@ -317,43 +317,10 @@
        <string>Installazione layers</string>
       </attribute>
       <layout class="QGridLayout" name="gridLayout_3">
-       <item row="9" column="0">
-        <widget class="QProgressBar" name="pyarchinit_progressBar_template">
-         <property name="value">
-          <number>1</number>
-         </property>
-         <property name="alignment">
-          <set>Qt::AlignCenter</set>
-         </property>
-         <property name="orientation">
-          <enum>Qt::Horizontal</enum>
-         </property>
-         <property name="invertedAppearance">
-          <bool>false</bool>
-         </property>
-         <property name="textDirection">
-          <enum>QProgressBar::BottomToTop</enum>
-         </property>
-        </widget>
-       </item>
-       <item row="9" column="1">
-        <widget class="QLabel" name="label_14">
-         <property name="text">
-          <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;center&quot;&gt;&lt;span style=&quot; font-size:10pt; font-weight:600;&quot;&gt;OPPURE&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-         </property>
-        </widget>
-       </item>
        <item row="0" column="0">
         <widget class="QLabel" name="label_6">
          <property name="text">
           <string>Installa il database</string>
-         </property>
-        </widget>
-       </item>
-       <item row="8" column="0">
-        <widget class="QLabel" name="label_8">
-         <property name="text">
-          <string>Installa il db geografico su Postgres per postgis 1.5</string>
          </property>
         </widget>
        </item>
@@ -380,38 +347,33 @@
        <item row="4" column="0">
         <widget class="QLineEdit" name="lineEdit_db_user">
          <property name="text">
-          <string>postgres</string>
+          <string/>
+         </property>
+         <property name="placeholderText">
+          <string>user</string>
          </property>
         </widget>
        </item>
        <item row="5" column="0">
         <widget class="QLineEdit" name="lineEdit_db_passwd">
          <property name="text">
-          <string>postgres</string>
+          <string/>
          </property>
-        </widget>
-       </item>
-       <item row="2" column="0">
-        <widget class="QLineEdit" name="lineEdit_template_postgis">
-         <property name="text">
-          <string>template_postgis_20</string>
+         <property name="echoMode">
+          <enum>QLineEdit::Password</enum>
          </property>
-        </widget>
-       </item>
-       <item row="2" column="1">
-        <widget class="QLabel" name="label_13">
-         <property name="toolTip">
-          <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;qui devi inserire il nome del template che vuoi usare. Ricorda di usare il template specifico a seconda di quale postgis usi&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-         </property>
-         <property name="text">
-          <string>inserisci nome template</string>
+         <property name="placeholderText">
+          <string>password</string>
          </property>
         </widget>
        </item>
        <item row="3" column="0">
         <widget class="QLineEdit" name="lineEdit_port_db">
          <property name="text">
-          <string>5432</string>
+          <string/>
+         </property>
+         <property name="placeholderText">
+          <string>port (5432)</string>
          </property>
         </widget>
        </item>
@@ -422,16 +384,6 @@
          </property>
          <property name="text">
           <string>inserisci nome db</string>
-         </property>
-        </widget>
-       </item>
-       <item row="1" column="2" rowspan="2">
-        <widget class="QPushButton" name="pushButton_crea_database">
-         <property name="enabled">
-          <bool>true</bool>
-         </property>
-         <property name="text">
-          <string>Installa</string>
          </property>
         </widget>
        </item>
@@ -451,7 +403,7 @@
           <set>Qt::ImhNone</set>
          </property>
          <property name="text">
-          <string>pyarchinit</string>
+          <string/>
          </property>
          <property name="dragEnabled">
           <bool>false</bool>
@@ -459,29 +411,18 @@
          <property name="readOnly">
           <bool>false</bool>
          </property>
-        </widget>
-       </item>
-       <item row="10" column="0">
-        <widget class="QLabel" name="label_9">
-         <property name="text">
-          <string>Installa il db geografico su Postgres per postgis 2.x</string>
-         </property>
-        </widget>
-       </item>
-       <item row="10" column="2">
-        <widget class="QPushButton" name="pushButton_crea_layer_2">
-         <property name="enabled">
-          <bool>true</bool>
-         </property>
-         <property name="text">
-          <string>Installa</string>
+         <property name="placeholderText">
+          <string>db name</string>
          </property>
         </widget>
        </item>
        <item row="6" column="0">
         <widget class="QLineEdit" name="lineEdit_db_srid">
          <property name="text">
-          <string>32633</string>
+          <string/>
+         </property>
+         <property name="placeholderText">
+          <string>SRS</string>
          </property>
         </widget>
        </item>
@@ -495,27 +436,8 @@
          </property>
         </widget>
        </item>
-       <item row="7" column="0">
-        <widget class="QProgressBar" name="pyarchinit_progressBar_db">
-         <property name="value">
-          <number>1</number>
-         </property>
-         <property name="alignment">
-          <set>Qt::AlignCenter</set>
-         </property>
-         <property name="orientation">
-          <enum>Qt::Horizontal</enum>
-         </property>
-         <property name="invertedAppearance">
-          <bool>false</bool>
-         </property>
-         <property name="textDirection">
-          <enum>QProgressBar::BottomToTop</enum>
-         </property>
-        </widget>
-       </item>
-       <item row="7" column="2" rowspan="2">
-        <widget class="QPushButton" name="pushButton_crea_layer">
+       <item row="1" column="2">
+        <widget class="QPushButton" name="pushButton_crea_database">
          <property name="enabled">
           <bool>true</bool>
          </property>
@@ -524,7 +446,7 @@
          </property>
         </widget>
        </item>
-       <item row="11" column="0">
+       <item row="7" column="0">
         <spacer name="verticalSpacer_2">
          <property name="orientation">
           <enum>Qt::Vertical</enum>
