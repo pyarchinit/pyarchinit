@@ -18,10 +18,11 @@
  ***************************************************************************/
 """
 
+from builtins import object
 import io
-from sqlalchemy import create_engine, MetaData
+from sqlalchemy import create_engine, MetaData, text
 from sqlalchemy.orm import sessionmaker
-from sqlalchemy_utils import database_exists, create_database
+from sqlalchemy_utils import database_exists, create_database, drop_database
 
 
 class SchemaDump(object):
@@ -62,7 +63,7 @@ class RestoreSchema(object):
         conn = engine.connect()
         transaction = conn.begin()
         try:
-            conn.execute(raw_schema)
+            conn.execute(text(raw_schema))
             transaction.commit()
         except Exception as e:
             transaction.rollback()
@@ -73,13 +74,27 @@ class RestoreSchema(object):
 
 class CreateDatabase(object):
 
-    def __init__(self, db_name, db_host):
+    def __init__(self, db_name, db_host, db_port, db_user, db_passwd):
         self.db_name = db_name
         self.db_host = db_host
+        self.user = db_user
+        self.passwd = db_passwd
+        self.port = db_port
 
-    def creatdb(self):
-        engine = create_engine("postgres://{}/{}".format(self.db_host, self.db_name))
+    def createdb(self):
+        engine = create_engine("postgresql://{}:{}@{}:{}/{}".format(self.user, self.passwd, self.db_host, self.port, self.db_name))
         if not database_exists(engine.url):
             create_database(engine.url)
+            return True, engine.url
 
-        print(database_exists(engine.url))
+        return False, None
+
+
+class DropDatabase(object):
+
+    def __init__(self, db_url):
+        self.db_url = db_url
+
+    def dropdb(self):
+        if database_exists(self.db_url):
+            drop_database(engine.url)
