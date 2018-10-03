@@ -181,22 +181,25 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
         create_database = CreateDatabase(self.lineEdit_dbname.text(), self.lineEdit_Host.text(),
                                          self.lineEdit_port_db.text(), self.lineEdit_db_user.text(),
                                          self.lineEdit_db_passwd.text())
+
         ok, db_url = create_database.createdb()
 
-        if db_url and ok:
+        if ok:
             try:
                 RestoreSchema(db_url, schema_file).restore_schema()
-            except:
+            except Exception as e:
                 DropDatabase(db_url).dropdb()
                 ok = False
+                raise e
 
-        crsid = self.selectorCrsWidget.crs().authid()
-        srid = crsid.split(':')[1]
+        if ok:
+            crsid = self.selectorCrsWidget.crs().authid()
+            srid = crsid.split(':')[1]
 
-        res = RestoreSchema(db_url).update_geom_srid('public', srid)
+            res = RestoreSchema(db_url).update_geom_srid('public', srid)
 
-        # create views
-        RestoreSchema(db_url, view_file).restore_schema()
+            # create views
+            RestoreSchema(db_url, view_file).restore_schema()
 
         if ok and res:
             QMessageBox.warning(self, "ok", "Installazione avvenuta con successo", QMessageBox.Ok)
