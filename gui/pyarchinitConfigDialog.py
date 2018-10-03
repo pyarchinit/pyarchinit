@@ -174,7 +174,10 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
                             QMessageBox.Ok)
 
     def on_pushButton_crea_database_pressed(self):
-        schema_file = os.path.join(os.path.dirname(__file__), os.pardir, 'modules', 'utility', 'DBfiles', 'pyarchinit_schema.sql')
+        schema_file = os.path.join(os.path.dirname(__file__), os.pardir, 'modules', 'utility', 'DBfiles',
+                                   'pyarchinit_schema_clean.sql')
+        view_file = os.path.join(os.path.dirname(__file__), os.pardir, 'modules', 'utility', 'DBfiles',
+                                   'create_view.sql')
         create_database = CreateDatabase(self.lineEdit_dbname.text(), self.lineEdit_Host.text(),
                                          self.lineEdit_port_db.text(), self.lineEdit_db_user.text(),
                                          self.lineEdit_db_passwd.text())
@@ -190,8 +193,12 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
         crsid = self.selectorCrsWidget.crs().authid()
         srid = crsid.split(':')[1]
 
-        self.try_connection()
-        res = self.DB_MANAGER.pg_update_geom_srid('public', srid)
+        self.DB_MANAGER = Pyarchinit_db_management(db_url)
+        self.DB_MANAGER.connection()
+        res = self.DB_MANAGER.pg_update_geom_srid(db_url, 'public', srid)
+
+        # create views
+        RestoreSchema(db_url, view_file).restore_schema()
 
         if ok and res:
             QMessageBox.warning(self, "ok", "Installazione avvenuta con successo", QMessageBox.Ok)
