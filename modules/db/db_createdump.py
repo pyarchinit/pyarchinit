@@ -72,25 +72,25 @@ class RestoreSchema(object):
             session.close()
 
     def update_geom_srid(self, schema, crs):
-        sql_query_string = ("SELECT f_table_name FROM {}".format('geometry_columns'))
+        sql_query_string = ("SELECT f_table_name, type FROM {}".format('geometry_columns'))
         engine = create_engine(self.db_url)
         Session = sessionmaker(bind=engine)
         session = Session()
         conn = engine.connect()
-        transaction = conn.begin()
         try:
             res = conn.execute(sql_query_string)
-            fields = []
+            tables = []
+            types = []
             for r in res:
-                fields.append(r[0])
-            res.close()
-
-            for field in fields:
-                sql_query = "SELECT UpdateGeometrySRID('{}', '{}', 'geom', {})".format(schema, field, crs)
-                res = conn.execute(sql_query)
-            res.close()
+                tables.append(r[0])
+                types.append(r[1])
+            tables_and_types = dict(zip(tables, types))
+            for t, ty in tables_and_types.items():
+                sql_queries = text("ALTER TABLE {} ALTER COLUMN geom TYPE geometry({}, 4326) USING ST_SetSRID(geom, {})".format(
+                    t, ty, crs
+                ))
+                res = conn.execute(sql_queries)
         except Exception as e:
-            transaction.rollback()
             raise e
         finally:
             session.close()
@@ -122,4 +122,4 @@ class DropDatabase(object):
 
     def dropdb(self):
         if database_exists(self.db_url):
-            drop_database(engine.url)
+            drop_database(self.db_url)
