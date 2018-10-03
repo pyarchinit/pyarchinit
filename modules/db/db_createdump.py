@@ -96,6 +96,35 @@ class RestoreSchema(object):
             session.close()
         return True
 
+    def update_geom_srid_sl(self, crs):
+        sql_query_string = ("SELECT f_table_name, type, f_geometry_column FROM {}".format('geometry_columns'))
+        engine = create_engine(self.db_url, echo=True)
+        Session = sessionmaker(bind=engine)
+        session = Session()
+        conn = engine.connect()
+        try:
+            res = conn.execute(sql_query_string)
+            tables = []
+            types_and_geom = []
+            for r in res:
+                tables.append(r[0])
+                types_and_geom.append((r[1], r[2]))
+            tables_and_types = dict(zip(tables, types_and_geom))
+            for t, ty in tables_and_types.items():
+                sql_queries_1 = text("UPDATE geometry_columns SET srid = {1} WHERE f_table_name = '{0}';".format(
+                    t, crs
+                ))
+                sql_queries_2 = text("UPDATE {0} SET {1} = SetSRID({1}, {2});".format(
+                    t, ty[1], crs
+                ))
+                conn.execute(sql_queries_1)
+                conn.execute(sql_queries_2)
+        except Exception as e:
+            raise e
+        finally:
+            session.close()
+        return True
+
 
 class CreateDatabase(object):
 
