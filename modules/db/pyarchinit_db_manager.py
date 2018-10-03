@@ -1067,6 +1067,20 @@ class Pyarchinit_db_management(object):
         res = self.engine.execute(sql_query_string)
         return res
 
+    def pg_update_geom_srid(self, schema, crs):
+        sql_query_string = ("SELECT f_table_name FROM {}".format('geometry_columns'))
+        res = self.engine.execute(sql_query_string)
+        fields = []
+        for r in res:
+            fields.append(r[0])
+        res.close()
+
+        for field in fields:
+            sql_query = "SELECT UpdateGeometrySRID('{}', '{}', 'geom', {})".format(schema, field, crs)
+            res = self.engine.execute(sql_query)
+        res.close()
+        return True
+
     def query_in_contains(self, value_list, sitof, areaf):
         self.value_list = value_list
 

@@ -26,7 +26,7 @@ from builtins import range
 from builtins import str
 from qgis.PyQt.QtWidgets import QApplication, QDialog, QMessageBox, QFileDialog
 from qgis.PyQt.uic import loadUiType
-from qgis.core import QgsApplication, QgsSettings
+from qgis.core import QgsApplication, QgsSettings, QgsProject
 
 from modules.db.pyarchinit_conn_strings import Connection
 from modules.db.pyarchinit_db_manager import Pyarchinit_db_management
@@ -71,6 +71,8 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
             self.pushButtonGraphviz.setEnabled(False)
             self.pbnSaveEnvironPath.setEnabled(False)
             self.lineEditGraphviz.setEnabled(False)
+
+        self.selectorCrsWidget.setCrs(QgsProject.instance().crs())
 
     def setPathGraphviz(self):
         s = QgsSettings()
@@ -185,14 +187,13 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
                 DropDatabase(db_url).dropdb()
                 ok = False
 
-        # barra = self.pyarchinit_progressBar_db
-        # barra.setMinimum(0)
-        # barra.setMaximum(9)
-        # for a in range(10):
-        #     time.sleep(1)
-        #     barra.setValue(a)
+        crsid = self.selectorCrsWidget.crs().authid()
+        srid = crsid.split(':')[1]
 
-        if ok:
+        self.try_connection()
+        res = self.DB_MANAGER.pg_update_geom_srid('public', srid)
+
+        if ok and res:
             QMessageBox.warning(self, "ok", "Installazione avvenuta con successo", QMessageBox.Ok)
         else:
             QMessageBox.warning(self, "opss", "database esistente", QMessageBox.Ok)
