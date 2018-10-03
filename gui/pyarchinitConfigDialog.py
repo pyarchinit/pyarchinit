@@ -22,6 +22,8 @@
 from __future__ import absolute_import
 
 import os
+# TODO SL: shutil is already imported in os_utility, must be removed
+import shutil
 from builtins import range
 from builtins import str
 from qgis.PyQt.QtWidgets import QApplication, QDialog, QMessageBox, QFileDialog
@@ -73,6 +75,7 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
             self.lineEditGraphviz.setEnabled(False)
 
         self.selectorCrsWidget.setCrs(QgsProject.instance().crs())
+        self.selectorCrsWidget_sl.setCrs(QgsProject.instance().crs())
 
     def setPathGraphviz(self):
         s = QgsSettings()
@@ -200,6 +203,32 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
 
             # create views
             RestoreSchema(db_url, view_file).restore_schema()
+
+        if ok and res:
+            QMessageBox.warning(self, "ok", "Installazione avvenuta con successo", QMessageBox.Ok)
+        else:
+            QMessageBox.warning(self, "opss", "database esistente", QMessageBox.Ok)
+
+    def on_pushButton_crea_database_sl_pressed(self):
+        db_file = os.path.join(os.path.dirname(__file__), os.pardir, 'modules', 'utility', 'DBfiles',
+                                   'pyarchinit_db.sqlite')
+
+        home_DB_path = '{}{}{}'.format(self.HOME, os.sep, 'pyarchinit_DB_folder')
+
+        sl_name = '{}.sqlite'.format(self.lineEdit_dbname_sl.text())
+        db_path = os.path.join(home_DB_path, sl_name)
+
+        ok = False
+        if not os.path.exists(db_path):
+            shutil.copyfile(db_file, db_path)
+            ok = True
+
+        if ok:
+            crsid = self.selectorCrsWidget_sl.crs().authid()
+            srid = crsid.split(':')[1]
+
+            db_url = 'sqlite:///{}'.format(db_path)
+            res = RestoreSchema(db_url).update_geom_srid_sl(srid)
 
         if ok and res:
             QMessageBox.warning(self, "ok", "Installazione avvenuta con successo", QMessageBox.Ok)
