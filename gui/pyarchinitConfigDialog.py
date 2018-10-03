@@ -183,7 +183,7 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
                                          self.lineEdit_db_passwd.text())
         ok, db_url = create_database.createdb()
 
-        if db_url:
+        if db_url and ok:
             try:
                 RestoreSchema(db_url, schema_file).restore_schema()
             except:
@@ -193,9 +193,7 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
         crsid = self.selectorCrsWidget.crs().authid()
         srid = crsid.split(':')[1]
 
-        self.DB_MANAGER = Pyarchinit_db_management(db_url)
-        self.DB_MANAGER.connection()
-        res = self.DB_MANAGER.pg_update_geom_srid(db_url, 'public', srid)
+        res = RestoreSchema(db_url).update_geom_srid('public', srid)
 
         # create views
         RestoreSchema(db_url, view_file).restore_schema()

@@ -49,7 +49,7 @@ class SchemaDump(object):
 
 
 class RestoreSchema(object):
-    def __init__(self, db_url, schema_file_path):
+    def __init__(self, db_url, schema_file_path=None):
         self.db_url = db_url
         self.schema_file_path = schema_file_path
 
@@ -70,6 +70,31 @@ class RestoreSchema(object):
             raise e
         finally:
             session.close()
+
+    def update_geom_srid(self, schema, crs):
+        sql_query_string = ("SELECT f_table_name FROM {}".format('geometry_columns'))
+        engine = create_engine(self.db_url)
+        Session = sessionmaker(bind=engine)
+        session = Session()
+        conn = engine.connect()
+        transaction = conn.begin()
+        try:
+            res = conn.execute(sql_query_string)
+            fields = []
+            for r in res:
+                fields.append(r[0])
+            res.close()
+
+            for field in fields:
+                sql_query = "SELECT UpdateGeometrySRID('{}', '{}', 'geom', {})".format(schema, field, crs)
+                res = conn.execute(sql_query)
+            res.close()
+        except Exception as e:
+            transaction.rollback()
+            raise e
+        finally:
+            session.close()
+        return True
 
 
 class CreateDatabase(object):
