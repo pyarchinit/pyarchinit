@@ -114,11 +114,11 @@ class RestoreSchema(object):
                 sql_queries_1 = text("UPDATE geometry_columns SET srid = {1} WHERE f_table_name = '{0}';".format(
                     t, crs
                 ))
-                sql_queries_2 = text("UPDATE {0} SET {1} = SetSRID({1}, {2});".format(
-                    t, ty[1], crs
-                ))
+                # sql_queries_2 = text("UPDATE {0} SET {1} = SetSRID({1}, {2});".format(
+                #     t, ty[1], crs
+                # ))
                 conn.execute(sql_queries_1)
-                conn.execute(sql_queries_2)
+                # conn.execute(sql_queries_2)
         except Exception as e:
             raise e
         finally:
