@@ -173,8 +173,8 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
 
         self.save_dict()
         self.try_connection()
-        QMessageBox.warning(self, "ok", "Per rendere effettive le modifiche e' necessario riavviare Qgis. Grazie.",
-                            QMessageBox.Ok)
+        # QMessageBox.warning(self, "ok", "Per rendere effettive le modifiche e' necessario riavviare Qgis. Grazie.",
+        #                     QMessageBox.Ok)
 
     def on_pushButton_crea_database_pressed(self):
         schema_file = os.path.join(os.path.dirname(__file__), os.pardir, 'modules', 'utility', 'DBfiles',
@@ -231,7 +231,11 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
             res = RestoreSchema(db_url).update_geom_srid_sl(srid)
 
         if ok and res:
-            QMessageBox.warning(self, "ok", "Installazione avvenuta con successo", QMessageBox.Ok)
+            msg = QMessageBox.warning(self, 'INFO', 'Installazione avvenuta con successo, vuoi connetterti l nuovi DB?', QMessageBox.Ok | QMessageBox.Cancel)
+            if msg == QMessageBox.Ok:
+                self.comboBox_Database.setEditText('sqlite')
+                self.lineEdit_DBname.setText(sl_name)
+                self.on_pushButton_save_pressed()
         else:
             QMessageBox.warning(self, "opss", "database esistente", QMessageBox.Ok)
 
