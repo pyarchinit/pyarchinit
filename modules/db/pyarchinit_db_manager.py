@@ -53,8 +53,7 @@ class Pyarchinit_db_management(object):
         self.conn_str = c
 
     def connection(self):
-        test = ""
-
+        test = True
         try:
             test_conn = self.conn_str.find("sqlite")
             if test_conn == 0:
@@ -64,13 +63,15 @@ class Pyarchinit_db_management(object):
             self.metadata = MetaData(self.engine)
             self.engine.connect()
         except Exception as e:
-            test = str(e)
+            # TODO SL: send error a QgsMessageLog
+            test = False
 
         try:
             db_upd = DB_update()
             db_upd.update_table()
         except Exception as e:
-            test = str(e)
+            # TODO SL: send error a QgsMessageLog
+            test = False
         return test
 
         # insert statement
