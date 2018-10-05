@@ -29,6 +29,7 @@ packages = sys.argv[1].split(',') if len(sys.argv) >= 2 else []
 if not packages:
     packages = ['PypeR',
                 'SQLAlchemy',
+                'SQLAlchemy-Utils',
                 'graphviz',
                 'reportlab',
                 'networkx',

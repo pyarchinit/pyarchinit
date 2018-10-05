@@ -22,15 +22,18 @@
 from __future__ import absolute_import
 
 import os
+# TODO SL: shutil is already imported in os_utility, must be removed
+import shutil
 from builtins import range
 from builtins import str
 from qgis.PyQt.QtWidgets import QApplication, QDialog, QMessageBox, QFileDialog
 from qgis.PyQt.uic import loadUiType
-from qgis.core import QgsApplication, QgsSettings
+from qgis.core import QgsApplication, QgsSettings, QgsProject
 
 from modules.db.pyarchinit_conn_strings import Connection
 from modules.db.pyarchinit_db_manager import Pyarchinit_db_management
 from modules.utility.pyarchinit_OS_utility import Pyarchinit_OS_Utility
+from modules.db.db_createdump import CreateDatabase, RestoreSchema, DropDatabase
 
 MAIN_DIALOG_CLASS, _ = loadUiType(os.path.join(os.path.dirname(__file__), 'ui', 'pyarchinitConfigDialog.ui'))
 
@@ -55,7 +58,7 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
         s = QgsSettings()
         self.load_dict()
         self.charge_data()
-        self.comboBox_Database.editTextChanged.connect(self.set_db_parameter)
+        self.comboBox_Database.currentIndexChanged.connect(self.set_db_parameter)
         self.comboBox_server_rd.editTextChanged.connect(self.set_db_import_from_parameter)
         self.comboBox_server_wt.editTextChanged.connect(self.set_db_import_to_parameter)
         self.pushButton_save.clicked.connect(self.on_pushButton_save_pressed)
@@ -70,6 +73,9 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
             self.pushButtonGraphviz.setEnabled(False)
             self.pbnSaveEnvironPath.setEnabled(False)
             self.lineEditGraphviz.setEnabled(False)
+
+        self.selectorCrsWidget.setCrs(QgsProject.instance().crs())
+        self.selectorCrsWidget_sl.setCrs(QgsProject.instance().crs())
 
     def setPathGraphviz(self):
         s = QgsSettings()
@@ -167,24 +173,80 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
 
         self.save_dict()
         self.try_connection()
-        QMessageBox.warning(self, "ok", "Per rendere effettive le modifiche e' necessario riavviare Qgis. Grazie.",
-                            QMessageBox.Ok)
+        # QMessageBox.warning(self, "ok", "Per rendere effettive le modifiche e' necessario riavviare Qgis. Grazie.",
+        #                     QMessageBox.Ok)
 
     def on_pushButton_crea_database_pressed(self):
-        import time
-        try:
-            db = os.popen("createdb -U postgres -p %s -h localhost -E UTF8  -T %s -e %s" % (
-                self.lineEdit_port_db.text(), self.lineEdit_template_postgis.text(),
-                self.lineEdit_dbname.text()))
-            barra = self.pyarchinit_progressBar_db
-            barra.setMinimum(0)
-            barra.setMaximum(9)
-            for a in range(10):
-                time.sleep(1)
-                barra.setValue(a)
-            QMessageBox.warning(self, "ok", "Installazione avvenuta con successo", QMessageBox.Ok)
-        except Exception as e:
-            QMessageBox.warning(self, "opss", "qualcosa non va" + str(e), QMessageBox.Ok)
+        schema_file = os.path.join(os.path.dirname(__file__), os.pardir, 'modules', 'utility', 'DBfiles',
+                                   'pyarchinit_schema_clean.sql')
+        view_file = os.path.join(os.path.dirname(__file__), os.pardir, 'modules', 'utility', 'DBfiles',
+                                   'create_view.sql')
+        create_database = CreateDatabase(self.lineEdit_dbname.text(), self.lineEdit_db_host.text(),
+                                         self.lineEdit_port_db.text(), self.lineEdit_db_user.text(),
+                                         self.lineEdit_db_passwd.text())
+
+        ok, db_url = create_database.createdb()
+
+        if ok:
+            try:
+                RestoreSchema(db_url, schema_file).restore_schema()
+            except Exception as e:
+                DropDatabase(db_url).dropdb()
+                ok = False
+                raise e
+
+        if ok:
+            crsid = self.selectorCrsWidget.crs().authid()
+            srid = crsid.split(':')[1]
+
+            res = RestoreSchema(db_url).update_geom_srid('public', srid)
+
+            # create views
+            RestoreSchema(db_url, view_file).restore_schema()
+
+        if ok and res:
+            msg = QMessageBox.warning(self, 'INFO', 'Installazione avvenuta con successo, vuoi connetterti al nuovo DB?',
+                                      QMessageBox.Ok | QMessageBox.Cancel)
+            if msg == QMessageBox.Ok:
+                self.comboBox_Database.setCurrentText('postgres')
+                self.lineEdit_Host.setText(self.lineEdit_db_host.text())
+                self.lineEdit_DBname.setText(self.lineEdit_dbname.text())
+                self.lineEdit_Port.setText(self.lineEdit_port_db.text())
+                self.lineEdit_User.setText(self.lineEdit_db_user.text())
+                self.lineEdit_Password.setText(self.lineEdit_db_passwd.text())
+                self.on_pushButton_save_pressed()
+        else:
+            QMessageBox.warning(self, "opss", "database esistente", QMessageBox.Ok)
+
+    def on_pushButton_crea_database_sl_pressed(self):
+        db_file = os.path.join(os.path.dirname(__file__), os.pardir, 'modules', 'utility', 'DBfiles',
+                                   'pyarchinit_db.sqlite')
+
+        home_DB_path = '{}{}{}'.format(self.HOME, os.sep, 'pyarchinit_DB_folder')
+
+        sl_name = '{}.sqlite'.format(self.lineEdit_dbname_sl.text())
+        db_path = os.path.join(home_DB_path, sl_name)
+
+        ok = False
+        if not os.path.exists(db_path):
+            shutil.copyfile(db_file, db_path)
+            ok = True
+
+        if ok:
+            crsid = self.selectorCrsWidget_sl.crs().authid()
+            srid = crsid.split(':')[1]
+
+            db_url = 'sqlite:///{}'.format(db_path)
+            res = RestoreSchema(db_url).update_geom_srid_sl(srid)
+
+        if ok and res:
+            msg = QMessageBox.warning(self, 'INFO', 'Installazione avvenuta con successo, vuoi connetterti al nuovo DB?', QMessageBox.Ok | QMessageBox.Cancel)
+            if msg == QMessageBox.Ok:
+                self.comboBox_Database.setCurrentText('sqlite')
+                self.lineEdit_DBname.setText(sl_name)
+                self.on_pushButton_save_pressed()
+        else:
+            QMessageBox.warning(self, "opss", "database esistente", QMessageBox.Ok)
 
     def on_pushButton_crea_layer_pressed(self):
         import time
@@ -249,19 +311,19 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
         test = self.DB_MANAGER.connection()
         if test:
             QMessageBox.warning(self, "Messaggio", "Connessione avvenuta con successo", QMessageBox.Ok)
-        elif test.find("create_engine") != -1:
-            QMessageBox.warning(self, "Alert",
-                                "Verifica i parametri di connessione. <br> Se sono corretti RIAVVIA QGIS",
-                                QMessageBox.Ok)
+        # elif test.find("create_engine") != -1:
+        #     QMessageBox.warning(self, "Alert",
+        #                         "Verifica i parametri di connessione. <br> Se sono corretti RIAVVIA QGIS",
+        #                         QMessageBox.Ok)
         else:
             QMessageBox.warning(self, "Alert", "Errore di connessione: <br>" +
-                test + "<br> Cambia i parametri e riprova a connetterti. Se cambi server (Postgres o Sqlite) ricordati di cliccare su connetti e RIAVVIARE Qgis",
+                "Cambia i parametri e riprova a connetterti. Se cambi server (Postgres o Sqlite) ricordati di cliccare su connetti e RIAVVIARE Qgis",
                                 QMessageBox.Ok)
 
     def charge_data(self):
         # load data from config.cfg file
         # print self.PARAMS_DICT
-        self.comboBox_Database.setEditText(self.PARAMS_DICT['SERVER'])
+        self.comboBox_Database.setCurrentText(self.PARAMS_DICT['SERVER'])
         self.lineEdit_Host.setText(self.PARAMS_DICT['HOST'])
         self.lineEdit_DBname.setText(self.PARAMS_DICT['DATABASE'])
         self.lineEdit_Password.setText(self.PARAMS_DICT['PASSWORD'])
