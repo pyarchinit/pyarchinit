@@ -181,7 +181,7 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
                                    'pyarchinit_schema_clean.sql')
         view_file = os.path.join(os.path.dirname(__file__), os.pardir, 'modules', 'utility', 'DBfiles',
                                    'create_view.sql')
-        create_database = CreateDatabase(self.lineEdit_dbname.text(), self.lineEdit_Host.text(),
+        create_database = CreateDatabase(self.lineEdit_dbname.text(), self.lineEdit_db_host.text(),
                                          self.lineEdit_port_db.text(), self.lineEdit_db_user.text(),
                                          self.lineEdit_db_passwd.text())
 
@@ -205,7 +205,16 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
             RestoreSchema(db_url, view_file).restore_schema()
 
         if ok and res:
-            QMessageBox.warning(self, "ok", "Installazione avvenuta con successo", QMessageBox.Ok)
+            msg = QMessageBox.warning(self, 'INFO', 'Installazione avvenuta con successo, vuoi connetterti al nuovo DB?',
+                                      QMessageBox.Ok | QMessageBox.Cancel)
+            if msg == QMessageBox.Ok:
+                self.comboBox_Database.setEditText('postgres')
+                self.lineEdit_Host.setText(self.lineEdit_db_host.text())
+                self.lineEdit_DBname.setText(self.lineEdit_dbname.text())
+                self.lineEdit_Port.setText(self.lineEdit_port_db.text())
+                self.lineEdit_User.setText(self.lineEdit_db_user.text())
+                self.lineEdit_Password.setText(self.lineEdit_db_passwd.text())
+                self.on_pushButton_save_pressed()
         else:
             QMessageBox.warning(self, "opss", "database esistente", QMessageBox.Ok)
 
@@ -231,7 +240,7 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
             res = RestoreSchema(db_url).update_geom_srid_sl(srid)
 
         if ok and res:
-            msg = QMessageBox.warning(self, 'INFO', 'Installazione avvenuta con successo, vuoi connetterti l nuovi DB?', QMessageBox.Ok | QMessageBox.Cancel)
+            msg = QMessageBox.warning(self, 'INFO', 'Installazione avvenuta con successo, vuoi connetterti al nuovo DB?', QMessageBox.Ok | QMessageBox.Cancel)
             if msg == QMessageBox.Ok:
                 self.comboBox_Database.setEditText('sqlite')
                 self.lineEdit_DBname.setText(sl_name)
