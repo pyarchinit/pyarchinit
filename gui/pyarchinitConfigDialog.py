@@ -208,7 +208,7 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
             msg = QMessageBox.warning(self, 'INFO', 'Installazione avvenuta con successo, vuoi connetterti al nuovo DB?',
                                       QMessageBox.Ok | QMessageBox.Cancel)
             if msg == QMessageBox.Ok:
-                self.comboBox_Database.setEditText('postgres')
+                self.comboBox_Database.setCurrentText('postgres')
                 self.lineEdit_Host.setText(self.lineEdit_db_host.text())
                 self.lineEdit_DBname.setText(self.lineEdit_dbname.text())
                 self.lineEdit_Port.setText(self.lineEdit_port_db.text())
@@ -242,7 +242,7 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
         if ok and res:
             msg = QMessageBox.warning(self, 'INFO', 'Installazione avvenuta con successo, vuoi connetterti al nuovo DB?', QMessageBox.Ok | QMessageBox.Cancel)
             if msg == QMessageBox.Ok:
-                self.comboBox_Database.setEditText('sqlite')
+                self.comboBox_Database.setCurrentText('sqlite')
                 self.lineEdit_DBname.setText(sl_name)
                 self.on_pushButton_save_pressed()
         else:
@@ -323,7 +323,7 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
     def charge_data(self):
         # load data from config.cfg file
         # print self.PARAMS_DICT
-        self.comboBox_Database.setEditText(self.PARAMS_DICT['SERVER'])
+        self.comboBox_Database.setCurrentText(self.PARAMS_DICT['SERVER'])
         self.lineEdit_Host.setText(self.PARAMS_DICT['HOST'])
         self.lineEdit_DBname.setText(self.PARAMS_DICT['DATABASE'])
         self.lineEdit_Password.setText(self.PARAMS_DICT['PASSWORD'])
