@@ -61,6 +61,8 @@ class Connection(object):
             dbname_abs = sqlite_DB_path + os.sep + conn_str_dict["db_name"]
 
             conn_str = "%s:///%s" % (conn_str_dict["server"], dbname_abs)
+        else:
+            conn_str = None
 
         return conn_str
 
