@@ -1,4 +1,3 @@
-#! /usr/bin/env python
 # -*- coding: utf-8 -*-
 """
 /***************************************************************************
@@ -27,12 +26,11 @@ from ..utility.settings import Settings
 
 
 class Connection(object):
+    HOME = os.environ['PYARCHINIT_HOME']
+
     def conn_str(self):
-
-        home = os.environ['PYARCHINIT_HOME']
-
         cfg_rel_path = os.path.join(os.sep, 'pyarchinit_DB_folder', 'config.cfg')
-        file_path = '{}{}'.format(home, cfg_rel_path)
+        file_path = '{}{}'.format(self.HOME, cfg_rel_path)
         conf = open(file_path, "r")
 
         data = conf.read()
@@ -56,24 +54,19 @@ class Connection(object):
                 conn_str = "%s://%s:%s@%s:%d/%s" % (
                 "postgresql", conn_str_dict["user"], conn_str_dict["password"], conn_str_dict["host"],
                 conn_str_dict["port"], conn_str_dict["db_name"])
-
-            return conn_str
-
         elif conn_str_dict["server"] == 'sqlite':
-            sqlite_DB_path = '{}{}{}'.format(home, os.sep,
-                                           "pyarchinit_DB_folder")  # "C:\\Users\\Windows\\Dropbox\\pyarchinit_san_marco\\" fare modifiche anche in pyarchinit_pyqgis
+            sqlite_DB_path = '{}{}{}'.format(self.HOME, os.sep,
+                                           "pyarchinit_DB_folder")
 
             dbname_abs = sqlite_DB_path + os.sep + conn_str_dict["db_name"]
 
             conn_str = "%s:///%s" % (conn_str_dict["server"], dbname_abs)
 
-            return conn_str
+        return conn_str
 
     def thumb_path(self):
-        home = os.environ['PYARCHINIT_HOME']
-
         cfg_rel_path = os.path.join(os.sep, 'pyarchinit_DB_folder', 'config.cfg')
-        file_path = '{}{}'.format(home, cfg_rel_path)
+        file_path = '{}{}'.format(self.HOME, cfg_rel_path)
         conf = open(file_path, "r")
 
         data = conf.read()
