@@ -196,7 +196,7 @@
           <item row="0" column="1">
            <widget class="QComboBox" name="comboBox_Database">
             <property name="enabled">
-             <bool>false</bool>
+             <bool>true</bool>
             </property>
             <property name="mouseTracking">
              <bool>false</bool>
@@ -208,7 +208,7 @@
              <bool>false</bool>
             </property>
             <property name="editable">
-             <bool>true</bool>
+             <bool>false</bool>
             </property>
             <property name="duplicatesEnabled">
              <bool>false</bool>
