@@ -176,9 +176,9 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
         #                     QMessageBox.Ok)
 
     def on_pushButton_crea_database_pressed(self):
-        schema_file = os.path.join(os.path.dirname(__file__), os.pardir, 'modules', 'utility', 'dbfiles',
+        schema_file = os.path.join(os.path.dirname(__file__), os.pardir, 'resources', 'dbfiles',
                                    'pyarchinit_schema_clean.sql')
-        view_file = os.path.join(os.path.dirname(__file__), os.pardir, 'modules', 'utility', 'dbfiles',
+        view_file = os.path.join(os.path.dirname(__file__), os.pardir, 'resources', 'dbfiles',
                                    'create_view.sql')
         create_database = CreateDatabase(self.lineEdit_dbname.text(), self.lineEdit_db_host.text(),
                                          self.lineEdit_port_db.text(), self.lineEdit_db_user.text(),
@@ -218,7 +218,7 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
             QMessageBox.warning(self, "opss", "database esistente", QMessageBox.Ok)
 
     def on_pushButton_crea_database_sl_pressed(self):
-        db_file = os.path.join(os.path.dirname(__file__), os.pardir, 'modules', 'utility', 'dbfiles',
+        db_file = os.path.join(os.path.dirname(__file__), os.pardir, 'resources', 'dbfiles',
                                    'pyarchinit_db.sqlite')
 
         home_DB_path = '{}{}{}'.format(self.HOME, os.sep, 'pyarchinit_DB_folder')
