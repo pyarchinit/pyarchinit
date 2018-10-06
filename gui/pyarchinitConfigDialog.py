@@ -176,9 +176,9 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
         #                     QMessageBox.Ok)
 
     def on_pushButton_crea_database_pressed(self):
-        schema_file = os.path.join(os.path.dirname(__file__), os.pardir, 'modules', 'utility', 'DBfiles',
+        schema_file = os.path.join(os.path.dirname(__file__), os.pardir, 'modules', 'utility', 'dbfiles',
                                    'pyarchinit_schema_clean.sql')
-        view_file = os.path.join(os.path.dirname(__file__), os.pardir, 'modules', 'utility', 'DBfiles',
+        view_file = os.path.join(os.path.dirname(__file__), os.pardir, 'modules', 'utility', 'dbfiles',
                                    'create_view.sql')
         create_database = CreateDatabase(self.lineEdit_dbname.text(), self.lineEdit_db_host.text(),
                                          self.lineEdit_port_db.text(), self.lineEdit_db_user.text(),
@@ -218,7 +218,7 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
             QMessageBox.warning(self, "opss", "database esistente", QMessageBox.Ok)
 
     def on_pushButton_crea_database_sl_pressed(self):
-        db_file = os.path.join(os.path.dirname(__file__), os.pardir, 'modules', 'utility', 'DBfiles',
+        db_file = os.path.join(os.path.dirname(__file__), os.pardir, 'modules', 'utility', 'dbfiles',
                                    'pyarchinit_db.sqlite')
 
         home_DB_path = '{}{}{}'.format(self.HOME, os.sep, 'pyarchinit_DB_folder')
@@ -252,7 +252,7 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
         try:
             qgis_dir = QgsApplication.qgisSettingsDirPath()
             module_path_rel = os.path.join(os.sep, 'python', 'plugins', 'pyarchinit', 'modules', 'utility',
-                                           'DBfiles', 'pyarchinit_postgis15_empty.dump')
+                                           'dbfiles', 'pyarchinit_postgis15_empty.dump')
             module_path = '{}{}'.format(qgis_dir, module_path_rel)
             postgis15 = os.popen(
                 "pg_restore --host localhost --port %s --username postgres --dbname %s --role postgres --no-password  --verbose %s" % (
@@ -272,7 +272,7 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
         try:
             qgis_dir = QgsApplication.qgisSettingsDirPath()
             module_path_rel = os.path.join(os.sep, 'python', 'plugins', 'pyarchinit', 'modules', 'utility',
-                                           'DBfiles', 'pyarchinit_postgis20_empty.dump')
+                                           'dbfiles', 'pyarchinit_postgis20_empty.dump')
             module_path = '{}{}'.format(qgis_dir, module_path_rel)
             postgis15 = os.popen(
                 "pg_restore --host localhost --port %s --username postgres --dbname %s --role postgres --no-password  --verbose %s" % (
