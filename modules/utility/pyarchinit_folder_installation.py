@@ -31,7 +31,7 @@ class pyarchinit_Folder_installation(object):
     HOME = expanduser("~")
     HOME += os.sep + 'pyarchinit'
     os.environ['PYARCHINIT_HOME'] = HOME
-    MODULE_PATH = os.path.dirname(__file__)
+    RESOURCES_PATH = os.path.join(os.path.dirname(__file__), os.pardir, 'resources')
 
     OS_UTILITY = Pyarchinit_OS_Utility()
 
@@ -42,11 +42,11 @@ class pyarchinit_Folder_installation(object):
         self.installConfigFile(home_DB_path)
 
         db_copy_from_path_rel = os.path.join(os.sep, 'dbfiles', 'pyarchinit_db.sqlite')
-        db_copy_from_path = '{}{}'.format(self.MODULE_PATH, db_copy_from_path_rel)
+        db_copy_from_path = '{}{}'.format(self.RESOURCES_PATH, db_copy_from_path_rel)
         db_copy_to_path = '{}{}{}'.format(home_DB_path, os.sep, 'pyarchinit_db.sqlite')
 
         logo_copy_from_path_rel = os.path.join(os.sep, 'dbfiles', 'logo.jpg')
-        logo_copy_from_path = '{}{}'.format(self.MODULE_PATH, logo_copy_from_path_rel)
+        logo_copy_from_path = '{}{}'.format(self.RESOURCES_PATH, logo_copy_from_path_rel)
         logo_copy_to_path = '{}{}{}'.format(home_DB_path, os.sep, 'logo.jpg')
 
         self.OS_UTILITY.copy_file(db_copy_from_path, db_copy_to_path)
@@ -78,6 +78,6 @@ class pyarchinit_Folder_installation(object):
 
     def installConfigFile(self, path):
         config_copy_from_path_rel = os.path.join(os.sep, 'dbfiles', 'config.cfg')
-        config_copy_from_path = '{}{}'.format(self.MODULE_PATH, config_copy_from_path_rel)
+        config_copy_from_path = '{}{}'.format(self.RESOURCES_PATH, config_copy_from_path_rel)
         config_copy_to_path = '{}{}{}'.format(path, os.sep, 'config.cfg')
         self.OS_UTILITY.copy_file(config_copy_from_path, config_copy_to_path)
