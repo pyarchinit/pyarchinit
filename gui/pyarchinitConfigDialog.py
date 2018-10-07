@@ -215,7 +215,7 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
                 self.lineEdit_Password.setText(self.lineEdit_db_passwd.text())
                 self.on_pushButton_save_pressed()
         else:
-            QMessageBox.warning(self, "opss", "database esistente", QMessageBox.Ok)
+            QMessageBox.warning(self, "INFO", "Database esistente", QMessageBox.Ok)
 
     def on_pushButton_crea_database_sl_pressed(self):
         db_file = os.path.join(os.path.dirname(__file__), os.pardir, 'resources', 'dbfiles',
