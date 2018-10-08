@@ -30,6 +30,7 @@ from sqlalchemy import and_, or_, Table, select, func, asc
 from sqlalchemy.engine import create_engine
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.sql.schema import MetaData
+from qgis.core import QgsMessageLog
 
 from modules.db.pyarchinit_db_mapper import US, UT, SITE, PERIODIZZAZIONE, \
     STRUTTURA, SCHEDAIND, INVENTARIO_MATERIALI, DETSESSO, DOCUMENTAZIONE, DETETA, MEDIA, \
@@ -63,14 +64,22 @@ class Pyarchinit_db_management(object):
             self.metadata = MetaData(self.engine)
             self.engine.connect()
         except Exception as e:
-            # TODO SL: send error a QgsMessageLog
+            QgsMessageLog.logMessage(
+                "Something gone wrong on db connection: " + str(e))
+            iface.messageBar().pushMessage("Error",
+                                            "Something gone wrong on db connection, view log message",
+                                            level=Qgis.Warning)
             test = False
 
         try:
             db_upd = DB_update()
             db_upd.update_table()
         except Exception as e:
-            # TODO SL: send error a QgsMessageLog
+            QgsMessageLog.logMessage(
+                "Something gone wrong on update table: " + str(e))
+            iface.messageBar().pushMessage("Error",
+                                            "Something gone wrong on update table, view log message",
+                                            level=Qgis.Warning)
             test = False
         return test
 
@@ -237,7 +246,8 @@ class Pyarchinit_db_management(object):
                     arg[5],
                     arg[6],
                     arg[7],
-                    arg[8])
+                    arg[8],
+                    arg[9])
 
         return sito
 
