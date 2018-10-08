@@ -113,6 +113,10 @@ class pyarchinit_Site(QDialog, MAIN_DIALOG_CLASS):
     def openSiteDir(self):
         s = QgsSettings()
         dir = s.value('pyArchInit/sitiPath', None, type=str)
+        site = self.comboBox_sito.currentText()
+        site_dir = os.path.join(dir, site)
+        if os.path.exists(site_dir):
+            dir = site_dir
         QDesktopServices.openUrl(QUrl.fromLocalFile(dir))
 
     def enable_button(self, n):
