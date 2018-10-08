@@ -26,8 +26,11 @@ from datetime import date
 import sys
 from builtins import range
 from builtins import str
+from qgis.PyQt.QtGui import QDesktopServices
+from qgis.PyQt.QtCore import QUrl
 from qgis.PyQt.QtWidgets import QDialog, QMessageBox
 from qgis.PyQt.uic import loadUiType
+from qgis.core import QgsSettings
 
 from ..modules.db.pyarchinit_conn_strings import Connection
 from ..modules.db.pyarchinit_db_manager import Pyarchinit_db_management
@@ -104,6 +107,13 @@ class pyarchinit_Site(QDialog, MAIN_DIALOG_CLASS):
             self.on_pushButton_connect_pressed()
         except Exception as e:
             QMessageBox.warning(self, "Sistema di connessione", str(e), QMessageBox.Ok)
+
+        self.pbnOpenSiteDirectory.clicked.connect(self.openSiteDir)
+
+    def openSiteDir(self):
+        s = QgsSettings()
+        dir = s.value('pyArchInit/sitiPath', None, type=str)
+        QDesktopServices.openUrl(QUrl.fromLocalFile(dir))
 
     def enable_button(self, n):
         """This method Unable or Enable the GUI buttons on browse modality"""
