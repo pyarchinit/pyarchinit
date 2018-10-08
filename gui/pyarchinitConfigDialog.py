@@ -245,7 +245,7 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
                 self.lineEdit_DBname.setText(sl_name)
                 self.on_pushButton_save_pressed()
         else:
-            QMessageBox.warning(self, "opss", "database esistente", QMessageBox.Ok)
+            QMessageBox.warning(self, "INFO", "Database esistente", QMessageBox.Ok)
 
     def on_pushButton_crea_layer_pressed(self):
         import time
