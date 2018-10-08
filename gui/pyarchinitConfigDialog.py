@@ -62,7 +62,6 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
         self.comboBox_server_wt.editTextChanged.connect(self.set_db_import_to_parameter)
         self.pushButton_save.clicked.connect(self.on_pushButton_save_pressed)
         self.pushButtonGraphviz.clicked.connect(self.setPathGraphviz)
-        self.pbn_browse_siti_path.clicked.connect(self.setPathToSites)
         self.pbnSaveEnvironPath.clicked.connect(self.setEnvironPath)
 
         self.graphviz_bin = s.value('pyArchInit/graphvizBinPath', None, type=str)
@@ -73,9 +72,6 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
             self.pushButtonGraphviz.setEnabled(False)
             self.pbnSaveEnvironPath.setEnabled(False)
             self.lineEditGraphviz.setEnabled(False)
-
-        self.siti_path = s.value('pyArchInit/sitiPath', None, type=str)
-        self.lineEdit_siti_path.setText(self.siti_path)
 
         self.selectorCrsWidget.setCrs(QgsProject.instance().crs())
         self.selectorCrsWidget_sl.setCrs(QgsProject.instance().crs())
@@ -96,20 +92,6 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
     def setEnvironPath(self):
         os.environ['PATH'] += os.pathsep + os.path.normpath(self.graphviz_bin)
         QMessageBox.warning(self, "Set Environmental Variable", "The path has been set successful", QMessageBox.Ok)
-
-    def setPathToSites(self):
-        s = QgsSettings()
-        self.siti_path = QFileDialog.getExistingDirectory(
-            self,
-            "Set path directory",
-            self.HOME,
-            QFileDialog.ShowDirsOnly
-        )
-
-        if self.siti_path:
-            self.lineEdit_siti_path.setText(self.siti_path)
-            s.setValue('pyArchInit/sitiPath', self.siti_path)
-
 
     def set_db_parameter(self):
         if self.comboBox_Database.currentText() == 'postgres':
