@@ -62,7 +62,7 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
         self.comboBox_server_wt.editTextChanged.connect(self.set_db_import_to_parameter)
         self.pushButton_save.clicked.connect(self.on_pushButton_save_pressed)
         self.pushButtonGraphviz.clicked.connect(self.setPathGraphviz)
-        self.pbn_browse_siti_path.clicked.connect(self.setPathToSiti)
+        self.pbn_browse_siti_path.clicked.connect(self.setPathToSites)
         self.pbnSaveEnvironPath.clicked.connect(self.setEnvironPath)
 
         self.graphviz_bin = s.value('pyArchInit/graphvizBinPath', None, type=str)
@@ -97,7 +97,7 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
         os.environ['PATH'] += os.pathsep + os.path.normpath(self.graphviz_bin)
         QMessageBox.warning(self, "Set Environmental Variable", "The path has been set successful", QMessageBox.Ok)
 
-    def setPathToSiti(self):
+    def setPathToSites(self):
         s = QgsSettings()
         self.siti_path = QFileDialog.getExistingDirectory(
             self,
