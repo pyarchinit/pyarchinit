@@ -27,8 +27,8 @@ class SITE(object):
         self.descrizione = descrizione  # 5
         self.provincia = provincia  # 6
         self.definizione_sito = definizione_sito  # 7
-        self.sito_path = sito_path  # 7
-        self.find_check = find_check  # 8
+        self.sito_path = sito_path  # 8
+        self.find_check = find_check  # 9
 
     # def __repr__"
     def __repr__(self):

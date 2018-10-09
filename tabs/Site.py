@@ -72,7 +72,8 @@ class pyarchinit_Site(QDialog, MAIN_DIALOG_CLASS):
         "Descrizione": "descrizione",
         "Comune": "comune",
         "Provincia": "provincia",
-        "Definizione sito": "definizione_sito"
+        "Definizione sito": "definizione_sito",
+        "Directory Sito": "sito_path"
     }
     SORT_ITEMS = [
         ID_TABLE,
@@ -82,7 +83,8 @@ class pyarchinit_Site(QDialog, MAIN_DIALOG_CLASS):
         "Regione",
         "Comune",
         "Provincia",
-        "Definizione sito"
+        "Definizione sito",
+        "Directory Sito"
     ]
 
     TABLE_FIELDS = [
@@ -92,7 +94,8 @@ class pyarchinit_Site(QDialog, MAIN_DIALOG_CLASS):
         "comune",
         "descrizione",
         "provincia",
-        "definizione_sito"
+        "definizione_sito",
+        "sito_path"
     ]
 
     DB_SERVER = "not defined"  ####nuovo sistema sort
