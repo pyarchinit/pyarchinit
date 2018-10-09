@@ -27,6 +27,7 @@ class Site_table:
                        Column('descrizione', Text),
                        Column('provincia', Text),
                        Column('definizione_sito', Text),
+                       Column('sito_path', Text),
                        Column('find_check', Integer),
 
                        # explicit/composite unique constraint.  'name' is optional.
