@@ -26,8 +26,11 @@ from datetime import date
 import sys
 from builtins import range
 from builtins import str
-from qgis.PyQt.QtWidgets import QDialog, QMessageBox
+from qgis.PyQt.QtGui import QDesktopServices
+from qgis.PyQt.QtCore import QUrl
+from qgis.PyQt.QtWidgets import QDialog, QMessageBox, QFileDialog
 from qgis.PyQt.uic import loadUiType
+from qgis.core import QgsSettings
 
 from ..modules.db.pyarchinit_conn_strings import Connection
 from ..modules.db.pyarchinit_db_manager import Pyarchinit_db_management
@@ -69,7 +72,8 @@ class pyarchinit_Site(QDialog, MAIN_DIALOG_CLASS):
         "Descrizione": "descrizione",
         "Comune": "comune",
         "Provincia": "provincia",
-        "Definizione sito": "definizione_sito"
+        "Definizione sito": "definizione_sito",
+        "Directory Sito": "sito_path"
     }
     SORT_ITEMS = [
         ID_TABLE,
@@ -79,7 +83,8 @@ class pyarchinit_Site(QDialog, MAIN_DIALOG_CLASS):
         "Regione",
         "Comune",
         "Provincia",
-        "Definizione sito"
+        "Definizione sito",
+        "Directory Sito"
     ]
 
     TABLE_FIELDS = [
@@ -89,7 +94,8 @@ class pyarchinit_Site(QDialog, MAIN_DIALOG_CLASS):
         "comune",
         "descrizione",
         "provincia",
-        "definizione_sito"
+        "definizione_sito",
+        "sito_path"
     ]
 
     DB_SERVER = "not defined"  ####nuovo sistema sort
@@ -100,10 +106,35 @@ class pyarchinit_Site(QDialog, MAIN_DIALOG_CLASS):
         self.pyQGIS = Pyarchinit_pyqgis(iface)
         self.setupUi(self)
         self.currentLayerId = None
+        self.HOME = os.environ['PYARCHINIT_HOME']
         try:
             self.on_pushButton_connect_pressed()
         except Exception as e:
             QMessageBox.warning(self, "Sistema di connessione", str(e), QMessageBox.Ok)
+
+        self.pbnOpenSiteDirectory.clicked.connect(self.openSiteDir)
+        self.pbn_browse_folder.clicked.connect(self.setPathToSites)
+
+    def setPathToSites(self):
+        s = QgsSettings()
+        self.siti_path = QFileDialog.getExistingDirectory(
+            self,
+            "Set path directory",
+            self.HOME,
+            QFileDialog.ShowDirsOnly
+        )
+
+        if self.siti_path:
+            self.lineEdit_sito_path.setText(self.siti_path)
+
+    def openSiteDir(self):
+        s = QgsSettings()
+        dir = self.lineEdit_sito_path.text()
+        if os.path.exists(dir):
+            QDesktopServices.openUrl(QUrl.fromLocalFile(dir))
+        else:
+            QMessageBox.warning(self, "INFO", "Directory not found",
+                                QMessageBox.Ok)
 
     def enable_button(self, n):
         """This method Unable or Enable the GUI buttons on browse modality"""
@@ -233,7 +264,7 @@ class pyarchinit_Site(QDialog, MAIN_DIALOG_CLASS):
         # lista definizione_sito
         search_dict = {
             'nome_tabella': "'" + 'site_table' + "'",
-            'tipologia_sigla': "'" + 'definizione sito' + "'"
+            'tipologia_sigla': "'" + 'definizione_sito' + "'"
         }
 
         d_sito = self.DB_MANAGER.query_bool(search_dict, 'PYARCHINIT_THESAURUS_SIGLE')
@@ -372,7 +403,9 @@ class pyarchinit_Site(QDialog, MAIN_DIALOG_CLASS):
                 str(self.textEdit_descrizione_site.toPlainText()),  # 5 - descrizione
                 str(self.comboBox_provincia.currentText()),  # 6 - comune
                 str(self.comboBox_definizione_sito.currentText()),  # 7 - definizione sito
-                0)  # 8 - find check
+                str(self.lineEdit_sito_path.text()), # 8 - path
+                0  # 9 - find check
+            )
 
             try:
                 self.DB_MANAGER.insert_data_session(data)
@@ -545,8 +578,7 @@ class pyarchinit_Site(QDialog, MAIN_DIALOG_CLASS):
                 'comune': "'" + str(self.comboBox_comune.currentText()) + "'",  # 4 - Comune
                 'descrizione': str(self.textEdit_descrizione_site.toPlainText()),  # 5 - Descrizione
                 'provincia': "'" + str(self.comboBox_provincia.currentText()) + "'",  # 6 - Provincia
-                'definizione_sito': "'" + str(self.comboBox_definizione_sito.currentText()) + "'"
-                # 67- definizione_sito
+                'definizione_sito': "'" + str(self.comboBox_definizione_sito.currentText()) + "'" # 7- definizione_sito
             }
 
             u = Utility()
@@ -727,7 +759,7 @@ class pyarchinit_Site(QDialog, MAIN_DIALOG_CLASS):
         self.textEdit_descrizione_site.clear()  # 5 - Descrizione
         self.comboBox_provincia.setEditText("")  # 6 - Provincia
         self.comboBox_definizione_sito.setEditText("")  # 7 - definizione_sito
-
+        self.lineEdit_sito_path.setText("") # 8 - path
     def fill_fields(self, n=0):
         self.rec_num = n
 
@@ -739,6 +771,7 @@ class pyarchinit_Site(QDialog, MAIN_DIALOG_CLASS):
         str(self.comboBox_provincia.setEditText(self.DATA_LIST[self.rec_num].provincia))  # 6 - Provincia
         str(self.comboBox_definizione_sito.setEditText(
             self.DATA_LIST[self.rec_num].definizione_sito))  # 7 - definizione_sito
+        str(self.lineEdit_sito_path.setText(self.DATA_LIST[self.rec_num].sito_path)) # 8 - path
 
     def set_rec_counter(self, t, c):
         self.rec_tot = t
@@ -755,7 +788,9 @@ class pyarchinit_Site(QDialog, MAIN_DIALOG_CLASS):
             str(self.comboBox_comune.currentText()),  # 4 - Comune
             str(self.textEdit_descrizione_site.toPlainText()),  # 5 - Descrizione
             str(self.comboBox_provincia.currentText()),  # 6 - Provincia
-            str(self.comboBox_definizione_sito.currentText())]  # 7 - Definizione sito
+            str(self.comboBox_definizione_sito.currentText()), # 7 - Definizione sito
+            str(self.lineEdit_sito_path.text()) # 8 - path
+        ]
 
     def set_LIST_REC_CORR(self):
         self.DATA_LIST_REC_CORR = []
