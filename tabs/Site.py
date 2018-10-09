@@ -403,8 +403,8 @@ class pyarchinit_Site(QDialog, MAIN_DIALOG_CLASS):
                 str(self.textEdit_descrizione_site.toPlainText()),  # 5 - descrizione
                 str(self.comboBox_provincia.currentText()),  # 6 - comune
                 str(self.comboBox_definizione_sito.currentText()),  # 7 - definizione sito
-                0,  # 8 - find check
-                str(self.lineEdit_sito_path.text())  # 8 - path
+                str(self.lineEdit_sito_path.text()), # 8 - path
+                0  # 9 - find check
             )
 
             try:
