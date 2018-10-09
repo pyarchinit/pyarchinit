@@ -16,6 +16,7 @@ class SITE(object):
                  descrizione,
                  provincia,
                  definizione_sito,
+                 sito_path,
                  find_check
                  ):
         self.id_sito = id_sito  # 0
@@ -39,7 +40,7 @@ class SITE(object):
             self.comune,
             self.descrizione,
             self.provincia,
-            self.sito_path,
             self.definizione_sito,
+            self.sito_path,
             self.find_check
         )

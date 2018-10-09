@@ -30,7 +30,8 @@ from sqlalchemy import and_, or_, Table, select, func, asc
 from sqlalchemy.engine import create_engine
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.sql.schema import MetaData
-from qgis.core import QgsMessageLog
+from qgis.core import QgsMessageLog, Qgis
+from qgis.utils import iface
 
 from modules.db.pyarchinit_db_mapper import US, UT, SITE, PERIODIZZAZIONE, \
     STRUTTURA, SCHEDAIND, INVENTARIO_MATERIALI, DETSESSO, DOCUMENTAZIONE, DETETA, MEDIA, \

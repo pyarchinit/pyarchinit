@@ -31,6 +31,7 @@ from qgis.core import QgsApplication, QgsSettings, QgsProject
 
 from modules.db.pyarchinit_conn_strings import Connection
 from modules.db.pyarchinit_db_manager import Pyarchinit_db_management
+from modules.db.pyarchinit_db_update import DB_update
 from modules.utility.pyarchinit_OS_utility import Pyarchinit_OS_Utility
 from modules.db.db_createdump import CreateDatabase, RestoreSchema, DropDatabase
 
@@ -151,6 +152,7 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
         conf = open(path_rel, "r")
         data = conf.read()
         self.PARAMS_DICT = eval(data)
+        conf.close()
 
     def save_dict(self):
         # save data into config.cfg file
@@ -306,7 +308,9 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
 
         self.DB_MANAGER = Pyarchinit_db_management(
             conn_str)  # sqlite:///\Users\Windows\pyarchinit_DB_folder\pyarchinit_db.sqlite
+
         test = self.DB_MANAGER.connection()
+
         if test:
             QMessageBox.warning(self, "Messaggio", "Connessione avvenuta con successo", QMessageBox.Ok)
         # elif test.find("create_engine") != -1:
