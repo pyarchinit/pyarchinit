@@ -21,8 +21,6 @@
 from __future__ import absolute_import
 
 import os
-# TODO SL: shutil is already imported in os_utility, must be removed
-import shutil
 from builtins import range
 from builtins import str
 from qgis.PyQt.QtWidgets import QApplication, QDialog, QMessageBox, QFileDialog
@@ -229,7 +227,7 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
 
         ok = False
         if not os.path.exists(db_path):
-            shutil.copyfile(db_file, db_path)
+            Pyarchinit_OS_Utility().copy_file(db_file, db_path)
             ok = True
 
         if ok:
