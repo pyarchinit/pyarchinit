@@ -31,7 +31,7 @@ class pyarchinit_Folder_installation(object):
     HOME = expanduser("~")
     HOME += os.sep + 'pyarchinit'
     os.environ['PYARCHINIT_HOME'] = HOME
-    RESOURCES_PATH = os.path.join(os.path.dirname(__file__), os.pardir, 'resources')
+    RESOURCES_PATH = os.path.join(os.path.dirname(__file__), os.pardir, os.pardir, 'resources')
 
     OS_UTILITY = Pyarchinit_OS_Utility()
 
