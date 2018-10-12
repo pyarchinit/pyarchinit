@@ -64,7 +64,7 @@ class Pyarchinit_db_management(object):
                 self.engine = create_engine(self.conn_str, max_overflow=-1, echo=eval(self.boolean))
             self.metadata = MetaData(self.engine)
             self.engine.connect()
-        except Exception as e:
+        except:
             QgsMessageLog.logMessage(
                 "Something gone wrong on db connection: " + str(e))
             iface.messageBar().pushMessage("Error",
@@ -75,7 +75,7 @@ class Pyarchinit_db_management(object):
         try:
             db_upd = DB_update()
             db_upd.update_table()
-        except Exception as e:
+        except:
             QgsMessageLog.logMessage(
                 "Something gone wrong on update table: " + str(e))
             iface.messageBar().pushMessage("Error",
