@@ -761,13 +761,14 @@ class Pyarchinit_db_management(object):
         Session = sessionmaker(bind=self.engine, autoflush=True, autocommit=True)
         session = Session()
         query_str = "session.query(" + table + ").filter(and_(" + field_value_string + ")).all()"
+        res = eval(query_str)
 
         '''
         t = open("/test_import.txt", "w")
         t.write(str(query_str))
         t.close()
         '''
-        return eval(query_str)
+        return res
 
     def query_operator(self, params, table):
         u = Utility()
