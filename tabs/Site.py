@@ -264,7 +264,7 @@ class pyarchinit_Site(QDialog, MAIN_DIALOG_CLASS):
         # lista definizione_sito
         search_dict = {
             'nome_tabella': "'" + 'site_table' + "'",
-            'tipologia_sigla': "'" + 'definizione_sito' + "'"
+            'tipologia_sigla': "'" + 'definizione sito' + "'"
         }
 
         d_sito = self.DB_MANAGER.query_bool(search_dict, 'PYARCHINIT_THESAURUS_SIGLE')

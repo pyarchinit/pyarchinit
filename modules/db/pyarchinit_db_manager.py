@@ -736,14 +736,14 @@ class Pyarchinit_db_management(object):
 
         for sing_couple_n in range(len(list_keys_values)):
             if sing_couple_n == 0:
-                if type(list_keys_values[sing_couple_n][1]) != '<str>':
+                if type(list_keys_values[sing_couple_n][1]) != "<type 'str'>":
                     field_value_string = table + ".%s == %s" % (
                     list_keys_values[sing_couple_n][0], list_keys_values[sing_couple_n][1])
                 else:
                     field_value_string = table + ".%s == u%s" % (
                     list_keys_values[sing_couple_n][0], list_keys_values[sing_couple_n][1])
             else:
-                if type(list_keys_values[sing_couple_n][1]) == '<str>':
+                if type(list_keys_values[sing_couple_n][1]) == "<type 'str'>":
                     field_value_string = field_value_string + "," + table + ".%s == %s" % (
                     list_keys_values[sing_couple_n][0], list_keys_values[sing_couple_n][1])
                 else:
