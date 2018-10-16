@@ -100,8 +100,16 @@ if install_libraries:
             subprocess.call([cmd,'{}'.format(os.path.join(os.path.dirname(__file__), 'scripts', 'modules_installer.py')),
                              ','.join(install_libraries)], shell=True if Pyarchinit_OS_Utility.isWindows() else False)
         except Exception as e:
-            error = traceback.format_exc()
-            QgsMessageLog.logMessage(error, tag="PyArchInit", level=Qgis.Critical)
+            if Pyarchinit_OS_Utility.isMac():
+                python_version = sys.version[:3]
+                library_path = '/Library/Frameworks/Python.framework/Versions/{}/bin'.format(python_version)
+                cmd = '{}/python3'.format(library_path)
+                subprocess.call(
+                    [cmd, '{}'.format(os.path.join(os.path.dirname(__file__), 'scripts', 'modules_installer.py')),
+                     ','.join(install_libraries)])
+            else:
+                error = traceback.format_exc()
+                QgsMessageLog.logMessage(error, tag="PyArchInit", level=Qgis.Critical)
     else:
         pass
 
