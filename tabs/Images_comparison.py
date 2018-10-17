@@ -27,7 +27,7 @@ from builtins import range
 from qgis.PyQt.QtWidgets import QDialog, QMessageBox, QFileDialog
 from qgis.PyQt.uic import loadUiType
 
-import PIL as Image
+from PIL import Image
 import numpy as np
 
 from ..modules.utility.pyarchinit_media_utility import *
@@ -37,7 +37,8 @@ from ..modules.db.pyarchinit_utility import Utility
 
 filepath = os.path.dirname(__file__)
 
-MAIN_DIALOG_CLASS, _ = loadUiType(os.path.join(os.path.dirname(__file__), os.pardir, 'gui', 'ui', 'Images_comparison.ui'))
+MAIN_DIALOG_CLASS, _ = loadUiType(
+    os.path.join(os.path.dirname(__file__), os.pardir, 'gui', 'ui', 'Images_comparison.ui'))
 
 
 class Comparision(QDialog, MAIN_DIALOG_CLASS):
@@ -89,15 +90,14 @@ class Comparision(QDialog, MAIN_DIALOG_CLASS):
 
     def on_pushButton_chose_dir_pressed(self):
         path = QFileDialog.getExistingDirectory(self, "Scegli una directory", "Seleziona una directory:",
-                                                           QFileDialog.ShowDirsOnly)
+                                                QFileDialog.ShowDirsOnly)
         if path:
             self.PATH = path
 
     def on_pushButton_chose_file_pressed(self):
-        file = QFileDialog.getOpenFileName(self, 'Open file', '', 'Images (*.png *.xpm *.jpg)')
+        file = QFileDialog.getOpenFileName(self, 'Open file', os.environ['PYARCHINIT_HOME'], '(*.png *.xpm *.jpg)')
         if file:
-            self.FILE = file
-
+            self.FILE = str(file[0])
 
     def on_pushButton_run_pressed(self):
         file_list = self.generate_files_couples()
@@ -107,7 +107,7 @@ class Comparision(QDialog, MAIN_DIALOG_CLASS):
         for i in file_list:
             calculate_res = self.calculate([i[0], i[1]])
 
-            if calculate_res != None:
+            if calculate_res is not None:
                 tupla_di_ritorno = calculate_res
                 lista.append(tupla_di_ritorno)
                 lunghezza -= 1
@@ -154,12 +154,12 @@ class Comparision(QDialog, MAIN_DIALOG_CLASS):
 
     def plot_chart(self, d):
         self.data_list = d
-        QMessageBox.warning(self, "self.data_list", str(self.data_list), QMessageBox.Ok)
         try:
-            if type(self.data_list) == list:
+            if isinstance(self.data_list, list):
                 data_diz = {}
                 for item in self.data_list:
-                    data_diz[item[0]] = item[1]
+                    if not isinstance(item, int):
+                        data_diz[item[0]] = item[1]
             x = list(range(len(data_diz)))
             n_bars = len(data_diz)
             values = list(data_diz.values())
@@ -181,4 +181,5 @@ class Comparision(QDialog, MAIN_DIALOG_CLASS):
                 n += 1
         except:
             QMessageBox.warning(self, "self.data_list", str(self.data_list), QMessageBox.Ok)
+
         self.widget.canvas.draw()

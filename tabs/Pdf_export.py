@@ -30,7 +30,6 @@ from qgis.core import Qgis
 import platform
 import subprocess
 
-
 from ..modules.utility.pyarchinit_exp_USsheet_pdf import *
 
 from ..modules.db.pyarchinit_conn_strings import Connection
@@ -182,8 +181,10 @@ class pyarchinit_pdf_export(QDialog, MAIN_DIALOG_CLASS):
 
                 Periodizzazione_pdf_sheet = generate_Periodizzazione_pdf()  # deve essere importata la classe
                 data_list = self.generate_list_periodizzazione_pdf()  # deve essere aggiunta la funzione
-                Periodizzazione_pdf_sheet.build_Periodizzazione_sheets(data_list)  # deve essere aggiunto il file per generare i pdf
-                Periodizzazione_pdf_sheet.build_index_Periodizzazione(data_list, data_list[0][0])  # deve essere aggiunto il file per generare i pdf
+                Periodizzazione_pdf_sheet.build_Periodizzazione_sheets(
+                    data_list)  # deve essere aggiunto il file per generare i pdf
+                Periodizzazione_pdf_sheet.build_index_Periodizzazione(data_list, data_list[0][
+                    0])  # deve essere aggiunto il file per generare i pdf
 
             if self.DATA_LIST:
                 printed = True
@@ -424,7 +425,7 @@ class pyarchinit_pdf_export(QDialog, MAIN_DIALOG_CLASS):
         for i in range(len(self.DATA_LIST)):
             sito = str(self.DATA_LIST[i].sito)
             sigla_struttura = '{}{}'.format(
-            str(self.DATA_LIST[i].sigla_struttura), str(self.DATA_LIST[i].numero_struttura))
+                str(self.DATA_LIST[i].sigla_struttura), str(self.DATA_LIST[i].numero_struttura))
 
             res_strutt = self.DB_MANAGER.query_bool(
                 {"sito": "'" + str(sito) + "'", "struttura": "'" + str(sigla_struttura) + "'"}, "US")

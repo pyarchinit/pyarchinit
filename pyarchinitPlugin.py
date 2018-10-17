@@ -69,9 +69,10 @@ class PyArchInitPlugin(object):
                    'THUMB_PATH': '',
                    'EXPERIMENTAL': ''}
 
-    path_rel = os.path.join(os.sep, str(HOME), 'pyarchinit_DB_folder', 'config.cfg')
+    path_rel = os.path.join(os.sep, HOME, 'pyarchinit_DB_folder', 'config.cfg')
     conf = open(path_rel, "r")
     data = conf.read()
+    conf.close()
     PARAMS_DICT = eval(data)
 
     # TODO: find a better way to settings config
@@ -525,6 +526,7 @@ class PyArchInitPlugin(object):
         self.iface.removePluginMenu("&pyArchInit - Archaeological GIS Tools", self.actionCampioni)
         self.iface.removePluginMenu("&pyArchInit - Archaeological GIS Tools", self.actionLapidei)
         self.iface.removePluginMenu("&pyArchInit - Archaeological GIS Tools", self.actionSchedaind)
+        self.iface.removePluginMenu("&pyArchInit - Archaeological GIS Tools", self.actionTafonomia)
         self.iface.removePluginMenu("&pyArchInit - Archaeological GIS Tools", self.actionDocumentazione)
         if self.PARAMS_DICT['EXPERIMENTAL'] == 'Si':
             self.iface.removePluginMenu("&pyArchInit - Archaeological GIS Tools", self.actionDetsesso)

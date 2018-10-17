@@ -30,6 +30,8 @@ from sqlalchemy import and_, or_, Table, select, func, asc
 from sqlalchemy.engine import create_engine
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.sql.schema import MetaData
+from qgis.core import QgsMessageLog, Qgis
+from qgis.utils import iface
 
 from modules.db.pyarchinit_db_mapper import US, UT, SITE, PERIODIZZAZIONE, \
     STRUTTURA, SCHEDAIND, INVENTARIO_MATERIALI, DETSESSO, DOCUMENTAZIONE, DETETA, MEDIA, \
@@ -53,8 +55,7 @@ class Pyarchinit_db_management(object):
         self.conn_str = c
 
     def connection(self):
-        test = ""
-
+        test = True
         try:
             test_conn = self.conn_str.find("sqlite")
             if test_conn == 0:
@@ -63,14 +64,24 @@ class Pyarchinit_db_management(object):
                 self.engine = create_engine(self.conn_str, max_overflow=-1, echo=eval(self.boolean))
             self.metadata = MetaData(self.engine)
             self.engine.connect()
-        except Exception as e:
-            test = str(e)
+        except:
+            QgsMessageLog.logMessage(
+                "Something gone wrong on db connection: " + str(e))
+            iface.messageBar().pushMessage("Error",
+                                            "Something gone wrong on db connection, view log message",
+                                            level=Qgis.Warning)
+            test = False
 
         try:
             db_upd = DB_update()
             db_upd.update_table()
-        except Exception as e:
-            test = str(e)
+        except:
+            QgsMessageLog.logMessage(
+                "Something gone wrong on update table: " + str(e))
+            iface.messageBar().pushMessage("Error",
+                                            "Something gone wrong on update table, view log message",
+                                            level=Qgis.Warning)
+            test = False
         return test
 
         # insert statement
@@ -128,7 +139,52 @@ class Pyarchinit_db_management(object):
                 arg[47],
                 arg[48],
                 arg[49],
-                arg[50]
+                arg[50],
+                arg[51],    # 51 campi aggiunti per archeo 3.0 e allineamento ICCD
+                arg[52],
+                arg[53],
+                arg[54],
+                arg[55],
+                arg[56],
+                arg[57],
+                arg[58],
+                arg[59],
+                arg[60],
+                arg[61],
+                arg[62],
+                arg[63],
+                arg[64],
+                arg[65],
+                arg[66],
+                arg[67],
+                arg[68],
+                arg[69],
+                arg[70],
+                arg[71],
+                arg[72],
+                arg[73],
+                arg[74],
+                arg[75],
+                arg[76],
+                arg[77],
+                arg[78],
+                arg[79],
+                arg[80],
+                arg[81],
+                arg[82],
+                arg[83],
+                arg[84],
+                arg[85],
+                arg[86],
+                arg[87],
+                arg[88],
+                arg[89],
+                arg[90],
+                arg[91],
+                arg[92],
+                arg[93],
+                arg[94],
+                arg[95]
                 )
 
         return us
@@ -191,7 +247,8 @@ class Pyarchinit_db_management(object):
                     arg[5],
                     arg[6],
                     arg[7],
-                    arg[8])
+                    arg[8],
+                    arg[9])
 
         return sito
 
@@ -679,14 +736,14 @@ class Pyarchinit_db_management(object):
 
         for sing_couple_n in range(len(list_keys_values)):
             if sing_couple_n == 0:
-                if type(list_keys_values[sing_couple_n][1]) != '<str>':
+                if type(list_keys_values[sing_couple_n][1]) != "<type 'str'>":
                     field_value_string = table + ".%s == %s" % (
                     list_keys_values[sing_couple_n][0], list_keys_values[sing_couple_n][1])
                 else:
                     field_value_string = table + ".%s == u%s" % (
                     list_keys_values[sing_couple_n][0], list_keys_values[sing_couple_n][1])
             else:
-                if type(list_keys_values[sing_couple_n][1]) == '<str>':
+                if type(list_keys_values[sing_couple_n][1]) == "<type 'str'>":
                     field_value_string = field_value_string + "," + table + ".%s == %s" % (
                     list_keys_values[sing_couple_n][0], list_keys_values[sing_couple_n][1])
                 else:
@@ -704,13 +761,14 @@ class Pyarchinit_db_management(object):
         Session = sessionmaker(bind=self.engine, autoflush=True, autocommit=True)
         session = Session()
         query_str = "session.query(" + table + ").filter(and_(" + field_value_string + ")).all()"
+        res = eval(query_str)
 
         '''
         t = open("/test_import.txt", "w")
         t.write(str(query_str))
         t.close()
         '''
-        return eval(query_str)
+        return res
 
     def query_operator(self, params, table):
         u = Utility()

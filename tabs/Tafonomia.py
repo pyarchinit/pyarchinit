@@ -20,27 +20,20 @@
  ***************************************************************************/
 """
 from __future__ import absolute_import
-
+import os
 from builtins import range
 from builtins import str
 from qgis.PyQt.QtWidgets import QDialog, QMessageBox, QTableWidgetItem
 from qgis.PyQt.uic import loadUiType
 from qgis.gui import QgsMapToolPan
 
-from gui.sortpanelmain import SortPanelMain
 from ..modules.db.pyarchinit_conn_strings import Connection
 from ..modules.db.pyarchinit_db_manager import Pyarchinit_db_management
 from ..modules.db.pyarchinit_utility import Utility
 from ..modules.gis.pyarchinit_pyqgis import Pyarchinit_pyqgis
 from ..modules.utility.pyarchinit_error_check import Error_check
 from ..modules.utility.pyarchinit_exp_Tafonomiasheet_pdf import generate_tafonomia_pdf
-from ..modules.utility.pyarchinit_exp_USsheet_pdf import *
-
-# --import pyArchInit..modules--#
-try:
-    from pyarchinit_matrix_exp import *
-except:
-    pass
+from ..gui.sortpanelmain import SortPanelMain
 
 MAIN_DIALOG_CLASS, _ = loadUiType(os.path.join(os.path.dirname(__file__), os.pardir, 'gui', 'ui', 'Tafonomia.ui'))
 
@@ -194,16 +187,16 @@ class pyarchinit_Tafonomia(QDialog, MAIN_DIALOG_CLASS):
         self.comboBox_sito.currentIndexChanged.connect(self.charge_individuo_list)
 
         # SIGNALS & SLOTS Functions
-        self.comboBox_sito.editTextChanged .connect(self.charge_periodo_iniz_list)
-        self.comboBox_sito.editTextChanged .connect(self.charge_periodo_fin_list)
+        self.comboBox_sito.editTextChanged.connect(self.charge_periodo_iniz_list)
+        self.comboBox_sito.editTextChanged.connect(self.charge_periodo_fin_list)
 
         self.comboBox_sito.currentIndexChanged.connect(self.charge_periodo_iniz_list)
         self.comboBox_sito.currentIndexChanged.connect(self.charge_periodo_fin_list)
 
-        self.comboBox_per_iniz.editTextChanged .connect(self.charge_fase_iniz_list)
+        self.comboBox_per_iniz.editTextChanged.connect(self.charge_fase_iniz_list)
         self.comboBox_per_iniz.currentIndexChanged.connect(self.charge_fase_iniz_list)
 
-        self.comboBox_per_fin.editTextChanged .connect(self.charge_fase_fin_list)
+        self.comboBox_per_fin.editTextChanged.connect(self.charge_fase_fin_list)
         self.comboBox_per_fin.currentIndexChanged.connect(self.charge_fase_fin_list)
 
         sito = self.comboBox_sito.currentText()
@@ -666,8 +659,8 @@ class pyarchinit_Tafonomia(QDialog, MAIN_DIALOG_CLASS):
                     if bool(self.DATA_LIST):
                         if self.records_equal_check() == 1:
                             self.update_if(QMessageBox.warning(self, 'Errore',
-                                                                "Il record e' stato modificato. Vuoi salvare le modifiche?",
-                                                                QMessageBox.Ok | QMessageBox.Cancel))
+                                                               "Il record e' stato modificato. Vuoi salvare le modifiche?",
+                                                               QMessageBox.Ok | QMessageBox.Cancel))
 
         if self.BROWSE_STATUS != "n":
             self.BROWSE_STATUS = "n"
@@ -1084,7 +1077,7 @@ class pyarchinit_Tafonomia(QDialog, MAIN_DIALOG_CLASS):
                 self.TABLE_FIELDS[0]: "'" + str(self.comboBox_sito.currentText()) + "'",  # 1 - Sito
                 self.TABLE_FIELDS[1]: nr_scheda,  # 2 - Nr schede
                 self.TABLE_FIELDS[2]: "'" + str(self.comboBox_sigla_struttura.currentText()) + "'",
-            # 3 - Tipo struttura
+                # 3 - Tipo struttura
                 self.TABLE_FIELDS[3]: nr_struttura,  # 4 - Nr struttura
                 self.TABLE_FIELDS[4]: nr_individuo,  # 5 - Nr struttura
                 self.TABLE_FIELDS[5]: "'" + str(self.comboBox_rito.currentText()) + "'",  # 6 - Rito
@@ -1094,32 +1087,32 @@ class pyarchinit_Tafonomia(QDialog, MAIN_DIALOG_CLASS):
                 # 8 - Interpretazione tafonimia
                 self.TABLE_FIELDS[8]: "'" + str(self.comboBox_segnacoli.currentText()) + "'",  # 9 - Segnacoli
                 self.TABLE_FIELDS[9]: "'" + str(self.comboBox_canale_libatorio.currentText()) + "'",
-            # 10 - Canale libatorio
+                # 10 - Canale libatorio
                 self.TABLE_FIELDS[10]: "'" + str(self.comboBox_oggetti_esterno.currentText()) + "'",
-            # 11 - Oggetti esterno
+                # 11 - Oggetti esterno
                 self.TABLE_FIELDS[11]: "'" + str(self.comboBox_conservazione_taf.currentText()) + "'",
                 # 12 - Conservazione tafonomia
                 self.TABLE_FIELDS[12]: "'" + str(self.comboBox_copertura_tipo.currentText()) + "'",
-            # 13 - Copertura tipo
+                # 13 - Copertura tipo
                 self.TABLE_FIELDS[13]: "'" + str(self.comboBox_tipo_contenitore_resti.currentText()) + "'",
                 # 14 - Tipo contenitore resti
                 self.TABLE_FIELDS[14]: "'" + str(self.lineEdit_orientamento_asse.text()) + "'",
-            # 15 - orientamento asse
+                # 15 - orientamento asse
                 self.TABLE_FIELDS[15]: orientamento_azimut,  # 16 - orientamento azimut
                 self.TABLE_FIELDS[17]: "'" + str(self.comboBox_corredo_presenza.currentText()) + "'",  # 17 - corredo
                 self.TABLE_FIELDS[20]: lunghezza_scheletro,  # 18 - lunghezza scheletro
                 self.TABLE_FIELDS[21]: "'" + str(self.comboBox_posizione_scheletro.currentText()) + "'",
                 # 19 - posizione scheletro
                 self.TABLE_FIELDS[22]: "'" + str(self.comboBox_posizione_cranio.currentText()) + "'",
-            # 20 - posizione cranio
+                # 20 - posizione cranio
                 self.TABLE_FIELDS[23]: "'" + str(self.comboBox_arti_superiori.currentText()) + "'",
-            # 21 - arti superiori
+                # 21 - arti superiori
                 self.TABLE_FIELDS[24]: "'" + str(self.comboBox_arti_inferiori.currentText()) + "'",
-            # 24 - arti inferiori
+                # 24 - arti inferiori
                 self.TABLE_FIELDS[25]: "'" + str(self.comboBox_completo.currentText()) + "'",  # 25 - completo
                 self.TABLE_FIELDS[26]: "'" + str(self.comboBox_disturbato.currentText()) + "'",  # 26 - disturbato
                 self.TABLE_FIELDS[27]: "'" + str(self.comboBox_in_connessione.currentText()) + "'",
-            # 27 - in connessione
+                # 27 - in connessione
                 self.TABLE_FIELDS[29]: periodo_iniziale,  # 29 - periodo iniziale
                 self.TABLE_FIELDS[30]: fase_iniziale,  # 10 - fase iniziale
                 self.TABLE_FIELDS[31]: periodo_finale,  # 11 - periodo finale

@@ -11,7 +11,7 @@
    </rect>
   </property>
   <property name="windowIcon">
-   <iconset resource="resources.qrc">
+   <iconset resource="../../resources/resources.qrc">
     <normaloff>:/icons/pai_us.png</normaloff>:/icons/pai_us.png</iconset>
   </property>
   <property name="styleSheet">
@@ -47,7 +47,7 @@ background-color: rgb(168, 168, 168);</string>
          <x>0</x>
          <y>0</y>
          <width>286</width>
-         <height>571</height>
+         <height>751</height>
         </rect>
        </property>
        <layout class="QGridLayout" name="gridLayout_2">
@@ -123,7 +123,7 @@ selection-color: rgb(140, 140, 105);</string>
              <string>Struttura</string>
             </property>
             <property name="icon">
-             <iconset resource="resources.qrc">
+             <iconset resource="../../resources/resources.qrc">
               <normaloff>:/icons/iconStrutt.png</normaloff>:/icons/iconStrutt.png</iconset>
             </property>
             <property name="iconSize">
@@ -341,7 +341,7 @@ selection-color: rgb(140, 140, 105);</string>
              <string>US</string>
             </property>
             <property name="icon">
-             <iconset resource="resources.qrc">
+             <iconset resource="../../resources/resources.qrc">
               <normaloff>:/icons/iconPAI.png</normaloff>:/icons/iconPAI.png</iconset>
             </property>
             <property name="iconSize">
@@ -393,7 +393,7 @@ selection-color: rgb(140, 140, 105);</string>
              <string>Reperti</string>
             </property>
             <property name="icon">
-             <iconset resource="resources.qrc">
+             <iconset resource="../../resources/resources.qrc">
               <normaloff>:/icons/finds.png</normaloff>:/icons/finds.png</iconset>
             </property>
             <property name="iconSize">
@@ -511,7 +511,7 @@ selection-color: rgb(140, 140, 105);</string>
              <string>Sito</string>
             </property>
             <property name="icon">
-             <iconset resource="resources.qrc">
+             <iconset resource="../../resources/resources.qrc">
               <normaloff>:/icons/iconSite.png</normaloff>:/icons/iconSite.png</iconset>
             </property>
             <property name="iconSize">
@@ -537,7 +537,7 @@ selection-color: rgb(140, 140, 105);</string>
              <string>Periodo/fase</string>
             </property>
             <property name="icon">
-             <iconset resource="resources.qrc">
+             <iconset resource="../../resources/resources.qrc">
               <normaloff>:/icons/iconPER.png</normaloff>:/icons/iconPER.png</iconset>
             </property>
             <property name="iconSize">
@@ -689,7 +689,7 @@ selection-color: rgb(140, 140, 105);</string>
              <string>Reperti</string>
             </property>
             <property name="icon">
-             <iconset resource="resources.qrc">
+             <iconset resource="../../resources/resources.qrc">
               <normaloff>:/icons/finds.png</normaloff>:/icons/finds.png</iconset>
             </property>
             <property name="iconSize">
@@ -725,7 +725,7 @@ selection-color: rgb(140, 140, 105);</string>
              <string>UT</string>
             </property>
             <property name="icon">
-             <iconset resource="resources.qrc">
+             <iconset resource="../../resources/resources.qrc">
               <normaloff>:/icons/iconUT.png</normaloff>:/icons/iconUT.png</iconset>
             </property>
             <property name="iconSize">
@@ -785,7 +785,7 @@ selection-color: rgb(140, 140, 105);</string>
              <string>Sito</string>
             </property>
             <property name="icon">
-             <iconset resource="resources.qrc">
+             <iconset resource="../../resources/resources.qrc">
               <normaloff>:/icons/iconSite.png</normaloff>:/icons/iconSite.png</iconset>
             </property>
             <property name="iconSize">
@@ -911,7 +911,7 @@ selection-color: rgb(140, 140, 105);</string>
              <string>US</string>
             </property>
             <property name="icon">
-             <iconset resource="resources.qrc">
+             <iconset resource="../../resources/resources.qrc">
               <normaloff>:/icons/iconPAI.png</normaloff>:/icons/iconPAI.png</iconset>
             </property>
             <property name="iconSize">
@@ -963,7 +963,7 @@ selection-color: rgb(140, 140, 105);</string>
              <string>Reperti</string>
             </property>
             <property name="icon">
-             <iconset resource="resources.qrc">
+             <iconset resource="../../resources/resources.qrc">
               <normaloff>:/icons/finds.png</normaloff>:/icons/finds.png</iconset>
             </property>
             <property name="iconSize">
@@ -1028,7 +1028,7 @@ selection-color: rgb(140, 140, 105);</string>
              <string>Media</string>
             </property>
             <property name="icon">
-             <iconset resource="resources.qrc">
+             <iconset resource="../../resources/resources.qrc">
               <normaloff>:/icons/photo.png</normaloff>:/icons/photo.png</iconset>
             </property>
             <property name="iconSize">
@@ -1054,7 +1054,7 @@ selection-color: rgb(140, 140, 105);</string>
              <string>Esportazione Media</string>
             </property>
             <property name="icon">
-             <iconset resource="resources.qrc">
+             <iconset resource="../../resources/resources.qrc">
               <normaloff>:/icons/directoryExp.png</normaloff>:/icons/directoryExp.png</iconset>
             </property>
             <property name="iconSize">
@@ -1109,7 +1109,7 @@ selection-color: rgb(140, 140, 105);</string>
              <string>PDF EXP</string>
             </property>
             <property name="icon">
-             <iconset resource="resources.qrc">
+             <iconset resource="../../resources/resources.qrc">
               <normaloff>:/icons/pdf-icon.png</normaloff>:/icons/pdf-icon.png</iconset>
             </property>
             <property name="iconSize">
@@ -1211,7 +1211,7 @@ p, li { white-space: pre-wrap; }
        <string/>
       </property>
       <property name="pixmap">
-       <pixmap resource="resources.qrc">:/icons/sfondo.png</pixmap>
+       <pixmap resource="../../resources/resources.qrc">:/icons/sfondo.png</pixmap>
       </property>
      </widget>
     </item>
@@ -1219,6 +1219,7 @@ p, li { white-space: pre-wrap; }
   </widget>
  </widget>
  <resources>
+  <include location="../../resources/resources.qrc"/>
   <include location="resources.qrc"/>
  </resources>
  <connections/>

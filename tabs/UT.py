@@ -20,21 +20,21 @@
  ***************************************************************************/
 """
 from __future__ import absolute_import
-
+import os
 import sys
 from builtins import range
 from builtins import str
 from qgis.PyQt.QtWidgets import QDialog, QMessageBox, QTableWidgetItem
 from qgis.PyQt.uic import loadUiType
 
-from gui.sortpanelmain import SortPanelMain
 from ..modules.db.pyarchinit_conn_strings import Connection
 from ..modules.db.pyarchinit_db_manager import Pyarchinit_db_management
 from ..modules.db.pyarchinit_utility import Utility
 from ..modules.gis.pyarchinit_pyqgis import Pyarchinit_pyqgis
 from ..modules.utility.pdf_models.pyarchinit_exp_Findssheet_pdf import generate_pdf
 from ..modules.utility.pyarchinit_error_check import Error_check
-from ..modules.utility.pyarchinit_exp_UTsheet_pdf import *
+from ..modules.utility.pyarchinit_exp_UTsheet_pdf import generate_pdf
+from ..gui.sortpanelmain import SortPanelMain
 
 MAIN_DIALOG_CLASS, _ = loadUiType(os.path.join(os.path.dirname(__file__), os.pardir, 'gui', 'ui', 'UT_ui.ui'))
 
@@ -736,7 +736,7 @@ class pyarchinit_UT(QDialog, MAIN_DIALOG_CLASS):
                 self.TABLE_FIELDS[8]: "'" + str(self.comboBox_provincia.currentText()) + "'",  # 8 - periodo iniziale
                 self.TABLE_FIELDS[9]: "'" + str(self.comboBox_comune.currentText()) + "'",  # 9 - fase iniziale
                 self.TABLE_FIELDS[10]: "'" + str(self.comboBox_frazione.currentText()) + "'",
-            # 10 - periodo finale iniziale
+                # 10 - periodo finale iniziale
                 self.TABLE_FIELDS[11]: "'" + str(self.comboBox_localita.currentText()) + "'",  # 11 - fase finale
                 self.TABLE_FIELDS[12]: "'" + str(self.lineEdit_indirizzo.text()) + "'",  # 12 - attivita
                 self.TABLE_FIELDS[13]: "'" + str(self.lineEdit_nr_civico.text()) + "'",  # 13 - attivita
@@ -747,7 +747,7 @@ class pyarchinit_UT(QDialog, MAIN_DIALOG_CLASS):
                 self.TABLE_FIELDS[18]: quota,  # 19 - conservazione
                 self.TABLE_FIELDS[19]: "'" + str(self.lineEdit_andamento_terreno_pendenza.text()) + "'",  # 20 - colore
                 self.TABLE_FIELDS[20]: "'" + str(self.lineEdit_utilizzo_suolo_vegetazione.text()) + "'",
-            # 21 - consistenza
+                # 21 - consistenza
                 self.TABLE_FIELDS[23]: "'" + str(self.lineEdit_metodo_rilievo_e_ricognizione.text()) + "'",
                 # 23 - codice_periodo
                 self.TABLE_FIELDS[24]: "'" + str(self.lineEdit_geometria.text()) + "'",
@@ -1080,7 +1080,7 @@ class pyarchinit_UT(QDialog, MAIN_DIALOG_CLASS):
         self.DATA_LIST_REC_CORR = []
         for i in self.TABLE_FIELDS:
             self.DATA_LIST_REC_CORR.append(eval("str(self.DATA_LIST[self.REC_CORR]." + i + ")"))
-        ##self.testing('/testrecorr.txt',str(self.DATA_LIST_REC_CORR))
+            ##self.testing('/testrecorr.txt',str(self.DATA_LIST_REC_CORR))
 
     def setComboBoxEnable(self, f, v):
         field_names = f

@@ -30,8 +30,6 @@ from builtins import str
 from qgis.PyQt.QtWidgets import QDialog, QMessageBox
 from qgis.PyQt.uic import loadUiType
 
-from gui.sortpanelmain import SortPanelMain
-from .US_USM import pyarchinit_US
 from ..modules.db.pyarchinit_conn_strings import Connection
 from ..modules.db.pyarchinit_db_manager import Pyarchinit_db_management
 from ..modules.db.pyarchinit_utility import Utility
@@ -39,6 +37,7 @@ from ..modules.gis.pyarchinit_pyqgis import Pyarchinit_pyqgis
 from ..modules.utility.delegateComboBox import ComboBoxDelegate
 from ..modules.utility.pyarchinit_error_check import Error_check
 from ..modules.utility.pyarchinit_exp_Strutturasheet_pdf import generate_struttura_pdf
+from ..gui.sortpanelmain import SortPanelMain
 
 MAIN_DIALOG_CLASS, _ = loadUiType(os.path.join(os.path.dirname(__file__), os.pardir, 'gui', 'ui', 'Struttura.ui'))
 
@@ -128,19 +127,19 @@ class pyarchinit_Struttura(QDialog, MAIN_DIALOG_CLASS):
             QMessageBox.warning(self, "Sistema di connessione", str(e), QMessageBox.Ok)
 
             # SIGNALS & SLOTS Functions
-        self.comboBox_sigla_struttura.editTextChanged .connect(self.add_value_to_categoria)
+        self.comboBox_sigla_struttura.editTextChanged.connect(self.add_value_to_categoria)
 
         # SIGNALS & SLOTS Functions
-        self.comboBox_sito.editTextChanged .connect(self.charge_periodo_iniz_list)
-        self.comboBox_sito.editTextChanged .connect(self.charge_periodo_fin_list)
+        self.comboBox_sito.editTextChanged.connect(self.charge_periodo_iniz_list)
+        self.comboBox_sito.editTextChanged.connect(self.charge_periodo_fin_list)
 
         self.comboBox_sito.currentIndexChanged.connect(self.charge_periodo_iniz_list)
         self.comboBox_sito.currentIndexChanged.connect(self.charge_periodo_fin_list)
 
-        self.comboBox_per_iniz.editTextChanged .connect(self.charge_fase_iniz_list)
+        self.comboBox_per_iniz.editTextChanged.connect(self.charge_fase_iniz_list)
         self.comboBox_per_iniz.currentIndexChanged.connect(self.charge_fase_iniz_list)
 
-        self.comboBox_per_fin.editTextChanged .connect(self.charge_fase_fin_list)
+        self.comboBox_per_fin.editTextChanged.connect(self.charge_fase_fin_list)
         self.comboBox_per_fin.currentIndexChanged.connect(self.charge_fase_fin_list)
 
         sito = self.comboBox_sito.currentText()
@@ -452,8 +451,8 @@ class pyarchinit_Struttura(QDialog, MAIN_DIALOG_CLASS):
                     if bool(self.DATA_LIST):
                         if self.records_equal_check() == 1:
                             self.update_if(QMessageBox.warning(self, 'Errore',
-                                                                "Il record e' stato modificato. Vuoi salvare le modifiche?",
-                                                                QMessageBox.Ok | QMessageBox.Cancel))
+                                                               "Il record e' stato modificato. Vuoi salvare le modifiche?",
+                                                               QMessageBox.Ok | QMessageBox.Cancel))
                             # set the GUI for a new record
         if self.BROWSE_STATUS != "n":
             self.BROWSE_STATUS = "n"
@@ -791,7 +790,7 @@ class pyarchinit_Struttura(QDialog, MAIN_DIALOG_CLASS):
             search_dict = {
                 self.TABLE_FIELDS[0]: "'" + str(self.comboBox_sito.currentText()) + "'",  # 1 - Sito
                 self.TABLE_FIELDS[1]: "'" + str(self.comboBox_sigla_struttura.currentText()) + "'",
-            # 2 - Sigla struttura
+                # 2 - Sigla struttura
                 self.TABLE_FIELDS[2]: numero_struttura,  # 3 - numero struttura
                 self.TABLE_FIELDS[3]: "'" + str(self.comboBox_categoria_struttura.currentText()) + "'",
                 # 4 - categoria struttura
@@ -893,7 +892,7 @@ class pyarchinit_Struttura(QDialog, MAIN_DIALOG_CLASS):
         for i in range(len(self.DATA_LIST)):
             sito = str(self.DATA_LIST[i].sito)
             sigla_struttura = '{}{}'.format(
-            str(self.DATA_LIST[i].sigla_struttura), str(self.DATA_LIST[i].numero_struttura))
+                str(self.DATA_LIST[i].sigla_struttura), str(self.DATA_LIST[i].numero_struttura))
 
             res_strutt = self.DB_MANAGER.query_bool(
                 {"sito": "'" + str(sito) + "'", "struttura": "'" + str(sigla_struttura) + "'"}, "US")
@@ -1292,6 +1291,9 @@ class pyarchinit_Struttura(QDialog, MAIN_DIALOG_CLASS):
         table_row_count = eval(table_row_count_cmd)
         rowSelected_cmd = ("%s.selectedIndexes()") % (table_name)
         rowSelected = eval(rowSelected_cmd)
+        if not rowSelected:
+            QMessageBox.warning(self, "Errore", "Nessun record selezionato", QMessageBox.Ok)
+            return
         rowIndex = (rowSelected[0].row())
         cmd = ("%s.removeRow(%d)") % (table_name, rowIndex)
         eval(cmd)

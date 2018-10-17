@@ -22,7 +22,7 @@
 
 from __future__ import print_function
 
-import PIL.Image as Image
+from PIL import Image
 from builtins import object
 from builtins import str
 
