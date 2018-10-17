@@ -35,13 +35,12 @@ from qgis.PyQt.QtWidgets import QAction, QApplication, QDialog, QMessageBox
 from qgis.PyQt.uic import loadUiType
 from qgis.core import QgsApplication
 
-from ..gui.sortpanelmain import SortPanelMain
-from .US_USM import pyarchinit_US
 from ..modules.db.pyarchinit_conn_strings import Connection
 from ..modules.db.pyarchinit_db_manager import Pyarchinit_db_management
 from ..modules.db.pyarchinit_utility import Utility
 from ..modules.gis.pyarchinit_pyqgis_archeozoo import Pyarchinit_pyqgis
 from ..modules.utility.pyarchinit_error_check import Error_check
+from ..gui.sortpanelmain import SortPanelMain
 
 valid = True
 req_mods = {'osgeo': 'osgeo [python-gdal]'}

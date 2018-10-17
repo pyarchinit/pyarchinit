@@ -47,8 +47,8 @@ class Pyarchinit_OS_Utility(object):
         shutil.copy(file_path, destination)
 
     def copy_file(self, f, d):
-        file_path = f
-        destination = d
+        file_path = os.path.normpath(f)
+        destination = os.path.normpath(d)
         if os.access(destination, 0):
             return 0  # la cartella esiste
         else:

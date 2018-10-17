@@ -16,6 +16,7 @@ class SITE(object):
                  descrizione,
                  provincia,
                  definizione_sito,
+                 sito_path,
                  find_check
                  ):
         self.id_sito = id_sito  # 0
@@ -26,11 +27,12 @@ class SITE(object):
         self.descrizione = descrizione  # 5
         self.provincia = provincia  # 6
         self.definizione_sito = definizione_sito  # 7
-        self.find_check = find_check  # 8
+        self.sito_path = sito_path  # 8
+        self.find_check = find_check  # 9
 
     # def __repr__"
     def __repr__(self):
-        return "<SITE('%d','%s', '%s',%s,'%s','%s', '%s', '%s', '%d')>" % (
+        return "<SITE('%d','%s', '%s',%s,'%s','%s', '%s', '%s','%s', '%d')>" % (
             self.id_sito,
             self.sito,
             self.nazione,
@@ -39,5 +41,6 @@ class SITE(object):
             self.descrizione,
             self.provincia,
             self.definizione_sito,
+            self.sito_path,
             self.find_check
         )

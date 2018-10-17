@@ -22,12 +22,18 @@ import subprocess
 
 import sys
 
+packages = sys.argv[1].split(',') if len(sys.argv) >= 2 else []
+
 # Adding the dependencies python modules in
 # package list in order to install via pip module
-packages = ['PypeR',
-            'SQLAlchemy',
-            'graphviz',
-            'reportlab']
+if not packages:
+    packages = ['PypeR',
+                'SQLAlchemy',
+                'SQLAlchemy-Utils',
+                'graphviz',
+                'reportlab',
+                'networkx',
+                'matplotlib']
 
 for p in packages:
     if p.startswith('graphviz'):

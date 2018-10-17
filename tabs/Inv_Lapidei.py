@@ -20,22 +20,24 @@
  ***************************************************************************/
 """
 from __future__ import absolute_import
-
+import os
 import numpy as np
 import sys
 from builtins import range
 from builtins import str
+from qgis.PyQt.QtCore import Qt, QSize
 from qgis.PyQt.QtGui import QIcon
-from qgis.PyQt.QtWidgets import QDialog, QMessageBox, QTableWidgetItem, QListWidgetItem
+from qgis.PyQt.QtWidgets import QDialog, QMessageBox, QListWidget, QListView, QFrame, QAbstractItemView, \
+    QTableWidgetItem, QListWidgetItem
 from qgis.PyQt.uic import loadUiType
 
-from gui.imageViewer import ImageViewer
+from ..gui.imageViewer import ImageViewer
 from ..modules.db.pyarchinit_conn_strings import Connection
 from ..modules.db.pyarchinit_db_manager import Pyarchinit_db_management
 from ..modules.db.pyarchinit_utility import Utility
 from ..modules.utility.pyarchinit_error_check import Error_check
 from ..modules.utility.pyarchinit_exp_Findssheet_pdf import generate_reperti_pdf
-from ..modules.utility.pyarchinit_exp_Invlapsheet_pdf import *
+from ..modules.utility.pyarchinit_exp_Invlapsheet_pdf import generate_reperti_pdf
 from ..gui.sortpanelmain import SortPanelMain
 
 MAIN_DIALOG_CLASS, _ = loadUiType(os.path.join(os.path.dirname(__file__), os.pardir, 'gui', 'ui', 'Inv_Lapidei.ui'))
@@ -253,23 +255,23 @@ class pyarchinit_Inventario_Lapidei(QDialog, MAIN_DIALOG_CLASS):
 
     def customize_gui(self):
         # media prevew system
-        self.iconListWidget = QtGui.QListWidget(self)
-        self.iconListWidget.setFrameShape(QtGui.QFrame.StyledPanel)
-        self.iconListWidget.setFrameShadow(QtGui.QFrame.Sunken)
+        self.iconListWidget = QListWidget(self)
+        self.iconListWidget.setFrameShape(QFrame.StyledPanel)
+        self.iconListWidget.setFrameShadow(QFrame.Sunken)
         self.iconListWidget.setLineWidth(2)
         self.iconListWidget.setMidLineWidth(2)
         self.iconListWidget.setProperty("showDropIndicator", False)
-        self.iconListWidget.setIconSize(QtCore.QSize(150, 150))
-        self.iconListWidget.setMovement(QtGui.QListView.Snap)
-        self.iconListWidget.setResizeMode(QtGui.QListView.Adjust)
-        self.iconListWidget.setLayoutMode(QtGui.QListView.Batched)
-        self.iconListWidget.setGridSize(QtCore.QSize(160, 160))
-        self.iconListWidget.setViewMode(QtGui.QListView.IconMode)
+        self.iconListWidget.setIconSize(QSize(150, 150))
+        self.iconListWidget.setMovement(QListView.Snap)
+        self.iconListWidget.setResizeMode(QListView.Adjust)
+        self.iconListWidget.setLayoutMode(QListView.Batched)
+        self.iconListWidget.setGridSize(QSize(160, 160))
+        self.iconListWidget.setViewMode(QListView.IconMode)
         self.iconListWidget.setUniformItemSizes(True)
         self.iconListWidget.setBatchSize(1000)
         self.iconListWidget.setObjectName("iconListWidget")
         self.iconListWidget.SelectionMode()
-        self.iconListWidget.setSelectionMode(QtGui.QAbstractItemView.MultiSelection)
+        self.iconListWidget.setSelectionMode(QAbstractItemView.MultiSelection)
         self.iconListWidget.itemDoubleClicked.connect(self.openWide_image)
         self.tabWidget.addTab(self.iconListWidget, "Media")
 
@@ -398,12 +400,12 @@ class pyarchinit_Inventario_Lapidei(QDialog, MAIN_DIALOG_CLASS):
             self.set_rec_counter(len(self.DATA_LIST), self.REC_CORR + 1)
             self.fill_fields()
 
-        ##	def on_toolButtonPreviewMedia_toggled(self):
-        ##		if self.toolButtonPreviewMedia.isChecked() == True:
-        ##			QMessageBox.warning(self, "Messaggio", "Modalita' Preview Media Reperti attivata. Le immagini dei Reperti saranno visualizzate nella sezione Media", QMessageBox.Ok)
-        ##			self.loadMediaPreview()
-        ##		else:
-        ##			self.loadMediaPreview(1)
+            ##	def on_toolButtonPreviewMedia_toggled(self):
+            ##		if self.toolButtonPreviewMedia.isChecked() == True:
+            ##			QMessageBox.warning(self, "Messaggio", "Modalita' Preview Media Reperti attivata. Le immagini dei Reperti saranno visualizzate nella sezione Media", QMessageBox.Ok)
+            ##			self.loadMediaPreview()
+            ##		else:
+            ##			self.loadMediaPreview(1)
 
     def on_pushButton_new_rec_pressed(self):
         if bool(self.DATA_LIST):
@@ -414,8 +416,8 @@ class pyarchinit_Inventario_Lapidei(QDialog, MAIN_DIALOG_CLASS):
                     if bool(self.DATA_LIST):
                         if self.records_equal_check() == 1:
                             self.update_if(QMessageBox.warning(self, 'Errore',
-                                                                "Il record e' stato modificato. Vuoi salvare le modifiche?",
-                                                                QMessageBox.Ok | QMessageBox.Cancel))
+                                                               "Il record e' stato modificato. Vuoi salvare le modifiche?",
+                                                               QMessageBox.Ok | QMessageBox.Cancel))
 
         if self.BROWSE_STATUS != "n":
             self.BROWSE_STATUS = "n"
@@ -558,40 +560,40 @@ class pyarchinit_Inventario_Lapidei(QDialog, MAIN_DIALOG_CLASS):
                 test = 1
 
 
-            #		if d_letto_posa != "":
-            #			if EC.data_is_int(d_letto_posa) == 0:
-            #				QMessageBox.warning(self, "ATTENZIONE", "D (letto posa).\nIl valore deve essere di tipo numerico",  QMessageBox.Ok)
-            #				test = 1
+                #		if d_letto_posa != "":
+                #			if EC.data_is_int(d_letto_posa) == 0:
+                #				QMessageBox.warning(self, "ATTENZIONE", "D (letto posa).\nIl valore deve essere di tipo numerico",  QMessageBox.Ok)
+                #				test = 1
 
-            #		if d_letto_attesa != "":
-            #			if EC.data_is_int(d_letto_attesa) == 0:
-            #				QMessageBox.warning(self, "ATTENZIONE", "Campo d (letto attesa)\nIl valore deve essere di tipo numerico",  QMessageBox.Ok)
-            #				test = 1
+                #		if d_letto_attesa != "":
+                #			if EC.data_is_int(d_letto_attesa) == 0:
+                #				QMessageBox.warning(self, "ATTENZIONE", "Campo d (letto attesa)\nIl valore deve essere di tipo numerico",  QMessageBox.Ok)
+                #				test = 1
 
-            #		if toro != "":
-            #			if EC.data_is_int(toro) == 0:
-            #				QMessageBox.warning(self, "ATTENZIONE", "Campo Toro.\nIl valore deve essere di tipo numerico",  QMessageBox.Ok)
-            #				test = 1
+                #		if toro != "":
+                #			if EC.data_is_int(toro) == 0:
+                #				QMessageBox.warning(self, "ATTENZIONE", "Campo Toro.\nIl valore deve essere di tipo numerico",  QMessageBox.Ok)
+                #				test = 1
 
-            #		if spessore != "":
-            #			if EC.data_is_int(spessore) == 0:
-            #				QMessageBox.warning(self, "ATTENZIONE", "Campo Spessore.\nIl valore deve essere di tipo numerico",  QMessageBox.Ok)
-            #				test = 1
+                #		if spessore != "":
+                #			if EC.data_is_int(spessore) == 0:
+                #				QMessageBox.warning(self, "ATTENZIONE", "Campo Spessore.\nIl valore deve essere di tipo numerico",  QMessageBox.Ok)
+                #				test = 1
 
-            #		if larghezza != "":
-            #			if EC.data_is_int(larghezza) == 0:
-            #				QMessageBox.warning(self, "ATTENZIONE", "Campo Larghezza.\nIl valore deve essere di tipo numerico",  QMessageBox.Ok)
-            #				test = 1
+                #		if larghezza != "":
+                #			if EC.data_is_int(larghezza) == 0:
+                #				QMessageBox.warning(self, "ATTENZIONE", "Campo Larghezza.\nIl valore deve essere di tipo numerico",  QMessageBox.Ok)
+                #				test = 1
 
-            #		if lunghezza != "":
-            #			if EC.data_is_int(lunghezza) == 0:
-            #				QMessageBox.warning(self, "ATTENZIONE", "Campo Lunghezza.\nIl valore deve essere di tipo numerico",  QMessageBox.Ok)
-            #				test = 1
+                #		if lunghezza != "":
+                #			if EC.data_is_int(lunghezza) == 0:
+                #				QMessageBox.warning(self, "ATTENZIONE", "Campo Lunghezza.\nIl valore deve essere di tipo numerico",  QMessageBox.Ok)
+                #				test = 1
 
-            #		if h != "":
-            #			if EC.data_is_int(h) == 0:
-            #				QMessageBox.warning(self, "ATTENZIONE", "Campo h. \nIl valore deve essere di tipo numerico",  QMessageBox.Ok)
-            #				test = 1
+                #		if h != "":
+                #			if EC.data_is_int(h) == 0:
+                #				QMessageBox.warning(self, "ATTENZIONE", "Campo h. \nIl valore deve essere di tipo numerico",  QMessageBox.Ok)
+                #				test = 1
 
         return test
 
@@ -678,8 +680,8 @@ class pyarchinit_Inventario_Lapidei(QDialog, MAIN_DIALOG_CLASS):
             QMessageBox.warning(self, "Errore", "Errore di immisione 2 \n" + str(e), QMessageBox.Ok)
             return 0
 
-        # insert new row into tableWidget
-        # bibliografia
+            # insert new row into tableWidget
+            # bibliografia
 
     def on_pushButton_insert_row_bibliografia_pressed(self):
         self.insert_new_row('self.tableWidget_bibliografia')
@@ -715,10 +717,10 @@ class pyarchinit_Inventario_Lapidei(QDialog, MAIN_DIALOG_CLASS):
             self.REC_TOT, self.REC_CORR = len(self.DATA_LIST), 0
             self.DATA_LIST_REC_TEMP = self.DATA_LIST_REC_CORR = self.DATA_LIST[0]
             self.label_sort.setText(self.SORTED_ITEMS["n"])
-        ##			if self.toolButtonPreviewMedia.isChecked() == True:
-        ##				self.loadMediaPreview(1)
+            ##			if self.toolButtonPreviewMedia.isChecked() == True:
+            ##				self.loadMediaPreview(1)
 
-        # records surf functions
+            # records surf functions
 
     def on_pushButton_first_rec_pressed(self):
         if self.check_record_state() == 1:
@@ -732,9 +734,9 @@ class pyarchinit_Inventario_Lapidei(QDialog, MAIN_DIALOG_CLASS):
                 self.set_rec_counter(self.REC_TOT, self.REC_CORR + 1)
             except Exception as e:
                 QMessageBox.warning(self, "Errore", str(e), QMessageBox.Ok)
-            ##				if self.toolButtonPreviewMedia.isChecked() == True:
-            ##					self.loadMediaPreview(0)
-            # se si decidesse di aggiungere if self toolButtonPreviewMedia si metterà prima di except
+                ##				if self.toolButtonPreviewMedia.isChecked() == True:
+                ##					self.loadMediaPreview(0)
+                # se si decidesse di aggiungere if self toolButtonPreviewMedia si metterà prima di except
 
     def on_pushButton_last_rec_pressed(self):
         if self.check_record_state() == 1:
@@ -749,8 +751,8 @@ class pyarchinit_Inventario_Lapidei(QDialog, MAIN_DIALOG_CLASS):
                 self.set_rec_counter(self.REC_TOT, self.REC_CORR + 1)
             except Exception as e:
                 QMessageBox.warning(self, "Errore", str(e), QMessageBox.Ok)
-            ##				if self.toolButtonPreviewMedia.isChecked() == True:
-            ##					self.loadMediaPreview(0)
+                ##				if self.toolButtonPreviewMedia.isChecked() == True:
+                ##					self.loadMediaPreview(0)
 
     def on_pushButton_prev_rec_pressed(self):
         if self.check_record_state() == 1:
@@ -767,8 +769,8 @@ class pyarchinit_Inventario_Lapidei(QDialog, MAIN_DIALOG_CLASS):
                     self.set_rec_counter(self.REC_TOT, self.REC_CORR + 1)
                 except Exception as e:
                     QMessageBox.warning(self, "Errore", str(e), QMessageBox.Ok)
-                ##					if self.toolButtonPreviewMedia.isChecked() == True:
-                ##						self.loadMediaPreview(0)
+                    ##					if self.toolButtonPreviewMedia.isChecked() == True:
+                    ##						self.loadMediaPreview(0)
 
     def on_pushButton_next_rec_pressed(self):
         if self.check_record_state() == 1:
@@ -785,8 +787,8 @@ class pyarchinit_Inventario_Lapidei(QDialog, MAIN_DIALOG_CLASS):
                     self.set_rec_counter(self.REC_TOT, self.REC_CORR + 1)
                 except Exception as e:
                     QMessageBox.warning(self, "Errore", str(e), QMessageBox.Ok)
-                ##					if self.toolButtonPreviewMedia.isChecked() == True:
-                ##						self.loadMediaPreview(0)
+                    ##					if self.toolButtonPreviewMedia.isChecked() == True:
+                    ##						self.loadMediaPreview(0)
 
     def on_pushButton_delete_pressed(self):
         msg = QMessageBox.warning(self, "Attenzione!!!",
@@ -1220,7 +1222,7 @@ class pyarchinit_Inventario_Lapidei(QDialog, MAIN_DIALOG_CLASS):
             else:
                 self.lineEdit_h.setText(str(self.DATA_LIST[self.rec_num].h))
 
-            ##########
+                ##########
         except Exception as e:
             QMessageBox.warning(self, "Errore Fill Fields", str(e), QMessageBox.Ok)
 
