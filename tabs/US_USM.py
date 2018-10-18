@@ -2634,19 +2634,20 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
         eval(table_clear_cmd)
 
         for i in range(table_col_count):
-            table_rem_row_cmd = "{}.removeRow({})".format(self.table_name, i)
+            table_rem_row_cmd = "{}.removeRow(int({}))".format(self.table_name, i)
             eval(table_rem_row_cmd)
 
             # for i in range(len(self.data_list)):
             # self.insert_new_row(self.table_name)
 
         for row in range(len(self.data_list)):
-            cmd = '{}.insertRow({})'.format(self.table_name, row)
+            cmd = '{}.insertRow(int({}))'.format(self.table_name, row)
             eval(cmd)
             for col in range(len(self.data_list[row])):
                 # item = self.comboBox_sito.setEditText(self.data_list[0][col]
-                item = QTableWidgetItem(str(self.data_list[row][col]))
-                exec_str = '{}.setItem({},{},{})'.format(self.table_name, row, col, item)
+                # item = QTableWidgetItem(self.data_list[row][col])
+                # TODO SL: evauation of QTableWidget does not work porperly
+                exec_str = '{}.setItem(int({}),int({}),QTableWidgetItem(self.data_list[row][col]))'.format(self.table_name, row, col)
                 eval(exec_str)
 
     def insert_new_row(self, table_name):
