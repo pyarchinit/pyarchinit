@@ -2626,27 +2626,27 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
         self.data_list.sort()
 
         # column table count
-        table_col_count_cmd = ("%s.columnCount()") % (self.table_name)
+        table_col_count_cmd = "{}.columnCount()".format(self.table_name)
         table_col_count = eval(table_col_count_cmd)
 
         # clear table
-        table_clear_cmd = ("%s.clearContents()") % (self.table_name)
+        table_clear_cmd = "{}.clearContents()".format(self.table_name)
         eval(table_clear_cmd)
 
         for i in range(table_col_count):
-            table_rem_row_cmd = ("%s.removeRow(%d)") % (self.table_name, i)
+            table_rem_row_cmd = "{}.removeRow({})".format(self.table_name, i)
             eval(table_rem_row_cmd)
 
             # for i in range(len(self.data_list)):
             # self.insert_new_row(self.table_name)
 
         for row in range(len(self.data_list)):
-            cmd = ('%s.insertRow(%s)') % (self.table_name, row)
+            cmd = '{}.insertRow({})'.format(self.table_name, row)
             eval(cmd)
             for col in range(len(self.data_list[row])):
                 # item = self.comboBox_sito.setEditText(self.data_list[0][col]
                 item = QTableWidgetItem(str(self.data_list[row][col]))
-                exec_str = ('%s.setItem(%d,%d,item)') % (self.table_name, row, col)
+                exec_str = '{}.setItem({},{},{})'.format(self.table_name, row, col, item)
                 eval(exec_str)
 
     def insert_new_row(self, table_name):
