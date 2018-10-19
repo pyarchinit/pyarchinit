@@ -789,7 +789,7 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
         self.comboBox_sito.addItems(sito_vl)
         self.comboBox_sito_rappcheck.addItems(sito_vl)
 
-        # lista definizione_stratigrafica
+        # lista definizione_stratigrafica funzione da clonare
         search_dict = {
             'nome_tabella': "'" + 'us_table' + "'",
             'tipologia_sigla': "'" + 'definizione stratigrafica' + "'"
