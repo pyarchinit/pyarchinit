@@ -75,7 +75,7 @@ class Pyarchinit_db_management(object):
             conn.close()
 
         try:
-            db_upd = DB_update()
+            db_upd = DB_update(self.conn_str)
             db_upd.update_table()
         except Exception as e:
             QgsMessageLog.logMessage(
