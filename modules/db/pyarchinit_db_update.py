@@ -1,4 +1,3 @@
-#! /usr/bin/env python
 # -*- coding: utf-8 -*-
 """
 /***************************************************************************
@@ -383,7 +382,3 @@ class DB_update(object):
             pass
             # verificare se aggiorna le tabelle con i campi nuovi
 
-
-if __name__ == '__main__':
-    dbup = DB_update()
-    dbup.update_table()
