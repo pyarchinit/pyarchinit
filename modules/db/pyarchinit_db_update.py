@@ -29,11 +29,10 @@ from modules.db.pyarchinit_conn_strings import Connection
 
 class DB_update(object):
     # connection string postgres"
-
-    # create engine and metadata
-    internal_connection = Connection()
-    engine = create_engine(internal_connection.conn_str(), echo=False)
-    metadata = MetaData(engine)
+    def __init__(self, conn_str):
+        # create engine and metadata
+        self.engine = create_engine(conn_str, echo=False)
+        self.metadata = MetaData(self.engine)
 
     def update_table(self):
         ####site_table
