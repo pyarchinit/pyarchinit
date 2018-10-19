@@ -1002,11 +1002,11 @@ class single_US_pdf_sheet(object):
             [usm_section, '01', '02', '03', '04', '05', '06', '07', '08', '09'],                                        # 13 row ok USM section intestazione
             [funz_statica, '01', lavorazione, '03', spess_giunti, '05', letti_posa, '07', alt_modulo, '09'],            # 14 row ok funz statica, lavorazione, spess_giunti, letti_posa, alt_modulo
             [un_ed_riass, '01', uso_primario, '03', reimp, '05', posa_opera, '07', tecnica_muraria, '09'],              # 15 row ok un_ed_riass, uso_primario, reimpiego, posa_opera, tec_muraria
-            [col_legante_usm, '01', '02', cons_legante, '04', '05', con_text_mat_usm, '07', col_mat_usm, '09'],                     # 16 row ok col legante, cons_legante, cont text mat, col mat
+            [col_legante_usm, '01', '02', cons_legante, '04', '05', con_text_mat_usm, '07', col_mat_usm, '09'],         # 16 row ok col legante, cons_legante, cont text mat, col mat
             [inclusi_mat_usm, '01', '02', '03', '04', '05', '06', '07', '08', '09'],                                    # 17 row ok inclusi_materiale
             [aggreg_legante_usm, '01', '02', '03', '04', '05', '06', '07', '08', '09'],                                 # 18 row ok aggreg_legante_usm
             [campioni_malta, '01', '02', campioni_pietra, '04', '05', campioni_mattone, '07', '08', '09'],              # 19 row ok campioni pietra, campioni malta, campioni mattone
-            [quota_min_usm, '01', quota_max_usm, '03', spessore_usm, '05', lunghezza_usm, '07', altezza_usm, '09' ],                # 20 row quota min usm, quota max usm, spessore, lugnhezza, altezza
+            [quota_min_usm, '01', quota_max_usm, '03', spessore_usm, '05', lunghezza_usm, '07', altezza_usm, '09' ],    # 20 row quota min usm, quota max usm, spessore, lugnhezza, altezza
             [periodizzazione, '01', '02', '03', '04', '05', datazione_ipotesi, '07', '08', '09' ],                      # 21 row periodizzazione, ipotesi datazione
             [iniziale, '01', periodo_iniziale, '03', fase_iniziale, finale, '06', periodo_finale, '08', fase_finale],   # 22 row periodi
             [rapporti_stratigrafici, '01', '02', '03', '04', piante, '06', '07', '08', '09'],                           # 23 row
