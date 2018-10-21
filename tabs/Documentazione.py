@@ -189,6 +189,9 @@ class pyarchinit_Documentazione(QDialog, MAIN_DIALOG_CLASS):
                 ####################################
 
     def charge_list(self):
+
+        # lista sito
+
         sito_vl = self.UTILITY.tup_2_list_III(self.DB_MANAGER.group_by('site_table', 'sito', 'SITE'))
 
         try:
@@ -198,6 +201,57 @@ class pyarchinit_Documentazione(QDialog, MAIN_DIALOG_CLASS):
         self.comboBox_sito_doc.clear()
         sito_vl.sort()
         self.comboBox_sito_doc.addItems(sito_vl)
+
+        # lista tipo documentazione
+
+        self.comboBox_tipo_doc.clear()
+        search_dict = {
+            'nome_tabella': "'" + 'documentazione_table' + "'",
+            'tipologia_sigla': "'" + 'tipo documentazione' + "'"
+        }
+
+        tipo_doc = self.DB_MANAGER.query_bool(search_dict, 'PYARCHINIT_THESAURUS_SIGLE')
+        tipo_doc_vl = []
+
+        for i in range(len(tipo_doc)):
+            tipo_doc_vl.append(tipo_doc[i].sigla_estesa)
+
+        tipo_doc_vl.sort()
+        self.comboBox_tipo_doc.addItems(tipo_doc_vl)
+
+        # lista sorgente
+
+        self.comboBox_sorgente_doc.clear()
+        search_dict = {
+            'nome_tabella': "'" + 'documentazione_table' + "'",
+            'tipologia_sigla': "'" + 'sorgente' + "'"
+        }
+
+        sorgente_doc = self.DB_MANAGER.query_bool(search_dict, 'PYARCHINIT_THESAURUS_SIGLE')
+        sorgente_doc_vl = []
+
+        for i in range(len(sorgente_doc)):
+            sorgente_doc_vl.append(sorgente_doc[i].sigla_estesa)
+
+        sorgente_doc_vl.sort()
+        self.comboBox_sorgente_doc.addItems(sorgente_doc_vl)
+
+        # lista scala
+
+        self.comboBox_scala_doc.clear()
+        search_dict = {
+            'nome_tabella': "'" + 'documentazione_table' + "'",
+            'tipologia_sigla': "'" + 'scala' + "'"
+        }
+
+        scala_doc = self.DB_MANAGER.query_bool(search_dict, 'PYARCHINIT_THESAURUS_SIGLE')
+        scala_doc_vl = []
+
+        for i in range(len(scala_doc)):
+            scala_doc_vl.append(scala_doc[i].sigla_estesa)
+
+        scala_doc_vl.sort()
+        self.comboBox_scala_doc.addItems(scala_doc_vl)
 
     ###################################
 

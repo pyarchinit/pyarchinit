@@ -333,6 +333,9 @@ class pyarchinit_Inventario_Lapidei(QDialog, MAIN_DIALOG_CLASS):
             dlg.exec_()
 
     def charge_list(self):
+
+        #lista sito
+
         sito_vl = self.UTILITY.tup_2_list_III(self.DB_MANAGER.group_by('site_table', 'sito', 'SITE'))
         try:
             sito_vl.remove('')
@@ -346,15 +349,69 @@ class pyarchinit_Inventario_Lapidei(QDialog, MAIN_DIALOG_CLASS):
         sito_vl.sort()
         self.comboBox_sito.addItems(sito_vl)
 
-    # lista definizione_sito
-    #		search_dict = {
-    #		'nome_tabella'  : "'"+'inventario_lapidei_table'+"'",
-    #		'tipologia_sigla' : "'"+'definizione sito'+"'"
-    #		}
+        #lista tipologia
 
-    #		sito = self.DB_MANAGER.query_bool(search_dict, 'PYARCHINIT_THESAURUS_SIGLE')
+        self.comboBox_tipologia.clear()
+        search_dict = {
+            'nome_tabella': "'" + 'inventario_lapidei_table' + "'",
+            'tipologia_sigla': "'" + 'tipologia' + "'"
+        }
 
-    #		sito_vl = [ ]
+        tipologia = self.DB_MANAGER.query_bool(search_dict, 'PYARCHINIT_THESAURUS_SIGLE')
+        tipologia_vl = []
+
+        for i in range(len(tipologia)):
+            tipologia_vl.append(tipologia[i].sigla_estesa)
+
+        tipologia_vl.sort()
+        self.comboBox_tipologia.addItems(tipologia_vl)
+
+        # lista materiale
+
+        self.comboBox_materiale.clear()
+        search_dict = {
+            'nome_tabella': "'" + 'inventario_lapidei_table' + "'",
+            'tipologia_sigla': "'" + 'materiale' + "'"
+        }
+
+        materiale = self.DB_MANAGER.query_bool(search_dict, 'PYARCHINIT_THESAURUS_SIGLE')
+        materiale_vl = []
+
+        for i in range(len(materiale)):
+            materiale_vl.append(materiale[i].sigla_estesa)
+
+        materiale_vl.sort()
+        self.comboBox_materiale.addItems(materiale_vl)
+
+        # lista oggetto
+
+        self.comboBox_oggetto.clear()
+        search_dict = {
+            'nome_tabella': "'" + 'inventario_lapidei_table' + "'",
+            'tipologia_sigla': "'" + 'oggetto' + "'"
+        }
+
+        oggetto = self.DB_MANAGER.query_bool(search_dict, 'PYARCHINIT_THESAURUS_SIGLE')
+        oggetto_vl = []
+
+        for i in range(len(oggetto)):
+            oggetto_vl.append(oggetto[i].sigla_estesa)
+
+        oggetto_vl.sort()
+        self.comboBox_oggetto.addItems(oggetto_vl)
+
+
+
+
+        # lista definizione_sito
+        #		search_dict = {
+        #		'nome_tabella'  : "'"+'inventario_lapidei_table'+"'",
+        #		'tipologia_sigla' : "'"+'definizione sito'+"'"
+        #		}
+
+        #		sito = self.DB_MANAGER.query_bool(search_dict, 'PYARCHINIT_THESAURUS_SIGLE')
+
+        #		sito_vl = [ ]
 
 
     # buttons functions

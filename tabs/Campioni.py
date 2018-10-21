@@ -191,6 +191,9 @@ class pyarchinit_Campioni(QDialog, MAIN_DIALOG_CLASS):
                                     QMessageBox.Ok)
 
     def charge_list(self):
+
+        #lista sito
+
         sito_vl = self.UTILITY.tup_2_list_III(self.DB_MANAGER.group_by('site_table', 'sito', 'SITE'))
 
         try:
@@ -201,7 +204,24 @@ class pyarchinit_Campioni(QDialog, MAIN_DIALOG_CLASS):
         sito_vl.sort()
         self.comboBox_sito.addItems(sito_vl)
 
-        # buttons functions
+        #lista tipo campione
+
+        self.comboBox_tipo_campione.clear()
+        search_dict = {
+            'nome_tabella': "'" + 'campioni_table' + "'",
+            'tipologia_sigla': "'" + 'tipo campione' + "'"
+        }
+
+        tipo_campione = self.DB_MANAGER.query_bool(search_dict, 'PYARCHINIT_THESAURUS_SIGLE')
+        tipo_campione_vl = []
+
+        for i in range(len(tipo_campione)):
+            tipo_campione_vl.append(tipo_campione[i].sigla_estesa)
+
+        tipo_campione_vl.sort()
+        self.comboBox_tipo_campione.addItems(tipo_campione_vl)
+
+    # buttons functions
 
     def on_pushButton_pdf_pressed(self):
         pass

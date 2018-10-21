@@ -669,38 +669,84 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
         self.setComboBoxEditable(["self.comboBox_per_iniz"], 1)
         self.setComboBoxEditable(["self.comboBox_fas_iniz"], 1)
 
-        valuesRS = ["Uguale a", "Si lega a", "Copre", "Coperto da", "Riempie", "Riempito da", "Taglia", "Tagliato da",
-                    "Si appoggia a", "Gli si appoggia", ""]
+
+
+        #lista tipo di rapporto
+
+        search_dict = {
+            'nome_tabella': "'" + 'us_table' + "'",
+            'tipologia_sigla': "'" + 'tipo di rapporto' + "'"
+        }
+
+        tipo_di_rapporto = self.DB_MANAGER.query_bool(search_dict, 'PYARCHINIT_THESAURUS_SIGLE')
+        valuesRS = []
+
+        for i in range(len(tipo_di_rapporto)):
+            valuesRS.append(tipo_di_rapporto[i].sigla_estesa)
+
+        valuesRS.sort()
+
+        #valuesRS = ["Uguale a", "Si lega a", "Copre", "Coperto da", "Riempie", "Riempito da", "Taglia", "Tagliato da",
+        #            "Si appoggia a", "Gli si appoggia", ""]
         self.delegateRS = ComboBoxDelegate()
         self.delegateRS.def_values(valuesRS)
         self.delegateRS.def_editable('False')
         self.tableWidget_rapporti.setItemDelegateForColumn(0, self.delegateRS)
 
-        valuesDoc = ["Fotografia", "Diapositiva", "Sezione", "Planimetria", "Prospetto", "Video", "Fotopiano"]
+        # lista tipo documentazione
+
+        search_dict = {
+            'nome_tabella': "'" + 'us_table' + "'",
+            'tipologia_sigla': "'" + 'tipo documentazione' + "'"
+        }
+
+        tipo_di_documentazione = self.DB_MANAGER.query_bool(search_dict, 'PYARCHINIT_THESAURUS_SIGLE')
+        valuesDoc = []
+
+        for i in range(len(tipo_di_documentazione)):
+            valuesDoc.append(tipo_di_documentazione[i].sigla_estesa)
+
+        valuesDoc.sort()
+
+        #valuesDoc = ["Fotografia", "Diapositiva", "Sezione", "Planimetria", "Prospetto", "Video", "Fotopiano"]
         self.delegateDoc = ComboBoxDelegate()
         self.delegateDoc.def_values(valuesDoc)
         self.delegateDoc.def_editable('False')
         self.tableWidget_documentazione.setItemDelegateForColumn(0, self.delegateDoc)
 
-        valuesINCL_CAMP = ["Terra",
-                           "Pietre",
-                           "Laterizio",
-                           "Ciottoli",
-                           "Calcare",
-                           "Calce",
-                           "Carboni",
-                           "Concotto",
-                           "Ghiaia",
-                           "Cariossidi",
-                           "Malacofauna",
-                           "Sabbia",
-                           "Malta",
-                           "Ceramica",
-                           "Metalli",
-                           "Fr. ossei umani",
-                           "Fr. ossei animali",
-                           "Fr. lapidei"]
+        #lista inclusi campioni
 
+        search_dict = {
+            'nome_tabella': "'" + 'us_table' + "'",
+            'tipologia_sigla': "'" + 'tipo inclusi campioni' + "'"
+        }
+
+        tipo_inclusi_campioni = self.DB_MANAGER.query_bool(search_dict, 'PYARCHINIT_THESAURUS_SIGLE')
+        valuesINCL_CAMP = []
+
+        for i in range(len(tipo_inclusi_campioni)):
+            valuesINCL_CAMP.append(tipo_inclusi_campioni[i].sigla_estesa)
+
+        valuesINCL_CAMP.sort()
+
+        #valuesINCL_CAMP = ["Terra",
+         #                  "Pietre",
+         #                  "Laterizio",
+         #                  "Ciottoli",
+         #                  "Calcare",
+         #                  "Calce",
+          #                 "Carboni",
+         #                  "Concotto",
+         #                  "Ghiaia",
+         #                  "Cariossidi",
+         #                  "Malacofauna",
+          #                 "Sabbia",
+          #                 "Malta",
+          #                 "Ceramica",
+          #                 "Metalli",
+          #                 "Fr. ossei umani",
+           #                "Fr. ossei animali",
+           #                "Fr. lapidei"]
         self.delegateINCL_CAMP = ComboBoxDelegate()
         valuesINCL_CAMP.sort()
         self.delegateINCL_CAMP.def_values(valuesINCL_CAMP)
@@ -772,7 +818,9 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
             dlg.exec_()
 
     def charge_list(self):
+
         # lista sito
+
         sito_vl = self.UTILITY.tup_2_list_III(self.DB_MANAGER.group_by('site_table', 'sito', 'SITE'))
         try:
             sito_vl.remove('')
@@ -789,14 +837,104 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
         self.comboBox_sito.addItems(sito_vl)
         self.comboBox_sito_rappcheck.addItems(sito_vl)
 
-        # lista definizione_stratigrafica funzione da clonare
+        # lista sito
+
+        #self.comboBox_sito.clear()
+        #self.comboBox_sito_rappcheck.clear()
+        #search_dict = {
+        #    'nome_tabella': "'" + 'us_table' + "'",
+        #    'tipologia_sigla': "'" + 'sito' + "'"
+        #}
+
+        #sito = self.DB_MANAGER.query_bool(search_dict, 'PYARCHINIT_THESAURUS_SIGLE')
+        #sito_vl = []
+
+        #for i in range(len(sito)):
+        #    sito_vl.append(sito[i].sigla_estesa)
+
+        #sito_vl.sort()
+        #self.comboBox_sito.addItems(sito_vl)
+        #self.comboBox_sito_rappcheck.addItems(sito_vl)
+
+        # lista area
+
+        self.comboBox_area.clear()
+        self.comboBox_area_rappcheck.clear()
+        search_dict = {
+            'nome_tabella': "'" + 'us_table' + "'",
+            'tipologia_sigla': "'" + 'area' + "'"
+        }
+
+        area = self.DB_MANAGER.query_bool(search_dict, 'PYARCHINIT_THESAURUS_SIGLE')
+        area_vl = []
+
+        for i in range(len(area)):
+            area_vl.append(area[i].sigla)
+
+        area_vl.sort()
+        self.comboBox_area.addItems(area_vl)
+        self.comboBox_area_rappcheck.addItems(area_vl)
+
+        # lista unita tipo
+
+        self.comboBox_unita_tipo.clear()
+        search_dict = {
+            'nome_tabella': "'" + 'us_table' + "'",
+            'tipologia_sigla': "'" + 'unita tipo' + "'"
+        }
+
+        unita_tipo = self.DB_MANAGER.query_bool(search_dict, 'PYARCHINIT_THESAURUS_SIGLE')
+        unita_tipo_vl = []
+
+        for i in range(len(unita_tipo)):
+            unita_tipo_vl.append(unita_tipo[i].sigla)
+
+        unita_tipo_vl.sort()
+        self.comboBox_unita_tipo.addItems(unita_tipo_vl)
+
+        # lista settore
+
+        self.comboBox_settore.clear()
+        search_dict = {
+            'nome_tabella': "'" + 'us_table' + "'",
+            'tipologia_sigla': "'" + 'settore' + "'"
+        }
+
+        settore = self.DB_MANAGER.query_bool(search_dict, 'PYARCHINIT_THESAURUS_SIGLE')
+        settore_vl = []
+
+        for i in range(len(settore)):
+            settore_vl.append(settore[i].sigla)
+
+        settore_vl.sort()
+        self.comboBox_settore.addItems(settore_vl)
+
+        # lista soprintendenza
+
+        self.comboBox_soprintendenza.clear()
+        search_dict = {
+            'nome_tabella': "'" + 'us_table' + "'",
+            'tipologia_sigla': "'" + 'soprintendenza' + "'"
+        }
+
+        soprintendenza = self.DB_MANAGER.query_bool(search_dict, 'PYARCHINIT_THESAURUS_SIGLE')
+        soprintendenza_vl = []
+
+        for i in range(len(soprintendenza)):
+            soprintendenza_vl.append(soprintendenza[i].sigla_estesa)
+
+        soprintendenza_vl.sort()
+        self.comboBox_soprintendenza.addItems(soprintendenza_vl)
+
+        # lista definizione_stratigrafica
+
+        self.comboBox_def_strat.clear()
         search_dict = {
             'nome_tabella': "'" + 'us_table' + "'",
             'tipologia_sigla': "'" + 'definizione stratigrafica' + "'"
         }
 
         d_stratigrafica = self.DB_MANAGER.query_bool(search_dict, 'PYARCHINIT_THESAURUS_SIGLE')
-
         d_stratigrafica_vl = []
 
         for i in range(len(d_stratigrafica)):
@@ -804,6 +942,276 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
 
         d_stratigrafica_vl.sort()
         self.comboBox_def_strat.addItems(d_stratigrafica_vl)
+
+        # lista definizione interpretata
+
+        self.comboBox_def_intepret.clear()
+        search_dict = {
+            'nome_tabella': "'" + 'us_table' + "'",
+            'tipologia_sigla': "'" + 'definizione interpretata' + "'"
+        }
+
+        d_interpretativa = self.DB_MANAGER.query_bool(search_dict, 'PYARCHINIT_THESAURUS_SIGLE')
+        d_interpretativa_vl = []
+
+        for i in range(len(d_interpretativa)):
+            d_interpretativa_vl.append(d_interpretativa[i].sigla_estesa)
+
+        d_interpretativa_vl.sort()
+        self.comboBox_def_intepret.addItems(d_interpretativa_vl)
+
+        # lista funzione statica
+
+        self.comboBox_funz_statica_usm.clear()
+        search_dict = {
+            'nome_tabella': "'" + 'us_table' + "'",
+            'tipologia_sigla': "'" + 'funzione statica' + "'"
+        }
+
+        funz_statica = self.DB_MANAGER.query_bool(search_dict, 'PYARCHINIT_THESAURUS_SIGLE')
+        funz_statica_vl = []
+
+        for i in range(len(funz_statica)):
+            if funz_statica[i].sigla_estesa not in funz_statica_vl:
+                funz_statica_vl.append(funz_statica[i].sigla_estesa)
+
+        funz_statica_vl.sort()
+        self.comboBox_funz_statica_usm.addItems(funz_statica_vl)
+
+        #lista consistenza legante usm
+
+        self.comboBox_consistenza_legante_usm.clear()
+        search_dict = {
+            'nome_tabella': "'" + 'us_table' + "'",
+            'tipologia_sigla': "'" + 'consistenza legante usm' + "'"
+        }
+
+        consistenza_legante_usm = self.DB_MANAGER.query_bool(search_dict, 'PYARCHINIT_THESAURUS_SIGLE')
+        consistenza_legante_usm_vl = []
+
+        for i in range(len(consistenza_legante_usm)):
+            if consistenza_legante_usm[i].sigla_estesa not in consistenza_legante_usm_vl:
+                consistenza_legante_usm_vl.append(consistenza_legante_usm[i].sigla_estesa)
+
+        consistenza_legante_usm_vl.sort()
+        self.comboBox_consistenza.addItems(consistenza_legante_usm_vl)
+
+        # lista scavato
+
+        self.comboBox_scavato.clear()
+        search_dict = {
+            'nome_tabella': "'" + 'us_table' + "'",
+            'tipologia_sigla': "'" + 'scavato' + "'"
+        }
+
+        scavato = self.DB_MANAGER.query_bool(search_dict, 'PYARCHINIT_THESAURUS_SIGLE')
+        scavato_vl = []
+
+        for i in range(len(scavato)):
+            if scavato[i].sigla_estesa not in scavato_vl:
+                scavato_vl.append(scavato[i].sigla_estesa)
+
+        scavato_vl.sort()
+        self.comboBox_scavato.addItems(scavato_vl)
+
+        # lista metodo di scavo
+
+        self.comboBox_metodo.clear()
+        search_dict = {
+            'nome_tabella': "'" + 'us_table' + "'",
+            'tipologia_sigla': "'" + 'metodo di scavo' + "'"
+        }
+
+        metodo = self.DB_MANAGER.query_bool(search_dict, 'PYARCHINIT_THESAURUS_SIGLE')
+        metodo_vl = []
+
+        for i in range(len(metodo)):
+            if metodo[i].sigla_estesa not in metodo_vl:
+                metodo_vl.append(metodo[i].sigla_estesa)
+
+        metodo_vl.sort()
+        self.comboBox_metodo.addItems(metodo_vl)
+
+        # lista formazione
+
+        self.comboBox_formazione.clear()
+        search_dict = {
+            'nome_tabella': "'" + 'us_table' + "'",
+            'tipologia_sigla': "'" + 'formazione' + "'"
+        }
+
+        formazione = self.DB_MANAGER.query_bool(search_dict, 'PYARCHINIT_THESAURUS_SIGLE')
+        formazione_vl = []
+
+        for i in range(len(formazione)):
+            if formazione[i].sigla_estesa not in formazione_vl:
+                formazione_vl.append(formazione[i].sigla_estesa)
+
+        formazione_vl.sort()
+        self.comboBox_formazione.addItems(formazione_vl)
+
+        # lista modo formazione
+
+        self.comboBox_modo_formazione.clear()
+        search_dict = {
+            'nome_tabella': "'" + 'us_table' + "'",
+            'tipologia_sigla': "'" + 'modo formazione' + "'"
+        }
+
+        modo_formazione = self.DB_MANAGER.query_bool(search_dict, 'PYARCHINIT_THESAURUS_SIGLE')
+        modo_formazione_vl = []
+
+        for i in range(len(modo_formazione)):
+            if modo_formazione[i].sigla_estesa not in modo_formazione_vl:
+                modo_formazione_vl.append(modo_formazione[i].sigla_estesa)
+
+        modo_formazione_vl.sort()
+        self.comboBox_modo_formazione.addItems(modo_formazione_vl)
+
+        # lista colore
+
+        self.comboBox_colore.clear()
+        search_dict = {
+            'nome_tabella': "'" + 'us_table' + "'",
+            'tipologia_sigla': "'" + 'colore' + "'"
+        }
+
+        colore = self.DB_MANAGER.query_bool(search_dict, 'PYARCHINIT_THESAURUS_SIGLE')
+        colore_vl = []
+
+        for i in range(len(colore)):
+            if colore[i].sigla_estesa not in colore_vl:
+                colore_vl.append(colore[i].sigla_estesa)
+
+        colore_vl.sort()
+        self.comboBox_colore.addItems(colore_vl)
+
+        # lista consistenza
+
+        self.comboBox_consistenza.clear()
+        search_dict = {
+            'nome_tabella': "'" + 'us_table' + "'",
+            'tipologia_sigla': "'" + 'consistenza' + "'"
+        }
+
+        consistenza = self.DB_MANAGER.query_bool(search_dict, 'PYARCHINIT_THESAURUS_SIGLE')
+        consistenza_vl = []
+
+        for i in range(len(consistenza)):
+            if consistenza[i].sigla_estesa not in consistenza_vl:
+                consistenza_vl.append(consistenza[i].sigla_estesa)
+
+        consistenza_vl.sort()
+        self.comboBox_consistenza.addItems(consistenza_vl)
+
+        # lista stato di conservazione
+
+        self.comboBox_conservazione.clear()
+        search_dict = {
+            'nome_tabella': "'" + 'us_table' + "'",
+            'tipologia_sigla': "'" + 'stato di conservazione' + "'"
+        }
+
+        conservazione = self.DB_MANAGER.query_bool(search_dict, 'PYARCHINIT_THESAURUS_SIGLE')
+        conservazione_vl = []
+
+        for i in range(len(conservazione)):
+            if conservazione[i].sigla_estesa not in conservazione_vl:
+                conservazione_vl.append(conservazione[i].sigla_estesa)
+
+        conservazione_vl.sort()
+        self.comboBox_conservazione.addItems(conservazione_vl)
+
+        # lista componenti organici
+
+        self.comboBox_componenti_organici.clear()
+        search_dict = {
+            'nome_tabella': "'" + 'us_table' + "'",
+            'tipologia_sigla': "'" + 'componenti organici' + "'"
+        }
+
+        componenti_organici = self.DB_MANAGER.query_bool(search_dict, 'PYARCHINIT_THESAURUS_SIGLE')
+        componenti_organici_vl = []
+
+        for i in range(len(componenti_organici)):
+            if componenti_organici[i].sigla_estesa not in componenti_organici_vl:
+                componenti_organici_vl.append(componenti_organici[i].sigla_estesa)
+
+        componenti_organici_vl.sort()
+        self.comboBox_componenti_organici.addItems(componenti_organici_vl)
+
+        # lista componenti inorganici
+
+        self.comboBox_componenti_inorganici.clear()
+        search_dict = {
+            'nome_tabella': "'" + 'us_table' + "'",
+            'tipologia_sigla': "'" + 'componenti inorganici' + "'"
+        }
+
+        componenti_inorganici = self.DB_MANAGER.query_bool(search_dict, 'PYARCHINIT_THESAURUS_SIGLE')
+        componenti_inorganici_vl = []
+
+        for i in range(len(componenti_inorganici)):
+            if componenti_inorganici[i].sigla_estesa not in componenti_inorganici_vl:
+                componenti_inorganici_vl.append(componenti_inorganici[i].sigla_estesa)
+
+        componenti_inorganici_vl.sort()
+        self.comboBox_componenti_inorganici.addItems(componenti_inorganici_vl)
+
+        # lista schedatore
+
+        self.comboBox_schedatore.clear()
+        search_dict = {
+            'nome_tabella': "'" + 'us_table' + "'",
+            'tipologia_sigla': "'" + 'schedatore' + "'"
+        }
+
+        schedatore = self.DB_MANAGER.query_bool(search_dict, 'PYARCHINIT_THESAURUS_SIGLE')
+        schedatore_vl = []
+
+        for i in range(len(schedatore)):
+            if schedatore[i].sigla_estesa not in schedatore_vl:
+                schedatore_vl.append(schedatore[i].sigla_estesa)
+
+        schedatore_vl.sort()
+        self.comboBox_schedatore.addItems(schedatore_vl)
+
+        # lista direttore us
+
+        self.comboBox_direttore_us.clear()
+        search_dict = {
+            'nome_tabella': "'" + 'us_table' + "'",
+            'tipologia_sigla': "'" + 'direttore us' + "'"
+        }
+
+        direttore_us = self.DB_MANAGER.query_bool(search_dict, 'PYARCHINIT_THESAURUS_SIGLE')
+        direttore_us_vl = []
+
+        for i in range(len(direttore_us)):
+            if direttore_us[i].sigla_estesa not in direttore_us_vl:
+                direttore_us_vl.append(direttore_us[i].sigla_estesa)
+
+        direttore_us_vl.sort()
+        self.comboBox_direttore_us.addItems(direttore_us_vl)
+
+        # lista responsabile us
+
+        self.comboBox_responsabile_us.clear()
+        search_dict = {
+            'nome_tabella': "'" + 'us_table' + "'",
+            'tipologia_sigla': "'" + 'responsabile us' + "'"
+        }
+
+        responsabile_us = self.DB_MANAGER.query_bool(search_dict, 'PYARCHINIT_THESAURUS_SIGLE')
+        responsabile_us_vl = []
+
+        for i in range(len(responsabile_us)):
+            if responsabile_us[i].sigla_estesa not in responsabile_us_vl:
+                responsabile_us_vl.append(responsabile_us[i].sigla_estesa)
+
+        responsabile_us_vl.sort()
+        self.comboBox_responsabile_us.addItems(responsabile_us_vl)
+
 
     def charge_fase_iniz_list(self):
         try:
