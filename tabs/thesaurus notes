@@ -1,0 +1,77 @@
+    TABELLA                             COMBOBOX                                 SIGLA THESAURUS
+
+campioni_table                    comboBox_tipo_campione                        tipo campione
+
+documentazione_table              comboBox_tipo_doc                             tipo documentazione
+documentazione_table              comboBox_sorgente                             sorgente
+documentazione_table              comboBox_scala                                scala
+
+inventario_lapidei_table          comboBox_tipologia                            tipologia
+inventario_lapidei_table          comboBox_materiale                            materiale
+inventario_lapidei_table          comboBox_oggetto                              oggetto
+
+inventario_materiali_table        delegato a tableWidget_elementi_reperto       unita di misura
+inventario_materiali_table        comboBox_tipo_reperto                         tipo reperto
+inventario_materiali_table        comboBox_criterio_schedatura                  classe materiale
+inventario_materiali_table        comboBox_definizione                          definizione
+inventario_materiali_table        comboBox_repertato                            repertato
+inventario_materiali_table        comboBox_diagnostico                          diagnostico
+inventario_materiali_table        comboBox_conservazione                        stato di conservazione
+inventario_materiali_table        comboBox_lavato                               lavato
+
+periodizzazione_table             comboBox_fase                                 fase
+
+individui_table                   comboBox_sesso                                sesso
+individui_table                   comboBox_classi_eta                           classi eta
+individui_table                   comboBox_eta_min                              eta min
+individui_table                   comboBox_eta_max                              eta max
+
+struttura_table                   delegato a tableWidget_rapporti               tipo di rapporto
+struttura_table                   delegato a tableWidget_materiali_impiegati    materiali
+struttura_table                   comboBox_sigla_struttura                      sigla struttura
+struttura_table                   comboBox_categoria_struttura                  categoria
+struttura_table                   comboBox_tipologia_struttura                  tipologia
+struttura_table                   comboBox_definizione_struttura                definizione
+
+Tafonomia_table                   comboBox_rito                                 rito
+Tafonomia_table                   comboBox_segnacoli                            segnacoli
+Tafonomia_table                   comboBox_canale_libatorio                     canale libatorio
+Tafonomia_table                   comboBox_oggetti_esterno                      oggetti esterno
+Tafonomia_table                   comboBox_conservazione                        stato di conservazione
+Tafonomia_table                   comboBox_copertura                            tipo copertura
+Tafonomia_table                   comboBox_tipo_contenitore_resti               tipo contenitore resti
+Tafonomia_table                   comboBox_corredo_presenza                     corredo
+Tafonomia_table                   comboBox_posizione_scheletro                  posizione scheletro
+Tafonomia_table                   comboBox_posizione_cranio                     posizione cranio
+Tafonomia_table                   comboBox_arti_superiori                       posizione arti superiori
+Tafonomia_table                   comboBox_arti_inferiori                       posizione arti inferiori
+Tafonomia_table                   comboBox_disturbato                           disturbato
+Tafonomia_table                   comboBox_completo                             completo
+Tafonomia_table                   comboBox_in_connessione                       in connessione
+
+us_table                          delegato a tableWidget_rapporti               tipo di rapporto
+us_table                          delegato a tableWidget_documentazione         tipo documentazione
+us_table                          delegato a tableWidget_campioni               tipo inclusi campioni
+us_table                          comboBox_area                                 area
+us_table                          comboBox_area_rappcheck                       area
+us_table                          comboBox_unita_tipo                           unita tipo
+us_table                          comboBox_settore                              settore
+us_table                          comboBox_soprintendenza                       soprintendenza
+us_table                          comboBox_def_strat                            definizione stratigrafica
+us_table                          comboBox_def_intepret                         definizione interpretata
+us_table                          comboBox_funz_statica_usm                     funzione statica
+us_table                          comboBox_consistenza_legante_usm              consistenza legante usm
+us_table                          comboBox_scavato                              scavato
+us_table                          comboBox_metodo                               metodo di scavo
+us_table                          comboBox_formazione                           formazione
+us_table                          comboBox_modo_formazione                      modo formazione
+us_table                          comboBox_colore                               colore
+us_table                          comboBox_consistenza                          consistenza
+us_table                          comboBox_conservazione                        stato di conservazione
+us_table                          comboBox_componenti_organici                  componenti organici
+us_table                          comboBox_componenti_inorganici                componenti inorganici
+us_table                          comboBox_schedatore                           schedatore
+us_table                          comboBox_direttore_us                         direttore us
+us_table                          comboBox_responsabile_us                      responsabile us
+
+ut_table                          comboBox_nr_ut                                UT

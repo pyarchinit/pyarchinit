@@ -331,7 +331,9 @@ class pyarchinit_Tafonomia(QDialog, MAIN_DIALOG_CLASS):
         pass
 
     def charge_list(self):
+
         # lista sito
+
         sito_vl = self.UTILITY.tup_2_list_III(self.DB_MANAGER.group_by('site_table', 'sito', 'SITE'))
         try:
             sito_vl.remove('')
@@ -345,6 +347,262 @@ class pyarchinit_Tafonomia(QDialog, MAIN_DIALOG_CLASS):
 
         sito_vl.sort()
         self.comboBox_sito.addItems(sito_vl)
+
+        # lista rito
+
+        self.comboBox_rito.clear()
+        search_dict = {
+            'nome_tabella': "'" + 'Tafonomia_table' + "'",
+            'tipologia_sigla': "'" + 'rito' + "'"
+        }
+
+        rito = self.DB_MANAGER.query_bool(search_dict, 'PYARCHINIT_THESAURUS_SIGLE')
+        rito_vl = []
+
+        for i in range(len(rito)):
+            rito_vl.append(rito[i].sigla)
+
+        rito_vl.sort()
+        self.comboBox_rito.addItems(rito_vl)
+
+        # lista segnacoli
+
+        self.comboBox_segnacoli.clear()
+        search_dict = {
+            'nome_tabella': "'" + 'Tafonomia_table' + "'",
+            'tipologia_sigla': "'" + 'segnacoli' + "'"
+        }
+
+        segnacoli = self.DB_MANAGER.query_bool(search_dict, 'PYARCHINIT_THESAURUS_SIGLE')
+        segnacoli_vl = []
+
+        for i in range(len(segnacoli)):
+            segnacoli_vl.append(segnacoli[i].sigla_estesa)
+
+        segnacoli_vl.sort()
+        self.comboBox_segnacoli.addItems(segnacoli_vl)
+
+        # lista canale libatorio
+
+        self.comboBox_canale_libatorio.clear()
+        search_dict = {
+            'nome_tabella': "'" + 'Tafonomia_table' + "'",
+            'tipologia_sigla': "'" + 'canale libatorio' + "'"
+        }
+
+        canale_libatorio = self.DB_MANAGER.query_bool(search_dict, 'PYARCHINIT_THESAURUS_SIGLE')
+        canale_libatorio_vl = []
+
+        for i in range(len(canale_libatorio)):
+            canale_libatorio_vl.append(canale_libatorio[i].sigla_estesa)
+
+        canale_libatorio_vl.sort()
+        self.comboBox_canale_libatorio.addItems(canale_libatorio_vl)
+
+        # lista oggetti rinvenuti all'esterno
+
+        self.comboBox_oggetti_esterno.clear()
+        search_dict = {
+            'nome_tabella': "'" + 'Tafonomia_table' + "'",
+            'tipologia_sigla': "'" + 'oggetti esterno' + "'"
+        }
+
+        oggetti_esterno = self.DB_MANAGER.query_bool(search_dict, 'PYARCHINIT_THESAURUS_SIGLE')
+        oggetti_esterno_vl = []
+
+        for i in range(len(oggetti_esterno)):
+            oggetti_esterno_vl.append(oggetti_esterno[i].sigla_estesa)
+
+        oggetti_esterno_vl.sort()
+        self.comboBox_oggetti_esterno.addItems(oggetti_esterno_vl)
+
+        # lista stato di conservazione
+
+        self.comboBox_conservazione_taf.clear()
+        search_dict = {
+            'nome_tabella': "'" + 'Tafonomia_table' + "'",
+            'tipologia_sigla': "'" + 'stato di conservazione' + "'"
+        }
+
+        conservazione_taf = self.DB_MANAGER.query_bool(search_dict, 'PYARCHINIT_THESAURUS_SIGLE')
+        conservazione_taf_vl = []
+
+        for i in range(len(conservazione_taf)):
+            conservazione_taf_vl.append(conservazione_taf[i].sigla_estesa)
+
+        conservazione_taf_vl.sort()
+        self.comboBox_conservazione_taf.addItems(conservazione_taf_vl)
+
+        # lista tipo copertura
+
+        self.comboBox_copertura_tipo.clear()
+        search_dict = {
+            'nome_tabella': "'" + 'Tafonomia_table' + "'",
+            'tipologia_sigla': "'" + 'tipo copertura' + "'"
+        }
+
+        copertura_tipo = self.DB_MANAGER.query_bool(search_dict, 'PYARCHINIT_THESAURUS_SIGLE')
+        copertura_tipo_vl = []
+
+        for i in range(len(copertura_tipo)):
+            copertura_tipo_vl.append(copertura_tipo[i].sigla_estesa)
+
+        copertura_tipo_vl.sort()
+        self.comboBox_copertura_tipo.addItems(copertura_tipo_vl)
+
+        # lista tipo contenitore resti
+
+        self.comboBox_tipo_contenitore_resti.clear()
+        search_dict = {
+            'nome_tabella': "'" + 'Tafonomia_table' + "'",
+            'tipologia_sigla': "'" + 'tipo contenitore resti' + "'"
+        }
+
+        tipo_contenitore_resti = self.DB_MANAGER.query_bool(search_dict, 'PYARCHINIT_THESAURUS_SIGLE')
+        tipo_contenitore_resti_vl = []
+
+        for i in range(len(tipo_contenitore_resti)):
+            tipo_contenitore_resti_vl.append(tipo_contenitore_resti[i].sigla_estesa)
+
+        tipo_contenitore_resti_vl.sort()
+        self.comboBox_tipo_contenitore_resti.addItems(tipo_contenitore_resti_vl)
+
+        # lista corredo
+
+        self.comboBox_corredo_presenza.clear()
+        search_dict = {
+            'nome_tabella': "'" + 'Tafonomia_table' + "'",
+            'tipologia_sigla': "'" + 'corredo' + "'"
+        }
+
+        corredo_presenza = self.DB_MANAGER.query_bool(search_dict, 'PYARCHINIT_THESAURUS_SIGLE')
+        corredo_presenza_vl = []
+
+        for i in range(len(corredo_presenza)):
+            corredo_presenza_vl.append(corredo_presenza[i].sigla_estesa)
+
+        corredo_presenza_vl.sort()
+        self.comboBox_corredo_presenza.addItems(corredo_presenza_vl)
+
+        # lista posizione scheletro
+
+        self.comboBox_posizione_scheletro.clear()
+        search_dict = {
+            'nome_tabella': "'" + 'Tafonomia_table' + "'",
+            'tipologia_sigla': "'" + 'posizione scheletro' + "'"
+        }
+
+        posizione_scheletro = self.DB_MANAGER.query_bool(search_dict, 'PYARCHINIT_THESAURUS_SIGLE')
+        posizione_scheletro_vl = []
+
+        for i in range(len(posizione_scheletro)):
+            posizione_scheletro_vl.append(posizione_scheletro[i].sigla_estesa)
+
+        posizione_scheletro_vl.sort()
+        self.comboBox_posizione_scheletro.addItems(posizione_scheletro_vl)
+
+        # lista posizione cranio
+
+        self.comboBox_posizione_cranio.clear()
+        search_dict = {
+            'nome_tabella': "'" + 'Tafonomia_table' + "'",
+            'tipologia_sigla': "'" + 'posizione cranio' + "'"
+        }
+
+        posizione_cranio = self.DB_MANAGER.query_bool(search_dict, 'PYARCHINIT_THESAURUS_SIGLE')
+        posizione_cranio_vl = []
+
+        for i in range(len(posizione_cranio)):
+            posizione_cranio_vl.append(posizione_cranio[i].sigla_estesa)
+
+        posizione_cranio_vl.sort()
+        self.comboBox_posizione_cranio.addItems(posizione_cranio_vl)
+
+        # lista posizione arti superiori
+
+        self.comboBox_arti_superiori.clear()
+        search_dict = {
+            'nome_tabella': "'" + 'Tafonomia_table' + "'",
+            'tipologia_sigla': "'" + 'posizione arti superiori' + "'"
+        }
+
+        arti_superiori = self.DB_MANAGER.query_bool(search_dict, 'PYARCHINIT_THESAURUS_SIGLE')
+        arti_superiori_vl = []
+
+        for i in range(len(arti_superiori)):
+            arti_superiori_vl.append(arti_superiori[i].sigla_estesa)
+
+        arti_superiori_vl.sort()
+        self.comboBox_arti_superiori.addItems(arti_superiori_vl)
+
+        # lista posizione arti inferiori
+
+        self.comboBox_arti_inferiori.clear()
+        search_dict = {
+            'nome_tabella': "'" + 'Tafonomia_table' + "'",
+            'tipologia_sigla': "'" + 'posizione arti inferiori' + "'"
+        }
+
+        arti_inferiori = self.DB_MANAGER.query_bool(search_dict, 'PYARCHINIT_THESAURUS_SIGLE')
+        arti_inferiori_vl = []
+
+        for i in range(len(arti_inferiori)):
+            arti_inferiori_vl.append(arti_inferiori[i].sigla_estesa)
+
+        arti_inferiori_vl.sort()
+        self.comboBox_arti_inferiori.addItems(arti_inferiori_vl)
+
+        # lista disturbato
+
+        self.comboBox_disturbato.clear()
+        search_dict = {
+            'nome_tabella': "'" + 'Tafonomia_table' + "'",
+            'tipologia_sigla': "'" + 'disturbato' + "'"
+        }
+
+        disturbato = self.DB_MANAGER.query_bool(search_dict, 'PYARCHINIT_THESAURUS_SIGLE')
+        disturbato_vl = []
+
+        for i in range(len(disturbato)):
+            disturbato_vl.append(disturbato[i].sigla_estesa)
+
+        disturbato_vl.sort()
+        self.comboBox_disturbato.addItems(disturbato_vl)
+
+        # lista completo
+
+        self.comboBox_completo.clear()
+        search_dict = {
+            'nome_tabella': "'" + 'Tafonomia_table' + "'",
+            'tipologia_sigla': "'" + 'completo' + "'"
+        }
+
+        completo = self.DB_MANAGER.query_bool(search_dict, 'PYARCHINIT_THESAURUS_SIGLE')
+        completo_vl = []
+
+        for i in range(len(completo)):
+            completo_vl.append(completo[i].sigla_estesa)
+
+        completo_vl.sort()
+        self.comboBox_completo.addItems(completo_vl)
+
+        # lista in connessione
+
+        self.comboBox_in_connessione.clear()
+        search_dict = {
+            'nome_tabella': "'" + 'Tafonomia_table' + "'",
+            'tipologia_sigla': "'" + 'in connessione' + "'"
+        }
+
+        in_connessione = self.DB_MANAGER.query_bool(search_dict, 'PYARCHINIT_THESAURUS_SIGLE')
+        in_connessione_vl = []
+
+        for i in range(len(in_connessione)):
+            in_connessione_vl.append(in_connessione[i].sigla_estesa)
+
+        in_connessione_vl.sort()
+        self.comboBox_in_connessione.addItems(in_connessione_vl)
+
 
     def charge_periodo_iniz_list(self):
         sito = str(self.comboBox_sito.currentText())

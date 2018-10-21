@@ -241,6 +241,7 @@ class pyarchinit_Site(QDialog, MAIN_DIALOG_CLASS):
         regioni_list = ['Abruzzo', 'Basilicata', 'Calabria', 'Campania', 'Emilia-Romagna', 'Friuli Venezia Giulia',
                         'Lazio', 'Liguria', 'Lombardia', 'Marche', 'Molise', 'Piemonte', 'Puglia', 'Sardegna',
                         'Sicilia', 'Toscana', 'Trentino Alto Adige', 'Umbria', 'Valle d\'Aosta', 'Veneto']
+        self.comboBox_regione.clear()
         self.comboBox_regione.addItems(regioni_list)
 
         province_list = ['Agrigento', 'Alessandria', 'Ancona', 'Aosta', 'Arezzo', 'Ascoli Piceno', 'Asti', 'Avellino',
@@ -258,7 +259,7 @@ class pyarchinit_Site(QDialog, MAIN_DIALOG_CLASS):
                          'Savona', 'Siena', 'Siracusa', 'Sondrio', 'Taranto', 'Teramo', 'Terni', 'Torino', 'Trapani',
                          'Trento', 'Treviso', 'Trieste', 'Udine', 'Varese', 'Venezia', 'Verbano-Cusio-Ossola',
                          'Vercelli', 'Verona', 'Vibo Valentia', 'Vicenza', 'Viterbo']
-
+        self.comboBox_provincia.clear()
         self.comboBox_provincia.addItems(province_list)
 
         # lista definizione_sito
@@ -266,7 +267,7 @@ class pyarchinit_Site(QDialog, MAIN_DIALOG_CLASS):
             'nome_tabella': "'" + 'site_table' + "'",
             'tipologia_sigla': "'" + 'definizione sito' + "'"
         }
-
+        self.comboBox_definizione_sito.clear()
         d_sito = self.DB_MANAGER.query_bool(search_dict, 'PYARCHINIT_THESAURUS_SIGLE')
 
         d_sito_vl = []

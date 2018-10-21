@@ -316,6 +316,7 @@ class pyarchinit_UT(QDialog, MAIN_DIALOG_CLASS):
         regioni_list = ['Abruzzo', 'Basilicata', 'Calabria', 'Campania', 'Emilia-Romagna', 'Friuli Venezia Giulia',
                         'Lazio', 'Liguria', 'Lombardia', 'Marche', 'Molise', 'Piemonte', 'Puglia', 'Sardegna',
                         'Sicilia', 'Toscana', 'Trentino Alto Adige', 'Umbria', 'Valle d\'Aosta', 'Veneto']
+        self.comboBox_regione.clear()
         self.comboBox_regione.addItems(regioni_list)
 
         province_list = ['Agrigento', 'Alessandria', 'Ancona', 'Aosta', 'Arezzo', 'Ascoli Piceno', 'Asti', 'Avellino',
@@ -333,10 +334,27 @@ class pyarchinit_UT(QDialog, MAIN_DIALOG_CLASS):
                          'Savona', 'Siena', 'Siracusa', 'Sondrio', 'Taranto', 'Teramo', 'Terni', 'Torino', 'Trapani',
                          'Trento', 'Treviso', 'Trieste', 'Udine', 'Varese', 'Venezia', 'Verbano-Cusio-Ossola',
                          'Vercelli', 'Verona', 'Vibo Valentia', 'Vicenza', 'Viterbo']
-
+        self.comboBox_provincia.clear()
         self.comboBox_provincia.addItems(province_list)
 
-        # buttons functions
+        # lista UT
+
+        self.comboBox_nr_ut.clear()
+        search_dict = {
+            'nome_tabella': "'" + 'ut_table' + "'",
+            'tipologia_sigla': "'" + 'UT' + "'"
+        }
+
+        nr_ut = self.DB_MANAGER.query_bool(search_dict, 'PYARCHINIT_THESAURUS_SIGLE')
+        nr_ut_vl = []
+
+        for i in range(len(nr_ut)):
+            nr_ut_vl.append(nr_ut[i].sigla)
+
+        nr_ut_vl.sort()
+        self.comboBox_nr_ut.addItems(nr_ut_vl)
+
+    # buttons functions
 
     def on_pushButton_sort_pressed(self):
         if self.check_record_state() == 1:

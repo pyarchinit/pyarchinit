@@ -202,12 +202,13 @@ class pyarchinit_Inventario_reperti(QDialog, MAIN_DIALOG_CLASS):
         super().__init__()
         self.iface = iface
         self.setupUi(self)
-        self.customize_gui()
+
         self.currentLayerId = None
         try:
             self.on_pushButton_connect_pressed()
         except Exception as e:
             QMessageBox.warning(self, "Sistema di connessione", str(e), QMessageBox.Ok)
+        self.customize_gui()
 
     def on_pushButtonQuant_pressed(self):
         dlg = QuantPanelMain(self)
@@ -512,7 +513,19 @@ class pyarchinit_Inventario_reperti(QDialog, MAIN_DIALOG_CLASS):
 
         # delegate combobox
 
-        valuesTE = ["frammento", "frammenti", "intero", "integro"]
+        # lista tipo di rapporto
+
+        search_dict = {'nome_tabella': "'" + 'inventario_materiali_table' + "'",
+                       'tipologia_sigla': "'" + 'unita di misura' + "'"}
+        unita_di_misura = self.DB_MANAGER.query_bool(search_dict, 'PYARCHINIT_THESAURUS_SIGLE')
+        valuesTE = []
+
+        for i in range(len(unita_di_misura)):
+            valuesTE.append(unita_di_misura[i].sigla_estesa)
+
+        valuesTE.sort()
+
+        #valuesTE = ["frammento", "frammenti", "intero", "integro"]
         self.delegateTE = ComboBoxDelegate()
         self.delegateTE.def_values(valuesTE)
         self.delegateTE.def_editable('False')
@@ -567,6 +580,9 @@ class pyarchinit_Inventario_reperti(QDialog, MAIN_DIALOG_CLASS):
             dlg.exec_()
 
     def charge_list(self):
+
+        #lista sito
+
         sito_vl = self.UTILITY.tup_2_list_III(self.DB_MANAGER.group_by('site_table', 'sito', 'SITE'))
         try:
             sito_vl.remove('')
@@ -580,7 +596,127 @@ class pyarchinit_Inventario_reperti(QDialog, MAIN_DIALOG_CLASS):
         sito_vl.sort()
         self.comboBox_sito.addItems(sito_vl)
 
-        # buttons functions
+        #lista tipo reperto
+
+        self.comboBox_tipo_reperto.clear()
+        search_dict = {
+            'nome_tabella': "'" + 'inventario_materiali_table' + "'",
+            'tipologia_sigla': "'" + 'tipo reperto' + "'"
+        }
+
+        tipo_reperto = self.DB_MANAGER.query_bool(search_dict, 'PYARCHINIT_THESAURUS_SIGLE')
+        tipo_reperto_vl = []
+
+        for i in range(len(tipo_reperto)):
+            tipo_reperto_vl.append(tipo_reperto[i].sigla_estesa)
+
+        tipo_reperto_vl.sort()
+        self.comboBox_tipo_reperto.addItems(tipo_reperto_vl)
+
+        # lista classe materiale
+
+        self.comboBox_criterio_schedatura.clear()
+        search_dict = {
+            'nome_tabella': "'" + 'inventario_materiali_table' + "'",
+            'tipologia_sigla': "'" + 'classe materiale' + "'"
+        }
+
+        criterio_schedatura = self.DB_MANAGER.query_bool(search_dict, 'PYARCHINIT_THESAURUS_SIGLE')
+        criterio_schedatura_vl = []
+
+        for i in range(len(criterio_schedatura)):
+            criterio_schedatura_vl.append(criterio_schedatura[i].sigla_estesa)
+
+            criterio_schedatura_vl.sort()
+        self.comboBox_criterio_schedatura.addItems(criterio_schedatura_vl)
+
+        # lista definizione reperto
+
+        self.comboBox_definizione.clear()
+        search_dict = {
+            'nome_tabella': "'" + 'inventario_materiali_table' + "'",
+            'tipologia_sigla': "'" + 'definizione' + "'"
+        }
+
+        definizione = self.DB_MANAGER.query_bool(search_dict, 'PYARCHINIT_THESAURUS_SIGLE')
+        definizione_vl = []
+
+        for i in range(len(definizione)):
+            definizione_vl.append(definizione[i].sigla_estesa)
+
+        definizione_vl.sort()
+        self.comboBox_definizione.addItems(definizione_vl)
+
+        # lista repertato
+
+        self.comboBox_repertato.clear()
+        search_dict = {
+            'nome_tabella': "'" + 'inventario_materiali_table' + "'",
+            'tipologia_sigla': "'" + 'repertato' + "'"
+        }
+
+        repertato = self.DB_MANAGER.query_bool(search_dict, 'PYARCHINIT_THESAURUS_SIGLE')
+        repertato_vl = []
+
+        for i in range(len(repertato)):
+            repertato_vl.append(repertato[i].sigla_estesa)
+
+        repertato_vl.sort()
+        self.comboBox_repertato.addItems(repertato_vl)
+
+        # lista diagnostico
+
+        self.comboBox_diagnostico.clear()
+        search_dict = {
+            'nome_tabella': "'" + 'inventario_materiali_table' + "'",
+            'tipologia_sigla': "'" + 'diagnostico' + "'"
+        }
+
+        diagnostico = self.DB_MANAGER.query_bool(search_dict, 'PYARCHINIT_THESAURUS_SIGLE')
+        diagnostico_vl = []
+
+        for i in range(len(diagnostico)):
+            diagnostico_vl.append(diagnostico[i].sigla_estesa)
+
+        diagnostico_vl.sort()
+        self.comboBox_diagnostico.addItems(diagnostico_vl)
+
+        # lista stato di conservazione
+
+        self.comboBox_conservazione.clear()
+        search_dict = {
+            'nome_tabella': "'" + 'inventario_materiali_table' + "'",
+            'tipologia_sigla': "'" + 'stato di conservazione' + "'"
+        }
+
+        conservazione = self.DB_MANAGER.query_bool(search_dict, 'PYARCHINIT_THESAURUS_SIGLE')
+        conservazione_vl = []
+
+        for i in range(len(conservazione)):
+            conservazione_vl.append(conservazione[i].sigla_estesa)
+
+        conservazione_vl.sort()
+        self.comboBox_conservazione.addItems(conservazione_vl)
+
+        # lista lavato
+
+        self.comboBox_lavato.clear()
+        search_dict = {
+            'nome_tabella': "'" + 'inventario_materiali_table' + "'",
+            'tipologia_sigla': "'" + 'lavato' + "'"
+        }
+
+        lavato = self.DB_MANAGER.query_bool(search_dict, 'PYARCHINIT_THESAURUS_SIGLE')
+        lavato_vl = []
+
+        for i in range(len(lavato)):
+            lavato_vl.append(lavato[i].sigla_estesa)
+
+        lavato_vl.sort()
+        self.comboBox_lavato.addItems(lavato_vl)
+
+
+    # buttons functions
 
     def on_pushButton_sort_pressed(self):
         if self.check_record_state() == 1:
