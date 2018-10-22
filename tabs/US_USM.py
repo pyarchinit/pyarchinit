@@ -856,42 +856,6 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
         #self.comboBox_sito.addItems(sito_vl)
         #self.comboBox_sito_rappcheck.addItems(sito_vl)
 
-        # lista area
-
-        self.comboBox_area.clear()
-        self.comboBox_area_rappcheck.clear()
-        search_dict = {
-            'nome_tabella': "'" + 'us_table' + "'",
-            'tipologia_sigla': "'" + 'area' + "'"
-        }
-
-        area = self.DB_MANAGER.query_bool(search_dict, 'PYARCHINIT_THESAURUS_SIGLE')
-        area_vl = []
-
-        for i in range(len(area)):
-            area_vl.append(area[i].sigla)
-
-        area_vl.sort()
-        self.comboBox_area.addItems(area_vl)
-        self.comboBox_area_rappcheck.addItems(area_vl)
-
-        # lista unita tipo
-
-        self.comboBox_unita_tipo.clear()
-        search_dict = {
-            'nome_tabella': "'" + 'us_table' + "'",
-            'tipologia_sigla': "'" + 'unita tipo' + "'"
-        }
-
-        unita_tipo = self.DB_MANAGER.query_bool(search_dict, 'PYARCHINIT_THESAURUS_SIGLE')
-        unita_tipo_vl = []
-
-        for i in range(len(unita_tipo)):
-            unita_tipo_vl.append(unita_tipo[i].sigla)
-
-        unita_tipo_vl.sort()
-        self.comboBox_unita_tipo.addItems(unita_tipo_vl)
-
         # lista settore
 
         self.comboBox_settore.clear()

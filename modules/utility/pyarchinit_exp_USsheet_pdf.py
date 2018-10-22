@@ -1543,7 +1543,7 @@ class single_US_pdf_sheet(object):
         ]
 
         colWidths = (15,30,30,30,30,30,30,30,30,30,30,30,20,30,30,30,30,30)
-        rowHeights = (15, 35, 15, 30, 40, 40, 40, 40, 15, 70, 35, 30, 100, 18, 18, 18, 18, 18, 18, 18, 18, 18, 18, 80, 180, 130, 65, 130, 35, 35)
+        rowHeights = None
 
         t = Table(cell_schema, colWidths=colWidths, rowHeights=rowHeights, style=table_style)
 
