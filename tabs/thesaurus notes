@@ -52,9 +52,6 @@ Tafonomia_table                   comboBox_in_connessione                       
 us_table                          delegato a tableWidget_rapporti               tipo di rapporto
 us_table                          delegato a tableWidget_documentazione         tipo documentazione
 us_table                          delegato a tableWidget_campioni               tipo inclusi campioni
-us_table                          comboBox_area                                 area
-us_table                          comboBox_area_rappcheck                       area
-us_table                          comboBox_unita_tipo                           unita tipo
 us_table                          comboBox_settore                              settore
 us_table                          comboBox_soprintendenza                       soprintendenza
 us_table                          comboBox_def_strat                            definizione stratigrafica
