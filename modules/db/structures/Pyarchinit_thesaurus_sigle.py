@@ -26,6 +26,7 @@ class Pyarchinit_thesaurus_sigle:
                                        Column('sigla_estesa', Text),
                                        Column('descrizione', Text),
                                        Column('tipologia_sigla', Text),
+                                       Column('lingua', Text),
 
                                        # explicit/composite unique constraint.  'name' is optional.
                                        UniqueConstraint('id_thesaurus_sigle', name='id_thesaurus_sigle_pk')

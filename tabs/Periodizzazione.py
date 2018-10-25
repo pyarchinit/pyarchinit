@@ -193,39 +193,7 @@ class pyarchinit_Periodizzazione(QDialog, MAIN_DIALOG_CLASS):
 
     def charge_list(self):
 
-        # lista periodo
-
-        self.comboBox_periodo.clear()
-        search_dict = {
-            'nome_tabella': "'" + 'periodizzazione_table' + "'",
-            'tipologia_sigla': "'" + 'periodo' + "'"
-        }
-
-        periodo = self.DB_MANAGER.query_bool(search_dict, 'PYARCHINIT_THESAURUS_SIGLE')
-        periodo_vl = []
-
-        for i in range(len(periodo)):
-            periodo_vl.append(periodo[i].sigla)
-
-        periodo_vl.sort()
-        self.comboBox_periodo.addItems(periodo_vl)
-
-        # lista fase
-
-        self.comboBox_fase.clear()
-        search_dict = {
-            'nome_tabella': "'" + 'periodizzazione_table' + "'",
-            'tipologia_sigla': "'" + 'fase' + "'"
-        }
-
-        fase = self.DB_MANAGER.query_bool(search_dict, 'PYARCHINIT_THESAURUS_SIGLE')
-        fase_vl = []
-
-        for i in range(len(fase)):
-            fase_vl.append(fase[i].sigla)
-
-        fase_vl.sort()
-        self.comboBox_fase.addItems(fase_vl)
+        pass
 
     def charge_list_sito(self):
         sito_vl = self.UTILITY.tup_2_list_III(self.DB_MANAGER.group_by('site_table', 'sito', 'SITE'))

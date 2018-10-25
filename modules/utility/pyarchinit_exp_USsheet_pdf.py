@@ -211,6 +211,27 @@ class single_US_pdf_sheet(object):
         self.criteri_distinzione_usm = data[94]
         self.uso_primario_usm = data[95]
 
+    def unzip_componenti(self):
+        org = eval(self.componenti_organici)
+        inorg = eval(self.componenti_inorganici)
+        organici = ''
+        inorganici = ''
+        if len(org)>0:
+            for item in org:
+                organici += ""+str(item)[2:len(str(item))-2]+", " #trasforma item da ['Stringa'] a Stringa
+            organici = organici[0:len(organici)-2] #tolgo la virgola in più
+
+        if len(inorg) > 0:
+            for item in inorg:
+                inorganici += "" + str(item)[2:len(str(item)) - 2] + ", "  # trasforma item da ['Stringa'] a Stringa
+            inorganici = inorganici[0:len(inorganici) - 2]  # tolgo la virgola in più
+         #   if len(org) > 1:
+         #       i=1
+         #       while i < len(org):
+         #           organici += ", "+org[i]
+         #           i=i+1
+
+        return organici, inorganici
 
     def unzip_rapporti_stratigrafici(self):
         rapporti = eval(self.rapporti)
@@ -1292,12 +1313,14 @@ class single_US_pdf_sheet(object):
 
         #8-9 row
 
+        organici, inorganici= self.unzip_componenti()
+
         label_componenti = Paragraph("<b>COMPONENTI</b>",styVerticale)
         label_geologici = Paragraph("<i>GEOLOGICI</i>",styTitoloComponenti)
         label_organici = Paragraph("<i>ORGANICI</i>", styTitoloComponenti)
         label_artificiali = Paragraph("<i>ARTIFICIALI</i>", styTitoloComponenti)
-        comp_organici = Paragraph(self.componenti_organici, styNormal)
-        comp_inorganici = Paragraph(self.componenti_inorganici, styNormal)  #geologici? artificiali?
+        comp_organici = Paragraph(organici, styNormal)
+        comp_inorganici = Paragraph(inorganici, styNormal)  #geologici? artificiali?
 
         #10 row
 
@@ -1634,6 +1657,8 @@ class US_index_pdf_sheet(object):
                         self.gli_si_appoggia += str(rapporto[1])
                     else:
                         self.gli_si_appoggia += ', ' + str(rapporto[1])
+
+
 
     def getTable(self):
         styleSheet = getSampleStyleSheet()

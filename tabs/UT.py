@@ -337,23 +337,6 @@ class pyarchinit_UT(QDialog, MAIN_DIALOG_CLASS):
         self.comboBox_provincia.clear()
         self.comboBox_provincia.addItems(province_list)
 
-        # lista UT
-
-        self.comboBox_nr_ut.clear()
-        search_dict = {
-            'nome_tabella': "'" + 'ut_table' + "'",
-            'tipologia_sigla': "'" + 'UT' + "'"
-        }
-
-        nr_ut = self.DB_MANAGER.query_bool(search_dict, 'PYARCHINIT_THESAURUS_SIGLE')
-        nr_ut_vl = []
-
-        for i in range(len(nr_ut)):
-            nr_ut_vl.append(nr_ut[i].sigla)
-
-        nr_ut_vl.sort()
-        self.comboBox_nr_ut.addItems(nr_ut_vl)
-
     # buttons functions
 
     def on_pushButton_sort_pressed(self):

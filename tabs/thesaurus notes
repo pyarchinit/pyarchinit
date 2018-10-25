@@ -1,74 +1,145 @@
-    TABELLA                             COMBOBOX                                 SIGLA THESAURUS
+          TABELLA site_table
+------------------------------------
+Lingua | Tipologia sigla   | Codice
+------------------------------------
+IT_is  | Definizione sito  | 1.1
+EN_us  |                   | 1.1
 
-campioni_table                    comboBox_tipo_campione                        tipo campione
 
-documentazione_table              comboBox_tipo_doc                             tipo documentazione
-documentazione_table              comboBox_sorgente                             sorgente
-documentazione_table              comboBox_scala                                scala
+          TABELLA us_table
+-------------------------------------------------------------
+Lingua | Tipologia sigla                            | Codice
+-------------------------------------------------------------
+IT_is  | Settore                                    | 2.1
+EN_us  |                                            | 2.1
+IT_is  | Soprintendenza                             | 2.2
+EN_us  |                                            | 2.2
+IT_us  | Definizione stratigrafica                  | 2.3
+EN_us  |                                            | 2.3
+IT_us  | Definizione interpretata                   | 2.4
+EN_us  |                                            | 2.4
+IT_us  | Funzione statica                           | 2.5
+EN_us  |                                            | 2.5
+IT_us  | Consistenza legante usm                    | 2.6
+EN_us  |                                            | 2.6
+IT_us  | Consistenza/texture                        | 2.7
+EN_us  |                                            | 2.7
+IT_us  | Metodo di scavo                            | 2.8
+EN_us  |                                            | 2.8
+IT_us  | Formazione                                 | 2.9
+EN_us  |                                            | 2.9
+IT_us  | Modo formazione                            | 2.10
+EN_us  |                                            | 2.10
+IT_us  | Consistenza                                | 2.11
+EN_us  |                                            | 2.11
+IT_us  | Stato di conservazione                     | 2.12
+EN_us  |                                            | 2.12
+IT_us  | Campioni                                   | 2.13
+EN_us  |                                            | 2.13
+IT_us  | Componenti organici                        | 2.14
+EN_us  |                                            | 2.14
+IT_us  | Componenti inorganici                      | 2.15
+EN_us  |                                            | 2.15
+IT_us  | Schedatore                                 | 2.16
+EN_us  |                                            | 2.16
+IT_us  | Direttore us                               | 2.17
+EN_us  |                                            | 2.17
+IT_us  | Responsabile us                            | 2.18
+EN_us  |                                            | 2.18
+IT_us  | Tipo documentazione                        | 2.19
+EN_us  |                                            | 2.19
+IT_us  | Colore                                     | 201.201
+EN_us  |                                            | 201.201
+IT_us  | Inclusi                                    | 202.202
+EN_us  |                                            | 202.202
+IT_us  | Valori sì/no                               | 203.203
+EN_us  |                                            | 203.203
 
-inventario_lapidei_table          comboBox_tipologia                            tipologia
-inventario_lapidei_table          comboBox_materiale                            materiale
-inventario_lapidei_table          comboBox_oggetto                              oggetto
+          TABELLA inventario_materiali_table
+-------------------------------------------------------------
+Lingua | Tipologia sigla                            | Codice
+-------------------------------------------------------------
+IT_us  | Tipo reperto                               | 3.1
+EN_us  |                                            | 3.1
+IT_us  | Classe materiale                           | 3.2
+EN_us  |                                            | 3.2
+IT_us  | Definizione reperto                        | 3.3
+EN_us  |                                            | 3.3
+IT_us  | Elemento rinvenuto                         | 3.4
+EN_us  |                                            | 3.4
+IT_us  | Tipo di misura                             | 3.5
+EN_us  |                                            | 3.5
+IT_us  | Misurazioni - Unita di misura              | 3.6
+EN_us  |                                            | 3.6
+IT_us  | Tipo tecnologia                            | 3.7
+EN_us  |                                            | 3.7
+IT_us  | Posizione                                  | 3.8
+EN_us  |                                            | 3.8
+IT_us  | Tipo quantita                              | 3.9
+EN_us  |                                            | 3.9
+IT_us  | Tecnologie - Unita di misura               | 3.10
+EN_us  |                                            | 3.10
+IT_us  | Valori sì/no                               | 301.301
+EN_us  |                                            | 301.301
 
-inventario_materiali_table        delegato a tableWidget_elementi_reperto       unita di misura
-inventario_materiali_table        comboBox_tipo_reperto                         tipo reperto
-inventario_materiali_table        comboBox_criterio_schedatura                  classe materiale
-inventario_materiali_table        comboBox_definizione                          definizione
-inventario_materiali_table        comboBox_repertato                            repertato
-inventario_materiali_table        comboBox_diagnostico                          diagnostico
-inventario_materiali_table        comboBox_conservazione                        stato di conservazione
-inventario_materiali_table        comboBox_lavato                               lavato
+          TABELLA campioni_table
+-------------------------------------------------------------
+Lingua | Tipologia sigla                            | Codice
+-------------------------------------------------------------
+IT_us  | Tipo campione                              | 4.1
+EN_us  |                                            | 4.1
 
-periodizzazione_table             comboBox_fase                                 fase
+          TABELLA inventario_lapidei_table
+-------------------------------------------------------------
+Lingua | Tipologia sigla                            | Codice
+-------------------------------------------------------------
+IT_us  | Tipologia                                  | 5.1
+EN_us  |                                            | 5.1
+IT_us  | Materiale                                  | 5.2
+EN_us  |                                            | 5.2
+IT_us  | Oggetto                                    | 5.3
+EN_us  |                                            | 5.3
 
-individui_table                   comboBox_sesso                                sesso
-individui_table                   comboBox_classi_eta                           classi eta
-individui_table                   comboBox_eta_min                              eta min
-individui_table                   comboBox_eta_max                              eta max
+          TABELLA struttura_table
+-------------------------------------------------------------
+Lingua | Tipologia sigla                            | Codice
+-------------------------------------------------------------
+IT_us  | Sigla struttura                            | 6.1
+EN_us  |                                            | 6.1
+IT_us  | Categoria                                  | 6.2
+EN_us  |                                            | 6.2
+IT_us  | Tipologia                                  | 6.3
+EN_us  |                                            | 6.3
+IT_us  | Definizione                                | 6.4
+EN_us  |                                            | 6.4
+IT_us  | Sigla                                      | 6.1
+EN_us  |                                            | 6.1
+IT_us  | Materiali                                  | 6.5
+EN_us  |                                            | 6.5
+IT_us  | Tipologia elemento                         | 6.6
+EN_us  |                                            | 6.6
+IT_us  | Tipo misura                                | 6.7
+EN_us  |                                            | 6.7
+IT_us  | Unita di misura                            | 6.8
+EN_us  |                                            | 6.8
 
-struttura_table                   delegato a tableWidget_rapporti               tipo di rapporto
-struttura_table                   delegato a tableWidget_materiali_impiegati    materiali
-struttura_table                   comboBox_sigla_struttura                      sigla struttura
-struttura_table                   comboBox_categoria_struttura                  categoria
-struttura_table                   comboBox_tipologia_struttura                  tipologia
-struttura_table                   comboBox_definizione_struttura                definizione
+          TABELLA Tafonomia_table
+-------------------------------------------------------------
+Lingua | Tipologia sigla                            | Codice
+-------------------------------------------------------------
+IT_us  | Rito                                       | 7.1
+EN_us  |                                            | 7.1
+IT_us  | Stato di conservazione                     | 7.2
+EN_us  |                                            | 7.2
+IT_us  | Tipo copertura                             | 7.3
+EN_us  |                                            | 7.3
+IT_us  | Tipo contenitore resti                     | 7.4
+EN_us  |                                            | 7.4
+IT_us  | Corredo                                    | 7.5
+EN_us  |                                            | 7.5
+IT_us  | Sì, No                                     | 701.701
+EN_us  |                                            | 701.701
+IT_us  | Sì, No, Non determinabile                  | 702.702
+EN_us  |                                            | 702.702
 
-Tafonomia_table                   comboBox_rito                                 rito
-Tafonomia_table                   comboBox_segnacoli                            segnacoli
-Tafonomia_table                   comboBox_canale_libatorio                     canale libatorio
-Tafonomia_table                   comboBox_oggetti_esterno                      oggetti esterno
-Tafonomia_table                   comboBox_conservazione                        stato di conservazione
-Tafonomia_table                   comboBox_copertura                            tipo copertura
-Tafonomia_table                   comboBox_tipo_contenitore_resti               tipo contenitore resti
-Tafonomia_table                   comboBox_corredo_presenza                     corredo
-Tafonomia_table                   comboBox_posizione_scheletro                  posizione scheletro
-Tafonomia_table                   comboBox_posizione_cranio                     posizione cranio
-Tafonomia_table                   comboBox_arti_superiori                       posizione arti superiori
-Tafonomia_table                   comboBox_arti_inferiori                       posizione arti inferiori
-Tafonomia_table                   comboBox_disturbato                           disturbato
-Tafonomia_table                   comboBox_completo                             completo
-Tafonomia_table                   comboBox_in_connessione                       in connessione
 
-us_table                          delegato a tableWidget_rapporti               tipo di rapporto
-us_table                          delegato a tableWidget_documentazione         tipo documentazione
-us_table                          delegato a tableWidget_campioni               tipo inclusi campioni
-us_table                          comboBox_settore                              settore
-us_table                          comboBox_soprintendenza                       soprintendenza
-us_table                          comboBox_def_strat                            definizione stratigrafica
-us_table                          comboBox_def_intepret                         definizione interpretata
-us_table                          comboBox_funz_statica_usm                     funzione statica
-us_table                          comboBox_consistenza_legante_usm              consistenza legante usm
-us_table                          comboBox_scavato                              scavato
-us_table                          comboBox_metodo                               metodo di scavo
-us_table                          comboBox_formazione                           formazione
-us_table                          comboBox_modo_formazione                      modo formazione
-us_table                          comboBox_colore                               colore
-us_table                          comboBox_consistenza                          consistenza
-us_table                          comboBox_conservazione                        stato di conservazione
-us_table                          comboBox_componenti_organici                  componenti organici
-us_table                          comboBox_componenti_inorganici                componenti inorganici
-us_table                          comboBox_schedatore                           schedatore
-us_table                          comboBox_direttore_us                         direttore us
-us_table                          comboBox_responsabile_us                      responsabile us
-
-ut_table                          comboBox_nr_ut                                UT

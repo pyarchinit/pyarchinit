@@ -13,7 +13,8 @@ class PYARCHINIT_THESAURUS_SIGLE(object):
                  sigla,
                  sigla_estesa,
                  descrizione,
-                 tipologia_sigla
+                 tipologia_sigla,
+                 lingua
                  ):
         self.id_thesaurus_sigle = id_thesaurus_sigle  # 0
         self.nome_tabella = nome_tabella  # 1
@@ -21,14 +22,16 @@ class PYARCHINIT_THESAURUS_SIGLE(object):
         self.sigla_estesa = sigla_estesa  # 3
         self.descrizione = descrizione  # 4
         self.tipologia_sigla = tipologia_sigla  # 5
+        self.lingua = lingua
 
     # def __repr__"
     def __repr__(self):
-        return "<PYARCHINIT_THESAURUS_SIGLE('%d', '%s', '%s', '%s', '%s', '%s')>" % (
+        return "<PYARCHINIT_THESAURUS_SIGLE('%d', '%s', '%s', '%s', '%s', '%s', '%s')>" % (
             self.id_thesaurus_sigle,
             self.nome_tabella,
             self.sigla,
             self.sigla_estesa,
             self.descrizione,
-            self.tipologia_sigla
+            self.tipologia_sigla,
+            self.lingua
         )
