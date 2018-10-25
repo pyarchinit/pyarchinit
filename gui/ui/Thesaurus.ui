@@ -492,11 +492,129 @@
       <string>Thesaurus</string>
      </property>
      <layout class="QGridLayout" name="gridLayout_6">
-      <item row="1" column="1">
-       <widget class="QLabel" name="label">
+      <item row="5" column="1">
+       <widget class="QLabel" name="label_3">
         <property name="text">
-         <string>Sigla</string>
+         <string>Lingua</string>
         </property>
+       </widget>
+      </item>
+      <item row="1" column="2">
+       <widget class="QLabel" name="label_2">
+        <property name="text">
+         <string>Sigla estesa</string>
+        </property>
+       </widget>
+      </item>
+      <item row="2" column="1">
+       <widget class="QComboBox" name="comboBox_nome_tabella">
+        <property name="enabled">
+         <bool>false</bool>
+        </property>
+        <property name="minimumSize">
+         <size>
+          <width>100</width>
+          <height>0</height>
+         </size>
+        </property>
+        <property name="font">
+         <font>
+          <pointsize>12</pointsize>
+          <weight>75</weight>
+          <bold>true</bold>
+         </font>
+        </property>
+        <property name="mouseTracking">
+         <bool>true</bool>
+        </property>
+        <property name="toolTip">
+         <string/>
+        </property>
+        <property name="editable">
+         <bool>true</bool>
+        </property>
+        <property name="maxVisibleItems">
+         <number>99999</number>
+        </property>
+        <property name="maxCount">
+         <number>2147483647</number>
+        </property>
+        <item>
+         <property name="text">
+          <string>us_table</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>site_table</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>struttura_table</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>pyunitastratigrafiche</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>inventario_materiali_table</string>
+         </property>
+        </item>
+       </widget>
+      </item>
+      <item row="3" column="2">
+       <widget class="QLabel" name="label_11">
+        <property name="text">
+         <string>Tipologia sigla</string>
+        </property>
+       </widget>
+      </item>
+      <item row="3" column="1">
+       <widget class="QLabel" name="label_10">
+        <property name="text">
+         <string>Nome tabella</string>
+        </property>
+       </widget>
+      </item>
+      <item row="0" column="1">
+       <widget class="QComboBox" name="comboBox_sigla">
+        <property name="enabled">
+         <bool>false</bool>
+        </property>
+        <property name="minimumSize">
+         <size>
+          <width>100</width>
+          <height>0</height>
+         </size>
+        </property>
+        <property name="font">
+         <font>
+          <pointsize>12</pointsize>
+          <weight>75</weight>
+          <bold>true</bold>
+         </font>
+        </property>
+        <property name="mouseTracking">
+         <bool>true</bool>
+        </property>
+        <property name="editable">
+         <bool>true</bool>
+        </property>
+        <property name="maxVisibleItems">
+         <number>99999</number>
+        </property>
+        <property name="maxCount">
+         <number>2147483647</number>
+        </property>
+        <item>
+         <property name="text">
+          <string>Inserisci un valore</string>
+         </property>
+        </item>
        </widget>
       </item>
       <item row="0" column="2">
@@ -536,48 +654,11 @@
         </item>
        </widget>
       </item>
-      <item row="1" column="2">
-       <widget class="QLabel" name="label_2">
+      <item row="1" column="1">
+       <widget class="QLabel" name="label">
         <property name="text">
-         <string>Sigla estesa</string>
+         <string>Sigla</string>
         </property>
-       </widget>
-      </item>
-      <item row="0" column="1">
-       <widget class="QComboBox" name="comboBox_sigla">
-        <property name="enabled">
-         <bool>false</bool>
-        </property>
-        <property name="minimumSize">
-         <size>
-          <width>100</width>
-          <height>0</height>
-         </size>
-        </property>
-        <property name="font">
-         <font>
-          <pointsize>12</pointsize>
-          <weight>75</weight>
-          <bold>true</bold>
-         </font>
-        </property>
-        <property name="mouseTracking">
-         <bool>true</bool>
-        </property>
-        <property name="editable">
-         <bool>true</bool>
-        </property>
-        <property name="maxVisibleItems">
-         <number>99999</number>
-        </property>
-        <property name="maxCount">
-         <number>2147483647</number>
-        </property>
-        <item>
-         <property name="text">
-          <string>Inserisci un valore</string>
-         </property>
-        </item>
        </widget>
       </item>
       <item row="2" column="2">
@@ -642,8 +723,8 @@
         </item>
        </widget>
       </item>
-      <item row="2" column="1">
-       <widget class="QComboBox" name="comboBox_nome_tabella">
+      <item row="4" column="1">
+       <widget class="QComboBox" name="comboBox_lingua">
         <property name="enabled">
          <bool>false</bool>
         </property>
@@ -666,51 +747,16 @@
         <property name="editable">
          <bool>true</bool>
         </property>
-        <property name="maxVisibleItems">
-         <number>99999</number>
-        </property>
-        <property name="maxCount">
-         <number>2147483647</number>
-        </property>
         <item>
          <property name="text">
-          <string>us_table</string>
+          <string>it_IT</string>
          </property>
         </item>
         <item>
          <property name="text">
-          <string>site_table</string>
+          <string>en_US</string>
          </property>
         </item>
-        <item>
-         <property name="text">
-          <string>struttura_table</string>
-         </property>
-        </item>
-        <item>
-         <property name="text">
-          <string>pyunitastratigrafiche</string>
-         </property>
-        </item>
-        <item>
-         <property name="text">
-          <string>inventario_materiali_table</string>
-         </property>
-        </item>
-       </widget>
-      </item>
-      <item row="3" column="2">
-       <widget class="QLabel" name="label_11">
-        <property name="text">
-         <string>Tipologia sigla</string>
-        </property>
-       </widget>
-      </item>
-      <item row="3" column="1">
-       <widget class="QLabel" name="label_10">
-        <property name="text">
-         <string>Nome tabella</string>
-        </property>
        </widget>
       </item>
      </layout>
@@ -760,7 +806,7 @@
   <customwidget>
    <class>QgsCollapsibleGroupBox</class>
    <extends>QGroupBox</extends>
-   <header>qgis.gui</header>
+   <header>qgscollapsiblegroupbox.h</header>
    <container>1</container>
   </customwidget>
  </customwidgets>

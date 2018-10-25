@@ -26,6 +26,8 @@ from builtins import str
 from qgis.PyQt.QtWidgets import QDialog, QMessageBox, QTableWidgetItem
 from qgis.PyQt.uic import loadUiType
 from qgis.gui import QgsMapToolPan
+from qgis.core import QgsSettings
+from qgis.PyQt.QtCore import QVariant
 
 from ..modules.db.pyarchinit_conn_strings import Connection
 from ..modules.db.pyarchinit_db_manager import Pyarchinit_db_management
@@ -332,6 +334,8 @@ class pyarchinit_Tafonomia(QDialog, MAIN_DIALOG_CLASS):
 
     def charge_list(self):
 
+        lang = "'" + QgsSettings().value("locale/userLocale", QVariant) + "'"
+
         # lista sito
 
         sito_vl = self.UTILITY.tup_2_list_III(self.DB_MANAGER.group_by('site_table', 'sito', 'SITE'))
@@ -352,8 +356,9 @@ class pyarchinit_Tafonomia(QDialog, MAIN_DIALOG_CLASS):
 
         self.comboBox_rito.clear()
         search_dict = {
+            'lingua': lang,
             'nome_tabella': "'" + 'Tafonomia_table' + "'",
-            'tipologia_sigla': "'" + 'rito' + "'"
+            'tipologia_sigla': "'" + '7.1' + "'"
         }
 
         rito = self.DB_MANAGER.query_bool(search_dict, 'PYARCHINIT_THESAURUS_SIGLE')
@@ -369,8 +374,9 @@ class pyarchinit_Tafonomia(QDialog, MAIN_DIALOG_CLASS):
 
         self.comboBox_segnacoli.clear()
         search_dict = {
+            'lingua': lang,
             'nome_tabella': "'" + 'Tafonomia_table' + "'",
-            'tipologia_sigla': "'" + 'segnacoli' + "'"
+            'tipologia_sigla': "'" + '702.702' + "'"
         }
 
         segnacoli = self.DB_MANAGER.query_bool(search_dict, 'PYARCHINIT_THESAURUS_SIGLE')
@@ -386,8 +392,9 @@ class pyarchinit_Tafonomia(QDialog, MAIN_DIALOG_CLASS):
 
         self.comboBox_canale_libatorio.clear()
         search_dict = {
+            'lingua': lang,
             'nome_tabella': "'" + 'Tafonomia_table' + "'",
-            'tipologia_sigla': "'" + 'canale libatorio' + "'"
+            'tipologia_sigla': "'" + '702.702' + "'"
         }
 
         canale_libatorio = self.DB_MANAGER.query_bool(search_dict, 'PYARCHINIT_THESAURUS_SIGLE')
@@ -403,8 +410,9 @@ class pyarchinit_Tafonomia(QDialog, MAIN_DIALOG_CLASS):
 
         self.comboBox_oggetti_esterno.clear()
         search_dict = {
+            'lingua': lang,
             'nome_tabella': "'" + 'Tafonomia_table' + "'",
-            'tipologia_sigla': "'" + 'oggetti esterno' + "'"
+            'tipologia_sigla': "'" + '702.702' + "'"
         }
 
         oggetti_esterno = self.DB_MANAGER.query_bool(search_dict, 'PYARCHINIT_THESAURUS_SIGLE')
@@ -420,8 +428,9 @@ class pyarchinit_Tafonomia(QDialog, MAIN_DIALOG_CLASS):
 
         self.comboBox_conservazione_taf.clear()
         search_dict = {
+            'lingua': lang,
             'nome_tabella': "'" + 'Tafonomia_table' + "'",
-            'tipologia_sigla': "'" + 'stato di conservazione' + "'"
+            'tipologia_sigla': "'" + '7.2' + "'"
         }
 
         conservazione_taf = self.DB_MANAGER.query_bool(search_dict, 'PYARCHINIT_THESAURUS_SIGLE')
@@ -437,8 +446,9 @@ class pyarchinit_Tafonomia(QDialog, MAIN_DIALOG_CLASS):
 
         self.comboBox_copertura_tipo.clear()
         search_dict = {
+            'lingua': lang,
             'nome_tabella': "'" + 'Tafonomia_table' + "'",
-            'tipologia_sigla': "'" + 'tipo copertura' + "'"
+            'tipologia_sigla': "'" + '7.3' + "'"
         }
 
         copertura_tipo = self.DB_MANAGER.query_bool(search_dict, 'PYARCHINIT_THESAURUS_SIGLE')
@@ -454,8 +464,9 @@ class pyarchinit_Tafonomia(QDialog, MAIN_DIALOG_CLASS):
 
         self.comboBox_tipo_contenitore_resti.clear()
         search_dict = {
+            'lingua': lang,
             'nome_tabella': "'" + 'Tafonomia_table' + "'",
-            'tipologia_sigla': "'" + 'tipo contenitore resti' + "'"
+            'tipologia_sigla': "'" + '7.4' + "'"
         }
 
         tipo_contenitore_resti = self.DB_MANAGER.query_bool(search_dict, 'PYARCHINIT_THESAURUS_SIGLE')
@@ -471,8 +482,9 @@ class pyarchinit_Tafonomia(QDialog, MAIN_DIALOG_CLASS):
 
         self.comboBox_corredo_presenza.clear()
         search_dict = {
+            'lingua': lang,
             'nome_tabella': "'" + 'Tafonomia_table' + "'",
-            'tipologia_sigla': "'" + 'corredo' + "'"
+            'tipologia_sigla': "'" + '7.5' + "'"
         }
 
         corredo_presenza = self.DB_MANAGER.query_bool(search_dict, 'PYARCHINIT_THESAURUS_SIGLE')
@@ -484,80 +496,13 @@ class pyarchinit_Tafonomia(QDialog, MAIN_DIALOG_CLASS):
         corredo_presenza_vl.sort()
         self.comboBox_corredo_presenza.addItems(corredo_presenza_vl)
 
-        # lista posizione scheletro
-
-        self.comboBox_posizione_scheletro.clear()
-        search_dict = {
-            'nome_tabella': "'" + 'Tafonomia_table' + "'",
-            'tipologia_sigla': "'" + 'posizione scheletro' + "'"
-        }
-
-        posizione_scheletro = self.DB_MANAGER.query_bool(search_dict, 'PYARCHINIT_THESAURUS_SIGLE')
-        posizione_scheletro_vl = []
-
-        for i in range(len(posizione_scheletro)):
-            posizione_scheletro_vl.append(posizione_scheletro[i].sigla_estesa)
-
-        posizione_scheletro_vl.sort()
-        self.comboBox_posizione_scheletro.addItems(posizione_scheletro_vl)
-
-        # lista posizione cranio
-
-        self.comboBox_posizione_cranio.clear()
-        search_dict = {
-            'nome_tabella': "'" + 'Tafonomia_table' + "'",
-            'tipologia_sigla': "'" + 'posizione cranio' + "'"
-        }
-
-        posizione_cranio = self.DB_MANAGER.query_bool(search_dict, 'PYARCHINIT_THESAURUS_SIGLE')
-        posizione_cranio_vl = []
-
-        for i in range(len(posizione_cranio)):
-            posizione_cranio_vl.append(posizione_cranio[i].sigla_estesa)
-
-        posizione_cranio_vl.sort()
-        self.comboBox_posizione_cranio.addItems(posizione_cranio_vl)
-
-        # lista posizione arti superiori
-
-        self.comboBox_arti_superiori.clear()
-        search_dict = {
-            'nome_tabella': "'" + 'Tafonomia_table' + "'",
-            'tipologia_sigla': "'" + 'posizione arti superiori' + "'"
-        }
-
-        arti_superiori = self.DB_MANAGER.query_bool(search_dict, 'PYARCHINIT_THESAURUS_SIGLE')
-        arti_superiori_vl = []
-
-        for i in range(len(arti_superiori)):
-            arti_superiori_vl.append(arti_superiori[i].sigla_estesa)
-
-        arti_superiori_vl.sort()
-        self.comboBox_arti_superiori.addItems(arti_superiori_vl)
-
-        # lista posizione arti inferiori
-
-        self.comboBox_arti_inferiori.clear()
-        search_dict = {
-            'nome_tabella': "'" + 'Tafonomia_table' + "'",
-            'tipologia_sigla': "'" + 'posizione arti inferiori' + "'"
-        }
-
-        arti_inferiori = self.DB_MANAGER.query_bool(search_dict, 'PYARCHINIT_THESAURUS_SIGLE')
-        arti_inferiori_vl = []
-
-        for i in range(len(arti_inferiori)):
-            arti_inferiori_vl.append(arti_inferiori[i].sigla_estesa)
-
-        arti_inferiori_vl.sort()
-        self.comboBox_arti_inferiori.addItems(arti_inferiori_vl)
-
         # lista disturbato
 
         self.comboBox_disturbato.clear()
         search_dict = {
+            'lingua': lang,
             'nome_tabella': "'" + 'Tafonomia_table' + "'",
-            'tipologia_sigla': "'" + 'disturbato' + "'"
+            'tipologia_sigla': "'" + '701.701' + "'"
         }
 
         disturbato = self.DB_MANAGER.query_bool(search_dict, 'PYARCHINIT_THESAURUS_SIGLE')
@@ -573,8 +518,9 @@ class pyarchinit_Tafonomia(QDialog, MAIN_DIALOG_CLASS):
 
         self.comboBox_completo.clear()
         search_dict = {
+            'lingua': lang,
             'nome_tabella': "'" + 'Tafonomia_table' + "'",
-            'tipologia_sigla': "'" + 'completo' + "'"
+            'tipologia_sigla': "'" + '701.701' + "'"
         }
 
         completo = self.DB_MANAGER.query_bool(search_dict, 'PYARCHINIT_THESAURUS_SIGLE')
@@ -590,8 +536,9 @@ class pyarchinit_Tafonomia(QDialog, MAIN_DIALOG_CLASS):
 
         self.comboBox_in_connessione.clear()
         search_dict = {
+            'lingua': lang,
             'nome_tabella': "'" + 'Tafonomia_table' + "'",
-            'tipologia_sigla': "'" + 'in connessione' + "'"
+            'tipologia_sigla': "'" + '701.701' + "'"
         }
 
         in_connessione = self.DB_MANAGER.query_bool(search_dict, 'PYARCHINIT_THESAURUS_SIGLE')
@@ -731,7 +678,8 @@ class pyarchinit_Tafonomia(QDialog, MAIN_DIALOG_CLASS):
         sigla_struttura_list = []
 
         for i in range(len(struttura_vl)):
-            sigla_struttura_list.append(str(struttura_vl[i].sigla_struttura))
+            if not sigla_struttura_list.__contains__(str(struttura_vl[i].sigla_struttura)):
+                sigla_struttura_list.append(str(struttura_vl[i].sigla_struttura))
         try:
             sigla_struttura_list.remove('')
         except:
@@ -741,15 +689,13 @@ class pyarchinit_Tafonomia(QDialog, MAIN_DIALOG_CLASS):
 
         self.comboBox_sigla_struttura.clear()
         self.comboBox_sigla_struttura.addItems(sigla_struttura_list)
-        try:
-            self.comboBox_sigla_struttura.setEditText(str(self.DATA_LIST[self.rec_num].sigla_struttura))
-        except:
-            pass
+        self.comboBox_sigla_struttura.setEditText("")
 
         nr_struttura_list = []
 
         for i in range(len(struttura_vl)):
-            nr_struttura_list.append(str(struttura_vl[i].numero_struttura))
+            if not nr_struttura_list.__contains__(str(struttura_vl[i].numero_struttura)):
+                nr_struttura_list.append(str(struttura_vl[i].numero_struttura))
         try:
             nr_struttura_list.remove('')
         except:
@@ -759,10 +705,7 @@ class pyarchinit_Tafonomia(QDialog, MAIN_DIALOG_CLASS):
 
         self.comboBox_nr_struttura.clear()
         self.comboBox_nr_struttura.addItems(nr_struttura_list)
-        try:
-            self.comboBox_nr_struttura.setEditText(self.DATA_LIST[self.rec_num].numero_struttura)
-        except:
-            pass
+        self.comboBox_nr_struttura.setEditText("")
 
     def charge_individuo_list(self):
         search_dict = {

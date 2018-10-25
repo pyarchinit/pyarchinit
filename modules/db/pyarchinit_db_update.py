@@ -270,8 +270,14 @@ class DB_update(object):
         if not table_column_names_list.__contains__('uso_primario_usm'):
             self.engine.execute("ALTER TABLE us_table ADD COLUMN uso_primario_usm text DEFAULT '' ")
 
+        ####pyarchinit_thesaurus_sigle
+        table = Table("pyarchinit_thesaurus_sigle", self.metadata, autoload=True)
+        table_column_names_list = []
+        for i in table.columns:
+            table_column_names_list.append(str(i.name))
 
-
+        if not table_column_names_list.__contains__('lingua'):
+            self.engine.execute("ALTER TABLE pyarchinit_thesaurus_sigle ADD COLUMN lingua text DEFAULT '' ")
 
 
 
@@ -282,7 +288,7 @@ class DB_update(object):
             table_column_names_list.append(str(i.name))
 
         if not table_column_names_list.__contains__('cont_per'):
-            self.engine.execute("ALTER TABLE periodizzazione_table ADD COLUMN cont_per integer DEFAULT 0 ")
+            self.engine.execute("ALTER TABLE periodizzazione_table ADD COLUMN cont_per integer DEFAULT '' ")
 
         ####inventario_materiali_table
         table = Table("inventario_materiali_table", self.metadata, autoload=True)

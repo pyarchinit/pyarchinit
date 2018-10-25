@@ -26,6 +26,8 @@ from builtins import range
 from builtins import str
 from qgis.PyQt.QtWidgets import QApplication, QDialog, QMessageBox
 from qgis.PyQt.uic import loadUiType
+from qgis.PyQt.QtCore import QVariant
+from qgis.core import QgsSettings
 
 from ..modules.db.pyarchinit_conn_strings import Connection
 from ..modules.db.pyarchinit_db_manager import Pyarchinit_db_management
@@ -206,10 +208,13 @@ class pyarchinit_Campioni(QDialog, MAIN_DIALOG_CLASS):
 
         #lista tipo campione
 
+        lang = "'" + QgsSettings().value("locale/userLocale", QVariant) + "'"
+
         self.comboBox_tipo_campione.clear()
         search_dict = {
+            'lingua': lang,
             'nome_tabella': "'" + 'campioni_table' + "'",
-            'tipologia_sigla': "'" + 'tipo campione' + "'"
+            'tipologia_sigla': "'" + '4.1' + "'"
         }
 
         tipo_campione = self.DB_MANAGER.query_bool(search_dict, 'PYARCHINIT_THESAURUS_SIGLE')

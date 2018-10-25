@@ -25,11 +25,12 @@ import numpy as np
 import sys
 from builtins import range
 from builtins import str
-from qgis.PyQt.QtCore import Qt, QSize
+from qgis.PyQt.QtCore import Qt, QSize, QVariant
 from qgis.PyQt.QtGui import QIcon
 from qgis.PyQt.QtWidgets import QDialog, QMessageBox, QListWidget, QListView, QFrame, QAbstractItemView, \
     QTableWidgetItem, QListWidgetItem
 from qgis.PyQt.uic import loadUiType
+from qgis.core import QgsSettings
 
 from ..gui.imageViewer import ImageViewer
 from ..modules.db.pyarchinit_conn_strings import Connection
@@ -351,10 +352,13 @@ class pyarchinit_Inventario_Lapidei(QDialog, MAIN_DIALOG_CLASS):
 
         #lista tipologia
 
+        lang = "'" + QgsSettings().value("locale/userLocale", QVariant) + "'"
+
         self.comboBox_tipologia.clear()
         search_dict = {
+            'lingua': lang,
             'nome_tabella': "'" + 'inventario_lapidei_table' + "'",
-            'tipologia_sigla': "'" + 'tipologia' + "'"
+            'tipologia_sigla': "'" + '5.1' + "'"
         }
 
         tipologia = self.DB_MANAGER.query_bool(search_dict, 'PYARCHINIT_THESAURUS_SIGLE')
@@ -370,8 +374,9 @@ class pyarchinit_Inventario_Lapidei(QDialog, MAIN_DIALOG_CLASS):
 
         self.comboBox_materiale.clear()
         search_dict = {
+            'lingua': lang,
             'nome_tabella': "'" + 'inventario_lapidei_table' + "'",
-            'tipologia_sigla': "'" + 'materiale' + "'"
+            'tipologia_sigla': "'" + '5.2' + "'"
         }
 
         materiale = self.DB_MANAGER.query_bool(search_dict, 'PYARCHINIT_THESAURUS_SIGLE')
@@ -387,8 +392,9 @@ class pyarchinit_Inventario_Lapidei(QDialog, MAIN_DIALOG_CLASS):
 
         self.comboBox_oggetto.clear()
         search_dict = {
+            'lingua': lang,
             'nome_tabella': "'" + 'inventario_lapidei_table' + "'",
-            'tipologia_sigla': "'" + 'oggetto' + "'"
+            'tipologia_sigla': "'" + '5.3' + "'"
         }
 
         oggetto = self.DB_MANAGER.query_bool(search_dict, 'PYARCHINIT_THESAURUS_SIGLE')
@@ -399,19 +405,6 @@ class pyarchinit_Inventario_Lapidei(QDialog, MAIN_DIALOG_CLASS):
 
         oggetto_vl.sort()
         self.comboBox_oggetto.addItems(oggetto_vl)
-
-
-
-
-        # lista definizione_sito
-        #		search_dict = {
-        #		'nome_tabella'  : "'"+'inventario_lapidei_table'+"'",
-        #		'tipologia_sigla' : "'"+'definizione sito'+"'"
-        #		}
-
-        #		sito = self.DB_MANAGER.query_bool(search_dict, 'PYARCHINIT_THESAURUS_SIGLE')
-
-        #		sito_vl = [ ]
 
 
     # buttons functions
