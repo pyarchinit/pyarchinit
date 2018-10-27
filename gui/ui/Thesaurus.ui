@@ -810,6 +810,27 @@
    <container>1</container>
   </customwidget>
  </customwidgets>
+ <tabstops>
+  <tabstop>pushButton_connect</tabstop>
+  <tabstop>pushButton_first_rec</tabstop>
+  <tabstop>pushButton_prev_rec</tabstop>
+  <tabstop>pushButton_next_rec</tabstop>
+  <tabstop>pushButton_last_rec</tabstop>
+  <tabstop>pushButton_new_rec</tabstop>
+  <tabstop>pushButton_save</tabstop>
+  <tabstop>pushButton_delete</tabstop>
+  <tabstop>pushButton_new_search</tabstop>
+  <tabstop>pushButton_search_go</tabstop>
+  <tabstop>pushButton_sort</tabstop>
+  <tabstop>pushButton_view_all</tabstop>
+  <tabstop>groupBox</tabstop>
+  <tabstop>comboBox_sigla</tabstop>
+  <tabstop>comboBox_sigla_estesa</tabstop>
+  <tabstop>comboBox_nome_tabella</tabstop>
+  <tabstop>comboBox_tipologia_sigla</tabstop>
+  <tabstop>comboBox_lingua</tabstop>
+  <tabstop>textEdit_descrizione_sigla</tabstop>
+ </tabstops>
  <resources>
   <include location="../../resources/resources.qrc"/>
  </resources>
