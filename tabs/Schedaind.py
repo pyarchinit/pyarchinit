@@ -198,6 +198,9 @@ class pyarchinit_Schedaind(QDialog, MAIN_DIALOG_CLASS):
         pass
 
     def charge_list(self):
+
+        #lista sito
+
         sito_vl = self.UTILITY.tup_2_list_III(self.DB_MANAGER.group_by('site_table', 'sito', 'SITE'))
         try:
             sito_vl.remove('')

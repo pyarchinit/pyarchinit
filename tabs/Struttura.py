@@ -27,8 +27,10 @@ from datetime import date
 import sys
 from builtins import range
 from builtins import str
+from qgis.PyQt.QtCore import QVariant
 from qgis.PyQt.QtWidgets import QDialog, QMessageBox
 from qgis.PyQt.uic import loadUiType
+from qgis.core import QgsSettings
 
 from ..modules.db.pyarchinit_conn_strings import Connection
 from ..modules.db.pyarchinit_db_manager import Pyarchinit_db_management
@@ -114,6 +116,8 @@ class pyarchinit_Struttura(QDialog, MAIN_DIALOG_CLASS):
     ]
 
     DB_SERVER = "not defined"  ####nuovo sistema sort
+
+
 
     def __init__(self, iface):
         super().__init__()
@@ -233,6 +237,9 @@ class pyarchinit_Struttura(QDialog, MAIN_DIALOG_CLASS):
                                     QMessageBox.Ok)
 
     def customize_GUI(self):
+
+        lang = "'" + QgsSettings().value("locale/userLocale", QVariant) + "'"
+
         self.tableWidget_rapporti.setColumnWidth(0, 110)
         self.tableWidget_rapporti.setColumnWidth(1, 220)
         self.tableWidget_rapporti.setColumnWidth(2, 60)
@@ -259,14 +266,119 @@ class pyarchinit_Struttura(QDialog, MAIN_DIALOG_CLASS):
         self.delegateRapporti.def_editable('True')
         self.tableWidget_rapporti.setItemDelegateForColumn(0, self.delegateRapporti)
 
-        valuesMateriali = ["Terra", "Pietre", "Laterizio", "Ciottoli", "Calcare", "Calce", "Legno", "Concotto",
-                           "Ghiaia", "Sabbia", "Malta", "Metallo", "Gesso"]
+        # lista materiali
+
+        search_dict = {
+            'lingua': lang,
+            'nome_tabella': "'" + 'struttura_table' + "'",
+            'tipologia_sigla': "'" + '6.5' + "'"
+        }
+
+        materiali = self.DB_MANAGER.query_bool(search_dict, 'PYARCHINIT_THESAURUS_SIGLE')
+        valuesMateriali = []
+
+        for i in range(len(materiali)):
+            valuesMateriali.append(materiali[i].sigla_estesa)
+
+        valuesMateriali.sort()
+
+        #valuesMateriali = ["Terra", "Pietre", "Laterizio", "Ciottoli", "Calcare", "Calce", "Legno", "Concotto",
+        #                   "Ghiaia", "Sabbia", "Malta", "Metallo", "Gesso"]
         self.delegateMateriali = ComboBoxDelegate()
         self.delegateMateriali.def_values(valuesMateriali)
         self.delegateMateriali.def_editable('False')
         self.tableWidget_materiali_impiegati.setItemDelegateForColumn(0, self.delegateMateriali)
 
+        # lista elementi strutturali - tipologia elemento
+
+        search_dict = {
+            'lingua': lang,
+            'nome_tabella': "'" + 'struttura_table' + "'",
+            'tipologia_sigla': "'" + '6.6' + "'"
+        }
+
+        tipEl = self.DB_MANAGER.query_bool(search_dict, 'PYARCHINIT_THESAURUS_SIGLE')
+        valuesTipEl = []
+
+        for i in range(len(tipEl)):
+            valuesTipEl.append(tipEl[i].sigla_estesa)
+
+        valuesTipEl.sort()
+
+        # valuesMateriali = ["Terra", "Pietre", "Laterizio", "Ciottoli", "Calcare", "Calce", "Legno", "Concotto",
+        #                   "Ghiaia", "Sabbia", "Malta", "Metallo", "Gesso"]
+        self.delegateTipEl = ComboBoxDelegate()
+        self.delegateTipEl.def_values(valuesTipEl)
+        self.delegateTipEl.def_editable('False')
+        self.tableWidget_elementi_strutturali.setItemDelegateForColumn(0, self.delegateTipEl)
+
+        # lista misurazione - tipo misura
+
+        search_dict = {
+            'lingua': lang,
+            'nome_tabella': "'" + 'struttura_table' + "'",
+            'tipologia_sigla': "'" + '6.7' + "'"
+        }
+
+        elTipoMis = self.DB_MANAGER.query_bool(search_dict, 'PYARCHINIT_THESAURUS_SIGLE')
+        valuesTipoMis = []
+
+        for i in range(len(elTipoMis)):
+            valuesTipoMis.append(elTipoMis[i].sigla_estesa)
+
+        valuesTipoMis.sort()
+
+        self.delegateTipoMis = ComboBoxDelegate()
+        self.delegateTipoMis.def_values(valuesTipoMis)
+        self.delegateTipoMis.def_editable('False')
+        self.tableWidget_misurazioni.setItemDelegateForColumn(0, self.delegateTipoMis)
+
+        # lista misurazione - unita' di misura
+
+        search_dict = {
+            'lingua': lang,
+            'nome_tabella': "'" + 'struttura_table' + "'",
+            'tipologia_sigla': "'" + '6.8' + "'"
+        }
+
+        elUnitaMis = self.DB_MANAGER.query_bool(search_dict, 'PYARCHINIT_THESAURUS_SIGLE')
+        valuesUnitaMis = []
+
+        for i in range(len(elUnitaMis)):
+            valuesUnitaMis.append(elUnitaMis[i].sigla)
+
+        valuesUnitaMis.sort()
+
+        self.delegateUnitaMis = ComboBoxDelegate()
+        self.delegateUnitaMis.def_values(valuesUnitaMis)
+        self.delegateUnitaMis.def_editable('False')
+        self.tableWidget_misurazioni.setItemDelegateForColumn(1, self.delegateUnitaMis)
+
+        # lista rapporti struttura - sigla
+
+        search_dict = {
+            'lingua': lang,
+            'nome_tabella': "'" + 'struttura_table' + "'",
+            'tipologia_sigla': "'" + '6.1' + "'"
+        }
+
+        elSig = self.DB_MANAGER.query_bool(search_dict, 'PYARCHINIT_THESAURUS_SIGLE')
+        valuesSig = []
+
+        for i in range(len(elSig)):
+            valuesSig.append(elSig[i].sigla)
+
+        valuesSig.sort()
+
+        self.delegateSig = ComboBoxDelegate()
+        self.delegateSig.def_values(valuesSig)
+        self.delegateSig.def_editable('False')
+        self.tableWidget_rapporti.setItemDelegateForColumn(2, self.delegateSig)
+
     def charge_list(self):
+
+        #lista sito
+
         sito_vl = self.UTILITY.tup_2_list_III(self.DB_MANAGER.group_by('site_table', 'sito', 'SITE'))
 
         try:
@@ -276,6 +388,87 @@ class pyarchinit_Struttura(QDialog, MAIN_DIALOG_CLASS):
         self.comboBox_sito.clear()
         sito_vl.sort()
         self.comboBox_sito.addItems(sito_vl)
+
+        #lista rapporti struttura - sito
+
+        self.delegateSito = ComboBoxDelegate()
+        self.delegateSito.def_values(sito_vl)
+        self.delegateSito.def_editable('False')
+        self.tableWidget_rapporti.setItemDelegateForColumn(1, self.delegateSito)
+
+        #lista sigla struttura
+
+        lang = "'" + QgsSettings().value("locale/userLocale", QVariant) + "'"
+
+        self.comboBox_sigla_struttura.clear()
+        search_dict = {
+            'lingua': lang,
+            'nome_tabella': "'" + 'struttura_table' + "'",
+            'tipologia_sigla': "'" + '6.1' + "'"
+        }
+
+        sigla_struttura = self.DB_MANAGER.query_bool(search_dict, 'PYARCHINIT_THESAURUS_SIGLE')
+        sigla_struttura_vl = []
+
+        for i in range(len(sigla_struttura)):
+            sigla_struttura_vl.append(sigla_struttura[i].sigla)
+
+        sigla_struttura_vl.sort()
+        self.comboBox_sigla_struttura.addItems(sigla_struttura_vl)
+
+        # lista categoria struttura
+
+        self.comboBox_categoria_struttura.clear()
+        search_dict = {
+            'lingua': lang,
+            'nome_tabella': "'" + 'struttura_table' + "'",
+            'tipologia_sigla': "'" + '6.2' + "'"
+        }
+
+        categoria_struttura = self.DB_MANAGER.query_bool(search_dict, 'PYARCHINIT_THESAURUS_SIGLE')
+        categoria_struttura_vl = []
+
+        for i in range(len(categoria_struttura)):
+            categoria_struttura_vl.append(categoria_struttura[i].sigla_estesa)
+
+        categoria_struttura_vl.sort()
+        self.comboBox_categoria_struttura.addItems(categoria_struttura_vl)
+
+        # lista tipologia struttura
+
+        self.comboBox_tipologia_struttura.clear()
+        search_dict = {
+            'lingua': lang,
+            'nome_tabella': "'" + 'struttura_table' + "'",
+            'tipologia_sigla': "'" + '6.3' + "'"
+        }
+
+        tipologia_struttura = self.DB_MANAGER.query_bool(search_dict, 'PYARCHINIT_THESAURUS_SIGLE')
+        tipologia_struttura_vl = []
+
+        for i in range(len(tipologia_struttura)):
+            tipologia_struttura_vl.append(tipologia_struttura[i].sigla_estesa)
+
+        tipologia_struttura_vl.sort()
+        self.comboBox_tipologia_struttura.addItems(tipologia_struttura_vl)
+
+        # lista definizione struttura
+
+        self.comboBox_definizione_struttura.clear()
+        search_dict = {
+            'lingua': lang,
+            'nome_tabella': "'" + 'struttura_table' + "'",
+            'tipologia_sigla': "'" + '6.4' + "'"
+        }
+
+        definizione_struttura = self.DB_MANAGER.query_bool(search_dict, 'PYARCHINIT_THESAURUS_SIGLE')
+        definizione_struttura_vl = []
+
+        for i in range(len(definizione_struttura)):
+            definizione_struttura_vl.append(definizione_struttura[i].sigla_estesa)
+
+        definizione_struttura_vl.sort()
+        self.comboBox_definizione_struttura.addItems(definizione_struttura_vl)
 
     def charge_periodo_iniz_list(self):
         sito = str(self.comboBox_sito.currentText())
@@ -365,6 +558,7 @@ class pyarchinit_Struttura(QDialog, MAIN_DIALOG_CLASS):
                 self.comboBox_fas_iniz.setEditText(self.DATA_LIST[self.rec_num].fase_iniziale)
         except:
             pass
+
 
     def charge_fase_fin_list(self):
         try:
