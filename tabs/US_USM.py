@@ -24,12 +24,12 @@ from builtins import str
 
 import os
 from datetime import date
-from qgis.PyQt.QtCore import Qt, QSize, pyqtSlot
+from qgis.PyQt.QtCore import Qt, QSize, pyqtSlot, QVariant
 from qgis.PyQt.QtGui import QColor, QIcon
 from qgis.PyQt.QtWidgets import QDialog, QMessageBox, QListWidget, QListView, QFrame, QAbstractItemView, \
     QTableWidgetItem, QListWidgetItem
 from qgis.PyQt.uic import loadUiType
-from qgis.core import Qgis
+from qgis.core import Qgis, QgsSettings
 from qgis.gui import QgsMapCanvas, QgsMapToolPan
 
 from .Interactive_matrix import pyarchinit_Interactive_Matrix
@@ -121,8 +121,8 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
         "posizione" : "posizione",
         "criteri distinzione" : "criteri_distinzione",
         "modo formazione" : "modo_formazione",
-        "componenti organici" : "componenti_organici",
-        "componenti inorganici" : "componenti_inorganici",
+        #"componenti organici" : "componenti_organici",
+        #"componenti inorganici" : "componenti_inorganici",
         "lunghezza max" : "lunghezza_max",
         "altezza max" : "altezza_max",
         "altezza min" : "altezza_min",
@@ -210,8 +210,8 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
         "posizione",
         "criteri distinzione",
         "modo formazione",
-        "componenti organici",
-        "componenti inorganici",
+        #"organici",
+        #"inorganici",
         "lunghezza max",
         "altezza max",
         "altezza min",
@@ -266,6 +266,8 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
         'inclusi',
         'campioni',
         'rapporti',
+        #'organici',
+        #'inorganici',
         'data_schedatura',
         'schedatore',
         'formazione',
@@ -587,6 +589,12 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
         self.pushButton_insert_row_campioni.setEnabled(n)
         self.pushButton_remove_row_campioni.setEnabled(n)
 
+        self.pushButton_insert_row_organici.setEnabled(n)
+        self.pushButton_remove_row_organici.setEnabled(n)
+
+        self.pushButton_insert_row_inorganici.setEnabled(n)
+        self.pushButton_remove_row_inorganici.setEnabled(n)
+
         self.pushButton_insert_row_documentazione.setEnabled(n)
         self.pushButton_remove_row_documentazione.setEnabled(n)
 
@@ -629,6 +637,9 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
                 self.iface.messageBar().pushMessage(self.tr(msg), Qgis.Warning, 0)
 
     def customize_GUI(self):
+
+        lang = "'" + QgsSettings().value("locale/userLocale", QVariant) + "'"
+
         if not Pyarchinit_OS_Utility.checkGraphvizInstallation():
             self.pushButton_export_matrix.setEnabled(False)
             self.pushButton_export_matrix.setToolTip("Funzione disabilitata")
@@ -669,6 +680,8 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
         self.setComboBoxEditable(["self.comboBox_per_iniz"], 1)
         self.setComboBoxEditable(["self.comboBox_fas_iniz"], 1)
 
+
+
         valuesRS = ["Uguale a", "Si lega a", "Copre", "Coperto da", "Riempie", "Riempito da", "Taglia", "Tagliato da",
                     "Si appoggia a", "Gli si appoggia", ""]
         self.delegateRS = ComboBoxDelegate()
@@ -676,37 +689,229 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
         self.delegateRS.def_editable('False')
         self.tableWidget_rapporti.setItemDelegateForColumn(0, self.delegateRS)
 
-        valuesDoc = ["Fotografia", "Diapositiva", "Sezione", "Planimetria", "Prospetto", "Video", "Fotopiano"]
+        # lista tipo documentazione
+
+        search_dict = {
+            'lingua': lang,
+            'nome_tabella': "'" + 'us_table' + "'",
+            'tipologia_sigla': "'" + '2.19' + "'"
+        }
+
+        tipo_di_documentazione = self.DB_MANAGER.query_bool(search_dict, 'PYARCHINIT_THESAURUS_SIGLE')
+        valuesDoc = []
+
+        for i in range(len(tipo_di_documentazione)):
+            valuesDoc.append(tipo_di_documentazione[i].sigla_estesa)
+
+        valuesDoc.sort()
+
+        #valuesDoc = ["Fotografia", "Diapositiva", "Sezione", "Planimetria", "Prospetto", "Video", "Fotopiano"]
         self.delegateDoc = ComboBoxDelegate()
         self.delegateDoc.def_values(valuesDoc)
         self.delegateDoc.def_editable('False')
         self.tableWidget_documentazione.setItemDelegateForColumn(0, self.delegateDoc)
 
-        valuesINCL_CAMP = ["Terra",
-                           "Pietre",
-                           "Laterizio",
-                           "Ciottoli",
-                           "Calcare",
-                           "Calce",
-                           "Carboni",
-                           "Concotto",
-                           "Ghiaia",
-                           "Cariossidi",
-                           "Malacofauna",
-                           "Sabbia",
-                           "Malta",
-                           "Ceramica",
-                           "Metalli",
-                           "Fr. ossei umani",
-                           "Fr. ossei animali",
-                           "Fr. lapidei"]
+        # lista colore legante usm
+        search_dict = {
+            'lingua': lang,
+            'nome_tabella': "'" + 'us_table' + "'",
+            'tipologia_sigla': "'" + '201.201' + "'"
+        }
 
+        colore = self.DB_MANAGER.query_bool(search_dict, 'PYARCHINIT_THESAURUS_SIGLE')
+        valuesCol = []
+
+        for i in range(len(colore)):
+            valuesCol.append(colore[i].sigla_estesa)
+
+        valuesCol.sort()
+        self.delegateCol = ComboBoxDelegate()
+        self.delegateCol.def_values(valuesCol)
+        self.delegateCol.def_editable('False')
+        self.tableWidget_colore_legante_usm.setItemDelegateForColumn(0, self.delegateCol)
+
+        # lista colore materiale usm
+
+        search_dict = {
+            'lingua': lang,
+            'nome_tabella': "'" + 'us_table' + "'",
+            'tipologia_sigla': "'" + '201.201' + "'"
+        }
+
+        colore = self.DB_MANAGER.query_bool(search_dict, 'PYARCHINIT_THESAURUS_SIGLE')
+        valuesCol = []
+
+        for i in range(len(colore)):
+            valuesCol.append(colore[i].sigla_estesa)
+
+        valuesCol.sort()
+        self.delegateCol = ComboBoxDelegate()
+        self.delegateCol.def_values(valuesCol)
+        self.delegateCol.def_editable('False')
+        self.tableWidget_colore_materiale_usm.setItemDelegateForColumn(0, self.delegateCol)
+
+        # lista inclusi leganti usm
+
+        search_dict = {
+            'lingua': lang,
+            'nome_tabella': "'" + 'us_table' + "'",
+            'tipologia_sigla': "'" + '202.202' + "'"
+        }
+
+        inclusi = self.DB_MANAGER.query_bool(search_dict, 'PYARCHINIT_THESAURUS_SIGLE')
+        valuesInclusi = []
+
+        for i in range(len(inclusi)):
+            valuesInclusi.append(inclusi[i].sigla_estesa)
+
+        valuesCol.sort()
+        self.delegateInclusi = ComboBoxDelegate()
+        self.delegateInclusi.def_values(valuesInclusi)
+        self.delegateInclusi.def_editable('False')
+        self.tableWidget_inclusi_leganti_usm.setItemDelegateForColumn(0, self.delegateInclusi)
+
+
+
+        # lista inclusi materiali usm
+
+        search_dict = {
+            'lingua': lang,
+            'nome_tabella': "'" + 'us_table' + "'",
+            'tipologia_sigla': "'" + '202.202' + "'"
+        }
+
+        inclusi = self.DB_MANAGER.query_bool(search_dict, 'PYARCHINIT_THESAURUS_SIGLE')
+        valuesInclusi = []
+
+        for i in range(len(inclusi)):
+            valuesInclusi.append(inclusi[i].sigla_estesa)
+
+        valuesCol.sort()
+        self.delegateInclusi = ComboBoxDelegate()
+        self.delegateInclusi.def_values(valuesInclusi)
+        self.delegateInclusi.def_editable('False')
+        self.tableWidget_inclusi_materiali_usm.setItemDelegateForColumn(0, self.delegateInclusi)
+
+        # lista consistenza/texture materiale usm
+
+        search_dict = {
+            'lingua': lang,
+            'nome_tabella': "'" + 'us_table' + "'",
+            'tipologia_sigla': "'" + '2.7' + "'"
+        }
+
+        constex = self.DB_MANAGER.query_bool(search_dict, 'PYARCHINIT_THESAURUS_SIGLE')
+        valuesCTX = []
+
+        for i in range(len(constex)):
+            valuesCTX.append(constex[i].sigla_estesa)
+
+        valuesCol.sort()
+        self.delegateCons = ComboBoxDelegate()
+        self.delegateCons.def_values(valuesCTX)
+        self.delegateCons.def_editable('False')
+        self.tableWidget_consistenza_texture_mat_usm.setItemDelegateForColumn(0, self.delegateCons)
+
+        # lista componenti organici
+
+        search_dict = {
+            'lingua': lang,
+            'nome_tabella': "'" + 'us_table' + "'",
+            'tipologia_sigla': "'" + '2.14' + "'"
+        }
+
+        comporg = self.DB_MANAGER.query_bool(search_dict, 'PYARCHINIT_THESAURUS_SIGLE')
+        valuesCOG = []
+
+        for i in range(len(comporg)):
+            valuesCOG.append(comporg[i].sigla_estesa)
+
+        valuesCOG.sort()
+        self.delegateCOG = ComboBoxDelegate()
+        self.delegateCOG.def_values(valuesCOG)
+        self.delegateCOG.def_editable('False')
+        self.tableWidget_organici.setItemDelegateForColumn(0, self.delegateCOG)
+
+        # lista componenti inorganici
+
+        search_dict = {
+            'lingua': lang,
+            'nome_tabella': "'" + 'us_table' + "'",
+            'tipologia_sigla': "'" + '2.15' + "'"
+        }
+
+        compinorg = self.DB_MANAGER.query_bool(search_dict, 'PYARCHINIT_THESAURUS_SIGLE')
+        valuesCINOG = []
+
+        for i in range(len(compinorg)):
+            valuesCINOG.append(compinorg[i].sigla_estesa)
+
+        valuesCINOG.sort()
+        self.delegateCINOG = ComboBoxDelegate()
+        self.delegateCINOG.def_values(valuesCINOG)
+        self.delegateCINOG.def_editable('False')
+        self.tableWidget_inorganici.setItemDelegateForColumn(0, self.delegateCINOG)
+
+        #lista campioni
+
+        search_dict = {
+            'lingua': lang,
+            'nome_tabella': "'" + 'us_table' + "'",
+            'tipologia_sigla': "'" + '2.13' + "'"
+        }
+
+        tipo_inclusi_campioni = self.DB_MANAGER.query_bool(search_dict, 'PYARCHINIT_THESAURUS_SIGLE')
+        valuesINCL_CAMP = []
+
+        for i in range(len(tipo_inclusi_campioni)):
+            valuesINCL_CAMP.append(tipo_inclusi_campioni[i].sigla_estesa)
+
+        valuesINCL_CAMP.sort()
+
+        #valuesINCL_CAMP = ["Terra",
+         #                  "Pietre",
+         #                  "Laterizio",
+         #                  "Ciottoli",
+         #                  "Calcare",
+         #                  "Calce",
+          #                 "Carboni",
+         #                  "Concotto",
+         #                  "Ghiaia",
+         #                  "Cariossidi",
+         #                  "Malacofauna",
+          #                 "Sabbia",
+          #                 "Malta",
+          #                 "Ceramica",
+          #                 "Metalli",
+          #                 "Fr. ossei umani",
+           #                "Fr. ossei animali",
+           #                "Fr. lapidei"]
         self.delegateINCL_CAMP = ComboBoxDelegate()
         valuesINCL_CAMP.sort()
         self.delegateINCL_CAMP.def_values(valuesINCL_CAMP)
         self.delegateINCL_CAMP.def_editable('False')
-        self.tableWidget_inclusi.setItemDelegateForColumn(0, self.delegateINCL_CAMP)
         self.tableWidget_campioni.setItemDelegateForColumn(0, self.delegateINCL_CAMP)
+
+        # lista inclusi
+
+        search_dict = {
+            'lingua': lang,
+            'nome_tabella': "'" + 'us_table' + "'",
+            'tipologia_sigla': "'" + '202.202' + "'"
+        }
+
+        tipo_inclusi = self.DB_MANAGER.query_bool(search_dict, 'PYARCHINIT_THESAURUS_SIGLE')
+        valuesINCL = []
+
+        for i in range(len(tipo_inclusi)):
+            valuesINCL.append(tipo_inclusi[i].sigla_estesa)
+
+        valuesINCL.sort()
+
+        self.delegateINCL = ComboBoxDelegate()
+        self.delegateINCL.def_values(valuesINCL)
+        self.delegateINCL.def_editable('False')
+        self.tableWidget_inclusi.setItemDelegateForColumn(0, self.delegateINCL)
 
     def loadMapPreview(self, mode=0):
         if mode == 0:
@@ -772,7 +977,11 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
             dlg.exec_()
 
     def charge_list(self):
+
+        lang = "'" + QgsSettings().value("locale/userLocale", QVariant) + "'"
+
         # lista sito
+
         sito_vl = self.UTILITY.tup_2_list_III(self.DB_MANAGER.group_by('site_table', 'sito', 'SITE'))
         try:
             sito_vl.remove('')
@@ -789,14 +998,53 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
         self.comboBox_sito.addItems(sito_vl)
         self.comboBox_sito_rappcheck.addItems(sito_vl)
 
-        # lista definizione_stratigrafica
+        # lista settore
+
+        self.comboBox_settore.clear()
         search_dict = {
+            'lingua': lang,
             'nome_tabella': "'" + 'us_table' + "'",
-            'tipologia_sigla': "'" + 'definizione stratigrafica' + "'"
+            'tipologia_sigla': "'" + '2.1' + "'"
+        }
+
+        settore = self.DB_MANAGER.query_bool(search_dict, 'PYARCHINIT_THESAURUS_SIGLE')
+
+        settore_vl = []
+
+        for i in range(len(settore)):
+            settore_vl.append(settore[i].sigla)
+
+        settore_vl.sort()
+        self.comboBox_settore.addItems(settore_vl)
+
+        # lista soprintendenza
+
+        self.comboBox_soprintendenza.clear()
+        search_dict = {
+            'lingua': lang,
+            'nome_tabella': "'" + 'us_table' + "'",
+            'tipologia_sigla': "'" + '2.2' + "'"
+        }
+
+        soprintendenza = self.DB_MANAGER.query_bool(search_dict, 'PYARCHINIT_THESAURUS_SIGLE')
+        soprintendenza_vl = []
+
+        for i in range(len(soprintendenza)):
+            soprintendenza_vl.append(soprintendenza[i].sigla_estesa)
+
+        soprintendenza_vl.sort()
+        self.comboBox_soprintendenza.addItems(soprintendenza_vl)
+
+        # lista definizione_stratigrafica
+
+        self.comboBox_def_strat.clear()
+        search_dict = {
+            'lingua': lang,
+            'nome_tabella': "'" + 'us_table' + "'",
+            'tipologia_sigla': "'" + '2.3' + "'"
         }
 
         d_stratigrafica = self.DB_MANAGER.query_bool(search_dict, 'PYARCHINIT_THESAURUS_SIGLE')
-
         d_stratigrafica_vl = []
 
         for i in range(len(d_stratigrafica)):
@@ -804,6 +1052,255 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
 
         d_stratigrafica_vl.sort()
         self.comboBox_def_strat.addItems(d_stratigrafica_vl)
+
+        # lista definizione interpretata
+
+        self.comboBox_def_intepret.clear()
+        search_dict = {
+            'lingua': lang,
+            'nome_tabella': "'" + 'us_table' + "'",
+            'tipologia_sigla': "'" + '2.4' + "'"
+        }
+
+        d_interpretativa = self.DB_MANAGER.query_bool(search_dict, 'PYARCHINIT_THESAURUS_SIGLE')
+        d_interpretativa_vl = []
+
+        for i in range(len(d_interpretativa)):
+            d_interpretativa_vl.append(d_interpretativa[i].sigla_estesa)
+
+        d_interpretativa_vl.sort()
+        self.comboBox_def_intepret.addItems(d_interpretativa_vl)
+
+        # lista funzione statica
+
+        self.comboBox_funz_statica_usm.clear()
+        search_dict = {
+            'lingua': lang,
+            'nome_tabella': "'" + 'us_table' + "'",
+            'tipologia_sigla': "'" + '2.5' + "'"
+        }
+
+        funz_statica = self.DB_MANAGER.query_bool(search_dict, 'PYARCHINIT_THESAURUS_SIGLE')
+        funz_statica_vl = []
+
+        for i in range(len(funz_statica)):
+            if funz_statica[i].sigla_estesa not in funz_statica_vl:
+                funz_statica_vl.append(funz_statica[i].sigla_estesa)
+
+        funz_statica_vl.sort()
+        self.comboBox_funz_statica_usm.addItems(funz_statica_vl)
+
+        #lista consistenza legante usm
+
+        self.comboBox_consistenza_legante_usm.clear()
+        search_dict = {
+            'lingua': lang,
+            'nome_tabella': "'" + 'us_table' + "'",
+            'tipologia_sigla': "'" + '2.6' + "'"
+        }
+
+        consistenza_legante_usm = self.DB_MANAGER.query_bool(search_dict, 'PYARCHINIT_THESAURUS_SIGLE')
+        consistenza_legante_usm_vl = []
+
+        for i in range(len(consistenza_legante_usm)):
+            if consistenza_legante_usm[i].sigla_estesa not in consistenza_legante_usm_vl:
+                consistenza_legante_usm_vl.append(consistenza_legante_usm[i].sigla_estesa)
+
+        consistenza_legante_usm_vl.sort()
+        self.comboBox_consistenza_legante_usm.addItems(consistenza_legante_usm_vl)
+
+        # lista scavato
+
+        self.comboBox_scavato.clear()
+        search_dict = {
+            'lingua': lang,
+            'nome_tabella': "'" + 'us_table' + "'",
+            'tipologia_sigla': "'" + '203.203' + "'"
+        }
+
+        scavato = self.DB_MANAGER.query_bool(search_dict, 'PYARCHINIT_THESAURUS_SIGLE')
+        scavato_vl = []
+
+        for i in range(len(scavato)):
+            if scavato[i].sigla_estesa not in scavato_vl:
+                scavato_vl.append(scavato[i].sigla_estesa)
+
+        scavato_vl.sort()
+        self.comboBox_scavato.addItems(scavato_vl)
+
+        # lista metodo di scavo
+
+        self.comboBox_metodo.clear()
+        search_dict = {
+            'lingua': lang,
+            'nome_tabella': "'" + 'us_table' + "'",
+            'tipologia_sigla': "'" + '2.8' + "'"
+        }
+
+        metodo = self.DB_MANAGER.query_bool(search_dict, 'PYARCHINIT_THESAURUS_SIGLE')
+        metodo_vl = []
+
+        for i in range(len(metodo)):
+            if metodo[i].sigla_estesa not in metodo_vl:
+                metodo_vl.append(metodo[i].sigla_estesa)
+
+        metodo_vl.sort()
+        self.comboBox_metodo.addItems(metodo_vl)
+
+        # lista formazione
+
+        self.comboBox_formazione.clear()
+        search_dict = {
+            'lingua': lang,
+            'nome_tabella': "'" + 'us_table' + "'",
+            'tipologia_sigla': "'" + '2.9' + "'"
+        }
+
+        formazione = self.DB_MANAGER.query_bool(search_dict, 'PYARCHINIT_THESAURUS_SIGLE')
+        formazione_vl = []
+
+        for i in range(len(formazione)):
+            if formazione[i].sigla_estesa not in formazione_vl:
+                formazione_vl.append(formazione[i].sigla_estesa)
+
+        formazione_vl.sort()
+        self.comboBox_formazione.addItems(formazione_vl)
+
+        # lista modo formazione
+
+        self.comboBox_modo_formazione.clear()
+        search_dict = {
+            'lingua': lang,
+            'nome_tabella': "'" + 'us_table' + "'",
+            'tipologia_sigla': "'" + '2.10' + "'"
+        }
+
+        modo_formazione = self.DB_MANAGER.query_bool(search_dict, 'PYARCHINIT_THESAURUS_SIGLE')
+        modo_formazione_vl = []
+
+        for i in range(len(modo_formazione)):
+            if modo_formazione[i].sigla_estesa not in modo_formazione_vl:
+                modo_formazione_vl.append(modo_formazione[i].sigla_estesa)
+
+        modo_formazione_vl.sort()
+        self.comboBox_modo_formazione.addItems(modo_formazione_vl)
+
+        # lista colore
+
+        self.comboBox_colore.clear()
+        search_dict = {
+            'lingua': lang,
+            'nome_tabella': "'" + 'us_table' + "'",
+            'tipologia_sigla': "'" + '201.201' + "'"
+        }
+
+        colore = self.DB_MANAGER.query_bool(search_dict, 'PYARCHINIT_THESAURUS_SIGLE')
+        colore_vl = []
+
+        for i in range(len(colore)):
+            if colore[i].sigla_estesa not in colore_vl:
+                colore_vl.append(colore[i].sigla_estesa)
+
+        colore_vl.sort()
+        self.comboBox_colore.addItems(colore_vl)
+
+        # lista consistenza
+
+        self.comboBox_consistenza.clear()
+        search_dict = {
+            'lingua': lang,
+            'nome_tabella': "'" + 'us_table' + "'",
+            'tipologia_sigla': "'" + '2.11' + "'"
+        }
+
+        consistenza = self.DB_MANAGER.query_bool(search_dict, 'PYARCHINIT_THESAURUS_SIGLE')
+        consistenza_vl = []
+
+        for i in range(len(consistenza)):
+            if consistenza[i].sigla_estesa not in consistenza_vl:
+                consistenza_vl.append(consistenza[i].sigla_estesa)
+
+        consistenza_vl.sort()
+        self.comboBox_consistenza.addItems(consistenza_vl)
+
+        # lista stato di conservazione
+
+        self.comboBox_conservazione.clear()
+        search_dict = {
+            'lingua': lang,
+            'nome_tabella': "'" + 'us_table' + "'",
+            'tipologia_sigla': "'" + '2.12' + "'"
+        }
+
+        conservazione = self.DB_MANAGER.query_bool(search_dict, 'PYARCHINIT_THESAURUS_SIGLE')
+        conservazione_vl = []
+
+        for i in range(len(conservazione)):
+            if conservazione[i].sigla_estesa not in conservazione_vl:
+                conservazione_vl.append(conservazione[i].sigla_estesa)
+
+        conservazione_vl.sort()
+        self.comboBox_conservazione.addItems(conservazione_vl)
+
+
+
+        # lista schedatore
+
+        self.comboBox_schedatore.clear()
+        search_dict = {
+            'lingua': lang,
+            'nome_tabella': "'" + 'us_table' + "'",
+            'tipologia_sigla': "'" + '2.16' + "'"
+        }
+
+        schedatore = self.DB_MANAGER.query_bool(search_dict, 'PYARCHINIT_THESAURUS_SIGLE')
+        schedatore_vl = []
+
+        for i in range(len(schedatore)):
+            if schedatore[i].sigla_estesa not in schedatore_vl:
+                schedatore_vl.append(schedatore[i].sigla_estesa)
+
+        schedatore_vl.sort()
+        self.comboBox_schedatore.addItems(schedatore_vl)
+
+        # lista direttore us
+
+        self.comboBox_direttore_us.clear()
+        search_dict = {
+            'lingua': lang,
+            'nome_tabella': "'" + 'us_table' + "'",
+            'tipologia_sigla': "'" + '2.17' + "'"
+        }
+
+        direttore_us = self.DB_MANAGER.query_bool(search_dict, 'PYARCHINIT_THESAURUS_SIGLE')
+        direttore_us_vl = []
+
+        for i in range(len(direttore_us)):
+            if direttore_us[i].sigla_estesa not in direttore_us_vl:
+                direttore_us_vl.append(direttore_us[i].sigla_estesa)
+
+        direttore_us_vl.sort()
+        self.comboBox_direttore_us.addItems(direttore_us_vl)
+
+        # lista responsabile us
+
+        self.comboBox_responsabile_us.clear()
+        search_dict = {
+            'lingua': lang,
+            'nome_tabella': "'" + 'us_table' + "'",
+            'tipologia_sigla': "'" + '2.18' + "'"
+        }
+
+        responsabile_us = self.DB_MANAGER.query_bool(search_dict, 'PYARCHINIT_THESAURUS_SIGLE')
+        responsabile_us_vl = []
+
+        for i in range(len(responsabile_us)):
+            if responsabile_us[i].sigla_estesa not in responsabile_us_vl:
+                responsabile_us_vl.append(responsabile_us[i].sigla_estesa)
+
+        responsabile_us_vl.sort()
+        self.comboBox_responsabile_us.addItems(responsabile_us_vl)
+
 
     def charge_fase_iniz_list(self):
         try:
@@ -1017,6 +1514,8 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
                 str(self.DATA_LIST[i].inclusi),  # 15 - inclusi
                 str(self.DATA_LIST[i].campioni),  # 16 - campioni
                 str(self.DATA_LIST[i].rapporti),            # 17 - rapporti
+                #str(self.DATA_LIST[i].organici),  # organici
+                #str(self.DATA_LIST[i].inorganici),  # inorganici
                 str(self.DATA_LIST[i].data_schedatura),  # 18 - data schedatura
                 str(self.DATA_LIST[i].schedatore),  # 19 - schedatore
                 str(self.DATA_LIST[i].formazione),  # 20 - formazione
@@ -1717,6 +2216,10 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
         inclusi = self.table2dict("self.tableWidget_inclusi")
         #Campioni
         campioni = self.table2dict("self.tableWidget_campioni")
+        #organici
+        organici = self.table2dict("self.tableWidget_organici")
+        #inorganici
+        inorganici = self.table2dict("self.tableWidget_inorganici")
         #Documentazione
         documentazione = self.table2dict("self.tableWidget_documentazione")
 
@@ -1867,6 +2370,8 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
                 str(inclusi),  # 16 - inclusi
                 str(campioni),  # 17 - campioni
                 str(rapporti),  # 18 - rapporti
+                #str(organici), # componenti organici
+                #str(inorganici), #componenti inorganici
                 str(self.lineEdit_data_schedatura.text()),  # 19 - data schedatura
                 str(self.comboBox_schedatore.currentText()),  # 20 - schedatore
                 str(self.comboBox_formazione.currentText()),  # 21 - formazione
@@ -1911,8 +2416,8 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
                 str(self.lineEdit_posizione.text()),  # 60 posizione
                 str(self.lineEdit_criteri_distinzione.text()),  # 61 criteri distinzione
                 str(self.comboBox_modo_formazione.currentText()),  # 62 modo formazione
-                str(self.comboBox_componenti_organici.currentText()),  # 63 componenti organici
-                str(self.comboBox_componenti_inorganici.currentText()),  # 64 componenti inorganici
+                str(organici),  # 63 componenti organici
+                str(inorganici),  # 64 componenti inorganici
                 lunghezza_max,  # 65
                 altezza_max,  # 66
                 altezza_min,  # 67
@@ -1987,6 +2492,18 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
 
     def on_pushButton_remove_row_campioni_pressed(self):
         self.remove_row('self.tableWidget_campioni')
+
+    def on_pushButton_insert_row_organici_pressed(self):
+        self.insert_new_row('self.tableWidget_organici')
+
+    def on_pushButton_remove_row_organici_pressed(self):
+        self.remove_row('self.tableWidget_organici')
+
+    def on_pushButton_insert_row_inorganici_pressed(self):
+        self.insert_new_row('self.tableWidget_inorganici')
+
+    def on_pushButton_remove_row_inorganici_pressed(self):
+        self.remove_row('self.tableWidget_inorganici')
 
     def on_pushButton_insert_row_documentazione_pressed(self):
         self.insert_new_row('self.tableWidget_documentazione')
@@ -2208,6 +2725,8 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
                     ["self.tableWidget_campioni",
                      "self.tableWidget_rapporti",
                      "self.tableWidget_inclusi",
+                     "self.tableWidget_organici",
+                     "self.tableWidget_inorganici",
                      "self.tableWidget_documentazione",
                      "self.tableWidget_inclusi_materiali_usm",
                      "self.tableWidget_colore_legante_usm",
@@ -2421,9 +2940,9 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
             # 61 criteri distinzione
                 self.TABLE_FIELDS[61]: "'" + str(self.comboBox_modo_formazione.currentText()) + "'",
             # 62 modo formazione
-                self.TABLE_FIELDS[62]: "'" + str(self.comboBox_componenti_organici.currentText()) + "'",
+            #    self.TABLE_FIELDS[62]: "'" + str(self.comboBox_componenti_organici.currentText()) + "'",
             # 63 componenti organici
-                self.TABLE_FIELDS[63]: "'" + str(self.comboBox_componenti_inorganici.currentText()) + "'",
+            #    self.TABLE_FIELDS[63]: "'" + str(self.comboBox_componenti_inorganici.currentText()) + "'",
             # 64 componenti inorganici
                 self.TABLE_FIELDS[64]:lunghezza_max,  # 65
                 self.TABLE_FIELDS[65]:altezza_max,  # 66
@@ -2483,7 +3002,7 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
                     self.setComboBoxEnable(["self.textEdit_interpretazione"], "True")
                     self.setTableEnable(
                         ["self.tableWidget_campioni", "self.tableWidget_rapporti", "self.tableWidget_inclusi",
-                         "self.tableWidget_documentazione"], "True")
+                         "self.tableWidget_organici", "self.tableWidget_inorganici", "self.tableWidget_documentazione"], "True")
                     self.fill_fields(self.REC_CORR)
                 else:
                     self.DATA_LIST = []
@@ -2513,14 +3032,16 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
 
                     self.setTableEnable(
                         ["self.tableWidget_campioni",
-                     "self.tableWidget_rapporti",
-                     "self.tableWidget_inclusi",
-                     "self.tableWidget_documentazione",
-                     "self.tableWidget_inclusi_materiali_usm",
-                     "self.tableWidget_colore_legante_usm",
-                     "self.tableWidget_inclusi_leganti_usm",
-                     "self.tableWidget_consistenza_texture_mat_usm",
-                     "self.tableWidget_colore_materiale_usm"], "True")
+                         "self.tableWidget_rapporti",
+                         "self.tableWidget_inclusi",
+                         "self.tableWidget_organici",
+                         "self.tableWidget_inorganici",
+                         "self.tableWidget_documentazione",
+                         "self.tableWidget_inclusi_materiali_usm",
+                         "self.tableWidget_colore_legante_usm",
+                         "self.tableWidget_inclusi_leganti_usm",
+                         "self.tableWidget_consistenza_texture_mat_usm",
+                         "self.tableWidget_colore_materiale_usm"], "True")
                     self.setComboBoxEnable(["self.textEdit_descrizione"], "True")
                     self.setComboBoxEnable(["self.textEdit_interpretazione"], "True")
 
@@ -2626,27 +3147,28 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
         self.data_list.sort()
 
         # column table count
-        table_col_count_cmd = ("%s.columnCount()") % (self.table_name)
+        table_col_count_cmd = "{}.columnCount()".format(self.table_name)
         table_col_count = eval(table_col_count_cmd)
 
         # clear table
-        table_clear_cmd = ("%s.clearContents()") % (self.table_name)
+        table_clear_cmd = "{}.clearContents()".format(self.table_name)
         eval(table_clear_cmd)
 
         for i in range(table_col_count):
-            table_rem_row_cmd = ("%s.removeRow(%d)") % (self.table_name, i)
+            table_rem_row_cmd = "{}.removeRow(int({}))".format(self.table_name, i)
             eval(table_rem_row_cmd)
 
             # for i in range(len(self.data_list)):
             # self.insert_new_row(self.table_name)
 
         for row in range(len(self.data_list)):
-            cmd = ('%s.insertRow(%s)') % (self.table_name, row)
+            cmd = '{}.insertRow(int({}))'.format(self.table_name, row)
             eval(cmd)
             for col in range(len(self.data_list[row])):
                 # item = self.comboBox_sito.setEditText(self.data_list[0][col]
-                item = QTableWidgetItem(str(self.data_list[row][col]))
-                exec_str = ('%s.setItem(%d,%d,item)') % (self.table_name, row, col)
+                # item = QTableWidgetItem(self.data_list[row][col])
+                # TODO SL: evauation of QTableWidget does not work porperly
+                exec_str = '{}.setItem(int({}),int({}),QTableWidgetItem(self.data_list[row][col]))'.format(self.table_name, row, col)
                 eval(exec_str)
 
     def insert_new_row(self, table_name):
@@ -2668,6 +3190,8 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
         rapporti_row_count = self.tableWidget_rapporti.rowCount()
         campioni_row_count = self.tableWidget_campioni.rowCount()
         inclusi_row_count = self.tableWidget_inclusi.rowCount()
+        organici_row_count = self.tableWidget_organici.rowCount()
+        inorganici_row_count = self.tableWidget_inorganici.rowCount()
         documentazione_row_count = self.tableWidget_documentazione.rowCount()
 
         self.comboBox_sito.setEditText("")  # 1 - Sito
@@ -2696,6 +3220,12 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
         for i in range(campioni_row_count):
             self.tableWidget_campioni.removeRow(0)
         self.insert_new_row("self.tableWidget_campioni")  # 17 - campioni
+        for i in range(organici_row_count):
+            self.tableWidget_organici.removeRow(0)
+        self.insert_new_row("self.tableWidget_organici")  # organici
+        for i in range(inorganici_row_count):
+            self.tableWidget_inorganici.removeRow(0)
+        self.insert_new_row("self.tableWidget_inorganici")  # inorganici
         for i in range(rapporti_row_count):
             self.tableWidget_rapporti.removeRow(0)
         self.insert_new_row("self.tableWidget_rapporti")				#18 - rapporti
@@ -2778,8 +3308,8 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
         self.lineEdit_posizione.clear()  # 60 posizione
         self.lineEdit_criteri_distinzione.clear()  # 61 criteri distinzione
         self.comboBox_modo_formazione.setEditText("")  # 62 modo formazione
-        self.comboBox_componenti_organici.setEditText("")  # 63 componenti organici
-        self.comboBox_componenti_inorganici.setEditText("")  # 64 componenti inorganici
+        #self.comboBox_componenti_organici.setEditText("")  # 63 componenti organici
+        #self.comboBox_componenti_inorganici.setEditText("")  # 64 componenti inorganici
         self.lineEdit_lunghezza_max.text()  # 65
         self.lineEdit_altezza_max.text()  # 66
         self.lineEdit_altezza_min.text()  # 67
@@ -2837,6 +3367,8 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
 
             self.tableInsertData("self.tableWidget_inclusi", self.DATA_LIST[self.rec_num].inclusi)  # 16 - inclusi
             self.tableInsertData("self.tableWidget_campioni", self.DATA_LIST[self.rec_num].campioni)  # 17 - campioni
+            self.tableInsertData("self.tableWidget_organici", self.DATA_LIST[self.rec_num].componenti_organici)  # organici
+            self.tableInsertData("self.tableWidget_inorganici", self.DATA_LIST[self.rec_num].componenti_inorganici)  # inorganici
             self.tableInsertData("self.tableWidget_rapporti", self.DATA_LIST[self.rec_num].rapporti)  # 18 - rapporti
 
             str(self.lineEdit_data_schedatura.setText(self.DATA_LIST[self.rec_num].data_schedatura))  # 19 - data schedatura
@@ -2912,8 +3444,8 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
             str(self.lineEdit_posizione.setText(self.DATA_LIST[self.rec_num].posizione))  # 60 posizione
             str(self.lineEdit_criteri_distinzione.setText(self.DATA_LIST[self.rec_num].criteri_distinzione))  # 61 criteri distinzione
             str(self.comboBox_modo_formazione.setEditText(self.DATA_LIST[self.rec_num].modo_formazione))  # 62 modo formazione
-            str(self.comboBox_componenti_organici.setEditText(self.DATA_LIST[self.rec_num].componenti_organici))  # 63 componenti organici
-            str(self.comboBox_componenti_inorganici.setEditText(self.DATA_LIST[self.rec_num].componenti_inorganici))  # 64 componenti inorganici
+            #str(self.comboBox_componenti_organici.setEditText(self.DATA_LIST[self.rec_num].componenti_organici))  # 63 componenti organici
+            #str(self.comboBox_componenti_inorganici.setEditText(self.DATA_LIST[self.rec_num].componenti_inorganici))  # 64 componenti inorganici
 
             if not self.DATA_LIST[self.rec_num].lunghezza_max:
                 str(self.lineEdit_lunghezza_max.setText(""))
@@ -3027,6 +3559,10 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
         inclusi = self.table2dict("self.tableWidget_inclusi")
         ##Campioni
         campioni = self.table2dict("self.tableWidget_campioni")
+        ##Organici
+        organici = self.table2dict("self.tableWidget_organici")
+        ##Inorganici
+        inorganici = self.table2dict("self.tableWidget_inorganici")
         ##Documentazione
         documentazione = self.table2dict("self.tableWidget_documentazione")
 
@@ -3168,6 +3704,8 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
             str(inclusi),  # 16 - inclusi
             str(campioni),  # 17 - campioni
             str(rapporti),  # 18 - rapporti
+            #str(organici),
+            #str(inorganici),
             str(self.lineEdit_data_schedatura.text()),  # 19 - data schedatura
             str(self.comboBox_schedatore.currentText()),  # 20 - schedatore
             str(self.comboBox_formazione.currentText()),  # 21 - formazione
@@ -3212,8 +3750,8 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
             str(self.lineEdit_posizione.text()),  # 60 posizione
             str(self.lineEdit_criteri_distinzione.text()), # 61 criteri distinzione
             str(self.comboBox_modo_formazione.currentText()), # 62 modo formazione
-            str(self.comboBox_componenti_organici.currentText()), # 63 componenti organici
-            str(self.comboBox_componenti_inorganici.currentText()), # 64 componenti inorganici
+            str(organici), # 63 componenti organici
+            str(inorganici), # 64 componenti inorganici
             str(lunghezza_max),  # 65
             str(altezza_max),  # 66
             str(altezza_min),  # 67
