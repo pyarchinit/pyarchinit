@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!DOCTYPE TS>
-<TS version="2.1" language="it_IT" sourcelanguage="it_IT">
+<!DOCTYPE TS><TS version="2.0" language="nl" sourcelanguage="">
 <context>
     <name>DBmanagment</name>
     <message>
@@ -44,13 +43,13 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../gui/ui/dbmanagment.ui" line="149"/>
-        <source>Scegli un file del backup e ripristinalo</source>
+        <location filename="../gui/ui/dbmanagment.ui" line="162"/>
+        <source>Backup sqlite</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../gui/ui/dbmanagment.ui" line="162"/>
-        <source>Backup sqlite</source>
+        <location filename="../gui/ui/dbmanagment.ui" line="149"/>
+        <source>Scegli un file del backup e ripristinalo</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -776,7 +775,7 @@ p, li { white-space: pre-wrap; }
         <source>imposta il numero di colonna</source>
         <translation type="unfinished"></translation>
     </message>
-    <message>
+    <message encoding="UTF-8">
         <location filename="../gui/ui/Archeozoology.ui" line="1987"/>
         <source>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
 &lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
@@ -1366,11 +1365,6 @@ p, li { white-space: pre-wrap; }
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../gui/ui/Detsesso.ui" line="1641"/>
-        <source>Tuberosità front. e par.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <location filename="../gui/ui/Detsesso.ui" line="2444"/>
         <source>Maschio</source>
         <translation type="unfinished"></translation>
@@ -1532,6 +1526,11 @@ p, li { white-space: pre-wrap; }
     <message>
         <location filename="../gui/ui/Detsesso.ui" line="2526"/>
         <source>Relazione tra il contorno dell&apos;arco dell&apos;ischio e della sup. auricolare</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message encoding="UTF-8">
+        <location filename="../gui/ui/Detsesso.ui" line="1641"/>
+        <source>Tuberosità front. e par.</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -1854,51 +1853,6 @@ p, li { white-space: pre-wrap; }
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../gui/ui/pyarchinit_image_viewer_dialog.ui" line="846"/>
-        <source>Apri Immagini</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../gui/ui/pyarchinit_image_viewer_dialog.ui" line="362"/>
-        <source>Carica le immagini nel DB</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../gui/ui/pyarchinit_image_viewer_dialog.ui" line="570"/>
-        <source>Tags manager</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../gui/ui/pyarchinit_image_viewer_dialog.ui" line="577"/>
-        <source>+</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../gui/ui/pyarchinit_image_viewer_dialog.ui" line="584"/>
-        <source>-</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../gui/ui/pyarchinit_image_viewer_dialog.ui" line="599"/>
-        <source>Sito</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../gui/ui/pyarchinit_image_viewer_dialog.ui" line="523"/>
-        <source>Area</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../gui/ui/pyarchinit_image_viewer_dialog.ui" line="528"/>
-        <source>US</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../gui/ui/pyarchinit_image_viewer_dialog.ui" line="612"/>
-        <source>Assegna i tags</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <location filename="../gui/ui/pyarchinit_image_viewer_dialog.ui" line="47"/>
         <source>Numero Totale Immagini</source>
         <translation type="unfinished"></translation>
@@ -1974,6 +1928,16 @@ p, li { white-space: pre-wrap; }
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <location filename="../gui/ui/pyarchinit_image_viewer_dialog.ui" line="846"/>
+        <source>Apri Immagini</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/pyarchinit_image_viewer_dialog.ui" line="362"/>
+        <source>Carica le immagini nel DB</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <location filename="../gui/ui/pyarchinit_image_viewer_dialog.ui" line="376"/>
         <source>Tags</source>
         <translation type="unfinished"></translation>
@@ -2011,6 +1975,41 @@ p, li { white-space: pre-wrap; }
     <message>
         <location filename="../gui/ui/pyarchinit_image_viewer_dialog.ui" line="466"/>
         <source>Tags Unita&apos; Stratigrafiche</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/pyarchinit_image_viewer_dialog.ui" line="570"/>
+        <source>Tags manager</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/pyarchinit_image_viewer_dialog.ui" line="577"/>
+        <source>+</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/pyarchinit_image_viewer_dialog.ui" line="584"/>
+        <source>-</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/pyarchinit_image_viewer_dialog.ui" line="599"/>
+        <source>Sito</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/pyarchinit_image_viewer_dialog.ui" line="523"/>
+        <source>Area</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/pyarchinit_image_viewer_dialog.ui" line="528"/>
+        <source>US</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/pyarchinit_image_viewer_dialog.ui" line="612"/>
+        <source>Assegna i tags</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -2359,11 +2358,6 @@ p, li { white-space: pre-wrap; }
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../gui/ui/Inv_Materiali.ui" line="230"/>
-        <source>Prev rec</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <location filename="../gui/ui/Inv_Materiali.ui" line="63"/>
         <source>Next rec</source>
         <translation type="unfinished"></translation>
@@ -2384,11 +2378,6 @@ p, li { white-space: pre-wrap; }
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../gui/ui/Inv_Materiali.ui" line="216"/>
-        <source>Delete record</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <location filename="../gui/ui/Inv_Materiali.ui" line="137"/>
         <source>new search</source>
         <translation type="unfinished"></translation>
@@ -2406,6 +2395,21 @@ p, li { white-space: pre-wrap; }
     <message>
         <location filename="../gui/ui/Inv_Materiali.ui" line="194"/>
         <source>View alls records</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/Inv_Materiali.ui" line="216"/>
+        <source>Delete record</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/Inv_Materiali.ui" line="230"/>
+        <source>Prev rec</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/Inv_Materiali.ui" line="246"/>
+        <source>Connection test</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -2451,6 +2455,11 @@ p, li { white-space: pre-wrap; }
     <message>
         <location filename="../gui/ui/Inv_Materiali.ui" line="564"/>
         <source>Sito</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/Inv_Materiali.ui" line="601"/>
+        <source>Tipo reperto</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -2524,11 +2533,6 @@ p, li { white-space: pre-wrap; }
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../gui/ui/Inv_Materiali.ui" line="601"/>
-        <source>Tipo reperto</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <location filename="../gui/ui/Inv_Materiali.ui" line="776"/>
         <source>Bicchiere</source>
         <translation type="unfinished"></translation>
@@ -2554,6 +2558,16 @@ p, li { white-space: pre-wrap; }
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <location filename="../gui/ui/Inv_Materiali.ui" line="809"/>
+        <source>Definizione reperto</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/Inv_Materiali.ui" line="821"/>
+        <source>Classe materiale</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <location filename="../gui/ui/Inv_Materiali.ui" line="839"/>
         <source>Dati descrittivi</source>
         <translation type="unfinished"></translation>
@@ -2561,6 +2575,26 @@ p, li { white-space: pre-wrap; }
     <message>
         <location filename="../gui/ui/Inv_Materiali.ui" line="850"/>
         <source>Descrizione </source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/Inv_Materiali.ui" line="1849"/>
+        <source>No</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/Inv_Materiali.ui" line="1844"/>
+        <source>Si</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/Inv_Materiali.ui" line="890"/>
+        <source>Repertato</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/Inv_Materiali.ui" line="919"/>
+        <source>Diagnostico</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -2591,6 +2625,11 @@ p, li { white-space: pre-wrap; }
     <message>
         <location filename="../gui/ui/Inv_Materiali.ui" line="968"/>
         <source>Stato di conservazione</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/Inv_Materiali.ui" line="987"/>
+        <source>Tipo</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -2631,171 +2670,6 @@ p, li { white-space: pre-wrap; }
     <message>
         <location filename="../gui/ui/Inv_Materiali.ui" line="1355"/>
         <source>Quantita&apos;</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../gui/ui/Inv_Materiali.ui" line="1279"/>
-        <source>Misurazioni</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../gui/ui/Inv_Materiali.ui" line="1345"/>
-        <source>Tipo di misura</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../gui/ui/Inv_Materiali.ui" line="1378"/>
-        <source>Tecnologie</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../gui/ui/Inv_Materiali.ui" line="1477"/>
-        <source>Tipo tecnologia</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../gui/ui/Inv_Materiali.ui" line="1482"/>
-        <source>Posizione</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../gui/ui/Inv_Materiali.ui" line="1487"/>
-        <source>Tipo quantità</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../gui/ui/Inv_Materiali.ui" line="1492"/>
-        <source>Unità di misura</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../gui/ui/Inv_Materiali.ui" line="1497"/>
-        <source>Qtà</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../gui/ui/Inv_Materiali.ui" line="1536"/>
-        <source>Rif Biblio</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../gui/ui/Inv_Materiali.ui" line="1544"/>
-        <source>Rif. Bibliografici</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../gui/ui/Inv_Materiali.ui" line="1609"/>
-        <source>Autore</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../gui/ui/Inv_Materiali.ui" line="1614"/>
-        <source>Anno</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../gui/ui/Inv_Materiali.ui" line="1619"/>
-        <source>Titolo</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../gui/ui/Inv_Materiali.ui" line="1624"/>
-        <source>Pag.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../gui/ui/Inv_Materiali.ui" line="1629"/>
-        <source>Fig.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../gui/ui/Inv_Materiali.ui" line="1658"/>
-        <source>Dati stratigrafici</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../gui/ui/Inv_Materiali.ui" line="1706"/>
-        <source>Area</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../gui/ui/Inv_Materiali.ui" line="1747"/>
-        <source>US</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../gui/ui/Inv_Materiali.ui" line="1779"/>
-        <source>Dati magazzino</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../gui/ui/Inv_Materiali.ui" line="1808"/>
-        <source>Nr. Cassa</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../gui/ui/Inv_Materiali.ui" line="1867"/>
-        <source>Lavato</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../gui/ui/Inv_Materiali.ui" line="1883"/>
-        <source>Luogo di conservazione</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../gui/ui/Inv_Materiali.ui" line="1962"/>
-        <source>Tools</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../gui/ui/Inv_Materiali.ui" line="1977"/>
-        <source>Exp schede Pdf </source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../gui/ui/Inv_Materiali.ui" line="246"/>
-        <source>Connection test</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../gui/ui/Inv_Materiali.ui" line="589"/>
-        <source>N° Inventario</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../gui/ui/Inv_Materiali.ui" line="809"/>
-        <source>Definizione reperto</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../gui/ui/Inv_Materiali.ui" line="821"/>
-        <source>Classe materiale</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../gui/ui/Inv_Materiali.ui" line="1849"/>
-        <source>No</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../gui/ui/Inv_Materiali.ui" line="1844"/>
-        <source>Si</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../gui/ui/Inv_Materiali.ui" line="890"/>
-        <source>Repertato</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../gui/ui/Inv_Materiali.ui" line="919"/>
-        <source>Diagnostico</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../gui/ui/Inv_Materiali.ui" line="987"/>
-        <source>Tipo</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -2849,6 +2723,31 @@ p, li { white-space: pre-wrap; }
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <location filename="../gui/ui/Inv_Materiali.ui" line="1279"/>
+        <source>Misurazioni</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/Inv_Materiali.ui" line="1345"/>
+        <source>Tipo di misura</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/Inv_Materiali.ui" line="1378"/>
+        <source>Tecnologie</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/Inv_Materiali.ui" line="1477"/>
+        <source>Tipo tecnologia</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/Inv_Materiali.ui" line="1482"/>
+        <source>Posizione</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <location filename="../gui/ui/Inv_Materiali.ui" line="1505"/>
         <source>Corpo ceramico</source>
         <translation type="unfinished"></translation>
@@ -2859,8 +2758,78 @@ p, li { white-space: pre-wrap; }
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <location filename="../gui/ui/Inv_Materiali.ui" line="1536"/>
+        <source>Rif Biblio</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/Inv_Materiali.ui" line="1544"/>
+        <source>Rif. Bibliografici</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/Inv_Materiali.ui" line="1609"/>
+        <source>Autore</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/Inv_Materiali.ui" line="1614"/>
+        <source>Anno</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/Inv_Materiali.ui" line="1619"/>
+        <source>Titolo</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/Inv_Materiali.ui" line="1624"/>
+        <source>Pag.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/Inv_Materiali.ui" line="1629"/>
+        <source>Fig.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <location filename="../gui/ui/Inv_Materiali.ui" line="1640"/>
         <source>Rif. stratigrafici</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/Inv_Materiali.ui" line="1658"/>
+        <source>Dati stratigrafici</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/Inv_Materiali.ui" line="1706"/>
+        <source>Area</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/Inv_Materiali.ui" line="1747"/>
+        <source>US</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/Inv_Materiali.ui" line="1779"/>
+        <source>Dati magazzino</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/Inv_Materiali.ui" line="1808"/>
+        <source>Nr. Cassa</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/Inv_Materiali.ui" line="1867"/>
+        <source>Lavato</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/Inv_Materiali.ui" line="1883"/>
+        <source>Luogo di conservazione</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -2871,6 +2840,16 @@ p, li { white-space: pre-wrap; }
     <message>
         <location filename="../gui/ui/Inv_Materiali.ui" line="1935"/>
         <source>Impostazione quantificazione</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/Inv_Materiali.ui" line="1962"/>
+        <source>Tools</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/Inv_Materiali.ui" line="1977"/>
+        <source>Exp schede Pdf </source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -2886,6 +2865,26 @@ p, li { white-space: pre-wrap; }
     <message>
         <location filename="../gui/ui/Inv_Materiali.ui" line="2007"/>
         <source>Media Preview</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message encoding="UTF-8">
+        <location filename="../gui/ui/Inv_Materiali.ui" line="589"/>
+        <source>N° Inventario</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message encoding="UTF-8">
+        <location filename="../gui/ui/Inv_Materiali.ui" line="1487"/>
+        <source>Tipo quantità</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message encoding="UTF-8">
+        <location filename="../gui/ui/Inv_Materiali.ui" line="1492"/>
+        <source>Unità di misura</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message encoding="UTF-8">
+        <location filename="../gui/ui/Inv_Materiali.ui" line="1497"/>
+        <source>Qtà</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -3145,11 +3144,6 @@ p, li { white-space: pre-wrap; }
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../gui/ui/Periodizzazione.ui" line="230"/>
-        <source>Prev rec</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <location filename="../gui/ui/Periodizzazione.ui" line="63"/>
         <source>Next rec</source>
         <translation type="unfinished"></translation>
@@ -3170,11 +3164,6 @@ p, li { white-space: pre-wrap; }
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../gui/ui/Periodizzazione.ui" line="216"/>
-        <source>Delete record</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <location filename="../gui/ui/Periodizzazione.ui" line="137"/>
         <source>new search</source>
         <translation type="unfinished"></translation>
@@ -3192,6 +3181,21 @@ p, li { white-space: pre-wrap; }
     <message>
         <location filename="../gui/ui/Periodizzazione.ui" line="194"/>
         <source>View alls records</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/Periodizzazione.ui" line="216"/>
+        <source>Delete record</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/Periodizzazione.ui" line="230"/>
+        <source>Prev rec</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/Periodizzazione.ui" line="246"/>
+        <source>Connection test</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -3320,6 +3324,21 @@ p, li { white-space: pre-wrap; }
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <location filename="../gui/ui/Periodizzazione.ui" line="819"/>
+        <source>Visualizza il periodo sul GIS</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/Periodizzazione.ui" line="826"/>
+        <source>Elenco PDF</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/Periodizzazione.ui" line="833"/>
+        <source>Scheda PDF</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <location filename="../gui/ui/Periodizzazione.ui" line="855"/>
         <source>Descrizione </source>
         <translation type="unfinished"></translation>
@@ -3352,26 +3371,6 @@ p, li { white-space: pre-wrap; }
     <message>
         <location filename="../gui/ui/Periodizzazione.ui" line="1005"/>
         <source>Estesa letterale </source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../gui/ui/Periodizzazione.ui" line="246"/>
-        <source>Connection test</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../gui/ui/Periodizzazione.ui" line="819"/>
-        <source>Visualizza il periodo sul GIS</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../gui/ui/Periodizzazione.ui" line="826"/>
-        <source>Elenco PDF</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../gui/ui/Periodizzazione.ui" line="833"/>
-        <source>Scheda PDF</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -4092,6 +4091,11 @@ p, li { white-space: pre-wrap; }
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <location filename="../gui/ui/Site.ui" line="49"/>
+        <source>First rec</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <location filename="../gui/ui/Site.ui" line="63"/>
         <source>Next rec</source>
         <translation type="unfinished"></translation>
@@ -4132,18 +4136,18 @@ p, li { white-space: pre-wrap; }
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <location filename="../gui/ui/Site.ui" line="216"/>
+        <source>Delete record</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <location filename="../gui/ui/Site.ui" line="230"/>
         <source>Prev rec</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../gui/ui/Site.ui" line="49"/>
-        <source>First rec</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../gui/ui/Site.ui" line="216"/>
-        <source>Delete record</source>
+        <location filename="../gui/ui/Site.ui" line="246"/>
+        <source>Connection test</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -4222,11 +4226,6 @@ p, li { white-space: pre-wrap; }
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../gui/ui/Site.ui" line="246"/>
-        <source>Connection test</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <location filename="../gui/ui/Site.ui" line="783"/>
         <source>Tools</source>
         <translation type="unfinished"></translation>
@@ -4287,19 +4286,6 @@ p, li { white-space: pre-wrap; }
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../gui/ui/Site.ui" line="1026"/>
-        <source>Questa è una sezione di testing per sperimentare funzioni.
-
-
-Procedura
-Step 1 - Aprire il file test_area.py dentro alla cartella pyarchinit (la cartella si trova dentro al vostro utente /.qgis/python/plugins/pyarchinit)
-
-Step 2 - editare la funzione def run_test e salvare il file.
-
-Step 3 - Riavviare Qgis e cliccare sul pulsante Run Test per verificare l&apos;output della vostra funzione.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <location filename="../gui/ui/Site.ui" line="525"/>
         <source>...</source>
         <translation type="unfinished"></translation>
@@ -4357,6 +4343,19 @@ Step 3 - Riavviare Qgis e cliccare sul pulsante Run Test per verificare l&apos;o
     <message>
         <location filename="../gui/ui/Site.ui" line="1010"/>
         <source>Python test area</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message encoding="UTF-8">
+        <location filename="../gui/ui/Site.ui" line="1026"/>
+        <source>Questa è una sezione di testing per sperimentare funzioni.
+
+
+Procedura
+Step 1 - Aprire il file test_area.py dentro alla cartella pyarchinit (la cartella si trova dentro al vostro utente /.qgis/python/plugins/pyarchinit)
+
+Step 2 - editare la funzione def run_test e salvare il file.
+
+Step 3 - Riavviare Qgis e cliccare sul pulsante Run Test per verificare l&apos;output della vostra funzione.</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -4426,11 +4425,6 @@ Step 3 - Riavviare Qgis e cliccare sul pulsante Run Test per verificare l&apos;o
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../gui/ui/Struttura.ui" line="230"/>
-        <source>Prev rec</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <location filename="../gui/ui/Struttura.ui" line="63"/>
         <source>Next rec</source>
         <translation type="unfinished"></translation>
@@ -4451,11 +4445,6 @@ Step 3 - Riavviare Qgis e cliccare sul pulsante Run Test per verificare l&apos;o
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../gui/ui/Struttura.ui" line="216"/>
-        <source>Delete record</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <location filename="../gui/ui/Struttura.ui" line="137"/>
         <source>new search</source>
         <translation type="unfinished"></translation>
@@ -4473,6 +4462,21 @@ Step 3 - Riavviare Qgis e cliccare sul pulsante Run Test per verificare l&apos;o
     <message>
         <location filename="../gui/ui/Struttura.ui" line="194"/>
         <source>View alls records</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/Struttura.ui" line="216"/>
+        <source>Delete record</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/Struttura.ui" line="230"/>
+        <source>Prev rec</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/Struttura.ui" line="246"/>
+        <source>Connection test</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -4516,11 +4520,6 @@ Step 3 - Riavviare Qgis e cliccare sul pulsante Run Test per verificare l&apos;o
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../gui/ui/Struttura.ui" line="581"/>
-        <source>N°</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <location filename="../gui/ui/Struttura.ui" line="614"/>
         <source>Aggiungi un valore...</source>
         <translation type="unfinished"></translation>
@@ -4551,13 +4550,18 @@ Step 3 - Riavviare Qgis e cliccare sul pulsante Run Test per verificare l&apos;o
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <location filename="../gui/ui/Struttura.ui" line="775"/>
+        <source>Interpretazione </source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <location filename="../gui/ui/Struttura.ui" line="782"/>
         <source>Descrizione </source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../gui/ui/Struttura.ui" line="775"/>
-        <source>Interpretazione </source>
+        <location filename="../gui/ui/Struttura.ui" line="790"/>
+        <source>Periodizzazione</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -4591,6 +4595,11 @@ Step 3 - Riavviare Qgis e cliccare sul pulsante Run Test per verificare l&apos;o
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <location filename="../gui/ui/Struttura.ui" line="917"/>
+        <source>Rapporti</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <location filename="../gui/ui/Struttura.ui" line="929"/>
         <source>Rapporti struttura</source>
         <translation type="unfinished"></translation>
@@ -4598,6 +4607,11 @@ Step 3 - Riavviare Qgis e cliccare sul pulsante Run Test per verificare l&apos;o
     <message>
         <location filename="../gui/ui/Struttura.ui" line="1186"/>
         <source>inserisci riga</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/Struttura.ui" line="1198"/>
+        <source>rimuovi riga</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -4626,13 +4640,28 @@ Step 3 - Riavviare Qgis e cliccare sul pulsante Run Test per verificare l&apos;o
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <location filename="../gui/ui/Struttura.ui" line="1019"/>
+        <source>Materiali impiegati</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <location filename="../gui/ui/Struttura.ui" line="1039"/>
         <source>Elementi strutturali</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../gui/ui/Struttura.ui" line="1105"/>
-        <source>Quantità</source>
+        <location filename="../gui/ui/Struttura.ui" line="1069"/>
+        <source>Materiali</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/Struttura.ui" line="1100"/>
+        <source>Tipologia elemento</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/Struttura.ui" line="1162"/>
+        <source>Misure</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -4653,46 +4682,6 @@ Step 3 - Riavviare Qgis e cliccare sul pulsante Run Test per verificare l&apos;o
     <message>
         <location filename="../gui/ui/Struttura.ui" line="1238"/>
         <source>Valore</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../gui/ui/Struttura.ui" line="1069"/>
-        <source>Materiali</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../gui/ui/Struttura.ui" line="1019"/>
-        <source>Materiali impiegati</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../gui/ui/Struttura.ui" line="246"/>
-        <source>Connection test</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../gui/ui/Struttura.ui" line="790"/>
-        <source>Periodizzazione</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../gui/ui/Struttura.ui" line="917"/>
-        <source>Rapporti</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../gui/ui/Struttura.ui" line="1198"/>
-        <source>rimuovi riga</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../gui/ui/Struttura.ui" line="1100"/>
-        <source>Tipologia elemento</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../gui/ui/Struttura.ui" line="1162"/>
-        <source>Misure</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -4742,6 +4731,16 @@ Step 3 - Riavviare Qgis e cliccare sul pulsante Run Test per verificare l&apos;o
 p, li { white-space: pre-wrap; }
 &lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:&apos;.SF NS Text&apos;; font-size:10pt; font-weight:400; font-style:normal;&quot;&gt;
 &lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-family:&apos;Lucida Grande&apos;; font-size:13pt;&quot;&gt;&lt;br /&gt;&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message encoding="UTF-8">
+        <location filename="../gui/ui/Struttura.ui" line="581"/>
+        <source>N°</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message encoding="UTF-8">
+        <location filename="../gui/ui/Struttura.ui" line="1105"/>
+        <source>Quantità</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -4956,61 +4955,6 @@ p, li { white-space: pre-wrap; }
 <context>
     <name>DialogUS</name>
     <message>
-        <location filename="../gui/ui/US_USM.ui" line="4160"/>
-        <source>First rec</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../gui/ui/US_USM.ui" line="4132"/>
-        <source>Prev rec</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../gui/ui/US_USM.ui" line="4146"/>
-        <source>Next rec</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../gui/ui/US_USM.ui" line="4218"/>
-        <source>Last rec</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../gui/ui/US_USM.ui" line="4237"/>
-        <source>New record</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../gui/ui/US_USM.ui" line="4256"/>
-        <source>Save</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../gui/ui/US_USM.ui" line="4185"/>
-        <source>Delete record</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../gui/ui/US_USM.ui" line="4278"/>
-        <source>new search</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../gui/ui/US_USM.ui" line="4297"/>
-        <source>search !!!</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../gui/ui/US_USM.ui" line="4112"/>
-        <source>Order by</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../gui/ui/US_USM.ui" line="4204"/>
-        <source>View alls records</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <location filename="../gui/ui/US_USM.ui" line="3888"/>
         <source>DB Info</source>
         <translation type="unfinished"></translation>
@@ -5038,6 +4982,61 @@ p, li { white-space: pre-wrap; }
     <message>
         <location filename="../gui/ui/US_USM.ui" line="4091"/>
         <source>record tot.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/US_USM.ui" line="4218"/>
+        <source>Last rec</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/US_USM.ui" line="4237"/>
+        <source>New record</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/US_USM.ui" line="4256"/>
+        <source>Save</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/US_USM.ui" line="4278"/>
+        <source>new search</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/US_USM.ui" line="4297"/>
+        <source>search !!!</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/US_USM.ui" line="4112"/>
+        <source>Order by</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/US_USM.ui" line="4204"/>
+        <source>View alls records</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/US_USM.ui" line="4146"/>
+        <source>Next rec</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/US_USM.ui" line="4132"/>
+        <source>Prev rec</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/US_USM.ui" line="4160"/>
+        <source>First rec</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/US_USM.ui" line="4185"/>
+        <source>Delete record</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -5208,7 +5207,7 @@ p, li { white-space: pre-wrap; }
     <message>
         <location filename="../gui/ui/US_USM.ui" line="5107"/>
         <source>Definizione stratigrafica</source>
-        <translation type="unfinished"></translation>
+        <translation>doich</translation>
     </message>
     <message>
         <location filename="../gui/ui/US_USM.ui" line="5114"/>
@@ -5218,6 +5217,15 @@ p, li { white-space: pre-wrap; }
     <message>
         <location filename="../gui/ui/US_USM.ui" line="91"/>
         <source>Dati descrittivi</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/US_USM.ui" line="136"/>
+        <source>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
+&lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
+p, li { white-space: pre-wrap; }
+&lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:&apos;MS Shell Dlg 2&apos;; font-size:10pt; font-weight:400; font-style:normal;&quot;&gt;
+&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-family:&apos;Lucida Grande&apos;; font-size:13pt;&quot;&gt;&lt;br /&gt;&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -5323,6 +5331,11 @@ p, li { white-space: pre-wrap; }
     <message>
         <location filename="../gui/ui/US_USM.ui" line="1865"/>
         <source>Tipo di rapporto</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/US_USM.ui" line="1884"/>
+        <source>Vai all&apos;US</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -5461,100 +5474,6 @@ p, li { white-space: pre-wrap; }
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../gui/ui/US_USM.ui" line="3176"/>
-        <source>Tools</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../gui/ui/US_USM.ui" line="3293"/>
-        <source>Crea Codice Periodo</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../gui/ui/US_USM.ui" line="3338"/>
-        <source>Esporta Matrix</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../gui/ui/US_USM.ui" line="3731"/>
-        <source>Show Selcted Features</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../gui/ui/US_USM.ui" line="3314"/>
-        <source>Crea codice periodo</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../gui/ui/US_USM.ui" line="3375"/>
-        <source>Ordine Stratigrafico</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../gui/ui/US_USM.ui" line="3503"/>
-        <source>Visualizzazione GIS</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../gui/ui/US_USM.ui" line="3596"/>
-        <source>Attivazione Preview pianta US</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../gui/ui/US_USM.ui" line="3648"/>
-        <source>Ctrl+G</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../gui/ui/US_USM.ui" line="3606"/>
-        <source>Preview pianta US</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../gui/ui/US_USM.ui" line="3638"/>
-        <source>Pan tool</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../gui/ui/US_USM.ui" line="3564"/>
-        <source>Apri schede US selezionate</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../gui/ui/US_USM.ui" line="3818"/>
-        <source>Singole schede US</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../gui/ui/US_USM.ui" line="3774"/>
-        <source>Elenco US</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../gui/ui/US_USM.ui" line="3686"/>
-        <source>Mostra immagini</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../gui/ui/US_USM.ui" line="3464"/>
-        <source>Check, go!!!!</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../gui/ui/US_USM.ui" line="136"/>
-        <source>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
-&lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
-p, li { white-space: pre-wrap; }
-&lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:&apos;MS Shell Dlg 2&apos;; font-size:10pt; font-weight:400; font-style:normal;&quot;&gt;
-&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-family:&apos;Lucida Grande&apos;; font-size:13pt;&quot;&gt;&lt;br /&gt;&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../gui/ui/US_USM.ui" line="1884"/>
-        <source>Vai all&apos;US</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <location filename="../gui/ui/US_USM.ui" line="3072"/>
         <source>Documentazione</source>
         <translation type="unfinished"></translation>
@@ -5567,6 +5486,11 @@ p, li { white-space: pre-wrap; }
     <message>
         <location filename="../gui/ui/US_USM.ui" line="3140"/>
         <source>Riferimenti</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/US_USM.ui" line="3176"/>
+        <source>Tools</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -5590,8 +5514,43 @@ p, li { white-space: pre-wrap; }
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <location filename="../gui/ui/US_USM.ui" line="3464"/>
+        <source>Check, go!!!!</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/US_USM.ui" line="3293"/>
+        <source>Crea Codice Periodo</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/US_USM.ui" line="3731"/>
+        <source>Show Selcted Features</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/US_USM.ui" line="3314"/>
+        <source>Crea codice periodo</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/US_USM.ui" line="3338"/>
+        <source>Esporta Matrix</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/US_USM.ui" line="3375"/>
+        <source>Ordine Stratigrafico</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <location filename="../gui/ui/US_USM.ui" line="3491"/>
         <source>Funzioni di controllo</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/US_USM.ui" line="3503"/>
+        <source>Visualizzazione GIS</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -5605,8 +5564,33 @@ p, li { white-space: pre-wrap; }
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <location filename="../gui/ui/US_USM.ui" line="3648"/>
+        <source>Ctrl+G</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/US_USM.ui" line="3564"/>
+        <source>Apri schede US selezionate</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <location filename="../gui/ui/US_USM.ui" line="3579"/>
         <source>Apri schede US</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/US_USM.ui" line="3596"/>
+        <source>Attivazione Preview pianta US</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/US_USM.ui" line="3606"/>
+        <source>Preview pianta US</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/US_USM.ui" line="3638"/>
+        <source>Pan tool</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -5615,13 +5599,28 @@ p, li { white-space: pre-wrap; }
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <location filename="../gui/ui/US_USM.ui" line="3686"/>
+        <source>Mostra immagini</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <location filename="../gui/ui/US_USM.ui" line="3754"/>
         <source>Esportazioni</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <location filename="../gui/ui/US_USM.ui" line="3774"/>
+        <source>Elenco US</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <location filename="../gui/ui/US_USM.ui" line="3797"/>
         <source>Esportazioni PDF/PNG</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/US_USM.ui" line="3818"/>
+        <source>Singole schede US</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -5920,11 +5919,6 @@ p, li { white-space: pre-wrap; }
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../gui/ui/US_USM.ui" line="2772"/>
-        <source>Profondità  Min. (Metri)</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <location filename="../gui/ui/US_USM.ui" line="2799"/>
         <source>Altezza min. (Metri)</source>
         <translation type="unfinished"></translation>
@@ -5957,11 +5951,6 @@ p, li { white-space: pre-wrap; }
     <message>
         <location filename="../gui/ui/US_USM.ui" line="2974"/>
         <source>Altezza Max. (Metri)</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../gui/ui/US_USM.ui" line="3055"/>
-        <source>Profondità max. (Metri)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -6099,17 +6088,27 @@ p, li { white-space: pre-wrap; }
         <source>Soprintendenza</source>
         <translation type="unfinished"></translation>
     </message>
-    <message>
+    <message encoding="UTF-8">
+        <location filename="../gui/ui/US_USM.ui" line="2772"/>
+        <source>Profondità  Min. (Metri)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message encoding="UTF-8">
+        <location filename="../gui/ui/US_USM.ui" line="3055"/>
+        <source>Profondità max. (Metri)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message encoding="UTF-8">
         <location filename="../gui/ui/US_USM.ui" line="5151"/>
         <source>N°. Cat. Gen.</source>
         <translation type="unfinished"></translation>
     </message>
-    <message>
+    <message encoding="UTF-8">
         <location filename="../gui/ui/US_USM.ui" line="5188"/>
         <source>N°. Cat. Int.</source>
         <translation type="unfinished"></translation>
     </message>
-    <message>
+    <message encoding="UTF-8">
         <location filename="../gui/ui/US_USM.ui" line="5225"/>
         <source>N°. Cat. Internaz.</source>
         <translation type="unfinished"></translation>
@@ -7046,11 +7045,6 @@ p, li { white-space: pre-wrap; }
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../gui/ui/pyarchinit_directory_creator_ui.ui" line="286"/>
-        <source>Unità Stratigrafiche</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <location filename="../gui/ui/pyarchinit_directory_creator_ui.ui" line="293"/>
         <source>Struttura</source>
         <translation type="unfinished"></translation>
@@ -7060,14 +7054,14 @@ p, li { white-space: pre-wrap; }
         <source>Reperti</source>
         <translation type="unfinished"></translation>
     </message>
+    <message encoding="UTF-8">
+        <location filename="../gui/ui/pyarchinit_directory_creator_ui.ui" line="286"/>
+        <source>Unità Stratigrafiche</source>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>Dialog_eta</name>
-    <message>
-        <location filename="../gui/ui/Deteta.ui" line="20"/>
-        <source>pyArchInit Gestione Scavi - Scheda Determinazione Età di Morte</source>
-        <translation type="unfinished"></translation>
-    </message>
     <message>
         <location filename="../gui/ui/Deteta.ui" line="40"/>
         <source>DBMS Toolbar</source>
@@ -7354,27 +7348,8 @@ p, li { white-space: pre-wrap; }
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../gui/ui/Deteta.ui" line="1359"/>
-        <source>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
-&lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
-p, li { white-space: pre-wrap; }
-&lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:&apos;Lucida Grande&apos;; font-size:13pt; font-weight:400; font-style:normal;&quot;&gt;
-&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-family:&apos;MS Shell Dlg 2&apos;; font-size:10pt;&quot;&gt; Assenza di granulosità; è possibile un&apos;isolata e fine porosità.&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <location filename="../gui/ui/Deteta.ui" line="1621"/>
         <source>SCORE 2</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../gui/ui/Deteta.ui" line="1507"/>
-        <source>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
-&lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
-p, li { white-space: pre-wrap; }
-&lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:&apos;Lucida Grande&apos;; font-size:13pt; font-weight:400; font-style:normal;&quot;&gt;
-&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-family:&apos;MS Shell Dlg 2&apos;; font-size:10pt;&quot;&gt;Il bordo è fine e può essere a filo con la superficie auricolare, &lt;/span&gt;&lt;/p&gt;
-&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-family:&apos;MS Shell Dlg 2&apos;; font-size:10pt;&quot;&gt;o leggermente sollevato e forma un angolo.&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -7434,11 +7409,6 @@ p, li { white-space: pre-wrap; }
     <message>
         <location filename="../gui/ui/Deteta.ui" line="1554"/>
         <source>SSPIC</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../gui/ui/Deteta.ui" line="1567"/>
-        <source>Modificazione della tuberosità iliaca</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -7720,7 +7690,36 @@ p, li { white-space: pre-wrap; }
         <source>RANGE SUTURE ECTOCRANICHE</source>
         <translation type="unfinished"></translation>
     </message>
-    <message>
+    <message encoding="UTF-8">
+        <location filename="../gui/ui/Deteta.ui" line="20"/>
+        <source>pyArchInit Gestione Scavi - Scheda Determinazione Età di Morte</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message encoding="UTF-8">
+        <location filename="../gui/ui/Deteta.ui" line="1359"/>
+        <source>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
+&lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
+p, li { white-space: pre-wrap; }
+&lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:&apos;Lucida Grande&apos;; font-size:13pt; font-weight:400; font-style:normal;&quot;&gt;
+&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-family:&apos;MS Shell Dlg 2&apos;; font-size:10pt;&quot;&gt; Assenza di granulosità; è possibile un&apos;isolata e fine porosità.&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message encoding="UTF-8">
+        <location filename="../gui/ui/Deteta.ui" line="1507"/>
+        <source>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
+&lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
+p, li { white-space: pre-wrap; }
+&lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:&apos;Lucida Grande&apos;; font-size:13pt; font-weight:400; font-style:normal;&quot;&gt;
+&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-family:&apos;MS Shell Dlg 2&apos;; font-size:10pt;&quot;&gt;Il bordo è fine e può essere a filo con la superficie auricolare, &lt;/span&gt;&lt;/p&gt;
+&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-family:&apos;MS Shell Dlg 2&apos;; font-size:10pt;&quot;&gt;o leggermente sollevato e forma un angolo.&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message encoding="UTF-8">
+        <location filename="../gui/ui/Deteta.ui" line="1567"/>
+        <source>Modificazione della tuberosità iliaca</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message encoding="UTF-8">
         <location filename="../gui/ui/Deteta.ui" line="3860"/>
         <source>Acsadi e Nemeskéri, 1970</source>
         <translation type="unfinished"></translation>
@@ -7764,11 +7763,6 @@ p, li { white-space: pre-wrap; }
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../gui/ui/pyarchinit_images_export_ui.ui" line="286"/>
-        <source>Unità Stratigrafiche</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <location filename="../gui/ui/pyarchinit_images_export_ui.ui" line="293"/>
         <source>Struttura</source>
         <translation type="unfinished"></translation>
@@ -7796,6 +7790,11 @@ p, li { white-space: pre-wrap; }
     <message>
         <location filename="../gui/ui/pyarchinit_images_export_ui.ui" line="35"/>
         <source>Impostazioni del sistema</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message encoding="UTF-8">
+        <location filename="../gui/ui/pyarchinit_images_export_ui.ui" line="286"/>
+        <source>Unità Stratigrafiche</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -7834,11 +7833,6 @@ p, li { white-space: pre-wrap; }
     <message>
         <location filename="../gui/ui/Pdf_export.ui" line="234"/>
         <source>Scheda US</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../gui/ui/Pdf_export.ui" line="221"/>
-        <source>Unità Stratigrafiche</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -7884,6 +7878,11 @@ p, li { white-space: pre-wrap; }
     <message>
         <location filename="../gui/ui/Pdf_export.ui" line="59"/>
         <source>Esporta PDF</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message encoding="UTF-8">
+        <location filename="../gui/ui/Pdf_export.ui" line="221"/>
+        <source>Unità Stratigrafiche</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -8720,22 +8719,22 @@ p, li { white-space: pre-wrap; }
     <message>
         <location filename="../gui/ui/sortpanelmain.ui" line="211"/>
         <source>Ordina</source>
-        <translation></translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../gui/ui/sortpanelmain.ui" line="27"/>
         <source>Criteri di ordinamento</source>
-        <translation></translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../gui/ui/sortpanelmain.ui" line="125"/>
         <source>Ascendente</source>
-        <translation></translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../gui/ui/sortpanelmain.ui" line="135"/>
         <source>Discendente</source>
-        <translation></translation>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 </TS>
