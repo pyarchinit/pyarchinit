@@ -63,7 +63,8 @@ class pyarchinit_Thesaurus(QDialog, MAIN_DIALOG_CLASS):
         "Sigla": "sigla",
         "Sigla estesa": "sigla_estesa",
         "Descrizione": "descrizione",
-        "Tipologia sigla": "tipologia_sigla"
+        "Tipologia sigla": "tipologia_sigla",
+        "Lingua": "lingua"
     }
 
     SORT_ITEMS = [
@@ -72,15 +73,22 @@ class pyarchinit_Thesaurus(QDialog, MAIN_DIALOG_CLASS):
         "Sigla",
         "Sigla estesa",
         "Descrizione",
-        "Tipologia sigla"
+        "Tipologia sigla",
+        "Lingua"
     ]
+
+    LANG = {
+        "IT": ['it_IT', 'IT'],
+        "EN_US": ['en_US'],
+    }
 
     TABLE_FIELDS = [
         "nome_tabella",
         "sigla",
         "sigla_estesa",
         "descrizione",
-        "tipologia_sigla"
+        "tipologia_sigla",
+        "lingua"
     ]
     DB_SERVER = "not defined"  ####nuovo sistema sort
 
@@ -180,7 +188,12 @@ class pyarchinit_Thesaurus(QDialog, MAIN_DIALOG_CLASS):
                                     QMessageBox.Ok)
 
     def charge_list(self):
-        pass
+        #pass
+        self.comboBox_lingua.clear()
+        lingua = []
+        for key, values in self.LANG.items():
+            lingua.append(key)
+        self.comboBox_lingua.addItems(lingua)
 
     ##		sito_vl = self.UTILITY.tup_2_list_III(self.DB_MANAGER.group_by('site_table', 'sito', 'SITE'))
     ##
@@ -260,11 +273,13 @@ class pyarchinit_Thesaurus(QDialog, MAIN_DIALOG_CLASS):
             self.setComboBoxEditable(["self.comboBox_sigla_estesa"], 1)
             self.setComboBoxEditable(["self.comboBox_tipologia_sigla"], 1)
             self.setComboBoxEditable(["self.comboBox_nome_tabella"], 1)
+            #self.setComboBoxEditable(["self.comboBox_lingua"], 1)
 
             self.setComboBoxEnable(["self.comboBox_sigla"], "True")
             self.setComboBoxEnable(["self.comboBox_sigla_estesa"], "True")
             self.setComboBoxEnable(["self.comboBox_tipologia_sigla"], "True")
             self.setComboBoxEnable(["self.comboBox_nome_tabella"], "True")
+            self.setComboBoxEnable(["self.comboBox_lingua"], "True")
 
             self.set_rec_counter('', '')
             self.enable_button(0)
@@ -300,11 +315,13 @@ class pyarchinit_Thesaurus(QDialog, MAIN_DIALOG_CLASS):
                     self.setComboBoxEditable(["self.comboBox_sigla_estesa"], 1)
                     self.setComboBoxEditable(["self.comboBox_tipologia_sigla"], 1)
                     self.setComboBoxEditable(["self.comboBox_nome_tabella"], 1)
+                    #self.setComboBoxEditable(["self.comboBox_lingua"], 1)
 
                     self.setComboBoxEnable(["self.comboBox_sigla"], "False")
                     self.setComboBoxEnable(["self.comboBox_sigla_estesa"], "False")
                     self.setComboBoxEnable(["self.comboBox_tipologia_sigla"], "False")
                     self.setComboBoxEnable(["self.comboBox_nome_tabella"], "False")
+                    self.setComboBoxEnable(["self.comboBox_lingua"], "False")
 
                     self.fill_fields(self.REC_CORR)
                     self.enable_button(1)
@@ -334,6 +351,11 @@ class pyarchinit_Thesaurus(QDialog, MAIN_DIALOG_CLASS):
                                 QMessageBox.Ok)
             test = 1
 
+        if EC.data_is_empty(str(self.comboBox_lingua.currentText())) == 0:
+            QMessageBox.warning(self, "ATTENZIONE", "Campo lingua \n Il campo non deve essere vuoto",
+                                QMessageBox.Ok)
+            test = 1
+
         if EC.data_is_empty(str(self.textEdit_descrizione_sigla.toPlainText())) == 0:
             QMessageBox.warning(self, "ATTENZIONE", "Campo Descrizione \n Il campo non deve essere vuoto",
                                 QMessageBox.Ok)
@@ -349,7 +371,8 @@ class pyarchinit_Thesaurus(QDialog, MAIN_DIALOG_CLASS):
                 str(self.comboBox_sigla.currentText()),  # 2 - sigla
                 str(self.comboBox_sigla_estesa.currentText()),  # 3 - sigla estesa
                 str(self.textEdit_descrizione_sigla.toPlainText()),  # 4 - descrizione
-                str(self.comboBox_tipologia_sigla.currentText()))  # 5 - tipologia sigla
+                str(self.comboBox_tipologia_sigla.currentText()),  # 5 - tipologia sigla
+                str(self.comboBox_lingua.currentText()))  # 6 - lingua
 
             try:
                 self.DB_MANAGER.insert_data_session(data)
@@ -504,11 +527,13 @@ class pyarchinit_Thesaurus(QDialog, MAIN_DIALOG_CLASS):
                 self.setComboBoxEditable(["self.comboBox_sigla_estesa"], 1)
                 self.setComboBoxEditable(["self.comboBox_tipologia_sigla"], 1)
                 self.setComboBoxEditable(["self.comboBox_nome_tabella"], 1)
+                #self.setComboBoxEditable(["self.comboBox_lingua"], 1)
 
                 self.setComboBoxEnable(["self.comboBox_sigla"], "True")
                 self.setComboBoxEnable(["self.comboBox_sigla_estesa"], "True")
                 self.setComboBoxEnable(["self.comboBox_tipologia_sigla"], "True")
                 self.setComboBoxEnable(["self.comboBox_nome_tabella"], "True")
+                self.setComboBoxEnable(["self.comboBox_lingua"], "True")
 
                 self.setComboBoxEnable(["self.textEdit_descrizione_sigla"], "False")
                 ###
@@ -527,7 +552,8 @@ class pyarchinit_Thesaurus(QDialog, MAIN_DIALOG_CLASS):
                 self.TABLE_FIELDS[0]: "'" + str(self.comboBox_nome_tabella.currentText()) + "'",  # 1 - Nome tabella
                 self.TABLE_FIELDS[1]: "'" + str(self.comboBox_sigla.currentText()) + "'",  # 2 - sigla
                 self.TABLE_FIELDS[2]: "'" + str(self.comboBox_sigla_estesa.currentText()) + "'",  # 3 - sigla estesa
-                self.TABLE_FIELDS[4]: "'" + str(self.comboBox_tipologia_sigla.currentText()) + "'"
+                self.TABLE_FIELDS[4]: "'" + str(self.comboBox_tipologia_sigla.currentText()) + "'",
+                self.TABLE_FIELDS[5]: "'" + str(self.comboBox_lingua.currentText()) + "'"
                 # 3 - tipologia sigla
             }
 
@@ -552,11 +578,13 @@ class pyarchinit_Thesaurus(QDialog, MAIN_DIALOG_CLASS):
                     self.setComboBoxEditable(["self.comboBox_sigla_estesa"], 1)
                     self.setComboBoxEditable(["self.comboBox_tipologia_sigla"], 1)
                     self.setComboBoxEditable(["self.comboBox_nome_tabella"], 1)
+                    #self.setComboBoxEditable(["self.comboBox_lingua"], 1)
 
                     self.setComboBoxEnable(["self.comboBox_sigla"], "False")
                     self.setComboBoxEnable(["self.comboBox_sigla_estesa"], "False")
                     self.setComboBoxEnable(["self.comboBox_tipologia_sigla"], "False")
                     self.setComboBoxEnable(["self.comboBox_nome_tabella"], "False")
+                    self.setComboBoxEnable(["self.comboBox_lingua"], "False")
 
                     self.setComboBoxEnable(["self.textEdit_descrizione_sigla"], "True")
 
@@ -582,11 +610,13 @@ class pyarchinit_Thesaurus(QDialog, MAIN_DIALOG_CLASS):
                         self.setComboBoxEditable(["self.comboBox_sigla_estesa"], 1)
                         self.setComboBoxEditable(["self.comboBox_tipologia_sigla"], 1)
                         self.setComboBoxEditable(["self.comboBox_nome_tabella"], 1)
+                        #self.setComboBoxEditable(["self.comboBox_lingua"], 1)
 
                         self.setComboBoxEnable(["self.comboBox_sigla"], "False")
                         self.setComboBoxEnable(["self.comboBox_sigla_estesa"], "False")
                         self.setComboBoxEnable(["self.comboBox_tipologia_sigla"], "False")
                         self.setComboBoxEnable(["self.comboBox_nome_tabella"], "False")
+                        self.setComboBoxEnable(["self.comboBox_lingua"], "False")
 
                         self.setComboBoxEnable(["self.textEdit_descrizione_sigla"], "True")
 
@@ -693,9 +723,12 @@ class pyarchinit_Thesaurus(QDialog, MAIN_DIALOG_CLASS):
         self.comboBox_tipologia_sigla.setEditText("")  # 1 - Tipologia sigla
         self.comboBox_nome_tabella.setEditText("")  # 2 - Nome tabella
         self.textEdit_descrizione_sigla.clear()  # 4 - Descrizione
+        self.comboBox_lingua.setEditText("")
 
     def fill_fields(self, n=0):
         self.rec_num = n
+
+
 
         str(self.comboBox_sigla.setEditText(self.DATA_LIST[self.rec_num].sigla))  # 1 - Sigla
         str(self.comboBox_sigla_estesa.setEditText(self.DATA_LIST[self.rec_num].sigla_estesa))  # 2 - Sigla estesa
@@ -704,6 +737,7 @@ class pyarchinit_Thesaurus(QDialog, MAIN_DIALOG_CLASS):
         str(self.comboBox_nome_tabella.setEditText(self.DATA_LIST[self.rec_num].nome_tabella))  # 4 - nome tabella
         str(str(
             self.textEdit_descrizione_sigla.setText(self.DATA_LIST[self.rec_num].descrizione)))  # 5 - descrizione sigla
+        str(self.comboBox_lingua.setEditText(self.DATA_LIST[self.rec_num].lingua))  # 6 - lingua
 
     def set_rec_counter(self, t, c):
         self.rec_tot = t
@@ -712,14 +746,18 @@ class pyarchinit_Thesaurus(QDialog, MAIN_DIALOG_CLASS):
         self.label_rec_corrente.setText(str(self.rec_corr))
 
     def set_LIST_REC_TEMP(self):
-
+        l = self.comboBox_lingua.currentText()
+        for key,values in self.LANG.items():
+            if l in values:
+                lingua = key
         # data
         self.DATA_LIST_REC_TEMP = [
             str(self.comboBox_nome_tabella.currentText()),  # 1 - Nome tabella
             str(self.comboBox_sigla.currentText()),  # 2 - sigla
             str(self.comboBox_sigla_estesa.currentText()),  # 3 - sigla estesa
             str(self.textEdit_descrizione_sigla.toPlainText()),  # 4 - descrizione
-            str(self.comboBox_tipologia_sigla.currentText())  # 3 - tipologia sigla
+            str(self.comboBox_tipologia_sigla.currentText()),  # 3 - tipologia sigla
+            str(lingua)  # 6 - lingua
         ]
 
     def set_LIST_REC_CORR(self):
