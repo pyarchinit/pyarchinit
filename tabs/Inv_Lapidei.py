@@ -151,6 +151,11 @@ class pyarchinit_Inventario_Lapidei(QDialog, MAIN_DIALOG_CLASS):
         "compilatore"
     ]
 
+    LANG = {
+        "IT": ['it_IT', 'IT'],
+        "EN_US": ['en_US'],
+    }
+
     SEARCH_DICT_TEMP = ""
 
     HOME = os.environ['PYARCHINIT_HOME']
@@ -352,7 +357,11 @@ class pyarchinit_Inventario_Lapidei(QDialog, MAIN_DIALOG_CLASS):
 
         #lista tipologia
 
-        lang = "'" + QgsSettings().value("locale/userLocale", QVariant) + "'"
+        l = "'" + QgsSettings().value("locale/userLocale", QVariant) + "'"
+        lang = ""
+        for key, values in self.LANG.items():
+            if l in values:
+                lang = key
 
         self.comboBox_tipologia.clear()
         search_dict = {

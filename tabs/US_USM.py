@@ -348,6 +348,11 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
 
     ]
 
+    LANG = {
+        "IT": ['it_IT', 'IT'],
+        "EN_US": ['en_US'],
+    }
+
     HOME = os.environ['PYARCHINIT_HOME']
 
     REPORT_PATH = '{}{}{}'.format(HOME, os.sep, "pyarchinit_Report_folder")
@@ -638,7 +643,11 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
 
     def customize_GUI(self):
 
-        lang = "'" + QgsSettings().value("locale/userLocale", QVariant) + "'"
+        l = "'" + QgsSettings().value("locale/userLocale", QVariant) + "'"
+        lang = ""
+        for key, values in self.LANG.items():
+            if l in values:
+                lang = key
 
         if not Pyarchinit_OS_Utility.checkGraphvizInstallation():
             self.pushButton_export_matrix.setEnabled(False)
@@ -978,7 +987,11 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
 
     def charge_list(self):
 
-        lang = "'" + QgsSettings().value("locale/userLocale", QVariant) + "'"
+        l = "'" + QgsSettings().value("locale/userLocale", QVariant) + "'"
+        lang = ""
+        for key, values in self.LANG.items():
+            if l in values:
+                lang = key
 
         # lista sito
 
