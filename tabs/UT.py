@@ -316,6 +316,7 @@ class pyarchinit_UT(QDialog, MAIN_DIALOG_CLASS):
         regioni_list = ['Abruzzo', 'Basilicata', 'Calabria', 'Campania', 'Emilia-Romagna', 'Friuli Venezia Giulia',
                         'Lazio', 'Liguria', 'Lombardia', 'Marche', 'Molise', 'Piemonte', 'Puglia', 'Sardegna',
                         'Sicilia', 'Toscana', 'Trentino Alto Adige', 'Umbria', 'Valle d\'Aosta', 'Veneto']
+        self.comboBox_regione.clear()
         self.comboBox_regione.addItems(regioni_list)
 
         province_list = ['Agrigento', 'Alessandria', 'Ancona', 'Aosta', 'Arezzo', 'Ascoli Piceno', 'Asti', 'Avellino',
@@ -333,10 +334,10 @@ class pyarchinit_UT(QDialog, MAIN_DIALOG_CLASS):
                          'Savona', 'Siena', 'Siracusa', 'Sondrio', 'Taranto', 'Teramo', 'Terni', 'Torino', 'Trapani',
                          'Trento', 'Treviso', 'Trieste', 'Udine', 'Varese', 'Venezia', 'Verbano-Cusio-Ossola',
                          'Vercelli', 'Verona', 'Vibo Valentia', 'Vicenza', 'Viterbo']
-
+        self.comboBox_provincia.clear()
         self.comboBox_provincia.addItems(province_list)
 
-        # buttons functions
+    # buttons functions
 
     def on_pushButton_sort_pressed(self):
         if self.check_record_state() == 1:

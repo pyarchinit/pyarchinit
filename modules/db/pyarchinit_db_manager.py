@@ -564,7 +564,8 @@ class Pyarchinit_db_management(object):
                                                arg[2],
                                                arg[3],
                                                arg[4],
-                                               arg[5])
+                                               arg[5],
+                                               arg[6])
 
         return thesaurus
 

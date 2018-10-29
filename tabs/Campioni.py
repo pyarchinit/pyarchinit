@@ -26,6 +26,8 @@ from builtins import range
 from builtins import str
 from qgis.PyQt.QtWidgets import QApplication, QDialog, QMessageBox
 from qgis.PyQt.uic import loadUiType
+from qgis.PyQt.QtCore import QVariant
+from qgis.core import QgsSettings
 
 from ..modules.db.pyarchinit_conn_strings import Connection
 from ..modules.db.pyarchinit_db_manager import Pyarchinit_db_management
@@ -93,6 +95,11 @@ class pyarchinit_Campioni(QDialog, MAIN_DIALOG_CLASS):
         "nr_cassa",
         "luogo_conservazione"
     ]
+
+    LANG = {
+        "IT": ['it_IT', 'IT'],
+        "EN_US": ['en_US'],
+    }
 
     DB_SERVER = 'not defined'
 
@@ -191,6 +198,9 @@ class pyarchinit_Campioni(QDialog, MAIN_DIALOG_CLASS):
                                     QMessageBox.Ok)
 
     def charge_list(self):
+
+        #lista sito
+
         sito_vl = self.UTILITY.tup_2_list_III(self.DB_MANAGER.group_by('site_table', 'sito', 'SITE'))
 
         try:
@@ -201,7 +211,31 @@ class pyarchinit_Campioni(QDialog, MAIN_DIALOG_CLASS):
         sito_vl.sort()
         self.comboBox_sito.addItems(sito_vl)
 
-        # buttons functions
+        #lista tipo campione
+
+        l = "'" + QgsSettings().value("locale/userLocale", QVariant) + "'"
+        lang = ""
+        for key, values in self.LANG.items():
+            if l in values:
+                lang = key
+
+        self.comboBox_tipo_campione.clear()
+        search_dict = {
+            'lingua': lang,
+            'nome_tabella': "'" + 'campioni_table' + "'",
+            'tipologia_sigla': "'" + '4.1' + "'"
+        }
+
+        tipo_campione = self.DB_MANAGER.query_bool(search_dict, 'PYARCHINIT_THESAURUS_SIGLE')
+        tipo_campione_vl = []
+
+        for i in range(len(tipo_campione)):
+            tipo_campione_vl.append(tipo_campione[i].sigla_estesa)
+
+        tipo_campione_vl.sort()
+        self.comboBox_tipo_campione.addItems(tipo_campione_vl)
+
+    # buttons functions
 
     def on_pushButton_pdf_pressed(self):
         pass

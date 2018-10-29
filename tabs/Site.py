@@ -27,7 +27,7 @@ import sys
 from builtins import range
 from builtins import str
 from qgis.PyQt.QtGui import QDesktopServices
-from qgis.PyQt.QtCore import QUrl
+from qgis.PyQt.QtCore import QUrl, QVariant
 from qgis.PyQt.QtWidgets import QDialog, QMessageBox, QFileDialog
 from qgis.PyQt.uic import loadUiType
 from qgis.core import QgsSettings
@@ -75,6 +75,7 @@ class pyarchinit_Site(QDialog, MAIN_DIALOG_CLASS):
         "Definizione sito": "definizione_sito",
         "Directory Sito": "sito_path"
     }
+
     SORT_ITEMS = [
         ID_TABLE,
         "Sito",
@@ -97,6 +98,11 @@ class pyarchinit_Site(QDialog, MAIN_DIALOG_CLASS):
         "definizione_sito",
         "sito_path"
     ]
+
+    LANG = {
+        "IT": ['it_IT', 'IT'],
+        "EN_US": ['en_US'],
+    }
 
     DB_SERVER = "not defined"  ####nuovo sistema sort
 
@@ -241,6 +247,7 @@ class pyarchinit_Site(QDialog, MAIN_DIALOG_CLASS):
         regioni_list = ['Abruzzo', 'Basilicata', 'Calabria', 'Campania', 'Emilia-Romagna', 'Friuli Venezia Giulia',
                         'Lazio', 'Liguria', 'Lombardia', 'Marche', 'Molise', 'Piemonte', 'Puglia', 'Sardegna',
                         'Sicilia', 'Toscana', 'Trentino Alto Adige', 'Umbria', 'Valle d\'Aosta', 'Veneto']
+        self.comboBox_regione.clear()
         self.comboBox_regione.addItems(regioni_list)
 
         province_list = ['Agrigento', 'Alessandria', 'Ancona', 'Aosta', 'Arezzo', 'Ascoli Piceno', 'Asti', 'Avellino',
@@ -258,15 +265,22 @@ class pyarchinit_Site(QDialog, MAIN_DIALOG_CLASS):
                          'Savona', 'Siena', 'Siracusa', 'Sondrio', 'Taranto', 'Teramo', 'Terni', 'Torino', 'Trapani',
                          'Trento', 'Treviso', 'Trieste', 'Udine', 'Varese', 'Venezia', 'Verbano-Cusio-Ossola',
                          'Vercelli', 'Verona', 'Vibo Valentia', 'Vicenza', 'Viterbo']
-
+        self.comboBox_provincia.clear()
         self.comboBox_provincia.addItems(province_list)
+
+        l = "'" + QgsSettings().value("locale/userLocale", QVariant) + "'"
+        lang=""
+        for key, values in self.LANG.items():
+            if l in values:
+                lang = key
 
         # lista definizione_sito
         search_dict = {
+            'lingua': lang,
             'nome_tabella': "'" + 'site_table' + "'",
-            'tipologia_sigla': "'" + 'definizione sito' + "'"
+            'tipologia_sigla': "'" + '1.1' + "'"
         }
-
+        self.comboBox_definizione_sito.clear()
         d_sito = self.DB_MANAGER.query_bool(search_dict, 'PYARCHINIT_THESAURUS_SIGLE')
 
         d_sito_vl = []
