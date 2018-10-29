@@ -610,11 +610,6 @@
         <property name="maxCount">
          <number>2147483647</number>
         </property>
-        <item>
-         <property name="text">
-          <string>Inserisci un valore</string>
-         </property>
-        </item>
        </widget>
       </item>
       <item row="0" column="2">
@@ -647,11 +642,6 @@
         <property name="maxCount">
          <number>2147483647</number>
         </property>
-        <item>
-         <property name="text">
-          <string>Inserisci un valore</string>
-         </property>
-        </item>
        </widget>
       </item>
       <item row="1" column="1">
@@ -757,6 +747,20 @@
           <string>en_US</string>
          </property>
         </item>
+       </widget>
+      </item>
+      <item row="4" column="2">
+       <widget class="QPushButton" name="pushButton_sigle">
+        <property name="font">
+         <font>
+          <pointsize>9</pointsize>
+          <weight>50</weight>
+          <bold>false</bold>
+         </font>
+        </property>
+        <property name="text">
+         <string>Visualizza elenco sigle</string>
+        </property>
        </widget>
       </item>
      </layout>

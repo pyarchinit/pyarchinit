@@ -512,6 +512,12 @@ class pyarchinit_Thesaurus(QDialog, MAIN_DIALOG_CLASS):
         self.SORT_STATUS = "n"
         self.label_sort.setText(self.SORTED_ITEMS[self.SORT_STATUS])
 
+    def on_pushButton_sigle_pressed(self):
+        import os
+        filepath = os.path.dirname(__file__)
+        filepath = os.path.join(filepath, 'thesaurus_notes.txt')
+        os.startfile(filepath)
+
     def on_pushButton_new_search_pressed(self):
         if self.check_record_state() == 1:
             pass
