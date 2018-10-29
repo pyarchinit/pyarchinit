@@ -268,11 +268,12 @@ class pyarchinit_Site(QDialog, MAIN_DIALOG_CLASS):
         self.comboBox_provincia.clear()
         self.comboBox_provincia.addItems(province_list)
 
-        l = "'" + QgsSettings().value("locale/userLocale", QVariant) + "'"
+        l = QgsSettings().value("locale/userLocale", QVariant)
         lang=""
         for key, values in self.LANG.items():
-            if l in values:
-                lang = key
+            if values.__contains__(l):
+                lang = str(key)
+        lang = "'"+lang+"'"
 
         # lista definizione_sito
         search_dict = {
