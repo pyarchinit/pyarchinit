@@ -643,11 +643,12 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
 
     def customize_GUI(self):
 
-        l = "'" + QgsSettings().value("locale/userLocale", QVariant) + "'"
+        l = QgsSettings().value("locale/userLocale", QVariant)
         lang = ""
         for key, values in self.LANG.items():
-            if l in values:
-                lang = key
+            if values.__contains__(l):
+                lang = str(key)
+        lang = "'" + lang + "'"
 
         if not Pyarchinit_OS_Utility.checkGraphvizInstallation():
             self.pushButton_export_matrix.setEnabled(False)
@@ -987,11 +988,12 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
 
     def charge_list(self):
 
-        l = "'" + QgsSettings().value("locale/userLocale", QVariant) + "'"
+        l = QgsSettings().value("locale/userLocale", QVariant)
         lang = ""
         for key, values in self.LANG.items():
-            if l in values:
-                lang = key
+            if values.__contains__(l):
+                lang = str(key)
+        lang = "'" + lang + "'"
 
         # lista sito
 
