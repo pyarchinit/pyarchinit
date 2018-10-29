@@ -2,144 +2,144 @@
 ------------------------------------
 Lingua | Tipologia sigla   | Codice
 ------------------------------------
-IT_is  | Definizione sito  | 1.1
-EN_us  |                   | 1.1
+IT     | Definizione sito  | 1.1
+EN_US  |                   | 1.1
 
 
           TABELLA us_table
 -------------------------------------------------------------
 Lingua | Tipologia sigla                            | Codice
 -------------------------------------------------------------
-IT_is  | Settore                                    | 2.1
-EN_us  |                                            | 2.1
-IT_is  | Soprintendenza                             | 2.2
-EN_us  |                                            | 2.2
-IT_us  | Definizione stratigrafica                  | 2.3
-EN_us  |                                            | 2.3
-IT_us  | Definizione interpretata                   | 2.4
-EN_us  |                                            | 2.4
-IT_us  | Funzione statica                           | 2.5
-EN_us  |                                            | 2.5
-IT_us  | Consistenza legante usm                    | 2.6
-EN_us  |                                            | 2.6
-IT_us  | Consistenza/texture                        | 2.7
-EN_us  |                                            | 2.7
-IT_us  | Metodo di scavo                            | 2.8
-EN_us  |                                            | 2.8
-IT_us  | Formazione                                 | 2.9
-EN_us  |                                            | 2.9
-IT_us  | Modo formazione                            | 2.10
-EN_us  |                                            | 2.10
-IT_us  | Consistenza                                | 2.11
-EN_us  |                                            | 2.11
-IT_us  | Stato di conservazione                     | 2.12
-EN_us  |                                            | 2.12
-IT_us  | Campioni                                   | 2.13
-EN_us  |                                            | 2.13
-IT_us  | Componenti organici                        | 2.14
-EN_us  |                                            | 2.14
-IT_us  | Componenti inorganici                      | 2.15
-EN_us  |                                            | 2.15
-IT_us  | Schedatore                                 | 2.16
-EN_us  |                                            | 2.16
-IT_us  | Direttore us                               | 2.17
-EN_us  |                                            | 2.17
-IT_us  | Responsabile us                            | 2.18
-EN_us  |                                            | 2.18
-IT_us  | Tipo documentazione                        | 2.19
-EN_us  |                                            | 2.19
-IT_us  | Colore                                     | 201.201
-EN_us  |                                            | 201.201
-IT_us  | Inclusi                                    | 202.202
-EN_us  |                                            | 202.202
-IT_us  | Valori sì/no                               | 203.203
-EN_us  |                                            | 203.203
+IT     | Settore                                    | 2.1
+EN_US  |                                            | 2.1
+IT     | Soprintendenza                             | 2.2
+EN_US  |                                            | 2.2
+IT     | Definizione stratigrafica                  | 2.3
+EN_US  |                                            | 2.3
+IT     | Definizione interpretata                   | 2.4
+EN_US  |                                            | 2.4
+IT     | Funzione statica                           | 2.5
+EN_US  |                                            | 2.5
+IT     | Consistenza legante usm                    | 2.6
+EN_US  |                                            | 2.6
+IT     | Consistenza/texture                        | 2.7
+EN_US  |                                            | 2.7
+IT     | Metodo di scavo                            | 2.8
+EN_US  |                                            | 2.8
+IT     | Formazione                                 | 2.9
+EN_US  |                                            | 2.9
+IT     | Modo formazione                            | 2.10
+EN_US  |                                            | 2.10
+IT     | Consistenza                                | 2.11
+EN_US  |                                            | 2.11
+IT     | Stato di conservazione                     | 2.12
+EN_US  |                                            | 2.12
+IT     | Campioni                                   | 2.13
+EN_US  |                                            | 2.13
+IT     | Componenti organici                        | 2.14
+EN_US  |                                            | 2.14
+IT     | Componenti inorganici                      | 2.15
+EN_US  |                                            | 2.15
+IT     | Schedatore                                 | 2.16
+EN_US  |                                            | 2.16
+IT     | Direttore us                               | 2.17
+EN_US  |                                            | 2.17
+IT     | Responsabile us                            | 2.18
+EN_US  |                                            | 2.18
+IT     | Tipo documentazione                        | 2.19
+EN_US  |                                            | 2.19
+IT     | Colore                                     | 201.201
+EN_US  |                                            | 201.201
+IT     | Inclusi                                    | 202.202
+EN_US  |                                            | 202.202
+IT     | Valori sì/no                               | 203.203
+EN_US  |                                            | 203.203
 
           TABELLA inventario_materiali_table
 -------------------------------------------------------------
 Lingua | Tipologia sigla                            | Codice
 -------------------------------------------------------------
-IT_us  | Tipo reperto                               | 3.1
-EN_us  |                                            | 3.1
-IT_us  | Classe materiale                           | 3.2
-EN_us  |                                            | 3.2
-IT_us  | Definizione reperto                        | 3.3
-EN_us  |                                            | 3.3
-IT_us  | Elemento rinvenuto                         | 3.4
-EN_us  |                                            | 3.4
-IT_us  | Tipo di misura                             | 3.5
-EN_us  |                                            | 3.5
-IT_us  | Misurazioni - Unita di misura              | 3.6
-EN_us  |                                            | 3.6
-IT_us  | Tipo tecnologia                            | 3.7
-EN_us  |                                            | 3.7
-IT_us  | Posizione                                  | 3.8
-EN_us  |                                            | 3.8
-IT_us  | Tipo quantita                              | 3.9
-EN_us  |                                            | 3.9
-IT_us  | Tecnologie - Unita di misura               | 3.10
-EN_us  |                                            | 3.10
-IT_us  | Valori sì/no                               | 301.301
-EN_us  |                                            | 301.301
+IT     | Tipo reperto                               | 3.1
+EN_US  |                                            | 3.1
+IT     | Classe materiale                           | 3.2
+EN_US  |                                            | 3.2
+IT     | Definizione reperto                        | 3.3
+EN_US  |                                            | 3.3
+IT     | Elemento rinvenuto                         | 3.4
+EN_US  |                                            | 3.4
+IT     | Tipo di misura                             | 3.5
+EN_US  |                                            | 3.5
+IT     | Misurazioni - Unita di misura              | 3.6
+EN_US  |                                            | 3.6
+IT     | Tipo tecnologia                            | 3.7
+EN_US  |                                            | 3.7
+IT     | Posizione                                  | 3.8
+EN_US  |                                            | 3.8
+IT     | Tipo quantita                              | 3.9
+EN_US  |                                            | 3.9
+IT     | Tecnologie - Unita di misura               | 3.10
+EN_US  |                                            | 3.10
+IT     | Valori sì/no                               | 301.301
+EN_US  |                                            | 301.301
 
           TABELLA campioni_table
 -------------------------------------------------------------
 Lingua | Tipologia sigla                            | Codice
 -------------------------------------------------------------
-IT_us  | Tipo campione                              | 4.1
-EN_us  |                                            | 4.1
+IT     | Tipo campione                              | 4.1
+EN_US  |                                            | 4.1
 
           TABELLA inventario_lapidei_table
 -------------------------------------------------------------
 Lingua | Tipologia sigla                            | Codice
 -------------------------------------------------------------
-IT_us  | Tipologia                                  | 5.1
-EN_us  |                                            | 5.1
-IT_us  | Materiale                                  | 5.2
-EN_us  |                                            | 5.2
-IT_us  | Oggetto                                    | 5.3
-EN_us  |                                            | 5.3
+IT     | Tipologia                                  | 5.1
+EN_US  |                                            | 5.1
+IT     | Materiale                                  | 5.2
+EN_US  |                                            | 5.2
+IT     | Oggetto                                    | 5.3
+EN_US  |                                            | 5.3
 
           TABELLA struttura_table
 -------------------------------------------------------------
 Lingua | Tipologia sigla                            | Codice
 -------------------------------------------------------------
-IT_us  | Sigla struttura                            | 6.1
-EN_us  |                                            | 6.1
-IT_us  | Categoria                                  | 6.2
-EN_us  |                                            | 6.2
-IT_us  | Tipologia                                  | 6.3
-EN_us  |                                            | 6.3
-IT_us  | Definizione                                | 6.4
-EN_us  |                                            | 6.4
-IT_us  | Sigla                                      | 6.1
-EN_us  |                                            | 6.1
-IT_us  | Materiali                                  | 6.5
-EN_us  |                                            | 6.5
-IT_us  | Tipologia elemento                         | 6.6
-EN_us  |                                            | 6.6
-IT_us  | Tipo misura                                | 6.7
-EN_us  |                                            | 6.7
-IT_us  | Unita di misura                            | 6.8
-EN_us  |                                            | 6.8
+IT     | Sigla struttura                            | 6.1
+EN_US  |                                            | 6.1
+IT     | Categoria                                  | 6.2
+EN_US  |                                            | 6.2
+IT     | Tipologia                                  | 6.3
+EN_US  |                                            | 6.3
+IT     | Definizione                                | 6.4
+EN_US  |                                            | 6.4
+IT     | Sigla                                      | 6.1
+EN_US  |                                            | 6.1
+IT     | Materiali                                  | 6.5
+EN_US  |                                            | 6.5
+IT     | Tipologia elemento                         | 6.6
+EN_US  |                                            | 6.6
+IT     | Tipo misura                                | 6.7
+EN_US  |                                            | 6.7
+IT     | Unita di misura                            | 6.8
+EN_US  |                                            | 6.8
 
           TABELLA Tafonomia_table
 -------------------------------------------------------------
 Lingua | Tipologia sigla                            | Codice
 -------------------------------------------------------------
-IT_us  | Rito                                       | 7.1
-EN_us  |                                            | 7.1
-IT_us  | Stato di conservazione                     | 7.2
-EN_us  |                                            | 7.2
-IT_us  | Tipo copertura                             | 7.3
-EN_us  |                                            | 7.3
-IT_us  | Tipo contenitore resti                     | 7.4
-EN_us  |                                            | 7.4
-IT_us  | Corredo                                    | 7.5
-EN_us  |                                            | 7.5
-IT_us  | Sì, No                                     | 701.701
-EN_us  |                                            | 701.701
-IT_us  | Sì, No, Non determinabile                  | 702.702
-EN_us  |                                            | 702.702
+IT     | Rito                                       | 7.1
+EN_US  |                                            | 7.1
+IT     | Stato di conservazione                     | 7.2
+EN_US  |                                            | 7.2
+IT     | Tipo copertura                             | 7.3
+EN_US  |                                            | 7.3
+IT     | Tipo contenitore resti                     | 7.4
+EN_US  |                                            | 7.4
+IT     | Corredo                                    | 7.5
+EN_US  |                                            | 7.5
+IT     | Sì, No                                     | 701.701
+EN_US  |                                            | 701.701
+IT     | Sì, No, Non determinabile                  | 702.702
+EN_US  |                                            | 702.702
 
 

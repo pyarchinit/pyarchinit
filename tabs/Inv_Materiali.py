@@ -191,6 +191,11 @@ class pyarchinit_Inventario_reperti(QDialog, MAIN_DIALOG_CLASS):
         'diagnostico'
     ]
 
+    LANG = {
+        "IT": ['it_IT', 'IT'],
+        "EN_US": ['en_US'],
+    }
+
     SEARCH_DICT_TEMP = ""
 
     HOME = os.environ['PYARCHINIT_HOME']
@@ -492,7 +497,11 @@ class pyarchinit_Inventario_reperti(QDialog, MAIN_DIALOG_CLASS):
 
     def customize_gui(self):
 
-        lang = "'" + QgsSettings().value("locale/userLocale", QVariant) + "'"
+        l = "'" + QgsSettings().value("locale/userLocale", QVariant) + "'"
+        lang = ""
+        for key, values in self.LANG.items():
+            if l in values:
+                lang = key
 
         # media prevew system
         self.iconListWidget = QListWidget(self)
@@ -719,7 +728,11 @@ class pyarchinit_Inventario_reperti(QDialog, MAIN_DIALOG_CLASS):
 
     def charge_list(self):
 
-        lang = "'" + QgsSettings().value("locale/userLocale", QVariant) + "'"
+        l = "'" + QgsSettings().value("locale/userLocale", QVariant) + "'"
+        lang = ""
+        for key, values in self.LANG.items():
+            if l in values:
+                lang = key
 
         #lista sito
 

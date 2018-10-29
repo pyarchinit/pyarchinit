@@ -96,6 +96,11 @@ class pyarchinit_Campioni(QDialog, MAIN_DIALOG_CLASS):
         "luogo_conservazione"
     ]
 
+    LANG = {
+        "IT": ['it_IT', 'IT'],
+        "EN_US": ['en_US'],
+    }
+
     DB_SERVER = 'not defined'
 
     def __init__(self, iface):
@@ -208,7 +213,11 @@ class pyarchinit_Campioni(QDialog, MAIN_DIALOG_CLASS):
 
         #lista tipo campione
 
-        lang = "'" + QgsSettings().value("locale/userLocale", QVariant) + "'"
+        l = "'" + QgsSettings().value("locale/userLocale", QVariant) + "'"
+        lang = ""
+        for key, values in self.LANG.items():
+            if l in values:
+                lang = key
 
         self.comboBox_tipo_campione.clear()
         search_dict = {

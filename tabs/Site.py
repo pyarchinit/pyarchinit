@@ -75,6 +75,7 @@ class pyarchinit_Site(QDialog, MAIN_DIALOG_CLASS):
         "Definizione sito": "definizione_sito",
         "Directory Sito": "sito_path"
     }
+
     SORT_ITEMS = [
         ID_TABLE,
         "Sito",
@@ -97,6 +98,11 @@ class pyarchinit_Site(QDialog, MAIN_DIALOG_CLASS):
         "definizione_sito",
         "sito_path"
     ]
+
+    LANG = {
+        "IT": ['it_IT', 'IT'],
+        "EN_US": ['en_US'],
+    }
 
     DB_SERVER = "not defined"  ####nuovo sistema sort
 
@@ -262,7 +268,11 @@ class pyarchinit_Site(QDialog, MAIN_DIALOG_CLASS):
         self.comboBox_provincia.clear()
         self.comboBox_provincia.addItems(province_list)
 
-        lang = "'" + QgsSettings().value("locale/userLocale", QVariant) + "'"
+        l = "'" + QgsSettings().value("locale/userLocale", QVariant) + "'"
+        lang=""
+        for key, values in self.LANG.items():
+            if l in values:
+                lang = key
 
         # lista definizione_sito
         search_dict = {

@@ -133,6 +133,11 @@ class pyarchinit_Tafonomia(QDialog, MAIN_DIALOG_CLASS):
         "Datazione estesa"
     ]
 
+    LANG = {
+        "IT": ['it_IT', 'IT'],
+        "EN_US": ['en_US'],
+    }
+
     TABLE_FIELDS = [
         "sito",
         "nr_scheda_taf",
@@ -334,7 +339,11 @@ class pyarchinit_Tafonomia(QDialog, MAIN_DIALOG_CLASS):
 
     def charge_list(self):
 
-        lang = "'" + QgsSettings().value("locale/userLocale", QVariant) + "'"
+        l = "'" + QgsSettings().value("locale/userLocale", QVariant) + "'"
+        lang = ""
+        for key, values in self.LANG.items():
+            if l in values:
+                lang = key
 
         # lista sito
 
