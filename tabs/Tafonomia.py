@@ -134,8 +134,8 @@ class pyarchinit_Tafonomia(QDialog, MAIN_DIALOG_CLASS):
     ]
 
     LANG = {
-        "IT": ['it_IT', 'IT'],
-        "EN_US": ['en_US'],
+        "IT": ['it_IT', 'IT', 'it', 'IT_IT'],
+        "EN_US": ['en_US','EN_US'],
     }
 
     TABLE_FIELDS = [
