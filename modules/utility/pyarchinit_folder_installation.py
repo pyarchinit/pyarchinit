@@ -81,3 +81,9 @@ class pyarchinit_Folder_installation(object):
         config_copy_from_path = '{}{}'.format(self.RESOURCES_PATH, config_copy_from_path_rel)
         config_copy_to_path = '{}{}{}'.format(path, os.sep, 'config.cfg')
         self.OS_UTILITY.copy_file(config_copy_from_path, config_copy_to_path)
+
+        #added by pyarchinit test for logo re-installation
+        logo_copy_from_path_rel = os.path.join(os.sep, 'dbfiles', 'logo.jpg')
+        logo_copy_from_path = '{}{}'.format(self.RESOURCES_PATH, logo_copy_from_path_rel)
+        logo_copy_to_path = '{}{}{}'.format(path, os.sep, 'logo.jpg')
+        self.OS_UTILITY.copy_file(logo_copy_from_path, logo_copy_to_path)

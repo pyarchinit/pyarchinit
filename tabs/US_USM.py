@@ -351,16 +351,16 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
     LANG = {
         "IT": ['it_IT', 'IT', 'it', 'IT_IT'],
         "EN_US": ['en_US','EN_US'],
-        "DE": ['de_DE','de','DE'],
-        "FR": ['fr_FR','fr','FR'],
-        "ES": ['es_ES','es','ES'],
-        "PT": ['pt_PT','pt','PT'],
-        "SV": ['sv_SV','sv','SV'],
-        "RU": ['ru_RU','ru','RU'],
-        "RO": ['ro_RO','ro','RO'],
-        "AR": ['ar_AR','ar','AR'],
-        "PT_BR": ['pt_BR','pt_BR','PT_BR'],
-        "SL": ['sl_SL','sl','SL'],
+        "DE": ['de_DE','de','DE', 'DE_DE'],
+        "FR": ['fr_FR','fr','FR', 'FR_FR'],
+        "ES": ['es_ES','es','ES', 'ES_ES'],
+        "PT": ['pt_PT','pt','PT', 'PT_PT'],
+        "SV": ['sv_SV','sv','SV', 'SV_SV'],
+        "RU": ['ru_RU','ru','RU', 'RU_RU'],
+        "RO": ['ro_RO','ro','RO', 'RO_RO'],
+        "AR": ['ar_AR','ar','AR', 'AR_AR'],
+        "PT_BR": ['pt_BR','PT_BR'],
+        "SL": ['sl_SL','sl','SL', 'SL_SL'],
     }
 
     HOME = os.environ['PYARCHINIT_HOME']
@@ -1908,9 +1908,12 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
 
             self.setComboBoxEditable(["self.comboBox_sito"], 0)
             self.setComboBoxEditable(["self.comboBox_area"], 0)
+            self.setComboBoxEditable(["self.comboBox_unita_tipo"], 0)
             self.setComboBoxEnable(["self.comboBox_sito"], "True")
             self.setComboBoxEnable(["self.comboBox_area"], "True")
             self.setComboBoxEnable(["self.lineEdit_us"], "True")
+            self.setComboBoxEnable(["self.comboBox_unita_tipo"], "True")
+
 
             self.SORT_STATUS = "n"
             self.label_sort.setText(self.SORTED_ITEMS[self.SORT_STATUS])
@@ -1952,9 +1955,11 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
 
                     self.setComboBoxEditable(["self.comboBox_sito"], 1)
                     self.setComboBoxEditable(["self.comboBox_area"], 1)
+                    self.setComboBoxEditable(["self.comboBox_unita_tipo"], 1)
                     self.setComboBoxEnable(["self.comboBox_sito"], "False")
                     self.setComboBoxEnable(["self.comboBox_area"], "False")
                     self.setComboBoxEnable(["self.lineEdit_us"], "False")
+                    self.setComboBoxEnable(["self.comboBox_unita_tipo"], "False")
                     self.fill_fields(self.REC_CORR)
 
                     self.enable_button(1)
@@ -2741,8 +2746,10 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
                 self.comboBox_metodo.setEditText("")
                 self.setComboBoxEditable(["self.comboBox_sito"], 1)
                 self.setComboBoxEditable(["self.comboBox_area"], 1)
+                self.setComboBoxEditable(["self.comboBox_unita_tipo"], 1)
                 self.setComboBoxEnable(["self.comboBox_sito"], "True")
                 self.setComboBoxEnable(["self.comboBox_area"], "True")
+                self.setComboBoxEnable(["self.comboBox_unita_tipo"], "True")
                 self.setComboBoxEnable(["self.lineEdit_us"], "True")
                 self.setComboBoxEnable(["self.textEdit_descrizione"], "False")
                 self.setComboBoxEnable(["self.textEdit_interpretazione"], "False")
@@ -3022,6 +3029,7 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
 
                     self.setComboBoxEnable(["self.comboBox_sito"], "False")
                     self.setComboBoxEnable(["self.comboBox_area"], "False")
+                    self.setComboBoxEnable(["self.comboBox_unita_tipo"], "False")
                     self.setComboBoxEnable(["self.lineEdit_us"], "False")
                     self.setComboBoxEnable(["self.textEdit_descrizione"], "True")
                     self.setComboBoxEnable(["self.textEdit_interpretazione"], "True")
