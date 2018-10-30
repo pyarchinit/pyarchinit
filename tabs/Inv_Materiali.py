@@ -194,16 +194,16 @@ class pyarchinit_Inventario_reperti(QDialog, MAIN_DIALOG_CLASS):
     LANG = {
         "IT": ['it_IT', 'IT', 'it', 'IT_IT'],
         "EN_US": ['en_US','EN_US'],
-		"DE": ['de_DE','de'],
-		"FR": ['fr_FR','fr'],
-		"ES": ['es_ES','es'],
-		"PT": ['pt_PT','pt'],
-		"SV": ['sv_SV','sv'],
-		"RU": ['ru_RU','ru'],
-		"RO": ['ro_RO','ro'],
-		"AR": ['ar_AR','ar'],
-		"PT_BR": ['pt_BR','pt_BR'],
-		"SL": ['sl_SL','sl'],
+		"DE": ['de_DE','de','DE'],
+        "FR": ['fr_FR','fr','FR'],
+        "ES": ['es_ES','es','ES'],
+        "PT": ['pt_PT','pt','PT'],
+        "SV": ['sv_SV','sv','SV'],
+        "RU": ['ru_RU','ru','RU'],
+        "RO": ['ro_RO','ro','RO'],
+        "AR": ['ar_AR','ar','AR'],
+        "PT_BR": ['pt_BR','pt_BR','PT_BR'],
+        "SL": ['sl_SL','sl','SL'],
     }
 
     SEARCH_DICT_TEMP = ""
