@@ -152,8 +152,18 @@ class pyarchinit_Inventario_Lapidei(QDialog, MAIN_DIALOG_CLASS):
     ]
 
     LANG = {
-        "IT": ['it_IT', 'IT', 'it', 'IT_IT'],
+       "IT": ['it_IT', 'IT', 'it', 'IT_IT'],
         "EN_US": ['en_US','EN_US'],
+		"DE": ['de_DE','de'],
+		"FR": ['fr_FR','fr'],
+		"ES": ['es_ES','es'],
+		"PT": ['pt_PT','pt'],
+		"SV": ['sv_SV','sv'],
+		"RU": ['ru_RU','ru'],
+		"RO": ['ro_RO','ro'],
+		"AR": ['ar_AR','ar'],
+		"PT_BR": ['pt_BR','pt_BR'],
+		"SL": ['sl_SL','sl'],
     }
 
     SEARCH_DICT_TEMP = ""
