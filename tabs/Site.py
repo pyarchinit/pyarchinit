@@ -709,7 +709,8 @@ class pyarchinit_Site(QDialog, MAIN_DIALOG_CLASS):
         self.DB_MANAGER.insert_arbitrary_number_of_us_records(int(self.lineEdit_us_range.text()),
                                                               str(self.comboBox_sito.currentText()),
                                                               int(self.lineEdit_area.text()),
-                                                              int(self.lineEdit_n_us.text()))
+                                                              int(self.lineEdit_n_us.text()),
+															  str(self.comboBox_t_us.currentText()))
 
     def update_if(self, msg):
         rec_corr = self.REC_CORR
