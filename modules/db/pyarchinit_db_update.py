@@ -172,10 +172,10 @@ class DB_update(object):
             self.engine.execute("ALTER TABLE us_table ADD COLUMN modo_formazione text DEFAULT '' ")
 
         if not table_column_names_list.__contains__('componenti_organici'):
-            self.engine.execute("ALTER TABLE us_table ADD COLUMN componenti_organici text DEFAULT '' ")
+            self.engine.execute("ALTER TABLE us_table ADD COLUMN componenti_organici text DEFAULT '[]' ")
 
         if not table_column_names_list.__contains__('componenti_inorganici'):
-            self.engine.execute("ALTER TABLE us_table ADD COLUMN componenti_inorganici text DEFAULT '' ")
+            self.engine.execute("ALTER TABLE us_table ADD COLUMN componenti_inorganici text DEFAULT '[]' ")
 
         if not table_column_names_list.__contains__('lunghezza_max'):
             self.engine.execute("ALTER TABLE us_table ADD COLUMN lunghezza_max NUMERIC(6,2)")
