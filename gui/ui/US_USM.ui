@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>751</width>
-    <height>1052</height>
+    <height>864</height>
    </rect>
   </property>
   <property name="minimumSize">
@@ -40,7 +40,7 @@
       </font>
      </property>
      <property name="currentIndex">
-      <number>5</number>
+      <number>0</number>
      </property>
      <property name="movable">
       <bool>true</bool>
@@ -1969,7 +1969,7 @@ p, li { white-space: pre-wrap; }
           <widget class="QComboBox" name="comboBox_consistenza">
            <property name="font">
             <font>
-             <pointsize>10</pointsize>
+             <pointsize>8</pointsize>
             </font>
            </property>
            <property name="editable">
@@ -2016,7 +2016,7 @@ p, li { white-space: pre-wrap; }
           <widget class="QComboBox" name="comboBox_formazione">
            <property name="font">
             <font>
-             <pointsize>10</pointsize>
+             <pointsize>8</pointsize>
             </font>
            </property>
            <property name="editable">
@@ -2042,6 +2042,11 @@ p, li { white-space: pre-wrap; }
              <height>0</height>
             </size>
            </property>
+           <property name="font">
+            <font>
+             <pointsize>8</pointsize>
+            </font>
+           </property>
           </widget>
          </item>
          <item row="0" column="1">
@@ -2051,6 +2056,11 @@ p, li { white-space: pre-wrap; }
              <width>120</width>
              <height>0</height>
             </size>
+           </property>
+           <property name="font">
+            <font>
+             <pointsize>8</pointsize>
+            </font>
            </property>
            <property name="editable">
             <bool>true</bool>
@@ -2092,7 +2102,13 @@ p, li { white-space: pre-wrap; }
           </widget>
          </item>
          <item row="4" column="1">
-          <widget class="QLineEdit" name="lineEdit_criteri_distinzione"/>
+          <widget class="QLineEdit" name="lineEdit_criteri_distinzione">
+           <property name="font">
+            <font>
+             <pointsize>8</pointsize>
+            </font>
+           </property>
+          </widget>
          </item>
          <item row="1" column="1">
           <widget class="QLabel" name="label_comboBox_modo_formazione">
@@ -2129,7 +2145,7 @@ p, li { white-space: pre-wrap; }
           <widget class="QComboBox" name="comboBox_colore">
            <property name="font">
             <font>
-             <pointsize>10</pointsize>
+             <pointsize>8</pointsize>
             </font>
            </property>
            <property name="editable">
@@ -3195,15 +3211,15 @@ p, li { white-space: pre-wrap; }
               <enum>QFrame::StyledPanel</enum>
              </property>
              <property name="currentIndex">
-              <number>0</number>
+              <number>2</number>
              </property>
              <widget class="QWidget" name="page">
               <property name="geometry">
                <rect>
                 <x>0</x>
                 <y>0</y>
-                <width>454</width>
-                <height>280</height>
+                <width>424</width>
+                <height>235</height>
                </rect>
               </property>
               <attribute name="label">
@@ -3483,8 +3499,8 @@ p, li { white-space: pre-wrap; }
                <rect>
                 <x>0</x>
                 <y>0</y>
-                <width>394</width>
-                <height>273</height>
+                <width>314</width>
+                <height>222</height>
                </rect>
               </property>
               <attribute name="label">
@@ -3746,82 +3762,13 @@ p, li { white-space: pre-wrap; }
                <rect>
                 <x>0</x>
                 <y>0</y>
-                <width>98</width>
-                <height>28</height>
+                <width>689</width>
+                <height>292</height>
                </rect>
               </property>
               <attribute name="label">
                <string>Esportazioni</string>
               </attribute>
-              <widget class="QPushButton" name="pushButton_exp_index_us">
-               <property name="geometry">
-                <rect>
-                 <x>191</x>
-                 <y>20</y>
-                 <width>150</width>
-                 <height>24</height>
-                </rect>
-               </property>
-               <property name="font">
-                <font>
-                 <pointsize>9</pointsize>
-                </font>
-               </property>
-               <property name="toolTip">
-                <string>Elenco US</string>
-               </property>
-               <property name="text">
-                <string>Elenco US</string>
-               </property>
-               <property name="icon">
-                <iconset resource="../../resources/resources.qrc">
-                 <normaloff>:/icons/sheet.png</normaloff>:/icons/sheet.png</iconset>
-               </property>
-              </widget>
-              <widget class="QLabel" name="label_41">
-               <property name="geometry">
-                <rect>
-                 <x>6</x>
-                 <y>-6</y>
-                 <width>179</width>
-                 <height>20</height>
-                </rect>
-               </property>
-               <property name="font">
-                <font>
-                 <weight>75</weight>
-                 <bold>true</bold>
-                </font>
-               </property>
-               <property name="text">
-                <string>Esportazioni PDF/PNG</string>
-               </property>
-              </widget>
-              <widget class="QPushButton" name="pushButton_pdf_exp">
-               <property name="geometry">
-                <rect>
-                 <x>6</x>
-                 <y>20</y>
-                 <width>179</width>
-                 <height>24</height>
-                </rect>
-               </property>
-               <property name="font">
-                <font>
-                 <pointsize>9</pointsize>
-                </font>
-               </property>
-               <property name="toolTip">
-                <string>Singole schede US</string>
-               </property>
-               <property name="text">
-                <string>Singole schede US</string>
-               </property>
-               <property name="icon">
-                <iconset resource="../../resources/resources.qrc">
-                 <normaloff>:/icons/sheet.png</normaloff>:/icons/sheet.png</iconset>
-               </property>
-              </widget>
               <widget class="QWidget" name="layoutWidget">
                <property name="geometry">
                 <rect>
@@ -3871,7 +3818,45 @@ p, li { white-space: pre-wrap; }
    </item>
    <item row="0" column="0" colspan="2">
     <layout class="QGridLayout" name="gridLayout_2">
-     <item row="0" column="1" rowspan="2">
+     <item row="2" column="0">
+      <widget class="QPushButton" name="pushButton_pdf_exp">
+       <property name="maximumSize">
+        <size>
+         <width>150</width>
+         <height>16777215</height>
+        </size>
+       </property>
+       <property name="font">
+        <font>
+         <pointsize>9</pointsize>
+        </font>
+       </property>
+       <property name="toolTip">
+        <string>Singole schede US</string>
+       </property>
+       <property name="text">
+        <string>Singole schede US</string>
+       </property>
+       <property name="icon">
+        <iconset resource="../../resources/resources.qrc">
+         <normaloff>:/icons/sheet.png</normaloff>:/icons/sheet.png</iconset>
+       </property>
+      </widget>
+     </item>
+     <item row="1" column="0">
+      <widget class="QLabel" name="label_41">
+       <property name="font">
+        <font>
+         <weight>75</weight>
+         <bold>true</bold>
+        </font>
+       </property>
+       <property name="text">
+        <string>Esportazioni PDF/PNG</string>
+       </property>
+      </widget>
+     </item>
+     <item row="0" column="1" rowspan="5">
       <layout class="QGridLayout" name="gridLayout_5">
        <item row="0" column="0">
         <widget class="QLabel" name="label_42">
@@ -4099,7 +4084,7 @@ p, li { white-space: pre-wrap; }
        </item>
       </layout>
      </item>
-     <item row="1" column="0">
+     <item row="4" column="0">
       <layout class="QGridLayout" name="gridLayout">
        <item row="1" column="9">
         <widget class="QPushButton" name="pushButton_sort">
@@ -4362,7 +4347,32 @@ p, li { white-space: pre-wrap; }
         </font>
        </property>
        <property name="text">
-        <string>DBMS Toolbar (testing)</string>
+        <string>DBMS Toolbar</string>
+       </property>
+      </widget>
+     </item>
+     <item row="3" column="0">
+      <widget class="QPushButton" name="pushButton_exp_index_us">
+       <property name="maximumSize">
+        <size>
+         <width>150</width>
+         <height>16777215</height>
+        </size>
+       </property>
+       <property name="font">
+        <font>
+         <pointsize>9</pointsize>
+        </font>
+       </property>
+       <property name="toolTip">
+        <string>Elenco US</string>
+       </property>
+       <property name="text">
+        <string>Elenco US</string>
+       </property>
+       <property name="icon">
+        <iconset resource="../../resources/resources.qrc">
+         <normaloff>:/icons/sheet.png</normaloff>:/icons/sheet.png</iconset>
        </property>
       </widget>
      </item>
@@ -4610,7 +4620,7 @@ p, li { white-space: pre-wrap; }
         <item>
          <widget class="QComboBox" name="comboBox_unita_tipo">
           <property name="enabled">
-           <bool>true</bool>
+           <bool>false</bool>
           </property>
           <property name="minimumSize">
            <size>
@@ -5234,7 +5244,6 @@ p, li { white-space: pre-wrap; }
        </layout>
       </item>
      </layout>
-     <zorder>collapseButton</zorder>
      <zorder></zorder>
      <zorder></zorder>
      <zorder></zorder>
