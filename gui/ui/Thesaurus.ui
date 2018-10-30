@@ -683,32 +683,62 @@
         </property>
         <item>
          <property name="text">
-          <string>Tipologia di struttura</string>
+          <string>1.1</string>
          </property>
         </item>
         <item>
          <property name="text">
-          <string>definizione sito</string>
+          <string>2.1</string>
          </property>
         </item>
         <item>
          <property name="text">
-          <string>definizione stratigrafica</string>
+          <string>2.2</string>
          </property>
         </item>
         <item>
          <property name="text">
-          <string>tipo di caratterizzazione</string>
+          <string>2.3</string>
          </property>
         </item>
         <item>
          <property name="text">
-          <string>tipo di us</string>
+          <string>2.4</string>
          </property>
         </item>
         <item>
          <property name="text">
-          <string>tipo reperto</string>
+          <string>2.5</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>2.6</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>2.7</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>3.1</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>3.2</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>3.3</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>3.4</string>
          </property>
         </item>
        </widget>
