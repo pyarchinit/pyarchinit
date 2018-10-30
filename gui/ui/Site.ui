@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>622</width>
-    <height>670</height>
+    <height>838</height>
    </rect>
   </property>
   <property name="minimumSize">
@@ -783,7 +783,14 @@
        <string>Tools</string>
       </attribute>
       <layout class="QGridLayout" name="gridLayout_10">
-       <item row="13" column="0" colspan="5">
+       <item row="8" column="0">
+        <widget class="QLabel" name="label_20">
+         <property name="text">
+          <string>Numero di scheda US da cui partire</string>
+         </property>
+        </widget>
+       </item>
+       <item row="15" column="0" colspan="5">
         <layout class="QHBoxLayout" name="horizontalLayout_3">
          <item>
           <widget class="QLabel" name="label_8">
@@ -807,60 +814,30 @@
        <item row="1" column="0">
         <widget class="QLabel" name="label_14">
          <property name="text">
-          <string>Genera un numero arbitrario di schede US per il sito corrente</string>
+          <string>Genera un numero arbitrario di schede US o USM per il sito corrente</string>
          </property>
         </widget>
        </item>
-       <item row="3" column="0">
-        <widget class="QLineEdit" name="lineEdit_us_range">
-         <property name="maximumSize">
-          <size>
-           <width>60</width>
-           <height>16777215</height>
-          </size>
-         </property>
-        </widget>
-       </item>
-       <item row="9" column="0">
-        <widget class="QPushButton" name="pushButton_genera_us">
-         <property name="text">
-          <string>Genera US (Azione irreversibile)</string>
-         </property>
-        </widget>
-       </item>
-       <item row="5" column="0">
-        <widget class="QLineEdit" name="lineEdit_area">
-         <property name="maximumSize">
-          <size>
-           <width>60</width>
-           <height>16777215</height>
-          </size>
-         </property>
-        </widget>
-       </item>
-       <item row="7" column="0">
-        <widget class="QLineEdit" name="lineEdit_n_us">
-         <property name="maximumSize">
-          <size>
-           <width>60</width>
-           <height>16777215</height>
-          </size>
-         </property>
-        </widget>
-       </item>
-       <item row="6" column="0">
-        <widget class="QLabel" name="label_16">
-         <property name="text">
-          <string>Numero Area</string>
-         </property>
-        </widget>
-       </item>
-       <item row="4" column="0">
-        <widget class="QLabel" name="label_15">
-         <property name="text">
-          <string>Numero di schede da creare</string>
-         </property>
-        </widget>
+       <item row="18" column="0" colspan="5">
+        <layout class="QHBoxLayout" name="horizontalLayout_5">
+         <item>
+          <widget class="QLabel" name="label_11">
+           <property name="toolTip">
+            <string>Carica tutti i layer per poter inserire nuove geometrie</string>
+           </property>
+           <property name="text">
+            <string>Carica il puntuale del sito</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QPushButton" name="pushButton_draw_sito">
+           <property name="text">
+            <string>Carica</string>
+           </property>
+          </widget>
+         </item>
+        </layout>
        </item>
        <item row="0" column="0">
         <layout class="QHBoxLayout" name="horizontalLayout_2">
@@ -883,25 +860,30 @@
          </item>
         </layout>
        </item>
-       <item row="14" column="0" colspan="7">
-        <layout class="QHBoxLayout" name="horizontalLayout_4">
-         <item>
-          <widget class="QLabel" name="label_9">
-           <property name="text">
-            <string>Esporta relazione di scavo per questo sito (Versione di sviluppo)</string>
-           </property>
-          </widget>
-         </item>
-         <item>
-          <widget class="QPushButton" name="pushButton_rel_pdf">
-           <property name="text">
-            <string>Esporta</string>
-           </property>
-          </widget>
-         </item>
-        </layout>
+       <item row="18" column="6">
+        <spacer name="horizontalSpacer_2">
+         <property name="orientation">
+          <enum>Qt::Horizontal</enum>
+         </property>
+         <property name="sizeHint" stdset="0">
+          <size>
+           <width>261</width>
+           <height>20</height>
+          </size>
+         </property>
+        </spacer>
        </item>
-       <item row="15" column="0" colspan="7">
+       <item row="5" column="0">
+        <widget class="QLineEdit" name="lineEdit_area">
+         <property name="maximumSize">
+          <size>
+           <width>60</width>
+           <height>16777215</height>
+          </size>
+         </property>
+        </widget>
+       </item>
+       <item row="17" column="0" colspan="7">
         <layout class="QVBoxLayout" name="verticalLayout_4">
          <item>
           <widget class="Line" name="line">
@@ -925,7 +907,24 @@
          </item>
         </layout>
        </item>
-       <item row="17" column="0">
+       <item row="3" column="0">
+        <widget class="QLineEdit" name="lineEdit_us_range">
+         <property name="maximumSize">
+          <size>
+           <width>60</width>
+           <height>16777215</height>
+          </size>
+         </property>
+        </widget>
+       </item>
+       <item row="4" column="0">
+        <widget class="QLabel" name="label_15">
+         <property name="text">
+          <string>Numero di schede da creare</string>
+         </property>
+        </widget>
+       </item>
+       <item row="19" column="0">
         <layout class="QHBoxLayout" name="horizontalLayout_6">
          <item>
           <widget class="QLabel" name="label_12">
@@ -949,41 +948,28 @@
          </item>
         </layout>
        </item>
-       <item row="16" column="0" colspan="5">
-        <layout class="QHBoxLayout" name="horizontalLayout_5">
-         <item>
-          <widget class="QLabel" name="label_11">
-           <property name="toolTip">
-            <string>Carica tutti i layer per poter inserire nuove geometrie</string>
-           </property>
-           <property name="text">
-            <string>Carica il puntuale del sito</string>
-           </property>
-          </widget>
-         </item>
-         <item>
-          <widget class="QPushButton" name="pushButton_draw_sito">
-           <property name="text">
-            <string>Carica</string>
-           </property>
-          </widget>
-         </item>
-        </layout>
-       </item>
-       <item row="16" column="6">
-        <spacer name="horizontalSpacer_2">
-         <property name="orientation">
-          <enum>Qt::Horizontal</enum>
+       <item row="10" column="0">
+        <widget class="QLabel" name="label_17">
+         <property name="text">
+          <string>Tipo di scheda</string>
          </property>
-         <property name="sizeHint" stdset="0">
-          <size>
-           <width>261</width>
-           <height>20</height>
-          </size>
-         </property>
-        </spacer>
+        </widget>
        </item>
-       <item row="17" column="4" colspan="3">
+       <item row="6" column="0">
+        <widget class="QLabel" name="label_16">
+         <property name="text">
+          <string>Numero Area</string>
+         </property>
+        </widget>
+       </item>
+       <item row="11" column="0">
+        <widget class="QPushButton" name="pushButton_genera_us">
+         <property name="text">
+          <string>Genera US (Azione irreversibile)</string>
+         </property>
+        </widget>
+       </item>
+       <item row="19" column="4" colspan="3">
         <spacer name="horizontalSpacer">
          <property name="orientation">
           <enum>Qt::Horizontal</enum>
@@ -996,11 +982,52 @@
          </property>
         </spacer>
        </item>
-       <item row="8" column="0">
-        <widget class="QLabel" name="label_17">
-         <property name="text">
-          <string>Numero di scheda US da cui partire</string>
+       <item row="7" column="0">
+        <widget class="QLineEdit" name="lineEdit_n_us">
+         <property name="maximumSize">
+          <size>
+           <width>60</width>
+           <height>16777215</height>
+          </size>
          </property>
+        </widget>
+       </item>
+       <item row="16" column="0" colspan="7">
+        <layout class="QHBoxLayout" name="horizontalLayout_4">
+         <item>
+          <widget class="QLabel" name="label_9">
+           <property name="text">
+            <string>Esporta relazione di scavo per questo sito (Versione di sviluppo)</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QPushButton" name="pushButton_rel_pdf">
+           <property name="text">
+            <string>Esporta</string>
+           </property>
+          </widget>
+         </item>
+        </layout>
+       </item>
+       <item row="9" column="0">
+        <widget class="QComboBox" name="comboBox_t_us">
+         <property name="maximumSize">
+          <size>
+           <width>100</width>
+           <height>16777215</height>
+          </size>
+         </property>
+         <item>
+          <property name="text">
+           <string>US</string>
+          </property>
+         </item>
+         <item>
+          <property name="text">
+           <string>USM</string>
+          </property>
+         </item>
         </widget>
        </item>
       </layout>
@@ -1045,7 +1072,7 @@ Step 3 - Riavviare Qgis e cliccare sul pulsante Run Test per verificare l'output
   <customwidget>
    <class>QgsCollapsibleGroupBox</class>
    <extends>QGroupBox</extends>
-   <header>qgis.gui</header>
+   <header>qgscollapsiblegroupbox.h</header>
    <container>1</container>
   </customwidget>
  </customwidgets>
