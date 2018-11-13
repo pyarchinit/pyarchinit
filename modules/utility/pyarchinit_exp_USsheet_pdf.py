@@ -361,7 +361,7 @@ class single_US_pdf_sheet(object):
         logo_path = '{}{}{}'.format(home_DB_path, os.sep, 'logo.jpg')
         logo = Image(logo_path)
 
-        ##		if test_image.drawWidth < 800:
+        ##      if test_image.drawWidth < 800:
 
         logo.drawHeight = 1.5 * inch * logo.drawHeight / logo.drawWidth
         logo.drawWidth = 1.5 * inch
@@ -982,7 +982,7 @@ class single_US_pdf_sheet(object):
 
         # 29 row
         sing_doc = self.documentazione_print
-        self.documentazione_print = Paragraph("<b>Documentazione</b><br/>" + sing_doc, styNormal)
+        self.documentazione_print = Paragraph("<b>Documentazione</b><br/>" + str(sing_doc), styNormal)
 
         # 30 row
         scavato = Paragraph("<b>Scavato</b><br/>" + self.scavato, styNormal)
@@ -1742,6 +1742,7 @@ class generate_US_pdf(object):
             #elements.append(single_us_sheet.create_sheet())
             #elements.append(PageBreak())
             #elements.append(single_us_sheet.create_sheet_archeo3_usm_fields())
+            #elements.append(PageBreak())
             elements.append(single_us_sheet.create_sheet_archeo3_usm_fields_2())
             elements.append(PageBreak())
 
