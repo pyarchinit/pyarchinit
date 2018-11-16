@@ -662,20 +662,20 @@ class Pyarchinit_db_management(object):
 
         return campioni
 
-    ##	def insert_relationship_check_values(self, *arg):
-    ##		"""Istanzia la classe RELATIONSHIP_CHECK da pyarchinit_db_mapper"""
-    ##		relationship_check = RELATIONSHIP_CHECK(arg[0],
-    ##												arg[1],
-    ##												arg[2],
-    ##												arg[3],
-    ##												arg[4],
-    ##												arg[5],
-    ##												arg[6],
-    ##												arg[7],
-    ##												arg[8],
-    ##												arg[9])
+    ##  def insert_relationship_check_values(self, *arg):
+    ##      """Istanzia la classe RELATIONSHIP_CHECK da pyarchinit_db_mapper"""
+    ##      relationship_check = RELATIONSHIP_CHECK(arg[0],
+    ##                                              arg[1],
+    ##                                              arg[2],
+    ##                                              arg[3],
+    ##                                              arg[4],
+    ##                                              arg[5],
+    ##                                              arg[6],
+    ##                                              arg[7],
+    ##                                              arg[8],
+    ##                                              arg[9])
     ##
-    ##		return relationship_check
+    ##      return relationship_check
 
 
     def execute_sql_create_db(self):
@@ -794,7 +794,7 @@ class Pyarchinit_db_management(object):
     def query_distinct(self, table, query_params, distinct_field_name_params):
         # u = Utility()
         # params = u.remove_empty_items_fr_dict(params)
-        ##		return session.query(INVENTARIO_MATERIALI.area,INVENTARIO_MATERIALI.us ).filter(INVENTARIO_MATERIALI.sito=='Sito archeologico').distinct().order_by(INVENTARIO_MATERIALI.area,INVENTARIO_MATERIALI.us )
+        ##      return session.query(INVENTARIO_MATERIALI.area,INVENTARIO_MATERIALI.us ).filter(INVENTARIO_MATERIALI.sito=='Sito archeologico').distinct().order_by(INVENTARIO_MATERIALI.area,INVENTARIO_MATERIALI.us )
 
         query_string = ""
         for i in query_params:
@@ -820,7 +820,7 @@ class Pyarchinit_db_management(object):
     def query_distinct_sql(self, table, query_params, distinct_field_name_params):
         # u = Utility()
         # params = u.remove_empty_items_fr_dict(params)
-        ##		return session.query(INVENTARIO_MATERIALI.area,INVENTARIO_MATERIALI.us ).filter(INVENTARIO_MATERIALI.sito=='Sito archeologico').distinct().order_by(INVENTARIO_MATERIALI.area,INVENTARIO_MATERIALI.us )
+        ##      return session.query(INVENTARIO_MATERIALI.area,INVENTARIO_MATERIALI.us ).filter(INVENTARIO_MATERIALI.sito=='Sito archeologico').distinct().order_by(INVENTARIO_MATERIALI.area,INVENTARIO_MATERIALI.us )
 
         query_string = ""
         for i in query_params:
@@ -1144,57 +1144,71 @@ class Pyarchinit_db_management(object):
 
         return res_list
 
-    def insert_arbitrary_number_of_us_records(self, us_range, sito, area, n_us, t_us):
+    def insert_arbitrary_number_of_us_records(self, us_range, sito, area, n_us):
         id_us = self.max_num_id('US', 'id_us')
         for i in range(us_range):
             id_us += 1
             n_us += 1
 
             data_ins = self.insert_values(id_us, sito, area, n_us, '', '', '', '', '', '', '', '', '', '', '', '', '[]',
-                                          '[]', '[]', '', '', '', '', '', '', '', '', '0', '[]', t_us, '', '', '', '',
-                                          '[]', '', '', '', '', '', '', '', '', None, None, '', '', '', '[]', '[]', '[]', '', '', '', '', None, None, '', '', '', '', '', '', '[]', '[]', None, None, None, None, None, None, None, None, None, None, '', '', '', '', '', '', '', '', '', '', None, None, None, '', '', '', '', '', '', '[]', '')
+                                          '[]', '[]', '', '', '', '', '', '', '', '', '0', '[]', 'US', '', '', '', '',
+                                          '', '', '', '', '', '', '', '', '', None, None, '', '', '', '', '', '[]')
             self.insert_data_session(data_ins)
 
     def select_like_from_db_sql(self, rapp_list, us_rapp_list):
         # this is a test
         pass
 
-    ##		self.us_rapp_list = us_rapp_list
-    ##		rapp_type = rapp_list
-    ##		query_string_base = """session.query(US).filter(or_("""
-    ##		query_list = []
+    ##      self.us_rapp_list = us_rapp_list
+    ##      rapp_type = rapp_list
+    ##      query_string_base = """session.query(US).filter(or_("""
+    ##      query_list = []
     ##
-    ##		#costruisce la stringa che trova i like
-    ##		for sing_us_rapp in self.us_rapp_list:
-    ##			for sing_rapp in rapp_type:
-    ##				sql_query_string = """US.rapporti.contains("[u'%s', u'%s']")""" % (sing_rapp,sing_us_rapp) #funziona!!!
-    ##				query_list.append(sql_query_string)
+    ##      #costruisce la stringa che trova i like
+    ##      for sing_us_rapp in self.us_rapp_list:
+    ##          for sing_rapp in rapp_type:
+    ##              sql_query_string = """US.rapporti.contains("[u'%s', u'%s']")""" % (sing_rapp,sing_us_rapp) #funziona!!!
+    ##              query_list.append(sql_query_string)
     ##
-    ##		string_contains = ""
-    ##		for sing_contains in range(len(query_list)):
-    ##			if sing_contains == 0:
-    ##				string_contains = query_list[sing_contains]
-    ##			else:
-    ##				string_contains = string_contains + "," + query_list[sing_contains]
+    ##      string_contains = ""
+    ##      for sing_contains in range(len(query_list)):
+    ##          if sing_contains == 0:
+    ##              string_contains = query_list[sing_contains]
+    ##          else:
+    ##              string_contains = string_contains + "," + query_list[sing_contains]
     ##
-    ##		query_string_execute = query_string_base + string_contains + '))'
+    ##      query_string_execute = query_string_base + string_contains + '))'
     ##
-    ##		Session = sessionmaker(bind=self.engine, autoflush=True, autocommit=True)
-    ##		session = Session()
-    ##		res = eval(query_string_execute)
+    ##      Session = sessionmaker(bind=self.engine, autoflush=True, autocommit=True)
+    ##      session = Session()
+    ##      res = eval(query_string_execute)
     ##
-    ##		return res
+    ##      return res
 
     def select_not_like_from_db_sql(self, sitof, areaf):
         # NB per funzionare con postgres è necessario che al posto di " ci sia '
+        #l=QgsSettings().value("locale/userLocale")[0:2]
         Session = sessionmaker(bind=self.engine, autoflush=True, autocommit=True)
         session = Session()
-        res = session.query(US).filter_by(sito=sitof).filter_by(area=areaf).filter(
-            and_(~US.rapporti.like("%'Taglia'%"), ~US.rapporti.like("%'Si appoggia a'%"),
-                 ~US.rapporti.like("%'Copre'%"), ~US.rapporti.like("%'Riempie'%")))
-        # MyModel.query.filter(sqlalchemy.not_(Mymodel.name.contains('a_string')))
+        
+        if l=='it':
+            res = session.query(US).filter_by(sito=sitof).filter_by(area=areaf).filter(
+                and_(~US.rapporti.like("%'Taglia'%"), ~US.rapporti.like("%'Si appoggia a'%"),
+                     ~US.rapporti.like("%'Copre'%"), ~US.rapporti.like("%'Riempie'%")))
+                # MyModel.query.filter(sqlalchemy.not_(Mymodel.name.contains('a_string')))
+        elif l=='en':
+            res = session.query(US).filter_by(sito=sitof).filter_by(area=areaf).filter(
+                and_(~US.rapporti.like("%'Cut'%"), ~US.rapporti.like("%'Abuts'%"),
+                     ~US.rapporti.like("%'Cover'%"), ~US.rapporti.like("%'Fill'%")))
+            # MyModel.query.filter(sqlalchemy.not_(Mymodel.name.contains('a_string')))
+        elif l=='de':
+            res = session.query(US).filter_by(sito=sitof).filter_by(area=areaf).filter(
+                and_(~US.rapporti.like("%'Schneidet'%"), ~US.rapporti.like("%'Stützt sich auf'%"),
+                     ~US.rapporti.like("%'Liegt über'%"), ~US.rapporti.like("%'Verfüllt'%")))
+            # MyModel.query.filter(sqlalchemy.not_(Mymodel.name.contains('a_string')))
+        
         return res
-
+        
     def query_in_idusb(self):
         pass
 
