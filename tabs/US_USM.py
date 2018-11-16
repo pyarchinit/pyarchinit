@@ -347,7 +347,7 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
         'uso_primario_usm'  # 95
 
     ]
-
+    L=QgsSettings().value("locale/userLocale")[0:2]
     LANG = {
         "IT": ['it_IT', 'IT', 'it', 'IT_IT'],
         "EN_US": ['en_US','EN_US','en','EN'],
@@ -703,24 +703,27 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
 
         # lista tipo rapporti stratigrafici
 
-        search_dict = {
-            'lingua': lang,
-            'nome_tabella': "'" + 'us_table' + "'",
-            'tipologia_sigla': "'" + '0' + "'"
-        }
-
-        tipo_di_rapporti = self.DB_MANAGER.query_bool(search_dict, 'PYARCHINIT_THESAURUS_SIGLE')
-        valuesRS = []
-       
-        for i in range(len(tipo_di_rapporti)):
-            valuesRS.append(tipo_di_rapporti[i].sigla_estesa)
-
-        valuesRS.sort()
+        if self.L=='it':
+            valuesRS = ["Uguale a", "Si lega a", "Copre", "Coperto da", "Riempie", "Riempito da", "Taglia", "Tagliato da", "Si appoggia", "Gli si appoggia", ""]
+            self.delegateRS = ComboBoxDelegate()
+            self.delegateRS.def_values(valuesRS)
+            self.delegateRS.def_editable('False')
+            self.tableWidget_rapporti.setItemDelegateForColumn(0,self.delegateRS)
+        elif self.L=='en':
+            valuesRS = ["Same as", "Connected to", "Covers", "Covered by", "Fills", "Filled by", "Cuts", "Cut by", "Abuts", "Supports", ""]
+            self.delegateRS = ComboBoxDelegate()
+            self.delegateRS.def_values(valuesRS)
+            self.delegateRS.def_editable('False')
+            self.tableWidget_rapporti.setItemDelegateForColumn(0,self.delegateRS)
+        elif self.L=='de':
+            valuesRS = ["Entspricht", "Bindet an", "Liegt über", "Liegt unter", "Verfüllt", "Wird verfüllt durch", "Schneidet ", "Wird geschnitten", "Stützt sich auf", "Wird gestüzt von", ""]
+            self.delegateRS = ComboBoxDelegate()
+            self.delegateRS.def_values(valuesRS)
+            self.delegateRS.def_editable('False')
+            self.tableWidget_rapporti.setItemDelegateForColumn(0,self.delegateRS)
+        else:
+            pass
         
-        self.delegateRS = ComboBoxDelegate()
-        self.delegateRS.def_values(valuesRS)
-        self.delegateRS.def_editable('False')
-        self.tableWidget_rapporti.setItemDelegateForColumn(0, self.delegateRS)
         # lista tipo documentazione
 
         search_dict = {
@@ -1658,15 +1661,52 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
         # self.countLabel.setText(text)
 
     def on_pushButton_pdf_exp_pressed(self):
-        US_pdf_sheet = generate_US_pdf()
-        data_list = self.generate_list_pdf()
-        US_pdf_sheet.build_US_sheets(data_list)
-
+        #l = QgsSettings().value("locale/userLocale")[0:2]
+       
+        if self.L=='it':
+            
+            US_pdf_sheet = generate_US_pdf()
+            data_list = self.generate_list_pdf()
+            US_pdf_sheet.build_US_sheets(data_list)
+            
+            
+            
+        elif self.L=='en':
+            
+            US_pdf_sheet = generate_US_pdf()
+            data_list = self.generate_list_pdf()
+            US_pdf_sheet.build_US_sheets_en(data_list)
+                
+            
+      
+           
+        elif self.L=='de':
+         
+            US_pdf_sheet = generate_US_pdf()
+            data_list = self.generate_list_pdf()
+            US_pdf_sheet.build_US_sheets_de(data_list)
+            
+        else:
+            pass
+            
     def on_pushButton_exp_index_us_pressed(self):
-        US_index_pdf = generate_US_pdf()
-        data_list = self.generate_list_pdf()
-        US_index_pdf.build_index_US(data_list, data_list[0][0])
-
+        
+        if self.L=='it':
+            US_index_pdf = generate_US_pdf()
+            data_list = self.generate_list_pdf()
+            US_index_pdf.build_index_US(data_list, data_list[0][0])
+            
+        elif self.L=='en':  
+            US_index_pdf = generate_US_pdf()
+            data_list = self.generate_list_pdf()
+            US_index_pdf.build_index_US_en(data_list, data_list[0][0])
+            
+        elif self.L=='de':  
+            US_index_pdf = generate_US_pdf()
+            data_list = self.generate_list_pdf()
+            US_index_pdf.build_index_US_de(data_list, data_list[0][0])  
+        else:
+            pass    
     def on_pushButton_export_matrix_pressed(self):
         id_us_dict = {}
         for i in range(len(self.DATA_LIST)):
@@ -1715,7 +1755,7 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
                         msg_nr_rapp = msg_nr_rapp + str(sing_rapp) + "relativo a: " + str(us) + " \n"
 
                     try:
-                        if sing_rapp[0] == 'Cut' or  sing_rapp[0] == 'Covers' or  sing_rapp[0] == 'Abuts' or  sing_rapp[0] == 'Fills' or sing_rapp[0] == 'Connected to' or  sing_rapp[0] == 'Same as'or sing_rapp[0] == 'Taglia' or  sing_rapp[0] == 'Copre' or  sing_rapp[0] == 'Si appoggia a' or  sing_rapp[0] == 'Riempie'  or sing_rapp[0] == 'Si lega a' or  sing_rapp[0] == 'Uguale a'  or sing_rapp[0] == 'Schneidet' or  sing_rapp[0] == 'Liegt über' or  sing_rapp[0] == 'Sich an anlehnen' or  sing_rapp[0] == 'Verfüllt' or sing_rapp[0] == 'Es bindet an' or  sing_rapp[0] == 'Entspricht':
+                        if sing_rapp[0] == 'Cut' or  sing_rapp[0] == 'Covers' or  sing_rapp[0] == 'Abuts' or  sing_rapp[0] == 'Fills' or sing_rapp[0] == 'Taglia' or  sing_rapp[0] == 'Copre' or  sing_rapp[0] == 'Si appoggia a' or  sing_rapp[0] == 'Riempie'  or  sing_rapp[0] == 'Schneidet' or  sing_rapp[0] == 'Liegt über' or  sing_rapp[0] == 'Stützt sich auf' or  sing_rapp[0] == 'Verfüllt':
                        
                             try:
                                 if sing_rapp[1] != '':
@@ -2156,9 +2196,9 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
                            'Wird geschnitten':'Schneidet',
                            'Verfüllt':'Wird verfüllt durch',
                            'Wird verfüllt durch':'Verfüllt',
-                           'Sich an anlehnen':'Lehnt sich an ihn an',
-                           'Lehnt sich an ihn an':'Sich an anlehnen',
-                           'Es bindet an':'Es bindet an',
+                           'Stützt sich auf':'Wird gestüzt von',
+                           'Wird gestüzt von':'Stützt sich auf',
+                           'Bindet an':'Bindet an',
                            'Entspricht':'Entspricht'
                            }
 
@@ -2239,12 +2279,13 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
                            'Wird geschnitten':'Schneidet',
                            'Verfüllt':'Wird verfüllt durch',
                            'Wird verfüllt durch':'Verfüllt',
-                           'Sich an anlehnen':'Lehnt sich an ihn an',
-                           'Lehnt sich an ihn an':'Sich an anlehnen',
-                           'Es bindet an':'Es bindet an',
+                           'Stützt sich auf':'Wird gestüzt von',
+                           'Wird gestüzt von':'Stützt sich auf',
+                           'Bindet an':'Bindet an',
                            'Entspricht':'Entspricht'
-
                            }
+                           
+                                                        
 
         search_dict = {'sito': "'" + str(sito_check) + "'", 'area': "'" + str(area_check) + "'"}
 
@@ -2302,17 +2343,17 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
                     
                 #versione tedesca   
                 if def_stratigrafica.find('Stratum') >= 0:  # Paradosso strati che tagliano o si legano
-                    if sing_rapp[0] == 'Schneidet' or sing_rapp[0] == 'Es bindet an':
+                    if sing_rapp[0] == 'Schneidet' or sing_rapp[0] == 'Bindet an':
                         report = '\bSito: %s, \bArea: %s, \bSE: %d - %s: die startum %s US: %d: ' % (
                             sito, area, int(us), def_stratigrafica, sing_rapp[0], int(sing_rapp[1]))
 
                 if def_stratigrafica.find('Verfullüng') >= 0:  # Paradosso riempimentiche tagliano o si legano
-                    if sing_rapp[0] == 'Schneidet' or sing_rapp[0] == 'Es bindet an':
+                    if sing_rapp[0] == 'Schneidet' or sing_rapp[0] == 'Bindet an':
                         report = '\bSito: %s, \bArea: %s, \bSE: %d - %s: die stratum %s US: %d: ' % (
                             sito, area, int(us), def_stratigrafica, sing_rapp[0], int(sing_rapp[1]))
 
                 if def_stratigrafica.find('Verfullüng') >= 0:  # Paradosso riempimentiche tagliano o si legano
-                    if sing_rapp[0] == 'Schneidet' or sing_rapp[0] == 'Es bindet an':
+                    if sing_rapp[0] == 'Schneidet' or sing_rapp[0] == 'Bindet an':
                         report = '\bSito: %s, \bArea: %s, \bSE: %d - %s: die startum %s US: %d: ' % (
                             sito, area, int(us), def_stratigrafica, sing_rapp[0], int(sing_rapp[1]))
                 if report != "":
