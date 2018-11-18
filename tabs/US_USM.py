@@ -347,6 +347,7 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
         'uso_primario_usm'  # 95
 
     ]
+    
     L=QgsSettings().value("locale/userLocale")[0:2]
     LANG = {
         "IT": ['it_IT', 'IT', 'it', 'IT_IT'],
@@ -635,22 +636,50 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
                 self.charge_list()
                 self.fill_fields()
             else:
-                QMessageBox.warning(self, "BENVENUTO",
-                                    "Benvenuto in pyArchInit" + self.NOME_SCHEDA + ". Il database e' vuoto. Premi 'Ok' e buon lavoro!",
-                                    QMessageBox.Ok)
+                
+                if self.L=='it':
+                    QMessageBox.warning(self,"BENVENUTO", "Benvenuto in pyArchInit" + "Scheda US" + ". Il database e' vuoto. Premi 'Ok' e buon lavoro!",
+                                        QMessageBox.Ok)
+                elif self.L=='en':
+                    QMessageBox.warning(self,"WELCOME", "Welcome in pyArchInit" + "SU form" + ". The DB is empty. Push 'Ok' and Good Work!",
+                                        QMessageBox.Ok) 
+                elif self.L=='de':
+                    
+                    QMessageBox.warning(self,"WILLKOMMEN","WILLKOMMEN in pyArchInit" + "SE formular"+ ". Die Datenbank ist leer. Tippe 'Ok' und aufgehts!",
+                                        QMessageBox.Ok) 
+                else:
+                    pass    
                 self.charge_list()
                 self.BROWSE_STATUS = 'x'
                 self.on_pushButton_new_rec_pressed()
         except Exception as e:
             e = str(e)
             if e.find("no such table"):
-                msg = "La connessione e' fallita {}. " \
-                      "E' NECESSARIO RIAVVIARE QGIS oppure rilevato bug! Segnalarlo allo sviluppatore".format(str(e))
-                self.iface.messageBar().pushMessage(self.tr(msg), Qgis.Warning, 0)
+            
+                if self.L=='it':
+                    msg = "La connessione e' fallita {}. " \
+                          "E' NECESSARIO RIAVVIARE QGIS oppure rilevato bug! Segnalarlo allo sviluppatore".format(str(e))
+                    self.iface.messageBar().pushMessage(self.tr(msg), Qgis.Warning, 0)
+                elif self.L=='en':
+                    msg = "The connection failed {}. " \
+                          "You MUST RESTART QGIS or bug detected! Report it to the developer".format(str(e))
+                    self.iface.messageBar().pushMessage(self.tr(msg), Qgis.Warning, 0)
+                elif self.L=='de':
+                    msg = "Verbindungsfehler {}. " \
+                          " QGIS neustarten oder es wurde ein bug gefunden! Fehler einsenden".format(str(e))
+                    self.iface.messageBar().pushMessage(self.tr(msg), Qgis.Warning, 0)      
             else:
-                msg = "Attenzione rilevato bug! Segnalarlo allo sviluppatore. Errore: ".format(str(e))
-                self.iface.messageBar().pushMessage(self.tr(msg), Qgis.Warning, 0)
-
+                if self.L=='it':
+                    msg = "Attenzione rilevato bug! Segnalarlo allo sviluppatore. Errore: ".format(str(e))
+                    self.iface.messageBar().pushMessage(self.tr(msg), Qgis.Warning, 0)
+                elif self.L=='en':
+                    msg = "Warning bug detected! Report it to the developer. Error: ".format(str(e))
+                    self.iface.messageBar().pushMessage(self.tr(msg), Qgis.Warning, 0)
+                elif self.L=='de':
+                    msg = "ACHTUNG. Es wurde ein bug gefunden! Fehler einsenden: ".format(str(e))
+                    self.iface.messageBar().pushMessage(self.tr(msg), Qgis.Warning, 0)  
+                else:
+                    pass    
     def customize_GUI(self):
 
         l = QgsSettings().value("locale/userLocale", QVariant)[0:2]
@@ -663,7 +692,7 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
         if not Pyarchinit_OS_Utility.checkGraphvizInstallation():
             self.pushButton_export_matrix.setEnabled(False)
             self.pushButton_export_matrix.setToolTip("Funzione disabilitata")
-        self.tableWidget_rapporti.setColumnWidth(0, 380)
+        self.tableWidget_rapporti.setColumnWidth(0, 200)
         self.tableWidget_rapporti.setColumnWidth(1, 110)
         self.tableWidget_documentazione.setColumnWidth(0, 150)
         self.tableWidget_documentazione.setColumnWidth(1, 300)
@@ -1006,7 +1035,7 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
                 res = self.DB_MANAGER.query_bool(search_dict, "MEDIA")
                 file_path = str(res[0].filepath)
             except Exception as e:
-                QMessageBox.warning(self, "Errore", "Attenzione 1 file: " + str(e), QMessageBox.Ok)
+                QMessageBox.warning(self, "Error", "Warning 1 file: " + str(e), QMessageBox.Ok)
 
             dlg.show_image(str(file_path))  # item.data(QtCore.Qt.UserRole).toString()))
             dlg.exec_()
@@ -1029,8 +1058,14 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
             if str(e) == "list.remove(x): x not in list":
                 pass
             else:
-                QMessageBox.warning(self, "Messaggio", "Sistema di aggiornamento lista Sito: " + str(e), QMessageBox.Ok)
-
+                if self.L=='it':
+                    QMessageBox.warning(self, "Messaggio", "Sistema di aggiornamento lista Sito: " + str(e), QMessageBox.Ok)
+                elif self.L=='en':
+                    QMessageBox.warning(self, "Message", "Site list update system: " + str(e), QMessageBox.Ok)
+                elif self.L=='de':
+                    QMessageBox.warning(self, "Nachricht", "Aktualisierungssystem für die Ausgrabungstätte: " + str(e), QMessageBox.Ok)
+                else:
+                    pass
         self.comboBox_sito.clear()
         self.comboBox_sito_rappcheck.clear()
 
