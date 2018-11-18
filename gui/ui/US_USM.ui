@@ -33,10 +33,14 @@
     <normaloff>:/icons/iconPAI.png</normaloff>:/icons/iconPAI.png</iconset>
   </property>
   <property name="autoFillBackground">
-   <bool>true</bool>
+   <bool>false</bool>
   </property>
   <property name="styleSheet">
    <string notr="true">font: 8pt &quot;Times New Roman&quot;;
+border-color: rgb(0, 0, 0);
+
+
+
 </string>
   </property>
   <property name="sizeGripEnabled">
@@ -910,6 +914,9 @@ p, li { white-space: pre-wrap; }
         <property name="editTriggers">
          <set>QAbstractItemView::AnyKeyPressed|QAbstractItemView::DoubleClicked|QAbstractItemView::EditKeyPressed</set>
         </property>
+        <property name="alternatingRowColors">
+         <bool>true</bool>
+        </property>
         <property name="selectionMode">
          <enum>QAbstractItemView::SingleSelection</enum>
         </property>
@@ -1056,6 +1063,9 @@ p, li { white-space: pre-wrap; }
         <property name="editTriggers">
          <set>QAbstractItemView::AnyKeyPressed|QAbstractItemView::DoubleClicked|QAbstractItemView::EditKeyPressed</set>
         </property>
+        <property name="alternatingRowColors">
+         <bool>true</bool>
+        </property>
         <property name="selectionMode">
          <enum>QAbstractItemView::SingleSelection</enum>
         </property>
@@ -1194,6 +1204,9 @@ p, li { white-space: pre-wrap; }
         <property name="editTriggers">
          <set>QAbstractItemView::AnyKeyPressed|QAbstractItemView::DoubleClicked|QAbstractItemView::EditKeyPressed</set>
         </property>
+        <property name="alternatingRowColors">
+         <bool>true</bool>
+        </property>
         <property name="selectionMode">
          <enum>QAbstractItemView::SingleSelection</enum>
         </property>
@@ -1242,6 +1255,9 @@ p, li { white-space: pre-wrap; }
         </property>
         <property name="editTriggers">
          <set>QAbstractItemView::AnyKeyPressed|QAbstractItemView::DoubleClicked|QAbstractItemView::EditKeyPressed</set>
+        </property>
+        <property name="alternatingRowColors">
+         <bool>true</bool>
         </property>
         <property name="selectionMode">
          <enum>QAbstractItemView::SingleSelection</enum>
@@ -1386,6 +1402,9 @@ p, li { white-space: pre-wrap; }
         </property>
         <property name="editTriggers">
          <set>QAbstractItemView::AnyKeyPressed|QAbstractItemView::DoubleClicked|QAbstractItemView::EditKeyPressed</set>
+        </property>
+        <property name="alternatingRowColors">
+         <bool>true</bool>
         </property>
         <property name="selectionMode">
          <enum>QAbstractItemView::SingleSelection</enum>
@@ -2050,6 +2069,9 @@ p, li { white-space: pre-wrap; }
         <property name="editTriggers">
          <set>QAbstractItemView::AnyKeyPressed|QAbstractItemView::DoubleClicked|QAbstractItemView::EditKeyPressed</set>
         </property>
+        <property name="alternatingRowColors">
+         <bool>true</bool>
+        </property>
         <property name="selectionMode">
          <enum>QAbstractItemView::SingleSelection</enum>
         </property>
@@ -2146,7 +2168,7 @@ p, li { white-space: pre-wrap; }
        <x>11</x>
        <y>11</y>
        <width>860</width>
-       <height>251</height>
+       <height>305</height>
       </rect>
      </property>
      <layout class="QGridLayout" name="gridLayout_14">
@@ -2186,6 +2208,9 @@ p, li { white-space: pre-wrap; }
         <property name="editTriggers">
          <set>QAbstractItemView::AnyKeyPressed|QAbstractItemView::DoubleClicked|QAbstractItemView::EditKeyPressed</set>
         </property>
+        <property name="alternatingRowColors">
+         <bool>true</bool>
+        </property>
         <property name="selectionMode">
          <enum>QAbstractItemView::SingleSelection</enum>
         </property>
@@ -2222,6 +2247,9 @@ p, li { white-space: pre-wrap; }
         </property>
         <property name="editTriggers">
          <set>QAbstractItemView::AnyKeyPressed|QAbstractItemView::DoubleClicked|QAbstractItemView::EditKeyPressed</set>
+        </property>
+        <property name="alternatingRowColors">
+         <bool>true</bool>
         </property>
         <property name="selectionMode">
          <enum>QAbstractItemView::SingleSelection</enum>
@@ -2536,6 +2564,9 @@ p, li { white-space: pre-wrap; }
       </item>
       <item row="8" column="4" rowspan="6" colspan="2">
        <widget class="QTableWidget" name="tableWidget_inorganici">
+        <property name="alternatingRowColors">
+         <bool>true</bool>
+        </property>
         <property name="rowCount">
          <number>1</number>
         </property>
@@ -2744,6 +2775,9 @@ p, li { white-space: pre-wrap; }
         </property>
         <property name="frameShadow">
          <enum>QFrame::Sunken</enum>
+        </property>
+        <property name="alternatingRowColors">
+         <bool>true</bool>
         </property>
         <property name="selectionMode">
          <enum>QAbstractItemView::SingleSelection</enum>
@@ -4217,8 +4251,8 @@ p, li { white-space: pre-wrap; }
              <rect>
               <x>0</x>
               <y>0</y>
-              <width>844</width>
-              <height>401</height>
+              <width>848</width>
+              <height>404</height>
              </rect>
             </property>
             <attribute name="label">
@@ -4236,6 +4270,12 @@ p, li { white-space: pre-wrap; }
              <layout class="QHBoxLayout" name="horizontalLayout">
               <item>
                <widget class="QPushButton" name="pushButton_exp_tavole">
+                <property name="minimumSize">
+                 <size>
+                  <width>0</width>
+                  <height>20</height>
+                 </size>
+                </property>
                 <property name="toolTip">
                  <string>Esportazione Tavole</string>
                 </property>
@@ -4246,6 +4286,12 @@ p, li { white-space: pre-wrap; }
               </item>
               <item>
                <widget class="QProgressBar" name="progressBar">
+                <property name="minimumSize">
+                 <size>
+                  <width>0</width>
+                  <height>20</height>
+                 </size>
+                </property>
                 <property name="value">
                  <number>0</number>
                 </property>
@@ -4275,7 +4321,7 @@ p, li { white-space: pre-wrap; }
     <rect>
      <x>11</x>
      <y>114</y>
-     <width>721</width>
+     <width>481</width>
      <height>83</height>
     </rect>
    </property>
@@ -4528,7 +4574,7 @@ p, li { white-space: pre-wrap; }
    <widget class="QLabel" name="label_30">
     <property name="geometry">
      <rect>
-      <x>621</x>
+      <x>350</x>
       <y>28</y>
       <width>91</width>
       <height>20</height>
@@ -4550,7 +4596,7 @@ p, li { white-space: pre-wrap; }
     </property>
     <property name="geometry">
      <rect>
-      <x>620</x>
+      <x>349</x>
       <y>50</y>
       <width>101</width>
       <height>20</height>
@@ -5438,7 +5484,7 @@ p, li { white-space: pre-wrap; }
     <rect>
      <x>11</x>
      <y>11</y>
-     <width>731</width>
+     <width>691</width>
      <height>67</height>
     </rect>
    </property>
@@ -5481,6 +5527,12 @@ p, li { white-space: pre-wrap; }
     </item>
     <item row="0" column="3">
      <widget class="QPushButton" name="pushButton_first_rec">
+      <property name="minimumSize">
+       <size>
+        <width>0</width>
+        <height>20</height>
+       </size>
+      </property>
       <property name="toolTip">
        <string>First rec</string>
       </property>
@@ -5491,10 +5543,22 @@ p, li { white-space: pre-wrap; }
        <iconset resource="../../resources/resources.qrc">
         <normaloff>:/icons/5_leftArrows.png</normaloff>:/icons/5_leftArrows.png</iconset>
       </property>
+      <property name="iconSize">
+       <size>
+        <width>15</width>
+        <height>15</height>
+       </size>
+      </property>
      </widget>
     </item>
     <item row="0" column="4">
      <widget class="QPushButton" name="pushButton_prev_rec">
+      <property name="minimumSize">
+       <size>
+        <width>0</width>
+        <height>20</height>
+       </size>
+      </property>
       <property name="maximumSize">
        <size>
         <width>75</width>
@@ -5511,10 +5575,22 @@ p, li { white-space: pre-wrap; }
        <iconset resource="../../resources/resources.qrc">
         <normaloff>:/icons/4_leftArrow.png</normaloff>:/icons/4_leftArrow.png</iconset>
       </property>
+      <property name="iconSize">
+       <size>
+        <width>15</width>
+        <height>15</height>
+       </size>
+      </property>
      </widget>
     </item>
     <item row="0" column="5">
      <widget class="QPushButton" name="pushButton_next_rec">
+      <property name="minimumSize">
+       <size>
+        <width>0</width>
+        <height>20</height>
+       </size>
+      </property>
       <property name="toolTip">
        <string>Next rec</string>
       </property>
@@ -5525,10 +5601,22 @@ p, li { white-space: pre-wrap; }
        <iconset resource="../../resources/resources.qrc">
         <normaloff>:/icons/6_rightArrow.png</normaloff>:/icons/6_rightArrow.png</iconset>
       </property>
+      <property name="iconSize">
+       <size>
+        <width>15</width>
+        <height>15</height>
+       </size>
+      </property>
      </widget>
     </item>
     <item row="0" column="6">
      <widget class="QPushButton" name="pushButton_last_rec">
+      <property name="minimumSize">
+       <size>
+        <width>0</width>
+        <height>20</height>
+       </size>
+      </property>
       <property name="toolTip">
        <string>Last rec</string>
       </property>
@@ -5539,10 +5627,22 @@ p, li { white-space: pre-wrap; }
        <iconset resource="../../resources/resources.qrc">
         <normaloff>:/icons/7_rightArrows.png</normaloff>:/icons/7_rightArrows.png</iconset>
       </property>
+      <property name="iconSize">
+       <size>
+        <width>15</width>
+        <height>15</height>
+       </size>
+      </property>
      </widget>
     </item>
     <item row="0" column="7">
      <widget class="QPushButton" name="pushButton_new_rec">
+      <property name="minimumSize">
+       <size>
+        <width>0</width>
+        <height>20</height>
+       </size>
+      </property>
       <property name="font">
        <font>
         <family>Times New Roman</family>
@@ -5562,10 +5662,22 @@ p, li { white-space: pre-wrap; }
        <iconset resource="../../resources/resources.qrc">
         <normaloff>:/icons/newrec.png</normaloff>:/icons/newrec.png</iconset>
       </property>
+      <property name="iconSize">
+       <size>
+        <width>15</width>
+        <height>15</height>
+       </size>
+      </property>
      </widget>
     </item>
     <item row="0" column="8">
      <widget class="QPushButton" name="pushButton_save">
+      <property name="minimumSize">
+       <size>
+        <width>0</width>
+        <height>20</height>
+       </size>
+      </property>
       <property name="font">
        <font>
         <family>Times New Roman</family>
@@ -5585,6 +5697,12 @@ p, li { white-space: pre-wrap; }
        <iconset resource="../../resources/resources.qrc">
         <normaloff>:/icons/b_save.png</normaloff>:/icons/b_save.png</iconset>
       </property>
+      <property name="iconSize">
+       <size>
+        <width>15</width>
+        <height>15</height>
+       </size>
+      </property>
       <property name="autoDefault">
        <bool>false</bool>
       </property>
@@ -5592,6 +5710,12 @@ p, li { white-space: pre-wrap; }
     </item>
     <item row="1" column="3">
      <widget class="QPushButton" name="pushButton_delete">
+      <property name="minimumSize">
+       <size>
+        <width>0</width>
+        <height>20</height>
+       </size>
+      </property>
       <property name="maximumSize">
        <size>
         <width>75</width>
@@ -5617,10 +5741,22 @@ p, li { white-space: pre-wrap; }
        <iconset resource="../../resources/resources.qrc">
         <normaloff>:/icons/delete.png</normaloff>:/icons/delete.png</iconset>
       </property>
+      <property name="iconSize">
+       <size>
+        <width>15</width>
+        <height>15</height>
+       </size>
+      </property>
      </widget>
     </item>
     <item row="1" column="5">
      <widget class="QPushButton" name="pushButton_new_search">
+      <property name="minimumSize">
+       <size>
+        <width>0</width>
+        <height>20</height>
+       </size>
+      </property>
       <property name="font">
        <font>
         <family>Times New Roman</family>
@@ -5640,10 +5776,22 @@ p, li { white-space: pre-wrap; }
        <iconset resource="../../resources/resources.qrc">
         <normaloff>:/icons/new_search.png</normaloff>:/icons/new_search.png</iconset>
       </property>
+      <property name="iconSize">
+       <size>
+        <width>15</width>
+        <height>15</height>
+       </size>
+      </property>
      </widget>
     </item>
     <item row="1" column="6">
      <widget class="QPushButton" name="pushButton_search_go">
+      <property name="minimumSize">
+       <size>
+        <width>0</width>
+        <height>20</height>
+       </size>
+      </property>
       <property name="font">
        <font>
         <family>Times New Roman</family>
@@ -5663,10 +5811,22 @@ p, li { white-space: pre-wrap; }
        <iconset resource="../../resources/resources.qrc">
         <normaloff>:/icons/search.png</normaloff>:/icons/search.png</iconset>
       </property>
+      <property name="iconSize">
+       <size>
+        <width>15</width>
+        <height>15</height>
+       </size>
+      </property>
      </widget>
     </item>
     <item row="1" column="7">
      <widget class="QPushButton" name="pushButton_sort">
+      <property name="minimumSize">
+       <size>
+        <width>0</width>
+        <height>20</height>
+       </size>
+      </property>
       <property name="font">
        <font>
         <family>Times New Roman</family>
@@ -5686,10 +5846,22 @@ p, li { white-space: pre-wrap; }
        <iconset resource="../../resources/resources.qrc">
         <normaloff>:/icons/sort.png</normaloff>:/icons/sort.png</iconset>
       </property>
+      <property name="iconSize">
+       <size>
+        <width>15</width>
+        <height>15</height>
+       </size>
+      </property>
      </widget>
     </item>
     <item row="1" column="8">
      <widget class="QPushButton" name="pushButton_view_all">
+      <property name="minimumSize">
+       <size>
+        <width>0</width>
+        <height>20</height>
+       </size>
+      </property>
       <property name="font">
        <font>
         <family>Times New Roman</family>
@@ -5708,6 +5880,12 @@ p, li { white-space: pre-wrap; }
       <property name="icon">
        <iconset resource="../../resources/resources.qrc">
         <normaloff>:/icons/view_all.png</normaloff>:/icons/view_all.png</iconset>
+      </property>
+      <property name="iconSize">
+       <size>
+        <width>15</width>
+        <height>15</height>
+       </size>
       </property>
      </widget>
     </item>
@@ -5766,6 +5944,12 @@ p, li { white-space: pre-wrap; }
        <iconset resource="../../resources/resources.qrc">
         <normaloff>:/icons/sheet.png</normaloff>:/icons/sheet.png</iconset>
       </property>
+      <property name="iconSize">
+       <size>
+        <width>15</width>
+        <height>15</height>
+       </size>
+      </property>
      </widget>
     </item>
     <item row="1" column="2">
@@ -5801,6 +5985,12 @@ p, li { white-space: pre-wrap; }
        <iconset resource="../../resources/resources.qrc">
         <normaloff>:/icons/sheet.png</normaloff>:/icons/sheet.png</iconset>
       </property>
+      <property name="iconSize">
+       <size>
+        <width>15</width>
+        <height>15</height>
+       </size>
+      </property>
      </widget>
     </item>
    </layout>
@@ -5808,9 +5998,9 @@ p, li { white-space: pre-wrap; }
   <widget class="QWidget" name="layoutWidget">
    <property name="geometry">
     <rect>
-     <x>752</x>
+     <x>716</x>
      <y>11</y>
-     <width>155</width>
+     <width>191</width>
      <height>130</height>
     </rect>
    </property>
@@ -6001,7 +6191,32 @@ p, li { white-space: pre-wrap; }
       </property>
      </widget>
     </item>
-    <item row="3" column="2">
+    <item row="4" column="0">
+     <widget class="QLabel" name="label_28">
+      <property name="minimumSize">
+       <size>
+        <width>0</width>
+        <height>20</height>
+       </size>
+      </property>
+      <property name="font">
+       <font>
+        <family>Times New Roman</family>
+        <pointsize>8</pointsize>
+        <weight>50</weight>
+        <italic>false</italic>
+        <bold>false</bold>
+       </font>
+      </property>
+      <property name="text">
+       <string>record tot.</string>
+      </property>
+      <property name="margin">
+       <number>0</number>
+      </property>
+     </widget>
+    </item>
+    <item row="3" column="1">
      <widget class="QLabel" name="label_rec_corrente">
       <property name="minimumSize">
        <size>
@@ -6038,32 +6253,7 @@ p, li { white-space: pre-wrap; }
       </property>
      </widget>
     </item>
-    <item row="4" column="0">
-     <widget class="QLabel" name="label_28">
-      <property name="minimumSize">
-       <size>
-        <width>0</width>
-        <height>20</height>
-       </size>
-      </property>
-      <property name="font">
-       <font>
-        <family>Times New Roman</family>
-        <pointsize>8</pointsize>
-        <weight>50</weight>
-        <italic>false</italic>
-        <bold>false</bold>
-       </font>
-      </property>
-      <property name="text">
-       <string>record tot.</string>
-      </property>
-      <property name="margin">
-       <number>0</number>
-      </property>
-     </widget>
-    </item>
-    <item row="4" column="2">
+    <item row="4" column="1">
      <widget class="QLabel" name="label_rec_tot">
       <property name="minimumSize">
        <size>
