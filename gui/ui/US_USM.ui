@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>918</width>
-    <height>954</height>
+    <width>921</width>
+    <height>974</height>
    </rect>
   </property>
   <property name="minimumSize">
@@ -52,7 +52,7 @@ border-color: rgb(0, 0, 0);
      <x>11</x>
      <y>353</y>
      <width>896</width>
-     <height>590</height>
+     <height>611</height>
     </rect>
    </property>
    <property name="minimumSize">
@@ -843,7 +843,7 @@ p, li { white-space: pre-wrap; }
        <x>11</x>
        <y>11</y>
        <width>311</width>
-       <height>461</height>
+       <height>551</height>
       </rect>
      </property>
      <layout class="QGridLayout" name="gridLayout_16">
@@ -1138,7 +1138,7 @@ p, li { white-space: pre-wrap; }
        <x>340</x>
        <y>11</y>
        <width>511</width>
-       <height>451</height>
+       <height>551</height>
       </rect>
      </property>
      <layout class="QGridLayout" name="gridLayout_17">
@@ -2029,7 +2029,7 @@ p, li { white-space: pre-wrap; }
        <x>500</x>
        <y>8</y>
        <width>371</width>
-       <height>431</height>
+       <height>571</height>
       </rect>
      </property>
      <layout class="QGridLayout" name="gridLayout_25">
@@ -2149,29 +2149,22 @@ p, li { white-space: pre-wrap; }
     <attribute name="title">
      <string>Dati Fisici - Dati Schedatore</string>
     </attribute>
-    <widget class="Line" name="line_4">
-     <property name="geometry">
-      <rect>
-       <x>11</x>
-       <y>260</y>
-       <width>860</width>
-       <height>16</height>
-      </rect>
-     </property>
-     <property name="orientation">
-      <enum>Qt::Horizontal</enum>
-     </property>
-    </widget>
     <widget class="QWidget" name="layoutWidget">
      <property name="geometry">
       <rect>
        <x>11</x>
        <y>11</y>
-       <width>860</width>
+       <width>851</width>
        <height>305</height>
       </rect>
      </property>
-     <layout class="QGridLayout" name="gridLayout_14">
+     <layout class="QGridLayout" name="gridLayout_14" columnstretch="0,0,0,0,0,0" columnminimumwidth="0,0,0,0,0,0">
+      <property name="sizeConstraint">
+       <enum>QLayout::SetDefaultConstraint</enum>
+      </property>
+      <property name="verticalSpacing">
+       <number>7</number>
+      </property>
       <item row="7" column="1">
        <widget class="QLineEdit" name="lineEdit_criteri_distinzione">
         <property name="minimumSize">
@@ -2923,7 +2916,7 @@ p, li { white-space: pre-wrap; }
      <property name="geometry">
       <rect>
        <x>12</x>
-       <y>277</y>
+       <y>330</y>
        <width>851</width>
        <height>247</height>
       </rect>
@@ -4252,7 +4245,7 @@ p, li { white-space: pre-wrap; }
               <x>0</x>
               <y>0</y>
               <width>848</width>
-              <height>404</height>
+              <height>425</height>
              </rect>
             </property>
             <attribute name="label">
