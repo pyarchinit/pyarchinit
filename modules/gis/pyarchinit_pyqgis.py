@@ -36,7 +36,7 @@ class Pyarchinit_pyqgis(QDialog):
     FILEPATH = os.path.dirname(__file__)
     LAYER_STYLE_PATH = '{}{}{}{}'.format(FILEPATH, os.sep, 'styles', os.sep)
     LAYER_STYLE_PATH_SPATIALITE = '{}{}{}{}'.format(FILEPATH, os.sep, 'styles_spatialite', os.sep)
-    SRS = -1
+    SRS = 4326
     L=QgsSettings().value("locale/userLocale")[0:2]
     USLayerId = ""
     LAYERS_DIZ = {"1": "pyarchinit_campionature",
@@ -92,55 +92,55 @@ class Pyarchinit_pyqgis(QDialog):
 
                               }
     elif L=='de':
-        LAYERS_CONVERT_DIZ = {"pyarchinit_campionature": "Punti di campionatura",
-                              "pyarchinit_individui": "Individui",
-                              "pyarchinit_linee_rif": "Linee di riferimento",
-                              "pyarchinit_punti_rif": "Punti di riferimento",
-                              "pyarchinit_quote": "Quote US disegno",
-                              "pyarchinit_quote_view": "Quote US Vista",
-                              "pyarchinit_ripartizioni_spaziali": "Ripartizioni spaziali",
-                              "pyarchinit_sezioni": "Sezioni di scavo",
-                              "pyarchinit_siti": "Localizzazione siti puntuale",
-                              "pyarchinit_strutture_ipotesi": "Ipotesi strutture da scavo",
-                              "pyarchinit_us_view": "US Vista",
-                              "pyunitastratigrafiche": "Unita Stratigrafiche disegno",
-                              "pyarchinit_documentazione": "Resgistro documentazione",
-                              "pyarchinit_doc_view": "Documentazione Vista",
-                              "pyarchinit_us_negative_doc": "US Negative per sezioni/elevati",
-                              "pyarchinit_us_negative_doc_view": "Vista US Negative per sezioni/elevati",
-                              "pyarchinit_site_view": "Localizzazione siti Vista",
-                              "pyarchinit_siti_polygonal": "Perimetrazione siti poligonali",
-                              "pyarchinit_siti_polygonal_view": "Perimetrazione siti poligonali Vista",
-                              "pyarchinit_site_view": "Localizzazione siti puntuale Vista",
-                              "pyarchinit_strutture_view": "Ipotesi strutture da scavo Vista",
-                              "pyarchinit_tafonomia_view": "Tafonomia Vista",
-                              "pyarchinit_tafonomia": "Tafonomia"
+        LAYERS_CONVERT_DIZ = {"pyarchinit_campionature": "Probenmesspunkte",
+                              "pyarchinit_individui": "Individuen",
+                              "pyarchinit_linee_rif": "Bezugslinien",
+                              "pyarchinit_punti_rif": "Bezugspunkte",
+                              "pyarchinit_quote": "Nivellements der SE",
+                              "pyarchinit_quote_view": "Nivellements Ansicht der SE",
+                              "pyarchinit_ripartizioni_spaziali": "Ausgrabungsstättenunterteilungen",
+                              "pyarchinit_sezioni": "Profile",
+                              "pyarchinit_siti": "Genauer Ausgrabungsstättenbereich",
+                              "pyarchinit_strutture_ipotesi": "Vorläufige Strukturinterpretation der Grabung",
+                              "pyarchinit_us_view": "SE Ansicht",
+                              "pyunitastratigrafiche": "Zeichnung der Stratigraphischen Einheiten",
+                              "pyarchinit_documentazione": "Dokumentation zurücksetzen",
+                              "pyarchinit_doc_view": "Dokumentation Ansicht",
+                              "pyarchinit_us_negative_doc": "SE-Negativ für profile/groß",
+                              "pyarchinit_us_negative_doc_view": "SE Ansicht Negative für profile/groß",
+                              "pyarchinit_site_view": "Genauer Ausgrabungsstättenbereich Ansicht",
+                              "pyarchinit_siti_polygonal": "Perimeterstand Ausgrabungsstätte poligonal",
+                              "pyarchinit_siti_polygonal_view": "Perimeterstand Ausgrabungsstätte poligonal Ansicht",
+                              "pyarchinit_site_view": "Genauer Ausgrabungsstättenbereich Ansicht",
+                              "pyarchinit_strutture_view": "Vorläufige Strukturinterpretation der Grabung Ansicht",
+                              "pyarchinit_tafonomia_view": "Taphonomie Ansicht",
+                              "pyarchinit_tafonomia": "Taphonomie"
 
                               }
     else:
-        LAYERS_CONVERT_DIZ = {"pyarchinit_campionature": "Punti di campionatura",
-                              "pyarchinit_individui": "Individui",
-                              "pyarchinit_linee_rif": "Linee di riferimento",
-                              "pyarchinit_punti_rif": "Punti di riferimento",
-                              "pyarchinit_quote": "Quote US disegno",
-                              "pyarchinit_quote_view": "Quote US Vista",
-                              "pyarchinit_ripartizioni_spaziali": "Ripartizioni spaziali",
-                              "pyarchinit_sezioni": "Sezioni di scavo",
-                              "pyarchinit_siti": "Localizzazione siti puntuale",
-                              "pyarchinit_strutture_ipotesi": "Ipotesi strutture da scavo",
-                              "pyarchinit_us_view": "US Vista",
-                              "pyunitastratigrafiche": "Unita Stratigrafiche disegno",
-                              "pyarchinit_documentazione": "Resgistro documentazione",
-                              "pyarchinit_doc_view": "Documentazione Vista",
-                              "pyarchinit_us_negative_doc": "US Negative per sezioni/elevati",
-                              "pyarchinit_us_negative_doc_view": "Vista US Negative per sezioni/elevati",
-                              "pyarchinit_site_view": "Localizzazione siti Vista",
-                              "pyarchinit_siti_polygonal": "Perimetrazione siti poligonali",
-                              "pyarchinit_siti_polygonal_view": "Perimetrazione siti poligonali Vista",
-                              "pyarchinit_site_view": "Localizzazione siti puntuale Vista",
-                              "pyarchinit_strutture_view": "Ipotesi strutture da scavo Vista",
-                              "pyarchinit_tafonomia_view": "Tafonomia Vista",
-                              "pyarchinit_tafonomia": "Tafonomia"
+        LAYERS_CONVERT_DIZ = {"pyarchinit_campionature": "Samples point",
+                              "pyarchinit_individui": "Individual",
+                              "pyarchinit_linee_rif": "Reference line",
+                              "pyarchinit_punti_rif": "Reference point",
+                              "pyarchinit_quote": "SU elevation",
+                              "pyarchinit_quote_view": "SU elevation view",
+                              "pyarchinit_ripartizioni_spaziali": "Spatial allocation",
+                              "pyarchinit_sezioni": "Excavation section",
+                              "pyarchinit_siti": "Point site localization",
+                              "pyarchinit_strutture_ipotesi": "Hypothetical excavation structures",
+                              "pyarchinit_us_view": "SU view",
+                              "pyunitastratigrafiche": "SU drawing",
+                              "pyarchinit_documentazione": "Documentation register",
+                              "pyarchinit_doc_view": "Documentation view",
+                              "pyarchinit_us_negative_doc": "Negative SU for section/elevation",
+                              "pyarchinit_us_negative_doc_view": "Negative SU for section/elevation view",
+                              "pyarchinit_site_view": "Site view",
+                              "pyarchinit_siti_polygonal": "Areal site",
+                              "pyarchinit_siti_polygonal_view": "Areal site view",
+                              "pyarchinit_site_view": "Site point view",
+                              "pyarchinit_strutture_view": "Hypothetical excavation structures view",
+                              "pyarchinit_tafonomia_view": "Taphonomie view",
+                              "pyarchinit_tafonomia": "Taphonomie"
 
                               }
 
@@ -167,9 +167,21 @@ class Pyarchinit_pyqgis(QDialog):
 
         settings = Settings(con_sett)
         settings.set_configuration()
-
+        
+        if self.L=='it':
+            name_layer_s='US view'
+        elif self.L=='de':
+            name_layer_s='SE view'
+        else:
+            name_layer_s='SU view'
+        if self.L=='it':
+            name_layer_q='Quote view'
+        elif self.L=='de':
+            name_layer_q='Hoch view'
+        else:
+            name_layer_q='Elevation view'   
         if settings.SERVER == 'sqlite':
-            sqliteDB_path = os.path.join(os.sep, 'pyarchinit_DB_folder', 'pyarchinit_db.sqlite')
+            sqliteDB_path = os.path.join(os.sep, 'pyarchinit_DB_folder', settings.DATABASE)
             db_file_path = '{}{}'.format(self.HOME, sqliteDB_path)
 
             gidstr = "id_us = '" + str(data[0]) + "'"
@@ -179,18 +191,20 @@ class Pyarchinit_pyqgis(QDialog):
 
             uri = QgsDataSourceUri()
             uri.setDatabase(db_file_path)
-
+            
+            
+                
             uri.setDataSource('', 'pyarchinit_us_view', 'Geometry', gidstr, "ROWID")
-            layerUS = QgsVectorLayer(uri.uri(), 'pyarchinit_us_view', 'spatialite')
+            layerUS = QgsVectorLayer(uri.uri(), name_layer_s, 'spatialite')
             ###################################################################
             if layerUS.isValid():
                 # self.USLayerId = layerUS.getLayerID()
                 # style_path = '{}{}'.format(self.LAYER_STYLE_PATH_SPATIALITE, 'us_caratterizzazioni.qml')
                 # layerUS.loadNamedStyle(style_path)
                 QgsProject.instance().addMapLayers([layerUS], True)
-
-            uri.setDataSource('', 'pyarchinit_quote_view', 'Geometry', gidstr, "gid")
-            layerQUOTE = QgsVectorLayer(uri.uri(), 'pyarchinit_quote_view', 'spatialite')
+            
+            uri.setDataSource('', 'pyarchinit_quote_view', 'Geometry', gidstr, "ROWID")
+            layerQUOTE = QgsVectorLayer(uri.uri(), name_layer_q, 'spatialite')
 
             if layerQUOTE.isValid():
                 QgsProject.instance().addMapLayers([layerQUOTE], True)
@@ -211,7 +225,7 @@ class Pyarchinit_pyqgis(QDialog):
             srs = QgsCoordinateReferenceSystem(self.SRS, QgsCoordinateReferenceSystem.PostgisCrsId)
 
             uri.setDataSource("public", "pyarchinit_us_view", "the_geom", gidstr, "gid")
-            layerUS = QgsVectorLayer(uri.uri(), "Unita' Stratigrafiche", "postgres")
+            layerUS = QgsVectorLayer(uri.uri(), name_layer_s, "postgres")
 
             if layerUS.isValid():
                 layerUS.setCrs(srs)
@@ -222,7 +236,7 @@ class Pyarchinit_pyqgis(QDialog):
                 QgsProject.instance().addMapLayers([layerUS], True)
 
             uri.setDataSource("public", "pyarchinit_quote_view", "the_geom", gidstr, "gid")
-            layerQUOTE = QgsVectorLayer(uri.uri(), "Quote Unita' Stratigrafiche", "postgres")
+            layerQUOTE = QgsVectorLayer(uri.uri(), name_layer_q, "postgres")
 
             if layerQUOTE.isValid():
                 layerQUOTE.setCrs(srs)
@@ -252,7 +266,18 @@ class Pyarchinit_pyqgis(QDialog):
 
         settings = Settings(con_sett)
         settings.set_configuration()
-
+        if self.L=='it':
+            name_layer_s='US view'
+        elif self.L=='de':
+            name_layer_s='SE view'
+        else:
+            name_layer_s='SU view'
+        if self.L=='it':
+            name_layer_q='Quote view'
+        elif self.L=='de':
+            name_layer_q='Hoch view'
+        else:
+            name_layer_q='Elevation view'
         if settings.SERVER == 'sqlite':
             sqliteDB_path = os.path.join(os.sep, 'pyarchinit_DB_folder', settings.DATABASE)
             db_file_path = '{}{}'.format(self.HOME, sqliteDB_path)
@@ -263,20 +288,20 @@ class Pyarchinit_pyqgis(QDialog):
             uri.setDatabase(db_file_path)
 
             uri.setDataSource('', 'pyarchinit_us_view', 'the_geom', gidstr, "ROWID")
-            layerUS = QgsVectorLayer(uri.uri(), 'pyarchinit_us_view', 'spatialite')
+            layerUS = QgsVectorLayer(uri.uri(), name_layer_s, 'spatialite')
 
             if layerUS.isValid():
-                QMessageBox.warning(self, "TESTER", "OK Layer US valido", QMessageBox.Ok)
+                QMessageBox.warning(self, "TESTER", "OK Layer valid", QMessageBox.Ok)
 
                 # self.USLayerId = layerUS.getLayerID()
                 style_path = '{}{}'.format(self.LAYER_STYLE_PATH_SPATIALITE, 'us_view_splite.qml')
                 layerUS.loadNamedStyle(style_path)
                 QgsProject.instance().addMapLayers([layerUS], True)
             else:
-                QMessageBox.warning(self, "TESTER", "Layer US non valido", QMessageBox.Ok)
+                QMessageBox.warning(self, "TESTER", "Layer not valid", QMessageBox.Ok)
 
             uri.setDataSource('', 'pyarchinit_quote_view', 'the_geom', gidstr, "ROWID")
-            layerQUOTE = QgsVectorLayer(uri.uri(), 'pyarchinit_quote_view', 'spatialite')
+            layerQUOTE = QgsVectorLayer(uri.uri(), name_layer_q, 'spatialite')
 
             if layerQUOTE.isValid():
                 # self.USLayerId = layerUS.getLayerID()
@@ -284,7 +309,7 @@ class Pyarchinit_pyqgis(QDialog):
                 layerQUOTE.loadNamedStyle(style_path)
                 QgsProject.instance().addMapLayers([layerQUOTE], True)
             else:
-                QMessageBox.warning(self, "TESTER", "OK Layer Quote non valido", QMessageBox.Ok)
+                QMessageBox.warning(self, "TESTER", "OK Layer valid", QMessageBox.Ok)
 
         elif settings.SERVER == 'postgres':
 
@@ -298,7 +323,7 @@ class Pyarchinit_pyqgis(QDialog):
             srs = QgsCoordinateReferenceSystem(self.SRS, QgsCoordinateReferenceSystem.PostgisCrsId)
 
             uri.setDataSource("public", "pyarchinit_us_view", "the_geom", gidstr, "gid")
-            layerUS = QgsVectorLayer(uri.uri(), "Unita' Stratigrafiche", "postgres")
+            layerUS = QgsVectorLayer(uri.uri(),name_layer_s , "postgres")
 
             if layerUS.isValid():
                 layerUS.setCrs(srs)
@@ -311,7 +336,7 @@ class Pyarchinit_pyqgis(QDialog):
                 QMessageBox.warning(self, "TESTER", "OK Layer US non valido", QMessageBox.Ok)
 
             uri.setDataSource("public", "pyarchinit_quote_view", "the_geom", gidstr, "gid")
-            layerQUOTE = QgsVectorLayer(uri.uri(), "Quote Unita' Stratigrafiche", "postgres")
+            layerQUOTE = QgsVectorLayer(uri.uri(), name_layer_q, "postgres")
 
             if layerQUOTE.isValid():
                 layerQUOTE.setCrs(srs)
@@ -503,7 +528,25 @@ class Pyarchinit_pyqgis(QDialog):
         # ("sito" = 'Scavo esame' AND "tipo_doc" =  'Sezione'  AND "nome_doc" = 'AA1')  OR ("sito" = 'Scavo esame' AND "tipo_doc" =  'Sezione'  AND "nome_doc" = 'AA1')
 
 
-
+        if self.L=='it':
+            name_layer_s='US view'
+        elif self.L=='de':
+            name_layer_s='SE view'
+        else:
+            name_layer_s='SU view'
+        if self.L=='it':
+            name_layer_q='Quote view'
+        elif self.L=='de':
+            name_layer_q='Hoch view'
+        else:
+            name_layer_q='Elevation view'
+        if self.L=='it':
+            name_layer_s_n='US negative view'
+        elif self.L=='de':
+            name_layer_s_n='SE negative view'
+        else:
+            name_layer_s_n='SU negative view'   
+            
         if settings.SERVER == 'sqlite':
             sqliteDB_path = os.path.join(os.sep, 'pyarchinit_DB_folder', settings.DATABASE)
             db_file_path = '{}{}'.format(self.HOME, sqliteDB_path)
@@ -517,7 +560,7 @@ class Pyarchinit_pyqgis(QDialog):
             uri.setDatabase(db_file_path)
 
             uri.setDataSource('', 'pyarchinit_us_view', 'the_geom', doc_from_us_str, "ROWID")
-            layerUS = QgsVectorLayer(uri.uri(), 'US in doc', 'spatialite')
+            layerUS = QgsVectorLayer(uri.uri(), name_layer_s, 'spatialite')
 
             if layerUS.isValid():
                 QMessageBox.warning(self, "TESTER", "OK Layer US valido", QMessageBox.Ok)
@@ -542,7 +585,7 @@ class Pyarchinit_pyqgis(QDialog):
             uri.setDatabase(db_file_path)
 
             uri.setDataSource('', 'pyarchinit_us_negative_doc_view', 'the_geom', doc_from_us_neg_str, "ROWID")
-            layerUSneg = QgsVectorLayer(uri.uri(), 'US Negative in doc', 'spatialite')
+            layerUSneg = QgsVectorLayer(uri.uri(), name_layer_s_n, 'spatialite')
 
             if layerUSneg.isValid():
                 QMessageBox.warning(self, "TESTER", "OK Layer US negative valido", QMessageBox.Ok)
@@ -567,10 +610,10 @@ class Pyarchinit_pyqgis(QDialog):
             uri.setDatabase(db_file_path)
 
             uri.setDataSource('', 'pyarchinit_us_view', 'the_geom', doc_from_us_str, "ROWID")
-            layerUS = QgsVectorLayer(uri.uri(), 'Documentazione intera', 'spatialite')
+            layerUS = QgsVectorLayer(uri.uri(), name_layer_s, 'spatialite')
 
             if layerUS.isValid():
-                QMessageBox.warning(self, "TESTER", "OK Layer US valido", QMessageBox.Ok)
+                QMessageBox.warning(self, "TESTER", "OK Layer valid", QMessageBox.Ok)
 
                 # self.USLayerId = layerUS.getLayerID()
                 # style_path = '{}{}'.format(self.LAYER_STYLE_PATH_SPATIALITE, 'us_view_splite.qml')
@@ -662,7 +705,18 @@ class Pyarchinit_pyqgis(QDialog):
 
         settings = Settings(con_sett)
         settings.set_configuration()
-
+        if self.L=='it':
+            name_layer_s='US view'
+        elif self.L=='de':
+            name_layer_s='SE view'
+        else:
+            name_layer_s='SU view'
+        if self.L=='it':
+            name_layer_q='Quote view'
+        elif self.L=='de':
+            name_layer_q='Hoch view'
+        else:
+            name_layer_q='Elevation view'
         if settings.SERVER == 'sqlite':
             sqliteDB_path = os.path.join(os.sep, 'pyarchinit_DB_folder', settings.DATABASE)
             db_file_path = '{}{}'.format(self.HOME, sqliteDB_path)
@@ -676,7 +730,7 @@ class Pyarchinit_pyqgis(QDialog):
             uri.setDatabase(db_file_path)
 
             uri.setDataSource('', 'pyarchinit_us_view', 'the_geom', gidstr, "ROWID")
-            layerUS = QgsVectorLayer(uri.uri(), 'pyarchinit_us_view', 'spatialite')
+            layerUS = QgsVectorLayer(uri.uri(), name_layer_s, 'spatialite')
 
             if layerUS.isValid():
                 QMessageBox.warning(self, "TESTER", "OK Layer US valido", QMessageBox.Ok)
@@ -693,10 +747,10 @@ class Pyarchinit_pyqgis(QDialog):
                 # layerUS.setSubsetString(newSubSetString)
 
             else:
-                QMessageBox.warning(self, "TESTER", "Layer US non valido", QMessageBox.Ok)
+                QMessageBox.warning(self, "TESTER", "Layer not valid", QMessageBox.Ok)
 
             uri.setDataSource('', 'pyarchinit_quote_view', 'the_geom', gidstr, "ROWID")
-            layerQUOTE = QgsVectorLayer(uri.uri(), 'pyarchinit_quote_view', 'spatialite')
+            layerQUOTE = QgsVectorLayer(uri.uri(), name_layer_q, 'spatialite')
 
             if layerQUOTE.isValid():
                 # self.USLayerId = layerUS.getLayerID()
@@ -704,7 +758,7 @@ class Pyarchinit_pyqgis(QDialog):
                 layerQUOTE.loadNamedStyle(style_path)
                 QgsProject.instance().addMapLayers([layerQUOTE], True)
             else:
-                QMessageBox.warning(self, "TESTER", "OK Layer Quote non valido", QMessageBox.Ok)
+                QMessageBox.warning(self, "TESTER", "OK Layer not valid", QMessageBox.Ok)
 
         elif settings.SERVER == 'postgres':
 
@@ -721,7 +775,7 @@ class Pyarchinit_pyqgis(QDialog):
             srs = QgsCoordinateReferenceSystem(self.SRS, QgsCoordinateReferenceSystem.PostgisCrsId)
 
             uri.setDataSource("public", "pyarchinit_us_view", "the_geom", gidstr, "gid")
-            layerUS = QgsVectorLayer(uri.uri(), "Unita' Stratigrafiche", "postgres")
+            layerUS = QgsVectorLayer(uri.uri(), name_layer_s, "postgres")
 
             if layerUS.isValid():
                 layerUS.setCrs(srs)
@@ -734,7 +788,7 @@ class Pyarchinit_pyqgis(QDialog):
                 QMessageBox.warning(self, "TESTER", "OK Layer US non valido", QMessageBox.Ok)
 
             uri.setDataSource("public", "pyarchinit_quote_view", "the_geom", gidstr, "gid")
-            layerQUOTE = QgsVectorLayer(uri.uri(), "Quote Unita' Stratigrafiche", "postgres")
+            layerQUOTE = QgsVectorLayer(uri.uri(), name_layer_q, "postgres")
 
             if layerQUOTE.isValid():
                 layerQUOTE.setCrs(srs)
@@ -748,7 +802,7 @@ class Pyarchinit_pyqgis(QDialog):
                     # f.write(str(e))
                     # f.close()
             else:
-                QMessageBox.warning(self, "TESTER", "OK Layer Quote non valido", QMessageBox.Ok)
+                QMessageBox.warning(self, "TESTER", "OK Layer not valide", QMessageBox.Ok)
 
     def charge_vector_layers_periodo(self, sito_p, cont_per, per_label, fas_label):
         self.sito_p = sito_p
@@ -766,10 +820,16 @@ class Pyarchinit_pyqgis(QDialog):
         conf.close()
         settings = Settings(con_sett)
         settings.set_configuration()
-
-        layer_name_label_us = "Unita Stratigrafiche - Per: %s / Fas: %s" % (self.per_label, self.fas_label)
-        layer_name_label_quote = "Quote US - Per: %s / Fas: %s" % (self.per_label, self.fas_label)
-
+        if self.L=='it':
+            layer_name_label_us = "Unita Stratigrafiche - Per: %s / Fas: %s" % (self.per_label, self.fas_label)
+            layer_name_label_quote = "Quote US - Per: %s / Fas: %s" % (self.per_label, self.fas_label)
+        elif self.L=='de':
+            layer_name_label_us = "Stratigraphischen Einheiten  - Period: %s / Phase: %s" % (self.per_label, self.fas_label)
+            layer_name_label_quote = "Nivellements der SE - Period: %s / Phase: %s" % (self.per_label, self.fas_label)
+        else:
+            layer_name_label_us = "Stratigraphic Units - Per: %s / Phase: %s" % (self.per_label, self.fas_label)
+            layer_name_label_quote = "Elevations SU - Per: %s / Phase: %s" % (self.per_label, self.fas_label)
+        
         if settings.SERVER == 'sqlite':
             sqliteDB_path = os.path.join(os.sep, 'pyarchinit_DB_folder', settings.DATABASE)
             db_file_path = '{}{}'.format(self.HOME, sqliteDB_path)
@@ -882,7 +942,7 @@ class Pyarchinit_pyqgis(QDialog):
 
                 # layerQuote
             uri.setDataSource("public", "pyarchinit_quote_view", "the_geom", gidstr, "id_us")
-            layerQUOTE = QgsVectorLayer(uri.uri(), "Quote", "postgres")
+            layerQUOTE = QgsVectorLayer(uri.uri(), "pyarchinit_quote_view", "postgres")
 
             if layerQUOTE.isValid():
                 # style_path = '{}{}'.format(self.LAYER_STYLE_PATH, 'stile_quote.qml')
@@ -948,7 +1008,7 @@ class Pyarchinit_pyqgis(QDialog):
             # layerUS
             ##          uri.setDataSource("public", "pyarchinit_us_view", "the_geom", sing_layer, "id_us")
             uri.setDataSource("public", "pyarchinit_doc_view_b", "the_geom", sing_layer, "id_us")
-            layerUS = QgsVectorLayer(uri.uri(), "Unita' Stratigrafiche", "postgres")
+            layerUS = QgsVectorLayer(uri.uri(), "pyarchinit_doc_view_b", "postgres")
 
             if layerUS.isValid():
                 # self.USLayerId = layerUS.getLayerID()
@@ -1111,7 +1171,7 @@ class Pyarchinit_pyqgis(QDialog):
                     ##ayerUS.loadNamedStyle(style_path)
                     QgsProject.instance().addMapLayers([layer], True)
                 else:
-                    QMessageBox.warning(self, "TESTER", "Layer non valido: " + str(layer_name), QMessageBox.Ok)
+                    QMessageBox.warning(self, "TESTER", "Layer not valid: " + str(layer_name), QMessageBox.Ok)
 
                 ###AGGIUNGERE IL SISTEMA PER POSTGRES#####
         elif settings.SERVER == 'postgres':
@@ -1138,7 +1198,7 @@ class Pyarchinit_pyqgis(QDialog):
                     ##ayerUS.loadNamedStyle(style_path)
                     QgsProject.instance().addMapLayers([layer], True)
                 else:
-                    QMessageBox.warning(self, "TESTER", "Layer non valido", QMessageBox.Ok)
+                    QMessageBox.warning(self, "TESTER", "Layer not valid", QMessageBox.Ok)
 
     def charge_sites_geometry(self, options, col, val):
         self.options = options
@@ -1179,7 +1239,7 @@ class Pyarchinit_pyqgis(QDialog):
                     self.iface.mapCanvas().setExtent(layer.extent())
                     QgsProject.instance().addMapLayers([layer], True)
                 else:
-                    QMessageBox.warning(self, "TESTER", "Layer non valido: {}".format(layer.name()), QMessageBox.Ok)
+                    QMessageBox.warning(self, "TESTER", "Layer not valid: {}".format(layer.name()), QMessageBox.Ok)
 
                     # pyunitastratigrafiche e pyarchinit_quote nn possono essere aggiornate dinamicamente perche non hanno il campo sito. Da moficare?
             layer_name = 'pyunitastratigrafiche'
@@ -1198,7 +1258,7 @@ class Pyarchinit_pyqgis(QDialog):
                 ##ayerUS.loadNamedStyle(style_path)
                 QgsProject.instance().addMapLayers([layer], True)
             else:
-                QMessageBox.warning(self, "TESTER", "Layer non valido", QMessageBox.Ok)
+                QMessageBox.warning(self, "TESTER", "Layer not valid", QMessageBox.Ok)
 
             layer_name = 'pyarchinit_quote'
             layer_name_conv = "'" + str(layer_name) + "'"
@@ -1216,7 +1276,7 @@ class Pyarchinit_pyqgis(QDialog):
                 ##ayerUS.loadNamedStyle(style_path)
                 QgsProject.instance().addMapLayers([layer], True)
             else:
-                QMessageBox.warning(self, "TESTER", "Layer non valido", QMessageBox.Ok)
+                QMessageBox.warning(self, "TESTER", "Layer not valid", QMessageBox.Ok)
 
             layer_name = 'pyarchinit_strutture_ipotesi'
             layer_name_conv = "'" + str(layer_name) + "'"
@@ -1231,7 +1291,7 @@ class Pyarchinit_pyqgis(QDialog):
             if layer.isValid():
                 QgsProject.instance().addMapLayers([layer], True)
             else:
-                QMessageBox.warning(self, "TESTER", "Layer non valido", QMessageBox.Ok)
+                QMessageBox.warning(self, "TESTER", "Layer not valid", QMessageBox.Ok)
 
             layer_name = 'pyarchinit_siti'
             layer_name_conv = "'" + str(layer_name) + "'"
@@ -1246,7 +1306,7 @@ class Pyarchinit_pyqgis(QDialog):
             if layer.isValid():
                 QgsProject.instance().addMapLayers([layer], True)
             else:
-                QMessageBox.warning(self, "TESTER", "Layer non valido", QMessageBox.Ok)
+                QMessageBox.warning(self, "TESTER", "Layer not valid", QMessageBox.Ok)
 
             layer_name = 'pyarchinit_ripartizioni_spaziali'
             layer_name_conv = "'" + str(layer_name) + "'"
@@ -1261,7 +1321,7 @@ class Pyarchinit_pyqgis(QDialog):
             if layer.isValid():
                 QgsProject.instance().addMapLayers([layer], True)
             else:
-                QMessageBox.warning(self, "TESTER", "Layer non valido", QMessageBox.Ok)
+                QMessageBox.warning(self, "TESTER", "Layer not valid", QMessageBox.Ok)
 
 
             ###AGGIUNGERE IL SISTEMA PER POSTGRES#####
@@ -1290,7 +1350,7 @@ class Pyarchinit_pyqgis(QDialog):
                     ##ayerUS.loadNamedStyle(style_path)
                     QgsProject.instance().addMapLayers([layer], True)
                 else:
-                    QMessageBox.warning(self, "TESTER", "Layer non valido", QMessageBox.Ok)
+                    QMessageBox.warning(self, "TESTER", "Layer not valid", QMessageBox.Ok)
 
                     # pyunitastratigrafiche e pyarchinit_quote nn possono essere aggiornate dinamicamente perche non hanno il campo sito. Da moficare?
             layer_name = 'pyunitastratigrafiche'
@@ -1307,7 +1367,7 @@ class Pyarchinit_pyqgis(QDialog):
                 layer.setCrs(srs)
                 QgsProject.instance().addMapLayers([layer], True)
             else:
-                QMessageBox.warning(self, "TESTER", "Layer non valido", QMessageBox.Ok)
+                QMessageBox.warning(self, "TESTER", "Layer not valid", QMessageBox.Ok)
 
             layer_name = 'pyarchinit_quote'
             layer_name_conv = "'" + str(layer_name) + "'"
@@ -1323,7 +1383,7 @@ class Pyarchinit_pyqgis(QDialog):
                 layer.setCrs(srs)
                 QgsProject.instance().addMapLayers([layer], True)
             else:
-                QMessageBox.warning(self, "TESTER", "Layer non valido", QMessageBox.Ok)
+                QMessageBox.warning(self, "TESTER", "Layer not valid", QMessageBox.Ok)
 
             layer_name = 'pyarchinit_strutture_ipotesi'
             layer_name_conv = "'" + str(layer_name) + "'"
@@ -1339,7 +1399,7 @@ class Pyarchinit_pyqgis(QDialog):
                 layer.setCrs(srs)
                 QgsProject.instance().addMapLayers([layer], True)
             else:
-                QMessageBox.warning(self, "TESTER", "Layer non valido", QMessageBox.Ok)
+                QMessageBox.warning(self, "TESTER", "Layer not valid", QMessageBox.Ok)
 
             layer_name = 'pyarchinit_siti'
             layer_name_conv = "'" + str(layer_name) + "'"
@@ -1355,7 +1415,7 @@ class Pyarchinit_pyqgis(QDialog):
                 layer.setCrs(srs)
                 QgsProject.instance().addMapLayers([layer], True)
             else:
-                QMessageBox.warning(self, "TESTER", "Layer non valido", QMessageBox.Ok)
+                QMessageBox.warning(self, "TESTER", "Layer not valid", QMessageBox.Ok)
 
             layer_name = 'pyarchinit_ripartizioni_spaziali'
             layer_name_conv = "'" + str(layer_name) + "'"
@@ -1371,7 +1431,7 @@ class Pyarchinit_pyqgis(QDialog):
                 layer.setCrs(srs)
                 QgsProject.instance().addMapLayers([layer], True)
             else:
-                QMessageBox.warning(self, "TESTER", "Layer non valido", QMessageBox.Ok)
+                QMessageBox.warning(self, "TESTER", "Layer not valid", QMessageBox.Ok)
 
     def charge_sites_from_research(self, data):
         # Clean Qgis Map Later Registry
