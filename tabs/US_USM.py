@@ -1477,11 +1477,11 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
                 quota_min = '%s %s' % (quote[0][0], quote[0][1])
                 quota_max = '%s %s' % (quote[-1][0], quote[-1][1])
             else:
-                if L=='it':
+                if self.L=='it':
                 
                     quota_min = "Non inserita su GIS"
                     quota_max = "Non inserita su GIS"
-                elif L == 'de':
+                elif self.L == 'de':
                     quota_min = "Nicht im GIS einbinden "
                     quota_max = "Nicht im GIS einbinden "
                 else :
@@ -1499,16 +1499,16 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
                 if elenco_piante != None:
                     piante = elenco_piante
                 else:
-                    if L=='it':
+                    if self.L=='it':
                         piante = "US disegnata su base GIS" 
-                    elif L=='de':
+                    elif self.L=='de':
                         piante = "SE im GIS gezeichnet" 
                     else:
                         piante= "SU draft on GIS"
             else:
-                if L=='it':
+                if self.L=='it':
                     piante = "US disegnata su base GIS" 
-                elif L=='de':
+                elif self.L=='de':
                     piante = "SE im GIS gezeichnet" 
                 else:
                     piante= "SU draft on GIS"
