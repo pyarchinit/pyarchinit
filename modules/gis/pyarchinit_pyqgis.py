@@ -25,7 +25,7 @@ from builtins import object
 from builtins import range
 from builtins import str
 from qgis.PyQt.QtWidgets import QDialog, QMessageBox, QFileDialog
-from qgis.core import QgsProject, QgsDataSourceUri, QgsVectorLayer, QgsCoordinateReferenceSystem
+from qgis.core import QgsProject, QgsDataSourceUri, QgsVectorLayer, QgsCoordinateReferenceSystem, QgsSettings
 from qgis.gui import QgsMapCanvas
 
 from ..utility.settings import Settings
@@ -36,8 +36,8 @@ class Pyarchinit_pyqgis(QDialog):
     FILEPATH = os.path.dirname(__file__)
     LAYER_STYLE_PATH = '{}{}{}{}'.format(FILEPATH, os.sep, 'styles', os.sep)
     LAYER_STYLE_PATH_SPATIALITE = '{}{}{}{}'.format(FILEPATH, os.sep, 'styles_spatialite', os.sep)
-    SRS = 3004
-
+    SRS = -1
+	L=QgsSettings().value("locale/userLocale")[0:2]
     USLayerId = ""
     LAYERS_DIZ = {"1": "pyarchinit_campionature",
                   "2": "pyarchinit_individui",
@@ -65,32 +65,84 @@ class Pyarchinit_pyqgis(QDialog):
                   "24": "pyarchinit_tafonomia",
 
                   }
+	if L=='it':
+		LAYERS_CONVERT_DIZ = {"pyarchinit_campionature": "Punti di campionatura",
+							  "pyarchinit_individui": "Individui",
+							  "pyarchinit_linee_rif": "Linee di riferimento",
+							  "pyarchinit_punti_rif": "Punti di riferimento",
+							  "pyarchinit_quote": "Quote US disegno",
+							  "pyarchinit_quote_view": "Quote US Vista",
+							  "pyarchinit_ripartizioni_spaziali": "Ripartizioni spaziali",
+							  "pyarchinit_sezioni": "Sezioni di scavo",
+							  "pyarchinit_siti": "Localizzazione siti puntuale",
+							  "pyarchinit_strutture_ipotesi": "Ipotesi strutture da scavo",
+							  "pyarchinit_us_view": "US Vista",
+							  "pyunitastratigrafiche": "Unita Stratigrafiche disegno",
+							  "pyarchinit_documentazione": "Resgistro documentazione",
+							  "pyarchinit_doc_view": "Documentazione Vista",
+							  "pyarchinit_us_negative_doc": "US Negative per sezioni/elevati",
+							  "pyarchinit_us_negative_doc_view": "Vista US Negative per sezioni/elevati",
+							  "pyarchinit_site_view": "Localizzazione siti Vista",
+							  "pyarchinit_siti_polygonal": "Perimetrazione siti poligonali",
+							  "pyarchinit_siti_polygonal_view": "Perimetrazione siti poligonali Vista",
+							  "pyarchinit_site_view": "Localizzazione siti puntuale Vista",
+							  "pyarchinit_strutture_view": "Ipotesi strutture da scavo Vista",
+							  "pyarchinit_tafonomia_view": "Tafonomia Vista",
+							  "pyarchinit_tafonomia": "Tafonomia"
 
-    LAYERS_CONVERT_DIZ = {"pyarchinit_campionature": "Punti di campionatura",
-                          "pyarchinit_individui": "Individui",
-                          "pyarchinit_linee_rif": "Linee di riferimento",
-                          "pyarchinit_punti_rif": "Punti di riferimento",
-                          "pyarchinit_quote": "Quote US disegno",
-                          "pyarchinit_quote_view": "Quote US Vista",
-                          "pyarchinit_ripartizioni_spaziali": "Ripartizioni spaziali",
-                          "pyarchinit_sezioni": "Sezioni di scavo",
-                          "pyarchinit_siti": "Localizzazione siti puntuale",
-                          "pyarchinit_strutture_ipotesi": "Ipotesi strutture da scavo",
-                          "pyarchinit_us_view": "US Vista",
-                          "pyunitastratigrafiche": "Unita Stratigrafiche disegno",
-                          "pyarchinit_documentazione": "Resgistro documentazione",
-                          "pyarchinit_doc_view": "Documentazione Vista",
-                          "pyarchinit_us_negative_doc": "US Negative per sezioni/elevati",
-                          "pyarchinit_us_negative_doc_view": "Vista US Negative per sezioni/elevati",
-                          "pyarchinit_site_view": "Localizzazione siti Vista",
-                          "pyarchinit_siti_polygonal": "Perimetrazione siti poligonali",
-                          "pyarchinit_siti_polygonal_view": "Perimetrazione siti poligonali Vista",
-                          "pyarchinit_site_view": "Localizzazione siti puntuale Vista",
-                          "pyarchinit_strutture_view": "Ipotesi strutture da scavo Vista",
-                          "pyarchinit_tafonomia_view": "Tafonomia Vista",
-                          "pyarchinit_tafonomia": "Tafonomia"
+							  }
+	elif L=='de':
+		LAYERS_CONVERT_DIZ = {"pyarchinit_campionature": "Punti di campionatura",
+							  "pyarchinit_individui": "Individui",
+							  "pyarchinit_linee_rif": "Linee di riferimento",
+							  "pyarchinit_punti_rif": "Punti di riferimento",
+							  "pyarchinit_quote": "Quote US disegno",
+							  "pyarchinit_quote_view": "Quote US Vista",
+							  "pyarchinit_ripartizioni_spaziali": "Ripartizioni spaziali",
+							  "pyarchinit_sezioni": "Sezioni di scavo",
+							  "pyarchinit_siti": "Localizzazione siti puntuale",
+							  "pyarchinit_strutture_ipotesi": "Ipotesi strutture da scavo",
+							  "pyarchinit_us_view": "US Vista",
+							  "pyunitastratigrafiche": "Unita Stratigrafiche disegno",
+							  "pyarchinit_documentazione": "Resgistro documentazione",
+							  "pyarchinit_doc_view": "Documentazione Vista",
+							  "pyarchinit_us_negative_doc": "US Negative per sezioni/elevati",
+							  "pyarchinit_us_negative_doc_view": "Vista US Negative per sezioni/elevati",
+							  "pyarchinit_site_view": "Localizzazione siti Vista",
+							  "pyarchinit_siti_polygonal": "Perimetrazione siti poligonali",
+							  "pyarchinit_siti_polygonal_view": "Perimetrazione siti poligonali Vista",
+							  "pyarchinit_site_view": "Localizzazione siti puntuale Vista",
+							  "pyarchinit_strutture_view": "Ipotesi strutture da scavo Vista",
+							  "pyarchinit_tafonomia_view": "Tafonomia Vista",
+							  "pyarchinit_tafonomia": "Tafonomia"
 
-                          }
+							  }
+	else:
+		LAYERS_CONVERT_DIZ = {"pyarchinit_campionature": "Punti di campionatura",
+							  "pyarchinit_individui": "Individui",
+							  "pyarchinit_linee_rif": "Linee di riferimento",
+							  "pyarchinit_punti_rif": "Punti di riferimento",
+							  "pyarchinit_quote": "Quote US disegno",
+							  "pyarchinit_quote_view": "Quote US Vista",
+							  "pyarchinit_ripartizioni_spaziali": "Ripartizioni spaziali",
+							  "pyarchinit_sezioni": "Sezioni di scavo",
+							  "pyarchinit_siti": "Localizzazione siti puntuale",
+							  "pyarchinit_strutture_ipotesi": "Ipotesi strutture da scavo",
+							  "pyarchinit_us_view": "US Vista",
+							  "pyunitastratigrafiche": "Unita Stratigrafiche disegno",
+							  "pyarchinit_documentazione": "Resgistro documentazione",
+							  "pyarchinit_doc_view": "Documentazione Vista",
+							  "pyarchinit_us_negative_doc": "US Negative per sezioni/elevati",
+							  "pyarchinit_us_negative_doc_view": "Vista US Negative per sezioni/elevati",
+							  "pyarchinit_site_view": "Localizzazione siti Vista",
+							  "pyarchinit_siti_polygonal": "Perimetrazione siti poligonali",
+							  "pyarchinit_siti_polygonal_view": "Perimetrazione siti poligonali Vista",
+							  "pyarchinit_site_view": "Localizzazione siti puntuale Vista",
+							  "pyarchinit_strutture_view": "Ipotesi strutture da scavo Vista",
+							  "pyarchinit_tafonomia_view": "Tafonomia Vista",
+							  "pyarchinit_tafonomia": "Tafonomia"
+
+							  }
 
     def __init__(self, iface):
         super().__init__()
@@ -128,7 +180,7 @@ class Pyarchinit_pyqgis(QDialog):
             uri = QgsDataSourceUri()
             uri.setDatabase(db_file_path)
 
-            uri.setDataSource('', 'pyarchinit_us_view', 'Geometry', gidstr, "gid")
+            uri.setDataSource('', 'pyarchinit_us_view', 'Geometry', gidstr, "ROWID")
             layerUS = QgsVectorLayer(uri.uri(), 'pyarchinit_us_view', 'spatialite')
             ###################################################################
             if layerUS.isValid():
@@ -202,7 +254,7 @@ class Pyarchinit_pyqgis(QDialog):
         settings.set_configuration()
 
         if settings.SERVER == 'sqlite':
-            sqliteDB_path = os.path.join(os.sep, 'pyarchinit_DB_folder', 'pyarchinit_db.sqlite')
+            sqliteDB_path = os.path.join(os.sep, 'pyarchinit_DB_folder', settings.DATABASE)
             db_file_path = '{}{}'.format(self.HOME, sqliteDB_path)
 
             gidstr = "id_us = '" + str(self.idus) + "'"
@@ -294,7 +346,7 @@ class Pyarchinit_pyqgis(QDialog):
         # ("sito" = 'Scavo esame' AND "tipo_doc" =  'Sezione'  AND "nome_doc" = 'AA1')  OR ("sito" = 'Scavo esame' AND "tipo_doc" =  'Sezione'  AND "nome_doc" = 'AA1')
 
         if settings.SERVER == 'sqlite':
-            sqliteDB_path = os.path.join(os.sep, 'pyarchinit_DB_folder', 'pyarchinit_db.sqlite')
+            sqliteDB_path = os.path.join(os.sep, 'pyarchinit_DB_folder', settings.DATABASE)
             db_file_path = '{}{}'.format(self.HOME, sqliteDB_path)
 
             docstr = ""
@@ -453,7 +505,7 @@ class Pyarchinit_pyqgis(QDialog):
 
 
         if settings.SERVER == 'sqlite':
-            sqliteDB_path = os.path.join(os.sep, 'pyarchinit_DB_folder', 'pyarchinit_db.sqlite')
+            sqliteDB_path = os.path.join(os.sep, 'pyarchinit_DB_folder', settings.DATABASE)
             db_file_path = '{}{}'.format(self.HOME, sqliteDB_path)
 
             doc_from_us_str = "sito = '" + sito + "' AND area = '" + area + "' AND us = '" + us + "' AND tipo_doc = '" + tipo_documentazione + "' AND nome_doc = '" + nome_doc + "'"
@@ -489,7 +541,7 @@ class Pyarchinit_pyqgis(QDialog):
             uri = QgsDataSourceUri()
             uri.setDatabase(db_file_path)
 
-            uri.setDataSource('', 'pyarchinit_us_negative_doc_view', 'geom', doc_from_us_neg_str, "ROWID")
+            uri.setDataSource('', 'pyarchinit_us_negative_doc_view', 'the_geom', doc_from_us_neg_str, "ROWID")
             layerUSneg = QgsVectorLayer(uri.uri(), 'US Negative in doc', 'spatialite')
 
             if layerUSneg.isValid():
@@ -612,7 +664,7 @@ class Pyarchinit_pyqgis(QDialog):
         settings.set_configuration()
 
         if settings.SERVER == 'sqlite':
-            sqliteDB_path = os.path.join(os.sep, 'pyarchinit_DB_folder', 'pyarchinit_db.sqlite')
+            sqliteDB_path = os.path.join(os.sep, 'pyarchinit_DB_folder', settings.DATABASE)
             db_file_path = '{}{}'.format(self.HOME, sqliteDB_path)
 
             gidstr = "id_us = '" + str(data[0].id_us) + "'"
@@ -719,7 +771,7 @@ class Pyarchinit_pyqgis(QDialog):
         layer_name_label_quote = "Quote US - Per: %s / Fas: %s" % (self.per_label, self.fas_label)
 
         if settings.SERVER == 'sqlite':
-            sqliteDB_path = os.path.join(os.sep, 'pyarchinit_DB_folder', 'pyarchinit_db.sqlite')
+            sqliteDB_path = os.path.join(os.sep, 'pyarchinit_DB_folder', settings.DATABASE)
             db_file_path = '{}{}'.format(self.HOME, sqliteDB_path)
 
             uri = QgsDataSourceUri()
@@ -841,7 +893,7 @@ class Pyarchinit_pyqgis(QDialog):
             return layerToSet
 
         elif settings.SERVER == 'sqlite':
-            sqliteDB_path = os.path.join(os.sep, 'pyarchinit_DB_folder', 'pyarchinit_db.sqlite')
+            sqliteDB_path = os.path.join(os.sep, 'pyarchinit_DB_folder', settings.DATABASE)
             db_file_path = '{}{}'.format(self.HOME, sqliteDB_path)
             uri = QgsDataSourceUri()
             uri.setDatabase(db_file_path)
@@ -918,7 +970,7 @@ class Pyarchinit_pyqgis(QDialog):
             return layerToSet
 
         elif settings.SERVER == 'sqlite':
-            sqliteDB_path = os.path.join(os.sep, 'pyarchinit_DB_folder', 'pyarchinit_db.sqlite')
+            sqliteDB_path = os.path.join(os.sep, 'pyarchinit_DB_folder', settings.DATABASE)
             db_file_path = '{}{}'.format(self.HOME, sqliteDB_path)
             uri = QgsDataSourceUri()
             uri.setDatabase(db_file_path)
@@ -1038,7 +1090,7 @@ class Pyarchinit_pyqgis(QDialog):
         settings.set_configuration()
 
         if settings.SERVER == 'sqlite':
-            sqliteDB_path = os.path.join(os.sep, 'pyarchinit_DB_folder', 'pyarchinit_db.sqlite')
+            sqliteDB_path = os.path.join(os.sep, 'pyarchinit_DB_folder', settings.DATABASE)
             db_file_path = '{}{}'.format(self.HOME, sqliteDB_path)
             uri = QgsDataSourceUri()
             uri.setDatabase(db_file_path)
@@ -1103,7 +1155,7 @@ class Pyarchinit_pyqgis(QDialog):
         settings.set_configuration()
 
         if settings.SERVER == 'sqlite':
-            sqliteDB_path = os.path.join(os.sep, 'pyarchinit_DB_folder', 'pyarchinit_db.sqlite')
+            sqliteDB_path = os.path.join(os.sep, 'pyarchinit_DB_folder', settings.DATABASE)
             db_file_path = '{}{}'.format(self.HOME, sqliteDB_path)
             uri = QgsDataSourceUri()
             uri.setDatabase(db_file_path)
@@ -1338,7 +1390,7 @@ class Pyarchinit_pyqgis(QDialog):
         settings.set_configuration()
 
         if settings.SERVER == 'sqlite':
-            sqliteDB_path = os.path.join(os.sep, 'pyarchinit_DB_folder', 'pyarchinit_db.sqlite')
+            sqliteDB_path = os.path.join(os.sep, 'pyarchinit_DB_folder', settings.DATABASE)
             db_file_path = '{}{}'.format(self.HOME, sqliteDB_path)
 
             gidstr = "sito_nome= '" + str(data[0].sito) + "'"
@@ -1370,7 +1422,7 @@ class Pyarchinit_pyqgis(QDialog):
                 for i in range(len(data)):
                     gidstr += " OR sito_nome = '" + str(data[i].sito) + "'"
 
-            uri.setDataSource('', 'pyarchinit_site_view', 'the_geom', gidstr, "ROWID")
+            uri.setDataSource('', 'pyarchinit_site_view', 'the_geom', gidstr, "gid")
             layerSITE = QgsVectorLayer(uri.uri(), 'pyarchinit_site_view', 'postgres')
 
             if layerSITE.isValid():
@@ -1401,7 +1453,7 @@ class Pyarchinit_pyqgis(QDialog):
         settings.set_configuration()
 
         if settings.SERVER == 'sqlite':
-            sqliteDB_path = os.path.join(os.sep, 'pyarchinit_DB_folder', 'pyarchinit_db.sqlite')
+            sqliteDB_path = os.path.join(os.sep, 'pyarchinit_DB_folder', settings.DATABASE)
             db_file_path = '{}{}'.format(self.HOME, sqliteDB_path)
 
             gidstr = "id_struttura = '" + str(data[0].id_struttura) + "'"
@@ -1462,7 +1514,7 @@ class Pyarchinit_pyqgis(QDialog):
         settings.set_configuration()
 
         if settings.SERVER == 'sqlite':
-            sqliteDB_path = os.path.join(os.sep, 'pyarchinit_DB_folder', 'pyarchinit_db.sqlite')
+            sqliteDB_path = os.path.join(os.sep, 'pyarchinit_DB_folder', settings.DATABASE)
             db_file_path = '{}{}'.format(self.HOME, sqliteDB_path)
 
             gidstr = "id_scheda_ind = '" + str(data[0].id_scheda_ind) + "'"
@@ -1501,7 +1553,7 @@ class Pyarchinit_pyqgis(QDialog):
             uri = QgsDataSourceUri()
             uri.setDatabase(db_file_path)
 
-            uri.setDataSource('', 'pyarchinit_individui_view', 'the_geom', gidstr, "ROWID")
+            uri.setDataSource('', 'pyarchinit_individui_view', 'the_geom', gidstr, "gid")
             layerIndividui = QgsVectorLayer(uri.uri(), 'pyarchinit_individui_view', 'postgres')
 
             if layerIndividui.isValid():
@@ -1680,7 +1732,7 @@ class Order_layer_v2(object):
             for i in matrix_us_level:
                 rec_list_str.append(str(i))
                 # cerca prima di tutto se ci sono us uguali o che si legano alle US sottostanti
-            value_list_equal = self.create_list_values(['Uguale a', 'Si lega a'], rec_list_str)
+            value_list_equal = self.create_list_values(['Uguale a', 'Si lega a','Same as','Connected to',"Entspricht", "Bindet an"], rec_list_str)
             res = self.db.query_in_contains(value_list_equal, self.SITO, self.AREA)
 
             matrix_us_equal_level = []
@@ -1696,7 +1748,7 @@ class Order_layer_v2(object):
                 # le us che derivano dall'uguaglianza vanno aggiunte al rec_list_str
             rec_list_str = rec_list_str + matrix_us_equal_level
             value_list_post = value_list_equal = self.create_list_values(
-                ['Copre', 'Riempie', 'Taglia', 'Si appoggia a'], rec_list_str)
+                ['Copre', 'Riempie', 'Taglia', 'Si appoggia a',"Covers","Fills","Cuts","Abuts","Liegt über","Verfüllt","Schneidet","Stützt sich auf"], rec_list_str)
             res = self.db.query_in_contains(value_list_post, self.SITO, self.AREA)
 
             matrix_us_level = []
