@@ -86,7 +86,7 @@ class RestoreSchema(object):
                 types.append(r[1])
             tables_and_types = dict(zip(tables, types))
             for t, ty in tables_and_types.items():
-                sql_queries = text("ALTER TABLE {0} ALTER COLUMN geom TYPE geometry({1}, {2}) USING ST_SetSRID(geom, {2})".format(
+                sql_queries = text("ALTER TABLE {0} ALTER COLUMN the_geom TYPE geometry({1}, {2}) USING ST_SetSRID(the_geom, {2})".format(
                     t, ty, crs
                 ))
                 res = conn.execute(sql_queries)
