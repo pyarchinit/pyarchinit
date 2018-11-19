@@ -51,16 +51,29 @@ MAIN_DIALOG_CLASS, _ = loadUiType(
 
 
 class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
-    MSG_BOX_TITLE = "PyArchInit - Scheda US"
+    L=QgsSettings().value("locale/userLocale")[0:2]
+    if L=='it':
+        MSG_BOX_TITLE = "PyArchInit - Scheda US"
+    elif L=='en':
+        MSG_BOX_TITLE = "PyArchInit - Su form"
+    elif L=='de':
+        MSG_BOX_TITLE = "PyArchInit - SE formular"  
     DATA_LIST = []
     DATA_LIST_REC_CORR = []
     DATA_LIST_REC_TEMP = []
     REC_CORR = 0
     REC_TOT = 0
-    STATUS_ITEMS = {"b": "Usa", "f": "Trova", "n": "Nuovo Record"}
+    
+    if L=='it':
+        STATUS_ITEMS = {"b": "Usa", "f": "Trova", "n": "Nuovo Record"}
+    else :
+        STATUS_ITEMS = {"b": "Current", "f": "Find", "n": "New Record"}
     BROWSE_STATUS = "b"
     SORT_MODE = 'asc'
-    SORTED_ITEMS = {"n": "Non ordinati", "o": "Ordinati"}
+    if L=='it':
+        SORTED_ITEMS = {"n": "Non ordinati", "o": "Ordinati"}
+    else:
+        SORTED_ITEMS = {"n": "Not sorted", "o": "Sorted"}
     SORT_STATUS = "n"
     SORT_ITEMS_CONVERTED = ''
     UTILITY = Utility()
@@ -348,7 +361,7 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
 
     ]
     
-    L=QgsSettings().value("locale/userLocale")[0:2]
+    
     LANG = {
         "IT": ['it_IT', 'IT', 'it', 'IT_IT'],
         "EN_US": ['en_US','EN_US','en','EN'],
@@ -429,9 +442,9 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
         self.comboBox_per_iniz.clear()
         self.comboBox_per_iniz.addItems(self.UTILITY.remove_dup_from_list(periodo_list))
 
-        if self.STATUS_ITEMS[self.BROWSE_STATUS] == "Trova":
+        if self.STATUS_ITEMS[self.BROWSE_STATUS] == "Trova" or "Find":
             self.comboBox_per_iniz.setEditText("")
-        elif self.STATUS_ITEMS[self.BROWSE_STATUS] == "Usa":
+        elif self.STATUS_ITEMS[self.BROWSE_STATUS] == "Usa" or "Current":
             if len(self.DATA_LIST) > 0:
                 try:
                     self.comboBox_per_iniz.setEditText(self.DATA_LIST[self.rec_num].periodo_iniziale)
@@ -459,9 +472,9 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
         self.comboBox_per_fin.clear()
         self.comboBox_per_fin.addItems(self.UTILITY.remove_dup_from_list(periodo_list))
 
-        if self.STATUS_ITEMS[self.BROWSE_STATUS] == "Trova":
+        if self.STATUS_ITEMS[self.BROWSE_STATUS] == "Trova" or "Find":
             self.comboBox_per_fin.setEditText("")
-        elif self.STATUS_ITEMS[self.BROWSE_STATUS] == "Usa":
+        elif self.STATUS_ITEMS[self.BROWSE_STATUS] == "Usa" or "Current":
             if len(self.DATA_LIST) > 0:
                 try:
                     self.comboBox_per_fin.setEditText(self.DATA_LIST[self.rec_num].periodo_iniziale)
@@ -745,7 +758,7 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
             self.delegateRS.def_editable('False')
             self.tableWidget_rapporti.setItemDelegateForColumn(0,self.delegateRS)
         elif self.L=='de':
-            valuesRS = ["Entspricht", "Bindet an", "Liegt über", "Liegt unter", "Verfüllt", "Wird verfüllt durch", "Schneidet ", "Wird geschnitten", "Stützt sich auf", "Wird gestüzt von", ""]
+            valuesRS = ["Entspricht", "Bindet an", "Liegt über", "Liegt unter", "Verfüllt", "Wird verfüllt durch", "Schneidet", "Wird geschnitten", "Stützt sich auf", "Wird gestüzt von", ""]
             self.delegateRS = ComboBoxDelegate()
             self.delegateRS.def_values(valuesRS)
             self.delegateRS.def_editable('False')
@@ -1400,7 +1413,7 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
             fase_list.sort()
             self.comboBox_fas_iniz.addItems(self.UTILITY.remove_dup_from_list(fase_list))
 
-            if self.STATUS_ITEMS[self.BROWSE_STATUS] == "Trova":
+            if self.STATUS_ITEMS[self.BROWSE_STATUS] == "Trova" or "Find":
                 self.comboBox_fas_iniz.setEditText("")
             else:
                 self.comboBox_fas_iniz.setEditText(self.DATA_LIST[self.rec_num].fase_iniziale)
@@ -1429,7 +1442,7 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
             fase_list.sort()
             self.comboBox_fas_fin.addItems(self.UTILITY.remove_dup_from_list(fase_list))
 
-            if self.STATUS_ITEMS[self.BROWSE_STATUS] == "Trova":
+            if self.STATUS_ITEMS[self.BROWSE_STATUS] == "Trova" or "Find":
                 self.comboBox_fas_fin.setEditText("")
             else:
                 self.comboBox_fas_fin.setEditText(self.DATA_LIST[self.rec_num].fase_finale)
@@ -1464,9 +1477,16 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
                 quota_min = '%s %s' % (quote[0][0], quote[0][1])
                 quota_max = '%s %s' % (quote[-1][0], quote[-1][1])
             else:
-                quota_min = "Non inserita su GIS"
-                quota_max = "Non inserita su GIS"
-
+                if L=='it':
+                
+                    quota_min = "Non inserita su GIS"
+                    quota_max = "Non inserita su GIS"
+                elif L == 'de':
+                    quota_min = "Nicht im GIS einbinden "
+                    quota_max = "Nicht im GIS einbinden "
+                else :
+                    quota_min = "Not inserted in GIS "
+                    quota_max = "Not inserted in GIS  "
                 # assegnazione numero di pianta
             resus = self.DB_MANAGER.select_us_from_db_sql(sito, area, us, "2")
             elenco_record = []
@@ -1479,9 +1499,19 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
                 if elenco_piante != None:
                     piante = elenco_piante
                 else:
-                    piante = "US disegnata su base GIS"
+                    if L=='it':
+                        piante = "US disegnata su base GIS" 
+                    elif L=='de':
+                        piante = "SE im GIS gezeichnet" 
+                    else:
+                        piante= "SU draft on GIS"
             else:
-                piante = "US disegnata su base GIS"
+                if L=='it':
+                    piante = "US disegnata su base GIS" 
+                elif L=='de':
+                    piante = "SE im GIS gezeichnet" 
+                else:
+                    piante= "SU draft on GIS"
 
             if self.DATA_LIST[i].quota_min_usm == None:
                 quota_min_usm = ""
@@ -1790,7 +1820,7 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
                         msg_nr_rapp = msg_nr_rapp + str(sing_rapp) + "relativo a: " + str(us) + " \n"
 
                     try:
-                        if sing_rapp[0] == 'Cut' or  sing_rapp[0] == 'Covers' or  sing_rapp[0] == 'Abuts' or  sing_rapp[0] == 'Fills' or sing_rapp[0] == 'Taglia' or  sing_rapp[0] == 'Copre' or  sing_rapp[0] == 'Si appoggia a' or  sing_rapp[0] == 'Riempie'  or  sing_rapp[0] == 'Schneidet' or  sing_rapp[0] == 'Liegt über' or  sing_rapp[0] == 'Stützt sich auf' or  sing_rapp[0] == 'Verfüllt':
+                        if sing_rapp[0] == 'Cuts' or  sing_rapp[0] == 'Covers' or  sing_rapp[0] == 'Abuts' or  sing_rapp[0] == 'Fills' or sing_rapp[0] == 'Taglia' or  sing_rapp[0] == 'Copre' or  sing_rapp[0] == 'Si appoggia a' or  sing_rapp[0] == 'Riempie'  or  sing_rapp[0] == 'Schneidet' or  sing_rapp[0] == 'Liegt über' or  sing_rapp[0] == 'Stützt sich auf' or  sing_rapp[0] == 'Verfüllt':
                        
                             try:
                                 if sing_rapp[1] != '':
