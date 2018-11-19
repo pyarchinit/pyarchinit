@@ -4,7 +4,7 @@
 
 CREATE OR REPLACE VIEW public.pyarchinit_individui_view AS
  SELECT pyarchinit_individui.gid,
-    pyarchinit_individui.geom,
+    pyarchinit_individui.the_geom,
     pyarchinit_individui.sito AS scavo,
     pyarchinit_individui.id_individuo,
     pyarchinit_individui.note,
@@ -32,7 +32,7 @@ ALTER TABLE public.pyarchinit_individui_view
 
 CREATE OR REPLACE VIEW public.pyarchinit_pyuscarlinee_view AS
  SELECT pyuscarlinee.gid,
-    pyuscarlinee.geom,
+    pyuscarlinee.the_geom,
     pyuscarlinee.tipo_us_l,
     pyuscarlinee.sito_l,
     pyuscarlinee.area_l,
@@ -70,7 +70,7 @@ CREATE OR REPLACE VIEW public.pyarchinit_quote_view AS
     pyarchinit_quote.us_q,
     pyarchinit_quote.unita_misu_q,
     pyarchinit_quote.quota_q,
-    pyarchinit_quote.geom,
+    pyarchinit_quote.the_geom,
     us_table.id_us,
     us_table.sito,
     us_table.area,
@@ -107,7 +107,7 @@ CREATE OR REPLACE VIEW public.pyarchinit_strutture_view AS
     a.fase_iniz,
     a.fase_fin,
     a.descrizione,
-    a.geom,
+    a.the_geom,
     a.sigla_strut,
     a.nr_strut,
     b.id_struttura,
@@ -173,7 +173,7 @@ CREATE OR REPLACE VIEW public.pyarchinit_tafonomia_view AS
     b.id_tafonomia_pk,
     b.sito AS sito_1,
     b.nr_scheda,
-    b.geom
+    b.the_geom
    FROM tafonomia_table a
      JOIN pyarchinit_tafonomia b ON a.sito = b.sito::text AND a.nr_scheda_taf = b.nr_scheda;
 
@@ -209,7 +209,7 @@ CREATE OR REPLACE VIEW public.pyarchinit_tipologie_sepolture_view AS
     pyarchinit_tipologia_sepolture.id_sepoltura,
     pyarchinit_tipologia_sepolture.azimut,
     pyarchinit_tipologia_sepolture.tipologia,
-    pyarchinit_tipologia_sepolture.geom,
+    pyarchinit_tipologia_sepolture.the_geom,
     pyarchinit_tipologia_sepolture.sito_ts,
     pyarchinit_tipologia_sepolture.t_progetto AS tipologia_progetto,
     pyarchinit_tipologia_sepolture.t_gruppo AS tipologia_gruppo,
@@ -229,7 +229,7 @@ CREATE OR REPLACE VIEW public.pyarchinit_tipologie_view AS
  SELECT pyarchinit_tipologia_sepolture.gid,
     pyarchinit_tipologia_sepolture.id_sepoltura,
     pyarchinit_tipologia_sepolture.azimut,
-    pyarchinit_tipologia_sepolture.geom,
+    pyarchinit_tipologia_sepolture.the_geom,
     pyarchinit_tipologia_sepolture.sito_ts,
     pyarchinit_tipologia_sepolture.t_progetto,
     pyarchinit_tipologia_sepolture.t_gruppo,
@@ -256,7 +256,7 @@ ALTER TABLE public.pyarchinit_tipologie_view
 
 CREATE OR REPLACE VIEW public.pyarchinit_us_view AS
  SELECT pyunitastratigrafiche.gid,
-    pyunitastratigrafiche.geom,
+    pyunitastratigrafiche.the_geom,
     pyunitastratigrafiche.tipo_us_s,
     pyunitastratigrafiche.scavo_s,
     pyunitastratigrafiche.area_s,
@@ -293,7 +293,7 @@ ALTER TABLE public.pyarchinit_us_view
 
 CREATE OR REPLACE VIEW public.pyarchinit_us_view_f AS
  SELECT pyunitastratigrafiche.gid,
-    pyunitastratigrafiche.geom,
+    pyunitastratigrafiche.the_geom,
     pyunitastratigrafiche.tipo_us_s,
     pyunitastratigrafiche.scavo_s,
     pyunitastratigrafiche.area_s,
@@ -335,7 +335,7 @@ ALTER TABLE public.pyarchinit_us_view_f
 
 CREATE OR REPLACE VIEW public.pyarchinit_uscaratterizzazioni_view AS
  SELECT pyuscaratterizzazioni.gid,
-    pyuscaratterizzazioni.geom,
+    pyuscaratterizzazioni.the_geom,
     pyuscaratterizzazioni.tipo_us_c,
     pyuscaratterizzazioni.scavo_c,
     pyuscaratterizzazioni.area_c,
