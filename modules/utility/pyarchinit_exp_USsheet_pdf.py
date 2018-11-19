@@ -1423,7 +1423,7 @@ class single_US_pdf_sheet(object):
         settore = Paragraph("<b>SETTORE/I</b><br/>" + self.settore, styNormal)
         quadrato = Paragraph("<b>QUADRATO/I</b><br/>" + self.quad_par, styNormal)
         quote = Paragraph("<b>QUOTE</b><br/>min: " + self.quota_min + "<br/>max: "+self.quota_max, styNormal)
-        label_unita_stratigrafica = Paragraph("<b>UNITÀ STRATIGRAFICA</b>", styNormal)
+        label_unita_stratigrafica = Paragraph("<b>UNITÀ STRATIGRAFICA</b><br/>"+ str(self.us), styNormal)
         label_NAT = Paragraph("<i>NAT.</i>", styNormal)                       #manca valore
         label_ART = Paragraph("<i>ART.</i>", styNormal)                       #manca valore
 
@@ -1765,106 +1765,106 @@ class single_US_pdf_sheet(object):
         logo.drawWidth = 1.5 * inch
 
         unita_tipo = Paragraph(str(self.unita_tipo), styUnitaTipo)
-        label_catalogo_generale = Paragraph("<b>N. CATALOGO GENERALE</b>", styNormal)
-        label_catalogo_internazionale = Paragraph("<b>N. CATALOGO INTERNAZIONALE</b>", styNormal)
+        label_catalogo_generale = Paragraph("<b>N. GENERAL CATALOG</b>", styNormal)
+        label_catalogo_internazionale = Paragraph("<b>N. INTERNATIONAL CATALOG</b>", styNormal)
         catalogo_generale = Paragraph(str(self.n_catalogo_generale), styNormal)
         catalogo_internazionale = Paragraph(str(self.n_catalogo_internazionale), styNormal)
 
         #2-3 row
 
-        sito = Paragraph("<b>LOCALITÀ</b><br/>" + str(self.sito), styNormal)
-        anno_di_scavo = Paragraph("<b>ANNO</b><br/>" + self.anno_scavo, styNormal)
+        sito = Paragraph("<b>SITE</b><br/>" + str(self.sito), styNormal)
+        anno_di_scavo = Paragraph("<b>YEAR</b><br/>" + self.anno_scavo, styNormal)
         area = Paragraph("<b>AREA</b><br/>" + str(self.area),styNormal)
-        settore = Paragraph("<b>SETTORE/I</b><br/>" + self.settore, styNormal)
-        quadrato = Paragraph("<b>QUADRATO/I</b><br/>" + self.quad_par, styNormal)
-        quote = Paragraph("<b>QUOTE</b><br/>min: " + self.quota_min + "<br/>max: "+self.quota_max, styNormal)
-        label_unita_stratigrafica = Paragraph("<b>UNITÀ STRATIGRAFICA</b>", styNormal)
+        settore = Paragraph("<b>SECTORS</b><br/>" + self.settore, styNormal)
+        quadrato = Paragraph("<b>SQUARE</b><br/>" + self.quad_par, styNormal)
+        quote = Paragraph("<b>ELEVATION</b><br/>min: " + self.quota_min + "<br/>max: "+self.quota_max, styNormal)
+        label_unita_stratigrafica = Paragraph("<b>STRATIGRAPHIC UNIT</b><br/>"+ str(self.us), styNormal)
         label_NAT = Paragraph("<i>NAT.</i>", styNormal)                       #manca valore
         label_ART = Paragraph("<i>ART.</i>", styNormal)                       #manca valore
 
         #4 row
 
-        piante = Paragraph("<b>PIANTE</b><br/>" + self.piante, styNormal)
-        sezioni = Paragraph("<b>SEZIONI</b><br/>", styNormal)                 #manca valore
-        prospetti = Paragraph("<b>PROSPETTI</b><br/>", styNormal)             #manca valore
-        foto = Paragraph("<b>FOTO</b><br/>B/N:<br/>Digitale:", styNormal)     #manca valore
-        tabelle_materiali = Paragraph("<b>TABELLE MATERIALI<br/><br/>RA</b>:", styNormal)  #manca valore
+        piante = Paragraph("<b>MAP</b><br/>" + self.piante, styNormal)
+        sezioni = Paragraph("<b>SECTION</b><br/>", styNormal)                 #manca valore
+        prospetti = Paragraph("<b>PROFILE</b><br/>", styNormal)             #manca valore
+        foto = Paragraph("<b>PHOTO</b><br/>B/W:<br/>Digital:", styNormal)     #manca valore
+        tabelle_materiali = Paragraph("<b>ARTEFACT TABLE<br/><br/>RA</b>:", styNormal)  #manca valore
 
         #5 row
 
-        d_stratigrafica = Paragraph("<b>DEFINIZIONE</b><br/>Definizione stratigrafica: " + self.d_stratigrafica+"<br/>Definizione interpretativa: "+self.d_interpretativa, styNormal)
+        d_stratigrafica = Paragraph("<b>DEFINITION</b><br/>STRATIGRAPHIC DEFINITION: " + self.d_stratigrafica+"<br/>INTERPRETATION: "+self.d_interpretativa, styNormal)
 
         #6 row
 
-        criteri_distinzione = Paragraph("<b>CRITERI DI DISTINZIONE</b><br/>" + self.criteri_distinzione, styNormal)
+        criteri_distinzione = Paragraph("<b>CRITERIA FOR DISTINCTION</b><br/>" + self.criteri_distinzione, styNormal)
 
         #7 row
 
-        modo_formazione = Paragraph("<b>MODO FORMAZIONE</b><br/>" + self.modo_formazione, styNormal)
+        modo_formazione = Paragraph("<b>FORMATION MODE</b><br/>" + self.modo_formazione, styNormal)
 
         #8-9 row
 
         organici, inorganici= self.unzip_componenti()
 
-        label_componenti = Paragraph("<b>COMPONENTI</b>",styVerticale)
-        label_geologici = Paragraph("<i>GEOLOGICI</i>",styTitoloComponenti)
-        label_organici = Paragraph("<i>ORGANICI</i>", styTitoloComponenti)
-        label_artificiali = Paragraph("<i>ARTIFICIALI</i>", styTitoloComponenti)
+        label_componenti = Paragraph("<b>COMPONENTS</b>",styVerticale)
+        label_geologici = Paragraph("<i>GEOLOGIC</i>",styTitoloComponenti)
+        label_organici = Paragraph("<i>ORGANIC</i>", styTitoloComponenti)
+        label_artificiali = Paragraph("<i>ARTIFICIAL</i>", styTitoloComponenti)
         comp_organici = Paragraph(organici, styNormal)
         comp_inorganici = Paragraph(inorganici, styNormal)  #geologici? artificiali?
 
         #10 row
 
-        consistenza = Paragraph("<b>CONSISTENZA</b><br/>" + self.consistenza, styNormal)
-        colore = Paragraph("<b>COLORE</b><br/>" + self.colore, styNormal)
-        misure = Paragraph("<b>MISURE</b><br/>", styNormal)                 # manca valore
+        consistenza = Paragraph("<b>TEXTURE</b><br/>" + self.consistenza, styNormal)
+        colore = Paragraph("<b>COLOR</b><br/>" + self.colore, styNormal)
+        misure = Paragraph("<b>MEASURES</b><br/>", styNormal)                 # manca valore
 
         #11 row
 
-        stato_conservazione = Paragraph("<b>STATO DI CONSERVAZIONE</b><br/>" + self.stato_di_conservazione, styNormal)
+        stato_conservazione = Paragraph("<b>STATE OF PRESERVATION</b><br/>" + self.stato_di_conservazione, styNormal)
 
         #12 row
 
-        descrizione = Paragraph("<b>DESCRIZIONE</b><br/>" + self.descrizione, styDescrizione)
+        descrizione = Paragraph("<b>DESCRIPTION</b><br/>" + self.descrizione, styDescrizione)
 
         #13-22 row
 
-        si_lega_a = Paragraph("<b>SI LEGA A</b><br/>" + self.si_lega_a, styNormal)
-        uguale_a = Paragraph("<b>UGUALE A</b><br/>" + self.uguale_a, styNormal)
-        copre = Paragraph("<b>COPRE</b><br/>" + self.copre, styNormal)
-        coperto_da = Paragraph("<b>COPERTO DA</b><br/>" + self.coperto_da, styNormal)
-        riempie = Paragraph("<b>RIEMPIE</b><br/>" + self.riempie, styNormal)
-        riempito_da = Paragraph("<b>RIEMPITO DA</b><br/>" + self.riempito_da, styNormal)
-        taglia = Paragraph("<b>TAGLIA</b><br/>" + self.taglia, styNormal)
-        tagliato_da = Paragraph("<b>TAGLIATO DA</b><br/>" + self.tagliato_da, styNormal)
-        si_appoggia_a = Paragraph("<b>SI APPOGGIA A</b><br/>" + self.si_appoggia_a, styNormal)
-        gli_si_appoggia = Paragraph("<b>GLI SI APPOGGIA</b><br/>" + self.gli_si_appoggia, styNormal)
+        si_lega_a = Paragraph("<b>CONNECTED TO</b><br/>" + self.si_lega_a, styNormal)
+        uguale_a = Paragraph("<b>SAME AS</b><br/>" + self.uguale_a, styNormal)
+        copre = Paragraph("<b>COVERS</b><br/>" + self.copre, styNormal)
+        coperto_da = Paragraph("<b>COVERED BY</b><br/>" + self.coperto_da, styNormal)
+        riempie = Paragraph("<b>FILLS</b><br/>" + self.riempie, styNormal)
+        riempito_da = Paragraph("<b>FILLED BY</b><br/>" + self.riempito_da, styNormal)
+        taglia = Paragraph("<b>CUTS</b><br/>" + self.taglia, styNormal)
+        tagliato_da = Paragraph("<b>CUT BY</b><br/>" + self.tagliato_da, styNormal)
+        si_appoggia_a = Paragraph("<b>ABUTS</b><br/>" + self.si_appoggia_a, styNormal)
+        gli_si_appoggia = Paragraph("<b>SUPPORT</b><br/>" + self.gli_si_appoggia, styNormal)
 
-        label_sequenza_stratigrafica = Paragraph("<b>S<br/>E<br/>Q<br/>U<br/>E<br/>N<br/>Z<br/>A<br/><br/>S<br/>T<br/>R<br/>A<br/>T<br/>I<br/>G<br/>R<br/>A<br/>F<br/>I<br/>C<br/>A</b>", styVerticale)
+        label_sequenza_stratigrafica = Paragraph("<b>S<br/>E<br/>Q<br/>U<br/>E<br/>N<br/>C<br/>E<br/><br/>S<br/>T<br/>R<br/>A<br/>T<br/>I<br/>G<br/>R<br/>A<br/>P<br/>H<br/>I<br/>C</b>", styVerticale)
 
-        posteriore_a = Paragraph("<b>POSTERIORE A</b><br/>", styNormal)               # manca valore
-        anteriore_a = Paragraph("<b>ANTERIORE A</b><br/>", styNormal)                 # manca valore
+        posteriore_a = Paragraph("<b>POSTERIOR TO</b><br/>", styNormal)               # manca valore
+        anteriore_a = Paragraph("<b>ANTERIOR TO</b><br/>", styNormal)                 # manca valore
 
         #23 row
 
-        osservazioni = Paragraph("<b>OSSERVAZIONI</b><br/>" + self.osservazioni, styDescrizione)
+        osservazioni = Paragraph("<b>OBSERVATION</b><br/>" + self.osservazioni, styDescrizione)
 
         #24 row
 
-        interpretazione = Paragraph("<b>INTERPRETAZIONE</b><br/>" + self.interpretazione, styDescrizione)
+        interpretazione = Paragraph("<b>INTERACTION</b><br/>" + self.interpretazione, styDescrizione)
 
         #25 row
 
-        elementi_datanti = Paragraph("<b>ELEMENTI DATANTI</b><br/>" + self.elem_datanti, styDescrizione)
+        elementi_datanti = Paragraph("<b>DATA ELEMNTS</b><br/>" + self.elem_datanti, styDescrizione)
 
         #26 row
 
-        datazione_ipotesi = Paragraph("<b>DATAZIONE</b><br/>" + str(self.datazione), styNormal)
-        periodo_o_fase = Paragraph("<b>PERIODO O FASE</b><br/>Periodo iniziale: "+self.periodo_iniziale+"<br/>Periodo finale: "+self.periodo_finale+"<br/>Fase iniziale: "+self.fase_iniziale+"<br/>Fase finale: "+self.fase_finale, styNormal)
+        datazione_ipotesi = Paragraph("<b>DATATION</b><br/>" + str(self.datazione), styNormal)
+        periodo_o_fase = Paragraph("<b>PERIOD OR PHASE</b><br/>Beginning Periodo: "+self.periodo_iniziale+"<br/>Final Period: "+self.periodo_finale+"<br/>Beginning Phase: "+self.fase_iniziale+"<br/>Finale Phase: "+self.fase_finale, styNormal)
 
         #27 row
 
-        dati_quantitativi = Paragraph("<b>DATI QUANTITATIVI DEI REPERTI</b><br/>", styNormal)  # manca valore
+        dati_quantitativi = Paragraph("<b>QUANTITATIVE DATA OF THE ARTIFACTS</b><br/>", styNormal)  # manca valore
 
         #28 row
 
@@ -1881,15 +1881,15 @@ class single_US_pdf_sheet(object):
                     campioni += ', ' + str(i[0])
                 except:
                     pass
-        campioni = Paragraph("<b>CAMPIONATURE</b><br/>" + campioni, styNormal)
-        flottazione = Paragraph("<b>FLOTTAZIONE</b><br/>" + self.flottazione, styNormal)
-        setacciatura = Paragraph("<b>SETACCIATURA</b><br/>" + self.setacciatura, styNormal)
+        campioni = Paragraph("<b>SAMPLES</b><br/>" + campioni, styNormal)
+        flottazione = Paragraph("<b>FLOTATION</b><br/>" + self.flottazione, styNormal)
+        setacciatura = Paragraph("<b>SETTED</b><br/>" + self.setacciatura, styNormal)
 
         #28 row
 
-        affidabilita = Paragraph("<b>AFFIDABILITÀ</b><br/>" + self.affidabilita, styNormal)
-        direttore = Paragraph("<b>DIRETTORE</b><br/>" + self.direttore_us, styNormal)
-        responsabile = Paragraph("<b>RESPONSABILE</b><br/>" + self.responsabile_us, styNormal)
+        affidabilita = Paragraph("<b>RELIABILITY</b><br/>" + self.affidabilita, styNormal)
+        direttore = Paragraph("<b>DIRECTOR</b><br/>" + self.direttore_us, styNormal)
+        responsabile = Paragraph("<b>RESPONSIBLE</b><br/>" + self.responsabile_us, styNormal)
 
         # schema
         cell_schema = [
@@ -2130,7 +2130,7 @@ class single_US_pdf_sheet(object):
         settore = Paragraph("<b>SEKTOR</b><br/>" + self.settore, styNormal)
         quadrato = Paragraph("<b>QUADRAT</b><br/>" + self.quad_par, styNormal)
         quote = Paragraph("<b>NIVELLEMENTS</b><br/>min: " + self.quota_min + "<br/>max: "+self.quota_max, styNormal)
-        label_unita_stratigrafica = Paragraph("<b>STRATIGRAFISCHE EINHEIT</b>", styNormal)
+        label_unita_stratigrafica = Paragraph("<b>STRATIGRAFISCHE EINHEIT</b><br/>"+ str(self.us), styNormal)
         label_NAT = Paragraph("<i>NAT.</i>", styNormal)                       #manca valore
         label_ART = Paragraph("<i>KUN.</i>", styNormal)                       #manca valore
 
