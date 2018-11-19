@@ -37,7 +37,7 @@ class Pyarchinit_pyqgis(QDialog):
     LAYER_STYLE_PATH = '{}{}{}{}'.format(FILEPATH, os.sep, 'styles', os.sep)
     LAYER_STYLE_PATH_SPATIALITE = '{}{}{}{}'.format(FILEPATH, os.sep, 'styles_spatialite', os.sep)
     SRS = -1
-	L=QgsSettings().value("locale/userLocale")[0:2]
+    L=QgsSettings().value("locale/userLocale")[0:2]
     USLayerId = ""
     LAYERS_DIZ = {"1": "pyarchinit_campionature",
                   "2": "pyarchinit_individui",
@@ -65,84 +65,84 @@ class Pyarchinit_pyqgis(QDialog):
                   "24": "pyarchinit_tafonomia",
 
                   }
-	if L=='it':
-		LAYERS_CONVERT_DIZ = {"pyarchinit_campionature": "Punti di campionatura",
-							  "pyarchinit_individui": "Individui",
-							  "pyarchinit_linee_rif": "Linee di riferimento",
-							  "pyarchinit_punti_rif": "Punti di riferimento",
-							  "pyarchinit_quote": "Quote US disegno",
-							  "pyarchinit_quote_view": "Quote US Vista",
-							  "pyarchinit_ripartizioni_spaziali": "Ripartizioni spaziali",
-							  "pyarchinit_sezioni": "Sezioni di scavo",
-							  "pyarchinit_siti": "Localizzazione siti puntuale",
-							  "pyarchinit_strutture_ipotesi": "Ipotesi strutture da scavo",
-							  "pyarchinit_us_view": "US Vista",
-							  "pyunitastratigrafiche": "Unita Stratigrafiche disegno",
-							  "pyarchinit_documentazione": "Resgistro documentazione",
-							  "pyarchinit_doc_view": "Documentazione Vista",
-							  "pyarchinit_us_negative_doc": "US Negative per sezioni/elevati",
-							  "pyarchinit_us_negative_doc_view": "Vista US Negative per sezioni/elevati",
-							  "pyarchinit_site_view": "Localizzazione siti Vista",
-							  "pyarchinit_siti_polygonal": "Perimetrazione siti poligonali",
-							  "pyarchinit_siti_polygonal_view": "Perimetrazione siti poligonali Vista",
-							  "pyarchinit_site_view": "Localizzazione siti puntuale Vista",
-							  "pyarchinit_strutture_view": "Ipotesi strutture da scavo Vista",
-							  "pyarchinit_tafonomia_view": "Tafonomia Vista",
-							  "pyarchinit_tafonomia": "Tafonomia"
+    if L=='it':
+        LAYERS_CONVERT_DIZ = {"pyarchinit_campionature": "Punti di campionatura",
+                              "pyarchinit_individui": "Individui",
+                              "pyarchinit_linee_rif": "Linee di riferimento",
+                              "pyarchinit_punti_rif": "Punti di riferimento",
+                              "pyarchinit_quote": "Quote US disegno",
+                              "pyarchinit_quote_view": "Quote US Vista",
+                              "pyarchinit_ripartizioni_spaziali": "Ripartizioni spaziali",
+                              "pyarchinit_sezioni": "Sezioni di scavo",
+                              "pyarchinit_siti": "Localizzazione siti puntuale",
+                              "pyarchinit_strutture_ipotesi": "Ipotesi strutture da scavo",
+                              "pyarchinit_us_view": "US Vista",
+                              "pyunitastratigrafiche": "Unita Stratigrafiche disegno",
+                              "pyarchinit_documentazione": "Resgistro documentazione",
+                              "pyarchinit_doc_view": "Documentazione Vista",
+                              "pyarchinit_us_negative_doc": "US Negative per sezioni/elevati",
+                              "pyarchinit_us_negative_doc_view": "Vista US Negative per sezioni/elevati",
+                              "pyarchinit_site_view": "Localizzazione siti Vista",
+                              "pyarchinit_siti_polygonal": "Perimetrazione siti poligonali",
+                              "pyarchinit_siti_polygonal_view": "Perimetrazione siti poligonali Vista",
+                              "pyarchinit_site_view": "Localizzazione siti puntuale Vista",
+                              "pyarchinit_strutture_view": "Ipotesi strutture da scavo Vista",
+                              "pyarchinit_tafonomia_view": "Tafonomia Vista",
+                              "pyarchinit_tafonomia": "Tafonomia"
 
-							  }
-	elif L=='de':
-		LAYERS_CONVERT_DIZ = {"pyarchinit_campionature": "Punti di campionatura",
-							  "pyarchinit_individui": "Individui",
-							  "pyarchinit_linee_rif": "Linee di riferimento",
-							  "pyarchinit_punti_rif": "Punti di riferimento",
-							  "pyarchinit_quote": "Quote US disegno",
-							  "pyarchinit_quote_view": "Quote US Vista",
-							  "pyarchinit_ripartizioni_spaziali": "Ripartizioni spaziali",
-							  "pyarchinit_sezioni": "Sezioni di scavo",
-							  "pyarchinit_siti": "Localizzazione siti puntuale",
-							  "pyarchinit_strutture_ipotesi": "Ipotesi strutture da scavo",
-							  "pyarchinit_us_view": "US Vista",
-							  "pyunitastratigrafiche": "Unita Stratigrafiche disegno",
-							  "pyarchinit_documentazione": "Resgistro documentazione",
-							  "pyarchinit_doc_view": "Documentazione Vista",
-							  "pyarchinit_us_negative_doc": "US Negative per sezioni/elevati",
-							  "pyarchinit_us_negative_doc_view": "Vista US Negative per sezioni/elevati",
-							  "pyarchinit_site_view": "Localizzazione siti Vista",
-							  "pyarchinit_siti_polygonal": "Perimetrazione siti poligonali",
-							  "pyarchinit_siti_polygonal_view": "Perimetrazione siti poligonali Vista",
-							  "pyarchinit_site_view": "Localizzazione siti puntuale Vista",
-							  "pyarchinit_strutture_view": "Ipotesi strutture da scavo Vista",
-							  "pyarchinit_tafonomia_view": "Tafonomia Vista",
-							  "pyarchinit_tafonomia": "Tafonomia"
+                              }
+    elif L=='de':
+        LAYERS_CONVERT_DIZ = {"pyarchinit_campionature": "Punti di campionatura",
+                              "pyarchinit_individui": "Individui",
+                              "pyarchinit_linee_rif": "Linee di riferimento",
+                              "pyarchinit_punti_rif": "Punti di riferimento",
+                              "pyarchinit_quote": "Quote US disegno",
+                              "pyarchinit_quote_view": "Quote US Vista",
+                              "pyarchinit_ripartizioni_spaziali": "Ripartizioni spaziali",
+                              "pyarchinit_sezioni": "Sezioni di scavo",
+                              "pyarchinit_siti": "Localizzazione siti puntuale",
+                              "pyarchinit_strutture_ipotesi": "Ipotesi strutture da scavo",
+                              "pyarchinit_us_view": "US Vista",
+                              "pyunitastratigrafiche": "Unita Stratigrafiche disegno",
+                              "pyarchinit_documentazione": "Resgistro documentazione",
+                              "pyarchinit_doc_view": "Documentazione Vista",
+                              "pyarchinit_us_negative_doc": "US Negative per sezioni/elevati",
+                              "pyarchinit_us_negative_doc_view": "Vista US Negative per sezioni/elevati",
+                              "pyarchinit_site_view": "Localizzazione siti Vista",
+                              "pyarchinit_siti_polygonal": "Perimetrazione siti poligonali",
+                              "pyarchinit_siti_polygonal_view": "Perimetrazione siti poligonali Vista",
+                              "pyarchinit_site_view": "Localizzazione siti puntuale Vista",
+                              "pyarchinit_strutture_view": "Ipotesi strutture da scavo Vista",
+                              "pyarchinit_tafonomia_view": "Tafonomia Vista",
+                              "pyarchinit_tafonomia": "Tafonomia"
 
-							  }
-	else:
-		LAYERS_CONVERT_DIZ = {"pyarchinit_campionature": "Punti di campionatura",
-							  "pyarchinit_individui": "Individui",
-							  "pyarchinit_linee_rif": "Linee di riferimento",
-							  "pyarchinit_punti_rif": "Punti di riferimento",
-							  "pyarchinit_quote": "Quote US disegno",
-							  "pyarchinit_quote_view": "Quote US Vista",
-							  "pyarchinit_ripartizioni_spaziali": "Ripartizioni spaziali",
-							  "pyarchinit_sezioni": "Sezioni di scavo",
-							  "pyarchinit_siti": "Localizzazione siti puntuale",
-							  "pyarchinit_strutture_ipotesi": "Ipotesi strutture da scavo",
-							  "pyarchinit_us_view": "US Vista",
-							  "pyunitastratigrafiche": "Unita Stratigrafiche disegno",
-							  "pyarchinit_documentazione": "Resgistro documentazione",
-							  "pyarchinit_doc_view": "Documentazione Vista",
-							  "pyarchinit_us_negative_doc": "US Negative per sezioni/elevati",
-							  "pyarchinit_us_negative_doc_view": "Vista US Negative per sezioni/elevati",
-							  "pyarchinit_site_view": "Localizzazione siti Vista",
-							  "pyarchinit_siti_polygonal": "Perimetrazione siti poligonali",
-							  "pyarchinit_siti_polygonal_view": "Perimetrazione siti poligonali Vista",
-							  "pyarchinit_site_view": "Localizzazione siti puntuale Vista",
-							  "pyarchinit_strutture_view": "Ipotesi strutture da scavo Vista",
-							  "pyarchinit_tafonomia_view": "Tafonomia Vista",
-							  "pyarchinit_tafonomia": "Tafonomia"
+                              }
+    else:
+        LAYERS_CONVERT_DIZ = {"pyarchinit_campionature": "Punti di campionatura",
+                              "pyarchinit_individui": "Individui",
+                              "pyarchinit_linee_rif": "Linee di riferimento",
+                              "pyarchinit_punti_rif": "Punti di riferimento",
+                              "pyarchinit_quote": "Quote US disegno",
+                              "pyarchinit_quote_view": "Quote US Vista",
+                              "pyarchinit_ripartizioni_spaziali": "Ripartizioni spaziali",
+                              "pyarchinit_sezioni": "Sezioni di scavo",
+                              "pyarchinit_siti": "Localizzazione siti puntuale",
+                              "pyarchinit_strutture_ipotesi": "Ipotesi strutture da scavo",
+                              "pyarchinit_us_view": "US Vista",
+                              "pyunitastratigrafiche": "Unita Stratigrafiche disegno",
+                              "pyarchinit_documentazione": "Resgistro documentazione",
+                              "pyarchinit_doc_view": "Documentazione Vista",
+                              "pyarchinit_us_negative_doc": "US Negative per sezioni/elevati",
+                              "pyarchinit_us_negative_doc_view": "Vista US Negative per sezioni/elevati",
+                              "pyarchinit_site_view": "Localizzazione siti Vista",
+                              "pyarchinit_siti_polygonal": "Perimetrazione siti poligonali",
+                              "pyarchinit_siti_polygonal_view": "Perimetrazione siti poligonali Vista",
+                              "pyarchinit_site_view": "Localizzazione siti puntuale Vista",
+                              "pyarchinit_strutture_view": "Ipotesi strutture da scavo Vista",
+                              "pyarchinit_tafonomia_view": "Tafonomia Vista",
+                              "pyarchinit_tafonomia": "Tafonomia"
 
-							  }
+                              }
 
     def __init__(self, iface):
         super().__init__()
@@ -367,7 +367,7 @@ class Pyarchinit_pyqgis(QDialog):
             layer_name_pos = str(data[0].tipo_documentazione) + ": " + str(data[0].nome_doc)
 
             uri.setDataSource('', 'pyarchinit_us_view', 'the_geom', docstr, "ROWID")
-            ##			uri.setDataSource('','pyarchinit_doc_view_b', 'the_geom', docstr, "ROWID")
+            ##          uri.setDataSource('','pyarchinit_doc_view_b', 'the_geom', docstr, "ROWID")
             layerPos = QgsVectorLayer(uri.uri(), layer_name_pos, 'spatialite')
 
             if layerPos.isValid():
@@ -838,18 +838,18 @@ class Pyarchinit_pyqgis(QDialog):
 
 
                 ##"""
-                ##	def find_us_cutted(self, gl):
-                ##		gid_list = gl
-                ##		lista_rapporti = []
-                ##		for i in range(len(gid_list)):
-                ##			lista_rapporti.append([gid_list[i].sito,
-                ##			 						gid_list[i].area,
-                ##									gid_list[i].us,
-                ##									gid_list[i].rapporti])
+                ##  def find_us_cutted(self, gl):
+                ##      gid_list = gl
+                ##      lista_rapporti = []
+                ##      for i in range(len(gid_list)):
+                ##          lista_rapporti.append([gid_list[i].sito,
+                ##                                  gid_list[i].area,
+                ##                                  gid_list[i].us,
+                ##                                  gid_list[i].rapporti])
                 ##
-                ##		for i in lista_rapporti:
-                ##			pass
-                ##		"""
+                ##      for i in lista_rapporti:
+                ##          pass
+                ##      """
 
     def loadMapPreview(self, gidstr):
         """ if has geometry column load to map canvas """
@@ -910,13 +910,13 @@ class Pyarchinit_pyqgis(QDialog):
                 layerToSet.append(layerQUOTE)
             else:
                 pass
-                # QMessageBox.warning(self, "TESTER", "OK Layer Quote non valido",	 #QMessageBox.Ok)
+                # QMessageBox.warning(self, "TESTER", "OK Layer Quote non valido",   #QMessageBox.Ok)
 
             uri.setDataSource('', 'pyarchinit_us_view', 'the_geom', gidstr, "ROWID")
             layerUS = QgsVectorLayer(uri.uri(), 'pyarchinit_us_view', 'spatialite')
 
             if layerUS.isValid():
-                # QMessageBox.warning(self, "TESTER", "OK ayer US valido",	 #QMessageBox.Ok)
+                # QMessageBox.warning(self, "TESTER", "OK ayer US valido",   #QMessageBox.Ok)
                 style_path = '{}{}'.format(self.LAYER_STYLE_PATH_SPATIALITE, 'us_view_splite.qml')
                 layerUS.loadNamedStyle(style_path)
                 QgsProject.instance().addMapLayers([layerUS], False)
@@ -946,7 +946,7 @@ class Pyarchinit_pyqgis(QDialog):
             uri.setConnection(settings.HOST, settings.PORT, settings.DATABASE, settings.USER, settings.PASSWORD)
 
             # layerUS
-            ##			uri.setDataSource("public", "pyarchinit_us_view", "the_geom", sing_layer, "id_us")
+            ##          uri.setDataSource("public", "pyarchinit_us_view", "the_geom", sing_layer, "id_us")
             uri.setDataSource("public", "pyarchinit_doc_view_b", "the_geom", sing_layer, "id_us")
             layerUS = QgsVectorLayer(uri.uri(), "Unita' Stratigrafiche", "postgres")
 
@@ -958,14 +958,14 @@ class Pyarchinit_pyqgis(QDialog):
                 layerToSet.append(layerUS)
 
                 # layerQuote
-            ##			uri.setDataSource("public", "pyarchinit_quote_view", "the_geom", gidstr, "id_us")
-            ##			layerQUOTE = QgsVectorLayer(uri.uri(), "Quote", "postgres")
+            ##          uri.setDataSource("public", "pyarchinit_quote_view", "the_geom", gidstr, "id_us")
+            ##          layerQUOTE = QgsVectorLayer(uri.uri(), "Quote", "postgres")
 
-            ##			if layerQUOTE.isValid() == True:
-            ##				#style_path = '{}{}'.format(self.LAYER_STYLE_PATH, 'stile_quote.qml')
-            ##				#layerQUOTE.loadNamedStyle(style_path)
-            ##				QgsProject.instance().addMapLayers([layerQUOTE], False)
-            ##				layerToSet.append(QgsMapCanvas(layerQUOTE, True, False))
+            ##          if layerQUOTE.isValid() == True:
+            ##              #style_path = '{}{}'.format(self.LAYER_STYLE_PATH, 'stile_quote.qml')
+            ##              #layerQUOTE.loadNamedStyle(style_path)
+            ##              QgsProject.instance().addMapLayers([layerQUOTE], False)
+            ##              layerToSet.append(QgsMapCanvas(layerQUOTE, True, False))
 
             return layerToSet
 
@@ -984,34 +984,34 @@ class Pyarchinit_pyqgis(QDialog):
 
             if layerUS.isValid():
                 QMessageBox.warning(self, "TESTER", "OK ayer US valido", QMessageBox.Ok)
-                ##				style_path = '{}{}'.format(self.LAYER_STYLE_PATH_SPATIALITE, 'us_view_splite.qml')
-                ##				layerUS.loadNamedStyle(style_path)
+                ##              style_path = '{}{}'.format(self.LAYER_STYLE_PATH_SPATIALITE, 'us_view_splite.qml')
+                ##              layerUS.loadNamedStyle(style_path)
                 QgsProject.instance().addMapLayers([layerUS], False)
                 layerToSet.append(layerUS)
             else:
                 QMessageBox.warning(self, "TESTER", "NOT! Layer US not valid", QMessageBox.Ok)
 
-            ##			docstrn =  "sito_n = '" + str(data[0].sito) + "' AND nome_doc_n = '" + str(data[0].nome_doc) + "' AND tipo_doc_n = '" + str(data[0].tipo_documentazione) + "'"
-            ##			if len(data) > 1:
-            ##				for i in range(len(data)):
-            ##					docstr += " OR (sito = '" + str(data[i].sito) +"' AND tipo_doc = '" + str(data[i].tipo_documentazione) +" AND nome_doc = '"+ str(data[i].nome_doc)+ "')"
+            ##          docstrn =  "sito_n = '" + str(data[0].sito) + "' AND nome_doc_n = '" + str(data[0].nome_doc) + "' AND tipo_doc_n = '" + str(data[0].tipo_documentazione) + "'"
+            ##          if len(data) > 1:
+            ##              for i in range(len(data)):
+            ##                  docstr += " OR (sito = '" + str(data[i].sito) +"' AND tipo_doc = '" + str(data[i].tipo_documentazione) +" AND nome_doc = '"+ str(data[i].nome_doc)+ "')"
             ##
-            ##			f = open("/test_preview.txt", "w")
+            ##          f = open("/test_preview.txt", "w")
             ##
-            ##			f.write()
+            ##          f.write()
 
-            ##			uri.setDataSource('','pyarchinit_us_negative_doc_view', 'the_geom', docstrn, "ROWID")
-            ##			layerUSn=QgsVectorLayer(uri.uri(), 'pyarchinit_us_negative_doc_view', 'spatialite')
+            ##          uri.setDataSource('','pyarchinit_us_negative_doc_view', 'the_geom', docstrn, "ROWID")
+            ##          layerUSn=QgsVectorLayer(uri.uri(), 'pyarchinit_us_negative_doc_view', 'spatialite')
             ##
-            ##			if layerUSn.isValid() == True:
-            ##				#QMessageBox.warning(self, "TESTER", "OK ayer US valido",	 #QMessageBox.Ok)
-            ####				style_path = '{}{}'.format(self.LAYER_STYLE_PATH_SPATIALITE, 'us_view_splite.qml')
-            ####				layerUSn.loadNamedStyle(style_path)
-            ##				QgsProject.instance().addMapLayers([layerUSn], False)
-            ##				layerToSet.append(QgsMapCanvas(layerUSn, True, False))
-            ##			else:
-            ##				pass
-            ##				#QMessageBox.warning(self, "TESTER", "NOT! Layer US not valid",#QMessageBox.Ok)
+            ##          if layerUSn.isValid() == True:
+            ##              #QMessageBox.warning(self, "TESTER", "OK ayer US valido",    #QMessageBox.Ok)
+            ####                style_path = '{}{}'.format(self.LAYER_STYLE_PATH_SPATIALITE, 'us_view_splite.qml')
+            ####                layerUSn.loadNamedStyle(style_path)
+            ##              QgsProject.instance().addMapLayers([layerUSn], False)
+            ##              layerToSet.append(QgsMapCanvas(layerUSn, True, False))
+            ##          else:
+            ##              pass
+            ##              #QMessageBox.warning(self, "TESTER", "NOT! Layer US not valid",#QMessageBox.Ok)
 
             return layerToSet
 
@@ -1023,7 +1023,7 @@ class Pyarchinit_pyqgis(QDialog):
         rlayer = QgsRasterLayer(fileName, baseName)
 
         if not rlayer.isValid():
-            #QMessageBox.warning(self, "TESTER", "PROBLEMA DI CARICAMENTO RASTER" + str(baseName),	 #QMessageBox.Ok)
+            #QMessageBox.warning(self, "TESTER", "PROBLEMA DI CARICAMENTO RASTER" + str(baseName),   #QMessageBox.Ok)
 
         srs = QgsCoordinateReferenceSystem(3004, QgsCoordinateReferenceSystem.PostgisCrsId)
         rlayer.setCrs(srs)
@@ -1429,8 +1429,8 @@ class Pyarchinit_pyqgis(QDialog):
                 QMessageBox.warning(self, "TESTER", "OK Layer Sito valido", QMessageBox.Ok)
 
                 # self.USLayerId = layerUS.getLayerID()
-                ##				style_path = '{}{}'.format(self.LAYER_STYLE_PATH_SPATIALITE, 'us_view.qml')
-                ##				layerUS.loadNamedStyle(style_path)
+                ##              style_path = '{}{}'.format(self.LAYER_STYLE_PATH_SPATIALITE, 'us_view.qml')
+                ##              layerUS.loadNamedStyle(style_path)
                 self.iface.mapCanvas().setExtent(layerSITE.extent())
                 QgsProject.instance().addMapLayers([layerSITE], True)
             else:
@@ -1532,8 +1532,8 @@ class Pyarchinit_pyqgis(QDialog):
                 QMessageBox.warning(self, "TESTER", "OK Layer Individui valido", QMessageBox.Ok)
 
                 # self.USLayerId = layerUS.getLayerID()
-                ##				style_path = '{}{}'.format(self.LAYER_STYLE_PATH_SPATIALITE, 'us_view.qml')
-                ##				layerUS.loadNamedStyle(style_path)
+                ##              style_path = '{}{}'.format(self.LAYER_STYLE_PATH_SPATIALITE, 'us_view.qml')
+                ##              layerUS.loadNamedStyle(style_path)
                 self.iface.mapCanvas().setExtent(layerIndividui.extent())
                 QgsProject.instance().addMapLayers([layerIndividui], True)
             else:
@@ -1560,8 +1560,8 @@ class Pyarchinit_pyqgis(QDialog):
                 QMessageBox.warning(self, "TESTER", "OK Layer Individui valido", QMessageBox.Ok)
 
                 # self.USLayerId = layerUS.getLayerID()
-                ##				style_path = '{}{}'.format(self.LAYER_STYLE_PATH_SPATIALITE, 'us_view.qml')
-                ##				layerUS.loadNamedStyle(style_path)
+                ##              style_path = '{}{}'.format(self.LAYER_STYLE_PATH_SPATIALITE, 'us_view.qml')
+                ##              layerUS.loadNamedStyle(style_path)
                 self.iface.mapCanvas().setExtent(layerIndividui.extent())
                 QgsProject.instance().addMapLayers([layerIndividui], True)
             else:
@@ -1641,7 +1641,7 @@ class Order_layers_DEPRECATED(object):
 
     def loop_on_lista_us(self):
         # se il valore di stop_while rimane vuoto (ovvero non vi sono paradossi stratigrafici) parte la ricerca del livello da assegnare all'US
-        ##		if self.stop_while == '':
+        ##      if self.stop_while == '':
         for i in self.LISTA_US:
             if self.check_position(
                     i) == 1:  # se la funzione check_position ritorna 1 significa che e' stata trovata l'US che va nel prossimo livello e in seguito viene rimossa
