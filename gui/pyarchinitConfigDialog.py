@@ -218,7 +218,7 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
 
     def on_pushButton_crea_database_sl_pressed(self):
         db_file = os.path.join(os.path.dirname(__file__), os.pardir, 'resources', 'dbfiles',
-                                   'pyarchinit_db.sqlite')
+                                   'pyarchinit.sqlite')
 
         home_DB_path = '{}{}{}'.format(self.HOME, os.sep, 'pyarchinit_DB_folder')
 

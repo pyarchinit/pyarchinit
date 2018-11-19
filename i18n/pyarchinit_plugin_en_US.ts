@@ -6859,7 +6859,7 @@ p, li { white-space: pre-wrap; }
     <message>
         <location filename="../gui/ui/pyarchinitConfigDialog.ui" line="434"/>
         <source>port (5432)</source>
-        <translation>Port (5432)</translation>
+        <translation>port (5432)</translation>
     </message>
     <message>
         <location filename="../gui/ui/pyarchinitConfigDialog.ui" line="617"/>
@@ -6879,12 +6879,12 @@ p, li { white-space: pre-wrap; }
     <message>
         <location filename="../gui/ui/pyarchinitConfigDialog.ui" line="591"/>
         <source>pyarchinit</source>
-        <translation>Pyarchinit</translation>
+        <translation>pyarchinit</translation>
     </message>
     <message>
         <location filename="../gui/ui/pyarchinitConfigDialog.ui" line="600"/>
         <source>db name</source>
-        <translation>DB name</translation>
+        <translation>db name</translation>
     </message>
     <message>
         <location filename="../gui/ui/pyarchinitConfigDialog.ui" line="607"/>
