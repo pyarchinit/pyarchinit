@@ -756,7 +756,7 @@ CREATE TABLE public.pyarchinit_campionature (
     cronologia integer,
     link_immag character varying(500),
     sigla_camp character varying,
-    geom public.geometry(Point,3004)
+    the_geom public.geometry(Point,-1)
 );
 
 
@@ -807,7 +807,7 @@ CREATE TABLE public.pyarchinit_individui (
     sito character varying(255),
     sigla_struttura character varying(255),
     note character varying(255),
-    geom public.geometry(Point,3004),
+    the_geom public.geometry(Point,-1),
     id_individuo integer
 );
 
@@ -888,7 +888,7 @@ CREATE TABLE public.pyarchinit_linee_rif (
     sito character varying(300),
     definizion character varying(80),
     descrizion character varying(80),
-    geom public.geometry(LineString,3004),
+    the_geom public.geometry(LineString,-1),
     distanza numeric(10,2)
 );
 
@@ -921,7 +921,7 @@ CREATE TABLE public.pyarchinit_punti_rif (
     def_punto character varying(80),
     id_punto character varying(80),
     quota double precision,
-    geom public.geometry(Point,3004),
+    the_geom public.geometry(Point,-1),
     unita_misura_quota character varying,
     area integer,
     orientamento numeric(5,2)
@@ -941,7 +941,7 @@ CREATE TABLE public.pyuscarlinee (
     area_l integer,
     us_l integer,
     tipo_us_l character varying(150),
-    geom public.geometry(LineString,3004)
+    the_geom public.geometry(LineString,-1)
 );
 
 
@@ -1081,7 +1081,7 @@ CREATE TABLE public.pyarchinit_quote (
     us_q integer,
     unita_misu_q character varying(80),
     quota_q double precision,
-    geom public.geometry(Point,3004),
+    the_geom public.geometry(Point,-1),
     data character varying,
     disegnatore character varying,
     rilievo_originale character varying
@@ -1114,7 +1114,7 @@ CREATE TABLE public.pyarchinit_ripartizioni_spaziali (
     gid integer DEFAULT nextval('public.pyarchinit_ripartizioni_spaziali_gid_seq'::regclass) NOT NULL,
     id_rs character varying(80),
     sito_rs character varying(80),
-    geom public.geometry(Polygon,3004),
+    the_geom public.geometry(Polygon,-1),
     tip_rip character varying,
     descr_rs character varying
 );
@@ -1229,7 +1229,7 @@ CREATE TABLE public.pyarchinit_sezioni (
     sito character varying(80),
     area integer,
     descr character varying(80),
-    geom public.geometry(LineString,3004)
+    the_geom public.geometry(LineString,-1)
 );
 
 
@@ -1258,7 +1258,7 @@ ALTER TABLE public.pyarchinit_siti_gid_seq OWNER TO postgres;
 CREATE TABLE public.pyarchinit_siti (
     gid integer DEFAULT nextval('public.pyarchinit_siti_gid_seq'::regclass) NOT NULL,
     sito_nome character varying(80),
-    geom public.geometry(Point,3004),
+    the_geom public.geometry(Point,-1),
     link character varying(300)
 );
 
@@ -1289,7 +1289,7 @@ CREATE TABLE public.pyarchinit_sondaggi (
     gid integer DEFAULT nextval('public.pyarchinit_sondaggi_gid_seq'::regclass) NOT NULL,
     sito character varying(80),
     id_sondagg character varying(80),
-    geom public.geometry(Polygon,3004)
+    the_geom public.geometry(Polygon,-1)
 );
 
 
@@ -1322,7 +1322,7 @@ CREATE TABLE public.pyarchinit_strutture_ipotesi (
     per_iniz integer,
     per_fin integer,
     dataz_ext character varying(80),
-    geom public.geometry(Polygon,3004),
+    the_geom public.geometry(Polygon,-1),
     fase_iniz integer,
     fase_fin integer,
     descrizione character varying,
@@ -1370,7 +1370,7 @@ ALTER TABLE public.struttura_table OWNER TO postgres;
 
 CREATE TABLE public.pyarchinit_tafonomia (
     gid integer NOT NULL,
-    geom public.geometry(Point,3004),
+    the_geom public.geometry(Point,-1),
     id_tafonomia_pk bigint,
     sito character varying,
     nr_scheda bigint
@@ -1517,7 +1517,7 @@ CREATE TABLE public.pyarchinit_tipologia_sepolture (
     id_sepoltura character varying(80),
     azimut double precision,
     tipologia character varying(80),
-    geom public.geometry(Point,3004),
+    the_geom public.geometry(Point,-1),
     sito_ts character varying,
     t_progetto character varying,
     t_gruppo character varying,
@@ -1537,7 +1537,7 @@ ALTER TABLE public.pyarchinit_tipologia_sepolture OWNER TO postgres;
 
 CREATE TABLE public.pyarchinit_us_negative_doc (
     id integer NOT NULL,
-    geom public.geometry(LineString,3004),
+    the_geom public.geometry(LineString,-1),
     sito_n character varying,
     area_n character varying,
     us_n bigint,
@@ -1611,7 +1611,7 @@ CREATE TABLE public.pyunitastratigrafiche (
     area_s integer,
     scavo_s character varying(80),
     us_s integer,
-    geom public.geometry(MultiPolygon,3004),
+    the_geom public.geometry(MultiPolygon,-1),
     stratigraph_index_us integer,
     tipo_us_s character varying,
     rilievo_orginale character varying,
@@ -1635,7 +1635,7 @@ CREATE TABLE public.pyuscaratterizzazioni (
     area_c integer,
     scavo_c character varying(80),
     us_c integer,
-    geom public.geometry(MultiPolygon,3004),
+    the_geom public.geometry(MultiPolygon,-1),
     stratigraph_index_car integer DEFAULT 1,
     tipo_us_c character varying
 );
@@ -1721,7 +1721,7 @@ CREATE TABLE public.riipartizione_territoriale (
     tipo text NOT NULL,
     nome text NOT NULL,
     tipo_localizzazione text NOT NULL,
-    geom public.geometry(Point,3004)
+    the_geom public.geometry(Point,-1)
 );
 
 
@@ -2887,7 +2887,7 @@ ALTER TABLE public.us_table CLUSTER ON order_layer_index;
 -- Name: sidx_pyarchinit_linee_rif_geom; Type: INDEX; Schema: public; Owner: postgres
 --
 
-CREATE INDEX sidx_pyarchinit_linee_rif_geom ON public.pyarchinit_linee_rif USING gist (geom);
+CREATE INDEX sidx_pyarchinit_linee_rif_geom ON public.pyarchinit_linee_rif USING gist (the_geom);
 
 
 --
@@ -2895,7 +2895,7 @@ CREATE INDEX sidx_pyarchinit_linee_rif_geom ON public.pyarchinit_linee_rif USING
 -- Name: sidx_pyarchinit_ripartizioni_spaziali_geom; Type: INDEX; Schema: public; Owner: postgres
 --
 
-CREATE INDEX sidx_pyarchinit_ripartizioni_spaziali_geom ON public.pyarchinit_ripartizioni_spaziali USING gist (geom);
+CREATE INDEX sidx_pyarchinit_ripartizioni_spaziali_geom ON public.pyarchinit_ripartizioni_spaziali USING gist (the_geom);
 
 
 --
@@ -2903,7 +2903,7 @@ CREATE INDEX sidx_pyarchinit_ripartizioni_spaziali_geom ON public.pyarchinit_rip
 -- Name: sidx_pyarchinit_siti_geom; Type: INDEX; Schema: public; Owner: postgres
 --
 
-CREATE INDEX sidx_pyarchinit_siti_geom ON public.pyarchinit_siti USING gist (geom);
+CREATE INDEX sidx_pyarchinit_siti_geom ON public.pyarchinit_siti USING gist (the_geom);
 
 
 --
@@ -2911,7 +2911,7 @@ CREATE INDEX sidx_pyarchinit_siti_geom ON public.pyarchinit_siti USING gist (geo
 -- Name: sidx_pyarchinit_tafonomia_geom; Type: INDEX; Schema: public; Owner: postgres
 --
 
-CREATE INDEX sidx_pyarchinit_tafonomia_geom ON public.pyarchinit_tafonomia USING gist (geom);
+CREATE INDEX sidx_pyarchinit_tafonomia_geom ON public.pyarchinit_tafonomia USING gist (the_geom);
 
 
 --
@@ -2919,7 +2919,7 @@ CREATE INDEX sidx_pyarchinit_tafonomia_geom ON public.pyarchinit_tafonomia USING
 -- Name: sidx_pyarchinit_us_negative_doc_geom; Type: INDEX; Schema: public; Owner: postgres
 --
 
-CREATE INDEX sidx_pyarchinit_us_negative_doc_geom ON public.pyarchinit_us_negative_doc USING gist (geom);
+CREATE INDEX sidx_pyarchinit_us_negative_doc_geom ON public.pyarchinit_us_negative_doc USING gist (the_geom);
 
 
 --
@@ -2927,7 +2927,7 @@ CREATE INDEX sidx_pyarchinit_us_negative_doc_geom ON public.pyarchinit_us_negati
 -- Name: sidx_pyunitastratigrafiche_geom; Type: INDEX; Schema: public; Owner: postgres
 --
 
-CREATE INDEX sidx_pyunitastratigrafiche_geom ON public.pyunitastratigrafiche USING gist (geom);
+CREATE INDEX sidx_pyunitastratigrafiche_geom ON public.pyunitastratigrafiche USING gist (the_geom);
 
 
 --
@@ -2935,7 +2935,7 @@ CREATE INDEX sidx_pyunitastratigrafiche_geom ON public.pyunitastratigrafiche USI
 -- Name: sidx_riipartizione_territoriale_geom; Type: INDEX; Schema: public; Owner: postgres
 --
 
-CREATE INDEX sidx_riipartizione_territoriale_geom ON public.riipartizione_territoriale USING gist (geom);
+CREATE INDEX sidx_riipartizione_territoriale_geom ON public.riipartizione_territoriale USING gist (the_geom);
 
 
 --
