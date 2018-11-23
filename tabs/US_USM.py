@@ -1023,17 +1023,16 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
             else:
                 
                 if self.L=='it':
-                    QMessageBox.warning(self,"BENVENUTO", "Benvenuto in pyArchInit" + "Scheda US" + ". Il database e' vuoto. Premi 'Ok' e buon lavoro!",
+                    QMessageBox.warning(self,"BENVENUTO", "Benvenuto in pyArchInit" + "Scheda Campioni" + ". Il database e' vuoto. Premi 'Ok' e buon lavoro!",
                                         QMessageBox.Ok)
-                elif self.L=='en':
-                    QMessageBox.warning(self,"WELCOME", "Welcome in pyArchInit" + "SU form" + ". The DB is empty. Push 'Ok' and Good Work!",
-                                        QMessageBox.Ok) 
+                
                 elif self.L=='de':
                     
-                    QMessageBox.warning(self,"WILLKOMMEN","WILLKOMMEN in pyArchInit" + "SE formular"+ ". Die Datenbank ist leer. Tippe 'Ok' und aufgehts!",
+                    QMessageBox.warning(self,"WILLKOMMEN","WILLKOMMEN in pyArchInit" + "Munsterformular"+ ". Die Datenbank ist leer. Tippe 'Ok' und aufgehts!",
                                         QMessageBox.Ok) 
                 else:
-                    pass    
+                    QMessageBox.warning(self,"WELCOME", "Welcome in pyArchInit" + "Samples form" + ". The DB is empty. Push 'Ok' and Good Work!",
+                                        QMessageBox.Ok)    
                 self.charge_list()
                 self.BROWSE_STATUS = 'x'
                 self.on_pushButton_new_rec_pressed()
@@ -1045,26 +1044,26 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
                     msg = "La connessione e' fallita {}. " \
                           "E' NECESSARIO RIAVVIARE QGIS oppure rilevato bug! Segnalarlo allo sviluppatore".format(str(e))
                     self.iface.messageBar().pushMessage(self.tr(msg), Qgis.Warning, 0)
-                elif self.L=='en':
-                    msg = "The connection failed {}. " \
-                          "You MUST RESTART QGIS or bug detected! Report it to the developer".format(str(e))
+                
                     self.iface.messageBar().pushMessage(self.tr(msg), Qgis.Warning, 0)
                 elif self.L=='de':
                     msg = "Verbindungsfehler {}. " \
                           " QGIS neustarten oder es wurde ein bug gefunden! Fehler einsenden".format(str(e))
-                    self.iface.messageBar().pushMessage(self.tr(msg), Qgis.Warning, 0)      
+                    self.iface.messageBar().pushMessage(self.tr(msg), Qgis.Warning, 0)
+                else:
+                    msg = "The connection failed {}. " \
+                          "You MUST RESTART QGIS or bug detected! Report it to the developer".format(str(e))        
             else:
                 if self.L=='it':
                     msg = "Attenzione rilevato bug! Segnalarlo allo sviluppatore. Errore: ".format(str(e))
                     self.iface.messageBar().pushMessage(self.tr(msg), Qgis.Warning, 0)
-                elif self.L=='en':
-                    msg = "Warning bug detected! Report it to the developer. Error: ".format(str(e))
-                    self.iface.messageBar().pushMessage(self.tr(msg), Qgis.Warning, 0)
+                
                 elif self.L=='de':
                     msg = "ACHTUNG. Es wurde ein bug gefunden! Fehler einsenden: ".format(str(e))
                     self.iface.messageBar().pushMessage(self.tr(msg), Qgis.Warning, 0)  
                 else:
-                    pass    
+                    msg = "Warning bug detected! Report it to the developer. Error: ".format(str(e))
+                    self.iface.messageBar().pushMessage(self.tr(msg), Qgis.Warning, 0)    
     def customize_GUI(self):
 
         l = QgsSettings().value("locale/userLocale", QVariant)[0:2]
@@ -1136,7 +1135,11 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
             self.delegateRS.def_editable('False')
             self.tableWidget_rapporti.setItemDelegateForColumn(0,self.delegateRS)
         else:
-            pass
+            valuesRS = ["Same as", "Connected to", "Covers", "Covered by", "Fills", "Filled by", "Cuts", "Cut by", "Abuts", "Supports", ""]
+            self.delegateRS = ComboBoxDelegate()
+            self.delegateRS.def_values(valuesRS)
+            self.delegateRS.def_editable('False')
+            self.tableWidget_rapporti.setItemDelegateForColumn(0,self.delegateRS)
         
         # lista tipo documentazione
 
@@ -4076,15 +4079,33 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
                     self.label_status.setText(self.STATUS_ITEMS[self.BROWSE_STATUS])
                     self.set_rec_counter(len(self.DATA_LIST), self.REC_CORR + 1)
 
-                    if self.REC_TOT == 1:
-                        strings = ("E' stato trovato", self.REC_TOT, "record")
-                        if self.toolButtonGis.isChecked():
-                            self.pyQGIS.charge_vector_layers(self.DATA_LIST)
+                    if self.L=='it':
+                        if self.REC_TOT == 1:
+                            strings = ("E' stato trovato", self.REC_TOT, "record")
+                            if self.toolButtonGis.isChecked():
+                                self.pyQGIS.charge_vector_layers(self.DATA_LIST)
+                        else:
+                            strings = ("Sono stati trovati", self.REC_TOT, "records")
+                            if self.toolButtonGis.isChecked():
+                                self.pyQGIS.charge_vector_layers(self.DATA_LIST)
+                    elif self.L=='de':
+                        if self.REC_TOT == 1:
+                            strings = ("Es wurde gefunden", self.REC_TOT, "record")
+                            if self.toolButtonGis.isChecked():
+                                self.pyQGIS.charge_vector_layers(self.DATA_LIST)
+                        else:
+                            strings = ("Sie wurden gefunden", self.REC_TOT, "records")
+                            if self.toolButtonGis.isChecked():
+                                self.pyQGIS.charge_vector_layers(self.DATA_LIST)
                     else:
-                        strings = ("Sono stati trovati", self.REC_TOT, "records")
-                        if self.toolButtonGis.isChecked():
-                            self.pyQGIS.charge_vector_layers(self.DATA_LIST)
-
+                        if self.REC_TOT == 1:
+                            strings = ("It has been found", self.REC_TOT, "record")
+                            if self.toolButtonGis.isChecked():
+                                self.pyQGIS.charge_vector_layers(self.DATA_LIST)
+                        else:
+                            strings = ("They have been found", self.REC_TOT, "records")
+                            if self.toolButtonGis.isChecked():
+                                self.pyQGIS.charge_vector_layers(self.DATA_LIST)
                     self.setComboBoxEnable(["self.comboBox_sito"], "False")
                     self.setComboBoxEnable(["self.comboBox_area"], "False")
                     self.setComboBoxEnable(["self.lineEdit_us"], "False")
@@ -4104,7 +4125,7 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
                     self.setComboBoxEnable(["self.textEdit_descrizione"], "True")
                     self.setComboBoxEnable(["self.textEdit_interpretazione"], "True")
 
-                    QMessageBox.warning(self, "Messaggio", "%s %d %s" % strings, QMessageBox.Ok)
+                    QMessageBox.warning(self, "Message", "%s %d %s" % strings, QMessageBox.Ok)
         self.enable_button_search(1)
 
     def update_if(self, msg):
