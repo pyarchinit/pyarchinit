@@ -82,182 +82,530 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
     MAPPER_TABLE_CLASS = "US"
     NOME_SCHEDA = "Scheda US"
     ID_TABLE = "id_us"
-    CONVERSION_DICT = {
-        ID_TABLE: ID_TABLE,
-        "Sito": "sito",
-        "Area": "area",
-        "US": "us",
-        "Definizione stratigrafica": "d_stratigrafica",
-        "Definizione interpretata": "d_interpretativa",
-        "Descrizione": "descrizione",
-        "Interpretazione": "interpretazione",
-        "Periodo Iniziale": "periodo_iniziale",
-        "Periodo Finale": "periodo_finale",
-        "Fase Iniziale": "fase_iniziale",
-        "Fase finale": "fase_finale",
-        "Attività": "attivita",
-        "Anno di scavo": "anno_scavo",
-        "Sigla struttura": "struttura",
-        "Scavato": "scavato",
-        "Codice periodo": "cont_per",
-        "Tipo unità": "unita_tipo",  # nuovi campi per USM
-        "Settore": "settore",
-        "Quadrato-Parete": "quad_par",
-        "Ambiente": "ambient",
-        "Saggio": "saggio",
-        "Elementi datanti": "elem_datanti",
-        "Funzione statica": "funz_statica",
-        "Lavorazione": "lavorazione",
-        "Spessore giunti": "spess_giunti",
-        "Letti di posa": "letti_posa",
-        "Altezza modulo": "alt_mod",
-        "Unità edile rissuntiva": "un_ed_riass",
-        "Reimpiego": "reimp",
-        "Posa in opera": "posa_opera",
-        "Quota minima USM": "quota_min_usm",
-        "Quota max USM": "quota_max_usm",
-        "Consistenza legante": "cons_legante",
-        "Colore legante": "col_legante",
-        "Aggregati legante": "aggreg_legante",
-        "Consistenza-Texture": "con_text_mat",
-        "Colore materiale": "col_materiale",
-        "Inclusi materiali usm": "inclusi_materiali_usm",
-        "n catalogo generale" : "n_catalogo_generale",  # campi aggiunti per archeo 3.0 e allineamento ICCD
-        "n catalogo interno" : "n_catalogo_interno",
-        "n catalogo internazionale" : "n_catalogo_internazionale",
-        "soprintendenza" : "soprintendenza",
-        "quota relativa" : "quota_relativa",
-        "quota abs" : "quota_abs",
-        "ref tm" : "ref_tm",
-        "ref ra" : "ref_ra",
-        "ref n" : "ref_n",
-        "posizione" : "posizione",
-        "criteri distinzione" : "criteri_distinzione",
-        "modo formazione" : "modo_formazione",
-        #"componenti organici" : "componenti_organici",
-        #"componenti inorganici" : "componenti_inorganici",
-        "lunghezza max" : "lunghezza_max",
-        "altezza max" : "altezza_max",
-        "altezza min" : "altezza_min",
-        "profondita max" : "profondita_max",
-        "profondita min" : "profondita_min",
-        "larghezza media" : "larghezza_media",
-        "quota max abs" : "quota_max_abs",
-        "quota max rel" : "quota_max_rel",
-        "quota min abs" : "quota_min_abs",
-        "quota min rel" : "quota_min_rel",
-        "osservazioni" : "osservazioni",
-        "datazione" : "datazione",
-        "flottazione" : "flottazione",
-        "setacciatura" : "setacciatura",
-        "affidabilita" : "affidabilita",
-        "direttore us" : "direttore_us",
-        "responsabile us" : "responsabile_us",
-        "cod ente schedatore" : "cod_ente_schedatore",
-        "data rilevazione" : "data_rilevazione",
-        "data rielaborazione" : "data_rielaborazione",
-        "lunghezza usm" : "lunghezza_usm",
-        "altezza usm" : "altezza_usm",
-        "spessore usm" : "spessore_usm",
-        "tecnica muraria usm" : "tecnica_muraria_usm",
-        "modulo usm" : "modulo_usm",
-        "campioni malta usm" : "campioni_malta_usm",
-        "campioni mattone usm" : "campioni_mattone_usm",
-        "campioni pietra usm" : "campioni_pietra_usm",
-        "provenienza materiali usm" : "provenienza_materiali_usm",
-        "criteri distinzione usm" : "criteri_distinzione_usm",
-        "uso primario usm" : "uso_primario_usm"
+    if L=='it':
+        CONVERSION_DICT = {
+            ID_TABLE: ID_TABLE,
+            "Sito": "sito",
+            "Area": "area",
+            "US": "us",
+            "Definizione stratigrafica": "d_stratigrafica",
+            "Definizione interpretata": "d_interpretativa",
+            "Descrizione": "descrizione",
+            "Interpretazione": "interpretazione",
+            "Periodo Iniziale": "periodo_iniziale",
+            "Periodo Finale": "periodo_finale",
+            "Fase Iniziale": "fase_iniziale",
+            "Fase finale": "fase_finale",
+            "Attività": "attivita",
+            "Anno di scavo": "anno_scavo",
+            "Sigla struttura": "struttura",
+            "Scavato": "scavato",
+            "Codice periodo": "cont_per",
+            "Tipo unità": "unita_tipo",  # nuovi campi per USM
+            "Settore": "settore",
+            "Quadrato-Parete": "quad_par",
+            "Ambiente": "ambient",
+            "Saggio": "saggio",
+            "Elementi datanti": "elem_datanti",
+            "Funzione statica": "funz_statica",
+            "Lavorazione": "lavorazione",
+            "Spessore giunti": "spess_giunti",
+            "Letti di posa": "letti_posa",
+            "Altezza modulo": "alt_mod",
+            "Unità edile rissuntiva": "un_ed_riass",
+            "Reimpiego": "reimp",
+            "Posa in opera": "posa_opera",
+            "Quota minima USM": "quota_min_usm",
+            "Quota max USM": "quota_max_usm",
+            "Consistenza legante": "cons_legante",
+            "Colore legante": "col_legante",
+            "Aggregati legante": "aggreg_legante",
+            "Consistenza-Texture": "con_text_mat",
+            "Colore materiale": "col_materiale",
+            "Inclusi materiali usm": "inclusi_materiali_usm",
+            "n catalogo generale" : "n_catalogo_generale",  # campi aggiunti per archeo 3.0 e allineamento ICCD
+            "n catalogo interno" : "n_catalogo_interno",
+            "n catalogo internazionale" : "n_catalogo_internazionale",
+            "soprintendenza" : "soprintendenza",
+            "quota relativa" : "quota_relativa",
+            "quota abs" : "quota_abs",
+            "ref tm" : "ref_tm",
+            "ref ra" : "ref_ra",
+            "ref n" : "ref_n",
+            "posizione" : "posizione",
+            "criteri distinzione" : "criteri_distinzione",
+            "modo formazione" : "modo_formazione",
+            #"componenti organici" : "componenti_organici",
+            #"componenti inorganici" : "componenti_inorganici",
+            "lunghezza max" : "lunghezza_max",
+            "altezza max" : "altezza_max",
+            "altezza min" : "altezza_min",
+            "profondita max" : "profondita_max",
+            "profondita min" : "profondita_min",
+            "larghezza media" : "larghezza_media",
+            "quota max abs" : "quota_max_abs",
+            "quota max rel" : "quota_max_rel",
+            "quota min abs" : "quota_min_abs",
+            "quota min rel" : "quota_min_rel",
+            "osservazioni" : "osservazioni",
+            "datazione" : "datazione",
+            "flottazione" : "flottazione",
+            "setacciatura" : "setacciatura",
+            "affidabilita" : "affidabilita",
+            "direttore us" : "direttore_us",
+            "responsabile us" : "responsabile_us",
+            "cod ente schedatore" : "cod_ente_schedatore",
+            "data rilevazione" : "data_rilevazione",
+            "data rielaborazione" : "data_rielaborazione",
+            "lunghezza usm" : "lunghezza_usm",
+            "altezza usm" : "altezza_usm",
+            "spessore usm" : "spessore_usm",
+            "tecnica muraria usm" : "tecnica_muraria_usm",
+            "modulo usm" : "modulo_usm",
+            "campioni malta usm" : "campioni_malta_usm",
+            "campioni mattone usm" : "campioni_mattone_usm",
+            "campioni pietra usm" : "campioni_pietra_usm",
+            "provenienza materiali usm" : "provenienza_materiali_usm",
+            "criteri distinzione usm" : "criteri_distinzione_usm",
+            "uso primario usm" : "uso_primario_usm"
 
-    }
+        }
+    elif L=='de':
+        CONVERSION_DICT = {
+            ID_TABLE: ID_TABLE,
+            "Ausgrabungsstätte": "sito",
+            "Areal": "area",
+            "SE": "us",
+            "Stratigraphische Definition": "d_stratigrafica",
+            "Interpretierte Definition": "d_interpretativa",
+            "Beschreibung": "descrizione",
+            "Deutung": "interpretazione",
+            "Zeitraum Beginnend": "periodo_iniziale",
+            "Zeitraum Ende": "periodo_finale",
+            "Phase Beginnend": "fase_iniziale",
+            "Phase Ende": "fase_finale",
+            "Aktivität": "attivita",
+            "Jahr": "anno_scavo",
+            "Strukturcode": "struttura",
+            "Ausgegraben": "scavato",
+            "Periodencode erstellen": "cont_per",
+            "Einheit eingeben": "unita_tipo",  # nuovi campi per USM
+            "Sektor": "settore",
+            "Quadrat / Wand": "quad_par",
+            "Raum": "ambient",
+            "Graben": "saggio",
+            "Datierungselemente": "elem_datanti",
+            "Statische Funktion": "funz_statica",
+            "Verarbeitung": "lavorazione",
+            "Stärke der Fugen": "spess_giunti",
+            "Bett": "letti_posa",
+            "Höhenmodul": "alt_mod",
+            "Zusammenfassung der Baueinheit": "un_ed_riass",
+            "Wiederverwendung": "reimp",
+            "Verlegung": "posa_opera",
+            "Mindesthöhe MSE": "quota_min_usm",
+            "max. Höhe MSE": "quota_max_usm",
+            "Konsistenz Bindemittel": "cons_legante",
+            "Kleur Bindemittel": "col_legante",
+            "Aggregat Bindemittel": "aggreg_legante",
+            "Konsistenz-Texture": "con_text_mat",
+            "Kleur material": "col_materiale",
+            "Einschlüsse material mse": "inclusi_materiali_usm",
+            "n catalogo generale" : "n_catalogo_generale",  # campi aggiunti per archeo 3.0 e allineamento ICCD
+            "N °. Cat. Int." : "n_catalogo_interno",
+            "N °. Cat. Internat." : "n_catalogo_internazionale",
+            "Landesamt" : "soprintendenza",
+            "Relative Höhe" : "quota_relativa",
+            "Absolute Höhe" : "quota_abs",
+            "Materialformular Referenz" : "ref_tm",
+            "Archäologische Funde Referenz" : "ref_ra",
+            "Ref. N." : "ref_n",
+            "Lange" : "posizione",
+            "Unterscheidungskriterien" : "criteri_distinzione",
+            "Trainingsmodus" : "modo_formazione",
+            #"componenti organici" : "componenti_organici",
+            #"componenti inorganici" : "componenti_inorganici",
+            "Max.Länge" : "lunghezza_max",
+            "Max. Höhe" : "altezza_max",
+            "Min. Höhe" : "altezza_min",
+            "Max. Tiefe" : "profondita_max",
+            "Min. Tiefe" : "profondita_min",
+            "Durchschnittliche Breite" : "larghezza_media",
+            "Absolute maximale Höhe" : "quota_max_abs",
+            "Relative maximale Höhe" : "quota_max_rel",
+            "Absolute min Höhe" : "quota_min_abs",
+            "Relative min Höhe" : "quota_min_rel",
+            "Beobachtungen" : "osservazioni",
+            "Datierung" : "datazione",
+            "Flotation" : "flottazione",
+            "Siebanlage" : "setacciatura",
+            "Zuverlässigkeit" : "affidabilita",
+            "SE-Direktor" : "direttore_us",
+            "SE Leiter" : "responsabile_us",
+            "Verfasser Firma's Code" : "cod_ente_schedatore",
+            "Datum der Entdeckung" : "data_rilevazione",
+            "Überarbeitetes Datum" : "data_rielaborazione",
+            "MSE Länge" : "lunghezza_usm",
+            "MSE Höhe" : "altezza_usm",
+            "MSE Dicke" : "spessore_usm",
+            "MSE Maurer-Technik" : "tecnica_muraria_usm",
+            "MSE modul" : "modulo_usm",
+            "Mörtelproben" : "campioni_malta_usm",
+            "Ziegelsteinproben" : "campioni_mattone_usm",
+            "Steinproben" : "campioni_pietra_usm",
+            "Materieller Ursprung" : "provenienza_materiali_usm",
+            "MSE Kriterien für die Unterscheidung" : "criteri_distinzione_usm",
+            "Hauptanwendung MSE" : "uso_primario_usm"
 
-    SORT_ITEMS = [
-        ID_TABLE,  #0
-        "Sito", #1
-        "Area", #2
-        'US', #3
-        "Definizione stratigrafica", #4
-        "Definizione interpretata",  #5
-        "Descrizione",               #6
-        "Interpretazione",           #7
-        "Periodo Iniziale",          #8
-        "Periodo Finale",            #9
-        "Fase Iniziale",             #10
-        "Fase Finale",               #11
-        "Attività",
-        "Anno di scavo",
-        "Sigla struttura",
-        "Scavato",
-        "Codice periodo",
-        "Indice di ordinamento",
-        "Tipo unità",  # nuovi campi per USM
-        "Settore",
-        "Quadrato-Parete",
-        "Ambiente",
-        "Saggio",
-        "Elementi datanti",
-        "Funzione statica",
-        "Lavorazione",
-        "Spessore giunti",
-        "Letti di posa",
-        "Altezza modulo",
-        "Unità edile rissuntiva",
-        "Reimpiego",
-        "Posa in opera",
-        "Quota minima USM",
-        "Quota max USM",
-        "Consistenza legante",
-        "Colore legante",
-        "Aggregati legante",
-        "Consistenza-Texture",
-        "Colore materiale",
-        "Inclusi materiali usm",
-        "n catalogo generale",  #campi aggiunti per archeo 3.0 e allineamento ICCD
-        "n catalogo interno",
-        "n catalogo internazionale",
-        "soprintendenza",
-        "quota relativa",
-        "quota abs",
-        "ref tm",
-        "ref ra",
-        "ref n",
-        "posizione",
-        "criteri distinzione",
-        "modo formazione",
-        #"organici",
-        #"inorganici",
-        "lunghezza max",
-        "altezza max",
-        "altezza min",
-        "profondita max",
-        "profondita min",
-        "larghezza media",
-        "quota max abs",
-        "quota max rel",
-        "quota min abs",
-        "quota min rel",
-        "osservazioni",
-        "datazione",
-        "flottazione",
-        "setacciatura",
-        "affidabilita",
-        "direttore us",
-        "responsabile us",
-        "cod ente schedatore",
-        "data rilevazione",
-        "data rielaborazione",
-        "lunghezza usm",
-        "altezza usm",
-        "spessore usm",
-        "tecnica muraria usm",
-        "modulo usm",
-        "campioni malta usm",
-        "campioni mattone usm",
-        "campioni pietra usm",
-        "provenienza materiali usm",
-        "criteri distinzione usm",
-        "uso primario usm"
+        }
+    else:
+        CONVERSION_DICT = {
+            ID_TABLE: ID_TABLE,
+            "Site": "sito",
+            "Area": "area",
+            "SU": "us",
+            "Stratigraphic definition": "d_stratigrafica",
+            "Interpreted definition": "d_interpretativa",
+            "Description": "descrizione",
+            "Interpretation": "interpretazione",
+            "Initial Period": "periodo_iniziale",
+            "Final Period": "periodo_finale",
+            "Starting Phase": "fase_iniziale",
+            "Final Phase": "fase_finale",
+            "Activity": "attivita",
+            "Year of excavation": "anno_scavo",
+            "Structure code": "struttura",
+            "Excavated": "scavato",
+            "Period code": "cont_per",
+            "Unit type": "unita_tipo",  # nuovi campi per USM
+            "Sector": "settore",
+            "Square-profile": "quad_par",
+            "Room": "ambient",
+            "Trench": "saggio",
+            "Dating elements": "elem_datanti",
+            "Static function": "funz_statica",
+            "Processing": "lavorazione",
+            "Joint thickness": "spess_giunti",
+            "Laying beds": "letti_posa",
+            "Module height": "alt_mod",
+            "Resurgent Building Unit": "un_ed_riass",
+            "Reuse": "reimp",
+            "Laying": "posa_opera",
+            "Minimum WSU elevation": "quota_min_usm",
+            "Max WSU elevation": "quota_max_usm",
+            "Binder consistency": "cons_legante",
+            "Binder color": "col_legante",
+            "Binder aggregates": "aggreg_legante",
+            "Consistency-Texture": "con_text_mat",
+            "Material color": "col_materiale",
+            "Including wsu materials": "inclusi_materiali_usm",
+            "n general catalogue" : "n_catalogo_generale",  # campi aggiunti per archeo 3.0 e allineamento ICCD
+            "n internal catalogue" : "n_catalogo_interno",
+            "n international catalogue" : "n_catalogo_internazionale",
+            "superintendence" : "soprintendenza",
+            "Relative elevation" : "quota_relativa",
+            "abs elevation" : "quota_abs",
+            "ref tm" : "ref_tm",
+            "ref ra" : "ref_ra",
+            "ref n" : "ref_n",
+            "position" : "posizione",
+            "distinction criteria" : "criteri_distinzione",
+            "formation mode" : "modo_formazione",
+            #"componenti organici" : "componenti_organici",
+            #"componenti inorganici" : "componenti_inorganici",
+            "max length" : "lunghezza_max",
+            "Max height" : "altezza_max",
+            "min height" : "altezza_min",
+            "Max depth" : "profondita_max",
+            "Min depth" : "profondita_min",
+            "average width" : "larghezza_media",
+            "elevation max abs" : "quota_max_abs",
+            "elevation max relative" : "quota_max_rel",
+            "elevation min abs" : "quota_min_abs",
+            "elevation min relative" : "quota_min_rel",
+            "observation" : "osservazioni",
+            "Dating" : "datazione",
+            "Flotation" : "flottazione",
+            "Sieving" : "setacciatura",
+            "Reliability" : "affidabilita",
+            "Director SU" : "direttore_us",
+            "Responsible SU" : "responsabile_us",
+            "Company system code" : "cod_ente_schedatore",
+            "date of detection" : "data_rilevazione",
+            "date reworked" : "data_rielaborazione",
+            "wsu length" : "lunghezza_usm",
+            "wsu height" : "altezza_usm",
+            "wsu thickness" : "spessore_usm",
+            "wsu masonry technique" : "tecnica_muraria_usm",
+            "wsu module" : "modulo_usm",
+            "wsu mortar samples" : "campioni_malta_usm",
+            "wsu brick samples" : "campioni_mattone_usm",
+            "wsu stone samples" : "campioni_pietra_usm",
+            "wsu material source" : "provenienza_materiali_usm",
+            "wsu distinction criteria" : "criteri_distinzione_usm",
+            "primary use wsu" : "uso_primario_usm"
 
-
+        }       
+    if L=='it':
+        SORT_ITEMS = [
+            ID_TABLE,  #0
+            "Sito", #1
+            "Area", #2
+            'US', #3
+            "Definizione stratigrafica", #4
+            "Definizione interpretata",  #5
+            "Descrizione",               #6
+            "Interpretazione",           #7
+            "Periodo Iniziale",          #8
+            "Periodo Finale",            #9
+            "Fase Iniziale",             #10
+            "Fase Finale",               #11
+            "Attività",
+            "Anno di scavo",
+            "Sigla struttura",
+            "Scavato",
+            "Codice periodo",
+            "Indice di ordinamento",
+            "Tipo unità",  # nuovi campi per USM
+            "Settore",
+            "Quadrato-Parete",
+            "Ambiente",
+            "Saggio",
+            "Elementi datanti",
+            "Funzione statica",
+            "Lavorazione",
+            "Spessore giunti",
+            "Letti di posa",
+            "Altezza modulo",
+            "Unità edile rissuntiva",
+            "Reimpiego",
+            "Posa in opera",
+            "Quota minima USM",
+            "Quota max USM",
+            "Consistenza legante",
+            "Colore legante",
+            "Aggregati legante",
+            "Consistenza-Texture",
+            "Colore materiale",
+            "Inclusi materiali usm",
+            "n catalogo generale",  #campi aggiunti per archeo 3.0 e allineamento ICCD
+            "n catalogo interno",
+            "n catalogo internazionale",
+            "soprintendenza",
+            "quota relativa",
+            "quota abs",
+            "ref tm",
+            "ref ra",
+            "ref n",
+            "posizione",
+            "criteri distinzione",
+            "modo formazione",
+            #"organici",
+            #"inorganici",
+            "lunghezza max",
+            "altezza max",
+            "altezza min",
+            "profondita max",
+            "profondita min",
+            "larghezza media",
+            "quota max abs",
+            "quota max rel",
+            "quota min abs",
+            "quota min rel",
+            "osservazioni",
+            "datazione",
+            "flottazione",
+            "setacciatura",
+            "affidabilita",
+            "direttore us",
+            "responsabile us",
+            "cod ente schedatore",
+            "data rilevazione",
+            "data rielaborazione",
+            "lunghezza usm",
+            "altezza usm",
+            "spessore usm",
+            "tecnica muraria usm",
+            "modulo usm",
+            "campioni malta usm",
+            "campioni mattone usm",
+            "campioni pietra usm",
+            "provenienza materiali usm",
+            "criteri distinzione usm",
+            "uso primario usm"]
+    elif L == 'de':
+        SORT_ITEMS = [
+            ID_TABLE,  #0
+            "Ausgrabungsstätte",
+            "Areal",
+            "SE",
+            "Stratigraphische Definition",
+            "Interpretierte Definition",
+            "Beschreibung",
+            "Deutung",
+            "Zeitraum Beginnend",
+            "Zeitraum Ende",
+            "Phase Beginnend",
+            "Phase Ende",
+            "Aktivität",
+            "Jahr",
+            "Strukturcode",
+            "Ausgegraben",
+            "Periodencode erstellen",
+            "Einheit eingeben",
+            "Sektor",
+            "Quadrat / Wand",
+            "Raum",
+            "Graben",
+            "Datierungselemente",
+            "Statische Funktion",
+            "Verarbeitung",
+            "Stärke der Fugen",
+            "Bett",
+            "Höhenmodul",
+            "Zusammenfassung der Baueinheit",
+            "Wiederverwendung",
+            "Verlegung",
+            "Mindesthöhe MSE",
+            "max. Höhe MSE",
+            "Konsistenz Bindemittel",
+            "Kleur Bindemittel",
+            "Aggregat Bindemittel",
+            "Konsistenz-Texture",
+            "Kleur material",
+            "Einschlüsse material mse",
+            "n catalogo generale",
+            "N °. Cat. Int." ,
+            "N °. Cat. Internat." ,
+            "Landesamt" ,
+            "Relative Höhe" ,
+            "Absolute Höhe" ,
+            "Materialformular Referenz",
+            "Archäologische Funde Referenz",
+            "Ref. N." ,
+            "Lange" ,
+            "Unterscheidungskriterien" ,
+            "Trainingsmodus" ,
+            #"componenti organici",
+            #"componenti inorganici",
+            "Max.Länge" ,
+            "Max. Höhe" ,
+            "Min. Höhe" ,
+            "Max. Tiefe" ,
+            "Min. Tiefe" ,
+            "Durchschnittliche Breite" ,
+            "Absolute maximale Höhe",
+            "Relative maximale Höhe",
+            "Absolute min Höhe" ,
+            "Relative min Höhe",
+            "Beobachtungen",
+            "Datierung" ,
+            "Flotation" ,
+            "Siebanlage" ,
+            "Zuverlässigkeit" ,
+            "SE-Direktor",
+            "SE Leiter",
+            "Verfasser Firma's Code",
+            "Datum der Entdeckung",
+            "Überarbeitetes Datum",
+            "MSE Länge",
+            "MSE Höhe",
+            "MSE Dicke",
+            "MSE Maurer-Technik",
+            "MSE modul" ,
+            "Mörtelproben",
+            "Ziegelsteinproben",
+            "Steinproben",
+            "Materieller Ursprung",
+            "MSE Kriterien für die Unterscheidung",
+            "Hauptanwendung MSE"]
+    else:
+        SORT_ITEMS = [
+            ID_TABLE,  #0
+            "Site", #1
+            "Area", #2
+            "SU", #3
+            "Stratigraphic definition", #4
+            "Interpreted definition," #5
+            "Description", #6
+            "Interpretation", #7
+            "Initial Period", #8
+            "Final Period",#9
+            "Starting Phase", #10
+            "Final Phase", #11
+            "Activity",
+            "Year of excavation",
+            "Structure code",
+            "Excavated",
+            "Period code",
+            "Sorting index",
+            "Unit type", # new fields for USM
+            "Sector",
+            "Square-profile",
+            "Room",
+            "Trench",
+            "Dating elements",
+            "Static function",
+            "Processing",
+            "Joint thickness",
+            "Laying beds",
+            "Module height",
+            "Resurgent Building Unit",
+            "Reuse",
+            "Laying",
+            "Minimum WSU elevation",
+            "Max WSU elevation",
+            "Binder consistency",
+            "Binder color",
+            "Binder aggregates",
+            "Consistency-Texture",
+            "Material color",
+            "Including wsu material",
+            "n general catalogue", #added fields for arch 3.0 and ICCD alignment
+            "n internal catalogue",
+            "n international catalogue",
+            "superintendence",
+            "Relative elevation",
+            "abs elevation",
+            "ref tm",
+            "ref ra",
+            "ref n",
+            "position",
+            "distinction criteria",
+            "formation mode",
+            #Organic,
+            #Inorganic,
+            "max length",
+            "Max height",
+            "min height",
+            "Max depth",
+            "Min depth",
+            "average width",
+            "elevation max abs",
+            "elevation max relative",
+            "elevation min abs",
+            "elevation min relative",
+            "observation",
+            "Dating",
+            "Flotation",
+            "Sieving",
+            "Reliability",
+            "Director SU",
+            "Responsible SU",
+            "Company system code",
+            "date of detection",
+            "date reworked",
+            "wsu length",
+            "wsu height",
+            "wsu thickness",
+            "wsu masonry technique",
+            "wsu module",
+            "wsu mortar samples",
+            "wsu brick samples",
+            "wsu stone samples",
+            "wsu material source",
+            "wsu distinction criteria",
+            "primary use wsu",
     ]
 
     TABLE_FIELDS = [
@@ -392,7 +740,7 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
         try:
             self.on_pushButton_connect_pressed()
         except Exception as e:
-            QMessageBox.warning(self, "Sistema di connessione", str(e), QMessageBox.Ok)
+            QMessageBox.warning(self, "Connection System", str(e), QMessageBox.Ok)
 
             # SIGNALS & SLOTS Functions
         self.comboBox_sito.editTextChanged.connect(self.charge_periodo_iniz_list)
@@ -523,8 +871,13 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
 
             res = self.DB_MANAGER.query_bool(search_dict, self.MAPPER_TABLE_CLASS)
             if not bool(res):
-                QMessageBox.warning(self, "ATTENZIONE", "Non e' stato trovato alcun record!", QMessageBox.Ok)
-
+                
+                if self.L=='it':
+                    QMessageBox.warning(self, "ATTENZIONE", "Non e' stato trovato alcun record!", QMessageBox.Ok)
+                elif self.L=='de':
+                    QMessageBox.warning(self, "ACHTUNG", "kein Eintrag gefunden!", QMessageBox.Ok)
+                else:
+                    QMessageBox.warning(self, "Warning", "The record has not been found ", QMessageBox.Ok)
                 self.set_rec_counter(len(self.DATA_LIST), self.REC_CORR + 1)
                 self.DATA_LIST_REC_TEMP = self.DATA_LIST_REC_CORR = self.DATA_LIST[0]
                 self.fill_fields(self.REC_CORR)
@@ -547,11 +900,24 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
                 self.set_rec_counter(len(self.DATA_LIST), self.REC_CORR + 1)
 
                 if self.REC_TOT == 1:
-                    strings = ("E' stato trovato", self.REC_TOT, "record")
+                    
+                    
+                    if self.L=='it':
+                        strings = ("E' stato trovato", self.REC_TOT, "record")
+                    elif self.L=='de':
+                        strings = ("Es wurde gefunden", self.REC_TOT, "record")
+                    else:
+                        strings = ("has been found", self.REC_TOT, "record")
                     if self.toolButtonGis.isChecked():
                         self.pyQGIS.charge_vector_layers(self.DATA_LIST)
                 else:
-                    strings = ("Sono stati trovati", self.REC_TOT, "records")
+                    
+                    if self.L=='it':
+                        strings = ("Sono stati trovati", self.REC_TOT, "records")
+                    elif self.L=='de':
+                        strings = ("Sie wurden gefunden", self.REC_TOT, "records")
+                    else:
+                        strings = ("Have been found", self.REC_TOT, "records")
                     if self.toolButtonGis.isChecked():
                         self.pyQGIS.charge_vector_layers(self.DATA_LIST)
 
@@ -560,9 +926,15 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
                 self.setComboBoxEnable(["self.lineEdit_us"], "False")
         except Exception as e:
             e = str(e)
-            QMessageBox.warning(self, "Alert", "Non hai selezionato nessuna riga. Errore python: %s " % (str(e)),
+            if self.L=='it':
+                QMessageBox.warning(self, "Alert", "Non hai selezionato nessuna riga. Errore python: %s " % (str(e)),
                                 QMessageBox.Ok)
-
+            elif self.L=='de':
+                QMessageBox.warning(self, "ACHTUNG", "Keine Spalte ausgewält. Error python: %s " % (str(e)),
+                                QMessageBox.Ok)
+            else:
+                QMessageBox.warning(self, "Alert", "You didn't select any row. Python error: %s " % (str(e)),
+                                QMessageBox.Ok)                 
     def enable_button(self, n):
         # self.pushButton_connect.setEnabled(n)
 
@@ -651,17 +1023,16 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
             else:
                 
                 if self.L=='it':
-                    QMessageBox.warning(self,"BENVENUTO", "Benvenuto in pyArchInit" + "Scheda US" + ". Il database e' vuoto. Premi 'Ok' e buon lavoro!",
+                    QMessageBox.warning(self,"BENVENUTO", "Benvenuto in pyArchInit" + "Scheda Campioni" + ". Il database e' vuoto. Premi 'Ok' e buon lavoro!",
                                         QMessageBox.Ok)
-                elif self.L=='en':
-                    QMessageBox.warning(self,"WELCOME", "Welcome in pyArchInit" + "SU form" + ". The DB is empty. Push 'Ok' and Good Work!",
-                                        QMessageBox.Ok) 
+                
                 elif self.L=='de':
                     
-                    QMessageBox.warning(self,"WILLKOMMEN","WILLKOMMEN in pyArchInit" + "SE formular"+ ". Die Datenbank ist leer. Tippe 'Ok' und aufgehts!",
+                    QMessageBox.warning(self,"WILLKOMMEN","WILLKOMMEN in pyArchInit" + "Munsterformular"+ ". Die Datenbank ist leer. Tippe 'Ok' und aufgehts!",
                                         QMessageBox.Ok) 
                 else:
-                    pass    
+                    QMessageBox.warning(self,"WELCOME", "Welcome in pyArchInit" + "Samples form" + ". The DB is empty. Push 'Ok' and Good Work!",
+                                        QMessageBox.Ok)    
                 self.charge_list()
                 self.BROWSE_STATUS = 'x'
                 self.on_pushButton_new_rec_pressed()
@@ -673,26 +1044,26 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
                     msg = "La connessione e' fallita {}. " \
                           "E' NECESSARIO RIAVVIARE QGIS oppure rilevato bug! Segnalarlo allo sviluppatore".format(str(e))
                     self.iface.messageBar().pushMessage(self.tr(msg), Qgis.Warning, 0)
-                elif self.L=='en':
-                    msg = "The connection failed {}. " \
-                          "You MUST RESTART QGIS or bug detected! Report it to the developer".format(str(e))
+                
                     self.iface.messageBar().pushMessage(self.tr(msg), Qgis.Warning, 0)
                 elif self.L=='de':
                     msg = "Verbindungsfehler {}. " \
                           " QGIS neustarten oder es wurde ein bug gefunden! Fehler einsenden".format(str(e))
-                    self.iface.messageBar().pushMessage(self.tr(msg), Qgis.Warning, 0)      
+                    self.iface.messageBar().pushMessage(self.tr(msg), Qgis.Warning, 0)
+                else:
+                    msg = "The connection failed {}. " \
+                          "You MUST RESTART QGIS or bug detected! Report it to the developer".format(str(e))        
             else:
                 if self.L=='it':
                     msg = "Attenzione rilevato bug! Segnalarlo allo sviluppatore. Errore: ".format(str(e))
                     self.iface.messageBar().pushMessage(self.tr(msg), Qgis.Warning, 0)
-                elif self.L=='en':
-                    msg = "Warning bug detected! Report it to the developer. Error: ".format(str(e))
-                    self.iface.messageBar().pushMessage(self.tr(msg), Qgis.Warning, 0)
+                
                 elif self.L=='de':
                     msg = "ACHTUNG. Es wurde ein bug gefunden! Fehler einsenden: ".format(str(e))
                     self.iface.messageBar().pushMessage(self.tr(msg), Qgis.Warning, 0)  
                 else:
-                    pass    
+                    msg = "Warning bug detected! Report it to the developer. Error: ".format(str(e))
+                    self.iface.messageBar().pushMessage(self.tr(msg), Qgis.Warning, 0)    
     def customize_GUI(self):
 
         l = QgsSettings().value("locale/userLocale", QVariant)[0:2]
@@ -764,7 +1135,11 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
             self.delegateRS.def_editable('False')
             self.tableWidget_rapporti.setItemDelegateForColumn(0,self.delegateRS)
         else:
-            pass
+            valuesRS = ["Same as", "Connected to", "Covers", "Covered by", "Fills", "Filled by", "Cuts", "Cut by", "Abuts", "Supports", ""]
+            self.delegateRS = ComboBoxDelegate()
+            self.delegateRS.def_values(valuesRS)
+            self.delegateRS.def_editable('False')
+            self.tableWidget_rapporti.setItemDelegateForColumn(0,self.delegateRS)
         
         # lista tipo documentazione
 
@@ -1797,18 +2172,41 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
         #                                               "Si consiglia di lanciare il matrix e controllare se sono presenti paradossi stratigrafici prima di proseguire",
         #                                               QMessageBox.Ok | QMessageBox.Cancel))
 
-        self.launch_order_layer_if(QMessageBox.warning(self, 'ATTENZIONE',
+        
+        if self.L=='it':
+            self.launch_order_layer_if(QMessageBox.warning(self, 'ATTENZIONE',
                                                        "Sei sicuro di voler proseguire? Se saranno presenti paradossi stratigrafici il sistema potrebbe andare in crush!",
                                                        QMessageBox.Ok | QMessageBox.Cancel))
-
+        elif self.L=='de':
+            self.launch_order_layer_if(QMessageBox.warning(self, 'ACHTUNG',
+                                                       "Bist du sicher das du fortfahren möchtest? Wenn aktuell stratigraphische Paradoxa auftauchen Könnte das System zusammenbrechen!",
+                                                       QMessageBox.Ok | QMessageBox.Cancel))
+        else:
+            self.launch_order_layer_if(QMessageBox.warning(self, 'ATTENZIONE',
+                                                       "Are you sure you want to go on? If there are stratigraphic paradoxes, the system could crush!",
+                                                       QMessageBox.Ok | QMessageBox.Cancel))
     def launch_order_layer_if(self, msg):
         if msg == QMessageBox.Ok:
 
             # report errori rapporti stratigrafici
-            msg_tipo_rapp = "Manca il tipo di rapporto nell'US: \n"
-            msg_nr_rapp = "Manca il numero del rapporto nell'US: \n"
-            msg_paradx_rapp = "Paradosso nei rapporti: \n"
-            msg_us_mancanti = "Mancano le seguenti schede US presenti nei rapporti: \n"
+            if self.L=='it':
+                msg_tipo_rapp = "Manca il tipo di rapporto nell'US: \n"
+                msg_nr_rapp = "Manca il numero del rapporto nell'US: \n"
+                msg_paradx_rapp = "Paradosso nei rapporti: \n"
+                msg_us_mancanti = "Mancano le seguenti schede US presenti nei rapporti: \n"
+            
+            elif self.L=='de':
+                msg_tipo_rapp = "Der Beziehungstyp fehlt in den SE: \n"
+                msg_nr_rapp = "Die Berichtsnummer fehlt in den SE: \n"
+                msg_paradx_rapp = "Paradox in Beziehungen: \n"
+                msg_us_mancanti = "Folgende SE-formular fehlen in den Berichten: \n"
+            else:
+                msg_tipo_rapp = "The relationship type is missing in the SU: \n"
+                msg_nr_rapp = "The report number is missing in the SU: \n"
+                msg_paradx_rapp = "Paradox in relationships: \n"
+                msg_us_mancanti = "The following SU forms are missing from the reports: \n"
+
+            
             # report errori rapporti stratigrafici
 
             data = []
@@ -1817,8 +2215,12 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
                 rapporti_stratigrafici = eval(sing_rec.rapporti)
                 for sing_rapp in rapporti_stratigrafici:
                     if len(sing_rapp) != 2:
-                        msg_nr_rapp = msg_nr_rapp + str(sing_rapp) + "relativo a: " + str(us) + " \n"
-
+                        if self.L=='it':
+                            msg_nr_rapp = msg_nr_rapp + str(sing_rapp) + "relativo a: " + str(us) + " \n"
+                        elif self.L=='de':
+                            msg_nr_rapp = msg_nr_rapp + str(sing_rapp) + "bezüglich: " + str(us) + " \n"
+                        else:
+                            msg_nr_rapp = msg_nr_rapp + str(sing_rapp) + "concerning: " + str(us) + " \n"
                     try:
                         if sing_rapp[0] == 'Cuts' or  sing_rapp[0] == 'Covers' or  sing_rapp[0] == 'Abuts' or  sing_rapp[0] == 'Fills' or sing_rapp[0] == 'Taglia' or  sing_rapp[0] == 'Copre' or  sing_rapp[0] == 'Si appoggia a' or  sing_rapp[0] == 'Riempie'  or  sing_rapp[0] == 'Schneidet' or  sing_rapp[0] == 'Liegt über' or  sing_rapp[0] == 'Stützt sich auf' or  sing_rapp[0] == 'Verfüllt':
                        
@@ -1870,19 +2272,42 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
                             e)  # msg_us_mancanti + "\n"+str(sito) + "area: " + str(area) + " us: " + (us)
 
             # blocco output errori
-            filename_tipo_rapporti_mancanti = '{}{}{}'.format(self.REPORT_PATH, os.sep, 'tipo_rapporti_mancanti.txt')
-            filename_nr_rapporti_mancanti = '{}{}{}'.format(self.REPORT_PATH, os.sep, 'nr_rapporti_mancanti.txt')
-            filename_paradosso_rapporti = '{}{}{}'.format(self.REPORT_PATH, os.sep, 'paradosso_rapporti.txt')
-            filename_us_mancanti = '{}{}{}'.format(self.REPORT_PATH, os.sep, 'us_mancanti.txt')
-
+            if self.L=='it':
+                filename_tipo_rapporti_mancanti = '{}{}{}'.format(self.REPORT_PATH, os.sep, 'tipo_rapporti_mancanti.txt')
+                filename_nr_rapporti_mancanti = '{}{}{}'.format(self.REPORT_PATH, os.sep, 'nr_rapporti_mancanti.txt')
+                filename_paradosso_rapporti = '{}{}{}'.format(self.REPORT_PATH, os.sep, 'paradosso_rapporti.txt')
+                filename_us_mancanti = '{}{}{}'.format(self.REPORT_PATH, os.sep, 'us_mancanti.txt')
+            elif self.L=='de':
+                filename_tipo_rapporti_mancanti = '{}{}{}'.format(self.REPORT_PATH, os.sep, 'type_missing_relationships.txt')
+                filename_nr_rapporti_mancanti = '{}{}{}'.format(self.REPORT_PATH, os.sep, 'nr_missing relashionships.txt')
+                filename_paradosso_rapporti = '{}{}{}'.format(self.REPORT_PATH, os.sep, 'relashionships_paradox.txt')
+                filename_us_mancanti = '{}{}{}'.format(self.REPORT_PATH, os.sep, 'su_missing.txt')
+            else:
+                filename_tipo_rapporti_mancanti = '{}{}{}'.format(self.REPORT_PATH, os.sep, 'type_missing_relationships.txt')
+                filename_nr_rapporti_mancanti = '{}{}{}'.format(self.REPORT_PATH, os.sep, 'nr_missing relashionships.txt')
+                filename_paradosso_rapporti = '{}{}{}'.format(self.REPORT_PATH, os.sep, 'relashionships_paradox.txt')
+                filename_us_mancanti = '{}{}{}'.format(self.REPORT_PATH, os.sep, 'su_missing.txt')
+           
             self.testing(filename_tipo_rapporti_mancanti, str(msg_tipo_rapp))
             self.testing(filename_nr_rapporti_mancanti, str(msg_nr_rapp))
             self.testing(filename_paradosso_rapporti, str(msg_paradx_rapp))
             self.testing(filename_us_mancanti, str(msg_us_mancanti))
-            QMessageBox.warning(self, u'ATTENZIONE', u"Sistema di ordinamento Terminato", QMessageBox.Ok)
+            
+            if self.L=='it':
+                QMessageBox.warning(self, u'ATTENZIONE', u"Sistema di ordinamento Terminato", QMessageBox.Ok)
+            elif self.L=='de':
+                QMessageBox.warning(self, u'ACHTUNG', "Ordnungssystem beendet", QMessageBox.Ok)
+            else:
+                QMessageBox.warning(self, u'WARNING', "Sorting system Complete", QMessageBox.Ok)
         else:
-            QMessageBox.warning(self, u'ATTENZIONE', u"Sistema di ordinamento US abortito", QMessageBox.Ok)
-            # blocco output errori
+            if self.L=='it':
+                QMessageBox.warning(self, u'ATTENZIONE', u"Sistema di ordinamento US abortito", QMessageBox.Ok)
+            elif self.L=='de':
+                QMessageBox.warning(self, 'ACHTUNG', u"Ordnungssystem verlassen", QMessageBox.Ok)
+            else:
+                QMessageBox.warning(self, 'WARNING', "SU aborted sorting system", QMessageBox.Ok)
+
+           # blocco output errori
 
     def on_toolButtonPan_toggled(self):
         self.toolPan = QgsMapToolPan(self.mapPreview)
@@ -1894,7 +2319,12 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
         layer = self.iface.mapCanvas().currentLayer()
         fieldname = self.ID_TABLE
         if not layer:
-            QMessageBox.warning(self, 'ATTENZIONE', "Nessun elemento selezionato", QMessageBox.Ok)
+            if self.L=='it':
+                QMessageBox.warning(self, 'ATTENZIONE', "Nessun elemento selezionato", QMessageBox.Ok)
+            elif self.L=='de':
+                QMessageBox.warning(self, 'ACHTUNG', "keine Elemente ausgewählt", QMessageBox.Ok)
+            else:
+                QMessageBox.warning(self, 'WARNING', "No items selected", QMessageBox.Ok)
         features_list = layer.selectedFeatures()
 
         field_position = ""
@@ -1974,33 +2404,86 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
             self.fill_fields()
 
     def on_toolButtonGis_toggled(self):
-        if self.toolButtonGis.isChecked():
-            QMessageBox.warning(self, "Messaggio",
-                                "Modalita' GIS attiva. Da ora le tue ricerche verranno visualizzate sul GIS",
-                                QMessageBox.Ok)
+        if self.L=='it':
+            if self.toolButtonGis.isChecked():
+                QMessageBox.warning(self, "Messaggio",
+                                    "Modalita' GIS attiva. Da ora le tue ricerche verranno visualizzate sul GIS",
+                                    QMessageBox.Ok)
+            else:
+                QMessageBox.warning(self, "Messaggio",
+                                    "Modalita' GIS disattivata. Da ora le tue ricerche non verranno piu' visualizzate sul GIS",
+                                    QMessageBox.Ok)
+        elif self.L=='de':
+            if self.toolButtonGis.isChecked():
+                QMessageBox.warning(self, "Message",
+                                    "Modalität' GIS aktiv. Von jetzt wird Deine Untersuchung mit Gis visualisiert",
+                                    QMessageBox.Ok)
+            else:
+                QMessageBox.warning(self, "Message",
+                                    "Modalität' GIS deaktiviert. Von jetzt an wird deine Untersuchung nicht mehr mit Gis visualisiert",
+                                    QMessageBox.Ok)
         else:
-            QMessageBox.warning(self, "Messaggio",
-                                "Modalita' GIS disattivata. Da ora le tue ricerche non verranno piu' visualizzate sul GIS",
-                                QMessageBox.Ok)
-
+            if self.toolButtonGis.isChecked():
+                QMessageBox.warning(self, "Message",
+                                    "GIS mode active. From now on your searches will be displayed on the GIS",
+                                    QMessageBox.Ok)
+            else:
+                QMessageBox.warning(self, "Message",
+                                    "GIS mode disabled. From now on, your searches will no longer be displayed on the GIS.",
+                                    QMessageBox.Ok)
+                                    
     def on_toolButtonPreview_toggled(self):
-        if self.toolButtonPreview.isChecked():
-            QMessageBox.warning(self, "Messaggio",
-                                "Modalita' Preview US attivata. Le piante delle US saranno visualizzate nella sezione Piante",
-                                QMessageBox.Ok)
-            self.loadMapPreview()
+        if self.L=='it':
+            if self.toolButtonPreview.isChecked():
+                QMessageBox.warning(self, "Messaggio",
+                                    "Modalita' Preview US attivata. Le piante delle US saranno visualizzate nella sezione Piante",
+                                    QMessageBox.Ok)
+                self.loadMapPreview()
+            else:
+                self.loadMapPreview(1)
+        elif self.L=='de':
+            if self.toolButtonPreview.isChecked():
+                QMessageBox.warning(self, "Message",
+                                    "Modalität' Preview der aktivierten SE. Die Plana der SE werden in der Auswahl der Plana visualisiert",
+                                    QMessageBox.Ok)
+                self.loadMapPreview()
+            else:
+                self.loadMapPreview(1)
+                
         else:
-            self.loadMapPreview(1)
-
+            if self.toolButtonPreview.isChecked():
+                QMessageBox.warning(self, "Message",
+                                    "Preview SU mode enabled. US plants will be displayed in the Plants section",
+                                    QMessageBox.Ok)
+                self.loadMapPreview()
+            else:
+                self.loadMapPreview(1)
     def on_toolButtonPreviewMedia_toggled(self):
-        if self.toolButtonPreviewMedia.isChecked():
-            QMessageBox.warning(self, "Messaggio",
-                                "Modalita' Preview Media US attivata. Le immagini delle US saranno visualizzate nella sezione Media",
-                                QMessageBox.Ok)
-            self.loadMediaPreview()
+        
+        if self.L=='it':
+            if self.toolButtonPreviewMedia.isChecked():
+                QMessageBox.warning(self, "Messaggio",
+                                    "Modalita' Preview Media US attivata. Le immagini delle US saranno visualizzate nella sezione Media",
+                                    QMessageBox.Ok)
+                self.loadMediaPreview()
+            else:
+                self.loadMediaPreview(1)
+        elif self.L=='de':
+            if self.toolButtonPreviewMedia.isChecked():
+                QMessageBox.warning(self, "Message",
+                                    "Modalität' Preview Media SE aktiviert. Die Bilder der SE werden in der Preview media Auswahl visualisiert",
+                                    QMessageBox.Ok)
+                self.loadMediaPreview()
+            else:
+                self.loadMediaPreview(1)
         else:
-            self.loadMediaPreview(1)
-
+            if self.toolButtonPreviewMedia.isChecked():
+                QMessageBox.warning(self, "Message",
+                                    "SU Media Preview mode enabled. US images will be displayed in the Media section",
+                                    QMessageBox.Ok)
+                self.loadMediaPreview()
+            else:
+                self.loadMediaPreview(1)        
     def on_pushButton_addRaster_pressed(self):
         if self.toolButtonGis.isChecked():
             self.pyQGIS.addRasterLayer()
@@ -2013,10 +2496,18 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
                 if self.BROWSE_STATUS == "b":
                     if self.DATA_LIST:
                         if self.records_equal_check() == 1:
-                            self.update_if(QMessageBox.warning(self, 'Errore',
-                                                               "Il record e' stato modificato. Vuoi salvare le modifiche?",
-                                                               QMessageBox.Ok | QMessageBox.Cancel))
-
+                            if self.L=='it':
+                                self.update_if(QMessageBox.warning(self, 'Errore',
+                                                                   "Il record e' stato modificato. Vuoi salvare le modifiche?",QMessageBox.Ok | QMessageBox.Cancel))
+                            elif self.L=='de':
+                                self.update_if(QMessageBox.warning(self, 'Error',
+                                                                   "Der Record wurde geändert. Möchtest du die Änderungen speichern?",
+                                                                   QMessageBox.Ok | QMessageBox.Cancel))
+                                                                   
+                            else:
+                                self.update_if(QMessageBox.warning(self, 'Error',
+                                                                   "The record has been changed. Do you want to save the changes?",
+                                                                   QMessageBox.Ok | QMessageBox.Cancel))
         if self.BROWSE_STATUS != "n":
             self.BROWSE_STATUS = "n"
             self.label_status.setText(self.STATUS_ITEMS[self.BROWSE_STATUS])
@@ -2046,15 +2537,29 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
         if self.BROWSE_STATUS == "b":
             if self.data_error_check() == 0:
                 if self.records_equal_check() == 1:
-                    self.update_if(QMessageBox.warning(self, 'ATTENZIONE',
-                                                       "Il record e' stato modificato. Vuoi salvare le modifiche?",
-                                                       QMessageBox.Ok | QMessageBox.Cancel))
+                    if self.L=='it':
+                        self.update_if(QMessageBox.warning(self, 'Errore',
+                                                           "Il record e' stato modificato. Vuoi salvare le modifiche?",QMessageBox.Ok | QMessageBox.Cancel))
+                    elif self.L=='de':
+                        self.update_if(QMessageBox.warning(self, 'Error',
+                                                           "Der Record wurde geändert. Möchtest du die Änderungen speichern?",
+                                                           QMessageBox.Ok | QMessageBox.Cancel))
+                                                    
+                    else:
+                        self.update_if(QMessageBox.warning(self, 'Error',
+                                                           "The record has been changed. Do you want to save the changes?",
+                                                           QMessageBox.Ok | QMessageBox.Cancel))
                     self.SORT_STATUS = "n"
                     self.label_sort.setText(self.SORTED_ITEMS[self.SORT_STATUS])
                     self.enable_button(1)
                     self.fill_fields(self.REC_CORR)
                 else:
-                    QMessageBox.warning(self, "ATTENZIONE", "Non è stata realizzata alcuna modifica.", QMessageBox.Ok)
+                    if self.L=='it':
+                        QMessageBox.warning(self, "ATTENZIONE", "Non è stata realizzata alcuna modifica.", QMessageBox.Ok)
+                    elif self.L=='de':
+                        QMessageBox.warning(self, "ACHTUNG", "Keine Änderung vorgenommen", QMessageBox.Ok)
+                    else:
+                        QMessageBox.warning(self, "Warning", "No changes have been made", QMessageBox.Ok)       
         else:
             if self.data_error_check() == 0:
                 test_insert = self.insert_new_rec()
@@ -2080,8 +2585,12 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
 
                     self.enable_button(1)
             else:
-                QMessageBox.warning(self, "ATTENZIONE", "Problema nell'inserimento dati", QMessageBox.Ok)
-
+                if self.L=='it':
+                    QMessageBox.warning(self, "ATTENZIONE", "Problema nell'inserimento dati", QMessageBox.Ok)
+                elif self.L=='de':
+                    QMessageBox.warning(self, "ACHTUNG", "Problem der Dateneingabe", QMessageBox.Ok)
+                else:
+                    QMessageBox.warning(self, "Warning", "Problem with data entry", QMessageBox.Ok) 
     def on_pushButton_rapp_check_pressed(self):
         sito_check = str(self.comboBox_sito_rappcheck.currentText())
         area_check = str(self.comboBox_area_rappcheck.currentText())
@@ -2090,103 +2599,284 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
 
             self.def_strati_to_rapporti_stratigrafici_check(sito_check, area_check)  # SPERIMENTALE
         except Exception as e:
-            QMessageBox.warning(self, "Messaggio Iniziale", str(e), QMessageBox.Ok)
+            QMessageBox.warning(self, "Initial Message", str(e), QMessageBox.Ok)
         else:
-            QMessageBox.warning(self, "Messaggio",
-                                "Controllo Rapporti Stratigrafici. \n Controllo eseguito con successo", QMessageBox.Ok)
-
+            if self.L=='it':
+                QMessageBox.warning(self, "Messaggio",
+                                    "Controllo Rapporti Stratigrafici. \n Controllo eseguito con successo", QMessageBox.Ok)
+            elif self.L=='de':
+                QMessageBox.warning(self, "Message",
+                                    "Prüfen der stratigraphischen Beziehung.  Kontrolle erfolgereich", QMessageBox.Ok)
+            else:
+                QMessageBox.warning(self, "Message",
+                                    "Monitoring of stratigraphic relationships. \n Control performed successfully", QMessageBox.Ok)                     
     def data_error_check(self):
         test = 0
         EC = Error_check()
+        if self.L=='it':
+            if EC.data_is_empty(str(self.comboBox_sito.currentText())) == 0:
+                QMessageBox.warning(self, "ATTENZIONE", "Campo Sito. \n Il campo non deve essere vuoto", QMessageBox.Ok)
+                test = 1
 
-        if EC.data_is_empty(str(self.comboBox_sito.currentText())) == 0:
-            QMessageBox.warning(self, "ATTENZIONE", "Campo Sito. \n Il campo non deve essere vuoto", QMessageBox.Ok)
-            test = 1
+            if EC.data_is_empty(str(self.comboBox_area.currentText())) == 0:
+                QMessageBox.warning(self, "ATTENZIONE", "Campo Area. \n Il campo non deve essere vuoto", QMessageBox.Ok)
+                test = 1
 
-        if EC.data_is_empty(str(self.comboBox_area.currentText())) == 0:
-            QMessageBox.warning(self, "ATTENZIONE", "Campo Area. \n Il campo non deve essere vuoto", QMessageBox.Ok)
-            test = 1
+            if EC.data_is_empty(str(self.lineEdit_us.text())) == 0:
+                QMessageBox.warning(self, "ATTENZIONE", "Campo US. \n Il campo non deve essere vuoto", QMessageBox.Ok)
+                test = 1
 
-        if EC.data_is_empty(str(self.lineEdit_us.text())) == 0:
-            QMessageBox.warning(self, "ATTENZIONE", "Campo US. \n Il campo non deve essere vuoto", QMessageBox.Ok)
-            test = 1
-
-        if EC.data_is_empty(str(self.comboBox_unita_tipo.currentText())) == 0:
-            QMessageBox.warning(self, "ATTENZIONE", "Campo Tipo US/USM. \n Il campo non deve essere vuoto",
-                                QMessageBox.Ok)
-            test = 1
-
-        area = self.comboBox_area.currentText()
-        us = self.lineEdit_us.text()
-        attivita = self.lineEdit_attivita.text()
-        colore = self.comboBox_colore.currentText()
-        anno_scavo = self.lineEdit_anno.text()
-        formazione = self.comboBox_formazione.currentText()
-        stato_conservazione = self.comboBox_conservazione.currentText()
-        colore = self.comboBox_colore.currentText()
-        consistenza = self.comboBox_consistenza.currentText()
-        struttura = self.lineEdit_struttura.text()
-        cont_per = self.lineEdit_codice_periodo.text()
-
-        if area != "":
-            if EC.data_is_int(area) == 0:
-                QMessageBox.warning(self, "ATTENZIONE", "Campo Area. \n Il valore deve essere di tipo numerico",
+            if EC.data_is_empty(str(self.comboBox_unita_tipo.currentText())) == 0:
+                QMessageBox.warning(self, "ATTENZIONE", "Campo Tipo US/USM. \n Il campo non deve essere vuoto",
                                     QMessageBox.Ok)
                 test = 1
 
-        if us != "":
-            if EC.data_is_int(us) == 0:
-                QMessageBox.warning(self, "ATTENZIONE", "Campo US. \n Il valore deve essere di tipo numerico",
+            area = self.comboBox_area.currentText()
+            us = self.lineEdit_us.text()
+            attivita = self.lineEdit_attivita.text()
+            colore = self.comboBox_colore.currentText()
+            anno_scavo = self.lineEdit_anno.text()
+            formazione = self.comboBox_formazione.currentText()
+            stato_conservazione = self.comboBox_conservazione.currentText()
+            colore = self.comboBox_colore.currentText()
+            consistenza = self.comboBox_consistenza.currentText()
+            struttura = self.lineEdit_struttura.text()
+            cont_per = self.lineEdit_codice_periodo.text()
+
+            if area != "":
+                if EC.data_is_int(area) == 0:
+                    QMessageBox.warning(self, "ATTENZIONE", "Campo Area. \n Il valore deve essere di tipo numerico",
+                                        QMessageBox.Ok)
+                    test = 1
+
+            if us != "":
+                if EC.data_is_int(us) == 0:
+                    QMessageBox.warning(self, "ATTENZIONE", "Campo US. \n Il valore deve essere di tipo numerico",
+                                        QMessageBox.Ok)
+                    test = 1
+
+            if attivita != "":
+                if EC.data_lenght(attivita, 3) == 0:
+                    QMessageBox.warning(self, "ATTENZIONE",
+                                        "Campo Attivita. \n Il valore non deve superare i 4 caratteri alfanumerici",
+                                        QMessageBox.Ok)
+                    test = 1
+
+                    # if anno_scavo != "":
+            # if EC.data_lenght(anno_scavo,3) == 0:
+            #       QMessageBox.warning(self, "ATTENZIONE", "Campo Anno. \n immettere una sola data (es. 2014)",  QMessageBox.Ok)
+            #       test = 1
+
+            if formazione != "":
+                if EC.data_lenght(formazione, 19) == 0:
+                    QMessageBox.warning(self, "ATTENZIONE",
+                                        "Campo Formazione. \n Il valore non deve superare i 20 caratteri alfanumerici",
+                                        QMessageBox.Ok)
+                    test = 1
+
+            if stato_conservazione != "":
+                if EC.data_lenght(stato_conservazione, 19) == 0:
+                    QMessageBox.warning(self, "ATTENZIONE",
+                                        "Campo Conservazione. \n Il valore non deve superare i 20 caratteri alfanumerici",
+                                        QMessageBox.Ok)
+                    test = 1
+
+            if colore != "":
+                if EC.data_lenght(colore, 19) == 0:
+                    QMessageBox.warning(self, "ATTENZIONE",
+                                        "Campo Colore. \n Il valore non deve superare i 20 caratteri alfanumerici",
+                                        QMessageBox.Ok)
+                    test = 1
+
+            if consistenza != "":
+                if EC.data_lenght(consistenza, 19) == 0:
+                    QMessageBox.warning(self, "ATTENZIONE",
+                                        "Campo Consistenza. \n Il valore non deve superare i 20 caratteri alfanumerici",
+                                        QMessageBox.Ok)
+                    test = 1
+
+            if struttura != "":
+                if EC.data_lenght(struttura, 29) == 0:
+                    QMessageBox.warning(self, "ATTENZIONE",
+                                        "Campo Struttura. \n Il valore non deve superare i 30 caratteri alfanumerici",
+                                        QMessageBox.Ok)
+                    test = 1
+            
+        elif self.L=='de':  
+            if EC.data_is_empty(str(self.comboBox_sito.currentText())) == 0:
+                QMessageBox.warning(self, "ACHTUNG", " Feld Ausgrabungstätte. \n Das Feld darf nicht leer sein", QMessageBox.Ok)
+                test = 1
+
+            if EC.data_is_empty(str(self.comboBox_area.currentText())) == 0:
+                QMessageBox.warning(self, "ACHTUNG", "Feld Areal. \n Das Feld darf nicht leer sein", QMessageBox.Ok)
+                test = 1
+
+            if EC.data_is_empty(str(self.lineEdit_us.text())) == 0:
+                QMessageBox.warning(self, "ACHTUNG", "Feld SE. \n Das Feld darf nicht leer sein", QMessageBox.Ok)
+                test = 1
+
+            if EC.data_is_empty(str(self.comboBox_unita_tipo.currentText())) == 0:
+                QMessageBox.warning(self, "ACHTUNG", "Feld SE/MSE Typ. \n Das Feld darf nicht leer sein",   QMessageBox.Ok)
+                test = 1
+
+            area = self.comboBox_area.currentText()
+            us = self.lineEdit_us.text()
+            attivita = self.lineEdit_attivita.text()
+            colore = self.comboBox_colore.currentText()
+            anno_scavo = self.lineEdit_anno.text()
+            formazione = self.comboBox_formazione.currentText()
+            stato_conservazione = self.comboBox_conservazione.currentText()
+            colore = self.comboBox_colore.currentText()
+            consistenza = self.comboBox_consistenza.currentText()
+            struttura = self.lineEdit_struttura.text()
+            cont_per = self.lineEdit_codice_periodo.text()
+
+            if area != "":
+                if EC.data_is_int(area) == 0:
+                    QMessageBox.warning(self, "ACHTUNG", "Feld Areal. \n Der Wert muss numerisch eingegeben werden",
+                                        QMessageBox.Ok)
+                    test = 1
+
+            if us != "":
+                if EC.data_is_int(us) == 0:
+                    QMessageBox.warning(self, "ACHTUNG", "Feld SE. \n Der Wert muss numerisch eingegeben werden",
+                                        QMessageBox.Ok)
+                    test = 1
+
+            if attivita != "":
+                if EC.data_lenght(attivita, 3) == 0:
+                    QMessageBox.warning(self, "ACHTUNG",
+                                        "Feld aktiviert. \n Der Wert darf nicht mehr als 4 alphanumerische Zeichen enthalten",
+                                        QMessageBox.Ok)
+                    test = 1
+
+                    # if anno_scavo != "":
+            # if EC.data_lenght(anno_scavo,3) == 0:
+            #       QMessageBox.warning(self, "ATTENZIONE", "Campo Anno. \n immettere una sola data (es. 2014)",  QMessageBox.Ok)
+            #       test = 1
+
+            if formazione != "":
+                if EC.data_lenght(formazione, 19) == 0:
+                    QMessageBox.warning(self, "ACHTUNG",
+                                        "Feld Bodenart. \n Der Wert darf nicht mehr als 20 alphanumerische Zeichen enthalten",
+                                        QMessageBox.Ok)
+                    test = 1
+
+            if stato_conservazione != "":
+                if EC.data_lenght(stato_conservazione, 19) == 0:
+                    QMessageBox.warning(self, "ACHTUNG",
+                                        "Feld Erhaltungszustand.  Der Wert darf nicht mehr als 20 alphanumerische Zeichen enthalten",
+                                        QMessageBox.Ok)
+                    test = 1
+
+            if colore != "":
+                if EC.data_lenght(colore, 19) == 0:
+                    QMessageBox.warning(self, "ACHTUNG",
+                                        "Feld Farbe. \n Der Wert darf nicht mehr als 20 alphanumerische Zeichen enthalten",
+                                        QMessageBox.Ok)
+                    test = 1
+
+            if consistenza != "":
+                if EC.data_lenght(consistenza, 19) == 0:
+                    QMessageBox.warning(self, "ACHTUNG",
+                                        "Feld Konsistenz. \n Der Wert darf nicht mehr als 20 alphanumerische Zeichen enthalten",
+                                        QMessageBox.Ok)
+                    test = 1
+
+            if struttura != "":
+                if EC.data_lenght(struttura, 29) == 0:
+                    QMessageBox.warning(self, "ACHTUNG",
+                                        "Feld Struktur. \n Der Wert darf nicht mehr als 30 alphanumerische Zeichen enthalten",
+                                        QMessageBox.Ok)
+                    test = 1
+        else:   
+            if EC.data_is_empty(str(self.comboBox_sito.currentText())) == 0:
+                QMessageBox.warning(self, "WARNING", "Site Field. \n The field must not be empty", QMessageBox.Ok)
+                test = 1
+
+            if EC.data_is_empty(str(self.comboBox_area.currentText())) == 0:
+                QMessageBox.warning(self, "WARNING", "Area Field. \n The field must not be empty", QMessageBox.Ok)
+                test = 1
+
+            if EC.data_is_empty(str(self.lineEdit_us.text())) == 0:
+                QMessageBox.warning(self, "WARNING", "SU Field. \n The field must not be empty", QMessageBox.Ok)
+                test = 1
+
+            if EC.data_is_empty(str(self.comboBox_unita_tipo.currentText())) == 0:
+                QMessageBox.warning(self, "WARNING", "SU-WSU Field. \n The field must not be empty",
                                     QMessageBox.Ok)
                 test = 1
 
-        if attivita != "":
-            if EC.data_lenght(attivita, 3) == 0:
-                QMessageBox.warning(self, "ATTENZIONE",
-                                    "Campo Attivita. \n Il valore non deve superare i 4 caratteri alfanumerici",
-                                    QMessageBox.Ok)
-                test = 1
+            area = self.comboBox_area.currentText()
+            us = self.lineEdit_us.text()
+            attivita = self.lineEdit_attivita.text()
+            colore = self.comboBox_colore.currentText()
+            anno_scavo = self.lineEdit_anno.text()
+            formazione = self.comboBox_formazione.currentText()
+            stato_conservazione = self.comboBox_conservazione.currentText()
+            colore = self.comboBox_colore.currentText()
+            consistenza = self.comboBox_consistenza.currentText()
+            struttura = self.lineEdit_struttura.text()
+            cont_per = self.lineEdit_codice_periodo.text()
 
-                # if anno_scavo != "":
-        # if EC.data_lenght(anno_scavo,3) == 0:
-        #       QMessageBox.warning(self, "ATTENZIONE", "Campo Anno. \n immettere una sola data (es. 2014)",  QMessageBox.Ok)
-        #       test = 1
+            if area != "":
+                if EC.data_is_int(area) == 0:
+                    QMessageBox.warning(self, "WARNING", "Area Field. \n The value must be numerical",
+                                        QMessageBox.Ok)
+                    test = 1
 
-        if formazione != "":
-            if EC.data_lenght(formazione, 19) == 0:
-                QMessageBox.warning(self, "ATTENZIONE",
-                                    "Campo Formazione. \n Il valore non deve superare i 20 caratteri alfanumerici",
-                                    QMessageBox.Ok)
-                test = 1
+            if us != "":
+                if EC.data_is_int(us) == 0:
+                    QMessageBox.warning(self, "WARNING", "SU Field. \n The value must be numerical",
+                                        QMessageBox.Ok)
+                    test = 1
 
-        if stato_conservazione != "":
-            if EC.data_lenght(stato_conservazione, 19) == 0:
-                QMessageBox.warning(self, "ATTENZIONE",
-                                    "Campo Conservazione. \n Il valore non deve superare i 20 caratteri alfanumerici",
-                                    QMessageBox.Ok)
-                test = 1
+            if attivita != "":
+                if EC.data_lenght(attivita, 3) == 0:
+                    QMessageBox.warning(self, "WARNING",
+                                        "Activity Field. \n The value must not exceed 4 alphanumeric characters",
+                                        QMessageBox.Ok)
+                    test = 1
 
-        if colore != "":
-            if EC.data_lenght(colore, 19) == 0:
-                QMessageBox.warning(self, "ATTENZIONE",
-                                    "Campo Colore. \n Il valore non deve superare i 20 caratteri alfanumerici",
-                                    QMessageBox.Ok)
-                test = 1
+                    # if anno_scavo != "":
+            # if EC.data_lenght(anno_scavo,3) == 0:
+            #       QMessageBox.warning(self, "ATTENZIONE", "Campo Anno. \n immettere una sola data (es. 2014)",  QMessageBox.Ok)
+            #       test = 1
 
-        if consistenza != "":
-            if EC.data_lenght(consistenza, 19) == 0:
-                QMessageBox.warning(self, "ATTENZIONE",
-                                    "Campo Consistenza. \n Il valore non deve superare i 20 caratteri alfanumerici",
-                                    QMessageBox.Ok)
-                test = 1
+            if formazione != "":
+                if EC.data_lenght(formazione, 19) == 0:
+                    QMessageBox.warning(self, "WARNING",
+                                        "Formation Field. \n The value must not exceed 20 alphanumeric characters",
+                                        QMessageBox.Ok)
+                    test = 1
 
-        if struttura != "":
-            if EC.data_lenght(struttura, 29) == 0:
-                QMessageBox.warning(self, "ATTENZIONE",
-                                    "Campo Struttura. \n Il valore non deve superare i 30 caratteri alfanumerici",
-                                    QMessageBox.Ok)
-                test = 1
+            if stato_conservazione != "":
+                if EC.data_lenght(stato_conservazione, 19) == 0:
+                    QMessageBox.warning(self, "WARNING",
+                                        "Conservation Field. \n The value must not exceed 20 alphanumeric characters",
+                                        QMessageBox.Ok)
+                    test = 1
 
+            if colore != "":
+                if EC.data_lenght(colore, 19) == 0:
+                    QMessageBox.warning(self, "WARNING",
+                                        "Color Field. \n The value must not exceed 20 alphanumeric characters",
+                                        QMessageBox.Ok)
+                    test = 1
+
+            if consistenza != "":
+                if EC.data_lenght(consistenza, 19) == 0:
+                    QMessageBox.warning(self, "WARNING",
+                                        "Texture Field. \n The value must not exceed 20 alphanumeric characters",
+                                        QMessageBox.Ok)
+                    test = 1
+
+            if struttura != "":
+                if EC.data_lenght(struttura, 29) == 0:
+                    QMessageBox.warning(self, "WARNING",
+                                        "Structure Field. \n The value must not exceed 20 alphanumeric characters",
+                                        QMessageBox.Ok)
+                    test = 1
                 # if cont_per != "":
                 #   if EC.data_lenght(cont_per,199) == 0:
                 #       QMessageBox.warning(self, "ATTENZIONE", "Campo codice periodo. \n Il valore non deve superare i 200 caratteri numerici",  QMessageBox.Ok)
@@ -2266,14 +2956,19 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
                            'Bindet an':'Bindet an',
                            'Entspricht':'Entspricht'
                            }
-
+        
         search_dict = {'sito': "'" + str(sito_check) + "'", 'area': "'" + str(area_check) + "'"}
 
         records = self.DB_MANAGER.query_bool(search_dict,
                                              self.MAPPER_TABLE_CLASS)  # carica tutti i dati di uno scavo ordinati per numero di US
 
-        report_rapporti = '\bReport controllo Rapporti Stratigrafici - Sito: %s \n' % (sito_check)
-
+        
+        if self.L=='it':
+            report_rapporti = '\bReport controllo Rapporti Stratigrafici - Sito: %s \n' % (sito_check)
+        elif self.L=='de':
+            report_rapporti = '\bKontrollbericht Stratigraphische Beziehungen - Ausgrabungsstätte: %s \n' % (sito_check)
+        else:
+            report_rapporti = '\bControl report Stratigraphic relationships - Site: %s \n' % (sito_check)   
         for rec in range(len(records)):
             sito = "'" + str(records[rec].sito) + "'"
             area = "'" + str(records[rec].area) + "'"
@@ -2291,9 +2986,15 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
                         us_rapp = self.DB_MANAGER.query_bool(serch_dict_rapp, self.MAPPER_TABLE_CLASS)
 
                         if not bool(us_rapp):
-                            report = '\bSito: %s, \bArea: %s, \bUS: %d %s US: %d: Scheda US non esistente' % (
-                                sito, area, int(us), sing_rapp[0], int(sing_rapp[1]))
-
+                            if self.L=='it':
+                                report = '\bSito: %s, \bArea: %s, \bUS: %d %s US: %d: Scheda US non esistente' % (
+                                    sito, area, int(us), sing_rapp[0], int(sing_rapp[1]))
+                            elif self.L=='de':
+                                report = '\bAusgrabungsstätte: %s, \bAreal: %s, \bSE: %d %s SE: %d: SE formular nicht existent' % (
+                                    sito, area, int(us), sing_rapp[0], int(sing_rapp[1]))
+                            else:
+                                report = '\bSite: %s, \bArea: %s, \bSU: %d %s SU: %d: SU form not-existent' % (
+                                    sito, area, int(us), sing_rapp[0], int(sing_rapp[1]))       
                             # new system rapp_check
 
                         else:
@@ -2302,17 +3003,29 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
                             if rapporti_check.count([rapp_converted, us_rapp_check]) == 1:
                                 report = ""  # "Errore generico. Probabile presenza di rapporti vuoti o scritti non correttamente: " + str([rapp_converted, us_rapp_check])
                             else:
-                                report = '\bSito: %s, \bArea: %s, \bUS: %d %s \bUS: %d: Rapporto non verificato' % (
-                                    sito, area, int(us), sing_rapp[0], int(sing_rapp[1]))
+                                if self.L=='it':
+                                    report = '\bSito: %s, \bArea: %s, \bUS: %d %s US: %d: Rapporto non verificato' % (
+                                        sito, area, int(us), sing_rapp[0], int(sing_rapp[1]))
+                                elif self.L=='de':
+                                    report = '\bAusgrabungsstätte: %s, \bAreal: %s, \bSE: %d %s SE: %d: nicht geprüfter Bericht' % (
+                                        sito, area, int(us), sing_rapp[0], int(sing_rapp[1]))
+                                else:
+                                    report = '\bSite: %s, \bArea: %s, \bSU: %d %s SU: %d: relashionships not verified' % (
+                                        sito, area, int(us), sing_rapp[0], int(sing_rapp[1]))       
                     except Exception as e:
-                        report = "Problema di conversione rapporto: " + str(e)
+                        report = "Problem of conversion: " + str(e)
                     if report != "":
                         report_rapporti = report_rapporti + report + '\n'
 
         HOME = os.environ['PYARCHINIT_HOME']
 
         report_path = '{}{}{}'.format(HOME, os.sep, "pyarchinit_Report_folder")
-        filename = '{}{}{}'.format(report_path, os.sep, 'rapporti_US.txt')
+        if self.L=='it':
+            filename = '{}{}{}'.format(report_path, os.sep, 'rapporti_US.txt')
+        elif self.L=='de':
+            filename = '{}{}{}'.format(report_path, os.sep, 'SE.txt')
+        else:
+            filename = '{}{}{}'.format(report_path, os.sep, 'SU_relations.txt')     
         f = open(filename, "w")
         f.write(report_rapporti)
         f.close()
@@ -2357,9 +3070,15 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
         records = self.DB_MANAGER.query_bool(search_dict,
                                              self.MAPPER_TABLE_CLASS)  # carica tutti i dati di uno scavo ordinati per numero di US
 
-        report_rapporti = '\bReport controllo Definizione Stratigrafica a Rapporti Stratigrafici - Sito: %s \n' % (
-            sito_check)
-
+        if self.L=='it':
+            report_rapporti = '\bReport controllo Definizione Stratigrafica a Rapporti Stratigrafici - Sito: %s \n' % (
+                sito_check)
+        elif self.L=='de':
+            report_rapporti = '\bKontrollbericht Definition Stratigraphische zu Stratigraphische Berichte - Ausgrabungsstätte: %s \n' % (
+                sito_check)
+        else:
+            report_rapporti = '\bControl report Definition Stratigraphic to Stratigraphic Reports - Site: %s \n' % (
+                sito_check)     
         for rec in range(len(records)):
             sito = "'" + str(records[rec].sito) + "'"
             area = "'" + str(records[rec].area) + "'"
@@ -2429,7 +3148,13 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
         HOME = os.environ['PYARCHINIT_HOME']
 
         report_path = '{}{}{}'.format(HOME, os.sep, "pyarchinit_Report_folder")
-        filename = '{}{}{}'.format(report_path, os.sep, 'def_strat_a_rapporti_US.txt')
+        
+        if self.L=='it':
+            filename = '{}{}{}'.format(report_path, os.sep, 'def_strat_a_rapporti_US.txt')
+        elif self.L=='de':
+            filename = '{}{}{}'.format(report_path, os.sep, 'def_strat_to_SE relation.txt')
+        else:
+            filename = '{}{}{}'.format(report_path, os.sep, 'strat_def_to_SU relation.txt') 
         f = open(filename, "w")
         f.write(report_rapporti)
         f.close()
@@ -2688,15 +3413,23 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
             except Exception as e:
                 e_str = str(e)
                 if e_str.__contains__("IntegrityError"):
-                    msg = self.ID_TABLE + " gia' presente nel database"
-                    QMessageBox.warning(self, "Errore", "Errore" + str(msg), QMessageBox.Ok)
+                    
+                    if self.L=='it':
+                        msg = self.ID_TABLE + " gia' presente nel database"
+                        QMessageBox.warning(self, "Error", "Error" + str(msg), QMessageBox.Ok)
+                    elif self.L=='de':
+                        msg = self.ID_TABLE + " bereits in der Datenbank"
+                        QMessageBox.warning(self, "Error", "Error" + str(msg), QMessageBox.Ok)  
+                    else:
+                        msg = self.ID_TABLE + " exist in db"
+                        QMessageBox.warning(self, "Error", "Error" + str(msg), QMessageBox.Ok)  
                 else:
                     msg = e
-                    QMessageBox.warning(self, "Errore", "Errore di immisione 1 \n" + str(msg), QMessageBox.Ok)
+                    QMessageBox.warning(self, "Error", "Error 1 \n" + str(msg), QMessageBox.Ok)
                 return 0
 
         except Exception as e:
-            QMessageBox.warning(self, "Errore", "Errore di immisione 2 \n" + str(e), QMessageBox.Ok)
+            QMessageBox.warning(self, "Error", "Error 2 \n" + str(e), QMessageBox.Ok)
             return 0
 
             # insert new row into tableWidget
@@ -2773,9 +3506,19 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
         if ec == 1:
             return 1  # ci sono errori di immissione
         elif self.records_equal_check() == 1 and ec == 0:
-            self.update_if(
-                QMessageBox.warning(self, 'Errore', "Il record e' stato modificato. Vuoi salvare le modifiche?",
-                                    QMessageBox.Ok | QMessageBox.Cancel))
+            if self.L=='it':
+                self.update_if(
+                
+                    QMessageBox.warning(self, 'Errore', "Il record e' stato modificato. Vuoi salvare le modifiche?",
+                                        QMessageBox.Ok | QMessageBox.Cancel))
+            elif self.L=='de':
+                self.update_if(
+                    QMessageBox.warning(self, 'Errore', "Der Record wurde geändert. Möchtest du die Änderungen speichern?",
+                                        QMessageBox.Ok | QMessageBox.Cancel))
+            else:
+                self.update_if(
+                    QMessageBox.warning(self, "Error", "The record has been changed. You want to save the changes?",
+                                        QMessageBox.Ok | QMessageBox.Cancel))
             # self.charge_records()
             return 0  # non ci sono errori di immissione
 
@@ -2809,7 +3552,7 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
                 self.fill_fields(0)
                 self.set_rec_counter(self.REC_TOT, self.REC_CORR + 1)
             except Exception as e:
-                QMessageBox.warning(self, "Errore", str(e), QMessageBox.Ok)
+                pass#QMessageBox.warning(self, "Error", str(e), QMessageBox.Ok)
 
     def on_pushButton_last_rec_pressed(self):
         if self.check_record_state() == 1:
@@ -2821,7 +3564,7 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
                 self.fill_fields(self.REC_CORR)
                 self.set_rec_counter(self.REC_TOT, self.REC_CORR + 1)
             except Exception as e:
-                QMessageBox.warning(self, "Errore", str(e), QMessageBox.Ok)
+                QMessageBox.warning(self, "Error", str(e), QMessageBox.Ok)
                 ##
                 ##  def on_pushButton_prev_rec_pressed(self):
                 ##      if self.check_record_state() == 1:
@@ -2848,14 +3591,14 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
             self.REC_CORR = self.REC_CORR - rec_goto
             if self.REC_CORR <= -1:
                 self.REC_CORR = self.REC_CORR + rec_goto
-                QMessageBox.warning(self, "Attenzione", "Numero troppo elevato!", QMessageBox.Ok)
+                #QMessageBox.warning(self, "Attenzione", "Numero troppo elevato!", QMessageBox.Ok)
             else:
                 try:
                     self.empty_fields()
                     self.fill_fields(self.REC_CORR)
                     self.set_rec_counter(self.REC_TOT, self.REC_CORR + 1)
                 except Exception as e:
-                    QMessageBox.warning(self, "Errore", str(e), QMessageBox.Ok)
+                    QMessageBox.warning(self, "Error", str(e), QMessageBox.Ok)
 
                     ##  def on_pushButton_next_rec_pressed(self):
                     ##      if self.check_record_state() == 1:
@@ -2881,49 +3624,118 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
             self.REC_CORR = self.REC_CORR + rec_goto
             if self.REC_CORR >= self.REC_TOT:
                 self.REC_CORR = self.REC_CORR - rec_goto
-                QMessageBox.warning(self, "Attenzione", "Numero troppo elevato!", QMessageBox.Ok)
+                #QMessageBox.warning(self, "Attenzione", "Numero troppo elevato!", QMessageBox.Ok)
             else:
                 try:
                     self.empty_fields()
                     self.fill_fields(self.REC_CORR)
                     self.set_rec_counter(self.REC_TOT, self.REC_CORR + 1)
                 except Exception as e:
-                    QMessageBox.warning(self, "Errore", str(e), QMessageBox.Ok)
+                    QMessageBox.warning(self, "Error", str(e), QMessageBox.Ok)
 
     def on_pushButton_delete_pressed(self):
-        msg = QMessageBox.warning(self, "Attenzione!!!",
-                                  "Vuoi veramente eliminare il record? \n L'azione è irreversibile",
-                                  QMessageBox.Ok | QMessageBox.Cancel)
-        if msg == QMessageBox.Cancel:
-            QMessageBox.warning(self, "Messagio!!!", "Azione Annullata!")
+        
+        if self.L=='it':
+            msg = QMessageBox.warning(self, "Attenzione!!!",
+                                      "Vuoi veramente eliminare il record? \n L'azione è irreversibile",
+                                      QMessageBox.Ok | QMessageBox.Cancel)
+            if msg == QMessageBox.Cancel:
+                QMessageBox.warning(self, "Messagio!!!", "Azione Annullata!")
+            else:
+                try:
+                    id_to_delete = eval("self.DATA_LIST[self.REC_CORR]." + self.ID_TABLE)
+                    self.DB_MANAGER.delete_one_record(self.TABLE_NAME, self.ID_TABLE, id_to_delete)
+                    self.charge_records()  # charge records from DB
+                    QMessageBox.warning(self, "Messaggio!!!", "Record eliminato!")
+                except Exception as e:
+                    QMessageBox.warning(self, "Messaggio!!!", "Tipo di errore: " + str(e))
+                if not bool(self.DATA_LIST):
+                    QMessageBox.warning(self, "Attenzione", "Il database è vuoto!", QMessageBox.Ok)
+                    self.DATA_LIST = []
+                    self.DATA_LIST_REC_CORR = []
+                    self.DATA_LIST_REC_TEMP = []
+                    self.REC_CORR = 0
+                    self.REC_TOT = 0
+                    self.empty_fields()
+                    self.set_rec_counter(0, 0)
+                    # check if DB is empty
+                if bool(self.DATA_LIST):
+                    self.REC_TOT, self.REC_CORR = len(self.DATA_LIST), 0
+                    self.DATA_LIST_REC_TEMP = self.DATA_LIST_REC_CORR = self.DATA_LIST[0]
+                    self.BROWSE_STATUS = "b"
+                    self.label_status.setText(self.STATUS_ITEMS[self.BROWSE_STATUS])
+                    self.set_rec_counter(len(self.DATA_LIST), self.REC_CORR + 1)
+                    self.charge_list()
+                    self.fill_fields()
+        elif self.L=='de':
+            msg = QMessageBox.warning(self, "Achtung!!!",
+                                      "Willst du wirklich diesen Eintrag löschen? \n Der Vorgang ist unumkehrbar",
+                                      QMessageBox.Ok | QMessageBox.Cancel)
+            if msg == QMessageBox.Cancel:
+                QMessageBox.warning(self, "Message!!!", "Aktion annulliert!")
+            else:
+                try:
+                    id_to_delete = eval("self.DATA_LIST[self.REC_CORR]." + self.ID_TABLE)
+                    self.DB_MANAGER.delete_one_record(self.TABLE_NAME, self.ID_TABLE, id_to_delete)
+                    self.charge_records()  # charge records from DB
+                    QMessageBox.warning(self, "Message!!!", "Record gelöscht!")
+                except Exception as e:
+                    QMessageBox.warning(self, "Messagge!!!", "Errortyp: " + str(e))
+                if not bool(self.DATA_LIST):
+                    QMessageBox.warning(self, "Attenzione", "Die Datenbank ist leer!", QMessageBox.Ok)
+                    self.DATA_LIST = []
+                    self.DATA_LIST_REC_CORR = []
+                    self.DATA_LIST_REC_TEMP = []
+                    self.REC_CORR = 0
+                    self.REC_TOT = 0
+                    self.empty_fields()
+                    self.set_rec_counter(0, 0)
+                    # check if DB is empty
+                if bool(self.DATA_LIST):
+                    self.REC_TOT, self.REC_CORR = len(self.DATA_LIST), 0
+                    self.DATA_LIST_REC_TEMP = self.DATA_LIST_REC_CORR = self.DATA_LIST[0]
+                    self.BROWSE_STATUS = "b"
+                    self.label_status.setText(self.STATUS_ITEMS[self.BROWSE_STATUS])
+                    self.set_rec_counter(len(self.DATA_LIST), self.REC_CORR + 1)
+                    self.charge_list()
+                    self.fill_fields()
         else:
-            try:
-                id_to_delete = eval("self.DATA_LIST[self.REC_CORR]." + self.ID_TABLE)
-                self.DB_MANAGER.delete_one_record(self.TABLE_NAME, self.ID_TABLE, id_to_delete)
-                self.charge_records()  # charge records from DB
-                QMessageBox.warning(self, "Messaggio!!!", "Record eliminato!")
-            except Exception as e:
-                QMessageBox.warning(self, "Messaggio!!!", "Tipo di errore: " + str(e))
-            if not bool(self.DATA_LIST):
-                QMessageBox.warning(self, "Attenzione", "Il database è vuoto!", QMessageBox.Ok)
-                self.DATA_LIST = []
-                self.DATA_LIST_REC_CORR = []
-                self.DATA_LIST_REC_TEMP = []
-                self.REC_CORR = 0
-                self.REC_TOT = 0
-                self.empty_fields()
-                self.set_rec_counter(0, 0)
-                # check if DB is empty
-            if bool(self.DATA_LIST):
-                self.REC_TOT, self.REC_CORR = len(self.DATA_LIST), 0
-                self.DATA_LIST_REC_TEMP = self.DATA_LIST_REC_CORR = self.DATA_LIST[0]
-                self.BROWSE_STATUS = "b"
-                self.label_status.setText(self.STATUS_ITEMS[self.BROWSE_STATUS])
-                self.set_rec_counter(len(self.DATA_LIST), self.REC_CORR + 1)
-                self.charge_list()
-                self.fill_fields()
-        self.SORT_STATUS = "n"
-        self.label_sort.setText(self.SORTED_ITEMS[self.SORT_STATUS])
+            msg = QMessageBox.warning(self, "Warning!!!",
+                                      "Do you really want to break the record? \n Action is irreversible.",
+                                      QMessageBox.Ok | QMessageBox.Cancel)
+            if msg == QMessageBox.Cancel:
+                QMessageBox.warning(self, "Messagio!!!", "Action deleted!")
+            else:
+                try:
+                    id_to_delete = eval("self.DATA_LIST[self.REC_CORR]." + self.ID_TABLE)
+                    self.DB_MANAGER.delete_one_record(self.TABLE_NAME, self.ID_TABLE, id_to_delete)
+                    self.charge_records()  # charge records from DB
+                    QMessageBox.warning(self, "Messaggio!!!", "Record deleted!")
+                except Exception as e:
+                    QMessageBox.warning(self, "Messaggio!!!", "error type: " + str(e))
+                if not bool(self.DATA_LIST):
+                    QMessageBox.warning(self, "Attenzione", "the db is empty!", QMessageBox.Ok)
+                    self.DATA_LIST = []
+                    self.DATA_LIST_REC_CORR = []
+                    self.DATA_LIST_REC_TEMP = []
+                    self.REC_CORR = 0
+                    self.REC_TOT = 0
+                    self.empty_fields()
+                    self.set_rec_counter(0, 0)
+                    # check if DB is empty
+                if bool(self.DATA_LIST):
+                    self.REC_TOT, self.REC_CORR = len(self.DATA_LIST), 0
+                    self.DATA_LIST_REC_TEMP = self.DATA_LIST_REC_CORR = self.DATA_LIST[0]
+                    self.BROWSE_STATUS = "b"
+                    self.label_status.setText(self.STATUS_ITEMS[self.BROWSE_STATUS])
+                    self.set_rec_counter(len(self.DATA_LIST), self.REC_CORR + 1)
+                    self.charge_list()
+                    self.fill_fields()  
+            
+            
+            
+            self.SORT_STATUS = "n"
+            self.label_sort.setText(self.SORTED_ITEMS[self.SORT_STATUS])
 
     def on_pushButton_new_search_pressed(self):
         if self.BROWSE_STATUS != "f" and self.check_record_state() == 1:
@@ -2985,12 +3797,23 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
         self.charge_records()
         self.fill_fields(self.REC_CORR)  # ricaricare tutti i record in uso e passare il valore REC_CORR a fill_fields
 
-        QMessageBox.warning(self, "Attenzione", "Codice periodo aggiornato per lo scavo %s" % (sito), QMessageBox.Ok)
-
+        if self.L=='it':
+            QMessageBox.warning(self, "Attenzione", "Codice periodo aggiornato per lo scavo %s" % (sito), QMessageBox.Ok)
+        elif self.L=='de':
+            QMessageBox.warning(self, "Achtung", "Der Zeitstellungscode wurde für die Ausgrabung hochgeladen %s" % (sito), QMessageBox.Ok)
+        else:   
+            QMessageBox.warning(self, "Attention", "Updated period code for excavation %s" % (sito), QMessageBox.Ok)
     def on_pushButton_search_go_pressed(self):
         if self.BROWSE_STATUS != "f":
-            QMessageBox.warning(self, "ATTENZIONE", "Per eseguire una nuova ricerca clicca sul pulsante 'new search' ",
-                                QMessageBox.Ok)
+            if self.L=='it':
+                QMessageBox.warning(self, "ATTENZIONE", "Per eseguire una nuova ricerca clicca sul pulsante 'new search' ",
+                                    QMessageBox.Ok)
+            elif self.L=='de':
+                QMessageBox.warning(self, "ACHTUNG", "Um eine neue Abfrage zu starten drücke  'new search' ",
+                                    QMessageBox.Ok)
+            else:
+                QMessageBox.warning(self, "WARNING", "To perform a new search click on the 'new search' button ",
+                                    QMessageBox.Ok)                     
         else:
 
             # TableWidget
@@ -3211,11 +4034,21 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
             search_dict = u.remove_empty_items_fr_dict(search_dict)
 
             if not bool(search_dict):
-                QMessageBox.warning(self, "ATTENZIONE", "Non è stata impostata nessuna ricerca!!!", QMessageBox.Ok)
+                if self.L=='it':
+                    QMessageBox.warning(self, "ATTENZIONE", "Non è stata impostata nessuna ricerca!!!", QMessageBox.Ok)
+                elif self.L=='de':
+                    QMessageBox.warning(self, "ACHTUNG", "Keine Abfrage definiert!!!", QMessageBox.Ok)
+                else:
+                    QMessageBox.warning(self, " WARNING", "No search has been set!!!", QMessageBox.Ok)      
             else:
                 res = self.DB_MANAGER.query_bool(search_dict, self.MAPPER_TABLE_CLASS)
                 if not bool(res):
-                    QMessageBox.warning(self, "ATTENZIONE", "Non è stato trovato nessun record!", QMessageBox.Ok)
+                    if self.L=='it':
+                        QMessageBox.warning(self, "ATTENZIONE", "Non è stato trovato nessun record!", QMessageBox.Ok)
+                    elif self.L=='de':
+                        QMessageBox.warning(self, "ACHTUNG", "Keinen Record gefunden!", QMessageBox.Ok)
+                    else:
+                        QMessageBox.warning(self, "WARNING," "No record found!", QMessageBox.Ok)        
 
                     self.set_rec_counter(len(self.DATA_LIST), self.REC_CORR + 1)
                     self.DATA_LIST_REC_TEMP = self.DATA_LIST_REC_CORR = self.DATA_LIST[0]
@@ -3246,15 +4079,33 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
                     self.label_status.setText(self.STATUS_ITEMS[self.BROWSE_STATUS])
                     self.set_rec_counter(len(self.DATA_LIST), self.REC_CORR + 1)
 
-                    if self.REC_TOT == 1:
-                        strings = ("E' stato trovato", self.REC_TOT, "record")
-                        if self.toolButtonGis.isChecked():
-                            self.pyQGIS.charge_vector_layers(self.DATA_LIST)
+                    if self.L=='it':
+                        if self.REC_TOT == 1:
+                            strings = ("E' stato trovato", self.REC_TOT, "record")
+                            if self.toolButtonGis.isChecked():
+                                self.pyQGIS.charge_vector_layers(self.DATA_LIST)
+                        else:
+                            strings = ("Sono stati trovati", self.REC_TOT, "records")
+                            if self.toolButtonGis.isChecked():
+                                self.pyQGIS.charge_vector_layers(self.DATA_LIST)
+                    elif self.L=='de':
+                        if self.REC_TOT == 1:
+                            strings = ("Es wurde gefunden", self.REC_TOT, "record")
+                            if self.toolButtonGis.isChecked():
+                                self.pyQGIS.charge_vector_layers(self.DATA_LIST)
+                        else:
+                            strings = ("Sie wurden gefunden", self.REC_TOT, "records")
+                            if self.toolButtonGis.isChecked():
+                                self.pyQGIS.charge_vector_layers(self.DATA_LIST)
                     else:
-                        strings = ("Sono stati trovati", self.REC_TOT, "records")
-                        if self.toolButtonGis.isChecked():
-                            self.pyQGIS.charge_vector_layers(self.DATA_LIST)
-
+                        if self.REC_TOT == 1:
+                            strings = ("It has been found", self.REC_TOT, "record")
+                            if self.toolButtonGis.isChecked():
+                                self.pyQGIS.charge_vector_layers(self.DATA_LIST)
+                        else:
+                            strings = ("They have been found", self.REC_TOT, "records")
+                            if self.toolButtonGis.isChecked():
+                                self.pyQGIS.charge_vector_layers(self.DATA_LIST)
                     self.setComboBoxEnable(["self.comboBox_sito"], "False")
                     self.setComboBoxEnable(["self.comboBox_area"], "False")
                     self.setComboBoxEnable(["self.lineEdit_us"], "False")
@@ -3274,7 +4125,7 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
                     self.setComboBoxEnable(["self.textEdit_descrizione"], "True")
                     self.setComboBoxEnable(["self.textEdit_interpretazione"], "True")
 
-                    QMessageBox.warning(self, "Messaggio", "%s %d %s" % strings, QMessageBox.Ok)
+                    QMessageBox.warning(self, "Message", "%s %d %s" % strings, QMessageBox.Ok)
         self.enable_button_search(1)
 
     def update_if(self, msg):
@@ -3314,9 +4165,19 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
                                    self.rec_toupdate())
             return 1
         except Exception as e:
-            QMessageBox.warning(self, "Messaggio",
-                                "Problema di encoding: sono stati inseriti accenti o caratteri non accettati dal database. Se chiudete ora la scheda senza correggere gli errori perderete i dati. Fare una copia di tutto su un foglio word a parte. Errore :" + str(
-                                    e), QMessageBox.Ok)
+            if self.L=='it':
+                QMessageBox.warning(self, "Messaggio",
+                                    "Problema di encoding: sono stati inseriti accenti o caratteri non accettati dal database. Se chiudete ora la scheda senza correggere gli errori perderete i dati. Fare una copia di tutto su un foglio word a parte. Errore :" + str(
+                                        e), QMessageBox.Ok)
+            elif self.L=='de':
+                QMessageBox.warning(self, "Message",
+                                    "encoding Problem: Sonderszeichen wurden in die Datenbank eingefügt. Nicht alle Sonderzeichen werden von der Datenbank akzepptiert. Bitte ändern. Wenn du das Formular ietzt schliesst gehen die Daten verloren.Erstelle eine Sicherungskopie in Word. Error :" + str(
+                                        e), QMessageBox.Ok) 
+
+            else:
+                QMessageBox.warning(self, "Message",
+                                    "encoding problem: accents or characters not accepted by the database have been inserted. If you close the card now without correcting the errors you will lose the data. Make a copy of everything on a separate word sheet. Error :" + str(
+                                        e), QMessageBox.Ok)                                 
             return 0
 
     def rec_toupdate(self):
