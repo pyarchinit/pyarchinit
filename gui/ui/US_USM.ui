@@ -2,16 +2,8 @@
 <ui version="4.0">
  <class>DialogUS</class>
  <widget class="QDialog" name="DialogUS">
-  <property name="geometry">
-   <rect>
-    <x>0</x>
-    <y>0</y>
-    <width>913</width>
-    <height>948</height>
-   </rect>
-  </property>
   <property name="sizePolicy">
-   <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+   <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
     <horstretch>0</horstretch>
     <verstretch>0</verstretch>
    </sizepolicy>
@@ -25,7 +17,7 @@
   <property name="maximumSize">
    <size>
     <width>16777215</width>
-    <height>970</height>
+    <height>900</height>
    </size>
   </property>
   <property name="font">
@@ -6118,8 +6110,8 @@ p, li { white-space: pre-wrap; }
                <rect>
                 <x>0</x>
                 <y>0</y>
-                <width>843</width>
-                <height>413</height>
+                <width>786</width>
+                <height>366</height>
                </rect>
               </property>
               <attribute name="label">
