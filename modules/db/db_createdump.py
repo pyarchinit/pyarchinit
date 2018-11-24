@@ -96,6 +96,23 @@ class RestoreSchema(object):
             session.close()
         return True
 
+    def set_owner(self, owner):
+        sql = "SELECT table_name FROM information_schema.tables where table_schema = 'public'"
+        engine = create_engine(self.db_url)
+        Session = sessionmaker(bind=engine)
+        session = Session()
+        conn = engine.connect()
+        try:
+            res = conn.execute(sql)
+            for r in res:
+                sql_queries = text("ALTER TABLE public.{} OWNER TO {};".format(r[0], owner))
+                res = conn.execute(sql_queries)
+        except Exception as e:
+            raise e
+        finally:
+            session.close()
+        return True
+
     def update_geom_srid_sl(self, crs):
         sql_query_string = ("SELECT f_table_name, type, f_geometry_column FROM {}".format('geometry_columns'))
         engine = create_engine(self.db_url, echo=True)

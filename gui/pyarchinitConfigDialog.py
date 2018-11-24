@@ -201,6 +201,9 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
 
             # create views
             RestoreSchema(db_url, view_file).restore_schema()
+            #set owner
+            if self.lineEdit_db_user.text() != 'postgres':
+                RestoreSchema(db_url).set_owner(self.lineEdit_db_user.text())
 
         if ok and res:
             msg = QMessageBox.warning(self, 'INFO', 'Installazione avvenuta con successo, vuoi connetterti al nuovo DB?',
