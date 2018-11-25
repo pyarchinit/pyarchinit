@@ -531,7 +531,7 @@ class pyarchinit_Campioni(QDialog, MAIN_DIALOG_CLASS):
                     QMessageBox.warning(self,  "ACHTUNG", "Feld Sample. \n Der Wert muss numerisch eingegeben werden",
                                         QMessageBox.Ok)
         
-                test = 1
+                    test = 1
             
         else:
             if EC.data_is_empty(str(self.comboBox_sito.currentText())) == 0:
@@ -552,7 +552,7 @@ class pyarchinit_Campioni(QDialog, MAIN_DIALOG_CLASS):
                     QMessageBox.warning(self,  "WARNING", "Sample Field. \n The value must be numerical",
                                         QMessageBox.Ok)
         
-                test = 1    
+                    test = 1    
         return test
 
     def insert_new_rec(self):
