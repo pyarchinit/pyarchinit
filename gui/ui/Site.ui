@@ -778,8 +778,14 @@
       <layout class="QGridLayout" name="gridLayout_12">
        <item row="0" column="0" colspan="2">
         <widget class="QLabel" name="label_14">
+         <property name="font">
+          <font>
+           <weight>75</weight>
+           <bold>true</bold>
+          </font>
+         </property>
          <property name="text">
-          <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Genera un numero arbitrario di schede US o USM per il sito corrente&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+          <string>Genera un numero arbitrario di schede US per il sito corrente</string>
          </property>
         </widget>
        </item>
