@@ -1,15 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!DOCTYPE TS>
 <TS version="2.1" language="nl">
-    <extra-po-header-language>nl</extra-po-header-language>
-    <extra-po-header-language_team></extra-po-header-language_team>
-    <extra-po-header-last_translator></extra-po-header-last_translator>
-    <extra-po-header-po_revision_date></extra-po-header-po_revision_date>
-    <extra-po-header-pot_creation_date></extra-po-header-pot_creation_date>
-    <extra-po-header-project_id_version></extra-po-header-project_id_version>
-    <extra-po-header-x_generator>Poedit 2.2</extra-po-header-x_generator>
-    <extra-po-header-x_poedit_bookmarks>284,-1,-1,-1,-1,-1,-1,-1,-1,-1</extra-po-header-x_poedit_bookmarks>
-    <extra-po-headers>MIME-Version,Content-Type,Content-Transfer-Encoding,Plural-Forms,X-Language,X-Source-Language,X-Qt-Contexts,Project-Id-Version,POT-Creation-Date,PO-Revision-Date,Last-Translator,Language-Team,Language,X-Generator,X-Poedit-Bookmarks</extra-po-headers>
 <context>
     <name>DBmanagment</name>
     <message>
@@ -792,7 +783,7 @@ p, li { white-space: pre-wrap; }
 p, li { white-space: pre-wrap; }
 &lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:&apos;.SF NS Text&apos;; font-size:13pt; font-weight:400; font-style:normal;&quot;&gt;
 &lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-family:&apos;Sans&apos;; font-size:10pt;&quot;&gt;Crea un confronto a 4 variabili con istogramma di frequenza, curva di densità e curva cumulativa&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation>&lt;! PUBLIC HTML DOCTYPE &quot;-/////W3C//DTD HTML 4.0//NL&quot; &quot;Http://www.w3.org/TR/REC-html40/strict.dtd&quot; &gt; &lt;html&gt; &lt;head&gt; &lt; meta name = &quot;Qrichtext&quot; content = &quot;1&quot;/&gt; &lt; Stijl Type = &quot;tekst/css&quot; &gt; P, Li {White-Space: pre-wrap;} &lt;/style&gt; &lt;/head&gt; &lt; Body style = &quot;FONT-familie: &apos;. SF NS Tekst &apos;; font-size: 13pt; font-gewicht: 400; font-stijl: normaal;&quot; &gt; &lt; P style = &quot;marge-top: 0px; marge-bodem: 0px; margin-links: 0px; margin-rechts: 0px;-QT-block-indent: 0; Tekst-inspringing: 0px;&quot; &gt; &lt; span style = &quot;FONT-familie: &apos; Sans &apos;; font-size: 10pt;&quot; &gt; Vergleich mit 4 Variablen mit Frequenzhistogramm, Dichtekurve und Summenkurve &lt;/span&gt; &lt;/p&gt; &lt;/body&gt; &lt;/html&gt;</translation>
+        <translation type="obsolete">&lt;! PUBLIC HTML DOCTYPE &quot;-/////W3C//DTD HTML 4.0//NL&quot; &quot;Http://www.w3.org/TR/REC-html40/strict.dtd&quot; &gt; &lt;html&gt; &lt;head&gt; &lt; meta name = &quot;Qrichtext&quot; content = &quot;1&quot;/&gt; &lt; Stijl Type = &quot;tekst/css&quot; &gt; P, Li {White-Space: pre-wrap;} &lt;/style&gt; &lt;/head&gt; &lt; Body style = &quot;FONT-familie: &apos;. SF NS Tekst &apos;; font-size: 13pt; font-gewicht: 400; font-stijl: normaal;&quot; &gt; &lt; P style = &quot;marge-top: 0px; marge-bodem: 0px; margin-links: 0px; margin-rechts: 0px;-QT-block-indent: 0; Tekst-inspringing: 0px;&quot; &gt; &lt; span style = &quot;FONT-familie: &apos; Sans &apos;; font-size: 10pt;&quot; &gt; Vergleich mit 4 Variablen mit Frequenzhistogramm, Dichtekurve und Summenkurve &lt;/span&gt; &lt;/p&gt; &lt;/body&gt; &lt;/html&gt;</translation>
     </message>
 </context>
 <context>
@@ -898,207 +889,207 @@ p, li { white-space: pre-wrap; }
         <translation>Connection test</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Campioni.ui" line="532"/>
+        <location filename="../gui/ui/Campioni.ui" line="932"/>
         <source>Inserisci un valore</source>
         <translation>Einen Wert eingeben</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Campioni.ui" line="565"/>
+        <location filename="../gui/ui/Campioni.ui" line="803"/>
         <source>Argilla</source>
         <translation>Lehm</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Campioni.ui" line="570"/>
+        <location filename="../gui/ui/Campioni.ui" line="808"/>
         <source>Calce</source>
         <translation>Kalk</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Campioni.ui" line="575"/>
+        <location filename="../gui/ui/Campioni.ui" line="813"/>
         <source>Carbone</source>
         <translation>Kohle</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Campioni.ui" line="580"/>
+        <location filename="../gui/ui/Campioni.ui" line="818"/>
         <source>Cocciopesto</source>
         <translation>Estrich</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Campioni.ui" line="585"/>
+        <location filename="../gui/ui/Campioni.ui" line="823"/>
         <source>Concotto</source>
         <translation>Verziegelter Lehm / Hüttenlehm</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Campioni.ui" line="590"/>
+        <location filename="../gui/ui/Campioni.ui" line="828"/>
         <source>Intonaco</source>
         <translation>Putz</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Campioni.ui" line="595"/>
+        <location filename="../gui/ui/Campioni.ui" line="833"/>
         <source>Laterizio</source>
         <translation>Ziegelstein</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Campioni.ui" line="600"/>
+        <location filename="../gui/ui/Campioni.ui" line="838"/>
         <source>Legno</source>
         <translation>Holz</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Campioni.ui" line="605"/>
+        <location filename="../gui/ui/Campioni.ui" line="843"/>
         <source>Minerale</source>
         <translation>Mineral, Erz</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Campioni.ui" line="610"/>
+        <location filename="../gui/ui/Campioni.ui" line="848"/>
         <source>Malta</source>
         <translation>Mörtel</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Campioni.ui" line="615"/>
+        <location filename="../gui/ui/Campioni.ui" line="853"/>
         <source>Ossa</source>
         <translation>Knochen</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Campioni.ui" line="620"/>
+        <location filename="../gui/ui/Campioni.ui" line="858"/>
         <source>Ossa combuste</source>
         <translation>Verbrannte Knochen</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Campioni.ui" line="625"/>
+        <location filename="../gui/ui/Campioni.ui" line="863"/>
         <source>Pietrisco</source>
         <translation>Geröll, Kies</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Campioni.ui" line="630"/>
+        <location filename="../gui/ui/Campioni.ui" line="868"/>
         <source>Scoria</source>
         <translation>Schlacke</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Campioni.ui" line="635"/>
+        <location filename="../gui/ui/Campioni.ui" line="873"/>
         <source>Scoria di ceramica</source>
         <translation>Keramik-Schlacke</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Campioni.ui" line="640"/>
+        <location filename="../gui/ui/Campioni.ui" line="878"/>
         <source>Scoria di metallo</source>
         <translation>Metal-Schlacke</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Campioni.ui" line="645"/>
+        <location filename="../gui/ui/Campioni.ui" line="883"/>
         <source>Scoria di vetro</source>
         <translation>Glass-Schlacke</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Campioni.ui" line="650"/>
+        <location filename="../gui/ui/Campioni.ui" line="888"/>
         <source>Terra</source>
         <translation>Erde</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Campioni.ui" line="655"/>
+        <location filename="../gui/ui/Campioni.ui" line="893"/>
         <source>Terra e carboni</source>
         <translation>Boden und Kohle</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Campioni.ui" line="663"/>
+        <location filename="../gui/ui/Campioni.ui" line="792"/>
         <source>Tipo campione</source>
         <translation>Beispielstyp</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Campioni.ui" line="698"/>
+        <location filename="../gui/ui/Campioni.ui" line="529"/>
         <source>Dati descrittivi</source>
         <translation>Beschreibende Daten</translation>
     </message>
     <message>
         <location filename="../gui/ui/Campioni.ui" line="728"/>
         <source>Descrizione </source>
-        <translation>Beschreibung</translation>
+        <translation type="obsolete">Beschreibung</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Campioni.ui" line="744"/>
+        <location filename="../gui/ui/Campioni.ui" line="568"/>
         <source>Dati stratigrafici e collocazione</source>
         <translation>Stratigraphische Daten und Platzierung</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Campioni.ui" line="756"/>
+        <location filename="../gui/ui/Campioni.ui" line="580"/>
         <source>Riferimenti stratigraific e Inventario Materiali</source>
         <translation>Strategische Referenzen und Materialinventar</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Campioni.ui" line="763"/>
+        <location filename="../gui/ui/Campioni.ui" line="587"/>
         <source>Riferimento Nr. Inventario Materiale</source>
         <translation>Referenzmaterial Best.-Nr.</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Campioni.ui" line="788"/>
+        <location filename="../gui/ui/Campioni.ui" line="612"/>
         <source>Riferimenti collocazione</source>
         <translation>Bin Referenzen</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Campioni.ui" line="817"/>
+        <location filename="../gui/ui/Campioni.ui" line="648"/>
         <source>Luogo di conservazione</source>
         <translation>Ort der Erhaltung</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Campioni.ui" line="824"/>
+        <location filename="../gui/ui/Campioni.ui" line="641"/>
         <source>Cassa</source>
         <translation>Box</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Campioni.ui" line="835"/>
+        <location filename="../gui/ui/Campioni.ui" line="659"/>
         <source>Area</source>
         <translation>Bereich</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Campioni.ui" line="842"/>
+        <location filename="../gui/ui/Campioni.ui" line="666"/>
         <source>US</source>
         <translation>SE</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Campioni.ui" line="864"/>
+        <location filename="../gui/ui/Campioni.ui" line="688"/>
         <source>Tools</source>
         <translation>Tools</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Campioni.ui" line="872"/>
+        <location filename="../gui/ui/Campioni.ui" line="696"/>
         <source>Esporta scheda campioni</source>
         <translation>Eportieren Proben Formular</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Campioni.ui" line="882"/>
+        <location filename="../gui/ui/Campioni.ui" line="706"/>
         <source>Esporta elenco campioni PDF</source>
         <translation>PDF-Beispielliste exportieren</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Campioni.ui" line="893"/>
+        <location filename="../gui/ui/Campioni.ui" line="717"/>
         <source>Carica tutti layer che contengono geometrie relative a questo sito</source>
         <translation>Load Sie alle Layer, die mit dieser Site verbundene Geometrien enthalten</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Campioni.ui" line="896"/>
+        <location filename="../gui/ui/Campioni.ui" line="720"/>
         <source>..</source>
         <translation>..</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Campioni.ui" line="906"/>
+        <location filename="../gui/ui/Campioni.ui" line="730"/>
         <source>Carica</source>
         <translation>Load</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Campioni.ui" line="917"/>
+        <location filename="../gui/ui/Campioni.ui" line="741"/>
         <source>...</source>
         <translation>...</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Campioni.ui" line="927"/>
+        <location filename="../gui/ui/Campioni.ui" line="751"/>
         <source>Esporta</source>
         <translation>Export</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Campioni.ui" line="940"/>
+        <location filename="../gui/ui/Campioni.ui" line="764"/>
         <source>Nr Campione</source>
         <translation>Sample Nr</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Campioni.ui" line="947"/>
+        <location filename="../gui/ui/Campioni.ui" line="940"/>
         <source>Sito</source>
         <translation>Ausgrabungsstätte</translation>
     </message>
@@ -1548,7 +1539,7 @@ p, li { white-space: pre-wrap; }
     <message>
         <location filename="../gui/ui/Detsesso.ui" line="1641"/>
         <source>Tuberosità front. e par.</source>
-        <translation>Tuberositas vorne. und par.</translation>
+        <translation type="obsolete">Tuberositas vorne. und par.</translation>
     </message>
 </context>
 <context>
@@ -2892,22 +2883,42 @@ p, li { white-space: pre-wrap; }
     <message>
         <location filename="../gui/ui/Inv_Materiali.ui" line="589"/>
         <source>N° Inventario</source>
-        <translation>Inventar N °</translation>
+        <translation type="obsolete">Inventar N °</translation>
     </message>
     <message>
         <location filename="../gui/ui/Inv_Materiali.ui" line="1487"/>
         <source>Tipo quantità</source>
-        <translation>Quantitätstyp</translation>
+        <translation type="obsolete">Quantitätstyp</translation>
     </message>
     <message>
         <location filename="../gui/ui/Inv_Materiali.ui" line="1492"/>
         <source>Unità di misura</source>
-        <translation>Maßeinheit</translation>
+        <translation type="obsolete">Maßeinheit</translation>
     </message>
     <message>
         <location filename="../gui/ui/Inv_Materiali.ui" line="1497"/>
         <source>Qtà</source>
-        <translation>Mge</translation>
+        <translation type="obsolete">Mge</translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/Inv_Materiali.ui" line="589"/>
+        <source>Nr. Inventario</source>
+        <translation>Inventar N °</translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/Inv_Materiali.ui" line="1487"/>
+        <source>Tipo quantità </source>
+        <translation type="obsolete">Quantitätstyp</translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/Inv_Materiali.ui" line="1492"/>
+        <source>Unità di misura </source>
+        <translation type="obsolete">Maßeinheit</translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/Inv_Materiali.ui" line="1497"/>
+        <source>Quantità</source>
+        <translation type="obsolete">Menge</translation>
     </message>
 </context>
 <context>
@@ -4220,90 +4231,90 @@ p, li { white-space: pre-wrap; }
     <message>
         <location filename="../gui/ui/Site.ui" line="660"/>
         <source>Descrizione </source>
-        <translation>Beschreibung </translation>
+        <translation type="obsolete">Beschreibung </translation>
     </message>
     <message>
-        <location filename="../gui/ui/Site.ui" line="682"/>
+        <location filename="../gui/ui/Site.ui" line="727"/>
         <source>Italia</source>
         <translation>Italien</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Site.ui" line="695"/>
+        <location filename="../gui/ui/Site.ui" line="681"/>
         <source>Nazione</source>
         <translation>Nation</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Site.ui" line="735"/>
+        <location filename="../gui/ui/Site.ui" line="766"/>
         <source>Comune</source>
         <translation>Ort / Stadt</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Site.ui" line="761"/>
+        <location filename="../gui/ui/Site.ui" line="754"/>
         <source>Provincia</source>
         <translation>Landkreis</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Site.ui" line="773"/>
+        <location filename="../gui/ui/Site.ui" line="669"/>
         <source>Regione</source>
         <translation>Region</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Site.ui" line="783"/>
+        <location filename="../gui/ui/Site.ui" line="776"/>
         <source>Tools</source>
         <translation>Tools</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Site.ui" line="957"/>
+        <location filename="../gui/ui/Site.ui" line="1004"/>
         <source>Carica tutti i layer per poter inserire nuove geometrie</source>
         <translation>Laden Sie alle layer, um neue Geometrien einfügen zu können</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Site.ui" line="873"/>
+        <location filename="../gui/ui/Site.ui" line="891"/>
         <source>Carica layer per il disegno</source>
         <translation>Lade den layer zum Zeichnen</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Site.ui" line="967"/>
+        <location filename="../gui/ui/Site.ui" line="980"/>
         <source>Carica</source>
         <translation>Laden</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Site.ui" line="791"/>
+        <location filename="../gui/ui/Site.ui" line="907"/>
         <source>Carica tutti layer che contengono geometrie relative a questo sito</source>
         <translation>Laden Sie alle Layer, die mit dieser Ausgrabungsstätte verbundene Geometrien enthalten</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Site.ui" line="891"/>
+        <location filename="../gui/ui/Site.ui" line="928"/>
         <source>Esporta relazione di scavo per questo sito (Versione di sviluppo)</source>
         <translation>Ausgrabungsbericht für diese Site exportieren (Entwicklungsversion)</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Site.ui" line="898"/>
+        <location filename="../gui/ui/Site.ui" line="935"/>
         <source>Esporta</source>
         <translation>Export</translation>
     </message>
     <message>
         <location filename="../gui/ui/Site.ui" line="922"/>
         <source>GIS Tools</source>
-        <translation>GIS Tools</translation>
+        <translation type="obsolete">GIS Tools</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Site.ui" line="960"/>
+        <location filename="../gui/ui/Site.ui" line="973"/>
         <source>Carica il puntuale del sito</source>
         <translation>Laden Sie die Punkte der Ausgrabungsstätte</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Site.ui" line="936"/>
+        <location filename="../gui/ui/Site.ui" line="1007"/>
         <source>Gis viewer</source>
         <translation>Gis viewer</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Site.ui" line="943"/>
+        <location filename="../gui/ui/Site.ui" line="1014"/>
         <source>Abilita il caricamento delle ricerche</source>
         <translation>Aktivieren Sie das Laden von Suchen</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Site.ui" line="1016"/>
+        <location filename="../gui/ui/Site.ui" line="1046"/>
         <source>Run test</source>
         <translation>Run test</translation>
     </message>
@@ -4333,37 +4344,37 @@ p, li { white-space: pre-wrap; }
         <translation>Folder</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Site.ui" line="794"/>
+        <location filename="../gui/ui/Site.ui" line="910"/>
         <source>Carica i layer per questo sito</source>
         <translation>Laden Sie Layer für diese Site Ausgrbungstätte</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Site.ui" line="810"/>
+        <location filename="../gui/ui/Site.ui" line="788"/>
         <source>Genera un numero arbitrario di schede US per il sito corrente</source>
         <translation>Erzeugt eine beliebige Anzahl von SE-Formulare für die aktuelle Ausgrbungstätte</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Site.ui" line="827"/>
+        <location filename="../gui/ui/Site.ui" line="875"/>
         <source>Genera US (Azione irreversibile)</source>
         <translation>SE erzeugen (irreversible Aktion)</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Site.ui" line="854"/>
+        <location filename="../gui/ui/Site.ui" line="814"/>
         <source>Numero Area</source>
         <translation>Arealnummer</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Site.ui" line="861"/>
+        <location filename="../gui/ui/Site.ui" line="797"/>
         <source>Numero di schede da creare</source>
         <translation>Nummer des zu erstellenden Formulars</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Site.ui" line="1002"/>
+        <location filename="../gui/ui/Site.ui" line="831"/>
         <source>Numero di scheda US da cui partire</source>
         <translation>Nummer des SE-Formulars, von der aus gestartet werden soll</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Site.ui" line="1010"/>
+        <location filename="../gui/ui/Site.ui" line="1040"/>
         <source>Python test area</source>
         <translation>Python-Testbereich</translation>
     </message>
@@ -4378,9 +4389,29 @@ Step 1 - Aprire il file test_area.py dentro alla cartella pyarchinit (la cartell
 Step 2 - editare la funzione def run_test e salvare il file.
 
 Step 3 - Riavviare Qgis e cliccare sul pulsante Run Test per verificare l&apos;output della vostra funzione.</source>
-        <translation>Dit is een test sectie voor het experimenteren met functies.
+        <translation type="obsolete">Dit is een test sectie voor het experimenteren met functies.
 Dies ist ein Testabschnitt zum Experimentieren mit Funktionen.
 Stap 3-herstarten qgis en klik op de run test knop om de output van uw functie te verifiëren.</translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/Site.ui" line="848"/>
+        <source>Tipo di scheda</source>
+        <translation>Formular typ</translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/Site.ui" line="862"/>
+        <source>US</source>
+        <translation>SE</translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/Site.ui" line="867"/>
+        <source>USM</source>
+        <translation>MSE</translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/Site.ui" line="959"/>
+        <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;GIS Tools&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
+        <translation></translation>
     </message>
 </context>
 <context>
@@ -4755,7 +4786,7 @@ Stap 3-herstarten qgis en klik op de run test knop om de output van uw functie t
 p, li { white-space: pre-wrap; }
 &lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:&apos;.SF NS Text&apos;; font-size:10pt; font-weight:400; font-style:normal;&quot;&gt;
 &lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-family:&apos;Lucida Grande&apos;; font-size:13pt;&quot;&gt;&lt;br /&gt;&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
+        <translation type="obsolete">&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
 &lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
 p, li { white-space: pre-wrap; }
 &lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:&apos;.SF NS Text&apos;; font-size:10pt; font-weight:400; font-style:normal;&quot;&gt;
@@ -4764,12 +4795,30 @@ p, li { white-space: pre-wrap; }
     <message>
         <location filename="../gui/ui/Struttura.ui" line="581"/>
         <source>N°</source>
-        <translation>N °</translation>
+        <translation type="obsolete">N °</translation>
     </message>
     <message>
         <location filename="../gui/ui/Struttura.ui" line="1105"/>
         <source>Quantità</source>
-        <translation>Menge</translation>
+        <translation type="obsolete">Menge</translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/Struttura.ui" line="743"/>
+        <source>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
+&lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
+p, li { white-space: pre-wrap; }
+&lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:&apos;MS Shell Dlg 2&apos;; font-size:10pt; font-weight:400; font-style:normal;&quot;&gt;
+&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-family:&apos;Lucida Grande&apos;; font-size:13pt;&quot;&gt;&lt;br /&gt;&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
+        <translation type="unfinished">&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
+&lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
+p, li { white-space: pre-wrap; }
+&lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:&apos;MS Shell Dlg 2&apos;; font-size:10pt; font-weight:400; font-style:normal;&quot;&gt;
+&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-family:&apos;Lucida Grande&apos;; font-size:13pt;&quot;&gt;&lt;br /&gt;&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/Struttura.ui" line="1105"/>
+        <source>Quantità </source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -4877,10 +4926,10 @@ p, li { white-space: pre-wrap; }
     <message>
         <location filename="../gui/ui/Thesaurus.ui" line="652"/>
         <source>Inserisci un valore</source>
-        <translation>Einen Wert eingeben</translation>
+        <translation type="obsolete">Einen Wert eingeben</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Thesaurus.ui" line="660"/>
+        <location filename="../gui/ui/Thesaurus.ui" line="650"/>
         <source>Sigla</source>
         <translation>Abkürzung</translation>
     </message>
@@ -4892,32 +4941,32 @@ p, li { white-space: pre-wrap; }
     <message>
         <location filename="../gui/ui/Thesaurus.ui" line="696"/>
         <source>Tipologia di struttura</source>
-        <translation>Art der Struktur</translation>
+        <translation type="obsolete">Art der Struktur</translation>
     </message>
     <message>
         <location filename="../gui/ui/Thesaurus.ui" line="701"/>
         <source>definizione sito</source>
-        <translation>Ausgrabungsstätte-Definition</translation>
+        <translation type="obsolete">Ausgrabungsstätte-Definition</translation>
     </message>
     <message>
         <location filename="../gui/ui/Thesaurus.ui" line="706"/>
         <source>definizione stratigrafica</source>
-        <translation>Stratigraphische Definition</translation>
+        <translation type="obsolete">Stratigraphische Definition</translation>
     </message>
     <message>
         <location filename="../gui/ui/Thesaurus.ui" line="711"/>
         <source>tipo di caratterizzazione</source>
-        <translation>Art der Charakterisierung</translation>
+        <translation type="obsolete">Art der Charakterisierung</translation>
     </message>
     <message>
         <location filename="../gui/ui/Thesaurus.ui" line="716"/>
         <source>tipo di us</source>
-        <translation>Art der SE</translation>
+        <translation type="obsolete">Art der SE</translation>
     </message>
     <message>
         <location filename="../gui/ui/Thesaurus.ui" line="721"/>
         <source>tipo reperto</source>
-        <translation>Probenart</translation>
+        <translation type="obsolete">Probenart</translation>
     </message>
     <message>
         <location filename="../gui/ui/Thesaurus.ui" line="544"/>
@@ -4955,7 +5004,7 @@ p, li { white-space: pre-wrap; }
         <translation>Table name</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Thesaurus.ui" line="776"/>
+        <location filename="../gui/ui/Thesaurus.ui" line="810"/>
         <source>Dati descrittivi</source>
         <translation>Beschreibende Daten</translation>
     </message>
@@ -4970,280 +5019,345 @@ p, li { white-space: pre-wrap; }
         <translation>Sprache</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Thesaurus.ui" line="752"/>
+        <location filename="../gui/ui/Thesaurus.ui" line="772"/>
         <source>it_IT</source>
         <translation>it_IT</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Thesaurus.ui" line="757"/>
+        <location filename="../gui/ui/Thesaurus.ui" line="777"/>
         <source>en_US</source>
         <translation>en_US</translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/Thesaurus.ui" line="686"/>
+        <source>1.1</source>
+        <translation>1.1</translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/Thesaurus.ui" line="691"/>
+        <source>2.1</source>
+        <translation></translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/Thesaurus.ui" line="696"/>
+        <source>2.2</source>
+        <translation></translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/Thesaurus.ui" line="701"/>
+        <source>2.3</source>
+        <translation></translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/Thesaurus.ui" line="706"/>
+        <source>2.4</source>
+        <translation></translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/Thesaurus.ui" line="711"/>
+        <source>2.5</source>
+        <translation></translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/Thesaurus.ui" line="716"/>
+        <source>2.6</source>
+        <translation></translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/Thesaurus.ui" line="721"/>
+        <source>2.7</source>
+        <translation></translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/Thesaurus.ui" line="726"/>
+        <source>3.1</source>
+        <translation></translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/Thesaurus.ui" line="731"/>
+        <source>3.2</source>
+        <translation></translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/Thesaurus.ui" line="736"/>
+        <source>3.3</source>
+        <translation></translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/Thesaurus.ui" line="741"/>
+        <source>3.4</source>
+        <translation></translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/Thesaurus.ui" line="792"/>
+        <source>Visualizza elenco sigle</source>
+        <translation>View List code</translation>
     </message>
 </context>
 <context>
     <name>DialogUS</name>
     <message>
-        <location filename="../gui/ui/US_USM.ui" line="3888"/>
+        <location filename="../gui/ui/US_USM.ui" line="598"/>
         <source>DB Info</source>
         <translation>DB info</translation>
     </message>
     <message>
-        <location filename="../gui/ui/US_USM.ui" line="3904"/>
+        <location filename="../gui/ui/US_USM.ui" line="645"/>
         <source>Ordinamento</source>
         <translation>Sortierung</translation>
     </message>
     <message>
-        <location filename="../gui/ui/US_USM.ui" line="3997"/>
+        <location filename="../gui/ui/US_USM.ui" line="620"/>
         <source>Status</source>
         <translation>Status</translation>
     </message>
     <message>
-        <location filename="../gui/ui/US_USM.ui" line="4018"/>
+        <location filename="../gui/ui/US_USM.ui" line="756"/>
         <source>record n.</source>
         <translation>Record nr.</translation>
     </message>
     <message>
-        <location filename="../gui/ui/US_USM.ui" line="4738"/>
+        <location filename="../gui/ui/US_USM.ui" line="5707"/>
         <source>1</source>
         <translation>1</translation>
     </message>
     <message>
-        <location filename="../gui/ui/US_USM.ui" line="4091"/>
+        <location filename="../gui/ui/US_USM.ui" line="781"/>
         <source>record tot.</source>
         <translation>Total record</translation>
     </message>
     <message>
-        <location filename="../gui/ui/US_USM.ui" line="4218"/>
+        <location filename="../gui/ui/US_USM.ui" line="132"/>
         <source>Last rec</source>
         <translation>Last Rec</translation>
     </message>
     <message>
-        <location filename="../gui/ui/US_USM.ui" line="4237"/>
+        <location filename="../gui/ui/US_USM.ui" line="383"/>
         <source>New record</source>
         <translation>New record</translation>
     </message>
     <message>
-        <location filename="../gui/ui/US_USM.ui" line="4256"/>
+        <location filename="../gui/ui/US_USM.ui" line="546"/>
         <source>Save</source>
         <translation>Save</translation>
     </message>
     <message>
-        <location filename="../gui/ui/US_USM.ui" line="4278"/>
+        <location filename="../gui/ui/US_USM.ui" line="444"/>
         <source>new search</source>
         <translation>new search</translation>
     </message>
     <message>
-        <location filename="../gui/ui/US_USM.ui" line="4297"/>
+        <location filename="../gui/ui/US_USM.ui" line="479"/>
         <source>search !!!</source>
         <translation>search !!!</translation>
     </message>
     <message>
-        <location filename="../gui/ui/US_USM.ui" line="4112"/>
+        <location filename="../gui/ui/US_USM.ui" line="275"/>
         <source>Order by</source>
         <translation>Order by</translation>
     </message>
     <message>
-        <location filename="../gui/ui/US_USM.ui" line="4204"/>
+        <location filename="../gui/ui/US_USM.ui" line="310"/>
         <source>View alls records</source>
         <translation>View alls records</translation>
     </message>
     <message>
-        <location filename="../gui/ui/US_USM.ui" line="4146"/>
+        <location filename="../gui/ui/US_USM.ui" line="240"/>
         <source>Next rec</source>
         <translation>Next rec</translation>
     </message>
     <message>
-        <location filename="../gui/ui/US_USM.ui" line="4132"/>
+        <location filename="../gui/ui/US_USM.ui" line="511"/>
         <source>Prev rec</source>
         <translation>Prev rec</translation>
     </message>
     <message>
-        <location filename="../gui/ui/US_USM.ui" line="4160"/>
+        <location filename="../gui/ui/US_USM.ui" line="409"/>
         <source>First rec</source>
         <translation>First rec</translation>
     </message>
     <message>
-        <location filename="../gui/ui/US_USM.ui" line="4185"/>
+        <location filename="../gui/ui/US_USM.ui" line="173"/>
         <source>Delete record</source>
         <translation>Delete record</translation>
     </message>
     <message>
-        <location filename="../gui/ui/US_USM.ui" line="4424"/>
+        <location filename="../gui/ui/US_USM.ui" line="5315"/>
         <source>Inserisci un valore</source>
         <translation>Einen Wert eingeben</translation>
     </message>
     <message>
-        <location filename="../gui/ui/US_USM.ui" line="4743"/>
+        <location filename="../gui/ui/US_USM.ui" line="5712"/>
         <source>2</source>
         <translation>2</translation>
     </message>
     <message>
-        <location filename="../gui/ui/US_USM.ui" line="4748"/>
+        <location filename="../gui/ui/US_USM.ui" line="5717"/>
         <source>3</source>
         <translation>3</translation>
     </message>
     <message>
-        <location filename="../gui/ui/US_USM.ui" line="4753"/>
+        <location filename="../gui/ui/US_USM.ui" line="5722"/>
         <source>4</source>
         <translation>4</translation>
     </message>
     <message>
-        <location filename="../gui/ui/US_USM.ui" line="4758"/>
+        <location filename="../gui/ui/US_USM.ui" line="5727"/>
         <source>5</source>
         <translation>5</translation>
     </message>
     <message>
-        <location filename="../gui/ui/US_USM.ui" line="4763"/>
+        <location filename="../gui/ui/US_USM.ui" line="5732"/>
         <source>6</source>
         <translation>6</translation>
     </message>
     <message>
-        <location filename="../gui/ui/US_USM.ui" line="4768"/>
+        <location filename="../gui/ui/US_USM.ui" line="5737"/>
         <source>7</source>
         <translation>7</translation>
     </message>
     <message>
-        <location filename="../gui/ui/US_USM.ui" line="4773"/>
+        <location filename="../gui/ui/US_USM.ui" line="5742"/>
         <source>8</source>
         <translation>8</translation>
     </message>
     <message>
-        <location filename="../gui/ui/US_USM.ui" line="4778"/>
+        <location filename="../gui/ui/US_USM.ui" line="5747"/>
         <source>9</source>
         <translation>9</translation>
     </message>
     <message>
-        <location filename="../gui/ui/US_USM.ui" line="4783"/>
+        <location filename="../gui/ui/US_USM.ui" line="5752"/>
         <source>10</source>
         <translation>10</translation>
     </message>
     <message>
-        <location filename="../gui/ui/US_USM.ui" line="4788"/>
+        <location filename="../gui/ui/US_USM.ui" line="5757"/>
         <source>11</source>
         <translation>11</translation>
     </message>
     <message>
-        <location filename="../gui/ui/US_USM.ui" line="4793"/>
+        <location filename="../gui/ui/US_USM.ui" line="5762"/>
         <source>12</source>
         <translation>12</translation>
     </message>
     <message>
-        <location filename="../gui/ui/US_USM.ui" line="4798"/>
+        <location filename="../gui/ui/US_USM.ui" line="5767"/>
         <source>13</source>
         <translation>13</translation>
     </message>
     <message>
-        <location filename="../gui/ui/US_USM.ui" line="4803"/>
+        <location filename="../gui/ui/US_USM.ui" line="5772"/>
         <source>14</source>
         <translation>14</translation>
     </message>
     <message>
-        <location filename="../gui/ui/US_USM.ui" line="4808"/>
+        <location filename="../gui/ui/US_USM.ui" line="5777"/>
         <source>15</source>
         <translation>15</translation>
     </message>
     <message>
-        <location filename="../gui/ui/US_USM.ui" line="4813"/>
+        <location filename="../gui/ui/US_USM.ui" line="5782"/>
         <source>16</source>
         <translation>16</translation>
     </message>
     <message>
-        <location filename="../gui/ui/US_USM.ui" line="4818"/>
+        <location filename="../gui/ui/US_USM.ui" line="5787"/>
         <source>17</source>
         <translation>17</translation>
     </message>
     <message>
-        <location filename="../gui/ui/US_USM.ui" line="4823"/>
+        <location filename="../gui/ui/US_USM.ui" line="5792"/>
         <source>18</source>
         <translation>18</translation>
     </message>
     <message>
-        <location filename="../gui/ui/US_USM.ui" line="4828"/>
+        <location filename="../gui/ui/US_USM.ui" line="5797"/>
         <source>19</source>
         <translation>19</translation>
     </message>
     <message>
-        <location filename="../gui/ui/US_USM.ui" line="4833"/>
+        <location filename="../gui/ui/US_USM.ui" line="5802"/>
         <source>20</source>
         <translation>20</translation>
     </message>
     <message>
-        <location filename="../gui/ui/US_USM.ui" line="4382"/>
+        <location filename="../gui/ui/US_USM.ui" line="5214"/>
         <source>Sito </source>
         <translation>Ausgrabungsstätte </translation>
     </message>
     <message>
-        <location filename="../gui/ui/US_USM.ui" line="4565"/>
+        <location filename="../gui/ui/US_USM.ui" line="5233"/>
         <source>Area</source>
         <translation>Bereich</translation>
     </message>
     <message>
-        <location filename="../gui/ui/US_USM.ui" line="4639"/>
+        <location filename="../gui/ui/US_USM.ui" line="5531"/>
         <source>US</source>
         <translation>SE</translation>
     </message>
     <message>
-        <location filename="../gui/ui/US_USM.ui" line="5054"/>
+        <location filename="../gui/ui/US_USM.ui" line="6061"/>
         <source>Attivita&apos; di cantiere</source>
         <translation>Baum-Aktivität</translation>
     </message>
     <message>
-        <location filename="../gui/ui/US_USM.ui" line="5059"/>
+        <location filename="../gui/ui/US_USM.ui" line="6066"/>
         <source>Abbandono</source>
         <translation>Verlassen</translation>
     </message>
     <message>
-        <location filename="../gui/ui/US_USM.ui" line="5064"/>
+        <location filename="../gui/ui/US_USM.ui" line="6071"/>
         <source>Fognatura</source>
         <translation>Drainage</translation>
     </message>
     <message>
-        <location filename="../gui/ui/US_USM.ui" line="5069"/>
+        <location filename="../gui/ui/US_USM.ui" line="6076"/>
         <source>Fondazione</source>
         <translation>Fundament</translation>
     </message>
     <message>
-        <location filename="../gui/ui/US_USM.ui" line="5074"/>
+        <location filename="../gui/ui/US_USM.ui" line="6081"/>
         <source>Fossa da grano</source>
         <translation>Weizengrube</translation>
     </message>
     <message>
-        <location filename="../gui/ui/US_USM.ui" line="5079"/>
+        <location filename="../gui/ui/US_USM.ui" line="6086"/>
         <source>Livellamento</source>
         <translation>Herverdeling</translation>
     </message>
     <message>
-        <location filename="../gui/ui/US_USM.ui" line="5084"/>
+        <location filename="../gui/ui/US_USM.ui" line="6091"/>
         <source>Muro</source>
         <translation>Muur</translation>
     </message>
     <message>
-        <location filename="../gui/ui/US_USM.ui" line="5089"/>
+        <location filename="../gui/ui/US_USM.ui" line="6096"/>
         <source>Pavimentazione</source>
         <translation>Vloeren</translation>
     </message>
     <message>
-        <location filename="../gui/ui/US_USM.ui" line="5094"/>
+        <location filename="../gui/ui/US_USM.ui" line="6101"/>
         <source>Pavimentazione a mosaico</source>
         <translation>MozaïekVloeren</translation>
     </message>
     <message>
-        <location filename="../gui/ui/US_USM.ui" line="5099"/>
+        <location filename="../gui/ui/US_USM.ui" line="6106"/>
         <source>Palo</source>
         <translation>Pole</translation>
     </message>
     <message>
-        <location filename="../gui/ui/US_USM.ui" line="5107"/>
+        <location filename="../gui/ui/US_USM.ui" line="5958"/>
         <source>Definizione stratigrafica</source>
         <translation>Stratigraphische Definition</translation>
     </message>
     <message>
-        <location filename="../gui/ui/US_USM.ui" line="5114"/>
+        <location filename="../gui/ui/US_USM.ui" line="5971"/>
         <source>Definizione Interpretata</source>
         <translation>Interpretierte Definition</translation>
     </message>
     <message>
-        <location filename="../gui/ui/US_USM.ui" line="91"/>
+        <location filename="../gui/ui/US_USM.ui" line="904"/>
         <source>Dati descrittivi</source>
         <translation>Beschreibende Daten</translation>
     </message>
@@ -5254,896 +5368,990 @@ p, li { white-space: pre-wrap; }
 p, li { white-space: pre-wrap; }
 &lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:&apos;MS Shell Dlg 2&apos;; font-size:10pt; font-weight:400; font-style:normal;&quot;&gt;
 &lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-family:&apos;Lucida Grande&apos;; font-size:13pt;&quot;&gt;&lt;br /&gt;&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
+        <translation type="obsolete">&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
 &lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
 p, li { white-space: pre-wrap; }
 &lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:&apos;MS Shell Dlg 2&apos;; font-size:10pt; font-weight:400; font-style:normal;&quot;&gt;
 &lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-family:&apos;Lucida Grande&apos;; font-size:13pt;&quot;&gt;&lt;br /&gt;&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
-        <location filename="../gui/ui/US_USM.ui" line="78"/>
+        <location filename="../gui/ui/US_USM.ui" line="1002"/>
         <source>Descrizione </source>
         <translation>Beschreibung</translation>
     </message>
     <message>
-        <location filename="../gui/ui/US_USM.ui" line="147"/>
+        <location filename="../gui/ui/US_USM.ui" line="1039"/>
         <source>Interpretazione </source>
         <translation>Deutung</translation>
     </message>
     <message>
-        <location filename="../gui/ui/US_USM.ui" line="1492"/>
+        <location filename="../gui/ui/US_USM.ui" line="2404"/>
         <source>Periodizzazione - Rapporti Stratigrafici</source>
         <translation>Periodisierung - stratigraphische Beziehung</translation>
     </message>
     <message>
         <location filename="../gui/ui/US_USM.ui" line="1522"/>
         <source>Periodizzazione </source>
-        <translation>Periodisierung </translation>
+        <translation type="obsolete">Periodisierung </translation>
     </message>
     <message>
-        <location filename="../gui/ui/US_USM.ui" line="1535"/>
+        <location filename="../gui/ui/US_USM.ui" line="2446"/>
         <source>Iniziale </source>
         <translation>Beginnend</translation>
     </message>
     <message>
-        <location filename="../gui/ui/US_USM.ui" line="1548"/>
+        <location filename="../gui/ui/US_USM.ui" line="2465"/>
         <source>Finale </source>
         <translation>Ende</translation>
     </message>
     <message>
-        <location filename="../gui/ui/US_USM.ui" line="1561"/>
+        <location filename="../gui/ui/US_USM.ui" line="2484"/>
         <source>Attivita&apos;</source>
         <translation>Aktivität</translation>
     </message>
     <message>
-        <location filename="../gui/ui/US_USM.ui" line="1574"/>
+        <location filename="../gui/ui/US_USM.ui" line="2509"/>
         <source>Struttura</source>
         <translation>Struktur</translation>
     </message>
     <message>
-        <location filename="../gui/ui/US_USM.ui" line="1635"/>
+        <location filename="../gui/ui/US_USM.ui" line="2662"/>
         <source>Periodo </source>
         <translation>Zeitraum</translation>
     </message>
     <message>
-        <location filename="../gui/ui/US_USM.ui" line="1642"/>
+        <location filename="../gui/ui/US_USM.ui" line="2675"/>
         <source>Fase </source>
         <translation>Phase</translation>
     </message>
     <message>
-        <location filename="../gui/ui/US_USM.ui" line="1714"/>
+        <location filename="../gui/ui/US_USM.ui" line="2845"/>
         <source>Meccanico</source>
         <translation>Mechanisch</translation>
     </message>
     <message>
-        <location filename="../gui/ui/US_USM.ui" line="1719"/>
+        <location filename="../gui/ui/US_USM.ui" line="2850"/>
         <source>Stratigrafico</source>
         <translation>Stratigraphisch</translation>
     </message>
     <message>
-        <location filename="../gui/ui/US_USM.ui" line="1727"/>
+        <location filename="../gui/ui/US_USM.ui" line="2750"/>
         <source>Metodo di scavo</source>
         <translation>Aushubsystem</translation>
     </message>
     <message>
-        <location filename="../gui/ui/US_USM.ui" line="1734"/>
+        <location filename="../gui/ui/US_USM.ui" line="2737"/>
         <source>Anno</source>
         <translation>Jahr</translation>
     </message>
     <message>
-        <location filename="../gui/ui/US_USM.ui" line="1763"/>
+        <location filename="../gui/ui/US_USM.ui" line="2778"/>
         <source>Si</source>
         <translation>Ja</translation>
     </message>
     <message>
-        <location filename="../gui/ui/US_USM.ui" line="1768"/>
+        <location filename="../gui/ui/US_USM.ui" line="2783"/>
         <source>No</source>
         <translation>Nein</translation>
     </message>
     <message>
-        <location filename="../gui/ui/US_USM.ui" line="1776"/>
+        <location filename="../gui/ui/US_USM.ui" line="2724"/>
         <source>Scavato</source>
         <translation>Ausgegraben</translation>
     </message>
     <message>
-        <location filename="../gui/ui/US_USM.ui" line="1798"/>
+        <location filename="../gui/ui/US_USM.ui" line="2862"/>
         <source>Rapporti stratigrafici</source>
         <translation>Stratigraphische Beziehung</translation>
     </message>
     <message>
-        <location filename="../gui/ui/US_USM.ui" line="3085"/>
+        <location filename="../gui/ui/US_USM.ui" line="4386"/>
         <source>inserisci riga</source>
         <translation>Zeile einfügen</translation>
     </message>
     <message>
-        <location filename="../gui/ui/US_USM.ui" line="3097"/>
+        <location filename="../gui/ui/US_USM.ui" line="4408"/>
         <source>rimuovi riga</source>
         <translation>Zeile entfernen</translation>
     </message>
     <message>
-        <location filename="../gui/ui/US_USM.ui" line="1865"/>
+        <location filename="../gui/ui/US_USM.ui" line="2913"/>
         <source>Tipo di rapporto</source>
         <translation>Relatie type</translation>
     </message>
     <message>
-        <location filename="../gui/ui/US_USM.ui" line="1884"/>
+        <location filename="../gui/ui/US_USM.ui" line="2982"/>
         <source>Vai all&apos;US</source>
         <translation>Gehe zu SE</translation>
     </message>
     <message>
-        <location filename="../gui/ui/US_USM.ui" line="1894"/>
+        <location filename="../gui/ui/US_USM.ui" line="2992"/>
         <source>Dati Fisici - Dati Schedatore</source>
         <translation>Physikalische Daten -Katalogisierungsdaten</translation>
     </message>
     <message>
-        <location filename="../gui/ui/US_USM.ui" line="2027"/>
+        <location filename="../gui/ui/US_USM.ui" line="3219"/>
         <source>Antropico</source>
         <translation>Anthropologisch</translation>
     </message>
     <message>
-        <location filename="../gui/ui/US_USM.ui" line="2032"/>
+        <location filename="../gui/ui/US_USM.ui" line="3224"/>
         <source>Naturale</source>
         <translation>Natürlich</translation>
     </message>
     <message>
-        <location filename="../gui/ui/US_USM.ui" line="2270"/>
+        <location filename="../gui/ui/US_USM.ui" line="3057"/>
         <source>Inclusi</source>
         <translation>Einschlüsse</translation>
     </message>
     <message>
-        <location filename="../gui/ui/US_USM.ui" line="2449"/>
+        <location filename="../gui/ui/US_USM.ui" line="3097"/>
         <source>                     Campioni                </source>
         <translation>Proben</translation>
     </message>
     <message>
-        <location filename="../gui/ui/US_USM.ui" line="2112"/>
+        <location filename="../gui/ui/US_USM.ui" line="3186"/>
         <source>Formazione</source>
         <translation>Formation</translation>
     </message>
     <message>
-        <location filename="../gui/ui/US_USM.ui" line="2140"/>
+        <location filename="../gui/ui/US_USM.ui" line="3270"/>
         <source>Marrone</source>
         <translation>Brown</translation>
     </message>
     <message>
-        <location filename="../gui/ui/US_USM.ui" line="2145"/>
+        <location filename="../gui/ui/US_USM.ui" line="3275"/>
         <source>Marrone chiaro</source>
         <translation>Licht bruin</translation>
     </message>
     <message>
-        <location filename="../gui/ui/US_USM.ui" line="2150"/>
+        <location filename="../gui/ui/US_USM.ui" line="3280"/>
         <source>Marrone scuro</source>
         <translation>Donkerbruin</translation>
     </message>
     <message>
-        <location filename="../gui/ui/US_USM.ui" line="2185"/>
+        <location filename="../gui/ui/US_USM.ui" line="3372"/>
         <source>-</source>
         <translation>-</translation>
     </message>
     <message>
-        <location filename="../gui/ui/US_USM.ui" line="2160"/>
+        <location filename="../gui/ui/US_USM.ui" line="3290"/>
         <source>Giallo</source>
         <translation>Geel</translation>
     </message>
     <message>
-        <location filename="../gui/ui/US_USM.ui" line="2165"/>
+        <location filename="../gui/ui/US_USM.ui" line="3295"/>
         <source>Giallo scuro</source>
         <translation>DonkerGeel</translation>
     </message>
     <message>
-        <location filename="../gui/ui/US_USM.ui" line="2170"/>
+        <location filename="../gui/ui/US_USM.ui" line="3300"/>
         <source>Giallo chiaro</source>
         <translation>LichtGeel</translation>
     </message>
     <message>
-        <location filename="../gui/ui/US_USM.ui" line="2124"/>
+        <location filename="../gui/ui/US_USM.ui" line="3170"/>
         <source>Colore</source>
         <translation>Kleur</translation>
     </message>
     <message>
-        <location filename="../gui/ui/US_USM.ui" line="1980"/>
+        <location filename="../gui/ui/US_USM.ui" line="3342"/>
         <source>Argillosa</source>
         <translation>Clay</translation>
     </message>
     <message>
-        <location filename="../gui/ui/US_USM.ui" line="1985"/>
+        <location filename="../gui/ui/US_USM.ui" line="3347"/>
         <source>Compatta</source>
         <translation>Compact</translation>
     </message>
     <message>
-        <location filename="../gui/ui/US_USM.ui" line="1990"/>
+        <location filename="../gui/ui/US_USM.ui" line="3352"/>
         <source>Friabile</source>
         <translation>Kruimelig</translation>
     </message>
     <message>
-        <location filename="../gui/ui/US_USM.ui" line="1995"/>
+        <location filename="../gui/ui/US_USM.ui" line="3357"/>
         <source>Sabbiosa</source>
         <translation>Sandy</translation>
     </message>
     <message>
-        <location filename="../gui/ui/US_USM.ui" line="2198"/>
+        <location filename="../gui/ui/US_USM.ui" line="3389"/>
         <source>Consistenza</source>
         <translation>Consistentie</translation>
     </message>
     <message>
-        <location filename="../gui/ui/US_USM.ui" line="1931"/>
+        <location filename="../gui/ui/US_USM.ui" line="3553"/>
         <source>Insufficiente</source>
         <translation>Unzureichend</translation>
     </message>
     <message>
-        <location filename="../gui/ui/US_USM.ui" line="1936"/>
+        <location filename="../gui/ui/US_USM.ui" line="3558"/>
         <source>Scarso</source>
         <translation>Niedrig</translation>
     </message>
     <message>
-        <location filename="../gui/ui/US_USM.ui" line="1941"/>
+        <location filename="../gui/ui/US_USM.ui" line="3563"/>
         <source>Buono</source>
         <translation>Gut</translation>
     </message>
     <message>
-        <location filename="../gui/ui/US_USM.ui" line="1946"/>
+        <location filename="../gui/ui/US_USM.ui" line="3568"/>
         <source>Discreto</source>
         <translation>Zustand</translation>
     </message>
     <message>
-        <location filename="../gui/ui/US_USM.ui" line="1951"/>
+        <location filename="../gui/ui/US_USM.ui" line="3573"/>
         <source>Ottimo</source>
         <translation>Ausgezeichnet</translation>
     </message>
     <message>
-        <location filename="../gui/ui/US_USM.ui" line="2498"/>
+        <location filename="../gui/ui/US_USM.ui" line="3780"/>
         <source>Data schedatura</source>
         <translation>Datum</translation>
     </message>
     <message>
-        <location filename="../gui/ui/US_USM.ui" line="2597"/>
+        <location filename="../gui/ui/US_USM.ui" line="4010"/>
         <source>Luca Mandolesi</source>
         <translation>Luca Mandolesi</translation>
     </message>
     <message>
-        <location filename="../gui/ui/US_USM.ui" line="2652"/>
+        <location filename="../gui/ui/US_USM.ui" line="3764"/>
         <source>Schedatore</source>
         <translation>Physikalische Daten -Katalogisierungsdaten</translation>
     </message>
     <message>
-        <location filename="../gui/ui/US_USM.ui" line="3072"/>
+        <location filename="../gui/ui/US_USM.ui" line="4321"/>
         <source>Documentazione</source>
         <translation>Dokumentation</translation>
     </message>
     <message>
-        <location filename="../gui/ui/US_USM.ui" line="3135"/>
+        <location filename="../gui/ui/US_USM.ui" line="4356"/>
         <source>Tipo documentazione</source>
         <translation>Art der Dokumentation</translation>
     </message>
     <message>
-        <location filename="../gui/ui/US_USM.ui" line="3140"/>
+        <location filename="../gui/ui/US_USM.ui" line="4361"/>
         <source>Riferimenti</source>
         <translation>Verweise</translation>
     </message>
     <message>
-        <location filename="../gui/ui/US_USM.ui" line="3176"/>
+        <location filename="../gui/ui/US_USM.ui" line="4457"/>
         <source>Tools</source>
         <translation>Tools</translation>
     </message>
     <message>
-        <location filename="../gui/ui/US_USM.ui" line="3210"/>
+        <location filename="../gui/ui/US_USM.ui" line="4491"/>
         <source>Sistemi di controllo</source>
         <translation>Einstellungen</translation>
     </message>
     <message>
-        <location filename="../gui/ui/US_USM.ui" line="3223"/>
+        <location filename="../gui/ui/US_USM.ui" line="4506"/>
         <source>TOOLS</source>
         <translation>TOOLS</translation>
     </message>
     <message>
-        <location filename="../gui/ui/US_USM.ui" line="3230"/>
+        <location filename="../gui/ui/US_USM.ui" line="4513"/>
         <source>Selezione del sito per i controlli</source>
         <translation>Auswahl Ausgrabungsstätte für Kontrollen</translation>
     </message>
     <message>
-        <location filename="../gui/ui/US_USM.ui" line="3280"/>
+        <location filename="../gui/ui/US_USM.ui" line="4645"/>
         <source>Check rapporti stratigrafici</source>
         <translation>Überprüfen Sie die stratigraphischen Berichte</translation>
     </message>
     <message>
-        <location filename="../gui/ui/US_USM.ui" line="3464"/>
+        <location filename="../gui/ui/US_USM.ui" line="4625"/>
         <source>Check, go!!!!</source>
         <translation>Check, go!!!!</translation>
     </message>
     <message>
-        <location filename="../gui/ui/US_USM.ui" line="3293"/>
+        <location filename="../gui/ui/US_USM.ui" line="4716"/>
         <source>Crea Codice Periodo</source>
         <translation>Periodencode erstellen</translation>
     </message>
     <message>
-        <location filename="../gui/ui/US_USM.ui" line="3731"/>
+        <location filename="../gui/ui/US_USM.ui" line="5063"/>
         <source>Show Selcted Features</source>
         <translation>Ausgewählte Funktionen anzeigen</translation>
     </message>
     <message>
-        <location filename="../gui/ui/US_USM.ui" line="3314"/>
+        <location filename="../gui/ui/US_USM.ui" line="4696"/>
         <source>Crea codice periodo</source>
         <translation>Zeitraum</translation>
     </message>
     <message>
-        <location filename="../gui/ui/US_USM.ui" line="3338"/>
+        <location filename="../gui/ui/US_USM.ui" line="4761"/>
         <source>Esporta Matrix</source>
         <translation>Matrix exportieren</translation>
     </message>
     <message>
-        <location filename="../gui/ui/US_USM.ui" line="3375"/>
+        <location filename="../gui/ui/US_USM.ui" line="4777"/>
         <source>Ordine Stratigrafico</source>
         <translation>Stratigraphisch</translation>
     </message>
     <message>
-        <location filename="../gui/ui/US_USM.ui" line="3491"/>
+        <location filename="../gui/ui/US_USM.ui" line="4813"/>
         <source>Funzioni di controllo</source>
         <translation>Steuerfunktionen</translation>
     </message>
     <message>
-        <location filename="../gui/ui/US_USM.ui" line="3503"/>
+        <location filename="../gui/ui/US_USM.ui" line="4828"/>
         <source>Visualizzazione GIS</source>
         <translation>GIS View</translation>
     </message>
     <message>
-        <location filename="../gui/ui/US_USM.ui" line="3734"/>
+        <location filename="../gui/ui/US_USM.ui" line="5066"/>
         <source>Disegna US</source>
         <translation>SE zeichnen</translation>
     </message>
     <message>
-        <location filename="../gui/ui/US_USM.ui" line="3532"/>
+        <location filename="../gui/ui/US_USM.ui" line="4860"/>
         <source>GIS Data Visualizer</source>
         <translation>GIS Data Visualizer</translation>
     </message>
     <message>
-        <location filename="../gui/ui/US_USM.ui" line="3648"/>
+        <location filename="../gui/ui/US_USM.ui" line="4986"/>
         <source>Ctrl+G</source>
         <translation>CTRL + G</translation>
     </message>
     <message>
-        <location filename="../gui/ui/US_USM.ui" line="3564"/>
+        <location filename="../gui/ui/US_USM.ui" line="4895"/>
         <source>Apri schede US selezionate</source>
         <translation>Open US kaarten geselecteerd</translation>
     </message>
     <message>
-        <location filename="../gui/ui/US_USM.ui" line="3579"/>
+        <location filename="../gui/ui/US_USM.ui" line="4914"/>
         <source>Apri schede US</source>
         <translation>Öffnen Sie SE Formular</translation>
     </message>
     <message>
-        <location filename="../gui/ui/US_USM.ui" line="3596"/>
+        <location filename="../gui/ui/US_USM.ui" line="4934"/>
         <source>Attivazione Preview pianta US</source>
         <translation>Aktivierungsanlage SU-Vorschau</translation>
     </message>
     <message>
-        <location filename="../gui/ui/US_USM.ui" line="3606"/>
+        <location filename="../gui/ui/US_USM.ui" line="4944"/>
         <source>Preview pianta US</source>
         <translation>SE-Planvorschau</translation>
     </message>
     <message>
-        <location filename="../gui/ui/US_USM.ui" line="3638"/>
+        <location filename="../gui/ui/US_USM.ui" line="4976"/>
         <source>Pan tool</source>
         <translation>Pan tool</translation>
     </message>
     <message>
-        <location filename="../gui/ui/US_USM.ui" line="3641"/>
+        <location filename="../gui/ui/US_USM.ui" line="4979"/>
         <source>Pan</source>
         <translation>Pan</translation>
     </message>
     <message>
-        <location filename="../gui/ui/US_USM.ui" line="3686"/>
+        <location filename="../gui/ui/US_USM.ui" line="5027"/>
         <source>Mostra immagini</source>
         <translation>Bilder anzeigen</translation>
     </message>
     <message>
-        <location filename="../gui/ui/US_USM.ui" line="3754"/>
+        <location filename="../gui/ui/US_USM.ui" line="5086"/>
         <source>Esportazioni</source>
         <translation>Export</translation>
     </message>
     <message>
-        <location filename="../gui/ui/US_USM.ui" line="3774"/>
+        <location filename="../gui/ui/US_USM.ui" line="217"/>
         <source>Elenco US</source>
         <translation>SE-Liste</translation>
     </message>
     <message>
-        <location filename="../gui/ui/US_USM.ui" line="3797"/>
+        <location filename="../gui/ui/US_USM.ui" line="361"/>
         <source>Esportazioni PDF/PNG</source>
         <translation>PDF / PNG Exportieren</translation>
     </message>
     <message>
-        <location filename="../gui/ui/US_USM.ui" line="3818"/>
+        <location filename="../gui/ui/US_USM.ui" line="109"/>
         <source>Singole schede US</source>
         <translation>Einzelne SE-Formulare</translation>
     </message>
     <message>
-        <location filename="../gui/ui/US_USM.ui" line="25"/>
+        <location filename="../gui/ui/US_USM.ui" line="41"/>
         <source>pyArchInit Gestione Scavi - Scheda US/USM</source>
         <translation>pyarchinit Excavation Management-SE/MSE Formular</translation>
     </message>
     <message>
-        <location filename="../gui/ui/US_USM.ui" line="56"/>
+        <location filename="../gui/ui/US_USM.ui" line="1009"/>
         <source>Elementi datanti</source>
         <translation>Datierungselemente</translation>
     </message>
     <message>
-        <location filename="../gui/ui/US_USM.ui" line="170"/>
+        <location filename="../gui/ui/US_USM.ui" line="1016"/>
         <source>Osservazioni</source>
         <translation>Datierungselemente</translation>
     </message>
     <message>
-        <location filename="../gui/ui/US_USM.ui" line="4644"/>
+        <location filename="../gui/ui/US_USM.ui" line="5536"/>
         <source>USM</source>
         <translation>MSE</translation>
     </message>
     <message>
-        <location filename="../gui/ui/US_USM.ui" line="184"/>
+        <location filename="../gui/ui/US_USM.ui" line="1053"/>
         <source>Dati specifici USM </source>
         <translation>MSE-spezifische Daten</translation>
     </message>
     <message>
-        <location filename="../gui/ui/US_USM.ui" line="195"/>
+        <location filename="../gui/ui/US_USM.ui" line="1265"/>
         <source>Criteri distinzione USM</source>
         <translation>MSE Unterscheidungskriterien</translation>
     </message>
     <message>
-        <location filename="../gui/ui/US_USM.ui" line="209"/>
+        <location filename="../gui/ui/US_USM.ui" line="1281"/>
         <source>Tecnica muraria</source>
         <translation>Maurer-Technik</translation>
     </message>
     <message>
-        <location filename="../gui/ui/US_USM.ui" line="258"/>
+        <location filename="../gui/ui/US_USM.ui" line="1309"/>
         <source>Lavorazione</source>
         <translation>Verarbeitung</translation>
     </message>
     <message>
-        <location filename="../gui/ui/US_USM.ui" line="307"/>
+        <location filename="../gui/ui/US_USM.ui" line="1337"/>
         <source>Posa in opera</source>
         <translation>Verlegung</translation>
     </message>
     <message>
-        <location filename="../gui/ui/US_USM.ui" line="321"/>
+        <location filename="../gui/ui/US_USM.ui" line="1427"/>
         <source>Modulo USM</source>
         <translation>MSE modul</translation>
     </message>
     <message>
-        <location filename="../gui/ui/US_USM.ui" line="335"/>
+        <location filename="../gui/ui/US_USM.ui" line="1249"/>
         <source>Spessore USM (metri)</source>
         <translation>Dicke MSE (Meter)</translation>
     </message>
     <message>
-        <location filename="../gui/ui/US_USM.ui" line="384"/>
+        <location filename="../gui/ui/US_USM.ui" line="1145"/>
         <source>Funzione statica</source>
         <translation>Statische Funktion</translation>
     </message>
     <message>
-        <location filename="../gui/ui/US_USM.ui" line="427"/>
+        <location filename="../gui/ui/US_USM.ui" line="1079"/>
         <source>Unita&apos; edilizia riassuntiva</source>
         <translation>Zusammenfassung der Baueinheit</translation>
     </message>
     <message>
-        <location filename="../gui/ui/US_USM.ui" line="441"/>
+        <location filename="../gui/ui/US_USM.ui" line="1095"/>
         <source>Uso primario USM</source>
         <translation>Hauptanwendung MSE</translation>
     </message>
     <message>
-        <location filename="../gui/ui/US_USM.ui" line="490"/>
+        <location filename="../gui/ui/US_USM.ui" line="1123"/>
         <source>Reimpiego</source>
         <translation>Wiederverwendung</translation>
     </message>
     <message>
-        <location filename="../gui/ui/US_USM.ui" line="502"/>
+        <location filename="../gui/ui/US_USM.ui" line="1449"/>
         <source>Caratteristiche dei giunti</source>
         <translation>Eigenschaften der Fugen</translation>
     </message>
     <message>
-        <location filename="../gui/ui/US_USM.ui" line="556"/>
+        <location filename="../gui/ui/US_USM.ui" line="1469"/>
         <source>Spessore giunti</source>
         <translation>Stärke der Fugen</translation>
     </message>
     <message>
-        <location filename="../gui/ui/US_USM.ui" line="598"/>
+        <location filename="../gui/ui/US_USM.ui" line="1513"/>
         <source>Letti di posa</source>
         <translation>Bett</translation>
     </message>
     <message>
-        <location filename="../gui/ui/US_USM.ui" line="640"/>
+        <location filename="../gui/ui/US_USM.ui" line="1557"/>
         <source>Altezza modulo 5 corsi</source>
         <translation>Höhenmodul 5 Gänge</translation>
     </message>
     <message>
-        <location filename="../gui/ui/US_USM.ui" line="656"/>
+        <location filename="../gui/ui/US_USM.ui" line="1601"/>
         <source>Provenienza materiali</source>
         <translation>Materieller Ursprung</translation>
     </message>
     <message>
-        <location filename="../gui/ui/US_USM.ui" line="669"/>
+        <location filename="../gui/ui/US_USM.ui" line="1624"/>
         <source>USM 2</source>
         <translation>MSE 2</translation>
     </message>
     <message>
         <location filename="../gui/ui/US_USM.ui" line="681"/>
         <source>Caratteristiche del legante</source>
-        <translation>Bindemittel-Funktionen</translation>
+        <translation type="obsolete">Bindemittel-Funktionen</translation>
     </message>
     <message>
         <location filename="../gui/ui/US_USM.ui" line="701"/>
         <source>Caratteristiche dei materiali da costruzione</source>
-        <translation>Eigenschaften von Baustoffen</translation>
+        <translation type="obsolete">Eigenschaften von Baustoffen</translation>
     </message>
     <message>
-        <location filename="../gui/ui/US_USM.ui" line="1267"/>
+        <location filename="../gui/ui/US_USM.ui" line="2204"/>
         <source>+</source>
         <translation>+</translation>
     </message>
     <message>
-        <location filename="../gui/ui/US_USM.ui" line="824"/>
+        <location filename="../gui/ui/US_USM.ui" line="1942"/>
         <source>Consistenza e Texture</source>
         <translation>Konsistenz und Textur</translation>
     </message>
     <message>
-        <location filename="../gui/ui/US_USM.ui" line="872"/>
+        <location filename="../gui/ui/US_USM.ui" line="1994"/>
         <source>Consistenza/texture</source>
         <translation>Konsistenz</translation>
     </message>
     <message>
-        <location filename="../gui/ui/US_USM.ui" line="1060"/>
+        <location filename="../gui/ui/US_USM.ui" line="1808"/>
         <source>Tenace</source>
         <translation>Ausdauernd</translation>
     </message>
     <message>
-        <location filename="../gui/ui/US_USM.ui" line="1198"/>
+        <location filename="../gui/ui/US_USM.ui" line="2136"/>
         <source>Aggregati</source>
         <translation>Aggregat</translation>
     </message>
     <message>
-        <location filename="../gui/ui/US_USM.ui" line="1297"/>
+        <location filename="../gui/ui/US_USM.ui" line="2249"/>
         <source>USM 3</source>
         <translation>MSE 3</translation>
     </message>
     <message>
-        <location filename="../gui/ui/US_USM.ui" line="1337"/>
+        <location filename="../gui/ui/US_USM.ui" line="2313"/>
         <source>quota max (metri)</source>
         <translation>max. Höhe (Meter) </translation>
     </message>
     <message>
-        <location filename="../gui/ui/US_USM.ui" line="1351"/>
+        <location filename="../gui/ui/US_USM.ui" line="2264"/>
         <source>Campioni malta</source>
         <translation>Mörtelproben </translation>
     </message>
     <message>
-        <location filename="../gui/ui/US_USM.ui" line="1365"/>
+        <location filename="../gui/ui/US_USM.ui" line="2333"/>
         <source>Altezza USM  (metri)</source>
         <translation>Höhe MSE (Meter)</translation>
     </message>
     <message>
-        <location filename="../gui/ui/US_USM.ui" line="1385"/>
+        <location filename="../gui/ui/US_USM.ui" line="2326"/>
         <source>Lunghezza USM  (metri)</source>
         <translation>Länge MSE (Meter)</translation>
     </message>
     <message>
-        <location filename="../gui/ui/US_USM.ui" line="1399"/>
+        <location filename="../gui/ui/US_USM.ui" line="2271"/>
         <source>Campioni pietra</source>
         <translation>Steinproben</translation>
     </message>
     <message>
-        <location filename="../gui/ui/US_USM.ui" line="1413"/>
+        <location filename="../gui/ui/US_USM.ui" line="2278"/>
         <source>Campioni mattone</source>
         <translation>Ziegelsteinproben</translation>
     </message>
     <message>
-        <location filename="../gui/ui/US_USM.ui" line="1456"/>
+        <location filename="../gui/ui/US_USM.ui" line="2300"/>
         <source>quota min (metri)</source>
         <translation>Mindesthöhe (Meter)</translation>
     </message>
     <message>
-        <location filename="../gui/ui/US_USM.ui" line="1693"/>
+        <location filename="../gui/ui/US_USM.ui" line="2701"/>
         <source>Datazione</source>
         <translation>Datierung </translation>
     </message>
     <message>
-        <location filename="../gui/ui/US_USM.ui" line="1902"/>
+        <location filename="../gui/ui/US_USM.ui" line="3640"/>
         <source>Flottazione</source>
         <translation>Flotation</translation>
     </message>
     <message>
-        <location filename="../gui/ui/US_USM.ui" line="1915"/>
+        <location filename="../gui/ui/US_USM.ui" line="3467"/>
         <source>Setacciatura</source>
         <translation>Siebanlage</translation>
     </message>
     <message>
-        <location filename="../gui/ui/US_USM.ui" line="1964"/>
+        <location filename="../gui/ui/US_USM.ui" line="3527"/>
         <source>Stato conservazione</source>
-        <translation>Erhaltungsstatus</translation>
+        <translation type="obsolete">Erhaltungsstatus</translation>
     </message>
     <message>
-        <location filename="../gui/ui/US_USM.ui" line="2060"/>
+        <location filename="../gui/ui/US_USM.ui" line="3138"/>
         <source>Apporto</source>
         <translation>Beitrag</translation>
     </message>
     <message>
-        <location filename="../gui/ui/US_USM.ui" line="2065"/>
+        <location filename="../gui/ui/US_USM.ui" line="3143"/>
         <source>Sottrazione</source>
         <translation>Subtraktion</translation>
     </message>
     <message>
-        <location filename="../gui/ui/US_USM.ui" line="2070"/>
+        <location filename="../gui/ui/US_USM.ui" line="3148"/>
         <source>Accumulo</source>
         <translation>Akkumulation</translation>
     </message>
     <message>
-        <location filename="../gui/ui/US_USM.ui" line="2075"/>
+        <location filename="../gui/ui/US_USM.ui" line="3153"/>
         <source>Frana</source>
         <translation>Erdrutsch</translation>
     </message>
     <message>
-        <location filename="../gui/ui/US_USM.ui" line="2083"/>
+        <location filename="../gui/ui/US_USM.ui" line="3105"/>
         <source>Posizione</source>
         <translation>Lage</translation>
     </message>
     <message>
-        <location filename="../gui/ui/US_USM.ui" line="2090"/>
+        <location filename="../gui/ui/US_USM.ui" line="3193"/>
         <source>Criteri distinzione</source>
         <translation>Kriterien für die Unterscheidung</translation>
     </message>
     <message>
-        <location filename="../gui/ui/US_USM.ui" line="2100"/>
+        <location filename="../gui/ui/US_USM.ui" line="3112"/>
         <source>Modo formazione</source>
         <translation>Trainingsmodus</translation>
     </message>
     <message>
-        <location filename="../gui/ui/US_USM.ui" line="2290"/>
+        <location filename="../gui/ui/US_USM.ui" line="3633"/>
         <source>Affidabilita&apos;</source>
         <translation>Zuverlässigkeit</translation>
     </message>
     <message>
-        <location filename="../gui/ui/US_USM.ui" line="2305"/>
+        <location filename="../gui/ui/US_USM.ui" line="3407"/>
         <source>Comp. inorganici</source>
         <translation>Anorganische Komp</translation>
     </message>
     <message>
-        <location filename="../gui/ui/US_USM.ui" line="2412"/>
+        <location filename="../gui/ui/US_USM.ui" line="3625"/>
         <source>Comp. organici</source>
         <translation>Organic Comp</translation>
     </message>
     <message>
-        <location filename="../gui/ui/US_USM.ui" line="2470"/>
+        <location filename="../gui/ui/US_USM.ui" line="3834"/>
         <source>Data rilevazione</source>
         <translation>Datum der Entdeckung</translation>
     </message>
     <message>
-        <location filename="../gui/ui/US_USM.ui" line="2515"/>
+        <location filename="../gui/ui/US_USM.ui" line="3978"/>
         <source>Responsabile US</source>
         <translation>SE Leiter </translation>
     </message>
     <message>
-        <location filename="../gui/ui/US_USM.ui" line="2546"/>
+        <location filename="../gui/ui/US_USM.ui" line="3875"/>
         <source>Data rielaborazione</source>
         <translation>Überarbeitetes Datum</translation>
     </message>
     <message>
-        <location filename="../gui/ui/US_USM.ui" line="2553"/>
+        <location filename="../gui/ui/US_USM.ui" line="3924"/>
         <source>Direttore US</source>
         <translation>SE-Direktor</translation>
     </message>
     <message>
-        <location filename="../gui/ui/US_USM.ui" line="2675"/>
+        <location filename="../gui/ui/US_USM.ui" line="3861"/>
         <source>Ref. TM</source>
         <translation>Materialformular Referenz</translation>
     </message>
     <message>
-        <location filename="../gui/ui/US_USM.ui" line="2682"/>
+        <location filename="../gui/ui/US_USM.ui" line="3931"/>
         <source>Ref. RA</source>
         <translation>Archäologische Funde Referenz</translation>
     </message>
     <message>
-        <location filename="../gui/ui/US_USM.ui" line="2705"/>
+        <location filename="../gui/ui/US_USM.ui" line="3868"/>
         <source>Ref. N.</source>
         <translation>Ref. N.</translation>
     </message>
     <message>
-        <location filename="../gui/ui/US_USM.ui" line="2717"/>
+        <location filename="../gui/ui/US_USM.ui" line="3827"/>
         <source>Cod. Ente Schedatore</source>
         <translation>Verfasser Firma&apos;s Code </translation>
     </message>
     <message>
-        <location filename="../gui/ui/US_USM.ui" line="2732"/>
+        <location filename="../gui/ui/US_USM.ui" line="4021"/>
         <source>Misure</source>
         <translation>Messungen</translation>
     </message>
     <message>
-        <location filename="../gui/ui/US_USM.ui" line="2799"/>
+        <location filename="../gui/ui/US_USM.ui" line="4268"/>
         <source>Altezza min. (Metri)</source>
-        <translation>Min. Höhe (Meter)</translation>
+        <translation type="obsolete">Min. Höhe (Meter)</translation>
     </message>
     <message>
-        <location filename="../gui/ui/US_USM.ui" line="2826"/>
+        <location filename="../gui/ui/US_USM.ui" line="4153"/>
         <source>Quota assoluta (metri)</source>
         <translation>Absolute Höhe (Meter) </translation>
     </message>
     <message>
-        <location filename="../gui/ui/US_USM.ui" line="3028"/>
+        <location filename="../gui/ui/US_USM.ui" line="4222"/>
         <source>Quota max relativa  (metri)</source>
         <translation>Relative maximale Höhe (Meter)</translation>
     </message>
     <message>
-        <location filename="../gui/ui/US_USM.ui" line="3001"/>
+        <location filename="../gui/ui/US_USM.ui" line="4199"/>
         <source>Quota max assoluta (metri)</source>
         <translation>Absolute maximale Höhe (Meter)</translation>
     </message>
     <message>
-        <location filename="../gui/ui/US_USM.ui" line="2907"/>
+        <location filename="../gui/ui/US_USM.ui" line="4192"/>
         <source>Quota relativa (metri)</source>
         <translation>Relative Höhe (Meter)</translation>
     </message>
     <message>
-        <location filename="../gui/ui/US_USM.ui" line="2947"/>
+        <location filename="../gui/ui/US_USM.ui" line="4100"/>
         <source>Lunghezza max (metri)</source>
         <translation>Max.Länge (Meter)</translation>
     </message>
     <message>
-        <location filename="../gui/ui/US_USM.ui" line="2974"/>
+        <location filename="../gui/ui/US_USM.ui" line="4245"/>
         <source>Altezza Max. (Metri)</source>
-        <translation>Max. Höhe  (Meter)</translation>
+        <translation type="obsolete">Max. Höhe  (Meter)</translation>
     </message>
     <message>
-        <location filename="../gui/ui/US_USM.ui" line="3064"/>
+        <location filename="../gui/ui/US_USM.ui" line="4146"/>
         <source>Larghezza media (metri)</source>
         <translation>Durchschnittliche Breite (Meter)</translation>
     </message>
     <message>
-        <location filename="../gui/ui/US_USM.ui" line="3148"/>
+        <location filename="../gui/ui/US_USM.ui" line="4447"/>
         <source>Visualizza documentazione</source>
         <translation>Dokumentation anzeigen</translation>
     </message>
     <message>
-        <location filename="../gui/ui/US_USM.ui" line="3168"/>
+        <location filename="../gui/ui/US_USM.ui" line="4434"/>
         <source>Aggiorna doc</source>
         <translation>Doku aktualisieren</translation>
     </message>
     <message>
-        <location filename="../gui/ui/US_USM.ui" line="3359"/>
+        <location filename="../gui/ui/US_USM.ui" line="4741"/>
         <source>Export Matrix</source>
         <translation>Matrix exportieren</translation>
     </message>
     <message>
-        <location filename="../gui/ui/US_USM.ui" line="3841"/>
+        <location filename="../gui/ui/US_USM.ui" line="5103"/>
         <source>Esportazione Tavole</source>
         <translation>Zeichnungtabeln exportieren</translation>
     </message>
     <message>
-        <location filename="../gui/ui/US_USM.ui" line="4350"/>
+        <location filename="../gui/ui/US_USM.ui" line="569"/>
         <source>Rec step</source>
         <translation>Rec Schritt</translation>
     </message>
     <message>
         <location filename="../gui/ui/US_USM.ui" line="4365"/>
         <source>DBMS Toolbar (testing)</source>
-        <translation>DBMS Toolbar (testing)</translation>
+        <translation type="obsolete">DBMS Toolbar (testing)</translation>
     </message>
     <message>
-        <location filename="../gui/ui/US_USM.ui" line="4374"/>
+        <location filename="../gui/ui/US_USM.ui" line="5178"/>
         <source>Identificatori</source>
         <translation>Identificatiemiddelen</translation>
     </message>
     <message>
-        <location filename="../gui/ui/US_USM.ui" line="4602"/>
+        <location filename="../gui/ui/US_USM.ui" line="5252"/>
         <source>US/USM</source>
         <translation>SE/MSE</translation>
     </message>
     <message>
-        <location filename="../gui/ui/US_USM.ui" line="4652"/>
+        <location filename="../gui/ui/US_USM.ui" line="5271"/>
         <source>Unita tipo</source>
         <translation>Einheit eingeben</translation>
     </message>
     <message>
-        <location filename="../gui/ui/US_USM.ui" line="4664"/>
+        <location filename="../gui/ui/US_USM.ui" line="5562"/>
         <source>Localizzazione</source>
         <translation>Lokalisierung</translation>
     </message>
     <message>
-        <location filename="../gui/ui/US_USM.ui" line="4698"/>
+        <location filename="../gui/ui/US_USM.ui" line="5667"/>
         <source>A</source>
         <translation>A</translation>
     </message>
     <message>
-        <location filename="../gui/ui/US_USM.ui" line="4703"/>
+        <location filename="../gui/ui/US_USM.ui" line="5672"/>
         <source>B</source>
         <translation>B</translation>
     </message>
     <message>
-        <location filename="../gui/ui/US_USM.ui" line="4708"/>
+        <location filename="../gui/ui/US_USM.ui" line="5677"/>
         <source>C</source>
         <translation>C</translation>
     </message>
     <message>
-        <location filename="../gui/ui/US_USM.ui" line="4713"/>
+        <location filename="../gui/ui/US_USM.ui" line="5682"/>
         <source>D</source>
         <translation>D</translation>
     </message>
     <message>
-        <location filename="../gui/ui/US_USM.ui" line="4718"/>
+        <location filename="../gui/ui/US_USM.ui" line="5687"/>
         <source>E</source>
         <translation>E</translation>
     </message>
     <message>
-        <location filename="../gui/ui/US_USM.ui" line="4723"/>
+        <location filename="../gui/ui/US_USM.ui" line="5692"/>
         <source>F</source>
         <translation>V</translation>
     </message>
     <message>
-        <location filename="../gui/ui/US_USM.ui" line="4728"/>
+        <location filename="../gui/ui/US_USM.ui" line="5697"/>
         <source>G</source>
         <translation>G</translation>
     </message>
     <message>
-        <location filename="../gui/ui/US_USM.ui" line="4733"/>
+        <location filename="../gui/ui/US_USM.ui" line="5702"/>
         <source>H</source>
         <translation>H</translation>
     </message>
     <message>
-        <location filename="../gui/ui/US_USM.ui" line="4841"/>
+        <location filename="../gui/ui/US_USM.ui" line="5580"/>
         <source>Settore</source>
         <translation>Sektor / Fläche</translation>
     </message>
     <message>
-        <location filename="../gui/ui/US_USM.ui" line="4878"/>
+        <location filename="../gui/ui/US_USM.ui" line="5593"/>
         <source>Quadrato/Parete</source>
         <translation>Quadrat / Wand</translation>
     </message>
     <message>
-        <location filename="../gui/ui/US_USM.ui" line="4915"/>
+        <location filename="../gui/ui/US_USM.ui" line="5606"/>
         <source>Ambiente</source>
         <translation>Raum</translation>
     </message>
     <message>
-        <location filename="../gui/ui/US_USM.ui" line="4952"/>
+        <location filename="../gui/ui/US_USM.ui" line="5619"/>
         <source>Saggio</source>
         <translation>Graben</translation>
     </message>
     <message>
-        <location filename="../gui/ui/US_USM.ui" line="4998"/>
+        <location filename="../gui/ui/US_USM.ui" line="5934"/>
         <source>Sabap - Emilia Romagna</source>
         <translation>SABAP-Emilia Romagna</translation>
     </message>
     <message>
-        <location filename="../gui/ui/US_USM.ui" line="5003"/>
+        <location filename="../gui/ui/US_USM.ui" line="5939"/>
         <source>Sabap - Marche</source>
         <translation>SABAP-Marche</translation>
     </message>
     <message>
-        <location filename="../gui/ui/US_USM.ui" line="5008"/>
+        <location filename="../gui/ui/US_USM.ui" line="5944"/>
         <source>Sabap - Toscana</source>
         <translation>SABAP-Toscane</translation>
     </message>
     <message>
-        <location filename="../gui/ui/US_USM.ui" line="5016"/>
+        <location filename="../gui/ui/US_USM.ui" line="5632"/>
         <source>Soprintendenza</source>
         <translation>Landesamt</translation>
     </message>
     <message>
         <location filename="../gui/ui/US_USM.ui" line="2772"/>
         <source>Profondità  Min. (Metri)</source>
-        <translation>Min. Tiefe  (Meter)</translation>
+        <translation type="obsolete">Min. Tiefe  (Meter)</translation>
     </message>
     <message>
         <location filename="../gui/ui/US_USM.ui" line="3055"/>
         <source>Profondità max. (Metri)</source>
-        <translation>Max. Tiefe  (Meter)</translation>
+        <translation type="obsolete">Max. Tiefe  (Meter)</translation>
     </message>
     <message>
         <location filename="../gui/ui/US_USM.ui" line="5151"/>
         <source>N°. Cat. Gen.</source>
-        <translation>N °. Cat. Gen.</translation>
+        <translation type="obsolete">N °. Cat. Gen.</translation>
     </message>
     <message>
         <location filename="../gui/ui/US_USM.ui" line="5188"/>
         <source>N°. Cat. Int.</source>
-        <translation>N °. Cat. Int.</translation>
+        <translation type="obsolete">N °. Cat. Int.</translation>
     </message>
     <message>
         <location filename="../gui/ui/US_USM.ui" line="5225"/>
         <source>N°. Cat. Internaz.</source>
-        <translation>N °. Cat. Internat.</translation>
+        <translation type="obsolete">N °. Cat. Internat.</translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/US_USM.ui" line="339"/>
+        <source>DBMS Toolbar</source>
+        <translation>DBMS Toolbar</translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/US_USM.ui" line="938"/>
+        <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Dati descrittivi&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
+        <translation></translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/US_USM.ui" line="991"/>
+        <source>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
+&lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
+p, li { white-space: pre-wrap; }
+&lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:&apos;Times New Roman&apos;; font-size:8pt; font-weight:400; font-style:normal;&quot;&gt;
+&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-family:&apos;Lucida Grande&apos;; font-size:13pt;&quot;&gt;&lt;br /&gt;&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
+        <translation></translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/US_USM.ui" line="1657"/>
+        <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Caratteristiche del legante&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
+        <translation></translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/US_USM.ui" line="1932"/>
+        <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Caratteristiche dei materiali da costruzione&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Eigenschaften von Baustoffen&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/US_USM.ui" line="4077"/>
+        <source>Quota min relativa  (metri)</source>
+        <translation>Relative Höhe min (Meter)</translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/US_USM.ui" line="4107"/>
+        <source>Quota min assoluta (metri)</source>
+        <translation>Relative Höhe max (Meter)</translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/US_USM.ui" line="4291"/>
+        <source>Profondità min. (metri)</source>
+        <translation type="obsolete">Tiefe min (Meter)</translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/US_USM.ui" line="4298"/>
+        <source>Profondità max. (metri)</source>
+        <translation type="obsolete">Tiefe max (Meter)</translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/US_USM.ui" line="2427"/>
+        <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Periodizzazione&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Periodisierung&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/US_USM.ui" line="4245"/>
+        <source>Altezza max. (metri)</source>
+        <translation>Höhe max (Meter)</translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/US_USM.ui" line="4268"/>
+        <source>Altezza min. (metri)</source>
+        <translation>Höhe min (Meter)</translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/US_USM.ui" line="5984"/>
+        <source>Nr. Cat. Gen.</source>
+        <translation>Nr General Cat.</translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/US_USM.ui" line="5997"/>
+        <source>Nr. Cat. Int.</source>
+        <translation>Nr. Cat. Internal</translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/US_USM.ui" line="6010"/>
+        <source>Nr. Cat. Internaz.</source>
+        <translation></translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/US_USM.ui" line="3527"/>
+        <source>Stato conservazione </source>
+        <translation></translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/US_USM.ui" line="4291"/>
+        <source>Profondità min. (metri) </source>
+        <translation>Min. Tiefe  (Meter)</translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/US_USM.ui" line="4298"/>
+        <source>Profondità max. (metri) </source>
+        <translation>Max. Tiefe  (Meter)</translation>
     </message>
 </context>
 <context>
@@ -7093,7 +7301,7 @@ p, li { white-space: pre-wrap; }
     <message>
         <location filename="../gui/ui/pyarchinit_directory_creator_ui.ui" line="286"/>
         <source>Unità Stratigrafiche</source>
-        <translation>Stratigraphische Einheiten</translation>
+        <translation type="obsolete">Stratigraphische Einheiten</translation>
     </message>
 </context>
 <context>
@@ -7737,7 +7945,7 @@ p, li { white-space: pre-wrap; }
     <message>
         <location filename="../gui/ui/Deteta.ui" line="20"/>
         <source>pyArchInit Gestione Scavi - Scheda Determinazione Età di Morte</source>
-        <translation>pyarchinit Ausgrabung Management-Formular Todesalter</translation>
+        <translation type="obsolete">pyarchinit Ausgrabung Management-Formular Todesalter</translation>
     </message>
     <message>
         <location filename="../gui/ui/Deteta.ui" line="1359"/>
@@ -7746,7 +7954,7 @@ p, li { white-space: pre-wrap; }
 p, li { white-space: pre-wrap; }
 &lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:&apos;Lucida Grande&apos;; font-size:13pt; font-weight:400; font-style:normal;&quot;&gt;
 &lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-family:&apos;MS Shell Dlg 2&apos;; font-size:10pt;&quot;&gt; Assenza di granulosità; è possibile un&apos;isolata e fine porosità.&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
+        <translation type="obsolete">&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
 &lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
 p, li { white-space: pre-wrap; }
 &lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:&apos;Lucida Grande&apos;; font-size:13pt; font-weight:400; font-style:normal;&quot;&gt;
@@ -7760,7 +7968,7 @@ p, li { white-space: pre-wrap; }
 &lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:&apos;Lucida Grande&apos;; font-size:13pt; font-weight:400; font-style:normal;&quot;&gt;
 &lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-family:&apos;MS Shell Dlg 2&apos;; font-size:10pt;&quot;&gt;Il bordo è fine e può essere a filo con la superficie auricolare, &lt;/span&gt;&lt;/p&gt;
 &lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-family:&apos;MS Shell Dlg 2&apos;; font-size:10pt;&quot;&gt;o leggermente sollevato e forma un angolo.&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
+        <translation type="obsolete">&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
 &lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
 p, li { white-space: pre-wrap; }
 &lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:&apos;Lucida Grande&apos;; font-size:13pt; font-weight:400; font-style:normal;&quot;&gt;
@@ -7770,12 +7978,12 @@ p, li { white-space: pre-wrap; }
     <message>
         <location filename="../gui/ui/Deteta.ui" line="1567"/>
         <source>Modificazione della tuberosità iliaca</source>
-        <translation>Modifikation der Tuberiosität im Beckenknochen</translation>
+        <translation type="obsolete">Modifikation der Tuberiosität im Beckenknochen</translation>
     </message>
     <message>
         <location filename="../gui/ui/Deteta.ui" line="3860"/>
         <source>Acsadi e Nemeskéri, 1970</source>
-        <translation>Acsadi en Nemeskéri, 1970</translation>
+        <translation type="obsolete">Acsadi en Nemeskéri, 1970</translation>
     </message>
 </context>
 <context>
@@ -7848,7 +8056,7 @@ p, li { white-space: pre-wrap; }
     <message>
         <location filename="../gui/ui/pyarchinit_images_export_ui.ui" line="286"/>
         <source>Unità Stratigrafiche</source>
-        <translation>Stratigraphische Einheiten</translation>
+        <translation type="obsolete">Stratigraphische Einheiten</translation>
     </message>
 </context>
 <context>
@@ -7936,7 +8144,7 @@ p, li { white-space: pre-wrap; }
     <message>
         <location filename="../gui/ui/Pdf_export.ui" line="221"/>
         <source>Unità Stratigrafiche</source>
-        <translation>Stratigraphische Einheiten</translation>
+        <translation type="obsolete">Stratigraphische Einheiten</translation>
     </message>
 </context>
 <context>
@@ -8640,77 +8848,77 @@ p, li { white-space: pre-wrap; }
         <translation>Struktur</translation>
     </message>
     <message>
-        <location filename="../gui/ui/pyarchinit_plugin.ui" line="947"/>
+        <location filename="../gui/ui/pyarchinit_plugin.ui" line="988"/>
         <source>N:N</source>
         <translation>N:N</translation>
     </message>
     <message>
-        <location filename="../gui/ui/pyarchinit_plugin.ui" line="748"/>
+        <location filename="../gui/ui/pyarchinit_plugin.ui" line="789"/>
         <source>1:N</source>
         <translation>1: N</translation>
     </message>
     <message>
-        <location filename="../gui/ui/pyarchinit_plugin.ui" line="911"/>
+        <location filename="../gui/ui/pyarchinit_plugin.ui" line="952"/>
         <source>US</source>
         <translation>SE</translation>
     </message>
     <message>
-        <location filename="../gui/ui/pyarchinit_plugin.ui" line="963"/>
+        <location filename="../gui/ui/pyarchinit_plugin.ui" line="1004"/>
         <source>Reperti</source>
         <translation>Funde</translation>
     </message>
     <message>
-        <location filename="../gui/ui/pyarchinit_plugin.ui" line="461"/>
+        <location filename="../gui/ui/pyarchinit_plugin.ui" line="471"/>
         <source>Scavo Archeologico</source>
         <translation>Archäologische Ausgrabung</translation>
     </message>
     <message>
-        <location filename="../gui/ui/pyarchinit_plugin.ui" line="785"/>
+        <location filename="../gui/ui/pyarchinit_plugin.ui" line="826"/>
         <source>Sito</source>
         <translation>Ausgrabungsstätte</translation>
     </message>
     <message>
-        <location filename="../gui/ui/pyarchinit_plugin.ui" line="537"/>
+        <location filename="../gui/ui/pyarchinit_plugin.ui" line="547"/>
         <source>Periodo/fase</source>
         <translation>Zeitraum/Phase</translation>
     </message>
     <message>
-        <location filename="../gui/ui/pyarchinit_plugin.ui" line="853"/>
+        <location filename="../gui/ui/pyarchinit_plugin.ui" line="894"/>
         <source>Ricognizione del territorio</source>
         <translation>Oberflächenbegehung</translation>
     </message>
     <message>
-        <location filename="../gui/ui/pyarchinit_plugin.ui" line="725"/>
+        <location filename="../gui/ui/pyarchinit_plugin.ui" line="766"/>
         <source>UT</source>
         <translation>TE</translation>
     </message>
     <message>
-        <location filename="../gui/ui/pyarchinit_plugin.ui" line="1028"/>
+        <location filename="../gui/ui/pyarchinit_plugin.ui" line="1069"/>
         <source>Media</source>
         <translation>Media</translation>
     </message>
     <message>
-        <location filename="../gui/ui/pyarchinit_plugin.ui" line="1054"/>
+        <location filename="../gui/ui/pyarchinit_plugin.ui" line="1095"/>
         <source>Esportazione Media</source>
         <translation>Media export</translation>
     </message>
     <message>
-        <location filename="../gui/ui/pyarchinit_plugin.ui" line="1094"/>
+        <location filename="../gui/ui/pyarchinit_plugin.ui" line="1135"/>
         <source>Utility</source>
         <translation>Utility</translation>
     </message>
     <message>
-        <location filename="../gui/ui/pyarchinit_plugin.ui" line="1109"/>
+        <location filename="../gui/ui/pyarchinit_plugin.ui" line="1150"/>
         <source>PDF EXP</source>
         <translation>PDF EXP</translation>
     </message>
     <message>
-        <location filename="../gui/ui/pyarchinit_plugin.ui" line="1182"/>
+        <location filename="../gui/ui/pyarchinit_plugin.ui" line="1223"/>
         <source>Supporto online</source>
         <translation>Online support</translation>
     </message>
     <message>
-        <location filename="../gui/ui/pyarchinit_plugin.ui" line="1137"/>
+        <location filename="../gui/ui/pyarchinit_plugin.ui" line="1178"/>
         <source>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
 &lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
 p, li { white-space: pre-wrap; }
