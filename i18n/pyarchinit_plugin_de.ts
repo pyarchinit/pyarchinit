@@ -7103,37 +7103,37 @@ p, li { white-space: pre-wrap; }
     <message>
         <location filename="../gui/ui/pyarchinitConfigDialog.ui" line="650"/>
         <source>US</source>
-        <translation>US</translation>
+        <translation>SE</translation>
     </message>
     <message>
         <location filename="../gui/ui/pyarchinitConfigDialog.ui" line="655"/>
         <source>UT</source>
-        <translation>UT</translation>
+        <translation>TE</translation>
     </message>
     <message>
         <location filename="../gui/ui/pyarchinitConfigDialog.ui" line="660"/>
         <source>SITE</source>
-        <translation>SITE</translation>
+        <translation>AUSGRABUNGSSTÄTTE</translation>
     </message>
     <message>
         <location filename="../gui/ui/pyarchinitConfigDialog.ui" line="665"/>
         <source>PERIODIZZAZIONE</source>
-        <translation>PERIODIZZAZIONE</translation>
+        <translation>PERIODISIERUNG</translation>
     </message>
     <message>
         <location filename="../gui/ui/pyarchinitConfigDialog.ui" line="670"/>
         <source>INVENTARIO_MATERIALI</source>
-        <translation>INVENTARIO_MATERIALI</translation>
+        <translation>ARTEFAKT-INVENTAR</translation>
     </message>
     <message>
         <location filename="../gui/ui/pyarchinitConfigDialog.ui" line="675"/>
         <source>STRUTTURA</source>
-        <translation>STRUTTURA</translation>
+        <translation>STRUKTUREN</translation>
     </message>
     <message>
         <location filename="../gui/ui/pyarchinitConfigDialog.ui" line="680"/>
         <source>TAFONOMIA</source>
-        <translation>TAFONOMIA</translation>
+        <translation>TAPHONOMIE</translation>
     </message>
     <message>
         <location filename="../gui/ui/pyarchinitConfigDialog.ui" line="685"/>
@@ -7143,7 +7143,7 @@ p, li { white-space: pre-wrap; }
     <message>
         <location filename="../gui/ui/pyarchinitConfigDialog.ui" line="690"/>
         <source>SCHEDAIND</source>
-        <translation>SCHEDAIND</translation>
+        <translation>INDIVIDUEL</translation>
     </message>
     <message>
         <location filename="../gui/ui/pyarchinitConfigDialog.ui" line="695"/>
@@ -7163,12 +7163,12 @@ p, li { white-space: pre-wrap; }
     <message>
         <location filename="../gui/ui/pyarchinitConfigDialog.ui" line="710"/>
         <source>CAMPIONI</source>
-        <translation>CAMPIONI</translation>
+        <translation>BEISPIELS</translation>
     </message>
     <message>
         <location filename="../gui/ui/pyarchinitConfigDialog.ui" line="715"/>
         <source>DOCUMENTAZIONE</source>
-        <translation>DOCUMENTAZIONE</translation>
+        <translation>DOKUMENTATION</translation>
     </message>
     <message>
         <location filename="../gui/ui/pyarchinitConfigDialog.ui" line="723"/>
