@@ -11,7 +11,7 @@
    </rect>
   </property>
   <property name="windowIcon">
-   <iconset resource="resources.qrc">
+   <iconset resource="../../resources/resources.qrc">
     <normaloff>:/icons/pai_us.png</normaloff>:/icons/pai_us.png</iconset>
   </property>
   <property name="styleSheet">
@@ -46,8 +46,8 @@ background-color: rgb(168, 168, 168);</string>
         <rect>
          <x>0</x>
          <y>0</y>
-         <width>286</width>
-         <height>571</height>
+         <width>288</width>
+         <height>408</height>
         </rect>
        </property>
        <layout class="QGridLayout" name="gridLayout_2">
@@ -123,7 +123,7 @@ selection-color: rgb(140, 140, 105);</string>
              <string>Struttura</string>
             </property>
             <property name="icon">
-             <iconset resource="resources.qrc">
+             <iconset resource="../../resources/resources.qrc">
               <normaloff>:/icons/iconStrutt.png</normaloff>:/icons/iconStrutt.png</iconset>
             </property>
             <property name="iconSize">
@@ -151,9 +151,14 @@ selection-color: rgb(140, 140, 105);</string>
              <rect>
               <x>110</x>
               <y>179</y>
-              <width>22</width>
+              <width>31</width>
               <height>16</height>
              </rect>
+            </property>
+            <property name="font">
+             <font>
+              <pointsize>6</pointsize>
+             </font>
             </property>
             <property name="text">
              <string>N:N</string>
@@ -175,50 +180,35 @@ selection-color: rgb(140, 140, 105);</string>
            <widget class="QLabel" name="label_2">
             <property name="geometry">
              <rect>
-              <x>116</x>
-              <y>51</y>
-              <width>21</width>
-              <height>16</height>
+              <x>190</x>
+              <y>31</y>
+              <width>31</width>
+              <height>20</height>
              </rect>
+            </property>
+            <property name="font">
+             <font>
+              <pointsize>6</pointsize>
+             </font>
             </property>
             <property name="text">
              <string>1:N</string>
             </property>
            </widget>
-           <widget class="Line" name="line_3">
+           <widget class="QLabel" name="label_3">
             <property name="geometry">
              <rect>
-              <x>81</x>
-              <y>52</y>
+              <x>20</x>
+              <y>121</y>
               <width>31</width>
               <height>16</height>
              </rect>
             </property>
-            <property name="orientation">
-             <enum>Qt::Horizontal</enum>
-            </property>
-           </widget>
-           <widget class="Line" name="line_4">
-            <property name="geometry">
-             <rect>
-              <x>135</x>
-              <y>50</y>
-              <width>21</width>
-              <height>20</height>
-             </rect>
-            </property>
-            <property name="orientation">
-             <enum>Qt::Horizontal</enum>
-            </property>
-           </widget>
-           <widget class="QLabel" name="label_3">
-            <property name="geometry">
-             <rect>
-              <x>30</x>
-              <y>121</y>
-              <width>21</width>
-              <height>16</height>
-             </rect>
+            <property name="font">
+             <font>
+              <pointsize>6</pointsize>
+              <kerning>false</kerning>
+             </font>
             </property>
             <property name="text">
              <string>1:N</string>
@@ -227,7 +217,7 @@ selection-color: rgb(140, 140, 105);</string>
            <widget class="Line" name="line_5">
             <property name="geometry">
              <rect>
-              <x>34</x>
+              <x>20</x>
               <y>80</y>
               <width>16</width>
               <height>41</height>
@@ -240,7 +230,7 @@ selection-color: rgb(140, 140, 105);</string>
            <widget class="Line" name="line_6">
             <property name="geometry">
              <rect>
-              <x>33</x>
+              <x>20</x>
               <y>140</y>
               <width>16</width>
               <height>31</height>
@@ -255,9 +245,14 @@ selection-color: rgb(140, 140, 105);</string>
              <rect>
               <x>203</x>
               <y>121</y>
-              <width>21</width>
+              <width>31</width>
               <height>16</height>
              </rect>
+            </property>
+            <property name="font">
+             <font>
+              <pointsize>6</pointsize>
+             </font>
             </property>
             <property name="text">
              <string>1:N</string>
@@ -267,9 +262,9 @@ selection-color: rgb(140, 140, 105);</string>
             <property name="geometry">
              <rect>
               <x>201</x>
-              <y>70</y>
+              <y>101</y>
               <width>20</width>
-              <height>51</height>
+              <height>20</height>
              </rect>
             </property>
             <property name="orientation">
@@ -281,9 +276,14 @@ selection-color: rgb(140, 140, 105);</string>
              <rect>
               <x>116</x>
               <y>120</y>
-              <width>21</width>
+              <width>31</width>
               <height>16</height>
              </rect>
+            </property>
+            <property name="font">
+             <font>
+              <pointsize>6</pointsize>
+             </font>
             </property>
             <property name="text">
              <string>1:N</string>
@@ -294,9 +294,14 @@ selection-color: rgb(140, 140, 105);</string>
              <rect>
               <x>49</x>
               <y>130</y>
-              <width>20</width>
+              <width>13</width>
               <height>41</height>
              </rect>
+            </property>
+            <property name="font">
+             <font>
+              <pointsize>6</pointsize>
+             </font>
             </property>
             <property name="orientation">
              <enum>Qt::Vertical</enum>
@@ -341,7 +346,7 @@ selection-color: rgb(140, 140, 105);</string>
              <string>US</string>
             </property>
             <property name="icon">
-             <iconset resource="resources.qrc">
+             <iconset resource="../../resources/resources.qrc">
               <normaloff>:/icons/iconPAI.png</normaloff>:/icons/iconPAI.png</iconset>
             </property>
             <property name="iconSize">
@@ -369,9 +374,14 @@ selection-color: rgb(140, 140, 105);</string>
              <rect>
               <x>30</x>
               <y>241</y>
-              <width>21</width>
+              <width>31</width>
               <height>16</height>
              </rect>
+            </property>
+            <property name="font">
+             <font>
+              <pointsize>6</pointsize>
+             </font>
             </property>
             <property name="text">
              <string>1:N</string>
@@ -382,7 +392,7 @@ selection-color: rgb(140, 140, 105);</string>
              <rect>
               <x>19</x>
               <y>290</y>
-              <width>71</width>
+              <width>111</width>
               <height>31</height>
              </rect>
             </property>
@@ -393,7 +403,7 @@ selection-color: rgb(140, 140, 105);</string>
              <string>Reperti</string>
             </property>
             <property name="icon">
-             <iconset resource="resources.qrc">
+             <iconset resource="../../resources/resources.qrc">
               <normaloff>:/icons/finds.png</normaloff>:/icons/finds.png</iconset>
             </property>
             <property name="iconSize">
@@ -434,7 +444,7 @@ selection-color: rgb(140, 140, 105);</string>
              <rect>
               <x>8</x>
               <y>92</y>
-              <width>31</width>
+              <width>21</width>
               <height>16</height>
              </rect>
             </property>
@@ -446,7 +456,7 @@ selection-color: rgb(140, 140, 105);</string>
             <property name="geometry">
              <rect>
               <x>10</x>
-              <y>10</y>
+              <y>0</y>
               <width>241</width>
               <height>16</height>
              </rect>
@@ -465,7 +475,7 @@ selection-color: rgb(140, 140, 105);</string>
             <property name="geometry">
              <rect>
               <x>10</x>
-              <y>26</y>
+              <y>20</y>
               <width>241</width>
               <height>14</height>
              </rect>
@@ -477,10 +487,10 @@ selection-color: rgb(140, 140, 105);</string>
            <widget class="QPushButton" name="btnSitotable">
             <property name="geometry">
              <rect>
-              <x>10</x>
+              <x>0</x>
               <y>40</y>
-              <width>71</width>
-              <height>41</height>
+              <width>131</width>
+              <height>31</height>
              </rect>
             </property>
             <property name="sizePolicy">
@@ -511,7 +521,7 @@ selection-color: rgb(140, 140, 105);</string>
              <string>Sito</string>
             </property>
             <property name="icon">
-             <iconset resource="resources.qrc">
+             <iconset resource="../../resources/resources.qrc">
               <normaloff>:/icons/iconSite.png</normaloff>:/icons/iconSite.png</iconset>
             </property>
             <property name="iconSize">
@@ -524,9 +534,9 @@ selection-color: rgb(140, 140, 105);</string>
            <widget class="QPushButton" name="btnPeriodotable">
             <property name="geometry">
              <rect>
-              <x>159</x>
-              <y>45</y>
-              <width>101</width>
+              <x>139</x>
+              <y>70</y>
+              <width>121</width>
               <height>31</height>
              </rect>
             </property>
@@ -537,7 +547,7 @@ selection-color: rgb(140, 140, 105);</string>
              <string>Periodo/fase</string>
             </property>
             <property name="icon">
-             <iconset resource="resources.qrc">
+             <iconset resource="../../resources/resources.qrc">
               <normaloff>:/icons/iconPER.png</normaloff>:/icons/iconPER.png</iconset>
             </property>
             <property name="iconSize">
@@ -578,12 +588,43 @@ selection-color: rgb(140, 140, 105);</string>
              <rect>
               <x>0</x>
               <y>210</y>
-              <width>21</width>
+              <width>31</width>
               <height>16</height>
              </rect>
             </property>
+            <property name="font">
+             <font>
+              <pointsize>6</pointsize>
+             </font>
+            </property>
             <property name="text">
              <string>1:N</string>
+            </property>
+           </widget>
+           <widget class="Line" name="line_17">
+            <property name="geometry">
+             <rect>
+              <x>190</x>
+              <y>50</y>
+              <width>20</width>
+              <height>20</height>
+             </rect>
+            </property>
+            <property name="orientation">
+             <enum>Qt::Vertical</enum>
+            </property>
+           </widget>
+           <widget class="Line" name="line_29">
+            <property name="geometry">
+             <rect>
+              <x>150</x>
+              <y>40</y>
+              <width>31</width>
+              <height>16</height>
+             </rect>
+            </property>
+            <property name="orientation">
+             <enum>Qt::Horizontal</enum>
             </property>
            </widget>
            <zorder>line_8</zorder>
@@ -593,9 +634,6 @@ selection-color: rgb(140, 140, 105);</string>
            <zorder>line_7</zorder>
            <zorder>line</zorder>
            <zorder>label</zorder>
-           <zorder>label_2</zorder>
-           <zorder>line_3</zorder>
-           <zorder>line_4</zorder>
            <zorder>label_3</zorder>
            <zorder>line_5</zorder>
            <zorder>line_6</zorder>
@@ -608,7 +646,6 @@ selection-color: rgb(140, 140, 105);</string>
            <zorder>line_14</zorder>
            <zorder>line_15</zorder>
            <zorder>line_16</zorder>
-           <zorder>line_25</zorder>
            <zorder>btnPeriodotable</zorder>
            <zorder>line_28</zorder>
            <zorder>btnStrutturatable</zorder>
@@ -616,6 +653,10 @@ selection-color: rgb(140, 140, 105);</string>
            <zorder>btnReptable</zorder>
            <zorder>label_14</zorder>
            <zorder>label_11</zorder>
+           <zorder>line_17</zorder>
+           <zorder>line_29</zorder>
+           <zorder>line_25</zorder>
+           <zorder>label_2</zorder>
           </widget>
           <widget class="QWidget" name="tab">
            <attribute name="title">
@@ -678,7 +719,7 @@ selection-color: rgb(140, 140, 105);</string>
              <rect>
               <x>96</x>
               <y>300</y>
-              <width>71</width>
+              <width>101</width>
               <height>31</height>
              </rect>
             </property>
@@ -689,7 +730,7 @@ selection-color: rgb(140, 140, 105);</string>
              <string>Reperti</string>
             </property>
             <property name="icon">
-             <iconset resource="resources.qrc">
+             <iconset resource="../../resources/resources.qrc">
               <normaloff>:/icons/finds.png</normaloff>:/icons/finds.png</iconset>
             </property>
             <property name="iconSize">
@@ -717,7 +758,7 @@ selection-color: rgb(140, 140, 105);</string>
              <rect>
               <x>90</x>
               <y>180</y>
-              <width>61</width>
+              <width>101</width>
               <height>31</height>
              </rect>
             </property>
@@ -725,7 +766,7 @@ selection-color: rgb(140, 140, 105);</string>
              <string>UT</string>
             </property>
             <property name="icon">
-             <iconset resource="resources.qrc">
+             <iconset resource="../../resources/resources.qrc">
               <normaloff>:/icons/iconUT.png</normaloff>:/icons/iconUT.png</iconset>
             </property>
             <property name="iconSize">
@@ -751,9 +792,9 @@ selection-color: rgb(140, 140, 105);</string>
            <widget class="QPushButton" name="btnSitotable_2">
             <property name="geometry">
              <rect>
-              <x>87</x>
+              <x>17</x>
               <y>50</y>
-              <width>71</width>
+              <width>201</width>
               <height>41</height>
              </rect>
             </property>
@@ -785,7 +826,7 @@ selection-color: rgb(140, 140, 105);</string>
              <string>Sito</string>
             </property>
             <property name="icon">
-             <iconset resource="resources.qrc">
+             <iconset resource="../../resources/resources.qrc">
               <normaloff>:/icons/iconSite.png</normaloff>:/icons/iconSite.png</iconset>
             </property>
             <property name="iconSize">
@@ -911,7 +952,7 @@ selection-color: rgb(140, 140, 105);</string>
              <string>US</string>
             </property>
             <property name="icon">
-             <iconset resource="resources.qrc">
+             <iconset resource="../../resources/resources.qrc">
               <normaloff>:/icons/iconPAI.png</normaloff>:/icons/iconPAI.png</iconset>
             </property>
             <property name="iconSize">
@@ -952,7 +993,7 @@ selection-color: rgb(140, 140, 105);</string>
              <rect>
               <x>20</x>
               <y>50</y>
-              <width>71</width>
+              <width>101</width>
               <height>31</height>
              </rect>
             </property>
@@ -963,7 +1004,7 @@ selection-color: rgb(140, 140, 105);</string>
              <string>Reperti</string>
             </property>
             <property name="icon">
-             <iconset resource="resources.qrc">
+             <iconset resource="../../resources/resources.qrc">
               <normaloff>:/icons/finds.png</normaloff>:/icons/finds.png</iconset>
             </property>
             <property name="iconSize">
@@ -1028,7 +1069,7 @@ selection-color: rgb(140, 140, 105);</string>
              <string>Media</string>
             </property>
             <property name="icon">
-             <iconset resource="resources.qrc">
+             <iconset resource="../../resources/resources.qrc">
               <normaloff>:/icons/photo.png</normaloff>:/icons/photo.png</iconset>
             </property>
             <property name="iconSize">
@@ -1054,7 +1095,7 @@ selection-color: rgb(140, 140, 105);</string>
              <string>Esportazione Media</string>
             </property>
             <property name="icon">
-             <iconset resource="resources.qrc">
+             <iconset resource="../../resources/resources.qrc">
               <normaloff>:/icons/directoryExp.png</normaloff>:/icons/directoryExp.png</iconset>
             </property>
             <property name="iconSize">
@@ -1109,7 +1150,7 @@ selection-color: rgb(140, 140, 105);</string>
              <string>PDF EXP</string>
             </property>
             <property name="icon">
-             <iconset resource="resources.qrc">
+             <iconset resource="../../resources/resources.qrc">
               <normaloff>:/icons/pdf-icon.png</normaloff>:/icons/pdf-icon.png</iconset>
             </property>
             <property name="iconSize">
@@ -1211,7 +1252,7 @@ p, li { white-space: pre-wrap; }
        <string/>
       </property>
       <property name="pixmap">
-       <pixmap resource="resources.qrc">:/icons/sfondo.png</pixmap>
+       <pixmap resource="../../resources/resources.qrc">:/icons/sfondo.png</pixmap>
       </property>
      </widget>
     </item>
@@ -1219,6 +1260,7 @@ p, li { white-space: pre-wrap; }
   </widget>
  </widget>
  <resources>
+  <include location="../../resources/resources.qrc"/>
   <include location="resources.qrc"/>
  </resources>
  <connections/>

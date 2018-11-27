@@ -33,7 +33,8 @@ from ..modules.db.pyarchinit_conn_strings import Connection
 from ..modules.db.pyarchinit_db_manager import Pyarchinit_db_management
 from ..modules.db.pyarchinit_utility import Utility
 
-MAIN_DIALOG_CLASS, _ = loadUiType(os.path.join(os.path.dirname(__file__), os.pardir, 'gui', 'ui', 'Pdf_administrator.ui'))
+MAIN_DIALOG_CLASS, _ = loadUiType(
+    os.path.join(os.path.dirname(__file__), os.pardir, 'gui', 'ui', 'Pdf_administrator.ui'))
 
 
 class pyarchinit_PDFAdministrator(QDialog, MAIN_DIALOG_CLASS):
@@ -265,8 +266,9 @@ class pyarchinit_PDFAdministrator(QDialog, MAIN_DIALOG_CLASS):
             if bool(self.DATA_LIST):
                 if self.records_equal_check() == 1:
                     self.update_if(QMessageBox.warning(self,
-                                                       'Errore', "Il record e' stato modificato. Vuoi salvare le modifiche?",
-                                                        QMessageBox.Ok | QMessageBox.Cancel))
+                                                       'Errore',
+                                                       "Il record e' stato modificato. Vuoi salvare le modifiche?",
+                                                       QMessageBox.Ok | QMessageBox.Cancel))
 
                     # set the GUI for a new record
         if self.BROWSE_STATUS != "n":
@@ -468,7 +470,7 @@ class pyarchinit_PDFAdministrator(QDialog, MAIN_DIALOG_CLASS):
         if self.records_equal_check() == 1 and self.BROWSE_STATUS == "b":
             self.update_if(QMessageBox.warning(self, 'Errore',
                                                "Il record e' stato modificato. Vuoi salvare le modifiche?",
-                                                QMessageBox.Ok | QMessageBox.Cancel))
+                                               QMessageBox.Ok | QMessageBox.Cancel))
             # else:
         self.enable_button_search(0)
 

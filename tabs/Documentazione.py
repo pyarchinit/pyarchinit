@@ -20,19 +20,20 @@
  ***************************************************************************/
 """
 
+import os
 import sys
 from builtins import range
 from builtins import str
 from qgis.PyQt.QtWidgets import QDialog, QMessageBox
 from qgis.PyQt.uic import loadUiType
 
-from gui.sortpanelmain import SortPanelMain
 from ..modules.db.pyarchinit_conn_strings import Connection
 from ..modules.db.pyarchinit_db_manager import Pyarchinit_db_management
 from ..modules.db.pyarchinit_utility import Utility
 from ..modules.gis.pyarchinit_pyqgis import Pyarchinit_pyqgis
 from ..modules.utility.pyarchinit_error_check import Error_check
-from ..modules.utility.pyarchinit_exp_USsheet_pdf import *
+from ..modules.utility.pyarchinit_exp_Documentazionesheet_pdf import generate_documentazione_pdf
+from ..gui.sortpanelmain import SortPanelMain
 
 MAIN_DIALOG_CLASS, _ = loadUiType(os.path.join(os.path.dirname(__file__), os.pardir, 'gui', 'ui', 'Documentazione.ui'))
 
@@ -185,9 +186,12 @@ class pyarchinit_Documentazione(QDialog, MAIN_DIALOG_CLASS):
                                     "Attenzione rilevato bug! Segnalarlo allo sviluppatore<br> Errore: <br>" + str(e),
                                     QMessageBox.Ok)
 
-            ####################################
+                ####################################
 
     def charge_list(self):
+
+        # lista sito
+
         sito_vl = self.UTILITY.tup_2_list_III(self.DB_MANAGER.group_by('site_table', 'sito', 'SITE'))
 
         try:
@@ -351,9 +355,9 @@ class pyarchinit_Documentazione(QDialog, MAIN_DIALOG_CLASS):
                     if bool(self.DATA_LIST):
                         if self.records_equal_check() == 1:
                             self.update_if(QMessageBox.warning(self, 'Errore',
-                                                                "Il record e' stato modificato. Vuoi salvare le modifiche?",
-                                                                QMessageBox.Ok | QMessageBox.Cancel))
-                        # set the GUI for a new record
+                                                               "Il record e' stato modificato. Vuoi salvare le modifiche?",
+                                                               QMessageBox.Ok | QMessageBox.Cancel))
+                            # set the GUI for a new record
         if self.BROWSE_STATUS != "n":
             self.BROWSE_STATUS = "n"
             self.label_status.setText(self.STATUS_ITEMS[self.BROWSE_STATUS])
@@ -369,7 +373,7 @@ class pyarchinit_Documentazione(QDialog, MAIN_DIALOG_CLASS):
             self.enable_button(0)
 
 
-        ###########################################
+            ###########################################
 
     def on_pushButton_save_pressed(self):
         # save record
@@ -409,7 +413,7 @@ class pyarchinit_Documentazione(QDialog, MAIN_DIALOG_CLASS):
                 else:
                     pass
 
-                ##################################################
+                    ##################################################
 
     def data_error_check(self):
         test = 0
@@ -606,7 +610,7 @@ class pyarchinit_Documentazione(QDialog, MAIN_DIALOG_CLASS):
                 self.charge_list()
                 self.empty_fields()
 
-            ################################################
+                ################################################
 
     def on_pushButton_search_go_pressed(self):
         if self.BROWSE_STATUS != "f":

@@ -1,4 +1,3 @@
-#! /usr/bin/env python
 # -*- coding: utf-8 -*-
 """
 /***************************************************************************
@@ -30,11 +29,10 @@ from modules.db.pyarchinit_conn_strings import Connection
 
 class DB_update(object):
     # connection string postgres"
-
-    # create engine and metadata
-    internal_connection = Connection()
-    engine = create_engine(internal_connection.conn_str(), echo=False)
-    metadata = MetaData(engine)
+    def __init__(self, conn_str):
+        # create engine and metadata
+        self.engine = create_engine(conn_str, echo=False)
+        self.metadata = MetaData(self.engine)
 
     def update_table(self):
         ####site_table
@@ -49,6 +47,9 @@ class DB_update(object):
         if not table_column_names_list.__contains__('definizione_sito'):
             self.engine.execute(
                 "ALTER TABLE site_table ADD COLUMN definizione_sito varchar DEFAULT 'inserici un valore' ")
+
+        if not table_column_names_list.__contains__('sito_path'):
+            self.engine.execute("ALTER TABLE site_table ADD COLUMN sito_path varchar DEFAULT 'inserisci path' ")
 
         if not table_column_names_list.__contains__('find_check'):
             self.engine.execute("ALTER TABLE site_table ADD COLUMN find_check INTEGER DEFAULT 0")
@@ -119,19 +120,165 @@ class DB_update(object):
             self.engine.execute("ALTER TABLE us_table ADD COLUMN cons_legante text DEFAULT '' ")
 
         if not table_column_names_list.__contains__('col_legante'):
-            self.engine.execute("ALTER TABLE us_table ADD COLUMN col_legante text DEFAULT '' ")
+            self.engine.execute("ALTER TABLE us_table ADD COLUMN col_legante text DEFAULT '[]' ")
 
         if not table_column_names_list.__contains__('aggreg_legante'):
-            self.engine.execute("ALTER TABLE us_table ADD COLUMN aggreg_legante text DEFAULT '' ")
+            self.engine.execute("ALTER TABLE us_table ADD COLUMN aggreg_legante text DEFAULT '[]' ")
 
         if not table_column_names_list.__contains__('con_text_mat'):
-            self.engine.execute("ALTER TABLE us_table ADD COLUMN con_text_mat text DEFAULT '' ")
+            self.engine.execute("ALTER TABLE us_table ADD COLUMN con_text_mat text DEFAULT '[]' ")
 
         if not table_column_names_list.__contains__('col_materiale'):
-            self.engine.execute("ALTER TABLE us_table ADD COLUMN col_materiale text DEFAULT '' ")
+            self.engine.execute("ALTER TABLE us_table ADD COLUMN col_materiale text DEFAULT '[]' ")
 
         if not table_column_names_list.__contains__('inclusi_materiali_usm'):
             self.engine.execute("ALTER TABLE us_table ADD COLUMN inclusi_materiali_usm text DEFAULT '[]' ")
+
+        if not table_column_names_list.__contains__('n_catalogo_generale'):
+            self.engine.execute("ALTER TABLE us_table ADD COLUMN n_catalogo_generale text DEFAULT '' ")
+
+        if not table_column_names_list.__contains__('n_catalogo_interno'):
+            self.engine.execute("ALTER TABLE us_table ADD COLUMN n_catalogo_interno text DEFAULT '' ")
+
+        if not table_column_names_list.__contains__('n_catalogo_internazionale'):
+            self.engine.execute("ALTER TABLE us_table ADD COLUMN n_catalogo_internazionale text DEFAULT '' ")
+
+        if not table_column_names_list.__contains__('soprintendenza'):
+            self.engine.execute("ALTER TABLE us_table ADD COLUMN soprintendenza text DEFAULT '' ")
+
+        if not table_column_names_list.__contains__('quota_relativa'):
+            self.engine.execute("ALTER TABLE us_table ADD COLUMN quota_relativa NUMERIC(6,2)")
+
+        if not table_column_names_list.__contains__('quota_abs'):
+            self.engine.execute("ALTER TABLE us_table ADD COLUMN quota_abs   NUMERIC(6,2)")
+
+        if not table_column_names_list.__contains__('ref_tm'):
+            self.engine.execute("ALTER TABLE us_table ADD COLUMN ref_tm text DEFAULT '' ")
+
+        if not table_column_names_list.__contains__('ref_ra'):
+            self.engine.execute("ALTER TABLE us_table ADD COLUMN ref_ra text DEFAULT '' ")
+
+        if not table_column_names_list.__contains__('ref_n'):
+            self.engine.execute("ALTER TABLE us_table ADD COLUMN ref_n text DEFAULT '' ")
+
+        if not table_column_names_list.__contains__('posizione'):
+            self.engine.execute("ALTER TABLE us_table ADD COLUMN posizione text DEFAULT '' ")
+
+        if not table_column_names_list.__contains__('criteri_distinzione'):
+            self.engine.execute("ALTER TABLE us_table ADD COLUMN criteri_distinzione text DEFAULT '' ")
+
+        if not table_column_names_list.__contains__('modo_formazione'):
+            self.engine.execute("ALTER TABLE us_table ADD COLUMN modo_formazione text DEFAULT '' ")
+
+        if not table_column_names_list.__contains__('componenti_organici'):
+            self.engine.execute("ALTER TABLE us_table ADD COLUMN componenti_organici text DEFAULT '[]' ")
+
+        if not table_column_names_list.__contains__('componenti_inorganici'):
+            self.engine.execute("ALTER TABLE us_table ADD COLUMN componenti_inorganici text DEFAULT '[]' ")
+
+        if not table_column_names_list.__contains__('lunghezza_max'):
+            self.engine.execute("ALTER TABLE us_table ADD COLUMN lunghezza_max NUMERIC(6,2)")
+
+        if not table_column_names_list.__contains__('altezza_max'):
+            self.engine.execute("ALTER TABLE us_table ADD COLUMN altezza_max NUMERIC(6,2)")
+
+        if not table_column_names_list.__contains__('altezza_min'):
+            self.engine.execute("ALTER TABLE us_table ADD COLUMN altezza_min NUMERIC(6,2)")
+
+        if not table_column_names_list.__contains__('profondita_max'):
+            self.engine.execute("ALTER TABLE us_table ADD COLUMN profondita_max NUMERIC(6,2)")
+
+        if not table_column_names_list.__contains__('profondita_min'):
+            self.engine.execute("ALTER TABLE us_table ADD COLUMN profondita_min NUMERIC(6,2)")
+
+        if not table_column_names_list.__contains__('larghezza_media'):
+            self.engine.execute("ALTER TABLE us_table ADD COLUMN larghezza_media NUMERIC(6,2)")
+
+        if not table_column_names_list.__contains__('quota_max_abs'):
+            self.engine.execute("ALTER TABLE us_table ADD COLUMN quota_max_abs NUMERIC(6,2)")
+
+        if not table_column_names_list.__contains__('quota_max_rel'):
+            self.engine.execute("ALTER TABLE us_table ADD COLUMN quota_max_rel NUMERIC(6,2)")
+
+        if not table_column_names_list.__contains__('quota_min_abs'):
+            self.engine.execute("ALTER TABLE us_table ADD COLUMN quota_min_abs NUMERIC(6,2)")
+
+        if not table_column_names_list.__contains__('quota_min_rel'):
+            self.engine.execute("ALTER TABLE us_table ADD COLUMN quota_min_rel NUMERIC(6,2)")
+
+        if not table_column_names_list.__contains__('osservazioni'):
+            self.engine.execute("ALTER TABLE us_table ADD COLUMN osservazioni text DEFAULT '' ")
+
+        if not table_column_names_list.__contains__('datazione'):
+            self.engine.execute("ALTER TABLE us_table ADD COLUMN datazione text DEFAULT '' ")
+
+        if not table_column_names_list.__contains__('flottazione'):
+            self.engine.execute("ALTER TABLE us_table ADD COLUMN flottazione text DEFAULT '' ")
+
+        if not table_column_names_list.__contains__('setacciatura'):
+            self.engine.execute("ALTER TABLE us_table ADD COLUMN setacciatura text DEFAULT '' ")
+
+        if not table_column_names_list.__contains__('affidabilita'):
+            self.engine.execute("ALTER TABLE us_table ADD COLUMN affidabilita text DEFAULT '' ")
+
+        if not table_column_names_list.__contains__('direttore_us'):
+            self.engine.execute("ALTER TABLE us_table ADD COLUMN direttore_us text DEFAULT '' ")
+
+        if not table_column_names_list.__contains__('responsabile_us'):
+            self.engine.execute("ALTER TABLE us_table ADD COLUMN responsabile_us text DEFAULT '' ")
+
+        if not table_column_names_list.__contains__('cod_ente_schedatore'):
+            self.engine.execute("ALTER TABLE us_table ADD COLUMN cod_ente_schedatore text DEFAULT '' ")
+
+        if not table_column_names_list.__contains__('data_rilevazione'):
+            self.engine.execute("ALTER TABLE us_table ADD COLUMN data_rilevazione text DEFAULT '' ")
+
+        if not table_column_names_list.__contains__('data_rielaborazione'):
+            self.engine.execute("ALTER TABLE us_table ADD COLUMN data_rielaborazione text DEFAULT '' ")
+
+        if not table_column_names_list.__contains__('lunghezza_usm'):
+            self.engine.execute("ALTER TABLE us_table ADD COLUMN lunghezza_usm NUMERIC(6,2)")
+
+        if not table_column_names_list.__contains__('altezza_usm'):
+            self.engine.execute("ALTER TABLE us_table ADD COLUMN altezza_usm NUMERIC(6,2)")
+
+        if not table_column_names_list.__contains__('spessore_usm'):
+            self.engine.execute("ALTER TABLE us_table ADD COLUMN spessore_usm NUMERIC(6,2)")
+
+        if not table_column_names_list.__contains__('tecnica_muraria_usm'):
+            self.engine.execute("ALTER TABLE us_table ADD COLUMN tecnica_muraria_usm text DEFAULT '' ")
+
+        if not table_column_names_list.__contains__('modulo_usm'):
+            self.engine.execute("ALTER TABLE us_table ADD COLUMN modulo_usm text DEFAULT '' ")
+
+        if not table_column_names_list.__contains__('campioni_malta_usm'):
+            self.engine.execute("ALTER TABLE us_table ADD COLUMN campioni_malta_usm text DEFAULT '' ")
+
+        if not table_column_names_list.__contains__('campioni_mattone_usm'):
+            self.engine.execute("ALTER TABLE us_table ADD COLUMN campioni_mattone_usm text DEFAULT '' ")
+
+        if not table_column_names_list.__contains__('campioni_pietra_usm'):
+            self.engine.execute("ALTER TABLE us_table ADD COLUMN campioni_pietra_usm text DEFAULT '' ")
+
+        if not table_column_names_list.__contains__('provenienza_materiali_usm'):
+            self.engine.execute("ALTER TABLE us_table ADD COLUMN provenienza_materiali_usm text DEFAULT '' ")
+
+        if not table_column_names_list.__contains__('criteri_distinzione_usm'):
+            self.engine.execute("ALTER TABLE us_table ADD COLUMN criteri_distinzione_usm text DEFAULT '' ")
+
+        if not table_column_names_list.__contains__('uso_primario_usm'):
+            self.engine.execute("ALTER TABLE us_table ADD COLUMN uso_primario_usm text DEFAULT '' ")
+
+        ####pyarchinit_thesaurus_sigle
+        table = Table("pyarchinit_thesaurus_sigle", self.metadata, autoload=True)
+        table_column_names_list = []
+        for i in table.columns:
+            table_column_names_list.append(str(i.name))
+
+        if not table_column_names_list.__contains__('lingua'):
+            self.engine.execute("ALTER TABLE pyarchinit_thesaurus_sigle ADD COLUMN lingua text DEFAULT '' ")
+
+
 
         ####periodizzazione_table
         table = Table("periodizzazione_table", self.metadata, autoload=True)
@@ -140,7 +287,7 @@ class DB_update(object):
             table_column_names_list.append(str(i.name))
 
         if not table_column_names_list.__contains__('cont_per'):
-            self.engine.execute("ALTER TABLE periodizzazione_table ADD COLUMN cont_per integer DEFAULT 0 ")
+            self.engine.execute("ALTER TABLE periodizzazione_table ADD COLUMN cont_per integer DEFAULT '' ")
 
         ####inventario_materiali_table
         table = Table("inventario_materiali_table", self.metadata, autoload=True)
@@ -240,7 +387,3 @@ class DB_update(object):
             pass
             # verificare se aggiorna le tabelle con i campi nuovi
 
-
-if __name__ == '__main__':
-    dbup = DB_update()
-    dbup.update_table()

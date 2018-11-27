@@ -1,9 +1,8 @@
-#! /usr/bin/env python
 # -*- coding: utf-8 -*-
 """
 /***************************************************************************
         pyArchInit Plugin  - A QGIS plugin to manage archaeological dataset
-        					 stored in Postgres
+                             stored in Postgres
     ------------------------------------------------------------------------
     begin                : 2007-12-01
     copyright            : (C) 2008 by Luca Mandolesi
@@ -11,7 +10,7 @@
  ***************************************************************************/
 
 /***************************************************************************/
-*                                                                         	*
+*                                                                           *
 *   This program is free software; you can redistribute it and/or modify   *
 *   it under the terms of the GNU General Public License as published by    *
 *   the Free Software Foundation; either version 2 of the License, or      *
@@ -26,16 +25,19 @@ from builtins import range
 from builtins import str
 from qgis.PyQt.QtWidgets import QApplication, QDialog, QMessageBox, QFileDialog
 from qgis.PyQt.uic import loadUiType
-from qgis.core import QgsApplication, QgsSettings
+from qgis.core import QgsApplication, QgsSettings, QgsProject
 
 from modules.db.pyarchinit_conn_strings import Connection
 from modules.db.pyarchinit_db_manager import Pyarchinit_db_management
+from modules.db.pyarchinit_db_update import DB_update
 from modules.utility.pyarchinit_OS_utility import Pyarchinit_OS_Utility
+from modules.db.db_createdump import CreateDatabase, RestoreSchema, DropDatabase
 
 MAIN_DIALOG_CLASS, _ = loadUiType(os.path.join(os.path.dirname(__file__), 'ui', 'pyarchinitConfigDialog.ui'))
 
 
 class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
+    L=QgsSettings().value("locale/userLocale")[0:2]
     HOME = os.environ['PYARCHINIT_HOME']
 
     PARAMS_DICT = {'SERVER': '',
@@ -55,7 +57,7 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
         s = QgsSettings()
         self.load_dict()
         self.charge_data()
-        self.comboBox_Database.editTextChanged.connect(self.set_db_parameter)
+        self.comboBox_Database.currentIndexChanged.connect(self.set_db_parameter)
         self.comboBox_server_rd.editTextChanged.connect(self.set_db_import_from_parameter)
         self.comboBox_server_wt.editTextChanged.connect(self.set_db_import_to_parameter)
         self.pushButton_save.clicked.connect(self.on_pushButton_save_pressed)
@@ -70,6 +72,9 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
             self.pushButtonGraphviz.setEnabled(False)
             self.pbnSaveEnvironPath.setEnabled(False)
             self.lineEditGraphviz.setEnabled(False)
+
+        self.selectorCrsWidget.setCrs(QgsProject.instance().crs())
+        self.selectorCrsWidget_sl.setCrs(QgsProject.instance().crs())
 
     def setPathGraphviz(self):
         s = QgsSettings()
@@ -88,15 +93,14 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
         os.environ['PATH'] += os.pathsep + os.path.normpath(self.graphviz_bin)
         QMessageBox.warning(self, "Set Environmental Variable", "The path has been set successful", QMessageBox.Ok)
 
-
     def set_db_parameter(self):
-        if str(self.comboBox_Database.currentText()) == 'postgres':
+        if self.comboBox_Database.currentText() == 'postgres':
             self.lineEdit_DBname.setText("pyarchinit")
             self.lineEdit_Host.setText('127.0.0.1')
             self.lineEdit_Port.setText('5432')
             self.lineEdit_User.setText('postgres')
 
-        if str(self.comboBox_Database.currentText()) == 'sqlite':
+        if self.comboBox_Database.currentText() == 'sqlite':
             self.lineEdit_DBname.setText("pyarchinit_db.sqlite")
             self.lineEdit_Host.setText('')
             self.lineEdit_Password.setText('')
@@ -104,17 +108,17 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
             self.lineEdit_User.setText('')
 
     def set_db_import_from_parameter(self):
-        QMessageBox.warning(self, "ok", "entrato in read.", QMessageBox.Ok)
+        QMessageBox.warning(self, "ok", "entered in read.", QMessageBox.Ok)
 
-        if str(self.comboBox_server_rd.currentText()) == 'postgres':
-            QMessageBox.warning(self, "ok", "entrato in if", QMessageBox.Ok)
+        if self.comboBox_server_rd.currentText() == 'postgres':
+            QMessageBox.warning(self, "ok", "entered in if", QMessageBox.Ok)
             self.lineEdit_host_rd.setText('127.0.0.1')
             self.lineEdit_username_rd.setText('postgres')
             self.lineEdit_database_rd.setText('pyarchinit')
             self.lineEdit_port_rd.setText('5432')
 
-        if str(self.comboBox_server_rd.currentText()) == 'sqlite':
-            QMessageBox.warning(self, "ok", "entrato in if", QMessageBox.Ok)
+        if self.comboBox_server_rd.currentText() == 'sqlite':
+            QMessageBox.warning(self, "ok", "entered in if", QMessageBox.Ok)
 
             self.lineEdit_host_rd.setText.setText('')
             self.lineEdit_username_rd.setText('')
@@ -123,18 +127,18 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
             self.lineEdit_port_rd.setText('')
 
     def set_db_import_to_parameter(self):
-        QMessageBox.warning(self, "ok", "entrato in write", QMessageBox.Ok)
+        QMessageBox.warning(self, "ok", "entered in write", QMessageBox.Ok)
 
-        if str(self.comboBox_server_wt.currentText()) == 'postgres':
-            QMessageBox.warning(self, "ok", "entrato in if", QMessageBox.Ok)
+        if self.comboBox_server_wt.currentText() == 'postgres':
+            QMessageBox.warning(self, "ok", "entered in if", QMessageBox.Ok)
 
             self.lineEdit_host_wt.setText('127.0.0.1')
             self.lineEdit_username_wt.setText('postgres')
             self.lineEdit_database_wt.setText('pyarchinit')
             self.lineEdit_port_wt.setText('5432')
 
-        if str(self.comboBox_server_wt.currentText()) == 'sqlite':
-            QMessageBox.warning(self, "ok", "entrato in if", QMessageBox.Ok)
+        if self.comboBox_server_wt.currentText() == 'sqlite':
+            QMessageBox.warning(self, "ok", "entered in if", QMessageBox.Ok)
 
             self.lineEdit_host_wt.setText.setText('')
             self.lineEdit_username_wt.setText('')
@@ -147,6 +151,7 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
         conf = open(path_rel, "r")
         data = conf.read()
         self.PARAMS_DICT = eval(data)
+        conf.close()
 
     def save_dict(self):
         # save data into config.cfg file
@@ -167,35 +172,140 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
 
         self.save_dict()
         self.try_connection()
-        QMessageBox.warning(self, "ok", "Per rendere effettive le modifiche e' necessario riavviare Qgis. Grazie.",
-                            QMessageBox.Ok)
+        # QMessageBox.warning(self, "ok", "Per rendere effettive le modifiche e' necessario riavviare Qgis. Grazie.",
+        #                     QMessageBox.Ok)
 
     def on_pushButton_crea_database_pressed(self):
-        import time
-        try:
-            db = os.popen("createdb -U postgres -p %s -h localhost -E UTF8  -T %s -e %s" % (
-                str(self.lineEdit_port_db.text()), str(self.lineEdit_template_postgis.text()),
-                str(self.lineEdit_dbname.text())))
-            barra = self.pyarchinit_progressBar_db
-            barra.setMinimum(0)
-            barra.setMaximum(9)
-            for a in range(10):
-                time.sleep(1)
-                barra.setValue(a)
-            QMessageBox.warning(self, "ok", "Installazione avvenuta con successo", QMessageBox.Ok)
-        except Exception as e:
-            QMessageBox.warning(self, "opss", "qualcosa non va" + str(e), QMessageBox.Ok)
+        schema_file = os.path.join(os.path.dirname(__file__), os.pardir, 'resources', 'dbfiles',
+                                   'pyarchinit_schema_clean.sql')
+        view_file = os.path.join(os.path.dirname(__file__), os.pardir, 'resources', 'dbfiles',
+                                   'create_view.sql')
+        create_database = CreateDatabase(self.lineEdit_dbname.text(), self.lineEdit_db_host.text(),
+                                         self.lineEdit_port_db.text(), self.lineEdit_db_user.text(),
+                                         self.lineEdit_db_passwd.text())
 
+        ok, db_url = create_database.createdb()
+
+        if ok:
+            try:
+                RestoreSchema(db_url, schema_file).restore_schema()
+            except Exception as e:
+                DropDatabase(db_url).dropdb()
+                ok = False
+                raise e
+
+        if ok:
+            crsid = self.selectorCrsWidget.crs().authid()
+            srid = crsid.split(':')[1]
+
+            res = RestoreSchema(db_url).update_geom_srid('public', srid)
+
+            # create views
+            RestoreSchema(db_url, view_file).restore_schema()
+            #set owner
+            if self.lineEdit_db_user.text() != 'postgres':
+                RestoreSchema(db_url).set_owner(self.lineEdit_db_user.text())
+
+        if self.L=='it':
+            if ok and res:
+                msg = QMessageBox.warning(self, 'INFO', 'Installazione avvenuta con successo, vuoi connetterti al nuovo DB?',
+                                          QMessageBox.Ok | QMessageBox.Cancel)
+                if msg == QMessageBox.Ok:
+                    self.comboBox_Database.setCurrentText('postgres')
+                    self.lineEdit_Host.setText(self.lineEdit_db_host.text())
+                    self.lineEdit_DBname.setText(self.lineEdit_dbname.text())
+                    self.lineEdit_Port.setText(self.lineEdit_port_db.text())
+                    self.lineEdit_User.setText(self.lineEdit_db_user.text())
+                    self.lineEdit_Password.setText(self.lineEdit_db_passwd.text())
+                    self.on_pushButton_save_pressed()
+            else:
+                QMessageBox.warning(self, "INFO", "Database esistente", QMessageBox.Ok)
+        elif self.L=='de':
+            if ok and res:
+                msg = QMessageBox.warning(self, 'INFO', 'Erfolgreiche Installation, möchten Sie sich mit der neuen Datenbank verbinden?',
+                                          QMessageBox.Ok | QMessageBox.Cancel)
+                if msg == QMessageBox.Ok:
+                    self.comboBox_Database.setCurrentText('postgres')
+                    self.lineEdit_Host.setText(self.lineEdit_db_host.text())
+                    self.lineEdit_DBname.setText(self.lineEdit_dbname.text())
+                    self.lineEdit_Port.setText(self.lineEdit_port_db.text())
+                    self.lineEdit_User.setText(self.lineEdit_db_user.text())
+                    self.lineEdit_Password.setText(self.lineEdit_db_passwd.text())
+                    self.on_pushButton_save_pressed()
+            else:
+                QMessageBox.warning(self, "INFO", "die Datenbank existiert", QMessageBox.Ok)
+        else:
+            if ok and res:
+                msg = QMessageBox.warning(self, 'INFO', 'Successful installation, do you want to connect to the new DB?',
+                                          QMessageBox.Ok | QMessageBox.Cancel)
+                if msg == QMessageBox.Ok:
+                    self.comboBox_Database.setCurrentText('postgres')
+                    self.lineEdit_Host.setText(self.lineEdit_db_host.text())
+                    self.lineEdit_DBname.setText(self.lineEdit_dbname.text())
+                    self.lineEdit_Port.setText(self.lineEdit_port_db.text())
+                    self.lineEdit_User.setText(self.lineEdit_db_user.text())
+                    self.lineEdit_Password.setText(self.lineEdit_db_passwd.text())
+                    self.on_pushButton_save_pressed()
+            else:
+                QMessageBox.warning(self, "INFO", "The DB exist already", QMessageBox.Ok)       
+    def on_pushButton_crea_database_sl_pressed(self):
+        db_file = os.path.join(os.path.dirname(__file__), os.pardir, 'resources', 'dbfiles',
+                                   'pyarchinit.sqlite')
+
+        home_DB_path = '{}{}{}'.format(self.HOME, os.sep, 'pyarchinit_DB_folder')
+
+        sl_name = '{}.sqlite'.format(self.lineEdit_dbname_sl.text())
+        db_path = os.path.join(home_DB_path, sl_name)
+
+        ok = False
+        if not os.path.exists(db_path):
+            Pyarchinit_OS_Utility().copy_file(db_file, db_path)
+            ok = True
+
+        if ok:
+            crsid = self.selectorCrsWidget_sl.crs().authid()
+            srid = crsid.split(':')[1]
+
+            db_url = 'sqlite:///{}'.format(db_path)
+            res = RestoreSchema(db_url).update_geom_srid_sl(srid)
+
+        if ok and res:
+            if self.L=='it':
+                msg = QMessageBox.warning(self, 'INFO', 'Installazione avvenuta con successo, vuoi connetterti al nuovo DB?', QMessageBox.Ok | QMessageBox.Cancel)
+                if msg == QMessageBox.Ok:
+                    self.comboBox_Database.setCurrentText('sqlite')
+                    self.lineEdit_DBname.setText(sl_name)
+                    self.on_pushButton_save_pressed()
+                    
+            elif self.L=='de':
+                msg = QMessageBox.warning(self, 'INFO', 'Erfolgreiche Installation, möchten Sie sich mit der neuen Datenbank verbinden?', QMessageBox.Ok | QMessageBox.Cancel)
+                if msg == QMessageBox.Ok:
+                    self.comboBox_Database.setCurrentText('sqlite')
+                    self.lineEdit_DBname.setText(sl_name)
+                    self.on_pushButton_save_pressed()
+            else:
+                msg = QMessageBox.warning(self, 'INFO', 'Successful installation, do you want to connect to the new DB?', QMessageBox.Ok | QMessageBox.Cancel)
+                if msg == QMessageBox.Ok:
+                    self.comboBox_Database.setCurrentText('sqlite')
+                    self.lineEdit_DBname.setText(sl_name)
+                    self.on_pushButton_save_pressed()   
+        else:
+            if self.L=='it':
+                QMessageBox.warning(self, "INFO", "Database esistente", QMessageBox.Ok)
+            elif self.L=='de':
+                QMessageBox.warning(self, "INFO", "die Datenbank existiert", QMessageBox.Ok)
+            else:
+                QMessageBox.warning(self, "INFO", "The Database exsist already", QMessageBox.Ok)    
     def on_pushButton_crea_layer_pressed(self):
         import time
         try:
             qgis_dir = QgsApplication.qgisSettingsDirPath()
             module_path_rel = os.path.join(os.sep, 'python', 'plugins', 'pyarchinit', 'modules', 'utility',
-                                           'DBfiles', 'pyarchinit_postgis15_empty.dump')
+                                           'dbfiles', 'pyarchinit_postgis15_empty.dump')
             module_path = '{}{}'.format(qgis_dir, module_path_rel)
             postgis15 = os.popen(
                 "pg_restore --host localhost --port %s --username postgres --dbname %s --role postgres --no-password  --verbose %s" % (
-                    str(self.lineEdit_port_db.text()), str(self.lineEdit_dbname.text()), str(module_path)))
+                    self.lineEdit_port_db.text(), self.lineEdit_dbname.text(), module_path))
             barra2 = self.pyarchinit_progressBar_template
             barra2.setMinimum(0)
             barra2.setMaximum(9)
@@ -211,11 +321,11 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
         try:
             qgis_dir = QgsApplication.qgisSettingsDirPath()
             module_path_rel = os.path.join(os.sep, 'python', 'plugins', 'pyarchinit', 'modules', 'utility',
-                                           'DBfiles', 'pyarchinit_postgis20_empty.dump')
+                                           'dbfiles', 'pyarchinit_postgis20_empty.dump')
             module_path = '{}{}'.format(qgis_dir, module_path_rel)
             postgis15 = os.popen(
                 "pg_restore --host localhost --port %s --username postgres --dbname %s --role postgres --no-password  --verbose %s" % (
-                    str(self.lineEdit_port_db.text()), str(self.lineEdit_dbname.text()), str(module_path)))
+                    self.lineEdit_port_db.text(), self.lineEdit_dbname.text(), module_path))
             barra2 = self.pyarchinit_progressBar_template
             barra2.setMinimum(0)
             barra2.setMaximum(9)
@@ -246,23 +356,46 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
 
         self.DB_MANAGER = Pyarchinit_db_management(
             conn_str)  # sqlite:///\Users\Windows\pyarchinit_DB_folder\pyarchinit_db.sqlite
-        test = self.DB_MANAGER.connection()
-        test = str(test)
-        if test == "":
-            QMessageBox.warning(self, "Messaggio", "Connessione avvenuta con successo", QMessageBox.Ok)
-        elif test.find("create_engine") != -1:
-            QMessageBox.warning(self, "Alert",
-                                "Verifica i parametri di connessione. <br> Se sono corretti RIAVVIA QGIS",
-                                QMessageBox.Ok)
-        else:
-            QMessageBox.warning(self, "Alert", "Errore di connessione: <br>" + str(
-                test) + "<br> Cambia i parametri e riprova a connetterti. Se cambi server (Postgres o Sqlite) ricordati di cliccare su connetti e RIAVVIARE Qgis",
-                                QMessageBox.Ok)
 
+        test = self.DB_MANAGER.connection()
+        if self.L=='it':
+            if test:
+                QMessageBox.warning(self, "Messaggio", "Connessione avvenuta con successo", QMessageBox.Ok)
+            # elif test.find("create_engine") != -1:
+            #     QMessageBox.warning(self, "Alert",
+            #                         "Verifica i parametri di connessione. <br> Se sono corretti RIAVVIA QGIS",
+            #                         QMessageBox.Ok)
+            else:
+                QMessageBox.warning(self, "Alert", "Errore di connessione: <br>" +
+                    "Cambia i parametri e riprova a connetterti. Se cambi server (Postgres o Sqlite) ricordati di cliccare su connetti e RIAVVIARE Qgis",
+                                    QMessageBox.Ok)
+        elif self.L=='de':
+            if test:
+                QMessageBox.warning(self, "Message", "Erfolgreich verbunden", QMessageBox.Ok)
+            # elif test.find("create_engine") != -1:
+            #     QMessageBox.warning(self, "Alert",
+            #                         "Verifica i parametri di connessione. <br> Se sono corretti RIAVVIA QGIS",
+            #                         QMessageBox.Ok)
+            else:
+                QMessageBox.warning(self, "Alert", "Verbindungsfehler: <br>" +
+                    "Ändern Sie die Parameter und versuchen Sie, sich erneut zu verbinden. Wenn Sie den Server wechseln (Postgres oder Sqlite), denken Sie daran, auf Verbinden zu klicken und Qgis erneut anzusehen.",
+                                    QMessageBox.Ok)
+                                    
+        else:
+            if test:
+                QMessageBox.warning(self, "Message", "Successfully connected", QMessageBox.Ok)
+            # elif test.find("create_engine") != -1:
+            #     QMessageBox.warning(self, "Alert",
+            #                         "Verifica i parametri di connessione. <br> Se sono corretti RIAVVIA QGIS",
+            #                         QMessageBox.Ok)
+            else:
+                QMessageBox.warning(self, "Alert", "Connection error: <br>" +
+                    "Change the parameters and try to connect again. If you change servers (Postgres or Sqlite) remember to click on connect and REVIEW Qgis",
+                                    QMessageBox.Ok)                         
     def charge_data(self):
         # load data from config.cfg file
         # print self.PARAMS_DICT
-        self.comboBox_Database.setEditText(self.PARAMS_DICT['SERVER'])
+        self.comboBox_Database.setCurrentText(self.PARAMS_DICT['SERVER'])
         self.lineEdit_Host.setText(self.PARAMS_DICT['HOST'])
         self.lineEdit_DBname.setText(self.PARAMS_DICT['DATABASE'])
         self.lineEdit_Password.setText(self.PARAMS_DICT['PASSWORD'])
@@ -279,18 +412,45 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
         pass
 
     def on_pushButton_import_pressed(self):
-        id_table_class_mapper_conv_dict = {
-            'US': 'id_us',
-            'UT': 'id_ut',
-            'SITE': 'id_sito',
-            'PERIODIZZAZIONE': 'id_perfas',
-            'INVENTARIO_MATERIALI': 'id_invmat',
-            'STRUTTURA': 'id_struttura',
-            'TAFONOMIA': 'id_tafonomia',
-            'SCHEDAIND': 'id_scheda_ind',
-            'CAMPIONE': 'id_campione',
-            'DOCUMENTAZIONE': 'id_documentazione'
-        }
+        if self.L=='it':
+            id_table_class_mapper_conv_dict = {
+                'US': 'id_us',
+                'UT': 'id_ut',
+                'SITE': 'id_sito',
+                'PERIODIZZAZIONE': 'id_perfas',
+                'INVENTARIO_MATERIALI': 'id_invmat',
+                'STRUTTURA': 'id_struttura',
+                'TAFONOMIA': 'id_tafonomia',
+                'SCHEDAIND': 'id_scheda_ind',
+                'CAMPIONE': 'id_campione',
+                'DOCUMENTAZIONE': 'id_documentazione'
+            }
+        elif self.L=='de':
+            id_table_class_mapper_conv_dict = {
+                'SE': 'id_us',
+                'TE': 'id_ut',
+                'AUSGRABUNGSSTÄTTE': 'id_sito',
+                'PERIODISIERUNG': 'id_perfas',
+                'ARTEFAKT-INVENTAR': 'id_invmat',
+                'STRUKTUREN': 'id_struttura',
+                'TAPHONOMIE': 'id_tafonomia',
+                'INDIVIDUEL': 'id_scheda_ind',
+                'BEISPIELS': 'id_campione',
+                'DOKUMENTATION': 'id_documentazione'
+            }
+        else:
+            id_table_class_mapper_conv_dict = {
+                'SU': 'id_us',
+                'TU': 'id_ut',
+                'SITE': 'id_sito',
+                'PERIODIATION': 'id_perfas',
+                'ARTEFACT': 'id_invmat',
+                'STRUCTURE': 'id_struttura',
+                'TAPHONOMY': 'id_tafonomia',
+                'INDIVIDUAL': 'id_scheda_ind',
+                'SAMPLE': 'id_campione',
+                'DOCUMENTATION': 'id_documentazione'
+            }       
         # creazione del cursore di lettura
         if os.name == 'posix':
             home = os.environ['HOME']
@@ -326,15 +486,14 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
         ####SI CONNETTE AL DATABASE
         self.DB_MANAGER_read = Pyarchinit_db_management(conn_str_read)
         test = self.DB_MANAGER_read.connection()
-        test = str(test)
-        if test == "":
-            QMessageBox.warning(self, "Messaggio", "Connessione avvenuta con successo", QMessageBox.Ok)
+        if test:
+            QMessageBox.warning(self, "Message", "Connection ok", QMessageBox.Ok)
         elif test.find("create_engine") != -1:
             QMessageBox.warning(self, "Alert",
-                                "Verifica i parametri di connessione. <br> Se sono corretti RIAVVIA QGIS",
+                                "Try connection parameter. <br> If they are correct restart QGIS",
                                 QMessageBox.Ok)
         else:
-            QMessageBox.warning(self, "Alert", "Errore di connessione: <br>" + str(test), QMessageBox.Ok)
+            QMessageBox.warning(self, "Alert", "Connection error: <br>" + test, QMessageBox.Ok)
 
         ####LEGGE I RECORD IN BASE AL PARAMETRO CAMPO=VALORE
         search_dict = {
@@ -348,7 +507,7 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
         for i in res_read:
             data_list_toimp.append(i)
 
-        QMessageBox.warning(self, "Totale record da importare", str(len(data_list_toimp)), QMessageBox.Ok)
+        QMessageBox.warning(self, "Total record to import", str(len(data_list_toimp)), QMessageBox.Ok)
         # creazione del cursore di scrittura
 
         ####RICAVA I DATI IN LETTURA PER LA CONNESSIONE DALLA GUI
@@ -385,20 +544,20 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
         test = self.DB_MANAGER_write.connection()
         test = str(test)
 
-        if test == "":
-            QMessageBox.warning(self, "Messaggio", "Connessione avvenuta con successo", QMessageBox.Ok)
+        if test:
+            QMessageBox.warning(self, "Message", "Connection ok", QMessageBox.Ok)
         elif test.find("create_engine") != -1:
             QMessageBox.warning(self, "Alert",
-                                "Verifica i parametri di connessione. <br> Se sono corretti RIAVVIA QGIS",
+                                "Try connection parameter. <br> If they are correct restart QGIS",
                                 QMessageBox.Ok)
         else:
-            QMessageBox.warning(self, "Alert", "Errore di connessione: <br>" + str(test), QMessageBox.Ok)
+            QMessageBox.warning(self, "Alert", "Connection error: <br>" + test, QMessageBox.Ok)
 
         mapper_class_write = str(self.comboBox_mapper_read.currentText())
         ####inserisce i dati dentro al database
 
         #### US TABLE
-        if mapper_class_write == 'US':
+        if mapper_class_write == 'US' or 'SE' or 'SU':
             for sing_rec in range(len(data_list_toimp)):
                 data = self.DB_MANAGER_write.insert_values(
                     self.DB_MANAGER_write.max_num_id(mapper_class_write,
@@ -455,20 +614,20 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
                     data_list_toimp[sing_rec].col_materiale,
                     data_list_toimp[sing_rec].inclusi_materiali_usm
                 )
-                ##				try:
+                ##              try:
                 self.DB_MANAGER_write.insert_data_session(data)
-                ##				except Exception, e:
-                ##					e_str = str(e)
-                ##					QMessageBox.warning(self, "Errore", "Attenzione 1 ! \n"+ str(e_str),  QMessageBox.Ok)
-                ##					if e_str.__contains__("Integrity"):
-                ##						msg = 'id_us' + " gia' presente nel database"
-                ##					else:
-                ##						msg = e
-                ##					QMessageBox.warning(self, "Errore", "Attenzione 1 ! \n"+ str(msg),  QMessageBox.Ok)
-                ##					return 0
+                ##              except Exception, e:
+                ##                  e_str = str(e)
+                ##                  QMessageBox.warning(self, "Errore", "Attenzione 1 ! \n"+ str(e_str),  QMessageBox.Ok)
+                ##                  if e_str.__contains__("Integrity"):
+                ##                      msg = 'id_us' + " gia' presente nel database"
+                ##                  else:
+                ##                      msg = e
+                ##                  QMessageBox.warning(self, "Errore", "Attenzione 1 ! \n"+ str(msg),  QMessageBox.Ok)
+                ##                  return 0
                 ##
         ####SITE TABLE
-        if mapper_class_write == 'SITE':
+        if mapper_class_write == 'SITE' or 'AUSGRABUNGSSTÄTTE':
             for sing_rec in range(len(data_list_toimp)):
                 data = self.DB_MANAGER_write.insert_site_values(
                     self.DB_MANAGER_write.max_num_id(mapper_class_write,
@@ -481,20 +640,20 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
                     data_list_toimp[sing_rec].provincia,
                     data_list_toimp[sing_rec].definizione_sito,
                     data_list_toimp[sing_rec].find_check)
-                ##				try:
+                ##              try:
                 self.DB_MANAGER_write.insert_data_session(data)
-                ##				except Exception, e:
-                ##					e_str = str(e)
-                ##					QMessageBox.warning(self, "Errore", "Attenzione 1 ! \n"+ str(e_str),  QMessageBox.Ok)
-                ##					if e_str.__contains__("Integrity"):
-                ##						msg = 'id_us' + " gia' presente nel database"
-                ##					else:
-                ##						msg = e
-                ##					QMessageBox.warning(self, "Errore", "Attenzione 1 ! \n"+ str(msg),  QMessageBox.Ok)
-                ##					return 0
+                ##              except Exception, e:
+                ##                  e_str = str(e)
+                ##                  QMessageBox.warning(self, "Errore", "Attenzione 1 ! \n"+ str(e_str),  QMessageBox.Ok)
+                ##                  if e_str.__contains__("Integrity"):
+                ##                      msg = 'id_us' + " gia' presente nel database"
+                ##                  else:
+                ##                      msg = e
+                ##                  QMessageBox.warning(self, "Errore", "Attenzione 1 ! \n"+ str(msg),  QMessageBox.Ok)
+                ##                  return 0
                 ##
                 ####PERIODIZZAZIONE TABLE
-        if mapper_class_write == 'PERIODIZZAZIONE':
+        if mapper_class_write == 'PERIODIZZAZIONE' or 'PERIODISIERUNG' or 'PERIODIATION':
             for sing_rec in range(len(data_list_toimp)):
                 data = self.DB_MANAGER_write.insert_periodizzazione_values(
                     self.DB_MANAGER_write.max_num_id(mapper_class_write,
@@ -507,20 +666,20 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
                     data_list_toimp[sing_rec].descrizione,
                     data_list_toimp[sing_rec].datazione_estesa,
                     data_list_toimp[sing_rec].cont_per)
-                ##				try:
+                ##              try:
                 self.DB_MANAGER_write.insert_data_session(data)
-                ##				except Exception, e:
-                ##					e_str = str(e)
-                ##					QMessageBox.warning(self, "Errore", "Attenzione 1 ! \n"+ str(e_str),  QMessageBox.Ok)
-                ##					if e_str.__contains__("Integrity"):
-                ##						msg = 'id_us' + " gia' presente nel database"
-                ##					else:
-                ##						msg = e
-                ##					QMessageBox.warning(self, "Errore", "Attenzione 1 ! \n"+ str(msg),  QMessageBox.Ok)
-                ##					return 0
+                ##              except Exception, e:
+                ##                  e_str = str(e)
+                ##                  QMessageBox.warning(self, "Errore", "Attenzione 1 ! \n"+ str(e_str),  QMessageBox.Ok)
+                ##                  if e_str.__contains__("Integrity"):
+                ##                      msg = 'id_us' + " gia' presente nel database"
+                ##                  else:
+                ##                      msg = e
+                ##                  QMessageBox.warning(self, "Errore", "Attenzione 1 ! \n"+ str(msg),  QMessageBox.Ok)
+                ##                  return 0
                 ##
                 ####INVENTARIO MATERIALI TABLE
-        if mapper_class_write == 'INVENTARIO_MATERIALI':
+        if mapper_class_write == 'INVENTARIO_MATERIALI' or 'ARTEFAKT-INVENTAR' or 'ARTEFACT':
             for sing_rec in range(len(data_list_toimp)):
                 data = self.DB_MANAGER_write.insert_values_reperti(
                     self.DB_MANAGER_write.max_num_id(mapper_class_write,
@@ -554,20 +713,20 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
                     data_list_toimp[sing_rec].repertato,
                     data_list_toimp[sing_rec].diagnostico
                 )
-                ##				try:
+                ##              try:
                 self.DB_MANAGER_write.insert_data_session(data)
-                ##				except Exception, e:
-                ##					e_str = str(e)
-                ##					QMessageBox.warning(self, "Errore", "Attenzione 1 ! \n"+ str(e_str),  QMessageBox.Ok)
-                ##					if e_str.__contains__("Integrity"):
-                ##						msg = 'id_us' + " gia' presente nel database"
-                ##					else:
-                ##						msg = e
-                ##					QMessageBox.warning(self, "Errore", "Attenzione 1 ! \n"+ str(msg),  QMessageBox.Ok)
-                ##					return 0
+                ##              except Exception, e:
+                ##                  e_str = str(e)
+                ##                  QMessageBox.warning(self, "Errore", "Attenzione 1 ! \n"+ str(e_str),  QMessageBox.Ok)
+                ##                  if e_str.__contains__("Integrity"):
+                ##                      msg = 'id_us' + " gia' presente nel database"
+                ##                  else:
+                ##                      msg = e
+                ##                  QMessageBox.warning(self, "Errore", "Attenzione 1 ! \n"+ str(msg),  QMessageBox.Ok)
+                ##                  return 0
                 ##
                 ####STRUTTURA TABLE
-        if mapper_class_write == 'STRUTTURA':
+        if mapper_class_write == 'STRUTTURA' or 'STRUKTUREN' or'STRUCTURE':
             for sing_rec in range(len(data_list_toimp)):
                 data = self.DB_MANAGER_write.insert_struttura_values(
                     self.DB_MANAGER_write.max_num_id(mapper_class_write,
@@ -590,20 +749,20 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
                     data_list_toimp[sing_rec].rapporti_struttura,
                     data_list_toimp[sing_rec].misure_struttura
                 )
-                ##				try:
+                ##              try:
                 self.DB_MANAGER_write.insert_data_session(data)
-                ##				except Exception, e:
-                ##					e_str = str(e)
-                ##					QMessageBox.warning(self, "Errore", "Attenzione 1 ! \n"+ str(e_str),  QMessageBox.Ok)
-                ##					if e_str.__contains__("Integrity"):
-                ##						msg = 'id_us' + " gia' presente nel database"
-                ##					else:
-                ##						msg = e
-                ##					QMessageBox.warning(self, "Errore", "Attenzione 1 ! \n"+ str(msg),  QMessageBox.Ok)
-                ##					return 0
+                ##              except Exception, e:
+                ##                  e_str = str(e)
+                ##                  QMessageBox.warning(self, "Errore", "Attenzione 1 ! \n"+ str(e_str),  QMessageBox.Ok)
+                ##                  if e_str.__contains__("Integrity"):
+                ##                      msg = 'id_us' + " gia' presente nel database"
+                ##                  else:
+                ##                      msg = e
+                ##                  QMessageBox.warning(self, "Errore", "Attenzione 1 ! \n"+ str(msg),  QMessageBox.Ok)
+                ##                  return 0
                 ##
                 ####TAFONOMIA TABLE
-        if mapper_class_write == 'TAFONOMIA':
+        if mapper_class_write == 'TAFONOMIA' or 'TAPHONOMIE' or 'TAPHONOMY':
             for sing_rec in range(len(data_list_toimp)):
 
                 # blocco oritentamento_azimut
@@ -613,8 +772,8 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
                     orientamento_azimut = None
                 else:
                     orientamento_azimut = float(data_list_toimp[sing_rec].orientamento_azimut)
-                ##					if conn_str_dict_write['server'] == 'postgres':
-                ##						orientamento_azimut = float(orientamento_azimut)
+                ##                  if conn_str_dict_write['server'] == 'postgres':
+                ##                      orientamento_azimut = float(orientamento_azimut)
                 ##
 
                 # blocco oritentamento_azimut
@@ -696,20 +855,20 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
                     str(data_list_toimp[sing_rec].datazione_estesa),
                     str(data_list_toimp[sing_rec].misure_tafonomia)
                 )
-                ##				try:
+                ##              try:
                 self.DB_MANAGER_write.insert_data_session(data)
-                ##				except Exception, e:
-                ##					e_str = str(e)
-                ##					QMessageBox.warning(self, "Errore", "Attenzione 1 ! \n"+ str(e_str),  QMessageBox.Ok)
-                ##					if e_str.__contains__("Integrity"):
-                ##						msg = 'id_us' + " gia' presente nel database"
-                ##					else:
-                ##						msg = e
-                ##					QMessageBox.warning(self, "Errore", "Attenzione 1 ! \n"+ str(msg),  QMessageBox.Ok)
-                ##					return 0
+                ##              except Exception, e:
+                ##                  e_str = str(e)
+                ##                  QMessageBox.warning(self, "Errore", "Attenzione 1 ! \n"+ str(e_str),  QMessageBox.Ok)
+                ##                  if e_str.__contains__("Integrity"):
+                ##                      msg = 'id_us' + " gia' presente nel database"
+                ##                  else:
+                ##                      msg = e
+                ##                  QMessageBox.warning(self, "Errore", "Attenzione 1 ! \n"+ str(msg),  QMessageBox.Ok)
+                ##                  return 0
                 ##
                 ####INDIVIDUI TABLE
-        if mapper_class_write == 'SCHEDAIND':
+        if mapper_class_write == 'SCHEDAIND' or 'INDIVIDUEL' or 'INDIVIDUAL':
             for sing_rec in range(len(data_list_toimp)):
                 data = self.DB_MANAGER_write.insert_values_ind(
                     self.DB_MANAGER_write.max_num_id(mapper_class_write,
@@ -726,20 +885,20 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
                     data_list_toimp[sing_rec].classi_eta,
                     data_list_toimp[sing_rec].osservazioni
                 )
-                ##				try:
+                ##              try:
                 self.DB_MANAGER_write.insert_data_session(data)
-                ##				except Exception, e:
-                ##					e_str = str(e)
-                ##					QMessageBox.warning(self, "Errore", "Attenzione 1 ! \n"+ str(e_str),  QMessageBox.Ok)
-                ##					if e_str.__contains__("Integrity"):
-                ##						msg = 'id_us' + " gia' presente nel database"
-                ##					else:
-                ##						msg = e
-                ##					QMessageBox.warning(self, "Errore", "Attenzione 1 ! \n"+ str(msg),  QMessageBox.Ok)
-                ##					return 0
+                ##              except Exception, e:
+                ##                  e_str = str(e)
+                ##                  QMessageBox.warning(self, "Errore", "Attenzione 1 ! \n"+ str(e_str),  QMessageBox.Ok)
+                ##                  if e_str.__contains__("Integrity"):
+                ##                      msg = 'id_us' + " gia' presente nel database"
+                ##                  else:
+                ##                      msg = e
+                ##                  QMessageBox.warning(self, "Errore", "Attenzione 1 ! \n"+ str(msg),  QMessageBox.Ok)
+                ##                  return 0
                 ##
                 ####CAMPIONE TABLE
-        if mapper_class_write == 'CAMPIONE':
+        if mapper_class_write == 'CAMPIONE' or 'BEISPIELS' or 'SAMPLE':
             for sing_rec in range(len(data_list_toimp)):
                 data = self.DB_MANAGER_write.insert_values_campioni(
                     self.DB_MANAGER_write.max_num_id(mapper_class_write,
@@ -755,20 +914,20 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
                     data_list_toimp[sing_rec].nr_cassa,
                     data_list_toimp[sing_rec].luogo_conservazione
                 )
-                ##				try:
+                ##              try:
                 self.DB_MANAGER_write.insert_data_session(data)
-                ##				except Exception, e:
-                ##					e_str = str(e)
-                ##					QMessageBox.warning(self, "Errore", "Attenzione 1 ! \n"+ str(e_str),  QMessageBox.Ok)
-                ##					if e_str.__contains__("Integrity"):
-                ##						msg = 'id_us' + " gia' presente nel database"
-                ##					else:
-                ##						msg = e
-                ##					QMessageBox.warning(self, "Errore", "Attenzione 1 ! \n"+ str(msg),  QMessageBox.Ok)
-                ##					return 0
+                ##              except Exception, e:
+                ##                  e_str = str(e)
+                ##                  QMessageBox.warning(self, "Errore", "Attenzione 1 ! \n"+ str(e_str),  QMessageBox.Ok)
+                ##                  if e_str.__contains__("Integrity"):
+                ##                      msg = 'id_us' + " gia' presente nel database"
+                ##                  else:
+                ##                      msg = e
+                ##                  QMessageBox.warning(self, "Errore", "Attenzione 1 ! \n"+ str(msg),  QMessageBox.Ok)
+                ##                  return 0
                 ##
                 ####DOCUMENTAZIONE TABLE
-        if mapper_class_write == 'DOCUMENTAZIONE':
+        if mapper_class_write == 'DOCUMENTAZIONE' or 'DOKUMENTATION' or 'DOCUMENTATION':
             for sing_rec in range(len(data_list_toimp)):
                 data = self.DB_MANAGER_write.insert_values_documentazione(
                     self.DB_MANAGER_write.max_num_id(mapper_class_write,
@@ -783,20 +942,20 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
                     data_list_toimp[sing_rec].note
                 )
 
-                ##				try:
+                ##              try:
                 self.DB_MANAGER_write.insert_data_session(data)
-                ##				except Exception, e:
-                ##					e_str = str(e)
-                ##					QMessageBox.warning(self, "Errore", "Attenzione 1 ! \n"+ str(e_str),  QMessageBox.Ok)
-                ##					if e_str.__contains__("Integrity"):
-                ##						msg = 'id_us' + " gia' presente nel database"
-                ##					else:
-                ##						msg = e
-                ##					QMessageBox.warning(self, "Errore", "Attenzione 1 ! \n"+ str(msg),  QMessageBox.Ok)
-                ##					return 0
+                ##              except Exception, e:
+                ##                  e_str = str(e)
+                ##                  QMessageBox.warning(self, "Errore", "Attenzione 1 ! \n"+ str(e_str),  QMessageBox.Ok)
+                ##                  if e_str.__contains__("Integrity"):
+                ##                      msg = 'id_us' + " gia' presente nel database"
+                ##                  else:
+                ##                      msg = e
+                ##                  QMessageBox.warning(self, "Errore", "Attenzione 1 ! \n"+ str(msg),  QMessageBox.Ok)
+                ##                  return 0
                 ##
                 ####UT TABLE
-        if mapper_class_write == 'UT':
+        if mapper_class_write == 'UT' or 'TE' or 'TU':
             for sing_rec in range(len(data_list_toimp)):
                 data = self.DB_MANAGER_write.insert_ut_values(
                     self.DB_MANAGER_write.max_num_id(mapper_class_write,
@@ -845,24 +1004,17 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
                     data_list_toimp[sing_rec].indagini_preliminari
                 )
 
-                ##				try:
+                ##              try:
                 self.DB_MANAGER_write.insert_data_session(data)
 
 
-##				except Exception, e:
-##					e_str = str(e)
-##					QMessageBox.warning(self, "Errore", "Attenzione 1 ! \n"+ str(e_str),  QMessageBox.Ok)
-##					if e_str.__contains__("Integrity"):
-##						msg = 'id_us' + " gia' presente nel database"
-##					else:
-##						msg = e
-##					QMessageBox.warning(self, "Errore", "Attenzione 1 ! \n"+ str(msg),  QMessageBox.Ok)
-##					return 0
+##              except Exception, e:
+##                  e_str = str(e)
+##                  QMessageBox.warning(self, "Errore", "Attenzione 1 ! \n"+ str(e_str),  QMessageBox.Ok)
+##                  if e_str.__contains__("Integrity"):
+##                      msg = 'id_us' + " gia' presente nel database"
+##                  else:
+##                      msg = e
+##                  QMessageBox.warning(self, "Errore", "Attenzione 1 ! \n"+ str(msg),  QMessageBox.Ok)
+##                  return 0
 ##
-if __name__ == '__main__':
-    import sys
-
-    app = QApplication(sys.argv)
-    ui = pyArchInitDialog_Config()
-    ui.show()
-    sys.exit(app.exec_())

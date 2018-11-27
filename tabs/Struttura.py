@@ -27,11 +27,11 @@ from datetime import date
 import sys
 from builtins import range
 from builtins import str
+from qgis.PyQt.QtCore import QVariant
 from qgis.PyQt.QtWidgets import QDialog, QMessageBox
 from qgis.PyQt.uic import loadUiType
+from qgis.core import QgsSettings
 
-from gui.sortpanelmain import SortPanelMain
-from .US_USM import pyarchinit_US
 from ..modules.db.pyarchinit_conn_strings import Connection
 from ..modules.db.pyarchinit_db_manager import Pyarchinit_db_management
 from ..modules.db.pyarchinit_utility import Utility
@@ -39,6 +39,7 @@ from ..modules.gis.pyarchinit_pyqgis import Pyarchinit_pyqgis
 from ..modules.utility.delegateComboBox import ComboBoxDelegate
 from ..modules.utility.pyarchinit_error_check import Error_check
 from ..modules.utility.pyarchinit_exp_Strutturasheet_pdf import generate_struttura_pdf
+from ..gui.sortpanelmain import SortPanelMain
 
 MAIN_DIALOG_CLASS, _ = loadUiType(os.path.join(os.path.dirname(__file__), os.pardir, 'gui', 'ui', 'Struttura.ui'))
 
@@ -114,7 +115,24 @@ class pyarchinit_Struttura(QDialog, MAIN_DIALOG_CLASS):
         "misure_struttura"
     ]
 
+    LANG = {
+       "IT": ['it_IT', 'IT', 'it', 'IT_IT'],
+        "EN_US": ['en_US','EN_US'],
+		"DE": ['de_DE','de','DE', 'DE_DE'],
+        "FR": ['fr_FR','fr','FR', 'FR_FR'],
+        "ES": ['es_ES','es','ES', 'ES_ES'],
+        "PT": ['pt_PT','pt','PT', 'PT_PT'],
+        "SV": ['sv_SV','sv','SV', 'SV_SV'],
+        "RU": ['ru_RU','ru','RU', 'RU_RU'],
+        "RO": ['ro_RO','ro','RO', 'RO_RO'],
+        "AR": ['ar_AR','ar','AR', 'AR_AR'],
+        "PT_BR": ['pt_BR','PT_BR'],
+        "SL": ['sl_SL','sl','SL', 'SL_SL'],
+    }
+
     DB_SERVER = "not defined"  ####nuovo sistema sort
+
+
 
     def __init__(self, iface):
         super().__init__()
@@ -128,19 +146,19 @@ class pyarchinit_Struttura(QDialog, MAIN_DIALOG_CLASS):
             QMessageBox.warning(self, "Sistema di connessione", str(e), QMessageBox.Ok)
 
             # SIGNALS & SLOTS Functions
-        self.comboBox_sigla_struttura.editTextChanged .connect(self.add_value_to_categoria)
+        self.comboBox_sigla_struttura.editTextChanged.connect(self.add_value_to_categoria)
 
         # SIGNALS & SLOTS Functions
-        self.comboBox_sito.editTextChanged .connect(self.charge_periodo_iniz_list)
-        self.comboBox_sito.editTextChanged .connect(self.charge_periodo_fin_list)
+        self.comboBox_sito.editTextChanged.connect(self.charge_periodo_iniz_list)
+        self.comboBox_sito.editTextChanged.connect(self.charge_periodo_fin_list)
 
         self.comboBox_sito.currentIndexChanged.connect(self.charge_periodo_iniz_list)
         self.comboBox_sito.currentIndexChanged.connect(self.charge_periodo_fin_list)
 
-        self.comboBox_per_iniz.editTextChanged .connect(self.charge_fase_iniz_list)
+        self.comboBox_per_iniz.editTextChanged.connect(self.charge_fase_iniz_list)
         self.comboBox_per_iniz.currentIndexChanged.connect(self.charge_fase_iniz_list)
 
-        self.comboBox_per_fin.editTextChanged .connect(self.charge_fase_fin_list)
+        self.comboBox_per_fin.editTextChanged.connect(self.charge_fase_fin_list)
         self.comboBox_per_fin.currentIndexChanged.connect(self.charge_fase_fin_list)
 
         sito = self.comboBox_sito.currentText()
@@ -234,6 +252,14 @@ class pyarchinit_Struttura(QDialog, MAIN_DIALOG_CLASS):
                                     QMessageBox.Ok)
 
     def customize_GUI(self):
+
+        l = QgsSettings().value("locale/userLocale", QVariant)
+        lang = ""
+        for key, values in self.LANG.items():
+            if values.__contains__(l):
+                lang = str(key)
+        lang = "'" + lang + "'"
+
         self.tableWidget_rapporti.setColumnWidth(0, 110)
         self.tableWidget_rapporti.setColumnWidth(1, 220)
         self.tableWidget_rapporti.setColumnWidth(2, 60)
@@ -260,14 +286,119 @@ class pyarchinit_Struttura(QDialog, MAIN_DIALOG_CLASS):
         self.delegateRapporti.def_editable('True')
         self.tableWidget_rapporti.setItemDelegateForColumn(0, self.delegateRapporti)
 
-        valuesMateriali = ["Terra", "Pietre", "Laterizio", "Ciottoli", "Calcare", "Calce", "Legno", "Concotto",
-                           "Ghiaia", "Sabbia", "Malta", "Metallo", "Gesso"]
+        # lista materiali
+
+        search_dict = {
+            'lingua': lang,
+            'nome_tabella': "'" + 'struttura_table' + "'",
+            'tipologia_sigla': "'" + '6.5' + "'"
+        }
+
+        materiali = self.DB_MANAGER.query_bool(search_dict, 'PYARCHINIT_THESAURUS_SIGLE')
+        valuesMateriali = []
+
+        for i in range(len(materiali)):
+            valuesMateriali.append(materiali[i].sigla_estesa)
+
+        valuesMateriali.sort()
+
+        #valuesMateriali = ["Terra", "Pietre", "Laterizio", "Ciottoli", "Calcare", "Calce", "Legno", "Concotto",
+        #                   "Ghiaia", "Sabbia", "Malta", "Metallo", "Gesso"]
         self.delegateMateriali = ComboBoxDelegate()
         self.delegateMateriali.def_values(valuesMateriali)
         self.delegateMateriali.def_editable('False')
         self.tableWidget_materiali_impiegati.setItemDelegateForColumn(0, self.delegateMateriali)
 
+        # lista elementi strutturali - tipologia elemento
+
+        search_dict = {
+            'lingua': lang,
+            'nome_tabella': "'" + 'struttura_table' + "'",
+            'tipologia_sigla': "'" + '6.6' + "'"
+        }
+
+        tipEl = self.DB_MANAGER.query_bool(search_dict, 'PYARCHINIT_THESAURUS_SIGLE')
+        valuesTipEl = []
+
+        for i in range(len(tipEl)):
+            valuesTipEl.append(tipEl[i].sigla_estesa)
+
+        valuesTipEl.sort()
+
+        # valuesMateriali = ["Terra", "Pietre", "Laterizio", "Ciottoli", "Calcare", "Calce", "Legno", "Concotto",
+        #                   "Ghiaia", "Sabbia", "Malta", "Metallo", "Gesso"]
+        self.delegateTipEl = ComboBoxDelegate()
+        self.delegateTipEl.def_values(valuesTipEl)
+        self.delegateTipEl.def_editable('False')
+        self.tableWidget_elementi_strutturali.setItemDelegateForColumn(0, self.delegateTipEl)
+
+        # lista misurazione - tipo misura
+
+        search_dict = {
+            'lingua': lang,
+            'nome_tabella': "'" + 'struttura_table' + "'",
+            'tipologia_sigla': "'" + '6.7' + "'"
+        }
+
+        elTipoMis = self.DB_MANAGER.query_bool(search_dict, 'PYARCHINIT_THESAURUS_SIGLE')
+        valuesTipoMis = []
+
+        for i in range(len(elTipoMis)):
+            valuesTipoMis.append(elTipoMis[i].sigla_estesa)
+
+        valuesTipoMis.sort()
+
+        self.delegateTipoMis = ComboBoxDelegate()
+        self.delegateTipoMis.def_values(valuesTipoMis)
+        self.delegateTipoMis.def_editable('False')
+        self.tableWidget_misurazioni.setItemDelegateForColumn(0, self.delegateTipoMis)
+
+        # lista misurazione - unita' di misura
+
+        search_dict = {
+            'lingua': lang,
+            'nome_tabella': "'" + 'struttura_table' + "'",
+            'tipologia_sigla': "'" + '6.8' + "'"
+        }
+
+        elUnitaMis = self.DB_MANAGER.query_bool(search_dict, 'PYARCHINIT_THESAURUS_SIGLE')
+        valuesUnitaMis = []
+
+        for i in range(len(elUnitaMis)):
+            valuesUnitaMis.append(elUnitaMis[i].sigla)
+
+        valuesUnitaMis.sort()
+
+        self.delegateUnitaMis = ComboBoxDelegate()
+        self.delegateUnitaMis.def_values(valuesUnitaMis)
+        self.delegateUnitaMis.def_editable('False')
+        self.tableWidget_misurazioni.setItemDelegateForColumn(1, self.delegateUnitaMis)
+
+        # lista rapporti struttura - sigla
+
+        search_dict = {
+            'lingua': lang,
+            'nome_tabella': "'" + 'struttura_table' + "'",
+            'tipologia_sigla': "'" + '6.1' + "'"
+        }
+
+        elSig = self.DB_MANAGER.query_bool(search_dict, 'PYARCHINIT_THESAURUS_SIGLE')
+        valuesSig = []
+
+        for i in range(len(elSig)):
+            valuesSig.append(elSig[i].sigla)
+
+        valuesSig.sort()
+
+        self.delegateSig = ComboBoxDelegate()
+        self.delegateSig.def_values(valuesSig)
+        self.delegateSig.def_editable('False')
+        self.tableWidget_rapporti.setItemDelegateForColumn(2, self.delegateSig)
+
     def charge_list(self):
+
+        #lista sito
+
         sito_vl = self.UTILITY.tup_2_list_III(self.DB_MANAGER.group_by('site_table', 'sito', 'SITE'))
 
         try:
@@ -277,6 +408,92 @@ class pyarchinit_Struttura(QDialog, MAIN_DIALOG_CLASS):
         self.comboBox_sito.clear()
         sito_vl.sort()
         self.comboBox_sito.addItems(sito_vl)
+
+        #lista rapporti struttura - sito
+
+        self.delegateSito = ComboBoxDelegate()
+        self.delegateSito.def_values(sito_vl)
+        self.delegateSito.def_editable('False')
+        self.tableWidget_rapporti.setItemDelegateForColumn(1, self.delegateSito)
+
+        #lista sigla struttura
+
+        l = QgsSettings().value("locale/userLocale", QVariant)
+        lang = ""
+        for key, values in self.LANG.items():
+            if values.__contains__(l):
+                lang = str(key)
+        lang = "'" + lang + "'"
+
+        self.comboBox_sigla_struttura.clear()
+        search_dict = {
+            'lingua': lang,
+            'nome_tabella': "'" + 'struttura_table' + "'",
+            'tipologia_sigla': "'" + '6.1' + "'"
+        }
+
+        sigla_struttura = self.DB_MANAGER.query_bool(search_dict, 'PYARCHINIT_THESAURUS_SIGLE')
+        sigla_struttura_vl = []
+
+        for i in range(len(sigla_struttura)):
+            sigla_struttura_vl.append(sigla_struttura[i].sigla)
+
+        sigla_struttura_vl.sort()
+        self.comboBox_sigla_struttura.addItems(sigla_struttura_vl)
+
+        # lista categoria struttura
+
+        self.comboBox_categoria_struttura.clear()
+        search_dict = {
+            'lingua': lang,
+            'nome_tabella': "'" + 'struttura_table' + "'",
+            'tipologia_sigla': "'" + '6.2' + "'"
+        }
+
+        categoria_struttura = self.DB_MANAGER.query_bool(search_dict, 'PYARCHINIT_THESAURUS_SIGLE')
+        categoria_struttura_vl = []
+
+        for i in range(len(categoria_struttura)):
+            categoria_struttura_vl.append(categoria_struttura[i].sigla_estesa)
+
+        categoria_struttura_vl.sort()
+        self.comboBox_categoria_struttura.addItems(categoria_struttura_vl)
+
+        # lista tipologia struttura
+
+        self.comboBox_tipologia_struttura.clear()
+        search_dict = {
+            'lingua': lang,
+            'nome_tabella': "'" + 'struttura_table' + "'",
+            'tipologia_sigla': "'" + '6.3' + "'"
+        }
+
+        tipologia_struttura = self.DB_MANAGER.query_bool(search_dict, 'PYARCHINIT_THESAURUS_SIGLE')
+        tipologia_struttura_vl = []
+
+        for i in range(len(tipologia_struttura)):
+            tipologia_struttura_vl.append(tipologia_struttura[i].sigla_estesa)
+
+        tipologia_struttura_vl.sort()
+        self.comboBox_tipologia_struttura.addItems(tipologia_struttura_vl)
+
+        # lista definizione struttura
+
+        self.comboBox_definizione_struttura.clear()
+        search_dict = {
+            'lingua': lang,
+            'nome_tabella': "'" + 'struttura_table' + "'",
+            'tipologia_sigla': "'" + '6.4' + "'"
+        }
+
+        definizione_struttura = self.DB_MANAGER.query_bool(search_dict, 'PYARCHINIT_THESAURUS_SIGLE')
+        definizione_struttura_vl = []
+
+        for i in range(len(definizione_struttura)):
+            definizione_struttura_vl.append(definizione_struttura[i].sigla_estesa)
+
+        definizione_struttura_vl.sort()
+        self.comboBox_definizione_struttura.addItems(definizione_struttura_vl)
 
     def charge_periodo_iniz_list(self):
         sito = str(self.comboBox_sito.currentText())
@@ -367,6 +584,7 @@ class pyarchinit_Struttura(QDialog, MAIN_DIALOG_CLASS):
         except:
             pass
 
+
     def charge_fase_fin_list(self):
         try:
             search_dict = {
@@ -452,8 +670,8 @@ class pyarchinit_Struttura(QDialog, MAIN_DIALOG_CLASS):
                     if bool(self.DATA_LIST):
                         if self.records_equal_check() == 1:
                             self.update_if(QMessageBox.warning(self, 'Errore',
-                                                                "Il record e' stato modificato. Vuoi salvare le modifiche?",
-                                                                QMessageBox.Ok | QMessageBox.Cancel))
+                                                               "Il record e' stato modificato. Vuoi salvare le modifiche?",
+                                                               QMessageBox.Ok | QMessageBox.Cancel))
                             # set the GUI for a new record
         if self.BROWSE_STATUS != "n":
             self.BROWSE_STATUS = "n"
@@ -791,7 +1009,7 @@ class pyarchinit_Struttura(QDialog, MAIN_DIALOG_CLASS):
             search_dict = {
                 self.TABLE_FIELDS[0]: "'" + str(self.comboBox_sito.currentText()) + "'",  # 1 - Sito
                 self.TABLE_FIELDS[1]: "'" + str(self.comboBox_sigla_struttura.currentText()) + "'",
-            # 2 - Sigla struttura
+                # 2 - Sigla struttura
                 self.TABLE_FIELDS[2]: numero_struttura,  # 3 - numero struttura
                 self.TABLE_FIELDS[3]: "'" + str(self.comboBox_categoria_struttura.currentText()) + "'",
                 # 4 - categoria struttura
@@ -893,7 +1111,7 @@ class pyarchinit_Struttura(QDialog, MAIN_DIALOG_CLASS):
         for i in range(len(self.DATA_LIST)):
             sito = str(self.DATA_LIST[i].sito)
             sigla_struttura = '{}{}'.format(
-            str(self.DATA_LIST[i].sigla_struttura), str(self.DATA_LIST[i].numero_struttura))
+                str(self.DATA_LIST[i].sigla_struttura), str(self.DATA_LIST[i].numero_struttura))
 
             res_strutt = self.DB_MANAGER.query_bool(
                 {"sito": "'" + str(sito) + "'", "struttura": "'" + str(sigla_struttura) + "'"}, "US")
@@ -1292,6 +1510,9 @@ class pyarchinit_Struttura(QDialog, MAIN_DIALOG_CLASS):
         table_row_count = eval(table_row_count_cmd)
         rowSelected_cmd = ("%s.selectedIndexes()") % (table_name)
         rowSelected = eval(rowSelected_cmd)
+        if not rowSelected:
+            QMessageBox.warning(self, "Errore", "Nessun record selezionato", QMessageBox.Ok)
+            return
         rowIndex = (rowSelected[0].row())
         cmd = ("%s.removeRow(%d)") % (table_name, rowIndex)
         eval(cmd)
