@@ -49,9 +49,17 @@ class pyarchinit_Folder_installation(object):
         logo_copy_from_path = '{}{}'.format(self.RESOURCES_PATH, logo_copy_from_path_rel)
         logo_copy_to_path = '{}{}{}'.format(home_DB_path, os.sep, 'logo.jpg')
 
+        ### logo per la versione tedesca
+        logo_copy_from_path_rel_de = os.path.join(os.sep, 'dbfiles', 'logo_de.jpg')
+        logo_copy_from_path_de = '{}{}'.format(self.RESOURCES_PATH, logo_copy_from_path_rel_de)
+        logo_copy_to_path_de = '{}{}{}'.format(home_DB_path, os.sep, 'logo_de.jpg')
+        
         self.OS_UTILITY.copy_file(db_copy_from_path, db_copy_to_path)
         self.OS_UTILITY.copy_file(logo_copy_from_path, logo_copy_to_path)
+        ### logo per versione tedesca
+        self.OS_UTILITY.copy_file(logo_copy_from_path_de, logo_copy_to_path_de)   
 
+        
         home_PDF_path = '{}{}{}'.format(self.HOME, os.sep, 'pyarchinit_PDF_folder')
         self.OS_UTILITY.create_dir(home_PDF_path)
 
@@ -81,3 +89,14 @@ class pyarchinit_Folder_installation(object):
         config_copy_from_path = '{}{}'.format(self.RESOURCES_PATH, config_copy_from_path_rel)
         config_copy_to_path = '{}{}{}'.format(path, os.sep, 'config.cfg')
         self.OS_UTILITY.copy_file(config_copy_from_path, config_copy_to_path)
+
+        #added by pyarchinit test for logo re-installation
+        logo_copy_from_path_rel = os.path.join(os.sep, 'dbfiles', 'logo.jpg')
+        logo_copy_from_path = '{}{}'.format(self.RESOURCES_PATH, logo_copy_from_path_rel)
+        logo_copy_to_path = '{}{}{}'.format(path, os.sep, 'logo.jpg')
+        self.OS_UTILITY.copy_file(logo_copy_from_path, logo_copy_to_path)
+        
+        logo_copy_from_path_rel_de = os.path.join(os.sep, 'dbfiles', 'logo_de.jpg')
+        logo_copy_from_path_de = '{}{}'.format(self.RESOURCES_PATH, logo_copy_from_path_rel_de)
+        logo_copy_to_path_de = '{}{}{}'.format(path, os.sep, 'logo_de.jpg')
+        self.OS_UTILITY.copy_file(logo_copy_from_path_de, logo_copy_to_path_de)

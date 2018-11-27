@@ -102,16 +102,16 @@ class pyarchinit_Site(QDialog, MAIN_DIALOG_CLASS):
     LANG = {
         "IT": ['it_IT', 'IT', 'it', 'IT_IT'],
         "EN_US": ['en_US','EN_US'],
-		"DE": ['de_DE','de','DE'],
-        "FR": ['fr_FR','fr','FR'],
-        "ES": ['es_ES','es','ES'],
-        "PT": ['pt_PT','pt','PT'],
-        "SV": ['sv_SV','sv','SV'],
-        "RU": ['ru_RU','ru','RU'],
-        "RO": ['ro_RO','ro','RO'],
-        "AR": ['ar_AR','ar','AR'],
-        "PT_BR": ['pt_BR','pt_BR','PT_BR'],
-        "SL": ['sl_SL','sl','SL'],
+		"DE": ['de_DE','de','DE', 'DE_DE'],
+        "FR": ['fr_FR','fr','FR', 'FR_FR'],
+        "ES": ['es_ES','es','ES', 'ES_ES'],
+        "PT": ['pt_PT','pt','PT', 'PT_PT'],
+        "SV": ['sv_SV','sv','SV', 'SV_SV'],
+        "RU": ['ru_RU','ru','RU', 'RU_RU'],
+        "RO": ['ro_RO','ro','RO', 'RO_RO'],
+        "AR": ['ar_AR','ar','AR', 'AR_AR'],
+        "PT_BR": ['pt_BR','PT_BR'],
+        "SL": ['sl_SL','sl','SL', 'SL_SL'],
     }
 
     DB_SERVER = "not defined"  ####nuovo sistema sort
@@ -709,7 +709,8 @@ class pyarchinit_Site(QDialog, MAIN_DIALOG_CLASS):
         self.DB_MANAGER.insert_arbitrary_number_of_us_records(int(self.lineEdit_us_range.text()),
                                                               str(self.comboBox_sito.currentText()),
                                                               int(self.lineEdit_area.text()),
-                                                              int(self.lineEdit_n_us.text()))
+                                                              int(self.lineEdit_n_us.text()),
+															  str(self.comboBox_t_us.currentText()))
 
     def update_if(self, msg):
         rec_corr = self.REC_CORR

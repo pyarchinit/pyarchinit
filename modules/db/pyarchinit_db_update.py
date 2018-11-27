@@ -29,11 +29,10 @@ from modules.db.pyarchinit_conn_strings import Connection
 
 class DB_update(object):
     # connection string postgres"
-
-    # create engine and metadata
-    internal_connection = Connection()
-    engine = create_engine(internal_connection.conn_str(), echo=False)
-    metadata = MetaData(engine)
+    def __init__(self, conn_str):
+        # create engine and metadata
+        self.engine = create_engine(conn_str, echo=False)
+        self.metadata = MetaData(self.engine)
 
     def update_table(self):
         ####site_table
@@ -172,10 +171,10 @@ class DB_update(object):
             self.engine.execute("ALTER TABLE us_table ADD COLUMN modo_formazione text DEFAULT '' ")
 
         if not table_column_names_list.__contains__('componenti_organici'):
-            self.engine.execute("ALTER TABLE us_table ADD COLUMN componenti_organici text DEFAULT '' ")
+            self.engine.execute("ALTER TABLE us_table ADD COLUMN componenti_organici text DEFAULT '[]' ")
 
         if not table_column_names_list.__contains__('componenti_inorganici'):
-            self.engine.execute("ALTER TABLE us_table ADD COLUMN componenti_inorganici text DEFAULT '' ")
+            self.engine.execute("ALTER TABLE us_table ADD COLUMN componenti_inorganici text DEFAULT '[]' ")
 
         if not table_column_names_list.__contains__('lunghezza_max'):
             self.engine.execute("ALTER TABLE us_table ADD COLUMN lunghezza_max NUMERIC(6,2)")
