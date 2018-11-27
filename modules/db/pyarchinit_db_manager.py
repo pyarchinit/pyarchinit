@@ -30,6 +30,8 @@ from sqlalchemy import and_, or_, Table, select, func, asc
 from sqlalchemy.engine import create_engine
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.sql.schema import MetaData
+from qgis.core import QgsMessageLog, Qgis
+from qgis.utils import iface
 
 from modules.db.pyarchinit_db_mapper import US, UT, SITE, PERIODIZZAZIONE, \
     STRUTTURA, SCHEDAIND, INVENTARIO_MATERIALI, DETSESSO, DOCUMENTAZIONE, DETETA, MEDIA, \
@@ -53,8 +55,7 @@ class Pyarchinit_db_management(object):
         self.conn_str = c
 
     def connection(self):
-        test = ""
-
+        test = True
         try:
             test_conn = self.conn_str.find("sqlite")
             if test_conn == 0:
@@ -62,15 +63,27 @@ class Pyarchinit_db_management(object):
             else:
                 self.engine = create_engine(self.conn_str, max_overflow=-1, echo=eval(self.boolean))
             self.metadata = MetaData(self.engine)
-            self.engine.connect()
+            conn = self.engine.connect()
         except Exception as e:
-            test = str(e)
+            QgsMessageLog.logMessage(
+                "Something gone wrong on db connection: " + str(e), tag="PyArchInit", level=Qgis.Warning)
+            iface.messageBar().pushMessage("Error",
+                                            "Something gone wrong on db connection, view log message",
+                                            level=Qgis.Warning)
+            test = False
+        finally:
+            conn.close()
 
         try:
-            db_upd = DB_update()
+            db_upd = DB_update(self.conn_str)
             db_upd.update_table()
         except Exception as e:
-            test = str(e)
+            QgsMessageLog.logMessage(
+                "Something gone wrong on update table: " + str(e), tag="PyArchInit", level=Qgis.Warning)
+            iface.messageBar().pushMessage("Error",
+                                            "Something gone wrong on update table, view log message",
+                                            level=Qgis.Warning)
+            test = False
         return test
 
         # insert statement
@@ -128,7 +141,52 @@ class Pyarchinit_db_management(object):
                 arg[47],
                 arg[48],
                 arg[49],
-                arg[50]
+                arg[50],
+                arg[51],    # 51 campi aggiunti per archeo 3.0 e allineamento ICCD
+                arg[52],
+                arg[53],
+                arg[54],
+                arg[55],
+                arg[56],
+                arg[57],
+                arg[58],
+                arg[59],
+                arg[60],
+                arg[61],
+                arg[62],
+                arg[63],
+                arg[64],
+                arg[65],
+                arg[66],
+                arg[67],
+                arg[68],
+                arg[69],
+                arg[70],
+                arg[71],
+                arg[72],
+                arg[73],
+                arg[74],
+                arg[75],
+                arg[76],
+                arg[77],
+                arg[78],
+                arg[79],
+                arg[80],
+                arg[81],
+                arg[82],
+                arg[83],
+                arg[84],
+                arg[85],
+                arg[86],
+                arg[87],
+                arg[88],
+                arg[89],
+                arg[90],
+                arg[91],
+                arg[92],
+                arg[93],
+                arg[94],
+                arg[95]
                 )
 
         return us
@@ -191,7 +249,8 @@ class Pyarchinit_db_management(object):
                     arg[5],
                     arg[6],
                     arg[7],
-                    arg[8])
+                    arg[8],
+                    arg[9])
 
         return sito
 
@@ -505,7 +564,8 @@ class Pyarchinit_db_management(object):
                                                arg[2],
                                                arg[3],
                                                arg[4],
-                                               arg[5])
+                                               arg[5],
+                                               arg[6])
 
         return thesaurus
 
@@ -602,20 +662,20 @@ class Pyarchinit_db_management(object):
 
         return campioni
 
-    ##	def insert_relationship_check_values(self, *arg):
-    ##		"""Istanzia la classe RELATIONSHIP_CHECK da pyarchinit_db_mapper"""
-    ##		relationship_check = RELATIONSHIP_CHECK(arg[0],
-    ##												arg[1],
-    ##												arg[2],
-    ##												arg[3],
-    ##												arg[4],
-    ##												arg[5],
-    ##												arg[6],
-    ##												arg[7],
-    ##												arg[8],
-    ##												arg[9])
+    ##  def insert_relationship_check_values(self, *arg):
+    ##      """Istanzia la classe RELATIONSHIP_CHECK da pyarchinit_db_mapper"""
+    ##      relationship_check = RELATIONSHIP_CHECK(arg[0],
+    ##                                              arg[1],
+    ##                                              arg[2],
+    ##                                              arg[3],
+    ##                                              arg[4],
+    ##                                              arg[5],
+    ##                                              arg[6],
+    ##                                              arg[7],
+    ##                                              arg[8],
+    ##                                              arg[9])
     ##
-    ##		return relationship_check
+    ##      return relationship_check
 
 
     def execute_sql_create_db(self):
@@ -679,14 +739,14 @@ class Pyarchinit_db_management(object):
 
         for sing_couple_n in range(len(list_keys_values)):
             if sing_couple_n == 0:
-                if type(list_keys_values[sing_couple_n][1]) != '<str>':
+                if type(list_keys_values[sing_couple_n][1]) != "<type 'str'>":
                     field_value_string = table + ".%s == %s" % (
                     list_keys_values[sing_couple_n][0], list_keys_values[sing_couple_n][1])
                 else:
                     field_value_string = table + ".%s == u%s" % (
                     list_keys_values[sing_couple_n][0], list_keys_values[sing_couple_n][1])
             else:
-                if type(list_keys_values[sing_couple_n][1]) == '<str>':
+                if type(list_keys_values[sing_couple_n][1]) == "<type 'str'>":
                     field_value_string = field_value_string + "," + table + ".%s == %s" % (
                     list_keys_values[sing_couple_n][0], list_keys_values[sing_couple_n][1])
                 else:
@@ -704,13 +764,14 @@ class Pyarchinit_db_management(object):
         Session = sessionmaker(bind=self.engine, autoflush=True, autocommit=True)
         session = Session()
         query_str = "session.query(" + table + ").filter(and_(" + field_value_string + ")).all()"
+        res = eval(query_str)
 
         '''
         t = open("/test_import.txt", "w")
         t.write(str(query_str))
         t.close()
         '''
-        return eval(query_str)
+        return res
 
     def query_operator(self, params, table):
         u = Utility()
@@ -733,7 +794,7 @@ class Pyarchinit_db_management(object):
     def query_distinct(self, table, query_params, distinct_field_name_params):
         # u = Utility()
         # params = u.remove_empty_items_fr_dict(params)
-        ##		return session.query(INVENTARIO_MATERIALI.area,INVENTARIO_MATERIALI.us ).filter(INVENTARIO_MATERIALI.sito=='Sito archeologico').distinct().order_by(INVENTARIO_MATERIALI.area,INVENTARIO_MATERIALI.us )
+        ##      return session.query(INVENTARIO_MATERIALI.area,INVENTARIO_MATERIALI.us ).filter(INVENTARIO_MATERIALI.sito=='Sito archeologico').distinct().order_by(INVENTARIO_MATERIALI.area,INVENTARIO_MATERIALI.us )
 
         query_string = ""
         for i in query_params:
@@ -759,7 +820,7 @@ class Pyarchinit_db_management(object):
     def query_distinct_sql(self, table, query_params, distinct_field_name_params):
         # u = Utility()
         # params = u.remove_empty_items_fr_dict(params)
-        ##		return session.query(INVENTARIO_MATERIALI.area,INVENTARIO_MATERIALI.us ).filter(INVENTARIO_MATERIALI.sito=='Sito archeologico').distinct().order_by(INVENTARIO_MATERIALI.area,INVENTARIO_MATERIALI.us )
+        ##      return session.query(INVENTARIO_MATERIALI.area,INVENTARIO_MATERIALI.us ).filter(INVENTARIO_MATERIALI.sito=='Sito archeologico').distinct().order_by(INVENTARIO_MATERIALI.area,INVENTARIO_MATERIALI.us )
 
         query_string = ""
         for i in query_params:
@@ -1098,42 +1159,56 @@ class Pyarchinit_db_management(object):
         # this is a test
         pass
 
-    ##		self.us_rapp_list = us_rapp_list
-    ##		rapp_type = rapp_list
-    ##		query_string_base = """session.query(US).filter(or_("""
-    ##		query_list = []
+    ##      self.us_rapp_list = us_rapp_list
+    ##      rapp_type = rapp_list
+    ##      query_string_base = """session.query(US).filter(or_("""
+    ##      query_list = []
     ##
-    ##		#costruisce la stringa che trova i like
-    ##		for sing_us_rapp in self.us_rapp_list:
-    ##			for sing_rapp in rapp_type:
-    ##				sql_query_string = """US.rapporti.contains("[u'%s', u'%s']")""" % (sing_rapp,sing_us_rapp) #funziona!!!
-    ##				query_list.append(sql_query_string)
+    ##      #costruisce la stringa che trova i like
+    ##      for sing_us_rapp in self.us_rapp_list:
+    ##          for sing_rapp in rapp_type:
+    ##              sql_query_string = """US.rapporti.contains("[u'%s', u'%s']")""" % (sing_rapp,sing_us_rapp) #funziona!!!
+    ##              query_list.append(sql_query_string)
     ##
-    ##		string_contains = ""
-    ##		for sing_contains in range(len(query_list)):
-    ##			if sing_contains == 0:
-    ##				string_contains = query_list[sing_contains]
-    ##			else:
-    ##				string_contains = string_contains + "," + query_list[sing_contains]
+    ##      string_contains = ""
+    ##      for sing_contains in range(len(query_list)):
+    ##          if sing_contains == 0:
+    ##              string_contains = query_list[sing_contains]
+    ##          else:
+    ##              string_contains = string_contains + "," + query_list[sing_contains]
     ##
-    ##		query_string_execute = query_string_base + string_contains + '))'
+    ##      query_string_execute = query_string_base + string_contains + '))'
     ##
-    ##		Session = sessionmaker(bind=self.engine, autoflush=True, autocommit=True)
-    ##		session = Session()
-    ##		res = eval(query_string_execute)
+    ##      Session = sessionmaker(bind=self.engine, autoflush=True, autocommit=True)
+    ##      session = Session()
+    ##      res = eval(query_string_execute)
     ##
-    ##		return res
+    ##      return res
 
     def select_not_like_from_db_sql(self, sitof, areaf):
         # NB per funzionare con postgres è necessario che al posto di " ci sia '
+        #l=QgsSettings().value("locale/userLocale")[0:2]
         Session = sessionmaker(bind=self.engine, autoflush=True, autocommit=True)
         session = Session()
-        res = session.query(US).filter_by(sito=sitof).filter_by(area=areaf).filter(
-            and_(~US.rapporti.like("%'Taglia'%"), ~US.rapporti.like("%'Si appoggia a'%"),
-                 ~US.rapporti.like("%'Copre'%"), ~US.rapporti.like("%'Riempie'%")))
-        # MyModel.query.filter(sqlalchemy.not_(Mymodel.name.contains('a_string')))
+        
+        if l=='it':
+            res = session.query(US).filter_by(sito=sitof).filter_by(area=areaf).filter(
+                and_(~US.rapporti.like("%'Taglia'%"), ~US.rapporti.like("%'Si appoggia a'%"),
+                     ~US.rapporti.like("%'Copre'%"), ~US.rapporti.like("%'Riempie'%")))
+                # MyModel.query.filter(sqlalchemy.not_(Mymodel.name.contains('a_string')))
+        elif l=='en':
+            res = session.query(US).filter_by(sito=sitof).filter_by(area=areaf).filter(
+                and_(~US.rapporti.like("%'Cut'%"), ~US.rapporti.like("%'Abuts'%"),
+                     ~US.rapporti.like("%'Cover'%"), ~US.rapporti.like("%'Fill'%")))
+            # MyModel.query.filter(sqlalchemy.not_(Mymodel.name.contains('a_string')))
+        elif l=='de':
+            res = session.query(US).filter_by(sito=sitof).filter_by(area=areaf).filter(
+                and_(~US.rapporti.like("%'Schneidet'%"), ~US.rapporti.like("%'Stützt sich auf'%"),
+                     ~US.rapporti.like("%'Liegt über'%"), ~US.rapporti.like("%'Verfüllt'%")))
+            # MyModel.query.filter(sqlalchemy.not_(Mymodel.name.contains('a_string')))
+        
         return res
-
+        
     def query_in_idusb(self):
         pass
 

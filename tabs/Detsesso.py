@@ -21,6 +21,7 @@
 """
 
 from __future__ import absolute_import
+import os
 
 from builtins import range
 from builtins import str
@@ -28,12 +29,11 @@ from qgis.PyQt.QtWidgets import QDialog, QMessageBox
 from qgis.PyQt.uic import loadUiType
 from qgis.gui import QgsMapToolPan
 
-from gui.imageViewer import ImageViewer
 from ..modules.db.pyarchinit_conn_strings import Connection
 from ..modules.db.pyarchinit_db_manager import Pyarchinit_db_management
 from ..modules.db.pyarchinit_utility import Utility
 from ..modules.gis.pyarchinit_pyqgis import Pyarchinit_pyqgis
-from ..modules.utility.pyarchinit_exp_USsheet_pdf import *
+from ..gui.imageViewer import ImageViewer
 from ..gui.sortpanelmain import SortPanelMain
 
 MAIN_DIALOG_CLASS, _ = loadUiType(os.path.join(os.path.dirname(__file__), os.pardir, 'gui', 'ui', 'Detsesso.ui'))
@@ -874,28 +874,28 @@ class pyarchinit_Detsesso(QDialog, MAIN_DIALOG_CLASS):
                 self.TABLE_FIELDS[8]: int(self.lineEdit_pocc_grado_imp.text()),
                 # 8 - Protuberanza occipitale esterna grado imp
                 self.TABLE_FIELDS[9]: int(self.lineEdit_inclfr_grado_imp.text()),
-            # 9 - Inclinazione frontale grado imp
+                # 9 - Inclinazione frontale grado imp
                 self.TABLE_FIELDS[10]: int(self.lineEdit_zig_grado_imp.text()),  # 10 - Osso zigomatico grado imp
                 self.TABLE_FIELDS[11]: int(self.lineEdit_msorb_grado_imp.text()),
-            # 11 - Margine sopraorbitale grado imp
+                # 11 - Margine sopraorbitale grado imp
                 self.TABLE_FIELDS[12]: int(self.comboBox_glab_valori.currentText()),  # 12 - Glabella valori
                 self.TABLE_FIELDS[13]: int(self.comboBox_pmast_valori.currentText()),  # 13 - Processo mastoideo valori
                 self.TABLE_FIELDS[14]: int(self.comboBox_pnuc_valori.currentText()),  # 14 - Piano nucale valori
                 self.TABLE_FIELDS[15]: int(self.comboBox_pzig_valori.currentText()),  # 15 - Processo zigomatico valori
                 self.TABLE_FIELDS[16]: int(self.comboBox_arcsop_valori.currentText()),
-            # 16 - Arcata sopraciliare valori
+                # 16 - Arcata sopraciliare valori
                 self.TABLE_FIELDS[17]: int(self.comboBox_tub_valori.currentText()),
                 # 17 - Tuberosita' frontale e parietale valori
                 self.TABLE_FIELDS[18]: int(self.comboBox_pocc_valori.currentText()),
                 # 18 - Protuberanza occipitale esterna valori
                 self.TABLE_FIELDS[19]: int(self.comboBox_inclfr_valori.currentText()),
-            # 19 - Inclinazione frontale valori
+                # 19 - Inclinazione frontale valori
                 self.TABLE_FIELDS[20]: int(self.comboBox_zig_valori.currentText()),  # 20 - Osso zigomatico valori
                 self.TABLE_FIELDS[21]: int(self.comboBox_msorb_valori.currentText()),
-            # 21 - Margine sopraorbitale valori
+                # 21 - Margine sopraorbitale valori
                 self.TABLE_FIELDS[22]: int(self.lineEdit_palato_grado_imp.text()),  # 22 - Palato grado imp
                 self.TABLE_FIELDS[23]: int(self.lineEdit_mfmand_grado_imp.text()),
-            # 23 - Morfologia mandibola grado imp
+                # 23 - Morfologia mandibola grado imp
                 self.TABLE_FIELDS[24]: int(self.lineEdit_mento_grado_imp.text()),  # 24 - Mento grado imp
                 self.TABLE_FIELDS[25]: int(self.lineEdit_anmand_grado_imp.text()),  # 25 - Angolo mandibolare grado imp
                 self.TABLE_FIELDS[26]: int(self.lineEdit_minf_grado_imp.text()),  # 26 - Margine inferiore	grado imp
@@ -903,7 +903,7 @@ class pyarchinit_Detsesso(QDialog, MAIN_DIALOG_CLASS):
                 self.TABLE_FIELDS[28]: int(self.lineEdit_condm_grado_imp.text()),  # 28 - Condilo mandibolare grado	imp
                 self.TABLE_FIELDS[29]: int(self.comboBox_palato_valori.currentText()),  # 29 - Palato valori
                 self.TABLE_FIELDS[30]: int(self.comboBox_mfmand_valori.currentText()),
-            # 30 - Morfologia mandibola valori
+                # 30 - Morfologia mandibola valori
                 self.TABLE_FIELDS[31]: int(self.comboBox_mento_valori.currentText()),  # 31 - Mento valori
                 self.TABLE_FIELDS[32]: int(self.comboBox_anmand_valori.currentText()),  # 32 - Angolo mandibolare valori
                 self.TABLE_FIELDS[33]: int(self.comboBox_minf_valori.currentText()),  # 33 - Margine inferiore	valori
@@ -929,9 +929,9 @@ class pyarchinit_Detsesso(QDialog, MAIN_DIALOG_CLASS):
                 self.TABLE_FIELDS[45]: "'" + str(self.comboBox_in_isch_sex.currentText()) + "'",
                 # 45 - Grande incisura ischiatica sesso
                 self.TABLE_FIELDS[46]: "'" + str(self.comboBox_arco_c_sex.currentText()) + "'",
-            # 46 - Arco composito sesso
+                # 46 - Arco composito sesso
                 self.TABLE_FIELDS[47]: "'" + str(self.comboBox_ramo_ip_I.currentText()) + "'",
-            # 47 - Ramo ischio pubico I
+                # 47 - Ramo ischio pubico I
                 self.TABLE_FIELDS[48]: "'" + str(self.comboBox_ramo_ip_II.currentText()) + "'",
                 # 48 - Ramo ischio pubico II
                 self.TABLE_FIELDS[49]: "'" + str(self.comboBox_ramo_ip_III.currentText()) + "'",
@@ -1569,12 +1569,14 @@ class pyarchinit_Detsesso(QDialog, MAIN_DIALOG_CLASS):
                                               "indeterminato_valore_min": -0.4, "indeterminato_valore_max": 0.4,
                                               "maschio_valore_min": 0.41, "maschio_valore_max": 2}
 
-            if valori_indice_sessualizzazione["femmina_valore_min"] <= valore_totale <= valori_indice_sessualizzazione["femmina_valore_max"]:
+            if valori_indice_sessualizzazione["femmina_valore_min"] <= valore_totale <= valori_indice_sessualizzazione[
+                "femmina_valore_max"]:
                 indice_sessualizzazione = "Femmina"
             elif valori_indice_sessualizzazione["indeterminato_valore_min"] <= valore_totale <= \
                     valori_indice_sessualizzazione["indeterminato_valore_max"]:
                 indice_sessualizzazione = "Indeterminato"
-            elif valori_indice_sessualizzazione["maschio_valore_min"] <= valore_totale <= valori_indice_sessualizzazione["maschio_valore_max"]:
+            elif valori_indice_sessualizzazione["maschio_valore_min"] <= valore_totale <= \
+                    valori_indice_sessualizzazione["maschio_valore_max"]:
                 indice_sessualizzazione = "Maschio"
 
             dati = "somma_gradi_utilizzati " + str(somma_gradi_utilizzati) + " \n somma gxv utilizzati " + str(
@@ -1616,7 +1618,7 @@ class pyarchinit_Detsesso(QDialog, MAIN_DIALOG_CLASS):
         if n == 1:  # tavola sinfisi pubica femmminile
             try:
                 anthropo_image_path = '{}{}'.format(
-                filepath, os.path.join(os.sep, 'anthropo_images/sinfisi_pubica_femmine.jpg'))
+                    filepath, os.path.join(os.sep, os.pardir, 'resources/anthropo_images/sinfisi_pubica_femmine.jpg'))
                 dlg.show_image(str(anthropo_image_path))  # item.data(QtCore.Qt.UserRole).toString()))
                 dlg.exec_()
             except Exception as e:
@@ -1625,7 +1627,7 @@ class pyarchinit_Detsesso(QDialog, MAIN_DIALOG_CLASS):
         if n == 2:  # tavola sinfisi pubica maschile
             try:
                 anthropo_image_path = '{}{}'.format(
-                filepath, os.path.join(os.sep, 'anthropo_images/sinfisi_pubica_maschi.jpg'))
+                    filepath, os.path.join(os.sep, os.pardir, 'resources/anthropo_images/sinfisi_pubica_maschi.jpg'))
                 dlg.show_image(str(anthropo_image_path))  # item.data(QtCore.Qt.UserRole).toString()))
                 dlg.exec_()
             except Exception as e:
@@ -1634,7 +1636,8 @@ class pyarchinit_Detsesso(QDialog, MAIN_DIALOG_CLASS):
         if n == 3:  # tavola superficie auricolare SSPIA
             try:
                 anthropo_image_path = '{}{}'.format(
-                filepath, os.path.join(os.sep, 'anthropo_images/sinfisi_pubica_maschi.jpg'))
+                    filepath, os.path.join(os.sep, os.pardir, 'resources/anthropo_images/det_eta_Kimmerle_femmine.jpg'))
+                print(anthropo_image_path)
                 dlg.show_image(str(anthropo_image_path))  # item.data(QtCore.Qt.UserRole).toString()))
                 dlg.exec_()
             except Exception as e:
@@ -1643,7 +1646,8 @@ class pyarchinit_Detsesso(QDialog, MAIN_DIALOG_CLASS):
         if n == 13:  # tavola cranio
             try:
                 anthropo_images_path = '{}{}'.format(
-                filepath, os.path.join(os.sep, 'anthropo_images/detsesso_cranio.jpg'))
+                    filepath, os.path.join(os.sep, os.pardir, 'resources/anthropo_images/det_eta_Kimmerle_femmine.jpg'))
+                print(anthropo_images_path)
                 dlg.show_image(str(anthropo_images_path))  # item.data(QtCore.Qt.UserRole).toString()))
                 dlg.exec_()
             except Exception as e:
@@ -1652,7 +1656,7 @@ class pyarchinit_Detsesso(QDialog, MAIN_DIALOG_CLASS):
         if n == 14:  # tavola bacino sup. preauricolare
             try:
                 anthropo_images_path = '{}{}'.format(
-                filepath, os.path.join(os.sep, 'anthropo_images/detsesso_bacino_sup_preauricolare.jpg'))
+                    filepath, os.path.join(os.sep, os.pardir, 'resources/anthropo_images/detsesso_bacino_sup_preauricolare.jpg'))
                 dlg.show_image(str(anthropo_images_path))  # item.data(QtCore.Qt.UserRole).toString()))
                 dlg.exec_()
             except Exception as e:
@@ -1661,7 +1665,7 @@ class pyarchinit_Detsesso(QDialog, MAIN_DIALOG_CLASS):
         if n == 15:  # tavola bacino incisura ischiatica
             try:
                 anthropo_images_path = '{}{}'.format(
-                filepath, os.path.join(os.sep, 'anthropo_images/detsesso_bacino_grande incisura ischiatica.jpg'))
+                    filepath, os.path.join(os.sep, os.pardir, 'resources/anthropo_images/detsesso_bacino_grande incisura ischiatica.jpg'))
                 dlg.show_image(str(anthropo_images_path))  # item.data(QtCore.Qt.UserRole).toString()))
                 dlg.exec_()
             except Exception as e:
@@ -1670,7 +1674,7 @@ class pyarchinit_Detsesso(QDialog, MAIN_DIALOG_CLASS):
         if n == 16:  # tavola bacino arco composito
             try:
                 anthropo_images_path = '{}{}'.format(
-                filepath, os.path.join(os.sep, 'anthropo_images/detsesso_bacino_arco composito.jpg'))
+                    filepath, os.path.join(os.sep, os.pardir, 'resources/anthropo_images/detsesso_bacino_arco composito.jpg'))
                 dlg.show_image(str(anthropo_images_path))  # item.data(QtCore.Qt.UserRole).toString()))
                 dlg.exec_()
             except Exception as e:
@@ -1679,7 +1683,7 @@ class pyarchinit_Detsesso(QDialog, MAIN_DIALOG_CLASS):
         if n == 17:  # tavola bacino ramo ischio-pubico
             try:
                 anthropo_images_path = '{}{}'.format(
-                filepath, os.path.join(os.sep, 'anthropo_images/detsesso_bacino_ramo ischio-pubico.jpg'))
+                    filepath, os.path.join(os.sep, os.pardir, 'resources/anthropo_images/detsesso_bacino_ramo ischio-pubico.jpg'))
                 dlg.show_image(str(anthropo_images_path))  # item.data(QtCore.Qt.UserRole).toString()))
                 dlg.exec_()
             except Exception as e:
@@ -1688,7 +1692,7 @@ class pyarchinit_Detsesso(QDialog, MAIN_DIALOG_CLASS):
         if n == 18:  # tavola bacino proporzioni ischio-pubiche
             try:
                 anthropo_images_path = '{}{}'.format(
-                filepath, os.path.join(os.sep, 'anthropo_images/detsesso_bacino_proporzioni ischio-pubiche.jpg'))
+                    filepath, os.path.join(os.sep, os.pardir, 'resources/anthropo_images/detsesso_bacino_proporzioni ischio-pubiche.jpg'))
                 dlg.show_image(str(anthropo_images_path))  # item.data(QtCore.Qt.UserRole).toString()))
                 dlg.exec_()
             except Exception as e:

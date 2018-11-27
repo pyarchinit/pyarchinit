@@ -1,528 +1,528 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!DOCTYPE TS>
-<TS version="2.0" language="en" sourcelanguage="it_IT">
+<TS version="2.1" language="en" sourcelanguage="it_IT">
 <context>
     <name>DBmanagment</name>
     <message>
-        <location filename="modules/gui/dbmanagment_ui.py" line="57"/>
+        <location filename="../gui/ui/dbmanagment.ui" line="14"/>
         <source>Dialog</source>
-        <translation type="unfinished"></translation>
+        <translation>Dialog</translation>
     </message>
     <message>
-        <location filename="modules/gui/dbmanagment_ui.py" line="58"/>
+        <location filename="../gui/ui/dbmanagment.ui" line="26"/>
         <source>Backup postgres</source>
-        <translation type="unfinished">Backup postgres</translation>
+        <translation>Backup Postgres</translation>
     </message>
     <message>
-        <location filename="modules/gui/dbmanagment_ui.py" line="59"/>
+        <location filename="../gui/ui/dbmanagment.ui" line="39"/>
         <source>             Backup e Restore DB Pyarchinit</source>
-        <translation type="unfinished">Backup and Restore Postgres</translation>
+        <translation>Backup and Restore Postgres</translation>
     </message>
     <message>
-        <location filename="modules/gui/dbmanagment_ui.py" line="60"/>
+        <location filename="../gui/ui/dbmanagment.ui" line="52"/>
         <source>Ripristina</source>
-        <translation type="unfinished">Restore</translation>
+        <translation>Restore</translation>
     </message>
     <message>
-        <location filename="modules/gui/dbmanagment_ui.py" line="61"/>
+        <location filename="../gui/ui/dbmanagment.ui" line="84"/>
         <source>Scegli il file da ripristinare</source>
-        <translation type="unfinished">Chooce the file to restore</translation>
+        <translation>Choose the file you want to restore</translation>
     </message>
     <message>
-        <location filename="modules/gui/dbmanagment_ui.py" line="62"/>
+        <location filename="../gui/ui/dbmanagment.ui" line="97"/>
         <source>Backup totale</source>
-        <translation type="unfinished">Backup all</translation>
+        <translation>Total Backup</translation>
     </message>
     <message>
-        <location filename="modules/gui/dbmanagment_ui.py" line="63"/>
+        <location filename="../gui/ui/dbmanagment.ui" line="123"/>
         <source>Backup db pyarchinit (per win e linux)</source>
-        <translation type="unfinished">Backup pyarchinit DB (only fot win and linux)</translation>
+        <translation>Backup DB Pyarchinit (for Win and Linux)</translation>
     </message>
     <message>
-        <location filename="modules/gui/dbmanagment_ui.py" line="64"/>
+        <location filename="../gui/ui/dbmanagment.ui" line="136"/>
         <source>Backup totale di tutti i db postgres (solo per linux)</source>
-        <translation type="unfinished">Back any Postgres DB (only for linux)</translation>
+        <translation>Total Backup of all DB Postgres (Linux only)</translation>
     </message>
     <message>
-        <location filename="modules/gui/dbmanagment_ui.py" line="65"/>
+        <location filename="../gui/ui/dbmanagment.ui" line="149"/>
         <source>Scegli un file del backup e ripristinalo</source>
-        <translation type="unfinished">Choose a backup file and reload it</translation>
+        <translation>Choose a backup file and restore it</translation>
     </message>
     <message>
-        <location filename="modules/gui/dbmanagment_ui.py" line="66"/>
+        <location filename="../gui/ui/dbmanagment.ui" line="162"/>
         <source>Backup sqlite</source>
-        <translation type="unfinished">Sqlite Backup</translation>
+        <translation>SQLite Backup</translation>
     </message>
 </context>
 <context>
     <name>Dialog</name>
     <message>
-        <location filename="modules/gui/dbmanagment_ui.py" line="18077459"/>
+        <location filename="../gui/ui/sortpanelmain.ui" line="135"/>
         <source>Apri Immagini</source>
         <translation type="obsolete">Open Image</translation>
     </message>
     <message>
-        <location filename="modules/gui/dbmanagment_ui.py" line="18077459"/>
+        <location filename="../gui/ui/sortpanelmain.ui" line="135"/>
         <source>Carica le immagini nel DB</source>
         <translation type="obsolete">Upload image in DB</translation>
     </message>
     <message>
-        <location filename="modules/gui/dbmanagment_ui.py" line="18077459"/>
+        <location filename="../gui/ui/sortpanelmain.ui" line="135"/>
         <source>Sito</source>
         <translation type="obsolete">Site</translation>
     </message>
     <message>
-        <location filename="modules/gui/dbmanagment_ui.py" line="18077459"/>
+        <location filename="../gui/ui/sortpanelmain.ui" line="135"/>
         <source>Area</source>
         <translation type="obsolete">Area</translation>
     </message>
     <message>
-        <location filename="modules/gui/dbmanagment_ui.py" line="18077459"/>
+        <location filename="../gui/ui/sortpanelmain.ui" line="135"/>
         <source>US</source>
         <translation type="obsolete">SU</translation>
     </message>
     <message>
-        <location filename="modules/gui/dbmanagment_ui.py" line="18077459"/>
+        <location filename="../gui/ui/sortpanelmain.ui" line="135"/>
         <source>Assegna i tags</source>
         <translation type="obsolete">Apply tags</translation>
     </message>
     <message>
-        <location filename="modules/gui/dbmanagment_ui.py" line="18077459"/>
+        <location filename="../gui/ui/sortpanelmain.ui" line="135"/>
         <source>pyArchInit Gestione Scavi - Inventario materiali</source>
         <translation type="obsolete">pyArchInit Excavation Management System</translation>
     </message>
     <message>
-        <location filename="modules/gui/dbmanagment_ui.py" line="18077459"/>
+        <location filename="../gui/ui/sortpanelmain.ui" line="135"/>
         <source>Reload DB</source>
         <translation type="obsolete">Reload DB</translation>
     </message>
     <message>
-        <location filename="modules/gui/dbmanagment_ui.py" line="18077459"/>
+        <location filename="../gui/ui/sortpanelmain.ui" line="135"/>
         <source>First rec</source>
         <translation type="obsolete">First rec</translation>
     </message>
     <message>
-        <location filename="modules/gui/dbmanagment_ui.py" line="18077459"/>
+        <location filename="../gui/ui/sortpanelmain.ui" line="135"/>
         <source>Prev rec</source>
         <translation type="obsolete">Prev rec</translation>
     </message>
     <message>
-        <location filename="modules/gui/dbmanagment_ui.py" line="18077459"/>
+        <location filename="../gui/ui/sortpanelmain.ui" line="135"/>
         <source>Next rec</source>
         <translation type="obsolete">Next rec</translation>
     </message>
     <message>
-        <location filename="modules/gui/dbmanagment_ui.py" line="18077459"/>
+        <location filename="../gui/ui/sortpanelmain.ui" line="135"/>
         <source>Last rec</source>
         <translation type="obsolete">Last Rec</translation>
     </message>
     <message>
-        <location filename="modules/gui/dbmanagment_ui.py" line="18077459"/>
+        <location filename="../gui/ui/sortpanelmain.ui" line="135"/>
         <source>New record</source>
         <translation type="obsolete">New record</translation>
     </message>
     <message>
-        <location filename="modules/gui/dbmanagment_ui.py" line="18077459"/>
+        <location filename="../gui/ui/sortpanelmain.ui" line="135"/>
         <source>Save</source>
         <translation type="obsolete">Save</translation>
     </message>
     <message>
-        <location filename="modules/gui/dbmanagment_ui.py" line="18077459"/>
+        <location filename="../gui/ui/sortpanelmain.ui" line="135"/>
         <source>Delete record</source>
         <translation type="obsolete">Delete one record</translation>
     </message>
     <message>
-        <location filename="modules/gui/dbmanagment_ui.py" line="18077459"/>
+        <location filename="../gui/ui/sortpanelmain.ui" line="135"/>
         <source>new search</source>
         <translation type="obsolete">New Search</translation>
     </message>
     <message>
-        <location filename="modules/gui/dbmanagment_ui.py" line="18077459"/>
+        <location filename="../gui/ui/sortpanelmain.ui" line="135"/>
         <source>Ordinamento</source>
         <translation type="obsolete">Order</translation>
     </message>
     <message>
-        <location filename="modules/gui/dbmanagment_ui.py" line="18077459"/>
+        <location filename="../gui/ui/sortpanelmain.ui" line="135"/>
         <source>Inserisci un valore</source>
         <translation type="obsolete">Insert Value</translation>
     </message>
     <message>
-        <location filename="modules/gui/dbmanagment_ui.py" line="18077459"/>
+        <location filename="../gui/ui/sortpanelmain.ui" line="135"/>
         <source>Definizione</source>
         <translation type="obsolete">Definition</translation>
     </message>
     <message>
-        <location filename="modules/gui/dbmanagment_ui.py" line="18077459"/>
+        <location filename="../gui/ui/sortpanelmain.ui" line="135"/>
         <source>Criterio schedatura</source>
         <translation type="obsolete">Cataloging policy</translation>
     </message>
     <message>
-        <location filename="modules/gui/dbmanagment_ui.py" line="18077459"/>
+        <location filename="../gui/ui/sortpanelmain.ui" line="135"/>
         <source>Tipo reperto</source>
         <translation type="obsolete">Type finds</translation>
     </message>
     <message>
-        <location filename="modules/gui/dbmanagment_ui.py" line="18077459"/>
+        <location filename="../gui/ui/sortpanelmain.ui" line="135"/>
         <source>Dati descrittivi</source>
         <translation type="obsolete">Description data</translation>
     </message>
     <message>
-        <location filename="modules/gui/dbmanagment_ui.py" line="18077459"/>
+        <location filename="../gui/ui/sortpanelmain.ui" line="135"/>
         <source>Descrizione </source>
         <translation type="obsolete">Description</translation>
     </message>
     <message>
-        <location filename="modules/gui/dbmanagment_ui.py" line="18077459"/>
+        <location filename="../gui/ui/sortpanelmain.ui" line="135"/>
         <source>Insufficiente</source>
         <translation type="obsolete">Insufficient</translation>
     </message>
     <message>
-        <location filename="modules/gui/dbmanagment_ui.py" line="18077459"/>
+        <location filename="../gui/ui/sortpanelmain.ui" line="135"/>
         <source>Scarso</source>
         <translation type="obsolete">Low</translation>
     </message>
     <message>
-        <location filename="modules/gui/dbmanagment_ui.py" line="18077459"/>
+        <location filename="../gui/ui/sortpanelmain.ui" line="135"/>
         <source>Buono</source>
         <translation type="obsolete">Good</translation>
     </message>
     <message>
-        <location filename="modules/gui/dbmanagment_ui.py" line="18077459"/>
+        <location filename="../gui/ui/sortpanelmain.ui" line="135"/>
         <source>Discreto</source>
         <translation type="obsolete">Fair</translation>
     </message>
     <message>
-        <location filename="modules/gui/dbmanagment_ui.py" line="18077459"/>
+        <location filename="../gui/ui/sortpanelmain.ui" line="135"/>
         <source>Ottimo</source>
         <translation type="obsolete">Excellent</translation>
     </message>
     <message>
-        <location filename="modules/gui/dbmanagment_ui.py" line="18077459"/>
+        <location filename="../gui/ui/sortpanelmain.ui" line="135"/>
         <source>Stato di conservazione</source>
         <translation type="obsolete">Type preservation</translation>
     </message>
     <message>
-        <location filename="modules/gui/dbmanagment_ui.py" line="18077459"/>
+        <location filename="../gui/ui/sortpanelmain.ui" line="135"/>
         <source>Datazione reperto</source>
         <translation type="obsolete">Finds date</translation>
     </message>
     <message>
-        <location filename="modules/gui/dbmanagment_ui.py" line="18077459"/>
+        <location filename="../gui/ui/sortpanelmain.ui" line="135"/>
         <source>Dati quantitativi</source>
         <translation type="obsolete">Quantitative information</translation>
     </message>
     <message>
-        <location filename="modules/gui/dbmanagment_ui.py" line="18077459"/>
+        <location filename="../gui/ui/sortpanelmain.ui" line="135"/>
         <source>Elementi reperto</source>
         <translation type="obsolete">Finds</translation>
     </message>
     <message>
-        <location filename="modules/gui/dbmanagment_ui.py" line="18077459"/>
+        <location filename="../gui/ui/sortpanelmain.ui" line="135"/>
         <source>inserisci riga</source>
         <translation type="obsolete">Insert row</translation>
     </message>
     <message>
-        <location filename="modules/gui/dbmanagment_ui.py" line="18077459"/>
+        <location filename="../gui/ui/sortpanelmain.ui" line="135"/>
         <source>rimuovi riga</source>
         <translation type="obsolete">Delete row</translation>
     </message>
     <message>
-        <location filename="modules/gui/dbmanagment_ui.py" line="18077459"/>
+        <location filename="../gui/ui/sortpanelmain.ui" line="135"/>
         <source>Elemento rinvenuto</source>
         <translation type="obsolete">Element found</translation>
     </message>
     <message>
-        <location filename="modules/gui/dbmanagment_ui.py" line="18077459"/>
+        <location filename="../gui/ui/sortpanelmain.ui" line="135"/>
         <source>Unita&apos; di misura</source>
         <translation type="obsolete">Units</translation>
     </message>
     <message>
-        <location filename="modules/gui/dbmanagment_ui.py" line="18077459"/>
+        <location filename="../gui/ui/sortpanelmain.ui" line="135"/>
         <source>Quantita&apos;</source>
         <translation type="obsolete">Amount</translation>
     </message>
     <message>
-        <location filename="modules/gui/dbmanagment_ui.py" line="18077459"/>
+        <location filename="../gui/ui/sortpanelmain.ui" line="135"/>
         <source>Misurazioni</source>
         <translation type="obsolete">Measurement</translation>
     </message>
     <message>
-        <location filename="modules/gui/dbmanagment_ui.py" line="18077459"/>
+        <location filename="../gui/ui/sortpanelmain.ui" line="135"/>
         <source>Tipo di misura</source>
         <translation type="obsolete">type measure</translation>
     </message>
     <message>
-        <location filename="modules/gui/dbmanagment_ui.py" line="18077459"/>
+        <location filename="../gui/ui/sortpanelmain.ui" line="135"/>
         <source>Tecnologie</source>
         <translation type="obsolete">Technology</translation>
     </message>
     <message>
-        <location filename="modules/gui/dbmanagment_ui.py" line="18077459"/>
+        <location filename="../gui/ui/sortpanelmain.ui" line="135"/>
         <source>Tipo tecnologia</source>
         <translation type="obsolete">Technology type</translation>
     </message>
     <message>
-        <location filename="modules/gui/dbmanagment_ui.py" line="18077459"/>
+        <location filename="../gui/ui/sortpanelmain.ui" line="135"/>
         <source>Posizione</source>
         <translation type="obsolete">Position</translation>
     </message>
-    <message utf8="true">
-        <location filename="modules/gui/dbmanagment_ui.py" line="18077459"/>
+    <message>
+        <location filename="../gui/ui/sortpanelmain.ui" line="135"/>
         <source>Tipo quantità</source>
         <translation type="obsolete">Amount</translation>
     </message>
-    <message utf8="true">
-        <location filename="modules/gui/dbmanagment_ui.py" line="18077459"/>
+    <message>
+        <location filename="../gui/ui/sortpanelmain.ui" line="135"/>
         <source>Unità di misura</source>
         <translation type="obsolete">Units</translation>
     </message>
-    <message utf8="true">
-        <location filename="modules/gui/dbmanagment_ui.py" line="18077459"/>
+    <message>
+        <location filename="../gui/ui/sortpanelmain.ui" line="135"/>
         <source>Qtà</source>
         <translation type="obsolete">Amount</translation>
     </message>
     <message>
-        <location filename="modules/gui/dbmanagment_ui.py" line="18077459"/>
+        <location filename="../gui/ui/sortpanelmain.ui" line="135"/>
         <source>Rif Biblio</source>
         <translation type="obsolete">References</translation>
     </message>
     <message>
-        <location filename="modules/gui/dbmanagment_ui.py" line="18077459"/>
+        <location filename="../gui/ui/sortpanelmain.ui" line="135"/>
         <source>Rif. Bibliografici</source>
         <translation type="obsolete">References</translation>
     </message>
     <message>
-        <location filename="modules/gui/dbmanagment_ui.py" line="18077459"/>
+        <location filename="../gui/ui/sortpanelmain.ui" line="135"/>
         <source>Autore</source>
         <translation type="obsolete">Author</translation>
     </message>
     <message>
-        <location filename="modules/gui/dbmanagment_ui.py" line="18077459"/>
+        <location filename="../gui/ui/sortpanelmain.ui" line="135"/>
         <source>Anno</source>
         <translation type="obsolete">Year</translation>
     </message>
     <message>
-        <location filename="modules/gui/dbmanagment_ui.py" line="18077459"/>
+        <location filename="../gui/ui/sortpanelmain.ui" line="135"/>
         <source>Titolo</source>
         <translation type="obsolete">Title</translation>
     </message>
     <message>
-        <location filename="modules/gui/dbmanagment_ui.py" line="18077459"/>
+        <location filename="../gui/ui/sortpanelmain.ui" line="135"/>
         <source>Riferimenti stratigrafici e magazzino</source>
         <translation type="obsolete">Startigraphic and repository reference</translation>
     </message>
     <message>
-        <location filename="modules/gui/dbmanagment_ui.py" line="18077459"/>
+        <location filename="../gui/ui/sortpanelmain.ui" line="135"/>
         <source>Dati stratigrafici</source>
         <translation type="obsolete">Startigraphic data</translation>
     </message>
     <message>
-        <location filename="modules/gui/dbmanagment_ui.py" line="18077459"/>
+        <location filename="../gui/ui/sortpanelmain.ui" line="135"/>
         <source>Dati magazzino</source>
         <translation type="obsolete">Repository data</translation>
     </message>
     <message>
-        <location filename="modules/gui/dbmanagment_ui.py" line="18077459"/>
+        <location filename="../gui/ui/sortpanelmain.ui" line="135"/>
         <source>Nr. Cassa</source>
         <translation type="obsolete">Nr. box</translation>
     </message>
     <message>
-        <location filename="modules/gui/dbmanagment_ui.py" line="18077459"/>
+        <location filename="../gui/ui/sortpanelmain.ui" line="135"/>
         <source>Lavato</source>
         <translation type="obsolete">Washed</translation>
     </message>
     <message>
-        <location filename="modules/gui/dbmanagment_ui.py" line="18077459"/>
+        <location filename="../gui/ui/sortpanelmain.ui" line="135"/>
         <source>Luogo di conservazione</source>
         <translation type="obsolete">Repository</translation>
     </message>
     <message>
-        <location filename="modules/gui/dbmanagment_ui.py" line="18077459"/>
+        <location filename="../gui/ui/sortpanelmain.ui" line="135"/>
         <source>Exp schede Pdf </source>
         <translation type="obsolete">Download PDf</translation>
     </message>
     <message>
-        <location filename="modules/gui/dbmanagment_ui.py" line="18077459"/>
+        <location filename="../gui/ui/sortpanelmain.ui" line="135"/>
         <source>pyArchInit Gestione Scavi - Periodizzazione di scavo</source>
         <translation type="obsolete">pyArchInit Managment Periodization Site</translation>
     </message>
     <message>
-        <location filename="modules/gui/dbmanagment_ui.py" line="18077459"/>
+        <location filename="../gui/ui/sortpanelmain.ui" line="135"/>
         <source>Fase</source>
         <translation type="obsolete">Phase</translation>
     </message>
     <message>
-        <location filename="modules/gui/dbmanagment_ui.py" line="18077459"/>
+        <location filename="../gui/ui/sortpanelmain.ui" line="135"/>
         <source>Periodo</source>
         <translation type="obsolete">Period</translation>
     </message>
     <message>
-        <location filename="modules/gui/dbmanagment_ui.py" line="18077459"/>
+        <location filename="../gui/ui/sortpanelmain.ui" line="135"/>
         <source>Codice periodo</source>
         <translation type="obsolete">Code period</translation>
     </message>
     <message>
-        <location filename="modules/gui/dbmanagment_ui.py" line="18077459"/>
+        <location filename="../gui/ui/sortpanelmain.ui" line="135"/>
         <source>Cronologia </source>
         <translation type="obsolete">Chronology</translation>
     </message>
     <message>
-        <location filename="modules/gui/dbmanagment_ui.py" line="18077459"/>
+        <location filename="../gui/ui/sortpanelmain.ui" line="135"/>
         <source>Iniziale </source>
         <translation type="obsolete">Starting</translation>
     </message>
     <message>
-        <location filename="modules/gui/dbmanagment_ui.py" line="18077459"/>
+        <location filename="../gui/ui/sortpanelmain.ui" line="135"/>
         <source>Finale </source>
         <translation type="obsolete">End</translation>
     </message>
     <message>
-        <location filename="modules/gui/dbmanagment_ui.py" line="18077459"/>
+        <location filename="../gui/ui/sortpanelmain.ui" line="135"/>
         <source>Estesa letterale </source>
         <translation type="obsolete">Capitals</translation>
     </message>
     <message>
-        <location filename="modules/gui/dbmanagment_ui.py" line="18077459"/>
+        <location filename="../gui/ui/sortpanelmain.ui" line="135"/>
         <source>pyArchInit Gestione Scavi - Scheda Sito</source>
         <translation type="obsolete">pyArchInit Managment Site Form</translation>
     </message>
     <message>
-        <location filename="modules/gui/dbmanagment_ui.py" line="18077459"/>
+        <location filename="../gui/ui/sortpanelmain.ui" line="135"/>
         <source>Nazione</source>
         <translation type="obsolete">Nation</translation>
     </message>
     <message>
-        <location filename="modules/gui/dbmanagment_ui.py" line="18077459"/>
+        <location filename="../gui/ui/sortpanelmain.ui" line="135"/>
         <source>Comune</source>
         <translation type="obsolete">Town</translation>
     </message>
     <message>
-        <location filename="modules/gui/dbmanagment_ui.py" line="18077459"/>
+        <location filename="../gui/ui/sortpanelmain.ui" line="135"/>
         <source>Provincia</source>
         <translation type="obsolete">Country</translation>
     </message>
     <message>
-        <location filename="modules/gui/dbmanagment_ui.py" line="18077459"/>
+        <location filename="../gui/ui/sortpanelmain.ui" line="135"/>
         <source>Regione</source>
         <translation type="obsolete">Region</translation>
     </message>
     <message>
-        <location filename="modules/gui/dbmanagment_ui.py" line="18077459"/>
+        <location filename="../gui/ui/sortpanelmain.ui" line="135"/>
         <source>pyArchInit Gestione Scavi - Scheda Struttura</source>
         <translation type="obsolete">pyArchInit Managment framework form</translation>
     </message>
     <message>
-        <location filename="modules/gui/dbmanagment_ui.py" line="18077459"/>
+        <location filename="../gui/ui/sortpanelmain.ui" line="135"/>
         <source>Sito </source>
         <translation type="obsolete">Site</translation>
     </message>
     <message>
-        <location filename="modules/gui/dbmanagment_ui.py" line="18077459"/>
+        <location filename="../gui/ui/sortpanelmain.ui" line="135"/>
         <source>Sigla struttura</source>
         <translation type="obsolete">Initials structure</translation>
     </message>
     <message>
-        <location filename="modules/gui/dbmanagment_ui.py" line="18077459"/>
+        <location filename="../gui/ui/sortpanelmain.ui" line="135"/>
         <source>Aggiungi un valore...</source>
         <translation type="obsolete">Add value....</translation>
     </message>
     <message>
-        <location filename="modules/gui/dbmanagment_ui.py" line="18077459"/>
+        <location filename="../gui/ui/sortpanelmain.ui" line="135"/>
         <source>Categoria</source>
         <translation type="obsolete">Calss</translation>
     </message>
     <message>
-        <location filename="modules/gui/dbmanagment_ui.py" line="18077459"/>
+        <location filename="../gui/ui/sortpanelmain.ui" line="135"/>
         <source>Tipologia</source>
         <translation type="obsolete">Tipology</translation>
     </message>
     <message>
-        <location filename="modules/gui/dbmanagment_ui.py" line="18077459"/>
+        <location filename="../gui/ui/sortpanelmain.ui" line="135"/>
         <source>Interpretazione </source>
         <translation type="obsolete">Interpretation</translation>
     </message>
     <message>
-        <location filename="modules/gui/dbmanagment_ui.py" line="18077459"/>
+        <location filename="../gui/ui/sortpanelmain.ui" line="135"/>
         <source>Periodizzazione - Rapporti</source>
         <translation type="obsolete">Periodization - Relation</translation>
     </message>
     <message>
-        <location filename="modules/gui/dbmanagment_ui.py" line="18077459"/>
+        <location filename="../gui/ui/sortpanelmain.ui" line="135"/>
         <source>Periodizzazione </source>
         <translation type="obsolete">Peridization</translation>
     </message>
     <message>
-        <location filename="modules/gui/dbmanagment_ui.py" line="18077459"/>
+        <location filename="../gui/ui/sortpanelmain.ui" line="135"/>
         <source>Periodo </source>
         <translation type="obsolete">Period</translation>
     </message>
     <message>
-        <location filename="modules/gui/dbmanagment_ui.py" line="18077459"/>
+        <location filename="../gui/ui/sortpanelmain.ui" line="135"/>
         <source>Fase </source>
         <translation type="obsolete">Phase</translation>
     </message>
     <message>
-        <location filename="modules/gui/dbmanagment_ui.py" line="18077459"/>
+        <location filename="../gui/ui/sortpanelmain.ui" line="135"/>
         <source>Datazione estesa</source>
         <translation type="obsolete">Capitals date</translation>
     </message>
     <message>
-        <location filename="modules/gui/dbmanagment_ui.py" line="18077459"/>
+        <location filename="../gui/ui/sortpanelmain.ui" line="135"/>
         <source>Rapporti struttura</source>
         <translation type="obsolete">Structure relation</translation>
     </message>
     <message>
-        <location filename="modules/gui/dbmanagment_ui.py" line="18077459"/>
+        <location filename="../gui/ui/sortpanelmain.ui" line="135"/>
         <source>Tipo di rapporto</source>
         <translation type="obsolete">Relation type</translation>
     </message>
     <message>
-        <location filename="modules/gui/dbmanagment_ui.py" line="18077459"/>
+        <location filename="../gui/ui/sortpanelmain.ui" line="135"/>
         <source>Sigla</source>
         <translation type="obsolete">Sign</translation>
     </message>
     <message>
-        <location filename="modules/gui/dbmanagment_ui.py" line="18077459"/>
+        <location filename="../gui/ui/sortpanelmain.ui" line="135"/>
         <source>Numero</source>
         <translation type="obsolete">Number</translation>
     </message>
     <message>
-        <location filename="modules/gui/dbmanagment_ui.py" line="18077459"/>
+        <location filename="../gui/ui/sortpanelmain.ui" line="135"/>
         <source>Elementi costruttivi</source>
         <translation type="obsolete">Structural elements</translation>
     </message>
     <message>
-        <location filename="modules/gui/dbmanagment_ui.py" line="18077459"/>
+        <location filename="../gui/ui/sortpanelmain.ui" line="135"/>
         <source>Elementi strutturali</source>
         <translation type="obsolete">Framework element</translation>
     </message>
     <message>
-        <location filename="modules/gui/dbmanagment_ui.py" line="18077459"/>
+        <location filename="../gui/ui/sortpanelmain.ui" line="135"/>
         <source>Tipologia elemnto</source>
         <translation type="obsolete">Element type</translation>
     </message>
-    <message utf8="true">
-        <location filename="modules/gui/dbmanagment_ui.py" line="18077459"/>
+    <message>
+        <location filename="../gui/ui/sortpanelmain.ui" line="135"/>
         <source>Quantità</source>
         <translation type="obsolete">Amount</translation>
     </message>
     <message>
-        <location filename="modules/gui/dbmanagment_ui.py" line="18077459"/>
+        <location filename="../gui/ui/sortpanelmain.ui" line="135"/>
         <source>Misurazione</source>
         <translation type="obsolete">Measurement</translation>
     </message>
     <message>
-        <location filename="modules/gui/dbmanagment_ui.py" line="18077459"/>
+        <location filename="../gui/ui/sortpanelmain.ui" line="135"/>
         <source>Tipo misura</source>
         <translation type="obsolete">Type measure</translation>
     </message>
     <message>
-        <location filename="modules/gui/dbmanagment_ui.py" line="18077459"/>
+        <location filename="../gui/ui/sortpanelmain.ui" line="135"/>
         <source>Valore</source>
         <translation type="obsolete">Value</translation>
     </message>
     <message>
-        <location filename="modules/gui/dbmanagment_ui.py" line="18077459"/>
+        <location filename="../gui/ui/sortpanelmain.ui" line="135"/>
         <source>Materiali</source>
         <translation type="obsolete">Equipment</translation>
     </message>
@@ -530,3105 +530,4273 @@
 <context>
     <name>DialogArcheoZoology</name>
     <message>
-        <location filename="modules/gui/pyarchinit_Archeozoology_ui.ui" line="20"/>
+        <location filename="../gui/ui/Archeozoology.ui" line="20"/>
         <source>pyArchInit Gestione Scavi - Archeozoologia Quantificazioni</source>
-        <translation type="unfinished"></translation>
+        <translation>Pyarchinit Excavation Management-Archeozoology quantifications</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_Archeozoology_ui.ui" line="44"/>
+        <location filename="../gui/ui/Archeozoology.ui" line="44"/>
         <source>DBMS Toolbar</source>
-        <translation type="unfinished"></translation>
+        <translation>DBMS Toolbar</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_Archeozoology_ui.ui" line="51"/>
+        <location filename="../gui/ui/Archeozoology.ui" line="51"/>
         <source>Reload DB</source>
-        <translation type="unfinished">Reload DB</translation>
+        <translation>Reload DB</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_Archeozoology_ui.ui" line="60"/>
+        <location filename="../gui/ui/Archeozoology.ui" line="60"/>
         <source>First rec</source>
-        <translation type="unfinished">First rec</translation>
+        <translation>First rec</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_Archeozoology_ui.ui" line="74"/>
+        <location filename="../gui/ui/Archeozoology.ui" line="74"/>
         <source>Prev rec</source>
-        <translation type="unfinished">Prev rec</translation>
+        <translation>Prev rec</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_Archeozoology_ui.ui" line="88"/>
+        <location filename="../gui/ui/Archeozoology.ui" line="88"/>
         <source>Next rec</source>
-        <translation type="unfinished">Next rec</translation>
+        <translation>Next rec</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_Archeozoology_ui.ui" line="102"/>
+        <location filename="../gui/ui/Archeozoology.ui" line="102"/>
         <source>Last rec</source>
-        <translation type="unfinished">Last Rec</translation>
+        <translation>Last Rec</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_Archeozoology_ui.ui" line="121"/>
+        <location filename="../gui/ui/Archeozoology.ui" line="121"/>
         <source>New record</source>
-        <translation type="unfinished">New record</translation>
+        <translation>New record</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_Archeozoology_ui.ui" line="140"/>
+        <location filename="../gui/ui/Archeozoology.ui" line="140"/>
         <source>Save</source>
-        <translation type="unfinished">Save</translation>
+        <translation>Save</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_Archeozoology_ui.ui" line="162"/>
+        <location filename="../gui/ui/Archeozoology.ui" line="162"/>
         <source>Delete record</source>
-        <translation type="unfinished">Delete one record</translation>
+        <translation>Delete one record</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_Archeozoology_ui.ui" line="194"/>
+        <location filename="../gui/ui/Archeozoology.ui" line="194"/>
         <source>new search</source>
-        <translation type="unfinished">New Search</translation>
+        <translation>New Search</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_Archeozoology_ui.ui" line="213"/>
+        <location filename="../gui/ui/Archeozoology.ui" line="213"/>
         <source>search !!!</source>
-        <translation type="unfinished"></translation>
+        <translation>Search!!!</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_Archeozoology_ui.ui" line="232"/>
+        <location filename="../gui/ui/Archeozoology.ui" line="232"/>
         <source>Order by</source>
-        <translation type="unfinished"></translation>
+        <translation>Order by</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_Archeozoology_ui.ui" line="251"/>
+        <location filename="../gui/ui/Archeozoology.ui" line="251"/>
         <source>View alls records</source>
-        <translation type="unfinished"></translation>
+        <translation>View Alls Records</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_Archeozoology_ui.ui" line="300"/>
+        <location filename="../gui/ui/Archeozoology.ui" line="300"/>
         <source>DB Info</source>
-        <translation type="unfinished"></translation>
+        <translation>DB Info</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_Archeozoology_ui.ui" line="316"/>
+        <location filename="../gui/ui/Archeozoology.ui" line="316"/>
         <source>Ordinamento</source>
-        <translation type="unfinished">Order</translation>
+        <translation>Sort</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_Archeozoology_ui.ui" line="427"/>
+        <location filename="../gui/ui/Archeozoology.ui" line="427"/>
         <source>Status</source>
-        <translation type="unfinished"></translation>
+        <translation>Status</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_Archeozoology_ui.ui" line="448"/>
+        <location filename="../gui/ui/Archeozoology.ui" line="448"/>
         <source>record n.</source>
-        <translation type="unfinished"></translation>
+        <translation>Record No.</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_Archeozoology_ui.ui" line="524"/>
+        <location filename="../gui/ui/Archeozoology.ui" line="524"/>
         <source>1</source>
-        <translation type="unfinished"></translation>
+        <translation>1</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_Archeozoology_ui.ui" line="493"/>
+        <location filename="../gui/ui/Archeozoology.ui" line="493"/>
         <source>record tot.</source>
-        <translation type="unfinished"></translation>
+        <translation>Total record</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_Archeozoology_ui.ui" line="552"/>
+        <location filename="../gui/ui/Archeozoology.ui" line="552"/>
         <source>Quadrato</source>
-        <translation type="unfinished"></translation>
+        <translation>Square</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_Archeozoology_ui.ui" line="611"/>
+        <location filename="../gui/ui/Archeozoology.ui" line="611"/>
         <source>Inserisci un valore</source>
-        <translation type="unfinished">Insert Value</translation>
+        <translation>Enter a value</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_Archeozoology_ui.ui" line="638"/>
+        <location filename="../gui/ui/Archeozoology.ui" line="638"/>
         <source>Periodo</source>
-        <translation type="unfinished">Period</translation>
+        <translation>Period</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_Archeozoology_ui.ui" line="653"/>
+        <location filename="../gui/ui/Archeozoology.ui" line="653"/>
         <source>Sito</source>
-        <translation type="unfinished">Site</translation>
+        <translation>Site</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_Archeozoology_ui.ui" line="665"/>
+        <location filename="../gui/ui/Archeozoology.ui" line="665"/>
         <source>Area</source>
-        <translation type="unfinished">Area</translation>
+        <translation>Area</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_Archeozoology_ui.ui" line="683"/>
+        <location filename="../gui/ui/Archeozoology.ui" line="683"/>
         <source>Dati</source>
-        <translation type="unfinished"></translation>
+        <translation>Data</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_Archeozoology_ui.ui" line="704"/>
+        <location filename="../gui/ui/Archeozoology.ui" line="704"/>
         <source>Coordinate</source>
-        <translation type="unfinished"></translation>
+        <translation>Coordinates</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_Archeozoology_ui.ui" line="711"/>
+        <location filename="../gui/ui/Archeozoology.ui" line="711"/>
         <source>Camoscio</source>
-        <translation type="unfinished"></translation>
+        <translation>Suede</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_Archeozoology_ui.ui" line="718"/>
+        <location filename="../gui/ui/Archeozoology.ui" line="718"/>
         <source>Calcinati</source>
-        <translation type="unfinished"></translation>
+        <translation>Calcined</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_Archeozoology_ui.ui" line="725"/>
+        <location filename="../gui/ui/Archeozoology.ui" line="725"/>
         <source>Combuste</source>
-        <translation type="unfinished"></translation>
+        <translation>Burnt</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_Archeozoology_ui.ui" line="735"/>
+        <location filename="../gui/ui/Archeozoology.ui" line="735"/>
         <source>x</source>
-        <translation type="unfinished"></translation>
+        <translation>X</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_Archeozoology_ui.ui" line="748"/>
+        <location filename="../gui/ui/Archeozoology.ui" line="748"/>
         <source>y</source>
-        <translation type="unfinished"></translation>
+        <translation>Y</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_Archeozoology_ui.ui" line="764"/>
+        <location filename="../gui/ui/Archeozoology.ui" line="764"/>
         <source>Megacero</source>
-        <translation type="unfinished"></translation>
+        <translation>Megacero</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_Archeozoology_ui.ui" line="774"/>
+        <location filename="../gui/ui/Archeozoology.ui" line="774"/>
         <source>Ursidi</source>
-        <translation type="unfinished"></translation>
+        <translation>Ursid</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_Archeozoology_ui.ui" line="781"/>
+        <location filename="../gui/ui/Archeozoology.ui" line="781"/>
         <source>Canidi</source>
-        <translation type="unfinished"></translation>
+        <translation>Canidae</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_Archeozoology_ui.ui" line="794"/>
+        <location filename="../gui/ui/Archeozoology.ui" line="794"/>
         <source>Coni</source>
-        <translation type="unfinished"></translation>
+        <translation>Cones</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_Archeozoology_ui.ui" line="801"/>
+        <location filename="../gui/ui/Archeozoology.ui" line="801"/>
         <source>PDI</source>
-        <translation type="unfinished"></translation>
+        <translation>Poi</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_Archeozoology_ui.ui" line="811"/>
+        <location filename="../gui/ui/Archeozoology.ui" line="811"/>
         <source>Capriolo</source>
-        <translation type="unfinished"></translation>
+        <translation>Capriolo</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_Archeozoology_ui.ui" line="818"/>
+        <location filename="../gui/ui/Archeozoology.ui" line="818"/>
         <source>Cervi</source>
-        <translation type="unfinished"></translation>
+        <translation>Deer</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_Archeozoology_ui.ui" line="825"/>
+        <location filename="../gui/ui/Archeozoology.ui" line="825"/>
         <source>Strie</source>
-        <translation type="unfinished"></translation>
+        <translation>Strings</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_Archeozoology_ui.ui" line="841"/>
+        <location filename="../gui/ui/Archeozoology.ui" line="841"/>
         <source>Stambecco</source>
-        <translation type="unfinished"></translation>
+        <translation>Ibex</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_Archeozoology_ui.ui" line="851"/>
+        <location filename="../gui/ui/Archeozoology.ui" line="851"/>
         <source>z</source>
-        <translation type="unfinished"></translation>
+        <translation>z</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_Archeozoology_ui.ui" line="884"/>
+        <location filename="../gui/ui/Archeozoology.ui" line="884"/>
         <source>DATI QUANTITATIVI</source>
-        <translation type="unfinished"></translation>
+        <translation>Quantitative data</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_Archeozoology_ui.ui" line="891"/>
+        <location filename="../gui/ui/Archeozoology.ui" line="891"/>
         <source>Bos/Bison</source>
-        <translation type="unfinished"></translation>
+        <translation>Bos/Bison</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_Archeozoology_ui.ui" line="937"/>
+        <location filename="../gui/ui/Archeozoology.ui" line="937"/>
         <source>0</source>
-        <translation type="unfinished"></translation>
+        <translation>0</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_Archeozoology_ui.ui" line="946"/>
+        <location filename="../gui/ui/Archeozoology.ui" line="946"/>
         <source>Parametri di connessione</source>
-        <translation type="unfinished">Connection settings</translation>
+        <translation>Connection settings</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_Archeozoology_ui.ui" line="1160"/>
+        <location filename="../gui/ui/Archeozoology.ui" line="1160"/>
         <source>postgres</source>
-        <translation type="unfinished"></translation>
+        <translation>postgres</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_Archeozoology_ui.ui" line="1001"/>
+        <location filename="../gui/ui/Archeozoology.ui" line="1001"/>
         <source>password</source>
-        <translation type="unfinished"></translation>
+        <translation>password</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_Archeozoology_ui.ui" line="1014"/>
+        <location filename="../gui/ui/Archeozoology.ui" line="1014"/>
         <source>user</source>
-        <translation type="unfinished"></translation>
+        <translation>user</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_Archeozoology_ui.ui" line="1027"/>
+        <location filename="../gui/ui/Archeozoology.ui" line="1027"/>
         <source>port</source>
-        <translation type="unfinished"></translation>
+        <translation>port</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_Archeozoology_ui.ui" line="1040"/>
+        <location filename="../gui/ui/Archeozoology.ui" line="1040"/>
         <source>US</source>
-        <translation type="unfinished">SU</translation>
+        <translation>SU</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_Archeozoology_ui.ui" line="1056"/>
+        <location filename="../gui/ui/Archeozoology.ui" line="1056"/>
         <source>fumane</source>
-        <translation type="unfinished"></translation>
+        <translation>Fumane</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_Archeozoology_ui.ui" line="1069"/>
+        <location filename="../gui/ui/Archeozoology.ui" line="1069"/>
         <source>host</source>
-        <translation type="unfinished"></translation>
+        <translation>host</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_Archeozoology_ui.ui" line="1082"/>
+        <location filename="../gui/ui/Archeozoology.ui" line="1082"/>
         <source>DB</source>
-        <translation type="unfinished"></translation>
+        <translation>DB Info</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_Archeozoology_ui.ui" line="1104"/>
+        <location filename="../gui/ui/Archeozoology.ui" line="1104"/>
         <source>Parametri di connessione per R</source>
-        <translation type="unfinished"></translation>
+        <translation>Connection settings for R</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_Archeozoology_ui.ui" line="1146"/>
+        <location filename="../gui/ui/Archeozoology.ui" line="1146"/>
         <source>127.0.0.1</source>
-        <translation type="unfinished"></translation>
+        <translation>127.0.0.1</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_Archeozoology_ui.ui" line="1205"/>
+        <location filename="../gui/ui/Archeozoology.ui" line="1205"/>
         <source>5433</source>
-        <translation type="unfinished"></translation>
+        <translation>5433</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_Archeozoology_ui.ui" line="1210"/>
+        <location filename="../gui/ui/Archeozoology.ui" line="1210"/>
         <source>5434</source>
-        <translation type="unfinished"></translation>
+        <translation>5434</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_Archeozoology_ui.ui" line="1215"/>
+        <location filename="../gui/ui/Archeozoology.ui" line="1215"/>
         <source>5432</source>
-        <translation type="unfinished"></translation>
+        <translation>5432</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_Archeozoology_ui.ui" line="1238"/>
+        <location filename="../gui/ui/Archeozoology.ui" line="1238"/>
         <source>Settaggi esportazione</source>
-        <translation type="unfinished"></translation>
+        <translation>Export Settings</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_Archeozoology_ui.ui" line="1251"/>
+        <location filename="../gui/ui/Archeozoology.ui" line="1251"/>
         <source>...</source>
-        <translation type="unfinished"></translation>
+        <translation>...</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_Archeozoology_ui.ui" line="1274"/>
+        <location filename="../gui/ui/Archeozoology.ui" line="1274"/>
         <source>choose path to exportation</source>
-        <translation type="unfinished"></translation>
+        <translation>Choose path to exportation</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_Archeozoology_ui.ui" line="1287"/>
+        <location filename="../gui/ui/Archeozoology.ui" line="1287"/>
         <source>3500</source>
-        <translation type="unfinished"></translation>
+        <translation>3500</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_Archeozoology_ui.ui" line="1300"/>
+        <location filename="../gui/ui/Archeozoology.ui" line="1300"/>
         <source>set pixel size plot x-y (es: 3500)</source>
-        <translation type="unfinished"></translation>
+        <translation>set pixel size plot x-y (es: 3500)</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_Archeozoology_ui.ui" line="1306"/>
+        <location filename="../gui/ui/Archeozoology.ui" line="1306"/>
         <source>Statistica univariata</source>
-        <translation type="unfinished"></translation>
+        <translation>Univariate statistics</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_Archeozoology_ui.ui" line="1318"/>
+        <location filename="../gui/ui/Archeozoology.ui" line="1318"/>
         <source>set size point </source>
-        <translation type="unfinished"></translation>
+        <translation>set size point </translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_Archeozoology_ui.ui" line="1331"/>
+        <location filename="../gui/ui/Archeozoology.ui" line="1331"/>
         <source>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
 &lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
 p, li { white-space: pre-wrap; }
 &lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:&apos;Sans&apos;; font-size:8pt; font-weight:400; font-style:normal;&quot;&gt;
 &lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;Genera un report in html con grafico a dispersione e statistica descrittiva, aggiungi una grandezza per la simbologia in set size point&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;! PUBLIC HTML DOCTYPE &quot;-/////W3C//DTD HTML 4.0//EN&quot; &quot;Http://www.w3.org/TR/REC-html40/strict.dtd&quot; &gt; &lt;html&gt; &lt;head&gt; &lt; meta name = &quot;Qrichtext&quot; content = &quot;1&quot;/&gt; &lt; Style Type = &quot;text/css&quot; &gt; P, li {white-space: pre-wrap;} &lt;/style&gt; &lt;/head&gt; &lt; Body style = &quot;FONT-family: &apos; Sans &apos;; font-size: 8pt; font-weight: 400; font-style: normal;&quot; &gt; &lt; P style = &quot;margin-top: 0px; margin-bottom: 0px; margin-left: 0px; margin-right: 0px;-QT-block-indent: 0; text-indent: 0px;&quot; &gt; Generate a report in HTML with Scatter chart and descriptive statistic, add a magnitude for the symbology in set size point &lt;/p&gt; &lt;/body&gt; &lt;/html&gt;</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_Archeozoology_ui.ui" line="1338"/>
+        <location filename="../gui/ui/Archeozoology.ui" line="1338"/>
         <source>Report</source>
-        <translation type="unfinished"></translation>
+        <translation>Report</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_Archeozoology_ui.ui" line="1351"/>
+        <location filename="../gui/ui/Archeozoology.ui" line="1351"/>
         <source>da usare per il report</source>
-        <translation type="unfinished"></translation>
+        <translation>To use for the report</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_Archeozoology_ui.ui" line="1354"/>
+        <location filename="../gui/ui/Archeozoology.ui" line="1354"/>
         <source>2</source>
-        <translation type="unfinished"></translation>
+        <translation>2</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_Archeozoology_ui.ui" line="3805"/>
+        <location filename="../gui/ui/Archeozoology.ui" line="3805"/>
         <source>bos_bison</source>
-        <translation type="unfinished"></translation>
+        <translation>Bos_bison</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_Archeozoology_ui.ui" line="3800"/>
+        <location filename="../gui/ui/Archeozoology.ui" line="3800"/>
         <source>calcinati</source>
-        <translation type="unfinished"></translation>
+        <translation>Calcined</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_Archeozoology_ui.ui" line="3810"/>
+        <location filename="../gui/ui/Archeozoology.ui" line="3810"/>
         <source>camoscio</source>
-        <translation type="unfinished"></translation>
+        <translation>Suede</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_Archeozoology_ui.ui" line="3815"/>
+        <location filename="../gui/ui/Archeozoology.ui" line="3815"/>
         <source>capriolo</source>
-        <translation type="unfinished"></translation>
+        <translation>Capriolo</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_Archeozoology_ui.ui" line="3820"/>
+        <location filename="../gui/ui/Archeozoology.ui" line="3820"/>
         <source>cervo</source>
-        <translation type="unfinished"></translation>
+        <translation>Deer</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_Archeozoology_ui.ui" line="3825"/>
+        <location filename="../gui/ui/Archeozoology.ui" line="3825"/>
         <source>combusto</source>
-        <translation type="unfinished"></translation>
+        <translation>Burnt</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_Archeozoology_ui.ui" line="3830"/>
+        <location filename="../gui/ui/Archeozoology.ui" line="3830"/>
         <source>coni</source>
-        <translation type="unfinished"></translation>
+        <translation>Cones</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_Archeozoology_ui.ui" line="3835"/>
+        <location filename="../gui/ui/Archeozoology.ui" line="3835"/>
         <source>pdi</source>
-        <translation type="unfinished"></translation>
+        <translation>Poi</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_Archeozoology_ui.ui" line="3840"/>
+        <location filename="../gui/ui/Archeozoology.ui" line="3840"/>
         <source>stambecco</source>
-        <translation type="unfinished"></translation>
+        <translation>Ibex</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_Archeozoology_ui.ui" line="3845"/>
+        <location filename="../gui/ui/Archeozoology.ui" line="3845"/>
         <source>strie</source>
-        <translation type="unfinished"></translation>
+        <translation>Strings</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_Archeozoology_ui.ui" line="3850"/>
+        <location filename="../gui/ui/Archeozoology.ui" line="3850"/>
         <source>canidi</source>
-        <translation type="unfinished"></translation>
+        <translation>Canidae</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_Archeozoology_ui.ui" line="3855"/>
+        <location filename="../gui/ui/Archeozoology.ui" line="3855"/>
         <source>ursidi</source>
-        <translation type="unfinished"></translation>
+        <translation>Ursid</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_Archeozoology_ui.ui" line="3860"/>
+        <location filename="../gui/ui/Archeozoology.ui" line="3860"/>
         <source>megacero</source>
-        <translation type="unfinished"></translation>
+        <translation>Megacero</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_Archeozoology_ui.ui" line="1442"/>
+        <location filename="../gui/ui/Archeozoology.ui" line="1442"/>
         <source>indica la posizione della colonna che si vuole descrivere</source>
-        <translation type="unfinished"></translation>
+        <translation>Indicates the position of the column you want to describe</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_Archeozoology_ui.ui" line="1567"/>
+        <location filename="../gui/ui/Archeozoology.ui" line="1567"/>
         <source>9</source>
-        <translation type="unfinished"></translation>
+        <translation>9</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_Archeozoology_ui.ui" line="1572"/>
+        <location filename="../gui/ui/Archeozoology.ui" line="1572"/>
         <source>10</source>
-        <translation type="unfinished"></translation>
+        <translation>10</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_Archeozoology_ui.ui" line="1577"/>
+        <location filename="../gui/ui/Archeozoology.ui" line="1577"/>
         <source>11</source>
-        <translation type="unfinished"></translation>
+        <translation>11</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_Archeozoology_ui.ui" line="1582"/>
+        <location filename="../gui/ui/Archeozoology.ui" line="1582"/>
         <source>12</source>
-        <translation type="unfinished"></translation>
+        <translation>12</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_Archeozoology_ui.ui" line="1587"/>
+        <location filename="../gui/ui/Archeozoology.ui" line="1587"/>
         <source>13</source>
-        <translation type="unfinished"></translation>
+        <translation>13</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_Archeozoology_ui.ui" line="1592"/>
+        <location filename="../gui/ui/Archeozoology.ui" line="1592"/>
         <source>14</source>
-        <translation type="unfinished"></translation>
+        <translation>14</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_Archeozoology_ui.ui" line="1597"/>
+        <location filename="../gui/ui/Archeozoology.ui" line="1597"/>
         <source>15</source>
-        <translation type="unfinished"></translation>
+        <translation>15</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_Archeozoology_ui.ui" line="1602"/>
+        <location filename="../gui/ui/Archeozoology.ui" line="1602"/>
         <source>16</source>
-        <translation type="unfinished"></translation>
+        <translation>16</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_Archeozoology_ui.ui" line="1607"/>
+        <location filename="../gui/ui/Archeozoology.ui" line="1607"/>
         <source>17</source>
-        <translation type="unfinished"></translation>
+        <translation>17</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_Archeozoology_ui.ui" line="1612"/>
+        <location filename="../gui/ui/Archeozoology.ui" line="1612"/>
         <source>18</source>
-        <translation type="unfinished"></translation>
+        <translation>18</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_Archeozoology_ui.ui" line="1617"/>
+        <location filename="../gui/ui/Archeozoology.ui" line="1617"/>
         <source>19</source>
-        <translation type="unfinished"></translation>
+        <translation>19</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_Archeozoology_ui.ui" line="1622"/>
+        <location filename="../gui/ui/Archeozoology.ui" line="1622"/>
         <source>20</source>
-        <translation type="unfinished"></translation>
+        <translation>20</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_Archeozoology_ui.ui" line="1627"/>
+        <location filename="../gui/ui/Archeozoology.ui" line="1627"/>
         <source>21</source>
-        <translation type="unfinished"></translation>
+        <translation>21</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_Archeozoology_ui.ui" line="1520"/>
+        <location filename="../gui/ui/Archeozoology.ui" line="1520"/>
         <source>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
 &lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
 p, li { white-space: pre-wrap; }
 &lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:&apos;Sans&apos;; font-size:10pt; font-weight:400; font-style:normal;&quot;&gt;
 &lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:8pt;&quot;&gt;Genera un istogramma con la linea di mediana. Scegliere dalla &amp;quot;lista fauna&amp;quot; la variabile da analizzare oppure flegga il checkbox per generare un grafico con tutte le variabili a confronto&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;! PUBLIC HTML DOCTYPE &quot;-/////W3C//DTD HTML 4.0//EN&quot; &quot;Http://www.w3.org/TR/REC-html40/strict.dtd&quot; &gt; &lt;html&gt; &lt;head&gt; &lt; meta name = &quot;Qrichtext&quot; content = &quot;1&quot;/&gt; &lt; Style Type = &quot;text/css&quot; &gt; P, li {white-space: pre-wrap;} &lt;/style&gt; &lt;/head&gt; &lt; Body style = &quot;FONT-family: &apos; Sans &apos;; font-size: 10pt; font-weight: 400; font-style: normal;&quot; &gt; &lt; P style = &quot;margin-top: 0px; margin-bottom: 0px; margin-left: 0px; margin-right: 0px;-QT-block-indent: 0; text-indent: 0px;&quot; &gt; &lt; span style = &quot;FONT-size: 8pt;&quot; &gt; Generate an histogram with the median line. Choose from the &quot;Fauna list&quot; the variable to parse or fread the checkbox to generate a chart with all the variables comparing &lt;/span&gt; &lt;/p&gt; &lt;/body&gt; &lt;/html&gt;</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_Archeozoology_ui.ui" line="1527"/>
+        <location filename="../gui/ui/Archeozoology.ui" line="1527"/>
         <source>Histogram</source>
-        <translation type="unfinished"></translation>
+        <translation>Histogram</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_Archeozoology_ui.ui" line="1540"/>
+        <location filename="../gui/ui/Archeozoology.ui" line="1540"/>
         <source>lista table </source>
-        <translation type="unfinished"></translation>
+        <translation>Table list</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_Archeozoology_ui.ui" line="1553"/>
+        <location filename="../gui/ui/Archeozoology.ui" line="1553"/>
         <source>lista fauna</source>
-        <translation type="unfinished"></translation>
+        <translation>Fauna List</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_Archeozoology_ui.ui" line="1641"/>
+        <location filename="../gui/ui/Archeozoology.ui" line="1641"/>
         <source>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
 &lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
 p, li { white-space: pre-wrap; }
 &lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:&apos;Sans&apos;; font-size:10pt; font-weight:400; font-style:normal;&quot;&gt;
 &lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:8pt;&quot;&gt;Genera un boxplot. Scegliere dalla lista fauna la variabile da analizzare oppure flegga il checkbox per generare un grafico con tutte le variabili a confronto&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;! PUBLIC HTML DOCTYPE &quot;-/////W3C//DTD HTML 4.0//EN&quot; &quot;Http://www.w3.org/TR/REC-html40/strict.dtd&quot; &gt; &lt;html&gt; &lt;head&gt; &lt; meta name = &quot;Qrichtext&quot; content = &quot;1&quot;/&gt; &lt; Style Type = &quot;text/css&quot; &gt; P, li {white-space: pre-wrap;} &lt;/style&gt; &lt;/head&gt; &lt; Body style = &quot;FONT-family: &apos; Sans &apos;; font-size: 10pt; font-weight: 400; font-style: normal;&quot; &gt; &lt; P style = &quot;margin-top: 0px; margin-bottom: 0px; margin-left: 0px; margin-right: 0px;-QT-block-indent: 0; text-indent: 0px;&quot; &gt; &lt; span style = &quot;FONT-size: 8pt;&quot; &gt; generate  A boxplot. Choose from the fauna list the variable to be analyzed or fread the checkbox to generate a graph with all the variables in comparison &lt;/span&gt; &lt;/p&gt; &lt;/body&gt; &lt;/html&gt;</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_Archeozoology_ui.ui" line="1648"/>
+        <location filename="../gui/ui/Archeozoology.ui" line="1648"/>
         <source>Boxplot</source>
-        <translation type="unfinished"></translation>
+        <translation>Boxplot</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_Archeozoology_ui.ui" line="1661"/>
+        <location filename="../gui/ui/Archeozoology.ui" line="1661"/>
         <source>run!</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message utf8="true">
-        <location filename="modules/gui/pyarchinit_Archeozoology_ui.ui" line="1987"/>
-        <source>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
-&lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
-p, li { white-space: pre-wrap; }
-&lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:&apos;MS Shell Dlg 2&apos;; font-size:8.25pt; font-weight:400; font-style:normal;&quot;&gt;
-&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-family:&apos;Sans&apos;; font-size:10pt;&quot;&gt;Crea un confronto a 4 variabili con istogramma di frequenza, curva di densità e curva cumulativa&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>run!</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_Archeozoology_ui.ui" line="1997"/>
+        <location filename="../gui/ui/Archeozoology.ui" line="1997"/>
         <source>Statistica multivariata</source>
-        <translation type="unfinished"></translation>
+        <translation>Multivariate statistics</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_Archeozoology_ui.ui" line="2009"/>
+        <location filename="../gui/ui/Archeozoology.ui" line="2009"/>
         <source>Genera una Matrice di Correlazione</source>
-        <translation type="unfinished"></translation>
+        <translation>Generates a correlation matrix</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_Archeozoology_ui.ui" line="2022"/>
+        <location filename="../gui/ui/Archeozoology.ui" line="2022"/>
         <source>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
 &lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
 p, li { white-space: pre-wrap; }
 &lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:&apos;Sans&apos;; font-size:8pt; font-weight:400; font-style:normal;&quot;&gt;
 &lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;genera un co-plot &lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;! PUBLIC HTML DOCTYPE &quot;-/////W3C//DTD HTML 4.0//EN&quot; &quot;Http://www.w3.org/TR/REC-html40/strict.dtd&quot; &gt; &lt;html&gt; &lt;head&gt; &lt; meta name = &quot;Qrichtext&quot; content = &quot;1&quot;/&gt; &lt; Style Type = &quot;text/css&quot; &gt; P, li {white-space: pre-wrap;} &lt;/style&gt; &lt;/head&gt; &lt; Body style = &quot;FONT-family: &apos; Sans &apos;; font-size: 8pt; font-weight: 400; font-style: normal;&quot; &gt; &lt; P style = &quot;margin-top: 0px; margin-bottom: 0px; margin-left: 0px; margin-right: 0px;-QT-block-indent: 0; text-indent: 0px;&quot; &gt; generate a co-plot &lt;/p&gt; &lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_Archeozoology_ui.ui" line="2029"/>
+        <location filename="../gui/ui/Archeozoology.ui" line="2029"/>
         <source>Co-plot</source>
-        <translation type="unfinished"></translation>
+        <translation>Co-plot</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_Archeozoology_ui.ui" line="2035"/>
+        <location filename="../gui/ui/Archeozoology.ui" line="2035"/>
         <source>Geostatistica</source>
-        <translation type="unfinished"></translation>
+        <translation>Geostatistics</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_Archeozoology_ui.ui" line="2082"/>
+        <location filename="../gui/ui/Archeozoology.ui" line="2082"/>
         <source>Costruisci un semivariogramma</source>
-        <translation type="unfinished"></translation>
+        <translation>Build a Semivariogram</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_Archeozoology_ui.ui" line="2094"/>
+        <location filename="../gui/ui/Archeozoology.ui" line="2094"/>
         <source>Cutoff</source>
-        <translation type="unfinished"></translation>
+        <translation>Cutoff</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_Archeozoology_ui.ui" line="3946"/>
+        <location filename="../gui/ui/Archeozoology.ui" line="3946"/>
         <source>Nugget</source>
-        <translation type="unfinished"></translation>
+        <translation>Nugget</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_Archeozoology_ui.ui" line="2130"/>
+        <location filename="../gui/ui/Archeozoology.ui" line="2130"/>
         <source>Parameter vgm</source>
-        <translation type="unfinished"></translation>
+        <translation>Parameter vgm</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_Archeozoology_ui.ui" line="3960"/>
+        <location filename="../gui/ui/Archeozoology.ui" line="3960"/>
         <source>Sph</source>
-        <translation type="unfinished"></translation>
+        <translation>Sph</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_Archeozoology_ui.ui" line="3965"/>
+        <location filename="../gui/ui/Archeozoology.ui" line="3965"/>
         <source>Ste</source>
-        <translation type="unfinished"></translation>
+        <translation>Ste</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_Archeozoology_ui.ui" line="3970"/>
+        <location filename="../gui/ui/Archeozoology.ui" line="3970"/>
         <source>Exp </source>
-        <translation type="unfinished"></translation>
+        <translation>Exp </translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_Archeozoology_ui.ui" line="3975"/>
+        <location filename="../gui/ui/Archeozoology.ui" line="3975"/>
         <source>Gau</source>
-        <translation type="unfinished"></translation>
+        <translation>Gau</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_Archeozoology_ui.ui" line="3980"/>
+        <location filename="../gui/ui/Archeozoology.ui" line="3980"/>
         <source>Mat</source>
-        <translation type="unfinished"></translation>
+        <translation>Mat</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_Archeozoology_ui.ui" line="2178"/>
+        <location filename="../gui/ui/Archeozoology.ui" line="2178"/>
         <source>Psill</source>
-        <translation type="unfinished"></translation>
+        <translation>Psill</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_Archeozoology_ui.ui" line="3994"/>
+        <location filename="../gui/ui/Archeozoology.ui" line="3994"/>
         <source>Model</source>
-        <translation type="unfinished"></translation>
+        <translation>Model</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_Archeozoology_ui.ui" line="2217"/>
+        <location filename="../gui/ui/Archeozoology.ui" line="2217"/>
         <source>Genera Semivariogramma</source>
-        <translation type="unfinished"></translation>
+        <translation>Generate Semivariogram</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_Archeozoology_ui.ui" line="3894"/>
+        <location filename="../gui/ui/Archeozoology.ui" line="3894"/>
         <source>Range</source>
-        <translation type="unfinished"></translation>
+        <translation>Range</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_Archeozoology_ui.ui" line="2272"/>
+        <location filename="../gui/ui/Archeozoology.ui" line="2272"/>
         <source>map</source>
-        <translation type="unfinished"></translation>
+        <translation>map</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_Archeozoology_ui.ui" line="3455"/>
+        <location filename="../gui/ui/Archeozoology.ui" line="3455"/>
         <source>formula</source>
-        <translation type="unfinished"></translation>
+        <translation>Formula</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_Archeozoology_ui.ui" line="3442"/>
+        <location filename="../gui/ui/Archeozoology.ui" line="3442"/>
         <source>ID</source>
-        <translation type="unfinished"></translation>
+        <translation>ID</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_Archeozoology_ui.ui" line="3751"/>
+        <location filename="../gui/ui/Archeozoology.ui" line="3751"/>
         <source>0.1</source>
-        <translation type="unfinished"></translation>
+        <translation>0.1</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_Archeozoology_ui.ui" line="3725"/>
+        <location filename="../gui/ui/Archeozoology.ui" line="3725"/>
         <source>Lag</source>
-        <translation type="unfinished"></translation>
+        <translation>Lag</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_Archeozoology_ui.ui" line="3738"/>
+        <location filename="../gui/ui/Archeozoology.ui" line="3738"/>
         <source>Kappa</source>
-        <translation type="unfinished"></translation>
+        <translation>Kappa</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_Archeozoology_ui.ui" line="3881"/>
+        <location filename="../gui/ui/Archeozoology.ui" line="3881"/>
         <source>Automap</source>
-        <translation type="unfinished"></translation>
+        <translation>Automap</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_Archeozoology_ui.ui" line="3786"/>
+        <location filename="../gui/ui/Archeozoology.ui" line="3786"/>
         <source>Genera un mappa di predizione in automatico</source>
-        <translation type="unfinished"></translation>
+        <translation>Generate an automatic prediction map</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_Archeozoology_ui.ui" line="3874"/>
+        <location filename="../gui/ui/Archeozoology.ui" line="3874"/>
         <source>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
 &lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
 p, li { white-space: pre-wrap; }
 &lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:&apos;Sans&apos;; font-size:8pt; font-weight:400; font-style:normal;&quot;&gt;
 &lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;genera una mappa di predizione &lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;! PUBLIC HTML DOCTYPE &quot;-/////W3C//DTD HTML 4.0//EN&quot; &quot;Http://www.w3.org/TR/REC-html40/strict.dtd&quot; &gt; &lt;html&gt; &lt;head&gt; &lt; meta name = &quot;Qrichtext&quot; content = &quot;1&quot;/&gt; &lt; Style Type = &quot;text/css&quot; &gt; P, li {white-space: pre-wrap;} &lt;/style&gt; &lt;/head&gt; &lt; Body style = &quot;FONT-family: &apos; Sans &apos;; font-size: 8pt; font-weight: 400; font-style: normal;&quot; &gt; &lt; P style = &quot;margin-top: 0px; margin-bottom: 0px; margin-left: 0px; margin-right: 0px;-QT-block-indent: 0; text-indent: 0px;&quot; &gt; generate a map of Prediction &lt;/p&gt; &lt;/body&gt; &lt;/html&gt;</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_Archeozoology_ui.ui" line="3933"/>
+        <location filename="../gui/ui/Archeozoology.ui" line="3933"/>
         <source>NA</source>
-        <translation type="unfinished"></translation>
+        <translation>NA</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_Archeozoology_ui.ui" line="4007"/>
+        <location filename="../gui/ui/Archeozoology.ui" line="4007"/>
         <source>Sill</source>
-        <translation type="unfinished"></translation>
+        <translation>Sill</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_Archeozoology_ui.ui" line="4020"/>
+        <location filename="../gui/ui/Archeozoology.ui" line="4020"/>
         <source>Clipper</source>
-        <translation type="unfinished"></translation>
+        <translation>Clipper</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_Archeozoology_ui.ui" line="4028"/>
+        <location filename="../gui/ui/Archeozoology.ui" line="4028"/>
         <source>Tool</source>
-        <translation type="unfinished"></translation>
+        <translation>Tool</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_Archeozoology_ui.ui" line="4053"/>
+        <location filename="../gui/ui/Archeozoology.ui" line="4053"/>
         <source>Tools</source>
-        <translation type="unfinished"></translation>
+        <translation>Tools</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_Archeozoology_ui.ui" line="4072"/>
+        <location filename="../gui/ui/Archeozoology.ui" line="4072"/>
         <source>Visualizzazione GIS</source>
-        <translation type="unfinished">GIS</translation>
+        <translation>GIS Visualization</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_Archeozoology_ui.ui" line="4101"/>
+        <location filename="../gui/ui/Archeozoology.ui" line="4101"/>
         <source>Ctrl+G</source>
-        <translation type="unfinished"></translation>
+        <translation>Ctrl+G</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_Archeozoology_ui.ui" line="4126"/>
+        <location filename="../gui/ui/Archeozoology.ui" line="4126"/>
         <source>3d</source>
-        <translation type="unfinished"></translation>
+        <translation>3d</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_Archeozoology_ui.ui" line="4149"/>
+        <location filename="../gui/ui/Archeozoology.ui" line="4149"/>
         <source>imposta il numero di colonna</source>
-        <translation type="unfinished"></translation>
+        <translation>Sets the column number</translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/Archeozoology.ui" line="1987"/>
+        <source>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
+&lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
+p, li { white-space: pre-wrap; }
+&lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:&apos;.SF NS Text&apos;; font-size:13pt; font-weight:400; font-style:normal;&quot;&gt;
+&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-family:&apos;Sans&apos;; font-size:10pt;&quot;&gt;Crea un confronto a 4 variabili con istogramma di frequenza, curva di densità e curva cumulativa&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
+        <translation type="obsolete">&lt;! PUBLIC HTML DOCTYPE &quot;-/////W3C//DTD HTML 4.0//EN&quot; &quot;Http://www.w3.org/TR/REC-html40/strict.dtd&quot; &gt; &lt;html&gt; &lt;head&gt; &lt; meta name = &quot;Qrichtext&quot; content = &quot;1&quot;/&gt; &lt; Style Type = &quot;text/css&quot; &gt; P, li {white-space: pre-wrap;} &lt;/style&gt; &lt;/head&gt; &lt; Body style = &quot;FONT-family: &apos;. SF NS Text &apos;; font-size: 13pt; font-weight: 400; font-style: normal;&quot; &gt; &lt; P style = &quot;margin-top: 0px; margin-bottom: 0px; margin-left: 0px; margin-right: 0px;-QT-block-indent: 0; Text-indent: 0px;&quot; &gt; &lt; span style = &quot;FONT-family: &apos; Sans &apos;; font-size: 10pt;&quot; &gt; create  A comparison to 4 variables with frequency histogram, density curve and cumulative curve &lt;/span&gt; &lt;/p&gt; &lt;/body&gt; &lt;/html&gt;</translation>
     </message>
 </context>
 <context>
     <name>DialogCampioni</name>
     <message>
-        <location filename="modules/gui/pyarchinit_campioni_ui.py" line="454"/>
+        <location filename="../gui/ui/Campioni.ui" line="20"/>
         <source>pyArchInit Gestione Scavi - Scheda Campioni</source>
-        <translation type="unfinished">pyArchInit Excavations Management -Samples Sheet</translation>
+        <translation>Pyarchinit Excavation Management-Samples</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_campioni_ui.py" line="455"/>
+        <location filename="../gui/ui/Campioni.ui" line="38"/>
         <source>DBMS Toolbar</source>
-        <translation type="unfinished">DBMS Toolbar</translation>
+        <translation>DBMS Toolbar</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_campioni_ui.py" line="456"/>
+        <location filename="../gui/ui/Campioni.ui" line="56"/>
         <source>DB Info</source>
-        <translation type="unfinished">DB Info</translation>
+        <translation>DB Info</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_campioni_ui.py" line="457"/>
+        <location filename="../gui/ui/Campioni.ui" line="72"/>
         <source>Ordinamento</source>
-        <translation type="unfinished">Order</translation>
+        <translation>Sort</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_campioni_ui.py" line="458"/>
+        <location filename="../gui/ui/Campioni.ui" line="165"/>
         <source>Status</source>
-        <translation type="unfinished">Status</translation>
+        <translation>Status</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_campioni_ui.py" line="459"/>
+        <location filename="../gui/ui/Campioni.ui" line="186"/>
         <source>record n.</source>
-        <translation type="unfinished">Record Number</translation>
+        <translation>Record No.</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_campioni_ui.py" line="462"/>
+        <location filename="../gui/ui/Campioni.ui" line="262"/>
         <source>1</source>
-        <translation type="unfinished"></translation>
+        <translation>1</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_campioni_ui.py" line="461"/>
+        <location filename="../gui/ui/Campioni.ui" line="231"/>
         <source>record tot.</source>
-        <translation type="unfinished">Total records</translation>
+        <translation>Total record</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_campioni_ui.py" line="463"/>
+        <location filename="../gui/ui/Campioni.ui" line="275"/>
         <source>Last rec</source>
-        <translation type="unfinished">Last Rec</translation>
+        <translation>Last Rec</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_campioni_ui.py" line="464"/>
+        <location filename="../gui/ui/Campioni.ui" line="294"/>
         <source>New record</source>
-        <translation type="unfinished">New record</translation>
+        <translation>New record</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_campioni_ui.py" line="465"/>
+        <location filename="../gui/ui/Campioni.ui" line="313"/>
         <source>Save</source>
-        <translation type="unfinished">Save</translation>
+        <translation>Save</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_campioni_ui.py" line="466"/>
+        <location filename="../gui/ui/Campioni.ui" line="335"/>
         <source>new search</source>
-        <translation type="unfinished">New search</translation>
+        <translation>New Search</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_campioni_ui.py" line="467"/>
+        <location filename="../gui/ui/Campioni.ui" line="354"/>
         <source>search !!!</source>
-        <translation type="unfinished">Search!!!</translation>
+        <translation>Search!!!</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_campioni_ui.py" line="468"/>
+        <location filename="../gui/ui/Campioni.ui" line="373"/>
         <source>Order by</source>
-        <translation type="unfinished">Order by</translation>
+        <translation>Order by</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_campioni_ui.py" line="469"/>
+        <location filename="../gui/ui/Campioni.ui" line="392"/>
         <source>View alls records</source>
-        <translation type="unfinished">See all records</translation>
+        <translation>View Alls Records</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_campioni_ui.py" line="470"/>
+        <location filename="../gui/ui/Campioni.ui" line="406"/>
         <source>Next rec</source>
-        <translation type="unfinished">Next rec</translation>
+        <translation>Next rec</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_campioni_ui.py" line="471"/>
+        <location filename="../gui/ui/Campioni.ui" line="426"/>
         <source>Prev rec</source>
-        <translation type="unfinished">Prev rec</translation>
+        <translation>Prev rec</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_campioni_ui.py" line="472"/>
+        <location filename="../gui/ui/Campioni.ui" line="440"/>
         <source>First rec</source>
-        <translation type="unfinished">First rec</translation>
+        <translation>First rec</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_campioni_ui.py" line="473"/>
+        <location filename="../gui/ui/Campioni.ui" line="465"/>
         <source>Delete record</source>
-        <translation type="unfinished">Delete one record</translation>
+        <translation>Delete one record</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_campioni_ui.py" line="474"/>
+        <location filename="../gui/ui/Campioni.ui" line="481"/>
         <source>Connection test</source>
-        <translation type="unfinished">Connection test</translation>
+        <translation>Connection Test</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_campioni_ui.py" line="475"/>
+        <location filename="../gui/ui/Campioni.ui" line="932"/>
         <source>Inserisci un valore</source>
-        <translation type="unfinished">Insert Value</translation>
+        <translation>Enter a value</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_campioni_ui.py" line="476"/>
+        <location filename="../gui/ui/Campioni.ui" line="803"/>
         <source>Argilla</source>
-        <translation type="unfinished">Clay</translation>
+        <translation>Clay</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_campioni_ui.py" line="477"/>
+        <location filename="../gui/ui/Campioni.ui" line="808"/>
         <source>Calce</source>
-        <translation type="unfinished">Lime</translation>
+        <translation>Lime</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_campioni_ui.py" line="478"/>
+        <location filename="../gui/ui/Campioni.ui" line="813"/>
         <source>Carbone</source>
-        <translation type="unfinished">Coal</translation>
+        <translation>Coal</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_campioni_ui.py" line="479"/>
+        <location filename="../gui/ui/Campioni.ui" line="818"/>
         <source>Cocciopesto</source>
-        <translation type="unfinished">Earthenware</translation>
+        <translation>Cocciopesto</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_campioni_ui.py" line="480"/>
+        <location filename="../gui/ui/Campioni.ui" line="823"/>
         <source>Concotto</source>
-        <translation type="unfinished"></translation>
+        <translation>Concotto</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_campioni_ui.py" line="481"/>
+        <location filename="../gui/ui/Campioni.ui" line="828"/>
         <source>Intonaco</source>
-        <translation type="unfinished">Plaster</translation>
+        <translation>Plaster</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_campioni_ui.py" line="482"/>
+        <location filename="../gui/ui/Campioni.ui" line="833"/>
         <source>Laterizio</source>
-        <translation type="unfinished">Brick</translation>
+        <translation>Brick</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_campioni_ui.py" line="483"/>
+        <location filename="../gui/ui/Campioni.ui" line="838"/>
         <source>Legno</source>
-        <translation type="unfinished">Wood</translation>
+        <translation>Wood</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_campioni_ui.py" line="484"/>
+        <location filename="../gui/ui/Campioni.ui" line="843"/>
         <source>Minerale</source>
-        <translation type="unfinished">Mineral</translation>
+        <translation>Mineral</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_campioni_ui.py" line="485"/>
+        <location filename="../gui/ui/Campioni.ui" line="848"/>
         <source>Malta</source>
-        <translation type="unfinished">Mortar</translation>
+        <translation>Malta</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_campioni_ui.py" line="486"/>
+        <location filename="../gui/ui/Campioni.ui" line="853"/>
         <source>Ossa</source>
-        <translation type="unfinished">Bones</translation>
+        <translation>Bones</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_campioni_ui.py" line="487"/>
+        <location filename="../gui/ui/Campioni.ui" line="858"/>
         <source>Ossa combuste</source>
-        <translation type="unfinished">Burnt bones</translation>
+        <translation>Burnt Bones</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_campioni_ui.py" line="488"/>
+        <location filename="../gui/ui/Campioni.ui" line="863"/>
         <source>Pietrisco</source>
-        <translation type="unfinished"></translation>
+        <translation>Gravel</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_campioni_ui.py" line="489"/>
+        <location filename="../gui/ui/Campioni.ui" line="868"/>
         <source>Scoria</source>
-        <translation type="unfinished"></translation>
+        <translation>Slag</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_campioni_ui.py" line="490"/>
+        <location filename="../gui/ui/Campioni.ui" line="873"/>
         <source>Scoria di ceramica</source>
-        <translation type="unfinished"></translation>
+        <translation>Ceramic Slag</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_campioni_ui.py" line="491"/>
+        <location filename="../gui/ui/Campioni.ui" line="878"/>
         <source>Scoria di metallo</source>
-        <translation type="unfinished"></translation>
+        <translation>Metal Slag</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_campioni_ui.py" line="492"/>
+        <location filename="../gui/ui/Campioni.ui" line="883"/>
         <source>Scoria di vetro</source>
-        <translation type="unfinished"></translation>
+        <translation>Glass Slag</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_campioni_ui.py" line="493"/>
+        <location filename="../gui/ui/Campioni.ui" line="888"/>
         <source>Terra</source>
-        <translation type="unfinished"></translation>
+        <translation>Soil</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_campioni_ui.py" line="494"/>
+        <location filename="../gui/ui/Campioni.ui" line="893"/>
         <source>Terra e carboni</source>
-        <translation type="unfinished"></translation>
+        <translation>Soil and Coals</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_campioni_ui.py" line="495"/>
+        <location filename="../gui/ui/Campioni.ui" line="792"/>
         <source>Tipo campione</source>
-        <translation type="unfinished"></translation>
+        <translation>Sample Type</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_campioni_ui.py" line="498"/>
+        <location filename="../gui/ui/Campioni.ui" line="529"/>
         <source>Dati descrittivi</source>
-        <translation type="unfinished">Description data</translation>
+        <translation>Descriptive data</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_campioni_ui.py" line="497"/>
+        <location filename="../gui/ui/Campioni.ui" line="728"/>
         <source>Descrizione </source>
-        <translation type="unfinished">Description</translation>
+        <translation type="obsolete">Description</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_campioni_ui.py" line="506"/>
+        <location filename="../gui/ui/Campioni.ui" line="568"/>
         <source>Dati stratigrafici e collocazione</source>
-        <translation type="unfinished">Stratigraphic data and collocation</translation>
+        <translation>Stratigraphic Data and placement</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_campioni_ui.py" line="499"/>
+        <location filename="../gui/ui/Campioni.ui" line="580"/>
         <source>Riferimenti stratigraific e Inventario Materiali</source>
-        <translation type="unfinished"></translation>
+        <translation>Stratigraific References and material inventory</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_campioni_ui.py" line="500"/>
+        <location filename="../gui/ui/Campioni.ui" line="587"/>
         <source>Riferimento Nr. Inventario Materiale</source>
-        <translation type="unfinished"></translation>
+        <translation>Reference material Inventory No.</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_campioni_ui.py" line="501"/>
+        <location filename="../gui/ui/Campioni.ui" line="612"/>
         <source>Riferimenti collocazione</source>
-        <translation type="unfinished"></translation>
+        <translation>Bin References</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_campioni_ui.py" line="502"/>
+        <location filename="../gui/ui/Campioni.ui" line="648"/>
         <source>Luogo di conservazione</source>
-        <translation type="unfinished">Repository</translation>
+        <translation>Place of preservation</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_campioni_ui.py" line="503"/>
+        <location filename="../gui/ui/Campioni.ui" line="641"/>
         <source>Cassa</source>
-        <translation type="unfinished">Chest</translation>
+        <translation>Box</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_campioni_ui.py" line="504"/>
+        <location filename="../gui/ui/Campioni.ui" line="659"/>
         <source>Area</source>
-        <translation type="unfinished">Area</translation>
+        <translation>Area</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_campioni_ui.py" line="505"/>
+        <location filename="../gui/ui/Campioni.ui" line="666"/>
         <source>US</source>
-        <translation type="unfinished">SU</translation>
+        <translation>SU</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_campioni_ui.py" line="514"/>
+        <location filename="../gui/ui/Campioni.ui" line="688"/>
         <source>Tools</source>
-        <translation type="unfinished">Tools</translation>
+        <translation>Tools</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_campioni_ui.py" line="507"/>
+        <location filename="../gui/ui/Campioni.ui" line="696"/>
         <source>Esporta scheda campioni</source>
-        <translation type="unfinished">Export PDF Sample sheet</translation>
+        <translation>Export Samples tab</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_campioni_ui.py" line="508"/>
+        <location filename="../gui/ui/Campioni.ui" line="706"/>
         <source>Esporta elenco campioni PDF</source>
-        <translation type="unfinished">Export PDF Sample list</translation>
+        <translation>Export PDF sample List</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_campioni_ui.py" line="509"/>
+        <location filename="../gui/ui/Campioni.ui" line="717"/>
         <source>Carica tutti layer che contengono geometrie relative a questo sito</source>
-        <translation type="unfinished"></translation>
+        <translation>Load all layers that contain geometries related to this site</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_campioni_ui.py" line="510"/>
+        <location filename="../gui/ui/Campioni.ui" line="720"/>
         <source>..</source>
-        <translation type="unfinished"></translation>
+        <translation>..</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_campioni_ui.py" line="511"/>
+        <location filename="../gui/ui/Campioni.ui" line="730"/>
         <source>Carica</source>
-        <translation type="unfinished"></translation>
+        <translation>Load</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_campioni_ui.py" line="512"/>
+        <location filename="../gui/ui/Campioni.ui" line="741"/>
         <source>...</source>
-        <translation type="unfinished"></translation>
+        <translation>...</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_campioni_ui.py" line="513"/>
+        <location filename="../gui/ui/Campioni.ui" line="751"/>
         <source>Esporta</source>
-        <translation type="unfinished"></translation>
+        <translation>Export</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_campioni_ui.py" line="515"/>
+        <location filename="../gui/ui/Campioni.ui" line="764"/>
         <source>Nr Campione</source>
-        <translation type="unfinished"></translation>
+        <translation>Sample Nr</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_campioni_ui.py" line="516"/>
+        <location filename="../gui/ui/Campioni.ui" line="940"/>
         <source>Sito</source>
-        <translation type="unfinished">Site</translation>
+        <translation>Site</translation>
     </message>
 </context>
 <context>
     <name>DialogDetsesso</name>
     <message>
-        <location filename="modules/gui/pyarchinit_Detsesso_ui.py" line="1010"/>
+        <location filename="../gui/ui/Detsesso.ui" line="20"/>
         <source>pyArchInit Gestione Scavi - Scheda Determinazione Sesso</source>
-        <translation type="unfinished"></translation>
+        <translation>Pyarchinit Excavation Management-Sex Determination</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_Detsesso_ui.py" line="1011"/>
+        <location filename="../gui/ui/Detsesso.ui" line="40"/>
         <source>DBMS Toolbar</source>
-        <translation type="unfinished"></translation>
+        <translation>DBMS Toolbar</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_Detsesso_ui.py" line="1012"/>
+        <location filename="../gui/ui/Detsesso.ui" line="47"/>
         <source>Connection test</source>
-        <translation type="unfinished"></translation>
+        <translation>Connection Test</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_Detsesso_ui.py" line="1013"/>
+        <location filename="../gui/ui/Detsesso.ui" line="56"/>
         <source>First rec</source>
-        <translation type="unfinished">First rec</translation>
+        <translation>First rec</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_Detsesso_ui.py" line="1014"/>
+        <location filename="../gui/ui/Detsesso.ui" line="70"/>
         <source>Next rec</source>
-        <translation type="unfinished">Next rec</translation>
+        <translation>Next rec</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_Detsesso_ui.py" line="1015"/>
+        <location filename="../gui/ui/Detsesso.ui" line="84"/>
         <source>Last rec</source>
-        <translation type="unfinished">Last Rec</translation>
+        <translation>Last Rec</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_Detsesso_ui.py" line="1016"/>
+        <location filename="../gui/ui/Detsesso.ui" line="103"/>
         <source>New record</source>
-        <translation type="unfinished">New record</translation>
+        <translation>New record</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_Detsesso_ui.py" line="1017"/>
+        <location filename="../gui/ui/Detsesso.ui" line="122"/>
         <source>Save</source>
-        <translation type="unfinished">Save</translation>
+        <translation>Save</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_Detsesso_ui.py" line="1018"/>
+        <location filename="../gui/ui/Detsesso.ui" line="144"/>
         <source>new search</source>
-        <translation type="unfinished">New Search</translation>
+        <translation>New Search</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_Detsesso_ui.py" line="1019"/>
+        <location filename="../gui/ui/Detsesso.ui" line="163"/>
         <source>search !!!</source>
-        <translation type="unfinished"></translation>
+        <translation>Search!!!</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_Detsesso_ui.py" line="1020"/>
+        <location filename="../gui/ui/Detsesso.ui" line="182"/>
         <source>Order by</source>
-        <translation type="unfinished"></translation>
+        <translation>Order by</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_Detsesso_ui.py" line="1021"/>
+        <location filename="../gui/ui/Detsesso.ui" line="201"/>
         <source>View alls records</source>
-        <translation type="unfinished"></translation>
+        <translation>View Alls Records</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_Detsesso_ui.py" line="1022"/>
+        <location filename="../gui/ui/Detsesso.ui" line="223"/>
         <source>Delete record</source>
-        <translation type="unfinished">Delete one record</translation>
+        <translation>Delete one record</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_Detsesso_ui.py" line="1023"/>
+        <location filename="../gui/ui/Detsesso.ui" line="237"/>
         <source>Prev rec</source>
-        <translation type="unfinished">Prev rec</translation>
+        <translation>Prev rec</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_Detsesso_ui.py" line="1024"/>
+        <location filename="../gui/ui/Detsesso.ui" line="273"/>
         <source>DB Info</source>
-        <translation type="unfinished"></translation>
+        <translation>DB Info</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_Detsesso_ui.py" line="1025"/>
+        <location filename="../gui/ui/Detsesso.ui" line="289"/>
         <source>Ordinamento</source>
-        <translation type="unfinished">Order</translation>
+        <translation>Sort</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_Detsesso_ui.py" line="1026"/>
+        <location filename="../gui/ui/Detsesso.ui" line="382"/>
         <source>Status</source>
-        <translation type="unfinished"></translation>
+        <translation>Status</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_Detsesso_ui.py" line="1027"/>
+        <location filename="../gui/ui/Detsesso.ui" line="403"/>
         <source>record n.</source>
-        <translation type="unfinished"></translation>
+        <translation>Record No.</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_Detsesso_ui.py" line="1162"/>
+        <location filename="../gui/ui/Detsesso.ui" line="1742"/>
         <source>1</source>
-        <translation type="unfinished"></translation>
+        <translation>1</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_Detsesso_ui.py" line="1029"/>
+        <location filename="../gui/ui/Detsesso.ui" line="448"/>
         <source>record tot.</source>
-        <translation type="unfinished"></translation>
+        <translation>Total record</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_Detsesso_ui.py" line="1031"/>
+        <location filename="../gui/ui/Detsesso.ui" line="534"/>
         <source>Inserisci un valore pippo</source>
-        <translation type="unfinished"></translation>
+        <translation>Enter a value</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_Detsesso_ui.py" line="1032"/>
+        <location filename="../gui/ui/Detsesso.ui" line="542"/>
         <source>N. individuo</source>
-        <translation type="unfinished"></translation>
+        <translation>N. Individual</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_Detsesso_ui.py" line="1033"/>
+        <location filename="../gui/ui/Detsesso.ui" line="552"/>
         <source>Sito </source>
-        <translation type="unfinished">Site</translation>
+        <translation>Site</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_Detsesso_ui.py" line="1238"/>
+        <location filename="../gui/ui/Detsesso.ui" line="2474"/>
         <source>Indice di sessualizzazione</source>
-        <translation type="unfinished"></translation>
+        <translation>Sexualization Index</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_Detsesso_ui.py" line="1035"/>
+        <location filename="../gui/ui/Detsesso.ui" line="575"/>
         <source>Grado/importanza</source>
-        <translation type="unfinished"></translation>
+        <translation>Degree/importance</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_Detsesso_ui.py" line="1178"/>
+        <location filename="../gui/ui/Detsesso.ui" line="587"/>
         <source>Cranio</source>
-        <translation type="unfinished"></translation>
+        <translation>Skull</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_Detsesso_ui.py" line="1036"/>
+        <location filename="../gui/ui/Detsesso.ui" line="593"/>
         <source>Acsadi e Nemeskeri, 1970</source>
-        <translation type="unfinished"></translation>
+        <translation>Acsadi and Nemeskeri, 1970</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_Detsesso_ui.py" line="1175"/>
+        <location filename="../gui/ui/Detsesso.ui" line="1859"/>
         <source>3</source>
-        <translation type="unfinished"></translation>
+        <translation>3</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_Detsesso_ui.py" line="1157"/>
+        <location filename="../gui/ui/Detsesso.ui" line="1711"/>
         <source>-2</source>
-        <translation type="unfinished"></translation>
+        <translation>-2</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_Detsesso_ui.py" line="1158"/>
+        <location filename="../gui/ui/Detsesso.ui" line="1716"/>
         <source>-1</source>
-        <translation type="unfinished"></translation>
+        <translation>-1</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_Detsesso_ui.py" line="1159"/>
+        <location filename="../gui/ui/Detsesso.ui" line="1721"/>
         <source>0</source>
-        <translation type="unfinished"></translation>
+        <translation>0</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_Detsesso_ui.py" line="1160"/>
+        <location filename="../gui/ui/Detsesso.ui" line="1726"/>
         <source>+1</source>
-        <translation type="unfinished"></translation>
+        <translation>+ 1</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_Detsesso_ui.py" line="1161"/>
+        <location filename="../gui/ui/Detsesso.ui" line="1731"/>
         <source>+2</source>
-        <translation type="unfinished"></translation>
+        <translation>+2</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_Detsesso_ui.py" line="1153"/>
+        <location filename="../gui/ui/Detsesso.ui" line="1651"/>
         <source>2</source>
-        <translation type="unfinished"></translation>
+        <translation>2</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_Detsesso_ui.py" line="1064"/>
+        <location filename="../gui/ui/Detsesso.ui" line="867"/>
         <source>Condilo mandibolare</source>
-        <translation type="unfinished"></translation>
+        <translation>Mandibular condyle</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_Detsesso_ui.py" line="1070"/>
+        <location filename="../gui/ui/Detsesso.ui" line="911"/>
         <source>Inclinazione frontale</source>
-        <translation type="unfinished"></translation>
+        <translation>Front tilt</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_Detsesso_ui.py" line="1071"/>
+        <location filename="../gui/ui/Detsesso.ui" line="918"/>
         <source>Protuberanza occipitale est.</source>
-        <translation type="unfinished"></translation>
+        <translation>Occipital protuberance East.</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_Detsesso_ui.py" line="1072"/>
+        <location filename="../gui/ui/Detsesso.ui" line="925"/>
         <source>Morfologia mandibola</source>
-        <translation type="unfinished"></translation>
+        <translation>Morphology mandible</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_Detsesso_ui.py" line="1073"/>
+        <location filename="../gui/ui/Detsesso.ui" line="932"/>
         <source>Palato</source>
-        <translation type="unfinished"></translation>
+        <translation>Palate</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_Detsesso_ui.py" line="1074"/>
+        <location filename="../gui/ui/Detsesso.ui" line="944"/>
         <source>Processo zigomatico</source>
-        <translation type="unfinished"></translation>
+        <translation>Zygomatic process</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_Detsesso_ui.py" line="1075"/>
+        <location filename="../gui/ui/Detsesso.ui" line="956"/>
         <source>Piano nucale</source>
-        <translation type="unfinished"></translation>
+        <translation>Nuchal plane</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_Detsesso_ui.py" line="1237"/>
+        <location filename="../gui/ui/Detsesso.ui" line="2467"/>
         <source>calcola</source>
-        <translation type="unfinished"></translation>
+        <translation>Calculates</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_Detsesso_ui.py" line="1087"/>
+        <location filename="../gui/ui/Detsesso.ui" line="1081"/>
         <source>Indice sessualizzazione</source>
-        <translation type="unfinished"></translation>
+        <translation>Sexualization Index</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_Detsesso_ui.py" line="1093"/>
+        <location filename="../gui/ui/Detsesso.ui" line="1136"/>
         <source>Processo mastoideo</source>
-        <translation type="unfinished"></translation>
+        <translation>Mastoid process</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_Detsesso_ui.py" line="1099"/>
+        <location filename="../gui/ui/Detsesso.ui" line="1180"/>
         <source>Valore totale</source>
-        <translation type="unfinished"></translation>
+        <translation>Total value</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_Detsesso_ui.py" line="1110"/>
+        <location filename="../gui/ui/Detsesso.ui" line="1298"/>
         <source>Margine sopraorbitale</source>
-        <translation type="unfinished"></translation>
+        <translation>Superorbital margin</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_Detsesso_ui.py" line="1179"/>
+        <location filename="../gui/ui/Detsesso.ui" line="1898"/>
         <source>Caratteri</source>
-        <translation type="unfinished"></translation>
+        <translation>Typefaces</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_Detsesso_ui.py" line="1113"/>
+        <location filename="../gui/ui/Detsesso.ui" line="1330"/>
         <source>Margine inferiore</source>
-        <translation type="unfinished"></translation>
+        <translation>Bottom margin</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_Detsesso_ui.py" line="1120"/>
+        <location filename="../gui/ui/Detsesso.ui" line="1393"/>
         <source>Angolo mandibolare</source>
-        <translation type="unfinished"></translation>
+        <translation>mandibular angle</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_Detsesso_ui.py" line="1127"/>
+        <location filename="../gui/ui/Detsesso.ui" line="1454"/>
         <source>Valori</source>
-        <translation type="unfinished"></translation>
+        <translation>Values</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_Detsesso_ui.py" line="1135"/>
+        <location filename="../gui/ui/Detsesso.ui" line="1536"/>
         <source>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
 &lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
 p, li { white-space: pre-wrap; }
 &lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:&apos;Lucida Grande&apos;; font-size:16pt; font-weight:400; font-style:normal;&quot;&gt;
 &lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;Caratteri&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;! PUBLIC HTML DOCTYPE &quot;-/////W3C//DTD HTML 4.0//EN&quot; &quot;Http://www.w3.org/TR/REC-html40/strict.dtd&quot; &gt; &lt;html&gt; &lt;head&gt; &lt; meta name = &quot;Qrichtext&quot; content = &quot;1&quot;/&gt; &lt; Style Type = &quot;text/css&quot; &gt; P, li {white-space: pre-wrap;} &lt;/style&gt; &lt;/head&gt; &lt; Body style = &quot;FONT-family: &apos; glossy Grande &apos;; font-size: 16pt; font-weight: 400; font-style: normal;&quot; &gt; &lt; P style = &quot;margin-top: 0px; margin-bottom: 0px; margin-left: 0px; margin-right: 0px;-QT-block-indent: 0; text-indent: 0px;&quot; &gt; &lt;/p&gt; Typefaces &lt;/body&gt; &lt;/html&gt;</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_Detsesso_ui.py" line="1150"/>
+        <location filename="../gui/ui/Detsesso.ui" line="1627"/>
         <source>Osso zigomatico</source>
-        <translation type="unfinished"></translation>
+        <translation>Zygomatic Bone</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_Detsesso_ui.py" line="1151"/>
+        <location filename="../gui/ui/Detsesso.ui" line="1634"/>
         <source>Arcata sopraciliare</source>
-        <translation type="unfinished"></translation>
+        <translation>Eyebrow arch</translation>
     </message>
-    <message utf8="true">
-        <location filename="modules/gui/pyarchinit_Detsesso_ui.py" line="1152"/>
+    <message>
+        <location filename="../gui/ui/Detsesso.ui" line="1641"/>
         <source>Tuberosità front. e par.</source>
-        <translation type="unfinished"></translation>
+        <translation type="obsolete">Tuberosity front. And par.</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_Detsesso_ui.py" line="1233"/>
+        <location filename="../gui/ui/Detsesso.ui" line="2444"/>
         <source>Maschio</source>
-        <translation type="unfinished"></translation>
+        <translation>Male</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_Detsesso_ui.py" line="1234"/>
+        <location filename="../gui/ui/Detsesso.ui" line="2449"/>
         <source>Femmina</source>
-        <translation type="unfinished"></translation>
+        <translation>Female</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_Detsesso_ui.py" line="1236"/>
+        <location filename="../gui/ui/Detsesso.ui" line="2459"/>
         <source>Non determinabile</source>
-        <translation type="unfinished"></translation>
+        <translation>Undeterminable</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_Detsesso_ui.py" line="1164"/>
+        <location filename="../gui/ui/Detsesso.ui" line="1769"/>
         <source>Grado imp</source>
-        <translation type="unfinished"></translation>
+        <translation>Level of importance</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_Detsesso_ui.py" line="1167"/>
+        <location filename="../gui/ui/Detsesso.ui" line="1816"/>
         <source>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
 &lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
 p, li { white-space: pre-wrap; }
 &lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:&apos;MS Shell Dlg 2&apos;; font-size:8.25pt; font-weight:400; font-style:normal;&quot;&gt;
 &lt;p style=&quot; margin-to</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;! PUBLIC HTML DOCTYPE &quot;-/////W3C//DTD HTML 4.0//EN&quot; &quot;Http://www.w3.org/TR/REC-html40/strict.dtd&quot; &gt; &lt;html&gt; &lt;head&gt; &lt; meta name = &quot;Qrichtext&quot; content = &quot;1&quot;/&gt; &lt; Style Type = &quot;text/css&quot; &gt; P, li {white-space: pre-wrap;} &lt;/style&gt; &lt;/head&gt; &lt; Body style = &quot;FONT-family: &apos; MS Shell Dlg 2 &apos;; font-size: 8.25 pt; font-weight: 400; font-style: normal;&quot; &gt; &lt; P style = &quot;margin-to</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_Detsesso_ui.py" line="1172"/>
+        <location filename="../gui/ui/Detsesso.ui" line="1823"/>
         <source>Glabella</source>
-        <translation type="unfinished"></translation>
+        <translation>Glabella</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_Detsesso_ui.py" line="1173"/>
+        <location filename="../gui/ui/Detsesso.ui" line="1830"/>
         <source>Branca montante</source>
-        <translation type="unfinished"></translation>
+        <translation>Pillar Branch</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_Detsesso_ui.py" line="1176"/>
+        <location filename="../gui/ui/Detsesso.ui" line="1869"/>
         <source>Mento</source>
-        <translation type="unfinished"></translation>
+        <translation>Chin</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_Detsesso_ui.py" line="1177"/>
+        <location filename="../gui/ui/Detsesso.ui" line="1876"/>
         <source>Apri tavola</source>
-        <translation type="unfinished"></translation>
+        <translation>Open Table</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_Detsesso_ui.py" line="1248"/>
+        <location filename="../gui/ui/Detsesso.ui" line="1892"/>
         <source>Bacino</source>
-        <translation type="unfinished"></translation>
+        <translation>Basin</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_Detsesso_ui.py" line="1185"/>
+        <location filename="../gui/ui/Detsesso.ui" line="1962"/>
         <source>Sesso stimato</source>
-        <translation type="unfinished"></translation>
+        <translation>Estimated Sex</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_Detsesso_ui.py" line="1182"/>
+        <location filename="../gui/ui/Detsesso.ui" line="1919"/>
         <source>I: sviluppo negativo dei rilievi </source>
-        <translation type="unfinished"></translation>
+        <translation>I: Negative development of the reliefs</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_Detsesso_ui.py" line="1183"/>
+        <location filename="../gui/ui/Detsesso.ui" line="1932"/>
         <source>II: aspetto incavo o puntinato</source>
-        <translation type="unfinished"></translation>
+        <translation>II: hollow or dotted appearance</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_Detsesso_ui.py" line="1184"/>
+        <location filename="../gui/ui/Detsesso.ui" line="1942"/>
         <source>III: sviluppo positivo dei rilievi </source>
-        <translation type="unfinished"></translation>
+        <translation>III: positive development of reliefs</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_Detsesso_ui.py" line="1245"/>
+        <location filename="../gui/ui/Detsesso.ui" line="2548"/>
         <source>M</source>
-        <translation type="unfinished"></translation>
+        <translation>M</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_Detsesso_ui.py" line="1246"/>
+        <location filename="../gui/ui/Detsesso.ui" line="2553"/>
         <source>I</source>
-        <translation type="unfinished"></translation>
+        <translation>I</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_Detsesso_ui.py" line="1247"/>
+        <location filename="../gui/ui/Detsesso.ui" line="2558"/>
         <source>F</source>
-        <translation type="unfinished"></translation>
+        <translation>F</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_Detsesso_ui.py" line="1201"/>
+        <location filename="../gui/ui/Detsesso.ui" line="2107"/>
         <source>II: forma contorno dell&apos;arco incisura ischiatica</source>
-        <translation type="unfinished"></translation>
+        <translation>II: Contour shape of the ischial semilunar arch</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_Detsesso_ui.py" line="1202"/>
+        <location filename="../gui/ui/Detsesso.ui" line="2117"/>
         <source>III: contorno della corda dell&apos;arco posteriore relativo alla linea dal punto A all&apos;incisura ischiatica</source>
-        <translation type="unfinished"></translation>
+        <translation>III: Contour of the posterior arch chord relative to the line from point A to the ischiatic incisura</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_Detsesso_ui.py" line="1209"/>
+        <location filename="../gui/ui/Detsesso.ui" line="2181"/>
         <source>I: caratterizzazione del margine inf. dell&apos;osso coxale </source>
-        <translation type="unfinished"></translation>
+        <translation>I: Characterization of the inf margin. of the coxal bone</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_Detsesso_ui.py" line="1210"/>
+        <location filename="../gui/ui/Detsesso.ui" line="2191"/>
         <source>II: assenza o presenza della cresta fallica</source>
-        <translation type="unfinished"></translation>
+        <translation>II: Absence or presence of phallic crest</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_Detsesso_ui.py" line="1211"/>
+        <location filename="../gui/ui/Detsesso.ui" line="2201"/>
         <source>III: aspetto del ramo ischio-pubico</source>
-        <translation type="unfinished"></translation>
+        <translation>III: Appearance of the ischio-pubic branch</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_Detsesso_ui.py" line="1227"/>
+        <location filename="../gui/ui/Detsesso.ui" line="2359"/>
         <source>Relazione tra la lunghezza dell&apos;ischio e del pube </source>
-        <translation type="unfinished"></translation>
+        <translation>Relationship between the length of the Ischio and the pubis</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_Detsesso_ui.py" line="1228"/>
+        <location filename="../gui/ui/Detsesso.ui" line="2369"/>
         <source>I: proporz. della lunghezza dell&apos;arco incisura ischiatica</source>
-        <translation type="unfinished"></translation>
+        <translation>I: Proportion of the length of the ischiatic semilunar arc</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_Detsesso_ui.py" line="1229"/>
+        <location filename="../gui/ui/Detsesso.ui" line="2389"/>
         <source>Bruzek, 2002</source>
-        <translation type="unfinished"></translation>
+        <translation>Bruzek, 2002</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_Detsesso_ui.py" line="1235"/>
+        <location filename="../gui/ui/Detsesso.ui" line="2454"/>
         <source>Indeterminato</source>
-        <translation type="unfinished"></translation>
+        <translation>Indeterminate</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_Detsesso_ui.py" line="1239"/>
+        <location filename="../gui/ui/Detsesso.ui" line="2491"/>
         <source>Superficie preauricolare</source>
-        <translation type="unfinished"></translation>
+        <translation>Pre-headset surface</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_Detsesso_ui.py" line="1240"/>
+        <location filename="../gui/ui/Detsesso.ui" line="2498"/>
         <source>Grande inc. ischiatica</source>
-        <translation type="unfinished"></translation>
+        <translation>Great ischial incisure</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_Detsesso_ui.py" line="1241"/>
+        <location filename="../gui/ui/Detsesso.ui" line="2505"/>
         <source>Ramo ischio-pubico</source>
-        <translation type="unfinished"></translation>
+        <translation>Ischio-Pubic Branch</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_Detsesso_ui.py" line="1242"/>
+        <location filename="../gui/ui/Detsesso.ui" line="2512"/>
         <source>Prop. ischio-pubiche</source>
-        <translation type="unfinished"></translation>
+        <translation>Prop. Ischio-Pubiche</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_Detsesso_ui.py" line="1243"/>
+        <location filename="../gui/ui/Detsesso.ui" line="2519"/>
         <source>Arco composito</source>
-        <translation type="unfinished"></translation>
+        <translation>Composite arc</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_Detsesso_ui.py" line="1244"/>
+        <location filename="../gui/ui/Detsesso.ui" line="2526"/>
         <source>Relazione tra il contorno dell&apos;arco dell&apos;ischio e della sup. auricolare</source>
-        <translation type="unfinished"></translation>
+        <translation>Relationship between the contour of the arch of the Ischio and the SUP. Headset</translation>
+    </message>
+</context>
+<context>
+    <name>DialogDocumentazione_tipo_doc</name>
+    <message>
+        <location filename="../gui/ui/Documentazione.ui" line="20"/>
+        <source>pyArchInit Gestione Scavi - Scheda Documentazione</source>
+        <translation>Pyarchinit Excavation Management-Documentation</translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/Documentazione.ui" line="59"/>
+        <source>Inserisci un valore</source>
+        <translation>Enter a value</translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/Documentazione.ui" line="67"/>
+        <source>Sito</source>
+        <translation>Site</translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/Documentazione.ui" line="82"/>
+        <source>DBMS Toolbar</source>
+        <translation>DBMS Toolbar</translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/Documentazione.ui" line="100"/>
+        <source>DB Info</source>
+        <translation>DB Info</translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/Documentazione.ui" line="116"/>
+        <source>Status</source>
+        <translation>Status</translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/Documentazione.ui" line="133"/>
+        <source>Ordinamento</source>
+        <translation>Sort</translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/Documentazione.ui" line="230"/>
+        <source>record n.</source>
+        <translation>Record No.</translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/Documentazione.ui" line="306"/>
+        <source>1</source>
+        <translation>1</translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/Documentazione.ui" line="275"/>
+        <source>record tot.</source>
+        <translation>Total record</translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/Documentazione.ui" line="317"/>
+        <source>Connection test</source>
+        <translation>Connection test</translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/Documentazione.ui" line="326"/>
+        <source>First rec</source>
+        <translation>First rec</translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/Documentazione.ui" line="346"/>
+        <source>Prev rec</source>
+        <translation>Prev rec</translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/Documentazione.ui" line="360"/>
+        <source>Next rec</source>
+        <translation>Next rec</translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/Documentazione.ui" line="374"/>
+        <source>Last rec</source>
+        <translation>Last Rec</translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/Documentazione.ui" line="393"/>
+        <source>New record</source>
+        <translation>New record</translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/Documentazione.ui" line="412"/>
+        <source>Save</source>
+        <translation>Save</translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/Documentazione.ui" line="440"/>
+        <source>Delete record</source>
+        <translation>Delete one record</translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/Documentazione.ui" line="459"/>
+        <source>new search</source>
+        <translation>New Search</translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/Documentazione.ui" line="478"/>
+        <source>search !!!</source>
+        <translation>Search!!!</translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/Documentazione.ui" line="497"/>
+        <source>Order by</source>
+        <translation>Order by</translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/Documentazione.ui" line="516"/>
+        <source>View alls records</source>
+        <translation>View Alls Records</translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/Documentazione.ui" line="541"/>
+        <source>Nome documentazione</source>
+        <translation>Documentation Name</translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/Documentazione.ui" line="561"/>
+        <source>Tipo documentazione</source>
+        <translation>Type of documentation</translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/Documentazione.ui" line="575"/>
+        <source>Fotopiano</source>
+        <translation>Photoplan</translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/Documentazione.ui" line="580"/>
+        <source>Pianta</source>
+        <translation>Plant</translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/Documentazione.ui" line="585"/>
+        <source>Prospetto</source>
+        <translation>Prospect</translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/Documentazione.ui" line="590"/>
+        <source>Sezione</source>
+        <translation>Section</translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/Documentazione.ui" line="602"/>
+        <source>Dati generali</source>
+        <translation>General data</translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/Documentazione.ui" line="615"/>
+        <source>Foto</source>
+        <translation>Photo</translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/Documentazione.ui" line="620"/>
+        <source>Fotomosaico</source>
+        <translation>Photomosaic</translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/Documentazione.ui" line="625"/>
+        <source>Lucido</source>
+        <translation>Polished</translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/Documentazione.ui" line="630"/>
+        <source>Rilievo diretto (tablet)</source>
+        <translation>Direct survey</translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/Documentazione.ui" line="638"/>
+        <source>Sorgente</source>
+        <translation>Source</translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/Documentazione.ui" line="649"/>
+        <source>1 : 1</source>
+        <translation>1:1</translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/Documentazione.ui" line="654"/>
+        <source>1 : 2</source>
+        <translation>1:2</translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/Documentazione.ui" line="659"/>
+        <source>1 : 10</source>
+        <translation>1:10</translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/Documentazione.ui" line="664"/>
+        <source>1 : 20</source>
+        <translation>1:20</translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/Documentazione.ui" line="669"/>
+        <source>1 : 30</source>
+        <translation>1:30</translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/Documentazione.ui" line="674"/>
+        <source>1 : 50</source>
+        <translation>1:50</translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/Documentazione.ui" line="679"/>
+        <source>1 : 100</source>
+        <translation>1:100</translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/Documentazione.ui" line="687"/>
+        <source>Scala</source>
+        <translation>Scale</translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/Documentazione.ui" line="697"/>
+        <source>Disegnatore</source>
+        <translation>Draughtsman</translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/Documentazione.ui" line="707"/>
+        <source>Data</source>
+        <translation>Date</translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/Documentazione.ui" line="714"/>
+        <source>Visualizza documentazione</source>
+        <translation>View Documentation</translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/Documentazione.ui" line="776"/>
+        <source>Note</source>
+        <translation>Notes</translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/Documentazione.ui" line="782"/>
+        <source>Tools</source>
+        <translation>Tools</translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/Documentazione.ui" line="788"/>
+        <source>Esporta elenco documentazione</source>
+        <translation>Export documentation List</translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/Documentazione.ui" line="795"/>
+        <source>Open Preview</source>
+        <translation>Open Preview</translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/Documentazione.ui" line="802"/>
+        <source>Esporta scheda documentazione</source>
+        <translation>Export documentation Sheet</translation>
     </message>
 </context>
 <context>
     <name>DialogGisTimeController</name>
     <message>
-        <location filename="modules/gui/pyarchinit_gis_time_controller.py" line="95"/>
+        <location filename="../gui/ui/Gis_Time_controller.ui" line="32"/>
         <source>pyArchInit Gestione Scavi - Time Controller</source>
-        <translation type="unfinished"></translation>
+        <translation>Pyarchinit Excavation Management-Time Controller</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_gis_time_controller.py" line="108"/>
+        <location filename="../gui/ui/Gis_Time_controller.ui" line="46"/>
         <source>Absolute cronology system</source>
-        <translation type="unfinished"></translation>
+        <translation>Absolute cronology system</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_gis_time_controller.py" line="96"/>
+        <location filename="../gui/ui/Gis_Time_controller.ui" line="70"/>
+        <source>Visualizza l&apos;intervallo di tempo compreso tra l&apos;anno:</source>
+        <translation>Displays the time interval between the year:</translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/Gis_Time_controller.ui" line="77"/>
+        <source>Cronologia iniziale</source>
+        <translation>Initial chronology</translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/Gis_Time_controller.ui" line="97"/>
+        <source>e l&apos;anno</source>
+        <translation>and the Year</translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/Gis_Time_controller.ui" line="104"/>
+        <source>Cronologia finale</source>
+        <translation>Final chronology</translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/Gis_Time_controller.ui" line="130"/>
+        <source>Prev rec</source>
+        <translation>Prev rec</translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/Gis_Time_controller.ui" line="133"/>
+        <source>Visualizza</source>
+        <translation>View</translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/Gis_Time_controller.ui" line="141"/>
+        <source>Relative cronology system</source>
+        <translation>Relative cronology system</translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/Gis_Time_controller.ui" line="58"/>
         <source>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
 &lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
 p, li { white-space: pre-wrap; }
-&lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:&apos;MS Shell Dlg 2&apos;; font-size:8.25pt; font-weight:400; font-style:normal;&quot;&gt;
-&lt;p align=&quot;justify&quot; style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:9pt; font-weight:600;&quot;&gt;Per funzionare il sistema di ricerca per cronologie assolute richiede la creazione dei periodi di scavo nella scheda Periodizzazione. La cronologia assoluta qui utilizzata viene riferita ai termini &amp;quot;avanti Cristo&amp;quot; e &amp;quot;dopo Cristo&amp;quot;. Per settare valori avanti Cristo utilizzare il segno &amp;quot;-&amp;quot; davanti all&apos;anno (ex: 268 a.C. = -268). Per settare valori dopo Cristo utilizzare non e&apos; necessario utilizzare alcun segno (1400 d.C. = 1440).&lt;/span&gt;&lt;/p&gt;
-&lt;p align=&quot;justify&quot; style=&quot;-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px; font-size:9pt; font-weight:600;&quot;&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="modules/gui/pyarchinit_gis_time_controller.py" line="102"/>
-        <source>Visualizza l&apos;intervallo di tempo compreso tra l&apos;anno:</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="modules/gui/pyarchinit_gis_time_controller.py" line="103"/>
-        <source>Cronologia iniziale</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="modules/gui/pyarchinit_gis_time_controller.py" line="104"/>
-        <source>e l&apos;anno</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="modules/gui/pyarchinit_gis_time_controller.py" line="105"/>
-        <source>Cronologia finale</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="modules/gui/pyarchinit_gis_time_controller.py" line="106"/>
-        <source>Prev rec</source>
-        <translation type="unfinished">Prev rec</translation>
-    </message>
-    <message>
-        <location filename="modules/gui/pyarchinit_gis_time_controller.py" line="107"/>
-        <source>Visualizza</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="modules/gui/pyarchinit_gis_time_controller.py" line="109"/>
-        <source>Relative cronology system</source>
-        <translation type="unfinished"></translation>
+&lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:&apos;.SF NS Text&apos;; font-size:13pt; font-weight:400; font-style:normal;&quot;&gt;
+&lt;p align=&quot;justify&quot; style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-family:&apos;MS Shell Dlg 2&apos;; font-size:9pt; font-weight:600;&quot;&gt;Per funzionare il sistema di ricerca per cronologie assolute richiede la creazione dei periodi di scavo nella scheda Periodizzazione. La cronologia assoluta qui utilizzata viene riferita ai termini &amp;quot;avanti Cristo&amp;quot; e &amp;quot;dopo Cristo&amp;quot;. Per settare valori avanti Cristo utilizzare il segno &amp;quot;-&amp;quot; davanti all&apos;anno (ex: 268 a.C. = -268). Per settare valori dopo Cristo utilizzare non e&apos; necessario utilizzare alcun segno (1400 d.C. = 1440).&lt;/span&gt;&lt;/p&gt;
+&lt;p align=&quot;justify&quot; style=&quot;-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px; font-family:&apos;MS Shell Dlg 2&apos;; font-size:9pt; font-weight:600;&quot;&gt;&lt;br /&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
+        <translation>&lt;! PUBLIC HTML DOCTYPE &quot;-/////W3C//DTD HTML 4.0//EN&quot; &quot;Http://www.w3.org/TR/REC-html40/strict.dtd&quot; &gt; &lt;html&gt; &lt;head&gt; &lt; meta name = &quot;Qrichtext&quot; content = &quot;1&quot;/&gt; &lt; Style Type = &quot;text/css&quot; &gt; P, li {white-space: pre-wrap;} &lt;/style&gt; &lt;/head&gt; &lt; Body style = &quot;FONT-family: &apos;. SF NS Text &apos;; font-size: 13pt; font-weight: 400; font-style: normal;&quot; &gt; &lt; P align = &quot;justify&quot; style = &quot;margin-top: 0px; margin-bottom: 0px; margin-left: 0px; margin-right: 0px;-QT-block-indent: 0; Text-indent: 0px;&quot; &gt; &lt; span  style = &quot;FONT-family: &apos; MS Shell Dlg 2 &apos;; font-size: 9pt; FONT-weight: 600; &quot; In order to function, the search system for absolute chronologies requires the creation of excavation periods in the Periodization tab. The absolute chronology used here refers to the terms &amp;quot;before Christ&amp;quot; and &amp;quot;after Christ&amp;quot;. To set values before Christ use the sign in front of the year (ex: 268 BC =-268). To set values after Christ use it is not necessary to use any sign (1400 A.D. = 1440). &lt;/span&gt; &lt;/p&gt;
+&lt; P align = &quot;justify&quot; style = &quot;-qt-paragraph-type: empty; margin-top: 0px; margin-bottom: 0px; margin-left: 0px; margin-right: 0px;-QT-block-indent: 0; text-indent: 0px; font-family: &apos; MS Shell Dlg 2 &apos;; font-size: 9pt; font-weight: 600;&quot; &gt; &lt; br/&gt; &lt;/p&gt; &lt;/body&gt;&lt;/html&gt;</translation>
     </message>
 </context>
 <context>
     <name>DialogImageViewer</name>
     <message>
-        <location filename="modules/gui/pyarchinit_image_viewer_dialog.py" line="414"/>
+        <location filename="../gui/ui/pyarchinit_image_viewer_dialog.ui" line="14"/>
         <source>Dialog</source>
-        <translation type="unfinished"></translation>
+        <translation>Dialog</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_image_viewer_dialog.py" line="466"/>
+        <location filename="../gui/ui/pyarchinit_image_viewer_dialog.ui" line="846"/>
         <source>Apri Immagini</source>
-        <translation type="unfinished">Open Image</translation>
+        <translation>Open images</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_image_viewer_dialog.py" line="430"/>
+        <location filename="../gui/ui/pyarchinit_image_viewer_dialog.ui" line="362"/>
         <source>Carica le immagini nel DB</source>
-        <translation type="unfinished">Upload image in DB</translation>
+        <translation>Upload images to the DB</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_image_viewer_dialog.py" line="447"/>
+        <location filename="../gui/ui/pyarchinit_image_viewer_dialog.ui" line="570"/>
         <source>Tags manager</source>
-        <translation type="unfinished"></translation>
+        <translation>Tags manager</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_image_viewer_dialog.py" line="448"/>
+        <location filename="../gui/ui/pyarchinit_image_viewer_dialog.ui" line="577"/>
         <source>+</source>
-        <translation type="unfinished"></translation>
+        <translation>+</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_image_viewer_dialog.py" line="449"/>
+        <location filename="../gui/ui/pyarchinit_image_viewer_dialog.ui" line="584"/>
         <source>-</source>
-        <translation type="unfinished"></translation>
+        <translation>-</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_image_viewer_dialog.py" line="450"/>
+        <location filename="../gui/ui/pyarchinit_image_viewer_dialog.ui" line="599"/>
         <source>Sito</source>
-        <translation type="unfinished">Site</translation>
+        <translation>Site</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_image_viewer_dialog.py" line="443"/>
+        <location filename="../gui/ui/pyarchinit_image_viewer_dialog.ui" line="523"/>
         <source>Area</source>
-        <translation type="unfinished">Area</translation>
+        <translation>Area</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_image_viewer_dialog.py" line="444"/>
+        <location filename="../gui/ui/pyarchinit_image_viewer_dialog.ui" line="528"/>
         <source>US</source>
-        <translation type="unfinished">SU</translation>
+        <translation>SU</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_image_viewer_dialog.py" line="452"/>
+        <location filename="../gui/ui/pyarchinit_image_viewer_dialog.ui" line="612"/>
         <source>Assegna i tags</source>
-        <translation type="unfinished">Apply tags</translation>
+        <translation>Assign tags</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_image_viewer_dialog.py" line="415"/>
+        <location filename="../gui/ui/pyarchinit_image_viewer_dialog.ui" line="47"/>
         <source>Numero Totale Immagini</source>
-        <translation type="unfinished"></translation>
+        <translation>Total number of images</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_image_viewer_dialog.py" line="416"/>
+        <location filename="../gui/ui/pyarchinit_image_viewer_dialog.ui" line="60"/>
         <source>Immagini visualizzate</source>
-        <translation type="unfinished"></translation>
+        <translation>Images displayed</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_image_viewer_dialog.py" line="438"/>
+        <location filename="../gui/ui/pyarchinit_image_viewer_dialog.ui" line="133"/>
         <source>Toolbar</source>
-        <translation type="unfinished"></translation>
+        <translation>Toolbar</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_image_viewer_dialog.py" line="454"/>
+        <location filename="../gui/ui/pyarchinit_image_viewer_dialog.ui" line="644"/>
         <source>Delete record</source>
-        <translation type="unfinished">Delete one record</translation>
+        <translation>Delete one record</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_image_viewer_dialog.py" line="455"/>
+        <location filename="../gui/ui/pyarchinit_image_viewer_dialog.ui" line="663"/>
         <source>new search</source>
-        <translation type="unfinished">New Search</translation>
+        <translation>New Search</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_image_viewer_dialog.py" line="456"/>
+        <location filename="../gui/ui/pyarchinit_image_viewer_dialog.ui" line="682"/>
         <source>search !!!</source>
-        <translation type="unfinished"></translation>
+        <translation>Search!!!</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_image_viewer_dialog.py" line="457"/>
+        <location filename="../gui/ui/pyarchinit_image_viewer_dialog.ui" line="701"/>
         <source>Order by</source>
-        <translation type="unfinished"></translation>
+        <translation>Order by</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_image_viewer_dialog.py" line="458"/>
+        <location filename="../gui/ui/pyarchinit_image_viewer_dialog.ui" line="720"/>
         <source>View alls records</source>
-        <translation type="unfinished"></translation>
+        <translation>View Alls Records</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_image_viewer_dialog.py" line="459"/>
+        <location filename="../gui/ui/pyarchinit_image_viewer_dialog.ui" line="734"/>
         <source>Last rec</source>
-        <translation type="unfinished">Last Rec</translation>
+        <translation>Last Rec</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_image_viewer_dialog.py" line="460"/>
+        <location filename="../gui/ui/pyarchinit_image_viewer_dialog.ui" line="748"/>
         <source>First rec</source>
-        <translation type="unfinished">First rec</translation>
+        <translation>First rec</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_image_viewer_dialog.py" line="461"/>
+        <location filename="../gui/ui/pyarchinit_image_viewer_dialog.ui" line="762"/>
         <source>Prev rec</source>
-        <translation type="unfinished">Prev rec</translation>
+        <translation>Prev rec</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_image_viewer_dialog.py" line="462"/>
+        <location filename="../gui/ui/pyarchinit_image_viewer_dialog.ui" line="776"/>
         <source>Next rec</source>
-        <translation type="unfinished">Next rec</translation>
+        <translation>Next rec</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_image_viewer_dialog.py" line="463"/>
+        <location filename="../gui/ui/pyarchinit_image_viewer_dialog.ui" line="795"/>
         <source>New record</source>
-        <translation type="unfinished">New record</translation>
+        <translation>New record</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_image_viewer_dialog.py" line="464"/>
+        <location filename="../gui/ui/pyarchinit_image_viewer_dialog.ui" line="814"/>
         <source>Save</source>
-        <translation type="unfinished">Save</translation>
+        <translation>Save</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_image_viewer_dialog.py" line="465"/>
+        <location filename="../gui/ui/pyarchinit_image_viewer_dialog.ui" line="839"/>
         <source>DBMS Toolbar</source>
-        <translation type="unfinished"></translation>
+        <translation>DBMS Toolbar</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_image_viewer_dialog.py" line="431"/>
+        <location filename="../gui/ui/pyarchinit_image_viewer_dialog.ui" line="376"/>
         <source>Tags</source>
-        <translation type="unfinished"></translation>
+        <translation>Tags</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_image_viewer_dialog.py" line="432"/>
+        <location filename="../gui/ui/pyarchinit_image_viewer_dialog.ui" line="384"/>
         <source>ID tag</source>
-        <translation type="unfinished"></translation>
+        <translation>ID tag</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_image_viewer_dialog.py" line="433"/>
+        <location filename="../gui/ui/pyarchinit_image_viewer_dialog.ui" line="396"/>
         <source>Categoria Tag</source>
-        <translation type="unfinished"></translation>
+        <translation>Categoria Tag</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_image_viewer_dialog.py" line="434"/>
+        <location filename="../gui/ui/pyarchinit_image_viewer_dialog.ui" line="408"/>
         <source>Tag</source>
-        <translation type="unfinished"></translation>
+        <translation>Tag</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_image_viewer_dialog.py" line="435"/>
+        <location filename="../gui/ui/pyarchinit_image_viewer_dialog.ui" line="426"/>
         <source>Attiva/disattiva la visualizzazione dei tags</source>
-        <translation type="unfinished"></translation>
+        <translation>Toggle the display of tags</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_image_viewer_dialog.py" line="436"/>
+        <location filename="../gui/ui/pyarchinit_image_viewer_dialog.ui" line="429"/>
         <source>Tags viewer on/off</source>
-        <translation type="unfinished"></translation>
+        <translation>Tags viewer on/off</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_image_viewer_dialog.py" line="437"/>
+        <location filename="../gui/ui/pyarchinit_image_viewer_dialog.ui" line="458"/>
         <source>Rimuovi tags</source>
-        <translation type="unfinished"></translation>
+        <translation>Remove tags</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_image_viewer_dialog.py" line="446"/>
+        <location filename="../gui/ui/pyarchinit_image_viewer_dialog.ui" line="466"/>
         <source>Tags Unita&apos; Stratigrafiche</source>
-        <translation type="unfinished"></translation>
+        <translation>Tags stratigraphic units</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_image_viewer_dialog.py" line="453"/>
+        <location filename="../gui/ui/pyarchinit_image_viewer_dialog.ui" line="547"/>
         <source>Tags Inventario Materiali</source>
-        <translation type="unfinished"></translation>
+        <translation>Materials Inventory Tags</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_image_viewer_dialog.py" line="451"/>
+        <location filename="../gui/ui/pyarchinit_image_viewer_dialog.ui" line="604"/>
         <source>Numero Inventario</source>
-        <translation type="unfinished"></translation>
+        <translation>Inventory number</translation>
     </message>
 </context>
 <context>
     <name>DialogImagesComparision</name>
     <message>
-        <location filename="modules/gui/pyarchinit_images_comparision.py" line="76"/>
+        <location filename="../gui/ui/Images_comparison.ui" line="14"/>
         <source>ChartMaker</source>
-        <translation type="unfinished"></translation>
+        <translation>ChartMaker</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_images_comparision.py" line="77"/>
+        <location filename="../gui/ui/Images_comparison.ui" line="70"/>
         <source>Scegli un file</source>
-        <translation type="unfinished"></translation>
+        <translation>Choose a file</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_images_comparision.py" line="78"/>
+        <location filename="../gui/ui/Images_comparison.ui" line="77"/>
         <source>Scegli la directory</source>
-        <translation type="unfinished"></translation>
+        <translation>Choose the Directory</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_images_comparision.py" line="79"/>
+        <location filename="../gui/ui/Images_comparison.ui" line="84"/>
         <source>Last rec</source>
-        <translation type="unfinished">Last Rec</translation>
+        <translation>Last Rec</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_images_comparision.py" line="80"/>
+        <location filename="../gui/ui/Images_comparison.ui" line="87"/>
         <source>Run</source>
-        <translation type="unfinished"></translation>
+        <translation>Run</translation>
     </message>
 </context>
 <context>
     <name>DialogInd</name>
     <message>
-        <location filename="modules/gui/pyarchinit_schedaind_ui.py" line="579"/>
+        <location filename="../gui/ui/Schedaind.ui" line="20"/>
         <source>pyArchInit Gestione Scavi - Scheda Individuo</source>
-        <translation type="unfinished"></translation>
+        <translation>Pyarchinit Excavation Management-Individual</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_schedaind_ui.py" line="580"/>
+        <location filename="../gui/ui/Schedaind.ui" line="38"/>
         <source>DBMS Toolbar</source>
-        <translation type="unfinished"></translation>
+        <translation>DBMS Toolbar</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_schedaind_ui.py" line="581"/>
+        <location filename="../gui/ui/Schedaind.ui" line="56"/>
         <source>DB Info</source>
-        <translation type="unfinished"></translation>
+        <translation>DB Info</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_schedaind_ui.py" line="582"/>
+        <location filename="../gui/ui/Schedaind.ui" line="72"/>
         <source>Ordinamento</source>
-        <translation type="unfinished">Order</translation>
+        <translation>Sort</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_schedaind_ui.py" line="583"/>
+        <location filename="../gui/ui/Schedaind.ui" line="165"/>
         <source>Status</source>
-        <translation type="unfinished"></translation>
+        <translation>Status</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_schedaind_ui.py" line="584"/>
+        <location filename="../gui/ui/Schedaind.ui" line="186"/>
         <source>record n.</source>
-        <translation type="unfinished"></translation>
+        <translation>Record No.</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_schedaind_ui.py" line="587"/>
+        <location filename="../gui/ui/Schedaind.ui" line="262"/>
         <source>1</source>
-        <translation type="unfinished"></translation>
+        <translation>1</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_schedaind_ui.py" line="586"/>
+        <location filename="../gui/ui/Schedaind.ui" line="231"/>
         <source>record tot.</source>
-        <translation type="unfinished"></translation>
+        <translation>Total record</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_schedaind_ui.py" line="588"/>
+        <location filename="../gui/ui/Schedaind.ui" line="275"/>
         <source>Last rec</source>
-        <translation type="unfinished">Last Rec</translation>
+        <translation>Last Rec</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_schedaind_ui.py" line="589"/>
+        <location filename="../gui/ui/Schedaind.ui" line="294"/>
         <source>New record</source>
-        <translation type="unfinished">New record</translation>
+        <translation>New record</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_schedaind_ui.py" line="590"/>
+        <location filename="../gui/ui/Schedaind.ui" line="313"/>
         <source>Save</source>
-        <translation type="unfinished">Save</translation>
+        <translation>Save</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_schedaind_ui.py" line="591"/>
+        <location filename="../gui/ui/Schedaind.ui" line="335"/>
         <source>new search</source>
-        <translation type="unfinished">New Search</translation>
+        <translation>New Search</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_schedaind_ui.py" line="592"/>
+        <location filename="../gui/ui/Schedaind.ui" line="354"/>
         <source>search !!!</source>
-        <translation type="unfinished"></translation>
+        <translation>Search!!!</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_schedaind_ui.py" line="593"/>
+        <location filename="../gui/ui/Schedaind.ui" line="373"/>
         <source>Order by</source>
-        <translation type="unfinished"></translation>
+        <translation>Order by</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_schedaind_ui.py" line="594"/>
+        <location filename="../gui/ui/Schedaind.ui" line="392"/>
         <source>View alls records</source>
-        <translation type="unfinished"></translation>
+        <translation>View Alls Records</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_schedaind_ui.py" line="595"/>
+        <location filename="../gui/ui/Schedaind.ui" line="406"/>
         <source>Next rec</source>
-        <translation type="unfinished">Next rec</translation>
+        <translation>Next rec</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_schedaind_ui.py" line="596"/>
+        <location filename="../gui/ui/Schedaind.ui" line="426"/>
         <source>Prev rec</source>
-        <translation type="unfinished">Prev rec</translation>
+        <translation>Prev rec</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_schedaind_ui.py" line="597"/>
+        <location filename="../gui/ui/Schedaind.ui" line="440"/>
         <source>First rec</source>
-        <translation type="unfinished">First rec</translation>
+        <translation>First rec</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_schedaind_ui.py" line="598"/>
+        <location filename="../gui/ui/Schedaind.ui" line="465"/>
         <source>Delete record</source>
-        <translation type="unfinished">Delete one record</translation>
+        <translation>Delete one record</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_schedaind_ui.py" line="599"/>
+        <location filename="../gui/ui/Schedaind.ui" line="481"/>
         <source>Connection test</source>
-        <translation type="unfinished"></translation>
+        <translation>Connection test</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_schedaind_ui.py" line="600"/>
+        <location filename="../gui/ui/Schedaind.ui" line="534"/>
         <source>Inserisci un valore</source>
-        <translation type="unfinished">Insert Value</translation>
+        <translation>Enter a value</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_schedaind_ui.py" line="601"/>
+        <location filename="../gui/ui/Schedaind.ui" line="1266"/>
         <source>US</source>
-        <translation type="unfinished">SU</translation>
+        <translation>SU</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_schedaind_ui.py" line="602"/>
+        <location filename="../gui/ui/Schedaind.ui" line="542"/>
         <source>Sito </source>
-        <translation type="unfinished">Site</translation>
+        <translation>Site</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_schedaind_ui.py" line="603"/>
+        <location filename="../gui/ui/Schedaind.ui" line="1223"/>
         <source>Area</source>
-        <translation type="unfinished">Area</translation>
+        <translation>Area</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_schedaind_ui.py" line="604"/>
+        <location filename="../gui/ui/Schedaind.ui" line="568"/>
         <source>N. INDIVIDUO</source>
-        <translation type="unfinished"></translation>
+        <translation>Individual no.</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_schedaind_ui.py" line="605"/>
+        <location filename="../gui/ui/Schedaind.ui" line="599"/>
         <source>Grado/importanza</source>
-        <translation type="unfinished"></translation>
+        <translation>Level/importance</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_schedaind_ui.py" line="622"/>
+        <location filename="../gui/ui/Schedaind.ui" line="606"/>
         <source>Dati descrittivi</source>
-        <translation type="unfinished">Description data</translation>
+        <translation>Descriptive data</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_schedaind_ui.py" line="606"/>
+        <location filename="../gui/ui/Schedaind.ui" line="633"/>
         <source>STIMA DEL SESSO</source>
-        <translation type="unfinished"></translation>
+        <translation>Estimating sex</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_schedaind_ui.py" line="607"/>
+        <location filename="../gui/ui/Schedaind.ui" line="644"/>
         <source>Non identificabile</source>
-        <translation type="unfinished"></translation>
+        <translation>Unidentifiable</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_schedaind_ui.py" line="608"/>
+        <location filename="../gui/ui/Schedaind.ui" line="649"/>
         <source>Maschio</source>
-        <translation type="unfinished"></translation>
+        <translation>Male</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_schedaind_ui.py" line="609"/>
+        <location filename="../gui/ui/Schedaind.ui" line="654"/>
         <source>Femmina</source>
-        <translation type="unfinished"></translation>
+        <translation>Female</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_schedaind_ui.py" line="610"/>
+        <location filename="../gui/ui/Schedaind.ui" line="659"/>
         <source>Indeterminato</source>
-        <translation type="unfinished"></translation>
+        <translation>Indeterminate</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_schedaind_ui.py" line="611"/>
+        <location filename="../gui/ui/Schedaind.ui" line="677"/>
         <source>STIMA DELL&apos;ETA&apos; DI MORTE (in anni)</source>
-        <translation type="unfinished"></translation>
+        <translation>Estimation of the Age of death (in years)</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_schedaind_ui.py" line="614"/>
+        <location filename="../gui/ui/Schedaind.ui" line="721"/>
         <source>0</source>
-        <translation type="unfinished"></translation>
+        <translation>0</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_schedaind_ui.py" line="613"/>
+        <location filename="../gui/ui/Schedaind.ui" line="704"/>
         <source>-</source>
-        <translation type="unfinished"></translation>
+        <translation>-</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_schedaind_ui.py" line="615"/>
+        <location filename="../gui/ui/Schedaind.ui" line="756"/>
         <source>CLASSI DI ETA&apos;</source>
-        <translation type="unfinished"></translation>
+        <translation>Age Classes</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_schedaind_ui.py" line="616"/>
+        <location filename="../gui/ui/Schedaind.ui" line="772"/>
         <source>Adulto giovane (20-29)</source>
-        <translation type="unfinished"></translation>
+        <translation>Young Adult (20-29)</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_schedaind_ui.py" line="617"/>
+        <location filename="../gui/ui/Schedaind.ui" line="777"/>
         <source>Adulto maturo (30-50)</source>
-        <translation type="unfinished"></translation>
+        <translation>Mature Adult (30-50)</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_schedaind_ui.py" line="618"/>
+        <location filename="../gui/ui/Schedaind.ui" line="782"/>
         <source>Adulto di eta&apos; avanzata (&gt;50)</source>
-        <translation type="unfinished"></translation>
+        <translation>Advanced age Adult (&gt; 50)</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_schedaind_ui.py" line="619"/>
+        <location filename="../gui/ui/Schedaind.ui" line="814"/>
         <source>OSSERVAZIONI</source>
-        <translation type="unfinished"></translation>
+        <translation>Observations</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_schedaind_ui.py" line="620"/>
+        <location filename="../gui/ui/Schedaind.ui" line="834"/>
         <source>DATA</source>
-        <translation type="unfinished"></translation>
+        <translation>Date</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_schedaind_ui.py" line="621"/>
+        <location filename="../gui/ui/Schedaind.ui" line="854"/>
         <source>SCHEDATORE</source>
-        <translation type="unfinished"></translation>
+        <translation>Indexer</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_schedaind_ui.py" line="637"/>
+        <location filename="../gui/ui/Schedaind.ui" line="864"/>
         <source>Tools</source>
-        <translation type="unfinished"></translation>
+        <translation>Tools</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_schedaind_ui.py" line="623"/>
+        <location filename="../gui/ui/Schedaind.ui" line="878"/>
         <source>Toolbar</source>
-        <translation type="unfinished"></translation>
+        <translation>Toolbar</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_schedaind_ui.py" line="624"/>
+        <location filename="../gui/ui/Schedaind.ui" line="893"/>
         <source>Visualizzazione GIS</source>
-        <translation type="unfinished">GIS</translation>
+        <translation>GIS Visualization</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_schedaind_ui.py" line="630"/>
+        <location filename="../gui/ui/Schedaind.ui" line="1016"/>
         <source>Ctrl+G</source>
-        <translation type="unfinished"></translation>
+        <translation>Ctrl + G</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_schedaind_ui.py" line="626"/>
+        <location filename="../gui/ui/Schedaind.ui" line="958"/>
         <source>Attivazione Preview pianta US</source>
-        <translation type="unfinished">Preview US map</translation>
+        <translation>Activation Plant Preview SU</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_schedaind_ui.py" line="627"/>
+        <location filename="../gui/ui/Schedaind.ui" line="971"/>
         <source>Preview pianta US</source>
-        <translation type="unfinished">Preview US map</translation>
+        <translation>SU Plant Preview</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_schedaind_ui.py" line="629"/>
+        <location filename="../gui/ui/Schedaind.ui" line="1006"/>
         <source>Pan tool</source>
-        <translation type="unfinished"></translation>
+        <translation>Pan Tool</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_schedaind_ui.py" line="631"/>
+        <location filename="../gui/ui/Schedaind.ui" line="1058"/>
         <source>Esportain formato PDF</source>
-        <translation type="unfinished"></translation>
+        <translation>Export PDF format</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_schedaind_ui.py" line="632"/>
+        <location filename="../gui/ui/Schedaind.ui" line="1073"/>
         <source>Export PDF</source>
-        <translation type="unfinished"></translation>
+        <translation>Export PDF</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_schedaind_ui.py" line="633"/>
+        <location filename="../gui/ui/Schedaind.ui" line="1076"/>
         <source>Singole schede</source>
-        <translation type="unfinished"></translation>
+        <translation>Individual cards</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_schedaind_ui.py" line="634"/>
+        <location filename="../gui/ui/Schedaind.ui" line="1095"/>
         <source>Elenco Individui</source>
-        <translation type="unfinished"></translation>
+        <translation>List of individuals</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_schedaind_ui.py" line="636"/>
+        <location filename="../gui/ui/Schedaind.ui" line="1145"/>
         <source>Mostra immagini</source>
-        <translation type="unfinished">Show image</translation>
+        <translation>Show pictures</translation>
     </message>
 </context>
 <context>
     <name>DialogInfo</name>
     <message>
-        <location filename="modules/gui/info.py" line="33"/>
+        <location filename="../gui/ui/pyarchinitInfoDialog.ui" line="14"/>
         <source>pyArchInit - Info</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="modules/gui/info.py" line="34"/>
-        <source>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
-&lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
-p, li { white-space: pre-wrap; }
-&lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:&apos;MS Shell Dlg 2&apos;; font-size:8.25pt; font-weight:400; font-style:normal;&quot;&gt;
-&lt;p align=&quot;justify&quot; style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-family:&apos;Lucida Grande&apos;; font-size:9pt;&quot;&gt;pyArchinit  Version 1.1 DEV&lt;/span&gt;&lt;/p&gt;
-&lt;p align=&quot;justify&quot; style=&quot;-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px; font-family:&apos;Lucida Grande&apos;; font-size:9pt;&quot;&gt;&lt;/p&gt;
-&lt;p align=&quot;justify&quot; style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-family:&apos;Lucida Grande&apos;; font-size:9pt;&quot;&gt;Archeological GIS Tools - PyArchInit it&apos;s a tool to manage archaeological dataset with an high portability on the main platform&lt;br /&gt;&lt;/span&gt;&lt;/p&gt;
-&lt;p align=&quot;justify&quot; style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-family:&apos;Lucida Grande&apos;; font-size:9pt; text-decoration: underline;&quot;&gt;Developpers:&lt;/span&gt;&lt;/p&gt;
-&lt;p align=&quot;justify&quot; style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-family:&apos;Lucida Grande&apos;; font-size:9pt;&quot;&gt;Luca Mandolesi&lt;/span&gt;&lt;/p&gt;
-&lt;p align=&quot;justify&quot; style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-family:&apos;Lucida Grande&apos;; font-size:9pt;&quot;&gt;adArte snc - Rimini - www.adartesnc.com&lt;/span&gt;&lt;/p&gt;
-&lt;p align=&quot;justify&quot; style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-family:&apos;Lucida Grande&apos;; font-size:9pt;&quot;&gt;Enzo Cocca&lt;/span&gt;&lt;/p&gt;
-&lt;p align=&quot;justify&quot; style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-family:&apos;Lucida Grande&apos;; font-size:9pt;&quot;&gt;Simona Gugnali&lt;/span&gt;&lt;/p&gt;
-&lt;p align=&quot;justify&quot; style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-family:&apos;Lucida Grande&apos;; font-size:9pt;&quot;&gt;&lt;br /&gt;&lt;/span&gt;&lt;span style=&quot; font-family:&apos;Lucida Grande&apos;; font-size:9pt; text-decoration: underline;&quot;&gt;Special thanks for testing to:&lt;/span&gt;&lt;/p&gt;
-&lt;p align=&quot;justify&quot; style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-family:&apos;Lucida Grande&apos;; font-size:9pt;&quot;&gt;Giovanni Manghi&lt;/span&gt;&lt;/p&gt;
-&lt;p align=&quot;justify&quot; style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-family:&apos;Lucida Grande&apos;; font-size:9pt;&quot;&gt;Jerzy Sikora&lt;/span&gt;&lt;/p&gt;
-&lt;p align=&quot;justify&quot; style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-family:&apos;Lucida Grande&apos;; font-size:9pt;&quot;&gt;Michele Zappitelli&lt;/span&gt;&lt;/p&gt;
-&lt;p align=&quot;justify&quot; style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-family:&apos;Lucida Grande&apos;; font-size:9pt;&quot;&gt;Chiara Cesaretti&lt;/span&gt;&lt;/p&gt;
-&lt;p align=&quot;justify&quot; style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-family:&apos;Lucida Grande&apos;; font-size:9pt;&quot;&gt;Chiara Di Fronzo&lt;/span&gt;&lt;/p&gt;
-&lt;p align=&quot;justify&quot; style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-family:&apos;Lucida Grande&apos;; font-size:9pt;&quot;&gt;Valeria Casicci&lt;/span&gt;&lt;/p&gt;
-&lt;p align=&quot;justify&quot; style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-family:&apos;Lucida Grande&apos;; font-size:9pt;&quot;&gt;Fabio Alboni&lt;/span&gt;&lt;/p&gt;
-&lt;p align=&quot;justify&quot; style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-family:&apos;Lucida Grande&apos;; font-size:9pt;&quot;&gt;Yuri Godino&lt;/span&gt;&lt;/p&gt;
-&lt;p align=&quot;justify&quot; style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-family:&apos;Lucida Grande&apos;; font-size:9pt;&quot;&gt;Manuela Battaglia&lt;/span&gt;&lt;/p&gt;
-&lt;p align=&quot;justify&quot; style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-family:&apos;Lucida Grande&apos;; font-size:9pt;&quot;&gt;Tommaso Gallo&lt;br /&gt;&lt;/span&gt;&lt;/p&gt;
-&lt;p align=&quot;justify&quot; style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-family:&apos;Lucida Grande&apos;; font-size:9pt;&quot;&gt;and supporting to:&lt;/span&gt;&lt;/p&gt;
-&lt;p align=&quot;justify&quot; style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-family:&apos;Lucida Grande&apos;; font-size:9pt;&quot;&gt;Stefano Costa&lt;/span&gt;&lt;/p&gt;
-&lt;p align=&quot;justify&quot; style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-family:&apos;Lucida Grande&apos;; font-size:9pt;&quot;&gt;Francesco de Virgilio&lt;/span&gt;&lt;/p&gt;
-&lt;p align=&quot;justify&quot; style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-family:&apos;Lucida Grande&apos;; font-size:9pt;&quot;&gt;Giuseppe Naponiello&lt;/span&gt;&lt;/p&gt;
-&lt;p align=&quot;justify&quot; style=&quot;-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px; font-family:&apos;Lucida Grande&apos;; font-size:9pt;&quot;&gt;&lt;/p&gt;
-&lt;p align=&quot;justify&quot; style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-family:&apos;Lucida Grande&apos;; font-size:9pt; font-weight:600;&quot;&gt;Help:&lt;/span&gt;&lt;/p&gt;
-&lt;p align=&quot;justify&quot; style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-family:&apos;Lucida Grande&apos;; font-size:9pt;&quot;&gt;http://groups.google.it/group/pyarchinit-users&lt;/span&gt;&lt;/p&gt;
-&lt;p align=&quot;justify&quot; style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-family:&apos;Lucida Grande&apos;; font-size:9pt;&quot;&gt;or email me pyarchinit@gmail.com&lt;/span&gt;&lt;/p&gt;
-&lt;p align=&quot;justify&quot; style=&quot;-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px; font-family:&apos;Lucida Grande&apos;; font-size:9pt;&quot;&gt;&lt;/p&gt;
-&lt;p align=&quot;justify&quot; style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-family:&apos;Lucida Grande&apos;; font-size:9pt;&quot;&gt;Site:&lt;/span&gt;&lt;/p&gt;
-&lt;p align=&quot;justify&quot; style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;a href=&quot;https://sites.google.com/site/pyarchinit/&quot;&gt;&lt;span style=&quot; font-size:9pt; text-decoration: underline; color:#0000ff;&quot;&gt;https://sites.google.com/site/pyarchinit/&lt;/span&gt;&lt;/a&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>Pyarchinit-Info</translation>
     </message>
 </context>
 <context>
     <name>DialogInteractiveMatrix</name>
     <message>
-        <location filename="modules/gui/pyarchinit_interactive_matrix_gui.py" line="36"/>
+        <location filename="../gui/ui/Interactive_matrix.ui" line="23"/>
         <source>pyArchInit Gestione Scavi - Sistema Matrix Interattivo</source>
-        <translation type="unfinished">pyArchInit Excavations Management</translation>
+        <translation>Pyarchinit Excavation Management-Matrix Interactive system</translation>
     </message>
 </context>
 <context>
     <name>DialogInventarioMateriali</name>
     <message>
-        <location filename="modules/gui/pyarchinit_inventario_reperti_ui.ui" line="20"/>
+        <location filename="../gui/ui/Inv_Materiali.ui" line="20"/>
         <source>pyArchInit Gestione Scavi - Inventario materiali</source>
-        <translation type="unfinished">pyArchInit Excavation Management System</translation>
+        <translation>Pyarchinit Excavation Management-Material inventory</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_inventario_reperti_ui.ui" line="40"/>
+        <location filename="../gui/ui/Inv_Materiali.ui" line="40"/>
         <source>DBMS Toolbar</source>
-        <translation type="unfinished"></translation>
+        <translation>DBMS Toolbar</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_inventario_reperti_ui.ui" line="49"/>
+        <location filename="../gui/ui/Inv_Materiali.ui" line="49"/>
         <source>First rec</source>
-        <translation type="unfinished">First rec</translation>
+        <translation>First rec</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_inventario_reperti_ui.ui" line="230"/>
+        <location filename="../gui/ui/Inv_Materiali.ui" line="230"/>
         <source>Prev rec</source>
-        <translation type="unfinished">Prev rec</translation>
+        <translation>Prev rec</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_inventario_reperti_ui.ui" line="63"/>
+        <location filename="../gui/ui/Inv_Materiali.ui" line="63"/>
         <source>Next rec</source>
-        <translation type="unfinished">Next rec</translation>
+        <translation>Next rec</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_inventario_reperti_ui.ui" line="77"/>
+        <location filename="../gui/ui/Inv_Materiali.ui" line="77"/>
         <source>Last rec</source>
-        <translation type="unfinished">Last Rec</translation>
+        <translation>Last Rec</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_inventario_reperti_ui.ui" line="96"/>
+        <location filename="../gui/ui/Inv_Materiali.ui" line="96"/>
         <source>New record</source>
-        <translation type="unfinished">New record</translation>
+        <translation>New record</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_inventario_reperti_ui.ui" line="115"/>
+        <location filename="../gui/ui/Inv_Materiali.ui" line="115"/>
         <source>Save</source>
-        <translation type="unfinished">Save</translation>
+        <translation>Save</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_inventario_reperti_ui.ui" line="216"/>
+        <location filename="../gui/ui/Inv_Materiali.ui" line="216"/>
         <source>Delete record</source>
-        <translation type="unfinished">Delete one record</translation>
+        <translation>Delete one record</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_inventario_reperti_ui.ui" line="137"/>
+        <location filename="../gui/ui/Inv_Materiali.ui" line="137"/>
         <source>new search</source>
-        <translation type="unfinished">New Search</translation>
+        <translation>New Search</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_inventario_reperti_ui.ui" line="156"/>
+        <location filename="../gui/ui/Inv_Materiali.ui" line="156"/>
         <source>search !!!</source>
-        <translation type="unfinished"></translation>
+        <translation>Search!!!</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_inventario_reperti_ui.ui" line="175"/>
+        <location filename="../gui/ui/Inv_Materiali.ui" line="175"/>
         <source>Order by</source>
-        <translation type="unfinished"></translation>
+        <translation>Order by</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_inventario_reperti_ui.ui" line="194"/>
+        <location filename="../gui/ui/Inv_Materiali.ui" line="194"/>
         <source>View alls records</source>
-        <translation type="unfinished"></translation>
+        <translation>View Alls Records</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_inventario_reperti_ui.ui" line="273"/>
+        <location filename="../gui/ui/Inv_Materiali.ui" line="273"/>
         <source>DB Info</source>
-        <translation type="unfinished"></translation>
+        <translation>DB Info</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_inventario_reperti_ui.ui" line="289"/>
+        <location filename="../gui/ui/Inv_Materiali.ui" line="289"/>
         <source>Ordinamento</source>
-        <translation type="unfinished">Order</translation>
+        <translation>Sort</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_inventario_reperti_ui.ui" line="382"/>
+        <location filename="../gui/ui/Inv_Materiali.ui" line="382"/>
         <source>Status</source>
-        <translation type="unfinished"></translation>
+        <translation>Status</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_inventario_reperti_ui.ui" line="403"/>
+        <location filename="../gui/ui/Inv_Materiali.ui" line="403"/>
         <source>record n.</source>
-        <translation type="unfinished"></translation>
+        <translation>Record No.</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_inventario_reperti_ui.ui" line="479"/>
+        <location filename="../gui/ui/Inv_Materiali.ui" line="479"/>
         <source>1</source>
-        <translation type="unfinished"></translation>
+        <translation>1</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_inventario_reperti_ui.ui" line="448"/>
+        <location filename="../gui/ui/Inv_Materiali.ui" line="448"/>
         <source>record tot.</source>
-        <translation type="unfinished"></translation>
+        <translation>Total record</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_inventario_reperti_ui.ui" line="637"/>
+        <location filename="../gui/ui/Inv_Materiali.ui" line="637"/>
         <source>Inserisci un valore</source>
-        <translation type="unfinished">Insert Value</translation>
+        <translation>Enter a value</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_inventario_reperti_ui.ui" line="552"/>
+        <location filename="../gui/ui/Inv_Materiali.ui" line="552"/>
         <source>0</source>
-        <translation type="unfinished"></translation>
+        <translation>0</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_inventario_reperti_ui.ui" line="564"/>
+        <location filename="../gui/ui/Inv_Materiali.ui" line="564"/>
         <source>Sito</source>
-        <translation type="unfinished">Site</translation>
+        <translation>Site</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_inventario_reperti_ui.ui" line="628"/>
+        <location filename="../gui/ui/Inv_Materiali.ui" line="642"/>
+        <source>Malacofauna</source>
+        <translation>Malacofauna</translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/Inv_Materiali.ui" line="647"/>
+        <source>Reperto cartaceo</source>
+        <translation>Paper-based artifact</translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/Inv_Materiali.ui" line="652"/>
+        <source>Reperto ceramico</source>
+        <translation>Ceramic artifact</translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/Inv_Materiali.ui" line="657"/>
+        <source>Reperto ligneo</source>
+        <translation>Wooden artifact</translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/Inv_Materiali.ui" line="662"/>
+        <source>Reperto metallico</source>
+        <translation>Metal artifact</translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/Inv_Materiali.ui" line="667"/>
+        <source>Reperto osseo lavorato</source>
+        <translation>Bone artifact worked</translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/Inv_Materiali.ui" line="672"/>
+        <source>Reperto osteologico animale</source>
+        <translation>Animal Osteologic artifact</translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/Inv_Materiali.ui" line="677"/>
+        <source>Reperto osteologico umano</source>
+        <translation>Human Osteologic artifact</translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/Inv_Materiali.ui" line="682"/>
+        <source>Reperto vitreo</source>
+        <translation>Vitreous artifact</translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/Inv_Materiali.ui" line="719"/>
+        <source>Acroma grezza</source>
+        <translation>Raw Achroma</translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/Inv_Materiali.ui" line="724"/>
+        <source>Acroma depurata</source>
+        <translation>Purified Achroma</translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/Inv_Materiali.ui" line="729"/>
+        <source>Maiolica arcaica</source>
+        <translation>Archaic Majolica</translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/Inv_Materiali.ui" line="734"/>
+        <source>Vernice nera</source>
+        <translation>Black paint</translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/Inv_Materiali.ui" line="739"/>
+        <source>Terra sigillata</source>
+        <translation>Sigillata</translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/Inv_Materiali.ui" line="601"/>
+        <source>Tipo reperto</source>
+        <translation>Type of artifact</translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/Inv_Materiali.ui" line="776"/>
+        <source>Bicchiere</source>
+        <translation>Glass</translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/Inv_Materiali.ui" line="781"/>
+        <source>Boccale</source>
+        <translation>Mug</translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/Inv_Materiali.ui" line="786"/>
+        <source>Brocca</source>
+        <translation>Jug</translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/Inv_Materiali.ui" line="791"/>
+        <source>Olla</source>
+        <translation>Olla</translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/Inv_Materiali.ui" line="796"/>
+        <source>Piatto</source>
+        <translation>Flat</translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/Inv_Materiali.ui" line="839"/>
+        <source>Dati descrittivi</source>
+        <translation>Descriptive data</translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/Inv_Materiali.ui" line="850"/>
+        <source>Descrizione </source>
+        <translation>Description </translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/Inv_Materiali.ui" line="935"/>
+        <source>Insufficiente</source>
+        <translation>Insufficient</translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/Inv_Materiali.ui" line="940"/>
+        <source>Scarso</source>
+        <translation>Low</translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/Inv_Materiali.ui" line="945"/>
+        <source>Buono</source>
+        <translation>Good</translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/Inv_Materiali.ui" line="950"/>
+        <source>Discreto</source>
+        <translation>Fair</translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/Inv_Materiali.ui" line="955"/>
+        <source>Ottimo</source>
+        <translation>Excellent</translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/Inv_Materiali.ui" line="968"/>
+        <source>Stato di conservazione</source>
+        <translation>State of preservation</translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/Inv_Materiali.ui" line="1017"/>
+        <source>Datazione reperto</source>
+        <translation>Dating artifact</translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/Inv_Materiali.ui" line="1044"/>
+        <source>Dati quantitativi</source>
+        <translation>Quantitative data</translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/Inv_Materiali.ui" line="1052"/>
+        <source>Elementi reperto</source>
+        <translation>Artifact items</translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/Inv_Materiali.ui" line="1556"/>
+        <source>inserisci riga</source>
+        <translation>Insert row</translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/Inv_Materiali.ui" line="1568"/>
+        <source>rimuovi riga</source>
+        <translation>Remove row</translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/Inv_Materiali.ui" line="1118"/>
+        <source>Elemento rinvenuto</source>
+        <translation>Item found</translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/Inv_Materiali.ui" line="1350"/>
+        <source>Unita&apos; di misura</source>
+        <translation>Unit of Measure</translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/Inv_Materiali.ui" line="1355"/>
+        <source>Quantita&apos;</source>
+        <translation>Amount</translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/Inv_Materiali.ui" line="1279"/>
+        <source>Misurazioni</source>
+        <translation>Measurements</translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/Inv_Materiali.ui" line="1345"/>
+        <source>Tipo di misura</source>
+        <translation>Measure Type</translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/Inv_Materiali.ui" line="1378"/>
+        <source>Tecnologie</source>
+        <translation>Technologies</translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/Inv_Materiali.ui" line="1477"/>
+        <source>Tipo tecnologia</source>
+        <translation>Technology type</translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/Inv_Materiali.ui" line="1482"/>
+        <source>Posizione</source>
+        <translation>Position</translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/Inv_Materiali.ui" line="1487"/>
+        <source>Tipo quantità</source>
+        <translation type="obsolete">Quantity type</translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/Inv_Materiali.ui" line="1492"/>
+        <source>Unità di misura</source>
+        <translation type="obsolete">Units of measurement</translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/Inv_Materiali.ui" line="1497"/>
+        <source>Qtà</source>
+        <translation type="obsolete">Qty</translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/Inv_Materiali.ui" line="1536"/>
+        <source>Rif Biblio</source>
+        <translation>References</translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/Inv_Materiali.ui" line="1544"/>
+        <source>Rif. Bibliografici</source>
+        <translation>Ref. Bibliographic</translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/Inv_Materiali.ui" line="1609"/>
+        <source>Autore</source>
+        <translation>Author</translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/Inv_Materiali.ui" line="1614"/>
+        <source>Anno</source>
+        <translation>Year</translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/Inv_Materiali.ui" line="1619"/>
+        <source>Titolo</source>
+        <translation>Title</translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/Inv_Materiali.ui" line="1624"/>
+        <source>Pag.</source>
+        <translation>Pag.</translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/Inv_Materiali.ui" line="1629"/>
+        <source>Fig.</source>
+        <translation>Fig.</translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/Inv_Materiali.ui" line="1658"/>
+        <source>Dati stratigrafici</source>
+        <translation>Stratigraphic data</translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/Inv_Materiali.ui" line="1706"/>
+        <source>Area</source>
+        <translation>Area</translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/Inv_Materiali.ui" line="1747"/>
+        <source>US</source>
+        <translation>SU</translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/Inv_Materiali.ui" line="1779"/>
+        <source>Dati magazzino</source>
+        <translation>Stock data</translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/Inv_Materiali.ui" line="1808"/>
+        <source>Nr. Cassa</source>
+        <translation>Box No.</translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/Inv_Materiali.ui" line="1867"/>
+        <source>Lavato</source>
+        <translation>Washed</translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/Inv_Materiali.ui" line="1883"/>
+        <source>Luogo di conservazione</source>
+        <translation>Place of preservation</translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/Inv_Materiali.ui" line="1962"/>
+        <source>Tools</source>
+        <translation>Tools</translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/Inv_Materiali.ui" line="1977"/>
+        <source>Exp schede Pdf </source>
+        <translation>EXP PDF form</translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/Inv_Materiali.ui" line="246"/>
+        <source>Connection test</source>
+        <translation>Connection Test</translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/Inv_Materiali.ui" line="589"/>
+        <source>N° Inventario</source>
+        <translation type="obsolete">Inventory N °</translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/Inv_Materiali.ui" line="809"/>
+        <source>Definizione reperto</source>
+        <translation>Artifact definition</translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/Inv_Materiali.ui" line="821"/>
+        <source>Classe materiale</source>
+        <translation>Material class</translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/Inv_Materiali.ui" line="1849"/>
+        <source>No</source>
+        <translation>No</translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/Inv_Materiali.ui" line="1844"/>
+        <source>Si</source>
+        <translation>Yes</translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/Inv_Materiali.ui" line="890"/>
+        <source>Repertato</source>
+        <translation>Retrieved</translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/Inv_Materiali.ui" line="919"/>
+        <source>Diagnostico</source>
+        <translation>Diagnostic</translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/Inv_Materiali.ui" line="987"/>
+        <source>Tipo</source>
+        <translation>Type</translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/Inv_Materiali.ui" line="1150"/>
+        <source>Forme minime</source>
+        <translation>Minimum shapes</translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/Inv_Materiali.ui" line="1170"/>
+        <source>Forme massime</source>
+        <translation>Maximum shapes</translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/Inv_Materiali.ui" line="1187"/>
+        <source>Totale frammenti</source>
+        <translation>Total Fragments</translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/Inv_Materiali.ui" line="1204"/>
+        <source>Peso</source>
+        <translation>Weight</translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/Inv_Materiali.ui" line="1211"/>
+        <source>Diametro orlo</source>
+        <translation>Rim diameter</translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/Inv_Materiali.ui" line="1218"/>
+        <source>grammi</source>
+        <translation>Grams</translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/Inv_Materiali.ui" line="1225"/>
+        <source>cm</source>
+        <translation>cm</translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/Inv_Materiali.ui" line="1232"/>
+        <source>E.v.e. orlo</source>
+        <translation>E.V.E. edge</translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/Inv_Materiali.ui" line="1239"/>
+        <source>%</source>
+        <translation>%</translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/Inv_Materiali.ui" line="1255"/>
+        <source>calc</source>
+        <translation>Calc</translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/Inv_Materiali.ui" line="1505"/>
+        <source>Corpo ceramico</source>
+        <translation>Ceramic body</translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/Inv_Materiali.ui" line="1515"/>
+        <source>Rivestimento</source>
+        <translation>Cladding</translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/Inv_Materiali.ui" line="1640"/>
+        <source>Rif. stratigrafici</source>
+        <translation>Stratigraphic reference</translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/Inv_Materiali.ui" line="1920"/>
+        <source>Quantificazioni</source>
+        <translation>Quantifications</translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/Inv_Materiali.ui" line="1935"/>
+        <source>Impostazione quantificazione</source>
+        <translation>Quantification setting</translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/Inv_Materiali.ui" line="1984"/>
+        <source>Exp indice  Pdf </source>
+        <translation>EXP Index PDF</translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/Inv_Materiali.ui" line="1991"/>
+        <source>Elenco casse</source>
+        <translation>Box list</translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/Inv_Materiali.ui" line="2007"/>
+        <source>Media Preview</source>
+        <translation>Media Preview</translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/Inv_Materiali.ui" line="2007"/>
         <source>Definizione</source>
         <translation type="obsolete">Definition</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_inventario_reperti_ui.ui" line="640"/>
+        <location filename="../gui/ui/Inv_Materiali.ui" line="2007"/>
         <source>Criterio schedatura</source>
         <translation type="obsolete">Cataloging policy</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_inventario_reperti_ui.ui" line="642"/>
-        <source>Malacofauna</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="modules/gui/pyarchinit_inventario_reperti_ui.ui" line="647"/>
-        <source>Reperto cartaceo</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="modules/gui/pyarchinit_inventario_reperti_ui.ui" line="652"/>
-        <source>Reperto ceramico</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="modules/gui/pyarchinit_inventario_reperti_ui.ui" line="657"/>
-        <source>Reperto ligneo</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="modules/gui/pyarchinit_inventario_reperti_ui.ui" line="662"/>
-        <source>Reperto metallico</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="modules/gui/pyarchinit_inventario_reperti_ui.ui" line="667"/>
-        <source>Reperto osseo lavorato</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="modules/gui/pyarchinit_inventario_reperti_ui.ui" line="672"/>
-        <source>Reperto osteologico animale</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="modules/gui/pyarchinit_inventario_reperti_ui.ui" line="677"/>
-        <source>Reperto osteologico umano</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="modules/gui/pyarchinit_inventario_reperti_ui.ui" line="682"/>
-        <source>Reperto vitreo</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="modules/gui/pyarchinit_inventario_reperti_ui.ui" line="719"/>
-        <source>Acroma grezza</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="modules/gui/pyarchinit_inventario_reperti_ui.ui" line="724"/>
-        <source>Acroma depurata</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="modules/gui/pyarchinit_inventario_reperti_ui.ui" line="729"/>
-        <source>Maiolica arcaica</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="modules/gui/pyarchinit_inventario_reperti_ui.ui" line="734"/>
-        <source>Vernice nera</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="modules/gui/pyarchinit_inventario_reperti_ui.ui" line="739"/>
-        <source>Terra sigillata</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="modules/gui/pyarchinit_inventario_reperti_ui.ui" line="601"/>
-        <source>Tipo reperto</source>
-        <translation type="unfinished">Type finds</translation>
-    </message>
-    <message>
-        <location filename="modules/gui/pyarchinit_inventario_reperti_ui.ui" line="776"/>
-        <source>Bicchiere</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="modules/gui/pyarchinit_inventario_reperti_ui.ui" line="781"/>
-        <source>Boccale</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="modules/gui/pyarchinit_inventario_reperti_ui.ui" line="786"/>
-        <source>Brocca</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="modules/gui/pyarchinit_inventario_reperti_ui.ui" line="791"/>
-        <source>Olla</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="modules/gui/pyarchinit_inventario_reperti_ui.ui" line="796"/>
-        <source>Piatto</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="modules/gui/pyarchinit_inventario_reperti_ui.ui" line="839"/>
-        <source>Dati descrittivi</source>
-        <translation type="unfinished">Description data</translation>
-    </message>
-    <message>
-        <location filename="modules/gui/pyarchinit_inventario_reperti_ui.ui" line="850"/>
-        <source>Descrizione </source>
-        <translation type="unfinished">Description</translation>
-    </message>
-    <message>
-        <location filename="modules/gui/pyarchinit_inventario_reperti_ui.ui" line="935"/>
-        <source>Insufficiente</source>
-        <translation type="unfinished">Insufficient</translation>
-    </message>
-    <message>
-        <location filename="modules/gui/pyarchinit_inventario_reperti_ui.ui" line="940"/>
-        <source>Scarso</source>
-        <translation type="unfinished">Low</translation>
-    </message>
-    <message>
-        <location filename="modules/gui/pyarchinit_inventario_reperti_ui.ui" line="945"/>
-        <source>Buono</source>
-        <translation type="unfinished">Good</translation>
-    </message>
-    <message>
-        <location filename="modules/gui/pyarchinit_inventario_reperti_ui.ui" line="950"/>
-        <source>Discreto</source>
-        <translation type="unfinished">Fair</translation>
-    </message>
-    <message>
-        <location filename="modules/gui/pyarchinit_inventario_reperti_ui.ui" line="955"/>
-        <source>Ottimo</source>
-        <translation type="unfinished">Excellent</translation>
-    </message>
-    <message>
-        <location filename="modules/gui/pyarchinit_inventario_reperti_ui.ui" line="968"/>
-        <source>Stato di conservazione</source>
-        <translation type="unfinished">Type preservation</translation>
-    </message>
-    <message>
-        <location filename="modules/gui/pyarchinit_inventario_reperti_ui.ui" line="1017"/>
-        <source>Datazione reperto</source>
-        <translation type="unfinished">Finds date</translation>
-    </message>
-    <message>
-        <location filename="modules/gui/pyarchinit_inventario_reperti_ui.ui" line="1044"/>
-        <source>Dati quantitativi</source>
-        <translation type="unfinished">Quantitative information</translation>
-    </message>
-    <message>
-        <location filename="modules/gui/pyarchinit_inventario_reperti_ui.ui" line="1052"/>
-        <source>Elementi reperto</source>
-        <translation type="unfinished">Finds</translation>
-    </message>
-    <message>
-        <location filename="modules/gui/pyarchinit_inventario_reperti_ui.ui" line="1556"/>
-        <source>inserisci riga</source>
-        <translation type="unfinished">Insert row</translation>
-    </message>
-    <message>
-        <location filename="modules/gui/pyarchinit_inventario_reperti_ui.ui" line="1568"/>
-        <source>rimuovi riga</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="modules/gui/pyarchinit_inventario_reperti_ui.ui" line="1118"/>
-        <source>Elemento rinvenuto</source>
-        <translation type="unfinished">Element found</translation>
-    </message>
-    <message>
-        <location filename="modules/gui/pyarchinit_inventario_reperti_ui.ui" line="1350"/>
-        <source>Unita&apos; di misura</source>
-        <translation type="unfinished">Units</translation>
-    </message>
-    <message>
-        <location filename="modules/gui/pyarchinit_inventario_reperti_ui.ui" line="1355"/>
-        <source>Quantita&apos;</source>
-        <translation type="unfinished">Amount</translation>
-    </message>
-    <message>
-        <location filename="modules/gui/pyarchinit_inventario_reperti_ui.ui" line="1279"/>
-        <source>Misurazioni</source>
-        <translation type="unfinished">Measurement</translation>
-    </message>
-    <message>
-        <location filename="modules/gui/pyarchinit_inventario_reperti_ui.ui" line="1345"/>
-        <source>Tipo di misura</source>
-        <translation type="unfinished">type measure</translation>
-    </message>
-    <message>
-        <location filename="modules/gui/pyarchinit_inventario_reperti_ui.ui" line="1378"/>
-        <source>Tecnologie</source>
-        <translation type="unfinished">Technology</translation>
-    </message>
-    <message>
-        <location filename="modules/gui/pyarchinit_inventario_reperti_ui.ui" line="1477"/>
-        <source>Tipo tecnologia</source>
-        <translation type="unfinished">Technology type</translation>
-    </message>
-    <message>
-        <location filename="modules/gui/pyarchinit_inventario_reperti_ui.ui" line="1482"/>
-        <source>Posizione</source>
-        <translation type="unfinished">Position</translation>
-    </message>
-    <message utf8="true">
-        <location filename="modules/gui/pyarchinit_inventario_reperti_ui.ui" line="1487"/>
-        <source>Tipo quantità</source>
-        <translation type="unfinished">Amount</translation>
-    </message>
-    <message utf8="true">
-        <location filename="modules/gui/pyarchinit_inventario_reperti_ui.ui" line="1492"/>
-        <source>Unità di misura</source>
-        <translation type="unfinished">Units</translation>
-    </message>
-    <message utf8="true">
-        <location filename="modules/gui/pyarchinit_inventario_reperti_ui.ui" line="1497"/>
-        <source>Qtà</source>
-        <translation type="unfinished">Amount</translation>
-    </message>
-    <message>
-        <location filename="modules/gui/pyarchinit_inventario_reperti_ui.ui" line="1536"/>
-        <source>Rif Biblio</source>
-        <translation type="unfinished">References</translation>
-    </message>
-    <message>
-        <location filename="modules/gui/pyarchinit_inventario_reperti_ui.ui" line="1544"/>
-        <source>Rif. Bibliografici</source>
-        <translation type="unfinished">References</translation>
-    </message>
-    <message>
-        <location filename="modules/gui/pyarchinit_inventario_reperti_ui.ui" line="1609"/>
-        <source>Autore</source>
-        <translation type="unfinished">Author</translation>
-    </message>
-    <message>
-        <location filename="modules/gui/pyarchinit_inventario_reperti_ui.ui" line="1614"/>
-        <source>Anno</source>
-        <translation type="unfinished">Year</translation>
-    </message>
-    <message>
-        <location filename="modules/gui/pyarchinit_inventario_reperti_ui.ui" line="1619"/>
-        <source>Titolo</source>
-        <translation type="unfinished">Title</translation>
-    </message>
-    <message>
-        <location filename="modules/gui/pyarchinit_inventario_reperti_ui.ui" line="1624"/>
-        <source>Pag.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="modules/gui/pyarchinit_inventario_reperti_ui.ui" line="1629"/>
-        <source>Fig.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="modules/gui/pyarchinit_inventario_reperti_ui.ui" line="1371"/>
+        <location filename="../gui/ui/Inv_Materiali.ui" line="2007"/>
         <source>Riferimenti stratigrafici e magazzino</source>
         <translation type="obsolete">Startigraphic and repository reference</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_inventario_reperti_ui.ui" line="1658"/>
-        <source>Dati stratigrafici</source>
-        <translation type="unfinished">Startigraphic data</translation>
+        <location filename="../gui/ui/Inv_Materiali.ui" line="589"/>
+        <source>Nr. Inventario</source>
+        <translation>Inventary nr.</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_inventario_reperti_ui.ui" line="1706"/>
-        <source>Area</source>
-        <translation type="unfinished">Area</translation>
+        <location filename="../gui/ui/Inv_Materiali.ui" line="1487"/>
+        <source>Tipo quantità </source>
+        <translation type="obsolete">Quantity type</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_inventario_reperti_ui.ui" line="1747"/>
-        <source>US</source>
-        <translation type="unfinished">SU</translation>
+        <location filename="../gui/ui/Inv_Materiali.ui" line="1492"/>
+        <source>Unità di misura </source>
+        <translation type="obsolete">Unit of Measure</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_inventario_reperti_ui.ui" line="1779"/>
-        <source>Dati magazzino</source>
-        <translation type="unfinished">Repository data</translation>
+        <location filename="../gui/ui/Inv_Materiali.ui" line="1497"/>
+        <source>Quantità</source>
+        <translation type="obsolete">Quantity</translation>
+    </message>
+</context>
+<context>
+    <name>DialogPDFManager</name>
+    <message>
+        <location filename="../gui/ui/Pdf_administrator.ui" line="20"/>
+        <source>pyArchInit Gestione Scavi - Periodizzazione di scavo</source>
+        <translation>Pyarchinit Excavations management-excavation periodization</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_inventario_reperti_ui.ui" line="1808"/>
-        <source>Nr. Cassa</source>
-        <translation type="unfinished">Nr. box</translation>
+        <location filename="../gui/ui/Pdf_administrator.ui" line="40"/>
+        <source>DBMS Toolbar</source>
+        <translation>DBMS Toolbar</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_inventario_reperti_ui.ui" line="1867"/>
-        <source>Lavato</source>
-        <translation type="unfinished">Washed</translation>
+        <location filename="../gui/ui/Pdf_administrator.ui" line="47"/>
+        <source>Reload DB</source>
+        <translation>Reload DB</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_inventario_reperti_ui.ui" line="1883"/>
-        <source>Luogo di conservazione</source>
-        <translation type="unfinished">Repository</translation>
+        <location filename="../gui/ui/Pdf_administrator.ui" line="56"/>
+        <source>First rec</source>
+        <translation>First rec</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_inventario_reperti_ui.ui" line="1962"/>
-        <source>Tools</source>
-        <translation type="unfinished"></translation>
+        <location filename="../gui/ui/Pdf_administrator.ui" line="70"/>
+        <source>Prev rec</source>
+        <translation>Prev rec</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_inventario_reperti_ui.ui" line="1977"/>
-        <source>Exp schede Pdf </source>
-        <translation type="unfinished">Download PDf</translation>
+        <location filename="../gui/ui/Pdf_administrator.ui" line="84"/>
+        <source>Next rec</source>
+        <translation>Next rec</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_inventario_reperti_ui.ui" line="246"/>
-        <source>Connection test</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message utf8="true">
-        <location filename="modules/gui/pyarchinit_inventario_reperti_ui.ui" line="589"/>
-        <source>N° Inventario</source>
-        <translation type="unfinished"></translation>
+        <location filename="../gui/ui/Pdf_administrator.ui" line="98"/>
+        <source>Last rec</source>
+        <translation>Last Rec</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_inventario_reperti_ui.ui" line="809"/>
-        <source>Definizione reperto</source>
-        <translation type="unfinished"></translation>
+        <location filename="../gui/ui/Pdf_administrator.ui" line="117"/>
+        <source>New record</source>
+        <translation>New record</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_inventario_reperti_ui.ui" line="821"/>
-        <source>Classe materiale</source>
-        <translation type="unfinished"></translation>
+        <location filename="../gui/ui/Pdf_administrator.ui" line="136"/>
+        <source>Save</source>
+        <translation>Save</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_inventario_reperti_ui.ui" line="1849"/>
-        <source>No</source>
-        <translation type="unfinished">No</translation>
+        <location filename="../gui/ui/Pdf_administrator.ui" line="158"/>
+        <source>Delete record</source>
+        <translation>Delete one record</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_inventario_reperti_ui.ui" line="1844"/>
-        <source>Si</source>
-        <translation type="unfinished">Yes</translation>
+        <location filename="../gui/ui/Pdf_administrator.ui" line="190"/>
+        <source>new search</source>
+        <translation>New Search</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_inventario_reperti_ui.ui" line="890"/>
-        <source>Repertato</source>
-        <translation type="unfinished"></translation>
+        <location filename="../gui/ui/Pdf_administrator.ui" line="209"/>
+        <source>search !!!</source>
+        <translation>Search!!!</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_inventario_reperti_ui.ui" line="919"/>
-        <source>Diagnostico</source>
-        <translation type="unfinished"></translation>
+        <location filename="../gui/ui/Pdf_administrator.ui" line="228"/>
+        <source>Order by</source>
+        <translation>Order by</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_inventario_reperti_ui.ui" line="987"/>
-        <source>Tipo</source>
-        <translation type="unfinished"></translation>
+        <location filename="../gui/ui/Pdf_administrator.ui" line="247"/>
+        <source>View alls records</source>
+        <translation>View Alls Records</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_inventario_reperti_ui.ui" line="1150"/>
-        <source>Forme minime</source>
-        <translation type="unfinished"></translation>
+        <location filename="../gui/ui/Pdf_administrator.ui" line="296"/>
+        <source>DB Info</source>
+        <translation>DB Info</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_inventario_reperti_ui.ui" line="1170"/>
-        <source>Forme massime</source>
-        <translation type="unfinished"></translation>
+        <location filename="../gui/ui/Pdf_administrator.ui" line="312"/>
+        <source>Ordinamento</source>
+        <translation>Sort</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_inventario_reperti_ui.ui" line="1187"/>
-        <source>Totale frammenti</source>
-        <translation type="unfinished"></translation>
+        <location filename="../gui/ui/Pdf_administrator.ui" line="423"/>
+        <source>Status</source>
+        <translation>Status</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_inventario_reperti_ui.ui" line="1204"/>
-        <source>Peso</source>
-        <translation type="unfinished"></translation>
+        <location filename="../gui/ui/Pdf_administrator.ui" line="444"/>
+        <source>record n.</source>
+        <translation>Record No.</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_inventario_reperti_ui.ui" line="1211"/>
-        <source>Diametro orlo</source>
-        <translation type="unfinished"></translation>
+        <location filename="../gui/ui/Pdf_administrator.ui" line="520"/>
+        <source>1</source>
+        <translation>1</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_inventario_reperti_ui.ui" line="1218"/>
-        <source>grammi</source>
-        <translation type="unfinished"></translation>
+        <location filename="../gui/ui/Pdf_administrator.ui" line="489"/>
+        <source>record tot.</source>
+        <translation>Total record</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_inventario_reperti_ui.ui" line="1225"/>
-        <source>cm</source>
-        <translation type="unfinished"></translation>
+        <location filename="../gui/ui/Pdf_administrator.ui" line="540"/>
+        <source>Tabella corrente: </source>
+        <translation>Current table:</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_inventario_reperti_ui.ui" line="1232"/>
-        <source>E.v.e. orlo</source>
-        <translation type="unfinished"></translation>
+        <location filename="../gui/ui/Pdf_administrator.ui" line="592"/>
+        <source>Modello</source>
+        <translation>Template</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_inventario_reperti_ui.ui" line="1239"/>
-        <source>%</source>
-        <translation type="unfinished"></translation>
+        <location filename="../gui/ui/Pdf_administrator.ui" line="647"/>
+        <source>Schema griglia</source>
+        <translation>Grid scheme</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_inventario_reperti_ui.ui" line="1255"/>
-        <source>calc</source>
-        <translation type="unfinished"></translation>
+        <location filename="../gui/ui/Pdf_administrator.ui" line="684"/>
+        <source>Col 0</source>
+        <translation>Col 0</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_inventario_reperti_ui.ui" line="1505"/>
-        <source>Corpo ceramico</source>
-        <translation type="unfinished"></translation>
+        <location filename="../gui/ui/Pdf_administrator.ui" line="689"/>
+        <source>Col 1</source>
+        <translation>Col 1</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_inventario_reperti_ui.ui" line="1515"/>
-        <source>Rivestimento</source>
-        <translation type="unfinished"></translation>
+        <location filename="../gui/ui/Pdf_administrator.ui" line="694"/>
+        <source>Col 2</source>
+        <translation>Col 2</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_inventario_reperti_ui.ui" line="1640"/>
-        <source>Rif. stratigrafici</source>
-        <translation type="unfinished"></translation>
+        <location filename="../gui/ui/Pdf_administrator.ui" line="699"/>
+        <source>Col 3</source>
+        <translation>Col 3</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_inventario_reperti_ui.ui" line="1920"/>
-        <source>Quantificazioni</source>
-        <translation type="unfinished"></translation>
+        <location filename="../gui/ui/Pdf_administrator.ui" line="704"/>
+        <source>Col 4</source>
+        <translation>Col 4</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_inventario_reperti_ui.ui" line="1935"/>
-        <source>Impostazione quantificazione</source>
-        <translation type="unfinished"></translation>
+        <location filename="../gui/ui/Pdf_administrator.ui" line="709"/>
+        <source>Col 5</source>
+        <translation>Col 5</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_inventario_reperti_ui.ui" line="1984"/>
-        <source>Exp indice  Pdf </source>
-        <translation type="unfinished"></translation>
+        <location filename="../gui/ui/Pdf_administrator.ui" line="714"/>
+        <source>Col 6</source>
+        <translation>Col 6</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_inventario_reperti_ui.ui" line="1991"/>
-        <source>Elenco casse</source>
-        <translation type="unfinished"></translation>
+        <location filename="../gui/ui/Pdf_administrator.ui" line="719"/>
+        <source>Col 7</source>
+        <translation>Col 7</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_inventario_reperti_ui.ui" line="2007"/>
-        <source>Media Preview</source>
-        <translation type="unfinished"></translation>
+        <location filename="../gui/ui/Pdf_administrator.ui" line="724"/>
+        <source>Col 8</source>
+        <translation>Col 8</translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/Pdf_administrator.ui" line="740"/>
+        <source>Gestione schema griglia</source>
+        <translation>Grid Schema Management</translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/Pdf_administrator.ui" line="919"/>
+        <source>Righe</source>
+        <translation>Rows</translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/Pdf_administrator.ui" line="926"/>
+        <source>+</source>
+        <translation>+</translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/Pdf_administrator.ui" line="933"/>
+        <source>-</source>
+        <translation>-</translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/Pdf_administrator.ui" line="780"/>
+        <source>Colonne</source>
+        <translation>Columns</translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/Pdf_administrator.ui" line="811"/>
+        <source>Carica lo schema predefinito</source>
+        <translation>Load Default Schema</translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/Pdf_administrator.ui" line="829"/>
+        <source>Elenco Campi:</source>
+        <translation>Field List:</translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/Pdf_administrator.ui" line="839"/>
+        <source>Inserisci nome del campo</source>
+        <translation>Enter field name</translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/Pdf_administrator.ui" line="847"/>
+        <source>Fusione celle</source>
+        <translation>Cell Fusion</translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/Pdf_administrator.ui" line="859"/>
+        <source>Schema fusione celle</source>
+        <translation>Cell Fusion Scheme</translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/Pdf_administrator.ui" line="879"/>
+        <source>Comando</source>
+        <translation>Command</translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/Pdf_administrator.ui" line="884"/>
+        <source>Cella iniziale</source>
+        <translation>Initial cell</translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/Pdf_administrator.ui" line="889"/>
+        <source>Cella finale</source>
+        <translation>Final cell</translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/Pdf_administrator.ui" line="894"/>
+        <source>Riferimento</source>
+        <translation>Reference</translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/Pdf_administrator.ui" line="910"/>
+        <source>Gestione fusione celle</source>
+        <translation>Cell Fusion Management</translation>
     </message>
 </context>
 <context>
     <name>DialogPeriodoFase</name>
     <message>
-        <location filename="modules/gui/pyarchinit_Periodo_fase_ui.py" line="475"/>
+        <location filename="../gui/ui/Periodizzazione.ui" line="20"/>
         <source>pyArchInit Gestione Scavi - Periodizzazione di scavo</source>
-        <translation type="unfinished">pyArchInit Managment Periodization Site</translation>
+        <translation>Pyarchinit Excavations management-excavation periodization</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_Periodo_fase_ui.py" line="476"/>
+        <location filename="../gui/ui/Periodizzazione.ui" line="40"/>
         <source>DBMS Toolbar</source>
-        <translation type="unfinished"></translation>
+        <translation>DBMS Toolbar</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_Periodo_fase_ui.py" line="477"/>
+        <location filename="../gui/ui/Periodizzazione.ui" line="49"/>
         <source>First rec</source>
-        <translation type="unfinished">First rec</translation>
+        <translation>First rec</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_Periodo_fase_ui.py" line="487"/>
+        <location filename="../gui/ui/Periodizzazione.ui" line="230"/>
         <source>Prev rec</source>
-        <translation type="unfinished">Prev rec</translation>
+        <translation>Prev rec</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_Periodo_fase_ui.py" line="478"/>
+        <location filename="../gui/ui/Periodizzazione.ui" line="63"/>
         <source>Next rec</source>
-        <translation type="unfinished">Next rec</translation>
+        <translation>Next rec</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_Periodo_fase_ui.py" line="479"/>
+        <location filename="../gui/ui/Periodizzazione.ui" line="77"/>
         <source>Last rec</source>
-        <translation type="unfinished">Last Rec</translation>
+        <translation>Last Rec</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_Periodo_fase_ui.py" line="480"/>
+        <location filename="../gui/ui/Periodizzazione.ui" line="96"/>
         <source>New record</source>
-        <translation type="unfinished">New record</translation>
+        <translation>New record</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_Periodo_fase_ui.py" line="481"/>
+        <location filename="../gui/ui/Periodizzazione.ui" line="115"/>
         <source>Save</source>
-        <translation type="unfinished">Save</translation>
+        <translation>Save</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_Periodo_fase_ui.py" line="486"/>
+        <location filename="../gui/ui/Periodizzazione.ui" line="216"/>
         <source>Delete record</source>
-        <translation type="unfinished">Delete one record</translation>
+        <translation>Delete one record</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_Periodo_fase_ui.py" line="482"/>
+        <location filename="../gui/ui/Periodizzazione.ui" line="137"/>
         <source>new search</source>
-        <translation type="unfinished">New Search</translation>
+        <translation>New Search</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_Periodo_fase_ui.py" line="483"/>
+        <location filename="../gui/ui/Periodizzazione.ui" line="156"/>
         <source>search !!!</source>
-        <translation type="unfinished"></translation>
+        <translation>Search!!!</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_Periodo_fase_ui.py" line="484"/>
+        <location filename="../gui/ui/Periodizzazione.ui" line="175"/>
         <source>Order by</source>
-        <translation type="unfinished"></translation>
+        <translation>Order by</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_Periodo_fase_ui.py" line="485"/>
+        <location filename="../gui/ui/Periodizzazione.ui" line="194"/>
         <source>View alls records</source>
-        <translation type="unfinished"></translation>
+        <translation>View Alls Records</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_Periodo_fase_ui.py" line="489"/>
+        <location filename="../gui/ui/Periodizzazione.ui" line="273"/>
         <source>DB Info</source>
-        <translation type="unfinished"></translation>
+        <translation>DB Info</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_Periodo_fase_ui.py" line="490"/>
+        <location filename="../gui/ui/Periodizzazione.ui" line="289"/>
         <source>Ordinamento</source>
-        <translation type="unfinished">Order</translation>
+        <translation>Sort</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_Periodo_fase_ui.py" line="491"/>
+        <location filename="../gui/ui/Periodizzazione.ui" line="382"/>
         <source>Status</source>
-        <translation type="unfinished"></translation>
+        <translation>Status</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_Periodo_fase_ui.py" line="492"/>
+        <location filename="../gui/ui/Periodizzazione.ui" line="403"/>
         <source>record n.</source>
-        <translation type="unfinished"></translation>
+        <translation>Record No.</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_Periodo_fase_ui.py" line="511"/>
+        <location filename="../gui/ui/Periodizzazione.ui" line="661"/>
         <source>1</source>
-        <translation type="unfinished"></translation>
+        <translation>1</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_Periodo_fase_ui.py" line="494"/>
+        <location filename="../gui/ui/Periodizzazione.ui" line="448"/>
         <source>record tot.</source>
-        <translation type="unfinished"></translation>
+        <translation>Total record</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_Periodo_fase_ui.py" line="496"/>
+        <location filename="../gui/ui/Periodizzazione.ui" line="536"/>
         <source>Inserisci un valore</source>
-        <translation type="unfinished">Insert Value</translation>
+        <translation>Enter a value</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_Periodo_fase_ui.py" line="497"/>
+        <location filename="../gui/ui/Periodizzazione.ui" line="549"/>
         <source>Sito</source>
-        <translation type="unfinished">Site</translation>
+        <translation>Site</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_Periodo_fase_ui.py" line="512"/>
+        <location filename="../gui/ui/Periodizzazione.ui" line="666"/>
         <source>2</source>
-        <translation type="unfinished"></translation>
+        <translation>2</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_Periodo_fase_ui.py" line="513"/>
+        <location filename="../gui/ui/Periodizzazione.ui" line="671"/>
         <source>3</source>
-        <translation type="unfinished"></translation>
+        <translation>3</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_Periodo_fase_ui.py" line="514"/>
+        <location filename="../gui/ui/Periodizzazione.ui" line="676"/>
         <source>4</source>
-        <translation type="unfinished"></translation>
+        <translation>4</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_Periodo_fase_ui.py" line="515"/>
+        <location filename="../gui/ui/Periodizzazione.ui" line="681"/>
         <source>5</source>
-        <translation type="unfinished"></translation>
+        <translation>5</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_Periodo_fase_ui.py" line="516"/>
+        <location filename="../gui/ui/Periodizzazione.ui" line="686"/>
         <source>6</source>
-        <translation type="unfinished"></translation>
+        <translation>6</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_Periodo_fase_ui.py" line="517"/>
+        <location filename="../gui/ui/Periodizzazione.ui" line="691"/>
         <source>7</source>
-        <translation type="unfinished"></translation>
+        <translation>7</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_Periodo_fase_ui.py" line="518"/>
+        <location filename="../gui/ui/Periodizzazione.ui" line="696"/>
         <source>8</source>
-        <translation type="unfinished"></translation>
+        <translation>8</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_Periodo_fase_ui.py" line="519"/>
+        <location filename="../gui/ui/Periodizzazione.ui" line="701"/>
         <source>9</source>
-        <translation type="unfinished"></translation>
+        <translation>9</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_Periodo_fase_ui.py" line="520"/>
+        <location filename="../gui/ui/Periodizzazione.ui" line="706"/>
         <source>10</source>
-        <translation type="unfinished"></translation>
+        <translation>10</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_Periodo_fase_ui.py" line="521"/>
+        <location filename="../gui/ui/Periodizzazione.ui" line="711"/>
         <source>11</source>
-        <translation type="unfinished"></translation>
+        <translation>11</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_Periodo_fase_ui.py" line="523"/>
+        <location filename="../gui/ui/Periodizzazione.ui" line="721"/>
         <source>13</source>
-        <translation type="unfinished"></translation>
+        <translation>13</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_Periodo_fase_ui.py" line="525"/>
+        <location filename="../gui/ui/Periodizzazione.ui" line="731"/>
         <source>15</source>
-        <translation type="unfinished"></translation>
+        <translation>15</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_Periodo_fase_ui.py" line="522"/>
+        <location filename="../gui/ui/Periodizzazione.ui" line="716"/>
         <source>12</source>
-        <translation type="unfinished"></translation>
+        <translation>12</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_Periodo_fase_ui.py" line="524"/>
+        <location filename="../gui/ui/Periodizzazione.ui" line="726"/>
         <source>14</source>
-        <translation type="unfinished"></translation>
+        <translation>14</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_Periodo_fase_ui.py" line="526"/>
+        <location filename="../gui/ui/Periodizzazione.ui" line="744"/>
         <source>Fase</source>
-        <translation type="unfinished">Phase</translation>
+        <translation>Phase</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_Periodo_fase_ui.py" line="527"/>
+        <location filename="../gui/ui/Periodizzazione.ui" line="756"/>
         <source>Periodo</source>
-        <translation type="unfinished">Period</translation>
+        <translation>Period</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_Periodo_fase_ui.py" line="528"/>
+        <location filename="../gui/ui/Periodizzazione.ui" line="773"/>
         <source>Codice periodo</source>
-        <translation type="unfinished">Code period</translation>
+        <translation>Period code</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_Periodo_fase_ui.py" line="532"/>
+        <location filename="../gui/ui/Periodizzazione.ui" line="855"/>
         <source>Descrizione </source>
-        <translation type="unfinished">Description</translation>
+        <translation>Description</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_Periodo_fase_ui.py" line="533"/>
+        <location filename="../gui/ui/Periodizzazione.ui" line="881"/>
         <source>Cronologia </source>
-        <translation type="unfinished">Chronology</translation>
+        <translation>History</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_Periodo_fase_ui.py" line="537"/>
+        <location filename="../gui/ui/Periodizzazione.ui" line="938"/>
         <source>0</source>
-        <translation type="unfinished"></translation>
+        <translation>0</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_Periodo_fase_ui.py" line="535"/>
+        <location filename="../gui/ui/Periodizzazione.ui" line="905"/>
         <source>Iniziale </source>
-        <translation type="unfinished">Starting</translation>
+        <translation>Starting</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_Periodo_fase_ui.py" line="536"/>
+        <location filename="../gui/ui/Periodizzazione.ui" line="917"/>
         <source>Finale </source>
-        <translation type="unfinished">End</translation>
+        <translation>End</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_Periodo_fase_ui.py" line="538"/>
+        <location filename="../gui/ui/Periodizzazione.ui" line="977"/>
         <source>Dati descrittivi</source>
-        <translation type="unfinished">Description data</translation>
+        <translation>Descriptive data</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_Periodo_fase_ui.py" line="539"/>
+        <location filename="../gui/ui/Periodizzazione.ui" line="1005"/>
         <source>Estesa letterale </source>
-        <translation type="unfinished">Capitals</translation>
+        <translation>Literal extended</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_Periodo_fase_ui.py" line="488"/>
+        <location filename="../gui/ui/Periodizzazione.ui" line="246"/>
         <source>Connection test</source>
-        <translation type="unfinished"></translation>
+        <translation>Connection test</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_Periodo_fase_ui.py" line="529"/>
+        <location filename="../gui/ui/Periodizzazione.ui" line="819"/>
         <source>Visualizza il periodo sul GIS</source>
-        <translation type="unfinished"></translation>
+        <translation>View the period on the GIS</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_Periodo_fase_ui.py" line="530"/>
+        <location filename="../gui/ui/Periodizzazione.ui" line="826"/>
         <source>Elenco PDF</source>
-        <translation type="unfinished"></translation>
+        <translation>PDF List</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_Periodo_fase_ui.py" line="531"/>
+        <location filename="../gui/ui/Periodizzazione.ui" line="833"/>
         <source>Scheda PDF</source>
-        <translation type="unfinished"></translation>
+        <translation>PDF form</translation>
+    </message>
+</context>
+<context>
+    <name>DialogPreviewDoc</name>
+    <message>
+        <location filename="../gui/ui/Documentazione_preview.ui" line="23"/>
+        <source>pyArchInit Gestione Scavi - Preview Documetazione</source>
+        <translation>Pyarchinit Excavation Management-Preview documetation</translation>
+    </message>
+</context>
+<context>
+    <name>DialogRelCheck</name>
+    <message>
+        <location filename="../gui/ui/pyarchinit_rel_check_ui.ui" line="20"/>
+        <source>pyArchInit Gestione Scavi - Gestione Errori rapproti stratigrafici</source>
+        <translation>Pyarchinit Excavation Management-stratigraphic rapproti error Management</translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/pyarchinit_rel_check_ui.ui" line="49"/>
+        <source>Rapporto stratigrafico non presente</source>
+        <translation>Stratigraphic relationship not present</translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/pyarchinit_rel_check_ui.ui" line="67"/>
+        <source>DBMS Toolbar</source>
+        <translation>DBMS Toolbar</translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/pyarchinit_rel_check_ui.ui" line="76"/>
+        <source>First rec</source>
+        <translation>First rec</translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/pyarchinit_rel_check_ui.ui" line="90"/>
+        <source>Next rec</source>
+        <translation>Next rec</translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/pyarchinit_rel_check_ui.ui" line="104"/>
+        <source>Last rec</source>
+        <translation>Last Rec</translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/pyarchinit_rel_check_ui.ui" line="123"/>
+        <source>New record</source>
+        <translation>New record</translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/pyarchinit_rel_check_ui.ui" line="142"/>
+        <source>Save</source>
+        <translation>Save</translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/pyarchinit_rel_check_ui.ui" line="164"/>
+        <source>new search</source>
+        <translation>New Search</translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/pyarchinit_rel_check_ui.ui" line="183"/>
+        <source>search !!!</source>
+        <translation>Search!!!</translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/pyarchinit_rel_check_ui.ui" line="202"/>
+        <source>Order by</source>
+        <translation>Order by</translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/pyarchinit_rel_check_ui.ui" line="221"/>
+        <source>View alls records</source>
+        <translation>View Alls Records</translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/pyarchinit_rel_check_ui.ui" line="243"/>
+        <source>Delete record</source>
+        <translation>Delete one record</translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/pyarchinit_rel_check_ui.ui" line="257"/>
+        <source>Prev rec</source>
+        <translation>Prev rec</translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/pyarchinit_rel_check_ui.ui" line="273"/>
+        <source>Connection test</source>
+        <translation>Connection test</translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/pyarchinit_rel_check_ui.ui" line="300"/>
+        <source>DB Info</source>
+        <translation>DB Info</translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/pyarchinit_rel_check_ui.ui" line="316"/>
+        <source>Ordinamento</source>
+        <translation>Sort</translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/pyarchinit_rel_check_ui.ui" line="409"/>
+        <source>Status</source>
+        <translation>Status</translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/pyarchinit_rel_check_ui.ui" line="430"/>
+        <source>record n.</source>
+        <translation>Record No.</translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/pyarchinit_rel_check_ui.ui" line="750"/>
+        <source>1</source>
+        <translation>1</translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/pyarchinit_rel_check_ui.ui" line="475"/>
+        <source>record tot.</source>
+        <translation>Total record</translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/pyarchinit_rel_check_ui.ui" line="571"/>
+        <source>Sito di Monte Cavo</source>
+        <translation>Site of Monte Cavo</translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/pyarchinit_rel_check_ui.ui" line="739"/>
+        <source>Sito</source>
+        <translation>Site</translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/pyarchinit_rel_check_ui.ui" line="757"/>
+        <source>Area</source>
+        <translation>Area</translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/pyarchinit_rel_check_ui.ui" line="608"/>
+        <source>2</source>
+        <translation>2</translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/pyarchinit_rel_check_ui.ui" line="775"/>
+        <source>US</source>
+        <translation>SU</translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/pyarchinit_rel_check_ui.ui" line="658"/>
+        <source>Copre</source>
+        <translation>Covers</translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/pyarchinit_rel_check_ui.ui" line="731"/>
+        <source>Sito Monte Cavo</source>
+        <translation>Site Monte Cavo</translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/pyarchinit_rel_check_ui.ui" line="768"/>
+        <source>23</source>
+        <translation>23</translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/pyarchinit_rel_check_ui.ui" line="799"/>
+        <source>Tipo di errore</source>
+        <translation>Type of error</translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/pyarchinit_rel_check_ui.ui" line="806"/>
+        <source>Note</source>
+        <translation>Notes</translation>
+    </message>
+</context>
+<context>
+    <name>DialogSchedaLapidei</name>
+    <message>
+        <location filename="../gui/ui/Inv_Lapidei.ui" line="20"/>
+        <source>Scheda reperti lapidei</source>
+        <translation>Stone artifact sheet</translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/Inv_Lapidei.ui" line="40"/>
+        <source>DBMS Toolbar</source>
+        <translation>DBMS Toolbar</translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/Inv_Lapidei.ui" line="49"/>
+        <source>First rec</source>
+        <translation>First rec</translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/Inv_Lapidei.ui" line="63"/>
+        <source>Next rec</source>
+        <translation>Next rec</translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/Inv_Lapidei.ui" line="77"/>
+        <source>Last rec</source>
+        <translation>Last Rec</translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/Inv_Lapidei.ui" line="96"/>
+        <source>New record</source>
+        <translation>New record</translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/Inv_Lapidei.ui" line="115"/>
+        <source>Save</source>
+        <translation>Save</translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/Inv_Lapidei.ui" line="137"/>
+        <source>new search</source>
+        <translation>New Search</translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/Inv_Lapidei.ui" line="156"/>
+        <source>search !!!</source>
+        <translation>Search!!!</translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/Inv_Lapidei.ui" line="175"/>
+        <source>Order by</source>
+        <translation>Order by</translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/Inv_Lapidei.ui" line="194"/>
+        <source>View alls records</source>
+        <translation>View Alls Records</translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/Inv_Lapidei.ui" line="216"/>
+        <source>Delete record</source>
+        <translation>Delete one record</translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/Inv_Lapidei.ui" line="230"/>
+        <source>Prev rec</source>
+        <translation>Prev rec</translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/Inv_Lapidei.ui" line="246"/>
+        <source>Connection test</source>
+        <translation>Connection Test</translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/Inv_Lapidei.ui" line="273"/>
+        <source>DB Info</source>
+        <translation>DB Info</translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/Inv_Lapidei.ui" line="289"/>
+        <source>Ordinamento</source>
+        <translation>Sort</translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/Inv_Lapidei.ui" line="382"/>
+        <source>Status</source>
+        <translation>Status</translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/Inv_Lapidei.ui" line="403"/>
+        <source>record n.</source>
+        <translation>Record No.</translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/Inv_Lapidei.ui" line="479"/>
+        <source>1</source>
+        <translation>1</translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/Inv_Lapidei.ui" line="448"/>
+        <source>record tot.</source>
+        <translation>Total record</translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/Inv_Lapidei.ui" line="512"/>
+        <source>Tipologia</source>
+        <translation>Typology</translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/Inv_Lapidei.ui" line="527"/>
+        <source>0</source>
+        <translation>0</translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/Inv_Lapidei.ui" line="539"/>
+        <source>Contesto/Provenienza</source>
+        <translation>Context/Provenance</translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/Inv_Lapidei.ui" line="564"/>
+        <source>Scheda N.</source>
+        <translation>Card N.</translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/Inv_Lapidei.ui" line="600"/>
+        <source>Ceramica</source>
+        <translation>Ceramic</translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/Inv_Lapidei.ui" line="605"/>
+        <source>Elemento marmoreo</source>
+        <translation>Marble artifact</translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/Inv_Lapidei.ui" line="610"/>
+        <source>Elemento lapideo</source>
+        <translation>Stone artifact</translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/Inv_Lapidei.ui" line="615"/>
+        <source>Moneta</source>
+        <translation>Coin</translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/Inv_Lapidei.ui" line="620"/>
+        <source>Vetro</source>
+        <translation>Glass</translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/Inv_Lapidei.ui" line="625"/>
+        <source>Metallo</source>
+        <translation>Metal</translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/Inv_Lapidei.ui" line="630"/>
+        <source>Avorio</source>
+        <translation>Ivory</translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/Inv_Lapidei.ui" line="635"/>
+        <source>Osso</source>
+        <translation>Bone</translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/Inv_Lapidei.ui" line="672"/>
+        <source>Tipo attico</source>
+        <translation>Attic type</translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/Inv_Lapidei.ui" line="677"/>
+        <source>Tipo attico a doppio listello</source>
+        <translation>Attic type double slat</translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/Inv_Lapidei.ui" line="682"/>
+        <source>A profilo semplificato</source>
+        <translation>Simplified profile</translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/Inv_Lapidei.ui" line="762"/>
+        <source>Binata</source>
+        <translation>bined</translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/Inv_Lapidei.ui" line="692"/>
+        <source>A dado</source>
+        <translation>Nut</translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/Inv_Lapidei.ui" line="697"/>
+        <source>Poligonale</source>
+        <translation>Polygonal</translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/Inv_Lapidei.ui" line="702"/>
+        <source>Liscio</source>
+        <translation>Smooth</translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/Inv_Lapidei.ui" line="707"/>
+        <source>Rudentato</source>
+        <translation>Rudentate</translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/Inv_Lapidei.ui" line="712"/>
+        <source>Scanalato</source>
+        <translation>Grooved</translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/Inv_Lapidei.ui" line="717"/>
+        <source>Binato</source>
+        <translation>Dual</translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/Inv_Lapidei.ui" line="722"/>
+        <source>Dorico</source>
+        <translation>Doric</translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/Inv_Lapidei.ui" line="727"/>
+        <source>Ionico</source>
+        <translation>Ionic</translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/Inv_Lapidei.ui" line="732"/>
+        <source>Corinzio</source>
+        <translation>Corinthian</translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/Inv_Lapidei.ui" line="737"/>
+        <source>Ionico ad imposta</source>
+        <translation>Ionic enforced</translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/Inv_Lapidei.ui" line="742"/>
+        <source>Composito</source>
+        <translation>Composite</translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/Inv_Lapidei.ui" line="747"/>
+        <source>A canestro</source>
+        <translation>To hoop</translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/Inv_Lapidei.ui" line="752"/>
+        <source>A cesto</source>
+        <translation>To basket</translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/Inv_Lapidei.ui" line="757"/>
+        <source>Polilobato</source>
+        <translation>polylobated</translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/Inv_Lapidei.ui" line="767"/>
+        <source>A stampella</source>
+        <translation>To crutch</translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/Inv_Lapidei.ui" line="772"/>
+        <source>Pluteo</source>
+        <translation>Pluteus</translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/Inv_Lapidei.ui" line="777"/>
+        <source>Transenna</source>
+        <translation>Hurdle</translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/Inv_Lapidei.ui" line="782"/>
+        <source>Di iconostasi</source>
+        <translation>of Iconostasis</translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/Inv_Lapidei.ui" line="787"/>
+        <source>Di ambone</source>
+        <translation>by Ambo</translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/Inv_Lapidei.ui" line="792"/>
+        <source>Di mensa</source>
+        <translation>of cafeteria</translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/Inv_Lapidei.ui" line="805"/>
+        <source>Collocazione</source>
+        <translation>Location</translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/Inv_Lapidei.ui" line="841"/>
+        <source>Base di colonna</source>
+        <translation>Column Base</translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/Inv_Lapidei.ui" line="846"/>
+        <source>Basamento</source>
+        <translation>Pavements</translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/Inv_Lapidei.ui" line="851"/>
+        <source>Fusto di colonna</source>
+        <translation>Column barrel</translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/Inv_Lapidei.ui" line="856"/>
+        <source>Capitello</source>
+        <translation>Capital</translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/Inv_Lapidei.ui" line="861"/>
+        <source>Pulvino</source>
+        <translation>Pulvino</translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/Inv_Lapidei.ui" line="866"/>
+        <source>Lastra</source>
+        <translation>Slab</translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/Inv_Lapidei.ui" line="871"/>
+        <source>Stilobate</source>
+        <translation>Stylobate</translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/Inv_Lapidei.ui" line="876"/>
+        <source>Cornice</source>
+        <translation>Frame</translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/Inv_Lapidei.ui" line="881"/>
+        <source>Stipite</source>
+        <translation>Jamb</translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/Inv_Lapidei.ui" line="886"/>
+        <source>Arco</source>
+        <translation>Arc</translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/Inv_Lapidei.ui" line="891"/>
+        <source>Architrave</source>
+        <translation>Architrave</translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/Inv_Lapidei.ui" line="896"/>
+        <source>New Item</source>
+        <translation>New Item</translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/Inv_Lapidei.ui" line="901"/>
+        <source>Mensola</source>
+        <translation>Shelf</translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/Inv_Lapidei.ui" line="906"/>
+        <source>Balaustra</source>
+        <translation>Balustrade</translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/Inv_Lapidei.ui" line="911"/>
+        <source>Cimasa</source>
+        <translation>Cymatium</translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/Inv_Lapidei.ui" line="916"/>
+        <source>Parapetto di ambone</source>
+        <translation>Ambo parapet</translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/Inv_Lapidei.ui" line="921"/>
+        <source>Piattaforma di ambone</source>
+        <translation>Ambo Platform</translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/Inv_Lapidei.ui" line="926"/>
+        <source>Solea</source>
+        <translation>Solea</translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/Inv_Lapidei.ui" line="931"/>
+        <source>Pilastrino</source>
+        <translation>Small pillar</translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/Inv_Lapidei.ui" line="936"/>
+        <source>Colonnina</source>
+        <translation>Small column</translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/Inv_Lapidei.ui" line="941"/>
+        <source>Trapeza</source>
+        <translation>Trapeza</translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/Inv_Lapidei.ui" line="957"/>
+        <source>Materiale</source>
+        <translation>Material</translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/Inv_Lapidei.ui" line="969"/>
+        <source>Autore scheda</source>
+        <translation>Filler</translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/Inv_Lapidei.ui" line="984"/>
+        <source>Oggetto</source>
+        <translation>Subject</translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/Inv_Lapidei.ui" line="1005"/>
+        <source>Dimensioni</source>
+        <translation>Size</translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/Inv_Lapidei.ui" line="1124"/>
+        <source>m</source>
+        <translation>M</translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/Inv_Lapidei.ui" line="1090"/>
+        <source>Spessore</source>
+        <translation>Thickness</translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/Inv_Lapidei.ui" line="1107"/>
+        <source>Larghezza</source>
+        <translation>Width</translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/Inv_Lapidei.ui" line="1131"/>
+        <source>D(letto posa)</source>
+        <translation>D (bed pose)</translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/Inv_Lapidei.ui" line="1138"/>
+        <source>Lunghezza</source>
+        <translation>Length</translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/Inv_Lapidei.ui" line="1145"/>
+        <source>d(letto attesa)</source>
+        <translation>D (Waiting bed)</translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/Inv_Lapidei.ui" line="1152"/>
+        <source>h</source>
+        <translation>H</translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/Inv_Lapidei.ui" line="1159"/>
+        <source>Toro</source>
+        <translation>Torus</translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/Inv_Lapidei.ui" line="1172"/>
+        <source>Descrizione</source>
+        <translation>Description</translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/Inv_Lapidei.ui" line="1183"/>
+        <source>Descrizione </source>
+        <translation>Description</translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/Inv_Lapidei.ui" line="1202"/>
+        <source>Lavorazione e stato di conservazione</source>
+        <translation>Processing and state of preservation</translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/Inv_Lapidei.ui" line="1213"/>
+        <source>Lavorazione</source>
+        <translation>Processing</translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/Inv_Lapidei.ui" line="1241"/>
+        <source>Cronologia</source>
+        <translation>History</translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/Inv_Lapidei.ui" line="1285"/>
+        <source>Confronti</source>
+        <translation>Comparisons</translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/Inv_Lapidei.ui" line="1305"/>
+        <source>Bibliografia</source>
+        <translation>Bibliography</translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/Inv_Lapidei.ui" line="1317"/>
+        <source>inserisci riga</source>
+        <translation>Insert row</translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/Inv_Lapidei.ui" line="1329"/>
+        <source>rimuovi riga</source>
+        <translation>Remove row</translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/Inv_Lapidei.ui" line="1370"/>
+        <source>Autore</source>
+        <translation>Author</translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/Inv_Lapidei.ui" line="1375"/>
+        <source>Anno</source>
+        <translation>Year</translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/Inv_Lapidei.ui" line="1380"/>
+        <source>Titolo</source>
+        <translation>Title</translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/Inv_Lapidei.ui" line="1385"/>
+        <source>Pag.</source>
+        <translation>Pag.</translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/Inv_Lapidei.ui" line="1390"/>
+        <source>Fig.</source>
+        <translation>Fig.</translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/Inv_Lapidei.ui" line="1401"/>
+        <source>Tools</source>
+        <translation>Tools</translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/Inv_Lapidei.ui" line="1416"/>
+        <source>Exp schede Pdf </source>
+        <translation>EXP PDF Cards</translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/Inv_Lapidei.ui" line="1426"/>
+        <source>Charge image</source>
+        <translation>Load image</translation>
     </message>
 </context>
 <context>
     <name>DialogSite</name>
     <message>
-        <location filename="modules/gui/pyarchinit_Site_ui.py" line="483"/>
+        <location filename="../gui/ui/Site.ui" line="20"/>
         <source>pyArchInit Gestione Scavi - Scheda Sito</source>
         <translation>pyArchInit Managment Site Form</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_Site_ui.py" line="484"/>
+        <location filename="../gui/ui/Site.ui" line="40"/>
         <source>DBMS Toolbar</source>
-        <translation type="unfinished"></translation>
+        <translation>DBMS Toolbar</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_Site_ui.py" line="486"/>
+        <location filename="../gui/ui/Site.ui" line="63"/>
         <source>Next rec</source>
-        <translation type="unfinished">Next rec</translation>
+        <translation>Next rec</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_Site_ui.py" line="487"/>
+        <location filename="../gui/ui/Site.ui" line="77"/>
         <source>Last rec</source>
-        <translation type="unfinished">Last Rec</translation>
+        <translation>Last Rec</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_Site_ui.py" line="488"/>
+        <location filename="../gui/ui/Site.ui" line="96"/>
         <source>New record</source>
-        <translation type="unfinished">New record</translation>
+        <translation>New record</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_Site_ui.py" line="489"/>
+        <location filename="../gui/ui/Site.ui" line="115"/>
         <source>Save</source>
-        <translation type="unfinished">Save</translation>
+        <translation>Save</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_Site_ui.py" line="490"/>
+        <location filename="../gui/ui/Site.ui" line="137"/>
         <source>new search</source>
-        <translation type="unfinished">New Search</translation>
+        <translation>New Search</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_Site_ui.py" line="491"/>
+        <location filename="../gui/ui/Site.ui" line="156"/>
         <source>search !!!</source>
-        <translation type="unfinished"></translation>
+        <translation>Search!!!</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_Site_ui.py" line="492"/>
+        <location filename="../gui/ui/Site.ui" line="175"/>
         <source>Order by</source>
-        <translation type="unfinished"></translation>
+        <translation>Order by</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_Site_ui.py" line="493"/>
+        <location filename="../gui/ui/Site.ui" line="194"/>
         <source>View alls records</source>
-        <translation type="unfinished"></translation>
+        <translation>View Alls Records</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_Site_ui.py" line="495"/>
+        <location filename="../gui/ui/Site.ui" line="230"/>
         <source>Prev rec</source>
-        <translation type="unfinished">Prev rec</translation>
+        <translation>Prev rec</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_Site_ui.py" line="485"/>
+        <location filename="../gui/ui/Site.ui" line="49"/>
         <source>First rec</source>
-        <translation type="unfinished">First rec</translation>
+        <translation>First rec</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_Site_ui.py" line="494"/>
+        <location filename="../gui/ui/Site.ui" line="216"/>
         <source>Delete record</source>
-        <translation type="unfinished">Delete one record</translation>
+        <translation>Delete one record</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_Site_ui.py" line="497"/>
+        <location filename="../gui/ui/Site.ui" line="273"/>
         <source>DB Info</source>
-        <translation type="unfinished"></translation>
+        <translation>DB Info</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_Site_ui.py" line="498"/>
+        <location filename="../gui/ui/Site.ui" line="289"/>
         <source>Ordinamento</source>
-        <translation type="unfinished">Order</translation>
+        <translation>Sort</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_Site_ui.py" line="499"/>
+        <location filename="../gui/ui/Site.ui" line="382"/>
         <source>Status</source>
-        <translation type="unfinished"></translation>
+        <translation>Status</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_Site_ui.py" line="500"/>
+        <location filename="../gui/ui/Site.ui" line="403"/>
         <source>record n.</source>
-        <translation type="unfinished"></translation>
+        <translation>Record No.</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_Site_ui.py" line="503"/>
+        <location filename="../gui/ui/Site.ui" line="479"/>
         <source>1</source>
-        <translation type="unfinished"></translation>
+        <translation>1</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_Site_ui.py" line="502"/>
+        <location filename="../gui/ui/Site.ui" line="448"/>
         <source>record tot.</source>
-        <translation type="unfinished"></translation>
+        <translation>Total record</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_Site_ui.py" line="504"/>
+        <location filename="../gui/ui/Site.ui" line="582"/>
         <source>Inserisci un valore</source>
-        <translation type="unfinished">Insert Value</translation>
+        <translation>Enter a value</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_Site_ui.py" line="505"/>
+        <location filename="../gui/ui/Site.ui" line="492"/>
         <source>Sito</source>
-        <translation type="unfinished">Site</translation>
+        <translation>Site</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_Site_ui.py" line="513"/>
+        <location filename="../gui/ui/Site.ui" line="632"/>
         <source>Dati descrittivi</source>
-        <translation type="unfinished">Description data</translation>
+        <translation>Descriptive data</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_Site_ui.py" line="507"/>
+        <location filename="../gui/ui/Site.ui" line="660"/>
         <source>Descrizione </source>
-        <translation type="unfinished">Description</translation>
+        <translation type="obsolete">Description</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_Site_ui.py" line="508"/>
+        <location filename="../gui/ui/Site.ui" line="727"/>
         <source>Italia</source>
-        <translation type="unfinished"></translation>
+        <translation>Italy</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_Site_ui.py" line="509"/>
+        <location filename="../gui/ui/Site.ui" line="681"/>
         <source>Nazione</source>
-        <translation type="unfinished">Nation</translation>
+        <translation>Nation</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_Site_ui.py" line="510"/>
+        <location filename="../gui/ui/Site.ui" line="766"/>
         <source>Comune</source>
-        <translation type="unfinished">Town</translation>
+        <translation>Town/City</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_Site_ui.py" line="511"/>
+        <location filename="../gui/ui/Site.ui" line="754"/>
         <source>Provincia</source>
-        <translation type="unfinished">Country</translation>
+        <translation>Province</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_Site_ui.py" line="512"/>
+        <location filename="../gui/ui/Site.ui" line="669"/>
         <source>Regione</source>
-        <translation type="unfinished">Region</translation>
+        <translation>Region</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_Site_ui.py" line="496"/>
+        <location filename="../gui/ui/Site.ui" line="246"/>
         <source>Connection test</source>
-        <translation type="unfinished"></translation>
+        <translation>Connection test</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_Site_ui.py" line="529"/>
+        <location filename="../gui/ui/Site.ui" line="776"/>
         <source>Tools</source>
-        <translation type="unfinished"></translation>
+        <translation>Tools</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_Site_ui.py" line="526"/>
+        <location filename="../gui/ui/Site.ui" line="1004"/>
         <source>Carica tutti i layer per poter inserire nuove geometrie</source>
-        <translation type="unfinished"></translation>
+        <translation>Load all layers to be able to insert new geometries</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_Site_ui.py" line="515"/>
+        <location filename="../gui/ui/Site.ui" line="891"/>
         <source>Carica layer per il disegno</source>
-        <translation type="unfinished"></translation>
+        <translation>Load layer for drawing</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_Site_ui.py" line="525"/>
+        <location filename="../gui/ui/Site.ui" line="980"/>
         <source>Carica</source>
-        <translation type="unfinished"></translation>
+        <translation>Load</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_Site_ui.py" line="517"/>
+        <location filename="../gui/ui/Site.ui" line="907"/>
         <source>Carica tutti layer che contengono geometrie relative a questo sito</source>
-        <translation type="unfinished"></translation>
+        <translation>Load all layers that contain geometries related to this site</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_Site_ui.py" line="518"/>
-        <source>Carica le geometrie relative a questo sito</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="modules/gui/pyarchinit_Site_ui.py" line="520"/>
+        <location filename="../gui/ui/Site.ui" line="928"/>
         <source>Esporta relazione di scavo per questo sito (Versione di sviluppo)</source>
-        <translation type="unfinished"></translation>
+        <translation>Export excavation report for this site (development version)</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_Site_ui.py" line="521"/>
+        <location filename="../gui/ui/Site.ui" line="935"/>
         <source>Esporta</source>
-        <translation type="unfinished"></translation>
+        <translation>Export</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_Site_ui.py" line="522"/>
+        <location filename="../gui/ui/Site.ui" line="922"/>
         <source>GIS Tools</source>
-        <translation type="unfinished"></translation>
+        <translation type="obsolete">GIS Tools</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_Site_ui.py" line="524"/>
+        <location filename="../gui/ui/Site.ui" line="973"/>
         <source>Carica il puntuale del sito</source>
-        <translation type="unfinished"></translation>
+        <translation>Load Site punctual</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_Site_ui.py" line="527"/>
+        <location filename="../gui/ui/Site.ui" line="1007"/>
         <source>Gis viewer</source>
-        <translation type="unfinished"></translation>
+        <translation>Gis viewer</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_Site_ui.py" line="528"/>
+        <location filename="../gui/ui/Site.ui" line="1014"/>
         <source>Abilita il caricamento delle ricerche</source>
-        <translation type="unfinished"></translation>
+        <translation>Enable the loading of searches</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_Site_ui.py" line="540"/>
-        <source>Test area</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="modules/gui/pyarchinit_Site_ui.py" line="530"/>
+        <location filename="../gui/ui/Site.ui" line="1046"/>
         <source>Run test</source>
-        <translation type="unfinished"></translation>
+        <translation>Run test</translation>
     </message>
-    <message utf8="true">
-        <location filename="modules/gui/pyarchinit_Site_ui.py" line="531"/>
+    <message>
+        <location filename="../gui/ui/Site.ui" line="1026"/>
         <source>Questa è una sezione di testing per sperimentare funzioni.
 
 
@@ -3638,1878 +4806,2960 @@ Step 1 - Aprire il file test_area.py dentro alla cartella pyarchinit (la cartell
 Step 2 - editare la funzione def run_test e salvare il file.
 
 Step 3 - Riavviare Qgis e cliccare sul pulsante Run Test per verificare l&apos;output della vostra funzione.</source>
-        <translation type="unfinished"></translation>
+        <translation type="obsolete">This is a testing section for experimenting with functions.
+
+
+Step 1 Procedure-Open the Test_area. py file in the Pyarchinit folder (the folder is located inside your user/.qgis/python/plugins/pyarchinit) Step 2-Edit the Def run_test function and save the file.
+
+Step 3-Restart Qgis and click on the Run Test button to verify the output of your function.</translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/Site.ui" line="525"/>
+        <source>...</source>
+        <translation>...</translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/Site.ui" line="532"/>
+        <source>Open Folder</source>
+        <translation>Open Folder</translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/Site.ui" line="590"/>
+        <source>Nome</source>
+        <translation>Name</translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/Site.ui" line="597"/>
+        <source>Definizione</source>
+        <translation>Definition</translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/Site.ui" line="604"/>
+        <source>Cartella</source>
+        <translation>Folder</translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/Site.ui" line="910"/>
+        <source>Carica i layer per questo sito</source>
+        <translation>Load layers for this site</translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/Site.ui" line="788"/>
+        <source>Genera un numero arbitrario di schede US per il sito corrente</source>
+        <translation>Generates an arbitrary number of SU cards for the current site</translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/Site.ui" line="875"/>
+        <source>Genera US (Azione irreversibile)</source>
+        <translation>Generate SU (Fatal action)</translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/Site.ui" line="814"/>
+        <source>Numero Area</source>
+        <translation>Area number</translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/Site.ui" line="797"/>
+        <source>Numero di schede da creare</source>
+        <translation>Number of tabs to create</translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/Site.ui" line="831"/>
+        <source>Numero di scheda US da cui partire</source>
+        <translation>Number of SU card from which to start</translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/Site.ui" line="1040"/>
+        <source>Python test area</source>
+        <translation>Python Test Area</translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/Site.ui" line="848"/>
+        <source>Tipo di scheda</source>
+        <translation>Form type</translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/Site.ui" line="862"/>
+        <source>US</source>
+        <translation>SU</translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/Site.ui" line="867"/>
+        <source>USM</source>
+        <translation>WSU</translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/Site.ui" line="959"/>
+        <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;GIS Tools&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;GIS Tools&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
 </context>
 <context>
     <name>DialogSostituisciValori</name>
     <message>
-        <location filename="modules/gui/Ui_UpdValues.ui" line="22"/>
+        <location filename="../gui/ui/Upd.ui" line="22"/>
         <source>Sostituisci i valori nel campo</source>
-        <translation type="obsolete">Replace the values</translation>
+        <translation>Replace the values in the</translation>
     </message>
     <message>
-        <location filename="modules/gui/Ui_UpdValues.ui" line="75"/>
+        <location filename="../gui/ui/Upd.ui" line="75"/>
         <source>nome del campo</source>
-        <translation type="obsolete">field name</translation>
+        <translation>Field name</translation>
     </message>
     <message>
-        <location filename="modules/gui/Ui_UpdValues.ui" line="40"/>
+        <location filename="../gui/ui/Upd.ui" line="40"/>
         <source>con il valore</source>
-        <translation type="obsolete">with the value</translation>
+        <translation>With the value</translation>
     </message>
     <message>
-        <location filename="modules/gui/Ui_UpdValues.ui" line="47"/>
+        <location filename="../gui/ui/Upd.ui" line="47"/>
         <source>inserisci un valore</source>
-        <translation type="obsolete">insert value</translation>
+        <translation>Enter a value</translation>
     </message>
     <message>
-        <location filename="modules/gui/Ui_UpdValues.ui" line="56"/>
+        <location filename="../gui/ui/Upd.ui" line="56"/>
         <source>Sostituisci</source>
-        <translation type="obsolete">change</translation>
+        <translation>Replace</translation>
     </message>
     <message>
-        <location filename="modules/gui/Ui_UpdValues.ui" line="68"/>
+        <location filename="../gui/ui/Upd.ui" line="68"/>
         <source>In base ai valori selezionati sul GIS nel campo</source>
-        <translation type="obsolete">According to the values ​​selected in the GIS field</translation>
+        <translation>Based on the values selected on the GIS in the field</translation>
     </message>
     <message>
-        <location filename="modules/gui/Ui_UpdValues.ui" line="86"/>
+        <location filename="../gui/ui/Upd.ui" line="86"/>
         <source>Sostituisci i valori nella tabella</source>
-        <translation type="obsolete">Change the values in the table</translation>
+        <translation>Replace values in table</translation>
     </message>
     <message>
-        <location filename="modules/gui/Ui_UpdValues.ui" line="93"/>
+        <location filename="../gui/ui/Upd.ui" line="93"/>
         <source>nome del layer</source>
-        <translation type="obsolete">layer name</translation>
+        <translation>Name of the layer</translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/Upd.ui" line="14"/>
+        <source>Dialog</source>
+        <translation>Dialog</translation>
     </message>
 </context>
 <context>
     <name>DialogStruttura</name>
     <message>
-        <location filename="modules/gui/pyarchinit_Struttura_ui.py" line="664"/>
+        <location filename="../gui/ui/Struttura.ui" line="20"/>
         <source>pyArchInit Gestione Scavi - Scheda Struttura</source>
-        <translation>pyArchInit Managment framework form</translation>
+        <translation>pyArchInit Managment Architecture</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_Struttura_ui.py" line="665"/>
+        <location filename="../gui/ui/Struttura.ui" line="40"/>
         <source>DBMS Toolbar</source>
-        <translation type="unfinished"></translation>
+        <translation>DBMS Toolbar</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_Struttura_ui.py" line="666"/>
+        <location filename="../gui/ui/Struttura.ui" line="49"/>
         <source>First rec</source>
         <translation>First rec</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_Struttura_ui.py" line="676"/>
+        <location filename="../gui/ui/Struttura.ui" line="230"/>
         <source>Prev rec</source>
         <translation>Prev rec</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_Struttura_ui.py" line="667"/>
+        <location filename="../gui/ui/Struttura.ui" line="63"/>
         <source>Next rec</source>
         <translation>Next rec</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_Struttura_ui.py" line="668"/>
+        <location filename="../gui/ui/Struttura.ui" line="77"/>
         <source>Last rec</source>
         <translation>Last Rec</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_Struttura_ui.py" line="669"/>
+        <location filename="../gui/ui/Struttura.ui" line="96"/>
         <source>New record</source>
         <translation>New record</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_Struttura_ui.py" line="670"/>
+        <location filename="../gui/ui/Struttura.ui" line="115"/>
         <source>Save</source>
         <translation>Save</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_Struttura_ui.py" line="675"/>
+        <location filename="../gui/ui/Struttura.ui" line="216"/>
         <source>Delete record</source>
         <translation>Delete one record</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_Struttura_ui.py" line="671"/>
+        <location filename="../gui/ui/Struttura.ui" line="137"/>
         <source>new search</source>
         <translation>New Search</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_Struttura_ui.py" line="672"/>
+        <location filename="../gui/ui/Struttura.ui" line="156"/>
         <source>search !!!</source>
-        <translation></translation>
+        <translation>Search!!!</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_Struttura_ui.py" line="673"/>
+        <location filename="../gui/ui/Struttura.ui" line="175"/>
         <source>Order by</source>
-        <translation></translation>
+        <translation>Order by</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_Struttura_ui.py" line="674"/>
+        <location filename="../gui/ui/Struttura.ui" line="194"/>
         <source>View alls records</source>
-        <translation type="unfinished"></translation>
+        <translation>View Alls Records</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_Struttura_ui.py" line="678"/>
+        <location filename="../gui/ui/Struttura.ui" line="273"/>
         <source>DB Info</source>
-        <translation type="unfinished"></translation>
+        <translation>DB Info</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_Struttura_ui.py" line="679"/>
+        <location filename="../gui/ui/Struttura.ui" line="289"/>
         <source>Ordinamento</source>
-        <translation type="unfinished">Order</translation>
+        <translation>Sort</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_Struttura_ui.py" line="680"/>
+        <location filename="../gui/ui/Struttura.ui" line="382"/>
         <source>Status</source>
-        <translation type="unfinished"></translation>
+        <translation>Status</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_Struttura_ui.py" line="681"/>
+        <location filename="../gui/ui/Struttura.ui" line="403"/>
         <source>record n.</source>
-        <translation type="unfinished"></translation>
+        <translation>Record No.</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_Struttura_ui.py" line="684"/>
+        <location filename="../gui/ui/Struttura.ui" line="479"/>
         <source>1</source>
-        <translation type="unfinished"></translation>
+        <translation>1</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_Struttura_ui.py" line="683"/>
+        <location filename="../gui/ui/Struttura.ui" line="448"/>
         <source>record tot.</source>
-        <translation type="unfinished"></translation>
+        <translation>Total record</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_Struttura_ui.py" line="685"/>
+        <location filename="../gui/ui/Struttura.ui" line="567"/>
         <source>Sito </source>
-        <translation type="unfinished">Site</translation>
+        <translation>Site</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_Struttura_ui.py" line="686"/>
+        <location filename="../gui/ui/Struttura.ui" line="574"/>
         <source>Sigla struttura</source>
-        <translation type="unfinished">Initials structure</translation>
+        <translation>Structure code</translation>
     </message>
-    <message utf8="true">
-        <location filename="modules/gui/pyarchinit_Struttura_ui.py" line="687"/>
+    <message>
+        <location filename="../gui/ui/Struttura.ui" line="581"/>
         <source>N°</source>
-        <translation type="unfinished"></translation>
+        <translation type="obsolete">N °</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_Struttura_ui.py" line="688"/>
+        <location filename="../gui/ui/Struttura.ui" line="614"/>
         <source>Aggiungi un valore...</source>
-        <translation type="unfinished">Add value....</translation>
+        <translation>Add a value...</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_Struttura_ui.py" line="689"/>
+        <location filename="../gui/ui/Struttura.ui" line="619"/>
         <source>-</source>
-        <translation type="unfinished"></translation>
+        <translation>-</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_Struttura_ui.py" line="690"/>
+        <location filename="../gui/ui/Struttura.ui" line="659"/>
         <source>Categoria</source>
-        <translation type="unfinished">Calss</translation>
+        <translation>Category</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_Struttura_ui.py" line="691"/>
+        <location filename="../gui/ui/Struttura.ui" line="666"/>
         <source>Tipologia</source>
-        <translation type="unfinished">Tipology</translation>
+        <translation>Typology</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_Struttura_ui.py" line="692"/>
+        <location filename="../gui/ui/Struttura.ui" line="687"/>
         <source>Definizione</source>
-        <translation type="unfinished">Definition</translation>
+        <translation>Definition</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_Struttura_ui.py" line="701"/>
+        <location filename="../gui/ui/Struttura.ui" line="719"/>
         <source>Dati descrittivi</source>
-        <translation type="unfinished">Description data</translation>
+        <translation>Descriptive data</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_Struttura_ui.py" line="700"/>
+        <location filename="../gui/ui/Struttura.ui" line="782"/>
         <source>Descrizione </source>
-        <translation type="unfinished">Description</translation>
+        <translation>Description</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_Struttura_ui.py" line="699"/>
+        <location filename="../gui/ui/Struttura.ui" line="775"/>
         <source>Interpretazione </source>
-        <translation type="unfinished">Interpretation</translation>
+        <translation>Interpretation</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_Struttura_ui.ui" line="848"/>
+        <location filename="../gui/ui/Struttura.ui" line="804"/>
+        <source>Periodizzazione </source>
+        <translation>Periodization</translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/Struttura.ui" line="817"/>
+        <source>Iniziale </source>
+        <translation>Starting</translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/Struttura.ui" line="830"/>
+        <source>Finale </source>
+        <translation>End</translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/Struttura.ui" line="867"/>
+        <source>Periodo </source>
+        <translation>Period</translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/Struttura.ui" line="860"/>
+        <source>Fase </source>
+        <translation>Phase</translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/Struttura.ui" line="889"/>
+        <source>Datazione estesa</source>
+        <translation>Extended Dating</translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/Struttura.ui" line="929"/>
+        <source>Rapporti struttura</source>
+        <translation>Structure reports</translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/Struttura.ui" line="1186"/>
+        <source>inserisci riga</source>
+        <translation>Insert row</translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/Struttura.ui" line="983"/>
+        <source>Tipo di rapporto</source>
+        <translation>Relationship type</translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/Struttura.ui" line="988"/>
+        <source>Sito</source>
+        <translation>Site</translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/Struttura.ui" line="993"/>
+        <source>Sigla</source>
+        <translation>Abbreviation</translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/Struttura.ui" line="998"/>
+        <source>Numero</source>
+        <translation>Number</translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/Struttura.ui" line="1007"/>
+        <source>Elementi costruttivi</source>
+        <translation>Constructional features</translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/Struttura.ui" line="1039"/>
+        <source>Elementi strutturali</source>
+        <translation>Structural features</translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/Struttura.ui" line="1105"/>
+        <source>Quantità</source>
+        <translation type="obsolete">Quantity</translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/Struttura.ui" line="1174"/>
+        <source>Misurazione</source>
+        <translation>Measurement</translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/Struttura.ui" line="1228"/>
+        <source>Tipo misura</source>
+        <translation>Measure Type</translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/Struttura.ui" line="1233"/>
+        <source>Unita&apos; di misura</source>
+        <translation>Unit of Measure</translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/Struttura.ui" line="1238"/>
+        <source>Valore</source>
+        <translation>Value</translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/Struttura.ui" line="1069"/>
+        <source>Materiali</source>
+        <translation>Materials</translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/Struttura.ui" line="1019"/>
+        <source>Materiali impiegati</source>
+        <translation>Materials used</translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/Struttura.ui" line="246"/>
+        <source>Connection test</source>
+        <translation>Connection Test</translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/Struttura.ui" line="790"/>
+        <source>Periodizzazione</source>
+        <translation>Periodization</translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/Struttura.ui" line="917"/>
+        <source>Rapporti</source>
+        <translation>Stratigraphic relationship</translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/Struttura.ui" line="1198"/>
+        <source>rimuovi riga</source>
+        <translation>Remove row</translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/Struttura.ui" line="1100"/>
+        <source>Tipologia elemento</source>
+        <translation>Features type</translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/Struttura.ui" line="1162"/>
+        <source>Misure</source>
+        <translation>Measures</translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/Struttura.ui" line="1247"/>
+        <source>Tools</source>
+        <translation>Tools</translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/Struttura.ui" line="1253"/>
+        <source>PDF scheda exp</source>
+        <translation>PDF Exp Tab</translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/Struttura.ui" line="1270"/>
+        <source>Carica tutti i layer per poter inserire nuove geometrie</source>
+        <translation>Load all layers to be able to insert new geometries</translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/Struttura.ui" line="1263"/>
+        <source>Carica i poligoni di struttura</source>
+        <translation>Load polygons</translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/Struttura.ui" line="1273"/>
+        <source>Gis viewer</source>
+        <translation>Gis Viewer</translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/Struttura.ui" line="1280"/>
+        <source>PDF indice exp</source>
+        <translation>PDF Index Exp</translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/Struttura.ui" line="1287"/>
+        <source>Carica</source>
+        <translation>Load</translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/Struttura.ui" line="1294"/>
+        <source>Abilita il caricamento delle ricerche</source>
+        <translation>Enable the loading of searches</translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/Struttura.ui" line="743"/>
+        <source>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
+&lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
+p, li { white-space: pre-wrap; }
+&lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:&apos;.SF NS Text&apos;; font-size:10pt; font-weight:400; font-style:normal;&quot;&gt;
+&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-family:&apos;Lucida Grande&apos;; font-size:13pt;&quot;&gt;&lt;br /&gt;&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
+        <translation type="obsolete">&lt;! PUBLIC HTML DOCTYPE &quot;-/////W3C//DTD HTML 4.0//EN&quot; &quot;Http://www.w3.org/TR/REC-html40/strict.dtd&quot; &gt; &lt;html&gt; &lt;head&gt; &lt; meta name = &quot;Qrichtext&quot; content = &quot;1&quot;/&gt; &lt; Style Type = &quot;text/css&quot; &gt; P, li {white-space: pre-wrap;} &lt;/style&gt; &lt;/head&gt; &lt; Body style = &quot;FONT-family: &apos;. SF NS Text &apos;; font-size: 10pt; font-weight: 400; font-style: normal;&quot; &gt; &lt; P style = &quot;margin-top: 0px; margin-bottom: 0px; margin-left: 0px; margin-right: 0px;-QT-block-indent: 0; Text-indent: 0px;&quot; &gt; &lt; span style = &quot;FONT-family: &apos; glossy Grande &apos;; font-size: 13pt;&quot; &gt; &lt; BR/&gt; &lt;/span&gt; &lt;/p&gt; &lt;/body&gt; &lt;/html&gt;</translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/Struttura.ui" line="743"/>
         <source>Periodizzazione - Rapporti</source>
         <translation type="obsolete">Periodization - Relation</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_Struttura_ui.py" line="702"/>
-        <source>Periodizzazione </source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="modules/gui/pyarchinit_Struttura_ui.py" line="703"/>
-        <source>Iniziale </source>
-        <translation type="unfinished">Starting</translation>
-    </message>
-    <message>
-        <location filename="modules/gui/pyarchinit_Struttura_ui.py" line="704"/>
-        <source>Finale </source>
-        <translation type="unfinished">End</translation>
-    </message>
-    <message>
-        <location filename="modules/gui/pyarchinit_Struttura_ui.py" line="708"/>
-        <source>Periodo </source>
-        <translation type="unfinished">Period</translation>
-    </message>
-    <message>
-        <location filename="modules/gui/pyarchinit_Struttura_ui.py" line="707"/>
-        <source>Fase </source>
-        <translation type="unfinished">Phase</translation>
-    </message>
-    <message>
-        <location filename="modules/gui/pyarchinit_Struttura_ui.py" line="709"/>
-        <source>Datazione estesa</source>
-        <translation type="unfinished">Capitals date</translation>
-    </message>
-    <message>
-        <location filename="modules/gui/pyarchinit_Struttura_ui.py" line="711"/>
-        <source>Rapporti struttura</source>
-        <translation type="unfinished">Structure relation</translation>
-    </message>
-    <message>
-        <location filename="modules/gui/pyarchinit_Struttura_ui.py" line="730"/>
-        <source>inserisci riga</source>
-        <translation type="unfinished">Insert row</translation>
-    </message>
-    <message>
-        <location filename="modules/gui/pyarchinit_Struttura_ui.py" line="714"/>
-        <source>Tipo di rapporto</source>
-        <translation type="unfinished">Relation type</translation>
-    </message>
-    <message>
-        <location filename="modules/gui/pyarchinit_Struttura_ui.py" line="715"/>
-        <source>Sito</source>
-        <translation type="unfinished">Site</translation>
-    </message>
-    <message>
-        <location filename="modules/gui/pyarchinit_Struttura_ui.py" line="716"/>
-        <source>Sigla</source>
-        <translation type="unfinished">Sign</translation>
-    </message>
-    <message>
-        <location filename="modules/gui/pyarchinit_Struttura_ui.py" line="717"/>
-        <source>Numero</source>
-        <translation type="unfinished">Number</translation>
-    </message>
-    <message>
-        <location filename="modules/gui/pyarchinit_Struttura_ui.py" line="728"/>
-        <source>Elementi costruttivi</source>
-        <translation type="unfinished">Structural elements</translation>
-    </message>
-    <message>
-        <location filename="modules/gui/pyarchinit_Struttura_ui.py" line="720"/>
-        <source>Elementi strutturali</source>
-        <translation type="unfinished">Framework element</translation>
-    </message>
-    <message>
-        <location filename="modules/gui/pyarchinit_Struttura_ui.ui" line="1131"/>
+        <location filename="../gui/ui/Struttura.ui" line="743"/>
         <source>Tipologia elemnto</source>
         <translation type="obsolete">Element type</translation>
     </message>
-    <message utf8="true">
-        <location filename="modules/gui/pyarchinit_Struttura_ui.py" line="723"/>
-        <source>Quantità</source>
-        <translation type="unfinished">Amount</translation>
-    </message>
     <message>
-        <location filename="modules/gui/pyarchinit_Struttura_ui.py" line="729"/>
-        <source>Misurazione</source>
-        <translation type="unfinished">Measurement</translation>
-    </message>
-    <message>
-        <location filename="modules/gui/pyarchinit_Struttura_ui.py" line="732"/>
-        <source>Tipo misura</source>
-        <translation type="unfinished">Type measure</translation>
-    </message>
-    <message>
-        <location filename="modules/gui/pyarchinit_Struttura_ui.py" line="733"/>
-        <source>Unita&apos; di misura</source>
-        <translation type="unfinished">Units</translation>
-    </message>
-    <message>
-        <location filename="modules/gui/pyarchinit_Struttura_ui.py" line="734"/>
-        <source>Valore</source>
-        <translation type="unfinished">Value</translation>
-    </message>
-    <message>
-        <location filename="modules/gui/pyarchinit_Struttura_ui.py" line="721"/>
-        <source>Materiali</source>
-        <translation type="unfinished">Equipment</translation>
-    </message>
-    <message>
-        <location filename="modules/gui/pyarchinit_Struttura_ui.py" line="719"/>
-        <source>Materiali impiegati</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="modules/gui/pyarchinit_Struttura_ui.py" line="677"/>
-        <source>Connection test</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="modules/gui/pyarchinit_Struttura_ui.py" line="694"/>
+        <location filename="../gui/ui/Struttura.ui" line="743"/>
         <source>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
 &lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
 p, li { white-space: pre-wrap; }
 &lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:&apos;MS Shell Dlg 2&apos;; font-size:10pt; font-weight:400; font-style:normal;&quot;&gt;
 &lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-family:&apos;Lucida Grande&apos;; font-size:13pt;&quot;&gt;&lt;br /&gt;&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">&lt;! PUBLIC HTML DOCTYPE &quot;-/////W3C//DTD HTML 4.0//EN&quot; &quot;Http://www.w3.org/TR/REC-html40/strict.dtd&quot; &gt; &lt;html&gt; &lt;head&gt; &lt; meta name = &quot;Qrichtext&quot; content = &quot;1&quot;/&gt; &lt; Style Type = &quot;text/css&quot; &gt; P, li {white-space: pre-wrap;} &lt;/style&gt; &lt;/head&gt; &lt; Body style = &quot;FONT-family: &apos; MS Shell Dlg 2 &apos;; font-size: 10pt; font-weight: 400; font-style: normal;&quot; &gt; &lt; P style = &quot;margin-top: 0px; margin-bottom: 0px; margin-left: 0px; margin-right: 0px;-QT-block-indent: 0; text-indent: 0px;&quot; &gt; &lt; span style = &quot;FONT-family: &apos; glossy Grande &apos;; font-size: 13pt;&quot; &gt; &lt; BR/&gt; &lt;/span&gt; &lt;/p&gt; &lt;/body&gt; &lt;/html&gt;</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_Struttura_ui.py" line="710"/>
-        <source>Periodizzazione</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="modules/gui/pyarchinit_Struttura_ui.py" line="718"/>
-        <source>Rapporti</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="modules/gui/pyarchinit_Struttura_ui.py" line="731"/>
-        <source>rimuovi riga</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="modules/gui/pyarchinit_Struttura_ui.py" line="722"/>
-        <source>Tipologia elemento</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="modules/gui/pyarchinit_Struttura_ui.py" line="735"/>
-        <source>Misure</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="modules/gui/pyarchinit_Struttura_ui.py" line="744"/>
-        <source>Tools</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="modules/gui/pyarchinit_Struttura_ui.py" line="736"/>
-        <source>PDF scheda exp</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="modules/gui/pyarchinit_Struttura_ui.py" line="739"/>
-        <source>Carica tutti i layer per poter inserire nuove geometrie</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="modules/gui/pyarchinit_Struttura_ui.py" line="738"/>
-        <source>Carica i poligoni di struttura</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="modules/gui/pyarchinit_Struttura_ui.py" line="740"/>
-        <source>Gis viewer</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="modules/gui/pyarchinit_Struttura_ui.py" line="741"/>
-        <source>PDF indice exp</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="modules/gui/pyarchinit_Struttura_ui.py" line="742"/>
-        <source>Carica</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="modules/gui/pyarchinit_Struttura_ui.py" line="743"/>
-        <source>Abilita il caricamento delle ricerche</source>
+        <location filename="../gui/ui/Struttura.ui" line="1105"/>
+        <source>Quantità </source>
         <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
     <name>DialogThesaurus</name>
     <message>
-        <location filename="modules/gui/pyarchinit_thesaurus_ui.py" line="374"/>
+        <location filename="../gui/ui/Thesaurus.ui" line="20"/>
         <source>pyArchInit Gestione Beni culturali - Thesaurus</source>
-        <translation type="unfinished"></translation>
+        <translation>Pyarchinit Cultural Heritage Management-Thesaurus</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_thesaurus_ui.py" line="375"/>
+        <location filename="../gui/ui/Thesaurus.ui" line="40"/>
         <source>DBMS Toolbar</source>
-        <translation type="unfinished"></translation>
+        <translation>DBMS Toolbar</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_thesaurus_ui.py" line="376"/>
+        <location filename="../gui/ui/Thesaurus.ui" line="47"/>
         <source>Connection test</source>
-        <translation type="unfinished"></translation>
+        <translation>Connection Test</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_thesaurus_ui.py" line="377"/>
+        <location filename="../gui/ui/Thesaurus.ui" line="56"/>
         <source>First rec</source>
-        <translation type="unfinished">First rec</translation>
+        <translation>First rec</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_thesaurus_ui.py" line="378"/>
+        <location filename="../gui/ui/Thesaurus.ui" line="70"/>
         <source>Next rec</source>
-        <translation type="unfinished">Next rec</translation>
+        <translation>Next rec</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_thesaurus_ui.py" line="379"/>
+        <location filename="../gui/ui/Thesaurus.ui" line="84"/>
         <source>Last rec</source>
-        <translation type="unfinished">Last Rec</translation>
+        <translation>Last Rec</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_thesaurus_ui.py" line="380"/>
+        <location filename="../gui/ui/Thesaurus.ui" line="103"/>
         <source>New record</source>
-        <translation type="unfinished">New record</translation>
+        <translation>New record</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_thesaurus_ui.py" line="381"/>
+        <location filename="../gui/ui/Thesaurus.ui" line="122"/>
         <source>Save</source>
-        <translation type="unfinished">Save</translation>
+        <translation>Save</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_thesaurus_ui.py" line="382"/>
+        <location filename="../gui/ui/Thesaurus.ui" line="144"/>
         <source>new search</source>
-        <translation type="unfinished">New Search</translation>
+        <translation>New Search</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_thesaurus_ui.py" line="383"/>
+        <location filename="../gui/ui/Thesaurus.ui" line="163"/>
         <source>search !!!</source>
-        <translation type="unfinished"></translation>
+        <translation>Search!!!</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_thesaurus_ui.py" line="384"/>
+        <location filename="../gui/ui/Thesaurus.ui" line="182"/>
         <source>Order by</source>
-        <translation type="unfinished"></translation>
+        <translation>Order by</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_thesaurus_ui.py" line="385"/>
+        <location filename="../gui/ui/Thesaurus.ui" line="201"/>
         <source>View alls records</source>
-        <translation type="unfinished"></translation>
+        <translation>View Alls Records</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_thesaurus_ui.py" line="386"/>
+        <location filename="../gui/ui/Thesaurus.ui" line="223"/>
         <source>Delete record</source>
-        <translation type="unfinished">Delete one record</translation>
+        <translation>Delete one record</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_thesaurus_ui.py" line="387"/>
+        <location filename="../gui/ui/Thesaurus.ui" line="237"/>
         <source>Prev rec</source>
-        <translation type="unfinished">Prev rec</translation>
+        <translation>Prev rec</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_thesaurus_ui.py" line="388"/>
+        <location filename="../gui/ui/Thesaurus.ui" line="273"/>
         <source>DB Info</source>
-        <translation type="unfinished"></translation>
+        <translation>DB Info</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_thesaurus_ui.py" line="389"/>
+        <location filename="../gui/ui/Thesaurus.ui" line="289"/>
         <source>Ordinamento</source>
-        <translation type="unfinished">Order</translation>
+        <translation>Sort</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_thesaurus_ui.py" line="390"/>
+        <location filename="../gui/ui/Thesaurus.ui" line="382"/>
         <source>Status</source>
-        <translation type="unfinished"></translation>
+        <translation>Status</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_thesaurus_ui.py" line="391"/>
+        <location filename="../gui/ui/Thesaurus.ui" line="403"/>
         <source>record n.</source>
-        <translation type="unfinished"></translation>
+        <translation>Record No.</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_thesaurus_ui.py" line="394"/>
+        <location filename="../gui/ui/Thesaurus.ui" line="479"/>
         <source>1</source>
-        <translation type="unfinished"></translation>
+        <translation>1</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_thesaurus_ui.py" line="393"/>
+        <location filename="../gui/ui/Thesaurus.ui" line="448"/>
         <source>record tot.</source>
-        <translation type="unfinished"></translation>
+        <translation>Total record</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_thesaurus_ui.py" line="396"/>
+        <location filename="../gui/ui/Thesaurus.ui" line="652"/>
         <source>Inserisci un valore</source>
-        <translation type="unfinished">Insert Value</translation>
+        <translation type="obsolete">Enter a value</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_thesaurus_ui.py" line="397"/>
+        <location filename="../gui/ui/Thesaurus.ui" line="650"/>
         <source>Sigla</source>
-        <translation type="unfinished">Sign</translation>
+        <translation>Abbreviation</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_thesaurus_ui.py" line="398"/>
+        <location filename="../gui/ui/Thesaurus.ui" line="505"/>
         <source>Sigla estesa</source>
-        <translation type="unfinished"></translation>
+        <translation>Extended Theme</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_thesaurus_ui.py" line="399"/>
+        <location filename="../gui/ui/Thesaurus.ui" line="696"/>
         <source>Tipologia di struttura</source>
-        <translation type="unfinished"></translation>
+        <translation type="obsolete">Type of structure</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_thesaurus_ui.py" line="400"/>
+        <location filename="../gui/ui/Thesaurus.ui" line="701"/>
         <source>definizione sito</source>
-        <translation type="unfinished"></translation>
+        <translation type="obsolete">Site definition</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_thesaurus_ui.py" line="401"/>
+        <location filename="../gui/ui/Thesaurus.ui" line="706"/>
         <source>definizione stratigrafica</source>
-        <translation type="unfinished"></translation>
+        <translation type="obsolete">stratigraphic definition</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_thesaurus_ui.py" line="402"/>
+        <location filename="../gui/ui/Thesaurus.ui" line="711"/>
         <source>tipo di caratterizzazione</source>
-        <translation type="unfinished"></translation>
+        <translation type="obsolete">Type of characterization</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_thesaurus_ui.py" line="403"/>
+        <location filename="../gui/ui/Thesaurus.ui" line="716"/>
         <source>tipo di us</source>
-        <translation type="unfinished"></translation>
+        <translation type="obsolete">Type of us</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_thesaurus_ui.py" line="404"/>
+        <location filename="../gui/ui/Thesaurus.ui" line="721"/>
         <source>tipo reperto</source>
-        <translation type="unfinished"></translation>
+        <translation type="obsolete">Type of finding</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_thesaurus_ui.py" line="405"/>
+        <location filename="../gui/ui/Thesaurus.ui" line="544"/>
         <source>us_table</source>
-        <translation type="unfinished"></translation>
+        <translation>us_table</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_thesaurus_ui.py" line="406"/>
+        <location filename="../gui/ui/Thesaurus.ui" line="549"/>
         <source>site_table</source>
-        <translation type="unfinished"></translation>
+        <translation>site_table</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_thesaurus_ui.py" line="407"/>
+        <location filename="../gui/ui/Thesaurus.ui" line="554"/>
         <source>struttura_table</source>
-        <translation type="unfinished"></translation>
+        <translation>struttura_table</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_thesaurus_ui.py" line="408"/>
+        <location filename="../gui/ui/Thesaurus.ui" line="559"/>
         <source>pyunitastratigrafiche</source>
-        <translation type="unfinished"></translation>
+        <translation>pyunitastratigrafiche</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_thesaurus_ui.py" line="409"/>
+        <location filename="../gui/ui/Thesaurus.ui" line="564"/>
         <source>inventario_materiali_table</source>
-        <translation type="unfinished"></translation>
+        <translation>inventario_materiali_table</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_thesaurus_ui.py" line="410"/>
+        <location filename="../gui/ui/Thesaurus.ui" line="572"/>
         <source>Tipologia sigla</source>
-        <translation type="unfinished"></translation>
+        <translation>Type code</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_thesaurus_ui.py" line="411"/>
+        <location filename="../gui/ui/Thesaurus.ui" line="579"/>
         <source>Nome tabella</source>
-        <translation type="unfinished"></translation>
+        <translation>Table name</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_thesaurus_ui.py" line="412"/>
+        <location filename="../gui/ui/Thesaurus.ui" line="810"/>
         <source>Dati descrittivi</source>
-        <translation type="unfinished">Description data</translation>
+        <translation>Descriptive data</translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/Thesaurus.ui" line="492"/>
+        <source>Thesaurus</source>
+        <translation>Thesaurus</translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/Thesaurus.ui" line="498"/>
+        <source>Lingua</source>
+        <translation>Language</translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/Thesaurus.ui" line="772"/>
+        <source>it_IT</source>
+        <translation>it_IT</translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/Thesaurus.ui" line="777"/>
+        <source>en_US</source>
+        <translation>en_SU</translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/Thesaurus.ui" line="686"/>
+        <source>1.1</source>
+        <translation></translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/Thesaurus.ui" line="691"/>
+        <source>2.1</source>
+        <translation></translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/Thesaurus.ui" line="696"/>
+        <source>2.2</source>
+        <translation></translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/Thesaurus.ui" line="701"/>
+        <source>2.3</source>
+        <translation></translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/Thesaurus.ui" line="706"/>
+        <source>2.4</source>
+        <translation></translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/Thesaurus.ui" line="711"/>
+        <source>2.5</source>
+        <translation></translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/Thesaurus.ui" line="716"/>
+        <source>2.6</source>
+        <translation></translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/Thesaurus.ui" line="721"/>
+        <source>2.7</source>
+        <translation></translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/Thesaurus.ui" line="726"/>
+        <source>3.1</source>
+        <translation></translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/Thesaurus.ui" line="731"/>
+        <source>3.2</source>
+        <translation></translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/Thesaurus.ui" line="736"/>
+        <source>3.3</source>
+        <translation></translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/Thesaurus.ui" line="741"/>
+        <source>3.4</source>
+        <translation></translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/Thesaurus.ui" line="792"/>
+        <source>Visualizza elenco sigle</source>
+        <translation>View List code</translation>
     </message>
 </context>
 <context>
     <name>DialogUS</name>
     <message>
-        <location filename="modules/gui/pyarchinit_US_ui.py" line="1054"/>
-        <source>pyArchInit Gestione Scavi - Scheda US</source>
-        <translation type="unfinished">pyArchInit Excavation Mangement</translation>
-    </message>
-    <message>
-        <location filename="modules/gui/pyarchinit_US_ui.py" line="1055"/>
-        <source>DBMS Toolbar</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="modules/gui/pyarchinit_US_ui.py" line="1072"/>
+        <location filename="../gui/ui/US_USM.ui" line="409"/>
         <source>First rec</source>
-        <translation type="unfinished">First rec</translation>
+        <translation>First rec</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_US_ui.py" line="1071"/>
+        <location filename="../gui/ui/US_USM.ui" line="511"/>
         <source>Prev rec</source>
-        <translation type="unfinished">Prev rec</translation>
+        <translation>Prev rec</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_US_ui.py" line="1070"/>
+        <location filename="../gui/ui/US_USM.ui" line="240"/>
         <source>Next rec</source>
-        <translation type="unfinished">Next rec</translation>
+        <translation>Next rec</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_US_ui.py" line="1063"/>
+        <location filename="../gui/ui/US_USM.ui" line="132"/>
         <source>Last rec</source>
-        <translation type="unfinished">Last Rec</translation>
+        <translation>Last Rec</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_US_ui.py" line="1064"/>
+        <location filename="../gui/ui/US_USM.ui" line="383"/>
         <source>New record</source>
-        <translation type="unfinished">New record</translation>
+        <translation>New record</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_US_ui.py" line="1065"/>
+        <location filename="../gui/ui/US_USM.ui" line="546"/>
         <source>Save</source>
-        <translation type="unfinished">Save</translation>
+        <translation>Save</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_US_ui.py" line="1073"/>
+        <location filename="../gui/ui/US_USM.ui" line="173"/>
         <source>Delete record</source>
-        <translation type="unfinished">Delete one record</translation>
+        <translation>Delete one record</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_US_ui.py" line="1066"/>
+        <location filename="../gui/ui/US_USM.ui" line="444"/>
         <source>new search</source>
-        <translation type="unfinished">New Search</translation>
+        <translation>New Search</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_US_ui.py" line="1067"/>
+        <location filename="../gui/ui/US_USM.ui" line="479"/>
         <source>search !!!</source>
-        <translation type="unfinished"></translation>
+        <translation>Search!!!</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_US_ui.py" line="1068"/>
+        <location filename="../gui/ui/US_USM.ui" line="275"/>
         <source>Order by</source>
-        <translation type="unfinished"></translation>
+        <translation>Order by</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_US_ui.py" line="1069"/>
+        <location filename="../gui/ui/US_USM.ui" line="310"/>
         <source>View alls records</source>
-        <translation type="unfinished"></translation>
+        <translation>View Alls Records</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_US_ui.py" line="1056"/>
+        <location filename="../gui/ui/US_USM.ui" line="598"/>
         <source>DB Info</source>
-        <translation type="unfinished"></translation>
+        <translation>DB Info</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_US_ui.py" line="1057"/>
+        <location filename="../gui/ui/US_USM.ui" line="645"/>
         <source>Ordinamento</source>
-        <translation type="unfinished">Order</translation>
+        <translation>Order</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_US_ui.py" line="1058"/>
+        <location filename="../gui/ui/US_USM.ui" line="620"/>
         <source>Status</source>
-        <translation type="unfinished"></translation>
+        <translation>Status</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_US_ui.py" line="1059"/>
+        <location filename="../gui/ui/US_USM.ui" line="756"/>
         <source>record n.</source>
-        <translation type="unfinished"></translation>
+        <translation>Record No.</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_US_ui.py" line="1076"/>
+        <location filename="../gui/ui/US_USM.ui" line="5707"/>
         <source>1</source>
-        <translation type="unfinished"></translation>
+        <translation>1</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_US_ui.py" line="1061"/>
+        <location filename="../gui/ui/US_USM.ui" line="781"/>
         <source>record tot.</source>
-        <translation type="unfinished"></translation>
+        <translation>Total record</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_US_ui.py" line="1186"/>
+        <location filename="../gui/ui/US_USM.ui" line="5315"/>
         <source>Inserisci un valore</source>
-        <translation type="unfinished">Insert Value</translation>
+        <translation>Insert row</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_US_ui.py" line="1077"/>
+        <location filename="../gui/ui/US_USM.ui" line="5712"/>
         <source>2</source>
-        <translation type="unfinished"></translation>
+        <translation>2</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_US_ui.py" line="1078"/>
+        <location filename="../gui/ui/US_USM.ui" line="5717"/>
         <source>3</source>
-        <translation type="unfinished"></translation>
+        <translation>3</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_US_ui.py" line="1079"/>
+        <location filename="../gui/ui/US_USM.ui" line="5722"/>
         <source>4</source>
-        <translation type="unfinished"></translation>
+        <translation>4</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_US_ui.py" line="1080"/>
+        <location filename="../gui/ui/US_USM.ui" line="5727"/>
         <source>5</source>
-        <translation type="unfinished"></translation>
+        <translation>5</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_US_ui.py" line="1081"/>
+        <location filename="../gui/ui/US_USM.ui" line="5732"/>
         <source>6</source>
-        <translation type="unfinished"></translation>
+        <translation>6</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_US_ui.py" line="1082"/>
+        <location filename="../gui/ui/US_USM.ui" line="5737"/>
         <source>7</source>
-        <translation type="unfinished"></translation>
+        <translation>7</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_US_ui.py" line="1083"/>
+        <location filename="../gui/ui/US_USM.ui" line="5742"/>
         <source>8</source>
-        <translation type="unfinished"></translation>
+        <translation>8</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_US_ui.py" line="1084"/>
+        <location filename="../gui/ui/US_USM.ui" line="5747"/>
         <source>9</source>
-        <translation type="unfinished"></translation>
+        <translation>9</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_US_ui.py" line="1085"/>
+        <location filename="../gui/ui/US_USM.ui" line="5752"/>
         <source>10</source>
-        <translation type="unfinished"></translation>
+        <translation>10</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_US_ui.py" line="1086"/>
+        <location filename="../gui/ui/US_USM.ui" line="5757"/>
         <source>11</source>
-        <translation type="unfinished"></translation>
+        <translation>11</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_US_ui.py" line="1087"/>
+        <location filename="../gui/ui/US_USM.ui" line="5762"/>
         <source>12</source>
-        <translation type="unfinished"></translation>
+        <translation>12</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_US_ui.py" line="1088"/>
+        <location filename="../gui/ui/US_USM.ui" line="5767"/>
         <source>13</source>
-        <translation type="unfinished"></translation>
+        <translation>13</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_US_ui.py" line="1089"/>
+        <location filename="../gui/ui/US_USM.ui" line="5772"/>
         <source>14</source>
-        <translation type="unfinished"></translation>
+        <translation>14</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_US_ui.py" line="1090"/>
+        <location filename="../gui/ui/US_USM.ui" line="5777"/>
         <source>15</source>
-        <translation type="unfinished"></translation>
+        <translation>15</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_US_ui.py" line="1091"/>
+        <location filename="../gui/ui/US_USM.ui" line="5782"/>
         <source>16</source>
-        <translation type="unfinished"></translation>
+        <translation>16</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_US_ui.py" line="1092"/>
+        <location filename="../gui/ui/US_USM.ui" line="5787"/>
         <source>17</source>
-        <translation type="unfinished"></translation>
+        <translation>17</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_US_ui.py" line="1093"/>
+        <location filename="../gui/ui/US_USM.ui" line="5792"/>
         <source>18</source>
-        <translation type="unfinished"></translation>
+        <translation>18</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_US_ui.py" line="1094"/>
+        <location filename="../gui/ui/US_USM.ui" line="5797"/>
         <source>19</source>
-        <translation type="unfinished"></translation>
+        <translation>19</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_US_ui.py" line="1095"/>
+        <location filename="../gui/ui/US_USM.ui" line="5802"/>
         <source>20</source>
-        <translation type="unfinished"></translation>
+        <translation>20</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_US_ui.py" line="1096"/>
+        <location filename="../gui/ui/US_USM.ui" line="5214"/>
         <source>Sito </source>
-        <translation type="unfinished">Site</translation>
+        <translation>Site </translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_US_ui.py" line="1097"/>
+        <location filename="../gui/ui/US_USM.ui" line="5233"/>
         <source>Area</source>
-        <translation type="unfinished">Area</translation>
+        <translation>Area</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_US_ui.py" line="1140"/>
+        <location filename="../gui/ui/US_USM.ui" line="5531"/>
         <source>US</source>
-        <translation type="unfinished">SU</translation>
+        <translation>SU</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_US_ui.py" line="1099"/>
+        <location filename="../gui/ui/US_USM.ui" line="6061"/>
         <source>Attivita&apos; di cantiere</source>
-        <translation type="unfinished">Work site activities</translation>
+        <translation>Activity</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_US_ui.py" line="1100"/>
+        <location filename="../gui/ui/US_USM.ui" line="6066"/>
         <source>Abbandono</source>
-        <translation type="unfinished">Abandon</translation>
+        <translation>Departure</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_US_ui.py" line="1101"/>
+        <location filename="../gui/ui/US_USM.ui" line="6071"/>
         <source>Fognatura</source>
-        <translation type="unfinished">Drainage</translation>
+        <translation>Drainage</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_US_ui.py" line="1102"/>
+        <location filename="../gui/ui/US_USM.ui" line="6076"/>
         <source>Fondazione</source>
-        <translation type="unfinished">Foundation</translation>
+        <translation>Founding</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_US_ui.py" line="1103"/>
+        <location filename="../gui/ui/US_USM.ui" line="6081"/>
         <source>Fossa da grano</source>
-        <translation type="unfinished">Wheat pit</translation>
+        <translation>Wheat pit</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_US_ui.py" line="1104"/>
+        <location filename="../gui/ui/US_USM.ui" line="6086"/>
         <source>Livellamento</source>
-        <translation type="unfinished">Leveling</translation>
+        <translation>Leveling</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_US_ui.py" line="1105"/>
+        <location filename="../gui/ui/US_USM.ui" line="6091"/>
         <source>Muro</source>
-        <translation type="unfinished">Wall</translation>
+        <translation>Wall</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_US_ui.py" line="1106"/>
+        <location filename="../gui/ui/US_USM.ui" line="6096"/>
         <source>Pavimentazione</source>
-        <translation type="unfinished">Flooring</translation>
+        <translation>Flooring</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_US_ui.py" line="1107"/>
+        <location filename="../gui/ui/US_USM.ui" line="6101"/>
         <source>Pavimentazione a mosaico</source>
-        <translation type="unfinished">Mosaic floor</translation>
+        <translation>Mosaic floor</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_US_ui.py" line="1108"/>
+        <location filename="../gui/ui/US_USM.ui" line="6106"/>
         <source>Palo</source>
-        <translation type="unfinished">Pole</translation>
+        <translation>Pole</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_US_ui.py" line="1109"/>
+        <location filename="../gui/ui/US_USM.ui" line="5958"/>
         <source>Definizione stratigrafica</source>
-        <translation type="unfinished">Stratigraphic definition</translation>
+        <translation>Stratigraphic definition</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_US_ui.py" line="1110"/>
+        <location filename="../gui/ui/US_USM.ui" line="5971"/>
         <source>Definizione Interpretata</source>
-        <translation type="unfinished">Interpretation</translation>
+        <translation>Interpreted definition</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_US_ui.py" line="1119"/>
+        <location filename="../gui/ui/US_USM.ui" line="904"/>
         <source>Dati descrittivi</source>
-        <translation type="unfinished">Description data</translation>
+        <translation>Descriptive data</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_US_ui.py" line="1117"/>
+        <location filename="../gui/ui/US_USM.ui" line="1002"/>
         <source>Descrizione </source>
-        <translation type="unfinished">Description</translation>
+        <translation>Description </translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_US_ui.py" line="1118"/>
+        <location filename="../gui/ui/US_USM.ui" line="1039"/>
         <source>Interpretazione </source>
-        <translation type="unfinished">Interpretation</translation>
+        <translation>Interpretation </translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_US_ui.py" line="1142"/>
+        <location filename="../gui/ui/US_USM.ui" line="2404"/>
         <source>Periodizzazione - Rapporti Stratigrafici</source>
-        <translation type="unfinished">Periodization - Stratigraphic Relation</translation>
+        <translation>Periodization - Stratigraphic relationship</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_US_ui.py" line="1120"/>
+        <location filename="../gui/ui/US_USM.ui" line="1522"/>
         <source>Periodizzazione </source>
-        <translation type="unfinished"></translation>
+        <translation type="obsolete">Periodization</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_US_ui.py" line="1121"/>
+        <location filename="../gui/ui/US_USM.ui" line="2446"/>
         <source>Iniziale </source>
-        <translation type="unfinished">Starting</translation>
+        <translation>Starting </translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_US_ui.py" line="1122"/>
+        <location filename="../gui/ui/US_USM.ui" line="2465"/>
         <source>Finale </source>
-        <translation type="unfinished">End</translation>
+        <translation>End </translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_US_ui.py" line="1123"/>
+        <location filename="../gui/ui/US_USM.ui" line="2484"/>
         <source>Attivita&apos;</source>
-        <translation type="unfinished">Activity</translation>
+        <translation>Activity</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_US_ui.py" line="1124"/>
+        <location filename="../gui/ui/US_USM.ui" line="2509"/>
         <source>Struttura</source>
-        <translation type="unfinished">Framework</translation>
+        <translation>Architecture</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_US_ui.py" line="1127"/>
+        <location filename="../gui/ui/US_USM.ui" line="2662"/>
         <source>Periodo </source>
-        <translation type="unfinished">Period</translation>
+        <translation>Period</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_US_ui.py" line="1128"/>
+        <location filename="../gui/ui/US_USM.ui" line="2675"/>
         <source>Fase </source>
-        <translation type="unfinished">Phase</translation>
+        <translation>Phase </translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_US_ui.py" line="1129"/>
+        <location filename="../gui/ui/US_USM.ui" line="2845"/>
         <source>Meccanico</source>
-        <translation type="unfinished">Mechanical</translation>
+        <translation>Mechanical</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_US_ui.py" line="1130"/>
+        <location filename="../gui/ui/US_USM.ui" line="2850"/>
         <source>Stratigrafico</source>
-        <translation type="unfinished">Stratigraphic</translation>
+        <translation>Stratigraphic</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_US_ui.py" line="1131"/>
+        <location filename="../gui/ui/US_USM.ui" line="2750"/>
         <source>Metodo di scavo</source>
-        <translation type="unfinished">Excavation system</translation>
+        <translation>Excavation system</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_US_ui.py" line="1132"/>
+        <location filename="../gui/ui/US_USM.ui" line="2737"/>
         <source>Anno</source>
-        <translation type="unfinished">Year</translation>
+        <translation>Year</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_US_ui.py" line="1133"/>
+        <location filename="../gui/ui/US_USM.ui" line="2778"/>
         <source>Si</source>
-        <translation type="unfinished">Yes</translation>
+        <translation>Yes</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_US_ui.py" line="1134"/>
+        <location filename="../gui/ui/US_USM.ui" line="2783"/>
         <source>No</source>
-        <translation type="unfinished">No</translation>
+        <translation>No</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_US_ui.py" line="1135"/>
+        <location filename="../gui/ui/US_USM.ui" line="2724"/>
         <source>Scavato</source>
-        <translation type="unfinished">Digged</translation>
+        <translation>Excavated</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_US_ui.py" line="1136"/>
+        <location filename="../gui/ui/US_USM.ui" line="2862"/>
         <source>Rapporti stratigrafici</source>
-        <translation type="unfinished">Stratigraph relation</translation>
+        <translation>Stratigraphic relationship</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_US_ui.py" line="1179"/>
+        <location filename="../gui/ui/US_USM.ui" line="4386"/>
         <source>inserisci riga</source>
-        <translation type="unfinished">Insert row</translation>
+        <translation>Insert row</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_US_ui.py" line="1180"/>
+        <location filename="../gui/ui/US_USM.ui" line="4408"/>
         <source>rimuovi riga</source>
-        <translation type="unfinished"></translation>
+        <translation>Remove row</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_US_ui.py" line="1139"/>
+        <location filename="../gui/ui/US_USM.ui" line="2913"/>
         <source>Tipo di rapporto</source>
-        <translation type="unfinished">Relation type</translation>
+        <translation>Relationship type</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_US_ui.py" line="1178"/>
+        <location filename="../gui/ui/US_USM.ui" line="2992"/>
         <source>Dati Fisici - Dati Schedatore</source>
-        <translation type="unfinished">Phisical Data - Cataloguer Data</translation>
+        <translation>Phisical Data - Cataloguer Data</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_US_ui.py" line="1143"/>
+        <location filename="../gui/ui/US_USM.ui" line="3219"/>
         <source>Antropico</source>
-        <translation type="unfinished">Anthropic</translation>
+        <translation>Anthropic</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_US_ui.py" line="1144"/>
+        <location filename="../gui/ui/US_USM.ui" line="3224"/>
         <source>Naturale</source>
-        <translation type="unfinished">Natural</translation>
+        <translation>Natural</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_US_ui.py" line="1145"/>
+        <location filename="../gui/ui/US_USM.ui" line="3057"/>
         <source>Inclusi</source>
-        <translation type="unfinished">Inclusions</translation>
+        <translation>Inclusions</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_US_ui.py" line="1146"/>
+        <location filename="../gui/ui/US_USM.ui" line="3097"/>
         <source>                     Campioni                </source>
-        <translation type="unfinished">Sample</translation>
+        <translation>Samples</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_US_ui.py" line="1147"/>
+        <location filename="../gui/ui/US_USM.ui" line="3186"/>
         <source>Formazione</source>
-        <translation type="unfinished">Formation</translation>
+        <translation>Formation</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_US_ui.py" line="1148"/>
+        <location filename="../gui/ui/US_USM.ui" line="3270"/>
         <source>Marrone</source>
-        <translation type="unfinished"></translation>
+        <translation>Brown</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_US_ui.py" line="1149"/>
+        <location filename="../gui/ui/US_USM.ui" line="3275"/>
         <source>Marrone chiaro</source>
-        <translation type="unfinished"></translation>
+        <translation>Light brown</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_US_ui.py" line="1150"/>
+        <location filename="../gui/ui/US_USM.ui" line="3280"/>
         <source>Marrone scuro</source>
-        <translation type="unfinished"></translation>
+        <translation>Dark brown</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_US_ui.py" line="1163"/>
+        <location filename="../gui/ui/US_USM.ui" line="3372"/>
         <source>-</source>
-        <translation type="unfinished"></translation>
+        <translation>-</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_US_ui.py" line="1152"/>
+        <location filename="../gui/ui/US_USM.ui" line="3290"/>
         <source>Giallo</source>
-        <translation type="unfinished"></translation>
+        <translation>Yellow</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_US_ui.py" line="1153"/>
+        <location filename="../gui/ui/US_USM.ui" line="3295"/>
         <source>Giallo scuro</source>
-        <translation type="unfinished"></translation>
+        <translation>Yellow</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_US_ui.py" line="1154"/>
+        <location filename="../gui/ui/US_USM.ui" line="3300"/>
         <source>Giallo chiaro</source>
-        <translation type="unfinished"></translation>
+        <translation>Light yellow</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_US_ui.py" line="1157"/>
+        <location filename="../gui/ui/US_USM.ui" line="3170"/>
         <source>Colore</source>
-        <translation type="unfinished">Color</translation>
+        <translation>Color</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_US_ui.py" line="1158"/>
+        <location filename="../gui/ui/US_USM.ui" line="3342"/>
         <source>Argillosa</source>
-        <translation type="unfinished">Clay</translation>
+        <translation>Clay</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_US_ui.py" line="1159"/>
+        <location filename="../gui/ui/US_USM.ui" line="3347"/>
         <source>Compatta</source>
-        <translation type="unfinished">Compact</translation>
+        <translation>Compact</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_US_ui.py" line="1160"/>
+        <location filename="../gui/ui/US_USM.ui" line="3352"/>
         <source>Friabile</source>
-        <translation type="unfinished">Friable</translation>
+        <translation>Friable</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_US_ui.py" line="1161"/>
+        <location filename="../gui/ui/US_USM.ui" line="3357"/>
         <source>Sabbiosa</source>
-        <translation type="unfinished">Sandy</translation>
+        <translation>Sandy</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_US_ui.py" line="1164"/>
+        <location filename="../gui/ui/US_USM.ui" line="3389"/>
         <source>Consistenza</source>
-        <translation type="unfinished">Texture</translation>
+        <translation>Texture</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_US_ui.py" line="1165"/>
+        <location filename="../gui/ui/US_USM.ui" line="3553"/>
         <source>Insufficiente</source>
-        <translation type="unfinished">Insufficient</translation>
+        <translation>Insufficient</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_US_ui.py" line="1166"/>
+        <location filename="../gui/ui/US_USM.ui" line="3558"/>
         <source>Scarso</source>
-        <translation type="unfinished">Low</translation>
+        <translation>Low</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_US_ui.py" line="1167"/>
+        <location filename="../gui/ui/US_USM.ui" line="3563"/>
         <source>Buono</source>
-        <translation type="unfinished">Good</translation>
+        <translation>Good</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_US_ui.py" line="1168"/>
+        <location filename="../gui/ui/US_USM.ui" line="3568"/>
         <source>Discreto</source>
-        <translation type="unfinished">Fair</translation>
+        <translation>Fair</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_US_ui.py" line="1169"/>
+        <location filename="../gui/ui/US_USM.ui" line="3573"/>
         <source>Ottimo</source>
-        <translation type="unfinished">Excellent</translation>
+        <translation>Excellent</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_US_ui.py" line="1174"/>
-        <source>Stato di conservazione</source>
-        <translation type="unfinished">Type preservation</translation>
-    </message>
-    <message>
-        <location filename="modules/gui/pyarchinit_US_ui.py" line="1175"/>
+        <location filename="../gui/ui/US_USM.ui" line="3780"/>
         <source>Data schedatura</source>
-        <translation type="unfinished">Date</translation>
+        <translation>Date</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_US_ui.py" line="1176"/>
+        <location filename="../gui/ui/US_USM.ui" line="4010"/>
         <source>Luca Mandolesi</source>
-        <translation type="unfinished"></translation>
+        <translation>Luca Mandolesi</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_US_ui.py" line="1177"/>
+        <location filename="../gui/ui/US_USM.ui" line="3764"/>
         <source>Schedatore</source>
-        <translation type="unfinished">Catalguer</translation>
+        <translation>Phisical Data - Cataloguer Data</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_US_ui.py" line="1222"/>
+        <location filename="../gui/ui/US_USM.ui" line="4457"/>
         <source>Tools</source>
-        <translation type="unfinished"></translation>
+        <translation>Tools</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_US_ui.py" line="1190"/>
+        <location filename="../gui/ui/US_USM.ui" line="4716"/>
         <source>Crea Codice Periodo</source>
-        <translation type="unfinished">Create Code Period</translation>
+        <translation>Period</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_US_ui.py" line="1193"/>
+        <location filename="../gui/ui/US_USM.ui" line="4761"/>
         <source>Esporta Matrix</source>
-        <translation type="unfinished">Export Matrix</translation>
+        <translation>Export Matrix</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_US_ui.py" line="1213"/>
+        <location filename="../gui/ui/US_USM.ui" line="5063"/>
         <source>Show Selcted Features</source>
-        <translation type="unfinished"></translation>
+        <translation>Show Selcted Features</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_US_ui.py" line="1192"/>
+        <location filename="../gui/ui/US_USM.ui" line="4696"/>
         <source>Crea codice periodo</source>
-        <translation type="unfinished">Create Code Period</translation>
+        <translation>Period</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_US_ui.py" line="1196"/>
+        <location filename="../gui/ui/US_USM.ui" line="4777"/>
         <source>Ordine Stratigrafico</source>
-        <translation type="unfinished">Order Stratigraphic</translation>
+        <translation>Stratigraphic</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_US_ui.py" line="1218"/>
-        <source>Export PDF</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="modules/gui/pyarchinit_US_ui.py" line="1195"/>
-        <source>export Matrix</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="modules/gui/pyarchinit_US_ui.py" line="1198"/>
+        <location filename="../gui/ui/US_USM.ui" line="4828"/>
         <source>Visualizzazione GIS</source>
-        <translation type="unfinished">GIS</translation>
+        <translation>GIS</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_US_ui.ui" line="1987"/>
-        <source>Visualizza US</source>
-        <translation type="obsolete">Show US</translation>
-    </message>
-    <message>
-        <location filename="modules/gui/pyarchinit_US_ui.py" line="1205"/>
+        <location filename="../gui/ui/US_USM.ui" line="4934"/>
         <source>Attivazione Preview pianta US</source>
-        <translation type="unfinished">Preview US map</translation>
+        <translation>Preview SU map</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_US_ui.py" line="1210"/>
+        <location filename="../gui/ui/US_USM.ui" line="4986"/>
         <source>Ctrl+G</source>
-        <translation type="unfinished"></translation>
+        <translation>Ctrl+G</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_US_ui.py" line="1206"/>
+        <location filename="../gui/ui/US_USM.ui" line="4944"/>
         <source>Preview pianta US</source>
-        <translation type="unfinished">Preview US map</translation>
+        <translation>Preview SU map</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_US_ui.py" line="1208"/>
+        <location filename="../gui/ui/US_USM.ui" line="4976"/>
         <source>Pan tool</source>
-        <translation type="unfinished"></translation>
+        <translation>Pan tool</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_US_ui.py" line="1202"/>
+        <location filename="../gui/ui/US_USM.ui" line="4895"/>
         <source>Apri schede US selezionate</source>
-        <translation type="unfinished">Open selected US form</translation>
+        <translation>Open selected SU form</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_US_ui.ui" line="2083"/>
-        <source>apri schede US</source>
-        <translation type="obsolete">Open US form</translation>
-    </message>
-    <message>
-        <location filename="modules/gui/pyarchinit_US_ui.ui" line="2100"/>
-        <source>Esportazioni PDF</source>
-        <translation type="obsolete">PDF Download</translation>
-    </message>
-    <message>
-        <location filename="modules/gui/pyarchinit_US_ui.py" line="1219"/>
+        <location filename="../gui/ui/US_USM.ui" line="109"/>
         <source>Singole schede US</source>
-        <translation type="unfinished">Single US form </translation>
+        <translation>Single SU form </translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_US_ui.py" line="1216"/>
+        <location filename="../gui/ui/US_USM.ui" line="217"/>
         <source>Elenco US</source>
-        <translation type="unfinished">US list</translation>
+        <translation>SU list</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_US_ui.py" line="1212"/>
+        <location filename="../gui/ui/US_USM.ui" line="5027"/>
         <source>Mostra immagini</source>
-        <translation type="unfinished">Show image</translation>
+        <translation>Show image</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_US_ui.ui" line="2181"/>
-        <source>Controlla rapporti stratigrafici</source>
-        <translation type="obsolete">Check stratigraphic relation</translation>
-    </message>
-    <message>
-        <location filename="modules/gui/pyarchinit_US_ui.py" line="1189"/>
+        <location filename="../gui/ui/US_USM.ui" line="4625"/>
         <source>Check, go!!!!</source>
-        <translation type="unfinished"></translation>
+        <translation>Check, go!!!!</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_US_ui.py" line="1074"/>
-        <source>Connection test</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="modules/gui/pyarchinit_US_ui.py" line="1112"/>
+        <location filename="../gui/ui/US_USM.ui" line="136"/>
         <source>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
 &lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
 p, li { white-space: pre-wrap; }
 &lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:&apos;MS Shell Dlg 2&apos;; font-size:10pt; font-weight:400; font-style:normal;&quot;&gt;
 &lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-family:&apos;Lucida Grande&apos;; font-size:13pt;&quot;&gt;&lt;br /&gt;&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation type="obsolete">&lt;! PUBLIC HTML DOCTYPE &quot;-/////W3C//DTD HTML 4.0//EN&quot; &quot;Http://www.w3.org/TR/REC-html40/strict.dtd&quot; &gt; &lt;html&gt; &lt;head&gt; &lt; meta name = &quot;Qrichtext&quot; content = &quot;1&quot;/&gt; &lt; Style Type = &quot;text/css&quot; &gt; P, li {white-space: pre-wrap;} &lt;/style&gt; &lt;/head&gt; &lt; Body style = &quot;FONT-family: &apos; MS Shell Dlg 2 &apos;; font-size: 10pt; font-weight: 400; font-style: normal;&quot; &gt; &lt; P style = &quot;margin-top: 0px; margin-bottom: 0px; margin-left: 0px; margin-right: 0px;-QT-block-indent: 0; text-indent: 0px;&quot; &gt; &lt; span style = &quot;FONT-family: &apos; glossy Grande &apos;; font-size: 13pt;&quot; &gt; &lt; BR/&gt; &lt;/span&gt; &lt;/p&gt; &lt;/body&gt; &lt;/html&gt;</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_US_ui.py" line="1141"/>
+        <location filename="../gui/ui/US_USM.ui" line="2982"/>
         <source>Vai all&apos;US</source>
-        <translation type="unfinished"></translation>
+        <translation>Go to SU</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_US_ui.py" line="1183"/>
+        <location filename="../gui/ui/US_USM.ui" line="4321"/>
         <source>Documentazione</source>
-        <translation type="unfinished"></translation>
+        <translation>Documentation</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_US_ui.py" line="1181"/>
+        <location filename="../gui/ui/US_USM.ui" line="4356"/>
         <source>Tipo documentazione</source>
-        <translation type="unfinished"></translation>
+        <translation>Documentation type</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_US_ui.py" line="1182"/>
+        <location filename="../gui/ui/US_USM.ui" line="4361"/>
         <source>Riferimenti</source>
-        <translation type="unfinished"></translation>
+        <translation>References</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_US_ui.py" line="1197"/>
+        <location filename="../gui/ui/US_USM.ui" line="4491"/>
         <source>Sistemi di controllo</source>
-        <translation type="unfinished"></translation>
+        <translation>Control settings</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_US_ui.py" line="1184"/>
+        <location filename="../gui/ui/US_USM.ui" line="4506"/>
         <source>TOOLS</source>
-        <translation type="unfinished"></translation>
+        <translation>TOOLS</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_US_ui.py" line="1185"/>
+        <location filename="../gui/ui/US_USM.ui" line="4513"/>
         <source>Selezione del sito per i controlli</source>
-        <translation type="unfinished"></translation>
+        <translation>Site selection for controls</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_US_ui.py" line="1187"/>
+        <location filename="../gui/ui/US_USM.ui" line="4645"/>
         <source>Check rapporti stratigrafici</source>
-        <translation type="unfinished"></translation>
+        <translation>Check stratigraphical Reports</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_US_ui.py" line="1215"/>
+        <location filename="../gui/ui/US_USM.ui" line="4813"/>
         <source>Funzioni di controllo</source>
-        <translation type="unfinished"></translation>
+        <translation>Control functions</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_US_ui.py" line="1214"/>
+        <location filename="../gui/ui/US_USM.ui" line="5066"/>
         <source>Disegna US</source>
-        <translation type="unfinished"></translation>
+        <translation>Draw SU</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_US_ui.py" line="1200"/>
+        <location filename="../gui/ui/US_USM.ui" line="4860"/>
         <source>GIS Data Visualizer</source>
-        <translation type="unfinished"></translation>
+        <translation>GIS Data Visualizer</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_US_ui.py" line="1204"/>
+        <location filename="../gui/ui/US_USM.ui" line="4914"/>
         <source>Apri schede US</source>
-        <translation type="unfinished"></translation>
+        <translation>Open SU tab</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_US_ui.py" line="1209"/>
+        <location filename="../gui/ui/US_USM.ui" line="4979"/>
         <source>Pan</source>
-        <translation type="unfinished"></translation>
+        <translation>Pan</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_US_ui.py" line="1221"/>
+        <location filename="../gui/ui/US_USM.ui" line="5086"/>
         <source>Esportazioni</source>
-        <translation type="unfinished"></translation>
+        <translation>Exports</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_US_ui.py" line="1217"/>
+        <location filename="../gui/ui/US_USM.ui" line="361"/>
         <source>Esportazioni PDF/PNG</source>
-        <translation type="unfinished"></translation>
+        <translation>Export PDF/PNG</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_US_ui.py" line="1220"/>
-        <source>Espotazione Tavole</source>
-        <translation type="unfinished"></translation>
+        <location filename="../gui/ui/US_USM.ui" line="41"/>
+        <source>pyArchInit Gestione Scavi - Scheda US/USM</source>
+        <translation>Pyarchinit Excavation Management-SU/WSU Card</translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/US_USM.ui" line="1009"/>
+        <source>Elementi datanti</source>
+        <translation>Dating elements</translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/US_USM.ui" line="1016"/>
+        <source>Osservazioni</source>
+        <translation>Observations</translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/US_USM.ui" line="5536"/>
+        <source>USM</source>
+        <translation>WSU</translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/US_USM.ui" line="1053"/>
+        <source>Dati specifici USM </source>
+        <translation>Specific WSU data</translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/US_USM.ui" line="1265"/>
+        <source>Criteri distinzione USM</source>
+        <translation>WSU Distinction Criteria</translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/US_USM.ui" line="1281"/>
+        <source>Tecnica muraria</source>
+        <translation>Masonry technique</translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/US_USM.ui" line="1309"/>
+        <source>Lavorazione</source>
+        <translation>Processing</translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/US_USM.ui" line="1337"/>
+        <source>Posa in opera</source>
+        <translation>Pose in Opera</translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/US_USM.ui" line="1427"/>
+        <source>Modulo USM</source>
+        <translation>WSU Module</translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/US_USM.ui" line="1249"/>
+        <source>Spessore USM (metri)</source>
+        <translation>WSU thickness (meters)</translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/US_USM.ui" line="1145"/>
+        <source>Funzione statica</source>
+        <translation>static function</translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/US_USM.ui" line="1079"/>
+        <source>Unita&apos; edilizia riassuntiva</source>
+        <translation>Construction Unit</translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/US_USM.ui" line="1095"/>
+        <source>Uso primario USM</source>
+        <translation>Primary use WSU</translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/US_USM.ui" line="1123"/>
+        <source>Reimpiego</source>
+        <translation>Reuse</translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/US_USM.ui" line="1449"/>
+        <source>Caratteristiche dei giunti</source>
+        <translation>Characteristics of joints</translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/US_USM.ui" line="1469"/>
+        <source>Spessore giunti</source>
+        <translation>Joints thickness</translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/US_USM.ui" line="1513"/>
+        <source>Letti di posa</source>
+        <translation>Laying beds</translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/US_USM.ui" line="1557"/>
+        <source>Altezza modulo 5 corsi</source>
+        <translation>Height module 5 courses</translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/US_USM.ui" line="1601"/>
+        <source>Provenienza materiali</source>
+        <translation>Material origin</translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/US_USM.ui" line="1624"/>
+        <source>USM 2</source>
+        <translation>WSU 2</translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/US_USM.ui" line="681"/>
+        <source>Caratteristiche del legante</source>
+        <translation type="obsolete">Binder features</translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/US_USM.ui" line="701"/>
+        <source>Caratteristiche dei materiali da costruzione</source>
+        <translation type="obsolete">Building materials features</translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/US_USM.ui" line="2204"/>
+        <source>+</source>
+        <translation>+</translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/US_USM.ui" line="1942"/>
+        <source>Consistenza e Texture</source>
+        <translation>Consistency and texture</translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/US_USM.ui" line="1994"/>
+        <source>Consistenza/texture</source>
+        <translation>Texture</translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/US_USM.ui" line="1808"/>
+        <source>Tenace</source>
+        <translation>Tenacious</translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/US_USM.ui" line="2136"/>
+        <source>Aggregati</source>
+        <translation>Aggregate</translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/US_USM.ui" line="2249"/>
+        <source>USM 3</source>
+        <translation>WSU 3</translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/US_USM.ui" line="2313"/>
+        <source>quota max (metri)</source>
+        <translation>Max Quota (meters)</translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/US_USM.ui" line="2264"/>
+        <source>Campioni malta</source>
+        <translation>Samples Malta</translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/US_USM.ui" line="2333"/>
+        <source>Altezza USM  (metri)</source>
+        <translation>Height WSU (meters)</translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/US_USM.ui" line="2326"/>
+        <source>Lunghezza USM  (metri)</source>
+        <translation>Length WSU (meters)</translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/US_USM.ui" line="2271"/>
+        <source>Campioni pietra</source>
+        <translation>Stone samples</translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/US_USM.ui" line="2278"/>
+        <source>Campioni mattone</source>
+        <translation>Brick samples</translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/US_USM.ui" line="2300"/>
+        <source>quota min (metri)</source>
+        <translation>Min Quota (meters)</translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/US_USM.ui" line="2701"/>
+        <source>Datazione</source>
+        <translation>Dating</translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/US_USM.ui" line="3640"/>
+        <source>Flottazione</source>
+        <translation>Flotation</translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/US_USM.ui" line="3467"/>
+        <source>Setacciatura</source>
+        <translation>Sieving</translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/US_USM.ui" line="3527"/>
+        <source>Stato conservazione</source>
+        <translation type="obsolete">Conservation status</translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/US_USM.ui" line="3138"/>
+        <source>Apporto</source>
+        <translation>Contribution</translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/US_USM.ui" line="3143"/>
+        <source>Sottrazione</source>
+        <translation>Subtraction</translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/US_USM.ui" line="3148"/>
+        <source>Accumulo</source>
+        <translation>Storage</translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/US_USM.ui" line="3153"/>
+        <source>Frana</source>
+        <translation>Landslide</translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/US_USM.ui" line="3105"/>
+        <source>Posizione</source>
+        <translation>Position</translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/US_USM.ui" line="3193"/>
+        <source>Criteri distinzione</source>
+        <translation>Criteria Distinction</translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/US_USM.ui" line="3112"/>
+        <source>Modo formazione</source>
+        <translation>Training mode</translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/US_USM.ui" line="3633"/>
+        <source>Affidabilita&apos;</source>
+        <translation>Reliability</translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/US_USM.ui" line="3407"/>
+        <source>Comp. inorganici</source>
+        <translation>Inorganic elements</translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/US_USM.ui" line="3625"/>
+        <source>Comp. organici</source>
+        <translation>Organic elements</translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/US_USM.ui" line="3834"/>
+        <source>Data rilevazione</source>
+        <translation>Date recognition</translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/US_USM.ui" line="3978"/>
+        <source>Responsabile US</source>
+        <translation>SU Manager</translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/US_USM.ui" line="3875"/>
+        <source>Data rielaborazione</source>
+        <translation>Date Reprocessing</translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/US_USM.ui" line="3924"/>
+        <source>Direttore US</source>
+        <translation>SU Director</translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/US_USM.ui" line="3861"/>
+        <source>Ref. TM</source>
+        <translation>Reference Material Tab</translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/US_USM.ui" line="3931"/>
+        <source>Ref. RA</source>
+        <translation>Reference archeological artifact</translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/US_USM.ui" line="3868"/>
+        <source>Ref. N.</source>
+        <translation>Reference no.</translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/US_USM.ui" line="3827"/>
+        <source>Cod. Ente Schedatore</source>
+        <translation>Code Filing Agency</translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/US_USM.ui" line="4021"/>
+        <source>Misure</source>
+        <translation>Measures</translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/US_USM.ui" line="2772"/>
+        <source>Profondità  Min. (Metri)</source>
+        <translation type="obsolete">Min depth metres</translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/US_USM.ui" line="4268"/>
+        <source>Altezza min. (Metri)</source>
+        <translation type="obsolete">Height min (meters)</translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/US_USM.ui" line="4153"/>
+        <source>Quota assoluta (metri)</source>
+        <translation>Absolute altitude (meters)</translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/US_USM.ui" line="4222"/>
+        <source>Quota max relativa  (metri)</source>
+        <translation>Relative max elevation(meters)</translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/US_USM.ui" line="4199"/>
+        <source>Quota max assoluta (metri)</source>
+        <translation>Absolute max elevation (meters)</translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/US_USM.ui" line="4192"/>
+        <source>Quota relativa (metri)</source>
+        <translation>Relative elevation (meters)</translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/US_USM.ui" line="4100"/>
+        <source>Lunghezza max (metri)</source>
+        <translation>Max Length (meters)</translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/US_USM.ui" line="4245"/>
+        <source>Altezza Max. (Metri)</source>
+        <translation type="obsolete">Height max (meters)</translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/US_USM.ui" line="3055"/>
+        <source>Profondità max. (Metri)</source>
+        <translation type="obsolete">Max. Depth (meters)</translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/US_USM.ui" line="4146"/>
+        <source>Larghezza media (metri)</source>
+        <translation>Medium width (meters)</translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/US_USM.ui" line="4447"/>
+        <source>Visualizza documentazione</source>
+        <translation>View Documentation</translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/US_USM.ui" line="4434"/>
+        <source>Aggiorna doc</source>
+        <translation>DOC update</translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/US_USM.ui" line="4741"/>
+        <source>Export Matrix</source>
+        <translation>Export Matrix</translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/US_USM.ui" line="5103"/>
+        <source>Esportazione Tavole</source>
+        <translation>Export drawing boards</translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/US_USM.ui" line="569"/>
+        <source>Rec step</source>
+        <translation>Rec Step</translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/US_USM.ui" line="4365"/>
+        <source>DBMS Toolbar (testing)</source>
+        <translation type="obsolete">Toolbar DBMS (testing)</translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/US_USM.ui" line="5178"/>
+        <source>Identificatori</source>
+        <translation>Identifiers</translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/US_USM.ui" line="5252"/>
+        <source>US/USM</source>
+        <translation>SU/WSU</translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/US_USM.ui" line="5271"/>
+        <source>Unita tipo</source>
+        <translation>Unit type</translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/US_USM.ui" line="5562"/>
+        <source>Localizzazione</source>
+        <translation>Localization</translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/US_USM.ui" line="5667"/>
+        <source>A</source>
+        <translation>A</translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/US_USM.ui" line="5672"/>
+        <source>B</source>
+        <translation>B</translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/US_USM.ui" line="5677"/>
+        <source>C</source>
+        <translation>C</translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/US_USM.ui" line="5682"/>
+        <source>D</source>
+        <translation>D</translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/US_USM.ui" line="5687"/>
+        <source>E</source>
+        <translation>E</translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/US_USM.ui" line="5692"/>
+        <source>F</source>
+        <translation>F</translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/US_USM.ui" line="5697"/>
+        <source>G</source>
+        <translation>G</translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/US_USM.ui" line="5702"/>
+        <source>H</source>
+        <translation>H</translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/US_USM.ui" line="5580"/>
+        <source>Settore</source>
+        <translation>Field</translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/US_USM.ui" line="5593"/>
+        <source>Quadrato/Parete</source>
+        <translation>Square/Wall</translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/US_USM.ui" line="5606"/>
+        <source>Ambiente</source>
+        <translation>Space</translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/US_USM.ui" line="5619"/>
+        <source>Saggio</source>
+        <translation>Trench</translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/US_USM.ui" line="5934"/>
+        <source>Sabap - Emilia Romagna</source>
+        <translation>SABAP-Emilia Romagna</translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/US_USM.ui" line="5939"/>
+        <source>Sabap - Marche</source>
+        <translation>SABAP-Marche</translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/US_USM.ui" line="5944"/>
+        <source>Sabap - Toscana</source>
+        <translation>SABAP-Tuscany</translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/US_USM.ui" line="5632"/>
+        <source>Soprintendenza</source>
+        <translation>Superintendence</translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/US_USM.ui" line="5151"/>
+        <source>N°. Cat. Gen.</source>
+        <translation type="obsolete">N °. Cat. Gen.</translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/US_USM.ui" line="5188"/>
+        <source>N°. Cat. Int.</source>
+        <translation type="obsolete">N °. Cat. Int.</translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/US_USM.ui" line="5225"/>
+        <source>N°. Cat. Internaz.</source>
+        <translation type="obsolete">N °. Cat. Internat.</translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/US_USM.ui" line="5225"/>
+        <source>pyArchInit Gestione Scavi - Scheda US</source>
+        <translation type="obsolete">pyArchInit Excavation Mangement</translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/US_USM.ui" line="5225"/>
+        <source>Stato di conservazione</source>
+        <translation type="obsolete">Type preservation</translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/US_USM.ui" line="5225"/>
+        <source>Visualizza US</source>
+        <translation type="obsolete">Show US</translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/US_USM.ui" line="5225"/>
+        <source>apri schede US</source>
+        <translation type="obsolete">Open US form</translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/US_USM.ui" line="5225"/>
+        <source>Esportazioni PDF</source>
+        <translation type="obsolete">PDF Download</translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/US_USM.ui" line="5225"/>
+        <source>Controlla rapporti stratigrafici</source>
+        <translation type="obsolete">Check stratigraphic relation</translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/US_USM.ui" line="339"/>
+        <source>DBMS Toolbar</source>
+        <translation>DBMS Toolbar</translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/US_USM.ui" line="938"/>
+        <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Dati descrittivi&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Description data&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/US_USM.ui" line="991"/>
+        <source>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
+&lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
+p, li { white-space: pre-wrap; }
+&lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:&apos;Times New Roman&apos;; font-size:8pt; font-weight:400; font-style:normal;&quot;&gt;
+&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-family:&apos;Lucida Grande&apos;; font-size:13pt;&quot;&gt;&lt;br /&gt;&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
+        <translation>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
+&lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
+p, li { white-space: pre-wrap; }
+&lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:&apos;Times New Roman&apos;; font-size:8pt; font-weight:400; font-style:normal;&quot;&gt;
+&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-family:&apos;Lucida Grande&apos;; font-size:13pt;&quot;&gt;&lt;br /&gt;&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/US_USM.ui" line="1657"/>
+        <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Caratteristiche del legante&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Binder characteristics&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/US_USM.ui" line="1932"/>
+        <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Caratteristiche dei materiali da costruzione&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Characteristics of building materials&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/US_USM.ui" line="4077"/>
+        <source>Quota min relativa  (metri)</source>
+        <translation>Relative elevation min (meter)</translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/US_USM.ui" line="4107"/>
+        <source>Quota min assoluta (metri)</source>
+        <translation>Absolute elevation min (meter)</translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/US_USM.ui" line="4291"/>
+        <source>Profondità min. (metri)</source>
+        <translation type="obsolete">Depth min (meter)</translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/US_USM.ui" line="4298"/>
+        <source>Profondità max. (metri)</source>
+        <translation type="obsolete">Depth max (meter)</translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/US_USM.ui" line="2427"/>
+        <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Periodizzazione&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Periodization&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/US_USM.ui" line="4245"/>
+        <source>Altezza max. (metri)</source>
+        <translation>Height max (meter)</translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/US_USM.ui" line="4268"/>
+        <source>Altezza min. (metri)</source>
+        <translation>Height min (meter)</translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/US_USM.ui" line="5984"/>
+        <source>Nr. Cat. Gen.</source>
+        <translation>Nr General Cat.</translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/US_USM.ui" line="5997"/>
+        <source>Nr. Cat. Int.</source>
+        <translation>Nr. Cat. Internal</translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/US_USM.ui" line="6010"/>
+        <source>Nr. Cat. Internaz.</source>
+        <translation>Nr. Int. Cat.</translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/US_USM.ui" line="3527"/>
+        <source>Stato conservazione </source>
+        <translation>Preservation state </translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/US_USM.ui" line="4291"/>
+        <source>Profondità min. (metri) </source>
+        <translation>Min depth metres</translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/US_USM.ui" line="4298"/>
+        <source>Profondità max. (metri) </source>
+        <translation>Max. Depth (meters)</translation>
     </message>
 </context>
 <context>
     <name>DialogUT</name>
     <message>
-        <location filename="modules/gui/pyarchinit_UT_ui.ui" line="20"/>
+        <location filename="../gui/ui/UT_ui.ui" line="20"/>
         <source>pyArchInit Archeologia del Territorio- Scheda UT</source>
-        <translation type="unfinished"></translation>
+        <translation>Pyarchinit Territory Archaeology-TU tab</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_UT_ui.ui" line="60"/>
+        <location filename="../gui/ui/UT_ui.ui" line="60"/>
         <source>DBMS Toolbar</source>
-        <translation type="unfinished"></translation>
+        <translation>DBMS Toolbar</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_UT_ui.ui" line="67"/>
+        <location filename="../gui/ui/UT_ui.ui" line="67"/>
         <source>Reload DB</source>
-        <translation type="unfinished">Reload DB</translation>
+        <translation>Reload DB</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_UT_ui.ui" line="76"/>
+        <location filename="../gui/ui/UT_ui.ui" line="76"/>
         <source>First rec</source>
-        <translation type="unfinished">First rec</translation>
+        <translation>First rec</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_UT_ui.ui" line="90"/>
+        <location filename="../gui/ui/UT_ui.ui" line="90"/>
         <source>Prev rec</source>
-        <translation type="unfinished">Prev rec</translation>
+        <translation>Prev rec</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_UT_ui.ui" line="104"/>
+        <location filename="../gui/ui/UT_ui.ui" line="104"/>
         <source>Next rec</source>
-        <translation type="unfinished">Next rec</translation>
+        <translation>Next rec</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_UT_ui.ui" line="118"/>
+        <location filename="../gui/ui/UT_ui.ui" line="118"/>
         <source>Last rec</source>
-        <translation type="unfinished">Last Rec</translation>
+        <translation>Last Rec</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_UT_ui.ui" line="137"/>
+        <location filename="../gui/ui/UT_ui.ui" line="137"/>
         <source>New record</source>
-        <translation type="unfinished">New record</translation>
+        <translation>New record</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_UT_ui.ui" line="156"/>
+        <location filename="../gui/ui/UT_ui.ui" line="156"/>
         <source>Save</source>
-        <translation type="unfinished">Save</translation>
+        <translation>Save</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_UT_ui.ui" line="178"/>
+        <location filename="../gui/ui/UT_ui.ui" line="178"/>
         <source>Delete record</source>
-        <translation type="unfinished">Delete one record</translation>
+        <translation>Delete one record</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_UT_ui.ui" line="210"/>
+        <location filename="../gui/ui/UT_ui.ui" line="210"/>
         <source>new search</source>
-        <translation type="unfinished">New Search</translation>
+        <translation>New Search</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_UT_ui.ui" line="229"/>
+        <location filename="../gui/ui/UT_ui.ui" line="229"/>
         <source>search !!!</source>
-        <translation type="unfinished"></translation>
+        <translation>Search!!!</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_UT_ui.ui" line="248"/>
+        <location filename="../gui/ui/UT_ui.ui" line="248"/>
         <source>Order by</source>
-        <translation type="unfinished"></translation>
+        <translation>Order by</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_UT_ui.ui" line="267"/>
+        <location filename="../gui/ui/UT_ui.ui" line="267"/>
         <source>View alls records</source>
-        <translation type="unfinished"></translation>
+        <translation>View Alls Records</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_UT_ui.ui" line="316"/>
+        <location filename="../gui/ui/UT_ui.ui" line="316"/>
         <source>DB Info</source>
-        <translation type="unfinished"></translation>
+        <translation>DB Info</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_UT_ui.ui" line="332"/>
+        <location filename="../gui/ui/UT_ui.ui" line="332"/>
         <source>Ordinamento</source>
-        <translation type="unfinished">Order</translation>
+        <translation>Sort</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_UT_ui.ui" line="425"/>
+        <location filename="../gui/ui/UT_ui.ui" line="425"/>
         <source>Status</source>
-        <translation type="unfinished"></translation>
+        <translation>Status</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_UT_ui.ui" line="446"/>
+        <location filename="../gui/ui/UT_ui.ui" line="446"/>
         <source>record n.</source>
-        <translation type="unfinished"></translation>
+        <translation>Record No.</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_UT_ui.ui" line="611"/>
+        <location filename="../gui/ui/UT_ui.ui" line="611"/>
         <source>1</source>
-        <translation type="unfinished"></translation>
+        <translation>1</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_UT_ui.ui" line="491"/>
+        <location filename="../gui/ui/UT_ui.ui" line="491"/>
         <source>record tot.</source>
-        <translation type="unfinished"></translation>
+        <translation>Total record</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_UT_ui.ui" line="583"/>
+        <location filename="../gui/ui/UT_ui.ui" line="583"/>
         <source>Inserisci un valore</source>
-        <translation type="unfinished">Insert Value</translation>
+        <translation>Enter a value</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_UT_ui.ui" line="616"/>
+        <location filename="../gui/ui/UT_ui.ui" line="616"/>
         <source>2</source>
-        <translation type="unfinished"></translation>
+        <translation>2</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_UT_ui.ui" line="621"/>
+        <location filename="../gui/ui/UT_ui.ui" line="621"/>
         <source>3</source>
-        <translation type="unfinished"></translation>
+        <translation>3</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_UT_ui.ui" line="626"/>
+        <location filename="../gui/ui/UT_ui.ui" line="626"/>
         <source>4</source>
-        <translation type="unfinished"></translation>
+        <translation>4</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_UT_ui.ui" line="631"/>
+        <location filename="../gui/ui/UT_ui.ui" line="631"/>
         <source>5</source>
-        <translation type="unfinished"></translation>
+        <translation>5</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_UT_ui.ui" line="636"/>
+        <location filename="../gui/ui/UT_ui.ui" line="636"/>
         <source>6</source>
-        <translation type="unfinished"></translation>
+        <translation>6</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_UT_ui.ui" line="641"/>
+        <location filename="../gui/ui/UT_ui.ui" line="641"/>
         <source>7</source>
-        <translation type="unfinished"></translation>
+        <translation>7</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_UT_ui.ui" line="646"/>
+        <location filename="../gui/ui/UT_ui.ui" line="646"/>
         <source>8</source>
-        <translation type="unfinished"></translation>
+        <translation>8</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_UT_ui.ui" line="651"/>
+        <location filename="../gui/ui/UT_ui.ui" line="651"/>
         <source>9</source>
-        <translation type="unfinished"></translation>
+        <translation>9</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_UT_ui.ui" line="656"/>
+        <location filename="../gui/ui/UT_ui.ui" line="656"/>
         <source>10</source>
-        <translation type="unfinished"></translation>
+        <translation>10</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_UT_ui.ui" line="661"/>
+        <location filename="../gui/ui/UT_ui.ui" line="661"/>
         <source>11</source>
-        <translation type="unfinished"></translation>
+        <translation>11</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_UT_ui.ui" line="666"/>
+        <location filename="../gui/ui/UT_ui.ui" line="666"/>
         <source>12</source>
-        <translation type="unfinished"></translation>
+        <translation>12</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_UT_ui.ui" line="671"/>
+        <location filename="../gui/ui/UT_ui.ui" line="671"/>
         <source>13</source>
-        <translation type="unfinished"></translation>
+        <translation>13</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_UT_ui.ui" line="676"/>
+        <location filename="../gui/ui/UT_ui.ui" line="676"/>
         <source>14</source>
-        <translation type="unfinished"></translation>
+        <translation>14</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_UT_ui.ui" line="681"/>
+        <location filename="../gui/ui/UT_ui.ui" line="681"/>
         <source>15</source>
-        <translation type="unfinished"></translation>
+        <translation>15</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_UT_ui.ui" line="686"/>
+        <location filename="../gui/ui/UT_ui.ui" line="686"/>
         <source>16</source>
-        <translation type="unfinished"></translation>
+        <translation>16</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_UT_ui.ui" line="691"/>
+        <location filename="../gui/ui/UT_ui.ui" line="691"/>
         <source>17</source>
-        <translation type="unfinished"></translation>
+        <translation>17</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_UT_ui.ui" line="696"/>
+        <location filename="../gui/ui/UT_ui.ui" line="696"/>
         <source>18</source>
-        <translation type="unfinished"></translation>
+        <translation>18</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_UT_ui.ui" line="701"/>
+        <location filename="../gui/ui/UT_ui.ui" line="701"/>
         <source>19</source>
-        <translation type="unfinished"></translation>
+        <translation>19</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_UT_ui.ui" line="706"/>
+        <location filename="../gui/ui/UT_ui.ui" line="706"/>
         <source>20</source>
-        <translation type="unfinished"></translation>
+        <translation>20</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_UT_ui.ui" line="738"/>
+        <location filename="../gui/ui/UT_ui.ui" line="738"/>
         <source>Progetto</source>
-        <translation type="unfinished"></translation>
+        <translation>Project</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_UT_ui.ui" line="761"/>
+        <location filename="../gui/ui/UT_ui.ui" line="761"/>
         <source>UT</source>
-        <translation type="unfinished"></translation>
+        <translation>TU</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_UT_ui.ui" line="781"/>
+        <location filename="../gui/ui/UT_ui.ui" line="781"/>
         <source>UTabc</source>
-        <translation type="unfinished"></translation>
+        <translation>UT abc</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_UT_ui.ui" line="822"/>
+        <location filename="../gui/ui/UT_ui.ui" line="822"/>
         <source>Dati descrittivi</source>
-        <translation type="unfinished">Description data</translation>
+        <translation>Descriptive data</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_UT_ui.ui" line="1385"/>
+        <location filename="../gui/ui/UT_ui.ui" line="1385"/>
         <source>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
 &lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
 p, li { white-space: pre-wrap; }
 &lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:&apos;MS Shell Dlg 2&apos;; font-size:10pt; font-weight:400; font-style:normal;&quot;&gt;
 &lt;p style=&quot;-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px; font-family:&apos;Lucida Grande&apos;; font-size:13pt;&quot;&gt;&lt;br /&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;! PUBLIC HTML DOCTYPE &quot;-/////W3C//DTD HTML 4.0//EN&quot; &quot;Http://www.w3.org/TR/REC-html40/strict.dtd&quot; &gt; &lt;html&gt; &lt;head&gt; &lt; meta name = &quot;Qrichtext&quot; content = &quot;1&quot;/&gt; &lt; Style Type = &quot;text/css&quot; &gt; P, li {white-space: pre-wrap;} &lt;/style&gt; &lt;/head&gt; &lt; Body style = &quot;FONT-family: &apos; MS Shell Dlg 2 &apos;; font-size: 10pt; font-weight: 400; font-style: normal;&quot; &gt; &lt; P style = &quot;-qt-paragraph-type: empty; margin-top: 0px; margin-bottom: 0px; margin-left: 0px; margin-right: 0px;-QT-block-indent: 0; text-indent: 0 px Font-family: &apos; Glossy Grande &apos;; font-size: 13pt; &quot; &gt; &lt; br/&gt; &lt;/p&gt; &lt;/body&gt; &lt;/html&gt;</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_UT_ui.ui" line="845"/>
+        <location filename="../gui/ui/UT_ui.ui" line="845"/>
         <source>Descrizione </source>
-        <translation type="unfinished">Description</translation>
+        <translation>Description</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_UT_ui.ui" line="861"/>
+        <location filename="../gui/ui/UT_ui.ui" line="861"/>
         <source>Interpretazione </source>
-        <translation type="unfinished">Interpretation</translation>
+        <translation>Interpretation</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_UT_ui.ui" line="873"/>
+        <location filename="../gui/ui/UT_ui.ui" line="873"/>
         <source>Definizione UT</source>
-        <translation type="unfinished"></translation>
+        <translation>Definition TU</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_UT_ui.ui" line="881"/>
+        <location filename="../gui/ui/UT_ui.ui" line="881"/>
         <source>Localizzazione</source>
-        <translation type="unfinished"></translation>
+        <translation>Localization</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_UT_ui.ui" line="915"/>
+        <location filename="../gui/ui/UT_ui.ui" line="915"/>
         <source>Nazione</source>
-        <translation type="unfinished">Nation</translation>
+        <translation>Nation</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_UT_ui.ui" line="927"/>
+        <location filename="../gui/ui/UT_ui.ui" line="927"/>
         <source>Regione</source>
-        <translation type="unfinished">Region</translation>
+        <translation>Region</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_UT_ui.ui" line="940"/>
+        <location filename="../gui/ui/UT_ui.ui" line="940"/>
         <source>Localizzazione non georeferenziata</source>
-        <translation type="unfinished"></translation>
+        <translation>Localization not georeferenced</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_UT_ui.ui" line="983"/>
+        <location filename="../gui/ui/UT_ui.ui" line="983"/>
         <source>Provincia</source>
-        <translation type="unfinished">Country</translation>
+        <translation>Province</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_UT_ui.ui" line="1026"/>
+        <location filename="../gui/ui/UT_ui.ui" line="1026"/>
         <source>Frazione</source>
-        <translation type="unfinished"></translation>
+        <translation>Hamlet</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_UT_ui.ui" line="1044"/>
+        <location filename="../gui/ui/UT_ui.ui" line="1044"/>
         <source>Comune</source>
-        <translation type="unfinished">Town</translation>
+        <translation>Town/City</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_UT_ui.ui" line="1100"/>
+        <location filename="../gui/ui/UT_ui.ui" line="1100"/>
         <source>Localita&apos;</source>
-        <translation type="unfinished"></translation>
+        <translation>Location</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_UT_ui.ui" line="1159"/>
+        <location filename="../gui/ui/UT_ui.ui" line="1159"/>
         <source>Indirizzo</source>
-        <translation type="unfinished"></translation>
+        <translation>Address</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_UT_ui.ui" line="1177"/>
+        <location filename="../gui/ui/UT_ui.ui" line="1177"/>
         <source>nr civico</source>
-        <translation type="unfinished"></translation>
+        <translation>NR Civic</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_UT_ui.ui" line="1184"/>
+        <location filename="../gui/ui/UT_ui.ui" line="1184"/>
         <source>Loc. georef</source>
-        <translation type="unfinished"></translation>
+        <translation>Loc. Georef</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_UT_ui.ui" line="1196"/>
+        <location filename="../gui/ui/UT_ui.ui" line="1196"/>
         <source>Localizzazione georeferenziata</source>
-        <translation type="unfinished"></translation>
+        <translation>georeferenced localization</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_UT_ui.ui" line="1233"/>
+        <location filename="../gui/ui/UT_ui.ui" line="1233"/>
         <source>Carta topografica IGM</source>
-        <translation type="unfinished"></translation>
+        <translation>Topographic IGM Map</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_UT_ui.ui" line="1240"/>
+        <location filename="../gui/ui/UT_ui.ui" line="1240"/>
         <source>Carta CTR</source>
-        <translation type="unfinished"></translation>
+        <translation>CTR map</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_UT_ui.ui" line="1247"/>
+        <location filename="../gui/ui/UT_ui.ui" line="1247"/>
         <source>Foglio catastale</source>
-        <translation type="unfinished"></translation>
+        <translation>Cadastral sheet</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_UT_ui.ui" line="1318"/>
+        <location filename="../gui/ui/UT_ui.ui" line="1318"/>
         <source>Descrizione sito</source>
-        <translation type="unfinished"></translation>
+        <translation>Site description</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_UT_ui.ui" line="1402"/>
+        <location filename="../gui/ui/UT_ui.ui" line="1402"/>
         <source>Descrizione  luogo</source>
-        <translation type="unfinished"></translation>
+        <translation>Location description</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_UT_ui.ui" line="1448"/>
+        <location filename="../gui/ui/UT_ui.ui" line="1448"/>
         <source>Rilievo e Ricognizione</source>
-        <translation type="unfinished"></translation>
+        <translation>Surveying and reconnaissance</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_UT_ui.ui" line="1464"/>
+        <location filename="../gui/ui/UT_ui.ui" line="1464"/>
         <source>Geometria</source>
-        <translation type="unfinished"></translation>
+        <translation>Geometry</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_UT_ui.ui" line="1480"/>
+        <location filename="../gui/ui/UT_ui.ui" line="1480"/>
         <source>Coord. Geografiche</source>
-        <translation type="unfinished"></translation>
+        <translation>Geographic coordinate</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_UT_ui.ui" line="1493"/>
+        <location filename="../gui/ui/UT_ui.ui" line="1493"/>
         <source>Coord. Piane</source>
-        <translation type="unfinished"></translation>
+        <translation>Plane coordinate</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_UT_ui.ui" line="1506"/>
+        <location filename="../gui/ui/UT_ui.ui" line="1506"/>
         <source>Quota</source>
-        <translation type="unfinished"></translation>
+        <translation>Elevation</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_UT_ui.ui" line="1519"/>
+        <location filename="../gui/ui/UT_ui.ui" line="1519"/>
         <source>Descrizione empirica del suolo</source>
-        <translation type="unfinished"></translation>
+        <translation>Empirical description of the soil</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_UT_ui.ui" line="1535"/>
+        <location filename="../gui/ui/UT_ui.ui" line="1535"/>
         <source>Andamento terreno/pendenza</source>
-        <translation type="unfinished"></translation>
+        <translation>Soil/slope trend</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_UT_ui.ui" line="1551"/>
+        <location filename="../gui/ui/UT_ui.ui" line="1551"/>
         <source>Utilizzo suolo/Vegetazione</source>
-        <translation type="unfinished"></translation>
+        <translation>Use of soil and vegetation</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_UT_ui.ui" line="1574"/>
+        <location filename="../gui/ui/UT_ui.ui" line="1574"/>
         <source>Dati UT</source>
-        <translation type="unfinished"></translation>
+        <translation>TU data</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_UT_ui.ui" line="1611"/>
+        <location filename="../gui/ui/UT_ui.ui" line="1611"/>
         <source>Data</source>
-        <translation type="unfinished"></translation>
+        <translation>Date</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_UT_ui.ui" line="1618"/>
+        <location filename="../gui/ui/UT_ui.ui" line="1618"/>
         <source>Ora/meteo</source>
-        <translation type="unfinished"></translation>
+        <translation>Time/Weather</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_UT_ui.ui" line="1625"/>
+        <location filename="../gui/ui/UT_ui.ui" line="1625"/>
         <source>Responsabile</source>
-        <translation type="unfinished"></translation>
+        <translation>Responsible</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_UT_ui.ui" line="1653"/>
+        <location filename="../gui/ui/UT_ui.ui" line="1653"/>
         <source>Dimensioni UT (mq)</source>
-        <translation type="unfinished"></translation>
+        <translation>TU size (MQ)</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_UT_ui.ui" line="1699"/>
+        <location filename="../gui/ui/UT_ui.ui" line="1699"/>
         <source>Reperti per mq</source>
-        <translation type="unfinished"></translation>
+        <translation>Finds for MQ</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_UT_ui.ui" line="1715"/>
+        <location filename="../gui/ui/UT_ui.ui" line="1715"/>
         <source>lineEdit_rep_datanti</source>
-        <translation type="unfinished"></translation>
+        <translation>LineEdit_rep_datanti</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_UT_ui.ui" line="1776"/>
+        <location filename="../gui/ui/UT_ui.ui" line="1776"/>
         <source>Periodo I</source>
-        <translation type="unfinished"></translation>
+        <translation>Period I</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_UT_ui.ui" line="1792"/>
+        <location filename="../gui/ui/UT_ui.ui" line="1792"/>
         <source>Datazione I</source>
-        <translation type="unfinished"></translation>
+        <translation>Dating I</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_UT_ui.ui" line="1808"/>
+        <location filename="../gui/ui/UT_ui.ui" line="1808"/>
         <source>Intepretazione I</source>
-        <translation type="unfinished"></translation>
+        <translation>Interpretation I</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_UT_ui.ui" line="1869"/>
+        <location filename="../gui/ui/UT_ui.ui" line="1869"/>
         <source>Periodo II</source>
-        <translation type="unfinished"></translation>
+        <translation>Period II</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_UT_ui.ui" line="1885"/>
+        <location filename="../gui/ui/UT_ui.ui" line="1885"/>
         <source>Datazione II</source>
-        <translation type="unfinished"></translation>
+        <translation>Dating II</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_UT_ui.ui" line="1901"/>
+        <location filename="../gui/ui/UT_ui.ui" line="1901"/>
         <source>Intepretazione II</source>
-        <translation type="unfinished"></translation>
+        <translation>Interpretation II</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_UT_ui.ui" line="1932"/>
+        <location filename="../gui/ui/UT_ui.ui" line="1932"/>
         <source>Enti tutela e vincoli</source>
-        <translation type="unfinished"></translation>
+        <translation>Entities Protection and constraints</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_UT_ui.ui" line="1963"/>
+        <location filename="../gui/ui/UT_ui.ui" line="1963"/>
         <source>Indagini preliminari</source>
-        <translation type="unfinished"></translation>
+        <translation>Preliminary investigations</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_UT_ui.ui" line="1974"/>
+        <location filename="../gui/ui/UT_ui.ui" line="1974"/>
         <source>Documentazione</source>
-        <translation type="unfinished"></translation>
+        <translation>Documentation</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_UT_ui.ui" line="2083"/>
+        <location filename="../gui/ui/UT_ui.ui" line="2083"/>
         <source>inserisci riga</source>
-        <translation type="unfinished">Insert row</translation>
+        <translation>Insert row</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_UT_ui.ui" line="2095"/>
+        <location filename="../gui/ui/UT_ui.ui" line="2095"/>
         <source>rimuovi riga</source>
-        <translation type="unfinished"></translation>
+        <translation>Remove row</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_UT_ui.ui" line="2056"/>
+        <location filename="../gui/ui/UT_ui.ui" line="2056"/>
         <source>Tipo documentazione</source>
-        <translation type="unfinished"></translation>
+        <translation>Type of documentation</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_UT_ui.ui" line="2061"/>
+        <location filename="../gui/ui/UT_ui.ui" line="2061"/>
         <source>Riferimenti</source>
-        <translation type="unfinished"></translation>
+        <translation>References</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_UT_ui.ui" line="2070"/>
+        <location filename="../gui/ui/UT_ui.ui" line="2070"/>
         <source>Bibliografia</source>
-        <translation type="unfinished"></translation>
+        <translation>Bibliography</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_UT_ui.ui" line="2149"/>
+        <location filename="../gui/ui/UT_ui.ui" line="2149"/>
         <source>Riferimenti bibliografici</source>
-        <translation type="unfinished"></translation>
+        <translation>References</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_UT_ui.ui" line="2242"/>
+        <location filename="../gui/ui/UT_ui.ui" line="2242"/>
         <source>Tools</source>
-        <translation type="unfinished"></translation>
+        <translation>Tools</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_UT_ui.ui" line="2175"/>
+        <location filename="../gui/ui/UT_ui.ui" line="2175"/>
         <source>Show Selcted Features</source>
-        <translation type="unfinished"></translation>
+        <translation>Show selcted Features</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_UT_ui.ui" line="2280"/>
+        <location filename="../gui/ui/UT_ui.ui" line="2280"/>
         <source>Visualizza UT</source>
-        <translation type="unfinished"></translation>
+        <translation>View TU</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_UT_ui.ui" line="2209"/>
+        <location filename="../gui/ui/UT_ui.ui" line="2209"/>
         <source>Export PDF</source>
-        <translation type="unfinished"></translation>
+        <translation>Export PDF</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_UT_ui.ui" line="2212"/>
+        <location filename="../gui/ui/UT_ui.ui" line="2212"/>
         <source>Singole schede UT</source>
-        <translation type="unfinished"></translation>
+        <translation>Individual TU Cards</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_UT_ui.ui" line="2261"/>
+        <location filename="../gui/ui/UT_ui.ui" line="2261"/>
         <source>Visualizzazione GIS</source>
-        <translation type="unfinished">GIS</translation>
+        <translation>GIS Visualization</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_UT_ui.ui" line="2299"/>
+        <location filename="../gui/ui/UT_ui.ui" line="2299"/>
         <source>Esportazioni PDF</source>
-        <translation type="unfinished">PDF Download</translation>
+        <translation>PDF exports</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_UT_ui.ui" line="2328"/>
+        <location filename="../gui/ui/UT_ui.ui" line="2328"/>
         <source>Ctrl+G</source>
-        <translation type="unfinished"></translation>
+        <translation>Ctrl+G</translation>
     </message>
 </context>
 <context>
     <name>DialogView</name>
     <message>
-        <location filename="modules/gui/imageViewer_ui.py" line="43"/>
+        <location filename="../gui/ui/Image_Viewer.ui" line="14"/>
         <source>Dialog</source>
-        <translation type="unfinished"></translation>
+        <translation>Dialog</translation>
     </message>
 </context>
 <context>
     <name>Dialog_Config</name>
     <message>
-        <location filename="modules/gui/Ui_pyarchinitConfig.ui" line="35"/>
+        <location filename="../gui/ui/pyarchinitConfigDialog.ui" line="41"/>
         <source>Impostazioni del sistema</source>
-        <translation type="obsolete">System Settings</translation>
+        <translation>System settings</translation>
     </message>
     <message>
-        <location filename="modules/gui/Ui_pyarchinitConfig.ui" line="55"/>
+        <location filename="../gui/ui/pyarchinitConfigDialog.ui" line="100"/>
         <source>Parametri di connessione</source>
-        <translation type="obsolete">Connection settings</translation>
+        <translation>Connection settings</translation>
     </message>
     <message>
-        <location filename="modules/gui/Ui_pyarchinitConfig.ui" line="210"/>
+        <location filename="../gui/ui/pyarchinitConfigDialog.ui" line="395"/>
         <source>Installazione layers</source>
-        <translation type="obsolete">Install Layer</translation>
+        <translation>Layers Installation</translation>
     </message>
     <message>
-        <location filename="modules/gui/Ui_pyarchinitConfig.ui" line="225"/>
+        <location filename="../gui/ui/pyarchinitConfigDialog.ui" line="581"/>
+        <source>Installa</source>
+        <translation>Install</translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/pyarchinitConfigDialog.ui" line="124"/>
+        <source>Experimental</source>
+        <translation>Experimental</translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/pyarchinitConfigDialog.ui" line="159"/>
+        <source>Si</source>
+        <translation>Yes</translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/pyarchinitConfigDialog.ui" line="164"/>
+        <source>No</source>
+        <translation>No</translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/pyarchinitConfigDialog.ui" line="174"/>
+        <source>DB Settings</source>
+        <translation>DB Settings</translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/pyarchinitConfigDialog.ui" line="195"/>
+        <source>port</source>
+        <translation>port</translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/pyarchinitConfigDialog.ui" line="202"/>
+        <source>DBname</source>
+        <translation>DBname</translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/pyarchinitConfigDialog.ui" line="212"/>
+        <source>dbname</source>
+        <translation>dbname</translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/pyarchinitConfigDialog.ui" line="219"/>
+        <source>User</source>
+        <translation>User</translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/pyarchinitConfigDialog.ui" line="497"/>
+        <source>user</source>
+        <translation>user</translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/pyarchinitConfigDialog.ui" line="229"/>
+        <source>dbuser</source>
+        <translation>dbuser</translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/pyarchinitConfigDialog.ui" line="811"/>
+        <source>Password</source>
+        <translation>Password</translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/pyarchinitConfigDialog.ui" line="477"/>
+        <source>password</source>
+        <translation>password</translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/pyarchinitConfigDialog.ui" line="970"/>
+        <source>postgres</source>
+        <translation>postgres</translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/pyarchinitConfigDialog.ui" line="975"/>
+        <source>sqlite</source>
+        <translation>sqlite</translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/pyarchinitConfigDialog.ui" line="792"/>
+        <source>Host</source>
+        <translation>Host</translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/pyarchinitConfigDialog.ui" line="905"/>
+        <source>Database</source>
+        <translation>Database</translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/pyarchinitConfigDialog.ui" line="536"/>
+        <source>host</source>
+        <translation>host</translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/pyarchinitConfigDialog.ui" line="956"/>
+        <source>Port</source>
+        <translation>Port</translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/pyarchinitConfigDialog.ui" line="328"/>
+        <source>Salva i parametri</source>
+        <translation>Save parameters</translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/pyarchinitConfigDialog.ui" line="344"/>
+        <source>Path Settings</source>
+        <translation>Path Settings</translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/pyarchinitConfigDialog.ui" line="350"/>
+        <source>Logo path</source>
+        <translation>Logo path</translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/pyarchinitConfigDialog.ui" line="370"/>
+        <source>Thumbnail path</source>
+        <translation>Thumbnail path</translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/pyarchinitConfigDialog.ui" line="401"/>
+        <source>Installa il database (PostgreSQL/PostGIS)</source>
+        <translation>Install the database (PostgreSQL/PostGIS)</translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/pyarchinitConfigDialog.ui" line="484"/>
+        <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-size:10pt;&quot;&gt;puoi inserire il numero di porta differente&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
+        <translation>&lt;html&gt; &lt;head/&gt; &lt;body&gt; &lt;p&gt; &lt; span style = &quot;FONT-size: 10pt;&quot; &gt; You can enter the different port number &lt;/span&gt; &lt;/p&gt; &lt;/body&gt; &lt;/html&gt;</translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/pyarchinitConfigDialog.ui" line="424"/>
+        <source>Inserisci password</source>
+        <translation>Enter password</translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/pyarchinitConfigDialog.ui" line="431"/>
+        <source>5432</source>
+        <translation>5432</translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/pyarchinitConfigDialog.ui" line="434"/>
+        <source>port (5432)</source>
+        <translation>port (5432)</translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/pyarchinitConfigDialog.ui" line="617"/>
+        <source>Seleziona SRID</source>
+        <translation>Select Srid</translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/pyarchinitConfigDialog.ui" line="461"/>
+        <source>Inserisci utente</source>
+        <translation>Insert User</translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/pyarchinitConfigDialog.ui" line="487"/>
+        <source>Inserisci numero porta</source>
+        <translation>Enter port number</translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/pyarchinitConfigDialog.ui" line="591"/>
+        <source>pyarchinit</source>
+        <translation>pyarchinit</translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/pyarchinitConfigDialog.ui" line="600"/>
+        <source>db name</source>
+        <translation>db name</translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/pyarchinitConfigDialog.ui" line="607"/>
+        <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-size:10pt;&quot;&gt;Puoi inserire un nome differente da quello presente&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
+        <translation>&lt;html&gt; &lt;head/&gt; &lt;body&gt; &lt;p&gt; &lt; span style = &quot;FONT-size: 10pt;&quot; &gt; You can enter a name that is different from the one that is &lt;/span&gt; &lt;/p&gt; &lt;/body&gt; &lt;/html&gt;</translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/pyarchinitConfigDialog.ui" line="610"/>
+        <source>Inserisci nome db</source>
+        <translation>Enter DB name</translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/pyarchinitConfigDialog.ui" line="533"/>
+        <source>localhost</source>
+        <translation>localhost</translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/pyarchinitConfigDialog.ui" line="543"/>
+        <source>Inserisi host</source>
+        <translation>Insert Host</translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/pyarchinitConfigDialog.ui" line="555"/>
+        <source>Installa il database (SpatiaLite)</source>
+        <translation>Install Database (spatialite)</translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/pyarchinitConfigDialog.ui" line="643"/>
+        <source>Tool di importazione</source>
+        <translation>Import Tool</translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/pyarchinitConfigDialog.ui" line="650"/>
+        <source>US</source>
+        <translation>SU</translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/pyarchinitConfigDialog.ui" line="655"/>
+        <source>UT</source>
+        <translation>TU</translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/pyarchinitConfigDialog.ui" line="660"/>
+        <source>SITE</source>
+        <translation>SITE</translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/pyarchinitConfigDialog.ui" line="665"/>
+        <source>PERIODIZZAZIONE</source>
+        <translation>PERIODIZATION</translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/pyarchinitConfigDialog.ui" line="670"/>
+        <source>INVENTARIO_MATERIALI</source>
+        <translation>ARTEFACT</translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/pyarchinitConfigDialog.ui" line="675"/>
+        <source>STRUTTURA</source>
+        <translation>STRUCTURE</translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/pyarchinitConfigDialog.ui" line="680"/>
+        <source>TAFONOMIA</source>
+        <translation>TAPHONOMY</translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/pyarchinitConfigDialog.ui" line="685"/>
+        <source>PYARCHINIT_THESAURUS</source>
+        <translation>PYARCHINIT_THESAURUS</translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/pyarchinitConfigDialog.ui" line="690"/>
+        <source>SCHEDAIND</source>
+        <translation>INDIVIDUAL</translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/pyarchinitConfigDialog.ui" line="695"/>
+        <source>DETSESSO</source>
+        <translation>SEXUAL FORM</translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/pyarchinitConfigDialog.ui" line="700"/>
+        <source>DETETA</source>
+        <translation>AGE FORM</translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/pyarchinitConfigDialog.ui" line="705"/>
+        <source>ARCHEOZOOLOGY</source>
+        <translation>ARCHAEOZOOLOGY</translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/pyarchinitConfigDialog.ui" line="710"/>
+        <source>CAMPIONI</source>
+        <translation>SAMPLE</translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/pyarchinitConfigDialog.ui" line="715"/>
+        <source>DOCUMENTAZIONE</source>
+        <translation>DOCUMENTATION</translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/pyarchinitConfigDialog.ui" line="723"/>
+        <source>Esportazione directories</source>
+        <translation>Export Directories</translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/pyarchinitConfigDialog.ui" line="733"/>
+        <source>Esportazione experimental</source>
+        <translation>Experimental export</translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/pyarchinitConfigDialog.ui" line="818"/>
+        <source>Username</source>
+        <translation>Username</translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/pyarchinitConfigDialog.ui" line="853"/>
+        <source>FROM</source>
+        <translation>FROM</translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/pyarchinitConfigDialog.ui" line="868"/>
+        <source>TO</source>
+        <translation>TO</translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/pyarchinitConfigDialog.ui" line="888"/>
+        <source>Importazione dati</source>
+        <translation>Data import</translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/pyarchinitConfigDialog.ui" line="895"/>
+        <source>Nome campo</source>
+        <translation>Field name</translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/pyarchinitConfigDialog.ui" line="919"/>
+        <source>Import</source>
+        <translation>Import</translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/pyarchinitConfigDialog.ui" line="939"/>
+        <source>Valore</source>
+        <translation>Value</translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/pyarchinitConfigDialog.ui" line="949"/>
+        <source>Mappatura pyArchInit</source>
+        <translation>Mapping Pyarchinit</translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/pyarchinitConfigDialog.ui" line="984"/>
+        <source>Graphviz</source>
+        <translation>Graphviz</translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/pyarchinitConfigDialog.ui" line="990"/>
+        <source>Il percorso alla cartella /bin di Graphviz da aggiungere nella variabile d&apos;ambiente PATH</source>
+        <translation>The path to the Graphviz/bin folder to be added in the PATH environment variable</translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/pyarchinitConfigDialog.ui" line="1002"/>
+        <source>...</source>
+        <translation>...</translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/pyarchinitConfigDialog.ui" line="1009"/>
+        <source>Salva</source>
+        <translation>Save</translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/pyarchinitConfigDialog.ui" line="1009"/>
         <source>Installa il database</source>
         <translation type="obsolete">Install DB</translation>
     </message>
     <message>
-        <location filename="modules/gui/Ui_pyarchinitConfig.ui" line="260"/>
-        <source>Installa</source>
-        <translation type="obsolete">Install</translation>
-    </message>
-    <message>
-        <location filename="modules/gui/Ui_pyarchinitConfig.ui" line="239"/>
+        <location filename="../gui/ui/pyarchinitConfigDialog.ui" line="1009"/>
         <source>Installa il db geografico su Postgres</source>
         <translation type="obsolete">Install Geo-DB in Postegres</translation>
     </message>
     <message>
-        <location filename="modules/gui/Ui_pyarchinitConfig.ui" line="253"/>
+        <location filename="../gui/ui/pyarchinitConfigDialog.ui" line="1009"/>
         <source>Installa il db geografico su sqlite</source>
         <translation type="obsolete">Install Geo-DB in sqlite</translation>
     </message>
@@ -5517,77 +7767,77 @@ p, li { white-space: pre-wrap; }
 <context>
     <name>Dialog_Individui</name>
     <message>
-        <location filename="modules/gui/Ui_pyarchinitConfig.ui" line="18077459"/>
+        <location filename="../gui/ui/sortpanelmain.ui" line="135"/>
         <source>Sito </source>
         <translation type="obsolete">Site</translation>
     </message>
     <message>
-        <location filename="modules/gui/Ui_pyarchinitConfig.ui" line="18077459"/>
+        <location filename="../gui/ui/sortpanelmain.ui" line="135"/>
         <source>Ordinamento</source>
         <translation type="obsolete">Order</translation>
     </message>
     <message>
-        <location filename="modules/gui/Ui_pyarchinitConfig.ui" line="18077459"/>
+        <location filename="../gui/ui/sortpanelmain.ui" line="135"/>
         <source>Dati descrittivi</source>
         <translation type="obsolete">Description data</translation>
     </message>
     <message>
-        <location filename="modules/gui/Ui_pyarchinitConfig.ui" line="18077459"/>
+        <location filename="../gui/ui/sortpanelmain.ui" line="135"/>
         <source>Descrizione </source>
         <translation type="obsolete">Description</translation>
     </message>
     <message>
-        <location filename="modules/gui/Ui_pyarchinitConfig.ui" line="18077459"/>
+        <location filename="../gui/ui/sortpanelmain.ui" line="135"/>
         <source>Interpretazione </source>
         <translation type="obsolete">Interpretation</translation>
     </message>
     <message>
-        <location filename="modules/gui/Ui_pyarchinitConfig.ui" line="18077459"/>
+        <location filename="../gui/ui/sortpanelmain.ui" line="135"/>
         <source>Visualizzazione GIS</source>
         <translation type="obsolete">GIS</translation>
     </message>
     <message>
-        <location filename="modules/gui/Ui_pyarchinitConfig.ui" line="18077459"/>
+        <location filename="../gui/ui/sortpanelmain.ui" line="135"/>
         <source>Attivazione Preview pianta US</source>
         <translation type="obsolete">Preview US map</translation>
     </message>
     <message>
-        <location filename="modules/gui/Ui_pyarchinitConfig.ui" line="18077459"/>
+        <location filename="../gui/ui/sortpanelmain.ui" line="135"/>
         <source>Preview pianta US</source>
         <translation type="obsolete">Preview US map</translation>
     </message>
     <message>
-        <location filename="modules/gui/Ui_pyarchinitConfig.ui" line="18077459"/>
+        <location filename="../gui/ui/sortpanelmain.ui" line="135"/>
         <source>Apri schede US selezionate</source>
         <translation type="obsolete">Open selected US form</translation>
     </message>
     <message>
-        <location filename="modules/gui/Ui_pyarchinitConfig.ui" line="18077459"/>
+        <location filename="../gui/ui/sortpanelmain.ui" line="135"/>
         <source>apri schede US</source>
         <translation type="obsolete">Open US form</translation>
     </message>
     <message>
-        <location filename="modules/gui/Ui_pyarchinitConfig.ui" line="18077459"/>
+        <location filename="../gui/ui/sortpanelmain.ui" line="135"/>
         <source>Elenco US</source>
         <translation type="obsolete">US list</translation>
     </message>
     <message>
-        <location filename="modules/gui/Ui_pyarchinitConfig.ui" line="18077459"/>
+        <location filename="../gui/ui/sortpanelmain.ui" line="135"/>
         <source>Mostra immagini</source>
         <translation type="obsolete">Show image</translation>
     </message>
     <message>
-        <location filename="modules/gui/Ui_pyarchinitConfig.ui" line="18077459"/>
+        <location filename="../gui/ui/sortpanelmain.ui" line="135"/>
         <source>Esporta Matrix</source>
         <translation type="obsolete">Export Matrix</translation>
     </message>
     <message>
-        <location filename="modules/gui/Ui_pyarchinitConfig.ui" line="18077459"/>
+        <location filename="../gui/ui/sortpanelmain.ui" line="135"/>
         <source>Controlla rapporti stratigrafici</source>
         <translation type="obsolete">Check stratigraphic relation</translation>
     </message>
     <message>
-        <location filename="modules/gui/Ui_pyarchinitConfig.ui" line="18077459"/>
+        <location filename="../gui/ui/sortpanelmain.ui" line="135"/>
         <source>Inserisci un valore</source>
         <translation type="obsolete">Insert Value</translation>
     </message>
@@ -5595,367 +7845,367 @@ p, li { white-space: pre-wrap; }
 <context>
     <name>Dialog_US</name>
     <message>
-        <location filename="modules/gui/Ui_pyarchinitConfig.ui" line="18077459"/>
+        <location filename="../gui/ui/sortpanelmain.ui" line="135"/>
         <source>pyArchInit Gestione Scavi - Scheda US</source>
         <translation type="obsolete">pyArchInit Excavation Mangement</translation>
     </message>
     <message>
-        <location filename="modules/gui/Ui_pyarchinitConfig.ui" line="18077459"/>
+        <location filename="../gui/ui/sortpanelmain.ui" line="135"/>
         <source>Ordinamento</source>
         <translation type="obsolete">Order</translation>
     </message>
     <message>
-        <location filename="modules/gui/Ui_pyarchinitConfig.ui" line="18077459"/>
+        <location filename="../gui/ui/sortpanelmain.ui" line="135"/>
         <source>Inserisci un valore</source>
         <translation type="obsolete">Insert Value</translation>
     </message>
     <message>
-        <location filename="modules/gui/Ui_pyarchinitConfig.ui" line="18077459"/>
+        <location filename="../gui/ui/sortpanelmain.ui" line="135"/>
         <source>Sito </source>
         <translation type="obsolete">Site</translation>
     </message>
     <message>
-        <location filename="modules/gui/Ui_pyarchinitConfig.ui" line="18077459"/>
+        <location filename="../gui/ui/sortpanelmain.ui" line="135"/>
         <source>Attivita&apos; di cantiere</source>
         <translation type="obsolete">Work site activities</translation>
     </message>
     <message>
-        <location filename="modules/gui/Ui_pyarchinitConfig.ui" line="18077459"/>
+        <location filename="../gui/ui/sortpanelmain.ui" line="135"/>
         <source>Abbandono</source>
         <translation type="obsolete">Abandon</translation>
     </message>
     <message>
-        <location filename="modules/gui/Ui_pyarchinitConfig.ui" line="18077459"/>
+        <location filename="../gui/ui/sortpanelmain.ui" line="135"/>
         <source>Fognatura</source>
         <translation type="obsolete">Drainage</translation>
     </message>
     <message>
-        <location filename="modules/gui/Ui_pyarchinitConfig.ui" line="18077459"/>
+        <location filename="../gui/ui/sortpanelmain.ui" line="135"/>
         <source>Fondazione</source>
         <translation type="obsolete">Foundation</translation>
     </message>
     <message>
-        <location filename="modules/gui/Ui_pyarchinitConfig.ui" line="18077459"/>
+        <location filename="../gui/ui/sortpanelmain.ui" line="135"/>
         <source>Fossa da grano</source>
         <translation type="obsolete">Wheat pit</translation>
     </message>
     <message>
-        <location filename="modules/gui/Ui_pyarchinitConfig.ui" line="18077459"/>
+        <location filename="../gui/ui/sortpanelmain.ui" line="135"/>
         <source>Livellamento</source>
         <translation type="obsolete">Leveling</translation>
     </message>
     <message>
-        <location filename="modules/gui/Ui_pyarchinitConfig.ui" line="18077459"/>
+        <location filename="../gui/ui/sortpanelmain.ui" line="135"/>
         <source>Muro</source>
         <translation type="obsolete">Wall</translation>
     </message>
     <message>
-        <location filename="modules/gui/Ui_pyarchinitConfig.ui" line="18077459"/>
+        <location filename="../gui/ui/sortpanelmain.ui" line="135"/>
         <source>Pavimentazione</source>
         <translation type="obsolete">Flooring</translation>
     </message>
     <message>
-        <location filename="modules/gui/Ui_pyarchinitConfig.ui" line="18077459"/>
+        <location filename="../gui/ui/sortpanelmain.ui" line="135"/>
         <source>Pavimentazione a mosaico</source>
         <translation type="obsolete">Mosaic floor</translation>
     </message>
     <message>
-        <location filename="modules/gui/Ui_pyarchinitConfig.ui" line="18077459"/>
+        <location filename="../gui/ui/sortpanelmain.ui" line="135"/>
         <source>Palo</source>
         <translation type="obsolete">Pole</translation>
     </message>
     <message>
-        <location filename="modules/gui/Ui_pyarchinitConfig.ui" line="18077459"/>
+        <location filename="../gui/ui/sortpanelmain.ui" line="135"/>
         <source>Definizione stratigrafica</source>
         <translation type="obsolete">Stratigraphic definition</translation>
     </message>
     <message>
-        <location filename="modules/gui/Ui_pyarchinitConfig.ui" line="18077459"/>
+        <location filename="../gui/ui/sortpanelmain.ui" line="135"/>
         <source>Definizione Interpretata</source>
         <translation type="obsolete">Interpretation</translation>
     </message>
     <message>
-        <location filename="modules/gui/Ui_pyarchinitConfig.ui" line="18077459"/>
+        <location filename="../gui/ui/sortpanelmain.ui" line="135"/>
         <source>Dati descrittivi</source>
         <translation type="obsolete">Description data</translation>
     </message>
     <message>
-        <location filename="modules/gui/Ui_pyarchinitConfig.ui" line="18077459"/>
+        <location filename="../gui/ui/sortpanelmain.ui" line="135"/>
         <source>Descrizione </source>
         <translation type="obsolete">Description</translation>
     </message>
     <message>
-        <location filename="modules/gui/Ui_pyarchinitConfig.ui" line="18077459"/>
+        <location filename="../gui/ui/sortpanelmain.ui" line="135"/>
         <source>Interpretazione </source>
         <translation type="obsolete">Interpretation</translation>
     </message>
     <message>
-        <location filename="modules/gui/Ui_pyarchinitConfig.ui" line="18077459"/>
+        <location filename="../gui/ui/sortpanelmain.ui" line="135"/>
         <source>Periodizzazione - Rapporti Stratigrafici</source>
         <translation type="obsolete">Periodization - Stratigraphic Relation</translation>
     </message>
     <message>
-        <location filename="modules/gui/Ui_pyarchinitConfig.ui" line="18077459"/>
+        <location filename="../gui/ui/sortpanelmain.ui" line="135"/>
         <source>Periodizzazione </source>
         <translation type="obsolete">Periodization</translation>
     </message>
     <message>
-        <location filename="modules/gui/Ui_pyarchinitConfig.ui" line="18077459"/>
+        <location filename="../gui/ui/sortpanelmain.ui" line="135"/>
         <source>Iniziale </source>
         <translation type="obsolete">Starting</translation>
     </message>
     <message>
-        <location filename="modules/gui/Ui_pyarchinitConfig.ui" line="18077459"/>
+        <location filename="../gui/ui/sortpanelmain.ui" line="135"/>
         <source>Finale </source>
         <translation type="obsolete">End</translation>
     </message>
     <message>
-        <location filename="modules/gui/Ui_pyarchinitConfig.ui" line="18077459"/>
+        <location filename="../gui/ui/sortpanelmain.ui" line="135"/>
         <source>Attivita&apos;</source>
         <translation type="obsolete">Activity</translation>
     </message>
     <message>
-        <location filename="modules/gui/Ui_pyarchinitConfig.ui" line="18077459"/>
+        <location filename="../gui/ui/sortpanelmain.ui" line="135"/>
         <source>Struttura</source>
         <translation type="obsolete">Framework</translation>
     </message>
     <message>
-        <location filename="modules/gui/Ui_pyarchinitConfig.ui" line="18077459"/>
+        <location filename="../gui/ui/sortpanelmain.ui" line="135"/>
         <source>Periodo </source>
         <translation type="obsolete">Period</translation>
     </message>
     <message>
-        <location filename="modules/gui/Ui_pyarchinitConfig.ui" line="18077459"/>
+        <location filename="../gui/ui/sortpanelmain.ui" line="135"/>
         <source>Fase </source>
         <translation type="obsolete">Phase</translation>
     </message>
     <message>
-        <location filename="modules/gui/Ui_pyarchinitConfig.ui" line="18077459"/>
+        <location filename="../gui/ui/sortpanelmain.ui" line="135"/>
         <source>Meccanico</source>
         <translation type="obsolete">Mechanical</translation>
     </message>
     <message>
-        <location filename="modules/gui/Ui_pyarchinitConfig.ui" line="18077459"/>
+        <location filename="../gui/ui/sortpanelmain.ui" line="135"/>
         <source>Stratigrafico</source>
         <translation type="obsolete">Stratigraphic</translation>
     </message>
     <message>
-        <location filename="modules/gui/Ui_pyarchinitConfig.ui" line="18077459"/>
+        <location filename="../gui/ui/sortpanelmain.ui" line="135"/>
         <source>Metodo di scavo</source>
         <translation type="obsolete">Excavation system</translation>
     </message>
     <message>
-        <location filename="modules/gui/Ui_pyarchinitConfig.ui" line="18077459"/>
+        <location filename="../gui/ui/sortpanelmain.ui" line="135"/>
         <source>Anno</source>
         <translation type="obsolete">Year</translation>
     </message>
     <message>
-        <location filename="modules/gui/Ui_pyarchinitConfig.ui" line="18077459"/>
+        <location filename="../gui/ui/sortpanelmain.ui" line="135"/>
         <source>Si</source>
         <translation type="obsolete">Yes</translation>
     </message>
     <message>
-        <location filename="modules/gui/Ui_pyarchinitConfig.ui" line="18077459"/>
+        <location filename="../gui/ui/sortpanelmain.ui" line="135"/>
         <source>No</source>
         <translation type="obsolete">No</translation>
     </message>
     <message>
-        <location filename="modules/gui/Ui_pyarchinitConfig.ui" line="18077459"/>
+        <location filename="../gui/ui/sortpanelmain.ui" line="135"/>
         <source>Scavato</source>
         <translation type="obsolete">Digged</translation>
     </message>
     <message>
-        <location filename="modules/gui/Ui_pyarchinitConfig.ui" line="18077459"/>
+        <location filename="../gui/ui/sortpanelmain.ui" line="135"/>
         <source>Rapporti stratigrafici</source>
         <translation type="obsolete">Stratigraph relation</translation>
     </message>
     <message>
-        <location filename="modules/gui/Ui_pyarchinitConfig.ui" line="18077459"/>
+        <location filename="../gui/ui/sortpanelmain.ui" line="135"/>
         <source>inserisci riga</source>
         <translation type="obsolete">Insert row</translation>
     </message>
     <message>
-        <location filename="modules/gui/Ui_pyarchinitConfig.ui" line="18077459"/>
+        <location filename="../gui/ui/sortpanelmain.ui" line="135"/>
         <source>rimuovi riga</source>
         <translation type="obsolete">delete row</translation>
     </message>
     <message>
-        <location filename="modules/gui/Ui_pyarchinitConfig.ui" line="18077459"/>
+        <location filename="../gui/ui/sortpanelmain.ui" line="135"/>
         <source>Tipo di rapporto</source>
         <translation type="obsolete">Relation type</translation>
     </message>
     <message>
-        <location filename="modules/gui/Ui_pyarchinitConfig.ui" line="18077459"/>
+        <location filename="../gui/ui/sortpanelmain.ui" line="135"/>
         <source>Dati Fisici - Dati Schedatore</source>
         <translation type="obsolete">Phisical Data - Cataloguer Data</translation>
     </message>
     <message>
-        <location filename="modules/gui/Ui_pyarchinitConfig.ui" line="18077459"/>
+        <location filename="../gui/ui/sortpanelmain.ui" line="135"/>
         <source>Antropico</source>
         <translation type="obsolete">Anthropic</translation>
     </message>
     <message>
-        <location filename="modules/gui/Ui_pyarchinitConfig.ui" line="18077459"/>
+        <location filename="../gui/ui/sortpanelmain.ui" line="135"/>
         <source>Naturale</source>
         <translation type="obsolete">Natural</translation>
     </message>
     <message>
-        <location filename="modules/gui/Ui_pyarchinitConfig.ui" line="18077459"/>
+        <location filename="../gui/ui/sortpanelmain.ui" line="135"/>
         <source>Inclusi</source>
         <translation type="obsolete">Inclusions</translation>
     </message>
     <message>
-        <location filename="modules/gui/Ui_pyarchinitConfig.ui" line="18077459"/>
+        <location filename="../gui/ui/sortpanelmain.ui" line="135"/>
         <source>                     Campioni                </source>
         <translation type="obsolete">Sample</translation>
     </message>
     <message>
-        <location filename="modules/gui/Ui_pyarchinitConfig.ui" line="18077459"/>
+        <location filename="../gui/ui/sortpanelmain.ui" line="135"/>
         <source>Formazione</source>
         <translation type="obsolete">Formation</translation>
     </message>
     <message>
-        <location filename="modules/gui/Ui_pyarchinitConfig.ui" line="18077459"/>
+        <location filename="../gui/ui/sortpanelmain.ui" line="135"/>
         <source>Colore</source>
         <translation type="obsolete">Color</translation>
     </message>
     <message>
-        <location filename="modules/gui/Ui_pyarchinitConfig.ui" line="18077459"/>
+        <location filename="../gui/ui/sortpanelmain.ui" line="135"/>
         <source>Argillosa</source>
         <translation type="obsolete">Clay</translation>
     </message>
     <message>
-        <location filename="modules/gui/Ui_pyarchinitConfig.ui" line="18077459"/>
+        <location filename="../gui/ui/sortpanelmain.ui" line="135"/>
         <source>Compatta</source>
         <translation type="obsolete">Compact</translation>
     </message>
     <message>
-        <location filename="modules/gui/Ui_pyarchinitConfig.ui" line="18077459"/>
+        <location filename="../gui/ui/sortpanelmain.ui" line="135"/>
         <source>Friabile</source>
         <translation type="obsolete">Friable</translation>
     </message>
     <message>
-        <location filename="modules/gui/Ui_pyarchinitConfig.ui" line="18077459"/>
+        <location filename="../gui/ui/sortpanelmain.ui" line="135"/>
         <source>Sabbiosa</source>
         <translation type="obsolete">Sandy</translation>
     </message>
     <message>
-        <location filename="modules/gui/Ui_pyarchinitConfig.ui" line="18077459"/>
+        <location filename="../gui/ui/sortpanelmain.ui" line="135"/>
         <source>Consistenza</source>
         <translation type="obsolete">Texture</translation>
     </message>
     <message>
-        <location filename="modules/gui/Ui_pyarchinitConfig.ui" line="18077459"/>
+        <location filename="../gui/ui/sortpanelmain.ui" line="135"/>
         <source>Insufficiente</source>
         <translation type="obsolete">Insufficient</translation>
     </message>
     <message>
-        <location filename="modules/gui/Ui_pyarchinitConfig.ui" line="18077459"/>
+        <location filename="../gui/ui/sortpanelmain.ui" line="135"/>
         <source>Scarso</source>
         <translation type="obsolete">Low</translation>
     </message>
     <message>
-        <location filename="modules/gui/Ui_pyarchinitConfig.ui" line="18077459"/>
+        <location filename="../gui/ui/sortpanelmain.ui" line="135"/>
         <source>Buono</source>
         <translation type="obsolete">Good</translation>
     </message>
     <message>
-        <location filename="modules/gui/Ui_pyarchinitConfig.ui" line="18077459"/>
+        <location filename="../gui/ui/sortpanelmain.ui" line="135"/>
         <source>Discreto</source>
         <translation type="obsolete">Fair</translation>
     </message>
     <message>
-        <location filename="modules/gui/Ui_pyarchinitConfig.ui" line="18077459"/>
+        <location filename="../gui/ui/sortpanelmain.ui" line="135"/>
         <source>Ottimo</source>
         <translation type="obsolete">Excellent</translation>
     </message>
     <message>
-        <location filename="modules/gui/Ui_pyarchinitConfig.ui" line="18077459"/>
+        <location filename="../gui/ui/sortpanelmain.ui" line="135"/>
         <source>Stato di conservazione</source>
         <translation type="obsolete">Type preservation</translation>
     </message>
     <message>
-        <location filename="modules/gui/Ui_pyarchinitConfig.ui" line="18077459"/>
+        <location filename="../gui/ui/sortpanelmain.ui" line="135"/>
         <source>Data schedatura</source>
         <translation type="obsolete">Date</translation>
     </message>
     <message>
-        <location filename="modules/gui/Ui_pyarchinitConfig.ui" line="18077459"/>
+        <location filename="../gui/ui/sortpanelmain.ui" line="135"/>
         <source>Schedatore</source>
         <translation type="obsolete">Catalguer</translation>
     </message>
     <message>
-        <location filename="modules/gui/Ui_pyarchinitConfig.ui" line="18077459"/>
+        <location filename="../gui/ui/sortpanelmain.ui" line="135"/>
         <source>Crea Codice Periodo</source>
         <translation type="obsolete">Create Code Period</translation>
     </message>
     <message>
-        <location filename="modules/gui/Ui_pyarchinitConfig.ui" line="18077459"/>
+        <location filename="../gui/ui/sortpanelmain.ui" line="135"/>
         <source>Esporta Matrix</source>
         <translation type="obsolete">Export Matrix</translation>
     </message>
     <message>
-        <location filename="modules/gui/Ui_pyarchinitConfig.ui" line="18077459"/>
+        <location filename="../gui/ui/sortpanelmain.ui" line="135"/>
         <source>Crea codice periodo</source>
         <translation type="obsolete">Create Code Period</translation>
     </message>
     <message>
-        <location filename="modules/gui/Ui_pyarchinitConfig.ui" line="18077459"/>
+        <location filename="../gui/ui/sortpanelmain.ui" line="135"/>
         <source>Ordine Stratigrafico</source>
         <translation type="obsolete">Order Stratigraphic</translation>
     </message>
     <message>
-        <location filename="modules/gui/Ui_pyarchinitConfig.ui" line="18077459"/>
+        <location filename="../gui/ui/sortpanelmain.ui" line="135"/>
         <source>Visualizzazione GIS</source>
         <translation type="obsolete">GIS</translation>
     </message>
     <message>
-        <location filename="modules/gui/Ui_pyarchinitConfig.ui" line="18077459"/>
+        <location filename="../gui/ui/sortpanelmain.ui" line="135"/>
         <source>Visualizza US</source>
         <translation type="obsolete">Show US</translation>
     </message>
     <message>
-        <location filename="modules/gui/Ui_pyarchinitConfig.ui" line="18077459"/>
+        <location filename="../gui/ui/sortpanelmain.ui" line="135"/>
         <source>Attivazione Preview pianta US</source>
         <translation type="obsolete">Preview US map</translation>
     </message>
     <message>
-        <location filename="modules/gui/Ui_pyarchinitConfig.ui" line="18077459"/>
+        <location filename="../gui/ui/sortpanelmain.ui" line="135"/>
         <source>Preview pianta US</source>
         <translation type="obsolete">Preview US map</translation>
     </message>
     <message>
-        <location filename="modules/gui/Ui_pyarchinitConfig.ui" line="18077459"/>
+        <location filename="../gui/ui/sortpanelmain.ui" line="135"/>
         <source>Apri schede US selezionate</source>
         <translation type="obsolete">Open selected US form</translation>
     </message>
     <message>
-        <location filename="modules/gui/Ui_pyarchinitConfig.ui" line="18077459"/>
+        <location filename="../gui/ui/sortpanelmain.ui" line="135"/>
         <source>apri schede US</source>
         <translation type="obsolete">Open US form</translation>
     </message>
     <message>
-        <location filename="modules/gui/Ui_pyarchinitConfig.ui" line="18077459"/>
+        <location filename="../gui/ui/sortpanelmain.ui" line="135"/>
         <source>Esportazioni PDF</source>
         <translation type="obsolete">PDF Download</translation>
     </message>
     <message>
-        <location filename="modules/gui/Ui_pyarchinitConfig.ui" line="18077459"/>
+        <location filename="../gui/ui/sortpanelmain.ui" line="135"/>
         <source>Singole schede US</source>
         <translation type="obsolete">Single US form </translation>
     </message>
     <message>
-        <location filename="modules/gui/Ui_pyarchinitConfig.ui" line="18077459"/>
+        <location filename="../gui/ui/sortpanelmain.ui" line="135"/>
         <source>Elenco US</source>
         <translation type="obsolete">US list</translation>
     </message>
     <message>
-        <location filename="modules/gui/Ui_pyarchinitConfig.ui" line="18077459"/>
+        <location filename="../gui/ui/sortpanelmain.ui" line="135"/>
         <source>Mostra immagini</source>
         <translation type="obsolete">Show image</translation>
     </message>
     <message>
-        <location filename="modules/gui/Ui_pyarchinitConfig.ui" line="18077459"/>
+        <location filename="../gui/ui/sortpanelmain.ui" line="135"/>
         <source>Controlla rapporti stratigrafici</source>
         <translation type="obsolete">Check stratigraphic relation</translation>
     </message>
@@ -5963,1603 +8213,1765 @@ p, li { white-space: pre-wrap; }
 <context>
     <name>Dialog_dir_exp</name>
     <message>
-        <location filename="modules/gui/pyarchinit_directory_creator_ui.ui" line="35"/>
+        <location filename="../gui/ui/pyarchinit_directory_creator_ui.ui" line="35"/>
         <source>Impostazioni del sistema</source>
-        <translation type="unfinished">System Settings</translation>
+        <translation>System settings</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_directory_creator_ui.ui" line="55"/>
+        <location filename="../gui/ui/pyarchinit_directory_creator_ui.ui" line="55"/>
         <source>Parametri di esportazione</source>
-        <translation type="unfinished"></translation>
+        <translation>Export parameters</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_directory_creator_ui.ui" line="70"/>
+        <location filename="../gui/ui/pyarchinit_directory_creator_ui.ui" line="70"/>
         <source>Seleziona un sito da esportare...</source>
-        <translation type="unfinished"></translation>
+        <translation>Select a site to export...</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_directory_creator_ui.ui" line="99"/>
+        <location filename="../gui/ui/pyarchinit_directory_creator_ui.ui" line="99"/>
         <source>Seleziona un valore...</source>
-        <translation type="unfinished"></translation>
+        <translation>Select a value...</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_directory_creator_ui.ui" line="143"/>
+        <location filename="../gui/ui/pyarchinit_directory_creator_ui.ui" line="143"/>
         <source>Tipo reperto</source>
-        <translation type="unfinished">Type finds</translation>
+        <translation>Type of finding</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_directory_creator_ui.ui" line="170"/>
+        <location filename="../gui/ui/pyarchinit_directory_creator_ui.ui" line="170"/>
         <source>Fase</source>
-        <translation type="unfinished">Phase</translation>
+        <translation>Phase</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_directory_creator_ui.ui" line="199"/>
+        <location filename="../gui/ui/pyarchinit_directory_creator_ui.ui" line="199"/>
         <source>Criterio schedatura</source>
-        <translation type="unfinished">Cataloging policy</translation>
+        <translation>Filing parameter</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_directory_creator_ui.ui" line="244"/>
+        <location filename="../gui/ui/pyarchinit_directory_creator_ui.ui" line="244"/>
         <source>Definizione materiale</source>
-        <translation type="unfinished"></translation>
+        <translation>Material definition</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_directory_creator_ui.ui" line="279"/>
+        <location filename="../gui/ui/pyarchinit_directory_creator_ui.ui" line="279"/>
         <source>Periodo</source>
-        <translation type="unfinished">Period</translation>
+        <translation>Period</translation>
     </message>
-    <message utf8="true">
-        <location filename="modules/gui/pyarchinit_directory_creator_ui.ui" line="286"/>
+    <message>
+        <location filename="../gui/ui/pyarchinit_directory_creator_ui.ui" line="286"/>
         <source>Unità Stratigrafiche</source>
-        <translation type="unfinished"></translation>
+        <translation type="obsolete">Stratigraphic units</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_directory_creator_ui.ui" line="293"/>
+        <location filename="../gui/ui/pyarchinit_directory_creator_ui.ui" line="293"/>
         <source>Struttura</source>
-        <translation type="unfinished">Framework</translation>
+        <translation>Structure</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_directory_creator_ui.ui" line="313"/>
+        <location filename="../gui/ui/pyarchinit_directory_creator_ui.ui" line="313"/>
         <source>Reperti</source>
-        <translation type="unfinished"></translation>
+        <translation>Finds</translation>
     </message>
 </context>
 <context>
     <name>Dialog_eta</name>
-    <message utf8="true">
-        <location filename="modules/gui/pyarchinit_Deteta_ui.ui" line="20"/>
+    <message>
+        <location filename="../gui/ui/Deteta.ui" line="20"/>
         <source>pyArchInit Gestione Scavi - Scheda Determinazione Età di Morte</source>
-        <translation type="unfinished"></translation>
+        <translation type="obsolete">Pyarchinit Excavation Management-card determination age of death</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_Deteta_ui.ui" line="40"/>
+        <location filename="../gui/ui/Deteta.ui" line="40"/>
         <source>DBMS Toolbar</source>
-        <translation type="unfinished"></translation>
+        <translation>DBMS Toolbar</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_Deteta_ui.ui" line="47"/>
+        <location filename="../gui/ui/Deteta.ui" line="47"/>
         <source>Connection test</source>
-        <translation type="unfinished"></translation>
+        <translation>Connection test</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_Deteta_ui.ui" line="56"/>
+        <location filename="../gui/ui/Deteta.ui" line="56"/>
         <source>First rec</source>
-        <translation type="unfinished">First rec</translation>
+        <translation>First rec</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_Deteta_ui.ui" line="70"/>
+        <location filename="../gui/ui/Deteta.ui" line="70"/>
         <source>Next rec</source>
-        <translation type="unfinished">Next rec</translation>
+        <translation>Next rec</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_Deteta_ui.ui" line="84"/>
+        <location filename="../gui/ui/Deteta.ui" line="84"/>
         <source>Last rec</source>
-        <translation type="unfinished">Last Rec</translation>
+        <translation>Last Rec</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_Deteta_ui.ui" line="103"/>
+        <location filename="../gui/ui/Deteta.ui" line="103"/>
         <source>New record</source>
-        <translation type="unfinished">New record</translation>
+        <translation>New record</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_Deteta_ui.ui" line="122"/>
+        <location filename="../gui/ui/Deteta.ui" line="122"/>
         <source>Save</source>
-        <translation type="unfinished">Save</translation>
+        <translation>Save</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_Deteta_ui.ui" line="147"/>
+        <location filename="../gui/ui/Deteta.ui" line="147"/>
         <source>new search</source>
-        <translation type="unfinished">New Search</translation>
+        <translation>New Search</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_Deteta_ui.ui" line="169"/>
+        <location filename="../gui/ui/Deteta.ui" line="169"/>
         <source>search !!!</source>
-        <translation type="unfinished"></translation>
+        <translation>Search!!!</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_Deteta_ui.ui" line="191"/>
+        <location filename="../gui/ui/Deteta.ui" line="191"/>
         <source>Order by</source>
-        <translation type="unfinished"></translation>
+        <translation>Order by</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_Deteta_ui.ui" line="210"/>
+        <location filename="../gui/ui/Deteta.ui" line="210"/>
         <source>View alls records</source>
-        <translation type="unfinished"></translation>
+        <translation>View Alls Records</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_Deteta_ui.ui" line="232"/>
+        <location filename="../gui/ui/Deteta.ui" line="232"/>
         <source>Delete record</source>
-        <translation type="unfinished">Delete one record</translation>
+        <translation>Delete one record</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_Deteta_ui.ui" line="246"/>
+        <location filename="../gui/ui/Deteta.ui" line="246"/>
         <source>Prev rec</source>
-        <translation type="unfinished">Prev rec</translation>
+        <translation>Prev rec</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_Deteta_ui.ui" line="282"/>
+        <location filename="../gui/ui/Deteta.ui" line="282"/>
         <source>DB Info</source>
-        <translation type="unfinished"></translation>
+        <translation>DB Info</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_Deteta_ui.ui" line="298"/>
+        <location filename="../gui/ui/Deteta.ui" line="298"/>
         <source>Ordinamento</source>
-        <translation type="unfinished">Order</translation>
+        <translation>Sort</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_Deteta_ui.ui" line="391"/>
+        <location filename="../gui/ui/Deteta.ui" line="391"/>
         <source>Status</source>
-        <translation type="unfinished"></translation>
+        <translation>Status</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_Deteta_ui.ui" line="412"/>
+        <location filename="../gui/ui/Deteta.ui" line="412"/>
         <source>record n.</source>
-        <translation type="unfinished"></translation>
+        <translation>Record No.</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_Deteta_ui.ui" line="3597"/>
+        <location filename="../gui/ui/Deteta.ui" line="3601"/>
         <source>1</source>
-        <translation type="unfinished"></translation>
+        <translation>1</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_Deteta_ui.ui" line="457"/>
+        <location filename="../gui/ui/Deteta.ui" line="457"/>
         <source>record tot.</source>
-        <translation type="unfinished"></translation>
+        <translation>Total record</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_Deteta_ui.ui" line="543"/>
+        <location filename="../gui/ui/Deteta.ui" line="545"/>
         <source>Inserisci un valore</source>
-        <translation type="unfinished">Insert Value</translation>
+        <translation>Enter a value</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_Deteta_ui.ui" line="554"/>
+        <location filename="../gui/ui/Deteta.ui" line="563"/>
         <source>Individuo</source>
-        <translation type="unfinished"></translation>
+        <translation>Individual</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_Deteta_ui.ui" line="561"/>
+        <location filename="../gui/ui/Deteta.ui" line="556"/>
         <source>Sito </source>
-        <translation type="unfinished">Site</translation>
+        <translation>Site</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_Deteta_ui.ui" line="577"/>
+        <location filename="../gui/ui/Deteta.ui" line="581"/>
         <source>Grado/importanza</source>
-        <translation type="unfinished"></translation>
+        <translation>Degree/importance</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_Deteta_ui.ui" line="584"/>
+        <location filename="../gui/ui/Deteta.ui" line="588"/>
         <source>Sinfisi pubica</source>
-        <translation type="unfinished"></translation>
+        <translation>Pubic symphysis</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_Deteta_ui.ui" line="592"/>
+        <location filename="../gui/ui/Deteta.ui" line="596"/>
         <source>Suchey e Brooks,  1990</source>
-        <translation type="unfinished"></translation>
+        <translation>Suchey e Brooks,  1990</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_Deteta_ui.ui" line="605"/>
+        <location filename="../gui/ui/Deteta.ui" line="609"/>
         <source>Apri Tavola </source>
-        <translation type="unfinished"></translation>
+        <translation>Open Table</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_Deteta_ui.ui" line="628"/>
+        <location filename="../gui/ui/Deteta.ui" line="632"/>
         <source>FASE I</source>
-        <translation type="unfinished"></translation>
+        <translation>Phase I</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_Deteta_ui.ui" line="647"/>
+        <location filename="../gui/ui/Deteta.ui" line="651"/>
         <source>FASE II</source>
-        <translation type="unfinished"></translation>
+        <translation>Phase II</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_Deteta_ui.ui" line="666"/>
+        <location filename="../gui/ui/Deteta.ui" line="670"/>
         <source>FASE III</source>
-        <translation type="unfinished"></translation>
+        <translation>Phase III</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_Deteta_ui.ui" line="689"/>
+        <location filename="../gui/ui/Deteta.ui" line="693"/>
         <source>FASE V</source>
-        <translation type="unfinished"></translation>
+        <translation>Phase V</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_Deteta_ui.ui" line="708"/>
+        <location filename="../gui/ui/Deteta.ui" line="712"/>
         <source>FASE IV</source>
-        <translation type="unfinished"></translation>
+        <translation>Phase IV</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_Deteta_ui.ui" line="727"/>
+        <location filename="../gui/ui/Deteta.ui" line="731"/>
         <source>FASE VI</source>
-        <translation type="unfinished"></translation>
+        <translation>Phase VI</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_Deteta_ui.ui" line="977"/>
+        <location filename="../gui/ui/Deteta.ui" line="981"/>
         <source>RANGE SINFISI PUBICA</source>
-        <translation type="unfinished"></translation>
+        <translation>Pubic symphysis RANGE</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_Deteta_ui.ui" line="3772"/>
+        <location filename="../gui/ui/Deteta.ui" line="3776"/>
         <source>-</source>
-        <translation type="unfinished"></translation>
+        <translation>-</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_Deteta_ui.ui" line="3782"/>
+        <location filename="../gui/ui/Deteta.ui" line="3786"/>
         <source>anni</source>
-        <translation type="unfinished"></translation>
+        <translation>Years</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_Deteta_ui.ui" line="828"/>
+        <location filename="../gui/ui/Deteta.ui" line="832"/>
         <source>Kimmerle et al, 2008</source>
-        <translation type="unfinished"></translation>
+        <translation>Kimmerle et al, 2008</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_Deteta_ui.ui" line="3099"/>
+        <location filename="../gui/ui/Deteta.ui" line="3103"/>
         <source>Apri tavola </source>
-        <translation type="unfinished"></translation>
+        <translation>Open Table</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_Deteta_ui.ui" line="848"/>
+        <location filename="../gui/ui/Deteta.ui" line="852"/>
         <source>MASCHI</source>
-        <translation type="unfinished"></translation>
+        <translation>Males</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_Deteta_ui.ui" line="855"/>
+        <location filename="../gui/ui/Deteta.ui" line="859"/>
         <source>25-27</source>
-        <translation type="unfinished"></translation>
+        <translation>25-27</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_Deteta_ui.ui" line="2093"/>
+        <location filename="../gui/ui/Deteta.ui" line="2097"/>
         <source>30-35</source>
-        <translation type="unfinished"></translation>
+        <translation>30-35</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_Deteta_ui.ui" line="869"/>
+        <location filename="../gui/ui/Deteta.ui" line="873"/>
         <source>40-46</source>
-        <translation type="unfinished"></translation>
+        <translation>40-46</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_Deteta_ui.ui" line="943"/>
+        <location filename="../gui/ui/Deteta.ui" line="947"/>
         <source>50-55</source>
-        <translation type="unfinished"></translation>
+        <translation>50-55</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_Deteta_ui.ui" line="883"/>
+        <location filename="../gui/ui/Deteta.ui" line="887"/>
         <source>60-65</source>
-        <translation type="unfinished"></translation>
+        <translation>60-65</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_Deteta_ui.ui" line="890"/>
+        <location filename="../gui/ui/Deteta.ui" line="894"/>
         <source>70-74</source>
-        <translation type="unfinished"></translation>
+        <translation>70-74</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_Deteta_ui.ui" line="957"/>
+        <location filename="../gui/ui/Deteta.ui" line="961"/>
         <source>81-86</source>
-        <translation type="unfinished"></translation>
+        <translation>81-86</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_Deteta_ui.ui" line="908"/>
+        <location filename="../gui/ui/Deteta.ui" line="912"/>
         <source>FEMMINE</source>
-        <translation type="unfinished"></translation>
+        <translation>Females</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_Deteta_ui.ui" line="915"/>
+        <location filename="../gui/ui/Deteta.ui" line="919"/>
         <source>20-28</source>
-        <translation type="unfinished"></translation>
+        <translation>20-28</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_Deteta_ui.ui" line="922"/>
+        <location filename="../gui/ui/Deteta.ui" line="926"/>
         <source>30-36</source>
-        <translation type="unfinished"></translation>
+        <translation>30-36</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_Deteta_ui.ui" line="929"/>
+        <location filename="../gui/ui/Deteta.ui" line="933"/>
         <source>44</source>
-        <translation type="unfinished"></translation>
+        <translation>44</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_Deteta_ui.ui" line="936"/>
+        <location filename="../gui/ui/Deteta.ui" line="940"/>
         <source>45-48</source>
-        <translation type="unfinished"></translation>
+        <translation>45-48</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_Deteta_ui.ui" line="950"/>
+        <location filename="../gui/ui/Deteta.ui" line="954"/>
         <source>60-66</source>
-        <translation type="unfinished"></translation>
+        <translation>60-66</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_Deteta_ui.ui" line="964"/>
+        <location filename="../gui/ui/Deteta.ui" line="968"/>
         <source>90-96</source>
-        <translation type="unfinished"></translation>
+        <translation>90-96</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_Deteta_ui.ui" line="1036"/>
+        <location filename="../gui/ui/Deteta.ui" line="1040"/>
         <source>Superficie auricolare</source>
-        <translation type="unfinished"></translation>
+        <translation>Ear surface</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_Deteta_ui.ui" line="1048"/>
+        <location filename="../gui/ui/Deteta.ui" line="1052"/>
         <source>Schmitt,  2005</source>
-        <translation type="unfinished"></translation>
+        <translation>Schmitt,  2005</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_Deteta_ui.ui" line="1061"/>
+        <location filename="../gui/ui/Deteta.ui" line="1065"/>
         <source>SCORE 0 = Elemento non presente</source>
-        <translation type="unfinished"></translation>
+        <translation>SCORE 0 = Item Not present</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_Deteta_ui.ui" line="1087"/>
+        <location filename="../gui/ui/Deteta.ui" line="1091"/>
         <source>Modificazione della superficie auricolare</source>
-        <translation type="unfinished"></translation>
+        <translation>Modifying the ear surface</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_Deteta_ui.ui" line="1579"/>
+        <location filename="../gui/ui/Deteta.ui" line="1583"/>
         <source>SCORE 1</source>
-        <translation type="unfinished"></translation>
+        <translation>SCORE 1</translation>
     </message>
-    <message utf8="true">
-        <location filename="modules/gui/pyarchinit_Deteta_ui.ui" line="1355"/>
+    <message>
+        <location filename="../gui/ui/Deteta.ui" line="1359"/>
         <source>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
 &lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
 p, li { white-space: pre-wrap; }
 &lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:&apos;Lucida Grande&apos;; font-size:13pt; font-weight:400; font-style:normal;&quot;&gt;
 &lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-family:&apos;MS Shell Dlg 2&apos;; font-size:10pt;&quot;&gt; Assenza di granulosità; è possibile un&apos;isolata e fine porosità.&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation type="obsolete">&lt;! PUBLIC HTML DOCTYPE &quot;-/////W3C//DTD HTML 4.0//EN&quot; &quot;Http://www.w3.org/TR/REC-html40/strict.dtd&quot; &gt; &lt;html&gt; &lt;head&gt; &lt; meta name = &quot;Qrichtext&quot; content = &quot;1&quot;/&gt; &lt; Style Type = &quot;text/css&quot; &gt; P, li {white-space: pre-wrap;} &lt;/style&gt; &lt;/head&gt; &lt; Body style = &quot;FONT-family: &apos; glossy Grande &apos;; font-size: 13pt; font-weight: 400; font-style: normal;&quot; &gt; &lt; P style = &quot;margin-top: 0px; margin-bottom: 0px; margin-left: 0px; margin-right: 0px;-QT-block-indent: 0; text-indent: 0px;&quot; &gt; &lt; span style = &quot;FONT-family: &apos; MS Shell Dlg 2 &apos;; font-size: 10pt;&quot; &gt; A of grit; An isolated and fine porosity is possible. &lt;/span&gt; &lt;/p&gt; &lt;/body&gt; &lt;/html&gt;</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_Deteta_ui.ui" line="1617"/>
+        <location filename="../gui/ui/Deteta.ui" line="1621"/>
         <source>SCORE 2</source>
-        <translation type="unfinished"></translation>
+        <translation>SCORE 2</translation>
     </message>
-    <message utf8="true">
-        <location filename="modules/gui/pyarchinit_Deteta_ui.ui" line="1503"/>
+    <message>
+        <location filename="../gui/ui/Deteta.ui" line="1507"/>
         <source>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
 &lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
 p, li { white-space: pre-wrap; }
 &lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:&apos;Lucida Grande&apos;; font-size:13pt; font-weight:400; font-style:normal;&quot;&gt;
 &lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-family:&apos;MS Shell Dlg 2&apos;; font-size:10pt;&quot;&gt;Il bordo è fine e può essere a filo con la superficie auricolare, &lt;/span&gt;&lt;/p&gt;
 &lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-family:&apos;MS Shell Dlg 2&apos;; font-size:10pt;&quot;&gt;o leggermente sollevato e forma un angolo.&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation type="obsolete">&lt;! PUBLIC HTML DOCTYPE &quot;-/////W3C//DTD HTML 4.0//EN&quot; &quot;Http://www.w3.org/TR/REC-html40/strict.dtd&quot; &gt; &lt;html&gt; &lt;head&gt; &lt; meta name = &quot;Qrichtext&quot; content = &quot;1&quot;/&gt; &lt; Style Type = &quot;text/css&quot; &gt; P, li {white-space: pre-wrap;} &lt;/style&gt; &lt;/head&gt; &lt; Body style = &quot;FONT-family: &apos; glossy Grande &apos;; font-size: 13pt; font-weight: 400; font-style: normal;&quot; &gt; &lt; P style = &quot;margin-top: 0px; margin-bottom: 0px; margin-left: 0px; margin-right: 0px;-QT-block-indent: 0; text-indent: 0px;&quot; &gt; &lt; span style = &quot;FONT-family: &apos; MS Shell Dlg 2 &apos;; font-size: 10pt;&quot; &gt; the  Edge is fine and can be flush with the earthen surface, &lt;/span&gt; &lt;/p&gt; &lt; P style = &quot;margin-top: 0px; margin-bottom: 0px; margin-left: 0px; margin-right: 0px;-QT-block-indent: 0; text-indent: 0px;&quot; &gt; &lt; span style = &quot;FONT-family: &apos; MS Shell Dlg 2 &apos;; font-size: 10pt;&quot; &gt; or slightly raised and shape a corner. &lt;/span&gt; &lt;/p&gt; &lt;/body&gt; &lt;/html&gt;</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_Deteta_ui.ui" line="1188"/>
+        <location filename="../gui/ui/Deteta.ui" line="1192"/>
         <source>SCORE 3</source>
-        <translation type="unfinished"></translation>
+        <translation>SCORE 3</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_Deteta_ui.ui" line="1222"/>
+        <location filename="../gui/ui/Deteta.ui" line="1226"/>
         <source>SCORE 4</source>
-        <translation type="unfinished"></translation>
+        <translation>SCORE 4</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_Deteta_ui.ui" line="3602"/>
+        <location filename="../gui/ui/Deteta.ui" line="3606"/>
         <source>2</source>
-        <translation type="unfinished"></translation>
+        <translation>2</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_Deteta_ui.ui" line="3607"/>
+        <location filename="../gui/ui/Deteta.ui" line="3611"/>
         <source>3</source>
-        <translation type="unfinished"></translation>
+        <translation>3</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_Deteta_ui.ui" line="3214"/>
+        <location filename="../gui/ui/Deteta.ui" line="3218"/>
         <source>4</source>
-        <translation type="unfinished"></translation>
+        <translation>4</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_Deteta_ui.ui" line="1280"/>
+        <location filename="../gui/ui/Deteta.ui" line="1284"/>
         <source>SSPIB</source>
-        <translation type="unfinished"></translation>
+        <translation>Sspib</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_Deteta_ui.ui" line="1293"/>
+        <location filename="../gui/ui/Deteta.ui" line="1297"/>
         <source>Organizzazione trasversale</source>
-        <translation type="unfinished"></translation>
+        <translation>Cross Organization</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_Deteta_ui.ui" line="1322"/>
+        <location filename="../gui/ui/Deteta.ui" line="1326"/>
         <source>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
 &lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
 p, li { white-space: pre-wrap; }
 &lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:&apos;Lucida Grande&apos;; font-size:13pt; font-weight:400; font-style:normal;&quot;&gt;
 &lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-family:&apos;MS Shell Dlg 2&apos;; font-size:10pt;&quot;&gt; Ondulazioni o strie su una parte o su tutta la sup. auricolare.&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;! PUBLIC HTML DOCTYPE &quot;-/////W3C//DTD HTML 4.0//EN&quot; &quot;Http://www.w3.org/TR/REC-html40/strict.dtd&quot; &gt; &lt;html&gt; &lt;head&gt; &lt; meta name = &quot;Qrichtext&quot; content = &quot;1&quot;/&gt; &lt; Style Type = &quot;text/css&quot; &gt; P, li {white-space: pre-wrap;} &lt;/style&gt; &lt;/head&gt; &lt; Body style = &quot;FONT-family: &apos; glossy Grande &apos;; font-size: 13pt; font-weight: 400; font-style: normal;&quot; &gt; &lt; P style = &quot;margin-top: 0px; margin-bottom: 0px; margin-left: 0px; margin-right: 0px;-QT-block-indent: 0; text-indent: 0px;&quot; &gt; &lt; span style = &quot;FONT-family: &apos; MS Shell Dlg 2 &apos;; font-size: 10pt;&quot; &gt; O or stripes on a part or all of the headset. &lt;/span&gt; &lt;/p&gt; &lt;/body&gt; &lt;/html&gt;</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_Deteta_ui.ui" line="1414"/>
+        <location filename="../gui/ui/Deteta.ui" line="1418"/>
         <source>SSPIA</source>
-        <translation type="unfinished"></translation>
+        <translation>SSPIA</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_Deteta_ui.ui" line="1440"/>
+        <location filename="../gui/ui/Deteta.ui" line="1444"/>
         <source>Modificazione apicale</source>
-        <translation type="unfinished"></translation>
+        <translation>Apical modification</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_Deteta_ui.ui" line="1550"/>
+        <location filename="../gui/ui/Deteta.ui" line="1554"/>
         <source>SSPIC</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message utf8="true">
-        <location filename="modules/gui/pyarchinit_Deteta_ui.ui" line="1563"/>
-        <source>Modificazione della tuberosità iliaca</source>
-        <translation type="unfinished"></translation>
+        <translation>SSPIC</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_Deteta_ui.ui" line="1597"/>
+        <location filename="../gui/ui/Deteta.ui" line="1567"/>
+        <source>Modificazione della tuberosità iliaca</source>
+        <translation type="obsolete">Modification of iliac tuberosity</translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/Deteta.ui" line="1601"/>
         <source>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
 &lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
 p, li { white-space: pre-wrap; }
 &lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:&apos;Lucida Grande&apos;; font-size:13pt; font-weight:400; font-style:normal;&quot;&gt;
 &lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-family:&apos;MS Shell Dlg 2&apos;; font-size:10pt;&quot;&gt;Superficie liscia e non ci sono segni di rimpasti ossei.&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;! PUBLIC HTML DOCTYPE &quot;-/////W3C//DTD HTML 4.0//EN&quot; &quot;Http://www.w3.org/TR/REC-html40/strict.dtd&quot; &gt; &lt;html&gt; &lt;head&gt; &lt; meta name = &quot;Qrichtext&quot; content = &quot;1&quot;/&gt; &lt; Style Type = &quot;text/css&quot; &gt; P, li {white-space: pre-wrap;} &lt;/style&gt; &lt;/head&gt; &lt; Body style = &quot;FONT-family: &apos; glossy Grande &apos;; font-size: 13pt; font-weight: 400; font-style: normal;&quot; &gt; &lt; P style = &quot;margin-top: 0px; margin-bottom: 0px; margin-left: 0px; margin-right: 0px;-QT-block-indent: 0; text-indent: 0px;&quot; &gt; &lt; span style = &quot;FONT-family: &apos; MS Shell Dlg 2 &apos;; font-size: 10pt;&quot; &gt; on Smooth surface and there are no signs of bone remixes. &lt;/span&gt; &lt;/p&gt; &lt;/body&gt; &lt;/html&gt;</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_Deteta_ui.ui" line="1635"/>
+        <location filename="../gui/ui/Deteta.ui" line="1639"/>
         <source>Rimpasti ossei o entesi fini.</source>
-        <translation type="unfinished"></translation>
+        <translation>Fine bone or Entits remixes.</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_Deteta_ui.ui" line="1690"/>
+        <location filename="../gui/ui/Deteta.ui" line="1694"/>
         <source>SSPID</source>
-        <translation type="unfinished"></translation>
+        <translation>SSPID</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_Deteta_ui.ui" line="1703"/>
+        <location filename="../gui/ui/Deteta.ui" line="1707"/>
         <source>RANGE SUPERFICIE AURICOLARE</source>
-        <translation type="unfinished"></translation>
+        <translation>Ear surface RANGE</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_Deteta_ui.ui" line="1716"/>
+        <location filename="../gui/ui/Deteta.ui" line="1720"/>
         <source>CALCOLA</source>
-        <translation type="unfinished"></translation>
+        <translation>Calculates</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_Deteta_ui.ui" line="1787"/>
+        <location filename="../gui/ui/Deteta.ui" line="1791"/>
         <source>RANGE SUPERFICIE AURICOLARE II</source>
-        <translation type="unfinished"></translation>
+        <translation>Ear surface RANGE II</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_Deteta_ui.ui" line="1851"/>
+        <location filename="../gui/ui/Deteta.ui" line="1855"/>
         <source>Usura dentaria </source>
-        <translation type="unfinished"></translation>
+        <translation>Dental Wear</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_Deteta_ui.ui" line="2058"/>
+        <location filename="../gui/ui/Deteta.ui" line="2062"/>
         <source>12-18</source>
-        <translation type="unfinished"></translation>
+        <translation>12-18</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_Deteta_ui.ui" line="2065"/>
+        <location filename="../gui/ui/Deteta.ui" line="2069"/>
         <source>16-20</source>
-        <translation type="unfinished"></translation>
+        <translation>16-20</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_Deteta_ui.ui" line="2072"/>
+        <location filename="../gui/ui/Deteta.ui" line="2076"/>
         <source>18-22</source>
-        <translation type="unfinished"></translation>
+        <translation>18-22</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_Deteta_ui.ui" line="2079"/>
+        <location filename="../gui/ui/Deteta.ui" line="2083"/>
         <source>20-24</source>
-        <translation type="unfinished"></translation>
+        <translation>20-24</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_Deteta_ui.ui" line="1895"/>
+        <location filename="../gui/ui/Deteta.ui" line="1899"/>
         <source>RANGE MASCELLARE SUPERIORE</source>
-        <translation type="unfinished"></translation>
+        <translation>Upper Jaw RANGE</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_Deteta_ui.ui" line="2255"/>
+        <location filename="../gui/ui/Deteta.ui" line="2259"/>
         <source>Lovejoy, 1985</source>
-        <translation type="unfinished"></translation>
+        <translation>Lovejoy, 1985</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_Deteta_ui.ui" line="2100"/>
+        <location filename="../gui/ui/Deteta.ui" line="2104"/>
         <source>35-40</source>
-        <translation type="unfinished"></translation>
+        <translation>35-40</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_Deteta_ui.ui" line="1993"/>
+        <location filename="../gui/ui/Deteta.ui" line="1997"/>
         <source>40-50</source>
-        <translation type="unfinished"></translation>
+        <translation>40-50</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_Deteta_ui.ui" line="2086"/>
+        <location filename="../gui/ui/Deteta.ui" line="2090"/>
         <source>24-30</source>
-        <translation type="unfinished"></translation>
+        <translation>24-30</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_Deteta_ui.ui" line="3870"/>
+        <location filename="../gui/ui/Deteta.ui" line="3874"/>
         <source>Apri tavola</source>
-        <translation type="unfinished"></translation>
+        <translation>Open Table</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_Deteta_ui.ui" line="2050"/>
+        <location filename="../gui/ui/Deteta.ui" line="2054"/>
         <source>Usura dentaria totale</source>
-        <translation type="unfinished"></translation>
+        <translation>Total Dental Wear</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_Deteta_ui.ui" line="2107"/>
+        <location filename="../gui/ui/Deteta.ui" line="2111"/>
         <source>40-45</source>
-        <translation type="unfinished"></translation>
+        <translation>40-45</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_Deteta_ui.ui" line="2114"/>
+        <location filename="../gui/ui/Deteta.ui" line="2118"/>
         <source>45-55</source>
-        <translation type="unfinished"></translation>
+        <translation>45-55</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_Deteta_ui.ui" line="2138"/>
+        <location filename="../gui/ui/Deteta.ui" line="2142"/>
         <source>RANGE MASCELLARE INFERIORE</source>
-        <translation type="unfinished"></translation>
+        <translation>Lower Jaw RANGE</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_Deteta_ui.ui" line="2196"/>
+        <location filename="../gui/ui/Deteta.ui" line="2200"/>
         <source>RANGE USURA DENTARIA</source>
-        <translation type="unfinished"></translation>
+        <translation>RANGE of Dental Wear</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_Deteta_ui.ui" line="2283"/>
+        <location filename="../gui/ui/Deteta.ui" line="2287"/>
         <source>Suture endocraniche</source>
-        <translation type="unfinished"></translation>
+        <translation>Endocranial sutures</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_Deteta_ui.ui" line="3635"/>
+        <location filename="../gui/ui/Deteta.ui" line="3639"/>
         <source>SUTURE</source>
-        <translation type="unfinished"></translation>
+        <translation>Sutures</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_Deteta_ui.ui" line="2668"/>
+        <location filename="../gui/ui/Deteta.ui" line="2672"/>
         <source>GRADO</source>
-        <translation type="unfinished"></translation>
+        <translation>Can</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_Deteta_ui.ui" line="2305"/>
+        <location filename="../gui/ui/Deteta.ui" line="2309"/>
         <source>1 d</source>
-        <translation type="unfinished"></translation>
+        <translation>1 d</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_Deteta_ui.ui" line="3592"/>
+        <location filename="../gui/ui/Deteta.ui" line="3596"/>
         <source>0</source>
-        <translation type="unfinished"></translation>
+        <translation>0</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_Deteta_ui.ui" line="2349"/>
+        <location filename="../gui/ui/Deteta.ui" line="2353"/>
         <source>1 s</source>
-        <translation type="unfinished"></translation>
+        <translation>1 s</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_Deteta_ui.ui" line="2393"/>
+        <location filename="../gui/ui/Deteta.ui" line="2397"/>
         <source>2 d</source>
-        <translation type="unfinished"></translation>
+        <translation>2 d</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_Deteta_ui.ui" line="2437"/>
+        <location filename="../gui/ui/Deteta.ui" line="2441"/>
         <source>2 s</source>
-        <translation type="unfinished"></translation>
+        <translation>2 s</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_Deteta_ui.ui" line="2481"/>
+        <location filename="../gui/ui/Deteta.ui" line="2485"/>
         <source>3 d</source>
-        <translation type="unfinished"></translation>
+        <translation>3 d</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_Deteta_ui.ui" line="2525"/>
+        <location filename="../gui/ui/Deteta.ui" line="2529"/>
         <source>3 s</source>
-        <translation type="unfinished"></translation>
+        <translation>3 s</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_Deteta_ui.ui" line="3253"/>
+        <location filename="../gui/ui/Deteta.ui" line="3257"/>
         <source>5</source>
-        <translation type="unfinished"></translation>
+        <translation>5</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_Deteta_ui.ui" line="3420"/>
+        <location filename="../gui/ui/Deteta.ui" line="3424"/>
         <source>6</source>
-        <translation type="unfinished"></translation>
+        <translation>6</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_Deteta_ui.ui" line="3459"/>
+        <location filename="../gui/ui/Deteta.ui" line="3463"/>
         <source>7</source>
-        <translation type="unfinished"></translation>
+        <translation>7</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_Deteta_ui.ui" line="2763"/>
+        <location filename="../gui/ui/Deteta.ui" line="2767"/>
         <source>8 d</source>
-        <translation type="unfinished"></translation>
+        <translation>8 d</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_Deteta_ui.ui" line="2807"/>
+        <location filename="../gui/ui/Deteta.ui" line="2811"/>
         <source>8 s</source>
-        <translation type="unfinished"></translation>
+        <translation>8 s</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_Deteta_ui.ui" line="2851"/>
+        <location filename="../gui/ui/Deteta.ui" line="2855"/>
         <source>9 d</source>
-        <translation type="unfinished"></translation>
+        <translation>9 d</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_Deteta_ui.ui" line="2895"/>
+        <location filename="../gui/ui/Deteta.ui" line="2899"/>
         <source>9 s</source>
-        <translation type="unfinished"></translation>
+        <translation>9 s</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_Deteta_ui.ui" line="2939"/>
+        <location filename="../gui/ui/Deteta.ui" line="2943"/>
         <source>10 d</source>
-        <translation type="unfinished"></translation>
+        <translation>10 d</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_Deteta_ui.ui" line="2983"/>
+        <location filename="../gui/ui/Deteta.ui" line="2987"/>
         <source>10 s</source>
-        <translation type="unfinished"></translation>
+        <translation>10 s</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_Deteta_ui.ui" line="3029"/>
+        <location filename="../gui/ui/Deteta.ui" line="3033"/>
         <source>Meindl e Lovejoy,1985</source>
-        <translation type="unfinished"></translation>
+        <translation>Meindl e Lovejoy,1985</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_Deteta_ui.ui" line="3049"/>
+        <location filename="../gui/ui/Deteta.ui" line="3053"/>
         <source>RANGE SUTURE ENDOCRANICHE</source>
-        <translation type="unfinished"></translation>
+        <translation>RANGE of Endocranial Sutures</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_Deteta_ui.ui" line="3863"/>
+        <location filename="../gui/ui/Deteta.ui" line="3867"/>
         <source>calcola</source>
-        <translation type="unfinished"></translation>
+        <translation>Calculates</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_Deteta_ui.ui" line="3107"/>
+        <location filename="../gui/ui/Deteta.ui" line="3111"/>
         <source>Suture ectocraniche</source>
-        <translation type="unfinished"></translation>
+        <translation>Ectocranic sutures</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_Deteta_ui.ui" line="3113"/>
+        <location filename="../gui/ui/Deteta.ui" line="3117"/>
         <source>SISTEMA DELLA VOLTA</source>
-        <translation type="unfinished"></translation>
+        <translation>Vault System</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_Deteta_ui.ui" line="3120"/>
+        <location filename="../gui/ui/Deteta.ui" line="3124"/>
         <source>SISTEMA ANTERO- LATERALE</source>
-        <translation type="unfinished"></translation>
+        <translation>Antero-Lateral system</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_Deteta_ui.ui" line="3129"/>
+        <location filename="../gui/ui/Deteta.ui" line="3133"/>
         <source>1 </source>
-        <translation type="unfinished"></translation>
+        <translation>1</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_Deteta_ui.ui" line="3628"/>
+        <location filename="../gui/ui/Deteta.ui" line="3632"/>
         <source>VALORE</source>
-        <translation type="unfinished"></translation>
+        <translation>Value</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_Deteta_ui.ui" line="3498"/>
+        <location filename="../gui/ui/Deteta.ui" line="3502"/>
         <source>8</source>
-        <translation type="unfinished"></translation>
+        <translation>8</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_Deteta_ui.ui" line="3537"/>
+        <location filename="../gui/ui/Deteta.ui" line="3541"/>
         <source>9</source>
-        <translation type="unfinished"></translation>
+        <translation>9</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_Deteta_ui.ui" line="3576"/>
+        <location filename="../gui/ui/Deteta.ui" line="3580"/>
         <source>10</source>
-        <translation type="unfinished"></translation>
+        <translation>10</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_Deteta_ui.ui" line="3646"/>
+        <location filename="../gui/ui/Deteta.ui" line="3650"/>
         <source>VOLTA</source>
-        <translation type="unfinished"></translation>
+        <translation>Time</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_Deteta_ui.ui" line="3691"/>
+        <location filename="../gui/ui/Deteta.ui" line="3695"/>
         <source>ANTERO-LATERALE</source>
-        <translation type="unfinished"></translation>
+        <translation>Antero-Lateral</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_Deteta_ui.ui" line="3762"/>
+        <location filename="../gui/ui/Deteta.ui" line="3766"/>
         <source>RANGE SUTURE ECTOCRANICHE</source>
-        <translation type="unfinished"></translation>
+        <translation>Ectocranic SUTURE RANGE</translation>
     </message>
-    <message utf8="true">
-        <location filename="modules/gui/pyarchinit_Deteta_ui.ui" line="3856"/>
+    <message>
+        <location filename="../gui/ui/Deteta.ui" line="3860"/>
         <source>Acsadi e Nemeskéri, 1970</source>
-        <translation type="unfinished"></translation>
+        <translation type="obsolete">Acsadi e Nemeskéri, 1970</translation>
     </message>
 </context>
 <context>
     <name>Dialog_img_exp</name>
     <message>
-        <location filename="modules/gui/pyarchinit_images_directory_export_ui.py" line="149"/>
+        <location filename="../gui/ui/Images_directory_export.ui" line="35"/>
         <source>Sistema di esportazione delle immagini</source>
-        <translation type="unfinished"></translation>
+        <translation>Image Export System</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_images_directory_export_ui.py" line="161"/>
+        <location filename="../gui/ui/pyarchinit_images_export_ui.ui" line="55"/>
         <source>Parametri di esportazione</source>
-        <translation type="unfinished"></translation>
+        <translation>Export parameters</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_images_directory_export_ui.py" line="150"/>
+        <location filename="../gui/ui/pyarchinit_images_export_ui.ui" line="143"/>
         <source>Tipo reperto</source>
-        <translation type="unfinished">Type finds</translation>
+        <translation>Type of finding</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_images_directory_export_ui.py" line="151"/>
+        <location filename="../gui/ui/pyarchinit_images_export_ui.ui" line="170"/>
         <source>Fase</source>
-        <translation type="unfinished">Phase</translation>
+        <translation>Phase</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_images_directory_export_ui.py" line="152"/>
+        <location filename="../gui/ui/pyarchinit_images_export_ui.ui" line="199"/>
         <source>Criterio schedatura</source>
-        <translation type="unfinished">Cataloging policy</translation>
+        <translation>Profiling policy</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_images_directory_export_ui.py" line="153"/>
+        <location filename="../gui/ui/pyarchinit_images_export_ui.ui" line="244"/>
         <source>Definizione materiale</source>
-        <translation type="unfinished"></translation>
+        <translation>Material definition</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_images_directory_export_ui.py" line="154"/>
+        <location filename="../gui/ui/pyarchinit_images_export_ui.ui" line="279"/>
         <source>Periodo</source>
-        <translation type="unfinished">Period</translation>
+        <translation>Period</translation>
     </message>
-    <message utf8="true">
-        <location filename="modules/gui/pyarchinit_images_directory_export_ui.py" line="155"/>
+    <message>
+        <location filename="../gui/ui/pyarchinit_images_export_ui.ui" line="286"/>
         <source>Unità Stratigrafiche</source>
-        <translation type="unfinished"></translation>
+        <translation type="obsolete">Stratigraphic units</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_images_directory_export_ui.py" line="156"/>
+        <location filename="../gui/ui/pyarchinit_images_export_ui.ui" line="293"/>
         <source>Struttura</source>
-        <translation type="unfinished">Framework</translation>
+        <translation>Structure</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_images_directory_export_ui.py" line="157"/>
+        <location filename="../gui/ui/pyarchinit_images_export_ui.ui" line="313"/>
         <source>Reperti</source>
-        <translation type="unfinished"></translation>
+        <translation>Finds</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_images_directory_export_ui.py" line="158"/>
+        <location filename="../gui/ui/pyarchinit_images_export_ui.ui" line="70"/>
         <source>Seleziona un sito da esportare...</source>
-        <translation type="unfinished"></translation>
+        <translation>Select a site to export...</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_images_directory_export_ui.py" line="159"/>
+        <location filename="../gui/ui/pyarchinit_images_export_ui.ui" line="99"/>
         <source>Seleziona un valore...</source>
-        <translation type="unfinished"></translation>
+        <translation>Select a value...</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_images_directory_export_ui.py" line="160"/>
+        <location filename="../gui/ui/Images_directory_export.ui" line="387"/>
         <source>Esporta le immagini</source>
-        <translation type="unfinished"></translation>
+        <translation>Export images</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_images_export_ui.ui" line="35"/>
+        <location filename="../gui/ui/pyarchinit_images_export_ui.ui" line="35"/>
         <source>Impostazioni del sistema</source>
-        <translation type="unfinished">System Settings</translation>
+        <translation>System settings</translation>
     </message>
 </context>
 <context>
     <name>Dialog_pdf_exp</name>
     <message>
-        <location filename="modules/gui/pyarchinit_pdf_exp_ui.py" line="215"/>
+        <location filename="../gui/ui/Pdf_export.ui" line="35"/>
         <source>Impostazioni del sistema</source>
-        <translation type="unfinished">System Settings</translation>
+        <translation>System settings</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_pdf_exp_ui.py" line="216"/>
+        <location filename="../gui/ui/Pdf_export.ui" line="48"/>
         <source>Apri la cartella di esportazione PDF</source>
-        <translation type="unfinished"></translation>
+        <translation>Open the PDF Export folder</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_pdf_exp_ui.py" line="235"/>
+        <location filename="../gui/ui/Pdf_export.ui" line="99"/>
         <source>Parametri di esportazione</source>
-        <translation type="unfinished"></translation>
+        <translation>Export parameters</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_pdf_exp_ui.py" line="217"/>
+        <location filename="../gui/ui/Pdf_export.ui" line="117"/>
         <source>Seleziona un sito da esportare...</source>
-        <translation type="unfinished"></translation>
+        <translation>Select a site to export...</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_pdf_exp_ui.py" line="218"/>
+        <location filename="../gui/ui/Pdf_export.ui" line="161"/>
         <source>Seleziona un valore...</source>
-        <translation type="unfinished"></translation>
+        <translation>Select a value...</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_pdf_exp_ui.py" line="219"/>
+        <location filename="../gui/ui/Pdf_export.ui" line="171"/>
         <source>Sito</source>
-        <translation type="unfinished">Site</translation>
+        <translation>Site</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_pdf_exp_ui.py" line="222"/>
+        <location filename="../gui/ui/Pdf_export.ui" line="234"/>
         <source>Scheda US</source>
-        <translation type="unfinished"></translation>
+        <translation>SU form</translation>
     </message>
-    <message utf8="true">
-        <location filename="modules/gui/pyarchinit_pdf_exp_ui.py" line="221"/>
+    <message>
+        <location filename="../gui/ui/Pdf_export.ui" line="221"/>
         <source>Unità Stratigrafiche</source>
-        <translation type="unfinished"></translation>
+        <translation type="obsolete">Stratigraphic units</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_pdf_exp_ui.py" line="223"/>
+        <location filename="../gui/ui/Pdf_export.ui" line="271"/>
         <source>Individuo</source>
-        <translation type="unfinished"></translation>
+        <translation>Individual</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_pdf_exp_ui.py" line="224"/>
+        <location filename="../gui/ui/Pdf_export.ui" line="284"/>
         <source>Individui</source>
-        <translation type="unfinished"></translation>
+        <translation>Individuals</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_pdf_exp_ui.py" line="230"/>
+        <location filename="../gui/ui/Pdf_export.ui" line="398"/>
         <source>Tafonomia</source>
-        <translation type="unfinished"></translation>
+        <translation>Taphonomy</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_pdf_exp_ui.py" line="227"/>
+        <location filename="../gui/ui/Pdf_export.ui" line="348"/>
         <source>Reperti</source>
-        <translation type="unfinished"></translation>
+        <translation>Artifact</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_pdf_exp_ui.py" line="228"/>
+        <location filename="../gui/ui/Pdf_export.ui" line="361"/>
         <source>Inventario Materiali</source>
-        <translation type="unfinished"></translation>
+        <translation>Artifact Inventory</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_pdf_exp_ui.py" line="229"/>
+        <location filename="../gui/ui/Pdf_export.ui" line="385"/>
         <source>Campionature</source>
-        <translation type="unfinished"></translation>
+        <translation>Samples</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_pdf_exp_ui.py" line="232"/>
+        <location filename="../gui/ui/Pdf_export.ui" line="451"/>
         <source>Periodizzazione</source>
-        <translation type="unfinished"></translation>
+        <translation>Periodization</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_pdf_exp_ui.py" line="234"/>
+        <location filename="../gui/ui/Pdf_export.ui" line="488"/>
         <source>Strutture</source>
-        <translation type="unfinished"></translation>
+        <translation>Architecture</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_pdf_exp_ui.py" line="236"/>
+        <location filename="../gui/ui/Pdf_export.ui" line="59"/>
         <source>Esporta PDF</source>
-        <translation type="unfinished"></translation>
+        <translation>Export PDF</translation>
     </message>
 </context>
 <context>
     <name>Dialog_tafonomia</name>
     <message>
-        <location filename="modules/gui/pyarchinit_Tafonomia_ui.py" line="1057"/>
+        <location filename="../gui/ui/Tafonomia.ui" line="289"/>
         <source>Ordinamento</source>
-        <translation type="unfinished">Order</translation>
+        <translation>Sort</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_Tafonomia_ui.py" line="1064"/>
+        <location filename="../gui/ui/Tafonomia.ui" line="554"/>
         <source>Inserisci un valore</source>
-        <translation type="unfinished">Insert Value</translation>
+        <translation>Enter a value</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_Tafonomia_ui.py" line="1063"/>
+        <location filename="../gui/ui/Tafonomia.ui" line="518"/>
         <source>Sito </source>
-        <translation type="unfinished">Site</translation>
+        <translation>Site</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_Tafonomia_ui.py" line="1109"/>
+        <location filename="../gui/ui/Tafonomia.ui" line="716"/>
         <source>Dati descrittivi</source>
-        <translation type="unfinished">Description data</translation>
+        <translation>Descriptive data</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_Tafonomia_ui.py" line="1124"/>
+        <location filename="../gui/ui/Tafonomia.ui" line="1285"/>
         <source>Descrizione </source>
-        <translation type="unfinished">Description</translation>
+        <translation>Description</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_Tafonomia_ui.py" line="1103"/>
+        <location filename="../gui/ui/Tafonomia.ui" line="1101"/>
         <source>Interpretazione </source>
-        <translation type="unfinished">Interpretation</translation>
+        <translation>Interpretation</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_Tafonomia_ui.py" line="1079"/>
+        <location filename="../gui/ui/Tafonomia.ui" line="868"/>
         <source>Insufficiente</source>
-        <translation type="unfinished">Insufficient</translation>
+        <translation>Insufficient</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_Tafonomia_ui.py" line="1080"/>
+        <location filename="../gui/ui/Tafonomia.ui" line="873"/>
         <source>Scarso</source>
-        <translation type="unfinished">Low</translation>
+        <translation>Low</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_Tafonomia_ui.py" line="1082"/>
+        <location filename="../gui/ui/Tafonomia.ui" line="883"/>
         <source>Discreto</source>
-        <translation type="unfinished">Fair</translation>
+        <translation>Fair</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_Tafonomia_ui.py" line="1083"/>
+        <location filename="../gui/ui/Tafonomia.ui" line="888"/>
         <source>Buono</source>
-        <translation type="unfinished">Good</translation>
+        <translation>Good</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_Tafonomia_ui.py" line="1084"/>
+        <location filename="../gui/ui/Tafonomia.ui" line="893"/>
         <source>Ottimo</source>
-        <translation type="unfinished">Excellent</translation>
+        <translation>Excellent</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_Tafonomia_ui.py" line="18077459"/>
-        <source>Stato di conservazione</source>
-        <translation type="obsolete">Type preservation</translation>
-    </message>
-    <message>
-        <location filename="modules/gui/pyarchinit_Tafonomia_ui.py" line="1163"/>
+        <location filename="../gui/ui/Tafonomia.ui" line="1708"/>
         <source>Si</source>
-        <translation type="unfinished">Yes</translation>
+        <translation>Yes</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_Tafonomia_ui.py" line="1164"/>
+        <location filename="../gui/ui/Tafonomia.ui" line="1713"/>
         <source>No</source>
-        <translation type="unfinished">No</translation>
+        <translation>No</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_Tafonomia_ui.py" line="1184"/>
+        <location filename="../gui/ui/Tafonomia.ui" line="2029"/>
         <source>Posizione</source>
-        <translation type="unfinished">Position</translation>
+        <translation>Position</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_Tafonomia_ui.py" line="1187"/>
+        <location filename="../gui/ui/Tafonomia.ui" line="2052"/>
         <source>Visualizzazione GIS</source>
-        <translation type="unfinished">GIS</translation>
+        <translation>GIS Visualization</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_Tafonomia_ui.py" line="1189"/>
+        <location filename="../gui/ui/Tafonomia.ui" line="2120"/>
         <source>Attivazione Preview pianta US</source>
-        <translation type="unfinished">Preview US map</translation>
+        <translation>Activation Plant Preview SU</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_Tafonomia_ui.py" line="1190"/>
+        <location filename="../gui/ui/Tafonomia.ui" line="2133"/>
         <source>Preview pianta US</source>
-        <translation type="unfinished">Preview US map</translation>
+        <translation>SU map preview</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_Tafonomia_ui.py" line="1200"/>
+        <location filename="../gui/ui/Tafonomia.ui" line="2344"/>
         <source>Apri schede US selezionate</source>
-        <translation type="unfinished">Open selected US form</translation>
+        <translation>Open SU form selected</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_Tafonomia_ui.py" line="1202"/>
+        <location filename="../gui/ui/Tafonomia.ui" line="2362"/>
         <source>apri schede US</source>
-        <translation type="unfinished">Open US form</translation>
+        <translation>Open SU Cards</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_Tafonomia_ui.py" line="1199"/>
-        <source>Elenco US</source>
-        <translation type="unfinished">US list</translation>
-    </message>
-    <message>
-        <location filename="modules/gui/pyarchinit_Tafonomia_ui.py" line="1195"/>
+        <location filename="../gui/ui/Tafonomia.ui" line="2236"/>
         <source>Mostra immagini</source>
-        <translation type="unfinished">Show image</translation>
+        <translation>Show pictures</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_Tafonomia_ui.py" line="18077459"/>
-        <source>Esporta Matrix</source>
-        <translation type="obsolete">Export Matrix</translation>
-    </message>
-    <message>
-        <location filename="modules/gui/pyarchinit_Tafonomia_ui.py" line="18077459"/>
-        <source>Controlla rapporti stratigrafici</source>
-        <translation type="obsolete">Check stratigraphic relation</translation>
-    </message>
-    <message>
-        <location filename="modules/gui/pyarchinit_Tafonomia_ui.py" line="1042"/>
+        <location filename="../gui/ui/Tafonomia.ui" line="20"/>
         <source>pyArchInit Gestione Scavi - Scheda Tafonomica</source>
-        <translation type="unfinished"></translation>
+        <translation>Pyarchinit Excavation Management-Tafonomica card</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_Tafonomia_ui.py" line="1043"/>
+        <location filename="../gui/ui/Tafonomia.ui" line="40"/>
         <source>DBMS Toolbar</source>
-        <translation type="unfinished"></translation>
+        <translation>DBMS Toolbar</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_Tafonomia_ui.py" line="1044"/>
+        <location filename="../gui/ui/Tafonomia.ui" line="49"/>
         <source>First rec</source>
-        <translation type="unfinished">First rec</translation>
+        <translation>First rec</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_Tafonomia_ui.py" line="1045"/>
+        <location filename="../gui/ui/Tafonomia.ui" line="63"/>
         <source>Next rec</source>
-        <translation type="unfinished">Next rec</translation>
+        <translation>Next rec</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_Tafonomia_ui.py" line="1046"/>
+        <location filename="../gui/ui/Tafonomia.ui" line="77"/>
         <source>Last rec</source>
-        <translation type="unfinished">Last Rec</translation>
+        <translation>Last Rec</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_Tafonomia_ui.py" line="1047"/>
+        <location filename="../gui/ui/Tafonomia.ui" line="96"/>
         <source>New record</source>
-        <translation type="unfinished">New record</translation>
+        <translation>New record</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_Tafonomia_ui.py" line="1048"/>
+        <location filename="../gui/ui/Tafonomia.ui" line="115"/>
         <source>Save</source>
-        <translation type="unfinished">Save</translation>
+        <translation>Save</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_Tafonomia_ui.py" line="1049"/>
+        <location filename="../gui/ui/Tafonomia.ui" line="137"/>
         <source>new search</source>
-        <translation type="unfinished">New Search</translation>
+        <translation>New Search</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_Tafonomia_ui.py" line="1050"/>
+        <location filename="../gui/ui/Tafonomia.ui" line="156"/>
         <source>search !!!</source>
-        <translation type="unfinished"></translation>
+        <translation>Search!!!</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_Tafonomia_ui.py" line="1051"/>
+        <location filename="../gui/ui/Tafonomia.ui" line="175"/>
         <source>Order by</source>
-        <translation type="unfinished"></translation>
+        <translation>Order by</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_Tafonomia_ui.py" line="1052"/>
+        <location filename="../gui/ui/Tafonomia.ui" line="194"/>
         <source>View alls records</source>
-        <translation type="unfinished"></translation>
+        <translation>View Alls Records</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_Tafonomia_ui.py" line="1053"/>
+        <location filename="../gui/ui/Tafonomia.ui" line="216"/>
         <source>Delete record</source>
-        <translation type="unfinished">Delete one record</translation>
+        <translation>Delete one record</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_Tafonomia_ui.py" line="1054"/>
+        <location filename="../gui/ui/Tafonomia.ui" line="230"/>
         <source>Prev rec</source>
-        <translation type="unfinished">Prev rec</translation>
+        <translation>Prev rec</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_Tafonomia_ui.py" line="1055"/>
+        <location filename="../gui/ui/Tafonomia.ui" line="246"/>
         <source>Connection test</source>
-        <translation type="unfinished"></translation>
+        <translation>Connection test</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_Tafonomia_ui.py" line="1056"/>
+        <location filename="../gui/ui/Tafonomia.ui" line="273"/>
         <source>DB Info</source>
-        <translation type="unfinished"></translation>
+        <translation>DB Info</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_Tafonomia_ui.py" line="1058"/>
+        <location filename="../gui/ui/Tafonomia.ui" line="382"/>
         <source>Status</source>
-        <translation type="unfinished"></translation>
+        <translation>Status</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_Tafonomia_ui.py" line="1059"/>
+        <location filename="../gui/ui/Tafonomia.ui" line="403"/>
         <source>record n.</source>
-        <translation type="unfinished"></translation>
+        <translation>Record No.</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_Tafonomia_ui.py" line="1062"/>
+        <location filename="../gui/ui/Tafonomia.ui" line="479"/>
         <source>1</source>
-        <translation type="unfinished"></translation>
+        <translation>1</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_Tafonomia_ui.py" line="1061"/>
+        <location filename="../gui/ui/Tafonomia.ui" line="448"/>
         <source>record tot.</source>
-        <translation type="unfinished"></translation>
+        <translation>Total record</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_Tafonomia_ui.py" line="1065"/>
+        <location filename="../gui/ui/Tafonomia.ui" line="568"/>
         <source>Nr Scheda</source>
-        <translation type="unfinished"></translation>
+        <translation>Nr form</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_Tafonomia_ui.py" line="1066"/>
+        <location filename="../gui/ui/Tafonomia.ui" line="600"/>
         <source>Rif. struttura</source>
-        <translation type="unfinished"></translation>
+        <translation>Ref. Structure</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_Tafonomia_ui.py" line="1067"/>
+        <location filename="../gui/ui/Tafonomia.ui" line="674"/>
         <source>Nr Individuo        </source>
-        <translation type="unfinished"></translation>
+        <translation>Individual Nr</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_Tafonomia_ui.py" line="1068"/>
+        <location filename="../gui/ui/Tafonomia.ui" line="729"/>
         <source>Segnacoli</source>
-        <translation type="unfinished"></translation>
+        <translation>Segnacles</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_Tafonomia_ui.py" line="1154"/>
+        <location filename="../gui/ui/Tafonomia.ui" line="1541"/>
         <source>Non determinabile</source>
-        <translation type="unfinished"></translation>
+        <translation>Undeterminable</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_Tafonomia_ui.py" line="1078"/>
+        <location filename="../gui/ui/Tafonomia.ui" line="843"/>
         <source>Stato di conserv.</source>
-        <translation type="unfinished"></translation>
+        <translation>State of Conserv.</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_Tafonomia_ui.py" line="1081"/>
+        <location filename="../gui/ui/Tafonomia.ui" line="878"/>
         <source>Sufficiente</source>
-        <translation type="unfinished"></translation>
+        <translation>Enough</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_Tafonomia_ui.py" line="1085"/>
+        <location filename="../gui/ui/Tafonomia.ui" line="906"/>
         <source>Canale libatorio</source>
-        <translation type="unfinished"></translation>
+        <translation>Channel Libatorio</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_Tafonomia_ui.py" line="1086"/>
+        <location filename="../gui/ui/Tafonomia.ui" line="918"/>
         <source>Ogg. rinv. all&apos;esterno</source>
-        <translation type="unfinished"></translation>
+        <translation>Ogg. Rinv. Outside</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_Tafonomia_ui.py" line="1087"/>
+        <location filename="../gui/ui/Tafonomia.ui" line="942"/>
         <source>Non rilevabile</source>
-        <translation type="unfinished"></translation>
+        <translation>Undetectable</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_Tafonomia_ui.py" line="1088"/>
+        <location filename="../gui/ui/Tafonomia.ui" line="947"/>
         <source>Copertura assente</source>
-        <translation type="unfinished"></translation>
+        <translation>Cover absent</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_Tafonomia_ui.py" line="1089"/>
+        <location filename="../gui/ui/Tafonomia.ui" line="952"/>
         <source>Tegole alla cappuccina</source>
-        <translation type="unfinished"></translation>
+        <translation>Roof Tiles</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_Tafonomia_ui.py" line="1090"/>
+        <location filename="../gui/ui/Tafonomia.ui" line="957"/>
         <source>In cassa</source>
-        <translation type="unfinished"></translation>
+        <translation>In the Crate</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_Tafonomia_ui.py" line="1091"/>
+        <location filename="../gui/ui/Tafonomia.ui" line="975"/>
         <source>Entro sudario</source>
-        <translation type="unfinished"></translation>
+        <translation>Within shroud</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_Tafonomia_ui.py" line="1092"/>
+        <location filename="../gui/ui/Tafonomia.ui" line="980"/>
         <source>In cassa fittile</source>
-        <translation type="unfinished"></translation>
+        <translation>In a fictile box</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_Tafonomia_ui.py" line="1093"/>
+        <location filename="../gui/ui/Tafonomia.ui" line="985"/>
         <source>In cassa lignea</source>
-        <translation type="unfinished"></translation>
+        <translation>In a wooden box</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_Tafonomia_ui.py" line="1094"/>
+        <location filename="../gui/ui/Tafonomia.ui" line="990"/>
         <source>In urna litica</source>
-        <translation type="unfinished"></translation>
+        <translation>In the stone urn</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_Tafonomia_ui.py" line="1095"/>
+        <location filename="../gui/ui/Tafonomia.ui" line="995"/>
         <source>Nella terra</source>
-        <translation type="unfinished"></translation>
+        <translation>In the ground</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_Tafonomia_ui.py" line="1096"/>
+        <location filename="../gui/ui/Tafonomia.ui" line="1008"/>
         <source>Tipo copertura</source>
-        <translation type="unfinished"></translation>
+        <translation>Cover type</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_Tafonomia_ui.py" line="1097"/>
+        <location filename="../gui/ui/Tafonomia.ui" line="1020"/>
         <source>Tipo contenitore resti</source>
-        <translation type="unfinished"></translation>
+        <translation>Container type remains</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_Tafonomia_ui.py" line="1098"/>
+        <location filename="../gui/ui/Tafonomia.ui" line="1033"/>
         <source>Orientamento</source>
-        <translation type="unfinished"></translation>
+        <translation>Orientation</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_Tafonomia_ui.py" line="1099"/>
+        <location filename="../gui/ui/Tafonomia.ui" line="1056"/>
         <source>0</source>
-        <translation type="unfinished"></translation>
+        <translation>0</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_Tafonomia_ui.py" line="1100"/>
+        <location filename="../gui/ui/Tafonomia.ui" line="1068"/>
         <source>Asse</source>
-        <translation type="unfinished"></translation>
+        <translation>Axis</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_Tafonomia_ui.py" line="1101"/>
+        <location filename="../gui/ui/Tafonomia.ui" line="1080"/>
         <source>Azimut</source>
-        <translation type="unfinished"></translation>
+        <translation>Azimut</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_Tafonomia_ui.py" line="1119"/>
+        <location filename="../gui/ui/Tafonomia.ui" line="1274"/>
         <source>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
 &lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
 p, li { white-space: pre-wrap; }
 &lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:&apos;MS Shell Dlg 2&apos;; font-size:10pt; font-weight:400; font-style:normal;&quot;&gt;
 &lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-family:&apos;Lucida Grande&apos;; font-size:13pt;&quot;&gt;&lt;br /&gt;&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;! PUBLIC HTML DOCTYPE &quot;-/////W3C//DTD HTML 4.0//EN&quot; &quot;Http://www.w3.org/TR/REC-html40/strict.dtd&quot; &gt; &lt;html&gt; &lt;head&gt; &lt; meta name = &quot;Qrichtext&quot; content = &quot;1&quot;/&gt; &lt; Style Type = &quot;text/css&quot; &gt; P, li {white-space: pre-wrap;} &lt;/style&gt; &lt;/head&gt; &lt; Body style = &quot;FONT-family: &apos; MS Shell Dlg 2 &apos;; font-size: 10pt; font-weight: 400; font-style: normal;&quot; &gt; &lt; P style = &quot;margin-top: 0px; margin-bottom: 0px; margin-left: 0px; margin-right: 0px;-QT-block-indent: 0; text-indent: 0px;&quot; &gt; &lt; span style = &quot;FONT-family: &apos; glossy Grande &apos;; font-size: 13pt;&quot; &gt; &lt; BR/&gt; &lt;/span&gt; &lt;/p&gt; &lt;/body&gt; &lt;/html&gt;</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_Tafonomia_ui.py" line="1125"/>
+        <location filename="../gui/ui/Tafonomia.ui" line="1148"/>
         <source>Corredo</source>
-        <translation type="unfinished"></translation>
+        <translation>Grave goods</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_Tafonomia_ui.py" line="1110"/>
+        <location filename="../gui/ui/Tafonomia.ui" line="1160"/>
         <source>Corredo </source>
-        <translation type="unfinished"></translation>
+        <translation>Kit</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_Tafonomia_ui.py" line="1111"/>
+        <location filename="../gui/ui/Tafonomia.ui" line="1171"/>
         <source>Corredo assente</source>
-        <translation type="unfinished"></translation>
+        <translation>Absent grave goods</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_Tafonomia_ui.py" line="1112"/>
+        <location filename="../gui/ui/Tafonomia.ui" line="1176"/>
         <source>Corredo presente</source>
-        <translation type="unfinished"></translation>
+        <translation>Present grave goods</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_Tafonomia_ui.py" line="1114"/>
+        <location filename="../gui/ui/Tafonomia.ui" line="1218"/>
         <source>Nr. reperto</source>
-        <translation type="unfinished"></translation>
+        <translation>artifact No.</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_Tafonomia_ui.py" line="1115"/>
+        <location filename="../gui/ui/Tafonomia.ui" line="1223"/>
         <source>Tipo di corredo</source>
-        <translation type="unfinished"></translation>
+        <translation>Type of grave goods</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_Tafonomia_ui.py" line="1116"/>
+        <location filename="../gui/ui/Tafonomia.ui" line="1228"/>
         <source>Descrizione</source>
-        <translation type="unfinished"></translation>
+        <translation>Description</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_Tafonomia_ui.py" line="1182"/>
+        <location filename="../gui/ui/Tafonomia.ui" line="1981"/>
         <source>+</source>
-        <translation type="unfinished"></translation>
+        <translation>+</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_Tafonomia_ui.py" line="1181"/>
+        <location filename="../gui/ui/Tafonomia.ui" line="1963"/>
         <source>-</source>
-        <translation type="unfinished"></translation>
+        <translation>-</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_Tafonomia_ui.py" line="1165"/>
+        <location filename="../gui/ui/Tafonomia.ui" line="1293"/>
         <source>Resti osteologici</source>
-        <translation type="unfinished"></translation>
+        <translation>Osteologic remains</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_Tafonomia_ui.py" line="1127"/>
+        <location filename="../gui/ui/Tafonomia.ui" line="1335"/>
         <source>Supino</source>
-        <translation type="unfinished"></translation>
+        <translation>Supino</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_Tafonomia_ui.py" line="1128"/>
+        <location filename="../gui/ui/Tafonomia.ui" line="1340"/>
         <source>Prono</source>
-        <translation type="unfinished"></translation>
+        <translation>Prone</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_Tafonomia_ui.py" line="1129"/>
+        <location filename="../gui/ui/Tafonomia.ui" line="1345"/>
         <source>Posizione fetale</source>
-        <translation type="unfinished"></translation>
+        <translation>Fetal position</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_Tafonomia_ui.py" line="1130"/>
+        <location filename="../gui/ui/Tafonomia.ui" line="1350"/>
         <source>Su lato dx</source>
-        <translation type="unfinished"></translation>
+        <translation>On the right side</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_Tafonomia_ui.py" line="1131"/>
+        <location filename="../gui/ui/Tafonomia.ui" line="1355"/>
         <source>Su lato sx</source>
-        <translation type="unfinished"></translation>
+        <translation>On the left side</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_Tafonomia_ui.py" line="1133"/>
+        <location filename="../gui/ui/Tafonomia.ui" line="1384"/>
         <source>Nord</source>
-        <translation type="unfinished"></translation>
+        <translation>North</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_Tafonomia_ui.py" line="1134"/>
+        <location filename="../gui/ui/Tafonomia.ui" line="1389"/>
         <source>Est</source>
-        <translation type="unfinished"></translation>
+        <translation>East</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_Tafonomia_ui.py" line="1135"/>
+        <location filename="../gui/ui/Tafonomia.ui" line="1394"/>
         <source>Ovest</source>
-        <translation type="unfinished"></translation>
+        <translation>West</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_Tafonomia_ui.py" line="1136"/>
+        <location filename="../gui/ui/Tafonomia.ui" line="1399"/>
         <source>Sud</source>
-        <translation type="unfinished"></translation>
+        <translation>South</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_Tafonomia_ui.py" line="1137"/>
+        <location filename="../gui/ui/Tafonomia.ui" line="1404"/>
         <source>Nord-Est</source>
-        <translation type="unfinished"></translation>
+        <translation>Northeast</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_Tafonomia_ui.py" line="1138"/>
+        <location filename="../gui/ui/Tafonomia.ui" line="1409"/>
         <source>Nord-Ovest</source>
-        <translation type="unfinished"></translation>
+        <translation>Northwest</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_Tafonomia_ui.py" line="1139"/>
+        <location filename="../gui/ui/Tafonomia.ui" line="1414"/>
         <source>Sud-Est</source>
-        <translation type="unfinished"></translation>
+        <translation>South-East</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_Tafonomia_ui.py" line="1140"/>
+        <location filename="../gui/ui/Tafonomia.ui" line="1419"/>
         <source>Sud-Ovest</source>
-        <translation type="unfinished"></translation>
+        <translation>Southwest</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_Tafonomia_ui.py" line="1141"/>
+        <location filename="../gui/ui/Tafonomia.ui" line="1432"/>
         <source>Lunghezza scheletro</source>
-        <translation type="unfinished"></translation>
+        <translation>Skeleton length</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_Tafonomia_ui.py" line="1142"/>
+        <location filename="../gui/ui/Tafonomia.ui" line="1444"/>
         <source>Posizione scheletro</source>
-        <translation type="unfinished"></translation>
+        <translation>Skeleton position</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_Tafonomia_ui.py" line="1143"/>
+        <location filename="../gui/ui/Tafonomia.ui" line="1456"/>
         <source>Posizione cranio</source>
-        <translation type="unfinished"></translation>
+        <translation>Skull position</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_Tafonomia_ui.py" line="1145"/>
+        <location filename="../gui/ui/Tafonomia.ui" line="1477"/>
         <source>Braccia lungo il corpo</source>
-        <translation type="unfinished"></translation>
+        <translation>Arms along the body</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_Tafonomia_ui.py" line="1146"/>
+        <location filename="../gui/ui/Tafonomia.ui" line="1482"/>
         <source>Braccia Incrociate sul petto</source>
-        <translation type="unfinished"></translation>
+        <translation>Arms crossed on the chest</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_Tafonomia_ui.py" line="1147"/>
+        <location filename="../gui/ui/Tafonomia.ui" line="1487"/>
         <source>Braccia Incrociate sul bacino</source>
-        <translation type="unfinished"></translation>
+        <translation>Arms crossed on the pelvis</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_Tafonomia_ui.py" line="1148"/>
+        <location filename="../gui/ui/Tafonomia.ui" line="1492"/>
         <source>Mani congiunte sul petto</source>
-        <translation type="unfinished"></translation>
+        <translation>Joint hands on Chest</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_Tafonomia_ui.py" line="1149"/>
+        <location filename="../gui/ui/Tafonomia.ui" line="1497"/>
         <source>Mani congiunte sul bacino  </source>
-        <translation type="unfinished"></translation>
+        <translation>Joint hands on the pelvis</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_Tafonomia_ui.py" line="1150"/>
+        <location filename="../gui/ui/Tafonomia.ui" line="1510"/>
         <source>Posizione arti superiori</source>
-        <translation type="unfinished"></translation>
+        <translation>Upper limbs position</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_Tafonomia_ui.py" line="1151"/>
+        <location filename="../gui/ui/Tafonomia.ui" line="1526"/>
         <source>Distesi</source>
-        <translation type="unfinished"></translation>
+        <translation>Lying</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_Tafonomia_ui.py" line="1152"/>
+        <location filename="../gui/ui/Tafonomia.ui" line="1531"/>
         <source>Incrociati</source>
-        <translation type="unfinished"></translation>
+        <translation>Cross</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_Tafonomia_ui.py" line="1153"/>
+        <location filename="../gui/ui/Tafonomia.ui" line="1536"/>
         <source>Asimmetrici</source>
-        <translation type="unfinished"></translation>
+        <translation>Asymmetric</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_Tafonomia_ui.py" line="1155"/>
-        <source>Posizione arti infeiori</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="modules/gui/pyarchinit_Tafonomia_ui.py" line="1156"/>
+        <location filename="../gui/ui/Tafonomia.ui" line="1581"/>
         <source>Disturbato</source>
-        <translation type="unfinished"></translation>
+        <translation>Disturbed</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_Tafonomia_ui.py" line="1159"/>
+        <location filename="../gui/ui/Tafonomia.ui" line="1630"/>
         <source>Completo</source>
-        <translation type="unfinished"></translation>
+        <translation>Full</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_Tafonomia_ui.py" line="1162"/>
+        <location filename="../gui/ui/Tafonomia.ui" line="1679"/>
         <source>In connessione</source>
-        <translation type="unfinished"></translation>
+        <translation>In Connection</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_Tafonomia_ui.py" line="1171"/>
+        <location filename="../gui/ui/Tafonomia.ui" line="1729"/>
         <source>Misure</source>
-        <translation type="unfinished"></translation>
+        <translation>Measures</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_Tafonomia_ui.py" line="1168"/>
+        <location filename="../gui/ui/Tafonomia.ui" line="1812"/>
         <source>Tipo misura</source>
-        <translation type="unfinished">Type measure</translation>
+        <translation>Measure Type</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_Tafonomia_ui.py" line="1169"/>
+        <location filename="../gui/ui/Tafonomia.ui" line="1817"/>
         <source>Unita&apos; di misura</source>
-        <translation type="unfinished">Units</translation>
+        <translation>Unit of Measure</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_Tafonomia_ui.py" line="1170"/>
+        <location filename="../gui/ui/Tafonomia.ui" line="1822"/>
         <source>Valore</source>
-        <translation type="unfinished">Value</translation>
+        <translation>Value</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_Tafonomia_ui.py" line="1180"/>
+        <location filename="../gui/ui/Tafonomia.ui" line="1831"/>
         <source>Periodizzazione</source>
-        <translation type="unfinished"></translation>
+        <translation>Periodization</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_Tafonomia_ui.py" line="1172"/>
+        <location filename="../gui/ui/Tafonomia.ui" line="1845"/>
         <source>Periodizzazione </source>
-        <translation type="unfinished"></translation>
+        <translation>Periodization</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_Tafonomia_ui.py" line="1173"/>
+        <location filename="../gui/ui/Tafonomia.ui" line="1858"/>
         <source>Iniziale </source>
-        <translation type="unfinished">Starting</translation>
+        <translation>Starting</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_Tafonomia_ui.py" line="1174"/>
+        <location filename="../gui/ui/Tafonomia.ui" line="1871"/>
         <source>Finale </source>
-        <translation type="unfinished">End</translation>
+        <translation>End</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_Tafonomia_ui.py" line="1178"/>
+        <location filename="../gui/ui/Tafonomia.ui" line="1908"/>
         <source>Periodo </source>
-        <translation type="unfinished">Period</translation>
+        <translation>Period</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_Tafonomia_ui.py" line="1177"/>
+        <location filename="../gui/ui/Tafonomia.ui" line="1901"/>
         <source>Fase </source>
-        <translation type="unfinished">Phase</translation>
+        <translation>Phase</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_Tafonomia_ui.py" line="1179"/>
+        <location filename="../gui/ui/Tafonomia.ui" line="1930"/>
         <source>Datazione estesa</source>
-        <translation type="unfinished">Capitals date</translation>
+        <translation>Extended Dating</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_Tafonomia_ui.py" line="1185"/>
+        <location filename="../gui/ui/Tafonomia.ui" line="1951"/>
         <source>Caratteristiche</source>
-        <translation type="unfinished"></translation>
+        <translation>Features</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_Tafonomia_ui.py" line="1183"/>
+        <location filename="../gui/ui/Tafonomia.ui" line="2024"/>
         <source>Tipo caratteristica</source>
-        <translation type="unfinished"></translation>
+        <translation>Features type</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_Tafonomia_ui.py" line="1203"/>
+        <location filename="../gui/ui/Tafonomia.ui" line="2038"/>
         <source>Tools</source>
-        <translation type="unfinished"></translation>
+        <translation>Tools</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_Tafonomia_ui.py" line="1186"/>
-        <source>GIS Toolbar</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="modules/gui/pyarchinit_Tafonomia_ui.py" line="1193"/>
+        <location filename="../gui/ui/Tafonomia.ui" line="2178"/>
         <source>Ctrl+G</source>
-        <translation type="unfinished"></translation>
+        <translation>Ctrl+G</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_Tafonomia_ui.py" line="1192"/>
+        <location filename="../gui/ui/Tafonomia.ui" line="2168"/>
         <source>Pan tool</source>
-        <translation type="unfinished"></translation>
+        <translation>Pan tool</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_Tafonomia_ui.py" line="1196"/>
+        <location filename="../gui/ui/Tafonomia.ui" line="2273"/>
         <source>Esporta schede Tafonomiche in formato PDF</source>
-        <translation type="unfinished"></translation>
+        <translation>Export pdf Taphonomy form</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_Tafonomia_ui.py" line="1197"/>
+        <location filename="../gui/ui/Tafonomia.ui" line="2288"/>
         <source>Export PDF</source>
-        <translation type="unfinished"></translation>
+        <translation>Export PDF</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_Tafonomia_ui.py" line="1198"/>
+        <location filename="../gui/ui/Tafonomia.ui" line="2291"/>
         <source>Singole schede</source>
-        <translation type="unfinished"></translation>
+        <translation>Individual form</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_Tafonomia_ui.py" line="1201"/>
+        <location filename="../gui/ui/Tafonomia.ui" line="2359"/>
         <source>Show Selcted Features</source>
-        <translation type="unfinished"></translation>
+        <translation>Show Selcted Features</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_Tafonomia_ui.py" line="1204"/>
+        <location filename="../gui/ui/Tafonomia.ui" line="2421"/>
         <source>Rito</source>
-        <translation type="unfinished"></translation>
+        <translation>Rite</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_Tafonomia_ui.py" line="1205"/>
+        <location filename="../gui/ui/Tafonomia.ui" line="2448"/>
         <source>Riduzione</source>
-        <translation type="unfinished"></translation>
+        <translation>Reduction</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_Tafonomia_ui.py" line="1206"/>
+        <location filename="../gui/ui/Tafonomia.ui" line="2453"/>
         <source>Ad inumazione</source>
-        <translation type="unfinished"></translation>
+        <translation>To burial</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_Tafonomia_ui.py" line="1207"/>
+        <location filename="../gui/ui/Tafonomia.ui" line="2458"/>
         <source>Ad incinerazione diretta</source>
-        <translation type="unfinished"></translation>
+        <translation>Direct incineration</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_Tafonomia_ui.py" line="1208"/>
+        <location filename="../gui/ui/Tafonomia.ui" line="2463"/>
         <source>Ad incinerazione indiretta</source>
-        <translation type="unfinished"></translation>
+        <translation>To indirect incineration</translation>
     </message>
     <message>
-        <location filename="modules/gui/pyarchinit_Tafonomia_ui.py" line="1209"/>
+        <location filename="../gui/ui/Tafonomia.ui" line="2468"/>
         <source>Mummuficazione</source>
-        <translation type="unfinished"></translation>
+        <translation>Mummufication</translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/Tafonomia.ui" line="1554"/>
+        <source>Posizione arti inferiori</source>
+        <translation>Lower limbs position</translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/Tafonomia.ui" line="2310"/>
+        <source>Elenco </source>
+        <translation>List</translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/Tafonomia.ui" line="2310"/>
+        <source>Stato di conservazione</source>
+        <translation type="obsolete">Type preservation</translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/Tafonomia.ui" line="2310"/>
+        <source>Elenco US</source>
+        <translation type="obsolete">US list</translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/Tafonomia.ui" line="2310"/>
+        <source>Esporta Matrix</source>
+        <translation type="obsolete">Export Matrix</translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/Tafonomia.ui" line="2310"/>
+        <source>Controlla rapporti stratigrafici</source>
+        <translation type="obsolete">Check stratigraphic relation</translation>
     </message>
 </context>
 <context>
     <name>GdalTools</name>
     <message>
-        <location filename="pyarchinit_Archeozoology_mainapp.py" line="68"/>
+        <location filename="../tabs/Archeozoology.py" line="62"/>
         <source>Plugin error</source>
-        <translation type="unfinished"></translation>
+        <translation>Plugin Error</translation>
     </message>
     <message>
-        <location filename="pyarchinit_Archeozoology_mainapp.py" line="2072"/>
+        <location filename="../tabs/Archeozoology.py" line="2257"/>
         <source>Clipper</source>
-        <translation type="unfinished"></translation>
+        <translation>Clipper</translation>
+    </message>
+    <message>
+        <location filename="../tabs/Archeozoology.py" line="63"/>
+        <source>Unable to load %1 plugin.
+                             The required &quot;%2&quot; module is missing.
+                             Install it and try again.</source>
+        <translation>Unable to load %1 plugin.
+                             The required &quot;%2&quot; module is missing.
+                             Install it and try again.</translation>
+    </message>
+</context>
+<context>
+    <name>PyarchinitPlugin</name>
+    <message>
+        <location filename="../gui/ui/pyarchinit_plugin.ui" line="26"/>
+        <source>pyArchInit - Archaeological Data Management</source>
+        <translation>pyArchInit - Archaeological Data Management</translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/pyarchinit_plugin.ui" line="111"/>
+        <source>Scavo archeologico</source>
+        <translation>Archaeological excavation</translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/pyarchinit_plugin.ui" line="123"/>
+        <source>Struttura</source>
+        <translation>Structure</translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/pyarchinit_plugin.ui" line="988"/>
+        <source>N:N</source>
+        <translation>N:N</translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/pyarchinit_plugin.ui" line="789"/>
+        <source>1:N</source>
+        <translation>1: N</translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/pyarchinit_plugin.ui" line="952"/>
+        <source>US</source>
+        <translation>SU</translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/pyarchinit_plugin.ui" line="1004"/>
+        <source>Reperti</source>
+        <translation>Finds</translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/pyarchinit_plugin.ui" line="471"/>
+        <source>Scavo Archeologico</source>
+        <translation>Archaeological excavation</translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/pyarchinit_plugin.ui" line="826"/>
+        <source>Sito</source>
+        <translation>Site</translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/pyarchinit_plugin.ui" line="547"/>
+        <source>Periodo/fase</source>
+        <translation>Period/Phase</translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/pyarchinit_plugin.ui" line="894"/>
+        <source>Ricognizione del territorio</source>
+        <translation>Territory Reconnaissance</translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/pyarchinit_plugin.ui" line="766"/>
+        <source>UT</source>
+        <translation>TU</translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/pyarchinit_plugin.ui" line="1069"/>
+        <source>Media</source>
+        <translation>Media</translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/pyarchinit_plugin.ui" line="1095"/>
+        <source>Esportazione Media</source>
+        <translation>Media export</translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/pyarchinit_plugin.ui" line="1135"/>
+        <source>Utility</source>
+        <translation>Utility</translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/pyarchinit_plugin.ui" line="1150"/>
+        <source>PDF EXP</source>
+        <translation>PDF EXP</translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/pyarchinit_plugin.ui" line="1223"/>
+        <source>Supporto online</source>
+        <translation>Online Support</translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/pyarchinit_plugin.ui" line="1178"/>
+        <source>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
+&lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
+p, li { white-space: pre-wrap; }
+&lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:&apos;MS Shell Dlg 2&apos;; font-size:8.25pt; font-weight:400; font-style:normal;&quot;&gt;
+&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-family:&apos;Sans Serif&apos;; font-size:11pt; font-weight:600; color:#aa0000;&quot;&gt;pyArchInit Support&lt;/span&gt;&lt;/p&gt;
+&lt;p style=&quot;-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px; font-family:&apos;Sans Serif&apos;; font-size:9pt;&quot;&gt;&lt;/p&gt;
+&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-family:&apos;Sans Serif&apos;; font-size:9pt;&quot;&gt;&lt;br /&gt;&lt;/span&gt;&lt;/p&gt;
+&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-family:&apos;Sans Serif&apos;; font-size:9pt;&quot;&gt;Sito ufficiale&lt;/span&gt;&lt;/p&gt;
+&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;a href=&quot;https://sites.google.com/site/pyarchinit/&quot;&gt;&lt;span style=&quot; font-size:8pt; text-decoration: underline; color:#0000ff;&quot;&gt;https://sites.google.com/site/pyarchinit/&lt;/span&gt;&lt;/a&gt;&lt;/p&gt;
+&lt;p style=&quot;-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px; font-size:8pt; text-decoration: underline; color:#0000ff;&quot;&gt;&lt;/p&gt;
+&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:8pt; text-decoration: underline; color:#0000ff;&quot;&gt;&lt;br /&gt;&lt;/span&gt;&lt;/p&gt;
+&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-family:&apos;Sans Serif&apos;; font-size:9pt;&quot;&gt;Blog&lt;/span&gt;&lt;/p&gt;
+&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;a href=&quot;http://pyarchinit.blogspot.it/&quot;&gt;&lt;span style=&quot; font-size:8pt; text-decoration: underline; color:#0000ff;&quot;&gt;http://pyarchinit.blogspot.it/&lt;/span&gt;&lt;/a&gt;&lt;/p&gt;
+&lt;p style=&quot;-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px; font-size:8pt; text-decoration: underline; color:#0000ff;&quot;&gt;&lt;/p&gt;
+&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:8pt; text-decoration: underline; color:#0000ff;&quot;&gt;&lt;br /&gt;&lt;/span&gt;&lt;/p&gt;
+&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-family:&apos;Sans Serif&apos;; font-size:9pt;&quot;&gt;Github repository&lt;/span&gt;&lt;/p&gt;
+&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;a href=&quot;https://github.com/pyarchinit/&quot;&gt;&lt;span style=&quot; font-size:8pt; text-decoration: underline; color:#0000ff;&quot;&gt;https://github.com/pyarchinit/&lt;/span&gt;&lt;/a&gt;&lt;/p&gt;
+&lt;p style=&quot;-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px; font-size:8pt; text-decoration: underline; color:#0000ff;&quot;&gt;&lt;/p&gt;
+&lt;p style=&quot;-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px; font-size:8pt; text-decoration: underline; color:#0000ff;&quot;&gt;&lt;/p&gt;
+&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-family:&apos;Sans Serif&apos;; font-size:9pt;&quot;&gt;Online mailing list&lt;/span&gt;&lt;/p&gt;
+&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;a href=&quot;pyarchinit-users@googlegroups.com&quot;&gt;&lt;span style=&quot; text-decoration: underline; color:#0000ff;&quot;&gt;pyarchinit-users@googlegroups.com&lt;/span&gt;&lt;/a&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
+        <translation>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;&lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
+p, li { white-space: pre-wrap; }
+&lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:&apos;MS Shell Dlg 2&apos;; font-size:8.25pt; font-weight:400; font-style:normal;&quot;&gt;&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt; &lt;span style=&quot; font-family:&apos;Sans Serif&apos;; font-size:11pt; font-weight:600; color:#aa0000;&quot;&gt;pyArchInit Support&lt;/span&gt; &lt;/p&gt;&lt;p style=&quot;-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px; font-family:&apos;Sans Serif&apos;; font-size:9pt;&quot;&gt;&lt;/p&gt;&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt; &lt;span style=&quot; font-family:&apos;Sans Serif&apos;; font-size:9pt;&quot;&gt;&lt;br /&gt;&lt;/span&gt; &lt;/p&gt;&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt; &lt;span style=&quot; font-family:&apos;Sans Serif&apos;; font-size:9pt;&quot;&gt;Official site&lt;/span&gt; &lt;/p&gt;&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt; &lt;a href=&quot;https://sites.google.com/site/pyarchinit/&quot;&gt;&lt;span style=&quot; font-size:8pt; text-decoration: underline; color:#0000ff;&quot;&gt;https://sites.google.com/site/pyarchinit/&lt;/span&gt;&lt;/a&gt; &lt;/p&gt;&lt;p style=&quot;-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px; font-size:8pt; text-decoration: underline; color:#0000ff;&quot;&gt;&lt;/p&gt;&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt; &lt;span style=&quot; font-size:8pt; text-decoration: underline; color:#0000ff;&quot;&gt;&lt;br /&gt;&lt;/span&gt; &lt;/p&gt;&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt; &lt;span style=&quot; font-family:&apos;Sans Serif&apos;; font-size:9pt;&quot;&gt;Blog&lt;/span&gt; &lt;/p&gt;&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt; &lt;a href=&quot;http://pyarchinit.blogspot.it/&quot;&gt;&lt;span style=&quot; font-size:8pt; text-decoration: underline; color:#0000ff;&quot;&gt;http://pyarchinit.blogspot.it/&lt;/span&gt;&lt;/a&gt; &lt;/p&gt;&lt;p style=&quot;-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px; font-size:8pt; text-decoration: underline; color:#0000ff;&quot;&gt;&lt;/p&gt;&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt; &lt;span style=&quot; font-size:8pt; text-decoration: underline; color:#0000ff;&quot;&gt;&lt;br /&gt;&lt;/span&gt; &lt;/p&gt;&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt; &lt;span style=&quot; font-family:&apos;Sans Serif&apos;; font-size:9pt;&quot;&gt;Github repository&lt;/span&gt; &lt;/p&gt;&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt; &lt;a href=&quot;https://github.com/pyarchinit/&quot;&gt;&lt;span style=&quot; font-size:8pt; text-decoration: underline; color:#0000ff;&quot;&gt;https://github.com/pyarchinit/&lt;/span&gt;&lt;/a&gt; &lt;/p&gt;&lt;p style=&quot;-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px; font-size:8pt; text-decoration: underline; color:#0000ff;&quot;&gt;&lt;/p&gt;&lt;p style=&quot;-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px; font-size:8pt; text-decoration: underline; color:#0000ff;&quot;&gt;&lt;/p&gt;&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt; &lt;span style=&quot; font-family:&apos;Sans Serif&apos;; font-size:9pt;&quot;&gt;Online mailing list&lt;/span&gt; &lt;/p&gt;&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt; &lt;a href=&quot;pyarchinit-users@googlegroups.com&quot;&gt;&lt;span style=&quot; text-decoration: underline; color:#0000ff;&quot;&gt;pyarchinit-users@googlegroups.com&lt;/span&gt;&lt;/a&gt; &lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
+    </message>
+</context>
+<context>
+    <name>quantPanel</name>
+    <message>
+        <location filename="../gui/ui/quantpanelmain.ui" line="17"/>
+        <source>Ordina</source>
+        <translation>Order</translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/quantpanelmain.ui" line="28"/>
+        <source>Criteri di ordinamento</source>
+        <translation>Sorting criteria</translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/quantpanelmain.ui" line="126"/>
+        <source>Forme minime</source>
+        <translation>Minimum shapes</translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/quantpanelmain.ui" line="139"/>
+        <source>Forme Massime</source>
+        <translation>Maximum shapes</translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/quantpanelmain.ui" line="215"/>
+        <source>Quantifica</source>
+        <translation>Quantifies</translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/quantpanelmain.ui" line="231"/>
+        <source>Frammenti</source>
+        <translation>Fragments</translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/quantpanelmain.ui" line="241"/>
+        <source>Peso</source>
+        <translation>Weight</translation>
     </message>
 </context>
 <context>
     <name>sortPanel</name>
     <message>
-        <location filename="modules/gui/sort_panel_ui.ui" line="212"/>
+        <location filename="../gui/ui/sortpanelmain.ui" line="211"/>
         <source>Ordina</source>
-        <translation type="obsolete">Sort</translation>
+        <translation>Order</translation>
     </message>
     <message>
-        <location filename="modules/gui/sort_panel_ui.ui" line="28"/>
+        <location filename="../gui/ui/sortpanelmain.ui" line="27"/>
         <source>Criteri di ordinamento</source>
-        <translation type="obsolete">Sorting</translation>
+        <translation>Sorting criteria</translation>
     </message>
     <message>
-        <location filename="modules/gui/sort_panel_ui.ui" line="126"/>
+        <location filename="../gui/ui/sortpanelmain.ui" line="125"/>
         <source>Ascendente</source>
-        <translation type="obsolete">Ascending </translation>
+        <translation>Ascending</translation>
     </message>
     <message>
-        <location filename="modules/gui/sort_panel_ui.ui" line="136"/>
+        <location filename="../gui/ui/sortpanelmain.ui" line="135"/>
         <source>Discendente</source>
-        <translation type="obsolete">Descending</translation>
+        <translation>Descendant</translation>
     </message>
 </context>
 </TS>

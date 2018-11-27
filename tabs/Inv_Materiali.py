@@ -28,14 +28,13 @@ import numpy as np
 import sys
 from builtins import range
 from builtins import str
-from qgis.PyQt.QtCore import Qt, QSize
+from qgis.PyQt.QtCore import Qt, QSize, QVariant
 from qgis.PyQt.QtGui import QIcon
 from qgis.PyQt.QtWidgets import QDialog, QMessageBox, QListWidget, QListView, QFrame, QAbstractItemView, \
     QTableWidgetItem, QListWidgetItem
 from qgis.PyQt.uic import loadUiType
+from qgis.core import QgsSettings
 
-from gui.imageViewer import ImageViewer
-from .US_USM import pyarchinit_US
 from ..modules.db.pyarchinit_conn_strings import Connection
 from ..modules.db.pyarchinit_db_manager import Pyarchinit_db_management
 from ..modules.db.pyarchinit_utility import Utility
@@ -43,6 +42,7 @@ from ..modules.utility.csv_writer import UnicodeWriter
 from ..modules.utility.delegateComboBox import ComboBoxDelegate
 from ..modules.utility.pyarchinit_error_check import Error_check
 from ..modules.utility.pyarchinit_exp_Findssheet_pdf import generate_reperti_pdf
+from ..gui.imageViewer import ImageViewer
 from ..gui.quantpanelmain import QuantPanelMain
 from ..gui.sortpanelmain import SortPanelMain
 
@@ -191,6 +191,21 @@ class pyarchinit_Inventario_reperti(QDialog, MAIN_DIALOG_CLASS):
         'diagnostico'
     ]
 
+    LANG = {
+        "IT": ['it_IT', 'IT', 'it', 'IT_IT'],
+        "EN_US": ['en_US','EN_US'],
+		"DE": ['de_DE','de','DE', 'DE_DE'],
+        "FR": ['fr_FR','fr','FR', 'FR_FR'],
+        "ES": ['es_ES','es','ES', 'ES_ES'],
+        "PT": ['pt_PT','pt','PT', 'PT_PT'],
+        "SV": ['sv_SV','sv','SV', 'SV_SV'],
+        "RU": ['ru_RU','ru','RU', 'RU_RU'],
+        "RO": ['ro_RO','ro','RO', 'RO_RO'],
+        "AR": ['ar_AR','ar','AR', 'AR_AR'],
+        "PT_BR": ['pt_BR','PT_BR'],
+        "SL": ['sl_SL','sl','SL', 'SL_SL'],
+    }
+
     SEARCH_DICT_TEMP = ""
 
     HOME = os.environ['PYARCHINIT_HOME']
@@ -203,12 +218,13 @@ class pyarchinit_Inventario_reperti(QDialog, MAIN_DIALOG_CLASS):
         super().__init__()
         self.iface = iface
         self.setupUi(self)
-        self.customize_gui()
+
         self.currentLayerId = None
         try:
             self.on_pushButton_connect_pressed()
         except Exception as e:
             QMessageBox.warning(self, "Sistema di connessione", str(e), QMessageBox.Ok)
+        self.customize_gui()
 
     def on_pushButtonQuant_pressed(self):
         dlg = QuantPanelMain(self)
@@ -246,7 +262,7 @@ class pyarchinit_Inventario_reperti(QDialog, MAIN_DIALOG_CLASS):
                     csv_dataset.append(sing_list)
 
                 filename = ('%s%squant_forme_minime.csv') % (self.QUANT_PATH, os.sep)
-                QMessageBox.warning(self, "Esportazione", str(filename), MessageBox.Ok)
+                QMessageBox.warning(self, "Esportazione", str(filename), QMessageBox.Ok)
                 f = open(filename, 'wb')
                 Uw = UnicodeWriter(f)
                 Uw.writerows(csv_dataset)
@@ -490,6 +506,14 @@ class pyarchinit_Inventario_reperti(QDialog, MAIN_DIALOG_CLASS):
                                     QMessageBox.Ok)
 
     def customize_gui(self):
+
+        l = QgsSettings().value("locale/userLocale", QVariant)
+        lang = ""
+        for key, values in self.LANG.items():
+            if values.__contains__(l):
+                lang = str(key)
+        lang = "'" + lang + "'"
+
         # media prevew system
         self.iconListWidget = QListWidget(self)
         self.iconListWidget.setFrameShape(QFrame.StyledPanel)
@@ -511,13 +535,159 @@ class pyarchinit_Inventario_reperti(QDialog, MAIN_DIALOG_CLASS):
         self.iconListWidget.itemDoubleClicked.connect(self.openWide_image)
         self.tabWidget.addTab(self.iconListWidget, "Media")
 
-        # delegate combobox
-
         valuesTE = ["frammento", "frammenti", "intero", "integro"]
         self.delegateTE = ComboBoxDelegate()
         self.delegateTE.def_values(valuesTE)
         self.delegateTE.def_editable('False')
         self.tableWidget_elementi_reperto.setItemDelegateForColumn(1, self.delegateTE)
+
+        # lista elementi reperto - elemento rinvenuto
+
+        search_dict = {
+            'lingua': lang,
+            'nome_tabella': "'" + 'inventario_materiali_table' + "'",
+            'tipologia_sigla': "'" + '3.4' + "'"
+        }
+
+        elRinv = self.DB_MANAGER.query_bool(search_dict, 'PYARCHINIT_THESAURUS_SIGLE')
+        valuesElRinv = []
+
+        for i in range(len(elRinv)):
+            valuesElRinv.append(elRinv[i].sigla_estesa)
+
+        valuesElRinv.sort()
+
+        self.delegateElRinv = ComboBoxDelegate()
+        self.delegateElRinv.def_values(valuesElRinv)
+        self.delegateElRinv.def_editable('False')
+        self.tableWidget_elementi_reperto.setItemDelegateForColumn(0, self.delegateElRinv)
+
+        # lista misurazioni - tipo di misura
+
+        search_dict = {
+            'lingua': lang,
+            'nome_tabella': "'" + 'inventario_materiali_table' + "'",
+            'tipologia_sigla': "'" + '3.5' + "'"
+        }
+
+        elTipoMis = self.DB_MANAGER.query_bool(search_dict, 'PYARCHINIT_THESAURUS_SIGLE')
+        valuesTipoMis = []
+
+        for i in range(len(elTipoMis)):
+            valuesTipoMis.append(elTipoMis[i].sigla_estesa)
+
+        valuesTipoMis.sort()
+
+        self.delegateTipoMis = ComboBoxDelegate()
+        self.delegateTipoMis.def_values(valuesTipoMis)
+        self.delegateTipoMis.def_editable('False')
+        self.tableWidget_misurazioni.setItemDelegateForColumn(0, self.delegateTipoMis)
+
+        # lista misurazioni - unita di misura
+
+        search_dict = {
+            'lingua': lang,
+            'nome_tabella': "'" + 'inventario_materiali_table' + "'",
+            'tipologia_sigla': "'" + '3.6' + "'"
+        }
+
+        elUnitaMis = self.DB_MANAGER.query_bool(search_dict, 'PYARCHINIT_THESAURUS_SIGLE')
+        valuesUnitaMis = []
+
+        for i in range(len(elUnitaMis)):
+            valuesUnitaMis.append(elUnitaMis[i].sigla)
+
+        valuesUnitaMis.sort()
+
+        self.delegateUnitaMis = ComboBoxDelegate()
+        self.delegateUnitaMis.def_values(valuesUnitaMis)
+        self.delegateUnitaMis.def_editable('False')
+        self.tableWidget_misurazioni.setItemDelegateForColumn(1, self.delegateUnitaMis)
+
+        # lista tecnologie - tipo tecnologia
+
+        search_dict = {
+            'lingua': lang,
+            'nome_tabella': "'" + 'inventario_materiali_table' + "'",
+            'tipologia_sigla': "'" + '3.7' + "'"
+        }
+
+        elTipoTec = self.DB_MANAGER.query_bool(search_dict, 'PYARCHINIT_THESAURUS_SIGLE')
+        valuesTipoTec = []
+
+        for i in range(len(elTipoTec)):
+            valuesTipoTec.append(elTipoTec[i].sigla_estesa)
+
+        valuesTipoTec.sort()
+
+        self.delegateTipoTec = ComboBoxDelegate()
+        self.delegateTipoTec.def_values(valuesTipoTec)
+        self.delegateTipoTec.def_editable('False')
+        self.tableWidget_tecnologie.setItemDelegateForColumn(0, self.delegateTipoTec)
+
+        # lista tecnologie - posizione
+
+        search_dict = {
+            'lingua': lang,
+            'nome_tabella': "'" + 'inventario_materiali_table' + "'",
+            'tipologia_sigla': "'" + '3.8' + "'"
+        }
+
+        elPosTec = self.DB_MANAGER.query_bool(search_dict, 'PYARCHINIT_THESAURUS_SIGLE')
+        valuesPosTec = []
+
+        for i in range(len(elPosTec)):
+            valuesPosTec.append(elPosTec[i].sigla_estesa)
+
+        valuesPosTec.sort()
+
+        self.delegatePosTec = ComboBoxDelegate()
+        self.delegatePosTec.def_values(valuesPosTec)
+        self.delegatePosTec.def_editable('False')
+        self.tableWidget_tecnologie.setItemDelegateForColumn(1, self.delegatePosTec)
+
+        # lista tecnologie - tipo quantita
+
+        search_dict = {
+            'lingua': lang,
+            'nome_tabella': "'" + 'inventario_materiali_table' + "'",
+            'tipologia_sigla': "'" + '3.9' + "'"
+        }
+
+        elTipoQu = self.DB_MANAGER.query_bool(search_dict, 'PYARCHINIT_THESAURUS_SIGLE')
+        valuesTipoQu = []
+
+        for i in range(len(elTipoQu)):
+            valuesTipoQu.append(elTipoQu[i].sigla_estesa)
+
+        valuesTipoQu.sort()
+
+        self.delegateTipoQu = ComboBoxDelegate()
+        self.delegateTipoQu.def_values(valuesTipoQu)
+        self.delegateTipoQu.def_editable('False')
+        self.tableWidget_tecnologie.setItemDelegateForColumn(2, self.delegateTipoQu)
+
+        # lista tecnologie - unita di misura
+
+        search_dict = {
+            'lingua': lang,
+            'nome_tabella': "'" + 'inventario_materiali_table' + "'",
+            'tipologia_sigla': "'" + '3.10' + "'"
+        }
+
+        elUnMis = self.DB_MANAGER.query_bool(search_dict, 'PYARCHINIT_THESAURUS_SIGLE')
+        valuesUnMis = []
+
+        for i in range(len(elUnMis)):
+            valuesUnMis.append(elUnMis[i].sigla)
+
+        valuesUnMis.sort()
+
+        self.delegateUnMis = ComboBoxDelegate()
+        self.delegateUnMis.def_values(valuesUnMis)
+        self.delegateUnMis.def_editable('False')
+        self.tableWidget_tecnologie.setItemDelegateForColumn(3, self.delegateUnMis)
+
 
     def loadMediaPreview(self, mode=0):
         self.iconListWidget.clear()
@@ -568,6 +738,16 @@ class pyarchinit_Inventario_reperti(QDialog, MAIN_DIALOG_CLASS):
             dlg.exec_()
 
     def charge_list(self):
+
+        l = QgsSettings().value("locale/userLocale", QVariant)
+        lang = ""
+        for key, values in self.LANG.items():
+            if values.__contains__(l):
+                lang = str(key)
+        lang = "'" + lang + "'"
+
+        #lista sito
+
         sito_vl = self.UTILITY.tup_2_list_III(self.DB_MANAGER.group_by('site_table', 'sito', 'SITE'))
         try:
             sito_vl.remove('')
@@ -581,7 +761,116 @@ class pyarchinit_Inventario_reperti(QDialog, MAIN_DIALOG_CLASS):
         sito_vl.sort()
         self.comboBox_sito.addItems(sito_vl)
 
-        # buttons functions
+        #lista tipo reperto
+
+        self.comboBox_tipo_reperto.clear()
+        search_dict = {
+            'lingua': lang,
+            'nome_tabella': "'" + 'inventario_materiali_table' + "'",
+            'tipologia_sigla': "'" + '3.1' + "'"
+        }
+
+        tipo_reperto = self.DB_MANAGER.query_bool(search_dict, 'PYARCHINIT_THESAURUS_SIGLE')
+        tipo_reperto_vl = []
+
+        for i in range(len(tipo_reperto)):
+            tipo_reperto_vl.append(tipo_reperto[i].sigla_estesa)
+
+        tipo_reperto_vl.sort()
+        self.comboBox_tipo_reperto.addItems(tipo_reperto_vl)
+
+        # lista classe materiale
+
+        self.comboBox_criterio_schedatura.clear()
+        search_dict = {
+            'lingua': lang,
+            'nome_tabella': "'" + 'inventario_materiali_table' + "'",
+            'tipologia_sigla': "'" + '3.2' + "'"
+        }
+
+        criterio_schedatura = self.DB_MANAGER.query_bool(search_dict, 'PYARCHINIT_THESAURUS_SIGLE')
+        criterio_schedatura_vl = []
+
+        for i in range(len(criterio_schedatura)):
+            criterio_schedatura_vl.append(criterio_schedatura[i].sigla_estesa)
+
+            criterio_schedatura_vl.sort()
+        self.comboBox_criterio_schedatura.addItems(criterio_schedatura_vl)
+
+        # lista definizione reperto
+
+        self.comboBox_definizione.clear()
+        search_dict = {
+            'lingua': lang,
+            'nome_tabella': "'" + 'inventario_materiali_table' + "'",
+            'tipologia_sigla': "'" + '3.3' + "'"
+        }
+
+        definizione = self.DB_MANAGER.query_bool(search_dict, 'PYARCHINIT_THESAURUS_SIGLE')
+        definizione_vl = []
+
+        for i in range(len(definizione)):
+            definizione_vl.append(definizione[i].sigla_estesa)
+
+        definizione_vl.sort()
+        self.comboBox_definizione.addItems(definizione_vl)
+
+        # lista repertato
+
+        self.comboBox_repertato.clear()
+        search_dict = {
+            'lingua': lang,
+            'nome_tabella': "'" + 'inventario_materiali_table' + "'",
+            'tipologia_sigla': "'" + '301.301' + "'"
+        }
+
+        repertato = self.DB_MANAGER.query_bool(search_dict, 'PYARCHINIT_THESAURUS_SIGLE')
+        repertato_vl = []
+
+        for i in range(len(repertato)):
+            repertato_vl.append(repertato[i].sigla_estesa)
+
+        repertato_vl.sort()
+        self.comboBox_repertato.addItems(repertato_vl)
+
+        # lista diagnostico
+
+        self.comboBox_diagnostico.clear()
+        search_dict = {
+            'lingua': lang,
+            'nome_tabella': "'" + 'inventario_materiali_table' + "'",
+            'tipologia_sigla': "'" + '301.301' + "'"
+        }
+
+        diagnostico = self.DB_MANAGER.query_bool(search_dict, 'PYARCHINIT_THESAURUS_SIGLE')
+        diagnostico_vl = []
+
+        for i in range(len(diagnostico)):
+            diagnostico_vl.append(diagnostico[i].sigla_estesa)
+
+        diagnostico_vl.sort()
+        self.comboBox_diagnostico.addItems(diagnostico_vl)
+
+        # lista lavato
+
+        self.comboBox_lavato.clear()
+        search_dict = {
+            'lingua': lang,
+            'nome_tabella': "'" + 'inventario_materiali_table' + "'",
+            'tipologia_sigla': "'" + '301.301' + "'"
+        }
+
+        lavato = self.DB_MANAGER.query_bool(search_dict, 'PYARCHINIT_THESAURUS_SIGLE')
+        lavato_vl = []
+
+        for i in range(len(lavato)):
+            lavato_vl.append(lavato[i].sigla_estesa)
+
+        lavato_vl.sort()
+        self.comboBox_lavato.addItems(lavato_vl)
+
+
+    # buttons functions
 
     def on_pushButton_sort_pressed(self):
         if self.check_record_state() == 1:
@@ -642,8 +931,8 @@ class pyarchinit_Inventario_reperti(QDialog, MAIN_DIALOG_CLASS):
                     if bool(self.DATA_LIST):
                         if self.records_equal_check() == 1:
                             self.update_if(QMessageBox.warning(self, 'Errore',
-                                                                "Il record e' stato modificato. Vuoi salvare le modifiche?",
-                                                                QMessageBox.Ok | QMessageBox.Cancel))
+                                                               "Il record e' stato modificato. Vuoi salvare le modifiche?",
+                                                               QMessageBox.Ok | QMessageBox.Cancel))
 
         if self.BROWSE_STATUS != "n":
             self.BROWSE_STATUS = "n"
@@ -1811,7 +2100,7 @@ class pyarchinit_Inventario_reperti(QDialog, MAIN_DIALOG_CLASS):
                 self.lineEdit_eve_orlo.setText(str(self.DATA_LIST[self.rec_num].eve_orlo))
 
 
-            ##########
+                ##########
         except Exception as e:
             QMessageBox.warning(self, "Errore Fill Fields", str(e), QMessageBox.Ok)
 

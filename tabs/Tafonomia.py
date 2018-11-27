@@ -20,27 +20,22 @@
  ***************************************************************************/
 """
 from __future__ import absolute_import
-
+import os
 from builtins import range
 from builtins import str
 from qgis.PyQt.QtWidgets import QDialog, QMessageBox, QTableWidgetItem
 from qgis.PyQt.uic import loadUiType
 from qgis.gui import QgsMapToolPan
+from qgis.core import QgsSettings
+from qgis.PyQt.QtCore import QVariant
 
-from gui.sortpanelmain import SortPanelMain
 from ..modules.db.pyarchinit_conn_strings import Connection
 from ..modules.db.pyarchinit_db_manager import Pyarchinit_db_management
 from ..modules.db.pyarchinit_utility import Utility
 from ..modules.gis.pyarchinit_pyqgis import Pyarchinit_pyqgis
 from ..modules.utility.pyarchinit_error_check import Error_check
 from ..modules.utility.pyarchinit_exp_Tafonomiasheet_pdf import generate_tafonomia_pdf
-from ..modules.utility.pyarchinit_exp_USsheet_pdf import *
-
-# --import pyArchInit..modules--#
-try:
-    from pyarchinit_matrix_exp import *
-except:
-    pass
+from ..gui.sortpanelmain import SortPanelMain
 
 MAIN_DIALOG_CLASS, _ = loadUiType(os.path.join(os.path.dirname(__file__), os.pardir, 'gui', 'ui', 'Tafonomia.ui'))
 
@@ -138,6 +133,21 @@ class pyarchinit_Tafonomia(QDialog, MAIN_DIALOG_CLASS):
         "Datazione estesa"
     ]
 
+    LANG = {
+        "IT": ['it_IT', 'IT', 'it', 'IT_IT'],
+        "EN_US": ['en_US','EN_US'],
+		"DE": ['de_DE','de','DE', 'DE_DE'],
+        "FR": ['fr_FR','fr','FR', 'FR_FR'],
+        "ES": ['es_ES','es','ES', 'ES_ES'],
+        "PT": ['pt_PT','pt','PT', 'PT_PT'],
+        "SV": ['sv_SV','sv','SV', 'SV_SV'],
+        "RU": ['ru_RU','ru','RU', 'RU_RU'],
+        "RO": ['ro_RO','ro','RO', 'RO_RO'],
+        "AR": ['ar_AR','ar','AR', 'AR_AR'],
+        "PT_BR": ['pt_BR','PT_BR'],
+        "SL": ['sl_SL','sl','SL', 'SL_SL'],
+    }
+
     TABLE_FIELDS = [
         "sito",
         "nr_scheda_taf",
@@ -194,16 +204,16 @@ class pyarchinit_Tafonomia(QDialog, MAIN_DIALOG_CLASS):
         self.comboBox_sito.currentIndexChanged.connect(self.charge_individuo_list)
 
         # SIGNALS & SLOTS Functions
-        self.comboBox_sito.editTextChanged .connect(self.charge_periodo_iniz_list)
-        self.comboBox_sito.editTextChanged .connect(self.charge_periodo_fin_list)
+        self.comboBox_sito.editTextChanged.connect(self.charge_periodo_iniz_list)
+        self.comboBox_sito.editTextChanged.connect(self.charge_periodo_fin_list)
 
         self.comboBox_sito.currentIndexChanged.connect(self.charge_periodo_iniz_list)
         self.comboBox_sito.currentIndexChanged.connect(self.charge_periodo_fin_list)
 
-        self.comboBox_per_iniz.editTextChanged .connect(self.charge_fase_iniz_list)
+        self.comboBox_per_iniz.editTextChanged.connect(self.charge_fase_iniz_list)
         self.comboBox_per_iniz.currentIndexChanged.connect(self.charge_fase_iniz_list)
 
-        self.comboBox_per_fin.editTextChanged .connect(self.charge_fase_fin_list)
+        self.comboBox_per_fin.editTextChanged.connect(self.charge_fase_fin_list)
         self.comboBox_per_fin.currentIndexChanged.connect(self.charge_fase_fin_list)
 
         sito = self.comboBox_sito.currentText()
@@ -338,7 +348,16 @@ class pyarchinit_Tafonomia(QDialog, MAIN_DIALOG_CLASS):
         pass
 
     def charge_list(self):
+
+        l = QgsSettings().value("locale/userLocale", QVariant)
+        lang = ""
+        for key, values in self.LANG.items():
+            if values.__contains__(l):
+                lang = str(key)
+        lang = "'" + lang + "'"
+
         # lista sito
+
         sito_vl = self.UTILITY.tup_2_list_III(self.DB_MANAGER.group_by('site_table', 'sito', 'SITE'))
         try:
             sito_vl.remove('')
@@ -352,6 +371,205 @@ class pyarchinit_Tafonomia(QDialog, MAIN_DIALOG_CLASS):
 
         sito_vl.sort()
         self.comboBox_sito.addItems(sito_vl)
+
+        # lista rito
+
+        self.comboBox_rito.clear()
+        search_dict = {
+            'lingua': lang,
+            'nome_tabella': "'" + 'Tafonomia_table' + "'",
+            'tipologia_sigla': "'" + '7.1' + "'"
+        }
+
+        rito = self.DB_MANAGER.query_bool(search_dict, 'PYARCHINIT_THESAURUS_SIGLE')
+        rito_vl = []
+
+        for i in range(len(rito)):
+            rito_vl.append(rito[i].sigla)
+
+        rito_vl.sort()
+        self.comboBox_rito.addItems(rito_vl)
+
+        # lista segnacoli
+
+        self.comboBox_segnacoli.clear()
+        search_dict = {
+            'lingua': lang,
+            'nome_tabella': "'" + 'Tafonomia_table' + "'",
+            'tipologia_sigla': "'" + '702.702' + "'"
+        }
+
+        segnacoli = self.DB_MANAGER.query_bool(search_dict, 'PYARCHINIT_THESAURUS_SIGLE')
+        segnacoli_vl = []
+
+        for i in range(len(segnacoli)):
+            segnacoli_vl.append(segnacoli[i].sigla_estesa)
+
+        segnacoli_vl.sort()
+        self.comboBox_segnacoli.addItems(segnacoli_vl)
+
+        # lista canale libatorio
+
+        self.comboBox_canale_libatorio.clear()
+        search_dict = {
+            'lingua': lang,
+            'nome_tabella': "'" + 'Tafonomia_table' + "'",
+            'tipologia_sigla': "'" + '702.702' + "'"
+        }
+
+        canale_libatorio = self.DB_MANAGER.query_bool(search_dict, 'PYARCHINIT_THESAURUS_SIGLE')
+        canale_libatorio_vl = []
+
+        for i in range(len(canale_libatorio)):
+            canale_libatorio_vl.append(canale_libatorio[i].sigla_estesa)
+
+        canale_libatorio_vl.sort()
+        self.comboBox_canale_libatorio.addItems(canale_libatorio_vl)
+
+        # lista oggetti rinvenuti all'esterno
+
+        self.comboBox_oggetti_esterno.clear()
+        search_dict = {
+            'lingua': lang,
+            'nome_tabella': "'" + 'Tafonomia_table' + "'",
+            'tipologia_sigla': "'" + '702.702' + "'"
+        }
+
+        oggetti_esterno = self.DB_MANAGER.query_bool(search_dict, 'PYARCHINIT_THESAURUS_SIGLE')
+        oggetti_esterno_vl = []
+
+        for i in range(len(oggetti_esterno)):
+            oggetti_esterno_vl.append(oggetti_esterno[i].sigla_estesa)
+
+        oggetti_esterno_vl.sort()
+        self.comboBox_oggetti_esterno.addItems(oggetti_esterno_vl)
+
+        # lista stato di conservazione
+
+        self.comboBox_conservazione_taf.clear()
+        search_dict = {
+            'lingua': lang,
+            'nome_tabella': "'" + 'Tafonomia_table' + "'",
+            'tipologia_sigla': "'" + '7.2' + "'"
+        }
+
+        conservazione_taf = self.DB_MANAGER.query_bool(search_dict, 'PYARCHINIT_THESAURUS_SIGLE')
+        conservazione_taf_vl = []
+
+        for i in range(len(conservazione_taf)):
+            conservazione_taf_vl.append(conservazione_taf[i].sigla_estesa)
+
+        conservazione_taf_vl.sort()
+        self.comboBox_conservazione_taf.addItems(conservazione_taf_vl)
+
+        # lista tipo copertura
+
+        self.comboBox_copertura_tipo.clear()
+        search_dict = {
+            'lingua': lang,
+            'nome_tabella': "'" + 'Tafonomia_table' + "'",
+            'tipologia_sigla': "'" + '7.3' + "'"
+        }
+
+        copertura_tipo = self.DB_MANAGER.query_bool(search_dict, 'PYARCHINIT_THESAURUS_SIGLE')
+        copertura_tipo_vl = []
+
+        for i in range(len(copertura_tipo)):
+            copertura_tipo_vl.append(copertura_tipo[i].sigla_estesa)
+
+        copertura_tipo_vl.sort()
+        self.comboBox_copertura_tipo.addItems(copertura_tipo_vl)
+
+        # lista tipo contenitore resti
+
+        self.comboBox_tipo_contenitore_resti.clear()
+        search_dict = {
+            'lingua': lang,
+            'nome_tabella': "'" + 'Tafonomia_table' + "'",
+            'tipologia_sigla': "'" + '7.4' + "'"
+        }
+
+        tipo_contenitore_resti = self.DB_MANAGER.query_bool(search_dict, 'PYARCHINIT_THESAURUS_SIGLE')
+        tipo_contenitore_resti_vl = []
+
+        for i in range(len(tipo_contenitore_resti)):
+            tipo_contenitore_resti_vl.append(tipo_contenitore_resti[i].sigla_estesa)
+
+        tipo_contenitore_resti_vl.sort()
+        self.comboBox_tipo_contenitore_resti.addItems(tipo_contenitore_resti_vl)
+
+        # lista corredo
+
+        self.comboBox_corredo_presenza.clear()
+        search_dict = {
+            'lingua': lang,
+            'nome_tabella': "'" + 'Tafonomia_table' + "'",
+            'tipologia_sigla': "'" + '7.5' + "'"
+        }
+
+        corredo_presenza = self.DB_MANAGER.query_bool(search_dict, 'PYARCHINIT_THESAURUS_SIGLE')
+        corredo_presenza_vl = []
+
+        for i in range(len(corredo_presenza)):
+            corredo_presenza_vl.append(corredo_presenza[i].sigla_estesa)
+
+        corredo_presenza_vl.sort()
+        self.comboBox_corredo_presenza.addItems(corredo_presenza_vl)
+
+        # lista disturbato
+
+        self.comboBox_disturbato.clear()
+        search_dict = {
+            'lingua': lang,
+            'nome_tabella': "'" + 'Tafonomia_table' + "'",
+            'tipologia_sigla': "'" + '701.701' + "'"
+        }
+
+        disturbato = self.DB_MANAGER.query_bool(search_dict, 'PYARCHINIT_THESAURUS_SIGLE')
+        disturbato_vl = []
+
+        for i in range(len(disturbato)):
+            disturbato_vl.append(disturbato[i].sigla_estesa)
+
+        disturbato_vl.sort()
+        self.comboBox_disturbato.addItems(disturbato_vl)
+
+        # lista completo
+
+        self.comboBox_completo.clear()
+        search_dict = {
+            'lingua': lang,
+            'nome_tabella': "'" + 'Tafonomia_table' + "'",
+            'tipologia_sigla': "'" + '701.701' + "'"
+        }
+
+        completo = self.DB_MANAGER.query_bool(search_dict, 'PYARCHINIT_THESAURUS_SIGLE')
+        completo_vl = []
+
+        for i in range(len(completo)):
+            completo_vl.append(completo[i].sigla_estesa)
+
+        completo_vl.sort()
+        self.comboBox_completo.addItems(completo_vl)
+
+        # lista in connessione
+
+        self.comboBox_in_connessione.clear()
+        search_dict = {
+            'lingua': lang,
+            'nome_tabella': "'" + 'Tafonomia_table' + "'",
+            'tipologia_sigla': "'" + '701.701' + "'"
+        }
+
+        in_connessione = self.DB_MANAGER.query_bool(search_dict, 'PYARCHINIT_THESAURUS_SIGLE')
+        in_connessione_vl = []
+
+        for i in range(len(in_connessione)):
+            in_connessione_vl.append(in_connessione[i].sigla_estesa)
+
+        in_connessione_vl.sort()
+        self.comboBox_in_connessione.addItems(in_connessione_vl)
+
 
     def charge_periodo_iniz_list(self):
         sito = str(self.comboBox_sito.currentText())
@@ -480,7 +698,8 @@ class pyarchinit_Tafonomia(QDialog, MAIN_DIALOG_CLASS):
         sigla_struttura_list = []
 
         for i in range(len(struttura_vl)):
-            sigla_struttura_list.append(str(struttura_vl[i].sigla_struttura))
+            if not sigla_struttura_list.__contains__(str(struttura_vl[i].sigla_struttura)):
+                sigla_struttura_list.append(str(struttura_vl[i].sigla_struttura))
         try:
             sigla_struttura_list.remove('')
         except:
@@ -490,15 +709,13 @@ class pyarchinit_Tafonomia(QDialog, MAIN_DIALOG_CLASS):
 
         self.comboBox_sigla_struttura.clear()
         self.comboBox_sigla_struttura.addItems(sigla_struttura_list)
-        try:
-            self.comboBox_sigla_struttura.setEditText(str(self.DATA_LIST[self.rec_num].sigla_struttura))
-        except:
-            pass
+        self.comboBox_sigla_struttura.setEditText("")
 
         nr_struttura_list = []
 
         for i in range(len(struttura_vl)):
-            nr_struttura_list.append(str(struttura_vl[i].numero_struttura))
+            if not nr_struttura_list.__contains__(str(struttura_vl[i].numero_struttura)):
+                nr_struttura_list.append(str(struttura_vl[i].numero_struttura))
         try:
             nr_struttura_list.remove('')
         except:
@@ -508,10 +725,7 @@ class pyarchinit_Tafonomia(QDialog, MAIN_DIALOG_CLASS):
 
         self.comboBox_nr_struttura.clear()
         self.comboBox_nr_struttura.addItems(nr_struttura_list)
-        try:
-            self.comboBox_nr_struttura.setEditText(self.DATA_LIST[self.rec_num].numero_struttura)
-        except:
-            pass
+        self.comboBox_nr_struttura.setEditText("")
 
     def charge_individuo_list(self):
         search_dict = {
@@ -666,8 +880,8 @@ class pyarchinit_Tafonomia(QDialog, MAIN_DIALOG_CLASS):
                     if bool(self.DATA_LIST):
                         if self.records_equal_check() == 1:
                             self.update_if(QMessageBox.warning(self, 'Errore',
-                                                                "Il record e' stato modificato. Vuoi salvare le modifiche?",
-                                                                QMessageBox.Ok | QMessageBox.Cancel))
+                                                               "Il record e' stato modificato. Vuoi salvare le modifiche?",
+                                                               QMessageBox.Ok | QMessageBox.Cancel))
 
         if self.BROWSE_STATUS != "n":
             self.BROWSE_STATUS = "n"
@@ -1084,7 +1298,7 @@ class pyarchinit_Tafonomia(QDialog, MAIN_DIALOG_CLASS):
                 self.TABLE_FIELDS[0]: "'" + str(self.comboBox_sito.currentText()) + "'",  # 1 - Sito
                 self.TABLE_FIELDS[1]: nr_scheda,  # 2 - Nr schede
                 self.TABLE_FIELDS[2]: "'" + str(self.comboBox_sigla_struttura.currentText()) + "'",
-            # 3 - Tipo struttura
+                # 3 - Tipo struttura
                 self.TABLE_FIELDS[3]: nr_struttura,  # 4 - Nr struttura
                 self.TABLE_FIELDS[4]: nr_individuo,  # 5 - Nr struttura
                 self.TABLE_FIELDS[5]: "'" + str(self.comboBox_rito.currentText()) + "'",  # 6 - Rito
@@ -1094,32 +1308,32 @@ class pyarchinit_Tafonomia(QDialog, MAIN_DIALOG_CLASS):
                 # 8 - Interpretazione tafonimia
                 self.TABLE_FIELDS[8]: "'" + str(self.comboBox_segnacoli.currentText()) + "'",  # 9 - Segnacoli
                 self.TABLE_FIELDS[9]: "'" + str(self.comboBox_canale_libatorio.currentText()) + "'",
-            # 10 - Canale libatorio
+                # 10 - Canale libatorio
                 self.TABLE_FIELDS[10]: "'" + str(self.comboBox_oggetti_esterno.currentText()) + "'",
-            # 11 - Oggetti esterno
+                # 11 - Oggetti esterno
                 self.TABLE_FIELDS[11]: "'" + str(self.comboBox_conservazione_taf.currentText()) + "'",
                 # 12 - Conservazione tafonomia
                 self.TABLE_FIELDS[12]: "'" + str(self.comboBox_copertura_tipo.currentText()) + "'",
-            # 13 - Copertura tipo
+                # 13 - Copertura tipo
                 self.TABLE_FIELDS[13]: "'" + str(self.comboBox_tipo_contenitore_resti.currentText()) + "'",
                 # 14 - Tipo contenitore resti
                 self.TABLE_FIELDS[14]: "'" + str(self.lineEdit_orientamento_asse.text()) + "'",
-            # 15 - orientamento asse
+                # 15 - orientamento asse
                 self.TABLE_FIELDS[15]: orientamento_azimut,  # 16 - orientamento azimut
                 self.TABLE_FIELDS[17]: "'" + str(self.comboBox_corredo_presenza.currentText()) + "'",  # 17 - corredo
                 self.TABLE_FIELDS[20]: lunghezza_scheletro,  # 18 - lunghezza scheletro
                 self.TABLE_FIELDS[21]: "'" + str(self.comboBox_posizione_scheletro.currentText()) + "'",
                 # 19 - posizione scheletro
                 self.TABLE_FIELDS[22]: "'" + str(self.comboBox_posizione_cranio.currentText()) + "'",
-            # 20 - posizione cranio
+                # 20 - posizione cranio
                 self.TABLE_FIELDS[23]: "'" + str(self.comboBox_arti_superiori.currentText()) + "'",
-            # 21 - arti superiori
+                # 21 - arti superiori
                 self.TABLE_FIELDS[24]: "'" + str(self.comboBox_arti_inferiori.currentText()) + "'",
-            # 24 - arti inferiori
+                # 24 - arti inferiori
                 self.TABLE_FIELDS[25]: "'" + str(self.comboBox_completo.currentText()) + "'",  # 25 - completo
                 self.TABLE_FIELDS[26]: "'" + str(self.comboBox_disturbato.currentText()) + "'",  # 26 - disturbato
                 self.TABLE_FIELDS[27]: "'" + str(self.comboBox_in_connessione.currentText()) + "'",
-            # 27 - in connessione
+                # 27 - in connessione
                 self.TABLE_FIELDS[29]: periodo_iniziale,  # 29 - periodo iniziale
                 self.TABLE_FIELDS[30]: fase_iniziale,  # 10 - fase iniziale
                 self.TABLE_FIELDS[31]: periodo_finale,  # 11 - periodo finale
