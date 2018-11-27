@@ -3,7 +3,7 @@
 """
 /***************************************************************************
         pyArchInit Plugin  - A QGIS plugin to manage archaeological dataset
-        					 stored in Postgres
+                             stored in Postgres
                              -------------------
     begin                : 2007-12-01
     copyright            : (C) 2008 by Luca Mandolesi
@@ -57,7 +57,7 @@ class pyarchinit_Interactive_Matrix(QDialog, MAIN_DIALOG_CLASS):
         self.ID_US_DICT = id_us_dict
         self.setupUi(self)
 
-        ##		self.textbox.setText('1 2 3 4')
+        ##      self.textbox.setText('1 2 3 4')
         # self.on_draw()
         try:
             self.DB_connect()
@@ -83,9 +83,7 @@ class pyarchinit_Interactive_Matrix(QDialog, MAIN_DIALOG_CLASS):
             rapporti_stratigrafici = eval(sing_rec.rapporti)
             for sing_rapp in rapporti_stratigrafici:
                 try:
-                    if sing_rapp[0] == 'Taglia' or sing_rapp[0] == 'Copre' or sing_rapp[0] == 'Si appoggia a' or \
-                                    sing_rapp[0] == 'Riempie' or sing_rapp[0] == 'Si lega a' or sing_rapp[
-                        0] == 'Uguale a':
+                    if sing_rapp[0] == 'Cut' or  sing_rapp[0] == 'Covers' or  sing_rapp[0] == 'Abuts' or  sing_rapp[0] == 'Fills' or sing_rapp[0] == 'Connected to' or  sing_rapp[0] == 'Same as'or sing_rapp[0] == 'Taglia' or  sing_rapp[0] == 'Copre' or  sing_rapp[0] == 'Si appoggia a' or  sing_rapp[0] == 'Riempie'  or sing_rapp[0] == 'Si lega a' or  sing_rapp[0] == 'Uguale a'  or sing_rapp[0] == 'Schneidet' or  sing_rapp[0] == 'Liegt über' or  sing_rapp[0] == 'Stützt sich auf' or  sing_rapp[0] == 'Verfüllt' or sing_rapp[0] == 'Bindet an' or  sing_rapp[0] == 'Entspricht':
                         if sing_rapp[1] != '':
                             harris_rapp = (us, str(sing_rapp[1]))
                             data.append(harris_rapp)
@@ -178,13 +176,13 @@ class pyarchinit_Interactive_Matrix(QDialog, MAIN_DIALOG_CLASS):
         # .canvas
         # It carries lots of information, of which we're using
         # only a small amount here.
-        # 		def onpick1(event):
+        #       def onpick1(event):
         # if isinstance(event.artist, Text):
         text = event.artist
         value = text.get_prop_tup()
         text_to_pass = value[2]
-        ##				print('Hai selezionato l\'US:', text.get_text())
-        ##		box_points = event.artist.get_bbox().get_points()
+        ##              print('Hai selezionato l\'US:', text.get_text())
+        ##      box_points = event.artist.get_bbox().get_points()
         idus = self.ID_US_DICT[int(text_to_pass)]
         self.pyQGIS.charge_vector_layers_from_matrix(idus)
 

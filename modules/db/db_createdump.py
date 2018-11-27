@@ -86,9 +86,26 @@ class RestoreSchema(object):
                 types.append(r[1])
             tables_and_types = dict(zip(tables, types))
             for t, ty in tables_and_types.items():
-                sql_queries = text("ALTER TABLE {0} ALTER COLUMN geom TYPE geometry({1}, {2}) USING ST_SetSRID(geom, {2})".format(
+                sql_queries = text("ALTER TABLE {0} ALTER COLUMN the_geom TYPE geometry({1}, {2}) USING ST_SetSRID(the_geom, {2})".format(
                     t, ty, crs
                 ))
+                res = conn.execute(sql_queries)
+        except Exception as e:
+            raise e
+        finally:
+            session.close()
+        return True
+
+    def set_owner(self, owner):
+        sql = "SELECT table_name FROM information_schema.tables where table_schema = 'public'"
+        engine = create_engine(self.db_url)
+        Session = sessionmaker(bind=engine)
+        session = Session()
+        conn = engine.connect()
+        try:
+            res = conn.execute(sql)
+            for r in res:
+                sql_queries = text("ALTER TABLE public.{} OWNER TO {};".format(r[0], owner))
                 res = conn.execute(sql_queries)
         except Exception as e:
             raise e

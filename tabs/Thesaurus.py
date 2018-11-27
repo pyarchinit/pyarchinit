@@ -80,16 +80,16 @@ class pyarchinit_Thesaurus(QDialog, MAIN_DIALOG_CLASS):
     LANG = {
         "IT": ['it_IT', 'IT', 'it', 'IT_IT'],
         "EN_US": ['en_US','EN_US'],
-        "DE": ['de_DE','de','DE'],
-        "FR": ['fr_FR','fr','FR'],
-        "ES": ['es_ES','es','ES'],
-        "PT": ['pt_PT','pt','PT'],
-        "SV": ['sv_SV','sv','SV'],
-        "RU": ['ru_RU','ru','RU'],
-        "RO": ['ro_RO','ro','RO'],
-        "AR": ['ar_AR','ar','AR'],
-        "PT_BR": ['pt_BR','pt_BR','PT_BR'],
-        "SL": ['sl_SL','sl','SL'],
+        "DE": ['de_DE','de','DE', 'DE_DE'],
+        "FR": ['fr_FR','fr','FR', 'FR_FR'],
+        "ES": ['es_ES','es','ES', 'ES_ES'],
+        "PT": ['pt_PT','pt','PT', 'PT_PT'],
+        "SV": ['sv_SV','sv','SV', 'SV_SV'],
+        "RU": ['ru_RU','ru','RU', 'RU_RU'],
+        "RO": ['ro_RO','ro','RO', 'RO_RO'],
+        "AR": ['ar_AR','ar','AR', 'AR_AR'],
+        "PT_BR": ['pt_BR','PT_BR'],
+        "SL": ['sl_SL','sl','SL', 'SL_SL'],
     }
 
     TABLE_FIELDS = [
@@ -523,7 +523,6 @@ class pyarchinit_Thesaurus(QDialog, MAIN_DIALOG_CLASS):
         self.label_sort.setText(self.SORTED_ITEMS[self.SORT_STATUS])
 
     def on_pushButton_sigle_pressed(self):
-        import os
         filepath = os.path.dirname(__file__)
         filepath = os.path.join(filepath, 'thesaurus_notes.txt')
         os.startfile(filepath)
