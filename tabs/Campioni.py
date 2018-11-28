@@ -978,23 +978,23 @@ class pyarchinit_Campioni(QDialog, MAIN_DIALOG_CLASS):
         elif self.L=='de':
             Camp_index_pdf = generate_campioni_pdf()
             data_list = self.generate_list_pdf()
-            Camp_index_pdf.build_index_Campioni(data_list, data_list[0][0])
+            Camp_index_pdf.build_index_Campioni_de(data_list, data_list[0][0])
 
             sito_ec = str(self.comboBox_sito.currentText())
             Mat_casse_pdf = generate_campioni_pdf()
             data_list = self.generate_el_casse_pdf(sito_ec)
-            Mat_casse_pdf.build_index_Casse(data_list, sito_ec)
-            Mat_casse_pdf.build_box_labels_Campioni(data_list, sito_ec) 
+            Mat_casse_pdf.build_index_Casse_de(data_list, sito_ec)
+            Mat_casse_pdf.build_box_labels_Campioni_de(data_list, sito_ec) 
         else:
             Camp_index_pdf = generate_campioni_pdf()
             data_list = self.generate_list_pdf()
-            Camp_index_pdf.build_index_Campioni(data_list, data_list[0][0])
+            Camp_index_pdf.build_index_Campioni_en(data_list, data_list[0][0])
 
             sito_ec = str(self.comboBox_sito.currentText())
             Mat_casse_pdf = generate_campioni_pdf()
             data_list = self.generate_el_casse_pdf(sito_ec)
-            Mat_casse_pdf.build_index_Casse(data_list, sito_ec)
-            Mat_casse_pdf.build_box_labels_Campioni(data_list, sito_ec) 
+            Mat_casse_pdf.build_index_Casse_en(data_list, sito_ec)
+            Mat_casse_pdf.build_box_labels_Campioni_en(data_list, sito_ec) 
 
     def on_pushButton_exp_champ_sheet_pdf_pressed(self):
         #if self.records_equal_check() == 1:
@@ -1008,11 +1008,11 @@ class pyarchinit_Campioni(QDialog, MAIN_DIALOG_CLASS):
         elif self.L=='de':
             Champ_pdf_sheet = generate_campioni_pdf()
             data_list = self.generate_list_pdf()
-            Champ_pdf_sheet.build_Champ_sheets(data_list)
+            Champ_pdf_sheet.build_Champ_sheets_de(data_list)
         else:
             Champ_pdf_sheet = generate_campioni_pdf()
             data_list = self.generate_list_pdf()
-            Champ_pdf_sheet.build_Champ_sheets(data_list)       
+            Champ_pdf_sheet.build_Champ_sheets_en(data_list)       
 
         # ********************************************************************************
 
@@ -1083,15 +1083,29 @@ class pyarchinit_Campioni(QDialog, MAIN_DIALOG_CLASS):
                     if structure_string != "":
                         structure_string += ")"
 
-                if i != len(res_us_list) - 1:
-                    us_res_list += "Area:" + str(res_us_list[i].area) + ",US:" + str(
-                        res_us_list[i].us) + structure_string + ", "  # .append("Area:"+str(i.area) + ",US:"+str(i.us))
+                if self.L=='it':
+                    if i != len(res_us_list) - 1:
+                        us_res_list += "Area:" + str(res_us_list[i].area) + ",US:" + str(
+                            res_us_list[i].us) + structure_string + ", "  # .append("Area:"+str(i.area) + ",US:"+str(i.us))
+                    else:
+                        us_res_list += "Area:" + str(res_us_list[i].area) + ",US:" + str(
+                            res_us_list[i].us) + structure_string  # .append("Area:"+str(i.area) + ",US:"+str(i.us))
+                elif self.L=='de':
+                    if i != len(res_us_list) - 1:
+                        us_res_list += "Areal:" + str(res_us_list[i].area) + ",SE:" + str(
+                            res_us_list[i].us) + structure_string + ", "  # .append("Area:"+str(i.area) + ",US:"+str(i.us))
+                    else:
+                        us_res_list += "Areal:" + str(res_us_list[i].area) + ",SE:" + str(
+                            res_us_list[i].us) + structure_string  # .append("Area:"+str(i.area) + ",US:"+str(i.us))
                 else:
-                    us_res_list += "Area:" + str(res_us_list[i].area) + ",US:" + str(
-                        res_us_list[i].us) + structure_string  # .append("Area:"+str(i.area) + ",US:"+str(i.us))
-
-                    # us_res_list.sort()
-                    # inserisce l'elenco delle us
+                    if i != len(res_us_list) - 1:
+                        us_res_list += "Area:" + str(res_us_list[i].area) + ",SU:" + str(
+                            res_us_list[i].us) + structure_string + ", "  # .append("Area:"+str(i.area) + ",US:"+str(i.us))
+                    else:
+                        us_res_list += "Area:" + str(res_us_list[i].area) + ",SU:" + str(
+                            res_us_list[i].us) + structure_string  # .append("Area:"+str(i.area) + ",US:"+str(i.us))            
+                            
+                    
             single_cassa.append(us_res_list)
 
             ###cerca il luogo di conservazione della cassa
