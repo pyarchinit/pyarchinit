@@ -531,7 +531,7 @@ class pyarchinit_Campioni(QDialog, MAIN_DIALOG_CLASS):
                     QMessageBox.warning(self,  "ACHTUNG", "Feld Sample. \n Der Wert muss numerisch eingegeben werden",
                                         QMessageBox.Ok)
         
-                test = 1
+                    test = 1
             
         else:
             if EC.data_is_empty(str(self.comboBox_sito.currentText())) == 0:
@@ -552,7 +552,7 @@ class pyarchinit_Campioni(QDialog, MAIN_DIALOG_CLASS):
                     QMessageBox.warning(self,  "WARNING", "Sample Field. \n The value must be numerical",
                                         QMessageBox.Ok)
         
-                test = 1    
+                    test = 1    
         return test
 
     def insert_new_rec(self):
@@ -700,7 +700,7 @@ class pyarchinit_Campioni(QDialog, MAIN_DIALOG_CLASS):
                     self.fill_fields(self.REC_CORR)
                     self.set_rec_counter(self.REC_TOT, self.REC_CORR + 1)
                 except Exception as e:
-                    QMessageBox.warning(self, "Errore", str(e), QMessageBox.Ok)
+                    QMessageBox.warning(self, "Error", str(e), QMessageBox.Ok)
 
     def on_pushButton_next_rec_pressed(self):
         if self.check_record_state() == 1:
@@ -794,17 +794,17 @@ class pyarchinit_Campioni(QDialog, MAIN_DIALOG_CLASS):
                                       "Do you really want to break the record? \n Action is irreversible.",
                                       QMessageBox.Ok | QMessageBox.Cancel)
             if msg == QMessageBox.Cancel:
-                QMessageBox.warning(self, "Messagio!!!", "Action deleted!")
+                QMessageBox.warning(self, "Message!!!", "Action deleted!")
             else:
                 try:
                     id_to_delete = eval("self.DATA_LIST[self.REC_CORR]." + self.ID_TABLE)
                     self.DB_MANAGER.delete_one_record(self.TABLE_NAME, self.ID_TABLE, id_to_delete)
                     self.charge_records()  # charge records from DB
-                    QMessageBox.warning(self, "Messaggio!!!", "Record deleted!")
+                    QMessageBox.warning(self, "Message!!!", "Record deleted!")
                 except Exception as e:
-                    QMessageBox.warning(self, "Messaggio!!!", "error type: " + str(e))
+                    QMessageBox.warning(self, "Message!!!", "error type: " + str(e))
                 if not bool(self.DATA_LIST):
-                    QMessageBox.warning(self, "Attenzione", "the db is empty!", QMessageBox.Ok)
+                    QMessageBox.warning(self, "Warning", "the db is empty!", QMessageBox.Ok)
                     self.DATA_LIST = []
                     self.DATA_LIST_REC_CORR = []
                     self.DATA_LIST_REC_TEMP = []
