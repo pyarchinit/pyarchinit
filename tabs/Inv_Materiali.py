@@ -1380,11 +1380,11 @@ class pyarchinit_Inventario_reperti(QDialog, MAIN_DIALOG_CLASS):
         elif self.L=='de':
             Finds_pdf_sheet = generate_reperti_pdf()
             data_list = self.generate_list_pdf()
-            Finds_pdf_sheet.build_Finds_sheets(data_list)
+            Finds_pdf_sheet.build_Finds_sheets_de(data_list)
         else:
             Finds_pdf_sheet = generate_reperti_pdf()
             data_list = self.generate_list_pdf()
-            Finds_pdf_sheet.build_Finds_sheets(data_list)   
+            Finds_pdf_sheet.build_Finds_sheets_en(data_list)   
     def on_pushButton_exp_index_mat_pressed(self):
         
         if self.L=='it':
@@ -1394,12 +1394,12 @@ class pyarchinit_Inventario_reperti(QDialog, MAIN_DIALOG_CLASS):
         elif self.L=='de':
             Mat_index_pdf = generate_reperti_pdf()
             data_list = self.generate_list_pdf()
-            Mat_index_pdf.build_index_Finds(data_list, data_list[0][1])
+            Mat_index_pdf.build_index_Finds_de(data_list, data_list[0][1])
             
         else:
             Mat_index_pdf = generate_reperti_pdf()
             data_list = self.generate_list_pdf()
-            Mat_index_pdf.build_index_Finds(data_list, data_list[0][1]) 
+            Mat_index_pdf.build_index_Finds_en(data_list, data_list[0][1]) 
     def on_pushButton_elenco_casse_pressed(self):
         
         if self.L=='it': 
@@ -1414,15 +1414,15 @@ class pyarchinit_Inventario_reperti(QDialog, MAIN_DIALOG_CLASS):
             Mat_casse_pdf = generate_reperti_pdf()
             data_list = self.generate_el_casse_pdf(sito_ec)
 
-            Mat_casse_pdf.build_index_Casse(data_list, sito_ec)
-            Mat_casse_pdf.build_box_labels_Finds(data_list, sito_ec)
+            Mat_casse_pdf.build_index_Casse_de(data_list, sito_ec)
+            Mat_casse_pdf.build_box_labels_Finds_de(data_list, sito_ec)
         else: 
             sito_ec = str(self.comboBox_sito.currentText())
             Mat_casse_pdf = generate_reperti_pdf()
             data_list = self.generate_el_casse_pdf(sito_ec)
 
-            Mat_casse_pdf.build_index_Casse(data_list, sito_ec)
-            Mat_casse_pdf.build_box_labels_Finds(data_list, sito_ec)    
+            Mat_casse_pdf.build_index_Casse_en(data_list, sito_ec)
+            Mat_casse_pdf.build_box_labels_Finds_en(data_list, sito_ec)    
         # ********************************************************************************
 
     def generate_el_casse_pdf(self, sito):
