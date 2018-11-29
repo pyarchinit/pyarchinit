@@ -890,30 +890,30 @@ class pyarchinit_Site(QDialog, MAIN_DIALOG_CLASS):
                             strings = ("E' stato trovato", self.REC_TOT, "record")
                         if self.toolButton_draw_siti.isChecked():
                             sing_layer = [self.DATA_LIST[self.REC_CORR]]
-                            self.pyQGIS.charge_sites_from_research(sing_layer)
+                            #self.pyQGIS.charge_sites_from_research(sing_layer)
                         else:
                             strings = ("Sono stati trovati", self.REC_TOT, "records")
-                            self.pyQGIS.charge_sites_from_research(self.DATA_LIST)
+                            #self.pyQGIS.charge_sites_from_research(self.DATA_LIST)
                     
                     elif self.L=='de':
                         if self.REC_TOT == 1:
                             strings = ("Es wurde gefunden", self.REC_TOT, "record")
                         if self.toolButton_draw_siti.isChecked():
                             sing_layer = [self.DATA_LIST[self.REC_CORR]]
-                            self.pyQGIS.charge_sites_from_research(sing_layer)
+                            #self.pyQGIS.charge_sites_from_research(sing_layer)
                         else:
                             strings = ("Sie wurden gefunden", self.REC_TOT, "records")
-                            self.pyQGIS.charge_sites_from_research(self.DATA_LIST)
+                            #self.pyQGIS.charge_sites_from_research(self.DATA_LIST)
                             
                     else:
                         if self.REC_TOT == 1:
                             strings = ("It has been found", self.REC_TOT, "record")
                         if self.toolButton_draw_siti.isChecked():
                             sing_layer = [self.DATA_LIST[self.REC_CORR]]
-                            self.pyQGIS.charge_sites_from_research(sing_layer)
+                            #self.pyQGIS.charge_sites_from_research(sing_layer)
                         else:
                             strings = ("They have been found", self.REC_TOT, "records")
-                            self.pyQGIS.charge_sites_from_research(self.DATA_LIST)      
+                            #self.pyQGIS.charge_sites_from_research(self.DATA_LIST)      
                     self.setComboBoxEnable(["self.comboBox_sito"], "False")
                     self.setComboBoxEnable(["self.comboBox_definizione_sito"], "True")
                     self.setComboBoxEnable(["self.textEdit_descrizione_site"], "True")
