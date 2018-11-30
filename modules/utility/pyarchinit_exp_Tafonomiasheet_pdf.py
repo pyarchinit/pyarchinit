@@ -1418,7 +1418,7 @@ class single_Tafonomia_pdf_sheet(object):
         # format labels
 
         # 0 row
-        intestazione = Paragraph("<b>SCHEDA TAFONOMICA<br/>" + str(self.datestrfdate()) + "</b>", styNormal)
+        intestazione = Paragraph("<b>TAPHONOMY FORM<br/>" + str(self.datestrfdate()) + "</b>", styNormal)
 
         # intestazione2 = Paragraph("<b>pyArchInit</b><br/>pyarchinit", styNormal)
 
@@ -1435,87 +1435,87 @@ class single_Tafonomia_pdf_sheet(object):
         logo.drawWidth = 1.5 * inch
 
         # 1 row
-        sito = Paragraph("<b>Sito</b><br/>" + str(self.sito), styNormal)
-        sigla_struttura = Paragraph("<b>Sigla struttura</b><br/>" + str(self.sigla_struttura) + str(self.nr_struttura),
+        sito = Paragraph("<b>Site</b><br/>" + str(self.sito), styNormal)
+        sigla_struttura = Paragraph("<b>Structure code</b><br/>" + str(self.sigla_struttura) + str(self.nr_struttura),
                                     styNormal)
-        nr_individuo = Paragraph("<b>Nr. Individuo</b><br/>" + str(self.nr_individuo), styNormal)
-        nr_scheda = Paragraph("<b>Nr. Scheda</b><br/>" + str(self.nr_scheda_taf), styNormal)
+        nr_individuo = Paragraph("<b>Individual Nr.</b><br/>" + str(self.nr_individuo), styNormal)
+        nr_scheda = Paragraph("<b>Form Nr.</b><br/>" + str(self.nr_scheda_taf), styNormal)
 
         # 2 row
-        periodizzazione = Paragraph("<b>PERIODIZZAZIONE DEL RITO DI SEPOLTURA</b><br/>", styNormal)
+        periodizzazione = Paragraph("<b>PERIODIZATION OF RITUAL GRAVE</b><br/>", styNormal)
 
         # 3 row
         if str(self.periodo_iniziale) == "None":
-            periodo_iniziale = Paragraph("<b>Periodo iniziale</b><br/>", styNormal)
+            periodo_iniziale = Paragraph("<b>Starting Period</b><br/>", styNormal)
         else:
-            periodo_iniziale = Paragraph("<b>Periodo iniziale</b><br/>" + str(self.periodo_iniziale), styNormal)
+            periodo_iniziale = Paragraph("<b>Starting Period</b><br/>" + str(self.periodo_iniziale), styNormal)
 
         if str(self.fase_iniziale) == "None":
-            fase_iniziale = Paragraph("<b>Fase iniziale</b><br/>", styNormal)
+            fase_iniziale = Paragraph("<b>Starting Phase</b><br/>", styNormal)
         else:
-            fase_iniziale = Paragraph("<b>Fase iniziale</b><br/>" + str(self.fase_iniziale), styNormal)
+            fase_iniziale = Paragraph("<b>Starting Phase</b><br/>" + str(self.fase_iniziale), styNormal)
 
         if str(self.periodo_finale) == "None":
-            periodo_finale = Paragraph("<b>Periodo finale</b><br/>", styNormal)
+            periodo_finale = Paragraph("<b>Final Period</b><br/>", styNormal)
         else:
-            periodo_finale = Paragraph("<b>Periodo finale</b><br/>" + str(self.periodo_finale), styNormal)
+            periodo_finale = Paragraph("<b>Final Period</b><br/>" + str(self.periodo_finale), styNormal)
 
         if str(self.fase_finale) == "None":
-            fase_finale = Paragraph("<b>Fase finale</b><br/>", styNormal)
+            fase_finale = Paragraph("<b>Final Phase</b><br/>", styNormal)
         else:
-            fase_finale = Paragraph("<b>Fase finale</b><br/>" + str(self.fase_finale), styNormal)
+            fase_finale = Paragraph("<b>Final Phase</b><br/>" + str(self.fase_finale), styNormal)
 
         # 4 row
         if str(self.datazione_estesa) == "None":
-            datazione_estesa = Paragraph("<b>Datazione estesa</b><br/>", styNormal)
+            datazione_estesa = Paragraph("<b>Letteral datation</b><br/>", styNormal)
         else:
-            datazione_estesa = Paragraph("<b>Datazione estesa</b><br/>" + self.datazione_estesa, styNormal)
+            datazione_estesa = Paragraph("<b>Letteral datation</b><br/>" + self.datazione_estesa, styNormal)
 
         # 5 row
-        elementi_strutturali = Paragraph("<b>ELEMENTI STRUTTURALI</b><br/>", styNormal)
+        elementi_strutturali = Paragraph("<b>STRUCTURAL ELEMENTS</b><br/>", styNormal)
 
         # 6row
-        tipo_contenitore_resti = Paragraph("<b>Tipo contenitore resti</b><br/>" + self.tipo_contenitore_resti,
+        tipo_contenitore_resti = Paragraph("<b>Container type</b><br/>" + self.tipo_contenitore_resti,
                                            styNormal)
-        tipo_copertura = Paragraph("<b>Tipo copertura</b><br/>" + self.copertura_tipo, styNormal)
-        segnacoli = Paragraph("<b>Segnacoli</b><br/>" + self.segnacoli, styNormal)
-        canale_libatorio = Paragraph("<b>Canale libatorio</b><br/>" + self.canale_libatorio_si_no, styNormal)
+        tipo_copertura = Paragraph("<b>Covering type</b><br/>" + self.copertura_tipo, styNormal)
+        segnacoli = Paragraph("<b>Marker</b><br/>" + self.segnacoli, styNormal)
+        canale_libatorio = Paragraph("<b>Canal libatorio</b><br/>" + self.canale_libatorio_si_no, styNormal)
 
         # 7 row
-        dati_deposizionali = Paragraph("<b>DATI DEPOSIZIONALI INUMATO</b><br/>", styNormal)
+        dati_deposizionali = Paragraph("<b>INHUMED DEPOSITIONAL DATA</b><br/>", styNormal)
 
         # 8 row
-        rito = Paragraph("<b>Rito</b><br/>" + self.rito, styNormal)
-        orientamento_asse = Paragraph("<b>Orientamento asse</b><br/>" + str(self.orientamento_asse), styNormal)
+        rito = Paragraph("<b>Rite</b><br/>" + self.rito, styNormal)
+        orientamento_asse = Paragraph("<b>Axes orientation</b><br/>" + str(self.orientamento_asse), styNormal)
         if str(self.orientamento_azimut) == "None":
             orientamento_azimut = Paragraph("<b>Azimut</b><br/>", styNormal)
         else:
             orientamento_azimut_conv = self.PU.conversione_numeri(self.orientamento_azimut)
             orientamento_azimut = Paragraph("<b>Azimut</b><br/>" + orientamento_azimut_conv + "°", styNormal)
-        posizione_cranio = Paragraph("<b>Posizione cranio</b><br/>" + str(self.posizione_cranio), styNormal)
+        posizione_cranio = Paragraph("<b>Skull position</b><br/>" + str(self.posizione_cranio), styNormal)
 
         # 9 row
-        posizione_scheletro = Paragraph("<b>Posizione scheletro</b><br/>" + str(self.posizione_scheletro), styNormal)
+        posizione_scheletro = Paragraph("<b>Skeleton position</b><br/>" + str(self.posizione_scheletro), styNormal)
         if str(self.lunghezza_scheletro) == "None":
-            lunghezza_scheletro = Paragraph("<b>Lunghezza scheletro</b><br/>", styNormal)
+            lunghezza_scheletro = Paragraph("<b>Skeleton length</b><br/>", styNormal)
         else:
             lunghezza_scheletro_conv = self.PU.conversione_numeri(self.lunghezza_scheletro)
-            lunghezza_scheletro = Paragraph("<b>Lunghezza scheletro</b><br/>" + lunghezza_scheletro_conv + " m",
+            lunghezza_scheletro = Paragraph("<b>Skeleton length</b><br/>" + lunghezza_scheletro_conv + " m",
                                             styNormal)
         posizione_arti_superiori = Paragraph(
-            "<b>Posizione arti superiori</b><br/>" + str(self.posizione_arti_superiori), styNormal)
+            "<b>Upper limb position</b><br/>" + str(self.posizione_arti_superiori), styNormal)
         posizione_arti_inferiori = Paragraph(
-            "<b>Posizione arti inferiori</b><br/>" + str(self.posizione_arti_inferiori), styNormal)
+            "<b>Lower limb position</b><br/>" + str(self.posizione_arti_inferiori), styNormal)
 
         # 10 row
-        dati_postdeposizionali = Paragraph("<b>DATI POSTDEPOSIZIONALI</b><br/>", styNormal)
+        dati_postdeposizionali = Paragraph("<b>POSTDEPOSITIONAL DATA</b><br/>", styNormal)
 
         # 11 row
-        stato_conservazione = Paragraph("<b>Stato di conservazione</b><br/>" + str(self.stato_di_conservazione),
+        stato_conservazione = Paragraph("<b>Status of conservation</b><br/>" + str(self.stato_di_conservazione),
                                         styNormal)
-        disturbato = Paragraph("<b>Disturbato</b><br/>" + str(self.segnacoli), styNormal)
-        completo = Paragraph("<b>Completo</b><br/>" + str(self.canale_libatorio_si_no), styNormal)
-        in_connessione = Paragraph("<b>In connessione</b><br/>" + str(self.oggetti_rinvenuti_esterno), styNormal)
+        disturbato = Paragraph("<b>Hampered</b><br/>" + str(self.segnacoli), styNormal)
+        completo = Paragraph("<b>Complete</b><br/>" + str(self.canale_libatorio_si_no), styNormal)
+        in_connessione = Paragraph("<b>In connection</b><br/>" + str(self.oggetti_rinvenuti_esterno), styNormal)
 
         # 12 row
         caratteristiche_tafonomiche = ''
@@ -1523,35 +1523,35 @@ class single_Tafonomia_pdf_sheet(object):
         if len(caratteristiche_list) > 0:
             for i in caratteristiche_list:
                 if caratteristiche_tafonomiche == '':
-                    caratteristiche_tafonomiche = ("Tipo caratteristica: %s, posizione: %s") % (str(i[0]), str(i[1]))
+                    caratteristiche_tafonomiche = ("<br/>Features: %s, position: %s") % (str(i[0]), str(i[1]))
                 else:
-                    caratteristiche_tafonomiche += ("<br/>Tipo caratteristica: %s, posizione: %s") % (
+                    caratteristiche_tafonomiche += ("<br/><br/>Features: %s, position: %s") % (
                     str(i[0]), str(i[1]))
 
         caratteristiche_tafonomiche_txt = Paragraph(
-            "<b>CARATTERISTICHE TAFONOMICHE</b><br/>" + caratteristiche_tafonomiche, styNormal)
+            "<b>TAPHONOMIC FEATURES</b><br/>" + caratteristiche_tafonomiche, styNormal)
 
         # 13 row
         descrizione = ''
         try:
-            descrizione = Paragraph("<b>Descrizione</b><br/>" + self.descrizione_taf, styDescrizione)
+            descrizione = Paragraph("<b>Description</b><br/>" + self.descrizione_taf, styDescrizione)
         except:
             pass
 
         interpretazione = ''
         try:
-            interpretazione = Paragraph("<b>Interpretazione</b><br/>" + self.interpretazione_taf, styDescrizione)
+            interpretazione = Paragraph("<b>Interpretation</b><br/>" + self.interpretazione_taf, styDescrizione)
         except:
             pass
 
         # 14 row
-        corredo = Paragraph("<b>CORREDO</b><br/>", styNormal)
+        corredo = Paragraph("<b>TROUSSEAU</b><br/>", styNormal)
 
         # 15 row
-        corredo_presente = Paragraph("<b>Presenza</b><br/>" + self.corredo_presenza, styDescrizione)
+        corredo_presente = Paragraph("<b>Presenze</b><br/>" + self.corredo_presenza, styDescrizione)
 
         # 16 row
-        corredo_descrizione = Paragraph("<b>Descrizione</b><br/>" + self.corredo_descrizione, styDescrizione)
+        corredo_descrizione = Paragraph("<b>Description</b><br/>" + self.corredo_descrizione, styDescrizione)
 
         # 17 row
         corredo_tipo = ''
@@ -1559,18 +1559,18 @@ class single_Tafonomia_pdf_sheet(object):
             for i in eval(self.corredo_tipo):
                 if corredo_tipo == '':
                     try:
-                        corredo_tipo += ("Nr. reperto %s, tipo corredo: %s, descrizione: %s") % (
+                        corredo_tipo += ("<br/>Artefact Nr. %s, Trousseau type: %s, Description: %s") % (
                         str(i[0]), str(i[1]), str(i[2]))
                     except:
                         pass
                 else:
                     try:
-                        corredo_tipo += ("<br/>Nr. reperto %s, tipo corredo: %s, descrizione: %s") % (
+                        corredo_tipo += ("<br/>Artefact Nr. %s, Trousseau type: %s, Description: %s") % (
                         str(i[0]), str(i[1]), str(i[2]))
                     except:
                         pass
 
-        corredo_tipo_txt = Paragraph("<b>Singoli oggetti di corredo</b><br/>" + corredo_tipo, styNormal)
+        corredo_tipo_txt = Paragraph("<b>Single items of trousseau</b><br/>" + corredo_tipo, styNormal)
 
         # 18 row
         misure_tafonomia = ''
@@ -1587,16 +1587,16 @@ class single_Tafonomia_pdf_sheet(object):
                     except:
                         pass
 
-        misure_tafonomia_txt = Paragraph("<b>Misurazioni</b><br/>" + misure_tafonomia, styNormal)
+        misure_tafonomia_txt = Paragraph("<b>Measurement</b><br/>" + misure_tafonomia, styNormal)
 
         # 19 row
-        quote_tafonomia = Paragraph("<b>QUOTE INDIVIDUO E STRUTTURA</b><br/>", styNormal)
+        quote_tafonomia = Paragraph("<b>INDIVIDUAL AND STRUCTURE ELEVATION </b><br/>", styNormal)
 
         # 20 row
-        quota_min_ind = Paragraph("<b>Quota min individuo</b><br/>" + str(self.quota_min_ind), styNormal)
-        quota_max_ind = Paragraph("<b>Quota max individuo</b><br/>" + str(self.quota_max_ind), styNormal)
-        quota_min_strutt = Paragraph("<b>Quota min struttura</b><br/>" + str(self.quota_min_strutt), styNormal)
-        quota_max_strutt = Paragraph("<b>Quota max struttura</b><br/>" + str(self.quota_max_strutt), styNormal)
+        quota_min_ind = Paragraph("<b>Elev. min ind.</b><br/>" + str(self.quota_min_ind), styNormal)
+        quota_max_ind = Paragraph("<b>Elev. max ind.</b><br/>" + str(self.quota_max_ind), styNormal)
+        quota_min_strutt = Paragraph("<b>Elev. min str.</b><br/>" + str(self.quota_min_strutt), styNormal)
+        quota_max_strutt = Paragraph("<b>Elev. max str.</b><br/>" + str(self.quota_max_strutt), styNormal)
 
         # schema
         cell_schema = [  # 00, 01, 02, 03, 04, 05, 06, 07, 08, 09 rows
