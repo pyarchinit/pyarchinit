@@ -5295,17 +5295,12 @@ p, li { white-space: pre-wrap; }
 p, li { white-space: pre-wrap; }
 &lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:&apos;MS Shell Dlg 2&apos;; font-size:10pt; font-weight:400; font-style:normal;&quot;&gt;
 &lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-family:&apos;Lucida Grande&apos;; font-size:13pt;&quot;&gt;&lt;br /&gt;&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
-&lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
-p, li { white-space: pre-wrap; }
-&lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:&apos;MS Shell Dlg 2&apos;; font-size:10pt; font-weight:400; font-style:normal;&quot;&gt;
-&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-family:&apos;Lucida Grande&apos;; font-size:13pt;&quot;&gt;&lt;br /&gt;&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
+        <translation type="unfinished">&lt;! PUBLIC HTML DOCTYPE &quot;-/////W3C//DTD HTML 4.0//EN&quot; &quot;Http://www.w3.org/TR/REC-html40/strict.dtd&quot; &gt; &lt;html&gt; &lt;head&gt; &lt; meta name = &quot;Qrichtext&quot; content = &quot;1&quot;/&gt; &lt; Style Type = &quot;text/css&quot; &gt; P, li {white-space: pre-wrap;} &lt;/style&gt; &lt;/head&gt; &lt; Body style = &quot;FONT-family: &apos; MS Shell Dlg 2 &apos;; font-size: 10pt; font-weight: 400; font-style: normal;&quot; &gt; &lt; P style = &quot;margin-top: 0px; margin-bottom: 0px; margin-left: 0px; margin-right: 0px;-QT-block-indent: 0; text-indent: 0px;&quot; &gt; &lt; span style = &quot;FONT-family: &apos; glossy Grande &apos;; font-size: 13pt;&quot; &gt; &lt; BR/&gt; &lt;/span&gt; &lt;/p&gt; &lt;/body&gt; &lt;/html&gt;</translation>
     </message>
     <message>
         <location filename="../gui/ui/Struttura.ui" line="1105"/>
         <source>Quantità </source>
-        <translatorcomment>Quantity</translatorcomment>
-        <translation></translation>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -7636,12 +7631,12 @@ p, li { white-space: pre-wrap; }
     <message>
         <location filename="../gui/ui/pyarchinitConfigDialog.ui" line="670"/>
         <source>INVENTARIO_MATERIALI</source>
-        <translation>ARTEFACT</translation>
+        <translation>ARTIFACT INVENTORY</translation>
     </message>
     <message>
         <location filename="../gui/ui/pyarchinitConfigDialog.ui" line="675"/>
         <source>STRUTTURA</source>
-        <translation>STRUCTURE</translation>
+        <translation>ARCHITECTURE</translation>
     </message>
     <message>
         <location filename="../gui/ui/pyarchinitConfigDialog.ui" line="680"/>
@@ -7656,7 +7651,7 @@ p, li { white-space: pre-wrap; }
     <message>
         <location filename="../gui/ui/pyarchinitConfigDialog.ui" line="690"/>
         <source>SCHEDAIND</source>
-        <translation>INDIVIDUAL</translation>
+        <translation>INDIVIDUAL FORM</translation>
     </message>
     <message>
         <location filename="../gui/ui/pyarchinitConfigDialog.ui" line="695"/>
@@ -7676,7 +7671,7 @@ p, li { white-space: pre-wrap; }
     <message>
         <location filename="../gui/ui/pyarchinitConfigDialog.ui" line="710"/>
         <source>CAMPIONI</source>
-        <translation>SAMPLE</translation>
+        <translation>SAMPLES</translation>
     </message>
     <message>
         <location filename="../gui/ui/pyarchinitConfigDialog.ui" line="715"/>
