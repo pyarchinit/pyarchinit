@@ -3,7 +3,7 @@
 """
 /***************************************************************************
         pyArchInit Plugin  - A QGIS plugin to manage archaeological dataset
-        					 stored in Postgres
+                             stored in Postgres
                              -------------------
     begin                : 2007-12-01
     copyright            : (C) 2008 by Luca Mandolesi
@@ -28,7 +28,7 @@ from builtins import str
 from qgis.PyQt.QtWidgets import QDialog, QMessageBox
 from qgis.PyQt.uic import loadUiType
 from qgis.gui import QgsMapToolPan
-
+from qgis.core import QgsSettings
 from ..modules.db.pyarchinit_conn_strings import Connection
 from ..modules.db.pyarchinit_db_manager import Pyarchinit_db_management
 from ..modules.db.pyarchinit_utility import Utility
@@ -41,142 +41,395 @@ MAIN_DIALOG_CLASS, _ = loadUiType(os.path.join(os.path.dirname(__file__), os.par
 
 
 class pyarchinit_Deteta(QDialog, MAIN_DIALOG_CLASS):
-    MSG_BOX_TITLE = "PyArchInit - pyarchinit_US_version 0.4 - Scheda Determinazione età"
+    L=QgsSettings().value("locale/userLocale")[0:2]
+    if L=='it':
+        MSG_BOX_TITLE = "PyArchInit - Scheda US"
+    elif L=='en':
+        MSG_BOX_TITLE = "PyArchInit - Age form"
+    elif L=='de':
+        MSG_BOX_TITLE = "PyArchInit - Formular Todesalter"
     DATA_LIST = []
     DATA_LIST_REC_CORR = []
     DATA_LIST_REC_TEMP = []
     REC_CORR = 0
     REC_TOT = 0
+    
+    if L=='it':
+        STATUS_ITEMS = {"b": "Usa", "f": "Trova", "n": "Nuovo Record"}
+    else :
+        STATUS_ITEMS = {"b": "Current", "f": "Find", "n": "New Record"}
     BROWSE_STATUS = "b"
-    STATUS_ITEMS = {"b": "Usa", "f": "Trova", "n": "Nuovo Record"}
     SORT_MODE = 'asc'
-    SORTED_ITEMS = {"n": "Non ordinati", "o": "Ordinati"}
-    SORT_STATUS = "n"
+    if L=='it':
+        SORTED_ITEMS = {"n": "Non ordinati", "o": "Ordinati"}
+    else:
+        SORTED_ITEMS = {"n": "Not sorted", "o": "Sorted"}
+    SORT_MODE = 'asc'
+    
+    
     UTILITY = Utility()
     DB_MANAGER = ""
     TABLE_NAME = 'deteta_table'
     MAPPER_TABLE_CLASS = "DETETA"
     NOME_SCHEDA = "Scheda Determinazione dell'età di morte"
     ID_TABLE = "id_det_eta"
-    CONVERSION_DICT = {
-        ID_TABLE: ID_TABLE,
-        "Sito": "sito",
-        "Num individuo": "nr_individuo",
-        "Range sinfisi min": "sinf_min",
-        "Range sinfisi max": "sinf_max",
-        "Range sinfisi min 2": "sinf_min_2",
-        "Range sinfisi max 2": "sinf_max_2",
-        "SSPIA eta\'": "SSPIA",
-        "SSPIB eta\'": "SSPIB",
-        "SSPIC eta\'": "SSPIC",
-        "SSPID eta\'": "SSPID",
-        "Range superficie auricolare min": "sup_aur_min",
-        "Range superficie auricolare max": "sup_aur_max",
-        "Range superficie auricolare min 2": "sup_aur_min_2",
-        "Range superficie auricolare max 2": "sup_aur_max_2",
-        "Range mascellare superiore min": "ms_sup_min",
-        "Range mascellare superiore max": "ms_sup_max",
-        "Range mascellare inferiore min": "ms_inf_min",
-        "Range mascellare inferiore max": "ms_inf_max",
-        "Range usura dentaria min": "usura_min",
-        "Range usura dentaria max": "usura_max",
-        "Id suture endocraniche": "Id_endo",
-        "Is suture endocraniche": "Is_endo",
-        "IId suture endocraniche": "IId_endo",
-        "IIs suture endocraniche": "IIs_endo",
-        "IIId suture endocraniche": "IIId_endo",
-        "IIIs suture endocraniche": "IIIs_endo",
-        "IV suture endocraniche": "IV_endo",
-        "V suture endocraniche": "V_endo",
-        "VI suture endocraniche": "VI_endo",
-        "VII suture endocraniche": "VII_endo",
-        "VIIId suture endocraniche": "VIIId_endo",
-        "VIIIs suture endocraniche": "VIIIs_endo",
-        "IXd suture endocraniche": "IXd_endo",
-        "IXs suture endocraniche": "IXs_endo",
-        "Xd suture endocraniche": "Xd_endo",
-        "Xs suture endocraniche": "Xs_endo",
-        "Range suture endocraniche min": "endo_min",
-        "Range suture endocraniche max": "endo_max",
-        "Suture volta 1": "volta_1",
-        "Suture volta 2": "volta_2",
-        "Suture volta 3": "volta_3",
-        "Suture volta 4": "volta_4",
-        "Suture volta 5": "volta_5",
-        "Suture volta 6": "volta_6",
-        "Suture volta 7": "volta_7",
-        "Suture antero laterali 6": "lat_6",
-        "Suture antero laterali 7": "lat_7",
-        "Suture antero laterali 8": "lat_8",
-        "Suture antero laterali 9": "lat_9",
-        "Suture antero laterali 10": "lat_10",
-        "Range suture volta min": "volta_min",
-        "Range suture volta max": "volta_max",
-        "Range suture antero laterali min": "ant_lat_min",
-        "Range suture antero laterali max": "ant_lat_max",
-        "Range suture ectocraniche min": "ecto_min",
-        "Range suture ectocraniche max": "ecto_max"
-    }
-    SORT_ITEMS = [
-        ID_TABLE,
-        "Sito",
-        "Num individuo",
-        "Range sinfisi min",
-        "Range sinfisi max",
-        "Range sinfisi min 2",
-        "Range sinfisi max 2",
-        "SSPIA eta\'",
-        "SSPIB eta\'",
-        "SSPIC eta\'",
-        "SSPID eta\'",
-        "Range superficie auricolare min",
-        "Range superficie auricolare max"
-        "Range superficie auricolare min 2",
-        "Range superficie auricolare max 2",
-        "Range mascellare superiore min",
-        "Range mascellare superiore max",
-        "Range mascellare inferiore min",
-        "Range mascellare inferiore max",
-        "Range usura dentaria min",
-        "Range usura dentaria max",
-        "Id suture endocraniche",
-        "Is suture endocraniche",
-        "IId suture endocraniche",
-        "IIs suture endocraniche",
-        "IIId suture endocraniche",
-        "IIIs suture endocraniche",
-        "IV suture endocraniche",
-        "V suture endocraniche",
-        "VI suture endocraniche",
-        "VII suture endocraniche",
-        "VIIId suture endocraniche",
-        "VIIIs suture endocraniche",
-        "IXd suture endocraniche",
-        "IXs suture endocraniche",
-        "Xd suture endocraniche",
-        "Xs suture endocraniche",
-        "Range suture endocraniche min",
-        "Range suture endocraniche max",
-        "Suture volta 1",
-        "Suture volta 2",
-        "Suture volta 3",
-        "Suture volta 4",
-        "Suture volta 5",
-        "Suture volta 6",
-        "Suture volta 7",
-        "Suture antero laterali 6",
-        "Suture antero laterali 7",
-        "Suture antero laterali 8",
-        "Suture antero laterali 9",
-        "Suture antero laterali 10",
-        "Range suture volta min",
-        "Range suture volta max",
-        "Range suture antero laterali min",
-        "Range suture antero laterali max",
-        "Range suture ectocraniche min",
-        "Range suture ectocraniche max"
-    ]
-
+    if L =='it':
+        CONVERSION_DICT = {
+            ID_TABLE: ID_TABLE,
+            "Sito": "sito",
+            "Num individuo": "nr_individuo",
+            "Range sinfisi min": "sinf_min",
+            "Range sinfisi max": "sinf_max",
+            "Range sinfisi min 2": "sinf_min_2",
+            "Range sinfisi max 2": "sinf_max_2",
+            "SSPIA eta\'": "SSPIA",
+            "SSPIB eta\'": "SSPIB",
+            "SSPIC eta\'": "SSPIC",
+            "SSPID eta\'": "SSPID",
+            "Range superficie auricolare min": "sup_aur_min",
+            "Range superficie auricolare max": "sup_aur_max",
+            "Range superficie auricolare min 2": "sup_aur_min_2",
+            "Range superficie auricolare max 2": "sup_aur_max_2",
+            "Range mascellare superiore min": "ms_sup_min",
+            "Range mascellare superiore max": "ms_sup_max",
+            "Range mascellare inferiore min": "ms_inf_min",
+            "Range mascellare inferiore max": "ms_inf_max",
+            "Range usura dentaria min": "usura_min",
+            "Range usura dentaria max": "usura_max",
+            "Id suture endocraniche": "Id_endo",
+            "Is suture endocraniche": "Is_endo",
+            "IId suture endocraniche": "IId_endo",
+            "IIs suture endocraniche": "IIs_endo",
+            "IIId suture endocraniche": "IIId_endo",
+            "IIIs suture endocraniche": "IIIs_endo",
+            "IV suture endocraniche": "IV_endo",
+            "V suture endocraniche": "V_endo",
+            "VI suture endocraniche": "VI_endo",
+            "VII suture endocraniche": "VII_endo",
+            "VIIId suture endocraniche": "VIIId_endo",
+            "VIIIs suture endocraniche": "VIIIs_endo",
+            "IXd suture endocraniche": "IXd_endo",
+            "IXs suture endocraniche": "IXs_endo",
+            "Xd suture endocraniche": "Xd_endo",
+            "Xs suture endocraniche": "Xs_endo",
+            "Range suture endocraniche min": "endo_min",
+            "Range suture endocraniche max": "endo_max",
+            "Suture volta 1": "volta_1",
+            "Suture volta 2": "volta_2",
+            "Suture volta 3": "volta_3",
+            "Suture volta 4": "volta_4",
+            "Suture volta 5": "volta_5",
+            "Suture volta 6": "volta_6",
+            "Suture volta 7": "volta_7",
+            "Suture antero laterali 6": "lat_6",
+            "Suture antero laterali 7": "lat_7",
+            "Suture antero laterali 8": "lat_8",
+            "Suture antero laterali 9": "lat_9",
+            "Suture antero laterali 10": "lat_10",
+            "Range suture volta min": "volta_min",
+            "Range suture volta max": "volta_max",
+            "Range suture antero laterali min": "ant_lat_min",
+            "Range suture antero laterali max": "ant_lat_max",
+            "Range suture ectocraniche min": "ecto_min",
+            "Range suture ectocraniche max": "ecto_max"
+        }
+        SORT_ITEMS = [
+            ID_TABLE,
+            "Sito",
+            "Num individuo",
+            "Range sinfisi min",
+            "Range sinfisi max",
+            "Range sinfisi min 2",
+            "Range sinfisi max 2",
+            "SSPIA eta\'",
+            "SSPIB eta\'",
+            "SSPIC eta\'",
+            "SSPID eta\'",
+            "Range superficie auricolare min",
+            "Range superficie auricolare max"
+            "Range superficie auricolare min 2",
+            "Range superficie auricolare max 2",
+            "Range mascellare superiore min",
+            "Range mascellare superiore max",
+            "Range mascellare inferiore min",
+            "Range mascellare inferiore max",
+            "Range usura dentaria min",
+            "Range usura dentaria max",
+            "Id suture endocraniche",
+            "Is suture endocraniche",
+            "IId suture endocraniche",
+            "IIs suture endocraniche",
+            "IIId suture endocraniche",
+            "IIIs suture endocraniche",
+            "IV suture endocraniche",
+            "V suture endocraniche",
+            "VI suture endocraniche",
+            "VII suture endocraniche",
+            "VIIId suture endocraniche",
+            "VIIIs suture endocraniche",
+            "IXd suture endocraniche",
+            "IXs suture endocraniche",
+            "Xd suture endocraniche",
+            "Xs suture endocraniche",
+            "Range suture endocraniche min",
+            "Range suture endocraniche max",
+            "Suture volta 1",
+            "Suture volta 2",
+            "Suture volta 3",
+            "Suture volta 4",
+            "Suture volta 5",
+            "Suture volta 6",
+            "Suture volta 7",
+            "Suture antero laterali 6",
+            "Suture antero laterali 7",
+            "Suture antero laterali 8",
+            "Suture antero laterali 9",
+            "Suture antero laterali 10",
+            "Range suture volta min",
+            "Range suture volta max",
+            "Range suture antero laterali min",
+            "Range suture antero laterali max",
+            "Range suture ectocraniche min",
+            "Range suture ectocraniche max"
+        ]
+    elif L =='de':
+        CONVERSION_DICT = {
+            ID_TABLE: ID_TABLE,
+            "Ausgrabungsstätte": "sito",
+            "N. Individuell": "nr_individuo",
+            "Zustand Symphyse min": "sinf_min",
+            "Zustand Symphyse max": "sinf_max",
+            "Zustand Symphyse min 2": "sinf_min_2",
+            "Zustand Symphyse max 2": "sinf_max_2",
+            "SSPIA'": "SSPIA",
+            "SSPIB'": "SSPIB",
+            "SSPIC'": "SSPIC",
+            "SSPID'": "SSPID",
+            "Zustand der Artikulationsflächen min": "sup_aur_min",
+            "Zustand der Artikulationsflächen max": "sup_aur_max",
+            "Zustand der Artikulationsflächen min 2": "sup_aur_min_2",
+            "Zustand der Artikulationsflächen max 2": "sup_aur_max_2",
+            "Zustand des Unterkiefers untere min": "ms_sup_min",
+            "Zustand des Unterkiefers untere max": "ms_sup_max",
+            "Zustand des Unterkiefers obere": "ms_inf_min",
+            "Zustand des Unterkiefers obere max": "ms_inf_max",
+            "Abkauungsgrad min": "usura_min",
+            "Abkauungsgrad max": "usura_max",
+            "Id Suturae im endocranialen Bereich": "Id_endo",
+            "Is Suturae im endocranialen Bereich": "Is_endo",
+            "IId Suturae im endocranialen Bereich": "IId_endo",
+            "IIs Suturae im endocranialen Bereich": "IIs_endo",
+            "IIId Suturae im endocranialen Bereich": "IIId_endo",
+            "IIIs Suturae im endocranialen Bereich": "IIIs_endo",
+            "IV Suturae im endocranialen Bereich": "IV_endo",
+            "V Suturae im endocranialen Bereich": "V_endo",
+            "VI Suturae im endocranialen Bereich": "VI_endo",
+            "VII Suturae im endocranialen Bereich": "VII_endo",
+            "VIIId Suturae im endocranialen Bereich": "VIIId_endo",
+            "VIIIs Suturae im endocranialen Bereich": "VIIIs_endo",
+            "IXd Suturae im endocranialen Bereich": "IXd_endo",
+            "IXs Suturae im endocranialen Bereich": "IXs_endo",
+            "Xd Suturae im endocranialen Bereich": "Xd_endo",
+            "Xs Suturae im endocranialen Bereich": "Xs_endo",
+            "Zustand Suturae im endocranialen Bereich min": "endo_min",
+            "Zustand Suturae im endocranialen Bereich max": "endo_max",
+            "Zeit Suturae 1": "volta_1",
+            "Zeit Suturae 2": "volta_2",
+            "Zeit Suturae 3": "volta_3",
+            "Zeit Suturae 4": "volta_4",
+            "Zeit Suturae 5": "volta_5",
+            "Zeit Suturae 6": "volta_6",
+            "Zeit Suturae 7": "volta_7",
+            "Antero-lateral Suturae 6": "lat_6",
+            "Antero-lateral Suturae 7": "lat_7",
+            "Antero-lateral Suturae 8": "lat_8",
+            "Antero-lateral Suturae 9": "lat_9",
+            "Antero-lateral Suturae 10": "lat_10",
+            "Zustand Zeit Suturae min": "volta_min",
+            "Zustand Zeit Suturae max": "volta_max",
+            "Zustand Antero-lateral Suturae min": "ant_lat_min",
+            "Zustand Antero-lateral Suturae max": "ant_lat_max",
+            "Zustand Ectocraniale Suturae min": "ecto_min",
+            "Zustand Ectocraniale Suturae max": "ecto_max"
+        }
+        SORT_ITEMS = [
+            ID_TABLE,
+            "Ausgrabungsstätte",
+            "N. Individuell",
+            "Zustand Symphyse min",
+            "Zustand Symphyse max",
+            "Zustand Symphyse min 2",
+            "Zustand Symphyse max 2",
+            "SSPIA'",
+            "SSPIB'",
+            "SSPIC'",
+            "SSPID'",
+            "Zustand der Artikulationsflächen min",
+            "Zustand der Artikulationsflächen max",
+            "Zustand der Artikulationsflächen min 2",
+            "Zustand der Artikulationsflächen max 2",
+            "Zustand des Unterkiefers untere min",
+            "Zustand des Unterkiefers untere max",
+            "Zustand des Unterkiefers obere",
+            "Zustand des Unterkiefers obere max",
+            "Abkauungsgrad min",
+            "Abkauungsgrad max",
+            "Id Suturae im endocranialen Bereich",
+            "Is Suturae im endocranialen Bereich",
+            "IId Suturae im endocranialen Bereich",
+            "IIs Suturae im endocranialen Bereich",
+            "IIId Suturae im endocranialen Bereich",
+            "IIIs Suturae im endocranialen Bereich",
+            "IV Suturae im endocranialen Bereich",
+            "V Suturae im endocranialen Bereich",
+            "VI Suturae im endocranialen Bereich",
+            "VII Suturae im endocranialen Bereich",
+            "VIIId Suturae im endocranialen Bereich",
+            "VIIIs Suturae im endocranialen Bereich",
+            "IXd Suturae im endocranialen Bereich",
+            "IXs Suturae im endocranialen Bereich",
+            "Xd Suturae im endocranialen Bereich",
+            "Xs Suturae im endocranialen Bereich",
+            "Zustand Suturae im endocranialen Bereich min",
+            "Zustand Suturae im endocranialen Bereich max",
+            "Zeit Suturae 1",
+            "Zeit Suturae 2",
+            "Zeit Suturae 3",
+            "Zeit Suturae 4",
+            "Zeit Suturae 5",
+            "Zeit Suturae 6",
+            "Zeit Suturae 7",
+            "Antero-lateral Suturae 6",
+            "Antero-lateral Suturae 7",
+            "Antero-lateral Suturae 8",
+            "Antero-lateral Suturae 9",
+            "Antero-lateral Suturae 10",
+            "Zustand Zeit Suturae min",
+            "Zustand Zeit Suturae max",
+            "Zustand Antero-lateral Suturae min",
+            "Zustand Antero-lateral Suturae max",
+            "Zustand Ectocraniale Suturae min",
+            "Zustand Ectocraniale Suturae max"
+        ]
+    else:
+        CONVERSION_DICT = {
+            ID_TABLE: ID_TABLE,
+            "Site": "sito",
+            "Individual nr.": "nr_individuo",
+            "Range symphysis min": "sinf_min",
+            "Range symphysis max": "sinf_max",
+            "Range symphysis min 2": "sinf_min_2",
+            "Range symphysis max 2": "sinf_max_2",
+            "SSPIA'": "SSPIA",
+            "SSPIB'": "SSPIB",
+            "SSPIC'": "SSPIC",
+            "SSPID'": "SSPID",
+            "Range earmold surface min": "sup_aur_min",
+            "Range earmold surface max": "sup_aur_max",
+            "Range earmold surface min 2": "sup_aur_min_2",
+            "Range earmold surface max 2": "sup_aur_max_2",
+            "Range upper maxillary min": "ms_sup_min",
+            "Range upper maxillary max": "ms_sup_max",
+            "Range lower maxillary min": "ms_inf_min",
+            "Range lower maxillary max": "ms_inf_max",
+            "Range dental wear min": "usura_min",
+            "Range dental wear max": "usura_max",
+            "Id endocrine sutures": "Id_endo",
+            "Is endocrine sutures": "Is_endo",
+            "IId endocrine sutures": "IId_endo",
+            "IIs endocrine sutures": "IIs_endo",
+            "IIId endocrine sutures": "IIId_endo",
+            "IIIs endocrine sutures": "IIIs_endo",
+            "IV endocrine sutures": "IV_endo",
+            "V endocrine sutures": "V_endo",
+            "VI endocrine sutures": "VI_endo",
+            "VII endocrine sutures": "VII_endo",
+            "VIIId endocrine sutures": "VIIId_endo",
+            "VIIIs endocrine sutures": "VIIIs_endo",
+            "IXd endocrine sutures": "IXd_endo",
+            "IXs endocrine sutures": "IXs_endo",
+            "Xd endocrine sutures": "Xd_endo",
+            "Xs endocrine sutures": "Xs_endo",
+            "Range endocrine sutures min": "endo_min",
+            "Range endocrine sutures max": "endo_max",
+            "sutures vault 1": "volta_1",
+            "sutures vault 2": "volta_2",
+            "sutures vault 3": "volta_3",
+            "sutures vault 4": "volta_4",
+            "sutures vault 5": "volta_5",
+            "sutures vault 6": "volta_6",
+            "sutures vault 7": "volta_7",
+            "sutures antero lateral 6": "lat_6",
+            "sutures antero lateral 7": "lat_7",
+            "sutures antero lateral 8": "lat_8",
+            "sutures antero lateral 9": "lat_9",
+            "sutures antero lateral 10": "lat_10",
+            "Range sutures vault min": "volta_min",
+            "Range sutures vault max": "volta_max",
+            "Range sutures antero laterali min": "ant_lat_min",
+            "Range sutures antero laterali max": "ant_lat_max",
+            "Range sutures ectocrine min": "ecto_min",
+            "Range sutures ectocrine max": "ecto_max"
+        }
+        SORT_ITEMS = [
+            ID_TABLE,
+            "Site",
+            "Individual nr.",
+            "Range symphysis min",
+            "Range symphysis max",
+            "Range symphysis min 2",
+            "Range symphysis max 2",
+            "SSPIA'",
+            "SSPIB'",
+            "SSPIC'",
+            "SSPID'",
+            "Range earmold surface min",
+            "Range earmold surface max",
+            "Range earmold surface min 2",
+            "Range earmold surface max 2",
+            "Range upper maxillary min",
+            "Range upper maxillary max",
+            "Range lower maxillary min",
+            "Range lower maxillary max",
+            "Range dental wear min",
+            "Range dental wear max",
+            "Id endocrine sutures",
+            "Is endocrine sutures",
+            "IId endocrine sutures",
+            "IIs endocrine sutures",
+            "IIId endocrine sutures",
+            "IIIs endocrine sutures",
+            "IV endocrine sutures",
+            "V endocrine sutures",
+            "VI endocrine sutures",
+            "VII endocrine sutures",
+            "VIIId endocrine sutures",
+            "VIIIs endocrine sutures",
+            "IXd endocrine sutures",
+            "IXs endocrine sutures",
+            "Xd endocrine sutures",
+            "Xs endocrine sutures",
+            "Range endocrine sutures min",
+            "Range endocrine sutures max",
+            "sutures vault 1",
+            "sutures vault 2",
+            "sutures vault 3",
+            "sutures vault 4",
+            "sutures vault 5",
+            "sutures vault 6",
+            "sutures vault 7",
+            "sutures antero lateral 6",
+            "sutures antero lateral 7",
+            "sutures antero lateral 8",
+            "sutures antero lateral 9",
+            "sutures antero lateral 10",
+            "Range sutures vault min",
+            "Range sutures vault max",
+            "Range sutures antero laterali min",
+            "Range sutures antero laterali max",
+            "Range sutures ectocrine min",
+            "Range sutures ectocrine max"
+        ]   
     TABLE_FIELDS = [
         'sito',
         'nr_individuo',
@@ -403,7 +656,7 @@ class pyarchinit_Deteta(QDialog, MAIN_DIALOG_CLASS):
         try:
             self.on_pushButton_connect_pressed()
         except Exception as e:
-            QMessageBox.warning(self, "Sistema di connessione", str(e), QMessageBox.Ok)
+            QMessageBox.warning(self, "Connection System", str(e), QMessageBox.Ok)
 
         self.customize_GUI()  # call for GUI customizations
 
@@ -501,21 +754,47 @@ class pyarchinit_Deteta(QDialog, MAIN_DIALOG_CLASS):
                 self.charge_list()
                 self.fill_fields()
             else:
-                QMessageBox.warning(self, "BENVENUTO",
-                                    "Benvenuto in pyArchInit" + self.NOME_SCHEDA + ". Il database è vuoto. Premi 'Ok' e buon lavoro!",
-                                    QMessageBox.Ok)
+                if self.L=='it':
+                    QMessageBox.warning(self,"BENVENUTO", "Benvenuto in pyArchInit" + "Scheda Campioni" + ". Il database e' vuoto. Premi 'Ok' e buon lavoro!",
+                                        QMessageBox.Ok)
+                
+                elif self.L=='de':
+                    
+                    QMessageBox.warning(self,"WILLKOMMEN","WILLKOMMEN in pyArchInit" + "Munsterformular"+ ". Die Datenbank ist leer. Tippe 'Ok' und aufgehts!",
+                                        QMessageBox.Ok) 
+                else:
+                    QMessageBox.warning(self,"WELCOME", "Welcome in pyArchInit" + "Samples form" + ". The DB is empty. Push 'Ok' and Good Work!",
+                                        QMessageBox.Ok)   
                 self.BROWSE_STATUS = 'x'
                 self.charge_list()
                 self.on_pushButton_new_rec_pressed()
         except Exception as e:
             e = str(e)
             if e.find("no such table"):
-                QMessageBox.warning(self, "Alert",
-                                    "La connessione è fallita <br><br> Tabella non presente. E' NECESSARIO RIAVVIARE QGIS" + e,
-                                    QMessageBox.Ok)
+                if self.L=='it':
+                    msg = "La connessione e' fallita {}. " \
+                          "E' NECESSARIO RIAVVIARE QGIS oppure rilevato bug! Segnalarlo allo sviluppatore".format(str(e))
+                    self.iface.messageBar().pushMessage(self.tr(msg), Qgis.Warning, 0)
+                
+                    self.iface.messageBar().pushMessage(self.tr(msg), Qgis.Warning, 0)
+                elif self.L=='de':
+                    msg = "Verbindungsfehler {}. " \
+                          " QGIS neustarten oder es wurde ein bug gefunden! Fehler einsenden".format(str(e))
+                    self.iface.messageBar().pushMessage(self.tr(msg), Qgis.Warning, 0)
+                else:
+                    msg = "The connection failed {}. " \
+                          "You MUST RESTART QGIS or bug detected! Report it to the developer".format(str(e))        
             else:
-                QMessageBox.warning(self, "Alert", "La connessione è fallita <br> Errore: <br>" + str(e),
-                                    QMessageBox.Ok)
+                if self.L=='it':
+                    msg = "Attenzione rilevato bug! Segnalarlo allo sviluppatore. Errore: ".format(str(e))
+                    self.iface.messageBar().pushMessage(self.tr(msg), Qgis.Warning, 0)
+                
+                elif self.L=='de':
+                    msg = "ACHTUNG. Es wurde ein bug gefunden! Fehler einsenden: ".format(str(e))
+                    self.iface.messageBar().pushMessage(self.tr(msg), Qgis.Warning, 0)  
+                else:
+                    msg = "Warning bug detected! Report it to the developer. Error: ".format(str(e))
+                    self.iface.messageBar().pushMessage(self.tr(msg), Qgis.Warning, 0)    
 
     def customize_GUI(self):
         query_res = self.sex_from_individuo_table()
@@ -525,18 +804,45 @@ class pyarchinit_Deteta(QDialog, MAIN_DIALOG_CLASS):
             self.enable_button_Suchey_Brooks(0)
         else:
             sesso = query_res[0].sesso
-            if sesso == "Maschio":
-                self.enable_button_Kimmerle_m(1)
-                self.enable_button_Kimmerle_f(0)
-                self.enable_button_Suchey_Brooks(1)
-            elif sesso == "Femmina":
-                self.enable_button_Kimmerle_f(1)
-                self.enable_button_Kimmerle_m(0)
-                self.enable_button_Suchey_Brooks(1)
+            if self.L=='it':
+                if sesso == "Maschio":
+                    self.enable_button_Kimmerle_m(1)
+                    self.enable_button_Kimmerle_f(0)
+                    self.enable_button_Suchey_Brooks(1)
+                elif sesso == "Femmina":
+                    self.enable_button_Kimmerle_f(1)
+                    self.enable_button_Kimmerle_m(0)
+                    self.enable_button_Suchey_Brooks(1)
+                else:
+                    self.enable_button_Kimmerle_f(0)
+                    self.enable_button_Kimmerle_m(0)
+                    self.enable_button_Suchey_Brooks(0)
+            elif self.L=='de':
+                if sesso == "Männlich":
+                    self.enable_button_Kimmerle_m(1)
+                    self.enable_button_Kimmerle_f(0)
+                    self.enable_button_Suchey_Brooks(1)
+                elif sesso == "Weiblich":
+                    self.enable_button_Kimmerle_f(1)
+                    self.enable_button_Kimmerle_m(0)
+                    self.enable_button_Suchey_Brooks(1)
+                else:
+                    self.enable_button_Kimmerle_f(0)
+                    self.enable_button_Kimmerle_m(0)
+                    self.enable_button_Suchey_Brooks(0) 
             else:
-                self.enable_button_Kimmerle_f(0)
-                self.enable_button_Kimmerle_m(0)
-                self.enable_button_Suchey_Brooks(0)
+                if sesso == "Male":
+                    self.enable_button_Kimmerle_m(1)
+                    self.enable_button_Kimmerle_f(0)
+                    self.enable_button_Suchey_Brooks(1)
+                elif sesso == "Female":
+                    self.enable_button_Kimmerle_f(1)
+                    self.enable_button_Kimmerle_m(0)
+                    self.enable_button_Suchey_Brooks(1)
+                else:
+                    self.enable_button_Kimmerle_f(0)
+                    self.enable_button_Kimmerle_m(0)
+                    self.enable_button_Suchey_Brooks(0)     
 
     def loadMapPreview(self, mode=0):
         pass
@@ -677,29 +983,66 @@ class pyarchinit_Deteta(QDialog, MAIN_DIALOG_CLASS):
             self.customize_GUI()
 
     def on_toolButtonGis_toggled(self):
-        if self.toolButtonGis.isChecked():
-            QMessageBox.warning(self, "Messaggio",
-                                "Modalita' GIS attiva. Da ora le tue ricerche verranno visualizzate sul GIS",
-                                QMessageBox.Ok)
+        if self.L=='it':
+            if self.toolButtonGis.isChecked():
+                QMessageBox.warning(self, "Messaggio",
+                                    "Modalita' GIS attiva. Da ora le tue ricerche verranno visualizzate sul GIS",
+                                    QMessageBox.Ok)
+            else:
+                QMessageBox.warning(self, "Messaggio",
+                                    "Modalita' GIS disattivata. Da ora le tue ricerche non verranno piu' visualizzate sul GIS",
+                                    QMessageBox.Ok)
+        elif self.L=='de':
+            if self.toolButtonGis.isChecked():
+                QMessageBox.warning(self, "Message",
+                                    "Modalität' GIS aktiv. Von jetzt wird Deine Untersuchung mit Gis visualisiert",
+                                    QMessageBox.Ok)
+            else:
+                QMessageBox.warning(self, "Message",
+                                    "Modalität' GIS deaktiviert. Von jetzt an wird deine Untersuchung nicht mehr mit Gis visualisiert",
+                                    QMessageBox.Ok)
         else:
-            QMessageBox.warning(self, "Messaggio",
-                                "Modalita' GIS disattivata. Da ora le tue ricerche non verranno piu' visualizzate sul GIS",
-                                QMessageBox.Ok)
+            if self.toolButtonGis.isChecked():
+                QMessageBox.warning(self, "Message",
+                                    "GIS mode active. From now on your searches will be displayed on the GIS",
+                                    QMessageBox.Ok)
+            else:
+                QMessageBox.warning(self, "Message",
+                                    "GIS mode disabled. From now on, your searches will no longer be displayed on the GIS.",
+                                    QMessageBox.Ok)
 
     def on_toolButtonPreview_toggled(self):
-        if self.toolButtonPreview.isChecked():
-            QMessageBox.warning(self, "Messaggio",
-                                "Modalita' Preview US attivata. Le piante delle US saranno visualizzate nella sezione Piante",
-                                QMessageBox.Ok)
-            self.loadMapPreview()
+        if self.L=='it':
+            if self.toolButtonPreview.isChecked():
+                QMessageBox.warning(self, "Messaggio",
+                                    "Modalita' Preview US attivata. Le piante delle US saranno visualizzate nella sezione Piante",
+                                    QMessageBox.Ok)
+                self.loadMapPreview()
+            else:
+                self.loadMapPreview(1)
+        elif self.L=='de':
+            if self.toolButtonPreview.isChecked():
+                QMessageBox.warning(self, "Message",
+                                    "Modalität' Preview der aktivierten SE. Die Plana der SE werden in der Auswahl der Plana visualisiert",
+                                    QMessageBox.Ok)
+                self.loadMapPreview()
+            else:
+                self.loadMapPreview(1)
+                
         else:
-            self.loadMapPreview(1)
+            if self.toolButtonPreview.isChecked():
+                QMessageBox.warning(self, "Message",
+                                    "Preview SU mode enabled. US plants will be displayed in the Plants section",
+                                    QMessageBox.Ok)
+                self.loadMapPreview()
+            else:
+                self.loadMapPreview(1)
 
     """
-	def on_pushButton_addRaster_pressed(self):
-		if self.toolButtonGis.isChecked() == True:
-			self.pyQGIS.addRasterLayer()
-	"""
+    def on_pushButton_addRaster_pressed(self):
+        if self.toolButtonGis.isChecked() == True:
+            self.pyQGIS.addRasterLayer()
+    """
 
     def on_pushButton_new_rec_pressed(self):
         if bool(self.DATA_LIST):
@@ -709,9 +1052,18 @@ class pyarchinit_Deteta(QDialog, MAIN_DIALOG_CLASS):
                 if self.BROWSE_STATUS == "b":
                     if bool(self.DATA_LIST):
                         if self.records_equal_check() == 1:
-                            self.update_if(QMessageBox.warning(self, 'Errore',
-                                                               "Il record e' stato modificato. Vuoi salvare le modifiche?",
-                                                               QMessageBox.Ok | QMessageBox.Cancel))
+                            if self.L=='it':
+                                self.update_if(QMessageBox.warning(self, 'Errore',
+                                                                   "Il record e' stato modificato. Vuoi salvare le modifiche?",QMessageBox.Ok | QMessageBox.Cancel))
+                            elif self.L=='de':
+                                self.update_if(QMessageBox.warning(self, 'Error',
+                                                                   "Der Record wurde geändert. Möchtest du die Änderungen speichern?",
+                                                                   QMessageBox.Ok | QMessageBox.Cancel))
+                                                                   
+                            else:
+                                self.update_if(QMessageBox.warning(self, 'Error',
+                                                                   "The record has been changed. Do you want to save the changes?",
+                                                                   QMessageBox.Ok | QMessageBox.Cancel))
 
                             # set the GUI for a new record
         if self.BROWSE_STATUS != "n":
@@ -734,14 +1086,28 @@ class pyarchinit_Deteta(QDialog, MAIN_DIALOG_CLASS):
         if self.BROWSE_STATUS == "b":
             if self.data_error_check() == 0:
                 if self.records_equal_check() == 1:
-                    self.update_if(QMessageBox.warning(self, 'ATTENZIONE',
-                                                       "Il record e' stato modificato. Vuoi salvare le modifiche?",
-                                                       QMessageBox.Ok | QMessageBox.Cancel))
+                    if self.L=='it':
+                        self.update_if(QMessageBox.warning(self, 'Errore',
+                                                           "Il record e' stato modificato. Vuoi salvare le modifiche?",QMessageBox.Ok | QMessageBox.Cancel))
+                    elif self.L=='de':
+                        self.update_if(QMessageBox.warning(self, 'Error',
+                                                           "Der Record wurde geändert. Möchtest du die Änderungen speichern?",
+                                                           QMessageBox.Ok | QMessageBox.Cancel))
+                                                    
+                    else:
+                        self.update_if(QMessageBox.warning(self, 'Error',
+                                                           "The record has been changed. Do you want to save the changes?",
+                                                           QMessageBox.Ok | QMessageBox.Cancel))
                     self.label_sort.setText(self.SORTED_ITEMS["n"])
                     self.enable_button(1)
                     self.fill_fields(self.REC_CORR)
                 else:
-                    QMessageBox.warning(self, "ATTENZIONE", "Non è stata realizzata alcuna modifica.", QMessageBox.Ok)
+                    if self.L=='it':
+                        QMessageBox.warning(self, "ATTENZIONE", "Non è stata realizzata alcuna modifica.", QMessageBox.Ok)
+                    elif self.L=='de':
+                        QMessageBox.warning(self, "ACHTUNG", "Keine Änderung vorgenommen", QMessageBox.Ok)
+                    else:
+                        QMessageBox.warning(self, "Warning", "No changes have been made", QMessageBox.Ok)
         else:
             if self.data_error_check() == 0:
                 test_insert = self.insert_new_rec()
@@ -766,455 +1132,1356 @@ class pyarchinit_Deteta(QDialog, MAIN_DIALOG_CLASS):
 
         EC = Error_check()
 
-        if EC.data_is_empty(str(self.comboBox_sito.currentText())) == 0:
-            QMessageBox.warning(self, "ATTENZIONE", "Campo Sito. \n Il campo non deve essere vuoto", QMessageBox.Ok)
-            test = 1
+        if self.L=='it':
+            if EC.data_is_empty(str(self.comboBox_sito.currentText())) == 0:
+                QMessageBox.warning(self, "ATTENZIONE", "Campo Sito. \n Il campo non deve essere vuoto", QMessageBox.Ok)
+                test = 1
 
-        if EC.data_is_empty(str(self.lineEdit_nr_individuo.text())) == 0:
-            QMessageBox.warning(self, "ATTENZIONE", "Campo Individuo. \n Il campo non deve essere vuoto",
-                                QMessageBox.Ok)
-            test = 1
-
-        nr_individuo = self.lineEdit_nr_individuo.text()
-        sinf_min = self.lineEdit_sinf_min.text()
-        sinf_max = self.lineEdit_sinf_max.text()
-        sinf_min2 = self.lineEdit_sinf_min_2.text()
-        sinf_max2 = self.lineEdit_sinf_max_2.text()
-        sspia = self.comboBox_SSPIA.currentText()
-        sspib = self.comboBox_SSPIB.currentText()
-        sspic = self.comboBox_SSPIC.currentText()
-        sspid = self.comboBox_SSPID.currentText()
-        sup_aur_min = self.lineEdit_sup_aur_min.text()
-        sup_aur_max = self.lineEdit_sup_aur_max.text()
-        sup_aur_min2 = self.lineEdit_sup_aur_min_2.text()
-        sup_aur_max2 = self.lineEdit_sup_aur_max_2.text()
-        ms_sup_min = self.lineEdit_ms_sup_min.text()
-        ms_sup_max = self.lineEdit_ms_sup_max.text()
-        ms_inf_min = self.lineEdit_ms_inf_min.text()
-        ms_inf_max = self.lineEdit_ms_inf_max.text()
-        usura_min = self.lineEdit_usura_min.text()
-        usura_max = self.lineEdit_usura_max.text()
-        id_endo = self.comboBox_Id_endo.currentText()
-        is_endo = self.comboBox_Is_endo.currentText()
-        iid_endo = self.comboBox_IId_endo.currentText()
-        iis_endo = self.comboBox_IIs_endo.currentText()
-        iiid_endo = self.comboBox_IIId_endo.currentText()
-        iiis_endo = self.comboBox_IIIs_endo.currentText()
-        iv_endo = self.comboBox_IV_endo.currentText()
-        v_endo = self.comboBox_V_endo.currentText()
-        vi_endo = self.comboBox_VI_endo.currentText()
-        vii_endo = self.comboBox_VII_endo.currentText()
-        viiid_endo = self.comboBox_VIIId_endo.currentText()
-        viiis_endo = self.comboBox_VIIIs_endo.currentText()
-        ixd_endo = self.comboBox_IXd_endo.currentText()
-        ixs_endo = self.comboBox_IXs_endo.currentText()
-        xd_endo = self.comboBox_Xd_endo.currentText()
-        xs_endo = self.comboBox_Xs_endo.currentText()
-        endo_min = self.lineEdit_endo_min.text()
-        endo_max = self.lineEdit_endo_max.text()
-        v1 = self.comboBox_volta_1.currentText()
-        v2 = self.comboBox_volta_2.currentText()
-        v3 = self.comboBox_volta_3.currentText()
-        v4 = self.comboBox_volta_4.currentText()
-        v5 = self.comboBox_volta_5.currentText()
-        v6 = self.comboBox_volta_6.currentText()
-        v7 = self.comboBox_volta_7.currentText()
-        l6 = self.comboBox_lat_6.currentText()
-        l7 = self.comboBox_lat_7.currentText()
-        l8 = self.comboBox_lat_8.currentText()
-        l9 = self.comboBox_lat_9.currentText()
-        l10 = self.comboBox_lat_10.currentText()
-        v_min = self.lineEdit_volta_min.text()
-        v_max = self.lineEdit_volta_max.text()
-        a_l_min = self.lineEdit_ant_lat_min.text()
-        a_l_max = self.lineEdit_ant_lat_max.text()
-        ecto_min = self.lineEdit_ecto_min.text()
-        ecto_max = self.lineEdit_ecto_max.text()
-
-        if nr_individuo != "":
-            if EC.data_is_int(nr_individuo) == 0:
-                QMessageBox.warning(self, "ATTENZIONE", "Campo Individuo. \n Il valore deve essere di tipo numerico",
+            if EC.data_is_empty(str(self.lineEdit_nr_individuo.text())) == 0:
+                QMessageBox.warning(self, "ATTENZIONE", "Campo Individuo. \n Il campo non deve essere vuoto",
                                     QMessageBox.Ok)
                 test = 1
 
-        if sinf_min != "":
-            if EC.data_is_int(sinf_min) == 0:
-                QMessageBox.warning(self, "ATTENZIONE",
-                                    "Tutti i parametri da inserire. \n Il valore deve essere di tipo numerico",
+            nr_individuo = self.lineEdit_nr_individuo.text()
+            sinf_min = self.lineEdit_sinf_min.text()
+            sinf_max = self.lineEdit_sinf_max.text()
+            sinf_min2 = self.lineEdit_sinf_min_2.text()
+            sinf_max2 = self.lineEdit_sinf_max_2.text()
+            sspia = self.comboBox_SSPIA.currentText()
+            sspib = self.comboBox_SSPIB.currentText()
+            sspic = self.comboBox_SSPIC.currentText()
+            sspid = self.comboBox_SSPID.currentText()
+            sup_aur_min = self.lineEdit_sup_aur_min.text()
+            sup_aur_max = self.lineEdit_sup_aur_max.text()
+            sup_aur_min2 = self.lineEdit_sup_aur_min_2.text()
+            sup_aur_max2 = self.lineEdit_sup_aur_max_2.text()
+            ms_sup_min = self.lineEdit_ms_sup_min.text()
+            ms_sup_max = self.lineEdit_ms_sup_max.text()
+            ms_inf_min = self.lineEdit_ms_inf_min.text()
+            ms_inf_max = self.lineEdit_ms_inf_max.text()
+            usura_min = self.lineEdit_usura_min.text()
+            usura_max = self.lineEdit_usura_max.text()
+            id_endo = self.comboBox_Id_endo.currentText()
+            is_endo = self.comboBox_Is_endo.currentText()
+            iid_endo = self.comboBox_IId_endo.currentText()
+            iis_endo = self.comboBox_IIs_endo.currentText()
+            iiid_endo = self.comboBox_IIId_endo.currentText()
+            iiis_endo = self.comboBox_IIIs_endo.currentText()
+            iv_endo = self.comboBox_IV_endo.currentText()
+            v_endo = self.comboBox_V_endo.currentText()
+            vi_endo = self.comboBox_VI_endo.currentText()
+            vii_endo = self.comboBox_VII_endo.currentText()
+            viiid_endo = self.comboBox_VIIId_endo.currentText()
+            viiis_endo = self.comboBox_VIIIs_endo.currentText()
+            ixd_endo = self.comboBox_IXd_endo.currentText()
+            ixs_endo = self.comboBox_IXs_endo.currentText()
+            xd_endo = self.comboBox_Xd_endo.currentText()
+            xs_endo = self.comboBox_Xs_endo.currentText()
+            endo_min = self.lineEdit_endo_min.text()
+            endo_max = self.lineEdit_endo_max.text()
+            v1 = self.comboBox_volta_1.currentText()
+            v2 = self.comboBox_volta_2.currentText()
+            v3 = self.comboBox_volta_3.currentText()
+            v4 = self.comboBox_volta_4.currentText()
+            v5 = self.comboBox_volta_5.currentText()
+            v6 = self.comboBox_volta_6.currentText()
+            v7 = self.comboBox_volta_7.currentText()
+            l6 = self.comboBox_lat_6.currentText()
+            l7 = self.comboBox_lat_7.currentText()
+            l8 = self.comboBox_lat_8.currentText()
+            l9 = self.comboBox_lat_9.currentText()
+            l10 = self.comboBox_lat_10.currentText()
+            v_min = self.lineEdit_volta_min.text()
+            v_max = self.lineEdit_volta_max.text()
+            a_l_min = self.lineEdit_ant_lat_min.text()
+            a_l_max = self.lineEdit_ant_lat_max.text()
+            ecto_min = self.lineEdit_ecto_min.text()
+            ecto_max = self.lineEdit_ecto_max.text()
+
+            if nr_individuo != "":
+                if EC.data_is_int(nr_individuo) == 0:
+                    QMessageBox.warning(self, "ATTENZIONE", "Campo Individuo. \n Il valore deve essere di tipo numerico",
+                                        QMessageBox.Ok)
+                    test = 1
+
+            if sinf_min != "":
+                if EC.data_is_int(sinf_min) == 0:
+                    QMessageBox.warning(self, "ATTENZIONE",
+                                        "Tutti i parametri da inserire. \n Il valore deve essere di tipo numerico",
+                                        QMessageBox.Ok)
+                    test = 1
+
+            if sinf_max != "":
+                if EC.data_is_int(sinf_max) == 0:
+                    QMessageBox.warning(self, "ATTENZIONE",
+                                        "Tutti i parametri da inserire. \n Il valore deve essere di tipo numerico",
+                                        QMessageBox.Ok)
+                    test = 1
+
+            if sinf_min2 != "":
+                if EC.data_is_int(sinf_min2) == 0:
+                    QMessageBox.warning(self, "ATTENZIONE",
+                                        "Tutti i parametri da inserire. \n Il valore deve essere di tipo numerico",
+                                        QMessageBox.Ok)
+                    test = 1
+
+            if sinf_max2 != "":
+                if EC.data_is_int(sinf_max2) == 0:
+                    QMessageBox.warning(self, "ATTENZIONE",
+                                        "Tutti i parametri da inserire. \n Il valore deve essere di tipo numerico",
+                                        QMessageBox.Ok)
+                    test = 1
+
+            if sspia != "":
+                if EC.data_is_int(sspia) == 0:
+                    QMessageBox.warning(self, "ATTENZIONE",
+                                        "Tutti i parametri da inserire. \n Il valore deve essere di tipo numerico",
+                                        QMessageBox.Ok)
+                    test = 1
+
+            if sspib != "":
+                if EC.data_is_int(sspib) == 0:
+                    QMessageBox.warning(self, "ATTENZIONE",
+                                        "Tutti i parametri da inserire. \n Il valore deve essere di tipo numerico",
+                                        QMessageBox.Ok)
+                    test = 1
+
+            if sspic != "":
+                if EC.data_is_int(sspic) == 0:
+                    QMessageBox.warning(self, "ATTENZIONE",
+                                        "Tutti i parametri da inserire. \n Il valore deve essere di tipo numerico",
+                                        QMessageBox.Ok)
+                    test = 1
+
+            if sspid != "":
+                if EC.data_is_int(sspid) == 0:
+                    QMessageBox.warning(self, "ATTENZIONE",
+                                        "Tutti i parametri da inserire. \n Il valore deve essere di tipo numerico",
+                                        QMessageBox.Ok)
+                    test = 1
+
+            if sup_aur_min != "":
+                if EC.data_is_int(sup_aur_min) == 0:
+                    QMessageBox.warning(self, "ATTENZIONE",
+                                        "Tutti i parametri da inserire. \n Il valore deve essere di tipo numerico",
+                                        QMessageBox.Ok)
+                    test = 1
+
+            if sup_aur_max != "":
+                if EC.data_is_int(sup_aur_max) == 0:
+                    QMessageBox.warning(self, "ATTENZIONE",
+                                        "Tutti i parametri da inserire. \n Il valore deve essere di tipo numerico",
+                                        QMessageBox.Ok)
+                    test = 1
+
+            if sup_aur_min2 != "":
+                if EC.data_is_int(sup_aur_min2) == 0:
+                    QMessageBox.warning(self, "ATTENZIONE",
+                                        "Tutti i parametri da inserire. \n Il valore deve essere di tipo numerico",
+                                        QMessageBox.Ok)
+                    test = 1
+
+            if sup_aur_max2 != "":
+                if EC.data_is_int(sup_aur_max2) == 0:
+                    QMessageBox.warning(self, "ATTENZIONE",
+                                        "Tutti i parametri da inserire. \n Il valore deve essere di tipo numerico",
+                                        QMessageBox.Ok)
+                    test = 1
+
+            if ms_sup_min != "":
+                if EC.data_is_int(ms_sup_min) == 0:
+                    QMessageBox.warning(self, "ATTENZIONE",
+                                        "Tutti i parametri da inserire. \n Il valore deve essere di tipo numerico",
+                                        QMessageBox.Ok)
+                    test = 1
+
+            if ms_sup_max != "":
+                if EC.data_is_int(ms_sup_max) == 0:
+                    QMessageBox.warning(self, "ATTENZIONE",
+                                        "Tutti i parametri da inserire. \n Il valore deve essere di tipo numerico",
+                                        QMessageBox.Ok)
+                    test = 1
+
+            if ms_inf_min != "":
+                if EC.data_is_int(ms_inf_min) == 0:
+                    QMessageBox.warning(self, "ATTENZIONE",
+                                        "Tutti i parametri da inserire. \n Il valore deve essere di tipo numerico",
+                                        QMessageBox.Ok)
+                    test = 1
+
+            if ms_inf_max != "":
+                if EC.data_is_int(ms_inf_max) == 0:
+                    QMessageBox.warning(self, "ATTENZIONE",
+                                        "Tutti i parametri da inserire. \n Il valore deve essere di tipo numerico",
+                                        QMessageBox.Ok)
+                    test = 1
+
+            if usura_min != "":
+                if EC.data_is_int(usura_min) == 0:
+                    QMessageBox.warning(self, "ATTENZIONE",
+                                        "Tutti i parametri da inserire. \n Il valore deve essere di tipo numerico",
+                                        QMessageBox.Ok)
+                    test = 1
+
+            if usura_max != "":
+                if EC.data_is_int(usura_max) == 0:
+                    QMessageBox.warning(self, "ATTENZIONE",
+                                        "Tutti i parametri da inserire. \n Il valore deve essere di tipo numerico",
+                                        QMessageBox.Ok)
+                    test = 1
+
+            if id_endo != "":
+                if EC.data_is_int(id_endo) == 0:
+                    QMessageBox.warning(self, "ATTENZIONE",
+                                        "Tutti i parametri da inserire. \n Il valore deve essere di tipo numerico",
+                                        QMessageBox.Ok)
+                    test = 1
+
+            if is_endo != "":
+                if EC.data_is_int(is_endo) == 0:
+                    QMessageBox.warning(self, "ATTENZIONE",
+                                        "Tutti i parametri da inserire. \n Il valore deve essere di tipo numerico",
+                                        QMessageBox.Ok)
+                    test = 1
+
+            if iid_endo != "":
+                if EC.data_is_int(iid_endo) == 0:
+                    QMessageBox.warning(self, "ATTENZIONE",
+                                        "Tutti i parametri da inserire. \n Il valore deve essere di tipo numerico",
+                                        QMessageBox.Ok)
+                    test = 1
+
+            if iis_endo != "":
+                if EC.data_is_int(iis_endo) == 0:
+                    QMessageBox.warning(self, "ATTENZIONE",
+                                        "Tutti i parametri da inserire. \n Il valore deve essere di tipo numerico",
+                                        QMessageBox.Ok)
+                    test = 1
+
+            if iiid_endo != "":
+                if EC.data_is_int(iiid_endo) == 0:
+                    QMessageBox.warning(self, "ATTENZIONE",
+                                        "Tutti i parametri da inserire. \n Il valore deve essere di tipo numerico",
+                                        QMessageBox.Ok)
+                    test = 1
+
+            if iiis_endo != "":
+                if EC.data_is_int(iiis_endo) == 0:
+                    QMessageBox.warning(self, "ATTENZIONE",
+                                        "Tutti i parametri da inserire. \n Il valore deve essere di tipo numerico",
+                                        QMessageBox.Ok)
+                    test = 1
+
+            if iv_endo != "":
+                if EC.data_is_int(iv_endo) == 0:
+                    QMessageBox.warning(self, "ATTENZIONE",
+                                        "Tutti i parametri da inserire. \n Il valore deve essere di tipo numerico",
+                                        QMessageBox.Ok)
+                    test = 1
+
+            if v_endo != "":
+                if EC.data_is_int(v_endo) == 0:
+                    QMessageBox.warning(self, "ATTENZIONE",
+                                        "Tutti i parametri da inserire. \n Il valore deve essere di tipo numerico",
+                                        QMessageBox.Ok)
+                    test = 1
+
+            if vi_endo != "":
+                if EC.data_is_int(vi_endo) == 0:
+                    QMessageBox.warning(self, "ATTENZIONE",
+                                        "Tutti i parametri da inserire. \n Il valore deve essere di tipo numerico",
+                                        QMessageBox.Ok)
+                    test = 1
+
+            if vii_endo != "":
+                if EC.data_is_int(vii_endo) == 0:
+                    QMessageBox.warning(self, "ATTENZIONE",
+                                        "Tutti i parametri da inserire. \n Il valore deve essere di tipo numerico",
+                                        QMessageBox.Ok)
+                    test = 1
+
+            if viiid_endo != "":
+                if EC.data_is_int(viiid_endo) == 0:
+                    QMessageBox.warning(self, "ATTENZIONE",
+                                        "Tutti i parametri da inserire. \n Il valore deve essere di tipo numerico",
+                                        QMessageBox.Ok)
+                    test = 1
+
+            if viiis_endo != "":
+                if EC.data_is_int(viiis_endo) == 0:
+                    QMessageBox.warning(self, "ATTENZIONE",
+                                        "Tutti i parametri da inserire. \n Il valore deve essere di tipo numerico",
+                                        QMessageBox.Ok)
+                    test = 1
+
+            if ixd_endo != "":
+                if EC.data_is_int(ixd_endo) == 0:
+                    QMessageBox.warning(self, "ATTENZIONE",
+                                        "Tutti i parametri da inserire. \n Il valore deve essere di tipo numerico",
+                                        QMessageBox.Ok)
+                    test = 1
+
+            if ixs_endo != "":
+                if EC.data_is_int(ixs_endo) == 0:
+                    QMessageBox.warning(self, "ATTENZIONE",
+                                        "Tutti i parametri da inserire. \n Il valore deve essere di tipo numerico",
+                                        QMessageBox.Ok)
+                    test = 1
+
+            if xd_endo != "":
+                if EC.data_is_int(xd_endo) == 0:
+                    QMessageBox.warning(self, "ATTENZIONE",
+                                        "Tutti i parametri da inserire. \n Il valore deve essere di tipo numerico",
+                                        QMessageBox.Ok)
+                    test = 1
+
+            if xs_endo != "":
+                if EC.data_is_int(xs_endo) == 0:
+                    QMessageBox.warning(self, "ATTENZIONE",
+                                        "Tutti i parametri da inserire. \n Il valore deve essere di tipo numerico",
+                                        QMessageBox.Ok)
+                    test = 1
+
+            if endo_min != "":
+                if EC.data_is_int(endo_min) == 0:
+                    QMessageBox.warning(self, "ATTENZIONE",
+                                        "Tutti i parametri da inserire. \n Il valore deve essere di tipo numerico",
+                                        QMessageBox.Ok)
+                    test = 1
+
+            if endo_max != "":
+                if EC.data_is_int(endo_max) == 0:
+                    QMessageBox.warning(self, "ATTENZIONE",
+                                        "Tutti i parametri da inserire. \n Il valore deve essere di tipo numerico",
+                                        QMessageBox.Ok)
+                    test = 1
+
+            if v1 != "":
+                if EC.data_is_int(v1) == 0:
+                    QMessageBox.warning(self, "ATTENZIONE",
+                                        "Tutti i parametri da inserire. \n Il valore deve essere di tipo numerico",
+                                        QMessageBox.Ok)
+                    test = 1
+
+            if v2 != "":
+                if EC.data_is_int(v2) == 0:
+                    QMessageBox.warning(self, "ATTENZIONE",
+                                        "Tutti i parametri da inserire. \n Il valore deve essere di tipo numerico",
+                                        QMessageBox.Ok)
+                    test = 1
+
+            if v3 != "":
+                if EC.data_is_int(v3) == 0:
+                    QMessageBox.warning(self, "ATTENZIONE",
+                                        "Tutti i parametri da inserire. \n Il valore deve essere di tipo numerico",
+                                        QMessageBox.Ok)
+                    test = 1
+
+            if v4 != "":
+                if EC.data_is_int(v4) == 0:
+                    QMessageBox.warning(self, "ATTENZIONE",
+                                        "Tutti i parametri da inserire. \n Il valore deve essere di tipo numerico",
+                                        QMessageBox.Ok)
+                    test = 1
+
+            if v5 != "":
+                if EC.data_is_int(v5) == 0:
+                    QMessageBox.warning(self, "ATTENZIONE",
+                                        "Tutti i parametri da inserire. \n Il valore deve essere di tipo numerico",
+                                        QMessageBox.Ok)
+                    test = 1
+
+            if v6 != "":
+                if EC.data_is_int(v6) == 0:
+                    QMessageBox.warning(self, "ATTENZIONE",
+                                        "Tutti i parametri da inserire. \n Il valore deve essere di tipo numerico",
+                                        QMessageBox.Ok)
+                    test = 1
+
+            if v7 != "":
+                if EC.data_is_int(v7) == 0:
+                    QMessageBox.warning(self, "ATTENZIONE",
+                                        "Tutti i parametri da inserire. \n Il valore deve essere di tipo numerico",
+                                        QMessageBox.Ok)
+                    test = 1
+
+            if l6 != "":
+                if EC.data_is_int(l6) == 0:
+                    QMessageBox.warning(self, "ATTENZIONE",
+                                        "Tutti i parametri da inserire. \n Il valore deve essere di tipo numerico",
+                                        QMessageBox.Ok)
+                    test = 1
+
+            if l7 != "":
+                if EC.data_is_int(l7) == 0:
+                    QMessageBox.warning(self, "ATTENZIONE",
+                                        "Tutti i parametri da inserire. \n Il valore deve essere di tipo numerico",
+                                        QMessageBox.Ok)
+                    test = 1
+
+            if l8 != "":
+                if EC.data_is_int(l8) == 0:
+                    QMessageBox.warning(self, "ATTENZIONE",
+                                        "Tutti i parametri da inserire. \n Il valore deve essere di tipo numerico",
+                                        QMessageBox.Ok)
+                    test = 1
+
+            if l9 != "":
+                if EC.data_is_int(l9) == 0:
+                    QMessageBox.warning(self, "ATTENZIONE",
+                                        "Tutti i parametri da inserire. \n Il valore deve essere di tipo numerico",
+                                        QMessageBox.Ok)
+                    test = 1
+
+            if l10 != "":
+                if EC.data_is_int(l10) == 0:
+                    QMessageBox.warning(self, "ATTENZIONE",
+                                        "Tutti i parametri da inserire. \n Il valore deve essere di tipo numerico",
+                                        QMessageBox.Ok)
+                    test = 1
+
+            if v_min != "":
+                if EC.data_is_int(v_min) == 0:
+                    QMessageBox.warning(self, "ATTENZIONE",
+                                        "Tutti i parametri da inserire. \n Il valore deve essere di tipo numerico",
+                                        QMessageBox.Ok)
+                    test = 1
+
+            if v_max != "":
+                if EC.data_is_int(v_max) == 0:
+                    QMessageBox.warning(self, "ATTENZIONE",
+                                        "Tutti i parametri da inserire. \n Il valore deve essere di tipo numerico",
+                                        QMessageBox.Ok)
+                    test = 1
+
+            if a_l_min != "":
+                if EC.data_is_int(a_l_min) == 0:
+                    QMessageBox.warning(self, "ATTENZIONE",
+                                        "Tutti i parametri da inserire. \n Il valore deve essere di tipo numerico",
+                                        QMessageBox.Ok)
+                    test = 1
+
+            if a_l_max != "":
+                if EC.data_is_int(a_l_max) == 0:
+                    QMessageBox.warning(self, "ATTENZIONE",
+                                        "Tutti i parametri da inserire. \n Il valore deve essere di tipo numerico",
+                                        QMessageBox.Ok)
+                    test = 1
+
+            if ecto_min != "":
+                if EC.data_is_int(ecto_min) == 0:
+                    QMessageBox.warning(self, "ATTENZIONE",
+                                        "Tutti i parametri da inserire. \n Il valore deve essere di tipo numerico",
+                                        QMessageBox.Ok)
+                    test = 1
+
+            if ecto_max != "":
+                if EC.data_is_int(ecto_max) == 0:
+                    QMessageBox.warning(self, "ATTENZIONE",
+                                        "Tutti i parametri da inserire. \n Il valore deve essere di tipo numerico",
+                                        QMessageBox.Ok)
+                    test = 1
+        
+        
+        elif self.L=='de':
+            if EC.data_is_empty(str(self.comboBox_sito.currentText())) == 0:
+                QMessageBox.warning(self, "ACHTUNG", " Feld Ausgrabungstätte. \n Das Feld darf nicht leer sein", QMessageBox.Ok)
+                test = 1
+
+            if EC.data_is_empty(str(self.lineEdit_nr_individuo.text())) == 0:
+                QMessageBox.warning(self, "ACHTUNG", " Feld Individuell. \n Das Feld darf nicht leer sein", QMessageBox.Ok)
+                test = 1
+
+            nr_individuo = self.lineEdit_nr_individuo.text()
+            sinf_min = self.lineEdit_sinf_min.text()
+            sinf_max = self.lineEdit_sinf_max.text()
+            sinf_min2 = self.lineEdit_sinf_min_2.text()
+            sinf_max2 = self.lineEdit_sinf_max_2.text()
+            sspia = self.comboBox_SSPIA.currentText()
+            sspib = self.comboBox_SSPIB.currentText()
+            sspic = self.comboBox_SSPIC.currentText()
+            sspid = self.comboBox_SSPID.currentText()
+            sup_aur_min = self.lineEdit_sup_aur_min.text()
+            sup_aur_max = self.lineEdit_sup_aur_max.text()
+            sup_aur_min2 = self.lineEdit_sup_aur_min_2.text()
+            sup_aur_max2 = self.lineEdit_sup_aur_max_2.text()
+            ms_sup_min = self.lineEdit_ms_sup_min.text()
+            ms_sup_max = self.lineEdit_ms_sup_max.text()
+            ms_inf_min = self.lineEdit_ms_inf_min.text()
+            ms_inf_max = self.lineEdit_ms_inf_max.text()
+            usura_min = self.lineEdit_usura_min.text()
+            usura_max = self.lineEdit_usura_max.text()
+            id_endo = self.comboBox_Id_endo.currentText()
+            is_endo = self.comboBox_Is_endo.currentText()
+            iid_endo = self.comboBox_IId_endo.currentText()
+            iis_endo = self.comboBox_IIs_endo.currentText()
+            iiid_endo = self.comboBox_IIId_endo.currentText()
+            iiis_endo = self.comboBox_IIIs_endo.currentText()
+            iv_endo = self.comboBox_IV_endo.currentText()
+            v_endo = self.comboBox_V_endo.currentText()
+            vi_endo = self.comboBox_VI_endo.currentText()
+            vii_endo = self.comboBox_VII_endo.currentText()
+            viiid_endo = self.comboBox_VIIId_endo.currentText()
+            viiis_endo = self.comboBox_VIIIs_endo.currentText()
+            ixd_endo = self.comboBox_IXd_endo.currentText()
+            ixs_endo = self.comboBox_IXs_endo.currentText()
+            xd_endo = self.comboBox_Xd_endo.currentText()
+            xs_endo = self.comboBox_Xs_endo.currentText()
+            endo_min = self.lineEdit_endo_min.text()
+            endo_max = self.lineEdit_endo_max.text()
+            v1 = self.comboBox_volta_1.currentText()
+            v2 = self.comboBox_volta_2.currentText()
+            v3 = self.comboBox_volta_3.currentText()
+            v4 = self.comboBox_volta_4.currentText()
+            v5 = self.comboBox_volta_5.currentText()
+            v6 = self.comboBox_volta_6.currentText()
+            v7 = self.comboBox_volta_7.currentText()
+            l6 = self.comboBox_lat_6.currentText()
+            l7 = self.comboBox_lat_7.currentText()
+            l8 = self.comboBox_lat_8.currentText()
+            l9 = self.comboBox_lat_9.currentText()
+            l10 = self.comboBox_lat_10.currentText()
+            v_min = self.lineEdit_volta_min.text()
+            v_max = self.lineEdit_volta_max.text()
+            a_l_min = self.lineEdit_ant_lat_min.text()
+            a_l_max = self.lineEdit_ant_lat_max.text()
+            ecto_min = self.lineEdit_ecto_min.text()
+            ecto_max = self.lineEdit_ecto_max.text()
+
+            if nr_individuo != "":
+                if EC.data_is_int(nr_individuo) == 0:
+                    QMessageBox.warning(self, "Achtung", "Feld individuell. \n Der Wert muss numerisch sein",
+                                        QMessageBox.Ok)
+                    test = 1
+
+            if sinf_min != "":
+                if EC.data_is_int(sinf_min) == 0:
+                    QMessageBox.warning(self, "Achtung",
+                                        "Alle Parameter sind einzugeben. \n Der Wert muss numerisch sein.",
+                                        QMessageBox.Ok)
+                    test = 1
+
+            if sinf_max != "":
+                if EC.data_is_int(sinf_max) == 0:
+                    QMessageBox.warning(self, "Achtung",
+                                        "Alle Parameter sind einzugeben. \n Der Wert muss numerisch sein.",
+                                        QMessageBox.Ok)
+                    test = 1
+
+            if sinf_min2 != "":
+                if EC.data_is_int(sinf_min2) == 0:
+                    QMessageBox.warning(self, "Achtung",
+                                        "Alle Parameter sind einzugeben. \n Der Wert muss numerisch sein.",
+                                        QMessageBox.Ok)
+                    test = 1
+
+            if sinf_max2 != "":
+                if EC.data_is_int(sinf_max2) == 0:
+                    QMessageBox.warning(self, "Achtung",
+                                        "Alle Parameter sind einzugeben. \n Der Wert muss numerisch sein.",
+                                        QMessageBox.Ok)
+                    test = 1
+
+            if sspia != "":
+                if EC.data_is_int(sspia) == 0:
+                    QMessageBox.warning(self, "Achtung",
+                                        "Alle Parameter sind einzugeben. \n Der Wert muss numerisch sein.",
+                                        QMessageBox.Ok)
+                    test = 1
+
+            if sspib != "":
+                if EC.data_is_int(sspib) == 0:
+                    QMessageBox.warning(self, "Achtung",
+                                        "Alle Parameter sind einzugeben. \n Der Wert muss numerisch sein.",
+                                        QMessageBox.Ok)
+                    test = 1
+
+            if sspic != "":
+                if EC.data_is_int(sspic) == 0:
+                    QMessageBox.warning(self, "Achtung",
+                                        "Alle Parameter sind einzugeben. \n Der Wert muss numerisch sein.",
+                                        QMessageBox.Ok)
+                    test = 1
+
+            if sspid != "":
+                if EC.data_is_int(sspid) == 0:
+                    QMessageBox.warning(self, "Achtung",
+                                        "Alle Parameter sind einzugeben. \n Der Wert muss numerisch sein.",
+                                        QMessageBox.Ok)
+                    test = 1
+
+            if sup_aur_min != "":
+                if EC.data_is_int(sup_aur_min) == 0:
+                    QMessageBox.warning(self, "Achtung",
+                                        "Alle Parameter sind einzugeben. \n Der Wert muss numerisch sein.",
+                                        QMessageBox.Ok)
+                    test = 1
+
+            if sup_aur_max != "":
+                if EC.data_is_int(sup_aur_max) == 0:
+                    QMessageBox.warning(self, "Achtung",
+                                        "Alle Parameter sind einzugeben. \n Der Wert muss numerisch sein.",
+                                        QMessageBox.Ok)
+                    test = 1
+
+            if sup_aur_min2 != "":
+                if EC.data_is_int(sup_aur_min2) == 0:
+                    QMessageBox.warning(self, "Achtung",
+                                        "Alle Parameter sind einzugeben. \n Der Wert muss numerisch sein.",
+                                        QMessageBox.Ok)
+                    test = 1
+
+            if sup_aur_max2 != "":
+                if EC.data_is_int(sup_aur_max2) == 0:
+                    QMessageBox.warning(self, "Achtung",
+                                        "Alle Parameter sind einzugeben. \n Der Wert muss numerisch sein.",
+                                        QMessageBox.Ok)
+                    test = 1
+
+            if ms_sup_min != "":
+                if EC.data_is_int(ms_sup_min) == 0:
+                    QMessageBox.warning(self, "Achtung",
+                                        "Alle Parameter sind einzugeben. \n Der Wert muss numerisch sein.",
+                                        QMessageBox.Ok)
+                    test = 1
+
+            if ms_sup_max != "":
+                if EC.data_is_int(ms_sup_max) == 0:
+                    QMessageBox.warning(self, "Achtung",
+                                        "Alle Parameter sind einzugeben. \n Der Wert muss numerisch sein.",
+                                        QMessageBox.Ok)
+                    test = 1
+
+            if ms_inf_min != "":
+                if EC.data_is_int(ms_inf_min) == 0:
+                    QMessageBox.warning(self, "Achtung",
+                                        "Alle Parameter sind einzugeben. \n Der Wert muss numerisch sein.",
+                                        QMessageBox.Ok)
+                    test = 1
+
+            if ms_inf_max != "":
+                if EC.data_is_int(ms_inf_max) == 0:
+                    QMessageBox.warning(self, "Achtung",
+                                        "Alle Parameter sind einzugeben. \n Der Wert muss numerisch sein.",
+                                        QMessageBox.Ok)
+                    test = 1
+
+            if usura_min != "":
+                if EC.data_is_int(usura_min) == 0:
+                    QMessageBox.warning(self, "Achtung",
+                                        "Alle Parameter sind einzugeben. \n Der Wert muss numerisch sein.",
+                                        QMessageBox.Ok)
+                    test = 1
+
+            if usura_max != "":
+                if EC.data_is_int(usura_max) == 0:
+                    QMessageBox.warning(self, "Achtung",
+                                        "Alle Parameter sind einzugeben. \n Der Wert muss numerisch sein.",
+                                        QMessageBox.Ok)
+                    test = 1
+
+            if id_endo != "":
+                if EC.data_is_int(id_endo) == 0:
+                    QMessageBox.warning(self, "Achtung",
+                                        "Alle Parameter sind einzugeben. \n Der Wert muss numerisch sein.",
+                                        QMessageBox.Ok)
+                    test = 1
+
+            if is_endo != "":
+                if EC.data_is_int(is_endo) == 0:
+                    QMessageBox.warning(self, "Achtung",
+                                        "Alle Parameter sind einzugeben. \n Der Wert muss numerisch sein.",
+                                        QMessageBox.Ok)
+                    test = 1
+
+            if iid_endo != "":
+                if EC.data_is_int(iid_endo) == 0:
+                    QMessageBox.warning(self, "Achtung",
+                                        "Alle Parameter sind einzugeben. \n Der Wert muss numerisch sein.",
+                                        QMessageBox.Ok)
+                    test = 1
+
+            if iis_endo != "":
+                if EC.data_is_int(iis_endo) == 0:
+                    QMessageBox.warning(self, "Achtung",
+                                        "Alle Parameter sind einzugeben. \n Der Wert muss numerisch sein.",
+                                        QMessageBox.Ok)
+                    test = 1
+
+            if iiid_endo != "":
+                if EC.data_is_int(iiid_endo) == 0:
+                    QMessageBox.warning(self, "Achtung",
+                                        "Alle Parameter sind einzugeben. \n Der Wert muss numerisch sein.",
+                                        QMessageBox.Ok)
+                    test = 1
+
+            if iiis_endo != "":
+                if EC.data_is_int(iiis_endo) == 0:
+                    QMessageBox.warning(self, "Achtung",
+                                        "Alle Parameter sind einzugeben. \n Der Wert muss numerisch sein.",
+                                        QMessageBox.Ok)
+                    test = 1
+
+            if iv_endo != "":
+                if EC.data_is_int(iv_endo) == 0:
+                    QMessageBox.warning(self, "Achtung",
+                                        "Alle Parameter sind einzugeben. \n Der Wert muss numerisch sein.",
+                                        QMessageBox.Ok)
+                    test = 1
+
+            if v_endo != "":
+                if EC.data_is_int(v_endo) == 0:
+                    QMessageBox.warning(self, "Achtung",
+                                        "Alle Parameter sind einzugeben. \n Der Wert muss numerisch sein.",
+                                        QMessageBox.Ok)
+                    test = 1
+
+            if vi_endo != "":
+                if EC.data_is_int(vi_endo) == 0:
+                    QMessageBox.warning(self, "Achtung",
+                                        "Alle Parameter sind einzugeben. \n Der Wert muss numerisch sein.",
+                                        QMessageBox.Ok)
+                    test = 1
+
+            if vii_endo != "":
+                if EC.data_is_int(vii_endo) == 0:
+                    QMessageBox.warning(self, "Achtung",
+                                        "Alle Parameter sind einzugeben. \n Der Wert muss numerisch sein.",
+                                        QMessageBox.Ok)
+                    test = 1
+
+            if viiid_endo != "":
+                if EC.data_is_int(viiid_endo) == 0:
+                    QMessageBox.warning(self, "Achtung",
+                                        "Alle Parameter sind einzugeben. \n Der Wert muss numerisch sein.",
+                                        QMessageBox.Ok)
+                    test = 1
+
+            if viiis_endo != "":
+                if EC.data_is_int(viiis_endo) == 0:
+                    QMessageBox.warning(self, "Achtung",
+                                        "Alle Parameter sind einzugeben. \n Der Wert muss numerisch sein.",
+                                        QMessageBox.Ok)
+                    test = 1
+
+            if ixd_endo != "":
+                if EC.data_is_int(ixd_endo) == 0:
+                    QMessageBox.warning(self, "Achtung",
+                                        "Alle Parameter sind einzugeben. \n Der Wert muss numerisch sein.",
+                                        QMessageBox.Ok)
+                    test = 1
+
+            if ixs_endo != "":
+                if EC.data_is_int(ixs_endo) == 0:
+                    QMessageBox.warning(self, "Achtung",
+                                        "Alle Parameter sind einzugeben. \n Der Wert muss numerisch sein.",
+                                        QMessageBox.Ok)
+                    test = 1
+
+            if xd_endo != "":
+                if EC.data_is_int(xd_endo) == 0:
+                    QMessageBox.warning(self, "Achtung",
+                                        "Alle Parameter sind einzugeben. \n Der Wert muss numerisch sein.",
+                                        QMessageBox.Ok)
+                    test = 1
+
+            if xs_endo != "":
+                if EC.data_is_int(xs_endo) == 0:
+                    QMessageBox.warning(self, "Achtung",
+                                        "Alle Parameter sind einzugeben. \n Der Wert muss numerisch sein.",
+                                        QMessageBox.Ok)
+                    test = 1
+
+            if endo_min != "":
+                if EC.data_is_int(endo_min) == 0:
+                    QMessageBox.warning(self, "Achtung",
+                                        "Alle Parameter sind einzugeben. \n Der Wert muss numerisch sein.",
+                                        QMessageBox.Ok)
+                    test = 1
+
+            if endo_max != "":
+                if EC.data_is_int(endo_max) == 0:
+                    QMessageBox.warning(self, "Achtung",
+                                        "Alle Parameter sind einzugeben. \n Der Wert muss numerisch sein.",
+                                        QMessageBox.Ok)
+                    test = 1
+
+            if v1 != "":
+                if EC.data_is_int(v1) == 0:
+                    QMessageBox.warning(self, "Achtung",
+                                        "Alle Parameter sind einzugeben. \n Der Wert muss numerisch sein.",
+                                        QMessageBox.Ok)
+                    test = 1
+
+            if v2 != "":
+                if EC.data_is_int(v2) == 0:
+                    QMessageBox.warning(self, "Achtung",
+                                        "Alle Parameter sind einzugeben. \n Der Wert muss numerisch sein.",
+                                        QMessageBox.Ok)
+                    test = 1
+
+            if v3 != "":
+                if EC.data_is_int(v3) == 0:
+                    QMessageBox.warning(self, "Achtung",
+                                        "Alle Parameter sind einzugeben. \n Der Wert muss numerisch sein.",
+                                        QMessageBox.Ok)
+                    test = 1
+
+            if v4 != "":
+                if EC.data_is_int(v4) == 0:
+                    QMessageBox.warning(self, "Achtung",
+                                        "Alle Parameter sind einzugeben. \n Der Wert muss numerisch sein.",
+                                        QMessageBox.Ok)
+                    test = 1
+
+            if v5 != "":
+                if EC.data_is_int(v5) == 0:
+                    QMessageBox.warning(self, "Achtung",
+                                        "Alle Parameter sind einzugeben. \n Der Wert muss numerisch sein.",
+                                        QMessageBox.Ok)
+                    test = 1
+
+            if v6 != "":
+                if EC.data_is_int(v6) == 0:
+                    QMessageBox.warning(self, "Achtung",
+                                        "Alle Parameter sind einzugeben. \n Der Wert muss numerisch sein.",
+                                        QMessageBox.Ok)
+                    test = 1
+
+            if v7 != "":
+                if EC.data_is_int(v7) == 0:
+                    QMessageBox.warning(self, "Achtung",
+                                        "Alle Parameter sind einzugeben. \n Der Wert muss numerisch sein.",
+                                        QMessageBox.Ok)
+                    test = 1
+
+            if l6 != "":
+                if EC.data_is_int(l6) == 0:
+                    QMessageBox.warning(self, "Achtung",
+                                        "Alle Parameter sind einzugeben. \n Der Wert muss numerisch sein.",
+                                        QMessageBox.Ok)
+                    test = 1
+
+            if l7 != "":
+                if EC.data_is_int(l7) == 0:
+                    QMessageBox.warning(self, "Achtung",
+                                        "Alle Parameter sind einzugeben. \n Der Wert muss numerisch sein.",
+                                        QMessageBox.Ok)
+                    test = 1
+
+            if l8 != "":
+                if EC.data_is_int(l8) == 0:
+                    QMessageBox.warning(self, "Achtung",
+                                        "Alle Parameter sind einzugeben. \n Der Wert muss numerisch sein.",
+                                        QMessageBox.Ok)
+                    test = 1
+
+            if l9 != "":
+                if EC.data_is_int(l9) == 0:
+                    QMessageBox.warning(self, "Achtung",
+                                        "Alle Parameter sind einzugeben. \n Der Wert muss numerisch sein.",
+                                        QMessageBox.Ok)
+                    test = 1
+
+            if l10 != "":
+                if EC.data_is_int(l10) == 0:
+                    QMessageBox.warning(self, "Achtung",
+                                        "Alle Parameter sind einzugeben. \n Der Wert muss numerisch sein.",
+                                        QMessageBox.Ok)
+                    test = 1
+
+            if v_min != "":
+                if EC.data_is_int(v_min) == 0:
+                    QMessageBox.warning(self, "Achtung",
+                                        "Alle Parameter sind einzugeben. \n Der Wert muss numerisch sein.",
+                                        QMessageBox.Ok)
+                    test = 1
+
+            if v_max != "":
+                if EC.data_is_int(v_max) == 0:
+                    QMessageBox.warning(self, "Achtung",
+                                        "Alle Parameter sind einzugeben. \n Der Wert muss numerisch sein.",
+                                        QMessageBox.Ok)
+                    test = 1
+
+            if a_l_min != "":
+                if EC.data_is_int(a_l_min) == 0:
+                    QMessageBox.warning(self, "Achtung",
+                                        "Alle Parameter sind einzugeben. \n Der Wert muss numerisch sein.",
+                                        QMessageBox.Ok)
+                    test = 1
+
+            if a_l_max != "":
+                if EC.data_is_int(a_l_max) == 0:
+                    QMessageBox.warning(self, "Achtung",
+                                        "Alle Parameter sind einzugeben. \n Der Wert muss numerisch sein.",
+                                        QMessageBox.Ok)
+                    test = 1
+
+            if ecto_min != "":
+                if EC.data_is_int(ecto_min) == 0:
+                    QMessageBox.warning(self, "Achtung",
+                                        "Alle Parameter sind einzugeben. \n Der Wert muss numerisch sein.",
+                                        QMessageBox.Ok)
+                    test = 1
+
+            if ecto_max != "":
+                if EC.data_is_int(ecto_max) == 0:
+                    QMessageBox.warning(self, "Achtung",
+                                        "Alle Parameter sind einzugeben. \n Der Wert muss numerisch sein.",
+                                        QMessageBox.Ok)
+                    test = 1
+        
+        
+        else:
+            if EC.data_is_empty(str(self.comboBox_sito.currentText())) == 0:
+                QMessageBox.warning(self, "Warning", "Site field. \n The field must not be empty", QMessageBox.Ok)
+                test = 1
+
+            if EC.data_is_empty(str(self.lineEdit_nr_individuo.text())) == 0:
+                QMessageBox.warning(self, "Warning", "Individual field. \n The field must not be empty",
                                     QMessageBox.Ok)
                 test = 1
 
-        if sinf_max != "":
-            if EC.data_is_int(sinf_max) == 0:
-                QMessageBox.warning(self, "ATTENZIONE",
-                                    "Tutti i parametri da inserire. \n Il valore deve essere di tipo numerico",
-                                    QMessageBox.Ok)
-                test = 1
+            nr_individuo = self.lineEdit_nr_individuo.text()
+            sinf_min = self.lineEdit_sinf_min.text()
+            sinf_max = self.lineEdit_sinf_max.text()
+            sinf_min2 = self.lineEdit_sinf_min_2.text()
+            sinf_max2 = self.lineEdit_sinf_max_2.text()
+            sspia = self.comboBox_SSPIA.currentText()
+            sspib = self.comboBox_SSPIB.currentText()
+            sspic = self.comboBox_SSPIC.currentText()
+            sspid = self.comboBox_SSPID.currentText()
+            sup_aur_min = self.lineEdit_sup_aur_min.text()
+            sup_aur_max = self.lineEdit_sup_aur_max.text()
+            sup_aur_min2 = self.lineEdit_sup_aur_min_2.text()
+            sup_aur_max2 = self.lineEdit_sup_aur_max_2.text()
+            ms_sup_min = self.lineEdit_ms_sup_min.text()
+            ms_sup_max = self.lineEdit_ms_sup_max.text()
+            ms_inf_min = self.lineEdit_ms_inf_min.text()
+            ms_inf_max = self.lineEdit_ms_inf_max.text()
+            usura_min = self.lineEdit_usura_min.text()
+            usura_max = self.lineEdit_usura_max.text()
+            id_endo = self.comboBox_Id_endo.currentText()
+            is_endo = self.comboBox_Is_endo.currentText()
+            iid_endo = self.comboBox_IId_endo.currentText()
+            iis_endo = self.comboBox_IIs_endo.currentText()
+            iiid_endo = self.comboBox_IIId_endo.currentText()
+            iiis_endo = self.comboBox_IIIs_endo.currentText()
+            iv_endo = self.comboBox_IV_endo.currentText()
+            v_endo = self.comboBox_V_endo.currentText()
+            vi_endo = self.comboBox_VI_endo.currentText()
+            vii_endo = self.comboBox_VII_endo.currentText()
+            viiid_endo = self.comboBox_VIIId_endo.currentText()
+            viiis_endo = self.comboBox_VIIIs_endo.currentText()
+            ixd_endo = self.comboBox_IXd_endo.currentText()
+            ixs_endo = self.comboBox_IXs_endo.currentText()
+            xd_endo = self.comboBox_Xd_endo.currentText()
+            xs_endo = self.comboBox_Xs_endo.currentText()
+            endo_min = self.lineEdit_endo_min.text()
+            endo_max = self.lineEdit_endo_max.text()
+            v1 = self.comboBox_volta_1.currentText()
+            v2 = self.comboBox_volta_2.currentText()
+            v3 = self.comboBox_volta_3.currentText()
+            v4 = self.comboBox_volta_4.currentText()
+            v5 = self.comboBox_volta_5.currentText()
+            v6 = self.comboBox_volta_6.currentText()
+            v7 = self.comboBox_volta_7.currentText()
+            l6 = self.comboBox_lat_6.currentText()
+            l7 = self.comboBox_lat_7.currentText()
+            l8 = self.comboBox_lat_8.currentText()
+            l9 = self.comboBox_lat_9.currentText()
+            l10 = self.comboBox_lat_10.currentText()
+            v_min = self.lineEdit_volta_min.text()
+            v_max = self.lineEdit_volta_max.text()
+            a_l_min = self.lineEdit_ant_lat_min.text()
+            a_l_max = self.lineEdit_ant_lat_max.text()
+            ecto_min = self.lineEdit_ecto_min.text()
+            ecto_max = self.lineEdit_ecto_max.text()
 
-        if sinf_min2 != "":
-            if EC.data_is_int(sinf_min2) == 0:
-                QMessageBox.warning(self, "ATTENZIONE",
-                                    "Tutti i parametri da inserire. \n Il valore deve essere di tipo numerico",
-                                    QMessageBox.Ok)
-                test = 1
+            if nr_individuo != "":
+                if EC.data_is_int(nr_individuo) == 0:
+                    QMessageBox.warning(self, "Warning", "Indivisual field. \n The value must be numerical.",
+                                        QMessageBox.Ok)
+                    test = 1
 
-        if sinf_max2 != "":
-            if EC.data_is_int(sinf_max2) == 0:
-                QMessageBox.warning(self, "ATTENZIONE",
-                                    "Tutti i parametri da inserire. \n Il valore deve essere di tipo numerico",
-                                    QMessageBox.Ok)
-                test = 1
+            if sinf_min != "":
+                if EC.data_is_int(sinf_min) == 0:
+                    QMessageBox.warning(self, "Warning",
+                                        "All parameters to be entered. \n The value must be numerical.",
+                                        QMessageBox.Ok)
+                    test = 1
 
-        if sspia != "":
-            if EC.data_is_int(sspia) == 0:
-                QMessageBox.warning(self, "ATTENZIONE",
-                                    "Tutti i parametri da inserire. \n Il valore deve essere di tipo numerico",
-                                    QMessageBox.Ok)
-                test = 1
+            if sinf_max != "":
+                if EC.data_is_int(sinf_max) == 0:
+                    QMessageBox.warning(self, "Warning",
+                                        "All parameters to be entered. \n The value must be numerical.",
+                                        QMessageBox.Ok)
+                    test = 1
 
-        if sspib != "":
-            if EC.data_is_int(sspib) == 0:
-                QMessageBox.warning(self, "ATTENZIONE",
-                                    "Tutti i parametri da inserire. \n Il valore deve essere di tipo numerico",
-                                    QMessageBox.Ok)
-                test = 1
+            if sinf_min2 != "":
+                if EC.data_is_int(sinf_min2) == 0:
+                    QMessageBox.warning(self, "Warning",
+                                        "All parameters to be entered. \n The value must be numerical.",
+                                        QMessageBox.Ok)
+                    test = 1
 
-        if sspic != "":
-            if EC.data_is_int(sspic) == 0:
-                QMessageBox.warning(self, "ATTENZIONE",
-                                    "Tutti i parametri da inserire. \n Il valore deve essere di tipo numerico",
-                                    QMessageBox.Ok)
-                test = 1
+            if sinf_max2 != "":
+                if EC.data_is_int(sinf_max2) == 0:
+                    QMessageBox.warning(self, "Warning",
+                                        "All parameters to be entered. \n The value must be numerical.",
+                                        QMessageBox.Ok)
+                    test = 1
 
-        if sspid != "":
-            if EC.data_is_int(sspid) == 0:
-                QMessageBox.warning(self, "ATTENZIONE",
-                                    "Tutti i parametri da inserire. \n Il valore deve essere di tipo numerico",
-                                    QMessageBox.Ok)
-                test = 1
+            if sspia != "":
+                if EC.data_is_int(sspia) == 0:
+                    QMessageBox.warning(self, "Warning",
+                                        "All parameters to be entered. \n The value must be numerical.",
+                                        QMessageBox.Ok)
+                    test = 1
 
-        if sup_aur_min != "":
-            if EC.data_is_int(sup_aur_min) == 0:
-                QMessageBox.warning(self, "ATTENZIONE",
-                                    "Tutti i parametri da inserire. \n Il valore deve essere di tipo numerico",
-                                    QMessageBox.Ok)
-                test = 1
+            if sspib != "":
+                if EC.data_is_int(sspib) == 0:
+                    QMessageBox.warning(self, "Warning",
+                                        "All parameters to be entered. \n The value must be numerical.",
+                                        QMessageBox.Ok)
+                    test = 1
 
-        if sup_aur_max != "":
-            if EC.data_is_int(sup_aur_max) == 0:
-                QMessageBox.warning(self, "ATTENZIONE",
-                                    "Tutti i parametri da inserire. \n Il valore deve essere di tipo numerico",
-                                    QMessageBox.Ok)
-                test = 1
+            if sspic != "":
+                if EC.data_is_int(sspic) == 0:
+                    QMessageBox.warning(self, "Warning",
+                                        "All parameters to be entered. \n The value must be numerical.",
+                                        QMessageBox.Ok)
+                    test = 1
 
-        if sup_aur_min2 != "":
-            if EC.data_is_int(sup_aur_min2) == 0:
-                QMessageBox.warning(self, "ATTENZIONE",
-                                    "Tutti i parametri da inserire. \n Il valore deve essere di tipo numerico",
-                                    QMessageBox.Ok)
-                test = 1
+            if sspid != "":
+                if EC.data_is_int(sspid) == 0:
+                    QMessageBox.warning(self, "Warning",
+                                        "All parameters to be entered. \n The value must be numerical.",
+                                        QMessageBox.Ok)
+                    test = 1
 
-        if sup_aur_max2 != "":
-            if EC.data_is_int(sup_aur_max2) == 0:
-                QMessageBox.warning(self, "ATTENZIONE",
-                                    "Tutti i parametri da inserire. \n Il valore deve essere di tipo numerico",
-                                    QMessageBox.Ok)
-                test = 1
+            if sup_aur_min != "":
+                if EC.data_is_int(sup_aur_min) == 0:
+                    QMessageBox.warning(self, "Warning",
+                                        "All parameters to be entered. \n The value must be numerical.",
+                                        QMessageBox.Ok)
+                    test = 1
 
-        if ms_sup_min != "":
-            if EC.data_is_int(ms_sup_min) == 0:
-                QMessageBox.warning(self, "ATTENZIONE",
-                                    "Tutti i parametri da inserire. \n Il valore deve essere di tipo numerico",
-                                    QMessageBox.Ok)
-                test = 1
+            if sup_aur_max != "":
+                if EC.data_is_int(sup_aur_max) == 0:
+                    QMessageBox.warning(self, "Warning",
+                                        "All parameters to be entered. \n The value must be numerical.",
+                                        QMessageBox.Ok)
+                    test = 1
 
-        if ms_sup_max != "":
-            if EC.data_is_int(ms_sup_max) == 0:
-                QMessageBox.warning(self, "ATTENZIONE",
-                                    "Tutti i parametri da inserire. \n Il valore deve essere di tipo numerico",
-                                    QMessageBox.Ok)
-                test = 1
+            if sup_aur_min2 != "":
+                if EC.data_is_int(sup_aur_min2) == 0:
+                    QMessageBox.warning(self, "Warning",
+                                        "All parameters to be entered. \n The value must be numerical.",
+                                        QMessageBox.Ok)
+                    test = 1
 
-        if ms_inf_min != "":
-            if EC.data_is_int(ms_inf_min) == 0:
-                QMessageBox.warning(self, "ATTENZIONE",
-                                    "Tutti i parametri da inserire. \n Il valore deve essere di tipo numerico",
-                                    QMessageBox.Ok)
-                test = 1
+            if sup_aur_max2 != "":
+                if EC.data_is_int(sup_aur_max2) == 0:
+                    QMessageBox.warning(self, "Warning",
+                                        "All parameters to be entered. \n The value must be numerical.",
+                                        QMessageBox.Ok)
+                    test = 1
 
-        if ms_inf_max != "":
-            if EC.data_is_int(ms_inf_max) == 0:
-                QMessageBox.warning(self, "ATTENZIONE",
-                                    "Tutti i parametri da inserire. \n Il valore deve essere di tipo numerico",
-                                    QMessageBox.Ok)
-                test = 1
+            if ms_sup_min != "":
+                if EC.data_is_int(ms_sup_min) == 0:
+                    QMessageBox.warning(self, "Warning",
+                                        "All parameters to be entered. \n The value must be numerical.",
+                                        QMessageBox.Ok)
+                    test = 1
 
-        if usura_min != "":
-            if EC.data_is_int(usura_min) == 0:
-                QMessageBox.warning(self, "ATTENZIONE",
-                                    "Tutti i parametri da inserire. \n Il valore deve essere di tipo numerico",
-                                    QMessageBox.Ok)
-                test = 1
+            if ms_sup_max != "":
+                if EC.data_is_int(ms_sup_max) == 0:
+                    QMessageBox.warning(self, "Warning",
+                                        "All parameters to be entered. \n The value must be numerical.",
+                                        QMessageBox.Ok)
+                    test = 1
 
-        if usura_max != "":
-            if EC.data_is_int(usura_max) == 0:
-                QMessageBox.warning(self, "ATTENZIONE",
-                                    "Tutti i parametri da inserire. \n Il valore deve essere di tipo numerico",
-                                    QMessageBox.Ok)
-                test = 1
+            if ms_inf_min != "":
+                if EC.data_is_int(ms_inf_min) == 0:
+                    QMessageBox.warning(self, "Warning",
+                                        "All parameters to be entered. \n The value must be numerical.",
+                                        QMessageBox.Ok)
+                    test = 1
 
-        if id_endo != "":
-            if EC.data_is_int(id_endo) == 0:
-                QMessageBox.warning(self, "ATTENZIONE",
-                                    "Tutti i parametri da inserire. \n Il valore deve essere di tipo numerico",
-                                    QMessageBox.Ok)
-                test = 1
+            if ms_inf_max != "":
+                if EC.data_is_int(ms_inf_max) == 0:
+                    QMessageBox.warning(self, "Warning",
+                                        "All parameters to be entered. \n The value must be numerical.",
+                                        QMessageBox.Ok)
+                    test = 1
 
-        if is_endo != "":
-            if EC.data_is_int(is_endo) == 0:
-                QMessageBox.warning(self, "ATTENZIONE",
-                                    "Tutti i parametri da inserire. \n Il valore deve essere di tipo numerico",
-                                    QMessageBox.Ok)
-                test = 1
+            if usura_min != "":
+                if EC.data_is_int(usura_min) == 0:
+                    QMessageBox.warning(self, "Warning",
+                                        "All parameters to be entered. \n The value must be numerical.",
+                                        QMessageBox.Ok)
+                    test = 1
 
-        if iid_endo != "":
-            if EC.data_is_int(iid_endo) == 0:
-                QMessageBox.warning(self, "ATTENZIONE",
-                                    "Tutti i parametri da inserire. \n Il valore deve essere di tipo numerico",
-                                    QMessageBox.Ok)
-                test = 1
+            if usura_max != "":
+                if EC.data_is_int(usura_max) == 0:
+                    QMessageBox.warning(self, "Warning",
+                                        "All parameters to be entered. \n The value must be numerical.",
+                                        QMessageBox.Ok)
+                    test = 1
 
-        if iis_endo != "":
-            if EC.data_is_int(iis_endo) == 0:
-                QMessageBox.warning(self, "ATTENZIONE",
-                                    "Tutti i parametri da inserire. \n Il valore deve essere di tipo numerico",
-                                    QMessageBox.Ok)
-                test = 1
+            if id_endo != "":
+                if EC.data_is_int(id_endo) == 0:
+                    QMessageBox.warning(self, "Warning",
+                                        "All parameters to be entered. \n The value must be numerical.",
+                                        QMessageBox.Ok)
+                    test = 1
 
-        if iiid_endo != "":
-            if EC.data_is_int(iiid_endo) == 0:
-                QMessageBox.warning(self, "ATTENZIONE",
-                                    "Tutti i parametri da inserire. \n Il valore deve essere di tipo numerico",
-                                    QMessageBox.Ok)
-                test = 1
+            if is_endo != "":
+                if EC.data_is_int(is_endo) == 0:
+                    QMessageBox.warning(self, "Warning",
+                                        "All parameters to be entered. \n The value must be numerical.",
+                                        QMessageBox.Ok)
+                    test = 1
 
-        if iiis_endo != "":
-            if EC.data_is_int(iiis_endo) == 0:
-                QMessageBox.warning(self, "ATTENZIONE",
-                                    "Tutti i parametri da inserire. \n Il valore deve essere di tipo numerico",
-                                    QMessageBox.Ok)
-                test = 1
+            if iid_endo != "":
+                if EC.data_is_int(iid_endo) == 0:
+                    QMessageBox.warning(self, "Warning",
+                                        "All parameters to be entered. \n The value must be numerical.",
+                                        QMessageBox.Ok)
+                    test = 1
 
-        if iv_endo != "":
-            if EC.data_is_int(iv_endo) == 0:
-                QMessageBox.warning(self, "ATTENZIONE",
-                                    "Tutti i parametri da inserire. \n Il valore deve essere di tipo numerico",
-                                    QMessageBox.Ok)
-                test = 1
+            if iis_endo != "":
+                if EC.data_is_int(iis_endo) == 0:
+                    QMessageBox.warning(self, "Warning",
+                                        "All parameters to be entered. \n The value must be numerical.",
+                                        QMessageBox.Ok)
+                    test = 1
 
-        if v_endo != "":
-            if EC.data_is_int(v_endo) == 0:
-                QMessageBox.warning(self, "ATTENZIONE",
-                                    "Tutti i parametri da inserire. \n Il valore deve essere di tipo numerico",
-                                    QMessageBox.Ok)
-                test = 1
+            if iiid_endo != "":
+                if EC.data_is_int(iiid_endo) == 0:
+                    QMessageBox.warning(self, "Warning",
+                                        "All parameters to be entered. \n The value must be numerical.",
+                                        QMessageBox.Ok)
+                    test = 1
 
-        if vi_endo != "":
-            if EC.data_is_int(vi_endo) == 0:
-                QMessageBox.warning(self, "ATTENZIONE",
-                                    "Tutti i parametri da inserire. \n Il valore deve essere di tipo numerico",
-                                    QMessageBox.Ok)
-                test = 1
+            if iiis_endo != "":
+                if EC.data_is_int(iiis_endo) == 0:
+                    QMessageBox.warning(self, "Warning",
+                                        "All parameters to be entered. \n The value must be numerical.",
+                                        QMessageBox.Ok)
+                    test = 1
 
-        if vii_endo != "":
-            if EC.data_is_int(vii_endo) == 0:
-                QMessageBox.warning(self, "ATTENZIONE",
-                                    "Tutti i parametri da inserire. \n Il valore deve essere di tipo numerico",
-                                    QMessageBox.Ok)
-                test = 1
+            if iv_endo != "":
+                if EC.data_is_int(iv_endo) == 0:
+                    QMessageBox.warning(self, "Warning",
+                                        "All parameters to be entered. \n The value must be numerical.",
+                                        QMessageBox.Ok)
+                    test = 1
 
-        if viiid_endo != "":
-            if EC.data_is_int(viiid_endo) == 0:
-                QMessageBox.warning(self, "ATTENZIONE",
-                                    "Tutti i parametri da inserire. \n Il valore deve essere di tipo numerico",
-                                    QMessageBox.Ok)
-                test = 1
+            if v_endo != "":
+                if EC.data_is_int(v_endo) == 0:
+                    QMessageBox.warning(self, "Warning",
+                                        "All parameters to be entered. \n The value must be numerical.",
+                                        QMessageBox.Ok)
+                    test = 1
 
-        if viiis_endo != "":
-            if EC.data_is_int(viiis_endo) == 0:
-                QMessageBox.warning(self, "ATTENZIONE",
-                                    "Tutti i parametri da inserire. \n Il valore deve essere di tipo numerico",
-                                    QMessageBox.Ok)
-                test = 1
+            if vi_endo != "":
+                if EC.data_is_int(vi_endo) == 0:
+                    QMessageBox.warning(self, "Warning",
+                                        "All parameters to be entered. \n The value must be numerical.",
+                                        QMessageBox.Ok)
+                    test = 1
 
-        if ixd_endo != "":
-            if EC.data_is_int(ixd_endo) == 0:
-                QMessageBox.warning(self, "ATTENZIONE",
-                                    "Tutti i parametri da inserire. \n Il valore deve essere di tipo numerico",
-                                    QMessageBox.Ok)
-                test = 1
+            if vii_endo != "":
+                if EC.data_is_int(vii_endo) == 0:
+                    QMessageBox.warning(self, "Warning",
+                                        "All parameters to be entered. \n The value must be numerical.",
+                                        QMessageBox.Ok)
+                    test = 1
 
-        if ixs_endo != "":
-            if EC.data_is_int(ixs_endo) == 0:
-                QMessageBox.warning(self, "ATTENZIONE",
-                                    "Tutti i parametri da inserire. \n Il valore deve essere di tipo numerico",
-                                    QMessageBox.Ok)
-                test = 1
+            if viiid_endo != "":
+                if EC.data_is_int(viiid_endo) == 0:
+                    QMessageBox.warning(self, "Warning",
+                                        "All parameters to be entered. \n The value must be numerical.",
+                                        QMessageBox.Ok)
+                    test = 1
 
-        if xd_endo != "":
-            if EC.data_is_int(xd_endo) == 0:
-                QMessageBox.warning(self, "ATTENZIONE",
-                                    "Tutti i parametri da inserire. \n Il valore deve essere di tipo numerico",
-                                    QMessageBox.Ok)
-                test = 1
+            if viiis_endo != "":
+                if EC.data_is_int(viiis_endo) == 0:
+                    QMessageBox.warning(self, "Warning",
+                                        "All parameters to be entered. \n The value must be numerical.",
+                                        QMessageBox.Ok)
+                    test = 1
 
-        if xs_endo != "":
-            if EC.data_is_int(xs_endo) == 0:
-                QMessageBox.warning(self, "ATTENZIONE",
-                                    "Tutti i parametri da inserire. \n Il valore deve essere di tipo numerico",
-                                    QMessageBox.Ok)
-                test = 1
+            if ixd_endo != "":
+                if EC.data_is_int(ixd_endo) == 0:
+                    QMessageBox.warning(self, "Warning",
+                                        "All parameters to be entered. \n The value must be numerical.",
+                                        QMessageBox.Ok)
+                    test = 1
 
-        if endo_min != "":
-            if EC.data_is_int(endo_min) == 0:
-                QMessageBox.warning(self, "ATTENZIONE",
-                                    "Tutti i parametri da inserire. \n Il valore deve essere di tipo numerico",
-                                    QMessageBox.Ok)
-                test = 1
+            if ixs_endo != "":
+                if EC.data_is_int(ixs_endo) == 0:
+                    QMessageBox.warning(self, "Warning",
+                                        "All parameters to be entered. \n The value must be numerical.",
+                                        QMessageBox.Ok)
+                    test = 1
 
-        if endo_max != "":
-            if EC.data_is_int(endo_max) == 0:
-                QMessageBox.warning(self, "ATTENZIONE",
-                                    "Tutti i parametri da inserire. \n Il valore deve essere di tipo numerico",
-                                    QMessageBox.Ok)
-                test = 1
+            if xd_endo != "":
+                if EC.data_is_int(xd_endo) == 0:
+                    QMessageBox.warning(self, "Warning",
+                                        "All parameters to be entered. \n The value must be numerical.",
+                                        QMessageBox.Ok)
+                    test = 1
 
-        if v1 != "":
-            if EC.data_is_int(v1) == 0:
-                QMessageBox.warning(self, "ATTENZIONE",
-                                    "Tutti i parametri da inserire. \n Il valore deve essere di tipo numerico",
-                                    QMessageBox.Ok)
-                test = 1
+            if xs_endo != "":
+                if EC.data_is_int(xs_endo) == 0:
+                    QMessageBox.warning(self, "Warning",
+                                        "All parameters to be entered. \n The value must be numerical.",
+                                        QMessageBox.Ok)
+                    test = 1
 
-        if v2 != "":
-            if EC.data_is_int(v2) == 0:
-                QMessageBox.warning(self, "ATTENZIONE",
-                                    "Tutti i parametri da inserire. \n Il valore deve essere di tipo numerico",
-                                    QMessageBox.Ok)
-                test = 1
+            if endo_min != "":
+                if EC.data_is_int(endo_min) == 0:
+                    QMessageBox.warning(self, "Warning",
+                                        "All parameters to be entered. \n The value must be numerical.",
+                                        QMessageBox.Ok)
+                    test = 1
 
-        if v3 != "":
-            if EC.data_is_int(v3) == 0:
-                QMessageBox.warning(self, "ATTENZIONE",
-                                    "Tutti i parametri da inserire. \n Il valore deve essere di tipo numerico",
-                                    QMessageBox.Ok)
-                test = 1
+            if endo_max != "":
+                if EC.data_is_int(endo_max) == 0:
+                    QMessageBox.warning(self, "Warning",
+                                        "All parameters to be entered. \n The value must be numerical.",
+                                        QMessageBox.Ok)
+                    test = 1
 
-        if v4 != "":
-            if EC.data_is_int(v4) == 0:
-                QMessageBox.warning(self, "ATTENZIONE",
-                                    "Tutti i parametri da inserire. \n Il valore deve essere di tipo numerico",
-                                    QMessageBox.Ok)
-                test = 1
+            if v1 != "":
+                if EC.data_is_int(v1) == 0:
+                    QMessageBox.warning(self, "Warning",
+                                        "All parameters to be entered. \n The value must be numerical.",
+                                        QMessageBox.Ok)
+                    test = 1
 
-        if v5 != "":
-            if EC.data_is_int(v5) == 0:
-                QMessageBox.warning(self, "ATTENZIONE",
-                                    "Tutti i parametri da inserire. \n Il valore deve essere di tipo numerico",
-                                    QMessageBox.Ok)
-                test = 1
+            if v2 != "":
+                if EC.data_is_int(v2) == 0:
+                    QMessageBox.warning(self, "Warning",
+                                        "All parameters to be entered. \n The value must be numerical.",
+                                        QMessageBox.Ok)
+                    test = 1
 
-        if v6 != "":
-            if EC.data_is_int(v6) == 0:
-                QMessageBox.warning(self, "ATTENZIONE",
-                                    "Tutti i parametri da inserire. \n Il valore deve essere di tipo numerico",
-                                    QMessageBox.Ok)
-                test = 1
+            if v3 != "":
+                if EC.data_is_int(v3) == 0:
+                    QMessageBox.warning(self, "Warning",
+                                        "All parameters to be entered. \n The value must be numerical.",
+                                        QMessageBox.Ok)
+                    test = 1
 
-        if v7 != "":
-            if EC.data_is_int(v7) == 0:
-                QMessageBox.warning(self, "ATTENZIONE",
-                                    "Tutti i parametri da inserire. \n Il valore deve essere di tipo numerico",
-                                    QMessageBox.Ok)
-                test = 1
+            if v4 != "":
+                if EC.data_is_int(v4) == 0:
+                    QMessageBox.warning(self, "Warning",
+                                        "All parameters to be entered. \n The value must be numerical.",
+                                        QMessageBox.Ok)
+                    test = 1
 
-        if l6 != "":
-            if EC.data_is_int(l6) == 0:
-                QMessageBox.warning(self, "ATTENZIONE",
-                                    "Tutti i parametri da inserire. \n Il valore deve essere di tipo numerico",
-                                    QMessageBox.Ok)
-                test = 1
+            if v5 != "":
+                if EC.data_is_int(v5) == 0:
+                    QMessageBox.warning(self, "Warning",
+                                        "All parameters to be entered. \n The value must be numerical.",
+                                        QMessageBox.Ok)
+                    test = 1
 
-        if l7 != "":
-            if EC.data_is_int(l7) == 0:
-                QMessageBox.warning(self, "ATTENZIONE",
-                                    "Tutti i parametri da inserire. \n Il valore deve essere di tipo numerico",
-                                    QMessageBox.Ok)
-                test = 1
+            if v6 != "":
+                if EC.data_is_int(v6) == 0:
+                    QMessageBox.warning(self, "Warning",
+                                        "All parameters to be entered. \n The value must be numerical.",
+                                        QMessageBox.Ok)
+                    test = 1
 
-        if l8 != "":
-            if EC.data_is_int(l8) == 0:
-                QMessageBox.warning(self, "ATTENZIONE",
-                                    "Tutti i parametri da inserire. \n Il valore deve essere di tipo numerico",
-                                    QMessageBox.Ok)
-                test = 1
+            if v7 != "":
+                if EC.data_is_int(v7) == 0:
+                    QMessageBox.warning(self, "Warning",
+                                        "All parameters to be entered. \n The value must be numerical.",
+                                        QMessageBox.Ok)
+                    test = 1
 
-        if l9 != "":
-            if EC.data_is_int(l9) == 0:
-                QMessageBox.warning(self, "ATTENZIONE",
-                                    "Tutti i parametri da inserire. \n Il valore deve essere di tipo numerico",
-                                    QMessageBox.Ok)
-                test = 1
+            if l6 != "":
+                if EC.data_is_int(l6) == 0:
+                    QMessageBox.warning(self, "Warning",
+                                        "All parameters to be entered. \n The value must be numerical.",
+                                        QMessageBox.Ok)
+                    test = 1
 
-        if l10 != "":
-            if EC.data_is_int(l10) == 0:
-                QMessageBox.warning(self, "ATTENZIONE",
-                                    "Tutti i parametri da inserire. \n Il valore deve essere di tipo numerico",
-                                    QMessageBox.Ok)
-                test = 1
+            if l7 != "":
+                if EC.data_is_int(l7) == 0:
+                    QMessageBox.warning(self, "Warning",
+                                        "All parameters to be entered. \n The value must be numerical.",
+                                        QMessageBox.Ok)
+                    test = 1
 
-        if v_min != "":
-            if EC.data_is_int(v_min) == 0:
-                QMessageBox.warning(self, "ATTENZIONE",
-                                    "Tutti i parametri da inserire. \n Il valore deve essere di tipo numerico",
-                                    QMessageBox.Ok)
-                test = 1
+            if l8 != "":
+                if EC.data_is_int(l8) == 0:
+                    QMessageBox.warning(self, "Warning",
+                                        "All parameters to be entered. \n The value must be numerical.",
+                                        QMessageBox.Ok)
+                    test = 1
 
-        if v_max != "":
-            if EC.data_is_int(v_max) == 0:
-                QMessageBox.warning(self, "ATTENZIONE",
-                                    "Tutti i parametri da inserire. \n Il valore deve essere di tipo numerico",
-                                    QMessageBox.Ok)
-                test = 1
+            if l9 != "":
+                if EC.data_is_int(l9) == 0:
+                    QMessageBox.warning(self, "Warning",
+                                        "All parameters to be entered. \n The value must be numerical.",
+                                        QMessageBox.Ok)
+                    test = 1
 
-        if a_l_min != "":
-            if EC.data_is_int(a_l_min) == 0:
-                QMessageBox.warning(self, "ATTENZIONE",
-                                    "Tutti i parametri da inserire. \n Il valore deve essere di tipo numerico",
-                                    QMessageBox.Ok)
-                test = 1
+            if l10 != "":
+                if EC.data_is_int(l10) == 0:
+                    QMessageBox.warning(self, "Warning",
+                                        "All parameters to be entered. \n The value must be numerical.",
+                                        QMessageBox.Ok)
+                    test = 1
 
-        if a_l_max != "":
-            if EC.data_is_int(a_l_max) == 0:
-                QMessageBox.warning(self, "ATTENZIONE",
-                                    "Tutti i parametri da inserire. \n Il valore deve essere di tipo numerico",
-                                    QMessageBox.Ok)
-                test = 1
+            if v_min != "":
+                if EC.data_is_int(v_min) == 0:
+                    QMessageBox.warning(self, "Warning",
+                                        "All parameters to be entered. \n The value must be numerical.",
+                                        QMessageBox.Ok)
+                    test = 1
 
-        if ecto_min != "":
-            if EC.data_is_int(ecto_min) == 0:
-                QMessageBox.warning(self, "ATTENZIONE",
-                                    "Tutti i parametri da inserire. \n Il valore deve essere di tipo numerico",
-                                    QMessageBox.Ok)
-                test = 1
+            if v_max != "":
+                if EC.data_is_int(v_max) == 0:
+                    QMessageBox.warning(self, "Warning",
+                                        "All parameters to be entered. \n The value must be numerical.",
+                                        QMessageBox.Ok)
+                    test = 1
 
-        if ecto_max != "":
-            if EC.data_is_int(ecto_max) == 0:
-                QMessageBox.warning(self, "ATTENZIONE",
-                                    "Tutti i parametri da inserire. \n Il valore deve essere di tipo numerico",
-                                    QMessageBox.Ok)
-                test = 1
+            if a_l_min != "":
+                if EC.data_is_int(a_l_min) == 0:
+                    QMessageBox.warning(self, "Warning",
+                                        "All parameters to be entered. \n The value must be numerical.",
+                                        QMessageBox.Ok)
+                    test = 1
 
+            if a_l_max != "":
+                if EC.data_is_int(a_l_max) == 0:
+                    QMessageBox.warning(self, "Warning",
+                                        "All parameters to be entered. \n The value must be numerical.",
+                                        QMessageBox.Ok)
+                    test = 1
+
+            if ecto_min != "":
+                if EC.data_is_int(ecto_min) == 0:
+                    QMessageBox.warning(self, "Warning",
+                                        "All parameters to be entered. \n The value must be numerical.",
+                                        QMessageBox.Ok)
+                    test = 1
+
+            if ecto_max != "":
+                if EC.data_is_int(ecto_max) == 0:
+                    QMessageBox.warning(self, "Warning",
+                                        "All parameters to be entered. \n The value must be numerical.",
+                                        QMessageBox.Ok)
+                    test = 1
         return test
 
     def insert_new_rec(self):
@@ -1554,14 +2821,24 @@ class pyarchinit_Deteta(QDialog, MAIN_DIALOG_CLASS):
                 return 1
             except Exception as e:
                 e_str = str(e)
-                if e_str.__contains__("Integrity"):
-                    msg = self.ID_TABLE + " gia' presente nel database" + e_str
+                if e_str.__contains__("IntegrityError"):
+                    
+                    if self.L=='it':
+                        msg = self.ID_TABLE + " gia' presente nel database"
+                        QMessageBox.warning(self, "Error", "Error" + str(msg), QMessageBox.Ok)
+                    elif self.L=='de':
+                        msg = self.ID_TABLE + " bereits in der Datenbank"
+                        QMessageBox.warning(self, "Error", "Error" + str(msg), QMessageBox.Ok)  
+                    else:
+                        msg = self.ID_TABLE + " exist in db"
+                        QMessageBox.warning(self, "Error", "Error" + str(msg), QMessageBox.Ok)  
                 else:
                     msg = e
-                QMessageBox.warning(self, "Errore", "Attenzione 1 ! \n" + str(msg), QMessageBox.Ok)
+                    QMessageBox.warning(self, "Error", "Error 1 \n" + str(msg), QMessageBox.Ok)
                 return 0
+
         except Exception as e:
-            QMessageBox.warning(self, "Errore", "Attenzione 2 ! \n" + str(e), QMessageBox.Ok)
+            QMessageBox.warning(self, "Error", "Error 2 \n" + str(e), QMessageBox.Ok)
             return 0
 
     def check_record_state(self):
@@ -1569,13 +2846,23 @@ class pyarchinit_Deteta(QDialog, MAIN_DIALOG_CLASS):
         if ec == 1:
             return 1  # ci sono errori di immissione
         elif self.records_equal_check() == 1 and ec == 0:
-            self.update_if(
-                QMessageBox.warning(self, 'Errore', "Il record e' stato modificato. Vuoi salvare le modifiche?",
-                                    QMessageBox.Ok | QMessageBox.Cancel))
-            # self.charge_records() incasina lo stato trova
+            if self.L=='it':
+                self.update_if(
+                
+                    QMessageBox.warning(self, 'Errore', "Il record e' stato modificato. Vuoi salvare le modifiche?",
+                                        QMessageBox.Ok | QMessageBox.Cancel))
+            elif self.L=='de':
+                self.update_if(
+                    QMessageBox.warning(self, 'Errore', "Der Record wurde geändert. Möchtest du die Änderungen speichern?",
+                                        QMessageBox.Ok | QMessageBox.Cancel))
+            else:
+                self.update_if(
+                    QMessageBox.warning(self, "Error", "The record has been changed. You want to save the changes?",
+                                        QMessageBox.Ok | QMessageBox.Cancel))
+            # self.charge_records()
             return 0  # non ci sono errori di immissione
 
-            # insert new row into tableWidget
+            # records surf functions
 
     def on_pushButton_insert_row_rapporti_pressed(self):
         self.insert_new_row('self.tableWidget_rapporti')
@@ -1617,7 +2904,7 @@ class pyarchinit_Deteta(QDialog, MAIN_DIALOG_CLASS):
                 self.fill_fields(0)
                 self.set_rec_counter(self.REC_TOT, self.REC_CORR + 1)
             except Exception as e:
-                QMessageBox.warning(self, "Errore", str(e), QMessageBox.Ok)
+                QMessageBox.warning(self, "Error", str(e), QMessageBox.Ok)
 
     def on_pushButton_last_rec_pressed(self):
         if self.check_record_state() == 1:
@@ -1629,7 +2916,7 @@ class pyarchinit_Deteta(QDialog, MAIN_DIALOG_CLASS):
                 self.fill_fields(self.REC_CORR)
                 self.set_rec_counter(self.REC_TOT, self.REC_CORR + 1)
             except Exception as e:
-                QMessageBox.warning(self, "Errore", str(e), QMessageBox.Ok)
+                QMessageBox.warning(self, "Error", str(e), QMessageBox.Ok)
 
     def on_pushButton_prev_rec_pressed(self):
         if self.check_record_state() == 1:
@@ -1638,7 +2925,12 @@ class pyarchinit_Deteta(QDialog, MAIN_DIALOG_CLASS):
             self.REC_CORR = self.REC_CORR - 1
             if self.REC_CORR == -1:
                 self.REC_CORR = 0
-                QMessageBox.warning(self, "Errore", "Sei al primo record!", QMessageBox.Ok)
+                if self.L=='it':
+                    QMessageBox.warning(self, "Attenzione", "Sei al primo record!", QMessageBox.Ok)
+                elif self.L=='de':
+                    QMessageBox.warning(self, "Achtung", "du befindest dich im ersten Datensatz!", QMessageBox.Ok)
+                else:
+                    QMessageBox.warning(self, "Warning", "You are to the first record!", QMessageBox.Ok)        
             else:
                 try:
                     self.empty_fields()
@@ -1655,49 +2947,122 @@ class pyarchinit_Deteta(QDialog, MAIN_DIALOG_CLASS):
             self.REC_CORR = self.REC_CORR + 1
             if self.REC_CORR >= self.REC_TOT:
                 self.REC_CORR = self.REC_CORR - 1
-                QMessageBox.warning(self, "Errore", "Sei all'ultimo record!", QMessageBox.Ok)
+                if self.L=='it':
+                    QMessageBox.warning(self, "Attenzione", "Sei all'ultimo record!", QMessageBox.Ok)
+                elif self.L=='de':
+                    QMessageBox.warning(self, "Achtung", "du befindest dich im letzten Datensatz!", QMessageBox.Ok)
+                else:
+                    QMessageBox.warning(self, "Error", "You are to the first record!", QMessageBox.Ok)  
             else:
                 try:
                     self.empty_fields()
                     self.fill_fields(self.REC_CORR)
                     self.set_rec_counter(self.REC_TOT, self.REC_CORR + 1)
                 except Exception as e:
-                    QMessageBox.warning(self, "Errore", str(e), QMessageBox.Ok)
+                    QMessageBox.warning(self, "Error", str(e), QMessageBox.Ok)
         self.customize_GUI()
 
     def on_pushButton_delete_pressed(self):
-        msg = QMessageBox.warning(self, "Attenzione!!!",
-                                  "Vuoi veramente eliminare il record? \n L'azione è irreversibile",
-                                  QMessageBox.Ok | QMessageBox.Cancel)
-        if msg == QMessageBox.Cancel:
-            QMessageBox.warning(self, "Messagio!!!", "Azione Annullata!")
+        
+        if self.L=='it':
+            msg = QMessageBox.warning(self, "Attenzione!!!",
+                                      "Vuoi veramente eliminare il record? \n L'azione è irreversibile",
+                                      QMessageBox.Ok | QMessageBox.Cancel)
+            if msg == QMessageBox.Cancel:
+                QMessageBox.warning(self, "Messagio!!!", "Azione Annullata!")
+            else:
+                try:
+                    id_to_delete = eval("self.DATA_LIST[self.REC_CORR]." + self.ID_TABLE)
+                    self.DB_MANAGER.delete_one_record(self.TABLE_NAME, self.ID_TABLE, id_to_delete)
+                    self.charge_records()  # charge records from DB
+                    QMessageBox.warning(self, "Messaggio!!!", "Record eliminato!")
+                except Exception as e:
+                    QMessageBox.warning(self, "Messaggio!!!", "Tipo di errore: " + str(e))
+                if not bool(self.DATA_LIST):
+                    QMessageBox.warning(self, "Attenzione", "Il database è vuoto!", QMessageBox.Ok)
+                    self.DATA_LIST = []
+                    self.DATA_LIST_REC_CORR = []
+                    self.DATA_LIST_REC_TEMP = []
+                    self.REC_CORR = 0
+                    self.REC_TOT = 0
+                    self.empty_fields()
+                    self.set_rec_counter(0, 0)
+                    # check if DB is empty
+                if bool(self.DATA_LIST):
+                    self.REC_TOT, self.REC_CORR = len(self.DATA_LIST), 0
+                    self.DATA_LIST_REC_TEMP = self.DATA_LIST_REC_CORR = self.DATA_LIST[0]
+                    self.BROWSE_STATUS = "b"
+                    self.label_status.setText(self.STATUS_ITEMS[self.BROWSE_STATUS])
+                    self.set_rec_counter(len(self.DATA_LIST), self.REC_CORR + 1)
+                    self.charge_list()
+                    self.fill_fields()
+        elif self.L=='de':
+            msg = QMessageBox.warning(self, "Achtung!!!",
+                                      "Willst du wirklich diesen Eintrag löschen? \n Der Vorgang ist unumkehrbar",
+                                      QMessageBox.Ok | QMessageBox.Cancel)
+            if msg == QMessageBox.Cancel:
+                QMessageBox.warning(self, "Message!!!", "Aktion annulliert!")
+            else:
+                try:
+                    id_to_delete = eval("self.DATA_LIST[self.REC_CORR]." + self.ID_TABLE)
+                    self.DB_MANAGER.delete_one_record(self.TABLE_NAME, self.ID_TABLE, id_to_delete)
+                    self.charge_records()  # charge records from DB
+                    QMessageBox.warning(self, "Message!!!", "Record gelöscht!")
+                except Exception as e:
+                    QMessageBox.warning(self, "Messagge!!!", "Errortyp: " + str(e))
+                if not bool(self.DATA_LIST):
+                    QMessageBox.warning(self, "Achtung", "Die Datenbank ist leer!", QMessageBox.Ok)
+                    self.DATA_LIST = []
+                    self.DATA_LIST_REC_CORR = []
+                    self.DATA_LIST_REC_TEMP = []
+                    self.REC_CORR = 0
+                    self.REC_TOT = 0
+                    self.empty_fields()
+                    self.set_rec_counter(0, 0)
+                    # check if DB is empty
+                if bool(self.DATA_LIST):
+                    self.REC_TOT, self.REC_CORR = len(self.DATA_LIST), 0
+                    self.DATA_LIST_REC_TEMP = self.DATA_LIST_REC_CORR = self.DATA_LIST[0]
+                    self.BROWSE_STATUS = "b"
+                    self.label_status.setText(self.STATUS_ITEMS[self.BROWSE_STATUS])
+                    self.set_rec_counter(len(self.DATA_LIST), self.REC_CORR + 1)
+                    self.charge_list()
+                    self.fill_fields()
         else:
-            try:
-                id_to_delete = eval("self.DATA_LIST[self.REC_CORR]." + self.ID_TABLE)
-                self.DB_MANAGER.delete_one_record(self.TABLE_NAME, self.ID_TABLE, id_to_delete)
-                self.charge_records()  # charge records from DB
-                QMessageBox.warning(self, "Messaggio!!!", "Record eliminato!")
-            except Exception as e:
-                QMessageBox.warning(self, "Messaggio!!!", "Tipo di errore: " + str(e))
-            if not bool(self.DATA_LIST):
-                QMessageBox.warning(self, "Attenzione", "Il database è vuoto!", QMessageBox.Ok)
-                self.DATA_LIST = []
-                self.DATA_LIST_REC_CORR = []
-                self.DATA_LIST_REC_TEMP = []
-                self.REC_CORR = 0
-                self.REC_TOT = 0
-                self.empty_fields()
-                self.set_rec_counter(0, 0)
-                # check if DB is empty
-            if bool(self.DATA_LIST):
-                self.REC_TOT, self.REC_CORR = len(self.DATA_LIST), 0
-                self.DATA_LIST_REC_TEMP = self.DATA_LIST_REC_CORR = self.DATA_LIST[0]
-
-                self.BROWSE_STATUS = "b"
-                self.label_status.setText(self.STATUS_ITEMS[self.BROWSE_STATUS])
-                self.set_rec_counter(len(self.DATA_LIST), self.REC_CORR + 1)
-                self.charge_list()
-                self.fill_fields()
+            msg = QMessageBox.warning(self, "Warning!!!",
+                                      "Do you really want to break the record? \n Action is irreversible.",
+                                      QMessageBox.Ok | QMessageBox.Cancel)
+            if msg == QMessageBox.Cancel:
+                QMessageBox.warning(self, "Messagio!!!", "Action deleted!")
+            else:
+                try:
+                    id_to_delete = eval("self.DATA_LIST[self.REC_CORR]." + self.ID_TABLE)
+                    self.DB_MANAGER.delete_one_record(self.TABLE_NAME, self.ID_TABLE, id_to_delete)
+                    self.charge_records()  # charge records from DB
+                    QMessageBox.warning(self, "Messaggio!!!", "Record deleted!")
+                except Exception as e:
+                    QMessageBox.warning(self, "Messaggio!!!", "error type: " + str(e))
+                if not bool(self.DATA_LIST):
+                    QMessageBox.warning(self, "Attenzione", "the db is empty!", QMessageBox.Ok)
+                    self.DATA_LIST = []
+                    self.DATA_LIST_REC_CORR = []
+                    self.DATA_LIST_REC_TEMP = []
+                    self.REC_CORR = 0
+                    self.REC_TOT = 0
+                    self.empty_fields()
+                    self.set_rec_counter(0, 0)
+                    # check if DB is empty
+                if bool(self.DATA_LIST):
+                    self.REC_TOT, self.REC_CORR = len(self.DATA_LIST), 0
+                    self.DATA_LIST_REC_TEMP = self.DATA_LIST_REC_CORR = self.DATA_LIST[0]
+                    self.BROWSE_STATUS = "b"
+                    self.label_status.setText(self.STATUS_ITEMS[self.BROWSE_STATUS])
+                    self.set_rec_counter(len(self.DATA_LIST), self.REC_CORR + 1)
+                    self.charge_list()
+                    self.fill_fields()  
+            
+            
+            
         self.SORT_STATUS = "n"
         self.label_sort.setText(self.SORTED_ITEMS[self.SORT_STATUS])
         self.customize_GUI()
@@ -1726,8 +3091,15 @@ class pyarchinit_Deteta(QDialog, MAIN_DIALOG_CLASS):
 
     def on_pushButton_search_go_pressed(self):
         if self.BROWSE_STATUS != "f":
-            QMessageBox.warning(self, "ATTENZIONE", "Per eseguire una nuova ricerca clicca sul pulsante 'new search' ",
-                                QMessageBox.Ok)
+            if self.L=='it':
+                QMessageBox.warning(self, "ATTENZIONE", "Per eseguire una nuova ricerca clicca sul pulsante 'new search' ",
+                                    QMessageBox.Ok)
+            elif self.L=='de':
+                QMessageBox.warning(self, "ACHTUNG", "Um eine neue Abfrage zu starten drücke  'new search' ",
+                                    QMessageBox.Ok)
+            else:
+                QMessageBox.warning(self, "WARNING", "To perform a new search click on the 'new search' button ",
+                                    QMessageBox.Ok)
         else:
 
             # TableWidget
@@ -1810,11 +3182,21 @@ class pyarchinit_Deteta(QDialog, MAIN_DIALOG_CLASS):
             search_dict = u.remove_empty_items_fr_dict(search_dict)
 
             if not bool(search_dict):
-                QMessageBox.warning(self, "ATTENZIONE", "Non e' stata impostata alcuna ricerca!!!", QMessageBox.Ok)
+                if self.L=='it':
+                    QMessageBox.warning(self, "ATTENZIONE", "Non è stata impostata nessuna ricerca!!!", QMessageBox.Ok)
+                elif self.L=='de':
+                    QMessageBox.warning(self, "ACHTUNG", "Keine Abfrage definiert!!!", QMessageBox.Ok)
+                else:
+                    QMessageBox.warning(self, " WARNING", "No search has been set!!!", QMessageBox.Ok)      
             else:
                 res = self.DB_MANAGER.query_bool(search_dict, self.MAPPER_TABLE_CLASS)
                 if not bool(res):
-                    QMessageBox.warning(self, "ATTENZIONE", "Non e' stato trovato alcun record!", QMessageBox.Ok)
+                    if self.L=='it':
+                        QMessageBox.warning(self, "ATTENZIONE", "Non è stato trovato nessun record!", QMessageBox.Ok)
+                    elif self.L=='de':
+                        QMessageBox.warning(self, "ACHTUNG", "Keinen Record gefunden!", QMessageBox.Ok)
+                    else:
+                        QMessageBox.warning(self, "WARNING," "No record found!", QMessageBox.Ok)
 
                     self.set_rec_counter(len(self.DATA_LIST), self.REC_CORR + 1)
                     self.DATA_LIST_REC_TEMP = self.DATA_LIST_REC_CORR = self.DATA_LIST[0]
@@ -1833,18 +3215,43 @@ class pyarchinit_Deteta(QDialog, MAIN_DIALOG_CLASS):
                     self.label_status.setText(self.STATUS_ITEMS[self.BROWSE_STATUS])
                     self.set_rec_counter(len(self.DATA_LIST), self.REC_CORR + 1)
 
-                    if self.REC_TOT == 1:
-                        strings = ("E' stato trovato", self.REC_TOT, "record")
-                        if self.toolButtonGis.isChecked():
-                            id_us_list = self.charge_id_us_for_individuo()
-                            self.pyQGIS.charge_individui_us(id_us_list)
+                    if self.L=='it':
+                        if self.REC_TOT == 1:
+                            strings = ("E' stato trovato", self.REC_TOT, "record")
+                            if self.toolButtonGis.isChecked():
+                                id_us_list = self.charge_id_us_for_individuo()
+                                self.pyQGIS.charge_individui_us(id_us_list)
+                        else:
+                            strings = ("Sono stati trovati", self.REC_TOT, "records")
+                            if self.toolButtonGis.isChecked():
+                                id_us_list = self.charge_id_us_for_individuo()
+                                self.pyQGIS.charge_individui_us(id_us_list)
+                    
+                    elif self.L=='de':
+                        if self.REC_TOT == 1:
+                            strings = ("Es wurde gefunden", self.REC_TOT, "record")
+                            if self.toolButtonGis.isChecked():
+                                id_us_list = self.charge_id_us_for_individuo()
+                                self.pyQGIS.charge_individui_us(id_us_list)
+                        else:
+                            strings = ("Sie wurden gefunden", self.REC_TOT, "records")
+                            if self.toolButtonGis.isChecked():
+                                id_us_list = self.charge_id_us_for_individuo()
+                                self.pyQGIS.charge_individui_us(id_us_list)
+                    
                     else:
-                        strings = ("Sono stati trovati", self.REC_TOT, "records")
-                        if self.toolButtonGis.isChecked():
-                            id_us_list = self.charge_id_us_for_individuo()
-                            self.pyQGIS.charge_individui_us(id_us_list)
-
-                    QMessageBox.warning(self, "Messaggio", "%s %d %s" % strings, QMessageBox.Ok)
+                        if self.REC_TOT == 1:
+                            strings = ("It has been found", self.REC_TOT, "record")
+                            if self.toolButtonGis.isChecked():
+                                id_us_list = self.charge_id_us_for_individuo()
+                                self.pyQGIS.charge_individui_us(id_us_list)
+                        else:
+                            strings = ("They have been found", self.REC_TOT, "records")
+                            if self.toolButtonGis.isChecked():
+                                id_us_list = self.charge_id_us_for_individuo()
+                                self.pyQGIS.charge_individui_us(id_us_list)
+                    
+                    QMessageBox.warning(self, "Message", "%s %d %s" % strings, QMessageBox.Ok)
 
         self.enable_button_search(1)
         self.customize_GUI()
@@ -2268,12 +3675,12 @@ class pyarchinit_Deteta(QDialog, MAIN_DIALOG_CLASS):
                 self.lineEdit_ecto_max.setText(str(self.DATA_LIST[self.rec_num].ecto_max))
 
             """
-			if self.toolButtonPreview.isChecked() == True:
-				self.loadMapPreview()
-			"""
+            if self.toolButtonPreview.isChecked() == True:
+                self.loadMapPreview()
+            """
 
         except Exception as e:
-            QMessageBox.warning(self, "Errore", str(e), QMessageBox.Ok)
+            QMessageBox.warning(self, "Error", str(e), QMessageBox.Ok)
 
     def set_rec_counter(self, t, c):
         self.rec_tot = t
@@ -2654,9 +4061,19 @@ class pyarchinit_Deteta(QDialog, MAIN_DIALOG_CLASS):
                                    self.rec_toupdate())
             return 1
         except Exception as e:
-            QMessageBox.warning(self, "Messaggio",
-                                "Problema di encoding: sono stati inseriti accenti o caratteri non accettati dal database. Se chiudete ora la scheda senza correggere gli errori perderete i dati. Fare una copia di tutto su un foglio word a parte. Errore :" + str(
-                                    e), QMessageBox.Ok)
+            if self.L=='it':
+                QMessageBox.warning(self, "Messaggio",
+                                    "Problema di encoding: sono stati inseriti accenti o caratteri non accettati dal database. Se chiudete ora la scheda senza correggere gli errori perderete i dati. Fare una copia di tutto su un foglio word a parte. Errore :" + str(
+                                        e), QMessageBox.Ok)
+            elif self.L=='de':
+                QMessageBox.warning(self, "Message",
+                                    "encoding Problem: Sonderszeichen wurden in die Datenbank eingefügt. Nicht alle Sonderzeichen werden von der Datenbank akzepptiert. Bitte ändern. Wenn du das Formular ietzt schliesst gehen die Daten verloren.Erstelle eine Sicherungskopie in Word. Error :" + str(
+                                        e), QMessageBox.Ok) 
+
+            else:
+                QMessageBox.warning(self, "Message",
+                                    "encoding problem: accents or characters not accepted by the database have been inserted. If you close the card now without correcting the errors you will lose the data. Make a copy of everything on a separate word sheet. Error :" + str(
+                                        e), QMessageBox.Ok)                                 
             return 0
 
     def rec_toupdate(self):
@@ -2765,7 +4182,7 @@ class pyarchinit_Deteta(QDialog, MAIN_DIALOG_CLASS):
                 dlg.show_image(str(anthropo_images_path))  # item.data(QtCore.Qt.UserRole).toString()))
                 dlg.exec_()
             except Exception as e:
-                QMessageBox.warning(self, "Errore", "Attenzione 1 file: " + str(e), QMessageBox.Ok)
+                QMessageBox.warning(self, "Error",  "Warning1 file: " + str(e), QMessageBox.Ok)
 
         if n == 2:  # tavola sinfisi pubica maschile
             try:
@@ -2774,7 +4191,7 @@ class pyarchinit_Deteta(QDialog, MAIN_DIALOG_CLASS):
                 dlg.show_image(str(anthropo_images_path))  # item.data(QtCore.Qt.UserRole).toString()))
                 dlg.exec_()
             except Exception as e:
-                QMessageBox.warning(self, "Errore", "Attenzione 1 file: " + str(e), QMessageBox.Ok)
+                QMessageBox.warning(self, "Error",  "Warning1 file: " + str(e), QMessageBox.Ok)
 
         if n == 3:  # tavola sinfisi pubica femmminile Kimmerle
             try:
@@ -2783,7 +4200,7 @@ class pyarchinit_Deteta(QDialog, MAIN_DIALOG_CLASS):
                 dlg.show_image(str(anthropo_images_path))  # item.data(QtCore.Qt.UserRole).toString()))
                 dlg.exec_()
             except Exception as e:
-                QMessageBox.warning(self, "Errore", "Attenzione 1 file: " + str(e), QMessageBox.Ok)
+                QMessageBox.warning(self, "Error",  "Warning1 file: " + str(e), QMessageBox.Ok)
 
         if n == 4:  # tavola sinfisi pubica maschi Kimmerle
             try:
@@ -2792,7 +4209,7 @@ class pyarchinit_Deteta(QDialog, MAIN_DIALOG_CLASS):
                 dlg.show_image(str(anthropo_images_path))  # item.data(QtCore.Qt.UserRole).toString()))
                 dlg.exec_()
             except Exception as e:
-                QMessageBox.warning(self, "Errore", "Attenzione 1 file: " + str(e), QMessageBox.Ok)
+                QMessageBox.warning(self, "Error",  "Warning1 file: " + str(e), QMessageBox.Ok)
 
         if n == 5:  # tavola superficie auricolare SSPIA
             try:
@@ -2800,7 +4217,7 @@ class pyarchinit_Deteta(QDialog, MAIN_DIALOG_CLASS):
                 dlg.show_image(str(anthropo_images_path))  # item.data(QtCore.Qt.UserRole).toString()))
                 dlg.exec_()
             except Exception as e:
-                QMessageBox.warning(self, "Errore", "Attenzione 1 file: " + str(e), QMessageBox.Ok)
+                QMessageBox.warning(self, "Error",  "Warning1 file: " + str(e), QMessageBox.Ok)
 
         if n == 6:  # tavola superficie auricolare SSPIB
             try:
@@ -2808,7 +4225,7 @@ class pyarchinit_Deteta(QDialog, MAIN_DIALOG_CLASS):
                 dlg.show_image(str(anthropo_images_path))  # item.data(QtCore.Qt.UserRole).toString()))
                 dlg.exec_()
             except Exception as e:
-                QMessageBox.warning(self, "Errore", "Attenzione 1 file: " + str(e), QMessageBox.Ok)
+                QMessageBox.warning(self, "Error",  "Warning1 file: " + str(e), QMessageBox.Ok)
 
         if n == 7:  # tavola superficie auricolare SSPIC
             try:
@@ -2816,7 +4233,7 @@ class pyarchinit_Deteta(QDialog, MAIN_DIALOG_CLASS):
                 dlg.show_image(str(anthropo_images_path))  # item.data(QtCore.Qt.UserRole).toString()))
                 dlg.exec_()
             except Exception as e:
-                QMessageBox.warning(self, "Errore", "Attenzione 1 file: " + str(e), QMessageBox.Ok)
+                QMessageBox.warning(self, "Error",  "Warning1 file: " + str(e), QMessageBox.Ok)
 
         if n == 8:  # tavola superficie auricolare SSPID
             try:
@@ -2824,7 +4241,7 @@ class pyarchinit_Deteta(QDialog, MAIN_DIALOG_CLASS):
                 dlg.show_image(str(anthropo_images_path))  # item.data(QtCore.Qt.UserRole).toString()))
                 dlg.exec_()
             except Exception as e:
-                QMessageBox.warning(self, "Errore", "Attenzione 1 file: " + str(e), QMessageBox.Ok)
+                QMessageBox.warning(self, "Error",  "Warning1 file: " + str(e), QMessageBox.Ok)
 
         if n == 9:  # tavola usura dentaria mascellare superiore
             try:
@@ -2833,7 +4250,7 @@ class pyarchinit_Deteta(QDialog, MAIN_DIALOG_CLASS):
                 dlg.show_image(str(anthropo_images_path))  # item.data(QtCore.Qt.UserRole).toString()))
                 dlg.exec_()
             except Exception as e:
-                QMessageBox.warning(self, "Errore", "Attenzione 1 file: " + str(e), QMessageBox.Ok)
+                QMessageBox.warning(self, "Error",  "Warning1 file: " + str(e), QMessageBox.Ok)
 
         if n == 10:  # tavola usura dentaria mascellare inferiore
             try:
@@ -2842,7 +4259,7 @@ class pyarchinit_Deteta(QDialog, MAIN_DIALOG_CLASS):
                 dlg.show_image(str(anthropo_images_path))  # item.data(QtCore.Qt.UserRole).toString()))
                 dlg.exec_()
             except Exception as e:
-                QMessageBox.warning(self, "Errore", "Attenzione 1 file: " + str(e), QMessageBox.Ok)
+                QMessageBox.warning(self, "Error",  "Warning1 file: " + str(e), QMessageBox.Ok)
 
         if n == 11:  # tavola suture endocraniche
             try:
@@ -2851,7 +4268,7 @@ class pyarchinit_Deteta(QDialog, MAIN_DIALOG_CLASS):
                 dlg.show_image(str(anthropo_images_path))  # item.data(QtCore.Qt.UserRole).toString()))
                 dlg.exec_()
             except Exception as e:
-                QMessageBox.warning(self, "Errore", "Attenzione 1 file: " + str(e), QMessageBox.Ok)
+                QMessageBox.warning(self, "Error",  "Warning1 file: " + str(e), QMessageBox.Ok)
 
         if n == 12:  # tavola suture ectocraniche
             try:
@@ -2860,7 +4277,7 @@ class pyarchinit_Deteta(QDialog, MAIN_DIALOG_CLASS):
                 dlg.show_image(str(anthropo_images_path))  # item.data(QtCore.Qt.UserRole).toString()))
                 dlg.exec_()
             except Exception as e:
-                QMessageBox.warning(self, "Errore", "Attenzione 1 file: " + str(e), QMessageBox.Ok)
+                QMessageBox.warning(self, "Error",  "Warning1 file: " + str(e), QMessageBox.Ok)
 
     def on_pushButton_I_fase_pressed(self):
         query_res = self.sex_from_individuo_table()

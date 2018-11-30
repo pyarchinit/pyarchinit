@@ -7631,12 +7631,12 @@ p, li { white-space: pre-wrap; }
     <message>
         <location filename="../gui/ui/pyarchinitConfigDialog.ui" line="670"/>
         <source>INVENTARIO_MATERIALI</source>
-        <translation>ARTEFACT</translation>
+        <translation>ARTIFACT INVENTORY</translation>
     </message>
     <message>
         <location filename="../gui/ui/pyarchinitConfigDialog.ui" line="675"/>
         <source>STRUTTURA</source>
-        <translation>STRUCTURE</translation>
+        <translation>ARCHITECTURE</translation>
     </message>
     <message>
         <location filename="../gui/ui/pyarchinitConfigDialog.ui" line="680"/>
@@ -7651,7 +7651,7 @@ p, li { white-space: pre-wrap; }
     <message>
         <location filename="../gui/ui/pyarchinitConfigDialog.ui" line="690"/>
         <source>SCHEDAIND</source>
-        <translation>INDIVIDUAL</translation>
+        <translation>INDIVIDUAL FORM</translation>
     </message>
     <message>
         <location filename="../gui/ui/pyarchinitConfigDialog.ui" line="695"/>
@@ -7671,7 +7671,7 @@ p, li { white-space: pre-wrap; }
     <message>
         <location filename="../gui/ui/pyarchinitConfigDialog.ui" line="710"/>
         <source>CAMPIONI</source>
-        <translation>SAMPLE</translation>
+        <translation>SAMPLES</translation>
     </message>
     <message>
         <location filename="../gui/ui/pyarchinitConfigDialog.ui" line="715"/>
