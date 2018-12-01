@@ -776,8 +776,8 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
 
         periodo_list = []
 
-        if not periodo_vl:
-            return
+        #if not periodo_vl:
+            #return
 
         for i in range(len(periodo_vl)):
             periodo_list.append(str(periodo_vl[i].periodo))
@@ -807,8 +807,8 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
         periodo_vl = self.DB_MANAGER.query_bool(search_dict, 'PERIODIZZAZIONE')
         periodo_list = []
 
-        if not periodo_list:
-            return
+        #if not periodo_list:
+            #return
 
         for i in range(len(periodo_vl)):
             periodo_list.append(str(periodo_vl[i].periodo))
@@ -828,7 +828,71 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
                     self.comboBox_per_fin.setEditText(self.DATA_LIST[self.rec_num].periodo_iniziale)
                 except:
                     pass
+    
+    def charge_fase_iniz_list(self):
+        try:
+            search_dict = {
+                'sito': "'" + str(self.comboBox_sito.currentText()) + "'",
+                'periodo': "'" + str(self.comboBox_per_iniz.currentText()) + "'",
+            }
 
+            fase_list_vl = self.DB_MANAGER.query_bool(search_dict, 'PERIODIZZAZIONE')
+
+            fase_list = []
+
+            for i in range(len(fase_list_vl)):
+                fase_list.append(str(fase_list_vl[i].fase))
+
+            try:
+                fase_list.remove('')
+            except:
+                pass
+
+            self.comboBox_fas_iniz.clear()
+
+            fase_list.sort()
+            self.comboBox_fas_iniz.addItems(self.UTILITY.remove_dup_from_list(fase_list))
+
+            if self.STATUS_ITEMS[self.BROWSE_STATUS] == "Trova" or "Find":
+                self.comboBox_fas_iniz.setEditText("")
+            else:
+                self.comboBox_fas_iniz.setEditText(self.DATA_LIST[self.rec_num].fase_iniziale)
+        except:
+            pass
+
+
+    def charge_fase_fin_list(self):
+        try:
+            search_dict = {
+                'sito': "'" + str(self.comboBox_sito.currentText()) + "'",
+                'periodo': "'" + str(self.comboBox_per_fin.currentText()) + "'",
+            }
+
+            fase_list_vl = self.DB_MANAGER.query_bool(search_dict, 'PERIODIZZAZIONE')
+
+            fase_list = []
+
+            for i in range(len(fase_list_vl)):
+                fase_list.append(str(fase_list_vl[i].fase))
+
+            try:
+                fase_list.remove('')
+            except:
+                pass
+
+            self.comboBox_fas_fin.clear()
+            fase_list.sort()
+            self.comboBox_fas_fin.addItems(self.UTILITY.remove_dup_from_list(fase_list))
+
+            if self.STATUS_ITEMS[self.BROWSE_STATUS] == "Trova" or "Find":
+                self.comboBox_fas_fin.setEditText("")
+            else:
+                self.comboBox_fas_fin.setEditText(self.DATA_LIST[self.rec_num].fase_finale)
+        except:
+            pass
+
+            # buttons functions
+    
     def on_pushButton_draw_doc_pressed(self):
         sito = str(self.comboBox_sito.currentText())
         area = str(self.comboBox_area.currentText())
@@ -1765,66 +1829,7 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
         self.comboBox_responsabile_us.addItems(responsabile_us_vl)
 
 
-    def charge_fase_iniz_list(self):
-        try:
-            search_dict = {
-                'sito': "'" + str(self.comboBox_sito.currentText()) + "'",
-                'periodo': "'" + str(self.comboBox_per_iniz.currentText()) + "'",
-            }
-
-            fase_list_vl = self.DB_MANAGER.query_bool(search_dict, 'PERIODIZZAZIONE')
-
-            fase_list = []
-
-            for i in range(len(fase_list_vl)):
-                fase_list.append(str(fase_list_vl[i].fase))
-            try:
-                fase_list.remove('')
-            except:
-                pass
-
-            self.comboBox_fas_iniz.clear()
-
-            fase_list.sort()
-            self.comboBox_fas_iniz.addItems(self.UTILITY.remove_dup_from_list(fase_list))
-
-            if self.STATUS_ITEMS[self.BROWSE_STATUS] == "Trova" or "Find":
-                self.comboBox_fas_iniz.setEditText("")
-            else:
-                self.comboBox_fas_iniz.setEditText(self.DATA_LIST[self.rec_num].fase_iniziale)
-        except:
-            pass
-
-    def charge_fase_fin_list(self):
-        try:
-            search_dict = {
-                'sito': "'" + str(self.comboBox_sito.currentText()) + "'",
-                'periodo': "'" + str(self.comboBox_per_fin.currentText()) + "'",
-            }
-
-            fase_list_vl = self.DB_MANAGER.query_bool(search_dict, 'PERIODIZZAZIONE')
-
-            fase_list = []
-
-            for i in range(len(fase_list_vl)):
-                fase_list.append(str(fase_list_vl[i].fase))
-            try:
-                fase_list.remove('')
-            except:
-                pass
-
-            self.comboBox_fas_fin.clear()
-            fase_list.sort()
-            self.comboBox_fas_fin.addItems(self.UTILITY.remove_dup_from_list(fase_list))
-
-            if self.STATUS_ITEMS[self.BROWSE_STATUS] == "Trova" or "Find":
-                self.comboBox_fas_fin.setEditText("")
-            else:
-                self.comboBox_fas_fin.setEditText(self.DATA_LIST[self.rec_num].fase_finale)
-        except:
-            pass
-
-            # buttons functions
+    
 
     def generate_list_pdf(self):
         data_list = []
