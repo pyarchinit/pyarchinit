@@ -24,6 +24,7 @@ import os
 from builtins import range
 from builtins import str
 from qgis.PyQt.QtWidgets import QApplication, QDialog, QMessageBox, QFileDialog
+
 from qgis.PyQt.uic import loadUiType
 from qgis.core import QgsApplication, QgsSettings, QgsProject
 
@@ -32,12 +33,13 @@ from modules.db.pyarchinit_db_manager import Pyarchinit_db_management
 from modules.db.pyarchinit_db_update import DB_update
 from modules.utility.pyarchinit_OS_utility import Pyarchinit_OS_Utility
 from modules.db.db_createdump import CreateDatabase, RestoreSchema, DropDatabase
-
+from modules.utility.pyarchinit_print_utility import Print_utility
 MAIN_DIALOG_CLASS, _ = loadUiType(os.path.join(os.path.dirname(__file__), 'ui', 'pyarchinitConfigDialog.ui'))
 
 
 class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
     L=QgsSettings().value("locale/userLocale")[0:2]
+    
     HOME = os.environ['PYARCHINIT_HOME']
 
     PARAMS_DICT = {'SERVER': '',
@@ -50,8 +52,10 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
                    'EXPERIMENTAL': ''}
 
     def __init__(self, parent=None, db=None):
+       
         QDialog.__init__(self, parent)
         # Set up the user interface from Designer.
+        
         self.setupUi(self)
 
         s = QgsSettings()
@@ -249,6 +253,8 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
             else:
                 QMessageBox.warning(self, "INFO", "The DB exist already", QMessageBox.Ok)       
     def on_pushButton_crea_database_sl_pressed(self):
+        
+        
         db_file = os.path.join(os.path.dirname(__file__), os.pardir, 'resources', 'dbfiles',
                                    'pyarchinit.sqlite')
 
@@ -296,6 +302,9 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
                 QMessageBox.warning(self, "INFO", "die Datenbank existiert", QMessageBox.Ok)
             else:
                 QMessageBox.warning(self, "INFO", "The Database exsist already", QMessageBox.Ok)    
+    
+    
+    
     def on_pushButton_crea_layer_pressed(self):
         import time
         try:
@@ -411,6 +420,7 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
     def test_def(self):
         pass
 
+    
     def on_pushButton_import_pressed(self):
         if self.L=='it':
             id_table_class_mapper_conv_dict = {
