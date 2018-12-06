@@ -30,7 +30,7 @@ from sqlalchemy import and_, or_, Table, select, func, asc
 from sqlalchemy.engine import create_engine
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.sql.schema import MetaData
-from qgis.core import QgsMessageLog, Qgis
+from qgis.core import QgsMessageLog, Qgis, QgsSettings
 from qgis.utils import iface
 
 from modules.db.pyarchinit_db_mapper import US, UT, SITE, PERIODIZZAZIONE, \
@@ -1144,15 +1144,18 @@ class Pyarchinit_db_management(object):
 
         return res_list
 
-    def insert_arbitrary_number_of_us_records(self, us_range, sito, area, n_us):
+    def insert_arbitrary_number_of_us_records(self, us_range, sito, area, n_us, unita_tipo):
         id_us = self.max_num_id('US', 'id_us')
+        
+        l=QgsSettings().value("locale/userLocale")[0:2]
         for i in range(us_range):
             id_us += 1
             n_us += 1
-
+            
             data_ins = self.insert_values(id_us, sito, area, n_us, '', '', '', '', '', '', '', '', '', '', '', '', '[]',
-                                          '[]', '[]', '', '', '', '', '', '', '', '', '0', '[]', 'US', '', '', '', '',
-                                          '', '', '', '', '', '', '', '', '', None, None, '', '', '', '', '', '[]')
+                                          '[]', '[]', '', '', '', '', '', '', '', '', '0', '[]', unita_tipo, '', '', '', '',
+                                          '', '', '', '', '', '', '', '', '', None, None, '', '[]','[]', '[]', '[]', '[]','','','','',None,None,'','','','','','','[]','[]',None,None,None,None,None,None,None,None,None,None,'','','','','','','','','','',None,None,None,'','','','','','','','')
+                                           
             self.insert_data_session(data_ins)
 
     def select_like_from_db_sql(self, rapp_list, us_rapp_list):
@@ -1187,7 +1190,7 @@ class Pyarchinit_db_management(object):
 
     def select_not_like_from_db_sql(self, sitof, areaf):
         # NB per funzionare con postgres è necessario che al posto di " ci sia '
-        #l=QgsSettings().value("locale/userLocale")[0:2]
+        l=QgsSettings().value("locale/userLocale")[0:2]
         Session = sessionmaker(bind=self.engine, autoflush=True, autocommit=True)
         session = Session()
         
@@ -1217,7 +1220,7 @@ def main():
     db = Pyarchinit_db_management('sqlite:////Users//Luca//pyarchinit_DB_folder//pyarchinit_db.sqlite')
     db.connection()
 
-    db.insert_arbitrary_number_of_records(10, 'Giorgio', 1, 1)  # us_range, sito, area, n_us)
+    db.insert_arbitrary_number_of_records(10, 'Giorgio', 1, 1, 'US')  # us_range, sito, area, n_us)
 
 
 if __name__ == '__main__':
