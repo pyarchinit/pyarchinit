@@ -250,48 +250,12 @@ CREATE OR REPLACE VIEW public.pyarchinit_tipologie_view AS
 ALTER TABLE public.pyarchinit_tipologie_view
     OWNER TO postgres;
 
+
 -- View: public.pyarchinit_us_view
 
 -- DROP VIEW public.pyarchinit_us_view;
 
 CREATE OR REPLACE VIEW public.pyarchinit_us_view AS
- SELECT pyunitastratigrafiche.gid,
-    pyunitastratigrafiche.the_geom,
-    pyunitastratigrafiche.tipo_us_s,
-    pyunitastratigrafiche.scavo_s,
-    pyunitastratigrafiche.area_s,
-    pyunitastratigrafiche.us_s,
-    pyunitastratigrafiche.stratigraph_index_us,
-    us_table.id_us,
-    us_table.sito,
-    us_table.area,
-    us_table.us,
-    us_table.struttura,
-    us_table.d_stratigrafica AS definizione_stratigrafica,
-    us_table.d_interpretativa AS definizione_interpretativa,
-    us_table.descrizione,
-    us_table.interpretazione,
-    us_table.rapporti,
-    us_table.periodo_iniziale,
-    us_table.fase_iniziale,
-    us_table.periodo_finale,
-    us_table.fase_finale,
-    us_table.anno_scavo,
-    us_table.cont_per,
-    us_table.order_layer,
-    us_table.attivita
-   FROM pyunitastratigrafiche
-     JOIN us_table ON pyunitastratigrafiche.scavo_s::text = us_table.sito AND pyunitastratigrafiche.area_s::text = us_table.area::text AND pyunitastratigrafiche.us_s = us_table.us
-  ORDER BY us_table.order_layer, pyunitastratigrafiche.stratigraph_index_us DESC, pyunitastratigrafiche.gid;
-
-ALTER TABLE public.pyarchinit_us_view
-    OWNER TO postgres;
-
--- View: public.pyarchinit_us_view_f
-
--- DROP VIEW public.pyarchinit_us_view_f;
-
-CREATE OR REPLACE VIEW public.pyarchinit_us_view_f AS
  SELECT pyunitastratigrafiche.gid,
     pyunitastratigrafiche.the_geom,
     pyunitastratigrafiche.tipo_us_s,
@@ -306,27 +270,105 @@ CREATE OR REPLACE VIEW public.pyarchinit_us_view_f AS
     pyunitastratigrafiche.nome_doc,
     us_table.id_us,
     us_table.sito,
-    us_table.area,
-    us_table.us,
-    us_table.struttura,
-    us_table.d_stratigrafica AS definizione_stratigrafica,
-    us_table.d_interpretativa AS definizione_interpretativa,
-    us_table.descrizione,
-    us_table.interpretazione,
-    us_table.rapporti,
-    us_table.periodo_iniziale,
-    us_table.fase_iniziale,
-    us_table.periodo_finale,
-    us_table.fase_finale,
-    us_table.anno_scavo,
-    us_table.cont_per,
-    us_table.order_layer,
-    us_table.attivita
+	us_table.area,
+	us_table.us,
+	us_table.d_stratigrafica,
+	us_table.d_interpretativa,
+	us_table.descrizione,
+	us_table.interpretazione,
+	us_table.periodo_iniziale,
+	us_table.fase_iniziale,
+	us_table.periodo_finale,
+	us_table.fase_finale,
+	us_table.scavato,
+	us_table.attivita,
+	us_table.anno_scavo,
+	us_table.metodo_di_scavo,
+	us_table.inclusi,
+	us_table.campioni,
+	us_table.rapporti,
+	us_table.data_schedatura,
+	us_table.schedatore,
+	us_table.formazione,
+	us_table.stato_di_conservazione,
+	us_table.colore,
+	us_table.consistenza,
+	us_table.struttura,
+	us_table.cont_per,
+	us_table.order_layer,
+	us_table.documentazione,
+	us_table.unita_tipo,
+	us_table.settore,
+	us_table.quad_par,
+	us_table.ambient,
+	us_table.saggio,
+	us_table.elem_datanti,
+	us_table.funz_statica,
+	us_table.lavorazione,
+	us_table.spess_giunti,
+	us_table.letti_posa,
+	us_table.alt_mod,
+	us_table.un_ed_riass,
+	us_table.reimp,
+	us_table.posa_opera,
+	us_table.quota_min_usm,
+	us_table.quota_max_usm,
+	us_table.cons_legante,
+	us_table.col_legante,
+	us_table.aggreg_legante,
+	us_table.con_text_mat,
+	us_table.col_materiale,
+	us_table.inclusi_materiali_usm,
+	us_table.n_catalogo_generale,
+	us_table.n_catalogo_interno,
+	us_table.n_catalogo_internazionale,
+	us_table.soprintendenza,
+	us_table.quota_relativa,
+	us_table.quota_abs,
+	us_table.ref_tm,
+	us_table.ref_ra,
+	us_table.ref_n,
+	us_table.posizione,
+	us_table.criteri_distinzione,
+	us_table.modo_formazione,
+	us_table.componenti_organici,
+	us_table.componenti_inorganici,
+	us_table.lunghezza_max,
+	us_table.altezza_max,
+	us_table.altezza_min,
+	us_table.profondita_max,
+	us_table.profondita_min,
+	us_table.larghezza_media,
+	us_table.quota_max_abs,
+	us_table.quota_max_rel,
+	us_table.quota_min_abs,
+	us_table.quota_min_rel,
+	us_table.osservazioni,
+	us_table.datazione,
+	us_table.flottazione,
+	us_table.setacciatura,
+	us_table.affidabilita,
+	us_table.direttore_us,
+	us_table.responsabile_us,
+	us_table.cod_ente_schedatore,
+	us_table.data_rilevazione,
+	us_table.data_rielaborazione,
+	us_table.lunghezza_usm,
+	us_table.altezza_usm,
+	us_table.spessore_usm,
+	us_table.tecnica_muraria_usm,
+	us_table.modulo_usm,
+	us_table.campioni_malta_usm,
+	us_table.campioni_mattone_usm,
+	us_table.campioni_pietra_usm,
+	us_table.provenienza_materiali_usm,
+	us_table.criteri_distinzione_usm,
+	us_table.uso_primario_usm
    FROM pyunitastratigrafiche
      JOIN us_table ON pyunitastratigrafiche.scavo_s::text = us_table.sito AND pyunitastratigrafiche.area_s::text = us_table.area::text AND pyunitastratigrafiche.us_s = us_table.us
   ORDER BY us_table.order_layer, pyunitastratigrafiche.stratigraph_index_us DESC, pyunitastratigrafiche.gid;
 
-ALTER TABLE public.pyarchinit_us_view_f
+ALTER TABLE public.pyarchinit_us_view
     OWNER TO postgres;
 
 -- View: public.pyarchinit_uscaratterizzazioni_view
@@ -362,3 +404,150 @@ CREATE OR REPLACE VIEW public.pyarchinit_uscaratterizzazioni_view AS
 ALTER TABLE public.pyarchinit_uscaratterizzazioni_view
     OWNER TO postgres;
 
+
+CREATE OR REPLACE VIEW pyarchinit_doc_view AS 
+ SELECT a.id_documentazione,
+    a.sito,
+    a.nome_doc,
+    a.data,
+    a.tipo_documentazione,
+    a.sorgente,
+    a.scala,
+    a.disegnatore,
+    a.note,
+    b.gid,
+    b.sito AS sito_1,
+    b.nome_doc AS nome_doc_1,
+    b.tipo_doc,
+    b.path_qgis_pj,
+    b.the_geom
+   FROM documentazione_table a
+     JOIN pyarchinit_documentazione b ON a.sito ::text = b.sito AND a.nome_doc ::text = b.nome_doc AND a.tipo_documentazione ::text = b.tipo_doc;
+
+ALTER TABLE pyarchinit_doc_view
+  OWNER TO postgres;
+
+CREATE OR REPLACE VIEW pyarchinit_site_view AS 
+ SELECT 
+    sito,
+	nazione,
+    comune,
+    provincia,
+    descrizione,
+    definizione_sito,
+	gid,
+    the_geom,
+    sito_nome
+   FROM site_table
+     JOIN pyarchinit_siti ON sito ::text = sito_nome;
+
+ALTER TABLE pyarchinit_site_view
+  OWNER TO postgres;  
+  
+CREATE OR REPLACE VIEW pyarchinit_site_polygonal_view AS 
+ SELECT 
+    sito,
+	nazione,
+    comune,
+    provincia,
+    descrizione,
+    definizione_sito,
+	gid,
+    the_geom,
+    sito_id
+   FROM site_table
+     JOIN pyarchinit_siti_polygonal ON sito ::text = sito_id;
+
+ALTER TABLE pyarchinit_site_polygonal_view
+  OWNER TO postgres;    
+  
+	
+CREATE OR REPLACE VIEW public.pyarchinit_doc_view_b AS SELECT 
+	gid AS gid, 
+	area_s AS area_s,
+	scavo_s AS scavo_s,
+	us_s AS us_s,
+	stratigraph_index_us AS stratigraph_index_us,
+	tipo_us_s AS tipo_us_s, 
+	rilievo_orginale AS rilievo_orginale,
+	disegnatore AS disegnatore, 
+	data AS data,
+	tipo_doc AS tipo_doc, 
+	nome_doc AS nome_doc,
+	the_geom AS the_geom,
+	gid AS gid_1,
+	id_us AS id_us, 
+	sito AS sito, 
+	area AS area,
+	us AS us, 
+	d_stratigrafica AS d_stratigrafica,
+	d_interpretativa AS d_interpretativa, 
+	descrizione AS descrizione,
+	interpretazione AS interpretazione, 
+	periodo_iniziale AS periodo_iniziale,
+	fase_iniziale AS fase_iniziale, 
+	periodo_finale AS periodo_finale,
+	fase_finale AS fase_finale, 
+	scavato AS scavato,
+	attivita AS attivita, 
+	anno_scavo AS anno_scavo,
+	metodo_di_scavo AS metodo_di_scavo, 
+	inclusi AS inclusi,
+	campioni AS campioni, 
+	rapporti AS rapporti,
+	data_schedatura AS data_schedatura, 
+	schedatore AS schedatore,
+	formazione AS formazione, 
+	stato_di_conservazione AS stato_di_conservazione,
+	colore AS colore, 
+	consistenza AS consistenza,
+	struttura AS struttura, 
+	cont_per AS cont_per,
+	order_layer AS order_layer, 
+	documentazione AS documentazione
+	FROM pyunitastratigrafiche AS a
+	JOIN us_table ON scavo_s ::text = sito AND area_s ::text = area AND us_s  = us;
+	ALTER TABLE public.pyarchinit_doc_view_b OWNER TO postgres;
+
+	CREATE OR REPLACE VIEW public.pyarchinit_us_negative_doc_view AS SELECT 
+	gid,
+	sito_n ,
+	area_n ,
+	us_n , 
+	tipo_doc_n ,
+	nome_doc_n ,
+	the_geom,
+	id_us ,
+	sito ,
+	us ,
+	d_stratigrafica ,
+	d_interpretativa ,
+	descrizione ,
+	interpretazione ,
+	periodo_iniziale ,
+	fase_iniziale ,
+	periodo_finale , 
+	fase_finale ,
+	scavato ,
+	attivita,
+	anno_scavo ,
+	metodo_di_scavo ,
+	inclusi ,
+	campioni ,
+	rapporti ,
+	data_schedatura ,
+	schedatore ,
+	formazione ,
+	stato_di_conservazione ,
+	colore ,
+	consistenza,
+	struttura,
+	cont_per ,
+	order_layer ,
+	documentazione 
+	FROM pyarchinit_us_negative_doc 
+	JOIN us_table ON  sito_n ::text = sito AND area_n ::text = area AND us_n = us;
+
+
+ALTER TABLE public.pyarchinit_us_negative_doc_view
+    OWNER TO postgres;
