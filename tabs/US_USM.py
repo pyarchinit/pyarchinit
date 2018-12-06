@@ -2497,7 +2497,7 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
         if self.DATA_LIST:
             if self.data_error_check() == 1:
                 pass
-            else:
+            '''else:
                 if self.BROWSE_STATUS == "b":
                     if self.DATA_LIST:
                         if self.records_equal_check() == 1:
@@ -2512,7 +2512,7 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
                             else:
                                 self.update_if(QMessageBox.warning(self, 'Error',
                                                                    "The record has been changed. Do you want to save the changes?",
-                                                                   QMessageBox.Ok | QMessageBox.Cancel))
+                                                                   QMessageBox.Ok | QMessageBox.Cancel))'''
         if self.BROWSE_STATUS != "n":
             self.BROWSE_STATUS = "n"
             self.label_status.setText(self.STATUS_ITEMS[self.BROWSE_STATUS])
@@ -3570,73 +3570,43 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
                 self.set_rec_counter(self.REC_TOT, self.REC_CORR + 1)
             except Exception as e:
                 QMessageBox.warning(self, "Error", str(e), QMessageBox.Ok)
-                ##
-                ##  def on_pushButton_prev_rec_pressed(self):
-                ##      if self.check_record_state() == 1:
-                ##          pass
-                ##      else:
-                ##          self.REC_CORR = self.REC_CORR-1
-                ##          if self.REC_CORR == -1:
-                ##              self.REC_CORR = 0
-                ##              QMessageBox.warning(self, "Errore", "Sei al primo record!",  QMessageBox.Ok)
-                ##          else:
-                ##              try:
-                ##                  self.empty_fields()
-                ##                  self.fill_fields(self.REC_CORR)
-                ##                  self.set_rec_counter(self.REC_TOT, self.REC_CORR+1)
-                ##              except Exception, e:
-                ##                  QMessageBox.warning(self, "Errore", str(e),  QMessageBox.Ok)
-                ##
+               
 
     def on_pushButton_prev_rec_pressed(self):
         rec_goto = int(self.lineEdit_goto.text())
-        if self.check_record_state() == 1:
-            pass
+        #if self.check_record_state() == 1:
+            #pass
+        #else:
+        self.REC_CORR = self.REC_CORR - rec_goto
+        if self.REC_CORR <= -1:
+            self.REC_CORR = self.REC_CORR + rec_goto
+            #QMessageBox.warning(self, "Attenzione", "Numero troppo elevato!", QMessageBox.Ok)
         else:
-            self.REC_CORR = self.REC_CORR - rec_goto
-            if self.REC_CORR <= -1:
-                self.REC_CORR = self.REC_CORR + rec_goto
-                #QMessageBox.warning(self, "Attenzione", "Numero troppo elevato!", QMessageBox.Ok)
-            else:
-                try:
-                    self.empty_fields()
-                    self.fill_fields(self.REC_CORR)
-                    self.set_rec_counter(self.REC_TOT, self.REC_CORR + 1)
-                except Exception as e:
-                    QMessageBox.warning(self, "Error", str(e), QMessageBox.Ok)
+            try:
+                self.empty_fields()
+                self.fill_fields(self.REC_CORR)
+                self.set_rec_counter(self.REC_TOT, self.REC_CORR + 1)
+            except Exception as e:
+                pass#QMessageBox.warning(self, "Error", str(e), QMessageBox.Ok)
 
-                    ##  def on_pushButton_next_rec_pressed(self):
-                    ##      if self.check_record_state() == 1:
-                    ##          pass
-                    ##      else:
-                    ##          self.REC_CORR = self.REC_CORR+1
-                    ##          if self.REC_CORR >= self.REC_TOT:
-                    ##              self.REC_CORR = self.REC_CORR-1
-                    ##              QMessageBox.warning(self, "Errore", "Sei all'ultimo record!",  QMessageBox.Ok)
-                    ##          else:
-                    ##              try:
-                    ##                  self.empty_fields()
-                    ##                  self.fill_fields(self.REC_CORR)
-                    ##                  self.set_rec_counter(self.REC_TOT, self.REC_CORR+1)
-                    ##              except Exception, e:
-                    ##                  QMessageBox.warning(self, "Errore", str(e),  QMessageBox.Ok)
+                  
 
     def on_pushButton_next_rec_pressed(self):
         rec_goto = int(self.lineEdit_goto.text())
-        if self.check_record_state() == 1:
-            pass
+        #if self.check_record_state() == 1:
+            #pass
+        #else:
+        self.REC_CORR = self.REC_CORR + rec_goto
+        if self.REC_CORR >= self.REC_TOT:
+            self.REC_CORR = self.REC_CORR - rec_goto
+            #QMessageBox.warning(self, "Attenzione", "Numero troppo elevato!", QMessageBox.Ok)
         else:
-            self.REC_CORR = self.REC_CORR + rec_goto
-            if self.REC_CORR >= self.REC_TOT:
-                self.REC_CORR = self.REC_CORR - rec_goto
-                #QMessageBox.warning(self, "Attenzione", "Numero troppo elevato!", QMessageBox.Ok)
-            else:
-                try:
-                    self.empty_fields()
-                    self.fill_fields(self.REC_CORR)
-                    self.set_rec_counter(self.REC_TOT, self.REC_CORR + 1)
-                except Exception as e:
-                    QMessageBox.warning(self, "Error", str(e), QMessageBox.Ok)
+            try:
+                self.empty_fields()
+                self.fill_fields(self.REC_CORR)
+                self.set_rec_counter(self.REC_TOT, self.REC_CORR + 1)
+            except Exception as e:
+                pass#QMessageBox.warning(self, "Error", str(e), QMessageBox.Ok)
 
     def on_pushButton_delete_pressed(self):
         
