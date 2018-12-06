@@ -31,8 +31,9 @@ from qgis.core import QgsApplication, QgsSettings, QgsProject
 from modules.db.pyarchinit_conn_strings import Connection
 from modules.db.pyarchinit_db_manager import Pyarchinit_db_management
 from modules.db.pyarchinit_db_update import DB_update
-from modules.utility.pyarchinit_OS_utility import Pyarchinit_OS_Utility
 from modules.db.db_createdump import CreateDatabase, RestoreSchema, DropDatabase
+from modules.utility.pyarchinit_OS_utility import Pyarchinit_OS_Utility
+
 from modules.utility.pyarchinit_print_utility import Print_utility
 MAIN_DIALOG_CLASS, _ = loadUiType(os.path.join(os.path.dirname(__file__), 'ui', 'pyarchinitConfigDialog.ui'))
 
