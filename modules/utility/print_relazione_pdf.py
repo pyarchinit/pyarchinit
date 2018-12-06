@@ -37,8 +37,7 @@ from reportlab.platypus.paragraph import Paragraph
 
 from .pyarchinit_OS_utility import *
 from reportlab.rl_config import defaultPageSize
-from docx import Document
-from docx.shared import Inches
+
 
 
 ##############################################################
