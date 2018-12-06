@@ -779,10 +779,18 @@ class pyarchinit_Thesaurus(QDialog, MAIN_DIALOG_CLASS):
             self.label_sort.setText(self.SORTED_ITEMS[self.SORT_STATUS])
 
     def on_pushButton_sigle_pressed(self):
-        filepath = os.path.dirname(__file__)
-        filepath = os.path.join(filepath, 'thesaurus_notes.txt')
-        os.startfile(filepath)
-
+        if self.L=='it':    
+            filepath = os.path.dirname(__file__)
+            filepath = os.path.join(filepath, 'codici_it.pdf')
+            os.startfile(filepath)
+        elif self.L=='de':  
+            filepath = os.path.dirname(__file__)
+            filepath = os.path.join(filepath, 'codici_de.pdf')
+            os.startfile(filepath)
+        else:
+            filepath = os.path.dirname(__file__)
+            filepath = os.path.join(filepath, 'codici_en.pdf')
+            os.startfile(filepath)
     def on_pushButton_new_search_pressed(self):
         if self.check_record_state() == 1:
             pass
