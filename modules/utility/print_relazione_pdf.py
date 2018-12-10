@@ -3,7 +3,7 @@
 """
 /***************************************************************************
         pyArchInit Plugin  - A QGIS plugin to manage archaeological dataset
-        					 stored in Postgres
+                             stored in Postgres
                              -------------------
     begin                : 2007-12-01
     copyright            : (C) 2008 by Luca Mandolesi
@@ -11,11 +11,11 @@
  ***************************************************************************/
 
 /***************************************************************************
- *                                                                         	*
- *   This program is free software; you can redistribute it and/or modify 	*
- *   it under the terms of the GNU General Public License as published by  	*
- *   the Free Software Foundation; either version 2 of the License, or    	*
- *   (at your option) any later version.                                  	*																		*
+ *                                                                          *
+ *   This program is free software; you can redistribute it and/or modify   *
+ *   it under the terms of the GNU General Public License as published by   *
+ *   the Free Software Foundation; either version 2 of the License, or      *
+ *   (at your option) any later version.                                    *                                                                       *
  ***************************************************************************/
 """
 
@@ -30,21 +30,24 @@ from ..db.pyarchinit_db_manager import Pyarchinit_db_management
 from reportlab.lib.enums import TA_JUSTIFY, TA_CENTER
 from reportlab.lib.pagesizes import A4
 from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
-from reportlab.lib.units import inch
+from reportlab.lib.units import inch, cm, mm
 from reportlab.pdfgen import canvas
-from reportlab.platypus import PageBreak
-from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer, Image
+from reportlab.platypus import Table, PageBreak, SimpleDocTemplate, Spacer, TableStyle, Image
+from reportlab.platypus.paragraph import Paragraph
+
+from .pyarchinit_OS_utility import *
 from reportlab.rl_config import defaultPageSize
+
 
 
 ##############################################################
 #####MODELLO RELAZIONE
 ##### PROBLEMATICA AREE DIFFERENTI
 #####Sezione 1 - COPERTINA
-####	In altro al centro il logo
-####	Titolo
-####	Immagine che definisce lo scavo
-####	in fondo mese anno
+####    In altro al centro il logo
+####    Titolo
+####    Immagine che definisce lo scavo
+####    in fondo mese anno
 ##
 ###Sezione 2 - SITO
 ####Dati del sito: nome,comune, provincia, regione, nazione
@@ -173,7 +176,16 @@ class exp_rel_pdf(object):
 
     def export_rel_pdf(self):
         Story = []
-        logo = os.path.join("..", "..", "iconadarte.png")
+        home = os.environ['PYARCHINIT_HOME']
+
+        home_DB_path = '{}{}{}'.format(home, os.sep, 'pyarchinit_DB_folder')
+        logo_path = '{}{}{}'.format(home_DB_path, os.sep, 'logo.jpg')
+        logo = Image(logo_path)
+
+        ##      if test_image.drawWidth < 800:
+
+        logo.drawHeight = 1.5 * inch * logo.drawHeight / logo.drawWidth
+        logo.drawWidth = 1.5 * inch
         magName = "Pythonista"
         subPrice = "99.00"
         limitedDate = "03/05/2010"
@@ -185,8 +197,8 @@ class exp_rel_pdf(object):
         address_parts = ["Sito: Via Cavour 60, Ravenna", "Indirizzo: Via Cavour 60", "Comune: Ravenna"]
 
         Story.append(PageBreak())
-        im = Image(logo)
-        Story.append(im)
+        #im = Image(logo)
+        Story.append(logo)
 
         styles = getSampleStyleSheet()
         styles.add(ParagraphStyle(name='Justify', alignment=TA_JUSTIFY, bulletText='-'))
@@ -222,7 +234,7 @@ class exp_rel_pdf(object):
         Story.append(Paragraph(ptext, styles["Normal"]))
         Story.append(Spacer(1, 12))
         # Descrizione sito
-        ptext = """<font size=12> <b>Descrizione del sito </b><br/> %s </font>""" % self.DATA_LIST[0].descrizione
+        ptext = '<font size=12> <b>Descrizione del sito </b><br/> %s </font>'% self.DATA_LIST[0].descrizione
         Story.append(Paragraph(ptext, styles["Justify"]))
         Story.append(Spacer(1, 12))
 
@@ -291,8 +303,8 @@ class exp_rel_pdf(object):
             sigla_temp, rec_sigla_struttura[0].sigla_estesa)
             Story.append(Paragraph(ptext, styles["Normal"]))
             Story.append(Spacer(1, 12))
-            ptext = '<bullet>'
-            Story.append(Paragraph(ptext, styles["Normal"], bulletText='-'))
+            #ptext = '<bullet>'
+            #Story.append(Paragraph(ptext, styles["Normal"],bulletText='-'))
 
             # crea l'elenco delle sigle struttura presenti nel DB
             for rec in range(len(self.DATA_LIST)):
@@ -309,8 +321,8 @@ class exp_rel_pdf(object):
                     Story.append(Paragraph(ptext, styles["Normal"], bulletText='   '))
                     Story.append(Spacer(1, 12))
                 else:
-                    ptext = '</bullet>'
-                    Story.append(Paragraph(ptext, styles["Normal"], bulletText='-'))
+                    #ptext = '<bullet>'
+                    #Story.append(Paragraph(ptext, styles["Normal"], bulletText='-'))
                     rec_sigla_struttura = self.search_records('sigla', self.DATA_LIST[rec].sigla_struttura,
                                                               'PYARCHINIT_THESAURUS_SIGLE')
                     sigla_temp = self.DATA_LIST[rec].sigla_struttura
@@ -320,7 +332,7 @@ class exp_rel_pdf(object):
                     Story.append(Spacer(1, 12))
                     ptext = '<bullet>'
                     Story.append(Paragraph(ptext, styles["Normal"]))
-                    ptext = '<font size=12 ><b>Sigla: %s%s - Tipologia: %s </b></font>' % (
+                    ptext = '<font size=12 ><b>Sigla: %s - Tipologia: %s </b></font>' % (
                     self.DATA_LIST[rec].sigla_struttura, str(self.DATA_LIST[rec].numero_struttura),
                     rec_sigla_struttura[0].sigla_estesa)
                     Story.append(Paragraph(ptext, styles["Normal"], bulletText='-'))
@@ -329,8 +341,8 @@ class exp_rel_pdf(object):
                     str(self.DATA_LIST[rec].periodo_iniziale), str(self.DATA_LIST[rec].fase_iniziale))
                     Story.append(Paragraph(ptext, styles["Normal"], bulletText='   '))
                     Story.append(Spacer(1, 12))
-            ptext = '</bullet>'
-            Story.append(Paragraph(ptext, styles["Normal"]))
+            #ptext = '</bullet>'
+            #Story.append(Paragraph(ptext, styles["Normal"]))
 
             # crea la descrizione e interpretazione delle singole strutture presenti nel DB
             ptext = '<font size=16 ><b>Descrizione singole strutture</b><br/></font>'
@@ -370,18 +382,23 @@ class exp_rel_pdf(object):
         Story.append(PageBreak())
 
         # Immagini
-        logo = os.path.join(os.path.dirname(__file__), "..", "..", "iconadarte.png")
-        im = Image(logo)
-        Story.append(im)
+        home = os.environ['PYARCHINIT_HOME']
+
+        home_DB_path = '{}{}{}'.format(home, os.sep, 'pyarchinit_DB_folder')
+        logo_path = '{}{}{}'.format(home_DB_path, os.sep, 'logo.jpg')
+        logo = Image(logo_path)
+        #logo = os.path.join(os.path.dirname(__file__), "..", "..", "iconadarte.png")
+        #im = Image(logo)
+        Story.append(logo)
         # Didascalia
         ptext = '<font size=10><b>Figura 1 - Esempio di foto</b></font>'
 
         Story.append(Paragraph(ptext, styles["Normal"]))
         Story.append(Spacer(1, 200))
 
-        logo = os.path.join(os.path.dirname(__file__), "..", "..", "iconadarte.png")
-        im = Image(logo)
-        Story.append(im)
+        #logo = os.path.join(os.path.dirname(__file__), "..", "..", "iconadarte.png")
+        #im = Image(logo)
+        Story.append(logo)
         # Didascalia
         ptext = '<font size=10><b>Figura 2 - Esempio di foto</b></font>'
 
@@ -402,6 +419,7 @@ class exp_rel_pdf(object):
         Story.append(Spacer(1, 50))
 
         # Chiusura del documento
+       
         filename = '{}{}{}'.format(self.PDF_path, os.sep, 'relazione.pdf')
         f = open(filename, "wb")
         # doc = SimpleDocTemplate(f)

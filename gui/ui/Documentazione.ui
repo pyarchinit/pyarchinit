@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>540</width>
-    <height>573</height>
+    <height>654</height>
    </rect>
   </property>
   <property name="minimumSize">
@@ -570,26 +570,6 @@
      <property name="editable">
       <bool>true</bool>
      </property>
-     <item>
-      <property name="text">
-       <string>Fotopiano</string>
-      </property>
-     </item>
-     <item>
-      <property name="text">
-       <string>Pianta</string>
-      </property>
-     </item>
-     <item>
-      <property name="text">
-       <string>Prospetto</string>
-      </property>
-     </item>
-     <item>
-      <property name="text">
-       <string>Sezione</string>
-      </property>
-     </item>
     </widget>
    </item>
    <item row="8" column="0">
@@ -610,26 +590,6 @@
          <property name="editable">
           <bool>true</bool>
          </property>
-         <item>
-          <property name="text">
-           <string>Foto</string>
-          </property>
-         </item>
-         <item>
-          <property name="text">
-           <string>Fotomosaico</string>
-          </property>
-         </item>
-         <item>
-          <property name="text">
-           <string>Lucido</string>
-          </property>
-         </item>
-         <item>
-          <property name="text">
-           <string>Rilievo diretto (tablet)</string>
-          </property>
-         </item>
         </widget>
        </item>
        <item row="3" column="0">
@@ -791,6 +751,9 @@
        </item>
        <item row="3" column="0">
         <widget class="QPushButton" name="pushButtonPreview">
+         <property name="enabled">
+          <bool>false</bool>
+         </property>
          <property name="text">
           <string>Open Preview</string>
          </property>

@@ -12,8 +12,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>636</width>
-    <height>616</height>
+    <width>651</width>
+    <height>602</height>
    </rect>
   </property>
   <property name="minimumSize">
@@ -356,6 +356,9 @@
             <property name="orientation">
              <enum>Qt::Vertical</enum>
             </property>
+            <property name="sizeType">
+             <enum>QSizePolicy::Expanding</enum>
+            </property>
             <property name="sizeHint" stdset="0">
              <size>
               <width>20</width>
@@ -463,7 +466,7 @@
              </widget>
             </item>
             <item row="5" column="1">
-             <widget class="QgsProjectionSelectionWidget" name="selectorCrsWidget" native="true"/>
+             <widget class="QgsProjectionSelectionWidget" name="selectorCrsWidget"/>
             </item>
             <item row="4" column="1">
              <widget class="QLineEdit" name="lineEdit_db_passwd">
@@ -570,7 +573,7 @@
           <item row="0" column="0">
            <layout class="QGridLayout" name="gridLayout_5">
             <item row="1" column="1">
-             <widget class="QgsProjectionSelectionWidget" name="selectorCrsWidget_sl" native="true"/>
+             <widget class="QgsProjectionSelectionWidget" name="selectorCrsWidget_sl"/>
             </item>
             <item row="0" column="3">
              <widget class="QPushButton" name="pushButton_crea_database_sl">
@@ -1029,19 +1032,51 @@
      </widget>
     </widget>
    </item>
+   <item row="2" column="0">
+    <widget class="QPushButton" name="pushButton_upd_sqlite">
+     <property name="sizePolicy">
+      <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
+       <horstretch>0</horstretch>
+       <verstretch>0</verstretch>
+      </sizepolicy>
+     </property>
+     <property name="maximumSize">
+      <size>
+       <width>150</width>
+       <height>16777215</height>
+      </size>
+     </property>
+     <property name="text">
+      <string>Update Sqlite</string>
+     </property>
+    </widget>
+   </item>
+   <item row="1" column="0">
+    <widget class="QPushButton" name="pushButton_upd_postgres">
+     <property name="maximumSize">
+      <size>
+       <width>150</width>
+       <height>16777215</height>
+      </size>
+     </property>
+     <property name="text">
+      <string>Update Postgres</string>
+     </property>
+    </widget>
+   </item>
   </layout>
  </widget>
  <customwidgets>
   <customwidget>
-   <class>QgsProjectionSelectionWidget</class>
-   <extends>QWidget</extends>
-   <header>qgis.gui</header>
+   <class>QgsCollapsibleGroupBox</class>
+   <extends>QGroupBox</extends>
+   <header>qgscollapsiblegroupbox.h</header>
    <container>1</container>
   </customwidget>
   <customwidget>
-   <class>QgsCollapsibleGroupBox</class>
-   <extends>QGroupBox</extends>
-   <header>qgis.gui</header>
+   <class>QgsProjectionSelectionWidget</class>
+   <extends>QWidget</extends>
+   <header>qgsprojectionselectionwidget.h</header>
    <container>1</container>
   </customwidget>
  </customwidgets>

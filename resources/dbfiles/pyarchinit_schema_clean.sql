@@ -1241,7 +1241,7 @@ ALTER TABLE public.pyarchinit_sezioni OWNER TO postgres;
 --
 
 CREATE SEQUENCE public.pyarchinit_siti_gid_seq
-    START WITH 112
+    START WITH 1
     INCREMENT BY 1
     NO MINVALUE
     NO MAXVALUE
@@ -1265,6 +1265,42 @@ CREATE TABLE public.pyarchinit_siti (
 
 ALTER TABLE public.pyarchinit_siti OWNER TO postgres;
 
+
+
+
+--
+-- TOC entry 360 (class 1259 OID 32862)
+-- Name: pyarchinit_siti_gid_seq; Type: SEQUENCE; Schema: public; Owner: postgres
+--
+
+CREATE SEQUENCE public.pyarchinit_siti_polygonal_gid_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+ALTER TABLE public.pyarchinit_siti_polygonal_gid_seq OWNER TO postgres;
+
+--
+-- TOC entry 361 (class 1259 OID 32864)
+-- Name: pyarchinit_siti_polygon; Type: TABLE; Schema: public; Owner: postgres
+--
+
+CREATE TABLE public.pyarchinit_siti_polygonal (
+    gid integer DEFAULT nextval('public.pyarchinit_siti_polygonal_gid_seq'::regclass) NOT NULL,
+    sito_id character varying(80),
+    the_geom public.geometry(Polygon,-1)
+);
+
+
+ALTER TABLE public.pyarchinit_siti_polygonal OWNER TO postgres;
+
+
+
+
+
 --
 -- TOC entry 362 (class 1259 OID 32871)
 -- Name: pyarchinit_sondaggi_gid_seq; Type: SEQUENCE; Schema: public; Owner: postgres
@@ -1279,6 +1315,8 @@ CREATE SEQUENCE public.pyarchinit_sondaggi_gid_seq
 
 
 ALTER TABLE public.pyarchinit_sondaggi_gid_seq OWNER TO postgres;
+
+
 
 --
 -- TOC entry 363 (class 1259 OID 32873)
@@ -1536,7 +1574,7 @@ ALTER TABLE public.pyarchinit_tipologia_sepolture OWNER TO postgres;
 --
 
 CREATE TABLE public.pyarchinit_us_negative_doc (
-    id integer NOT NULL,
+    gid integer NOT NULL,
     the_geom public.geometry(LineString,-1),
     sito_n character varying,
     area_n character varying,
@@ -1567,7 +1605,7 @@ ALTER TABLE public.pyarchinit_us_negative_doc OWNER TO postgres;
 -- Name: pyarchinit_us_negative_doc_id_seq; Type: SEQUENCE; Schema: public; Owner: postgres
 --
 
-CREATE SEQUENCE public.pyarchinit_us_negative_doc_id_seq
+CREATE SEQUENCE public.pyarchinit_us_negative_doc_gid_seq
     START WITH 1
     INCREMENT BY 1
     NO MINVALUE
@@ -1575,7 +1613,7 @@ CREATE SEQUENCE public.pyarchinit_us_negative_doc_id_seq
     CACHE 1;
 
 
-ALTER TABLE public.pyarchinit_us_negative_doc_id_seq OWNER TO postgres;
+ALTER TABLE public.pyarchinit_us_negative_doc_gid_seq OWNER TO postgres;
 
 --
 -- TOC entry 5058 (class 0 OID 0)
@@ -1583,7 +1621,7 @@ ALTER TABLE public.pyarchinit_us_negative_doc_id_seq OWNER TO postgres;
 -- Name: pyarchinit_us_negative_doc_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
 --
 
-ALTER SEQUENCE public.pyarchinit_us_negative_doc_id_seq OWNED BY public.pyarchinit_us_negative_doc.id;
+ALTER SEQUENCE public.pyarchinit_us_negative_doc_gid_seq OWNED BY public.pyarchinit_us_negative_doc.gid;
 
 
 --
@@ -2036,6 +2074,38 @@ CREATE SEQUENCE public.ut_table_id_ut_seq
 
 ALTER TABLE public.ut_table_id_ut_seq OWNER TO postgres;
 
+
+CREATE TABLE pyarchinit_documentazione
+(
+  gid integer NOT NULL,
+  the_geom geometry(LineString,-1),
+  id_doc integer,
+  sito character varying(200),
+  nome_doc character varying(200),
+  tipo_doc character varying(200),
+  path_qgis_pj character varying(500)
+  
+);
+
+
+ALTER TABLE pyarchinit_documentazione
+  OWNER TO postgres;
+
+-- Index: sidx_pyarchinit_documentazione_geom
+
+-- DROP INDEX sidx_pyarchinit_documentazione_geom;
+CREATE SEQUENCE public.pyarchinit_documentazione_gid_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+
+
+
+
 --
 -- TOC entry 5081 (class 0 OID 0)
 -- Dependencies: 415
@@ -2202,8 +2272,14 @@ ALTER TABLE ONLY public.pyarchinit_thesaurus_sigle ALTER COLUMN id_thesaurus_sig
 -- Name: pyarchinit_us_negative_doc id; Type: DEFAULT; Schema: public; Owner: postgres
 --
 
-ALTER TABLE ONLY public.pyarchinit_us_negative_doc ALTER COLUMN id SET DEFAULT nextval('public.pyarchinit_us_negative_doc_id_seq'::regclass);
+ALTER TABLE ONLY public.pyarchinit_us_negative_doc ALTER COLUMN gid SET DEFAULT nextval('public.pyarchinit_us_negative_doc_gid_seq'::regclass);
 
+--
+-- TOC entry 4556 (class 2604 OID 33174)
+-- Name: pyarchinit_us_negative_doc id; Type: DEFAULT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.pyarchinit_documentazione ALTER COLUMN gid SET DEFAULT nextval('public.pyarchinit_documentazione_gid_seq'::regclass);
 
 --
 -- TOC entry 4488 (class 2604 OID 33175)
@@ -2455,7 +2531,13 @@ ALTER TABLE ONLY public.tafonomia_table
 ALTER TABLE ONLY public.pyarchinit_codici_tipologia
     ADD CONSTRAINT "ID_tipologia_unico" UNIQUE (tipologia_progetto, tipologia_gruppo, tipologia_codice, tipologia_sottocodice);
 
+--
+-- TOC entry 4718 (class 2606 OID 41052)
+-- Name: pyarchinit_documentazione ID_documentazione_unico; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
 
+ALTER TABLE ONLY public.pyarchinit_documentazione
+    ADD CONSTRAINT "ID_documentazione_unico" UNIQUE (gid, sito);
 --
 -- TOC entry 4735 (class 2606 OID 41054)
 -- Name: us_table ID_us_unico; Type: CONSTRAINT; Schema: public; Owner: postgres
@@ -2709,6 +2791,13 @@ ALTER TABLE ONLY public.pyarchinit_sezioni
 ALTER TABLE ONLY public.pyarchinit_siti
     ADD CONSTRAINT pyarchinit_siti_pkey PRIMARY KEY (gid);
 
+--
+-- TOC entry 4753 (class 2606 OID 41150)
+-- Name: pyarchinit_siti pyarchinit_siti__polygon_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.pyarchinit_siti_polygonal
+    ADD CONSTRAINT pyarchinit_siti_polygonal_pkey PRIMARY KEY (gid);	
 
 --
 -- TOC entry 4756 (class 2606 OID 41152)
@@ -2752,7 +2841,7 @@ ALTER TABLE ONLY public.pyarchinit_tipologia_sepolture
 --
 
 ALTER TABLE ONLY public.pyarchinit_us_negative_doc
-    ADD CONSTRAINT pyarchinit_us_negative_doc_pkey PRIMARY KEY (id);
+    ADD CONSTRAINT pyarchinit_us_negative_doc_pkey PRIMARY KEY (gid);
 
 
 --
@@ -2904,6 +2993,14 @@ CREATE INDEX sidx_pyarchinit_ripartizioni_spaziali_geom ON public.pyarchinit_rip
 --
 
 CREATE INDEX sidx_pyarchinit_siti_geom ON public.pyarchinit_siti USING gist (the_geom);
+
+
+--
+-- TOC entry 4754 (class 1259 OID 41212)
+-- Name: sidx_pyarchinit_siti_polygon_geom; Type: INDEX; Schema: public; Owner: postgres
+--
+
+CREATE INDEX sidx_pyarchinit_siti_polygonal_geom ON public.pyarchinit_siti_polygonal USING gist (the_geom);
 
 
 --
