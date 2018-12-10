@@ -21,23 +21,27 @@
 from __future__ import absolute_import
 
 import os
+import sqlite3
 from builtins import range
 from builtins import str
 from qgis.PyQt.QtWidgets import QApplication, QDialog, QMessageBox, QFileDialog
+
 from qgis.PyQt.uic import loadUiType
 from qgis.core import QgsApplication, QgsSettings, QgsProject
 
 from modules.db.pyarchinit_conn_strings import Connection
 from modules.db.pyarchinit_db_manager import Pyarchinit_db_management
 from modules.db.pyarchinit_db_update import DB_update
-from modules.utility.pyarchinit_OS_utility import Pyarchinit_OS_Utility
 from modules.db.db_createdump import CreateDatabase, RestoreSchema, DropDatabase
+from modules.utility.pyarchinit_OS_utility import Pyarchinit_OS_Utility
 
+from modules.utility.pyarchinit_print_utility import Print_utility
 MAIN_DIALOG_CLASS, _ = loadUiType(os.path.join(os.path.dirname(__file__), 'ui', 'pyarchinitConfigDialog.ui'))
 
 
 class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
     L=QgsSettings().value("locale/userLocale")[0:2]
+    
     HOME = os.environ['PYARCHINIT_HOME']
 
     PARAMS_DICT = {'SERVER': '',
@@ -50,10 +54,12 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
                    'EXPERIMENTAL': ''}
 
     def __init__(self, parent=None, db=None):
+       
         QDialog.__init__(self, parent)
         # Set up the user interface from Designer.
+        
         self.setupUi(self)
-
+        
         s = QgsSettings()
         self.load_dict()
         self.charge_data()
@@ -175,7 +181,7 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
         # QMessageBox.warning(self, "ok", "Per rendere effettive le modifiche e' necessario riavviare Qgis. Grazie.",
         #                     QMessageBox.Ok)
 
-    def on_pushButton_crea_database_pressed(self):
+    def on_pushButton_crea_database_pressed(self,):
         schema_file = os.path.join(os.path.dirname(__file__), os.pardir, 'resources', 'dbfiles',
                                    'pyarchinit_schema_clean.sql')
         view_file = os.path.join(os.path.dirname(__file__), os.pardir, 'resources', 'dbfiles',
@@ -247,8 +253,57 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
                     self.lineEdit_Password.setText(self.lineEdit_db_passwd.text())
                     self.on_pushButton_save_pressed()
             else:
-                QMessageBox.warning(self, "INFO", "The DB exist already", QMessageBox.Ok)       
+                QMessageBox.warning(self, "INFO", "The DB exist already", QMessageBox.Ok)
+
+
+    def on_pushButton_upd_postgres_pressed(self):
+       
+        view_file = os.path.join(os.path.dirname(__file__), os.pardir, 'resources', 'dbfiles',
+                                   'pyarchinit_update_postgres.sql')
+        
+        conn = Connection()
+        db_url = conn.conn_str()
+
+        
+        RestoreSchema(db_url,view_file).restore_schema()
+       
+
+        
+        
+
+        
+        
+    def on_pushButton_upd_sqlite_pressed(self):
+       
+        view_file = os.path.join(os.path.dirname(__file__), os.pardir, 'resources', 'dbfiles',
+                                   'pyarchinit_update_sqlite.sql')
+        
+        view_file1 = os.path.join(os.path.dirname(__file__), os.pardir, 'resources', 'dbfiles',
+                                   '2.sql')
+        
+        view_file3 = os.path.join(os.path.dirname(__file__), os.pardir, 'resources', 'dbfiles',
+                                   '3.sql')
+        
+        view_file4 = os.path.join(os.path.dirname(__file__), os.pardir, 'resources', 'dbfiles',
+                                   '4.sql')
+        home_DB_path = '{}{}{}'.format(self.HOME, os.sep, 'pyarchinit_DB_folder')
+
+        sl_name = '{}.sqlite'.format(self.lineEdit_dbname_sl.text())
+        db_path = os.path.join(home_DB_path, sl_name)
+        
+        conn = Connection()
+        db_url = conn.conn_str()
+
+        
+        RestoreSchema(db_url,view_file).restore_schema()
+        RestoreSchema(db_url,view_file1).restore_schema()
+        RestoreSchema(db_url,view_file3).restore_schema()
+        RestoreSchema(db_url,view_file4).restore_schema()
+        
+               
     def on_pushButton_crea_database_sl_pressed(self):
+        
+        
         db_file = os.path.join(os.path.dirname(__file__), os.pardir, 'resources', 'dbfiles',
                                    'pyarchinit.sqlite')
 
@@ -295,7 +350,10 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
             elif self.L=='de':
                 QMessageBox.warning(self, "INFO", "die Datenbank existiert", QMessageBox.Ok)
             else:
-                QMessageBox.warning(self, "INFO", "The Database exsist already", QMessageBox.Ok)    
+                QMessageBox.warning(self, "INFO", "The Database exsist already", QMessageBox.Ok)   
+    
+    
+    
     def on_pushButton_crea_layer_pressed(self):
         import time
         try:
@@ -411,6 +469,7 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
     def test_def(self):
         pass
 
+    
     def on_pushButton_import_pressed(self):
         if self.L=='it':
             id_table_class_mapper_conv_dict = {
