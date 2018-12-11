@@ -3,7 +3,7 @@
 """
 /***************************************************************************
         pyArchInit Plugin  - A QGIS plugin to manage archaeological dataset
-        					 stored in Postgres
+                             stored in Postgres
                              -------------------
     begin                : 2007-12-01
     copyright            : (C) 2008 by Luca Mandolesi
@@ -46,6 +46,7 @@ class Print_utility(QObject):
     progressBarUpdated = pyqtSignal(int, int)
 
     HOME = os.environ['PYARCHINIT_HOME']
+    REPORT_PATH = '{}{}{}'.format(HOME, os.sep, "pyarchinit_Report_folder")
     FILEPATH = os.path.dirname(__file__)
     LAYER_STYLE_PATH = '{}{}{}{}'.format(FILEPATH, os.sep, 'styles', os.sep)
     LAYER_STYLE_PATH_SPATIALITE = '{}{}{}{}'.format(FILEPATH, os.sep, 'styles_spatialite', os.sep)
@@ -53,8 +54,8 @@ class Print_utility(QObject):
 
     layerUS = ""
     layerQuote = ""
-    ##	layerCL = ""
-    ##	layerGriglia = "" #sperimentale da riattivare
+    ##  layerCL = ""
+    ##  layerGriglia = "" #sperimentale da riattivare
 
     USLayerId = ""
     CLayerId = ""
@@ -99,7 +100,7 @@ class Print_utility(QObject):
                     else:
                         self.remove_layer()
                 if test == 0:
-                    Report_path = '{}{}{}'.format(self.HOME, os.sep, "pyarchinit_Report_folder/report_errori.txt")
+                    Report_path = '{}{}{}'.format(self.REPORT_PATH, os.sep,'report_errori.txt')
                     f = open(Report_path, "w")
                     f.write(str("Presenza di errori nel layer"))
                     f.close()
@@ -117,8 +118,11 @@ class Print_utility(QObject):
                         QApplication.processEvents()
                     else:
                         self.remove_layer()
-                else:
-                    pass
+                if test == 0:
+                    Report_path = '{}{}{}'.format(self.REPORT_PATH, os.sep,'report_errori.txt')
+                    f = open(Report_path, "w")
+                    f.write(str("Presenza di errori nel layer"))
+                    f.close()
 
     def converter_1_20(self, n):
         n *= 100
@@ -263,7 +267,17 @@ class Print_utility(QObject):
         settings.set_configuration()
         self.uri = QgsDataSourceUri()
         self.uri.setConnection(settings.HOST, settings.PORT, settings.DATABASE, settings.USER, settings.PASSWORD)
-
+    
+    def open_connection_sqlite(self):
+        cfg_rel_path = os.path.join(os.sep, 'pyarchinit_DB_folder', 'config.cfg')
+        file_path = '{}{}'.format(self.HOME, cfg_rel_path)
+        conf = open(file_path, "r")
+        con_sett = conf.read()
+        conf.close()
+        settings = Settings(con_sett)
+        settings.set_configuration()
+        self.uri = QgsDataSourceUri()
+        self.uri.setConnection(settings.DATABASE)
     def remove_layer(self):
         if self.USLayerId != "":
             QgsProject.instance().removeMapLayer(self.USLayerId)
@@ -274,22 +288,34 @@ class Print_utility(QObject):
             self.QuoteLayerId = ""
 
     def charge_layer_sqlite(self, sito, area, us):
-        sqliteDB_path = os.path.join(os.sep, 'pyarchinit_DB_folder', 'pyarchinit_db.sqlite')
+        
+        cfg_rel_path = os.path.join(os.sep, 'pyarchinit_DB_folder', 'config.cfg')
+        file_path = '{}{}'.format(self.HOME, cfg_rel_path)
+        conf = open(file_path, "r")
+        con_sett = conf.read()
+        conf.close()
 
-        db_file_path = '{}{}'.format(self.HOME, sqliteDB_path)
+        settings = Settings(con_sett)
+        settings.set_configuration()
+        
+        sqliteDB_path = os.path.join(os.sep, 'pyarchinit_DB_folder', settings.DATABASE)
 
-        srs = QgsCoordinateReferenceSystem(3004, QgsCoordinateReferenceSystem.PostgisCrsId)
+        
+        db_file_path='{}{}'.format(self.HOME, sqliteDB_path)
+        uri = QgsDataSourceUri()
+        uri.setDatabase(db_file_path)
+        #srs = QgsCoordinateReferenceSystem(self.SRS, QgsCoordinateReferenceSystem.PostgisCrsId)
 
         gidstr = "scavo_s = '%s' and area_s = '%s' and us_s = '%d'" % (sito, area, us)
 
-        uri = QgsDataSourceUri()
-        uri.setDatabase(db_file_path)
+        #uri = QgsDataSourceUri()
+        #uri.setDatabase(db_file_path)
 
         uri.setDataSource('', 'pyarchinit_us_view', 'the_geom', gidstr, "ROWID")
         self.layerUS = QgsVectorLayer(uri.uri(), 'pyarchinit_us_view', 'spatialite')
 
         if self.layerUS.isValid():
-            self.layerUS.setCrs(srs)
+            #self.layerUS.setCrs(srs)
             self.USLayerId = self.layerUS.id()
             # self.mapLayerRegistry.append(USLayerId)
             style_path = '{}{}'.format(self.LAYER_STYLE_PATH_SPATIALITE, 'us_view.qml')
@@ -307,7 +333,7 @@ class Print_utility(QObject):
         self.layerQuote = QgsVectorLayer(uri.uri(), 'pyarchinit_quote_view', 'spatialite')
 
         if self.layerQuote.isValid():
-            self.layerQuote.setCrs(srs)
+            #self.layerQuote.setCrs(srs)
             self.QuoteLayerId = self.layerQuote.id()
             # self.mapLayerRegistry.append(QuoteLayerId)
             style_path = '{}{}'.format(self.LAYER_STYLE_PATH_SPATIALITE, 'stile_quote.qml')
@@ -317,7 +343,7 @@ class Print_utility(QObject):
     def charge_layer_postgis(self, sito, area, us):
         self.open_connection_postgis()
 
-        srs = QgsCoordinateReferenceSystem(3004, QgsCoordinateReferenceSystem.PostgisCrsId)
+        srs = QgsCoordinateReferenceSystem(self.SRS, QgsCoordinateReferenceSystem.PostgisCrsId)
 
         gidstr = "scavo_s = '%s' and area_s = '%s' and us_s = '%d'" % (sito, area, us)
 
