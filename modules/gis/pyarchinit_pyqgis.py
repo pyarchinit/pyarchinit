@@ -36,7 +36,7 @@ class Pyarchinit_pyqgis(QDialog):
     FILEPATH = os.path.dirname(__file__)
     LAYER_STYLE_PATH = '{}{}{}{}'.format(FILEPATH, os.sep, 'styles', os.sep)
     LAYER_STYLE_PATH_SPATIALITE = '{}{}{}{}'.format(FILEPATH, os.sep, 'styles_spatialite', os.sep)
-    SRS = 4326
+    SRS = 3004
     L=QgsSettings().value("locale/userLocale")[0:2]
     USLayerId = ""
     LAYERS_DIZ = {"1": "pyarchinit_campionature",
@@ -296,7 +296,7 @@ class Pyarchinit_pyqgis(QDialog):
                 QMessageBox.warning(self, "TESTER", "OK Layer valid", QMessageBox.Ok)
 
                 # self.USLayerId = layerUS.getLayerID()
-                style_path = '{}{}'.format(self.LAYER_STYLE_PATH_SPATIALITE, 'us_view_splite.qml')
+                style_path = '{}{}'.format(self.LAYER_STYLE_PATH_SPATIALITE, 'us_view.qml')
                 layerUS.loadNamedStyle(style_path)
                 QgsProject.instance().addMapLayers([layerUS], True)
             else:
@@ -632,7 +632,7 @@ class Pyarchinit_pyqgis(QDialog):
                 QMessageBox.warning(self, "TESTER", "OK Layer US valido", QMessageBox.Ok)
 
                 # self.USLayerId = layerUS.getLayerID()
-                # style_path = '{}{}'.format(self.LAYER_STYLE_PATH_SPATIALITE, 'us_view_splite.qml')
+                # style_path = '{}{}'.format(self.LAYER_STYLE_PATH_SPATIALITE, 'us_view.qml')
                 # style_path = QtGui.QFileDialog.getOpenFileName(self, 'Open file',self.LAYER_STYLE_PATH)
 
                 # layerUS.loadNamedStyle(style_path)
@@ -657,7 +657,7 @@ class Pyarchinit_pyqgis(QDialog):
                 QMessageBox.warning(self, "TESTER", "OK Layer US negative valido", QMessageBox.Ok)
 
                 # self.USLayerId = layerUS.getLayerID()
-                # style_path = '{}{}'.format(self.LAYER_STYLE_PATH_SPATIALITE, 'us_view_splite.qml')
+                # style_path = '{}{}'.format(self.LAYER_STYLE_PATH_SPATIALITE, 'us_view.qml')
                 # style_path = QtGui.QFileDialog.getOpenFileName(self, 'Open file',self.LAYER_STYLE_PATH)
 
                 # layerUS.loadNamedStyle(style_path)
@@ -682,7 +682,7 @@ class Pyarchinit_pyqgis(QDialog):
                 QMessageBox.warning(self, "TESTER", "OK Layer valid", QMessageBox.Ok)
 
                 # self.USLayerId = layerUS.getLayerID()
-                # style_path = '{}{}'.format(self.LAYER_STYLE_PATH_SPATIALITE, 'us_view_splite.qml')
+                # style_path = '{}{}'.format(self.LAYER_STYLE_PATH_SPATIALITE, 'us_view.qml')
                 # style_path = QtGui.QFileDialog.getOpenFileName(self, 'Open file',self.LAYER_STYLE_PATH)
 
                 # layerUS.loadNamedStyle(style_path)
@@ -729,7 +729,7 @@ class Pyarchinit_pyqgis(QDialog):
                 QMessageBox.warning(self, "TESTER", "OK Layer US valido", QMessageBox.Ok)
 
                 # self.USLayerId = layerUS.getLayerID()
-                # style_path = '{}{}'.format(self.LAYER_STYLE_PATH_SPATIALITE, 'us_view_splite.qml')
+                # style_path = '{}{}'.format(self.LAYER_STYLE_PATH_SPATIALITE, 'us_view.qml')
                 # style_path = QtGui.QFileDialog.getOpenFileName(self, 'Open file',self.LAYER_STYLE_PATH)
 
                 # layerUS.loadNamedStyle(style_path)
@@ -754,7 +754,7 @@ class Pyarchinit_pyqgis(QDialog):
                 QMessageBox.warning(self, "TESTER", "OK Layer US negative valido", QMessageBox.Ok)
 
                 # self.USLayerId = layerUS.getLayerID()
-                # style_path = '{}{}'.format(self.LAYER_STYLE_PATH_SPATIALITE, 'us_view_splite.qml')
+                # style_path = '{}{}'.format(self.LAYER_STYLE_PATH_SPATIALITE, 'us_view.qml')
                 # style_path = QtGui.QFileDialog.getOpenFileName(self, 'Open file',self.LAYER_STYLE_PATH)
 
                 # layerUS.loadNamedStyle(style_path)
@@ -779,7 +779,7 @@ class Pyarchinit_pyqgis(QDialog):
                 QMessageBox.warning(self, "TESTER", "OK Layer valid", QMessageBox.Ok)
 
                 # self.USLayerId = layerUS.getLayerID()
-                # style_path = '{}{}'.format(self.LAYER_STYLE_PATH_SPATIALITE, 'us_view_splite.qml')
+                # style_path = '{}{}'.format(self.LAYER_STYLE_PATH_SPATIALITE, 'us_view.qml')
                 # style_path = QtGui.QFileDialog.getOpenFileName(self, 'Open file',self.LAYER_STYLE_PATH)
 
                 # layerUS.loadNamedStyle(style_path)
@@ -853,7 +853,7 @@ class Pyarchinit_pyqgis(QDialog):
                 QMessageBox.warning(self, "TESTER", "OK Layer US valido", QMessageBox.Ok)
 
                 # self.USLayerId = layerUS.getLayerID()
-                style_path = '{}{}'.format(self.LAYER_STYLE_PATH_SPATIALITE, 'us_view_splite.qml')
+                style_path = '{}{}'.format(self.LAYER_STYLE_PATH_SPATIALITE, 'us_view.qml')
                 # style_path = QtGui.QFileDialog.getOpenFileName(self, 'Open file',self.LAYER_STYLE_PATH)
 
                 layerUS.loadNamedStyle(style_path)
@@ -965,7 +965,7 @@ class Pyarchinit_pyqgis(QDialog):
                 QMessageBox.warning(self, "TESTER", "OK Layer US valido", QMessageBox.Ok)
 
                 # self.USLayerId = layerUS.getLayerID()
-                style_path = '{}{}'.format(self.LAYER_STYLE_PATH_SPATIALITE, 'us_view_splite.qml')
+                style_path = '{}{}'.format(self.LAYER_STYLE_PATH_SPATIALITE, 'us_view.qml')
                 layerUS.loadNamedStyle(style_path)
                 QgsProject.instance().addMapLayers([layerUS], True)
             else:
@@ -1094,7 +1094,7 @@ class Pyarchinit_pyqgis(QDialog):
 
             if layerUS.isValid():
                 # QMessageBox.warning(self, "TESTER", "OK ayer US valido",   #QMessageBox.Ok)
-                style_path = '{}{}'.format(self.LAYER_STYLE_PATH_SPATIALITE, 'us_view_splite.qml')
+                style_path = '{}{}'.format(self.LAYER_STYLE_PATH_SPATIALITE, 'us_view.qml')
                 layerUS.loadNamedStyle(style_path)
                 QgsProject.instance().addMapLayers([layerUS], False)
                 layerToSet.append(layerUS)
@@ -1130,7 +1130,7 @@ class Pyarchinit_pyqgis(QDialog):
 
             if layerUS.isValid():
                 QMessageBox.warning(self, "WARNING", "OK layer ", QMessageBox.Ok)
-                ##              style_path = '{}{}'.format(self.LAYER_STYLE_PATH_SPATIALITE, 'us_view_splite.qml')
+                ##              style_path = '{}{}'.format(self.LAYER_STYLE_PATH_SPATIALITE, 'us_view.qml')
                 ##              layerUS.loadNamedStyle(style_path)
                 QgsProject.instance().addMapLayers([layerUS], False)
                 layerToSet.append(layerUS)
@@ -1164,7 +1164,7 @@ class Pyarchinit_pyqgis(QDialog):
 
             if layerUS.isValid():
                 QMessageBox.warning(self, "TESTER", "OK ayer US valido", QMessageBox.Ok)
-                ##              style_path = '{}{}'.format(self.LAYER_STYLE_PATH_SPATIALITE, 'us_view_splite.qml')
+                ##              style_path = '{}{}'.format(self.LAYER_STYLE_PATH_SPATIALITE, 'us_view.qml')
                 ##              layerUS.loadNamedStyle(style_path)
                 QgsProject.instance().addMapLayers([layerUS], False)
                 layerToSet.append(layerUS)
@@ -1185,7 +1185,7 @@ class Pyarchinit_pyqgis(QDialog):
             ##
             ##          if layerUSn.isValid() == True:
             ##              #QMessageBox.warning(self, "TESTER", "OK ayer US valido",    #QMessageBox.Ok)
-            ####                style_path = '{}{}'.format(self.LAYER_STYLE_PATH_SPATIALITE, 'us_view_splite.qml')
+            ####                style_path = '{}{}'.format(self.LAYER_STYLE_PATH_SPATIALITE, 'us_view.qml')
             ####                layerUSn.loadNamedStyle(style_path)
             ##              QgsProject.instance().addMapLayers([layerUSn], False)
             ##              layerToSet.append(QgsMapCanvas(layerUSn, True, False))

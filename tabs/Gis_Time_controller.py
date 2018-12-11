@@ -3,7 +3,7 @@
 """
 /***************************************************************************
         pyArchInit Plugin  - A QGIS plugin to manage archaeological dataset
-        					 stored in Postgres
+                             stored in Postgres
                              -------------------
     begin                : 2007-12-01
     copyright            : (C) 2008 by Luca Mandolesi
@@ -30,7 +30,7 @@ import os
 
 from qgis.PyQt.QtWidgets import QApplication, QDialog, QMessageBox
 from qgis.PyQt.uic import loadUiType
-from qgis.core import Qgis, QgsMessageLog
+from qgis.core import Qgis, QgsMessageLog, QgsSettings
 
 from ..modules.db.pyarchinit_conn_strings import Connection
 from ..modules.db.pyarchinit_db_manager import Pyarchinit_db_management
@@ -42,6 +42,7 @@ MAIN_DIALOG_CLASS, _ = loadUiType(
 
 
 class pyarchinit_Gis_Time_Controller(QDialog, MAIN_DIALOG_CLASS):
+    L=QgsSettings().value("locale/userLocale")[0:2]
     MSG_BOX_TITLE = "PyArchInit - Gis Time Management"
     DB_MANAGER = ""
     ORDER_LAYER_VALUE = ""
@@ -77,13 +78,19 @@ class pyarchinit_Gis_Time_Controller(QDialog, MAIN_DIALOG_CLASS):
         except Exception as e:
             e = str(e)
             if e.find("no such table"):
-                QMessageBox.warning(self, "Alert",
-                                    "La connessione e' fallita <br><br> Tabella non presente. E' NECESSARIO RIAVVIARE QGIS",
-                                    QMessageBox.Ok)
-            else:
-                QMessageBox.warning(self, "Alert",
-                                    "Attenzione rilevato bug! Segnalarlo allo sviluppatore<br> Errore: <br>" + str(e),
-                                    QMessageBox.Ok)
+                if self.L=='it':
+                    msg = "La connessione e' fallita {}. " \
+                          "E' NECESSARIO RIAVVIARE QGIS ".format(str(e))
+                    self.iface.messageBar().pushMessage(self.tr(msg), Qgis.Warning, 0)
+                
+                    self.iface.messageBar().pushMessage(self.tr(msg), Qgis.Warning, 0)
+                elif self.L=='de':
+                    msg = "Verbindungsfehler {}. " \
+                          " QGIS neustarten oder es wurde".format(str(e))
+                    self.iface.messageBar().pushMessage(self.tr(msg), Qgis.Warning, 0)
+                else:
+                    msg = "The connection failed {}. " \
+                          "You MUST RESTART QGIS".format(str(e))
 
     def set_max_num(self):
         max_num_order_layer = self.DB_MANAGER.max_num_id(self.MAPPER_TABLE_CLASS, "order_layer") + 1,
@@ -121,8 +128,18 @@ class pyarchinit_Gis_Time_Controller(QDialog, MAIN_DIALOG_CLASS):
             ], 'PERIODIZZAZIONE')
 
         if not bool(per_res):
-            QMessageBox.warning(self, "Alert", "Non vi sono Periodizzazioni in questo intervallo di tempo",
-                                QMessageBox.Ok)
+            
+            if self.L=='it': 
+                QMessageBox.warning(self, "Alert", "Non vi sono Periodizzazioni in questo intervallo di tempo",
+                                    QMessageBox.Ok)
+        
+            elif self.L=='de': 
+                QMessageBox.warning(self, "Alert", "Es gibt keine Perioden in diesem Zeitintervall.",
+                                    QMessageBox.Ok)
+            else: 
+                QMessageBox.warning(self, "Alert", "There are no Periods in this time interval",
+                                    QMessageBox.Ok)
+            
         else:
             us_res = []
             for sing_per in range(len(per_res)):
@@ -138,7 +155,14 @@ class pyarchinit_Gis_Time_Controller(QDialog, MAIN_DIALOG_CLASS):
                     us_res_dep.append(n)
 
             if not bool(us_res_dep):
-                QMessageBox.warning(self, "Alert", "Non ci sono geometrie da visualizzare", QMessageBox.Ok)
+                
+                if self.L=='it':
+                    QMessageBox.warning(self, "Alert", "Non ci sono geometrie da visualizzare", QMessageBox.Ok)
+
+                elif self.L=='de':
+                    QMessageBox.warning(self, "Alert", "es gibt keine Geometrien, die angezeigt werden können", QMessageBox.Ok) 
+                else:
+                    QMessageBox.warning(self, "Alert", "There are no geometries to display", QMessageBox.Ok)    
             else:
                 self.pyQGIS.charge_vector_layers(us_res_dep)
 
