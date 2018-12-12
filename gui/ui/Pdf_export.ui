@@ -174,6 +174,9 @@
          </item>
          <item>
           <widget class="QCheckBox" name="checkBox_site">
+           <property name="enabled">
+            <bool>false</bool>
+           </property>
            <property name="minimumSize">
             <size>
              <width>0</width>
