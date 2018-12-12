@@ -1803,11 +1803,11 @@ class generate_tafonomia_pdf(object):
             lst.append(Paragraph("<b>ELENCO SCHEDE TAFONOMICHE</b><br/><b>Scavo: %s,  Data: %s</b>" % (sito, data), styH1))
         elif self.L=='de':
         
-            lst.append(Paragraph("<b>ELENCO SCHEDE TAFONOMICHE</b><br/><b>Scavo: %s,  Data: %s</b>" % (sito, data), styH1))
+            lst.append(Paragraph("<b>LISTE FORMULAR TAPHOMIE</b><br/><b>Ausgrabungsstätte: %s,  Datum: %s</b>" % (sito, data), styH1))
             
         else:
         
-            lst.append(Paragraph("<b>ELENCO SCHEDE TAFONOMICHE</b><br/><b>Scavo: %s,  Data: %s</b>" % (sito, data), styH1)) 
+            lst.append(Paragraph("<b>LIST TAPHONOMIC FORM</b><br/><b>Site: %s,  Date: %s</b>" % (sito, data), styH1)) 
         
         table_data = []
         
@@ -1860,7 +1860,7 @@ class generate_tafonomia_pdf(object):
             
         else:
         
-            lst.append(Paragraph("<b>LIST TAPHONOMIC FORM</b><br/><b>Site: %s,  Data: %s</b>" % (sito, data), styH1))   
+            lst.append(Paragraph("<b>LIST TAPHONOMIC FORM</b><br/><b>Site: %s,  Date: %s</b>" % (sito, data), styH1))   
 
         table_data = []
         if self.L=='it':
