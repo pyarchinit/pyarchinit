@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 """
 /***************************************************************************
-	pyArchInit Plugin  - A QGIS plugin to manage archaeological dataset stored in Postgres
+    pyArchInit Plugin  - A QGIS plugin to manage archaeological dataset stored in Postgres
 
     begin                : 2007-12-01
     copyright            : (C) 2008 by Luca Mandolesi
@@ -86,11 +86,11 @@ class pyarchinit_PDFAdministrator(QDialog, MAIN_DIALOG_CLASS):
     def __init__(self, parent=None, db=None):
         super().__init__()
         self.setupUi(self)
-        ##	def __init__(self, iface):
-        ##		self.iface = iface
-        ##		#self.pyQGIS = Pyarchinit_pyqgis(self.iface)
-        ##		QDialog.__init__(self)
-        ##		self.setupUi(self)
+        ##  def __init__(self, iface):
+        ##      self.iface = iface
+        ##      #self.pyQGIS = Pyarchinit_pyqgis(self.iface)
+        ##      QDialog.__init__(self)
+        ##      self.setupUi(self)
         self.currentLayerId = None
         # self.on_pushButton_connect_pressed()
         self.tableWidget_schema_griglia.itemSelectionChanged.connect(self.cellchanged)
@@ -210,12 +210,12 @@ class pyarchinit_PDFAdministrator(QDialog, MAIN_DIALOG_CLASS):
 
     def on_pushButton_charge_default_schema_pressed(self):
         default_schema = """[["C0R0", "C1R0", "C2R0", "C3R0", "C4R0", "C5R0", "C6R0", "C7R0", "C8R0"],
-									["C0R1", "C1R1", "C2R1", "C3R1", "C4R1", "C5R1", "C6R1", "C7R1", "C8R1"],
-									["C0R2", "C1R2", "C2R2", "C3R2", "C4R2", "C5R2", "C6R2", "C7R2", "C8R2"],
-									["C0R3", "C1R3", "C2R3", "C3R3", "C4R3", "C5R3", "C6R3", "C7R3", "C8R3"],
-									["C0R4", "C1R4", "C2R4", "C3R4", "C4R4", "C5R4", "C6R4", "C7R4", "C8R4"],
-									["C0R5", "C1R5", "C2R5", "C3R5", "C4R4", "C5R5", "C6R5", "C7R5", "C8R5"],
-									["C0R6", "C1R6", "C2R6", "C3R6", "C4R4", "C5R6", "C6R6", "C7R6", "C8R6"]]"""
+                                    ["C0R1", "C1R1", "C2R1", "C3R1", "C4R1", "C5R1", "C6R1", "C7R1", "C8R1"],
+                                    ["C0R2", "C1R2", "C2R2", "C3R2", "C4R2", "C5R2", "C6R2", "C7R2", "C8R2"],
+                                    ["C0R3", "C1R3", "C2R3", "C3R3", "C4R3", "C5R3", "C6R3", "C7R3", "C8R3"],
+                                    ["C0R4", "C1R4", "C2R4", "C3R4", "C4R4", "C5R4", "C6R4", "C7R4", "C8R4"],
+                                    ["C0R5", "C1R5", "C2R5", "C3R5", "C4R4", "C5R5", "C6R5", "C7R5", "C8R5"],
+                                    ["C0R6", "C1R6", "C2R6", "C3R6", "C4R4", "C5R6", "C6R6", "C7R6", "C8R6"]]"""
 
         self.tableInsertData('self.tableWidget_schema_griglia', default_schema)
         QMessageBox.warning(self, "Alert", str(self.ID_LIST), QMessageBox.Ok)
@@ -310,11 +310,11 @@ class pyarchinit_PDFAdministrator(QDialog, MAIN_DIALOG_CLASS):
 
     def data_error_check(self):
         test = 0
-        ##		EC = Error_check()
+        ##      EC = Error_check()
         ##
-        ##		if EC.data_is_empty(unicode(self.comboBox_sito.currentText())) == 0:
-        ##			QMessageBox.warning(self, "ATTENZIONE", "Campo Sito. \n Il campo non deve essere vuoto",  QMessageBox.Ok)
-        ##			test = 1
+        ##      if EC.data_is_empty(unicode(self.comboBox_sito.currentText())) == 0:
+        ##          QMessageBox.warning(self, "ATTENZIONE", "Campo Sito. \n Il campo non deve essere vuoto",  QMessageBox.Ok)
+        ##          test = 1
         ##
         return test
 

@@ -358,7 +358,7 @@ class pyarchinit_Tafonomia(QDialog, MAIN_DIALOG_CLASS):
         try:
             self.on_pushButton_connect_pressed()
         except Exception as e:
-            QMessageBox.warning(self, "Sistema di connessione", str(e), QMessageBox.Ok)
+            QMessageBox.warning(self, "Connection system", str(e), QMessageBox.Ok)
         self.customize_GUI()  # call for GUI customizations
 
         # SIGNALS & SLOTS Functions
@@ -503,7 +503,7 @@ class pyarchinit_Tafonomia(QDialog, MAIN_DIALOG_CLASS):
         self.setComboBoxEditable(["self.comboBox_sigla_struttura"], 1)
         self.setComboBoxEditable(["self.comboBox_nr_struttura"], 1)
         self.setComboBoxEditable(["self.comboBox_nr_individuo"], 1)
-        self.setComboBoxEnable(["self.lineEdit_nr_scheda"], "False")
+        self.setComboBoxEnable(["self.lineEdit_nr_scheda"], "True")
 
         """soluzione provvisoria"""
         self.setComboBoxEditable(["self.comboBox_in_connessione"], 1)
