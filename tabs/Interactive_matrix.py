@@ -29,7 +29,7 @@ from builtins import str
 from networkx.drawing.nx_agraph import graphviz_layout
 from qgis.PyQt.QtWidgets import QDialog, QMessageBox
 from qgis.PyQt.uic import loadUiType
-
+from qgis.core import QgsSettings
 from ..modules.db.pyarchinit_conn_strings import Connection
 from ..modules.db.pyarchinit_db_manager import Pyarchinit_db_management
 from ..modules.gis.pyarchinit_pyqgis import Pyarchinit_pyqgis
@@ -40,6 +40,7 @@ MAIN_DIALOG_CLASS, _ = loadUiType(
 
 
 class pyarchinit_Interactive_Matrix(QDialog, MAIN_DIALOG_CLASS):
+    L=QgsSettings().value("locale/userLocale")[0:2]
     MSG_BOX_TITLE = "PyArchInit - Scheda Sistema Matrix Interattivo"
     DB_MANAGER = ""
     DATA_LIST = ""
@@ -73,7 +74,7 @@ class pyarchinit_Interactive_Matrix(QDialog, MAIN_DIALOG_CLASS):
         except Exception as e:
             e = str(e)
             QMessageBox.warning(self, "Alert",
-                                "Attenzione rilevato bug! Segnalarlo allo sviluppatore <br> Errore: <br>" + str(e),
+                                "bug! write to the developer <br> Error: <br>" + str(e),
                                 QMessageBox.Ok)
 
     def generate_matrix(self):
@@ -117,11 +118,19 @@ class pyarchinit_Interactive_Matrix(QDialog, MAIN_DIALOG_CLASS):
 
             cluster_label = "cluster%d" % (clust_number)
 
-            periodo_label = "Periodo %s - Fase %s" % (str(i[0]), str(i[1]))
+            if self.L=='it':
+                periodo_label = "Periodo %s - Fase %s" % (str(i[0]), str(i[1]))
 
-            sing_per = [cluster_label, periodo_label]
+                sing_per = [cluster_label, periodo_label]
 
-            sing_us = []
+                sing_us = []
+                
+            else:
+                periodo_label = "Period %s - Phase %s" % (str(i[0]), str(i[1]))
+
+                sing_per = [cluster_label, periodo_label]
+
+                sing_us = []    
             for rec in us_group:
                 sing_us.append(rec.us)
 
@@ -133,7 +142,7 @@ class pyarchinit_Interactive_Matrix(QDialog, MAIN_DIALOG_CLASS):
 
         matrix_exp = HarrisMatrix(data, periodi_us_list)
         data_plotting = matrix_exp.export_matrix()
-        QMessageBox.warning(self, "Messaggio", "Esportazione del Matrix terminata", QMessageBox.Ok)
+        QMessageBox.warning(self, "Messaggio", "Exportation complited", QMessageBox.Ok)
 
         return data_plotting
 
