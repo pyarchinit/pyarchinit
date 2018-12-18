@@ -55,7 +55,7 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
     if L=='it':
         MSG_BOX_TITLE = "PyArchInit - Scheda US"
     elif L=='en':
-        MSG_BOX_TITLE = "PyArchInit - Su form"
+        MSG_BOX_TITLE = "PyArchInit - SU form"
     elif L=='de':
         MSG_BOX_TITLE = "PyArchInit - SE formular"  
     DATA_LIST = []
