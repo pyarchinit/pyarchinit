@@ -131,7 +131,74 @@ class Periodizzazione_index_pdf_sheet(object):
                 ]
 
         return data
+    def getTable_de(self):
+        styleSheet = getSampleStyleSheet()
+        styNormal = styleSheet['Normal']
+        styNormal.spaceBefore = 20
+        styNormal.spaceAfter = 20
+        styNormal.alignment = 0  # LEFT
+        styNormal.fontSize = 9
 
+        # self.unzip_rapporti_stratigrafici()
+
+        periodo = Paragraph("<b>Period</b><br/>" + str(self.periodo), styNormal)
+
+        fase = Paragraph("<b>Phase</b><br/>" + str(self.fase), styNormal)
+
+        if str(self.cron_iniziale) == "None":
+            cron_iniziale = Paragraph("<b>Anfangschronologie</b><br/>" + str(self.cron_iniziale), styNormal)
+        else:
+            cron_iniziale = Paragraph("<b>Anfangschronologie</b><br/>", styNormal)
+
+        if str(self.cron_finale) == "None":
+            cron_finale = Paragraph("<b>Letzte Chronologie</b><br/>" + str(self.cron_finale), styNormal)
+        else:
+            cron_finale = Paragraph("<b>Letzte Chronologie</b><br/>", styNormal)
+
+        datazione_estesa = Paragraph("<b>Erweiterte Datierung</b><br/>" + str(self.datazione_estesa), styNormal)
+
+        data = [periodo,
+                fase,
+                cron_iniziale,
+                cron_finale,
+                datazione_estesa
+                ]
+
+        return data
+    def getTable_en(self):
+        styleSheet = getSampleStyleSheet()
+        styNormal = styleSheet['Normal']
+        styNormal.spaceBefore = 20
+        styNormal.spaceAfter = 20
+        styNormal.alignment = 0  # LEFT
+        styNormal.fontSize = 9
+
+        # self.unzip_rapporti_stratigrafici()
+
+        periodo = Paragraph("<b>Period</b><br/>" + str(self.periodo), styNormal)
+
+        fase = Paragraph("<b>Phase</b><br/>" + str(self.fase), styNormal)
+
+        if str(self.cron_iniziale) == "None":
+            cron_iniziale = Paragraph("<bStart chronology</b><br/>" + str(self.cron_iniziale), styNormal)
+        else:
+            cron_iniziale = Paragraph("<b>Start chronology</b><br/>", styNormal)
+
+        if str(self.cron_finale) == "None":
+            cron_finale = Paragraph("<b>Final chronology</b><br/>" + str(self.cron_finale), styNormal)
+        else:
+            cron_finale = Paragraph("<b>Final chronology</b><br/>", styNormal)
+
+        datazione_estesa = Paragraph("<b>Letteral datation</b><br/>" + str(self.datazione_estesa), styNormal)
+
+        data = [periodo,
+                fase,
+                cron_iniziale,
+                cron_finale,
+                datazione_estesa
+                ]
+
+        return data 
     def makeStyles(self):
         styles = TableStyle([('GRID', (0, 0), (-1, -1), 0.0, colors.black), ('VALIGN', (0, 0), (-1, -1), 'TOP')
                              ])  # finale
@@ -178,7 +245,7 @@ class single_Periodizzazione_pdf_sheet(object):
         logo_path = '{}{}{}'.format(home_DB_path, os.sep, 'logo.jpg')
         logo = Image(logo_path)
 
-        ##		if test_image.drawWidth < 800:
+        ##      if test_image.drawWidth < 800:
 
         logo.drawHeight = 1.5 * inch * logo.drawHeight / logo.drawWidth
         logo.drawWidth = 1.5 * inch
@@ -246,8 +313,190 @@ class single_Periodizzazione_pdf_sheet(object):
         t = Table(cell_schema, colWidths=50, rowHeights=None, style=table_style)
 
         return t
+    def create_sheet_de(self):
+        styleSheet = getSampleStyleSheet()
+        styNormal = styleSheet['Normal']
+        styNormal.spaceBefore = 20
+        styNormal.spaceAfter = 20
+        styNormal.alignment = 0  # LEFT
 
+        styleSheet = getSampleStyleSheet()
+        styDescrizione = styleSheet['Normal']
+        styDescrizione.spaceBefore = 20
+        styDescrizione.spaceAfter = 20
+        styDescrizione.alignment = 4  # Justified
 
+        # format labels
+
+        # 0 row
+        intestazione = Paragraph("<b>FORMULAR PERIOD<br/>" + str(self.datestrfdate()) + "</b>", styNormal)
+
+        home = os.environ['PYARCHINIT_HOME']
+
+        home_DB_path = '{}{}{}'.format(home, os.sep, 'pyarchinit_DB_folder')
+        logo_path = '{}{}{}'.format(home_DB_path, os.sep, 'logo_de.jpg')
+        logo = Image(logo_path)
+
+        ##      if test_image.drawWidth < 800:
+
+        logo.drawHeight = 1.5 * inch * logo.drawHeight / logo.drawWidth
+        logo.drawWidth = 1.5 * inch
+
+        # intestazione2 = Paragraph("<b>pyArchInit</b><br/>www.pyarchinit.blogspot.com", styNormal)
+
+        # 1 row
+        sito = Paragraph("<b>Ausgrabungsstätte</b><br/>" + str(self.sito), styNormal)
+        periodo = Paragraph("<b>Period</b><br/>" + str(self.periodo), styNormal)
+        fase = Paragraph("<b>Phase</b><br/>" + str(self.fase), styNormal)
+
+        # 2 row
+        cronologia = Paragraph("<b>CHRONOLOGIE</b><br/>", styNormal)
+
+        # 3 row
+        cronologia_iniziale = Paragraph("<b>Anfangschronologie</b><br/>" + str(self.cron_iniziale), styNormal)
+        cronologia_finale = Paragraph("<b>Letzte Chronologie</b><br/>" + str(self.cron_finale), styNormal)
+        datazione_ext = Paragraph("<b>Erweiterte Datierung</b><br/>" + str(self.datazione_estesa), styNormal)
+
+        # 4 row
+        descrizione = ''
+        try:
+            descrizione = Paragraph("<b>Beschreibung</b><br/>" + str(self.descrizione), styDescrizione)
+        except:
+            pass
+
+            # schema
+        cell_schema = [  # 00, 01, 02, 03, 04, 05, 06, 07, 08, 09 rows
+            [intestazione, '01', '02', '03', '04', '05', '06', logo, '08', '09'],  # 0 row ok
+            [sito, '01', '02', '03', '04', '05', '06', '07', periodo, fase],  # 1 row ok
+            [cronologia, '01', '02', '03', '04', '05', '06', '07', '08', '09'],  # 2 row ok
+            [cronologia_iniziale, '01', cronologia_finale, '03', datazione_ext, '05', '06', '07', '08', '09'],
+            # 3 row
+            [descrizione, '01', '02', '03', '04', '05', '06', '07', '08', '09']]  # 4row ok
+
+        # table style
+        table_style = [
+            ('GRID', (0, 0), (-1, -1), 0.5, colors.black),
+            # 0 row
+            ('SPAN', (0, 0), (6, 0)),  # intestazione
+            ('SPAN', (7, 0), (9, 0)),  # intestazione
+
+            # 1 row
+            ('SPAN', (0, 1), (7, 1)),  # Sito
+            ('SPAN', (8, 1), (8, 1)),  # periodo
+            ('SPAN', (9, 1), (9, 1)),  # fase
+
+            # 2 row
+            ('SPAN', (0, 2), (9, 2)),  # intestazione cronologia
+
+            # 3 row
+            ('SPAN', (0, 3), (1, 3)),  # cron iniziale
+            ('SPAN', (2, 3), (3, 3)),  # cron finale
+            ('SPAN', (4, 3), (9, 3)),  # datazione estesa
+
+            # 4
+            ('SPAN', (0, 4), (9, 4)),  # datazione estesa
+            ('VALIGN', (0, 4), (9, 4), 'TOP'),
+            # ('VALIGN',(5,3),(5,3),'TOP'),
+
+            ('VALIGN', (0, 0), (-1, -1), 'TOP')
+
+        ]
+
+        t = Table(cell_schema, colWidths=50, rowHeights=None, style=table_style)
+
+        return t
+    def create_sheet_en(self):
+        styleSheet = getSampleStyleSheet()
+        styNormal = styleSheet['Normal']
+        styNormal.spaceBefore = 20
+        styNormal.spaceAfter = 20
+        styNormal.alignment = 0  # LEFT
+
+        styleSheet = getSampleStyleSheet()
+        styDescrizione = styleSheet['Normal']
+        styDescrizione.spaceBefore = 20
+        styDescrizione.spaceAfter = 20
+        styDescrizione.alignment = 4  # Justified
+
+        # format labels
+
+        # 0 row
+        intestazione = Paragraph("<b>PERIODIZATION FORM<br/>" + str(self.datestrfdate()) + "</b>", styNormal)
+
+        home = os.environ['PYARCHINIT_HOME']
+
+        home_DB_path = '{}{}{}'.format(home, os.sep, 'pyarchinit_DB_folder')
+        logo_path = '{}{}{}'.format(home_DB_path, os.sep, 'logo.jpg')
+        logo = Image(logo_path)
+
+        ##      if test_image.drawWidth < 800:
+
+        logo.drawHeight = 1.5 * inch * logo.drawHeight / logo.drawWidth
+        logo.drawWidth = 1.5 * inch
+
+        # intestazione2 = Paragraph("<b>pyArchInit</b><br/>www.pyarchinit.blogspot.com", styNormal)
+
+        # 1 row
+        sito = Paragraph("<b>Site</b><br/>" + str(self.sito), styNormal)
+        periodo = Paragraph("<b>Period</b><br/>" + str(self.periodo), styNormal)
+        fase = Paragraph("<b>Phase</b><br/>" + str(self.fase), styNormal)
+
+        # 2 row
+        cronologia = Paragraph("<b>CHRONOLOGY</b><br/>", styNormal)
+
+        # 3 row
+        cronologia_iniziale = Paragraph("<b>Start chronology</b><br/>" + str(self.cron_iniziale), styNormal)
+        cronologia_finale = Paragraph("<b>Final chronology</b><br/>" + str(self.cron_finale), styNormal)
+        datazione_ext = Paragraph("<b>Letteral datation</b><br/>" + str(self.datazione_estesa), styNormal)
+
+        # 4 row
+        descrizione = ''
+        try:
+            descrizione = Paragraph("<b>Description</b><br/>" + str(self.descrizione), styDescrizione)
+        except:
+            pass
+
+            # schema
+        cell_schema = [  # 00, 01, 02, 03, 04, 05, 06, 07, 08, 09 rows
+            [intestazione, '01', '02', '03', '04', '05', '06', logo, '08', '09'],  # 0 row ok
+            [sito, '01', '02', '03', '04', '05', '06', '07', periodo, fase],  # 1 row ok
+            [cronologia, '01', '02', '03', '04', '05', '06', '07', '08', '09'],  # 2 row ok
+            [cronologia_iniziale, '01', cronologia_finale, '03', datazione_ext, '05', '06', '07', '08', '09'],
+            # 3 row
+            [descrizione, '01', '02', '03', '04', '05', '06', '07', '08', '09']]  # 4row ok
+
+        # table style
+        table_style = [
+            ('GRID', (0, 0), (-1, -1), 0.5, colors.black),
+            # 0 row
+            ('SPAN', (0, 0), (6, 0)),  # intestazione
+            ('SPAN', (7, 0), (9, 0)),  # intestazione
+
+            # 1 row
+            ('SPAN', (0, 1), (7, 1)),  # Sito
+            ('SPAN', (8, 1), (8, 1)),  # periodo
+            ('SPAN', (9, 1), (9, 1)),  # fase
+
+            # 2 row
+            ('SPAN', (0, 2), (9, 2)),  # intestazione cronologia
+
+            # 3 row
+            ('SPAN', (0, 3), (1, 3)),  # cron iniziale
+            ('SPAN', (2, 3), (3, 3)),  # cron finale
+            ('SPAN', (4, 3), (9, 3)),  # datazione estesa
+
+            # 4
+            ('SPAN', (0, 4), (9, 4)),  # datazione estesa
+            ('VALIGN', (0, 4), (9, 4), 'TOP'),
+            # ('VALIGN',(5,3),(5,3),'TOP'),
+
+            ('VALIGN', (0, 0), (-1, -1), 'TOP')
+
+        ]
+
+        t = Table(cell_schema, colWidths=50, rowHeights=None, style=table_style)
+
+        return t
 class generate_Periodizzazione_pdf(object):
     HOME = os.environ['PYARCHINIT_HOME']
 
@@ -269,7 +518,28 @@ class generate_Periodizzazione_pdf(object):
         doc = SimpleDocTemplate(f)
         doc.build(elements, canvasmaker=NumberedCanvas_Periodizzazionesheet)
         f.close()
-
+    def build_Periodizzazione_sheets_de(self, records):
+        elements = []
+        for i in range(len(records)):
+            single_periodizzazione_sheet = single_Periodizzazione_pdf_sheet(records[i])
+            elements.append(single_periodizzazione_sheet.create_sheet_de())
+            elements.append(PageBreak())
+        filename = '{}{}{}'.format(self.PDF_path, os.sep, 'formular_period.pdf')
+        f = open(filename, "wb")
+        doc = SimpleDocTemplate(f)
+        doc.build(elements, canvasmaker=NumberedCanvas_Periodizzazionesheet)
+        f.close()
+    def build_Periodizzazione_sheets_en(self, records):
+        elements = []
+        for i in range(len(records)):
+            single_periodizzazione_sheet = single_Periodizzazione_pdf_sheet(records[i])
+            elements.append(single_periodizzazione_sheet.create_sheet_en())
+            elements.append(PageBreak())
+        filename = '{}{}{}'.format(self.PDF_path, os.sep, 'form_Periodization.pdf')
+        f = open(filename, "wb")
+        doc = SimpleDocTemplate(f)
+        doc.build(elements, canvasmaker=NumberedCanvas_Periodizzazionesheet)
+        f.close()   
     def build_index_Periodizzazione(self, records, sito):
         home = os.environ['PYARCHINIT_HOME']
 
@@ -313,3 +583,89 @@ class generate_Periodizzazione_pdf(object):
         doc.build(lst, canvasmaker=NumberedCanvas_Periodizzazioneindex)
 
         f.close()
+    def build_index_Periodizzazione_de(self, records, sito):
+        home = os.environ['PYARCHINIT_HOME']
+
+        home_DB_path = '{}{}{}'.format(home, os.sep, 'pyarchinit_DB_folder')
+        logo_path = '{}{}{}'.format(home_DB_path, os.sep, 'logo_de.jpg')
+
+        logo = Image(logo_path)
+        logo.drawHeight = 1.5 * inch * logo.drawHeight / logo.drawWidth
+        logo.drawWidth = 1.5 * inch
+        logo.hAlign = "LEFT"
+
+        styleSheet = getSampleStyleSheet()
+        styNormal = styleSheet['Normal']
+        styBackground = ParagraphStyle('background', parent=styNormal, backColor=colors.pink)
+        styH1 = styleSheet['Heading3']
+
+        data = self.datestrfdate()
+
+        lst = []
+        lst.append(logo)
+        lst.append(Paragraph("<b>LISTE PERIOD</b><br/><b>Ausgrabungsstätte: %s,  Datum: %s</b>" % (sito, data), styH1))
+
+        table_data = []
+        for i in range(len(records)):
+            exp_index = Periodizzazione_index_pdf_sheet(records[i])
+            table_data.append(exp_index.getTable_de())
+
+        styles = exp_index.makeStyles()
+        colWidths = [60, 60, 150, 150, 300]
+
+        table_data_formatted = Table(table_data, colWidths, style=styles)
+        table_data_formatted.hAlign = "LEFT"
+
+        lst.append(table_data_formatted)
+        # lst.append(Spacer(0,2))
+
+        filename = '{}{}{}'.format(self.PDF_path, os.sep, 'Liste_period.pdf')
+        f = open(filename, "wb")
+
+        doc = SimpleDocTemplate(f, pagesize=(29 * cm, 21 * cm), showBoundary=0)
+        doc.build(lst, canvasmaker=NumberedCanvas_Periodizzazioneindex)
+
+        f.close()
+    def build_index_Periodizzazione_en(self, records, sito):
+        home = os.environ['PYARCHINIT_HOME']
+
+        home_DB_path = '{}{}{}'.format(home, os.sep, 'pyarchinit_DB_folder')
+        logo_path = '{}{}{}'.format(home_DB_path, os.sep, 'logo.jpg')
+
+        logo = Image(logo_path)
+        logo.drawHeight = 1.5 * inch * logo.drawHeight / logo.drawWidth
+        logo.drawWidth = 1.5 * inch
+        logo.hAlign = "LEFT"
+
+        styleSheet = getSampleStyleSheet()
+        styNormal = styleSheet['Normal']
+        styBackground = ParagraphStyle('background', parent=styNormal, backColor=colors.pink)
+        styH1 = styleSheet['Heading3']
+
+        data = self.datestrfdate()
+
+        lst = []
+        lst.append(logo)
+        lst.append(Paragraph("<b>LIST PERIODIZATION</b><br/><b>Site: %s,  Date: %s</b>" % (sito, data), styH1))
+
+        table_data = []
+        for i in range(len(records)):
+            exp_index = Periodizzazione_index_pdf_sheet(records[i])
+            table_data.append(exp_index.getTable_en())
+
+        styles = exp_index.makeStyles()
+        colWidths = [60, 60, 150, 150, 300]
+
+        table_data_formatted = Table(table_data, colWidths, style=styles)
+        table_data_formatted.hAlign = "LEFT"
+
+        lst.append(table_data_formatted)
+        # lst.append(Spacer(0,2))
+
+        filename = '{}{}{}'.format(self.PDF_path, os.sep, 'list_periodization.pdf')
+        f = open(filename, "wb")
+
+        doc = SimpleDocTemplate(f, pagesize=(29 * cm, 21 * cm), showBoundary=0)
+        doc.build(lst, canvasmaker=NumberedCanvas_Periodizzazioneindex)
+
+        f.close()   

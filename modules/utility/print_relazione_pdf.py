@@ -39,7 +39,6 @@ from .pyarchinit_OS_utility import *
 from reportlab.rl_config import defaultPageSize
 
 
-
 ##############################################################
 #####MODELLO RELAZIONE
 ##### PROBLEMATICA AREE DIFFERENTI
