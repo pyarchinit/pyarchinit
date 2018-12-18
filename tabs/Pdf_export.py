@@ -358,9 +358,40 @@ class pyarchinit_pdf_export(QDialog, MAIN_DIALOG_CLASS):
             if self.DATA_LIST:
                 printed = True
                 self.DATA_LIST = []
-
-        
         self.messageOnSuccess(printed)
+        ####Esportazione della Scheda individui
+        if self.checkBox_individui.isChecked():
+            ind_res = self.db_search_DB('SCHEDAIND', 'sito', sito)
+
+            if bool(ind_res):
+                id_list = []
+                for i in range(len(ind_res)):
+                    id_list.append(ind_res[i].id_scheda_ind)
+
+                temp_data_list = self.DB_MANAGER.query_sort(id_list, ['nr_individuo'], 'asc', 'SCHEDAIND',
+                                                            'id_scheda_ind')
+
+                for i in temp_data_list:
+                    self.DATA_LIST.append(i)
+
+                Ind_pdf_sheet = generate_pdf()
+                data_list = self.generate_list_individui_pdf()
+                
+                if self.L=='it':
+                    Ind_pdf_sheet.build_Individui_sheets(data_list)
+                    Ind_pdf_sheet.build_index_individui(data_list, data_list[0][0])
+                elif self.L=='de':
+                    Ind_pdf_sheet.build_Individui_sheets_de(data_list)
+                    Ind_pdf_sheet.build_index_individui_de(data_list, data_list[0][0])
+                else:
+                    Ind_pdf_sheet.build_Individui_sheets_en(data_list)
+                    Ind_pdf_sheet.build_index_individui_en(data_list, data_list[0][0]) 
+                    
+            if self.DATA_LIST:
+                printed = True
+                self.DATA_LIST = []
+        self.messageOnSuccess(printed)
+        
     def db_search_DB(self, table_class, field, value):
         self.table_class = table_class
         self.field = field
