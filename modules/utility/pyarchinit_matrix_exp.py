@@ -70,16 +70,17 @@ class HarrisMatrix:
             si.dwFlags |= subprocess.STARTF_USESHOWWINDOW
             si.wShowWindow = subprocess.SW_HIDE
 
-        # cmd = ' '.join(['tred', dot_file])
-        # dotargs = shlex.split(cmd)
+        #cmd = ' '.join(['tred', dot_file])
+        #dotargs = shlex.split(cmd)
 
-        with open(os.path.join(matrix_path, filename + '_tred.dot'), "wb") as out, \
-                open(os.path.join(matrix_path, 'matrix_error.txt'), "wb") as err:
+        with open(os.path.join(matrix_path, filename + '_tred.dot'), "w") as out, \
+                open(os.path.join(matrix_path, 'matrix_error.txt'), "w") as err:
             subprocess.Popen(['tred', dot_file],
                              #shell=False,
                              stdout=out,
                              stderr=err)
-                             #startupinfo=si if Pyarchinit_OS_Utility.isWindows() else None)
+                             #startupinfo=si if Pyarchinit_OS_Utility.isWindows() 
+                             #else None)
 
         tred_file = os.path.join(matrix_path, filename + '_tred.dot')
         g = Source.from_file(tred_file, format='svg')
