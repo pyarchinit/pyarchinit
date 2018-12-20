@@ -255,7 +255,7 @@ p, li { white-space: pre-wrap; }
          <property name="title">
           <string>Dati specifici USM </string>
          </property>
-         <property name="collapsed">
+         <property name="collapsed" stdset="0">
           <bool>false</bool>
          </property>
          <layout class="QGridLayout" name="gridLayout_19">
@@ -651,7 +651,7 @@ p, li { white-space: pre-wrap; }
          <property name="title">
           <string>Caratteristiche dei giunti</string>
          </property>
-         <property name="collapsed">
+         <property name="collapsed" stdset="0">
           <bool>false</bool>
          </property>
          <layout class="QGridLayout" name="gridLayout_22">
@@ -3689,8 +3689,8 @@ p, li { white-space: pre-wrap; }
                <rect>
                 <x>0</x>
                 <y>0</y>
-                <width>875</width>
-                <height>402</height>
+                <width>359</width>
+                <height>356</height>
                </rect>
               </property>
               <attribute name="label">
@@ -4011,8 +4011,8 @@ p, li { white-space: pre-wrap; }
                <rect>
                 <x>0</x>
                 <y>0</y>
-                <width>896</width>
-                <height>275</height>
+                <width>242</width>
+                <height>212</height>
                </rect>
               </property>
               <attribute name="label">
@@ -4249,8 +4249,8 @@ p, li { white-space: pre-wrap; }
                <rect>
                 <x>0</x>
                 <y>0</y>
-                <width>268</width>
-                <height>44</height>
+                <width>249</width>
+                <height>40</height>
                </rect>
               </property>
               <attribute name="label">
@@ -4342,10 +4342,10 @@ p, li { white-space: pre-wrap; }
      <property name="title">
       <string>Localizzazione</string>
      </property>
-     <property name="collapsed">
+     <property name="collapsed" stdset="0">
       <bool>false</bool>
      </property>
-     <property name="saveCheckedState">
+     <property name="saveCheckedState" stdset="0">
       <bool>false</bool>
      </property>
      <layout class="QGridLayout" name="gridLayout_5">
@@ -5028,16 +5028,16 @@ p, li { white-space: pre-wrap; }
      <property name="checkable">
       <bool>false</bool>
      </property>
-     <property name="collapsed">
+     <property name="collapsed" stdset="0">
       <bool>false</bool>
      </property>
-     <property name="scrollOnExpand">
+     <property name="scrollOnExpand" stdset="0">
       <bool>false</bool>
      </property>
-     <property name="saveCollapsedState">
+     <property name="saveCollapsedState" stdset="0">
       <bool>true</bool>
      </property>
-     <property name="saveCheckedState">
+     <property name="saveCheckedState" stdset="0">
       <bool>false</bool>
      </property>
      <layout class="QGridLayout" name="gridLayout_6">
@@ -5904,7 +5904,7 @@ p, li { white-space: pre-wrap; }
         <string/>
        </property>
        <property name="text">
-        <string>GIS Data Visualizer</string>
+        <string>GIS Data Viewer</string>
        </property>
        <property name="icon">
         <iconset resource="../../resources/resources.qrc">
@@ -6219,9 +6219,6 @@ p, li { white-space: pre-wrap; }
     </layout>
    </item>
   </layout>
-  <zorder>tabWidget</zorder>
-  <zorder>groupBox_2</zorder>
-  <zorder>groupBox</zorder>
  </widget>
  <layoutdefault spacing="7" margin="11"/>
  <customwidgets>
