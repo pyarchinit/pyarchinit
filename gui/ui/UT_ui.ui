@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>540</width>
-    <height>573</height>
+    <width>723</width>
+    <height>770</height>
    </rect>
   </property>
   <property name="minimumSize">
@@ -880,13 +880,13 @@ p, li { white-space: pre-wrap; }
         <attribute name="title">
          <string>Localizzazione</string>
         </attribute>
-        <widget class="QWidget" name="">
+        <widget class="QWidget" name="layoutWidget">
          <property name="geometry">
           <rect>
            <x>10</x>
            <y>10</y>
-           <width>491</width>
-           <height>68</height>
+           <width>661</width>
+           <height>85</height>
           </rect>
          </property>
          <layout class="QGridLayout" name="gridLayout_20">
@@ -943,241 +943,193 @@ p, li { white-space: pre-wrap; }
           </item>
          </layout>
         </widget>
-        <widget class="QComboBox" name="comboBox_provincia">
-         <property name="enabled">
-          <bool>true</bool>
-         </property>
-         <property name="geometry">
-          <rect>
-           <x>11</x>
-           <y>85</y>
-           <width>141</width>
-           <height>22</height>
-          </rect>
-         </property>
-         <property name="minimumSize">
-          <size>
-           <width>0</width>
-           <height>22</height>
-          </size>
-         </property>
-         <property name="editable">
-          <bool>true</bool>
-         </property>
-        </widget>
-        <widget class="QLabel" name="label_11">
-         <property name="geometry">
-          <rect>
-           <x>11</x>
-           <y>107</y>
-           <width>51</width>
-           <height>16</height>
-          </rect>
-         </property>
-         <property name="font">
-          <font>
-           <pointsize>10</pointsize>
-          </font>
-         </property>
-         <property name="text">
-          <string>Provincia</string>
-         </property>
-        </widget>
-        <widget class="QComboBox" name="comboBox_comune">
-         <property name="geometry">
-          <rect>
-           <x>11</x>
-           <y>129</y>
-           <width>141</width>
-           <height>22</height>
-          </rect>
-         </property>
-         <property name="sizePolicy">
-          <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
-           <horstretch>0</horstretch>
-           <verstretch>0</verstretch>
-          </sizepolicy>
-         </property>
-         <property name="minimumSize">
-          <size>
-           <width>0</width>
-           <height>22</height>
-          </size>
-         </property>
-         <property name="editable">
-          <bool>true</bool>
-         </property>
-        </widget>
-        <widget class="QLabel" name="label_30">
-         <property name="geometry">
-          <rect>
-           <x>11</x>
-           <y>193</y>
-           <width>49</width>
-           <height>16</height>
-          </rect>
-         </property>
-         <property name="font">
-          <font>
-           <pointsize>10</pointsize>
-          </font>
-         </property>
-         <property name="text">
-          <string>Frazione</string>
-         </property>
-        </widget>
-        <widget class="QLabel" name="label_15">
-         <property name="geometry">
-          <rect>
-           <x>11</x>
-           <y>150</y>
-           <width>47</width>
-           <height>16</height>
-          </rect>
-         </property>
-         <property name="font">
-          <font>
-           <pointsize>10</pointsize>
-          </font>
-         </property>
-         <property name="text">
-          <string>Comune</string>
-         </property>
-        </widget>
-        <widget class="QComboBox" name="comboBox_frazione">
-         <property name="geometry">
-          <rect>
-           <x>11</x>
-           <y>172</y>
-           <width>141</width>
-           <height>22</height>
-          </rect>
-         </property>
-         <property name="minimumSize">
-          <size>
-           <width>0</width>
-           <height>22</height>
-          </size>
-         </property>
-         <property name="editable">
-          <bool>true</bool>
-         </property>
-        </widget>
-        <widget class="QComboBox" name="comboBox_localita">
-         <property name="geometry">
-          <rect>
-           <x>11</x>
-           <y>215</y>
-           <width>141</width>
-           <height>22</height>
-          </rect>
-         </property>
-         <property name="minimumSize">
-          <size>
-           <width>0</width>
-           <height>22</height>
-          </size>
-         </property>
-         <property name="editable">
-          <bool>true</bool>
-         </property>
-        </widget>
-        <widget class="QLabel" name="label_31">
-         <property name="geometry">
-          <rect>
-           <x>11</x>
-           <y>236</y>
-           <width>46</width>
-           <height>16</height>
-          </rect>
-         </property>
-         <property name="font">
-          <font>
-           <pointsize>10</pointsize>
-          </font>
-         </property>
-         <property name="text">
-          <string>Localita'</string>
-         </property>
-        </widget>
-        <widget class="QLineEdit" name="lineEdit_indirizzo">
+        <widget class="QWidget" name="">
          <property name="geometry">
           <rect>
            <x>10</x>
-           <y>262</y>
-           <width>490</width>
-           <height>22</height>
+           <y>140</y>
+           <width>671</width>
+           <height>305</height>
           </rect>
          </property>
-         <property name="minimumSize">
-          <size>
-           <width>0</width>
-           <height>22</height>
-          </size>
-         </property>
+         <layout class="QGridLayout" name="gridLayout_8">
+          <item row="1" column="0">
+           <widget class="QComboBox" name="comboBox_provincia">
+            <property name="enabled">
+             <bool>true</bool>
+            </property>
+            <property name="minimumSize">
+             <size>
+              <width>0</width>
+              <height>22</height>
+             </size>
+            </property>
+            <property name="editable">
+             <bool>true</bool>
+            </property>
+           </widget>
+          </item>
+          <item row="8" column="1" rowspan="2">
+           <widget class="QLabel" name="label_50">
+            <property name="font">
+             <font>
+              <pointsize>10</pointsize>
+             </font>
+            </property>
+            <property name="text">
+             <string>nr civico</string>
+            </property>
+           </widget>
+          </item>
+          <item row="5" column="0">
+           <widget class="QComboBox" name="comboBox_frazione">
+            <property name="minimumSize">
+             <size>
+              <width>0</width>
+              <height>22</height>
+             </size>
+            </property>
+            <property name="editable">
+             <bool>true</bool>
+            </property>
+           </widget>
+          </item>
+          <item row="8" column="0">
+           <widget class="QComboBox" name="comboBox_localita">
+            <property name="minimumSize">
+             <size>
+              <width>0</width>
+              <height>22</height>
+             </size>
+            </property>
+            <property name="editable">
+             <bool>true</bool>
+            </property>
+           </widget>
+          </item>
+          <item row="8" column="2" rowspan="2">
+           <widget class="QLineEdit" name="lineEdit_nr_civico">
+            <property name="minimumSize">
+             <size>
+              <width>0</width>
+              <height>22</height>
+             </size>
+            </property>
+            <property name="maximumSize">
+             <size>
+              <width>50</width>
+              <height>16777215</height>
+             </size>
+            </property>
+            <property name="text">
+             <string/>
+            </property>
+           </widget>
+          </item>
+          <item row="10" column="0" colspan="3">
+           <widget class="QLineEdit" name="lineEdit_indirizzo">
+            <property name="minimumSize">
+             <size>
+              <width>0</width>
+              <height>22</height>
+             </size>
+            </property>
+           </widget>
+          </item>
+          <item row="3" column="0">
+           <widget class="QComboBox" name="comboBox_comune">
+            <property name="sizePolicy">
+             <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+              <horstretch>0</horstretch>
+              <verstretch>0</verstretch>
+             </sizepolicy>
+            </property>
+            <property name="minimumSize">
+             <size>
+              <width>0</width>
+              <height>22</height>
+             </size>
+            </property>
+            <property name="editable">
+             <bool>true</bool>
+            </property>
+           </widget>
+          </item>
+          <item row="4" column="0">
+           <widget class="QLabel" name="label_30">
+            <property name="font">
+             <font>
+              <pointsize>10</pointsize>
+             </font>
+            </property>
+            <property name="text">
+             <string>Frazione</string>
+            </property>
+           </widget>
+          </item>
+          <item row="2" column="0">
+           <widget class="QLabel" name="label_15">
+            <property name="font">
+             <font>
+              <pointsize>10</pointsize>
+             </font>
+            </property>
+            <property name="text">
+             <string>Comune</string>
+            </property>
+           </widget>
+          </item>
+          <item row="0" column="0">
+           <widget class="QLabel" name="label_11">
+            <property name="font">
+             <font>
+              <pointsize>10</pointsize>
+             </font>
+            </property>
+            <property name="text">
+             <string>Provincia</string>
+            </property>
+           </widget>
+          </item>
+          <item row="7" column="0">
+           <widget class="QLabel" name="label_31">
+            <property name="font">
+             <font>
+              <pointsize>10</pointsize>
+             </font>
+            </property>
+            <property name="text">
+             <string>Localita'</string>
+            </property>
+           </widget>
+          </item>
+          <item row="9" column="0">
+           <widget class="QLabel" name="label_49">
+            <property name="font">
+             <font>
+              <pointsize>10</pointsize>
+             </font>
+            </property>
+            <property name="text">
+             <string>Indirizzo</string>
+            </property>
+           </widget>
+          </item>
+         </layout>
         </widget>
-        <widget class="QLineEdit" name="lineEdit_nr_civico">
-         <property name="geometry">
-          <rect>
-           <x>450</x>
-           <y>230</y>
-           <width>50</width>
-           <height>22</height>
-          </rect>
-         </property>
-         <property name="minimumSize">
-          <size>
-           <width>0</width>
-           <height>22</height>
-          </size>
-         </property>
-         <property name="maximumSize">
-          <size>
-           <width>50</width>
-           <height>16777215</height>
-          </size>
-         </property>
-         <property name="text">
-          <string/>
-         </property>
-        </widget>
-        <widget class="QLabel" name="label_49">
-         <property name="geometry">
-          <rect>
-           <x>10</x>
-           <y>290</y>
-           <width>141</width>
-           <height>16</height>
-          </rect>
-         </property>
-         <property name="font">
-          <font>
-           <pointsize>10</pointsize>
-          </font>
-         </property>
-         <property name="text">
-          <string>Indirizzo</string>
-         </property>
-        </widget>
-        <widget class="QLabel" name="label_50">
-         <property name="geometry">
-          <rect>
-           <x>390</x>
-           <y>230</y>
-           <width>50</width>
-           <height>16</height>
-          </rect>
-         </property>
-         <property name="font">
-          <font>
-           <pointsize>10</pointsize>
-          </font>
-         </property>
-         <property name="text">
-          <string>nr civico</string>
-         </property>
-        </widget>
-        <zorder></zorder>
+        <zorder>comboBox_provincia</zorder>
+        <zorder>label_11</zorder>
+        <zorder>comboBox_comune</zorder>
+        <zorder>label_30</zorder>
+        <zorder>label_15</zorder>
+        <zorder>comboBox_frazione</zorder>
+        <zorder>comboBox_localita</zorder>
+        <zorder>label_31</zorder>
+        <zorder>lineEdit_indirizzo</zorder>
+        <zorder>lineEdit_nr_civico</zorder>
+        <zorder>label_49</zorder>
+        <zorder>label_50</zorder>
+        <zorder>layoutWidget</zorder>
        </widget>
        <widget class="QWidget" name="tab_2">
         <attribute name="title">
