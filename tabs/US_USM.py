@@ -3575,7 +3575,7 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
     def on_pushButton_prev_rec_pressed(self):
         rec_goto = int(self.lineEdit_goto.text())
         if self.check_record_state() == 1:
-            #pass
+            pass
         else:
             self.REC_CORR = self.REC_CORR - rec_goto
         if self.REC_CORR <= -1:
@@ -3594,7 +3594,7 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
     def on_pushButton_next_rec_pressed(self):
         rec_goto = int(self.lineEdit_goto.text())
         if self.check_record_state() == 1:
-            #pass
+            pass
         else:
             self.REC_CORR = self.REC_CORR + rec_goto
         if self.REC_CORR >= self.REC_TOT:
