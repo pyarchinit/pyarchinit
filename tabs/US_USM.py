@@ -3557,7 +3557,7 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
                 self.fill_fields(0)
                 self.set_rec_counter(self.REC_TOT, self.REC_CORR + 1)
             except Exception as e:
-                pass#QMessageBox.warning(self, "Error", str(e), QMessageBox.Ok)
+                QMessageBox.warning(self, "Error", str(e), QMessageBox.Ok)
 
     def on_pushButton_last_rec_pressed(self):
         if self.check_record_state() == 1:
@@ -3574,39 +3574,39 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
 
     def on_pushButton_prev_rec_pressed(self):
         rec_goto = int(self.lineEdit_goto.text())
-        #if self.check_record_state() == 1:
+        if self.check_record_state() == 1:
             #pass
-        #else:
-        self.REC_CORR = self.REC_CORR - rec_goto
+        else:
+            self.REC_CORR = self.REC_CORR - rec_goto
         if self.REC_CORR <= -1:
             self.REC_CORR = self.REC_CORR + rec_goto
-            #QMessageBox.warning(self, "Attenzione", "Numero troppo elevato!", QMessageBox.Ok)
+            QMessageBox.warning(self, "Attenzione", "Numero troppo elevato!", QMessageBox.Ok)
         else:
             try:
                 self.empty_fields()
                 self.fill_fields(self.REC_CORR)
                 self.set_rec_counter(self.REC_TOT, self.REC_CORR + 1)
             except Exception as e:
-                pass#QMessageBox.warning(self, "Error", str(e), QMessageBox.Ok)
+                QMessageBox.warning(self, "Error", str(e), QMessageBox.Ok)
 
                   
 
     def on_pushButton_next_rec_pressed(self):
         rec_goto = int(self.lineEdit_goto.text())
-        #if self.check_record_state() == 1:
+        if self.check_record_state() == 1:
             #pass
-        #else:
-        self.REC_CORR = self.REC_CORR + rec_goto
+        else:
+            self.REC_CORR = self.REC_CORR + rec_goto
         if self.REC_CORR >= self.REC_TOT:
             self.REC_CORR = self.REC_CORR - rec_goto
-            #QMessageBox.warning(self, "Attenzione", "Numero troppo elevato!", QMessageBox.Ok)
+            QMessageBox.warning(self, "Attenzione", "Numero troppo elevato!", QMessageBox.Ok)
         else:
             try:
                 self.empty_fields()
                 self.fill_fields(self.REC_CORR)
                 self.set_rec_counter(self.REC_TOT, self.REC_CORR + 1)
             except Exception as e:
-                pass#QMessageBox.warning(self, "Error", str(e), QMessageBox.Ok)
+                QMessageBox.warning(self, "Error", str(e), QMessageBox.Ok)
 
     def on_pushButton_delete_pressed(self):
         
