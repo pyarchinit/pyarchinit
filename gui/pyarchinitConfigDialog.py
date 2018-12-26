@@ -24,6 +24,8 @@ import os
 import sqlite3
 from builtins import range
 from builtins import str
+
+
 from qgis.PyQt.QtWidgets import QApplication, QDialog, QMessageBox, QFileDialog
 
 from qgis.PyQt.uic import loadUiType
@@ -265,10 +267,11 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
         db_url = conn.conn_str()
 
         
-        RestoreSchema(db_url,view_file).restore_schema()
-       
-
-        
+        if RestoreSchema(db_url,view_file).restore_schema()== False:
+            
+            QMessageBox.warning(self, "INFO", "The DB exist already", QMessageBox.Ok)
+        else:
+            QMessageBox.warning(self, "INFO", "Updated", QMessageBox.Ok)
         
 
         
@@ -286,6 +289,16 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
         
         view_file4 = os.path.join(os.path.dirname(__file__), os.pardir, 'resources', 'dbfiles',
                                    '4.sql')
+        
+        view_file5= os.path.join(os.path.dirname(__file__), os.pardir, 'resources', 'dbfiles',
+                                   '5.sql')
+                                   
+        view_file6= os.path.join(os.path.dirname(__file__), os.pardir, 'resources', 'dbfiles',
+                                   '6.sql')
+
+
+        view_file7= os.path.join(os.path.dirname(__file__), os.pardir, 'resources', 'dbfiles',
+                                   '7.sql')                        
         home_DB_path = '{}{}{}'.format(self.HOME, os.sep, 'pyarchinit_DB_folder')
 
         sl_name = '{}.sqlite'.format(self.lineEdit_dbname_sl.text())
@@ -295,12 +308,52 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
         db_url = conn.conn_str()
 
         
-        RestoreSchema(db_url,view_file).restore_schema()
-        RestoreSchema(db_url,view_file1).restore_schema()
-        RestoreSchema(db_url,view_file3).restore_schema()
-        RestoreSchema(db_url,view_file4).restore_schema()
+        if RestoreSchema(db_url,view_file).restore_schema()== False:
+            
+            QMessageBox.warning(self, "INFO", "The DB exist already", QMessageBox.Ok)
+        else:
+            QMessageBox.warning(self, "INFO", "Updated", QMessageBox.Ok)    
+            
+        if RestoreSchema(db_url,view_file1).restore_schema()== False:
+            
+            QMessageBox.warning(self, "INFO", "The DB exist already", QMessageBox.Ok)
+            
+        else:
+            QMessageBox.warning(self, "INFO", "Updated", QMessageBox.Ok)    
+        if RestoreSchema(db_url,view_file3).restore_schema()== False:
+            
+            QMessageBox.warning(self, "INFO", "The DB exist already", QMessageBox.Ok)
+            
+        else:
+            QMessageBox.warning(self, "INFO", "Updated", QMessageBox.Ok)    
         
-               
+        if RestoreSchema(db_url,view_file4).restore_schema()== False:
+            
+            QMessageBox.warning(self, "INFO", "The DB exist already", QMessageBox.Ok)
+            
+        else:
+            QMessageBox.warning(self, "INFO", "Updated", QMessageBox.Ok)    
+        
+        if RestoreSchema(db_url,view_file5).restore_schema()== False:
+            
+            QMessageBox.warning(self, "INFO", "The DB exist already", QMessageBox.Ok)
+            
+        else:
+            QMessageBox.warning(self, "INFO", "Updated", QMessageBox.Ok) 
+
+        if RestoreSchema(db_url,view_file6).restore_schema()== False:
+            
+            QMessageBox.warning(self, "INFO", "The DB exist already", QMessageBox.Ok)
+            
+        else:
+            QMessageBox.warning(self, "INFO", "Updated", QMessageBox.Ok) 
+
+        if RestoreSchema(db_url,view_file7).restore_schema()== False:
+            
+            QMessageBox.warning(self, "INFO", "The DB exist already", QMessageBox.Ok)
+            
+        else:
+            QMessageBox.warning(self, "INFO", "Updated", QMessageBox.Ok)    
     def on_pushButton_crea_database_sl_pressed(self):
         
         

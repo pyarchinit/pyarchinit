@@ -727,7 +727,9 @@ class Pyarchinit_db_management(object):
         Session = sessionmaker(bind=self.engine, autoflush=True, autocommit=True)
         session = Session()
         query = session.query(class_name)
-        return query.all()
+        res = query.all()
+        session.close()
+        return res
 
     def query_bool(self, params, table):
         u = Utility()
@@ -771,6 +773,7 @@ class Pyarchinit_db_management(object):
         t.write(str(query_str))
         t.close()
         '''
+        session.close()
         return res
 
     def query_operator(self, params, table):
@@ -788,7 +791,7 @@ class Pyarchinit_db_management(object):
         # self.connection()
         Session = sessionmaker(bind=self.engine, autoflush=True, autocommit=True)
         session = Session()
-
+        session.close()
         return eval(query_str)
 
     def query_distinct(self, table, query_params, distinct_field_name_params):
@@ -814,7 +817,7 @@ class Pyarchinit_db_management(object):
         # self.connection()
         Session = sessionmaker(bind=self.engine, autoflush=True, autocommit=True)
         session = Session()
-
+        session.close()
         return eval(query_cmd)
 
     def query_distinct_sql(self, table, query_params, distinct_field_name_params):
@@ -909,7 +912,7 @@ class Pyarchinit_db_management(object):
         # f.close()
 
         eval(session_exec_str)
-
+        session.close()
     def update_find_check(self, table_class_str, id_table_str, value_id, find_check_value):
         self.table_class_str = table_class_str
         self.id_table_str = id_table_str
@@ -923,7 +926,7 @@ class Pyarchinit_db_management(object):
         self.table_class_str, self.table_class_str, self.id_table_str, self.value_id, find_check_value)
 
         eval(session_exec_str)
-
+        session.close()
     def empty_find_check(self, table_class_str, find_check_value):
         self.table_class_str = table_class_str
         self.find_check_value = find_check_value
@@ -934,8 +937,9 @@ class Pyarchinit_db_management(object):
         session_exec_str = 'session.query(%s).update(values = {"find_check": %d})' % (self.table_class_str, 0)
 
         eval(session_exec_str)
-
+        session.close()
     def delete_one_record(self, tn, id_col, id_rec):
+        
         self.table_name = tn
         self.id_column = id_col
         self.id_rec = id_rec
@@ -944,7 +948,7 @@ class Pyarchinit_db_management(object):
         exec_str = ('%s%s%s%d%s') % ('table.delete(table.c.', self.id_column, ' == ', self.id_rec, ').execute()')
 
         eval(exec_str)
-
+        
     def max_num_id(self, tc, f):
         self.table_class = tc
         self.field_id = f
@@ -955,11 +959,12 @@ class Pyarchinit_db_management(object):
         max_id_func = eval(exec_str)
         res_all = max_id_func.all()
         res_max_num_id = res_all[0][0]
+        session.close()
         if not res_max_num_id:
             return 0
         else:
             return int(res_max_num_id)
-
+        
     def dir_query(self):
         Session = sessionmaker(bind=self.engine, autoflush=True, autocommit=True)
         session = Session()
@@ -968,8 +973,8 @@ class Pyarchinit_db_management(object):
         # return session.query(SITE).filter(and_(SITE.id_sito == 1)).all()
         # return os.environ['HOME']
 
-        # managements utilities
-
+        session.close()# managements utilities
+        
     def fields_list(self, t, s=''):
         """return the list of columns in a table. If s is set a int,
         return only one column"""
@@ -985,7 +990,11 @@ class Pyarchinit_db_management(object):
     def query_in_idus(self, id_list):
         Session = sessionmaker(bind=self.engine, autoflush=True, autocommit=True)
         session = Session()
-        return session.query(US).filter(US.id_us.in_(id_list)).all()
+        res = session.query(US).filter(US.id_us.in_(id_list)).all()
+
+        session.close()
+
+        return res
 
     def query_sort(self, id_list, op, to, tc, idn):
         self.order_params = op
@@ -1007,6 +1016,7 @@ class Pyarchinit_db_management(object):
                                                                                                self.id_name,
                                                                                                filter_params)
         s = eval(cmd_str)
+        session.close()
         return s
 
     def run(self, stmt):
@@ -1014,7 +1024,7 @@ class Pyarchinit_db_management(object):
         res_list = []
         for row in rs:
             res_list.append(row[0])
-
+        #session.close()
         return res_list
 
     def update_for(self):
@@ -1044,6 +1054,7 @@ class Pyarchinit_db_management(object):
         Session = sessionmaker(bind=self.engine, autoflush=True, autocommit=True)
         session = Session()
         s = eval('select([{0}.{1}]).group_by({0}.{1})'.format(self.table_class, self.field_name))
+        session.close()
         return self.engine.execute(s).fetchall()
 
     def query_where_text(self, c, v):
@@ -1056,6 +1067,7 @@ class Pyarchinit_db_management(object):
         string = ('%s%s%s%s%s') % ('session.query(PERIODIZZAZIONE).filter_by(', self.c, "='", self.v, "')")
 
         res = eval(string)
+        session.close()
         return res
 
     def update_cont_per(self, s):
@@ -1066,6 +1078,7 @@ class Pyarchinit_db_management(object):
 
         string = ('%s%s%s%s%s') % ('session.query(US).filter_by(', 'sito', "='", str(self.sito), "')")
         # print string
+        session.close()
         lista_us = eval(string)
 
         for i in lista_us:
@@ -1141,7 +1154,7 @@ class Pyarchinit_db_management(object):
             res_list.extend(session.query(US).filter_by(sito=sitof).filter_by(area=areaf).filter(
                 or_(*[US.rapporti.contains(v) for v in chunk])))
             # res_list.extend(us for us, in session.query(US.us).filter(or_(*[US.rapporti.contains(v) for v in chunk])))
-
+        session.close()
         return res_list
 
     def insert_arbitrary_number_of_us_records(self, us_range, sito, area, n_us, unita_tipo):
@@ -1209,7 +1222,7 @@ class Pyarchinit_db_management(object):
                 and_(~US.rapporti.like("%'Schneidet'%"), ~US.rapporti.like("%'Stützt sich auf'%"),
                      ~US.rapporti.like("%'Liegt über'%"), ~US.rapporti.like("%'Verfüllt'%")))
             # MyModel.query.filter(sqlalchemy.not_(Mymodel.name.contains('a_string')))
-        
+        session.close()
         return res
         
     def query_in_idusb(self):
@@ -1221,7 +1234,7 @@ def main():
     db.connection()
 
     db.insert_arbitrary_number_of_records(10, 'Giorgio', 1, 1, 'US')  # us_range, sito, area, n_us)
-
+    
 
 if __name__ == '__main__':
     main()

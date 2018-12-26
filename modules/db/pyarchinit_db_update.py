@@ -387,3 +387,5 @@ class DB_update(object):
             pass
             # verificare se aggiorna le tabelle con i campi nuovi
 
+		
+		

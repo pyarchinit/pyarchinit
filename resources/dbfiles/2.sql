@@ -1,6 +1,6 @@
 
 
-CREATE TABLE "pyarchinit_documentazione" (
+CREATE TABLE IF NOT EXISTS"pyarchinit_documentazione" (
 "pkuid" integer PRIMARY KEY AUTOINCREMENT,
 "sito" text,
 "nome_doc" text,
