@@ -1,5 +1,5 @@
 
-CREATE VIEW "pyarchinit_doc_view" AS
+CREATE VIEW IF NOT EXISTS"pyarchinit_doc_view" AS
 SELECT "a"."ROWID" AS "ROWID", "a"."id_documentazione" AS "id_documentazione",
 "a"."sito" AS "sito", "a"."nome_doc" AS "nome_doc",
 "a"."data" AS "data", "a"."tipo_documentazione" AS "tipo_documentazione",
