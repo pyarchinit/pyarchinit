@@ -21,23 +21,35 @@ $BODY$
 ALTER FUNCTION delete_media_table()
   OWNER TO postgres; 
 
-CREATE TRIGGER delete_media_table
-  AFTER UPDATE OR DELETE
-  ON public.media_thumb_table
-  FOR EACH ROW
-  EXECUTE PROCEDURE public.delete_media_table();
+DO $$
+BEGIN
+    IF NOT EXISTS (SELECT 1 FROM pg_trigger WHERE tgname = 'delete_media_table') THEN
+        CREATE TRIGGER delete_media_table
+		  AFTER UPDATE OR DELETE
+		  ON public.media_thumb_table
+		  FOR EACH ROW
+		  EXECUTE PROCEDURE public.delete_media_table();
 
- 
+    END IF;
+END
+$$;  
   
----------------------------------------------------------------------------  
-
-
-
-CREATE TRIGGER delete_media_to_entity_table
+ ---------------------------------------------------------------------------  
+DO $$
+BEGIN
+    IF NOT EXISTS (SELECT 1 FROM pg_trigger WHERE tgname = 'delete_media_to_entity_table') THEN
+        CREATE TRIGGER delete_media_to_entity_table
   AFTER UPDATE OR DELETE
   ON public.media_thumb_table
   FOR EACH ROW
-  EXECUTE PROCEDURE delete_media_to_entity_table();  
+  EXECUTE PROCEDURE delete_media_to_entity_table();
+
+    END IF;
+END
+$$;  
+
+
+  
 
   
 
