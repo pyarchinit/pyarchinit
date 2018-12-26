@@ -50,6 +50,7 @@ class Connection(object):
                 conn_str = "%s://%s:%s@%s:%s/%s%s?charset=utf8" % (
                 "postgresql", conn_str_dict["user"], conn_str_dict["password"], conn_str_dict["host"],
                 conn_str_dict["port"], conn_str_dict["db_name"], "?sslmode=allow")
+                
             except:
                 conn_str = "%s://%s:%s@%s:%d/%s" % (
                 "postgresql", conn_str_dict["user"], conn_str_dict["password"], conn_str_dict["host"],
