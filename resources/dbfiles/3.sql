@@ -1,4 +1,4 @@
-CREATE VIEW "pyarchinit_us_negative_doc_view" AS
+CREATE VIEW IF NOT EXISTS"pyarchinit_us_negative_doc_view" AS
 SELECT "a"."ROWID" AS "ROWID", "a"."pkuid" AS "pkuid",
 "a"."sito_n" AS "sito_n", "a"."area_n" AS "area_n",
 "a"."us_n" AS "us_n", "a"."tipo_doc_n" AS "tipo_doc_n",

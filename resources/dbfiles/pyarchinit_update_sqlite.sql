@@ -1,5 +1,5 @@
 
-CREATE TABLE "pyarchinit_us_negative_doc" (
+CREATE TABLE IF NOT EXISTS"pyarchinit_us_negative_doc" (
 "pkuid" integer PRIMARY KEY AUTOINCREMENT,
 "sito_n" text,
 "area_n" text,
