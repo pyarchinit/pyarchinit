@@ -15,7 +15,7 @@
 
 **Note2:** _Under Windows is necessary to start QGIS as Administrator when you install the plugin for the first time in order to install all the dependencies properly._
 
-**Note3:** If you use PostgreSQL as your datIf you use PostgreSQL as your database, we recommend that you install a version >= 9.5
+**Note3:** _If you use PostgreSQL as your database, we recommend that you install a version >= 9.5
 
 #### Dependencies
 * SQLAlchemy
