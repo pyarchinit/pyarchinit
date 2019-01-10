@@ -2497,7 +2497,7 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
         if self.DATA_LIST:
             if self.data_error_check() == 1:
                 pass
-            '''else:
+            else:
                 if self.BROWSE_STATUS == "b":
                     if self.DATA_LIST:
                         if self.records_equal_check() == 1:
@@ -2512,7 +2512,7 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
                             else:
                                 self.update_if(QMessageBox.warning(self, 'Error',
                                                                    "The record has been changed. Do you want to save the changes?",
-                                                                   QMessageBox.Ok | QMessageBox.Cancel))'''
+                                                                   QMessageBox.Ok | QMessageBox.Cancel))
         if self.BROWSE_STATUS != "n":
             self.BROWSE_STATUS = "n"
             self.label_status.setText(self.STATUS_ITEMS[self.BROWSE_STATUS])
