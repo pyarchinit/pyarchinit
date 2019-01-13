@@ -1,4 +1,4 @@
-CREATE TRIGGER media_entity_delete 
+CREATE TRIGGER IF NOT EXISTS media_entity_delete 
 After delete 
 ON media_thumb_table 
 
