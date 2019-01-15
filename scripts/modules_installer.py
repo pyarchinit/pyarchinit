@@ -30,13 +30,13 @@ if not packages:
     packages = ['PypeR',
                 'SQLAlchemy',
                 'SQLAlchemy-Utils',
-                'graphviz',
+                'graphviz==0.8.3',
                 'reportlab',
                 'networkx',
                 'matplotlib']
 
 for p in packages:
-    if p.startswith('graphviz'):
+    if p.startswith('graphviz==0.8.3'):
         try:
             subprocess.call(['dot', '-V'])
         except Exception as e:
