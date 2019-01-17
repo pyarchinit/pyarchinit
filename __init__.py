@@ -53,6 +53,8 @@ except Exception as e:
 
 try:
     import graphviz
+    import pkg_resources
+    pkg_resources.require("graphviz==0.8.3")
 except Exception as e:
     missing_libraries.append(str(e))
 
@@ -78,6 +80,10 @@ except Exception as e:
 
 try:
     import sqlalchemy_utils
+except Exception as e:
+    missing_libraries.append(str(e))
+try:
+    import visvis
 except Exception as e:
     missing_libraries.append(str(e))
 
@@ -116,7 +122,8 @@ if install_libraries:
 s = QgsSettings()
 if not Pyarchinit_OS_Utility.checkGraphvizInstallation() and s.value('pyArchInit/graphvizBinPath'):
     os.environ['PATH'] += os.pathsep + os.path.normpath(s.value('pyArchInit/graphvizBinPath'))
-
+if not Pyarchinit_OS_Utility.checkRInstallation() and s.value('pyArchInit/rBinPath'):
+    os.environ['PATH'] += os.pathsep + os.path.normpath(s.value('pyArchInit/rBinPath'))
 
 def classFactory(iface):
     from .pyarchinitPlugin import PyArchInitPlugin
