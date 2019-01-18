@@ -46,4 +46,11 @@ for p in packages:
             print('INFO: It seems that Graphviz is not installed on your system, ')
             print('INFO: anyway the graphviz python module will be installed on your system, ')
             print('INFO: but the export matrix functionality from pyarchinit plugin will be disabled.')
+    elif p.startswith('PypeR'):
+        try:
+            subprocess.call(['Rcmd'])
+        except Exception as e:
+            print('INFO: It seems that R is not installed on your system, ')
+            print('INFO: anyway the pyper module will be installed on your system, ')
+            print('INFO: but you can not use archaezoology function.')
     subprocess.check_call([sys.executable, '-m', 'pip', 'install','--upgrade', p], shell=False)
