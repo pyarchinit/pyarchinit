@@ -71,7 +71,9 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
         self.pushButton_save.clicked.connect(self.on_pushButton_save_pressed)
         self.pushButtonGraphviz.clicked.connect(self.setPathGraphviz)
         self.pbnSaveEnvironPath.clicked.connect(self.setEnvironPath)
-
+        self.pushButtonR.clicked.connect(self.setPathR)
+        self.pbnSaveEnvironPathR.clicked.connect(self.setEnvironPathR)
+        
         self.graphviz_bin = s.value('pyArchInit/graphvizBinPath', None, type=str)
         if self.graphviz_bin:
             self.lineEditGraphviz.setText(self.graphviz_bin)
@@ -80,7 +82,18 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
             self.pushButtonGraphviz.setEnabled(False)
             self.pbnSaveEnvironPath.setEnabled(False)
             self.lineEditGraphviz.setEnabled(False)
+        
+        self.r_bin = s.value('pyArchInit/rBinPath', None, type=str)
+        if self.r_bin:
+            self.lineEditR.setText(self.r_bin)
 
+        if Pyarchinit_OS_Utility.checkRInstallation():
+            self.pushButtonR.setEnabled(False)
+            self.pbnSaveEnvironPathR.setEnabled(False)
+            self.lineEditR.setEnabled(False)
+        
+        
+        
         self.selectorCrsWidget.setCrs(QgsProject.instance().crs())
         self.selectorCrsWidget_sl.setCrs(QgsProject.instance().crs())
 
@@ -96,11 +109,27 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
         if self.graphviz_bin:
             self.lineEditGraphviz.setText(self.graphviz_bin)
             s.setValue('pyArchInit/graphvizBinPath', self.graphviz_bin)
+    
+    def setPathR(self):
+        s = QgsSettings()
+        self.r_bin = QFileDialog.getExistingDirectory(
+            self,
+            "Set path directory",
+            self.HOME,
+            QFileDialog.ShowDirsOnly
+        )
 
+        if self.r_bin:
+            self.lineEditR.setText(self.r_bin)
+            s.setValue('pyArchInit/rBinPath', self.r_bin)
+    
+    
     def setEnvironPath(self):
         os.environ['PATH'] += os.pathsep + os.path.normpath(self.graphviz_bin)
         QMessageBox.warning(self, "Set Environmental Variable", "The path has been set successful", QMessageBox.Ok)
-
+    def setEnvironPathR(self):
+        os.environ['PATH'] += os.pathsep + os.path.normpath(self.r_bin)
+        QMessageBox.warning(self, "Set Environmental Variable", "The path has been set successful", QMessageBox.Ok)
     def set_db_parameter(self):
         if self.comboBox_Database.currentText() == 'postgres':
             self.lineEdit_DBname.setText("pyarchinit")
