@@ -3,7 +3,7 @@
 """
 /***************************************************************************
     pyArchInit Plugin  - A QGIS plugin to manage archaeological dataset
-        					 stored in Postgres
+                             stored in Postgres
                              -------------------
     begin                : 2007-12-01
     copyright            : (C) 2008 by Luca Mandolesi
@@ -68,7 +68,16 @@ class Pyarchinit_OS_Utility(object):
             return True
         except Exception as e:
             return False
-
+    
+    @staticmethod
+    def checkRInstallation():
+        try:
+            subprocess.call(['Rcmd'])
+            return True
+        except Exception as e:
+            return False
+    
+    
     @staticmethod
     def isWindows():
         return os.name == 'nt'
