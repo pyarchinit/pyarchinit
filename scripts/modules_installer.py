@@ -18,9 +18,11 @@
  ***************************************************************************/
 """
 
-import subprocess
 
+
+import subprocess
 import sys
+
 
 packages = sys.argv[1].split(',') if len(sys.argv) >= 2 else []
 
@@ -29,28 +31,22 @@ packages = sys.argv[1].split(',') if len(sys.argv) >= 2 else []
 
       
 if not packages:
-    packages = ['PypeR',
+    packages = [
                 'SQLAlchemy',
                 'SQLAlchemy-Utils',
                 'reportlab',
                 'networkx',
                 'matplotlib',
-                'graphviz',
+                'PypeR',
+                'graphviz==0.8.3',
                 ]
 
+
+
+
+    
 for p in packages:
-    if p.startswith('graphviz'):
-        try:
-            subprocess.call(['dot', '-V'])
-        except Exception as e:
-            print('INFO: It seems that Graphviz is not installed on your system, ')
-            print('INFO: anyway the graphviz python module will be installed on your system, ')
-            print('INFO: but the export matrix functionality from pyarchinit plugin will be disabled.')
-    if p.startswith('PypeR'):
-        try:
-            subprocess.call(['Rcmd'])
-        except Exception as e:
-            print('INFO: It seems that R is not installed on your system, ')
-            print('INFO: anyway the pyper module will be installed on your system, ')
-            print('INFO: but you can not use archaezoology function.')
+    
+
+            
     subprocess.check_call([sys.executable, '-m', 'pip' ,'install','--upgrade', p], shell=False)
