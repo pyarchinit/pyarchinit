@@ -21,7 +21,7 @@
 import os
 import re
 import traceback
-
+import subprocess
 import sys
 from qgis.core import QgsMessageLog, Qgis, QgsSettings
 
@@ -129,6 +129,25 @@ if not Pyarchinit_OS_Utility.checkGraphvizInstallation() and s.value('pyArchInit
 if not Pyarchinit_OS_Utility.checkRInstallation() and s.value('pyArchInit/rBinPath'):
     os.environ['PATH'] += os.pathsep + os.path.normpath(s.value('pyArchInit/rBinPath'))
 
+packages = [
+                'PypeR',
+                'graphviz==0.8.3',
+                ]
+for p in packages:
+    from qgis.PyQt.QtWidgets import QMessageBox
+
+    
+    if p.startswith('PypeR'):
+        try:
+            subprocess.call(['R', '--version'])
+        except Exception as e:
+            QMessageBox.warning(None, 'Pyarchinit', "INFO: It seems that R is not installed on your system or you don't have set the path in Pyarchinit config. Anyway the pyper module will be installed on your system, but you can not use archaezoology function.", QMessageBox.Ok | QMessageBox.Cancel)
+    if p.startswith('graphviz'):
+        try:
+            subprocess.call(['dot', '-V'])
+        except Exception as e:
+            QMessageBox.warning(None, 'Pyarchinit', "INFO: It seems that Graphviz is not installed on your system or you don't have set the path in Pyarchinit config. Anyway the graphviz python module will be installed on your system, but the export matrix functionality from pyarchinit plugin will be disabled.", QMessageBox.Ok | QMessageBox.Cancel)
+                   
 def classFactory(iface):
     from .pyarchinitPlugin import PyArchInitPlugin
     return PyArchInitPlugin(iface)
