@@ -41,7 +41,7 @@ from modules.db.entities.TAFONOMIA import TAFONOMIA
 from modules.db.entities.US import US
 from modules.db.entities.US_TOIMP import US_TOIMP
 from modules.db.entities.UT import UT
-from modules.db.structures.Archeozoology_table import Archeozoology_table
+from modules.db.structures.Archeozoology_table import Fauna
 from modules.db.structures.Campioni_table import Campioni_table
 from modules.db.structures.DETETA_table import DETETA_table
 from modules.db.structures.DETSESSO_table import DETSESSO_table
@@ -64,7 +64,7 @@ from modules.db.structures.UT_table import UT_table
 
 try:
     # mapper
-    mapper(ARCHEOZOOLOGY, Archeozoology_table.archeozoology_table)
+    mapper(ARCHEOZOOLOGY, Fauna.fauna)
 
     # mapper
     mapper(CAMPIONI, Campioni_table.campioni_table)

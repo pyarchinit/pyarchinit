@@ -14,7 +14,7 @@
  *   This program is free software; you can redistribute it and/or modify  *
  *   it under the terms of the GNU General Public License as published by  *
  *   the Free Software Foundation; either version 2 of the License, or     *
- *   (at your option) any later version.                                   *																		*
+ *   (at your option) any later version.                                   *                                                                        *
  ***************************************************************************/
 """
 
@@ -26,14 +26,20 @@ packages = sys.argv[1].split(',') if len(sys.argv) >= 2 else []
 
 # Adding the dependencies python modules in
 # package list in order to install via pip module
+
+      
 if not packages:
     packages = ['PypeR',
                 'SQLAlchemy',
                 'SQLAlchemy-Utils',
+ 
                 'graphviz==0.8.3',
+
                 'reportlab',
                 'networkx',
-                'matplotlib']
+                'matplotlib',
+                'graphviz-0.8.3',
+                ]
 
 for p in packages:
     if p.startswith('graphviz==0.8.3'):
@@ -43,4 +49,11 @@ for p in packages:
             print('INFO: It seems that Graphviz is not installed on your system, ')
             print('INFO: anyway the graphviz python module will be installed on your system, ')
             print('INFO: but the export matrix functionality from pyarchinit plugin will be disabled.')
-    subprocess.check_call([sys.executable, '-m', 'pip', 'install', p], shell=False)
+    if p.startswith('PypeR'):
+        try:
+            subprocess.call(['Rcmd'])
+        except Exception as e:
+            print('INFO: It seems that R is not installed on your system, ')
+            print('INFO: anyway the pyper module will be installed on your system, ')
+            print('INFO: but you can not use archaezoology function.')
+    subprocess.check_call([sys.executable, '-m', 'pip' ,'install','--upgrade', p], shell=False)

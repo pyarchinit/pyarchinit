@@ -47,14 +47,18 @@ if not os.path.isfile(confing_path):
 
 missing_libraries = []
 try:
-    import pyper
+    import pkg_resources
+    pkg_resources.require("graphviz==0.8.3")
+    import graphviz
+    
 except Exception as e:
     missing_libraries.append(str(e))
 
 try:
-    import graphviz
+    import pyper
 except Exception as e:
     missing_libraries.append(str(e))
+
 
 try:
     import sqlalchemy
@@ -80,7 +84,13 @@ try:
     import sqlalchemy_utils
 except Exception as e:
     missing_libraries.append(str(e))
+#try:
+    #import visvis
+#except Exception as e:
+    #missing_libraries.append(str(e))
 
+
+    
 install_libraries = []
 for l in missing_libraries:
     p = re.findall(r"'(.*?)'", l)
@@ -89,8 +99,8 @@ for l in missing_libraries:
 if install_libraries:
     from qgis.PyQt.QtWidgets import QMessageBox
 
-    res = QMessageBox.warning(None, 'PyArchInit', "Some of the required packages are missing from your machine:\n{}\n\n"
-                                                  "Do you want install the missing packages?".format(
+    res = QMessageBox.warning(None, 'PyArchInit', "If you see this message it means some of the required packages are missing from your machine:\n{}\n\n"
+                                                  "Do you want install the missing packages? Remember you need start QGIS like Admin".format(
         ',\n'.join(missing_libraries)), QMessageBox.Ok | QMessageBox.Cancel)
     if res == QMessageBox.Ok:
         import subprocess
@@ -116,7 +126,8 @@ if install_libraries:
 s = QgsSettings()
 if not Pyarchinit_OS_Utility.checkGraphvizInstallation() and s.value('pyArchInit/graphvizBinPath'):
     os.environ['PATH'] += os.pathsep + os.path.normpath(s.value('pyArchInit/graphvizBinPath'))
-
+if not Pyarchinit_OS_Utility.checkRInstallation() and s.value('pyArchInit/rBinPath'):
+    os.environ['PATH'] += os.pathsep + os.path.normpath(s.value('pyArchInit/rBinPath'))
 
 def classFactory(iface):
     from .pyarchinitPlugin import PyArchInitPlugin
