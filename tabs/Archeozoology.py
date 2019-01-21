@@ -31,11 +31,11 @@ import matplotlib.pyplot as plt
 from mpl_toolkits.mplot3d.axes3d import *
 import matplotlib.pyplot as plt
 from matplotlib import cm
-import visvis
-import numpy as np
+#import visvis
+#import numpy as np
 from matplotlib.mlab import griddata
-import scipy as sp
-import scipy.interpolate
+#import scipy as sp
+#import scipy.interpolate
 from pyper import R
 
 from qgis.PyQt.QtGui import QColor, QIcon
@@ -2558,78 +2558,78 @@ title(sub="Rosso = coppie con r>|0.5|, Verde = coppie con |0.25|<r<|0.5|;
       cex.sub=0.7)
         ''')#### creazione ed esportazione della statistica descrittiva
 
-    def on_tre_d_pressed(self):
+    # #def on_tre_d_pressed(self):
         
-        mylayer = self.iface.activeLayer()
+        # mylayer = self.iface.activeLayer()
         
-        if self.tab_5.text() == "":
-            tab_5 = 0
-        else:
-            tab_5 = int(self.tab_5.text())
+        # if self.tab_5.text() == "":
+            # tab_5 = 0
+        # else:
+            # tab_5 = int(self.tab_5.text())
 
-        from shapely.wkb import loads
+        # from shapely.wkb import loads
     
-        x=[]
-        y=[]
-        z=[]
-        for elem in mylayer.selectedFeatures():
+        # x=[]
+        # y=[]
+        # z=[]
+        # for elem in mylayer.selectedFeatures():
                
-               geom= elem.geometry() 
-               wkb = geom.asWkb()
-               data = loads(wkb)
+               # geom= elem.geometry() 
+               # wkb = geom.asWkb()
+               # data = loads(wkb)
               
-               x.append(data.x)
-               y.append(data.y)
-               z.append(0)
+               # x.append(data.x)
+               # y.append(data.y)
+               # z.append(0)
                
-        x=[]
-        y=[]
-        z=[]
-        for elem in mylayer.selectedFeatures():
+        # x=[]
+        # y=[]
+        # z=[]
+        # for elem in mylayer.selectedFeatures():
                
-               geom= elem.geometry() 
-               x.append(geom.asPoint()[0])
-               y.append(geom.asPoint()[1])
-               tab = "(z.append(elem.attributes()[%d]))" % int(self.tab_5.text()) 
-               eval (tab)
+               # geom= elem.geometry() 
+               # x.append(geom.asPoint()[0])
+               # y.append(geom.asPoint()[1])
+               # tab = "(z.append(elem.attributes()[%d]))" % int(self.tab_5.text()) 
+               # eval (tab)
               
         
-        fig = plt.figure()
-        ax = Axes3D(fig)
-        ax.scatter3D(x,y,z,c=z,cmap=plt.cm.jet)
-        plt.show()
+        # fig = plt.figure()
+        # ax = Axes3D(fig)
+        # ax.scatter3D(x,y,z,c=z,cmap=plt.cm.jet)
+        # plt.show()
 
         
-        # apre la finestra per visualizzare i punti
-        f = visvis.gca()
-        m = visvis.plot(x,y,z, lc='k', ls='', mc='g', mw=2, lw=2, ms='.')
-        f.daspect = 1,1,10 # z x 10
+        # # apre la finestra per visualizzare i punti
+        # f = visvis.gca()
+        # m = visvis.plot(x,y,z, lc='k', ls='', mc='g', mw=2, lw=2, ms='.')
+        # f.daspect = 1,1,10 # z x 10
         
        
-        # creazione di una griglia 2d
-        xi = np.linspace(min(x), max(x))
-        yi = np.linspace(min(y), max(y))
-        X, Y = np.meshgrid(xi, yi)
-        # interpolation
-        Z = griddata(x, y, z, xi, yi)
-        f = visvis.gca()
-        m = visvis.grid(xi,yi,Z) 
-        f.daspect = 1,1,10
-        m = visvis.surf(xi,yi,Z)
-        m.colormap = visvis.CM_JET
+        # # creazione di una griglia 2d
+        # xi = np.linspace(min(x), max(x))
+        # yi = np.linspace(min(y), max(y))
+        # X, Y = np.meshgrid(xi, yi)
+        # # interpolation
+        # Z = griddata(x, y, z, xi, yi)
+        # f = visvis.gca()
+        # m = visvis.grid(xi,yi,Z) 
+        # f.daspect = 1,1,10
+        # m = visvis.surf(xi,yi,Z)
+        # m.colormap = visvis.CM_JET
         
        
-        # costruzione della griglia
-        spline = sp.interpolate.Rbf(x,y,z,function='thin-plate')
-        xi = np.linspace(min(x), max(x))
-        yi = np.linspace(min(y), max(y))
-        X, Y = np.meshgrid(xi, yi)
-        # interpolazione
-        Z = spline(X,Y)
-        f = visvis.gca()
-        m = visvis.surf(xi,yi,Z)
-        m.colormap = visvis.CM_JET 
-        f.axis.visible = True
+        # # costruzione della griglia
+        # spline = sp.interpolate.Rbf(x,y,z,function='thin-plate')
+        # xi = np.linspace(min(x), max(x))
+        # yi = np.linspace(min(y), max(y))
+        # X, Y = np.meshgrid(xi, yi)
+        # # interpolazione
+        # Z = spline(X,Y)
+        # f = visvis.gca()
+        # m = visvis.surf(xi,yi,Z)
+        # m.colormap = visvis.CM_JET 
+        # f.axis.visible = True
 
     
     def on_pushButton_search_go_pressed(self):
