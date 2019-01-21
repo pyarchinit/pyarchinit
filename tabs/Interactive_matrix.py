@@ -81,6 +81,7 @@ class pyarchinit_Interactive_Matrix(QDialog, MAIN_DIALOG_CLASS):
         data = []
         for sing_rec in self.DATA_LIST:
             us = str(sing_rec.us)
+            #unita_t = str (sing_rec.unita_tipo)
             rapporti_stratigrafici = eval(sing_rec.rapporti)
             for sing_rapp in rapporti_stratigrafici:
                 try:

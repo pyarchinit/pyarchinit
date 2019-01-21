@@ -573,26 +573,36 @@ class Pyarchinit_db_management(object):
         """Istanzia la classe ARCHEOZOOLOGY da pyarchinit_db_mapper"""
 
         archeozoology = ARCHEOZOOLOGY(arg[0],
-                                      arg[1],
-                                      arg[2],
-                                      arg[3],
-                                      arg[4],
-                                      arg[5],
-                                      arg[6],
-                                      arg[7],
-                                      arg[8],
-                                      arg[9],
-                                      arg[10],
-                                      arg[11],
-                                      arg[12],
-                                      arg[13],
-                                      arg[14],
-                                      arg[15],
-                                      arg[16],
-                                      arg[17],
-                                      arg[18],
-                                      arg[19],
-                                      arg[20])
+                                        arg[1],
+                                        arg[2],
+                                        arg[3],
+                                        arg[4],
+                                        arg[5],
+                                        arg[6],
+                                        arg[7],
+                                        arg[8],
+                                        arg[9],
+                                        arg[10],
+                                        arg[11],
+                                        arg[12],
+                                        arg[13],
+                                        arg[14],
+                                        arg[15],
+                                        arg[16],
+                                        arg[17],
+                                        arg[18],
+                                        arg[19],
+                                        arg[20],
+                                        arg[21],
+                                        arg[22],
+                                        arg[23],
+                                        arg[24],
+                                        arg[25],
+                                        arg[26],
+                                        arg[27],
+                                        arg[28],
+                                        arg[29],
+                                        arg[30])
 
         return archeozoology
 
@@ -1139,7 +1149,12 @@ class Pyarchinit_db_management(object):
         sql_query_string = ("SELECT * FROM %s") % table
         res = self.engine.execute(sql_query_string)
         return res
-
+    
+    def test_ut_sql(self,unita_tipo):
+        sql_query_string = ("SELECT %s FROM us_table")% (unita_tipo)
+        res = self.engine.execute(sql_query_string)
+        return res
+    
     def query_in_contains(self, value_list, sitof, areaf):
         self.value_list = value_list
 
