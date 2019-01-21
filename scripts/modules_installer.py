@@ -48,7 +48,7 @@ for p in packages:
             print('INFO: but the export matrix functionality from pyarchinit plugin will be disabled.')
     if p.startswith('PypeR'):
         try:
-            subprocess.call(['Rcmd'])
+            subprocess.call(['R', '--version'])
         except Exception as e:
             print('INFO: It seems that R is not installed on your system, ')
             print('INFO: anyway the pyper module will be installed on your system, ')
