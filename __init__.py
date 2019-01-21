@@ -47,16 +47,18 @@ if not os.path.isfile(confing_path):
 
 missing_libraries = []
 try:
-    import pyper
+    import pkg_resources
+    pkg_resources.require("graphviz==0.8.3")
+    import graphviz
+    
 except Exception as e:
     missing_libraries.append(str(e))
 
 try:
-    import graphviz
-    import pkg_resources
-    pkg_resources.require("graphviz==0.8.3")
+    import pyper
 except Exception as e:
     missing_libraries.append(str(e))
+
 
 try:
     import sqlalchemy
@@ -82,11 +84,13 @@ try:
     import sqlalchemy_utils
 except Exception as e:
     missing_libraries.append(str(e))
-try:
-    import visvis
-except Exception as e:
-    missing_libraries.append(str(e))
+#try:
+    #import visvis
+#except Exception as e:
+    #missing_libraries.append(str(e))
 
+
+    
 install_libraries = []
 for l in missing_libraries:
     p = re.findall(r"'(.*?)'", l)
