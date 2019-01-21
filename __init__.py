@@ -95,8 +95,8 @@ for l in missing_libraries:
 if install_libraries:
     from qgis.PyQt.QtWidgets import QMessageBox
 
-    res = QMessageBox.warning(None, 'PyArchInit', "Some of the required packages are missing from your machine:\n{}\n\n"
-                                                  "Do you want install the missing packages?".format(
+    res = QMessageBox.warning(None, 'PyArchInit', "If you see this message it means some of the required packages are missing from your machine:\n{}\n\n"
+                                                  "Do you want install the missing packages? Remember you need start QGIS like Admin".format(
         ',\n'.join(missing_libraries)), QMessageBox.Ok | QMessageBox.Cancel)
     if res == QMessageBox.Ok:
         import subprocess
