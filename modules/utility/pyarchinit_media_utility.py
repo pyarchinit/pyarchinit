@@ -48,13 +48,13 @@ class Media_utility(object):
         self.outpath = o
         self.thumb_suffix = ts
 
-        size = 150, 150
+        size = 2008, 1417
         infile = str(self.input_path)
         outfile = ('%s%s_%s%s') % (
         self.outpath, str(self.max_num_id), os.path.splitext(self.infile)[0], self.thumb_suffix)
         im = Image.open(infile)
-        im.thumbnail(size)
-        im.save(outfile, dpi=(72, 72))
+        im.thumbnail(size, Image.ANTIALIAS)
+        im.save(outfile, dpi=(300, 300))
 
 
 if __name__ == '__main__':
