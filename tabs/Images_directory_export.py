@@ -3,7 +3,7 @@
 """
 /***************************************************************************
         pyArchInit Plugin  - A QGIS plugin to manage archaeological dataset
-        					 stored in Postgres
+                             stored in Postgres
                              -------------------
     begin                : 2007-12-01
     copyright            : (C) 2008 by Luca Mandolesi
@@ -42,20 +42,20 @@ class pyarchinit_Images_directory_export(QDialog, MAIN_DIALOG_CLASS):
     UTILITY = Utility()
     OS_UTILITY = Pyarchinit_OS_Utility()
     DB_MANAGER = ""
-    HOME = ""
+    HOME = os.environ['PYARCHINIT_HOME']
 
-    ##	if os.name == 'posix':
-    ##		HOME = os.environ['HOME']
-    ##	elif os.name == 'nt':
-    ##		HOME = os.environ['HOMEPATH']
+    ##  if os.name == 'posix':
+    ##      HOME = os.environ['HOME']
+    ##  elif os.name == 'nt':
+    ##      HOME = os.environ['HOMEPATH']
     ##
-    ##	PARAMS_DICT={'SERVER':'',
-    ##				'HOST': '',
-    ##				'DATABASE':'',
-    ##				'PASSWORD':'',
-    ##				'PORT':'',
-    ##				'USER':'',
-    ##				'THUMB_PATH':''}
+    ##  PARAMS_DICT={'SERVER':'',
+    ##              'HOST': '',
+    ##              'DATABASE':'',
+    ##              'PASSWORD':'',
+    ##              'PORT':'',
+    ##              'USER':'',
+    ##              'THUMB_PATH':''}
 
 
     def __init__(self, parent=None, db=None):
@@ -68,7 +68,7 @@ class pyarchinit_Images_directory_export(QDialog, MAIN_DIALOG_CLASS):
         except:
             pass
         self.charge_list()
-        self.set_home_path()
+        #self.set_home_path()
 
         # self.load_dict()
         # self.charge_data()
@@ -105,17 +105,17 @@ class pyarchinit_Images_directory_export(QDialog, MAIN_DIALOG_CLASS):
         sito_vl.sort()
         self.comboBox_sito.addItems(sito_vl)
 
-    def set_home_path(self):
-        self.HOME = os.environ['PYARCHINIT_HOME']
+    #def set_home_path(self):
+        #self.HOME = os.environ['PYARCHINIT_HOME']
 
-    def on_pushButton_exp_images_pressed(self):
+    def on_pushButton_exp_icons_pressed(self):
         sito = str(self.comboBox_sito.currentText())
-        if self.checkBox_US.isChecked():
+        if self.checkBox_US.isChecked()== True:
             us_res = self.db_search_DB('US', 'sito', sito)
-            sito_path = '{}{}{}'.format(self.HOME, os.sep, 'Esportazione')
+            sito_path = '{}{}{}'.format(self.HOME, os.sep, "pyarchinit_image_export")
             self.OS_UTILITY.create_dir(sito_path)
-            if bool(us_res):
-                US_path = '{}{}{}'.format(sito_path, os.sep, 'Unita_Stratigrafiche')
+            if bool(us_res)== True:
+                US_path = '{}{}{}'.format(sito_path, os.sep, "Unita_Stratigrafiche")
                 self.OS_UTILITY.create_dir(US_path)
                 for sing_us in us_res:
                     sing_us_num = str(sing_us.us)
@@ -138,16 +138,54 @@ class pyarchinit_Images_directory_export(QDialog, MAIN_DIALOG_CLASS):
 
                     u = Utility()
                     search_dict = u.remove_empty_items_fr_dict(search_dict)
-                    search_images_res = self.DB_MANAGER.query_bool(search_dict, 'MEDIATOENTITY')
+                    search_images_res = self.DB_MANAGER.query_bool(search_dict, 'MEDIAVIEW')
 
                     for sing_media in search_images_res:
                         self.OS_UTILITY.copy_file_img(str(sing_media.filepath), sing_US_path)
-                    ##						QMessageBox.warning(self, "Alert", str(sing_media.filepath),  QMessageBox.Ok)
-                    ##						QMessageBox.warning(self, "Alert", str(sing_US_path),  QMessageBox.Ok)
+                    ##                      QMessageBox.warning(self, "Alert", str(sing_media.filepath),  QMessageBox.Ok)
+                    ##                      QMessageBox.warning(self, "Alert", str(sing_US_path),  QMessageBox.Ok)
 
                     search_images_res = ""
                 QMessageBox.warning(self, "Alert", "Creazione directories terminata", QMessageBox.Ok)
+        
+        
+        if self.checkBox_reperti.isChecked()== True:
+            reperti_res = self.db_search_DB('INVENTARIO_MATERIALI', 'sito', sito)
+            sito_path = '{}{}{}'.format(self.HOME, os.sep, "pyarchinit_image_export")
+            self.OS_UTILITY.create_dir(sito_path)
+            if bool(reperti_res)== True:
+                REPERTI_path = '{}{}{}'.format(sito_path, os.sep, "REPERTI")
+                self.OS_UTILITY.create_dir(REPERTI_path)
+                for sing_reperti in reperti_res:
+                    sing_reperti_num = str(sing_reperti.numero_inventario)
+                    prefix = '0'
+                    sing_reperti_num_len = len(sing_reperti_num)
+                    if sing_reperti_num_len == 1:
+                        prefix = prefix * 4
+                    elif sing_reperti_num_len == 2:
+                        prefix = prefix * 3
+                    elif sing_reperti_num_len == 3:
+                        prefix = prefix * 2
+                    else:
+                        pass
 
+                    sing_reperti_dir = prefix + str(sing_reperti_num)
+                    sing_REPERTI_path = ('%s%sREPERTI%s') % (REPERTI_path, os.sep, sing_reperti_dir)
+                    self.OS_UTILITY.create_dir(sing_REPERTI_path)
+
+                    search_dict = {'id_entity': sing_reperti.id_invmat, 'entity_type': "'" + "REPERTO" + "'"}
+
+                    u = Utility()
+                    search_dict = u.remove_empty_items_fr_dict(search_dict)
+                    search_images_res = self.DB_MANAGER.query_bool(search_dict, 'MEDIAVIEW')
+
+                    for sing_media in search_images_res:
+                        self.OS_UTILITY.copy_file_img(str(sing_media.filepath), sing_REPERTI_path)
+                    ##                      QMessageBox.warning(self, "Alert", str(sing_media.filepath),  QMessageBox.Ok)
+                    ##                      QMessageBox.warning(self, "Alert", str(sing_US_path),  QMessageBox.Ok)
+
+                    search_images_res = ""
+                QMessageBox.warning(self, "Alert", "Creazione directories terminata", QMessageBox.Ok)
     def db_search_DB(self, table_class, field, value):
         self.table_class = table_class
         self.field = field
