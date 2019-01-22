@@ -2,7 +2,7 @@
 """
 /***************************************************************************
         pyArchInit Plugin  - A QGIS plugin to manage archaeological dataset
-        					 stored in Postgres
+                             stored in Postgres
                              -------------------
     begin                : 2007-12-01
     copyright            : (C) 2008 by Luca Mandolesi
@@ -31,6 +31,7 @@ from modules.db.entities.INVENTARIO_MATERIALI_TOIMP import INVENTARIO_MATERIALI_
 from modules.db.entities.MEDIA import MEDIA
 from modules.db.entities.MEDIATOENTITY import MEDIATOENTITY
 from modules.db.entities.MEDIA_THUMB import MEDIA_THUMB
+from modules.db.entities.MEDIAVIEW import MEDIAVIEW
 from modules.db.entities.PDF_ADMINISTRATOR import PDF_ADMINISTRATOR
 from modules.db.entities.PERIODIZZAZIONE import PERIODIZZAZIONE
 from modules.db.entities.PYARCHINIT_THESAURUS_SIGLE import PYARCHINIT_THESAURUS_SIGLE
@@ -51,6 +52,7 @@ from modules.db.structures.Inventario_materiali_table import Inventario_material
 from modules.db.structures.Media_table import Media_table
 from modules.db.structures.Media_thumb_table import Media_thumb_table
 from modules.db.structures.Media_to_Entity_table import Media_to_Entity_table
+from modules.db.structures.Media_to_Entity_table_view import Media_to_Entity_table_view
 from modules.db.structures.PDF_administrator_table import PDF_administrator_table
 from modules.db.structures.Periodizzazione_table import Periodizzazione_table
 from modules.db.structures.Pyarchinit_thesaurus_sigle import Pyarchinit_thesaurus_sigle
@@ -108,6 +110,9 @@ try:
     # mapper
     mapper(MEDIATOENTITY, Media_to_Entity_table.media_to_entity_table)
 
+     # mapper
+    mapper(MEDIAVIEW, Media_to_Entity_table_view.mediaentity_view)
+    
     # mapper
     mapper(PERIODIZZAZIONE, Periodizzazione_table.periodizzazione_table)
 

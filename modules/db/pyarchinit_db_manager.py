@@ -35,7 +35,7 @@ from qgis.utils import iface
 
 from modules.db.pyarchinit_db_mapper import US, UT, SITE, PERIODIZZAZIONE, \
     STRUTTURA, SCHEDAIND, INVENTARIO_MATERIALI, DETSESSO, DOCUMENTAZIONE, DETETA, MEDIA, \
-    MEDIA_THUMB, MEDIATOENTITY, TAFONOMIA, CAMPIONI, PYARCHINIT_THESAURUS_SIGLE, \
+    MEDIA_THUMB, MEDIATOENTITY, MEDIAVIEW, TAFONOMIA, CAMPIONI, PYARCHINIT_THESAURUS_SIGLE, \
     ARCHEOZOOLOGY, INVENTARIO_LAPIDEI, PDF_ADMINISTRATOR
 from modules.db.pyarchinit_db_update import DB_update
 from modules.db.pyarchinit_utility import Utility
@@ -499,6 +499,18 @@ class Pyarchinit_db_management(object):
 
         return mediatoentity
 
+    
+    def insert_media2entity_view_values(self, *arg):
+        """Istanzia la classe MEDIATOENTITY da pyarchinit_db_mapper"""
+        mediaentity_view= MEDIAVIEW(arg[0],
+                arg[1],
+                arg[2],
+                arg[3],
+                arg[4],
+                arg[5])
+
+        return mediaentity_view 
+    
     def insert_values_tafonomia(self, *arg):
         """Istanzia la classe TAFONOMIA da pyarchinit_db_mapper"""
 
