@@ -84,6 +84,11 @@ class pyarchinit_Folder_installation(object):
         home_BACKUP_linux_path = '{}{}{}'.format(self.HOME, os.sep, 'pyarchinit_db_backup')
         self.OS_UTILITY.create_dir(home_BACKUP_linux_path)
 
+        home_image_export_path = '{}{}{}'.format(self.HOME, os.sep, 'pyarchinit_image_export')
+        self.OS_UTILITY.create_dir(home_image_export_path)
+        
+        home_R_export_path = '{}{}{}'.format(self.HOME, os.sep, 'pyarchinit_R_export')
+        self.OS_UTILITY.create_dir(home_image_export_path)
     def installConfigFile(self, path):
         config_copy_from_path_rel = os.path.join(os.sep, 'dbfiles', 'config.cfg')
         config_copy_from_path = '{}{}'.format(self.RESOURCES_PATH, config_copy_from_path_rel)
