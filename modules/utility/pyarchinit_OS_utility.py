@@ -72,7 +72,7 @@ class Pyarchinit_OS_Utility(object):
     @staticmethod
     def checkRInstallation():
         try:
-            subprocess.call(['Rcmd'])
+            subprocess.call(['R', '--version'])
             return True
         except Exception as e:
             return False
