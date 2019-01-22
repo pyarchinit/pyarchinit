@@ -35,7 +35,7 @@
    <string>Sistema di esportazione delle immagini</string>
   </property>
   <property name="windowIcon">
-   <iconset resource="resources.qrc">
+   <iconset>
     <normaloff>:/icons/directoryExp.png</normaloff>:/icons/directoryExp.png</iconset>
   </property>
   <layout class="QGridLayout" name="gridLayout_2">
@@ -69,64 +69,7 @@
          <property name="sizeConstraint">
           <enum>QLayout::SetFixedSize</enum>
          </property>
-         <item row="7" column="0" colspan="5">
-          <layout class="QHBoxLayout" name="horizontalLayout">
-           <item>
-            <spacer name="horizontalSpacer_4">
-             <property name="orientation">
-              <enum>Qt::Horizontal</enum>
-             </property>
-             <property name="sizeType">
-              <enum>QSizePolicy::Expanding</enum>
-             </property>
-             <property name="sizeHint" stdset="0">
-              <size>
-               <width>120</width>
-               <height>20</height>
-              </size>
-             </property>
-            </spacer>
-           </item>
-           <item>
-            <widget class="QCheckBox" name="checkBox_tipo_reperto">
-             <property name="enabled">
-              <bool>false</bool>
-             </property>
-             <property name="text">
-              <string>Tipo reperto</string>
-             </property>
-            </widget>
-           </item>
-          </layout>
-         </item>
-         <item row="2" column="0" colspan="3">
-          <layout class="QHBoxLayout" name="horizontalLayout_4">
-           <item>
-            <spacer name="horizontalSpacer">
-             <property name="orientation">
-              <enum>Qt::Horizontal</enum>
-             </property>
-             <property name="sizeType">
-              <enum>QSizePolicy::Preferred</enum>
-             </property>
-             <property name="sizeHint" stdset="0">
-              <size>
-               <width>40</width>
-               <height>20</height>
-              </size>
-             </property>
-            </spacer>
-           </item>
-           <item>
-            <widget class="QCheckBox" name="checkBox_fase">
-             <property name="text">
-              <string>Fase</string>
-             </property>
-            </widget>
-           </item>
-          </layout>
-         </item>
-         <item row="5" column="0" colspan="5">
+         <item row="6" column="0" colspan="5">
           <layout class="QHBoxLayout" name="horizontalLayout_5">
            <item>
             <layout class="QHBoxLayout" name="horizontalLayout_3">
@@ -170,7 +113,46 @@
            </item>
           </layout>
          </item>
-         <item row="6" column="0" colspan="5">
+         <item row="5" column="2" colspan="4">
+          <spacer name="horizontalSpacer_10">
+           <property name="orientation">
+            <enum>Qt::Horizontal</enum>
+           </property>
+           <property name="sizeHint" stdset="0">
+            <size>
+             <width>438</width>
+             <height>20</height>
+            </size>
+           </property>
+          </spacer>
+         </item>
+         <item row="2" column="3" colspan="3">
+          <spacer name="horizontalSpacer_8">
+           <property name="orientation">
+            <enum>Qt::Horizontal</enum>
+           </property>
+           <property name="sizeHint" stdset="0">
+            <size>
+             <width>408</width>
+             <height>20</height>
+            </size>
+           </property>
+          </spacer>
+         </item>
+         <item row="4" column="2" colspan="4">
+          <spacer name="horizontalSpacer_9">
+           <property name="orientation">
+            <enum>Qt::Horizontal</enum>
+           </property>
+           <property name="sizeHint" stdset="0">
+            <size>
+             <width>438</width>
+             <height>20</height>
+            </size>
+           </property>
+          </spacer>
+         </item>
+         <item row="7" column="0" colspan="5">
           <layout class="QHBoxLayout" name="horizontalLayout_2">
            <item>
             <spacer name="horizontalSpacer_3">
@@ -200,7 +182,7 @@
            </item>
           </layout>
          </item>
-         <item row="6" column="5">
+         <item row="7" column="5">
           <spacer name="horizontalSpacer_12">
            <property name="orientation">
             <enum>Qt::Horizontal</enum>
@@ -213,38 +195,94 @@
            </property>
           </spacer>
          </item>
-         <item row="4" column="2" colspan="4">
-          <spacer name="horizontalSpacer_10">
+         <item row="6" column="5">
+          <spacer name="horizontalSpacer_11">
            <property name="orientation">
             <enum>Qt::Horizontal</enum>
            </property>
            <property name="sizeHint" stdset="0">
             <size>
-             <width>438</width>
+             <width>288</width>
              <height>20</height>
             </size>
            </property>
           </spacer>
          </item>
+         <item row="8" column="0" colspan="5">
+          <layout class="QHBoxLayout" name="horizontalLayout">
+           <item>
+            <spacer name="horizontalSpacer_4">
+             <property name="orientation">
+              <enum>Qt::Horizontal</enum>
+             </property>
+             <property name="sizeType">
+              <enum>QSizePolicy::Expanding</enum>
+             </property>
+             <property name="sizeHint" stdset="0">
+              <size>
+               <width>120</width>
+               <height>20</height>
+              </size>
+             </property>
+            </spacer>
+           </item>
+           <item>
+            <widget class="QCheckBox" name="checkBox_tipo_reperto">
+             <property name="enabled">
+              <bool>false</bool>
+             </property>
+             <property name="text">
+              <string>Tipo reperto</string>
+             </property>
+            </widget>
+           </item>
+          </layout>
+         </item>
          <item row="1" column="0">
           <widget class="QCheckBox" name="checkBox_periodo">
+           <property name="enabled">
+            <bool>false</bool>
+           </property>
            <property name="text">
             <string>Periodo</string>
            </property>
           </widget>
          </item>
-         <item row="0" column="0" colspan="4">
-          <widget class="QCheckBox" name="checkBox_US">
-           <property name="styleSheet">
-            <string notr="true">selection-background-color: rgb(255, 255, 255);</string>
-           </property>
-           <property name="text">
-            <string>Unità Stratigrafiche</string>
-           </property>
-          </widget>
+         <item row="2" column="0" colspan="3">
+          <layout class="QHBoxLayout" name="horizontalLayout_4">
+           <item>
+            <spacer name="horizontalSpacer">
+             <property name="orientation">
+              <enum>Qt::Horizontal</enum>
+             </property>
+             <property name="sizeType">
+              <enum>QSizePolicy::Preferred</enum>
+             </property>
+             <property name="sizeHint" stdset="0">
+              <size>
+               <width>40</width>
+               <height>20</height>
+              </size>
+             </property>
+            </spacer>
+           </item>
+           <item>
+            <widget class="QCheckBox" name="checkBox_fase">
+             <property name="enabled">
+              <bool>false</bool>
+             </property>
+             <property name="text">
+              <string>Fase</string>
+             </property>
+            </widget>
+           </item>
+          </layout>
          </item>
-         <item row="3" column="0" colspan="2">
+         <item row="4" column="0" colspan="2">
           <widget class="QCheckBox" name="checkBox_struttura">
+           <property name="enabled">
+            <bool>false</bool>
+           </property>
            <property name="text">
             <string>Struttura</string>
            </property>
@@ -263,51 +301,18 @@
            </property>
           </spacer>
          </item>
-         <item row="4" column="0" colspan="2">
-          <widget class="QCheckBox" name="checkBox_reperti">
+         <item row="0" column="0" colspan="4">
+          <widget class="QCheckBox" name="checkBox_US">
+           <property name="styleSheet">
+            <string notr="true">selection-background-color: rgb(255, 255, 255);</string>
+           </property>
            <property name="text">
-            <string>Reperti</string>
+            <string>Unità Stratigrafiche</string>
+           </property>
+           <property name="tristate">
+            <bool>false</bool>
            </property>
           </widget>
-         </item>
-         <item row="2" column="3" colspan="3">
-          <spacer name="horizontalSpacer_8">
-           <property name="orientation">
-            <enum>Qt::Horizontal</enum>
-           </property>
-           <property name="sizeHint" stdset="0">
-            <size>
-             <width>408</width>
-             <height>20</height>
-            </size>
-           </property>
-          </spacer>
-         </item>
-         <item row="3" column="2" colspan="4">
-          <spacer name="horizontalSpacer_9">
-           <property name="orientation">
-            <enum>Qt::Horizontal</enum>
-           </property>
-           <property name="sizeHint" stdset="0">
-            <size>
-             <width>438</width>
-             <height>20</height>
-            </size>
-           </property>
-          </spacer>
-         </item>
-         <item row="5" column="5">
-          <spacer name="horizontalSpacer_11">
-           <property name="orientation">
-            <enum>Qt::Horizontal</enum>
-           </property>
-           <property name="sizeHint" stdset="0">
-            <size>
-             <width>288</width>
-             <height>20</height>
-            </size>
-           </property>
-          </spacer>
          </item>
          <item row="1" column="1" colspan="5">
           <spacer name="horizontalSpacer_7">
@@ -322,7 +327,7 @@
            </property>
           </spacer>
          </item>
-         <item row="7" column="5">
+         <item row="8" column="5">
           <spacer name="horizontalSpacer_13">
            <property name="orientation">
             <enum>Qt::Horizontal</enum>
@@ -334,6 +339,13 @@
             </size>
            </property>
           </spacer>
+         </item>
+         <item row="5" column="0">
+          <widget class="QCheckBox" name="checkBox_reperti">
+           <property name="text">
+            <string>Reperti</string>
+           </property>
+          </widget>
          </item>
         </layout>
        </item>
