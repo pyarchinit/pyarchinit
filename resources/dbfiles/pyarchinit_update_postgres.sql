@@ -35,7 +35,38 @@ END
 $$;  
   
  ---------------------------------------------------------------------------  
-DO $$
+CREATE OR REPLACE FUNCTION public.delete_media_to_entity_table()
+  RETURNS trigger AS
+$BODY$
+
+
+
+
+
+
+BEGIN
+IF OLD.id_media!=OLD.id_media THEN
+update media_to_entity_table set id_media=OLD.id_media;
+
+else 
+
+DELETE from media_to_entity_table 
+where id_media = OLD.id_media ;
+end if;
+RETURN OLD;
+END;
+
+
+$BODY$
+  LANGUAGE plpgsql VOLATILE
+  COST 100;
+ALTER FUNCTION public.delete_media_to_entity_table()
+  OWNER TO postgres;
+
+ 
+ 
+ 
+ DO $$
 BEGIN
     IF NOT EXISTS (SELECT 1 FROM pg_trigger WHERE tgname = 'delete_media_to_entity_table') THEN
         CREATE TRIGGER delete_media_to_entity_table
