@@ -753,7 +753,52 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
                     data_list_toimp[sing_rec].aggreg_legante,
                     data_list_toimp[sing_rec].con_text_mat,
                     data_list_toimp[sing_rec].col_materiale,
-                    data_list_toimp[sing_rec].inclusi_materiali_usm
+                    data_list_toimp[sing_rec].inclusi_materiali_usm,
+                    data_list_toimp[sing_rec].n_catalogo_generale,
+                    data_list_toimp[sing_rec].n_catalogo_interno,
+                    data_list_toimp[sing_rec].n_catalogo_internazionale,
+                    data_list_toimp[sing_rec].soprintendenza,
+                    data_list_toimp[sing_rec].quota_relativa,
+                    data_list_toimp[sing_rec].quota_abs,
+                    data_list_toimp[sing_rec].ref_tm,
+                    data_list_toimp[sing_rec].ref_ra,
+                    data_list_toimp[sing_rec].ref_n,
+                    data_list_toimp[sing_rec].posizione,
+                    data_list_toimp[sing_rec].criteri_distinzione,
+                    data_list_toimp[sing_rec].modo_formazione,
+                    data_list_toimp[sing_rec].componenti_organici,
+                    data_list_toimp[sing_rec].componenti_inorganici,
+                    data_list_toimp[sing_rec].lunghezza_max,
+                    data_list_toimp[sing_rec].altezza_max,
+                    data_list_toimp[sing_rec].altezza_min,
+                    data_list_toimp[sing_rec].profondita_max,
+                    data_list_toimp[sing_rec].profondita_min,
+                    data_list_toimp[sing_rec].larghezza_media,
+                    data_list_toimp[sing_rec].quota_max_abs,
+                    data_list_toimp[sing_rec].quota_max_rel,
+                    data_list_toimp[sing_rec].quota_min_abs,
+                    data_list_toimp[sing_rec].quota_min_rel,
+                    data_list_toimp[sing_rec].osservazioni,
+                    data_list_toimp[sing_rec].datazione,
+                    data_list_toimp[sing_rec].flottazione,
+                    data_list_toimp[sing_rec].setacciatura,
+                    data_list_toimp[sing_rec].affidabilita,
+                    data_list_toimp[sing_rec].direttore_us,
+                    data_list_toimp[sing_rec].responsabile_us,
+                    data_list_toimp[sing_rec].cod_ente_schedatore,
+                    data_list_toimp[sing_rec].data_rilevazione,
+                    data_list_toimp[sing_rec].data_rielaborazione,
+                    data_list_toimp[sing_rec].lunghezza_usm,
+                    data_list_toimp[sing_rec].altezza_usm,
+                    data_list_toimp[sing_rec].spessore_usm,
+                    data_list_toimp[sing_rec].tecnica_muraria_usm,
+                    data_list_toimp[sing_rec].modulo_usm,
+                    data_list_toimp[sing_rec].campioni_malta_usm,
+                    data_list_toimp[sing_rec].campioni_mattone_usm,
+                    data_list_toimp[sing_rec].campioni_pietra_usm,
+                    data_list_toimp[sing_rec].provenienza_materiali_usm,
+                    data_list_toimp[sing_rec].criteri_distinzione_usm,
+                    data_list_toimp[sing_rec].uso_primario_usm
                 )
                 ##              try:
                 self.DB_MANAGER_write.insert_data_session(data)
@@ -768,7 +813,7 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
                 ##                  return 0
                 ##
         ####SITE TABLE
-        if mapper_class_write == 'SITE' or 'AUSGRABUNGSSTÄTTE':
+        elif mapper_class_write == 'SITE' or 'AUSGRABUNGSSTÄTTE':
             for sing_rec in range(len(data_list_toimp)):
                 data = self.DB_MANAGER_write.insert_site_values(
                     self.DB_MANAGER_write.max_num_id(mapper_class_write,
@@ -794,7 +839,7 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
                 ##                  return 0
                 ##
                 ####PERIODIZZAZIONE TABLE
-        if mapper_class_write == 'PERIODIZZAZIONE' or 'PERIODISIERUNG' or 'PERIODIATION':
+        elif mapper_class_write == 'PERIODIZZAZIONE' or 'PERIODISIERUNG' or 'PERIODIATION':
             for sing_rec in range(len(data_list_toimp)):
                 data = self.DB_MANAGER_write.insert_periodizzazione_values(
                     self.DB_MANAGER_write.max_num_id(mapper_class_write,
@@ -820,7 +865,7 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
                 ##                  return 0
                 ##
                 ####INVENTARIO MATERIALI TABLE
-        if mapper_class_write == 'INVENTARIO_MATERIALI' or 'ARTEFAKT-INVENTAR' or 'ARTEFACT':
+        elif mapper_class_write == 'INVENTARIO_MATERIALI' or 'ARTEFAKT-INVENTAR' or 'ARTEFACT':
             for sing_rec in range(len(data_list_toimp)):
                 data = self.DB_MANAGER_write.insert_values_reperti(
                     self.DB_MANAGER_write.max_num_id(mapper_class_write,
@@ -867,7 +912,7 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
                 ##                  return 0
                 ##
                 ####STRUTTURA TABLE
-        if mapper_class_write == 'STRUTTURA' or 'STRUKTUREN' or'STRUCTURE':
+        elif mapper_class_write == 'STRUTTURA' or 'STRUKTUREN' or'STRUCTURE':
             for sing_rec in range(len(data_list_toimp)):
                 data = self.DB_MANAGER_write.insert_struttura_values(
                     self.DB_MANAGER_write.max_num_id(mapper_class_write,
@@ -903,7 +948,7 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
                 ##                  return 0
                 ##
                 ####TAFONOMIA TABLE
-        if mapper_class_write == 'TAFONOMIA' or 'TAPHONOMIE' or 'TAPHONOMY':
+        elif mapper_class_write == 'TAFONOMIA' or 'TAPHONOMIE' or 'TAPHONOMY':
             for sing_rec in range(len(data_list_toimp)):
 
                 # blocco oritentamento_azimut
@@ -1009,7 +1054,7 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
                 ##                  return 0
                 ##
                 ####INDIVIDUI TABLE
-        if mapper_class_write == 'SCHEDAIND' or 'INDIVIDUEL' or 'INDIVIDUAL':
+        elif mapper_class_write == 'SCHEDAIND' or 'INDIVIDUEL' or 'INDIVIDUAL':
             for sing_rec in range(len(data_list_toimp)):
                 data = self.DB_MANAGER_write.insert_values_ind(
                     self.DB_MANAGER_write.max_num_id(mapper_class_write,
@@ -1039,7 +1084,7 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
                 ##                  return 0
                 ##
                 ####CAMPIONE TABLE
-        if mapper_class_write == 'CAMPIONE' or 'BEISPIELS' or 'SAMPLE':
+        elif mapper_class_write == 'CAMPIONE' or 'BEISPIELS' or 'SAMPLE':
             for sing_rec in range(len(data_list_toimp)):
                 data = self.DB_MANAGER_write.insert_values_campioni(
                     self.DB_MANAGER_write.max_num_id(mapper_class_write,
@@ -1068,7 +1113,7 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
                 ##                  return 0
                 ##
                 ####DOCUMENTAZIONE TABLE
-        if mapper_class_write == 'DOCUMENTAZIONE' or 'DOKUMENTATION' or 'DOCUMENTATION':
+        elif mapper_class_write == 'DOCUMENTAZIONE' or 'DOKUMENTATION' or 'DOCUMENTATION':
             for sing_rec in range(len(data_list_toimp)):
                 data = self.DB_MANAGER_write.insert_values_documentazione(
                     self.DB_MANAGER_write.max_num_id(mapper_class_write,
@@ -1096,7 +1141,7 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
                 ##                  return 0
                 ##
                 ####UT TABLE
-        if mapper_class_write == 'UT' or 'TE' or 'TU':
+        elif mapper_class_write == 'UT' or 'TE' or 'TU':
             for sing_rec in range(len(data_list_toimp)):
                 data = self.DB_MANAGER_write.insert_ut_values(
                     self.DB_MANAGER_write.max_num_id(mapper_class_write,
