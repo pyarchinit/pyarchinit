@@ -19,13 +19,12 @@
  *                                                                         *
  ***************************************************************************/
 """
-
 import os
 from qgis.PyQt.QtGui import QPixmap
 from qgis.PyQt.QtCore import Qt
-from qgis.PyQt.QtWidgets import QDialog, QMessageBox, QGraphicsView, QGraphicsScene
+from qgis.PyQt.QtWidgets import QDialog, QMessageBox,  QGraphicsView, QGraphicsScene
 from qgis.PyQt.uic import loadUiType
-
+from qgis.PyQt import QtWidgets
 IMAGE_VIEWER, _ = loadUiType(os.path.join(os.path.dirname(__file__), 'ui', 'Image_Viewer.ui'))
 
 
@@ -33,6 +32,8 @@ class ImageViewer(QDialog, IMAGE_VIEWER):
     def __init__(self, parent=None, origPixmap=None):
         QDialog.__init__(self, parent)
         self.setupUi(self)
+        
+    
 
     def show_image(self, path, flags=Qt.KeepAspectRatioByExpanding):
         pic = QPixmap(path)
@@ -41,9 +42,12 @@ class ImageViewer(QDialog, IMAGE_VIEWER):
         scene.addPixmap(pic)
         grview.setScene(scene)
         self.gridLayout_2.addWidget(grview)
+        
+    
 
 
 class ImageViewClass(QGraphicsView):
+    zoom_in = 1.25
     def __init__(self, parent=None, origPixmap=None):
         """
         QGraphicsView that will show an image scaled to the current widget size
@@ -51,7 +55,7 @@ class ImageViewClass(QGraphicsView):
         """
         super(ImageViewClass, self).__init__(parent)
         self.origPixmap = origPixmap
-
+        
     def resizeEvent(self, event):
         """
         Handle the resize event.
@@ -66,3 +70,24 @@ class ImageViewClass(QGraphicsView):
         pixmap = pixmap.scaled(size, Qt.KeepAspectRatio, Qt.SmoothTransformation)
         self.centerOn(0, 0)
         item.setPixmap(pixmap)
+    
+    def wheelEvent(self,event):        
+        delta = event.angleDelta()
+        if delta.y() > 0:
+            scale = self.zoom_in
+        else:
+            scale = 1 / self.zoom_in
+        # Set Anchors
+        self.setResizeAnchor(QtWidgets.QGraphicsView.NoAnchor)
+        self.setTransformationAnchor(QtWidgets.QGraphicsView.NoAnchor)
+
+        cur_pos = self.mapToScene(event.pos())
+        self.scale(scale, scale)
+        new_pos = self.mapToScene(event.pos())
+        delta_zoomed = new_pos - cur_pos
+        self.translate(delta_zoomed.x(), delta_zoomed.y())
+
+        event.accept()
+        return
+        return super(ImageViewClass, self).wheelEvent(event)
+         
