@@ -555,9 +555,9 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
     def on_pushButton_import_pressed(self):
         if self.L=='it':
             id_table_class_mapper_conv_dict = {
+                'SITE': 'id_sito',
                 'US': 'id_us',
                 'UT': 'id_ut',
-                'SITE': 'id_sito',
                 'PERIODIZZAZIONE': 'id_perfas',
                 'INVENTARIO_MATERIALI': 'id_invmat',
                 'STRUTTURA': 'id_struttura',
@@ -649,8 +649,7 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
             data_list_toimp.append(i)
 
         QMessageBox.warning(self, "Total record to import", str(len(data_list_toimp)), QMessageBox.Ok)
-        # creazione del cursore di scrittura
-
+        
         ####RICAVA I DATI IN LETTURA PER LA CONNESSIONE DALLA GUI
         conn_str_dict_write = {
             "server": str(self.comboBox_server_wt.currentText()),
@@ -685,20 +684,50 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
         test = self.DB_MANAGER_write.connection()
         test = str(test)
 
-        if test:
-            QMessageBox.warning(self, "Message", "Connection ok", QMessageBox.Ok)
-        elif test.find("create_engine") != -1:
-            QMessageBox.warning(self, "Alert",
-                                "Try connection parameter. <br> If they are correct restart QGIS",
-                                QMessageBox.Ok)
-        else:
-            QMessageBox.warning(self, "Alert", "Connection error: <br>" + test, QMessageBox.Ok)
+        # if test:
+            # QMessageBox.warning(self, "Message", "Connection ok", QMessageBox.Ok)
+        # elif test.find("create_engine") != -1:
+            # QMessageBox.warning(self, "Alert",
+                                # "Try connection parameter. <br> If they are correct restart QGIS",
+                                # QMessageBox.Ok)
+        # else:
+            # QMessageBox.warning(self, "Alert", "Connection error: <br>" + test, QMessageBox.Ok)
 
         mapper_class_write = str(self.comboBox_mapper_read.currentText())
         ####inserisce i dati dentro al database
 
+        ####SITE TABLE
+        if mapper_class_write == 'SITE' :
+            for sing_rec in range(len(data_list_toimp)):
+                data = self.DB_MANAGER_write.insert_site_values(
+                    self.DB_MANAGER_write.max_num_id(mapper_class_write,
+                                                     id_table_class_mapper_conv_dict[mapper_class_write]) + 1,
+                    data_list_toimp[sing_rec].sito,
+                    data_list_toimp[sing_rec].nazione,
+                    data_list_toimp[sing_rec].regione,
+                    data_list_toimp[sing_rec].comune,
+                    data_list_toimp[sing_rec].descrizione,
+                    data_list_toimp[sing_rec].provincia,
+                    data_list_toimp[sing_rec].definizione_sito,
+                    data_list_toimp[sing_rec].sito_path,
+                    data_list_toimp[sing_rec].find_check)
+                    
+                try:    
+                    self.DB_MANAGER_write.insert_data_session(data)
+                    QMessageBox.warning(self, "Pyarchinit", "Importazione completata",  QMessageBox.Ok)
+                    return 1
+                except Exception as  e:
+                    e_str = str(e)
+                    #QMessageBox.warning(self, "Errore", "Attenzione 1 ! \n"+ str(e_str),  QMessageBox.Ok)
+                    if e_str.__contains__("Integrity"):
+                        msg = 'id_sito'+": gia' presente nel database"
+                        return 0
+                ####PERIODIZZAZIONE TABLE
+        
         #### US TABLE
-        if mapper_class_write == 'US' or 'SE' or 'SU':
+        
+        
+        if  mapper_class_write == 'US':
             for sing_rec in range(len(data_list_toimp)):
                 data = self.DB_MANAGER_write.insert_values(
                     self.DB_MANAGER_write.max_num_id(mapper_class_write,
@@ -800,46 +829,17 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
                     data_list_toimp[sing_rec].criteri_distinzione_usm,
                     data_list_toimp[sing_rec].uso_primario_usm
                 )
-                ##              try:
-                self.DB_MANAGER_write.insert_data_session(data)
-                ##              except Exception, e:
-                ##                  e_str = str(e)
-                ##                  QMessageBox.warning(self, "Errore", "Attenzione 1 ! \n"+ str(e_str),  QMessageBox.Ok)
-                ##                  if e_str.__contains__("Integrity"):
-                ##                      msg = 'id_us' + " gia' presente nel database"
-                ##                  else:
-                ##                      msg = e
-                ##                  QMessageBox.warning(self, "Errore", "Attenzione 1 ! \n"+ str(msg),  QMessageBox.Ok)
-                ##                  return 0
-                ##
-        ####SITE TABLE
-        elif mapper_class_write == 'SITE' or 'AUSGRABUNGSSTÄTTE':
-            for sing_rec in range(len(data_list_toimp)):
-                data = self.DB_MANAGER_write.insert_site_values(
-                    self.DB_MANAGER_write.max_num_id(mapper_class_write,
-                                                     id_table_class_mapper_conv_dict[mapper_class_write]) + 1,
-                    data_list_toimp[sing_rec].sito,
-                    data_list_toimp[sing_rec].nazione,
-                    data_list_toimp[sing_rec].regione,
-                    data_list_toimp[sing_rec].comune,
-                    data_list_toimp[sing_rec].descrizione,
-                    data_list_toimp[sing_rec].provincia,
-                    data_list_toimp[sing_rec].definizione_sito,
-                    data_list_toimp[sing_rec].find_check)
-                ##              try:
-                self.DB_MANAGER_write.insert_data_session(data)
-                ##              except Exception, e:
-                ##                  e_str = str(e)
-                ##                  QMessageBox.warning(self, "Errore", "Attenzione 1 ! \n"+ str(e_str),  QMessageBox.Ok)
-                ##                  if e_str.__contains__("Integrity"):
-                ##                      msg = 'id_us' + " gia' presente nel database"
-                ##                  else:
-                ##                      msg = e
-                ##                  QMessageBox.warning(self, "Errore", "Attenzione 1 ! \n"+ str(msg),  QMessageBox.Ok)
-                ##                  return 0
-                ##
-                ####PERIODIZZAZIONE TABLE
-        elif mapper_class_write == 'PERIODIZZAZIONE' or 'PERIODISIERUNG' or 'PERIODIATION':
+                try:    
+                    self.DB_MANAGER_write.insert_data_session(data)
+                    QMessageBox.warning(self, "Pyarchinit", "Importazione completata",  QMessageBox.Ok)
+                    return 1
+                except Exception as  e:
+                    e_str = str(e)
+                    #QMessageBox.warning(self, "Errore", "Attenzione 1 ! \n"+ str(e_str),  QMessageBox.Ok)
+                    if e_str.__contains__("Integrity"):
+                        msg = "ID_sito_unico"+": gia' presente nel database"
+                        return 0
+        if mapper_class_write == 'PERIODIZZAZIONE' :
             for sing_rec in range(len(data_list_toimp)):
                 data = self.DB_MANAGER_write.insert_periodizzazione_values(
                     self.DB_MANAGER_write.max_num_id(mapper_class_write,
@@ -852,20 +852,19 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
                     data_list_toimp[sing_rec].descrizione,
                     data_list_toimp[sing_rec].datazione_estesa,
                     data_list_toimp[sing_rec].cont_per)
-                ##              try:
-                self.DB_MANAGER_write.insert_data_session(data)
-                ##              except Exception, e:
-                ##                  e_str = str(e)
-                ##                  QMessageBox.warning(self, "Errore", "Attenzione 1 ! \n"+ str(e_str),  QMessageBox.Ok)
-                ##                  if e_str.__contains__("Integrity"):
-                ##                      msg = 'id_us' + " gia' presente nel database"
-                ##                  else:
-                ##                      msg = e
-                ##                  QMessageBox.warning(self, "Errore", "Attenzione 1 ! \n"+ str(msg),  QMessageBox.Ok)
-                ##                  return 0
-                ##
+                try:    
+                    self.DB_MANAGER_write.insert_data_session(data)
+                    QMessageBox.warning(self, "Pyarchinit", "Importazione completata",  QMessageBox.Ok)
+                    return 1
+                except Exception as  e:
+                    e_str = str(e)
+                    #QMessageBox.warning(self, "Errore", "Attenzione 1 ! \n"+ str(e_str),  QMessageBox.Ok)
+                    if e_str.__contains__("Integrity"):
+                        msg = "ID_sito_unico"+": gia' presente nel database"
+                        return 0
                 ####INVENTARIO MATERIALI TABLE
-        elif mapper_class_write == 'INVENTARIO_MATERIALI' or 'ARTEFAKT-INVENTAR' or 'ARTEFACT':
+        
+        if mapper_class_write == 'INVENTARIO_MATERIALI' :
             for sing_rec in range(len(data_list_toimp)):
                 data = self.DB_MANAGER_write.insert_values_reperti(
                     self.DB_MANAGER_write.max_num_id(mapper_class_write,
@@ -899,20 +898,18 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
                     data_list_toimp[sing_rec].repertato,
                     data_list_toimp[sing_rec].diagnostico
                 )
-                ##              try:
-                self.DB_MANAGER_write.insert_data_session(data)
-                ##              except Exception, e:
-                ##                  e_str = str(e)
-                ##                  QMessageBox.warning(self, "Errore", "Attenzione 1 ! \n"+ str(e_str),  QMessageBox.Ok)
-                ##                  if e_str.__contains__("Integrity"):
-                ##                      msg = 'id_us' + " gia' presente nel database"
-                ##                  else:
-                ##                      msg = e
-                ##                  QMessageBox.warning(self, "Errore", "Attenzione 1 ! \n"+ str(msg),  QMessageBox.Ok)
-                ##                  return 0
-                ##
-                ####STRUTTURA TABLE
-        elif mapper_class_write == 'STRUTTURA' or 'STRUKTUREN' or'STRUCTURE':
+                try:    
+                    self.DB_MANAGER_write.insert_data_session(data)
+                    QMessageBox.warning(self, "Pyarchinit", "Importazione completata",  QMessageBox.Ok)
+                    return 1
+                except Exception as  e:
+                    e_str = str(e)
+                    #QMessageBox.warning(self, "Errore", "Attenzione 1 ! \n"+ str(e_str),  QMessageBox.Ok)
+                    if e_str.__contains__("Integrity"):
+                        msg = "ID_sito_unico"+": gia' presente nel database"
+                        return 0
+      
+        if mapper_class_write == 'STRUTTURA' :
             for sing_rec in range(len(data_list_toimp)):
                 data = self.DB_MANAGER_write.insert_struttura_values(
                     self.DB_MANAGER_write.max_num_id(mapper_class_write,
@@ -935,20 +932,19 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
                     data_list_toimp[sing_rec].rapporti_struttura,
                     data_list_toimp[sing_rec].misure_struttura
                 )
-                ##              try:
-                self.DB_MANAGER_write.insert_data_session(data)
-                ##              except Exception, e:
-                ##                  e_str = str(e)
-                ##                  QMessageBox.warning(self, "Errore", "Attenzione 1 ! \n"+ str(e_str),  QMessageBox.Ok)
-                ##                  if e_str.__contains__("Integrity"):
-                ##                      msg = 'id_us' + " gia' presente nel database"
-                ##                  else:
-                ##                      msg = e
-                ##                  QMessageBox.warning(self, "Errore", "Attenzione 1 ! \n"+ str(msg),  QMessageBox.Ok)
-                ##                  return 0
-                ##
+                try:    
+                    self.DB_MANAGER_write.insert_data_session(data)
+                    QMessageBox.warning(self, "Pyarchinit", "Importazione completata",  QMessageBox.Ok)
+                    return 1
+                except Exception as  e:
+                    e_str = str(e)
+                    #QMessageBox.warning(self, "Errore", "Attenzione 1 ! \n"+ str(e_str),  QMessageBox.Ok)
+                    if e_str.__contains__("Integrity"):
+                        msg = "ID_sito_unico"+": gia' presente nel database"
+                        return 0
                 ####TAFONOMIA TABLE
-        elif mapper_class_write == 'TAFONOMIA' or 'TAPHONOMIE' or 'TAPHONOMY':
+        
+        if mapper_class_write == 'TAFONOMIA' :
             for sing_rec in range(len(data_list_toimp)):
 
                 # blocco oritentamento_azimut
@@ -1041,20 +1037,19 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
                     str(data_list_toimp[sing_rec].datazione_estesa),
                     str(data_list_toimp[sing_rec].misure_tafonomia)
                 )
-                ##              try:
-                self.DB_MANAGER_write.insert_data_session(data)
-                ##              except Exception, e:
-                ##                  e_str = str(e)
-                ##                  QMessageBox.warning(self, "Errore", "Attenzione 1 ! \n"+ str(e_str),  QMessageBox.Ok)
-                ##                  if e_str.__contains__("Integrity"):
-                ##                      msg = 'id_us' + " gia' presente nel database"
-                ##                  else:
-                ##                      msg = e
-                ##                  QMessageBox.warning(self, "Errore", "Attenzione 1 ! \n"+ str(msg),  QMessageBox.Ok)
-                ##                  return 0
-                ##
+                try:    
+                    self.DB_MANAGER_write.insert_data_session(data)
+                    QMessageBox.warning(self, "Pyarchinit", "Importazione completata",  QMessageBox.Ok)
+                    return 1
+                except Exception as  e:
+                    e_str = str(e)
+                    #QMessageBox.warning(self, "Errore", "Attenzione 1 ! \n"+ str(e_str),  QMessageBox.Ok)
+                    if e_str.__contains__("Integrity"):
+                        msg = "ID_sito_unico"+": gia' presente nel database"
+                        return 0
                 ####INDIVIDUI TABLE
-        elif mapper_class_write == 'SCHEDAIND' or 'INDIVIDUEL' or 'INDIVIDUAL':
+        
+        if mapper_class_write == 'SCHEDAIND' :
             for sing_rec in range(len(data_list_toimp)):
                 data = self.DB_MANAGER_write.insert_values_ind(
                     self.DB_MANAGER_write.max_num_id(mapper_class_write,
@@ -1073,7 +1068,7 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
                 )
                 ##              try:
                 self.DB_MANAGER_write.insert_data_session(data)
-                ##              except Exception, e:
+                ##              except Exception as  e:
                 ##                  e_str = str(e)
                 ##                  QMessageBox.warning(self, "Errore", "Attenzione 1 ! \n"+ str(e_str),  QMessageBox.Ok)
                 ##                  if e_str.__contains__("Integrity"):
@@ -1084,7 +1079,8 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
                 ##                  return 0
                 ##
                 ####CAMPIONE TABLE
-        elif mapper_class_write == 'CAMPIONE' or 'BEISPIELS' or 'SAMPLE':
+        
+        if mapper_class_write == 'CAMPIONE':
             for sing_rec in range(len(data_list_toimp)):
                 data = self.DB_MANAGER_write.insert_values_campioni(
                     self.DB_MANAGER_write.max_num_id(mapper_class_write,
@@ -1100,20 +1096,19 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
                     data_list_toimp[sing_rec].nr_cassa,
                     data_list_toimp[sing_rec].luogo_conservazione
                 )
-                ##              try:
-                self.DB_MANAGER_write.insert_data_session(data)
-                ##              except Exception, e:
-                ##                  e_str = str(e)
-                ##                  QMessageBox.warning(self, "Errore", "Attenzione 1 ! \n"+ str(e_str),  QMessageBox.Ok)
-                ##                  if e_str.__contains__("Integrity"):
-                ##                      msg = 'id_us' + " gia' presente nel database"
-                ##                  else:
-                ##                      msg = e
-                ##                  QMessageBox.warning(self, "Errore", "Attenzione 1 ! \n"+ str(msg),  QMessageBox.Ok)
-                ##                  return 0
-                ##
+                try:    
+                    self.DB_MANAGER_write.insert_data_session(data)
+                    QMessageBox.warning(self, "Pyarchinit", "Importazione completata",  QMessageBox.Ok)
+                    return 1
+                except Exception as  e:
+                    e_str = str(e)
+                    #QMessageBox.warning(self, "Errore", "Attenzione 1 ! \n"+ str(e_str),  QMessageBox.Ok)
+                    if e_str.__contains__("Integrity"):
+                        msg = "ID_sito_unico"+": gia' presente nel database"
+                        return 0
                 ####DOCUMENTAZIONE TABLE
-        elif mapper_class_write == 'DOCUMENTAZIONE' or 'DOKUMENTATION' or 'DOCUMENTATION':
+       
+        if mapper_class_write == 'DOCUMENTAZIONE' :
             for sing_rec in range(len(data_list_toimp)):
                 data = self.DB_MANAGER_write.insert_values_documentazione(
                     self.DB_MANAGER_write.max_num_id(mapper_class_write,
@@ -1128,20 +1123,20 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
                     data_list_toimp[sing_rec].note
                 )
 
-                ##              try:
-                self.DB_MANAGER_write.insert_data_session(data)
-                ##              except Exception, e:
-                ##                  e_str = str(e)
-                ##                  QMessageBox.warning(self, "Errore", "Attenzione 1 ! \n"+ str(e_str),  QMessageBox.Ok)
-                ##                  if e_str.__contains__("Integrity"):
-                ##                      msg = 'id_us' + " gia' presente nel database"
-                ##                  else:
-                ##                      msg = e
-                ##                  QMessageBox.warning(self, "Errore", "Attenzione 1 ! \n"+ str(msg),  QMessageBox.Ok)
-                ##                  return 0
-                ##
+                try:    
+                    self.DB_MANAGER_write.insert_data_session(data)
+                    QMessageBox.warning(self, "Pyarchinit", "Importazione completata",  QMessageBox.Ok)
+                    return 1
+                except Exception as  e:
+                    e_str = str(e)
+                    #QMessageBox.warning(self, "Errore", "Attenzione 1 ! \n"+ str(e_str),  QMessageBox.Ok)
+                    if e_str.__contains__("Integrity"):
+                        msg = "ID_sito_unico"+": gia' presente nel database"
+                        return 0
                 ####UT TABLE
-        elif mapper_class_write == 'UT' or 'TE' or 'TU':
+        else:
+            pass
+        if mapper_class_write == 'UT':
             for sing_rec in range(len(data_list_toimp)):
                 data = self.DB_MANAGER_write.insert_ut_values(
                     self.DB_MANAGER_write.max_num_id(mapper_class_write,
@@ -1190,17 +1185,13 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
                     data_list_toimp[sing_rec].indagini_preliminari
                 )
 
-                ##              try:
-                self.DB_MANAGER_write.insert_data_session(data)
-
-
-##              except Exception, e:
-##                  e_str = str(e)
-##                  QMessageBox.warning(self, "Errore", "Attenzione 1 ! \n"+ str(e_str),  QMessageBox.Ok)
-##                  if e_str.__contains__("Integrity"):
-##                      msg = 'id_us' + " gia' presente nel database"
-##                  else:
-##                      msg = e
-##                  QMessageBox.warning(self, "Errore", "Attenzione 1 ! \n"+ str(msg),  QMessageBox.Ok)
-##                  return 0
-##
+                try:    
+                    self.DB_MANAGER_write.insert_data_session(data)
+                    QMessageBox.warning(self, "Pyarchinit", "Importazione completata",  QMessageBox.Ok)
+                    return 1
+                except Exception as  e:
+                    e_str = str(e)
+                    #QMessageBox.warning(self, "Errore", "Attenzione 1 ! \n"+ str(e_str),  QMessageBox.Ok)
+                    if e_str.__contains__("Integrity"):
+                        msg = "ID_sito_unico"+": gia' presente nel database"
+                        return 0
