@@ -3,7 +3,7 @@
 """
 /***************************************************************************
         pyArchInit Plugin  - A QGIS plugin to manage archaeological dataset
-        					 stored in Postgres
+                             stored in Postgres
                              -------------------
     begin                : 2007-12-01
     copyright            : (C) 2008 by Luca Mandolesi
@@ -33,7 +33,7 @@ class Settings(object):
     PORT = ""
     USER = ""
     THUMB_PATH = ""
-
+    THUMB_RESIZE = ""
     def __init__(self, s):
         self.configuration = eval(s)
 
@@ -45,5 +45,5 @@ class Settings(object):
         self.PORT = self.configuration['PORT']
         self.USER = self.configuration['USER']
         self.THUMB_PATH = self.configuration['THUMB_PATH']
-
+        self.THUMB_RESIZE = self.configuration['THUMB_RESIZE']
         PLUGIN_PATH = path = os.path.dirname(__file__)
