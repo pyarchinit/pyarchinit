@@ -1032,8 +1032,8 @@ class pyarchinit_Inventario_reperti(QDialog, MAIN_DIALOG_CLASS):
             search_dict = u.remove_empty_items_fr_dict(search_dict)
 
             try:
-                res = self.DB_MANAGER.query_bool(search_dict, "MEDIA")
-                file_path = str(res[0].filepath)
+                res = self.DB_MANAGER.query_bool(search_dict, "MEDIA_THUMB")
+                file_path = str(res[0].path_resize)
             except Exception as e:
                 QMessageBox.warning(self, "Error", "Warning 1 file: " + str(e), QMessageBox.Ok)
 
