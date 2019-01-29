@@ -551,3 +551,29 @@ CREATE OR REPLACE VIEW public.pyarchinit_doc_view_b AS SELECT
 
 ALTER TABLE public.pyarchinit_us_negative_doc_view
     OWNER TO postgres;
+
+CREATE SEQUENCE IF NOT EXISTS mediaentity_view_id_media_thumb_seq
+  INCREMENT 1
+  MINVALUE 1
+  MAXVALUE 9223372036854775807
+  START 1
+  CACHE 1;
+ALTER TABLE mediaentity_view_id_media_thumb_seq
+  OWNER TO postgres;
+CREATE OR REPLACE VIEW public.mediaentity_view AS 
+ SELECT media_thumb_table.id_media_thumb,
+    media_thumb_table.id_media,
+    media_thumb_table.filepath,
+	media_thumb_table.path_resize,
+    media_to_entity_table.entity_type,
+    media_to_entity_table.id_media AS id_media_m,
+    media_to_entity_table.id_entity
+   FROM media_thumb_table
+     JOIN media_to_entity_table ON media_thumb_table.id_media = media_to_entity_table.id_media
+  ORDER BY media_to_entity_table.id_entity;
+
+ALTER TABLE public.mediaentity_view
+  OWNER TO postgres;
+ALTER TABLE public.mediaentity_view ALTER COLUMN id_media_thumb SET DEFAULT nextval('mediaentity_view_id_media_thumb_seq'::regclass);
+	
+	

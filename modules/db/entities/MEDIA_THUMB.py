@@ -14,7 +14,8 @@ class MEDIA_THUMB(object):
                  media_filename,
                  media_thumb_filename,
                  filetype,
-                 filepath
+                 filepath,
+                 path_resize
                  ):
         self.id_media_thumb = id_media_thumb  # 0
         self.id_media = id_media  # 1
@@ -23,15 +24,16 @@ class MEDIA_THUMB(object):
         self.media_thumb_filename = media_thumb_filename  # 4
         self.filetype = filetype  # 5
         self.filepath = filepath  # 6
-
+        self.path_resize = path_resize
     # def __repr__"
     def __repr__(self):
-        return "<MEDIA('%d', '%d', '%s', '%s', %s, '%s', '%s')>" % (
+        return "<MEDIA_THUMB('%d', '%d', '%s', '%s', %s, '%s', '%s','%s')>" % (
             self.id_media_thumb,
             self.id_media,
             self.mediatype,
             self.media_filename,
             self.media_thumb_filename,
             self.filetype,
-            self.filepath
+            self.filepath,
+            self.path_resize
         )

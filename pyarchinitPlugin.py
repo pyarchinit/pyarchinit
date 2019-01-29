@@ -67,6 +67,7 @@ class PyArchInitPlugin(object):
                    'PORT': '',
                    'USER': '',
                    'THUMB_PATH': '',
+                   'THUMB_RESIZE': '',
                    'EXPERIMENTAL': ''}
 
     path_rel = os.path.join(os.sep, HOME, 'pyarchinit_DB_folder', 'config.cfg')

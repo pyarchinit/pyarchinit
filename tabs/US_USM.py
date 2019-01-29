@@ -22,7 +22,9 @@ from __future__ import absolute_import
 from builtins import range
 from builtins import str
 
+
 import os
+
 from datetime import date
 from qgis.PyQt.QtCore import Qt, QSize, pyqtSlot, QVariant, QLocale
 from qgis.PyQt.QtGui import QColor, QIcon
@@ -1472,6 +1474,8 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
         elif mode == 1:
             self.iconListWidget.clear()
 
+    
+
     def openWide_image(self):
         items = self.iconListWidget.selectedItems()
         for item in items:
@@ -1484,12 +1488,13 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
             search_dict = u.remove_empty_items_fr_dict(search_dict)
 
             try:
-                res = self.DB_MANAGER.query_bool(search_dict, "MEDIA")
-                file_path = str(res[0].filepath)
+                res = self.DB_MANAGER.query_bool(search_dict, "MEDIA_THUMB")
+                file_path = str(res[0].path_resize)
             except Exception as e:
                 QMessageBox.warning(self, "Error", "Warning 1 file: " + str(e), QMessageBox.Ok)
 
-            dlg.show_image(str(file_path))  # item.data(QtCore.Qt.UserRole).toString()))
+            dlg.show_image(str(file_path))
+            #item.data(QtCore.Qt.UserRole).toString()))
             dlg.exec_()
 
     def charge_list(self):
