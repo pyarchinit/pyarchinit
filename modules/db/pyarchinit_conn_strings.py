@@ -79,3 +79,16 @@ class Connection(object):
         thumb_path = {"thumb_path": settings.THUMB_PATH}
 
         return thumb_path
+    
+    def thumb_resize(self):
+        cfg_rel_path = os.path.join(os.sep, 'pyarchinit_DB_folder', 'config.cfg')
+        file_path = '{}{}'.format(self.HOME, cfg_rel_path)
+        conf = open(file_path, "r")
+
+        data = conf.read()
+        settings = Settings(data)
+        settings.set_configuration()
+        conf.close()
+        thumb_resize = {"thumb_resize": settings.THUMB_RESIZE}
+
+        return thumb_resize

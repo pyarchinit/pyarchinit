@@ -483,7 +483,8 @@ class Pyarchinit_db_management(object):
                                   arg[3],
                                   arg[4],
                                   arg[5],
-                                  arg[6])
+                                  arg[6],
+                                  arg[7])
 
         return media_thumb
 
@@ -507,7 +508,8 @@ class Pyarchinit_db_management(object):
                 arg[2],
                 arg[3],
                 arg[4],
-                arg[5])
+                arg[5],
+                arg[6])
 
         return mediaentity_view 
     
@@ -870,7 +872,7 @@ class Pyarchinit_db_management(object):
 
     # session statement
     def insert_data_session(self, data):
-        Session = sessionmaker(bind=self.engine, autoflush=True)
+        Session = sessionmaker(bind=self.engine, autoflush=False)
         session = Session()
         session.add(data)
         session.commit()
