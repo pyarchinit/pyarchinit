@@ -15,6 +15,10 @@
 
 **Note2:** _Under Windows is necessary to start QGIS as Administrator when you install the plugin for the first time in order to install all the dependencies properly._
 
+**Note3:** _If you use PostgreSQL, we raccomend to install PostgreSQL >=9.5_
+
+**Note4:** _If you have already an pyarchinit db, use "update posgres" or "update sqlite" tool in pyarchinit configuration  form to update  your db to the new release._
+
 #### Dependencies
 * SQLAlchemy
 * reportlab
