@@ -22,11 +22,10 @@ class Media_to_Entity_table_view:
                                     Column('id_media_thumb', Integer, primary_key=True),
                                     Column('id_media', Integer),
                                     Column('filepath', Text),
-									Column('path_resize', Text),
-                                    Column('entity_type', Text),
+									Column('entity_type', Text),
                                     Column('id_media_m', Integer),
                                     Column('id_entity', Integer),
-
+									Column('path_resize', Text),
                                   # # explicit/composite unique constraint.  'name' is optional.
                                   # UniqueConstraint('id_entity', 'entity_type', 'id_media',
                                                    # name='ID_mediaToEntity_unico')
