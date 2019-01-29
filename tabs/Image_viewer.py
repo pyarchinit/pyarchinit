@@ -97,7 +97,7 @@ class Main(QDialog, MAIN_DIALOG_CLASS):
                     ]
 
     SEARCH_DICT_TEMP = ""
-
+    HOME = os.environ['PYARCHINIT_HOME']
     DB_SERVER = 'not defined'
     def __init__(self):
         # This is always the same
@@ -217,9 +217,9 @@ class Main(QDialog, MAIN_DIALOG_CLASS):
                                                      QFileDialog.ShowDirsOnly)
 
         if not directory:
-            return
+            return 0
 
-        QMessageBox.warning(self, "Alert", str(dir(directory)), QMessageBox.Ok)
+        #QMessageBox.warning(self, "Alert", str(dir(directory)), QMessageBox.Ok)
         for image in sorted(os.listdir(directory)):
             if image.endswith(".png") or image.endswith(".PNG") or image.endswith(".JPG") or image.endswith(
                     ".jpg") or image.endswith(".jpeg") or image.endswith(".JPEG") or image.endswith(
@@ -230,58 +230,70 @@ class Main(QDialog, MAIN_DIALOG_CLASS):
                 idunique_image_check = self.db_search_check(self.MAPPER_TABLE_CLASS, 'filepath',
                                                             filepath)  # controlla che l'immagine non sia già presente nel db sulla base del suo path
 
-                if not bool(idunique_image_check):
-                    mediatype = 'image'  # db definisce il tipo di immagine originale
-                    self.insert_record_media(mediatype, filename, filetype,
-                                             filepath)  # db inserisce i dati nella tabella media originali
-                    MU = Media_utility()
-                    conn = Connection()
-                    media_max_num_id = self.DB_MANAGER.max_num_id(self.MAPPER_TABLE_CLASS,
-                                                                  self.ID_TABLE)  # db recupera il valore più alto ovvero l'ultimo immesso per l'immagine originale
+            if not bool(idunique_image_check):
+                mediatype = 'image'  # db definisce il tipo di immagine originale
+                self.insert_record_media(mediatype, filename, filetype,
+                                         filepath)  # db inserisce i dati nella tabella media originali
+                MU = Media_utility()
+                MUR = Media_utility_resize()
+                conn = Connection()
+                media_max_num_id = self.DB_MANAGER.max_num_id(self.MAPPER_TABLE_CLASS,
+                                                              self.ID_TABLE)  # db recupera il valore più alto ovvero l'ultimo immesso per l'immagine originale
 
-                    thumb_path = conn.thumb_path()
-                    thumb_path_str = thumb_path['thumb_path']
+                thumb_path = conn.thumb_path()
+                thumb_path_str = thumb_path['thumb_path']
+                
+                thumb_resize = conn.thumb_resize()
+                thumb_resize_str = thumb_resize['thumb_resize']
 
-                    media_thumb_suffix = '_pay.png'
+                media_thumb_suffix = '_thumb.png'
+                media_resize_suffix = '.png'
+                
+                
+                filenameorig = filename
+                
+                filename_thumb = str(media_max_num_id) + "_" + filename + media_thumb_suffix
+                filename_resize = str(media_max_num_id) + "_" + filename + media_resize_suffix
+                
+                filepath_thumb = thumb_path_str + filename_thumb
+                filepath_resize = thumb_resize_str + filename_resize
+                
+                # crea la thumbnail
+                try:
+                    MU.resample_images(media_max_num_id, filepath, filenameorig, thumb_path_str, media_thumb_suffix)
+                    MUR.resample_images(media_max_num_id, filepath, filenameorig, thumb_resize_str, media_resize_suffix)
+                except Exception as e:
+                    QMessageBox.warning(self, "Cucu", str(e), QMessageBox.Ok)
 
-                    filenameorig = filename
-                    filename_thumb = str(media_max_num_id) + "_" + filename + media_thumb_suffix
-                    filepath_thumb = thumb_path_str + filename_thumb
-                    # crea la thumbnail
-                    try:
-                        MU.resample_images(media_max_num_id, filepath, filenameorig, thumb_path_str, media_thumb_suffix)
-                    except Exception as e:
-                        QMessageBox.warning(self, "Cucu", str(e), QMessageBox.Ok)
+                    # inserisce i dati nel DB
+                self.insert_record_mediathumb(media_max_num_id, mediatype, filename, filename_thumb, filetype,
+                                              filepath_thumb, filepath_resize)
 
-                        # inserisce i dati nel DB
-                    self.insert_record_mediathumb(media_max_num_id, mediatype, filename, filename_thumb, filetype,
-                                                  filepath_thumb)
+                # visualizza le immagini nella ui
+                item = QListWidgetItem(str(media_max_num_id))
+                item.setData(Qt.UserRole, str(media_max_num_id))
+                icon = QIcon(filepath_thumb)  # os.path.join('%s/%s' % (directory.toUtf8(), image)))
+                item.setIcon(icon)
+                self.iconListWidget.addItem(item)
 
-                    # visualizza le immagini nella ui
-                    item = QListWidgetItem(str(media_max_num_id))
-                    item.setData(Qt.UserRole, str(media_max_num_id))
-                    icon = QIcon(filepath_thumb)  # os.path.join('%s/%s' % (directory.toUtf8(), image)))
-                    item.setIcon(icon)
-                    self.iconListWidget.addItem(item)
+            elif bool(idunique_image_check):
 
-                elif bool(idunique_image_check):
+                # recupero il valore id_media basato sul path dell'immagine
 
-                    # recupero il valore id_media basato sul path dell'immagine
+                data = idunique_image_check
+                id_media = data[0].id_media
 
-                    data = idunique_image_check
-                    id_media = data[0].id_media
+                # visualizza le immagini nella ui
+                item = QListWidgetItem(str(id_media))
 
-                    # visualizza le immagini nella ui
-                    item = QListWidgetItem(str(id_media))
+                data_for_thumb = self.db_search_check(self.MAPPER_TABLE_CLASS_thumb, 'id_media',
+                                                      id_media)  # recupera i valori della thumb in base al valore id_media del file originale
 
-                    data_for_thumb = self.db_search_check(self.MAPPER_TABLE_CLASS_thumb, 'id_media',
-                                                          id_media)  # recupera i valori della thumb in base al valore id_media del file originale
-
-                    thumb_path = data_for_thumb[0].filepath
-                    item.setData(Qt.UserRole, thumb_path)
-                    icon = QIcon(thumb_path)  # os.path.join('%s/%s' % (directory.toUtf8(), image)))
-                    item.setIcon(icon)
-                    self.iconListWidget.addItem(item)
+                thumb_path = data_for_thumb[0].filepath
+                item.setData(Qt.UserRole, thumb_path)
+                icon = QIcon(thumb_path)  # os.path.join('%s/%s' % (directory.toUtf8(), image)))
+                item.setIcon(icon)
+                self.iconListWidget.addItem(item)
 
     def insert_record_media(self, mediatype, filename, filetype, filepath):
         self.mediatype = mediatype
@@ -314,14 +326,14 @@ class Main(QDialog, MAIN_DIALOG_CLASS):
             QMessageBox.warning(self, "Error", "Warning 2 ! \n"+str(e),  QMessageBox.Ok)
             return 0
 
-    def insert_record_mediathumb(self, media_max_num_id, mediatype, filename, filename_thumb, filetype, filepath_thumb):
+    def insert_record_mediathumb(self, media_max_num_id, mediatype, filename, filename_thumb, filetype, filepath_thumb, filepath_resize):
         self.media_max_num_id = media_max_num_id
         self.mediatype = mediatype
         self.filename = filename
         self.filename_thumb = filename_thumb
         self.filetype = filetype
         self.filepath_thumb = filepath_thumb
-
+        self.filepath_resize = filepath_resize
         try:
             data = self.DB_MANAGER.insert_mediathumb_values(
                 self.DB_MANAGER.max_num_id(self.MAPPER_TABLE_CLASS_thumb, self.ID_TABLE_THUMB) + 1,
@@ -330,8 +342,8 @@ class Main(QDialog, MAIN_DIALOG_CLASS):
                 str(self.filename),  # 3 - filename
                 str(self.filename_thumb),  # 4 - filename_thumb
                 str(self.filetype),  # 5 - filetype
-                str(self.filepath_thumb))  # 6 - filepath_thumb
-
+                str(self.filepath_thumb),  # 6 - filepath_thumb
+                str(self.filepath_resize))  # 6 - filepath_thumb
             try:
                 self.DB_MANAGER.insert_data_session(data)
                 return 1
@@ -494,7 +506,7 @@ class Main(QDialog, MAIN_DIALOG_CLASS):
     def openWide_image(self):
         items = self.iconListWidget.selectedItems()
         for item in items:
-            dlg = ImageViewer(self)
+            dlg = ImageViewer()
             id_orig_item = item.text()  # return the name of original file
 
             search_dict = {'id_media': "'" + str(id_orig_item) + "'"}
@@ -503,8 +515,8 @@ class Main(QDialog, MAIN_DIALOG_CLASS):
             search_dict = u.remove_empty_items_fr_dict(search_dict)
 
             try:
-                res = self.DB_MANAGER.query_bool(search_dict, "MEDIA")
-                file_path = str(res[0].filepath)
+                res = self.DB_MANAGER.query_bool(search_dict, "MEDIA_THUMB")
+                file_path = str(res[0].path_resize)
             except Exception as e:
                 QMessageBox.warning(self, "Error", "Warning 1 file: "+ str(e),  QMessageBox.Ok)
 
