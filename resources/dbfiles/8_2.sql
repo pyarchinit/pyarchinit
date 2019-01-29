@@ -1,0 +1,1 @@
+INSERT INTO media_thumb_table(id_media_thumb, id_media , mediatype , media_filename, media_thumb_filename , filetype , filepath) SELECT id_media_thumb, id_media , mediatype , media_filename, media_thumb_filename , filetype , filepath FROM motenculo;
