@@ -26,7 +26,7 @@ class Media_thumb_table:
                               Column('media_thumb_filename', Text),
                               Column('filetype', String(10)),
                               Column('filepath', Text),
-
+                              Column('path_resize', Text),  
                               # explicit/composite unique constraint.  'name' is optional.
                               UniqueConstraint('media_thumb_filename', name='ID_media_thumb_unico')
                               )
