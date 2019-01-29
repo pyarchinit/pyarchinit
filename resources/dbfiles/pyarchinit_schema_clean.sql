@@ -550,7 +550,8 @@ CREATE TABLE public.media_thumb_table (
     media_filename text,
     media_thumb_filename text,
     filetype character varying(10),
-    filepath text
+    filepath text,
+	path_resize text
 );
 
 
@@ -965,7 +966,7 @@ CREATE TABLE public.us_table (
     fase_iniziale character varying(4),
     periodo_finale character varying(4),
     fase_finale character varying(4),
-    scavato character varying(2),
+    scavato character varying(3),
     attivita character varying(4),
     anno_scavo character varying(4),
     metodo_di_scavo character varying(20),
@@ -973,7 +974,7 @@ CREATE TABLE public.us_table (
     campioni text,
     rapporti text,
     data_schedatura character varying(20),
-    schedatore character varying(25),
+    schedatore character varying(45),
     formazione character varying(20),
     stato_di_conservazione character varying(20),
     colore character varying(20),
