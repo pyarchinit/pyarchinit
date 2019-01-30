@@ -1,1 +1,1 @@
-DROP VIEW mediaentity_view;
+DROP TABLE mediaentity_view;
