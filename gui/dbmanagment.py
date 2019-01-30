@@ -26,15 +26,22 @@ import subprocess
 
 import sys
 import time
+import shutil
+
 from builtins import range
 from builtins import str
-from qgis.PyQt.QtWidgets import QApplication, QDialog, QMessageBox, QFileDialog
+from ..modules.utility.pyarchinit_OS_utility import Pyarchinit_OS_Utility
+from ..modules.db.pyarchinit_conn_strings import Connection
+from qgis.PyQt import QtCore
+from qgis.PyQt.QtCore import QRectF, pyqtSignal, QObject,pyqtSlot,Qt
+from qgis.PyQt.QtWidgets import QApplication, QDialog, QMessageBox,  QProgressDialog, QProgressBar,QWidget
 from qgis.PyQt.uic import loadUiType
 
 MAIN_DIALOG_CLASS, _ = loadUiType(os.path.join(os.path.dirname(__file__), 'ui', 'dbmanagment.ui'))
 
 
 class pyarchinit_dbmanagment(QDialog, MAIN_DIALOG_CLASS):
+    
     MSG_BOX_TITLE = \
         'PyArchInit - pyarchinit_version 0.4 - Scheda gestione DB'
 
@@ -49,7 +56,7 @@ class pyarchinit_dbmanagment(QDialog, MAIN_DIALOG_CLASS):
         # self.customize_GUI() #call for GUI customizations
 
         self.currentLayerId = None
-
+        
     def enable_button(self, n):
 
         self.backup.setEnabled(n)
@@ -58,28 +65,68 @@ class pyarchinit_dbmanagment(QDialog, MAIN_DIALOG_CLASS):
 
         self.backup.setEnabled(n)
 
+    
+    
+    
+    
     def on_backupsqlite_pressed(self):
-        import shutil
-
+        conn = Connection()
+        conn_str = conn.conn_str()
+        
+        a = conn_str.lstrip('sqlite:///')
         home = os.environ['PYARCHINIT_HOME']
-        conn_import = '%s%s%s' % (home, os.sep,
-                                  'pyarchinit_DB_folder/pyarchinit_db.sqlite'
-                                  )
+        # conn_import = '%s%s%s' % (home, os.sep,
+                                  # 'pyarchinit_DB_folder/pyarchinit_db.sqlite'
+                                  # )
         conn_export = '%s%s%s' % (home, os.sep,
                                   'pyarchinit_db_backup/pyarchinit_db_'
                                   + time.strftime('%Y%m%d_%H_%M_%S_')
                                   + '.sqlite')
-        backupdir = conn_export
+       
+        
+        b=shutil.copy(a,conn_export)
+    
+            
+        for c in b:
+            MainWindow = QWidget()
 
-        shutil.copy(conn_import, conn_export)
+            progress = QProgressDialog("Please Wait!", "Cancel", 0, 100, MainWindow)
 
-        barra = QProgressBar(self)
-        barra.show()
-        barra.setMinimum(0)
-        barra.setMaximum(9)
-        for a in range(10):
-            time.sleep(1)
-            barra.setValue(a)
+            progress.setWindowModality(Qt.WindowModal)
+
+            progress.setAutoReset(True)
+
+            progress.setAutoClose(True)
+
+            progress.setMinimum(0)
+
+            progress.setMaximum(100)
+
+            progress.resize(500,100)
+
+            progress.setWindowTitle("Loading, Please Wait! (Cloudflare Protection)")
+
+            progress.show()
+
+            progress.setValue(0)
+
+            #content = cmd
+
+            #print content
+
+            #content = ccurl(cmd,"")
+
+            # content = subprocess.check_output(cmd)
+
+            
+
+            progress.setValue(100)
+
+            progress.hide()
+
+            # #print content
+
+            # return content   
 
     def on_backup_pressed(self):
 
@@ -92,23 +139,55 @@ class pyarchinit_dbmanagment(QDialog, MAIN_DIALOG_CLASS):
         dump_dir = PDF_path
         db_username = 'postgres'
 
-        # db_password = ''
+        #db_port = 5432
 
         db_names = ['pyarchinit']
 
         for db_name in db_names:
             try:
 
-                barra = QProgressBar(self)
-                barra.show()
-                barra.setMinimum(0)
-                barra.setMaximum(9)
-                for a in range(10):
-                    time.sleep(1)
-                    barra.setValue(a)
+                MainWindow = QWidget()
+
+                progress = QProgressDialog("Please Wait!", "Cancel", 0, 100, MainWindow)
+
+                progress.setWindowModality(Qt.WindowModal)
+
+                progress.setAutoReset(True)
+
+                progress.setAutoClose(True)
+
+                progress.setMinimum(0)
+
+                progress.setMaximum(100)
+
+                progress.resize(500,100)
+
+                progress.setWindowTitle("Loading, Please Wait! (Cloudflare Protection)")
+
+                progress.show()
+
+                progress.setValue(0)
+
+                #content = cmd
+
+                #print content
+
+                #content = ccurl(cmd,"")
+
+                # content = subprocess.check_output(cmd)
+
+                
+
+                progress.setValue(100)
+
+                progress.hide()
+
+                # #print content
+
+                # return content 
 
                 file_path = ''
-                dumper = ' -U %s -Z 9 -f %s -F c %s  '
+                dumper = ' -U %s -Z 9 -f %s -F c %s '
 
                 bkp_file = '%s_%s.sql' % (db_name,
                                           time.strftime('%Y%m%d_%H_%M_%S'))
