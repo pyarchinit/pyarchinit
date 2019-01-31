@@ -1,1 +1,1 @@
-DROP TABLE mediaentity_view;
+DROP TABLE if EXISTS mediaentity_view;
