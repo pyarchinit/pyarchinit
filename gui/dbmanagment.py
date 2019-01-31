@@ -31,6 +31,7 @@ import shutil
 from builtins import range
 from builtins import str
 from ..modules.utility.pyarchinit_OS_utility import Pyarchinit_OS_Utility
+from ..modules.utility.settings import Settings
 from ..modules.db.pyarchinit_conn_strings import Connection
 from qgis.PyQt import QtCore
 from qgis.PyQt.QtCore import QRectF, pyqtSignal, QObject,pyqtSlot,Qt
@@ -133,77 +134,84 @@ class pyarchinit_dbmanagment(QDialog, MAIN_DIALOG_CLASS):
         home = os.environ['PYARCHINIT_HOME']
 
         PDF_path = '%s%s%s' % (home, os.sep, 'pyarchinit_db_backup/')
+        
+        cfg_rel_path = os.path.join(os.sep, 'pyarchinit_DB_folder', 'config.cfg')
+        file_path = '{}{}'.format(home, cfg_rel_path)
+        conf = open(file_path, "r")
 
+        data = conf.read()
+        settings = Settings(data)
+        settings.set_configuration()
+        conf.close()    
+        
         # filename = '{}{}{}'.format(PDF_path, os.sep, 'semivariogramma.png')
 
         dump_dir = PDF_path
-        db_username = 'postgres'
+        db_username = settings.USER
+        host = settings.HOST
+        port = settings.PORT
+        database_password=settings.PASSWORD
+        
+        db_names = settings.DATABASE
 
-        #db_port = 5432
+        
+        MainWindow = QWidget()
 
-        db_names = ['pyarchinit']
+        progress = QProgressDialog("Please Wait!", "Cancel", 0, 100, MainWindow)
 
-        for db_name in db_names:
-            try:
+        progress.setWindowModality(Qt.WindowModal)
 
-                MainWindow = QWidget()
+        progress.setAutoReset(True)
 
-                progress = QProgressDialog("Please Wait!", "Cancel", 0, 100, MainWindow)
+        progress.setAutoClose(True)
 
-                progress.setWindowModality(Qt.WindowModal)
+        progress.setMinimum(0)
 
-                progress.setAutoReset(True)
+        progress.setMaximum(100)
 
-                progress.setAutoClose(True)
+        progress.resize(500,100)
 
-                progress.setMinimum(0)
+        progress.setWindowTitle("Loading, Please Wait! (Cloudflare Protection)")
 
-                progress.setMaximum(100)
+        progress.show()
 
-                progress.resize(500,100)
+        progress.setValue(0)
 
-                progress.setWindowTitle("Loading, Please Wait! (Cloudflare Protection)")
+        #content = cmd
 
-                progress.show()
+        #print content
 
-                progress.setValue(0)
+        #content = ccurl(cmd,"")
 
-                #content = cmd
+        # content = subprocess.check_output(cmd)
 
-                #print content
+        
 
-                #content = ccurl(cmd,"")
+        progress.setValue(100)
 
-                # content = subprocess.check_output(cmd)
+        progress.hide()
 
-                
+        # #print content
 
-                progress.setValue(100)
+        # return content 
 
-                progress.hide()
+        file_path = ''
+        dumper = ' -U %s -Z 9 -f %s -F c %s  '
 
-                # #print content
+        bkp_file = '%s_%s.backup' % (db_names,
+                                  time.strftime('%Y%m%d_%H_%M'))
 
-                # return content 
+        file_path = os.path.join(dump_dir, bkp_file)
+        command = 'pg_dump' + dumper % (db_username, file_path,
+                                        db_names)
+        subprocess.call(command, shell=True)
+        # return p.communicate('{}\n'.format(database_password))
 
-                file_path = ''
-                dumper = ' -U %s -Z 9 -f %s -F c %s '
+        subprocess.call('gzip ' + file_path, shell=True)
 
-                bkp_file = '%s_%s.sql' % (db_name,
-                                          time.strftime('%Y%m%d_%H_%M_%S'))
-
-                file_path = os.path.join(dump_dir, bkp_file)
-                command = 'pg_dump' + dumper % (db_username, file_path,
-                                                db_name)
-                subprocess.call(command, shell=True)
-                subprocess.call('gzip ' + file_path, shell=True)
-
-                QMessageBox.warning(self, 'Messaggio',
-                                    'Backup completato', QMessageBox.Ok)
-            except Exception as e:
-                QMessageBox.warning(self, 'Messaggio',
-                                    'Backup fallito!!' + str(e),
-                                    QMessageBox.Ok)
+        QMessageBox.warning(self, 'Messaggio',
+                            'Backup completato', QMessageBox.Ok)
+            
 
     def on_backup_total_pressed(self):
 
