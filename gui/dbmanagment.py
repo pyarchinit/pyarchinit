@@ -89,21 +89,20 @@ class pyarchinit_dbmanagment(QDialog, MAIN_DIALOG_CLASS):
     
             
         for c in b:
-            MainWindow = QWidget()
-
-            progress = QProgressDialog("Please Wait!", "Cancel", 0, 100, MainWindow)
+            progress = QProgressBar(self.progressBar_db)#("Please Wait!", "Cancel", 0, 100, MainWindow)
 
             progress.setWindowModality(Qt.WindowModal)
 
-            progress.setAutoReset(True)
+            # value = (float(100) / float(100)) * 100
+            # self.progressBar_db.setValue(value)#progress.setAutoReset(True)
 
-            progress.setAutoClose(True)
+            #progress.setAutoClose(True)
 
             progress.setMinimum(0)
 
             progress.setMaximum(100)
 
-            progress.resize(500,100)
+            progress.resize(1000,100)
 
             progress.setWindowTitle("Loading, Please Wait! (Cloudflare Protection)")
 
@@ -111,24 +110,9 @@ class pyarchinit_dbmanagment(QDialog, MAIN_DIALOG_CLASS):
 
             progress.setValue(0)
 
-            #content = cmd
-
-            #print content
-
-            #content = ccurl(cmd,"")
-
-            # content = subprocess.check_output(cmd)
-
-            
-
-            progress.setValue(100)
-
-            progress.hide()
-
-            # #print content
-
-            # return content   
-
+           
+            progress.setValue(100) 
+            print('Backup complete')
     def on_backup_pressed(self):
 
         home = os.environ['PYARCHINIT_HOME']
@@ -155,41 +139,11 @@ class pyarchinit_dbmanagment(QDialog, MAIN_DIALOG_CLASS):
         db_names = settings.DATABASE
 
         
-        MainWindow = QWidget()
-
-        progress = QProgressDialog("Please Wait!", "Cancel", 0, 100, MainWindow)
-
-        progress.setWindowModality(Qt.WindowModal)
-
-        progress.setAutoReset(True)
-
-        progress.setAutoClose(True)
-
-        progress.setMinimum(0)
-
-        progress.setMaximum(100)
-
-        progress.resize(500,100)
-
-        progress.setWindowTitle("Loading, Please Wait! (Cloudflare Protection)")
-
-        progress.show()
-
-        progress.setValue(0)
-
-        #content = cmd
-
-        #print content
-
-        #content = ccurl(cmd,"")
-
-        # content = subprocess.check_output(cmd)
+        #MainWindow = QWidget(self.progressBar_db)
 
         
 
-        progress.setValue(100)
-
-        progress.hide()
+        #progress.hide()
 
         # #print content
 
@@ -208,68 +162,93 @@ class pyarchinit_dbmanagment(QDialog, MAIN_DIALOG_CLASS):
         # return p.communicate('{}\n'.format(database_password))
 
         subprocess.call('gzip ' + file_path, shell=True)
+        
+        for c in command:
+            try:
+                progress = QProgressBar(self.progressBar_db)#("Please Wait!", "Cancel", 0, 100, MainWindow)
 
-        QMessageBox.warning(self, 'Messaggio',
-                            'Backup completato', QMessageBox.Ok)
-            
+                progress.setWindowModality(Qt.WindowModal)
 
-    def on_backup_total_pressed(self):
+                # value = (float(100) / float(100)) * 100
+                # self.progressBar_db.setValue(value)#progress.setAutoReset(True)
 
-        home = os.environ['PYARCHINIT_HOME']
-        PDF_path = '%s%s%s' % (home, os.sep, 'pyarchinit_db_backup/')
-        filename = '%s%s%s' % (PDF_path, os.sep, 'semivariogramma.png')
+                #progress.setAutoClose(True)
 
-        username = 'postgres'
+                progress.setMinimum(0)
 
-        defaultdb = 'postgres'
+                progress.setMaximum(100)
 
-        port = '5432'
+                progress.resize(1000,100)
 
-        backupdir = PDF_path
+                progress.setWindowTitle("Loading, Please Wait! (Cloudflare Protection)")
 
-        date = time.strftime('%Y-%m-%d-%H-%M-%S')
+                progress.show()
+
+                progress.setValue(0)
+
+               
+                progress.setValue(100) 
+                print('Backup complete')
+       
+            except:
+                print('Backup falied')
+    # def on_backup_total_pressed(self):
+
+        # home = os.environ['PYARCHINIT_HOME']
+        # PDF_path = '%s%s%s' % (home, os.sep, 'pyarchinit_db_backup/')
+        # filename = '%s%s%s' % (PDF_path, os.sep, 'semivariogramma.png')
+
+        # username = 'postgres'
+
+        # defaultdb = 'postgres'
+
+        # port = '5432'
+
+        # backupdir = PDF_path
+
+        # date = time.strftime('%Y-%m-%d-%H-%M-%S')
 
         # GET DB NAMES
 
-        get_db_names = \
-            "psql -U%s -d%s -p%s --tuples-only -c '\l' | awk -F\| '{ print $1 }' | grep -E -v '(template0|template1|^$)'" \
-            % (username, defaultdb, port)
+        # get_db_names = \
+            # "psql -U%s -d%s -p%s --tuples-only -c '\l' | awk -F\| '{ print $1 }' | grep -E -v '(template0|template1|^$)'" \
+            # % (username, defaultdb, port)
 
         # MAKE BACKUP OF SYSTEMGRANTS
 
-        os.popen('pg_dumpall -p%s -g|gzip -9 -c > %s/system.%s.gz'
-                 % (port, backupdir, date))
+        # os.popen('pg_dumpall -p%s -g|gzip -9 -c > %s/system.%s.gz'
+                 # % (port, backupdir, date))
 
         # MAKING DB BACKUP
 
-        for base in os.popen(get_db_names).readlines():
-            try:
+        # for base in os.popen(get_db_names).readlines():
+            # try:
 
                 # app = QtGui.QApplication(sys.argv)
 
-                barra = QProgressBar(self)
-                barra.show()
-                barra.setMinimum(0)
-                barra.setMaximum(9)
-                for a in range(10):
-                    time.sleep(1)
-                    barra.setValue(a)
+                # barra = QProgressBar(self)
+                # barra.show()
+                # barra.setMinimum(0)
+                # barra.setMaximum(9)
+                # for a in range(10):
+                    # time.sleep(1)
+                    # barra.setValue(a)
 
                 # app.exec_()....
 
-                base = base.strip()
-                fulldir = backupdir + base
-                if not os.path.exists(fulldir):
-                    os.mkdir(fulldir)
-                filename = '%s/%s-%s.sql' % (fulldir, base, date)
-                os.popen('nice -n 19 pg_dump -C -F c -U%s -p%s %s > %s'
-                         % (username, port, base, filename))
-                QMessageBox.warning(self, 'Messaggio',
-                                    'Backup completato', QMessageBox.Ok)
-            except Exception as e:
-                QMessageBox.warning(self, 'Messaggio',
-                                    'Backup fallito!!' + str(e),
-                                    QMessageBox.Ok)
+                # base = base.strip()
+                # fulldir = backupdir + base
+                # if not os.path.exists(fulldir):
+                    # os.mkdir(fulldir)
+                # filename = '%s/%s-%s.sql' % (fulldir, base, date)
+                # os.popen('nice -n 19 pg_dump -C -F c -U%s -p%s %s > %s'
+                         # % (username, port, base, filename))
+                # QMessageBox.warning(self, 'Messaggio',
+                                    # 'Backup completato', QMessageBox.Ok)
+            # except Exception as e:
+                # QMessageBox.warning(self, 'Messaggio',
+                                    # 'Backup fallito!!' + str(e),
+                                    # QMessageBox.Ok)
 
     def on_upload_pressed(self):
         self.percorso = QFileDialog.getOpenFileName(self,
