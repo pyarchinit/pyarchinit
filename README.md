@@ -19,6 +19,8 @@
 
 **Note4:** _If you have already an pyarchinit db, use "update posgres" or "update sqlite" tool in pyarchinit configuration  form to update  your db to the new release._
 
+**Note5:** _If you have already installed pyarchinit before of the 01/02/2019, to install the new version, delete the file config.cfg in pyarchinit_DB_folder and restart as admin._
+
 #### Dependencies
 * SQLAlchemy
 * reportlab
