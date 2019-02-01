@@ -24,7 +24,7 @@ email=pyarchinit@gmail.com
 changelog=
   Bug fixing release:
   - UI Improvements
-  - more languages support: English, Deutsch
+  - more languages support: English, Deutsch, Italian
   - minor bug fixed
 
 # tags are comma separated with spaces allowed
