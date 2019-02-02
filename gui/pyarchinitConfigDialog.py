@@ -24,9 +24,9 @@ import os
 import sqlite3
 from builtins import range
 from builtins import str
-import ftplib
+import pysftp
 
-from qgis.PyQt.QtWidgets import QApplication, QDialog, QMessageBox, QFileDialog
+from qgis.PyQt.QtWidgets import QApplication, QDialog, QMessageBox, QFileDialog,QLineEdit
 
 from qgis.PyQt.uic import loadUiType
 from qgis.core import QgsApplication, QgsSettings, QgsProject
@@ -42,7 +42,7 @@ MAIN_DIALOG_CLASS, _ = loadUiType(os.path.join(os.path.dirname(__file__), 'ui', 
 
 
 class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
-    ftp = ftplib.FTP()
+    
     L=QgsSettings().value("locale/userLocale")[0:2]
     
     HOME = os.environ['PYARCHINIT_HOME']
@@ -510,59 +510,59 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
     
     
     
-    def on_pushButton_crea_layer_pressed(self):
-        import time
-        try:
-            qgis_dir = QgsApplication.qgisSettingsDirPath()
-            module_path_rel = os.path.join(os.sep, 'python', 'plugins', 'pyarchinit', 'modules', 'utility',
-                                           'dbfiles', 'pyarchinit_postgis15_empty.dump')
-            module_path = '{}{}'.format(qgis_dir, module_path_rel)
-            postgis15 = os.popen(
-                "pg_restore --host localhost --port %s --username postgres --dbname %s --role postgres --no-password  --verbose %s" % (
-                    self.lineEdit_port_db.text(), self.lineEdit_dbname.text(), module_path))
-            barra2 = self.pyarchinit_progressBar_template
-            barra2.setMinimum(0)
-            barra2.setMaximum(9)
-            for a in range(10):
-                time.sleep(1)
-                barra2.setValue(a)
-            QMessageBox.warning(self, "ok", "Installazione avvenuta con successo", QMessageBox.Ok)
-        except Exception as e:
-            QMessageBox.warning(self, "opss", "qualcosa non va" + str(e), QMessageBox.Ok)
+    # def on_pushButton_crea_layer_pressed(self):
+        # import time
+        # try:
+            # qgis_dir = QgsApplication.qgisSettingsDirPath()
+            # module_path_rel = os.path.join(os.sep, 'python', 'plugins', 'pyarchinit', 'modules', 'utility',
+                                           # 'dbfiles', 'pyarchinit_postgis15_empty.dump')
+            # module_path = '{}{}'.format(qgis_dir, module_path_rel)
+            # postgis15 = os.popen(
+                # "pg_restore --host localhost --port %s --username postgres --dbname %s --role postgres --no-password  --verbose %s" % (
+                    # self.lineEdit_port_db.text(), self.lineEdit_dbname.text(), module_path))
+            # barra2 = self.pyarchinit_progressBar_template
+            # barra2.setMinimum(0)
+            # barra2.setMaximum(9)
+            # for a in range(10):
+                # time.sleep(1)
+                # barra2.setValue(a)
+            # QMessageBox.warning(self, "ok", "Installazione avvenuta con successo", QMessageBox.Ok)
+        # except Exception as e:
+            # QMessageBox.warning(self, "opss", "qualcosa non va" + str(e), QMessageBox.Ok)
 
-    def on_pushButton_crea_layer_2_pressed(self):
-        import time
-        try:
-            qgis_dir = QgsApplication.qgisSettingsDirPath()
-            module_path_rel = os.path.join(os.sep, 'python', 'plugins', 'pyarchinit', 'modules', 'utility',
-                                           'dbfiles', 'pyarchinit_postgis20_empty.dump')
-            module_path = '{}{}'.format(qgis_dir, module_path_rel)
-            postgis15 = os.popen(
-                "pg_restore --host localhost --port %s --username postgres --dbname %s --role postgres --no-password  --verbose %s" % (
-                    self.lineEdit_port_db.text(), self.lineEdit_dbname.text(), module_path))
-            barra2 = self.pyarchinit_progressBar_template
-            barra2.setMinimum(0)
-            barra2.setMaximum(9)
-            for a in range(10):
-                time.sleep(1)
-                barra2.setValue(a)
-            QMessageBox.warning(self, "ok", "Installazione avvenuta con successo", QMessageBox.Ok)
-        except Exception as e:
-            QMessageBox.warning(self, "opss", "qualcosa non va" + str(e), QMessageBox.Ok)
+    # def on_pushButton_crea_layer_2_pressed(self):
+        # import time
+        # try:
+            # qgis_dir = QgsApplication.qgisSettingsDirPath()
+            # module_path_rel = os.path.join(os.sep, 'python', 'plugins', 'pyarchinit', 'modules', 'utility',
+                                           # 'dbfiles', 'pyarchinit_postgis20_empty.dump')
+            # module_path = '{}{}'.format(qgis_dir, module_path_rel)
+            # postgis15 = os.popen(
+                # "pg_restore --host localhost --port %s --username postgres --dbname %s --role postgres --no-password  --verbose %s" % (
+                    # self.lineEdit_port_db.text(), self.lineEdit_dbname.text(), module_path))
+            # barra2 = self.pyarchinit_progressBar_template
+            # barra2.setMinimum(0)
+            # barra2.setMaximum(9)
+            # for a in range(10):
+                # time.sleep(1)
+                # barra2.setValue(a)
+            # QMessageBox.warning(self, "ok", "Installazione avvenuta con successo", QMessageBox.Ok)
+        # except Exception as e:
+            # QMessageBox.warning(self, "opss", "qualcosa non va" + str(e), QMessageBox.Ok)
 
-    def on_pushButton_crea_db_sqlite_pressed(self):
-        try:
-            conn = Connection()
-            conn_str = conn.conn_str()
-            self.DB_MANAGER = Pyarchinit_db_management(conn_str)
-            self.DB_MANAGER.connection()
-            self.DB_MANAGER.execute_sql_create_spatialite_db()
-        except:
-            QMessageBox.warning(self, "Alert",
-                                "L'installazione e' fallita. Riavvia Qgis. Se l'errore persiste verifica che i layer non siano gia' installati oppure sia stia usando un db Postgres",
-                                QMessageBox.Ok)
-        else:
-            QMessageBox.warning(self, "Alert", "L'installazione ha avuto successo!", QMessageBox.Ok)
+    # def on_pushButton_crea_db_sqlite_pressed(self):
+        # try:
+            # conn = Connection()
+            # conn_str = conn.conn_str()
+            # self.DB_MANAGER = Pyarchinit_db_management(conn_str)
+            # self.DB_MANAGER.connection()
+            # self.DB_MANAGER.execute_sql_create_spatialite_db()
+        # except:
+            # QMessageBox.warning(self, "Alert",
+                                # "L'installazione e' fallita. Riavvia Qgis. Se l'errore persiste verifica che i layer non siano gia' installati oppure sia stia usando un db Postgres",
+                                # QMessageBox.Ok)
+        # else:
+            # QMessageBox.warning(self, "Alert", "L'installazione ha avuto successo!", QMessageBox.Ok)
 
     def try_connection(self):
         conn = Connection()
@@ -1274,124 +1274,157 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
 
 
 
-    def connectServer():
-        ip = ent_ip.get()
-        port = int(ent_port.get())
-        try:
-            msg = ftp.connect(ip,port)
-            text_servermsg.insert(END,"\n")
-            text_servermsg.insert(END,msg)
-            lbl_login.place(x=150,y=20)
-            ent_login.place(x=150,y=40)
-            lbl_pass.place(x=150,y=60)
-            ent_pass.place(x=150,y=80)
-            btn_login.place(x=182,y=110)
-        except:
-            text_servermsg.insert(END,"\n")
-            text_servermsg.insert(END,"Unable to connect")
-
-    def loginServer():
-        user = ent_login.get()
-        password = ent_pass.get()
-        try:
-            msg = ftp.login(user,password)
-            text_servermsg.insert(END,"\n")
-            text_servermsg.insert(END,msg)
-            displayDir()
-            lbl_login.place_forget()
-            ent_login.place_forget()
-            lbl_pass.place_forget()
-            ent_pass.place_forget()
-            btn_login.place_forget()
-        except:
-            text_servermsg.insert(END,"\n")
-            text_servermsg.insert(END,"Unable to login")
+    def on_pushButton_connect_pressed(self):
+        
+        # Defines parameter
+        self.ip=str(self.lineEdit_ip.text())
+        
+       
+        self.user=str(self.lineEdit_user.text())
+        
+        
+        
+        self.pwd=str(self.lineEdit_password.text())
+        
+       
+        
+  
+        cnopts = pysftp.CnOpts()
+        cnopts.hostkeys = None 
+        srv = pysftp.Connection(host=self.ip, username=self.user, password=self.pwd,cnopts =cnopts )
+        self.lineEdit_2.insert("Connection succesfully stablished ......... ")
+        dirlist = []
+        dirlist = srv.listdir()
+        for item in dirlist:
+            self.listWidget.insertItem(0,item)
+        
+        
+        # Download the file from the remote server
+        #remote_file = '/home/data/ftp/demoliz/qgis/rep5/test.qgs'
+        
+        # with srv.cd('../'):             # still in .
+            # srv.chdir('home')    # now in ./static
+            # srv.chdir('data')      # now in ./static/here
+            # srv.chdir('ftp')
+            # srv.chdir('demoliz')    
+            
+            # srv.chdir('qgis')
+            # srv.chdir('rep5')
+            # self.listWidget.insertItem(0,"--------------------------------------------")
+            
+        
+        #srv.close()
+    # def loginServer():
+        # # user = ent_login.get()
+        # # password = ent_pass.get()
+        # try:
+            # msg = ftp.login(user,password)
+            # text_servermsg.insert(END,"\n")
+            # text_servermsg.insert(END,msg)
+            # displayDir()
+            # # lbl_login.place_forget()
+            # # ent_login.place_forget()
+            # # lbl_pass.place_forget()
+            # # ent_pass.place_forget()
+            # # btn_login.place_forget()
+        # except:
+            # text_servermsg.insert(END,"\n")
+            # text_servermsg.insert(END,"Unable to login")
 
             
-    def displayDir():
-        libox_serverdir.insert(0,"--------------------------------------------")
-        dirlist = []
-        dirlist = ftp.nlst()
-        for item in dirlist:
-            libox_serverdir.insert(0, item)
+    # def displayDir():
+        # libox_serverdir.insert(0,"--------------------------------------------")
+        # dirlist = []
+        # dirlist = ftp.nlst()
+        # for item in dirlist:
+            # libox_serverdir.insert(0, item)
 
-    #FTP commands
-    def changeDirectory():
-        directory = ent_input.get()
-        try:
-            msg = ftp.cwd(directory)
-            text_servermsg.insert(END,"\n")
-            text_servermsg.insert(END,msg)
-        except:
-            text_servermsg.insert(END,"\n")
-            text_servermsg.insert(END,"Unable to change directory")
-        displayDir()
+    # #FTP commands
+    def on_pushButton_change_dir_pressed(self):
+        cnopts = pysftp.CnOpts()
+        cnopts.hostkeys = None 
+        with pysftp.Connection(host="37.139.2.71", username="root",
+        password="lizmap1",cnopts =cnopts ) as sftp:
+        
+            try:
+                msg = sftp.cwd('/home') # Switch to a remote directory
 
-    def createDirectory():
-        directory = ent_input.get()
-        try:
-            msg = ftp.mkd(directory)
-            text_servermsg.insert(END,"\n")
-            text_servermsg.insert(END,msg)
-        except:
-            text_servermsg.insert(END,"\n")
-            text_servermsg.insert(END,"Unable to create directory")
-        displayDir()
+                directory_structure = sftp.listdir_attr()# Obtain structure of the remote directory 
+
+                for attr in directory_structure:
+                    self.listWidget.insertItem(attr.filename, attr)
+
+            except:
+                self.lineEdit_2.insert("\n")
+                self.lineEdit_2.insert("Unable to change directory")
+            dirlist = []
+            dirlist = sftp.listdir()
+            for item in dirlist:
+                self.listWidget.insertItem(0,item)
+
+    # def createDirectory():
+        # directory = ent_input.get()
+        # try:
+            # msg = ftp.mkd(directory)
+            # text_servermsg.insert(END,"\n")
+            # text_servermsg.insert(END,msg)
+        # except:
+            # text_servermsg.insert(END,"\n")
+            # text_servermsg.insert(END,"Unable to create directory")
+        # displayDir()
         
-    def deleteDirectory():
-        directory = ent_input.get()
-        try:
-            msg = ftp.rmd(directory)
-            text_servermsg.insert(END,"\n")
-            text_servermsg.insert(END,msg)
-        except:
-            text_servermsg.insert(END,"\n")
-            text_servermsg.insert(END,"Unable to delete directory")
-        displayDir()
+    # def deleteDirectory():
+        # directory = ent_input.get()
+        # try:
+            # msg = ftp.rmd(directory)
+            # text_servermsg.insert(END,"\n")
+            # text_servermsg.insert(END,msg)
+        # except:
+            # text_servermsg.insert(END,"\n")
+            # text_servermsg.insert(END,"Unable to delete directory")
+        # displayDir()
         
-    def deleteFile():
-        file = ent_input.get()
-        try:
-            msg = ftp.delete(file)
-            text_servermsg.insert(END,"\n")
-            text_servermsg.insert(END,msg)
-        except:
-            text_servermsg.insert(END,"\n")
-            text_servermsg.insert(END,"Unable to delete file")
-        displayDir()
+    # def deleteFile():
+        # file = ent_input.get()
+        # try:
+            # msg = ftp.delete(file)
+            # text_servermsg.insert(END,"\n")
+            # text_servermsg.insert(END,msg)
+        # except:
+            # text_servermsg.insert(END,"\n")
+            # text_servermsg.insert(END,"Unable to delete file")
+        # displayDir()
         
-    def downloadFile():
-        file = ent_input.get()
-        down = open(file, "wb")
-        try:
-            text_servermsg.insert(END,"\n")
-            text_servermsg.insert(END,"Downloading " + file + "...")
-            text_servermsg.insert(END,"\n")
-            text_servermsg.insert(END,ftp.retrbinary("RETR " + file, down.write))
-        except:
-            text_servermsg.insert(END,"\n")
-            text_servermsg.insert(END,"Unable to download file")
-        displayDir()
+    # def downloadFile():
+        # file = ent_input.get()
+        # down = open(file, "wb")
+        # try:
+            # text_servermsg.insert(END,"\n")
+            # text_servermsg.insert(END,"Downloading " + file + "...")
+            # text_servermsg.insert(END,"\n")
+            # text_servermsg.insert(END,ftp.retrbinary("RETR " + file, down.write))
+        # except:
+            # text_servermsg.insert(END,"\n")
+            # text_servermsg.insert(END,"Unable to download file")
+        # displayDir()
         
-    def uploadFile():
-        file = ent_input.get()
-        try:
-            up = open(file, "rb")
-            text_servermsg.insert(END,"\n")
-            text_servermsg.insert(END,"Uploading " + file + "...")
-            text_servermsg.insert(END,"\n")
-            text_servermsg.insert(END,ftp.storbinary("STOR " + file,up))
-        except:
-            text_servermsg.insert(END,"\n")
-            text_servermsg.insert(END,"Unable to upload file")
-        displayDir()
+    # def uploadFile():
+        # file = ent_input.get()
+        # try:
+            # up = open(file, "rb")
+            # text_servermsg.insert(END,"\n")
+            # text_servermsg.insert(END,"Uploading " + file + "...")
+            # text_servermsg.insert(END,"\n")
+            # text_servermsg.insert(END,ftp.storbinary("STOR " + file,up))
+        # except:
+            # text_servermsg.insert(END,"\n")
+            # text_servermsg.insert(END,"Unable to upload file")
+        # displayDir()
         
-    def closeConnection():
-        try:
-            text_servermsg.insert(END,"\n")
-            text_servermsg.insert(END,"Closing connection...")
-            text_servermsg.insert(END,"\n")
-            text_servermsg.insert(END,ftp.quit())
-        except:
-            text_servermsg.insert(END,"\n")
-            text_servermsg.insert(END,"Unable to disconnect")
+    def on_pushButton_disconnect_pressed(self):
+        
+       cnopts = pysftp.CnOpts()
+       cnopts.hostkeys = None 
+       srv = pysftp.Connection(host=self.ip, username=self.user, password=self.pwd,cnopts =cnopts )
+       self.lineEdit_2.insert("Connection Close ............. ")
+       srv.close()
