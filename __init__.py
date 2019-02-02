@@ -84,10 +84,10 @@ try:
     import sqlalchemy_utils
 except Exception as e:
     missing_libraries.append(str(e))
-#try:
-    #import visvis
-#except Exception as e:
-    #missing_libraries.append(str(e))
+try:
+    import pysftp
+except Exception as e:
+    missing_libraries.append(str(e))
 
 
     
