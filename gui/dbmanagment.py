@@ -33,9 +33,10 @@ from builtins import str
 from ..modules.utility.pyarchinit_OS_utility import Pyarchinit_OS_Utility
 from ..modules.utility.settings import Settings
 from ..modules.db.pyarchinit_conn_strings import Connection
+
 from qgis.PyQt import QtCore
 from qgis.PyQt.QtCore import QRectF, pyqtSignal, QObject,pyqtSlot,Qt
-from qgis.PyQt.QtWidgets import QApplication, QDialog, QMessageBox,  QProgressDialog, QProgressBar,QWidget
+from qgis.PyQt.QtWidgets import QApplication, QDialog, QMessageBox,  QProgressDialog, QProgressBar,QWidget,QLabel,QVBoxLayout
 from qgis.PyQt.uic import loadUiType
 
 MAIN_DIALOG_CLASS, _ = loadUiType(os.path.join(os.path.dirname(__file__), 'ui', 'dbmanagment.ui'))
@@ -87,32 +88,37 @@ class pyarchinit_dbmanagment(QDialog, MAIN_DIALOG_CLASS):
         
         b=shutil.copy(a,conn_export)
     
-            
+        i = 0
+    
         for c in b:
-            progress = QProgressBar(self.progressBar_db)#("Please Wait!", "Cancel", 0, 100, MainWindow)
+            
+            if i==0:
+                self.progress = self.progressBar_db#("Please Wait!", "Cancel", 0, 100, MainWindow)
+                
+                self.progress.setWindowModality(Qt.WindowModal)
+                
+                self.progress.setWindowTitle("Loading, Please Wait! (Cloudflare Protection)")
+                
+                self.progress.setMinimum(0)
 
-            progress.setWindowModality(Qt.WindowModal)
+                self.progress.setMaximum(100)
 
-            # value = (float(100) / float(100)) * 100
-            # self.progressBar_db.setValue(value)#progress.setAutoReset(True)
+                self.progress.resize(1000,100)
 
-            #progress.setAutoClose(True)
+                self.progress.show()
 
-            progress.setMinimum(0)
+                self.progress.setValue(0)
 
-            progress.setMaximum(100)
-
-            progress.resize(1000,100)
-
-            progress.setWindowTitle("Loading, Please Wait! (Cloudflare Protection)")
-
-            progress.show()
-
-            progress.setValue(0)
-
-           
-            progress.setValue(100) 
-            print('Backup complete')
+                self.progress.setValue(100) 
+                self.setLayout(QVBoxLayout())
+                self.layout().addWidget(self.progress)
+                
+                
+            else:
+                self.image = QLabel('Backup Falied')
+                self.image.setAlignment(Qt.AlignCenter)
+                self.layout().addWidget(self.image)
+            
     def on_backup_pressed(self):
 
         home = os.environ['PYARCHINIT_HOME']
@@ -128,8 +134,6 @@ class pyarchinit_dbmanagment(QDialog, MAIN_DIALOG_CLASS):
         settings.set_configuration()
         conf.close()    
         
-        # filename = '{}{}{}'.format(PDF_path, os.sep, 'semivariogramma.png')
-
         dump_dir = PDF_path
         db_username = settings.USER
         host = settings.HOST
@@ -137,17 +141,6 @@ class pyarchinit_dbmanagment(QDialog, MAIN_DIALOG_CLASS):
         database_password=settings.PASSWORD
         
         db_names = settings.DATABASE
-
-        
-        #MainWindow = QWidget(self.progressBar_db)
-
-        
-
-        #progress.hide()
-
-        # #print content
-
-        # return content 
 
         file_path = ''
         dumper = ' -U %s -Z 9 -f %s -F c %s  '
@@ -163,35 +156,35 @@ class pyarchinit_dbmanagment(QDialog, MAIN_DIALOG_CLASS):
 
         subprocess.call('gzip ' + file_path, shell=True)
         
+        i = 0
+    
         for c in command:
-            try:
-                progress = QProgressBar(self.progressBar_db)#("Please Wait!", "Cancel", 0, 100, MainWindow)
+            if i==0:
+                self.progress = self.progressBar_db#("Please Wait!", "Cancel", 0, 100, MainWindow)
+                    
+                self.progress.setWindowModality(Qt.WindowModal)
+              
+                self.progress.setMinimum(0)
 
-                progress.setWindowModality(Qt.WindowModal)
+                self.progress.setMaximum(100)
 
-                # value = (float(100) / float(100)) * 100
-                # self.progressBar_db.setValue(value)#progress.setAutoReset(True)
+                self.progress.setWindowTitle("Loading, Please Wait! (Cloudflare Protection)")
+                
+                self.progress.resize(1000,100)
 
-                #progress.setAutoClose(True)
+                self.progress.show()
 
-                progress.setMinimum(0)
+                self.progress.setValue(0)
 
-                progress.setMaximum(100)
-
-                progress.resize(1000,100)
-
-                progress.setWindowTitle("Loading, Please Wait! (Cloudflare Protection)")
-
-                progress.show()
-
-                progress.setValue(0)
-
-               
-                progress.setValue(100) 
-                print('Backup complete')
-       
-            except:
-                print('Backup falied')
+                self.progress.setValue(100) 
+                self.setLayout(QVBoxLayout())
+                self.layout().addWidget(self.progress)
+            
+            
+            else:
+                self.image = QLabel('Backup Falied')
+                self.image.setAlignment(Qt.AlignCenter)
+                self.layout().addWidget(self.image)
     # def on_backup_total_pressed(self):
 
         # home = os.environ['PYARCHINIT_HOME']
