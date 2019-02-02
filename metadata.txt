@@ -35,7 +35,7 @@ tracker=https://github.com/pyarchinit/pyarchinit/issues
 repository=https://github.com/pyarchinit/pyarchinit
 icon=icon.png
 # experimental flag
-experimental=False
+experimental=True
 
 # deprecated flag (applies to the whole plugin, not just a single version)
 deprecated=False
