@@ -30,7 +30,7 @@
 * [graphviz python module](https://github.com/xflr6/graphviz)
 * matplotlib
 * networkx
-
+* pysftp
 The dependencies can be installed using the [modules_installer.py](/scripts/modules_installer.py) by running it from within a python shell:
 
 ```python modules_installer.py```
