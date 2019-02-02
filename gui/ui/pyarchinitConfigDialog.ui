@@ -75,7 +75,7 @@
       <enum>QTabWidget::Rounded</enum>
      </property>
      <property name="currentIndex">
-      <number>0</number>
+      <number>6</number>
      </property>
      <property name="elideMode">
       <enum>Qt::ElideMiddle</enum>
@@ -1278,24 +1278,10 @@
       <layout class="QGridLayout" name="gridLayout_15">
        <item row="0" column="0">
         <layout class="QGridLayout" name="gridLayout_2">
-         <item row="9" column="2">
-          <widget class="QPushButton" name="pushButton_change_dir">
+         <item row="0" column="1">
+          <widget class="QLabel" name="label_9">
            <property name="text">
-            <string>Chage directory</string>
-           </property>
-          </widget>
-         </item>
-         <item row="10" column="3">
-          <widget class="QPushButton" name="pushButton_dw_file">
-           <property name="text">
-            <string>Download file</string>
-           </property>
-          </widget>
-         </item>
-         <item row="2" column="1">
-          <widget class="QLabel" name="label_34">
-           <property name="text">
-            <string>Port</string>
+            <string>ip adress</string>
            </property>
           </widget>
          </item>
@@ -1312,47 +1298,17 @@
            </property>
           </widget>
          </item>
-         <item row="0" column="1">
-          <widget class="QLabel" name="label_9">
+         <item row="4" column="1">
+          <widget class="QLabel" name="label_38">
            <property name="text">
-            <string>ip adress</string>
-           </property>
-          </widget>
-         </item>
-         <item row="1" column="1">
-          <widget class="QLineEdit" name="lineEdit_ip">
-           <property name="maximumSize">
-            <size>
-             <width>300</width>
-             <height>16777215</height>
-            </size>
-           </property>
-           <property name="dragEnabled">
-            <bool>true</bool>
+            <string>Status connection</string>
            </property>
           </widget>
          </item>
          <item row="3" column="2">
-          <widget class="QLineEdit" name="lineEdit_password"/>
-         </item>
-         <item row="10" column="2">
-          <widget class="QPushButton" name="pushButton_create_dir">
-           <property name="text">
-            <string>Create Directory</string>
-           </property>
-          </widget>
-         </item>
-         <item row="11" column="2">
-          <widget class="QPushButton" name="pushButton_delete_dir">
-           <property name="text">
-            <string>Delete directory</string>
-           </property>
-          </widget>
-         </item>
-         <item row="11" column="3">
-          <widget class="QPushButton" name="pushButton_up_file">
-           <property name="text">
-            <string>Upload file</string>
+          <widget class="QLineEdit" name="lineEdit_password">
+           <property name="echoMode">
+            <enum>QLineEdit::Password</enum>
            </property>
           </widget>
          </item>
@@ -1370,63 +1326,26 @@
            </property>
           </widget>
          </item>
-         <item row="5" column="2" colspan="2">
+         <item row="6" column="1" rowspan="2">
+          <widget class="QLineEdit" name="lineEdit_2">
+           <property name="sizePolicy">
+            <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+             <horstretch>0</horstretch>
+             <verstretch>0</verstretch>
+            </sizepolicy>
+           </property>
+           <property name="readOnly">
+            <bool>true</bool>
+           </property>
+           <property name="cursorMoveStyle">
+            <enum>Qt::VisualMoveStyle</enum>
+           </property>
+          </widget>
+         </item>
+         <item row="7" column="2" colspan="2">
           <widget class="QListWidget" name="listWidget"/>
          </item>
-         <item row="2" column="2">
-          <widget class="QLabel" name="label_36">
-           <property name="text">
-            <string>Password</string>
-           </property>
-          </widget>
-         </item>
-         <item row="4" column="1">
-          <widget class="QLabel" name="label_38">
-           <property name="text">
-            <string>Status connection</string>
-           </property>
-          </widget>
-         </item>
-         <item row="9" column="3">
-          <widget class="QPushButton" name="pushButton_delete_file">
-           <property name="text">
-            <string>Delete file</string>
-           </property>
-          </widget>
-         </item>
-         <item row="1" column="2">
-          <widget class="QLineEdit" name="lineEdit_user"/>
-         </item>
-         <item row="5" column="1" rowspan="2">
-          <widget class="QColumnView" name="columnView"/>
-         </item>
-         <item row="7" column="1">
-          <widget class="QPushButton" name="pushButton_connect">
-           <property name="maximumSize">
-            <size>
-             <width>150</width>
-             <height>16777215</height>
-            </size>
-           </property>
-           <property name="text">
-            <string>Connect</string>
-           </property>
-          </widget>
-         </item>
-         <item row="9" column="1">
-          <widget class="QPushButton" name="pushButton_disconnect">
-           <property name="maximumSize">
-            <size>
-             <width>150</width>
-             <height>16777215</height>
-            </size>
-           </property>
-           <property name="text">
-            <string>Disconnect</string>
-           </property>
-          </widget>
-         </item>
-         <item row="6" column="2">
+         <item row="8" column="2">
           <widget class="QLabel" name="label_39">
            <property name="maximumSize">
             <size>
@@ -1439,13 +1358,111 @@
            </property>
           </widget>
          </item>
-         <item row="6" column="3">
+         <item row="1" column="1">
+          <widget class="QLineEdit" name="lineEdit_ip">
+           <property name="maximumSize">
+            <size>
+             <width>300</width>
+             <height>16777215</height>
+            </size>
+           </property>
+           <property name="dragEnabled">
+            <bool>true</bool>
+           </property>
+          </widget>
+         </item>
+         <item row="1" column="2">
+          <widget class="QLineEdit" name="lineEdit_user"/>
+         </item>
+         <item row="2" column="1">
+          <widget class="QLabel" name="label_34">
+           <property name="text">
+            <string>Port</string>
+           </property>
+          </widget>
+         </item>
+         <item row="2" column="2">
+          <widget class="QLabel" name="label_36">
+           <property name="text">
+            <string>Password</string>
+           </property>
+          </widget>
+         </item>
+         <item row="12" column="3">
+          <widget class="QPushButton" name="pushButton_dw_file">
+           <property name="text">
+            <string>Download file</string>
+           </property>
+          </widget>
+         </item>
+         <item row="11" column="2">
+          <widget class="QPushButton" name="pushButton_change_dir">
+           <property name="text">
+            <string>Chage directory</string>
+           </property>
+          </widget>
+         </item>
+         <item row="13" column="3">
+          <widget class="QPushButton" name="pushButton_up_file">
+           <property name="text">
+            <string>Upload file</string>
+           </property>
+          </widget>
+         </item>
+         <item row="9" column="1">
+          <widget class="QPushButton" name="pushButton_connect">
+           <property name="maximumSize">
+            <size>
+             <width>150</width>
+             <height>16777215</height>
+            </size>
+           </property>
+           <property name="text">
+            <string>Connect</string>
+           </property>
+          </widget>
+         </item>
+         <item row="11" column="3">
+          <widget class="QPushButton" name="pushButton_delete_file">
+           <property name="text">
+            <string>Delete file</string>
+           </property>
+          </widget>
+         </item>
+         <item row="13" column="2">
+          <widget class="QPushButton" name="pushButton_delete_dir">
+           <property name="text">
+            <string>Delete directory</string>
+           </property>
+          </widget>
+         </item>
+         <item row="11" column="1">
+          <widget class="QPushButton" name="pushButton_disconnect">
+           <property name="maximumSize">
+            <size>
+             <width>150</width>
+             <height>16777215</height>
+            </size>
+           </property>
+           <property name="text">
+            <string>Disconnect</string>
+           </property>
+          </widget>
+         </item>
+         <item row="8" column="3">
           <widget class="QLineEdit" name="lineEdit">
            <property name="maximumSize">
             <size>
              <width>400</width>
              <height>16777215</height>
             </size>
+           </property>
+          </widget>
+         </item>
+         <item row="12" column="2">
+          <widget class="QPushButton" name="pushButton_create_dir">
+           <property name="text">
+            <string>Create Directory</string>
            </property>
           </widget>
          </item>
