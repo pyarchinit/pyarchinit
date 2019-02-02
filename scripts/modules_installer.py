@@ -39,6 +39,7 @@ if not packages:
                 'matplotlib',
                 'PypeR',
                 'graphviz==0.8.3',
+                'pysftp'
                 ]
 
 
