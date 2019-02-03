@@ -27,7 +27,11 @@ changelog=
   - UI Improvements
   - update database
   - minor bug fixed
-  
+  -----------------------------------------------------------------------------
+  Bug fixing release0.3.5:
+  - UI Improvements
+  - more languages support: English, Deutsch
+  - minor bug fixed
 
 # tags are comma separated with spaces allowed
 tags=archaeology, analysis, database, digitizing, postgres, postgis, spatialite, sqlite, archeologia, funerary archaeology, pottery, bones, excavations, scavi, archeologici, siti, carte, archeologiche, carta di potenzialita, strutture, antiche, tempio, medioevo, romana, preistoria, roman, medieval, prehistoric
