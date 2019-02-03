@@ -12,7 +12,7 @@
 name=pyArchInit
 qgisMinimumVersion=3.0
 description=pyarchinit an tool for archaeological works
-version=0.3.6
+version=0.3.7
 author=Luca Mandolesi
 email=pyarchinit@gmail.com
 
@@ -22,7 +22,12 @@ email=pyarchinit@gmail.com
 
 # Uncomment the following line and add your changelog entries:
 changelog=
-  
+   
+   Bug fixing release0.3.7:
+  - UI Improvements
+  - update sql
+ 
+  -----------------------------------------------------------------------------
    Bug fixing release0.3.6:
   - UI Improvements
   - update database
