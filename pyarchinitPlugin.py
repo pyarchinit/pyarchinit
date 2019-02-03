@@ -53,7 +53,7 @@ from .tabs.UT import pyarchinit_UT
 from .gui.pyarchinitConfigDialog import pyArchInitDialog_Config
 from .gui.dbmanagment import pyarchinit_dbmanagment
 from .gui.pyarchinitInfoDialog import pyArchInitDialog_Info
-
+import mmap
 filepath = os.path.dirname(__file__)
 
 
@@ -71,8 +71,19 @@ class PyArchInitPlugin(object):
                    'EXPERIMENTAL': ''}
 
     path_rel = os.path.join(os.sep, HOME, 'pyarchinit_DB_folder', 'config.cfg')
-    conf = open(path_rel, "r")
+    conf = open(path_rel, "rb+")
     data = conf.read()
+    text = (b'THUMB_RESIZE')
+   
+    if text in data:
+        pass   
+    else:       
+        conf.seek(-3,2)
+        conf.read(1)    
+        conf.write(b"','THUMB_RESIZE' : 'insert path for the image resized'}")
+        
+   
+     
     conf.close()
     PARAMS_DICT = eval(data)
 
