@@ -1414,7 +1414,7 @@ class single_US_pdf_sheet(object):
         label_catalogo_internazionale = Paragraph("<b>N. CATALOGO INTERNAZIONALE</b>", styNormal)
         catalogo_generale = Paragraph(str(self.n_catalogo_generale), styNormal)
         catalogo_internazionale = Paragraph(str(self.n_catalogo_internazionale), styNormal)
-
+        sop =  Paragraph("<b></b><br/>" +str(self.soprintendenza), styNormal)
         #2-3 row
 
         sito = Paragraph("<b>LOCALITÀ</b><br/>" + str(self.sito), styNormal)
@@ -1540,7 +1540,7 @@ class single_US_pdf_sheet(object):
         cell_schema = [
             # 00, 01, 02, 03, 04, 05, 06, 07, 08, 09 rows
             [unita_tipo, '01' , label_catalogo_generale, '03', '04', '05', '06', label_catalogo_internazionale , '08', '09', '10', '11', '12', logo , '14', '15', '16', '17'],
-            ['00', '01', catalogo_generale, '03', '04' , '05', '06', catalogo_internazionale , '08', '09', '10', '11', '12', '13', '14', '15', '16', '17'],
+            ['00', '01', catalogo_generale, '03', '04' , '05', '06', catalogo_internazionale , '08', '09', '10', '11', '12', sop, '14', '15', '16', '17'],
             [sito, '01', '02', '03', '04', anno_di_scavo , area, settore, '08', quadrato, '10', quote, '12', '13', label_unita_stratigrafica, '15', '16', '17'],
             ['00', '01', '02', '03', '04', '05','06' , '07', '08', '09', '10', '11', '12', '13', label_NAT, '15', label_ART, '17'],    #
             [piante, '01', '02', sezioni, '04', '05', prospetti, '07', '08', foto, '10', '11', '12', '13', tabelle_materiali, '15', '16', '17'],
@@ -1586,9 +1586,10 @@ class single_US_pdf_sheet(object):
             # 1 row
             ('SPAN', (2, 1), (6, 1)),  # n. catalogo generale
             ('SPAN', (7, 1), (12, 1)),  # catalogo internazionale
-            ('SPAN', (13, 0), (17, 1)),  # logo
-            ('ALIGN', (13, 0), (17, 1), 'CENTER'),
-            ('VALIGN', (13, 0), (17, 1), 'MIDDLE'),
+            ('SPAN', (13, 1), (17, 1)),
+            ('SPAN', (13, 0), (17, 0)),  # logo
+            ('ALIGN', (13, 0), (17, 0), 'CENTER'),
+            ('VALIGN', (13, 0), (17, 0), 'MIDDLE'),
 
             # 2-3 row
             ('SPAN', (0, 2), (4, 3)),  # sito
@@ -1769,7 +1770,7 @@ class single_US_pdf_sheet(object):
         label_catalogo_internazionale = Paragraph("<b>N. INTERNATIONAL CATALOG</b>", styNormal)
         catalogo_generale = Paragraph(str(self.n_catalogo_generale), styNormal)
         catalogo_internazionale = Paragraph(str(self.n_catalogo_internazionale), styNormal)
-
+        sop =  Paragraph("<b></b><br/>" +str(self.soprintendenza), styNormal)
         #2-3 row
 
         sito = Paragraph("<b>SITE</b><br/>" + str(self.sito), styNormal)
@@ -1895,7 +1896,7 @@ class single_US_pdf_sheet(object):
         cell_schema = [
             # 00, 01, 02, 03, 04, 05, 06, 07, 08, 09 rows
             [unita_tipo, '01' , label_catalogo_generale, '03', '04', '05', '06', label_catalogo_internazionale , '08', '09', '10', '11', '12', logo , '14', '15', '16', '17'],
-            ['00', '01', catalogo_generale, '03', '04' , '05', '06', catalogo_internazionale , '08', '09', '10', '11', '12', '13', '14', '15', '16', '17'],
+            ['00', '01', catalogo_generale, '03', '04' , '05', '06', catalogo_internazionale , '08', '09', '10', '11', '12', sop, '14', '15', '16', '17'],
             [sito, '01', '02', '03', '04', anno_di_scavo , area, settore, '08', quadrato, '10', quote, '12', '13', label_unita_stratigrafica, '15', '16', '17'],
             ['00', '01', '02', '03', '04', '05','06' , '07', '08', '09', '10', '11', '12', '13', label_NAT, '15', label_ART, '17'],    #
             [piante, '01', '02', sezioni, '04', '05', prospetti, '07', '08', foto, '10', '11', '12', '13', tabelle_materiali, '15', '16', '17'],
@@ -1941,6 +1942,7 @@ class single_US_pdf_sheet(object):
             # 1 row
             ('SPAN', (2, 1), (6, 1)),  # n. catalogo generale
             ('SPAN', (7, 1), (12, 1)),  # catalogo internazionale
+            ('SPAN', (13, 1), (17, 1)),  # logo
             ('SPAN', (13, 0), (17, 1)),  # logo
             ('ALIGN', (13, 0), (17, 1), 'CENTER'),
             ('VALIGN', (13, 0), (17, 1), 'MIDDLE'),
@@ -2121,7 +2123,7 @@ class single_US_pdf_sheet(object):
         label_catalogo_internazionale = Paragraph("<b>INTERNATIONALE KATALOGNUMMER</b>", styNormal)
         catalogo_generale = Paragraph(str(self.n_catalogo_generale), styNormal)
         catalogo_internazionale = Paragraph(str(self.n_catalogo_internazionale), styNormal)
-
+        sop = Paragraph(str(self.sopreintendenza), styNormal)
         #2-3 row
 
         sito = Paragraph("<b>ORT</b><br/>" + str(self.sito), styNormal)
@@ -2250,7 +2252,7 @@ class single_US_pdf_sheet(object):
         cell_schema = [
             # 00, 01, 02, 03, 04, 05, 06, 07, 08, 09 rows
             [unita_tipo, '01' , label_catalogo_generale, '03', '04', '05', '06', label_catalogo_internazionale , '08', '09', '10', '11', '12', logo , '14', '15', '16', '17'],
-            ['00', '01', catalogo_generale, '03', '04' , '05', '06', catalogo_internazionale , '08', '09', '10', '11', '12', '13', '14', '15', '16', '17'],
+            ['00', '01', catalogo_generale, '03', '04' , '05', '06', catalogo_internazionale , '08', '09', '10', '11', '12', sop, '14', '15', '16', '17'],
             [sito, '01', '02', '03', '04', anno_di_scavo , area, settore, '08', quadrato, '10', quote, '12', '13', label_unita_stratigrafica, '15', '16', '17'],
             ['00', '01', '02', '03', '04', '05','06' , '07', '08', '09', '10', '11', '12', '13', label_NAT, '15', label_ART, '17'],    #
             [piante, '01', '02', sezioni, '04', '05', prospetti, '07', '08', foto, '10', '11', '12', '13', tabelle_materiali, '15', '16', '17'],
@@ -2296,6 +2298,7 @@ class single_US_pdf_sheet(object):
             # 1 row
             ('SPAN', (2, 1), (6, 1)),  # n. catalogo generale
             ('SPAN', (7, 1), (12, 1)),  # catalogo internazionale
+            ('SPAN', (13, 1), (17, 1)),  # logo
             ('SPAN', (13, 0), (17, 1)),  # logo
             ('ALIGN', (13, 0), (17, 1), 'CENTER'),
             ('VALIGN', (13, 0), (17, 1), 'MIDDLE'),
