@@ -26,16 +26,16 @@ BEGIN
     IF NOT EXISTS (SELECT 1 FROM pg_trigger WHERE tgname = 'delete_media_table') THEN
         CREATE TRIGGER delete_media_table
 		  AFTER UPDATE OR DELETE
-		  ON public.media_thumb_table
+		  ON media_thumb_table
 		  FOR EACH ROW
-		  EXECUTE PROCEDURE public.delete_media_table();
+		  EXECUTE PROCEDURE delete_media_table();
 
     END IF;
 END
 $$;  
   
  ---------------------------------------------------------------------------  
-CREATE OR REPLACE FUNCTION public.delete_media_to_entity_table()
+CREATE OR REPLACE FUNCTION delete_media_to_entity_table()
   RETURNS trigger AS
 $BODY$
 
@@ -60,7 +60,7 @@ END;
 $BODY$
   LANGUAGE plpgsql VOLATILE
   COST 100;
-ALTER FUNCTION public.delete_media_to_entity_table()
+ALTER FUNCTION delete_media_to_entity_table()
   OWNER TO postgres;
 
  
@@ -71,7 +71,7 @@ BEGIN
     IF NOT EXISTS (SELECT 1 FROM pg_trigger WHERE tgname = 'delete_media_to_entity_table') THEN
         CREATE TRIGGER delete_media_to_entity_table
   AFTER UPDATE OR DELETE
-  ON public.media_thumb_table
+  ON media_thumb_table
   FOR EACH ROW
   EXECUTE PROCEDURE delete_media_to_entity_table();
 
@@ -99,7 +99,7 @@ ALTER TABLE mediaentity_view_id_media_thumb_seq
 
 
 --------------------------------------------------------------------------------------
-CREATE OR REPLACE VIEW public.mediaentity_view AS 
+CREATE OR REPLACE VIEW mediaentity_view AS 
  SELECT media_thumb_table.id_media_thumb,
     media_thumb_table.id_media,
     media_thumb_table.filepath,
@@ -111,9 +111,9 @@ CREATE OR REPLACE VIEW public.mediaentity_view AS
      JOIN media_to_entity_table ON media_thumb_table.id_media = media_to_entity_table.id_media
   ORDER BY media_to_entity_table.id_entity;
 
-ALTER TABLE public.mediaentity_view
+ALTER TABLE mediaentity_view
   OWNER TO postgres;
-ALTER TABLE public.mediaentity_view ALTER COLUMN id_media_thumb SET DEFAULT nextval('mediaentity_view_id_media_thumb_seq'::regclass);
+ALTER TABLE mediaentity_view ALTER COLUMN id_media_thumb SET DEFAULT nextval('mediaentity_view_id_media_thumb_seq'::regclass);
 
 --------------------------------------------------------------------------------------
 CREATE SEQUENCE IF NOT EXISTS pyarchinit_documentazione_gid_seq
@@ -240,7 +240,7 @@ ALTER TABLE pyarchinit_doc_view
   
 --------------------------------------------------------------------------------------  
   
-	CREATE OR REPLACE VIEW public.pyarchinit_us_negative_doc_view AS SELECT 
+	CREATE OR REPLACE VIEW pyarchinit_us_negative_doc_view AS SELECT 
 	gid,
 	sito_n ,
 	area_n ,
@@ -280,10 +280,10 @@ ALTER TABLE pyarchinit_doc_view
 	JOIN us_table ON  sito_n ::text = sito AND area_n ::text = area AND us_n = us;
 
 
-ALTER TABLE public.pyarchinit_us_negative_doc_view
+ALTER TABLE pyarchinit_us_negative_doc_view
     OWNER TO postgres;
 	
-CREATE OR REPLACE VIEW public.pyarchinit_us_view AS
+CREATE OR REPLACE VIEW pyarchinit_us_view AS
  SELECT pyunitastratigrafiche.gid,
     pyunitastratigrafiche.the_geom,
     pyunitastratigrafiche.tipo_us_s,
@@ -396,5 +396,5 @@ CREATE OR REPLACE VIEW public.pyarchinit_us_view AS
      JOIN us_table ON pyunitastratigrafiche.scavo_s::text = us_table.sito AND pyunitastratigrafiche.area_s::text = us_table.area::text AND pyunitastratigrafiche.us_s = us_table.us
   ORDER BY us_table.order_layer, pyunitastratigrafiche.stratigraph_index_us DESC, pyunitastratigrafiche.gid;
 
-ALTER TABLE public.pyarchinit_us_view
+ALTER TABLE pyarchinit_us_view
     OWNER TO postgres;	
