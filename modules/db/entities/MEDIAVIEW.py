@@ -31,8 +31,8 @@ class MEDIAVIEW(object):
             self.id_media_thumb,
             self.id_media,
             self.filepath,
-            self.path_resize,
             self.entity_type,
             self.id_media_m,
-            self.id_entity
+            self.id_entity,
+			self.path_resize,
             )
