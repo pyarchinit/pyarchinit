@@ -475,10 +475,10 @@ class Main(QDialog, MAIN_DIALOG_CLASS):
             self.DATA_LIST.append(i)
         self.BROWSE_STATUS = "b"
         self.label_status.setText(self.STATUS_ITEMS[self.BROWSE_STATUS])
-        if type(self.REC_CORR) == "<type 'str'>":
-            corr = 0
-        else:
-            corr = self.REC_CORR
+        # if type(self.REC_CORR) == "<type 'str'>":
+            # corr = 0
+        # else:
+            # corr = self.REC_CORR
 
         self.REC_TOT, self.REC_CORR = len(self.DATA_LIST), 0
         self.DATA_LIST_REC_TEMP = self.DATA_LIST_REC_CORR = self.DATA_LIST[0]
@@ -750,28 +750,16 @@ class Main(QDialog, MAIN_DIALOG_CLASS):
         self.fill_fields()
         self.BROWSE_STATUS = "b"
         self.label_status.setText(self.STATUS_ITEMS[self.BROWSE_STATUS])
-        if type(self.REC_CORR) == "<class 'str'>":
-            corr = 0
-        else:
-            corr = self.REC_CORR
+        # if type(self.REC_CORR) == "<class 'str'>":
+            # corr = 0
+        # else:
+            # corr = self.REC_CORR
         self.set_rec_counter(len(self.DATA_LIST), self.REC_CORR + 1)
         self.REC_TOT, self.REC_CORR = len(self.DATA_LIST), 0
         self.DATA_LIST_REC_TEMP = self.DATA_LIST_REC_CORR = self.DATA_LIST[0]
         self.SORT_STATUS = "n"
         self.label_sort.setText(self.SORTED_ITEMS[self.SORT_STATUS])
-    def view_num_rec(self):
-        num_data_begin = self.NUM_DATA_BEGIN
-        num_data_begin += 1
-
-        num_data_end = self.NUM_DATA_END
-        if self.NUM_DATA_END < len(self.DATA):
-            pass
-        else:
-            num_data_end = len(self.DATA)
-
-        self.label_num_tot_immagini.setText(str(len(self.DATA)))
-        img_visualizzate_txt = ('%s %d - a %d') % ("Da", num_data_begin, num_data_end)
-        self.label_img_visualizzate.setText(img_visualizzate_txt)
+    
     def on_pushButton_new_search_pressed(self):
         if self.BROWSE_STATUS != "f":
             pass
@@ -972,10 +960,11 @@ class Main(QDialog, MAIN_DIALOG_CLASS):
         return rec_to_update
     
         self.DATA_LIST = []
-        
+        id_list = []
         if self.DB_SERVER == 'sqlite':
-            for i in self.DB_MANAGER.query(eval(self.MAPPER_TABLE_CLASS_thumb)):
-                self.DATA_LIST.append(i)
+            for i in self.DB_MANAGER.query(self.MAPPER_TABLE_CLASS_thumb):
+                id_list.append(eval("i."+ self.ID_TABLE_THUMB))#for i in self.DB_MANAGER.query(eval(self.MAPPER_TABLE_CLASS_thumb)):
+                #self.DATA_LIST.append(i)
         else:
             id_list = []
             for i in self.DB_MANAGER.query(self.MAPPER_TABLE_CLASS_thumb):
@@ -1018,7 +1007,7 @@ class Main(QDialog, MAIN_DIALOG_CLASS):
             num_data_end = len(self.DATA)
 
         self.label_num_tot_immagini.setText(str(len(self.DATA)))
-        img_visualizzate_txt = ('%s %d - a %d') % ("Da",num_data_begin,num_data_end )
+        img_visualizzate_txt = ('%s %d to %d') % ("from",num_data_begin,num_data_end )
         self.label_img_visualizzate.setText(img_visualizzate_txt)
     
     
@@ -1097,12 +1086,13 @@ class Main(QDialog, MAIN_DIALOG_CLASS):
     
     def charge_records(self):
         self.DATA_LIST = []
-        
+        id_list = []
         if self.DB_SERVER == 'sqlite':
             for i in self.DB_MANAGER.query(self.MAPPER_TABLE_CLASS_thumb):
-                self.DATA_LIST.append(i)
+                id_list.append(eval("i."+ self.ID_TABLE_THUMB))#for i in self.DB_MANAGER.query(self.MAPPER_TABLE_CLASS_thumb):
+                #self.DATA_LIST.append(i)
         else:
-            id_list = []
+            
             for i in self.DB_MANAGER.query(self.MAPPER_TABLE_CLASS_thumb):
                 id_list.append(eval("i."+ self.ID_TABLE_THUMB))
 
