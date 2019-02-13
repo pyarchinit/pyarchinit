@@ -45,5 +45,5 @@ class Settings(object):
         self.PORT = self.configuration['PORT']
         self.USER = self.configuration['USER']
         self.THUMB_PATH = self.configuration['THUMB_PATH']
-        #self.THUMB_RESIZE = self.configuration['THUMB_RESIZE']
+        self.THUMB_RESIZE = self.configuration['THUMB_RESIZE']
         PLUGIN_PATH = path = os.path.dirname(__file__)
