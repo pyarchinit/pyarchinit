@@ -41,3 +41,12 @@ class Error_check:
             return 0
         else:
             return 1
+
+    def data_is_float(self, d):
+        try:
+            float(d)
+        except:
+            return 0
+        else:
+            return 1
+
