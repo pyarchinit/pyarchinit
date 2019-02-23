@@ -29,9 +29,9 @@ packages = sys.argv[1].split(',') if len(sys.argv) >= 2 else []
 # Adding the dependencies python modules in
 # package list in order to install via pip module
 
-      
+    
 if not packages:
-    packages = [
+    packages = [ 
                 'SQLAlchemy',
                 'SQLAlchemy-Utils',
                 'reportlab',
@@ -45,6 +45,8 @@ if not packages:
 
 
 
+
+subprocess.check_call([sys.executable, '-m', 'ensurepip'], shell=False)
     
 for p in packages:
 
