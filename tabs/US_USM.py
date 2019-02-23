@@ -2601,6 +2601,8 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
                     QMessageBox.warning(self, "ACHTUNG", "Problem der Dateneingabe", QMessageBox.Ok)
                 else:
                     QMessageBox.warning(self, "Warning", "Problem with data entry", QMessageBox.Ok) 
+
+
     def on_pushButton_rapp_check_pressed(self):
         sito_check = str(self.comboBox_sito_rappcheck.currentText())
         area_check = str(self.comboBox_area_rappcheck.currentText())
@@ -2641,17 +2643,11 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
                                     QMessageBox.Ok)
                 test = 1
 
+            """controllo campi numerici"""
+
             area = self.comboBox_area.currentText()
             us = self.lineEdit_us.text()
-            attivita = self.lineEdit_attivita.text()
-            colore = self.comboBox_colore.currentText()
-            anno_scavo = self.lineEdit_anno.text()
-            formazione = self.comboBox_formazione.currentText()
-            stato_conservazione = self.comboBox_conservazione.currentText()
-            colore = self.comboBox_colore.currentText()
-            consistenza = self.comboBox_consistenza.currentText()
-            struttura = self.lineEdit_struttura.text()
-            cont_per = self.lineEdit_codice_periodo.text()
+
 
             if area != "":
                 if EC.data_is_int(area) == 0:
@@ -2665,6 +2661,160 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
                                         QMessageBox.Ok)
                     test = 1
 
+            """controllo campi numerici float"""
+
+            #TAB USM
+            spessore_usm = self.lineEdit_spessore_usm.text()
+            qmin_usm = self.lineEdit_qmin_usm.text()
+            qmax_usm = self.lineEdit_qmax_usm.text()
+            lunghezza_usm = self.lineEdit_lunghezza_usm.text()
+            altezza_usm = self.lineEdit_altezza_usm.text()
+
+            #TAB MISURE
+            quota_abs = self.lineEdit_quota_abs.text()
+            quota_relativa = self.lineEdit_quota_relativa.text()
+            quota_max_abs = self.lineEdit_quota_max_abs.text()
+            quota_max_rel = self.lineEdit_quota_max_rel.text()
+            quota_min_abs = self.lineEdit_quota_min_abs.text()
+            quota_min_rel = self.lineEdit_quota_min_rel.text()
+            larghezza_media = self.lineEdit_larghezza_media.text()
+            lunghezza_max = self.lineEdit_lunghezza_max.text()
+            profondita_min = self.lineEdit_profondita_min.text()
+            profondita_max = self.lineEdit_profondita_max.text()
+            altezza_max = self.lineEdit_altezza_max.text()
+            altezza_min = self.lineEdit_altezza_min.text()
+
+
+            if spessore_usm != "":
+                if EC.data_is_float(spessore_usm) == 0:
+                    QMessageBox.warning(self, "ATTENZIONE", "Campo USM-Spessore USM. \n Il valore deve essere di tipo numerico. \n (Sono stati inserite lettere, virgole, accenti o caratteri non numerici.",
+                                        QMessageBox.Ok)
+                    test = 1
+
+
+            if qmin_usm != "":
+                if EC.data_is_float(qmin_usm) == 0:
+                    QMessageBox.warning(self, "ATTENZIONE", "Campo USM 3-Quota minima USM. \n Il valore deve essere di tipo numerico. \n (Sono stati inserite lettere, virgole, accenti o caratteri non numerici.",
+                                        QMessageBox.Ok)
+                    test = 1
+
+
+            if qmax_usm != "":
+                if EC.data_is_float(qmax_usm) == 0:
+                    QMessageBox.warning(self, "ATTENZIONE", "Campo USM 3-Quota max USM. \n Il valore deve essere di tipo numerico. \n (Sono stati inserite lettere, virgole, accenti o caratteri non numerici.",
+                                        QMessageBox.Ok)
+                    test = 1
+
+
+            if lunghezza_usm != "":
+                if EC.data_is_float(lunghezza_usm) == 0:
+                    QMessageBox.warning(self, "ATTENZIONE", "Campo USM 3-Lunghezza USM. \n Il valore deve essere di tipo numerico. \n (Sono stati inserite lettere, virgole, accenti o caratteri non numerici.",
+                                        QMessageBox.Ok)
+                    test = 1
+
+
+            if altezza_usm != "":
+                if EC.data_is_float(altezza_usm) == 0:
+                    QMessageBox.warning(self, "ATTENZIONE", "Campo USM 3-Altezza USM. \n Il valore deve essere di tipo numerico. \n (Sono stati inserite lettere, virgole, accenti o caratteri non numerici.",
+                                        QMessageBox.Ok)
+                    test = 1
+
+            ###########################
+
+            if quota_abs != "":
+                if EC.data_is_float(quota_abs) == 0:
+                    QMessageBox.warning(self, "ATTENZIONE", "Campo Misure-Quota Assoluta. \n Il valore deve essere di tipo numerico. \n (Sono stati inserite lettere, virgole, accenti o caratteri non numerici.",
+                                        QMessageBox.Ok)
+                    test = 1
+
+
+            if quota_relativa != "":
+                if EC.data_is_float(quota_relativa) == 0:
+                    QMessageBox.warning(self, "ATTENZIONE", "Campo Misure-Quota Relativa. \n Il valore deve essere di tipo numerico. \n (Sono stati inserite lettere, virgole, accenti o caratteri non numerici.",
+                                        QMessageBox.Ok)
+                    test = 1
+
+
+            if quota_max_abs != "":
+                if EC.data_is_float(quota_max_abs) == 0:
+                    QMessageBox.warning(self, "ATTENZIONE", "Campo Misure-Quota Massima Assoluta. \n Il valore deve essere di tipo numerico. \n (Sono stati inserite lettere, virgole, accenti o caratteri non numerici.",
+                                        QMessageBox.Ok)
+                    test = 1
+
+
+            if quota_max_rel != "":
+                if EC.data_is_float(quota_max_rel) == 0:
+                    QMessageBox.warning(self, "ATTENZIONE", "Campo Misure-Quota Massima Relativa. \n Il valore deve essere di tipo numerico. \n (Sono stati inserite lettere, virgole, accenti o caratteri non numerici.",
+                                        QMessageBox.Ok)
+                    test = 1
+
+
+            if quota_min_abs != "":
+                if EC.data_is_float(quota_min_abs) == 0:
+                    QMessageBox.warning(self, "ATTENZIONE", "Campo Misure-Quota Minima Assoluta. \n Il valore deve essere di tipo numerico. \n (Sono stati inserite lettere, virgole, accenti o caratteri non numerici.",
+                                        QMessageBox.Ok)
+                    test = 1
+
+            if quota_min_rel != "":
+                if EC.data_is_float(quota_min_rel) == 0:
+                    QMessageBox.warning(self, "ATTENZIONE", "Campo Misure-Quota Minima Relativa. \n Il valore deve essere di tipo numerico. \n (Sono stati inserite lettere, virgole, accenti o caratteri non numerici.",
+                                        QMessageBox.Ok)
+                    test = 1
+
+
+            if larghezza_media != "":
+                if EC.data_is_float(larghezza_media) == 0:
+                    QMessageBox.warning(self, "ATTENZIONE", "Campo Misure-Lunghezza Media. \n Il valore deve essere di tipo numerico. \n (Sono stati inserite lettere, virgole, accenti o caratteri non numerici.",
+                                        QMessageBox.Ok)
+                    test = 1
+
+
+            if lunghezza_max != "":
+                if EC.data_is_float(lunghezza_max) == 0:
+                    QMessageBox.warning(self, "ATTENZIONE", "Campo Misure-Lunghezza Massima. \n Il valore deve essere di tipo numerico. \n (Sono stati inserite lettere, virgole, accenti o caratteri non numerici.",
+                                        QMessageBox.Ok)
+                    test = 1
+
+
+            if profondita_min != "":
+                if EC.data_is_float(profondita_min) == 0:
+                    QMessageBox.warning(self, "ATTENZIONE", "Campo Misure-Profondità Minima. \n Il valore deve essere di tipo numerico. \n (Sono stati inserite lettere, virgole, accenti o caratteri non numerici.",
+                                        QMessageBox.Ok)
+                    test = 1
+
+
+            if profondita_max != "":
+                if EC.data_is_float(profondita_max) == 0:
+                    QMessageBox.warning(self, "ATTENZIONE", "Campo Misure-Profondità Massima. \n Il valore deve essere di tipo numerico. \n (Sono stati inserite lettere, virgole, accenti o caratteri non numerici.",
+                                        QMessageBox.Ok)
+                    test = 1
+
+            if altezza_max != "":
+                if EC.data_is_float(altezza_max) == 0:
+                    QMessageBox.warning(self, "ATTENZIONE", "Campo Misure-Altezza Massima. \n Il valore deve essere di tipo numerico. \n (Sono stati inserite lettere, virgole, accenti o caratteri non numerici.",
+                                        QMessageBox.Ok)
+                    test = 1
+
+            if altezza_min != "":
+                if EC.data_is_float(altezza_min) == 0:
+                    QMessageBox.warning(self, "ATTENZIONE", "Campo Misure-Altezza Minima. \n Il valore deve essere di tipo numerico. \n (Sono stati inserite lettere, virgole, accenti o caratteri non numerici.",
+                                        QMessageBox.Ok)
+                    test = 1
+
+            """controllo lunghezza campo alfanumerico"""
+
+            attivita = self.lineEdit_attivita.text()
+            colore = self.comboBox_colore.currentText()
+            anno_scavo = self.lineEdit_anno.text()
+            formazione = self.comboBox_formazione.currentText()
+            stato_conservazione = self.comboBox_conservazione.currentText()
+            colore = self.comboBox_colore.currentText()
+            consistenza = self.comboBox_consistenza.currentText()
+            struttura = self.lineEdit_struttura.text()
+            cont_per = self.lineEdit_codice_periodo.text()
+
+
+
             if attivita != "":
                 if EC.data_lenght(attivita, 3) == 0:
                     QMessageBox.warning(self, "ATTENZIONE",
@@ -2672,7 +2822,7 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
                                         QMessageBox.Ok)
                     test = 1
 
-                    # if anno_scavo != "":
+            # if anno_scavo != "":
             # if EC.data_lenght(anno_scavo,3) == 0:
             #       QMessageBox.warning(self, "ATTENZIONE", "Campo Anno. \n immettere una sola data (es. 2014)",  QMessageBox.Ok)
             #       test = 1
@@ -2711,8 +2861,8 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
                                         "Campo Struttura. \n Il valore non deve superare i 30 caratteri alfanumerici",
                                         QMessageBox.Ok)
                     test = 1
-            
-        elif self.L=='de':  
+
+        elif self.L=='de':
             if EC.data_is_empty(str(self.comboBox_sito.currentText())) == 0:
                 QMessageBox.warning(self, "ACHTUNG", " Feld Ausgrabungstätte. \n Das Feld darf nicht leer sein", QMessageBox.Ok)
                 test = 1
@@ -4674,7 +4824,7 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
         if self.lineEdit_quota_abs.text() == "":
             quota_abs = None
         else:
-            quota_abs = self.lineEdit_quota_abs.text()
+            quota_abs = self.lineEdit_quota_abs.text().replace(",", ".")
 
         ##lunghezza max
         if self.lineEdit_lunghezza_max.text() == "":
