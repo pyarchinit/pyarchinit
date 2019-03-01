@@ -863,9 +863,9 @@ class single_Tafonomia_pdf_sheet(object):
         # 11 row
         stato_conservazione = Paragraph("<b>Stato di conservazione</b><br/>" + str(self.stato_di_conservazione),
                                         styNormal)
-        disturbato = Paragraph("<b>Disturbato</b><br/>" + str(self.segnacoli), styNormal)
-        completo = Paragraph("<b>Completo</b><br/>" + str(self.canale_libatorio_si_no), styNormal)
-        in_connessione = Paragraph("<b>In connessione</b><br/>" + str(self.oggetti_rinvenuti_esterno), styNormal)
+        disturbato = Paragraph("<b>Disturbato</b><br/>" + str(self.disturbato_si_no), styNormal)
+        completo = Paragraph("<b>Completo</b><br/>" + str(self.completo_si_no), styNormal)
+        in_connessione = Paragraph("<b>In connessione</b><br/>" + str(self.in_connessione_si_no), styNormal)
 
         # 12 row
         caratteristiche_tafonomiche = ''
@@ -1188,9 +1188,9 @@ class single_Tafonomia_pdf_sheet(object):
         # 11 row
         stato_conservazione = Paragraph("<b>Erhaltungszustand</b><br/>" + str(self.stato_di_conservazione),
                                         styNormal)
-        disturbato = Paragraph("<b>Gestört</b><br/>" + str(self.segnacoli), styNormal)
-        completo = Paragraph("<b>Voll</b><br/>" + str(self.canale_libatorio_si_no), styNormal)
-        in_connessione = Paragraph("<b>In Verbindung</b><br/>" + str(self.oggetti_rinvenuti_esterno), styNormal)
+        disturbato = Paragraph("<b>Gestört</b><br/>" + str(self.disturbato_si_no), styNormal)
+        completo = Paragraph("<b>Voll</b><br/>" + str(self.completo_si_no), styNormal)
+        in_connessione = Paragraph("<b>In Verbindung</b><br/>" + str(self.in_connessione_si_no), styNormal)
 
         # 12 row
         caratteristiche_tafonomiche = ''
@@ -1513,9 +1513,9 @@ class single_Tafonomia_pdf_sheet(object):
         # 11 row
         stato_conservazione = Paragraph("<b>Status of conservation</b><br/>" + str(self.stato_di_conservazione),
                                         styNormal)
-        disturbato = Paragraph("<b>Hampered</b><br/>" + str(self.segnacoli), styNormal)
-        completo = Paragraph("<b>Complete</b><br/>" + str(self.canale_libatorio_si_no), styNormal)
-        in_connessione = Paragraph("<b>In connection</b><br/>" + str(self.oggetti_rinvenuti_esterno), styNormal)
+        disturbato = Paragraph("<b>Hampered</b><br/>" + str(self.disturbato_si_no), styNormal)
+        completo = Paragraph("<b>Complete</b><br/>" + str(self.completo_si_no), styNormal)
+        in_connessione = Paragraph("<b>In connection</b><br/>" + str(self.in_connessione_si_no), styNormal)
 
         # 12 row
         caratteristiche_tafonomiche = ''
