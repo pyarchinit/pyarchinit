@@ -205,7 +205,7 @@ class pyarchinit_Inventario_reperti(QDialog, MAIN_DIALOG_CLASS):
             "Abgerufen",
             "Diagnose"
         ]
-    else:
+    if L == 'en':
         CONVERSION_DICT = {
             ID_TABLE: ID_TABLE,
             "Site": "sito",
@@ -1437,6 +1437,7 @@ class pyarchinit_Inventario_reperti(QDialog, MAIN_DIALOG_CLASS):
         data_for_pdf = []  # contiene i singoli dati per l'esportazione dell'elenco casse
 
         # QMessageBox.warning(self,'elenco casse',str(elenco_casse_list), QMessageBox.Ok)
+
         elenco_casse_list.sort()
         for cassa in elenco_casse_list:
             single_cassa = []  # contiene i dati della singola cassa
