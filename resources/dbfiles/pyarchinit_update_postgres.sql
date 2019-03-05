@@ -401,3 +401,69 @@ CREATE OR REPLACE VIEW pyarchinit_us_view AS
 
 ALTER TABLE pyarchinit_us_view
     OWNER TO postgres;	
+
+-----------------------------------------------------------------------------------------------------------------------------------------------------
+
+CREATE TABLE if not exists pyarchinit_reperti
+(
+    gid integer NOT NULL,
+    the_geom geometry(Point,-1),
+    id_rep integer,
+    siti character varying(255) COLLATE pg_catalog."default",
+    link character varying(255) COLLATE pg_catalog."default",
+    CONSTRAINT pyarchinit_reperti_pkey PRIMARY KEY (gid)
+)
+WITH (
+    OIDS = FALSE
+)
+TABLESPACE pg_default;
+
+ALTER TABLE pyarchinit_reperti
+    OWNER to postgres;
+
+-- Index: sidx_pyarchinit_reperti_the_geom
+
+-- DROP INDEX public.sidx_pyarchinit_reperti_the_geom;
+
+
+------------------------------------------------------------------------------------------------------------------------------------------------------
+	
+	CREATE OR REPLACE VIEW pyarchinit_reperti_view AS 
+	SELECT
+	the_geom,
+	id_rep,
+	siti,
+	id_invmat ,
+    sito,
+    numero_inventario,
+    tipo_reperto,
+    criterio_schedatura,
+    definizione,
+    descrizione,
+    area,
+    us,
+    lavato ,
+    nr_cassa,
+    luogo_conservazione,
+    stato_conservazione,
+    datazione_reperto,
+    elementi_reperto,
+    misurazioni,
+    rif_biblio,
+    tecnologie,
+    forme_minime,
+    forme_massime,
+    totale_frammenti,
+    corpo_ceramico,
+    rivestimento,
+    diametro_orlo,
+    peso,
+    tipo,
+    eve_orlo ,
+    repertato ,
+    diagnostico
+	FROM pyarchinit_reperti
+     JOIN inventario_materiali_table ON siti::text = sito AND id_rep = numero_inventario;
+
+ALTER TABLE pyarchinit_reperti_view
+    OWNER TO postgres;	
