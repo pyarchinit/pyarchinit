@@ -1500,7 +1500,21 @@ class Pyarchinit_pyqgis(QDialog):
                 QgsProject.instance().addMapLayers([layer], True)
             else:
                 QMessageBox.warning(self, "TESTER", "Layer not valid", QMessageBox.Ok)
+            
+            layer_name = 'pyarchinit_reperti'
+            layer_name_conv = "'" + str(layer_name) + "'"
+            value_conv = ('"siti = %s"') % ("'" + str(self.val) + "'")
+            cmq_set_uri_data_source = "uri.setDataSource('',%s, %s, %s)" % (layer_name_conv, "'the_geom'", value_conv)
+            eval(cmq_set_uri_data_source)
+            layer_label = self.LAYERS_CONVERT_DIZ[layer_name]
+            layer_label_conv = "'" + layer_label + "'"
+            cmq_set_vector_layer = "QgsVectorLayer(uri.uri(), %s, 'spatialite')" % (layer_label_conv)
+            layer = eval(cmq_set_vector_layer)
 
+            if layer.isValid():
+                QgsProject.instance().addMapLayers([layer], True)
+            else:
+                QMessageBox.warning(self, "TESTER", "Layer not valid", QMessageBox.Ok)
 
             ###AGGIUNGERE IL SISTEMA PER POSTGRES#####
         elif settings.SERVER == 'postgres':
@@ -1743,7 +1757,7 @@ class Pyarchinit_pyqgis(QDialog):
 
         settings = Settings(con_sett)
         settings.set_configuration()
-		
+        
         if self.L=='it':
             name_layer='Reperti view'
         elif self.L=='de':
@@ -1754,7 +1768,7 @@ class Pyarchinit_pyqgis(QDialog):
             sqliteDB_path = os.path.join(os.sep, 'pyarchinit_DB_folder', settings.DATABASE)
             db_file_path = '{}{}'.format(self.HOME, sqliteDB_path)
 
-            gidstr = "id_us = '" + str(data[0].id_us) + "'"
+            gidstr = "numero_inventario = '" + str(data[0].numero_inventario) + "'"
             if len(data) > 1:
                 for i in range(len(data)):
                     gidstr += " OR numero_inventario = '" + str(data[i].numero_inventario) + "'"
@@ -1772,7 +1786,8 @@ class Pyarchinit_pyqgis(QDialog):
 
                 
                 QgsProject.instance().addMapLayers([layerUS], True)
-                
+            else:
+                QMessageBox.warning(self, "TESTER", "OK Layer not valid", QMessageBox.Ok)    
             
 
         elif settings.SERVER == 'postgres':
