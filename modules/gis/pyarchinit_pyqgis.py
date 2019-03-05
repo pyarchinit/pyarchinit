@@ -64,6 +64,8 @@ class Pyarchinit_pyqgis(QDialog):
                   "23": "pyarchinit_tafonomia_view",
                   "24": "pyarchinit_tafonomia",
                   "25": "pyarchinit_doc_view_b",
+                  "26": "pyarchinit_reperti",
+                  "27": "pyarchinit_reperti_view",
                   }
     if L=='it':
         LAYERS_CONVERT_DIZ = {"pyarchinit_campionature": "Punti di campionatura",
@@ -90,6 +92,8 @@ class Pyarchinit_pyqgis(QDialog):
                               "pyarchinit_tafonomia_view": "Tafonomia Vista",
                               "pyarchinit_tafonomia": "Tafonomia",
                               "pyarchinit_doc_view_b": "Documentazione Vista B",
+                              "pyarchinit_reperti": "Reperti",
+                              "pyarchinit_reperti_view": "Reperti view",
 
                               }
     elif L=='de':
@@ -117,6 +121,8 @@ class Pyarchinit_pyqgis(QDialog):
                               "pyarchinit_tafonomia_view": "Taphonomie Ansicht",
                               "pyarchinit_tafonomia": "Taphonomie",
                               "pyarchinit_doc_view_b": "Dokumentation Ansicht B",
+                              "pyarchinit_reperti": "Artefakt",
+                              "pyarchinit_reperti_view": "Artefakt view",
 
                               }
     else:
@@ -144,6 +150,8 @@ class Pyarchinit_pyqgis(QDialog):
                               "pyarchinit_tafonomia_view": "Taphonomy view",
                               "pyarchinit_tafonomia": "Taphonomy",
                               "pyarchinit_doc_view_b": "Documentation view B",
+                              "pyarchinit_reperti": "Artefact",
+                              "pyarchinit_reperti_view": "Artefact view",
                               }
 
     def __init__(self, iface):
@@ -1412,7 +1420,22 @@ class Pyarchinit_pyqgis(QDialog):
                 QgsProject.instance().addMapLayers([layer], True)
             else:
                 QMessageBox.warning(self, "TESTER", "Layer not valid", QMessageBox.Ok)
+            
+            layer_name = 'pyarchinit_reperti'
+            layer_name_conv = "'" + str(layer_name) + "'"
+            value_conv = ('"siti = %s"') % ("'" + str(self.val) + "'")
+            cmq_set_uri_data_source = "uri.setDataSource('',%s, %s, %s)" % (layer_name_conv, "'the_geom'", value_conv)
+            eval(cmq_set_uri_data_source)
+            layer_label = self.LAYERS_CONVERT_DIZ[layer_name]
+            layer_label_conv = "'" + layer_label + "'"
+            cmq_set_vector_layer = "QgsVectorLayer(uri.uri(), %s, 'spatialite')" % (layer_label_conv)
+            layer = eval(cmq_set_vector_layer)
 
+            if layer.isValid():
+                QgsProject.instance().addMapLayers([layer], True)
+            else:
+                QMessageBox.warning(self, "TESTER", "Layer not valid", QMessageBox.Ok)
+            
             layer_name = 'pyarchinit_siti'
             layer_name_conv = "'" + str(layer_name) + "'"
             value_conv = ('"sito_nome = %s"') % ("'" + str(self.val) + "'")
@@ -1624,7 +1647,21 @@ class Pyarchinit_pyqgis(QDialog):
             else:
                 QMessageBox.warning(self, "TESTER", "Layer not valid", QMessageBox.Ok)
 
-            
+            layer_name = 'pyarchinit_reperti'
+            layer_name_conv = "'" + str(layer_name) + "'"
+            value_conv = ('"siti = %s"') % ("'" + str(self.val) + "'")
+            cmq_set_uri_data_source = "uri.setDataSource('',%s, %s, %s)" % (layer_name_conv, "'the_geom'", value_conv)
+            eval(cmq_set_uri_data_source)
+            layer_label = self.LAYERS_CONVERT_DIZ[layer_name]
+            layer_label_conv = "'" + layer_label + "'"
+            cmq_set_vector_layer = "QgsVectorLayer(uri.uri(), %s, 'postgres')" % (layer_label_conv)
+            layer = eval(cmq_set_vector_layer)
+
+            if layer.isValid():
+                layer.setCrs(srs)
+                QgsProject.instance().addMapLayers([layer], True)
+            else:
+                QMessageBox.warning(self, "TESTER", "Layer not valid", QMessageBox.Ok)
 
             
             
@@ -1691,7 +1728,78 @@ class Pyarchinit_pyqgis(QDialog):
                 QgsProject.instance().addMapLayers([layerSITE], True)
             else:
                 QMessageBox.warning(self, "TESTER", "Layer US non valido", QMessageBox.Ok)
+    def charge_reperti_layers(self, data):
+        # Clean Qgis Map Later Registry
+        # QgsProject.instance().removeAllMapLayers()
+        # Get the user input, starting with the table name
 
+        # self.find_us_cutted(data)
+
+        cfg_rel_path = os.path.join(os.sep, 'pyarchinit_DB_folder', 'config.cfg')
+        file_path = '{}{}'.format(self.HOME, cfg_rel_path)
+        conf = open(file_path, "r")
+        con_sett = conf.read()
+        conf.close()
+
+        settings = Settings(con_sett)
+        settings.set_configuration()
+		
+        if self.L=='it':
+            name_layer='Reperti view'
+        elif self.L=='de':
+            name_layer='ArtefaKt view'
+        else:
+            name_layer='Artefact view'
+        if settings.SERVER == 'sqlite':
+            sqliteDB_path = os.path.join(os.sep, 'pyarchinit_DB_folder', settings.DATABASE)
+            db_file_path = '{}{}'.format(self.HOME, sqliteDB_path)
+
+            gidstr = "id_us = '" + str(data[0].id_us) + "'"
+            if len(data) > 1:
+                for i in range(len(data)):
+                    gidstr += " OR numero_inventario = '" + str(data[i].numero_inventario) + "'"
+
+            uri = QgsDataSourceUri()
+            uri.setDatabase(db_file_path)
+
+            uri.setDataSource('', 'pyarchinit_reperti_view', 'the_geom', gidstr, "ROWID")
+            layerUS = QgsVectorLayer(uri.uri(), name_layer, 'spatialite')
+
+            if layerUS.isValid():
+                QMessageBox.warning(self, "TESTER", "OK Layer US valido", QMessageBox.Ok)
+
+                
+
+                
+                QgsProject.instance().addMapLayers([layerUS], True)
+                
+            
+
+        elif settings.SERVER == 'postgres':
+
+            uri = QgsDataSourceUri()
+            # set host name, port, database name, username and password
+
+            uri.setConnection(settings.HOST, settings.PORT, settings.DATABASE, settings.USER, settings.PASSWORD)
+
+            gidstr = id_us = "numero_inventario = " + str(data[0].numero_inventario)
+            if len(data) > 1:
+                for i in range(len(data)):
+                    gidstr += " OR numero_inventario = " + str(data[i].numero_inventario)
+
+            srs = QgsCoordinateReferenceSystem(self.SRS, QgsCoordinateReferenceSystem.PostgisCrsId)
+
+            uri.setDataSource("public", "pyarchinit_reperti_view", "the_geom", gidstr, "gid")
+            layerUS = QgsVectorLayer(uri.uri(), name_layer, "postgres")
+
+            if layerUS.isValid():
+                layerUS.setCrs(srs)
+                
+               
+                QgsProject.instance().addMapLayers([layerUS], True)
+           
+            else:
+                QMessageBox.warning(self, "TESTER", "OK Layer not valid", QMessageBox.Ok)
     def charge_structure_from_research(self, data):
         # Clean Qgis Map Later Registry
         # QgsProject.instance().removeAllMapLayers()
