@@ -1947,7 +1947,34 @@ ALTER SEQUENCE public.us_table_id_us_seq OWNED BY public.us_table.id_us;
 -- TOC entry 412 (class 1259 OID 33119)
 -- Name: us_table_toimp; Type: TABLE; Schema: public; Owner: postgres
 --
+--------------------------------------------------------------------------------------
+---CREATE SEQUENCE public.pyarchinit_reperti_gid_seq
+---   START WITH 1
+ ---   INCREMENT BY 1
+ ---   NO MINVALUE
+ --   NO MAXVALUE
+ --   CACHE 1;
+--ALTER TABLE public.pyarchinit_reperti_gid_seq OWNER TO postgres;
 
+--ALTER SEQUENCE public.pyarchinit_reperti_gid_seq OWNED BY public.pyarchinit_reperti_gid_seq.id_rep;
+
+---------------------------------------------------------------
+
+CREATE TABLE public.pyarchinit_reperti
+(
+    gid integer NOT NULL ,
+    the_geom geometry(Point,-1),
+    id_rep integer,
+    siti character varying(255),
+    link character varying(255)
+);
+
+ALTER TABLE public.pyarchinit_reperti
+    OWNER to postgres;
+
+-- Index: sidx_pyarchinit_reperti_the_geom
+
+-- DROP INDEX public.sidx_pyarchinit_reperti_the_geom;
 CREATE TABLE public.us_table_toimp (
     id_us integer NOT NULL,
     sito text,
@@ -2313,8 +2340,11 @@ ALTER TABLE ONLY public.riipartizione_territoriale ALTER COLUMN id_div_terr_pk S
 
 ALTER TABLE ONLY public.riipartizione_territoriale_to_rip_terr ALTER COLUMN id_rel_rip_ter_pk SET DEFAULT nextval('public.riipartizione_territoriale_to_rip_terr_id_rel_rip_ter_pk_seq'::regclass);
 
-
-
+--
+-- TOC entry 4595 (class 2604 OID 66374)
+-- Name: riipartizione_territoriale_to_rip_terr id_rel_rip_ter_pk; Type: DEFAULT; Schema: public; Owner: postgres
+--
+--ALTER TABLE ONLY public.pyarchinit_reperti ALTER COLUMN gid SET DEFAULT nextval('public.pyarchinit_reperti_gid_seq'::regclass);
 
 --
 -- TOC entry 4570 (class 2604 OID 33176)
@@ -2919,6 +2949,12 @@ ALTER TABLE ONLY public.site_table
 
 
 --
+-- TOC entry 4786 (class 2606 OID 41174)
+-- Name: site_table site_table_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+ALTER TABLE ONLY public.pyarchinit_reperti
+    ADD CONSTRAINT pyarchinit_reperti_pkey PRIMARY KEY (gid);
+--
 -- TOC entry 4799 (class 2606 OID 41184)
 -- Name: struttura_table struttura_table_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
 --
@@ -2979,7 +3015,7 @@ ALTER TABLE public.us_table CLUSTER ON order_layer_index;
 
 CREATE INDEX sidx_pyarchinit_linee_rif_geom ON public.pyarchinit_linee_rif USING gist (the_geom);
 
-
+CREATE INDEX sidx_pyarchinit_reperti_geom ON public.pyarchinit_reperti USING gist (the_geom);
 --
 -- TOC entry 4743 (class 1259 OID 41211)
 -- Name: sidx_pyarchinit_ripartizioni_spaziali_geom; Type: INDEX; Schema: public; Owner: postgres

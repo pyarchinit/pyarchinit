@@ -402,11 +402,23 @@ CREATE OR REPLACE VIEW pyarchinit_us_view AS
 ALTER TABLE pyarchinit_us_view
     OWNER TO postgres;	
 
------------------------------------------------------------------------------------------------------------------------------------------------------
+--------------------------------------------------------------------------------------
+CREATE SEQUENCE IF NOT EXISTS pyarchinit_reperti_gid_seq
+  INCREMENT 1
+  MINVALUE 1
+  MAXVALUE 9223372036854775807
+  START 1
+  CACHE 1;
+ALTER TABLE pyarchinit_reperti_gid_seq
+  OWNER TO postgres;
+
+
+
+---------------------------------------------------------------
 
 CREATE TABLE if not exists pyarchinit_reperti
 (
-    gid integer NOT NULL,
+     gid integer NOT NULL DEFAULT nextval('pyarchinit_reperti_gid_seq'::regclass),
     the_geom geometry(Point,-1),
     id_rep integer,
     siti character varying(255) COLLATE pg_catalog."default",
