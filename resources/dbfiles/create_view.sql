@@ -579,6 +579,7 @@ ALTER TABLE public.mediaentity_view ALTER COLUMN id_media_thumb SET DEFAULT next
 
 	CREATE OR REPLACE VIEW pyarchinit_reperti_view AS 
 	SELECT
+	gid
 	the_geom,
 	id_rep,
 	siti,

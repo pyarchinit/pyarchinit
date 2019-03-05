@@ -42,6 +42,7 @@ from ..modules.utility.csv_writer import UnicodeWriter
 from ..modules.utility.delegateComboBox import ComboBoxDelegate
 from ..modules.utility.pyarchinit_error_check import Error_check
 from ..modules.utility.pyarchinit_exp_Findssheet_pdf import generate_reperti_pdf
+from ..modules.gis.pyarchinit_pyqgis import Pyarchinit_pyqgis
 from ..gui.imageViewer import ImageViewer
 from ..gui.quantpanelmain import QuantPanelMain
 from ..gui.sortpanelmain import SortPanelMain
@@ -205,7 +206,7 @@ class pyarchinit_Inventario_reperti(QDialog, MAIN_DIALOG_CLASS):
             "Abgerufen",
             "Diagnose"
         ]
-    if L == 'en':
+    if L =='en':
         CONVERSION_DICT = {
             ID_TABLE: ID_TABLE,
             "Site": "sito",
@@ -355,7 +356,7 @@ class pyarchinit_Inventario_reperti(QDialog, MAIN_DIALOG_CLASS):
         super().__init__()
         self.iface = iface
         self.setupUi(self)
-
+        self.pyQGIS = Pyarchinit_pyqgis(iface)
         self.currentLayerId = None
         try:
             self.on_pushButton_connect_pressed()
@@ -1338,6 +1339,35 @@ class pyarchinit_Inventario_reperti(QDialog, MAIN_DIALOG_CLASS):
                     self.fill_fields(self.REC_CORR)
                     self.enable_button(1)
 
+    def on_toolButtonGis_toggled(self):
+        if self.L=='it':
+            if self.toolButtonGis.isChecked():
+                QMessageBox.warning(self, "Messaggio",
+                                    "Modalita' GIS attiva. Da ora le tue ricerche verranno visualizzate sul GIS",
+                                    QMessageBox.Ok)
+            else:
+                QMessageBox.warning(self, "Messaggio",
+                                    "Modalita' GIS disattivata. Da ora le tue ricerche non verranno piu' visualizzate sul GIS",
+                                    QMessageBox.Ok)
+        elif self.L=='de':
+            if self.toolButtonGis.isChecked():
+                QMessageBox.warning(self, "Message",
+                                    "Modalität' GIS aktiv. Von jetzt wird Deine Untersuchung mit Gis visualisiert",
+                                    QMessageBox.Ok)
+            else:
+                QMessageBox.warning(self, "Message",
+                                    "Modalität' GIS deaktiviert. Von jetzt an wird deine Untersuchung nicht mehr mit Gis visualisiert",
+                                    QMessageBox.Ok)
+        else:
+            if self.toolButtonGis.isChecked():
+                QMessageBox.warning(self, "Message",
+                                    "GIS mode active. From now on your searches will be displayed on the GIS",
+                                    QMessageBox.Ok)
+            else:
+                QMessageBox.warning(self, "Message",
+                                    "GIS mode disabled. From now on, your searches will no longer be displayed on the GIS.",
+                                    QMessageBox.Ok)
+    
     def generate_list_pdf(self):
         data_list = []
         for i in range(len(self.DATA_LIST)):
@@ -1437,7 +1467,6 @@ class pyarchinit_Inventario_reperti(QDialog, MAIN_DIALOG_CLASS):
         data_for_pdf = []  # contiene i singoli dati per l'esportazione dell'elenco casse
 
         # QMessageBox.warning(self,'elenco casse',str(elenco_casse_list), QMessageBox.Ok)
-
         elenco_casse_list.sort()
         for cassa in elenco_casse_list:
             single_cassa = []  # contiene i dati della singola cassa
@@ -2324,10 +2353,33 @@ class pyarchinit_Inventario_reperti(QDialog, MAIN_DIALOG_CLASS):
                     self.label_status.setText(self.STATUS_ITEMS[self.BROWSE_STATUS])
                     self.set_rec_counter(len(self.DATA_LIST), self.REC_CORR + 1)
 
-                    if self.REC_TOT == 1:
-                        strings = ("E' stato trovato", self.REC_TOT, "record")
+                    if self.L=='it':
+                        if self.REC_TOT == 1:
+                            strings = ("E' stato trovato", self.REC_TOT, "record")
+                            if self.toolButtonGis.isChecked():
+                                self.pyQGIS.charge_reperti_layers(self.DATA_LIST)
+                        else:
+                            strings = ("Sono stati trovati", self.REC_TOT, "records")
+                            if self.toolButtonGis.isChecked():
+                                self.pyQGIS.charge_reperti_layers(self.DATA_LIST)
+                    elif self.L=='de':
+                        if self.REC_TOT == 1:
+                            strings = ("Es wurde gefunden", self.REC_TOT, "record")
+                            if self.toolButtonGis.isChecked():
+                                self.pyQGIS.charge_reperti_layers(self.DATA_LIST)
+                        else:
+                            strings = ("Sie wurden gefunden", self.REC_TOT, "records")
+                            if self.toolButtonGis.isChecked():
+                                self.pyQGIS.charge_reperti_layers(self.DATA_LIST)
                     else:
-                        strings = ("Sono stati trovati", self.REC_TOT, "records")
+                        if self.REC_TOT == 1:
+                            strings = ("It has been found", self.REC_TOT, "record")
+                            if self.toolButtonGis.isChecked():
+                                self.pyQGIS.charge_reperti_layers(self.DATA_LIST)
+                        else:
+                            strings = ("They have been found", self.REC_TOT, "records")
+                            if self.toolButtonGis.isChecked():
+                                self.pyQGIS.charge_reperti_layers(self.DATA_LIST)
 
                     self.setComboBoxEditable(["self.comboBox_sito"], 1)
                     self.setComboBoxEditable(["self.comboBox_lavato"], 1)
