@@ -177,7 +177,16 @@
           <string>DB Settings</string>
          </property>
          <layout class="QGridLayout" name="gridLayout">
-          <property name="margin">
+          <property name="leftMargin">
+           <number>12</number>
+          </property>
+          <property name="topMargin">
+           <number>12</number>
+          </property>
+          <property name="rightMargin">
+           <number>12</number>
+          </property>
+          <property name="bottomMargin">
            <number>12</number>
           </property>
           <item row="2" column="1">
@@ -338,64 +347,7 @@
           <string>Path Settings</string>
          </property>
          <layout class="QGridLayout" name="gridLayout_10">
-          <item row="3" column="1">
-           <spacer name="verticalSpacer_4">
-            <property name="orientation">
-             <enum>Qt::Vertical</enum>
-            </property>
-            <property name="sizeType">
-             <enum>QSizePolicy::Expanding</enum>
-            </property>
-            <property name="sizeHint" stdset="0">
-             <size>
-              <width>20</width>
-              <height>40</height>
-             </size>
-            </property>
-           </spacer>
-          </item>
-          <item row="2" column="0">
-           <widget class="QLabel" name="label_16">
-            <property name="text">
-             <string>Logo path</string>
-            </property>
-           </widget>
-          </item>
-          <item row="0" column="0">
-           <widget class="QLabel" name="label_10">
-            <property name="text">
-             <string>Thumbnail path</string>
-            </property>
-           </widget>
-          </item>
-          <item row="2" column="1" colspan="2">
-           <widget class="QLineEdit" name="lineEdit_Logo_path">
-            <property name="text">
-             <string/>
-            </property>
-           </widget>
-          </item>
-          <item row="0" column="1" colspan="2">
-           <widget class="QLineEdit" name="lineEdit_Thumb_path">
-            <property name="text">
-             <string/>
-            </property>
-           </widget>
-          </item>
-          <item row="4" column="0">
-           <widget class="QPushButton" name="pushButton_upd_postgres">
-            <property name="maximumSize">
-             <size>
-              <width>150</width>
-              <height>16777215</height>
-             </size>
-            </property>
-            <property name="text">
-             <string>Update Postgres</string>
-            </property>
-           </widget>
-          </item>
-          <item row="5" column="0">
+          <item row="6" column="0">
            <widget class="QPushButton" name="pushButton_upd_sqlite">
             <property name="sizePolicy">
              <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
@@ -414,13 +366,86 @@
             </property>
            </widget>
           </item>
-          <item row="1" column="1">
-           <widget class="QLineEdit" name="lineEdit_Thumb_resize"/>
+          <item row="2" column="0">
+           <widget class="QLabel" name="label_16">
+            <property name="text">
+             <string>Logo path</string>
+            </property>
+           </widget>
+          </item>
+          <item row="0" column="0">
+           <widget class="QLabel" name="label_10">
+            <property name="text">
+             <string>Thumbnail path</string>
+            </property>
+           </widget>
+          </item>
+          <item row="0" column="1" colspan="2">
+           <widget class="QLineEdit" name="lineEdit_Thumb_path">
+            <property name="text">
+             <string/>
+            </property>
+           </widget>
+          </item>
+          <item row="5" column="0">
+           <widget class="QPushButton" name="pushButton_upd_postgres">
+            <property name="maximumSize">
+             <size>
+              <width>150</width>
+              <height>16777215</height>
+             </size>
+            </property>
+            <property name="text">
+             <string>Update Postgres</string>
+            </property>
+           </widget>
           </item>
           <item row="1" column="0">
            <widget class="QLabel" name="label_40">
             <property name="text">
              <string>Image resize</string>
+            </property>
+           </widget>
+          </item>
+          <item row="3" column="1">
+           <spacer name="verticalSpacer_4">
+            <property name="orientation">
+             <enum>Qt::Vertical</enum>
+            </property>
+            <property name="sizeType">
+             <enum>QSizePolicy::Expanding</enum>
+            </property>
+            <property name="sizeHint" stdset="0">
+             <size>
+              <width>20</width>
+              <height>40</height>
+             </size>
+            </property>
+           </spacer>
+          </item>
+          <item row="2" column="1" colspan="2">
+           <widget class="QLineEdit" name="lineEdit_Logo_path">
+            <property name="text">
+             <string/>
+            </property>
+           </widget>
+          </item>
+          <item row="1" column="1">
+           <widget class="QLineEdit" name="lineEdit_Thumb_resize"/>
+          </item>
+          <item row="6" column="1">
+           <widget class="QLineEdit" name="lineEdit_crs">
+            <property name="maximumSize">
+             <size>
+              <width>100</width>
+              <height>16777215</height>
+             </size>
+            </property>
+            <property name="text">
+             <string/>
+            </property>
+            <property name="placeholderText">
+             <string>insert epsg code</string>
             </property>
            </widget>
           </item>
@@ -440,7 +465,16 @@
           <string>Installa il database (PostgreSQL/PostGIS)</string>
          </property>
          <layout class="QGridLayout" name="gridLayout_7">
-          <property name="margin">
+          <property name="leftMargin">
+           <number>12</number>
+          </property>
+          <property name="topMargin">
+           <number>12</number>
+          </property>
+          <property name="rightMargin">
+           <number>12</number>
+          </property>
+          <property name="bottomMargin">
            <number>12</number>
           </property>
           <item row="0" column="0">
@@ -493,7 +527,7 @@
              </widget>
             </item>
             <item row="5" column="1">
-             <widget class="QgsProjectionSelectionWidget" name="selectorCrsWidget" native="true"/>
+             <widget class="QgsProjectionSelectionWidget" name="selectorCrsWidget"/>
             </item>
             <item row="4" column="1">
              <widget class="QLineEdit" name="lineEdit_db_passwd">
@@ -585,13 +619,22 @@
           <string>Installa il database (SpatiaLite)</string>
          </property>
          <layout class="QGridLayout" name="gridLayout_8">
-          <property name="margin">
+          <property name="leftMargin">
+           <number>12</number>
+          </property>
+          <property name="topMargin">
+           <number>12</number>
+          </property>
+          <property name="rightMargin">
+           <number>12</number>
+          </property>
+          <property name="bottomMargin">
            <number>12</number>
           </property>
           <item row="0" column="0">
            <layout class="QGridLayout" name="gridLayout_5">
             <item row="1" column="1">
-             <widget class="QgsProjectionSelectionWidget" name="selectorCrsWidget_sl" native="true"/>
+             <widget class="QgsProjectionSelectionWidget" name="selectorCrsWidget_sl"/>
             </item>
             <item row="0" column="3">
              <widget class="QPushButton" name="pushButton_crea_database_sl">
@@ -1130,11 +1173,11 @@
           <layout class="QGridLayout" name="gridLayout_13">
            <item row="0" column="0">
             <layout class="QGridLayout" name="gridLayout_Help">
-             <property name="horizontalSpacing">
-              <number>6</number>
-             </property>
              <property name="leftMargin">
               <number>0</number>
+             </property>
+             <property name="horizontalSpacing">
+              <number>6</number>
              </property>
              <item row="0" column="0">
               <layout class="QHBoxLayout" name="horizontalLayout_6">
