@@ -22,10 +22,14 @@ from __future__ import absolute_import
 
 import os
 import sqlite3
+
+from sqlalchemy.event import listen
+
 from builtins import range
 from builtins import str
 import pysftp
-
+from sqlalchemy.sql import select, func
+from sqlalchemy import create_engine
 from qgis.PyQt.QtWidgets import QApplication, QDialog, QMessageBox, QFileDialog,QLineEdit
 
 from qgis.PyQt.uic import loadUiType
@@ -34,7 +38,7 @@ from qgis.core import QgsApplication, QgsSettings, QgsProject
 from modules.db.pyarchinit_conn_strings import Connection
 from modules.db.pyarchinit_db_manager import Pyarchinit_db_management
 from modules.db.pyarchinit_db_update import DB_update
-from modules.db.db_createdump import CreateDatabase, RestoreSchema, DropDatabase
+from modules.db.db_createdump import CreateDatabase, RestoreSchema, DropDatabase, SchemaDump
 from modules.utility.pyarchinit_OS_utility import Pyarchinit_OS_Utility
 
 from modules.utility.pyarchinit_print_utility import Print_utility
@@ -297,7 +301,7 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
         
         conn = Connection()
         db_url = conn.conn_str()
-
+        #RestoreSchema(db_url,None).update_geom_srid( 'public','%d' % int(self.lineEdit_crs.text()))
         
         if RestoreSchema(db_url,view_file).restore_schema()== False:
             
@@ -307,61 +311,17 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
         
 
         
+    def load_spatialite(self,dbapi_conn, connection_record):
+        dbapi_conn.enable_load_extension(True)
         
+        if Pyarchinit_OS_Utility.isWindows()== True:
+            dbapi_conn.load_extension('mod_spatialite.dll')
+        else:
+            dbapi_conn.load_extension('mod_spatialite.so')
+    
     def on_pushButton_upd_sqlite_pressed(self):
        
-        view_file = os.path.join(os.path.dirname(__file__), os.pardir, 'resources', 'dbfiles',
-                                   'pyarchinit_update_sqlite.sql')
-        
-        view_file1 = os.path.join(os.path.dirname(__file__), os.pardir, 'resources', 'dbfiles',
-                                   '2.sql')
-        
-        view_file3 = os.path.join(os.path.dirname(__file__), os.pardir, 'resources', 'dbfiles',
-                                   '3.sql')
-        
-        view_file4 = os.path.join(os.path.dirname(__file__), os.pardir, 'resources', 'dbfiles',
-                                   '4.sql')
-        
-        view_file8_4= os.path.join(os.path.dirname(__file__), os.pardir, 'resources', 'dbfiles',
-                                   '8_4.sql')
-        
-        
-        view_file8= os.path.join(os.path.dirname(__file__), os.pardir, 'resources', 'dbfiles',
-                                   '8.sql')
-        
-        view_file8_1= os.path.join(os.path.dirname(__file__), os.pardir, 'resources', 'dbfiles',
-                                   '8_1.sql')
-        
-        
-        view_file8_2= os.path.join(os.path.dirname(__file__), os.pardir, 'resources', 'dbfiles',
-                                   '8_2.sql')
-        
-        
-        
-        
-        view_file8_3= os.path.join(os.path.dirname(__file__), os.pardir, 'resources', 'dbfiles',
-                                   '8_3.sql')
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        view_file5= os.path.join(os.path.dirname(__file__), os.pardir, 'resources', 'dbfiles',
-                                   '5.sql')
-                                   
-        view_file6= os.path.join(os.path.dirname(__file__), os.pardir, 'resources', 'dbfiles',
-                                   '6.sql')
-
-
-        view_file7= os.path.join(os.path.dirname(__file__), os.pardir, 'resources', 'dbfiles',
-                                   '7.sql')                        
+                             
         home_DB_path = '{}{}{}'.format(self.HOME, os.sep, 'pyarchinit_DB_folder')
 
         sl_name = '{}.sqlite'.format(self.lineEdit_dbname_sl.text())
@@ -369,94 +329,171 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
         
         conn = Connection()
         db_url = conn.conn_str()
+        
+        try:
+            engine = create_engine(db_url, echo=True)
 
-        
-        if RestoreSchema(db_url,view_file).restore_schema()== False:
+            listen(engine, 'connect', self.load_spatialite)
+            c = engine.connect()
+            sql_und = """CREATE TABLE IF NOT EXISTS"pyarchinit_us_negative_doc" (
+                "pkuid" integer PRIMARY KEY AUTOINCREMENT,
+                "sito_n" text,
+                "area_n" text,
+                "us_n" integer,
+                "tipo_doc_n" text,
+                "nome_doc_n" text, "the_geom" LINESTRING);"""
+            c.execute(sql_und)
+            c.execute(select([func.AddGeometryColumn('pyarchinit_us_negative_doc', 'the_geom', 4326, 'LINESTRING', 'XY')]))
+            c.execute(select([func.CreateSpatialIndex('pyarchinit_us_negative_doc', 'the_geom')]))
+            sql_doc = """CREATE TABLE IF NOT EXISTS"pyarchinit_documentazione" (
+                "pkuid" integer PRIMARY KEY AUTOINCREMENT,
+                "sito" text,
+                "nome_doc" text,
+                "tipo_doc" text,
+                "path_qgis_pj" text, "the_geom" LINESTRING);"""
+            c.execute(sql_doc)
+            c.execute(select([func.AddGeometryColumn('pyarchinit_documentazione', 'the_geom', 4326, 'LINESTRING', 'XY')]))
+            c.execute(select([func.CreateSpatialIndex('pyarchinit_documentazione', 'the_geom')]))
+                
+            sql_rep = """CREATE TABLE if not exists "pyarchinit_reperti" ("ROWIND" INTEGER PRIMARY KEY AUTOINCREMENT, "id_rep" INTEGER, "siti" TEXT, "link" TEXT);"""
+            c.execute(sql_rep)
+            #c.connect(db_path)
+            c.execute(select([func.AddGeometryColumn('pyarchinit_reperti', 'the_geom', 4326, 'POINT', 'XY')]))
+            c.execute(select([func.CreateSpatialIndex('pyarchinit_reperti', 'the_geom')]))
             
-            QMessageBox.warning(self, "INFO", "The DB exist already", QMessageBox.Ok)
-        else:
-            QMessageBox.warning(self, "INFO", "Updated", QMessageBox.Ok)    
+            sql_view_ndv="""CREATE VIEW IF NOT EXISTS"pyarchinit_us_negative_doc_view" AS
+                SELECT "a"."ROWID" AS "ROWID", "a"."pkuid" AS "pkuid",
+                "a"."sito_n" AS "sito_n", "a"."area_n" AS "area_n",
+                "a"."us_n" AS "us_n", "a"."tipo_doc_n" AS "tipo_doc_n",
+                "a"."nome_doc_n" AS "nome_doc_n", "a"."the_geom" AS "the_geom",
+                "b"."ROWID" AS "ROWID_1", "b"."id_us" AS "id_us",
+                "b"."sito" AS "sito", "b"."area" AS "area", "b"."us" AS "us",
+                "b"."d_stratigrafica" AS "d_stratigrafica", "b"."d_interpretativa" AS "d_interpretativa",
+                "b"."descrizione" AS "descrizione", "b"."interpretazione" AS "interpretazione",
+                "b"."periodo_iniziale" AS "periodo_iniziale", "b"."fase_iniziale" AS "fase_iniziale",
+                "b"."periodo_finale" AS "periodo_finale", "b"."fase_finale" AS "fase_finale",
+                "b"."scavato" AS "scavato", "b"."attivita" AS "attivita",
+                "b"."anno_scavo" AS "anno_scavo", "b"."metodo_di_scavo" AS "metodo_di_scavo",
+                "b"."inclusi" AS "inclusi", "b"."campioni" AS "campioni",
+                "b"."rapporti" AS "rapporti", "b"."data_schedatura" AS "data_schedatura",
+                "b"."schedatore" AS "schedatore", "b"."formazione" AS "formazione",
+                "b"."stato_di_conservazione" AS "stato_di_conservazione",
+                "b"."colore" AS "colore", "b"."consistenza" AS "consistenza",
+                "b"."struttura" AS "struttura", "b"."cont_per" AS "cont_per",
+                "b"."order_layer" AS "order_layer", "b"."documentazione" AS "documentazione"
+                FROM "pyarchinit_us_negative_doc" AS "a"
+                JOIN "us_table" AS "b" ON ("a"."sito_n" = "b"."sito" AND "a"."area_n" = "b"."area"
+                AND "a"."us_n" = "b"."us");"""
+            c.execute(sql_view_ndv)
+            sql_view_ndv_geom= """INSERT OR REPLACE INTO views_geometry_columns
+                    (view_name, view_geometry, view_rowid, f_table_name, f_geometry_column)
+                    VALUES ('pyarchinit_us_negative_doc_view', 'the_geom', 'ROWID', 'pyarchinit_us_negative_doc', 'the_geom')"""  
+            c.execute(sql_view_ndv_geom)
             
-        if RestoreSchema(db_url,view_file1).restore_schema()== False:
+            sql_doc_view= """CREATE VIEW IF NOT EXISTS"pyarchinit_doc_view" AS
+                    SELECT "a"."ROWID" AS "ROWID", "a"."id_documentazione" AS "id_documentazione",
+                    "a"."sito" AS "sito", "a"."nome_doc" AS "nome_doc",
+                    "a"."data" AS "data", "a"."tipo_documentazione" AS "tipo_documentazione",
+                    "a"."sorgente" AS "sorgente", "a"."scala" AS "scala",
+                    "a"."disegnatore" AS "disegnatore", "a"."note" AS "note",
+                    "b"."ROWID" AS "ROWID_1", "b"."pkuid" AS "pkuid",
+                    "b"."sito" AS "sito_1", "b"."nome_doc" AS "nome_doc_1",
+                    "b"."tipo_doc" AS "tipo_doc", "b"."path_qgis_pj" AS "path_qgis_pj",
+                    "b"."the_geom" AS "the_geom"
+                    FROM "documentazione_table" AS "a"
+                    JOIN "pyarchinit_documentazione" AS "b" ON ("a"."sito" = "b"."sito" AND "a"."nome_doc" = "b"."nome_doc"
+                    AND "a"."tipo_documentazione" = "b"."tipo_doc");"""
+            c.execute(sql_doc_view)
+            sql_view_doc_geom ="""INSERT OR REPLACE INTO views_geometry_columns
+                    (view_name, view_geometry, view_rowid, f_table_name, f_geometry_column)
+                    VALUES ('pyarchinit_doc_view', 'the_geom', 'rowid', 'pyarchinit_documentazione', 'the_geom')"""
+            c.execute(sql_view_doc_geom)
             
-            QMessageBox.warning(self, "INFO", "The DB exist already", QMessageBox.Ok)
+            sql_drop_view= """DROP view if EXISTS mediaentity_view;"""
+            c.execute(sql_drop_view)
             
-        else:
-            QMessageBox.warning(self, "INFO", "Updated", QMessageBox.Ok)    
-        if RestoreSchema(db_url,view_file3).restore_schema()== False:
+            sql_alter= """alter table media_thumb_table rename to 'temp_media_thumb';"""
+            c.execute(sql_alter)
             
-            QMessageBox.warning(self, "INFO", "The DB exist already", QMessageBox.Ok)
+            sql_media_thumb="""CREATE TABLE media_thumb_table (id_media_thumb INTEGER NOT NULL, id_media INTEGER, mediatype TEXT, media_filename TEXT, media_thumb_filename TEXT, filetype VARCHAR(10), filepath TEXT, path_resize TEXT, PRIMARY KEY (id_media_thumb), CONSTRAINT "ID_media_thumb_unico" UNIQUE (media_thumb_filename) )"""
+            c.execute(sql_media_thumb)
             
-        else:
-            QMessageBox.warning(self, "INFO", "Updated", QMessageBox.Ok)    
-        
-        if RestoreSchema(db_url,view_file4).restore_schema()== False:
             
-            QMessageBox.warning(self, "INFO", "The DB exist already", QMessageBox.Ok)
+            sql_insert_media_thumb="""INSERT INTO media_thumb_table(id_media_thumb, id_media , mediatype , media_filename, media_thumb_filename , filetype , filepath) SELECT id_media_thumb, id_media , mediatype , media_filename, media_thumb_filename , filetype , filepath FROM temp_media_thumb;"""
+            c.execute(sql_insert_media_thumb)
             
-        else:
-            QMessageBox.warning(self, "INFO", "Updated", QMessageBox.Ok)    
-        
-        if RestoreSchema(db_url,view_file8_4).restore_schema()== False:
             
-            QMessageBox.warning(self, "INFO", "The DB exist already", QMessageBox.Ok)
+            sql_drop_temp="""DROP TABLE temp_media_thumb;"""
+            c.execute(sql_drop_temp)
             
-        else:
-            QMessageBox.warning(self, "INFO", "Updated", QMessageBox.Ok)
-        
-        if RestoreSchema(db_url,view_file8).restore_schema()== False:
             
-            QMessageBox.warning(self, "INFO", "The DB exist already", QMessageBox.Ok)
+            sql_view_mediaentity="""CREATE VIEW IF NOT EXISTS "mediaentity_view" AS
+                 SELECT media_thumb_table.id_media_thumb,
+                    media_thumb_table.id_media,
+                    media_thumb_table.filepath,
+                    media_thumb_table.path_resize,
+                    media_to_entity_table.entity_type,
+                    media_to_entity_table.id_media AS id_media_m,
+                    media_to_entity_table.id_entity
+                   FROM media_thumb_table
+                     JOIN media_to_entity_table ON (media_thumb_table.id_media = media_to_entity_table.id_media)
+                  ORDER BY media_to_entity_table.id_entity;"""
+            c.execute(sql_view_mediaentity)
             
-        else:
-            QMessageBox.warning(self, "INFO", "Updated", QMessageBox.Ok)   
-        
-        
-        if RestoreSchema(db_url,view_file8_1).restore_schema()== False:
-            
-            QMessageBox.warning(self, "INFO", "The DB exist already", QMessageBox.Ok)
-            
-        else:
-            QMessageBox.warning(self, "INFO", "Updated", QMessageBox.Ok) 
-        
-        
-        if RestoreSchema(db_url,view_file8_2).restore_schema()== False:
-            
-            QMessageBox.warning(self, "INFO", "The DB exist already", QMessageBox.Ok)
-            
-        else:
-            QMessageBox.warning(self, "INFO", "Updated", QMessageBox.Ok) 
-        
-        
-        if RestoreSchema(db_url,view_file8_3).restore_schema()== False:
-            
-            QMessageBox.warning(self, "INFO", "The DB exist already", QMessageBox.Ok)
-            
-        else:
-            QMessageBox.warning(self, "INFO", "Updated", QMessageBox.Ok) 
-        
-        
-        
-        if RestoreSchema(db_url,view_file5).restore_schema()== False:
-            
-            QMessageBox.warning(self, "INFO", "The DB exist already", QMessageBox.Ok)
-            
-        else:
-            QMessageBox.warning(self, "INFO", "Updated", QMessageBox.Ok) 
+            sql_trigger_delete_media= """CREATE TRIGGER IF NOT EXISTS delete_media_table 
+                    After delete 
+                    ON media_thumb_table 
 
-        if RestoreSchema(db_url,view_file6).restore_schema()== False:
+                    BEGIN 
+                    DELETE from media_table 
+                    where id_media = OLD.id_media ; 
+                    END; """
+            c.execute(sql_trigger_delete_media)
             
-            QMessageBox.warning(self, "INFO", "The DB exist already", QMessageBox.Ok)
-            
-        else:
-            QMessageBox.warning(self, "INFO", "Updated", QMessageBox.Ok) 
+            sql_trigger_delete_mediaentity="""CREATE TRIGGER IF NOT EXISTS media_entity_delete 
+                After delete 
+                ON media_thumb_table 
 
-        if RestoreSchema(db_url,view_file7).restore_schema()== False:
+                BEGIN 
+                DELETE from media_to_entity_table 
+                where id_media = OLD.id_media ; 
+                END;"""
+            c.execute(sql_trigger_delete_mediaentity)
+            sql_view_rep="""CREATE VIEW if not exists "pyarchinit_reperti_view" AS
+                SELECT "a"."ROWID" AS "ROWID", "a"."ROWIND" AS "ROWIND",
+                    "a"."the_geom" AS "the_geom",
+                    "a"."id_rep" AS "id_rep", "a"."siti" AS "siti", "a"."link" AS "link",
+                    "b"."ROWID" AS "ROWID_1", "b"."id_invmat" AS "id_invmat",
+                    "b"."sito" AS "sito", "b"."numero_inventario" AS "numero_inventario",
+                    "b"."tipo_reperto" AS "tipo_reperto", "b"."criterio_schedatura" AS "criterio_schedatura",
+                    "b"."definizione" AS "definizione", "b"."descrizione" AS "descrizione",
+                    "b"."area" AS "area", "b"."us" AS "us", "b"."lavato" AS "lavato",
+                    "b"."nr_cassa" AS "nr_cassa", "b"."luogo_conservazione" AS "luogo_conservazione",
+                    "b"."stato_conservazione" AS "stato_conservazione",
+                    "b"."datazione_reperto" AS "datazione_reperto",
+                    "b"."elementi_reperto" AS "elementi_reperto", "b"."misurazioni" AS "misurazioni",
+                    "b"."rif_biblio" AS "rif_biblio", "b"."tecnologie" AS "tecnologie",
+                    "b"."forme_minime" AS "forme_minime", "b"."forme_massime" AS "forme_massime",
+                    "b"."totale_frammenti" AS "totale_frammenti", "b"."corpo_ceramico" AS "corpo_ceramico",
+                    "b"."rivestimento" AS "rivestimento"
+                FROM "pyarchinit_reperti" AS "a"
+                JOIN "inventario_materiali_table_toimp" AS "b" ON ("a"."siti" = "b"."sito" AND "a"."id_rep" = "b"."numero_inventario")"""
+            c.execute(sql_view_rep)
+            sql_view_rep_geom= """INSERT OR REPLACE INTO views_geometry_columns
+                    (view_name, view_geometry, view_rowid, f_table_name, f_geometry_column)
+                    VALUES ('pyarchinit_reperti_view', 'the_geom', 'rowid', 'pyarchinit_reperti', 'the_geom')"""  
+            c.execute(sql_view_rep_geom)
             
-            QMessageBox.warning(self, "INFO", "The DB exist already", QMessageBox.Ok)
             
-        else:
-            QMessageBox.warning(self, "INFO", "Updated", QMessageBox.Ok)    
+            
+            RestoreSchema(db_url,None).update_geom_srid_sl('%d' % int(self.lineEdit_crs.text()))
+            c.close()
+            QMessageBox.warning(self, "Message", "Update Done", QMessageBox.Ok)
+        except Exception as e:
+            QMessageBox.warning(self, "Update error", str(e), QMessageBox.Ok)
+        
+        
+            
     def on_pushButton_crea_database_sl_pressed(self):
         
         
