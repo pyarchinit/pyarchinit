@@ -316,8 +316,11 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
         
         if Pyarchinit_OS_Utility.isWindows()== True:
             dbapi_conn.load_extension('mod_spatialite.dll')
+        
+        elif Pyarchinit_OS_Utility.isMac()== True:
+            dbapi_conn.load_extension('mod_spatialite.dylib')
         else:
-            dbapi_conn.load_extension('mod_spatialite.so')
+            dbapi_conn.load_extension('mod_spatialite.so')  
     
     def on_pushButton_upd_sqlite_pressed(self):
        
