@@ -21,6 +21,7 @@
 import os
 import subprocess
 
+
 from graphviz import Digraph, Source
 from .pyarchinit_OS_utility import Pyarchinit_OS_Utility
 
@@ -32,8 +33,9 @@ class HarrisMatrix:
         self.sequence = sequence
         self.periodi = periodi
 
+    @property
     def export_matrix(self):
-        G = Digraph(engine='dot', strict=False)
+        G = Digraph(engine='neato', strict=False)
         G.graph_attr['splines'] = 'ortho'
         G.graph_attr['dpi'] = '300'
         elist = []
@@ -62,8 +64,8 @@ class HarrisMatrix:
         filename = 'Harris_matrix'
 
         G.format = 'dot'
-        dot_file = G.render(filename=filename, directory=matrix_path)
-
+        dot_file = G.render(directory=matrix_path, filename=filename)
+        
         # For MS-Windows, we need to hide the console window.
         if Pyarchinit_OS_Utility.isWindows():
             si = subprocess.STARTUPINFO()
@@ -75,11 +77,11 @@ class HarrisMatrix:
 
         with open(os.path.join(matrix_path, filename + '_tred.dot'), "w") as out, \
                 open(os.path.join(matrix_path, 'matrix_error.txt'), "w") as err:
-            subprocess.Popen(['tred', dot_file],
-                             shell=False,
+            subprocess.Popen(['tred',dot_file],
+                             #shell=True,
                              stdout=out,
-                             stderr=err,
-                             startupinfo=si if Pyarchinit_OS_Utility.isWindows()else None)
+                             stderr=err)
+                             #startupinfo=si if Pyarchinit_OS_Utility.isWindows()else None)
 
         tred_file = os.path.join(matrix_path, filename + '_tred.dot')
         g = Source.from_file(tred_file, format='svg')
