@@ -63,7 +63,7 @@ class HarrisMatrix:
         matrix_path = '{}{}{}'.format(self.HOME, os.sep, "pyarchinit_Matrix_folder")
         filename = 'Harris_matrix'
 
-        G.format = 'dot'
+        G.format = 'xdot'
         dot_file = G.render(directory=matrix_path, filename=filename)
         
         # For MS-Windows, we need to hide the console window.
