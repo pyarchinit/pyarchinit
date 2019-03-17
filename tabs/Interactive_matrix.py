@@ -142,7 +142,7 @@ class pyarchinit_Interactive_Matrix(QDialog, MAIN_DIALOG_CLASS):
             clust_number += 1
 
         matrix_exp = HarrisMatrix(data, periodi_us_list)
-        data_plotting = matrix_exp.export_matrix()
+        data_plotting = matrix_exp.export_matrix
         QMessageBox.warning(self, "Messaggio", "Exportation complited", QMessageBox.Ok)
 
         return data_plotting

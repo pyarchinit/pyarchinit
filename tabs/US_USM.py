@@ -3260,15 +3260,15 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
                         report = '\bSito: %s, \bArea: %s, \bUS: %d - %s: lo strato %s US: %d: ' % (
                             sito, area, int(us), def_stratigrafica, sing_rapp[0], int(sing_rapp[1]))
 
-                if def_stratigrafica.find('Riempimento') >= 0:  # Paradosso riempimentiche tagliano o si legano
-                    if sing_rapp[0] == 'Taglia' or sing_rapp[0] == 'Si lega a':
-                        report = '\bSito: %s, \bArea: %s, \bUS: %d - %s: lo strato %s US: %d: ' % (
-                            sito, area, int(us), def_stratigrafica, sing_rapp[0], int(sing_rapp[1]))
+                # if def_stratigrafica.find('Riempimento') >= 0:  # Paradosso riempimentiche tagliano o si legano
+                    # if sing_rapp[0] == 'Taglia' or sing_rapp[0] == 'Si lega a':
+                        # report = '\bSito: %s, \bArea: %s, \bUS: %d - %s: lo strato %s US: %d: ' % (
+                            # sito, area, int(us), def_stratigrafica, sing_rapp[0], int(sing_rapp[1]))
                 if report != "":
                     report_rapporti = report_rapporti + report + '\n'
                 
                 #versione inglese
-                if def_stratigrafica.find('Stratum') >= 0:  # Paradosso strati che tagliano o si legano
+                elif def_stratigrafica.find('Stratum') >= 0:  # Paradosso strati che tagliano o si legano
                     if sing_rapp[0] == 'Cut' or sing_rapp[0] == 'Connected to':
                         report = '\bSite: %s, \bArea: %s, \bSU: %d - %s: the stratum %s SU: %d: ' % (
                             sito, area, int(us), def_stratigrafica, sing_rapp[0], int(sing_rapp[1]))
@@ -3278,15 +3278,15 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
                         report = '\bSite: %s, \bArea: %s, \bSU: %d - %s: the startum %s SU: %d: ' % (
                             sito, area, int(us), def_stratigrafica, sing_rapp[0], int(sing_rapp[1]))
 
-                if def_stratigrafica.find('Filling') >= 0:  # Paradosso riempimentiche tagliano o si legano
-                    if sing_rapp[0] == 'Cut' or sing_rapp[0] == 'Connected to':
-                        report = '\bSite: %s, \bArea: %s, \bSU: %d - %s: the stratum %s SU: %d: ' % (
-                            sito, area, int(us), def_stratigrafica, sing_rapp[0], int(sing_rapp[1]))
+                # if def_stratigrafica.find('Filling') >= 0:  # Paradosso riempimentiche tagliano o si legano
+                    # if sing_rapp[0] == 'Cut' or sing_rapp[0] == 'Connected to':
+                        # report = '\bSite: %s, \bArea: %s, \bSU: %d - %s: the stratum %s SU: %d: ' % (
+                            # sito, area, int(us), def_stratigrafica, sing_rapp[0], int(sing_rapp[1]))
                 if report != "":
                     report_rapporti = report_rapporti + report + '\n'
                     
                 #versione tedesca   
-                if def_stratigrafica.find('Stratum') >= 0:  # Paradosso strati che tagliano o si legano
+                elif def_stratigrafica.find('Stratum') >= 0:  # Paradosso strati che tagliano o si legano
                     if sing_rapp[0] == 'Schneidet' or sing_rapp[0] == 'Bindet an':
                         report = '\bSito: %s, \bArea: %s, \bSE: %d - %s: die startum %s US: %d: ' % (
                             sito, area, int(us), def_stratigrafica, sing_rapp[0], int(sing_rapp[1]))
@@ -3296,10 +3296,10 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
                         report = '\bSito: %s, \bArea: %s, \bSE: %d - %s: die stratum %s US: %d: ' % (
                             sito, area, int(us), def_stratigrafica, sing_rapp[0], int(sing_rapp[1]))
 
-                if def_stratigrafica.find('Verfullüng') >= 0:  # Paradosso riempimentiche tagliano o si legano
-                    if sing_rapp[0] == 'Schneidet' or sing_rapp[0] == 'Bindet an':
-                        report = '\bSito: %s, \bArea: %s, \bSE: %d - %s: die startum %s US: %d: ' % (
-                            sito, area, int(us), def_stratigrafica, sing_rapp[0], int(sing_rapp[1]))
+                # if def_stratigrafica.find('Verfullüng') >= 0:  # Paradosso riempimentiche tagliano o si legano
+                    # if sing_rapp[0] == 'Schneidet' or sing_rapp[0] == 'Bindet an':
+                        # report = '\bSito: %s, \bArea: %s, \bSE: %d - %s: die startum %s US: %d: ' % (
+                            # sito, area, int(us), def_stratigrafica, sing_rapp[0], int(sing_rapp[1]))
                 if report != "":
                     report_rapporti = report_rapporti + report + '\n'   
                     
@@ -3313,7 +3313,7 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
             filename = '{}{}{}'.format(report_path, os.sep, 'def_strat_a_rapporti_US.txt')
         elif self.L=='de':
             filename = '{}{}{}'.format(report_path, os.sep, 'def_strat_to_SE relation.txt')
-        else:
+        elif self.L=='en':
             filename = '{}{}{}'.format(report_path, os.sep, 'strat_def_to_SU relation.txt') 
         f = open(filename, "w")
         f.write(report_rapporti)
@@ -3931,7 +3931,7 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
             QMessageBox.warning(self, "Attenzione", "Codice periodo aggiornato per lo scavo %s" % (sito), QMessageBox.Ok)
         elif self.L=='de':
             QMessageBox.warning(self, "Achtung", "Der Zeitstellungscode wurde für die Ausgrabung hochgeladen %s" % (sito), QMessageBox.Ok)
-        else:   
+        elif self.L=='en':   
             QMessageBox.warning(self, "Attention", "Updated period code for excavation %s" % (sito), QMessageBox.Ok)
     def on_pushButton_search_go_pressed(self):
         if self.BROWSE_STATUS != "f":
