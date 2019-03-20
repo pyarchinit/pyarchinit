@@ -4530,16 +4530,16 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
         self.comboBox_modo_formazione.setEditText("")  # 62 modo formazione
         #self.comboBox_componenti_organici.setEditText("")  # 63 componenti organici
         #self.comboBox_componenti_inorganici.setEditText("")  # 64 componenti inorganici
-        self.lineEdit_lunghezza_max.text()  # 65
-        self.lineEdit_altezza_max.text()  # 66
-        self.lineEdit_altezza_min.text()  # 67
-        self.lineEdit_profondita_max.text()  # 68
-        self.lineEdit_profondita_min.text()  # 69
-        self.lineEdit_larghezza_media.text()  # 70
-        self.lineEdit_quota_max_abs.text()  # 71
-        self.lineEdit_quota_max_rel.text()  # 72
-        self.lineEdit_quota_min_abs.text()  # 73
-        self.lineEdit_quota_min_rel.text()  # 74
+        self.lineEdit_lunghezza_max.clear()  # 65
+        self.lineEdit_altezza_max.clear()  # 66
+        self.lineEdit_altezza_min.clear()  # 67
+        self.lineEdit_profondita_max.clear()  # 68
+        self.lineEdit_profondita_min.clear()  # 69
+        self.lineEdit_larghezza_media.clear()  # 70
+        self.lineEdit_quota_max_abs.clear()  # 71
+        self.lineEdit_quota_max_rel.clear()  # 72
+        self.lineEdit_quota_min_abs.clear()  # 73
+        self.lineEdit_quota_min_rel.clear()  # 74
         self.textEdit_osservazioni.clear()  # 75 osservazioni
         self.lineEdit_datazione.clear()  # 76 datazione
         self.lineEdit_flottazione.clear()  # 77 flottazione
@@ -4550,9 +4550,9 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
         self.lineEdit_cod_ente_schedatore.clear()  # 82 cod ente schedatore
         self.lineEdit_data_rilevazione.clear()  # 83 data rilevazione
         self.lineEdit_data_rielaborazione.clear()  # 84 data rielaborazione
-        self.lineEdit_lunghezza_usm.text()  # 85
-        self.lineEdit_altezza_usm.text()  # 86
-        self.lineEdit_spessore_usm.text()  # 87
+        self.lineEdit_lunghezza_usm.clear()  # 85
+        self.lineEdit_altezza_usm.clear()  # 86
+        self.lineEdit_spessore_usm.clear()  # 87
         self.lineEdit_tecnica_muraria_usm.clear()  # 88 tecnica muraria usm
         self.lineEdit_modulo_usm.clear()  # 89 modulo usm
         self.lineEdit_campioni_malta_usm.clear()  # 90 campioni malta usm
