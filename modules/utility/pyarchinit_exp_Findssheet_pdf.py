@@ -519,10 +519,9 @@ class single_Finds_pdf_sheet(object):
             [misurazioni, '01', '02', '03', '04', '05', '06', '07', '08', '09'],  # 7 row ok
             [tecnologie, '01', '02', '03', '04', '05', '06', '07', '08', '09'],  # 8 row ok
             [rif_biblio, '01', '02', '03', '04', '05', '06', '07', '08', '09'],  # 9 row ok
-            [riferimenti_stratigrafici, '02', '03', '04', '05', '06', '07', '08', '09'],  # 10 row ok
-            [repertato, '01', '02', diagnostico, '04', '05', '06', '07', '08', '09'],  # 11 row ok
-            [riferimenti_magazzino, '01', '02', '03', '04', '05', '06', '07', '08', '09'],  # 12 row ok
-            [lavato, '01', '02', nr_cassa, '04', '05', luogo_conservazione, '07', '08', '09']  # 13 row ok
+            [repertato, '01', '02', diagnostico, '04', '05', '06', '07', '08', '09'],  # 10 row ok
+            [riferimenti_magazzino, '01', '02', '03', '04', '05', '06', '07', '08', '09'],  # 11 row ok
+            [lavato, '01', '02', nr_cassa, '04', '05', luogo_conservazione, '07', '08', '09']  # 12 row ok
         ]
 
         # table style
@@ -570,19 +569,16 @@ class single_Finds_pdf_sheet(object):
             ('SPAN', (0, 9), (9, 9)),  # bibliografia
 
             # 10 row
-            ('SPAN', (0, 10), (9, 10)),  # Riferimenti stratigrafici - Titolo
+            ('SPAN', (0, 10), (2, 10)),  # Repertato Diagnostico
+            ('SPAN', (3, 10), (9, 10)),   # Repertato Diagnostico
 
             # 11 row
-            ('SPAN', (0, 11), (2, 11)),  # Riferimenti stratigrafici - area
-            ('SPAN', (3, 11), (9, 11)),  # Riferimenti stratigrafici - us
+            ('SPAN', (0, 11), (9, 11)),  # Riferimenti magazzino - Titolo
 
             # 12 row
-            ('SPAN', (0, 12), (9, 12)),  # Riferimenti magazzino - Titolo
-
-            # 13 row
-            ('SPAN', (0, 13), (2, 13)),  # Riferimenti magazzino - lavato
-            ('SPAN', (3, 13), (5, 13)),  # Riferimenti magazzino - nr_cassa
-            ('SPAN', (6, 13), (9, 13)),  # Riferimenti magazzino - luogo conservazione
+            ('SPAN', (0, 12), (2, 12)),  # Riferimenti magazzino - lavato
+            ('SPAN', (3, 12), (5, 12)),  # Riferimenti magazzino - nr_cassa
+            ('SPAN', (6, 12), (9, 12)),  # Riferimenti magazzino - luogo conservazione
 
             ('VALIGN', (0, 0), (-1, -1), 'TOP')
 
@@ -746,10 +742,9 @@ class single_Finds_pdf_sheet(object):
             [misurazioni, '01', '02', '03', '04', '05', '06', '07', '08', '09'],  # 7 row ok
             [tecnologie, '01', '02', '03', '04', '05', '06', '07', '08', '09'],  # 8 row ok
             [rif_biblio, '01', '02', '03', '04', '05', '06', '07', '08', '09'],  # 9 row ok
-            [riferimenti_stratigrafici, '02', '03', '04', '05', '06', '07', '08', '09'],  # 10 row ok
-            [repertato, '01', '02', diagnostico, '04', '05', '06', '07', '08', '09'],  # 11 row ok
-            [riferimenti_magazzino, '01', '02', '03', '04', '05', '06', '07', '08', '09'],  # 12 row ok
-            [lavato, '01', '02', nr_cassa, '04', '05', luogo_conservazione, '07', '08', '09']  # 13 row ok
+            [repertato, '01', '02', diagnostico, '04', '05', '06', '07', '08', '09'],  # 10 row ok
+            [riferimenti_magazzino, '01', '02', '03', '04', '05', '06', '07', '08', '09'],  # 11 row ok
+            [lavato, '01', '02', nr_cassa, '04', '05', luogo_conservazione, '07', '08', '09']  # 12 row ok
         ]
 
         # table style
@@ -797,19 +792,16 @@ class single_Finds_pdf_sheet(object):
             ('SPAN', (0, 9), (9, 9)),  # bibliografia
 
             # 10 row
-            ('SPAN', (0, 10), (9, 10)),  # Riferimenti stratigrafici - Titolo
+            ('SPAN', (0, 10), (2, 10)),  # Repertato Diagnostico
+            ('SPAN', (3, 10), (9, 10)),   # Repertato Diagnostico
 
             # 11 row
-            ('SPAN', (0, 11), (2, 11)),  # Riferimenti stratigrafici - area
-            ('SPAN', (3, 11), (9, 11)),  # Riferimenti stratigrafici - us
+            ('SPAN', (0, 11), (9, 11)),  # Riferimenti magazzino - Titolo
 
             # 12 row
-            ('SPAN', (0, 12), (9, 12)),  # Riferimenti magazzino - Titolo
-
-            # 13 row
-            ('SPAN', (0, 13), (2, 13)),  # Riferimenti magazzino - lavato
-            ('SPAN', (3, 13), (5, 13)),  # Riferimenti magazzino - nr_cassa
-            ('SPAN', (6, 13), (9, 13)),  # Riferimenti magazzino - luogo conservazione
+            ('SPAN', (0, 12), (2, 12)),  # Riferimenti magazzino - lavato
+            ('SPAN', (3, 12), (5, 12)),  # Riferimenti magazzino - nr_cassa
+            ('SPAN', (6, 12), (9, 12)),  # Riferimenti magazzino - luogo conservazione
 
             ('VALIGN', (0, 0), (-1, -1), 'TOP')
 
