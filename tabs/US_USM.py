@@ -1189,7 +1189,7 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
             self.delegateRS.def_editable('False')
             self.tableWidget_rapporti.setItemDelegateForColumn(0,self.delegateRS)
         elif self.L=='en':
-            valuesRS = ["Same as", "Connected to", "Covers", "Covered by", "Fills", "Filled by", "Cuts", "Cut by", "Abuts", "Supports", ""]
+            valuesRS = ["Same as", "Connected to", "Covers", "Covered by", "Fills", "Filled by", "Cuts", "Cutted by", "Abuts", "Supports", ""]
             self.delegateRS = ComboBoxDelegate()
             self.delegateRS.def_values(valuesRS)
             self.delegateRS.def_editable('False')
@@ -1201,7 +1201,7 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
             self.delegateRS.def_editable('False')
             self.tableWidget_rapporti.setItemDelegateForColumn(0,self.delegateRS)
         else:
-            valuesRS = ["Same as", "Connected to", "Covers", "Covered by", "Fills", "Filled by", "Cuts", "Cut by", "Abuts", "Supports", ""]
+            valuesRS = ["Same as", "Connected to", "Covers", "Covered by", "Fills", "Filled by", "Cuts", "Cutted by", "Abuts", "Supports", ""]
             self.delegateRS = ComboBoxDelegate()
             self.delegateRS.def_values(valuesRS)
             self.delegateRS.def_editable('False')
@@ -3089,8 +3089,8 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
                            'Covered by': 'Covers',
                            'Fills': 'Filled by',
                            'Filled by':'Fills', 
-                           'Cuts': 'Cut by',
-                           'Cut by': 'Cuts',
+                           'Cuts': 'Cutted by',
+                           'Cutted by': 'Cuts',
                            'Abuts': 'Supports',
                            'Supports': 'Abuts', 
                            'Connected to': 'Connected to',
@@ -3195,8 +3195,8 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
                            'Covered by': 'Covers',
                            'Fills': 'Filled by',
                            'Filled by':'Fills', 
-                           'Cuts': 'Cut by',
-                           'Cut by': 'Cuts',
+                           'Cuts': 'Cutted by',
+                           'Cutted by': 'Cuts',
                            'Abuts': 'Supports',
                            'Supports': 'Abuts', 
                            'Connected to': 'Connected to',
