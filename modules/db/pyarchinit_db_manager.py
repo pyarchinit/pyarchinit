@@ -1243,8 +1243,8 @@ class Pyarchinit_db_management(object):
                 # MyModel.query.filter(sqlalchemy.not_(Mymodel.name.contains('a_string')))
         elif l=='en':
             res = session.query(US).filter_by(sito=sitof).filter_by(area=areaf).filter(
-                and_(~US.rapporti.like("%'Cut'%"), ~US.rapporti.like("%'Abuts'%"),
-                     ~US.rapporti.like("%'Cover'%"), ~US.rapporti.like("%'Fill'%")))
+                and_(~US.rapporti.like("%'Cuts'%"), ~US.rapporti.like("%'Abuts'%"),
+                     ~US.rapporti.like("%'Covers'%"), ~US.rapporti.like("%'Fills'%")))
             # MyModel.query.filter(sqlalchemy.not_(Mymodel.name.contains('a_string')))
         elif l=='de':
             res = session.query(US).filter_by(sito=sitof).filter_by(area=areaf).filter(
