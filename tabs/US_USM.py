@@ -3269,17 +3269,17 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
                 
                 #versione inglese
                 elif def_stratigrafica.find('Stratum') >= 0:  # Paradosso strati che tagliano o si legano
-                    if sing_rapp[0] == 'Cut' or sing_rapp[0] == 'Connected to':
+                    if sing_rapp[0] == 'Cuts' or sing_rapp[0] == 'Connected to':
                         report = '\bSite: %s, \bArea: %s, \bSU: %d - %s: the stratum %s SU: %d: ' % (
                             sito, area, int(us), def_stratigrafica, sing_rapp[0], int(sing_rapp[1]))
 
                 if def_stratigrafica.find('Filling') >= 0:  # Paradosso riempimentiche tagliano o si legano
-                    if sing_rapp[0] == 'Cut' or sing_rapp[0] == 'Connected to':
+                    if sing_rapp[0] == 'Cuts' or sing_rapp[0] == 'Connected to':
                         report = '\bSite: %s, \bArea: %s, \bSU: %d - %s: the startum %s SU: %d: ' % (
                             sito, area, int(us), def_stratigrafica, sing_rapp[0], int(sing_rapp[1]))
 
                 # if def_stratigrafica.find('Filling') >= 0:  # Paradosso riempimentiche tagliano o si legano
-                    # if sing_rapp[0] == 'Cut' or sing_rapp[0] == 'Connected to':
+                    # if sing_rapp[0] == 'Cuts' or sing_rapp[0] == 'Connected to':
                         # report = '\bSite: %s, \bArea: %s, \bSU: %d - %s: the stratum %s SU: %d: ' % (
                             # sito, area, int(us), def_stratigrafica, sing_rapp[0], int(sing_rapp[1]))
                 if report != "":
@@ -4762,7 +4762,7 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
             if self.toolButtonPreviewMedia.isChecked():
                 self.loadMediaPreview()
         except Exception as e:
-            QMessageBox.warning(self, "Errore Fill Fields", str(e), QMessageBox.Ok)
+            QMessageBox.warning(self, "Errore Fills Fields", str(e), QMessageBox.Ok)
 
     def set_rec_counter(self, t, c):
         self.rec_tot = t
