@@ -382,7 +382,7 @@ class single_US_pdf_sheet(object):
                     else:
                         self.uguale_a += ', ' + str(rapporto[1])
 
-                if rapporto[0] == 'Cover' or rapporto[0] == 'cover':
+                if rapporto[0] == 'Covers' or rapporto[0] == 'cover':
                     if self.copre == '':
                         self.copre += str(rapporto[1])
                     else:
@@ -394,7 +394,7 @@ class single_US_pdf_sheet(object):
                     else:
                         self.coperto_da += ', ' + str(rapporto[1])
 
-                if rapporto[0] == 'Fill' or rapporto[0] == 'fill':
+                if rapporto[0] == 'Fills' or rapporto[0] == 'fill':
                     if self.riempie == '':
                         self.riempie += str(rapporto[1])
                     else:
@@ -406,7 +406,7 @@ class single_US_pdf_sheet(object):
                     else:
                         self.riempito_da += ', ' + str(rapporto[1])
 
-                if rapporto[0] == 'Cut' or rapporto[0] == 'cut':
+                if rapporto[0] == 'Cuts' or rapporto[0] == 'cuts':
                     if self.taglia == '':
                         self.taglia += str(rapporto[1])
                     else:
@@ -1837,7 +1837,7 @@ class single_US_pdf_sheet(object):
         riempie = Paragraph("<b>FILLS</b><br/>" + self.riempie, styNormal)
         riempito_da = Paragraph("<b>FILLED BY</b><br/>" + self.riempito_da, styNormal)
         taglia = Paragraph("<b>CUTS</b><br/>" + self.taglia, styNormal)
-        tagliato_da = Paragraph("<b>CUT BY</b><br/>" + self.tagliato_da, styNormal)
+        tagliato_da = Paragraph("<b>CUTTED BY</b><br/>" + self.tagliato_da, styNormal)
         si_appoggia_a = Paragraph("<b>ABUTS</b><br/>" + self.si_appoggia_a, styNormal)
         gli_si_appoggia = Paragraph("<b>SUPPORT</b><br/>" + self.gli_si_appoggia, styNormal)
 
@@ -2585,7 +2585,7 @@ class US_index_pdf_sheet(object):
                     else:
                         self.uguale_a += ', ' + str(rapporto[1])
 
-                if rapporto[0] == 'Cover' or rapporto[0] == 'cover':
+                if rapporto[0] == 'Covers' or rapporto[0] == 'cover':
                     if self.copre == '':
                         self.copre += str(rapporto[1])
                     else:
@@ -2597,7 +2597,7 @@ class US_index_pdf_sheet(object):
                     else:
                         self.coperto_da += ', ' + str(rapporto[1])
 
-                if rapporto[0] == 'Fill' or rapporto[0] == 'fill':
+                if rapporto[0] == 'Fills' or rapporto[0] == 'fill':
                     if self.riempie == '':
                         self.riempie += str(rapporto[1])
                     else:
@@ -2609,7 +2609,7 @@ class US_index_pdf_sheet(object):
                     else:
                         self.riempito_da += ', ' + str(rapporto[1])
 
-                if rapporto[0] == 'Cut' or rapporto[0] == 'cut':
+                if rapporto[0] == 'Cuts' or rapporto[0] == 'cuts':
                     if self.taglia == '':
                         self.taglia += str(rapporto[1])
                     else:
@@ -2647,11 +2647,11 @@ class US_index_pdf_sheet(object):
         area = Paragraph("<b>Area</b><br/>" + str(self.area), styNormal)
         us = Paragraph("<b>SU</b><br/>" + str(self.us), styNormal)
         d_stratigrafica = Paragraph("<b>Def. Stratigr.</b><br/>" + str(self.d_stratigrafica), styNormal)
-        copre = Paragraph("<b>Cover</b><br/>" + str(self.copre), styNormal)
+        copre = Paragraph("<b>Covers</b><br/>" + str(self.copre), styNormal)
         coperto_da = Paragraph("<b>Covered by</b><br/>" + str(self.coperto_da), styNormal)
-        taglia = Paragraph("<b>Cut</b><br/>" + str(self.taglia), styNormal)
+        taglia = Paragraph("<b>Cuts</b><br/>" + str(self.taglia), styNormal)
         tagliato_da = Paragraph("<b>Cutted by</b><br/>" + str(self.tagliato_da), styNormal)
-        riempie = Paragraph("<b>Fill</b><br/>" + str(self.riempie), styNormal)
+        riempie = Paragraph("<b>Fills</b><br/>" + str(self.riempie), styNormal)
         riempito_da = Paragraph("<b>Filled by</b><br/>" + str(self.riempito_da), styNormal)
         si_appoggia_a = Paragraph("<b>Abuts</b><br/>" + str(self.si_appoggia_a), styNormal)
         gli_si_appoggia = Paragraph("<b>Support</b><br/>" + str(self.gli_si_appoggia), styNormal)
