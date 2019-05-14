@@ -1017,6 +1017,8 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
                     data_list_toimp[sing_rec].repertato,
                     data_list_toimp[sing_rec].diagnostico
                 )
+                self.DB_MANAGER_write.insert_data_session(data)
+                """
                 try:    
                     self.DB_MANAGER_write.insert_data_session(data)
                     QMessageBox.warning(self, "Pyarchinit", "Importazione completata",  QMessageBox.Ok)
@@ -1025,8 +1027,9 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
                     e_str = str(e)
                     #QMessageBox.warning(self, "Errore", "Attenzione 1 ! \n"+ str(e_str),  QMessageBox.Ok)
                     if e_str.__contains__("Integrity"):
-                        msg = "ID_sito_unico"+": gia' presente nel database"
+                        msg = "ID_reperto_unico"+": gia' presente nel database"
                         return 0
+                """
       
         if mapper_class_write == 'STRUTTURA' :
             for sing_rec in range(len(data_list_toimp)):
