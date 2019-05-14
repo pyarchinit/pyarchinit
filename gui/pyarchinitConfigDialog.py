@@ -708,10 +708,10 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
                 'DOCUMENTATION': 'id_documentazione'
             }       
         # creazione del cursore di lettura
-        if os.name == 'posix':
+        """if os.name == 'posix':
             home = os.environ['HOME']
         elif os.name == 'nt':
-            home = os.environ['HOMEPATH']
+            home = os.environ['HOMEPATH']"""
         ####RICAVA I DATI IN LETTURA PER LA CONNESSIONE DALLA GUI
         conn_str_dict_read = {
             "server": str(self.comboBox_server_rd.currentText()),
@@ -734,7 +734,7 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
                     conn_str_dict_read["host"],
                     conn_str_dict_read["port"], conn_str_dict_read["db_name"])
         elif conn_str_dict_read["server"] == 'sqlite':
-            sqlite_DB_path = '{}{}{}'.format(home, os.sep,
+            sqlite_DB_path = '{}{}{}'.format(self.HOME, os.sep,
                                              "pyarchinit_DB_folder")  # "C:\\Users\\Windows\\Dropbox\\pyarchinit_san_marco\\" fare modifiche anche in pyarchinit_pyqgis
             dbname_abs = sqlite_DB_path + os.sep + conn_str_dict_read["db_name"]
             conn_str_read = "%s:///%s" % (conn_str_dict_read["server"], dbname_abs)
@@ -744,12 +744,13 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
         test = self.DB_MANAGER_read.connection()
         if test:
             QMessageBox.warning(self, "Message", "Connection ok", QMessageBox.Ok)
-        elif test.find("create_engine") != -1:
-            QMessageBox.warning(self, "Alert",
-                                "Try connection parameter. <br> If they are correct restart QGIS",
-                                QMessageBox.Ok)
         else:
-            QMessageBox.warning(self, "Alert", "Connection error: <br>" + test, QMessageBox.Ok)
+            QMessageBox.warning(self, "Alert", "Connection error: <br>", QMessageBox.Ok)
+        """elif test.find("create_engine") != -1:
+            #QMessageBox.warning(self, "Alert",
+                                "Try connection parameter. <br> If they are correct restart QGIS",
+                                QMessageBox.Ok)"""
+
 
         ####LEGGE I RECORD IN BASE AL PARAMETRO CAMPO=VALORE
         search_dict = {
@@ -788,7 +789,7 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
                     conn_str_dict_write["host"],
                     int(conn_str_dict_write["port"]), conn_str_dict_write["db_name"])
         elif conn_str_dict_write["server"] == 'sqlite':
-            sqlite_DB_path = '{}{}{}'.format(home, os.sep,
+            sqlite_DB_path = '{}{}{}'.format(self.HOME, os.sep,
                                              "pyarchinit_DB_folder")  # "C:\\Users\\Windows\\Dropbox\\pyarchinit_san_marco\\" fare modifiche anche in pyarchinit_pyqgis
             dbname_abs = sqlite_DB_path + os.sep + conn_str_dict_write["db_name"]
             conn_str_write = "%s:///%s" % (conn_str_dict_write["server"], dbname_abs)
@@ -944,8 +945,10 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
                     data_list_toimp[sing_rec].criteri_distinzione_usm,
                     data_list_toimp[sing_rec].uso_primario_usm
                 )
+                self.DB_MANAGER_write.insert_data_session(data)
+                """
                 try:    
-                    self.DB_MANAGER_write.insert_data_session(data)
+                    
                     QMessageBox.warning(self, "Pyarchinit", "Importazione completata",  QMessageBox.Ok)
                     return 1
                 except Exception as  e:
@@ -954,6 +957,7 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
                     if e_str.__contains__("Integrity"):
                         msg = "ID_sito_unico"+": gia' presente nel database"
                         return 0
+                """
         if mapper_class_write == 'PERIODIZZAZIONE' :
             for sing_rec in range(len(data_list_toimp)):
                 data = self.DB_MANAGER_write.insert_periodizzazione_values(
@@ -1306,6 +1310,7 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
                     return 1
                 except Exception as  e:
                     e_str = str(e)
+
                     #QMessageBox.warning(self, "Errore", "Attenzione 1 ! \n"+ str(e_str),  QMessageBox.Ok)
                     if e_str.__contains__("Integrity"):
                         msg = "ID_sito_unico"+": gia' presente nel database"
