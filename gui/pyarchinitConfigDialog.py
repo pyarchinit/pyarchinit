@@ -20,9 +20,10 @@
 """
 from __future__ import absolute_import
 
+
 import os
 import sqlite3
-
+import time
 from sqlalchemy.event import listen
 
 from builtins import range
@@ -30,7 +31,8 @@ from builtins import str
 import pysftp
 from sqlalchemy.sql import select, func
 from sqlalchemy import create_engine
-from qgis.PyQt.QtWidgets import QApplication, QDialog, QMessageBox, QFileDialog,QLineEdit
+from qgis.PyQt.QtCore import  pyqtSlot, pyqtSignal,QThread
+from qgis.PyQt.QtWidgets import QApplication, QDialog, QMessageBox, QFileDialog,QLineEdit,QWidget
 
 from qgis.PyQt.uic import loadUiType
 from qgis.core import QgsApplication, QgsSettings, QgsProject
@@ -45,8 +47,11 @@ from modules.utility.pyarchinit_print_utility import Print_utility
 MAIN_DIALOG_CLASS, _ = loadUiType(os.path.join(os.path.dirname(__file__), 'ui', 'pyarchinitConfigDialog.ui'))
 
 
+
+
+
 class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
-    
+    progressBarUpdated = pyqtSignal(int,int)
     L=QgsSettings().value("locale/userLocale")[0:2]
     
     HOME = os.environ['PYARCHINIT_HOME']
@@ -79,7 +84,7 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
         self.pbnSaveEnvironPath.clicked.connect(self.setEnvironPath)
         self.pushButtonR.clicked.connect(self.setPathR)
         self.pbnSaveEnvironPathR.clicked.connect(self.setEnvironPathR)
-        
+        #self.progress_bar.setTextVisible(True)
         self.graphviz_bin = s.value('pyArchInit/graphvizBinPath', None, type=str)
         if self.graphviz_bin:
             self.lineEditGraphviz.setText(self.graphviz_bin)
@@ -550,59 +555,7 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
     
     
     
-    # def on_pushButton_crea_layer_pressed(self):
-        # import time
-        # try:
-            # qgis_dir = QgsApplication.qgisSettingsDirPath()
-            # module_path_rel = os.path.join(os.sep, 'python', 'plugins', 'pyarchinit', 'modules', 'utility',
-                                           # 'dbfiles', 'pyarchinit_postgis15_empty.dump')
-            # module_path = '{}{}'.format(qgis_dir, module_path_rel)
-            # postgis15 = os.popen(
-                # "pg_restore --host localhost --port %s --username postgres --dbname %s --role postgres --no-password  --verbose %s" % (
-                    # self.lineEdit_port_db.text(), self.lineEdit_dbname.text(), module_path))
-            # barra2 = self.pyarchinit_progressBar_template
-            # barra2.setMinimum(0)
-            # barra2.setMaximum(9)
-            # for a in range(10):
-                # time.sleep(1)
-                # barra2.setValue(a)
-            # QMessageBox.warning(self, "ok", "Installazione avvenuta con successo", QMessageBox.Ok)
-        # except Exception as e:
-            # QMessageBox.warning(self, "opss", "qualcosa non va" + str(e), QMessageBox.Ok)
-
-    # def on_pushButton_crea_layer_2_pressed(self):
-        # import time
-        # try:
-            # qgis_dir = QgsApplication.qgisSettingsDirPath()
-            # module_path_rel = os.path.join(os.sep, 'python', 'plugins', 'pyarchinit', 'modules', 'utility',
-                                           # 'dbfiles', 'pyarchinit_postgis20_empty.dump')
-            # module_path = '{}{}'.format(qgis_dir, module_path_rel)
-            # postgis15 = os.popen(
-                # "pg_restore --host localhost --port %s --username postgres --dbname %s --role postgres --no-password  --verbose %s" % (
-                    # self.lineEdit_port_db.text(), self.lineEdit_dbname.text(), module_path))
-            # barra2 = self.pyarchinit_progressBar_template
-            # barra2.setMinimum(0)
-            # barra2.setMaximum(9)
-            # for a in range(10):
-                # time.sleep(1)
-                # barra2.setValue(a)
-            # QMessageBox.warning(self, "ok", "Installazione avvenuta con successo", QMessageBox.Ok)
-        # except Exception as e:
-            # QMessageBox.warning(self, "opss", "qualcosa non va" + str(e), QMessageBox.Ok)
-
-    # def on_pushButton_crea_db_sqlite_pressed(self):
-        # try:
-            # conn = Connection()
-            # conn_str = conn.conn_str()
-            # self.DB_MANAGER = Pyarchinit_db_management(conn_str)
-            # self.DB_MANAGER.connection()
-            # self.DB_MANAGER.execute_sql_create_spatialite_db()
-        # except:
-            # QMessageBox.warning(self, "Alert",
-                                # "L'installazione e' fallita. Riavvia Qgis. Se l'errore persiste verifica che i layer non siano gia' installati oppure sia stia usando un db Postgres",
-                                # QMessageBox.Ok)
-        # else:
-            # QMessageBox.warning(self, "Alert", "L'installazione ha avuto successo!", QMessageBox.Ok)
+  
 
     def try_connection(self):
         conn = Connection()
@@ -615,10 +568,7 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
         if self.L=='it':
             if test:
                 QMessageBox.warning(self, "Messaggio", "Connessione avvenuta con successo", QMessageBox.Ok)
-            # elif test.find("create_engine") != -1:
-            #     QMessageBox.warning(self, "Alert",
-            #                         "Verifica i parametri di connessione. <br> Se sono corretti RIAVVIA QGIS",
-            #                         QMessageBox.Ok)
+           
             else:
                 QMessageBox.warning(self, "Alert", "Errore di connessione: <br>" +
                     "Cambia i parametri e riprova a connetterti. Se cambi server (Postgres o Sqlite) ricordati di cliccare su connetti e RIAVVIARE Qgis",
@@ -666,8 +616,13 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
     def test_def(self):
         pass
     
-    
+    def updateValue(self, data):
+        self.progress_bar.setValue(data)
+
+
     def on_pushButton_import_pressed(self):
+        
+        
         if self.L=='it':
             id_table_class_mapper_conv_dict = {
                 'SITE': 'id_sito',
@@ -795,275 +750,265 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
             conn_str_write = "%s:///%s" % (conn_str_dict_write["server"], dbname_abs)
             QMessageBox.warning(self, "Alert", str(conn_str_dict_write["db_name"]), QMessageBox.Ok)
         ####SI CONNETTE AL DATABASE IN SCRITTURA
-
+        
         self.DB_MANAGER_write = Pyarchinit_db_management(conn_str_write)
         test = self.DB_MANAGER_write.connection()
         test = str(test)
 
-        # if test:
-            # QMessageBox.warning(self, "Message", "Connection ok", QMessageBox.Ok)
-        # elif test.find("create_engine") != -1:
-            # QMessageBox.warning(self, "Alert",
-                                # "Try connection parameter. <br> If they are correct restart QGIS",
-                                # QMessageBox.Ok)
-        # else:
-            # QMessageBox.warning(self, "Alert", "Connection error: <br>" + test, QMessageBox.Ok)
-
+      
+        
         mapper_class_write = str(self.comboBox_mapper_read.currentText())
+        
+        
+
         ####inserisce i dati dentro al database
 
         ####SITE TABLE
         if mapper_class_write == 'SITE' :
+            
             for sing_rec in range(len(data_list_toimp)):
-                data = self.DB_MANAGER_write.insert_site_values(
-                    self.DB_MANAGER_write.max_num_id(mapper_class_write,
-                                                     id_table_class_mapper_conv_dict[mapper_class_write]) + 1,
-                    data_list_toimp[sing_rec].sito,
-                    data_list_toimp[sing_rec].nazione,
-                    data_list_toimp[sing_rec].regione,
-                    data_list_toimp[sing_rec].comune,
-                    data_list_toimp[sing_rec].descrizione,
-                    data_list_toimp[sing_rec].provincia,
-                    data_list_toimp[sing_rec].definizione_sito,
-                    data_list_toimp[sing_rec].sito_path,
-                    data_list_toimp[sing_rec].find_check)
-                    
-                try:    
+                
+                try:
+                    data = self.DB_MANAGER_write.insert_site_values(
+                        self.DB_MANAGER_write.max_num_id(mapper_class_write,
+                                                         id_table_class_mapper_conv_dict[mapper_class_write]) + 1,
+                        data_list_toimp[sing_rec].sito,
+                        data_list_toimp[sing_rec].nazione,
+                        data_list_toimp[sing_rec].regione,
+                        data_list_toimp[sing_rec].comune,
+                        data_list_toimp[sing_rec].descrizione,
+                        data_list_toimp[sing_rec].provincia,
+                        data_list_toimp[sing_rec].definizione_sito,
+                        data_list_toimp[sing_rec].sito_path,
+                        data_list_toimp[sing_rec].find_check)
+                        
+                   
                     self.DB_MANAGER_write.insert_data_session(data)
-                    QMessageBox.warning(self, "Pyarchinit", "Importazione completata",  QMessageBox.Ok)
-                    return 1
-                except Exception as  e:
-                    e_str = str(e)
-                    #QMessageBox.warning(self, "Errore", "Attenzione 1 ! \n"+ str(e_str),  QMessageBox.Ok)
-                    if e_str.__contains__("Integrity"):
-                        msg = 'id_sito'+": gia' presente nel database"
-                        return 0
+                    
+                except :
+                    
+                    QMessageBox.warning(self, "Errore", "Error ! \n"+ "duplicate key",  QMessageBox.Ok)
+                    return 0
                 ####PERIODIZZAZIONE TABLE
         
         #### US TABLE
         
         
         if  mapper_class_write == 'US':
+            
             for sing_rec in range(len(data_list_toimp)):
-                data = self.DB_MANAGER_write.insert_values(
-                    self.DB_MANAGER_write.max_num_id(mapper_class_write,
-                                                     id_table_class_mapper_conv_dict[mapper_class_write]) + 1,
-                    data_list_toimp[sing_rec].sito,
-                    data_list_toimp[sing_rec].area,
-                    data_list_toimp[sing_rec].us,
-                    data_list_toimp[sing_rec].d_stratigrafica,
-                    data_list_toimp[sing_rec].d_interpretativa,
-                    data_list_toimp[sing_rec].descrizione,
-                    data_list_toimp[sing_rec].interpretazione,
-                    data_list_toimp[sing_rec].periodo_iniziale,
-                    data_list_toimp[sing_rec].fase_iniziale,
-                    data_list_toimp[sing_rec].periodo_finale,
-                    data_list_toimp[sing_rec].fase_finale,
-                    data_list_toimp[sing_rec].scavato,
-                    data_list_toimp[sing_rec].attivita,
-                    data_list_toimp[sing_rec].anno_scavo,
-                    data_list_toimp[sing_rec].metodo_di_scavo,
-                    data_list_toimp[sing_rec].inclusi,
-                    data_list_toimp[sing_rec].campioni,
-                    data_list_toimp[sing_rec].rapporti,
-                    data_list_toimp[sing_rec].data_schedatura,
-                    data_list_toimp[sing_rec].schedatore,
-                    data_list_toimp[sing_rec].formazione,
-                    data_list_toimp[sing_rec].stato_di_conservazione,
-                    data_list_toimp[sing_rec].colore,
-                    data_list_toimp[sing_rec].consistenza,
-                    data_list_toimp[sing_rec].struttura,
-                    data_list_toimp[sing_rec].cont_per,
-                    data_list_toimp[sing_rec].order_layer,
-                    data_list_toimp[sing_rec].documentazione,
-                    data_list_toimp[sing_rec].unita_tipo,
-                    # campi aggiunti per USM
-                    data_list_toimp[sing_rec].settore,
-                    data_list_toimp[sing_rec].quad_par,
-                    data_list_toimp[sing_rec].ambient,
-                    data_list_toimp[sing_rec].saggio,
-                    data_list_toimp[sing_rec].elem_datanti,
-                    data_list_toimp[sing_rec].funz_statica,
-                    data_list_toimp[sing_rec].lavorazione,
-                    data_list_toimp[sing_rec].spess_giunti,
-                    data_list_toimp[sing_rec].letti_posa,
-                    data_list_toimp[sing_rec].alt_mod,
-                    data_list_toimp[sing_rec].un_ed_riass,
-                    data_list_toimp[sing_rec].reimp,
-                    data_list_toimp[sing_rec].posa_opera,
-                    data_list_toimp[sing_rec].quota_min_usm,
-                    data_list_toimp[sing_rec].quota_max_usm,
-                    data_list_toimp[sing_rec].cons_legante,
-                    data_list_toimp[sing_rec].col_legante,
-                    data_list_toimp[sing_rec].aggreg_legante,
-                    data_list_toimp[sing_rec].con_text_mat,
-                    data_list_toimp[sing_rec].col_materiale,
-                    data_list_toimp[sing_rec].inclusi_materiali_usm,
-                    data_list_toimp[sing_rec].n_catalogo_generale,
-                    data_list_toimp[sing_rec].n_catalogo_interno,
-                    data_list_toimp[sing_rec].n_catalogo_internazionale,
-                    data_list_toimp[sing_rec].soprintendenza,
-                    data_list_toimp[sing_rec].quota_relativa,
-                    data_list_toimp[sing_rec].quota_abs,
-                    data_list_toimp[sing_rec].ref_tm,
-                    data_list_toimp[sing_rec].ref_ra,
-                    data_list_toimp[sing_rec].ref_n,
-                    data_list_toimp[sing_rec].posizione,
-                    data_list_toimp[sing_rec].criteri_distinzione,
-                    data_list_toimp[sing_rec].modo_formazione,
-                    data_list_toimp[sing_rec].componenti_organici,
-                    data_list_toimp[sing_rec].componenti_inorganici,
-                    data_list_toimp[sing_rec].lunghezza_max,
-                    data_list_toimp[sing_rec].altezza_max,
-                    data_list_toimp[sing_rec].altezza_min,
-                    data_list_toimp[sing_rec].profondita_max,
-                    data_list_toimp[sing_rec].profondita_min,
-                    data_list_toimp[sing_rec].larghezza_media,
-                    data_list_toimp[sing_rec].quota_max_abs,
-                    data_list_toimp[sing_rec].quota_max_rel,
-                    data_list_toimp[sing_rec].quota_min_abs,
-                    data_list_toimp[sing_rec].quota_min_rel,
-                    data_list_toimp[sing_rec].osservazioni,
-                    data_list_toimp[sing_rec].datazione,
-                    data_list_toimp[sing_rec].flottazione,
-                    data_list_toimp[sing_rec].setacciatura,
-                    data_list_toimp[sing_rec].affidabilita,
-                    data_list_toimp[sing_rec].direttore_us,
-                    data_list_toimp[sing_rec].responsabile_us,
-                    data_list_toimp[sing_rec].cod_ente_schedatore,
-                    data_list_toimp[sing_rec].data_rilevazione,
-                    data_list_toimp[sing_rec].data_rielaborazione,
-                    data_list_toimp[sing_rec].lunghezza_usm,
-                    data_list_toimp[sing_rec].altezza_usm,
-                    data_list_toimp[sing_rec].spessore_usm,
-                    data_list_toimp[sing_rec].tecnica_muraria_usm,
-                    data_list_toimp[sing_rec].modulo_usm,
-                    data_list_toimp[sing_rec].campioni_malta_usm,
-                    data_list_toimp[sing_rec].campioni_mattone_usm,
-                    data_list_toimp[sing_rec].campioni_pietra_usm,
-                    data_list_toimp[sing_rec].provenienza_materiali_usm,
-                    data_list_toimp[sing_rec].criteri_distinzione_usm,
-                    data_list_toimp[sing_rec].uso_primario_usm
-                )
-                self.DB_MANAGER_write.insert_data_session(data)
-                """
-                try:    
+                try:
+                    data = self.DB_MANAGER_write.insert_values(
+                        self.DB_MANAGER_write.max_num_id(mapper_class_write,
+                                                         id_table_class_mapper_conv_dict[mapper_class_write]) + 1,
+                        data_list_toimp[sing_rec].sito,
+                        data_list_toimp[sing_rec].area,
+                        data_list_toimp[sing_rec].us,
+                        data_list_toimp[sing_rec].d_stratigrafica,
+                        data_list_toimp[sing_rec].d_interpretativa,
+                        data_list_toimp[sing_rec].descrizione,
+                        data_list_toimp[sing_rec].interpretazione,
+                        data_list_toimp[sing_rec].periodo_iniziale,
+                        data_list_toimp[sing_rec].fase_iniziale,
+                        data_list_toimp[sing_rec].periodo_finale,
+                        data_list_toimp[sing_rec].fase_finale,
+                        data_list_toimp[sing_rec].scavato,
+                        data_list_toimp[sing_rec].attivita,
+                        data_list_toimp[sing_rec].anno_scavo,
+                        data_list_toimp[sing_rec].metodo_di_scavo,
+                        data_list_toimp[sing_rec].inclusi,
+                        data_list_toimp[sing_rec].campioni,
+                        data_list_toimp[sing_rec].rapporti,
+                        data_list_toimp[sing_rec].data_schedatura,
+                        data_list_toimp[sing_rec].schedatore,
+                        data_list_toimp[sing_rec].formazione,
+                        data_list_toimp[sing_rec].stato_di_conservazione,
+                        data_list_toimp[sing_rec].colore,
+                        data_list_toimp[sing_rec].consistenza,
+                        data_list_toimp[sing_rec].struttura,
+                        data_list_toimp[sing_rec].cont_per,
+                        data_list_toimp[sing_rec].order_layer,
+                        data_list_toimp[sing_rec].documentazione,
+                        data_list_toimp[sing_rec].unita_tipo,
+                        # campi aggiunti per USM
+                        data_list_toimp[sing_rec].settore,
+                        data_list_toimp[sing_rec].quad_par,
+                        data_list_toimp[sing_rec].ambient,
+                        data_list_toimp[sing_rec].saggio,
+                        data_list_toimp[sing_rec].elem_datanti,
+                        data_list_toimp[sing_rec].funz_statica,
+                        data_list_toimp[sing_rec].lavorazione,
+                        data_list_toimp[sing_rec].spess_giunti,
+                        data_list_toimp[sing_rec].letti_posa,
+                        data_list_toimp[sing_rec].alt_mod,
+                        data_list_toimp[sing_rec].un_ed_riass,
+                        data_list_toimp[sing_rec].reimp,
+                        data_list_toimp[sing_rec].posa_opera,
+                        data_list_toimp[sing_rec].quota_min_usm,
+                        data_list_toimp[sing_rec].quota_max_usm,
+                        data_list_toimp[sing_rec].cons_legante,
+                        data_list_toimp[sing_rec].col_legante,
+                        data_list_toimp[sing_rec].aggreg_legante,
+                        data_list_toimp[sing_rec].con_text_mat,
+                        data_list_toimp[sing_rec].col_materiale,
+                        data_list_toimp[sing_rec].inclusi_materiali_usm,
+                        data_list_toimp[sing_rec].n_catalogo_generale,
+                        data_list_toimp[sing_rec].n_catalogo_interno,
+                        data_list_toimp[sing_rec].n_catalogo_internazionale,
+                        data_list_toimp[sing_rec].soprintendenza,
+                        data_list_toimp[sing_rec].quota_relativa,
+                        data_list_toimp[sing_rec].quota_abs,
+                        data_list_toimp[sing_rec].ref_tm,
+                        data_list_toimp[sing_rec].ref_ra,
+                        data_list_toimp[sing_rec].ref_n,
+                        data_list_toimp[sing_rec].posizione,
+                        data_list_toimp[sing_rec].criteri_distinzione,
+                        data_list_toimp[sing_rec].modo_formazione,
+                        data_list_toimp[sing_rec].componenti_organici,
+                        data_list_toimp[sing_rec].componenti_inorganici,
+                        data_list_toimp[sing_rec].lunghezza_max,
+                        data_list_toimp[sing_rec].altezza_max,
+                        data_list_toimp[sing_rec].altezza_min,
+                        data_list_toimp[sing_rec].profondita_max,
+                        data_list_toimp[sing_rec].profondita_min,
+                        data_list_toimp[sing_rec].larghezza_media,
+                        data_list_toimp[sing_rec].quota_max_abs,
+                        data_list_toimp[sing_rec].quota_max_rel,
+                        data_list_toimp[sing_rec].quota_min_abs,
+                        data_list_toimp[sing_rec].quota_min_rel,
+                        data_list_toimp[sing_rec].osservazioni,
+                        data_list_toimp[sing_rec].datazione,
+                        data_list_toimp[sing_rec].flottazione,
+                        data_list_toimp[sing_rec].setacciatura,
+                        data_list_toimp[sing_rec].affidabilita,
+                        data_list_toimp[sing_rec].direttore_us,
+                        data_list_toimp[sing_rec].responsabile_us,
+                        data_list_toimp[sing_rec].cod_ente_schedatore,
+                        data_list_toimp[sing_rec].data_rilevazione,
+                        data_list_toimp[sing_rec].data_rielaborazione,
+                        data_list_toimp[sing_rec].lunghezza_usm,
+                        data_list_toimp[sing_rec].altezza_usm,
+                        data_list_toimp[sing_rec].spessore_usm,
+                        data_list_toimp[sing_rec].tecnica_muraria_usm,
+                        data_list_toimp[sing_rec].modulo_usm,
+                        data_list_toimp[sing_rec].campioni_malta_usm,
+                        data_list_toimp[sing_rec].campioni_mattone_usm,
+                        data_list_toimp[sing_rec].campioni_pietra_usm,
+                        data_list_toimp[sing_rec].provenienza_materiali_usm,
+                        data_list_toimp[sing_rec].criteri_distinzione_usm,
+                        data_list_toimp[sing_rec].uso_primario_usm
+                    )
                     
-                    QMessageBox.warning(self, "Pyarchinit", "Importazione completata",  QMessageBox.Ok)
-                    return 1
-                except Exception as  e:
-                    e_str = str(e)
-                    #QMessageBox.warning(self, "Errore", "Attenzione 1 ! \n"+ str(e_str),  QMessageBox.Ok)
-                    if e_str.__contains__("Integrity"):
-                        msg = "ID_sito_unico"+": gia' presente nel database"
-                        return 0
-                """
+                    self.DB_MANAGER_write.insert_data_session(data)
+                    
+                except :
+                    
+                    QMessageBox.warning(self, "Errore", "Error ! \n"+ "duplicate key",  QMessageBox.Ok)
+                    return 0
+        
         if mapper_class_write == 'PERIODIZZAZIONE' :
             for sing_rec in range(len(data_list_toimp)):
-                data = self.DB_MANAGER_write.insert_periodizzazione_values(
-                    self.DB_MANAGER_write.max_num_id(mapper_class_write,
-                                                     id_table_class_mapper_conv_dict[mapper_class_write]) + 1,
-                    data_list_toimp[sing_rec].sito,
-                    data_list_toimp[sing_rec].periodo,
-                    data_list_toimp[sing_rec].fase,
-                    data_list_toimp[sing_rec].cron_iniziale,
-                    data_list_toimp[sing_rec].cron_finale,
-                    data_list_toimp[sing_rec].descrizione,
-                    data_list_toimp[sing_rec].datazione_estesa,
-                    data_list_toimp[sing_rec].cont_per)
-                try:    
+                try:
+                    data = self.DB_MANAGER_write.insert_periodizzazione_values(
+                        self.DB_MANAGER_write.max_num_id(mapper_class_write,
+                                                         id_table_class_mapper_conv_dict[mapper_class_write]) + 1,
+                        data_list_toimp[sing_rec].sito,
+                        data_list_toimp[sing_rec].periodo,
+                        data_list_toimp[sing_rec].fase,
+                        data_list_toimp[sing_rec].cron_iniziale,
+                        data_list_toimp[sing_rec].cron_finale,
+                        data_list_toimp[sing_rec].descrizione,
+                        data_list_toimp[sing_rec].datazione_estesa,
+                        data_list_toimp[sing_rec].cont_per)
+                
+                
                     self.DB_MANAGER_write.insert_data_session(data)
-                    QMessageBox.warning(self, "Pyarchinit", "Importazione completata",  QMessageBox.Ok)
-                    return 1
-                except Exception as  e:
-                    e_str = str(e)
-                    #QMessageBox.warning(self, "Errore", "Attenzione 1 ! \n"+ str(e_str),  QMessageBox.Ok)
-                    if e_str.__contains__("Integrity"):
-                        msg = "ID_sito_unico"+": gia' presente nel database"
-                        return 0
+                    
+                except :
+                    
+                    QMessageBox.warning(self, "Errore", "Error ! \n"+ "duplicate key",  QMessageBox.Ok)
+                    return 0
                 ####INVENTARIO MATERIALI TABLE
         
         if mapper_class_write == 'INVENTARIO_MATERIALI' :
             for sing_rec in range(len(data_list_toimp)):
-                data = self.DB_MANAGER_write.insert_values_reperti(
-                    self.DB_MANAGER_write.max_num_id(mapper_class_write,
-                                                     id_table_class_mapper_conv_dict[mapper_class_write]) + 1,
-                    data_list_toimp[sing_rec].sito,
-                    data_list_toimp[sing_rec].numero_inventario,
-                    data_list_toimp[sing_rec].tipo_reperto,
-                    data_list_toimp[sing_rec].criterio_schedatura,
-                    data_list_toimp[sing_rec].definizione,
-                    data_list_toimp[sing_rec].descrizione,
-                    data_list_toimp[sing_rec].area,
-                    data_list_toimp[sing_rec].us,
-                    data_list_toimp[sing_rec].lavato,
-                    data_list_toimp[sing_rec].nr_cassa,
-                    data_list_toimp[sing_rec].luogo_conservazione,
-                    data_list_toimp[sing_rec].stato_conservazione,
-                    data_list_toimp[sing_rec].datazione_reperto,
-                    data_list_toimp[sing_rec].elementi_reperto,
-                    data_list_toimp[sing_rec].misurazioni,
-                    data_list_toimp[sing_rec].rif_biblio,
-                    data_list_toimp[sing_rec].tecnologie,
-                    data_list_toimp[sing_rec].forme_minime,
-                    data_list_toimp[sing_rec].forme_massime,
-                    data_list_toimp[sing_rec].totale_frammenti,
-                    data_list_toimp[sing_rec].corpo_ceramico,
-                    data_list_toimp[sing_rec].rivestimento,
-                    data_list_toimp[sing_rec].diametro_orlo,
-                    data_list_toimp[sing_rec].peso,
-                    data_list_toimp[sing_rec].tipo,
-                    data_list_toimp[sing_rec].eve_orlo,
-                    data_list_toimp[sing_rec].repertato,
-                    data_list_toimp[sing_rec].diagnostico
-                )
-                self.DB_MANAGER_write.insert_data_session(data)
-                """
-                try:    
+                try:
+                    data = self.DB_MANAGER_write.insert_values_reperti(
+                        self.DB_MANAGER_write.max_num_id(mapper_class_write,
+                                                         id_table_class_mapper_conv_dict[mapper_class_write]) + 1,
+                        data_list_toimp[sing_rec].sito,
+                        data_list_toimp[sing_rec].numero_inventario,
+                        data_list_toimp[sing_rec].tipo_reperto,
+                        data_list_toimp[sing_rec].criterio_schedatura,
+                        data_list_toimp[sing_rec].definizione,
+                        data_list_toimp[sing_rec].descrizione,
+                        data_list_toimp[sing_rec].area,
+                        data_list_toimp[sing_rec].us,
+                        data_list_toimp[sing_rec].lavato,
+                        data_list_toimp[sing_rec].nr_cassa,
+                        data_list_toimp[sing_rec].luogo_conservazione,
+                        data_list_toimp[sing_rec].stato_conservazione,
+                        data_list_toimp[sing_rec].datazione_reperto,
+                        data_list_toimp[sing_rec].elementi_reperto,
+                        data_list_toimp[sing_rec].misurazioni,
+                        data_list_toimp[sing_rec].rif_biblio,
+                        data_list_toimp[sing_rec].tecnologie,
+                        data_list_toimp[sing_rec].forme_minime,
+                        data_list_toimp[sing_rec].forme_massime,
+                        data_list_toimp[sing_rec].totale_frammenti,
+                        data_list_toimp[sing_rec].corpo_ceramico,
+                        data_list_toimp[sing_rec].rivestimento,
+                        data_list_toimp[sing_rec].diametro_orlo,
+                        data_list_toimp[sing_rec].peso,
+                        data_list_toimp[sing_rec].tipo,
+                        data_list_toimp[sing_rec].eve_orlo,
+                        data_list_toimp[sing_rec].repertato,
+                        data_list_toimp[sing_rec].diagnostico
+                    )
+                    
+                    
                     self.DB_MANAGER_write.insert_data_session(data)
-                    QMessageBox.warning(self, "Pyarchinit", "Importazione completata",  QMessageBox.Ok)
-                    return 1
-                except Exception as  e:
-                    e_str = str(e)
-                    #QMessageBox.warning(self, "Errore", "Attenzione 1 ! \n"+ str(e_str),  QMessageBox.Ok)
-                    if e_str.__contains__("Integrity"):
-                        msg = "ID_reperto_unico"+": gia' presente nel database"
-                        return 0
-                """
+                    
+                
+                except:
+                   
+                    QMessageBox.warning(self, "Errore", "Error ! \n"+ "duplicate key",  QMessageBox.Ok)
+                    
+                    return 0
       
         if mapper_class_write == 'STRUTTURA' :
             for sing_rec in range(len(data_list_toimp)):
-                data = self.DB_MANAGER_write.insert_struttura_values(
-                    self.DB_MANAGER_write.max_num_id(mapper_class_write,
-                                                     id_table_class_mapper_conv_dict[mapper_class_write]) + 1,
-                    data_list_toimp[sing_rec].sito,
-                    data_list_toimp[sing_rec].sigla_struttura,
-                    data_list_toimp[sing_rec].numero_struttura,
-                    data_list_toimp[sing_rec].categoria_struttura,
-                    data_list_toimp[sing_rec].tipologia_struttura,
-                    data_list_toimp[sing_rec].definizione_struttura,
-                    data_list_toimp[sing_rec].descrizione,
-                    data_list_toimp[sing_rec].interpretazione,
-                    data_list_toimp[sing_rec].periodo_iniziale,
-                    data_list_toimp[sing_rec].fase_iniziale,
-                    data_list_toimp[sing_rec].periodo_finale,
-                    data_list_toimp[sing_rec].fase_finale,
-                    data_list_toimp[sing_rec].datazione_estesa,
-                    data_list_toimp[sing_rec].materiali_impiegati,
-                    data_list_toimp[sing_rec].elementi_strutturali,
-                    data_list_toimp[sing_rec].rapporti_struttura,
-                    data_list_toimp[sing_rec].misure_struttura
-                )
-                try:    
+                try:
+                    data = self.DB_MANAGER_write.insert_struttura_values(
+                        self.DB_MANAGER_write.max_num_id(mapper_class_write,
+                                                         id_table_class_mapper_conv_dict[mapper_class_write]) + 1,
+                        data_list_toimp[sing_rec].sito,
+                        data_list_toimp[sing_rec].sigla_struttura,
+                        data_list_toimp[sing_rec].numero_struttura,
+                        data_list_toimp[sing_rec].categoria_struttura,
+                        data_list_toimp[sing_rec].tipologia_struttura,
+                        data_list_toimp[sing_rec].definizione_struttura,
+                        data_list_toimp[sing_rec].descrizione,
+                        data_list_toimp[sing_rec].interpretazione,
+                        data_list_toimp[sing_rec].periodo_iniziale,
+                        data_list_toimp[sing_rec].fase_iniziale,
+                        data_list_toimp[sing_rec].periodo_finale,
+                        data_list_toimp[sing_rec].fase_finale,
+                        data_list_toimp[sing_rec].datazione_estesa,
+                        data_list_toimp[sing_rec].materiali_impiegati,
+                        data_list_toimp[sing_rec].elementi_strutturali,
+                        data_list_toimp[sing_rec].rapporti_struttura,
+                        data_list_toimp[sing_rec].misure_struttura
+                    )
+                    
                     self.DB_MANAGER_write.insert_data_session(data)
-                    QMessageBox.warning(self, "Pyarchinit", "Importazione completata",  QMessageBox.Ok)
-                    return 1
-                except Exception as  e:
-                    e_str = str(e)
-                    #QMessageBox.warning(self, "Errore", "Attenzione 1 ! \n"+ str(e_str),  QMessageBox.Ok)
-                    if e_str.__contains__("Integrity"):
-                        msg = "ID_sito_unico"+": gia' presente nel database"
-                        return 0
+                    
+                
+                except :
+                    
+                    QMessageBox.warning(self, "Errore", "Error ! \n"+ "duplicate key",  QMessageBox.Ok)
+                    
+                    return 0
                 ####TAFONOMIA TABLE
         
         if mapper_class_write == 'TAFONOMIA' :
@@ -1120,208 +1065,202 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
                 else:
                     fase_fin = int(data_list_toimp[sing_rec].fase_finale)
 
-                data = self.DB_MANAGER_write.insert_values_tafonomia(
+                try:
+                    data = self.DB_MANAGER_write.insert_values_tafonomia(
 
-                    self.DB_MANAGER_write.max_num_id(mapper_class_write,
-                                                     id_table_class_mapper_conv_dict[mapper_class_write]) + 1,
-                    str(data_list_toimp[sing_rec].sito),
-                    int(data_list_toimp[sing_rec].nr_scheda_taf),
-                    str(data_list_toimp[sing_rec].sigla_struttura),
-                    int(data_list_toimp[sing_rec].nr_struttura),
-                    int(data_list_toimp[sing_rec].nr_individuo),
-                    str(data_list_toimp[sing_rec].rito),
-                    str(data_list_toimp[sing_rec].descrizione_taf),
-                    str(data_list_toimp[sing_rec].interpretazione_taf),
-                    str(data_list_toimp[sing_rec].segnacoli),
-                    str(data_list_toimp[sing_rec].canale_libatorio_si_no),
-                    str(data_list_toimp[sing_rec].oggetti_rinvenuti_esterno),
-                    str(data_list_toimp[sing_rec].stato_di_conservazione),
-                    str(data_list_toimp[sing_rec].copertura_tipo),
-                    str(data_list_toimp[sing_rec].tipo_contenitore_resti),
-                    str(data_list_toimp[sing_rec].orientamento_asse),
-                    orientamento_azimut,
-                    str(data_list_toimp[sing_rec].corredo_presenza),
-                    str(data_list_toimp[sing_rec].corredo_tipo),
-                    str(data_list_toimp[sing_rec].corredo_descrizione),
-                    lunghezza_scheletro,
-                    str(data_list_toimp[sing_rec].posizione_scheletro),
-                    str(data_list_toimp[sing_rec].posizione_cranio),
-                    str(data_list_toimp[sing_rec].posizione_arti_superiori),
-                    str(data_list_toimp[sing_rec].posizione_arti_inferiori),
-                    str(data_list_toimp[sing_rec].completo_si_no),
-                    str(data_list_toimp[sing_rec].disturbato_si_no),
-                    str(data_list_toimp[sing_rec].in_connessione_si_no),
-                    str(data_list_toimp[sing_rec].caratteristiche),
-                    per_iniz,
-                    fase_iniz,
-                    per_fin,
-                    fase_fin,
-                    str(data_list_toimp[sing_rec].datazione_estesa),
-                    str(data_list_toimp[sing_rec].misure_tafonomia)
-                )
-                try:    
+                        self.DB_MANAGER_write.max_num_id(mapper_class_write,
+                                                         id_table_class_mapper_conv_dict[mapper_class_write]) + 1,
+                        str(data_list_toimp[sing_rec].sito),
+                        int(data_list_toimp[sing_rec].nr_scheda_taf),
+                        str(data_list_toimp[sing_rec].sigla_struttura),
+                        int(data_list_toimp[sing_rec].nr_struttura),
+                        int(data_list_toimp[sing_rec].nr_individuo),
+                        str(data_list_toimp[sing_rec].rito),
+                        str(data_list_toimp[sing_rec].descrizione_taf),
+                        str(data_list_toimp[sing_rec].interpretazione_taf),
+                        str(data_list_toimp[sing_rec].segnacoli),
+                        str(data_list_toimp[sing_rec].canale_libatorio_si_no),
+                        str(data_list_toimp[sing_rec].oggetti_rinvenuti_esterno),
+                        str(data_list_toimp[sing_rec].stato_di_conservazione),
+                        str(data_list_toimp[sing_rec].copertura_tipo),
+                        str(data_list_toimp[sing_rec].tipo_conteni+++tore_resti),
+                        str(data_list_toimp[sing_rec].orientamento_asse),
+                        orientamento_azimut,
+                        str(data_list_toimp[sing_rec].corredo_presenza),
+                        str(data_list_toimp[sing_rec].corredo_tipo),
+                        str(data_list_toimp[sing_rec].corredo_descrizione),
+                        lunghezza_scheletro,
+                        str(data_list_toimp[sing_rec].posizione_scheletro),
+                        str(data_list_toimp[sing_rec].posizione_cranio),
+                        str(data_list_toimp[sing_rec].posizione_arti_superiori),
+                        str(data_list_toimp[sing_rec].posizione_arti_inferiori),
+                        str(data_list_toimp[sing_rec].completo_si_no),
+                        str(data_list_toimp[sing_rec].disturbato_si_no),
+                        str(data_list_toimp[sing_rec].in_connessione_si_no),
+                        str(data_list_toimp[sing_rec].caratteristiche),
+                        per_iniz,
+                        fase_iniz,
+                        per_fin,
+                        fase_fin,
+                        str(data_list_toimp[sing_rec].datazione_estesa),
+                        str(data_list_toimp[sing_rec].misure_tafonomia)
+                    )
+                        
                     self.DB_MANAGER_write.insert_data_session(data)
-                    QMessageBox.warning(self, "Pyarchinit", "Importazione completata",  QMessageBox.Ok)
-                    return 1
+                    
                 except Exception as  e:
-                    e_str = str(e)
-                    #QMessageBox.warning(self, "Errore", "Attenzione 1 ! \n"+ str(e_str),  QMessageBox.Ok)
-                    if e_str.__contains__("Integrity"):
-                        msg = "ID_sito_unico"+": gia' presente nel database"
-                        return 0
+                    QMessageBox.warning(self, "Errore", "Error ! \n"+ "duplicate key",  QMessageBox.Ok)
+                    
+                    return 0
                 ####INDIVIDUI TABLE
         
         if mapper_class_write == 'SCHEDAIND' :
             for sing_rec in range(len(data_list_toimp)):
-                data = self.DB_MANAGER_write.insert_values_ind(
-                    self.DB_MANAGER_write.max_num_id(mapper_class_write,
-                                                     id_table_class_mapper_conv_dict[mapper_class_write]) + 1,
-                    data_list_toimp[sing_rec].sito,
-                    data_list_toimp[sing_rec].area,
-                    data_list_toimp[sing_rec].us,
-                    data_list_toimp[sing_rec].nr_individuo,
-                    data_list_toimp[sing_rec].data_schedatura,
-                    data_list_toimp[sing_rec].schedatore,
-                    data_list_toimp[sing_rec].sesso,
-                    data_list_toimp[sing_rec].eta_min,
-                    data_list_toimp[sing_rec].eta_max,
-                    data_list_toimp[sing_rec].classi_eta,
-                    data_list_toimp[sing_rec].osservazioni
-                )
-                ##              try:
-                self.DB_MANAGER_write.insert_data_session(data)
-                ##              except Exception as  e:
-                ##                  e_str = str(e)
-                ##                  QMessageBox.warning(self, "Errore", "Attenzione 1 ! \n"+ str(e_str),  QMessageBox.Ok)
-                ##                  if e_str.__contains__("Integrity"):
-                ##                      msg = 'id_us' + " gia' presente nel database"
-                ##                  else:
-                ##                      msg = e
-                ##                  QMessageBox.warning(self, "Errore", "Attenzione 1 ! \n"+ str(msg),  QMessageBox.Ok)
-                ##                  return 0
+                try:
+                    data = self.DB_MANAGER_write.insert_values_ind(
+                        self.DB_MANAGER_write.max_num_id(mapper_class_write,
+                                                         id_table_class_mapper_conv_dict[mapper_class_write]) + 1,
+                        data_list_toimp[sing_rec].sito,
+                        data_list_toimp[sing_rec].area,
+                        data_list_toimp[sing_rec].us,
+                        data_list_toimp[sing_rec].nr_individuo,
+                        data_list_toimp[sing_rec].data_schedatura,
+                        data_list_toimp[sing_rec].schedatore,
+                        data_list_toimp[sing_rec].sesso,
+                        data_list_toimp[sing_rec].eta_min,
+                        data_list_toimp[sing_rec].eta_max,
+                        data_list_toimp[sing_rec].classi_eta,
+                        data_list_toimp[sing_rec].osservazioni
+                    )
+                
+                    self.DB_MANAGER_write.insert_data_session(data)
+                    
+                except Exception as  e:
+                    e_str = str(e)
+                    QMessageBox.warning(self, "Errore", "Error ! \n"+ "duplicate key",  QMessageBox.Ok)
+               
+                    return 0
                 ##
                 ####CAMPIONE TABLE
         
         if mapper_class_write == 'CAMPIONE':
             for sing_rec in range(len(data_list_toimp)):
-                data = self.DB_MANAGER_write.insert_values_campioni(
-                    self.DB_MANAGER_write.max_num_id(mapper_class_write,
-                                                     id_table_class_mapper_conv_dict[mapper_class_write]) + 1,
-                    data_list_toimp[sing_rec].sito,
-                    data_list_toimp[sing_rec].area,
-                    data_list_toimp[sing_rec].nr_campione,
-                    data_list_toimp[sing_rec].tipo_campione,
-                    data_list_toimp[sing_rec].descrizione,
-                    data_list_toimp[sing_rec].area,
-                    data_list_toimp[sing_rec].us,
-                    data_list_toimp[sing_rec].numero_inventario_materiale,
-                    data_list_toimp[sing_rec].nr_cassa,
-                    data_list_toimp[sing_rec].luogo_conservazione
-                )
-                try:    
+                try:
+                    data = self.DB_MANAGER_write.insert_values_campioni(
+                        self.DB_MANAGER_write.max_num_id(mapper_class_write,
+                                                         id_table_class_mapper_conv_dict[mapper_class_write]) + 1,
+                        data_list_toimp[sing_rec].sito,
+                        data_list_toimp[sing_rec].area,
+                        data_list_toimp[sing_rec].nr_campione,
+                        data_list_toimp[sing_rec].tipo_campione,
+                        data_list_toimp[sing_rec].descrizione,
+                        data_list_toimp[sing_rec].area,
+                        data_list_toimp[sing_rec].us,
+                        data_list_toimp[sing_rec].numero_inventario_materiale,
+                        data_list_toimp[sing_rec].nr_cassa,
+                        data_list_toimp[sing_rec].luogo_conservazione
+                    )
                     self.DB_MANAGER_write.insert_data_session(data)
-                    QMessageBox.warning(self, "Pyarchinit", "Importazione completata",  QMessageBox.Ok)
-                    return 1
+                    
                 except Exception as  e:
                     e_str = str(e)
-                    #QMessageBox.warning(self, "Errore", "Attenzione 1 ! \n"+ str(e_str),  QMessageBox.Ok)
-                    if e_str.__contains__("Integrity"):
-                        msg = "ID_sito_unico"+": gia' presente nel database"
-                        return 0
+                    QMessageBox.warning(self, "Errore", "Error ! \n"+ "duplicate key",  QMessageBox.Ok)
+               
+                    return 0
                 ####DOCUMENTAZIONE TABLE
        
         if mapper_class_write == 'DOCUMENTAZIONE' :
             for sing_rec in range(len(data_list_toimp)):
-                data = self.DB_MANAGER_write.insert_values_documentazione(
-                    self.DB_MANAGER_write.max_num_id(mapper_class_write,
-                                                     id_table_class_mapper_conv_dict[mapper_class_write]) + 1,
-                    data_list_toimp[sing_rec].sito,
-                    data_list_toimp[sing_rec].nome_doc,
-                    data_list_toimp[sing_rec].data,
-                    data_list_toimp[sing_rec].tipo_documentazione,
-                    data_list_toimp[sing_rec].sorgente,
-                    data_list_toimp[sing_rec].scala,
-                    data_list_toimp[sing_rec].disegnatore,
-                    data_list_toimp[sing_rec].note
-                )
+                try:
+                    data = self.DB_MANAGER_write.insert_values_documentazione(
+                        self.DB_MANAGER_write.max_num_id(mapper_class_write,
+                                                         id_table_class_mapper_conv_dict[mapper_class_write]) + 1,
+                        data_list_toimp[sing_rec].sito,
+                        data_list_toimp[sing_rec].nome_doc,
+                        data_list_toimp[sing_rec].data,
+                        data_list_toimp[sing_rec].tipo_documentazione,
+                        data_list_toimp[sing_rec].sorgente,
+                        data_list_toimp[sing_rec].scala,
+                        data_list_toimp[sing_rec].disegnatore,
+                        data_list_toimp[sing_rec].note
+                    )
 
-                try:    
                     self.DB_MANAGER_write.insert_data_session(data)
-                    QMessageBox.warning(self, "Pyarchinit", "Importazione completata",  QMessageBox.Ok)
-                    return 1
+                    
                 except Exception as  e:
                     e_str = str(e)
-                    #QMessageBox.warning(self, "Errore", "Attenzione 1 ! \n"+ str(e_str),  QMessageBox.Ok)
-                    if e_str.__contains__("Integrity"):
-                        msg = "ID_sito_unico"+": gia' presente nel database"
-                        return 0
-                ####UT TABLE
-        else:
-            pass
+                    QMessageBox.warning(self, "Errore", "Error ! \n"+ "duplicate key",  QMessageBox.Ok)
+               
+                    return 0
+                
+           
         if mapper_class_write == 'UT':
             for sing_rec in range(len(data_list_toimp)):
-                data = self.DB_MANAGER_write.insert_ut_values(
-                    self.DB_MANAGER_write.max_num_id(mapper_class_write,
-                                                     id_table_class_mapper_conv_dict[mapper_class_write]) + 1,
-                    data_list_toimp[sing_rec].sito,
-                    data_list_toimp[sing_rec].progetto,
-                    data_list_toimp[sing_rec].nr_ut,
-                    data_list_toimp[sing_rec].ut_letterale,
-                    data_list_toimp[sing_rec].def_ut,
-                    data_list_toimp[sing_rec].descrizione_ut,
-                    data_list_toimp[sing_rec].interpretazione_ut,
-                    data_list_toimp[sing_rec].nazione,
-                    data_list_toimp[sing_rec].regione,
-                    data_list_toimp[sing_rec].provincia,
-                    data_list_toimp[sing_rec].comune,
-                    data_list_toimp[sing_rec].frazione,
-                    data_list_toimp[sing_rec].localita,
-                    data_list_toimp[sing_rec].indirizzo,
-                    data_list_toimp[sing_rec].nr_civico,
-                    data_list_toimp[sing_rec].carta_topo_igm,
-                    data_list_toimp[sing_rec].coord_geografiche,
-                    data_list_toimp[sing_rec].coord_piane,
-                    data_list_toimp[sing_rec].andamento_terreno_pendenza,
-                    data_list_toimp[sing_rec].utilizzo_suolo_vegetazione,
-                    data_list_toimp[sing_rec].descrizione_empirica_suolo,
-                    data_list_toimp[sing_rec].descrizione_luogo,
-                    data_list_toimp[sing_rec].metodo_rilievo_e_ricognizione,
-                    data_list_toimp[sing_rec].geometria,
-                    data_list_toimp[sing_rec].bibliografia,
-                    data_list_toimp[sing_rec].data,
-                    data_list_toimp[sing_rec].ora_meteo,
-                    data_list_toimp[sing_rec].descrizione_luogo,
-                    data_list_toimp[sing_rec].responsabile,
-                    data_list_toimp[sing_rec].dimensioni_ut,
-                    data_list_toimp[sing_rec].rep_per_mq,
-                    data_list_toimp[sing_rec].rep_datanti,
-                    data_list_toimp[sing_rec].periodo_I,
-                    data_list_toimp[sing_rec].datazione_I,
-                    data_list_toimp[sing_rec].responsabile,
-                    data_list_toimp[sing_rec].interpretazione_I,
-                    data_list_toimp[sing_rec].periodo_II,
-                    data_list_toimp[sing_rec].datazione_II,
-                    data_list_toimp[sing_rec].interpretazione_II,
-                    data_list_toimp[sing_rec].documentazione,
-                    data_list_toimp[sing_rec].enti_tutela_vincoli,
-                    data_list_toimp[sing_rec].indagini_preliminari
-                )
+                try: 
+                    data = self.DB_MANAGER_write.insert_ut_values(
+                        self.DB_MANAGER_write.max_num_id(mapper_class_write,
+                                                         id_table_class_mapper_conv_dict[mapper_class_write]) + 1,
+                        data_list_toimp[sing_rec].sito,
+                        data_list_toimp[sing_rec].progetto,
+                        data_list_toimp[sing_rec].nr_ut,
+                        data_list_toimp[sing_rec].ut_letterale,
+                        data_list_toimp[sing_rec].def_ut,
+                        data_list_toimp[sing_rec].descrizione_ut,
+                        data_list_toimp[sing_rec].interpretazione_ut,
+                        data_list_toimp[sing_rec].nazione,
+                        data_list_toimp[sing_rec].regione,
+                        data_list_toimp[sing_rec].provincia,
+                        data_list_toimp[sing_rec].comune,
+                        data_list_toimp[sing_rec].frazione,
+                        data_list_toimp[sing_rec].localita,
+                        data_list_toimp[sing_rec].indirizzo,
+                        data_list_toimp[sing_rec].nr_civico,
+                        data_list_toimp[sing_rec].carta_topo_igm,
+                        data_list_toimp[sing_rec].coord_geografiche,
+                        data_list_toimp[sing_rec].coord_piane,
+                        data_list_toimp[sing_rec].andamento_terreno_pendenza,
+                        data_list_toimp[sing_rec].utilizzo_suolo_vegetazione,
+                        data_list_toimp[sing_rec].descrizione_empirica_suolo,
+                        data_list_toimp[sing_rec].descrizione_luogo,
+                        data_list_toimp[sing_rec].metodo_rilievo_e_ricognizione,
+                        data_list_toimp[sing_rec].geometria,
+                        data_list_toimp[sing_rec].bibliografia,
+                        data_list_toimp[sing_rec].data,
+                        data_list_toimp[sing_rec].ora_meteo,
+                        data_list_toimp[sing_rec].descrizione_luogo,
+                        data_list_toimp[sing_rec].responsabile,
+                        data_list_toimp[sing_rec].dimensioni_ut,
+                        data_list_toimp[sing_rec].rep_per_mq,
+                        data_list_toimp[sing_rec].rep_datanti,
+                        data_list_toimp[sing_rec].periodo_I,
+                        data_list_toimp[sing_rec].datazione_I,
+                        data_list_toimp[sing_rec].responsabile,
+                        data_list_toimp[sing_rec].interpretazione_I,
+                        data_list_toimp[sing_rec].periodo_II,
+                        data_list_toimp[sing_rec].datazione_II,
+                        data_list_toimp[sing_rec].interpretazione_II,
+                        data_list_toimp[sing_rec].documentazione,
+                        data_list_toimp[sing_rec].enti_tutela_vincoli,
+                        data_list_toimp[sing_rec].indagini_preliminari
+                    )
 
-                try:    
+                
                     self.DB_MANAGER_write.insert_data_session(data)
-                    QMessageBox.warning(self, "Pyarchinit", "Importazione completata",  QMessageBox.Ok)
-                    return 1
+                    
+                    
                 except Exception as  e:
                     e_str = str(e)
-
-                    #QMessageBox.warning(self, "Errore", "Attenzione 1 ! \n"+ str(e_str),  QMessageBox.Ok)
-                    if e_str.__contains__("Integrity"):
-                        msg = "ID_sito_unico"+": gia' presente nel database"
-                        return 0
+                    QMessageBox.warning(self, "Errore", "Error ! \n"+ "duplicate key",  QMessageBox.Ok)
+               
+                    return 0
 
 
+        
+        
+        #self.sys.exit()
 
-
+    
+    
     def on_pushButton_connect_pressed(self):
         
         # Defines parameter
@@ -1410,65 +1349,7 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
             for item in dirlist:
                 self.listWidget.insertItem(0,item)
 
-    # def createDirectory():
-        # directory = ent_input.get()
-        # try:
-            # msg = ftp.mkd(directory)
-            # text_servermsg.insert(END,"\n")
-            # text_servermsg.insert(END,msg)
-        # except:
-            # text_servermsg.insert(END,"\n")
-            # text_servermsg.insert(END,"Unable to create directory")
-        # displayDir()
-        
-    # def deleteDirectory():
-        # directory = ent_input.get()
-        # try:
-            # msg = ftp.rmd(directory)
-            # text_servermsg.insert(END,"\n")
-            # text_servermsg.insert(END,msg)
-        # except:
-            # text_servermsg.insert(END,"\n")
-            # text_servermsg.insert(END,"Unable to delete directory")
-        # displayDir()
-        
-    # def deleteFile():
-        # file = ent_input.get()
-        # try:
-            # msg = ftp.delete(file)
-            # text_servermsg.insert(END,"\n")
-            # text_servermsg.insert(END,msg)
-        # except:
-            # text_servermsg.insert(END,"\n")
-            # text_servermsg.insert(END,"Unable to delete file")
-        # displayDir()
-        
-    # def downloadFile():
-        # file = ent_input.get()
-        # down = open(file, "wb")
-        # try:
-            # text_servermsg.insert(END,"\n")
-            # text_servermsg.insert(END,"Downloading " + file + "...")
-            # text_servermsg.insert(END,"\n")
-            # text_servermsg.insert(END,ftp.retrbinary("RETR " + file, down.write))
-        # except:
-            # text_servermsg.insert(END,"\n")
-            # text_servermsg.insert(END,"Unable to download file")
-        # displayDir()
-        
-    # def uploadFile():
-        # file = ent_input.get()
-        # try:
-            # up = open(file, "rb")
-            # text_servermsg.insert(END,"\n")
-            # text_servermsg.insert(END,"Uploading " + file + "...")
-            # text_servermsg.insert(END,"\n")
-            # text_servermsg.insert(END,ftp.storbinary("STOR " + file,up))
-        # except:
-            # text_servermsg.insert(END,"\n")
-            # text_servermsg.insert(END,"Unable to upload file")
-        # displayDir()
-        
+
     def on_pushButton_disconnect_pressed(self):
         
        cnopts = pysftp.CnOpts()
