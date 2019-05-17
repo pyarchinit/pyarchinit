@@ -84,7 +84,7 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
         self.pbnSaveEnvironPath.clicked.connect(self.setEnvironPath)
         self.pushButtonR.clicked.connect(self.setPathR)
         self.pbnSaveEnvironPathR.clicked.connect(self.setEnvironPathR)
-        #self.progress_bar.setTextVisible(True)
+        self.pushButton_import.clicked.connect(self.on_pushButton_import_pressed)
         self.graphviz_bin = s.value('pyArchInit/graphvizBinPath', None, type=str)
         if self.graphviz_bin:
             self.lineEditGraphviz.setText(self.graphviz_bin)
@@ -616,9 +616,9 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
     def test_def(self):
         pass
     
-    def updateValue(self, data):
-        self.progress_bar.setValue(data)
+    
 
+    
 
     def on_pushButton_import_pressed(self):
         
@@ -784,12 +784,18 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
                         
                    
                     self.DB_MANAGER_write.insert_data_session(data)
+                    for i in range(0,100):    
+                        #time.sleep()
+                        self.progress_bar.setValue(((i)/100)*100)
+                     
+                        QApplication.processEvents()
                     
                 except :
                     
                     QMessageBox.warning(self, "Errore", "Error ! \n"+ "duplicate key",  QMessageBox.Ok)
                     return 0
-                ####PERIODIZZAZIONE TABLE
+            #self.progress_bar.close()
+            QMessageBox.information(self, "Message", "Data Loaded")
         
         #### US TABLE
         
@@ -899,14 +905,24 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
                         data_list_toimp[sing_rec].uso_primario_usm
                     )
                     
+
                     self.DB_MANAGER_write.insert_data_session(data)
+                    for i in range(0,100):    
+                        #time.sleep()
+                        self.progress_bar.setValue(((i)/100)*100)
+                     
+                        QApplication.processEvents()
+                        
+                    
+                    
                     
                 except :
                     
                     QMessageBox.warning(self, "Errore", "Error ! \n"+ "duplicate key",  QMessageBox.Ok)
                     return 0
-        
-        if mapper_class_write == 'PERIODIZZAZIONE' :
+            #self.progress_bar.close()
+            QMessageBox.information(self, "Message", "Data Loaded")
+        elif mapper_class_write == 'PERIODIZZAZIONE' :
             for sing_rec in range(len(data_list_toimp)):
                 try:
                     data = self.DB_MANAGER_write.insert_periodizzazione_values(
@@ -923,14 +939,20 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
                 
                 
                     self.DB_MANAGER_write.insert_data_session(data)
+                    for i in range(0,100):    
+                        #time.sleep()
+                        self.progress_bar.setValue(((i)/100)*100)
+                     
+                        QApplication.processEvents()
                     
                 except :
                     
                     QMessageBox.warning(self, "Errore", "Error ! \n"+ "duplicate key",  QMessageBox.Ok)
                     return 0
-                ####INVENTARIO MATERIALI TABLE
+            #self.progress_bar.close()
+            QMessageBox.information(self, "Message", "Data Loaded")
         
-        if mapper_class_write == 'INVENTARIO_MATERIALI' :
+        elif mapper_class_write == 'INVENTARIO_MATERIALI' :
             for sing_rec in range(len(data_list_toimp)):
                 try:
                     data = self.DB_MANAGER_write.insert_values_reperti(
@@ -968,15 +990,21 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
                     
                     
                     self.DB_MANAGER_write.insert_data_session(data)
+                    for i in range(0,100):    
+                        #time.sleep()
+                        self.progress_bar.setValue(((i)/100)*100)
+                     
+                        QApplication.processEvents()
                     
                 
-                except:
-                   
-                    QMessageBox.warning(self, "Errore", "Error ! \n"+ "duplicate key",  QMessageBox.Ok)
+                except :
                     
+                    QMessageBox.warning(self, "Errore", "Error ! \n"+ "duplicate key",  QMessageBox.Ok)
                     return 0
+            #self.progress_bar.close()
+            QMessageBox.information(self, "Message", "Data Loaded")
       
-        if mapper_class_write == 'STRUTTURA' :
+        elif mapper_class_write == 'STRUTTURA' :
             for sing_rec in range(len(data_list_toimp)):
                 try:
                     data = self.DB_MANAGER_write.insert_struttura_values(
@@ -1002,16 +1030,21 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
                     )
                     
                     self.DB_MANAGER_write.insert_data_session(data)
+                    for i in range(0,100):    
+                        #time.sleep()
+                        self.progress_bar.setValue(((i)/100)*100)
+                     
+                        QApplication.processEvents()
                     
                 
                 except :
                     
                     QMessageBox.warning(self, "Errore", "Error ! \n"+ "duplicate key",  QMessageBox.Ok)
-                    
                     return 0
-                ####TAFONOMIA TABLE
+            #self.progress_bar.close()
+            QMessageBox.information(self, "Message", "Data Loaded")
         
-        if mapper_class_write == 'TAFONOMIA' :
+        elif mapper_class_write == 'TAFONOMIA' :
             for sing_rec in range(len(data_list_toimp)):
 
                 # blocco oritentamento_azimut
@@ -1107,14 +1140,20 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
                     )
                         
                     self.DB_MANAGER_write.insert_data_session(data)
+                    for i in range(0,100):    
+                        #time.sleep()
+                        self.progress_bar.setValue(((i)/100)*100)
+                     
+                        QApplication.processEvents()
                     
-                except Exception as  e:
+                except :
+                    
                     QMessageBox.warning(self, "Errore", "Error ! \n"+ "duplicate key",  QMessageBox.Ok)
-                    
                     return 0
-                ####INDIVIDUI TABLE
+            #self.progress_bar.close()
+            QMessageBox.information(self, "Message", "Data Loaded")
         
-        if mapper_class_write == 'SCHEDAIND' :
+        elif mapper_class_write == 'SCHEDAIND' :
             for sing_rec in range(len(data_list_toimp)):
                 try:
                     data = self.DB_MANAGER_write.insert_values_ind(
@@ -1134,16 +1173,20 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
                     )
                 
                     self.DB_MANAGER_write.insert_data_session(data)
+                    for i in range(0,100):    
+                        #time.sleep()
+                        self.progress_bar.setValue(((i)/100)*100)
+                     
+                        QApplication.processEvents()
                     
-                except Exception as  e:
-                    e_str = str(e)
+                except :
+                    
                     QMessageBox.warning(self, "Errore", "Error ! \n"+ "duplicate key",  QMessageBox.Ok)
-               
                     return 0
-                ##
-                ####CAMPIONE TABLE
+            #self.progress_bar.close()
+            QMessageBox.information(self, "Message", "Data Loaded")
         
-        if mapper_class_write == 'CAMPIONE':
+        elif mapper_class_write == 'CAMPIONE':
             for sing_rec in range(len(data_list_toimp)):
                 try:
                     data = self.DB_MANAGER_write.insert_values_campioni(
@@ -1161,15 +1204,20 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
                         data_list_toimp[sing_rec].luogo_conservazione
                     )
                     self.DB_MANAGER_write.insert_data_session(data)
+                    for i in range(0,100):    
+                        #time.sleep()
+                        self.progress_bar.setValue(((i)/100)*100)
+                     
+                        QApplication.processEvents()
                     
-                except Exception as  e:
-                    e_str = str(e)
+                except :
+                    
                     QMessageBox.warning(self, "Errore", "Error ! \n"+ "duplicate key",  QMessageBox.Ok)
-               
                     return 0
-                ####DOCUMENTAZIONE TABLE
+            #self.progress_bar.close()
+            QMessageBox.information(self, "Message", "Data Loaded")
        
-        if mapper_class_write == 'DOCUMENTAZIONE' :
+        elif mapper_class_write == 'DOCUMENTAZIONE' :
             for sing_rec in range(len(data_list_toimp)):
                 try:
                     data = self.DB_MANAGER_write.insert_values_documentazione(
@@ -1186,6 +1234,11 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
                     )
 
                     self.DB_MANAGER_write.insert_data_session(data)
+                    for i in range(0,100):    
+                        #time.sleep()
+                        self.progress_bar.setValue(((i)/100)*100)
+                     
+                        QApplication.processEvents()
                     
                 except Exception as  e:
                     e_str = str(e)
@@ -1194,7 +1247,7 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
                     return 0
                 
            
-        if mapper_class_write == 'UT':
+        elif mapper_class_write == 'UT':
             for sing_rec in range(len(data_list_toimp)):
                 try: 
                     data = self.DB_MANAGER_write.insert_ut_values(
@@ -1246,13 +1299,19 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
 
                 
                     self.DB_MANAGER_write.insert_data_session(data)
+                    for i in range(0,100):    
+                        #time.sleep()
+                        self.progress_bar.setValue(((i)/100)*100)
+                     
+                        QApplication.processEvents()
                     
                     
-                except Exception as  e:
-                    e_str = str(e)
+                except :
+                    
                     QMessageBox.warning(self, "Errore", "Error ! \n"+ "duplicate key",  QMessageBox.Ok)
-               
                     return 0
+            #self.progress_bar.close()
+            QMessageBox.information(self, "Message", "Data Loaded")
 
 
         
