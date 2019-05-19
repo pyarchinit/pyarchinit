@@ -1183,7 +1183,7 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
         # lista tipo rapporti stratigrafici
 
         if self.L=='it':
-            valuesRS = ["Uguale a", "Si lega a", "Copre", "Coperto da", "Riempie", "Riempito da", "Taglia", "Tagliato da", "Si appoggia", "Gli si appoggia", ""]
+            valuesRS = ["Uguale a", "Si lega a", "Copre", "Coperto da", "Riempie", "Riempito da", "Taglia", "Tagliato da", "Si appoggia a", "Gli si appoggia", ""]
             self.delegateRS = ComboBoxDelegate()
             self.delegateRS.def_values(valuesRS)
             self.delegateRS.def_editable('False')
