@@ -634,7 +634,8 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
                 'TAFONOMIA': 'id_tafonomia',
                 'SCHEDAIND': 'id_scheda_ind',
                 'CAMPIONE': 'id_campione',
-                'DOCUMENTAZIONE': 'id_documentazione'
+                'DOCUMENTAZIONE': 'id_documentazione',
+                'PYARCHINIT_THESAURUS_SIGLE': 'id_thesaurus_sigle'
             }
         elif self.L=='de':
             id_table_class_mapper_conv_dict = {
@@ -647,7 +648,8 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
                 'TAPHONOMIE': 'id_tafonomia',
                 'INDIVIDUEL': 'id_scheda_ind',
                 'BEISPIELS': 'id_campione',
-                'DOKUMENTATION': 'id_documentazione'
+                'DOKUMENTATION': 'id_documentazione',
+                'PYARCHINIT_THESAURUS_SIGLE': 'id_thesaurus_sigle'
             }
         else:
             id_table_class_mapper_conv_dict = {
@@ -660,7 +662,8 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
                 'TAPHONOMY': 'id_tafonomia',
                 'INDIVIDUAL': 'id_scheda_ind',
                 'SAMPLE': 'id_campione',
-                'DOCUMENTATION': 'id_documentazione'
+                'DOCUMENTATION': 'id_documentazione',
+                'PYARCHINIT_THESAURUS_SIGLE': 'id_thesaurus_sigle'
             }       
         # creazione del cursore di lettura
         """if os.name == 'posix':
@@ -807,6 +810,7 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
                     data = self.DB_MANAGER_write.insert_values(
                         self.DB_MANAGER_write.max_num_id(mapper_class_write,
                                                          id_table_class_mapper_conv_dict[mapper_class_write]) + 1,
+                        
                         data_list_toimp[sing_rec].sito,
                         data_list_toimp[sing_rec].area,
                         data_list_toimp[sing_rec].us,
@@ -916,9 +920,9 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
                     
                     
                     
-                except :
-                    
-                    QMessageBox.warning(self, "Errore", "Error ! \n"+ "duplicate key",  QMessageBox.Ok)
+                except Exception as e :
+                    e_error= str(e)
+                    QMessageBox.warning(self, "Errore", "Error ! \n"+ str(e),  QMessageBox.Ok)
                     return 0
             #self.progress_bar.close()
             QMessageBox.information(self, "Message", "Data Loaded")
@@ -958,6 +962,7 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
                     data = self.DB_MANAGER_write.insert_values_reperti(
                         self.DB_MANAGER_write.max_num_id(mapper_class_write,
                                                          id_table_class_mapper_conv_dict[mapper_class_write]) + 1,
+                        
                         data_list_toimp[sing_rec].sito,
                         data_list_toimp[sing_rec].numero_inventario,
                         data_list_toimp[sing_rec].tipo_reperto,
@@ -1316,7 +1321,36 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
 
         
         
-        #self.sys.exit()
+        elif mapper_class_write == 'PYARCHINIT_THESAURUS_SIGLE' :
+            
+            for sing_rec in range(len(data_list_toimp)):
+                
+                #try:
+                data = self.DB_MANAGER_write.insert_values_thesaurus(
+                    self.DB_MANAGER_write.max_num_id(mapper_class_write,
+                                                     id_table_class_mapper_conv_dict[mapper_class_write]) + 1,
+                    data_list_toimp[sing_rec].nome_tabella,
+                    data_list_toimp[sing_rec].sigla,
+                    data_list_toimp[sing_rec].sigla_estesa,
+                    data_list_toimp[sing_rec].descrizione,
+                    data_list_toimp[sing_rec].tipologia_sigla,
+                    data_list_toimp[sing_rec].lingua
+                    )
+                    
+               
+                self.DB_MANAGER_write.insert_data_session(data)
+                for i in range(0,100):    
+                    #time.sleep()
+                    self.progress_bar.setValue(((i)/100)*100)
+                 
+                    QApplication.processEvents()
+                    
+                # except :
+                    
+                    # QMessageBox.warning(self, "Errore", "Error ! \n"+ "duplicate key",  QMessageBox.Ok)
+                    # return 0
+            #self.progress_bar.close()
+            QMessageBox.information(self, "Message", "Data Loaded")
 
     
     
