@@ -33,7 +33,7 @@ import matplotlib.pyplot as plt
 from matplotlib import cm
 #import visvis
 #import numpy as np
-from matplotlib.mlab import griddata
+#from matplotlib.mlab import griddata
 #import scipy as sp
 #import scipy.interpolate
 from pyper import R
