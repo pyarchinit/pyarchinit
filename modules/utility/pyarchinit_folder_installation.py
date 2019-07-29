@@ -59,7 +59,9 @@ class pyarchinit_Folder_installation(object):
         ### logo per versione tedesca
         self.OS_UTILITY.copy_file(logo_copy_from_path_de, logo_copy_to_path_de)   
 
-        
+        home_excel_path = '{}{}{}'.format(self.HOME, os.sep, 'pyarchinit_EXCEL_folder')
+        self.OS_UTILITY.create_dir(home_excel_path)
+		
         home_PDF_path = '{}{}{}'.format(self.HOME, os.sep, 'pyarchinit_PDF_folder')
         self.OS_UTILITY.create_dir(home_PDF_path)
 
