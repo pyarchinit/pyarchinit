@@ -173,7 +173,7 @@ class single_UT_pdf_sheet(object):
         # 1 row
         progetto = Paragraph("<b>Progetto</b><br/>" + str(self.progetto), styNormal)
         UT = Paragraph("<b>Nr. UT</b><br/>" + str(self.nr_ut), styNormal)
-        UTletterale = Paragraph("<b>UT letterale<br/>" + str(self.ut_letterale), styNormal)
+        UTletterale = Paragraph("<b>UT letterale</b><br/>" + str(self.ut_letterale), styNormal)
 
         # 2 row
         descrizione_ut = Paragraph("<b>Descrizione UT</b><br/>" + self.descrizione_ut, styNormal)
