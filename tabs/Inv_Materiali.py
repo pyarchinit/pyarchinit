@@ -1027,7 +1027,7 @@ class pyarchinit_Inventario_reperti(QDialog, MAIN_DIALOG_CLASS):
             dlg = ImageViewer(self)
             id_orig_item = item.text()  # return the name of original file
 
-            search_dict = {'id_media': "'" + str(id_orig_item) + "'"}
+            search_dict = {'media_filename': "'" + str(id_orig_item) + "'"}
 
             u = Utility()
             search_dict = u.remove_empty_items_fr_dict(search_dict)
@@ -2005,23 +2005,23 @@ class pyarchinit_Inventario_reperti(QDialog, MAIN_DIALOG_CLASS):
 
     def on_pushButton_first_rec_pressed(self):
         if self.check_record_state() == 1:
-            if self.toolButtonPreviewMedia.isChecked():
-                self.loadMediaPreview(1)
+            pass# if self.toolButtonPreviewMedia.isChecked():
+                # self.loadMediaPreview(1)
         else:
             try:
                 self.empty_fields()
                 self.REC_TOT, self.REC_CORR = len(self.DATA_LIST), 0
                 self.fill_fields(0)
                 self.set_rec_counter(self.REC_TOT, self.REC_CORR + 1)
-                if self.toolButtonPreviewMedia.isChecked():
-                    self.loadMediaPreview(0)
+                # if self.toolButtonPreviewMedia.isChecked():
+                    # self.loadMediaPreview(0)
             except Exception as e:
                 QMessageBox.warning(self, "Error", str(e), QMessageBox.Ok)
 
     def on_pushButton_last_rec_pressed(self):
         if self.check_record_state() == 1:
-            if self.toolButtonPreviewMedia.isChecked():
-                self.loadMediaPreview(0)
+            pass# if self.toolButtonPreviewMedia.isChecked():
+                # self.loadMediaPreview(0)
         else:
 
             try:
@@ -2029,8 +2029,8 @@ class pyarchinit_Inventario_reperti(QDialog, MAIN_DIALOG_CLASS):
                 self.REC_TOT, self.REC_CORR = len(self.DATA_LIST), len(self.DATA_LIST) - 1
                 self.fill_fields(self.REC_CORR)
                 self.set_rec_counter(self.REC_TOT, self.REC_CORR + 1)
-                if self.toolButtonPreviewMedia.isChecked():
-                    self.loadMediaPreview(0)
+                # if self.toolButtonPreviewMedia.isChecked():
+                    # self.loadMediaPreview(0)
             except Exception as e:
                 QMessageBox.warning(self, "Error", str(e), QMessageBox.Ok)
 
@@ -2762,7 +2762,9 @@ class pyarchinit_Inventario_reperti(QDialog, MAIN_DIALOG_CLASS):
                 self.lineEdit_eve_orlo.setText(str(self.DATA_LIST[self.rec_num].eve_orlo))
 
 
-                ##########
+            
+            if self.toolButtonPreviewMedia.isChecked():
+                self.loadMediaPreview()
         except Exception as e:
             QMessageBox.warning(self, "Error Fill Fields", str(e), QMessageBox.Ok)
 
@@ -2947,8 +2949,8 @@ class pyarchinit_Inventario_reperti(QDialog, MAIN_DIALOG_CLASS):
 
 ## Class end
 
-if __name__ == "__main__":
-    app = QApplication(sys.argv)
-    ui = pyarchinit_US()
-    ui.show()
-    sys.exit(app.exec_())
+# if __name__ == "__main__":
+    # app = QApplication(sys.argv)
+    # ui = pyarchinit_US()
+    # ui.show()
+    # sys.exit(app.exec_())
