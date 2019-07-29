@@ -1012,9 +1012,9 @@ class pyarchinit_Inventario_reperti(QDialog, MAIN_DIALOG_CLASS):
                 mediathumb_data = self.DB_MANAGER.query_bool(search_dict, "MEDIA_THUMB")
                 thumb_path = str(mediathumb_data[0].filepath)
 
-                item = QListWidgetItem(str(i.id_media))
+                item = QListWidgetItem(str(i.media_name))
 
-                item.setData(Qt.UserRole, str(i.id_media))
+                item.setData(Qt.UserRole, str(i.media_name))
                 icon = QIcon(thumb_path)
                 item.setIcon(icon)
                 self.iconListWidget.addItem(item)

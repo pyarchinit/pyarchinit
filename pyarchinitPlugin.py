@@ -42,6 +42,7 @@ from .tabs.Images_directory_export import pyarchinit_Images_directory_export
 from .tabs.Inv_Lapidei import pyarchinit_Inventario_Lapidei
 from .tabs.Inv_Materiali import pyarchinit_Inventario_reperti
 from .tabs.Pdf_export import pyarchinit_pdf_export
+from .tabs.Excel_export import pyarchinit_excel_export
 from .tabs.Periodizzazione import pyarchinit_Periodizzazione
 from .tabs.Schedaind import pyarchinit_Schedaind
 from .tabs.Site import pyarchinit_Site
@@ -257,7 +258,12 @@ class PyArchInitPlugin(object):
                                                 self.iface.mainWindow())
             self.actionDocumentazione.setWhatsThis("Documentazione")
             self.actionDocumentazione.triggered.connect(self.runDocumentazione)
-
+            
+            icon_excel_exp = '{}{}'.format(filepath, os.path.join(os.sep, 'resources', 'icons', 'excel-export.png'))            
+            self.actionExcel = QAction(QIcon(icon_excel_exp), "Download EXCEL", self.iface.mainWindow())
+            self.actionExcel.setWhatsThis("Download EXCEL")
+            self.actionExcel.triggered.connect(self.runExcel)
+            
             if self.PARAMS_DICT['EXPERIMENTAL'] == 'Si':
                 icon_imageViewer = '{}{}'.format(filepath, os.path.join(os.sep, 'resources', 'icons', 'photo.png'))
                 self.actionimageViewer = QAction(QIcon(icon_imageViewer), "Gestione immagini", self.iface.mainWindow())
@@ -275,7 +281,7 @@ class PyArchInitPlugin(object):
                 self.actionpdfExp.setWhatsThis("Esportazione PDF")
                 self.actionpdfExp.triggered.connect(self.runPdfexp)
 
-            self.docToolButton.addActions([self.actionDocumentazione])
+            self.docToolButton.addActions([self.actionDocumentazione, self.actionExcel])
 
             if self.PARAMS_DICT['EXPERIMENTAL'] == 'Si':
                 self.docToolButton.addActions(
@@ -375,7 +381,7 @@ class PyArchInitPlugin(object):
                 self.iface.addPluginToMenu("&pyArchInit - Archaeological GIS Tools", self.actionUT)
 
             self.iface.addPluginToMenu("&pyArchInit - Archaeological GIS Tools", self.actionDocumentazione)
-
+            self.iface.addPluginToMenu("&pyArchInit - Archaeological GIS Tools", self.actionExcel)
             if self.PARAMS_DICT['EXPERIMENTAL'] == 'Si':
                 self.iface.addPluginToMenu("&pyArchInit - Archaeological GIS Tools", self.actionimageViewer)
                 self.iface.addPluginToMenu("&pyArchInit - Archaeological GIS Tools", self.actionpdfExp)
@@ -403,7 +409,8 @@ class PyArchInitPlugin(object):
             self.menu.addSeparator()
             if self.PARAMS_DICT['EXPERIMENTAL'] == 'Si':
                 self.menu.addActions([self.actionUT])
-            self.menu.addActions([self.actionDocumentazione])
+            self.menu.addActions([self.actionDocumentazione,self.actionExcel])
+            
             if self.PARAMS_DICT['EXPERIMENTAL'] == 'Si':
                 self.menu.addActions([self.actionimageViewer, self.actionpdfExp, self.actionImages_Directory_export])
             self.menu.addSeparator()
@@ -552,7 +559,11 @@ class PyArchInitPlugin(object):
                                                 self.iface.mainWindow())
             self.actionDocumentazione.setWhatsThis("Documentation")
             self.actionDocumentazione.triggered.connect(self.runDocumentazione)
-
+            
+            icon_excel_exp = '{}{}'.format(filepath, os.path.join(os.sep, 'resources', 'icons', 'excel-export.png'))            
+            self.actionExcel = QAction(QIcon(icon_excel_exp), "Download EXCEL", self.iface.mainWindow())
+            self.actionExcel.setWhatsThis("Download EXCEL")
+            self.actionExcel.triggered.connect(self.runExcel)    
             if self.PARAMS_DICT['EXPERIMENTAL'] == 'Yes':
                 icon_imageViewer = '{}{}'.format(filepath, os.path.join(os.sep, 'resources', 'icons', 'photo.png'))
                 self.actionimageViewer = QAction(QIcon(icon_imageViewer), "Media manager", self.iface.mainWindow())
@@ -570,7 +581,7 @@ class PyArchInitPlugin(object):
                 self.actionpdfExp.setWhatsThis("Pdf exportation")
                 self.actionpdfExp.triggered.connect(self.runPdfexp)
 
-            self.docToolButton.addActions([self.actionDocumentazione])
+            self.docToolButton.addActions([self.actionDocumentazione, self.actionExcel])
 
             if self.PARAMS_DICT['EXPERIMENTAL'] == 'Yes':
                 self.docToolButton.addActions(
@@ -670,7 +681,7 @@ class PyArchInitPlugin(object):
                 self.iface.addPluginToMenu("&pyArchInit - Archaeological GIS Tools", self.actionUT)
 
             self.iface.addPluginToMenu("&pyArchInit - Archaeological GIS Tools", self.actionDocumentazione)
-
+            self.iface.addPluginToMenu("&pyArchInit - Archaeological GIS Tools", self.actionExcel)
             if self.PARAMS_DICT['EXPERIMENTAL'] == 'Yes':
                 self.iface.addPluginToMenu("&pyArchInit - Archaeological GIS Tools", self.actionimageViewer)
                 self.iface.addPluginToMenu("&pyArchInit - Archaeological GIS Tools", self.actionpdfExp)
@@ -698,7 +709,7 @@ class PyArchInitPlugin(object):
             self.menu.addSeparator()
             if self.PARAMS_DICT['EXPERIMENTAL'] == 'Yes':
                 self.menu.addActions([self.actionUT])
-            self.menu.addActions([self.actionDocumentazione])
+            self.menu.addActions([self.actionDocumentazione, self.actionExcel])
             if self.PARAMS_DICT['EXPERIMENTAL'] == 'Yes':
                 self.menu.addActions([self.actionimageViewer, self.actionpdfExp, self.actionImages_Directory_export])
             self.menu.addSeparator()
@@ -848,7 +859,13 @@ class PyArchInitPlugin(object):
                                                 self.iface.mainWindow())
             self.actionDocumentazione.setWhatsThis("Formular dokumentation")
             self.actionDocumentazione.triggered.connect(self.runDocumentazione)
-
+            
+            icon_excel_exp = '{}{}'.format(filepath, os.path.join(os.sep, 'resources', 'icons', 'excel-export.png'))            
+            self.actionExcel = QAction(QIcon(icon_excel_exp), "Download EXCEL", self.iface.mainWindow())
+            self.actionExcel.setWhatsThis("Download EXCEL")
+            self.actionExcel.triggered.connect(self.runExcel)
+            
+            
             if self.PARAMS_DICT['EXPERIMENTAL'] == 'Ja':
                 icon_imageViewer = '{}{}'.format(filepath, os.path.join(os.sep, 'resources', 'icons', 'photo.png'))
                 self.actionimageViewer = QAction(QIcon(icon_imageViewer), "Media manager", self.iface.mainWindow())
@@ -866,7 +883,7 @@ class PyArchInitPlugin(object):
                 self.actionpdfExp.setWhatsThis("Exportation PDF")
                 self.actionpdfExp.triggered.connect(self.runPdfexp)
 
-            self.docToolButton.addActions([self.actionDocumentazione])
+            self.docToolButton.addActions([self.actionDocumentazione, self.actionExcel])
 
             if self.PARAMS_DICT['EXPERIMENTAL'] == 'Ja':
                 self.docToolButton.addActions(
@@ -966,7 +983,7 @@ class PyArchInitPlugin(object):
                 self.iface.addPluginToMenu("&pyArchInit - Archaeological GIS Tools", self.actionUT)
 
             self.iface.addPluginToMenu("&pyArchInit - Archaeological GIS Tools", self.actionDocumentazione)
-
+            self.iface.addPluginToMenu("&pyArchInit - Archaeological GIS Tools", self.actionExcel)
             if self.PARAMS_DICT['EXPERIMENTAL'] == 'Ja':
                 self.iface.addPluginToMenu("&pyArchInit - Archaeological GIS Tools", self.actionimageViewer)
                 self.iface.addPluginToMenu("&pyArchInit - Archaeological GIS Tools", self.actionpdfExp)
@@ -994,7 +1011,8 @@ class PyArchInitPlugin(object):
             self.menu.addSeparator()
             if self.PARAMS_DICT['EXPERIMENTAL'] == 'Ja':
                 self.menu.addActions([self.actionUT])
-            self.menu.addActions([self.actionDocumentazione])
+            self.menu.addActions([self.actionDocumentazione, self.actionExcel])
+            
             if self.PARAMS_DICT['EXPERIMENTAL'] == 'Ja':
                 self.menu.addActions([self.actionimageViewer, self.actionpdfExp, self.actionImages_Directory_export])
             self.menu.addSeparator()
@@ -1121,7 +1139,10 @@ class PyArchInitPlugin(object):
         pluginDocumentazione = pyarchinit_Documentazione(self.iface)
         pluginDocumentazione.show()
         self.pluginGui = pluginDocumentazione  # save
-
+    def runExcel(self):
+        pluginExcel = pyarchinit_excel_export(self.iface)
+        pluginExcel.show()
+        self.pluginGui = pluginExcel  # save
     def unload(self):
         # Remove the plugin
         l=QgsSettings().value("locale/userLocale")[0:2] 
@@ -1136,6 +1157,7 @@ class PyArchInitPlugin(object):
             self.iface.removePluginMenu("&pyArchInit - Archaeological GIS Tools", self.actionSchedaind)
             self.iface.removePluginMenu("&pyArchInit - Archaeological GIS Tools", self.actionTafonomia)
             self.iface.removePluginMenu("&pyArchInit - Archaeological GIS Tools", self.actionDocumentazione)
+            self.iface.removePluginMenu("&pyArchInit - Archaeological GIS Tools", self.actionExcel)
             if self.PARAMS_DICT['EXPERIMENTAL'] == 'Si':
                 self.iface.removePluginMenu("&pyArchInit - Archaeological GIS Tools", self.actionDetsesso)
                 self.iface.removePluginMenu("&pyArchInit - Archaeological GIS Tools", self.actionDeteta)
@@ -1162,6 +1184,7 @@ class PyArchInitPlugin(object):
             self.iface.removeToolBarIcon(self.actionTafonomia)
             self.iface.removeToolBarIcon(self.actionSchedaind)
             self.iface.removeToolBarIcon(self.actionDocumentazione)
+            self.iface.removeToolBarIcon(self.actionExcel)
             if self.PARAMS_DICT['EXPERIMENTAL'] == 'Si':
                 self.iface.removeToolBarIcon(self.actionDetsesso)
                 self.iface.removeToolBarIcon(self.actionDeteta)
@@ -1194,6 +1217,7 @@ class PyArchInitPlugin(object):
             self.iface.removePluginMenu("&pyArchInit - Archaeological GIS Tools", self.actionSchedaind)
             self.iface.removePluginMenu("&pyArchInit - Archaeological GIS Tools", self.actionTafonomia)
             self.iface.removePluginMenu("&pyArchInit - Archaeological GIS Tools", self.actionDocumentazione)
+            self.iface.removePluginMenu("&pyArchInit - Archaeological GIS Tools", self.actionExcel)
             if self.PARAMS_DICT['EXPERIMENTAL'] == 'Yes':
                 self.iface.removePluginMenu("&pyArchInit - Archaeological GIS Tools", self.actionDetsesso)
                 self.iface.removePluginMenu("&pyArchInit - Archaeological GIS Tools", self.actionDeteta)
@@ -1220,6 +1244,7 @@ class PyArchInitPlugin(object):
             self.iface.removeToolBarIcon(self.actionTafonomia)
             self.iface.removeToolBarIcon(self.actionSchedaind)
             self.iface.removeToolBarIcon(self.actionDocumentazione)
+            self.iface.removeToolBarIcon(self.actionExcel)
             if self.PARAMS_DICT['EXPERIMENTAL'] == 'Yes':
                 self.iface.removeToolBarIcon(self.actionDetsesso)
                 self.iface.removeToolBarIcon(self.actionDeteta)
@@ -1252,6 +1277,7 @@ class PyArchInitPlugin(object):
             self.iface.removePluginMenu("&pyArchInit - Archaeological GIS Tools", self.actionSchedaind)
             self.iface.removePluginMenu("&pyArchInit - Archaeological GIS Tools", self.actionTafonomia)
             self.iface.removePluginMenu("&pyArchInit - Archaeological GIS Tools", self.actionDocumentazione)
+            self.iface.removePluginMenu("&pyArchInit - Archaeological GIS Tools", self.actionExcel)
             if self.PARAMS_DICT['EXPERIMENTAL'] == 'Ja':
                 self.iface.removePluginMenu("&pyArchInit - Archaeological GIS Tools", self.actionDetsesso)
                 self.iface.removePluginMenu("&pyArchInit - Archaeological GIS Tools", self.actionDeteta)
@@ -1278,6 +1304,7 @@ class PyArchInitPlugin(object):
             self.iface.removeToolBarIcon(self.actionTafonomia)
             self.iface.removeToolBarIcon(self.actionSchedaind)
             self.iface.removeToolBarIcon(self.actionDocumentazione)
+            self.iface.removeToolBarIcon(self.actionExcel)
             if self.PARAMS_DICT['EXPERIMENTAL'] == 'Ja':
                 self.iface.removeToolBarIcon(self.actionDetsesso)
                 self.iface.removeToolBarIcon(self.actionDeteta)
