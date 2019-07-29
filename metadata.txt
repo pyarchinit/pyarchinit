@@ -21,7 +21,7 @@ email=pyarchinit@gmail.com
 # Uncomment the following line and add your changelog entries:
 changelog=
    
-  Bug fixing release0.3.8:
+  Bug fixing release0.3.9:
   - fix bug toolbar image viewer
   -----------------------------------------------------------------------------
 
