@@ -1482,7 +1482,7 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
             dlg = ImageViewer(self)
             id_orig_item = item.text()  # return the name of original file
 
-            search_dict = {'id_media': "'" + str(id_orig_item) + "'"}
+            search_dict = {'media_filename': "'" + str(id_orig_item) + "'"}
 
             u = Utility()
             search_dict = u.remove_empty_items_fr_dict(search_dict)
