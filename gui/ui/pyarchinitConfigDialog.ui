@@ -226,7 +226,7 @@
           <item row="4" column="1">
            <widget class="QLineEdit" name="lineEdit_User">
             <property name="text">
-             <string>user</string>
+             <string/>
             </property>
             <property name="placeholderText">
              <string>dbuser</string>
@@ -347,6 +347,89 @@
           <string>Path Settings</string>
          </property>
          <layout class="QGridLayout" name="gridLayout_10">
+          <item row="0" column="1">
+           <widget class="QLineEdit" name="lineEdit_Thumb_path">
+            <property name="text">
+             <string/>
+            </property>
+            <property name="placeholderText">
+             <string>choose path thumbnail</string>
+            </property>
+           </widget>
+          </item>
+          <item row="0" column="2">
+           <widget class="QToolButton" name="toolButton_thumbpath">
+            <property name="text">
+             <string>...</string>
+            </property>
+           </widget>
+          </item>
+          <item row="1" column="1">
+           <widget class="QLineEdit" name="lineEdit_Thumb_resize">
+            <property name="placeholderText">
+             <string>choose path for the resize images</string>
+            </property>
+           </widget>
+          </item>
+          <item row="6" column="1">
+           <widget class="QLineEdit" name="lineEdit_crs">
+            <property name="maximumSize">
+             <size>
+              <width>100</width>
+              <height>16777215</height>
+             </size>
+            </property>
+            <property name="text">
+             <string/>
+            </property>
+            <property name="placeholderText">
+             <string>insert epsg code</string>
+            </property>
+           </widget>
+          </item>
+          <item row="2" column="1" colspan="2">
+           <widget class="QLineEdit" name="lineEdit_Logo_path">
+            <property name="text">
+             <string/>
+            </property>
+           </widget>
+          </item>
+          <item row="3" column="1">
+           <spacer name="verticalSpacer_4">
+            <property name="orientation">
+             <enum>Qt::Vertical</enum>
+            </property>
+            <property name="sizeType">
+             <enum>QSizePolicy::Expanding</enum>
+            </property>
+            <property name="sizeHint" stdset="0">
+             <size>
+              <width>20</width>
+              <height>40</height>
+             </size>
+            </property>
+           </spacer>
+          </item>
+          <item row="1" column="0">
+           <widget class="QLabel" name="label_40">
+            <property name="text">
+             <string>Image resize</string>
+            </property>
+           </widget>
+          </item>
+          <item row="5" column="0">
+           <widget class="QPushButton" name="pushButton_upd_postgres">
+            <property name="maximumSize">
+             <size>
+              <width>150</width>
+              <height>16777215</height>
+             </size>
+            </property>
+            <property name="text">
+             <string>Update Postgres</string>
+            </property>
+           </widget>
+          </item>
           <item row="6" column="0">
            <widget class="QPushButton" name="pushButton_upd_sqlite">
             <property name="sizePolicy">
@@ -380,72 +463,24 @@
             </property>
            </widget>
           </item>
-          <item row="0" column="1" colspan="2">
-           <widget class="QLineEdit" name="lineEdit_Thumb_path">
+          <item row="1" column="2">
+           <widget class="QToolButton" name="toolButton_resizepath">
             <property name="text">
-             <string/>
+             <string>...</string>
             </property>
            </widget>
           </item>
-          <item row="5" column="0">
-           <widget class="QPushButton" name="pushButton_upd_postgres">
-            <property name="maximumSize">
-             <size>
-              <width>150</width>
-              <height>16777215</height>
-             </size>
-            </property>
+          <item row="0" column="3">
+           <widget class="QPushButton" name="pbnOpenthumbDirectory">
             <property name="text">
-             <string>Update Postgres</string>
+             <string>Open folder</string>
             </property>
            </widget>
           </item>
-          <item row="1" column="0">
-           <widget class="QLabel" name="label_40">
+          <item row="1" column="3">
+           <widget class="QPushButton" name="pbnOpenresizeDirectory">
             <property name="text">
-             <string>Image resize</string>
-            </property>
-           </widget>
-          </item>
-          <item row="3" column="1">
-           <spacer name="verticalSpacer_4">
-            <property name="orientation">
-             <enum>Qt::Vertical</enum>
-            </property>
-            <property name="sizeType">
-             <enum>QSizePolicy::Expanding</enum>
-            </property>
-            <property name="sizeHint" stdset="0">
-             <size>
-              <width>20</width>
-              <height>40</height>
-             </size>
-            </property>
-           </spacer>
-          </item>
-          <item row="2" column="1" colspan="2">
-           <widget class="QLineEdit" name="lineEdit_Logo_path">
-            <property name="text">
-             <string/>
-            </property>
-           </widget>
-          </item>
-          <item row="1" column="1">
-           <widget class="QLineEdit" name="lineEdit_Thumb_resize"/>
-          </item>
-          <item row="6" column="1">
-           <widget class="QLineEdit" name="lineEdit_crs">
-            <property name="maximumSize">
-             <size>
-              <width>100</width>
-              <height>16777215</height>
-             </size>
-            </property>
-            <property name="text">
-             <string/>
-            </property>
-            <property name="placeholderText">
-             <string>insert epsg code</string>
+             <string>Open folder</string>
             </property>
            </widget>
           </item>
