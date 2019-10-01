@@ -82,6 +82,8 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
         self.pushButton_save.clicked.connect(self.on_pushButton_save_pressed)
         self.pushButtonGraphviz.clicked.connect(self.setPathGraphviz)
         self.pbnSaveEnvironPath.clicked.connect(self.setEnvironPath)
+        self.toolButton_thumbpath.clicked.connect(self.setPathThumb)
+        self.toolButton_resizepath.clicked.connect(self.setPathResize)
         self.pushButtonR.clicked.connect(self.setPathR)
         self.pbnSaveEnvironPathR.clicked.connect(self.setEnvironPathR)
         self.pushButton_import.clicked.connect(self.on_pushButton_import_pressed)
@@ -108,6 +110,47 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
         self.selectorCrsWidget.setCrs(QgsProject.instance().crs())
         self.selectorCrsWidget_sl.setCrs(QgsProject.instance().crs())
 
+    def openthumbDir(self):
+        s = QgsSettings()
+        dir = self.lineEdit_Thumb_path.text()
+        if os.path.exists(dir):
+            QDesktopServices.openUrl(QUrl.fromLocalFile(dir))
+        else:
+            QMessageBox.warning(self, "INFO", "Directory not found",
+                                QMessageBox.Ok)
+    def openresizeDir(self):
+        s = QgsSettings()
+        dir = self.lineEdit_Thumb_resize.text()
+        if os.path.exists(dir):
+            QDesktopServices.openUrl(QUrl.fromLocalFile(dir))
+        else:
+            QMessageBox.warning(self, "INFO", "Directory not found",
+                                QMessageBox.Ok)
+    def setPathThumb(self):
+        s = QgsSettings()
+        self.thumbpath = QFileDialog.getExistingDirectory(
+            self,
+            "Set path directory",
+            self.HOME,
+            QFileDialog.ShowDirsOnly
+        )
+        if self.thumbpath:
+            self.lineEdit_Thumb_path.setText(self.thumbpath+"/")
+            s.setValue('pyArchInit/thumbpath', self.thumbpath)
+    
+    def setPathResize(self):
+        s = QgsSettings()
+        self.resizepath = QFileDialog.getExistingDirectory(
+            self,
+            "Set path directory",
+            self.HOME,
+            QFileDialog.ShowDirsOnly
+        )
+        if self.resizepath:
+            self.lineEdit_Thumb_resize.setText(self.resizepath+"/")
+            s.setValue('pyArchInit/risizepath', self.resizepath)
+    
+    
     def setPathGraphviz(self):
         s = QgsSettings()
         self.graphviz_bin = QFileDialog.getExistingDirectory(
