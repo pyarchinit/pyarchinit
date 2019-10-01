@@ -110,6 +110,10 @@ class pyarchinit_Images_directory_export(QDialog, MAIN_DIALOG_CLASS):
 
     def on_pushButton_exp_icons_pressed(self):
         sito = str(self.comboBox_sito.currentText())
+        conn = Connection()
+        conn_str = conn.conn_str()
+        thumb_resize = conn.thumb_resize()
+        thumb_resize_str = thumb_resize['thumb_resize']
         if self.checkBox_US.isChecked()== True:
             us_res = self.db_search_DB('US', 'sito', sito)
             sito_path = '{}{}{}'.format(self.HOME, os.sep, "pyarchinit_image_export")
@@ -141,7 +145,7 @@ class pyarchinit_Images_directory_export(QDialog, MAIN_DIALOG_CLASS):
                     search_images_res = self.DB_MANAGER.query_bool(search_dict, 'MEDIAVIEW')
 
                     for sing_media in search_images_res:
-                        self.OS_UTILITY.copy_file_img(str(sing_media.filepath), sing_US_path)
+                        self.OS_UTILITY.copy_file_img(thumb_resize_str+str(sing_media.path_resize), sing_US_path)
                     ##                      QMessageBox.warning(self, "Alert", str(sing_media.filepath),  QMessageBox.Ok)
                     ##                      QMessageBox.warning(self, "Alert", str(sing_US_path),  QMessageBox.Ok)
 
@@ -180,7 +184,7 @@ class pyarchinit_Images_directory_export(QDialog, MAIN_DIALOG_CLASS):
                     search_images_res = self.DB_MANAGER.query_bool(search_dict, 'MEDIAVIEW')
 
                     for sing_media in search_images_res:
-                        self.OS_UTILITY.copy_file_img(str(sing_media.filepath), sing_REPERTI_path)
+                        self.OS_UTILITY.copy_file_img(thumb_resize_str+str(sing_media.path_resize), sing_REPERTI_path)
                     ##                      QMessageBox.warning(self, "Alert", str(sing_media.filepath),  QMessageBox.Ok)
                     ##                      QMessageBox.warning(self, "Alert", str(sing_US_path),  QMessageBox.Ok)
 

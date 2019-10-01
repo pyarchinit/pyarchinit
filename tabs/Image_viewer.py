@@ -255,8 +255,8 @@ class Main(QDialog, MAIN_DIALOG_CLASS):
                 filename_thumb = str(media_max_num_id) + "_" + filename + media_thumb_suffix
                 filename_resize = str(media_max_num_id) + "_" + filename + media_resize_suffix
                 
-                filepath_thumb = thumb_path_str + filename_thumb
-                filepath_resize = thumb_resize_str + filename_resize
+                filepath_thumb = filename_thumb
+                filepath_resize = filename_resize
                 
                 # crea la thumbnail
                 try:
@@ -272,7 +272,7 @@ class Main(QDialog, MAIN_DIALOG_CLASS):
                 # visualizza le immagini nella ui
                 item = QListWidgetItem(str(media_max_num_id))
                 item.setData(Qt.UserRole, str(media_max_num_id))
-                icon = QIcon(filepath_thumb)  # os.path.join('%s/%s' % (directory.toUtf8(), image)))
+                icon = QIcon(thumb_path_str+filepath)  # os.path.join('%s/%s' % (directory.toUtf8(), image)))
                 item.setIcon(icon)
                 self.iconListWidget.addItem(item)
 
@@ -291,7 +291,7 @@ class Main(QDialog, MAIN_DIALOG_CLASS):
 
                 thumb_path = data_for_thumb[0].filepath
                 item.setData(Qt.UserRole, thumb_path)
-                icon = QIcon(thumb_path)  # os.path.join('%s/%s' % (directory.toUtf8(), image)))
+                icon = QIcon(thumb_path_str+filepath)  # os.path.join('%s/%s' % (directory.toUtf8(), image)))
                 item.setIcon(icon)
                 self.iconListWidget.addItem(item)
 
@@ -505,10 +505,14 @@ class Main(QDialog, MAIN_DIALOG_CLASS):
 
     def openWide_image(self):
         items = self.iconListWidget.selectedItems()
+        conn = Connection()
+        conn_str = conn.conn_str()
+        thumb_resize = conn.thumb_resize()
+        thumb_resize_str = thumb_resize['thumb_resize']
         for item in items:
             dlg = ImageViewer()
             id_orig_item = item.text()  # return the name of original file
-
+            
             search_dict = {'id_media': "'" + str(id_orig_item) + "'"}
 
             u = Utility()
@@ -520,7 +524,7 @@ class Main(QDialog, MAIN_DIALOG_CLASS):
             except Exception as e:
                 QMessageBox.warning(self, "Error", "Warning 1 file: "+ str(e),  QMessageBox.Ok)
 
-            dlg.show_image(str(file_path))  # item.data(QtCore.Qt.UserRole).toString()))
+            dlg.show_image(str(thumb_resize_str+file_path))  # item.data(QtCore.Qt.UserRole).toString()))
             dlg.exec_()
 
     def charge_sito_list(self):
@@ -623,6 +627,11 @@ class Main(QDialog, MAIN_DIALOG_CLASS):
         self.iconListWidget.clear()
 
     def open_images(self):
+        conn=Connection()
+        
+        thumb_path = conn.thumb_path()
+        thumb_path_str = thumb_path['thumb_path']
+        
         self.clear_thumb_images()
 
         data_len = len(self.DATA)
@@ -644,7 +653,7 @@ class Main(QDialog, MAIN_DIALOG_CLASS):
                 thumb_path = data[i].filepath
                 # QMessageBox.warning(self, "Errore",str(thumb_path),  QMessageBox.Ok)
                 item.setData(Qt.UserRole, str(data[i].media_filename))
-                icon = QIcon(thumb_path)  # os.path.join('%s/%s' % (directory.toUtf8(), image)))
+                icon = QIcon(thumb_path_str+thumb_path)  # os.path.join('%s/%s' % (directory.toUtf8(), image)))
                 item.setIcon(icon)
                 self.iconListWidget.addItem(item)
 
