@@ -995,6 +995,10 @@ class pyarchinit_Inventario_reperti(QDialog, MAIN_DIALOG_CLASS):
 
     def loadMediaPreview(self, mode=0):
         self.iconListWidget.clear()
+        conn = Connection()
+        
+        thumb_path = conn.thumb_path()
+        thumb_path_str = thumb_path['thumb_path']
         if mode == 0:
             """ if has geometry column load to map canvas """
 
@@ -1016,13 +1020,17 @@ class pyarchinit_Inventario_reperti(QDialog, MAIN_DIALOG_CLASS):
 
                 item.setData(Qt.UserRole, str(i.media_name))
                 icon = QIcon(thumb_path)
-                item.setIcon(icon)
+                icon = QIcon(thumb_path_str+thumb_path)
                 self.iconListWidget.addItem(item)
         elif mode == 1:
             self.iconListWidget.clear()
 
     def openWide_image(self):
         items = self.iconListWidget.selectedItems()
+        conn = Connection()
+        
+        thumb_resize = conn.thumb_resize()
+        thumb_resize_str = thumb_resize['thumb_resize']
         for item in items:
             dlg = ImageViewer(self)
             id_orig_item = item.text()  # return the name of original file
@@ -1038,7 +1046,7 @@ class pyarchinit_Inventario_reperti(QDialog, MAIN_DIALOG_CLASS):
             except Exception as e:
                 QMessageBox.warning(self, "Error", "Warning 1 file: " + str(e), QMessageBox.Ok)
 
-            dlg.show_image(str(file_path))  # item.data(QtCore.Qt.UserRole).toString()))
+            dlg.show_image(thumb_resize_str+file_path)  # item.data(QtCore.Qt.UserRole).toString()))
             dlg.exec_()
 
     def charge_list(self):
