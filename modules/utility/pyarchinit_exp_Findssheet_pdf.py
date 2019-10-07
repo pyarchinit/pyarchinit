@@ -258,13 +258,13 @@ class single_Finds_pdf_sheet(object):
             for i in eval(self.rif_biblio):  # gigi
                 if rif_biblio == '':
                     try:
-                        rif_biblio += ("<b>Autore: %s, Anno: %s, Titolo: %s, Pag.: %s, Fig.: %s") % (
+                        rif_biblio += ("Autore: %s, Anno: %s, Titolo: %s, Pag.: %s, Fig.: %s") % (
                         str(i[0]), str(i[1]), str(i[2]), str(i[3]), str(i[4]))
                     except:
                         pass
                 else:
                     try:
-                        rif_biblio += ("<b>Autore: %s, Anno: %s, Titolo: %s, Pag.: %s, Fig.: %s") % (
+                        rif_biblio += ("<br/>Autore: %s, Anno: %s, Titolo: %s, Pag.: %s, Fig.: %s") % (
                         str(i[0]), str(i[1]), str(i[2]), str(i[3]), str(i[4]))
                     except:
                         pass
