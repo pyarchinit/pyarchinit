@@ -225,6 +225,7 @@ class single_US_pdf_sheet(object):
             for item in inorg:
                 inorganici += "" + str(item)[2:len(str(item)) - 2] + ", "  # trasforma item da ['Stringa'] a Stringa
             inorganici = inorganici[0:len(inorganici) - 2]  # tolgo la virgola in più
+
          #   if len(org) > 1:
          #       i=1
          #       while i < len(org):
@@ -436,6 +437,7 @@ class single_US_pdf_sheet(object):
         if self.documentazione == '':
             pass
         else:
+            self.documentazione_print = ""
             for string_doc in eval(self.documentazione):
                 if len(string_doc) == 2:
                     self.documentazione_print += str(string_doc[0]) + ": " + str(string_doc[1]) + "<br/>"
@@ -447,6 +449,7 @@ class single_US_pdf_sheet(object):
         if self.inclusi == '':
             pass
         else:
+            self.inclusi_print = ""
             for string_inclusi in eval(self.inclusi):
                 if len(string_inclusi) == 2:
                     self.inclusi_print += str(string_inclusi[0]) + ": " + str(string_inclusi[1]) + "<br/>"
@@ -457,6 +460,7 @@ class single_US_pdf_sheet(object):
         if self.inclusi_usm == '':
             pass
         else:
+            self.inclusi_usm_print = ""
             for string_inclusi_usm in eval(self.inclusi_materiali_usm):
                 if len(string_inclusi_usm) == 2:
                     self.inclusi_usm_print += str(string_inclusi_usm[0]) + ": " + str(string_inclusi_usm[1]) + "<br/>"
@@ -489,6 +493,7 @@ class single_US_pdf_sheet(object):
         # 0 row
         intestazione = Paragraph("<b>SCHEDA DI UNITA' STRATIGRAFICA<br/>" + str(self.datestrfdate()) + "</b>",
                                  styNormal)
+
         # intestazione2 = Paragraph("<b>Pyarchinit</b><br/>https://sites.google.com/site/pyarchinit/", styNormal)
 
         home = os.environ['PYARCHINIT_HOME']
@@ -520,7 +525,7 @@ class single_US_pdf_sheet(object):
         colore = Paragraph("<b>Colore</b><br/>" + self.colore, styNormal)
 
         # 5 row
-        inclusi_list = eval(self.inclusi)
+        #inclusi_list = eval(self.inclusi) #da cancellare?
         inclusi = ''
         for i in eval(self.inclusi):
             if inclusi == '':
@@ -1449,14 +1454,30 @@ class single_US_pdf_sheet(object):
 
         #8-9 row
 
+
         organici, inorganici= self.unzip_componenti()
+        inclusi = ''
+        for i in eval(self.inclusi):
+            if inclusi == '':
+                try:
+                    inclusi += str(i[0])
+                except:
+                    pass
+            else:
+                try:
+                    inclusi += ', ' + str(i[0])
+                except:
+                    pass
 
         label_componenti = Paragraph("<b>COMPONENTI</b>",styVerticale)
-        label_geologici = Paragraph("<i>GEOLOGICI</i>",styTitoloComponenti)
-        label_organici = Paragraph("<i>ORGANICI</i>", styTitoloComponenti)
-        label_artificiali = Paragraph("<i>ARTIFICIALI</i>", styTitoloComponenti)
-        comp_organici = Paragraph(organici, styNormal)
-        comp_inorganici = Paragraph(inorganici, styNormal)  #geologici? artificiali?
+
+        label_geologici = Paragraph("<i>GEOLOGICI</i>",styTitoloComponenti) #inorganici
+        label_organici = Paragraph("<i>ORGANICI</i>", styTitoloComponenti) #organici
+        label_artificiali = Paragraph("<i>ARTIFICIALI</i>", styTitoloComponenti) #inclusi
+
+        comp_organici = Paragraph(organici, styNormal) #organici
+        comp_inorganici = Paragraph(inorganici, styNormal)  #geologici
+        inclusi = Paragraph(inclusi, styNormal)  #artificiali
 
         #10 row
 
@@ -1548,7 +1569,7 @@ class single_US_pdf_sheet(object):
             [criteri_distinzione, '01', '02', '03', '04', '05', '06', '07', '08', '09', '10', '11', '12', '13', '14', '15', '16', '17'],
             [modo_formazione, '01', '02', '03', '04', '05', '06', '07', '08', '09', '10', '11', '12', '13', '14', '15', '16', '17'],
             [label_componenti, label_geologici, '02', '03', '04', '05', label_organici, '07', '08', '09', '10', '11', label_artificiali, '13', '14', '15', '16', '17'],
-            ['00', comp_inorganici, '02', '03', '04', '05', comp_organici, '07', '08', '09', '10', '11', comp_inorganici, '13', '14', '15', '16', '17'],
+            ['00', comp_inorganici, '02', '03', '04', '05', comp_organici, '07', '08', '09', '10', '11', inclusi, '13', '14', '15', '16', '17'],
             [consistenza, '01', '02', '03', '04', '05', colore, '07', '08', '09', '10', '11', misure, '13', '14', '15', '16', '17'],
             [stato_conservazione, '01', '02', '03', '04', '05', '06', '07', '08', '09', '10', '11', '12', '13', '14', '15', '16', '17'],
             [descrizione, '01', '02', '03', '04', '05', '06', '07', '08', '09', '10', '11', '12', '13', '14', '15', '16', '17'],
@@ -2833,25 +2854,56 @@ class generate_US_pdf(object):
 
     def build_US_sheets(self, records):
 
-        elements = []
+        elements_us_pyarchinit = []
         for i in range(len(records)):
             single_us_sheet = single_US_pdf_sheet(records[i])
-            #elements.append(single_us_sheet.create_sheet())
-            #elements.append(PageBreak())
-            #elements.append(single_us_sheet.create_sheet_archeo3_usm_fields())
-            #elements.append(PageBreak())
-            elements.append(single_us_sheet.create_sheet_archeo3_usm_fields_2())
-            elements.append(PageBreak())
+            elements_us_pyarchinit.append(single_us_sheet.create_sheet())                       #prima versione scheda US
+            elements_us_pyarchinit.append(PageBreak())                                          #prima versione scheda US
+
+        elements_ususm_pyarchinit = []
+        for i in range(len(records)):
+            single_us_sheet = single_US_pdf_sheet(records[i])
+            elements_ususm_pyarchinit.append(single_us_sheet.create_sheet_archeo3_usm_fields()) #seconda versione scheda US con USM
+            elements_ususm_pyarchinit.append(PageBreak())                                       #seconda versione scheda US con USM
+
+        elements_us_iccd = []
+        for i in range(len(records)):
+            single_us_sheet = single_US_pdf_sheet(records[i])
+            elements_us_iccd.append(single_us_sheet.create_sheet_archeo3_usm_fields_2())        #terza versione scheda US SENZA CAMPI US formato Ministeriale ICCD
+            elements_us_iccd.append(PageBreak())                                                #terza versione scheda US SENZA CAMPI US formato Ministeriale ICCD
 
         dt = datetime.datetime.now()
+
+        #us
         filename = ('%s%s%s_%s_%s_%s_%s_%s_%s%s') % (
         self.PDF_path, os.sep, 'scheda_US', dt.day, dt.month, dt.year, dt.hour, dt.minute, dt.second, ".pdf")
         f = open(filename, "wb")
 
         doc = SimpleDocTemplate(f, pagesize=A4)
-        doc.build(elements, canvasmaker=NumberedCanvas_USsheet)
+        doc.build(elements_us_pyarchinit, canvasmaker=NumberedCanvas_USsheet)
 
         f.close()
+
+        #ususm
+        filename = ('%s%s%s_%s_%s_%s_%s_%s_%s%s') % (
+        self.PDF_path, os.sep, 'scheda_USUSM', dt.day, dt.month, dt.year, dt.hour, dt.minute, dt.second, ".pdf")
+        f = open(filename, "wb")
+
+        doc = SimpleDocTemplate(f, pagesize=A4)
+        doc.build(elements_ususm_pyarchinit, canvasmaker=NumberedCanvas_USsheet)
+
+        f.close()
+
+        #usICCD
+        filename = ('%s%s%s_%s_%s_%s_%s_%s_%s%s') % (
+        self.PDF_path, os.sep, 'scheda_USICCD', dt.day, dt.month, dt.year, dt.hour, dt.minute, dt.second, ".pdf")
+        f = open(filename, "wb")
+
+        doc = SimpleDocTemplate(f, pagesize=A4)
+        doc.build(elements_us_iccd, canvasmaker=NumberedCanvas_USsheet)
+
+        f.close()
+
     
     
     def build_US_sheets_en(self, records):
