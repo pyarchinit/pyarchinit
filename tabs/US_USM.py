@@ -24,7 +24,7 @@ from builtins import str
 
 
 import os
-
+import platform
 from datetime import date
 from qgis.PyQt.QtCore import Qt, QSize, pyqtSlot, QVariant, QLocale
 from qgis.PyQt.QtGui import QColor, QIcon
@@ -936,6 +936,7 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
             search_dict = u.remove_empty_items_fr_dict(search_dict)
 
             res = self.DB_MANAGER.query_bool(search_dict, self.MAPPER_TABLE_CLASS)
+            
             if not bool(res):
                 
                 if self.L=='it':
@@ -1537,7 +1538,30 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
         sito_vl.sort()
         self.comboBox_sito.addItems(sito_vl)
         self.comboBox_sito_rappcheck.addItems(sito_vl)
+        
+        # ra_vl = self.UTILITY.tup_2_list_III(self.DB_MANAGER.group_by('inventario_materiali_table', 'numero_inventario', 'INVENTARIO_MATERIALI'))
+        # try:
+            # ra_vl.remove('')
+        # except Exception as e:
+            # if str(e) == "list.remove(x): x not in list":
+                # pass
+            # else:
+                # if self.L=='it':
+                    # QMessageBox.warning(self, "Messaggio", "Sistema di aggiornamento lista Sito: " + str(e), QMessageBox.Ok)
+                # elif self.L=='en':
+                    # QMessageBox.warning(self, "Message", "Site list update system: " + str(e), QMessageBox.Ok)
+                # elif self.L=='de':
+                    # QMessageBox.warning(self, "Nachricht", "Aktualisierungssystem für die Ausgrabungstätte: " + str(e), QMessageBox.Ok)
+                # else:
+                    # pass
+        # self.comboBox_ref_ra.clear()
+        # self.comboBox_ref_ra_rappcheck.clear()
 
+        # ra_vl.sort()
+        # self.comboBox_ref_ra.addItems(ra_vl)
+        # self.comboBox_ref_ra_rappcheck.addItems(ra_vl)
+        
+        
         # lista settore
 
         self.comboBox_settore.clear()
@@ -3530,7 +3554,7 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
                 quota_relativa, #55 quota relativa
                 quota_abs, #56 quota abs
                 str(self.lineEdit_ref_tm.text()),  # 57 ref tm
-                str(self.lineEdit_ref_ra.text()),  # 58 ref ra
+                str(self.comboBox_ref_ra.currentText()),  # 58 ref ra
                 str(self.lineEdit_ref_n.text()),  # 59 ref n
                 str(self.lineEdit_posizione.text()),  # 60 posizione
                 str(self.lineEdit_criteri_distinzione.text()),  # 61 criteri distinzione
@@ -4122,7 +4146,7 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
                 self.TABLE_FIELDS[54]:  quota_relativa,  # 55 quota relativa
                 self.TABLE_FIELDS[55]:  quota_abs,  # 56 quota abs
                 self.TABLE_FIELDS[56]: "'" + str(self.lineEdit_ref_tm.text()) + "'",  # 57 ref tm
-                self.TABLE_FIELDS[57]: "'" + str(self.lineEdit_ref_ra.text()) + "'",  # 58 ref ra
+                self.TABLE_FIELDS[57]: "'" + str(self.comboBox_ref_ra.currentText()) + "'",  # 58 ref ra
                 self.TABLE_FIELDS[58]: "'" + str(self.lineEdit_ref_n.text()) + "'",  # 59 ref n
                 self.TABLE_FIELDS[59]: "'" + str(self.lineEdit_posizione.text()) + "'",  # 60 posizione
                 self.TABLE_FIELDS[60]: "'" + str(self.lineEdit_criteri_distinzione.text()) + "'",
@@ -4293,7 +4317,7 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
                 return 1
             elif test == 0:
                 return 0
-
+    
     def update_record(self):
         try:
             self.DB_MANAGER.update(self.MAPPER_TABLE_CLASS,
@@ -4318,6 +4342,7 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
                                         e), QMessageBox.Ok)                                 
             return 0
 
+        
     def rec_toupdate(self):
         rec_to_update = self.UTILITY.pos_none_in_list(self.DATA_LIST_REC_TEMP)
         return rec_to_update
@@ -4531,7 +4556,7 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
         self.lineEdit_quota_relativa.clear()  # 55
         self.lineEdit_quota_abs.clear()  # 56
         self.lineEdit_ref_tm.clear()  # 57 ref tm
-        self.lineEdit_ref_ra.clear()  # 58 ref ra
+        self.comboBox_ref_ra.setEditText("")   # 58 ref ra
         self.lineEdit_ref_n.clear()  # 59 ref n
         self.lineEdit_posizione.clear()  # 60 posizione
         self.lineEdit_criteri_distinzione.clear()  # 61 criteri distinzione
@@ -4667,7 +4692,7 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
                 self.lineEdit_quota_abs.setText(str(self.DATA_LIST[self.rec_num].quota_abs))
 
             str(self.lineEdit_ref_tm.setText(self.DATA_LIST[self.rec_num].ref_tm))  # 57 ref tm
-            str(self.lineEdit_ref_ra.setText(self.DATA_LIST[self.rec_num].ref_ra))  # 58 ref ra
+            str(self.comboBox_ref_ra.setEditText(self.DATA_LIST[self.rec_num].ref_ra))  # 58 ref ra
             str(self.lineEdit_ref_n.setText(self.DATA_LIST[self.rec_num].ref_n))  # 59 ref n
             str(self.lineEdit_posizione.setText(self.DATA_LIST[self.rec_num].posizione))  # 60 posizione
             str(self.lineEdit_criteri_distinzione.setText(self.DATA_LIST[self.rec_num].criteri_distinzione))  # 61 criteri distinzione
@@ -4973,7 +4998,7 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
             str(quota_relativa),  # 55 quota relativa
             str(quota_abs),  # 56 quota abs
             str(self.lineEdit_ref_tm.text()),  # 57 ref tm
-            str(self.lineEdit_ref_ra.text()),  # 58 ref ra
+            str(self.comboBox_ref_ra.currentText()),  # 58 ref ra
             str(self.lineEdit_ref_n.text()),  # 59 ref n
             str(self.lineEdit_posizione.text()),  # 60 posizione
             str(self.lineEdit_criteri_distinzione.text()), # 61 criteri distinzione
@@ -5061,5 +5086,16 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
         f = open(str(name_file), 'w')
         f.write(str(message))
         f.close()
+    
+    
+    def on_pushButton_open_dir_pressed(self):
+        HOME = os.environ['PYARCHINIT_HOME']
+        path = '{}{}{}'.format(HOME, os.sep, "pyarchinit_PDF_folder")
 
+        if platform.system() == "Windows":
+            os.startfile(path)
+        elif platform.system() == "Darwin":
+            subprocess.Popen(["open", path])
+        else:
+            subprocess.Popen(["xdg-open", path])
 ## Class end
