@@ -1438,7 +1438,7 @@ class single_US_pdf_sheet(object):
         sezioni = Paragraph("<b>SEZIONI</b><br/>", styNormal)                 #manca valore
         prospetti = Paragraph("<b>PROSPETTI</b><br/>", styNormal)             #manca valore
         foto = Paragraph("<b>FOTO</b><br/>B/N:<br/>Digitale:", styNormal)     #manca valore
-        tabelle_materiali = Paragraph("<b>TABELLE MATERIALI<br/><br/>RA</b>:", styNormal)  #manca valore
+        tabelle_materiali = Paragraph("<b>TABELLE MATERIALI<br/><br/>RA</b>:"+ self.ref_ra, styNormal)  #manca valore
 
         #5 row
 
