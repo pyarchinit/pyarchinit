@@ -1,0 +1,64 @@
+<RCC>
+  <qresource prefix="/">
+    <file>icons/4_leftArrow.png</file>
+    <file>icons/5_leftArrows.png</file>
+    <file>icons/6_rightArrow.png</file>
+    <file>icons/7_rightArrows.png</file>
+    <file>icons/b_save.png</file>
+    <file>icons/backup.png</file>
+    
+    <file>icons/banner.png</file>
+    <file>icons/champion.png</file>
+    <file>icons/comparision.png</file>
+    <file>icons/delete.png</file>
+    <file>icons/directory.xcf</file>
+    <file>icons/directoryExp.png</file>
+    <file>icons/finds.png</file>
+    <file>icons/GIS.png</file>
+    <file>icons/iconANC.png</file>
+    <file>icons/iconConn.png</file>
+    <file>icons/iconEta.png</file>
+    <file>icons/iconGrave.png</file>
+    <file>icons/iconIND.png</file>
+    <file>icons/iconInfo.png</file>
+    <file>icons/IconPAI.png</file>
+    <file>icons/iconPER.png</file>
+    <file>icons/iconSex.png</file>
+    <file>icons/iconSite.png</file>
+    <file>icons/iconStrutt.png</file>
+    <file>icons/iconsus.png</file>
+    <file>icons/iconTimeControll.png</file>
+    <file>icons/iconUpd.png</file>
+    <file>icons/iconUT.png</file>
+    <file>icons/iconZoo.png</file>
+    
+    
+    <file>icons/mActionAddLayer.png</file>
+    <file>icons/mActionPan.png</file>
+    <file>icons/mActionZoomIn.png</file>
+    <file>icons/mActionZoomOut.png</file>
+    <file>icons/new_search copy.png</file>
+    <file>icons/new_search.png</file>
+    <file>icons/new_search.png.qrc</file>
+    <file>icons/newrec.png</file>
+    <file>icons/pai_us.png</file>
+   
+    <file>icons/pdf-icon.png</file>
+    <file>icons/photo.png</file>
+   
+    <file>icons/pottery.png</file>
+    <file>icons/rect3413.png</file>
+    <file>icons/s_error.png</file>
+    <file>icons/search.png</file>
+    <file>icons/sfondo.png</file>
+    <file>icons/sheet.png</file>
+    
+    <file>icons/sort.png</file>
+    <file>icons/thesaurusicon.png</file>
+    <file>icons/view_all.png</file>
+	<file>icons/hfflogo.png</file>
+	<file>icons/snorkel.png</file>
+	<file>icons/radar.png</file>
+	<file>icons/iconANC.png</file>
+  </qresource>
+</RCC>
