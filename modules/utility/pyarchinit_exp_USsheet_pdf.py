@@ -106,6 +106,11 @@ class single_US_pdf_sheet(object):
 
     documentazione_print = ''
 
+    piante_iccd = ""   #sistema per campi scheda iccd italia
+    sezioni_iccd = ""  #sistema per campi scheda iccd italia
+    prospetti_iccd = ""  #sistema per campi scheda iccd italia
+    foto_iccd = ""  #sistema per campi scheda iccd italia
+
     #Aggiunta campi USM
     inclusi_print = ''
 
@@ -437,12 +442,28 @@ class single_US_pdf_sheet(object):
         if self.documentazione == '':
             pass
         else:
-            self.documentazione_print = ""
-            for string_doc in eval(self.documentazione):
+            #self.documentazione_print = ""
+            self.documentazione_list = eval(self.documentazione)
+            #self.documentazione_list = self.documentazione_list.sort()
+
+            f = open("C:\\Users\\Luca\\pyarchinit\\pyarchinit_PDF_folder\\ilmiotest.txt", "w")
+            f.write(str(self.documentazione_list))
+            f.close()
+
+
+            for string_doc in self.documentazione_list:
                 if len(string_doc) == 2:
-                    self.documentazione_print += str(string_doc[0]) + ": " + str(string_doc[1]) + "<br/>"
+                    if string_doc[0] == 'ICCD-Piante':
+                        self.piante_iccd += ", " + str(string_doc[1])
+
+                    if string_doc[0] == 'ICCD-Sezioni':
+                        self.sezioni_iccd += ", " + str(string_doc[1])
+
+                """
                 if len(string_doc) == 1:
-                    self.documentazione_print += str(string_doc[0]) + "<br/>"
+                    if string_doc == 'ICCD-Piante':
+                        self.piante_iccd += str(string_doc[1]) + "<br/>"
+                """
 
     #Aggiunta campi USM
     def unzip_inclusi(self):
@@ -472,7 +493,7 @@ class single_US_pdf_sheet(object):
         today = now.strftime("%d-%m-%Y")
         return today
 
-    def create_sheet(self):
+    def create_sheet(self):  #scheda in stile pyarchini per l'US
         self.unzip_rapporti_stratigrafici()
         self.unzip_documentazione()
 
@@ -833,7 +854,7 @@ class single_US_pdf_sheet(object):
         return t
 
 
-    def create_sheet_archeo3_usm_fields(self):
+    def create_sheet_archeo3_usm_fields(self):  #scheda USM in stile pyArchInit
         self.unzip_rapporti_stratigrafici()
         self.unzip_documentazione()
 
@@ -1361,7 +1382,8 @@ class single_US_pdf_sheet(object):
 
         return t
 
-    def create_sheet_archeo3_usm_fields_2(self):
+    #SCHEDA US TIPO ICCD
+    def create_sheet_archeo3_usm_fields_2(self): #scheda us in stile ICCD Italiano
         self.unzip_rapporti_stratigrafici()
         self.unzip_documentazione()
 
@@ -1429,15 +1451,17 @@ class single_US_pdf_sheet(object):
         quadrato = Paragraph("<b>QUADRATO/I</b><br/>" + self.quad_par, styNormal)
         quote = Paragraph("<b>QUOTE</b><br/>min: " + self.quota_min + "<br/>max: "+self.quota_max, styNormal)
         label_unita_stratigrafica = Paragraph("<b>UNITÀ STRATIGRAFICA</b><br/>"+ str(self.us), styNormal)
+
         label_NAT = Paragraph("<i>NAT.</i>", styNormal)                       #manca valore
         label_ART = Paragraph("<i>ART.</i>", styNormal)                       #manca valore
 
         #4 row
 
-        piante = Paragraph("<b>PIANTE</b><br/>" + self.piante, styNormal)
-        sezioni = Paragraph("<b>SEZIONI</b><br/>", styNormal)                 #manca valore
-        prospetti = Paragraph("<b>PROSPETTI</b><br/>", styNormal)             #manca valore
-        foto = Paragraph("<b>FOTO</b><br/>B/N:<br/>Digitale:", styNormal)     #manca valore
+        piante = Paragraph("<b>PIANTE</b><br/>" + self.piante_iccd, styNormal)
+        sezioni = Paragraph("<b>SEZIONI</b><br/>" + self.sezioni_iccd, styNormal)
+        prospetti = Paragraph("<b>PROSPETTI</b><br/>", styNormal)                    #manca valore
+        foto = Paragraph("<b>FOTO</b><br/>B/N:<br/>Digitale:", styNormal)            #manca valore
+
         tabelle_materiali = Paragraph("<b>TABELLE MATERIALI<br/><br/>RA</b>:"+ self.ref_ra, styNormal)  #manca valore
 
         #5 row

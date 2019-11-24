@@ -377,7 +377,7 @@ border-color: rgb(0, 0, 0);
         <string/>
        </property>
        <property name="icon">
-        <iconset resource="../../../../../../../../../../../Desktop/pyarchinit-master/resources/resources.qrc">
+        <iconset resource="../../resources/resources.qrc">
          <normaloff>:/icons/7_rightArrows.png</normaloff>:/icons/7_rightArrows.png</iconset>
        </property>
        <property name="iconSize">
@@ -403,7 +403,7 @@ border-color: rgb(0, 0, 0);
         <string/>
        </property>
        <property name="icon">
-        <iconset resource="../../../../../../../../../../../Desktop/pyarchinit-master/resources/resources.qrc">
+        <iconset resource="../../resources/resources.qrc">
          <normaloff>:/icons/6_rightArrow.png</normaloff>:/icons/6_rightArrow.png</iconset>
        </property>
        <property name="iconSize">
@@ -438,7 +438,7 @@ border-color: rgb(0, 0, 0);
         <string/>
        </property>
        <property name="icon">
-        <iconset resource="../../../../../../../../../../../Desktop/pyarchinit-master/resources/resources.qrc">
+        <iconset resource="../../resources/resources.qrc">
          <normaloff>:/icons/sort.png</normaloff>:/icons/sort.png</iconset>
        </property>
        <property name="iconSize">
@@ -473,7 +473,7 @@ border-color: rgb(0, 0, 0);
         <string/>
        </property>
        <property name="icon">
-        <iconset resource="../../../../../../../../../../../Desktop/pyarchinit-master/resources/resources.qrc">
+        <iconset resource="../../resources/resources.qrc">
          <normaloff>:/icons/view_all.png</normaloff>:/icons/view_all.png</iconset>
        </property>
        <property name="iconSize">
@@ -524,7 +524,7 @@ border-color: rgb(0, 0, 0);
         <string/>
        </property>
        <property name="icon">
-        <iconset resource="../../../../../../../../../../../Desktop/pyarchinit-master/resources/resources.qrc">
+        <iconset resource="../../resources/resources.qrc">
          <normaloff>:/icons/newrec.png</normaloff>:/icons/newrec.png</iconset>
        </property>
        <property name="iconSize">
@@ -550,7 +550,7 @@ border-color: rgb(0, 0, 0);
         <string/>
        </property>
        <property name="icon">
-        <iconset resource="../../../../../../../../../../../Desktop/pyarchinit-master/resources/resources.qrc">
+        <iconset resource="../../resources/resources.qrc">
          <normaloff>:/icons/5_leftArrows.png</normaloff>:/icons/5_leftArrows.png</iconset>
        </property>
        <property name="iconSize">
@@ -585,7 +585,7 @@ border-color: rgb(0, 0, 0);
         <string/>
        </property>
        <property name="icon">
-        <iconset resource="../../../../../../../../../../../Desktop/pyarchinit-master/resources/resources.qrc">
+        <iconset resource="../../resources/resources.qrc">
          <normaloff>:/icons/new_search.png</normaloff>:/icons/new_search.png</iconset>
        </property>
        <property name="iconSize">
@@ -620,7 +620,7 @@ border-color: rgb(0, 0, 0);
         <string/>
        </property>
        <property name="icon">
-        <iconset resource="../../../../../../../../../../../Desktop/pyarchinit-master/resources/resources.qrc">
+        <iconset resource="../../resources/resources.qrc">
          <normaloff>:/icons/search.png</normaloff>:/icons/search.png</iconset>
        </property>
        <property name="iconSize">
@@ -652,7 +652,7 @@ border-color: rgb(0, 0, 0);
         <string/>
        </property>
        <property name="icon">
-        <iconset resource="../../../../../../../../../../../Desktop/pyarchinit-master/resources/resources.qrc">
+        <iconset resource="../../resources/resources.qrc">
          <normaloff>:/icons/4_leftArrow.png</normaloff>:/icons/4_leftArrow.png</iconset>
        </property>
        <property name="iconSize">
@@ -687,7 +687,7 @@ border-color: rgb(0, 0, 0);
         <string/>
        </property>
        <property name="icon">
-        <iconset resource="../../../../../../../../../../../Desktop/pyarchinit-master/resources/resources.qrc">
+        <iconset resource="../../resources/resources.qrc">
          <normaloff>:/icons/b_save.png</normaloff>:/icons/b_save.png</iconset>
        </property>
        <property name="iconSize">
@@ -738,7 +738,7 @@ border-color: rgb(0, 0, 0);
         <string/>
        </property>
        <property name="icon">
-        <iconset resource="../../../../../../../../../../../Desktop/pyarchinit-master/resources/resources.qrc">
+        <iconset resource="../../resources/resources.qrc">
          <normaloff>:/icons/delete.png</normaloff>:/icons/delete.png</iconset>
        </property>
        <property name="iconSize">
@@ -764,7 +764,7 @@ border-color: rgb(0, 0, 0);
         <string>GIS Data Viewer</string>
        </property>
        <property name="icon">
-        <iconset resource="../../../../../../../../../../../Desktop/pyarchinit-master/resources/resources.qrc">
+        <iconset resource="../../resources/resources.qrc">
          <normaloff>:/icons/GIS.png</normaloff>:/icons/GIS.png</iconset>
        </property>
        <property name="shortcut">
@@ -814,7 +814,7 @@ border-color: rgb(0, 0, 0);
         <string>Singole schede US</string>
        </property>
        <property name="icon">
-        <iconset resource="../../../../../../../../../../../Desktop/pyarchinit-master/resources/resources.qrc">
+        <iconset resource="../../resources/resources.qrc">
          <normaloff>:/icons/sheet.png</normaloff>:/icons/sheet.png</iconset>
        </property>
        <property name="iconSize">
@@ -855,7 +855,7 @@ border-color: rgb(0, 0, 0);
         <string>Elenco US</string>
        </property>
        <property name="icon">
-        <iconset resource="../../../../../../../../../../../Desktop/pyarchinit-master/resources/resources.qrc">
+        <iconset resource="../../resources/resources.qrc">
          <normaloff>:/icons/sheet.png</normaloff>:/icons/sheet.png</iconset>
        </property>
        <property name="iconSize">
@@ -872,7 +872,7 @@ border-color: rgb(0, 0, 0);
         <string>Open folder</string>
        </property>
        <property name="icon">
-        <iconset resource="../../../../../../../../../../../Desktop/pyarchinit-master/resources/resources.qrc">
+        <iconset resource="../../resources/resources.qrc">
          <normaloff>:/icons/directoryExp.png</normaloff>:/icons/directoryExp.png</iconset>
        </property>
       </widget>
@@ -4099,7 +4099,7 @@ p, li { white-space: pre-wrap; }
       <attribute name="title">
        <string>Dati Fisici - Dati Schedatore</string>
       </attribute>
-      <widget class="QWidget" name="">
+      <widget class="QWidget" name="layoutWidget">
        <property name="geometry">
         <rect>
          <x>11</x>
@@ -4862,7 +4862,7 @@ p, li { white-space: pre-wrap; }
         </item>
        </layout>
       </widget>
-      <widget class="QWidget" name="">
+      <widget class="QWidget" name="layoutWidget">
        <property name="geometry">
         <rect>
          <x>12</x>
@@ -5629,8 +5629,8 @@ p, li { white-space: pre-wrap; }
                <rect>
                 <x>0</x>
                 <y>0</y>
-                <width>363</width>
-                <height>402</height>
+                <width>359</width>
+                <height>356</height>
                </rect>
               </property>
               <attribute name="label">
@@ -5771,7 +5771,7 @@ p, li { white-space: pre-wrap; }
                   <string>Check, go!!!!</string>
                  </property>
                  <property name="icon">
-                  <iconset resource="../../../../../../../../../../../Desktop/pyarchinit-master/resources/resources.qrc">
+                  <iconset resource="../../resources/resources.qrc">
                    <normaloff>:/icons/sheet.png</normaloff>:/icons/sheet.png</iconset>
                  </property>
                 </widget>
@@ -5842,7 +5842,7 @@ p, li { white-space: pre-wrap; }
                   <string>Crea codice periodo</string>
                  </property>
                  <property name="icon">
-                  <iconset resource="../../../../../../../../../../../Desktop/pyarchinit-master/resources/resources.qrc">
+                  <iconset resource="../../resources/resources.qrc">
                    <normaloff>:/icons/sheet.png</normaloff>:/icons/sheet.png</iconset>
                  </property>
                 </widget>
@@ -5887,7 +5887,7 @@ p, li { white-space: pre-wrap; }
                   <string>Export Matrix</string>
                  </property>
                  <property name="icon">
-                  <iconset resource="../../../../../../../../../../../Desktop/pyarchinit-master/resources/resources.qrc">
+                  <iconset resource="../../resources/resources.qrc">
                    <normaloff>:/icons/sheet.png</normaloff>:/icons/sheet.png</iconset>
                  </property>
                 </widget>
@@ -5951,8 +5951,8 @@ p, li { white-space: pre-wrap; }
                <rect>
                 <x>0</x>
                 <y>0</y>
-                <width>983</width>
-                <height>283</height>
+                <width>995</width>
+                <height>252</height>
                </rect>
               </property>
               <attribute name="label">
@@ -6000,7 +6000,7 @@ p, li { white-space: pre-wrap; }
                   <string>Preview pianta US</string>
                  </property>
                  <property name="icon">
-                  <iconset resource="../../../../../../../../../../../Desktop/pyarchinit-master/resources/resources.qrc">
+                  <iconset resource="../../resources/resources.qrc">
                    <normaloff>:/icons/GIS.png</normaloff>:/icons/GIS.png</iconset>
                  </property>
                  <property name="shortcut">
@@ -6035,7 +6035,7 @@ p, li { white-space: pre-wrap; }
                   <string>Pan</string>
                  </property>
                  <property name="icon">
-                  <iconset resource="../../../../../../../../../../../Desktop/pyarchinit-master/resources/resources.qrc">
+                  <iconset resource="../../resources/resources.qrc">
                    <normaloff>:/icons/mActionPan.png</normaloff>:/icons/mActionPan.png</iconset>
                  </property>
                  <property name="shortcut">
@@ -6083,7 +6083,7 @@ p, li { white-space: pre-wrap; }
                   <string>Mostra immagini</string>
                  </property>
                  <property name="icon">
-                  <iconset resource="../../../../../../../../../../../Desktop/pyarchinit-master/resources/resources.qrc">
+                  <iconset resource="../../resources/resources.qrc">
                    <normaloff>:/icons/photo.png</normaloff>:/icons/photo.png</iconset>
                  </property>
                  <property name="checkable">
@@ -6138,7 +6138,7 @@ p, li { white-space: pre-wrap; }
                   <string>Apri schede US</string>
                  </property>
                  <property name="icon">
-                  <iconset resource="../../../../../../../../../../../Desktop/pyarchinit-master/resources/resources.qrc">
+                  <iconset resource="../../resources/resources.qrc">
                    <normaloff>:/icons/sheet.png</normaloff>:/icons/sheet.png</iconset>
                  </property>
                 </widget>
@@ -6161,7 +6161,7 @@ p, li { white-space: pre-wrap; }
                   <string>Disegna US</string>
                  </property>
                  <property name="icon">
-                  <iconset resource="../../../../../../../../../../../Desktop/pyarchinit-master/resources/resources.qrc">
+                  <iconset resource="../../resources/resources.qrc">
                    <normaloff>:/icons/sheet.png</normaloff>:/icons/sheet.png</iconset>
                  </property>
                 </widget>
@@ -6189,8 +6189,8 @@ p, li { white-space: pre-wrap; }
                <rect>
                 <x>0</x>
                 <y>0</y>
-                <width>268</width>
-                <height>44</height>
+                <width>248</width>
+                <height>40</height>
                </rect>
               </property>
               <attribute name="label">
@@ -6465,6 +6465,7 @@ p, li { white-space: pre-wrap; }
  </customwidgets>
  <resources>
   <include location="../../../../../../../../../../../Desktop/pyarchinit-master/resources/resources.qrc"/>
+  <include location="../../resources/resources.qrc"/>
  </resources>
  <connections/>
  <designerdata>
