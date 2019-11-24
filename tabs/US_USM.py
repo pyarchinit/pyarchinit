@@ -1219,12 +1219,17 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
         tipo_di_documentazione = self.DB_MANAGER.query_bool(search_dict, 'PYARCHINIT_THESAURUS_SIGLE')
         valuesDoc = []
 
+        if self.L=='it':
+            valuesDoc.append("ICCD-Piante")
+            valuesDoc.append("ICCD-Sezioni")
+            valuesDoc.append("ICCD-Prospetti")
+            valuesDoc.append("ICCD-Foto")
+
         for i in range(len(tipo_di_documentazione)):
             valuesDoc.append(tipo_di_documentazione[i].sigla_estesa)
 
-        valuesDoc.sort()
+        #valuesDoc.sort()
 
-        #valuesDoc = ["Fotografia", "Diapositiva", "Sezione", "Planimetria", "Prospetto", "Video", "Fotopiano"]
         self.delegateDoc = ComboBoxDelegate()
         self.delegateDoc.def_values(valuesDoc)
         self.delegateDoc.def_editable('False')
