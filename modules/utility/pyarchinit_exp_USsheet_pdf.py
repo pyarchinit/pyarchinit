@@ -446,9 +446,9 @@ class single_US_pdf_sheet(object):
             self.documentazione_list = eval(self.documentazione)
             #self.documentazione_list = self.documentazione_list.sort()
 
-            f = open("C:\\Users\\Luca\\pyarchinit\\pyarchinit_PDF_folder\\ilmiotest.txt", "w")
-            f.write(str(self.documentazione_list))
-            f.close()
+            # f = open("C:\\Users\\Utente\\Desktop\\test\\ilmiotest.txt", "w")
+            # f.write(str(self.documentazione_list))
+            # f.close()
 
 
             for string_doc in self.documentazione_list:
@@ -458,7 +458,12 @@ class single_US_pdf_sheet(object):
 
                     if string_doc[0] == 'ICCD-Sezioni':
                         self.sezioni_iccd += ", " + str(string_doc[1])
+                    
+                    if string_doc[0] == 'ICCD-Prospetti':
+                        self.prospetti_iccd += ", " + str(string_doc[1])
 
+                    if string_doc[0] == 'ICCD-Foto':
+                        self.foto_iccd += ", " + str(string_doc[1])        
                 """
                 if len(string_doc) == 1:
                     if string_doc == 'ICCD-Piante':
@@ -1459,8 +1464,8 @@ class single_US_pdf_sheet(object):
 
         piante = Paragraph("<b>PIANTE</b><br/>" + self.piante_iccd, styNormal)
         sezioni = Paragraph("<b>SEZIONI</b><br/>" + self.sezioni_iccd, styNormal)
-        prospetti = Paragraph("<b>PROSPETTI</b><br/>", styNormal)                    #manca valore
-        foto = Paragraph("<b>FOTO</b><br/>B/N:<br/>Digitale:", styNormal)            #manca valore
+        prospetti = Paragraph("<b>PROSPETTI</b><br/>"+ self.prospetti_iccd, styNormal)                    #manca valore
+        foto = Paragraph("<b>FOTO</b><br/>"+ self.foto_iccd, styNormal)            #manca valore
 
         tabelle_materiali = Paragraph("<b>TABELLE MATERIALI<br/><br/>RA</b>:"+ self.ref_ra, styNormal)  #manca valore
 
