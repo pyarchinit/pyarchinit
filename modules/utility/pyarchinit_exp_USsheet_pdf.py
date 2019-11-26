@@ -438,37 +438,70 @@ class single_US_pdf_sheet(object):
     
     
     
-    def unzip_documentazione(self):
+    def unzip_documentazione(self):  #gestione documentazione per ICCD
         if self.documentazione == '':
             pass
         else:
-            #self.documentazione_print = ""
             self.documentazione_list = eval(self.documentazione)
-            #self.documentazione_list = self.documentazione_list.sort()
-
-            # f = open("C:\\Users\\Utente\\Desktop\\test\\ilmiotest.txt", "w")
-            # f.write(str(self.documentazione_list))
-            # f.close()
-
 
             for string_doc in self.documentazione_list:
-                if len(string_doc) == 2:
+
+                if len((string_doc)) == 1:
+
                     if string_doc[0] == 'ICCD-Piante':
-                        self.piante_iccd += ", " + str(string_doc[1])
-
-                    if string_doc[0] == 'ICCD-Sezioni':
-                        self.sezioni_iccd += ", " + str(string_doc[1])
-                    
+                        self.piante_iccd = 'Si'
                     if string_doc[0] == 'ICCD-Prospetti':
-                        self.prospetti_iccd += ", " + str(string_doc[1])
-
+                        self.prospetti_iccd = 'Si'
+                    if string_doc[0] == 'ICCD-Sezioni':
+                        self.sezioni_iccd = 'Si'
                     if string_doc[0] == 'ICCD-Foto':
-                        self.foto_iccd += ", " + str(string_doc[1])        
-                """
-                if len(string_doc) == 1:
-                    if string_doc == 'ICCD-Piante':
-                        self.piante_iccd += str(string_doc[1]) + "<br/>"
-                """
+                        self.foto_iccd = 'Si'
+
+
+                if len((string_doc)) == 2 and string_doc[1] == '':
+
+                    if string_doc[0] == 'ICCD-Piante':
+                        self.piante_iccd = 'Si'
+                    if string_doc[0] == 'ICCD-Prospetti':
+                        self.prospetti_iccd = 'Si'
+                    if string_doc[0] == 'ICCD-Sezioni':
+                        self.sezioni_iccd = 'Si'
+                    if string_doc[0] == 'ICCD-Foto':
+                        self.foto_iccd = 'Si'
+
+                if len((string_doc)) == 2:
+                    #esportazione piante ICCD - Se inserito solo il valore ICCD-Piante il sistema inserisce Si
+                    if string_doc[0] == 'ICCD-Piante':
+                        if string_doc[1] != '':
+                            if self.piante_iccd == '':
+                                self.piante_iccd = str(string_doc[1])
+                            else:
+                                self.piante_iccd += ", " + str(string_doc[1])
+
+                    #esportazione prospetti ICCD - Se inserito solo il valore ICCD-Prospetti il sistema inserisce Si
+                    if string_doc[0] == 'ICCD-Prospetti':
+                        if string_doc[1] != '':
+                            if self.prospetti_iccd == '':
+                                self.prospetti_iccd = str(string_doc[1])
+                            else:
+                                self.prospetti_iccd += ", " + str(string_doc[1])
+
+
+                    #esportazione sezioni ICCD - Se inserito solo il valore ICCD-Sezioni il sistema inserisce Si
+                    if string_doc[0] == 'ICCD-Sezioni':
+                        if string_doc[1] != '':
+                            if self.sezioni_iccd == '':
+                                self.sezioni_iccd = str(string_doc[1])
+                            else:
+                                self.sezioni_iccd += ", " + str(string_doc[1])
+
+                    #esportazione foto ICCD - Se inserito solo il valore ICCD-Foto il sistema inserisce Si
+                    if string_doc[0] == 'ICCD-Foto':
+                        if string_doc[1] != '':
+                            if self.foto_iccd == '':
+                                self.foto_iccd = str(string_doc[1])
+                            else:
+                                self.foto_iccd += ", " + str(string_doc[1])
 
     #Aggiunta campi USM
     def unzip_inclusi(self):
