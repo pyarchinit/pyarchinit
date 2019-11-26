@@ -438,7 +438,8 @@ class single_US_pdf_sheet(object):
     
     
     
-    def unzip_documentazione(self):  #gestione documentazione per ICCD
+    def unzip_documentazione(self):  #nuova gestione documentazione per ICCD
+
         if self.documentazione == '':
             pass
         else:
