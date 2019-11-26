@@ -5622,15 +5622,15 @@ p, li { white-space: pre-wrap; }
               <enum>QFrame::StyledPanel</enum>
              </property>
              <property name="currentIndex">
-              <number>1</number>
+              <number>2</number>
              </property>
              <widget class="QWidget" name="page">
               <property name="geometry">
                <rect>
                 <x>0</x>
                 <y>0</y>
-                <width>359</width>
-                <height>356</height>
+                <width>978</width>
+                <height>351</height>
                </rect>
               </property>
               <attribute name="label">
@@ -5952,7 +5952,7 @@ p, li { white-space: pre-wrap; }
                 <x>0</x>
                 <y>0</y>
                 <width>995</width>
-                <height>252</height>
+                <height>247</height>
                </rect>
               </property>
               <attribute name="label">
@@ -6189,8 +6189,8 @@ p, li { white-space: pre-wrap; }
                <rect>
                 <x>0</x>
                 <y>0</y>
-                <width>248</width>
-                <height>40</height>
+                <width>995</width>
+                <height>153</height>
                </rect>
               </property>
               <attribute name="label">
@@ -6463,6 +6463,161 @@ p, li { white-space: pre-wrap; }
    <header>QtWebKit/QWebView</header>
   </customwidget>
  </customwidgets>
+ <tabstops>
+  <tabstop>lineEdit_goto</tabstop>
+  <tabstop>pushButton_first_rec</tabstop>
+  <tabstop>pushButton_prev_rec</tabstop>
+  <tabstop>pushButton_next_rec</tabstop>
+  <tabstop>pushButton_last_rec</tabstop>
+  <tabstop>pushButton_new_rec</tabstop>
+  <tabstop>pushButton_save</tabstop>
+  <tabstop>pushButton_pdf_exp</tabstop>
+  <tabstop>pushButton_exp_index_us</tabstop>
+  <tabstop>pushButton_open_dir</tabstop>
+  <tabstop>toolButtonGis</tabstop>
+  <tabstop>pushButton_delete</tabstop>
+  <tabstop>pushButton_new_search</tabstop>
+  <tabstop>pushButton_search_go</tabstop>
+  <tabstop>pushButton_sort</tabstop>
+  <tabstop>pushButton_view_all</tabstop>
+  <tabstop>comboBox_sito</tabstop>
+  <tabstop>comboBox_area</tabstop>
+  <tabstop>lineEdit_us</tabstop>
+  <tabstop>comboBox_unita_tipo</tabstop>
+  <tabstop>groupBox_2</tabstop>
+  <tabstop>comboBox_settore</tabstop>
+  <tabstop>lineEdit_quadrato</tabstop>
+  <tabstop>lineEdit_ambiente</tabstop>
+  <tabstop>lineEdit_saggio</tabstop>
+  <tabstop>comboBox_soprintendenza</tabstop>
+  <tabstop>comboBox_def_strat</tabstop>
+  <tabstop>comboBox_def_intepret</tabstop>
+  <tabstop>lineEdit_n_catalogo_generale</tabstop>
+  <tabstop>lineEdit_n_catalogo_interno</tabstop>
+  <tabstop>lineEdit_n_catalogo_internazionale</tabstop>
+  <tabstop>tabWidget</tabstop>
+  <tabstop>textEdit_descrizione</tabstop>
+  <tabstop>textEdit_interpretazione</tabstop>
+  <tabstop>textEdit_elementi_datanti</tabstop>
+  <tabstop>textEdit_osservazioni</tabstop>
+  <tabstop>groupBox_3</tabstop>
+  <tabstop>lineEdit_unita_edilizia_riassuntiva_usm</tabstop>
+  <tabstop>lineEdit_uso_primario_usm</tabstop>
+  <tabstop>lineEdit_reimpiego_usm</tabstop>
+  <tabstop>comboBox_funz_statica_usm</tabstop>
+  <tabstop>lineEdit_spessore_usm</tabstop>
+  <tabstop>lineEdit_criteri_distinzione_usm</tabstop>
+  <tabstop>lineEdit_tecnica_muraria_usm</tabstop>
+  <tabstop>lineEdit_lavorazione_usm</tabstop>
+  <tabstop>lineEdit_posa_in_opera_usm</tabstop>
+  <tabstop>lineEdit_modulo_usm</tabstop>
+  <tabstop>groupBox_4</tabstop>
+  <tabstop>lineEdit_spessore_giunti_usm</tabstop>
+  <tabstop>lineEdit_letti_di_posa_giunti_usm</tabstop>
+  <tabstop>lineEdit_h_modulo_c_corsi_usm</tabstop>
+  <tabstop>lineEdit_provenienza_materiali_usm</tabstop>
+  <tabstop>tableWidget_colore_legante_usm</tabstop>
+  <tabstop>pushButton_insert_row_colore_legante_usm</tabstop>
+  <tabstop>pushButton_remove_row_colore_legante_usm</tabstop>
+  <tabstop>comboBox_consistenza_legante_usm</tabstop>
+  <tabstop>tableWidget_inclusi_leganti_usm</tabstop>
+  <tabstop>pushButton_insert_row_inclusi_leganti</tabstop>
+  <tabstop>pushButton_remove_row_inclusi_leganti</tabstop>
+  <tabstop>tableWidget_consistenza_texture_mat_usm</tabstop>
+  <tabstop>tableWidget_colore_materiale_usm</tabstop>
+  <tabstop>pushButton_insert_row_consistenza_texture_mat_usm</tabstop>
+  <tabstop>pushButton_remove_row_consistenza_texture_mat_usm</tabstop>
+  <tabstop>pushButton_insert_row_colore_materiale_usm</tabstop>
+  <tabstop>pushButton_remove_row_colore_materiale_usm</tabstop>
+  <tabstop>tableWidget_inclusi_materiali_usm</tabstop>
+  <tabstop>pushButton_insert_row_inclusi_materiali</tabstop>
+  <tabstop>pushButton_remove_row_inclusi_materiali</tabstop>
+  <tabstop>lineEdit_qmin_usm</tabstop>
+  <tabstop>lineEdit_campioni_pietra_usm</tabstop>
+  <tabstop>lineEdit_qmax_usm</tabstop>
+  <tabstop>lineEdit_campioni_malta_usm</tabstop>
+  <tabstop>lineEdit_lunghezza_usm</tabstop>
+  <tabstop>lineEdit_campioni_mattone_usm</tabstop>
+  <tabstop>lineEdit_altezza_usm</tabstop>
+  <tabstop>pushButton_remove_row_rapporti</tabstop>
+  <tabstop>pushButton_insert_row_rapporti</tabstop>
+  <tabstop>comboBox_per_iniz</tabstop>
+  <tabstop>comboBox_fas_iniz</tabstop>
+  <tabstop>comboBox_per_fin</tabstop>
+  <tabstop>comboBox_fas_fin</tabstop>
+  <tabstop>lineEdit_attivita</tabstop>
+  <tabstop>lineEdit_struttura</tabstop>
+  <tabstop>lineEdit_datazione</tabstop>
+  <tabstop>comboBox_scavato</tabstop>
+  <tabstop>lineEdit_anno</tabstop>
+  <tabstop>comboBox_metodo</tabstop>
+  <tabstop>tableWidget_rapporti</tabstop>
+  <tabstop>pushButton_go_to_us</tabstop>
+  <tabstop>comboBox_formazione</tabstop>
+  <tabstop>comboBox_modo_formazione</tabstop>
+  <tabstop>comboBox_colore</tabstop>
+  <tabstop>lineEdit_posizione</tabstop>
+  <tabstop>comboBox_consistenza</tabstop>
+  <tabstop>lineEdit_criteri_distinzione</tabstop>
+  <tabstop>comboBox_conservazione</tabstop>
+  <tabstop>lineEdit_flottazione</tabstop>
+  <tabstop>lineEdit_setacciatura</tabstop>
+  <tabstop>lineEdit_affidabilita</tabstop>
+  <tabstop>comboBox_schedatore</tabstop>
+  <tabstop>lineEdit_cod_ente_schedatore</tabstop>
+  <tabstop>lineEdit_ref_tm</tabstop>
+  <tabstop>lineEdit_ref_n</tabstop>
+  <tabstop>comboBox_ref_ra</tabstop>
+  <tabstop>tableWidget_inclusi</tabstop>
+  <tabstop>pushButton_insert_row_inclusi</tabstop>
+  <tabstop>pushButton_remove_row_inclusi</tabstop>
+  <tabstop>tableWidget_campioni</tabstop>
+  <tabstop>pushButton_insert_row_campioni</tabstop>
+  <tabstop>pushButton_remove_row_campioni</tabstop>
+  <tabstop>tableWidget_organici</tabstop>
+  <tabstop>pushButton_insert_row_organici</tabstop>
+  <tabstop>pushButton_remove_row_organici</tabstop>
+  <tabstop>tableWidget_inorganici</tabstop>
+  <tabstop>pushButton_insert_row_inorganici</tabstop>
+  <tabstop>pushButton_remove_row_inorganici</tabstop>
+  <tabstop>lineEdit_data_schedatura</tabstop>
+  <tabstop>lineEdit_data_rilevazione</tabstop>
+  <tabstop>lineEdit_data_rielaborazione</tabstop>
+  <tabstop>comboBox_direttore_us</tabstop>
+  <tabstop>comboBox_responsabile_us</tabstop>
+  <tabstop>lineEdit_quota_abs</tabstop>
+  <tabstop>lineEdit_quota_relativa</tabstop>
+  <tabstop>lineEdit_quota_max_abs</tabstop>
+  <tabstop>lineEdit_quota_max_rel</tabstop>
+  <tabstop>lineEdit_quota_min_abs</tabstop>
+  <tabstop>lineEdit_quota_min_rel</tabstop>
+  <tabstop>lineEdit_larghezza_media</tabstop>
+  <tabstop>lineEdit_lunghezza_max</tabstop>
+  <tabstop>lineEdit_profondita_min</tabstop>
+  <tabstop>lineEdit_profondita_max</tabstop>
+  <tabstop>lineEdit_altezza_max</tabstop>
+  <tabstop>lineEdit_altezza_min</tabstop>
+  <tabstop>pushButton_insert_row_documentazione</tabstop>
+  <tabstop>pushButton_remove_row_documentazione</tabstop>
+  <tabstop>tableWidget_documentazione</tabstop>
+  <tabstop>pushButton</tabstop>
+  <tabstop>pushButton_draw_doc</tabstop>
+  <tabstop>comboBox_sito_rappcheck</tabstop>
+  <tabstop>comboBox_area_rappcheck</tabstop>
+  <tabstop>pushButton_rapp_check</tabstop>
+  <tabstop>lineEdit_codice_periodo</tabstop>
+  <tabstop>pushButton_crea_codice_periodo</tabstop>
+  <tabstop>pushButton_export_matrix</tabstop>
+  <tabstop>pushButton_orderLayers</tabstop>
+  <tabstop>lineEditOrderLayer</tabstop>
+  <tabstop>tabWidget_2</tabstop>
+  <tabstop>pushButton_showLayer</tabstop>
+  <tabstop>pushButton_showSelectedFeatures</tabstop>
+  <tabstop>toolButtonPreview</tabstop>
+  <tabstop>toolButtonPan</tabstop>
+  <tabstop>toolButtonPreviewMedia</tabstop>
+  <tabstop>pushButton_exp_tavole</tabstop>
+ </tabstops>
  <resources>
   <include location="../../../../../../../../../../../Desktop/pyarchinit-master/resources/resources.qrc"/>
   <include location="../../resources/resources.qrc"/>
