@@ -1,0 +1,55 @@
+# This file contains metadata for your plugin. Beginning
+# with version 1.8 this is the preferred way to supply information about a
+# plugin. The current method of embedding metadata in __init__.py will
+# be supported until version 2.0
+
+# This file should be included when you package your plugin.
+
+# Mandatory items:
+
+
+[general]
+name=pyArchInit
+qgisMinimumVersion=3.0
+description=pyarchinit an tool for archaeological works
+version=0.3.8
+author=Luca Mandolesi
+email=pyarchinit@gmail.com
+
+# end of mandatory metadata
+# Optional items:
+# Uncomment the following line and add your changelog entries:
+changelog=
+   
+  Bug fixing release0.3.9:
+  - fix bug toolbar image viewer
+  -----------------------------------------------------------------------------
+
+  Bug fixing release0.3.7:
+  - UI Improvements
+  - update sql
+  -----------------------------------------------------------------------------
+ 
+  Bug fixing release0.3.6:
+  - UI Improvements
+  - update database
+  - minor bug fixed
+  -----------------------------------------------------------------------------
+  Bug fixing release0.3.5:
+  - UI Improvements
+  - more languages support: English, Deutsch
+  - minor bug fixed
+
+# tags are comma separated with spaces allowed
+tags=archaeology, analysis, database, digitizing, postgres, postgis, spatialite, sqlite, archeologia, funerary archaeology, pottery, bones, excavations, scavi, archeologici, siti, carte, archeologiche, carta di potenzialita, strutture, antiche, tempio, medioevo, romana, preistoria, roman, medieval, prehistoric
+
+homepage=https://sites.google.com/site/pyarchinit/
+tracker=https://github.com/pyarchinit/pyarchinit/issues
+repository=https://github.com/pyarchinit/pyarchinit
+icon=icon.png
+# experimental flag
+experimental=False
+
+# deprecated flag (applies to the whole plugin, not just a single version)
+deprecated=False
+

@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>DialogPreviewDoc</class>
+ <widget class="QDialog" name="DialogPreviewDoc">
+  <property name="windowModality">
+   <enum>Qt::WindowModal</enum>
+  </property>
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>622</width>
+    <height>521</height>
+   </rect>
+  </property>
+  <property name="minimumSize">
+   <size>
+    <width>540</width>
+    <height>400</height>
+   </size>
+  </property>
+  <property name="windowTitle">
+   <string>pyArchInit Gestione Scavi - Preview Documetazione</string>
+  </property>
+  <property name="windowIcon">
+   <iconset>
+    <normaloff>:/icons/finds.png</normaloff>:/icons/finds.png</iconset>
+  </property>
+  <layout class="QGridLayout" name="gridLayout">
+   <item row="0" column="0">
+    <widget class="QWidget" name="widgetPreviewDoc" native="true">
+     <layout class="QGridLayout" name="gridLayout_2"/>
+    </widget>
+   </item>
+  </layout>
+ </widget>
+ <resources/>
+ <connections/>
+</ui>
