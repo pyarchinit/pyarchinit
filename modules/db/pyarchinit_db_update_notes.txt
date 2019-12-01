@@ -1,0 +1,25 @@
+comboBox_settore, in up
+lineEdit_quadrato, in up
+comboBox_unita_tipo, in up
+lineEdit_saggio, in up
+lineEdit_ambiente, in up
+comboBox_funz_statica_usm  in up
+lineEdit_unita_edilizia_riassuntiva_usm in up
+lineEdit_qmax_usm in up
+lineEdit_qmin_usm in up
+lineEdit_lavorazione_usm  in ups
+lineEdit_posa_in_opera_usm in up
+lineEdit_reimpiego_usm  in up
+lineEdit_spessore_giunti_usm  in up
+lineEdit_letti_di_posa_giunti_usm in up
+lineEdit_h_modulo_c_corsi_usm
+comboBox_coinsistenza_legante_usm	
+comboBox_colore_legante_usm
+lineEdit_aggregati_legante_usm
+comboBox_coinsistenza_texture_mat_usm
+comboBox_colore_materiale_usm		
+textEdit_elementi_datanti
+
+tableWidget_inclusi_materiali_usm
+
+Aggiungere alla campionatura Intonaco, Legante, Mattoni, Pietra

@@ -1,0 +1,13 @@
+Schema logico layer pyArchInit:
+
+Unità Stratigrafiche: pyunitastratigrafiche v
+
+Caratterizzazioni di strato: pycaratterizzazioni v
+
+Punti di riferimento: pyarchinit_punti_riferimento
+
+Piani di Sezioni: pyarchinit_sezioni
+
+Quote Unità Stratigrafiche: pyarchinit_quote
+
+Interpretazioni strutture: pyarchinit_strutture
