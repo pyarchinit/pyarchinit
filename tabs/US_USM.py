@@ -2596,7 +2596,7 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
                         self.update_if(QMessageBox.warning(self, 'Error',
                                                            "The record has been changed. Do you want to save the changes?",
                                                            QMessageBox.Ok | QMessageBox.Cancel))
-                    self.SORT_STATUS = "n"
+                    self.SORT_STATUS = "o"
                     self.label_sort.setText(self.SORTED_ITEMS[self.SORT_STATUS])
                     self.enable_button(1)
                     self.fill_fields(self.REC_CORR)
@@ -2612,7 +2612,7 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
                 test_insert = self.insert_new_rec()
                 if test_insert == 1:
                     self.empty_fields()
-                    self.SORT_STATUS = "n"
+                    self.SORT_STATUS = "o"
                     self.label_sort.setText(self.SORTED_ITEMS[self.SORT_STATUS])
                     self.charge_records()
                     self.charge_list()
