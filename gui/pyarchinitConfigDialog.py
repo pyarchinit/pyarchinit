@@ -55,7 +55,7 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
     L=QgsSettings().value("locale/userLocale")[0:2]
     
     HOME = os.environ['PYARCHINIT_HOME']
-
+    DBFOLDER = '{}{}{}'.format(HOME, os.sep, "pyarchinit_DB_folder")
     PARAMS_DICT = {'SERVER': '',
                    'HOST': '',
                    'DATABASE': '',
@@ -84,6 +84,7 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
         self.pbnSaveEnvironPath.clicked.connect(self.setEnvironPath)
         self.toolButton_thumbpath.clicked.connect(self.setPathThumb)
         self.toolButton_resizepath.clicked.connect(self.setPathResize)
+        self.toolButton_db.clicked.connect(self.setPathDB)
         self.pushButtonR.clicked.connect(self.setPathR)
         self.pbnSaveEnvironPathR.clicked.connect(self.setEnvironPathR)
         self.pushButton_import.clicked.connect(self.on_pushButton_import_pressed)
@@ -126,6 +127,21 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
         else:
             QMessageBox.warning(self, "INFO", "Directory not found",
                                 QMessageBox.Ok)
+    
+    def setPathDB(self):
+        s = QgsSettings()
+        dbpath = QFileDialog.getOpenFileName(
+            self,
+            "Set file name",
+            self.DBFOLDER,
+            " db sqlite (*.sqlite)"
+        )[0]
+        filename=dbpath.split("/")[-1]
+        if filename:
+             
+            self.lineEdit_DBname.setText(filename)
+            s.setValue('',filename)
+    
     def setPathThumb(self):
         s = QgsSettings()
         self.thumbpath = QFileDialog.getExistingDirectory(
