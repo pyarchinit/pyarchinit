@@ -916,6 +916,11 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
         self.pyQGIS.charge_vector_layers_doc_from_scheda_US(lista_draw_doc)
 
     def on_pushButton_go_to_us_pressed(self):
+        if self.L=='it':
+            QMessageBox.warning(self, "ATTENZIONE", "Se hai modificato il record e non lo hai salvato perderai il dato. Slavare?", QMessageBox.Ok | QMessageBox.Cancel)
+        else:
+            QMessageBox.warning(self, "Warning", "If you changed the record and didn't save it, you'll lose the record. Do you want save it?", QMessageBox.Ok | QMessageBox.Cancel)
+        
         try:
             table_name = "self.tableWidget_rapporti"
             rowSelected_cmd = ("%s.selectedIndexes()") % (table_name)
