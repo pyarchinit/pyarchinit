@@ -1663,9 +1663,9 @@ class single_US_pdf_sheet(object):
             ('SPAN', (0, 0), (1, 1)),  # unita tipo
             ('VALIGN', (0, 0), (1, 1), 'MIDDLE'),
 
-            ('SPAN', (2, 0), (6, 0)),  # label n. catalogo generale
-            ('SPAN', (7, 0), (12, 0)),  # label n. catalogo internazionale
-            ('VALIGN', (2, 0), (12, 0), 'TOP'),
+            ('SPAN', (2, 0), (6, 1)),  # label n. catalogo generale
+            ('SPAN', (7, 0), (12, 1)),  # label n. catalogo internazionale
+            ('VALIGN', (2, 0), (12,1), 'MIDDLE'),
 
             # 1 row
             ('SPAN', (2, 1), (6, 1)),  # n. catalogo generale
@@ -1709,9 +1709,9 @@ class single_US_pdf_sheet(object):
 
             # 8-9 row
             ('SPAN', (0, 8), (0, 9)),  # label componenti
-            ('SPAN', (1, 8), (5, 8)),  # label geologici
-            ('SPAN', (6, 8), (11, 8)),  # label organici
-            ('SPAN', (12, 8), (17, 8)),  # label artificiali
+            ('SPAN', (1, 8), (5, 9)),  # label geologici
+            ('SPAN', (6, 8), (11, 9)),  # label organici
+            ('SPAN', (12, 8), (17, 9)),  # label artificiali
             ('SPAN', (1, 9), (5, 9)),  #  geologici
             ('SPAN', (6, 9), (11, 9)),  #  organici
             ('SPAN', (12, 9), (17, 9)),  #  artificiali
