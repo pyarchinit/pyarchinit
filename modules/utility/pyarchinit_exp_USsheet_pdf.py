@@ -1571,8 +1571,8 @@ class single_US_pdf_sheet(object):
 
         label_sequenza_stratigrafica = Paragraph("<b>S<br/>E<br/>Q<br/>U<br/>E<br/>N<br/>Z<br/>A<br/><br/>S<br/>T<br/>R<br/>A<br/>T<br/>I<br/>G<br/>R<br/>A<br/>F<br/>I<br/>C<br/>A</b>", styVerticale)
 
-        posteriore_a = Paragraph("<b>POSTERIORE A</b><br/>", styNormal)               # manca valore
-        anteriore_a = Paragraph("<b>ANTERIORE A</b><br/>", styNormal)                 # manca valore
+        posteriore_a = Paragraph("<b>POSTERIORE A</b><br/>" + self.copre +"<br/>" + self.riempie +"<br/>"+  self.taglia+ "<br/>" +   self.si_appoggia_a, styNormal)               # manca valore
+        anteriore_a = Paragraph("<b>ANTERIORE A</b><br/>"+ self.coperto_da +"<br/>"+  self.riempito_da +"<br/>"+ self.tagliato_da +  "<br/>" + self.gli_si_appoggia, styNormal)                 # manca valore
 
         #23 row
 
@@ -1927,8 +1927,8 @@ class single_US_pdf_sheet(object):
 
         label_sequenza_stratigrafica = Paragraph("<b>S<br/>E<br/>Q<br/>U<br/>E<br/>N<br/>C<br/>E<br/><br/>S<br/>T<br/>R<br/>A<br/>T<br/>I<br/>G<br/>R<br/>A<br/>P<br/>H<br/>I<br/>C</b>", styVerticale)
 
-        posteriore_a = Paragraph("<b>POSTERIOR TO</b><br/>", styNormal)               # manca valore
-        anteriore_a = Paragraph("<b>ANTERIOR TO</b><br/>", styNormal)                 # manca valore
+        posteriore_a = Paragraph("<b>POSTERIOR TO</b><br/>"+ self.copre +"<br/>" + self.riempie +"<br/>"+  self.taglia+ "<br/>" +   self.si_appoggia_a, styNormal)               # manca valore
+        anteriore_a = Paragraph("<b>ANTERIOR TO</b><br/>"+ self.coperto_da +"<br/>"+  self.riempito_da +"<br/>"+ self.tagliato_da +  "<br/>" + self.gli_si_appoggia, styNormal)                 # manca valore
 
         #23 row
 
@@ -2019,17 +2019,17 @@ class single_US_pdf_sheet(object):
             ('SPAN', (0, 0), (1, 1)),  # unita tipo
             ('VALIGN', (0, 0), (1, 1), 'MIDDLE'),
 
-            ('SPAN', (2, 0), (6, 0)),  # label n. catalogo generale
-            ('SPAN', (7, 0), (12, 0)),  # label n. catalogo internazionale
-            ('VALIGN', (2, 0), (12, 0), 'TOP'),
+            ('SPAN', (2, 0), (6, 1)),  # label n. catalogo generale
+            ('SPAN', (7, 0), (12, 1)),  # label n. catalogo internazionale
+            ('VALIGN', (2, 0), (12,1), 'MIDDLE'),
 
             # 1 row
             ('SPAN', (2, 1), (6, 1)),  # n. catalogo generale
             ('SPAN', (7, 1), (12, 1)),  # catalogo internazionale
-            ('SPAN', (13, 1), (17, 1)),  # logo
-            ('SPAN', (13, 0), (17, 1)),  # logo
-            ('ALIGN', (13, 0), (17, 1), 'CENTER'),
-            ('VALIGN', (13, 0), (17, 1), 'MIDDLE'),
+            ('SPAN', (13, 1), (17, 1)),
+            ('SPAN', (13, 0), (17, 0)),  # logo
+            ('ALIGN', (13, 0), (17, 0), 'CENTER'),
+            ('VALIGN', (13, 0), (17, 0), 'MIDDLE'),
 
             # 2-3 row
             ('SPAN', (0, 2), (4, 3)),  # sito
@@ -2065,9 +2065,9 @@ class single_US_pdf_sheet(object):
 
             # 8-9 row
             ('SPAN', (0, 8), (0, 9)),  # label componenti
-            ('SPAN', (1, 8), (5, 8)),  # label geologici
-            ('SPAN', (6, 8), (11, 8)),  # label organici
-            ('SPAN', (12, 8), (17, 8)),  # label artificiali
+            ('SPAN', (1, 8), (5, 9)),  # label geologici
+            ('SPAN', (6, 8), (11, 9)),  # label organici
+            ('SPAN', (12, 8), (17, 9)),  # label artificiali
             ('SPAN', (1, 9), (5, 9)),  #  geologici
             ('SPAN', (6, 9), (11, 9)),  #  organici
             ('SPAN', (12, 9), (17, 9)),  #  artificiali
@@ -2283,8 +2283,8 @@ class single_US_pdf_sheet(object):
         
         label_sequenza_stratigrafica = Paragraph("<b>S<br/>T<br/>R<br/>A<br/>T<br/>I<br/>G<br/>R<br/>A<br/>F<br/>I<br/>S<br/>C<br/>H<br/>E<br/><br/<br/S<br/>E<br/>Q<br/>U<br/>E<br/>N<br/>C<br/>E</b>", styVerticale)
 
-        posteriore_a = Paragraph("<b>VORZEITIG ZU</b><br/>", styNormal)               # manca valore
-        anteriore_a = Paragraph("<b>NACHZEITIG ZU</b><br/>", styNormal)                 # manca valore
+        posteriore_a = Paragraph("<b>VORZEITIG ZU</b><br/>"+ self.copre +"<br/>" + self.riempie +"<br/>"+  self.taglia+ "<br/>" +   self.si_appoggia_a, styNormal)               # manca valore
+        anteriore_a = Paragraph("<b>NACHZEITIG ZU</b><br/>"+ self.coperto_da +"<br/>"+  self.riempito_da +"<br/>"+ self.tagliato_da +  "<br/>" + self.gli_si_appoggia, styNormal)                 # manca valore
 
         #23 row
 
@@ -2375,17 +2375,17 @@ class single_US_pdf_sheet(object):
             ('SPAN', (0, 0), (1, 1)),  # unita tipo
             ('VALIGN', (0, 0), (1, 1), 'MIDDLE'),
 
-            ('SPAN', (2, 0), (6, 0)),  # label n. catalogo generale
-            ('SPAN', (7, 0), (12, 0)),  # label n. catalogo internazionale
-            ('VALIGN', (2, 0), (12, 0), 'TOP'),
+            ('SPAN', (2, 0), (6, 1)),  # label n. catalogo generale
+            ('SPAN', (7, 0), (12, 1)),  # label n. catalogo internazionale
+            ('VALIGN', (2, 0), (12,1), 'MIDDLE'),
 
             # 1 row
             ('SPAN', (2, 1), (6, 1)),  # n. catalogo generale
             ('SPAN', (7, 1), (12, 1)),  # catalogo internazionale
-            ('SPAN', (13, 1), (17, 1)),  # logo
-            ('SPAN', (13, 0), (17, 1)),  # logo
-            ('ALIGN', (13, 0), (17, 1), 'CENTER'),
-            ('VALIGN', (13, 0), (17, 1), 'MIDDLE'),
+            ('SPAN', (13, 1), (17, 1)),
+            ('SPAN', (13, 0), (17, 0)),  # logo
+            ('ALIGN', (13, 0), (17, 0), 'CENTER'),
+            ('VALIGN', (13, 0), (17, 0), 'MIDDLE'),
 
             # 2-3 row
             ('SPAN', (0, 2), (4, 3)),  # sito
@@ -2421,9 +2421,9 @@ class single_US_pdf_sheet(object):
 
             # 8-9 row
             ('SPAN', (0, 8), (0, 9)),  # label componenti
-            ('SPAN', (1, 8), (5, 8)),  # label geologici
-            ('SPAN', (6, 8), (11, 8)),  # label organici
-            ('SPAN', (12, 8), (17, 8)),  # label artificiali
+            ('SPAN', (1, 8), (5, 9)),  # label geologici
+            ('SPAN', (6, 8), (11, 9)),  # label organici
+            ('SPAN', (12, 8), (17, 9)),  # label artificiali
             ('SPAN', (1, 9), (5, 9)),  #  geologici
             ('SPAN', (6, 9), (11, 9)),  #  organici
             ('SPAN', (12, 9), (17, 9)),  #  artificiali
