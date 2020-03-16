@@ -1594,7 +1594,7 @@ class single_US_pdf_sheet(object):
         #26 row
 
         datazione_ipotesi = Paragraph("<b>DATAZIONE</b><br/>" + str(self.datazione), styNormal)
-        periodo_o_fase = Paragraph("<b>PERIODO O FASE</b><br/>Periodo iniziale: "+self.periodo_iniziale+"<br/>Periodo finale: "+self.periodo_finale+"<br/>Fase iniziale: "+self.fase_iniziale+"<br/>Fase finale: "+self.fase_finale, styNormal)
+        periodo_o_fase = Paragraph("<b>PERIODO O FASE</b><br/>Periodo iniziale: "+self.periodo_iniziale+"<br/>Fase iniziale: "+self.fase_iniziale+"<br/>Periodo finale: "+self.periodo_finale+"<br/>Fase finale: "+self.fase_finale, styNormal)
 
         #27 row
 
@@ -1869,8 +1869,13 @@ class single_US_pdf_sheet(object):
         quadrato = Paragraph("<b>SQUARE</b><br/>" + self.quad_par, styNormal)
         quote = Paragraph("<b>ELEVATION</b><br/>min: " + self.quota_min + "<br/>max: "+self.quota_max, styNormal)
         label_unita_stratigrafica = Paragraph("<b>STRATIGRAPHIC UNIT</b><br/>"+ str(self.us), styNormal)
-        label_NAT = Paragraph("<i>NAT.</i>", styNormal)                       #manca valore
-        label_ART = Paragraph("<i>ART.</i>", styNormal)                       #manca valore
+        
+        if self.formazione== 'Natural':
+            label_NAT = Paragraph("<i>NAT.</i><br/>" + self.formazione, styNormal)
+            label_ART = Paragraph("<i>ART.</i>",  styNormal) 
+        elif self.formazione== 'Artificial':
+            label_NAT = Paragraph("<i>NAT.</i>", styNormal)
+            label_ART = Paragraph("<i>ART.</i><br/>"+ self.formazione, styNormal)
 
         #4 row
 
@@ -1950,7 +1955,7 @@ class single_US_pdf_sheet(object):
         #26 row
 
         datazione_ipotesi = Paragraph("<b>DATATION</b><br/>" + str(self.datazione), styNormal)
-        periodo_o_fase = Paragraph("<b>PERIOD OR PHASE</b><br/>Beginning Periodo: "+self.periodo_iniziale+"<br/>Final Period: "+self.periodo_finale+"<br/>Beginning Phase: "+self.fase_iniziale+"<br/>Finale Phase: "+self.fase_finale, styNormal)
+        periodo_o_fase = Paragraph("<b>PERIOD OR PHASE</b><br/>Beginning Period: "+self.periodo_iniziale+"<br/>Beginning Phase: "+self.fase_iniziale+"<br/>Final Period: "+self.periodo_finale+"<br/>Finale Phase: "+self.fase_finale, styNormal)
 
         #27 row
 
