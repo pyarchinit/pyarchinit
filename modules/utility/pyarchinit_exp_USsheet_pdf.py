@@ -1490,10 +1490,15 @@ class single_US_pdf_sheet(object):
         quadrato = Paragraph("<b>QUADRATO/I</b><br/>" + self.quad_par, styNormal)
         quote = Paragraph("<b>QUOTE</b><br/>min: " + self.quota_min + "<br/>max: "+self.quota_max, styNormal)
         label_unita_stratigrafica = Paragraph("<b>UNITÀ STRATIGRAFICA</b><br/>"+ str(self.us), styNormal)
-
-        label_NAT = Paragraph("<i>NAT.</i>", styNormal)                       #manca valore
-        label_ART = Paragraph("<i>ART.</i>", styNormal)                       #manca valore
-
+        
+        
+        if self.formazione== 'Naturale':
+            label_NAT = Paragraph("<i>NAT.</i><br/>" + self.formazione, styNormal)
+            label_ART = Paragraph("<i>ART.</i>",  styNormal) 
+        elif self.formazione== 'Artificiale':
+            label_NAT = Paragraph("<i>NAT.</i>", styNormal)
+            label_ART = Paragraph("<i>ART.</i><br/>"+ self.formazione, styNormal)
+       
         #4 row
 
         piante = Paragraph("<b>PIANTE</b><br/>" + self.piante_iccd, styNormal)
