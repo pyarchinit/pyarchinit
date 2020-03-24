@@ -255,9 +255,9 @@ class Main(QDialog, MAIN_DIALOG_CLASS):
                 filename_thumb = str(media_max_num_id) + "_" + filename + media_thumb_suffix
                 filename_resize = str(media_max_num_id) + "_" + filename + media_resize_suffix
                 
-                filepath_thumb = filename_thumb
+                filepath_thumb =  filename_thumb
                 filepath_resize = filename_resize
-                
+                self.SORT_ITEMS_CONVERTED = []
                 # crea la thumbnail
                 try:
                     MU.resample_images(media_max_num_id, filepath, filenameorig, thumb_path_str, media_thumb_suffix)
@@ -269,16 +269,15 @@ class Main(QDialog, MAIN_DIALOG_CLASS):
                 self.insert_record_mediathumb(media_max_num_id, mediatype, filename, filename_thumb, filetype,
                                               filepath_thumb, filepath_resize)
 
-                # visualizza le immagini nella ui
+                
                 item = QListWidgetItem(str(media_max_num_id))
                 item.setData(Qt.UserRole, str(media_max_num_id))
-                icon = QIcon(thumb_path_str+filepath)  # os.path.join('%s/%s' % (directory.toUtf8(), image)))
+                icon = QIcon(str(thumb_path_str)+filepath)  # os.path.join('%s/%s' % (directory.toUtf8(), image)))
                 item.setIcon(icon)
                 self.iconListWidget.addItem(item)
 
             elif bool(idunique_image_check):
-
-                # recupero il valore id_media basato sul path dell'immagine
+                
 
                 data = idunique_image_check
                 id_media = data[0].id_media
@@ -291,7 +290,7 @@ class Main(QDialog, MAIN_DIALOG_CLASS):
 
                 thumb_path = data_for_thumb[0].filepath
                 item.setData(Qt.UserRole, thumb_path)
-                icon = QIcon(thumb_path_str+filepath)  # os.path.join('%s/%s' % (directory.toUtf8(), image)))
+                icon = QIcon(str(thumb_path_str)+filepath)  # os.path.join('%s/%s' % (directory.toUtf8(), image)))
                 item.setIcon(icon)
                 self.iconListWidget.addItem(item)
 

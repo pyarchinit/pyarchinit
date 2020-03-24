@@ -1159,25 +1159,20 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
         self.tabWidget.addTab(self.mapPreview, "Piante")
 
         # media prevew system
-        self.iconListWidget = QListWidget(self)
-        self.iconListWidget.setFrameShape(QFrame.StyledPanel)
-        self.iconListWidget.setFrameShadow(QFrame.Sunken)
+        # self.tableWidget_photo.setColumnWidth(5, 1000)
+        # self.tableWidget_video.setColumnWidth(5, 1000)
         self.iconListWidget.setLineWidth(2)
         self.iconListWidget.setMidLineWidth(2)
         self.iconListWidget.setProperty("showDropIndicator", False)
-        self.iconListWidget.setIconSize(QSize(150, 150))
+        self.iconListWidget.setIconSize(QSize(430, 570))
         self.iconListWidget.setMovement(QListView.Snap)
         self.iconListWidget.setResizeMode(QListView.Adjust)
         self.iconListWidget.setLayoutMode(QListView.Batched)
-        self.iconListWidget.setGridSize(QSize(160, 160))
-        self.iconListWidget.setViewMode(QListView.IconMode)
         self.iconListWidget.setUniformItemSizes(True)
-        self.iconListWidget.setBatchSize(1000)
         self.iconListWidget.setObjectName("iconListWidget")
         self.iconListWidget.SelectionMode()
-        self.iconListWidget.setSelectionMode(QAbstractItemView.MultiSelection)
+        self.iconListWidget.setSelectionMode(QAbstractItemView.SingleSelection)
         self.iconListWidget.itemDoubleClicked.connect(self.openWide_image)
-        self.tabWidget.addTab(self.iconListWidget, "Media")
 
         # comboBox customizations
         self.setComboBoxEditable(["self.comboBox_per_fin"], 1)
@@ -2513,7 +2508,7 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
     def on_toolButtonPreviewMedia_toggled(self):
         
         if self.L=='it':
-            if self.toolButtonPreviewMedia.isChecked():
+            if self.toolButtonPreviewMedia.isChecked() == True:
                 QMessageBox.warning(self, "Messaggio",
                                     "Modalita' Preview Media US attivata. Le immagini delle US saranno visualizzate nella sezione Media",
                                     QMessageBox.Ok)
@@ -2521,7 +2516,7 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
             else:
                 self.loadMediaPreview(1)
         elif self.L=='de':
-            if self.toolButtonPreviewMedia.isChecked():
+            if self.toolButtonPreviewMedia.isChecked()== True:
                 QMessageBox.warning(self, "Message",
                                     "Modalität' Preview Media SE aktiviert. Die Bilder der SE werden in der Preview media Auswahl visualisiert",
                                     QMessageBox.Ok)
@@ -2529,7 +2524,7 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
             else:
                 self.loadMediaPreview(1)
         else:
-            if self.toolButtonPreviewMedia.isChecked():
+            if self.toolButtonPreviewMedia.isChecked()== True:
                 QMessageBox.warning(self, "Message",
                                     "SU Media Preview mode enabled. US images will be displayed in the Media section",
                                     QMessageBox.Ok)
