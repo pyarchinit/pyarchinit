@@ -1492,14 +1492,16 @@ class single_US_pdf_sheet(object):
         label_unita_stratigrafica = Paragraph("<b>UNITÀ STRATIGRAFICA</b><br/>"+ str(self.us), styNormal)
         
         
-        if self.formazione== 'Naturale':
+        if self.formazione == 'Naturale':
             label_NAT = Paragraph("<i>NAT.</i><br/>" + self.formazione, styNormal)
             label_ART = Paragraph("<i>ART.</i>",  styNormal) 
-        elif self.formazione== 'Artificiale':
+        elif self.formazione == 'Artificiale':
             label_NAT = Paragraph("<i>NAT.</i>", styNormal)
             label_ART = Paragraph("<i>ART.</i><br/>"+ self.formazione, styNormal)
-       
-        #4 row
+        elif self.formazione !='Naturale' or 'Artificiale':    
+            label_NAT = Paragraph("<i>NAT.</i><br/>", styNormal)
+            label_ART = Paragraph("<i>ART.</i>",  styNormal) 
+        
 
         piante = Paragraph("<b>PIANTE</b><br/>" + self.piante_iccd, styNormal)
         sezioni = Paragraph("<b>SEZIONI</b><br/>" + self.sezioni_iccd, styNormal)
@@ -1876,7 +1878,9 @@ class single_US_pdf_sheet(object):
         elif self.formazione== 'Artificial':
             label_NAT = Paragraph("<i>NAT.</i>", styNormal)
             label_ART = Paragraph("<i>ART.</i><br/>"+ self.formazione, styNormal)
-
+        elif self.formazione !='Natural' or 'Artificial':    
+            label_NAT = Paragraph("<i>NAT.</i><br/>", styNormal)
+            label_ART = Paragraph("<i>ART.</i>",  styNormal) 
         #4 row
 
         piante = Paragraph("<b>MAP</b><br/>" + self.piante, styNormal)
@@ -1992,7 +1996,7 @@ class single_US_pdf_sheet(object):
             [unita_tipo, '01' , label_catalogo_generale, '03', '04', '05', '06', label_catalogo_internazionale , '08', '09', '10', '11', '12', logo , '14', '15', '16', '17'],
             ['00', '01', catalogo_generale, '03', '04' , '05', '06', catalogo_internazionale , '08', '09', '10', '11', '12', sop, '14', '15', '16', '17'],
             [sito, '01', '02', '03', '04', anno_di_scavo , area, settore, '08', quadrato, '10', quote, '12', '13', label_unita_stratigrafica, '15', '16', '17'],
-            ['00', '01', '02', '03', '04', '05','06' , '07', '08', '09', '10', '11', '12', '13', label_NAT, '15', label_ART, '17'],    #
+            #['00', '01', '02', '03', '04', '05','06' , '07', '08', '09', '10', '11', '12', '13', label_NAT, '15', label_ART, '17'],    #
             [piante, '01', '02', sezioni, '04', '05', prospetti, '07', '08', foto, '10', '11', '12', '13', tabelle_materiali, '15', '16', '17'],
             [d_stratigrafica, '01', '02', '03', '04', '05', '06', '07', '08', '09', '10', '11', '12', '13', '14', '15', '16', '17'],
             [criteri_distinzione, '01', '02', '03', '04', '05', '06', '07', '08', '09', '10', '11', '12', '13', '14', '15', '16', '17'],
