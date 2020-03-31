@@ -21,6 +21,9 @@
 from __future__ import absolute_import
 from builtins import range
 from builtins import str
+import sqlite3  
+from sqlite3 import Error
+
 
 
 import os
@@ -29,7 +32,7 @@ from datetime import date
 from qgis.PyQt.QtCore import Qt, QSize, pyqtSlot, QVariant, QLocale
 from qgis.PyQt.QtGui import QColor, QIcon
 from qgis.PyQt.QtWidgets import QDialog, QMessageBox, QListWidget, QListView, QFrame, QAbstractItemView, \
-    QTableWidgetItem, QListWidgetItem
+    QTableWidgetItem, QListWidgetItem,QTableWidget
 from qgis.PyQt.uic import loadUiType
 from qgis.core import Qgis, QgsSettings
 from qgis.gui import QgsMapCanvas, QgsMapToolPan
@@ -47,11 +50,11 @@ from ..modules.utility.pyarchinit_exp_USsheet_pdf import generate_US_pdf
 from ..modules.utility.pyarchinit_print_utility import Print_utility
 from ..gui.imageViewer import ImageViewer
 from ..gui.sortpanelmain import SortPanelMain
-
+from ..resources.resources_rc import *
 MAIN_DIALOG_CLASS, _ = loadUiType(
     os.path.join(os.path.dirname(__file__), os.pardir, 'gui', 'ui', 'US_USM.ui'))
 
-
+db_file=r"C:\Users\Utente\pyarchinit\pyarchinit_DB_folder\test.sqlite"
 class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
     L=QgsSettings().value("locale/userLocale")[0:2]
     if L=='it':
@@ -82,6 +85,7 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
     DB_MANAGER = ""
     TABLE_NAME = 'us_table'
     MAPPER_TABLE_CLASS = "US"
+    
     NOME_SCHEDA = "Scheda US"
     ID_TABLE = "id_us"
     if L=='it':
@@ -739,6 +743,7 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
         self.pyQGIS = Pyarchinit_pyqgis(iface)
         self.setupUi(self)
         self.currentLayerId = None
+        
         try:
             self.on_pushButton_connect_pressed()
         except Exception as e:
@@ -765,7 +770,12 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
         self.charge_periodo_fin_list()
         self.fill_fields()
         self.customize_GUI()
-
+        # self.list_media.clicked.connect(self.loadMedialist)
+        self.show()
+        self.loadMedialist()
+    
+        
+    
     def charge_periodo_iniz_list(self):
         sito = str(self.comboBox_sito.currentText())
         # sitob = sito.decode('utf-8')
@@ -1152,7 +1162,11 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
         self.tableWidget_rapporti.setColumnWidth(1, 110)
         self.tableWidget_documentazione.setColumnWidth(0, 150)
         self.tableWidget_documentazione.setColumnWidth(1, 300)
-
+        self.tableWidget_foto.setColumnWidth(0, 100)
+        self.tableWidget_foto.setColumnWidth(1, 100)
+        self.tableWidget_foto.setColumnWidth(2, 100)
+        self.tableWidget_foto.setColumnWidth(3, 100)
+        self.tableWidget_foto.setColumnWidth(4, 200)
         # map prevew system
         self.mapPreview = QgsMapCanvas(self)
         self.mapPreview.setCanvasColor(QColor(225, 225, 225))
@@ -1174,6 +1188,8 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
         self.iconListWidget.setSelectionMode(QAbstractItemView.SingleSelection)
         self.iconListWidget.itemDoubleClicked.connect(self.openWide_image)
 
+        
+        
         # comboBox customizations
         self.setComboBoxEditable(["self.comboBox_per_fin"], 1)
         self.setComboBoxEditable(["self.comboBox_fas_fin"], 1)
@@ -1183,6 +1199,8 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
 
         # lista tipo rapporti stratigrafici
 
+        
+        
         if self.L=='it':
             valuesRS = ["Uguale a", "Si lega a", "Copre", "Coperto da", "Riempie", "Riempito da", "Taglia", "Tagliato da", "Si appoggia a", "Gli si appoggia", ""]
             self.delegateRS = ComboBoxDelegate()
@@ -1437,6 +1455,45 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
         self.delegateINCL.def_editable('False')
         self.tableWidget_inclusi.setItemDelegateForColumn(0, self.delegateINCL)
 
+    def loadMedialist(self):
+        self.tableWidget_foto.clear()
+        col =['Sito','Area','US','Foto id','Definizione']
+        self.tableWidget_foto.setHorizontalHeaderLabels(col)
+        numRows = 0
+        
+        search_dict = {
+            'id_entity': "'" + str(eval("self.DATA_LIST[int(self.REC_CORR)]." + self.ID_TABLE)) + "'",
+            'entity_type': "'US'"}
+        record_us_list = self.DB_MANAGER.query_bool(search_dict, 'MEDIATOENTITY')
+        
+        for i in record_us_list:
+            
+            item = QTableWidgetItem(str(i.media_name))
+            
+            
+            item2 = QTableWidgetItem(str(i.id_entity))
+            self.tableWidget_foto.setItem(numRows , 3,item)
+            self.tableWidget_foto.setItem(numRows, 2,item2)
+            
+            
+        search_dict = {
+            'id_us': "'" + str(eval("self.DATA_LIST[int(self.REC_CORR)]. " + self.ID_TABLE)) + "'"}
+        record_us_list = self.DB_MANAGER.query_bool(search_dict, 'US')
+        
+        for i in record_us_list:
+            
+            
+            item = QTableWidgetItem(str(i.sito))    
+            item2 = QTableWidgetItem(str(i.area)) 
+            item3 = QTableWidgetItem(str(i.d_stratigrafica))
+            self.tableWidget_foto.setItem(numRows , 0, item)
+            self.tableWidget_foto.setItem(numRows , 1, item2)
+            self.tableWidget_foto.setItem(numRows , 4, item3)
+                 
+
+            
+           
+            
     def loadMapPreview(self, mode=0):
         if mode == 0:
             """ if has geometry column load to map canvas """
@@ -1452,39 +1509,40 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
             self.mapPreview.setLayers([])
             self.mapPreview.zoomToFullExtent()
 
-    def loadMediaPreview(self, mode=0):
+    def loadMediaPreview(self):
         self.iconListWidget.clear()
         conn = Connection()
         
         thumb_path = conn.thumb_path()
         thumb_path_str = thumb_path['thumb_path']
-        if mode == 0:
-            """ if has geometry column load to map canvas """
+        # if mode == 0:
+        # """ if has geometry column load to map canvas """
 
-            rec_list = self.ID_TABLE + " = " + str(
-                eval("self.DATA_LIST[int(self.REC_CORR)]." + self.ID_TABLE))
-            search_dict = {
-                'id_entity': "'" + str(eval("self.DATA_LIST[int(self.REC_CORR)]." + self.ID_TABLE)) + "'",
-                'entity_type': "'US'"}
-            record_us_list = self.DB_MANAGER.query_bool(search_dict, 'MEDIATOENTITY')
-            for i in record_us_list:
-                search_dict = {'id_media': "'" + str(i.id_media) + "'"}
+        rec_list = self.ID_TABLE + " = " + str(
+            eval("self.DATA_LIST[int(self.REC_CORR)]." + self.ID_TABLE))
+        search_dict = {
+            'id_entity': "'" + str(eval("self.DATA_LIST[int(self.REC_CORR)]." + self.ID_TABLE)) + "'",
+            'entity_type': "'US'"}
+        record_us_list = self.DB_MANAGER.query_bool(search_dict, 'MEDIATOENTITY')
+        for i in record_us_list:
+            search_dict = {'id_media': "'" + str(i.id_media) + "'"}
 
-                u = Utility()
-                search_dict = u.remove_empty_items_fr_dict(search_dict)
-                mediathumb_data = self.DB_MANAGER.query_bool(search_dict, "MEDIA_THUMB")
-                thumb_path = str(mediathumb_data[0].filepath)
+            u = Utility()
+            search_dict = u.remove_empty_items_fr_dict(search_dict)
+            mediathumb_data = self.DB_MANAGER.query_bool(search_dict, "MEDIA_THUMB")
+            thumb_path = str(mediathumb_data[0].filepath)
 
-                item = QListWidgetItem(str(i.media_name))
+            item = QListWidgetItem(str(i.media_name))
 
-                item.setData(Qt.UserRole, str(i.media_name))
-                icon = QIcon(thumb_path_str+thumb_path)
-                item.setIcon(icon)
-                self.iconListWidget.addItem(item)
-        elif mode == 1:
-            self.iconListWidget.clear()
+            item.setData(Qt.UserRole, str(i.media_name))
+            icon = QIcon(thumb_path_str+thumb_path)
+            item.setIcon(icon)
+            self.iconListWidget.addItem(item)
+        # elif mode == 1:
+            # self.iconListWidget.clear()
 
     
+
 
     def openWide_image(self):
         items = self.iconListWidget.selectedItems()
@@ -2505,32 +2563,32 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
                 self.loadMapPreview()
             else:
                 self.loadMapPreview(1)
-    def on_toolButtonPreviewMedia_toggled(self):
+    # def on_toolButtonPreviewMedia_toggled(self):
         
-        if self.L=='it':
-            if self.toolButtonPreviewMedia.isChecked() == True:
-                QMessageBox.warning(self, "Messaggio",
-                                    "Modalita' Preview Media US attivata. Le immagini delle US saranno visualizzate nella sezione Media",
-                                    QMessageBox.Ok)
-                self.loadMediaPreview()
-            else:
-                self.loadMediaPreview(1)
-        elif self.L=='de':
-            if self.toolButtonPreviewMedia.isChecked()== True:
-                QMessageBox.warning(self, "Message",
-                                    "Modalität' Preview Media SE aktiviert. Die Bilder der SE werden in der Preview media Auswahl visualisiert",
-                                    QMessageBox.Ok)
-                self.loadMediaPreview()
-            else:
-                self.loadMediaPreview(1)
-        else:
-            if self.toolButtonPreviewMedia.isChecked()== True:
-                QMessageBox.warning(self, "Message",
-                                    "SU Media Preview mode enabled. US images will be displayed in the Media section",
-                                    QMessageBox.Ok)
-                self.loadMediaPreview()
-            else:
-                self.loadMediaPreview(1)        
+        # if self.L=='it':
+            # if self.toolButtonPreviewMedia.isChecked() == True:
+                # QMessageBox.warning(self, "Messaggio",
+                                    # "Modalita' Preview Media US attivata. Le immagini delle US saranno visualizzate nella sezione Media",
+                                    # QMessageBox.Ok)
+                # self.loadMediaPreview()
+            # else:
+                # self.loadMediaPreview(1)
+        # elif self.L=='de':
+            # if self.toolButtonPreviewMedia.isChecked()== True:
+                # QMessageBox.warning(self, "Message",
+                                    # "Modalität' Preview Media SE aktiviert. Die Bilder der SE werden in der Preview media Auswahl visualisiert",
+                                    # QMessageBox.Ok)
+                # self.loadMediaPreview()
+            # else:
+                # self.loadMediaPreview(1)
+        # else:
+            # if self.toolButtonPreviewMedia.isChecked()== True:
+                # QMessageBox.warning(self, "Message",
+                                    # "SU Media Preview mode enabled. US images will be displayed in the Media section",
+                                    # QMessageBox.Ok)
+                # self.loadMediaPreview()
+            # else:
+                # self.loadMediaPreview(1)        
     def on_pushButton_addRaster_pressed(self):
         if self.toolButtonGis.isChecked():
             self.pyQGIS.addRasterLayer()
@@ -2581,7 +2639,7 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
 
     def on_pushButton_save_pressed(self):
         # save record
-        if self.BROWSE_STATUS == "b":
+        if self.BROWSE_STATUS == "o":
             if self.data_error_check() == 0:
                 if self.records_equal_check() == 1:
                     if self.L=='it':
@@ -2616,7 +2674,7 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
                     self.label_sort.setText(self.SORTED_ITEMS[self.SORT_STATUS])
                     self.charge_records()
                     self.charge_list()
-                    self.BROWSE_STATUS = "b"
+                    self.BROWSE_STATUS = "o"
                     self.label_status.setText(self.STATUS_ITEMS[self.BROWSE_STATUS])
                     self.REC_TOT, self.REC_CORR = len(self.DATA_LIST), len(self.DATA_LIST) - 1
                     self.set_rec_counter(self.REC_TOT, self.REC_CORR + 1)
@@ -4799,6 +4857,8 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
                 self.loadMapPreview()
             if self.toolButtonPreviewMedia.isChecked():
                 self.loadMediaPreview()
+                self.loadMedialist()
+                
         except Exception as e:
             QMessageBox.warning(self, "Errore Fills Fields", str(e), QMessageBox.Ok)
 
