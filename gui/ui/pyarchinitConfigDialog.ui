@@ -75,7 +75,7 @@
       <enum>QTabWidget::Rounded</enum>
      </property>
      <property name="currentIndex">
-      <number>0</number>
+      <number>2</number>
      </property>
      <property name="elideMode">
       <enum>Qt::ElideMiddle</enum>
@@ -964,7 +964,7 @@
           </item>
           <item>
            <property name="text">
-            <string>PYARCHINIT_THESAURUS</string>
+            <string>PYARCHINIT_THESAURUS_SIGLE</string>
            </property>
           </item>
           <item>
