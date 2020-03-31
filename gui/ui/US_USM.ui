@@ -1976,7 +1976,7 @@ border-color: rgb(0, 0, 0);
       <string notr="true"/>
      </property>
      <property name="currentIndex">
-      <number>8</number>
+      <number>0</number>
      </property>
      <property name="movable">
       <bool>true</bool>
