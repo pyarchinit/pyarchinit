@@ -4925,7 +4925,7 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
 
         col_materiale_usm = self.table2dict("self.tableWidget_colore_materiale_usm")
 
-        list_foto = self.table2dict("self.tableWidget_foto")
+        #list_foto = self.table2dict("self.tableWidget_foto")
         
         if self.lineEditOrderLayer.text() == "":
             order_layer = None
@@ -5132,7 +5132,7 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
             str(self.lineEdit_provenienza_materiali_usm.text()), # 93 provenienza_materiali_usm
             str(self.lineEdit_criteri_distinzione_usm.text()), # 94 criteri distinzione usm
             str(self.lineEdit_uso_primario_usm.text()),  # 95 uso primario usm
-            str(list_foto)
+            #str(list_foto)
         ]
 
     def set_LIST_REC_CORR(self):
