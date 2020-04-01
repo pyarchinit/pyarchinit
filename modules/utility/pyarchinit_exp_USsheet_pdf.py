@@ -215,7 +215,7 @@ class single_US_pdf_sheet(object):
         self.provenienza_materiali_usm = data[93]
         self.criteri_distinzione_usm = data[94]
         self.uso_primario_usm = data[95]
-
+        self.foto=data[96]
     def unzip_componenti(self):
         org = eval(self.componenti_organici)
         inorg = eval(self.componenti_inorganici)
@@ -2918,7 +2918,42 @@ class US_index_pdf_sheet(object):
 
         return styles
 
+class FOTO_index_pdf_sheet(object):
+    
 
+    def __init__(self, data):
+        self.sito = data[0]
+        self.area = data[1]
+        self.us = data[2]
+        self.foto = data[96]
+        self.d_stratigrafica = data[3]
+    def getTable(self):
+        styleSheet = getSampleStyleSheet()
+        styNormal = styleSheet['Normal']
+        styNormal.spaceBefore = 20
+        styNormal.spaceAfter = 20
+        styNormal.alignment = 0  # LEFT
+        styNormal.fontSize = 6
+
+        
+
+        area = Paragraph("<b>Area</b><br/>" + str(self.area), styNormal)
+        us = Paragraph("<b>US</b><br/>" + str(self.us), styNormal)
+        foto = Paragraph("<b>Foto ID</b><br/>" + str(self.foto), styNormal)
+        d_stratigrafica = Paragraph("<b>Definizione stratigrafica</b><br/>" + str(self.d_stratigrafica), styNormal)
+        
+
+        data = [area,
+                us,
+                foto,
+                d_stratigrafica]
+
+        return data
+    def makeStyles(self):
+        styles = TableStyle([('GRID', (0, 0), (-1, -1), 0.0, colors.black), ('VALIGN', (0, 0), (-1, -1), 'TOP')
+                             ])  # finale
+
+        return styles    
 class generate_US_pdf(object):
     HOME = os.environ['PYARCHINIT_HOME']
 
@@ -3074,6 +3109,55 @@ class generate_US_pdf(object):
         doc.build(lst, canvasmaker=NumberedCanvas_USindex)
 
         f.close()
+        
+    def build_index_Foto(self, records, sito):
+        home = os.environ['PYARCHINIT_HOME']
+
+        home_DB_path = '{}{}{}'.format(home, os.sep, 'pyarchinit_DB_folder')
+        logo_path = '{}{}{}'.format(home_DB_path, os.sep, 'logo.jpg')
+
+        logo = Image(logo_path)
+        logo.drawHeight = 1.5 * inch * logo.drawHeight / logo.drawWidth
+        logo.drawWidth = 1.5 * inch
+        logo.hAlign = "LEFT"
+
+        styleSheet = getSampleStyleSheet()
+        styNormal = styleSheet['Normal']
+        styBackground = ParagraphStyle('background', parent=styNormal, backColor=colors.pink)
+        styH1 = styleSheet['Heading3']
+
+        data = self.datestrfdate()
+
+        lst = []
+        lst.append(logo)
+        lst.append(
+            Paragraph("<b>ELENCO FOTO STRATIGRAFICHE</b><br/><b>Scavo: %s,  Data: %s</b>" % (sito, data), styH1))
+
+        table_data = []
+        for i in range(len(records)):
+            exp_index = FOTO_index_pdf_sheet(records[i])
+            table_data.append(exp_index.getTable())
+
+        styles = exp_index.makeStyles()
+        colWidths = [28, 28, 120, 250, 58, 45, 58, 55, 64, 64, 52, 52, 52]
+
+        table_data_formatted = Table(table_data, colWidths, style=styles)
+        table_data_formatted.hAlign = "LEFT"
+
+        lst.append(table_data_formatted)
+        lst.append(Spacer(0, 2))
+
+        dt = datetime.datetime.now()
+        filename = ('%s%s%s_%s_%s_%s_%s_%s_%s%s') % (
+        self.PDF_path, os.sep, 'elenco_foto', dt.day, dt.month, dt.year, dt.hour, dt.minute, dt.second, ".pdf")
+        f = open(filename, "wb")
+
+        doc = SimpleDocTemplate(f, pagesize=A4)
+        doc.build(lst, canvasmaker=NumberedCanvas_USsheet)
+
+        f.close()
+
+        
     def build_index_US_en(self, records, sito):
         home = os.environ['PYARCHINIT_HOME']
 
