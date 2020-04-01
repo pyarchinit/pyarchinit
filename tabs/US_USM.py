@@ -1935,10 +1935,14 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
         data_list = []
         for i in range(len(self.DATA_LIST)):
             # assegnazione valori di quota mn e max
+            id_us = str(self.DATA_LIST[i].id_us)
             sito = str(self.DATA_LIST[i].sito)
             area = str(self.DATA_LIST[i].area)
             us = str(self.DATA_LIST[i].us)
-
+            
+            
+            
+            
             res = self.DB_MANAGER.select_quote_from_db_sql(sito, area, us)
             quote = []
 
@@ -1992,7 +1996,29 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
                     piante = "SE im GIS gezeichnet" 
                 else:
                     piante= "SU draft on GIS"
+            #############inserimento nome fiel media############
+            refoto = self.DB_MANAGER.select_medianame_from_db_sql(id_us,sito,area)
+            
 
+            elenco_foto = []
+            for us in refoto:
+                elenco_foto.append(us)
+
+            if bool(elenco_foto):
+                sing_rec = elenco_foto[0]
+                elenco_foto = sing_rec[6]
+                if elenco_foto != None:
+                    foto = elenco_foto
+                else:
+                    pass
+            elif not bool(elenco_foto):
+                if self.L=='it':
+                    foto = "Foto non presente" 
+                elif self.L=='de':
+                    foto = "SE im GIS gezeichnet" 
+                else:
+                    foto= "SU draft on GIS"
+            #####################fine########################
             if self.DATA_LIST[i].quota_min_usm == None:
                 quota_min_usm = ""
             else:
@@ -2182,8 +2208,8 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
                 str(self.DATA_LIST[i].campioni_pietra_usm),  # 92 campioni pietra usm
                 str(self.DATA_LIST[i].provenienza_materiali_usm),  # 93 provenienza_materiali_usm
                 str(self.DATA_LIST[i].criteri_distinzione_usm),  # 94 criteri distinzione usm
-                str(self.DATA_LIST[i].uso_primario_usm)  #95 uso primario
-
+                str(self.DATA_LIST[i].uso_primario_usm),  #95 uso primario
+                str(foto)
             ])
         return data_list
 
@@ -2240,7 +2266,10 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
             US_index_pdf = generate_US_pdf()
             data_list = self.generate_list_pdf()
             US_index_pdf.build_index_US(data_list, data_list[0][0])
+            US_index_pdf.build_index_Foto(data_list, data_list[0][0])
             
+        
+        
         elif self.L=='en':  
             US_index_pdf = generate_US_pdf()
             data_list = self.generate_list_pdf()
@@ -4896,6 +4925,8 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
 
         col_materiale_usm = self.table2dict("self.tableWidget_colore_materiale_usm")
 
+        list_foto = self.table2dict("self.tableWidget_foto")
+        
         if self.lineEditOrderLayer.text() == "":
             order_layer = None
         else:
@@ -5100,7 +5131,8 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
             str(self.lineEdit_campioni_pietra_usm.text()), # 92 campioni pietra usm
             str(self.lineEdit_provenienza_materiali_usm.text()), # 93 provenienza_materiali_usm
             str(self.lineEdit_criteri_distinzione_usm.text()), # 94 criteri distinzione usm
-            str(self.lineEdit_uso_primario_usm.text())  # 95 uso primario usm
+            str(self.lineEdit_uso_primario_usm.text()),  # 95 uso primario usm
+            str(list_foto)
         ]
 
     def set_LIST_REC_CORR(self):
