@@ -1459,40 +1459,50 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
         self.tableWidget_foto.clear()
         col =['Sito','Area','US','Foto id','Definizione']
         self.tableWidget_foto.setHorizontalHeaderLabels(col)
-        numRows = 0
-        
-        search_dict = {
-            'id_entity': "'" + str(eval("self.DATA_LIST[int(self.REC_CORR)]." + self.ID_TABLE)) + "'",
-            'entity_type': "'US'"}
-        record_us_list = self.DB_MANAGER.query_bool(search_dict, 'MEDIATOENTITY')
-        
-        for i in record_us_list:
-            
-            item = QTableWidgetItem(str(i.media_name))
-            
-            
-            item2 = QTableWidgetItem(str(i.id_entity))
-            self.tableWidget_foto.setItem(numRows , 3,item)
-            self.tableWidget_foto.setItem(numRows, 2,item2)
-            
-            
+        numRows = self.tableWidget_foto.setRowCount(100)
         search_dict = {
             'id_us': "'" + str(eval("self.DATA_LIST[int(self.REC_CORR)]. " + self.ID_TABLE)) + "'"}
         record_us_list = self.DB_MANAGER.query_bool(search_dict, 'US')
+        nus=0
+        for b in record_us_list:
+            if nus== 0:
+                self.tableWidget_foto.setItem(nus, 0, QTableWidgetItem(str(b.sito)))
+                
+                self.tableWidget_foto.setItem(nus, 1, QTableWidgetItem(str(b.area)))
+                
+                self.tableWidget_foto.setItem(nus, 4, QTableWidgetItem(str(b.d_stratigrafica)))
+                
+                self.tableWidget_foto.setItem(nus, 2, QTableWidgetItem(str(b.us)))    
+                nus+=1
+            else:
+                self.tableWidget_foto.setItem(nus, 0, QTableWidgetItem(str(b.sito)))
+                
+                self.tableWidget_foto.setItem(nus, 1, QTableWidgetItem(str(b.area)))
+                
+                self.tableWidget_foto.setItem(nus, 4, QTableWidgetItem(str(b.d_stratigrafica)))
+                
+                self.tableWidget_foto.setItem(nus, 2, QTableWidgetItem(str(b.us)))    
+                nus+=1 
+                
+                
+        search_dict = {
+            'id_entity': "'" + str(eval("self.DATA_LIST[int(self.REC_CORR)]." + self.ID_TABLE)) + "'",
+            'entity_type': "'US'"}
+        record_media_list = self.DB_MANAGER.query_bool(search_dict, 'MEDIATOENTITY')
+        n=0
+        for a in record_media_list:
+            
+            if n== 0:
+                self.tableWidget_foto.setItem(n, 3,QTableWidgetItem(str(a.media_name)))
+                n+=1
+            else:
+                self.tableWidget_foto.setItem(n, 3,QTableWidgetItem(str(a.media_name)))
+                n+=1
+            
+            
+            
+            
         
-        for i in record_us_list:
-            
-            
-            item = QTableWidgetItem(str(i.sito))    
-            item2 = QTableWidgetItem(str(i.area)) 
-            item3 = QTableWidgetItem(str(i.d_stratigrafica))
-            self.tableWidget_foto.setItem(numRows , 0, item)
-            self.tableWidget_foto.setItem(numRows , 1, item2)
-            self.tableWidget_foto.setItem(numRows , 4, item3)
-                 
-
-            
-           
             
     def loadMapPreview(self, mode=0):
         if mode == 0:
@@ -1998,26 +2008,26 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
                     piante= "SU draft on GIS"
             #############inserimento nome fiel media############
             refoto = self.DB_MANAGER.select_medianame_from_db_sql(id_us,sito,area)
-            
-
+            n=0
+            txt_to_print = ''
             elenco_foto = []
-            for us in refoto:
-                elenco_foto.append(us)
-
-            if bool(elenco_foto):
-                sing_rec = elenco_foto[0]
-                elenco_foto = sing_rec[6]
-                if elenco_foto != None:
-                    foto = elenco_foto
-                else:
-                    pass
-            elif not bool(elenco_foto):
-                if self.L=='it':
-                    foto = "Foto non presente" 
-                elif self.L=='de':
-                    foto = "SE im GIS gezeichnet" 
-                else:
-                    foto= "SU draft on GIS"
+            for media in refoto:
+                
+               
+                elenco_foto.append(media.media_name)
+            
+                 
+            for a in elenco_foto:
+                 
+                    txt_to_print = str(a)+", "+ txt_to_print
+            
+            if bool (txt_to_print)!=None:
+                foto = txt_to_print
+            
+            else:
+                pass
+        
+            
             #####################fine########################
             if self.DATA_LIST[i].quota_min_usm == None:
                 quota_min_usm = ""
@@ -2105,7 +2115,7 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
                 spessore_usm = ""
             else:
                 spessore_usm = str(self.DATA_LIST[i].spessore_usm)  # 87 spessore usm
-
+            
             data_list.append([
                 str(self.DATA_LIST[i].sito),  # 0 - Sito
                 str(self.DATA_LIST[i].area),  # 1 - Area
