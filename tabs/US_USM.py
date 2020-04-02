@@ -2008,7 +2008,7 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
                     piante= "SU draft on GIS"
             #############inserimento nome fiel media############
             refoto = self.DB_MANAGER.select_medianame_from_db_sql(id_us,sito,area)
-            n=0
+           
             txt_to_print = ''
             elenco_foto = []
             for media in refoto:
@@ -2018,11 +2018,12 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
             
                  
             for a in elenco_foto:
-                 
-                    txt_to_print = str(a)+", "+ txt_to_print
-            
+                
+                txt_to_print = str(a) + ", " + txt_to_print            
+            txt_to_print = txt_to_print[0:len(txt_to_print) -2]##tolgo la virgola finale in più
             if bool (txt_to_print)!=None:
-                foto = txt_to_print
+                
+                foto = txt_to_print### stampo il mio ciclio for se trova qualcosa
             
             else:
                 pass
