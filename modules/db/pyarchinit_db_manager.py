@@ -1133,8 +1133,8 @@ class Pyarchinit_db_management(object):
                 self.update('US', 'id_us', [int(i.id_us)], ['cont_per'], [cod_cont_var_txt])
 
     
-    def select_medianame_from_db_sql(self,id_us,sito,area):
-        sql_query_string = ("SELECT * FROM media_to_entity_table as a, us_table as b WHERE a.id_entity='%s'  and b.sito= '%s' and b.area='%s'")%(id_us,sito,area) 
+    def select_medianame_from_db_sql(self,us,sito,area):
+        sql_query_string = ("SELECT * FROM media_to_entity_table as a, us_table as b WHERE b.id_us=a.id_entity and b.us='%s'  and b.sito= '%s' and b.area='%s'")%(us,sito,area) 
         
         res = self.engine.execute(sql_query_string)
         rows= res.fetchall()
