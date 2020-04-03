@@ -1132,6 +1132,14 @@ class Pyarchinit_db_management(object):
 
                 self.update('US', 'id_us', [int(i.id_us)], ['cont_per'], [cod_cont_var_txt])
 
+    
+    def select_medianame_from_db_sql(self,id_us,sito,area):
+        sql_query_string = ("SELECT * FROM media_to_entity_table as a, us_table as b WHERE a.id_entity='%s'  and b.sito= '%s' and b.area='%s'")%(id_us,sito,area) 
+        
+        res = self.engine.execute(sql_query_string)
+        rows= res.fetchall()
+        return rows
+    
     def select_quote_from_db_sql(self, sito, area, us):
         sql_query_string = ("SELECT * FROM pyarchinit_quote WHERE sito_q = '%s' AND area_q = '%s' AND us_q = '%s'") % (
         sito, area, us)
@@ -1163,6 +1171,14 @@ class Pyarchinit_db_management(object):
         sql_query_string = ("SELECT * FROM %s") % table
         res = self.engine.execute(sql_query_string)
         return res
+    
+    def select_db_sql_2(self, sito,area,us,d_stratigrafica):
+        sql_query_string = ("SELECT * FROM us_table as a where a.sito='%s' AND a.area='%s' AND a.us='%s' AND a.d_stratigrafica='%s'") % (sito,area,us,d_stratigrafica)
+        res = self.engine.execute(sql_query_string)
+        rows= res.fetchall()
+        
+        return rows
+    
     
     def test_ut_sql(self,unita_tipo):
         sql_query_string = ("SELECT %s FROM us_table")% (unita_tipo)
