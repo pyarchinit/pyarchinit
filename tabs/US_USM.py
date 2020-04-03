@@ -2007,7 +2007,8 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
                 else:
                     piante= "SU draft on GIS"
             #############inserimento nome fiel media############
-            refoto = self.DB_MANAGER.select_medianame_from_db_sql(id_us,sito,area)
+            
+            refoto = self.DB_MANAGER.select_medianame_from_db_sql(us,sito,area)
            
             txt_to_print = ''
             elenco_foto = []
@@ -2016,11 +2017,20 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
                
                 elenco_foto.append(media.media_name)
             
-                 
+                # todelete
+                f = open(r'C:\Users\Utente\pyarchinit\pyarchinit_Test_folder\data_insert_list.txt', "w")
+                f.write(str(refoto))
+                f.close
+                # todelete 
             for a in elenco_foto:
                 
                 txt_to_print = str(a) + ", " + txt_to_print            
+                # todelete
+                f = open(r'C:\Users\Utente\pyarchinit\pyarchinit_Test_folder\data_insert_list_1.txt', "w")
+                f.write(str(elenco_foto))
+                f.close
             txt_to_print = txt_to_print[0:len(txt_to_print) -2]##tolgo la virgola finale in più
+            
             if bool (txt_to_print)!=None:
                 
                 foto = txt_to_print### stampo il mio ciclio for se trova qualcosa
