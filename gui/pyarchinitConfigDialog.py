@@ -85,6 +85,8 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
         self.pbnSaveEnvironPath.clicked.connect(self.setEnvironPath)
         self.toolButton_thumbpath.clicked.connect(self.setPathThumb)
         self.toolButton_resizepath.clicked.connect(self.setPathResize)
+        self.toolButton_set_dbsqlite1.clicked.connect(self.setPathDBsqlite1)
+        self.toolButton_set_dbsqlite2.clicked.connect(self.setPathDBsqlite2)
         self.pbnOpenthumbDirectory.clicked.connect(self.openthumbDir)
         self.pbnOpenresizeDirectory.clicked.connect(self.openresizeDir)
         self.toolButton_db.clicked.connect(self.setPathDB)
@@ -113,15 +115,46 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
         
         self.selectorCrsWidget.setCrs(QgsProject.instance().crs())
         self.selectorCrsWidget_sl.setCrs(QgsProject.instance().crs())
-
+    def setPathDBsqlite1(self):
+        s = QgsSettings()
+        dbpath = QFileDialog.getOpenFileName(
+            self,
+            "Set file name",
+            self.DBFOLDER,
+            " db sqlite (*.sqlite)"
+        )[0]
+        filename=dbpath.split("/")[-1]
+        if filename:
+             
+            self.lineEdit_database_rd.setText(filename)
+            s.setValue('',filename)  
+                                
+    def setPathDBsqlite2(self):
+        s = QgsSettings()
+        dbpath = QFileDialog.getOpenFileName(
+            self,
+            "Set file name",
+            self.DBFOLDER,
+            " db sqlite (*.sqlite)"
+        )[0]
+        filename=dbpath.split("/")[-1]
+        if filename:
+             
+            self.lineEdit_database_wt.setText(filename)
+            s.setValue('',filename)                        
     def openthumbDir(self):
         s = QgsSettings()
-        dir = self.lineEdit_Thumb_path.text()
-        if os.path.exists(dir):
-            QDesktopServices.openUrl(QUrl.fromLocalFile(dir))
-        else:
-            QMessageBox.warning(self, "INFO", "Directory not found",
-                                QMessageBox.Ok)
+        dbpath = QFileDialog.getOpenFileName(
+            self,
+            "Set file name",
+            self.DBFOLDER,
+            " db sqlite (*.sqlite)"
+        )[0]
+        filename=dbpath.split("/")[-1]
+        if filename:
+             
+            self.lineEdit_DBname.setText(filename)
+            s.setValue('',filename)
     def openresizeDir(self):
         s = QgsSettings()
         dir = self.lineEdit_Thumb_resize.text()
