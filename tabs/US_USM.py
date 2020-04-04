@@ -2017,18 +2017,11 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
                
                 elenco_foto.append(media.media_name)
             
-                # todelete
-                f = open(r'C:\Users\Utente\pyarchinit\pyarchinit_Test_folder\data_insert_list.txt', "w")
-                f.write(str(refoto))
-                f.close
-                # todelete 
+                
             for a in elenco_foto:
                 
                 txt_to_print = str(a) + ", " + txt_to_print            
-                # todelete
-                f = open(r'C:\Users\Utente\pyarchinit\pyarchinit_Test_folder\data_insert_list_1.txt', "w")
-                f.write(str(elenco_foto))
-                f.close
+                
             txt_to_print = txt_to_print[0:len(txt_to_print) -2]##tolgo la virgola finale in più
             
             if bool (txt_to_print)!=None:
