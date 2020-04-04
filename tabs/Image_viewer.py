@@ -33,7 +33,7 @@ from qgis.PyQt.QtGui import QIcon
 from qgis.PyQt.QtWidgets import QDialog, QMessageBox, QAbstractItemView, QListWidgetItem, QFileDialog, QTableWidgetItem
 from qgis.PyQt.uic import loadUiType
 from qgis.core import QgsSettings
-from gui.imageViewer import ImageViewer
+from ..gui.imageViewer import ImageViewer
 from ..modules.db.pyarchinit_conn_strings import *
 from ..modules.db.pyarchinit_db_manager import *
 from ..modules.db.pyarchinit_utility import *
@@ -512,7 +512,7 @@ class Main(QDialog, MAIN_DIALOG_CLASS):
             dlg = ImageViewer()
             id_orig_item = item.text()  # return the name of original file
             
-            search_dict = {'id_media': "'" + str(id_orig_item) + "'"}
+            search_dict = {'media_filename': "'" + str(id_orig_item) + "'"}
 
             u = Utility()
             search_dict = u.remove_empty_items_fr_dict(search_dict)
@@ -645,7 +645,7 @@ class Main(QDialog, MAIN_DIALOG_CLASS):
 
             data = self.DATA[self.NUM_DATA_BEGIN:self.NUM_DATA_END]
             for i in range(len(data)):
-                item = QListWidgetItem(str(data[i].id_media))
+                item = QListWidgetItem(str(data[i].media_filename))
 
                 # data_for_thumb = self.db_search_check(self.MAPPER_TABLE_CLASS_thumb, 'id_media', id_media) # recupera i valori della thumb in base al valore id_media del file originale
 
@@ -692,7 +692,7 @@ class Main(QDialog, MAIN_DIALOG_CLASS):
         for item in items_selected:
             for us_data in us_list:
                 id_orig_item = item.text()  # return the name of original file
-                search_dict = {'id_media': "'" + str(id_orig_item) + "'"}
+                search_dict = {'filename': "'" + str(id_orig_item) + "'"}
                 media_data = self.DB_MANAGER.query_bool(search_dict, 'MEDIA')
 
                 self.insert_mediaToEntity_rec(us_data[0], us_data[1], us_data[2], media_data[0].id_media,
@@ -716,7 +716,7 @@ class Main(QDialog, MAIN_DIALOG_CLASS):
         for item in items_selected:
             for reperti_data in reperti_list:
                 id_orig_item = item.text()  # return the name of original file
-                search_dict = {'id_media': "'" + str(id_orig_item) + "'"}
+                search_dict = {'filename': "'" + str(id_orig_item) + "'"}
                 media_data = self.DB_MANAGER.query_bool(search_dict, 'MEDIA')
 
                 self.insert_mediaToEntity_rec(reperti_data[0], reperti_data[1], reperti_data[2], media_data[0].id_media,
@@ -1032,7 +1032,7 @@ class Main(QDialog, MAIN_DIALOG_CLASS):
             mediaToEntity_list = []
             for item in items:
                 id_orig_item = item.text()  # return the name of original file
-                search_dict = {'id_media': "'" + str(id_orig_item) + "'"}
+                search_dict = {'filename': "'" + str(id_orig_item) + "'"}
                 u = Utility()
                 search_dict = u.remove_empty_items_fr_dict(search_dict)
                 res_media = self.DB_MANAGER.query_bool(search_dict, "MEDIA")
@@ -1048,7 +1048,7 @@ class Main(QDialog, MAIN_DIALOG_CLASS):
                 if bool(res_media):
 
                     for sing_media in res_media:
-                        search_dict = {'id_media': "'" + str(id_orig_item) + "'"}
+                        search_dict = {'media_name': "'" + str(id_orig_item) + "'"}
                         u = Utility()
                         search_dict = u.remove_empty_items_fr_dict(search_dict)
                         res_mediaToEntity = self.DB_MANAGER.query_bool(search_dict, "MEDIATOENTITY")
