@@ -34,6 +34,7 @@ from qgis.PyQt.QtWidgets import QDialog, QMessageBox, QAbstractItemView, QListWi
 from qgis.PyQt.uic import loadUiType
 from qgis.core import QgsSettings
 from ..gui.imageViewer import ImageViewer
+from ..gui.sortpanelmain import SortPanelMain
 from ..modules.db.pyarchinit_conn_strings import *
 from ..modules.db.pyarchinit_db_manager import *
 from ..modules.db.pyarchinit_utility import *
@@ -43,7 +44,7 @@ from ..modules.utility.pyarchinit_media_utility import *
 MAIN_DIALOG_CLASS, _ = loadUiType(
     os.path.join(os.path.dirname(__file__), os.pardir, 'gui', 'ui', 'pyarchinit_image_viewer_dialog.ui'))
 
-
+conn = Connection()
 class Main(QDialog, MAIN_DIALOG_CLASS):
     L=QgsSettings().value("locale/userLocale")[0:2]
     delegateSites = ''
@@ -85,11 +86,13 @@ class Main(QDialog, MAIN_DIALOG_CLASS):
     NUM_DATA_END = 25
     CONVERSION_DICT = {
     ID_TABLE_THUMB:ID_TABLE_THUMB,
-    "ID Media" : "id_media"
+    "ID Media" : "id_media",
+    "Media Name": "media_filename"
     }
     SORT_ITEMS = [
-                ID_TABLE_THUMB,
-                "ID Media"
+                
+                "ID Media",
+                "Media Name"
                 ]
                 
     TABLE_FIELDS = [
@@ -138,7 +141,7 @@ class Main(QDialog, MAIN_DIALOG_CLASS):
     def connection(self):
         QMessageBox.warning(self, "Alert", "system under development", QMessageBox.Ok)
 
-        conn = Connection()
+        
         conn_str = conn.conn_str()
         '''try:
             self.DB_MANAGER = Pyarchinit_db_management(conn_str)
@@ -271,29 +274,29 @@ class Main(QDialog, MAIN_DIALOG_CLASS):
                                               filepath_thumb, filepath_resize)
 
                 
-                item = QListWidgetItem(str(media_max_num_id))
-                item.setData(Qt.UserRole, str(media_max_num_id))
-                icon = QIcon(str(thumb_path_str)+filepath)  # os.path.join('%s/%s' % (directory.toUtf8(), image)))
-                item.setIcon(icon)
-                self.iconListWidget.addItem(item)
+                # item = QListWidgetItem(str(media_max_num_id))
+                # item.setData(Qt.UserRole, str(media_max_num_id))
+                # icon = QIcon(str(thumb_path_str)+filepath)  # os.path.join('%s/%s' % (directory.toUtf8(), image)))
+                # item.setIcon(icon)
+                # self.iconListWidget.addItem(item)
 
-            elif bool(idunique_image_check):
+            # elif bool(idunique_image_check):
                 
 
-                data = idunique_image_check
-                id_media = data[0].id_media
+                # data = idunique_image_check
+                # id_media = data[0].id_media
 
-                # visualizza le immagini nella ui
-                item = QListWidgetItem(str(id_media))
+                # # visualizza le immagini nella ui
+                # item = QListWidgetItem(str(id_media))
 
-                data_for_thumb = self.db_search_check(self.MAPPER_TABLE_CLASS_thumb, 'id_media',
-                                                      id_media)  # recupera i valori della thumb in base al valore id_media del file originale
+                # data_for_thumb = self.db_search_check(self.MAPPER_TABLE_CLASS_thumb, 'id_media',
+                                                      # id_media)  # recupera i valori della thumb in base al valore id_media del file originale
 
-                thumb_path = data_for_thumb[0].filepath
-                item.setData(Qt.UserRole, thumb_path)
-                icon = QIcon(str(thumb_path_str)+filepath)  # os.path.join('%s/%s' % (directory.toUtf8(), image)))
-                item.setIcon(icon)
-                self.iconListWidget.addItem(item)
+                # thumb_path = data_for_thumb[0].filepath
+                # item.setData(Qt.UserRole, thumb_path)
+                # icon = QIcon(str(thumb_path_str)+filepath)  # os.path.join('%s/%s' % (directory.toUtf8(), image)))
+                # item.setIcon(icon)
+                # self.iconListWidget.addItem(item)
 
     def insert_record_media(self, mediatype, filename, filetype, filepath):
         self.mediatype = mediatype
@@ -505,7 +508,7 @@ class Main(QDialog, MAIN_DIALOG_CLASS):
 
     def openWide_image(self):
         items = self.iconListWidget.selectedItems()
-        conn = Connection()
+        #conn = Connection()
         conn_str = conn.conn_str()
         thumb_resize = conn.thumb_resize()
         thumb_resize_str = thumb_resize['thumb_resize']
@@ -521,11 +524,13 @@ class Main(QDialog, MAIN_DIALOG_CLASS):
             try:
                 res = self.DB_MANAGER.query_bool(search_dict, "MEDIA_THUMB")
                 file_path = str(res[0].path_resize)
+                dlg.show_image(str(thumb_resize_str+file_path)) # item.data(QtCore.Qt.UserRole).toString()))
+                dlg.exec_()
             except Exception as e:
                 QMessageBox.warning(self, "Error", "Warning 1 file: "+ str(e),  QMessageBox.Ok)
 
-            dlg.show_image(str(thumb_resize_str+file_path))  # item.data(QtCore.Qt.UserRole).toString()))
-            dlg.exec_()
+            # dlg.show_image(str(thumb_resize_str+file_path) # item.data(QtCore.Qt.UserRole).toString()))
+            # dlg.exec_()
 
     def charge_sito_list(self):
         sito_vl = self.UTILITY.tup_2_list_III(self.DB_MANAGER.group_by('site_table', 'sito', 'SITE'))
@@ -627,7 +632,7 @@ class Main(QDialog, MAIN_DIALOG_CLASS):
         self.iconListWidget.clear()
 
     def open_images(self):
-        conn=Connection()
+        #conn=Connection()
         
         thumb_path = conn.thumb_path()
         thumb_path_str = thumb_path['thumb_path']
@@ -641,7 +646,7 @@ class Main(QDialog, MAIN_DIALOG_CLASS):
             self.NUM_DATA_BEGIN = 0
             self.NUM_DATA_END = 1
 
-        elif self.NUM_DATA_BEGIN <= data_len:
+        elif self.NUM_DATA_BEGIN == 0:
             # indica che non sono state visualizzate tutte le immagini
 
             data = self.DATA[self.NUM_DATA_BEGIN:self.NUM_DATA_END]
@@ -792,12 +797,13 @@ class Main(QDialog, MAIN_DIALOG_CLASS):
         if self.BROWSE_STATUS != "f":
             QMessageBox.warning(self, "ATTENZIONE", "If you want find new record push 'new search' ",  QMessageBox.Ok)
         else:
-            if self.lineEdit_id_media.text() != "":
+            if self.lineEdit_id_media.text() != None:
                 media_filename = str(self.lineEdit_id_media.text())
             else:
-                media_filename = ""
+                media_filename = ''
+            
             search_dict = {
-            'media_filename': media_filename
+            'media_filename': media_filename 
             }
 
             u = Utility()
@@ -826,12 +832,12 @@ class Main(QDialog, MAIN_DIALOG_CLASS):
                     for i in res:
                         self.DATA_LIST.append(i)
 
-                    self.REC_TOT, self.REC_CORR = len(self.DATA_LIST), 0
-                    self.DATA_LIST_REC_TEMP = self.DATA_LIST_REC_CORR = self.DATA_LIST[0]
-                    self.fill_fields()
-                    self.BROWSE_STATUS = "b"
-                    self.label_status.setText(self.STATUS_ITEMS[self.BROWSE_STATUS])
-                    self.set_rec_counter(len(self.DATA_LIST), self.REC_CORR+1)
+                        self.REC_TOT, self.REC_CORR = len(self.DATA_LIST), 0
+                        self.DATA_LIST_REC_TEMP = self.DATA_LIST_REC_CORR = self.DATA_LIST[0]
+                        self.fill_fields()
+                        self.BROWSE_STATUS = "b"
+                        self.label_status.setText(self.STATUS_ITEMS[self.BROWSE_STATUS])
+                        self.set_rec_counter(len(self.DATA_LIST), self.REC_CORR+1)
                     if self.REC_TOT == 1:
                         strings = ("Has been found", self.REC_TOT, "record")
                     else:
@@ -847,17 +853,19 @@ class Main(QDialog, MAIN_DIALOG_CLASS):
         self.open_images()  
         #if check_for_buttons == 1:
         self.enable_button_search(1)
-        
+        thumb_path = conn.thumb_path()
+        thumb_path_str = thumb_path['thumb_path']
         
         
         #visualizza le immagini nella gui
         item = QListWidgetItem(str(media_filename))
                     
-        data_for_thumb = self.db_search_check(self.MAPPER_TABLE_CLASS_thumb, 'id_media', id_media) # recupera i valori della thumb in base al valore id_media del file originale
-                    
-        thumb_path = data_for_thumb[0].filepath
-        item.setData(Qt.UserRole,thumb_path)
-        icon = QIcon(thumb_path) #os.path.join('%s/%s' % (directory.toUtf8(), image)))
+        #data_for_thumb = self.db_search_check(self.MAPPER_TABLE_CLASS_thumb, 'media_filename', media_filename) # recupera i valori della thumb in base al valore id_media del file originale
+        res = self.DB_MANAGER.query_bool(search_dict, "MEDIA_THUMB")
+        file_path = str(res[0].filepath)            
+        #thumb_path = data_for_thumb[0].filepath
+        item.setData(Qt.UserRole,media_filename)
+        icon = QIcon(str(thumb_path_str+file_path)) #os.path.join('%s/%s' % (directory.toUtf8(), image)))
         item.setIcon(icon)
         self.iconListWidget.addItem(item)
     def on_pushButton_delete_pressed(self):
@@ -1134,7 +1142,7 @@ class Main(QDialog, MAIN_DIALOG_CLASS):
         else:
             id_media = self.lineEdit_id_media.text()
     def empty_fields(self):
-        #tags = self.tableWidget_tags.rowCount()
+        self.lineEdit_id_media.clear()
         
         self.lineEdit_id_media.clear()      
     def fill_fields(self, n=0):
@@ -1143,10 +1151,10 @@ class Main(QDialog, MAIN_DIALOG_CLASS):
         try:
             
             
-            if self.DATA_LIST[self.rec_num].id_media == None:                                                                   #8 - US
+            if self.DATA_LIST[self.rec_num].media_filename == None:                                                                   #8 - US
                 self.lineEdit_id_media.setText("")
             else:
-                self.lineEdit_id_media.setText(str(self.DATA_LIST[self.rec_num].id_media))
+                self.lineEdit_id_media.setText(str(self.DATA_LIST[self.rec_num].media_filename))
     
         except Exception as  e:
             QMessageBox.warning(self, "Error Fill Fields", str(e),  QMessageBox.Ok)
