@@ -25,13 +25,14 @@ import os
 import sqlite3
 import time
 from sqlalchemy.event import listen
-
+import platform
 from builtins import range
 from builtins import str
 import pysftp
 from sqlalchemy.sql import select, func
 from sqlalchemy import create_engine
-from qgis.PyQt.QtCore import  pyqtSlot, pyqtSignal,QThread
+from qgis.PyQt.QtGui import QDesktopServices
+from qgis.PyQt.QtCore import  pyqtSlot, pyqtSignal,QThread,QUrl
 from qgis.PyQt.QtWidgets import QApplication, QDialog, QMessageBox, QFileDialog,QLineEdit,QWidget
 
 from qgis.PyQt.uic import loadUiType
@@ -84,6 +85,8 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
         self.pbnSaveEnvironPath.clicked.connect(self.setEnvironPath)
         self.toolButton_thumbpath.clicked.connect(self.setPathThumb)
         self.toolButton_resizepath.clicked.connect(self.setPathResize)
+        self.pbnOpenthumbDirectory.clicked.connect(self.openthumbDir)
+        self.pbnOpenresizeDirectory.clicked.connect(self.openresizeDir)
         self.toolButton_db.clicked.connect(self.setPathDB)
         self.pushButtonR.clicked.connect(self.setPathR)
         self.pbnSaveEnvironPathR.clicked.connect(self.setEnvironPathR)
@@ -1412,30 +1415,47 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
             QMessageBox.information(self, "Message", "Data Loaded")
 
     
+    def openthumbDir(self):
+        s = QgsSettings()
+        dir = self.lineEdit_Thumb_path.text()
+        if os.path.exists(dir):
+            QDesktopServices.openUrl(QUrl.fromLocalFile(dir))
+        else:
+            QMessageBox.warning(self, "INFO", "Directory not found",
+                                QMessageBox.Ok)
     
-    def on_pushButton_connect_pressed(self):
+    def openresizeDir(self):
+        s = QgsSettings()
+        dir = self.lineEdit_Thumb_resize.text()
+        if os.path.exists(dir):
+            QDesktopServices.openUrl(QUrl.fromLocalFile(dir))
+        else:
+            QMessageBox.warning(self, "INFO", "Directory not found",
+                                QMessageBox.Ok)
+    
+    # def on_pushButton_connect_pressed(self):
         
-        # Defines parameter
-        self.ip=str(self.lineEdit_ip.text())
+        # # Defines parameter
+        # self.ip=str(self.lineEdit_ip.text())
         
        
-        self.user=str(self.lineEdit_user.text())
+        # self.user=str(self.lineEdit_user.text())
         
         
         
-        self.pwd=str(self.lineEdit_password.text())
+        # self.pwd=str(self.lineEdit_password.text())
         
        
         
   
-        cnopts = pysftp.CnOpts()
-        cnopts.hostkeys = None 
-        srv = pysftp.Connection(host=self.ip, username=self.user, password=self.pwd,cnopts =cnopts )
-        self.lineEdit_2.insert("Connection succesfully stablished ......... ")
-        dirlist = []
-        dirlist = srv.listdir()
-        for item in dirlist:
-            self.listWidget.insertItem(0,item)
+        # cnopts = pysftp.CnOpts()
+        # cnopts.hostkeys = None 
+        # srv = pysftp.Connection(host=self.ip, username=self.user, password=self.pwd,cnopts =cnopts )
+        # self.lineEdit_2.insert("Connection succesfully stablished ......... ")
+        # dirlist = []
+        # dirlist = srv.listdir()
+        # for item in dirlist:
+            # self.listWidget.insertItem(0,item)
         
         
         # Download the file from the remote server
@@ -1479,33 +1499,33 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
             # libox_serverdir.insert(0, item)
 
     # #FTP commands
-    def on_pushButton_change_dir_pressed(self):
-        cnopts = pysftp.CnOpts()
-        cnopts.hostkeys = None 
-        with pysftp.Connection(host="37.139.2.71", username="root",
-        password="lizmap1",cnopts =cnopts ) as sftp:
+    # def on_pushButton_change_dir_pressed(self):
+        # cnopts = pysftp.CnOpts()
+        # cnopts.hostkeys = None 
+        # with pysftp.Connection(host="37.139.2.71", username="root",
+        # password="lizmap1",cnopts =cnopts ) as sftp:
         
-            try:
-                msg = sftp.cwd('/home') # Switch to a remote directory
+            # try:
+                # msg = sftp.cwd('/home') # Switch to a remote directory
 
-                directory_structure = sftp.listdir_attr()# Obtain structure of the remote directory 
+                # directory_structure = sftp.listdir_attr()# Obtain structure of the remote directory 
 
-                for attr in directory_structure:
-                    self.listWidget.insertItem(attr.filename, attr)
+                # for attr in directory_structure:
+                    # self.listWidget.insertItem(attr.filename, attr)
 
-            except:
-                self.lineEdit_2.insert("\n")
-                self.lineEdit_2.insert("Unable to change directory")
-            dirlist = []
-            dirlist = sftp.listdir()
-            for item in dirlist:
-                self.listWidget.insertItem(0,item)
+            # except:
+                # self.lineEdit_2.insert("\n")
+                # self.lineEdit_2.insert("Unable to change directory")
+            # dirlist = []
+            # dirlist = sftp.listdir()
+            # for item in dirlist:
+                # self.listWidget.insertItem(0,item)
 
 
-    def on_pushButton_disconnect_pressed(self):
+    # def on_pushButton_disconnect_pressed(self):
         
-       cnopts = pysftp.CnOpts()
-       cnopts.hostkeys = None 
-       srv = pysftp.Connection(host=self.ip, username=self.user, password=self.pwd,cnopts =cnopts )
-       self.lineEdit_2.insert("Connection Close ............. ")
-       srv.close()
+       # cnopts = pysftp.CnOpts()
+       # cnopts.hostkeys = None 
+       # srv = pysftp.Connection(host=self.ip, username=self.user, password=self.pwd,cnopts =cnopts )
+       # self.lineEdit_2.insert("Connection Close ............. ")
+       # srv.close()
