@@ -518,6 +518,9 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
             sql_alter= """alter table media_thumb_table rename to 'temp_media_thumb';"""
             c.execute(sql_alter)
             
+            # sql_drop_media_thumb_table="""DROP TABLE media_thumb_table;"""
+            # c.execute(sql_drop_media_thumb_table)
+            
             sql_media_thumb="""CREATE TABLE media_thumb_table (id_media_thumb INTEGER NOT NULL, id_media INTEGER, mediatype TEXT, media_filename TEXT, media_thumb_filename TEXT, filetype VARCHAR(10), filepath TEXT, path_resize TEXT, PRIMARY KEY (id_media_thumb), CONSTRAINT "ID_media_thumb_unico" UNIQUE (media_thumb_filename) )"""
             c.execute(sql_media_thumb)
             
