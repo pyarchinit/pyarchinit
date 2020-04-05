@@ -29,6 +29,7 @@ import platform
 from builtins import range
 from builtins import str
 import pysftp
+import subprocess
 from sqlalchemy.sql import select, func
 from sqlalchemy import create_engine
 from qgis.PyQt.QtGui import QDesktopServices
@@ -731,9 +732,10 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
                 'STRUTTURA': 'id_struttura',
                 'TAFONOMIA': 'id_tafonomia',
                 'SCHEDAIND': 'id_scheda_ind',
-                'CAMPIONE': 'id_campione',
+                'CAMPIONI': 'id_campione',
                 'DOCUMENTAZIONE': 'id_documentazione',
                 'PYARCHINIT_THESAURUS_SIGLE': 'id_thesaurus_sigle'
+                
             }
         elif self.L=='de':
             id_table_class_mapper_conv_dict = {
@@ -1289,14 +1291,13 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
             #self.progress_bar.close()
             QMessageBox.information(self, "Message", "Data Loaded")
         
-        elif mapper_class_write == 'CAMPIONE':
+        elif mapper_class_write == 'CAMPIONI':
             for sing_rec in range(len(data_list_toimp)):
                 try:
                     data = self.DB_MANAGER_write.insert_values_campioni(
                         self.DB_MANAGER_write.max_num_id(mapper_class_write,
                                                          id_table_class_mapper_conv_dict[mapper_class_write]) + 1,
                         data_list_toimp[sing_rec].sito,
-                        data_list_toimp[sing_rec].area,
                         data_list_toimp[sing_rec].nr_campione,
                         data_list_toimp[sing_rec].tipo_campione,
                         data_list_toimp[sing_rec].descrizione,
@@ -1348,7 +1349,7 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
                     QMessageBox.warning(self, "Errore", "Error ! \n"+ "duplicate key",  QMessageBox.Ok)
                
                     return 0
-                
+            QMessageBox.information(self, "Message", "Data Loaded")
            
         elif mapper_class_write == 'UT':
             for sing_rec in range(len(data_list_toimp)):
@@ -1413,7 +1414,7 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
                     
                     QMessageBox.warning(self, "Errore", "Error ! \n"+ "duplicate key",  QMessageBox.Ok)
                     return 0
-            #self.progress_bar.close()
+            
             QMessageBox.information(self, "Message", "Data Loaded")
 
 
@@ -1423,33 +1424,60 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
             
             for sing_rec in range(len(data_list_toimp)):
                 
-                #try:
-                data = self.DB_MANAGER_write.insert_values_thesaurus(
-                    self.DB_MANAGER_write.max_num_id(mapper_class_write,
-                                                     id_table_class_mapper_conv_dict[mapper_class_write]) + 1,
-                    data_list_toimp[sing_rec].nome_tabella,
-                    data_list_toimp[sing_rec].sigla,
-                    data_list_toimp[sing_rec].sigla_estesa,
-                    data_list_toimp[sing_rec].descrizione,
-                    data_list_toimp[sing_rec].tipologia_sigla,
-                    data_list_toimp[sing_rec].lingua
-                    )
+                try:
+                    data = self.DB_MANAGER_write.insert_values_thesaurus(
+                        self.DB_MANAGER_write.max_num_id(mapper_class_write,
+                                                         id_table_class_mapper_conv_dict[mapper_class_write]) + 1,
+                        data_list_toimp[sing_rec].nome_tabella,
+                        data_list_toimp[sing_rec].sigla,
+                        data_list_toimp[sing_rec].sigla_estesa,
+                        data_list_toimp[sing_rec].descrizione,
+                        data_list_toimp[sing_rec].tipologia_sigla,
+                        data_list_toimp[sing_rec].lingua
+                        )
+                        
                     
-               
-                self.DB_MANAGER_write.insert_data_session(data)
-                for i in range(0,100):    
-                    #time.sleep()
-                    self.progress_bar.setValue(((i)/100)*100)
-                 
-                    QApplication.processEvents()
+                    self.DB_MANAGER_write.insert_data_session(data)
+                    for i in range(0,100):    
+                        #time.sleep()
+                        self.progress_bar.setValue(((i)/100)*100)
+                     
+                        QApplication.processEvents()
                     
-                # except :
+                except :
                     
-                    # QMessageBox.warning(self, "Errore", "Error ! \n"+ "duplicate key",  QMessageBox.Ok)
-                    # return 0
-            #self.progress_bar.close()
+                    QMessageBox.warning(self, "Errore", "Error ! \n"+ "duplicate key",  QMessageBox.Ok)
+                    return 0
+            
             QMessageBox.information(self, "Message", "Data Loaded")
-
+        
+    #######################importa tutte le geometrie##########################################
+    def on_pushButton_geometry_pressed (self):
+        try:
+            subprocess.check_output([
+                'ogr2ogr',
+                '--config', 'PG_LIST_ALL_TABLES', 'YES',
+                '--config', 'PG_SKIP_VIEWS', 'YES',
+                '-f',
+                'SQLITE',
+                "'{}'".format(self.lineEdit_database_wt),
+                '-progress',
+                
+                "PG:host='{}' port={} dbname='{}' user='{} password='{}'".format(self.lineEdit_host_rd, self.lineEdit_port_rd, self.lineEdit_database_rd, self.lineEdit_username_rd, self.lineEdit_pass_rd),
+                '-lco',
+                'LAUNDER=yes'
+                "SCHEMA={}".format('public'),
+                '-dsco',
+                'SPATIALITE=yes',
+                '-lco',
+                'SPATIAL_INDEX=yes'
+                ])
+        except Exception as e :
+                    
+            QMessageBox.warning(self, "Update error", str(e),  QMessageBox.Ok)
+            return 0
+        QMessageBox.information(self, "Message", "Data Loaded")
+    
     
     def openthumbDir(self):
         s = QgsSettings()
