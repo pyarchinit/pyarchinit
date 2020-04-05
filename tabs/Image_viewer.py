@@ -81,7 +81,7 @@ class Main(QDialog, MAIN_DIALOG_CLASS):
     
     UTILITY = Utility()
 
-    #DATA = ''
+    DATA = ''
     NUM_DATA_BEGIN = 0
     NUM_DATA_END = 25
     CONVERSION_DICT = {
@@ -174,7 +174,7 @@ class Main(QDialog, MAIN_DIALOG_CLASS):
                 QMessageBox.warning(self, "WELCOME", "Welcome in pyArchInit" + self.NOME_SCHEDA + ". The database is empty. Push 'Ok' and good work!",  QMessageBox.Ok)
                 self.charge_sito_list()
                 self.BROWSE_STATUS = 'x'
-                self.on_pushButton_new_rec_pressed()
+                #self.on_pushButton_new_rec_pressed()
         except Exception as  e:
             e = str(e)
     
@@ -274,29 +274,29 @@ class Main(QDialog, MAIN_DIALOG_CLASS):
                                               filepath_thumb, filepath_resize)
 
                 
-                # item = QListWidgetItem(str(media_max_num_id))
-                # item.setData(Qt.UserRole, str(media_max_num_id))
-                # icon = QIcon(str(thumb_path_str)+filepath)  # os.path.join('%s/%s' % (directory.toUtf8(), image)))
-                # item.setIcon(icon)
-                # self.iconListWidget.addItem(item)
+                item = QListWidgetItem(str(media_max_num_id))
+                item.setData(Qt.UserRole, str(media_max_num_id))
+                icon = QIcon(str(thumb_path_str+filepath))  # os.path.join('%s/%s' % (directory.toUtf8(), image)))
+                item.setIcon(icon)
+                self.iconListWidget.addItem(item)
 
-            # elif bool(idunique_image_check):
+            elif bool(idunique_image_check):
                 
 
-                # data = idunique_image_check
-                # id_media = data[0].id_media
+                data = idunique_image_check
+                media_filename = data[0].media_filename
 
-                # # visualizza le immagini nella ui
-                # item = QListWidgetItem(str(id_media))
+                # visualizza le immagini nella ui
+                item = QListWidgetItem(str(id_media))
 
-                # data_for_thumb = self.db_search_check(self.MAPPER_TABLE_CLASS_thumb, 'id_media',
-                                                      # id_media)  # recupera i valori della thumb in base al valore id_media del file originale
+                data_for_thumb = self.db_search_check(self.MAPPER_TABLE_CLASS_thumb, 'media_filename',
+                                                      media_filename)  # recupera i valori della thumb in base al valore id_media del file originale
 
-                # thumb_path = data_for_thumb[0].filepath
-                # item.setData(Qt.UserRole, thumb_path)
-                # icon = QIcon(str(thumb_path_str)+filepath)  # os.path.join('%s/%s' % (directory.toUtf8(), image)))
-                # item.setIcon(icon)
-                # self.iconListWidget.addItem(item)
+                thumb_path = data_for_thumb[0].filepath
+                item.setData(Qt.UserRole, thumb_path)
+                icon = QIcon(str(thumb_path_str+filepath))  # os.path.join('%s/%s' % (directory.toUtf8(), image)))
+                item.setIcon(icon)
+                self.iconListWidget.addItem(item)
 
     def insert_record_media(self, mediatype, filename, filetype, filepath):
         self.mediatype = mediatype
@@ -524,8 +524,7 @@ class Main(QDialog, MAIN_DIALOG_CLASS):
             try:
                 res = self.DB_MANAGER.query_bool(search_dict, "MEDIA_THUMB")
                 file_path = str(res[0].path_resize)
-                dlg.show_image(str(thumb_resize_str+file_path)) # item.data(QtCore.Qt.UserRole).toString()))
-                dlg.exec_()
+                
             except Exception as e:
                 QMessageBox.warning(self, "Error", "Warning 1 file: "+ str(e),  QMessageBox.Ok)
 
@@ -632,21 +631,21 @@ class Main(QDialog, MAIN_DIALOG_CLASS):
         self.iconListWidget.clear()
 
     def open_images(self):
-        #conn=Connection()
+        self.clear_thumb_images()
         
         thumb_path = conn.thumb_path()
         thumb_path_str = thumb_path['thumb_path']
         
-        self.clear_thumb_images()
+        
 
         data_len = len(self.DATA)
 
         if self.NUM_DATA_BEGIN >= data_len:
             # Sono già state visualizzate tutte le immagini
             self.NUM_DATA_BEGIN = 0
-            self.NUM_DATA_END = 1
+            self.NUM_DATA_END = 25
 
-        elif self.NUM_DATA_BEGIN == 0:
+        elif self.NUM_DATA_BEGIN<= data_len:
             # indica che non sono state visualizzate tutte le immagini
 
             data = self.DATA[self.NUM_DATA_BEGIN:self.NUM_DATA_END]
@@ -657,7 +656,7 @@ class Main(QDialog, MAIN_DIALOG_CLASS):
 
                 thumb_path = data[i].filepath
                 # QMessageBox.warning(self, "Errore",str(thumb_path),  QMessageBox.Ok)
-                item.setData(Qt.UserRole, str(data[i].media_filename))
+                item.setData(Qt.UserRole, str(data[i].media_filename ))
                 icon = QIcon(thumb_path_str+thumb_path)  # os.path.join('%s/%s' % (directory.toUtf8(), image)))
                 item.setIcon(icon)
                 self.iconListWidget.addItem(item)
@@ -729,13 +728,14 @@ class Main(QDialog, MAIN_DIALOG_CLASS):
                                               media_data[0].filepath, media_data[0].filename)
 
     def on_pushButton_openMedia_pressed(self):
-        self.charge_data()
+        # self.charge_data()
         self.view_num_rec()
 
     def on_pushButton_next_rec_pressed(self):
         if self.NUM_DATA_BEGIN < len(self.DATA):
             self.NUM_DATA_BEGIN += 25
-            self.NUM_DATA_END += 25
+            self.NUM_DATA_END +=25
+            
             self.view_num_rec()
             self.open_images()
 
@@ -754,7 +754,7 @@ class Main(QDialog, MAIN_DIALOG_CLASS):
         self.open_images()
 
     def on_pushButton_last_rec_pressed(self):
-        self.NUM_DATA_BEGIN = len(self.DATA) - 25
+        self.NUM_DATA_BEGIN = len(self.DATA) -25
         self.NUM_DATA_END = len(self.DATA)
         self.view_num_rec()
         self.open_images()
@@ -904,36 +904,36 @@ class Main(QDialog, MAIN_DIALOG_CLASS):
     
     
     
-    def on_pushButton_save_pressed(self):
-        #save record
-        if self.BROWSE_STATUS == "b":
-            #if self.data_error_check() == 0:
-            if self.records_equal_check() == 1:
-                self.update_if(QMessageBox.warning(self,'WARNING',"The record has been modify. Do you want save the modify?", QMessageBox.Cancel,1))
-                self.SORT_STATUS = "n"
-                self.label_sort.setText(self.SORTED_ITEMS[self.SORT_STATUS])
-                self.enable_button(1)
-                self.fill_fields(self.REC_CORR)
-            else:
-                QMessageBox.warning(self, "WARNING", "Has not to be done modify.",  QMessageBox.Ok)
-        else:
-            #if self.data_error_check() == 0:
-                #test_insert = self.insert_new_rec()
-            if test_insert == 1:
-                self.empty_fields()
-                self.SORT_STATUS = "n"
-                self.label_sort.setText(self.SORTED_ITEMS[self.SORT_STATUS])
-                self.charge_records()
-                #self.charge_list()
-                self.BROWSE_STATUS = "b"
-                self.label_status.setText(self.STATUS_ITEMS[self.BROWSE_STATUS])
-                self.REC_TOT, self.REC_CORR = len(self.DATA_LIST), len(self.DATA_LIST)-1
-                self.set_rec_counter(self.REC_TOT, self.REC_CORR+1)
+    # def on_pushButton_save_pressed(self):
+        # #save record
+        # if self.BROWSE_STATUS == "b":
+            # #if self.data_error_check() == 0:
+            # if self.records_equal_check() == 1:
+                # self.update_if(QMessageBox.warning(self,'WARNING',"The record has been modify. Do you want save the modify?", QMessageBox.Cancel,1))
+                # self.SORT_STATUS = "n"
+                # self.label_sort.setText(self.SORTED_ITEMS[self.SORT_STATUS])
+                # self.enable_button(1)
+                # self.fill_fields(self.REC_CORR)
+            # else:
+                # QMessageBox.warning(self, "WARNING", "Has not to be done modify.",  QMessageBox.Ok)
+        # else:
+            # #if self.data_error_check() == 0:
+                # #test_insert = self.insert_new_rec()
+            # if test_insert == 1:
+                # self.empty_fields()
+                # self.SORT_STATUS = "n"
+                # self.label_sort.setText(self.SORTED_ITEMS[self.SORT_STATUS])
+                # self.charge_records()
+                # #self.charge_list()
+                # self.BROWSE_STATUS = "b"
+                # self.label_status.setText(self.STATUS_ITEMS[self.BROWSE_STATUS])
+                # self.REC_TOT, self.REC_CORR = len(self.DATA_LIST), len(self.DATA_LIST)-1
+                # self.set_rec_counter(self.REC_TOT, self.REC_CORR+1)
 
                     
 
-                self.fill_fields(self.REC_CORR)
-                self.enable_button(1)
+                # self.fill_fields(self.REC_CORR)
+                # self.enable_button(1)
     def update_if(self, msg):
         rec_corr = self.REC_CORR
         self.msg = msg
@@ -1024,7 +1024,7 @@ class Main(QDialog, MAIN_DIALOG_CLASS):
             num_data_end = len(self.DATA)
 
         self.label_num_tot_immagini.setText(str(len(self.DATA)))
-        img_visualizzate_txt = ('%s %d to %d') % ("from",num_data_begin,num_data_end )
+        img_visualizzate_txt = ('%s %d to %d') % ("da",num_data_begin,num_data_end )
         self.label_img_visualizzate.setText(img_visualizzate_txt)
     
     
