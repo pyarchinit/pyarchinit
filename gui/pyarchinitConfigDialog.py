@@ -734,7 +734,10 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
                 'SCHEDAIND': 'id_scheda_ind',
                 'CAMPIONI': 'id_campione',
                 'DOCUMENTAZIONE': 'id_documentazione',
-                'PYARCHINIT_THESAURUS_SIGLE': 'id_thesaurus_sigle'
+                'PYARCHINIT_THESAURUS_SIGLE': 'id_thesaurus_sigle',
+                'MEDIA': 'id_media',
+                'MEDIA_THUMB': 'id_media_thumb',
+                'MEDIATOENTITY':'id_mediaToEntity'
                 
             }
         elif self.L=='de':
@@ -749,7 +752,10 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
                 'INDIVIDUEL': 'id_scheda_ind',
                 'BEISPIELS': 'id_campione',
                 'DOKUMENTATION': 'id_documentazione',
-                'PYARCHINIT_THESAURUS_SIGLE': 'id_thesaurus_sigle'
+                'PYARCHINIT_THESAURUS_SIGLE': 'id_thesaurus_sigle',
+                'MEDIA': 'id_media',
+                'MEDIA_THUMB': 'id_media_thumb',
+                'MEDIATOENTITY':'id_mediaToEntity'
             }
         else:
             id_table_class_mapper_conv_dict = {
@@ -763,7 +769,10 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
                 'INDIVIDUAL': 'id_scheda_ind',
                 'SAMPLE': 'id_campione',
                 'DOCUMENTATION': 'id_documentazione',
-                'PYARCHINIT_THESAURUS_SIGLE': 'id_thesaurus_sigle'
+                'PYARCHINIT_THESAURUS_SIGLE': 'id_thesaurus_sigle',
+                'MEDIA': 'id_media',
+                'MEDIA_THUMB': 'id_media_thumb',
+                'MEDIATOENTITY':'id_mediaToEntity'
             }       
         # creazione del cursore di lettura
         """if os.name == 'posix':
@@ -1450,7 +1459,95 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
                     return 0
             
             QMessageBox.information(self, "Message", "Data Loaded")
-        
+        ###########################IMPORTAZIONE MEDIA##############################################    
+        elif mapper_class_write == 'MEDIA' :
+            for sing_rec in range(len(data_list_toimp)):
+                try:
+                    data = self.DB_MANAGER_write.insert_media_values(
+                        self.DB_MANAGER_write.max_num_id(mapper_class_write,
+                                                         id_table_class_mapper_conv_dict[mapper_class_write]) + 1,
+                        #data_list_toimp[sing_rec].id_media,
+                        data_list_toimp[sing_rec].mediatype,
+                        data_list_toimp[sing_rec].filename,
+                        data_list_toimp[sing_rec].filetype,
+                        data_list_toimp[sing_rec].filepath,
+                        data_list_toimp[sing_rec].descrizione,
+                        data_list_toimp[sing_rec].tags)
+
+                    
+                    self.DB_MANAGER_write.insert_data_session(data)
+                    for i in range(0,100):    
+                        #time.sleep()
+                        self.progress_bar.setValue(((i)/100)*100)
+                     
+                        QApplication.processEvents()
+                        
+                except Exception as  e:
+                    e_str = str(e)
+                    QMessageBox.warning(self, "Errore", "Error ! \n"+ str(e),  QMessageBox.Ok)
+               
+                    return 0
+            QMessageBox.information(self, "Message", "Data Loaded")
+    
+        elif mapper_class_write == 'MEDIA_THUMB' :
+            for sing_rec in range(len(data_list_toimp)):
+                try:
+                    data = self.DB_MANAGER_write.insert_mediathumb_values(
+                        self.DB_MANAGER_write.max_num_id(mapper_class_write,
+                                                         id_table_class_mapper_conv_dict[mapper_class_write]) + 1,
+                        #data_list_toimp[sing_rec].id_media_thumb,
+                        data_list_toimp[sing_rec].id_media,
+                        data_list_toimp[sing_rec].mediatype,
+                        data_list_toimp[sing_rec].media_filename,
+                        data_list_toimp[sing_rec].media_thumb_filename,
+                        data_list_toimp[sing_rec].filetype,
+                        data_list_toimp[sing_rec].filepath,
+                        data_list_toimp[sing_rec].path_resize)
+
+                    
+                    self.DB_MANAGER_write.insert_data_session(data)
+                    for i in range(0,100):    
+                        #time.sleep()
+                        self.progress_bar.setValue(((i)/100)*100)
+                     
+                        QApplication.processEvents()
+               
+                except Exception as  e:
+                    e_str = str(e)
+                    QMessageBox.warning(self, "Errore", "Error ! \n"+ "duplicate key",  QMessageBox.Ok)
+               
+                    return 0
+            QMessageBox.information(self, "Message", "Data Loaded")
+    
+    
+        elif mapper_class_write == 'MEDIATOENTITY' :
+            for sing_rec in range(len(data_list_toimp)):
+                try:
+                    data = self.DB_MANAGER_write.insert_media2entity_values(
+                        self.DB_MANAGER_write.max_num_id(mapper_class_write,
+                                                         id_table_class_mapper_conv_dict[mapper_class_write]) + 1,
+                        #data_list_toimp[sing_rec].id_mediaToEntity,
+                        data_list_toimp[sing_rec].id_entity,
+                        data_list_toimp[sing_rec].entity_type,
+                        data_list_toimp[sing_rec].table_name,
+                        data_list_toimp[sing_rec].id_media,
+                        data_list_toimp[sing_rec].filepath,
+                        data_list_toimp[sing_rec].media_name)
+
+                    
+                    self.DB_MANAGER_write.insert_data_session(data)
+                    for i in range(0,100):    
+                        #time.sleep()
+                        self.progress_bar.setValue(((i)/100)*100)
+                     
+                        QApplication.processEvents()
+                        
+                except Exception as  e:
+                    e_str = str(e)
+                    QMessageBox.warning(self, "Errore", "Error ! \n"+ str(e),  QMessageBox.Ok)
+               
+                    return 0
+            QMessageBox.information(self, "Message", "Data Loaded")
     #######################importa tutte le geometrie##########################################
     def on_pushButton_geometry_pressed (self):
         try:
@@ -1478,7 +1575,7 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
             return 0
         QMessageBox.information(self, "Message", "Data Loaded")
     
-    
+        
     def openthumbDir(self):
         s = QgsSettings()
         dir = self.lineEdit_Thumb_path.text()
