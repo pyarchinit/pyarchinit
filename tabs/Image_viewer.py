@@ -139,7 +139,7 @@ class Main(QDialog, MAIN_DIALOG_CLASS):
         self.charge_sito_list()
 
     def connection(self):
-        QMessageBox.warning(self, "Alert", "system under development", QMessageBox.Ok)
+        #QMessageBox.warning(self, "Alert", "system under development", QMessageBox.Ok)
 
         
         conn_str = conn.conn_str()
@@ -732,10 +732,9 @@ class Main(QDialog, MAIN_DIALOG_CLASS):
         self.view_num_rec()
 
     def on_pushButton_next_rec_pressed(self):
-        if self.NUM_DATA_BEGIN < len(self.DATA):
+        if self.NUM_DATA_END < len(self.DATA):
             self.NUM_DATA_BEGIN += 25
             self.NUM_DATA_END +=25
-            
             self.view_num_rec()
             self.open_images()
 
