@@ -37,6 +37,9 @@ background-color: rgb(168, 168, 168);</string>
   <property name="floating">
    <bool>false</bool>
   </property>
+  <property name="features">
+   <set>QDockWidget::AllDockWidgetFeatures</set>
+  </property>
   <property name="windowTitle">
    <string>pyArchInit - Archaeological Data Management</string>
   </property>
@@ -68,7 +71,7 @@ background-color: rgb(168, 168, 168);</string>
          <height>587</height>
         </rect>
        </property>
-       <layout class="QGridLayout" name="gridLayout_2">
+       <layout class="QGridLayout" name="gridLayout_6">
         <item row="0" column="0">
          <widget class="QTabWidget" name="tabWidget">
           <property name="sizePolicy">
@@ -110,7 +113,7 @@ selection-color: rgb(140, 140, 105);</string>
            <enum>QTabWidget::Triangular</enum>
           </property>
           <property name="currentIndex">
-           <number>1</number>
+           <number>0</number>
           </property>
           <property name="elideMode">
            <enum>Qt::ElideNone</enum>
@@ -122,8 +125,41 @@ selection-color: rgb(140, 140, 105);</string>
            <bool>false</bool>
           </property>
           <property name="movable">
-           <bool>false</bool>
+           <bool>true</bool>
           </property>
+          <property name="tabBarAutoHide">
+           <bool>true</bool>
+          </property>
+          <widget class="QWidget" name="tab_5">
+           <attribute name="title">
+            <string>adArtesrl</string>
+           </attribute>
+           <layout class="QGridLayout" name="gridLayout_2">
+            <item row="0" column="0">
+             <widget class="QWebView" name="webView_adarte" native="true">
+              <property name="sizePolicy">
+               <sizepolicy hsizetype="Ignored" vsizetype="Expanding">
+                <horstretch>0</horstretch>
+                <verstretch>0</verstretch>
+               </sizepolicy>
+              </property>
+              <property name="font">
+               <font>
+                <family>8514oem</family>
+               </font>
+              </property>
+              <property name="url" stdset="0">
+               <url>
+                <string>https://www.adarteinfo.it/</string>
+               </url>
+              </property>
+              <property name="zoomFactor" stdset="0">
+               <double>0.500000000000000</double>
+              </property>
+             </widget>
+            </item>
+           </layout>
+          </widget>
           <widget class="QWidget" name="tab_4">
            <attribute name="title">
             <string>Tutorial</string>
@@ -676,34 +712,6 @@ selection-color: rgb(140, 140, 105);</string>
              </layout>
             </item>
            </layout>
-           <zorder>line_8</zorder>
-           <zorder>line_2</zorder>
-           <zorder>btnSitotable</zorder>
-           <zorder>line_11</zorder>
-           <zorder>line_7</zorder>
-           <zorder>line</zorder>
-           <zorder>label</zorder>
-           <zorder>line_6</zorder>
-           <zorder>label_4</zorder>
-           <zorder>label_5</zorder>
-           <zorder>line_10</zorder>
-           <zorder>line_12</zorder>
-           <zorder>line_13</zorder>
-           <zorder>label_8</zorder>
-           <zorder>line_14</zorder>
-           <zorder>line_15</zorder>
-           <zorder>line_16</zorder>
-           <zorder>btnPeriodotable</zorder>
-           <zorder>line_28</zorder>
-           <zorder>btnStrutturatable</zorder>
-           <zorder>btnUStable</zorder>
-           <zorder>btnReptable</zorder>
-           <zorder>label_14</zorder>
-           <zorder>label_11</zorder>
-           <zorder>line_17</zorder>
-           <zorder>line_29</zorder>
-           <zorder>line_25</zorder>
-           <zorder>label_2</zorder>
           </widget>
           <widget class="QWidget" name="tab">
            <attribute name="title">
@@ -1212,17 +1220,31 @@ selection-color: rgb(140, 140, 105);</string>
            <attribute name="title">
             <string>Supporto online</string>
            </attribute>
-           <widget class="QLabel" name="label_7">
-            <property name="geometry">
-             <rect>
-              <x>70</x>
-              <y>70</y>
-              <width>221</width>
-              <height>311</height>
-             </rect>
-            </property>
-            <property name="text">
-             <string>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
+           <layout class="QFormLayout" name="formLayout">
+            <item row="0" column="0">
+             <widget class="QLabel" name="label_13">
+              <property name="font">
+               <font>
+                <weight>75</weight>
+                <bold>true</bold>
+               </font>
+              </property>
+              <property name="text">
+               <string>Supporto online</string>
+              </property>
+             </widget>
+            </item>
+            <item row="1" column="0">
+             <widget class="Line" name="line_27">
+              <property name="orientation">
+               <enum>Qt::Horizontal</enum>
+              </property>
+             </widget>
+            </item>
+            <item row="2" column="0">
+             <widget class="QLabel" name="label_7">
+              <property name="text">
+               <string>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
 &lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
 p, li { white-space: pre-wrap; }
 &lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:'MS Shell Dlg 2'; font-size:8.25pt; font-weight:400; font-style:normal;&quot;&gt;
@@ -1243,46 +1265,16 @@ p, li { white-space: pre-wrap; }
 &lt;p style=&quot;-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px; font-size:8pt; text-decoration: underline; color:#0000ff;&quot;&gt;&lt;/p&gt;
 &lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-family:'Sans Serif'; font-size:9pt;&quot;&gt;Online mailing list&lt;/span&gt;&lt;/p&gt;
 &lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;a href=&quot;pyarchinit-users@googlegroups.com&quot;&gt;&lt;span style=&quot; text-decoration: underline; color:#0000ff;&quot;&gt;pyarchinit-users@googlegroups.com&lt;/span&gt;&lt;/a&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-            </property>
-            <property name="alignment">
-             <set>Qt::AlignCenter</set>
-            </property>
-            <property name="openExternalLinks">
-             <bool>true</bool>
-            </property>
-           </widget>
-           <widget class="QLabel" name="label_13">
-            <property name="geometry">
-             <rect>
-              <x>130</x>
-              <y>11</y>
-              <width>151</width>
-              <height>16</height>
-             </rect>
-            </property>
-            <property name="font">
-             <font>
-              <weight>75</weight>
-              <bold>true</bold>
-             </font>
-            </property>
-            <property name="text">
-             <string>Supporto online</string>
-            </property>
-           </widget>
-           <widget class="Line" name="line_27">
-            <property name="geometry">
-             <rect>
-              <x>60</x>
-              <y>26</y>
-              <width>241</width>
-              <height>16</height>
-             </rect>
-            </property>
-            <property name="orientation">
-             <enum>Qt::Horizontal</enum>
-            </property>
-           </widget>
+              </property>
+              <property name="alignment">
+               <set>Qt::AlignCenter</set>
+              </property>
+              <property name="openExternalLinks">
+               <bool>true</bool>
+              </property>
+             </widget>
+            </item>
+           </layout>
            <zorder>line_27</zorder>
            <zorder>label_7</zorder>
            <zorder>label_13</zorder>
