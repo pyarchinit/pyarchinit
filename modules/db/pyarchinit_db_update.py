@@ -353,7 +353,16 @@ class DB_update(object):
         if not table_column_names_list.__contains__('diagnostico'):
             self.engine.execute("ALTER TABLE inventario_materiali_table ADD COLUMN diagnostico varchar(2)")
             self.engine.execute("update inventario_materiali_table set diagnostico = ''No")
+        
+        ####pyunitastratigrafiche
+        table = Table("pyunitastratigrafiche", self.metadata, autoload=True)
+        table_column_names_list = []
+        for i in table.columns:
+            table_column_names_list.append(str(i.name))
 
+        if not table_column_names_list.__contains__('rilievo_originale'):
+            self.engine.execute("ALTER TABLE pyunitastratigrafiche ADD COLUMN rilievo_originale varchar(250)")
+        
         ####tafonomia_table
         table = Table("tafonomia_table", self.metadata, autoload=True)
         table_column_names_list = []
