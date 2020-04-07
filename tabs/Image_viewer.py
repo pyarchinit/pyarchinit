@@ -284,13 +284,13 @@ class Main(QDialog, MAIN_DIALOG_CLASS):
                 
 
                 data = idunique_image_check
-                media_filename = data[0].media_filename
+                id_media = data[0].id_media
 
                 # visualizza le immagini nella ui
                 item = QListWidgetItem(str(id_media))
 
-                data_for_thumb = self.db_search_check(self.MAPPER_TABLE_CLASS_thumb, 'media_filename',
-                                                      media_filename)  # recupera i valori della thumb in base al valore id_media del file originale
+                data_for_thumb = self.db_search_check(self.MAPPER_TABLE_CLASS_thumb, 'id_media',
+                                                      id_media)  # recupera i valori della thumb in base al valore id_media del file originale
 
                 thumb_path = data_for_thumb[0].filepath
                 item.setData(Qt.UserRole, thumb_path)
@@ -528,8 +528,8 @@ class Main(QDialog, MAIN_DIALOG_CLASS):
             except Exception as e:
                 QMessageBox.warning(self, "Error", "Warning 1 file: "+ str(e),  QMessageBox.Ok)
 
-            # dlg.show_image(str(thumb_resize_str+file_path) # item.data(QtCore.Qt.UserRole).toString()))
-            # dlg.exec_()
+            dlg.show_image(str(thumb_resize_str+file_path)) # item.data(QtCore.Qt.UserRole).toString()))
+            dlg.exec_()
 
     def charge_sito_list(self):
         sito_vl = self.UTILITY.tup_2_list_III(self.DB_MANAGER.group_by('site_table', 'sito', 'SITE'))
