@@ -896,7 +896,7 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
                         
                    
                     self.DB_MANAGER_write.insert_data_session(data)
-                    for i in range(0,100):    
+                    for i in range(sing_rec):    
                         #time.sleep()
                         self.progress_bar.setValue(((i)/100)*100)
                      
@@ -1020,7 +1020,7 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
                     
 
                     self.DB_MANAGER_write.insert_data_session(data)
-                    for i in range(0,100):    
+                    for i in range(sing_rec):    
                         #time.sleep()
                         self.progress_bar.setValue(((i)/100)*100)
                      
@@ -1033,7 +1033,7 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
                     e_error= str(e)
                     QMessageBox.warning(self, "Errore", "Error ! \n"+ str(e),  QMessageBox.Ok)
                     return 0
-            #self.progress_bar.close()
+            
             QMessageBox.information(self, "Message", "Data Loaded")
         elif mapper_class_write == 'PERIODIZZAZIONE' :
             for sing_rec in range(len(data_list_toimp)):
@@ -1052,7 +1052,7 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
                 
                 
                     self.DB_MANAGER_write.insert_data_session(data)
-                    for i in range(0,100):    
+                    for i in range(sing_rec):    
                         #time.sleep()
                         self.progress_bar.setValue(((i)/100)*100)
                      
@@ -1104,7 +1104,7 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
                     
                     
                     self.DB_MANAGER_write.insert_data_session(data)
-                    for i in range(0,100):    
+                    for i in range(sing_rec):    
                         #time.sleep()
                         self.progress_bar.setValue(((i)/100)*100)
                      
@@ -1144,13 +1144,11 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
                     )
                     
                     self.DB_MANAGER_write.insert_data_session(data)
-                    for i in range(0,100):    
+                    for i in range(sing_rec):    
                         #time.sleep()
                         self.progress_bar.setValue(((i)/100)*100)
                      
                         QApplication.processEvents()
-                    
-                
                 except :
                     
                     QMessageBox.warning(self, "Errore", "Error ! \n"+ "duplicate key",  QMessageBox.Ok)
@@ -1254,7 +1252,7 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
                     )
                         
                     self.DB_MANAGER_write.insert_data_session(data)
-                    for i in range(0,100):    
+                    for i in range(sing_rec):    
                         #time.sleep()
                         self.progress_bar.setValue(((i)/100)*100)
                      
@@ -1287,7 +1285,7 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
                     )
                 
                     self.DB_MANAGER_write.insert_data_session(data)
-                    for i in range(0,100):    
+                    for i in range(sing_rec):    
                         #time.sleep()
                         self.progress_bar.setValue(((i)/100)*100)
                      
@@ -1317,7 +1315,7 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
                         data_list_toimp[sing_rec].luogo_conservazione
                     )
                     self.DB_MANAGER_write.insert_data_session(data)
-                    for i in range(0,100):    
+                    for i in range(sing_rec):    
                         #time.sleep()
                         self.progress_bar.setValue(((i)/100)*100)
                      
@@ -1347,7 +1345,7 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
                     )
 
                     self.DB_MANAGER_write.insert_data_session(data)
-                    for i in range(0,100):    
+                    for i in range(sing_rec):    
                         #time.sleep()
                         self.progress_bar.setValue(((i)/100)*100)
                      
@@ -1412,7 +1410,7 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
 
                 
                     self.DB_MANAGER_write.insert_data_session(data)
-                    for i in range(0,100):    
+                    for i in range(sing_rec):    
                         #time.sleep()
                         self.progress_bar.setValue(((i)/100)*100)
                      
@@ -1447,7 +1445,7 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
                         
                     
                     self.DB_MANAGER_write.insert_data_session(data)
-                    for i in range(0,100):    
+                    for i in range(sing_rec):    
                         #time.sleep()
                         self.progress_bar.setValue(((i)/100)*100)
                      
@@ -1476,7 +1474,7 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
 
                     
                     self.DB_MANAGER_write.insert_data_session(data)
-                    for i in range(0,100):    
+                    for i in range(sing_rec):    
                         #time.sleep()
                         self.progress_bar.setValue(((i)/100)*100)
                      
@@ -1506,7 +1504,7 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
 
                     
                     self.DB_MANAGER_write.insert_data_session(data)
-                    for i in range(0,100):    
+                    for i in range(sing_rec):    
                         #time.sleep()
                         self.progress_bar.setValue(((i)/100)*100)
                      
@@ -1536,7 +1534,7 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
 
                     
                     self.DB_MANAGER_write.insert_data_session(data)
-                    for i in range(0,100):    
+                    for i in range(sing_rec):    
                         #time.sleep()
                         self.progress_bar.setValue(((i)/100)*100)
                      
