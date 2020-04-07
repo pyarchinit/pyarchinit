@@ -219,7 +219,8 @@ class Main(QDialog, MAIN_DIALOG_CLASS):
     def getDirectory(self):
         directory = QFileDialog.getExistingDirectory(self, "Directory", "Choose a directory:",
                                                      QFileDialog.ShowDirsOnly)
-
+        thumb_path = conn.thumb_path()
+        thumb_path_str = thumb_path['thumb_path']
         if not directory:
             return 0
 
@@ -240,7 +241,7 @@ class Main(QDialog, MAIN_DIALOG_CLASS):
                                          filepath)  # db inserisce i dati nella tabella media originali
                 MU = Media_utility()
                 MUR = Media_utility_resize()
-                conn = Connection()
+                
                 media_max_num_id = self.DB_MANAGER.max_num_id(self.MAPPER_TABLE_CLASS,
                                                               self.ID_TABLE)  # db recupera il valore più alto ovvero l'ultimo immesso per l'immagine originale
 
@@ -257,7 +258,7 @@ class Main(QDialog, MAIN_DIALOG_CLASS):
                 filenameorig = filename
                 
                 filename_thumb = str(media_max_num_id) + "_" + filename + media_thumb_suffix
-                filename_resize = str(media_max_num_id) + "_" + filename + media_resize_suffix
+                filename_resize = filename + media_resize_suffix
                 
                 filepath_thumb =  filename_thumb
                 filepath_resize = filename_resize
@@ -274,9 +275,9 @@ class Main(QDialog, MAIN_DIALOG_CLASS):
                                               filepath_thumb, filepath_resize)
 
                 
-                item = QListWidgetItem(str(media_max_num_id))
+                item = QListWidgetItem(str(filenameorig))
                 item.setData(Qt.UserRole, str(media_max_num_id))
-                icon = QIcon(str(thumb_path_str+filepath))  # os.path.join('%s/%s' % (directory.toUtf8(), image)))
+                icon = QIcon(thumb_path_str+filepath)  # os.path.join('%s/%s' % (directory.toUtf8(), image)))
                 item.setIcon(icon)
                 self.iconListWidget.addItem(item)
 
@@ -285,16 +286,16 @@ class Main(QDialog, MAIN_DIALOG_CLASS):
 
                 data = idunique_image_check
                 id_media = data[0].id_media
-
+                media_filename =data[0].filename
                 # visualizza le immagini nella ui
-                item = QListWidgetItem(str(id_media))
+                item = QListWidgetItem(str(media_filename))
 
                 data_for_thumb = self.db_search_check(self.MAPPER_TABLE_CLASS_thumb, 'id_media',
                                                       id_media)  # recupera i valori della thumb in base al valore id_media del file originale
 
                 thumb_path = data_for_thumb[0].filepath
                 item.setData(Qt.UserRole, thumb_path)
-                icon = QIcon(str(thumb_path_str+filepath))  # os.path.join('%s/%s' % (directory.toUtf8(), image)))
+                icon = QIcon(thumb_path_str+filepath)  # os.path.join('%s/%s' % (directory.toUtf8(), image)))
                 item.setIcon(icon)
                 self.iconListWidget.addItem(item)
 
@@ -1105,14 +1106,14 @@ class Main(QDialog, MAIN_DIALOG_CLASS):
         id_list = []
         if self.DB_SERVER == 'sqlite':
             for i in self.DB_MANAGER.query(self.MAPPER_TABLE_CLASS_thumb):
-                id_list.append(eval("i."+ self.ID_TABLE_THUMB))#for i in self.DB_MANAGER.query(self.MAPPER_TABLE_CLASS_thumb):
+                id_list.append(eval("i."+ 'media_filename'))#for i in self.DB_MANAGER.query(self.MAPPER_TABLE_CLASS_thumb):
                 #self.DATA_LIST.append(i)
         else:
             
             for i in self.DB_MANAGER.query(self.MAPPER_TABLE_CLASS_thumb):
-                id_list.append(eval("i."+ self.ID_TABLE_THUMB))
+                id_list.append(eval("i."+ 'media_filename'))
 
-            temp_data_list = self.DB_MANAGER.query_sort(id_list, [self.ID_TABLE_THUMB], 'asc', self.MAPPER_TABLE_CLASS_thumb, self.ID_TABLE_THUMB)
+            temp_data_list = self.DB_MANAGER.query_sort(id_list, ['media_filename'], 'asc', self.MAPPER_TABLE_CLASS_thumb, 'media_filename')
 
             for i in temp_data_list:
                 self.DATA_LIST.append(i)
