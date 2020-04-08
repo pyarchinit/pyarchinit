@@ -22,15 +22,15 @@
 from __future__ import absolute_import
 
 import os
-
+import time
 import sys
 from builtins import range
 from builtins import str
 import PIL as Image
 from PIL import *
-from qgis.PyQt.QtCore import Qt,QSize
+from qgis.PyQt.QtCore import Qt,QSize,QThread, pyqtSignal
 from qgis.PyQt.QtGui import QIcon
-from qgis.PyQt.QtWidgets import QDialog, QMessageBox, QAbstractItemView, QListWidgetItem, QFileDialog, QTableWidgetItem
+from qgis.PyQt.QtWidgets import QDialog, QMessageBox, QAbstractItemView, QListWidgetItem, QFileDialog, QTableWidgetItem,QProgressBar, QPushButton,QBoxLayout, QVBoxLayout
 from qgis.PyQt.uic import loadUiType
 from qgis.core import QgsSettings
 from ..gui.imageViewer import ImageViewer
@@ -45,6 +45,9 @@ MAIN_DIALOG_CLASS, _ = loadUiType(
     os.path.join(os.path.dirname(__file__), os.pardir, 'gui', 'ui', 'pyarchinit_image_viewer_dialog.ui'))
 
 conn = Connection()
+
+ 
+
 class Main(QDialog, MAIN_DIALOG_CLASS):
     L=QgsSettings().value("locale/userLocale")[0:2]
     delegateSites = ''
@@ -117,7 +120,15 @@ class Main(QDialog, MAIN_DIALOG_CLASS):
         self.setWindowTitle("pyArchInit - Media Manager")
         self.charge_data()
         self.view_num_rec()
-
+       
+    def update(self, step):
+        maximum = self.maximum()
+        rate = step * 100 / maximum
+        string = "{}/{} ({}%)".format(step, maximum, rate)
+        time.sleep(0.02)
+        self.set_text(string)
+        self.setValue(step)
+   
     def customize_gui(self):
         self.tableWidgetTags_US.setColumnWidth(0, 300)
         self.tableWidgetTags_US.setColumnWidth(1, 100)
@@ -135,7 +146,7 @@ class Main(QDialog, MAIN_DIALOG_CLASS):
         self.tableWidgetTags_US.setItemDelegateForColumn(0, self.delegateSites)
 
         self.tableWidgetTags_MAT.setItemDelegateForColumn(0, self.delegateSites)
-
+        
         self.charge_sito_list()
 
     def connection(self):
@@ -217,6 +228,9 @@ class Main(QDialog, MAIN_DIALOG_CLASS):
         self.pushButton_sort.setEnabled(n)
     
     def getDirectory(self):
+        
+        image_list=[]
+        
         directory = QFileDialog.getExistingDirectory(self, "Directory", "Choose a directory:",
                                                      QFileDialog.ShowDirsOnly)
         thumb_path = conn.thumb_path()
@@ -258,7 +272,7 @@ class Main(QDialog, MAIN_DIALOG_CLASS):
                 filenameorig = filename
                 
                 filename_thumb = str(media_max_num_id) + "_" + filename + media_thumb_suffix
-                filename_resize = filename + media_resize_suffix
+                filename_resize = str(media_max_num_id) + "_" +filename + media_resize_suffix
                 
                 filepath_thumb =  filename_thumb
                 filepath_resize = filename_resize
@@ -298,7 +312,23 @@ class Main(QDialog, MAIN_DIALOG_CLASS):
                 icon = QIcon(thumb_path_str+filepath)  # os.path.join('%s/%s' % (directory.toUtf8(), image)))
                 item.setIcon(icon)
                 self.iconListWidget.addItem(item)
-
+    
+            
+            for i in enumerate(image):    
+                image_list.append(i[0])
+                
+            for n in range(len(image_list)):
+                   
+                self.progressBar.setValue(((n)/100)*100)
+             
+                QApplication.processEvents()
+                    
+                
+        self.progressBar.reset()
+        QMessageBox.information(self, "Message", "Image Loaded")
+    
+   
+    
     def insert_record_media(self, mediatype, filename, filetype, filepath):
         self.mediatype = mediatype
         self.filename = filename
