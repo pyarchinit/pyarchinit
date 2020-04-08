@@ -616,8 +616,11 @@
       <property name="showDropIndicator" stdset="0">
        <bool>false</bool>
       </property>
+      <property name="dragDropMode">
+       <enum>QAbstractItemView::NoDragDrop</enum>
+      </property>
       <property name="selectionMode">
-       <enum>QAbstractItemView::NoSelection</enum>
+       <enum>QAbstractItemView::MultiSelection</enum>
       </property>
       <property name="iconSize">
        <size>
@@ -629,7 +632,7 @@
        <enum>Qt::ElideMiddle</enum>
       </property>
       <property name="movement">
-       <enum>QListView::Snap</enum>
+       <enum>QListView::Static</enum>
       </property>
       <property name="resizeMode">
        <enum>QListView::Adjust</enum>
@@ -654,6 +657,9 @@
       </property>
       <property name="batchSize">
        <number>1000</number>
+      </property>
+      <property name="sortingEnabled">
+       <bool>true</bool>
       </property>
      </widget>
     </item>
