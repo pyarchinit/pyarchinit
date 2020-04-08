@@ -906,7 +906,7 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
                     
                     QMessageBox.warning(self, "Errore", "Error ! \n"+ "duplicate key",  QMessageBox.Ok)
                     return 0
-            #self.progress_bar.close()
+            self.progress_bar.reset()
             QMessageBox.information(self, "Message", "Data Loaded")
         
         #### US TABLE
@@ -1033,7 +1033,7 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
                     e_error= str(e)
                     QMessageBox.warning(self, "Errore", "Error ! \n"+ str(e),  QMessageBox.Ok)
                     return 0
-            
+            self.progress_bar.reset()
             QMessageBox.information(self, "Message", "Data Loaded")
         elif mapper_class_write == 'PERIODIZZAZIONE' :
             for sing_rec in range(len(data_list_toimp)):
@@ -1062,7 +1062,7 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
                     
                     QMessageBox.warning(self, "Errore", "Error ! \n"+ "duplicate key",  QMessageBox.Ok)
                     return 0
-            #self.progress_bar.close()
+            self.progress_bar.reset()
             QMessageBox.information(self, "Message", "Data Loaded")
         
         elif mapper_class_write == 'INVENTARIO_MATERIALI' :
@@ -1115,7 +1115,7 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
                     
                     QMessageBox.warning(self, "Errore", "Error ! \n"+ "duplicate key",  QMessageBox.Ok)
                     return 0
-            #self.progress_bar.close()
+            self.progress_bar.reset()
             QMessageBox.information(self, "Message", "Data Loaded")
       
         elif mapper_class_write == 'STRUTTURA' :
@@ -1153,7 +1153,7 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
                     
                     QMessageBox.warning(self, "Errore", "Error ! \n"+ "duplicate key",  QMessageBox.Ok)
                     return 0
-            #self.progress_bar.close()
+            self.progress_bar.reset()
             QMessageBox.information(self, "Message", "Data Loaded")
         
         elif mapper_class_write == 'TAFONOMIA' :
@@ -1262,7 +1262,7 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
                     
                     QMessageBox.warning(self, "Errore", "Error ! \n"+ "duplicate key",  QMessageBox.Ok)
                     return 0
-            #self.progress_bar.close()
+            self.progress_bar.reset()
             QMessageBox.information(self, "Message", "Data Loaded")
         
         elif mapper_class_write == 'SCHEDAIND' :
@@ -1295,7 +1295,7 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
                     
                     QMessageBox.warning(self, "Errore", "Error ! \n"+ "duplicate key",  QMessageBox.Ok)
                     return 0
-            #self.progress_bar.close()
+            self.progress_bar.reset()
             QMessageBox.information(self, "Message", "Data Loaded")
         
         elif mapper_class_write == 'CAMPIONI':
@@ -1325,7 +1325,7 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
                     
                     QMessageBox.warning(self, "Errore", "Error ! \n"+ "duplicate key",  QMessageBox.Ok)
                     return 0
-            #self.progress_bar.close()
+            self.progress_bar.reset()
             QMessageBox.information(self, "Message", "Data Loaded")
        
         elif mapper_class_write == 'DOCUMENTAZIONE' :
@@ -1356,6 +1356,8 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
                     QMessageBox.warning(self, "Errore", "Error ! \n"+ "duplicate key",  QMessageBox.Ok)
                
                     return 0
+            
+            self.progress_bar.reset()
             QMessageBox.information(self, "Message", "Data Loaded")
            
         elif mapper_class_write == 'UT':
@@ -1421,7 +1423,7 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
                     
                     QMessageBox.warning(self, "Errore", "Error ! \n"+ "duplicate key",  QMessageBox.Ok)
                     return 0
-            
+            self.progress_bar.reset()
             QMessageBox.information(self, "Message", "Data Loaded")
 
 
@@ -1455,7 +1457,7 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
                     
                     QMessageBox.warning(self, "Errore", "Error ! \n"+ "duplicate key",  QMessageBox.Ok)
                     return 0
-            
+            self.progress_bar.reset()
             QMessageBox.information(self, "Message", "Data Loaded")
         ###########################IMPORTAZIONE MEDIA##############################################    
         elif mapper_class_write == 'MEDIA' :
@@ -1485,6 +1487,7 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
                     QMessageBox.warning(self, "Errore", "Error ! \n"+ str(e),  QMessageBox.Ok)
                
                     return 0
+            self.progress_bar.reset()
             QMessageBox.information(self, "Message", "Data Loaded")
     
         elif mapper_class_write == 'MEDIA_THUMB' :
@@ -1515,6 +1518,7 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
                     QMessageBox.warning(self, "Errore", "Error ! \n"+ "duplicate key",  QMessageBox.Ok)
                
                     return 0
+            self.progress_bar.reset()
             QMessageBox.information(self, "Message", "Data Loaded")
     
     
@@ -1545,6 +1549,7 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
                     QMessageBox.warning(self, "Errore", "Error ! \n"+ str(e),  QMessageBox.Ok)
                
                     return 0
+            self.progress_bar.reset()
             QMessageBox.information(self, "Message", "Data Loaded")
     #######################importa tutte le geometrie##########################################
     def on_pushButton_geometry_pressed (self):
