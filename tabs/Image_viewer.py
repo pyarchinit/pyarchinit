@@ -252,9 +252,9 @@ class Main(QDialog, MAIN_DIALOG_CLASS):
                 except:
                     pass
         if bool(idunique_image_check):
-            QMessageBox.information(self, "Message", "Le immagini sono state già caricate nel database")
+            QMessageBox.information(self, "Message", "Le immagini sono già caricate nel database")
         elif not bool(idunique_image_check):
-            QMessageBox.information(self, "Message", "Imamagini caricate! Puoi taggarli")
+            QMessageBox.information(self, "Message", "Imamagini caricate! Puoi taggarle")
     def insert_record_media(self, mediatype, filename, filetype, filepath):
         self.mediatype = mediatype
         self.filename = filename
@@ -442,15 +442,15 @@ class Main(QDialog, MAIN_DIALOG_CLASS):
         for item in items:
             dlg = ImageViewer()
             id_orig_item = item.text()  # return the name of original file
-            search_dict = {'media_filename': "'" + str(id_orig_item) + "'"}### visualizzo nome file
+            search_dict = {'media_filename': "'" + str(id_orig_item) + "'"} 
             u = Utility()
             search_dict = u.remove_empty_items_fr_dict(search_dict)
-            try:
-                res = self.DB_MANAGER.query_bool(search_dict, "MEDIA_THUMB")
-                file_path = str(res[0].path_resize)
-            except Exception as e:
-                QMessageBox.warning(self, "Error", "Warning 1 file: "+ str(e),  QMessageBox.Ok)
-            dlg.show_image(str(thumb_resize_str+file_path)) # item.data(QtCore.Qt.UserRole).toString()))
+            #try:
+            res = self.DB_MANAGER.query_bool(search_dict, "MEDIA_THUMB")
+            file_path = str(res[0].path_resize)
+            #except Exception as e:
+            #    QMessageBox.warning(self, "Error", "Warning 1 file: "+ str(e),  QMessageBox.Ok)
+            dlg.show_image(str(thumb_resize_str+file_path))  # item.data(QtCore.Qt.UserRole).toString()))
             dlg.exec_()
     def charge_sito_list(self):
         sito_vl = self.UTILITY.tup_2_list_III(self.DB_MANAGER.group_by('site_table', 'sito', 'SITE'))
@@ -705,7 +705,7 @@ class Main(QDialog, MAIN_DIALOG_CLASS):
                     self.setComboBoxEnable(["self.lineEdit_id_media"],"False")
                     #check_for_buttons = 1
                     QMessageBox.warning(self, "Messaggio", "%s %d %s" % strings, QMessageBox.Ok)
-        self.NUM_DATA_BEGIN =  len(self.DATA_LIST)-25
+        self.NUM_DATA_BEGIN =  len(self.DATA_LIST)
         self.NUM_DATA_END = len(self.DATA_LIST)
         self.view_num_rec()
         self.open_images()
@@ -964,6 +964,10 @@ class Main(QDialog, MAIN_DIALOG_CLASS):
                 self.lineEdit_id_media.setText("")
             else:
                 self.lineEdit_id_media.setText(str(self.DATA_LIST[self.rec_num].media_filename))
+            if self.DATA_LIST[self.rec_num].id_media == None:                                                                   #8 - US
+                self.lineEdit_id_media.setText("")
+            else:
+                self.lineEdit_id_media.setText(str(self.DATA_LIST[self.rec_num].id_media))
         except Exception as  e:
             QMessageBox.warning(self, "Error Fill Fields", str(e),  QMessageBox.Ok)
     def setComboBoxEnable(self, f, v):
@@ -981,7 +985,7 @@ class Main(QDialog, MAIN_DIALOG_CLASS):
     def set_LIST_REC_CORR(self):
         self.DATA_LIST_REC_CORR = []
         for i in self.TABLE_FIELDS:
-            self.DATA_LIST_REC_CORR.append(eval("unicode(self.DATA_LIST[self.REC_CORR]." + i + ")"))
+            self.DATA_LIST_REC_CORR.append(eval("str(self.DATA_LIST[self.REC_CORR]." + i + ")"))
     def records_equal_check(self):
         self.set_LIST_REC_TEMP()
         self.set_LIST_REC_CORR()
