@@ -2402,7 +2402,7 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
 
             order_number = ""
             us = ""
-            for k, v in order_layer_dict():#era items prima 
+            for k, v in order_layer_dict.items():#era items prima 
                 order_number = str(k)
                 us = v
                 for sing_us in v:
