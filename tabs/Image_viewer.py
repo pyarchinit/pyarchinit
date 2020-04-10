@@ -255,6 +255,9 @@ class Main(QDialog, MAIN_DIALOG_CLASS):
             QMessageBox.information(self, "Message", "Le immagini sono già caricate nel database")
         elif not bool(idunique_image_check):
             QMessageBox.information(self, "Message", "Imamagini caricate! Puoi taggarle")
+        self.charge_data ()
+        self.view_num_rec()
+        self.open_images()
     def insert_record_media(self, mediatype, filename, filetype, filepath):
         self.mediatype = mediatype
         self.filename = filename
@@ -610,7 +613,7 @@ class Main(QDialog, MAIN_DIALOG_CLASS):
                 self.insert_mediaToEntity_rec(reperti_data[0], reperti_data[1], reperti_data[2], media_data[0].id_media,
                                               media_data[0].filepath, media_data[0].filename)
     def on_pushButton_openMedia_pressed(self):
-        # self.charge_data()
+        self.charge_data()
         self.view_num_rec()
     def on_pushButton_next_rec_pressed(self):
         if self.NUM_DATA_END < len(self.DATA):
