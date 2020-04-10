@@ -2137,7 +2137,7 @@ class Order_layer_v2(object):
             if not matrix_us_level:
                 test = 1
                 return self.order_dict
-            elif self.order_count >= 50:
+            elif self.order_count >= 500:
                 test = 1
                 QMessageBox.warning(None, "Errore", str(self.order_count), QMessageBox.Ok)
 
