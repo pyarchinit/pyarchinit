@@ -1179,9 +1179,9 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
         self.iconListWidget.setMidLineWidth(2)
         self.iconListWidget.setProperty("showDropIndicator", False)
         self.iconListWidget.setIconSize(QSize(430, 570))
-        self.iconListWidget.setMovement(QListView.Snap)
-        self.iconListWidget.setResizeMode(QListView.Adjust)
-        self.iconListWidget.setLayoutMode(QListView.Batched)
+        # self.iconListWidget.setMovement(QListView.Snap)
+        # self.iconListWidget.setResizeMode(QListView.Adjust)
+        # self.iconListWidget.setLayoutMode(QListView.Batched)
         self.iconListWidget.setUniformItemSizes(True)
         self.iconListWidget.setObjectName("iconListWidget")
         self.iconListWidget.SelectionMode()
@@ -2402,7 +2402,7 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
 
             order_number = ""
             us = ""
-            for k, v in order_layer_dict.items():
+            for k, v in order_layer_dict.data():
                 order_number = str(k)
                 us = v
                 for sing_us in v:
