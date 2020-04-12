@@ -5839,7 +5839,7 @@ p, li { white-space: pre-wrap; }
               <rect>
                <x>17</x>
                <y>20</y>
-               <width>141</width>
+               <width>251</width>
                <height>16</height>
               </rect>
              </property>
@@ -5992,7 +5992,7 @@ p, li { white-space: pre-wrap; }
               <rect>
                <x>16</x>
                <y>136</y>
-               <width>119</width>
+               <width>311</width>
                <height>16</height>
               </rect>
              </property>
@@ -6022,7 +6022,7 @@ p, li { white-space: pre-wrap; }
               <enum>Qt::Horizontal</enum>
              </property>
             </widget>
-            <widget class="QWidget" name="">
+            <widget class="QWidget" name="layoutWidget">
              <property name="geometry">
               <rect>
                <x>16</x>
@@ -6201,14 +6201,14 @@ p, li { white-space: pre-wrap; }
              <rect>
               <x>0</x>
               <y>0</y>
-              <width>989</width>
-              <height>348</height>
+              <width>100</width>
+              <height>30</height>
              </rect>
             </property>
             <attribute name="label">
              <string>Funzioni di controllo</string>
             </attribute>
-            <widget class="QWidget" name="">
+            <widget class="QWidget" name="layoutWidget">
              <property name="geometry">
               <rect>
                <x>9</x>
@@ -6439,8 +6439,8 @@ p, li { white-space: pre-wrap; }
              <rect>
               <x>0</x>
               <y>0</y>
-              <width>989</width>
-              <height>348</height>
+              <width>100</width>
+              <height>30</height>
              </rect>
             </property>
             <attribute name="label">
@@ -6459,7 +6459,7 @@ p, li { white-space: pre-wrap; }
               <string/>
              </property>
             </widget>
-            <widget class="QWidget" name="">
+            <widget class="QWidget" name="layoutWidget">
              <property name="geometry">
               <rect>
                <x>10</x>
