@@ -21,7 +21,8 @@
 import os
 import subprocess
 
-
+import datetime
+from datetime import date
 from graphviz import Digraph, Source
 from .pyarchinit_OS_utility import Pyarchinit_OS_Utility
 
@@ -59,9 +60,11 @@ class HarrisMatrix:
                     c.node(str(n))
                 c.attr(color='blue')
                 c.attr(label=i[2])
-
+        dt = datetime.datetime.now()
         matrix_path = '{}{}{}'.format(self.HOME, os.sep, "pyarchinit_Matrix_folder")
-        filename = 'Harris_matrix'
+        filename = ('%s_%s_%s_%s_%s_%s_%s') % (
+        'Harris_matrix', dt.day, dt.month, dt.year, dt.hour, dt.minute, dt.second)
+        f = open(filename, "wb")
 
         G.format = 'xdot'
         dot_file = G.render(directory=matrix_path, filename=filename)
