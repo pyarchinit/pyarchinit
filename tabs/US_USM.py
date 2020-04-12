@@ -5213,7 +5213,7 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
             
     def on_pushButton_open_dir_matrix_pressed(self):
         HOME = os.environ['PYARCHINIT_HOME']
-        path = '{}{}{}'.format(HOME, os.sep, "pyarchinit_Report_folder")
+        path = '{}{}{}'.format(HOME, os.sep, "pyarchinit_Matrix_folder")
 
         if platform.system() == "Windows":
             os.startfile(path)
