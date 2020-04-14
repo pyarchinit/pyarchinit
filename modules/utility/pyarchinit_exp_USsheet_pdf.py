@@ -22,6 +22,8 @@
 
 import datetime
 from datetime import date
+from numpy import *
+import io
 
 from builtins import object
 from builtins import range
@@ -29,14 +31,14 @@ from builtins import str
 from reportlab.lib import colors
 from reportlab.lib.pagesizes import (A4)
 from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
-from reportlab.lib.units import inch, cm, mm
+from reportlab.lib.units import inch, cm, mm 
 from reportlab.pdfgen import canvas
 from reportlab.platypus import Table, PageBreak, SimpleDocTemplate, Spacer, TableStyle, Image
 from reportlab.platypus.paragraph import Paragraph
-
+from ..db.pyarchinit_conn_strings import Connection
 from .pyarchinit_OS_utility import *
-
-
+from PIL import Image as giggino
+from reportlab.lib.utils import ImageReader
 class NumberedCanvas_USsheet(canvas.Canvas):
     def __init__(self, *args, **kwargs):
         canvas.Canvas.__init__(self, *args, **kwargs)
@@ -216,6 +218,8 @@ class single_US_pdf_sheet(object):
         self.criteri_distinzione_usm = data[94]
         self.uso_primario_usm = data[95]
         self.foto=data[96]
+        self.unitatipo = data[97]
+        # self.thumbanil = data[98]
     def unzip_componenti(self):
         org = eval(self.componenti_organici)
         inorg = eval(self.componenti_inorganici)
@@ -2922,11 +2926,14 @@ class FOTO_index_pdf_sheet(object):
     
 
     def __init__(self, data):
-        self.sito = data[0]
-        self.area = data[1]
+        
+        self.sito= data[0]
+        self.foto = data[5]
+        self.thumbnail = data[6]
         self.us = data[2]
-        self.foto = data[96]
-        self.d_stratigrafica = data[3]
+        self.area = data[1]
+        self.d_stratigrafica= data[4]
+        self.unita_tipo =data[3]
     def getTable(self):
         styleSheet = getSampleStyleSheet()
         styNormal = styleSheet['Normal']
@@ -2937,16 +2944,32 @@ class FOTO_index_pdf_sheet(object):
 
         
 
+        conn = Connection()
+    
+        thumb_path = conn.thumb_path()
+        thumb_path_str = thumb_path['thumb_path']
         area = Paragraph("<b>Area</b><br/>" + str(self.area), styNormal)
-        us = Paragraph("<b>US</b><br/>" + str(self.us), styNormal)
+        if self.unita_tipo == 'US':
+            us = Paragraph("<b>US</b><br/>" + str(self.us), styNormal)
+        else:
+            us = Paragraph("<b>USM</b><br/>" + str(self.us), styNormal)
         foto = Paragraph("<b>Foto ID</b><br/>" + str(self.foto), styNormal)
         d_stratigrafica = Paragraph("<b>Definizione stratigrafica</b><br/>" + str(self.d_stratigrafica), styNormal)
+        us_presenti = Paragraph("<b>US-USM presenti</b><br/>", styNormal)
         
-
-        data = [area,
-                us,
+        logo= Image(self.thumbnail)
+        logo.drawHeight = 1 * inch * logo.drawHeight / logo.drawWidth
+        logo.drawWidth = 1 * inch
+        logo.hAlign = "CENTER"
+        
+        thumbnail= logo
+        data = [
                 foto,
-                d_stratigrafica]
+                thumbnail,
+                us,
+                area,
+                d_stratigrafica
+                ]
 
         return data
     def makeStyles(self):
@@ -3115,7 +3138,7 @@ class generate_US_pdf(object):
 
         home_DB_path = '{}{}{}'.format(home, os.sep, 'pyarchinit_DB_folder')
         logo_path = '{}{}{}'.format(home_DB_path, os.sep, 'logo.jpg')
-
+        
         logo = Image(logo_path)
         logo.drawHeight = 1.5 * inch * logo.drawHeight / logo.drawWidth
         logo.drawWidth = 1.5 * inch
@@ -3131,7 +3154,7 @@ class generate_US_pdf(object):
         lst = []
         lst.append(logo)
         lst.append(
-            Paragraph("<b>ELENCO FOTO STRATIGRAFICHE</b><br/><b>Scavo: %s,  Data: %s</b>" % (sito, data), styH1))
+            Paragraph("<b>ELENCO FOTO STRATIGRAFICHE</b><br/><b> Scavo: %s,  Data: %s</b>" % (sito, data), styH1))
 
         table_data = []
         for i in range(len(records)):
@@ -3139,7 +3162,7 @@ class generate_US_pdf(object):
             table_data.append(exp_index.getTable())
 
         styles = exp_index.makeStyles()
-        colWidths = [28, 28, 120, 250, 58, 45, 58, 55, 64, 64, 52, 52, 52]
+        colWidths = [100, 105, 30, 30, 200]
 
         table_data_formatted = Table(table_data, colWidths, style=styles)
         table_data_formatted.hAlign = "LEFT"
@@ -3149,7 +3172,7 @@ class generate_US_pdf(object):
 
         dt = datetime.datetime.now()
         filename = ('%s%s%s_%s_%s_%s_%s_%s_%s%s') % (
-        self.PDF_path, os.sep, 'elenco_foto', dt.day, dt.month, dt.year, dt.hour, dt.minute, dt.second, ".pdf")
+        self.PDF_path, os.sep, 'Elenco_foto', dt.day, dt.month, dt.year, dt.hour, dt.minute, dt.second, ".pdf")
         f = open(filename, "wb")
 
         doc = SimpleDocTemplate(f, pagesize=A4)
