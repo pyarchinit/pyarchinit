@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>986</width>
+    <width>974</width>
     <height>786</height>
    </rect>
   </property>
@@ -176,46 +176,27 @@
     </layout>
    </widget>
   </widget>
-  <widget class="QLineEdit" name="lineEdit_id_media">
-   <property name="geometry">
-    <rect>
-     <x>10</x>
-     <y>150</y>
-     <width>155</width>
-     <height>26</height>
-    </rect>
-   </property>
-  </widget>
-  <widget class="QLabel" name="label_9">
-   <property name="geometry">
-    <rect>
-     <x>170</x>
-     <y>160</y>
-     <width>53</width>
-     <height>16</height>
-    </rect>
-   </property>
-   <property name="text">
-    <string>ID Media</string>
-   </property>
-  </widget>
   <widget class="QToolButton" name="toolButton_tags_on_off">
    <property name="geometry">
     <rect>
      <x>470</x>
      <y>680</y>
-     <width>124</width>
-     <height>22</height>
+     <width>123</width>
+     <height>31</height>
     </rect>
    </property>
    <property name="focusPolicy">
-    <enum>Qt::TabFocus</enum>
+    <enum>Qt::StrongFocus</enum>
    </property>
    <property name="toolTip">
     <string>Attiva/disattiva la visualizzazione dei tags</string>
    </property>
    <property name="text">
     <string>Tags viewer on/off</string>
+   </property>
+   <property name="icon">
+    <iconset resource="../../resources/resources.qrc">
+     <normaloff>:/icons/add_tag.png</normaloff>:/icons/add_tag.png</iconset>
    </property>
    <property name="checkable">
     <bool>true</bool>
@@ -226,21 +207,8 @@
    <property name="toolButtonStyle">
     <enum>Qt::ToolButtonIconOnly</enum>
    </property>
-  </widget>
-  <widget class="QPushButton" name="pushButton_remove_tags">
-   <property name="enabled">
+   <property name="autoRaise">
     <bool>false</bool>
-   </property>
-   <property name="geometry">
-    <rect>
-     <x>460</x>
-     <y>710</y>
-     <width>141</width>
-     <height>28</height>
-    </rect>
-   </property>
-   <property name="text">
-    <string>Rimuovi tags</string>
    </property>
   </widget>
   <widget class="QTableWidget" name="tableWidget_tags">
@@ -312,10 +280,10 @@
   <widget class="QWidget" name="layoutWidget_3">
    <property name="geometry">
     <rect>
-     <x>460</x>
+     <x>450</x>
      <y>10</y>
      <width>511</width>
-     <height>151</height>
+     <height>141</height>
     </rect>
    </property>
    <layout class="QGridLayout" name="gridLayout_6">
@@ -586,6 +554,13 @@
       </property>
      </widget>
     </item>
+    <item row="2" column="0">
+     <widget class="QLabel" name="label_num_tot_immagini">
+      <property name="text">
+       <string/>
+      </property>
+     </widget>
+    </item>
     <item row="1" column="1">
      <widget class="QLabel" name="label_4">
       <property name="font">
@@ -613,11 +588,26 @@
       <property name="midLineWidth">
        <number>2</number>
       </property>
+      <property name="editTriggers">
+       <set>QAbstractItemView::AllEditTriggers</set>
+      </property>
       <property name="showDropIndicator" stdset="0">
        <bool>false</bool>
       </property>
+      <property name="dragEnabled">
+       <bool>true</bool>
+      </property>
+      <property name="dragDropOverwriteMode">
+       <bool>true</bool>
+      </property>
       <property name="dragDropMode">
-       <enum>QAbstractItemView::NoDragDrop</enum>
+       <enum>QAbstractItemView::DragDrop</enum>
+      </property>
+      <property name="defaultDropAction">
+       <enum>Qt::CopyAction</enum>
+      </property>
+      <property name="alternatingRowColors">
+       <bool>false</bool>
       </property>
       <property name="selectionMode">
        <enum>QAbstractItemView::MultiSelection</enum>
@@ -632,7 +622,7 @@
        <enum>Qt::ElideMiddle</enum>
       </property>
       <property name="movement">
-       <enum>QListView::Static</enum>
+       <enum>QListView::Free</enum>
       </property>
       <property name="resizeMode">
        <enum>QListView::Adjust</enum>
@@ -653,20 +643,16 @@
        <number>0</number>
       </property>
       <property name="uniformItemSizes">
-       <bool>false</bool>
+       <bool>true</bool>
       </property>
       <property name="batchSize">
        <number>1000</number>
       </property>
-      <property name="sortingEnabled">
+      <property name="wordWrap">
        <bool>true</bool>
       </property>
-     </widget>
-    </item>
-    <item row="2" column="0">
-     <widget class="QLabel" name="label_num_tot_immagini">
-      <property name="text">
-       <string/>
+      <property name="sortingEnabled">
+       <bool>true</bool>
       </property>
      </widget>
     </item>
@@ -789,83 +775,11 @@
         </property>
        </widget>
       </item>
-      <item row="3" column="3">
-       <widget class="QPushButton" name="pushButton_delete">
-        <property name="sizePolicy">
-         <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
-          <horstretch>0</horstretch>
-          <verstretch>0</verstretch>
-         </sizepolicy>
-        </property>
-        <property name="font">
-         <font>
-          <pointsize>9</pointsize>
-         </font>
-        </property>
-        <property name="toolTip">
-         <string>Delete record</string>
-        </property>
-        <property name="text">
-         <string/>
-        </property>
-        <property name="icon">
-         <iconset resource="../../resources/resources.qrc">
-          <normaloff>:/icons/delete.png</normaloff>:/icons/delete.png</iconset>
-        </property>
-       </widget>
-      </item>
-      <item row="3" column="1">
-       <widget class="QPushButton" name="pushButton_new_search">
-        <property name="sizePolicy">
-         <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
-          <horstretch>0</horstretch>
-          <verstretch>0</verstretch>
-         </sizepolicy>
-        </property>
-        <property name="font">
-         <font>
-          <pointsize>9</pointsize>
-         </font>
-        </property>
-        <property name="toolTip">
-         <string>new search</string>
-        </property>
-        <property name="text">
-         <string/>
-        </property>
-        <property name="icon">
-         <iconset resource="../../resources/resources.qrc">
-          <normaloff>:/icons/new_search copy.png</normaloff>:/icons/new_search copy.png</iconset>
-        </property>
-       </widget>
-      </item>
-      <item row="3" column="2">
-       <widget class="QPushButton" name="pushButton_search_go">
-        <property name="sizePolicy">
-         <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
-          <horstretch>0</horstretch>
-          <verstretch>0</verstretch>
-         </sizepolicy>
-        </property>
-        <property name="font">
-         <font>
-          <pointsize>9</pointsize>
-         </font>
-        </property>
-        <property name="toolTip">
-         <string>search !!!</string>
-        </property>
-        <property name="text">
-         <string/>
-        </property>
-        <property name="icon">
-         <iconset resource="../../resources/resources.qrc">
-          <normaloff>:/icons/search.png</normaloff>:/icons/search.png</iconset>
-        </property>
-       </widget>
-      </item>
       <item row="0" column="3">
        <widget class="QPushButton" name="pushButton_sort">
+        <property name="enabled">
+         <bool>false</bool>
+        </property>
         <property name="sizePolicy">
          <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
           <horstretch>0</horstretch>
@@ -891,6 +805,9 @@
       </item>
       <item row="0" column="2">
        <widget class="QPushButton" name="pushButton_view_all">
+        <property name="enabled">
+         <bool>false</bool>
+        </property>
         <property name="sizePolicy">
          <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
           <horstretch>0</horstretch>
@@ -934,34 +851,31 @@
         </property>
        </widget>
       </item>
-      <item row="0" column="1">
-       <widget class="QPushButton" name="pushButton_save">
+      <item row="3" column="1">
+       <widget class="QPushButton" name="pushButton_remove_thumb">
         <property name="enabled">
-         <bool>false</bool>
-        </property>
-        <property name="sizePolicy">
-         <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
-          <horstretch>0</horstretch>
-          <verstretch>0</verstretch>
-         </sizepolicy>
-        </property>
-        <property name="font">
-         <font>
-          <pointsize>9</pointsize>
-         </font>
-        </property>
-        <property name="toolTip">
-         <string>Save</string>
+         <bool>true</bool>
         </property>
         <property name="text">
-         <string/>
+         <string>Rimuovi Thumbs</string>
         </property>
         <property name="icon">
          <iconset resource="../../resources/resources.qrc">
-          <normaloff>:/icons/b_save.png</normaloff>:/icons/b_save.png</iconset>
+          <normaloff>:/icons/delete.png</normaloff>:/icons/delete.png</iconset>
         </property>
-        <property name="autoDefault">
-         <bool>false</bool>
+       </widget>
+      </item>
+      <item row="3" column="2">
+       <widget class="QPushButton" name="pushButton_remove_tags">
+        <property name="enabled">
+         <bool>true</bool>
+        </property>
+        <property name="text">
+         <string>Rimuovi Tags</string>
+        </property>
+        <property name="icon">
+         <iconset resource="../../resources/resources.qrc">
+          <normaloff>:/icons/remove_tag.png</normaloff>:/icons/remove_tag.png</iconset>
         </property>
        </widget>
       </item>
@@ -987,7 +901,6 @@
   </widget>
  </widget>
  <resources>
-  <include location="../../../../../../../../../../../.qgis2/python/plugins/pyarchinit/modules/gui/resources.qrc"/>
   <include location="../../resources/resources.qrc"/>
  </resources>
  <connections/>
