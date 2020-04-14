@@ -59,5 +59,7 @@
     <file>icons/iconANC.png</file>
     <file>icons/excel-export.png</file>
     <file>icons/import-excel.png</file>
+	<file>icons/remove_tag.png</file>
+    <file>icons/add_tag.png</file>
   </qresource>
 </RCC>
