@@ -41,6 +41,21 @@ from ..modules.utility.pyarchinit_media_utility import *
 MAIN_DIALOG_CLASS, _ = loadUiType(
     os.path.join(os.path.dirname(__file__), os.pardir, 'gui', 'ui', 'pyarchinit_image_viewer_dialog.ui'))
 conn = Connection()
+class CustomLabel(QIcon):
+    
+    def __init__(self, title, parent):
+        super().__init__(title, parent)
+        self.setAcceptDrops(True)
+
+    def dragEnterEvent(self, e):
+        if e.mimeData().hasFormat('text/plain'):
+            e.accept()
+        else:
+            e.ignore()
+    
+    def dropEvent(self, e):
+        self.setText(e.mimeData().text())
+
 class Main(QDialog, MAIN_DIALOG_CLASS):
     L=QgsSettings().value("locale/userLocale")[0:2]
     delegateSites = ''
@@ -99,11 +114,13 @@ class Main(QDialog, MAIN_DIALOG_CLASS):
         self.iconListWidget.SelectionMode()
         self.iconListWidget.setSelectionMode(QAbstractItemView.MultiSelection)
         self.iconListWidget.itemDoubleClicked.connect(self.openWide_image)
-        # self.connect(self.iconListWidget, SIGNAL("itemClicked(QListWidgetItem *)"),self.open_tags)
+        # self.iconListWidget.show()
         self.iconListWidget.itemSelectionChanged.connect(self.open_tags)
         self.setWindowTitle("pyArchInit - Media Manager")
         self.charge_data()
         self.view_num_rec()
+        
+        
     def customize_gui(self):
         self.tableWidgetTags_US.setColumnWidth(0, 300)
         self.tableWidgetTags_US.setColumnWidth(1, 100)
@@ -112,6 +129,7 @@ class Main(QDialog, MAIN_DIALOG_CLASS):
         self.iconListWidget.setIconSize(QSize(100, 200))
         self.iconListWidget.setLineWidth(2)
         self.iconListWidget.setMidLineWidth(2)
+        
         valuesSites = self.charge_sito_list()
         self.delegateSites = ComboBoxDelegate()
         self.delegateSites.def_values(valuesSites)
@@ -157,24 +175,18 @@ class Main(QDialog, MAIN_DIALOG_CLASS):
         except Exception as  e:
             e = str(e)
     def enable_button(self, n):
-        self.pushButton_view_all.setEnabled(n)
         self.pushButton_first_rec.setEnabled(n)
         self.pushButton_last_rec.setEnabled(n)
         self.pushButton_prev_rec.setEnabled(n)
         self.pushButton_next_rec.setEnabled(n)
-        self.pushButton_delete.setEnabled(n)
-        self.pushButton_new_search.setEnabled(n)
-        self.pushButton_search_go.setEnabled(n)
         self.pushButton_sort.setEnabled(n)
     def enable_button_search(self, n):
-        self.pushButton_view_all.setEnabled(n)
         self.pushButton_first_rec.setEnabled(n)
         self.pushButton_last_rec.setEnabled(n)
         self.pushButton_prev_rec.setEnabled(n)
         self.pushButton_next_rec.setEnabled(n)
-        self.pushButton_delete.setEnabled(n)
-        self.pushButton_save.setEnabled(n)
         self.pushButton_sort.setEnabled(n)
+    
     def getDirectory(self):
         image_list=[]
         directory = QFileDialog.getExistingDirectory(self, "Directory", "Choose a directory:",
@@ -405,7 +417,7 @@ class Main(QDialog, MAIN_DIALOG_CLASS):
         for i in items:
             self.SORT_ITEMS_CONVERTED.append(self.CONVERSION_DICT[str(i)])
         self.SORT_MODE = order_type
-        self.empty_fields()
+        #self.empty_fields()
         id_list = []
         for i in self.DATA_LIST:
             id_list.append(eval("i." + self.ID_TABLE_THUMB))
@@ -570,6 +582,7 @@ class Main(QDialog, MAIN_DIALOG_CLASS):
         self.insert_new_row('self.tableWidgetTags_MAT')
     def on_pushButton_removeRow_MAT_pressed(self):
         self.remove_row('self.tableWidgetTags_MAT')
+    
     def on_pushButton_assignTags_US_pressed(self):
         """
         id_mediaToEntity,
@@ -591,6 +604,9 @@ class Main(QDialog, MAIN_DIALOG_CLASS):
                 media_data = self.DB_MANAGER.query_bool(search_dict, 'MEDIA')
                 self.insert_mediaToEntity_rec(us_data[0], us_data[1], us_data[2], media_data[0].id_media,
                                               media_data[0].filepath, media_data[0].filename)
+    
+    
+    
     def on_pushButton_assignTags_MAT_pressed(self):
         """
         id_mediaToEntity,
@@ -612,6 +628,48 @@ class Main(QDialog, MAIN_DIALOG_CLASS):
                 media_data = self.DB_MANAGER.query_bool(search_dict, 'MEDIA')
                 self.insert_mediaToEntity_rec(reperti_data[0], reperti_data[1], reperti_data[2], media_data[0].id_media,
                                               media_data[0].filepath, media_data[0].filename)
+    
+    def on_pushButton_remove_thumb_pressed(self):
+        """
+        id_mediaToEntity,
+        id_entity,
+        entity_type,
+        table_name,
+        id_media,
+        filepath,
+        media_name
+        """
+        items_selected = self.iconListWidget.selectedItems()
+        
+        
+       
+        for item in items_selected:
+            
+            id_orig_item = item.text()  # return the name of original file
+            s= str(id_orig_item)
+            self.DB_MANAGER.delete_thumb_from_db_sql(s)
+            self.charge_data()
+            self.view_num_rec()
+    def on_pushButton_remove_tags_pressed(self):
+        """
+        id_mediaToEntity,
+        id_entity,
+        entity_type,
+        table_name,
+        id_media,
+        filepath,
+        media_name
+        """
+        items_selected = self.iconListWidget.selectedItems()
+        
+        
+       
+        for item in items_selected:
+            
+            id_orig_item = item.text()  # return the name of original file
+            s= str(id_orig_item)
+            self.DB_MANAGER.remove_tags_from_db_sql(s)
+            
     def on_pushButton_openMedia_pressed(self):
         self.charge_data()
         self.view_num_rec()
@@ -637,154 +695,7 @@ class Main(QDialog, MAIN_DIALOG_CLASS):
         self.NUM_DATA_END = len(self.DATA)
         self.view_num_rec()
         self.open_images()
-    def on_pushButton_view_all_pressed(self):
-        self.empty_fields()
-        self.charge_records()
-        self.fill_fields()
-        self.BROWSE_STATUS = "b"
-        self.label_status.setText(self.STATUS_ITEMS[self.BROWSE_STATUS])
-        # if type(self.REC_CORR) == "<class 'str'>":
-            # corr = 0
-        # else:
-            # corr = self.REC_CORR
-        self.set_rec_counter(len(self.DATA_LIST), self.REC_CORR + 1)
-        self.REC_TOT, self.REC_CORR = len(self.DATA_LIST), 0
-        self.DATA_LIST_REC_TEMP = self.DATA_LIST_REC_CORR = self.DATA_LIST[0]
-        self.SORT_STATUS = "n"
-        self.label_sort.setText(self.SORTED_ITEMS[self.SORT_STATUS])
-    def on_pushButton_new_search_pressed(self):
-        if self.BROWSE_STATUS != "f":
-            pass
-        else:
-            self.enable_button_search(0)
-        if self.BROWSE_STATUS != "f":
-            self.BROWSE_STATUS = "f"
-            self.setComboBoxEnable(['self.lineEdit_id_media'], 'True')
-            self.label_status.setText(self.STATUS_ITEMS[self.BROWSE_STATUS])
-            self.set_rec_counter('','')
-            self.label_sort.setText(self.SORTED_ITEMS["n"])
-            self.charge_sito_list()
-            self.empty_fields()
-    def on_pushButton_search_go_pressed(self):
-        #check_for_buttons = 0
-        if self.BROWSE_STATUS != "f":
-            QMessageBox.warning(self, "ATTENZIONE", "If you want find new record push 'new search' ",  QMessageBox.Ok)
-        else:
-            if self.lineEdit_id_media.text() != None:
-                media_filename = str(self.lineEdit_id_media.text())
-            else:
-                media_filename = ''
-            search_dict = {
-            'media_filename': media_filename
-            }
-            u = Utility()
-            search_dict = u.remove_empty_items_fr_dict(search_dict)
-            if not bool(search_dict):
-                QMessageBox.warning(self, "Warning", "Insert Value!!!",  QMessageBox.Ok)
-            else:
-                res = self.DB_MANAGER.query_bool(search_dict, self.MAPPER_TABLE_CLASS_thumb)
-                if not bool(res):
-                    QMessageBox.warning(self, "Warning", "No records have been found!",  QMessageBox.Ok)
-                    self.set_rec_counter(len(self.DATA_LIST), self.REC_CORR+1)
-                    self.DATA_LIST_REC_TEMP = self.DATA_LIST_REC_CORR = self.DATA_LIST[0]
-                    self.BROWSE_STATUS = "b"
-                    self.label_status.setText(self.STATUS_ITEMS[self.BROWSE_STATUS])
-                    self.setComboBoxEnable(["self.lineEdit_id_media"],"False")
-                    self.fill_fields(self.REC_CORR)#check_for_buttons = 1
-                else:
-                    self.DATA_LIST = []
-                    for i in res:
-                        self.DATA_LIST.append(i)
-                        self.REC_TOT, self.REC_CORR = len(self.DATA_LIST), 0
-                        self.DATA_LIST_REC_TEMP = self.DATA_LIST_REC_CORR = self.DATA_LIST[0]
-                        self.fill_fields()
-                        self.BROWSE_STATUS = "b"
-                        self.label_status.setText(self.STATUS_ITEMS[self.BROWSE_STATUS])
-                        self.set_rec_counter(len(self.DATA_LIST), self.REC_CORR+1)
-                    if self.REC_TOT == 1:
-                        strings = ("Has been found", self.REC_TOT, "record")
-                    else:
-                        strings = ("Have been found", self.REC_TOT, "records")
-                    self.setComboBoxEnable(["self.lineEdit_id_media"],"False")
-                    #check_for_buttons = 1
-                    QMessageBox.warning(self, "Messaggio", "%s %d %s" % strings, QMessageBox.Ok)
-        self.NUM_DATA_BEGIN =  len(self.DATA_LIST)
-        self.NUM_DATA_END = len(self.DATA_LIST)
-        self.view_num_rec()
-        self.open_images()
-        #if check_for_buttons == 1:
-        self.enable_button_search(1)
-        thumb_path = conn.thumb_path()
-        thumb_path_str = thumb_path['thumb_path']
-        #visualizza le immagini nella gui
-        item = QListWidgetItem(str(media_filename))
-        #data_for_thumb = self.db_search_check(self.MAPPER_TABLE_CLASS_thumb, 'media_filename', media_filename) # recupera i valori della thumb in base al valore id_media del file originale
-        res = self.DB_MANAGER.query_bool(search_dict, "MEDIA_THUMB")
-        file_path = str(res[0].filepath)
-        #thumb_path = data_for_thumb[0].filepath
-        item.setData(Qt.UserRole,media_filename)
-        icon = QIcon(str(thumb_path_str+file_path)) #os.path.join('%s/%s' % (directory.toUtf8(), image)))
-        item.setIcon(icon)
-        self.iconListWidget.addItem(item)
-    def on_pushButton_delete_pressed(self):
-        msg = QMessageBox.warning(self,"Attenzione!!!",u"Do you want delete? \n the action is irreversibile", QMessageBox.Ok | QMessageBox.Cancel)
-        if msg == QMessageBox.Cancel:
-            QMessageBox.warning(self,"Message!!!","Action delete!")
-        else:
-            try:
-                id_to_delete = eval("self.DATA_LIST[self.REC_CORR]." + self.ID_TABLE_THUMB)
-                self.DB_MANAGER.delete_one_record(self.TABLE_THUMB_NAME, self.ID_TABLE_THUMB,id_to_delete)
-                self.charge_records() #charge records from DB
-                QMessageBox.warning(self,"Message!!!","Record delete!")
-            except Exception as  e:
-                QMessageBox.warning(self,"Message!!!","Type of error: "+str(e))
-            if bool(self.DATA_LIST) == False:
-                QMessageBox.warning(self, "Warning", "The database is empty!",  QMessageBox.Ok)
-                self.DATA_LIST = []
-                self.DATA_LIST_REC_CORR = []
-                self.DATA_LIST_REC_TEMP = []
-                self.REC_CORR = 0
-                self.REC_TOT = 0
-                self.empty_fields()
-                self.set_rec_counter(0, 0)
-            #check if DB is empty
-            if bool(self.DATA_LIST) == True:
-                self.REC_TOT, self.REC_CORR = len(self.DATA_LIST), 0
-                self.DATA_LIST_REC_TEMP = self.DATA_LIST_REC_CORR = self.DATA_LIST[0]
-                self.BROWSE_STATUS = "b"
-                self.label_status.setText(self.STATUS_ITEMS[self.BROWSE_STATUS])
-                self.set_rec_counter(len(self.DATA_LIST), self.REC_CORR+1)
-                #self.charge_list()
-                self.fill_fields()
-        self.SORT_STATUS = "n"
-        self.label_sort.setText(self.SORTED_ITEMS[self.SORT_STATUS])
-    # def on_pushButton_save_pressed(self):
-        # #save record
-        # if self.BROWSE_STATUS == "b":
-            # #if self.data_error_check() == 0:
-            # if self.records_equal_check() == 1:
-                # self.update_if(QMessageBox.warning(self,'WARNING',"The record has been modify. Do you want save the modify?", QMessageBox.Cancel,1))
-                # self.SORT_STATUS = "n"
-                # self.label_sort.setText(self.SORTED_ITEMS[self.SORT_STATUS])
-                # self.enable_button(1)
-                # self.fill_fields(self.REC_CORR)
-            # else:
-                # QMessageBox.warning(self, "WARNING", "Has not to be done modify.",  QMessageBox.Ok)
-        # else:
-            # #if self.data_error_check() == 0:
-                # #test_insert = self.insert_new_rec()
-            # if test_insert == 1:
-                # self.empty_fields()
-                # self.SORT_STATUS = "n"
-                # self.label_sort.setText(self.SORTED_ITEMS[self.SORT_STATUS])
-                # self.charge_records()
-                # #self.charge_list()
-                # self.BROWSE_STATUS = "b"
-                # self.label_status.setText(self.STATUS_ITEMS[self.BROWSE_STATUS])
-                # self.REC_TOT, self.REC_CORR = len(self.DATA_LIST), len(self.DATA_LIST)-1
-                # self.set_rec_counter(self.REC_TOT, self.REC_CORR+1)
-                # self.fill_fields(self.REC_CORR)
-                # self.enable_button(1)
+    
     def update_if(self, msg):
         rec_corr = self.REC_CORR
         self.msg = msg
@@ -951,28 +862,28 @@ class Main(QDialog, MAIN_DIALOG_CLASS):
         self.rec_corr = c
         self.label_rec_tot.setText(str(self.rec_tot))
         self.label_rec_corrente.setText(str(self.rec_corr))
-    def set_LIST_REC_TEMP(self):
-        if self.lineEdit_id_media.text() == "":
-            id_media = None
-        else:
-            id_media = self.lineEdit_id_media.text()
-    def empty_fields(self):
-        self.lineEdit_id_media.clear()
-        self.lineEdit_id_media.clear()
+    #def set_LIST_REC_TEMP(self):
+        # if self.lineEdit_id_media.text() == "":
+            # id_media = None
+        # else:
+            # id_media = self.lineEdit_id_media.text()
+    #def empty_fields(self):
+        # # self.lineEdit_id_media.clear()
+        # # self.lineEdit_id_media.clear()
     def fill_fields(self, n=0):
         self.rec_num = n
         QMessageBox.warning(self, "check fill fields", str(self.rec_num),  QMessageBox.Ok)
-        try:
-            if self.DATA_LIST[self.rec_num].media_filename == None:                                                                   #8 - US
-                self.lineEdit_id_media.setText("")
-            else:
-                self.lineEdit_id_media.setText(str(self.DATA_LIST[self.rec_num].media_filename))
-            if self.DATA_LIST[self.rec_num].id_media == None:                                                                   #8 - US
-                self.lineEdit_id_media.setText("")
-            else:
-                self.lineEdit_id_media.setText(str(self.DATA_LIST[self.rec_num].id_media))
-        except Exception as  e:
-            QMessageBox.warning(self, "Error Fill Fields", str(e),  QMessageBox.Ok)
+        # try:
+            # if self.DATA_LIST[self.rec_num].media_filename == None:                                                                   #8 - US
+                # self.lineEdit_id_media.setText("")
+            # else:
+                # self.lineEdit_id_media.setText(str(self.DATA_LIST[self.rec_num].media_filename))
+            # if self.DATA_LIST[self.rec_num].id_media == None:                                                                   #8 - US
+                # self.lineEdit_id_media.setText("")
+            # else:
+                # self.lineEdit_id_media.setText(str(self.DATA_LIST[self.rec_num].id_media))
+        # except Exception as  e:
+            # QMessageBox.warning(self, "Error Fill Fields", str(e),  QMessageBox.Ok)
     def setComboBoxEnable(self, f, v):
         field_names = f
         value = v
@@ -990,7 +901,7 @@ class Main(QDialog, MAIN_DIALOG_CLASS):
         for i in self.TABLE_FIELDS:
             self.DATA_LIST_REC_CORR.append(eval("str(self.DATA_LIST[self.REC_CORR]." + i + ")"))
     def records_equal_check(self):
-        self.set_LIST_REC_TEMP()
+        #self.set_LIST_REC_TEMP()
         self.set_LIST_REC_CORR()
         #test
         #QMessageBox.warning(self, "ATTENZIONE", str(self.DATA_LIST_REC_CORR) + " temp " + str(self.DATA_LIST_REC_TEMP), QMessageBox.Ok)
