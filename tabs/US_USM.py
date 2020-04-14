@@ -54,7 +54,7 @@ from ..resources.resources_rc import *
 MAIN_DIALOG_CLASS, _ = loadUiType(
     os.path.join(os.path.dirname(__file__), os.pardir, 'gui', 'ui', 'US_USM.ui'))
 
-db_file=r"C:\Users\Utente\pyarchinit\pyarchinit_DB_folder\test.sqlite"
+
 class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
     L=QgsSettings().value("locale/userLocale")[0:2]
     if L=='it':
@@ -1939,16 +1939,63 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
         self.comboBox_responsabile_us.addItems(responsabile_us_vl)
 
 
-    
-
+    def generate_list_foto(self):
+        data_list_foto = []
+        
+        
+        
+        
+        #############inserimento nome fiel media############
+        #for i in range(len(self.DATA_LIST)):
+        sito = str(self.comboBox_sito.currentText()) 
+        
+        #############inserimento nome fiel media############
+        conn = Connection()
+        
+        
+        thumb_path = conn.thumb_path()
+        thumb_path_str = thumb_path['thumb_path']
+        refoto = self.DB_MANAGER.select_thumbnail_from_db_sql(sito)
+        thumbnail=''
+        foto= ''
+        elenco_foto = []
+        elenco_thumb = []
+        for media in refoto:
+            
+            thumbnail = (thumb_path_str+media.filepath)
+            foto= (media.media_name)
+            #sito= (media.sito)
+            area= (media.area)
+            us= (media.us)
+            d_stratigrafica= (media.d_stratigrafica)
+            unita_tipo = (media.unita_tipo)
+            data_list_foto.append([
+                str(sito), #0
+                str(area), #1
+                str(us),    #2
+                str(unita_tipo),#3
+                str(d_stratigrafica),  #4 
+                str(foto),#5
+                str(thumbnail)])#6
+            
+        return data_list_foto
+            
+            
+            # #####################fine########################
     def generate_list_pdf(self):
         data_list = []
+        
+        
+        
+        
+        #############inserimento nome fiel media############
         for i in range(len(self.DATA_LIST)):
             # assegnazione valori di quota mn e max
             id_us = str(self.DATA_LIST[i].id_us)
             sito = str(self.DATA_LIST[i].sito)
             area = str(self.DATA_LIST[i].area)
             us = str(self.DATA_LIST[i].us)
+        
             
             
             
@@ -2007,30 +2054,74 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
                 else:
                     piante= "SU draft on GIS"
             #############inserimento nome fiel media############
+            # conn = Connection()
             
-            refoto = self.DB_MANAGER.select_medianame_from_db_sql(us,sito,area)
+            
+            # thumb_path = conn.thumb_path()
+            # thumb_path_str = thumb_path['thumb_path']
+            # refoto = self.DB_MANAGER.select_medianame_from_db_sql(us,sito,area)
+            # thumbnail=''
+            # foto= ''
+            # elenco_foto = []
+            # elenco_thumb = []
+            # for media in range(len(refoto)):
+                
+                # elenco_thumb.append(thumb_path_str+str(refoto[media].filepath))
+                # elenco_foto.append(str(refoto[media].media_name))
+            # for q in range(len(elenco_foto)):
+                # foto = str(elenco_foto[q])
+            
+            # if bool (foto):
+                # foto=foto
+            # for p in range(len(elenco_thumb)):     
+                # thumbnail= str(elenco_thumb[p])
+            # if bool (thumbnail):
+                
+                # thumbnail=thumbnail
+            
+            
+            
+            
+            
+            
+            # #####################fine########################
+            # conn = Connection()
+            # txt_to_print=[]
+            
+            # thumb_path = conn.thumb_path()
+            # thumb_path_str = thumb_path['thumb_path']
+            
+            # thumbnail_search = self.DB_MANAGER.select_thumbnail_from_db_sql(sito,area)
+            # for q in thumbnail_search:
+                # txt_to_print.append(thumb_path_str+str(q.filepath))
+                
+            # #txt_to_print = txt_to_print[0:len(txt_to_print) -2]##tolgo la virgola finale in più    
+            # if bool (txt_to_print)!=None:
+                
+                # thumbnail = ' '.join(map(str, txt_to_print)) ### stampo il mio ciclio for se trova qualcosa
+                # f = open(r'C:\Users\Utente\pyarchinit\pyarchinit_PDF_folder\TEST.txt', "w")
+                # f.write(str(thumbnail))
+                # f.close
+            # else:
+               # pass
+            
            
-            txt_to_print = ''
-            elenco_foto = []
-            for media in refoto:
-                
-               
-                elenco_foto.append(media.media_name)
             
+            # rec_list = self.ID_TABLE + " = " + str(
+                # eval("self.DATA_LIST[int(self.REC_CORR)]." + self.ID_TABLE))
+            # search_dict = {
+                # 'id_entity': "'" + str(eval("self.DATA_LIST[int(self.REC_CORR)]." + self.ID_TABLE)) + "'",
+                # 'entity_type': "'US'"}
+            # record_us_list = self.DB_MANAGER.query_bool(search_dict, 'MEDIATOENTITY')
+            # for q in record_us_list:
+                # search_dict = {'id_media': "'" + str(q.id_media) + "'"}
+
+                # u = Utility()
+                # search_dict = u.remove_empty_items_fr_dict(search_dict)
+                # mediathumb_data = self.DB_MANAGER.query_bool(search_dict, "MEDIA_THUMB")
+                # thumb = str(mediathumb_data[0].filepath)
+                # thumbnail = thumb_path_str+thumb
                 
-            for a in elenco_foto:
-                
-                txt_to_print = str(a) + ", " + txt_to_print            
-                
-            txt_to_print = txt_to_print[0:len(txt_to_print) -2]##tolgo la virgola finale in più
-            
-            if bool (txt_to_print)!=None:
-                
-                foto = txt_to_print### stampo il mio ciclio for se trova qualcosa
-            
-            else:
-                pass
-        
             
             #####################fine########################
             if self.DATA_LIST[i].quota_min_usm == None:
@@ -2223,10 +2314,13 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
                 str(self.DATA_LIST[i].provenienza_materiali_usm),  # 93 provenienza_materiali_usm
                 str(self.DATA_LIST[i].criteri_distinzione_usm),  # 94 criteri distinzione usm
                 str(self.DATA_LIST[i].uso_primario_usm),  #95 uso primario
-                str(foto)
+                # str(foto),
+                # str(self.DATA_LIST[i].unita_tipo),
+                # str(thumbnail)
+                
             ])
         return data_list
-
+       
     def on_pushButton_exp_tavole_pressed(self):
         conn = Connection()
         conn_str = conn.conn_str()
@@ -2279,8 +2373,9 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
         if self.L=='it':
             US_index_pdf = generate_US_pdf()
             data_list = self.generate_list_pdf()
+            data_list_foto = self.generate_list_foto()
             US_index_pdf.build_index_US(data_list, data_list[0][0])
-            US_index_pdf.build_index_Foto(data_list, data_list[0][0])
+            US_index_pdf.build_index_Foto(data_list_foto, data_list_foto[0][0])
             
         
         
