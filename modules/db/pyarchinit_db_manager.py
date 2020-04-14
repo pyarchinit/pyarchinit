@@ -799,7 +799,50 @@ class Pyarchinit_db_management(object):
         '''
         session.close()
         return res
+    def query_bool_special(self, params, table):
+        u = Utility()
+        params = u.remove_empty_items_fr_dict(params)
 
+        list_keys_values = list(params.items())
+
+        field_value_string = ""
+
+        for sing_couple_n in range(len(list_keys_values)):
+            if sing_couple_n == 0:
+                if type(list_keys_values[sing_couple_n][1]) != "<type 'str'>":
+                    field_value_string = table + ".%s == %s" % (
+                    list_keys_values[sing_couple_n][0], list_keys_values[sing_couple_n][1])
+                else:
+                    field_value_string = table + ".%s == u%s" % (
+                    list_keys_values[sing_couple_n][0], list_keys_values[sing_couple_n][1])
+            else:
+                if type(list_keys_values[sing_couple_n][1]) == "<type 'str'>":
+                    field_value_string = field_value_string + "," + table + ".%s == %s" % (
+                    list_keys_values[sing_couple_n][0], list_keys_values[sing_couple_n][1])
+                else:
+                    field_value_string = field_value_string + "," + table + ".%s == %s" % (
+                    list_keys_values[sing_couple_n][0], list_keys_values[sing_couple_n][1])
+
+                    # field_value_string = ", ".join([table + ".%s == u%s" % (k, v) for k, v in params.items()])
+
+        """
+        Per poter utilizzare l'operatore LIKE è necessario fare una iterazione attraverso il dizionario per discriminare tra
+        stringhe e numeri
+        #field_value_string = ", ".join([table + ".%s.like(%s)" % (k, v) for k, v in params.items()])
+        """
+        # self.connection()
+        Session = sessionmaker(bind=self.engine, autoflush=True, autocommit=True)
+        session = Session()
+        query_str = "session.query(" + table + ").filter(and_("+field_value_string+" )).all()"
+        res = eval(query_str)
+
+        '''
+        t = open("/test_import.txt", "w")
+        t.write(str(query_str))
+        t.close()
+        '''
+        session.close()
+        return res
     def query_operator(self, params, table):
         u = Utility()
         # params = u.remove_empty_items_fr_dict(params)
@@ -1133,13 +1176,17 @@ class Pyarchinit_db_management(object):
                 self.update('US', 'id_us', [int(i.id_us)], ['cont_per'], [cod_cont_var_txt])
 
     
-    def select_medianame_from_db_sql(self,us,sito,area):
-        sql_query_string = ("SELECT * FROM media_to_entity_table as a, us_table as b WHERE b.id_us=a.id_entity and b.us='%s'  and b.sito= '%s' and b.area='%s'")%(us,sito,area) 
+    def select_medianame_from_db_sql(self,sito,area):
+        sql_query_string = ("SELECT c.filepath, b.us,a.media_name FROM media_to_entity_table as a,  us_table as b, media_thumb_table as c WHERE b.id_us=a.id_entity and c.id_media=a.id_media  and b.sito= '%s' and b.area='%s'")%(sito,area) 
         
         res = self.engine.execute(sql_query_string)
         rows= res.fetchall()
         return rows
-    
+    def select_thumbnail_from_db_sql(self,sito):
+        sql_query_string = ("SELECT c.filepath, b.us,a.media_name,b.area,b.d_stratigrafica,b.unita_tipo FROM media_to_entity_table as a,  us_table as b, media_thumb_table as c WHERE b.id_us=a.id_entity and c.id_media=a.id_media and sito='%s'")%(sito)
+        res = self.engine.execute(sql_query_string)
+        rows= res.fetchall()
+        return rows
     def select_quote_from_db_sql(self, sito, area, us):
         sql_query_string = ("SELECT * FROM pyarchinit_quote WHERE sito_q = '%s' AND area_q = '%s' AND us_q = '%s'") % (
         sito, area, us)
