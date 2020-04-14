@@ -1175,7 +1175,18 @@ class Pyarchinit_db_management(object):
 
                 self.update('US', 'id_us', [int(i.id_us)], ['cont_per'], [cod_cont_var_txt])
 
+    def remove_tags_from_db_sql(self,s):
+        sql_query_string = ("DELETE FROM media_to_entity_table WHERE media_name  = '%s'") % (s)
     
+        res = self.engine.execute(sql_query_string)
+        # rows= res.fetchall()
+        return res    
+    def delete_thumb_from_db_sql(self,s):
+        sql_query_string = ("DELETE FROM media_thumb_table WHERE media_filename  = '%s'") % (s)
+    
+        res = self.engine.execute(sql_query_string)
+        # rows= res.fetchall()
+        return res    
     def select_medianame_from_db_sql(self,sito,area):
         sql_query_string = ("SELECT c.filepath, b.us,a.media_name FROM media_to_entity_table as a,  us_table as b, media_thumb_table as c WHERE b.id_us=a.id_entity and c.id_media=a.id_media  and b.sito= '%s' and b.area='%s'")%(sito,area) 
         
