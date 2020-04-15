@@ -88,6 +88,7 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
     
     NOME_SCHEDA = "Scheda US"
     ID_TABLE = "id_us"
+    ID_SITO ="sito"
     if L=='it':
         CONVERSION_DICT = {
             ID_TABLE: ID_TABLE,
@@ -1017,6 +1018,102 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
             else:
                 QMessageBox.warning(self, "Alert", "You didn't select any row. Python error: %s " % (str(e)),
                                 QMessageBox.Ok)                 
+    
+    def on_pushButton_go_to_scheda_pressed(self):
+        if self.L=='it':
+            QMessageBox.warning(self, "ATTENZIONE", "Se hai modificato il record e non lo hai salvato perderai il dato. Salvare?", QMessageBox.Ok | QMessageBox.Cancel)
+        else:
+            QMessageBox.warning(self, "Warning", "If you changed the record and didn't save it, you'll lose the record. Do you want save it?", QMessageBox.Ok | QMessageBox.Cancel)
+        
+        try:
+            table_name = "self.tableWidget_foto"
+            rowSelected_cmd = ("%s.selectedIndexes()") % (table_name)
+            rowSelected = eval(rowSelected_cmd)
+            rowIndex = (rowSelected[0].row())
+
+            sito = str(self.comboBox_sito.currentText())
+            area = str(self.comboBox_area.currentText())
+            us_item = self.tableWidget_foto.item(rowIndex, 2)
+
+            us = str(us_item.text())
+
+            search_dict = {'sito': "'" + str(sito) + "'",
+                           'area': "'" + str(area) + "'",
+                           'us': us}
+
+            u = Utility()
+            search_dict = u.remove_empty_items_fr_dict(search_dict)
+
+            res = self.DB_MANAGER.query_bool(search_dict, self.MAPPER_TABLE_CLASS)
+            
+            if not bool(res):
+                
+                if self.L=='it':
+                    QMessageBox.warning(self, "ATTENZIONE", "Non e' stato trovato alcun record!", QMessageBox.Ok)
+                elif self.L=='de':
+                    QMessageBox.warning(self, "ACHTUNG", "kein Eintrag gefunden!", QMessageBox.Ok)
+                else:
+                    QMessageBox.warning(self, "Warning", "The record has not been found ", QMessageBox.Ok)
+                self.set_rec_counter(len(self.DATA_LIST), self.REC_CORR + 1)
+                self.DATA_LIST_REC_TEMP = self.DATA_LIST_REC_CORR = self.DATA_LIST[0]
+                self.fill_fields(self.REC_CORR)
+                self.BROWSE_STATUS = "b"
+                self.label_status.setText(self.STATUS_ITEMS[self.BROWSE_STATUS])
+
+                self.setComboBoxEnable(["self.comboBox_sito"], "False")
+                self.setComboBoxEnable(["self.comboBox_area"], "False")
+                self.setComboBoxEnable(["self.lineEdit_us"], "False")
+            else:
+                self.empty_fields()
+                self.DATA_LIST = []
+                for i in res:
+                    self.DATA_LIST.append(i)
+                self.REC_TOT, self.REC_CORR = len(self.DATA_LIST), 0
+                self.DATA_LIST_REC_TEMP = self.DATA_LIST_REC_CORR = self.DATA_LIST[0]
+                self.fill_fields()
+                self.BROWSE_STATUS = "b"
+                self.label_status.setText(self.STATUS_ITEMS[self.BROWSE_STATUS])
+                self.set_rec_counter(len(self.DATA_LIST), self.REC_CORR + 1)
+
+                if self.REC_TOT == 1:
+                    
+                    
+                    if self.L=='it':
+                        strings = ("E' stato trovato", self.REC_TOT, "record")
+                    elif self.L=='de':
+                        strings = ("Es wurde gefunden", self.REC_TOT, "record")
+                    else:
+                        strings = ("has been found", self.REC_TOT, "record")
+                    if self.toolButtonGis.isChecked():
+                        self.pyQGIS.charge_vector_layers(self.DATA_LIST)
+                else:
+                    
+                    if self.L=='it':
+                        strings = ("Sono stati trovati", self.REC_TOT, "records")
+                    elif self.L=='de':
+                        strings = ("Sie wurden gefunden", self.REC_TOT, "records")
+                    else:
+                        strings = ("Have been found", self.REC_TOT, "records")
+                    if self.toolButtonGis.isChecked():
+                        self.pyQGIS.charge_vector_layers(self.DATA_LIST)
+
+                self.setComboBoxEnable(["self.comboBox_sito"], "False")
+                self.setComboBoxEnable(["self.comboBox_area"], "False")
+                self.setComboBoxEnable(["self.lineEdit_us"], "False")
+        except Exception as e:
+            e = str(e)
+            if self.L=='it':
+                QMessageBox.warning(self, "Alert", "Non hai selezionato nessuna riga. Errore python: %s " % (str(e)),
+                                QMessageBox.Ok)
+            elif self.L=='de':
+                QMessageBox.warning(self, "ACHTUNG", "Keine Spalte ausgewält. Error python: %s " % (str(e)),
+                                QMessageBox.Ok)
+            else:
+                QMessageBox.warning(self, "Alert", "You didn't select any row. Python error: %s " % (str(e)),
+                                QMessageBox.Ok)  
+    
+    
+    
     def enable_button(self, n):
         # self.pushButton_connect.setEnabled(n)
 
@@ -1457,11 +1554,11 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
 
     def loadMedialist(self):
         self.tableWidget_foto.clear()
-        col =['Sito','Area','US','Foto id','Definizione']
+        col =['Sito','Area','US','Definizione']
         self.tableWidget_foto.setHorizontalHeaderLabels(col)
         numRows = self.tableWidget_foto.setRowCount(100)
         search_dict = {
-            'id_us': "'" + str(eval("self.DATA_LIST[int(self.REC_CORR)]. " + self.ID_TABLE)) + "'"}
+            'sito': "'" + str(eval("self.DATA_LIST[int(self.REC_CORR)]. " + self.ID_SITO)) + "'"}
         record_us_list = self.DB_MANAGER.query_bool(search_dict, 'US')
         nus=0
         for b in record_us_list:
@@ -1470,7 +1567,7 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
                 
                 self.tableWidget_foto.setItem(nus, 1, QTableWidgetItem(str(b.area)))
                 
-                self.tableWidget_foto.setItem(nus, 4, QTableWidgetItem(str(b.d_stratigrafica)))
+                self.tableWidget_foto.setItem(nus, 3, QTableWidgetItem(str(b.d_stratigrafica)))
                 
                 self.tableWidget_foto.setItem(nus, 2, QTableWidgetItem(str(b.us)))    
                 nus+=1
@@ -1479,25 +1576,25 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
                 
                 self.tableWidget_foto.setItem(nus, 1, QTableWidgetItem(str(b.area)))
                 
-                self.tableWidget_foto.setItem(nus, 4, QTableWidgetItem(str(b.d_stratigrafica)))
+                self.tableWidget_foto.setItem(nus, 3, QTableWidgetItem(str(b.d_stratigrafica)))
                 
                 self.tableWidget_foto.setItem(nus, 2, QTableWidgetItem(str(b.us)))    
                 nus+=1 
                 
                 
-        search_dict = {
-            'id_entity': "'" + str(eval("self.DATA_LIST[int(self.REC_CORR)]." + self.ID_TABLE)) + "'",
-            'entity_type': "'US'"}
-        record_media_list = self.DB_MANAGER.query_bool(search_dict, 'MEDIATOENTITY')
-        n=0
-        for a in record_media_list:
+        # search_dict = {
+            # 'id_entity': "'" + str(eval("self.DATA_LIST[int(self.REC_CORR)]." + self.ID_TABLE)) + "'",
+            # 'entity_type': "'US'"}
+        # record_media_list = self.DB_MANAGER.query_bool(search_dict, 'MEDIATOENTITY')
+        # n=0
+        # for a in record_media_list:
             
-            if n== 0:
-                self.tableWidget_foto.setItem(n, 3,QTableWidgetItem(str(a.media_name)))
-                n+=1
-            else:
-                self.tableWidget_foto.setItem(n, 3,QTableWidgetItem(str(a.media_name)))
-                n+=1
+            # if n== 0:
+                # self.tableWidget_foto.setItem(n, 3,QTableWidgetItem(str(a.media_name)))
+                # n+=1
+            # else:
+                # self.tableWidget_foto.setItem(n, 3,QTableWidgetItem(str(a.media_name)))
+                # n+=1
             
             
             
