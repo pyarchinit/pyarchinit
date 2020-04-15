@@ -97,6 +97,10 @@
        <property name="text">
         <string>Assegna i tags</string>
        </property>
+       <property name="icon">
+        <iconset resource="../../resources/resources.qrc">
+         <normaloff>:/icons/add_tag.png</normaloff>:/icons/add_tag.png</iconset>
+       </property>
       </widget>
      </item>
     </layout>
@@ -193,10 +197,6 @@
    </property>
    <property name="text">
     <string>Tags viewer on/off</string>
-   </property>
-   <property name="icon">
-    <iconset resource="../../resources/resources.qrc">
-     <normaloff>:/icons/add_tag.png</normaloff>:/icons/add_tag.png</iconset>
    </property>
    <property name="checkable">
     <bool>true</bool>
