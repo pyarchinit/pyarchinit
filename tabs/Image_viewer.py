@@ -630,46 +630,52 @@ class Main(QDialog, MAIN_DIALOG_CLASS):
                                               media_data[0].filepath, media_data[0].filename)
     
     def on_pushButton_remove_thumb_pressed(self):
-        """
-        id_mediaToEntity,
-        id_entity,
-        entity_type,
-        table_name,
-        id_media,
-        filepath,
-        media_name
-        """
         items_selected = self.iconListWidget.selectedItems()
-        
-        
-       
-        for item in items_selected:
+        if bool (items_selected):
+            msg = QMessageBox.warning(self, "Attenzione!!!",
+                                      "Vuoi veramente eliminare la thumb selezionata? \n L'azione è irreversibile",
+                                      QMessageBox.Ok | QMessageBox.Cancel)
+            if msg == QMessageBox.Cancel:
+                QMessageBox.warning(self, "Messaggio!!!", "Azione Annullata!")
+            else:
             
-            id_orig_item = item.text()  # return the name of original file
-            s= str(id_orig_item)
-            self.DB_MANAGER.delete_thumb_from_db_sql(s)
-            self.charge_data()
-            self.view_num_rec()
+                try:
+                
+                
+               
+                    for item in items_selected:
+                        
+                        id_orig_item = item.text()  # return the name of original file
+                        s= str(id_orig_item)
+                        self.DB_MANAGER.delete_thumb_from_db_sql(s)
+                        
+                        
+                except Exception as e:
+                    QMessageBox.warning(self, "Messaggio!!!", "Tipo di errore: " + str(e))    
+        
+                self.iconListWidget.clear()
+                self.charge_data()
+                self.view_num_rec()
+                QMessageBox.warning(self, "Messaggio!!!", "Thumbnail eliminate!")
+        else:
+            QMessageBox.warning(self, "Messaggio!!!", "devi selezionare una thumbnail!")
     def on_pushButton_remove_tags_pressed(self):
-        """
-        id_mediaToEntity,
-        id_entity,
-        entity_type,
-        table_name,
-        id_media,
-        filepath,
-        media_name
-        """
-        items_selected = self.iconListWidget.selectedItems()
-        
-        
-       
-        for item in items_selected:
+        msg = QMessageBox.warning(self, "Attenzione!!!",
+                                      "Vuoi veramente cancellare i tags dalle thumbnail selezionate? \n L'azione è irreversibile",
+                                      QMessageBox.Ok | QMessageBox.Cancel)
+        if msg == QMessageBox.Cancel:
+            QMessageBox.warning(self, "Messagio!!!", "Azione Annullata!")
+        else:
+            items_selected = self.iconListWidget.selectedItems()
             
-            id_orig_item = item.text()  # return the name of original file
-            s= str(id_orig_item)
-            self.DB_MANAGER.remove_tags_from_db_sql(s)
             
+           
+            for item in items_selected:
+                
+                id_orig_item = item.text()  # return the name of original file
+                s= str(id_orig_item)
+                self.DB_MANAGER.remove_tags_from_db_sql(s)
+            QMessageBox.warning(self, "Messaggio!!!", "Tags rimossi!")
     def on_pushButton_openMedia_pressed(self):
         self.charge_data()
         self.view_num_rec()
