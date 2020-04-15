@@ -849,10 +849,10 @@ border-color: rgb(0, 0, 0);
         </font>
        </property>
        <property name="toolTip">
-        <string>Elenco US</string>
+        <string>Elenco US/Foto</string>
        </property>
        <property name="text">
-        <string>Elenco US</string>
+        <string>Elenco US/Foto</string>
        </property>
        <property name="icon">
         <iconset resource="../../resources/resources.qrc">
@@ -906,8 +906,8 @@ border-color: rgb(0, 0, 0);
       <bool>false</bool>
      </property>
      <layout class="QGridLayout" name="gridLayout_5">
-      <item row="2" column="0" colspan="3">
-       <widget class="QLabel" name="label_4">
+      <item row="2" column="7">
+       <widget class="QLabel" name="label_ci">
         <property name="minimumSize">
          <size>
           <width>0</width>
@@ -915,7 +915,38 @@ border-color: rgb(0, 0, 0);
          </size>
         </property>
         <property name="text">
-         <string>Definizione stratigrafica</string>
+         <string>Nr. Cat. Internazionale</string>
+        </property>
+        <property name="wordWrap">
+         <bool>true</bool>
+        </property>
+       </widget>
+      </item>
+      <item row="1" column="1">
+       <widget class="QLineEdit" name="lineEdit_quadrato">
+        <property name="enabled">
+         <bool>true</bool>
+        </property>
+        <property name="minimumSize">
+         <size>
+          <width>60</width>
+          <height>20</height>
+         </size>
+        </property>
+        <property name="maximumSize">
+         <size>
+          <width>60</width>
+          <height>20</height>
+         </size>
+        </property>
+        <property name="font">
+         <font>
+          <family>Times New Roman</family>
+          <pointsize>8</pointsize>
+          <weight>50</weight>
+          <italic>false</italic>
+          <bold>false</bold>
+         </font>
         </property>
        </widget>
       </item>
@@ -929,6 +960,133 @@ border-color: rgb(0, 0, 0);
         </property>
         <property name="text">
          <string>Nr. Cat. Interno</string>
+        </property>
+       </widget>
+      </item>
+      <item row="1" column="4">
+       <widget class="QLineEdit" name="lineEdit_saggio">
+        <property name="enabled">
+         <bool>true</bool>
+        </property>
+        <property name="minimumSize">
+         <size>
+          <width>61</width>
+          <height>20</height>
+         </size>
+        </property>
+        <property name="maximumSize">
+         <size>
+          <width>60</width>
+          <height>20</height>
+         </size>
+        </property>
+        <property name="font">
+         <font>
+          <family>Times New Roman</family>
+          <pointsize>8</pointsize>
+          <weight>50</weight>
+          <italic>false</italic>
+          <bold>false</bold>
+         </font>
+        </property>
+       </widget>
+      </item>
+      <item row="1" column="5" colspan="3">
+       <widget class="QComboBox" name="comboBox_soprintendenza">
+        <property name="enabled">
+         <bool>true</bool>
+        </property>
+        <property name="minimumSize">
+         <size>
+          <width>250</width>
+          <height>20</height>
+         </size>
+        </property>
+        <property name="maximumSize">
+         <size>
+          <width>250</width>
+          <height>20</height>
+         </size>
+        </property>
+        <property name="font">
+         <font>
+          <family>Times New Roman</family>
+          <pointsize>8</pointsize>
+          <weight>50</weight>
+          <italic>false</italic>
+          <bold>false</bold>
+         </font>
+        </property>
+        <property name="mouseTracking">
+         <bool>true</bool>
+        </property>
+        <property name="styleSheet">
+         <string notr="true">background-color: rgb(255, 255, 255);</string>
+        </property>
+        <property name="editable">
+         <bool>true</bool>
+        </property>
+        <property name="maxVisibleItems">
+         <number>99999</number>
+        </property>
+        <property name="maxCount">
+         <number>2147483647</number>
+        </property>
+        <item>
+         <property name="text">
+          <string>Sabap - Emilia Romagna</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>Sabap - Marche</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>Sabap - Toscana</string>
+         </property>
+        </item>
+       </widget>
+      </item>
+      <item row="1" column="2" colspan="2">
+       <widget class="QLineEdit" name="lineEdit_ambiente">
+        <property name="enabled">
+         <bool>true</bool>
+        </property>
+        <property name="minimumSize">
+         <size>
+          <width>60</width>
+          <height>20</height>
+         </size>
+        </property>
+        <property name="maximumSize">
+         <size>
+          <width>60</width>
+          <height>20</height>
+         </size>
+        </property>
+        <property name="font">
+         <font>
+          <family>Times New Roman</family>
+          <pointsize>8</pointsize>
+          <weight>50</weight>
+          <italic>false</italic>
+          <bold>false</bold>
+         </font>
+        </property>
+       </widget>
+      </item>
+      <item row="2" column="0" colspan="3">
+       <widget class="QLabel" name="label_4">
+        <property name="minimumSize">
+         <size>
+          <width>0</width>
+          <height>20</height>
+         </size>
+        </property>
+        <property name="text">
+         <string>Definizione stratigrafica</string>
         </property>
        </widget>
       </item>
@@ -1103,24 +1261,8 @@ border-color: rgb(0, 0, 0);
         </item>
        </widget>
       </item>
-      <item row="2" column="7">
-       <widget class="QLabel" name="label_ci">
-        <property name="minimumSize">
-         <size>
-          <width>0</width>
-          <height>20</height>
-         </size>
-        </property>
-        <property name="text">
-         <string>Nr. Cat. Internazionale</string>
-        </property>
-        <property name="wordWrap">
-         <bool>true</bool>
-        </property>
-       </widget>
-      </item>
-      <item row="1" column="1">
-       <widget class="QLineEdit" name="lineEdit_quadrato">
+      <item row="3" column="6">
+       <widget class="QLineEdit" name="lineEdit_n_catalogo_interno">
         <property name="enabled">
          <bool>true</bool>
         </property>
@@ -1145,120 +1287,6 @@ border-color: rgb(0, 0, 0);
           <bold>false</bold>
          </font>
         </property>
-       </widget>
-      </item>
-      <item row="1" column="2" colspan="2">
-       <widget class="QLineEdit" name="lineEdit_ambiente">
-        <property name="enabled">
-         <bool>true</bool>
-        </property>
-        <property name="minimumSize">
-         <size>
-          <width>60</width>
-          <height>20</height>
-         </size>
-        </property>
-        <property name="maximumSize">
-         <size>
-          <width>60</width>
-          <height>20</height>
-         </size>
-        </property>
-        <property name="font">
-         <font>
-          <family>Times New Roman</family>
-          <pointsize>8</pointsize>
-          <weight>50</weight>
-          <italic>false</italic>
-          <bold>false</bold>
-         </font>
-        </property>
-       </widget>
-      </item>
-      <item row="1" column="4">
-       <widget class="QLineEdit" name="lineEdit_saggio">
-        <property name="enabled">
-         <bool>true</bool>
-        </property>
-        <property name="minimumSize">
-         <size>
-          <width>61</width>
-          <height>20</height>
-         </size>
-        </property>
-        <property name="maximumSize">
-         <size>
-          <width>60</width>
-          <height>20</height>
-         </size>
-        </property>
-        <property name="font">
-         <font>
-          <family>Times New Roman</family>
-          <pointsize>8</pointsize>
-          <weight>50</weight>
-          <italic>false</italic>
-          <bold>false</bold>
-         </font>
-        </property>
-       </widget>
-      </item>
-      <item row="1" column="5" colspan="3">
-       <widget class="QComboBox" name="comboBox_soprintendenza">
-        <property name="enabled">
-         <bool>true</bool>
-        </property>
-        <property name="minimumSize">
-         <size>
-          <width>250</width>
-          <height>20</height>
-         </size>
-        </property>
-        <property name="maximumSize">
-         <size>
-          <width>250</width>
-          <height>20</height>
-         </size>
-        </property>
-        <property name="font">
-         <font>
-          <family>Times New Roman</family>
-          <pointsize>8</pointsize>
-          <weight>50</weight>
-          <italic>false</italic>
-          <bold>false</bold>
-         </font>
-        </property>
-        <property name="mouseTracking">
-         <bool>true</bool>
-        </property>
-        <property name="styleSheet">
-         <string notr="true">background-color: rgb(255, 255, 255);</string>
-        </property>
-        <property name="editable">
-         <bool>true</bool>
-        </property>
-        <property name="maxVisibleItems">
-         <number>99999</number>
-        </property>
-        <property name="maxCount">
-         <number>2147483647</number>
-        </property>
-        <item>
-         <property name="text">
-          <string>Sabap - Emilia Romagna</string>
-         </property>
-        </item>
-        <item>
-         <property name="text">
-          <string>Sabap - Marche</string>
-         </property>
-        </item>
-        <item>
-         <property name="text">
-          <string>Sabap - Toscana</string>
-         </property>
-        </item>
        </widget>
       </item>
       <item row="2" column="3" colspan="2">
@@ -1274,8 +1302,110 @@ border-color: rgb(0, 0, 0);
         </property>
        </widget>
       </item>
-      <item row="3" column="6">
-       <widget class="QLineEdit" name="lineEdit_n_catalogo_interno">
+      <item row="2" column="5">
+       <widget class="QLabel" name="label_cg">
+        <property name="minimumSize">
+         <size>
+          <width>0</width>
+          <height>20</height>
+         </size>
+        </property>
+        <property name="text">
+         <string>Nr. Cat. Genenerale</string>
+        </property>
+       </widget>
+      </item>
+      <item row="0" column="4">
+       <widget class="QLabel" name="label_47">
+        <property name="minimumSize">
+         <size>
+          <width>0</width>
+          <height>20</height>
+         </size>
+        </property>
+        <property name="text">
+         <string>Saggio</string>
+        </property>
+       </widget>
+      </item>
+      <item row="3" column="0" colspan="3">
+       <widget class="QComboBox" name="comboBox_def_strat">
+        <property name="minimumSize">
+         <size>
+          <width>0</width>
+          <height>20</height>
+         </size>
+        </property>
+        <property name="font">
+         <font>
+          <family>Times New Roman</family>
+          <pointsize>8</pointsize>
+          <weight>50</weight>
+          <italic>false</italic>
+          <bold>false</bold>
+         </font>
+        </property>
+        <property name="editable">
+         <bool>true</bool>
+        </property>
+       </widget>
+      </item>
+      <item row="0" column="1">
+       <widget class="QLabel" name="label_15">
+        <property name="minimumSize">
+         <size>
+          <width>0</width>
+          <height>20</height>
+         </size>
+        </property>
+        <property name="text">
+         <string>Quadrato/Parete</string>
+        </property>
+       </widget>
+      </item>
+      <item row="0" column="0">
+       <widget class="QLabel" name="label_11">
+        <property name="minimumSize">
+         <size>
+          <width>0</width>
+          <height>20</height>
+         </size>
+        </property>
+        <property name="text">
+         <string>Settore</string>
+        </property>
+       </widget>
+      </item>
+      <item row="3" column="7">
+       <widget class="QLineEdit" name="lineEdit_n_catalogo_internazionale">
+        <property name="enabled">
+         <bool>true</bool>
+        </property>
+        <property name="minimumSize">
+         <size>
+          <width>60</width>
+          <height>20</height>
+         </size>
+        </property>
+        <property name="maximumSize">
+         <size>
+          <width>60</width>
+          <height>20</height>
+         </size>
+        </property>
+        <property name="font">
+         <font>
+          <family>Times New Roman</family>
+          <pointsize>8</pointsize>
+          <weight>50</weight>
+          <italic>false</italic>
+          <bold>false</bold>
+         </font>
+        </property>
+       </widget>
+      </item>
+      <item row="3" column="5">
+       <widget class="QLineEdit" name="lineEdit_n_catalogo_generale">
         <property name="enabled">
          <bool>true</bool>
         </property>
@@ -1374,84 +1504,6 @@ border-color: rgb(0, 0, 0);
         </item>
        </widget>
       </item>
-      <item row="3" column="5">
-       <widget class="QLineEdit" name="lineEdit_n_catalogo_generale">
-        <property name="enabled">
-         <bool>true</bool>
-        </property>
-        <property name="minimumSize">
-         <size>
-          <width>60</width>
-          <height>20</height>
-         </size>
-        </property>
-        <property name="maximumSize">
-         <size>
-          <width>60</width>
-          <height>20</height>
-         </size>
-        </property>
-        <property name="font">
-         <font>
-          <family>Times New Roman</family>
-          <pointsize>8</pointsize>
-          <weight>50</weight>
-          <italic>false</italic>
-          <bold>false</bold>
-         </font>
-        </property>
-       </widget>
-      </item>
-      <item row="3" column="0" colspan="3">
-       <widget class="QComboBox" name="comboBox_def_strat">
-        <property name="minimumSize">
-         <size>
-          <width>0</width>
-          <height>20</height>
-         </size>
-        </property>
-        <property name="font">
-         <font>
-          <family>Times New Roman</family>
-          <pointsize>8</pointsize>
-          <weight>50</weight>
-          <italic>false</italic>
-          <bold>false</bold>
-         </font>
-        </property>
-        <property name="editable">
-         <bool>true</bool>
-        </property>
-       </widget>
-      </item>
-      <item row="3" column="7">
-       <widget class="QLineEdit" name="lineEdit_n_catalogo_internazionale">
-        <property name="enabled">
-         <bool>true</bool>
-        </property>
-        <property name="minimumSize">
-         <size>
-          <width>60</width>
-          <height>20</height>
-         </size>
-        </property>
-        <property name="maximumSize">
-         <size>
-          <width>60</width>
-          <height>20</height>
-         </size>
-        </property>
-        <property name="font">
-         <font>
-          <family>Times New Roman</family>
-          <pointsize>8</pointsize>
-          <weight>50</weight>
-          <italic>false</italic>
-          <bold>false</bold>
-         </font>
-        </property>
-       </widget>
-      </item>
       <item row="0" column="5">
        <widget class="QLabel" name="label_77">
         <property name="minimumSize">
@@ -1465,45 +1517,6 @@ border-color: rgb(0, 0, 0);
         </property>
        </widget>
       </item>
-      <item row="0" column="4">
-       <widget class="QLabel" name="label_47">
-        <property name="minimumSize">
-         <size>
-          <width>0</width>
-          <height>20</height>
-         </size>
-        </property>
-        <property name="text">
-         <string>Saggio</string>
-        </property>
-       </widget>
-      </item>
-      <item row="0" column="1">
-       <widget class="QLabel" name="label_15">
-        <property name="minimumSize">
-         <size>
-          <width>0</width>
-          <height>20</height>
-         </size>
-        </property>
-        <property name="text">
-         <string>Quadrato/Parete</string>
-        </property>
-       </widget>
-      </item>
-      <item row="0" column="0">
-       <widget class="QLabel" name="label_11">
-        <property name="minimumSize">
-         <size>
-          <width>0</width>
-          <height>20</height>
-         </size>
-        </property>
-        <property name="text">
-         <string>Settore</string>
-        </property>
-       </widget>
-      </item>
       <item row="0" column="2" colspan="2">
        <widget class="QLabel" name="label_31">
         <property name="minimumSize">
@@ -1514,19 +1527,6 @@ border-color: rgb(0, 0, 0);
         </property>
         <property name="text">
          <string>Ambiente</string>
-        </property>
-       </widget>
-      </item>
-      <item row="2" column="5">
-       <widget class="QLabel" name="label_cg">
-        <property name="minimumSize">
-         <size>
-          <width>0</width>
-          <height>20</height>
-         </size>
-        </property>
-        <property name="text">
-         <string>Nr. Cat. Genenerale</string>
         </property>
        </widget>
       </item>
@@ -5729,42 +5729,69 @@ p, li { white-space: pre-wrap; }
          </widget>
         </widget>
        </item>
-       <item row="0" column="1">
-        <widget class="QTableWidget" name="tableWidget_foto">
-         <property name="autoScrollMargin">
-          <number>16</number>
-         </property>
-         <row>
-          <property name="text">
-           <string>New Row</string>
-          </property>
-         </row>
-         <column>
-          <property name="text">
-           <string>New Column</string>
-          </property>
-         </column>
-         <column>
-          <property name="text">
-           <string>New Column</string>
-          </property>
-         </column>
-         <column>
-          <property name="text">
-           <string>New Column</string>
-          </property>
-         </column>
-         <column>
-          <property name="text">
-           <string>New Column</string>
-          </property>
-         </column>
-         <column>
-          <property name="text">
-           <string>New Column</string>
-          </property>
-         </column>
-        </widget>
+      </layout>
+     </widget>
+     <widget class="QWidget" name="tab_12">
+      <attribute name="title">
+       <string>Lista</string>
+      </attribute>
+      <layout class="QGridLayout" name="gridLayout_33">
+       <item row="0" column="0">
+        <layout class="QGridLayout" name="gridLayout_29">
+         <item row="0" column="0" rowspan="2">
+          <widget class="QDockWidget" name="dockWidget_2">
+           <widget class="QWidget" name="dockWidgetContents_3">
+            <layout class="QGridLayout" name="gridLayout_32">
+             <item row="0" column="0">
+              <widget class="QTableWidget" name="tableWidget_foto">
+               <property name="autoScrollMargin">
+                <number>16</number>
+               </property>
+               <row>
+                <property name="text">
+                 <string>New Row</string>
+                </property>
+               </row>
+               <column>
+                <property name="text">
+                 <string>New Column</string>
+                </property>
+               </column>
+               <column>
+                <property name="text">
+                 <string>New Column</string>
+                </property>
+               </column>
+               <column>
+                <property name="text">
+                 <string>New Column</string>
+                </property>
+               </column>
+               <column>
+                <property name="text">
+                 <string>New Column</string>
+                </property>
+               </column>
+              </widget>
+             </item>
+             <item row="1" column="0">
+              <widget class="QPushButton" name="pushButton_go_to_scheda">
+               <property name="maximumSize">
+                <size>
+                 <width>100</width>
+                 <height>16777215</height>
+                </size>
+               </property>
+               <property name="text">
+                <string>vai alla scheda</string>
+               </property>
+              </widget>
+             </item>
+            </layout>
+           </widget>
+          </widget>
+         </item>
+        </layout>
        </item>
       </layout>
      </widget>
