@@ -12,7 +12,7 @@
 name=pyArchInit
 qgisMinimumVersion=3.0
 description=pyarchinit an tool for archaeological works
-version=0.4
+version=0.5
 author=Luca Mandolesi
 email=pyarchinit@gmail.com
 
