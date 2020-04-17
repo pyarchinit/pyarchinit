@@ -1175,6 +1175,13 @@ class Pyarchinit_db_management(object):
 
                 self.update('US', 'id_us', [int(i.id_us)], ['cont_per'], [cod_cont_var_txt])
 
+    def remove_alltags_from_db_sql(self,s):
+        sql_query_string = ("DELETE FROM media_to_entity_table WHERE id_entity  = '%s'") % (s)
+    
+        res = self.engine.execute(sql_query_string)
+        # rows= res.fetchall()
+        return res    
+    
     def remove_tags_from_db_sql(self,s):
         sql_query_string = ("DELETE FROM media_to_entity_table WHERE media_name  = '%s'") % (s)
     
