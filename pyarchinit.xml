@@ -12,7 +12,7 @@
         <file_name>QuickWKT.3.1.zip</file_name>
         <icon>/static/packages/2016/quickwkt_icon_qsf96s5.png</icon>
         <author_name><![CDATA[Luca Mandolesi]]></author_name>
-        <download_url>https://github.com/pyarchinit/pyarchinit</download_url>
+        <download_url>https://github.com/pyarchinit/pyarchinit/archive/master.zip</download_url>
         <uploaded_by><![CDATA[Enzo Cocca]]></uploaded_by>
         <create_date>2018-05-30T06:35:58.436556</create_date>
         <update_date>2018-05-30T06:35:58.436556</update_date>
