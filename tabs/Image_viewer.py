@@ -54,8 +54,10 @@ class Main(QDialog,MAIN_DIALOG_CLASS):
     TABLE_NAME = 'media_table'
     MAPPER_TABLE_CLASS = "MEDIA"
     ID_TABLE = "id_media"
-    MAPPER_TABLE_CLASS_mediatoentity = 'MEDIATOENTITY'
+    MAPPER_TABLE_CLASS_mediatoentity = "MEDIATOENTITY"
     ID_TABLE_mediatoentity = 'id_mediaToEntity'
+    MAPPER_TABLE_CLASS_us = 'US'
+    ID_TABLE_US = "id_us"
     NOME_SCHEDA = "Scheda Media Manager"
     TABLE_THUMB_NAME = 'media_thumb_table'
     MAPPER_TABLE_CLASS_thumb = 'MEDIA_THUMB'
@@ -113,15 +115,16 @@ class Main(QDialog,MAIN_DIALOG_CLASS):
         
         self.iconListWidget.itemSelectionChanged.connect(self.open_tags)
         self.setWindowTitle("pyArchInit - Media Manager")
-        self.comboBox_sito.editTextChanged.connect(self.charge_us_list)
-        self.comboBox_sito.editTextChanged.connect(self.charge_area_list)
-        self.comboBox_us.editTextChanged.connect(self.charge_us_list)
-        self.comboBox_area.editTextChanged.connect(self.charge_area_list)
-        # self.comboBox_area.currentIndexChanged.connect(self.charge_area_list)
+        # self.comboBox_sito.editTextChanged.connect(self.charge_us_list)
+        # self.comboBox_sito.editTextChanged.connect(self.charge_area_list)
+        # self.comboBox_us.editTextChanged.connect(self.charge_us_list)
+        # self.comboBox_area.editTextChanged.connect(self.charge_area_list)
+        self.comboBox_sito.currentIndexChanged.connect(self.charge_area_list)
+        self.comboBox_sito.currentIndexChanged.connect(self.charge_us_list)
         self.fill_fields()
         sito = self.comboBox_sito.currentText()
         self.comboBox_sito.setEditText(sito)
-        
+        self.charge_list()
         self.charge_us_list()
         self.charge_area_list()
         self.charge_data()
@@ -180,8 +183,8 @@ class Main(QDialog,MAIN_DIALOG_CLASS):
 
         us_list = []
 
-        #if not periodo_vl:
-            #return
+        if not us_vl:
+            return
 
         for i in range(len(us_vl)):
             us_list.append(str(us_vl[i].us))
@@ -194,14 +197,14 @@ class Main(QDialog,MAIN_DIALOG_CLASS):
         self.comboBox_us.clear()
         self.comboBox_us.addItems(self.UTILITY.remove_dup_from_list(us_list))
 
-        if self.STATUS_ITEMS[self.BROWSE_STATUS] == "Trova" or "Find":
-            self.comboBox_us.setEditText("")
-        elif self.STATUS_ITEMS[self.BROWSE_STATUS] == "Usa" or "Current":
-            if len(self.DATA_LIST) > 0:
-                try:
-                    self.comboBox_us.setEditText(self.DATA_LIST[self.rec_num].us)
-                except:
-                    pass  # non vi sono periodi per questo scavo
+        # if self.STATUS_ITEMS[self.BROWSE_STATUS] == "Trova" or "Find":
+            # self.comboBox_us.setEditText("")
+        # elif self.STATUS_ITEMS[self.BROWSE_STATUS] == "Usa" or "Current":
+            # if len(self.DATA_LIST) > 0:
+                # try:
+                    # self.comboBox_us.setEditText(self.DATA_LIST[self.rec_num].us)
+                # except:
+                    # pass  # non vi sono periodi per questo scavo
     
     
     def charge_area_list(self):
@@ -216,8 +219,8 @@ class Main(QDialog,MAIN_DIALOG_CLASS):
 
         area_list = []
 
-        #if not periodo_vl:
-            #return
+        if not area_vl:
+            return
 
         for i in range(len(area_vl)):
             area_list.append(str(area_vl[i].area))
@@ -230,14 +233,14 @@ class Main(QDialog,MAIN_DIALOG_CLASS):
         self.comboBox_area.clear()
         self.comboBox_area.addItems(self.UTILITY.remove_dup_from_list(area_list))
 
-        if self.STATUS_ITEMS[self.BROWSE_STATUS] == "Trova" or "Find":
-            self.comboBox_area.setEditText("")
-        elif self.STATUS_ITEMS[self.BROWSE_STATUS] == "Usa" or "Current":
-            if len(self.DATA_LIST) > 0:
-                try:
-                    self.comboBox_area.setEditText(self.DATA_LIST[self.rec_num].area)
-                except:
-                    pass  # non vi sono periodi per questo scavo
+        # if self.STATUS_ITEMS[self.BROWSE_STATUS] == "Trova" or "Find":
+            # self.comboBox_area.setEditText("")
+        # elif self.STATUS_ITEMS[self.BROWSE_STATUS] == "Usa" or "Current":
+            # if len(self.DATA_LIST) > 0:
+                # try:
+                    # self.comboBox_area.setEditText(self.DATA_LIST[self.rec_num].area)
+                # except:
+                    # pass  # non vi sono periodi per questo scavo
     
     
     def connection(self):
@@ -278,26 +281,13 @@ class Main(QDialog,MAIN_DIALOG_CLASS):
         except Exception as  e:
             e = str(e)
     
-    # @pyqtSlot()
-    # def droptestfunc(self):
-        
-        # text = self.iconListWidget.selectedItems()
-        # nus=0
-        # for item in text:##ciclo sulle icone selezionate
-                        
-            # orig_item = item.text()#leggo il nome originale
-            # items_selected.slipt("_")  #splitto il nome in tre parti
-            
-            # self.tableWidgetTags_US.setItem(nus, 0, QTableWidgetItem(str(a,0)))
-            # self.tableWidgetTags_US.setItem(nus, 1, QTableWidgetItem(str(a,1)))
-            # self.tableWidgetTags_US.setItem(nus, 2, QTableWidgetItem(str(a,2)))
     def enable_button(self, n):
         self.pushButton_first_rec.setEnabled(n)
         self.pushButton_last_rec.setEnabled(n)
         self.pushButton_prev_rec.setEnabled(n)
         self.pushButton_next_rec.setEnabled(n)
         self.pushButton_sort.setEnabled(n)
-        self.pushButton_active_search.setEnabled(n)
+        #self.pushButton_active_search.setEnabled(n)
         self.pushButton_go.setEnabled(n)
     def enable_button_search(self, n):
         self.pushButton_first_rec.setEnabled(n)
@@ -305,106 +295,83 @@ class Main(QDialog,MAIN_DIALOG_CLASS):
         self.pushButton_prev_rec.setEnabled(n)
         self.pushButton_next_rec.setEnabled(n)
         self.pushButton_sort.setEnabled(n)
-        self.pushButton_active_search.setEnabled(n)
+        #self.pushButton_active_search.setEnabled(n)
         self.pushButton_go.setEnabled(n)
-    def on_pushButton_active_search_pressed(self):
-        if self.BROWSE_STATUS != "f":
-            pass
-        else:
-            
-
-            self.enable_button_search(0)
-
-            if self.BROWSE_STATUS != "f":
-                self.BROWSE_STATUS = "f"
-                ###
-                
-                self.setComboBoxEditable(["self.comboBox_sito"], 1)
-                self.setComboBoxEditable(["self.comboBox_area"], 1)
-                self.setComboBoxEditable(["self.comboBox_us"], 1)
-                self.setComboBoxEnable(["self.comboBox_sito"], "True")
-                self.setComboBoxEnable(["self.comboBox_area"], "True")
-                self.setComboBoxEnable(["self.comboBox_us"], "True")
-                
-                self.label_status.setText(self.STATUS_ITEMS[self.BROWSE_STATUS])
-                self.set_rec_counter('', '')
-                self.label_sort.setText(self.SORTED_ITEMS["n"])
-                self.charge_list_sito()
-                self.empty_fields()
+        
+   
     def on_pushButton_go_pressed(self):
         #check_for_buttons = 0
-        if self.BROWSE_STATUS != "f":
-            QMessageBox.warning(self, "ATTENZIONE", "If you want find new record push 'new search' ",  QMessageBox.Ok)
+        
+        sito = str(self.comboBox_sito.currentText())
+        area = str(self.comboBox_area.currentText())
+        us = str(self.comboBox_us.currentText())
+        search_dict = {
+            'sito': "'" + str(sito) + "'",
+            'area': "'" + str(area) + "'",
+            'us': "'" + str(us) + "'"
+        }
+
+        u = Utility()
+        search_dict = u.remove_empty_items_fr_dict(search_dict)
+        us_vl = self.DB_MANAGER.select_medianame_2_from_db_sql(sito,area,us)
+        if not bool(search_dict):
+            QMessageBox.warning(self, "Warning", "Insert Value!!!",  QMessageBox.Ok)
         else:
-            sito = str(self.comboBox_sito.currentText())
-            area = str(self.comboBox_area.currentText())
-            us = str(self.comboBox_us.currentText())
-            search_dict = {
-                'sito': "'" + str(sito) + "'",
-                'area': "'" + str(area) + "'",
-                'us': "'" + str(us) + "'"
-            }
+            res = self.DB_MANAGER.select_medianame_2_from_db_sql(sito,area,us)
+            if not bool(res):
+                QMessageBox.warning(self, "Warning", "No records have been found!",  QMessageBox.Ok)
 
-            u = Utility()
-            search_dict = u.remove_empty_items_fr_dict(search_dict)
-            us_vl = self.DB_MANAGER.query_bool(search_dict, 'US')
-            if not bool(search_dict):
-                QMessageBox.warning(self, "Warning", "Insert Value!!!",  QMessageBox.Ok)
+                self.set_rec_counter(len(self.DATA_LIST), self.REC_CORR+1)
+                self.DATA_LIST_REC_TEMP = self.DATA_LIST_REC_CORR = self.DATA_LIST[0]
+                self.fill_fields(self.REC_CORR)
+                self.BROWSE_STATUS = "b"
+                self.label_status.setText(self.STATUS_ITEMS[self.BROWSE_STATUS])
+
+                
+                self.setComboBoxEnable(["self.comboBox_sito"],"True")
+                self.setComboBoxEnable(["self.comboBox_area"],"True")
+                self.setComboBoxEnable(["self.comboBox_us"],"True")
+               
+                
             else:
-                res = self.DB_MANAGER.query_bool(search_dict, self.MAPPER_TABLE_CLASS_thumb)
-                if not bool(res):
-                    QMessageBox.warning(self, "Warning", "No records have been found!",  QMessageBox.Ok)
+                self.DATA_LIST = []
+                self.empty_fields()
+                for i in res:
+                    self.DATA_LIST.append(i)
 
-                    self.set_rec_counter(len(self.DATA_LIST), self.REC_CORR+1)
-                    self.DATA_LIST_REC_TEMP = self.DATA_LIST_REC_CORR = self.DATA_LIST[0]
-                    self.fill_fields(self.REC_CORR)
-                    self.BROWSE_STATUS = "b"
-                    self.label_status.setText(self.STATUS_ITEMS[self.BROWSE_STATUS])
-
-                    
-                    self.setComboBoxEnable(["self.comboBox_sito"],"False")
-                    self.setComboBoxEnable(["self.comboBox_area"],"False")
-                    self.setComboBoxEnable(["self.comboBox_us"],"False")
-                   
-                    
+                self.REC_TOT, self.REC_CORR = len(self.DATA_LIST), 0
+                self.DATA_LIST_REC_TEMP = self.DATA_LIST_REC_CORR = self.DATA_LIST[0]
+                self.fill_fields()
+                self.BROWSE_STATUS = "b"
+                self.label_status.setText(self.STATUS_ITEMS[self.BROWSE_STATUS])
+                self.set_rec_counter(len(self.DATA_LIST), self.REC_CORR+1)
+                if self.REC_TOT == 1:
+                    strings = ("Has been found", self.REC_TOT, "record")
                 else:
-                    self.DATA_LIST = []
-                    self.empty_fields()
-                    for i in res:
-                        self.DATA_LIST.append(i)
+                    strings = ("Have been found", self.REC_TOT, "records")
 
-                    self.REC_TOT, self.REC_CORR = len(self.DATA_LIST), 0
-                    self.DATA_LIST_REC_TEMP = self.DATA_LIST_REC_CORR = self.DATA_LIST[0]
-                    self.fill_fields()
-                    self.BROWSE_STATUS = "b"
-                    self.label_status.setText(self.STATUS_ITEMS[self.BROWSE_STATUS])
-                    self.set_rec_counter(len(self.DATA_LIST), self.REC_CORR+1)
-                    if self.REC_TOT == 1:
-                        strings = ("Has been found", self.REC_TOT, "record")
-                    else:
-                        strings = ("Have been found", self.REC_TOT, "records")
+                self.setComboBoxEnable(["self.comboBox_sito"],"True")
+                self.setComboBoxEnable(["self.comboBox_area"],"True")
+                self.setComboBoxEnable(["self.comboBox_us"],"True")
+                #check_for_buttons = 1
 
-                    self.setComboBoxEnable(["self.comboBox_sito"],"False")
-                    self.setComboBoxEnable(["self.comboBox_area"],"False")
-                    self.setComboBoxEnable(["self.comboBox_us"],"False")
-                    #check_for_buttons = 1
-
-                    QMessageBox.warning(self, "Messaggio", "%s %d %s" % strings, QMessageBox.Ok)
-        self.NUM_DATA_BEGIN =  len(self.DATA_LIST)-25
+                QMessageBox.warning(self, "Messaggio", "%s %d %s" % strings, QMessageBox.Ok)
+        self.NUM_DATA_BEGIN =  1
         self.NUM_DATA_END = len(self.DATA_LIST)
         self.view_num_rec()
         self.open_images()  
         #if check_for_buttons == 1:
-        self.enable_button_search(1)
+        #self.enable_button_search(1)
         
         self.iconListWidget.clear()
         
         thumb_path = conn.thumb_path()
         thumb_path_str = thumb_path['thumb_path']
-        search_dict = {
-            'id_entity': "'" + str(eval("self.DATA_LIST[int(self.REC_CORR)]." + self.ID_TABLE)) + "'",
-            'entity_type': "'US'"}
-        record_us_list = self.DB_MANAGER.query_bool(search_dict, 'MEDIATOENTITY')
+        # search_dict = {
+            # 'id_entity': "'" + str(eval("self.DATA_LIST[int(self.REC_CORR)]." + self.ID_TABLE_US)) + "'",
+            # 'entity_type': "'US'"}
+        record_us_list = self.DB_MANAGER.select_medianame_2_from_db_sql(sito,area,us)
+        
         for i in record_us_list:
             search_dict = {'media_filename': "'" + str(i.media_name) + "'"}
 
@@ -419,6 +386,9 @@ class Main(QDialog,MAIN_DIALOG_CLASS):
             icon = QIcon(thumb_path_str+thumb_path)
             item.setIcon(icon)
             self.iconListWidget.addItem(item)
+    
+
+    
     def getDirectory(self):
         image_list=[]
         directory = QFileDialog.getExistingDirectory(self, "Directory", "Choose a directory:",
