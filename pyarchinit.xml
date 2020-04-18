@@ -1,0 +1,31 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<?xml-stylesheet type="text/xsl" href="/static/style/plugins.xsl" ?>
+<plugins>
+    <pyqgis_plugin name="Pyarchinit" version="0.5" plugin_id="1">
+        <description><![CDATA[Archaeology data managment]]></description>
+        <about><![CDATA[Now deprecated, old and unmaintained.]]></about>
+        <version>0.3.3</version>
+        <trusted>False</trusted>
+        <qgis_minimum_version>3.0.0</qgis_minimum_version>
+        <qgis_maximum_version>3.99.0</qgis_maximum_version>
+        <homepage><![CDATA[http://www.faunalia.eu/]]></homepage>
+        <file_name>pyarchinit-master.zip</file_name>
+        <icon>/static/packages/survey.png</icon>
+        <author_name><![CDATA[Martin Dobias (Faunalia)]]></author_name>
+        <download_url>https://github.com/pyarchinit/pyarchinit/</download_url>
+        <uploaded_by><![CDATA[brushtyler]]></uploaded_by>
+        <create_date>2012-06-18T09:43:57.251757</create_date>
+        <update_date>2012-06-18T09:43:57.251757</update_date>
+        <experimental>True</experimental>
+        <deprecated>False</deprecated>
+        <tracker><![CDATA[http://www.faunalia.eu/]]></tracker>
+        <repository><![CDATA[http://www.faunalia.eu/]]></repository>
+        <tags><![CDATA[geology,stratigraphy]]></tags>
+        <downloads>0</downloads>
+        <average_vote>0</average_vote>
+        <rating_votes>0</rating_votes>
+        <external_dependencies></external_dependencies>
+        <server>False</server>
+    
+    </pyqgis_plugin>
+</plugins>
