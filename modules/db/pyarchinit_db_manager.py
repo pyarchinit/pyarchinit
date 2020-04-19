@@ -1207,6 +1207,13 @@ class Pyarchinit_db_management(object):
         rows= res.fetchall()
         return rows
     
+    def select_medianame_3_from_db_sql(self,sito,area,us):
+        sql_query_string = ("SELECT c.filepath, b.us,a.media_name FROM media_to_entity_table as a,  inventario_materiali_table as b, media_thumb_table as c WHERE b.id_invmat=a.id_entity and c.id_media=a.id_media  and b.sito= '%s' and b.area='%s' and us = '%s'")%(sito,area,us) 
+        
+        res = self.engine.execute(sql_query_string)
+        rows= res.fetchall()
+        return rows
+    
     def select_thumbnail_from_db_sql(self,sito):
         sql_query_string = ("SELECT c.filepath, b.us,a.media_name,b.area,b.d_stratigrafica,b.unita_tipo FROM media_to_entity_table as a,  us_table as b, media_thumb_table as c WHERE b.id_us=a.id_entity and c.id_media=a.id_media and sito='%s'")%(sito)
         res = self.engine.execute(sql_query_string)
