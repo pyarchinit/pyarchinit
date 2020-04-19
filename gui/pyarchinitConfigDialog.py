@@ -28,7 +28,9 @@ from sqlalchemy.event import listen
 import platform
 from builtins import range
 from builtins import str
-import pysftp
+#import pysftp
+import ftplib
+from ftplib import FTP
 import subprocess
 from sqlalchemy.sql import select, func
 from sqlalchemy import create_engine
@@ -1597,33 +1599,40 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
             QMessageBox.warning(self, "INFO", "Directory not found",
                                 QMessageBox.Ok)
     
-    # def on_pushButton_connect_pressed(self):
+    def on_pushButton_connect_pressed(self):
         
-        # # Defines parameter
-        # self.ip=str(self.lineEdit_ip.text())
-        
-       
-        # self.user=str(self.lineEdit_user.text())
-        
-        
-        
-        # self.pwd=str(self.lineEdit_password.text())
+        # Defines parameter
+        self.ip=str(self.lineEdit_ip.text())
         
        
-        
-  
-        # cnopts = pysftp.CnOpts()
-        # cnopts.hostkeys = None 
-        # srv = pysftp.Connection(host=self.ip, username=self.user, password=self.pwd,cnopts =cnopts )
-        # self.lineEdit_2.insert("Connection succesfully stablished ......... ")
-        # dirlist = []
-        # dirlist = srv.listdir()
-        # for item in dirlist:
-            # self.listWidget.insertItem(0,item)
+        self.user=str(self.lineEdit_user.text())
         
         
-        # Download the file from the remote server
-        #remote_file = '/home/data/ftp/demoliz/qgis/rep5/test.qgs'
+        
+        self.pwd=str(self.lineEdit_password.text())
+        
+       
+        
+        try: 
+            ftp = FTP(self.ip)
+            a = ftp.login(self.user, self.pwd)
+            if bool(a):
+                self.lineEdit_2.insert("Connection succesfully stablished ......... ")
+                dirlist = ftp.cwd('/')
+        
+                self.listWidget.insertItem(0,dirlist)
+                
+            else:
+                self.lineEdit_2.insert("Errore di connessione ......... ")
+                
+        except:
+            self.lineEdit_2.insert("Errore di connessione ......... ")
+        
+        
+        
+        
+        # #Download the file from the remote server
+        # remote_file = '/home/data/ftp/demoliz/qgis/rep5/test.qgs'
         
         # with srv.cd('../'):             # still in .
             # srv.chdir('home')    # now in ./static
@@ -1636,7 +1645,7 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
             # self.listWidget.insertItem(0,"--------------------------------------------")
             
         
-        #srv.close()
+        # srv.close()
     # def loginServer():
         # # user = ent_login.get()
         # # password = ent_pass.get()
@@ -1666,8 +1675,8 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
     # def on_pushButton_change_dir_pressed(self):
         # cnopts = pysftp.CnOpts()
         # cnopts.hostkeys = None 
-        # with pysftp.Connection(host="37.139.2.71", username="root",
-        # password="lizmap1",cnopts =cnopts ) as sftp:
+        # with pysftp.Connection(host="ftp.adarteifo.it", username="adarteinfo",
+        # password="adarteinfo",cnopts =cnopts ) as sftp:
         
             # try:
                 # msg = sftp.cwd('/home') # Switch to a remote directory
