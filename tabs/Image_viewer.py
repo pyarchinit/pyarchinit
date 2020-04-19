@@ -112,7 +112,8 @@ class Main(QDialog,MAIN_DIALOG_CLASS):
         self.iconListWidget.SelectionMode()
         self.iconListWidget.setSelectionMode(QAbstractItemView.MultiSelection)
         self.iconListWidget.itemDoubleClicked.connect(self.openWide_image)
-        
+        self.mDockWidget.setHidden(True)
+        self.sl.valueChanged.connect(self.valuechange)
         self.iconListWidget.itemSelectionChanged.connect(self.open_tags)
         self.setWindowTitle("pyArchInit - Media Manager")
         # self.comboBox_sito.editTextChanged.connect(self.charge_us_list)
@@ -135,7 +136,7 @@ class Main(QDialog,MAIN_DIALOG_CLASS):
         self.tableWidgetTags_US.setColumnWidth(1, 100)
         self.tableWidgetTags_US.setColumnWidth(2, 100)
         self.tableWidget_tags.setColumnWidth(2, 300)
-        self.iconListWidget.setIconSize(QSize(100, 200))
+        self.iconListWidget.setIconSize(QSize(80, 180))
         self.iconListWidget.setLineWidth(2)
         self.iconListWidget.setMidLineWidth(2)
         # self.setComboBoxEditable(["self.comboBox_sito"], 1)
@@ -150,6 +151,11 @@ class Main(QDialog,MAIN_DIALOG_CLASS):
         self.tableWidgetTags_US.setItemDelegateForColumn(0, self.delegateSites)
         self.tableWidgetTags_MAT.setItemDelegateForColumn(0, self.delegateSites)
         self.charge_sito_list()
+    
+    def valuechange(self,value):
+        self.sl.value() 
+        self.iconListWidget.setIconSize(QSize(80 + value//40,180 + value//80))
+        
     
     def charge_list(self):
 
