@@ -58,6 +58,8 @@ class Main(QDialog,MAIN_DIALOG_CLASS):
     ID_TABLE_mediatoentity = 'id_mediaToEntity'
     MAPPER_TABLE_CLASS_us = 'US'
     ID_TABLE_US = "id_us"
+    MAPPER_TABLE_CLASS_mat = 'INVENTARIO_MATERIALI'
+    ID_TABLE_MAT = "id_invmat"
     NOME_SCHEDA = "Scheda Media Manager"
     TABLE_THUMB_NAME = 'media_thumb_table'
     MAPPER_TABLE_CLASS_thumb = 'MEDIA_THUMB'
@@ -180,29 +182,60 @@ class Main(QDialog,MAIN_DIALOG_CLASS):
     def charge_us_list(self):
         sito = str(self.comboBox_sito.currentText())
         # sitob = sito.decode('utf-8')
+        if self.radioButton_us.isChecked()==True:
+            self.comboBox_us.clear()
+            sito = str(self.comboBox_sito.currentText())
+            
+            search_dict = {
+                'sito': "'" + sito + "'"
+            }
 
-        search_dict = {
-            'sito': "'" + sito + "'"
-        }
+            us_vl = self.DB_MANAGER.query_bool(search_dict, 'US')
 
-        us_vl = self.DB_MANAGER.query_bool(search_dict, 'US')
+            us_list = []
 
-        us_list = []
+            if not us_vl:
+                return
 
-        if not us_vl:
-            return
+            for i in range(len(us_vl)):
+                us_list.append(str(us_vl[i].us))
 
-        for i in range(len(us_vl)):
-            us_list.append(str(us_vl[i].us))
+            try:
+                us_vl.remove('')
+            except:
+                pass
 
-        try:
-            us_vl.remove('')
-        except:
-            pass
+            self.comboBox_us.clear()
+            
+            self.comboBox_us.addItems(self.UTILITY.remove_dup_from_list(us_list))
+        
+        elif self.radioButton_materiali.isChecked()==True:
+            self.comboBox_us.clear()
+            sito = str(self.comboBox_sito.currentText())
+            
+            search_dict = {
+                'sito': "'" + sito + "'"
+            }
 
-        self.comboBox_us.clear()
-        self.comboBox_us.addItems(self.UTILITY.remove_dup_from_list(us_list))
+            us_vl = self.DB_MANAGER.query_bool(search_dict, 'INVENTARIO_MATERIALI')
 
+            us_list = []
+
+            if not us_vl:
+                return 0
+
+            for i in range(len(us_vl)):
+                us_list.append(str(us_vl[i].us))
+
+            try:
+                us_vl.remove('')
+            except:
+                pass
+
+            self.comboBox_us.clear()
+            
+            self.comboBox_us.addItems(self.UTILITY.remove_dup_from_list(us_list))
+            
         # if self.STATUS_ITEMS[self.BROWSE_STATUS] == "Trova" or "Find":
             # self.comboBox_us.setEditText("")
         # elif self.STATUS_ITEMS[self.BROWSE_STATUS] == "Usa" or "Current":
@@ -214,31 +247,60 @@ class Main(QDialog,MAIN_DIALOG_CLASS):
     
     
     def charge_area_list(self):
-        sito = str(self.comboBox_sito.currentText())
+        
         # sitob = sito.decode('utf-8')
+        if self.radioButton_us.isChecked()==True:
+            self.comboBox_area.clear()
+            
+            sito = str(self.comboBox_sito.currentText())
+            search_dict = {
+                'sito': "'" + sito + "'"
+            }
 
-        search_dict = {
-            'sito': "'" + sito + "'"
-        }
+            area_vl = self.DB_MANAGER.query_bool(search_dict, 'US')
 
-        area_vl = self.DB_MANAGER.query_bool(search_dict, 'US')
+            area_list = []
 
-        area_list = []
+            if not area_vl:
+                return
 
-        if not area_vl:
-            return
+            for i in range(len(area_vl)):
+                area_list.append(str(area_vl[i].area))
 
-        for i in range(len(area_vl)):
-            area_list.append(str(area_vl[i].area))
+            try:
+                area_vl.remove('')
+            except:
+                pass
 
-        try:
-            area_vl.remove('')
-        except:
-            pass
+            self.comboBox_area.clear()
+            
+            self.comboBox_area.addItems(self.UTILITY.remove_dup_from_list(area_list))
+        elif self.radioButton_materiali.isChecked()==True:
+            sito = str(self.comboBox_sito.currentText())
+            self.comboBox_area.clear()
+            search_dict = {
+                'sito': "'" + sito + "'"
+            }
 
-        self.comboBox_area.clear()
-        self.comboBox_area.addItems(self.UTILITY.remove_dup_from_list(area_list))
+            area_vl = self.DB_MANAGER.query_bool(search_dict, 'INVENTARIO_MATERIALI')
 
+            area_list = []
+
+            if not area_vl:
+                return 0
+
+            for i in range(len(area_vl)):
+                area_list.append(str(area_vl[i].area))
+
+            try:
+                area_vl.remove('')
+            except:
+                pass
+
+            self.comboBox_area.clear()
+            
+            self.comboBox_area.addItems(self.UTILITY.remove_dup_from_list(area_list))
+            
         # if self.STATUS_ITEMS[self.BROWSE_STATUS] == "Trova" or "Find":
             # self.comboBox_area.setEditText("")
         # elif self.STATUS_ITEMS[self.BROWSE_STATUS] == "Usa" or "Current":
@@ -307,92 +369,176 @@ class Main(QDialog,MAIN_DIALOG_CLASS):
    
     def on_pushButton_go_pressed(self):
         #check_for_buttons = 0
-        
-        sito = str(self.comboBox_sito.currentText())
-        area = str(self.comboBox_area.currentText())
-        us = str(self.comboBox_us.currentText())
-        search_dict = {
-            'sito': "'" + str(sito) + "'",
-            'area': "'" + str(area) + "'",
-            'us': "'" + str(us) + "'"
-        }
-
-        u = Utility()
-        search_dict = u.remove_empty_items_fr_dict(search_dict)
-        us_vl = self.DB_MANAGER.select_medianame_2_from_db_sql(sito,area,us)
-        if not bool(search_dict):
-            QMessageBox.warning(self, "Warning", "Insert Value!!!",  QMessageBox.Ok)
-        else:
-            res = self.DB_MANAGER.select_medianame_2_from_db_sql(sito,area,us)
-            if not bool(res):
-                QMessageBox.warning(self, "Warning", "No records have been found!",  QMessageBox.Ok)
-
-                self.set_rec_counter(len(self.DATA_LIST), self.REC_CORR+1)
-                self.DATA_LIST_REC_TEMP = self.DATA_LIST_REC_CORR = self.DATA_LIST[0]
-                self.fill_fields(self.REC_CORR)
-                self.BROWSE_STATUS = "b"
-                self.label_status.setText(self.STATUS_ITEMS[self.BROWSE_STATUS])
-
-                
-                self.setComboBoxEnable(["self.comboBox_sito"],"True")
-                self.setComboBoxEnable(["self.comboBox_area"],"True")
-                self.setComboBoxEnable(["self.comboBox_us"],"True")
-               
-                
-            else:
-                self.DATA_LIST = []
-                self.empty_fields()
-                for i in res:
-                    self.DATA_LIST.append(i)
-
-                self.REC_TOT, self.REC_CORR = len(self.DATA_LIST), 0
-                self.DATA_LIST_REC_TEMP = self.DATA_LIST_REC_CORR = self.DATA_LIST[0]
-                self.fill_fields()
-                self.BROWSE_STATUS = "b"
-                self.label_status.setText(self.STATUS_ITEMS[self.BROWSE_STATUS])
-                self.set_rec_counter(len(self.DATA_LIST), self.REC_CORR+1)
-                if self.REC_TOT == 1:
-                    strings = ("Has been found", self.REC_TOT, "record")
-                else:
-                    strings = ("Have been found", self.REC_TOT, "records")
-
-                self.setComboBoxEnable(["self.comboBox_sito"],"True")
-                self.setComboBoxEnable(["self.comboBox_area"],"True")
-                self.setComboBoxEnable(["self.comboBox_us"],"True")
-                #check_for_buttons = 1
-
-                QMessageBox.warning(self, "Messaggio", "%s %d %s" % strings, QMessageBox.Ok)
-        self.NUM_DATA_BEGIN =  1
-        self.NUM_DATA_END = len(self.DATA_LIST)
-        self.view_num_rec()
-        self.open_images()  
-        #if check_for_buttons == 1:
-        #self.enable_button_search(1)
-        
-        self.iconListWidget.clear()
-        
-        thumb_path = conn.thumb_path()
-        thumb_path_str = thumb_path['thumb_path']
-        # search_dict = {
-            # 'id_entity': "'" + str(eval("self.DATA_LIST[int(self.REC_CORR)]." + self.ID_TABLE_US)) + "'",
-            # 'entity_type': "'US'"}
-        record_us_list = self.DB_MANAGER.select_medianame_2_from_db_sql(sito,area,us)
-        
-        for i in record_us_list:
-            search_dict = {'media_filename': "'" + str(i.media_name) + "'"}
+        if self.radioButton_us.isChecked()==True:
+            sito = str(self.comboBox_sito.currentText())
+            area = str(self.comboBox_area.currentText())
+            us = str(self.comboBox_us.currentText())
+            search_dict = {
+                'sito': "'" + str(sito) + "'",
+                'area': "'" + str(area) + "'",
+                'us': "'" + str(us) + "'"
+            }
 
             u = Utility()
             search_dict = u.remove_empty_items_fr_dict(search_dict)
-            mediathumb_data = self.DB_MANAGER.query_bool(search_dict, "MEDIA_THUMB")
-            thumb_path = str(mediathumb_data[0].filepath)
+            us_vl = self.DB_MANAGER.select_medianame_2_from_db_sql(sito,area,us)
+            if not bool(search_dict):
+                QMessageBox.warning(self, "Warning", "Insert Value!!!",  QMessageBox.Ok)
+            else:
+                res = self.DB_MANAGER.select_medianame_2_from_db_sql(sito,area,us)
+                if not bool(res):
+                    QMessageBox.warning(self, "Warning", "No records have been found!",  QMessageBox.Ok)
 
-            item = QListWidgetItem(str(i.media_name))
+                    self.set_rec_counter(len(self.DATA_LIST), self.REC_CORR+1)
+                    self.DATA_LIST_REC_TEMP = self.DATA_LIST_REC_CORR = self.DATA_LIST[0]
+                    self.fill_fields(self.REC_CORR)
+                    self.BROWSE_STATUS = "b"
+                    self.label_status.setText(self.STATUS_ITEMS[self.BROWSE_STATUS])
 
-            item.setData(Qt.UserRole, str(i.media_name))
-            icon = QIcon(thumb_path_str+thumb_path)
-            item.setIcon(icon)
-            self.iconListWidget.addItem(item)
-    
+                    
+                    self.setComboBoxEnable(["self.comboBox_sito"],"True")
+                    self.setComboBoxEnable(["self.comboBox_area"],"True")
+                    self.setComboBoxEnable(["self.comboBox_us"],"True")
+                   
+                    
+                else:
+                    self.DATA_LIST = []
+                    self.empty_fields()
+                    for i in res:
+                        self.DATA_LIST.append(i)
+
+                    self.REC_TOT, self.REC_CORR = len(self.DATA_LIST), 0
+                    self.DATA_LIST_REC_TEMP = self.DATA_LIST_REC_CORR = self.DATA_LIST[0]
+                    self.fill_fields()
+                    self.BROWSE_STATUS = "b"
+                    self.label_status.setText(self.STATUS_ITEMS[self.BROWSE_STATUS])
+                    self.set_rec_counter(len(self.DATA_LIST), self.REC_CORR+1)
+                    if self.REC_TOT == 1:
+                        strings = ("Has been found", self.REC_TOT, "record")
+                    else:
+                        strings = ("Have been found", self.REC_TOT, "records")
+
+                    self.setComboBoxEnable(["self.comboBox_sito"],"True")
+                    self.setComboBoxEnable(["self.comboBox_area"],"True")
+                    self.setComboBoxEnable(["self.comboBox_us"],"True")
+                    #check_for_buttons = 1
+
+                    QMessageBox.warning(self, "Messaggio", "%s %d %s" % strings, QMessageBox.Ok)
+            self.NUM_DATA_BEGIN =  1
+            self.NUM_DATA_END = len(self.DATA_LIST)
+            self.view_num_rec()
+            self.open_images()  
+            #if check_for_buttons == 1:
+            #self.enable_button_search(1)
+            
+            self.iconListWidget.clear()
+            
+            thumb_path = conn.thumb_path()
+            thumb_path_str = thumb_path['thumb_path']
+            # search_dict = {
+                # 'id_entity': "'" + str(eval("self.DATA_LIST[int(self.REC_CORR)]." + self.ID_TABLE_US)) + "'",
+                # 'entity_type': "'US'"}
+            record_us_list = self.DB_MANAGER.select_medianame_2_from_db_sql(sito,area,us)
+            
+            for i in record_us_list:
+                search_dict = {'media_filename': "'" + str(i.media_name) + "'"}
+
+                u = Utility()
+                search_dict = u.remove_empty_items_fr_dict(search_dict)
+                mediathumb_data = self.DB_MANAGER.query_bool(search_dict, "MEDIA_THUMB")
+                thumb_path = str(mediathumb_data[0].filepath)
+
+                item = QListWidgetItem(str(i.media_name))
+
+                item.setData(Qt.UserRole, str(i.media_name))
+                icon = QIcon(thumb_path_str+thumb_path)
+                item.setIcon(icon)
+                self.iconListWidget.addItem(item)
+        elif self.radioButton_materiali.isChecked() ==True:
+            sito = str(self.comboBox_sito.currentText())
+            area = str(self.comboBox_area.currentText())
+            us = str(self.comboBox_us.currentText())
+            search_dict = {
+                'sito': "'" + str(sito) + "'",
+                'area': "'" + str(area) + "'",
+                'us': "'" + str(us) + "'"
+            }
+
+            u = Utility()
+            search_dict = u.remove_empty_items_fr_dict(search_dict)
+            us_vl = self.DB_MANAGER.select_medianame_3_from_db_sql(sito,area,us)
+            if not bool(search_dict):
+                QMessageBox.warning(self, "Warning", "Insert Value!!!",  QMessageBox.Ok)
+            else:
+                res = self.DB_MANAGER.select_medianame_3_from_db_sql(sito,area,us)
+                if not bool(res):
+                    QMessageBox.warning(self, "Warning", "No records have been found!",  QMessageBox.Ok)
+
+                    self.set_rec_counter(len(self.DATA_LIST), self.REC_CORR+1)
+                    self.DATA_LIST_REC_TEMP = self.DATA_LIST_REC_CORR = self.DATA_LIST[0]
+                    self.fill_fields(self.REC_CORR)
+                    self.BROWSE_STATUS = "b"
+                    self.label_status.setText(self.STATUS_ITEMS[self.BROWSE_STATUS])
+
+                    
+                    self.setComboBoxEnable(["self.comboBox_sito"],"True")
+                    self.setComboBoxEnable(["self.comboBox_area"],"True")
+                    self.setComboBoxEnable(["self.comboBox_us"],"True")
+                   
+                    
+                else:
+                    self.DATA_LIST = []
+                    self.empty_fields()
+                    for i in res:
+                        self.DATA_LIST.append(i)
+
+                    self.REC_TOT, self.REC_CORR = len(self.DATA_LIST), 0
+                    self.DATA_LIST_REC_TEMP = self.DATA_LIST_REC_CORR = self.DATA_LIST[0]
+                    self.fill_fields()
+                    self.BROWSE_STATUS = "b"
+                    self.label_status.setText(self.STATUS_ITEMS[self.BROWSE_STATUS])
+                    self.set_rec_counter(len(self.DATA_LIST), self.REC_CORR+1)
+                    if self.REC_TOT == 1:
+                        strings = ("Has been found", self.REC_TOT, "record")
+                    else:
+                        strings = ("Have been found", self.REC_TOT, "records")
+
+                    self.setComboBoxEnable(["self.comboBox_sito"],"True")
+                    self.setComboBoxEnable(["self.comboBox_area"],"True")
+                    self.setComboBoxEnable(["self.comboBox_us"],"True")
+                    #check_for_buttons = 1
+
+                    QMessageBox.warning(self, "Messaggio", "%s %d %s" % strings, QMessageBox.Ok)
+            self.NUM_DATA_BEGIN =  1
+            self.NUM_DATA_END = len(self.DATA_LIST)
+            self.view_num_rec()
+            self.open_images()  
+            #if check_for_buttons == 1:
+            #self.enable_button_search(1)
+            
+            self.iconListWidget.clear()
+            
+            thumb_path = conn.thumb_path()
+            thumb_path_str = thumb_path['thumb_path']
+            # search_dict = {
+                # 'id_entity': "'" + str(eval("self.DATA_LIST[int(self.REC_CORR)]." + self.ID_TABLE_US)) + "'",
+                # 'entity_type': "'US'"}
+            record_us_list = self.DB_MANAGER.select_medianame_3_from_db_sql(sito,area,us)
+            
+            for i in record_us_list:
+                search_dict = {'media_filename': "'" + str(i.media_name) + "'"}
+
+                u = Utility()
+                search_dict = u.remove_empty_items_fr_dict(search_dict)
+                mediathumb_data = self.DB_MANAGER.query_bool(search_dict, "MEDIA_THUMB")
+                thumb_path = str(mediathumb_data[0].filepath)
+
+                item = QListWidgetItem(str(i.media_name))
+
+                item.setData(Qt.UserRole, str(i.media_name))
+                icon = QIcon(thumb_path_str+thumb_path)
+                item.setIcon(icon)
+                self.iconListWidget.addItem(item)
 
     
     def getDirectory(self):
