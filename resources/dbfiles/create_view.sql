@@ -258,7 +258,6 @@ ALTER TABLE public.pyarchinit_tipologie_view
 CREATE OR REPLACE VIEW public.pyarchinit_us_view AS
  SELECT pyunitastratigrafiche.gid,
     pyunitastratigrafiche.the_geom,
-    pyunitastratigrafiche.tipo_us_s,
     pyunitastratigrafiche.scavo_s,
     pyunitastratigrafiche.area_s,
     pyunitastratigrafiche.us_s,
