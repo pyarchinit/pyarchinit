@@ -1264,7 +1264,7 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
         self.tableWidget_foto.setColumnWidth(2, 100)
         self.tableWidget_foto.setColumnWidth(3, 100)
         self.tableWidget_foto.setColumnWidth(4, 200)
-        # map prevew system
+        self.mDockWidget_2.setHidden(True)
         self.mapPreview = QgsMapCanvas(self)
         self.mapPreview.setCanvasColor(QColor(225, 225, 225))
         self.tabWidget.addTab(self.mapPreview, "Piante")
