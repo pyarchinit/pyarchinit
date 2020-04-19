@@ -142,7 +142,7 @@
        <bool>true</bool>
       </property>
       <property name="dragDropMode">
-       <enum>QAbstractItemView::DropOnly</enum>
+       <enum>QAbstractItemView::NoDragDrop</enum>
       </property>
       <property name="defaultDropAction">
        <enum>Qt::CopyAction</enum>
@@ -531,7 +531,7 @@
      <x>740</x>
      <y>190</y>
      <width>421</width>
-     <height>191</height>
+     <height>211</height>
     </rect>
    </property>
    <property name="baseSize">
@@ -979,7 +979,7 @@
     </widget>
    </widget>
   </widget>
-  <widget class="QWidget" name="">
+  <widget class="QWidget" name="layoutWidget">
    <property name="geometry">
     <rect>
      <x>690</x>
@@ -1264,6 +1264,13 @@
     </item>
    </layout>
   </widget>
+  <zorder>toolButton_tags_on_off</zorder>
+  <zorder>layoutWidget</zorder>
+  <zorder>layoutWidget_4</zorder>
+  <zorder>progressBar</zorder>
+  <zorder>pushButton_remove_tags</zorder>
+  <zorder>layoutWidget</zorder>
+  <zorder>mDockWidget</zorder>
  </widget>
  <customwidgets>
   <customwidget>
@@ -1304,8 +1311,8 @@
      <y>74</y>
     </hint>
     <hint type="destinationlabel">
-     <x>606</x>
-     <y>117</y>
+     <x>921</x>
+     <y>259</y>
     </hint>
    </hints>
   </connection>
@@ -1320,8 +1327,8 @@
      <y>75</y>
     </hint>
     <hint type="destinationlabel">
-     <x>604</x>
-     <y>154</y>
+     <x>921</x>
+     <y>285</y>
     </hint>
    </hints>
   </connection>
@@ -1336,8 +1343,8 @@
      <y>75</y>
     </hint>
     <hint type="destinationlabel">
-     <x>595</x>
-     <y>180</y>
+     <x>921</x>
+     <y>311</y>
     </hint>
    </hints>
   </connection>
@@ -1352,8 +1359,8 @@
      <y>76</y>
     </hint>
     <hint type="destinationlabel">
-     <x>778</x>
-     <y>117</y>
+     <x>957</x>
+     <y>259</y>
     </hint>
    </hints>
   </connection>
@@ -1368,8 +1375,8 @@
      <y>74</y>
     </hint>
     <hint type="destinationlabel">
-     <x>776</x>
-     <y>143</y>
+     <x>957</x>
+     <y>285</y>
     </hint>
    </hints>
   </connection>
@@ -1384,8 +1391,8 @@
      <y>77</y>
     </hint>
     <hint type="destinationlabel">
-     <x>767</x>
-     <y>169</y>
+     <x>957</x>
+     <y>311</y>
     </hint>
    </hints>
   </connection>
@@ -1400,8 +1407,8 @@
      <y>77</y>
     </hint>
     <hint type="destinationlabel">
-     <x>777</x>
-     <y>89</y>
+     <x>957</x>
+     <y>233</y>
     </hint>
    </hints>
   </connection>
@@ -1416,8 +1423,8 @@
      <y>75</y>
     </hint>
     <hint type="destinationlabel">
-     <x>472</x>
-     <y>90</y>
+     <x>766</x>
+     <y>233</y>
     </hint>
    </hints>
   </connection>
@@ -1432,8 +1439,8 @@
      <y>70</y>
     </hint>
     <hint type="destinationlabel">
-     <x>462</x>
-     <y>116</y>
+     <x>767</x>
+     <y>256</y>
     </hint>
    </hints>
   </connection>
@@ -1448,8 +1455,8 @@
      <y>76</y>
     </hint>
     <hint type="destinationlabel">
-     <x>571</x>
-     <y>122</y>
+     <x>823</x>
+     <y>256</y>
     </hint>
    </hints>
   </connection>
@@ -1464,8 +1471,8 @@
      <y>77</y>
     </hint>
     <hint type="destinationlabel">
-     <x>476</x>
-     <y>146</y>
+     <x>767</x>
+     <y>279</y>
     </hint>
    </hints>
   </connection>
@@ -1480,8 +1487,8 @@
      <y>75</y>
     </hint>
     <hint type="destinationlabel">
-     <x>571</x>
-     <y>146</y>
+     <x>823</x>
+     <y>279</y>
     </hint>
    </hints>
   </connection>
@@ -1496,8 +1503,8 @@
      <y>74</y>
     </hint>
     <hint type="destinationlabel">
-     <x>461</x>
-     <y>169</y>
+     <x>767</x>
+     <y>305</y>
     </hint>
    </hints>
   </connection>
@@ -1512,8 +1519,8 @@
      <y>75</y>
     </hint>
     <hint type="destinationlabel">
-     <x>571</x>
-     <y>175</y>
+     <x>846</x>
+     <y>305</y>
     </hint>
    </hints>
   </connection>
@@ -1528,8 +1535,8 @@
      <y>69</y>
     </hint>
     <hint type="destinationlabel">
-     <x>487</x>
-     <y>202</y>
+     <x>767</x>
+     <y>332</y>
     </hint>
    </hints>
   </connection>
@@ -1544,8 +1551,8 @@
      <y>73</y>
     </hint>
     <hint type="destinationlabel">
-     <x>571</x>
-     <y>202</y>
+     <x>846</x>
+     <y>332</y>
     </hint>
    </hints>
   </connection>
@@ -1560,8 +1567,8 @@
      <y>81</y>
     </hint>
     <hint type="destinationlabel">
-     <x>702</x>
-     <y>234</y>
+     <x>957</x>
+     <y>384</y>
     </hint>
    </hints>
   </connection>
@@ -1576,8 +1583,8 @@
      <y>75</y>
     </hint>
     <hint type="destinationlabel">
-     <x>522</x>
-     <y>41</y>
+     <x>740</x>
+     <y>190</y>
     </hint>
    </hints>
   </connection>
@@ -1592,8 +1599,8 @@
      <y>78</y>
     </hint>
     <hint type="destinationlabel">
-     <x>494</x>
-     <y>106</y>
+     <x>740</x>
+     <y>190</y>
     </hint>
    </hints>
   </connection>
@@ -1610,6 +1617,38 @@
     <hint type="destinationlabel">
      <x>733</x>
      <y>693</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>radioButton_materiali</sender>
+   <signal>clicked(bool)</signal>
+   <receiver>comboBox_sito</receiver>
+   <slot>show()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>1134</x>
+     <y>343</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>1104</x>
+     <y>272</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>radioButton_us</sender>
+   <signal>clicked(bool)</signal>
+   <receiver>comboBox_sito</receiver>
+   <slot>clear()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>1039</x>
+     <y>349</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>1040</x>
+     <y>270</y>
     </hint>
    </hints>
   </connection>
