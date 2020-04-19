@@ -64,7 +64,7 @@ class HarrisMatrix:
         matrix_path = '{}{}{}'.format(self.HOME, os.sep, "pyarchinit_Matrix_folder")
         filename = ('%s_%s_%s_%s_%s_%s_%s') % (
         'Harris_matrix', dt.day, dt.month, dt.year, dt.hour, dt.minute, dt.second)
-        f = open(filename, "wb")
+        f = open(filename, "w")
 
         G.format = 'xdot'
         dot_file = G.render(directory=matrix_path, filename=filename)
