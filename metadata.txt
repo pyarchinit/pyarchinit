@@ -16,9 +16,19 @@ version=0.6.3
 author=Luca Mandolesi
 email=pyarchinit@gmail.com
 
-# end of mandatory metadata
-# Optional items:
-# Uncomment the following line and add your changelog entries:
+about=https://github.com/pyarchinit/pyarchinit
+
+tracker=https://github.com/pyarchinit/pyarchinit/issues
+repository=https://github.com/pyarchinit/pyarchinit
+tags=archaeology, analysis, database, digitizing, postgres, postgis, spatialite, sqlite, archeologia, funerary archaeology, pottery, bones, excavations, scavi, archeologici, siti, carte, archeologiche, carta di potenzialita, strutture, antiche, tempio, medioevo, romana, preistoria, roman, medieval, prehistoric
+
+homepage=https://sites.google.com/site/pyarchinit/
+category=Plugins
+icon=icon.png
+experimental=False
+deprecated=False
+
+
 changelog=
   Bug fixing release0.6.2:
   -bug fix export pdf us
@@ -77,16 +87,4 @@ changelog=
   - more languages support: English, Deutsch
   - minor bug fixed
 
-# tags are comma separated with spaces allowed
-tags=archaeology, analysis, database, digitizing, postgres, postgis, spatialite, sqlite, archeologia, funerary archaeology, pottery, bones, excavations, scavi, archeologici, siti, carte, archeologiche, carta di potenzialita, strutture, antiche, tempio, medioevo, romana, preistoria, roman, medieval, prehistoric
-
-homepage=https://sites.google.com/site/pyarchinit/
-tracker=https://github.com/pyarchinit/pyarchinit/issues
-repository=https://github.com/pyarchinit/pyarchinit
-icon=icon.png
-# experimental flag
-experimental=False
-
-# deprecated flag (applies to the whole plugin, not just a single version)
-deprecated=False
 
