@@ -217,8 +217,8 @@ class single_US_pdf_sheet(object):
         self.provenienza_materiali_usm = data[93]
         self.criteri_distinzione_usm = data[94]
         self.uso_primario_usm = data[95]
-        self.foto=data[96]
-        self.unitatipo = data[97]
+        # self.foto=data[96]
+        # self.unitatipo = data[97]
         # self.thumbanil = data[98]
     def unzip_componenti(self):
         org = eval(self.componenti_organici)
