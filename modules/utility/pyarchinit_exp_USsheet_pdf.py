@@ -2976,7 +2976,63 @@ class FOTO_index_pdf_sheet(object):
         styles = TableStyle([('GRID', (0, 0), (-1, -1), 0.0, colors.black), ('VALIGN', (0, 0), (-1, -1), 'TOP')
                              ])  # finale
 
+        return styles
+class FOTO_index_pdf_sheet_2(object):
+    
+
+    def __init__(self, data):
+        
+        self.sito= data[0]
+        self.foto = data[5]
+        #self.thumbnail = data[6]
+        self.us = data[2]
+        self.area = data[1]
+        self.d_stratigrafica= data[4]
+        self.unita_tipo =data[3]
+    def getTable(self):
+        styleSheet = getSampleStyleSheet()
+        styNormal = styleSheet['Normal']
+        styNormal.spaceBefore = 20
+        styNormal.spaceAfter = 20
+        styNormal.alignment = 0  # LEFT
+        styNormal.fontSize = 6
+
+        
+
+        conn = Connection()
+    
+        thumb_path = conn.thumb_path()
+        thumb_path_str = thumb_path['thumb_path']
+        area = Paragraph("<b>Area</b><br/>" + str(self.area), styNormal)
+        if self.unita_tipo == 'US':
+            us = Paragraph("<b>US</b><br/>" + str(self.us), styNormal)
+        else:
+            us = Paragraph("<b>USM</b><br/>" + str(self.us), styNormal)
+        foto = Paragraph("<b>Foto ID</b><br/>" + str(self.foto), styNormal)
+        d_stratigrafica = Paragraph("<b>Definizione stratigrafica</b><br/>" + str(self.d_stratigrafica), styNormal)
+        us_presenti = Paragraph("<b>US-USM presenti</b><br/>", styNormal)
+        
+        # logo= Image(self.thumbnail)
+        # logo.drawHeight = 1 * inch * logo.drawHeight / logo.drawWidth
+        # logo.drawWidth = 1 * inch
+        # logo.hAlign = "CENTER"
+        
+        #thumbnail= logo
+        data = [
+                foto,
+                #thumbnail,
+                us,
+                area,
+                d_stratigrafica
+                ]
+
+        return data
+    def makeStyles(self):
+        styles = TableStyle([('GRID', (0, 0), (-1, -1), 0.0, colors.black), ('VALIGN', (0, 0), (-1, -1), 'TOP')
+                             ])  # finale
+
         return styles    
+        
 class generate_US_pdf(object):
     HOME = os.environ['PYARCHINIT_HOME']
 
@@ -3179,7 +3235,52 @@ class generate_US_pdf(object):
         doc.build(lst, canvasmaker=NumberedCanvas_USsheet)
 
         f.close()
+    def build_index_Foto_2(self, records, sito):
+        home = os.environ['PYARCHINIT_HOME']
 
+        home_DB_path = '{}{}{}'.format(home, os.sep, 'pyarchinit_DB_folder')
+        logo_path = '{}{}{}'.format(home_DB_path, os.sep, 'logo.jpg')
+        
+        logo = Image(logo_path)
+        logo.drawHeight = 1.5 * inch * logo.drawHeight / logo.drawWidth
+        logo.drawWidth = 1.5 * inch
+        logo.hAlign = "LEFT"
+
+        styleSheet = getSampleStyleSheet()
+        styNormal = styleSheet['Normal']
+        styBackground = ParagraphStyle('background', parent=styNormal, backColor=colors.pink)
+        styH1 = styleSheet['Heading3']
+
+        data = self.datestrfdate()
+
+        lst = []
+        lst.append(logo)
+        lst.append(
+            Paragraph("<b>ELENCO FOTO STRATIGRAFICHE</b><br/><b> Scavo: %s,  Data: %s</b>" % (sito, data), styH1))
+
+        table_data = []
+        for i in range(len(records)):
+            exp_index = FOTO_index_pdf_sheet_2(records[i])
+            table_data.append(exp_index.getTable())
+
+        styles = exp_index.makeStyles()
+        colWidths = [100, 50, 50, 200]
+
+        table_data_formatted = Table(table_data, colWidths, style=styles)
+        table_data_formatted.hAlign = "LEFT"
+
+        lst.append(table_data_formatted)
+        lst.append(Spacer(0, 2))
+
+        dt = datetime.datetime.now()
+        filename = ('%s%s%s_%s_%s_%s_%s_%s_%s%s') % (
+        self.PDF_path, os.sep, 'Elenco_foto', dt.day, dt.month, dt.year, dt.hour, dt.minute, dt.second, ".pdf")
+        f = open(filename, "wb")
+
+        doc = SimpleDocTemplate(f, pagesize=A4)
+        doc.build(lst, canvasmaker=NumberedCanvas_USsheet)
+
+        f.close()
         
     def build_index_US_en(self, records, sito):
         home = os.environ['PYARCHINIT_HOME']
