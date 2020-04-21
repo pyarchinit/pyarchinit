@@ -12,7 +12,7 @@
 name=pyArchInit
 qgisMinimumVersion=3.0
 description=pyarchinit an tool for archaeological works
-version=0.6.4
+version=0.6.5
 author=Luca Mandolesi
 email=pyarchinit@gmail.com
 
@@ -31,6 +31,10 @@ deprecated=False
 
 changelog=
   
+  Bug fixing release0.6.5:
+  -update barra di ricerca in image view
+  
+  -----------------------------------------------------------------------------
    Bug fixing release0.6.4:
   -changed view exp pdf us and list
   -add order by on exp pdf list photo
