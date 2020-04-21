@@ -2376,6 +2376,7 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
                 US_pdf_sheet = generate_US_pdf()
                 data_list = self.generate_list_pdf()
                 US_pdf_sheet.build_US_sheets(data_list)
+                QMessageBox.warning(self, 'Ok',"Esportazione terminata Schede US",QMessageBox.Ok)
             else:   
                 pass
         
