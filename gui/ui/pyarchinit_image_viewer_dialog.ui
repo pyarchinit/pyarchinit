@@ -571,86 +571,10 @@
        <x>180</x>
        <y>20</y>
        <width>225</width>
-       <height>154</height>
+       <height>176</height>
       </rect>
      </property>
      <layout class="QGridLayout" name="gridLayout_7">
-      <item row="3" column="0">
-       <widget class="QLabel" name="label_8">
-        <property name="enabled">
-         <bool>true</bool>
-        </property>
-        <property name="frameShape">
-         <enum>QFrame::StyledPanel</enum>
-        </property>
-        <property name="frameShadow">
-         <enum>QFrame::Plain</enum>
-        </property>
-        <property name="text">
-         <string>US</string>
-        </property>
-       </widget>
-      </item>
-      <item row="2" column="0">
-       <widget class="QLabel" name="label_9">
-        <property name="enabled">
-         <bool>true</bool>
-        </property>
-        <property name="frameShape">
-         <enum>QFrame::StyledPanel</enum>
-        </property>
-        <property name="frameShadow">
-         <enum>QFrame::Plain</enum>
-        </property>
-        <property name="text">
-         <string>Area</string>
-        </property>
-       </widget>
-      </item>
-      <item row="2" column="1" colspan="2">
-       <widget class="QComboBox" name="comboBox_area">
-        <property name="enabled">
-         <bool>true</bool>
-        </property>
-       </widget>
-      </item>
-      <item row="1" column="1" colspan="2">
-       <widget class="QComboBox" name="comboBox_sito">
-        <property name="enabled">
-         <bool>true</bool>
-        </property>
-       </widget>
-      </item>
-      <item row="5" column="1">
-       <widget class="QPushButton" name="pushButton_go">
-        <property name="enabled">
-         <bool>true</bool>
-        </property>
-        <property name="text">
-         <string/>
-        </property>
-        <property name="icon">
-         <iconset resource="../../resources/resources.qrc">
-          <normaloff>:/icons/search.png</normaloff>:/icons/search.png</iconset>
-        </property>
-       </widget>
-      </item>
-      <item row="1" column="0">
-       <widget class="QLabel" name="label_7">
-        <property name="enabled">
-         <bool>true</bool>
-        </property>
-        <property name="frameShape">
-         <enum>QFrame::StyledPanel</enum>
-        </property>
-        <property name="frameShadow">
-         <enum>QFrame::Plain</enum>
-        </property>
-        <property name="text">
-         <string>Sito</string>
-        </property>
-       </widget>
-      </item>
       <item row="0" column="1" colspan="2">
        <widget class="QLabel" name="label_6">
         <property name="enabled">
@@ -667,14 +591,93 @@
         </property>
        </widget>
       </item>
+      <item row="2" column="1" colspan="2">
+       <widget class="QComboBox" name="comboBox_sito">
+        <property name="enabled">
+         <bool>true</bool>
+        </property>
+        <property name="editable">
+         <bool>true</bool>
+        </property>
+       </widget>
+      </item>
       <item row="3" column="1" colspan="2">
+       <widget class="QComboBox" name="comboBox_area">
+        <property name="enabled">
+         <bool>true</bool>
+        </property>
+       </widget>
+      </item>
+      <item row="4" column="1" colspan="2">
        <widget class="QComboBox" name="comboBox_us">
         <property name="enabled">
          <bool>true</bool>
         </property>
        </widget>
       </item>
-      <item row="4" column="1">
+      <item row="6" column="1">
+       <widget class="QPushButton" name="pushButton_go">
+        <property name="enabled">
+         <bool>true</bool>
+        </property>
+        <property name="text">
+         <string/>
+        </property>
+        <property name="icon">
+         <iconset resource="../../resources/resources.qrc">
+          <normaloff>:/icons/search.png</normaloff>:/icons/search.png</iconset>
+        </property>
+       </widget>
+      </item>
+      <item row="3" column="0">
+       <widget class="QLabel" name="label_9">
+        <property name="enabled">
+         <bool>true</bool>
+        </property>
+        <property name="frameShape">
+         <enum>QFrame::StyledPanel</enum>
+        </property>
+        <property name="frameShadow">
+         <enum>QFrame::Plain</enum>
+        </property>
+        <property name="text">
+         <string>Area</string>
+        </property>
+       </widget>
+      </item>
+      <item row="4" column="0">
+       <widget class="QLabel" name="label_8">
+        <property name="enabled">
+         <bool>true</bool>
+        </property>
+        <property name="frameShape">
+         <enum>QFrame::StyledPanel</enum>
+        </property>
+        <property name="frameShadow">
+         <enum>QFrame::Plain</enum>
+        </property>
+        <property name="text">
+         <string>US</string>
+        </property>
+       </widget>
+      </item>
+      <item row="2" column="0">
+       <widget class="QLabel" name="label_7">
+        <property name="enabled">
+         <bool>true</bool>
+        </property>
+        <property name="frameShape">
+         <enum>QFrame::StyledPanel</enum>
+        </property>
+        <property name="frameShadow">
+         <enum>QFrame::Plain</enum>
+        </property>
+        <property name="text">
+         <string>Sito</string>
+        </property>
+       </widget>
+      </item>
+      <item row="1" column="1">
        <widget class="QRadioButton" name="radioButton_us">
         <property name="text">
          <string>Unità Stratigrafiche</string>
@@ -684,7 +687,7 @@
         </property>
        </widget>
       </item>
-      <item row="4" column="2">
+      <item row="1" column="2">
        <widget class="QRadioButton" name="radioButton_materiali">
         <property name="text">
          <string>Materiali</string>
@@ -1312,7 +1315,7 @@
     </hint>
     <hint type="destinationlabel">
      <x>921</x>
-     <y>259</y>
+     <y>305</y>
     </hint>
    </hints>
   </connection>
@@ -1328,7 +1331,7 @@
     </hint>
     <hint type="destinationlabel">
      <x>921</x>
-     <y>285</y>
+     <y>331</y>
     </hint>
    </hints>
   </connection>
@@ -1344,7 +1347,7 @@
     </hint>
     <hint type="destinationlabel">
      <x>921</x>
-     <y>311</y>
+     <y>357</y>
     </hint>
    </hints>
   </connection>
@@ -1360,7 +1363,7 @@
     </hint>
     <hint type="destinationlabel">
      <x>957</x>
-     <y>259</y>
+     <y>305</y>
     </hint>
    </hints>
   </connection>
@@ -1376,7 +1379,7 @@
     </hint>
     <hint type="destinationlabel">
      <x>957</x>
-     <y>285</y>
+     <y>331</y>
     </hint>
    </hints>
   </connection>
@@ -1392,7 +1395,7 @@
     </hint>
     <hint type="destinationlabel">
      <x>957</x>
-     <y>311</y>
+     <y>357</y>
     </hint>
    </hints>
   </connection>
@@ -1621,34 +1624,34 @@
    </hints>
   </connection>
   <connection>
-   <sender>radioButton_materiali</sender>
-   <signal>clicked(bool)</signal>
+   <sender>radioButton_us</sender>
+   <signal>toggled(bool)</signal>
    <receiver>comboBox_sito</receiver>
-   <slot>show()</slot>
+   <slot>clearEditText()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>1134</x>
-     <y>343</y>
+     <x>1025</x>
+     <y>289</y>
     </hint>
     <hint type="destinationlabel">
-     <x>1104</x>
-     <y>272</y>
+     <x>1027</x>
+     <y>315</y>
     </hint>
    </hints>
   </connection>
   <connection>
-   <sender>radioButton_us</sender>
-   <signal>clicked(bool)</signal>
+   <sender>radioButton_materiali</sender>
+   <signal>toggled(bool)</signal>
    <receiver>comboBox_sito</receiver>
-   <slot>clear()</slot>
+   <slot>clearEditText()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>1039</x>
-     <y>349</y>
+     <x>1086</x>
+     <y>286</y>
     </hint>
     <hint type="destinationlabel">
-     <x>1040</x>
-     <y>270</y>
+     <x>1090</x>
+     <y>309</y>
     </hint>
    </hints>
   </connection>
