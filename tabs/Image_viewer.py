@@ -118,12 +118,15 @@ class Main(QDialog,MAIN_DIALOG_CLASS):
         self.sl.valueChanged.connect(self.valuechange)
         self.iconListWidget.itemSelectionChanged.connect(self.open_tags)
         self.setWindowTitle("pyArchInit - Media Manager")
-        # self.comboBox_sito.editTextChanged.connect(self.charge_us_list)
-        # self.comboBox_sito.editTextChanged.connect(self.charge_area_list)
-        # self.comboBox_us.editTextChanged.connect(self.charge_us_list)
-        # self.comboBox_area.editTextChanged.connect(self.charge_area_list)
+        self.comboBox_sito.editTextChanged.connect(self.charge_us_list)
+        self.comboBox_sito.editTextChanged.connect(self.charge_area_list)
         self.comboBox_sito.currentIndexChanged.connect(self.charge_area_list)
         self.comboBox_sito.currentIndexChanged.connect(self.charge_us_list)
+        
+        self.comboBox_area.currentIndexChanged.connect(self.charge_us_list)
+        self.comboBox_area.editTextChanged.connect(self.charge_us_list)
+        
+        
         self.fill_fields()
         sito = self.comboBox_sito.currentText()
         self.comboBox_sito.setEditText(sito)
@@ -141,9 +144,9 @@ class Main(QDialog,MAIN_DIALOG_CLASS):
         self.iconListWidget.setIconSize(QSize(80, 180))
         self.iconListWidget.setLineWidth(2)
         self.iconListWidget.setMidLineWidth(2)
-        # self.setComboBoxEditable(["self.comboBox_sito"], 1)
-        # self.setComboBoxEditable(["self.comboBox_area"], 1)
-        # self.setComboBoxEditable(["self.comboBox_us"], 1)
+        
+            
+       
         valuesSites = self.charge_sito_list()
         
         
@@ -161,7 +164,7 @@ class Main(QDialog,MAIN_DIALOG_CLASS):
     
     def charge_list(self):
 
-       
+        self.comboBox_sito.clear()
         sito_vl = self.UTILITY.tup_2_list_III(self.DB_MANAGER.group_by('site_table', 'sito', 'SITE'))
         try:
             sito_vl.remove('')
@@ -209,7 +212,7 @@ class Main(QDialog,MAIN_DIALOG_CLASS):
             
             self.comboBox_us.addItems(self.UTILITY.remove_dup_from_list(us_list))
         
-        elif self.radioButton_materiali.isChecked()==True:
+        else:
             self.comboBox_us.clear()
             sito = str(self.comboBox_sito.currentText())
             
@@ -250,7 +253,6 @@ class Main(QDialog,MAIN_DIALOG_CLASS):
         
         # sitob = sito.decode('utf-8')
         if self.radioButton_us.isChecked()==True:
-            self.comboBox_area.clear()
             
             sito = str(self.comboBox_sito.currentText())
             search_dict = {
@@ -275,7 +277,8 @@ class Main(QDialog,MAIN_DIALOG_CLASS):
             self.comboBox_area.clear()
             
             self.comboBox_area.addItems(self.UTILITY.remove_dup_from_list(area_list))
-        elif self.radioButton_materiali.isChecked()==True:
+        else:
+            
             sito = str(self.comboBox_sito.currentText())
             self.comboBox_area.clear()
             search_dict = {
