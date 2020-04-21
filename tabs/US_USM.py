@@ -737,12 +737,15 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
     REPORT_PATH = '{}{}{}'.format(HOME, os.sep, "pyarchinit_Report_folder")
 
     DB_SERVER = "not defined"  ####nuovo sistema sort
-
+    
     def __init__(self, iface):
         super().__init__()
+        
         self.iface = iface
         self.pyQGIS = Pyarchinit_pyqgis(iface)
         self.setupUi(self)
+        self.mDockWidget_2.setHidden(True)
+        self.mDockWidget_export.setHidden(True)
         self.currentLayerId = None
         
         try:
@@ -770,7 +773,7 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
         self.charge_periodo_iniz_list()
         self.charge_periodo_fin_list()
         self.fill_fields()
-        self.mDockWidget_2.setHidden(True)
+        
         self.customize_GUI()
        
         self.show()
@@ -2366,68 +2369,93 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
         # text = ' di '.join([str(tav), str(tot)])
         # self.countLabel.setText(text)
 
-    def on_pushButton_pdf_exp_pressed(self):
-        #l = QgsSettings().value("locale/userLocale")[0:2]
+    def on_pushButton_print_pressed(self):
        
         if self.L=='it':
+            if self.checkBox_s_us.isChecked():
+                US_pdf_sheet = generate_US_pdf()
+                data_list = self.generate_list_pdf()
+                US_pdf_sheet.build_US_sheets(data_list)
+            else:   
+                pass
+        
+            if self.checkBox_e_us.isChecked() :
+                US_index_pdf = generate_US_pdf()
+                data_list = self.generate_list_pdf()
+                try:               
+                    if bool(data_list):
+                        US_index_pdf.build_index_US(data_list, data_list[0][0])
+                        QMessageBox.warning(self, 'Ok',"Esportazione terminata Elenco US",QMessageBox.Ok)
+                    else:
+                        QMessageBox.warning(self, 'ATTENZIONE',"L'elenco US non può essere esportato devi riempire prima le schede US",QMessageBox.Ok)
+                except Exception as e :
+                    QMessageBox.warning(self, 'ATTENZIONE',str(e),QMessageBox.Ok)
+            else:
+                pass
+        
+            if self.checkBox_e_foto_t.isChecked():
+                US_index_pdf = generate_US_pdf()
+                data_list_foto = self.generate_list_foto()
+        
+                try:
+                        if bool(data_list_foto):
+                            US_index_pdf.build_index_Foto(data_list_foto, data_list_foto[0][0])
+                            QMessageBox.warning(self, 'Ok',"Esportazione terminata Elenco Foto",QMessageBox.Ok)
+                                       
+                        else:
+                            QMessageBox.warning(self, 'ATTENZIONE',"L'elenco foto non può essere esportato perchè non hai immagini taggate.",QMessageBox.Ok)
+                except Exception as e :
+                    QMessageBox.warning(self, 'ATTENZIONE',str(e),QMessageBox.Ok)
             
-            US_pdf_sheet = generate_US_pdf()
-            data_list = self.generate_list_pdf()
-            US_pdf_sheet.build_US_sheets(data_list)
+            if self.checkBox_e_foto.isChecked():
+                US_index_pdf = generate_US_pdf()
+                data_list_foto = self.generate_list_foto()
+        
+                try:
+                        if bool(data_list_foto):
+                            US_index_pdf.build_index_Foto_2(data_list_foto, data_list_foto[0][0])
+                            QMessageBox.warning(self, 'Ok',"Esportazione terminata Elenco Foto senza thumbanil",QMessageBox.Ok)
+                                       
+                        else:
+                            QMessageBox.warning(self, 'ATTENZIONE',"L'elenco foto non può essere esportato perchè non hai immagini taggate.",QMessageBox.Ok)
+                except Exception as e :
+                    QMessageBox.warning(self, 'ATTENZIONE',str(e),QMessageBox.Ok)
+        
+        # elif self.L=='en':  
+            # US_index_pdf = generate_US_pdf()
+            # data_list = self.generate_list_pdf()
+            # US_index_pdf.build_index_US_en(data_list, data_list[0][0])
             
+        # elif self.L=='en':
             
-            
-        elif self.L=='en':
-            
-            US_pdf_sheet = generate_US_pdf()
-            data_list = self.generate_list_pdf()
-            US_pdf_sheet.build_US_sheets_en(data_list)
+            # if self.checkBox_s_us.isChecked():
+                # US_pdf_sheet = generate_US_pdf()
+                # data_list = self.generate_list_pdf()
+                # US_pdf_sheet.build_US_sheets(data_list)
+            # else:   
+                # pass
                 
             
       
            
-        elif self.L=='de':
+        # elif self.L=='de':
          
-            US_pdf_sheet = generate_US_pdf()
-            data_list = self.generate_list_pdf()
-            US_pdf_sheet.build_US_sheets_de(data_list)
+            # if self.checkBox_s_us.isChecked():
+                # US_pdf_sheet = generate_US_pdf()
+                # data_list = self.generate_list_pdf()
+                # US_pdf_sheet.build_US_sheets(data_list)
+            # else:   
+                # pass
             
-        else:
-            pass
-            
-    def on_pushButton_exp_index_us_pressed(self):
+        # else:
+            # pass
         
-        if self.L=='it':
-            US_index_pdf = generate_US_pdf()
-            data_list = self.generate_list_pdf()
-            data_list_foto = self.generate_list_foto()
-            
-            try:
-                if bool(data_list_foto):
-                    US_index_pdf.build_index_Foto(data_list_foto, data_list_foto[0][0])
-                    QMessageBox.warning(self, 'Ok',"Esportazione terminata Elenco",QMessageBox.Ok)
-                               
-                else:
-                    QMessageBox.warning(self, 'ATTENZIONE',"L'elenco foto non può essere esportato perchè non hai immagini taggate.",QMessageBox.Ok)
-            
-                if bool(data_list):
-                    US_index_pdf.build_index_US(data_list, data_list[0][0])
-                    QMessageBox.warning(self, 'Ok',"Esportazione terminata Elenco US",QMessageBox.Ok)
-                else:
-                    QMessageBox.warning(self, 'ATTENZIONE',"L'elenco US non può essere esportato devi riempire prima le schede US",QMessageBox.Ok)
-            except:
-                pass
-        elif self.L=='en':  
-            US_index_pdf = generate_US_pdf()
-            data_list = self.generate_list_pdf()
-            US_index_pdf.build_index_US_en(data_list, data_list[0][0])
-            
-        elif self.L=='de':  
-            US_index_pdf = generate_US_pdf()
-            data_list = self.generate_list_pdf()
-            US_index_pdf.build_index_US_de(data_list, data_list[0][0])  
-        else:
-            pass    
+        # elif self.L=='de':  
+            # US_index_pdf = generate_US_pdf()
+            # data_list = self.generate_list_pdf()
+            # US_index_pdf.build_index_US_de(data_list, data_list[0][0])  
+        # else:
+            # pass    
     def on_pushButton_export_matrix_pressed(self):
         id_us_dict = {}
         for i in range(len(self.DATA_LIST)):
