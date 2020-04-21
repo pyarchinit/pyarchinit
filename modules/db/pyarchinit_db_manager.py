@@ -1215,7 +1215,7 @@ class Pyarchinit_db_management(object):
         return rows
     
     def select_thumbnail_from_db_sql(self,sito):
-        sql_query_string = ("SELECT c.filepath, b.us,a.media_name,b.area,b.d_stratigrafica,b.unita_tipo FROM media_to_entity_table as a,  us_table as b, media_thumb_table as c WHERE b.id_us=a.id_entity and c.id_media=a.id_media and sito='%s'")%(sito)
+        sql_query_string = ("SELECT c.filepath, b.us,a.media_name,b.area,b.d_stratigrafica,b.unita_tipo FROM media_to_entity_table as a,  us_table as b, media_thumb_table as c WHERE b.id_us=a.id_entity and c.id_media=a.id_media and sito='%s' order by b.us")%(sito)
         res = self.engine.execute(sql_query_string)
         rows= res.fetchall()
         return rows
