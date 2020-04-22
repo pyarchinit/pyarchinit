@@ -113,8 +113,10 @@ class Main(QDialog,MAIN_DIALOG_CLASS):
         self.customize_gui()
               
         self.iconListWidget.SelectionMode()
-        self.iconListWidget.setSelectionMode(QAbstractItemView.MultiSelection)
+        
+        self.iconListWidget.setSelectionMode(QAbstractItemView.ExtendedSelection)
         self.iconListWidget.itemDoubleClicked.connect(self.openWide_image)
+        
         self.mDockWidget.setHidden(True)
         self.sl.valueChanged.connect(self.valuechange)
         self.iconListWidget.itemSelectionChanged.connect(self.open_tags)
