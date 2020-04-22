@@ -821,7 +821,7 @@ class pyarchinit_Inventario_reperti(QDialog, MAIN_DIALOG_CLASS):
         self.iconListWidget.setBatchSize(1000)
         self.iconListWidget.setObjectName("iconListWidget")
         self.iconListWidget.SelectionMode()
-        self.iconListWidget.setSelectionMode(QAbstractItemView.MultiSelection)
+        self.iconListWidget.setSelectionMode(QAbstractItemView.ExtendedSelection)
         self.iconListWidget.itemDoubleClicked.connect(self.openWide_image)
         self.tabWidget.addTab(self.iconListWidget, "Media")
 
