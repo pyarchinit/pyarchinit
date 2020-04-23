@@ -7,8 +7,8 @@ from qgis.core import QgsVectorLayer, QgsFeatureRequest
 import traceback
 
 class Worker(QObject):
-    '''This does all the hard work. It takes all the search parameters and 
-    searches through the vector layers for a match.'''
+    '''Questo fa tutto il lavoro duro. Prende tutti i parametri di ricerca e 
+    cerca una corrispondenza attraverso i livelli vettoriali.'''
     finished = pyqtSignal(bool)
     error = pyqtSignal(str)
     foundmatch = pyqtSignal(QgsVectorLayer, object, object, str)
@@ -24,7 +24,7 @@ class Worker(QObject):
         self.maxResults = maxResults
         
     def run(self):
-        '''Worker Run routine'''
+        '''Worker esegue routine'''
         self.found = 0
         try:
             # Check to see if we are searching within a particular column of a specified
@@ -40,11 +40,11 @@ class Worker(QObject):
         self.finished.emit(True)
             
     def kill(self):
-        '''Set a flag that we want to stop looking for matches.'''
+        '''imposta uno stop alla ricerca'''
         self.killed = True
         
     def searchLayer(self, layer, searchStr, comparisonMode):
-        '''Do a string search across all columns in a table'''
+        '''Esegue una ricerca per stringa in tutte le colonne di una tabella'''
         if self.killed:
             return
         fnames = []
@@ -109,7 +109,7 @@ class Worker(QObject):
                         pass
 
     def searchFieldInLayer(self, layer, searchStr, comparisonMode, selectedField):
-        '''Do a string search on a specific column in the table.'''
+        '''Esegue una ricerca per stringa su una colonna specifica della tabella.'''
         if self.killed:
             return
 
@@ -119,7 +119,7 @@ class Worker(QObject):
             request.setFilterExpression('"{}" LIKE \'{}\''.format(selectedField,searchStr))
         elif comparisonMode == 1: # contains string
             
-            request.setFilterExpression('"{}" ILIKE \'{}%\'+', '+  ILIKE \'{}%\''.format(selectedField,searchStr) )
+            request.setFilterExpression('"{}" ILIKE \'%{}%\''.format(selectedField,searchStr))
         else: # begins with string
             request.setFilterExpression('"{}" ILIKE \'%{}%\''.format(selectedField,searchStr))
 

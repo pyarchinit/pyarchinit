@@ -26,7 +26,7 @@
          <item row="0" column="0">
           <widget class="QLabel" name="label">
            <property name="text">
-            <string>Cerca una stringa</string>
+            <string>Inserisci un testo</string>
            </property>
           </widget>
          </item>
@@ -36,7 +36,7 @@
          <item row="1" column="0">
           <widget class="QLabel" name="label_2">
            <property name="text">
-            <string>Cerca la tabella</string>
+            <string>Cerca il vettore/tabella</string>
            </property>
           </widget>
          </item>
@@ -114,6 +114,9 @@
      </item>
      <item>
       <widget class="QPushButton" name="pushButton">
+       <property name="enabled">
+        <bool>false</bool>
+       </property>
        <property name="text">
         <string>Apri la scheda</string>
        </property>

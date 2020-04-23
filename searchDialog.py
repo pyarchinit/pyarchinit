@@ -40,12 +40,12 @@ class LayerSearchDialog(QDialog, FORM_CLASS):
         self.worker = None
 
     def closeDialog(self):
-        '''Close the dialog box when the Close button is pushed'''
+        '''Chiudere la finestra di dialogo quando si preme il pulsante Chiudi'''
         self.hide()
     
     def updateLayers(self):
-        '''Called when a layer has been added or deleted in QGIS.
-        It forces the dialog to reload.'''
+        '''Chiamato quando un livello è stato aggiunto o cancellato in QGIS.
+        Forza la finestra di dialogo a ricaricare.'''
         # Stop any existing search
         self.killWorker()
         if self.isVisible():
@@ -53,8 +53,8 @@ class LayerSearchDialog(QDialog, FORM_CLASS):
             self.clearResults()
         
     def select_feature(self):
-        '''A feature has been selected from the list so we need to select
-        and zoom to it'''
+        '''Una features è stata selezionata dalla lista, quindi dobbiamo selezionare
+        e zoomare su di esso'''
         if self.noSelection:
             # We do not want this event while data is being changed
             return
@@ -72,19 +72,19 @@ class LayerSearchDialog(QDialog, FORM_CLASS):
         self.canvas.zoomToSelected(selectedLayer)
     
     def layerSelected(self):
-        '''The user has made a selection so we need to initialize other
-        parts of the dialog box'''
+        '''L'utente ha fatto una selezione, quindi dobbiamo inizializzare altre
+        parti della finestra di dialogo'''
         self.initFieldList()
         
     def showEvent(self, event):
-        '''The dialog is being shown. We need to initialize it.'''
+        '''Si mostra l'evento'''
         super(LayerSearchDialog, self).showEvent(event)
         self.populateLayerListComboBox()
         
     def populateLayerListComboBox(self):
-        '''Find all the vector layers and add them to the layer list
-        that the user can select. In addition the user can search on all
-        layers or all selected layers.'''
+        '''Trova tutti i livelli vettoriali e aggiungili alla lista dei livelli
+        che l'utente può selezionare. Inoltre l'utente può cercare su tutti gli
+        strati o tutti i livelli selezionati.'''
         layerlist = ['<Tutte le tabelle>','<Seleziona tabella>']
         self.searchLayers = [None, None] # This is same size as layerlist
         layers = QgsProject.instance().mapLayers().values()
@@ -111,7 +111,7 @@ class LayerSearchDialog(QDialog, FORM_CLASS):
             self.searchFieldComboBox.setEnabled(False)
     
     def runSearch(self):
-        '''Called when the user pushes the Search button'''
+        '''Chiamata quando l'utente preme il pulsante Cerca'''
         selectedLayer = self.layerListComboBox.currentIndex()
         comparisonMode = self.comparisonComboBox.currentIndex()
         self.noSelection = True
@@ -139,7 +139,7 @@ class LayerSearchDialog(QDialog, FORM_CLASS):
             if isinstance(layer, QgsVectorLayer):
                 self.vlayers.append(layer)
         if len(self.vlayers) == 0:
-            self.showErrorMessage('There are no vector layers to search through')
+            self.showErrorMessage('qui non ci sono strati vettoriali da cercare')
             return
         
         # vlayers contains the layers that we will search in
@@ -170,7 +170,7 @@ class LayerSearchDialog(QDialog, FORM_CLASS):
         thread.start()
 
     def workerFinished(self, status):
-        '''Clean up the worker and thread'''
+        '''pulisci il worker e thread'''
         self.worker.deleteLater()
         self.thread.quit()
         self.thread.wait()
@@ -185,18 +185,18 @@ class LayerSearchDialog(QDialog, FORM_CLASS):
         self.doneButton.setEnabled(True)
     
     def workerError(self, exception_string):
-        '''An error occurred so display it.'''
+        '''appare un errore sul display'''
         #self.showErrorMessage(exception_string)
         print(exception_string)
     
     def killWorker(self):
-        '''This is initiated when the user presses the Stop button
-        and will stop the search process'''
+        '''Questo viene avviato quando l'utente preme il pulsante Stop
+        e interromperà il processo di ricerca'''
         if self.worker is not None:
             self.worker.kill()
         
     def clearResults(self):
-        '''Clear all the search results.'''
+        '''Pulisci il risultato della ricerca'''
         self.noSelection = True
         self.found = 0
         self.results = []
@@ -204,7 +204,7 @@ class LayerSearchDialog(QDialog, FORM_CLASS):
         self.noSelection = False
     
     def addFoundItem(self, layer, feature, attrname, value):
-        '''We found an item so add it to the found list.'''
+        '''Abbiamo trovato un elemento, quindi aggiungilo alla lista '''
         self.resultsTable.insertRow(self.found)
         self.results.append([layer, feature])
         self.resultsTable.setItem(self.found, 0, QTableWidgetItem(value))
@@ -214,5 +214,5 @@ class LayerSearchDialog(QDialog, FORM_CLASS):
         self.found += 1        
             
     def showErrorMessage(self, message):
-        '''Display an error message.'''
+        '''Si mostra un messaggio di errore'''
         self.iface.messageBar().pushMessage("", message, level=Qgis.Warning, duration=2)
