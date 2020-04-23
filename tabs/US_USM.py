@@ -48,6 +48,7 @@ from ..modules.utility.pyarchinit_error_check import Error_check
 from ..modules.utility.pyarchinit_exp_Periodosheet_pdf import generate_US_pdf
 from ..modules.utility.pyarchinit_exp_USsheet_pdf import generate_US_pdf
 from ..modules.utility.pyarchinit_print_utility import Print_utility
+from ..searchLayers import SearchLayers
 from ..gui.imageViewer import ImageViewer
 from ..gui.sortpanelmain import SortPanelMain
 from ..resources.resources_rc import *
@@ -747,7 +748,7 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
         self.mDockWidget_2.setHidden(True)
         self.mDockWidget_export.setHidden(True)
         self.currentLayerId = None
-        
+        self.search = SearchLayers(iface)
         try:
             self.on_pushButton_connect_pressed()
         except Exception as e:
@@ -780,7 +781,8 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
         self.show()
         self.loadMedialist()
     
-        
+    def on_pushButton_globalsearch_pressed(self):
+        self.search.showSearchDialog()    
     def charge_struttura_list(self):
         sito = str(self.comboBox_sito.currentText())
         # sitob = sito.decode('utf-8')
