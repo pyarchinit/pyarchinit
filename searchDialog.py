@@ -32,7 +32,7 @@ class LayerSearchDialog(QDialog, FORM_CLASS):
         self.searchFieldComboBox.addItems(['<All Fields>'])
         self.maxResults = 1500
         self.resultsTable.setColumnCount(4)
-        self.resultsTable.setSortingEnabled(False)
+        self.resultsTable.setSortingEnabled(True)
         self.resultsTable.setHorizontalHeaderLabels(['Valore','Tabella','Campo','Feature Id'])
         self.resultsTable.setSelectionBehavior(QAbstractItemView.SelectRows)
         self.comparisonComboBox.addItems(['=','contiene','inizia con'])
@@ -207,11 +207,11 @@ class LayerSearchDialog(QDialog, FORM_CLASS):
         '''Abbiamo trovato un elemento, quindi aggiungilo alla lista '''
         self.resultsTable.insertRow(self.found)
         self.results.append([layer, feature])
-        self.resultsTable.setSortingEnabled(True)
         self.resultsTable.setItem(self.found, 0, QTableWidgetItem(value))
         self.resultsTable.setItem(self.found, 1, QTableWidgetItem(layer.name()))
         self.resultsTable.setItem(self.found, 2, QTableWidgetItem(attrname))
         self.resultsTable.setItem(self.found, 3, QTableWidgetItem(str(feature.id())))
+        
         self.found += 1        
             
     def showErrorMessage(self, message):
