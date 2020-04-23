@@ -5674,6 +5674,10 @@ p, li { white-space: pre-wrap; }
        <property name="text">
         <string>Cerca </string>
        </property>
+       <property name="icon">
+        <iconset resource="../../resources/resources.qrc">
+         <normaloff>:/icons/tracking-icon.png</normaloff>:/icons/tracking-icon.png</iconset>
+       </property>
       </widget>
      </item>
     </layout>
