@@ -207,6 +207,7 @@ class LayerSearchDialog(QDialog, FORM_CLASS):
         '''Abbiamo trovato un elemento, quindi aggiungilo alla lista '''
         self.resultsTable.insertRow(self.found)
         self.results.append([layer, feature])
+        self.resultsTable.setSortingEnabled(True)
         self.resultsTable.setItem(self.found, 0, QTableWidgetItem(value))
         self.resultsTable.setItem(self.found, 1, QTableWidgetItem(layer.name()))
         self.resultsTable.setItem(self.found, 2, QTableWidgetItem(attrname))

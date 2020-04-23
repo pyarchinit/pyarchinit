@@ -125,7 +125,11 @@
     </layout>
    </item>
    <item>
-    <widget class="QTableWidget" name="resultsTable"/>
+    <widget class="QTableWidget" name="resultsTable">
+     <property name="sortingEnabled">
+      <bool>true</bool>
+     </property>
+    </widget>
    </item>
    <item>
     <widget class="QLabel" name="resultsLabel">
