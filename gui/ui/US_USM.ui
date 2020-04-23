@@ -2191,31 +2191,6 @@ p, li { white-space: pre-wrap; }
            </property>
           </widget>
          </item>
-         <item row="2" column="7">
-          <widget class="QLineEdit" name="lineEdit_struttura">
-           <property name="sizePolicy">
-            <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
-             <horstretch>0</horstretch>
-             <verstretch>0</verstretch>
-            </sizepolicy>
-           </property>
-           <property name="minimumSize">
-            <size>
-             <width>0</width>
-             <height>22</height>
-            </size>
-           </property>
-           <property name="font">
-            <font>
-             <family>Times New Roman</family>
-             <pointsize>8</pointsize>
-             <weight>50</weight>
-             <italic>false</italic>
-             <bold>false</bold>
-            </font>
-           </property>
-          </widget>
-         </item>
          <item row="3" column="0">
           <widget class="QLabel" name="label_24">
            <property name="maximumSize">
@@ -2440,6 +2415,18 @@ p, li { white-space: pre-wrap; }
            <item>
             <property name="text">
              <string>Stratigrafico</string>
+            </property>
+           </item>
+          </widget>
+         </item>
+         <item row="2" column="7">
+          <widget class="QComboBox" name="comboBox_struttura">
+           <property name="editable">
+            <bool>true</bool>
+           </property>
+           <item>
+            <property name="text">
+             <string/>
             </property>
            </item>
           </widget>
@@ -4252,8 +4239,8 @@ p, li { white-space: pre-wrap; }
              <rect>
               <x>0</x>
               <y>0</y>
-              <width>100</width>
-              <height>30</height>
+              <width>989</width>
+              <height>348</height>
              </rect>
             </property>
             <attribute name="label">
@@ -6932,7 +6919,6 @@ p, li { white-space: pre-wrap; }
   <tabstop>comboBox_per_fin</tabstop>
   <tabstop>comboBox_fas_fin</tabstop>
   <tabstop>lineEdit_attivita</tabstop>
-  <tabstop>lineEdit_struttura</tabstop>
   <tabstop>lineEdit_datazione</tabstop>
   <tabstop>comboBox_scavato</tabstop>
   <tabstop>lineEdit_anno</tabstop>
