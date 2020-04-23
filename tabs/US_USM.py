@@ -756,10 +756,10 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
             # SIGNALS & SLOTS Functions
         self.comboBox_sito.editTextChanged.connect(self.charge_periodo_iniz_list)
         self.comboBox_sito.editTextChanged.connect(self.charge_periodo_fin_list)
-
+        self.comboBox_sito.editTextChanged.connect(self.charge_struttura_list)
         self.comboBox_sito.currentIndexChanged.connect(self.charge_periodo_iniz_list)
         self.comboBox_sito.currentIndexChanged.connect(self.charge_periodo_fin_list)
-
+        self.comboBox_sito.currentIndexChanged.connect(self.charge_struttura_list)
         self.comboBox_per_iniz.editTextChanged.connect(self.charge_fase_iniz_list)
         self.comboBox_per_iniz.currentIndexChanged.connect(self.charge_fase_iniz_list)
 
@@ -772,6 +772,7 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
         self.comboBox_sito.setEditText(sito)
         self.charge_periodo_iniz_list()
         self.charge_periodo_fin_list()
+        self.charge_struttura_list()
         self.fill_fields()
         
         self.customize_GUI()
@@ -780,7 +781,40 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
         self.loadMedialist()
     
         
-    
+    def charge_struttura_list(self):
+        sito = str(self.comboBox_sito.currentText())
+        # sitob = sito.decode('utf-8')
+
+        search_dict = {
+            'sito': "'" + sito + "'"
+        }
+
+        struttura_vl = self.DB_MANAGER.query_bool(search_dict, 'STRUTTURA')
+
+        struttura_list = []
+
+        #if not struttura_vl:
+            #return
+
+        for i in range(len(struttura_vl)):
+            struttura_list.append(str(struttura_vl[i].sigla_struttura+'-'+str(struttura_vl[i].numero_struttura)))
+
+        try:
+            struttura_vl.remove('')
+        except:
+            pass
+
+        self.comboBox_struttura.clear()
+        self.comboBox_struttura.addItems(self.UTILITY.remove_dup_from_list(struttura_list))
+
+        if self.STATUS_ITEMS[self.BROWSE_STATUS] == "Trova" or "Find":
+            self.comboBox_struttura.setEditText("")
+        elif self.STATUS_ITEMS[self.BROWSE_STATUS] == "Usa" or "Current":
+            if len(self.DATA_LIST) > 0:
+                try:
+                    self.comboBox_struttura.setEditText(self.DATA_LIST[self.rec_num].sigla_struttura+'-'+numero_struttura)
+                except:
+                    pass  # non vi sono periodi per questo scavo
     def charge_periodo_iniz_list(self):
         sito = str(self.comboBox_sito.currentText())
         # sitob = sito.decode('utf-8')
@@ -3110,7 +3144,7 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
             stato_conservazione = self.comboBox_conservazione.currentText()
             colore = self.comboBox_colore.currentText()
             consistenza = self.comboBox_consistenza.currentText()
-            struttura = self.lineEdit_struttura.text()
+            struttura = self.comboBox_struttura.currentText()
             cont_per = self.lineEdit_codice_periodo.text()
 
 
@@ -3188,7 +3222,7 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
             stato_conservazione = self.comboBox_conservazione.currentText()
             colore = self.comboBox_colore.currentText()
             consistenza = self.comboBox_consistenza.currentText()
-            struttura = self.lineEdit_struttura.text()
+            struttura = self.comboBox_struttura.currentText()
             cont_per = self.lineEdit_codice_periodo.text()
 
             if area != "":
@@ -3276,7 +3310,7 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
             stato_conservazione = self.comboBox_conservazione.currentText()
             colore = self.comboBox_colore.currentText()
             consistenza = self.comboBox_consistenza.currentText()
-            struttura = self.lineEdit_struttura.text()
+            struttura = self.comboBox_struttura.currentText()
             cont_per = self.lineEdit_codice_periodo.text()
 
             if area != "":
@@ -3789,7 +3823,7 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
                 str(self.comboBox_conservazione.currentText()),  # 22 - conservazione
                 str(self.comboBox_colore.currentText()),  # 23 - colore
                 str(self.comboBox_consistenza.currentText()),  # 24 - consistenza
-                str(self.lineEdit_struttura.text()),  # 25 - struttura
+                str(self.comboBox_struttura.currentText()),  # 25 - struttura
                 str(self.lineEdit_codice_periodo.text()),  # 26 - continuita  periodo
                 order_layer,  # 27 - order layer
                 str(documentazione),  # 28 - documentazione
@@ -4382,7 +4416,7 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
                 self.TABLE_FIELDS[21]: "'" + str(self.comboBox_conservazione.currentText()) + "'",  # 19 - conservazione
                 self.TABLE_FIELDS[22]: "'" + str(self.comboBox_colore.currentText()) + "'",  # 20 - colore
                 self.TABLE_FIELDS[23]: "'" + str(self.comboBox_consistenza.currentText()) + "'",  # 21 - consistenza
-                self.TABLE_FIELDS[24]: "'" + str(self.lineEdit_struttura.text()) + "'",  # 22 - struttura
+                self.TABLE_FIELDS[24]: "'" + str(self.comboBox_struttura.currentText()) + "'",  # 22 - struttura
                 self.TABLE_FIELDS[25]: "'" + str(self.lineEdit_codice_periodo.text()) + "'",  # 23 - codice_periodo
                 self.TABLE_FIELDS[26]: "'" + str(self.lineEditOrderLayer.text()) + "'",  # 24 - order layer
                 self.TABLE_FIELDS[28]: "'" + str(self.comboBox_unita_tipo.currentText()) + "'",  # 24 - order layer
@@ -4791,7 +4825,7 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
         self.comboBox_conservazione.setEditText("")  # 23 - conservazione
         self.comboBox_colore.setEditText("")  # 24 - colore
         self.comboBox_consistenza.setEditText("")  # 25 - consistenza
-        self.lineEdit_struttura.clear()  # 26 - struttura
+        self.comboBox_struttura.setEditText("")  # 26 - struttura
         self.lineEdit_codice_periodo.clear()  # 27 - codice periodo
         self.lineEditOrderLayer.clear()  # 28 - order layer
 
@@ -4898,7 +4932,7 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
             str(self.comboBox_conservazione.setEditText(self.DATA_LIST[self.rec_num].stato_di_conservazione))  # 22 - conservazione
             str(self.comboBox_colore.setEditText(self.DATA_LIST[self.rec_num].colore))  # 23 - colore
             str(self.comboBox_consistenza.setEditText(self.DATA_LIST[self.rec_num].consistenza))  # 24 - consistenza
-            str(self.lineEdit_struttura.setText(self.DATA_LIST[self.rec_num].struttura)) # 25 - struttura
+            str(self.comboBox_struttura.setEditText(self.DATA_LIST[self.rec_num].struttura)) # 25 - struttura
 
             if not self.DATA_LIST[self.rec_num].cont_per:
                 self.lineEdit_codice_periodo.setText("")
@@ -5237,7 +5271,7 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
             str(self.comboBox_conservazione.currentText()),  # 22 - conservazione
             str(self.comboBox_colore.currentText()),  # 23 - colore
             str(self.comboBox_consistenza.currentText()),  # 24 - consistenza
-            str(self.lineEdit_struttura.text()),  # 25 - struttura
+            str(self.comboBox_struttura.currentText()),  # 25 - struttura
             str(self.lineEdit_codice_periodo.text()),  # 26 - codice periodo
             str(order_layer),  # 27 - order layer era str(order_layer)
             str(documentazione),
