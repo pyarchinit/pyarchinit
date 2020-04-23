@@ -9,7 +9,7 @@
 
 
 [general]
-name=pyArchInit
+name=pyArchInit-nightly
 qgisMinimumVersion=3.0
 description=pyarchinit an tool for archaeological works
 version=0.6.8
