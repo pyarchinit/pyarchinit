@@ -12,7 +12,7 @@
 name=pyArchInit
 qgisMinimumVersion=3.0
 description=pyarchinit an tool for archaeological works
-version=0.6.8
+version=0.6.9
 author=Luca Mandolesi
 email=pyarchinit@gmail.com
 
@@ -30,6 +30,11 @@ deprecated=False
 
 
 changelog=
+     
+     release0.6.9:
+     -vector search function
+  -----------------------------------------------------------------------------
+    
     Bug fixing release0.6.8:
   -connection with struttura table
   -----------------------------------------------------------------------------
