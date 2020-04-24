@@ -705,8 +705,13 @@
       <widget class="QTabWidget" name="tabWidget">
        <property name="font">
         <font>
-         <pointsize>10</pointsize>
+         <pointsize>8</pointsize>
+         <weight>50</weight>
+         <bold>false</bold>
         </font>
+       </property>
+       <property name="autoFillBackground">
+        <bool>false</bool>
        </property>
        <property name="currentIndex">
         <number>0</number>
@@ -716,24 +721,282 @@
          <string>Dati descrittivi</string>
         </attribute>
         <layout class="QGridLayout" name="gridLayout_14">
-         <item row="1" column="0">
-          <layout class="QGridLayout" name="gridLayout_9">
-           <item row="0" column="0">
-            <widget class="QLabel" name="label_3">
+         <item row="0" column="0">
+          <layout class="QHBoxLayout" name="horizontalLayout_2"/>
+         </item>
+         <item row="2" column="0">
+          <layout class="QGridLayout" name="gridLayout_10">
+           <item row="0" column="1">
+            <widget class="QLabel" name="label_7">
              <property name="font">
               <font>
-               <pointsize>10</pointsize>
+               <pointsize>8</pointsize>
+               <weight>50</weight>
+               <bold>false</bold>
               </font>
              </property>
-             <property name="text">
-              <string>Segnacoli</string>
+             <property name="autoFillBackground">
+              <bool>false</bool>
              </property>
-             <property name="alignment">
-              <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+             <property name="text">
+              <string>Interpretazione </string>
              </property>
             </widget>
            </item>
-           <item row="0" column="1">
+           <item row="0" column="0">
+            <widget class="QLabel" name="label_6">
+             <property name="font">
+              <font>
+               <pointsize>8</pointsize>
+               <weight>50</weight>
+               <bold>false</bold>
+              </font>
+             </property>
+             <property name="autoFillBackground">
+              <bool>false</bool>
+             </property>
+             <property name="text">
+              <string>Descrizione </string>
+             </property>
+            </widget>
+           </item>
+           <item row="1" column="0">
+            <widget class="QTextEdit" name="textEdit_descrizione_taf">
+             <property name="minimumSize">
+              <size>
+               <width>50</width>
+               <height>100</height>
+              </size>
+             </property>
+             <property name="font">
+              <font>
+               <pointsize>8</pointsize>
+               <weight>50</weight>
+               <bold>false</bold>
+              </font>
+             </property>
+             <property name="autoFillBackground">
+              <bool>false</bool>
+             </property>
+             <property name="html">
+              <string>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
+&lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
+p, li { white-space: pre-wrap; }
+&lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:'MS Shell Dlg 2'; font-size:8pt; font-weight:400; font-style:normal;&quot;&gt;
+&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-family:'Lucida Grande'; font-size:13pt;&quot;&gt;&lt;br /&gt;&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+             </property>
+            </widget>
+           </item>
+           <item row="1" column="1">
+            <widget class="QTextEdit" name="textEdit_interpretazione_taf">
+             <property name="minimumSize">
+              <size>
+               <width>250</width>
+               <height>150</height>
+              </size>
+             </property>
+             <property name="font">
+              <font>
+               <pointsize>8</pointsize>
+               <weight>50</weight>
+               <bold>false</bold>
+              </font>
+             </property>
+             <property name="autoFillBackground">
+              <bool>false</bool>
+             </property>
+            </widget>
+           </item>
+          </layout>
+         </item>
+         <item row="1" column="0">
+          <layout class="QGridLayout" name="gridLayout_9">
+           <item row="7" column="0">
+            <widget class="QComboBox" name="comboBox_copertura_tipo">
+             <property name="minimumSize">
+              <size>
+               <width>0</width>
+               <height>19</height>
+              </size>
+             </property>
+             <property name="font">
+              <font>
+               <pointsize>8</pointsize>
+               <weight>50</weight>
+               <bold>false</bold>
+              </font>
+             </property>
+             <property name="autoFillBackground">
+              <bool>false</bool>
+             </property>
+             <property name="editable">
+              <bool>true</bool>
+             </property>
+             <item>
+              <property name="text">
+               <string>Non rilevabile</string>
+              </property>
+             </item>
+             <item>
+              <property name="text">
+               <string>Copertura assente</string>
+              </property>
+             </item>
+             <item>
+              <property name="text">
+               <string>Tegole alla cappuccina</string>
+              </property>
+             </item>
+             <item>
+              <property name="text">
+               <string>In cassa</string>
+              </property>
+             </item>
+            </widget>
+           </item>
+           <item row="7" column="1">
+            <widget class="QComboBox" name="comboBox_tipo_contenitore_resti">
+             <property name="minimumSize">
+              <size>
+               <width>0</width>
+               <height>19</height>
+              </size>
+             </property>
+             <property name="font">
+              <font>
+               <pointsize>8</pointsize>
+               <weight>50</weight>
+               <bold>false</bold>
+              </font>
+             </property>
+             <property name="autoFillBackground">
+              <bool>false</bool>
+             </property>
+             <property name="editable">
+              <bool>true</bool>
+             </property>
+             <item>
+              <property name="text">
+               <string>Entro sudario</string>
+              </property>
+             </item>
+             <item>
+              <property name="text">
+               <string>In cassa fittile</string>
+              </property>
+             </item>
+             <item>
+              <property name="text">
+               <string>In cassa lignea</string>
+              </property>
+             </item>
+             <item>
+              <property name="text">
+               <string>In urna litica</string>
+              </property>
+             </item>
+             <item>
+              <property name="text">
+               <string>Nella terra</string>
+              </property>
+             </item>
+            </widget>
+           </item>
+           <item row="11" column="0">
+            <widget class="QLineEdit" name="lineEdit_orientamento_asse">
+             <property name="minimumSize">
+              <size>
+               <width>0</width>
+               <height>19</height>
+              </size>
+             </property>
+             <property name="font">
+              <font>
+               <pointsize>8</pointsize>
+               <weight>50</weight>
+               <bold>false</bold>
+              </font>
+             </property>
+             <property name="autoFillBackground">
+              <bool>false</bool>
+             </property>
+            </widget>
+           </item>
+           <item row="9" column="0">
+            <widget class="QLabel" name="label_15">
+             <property name="font">
+              <font>
+               <pointsize>8</pointsize>
+               <weight>75</weight>
+               <bold>true</bold>
+              </font>
+             </property>
+             <property name="autoFillBackground">
+              <bool>false</bool>
+             </property>
+             <property name="text">
+              <string>Orientamento</string>
+             </property>
+            </widget>
+           </item>
+           <item row="11" column="1">
+            <widget class="QLineEdit" name="lineEdit_orientamento_azimut">
+             <property name="minimumSize">
+              <size>
+               <width>0</width>
+               <height>19</height>
+              </size>
+             </property>
+             <property name="font">
+              <font>
+               <pointsize>8</pointsize>
+               <weight>50</weight>
+               <bold>false</bold>
+              </font>
+             </property>
+             <property name="autoFillBackground">
+              <bool>false</bool>
+             </property>
+             <property name="text">
+              <string>0</string>
+             </property>
+            </widget>
+           </item>
+           <item row="6" column="0">
+            <widget class="QLabel" name="label_85">
+             <property name="font">
+              <font>
+               <pointsize>8</pointsize>
+               <weight>50</weight>
+               <bold>false</bold>
+              </font>
+             </property>
+             <property name="autoFillBackground">
+              <bool>false</bool>
+             </property>
+             <property name="text">
+              <string>Tipo copertura</string>
+             </property>
+            </widget>
+           </item>
+           <item row="6" column="1">
+            <widget class="QLabel" name="label_35">
+             <property name="font">
+              <font>
+               <pointsize>8</pointsize>
+               <weight>50</weight>
+               <bold>false</bold>
+              </font>
+             </property>
+             <property name="autoFillBackground">
+              <bool>false</bool>
+             </property>
+             <property name="text">
+              <string>Tipo contenitore resti</string>
+             </property>
+            </widget>
+           </item>
+           <item row="2" column="0">
             <widget class="QComboBox" name="comboBox_segnacoli">
              <property name="minimumSize">
               <size>
@@ -741,38 +1004,15 @@
                <height>19</height>
               </size>
              </property>
-             <property name="editable">
-              <bool>true</bool>
+             <property name="font">
+              <font>
+               <pointsize>8</pointsize>
+               <weight>50</weight>
+               <bold>false</bold>
+              </font>
              </property>
-             <item>
-              <property name="text">
-               <string/>
-              </property>
-             </item>
-             <item>
-              <property name="text">
-               <string>Si</string>
-              </property>
-             </item>
-             <item>
-              <property name="text">
-               <string>No</string>
-              </property>
-             </item>
-             <item>
-              <property name="text">
-               <string>Non determinabile</string>
-              </property>
-             </item>
-            </widget>
-           </item>
-           <item row="0" column="2">
-            <widget class="QComboBox" name="comboBox_canale_libatorio">
-             <property name="minimumSize">
-              <size>
-               <width>100</width>
-               <height>19</height>
-              </size>
+             <property name="autoFillBackground">
+              <bool>false</bool>
              </property>
              <property name="editable">
               <bool>true</bool>
@@ -799,55 +1039,78 @@
              </item>
             </widget>
            </item>
-           <item row="0" column="3">
-            <widget class="QComboBox" name="comboBox_oggetti_esterno">
-             <property name="minimumSize">
-              <size>
-               <width>0</width>
-               <height>19</height>
-              </size>
+           <item row="10" column="0">
+            <widget class="QLabel" name="label_31">
+             <property name="font">
+              <font>
+               <pointsize>8</pointsize>
+               <weight>50</weight>
+               <bold>false</bold>
+              </font>
              </property>
-             <property name="editable">
-              <bool>true</bool>
+             <property name="autoFillBackground">
+              <bool>false</bool>
              </property>
-             <item>
-              <property name="text">
-               <string/>
-              </property>
-             </item>
-             <item>
-              <property name="text">
-               <string>Si</string>
-              </property>
-             </item>
-             <item>
-              <property name="text">
-               <string>No</string>
-              </property>
-             </item>
-             <item>
-              <property name="text">
-               <string>Non determinabile</string>
-              </property>
-             </item>
+             <property name="text">
+              <string>Asse</string>
+             </property>
+            </widget>
+           </item>
+           <item row="10" column="1">
+            <widget class="QLabel" name="label_47">
+             <property name="font">
+              <font>
+               <pointsize>8</pointsize>
+               <weight>50</weight>
+               <bold>false</bold>
+              </font>
+             </property>
+             <property name="autoFillBackground">
+              <bool>false</bool>
+             </property>
+             <property name="text">
+              <string>Azimut</string>
+             </property>
             </widget>
            </item>
            <item row="1" column="0">
+            <widget class="QLabel" name="label_3">
+             <property name="font">
+              <font>
+               <pointsize>8</pointsize>
+               <weight>50</weight>
+               <bold>false</bold>
+              </font>
+             </property>
+             <property name="layoutDirection">
+              <enum>Qt::LeftToRight</enum>
+             </property>
+             <property name="autoFillBackground">
+              <bool>false</bool>
+             </property>
+             <property name="text">
+              <string>Segnacoli</string>
+             </property>
+            </widget>
+           </item>
+           <item row="3" column="0">
             <widget class="QLabel" name="label_30">
              <property name="font">
               <font>
-               <pointsize>10</pointsize>
+               <pointsize>8</pointsize>
+               <weight>50</weight>
+               <bold>false</bold>
               </font>
+             </property>
+             <property name="autoFillBackground">
+              <bool>false</bool>
              </property>
              <property name="text">
               <string>Stato di conserv.</string>
              </property>
-             <property name="alignment">
-              <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-             </property>
             </widget>
            </item>
-           <item row="1" column="1">
+           <item row="4" column="0">
             <widget class="QComboBox" name="comboBox_conservazione_taf">
              <property name="minimumSize">
               <size>
@@ -857,8 +1120,13 @@
              </property>
              <property name="font">
               <font>
-               <pointsize>10</pointsize>
+               <pointsize>8</pointsize>
+               <weight>50</weight>
+               <bold>false</bold>
               </font>
+             </property>
+             <property name="autoFillBackground">
+              <bool>false</bool>
              </property>
              <property name="editable">
               <bool>true</bool>
@@ -895,32 +1163,85 @@
              </item>
             </widget>
            </item>
-           <item row="1" column="2">
+           <item row="2" column="1">
+            <widget class="QComboBox" name="comboBox_canale_libatorio">
+             <property name="minimumSize">
+              <size>
+               <width>100</width>
+               <height>19</height>
+              </size>
+             </property>
+             <property name="font">
+              <font>
+               <pointsize>8</pointsize>
+               <weight>50</weight>
+               <bold>false</bold>
+              </font>
+             </property>
+             <property name="autoFillBackground">
+              <bool>false</bool>
+             </property>
+             <property name="editable">
+              <bool>true</bool>
+             </property>
+             <item>
+              <property name="text">
+               <string/>
+              </property>
+             </item>
+             <item>
+              <property name="text">
+               <string>Si</string>
+              </property>
+             </item>
+             <item>
+              <property name="text">
+               <string>No</string>
+              </property>
+             </item>
+             <item>
+              <property name="text">
+               <string>Non determinabile</string>
+              </property>
+             </item>
+            </widget>
+           </item>
+           <item row="1" column="1">
             <widget class="QLabel" name="label_8">
              <property name="font">
               <font>
-               <pointsize>10</pointsize>
+               <pointsize>8</pointsize>
+               <weight>50</weight>
+               <bold>false</bold>
               </font>
+             </property>
+             <property name="autoFillBackground">
+              <bool>false</bool>
              </property>
              <property name="text">
               <string>Canale libatorio</string>
              </property>
             </widget>
            </item>
-           <item row="1" column="3">
+           <item row="3" column="1">
             <widget class="QLabel" name="label_4">
              <property name="font">
               <font>
-               <pointsize>10</pointsize>
+               <pointsize>8</pointsize>
+               <weight>50</weight>
+               <bold>false</bold>
               </font>
+             </property>
+             <property name="autoFillBackground">
+              <bool>false</bool>
              </property>
              <property name="text">
               <string>Ogg. rinv. all'esterno</string>
              </property>
             </widget>
            </item>
-           <item row="2" column="0">
-            <widget class="QComboBox" name="comboBox_copertura_tipo">
+           <item row="4" column="1">
+            <widget class="QComboBox" name="comboBox_oggetti_esterno">
              <property name="minimumSize">
               <size>
                <width>0</width>
@@ -929,214 +1250,37 @@
              </property>
              <property name="font">
               <font>
-               <pointsize>10</pointsize>
-               <weight>75</weight>
-               <bold>true</bold>
+               <pointsize>8</pointsize>
+               <weight>50</weight>
+               <bold>false</bold>
               </font>
+             </property>
+             <property name="autoFillBackground">
+              <bool>false</bool>
              </property>
              <property name="editable">
               <bool>true</bool>
              </property>
              <item>
               <property name="text">
-               <string>Non rilevabile</string>
+               <string/>
               </property>
              </item>
              <item>
               <property name="text">
-               <string>Copertura assente</string>
+               <string>Si</string>
               </property>
              </item>
              <item>
               <property name="text">
-               <string>Tegole alla cappuccina</string>
+               <string>No</string>
               </property>
              </item>
              <item>
               <property name="text">
-               <string>In cassa</string>
+               <string>Non determinabile</string>
               </property>
              </item>
-            </widget>
-           </item>
-           <item row="2" column="1">
-            <widget class="QComboBox" name="comboBox_tipo_contenitore_resti">
-             <property name="minimumSize">
-              <size>
-               <width>0</width>
-               <height>19</height>
-              </size>
-             </property>
-             <property name="editable">
-              <bool>true</bool>
-             </property>
-             <item>
-              <property name="text">
-               <string>Entro sudario</string>
-              </property>
-             </item>
-             <item>
-              <property name="text">
-               <string>In cassa fittile</string>
-              </property>
-             </item>
-             <item>
-              <property name="text">
-               <string>In cassa lignea</string>
-              </property>
-             </item>
-             <item>
-              <property name="text">
-               <string>In urna litica</string>
-              </property>
-             </item>
-             <item>
-              <property name="text">
-               <string>Nella terra</string>
-              </property>
-             </item>
-            </widget>
-           </item>
-           <item row="3" column="0">
-            <widget class="QLabel" name="label_85">
-             <property name="font">
-              <font>
-               <pointsize>10</pointsize>
-              </font>
-             </property>
-             <property name="text">
-              <string>Tipo copertura</string>
-             </property>
-            </widget>
-           </item>
-           <item row="3" column="1">
-            <widget class="QLabel" name="label_35">
-             <property name="font">
-              <font>
-               <pointsize>10</pointsize>
-              </font>
-             </property>
-             <property name="text">
-              <string>Tipo contenitore resti</string>
-             </property>
-            </widget>
-           </item>
-           <item row="4" column="0">
-            <widget class="QLabel" name="label_15">
-             <property name="font">
-              <font>
-               <weight>75</weight>
-               <bold>true</bold>
-              </font>
-             </property>
-             <property name="text">
-              <string>Orientamento</string>
-             </property>
-            </widget>
-           </item>
-           <item row="5" column="0">
-            <widget class="QLineEdit" name="lineEdit_orientamento_asse">
-             <property name="minimumSize">
-              <size>
-               <width>0</width>
-               <height>19</height>
-              </size>
-             </property>
-            </widget>
-           </item>
-           <item row="5" column="1">
-            <widget class="QLineEdit" name="lineEdit_orientamento_azimut">
-             <property name="minimumSize">
-              <size>
-               <width>0</width>
-               <height>19</height>
-              </size>
-             </property>
-             <property name="text">
-              <string>0</string>
-             </property>
-            </widget>
-           </item>
-           <item row="6" column="0">
-            <widget class="QLabel" name="label_31">
-             <property name="font">
-              <font>
-               <pointsize>10</pointsize>
-              </font>
-             </property>
-             <property name="text">
-              <string>Asse</string>
-             </property>
-            </widget>
-           </item>
-           <item row="6" column="1">
-            <widget class="QLabel" name="label_47">
-             <property name="font">
-              <font>
-               <pointsize>10</pointsize>
-              </font>
-             </property>
-             <property name="text">
-              <string>Azimut</string>
-             </property>
-            </widget>
-           </item>
-          </layout>
-         </item>
-         <item row="0" column="0">
-          <layout class="QHBoxLayout" name="horizontalLayout_2"/>
-         </item>
-         <item row="2" column="0">
-          <layout class="QGridLayout" name="gridLayout_10">
-           <item row="0" column="0">
-            <widget class="QLabel" name="label_6">
-             <property name="text">
-              <string>Descrizione </string>
-             </property>
-            </widget>
-           </item>
-           <item row="0" column="1">
-            <widget class="QLabel" name="label_7">
-             <property name="text">
-              <string>Interpretazione </string>
-             </property>
-            </widget>
-           </item>
-           <item row="1" column="0">
-            <widget class="QTextEdit" name="textEdit_descrizione_taf">
-             <property name="minimumSize">
-              <size>
-               <width>50</width>
-               <height>100</height>
-              </size>
-             </property>
-             <property name="font">
-              <font>
-               <pointsize>10</pointsize>
-              </font>
-             </property>
-             <property name="html">
-              <string>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
-&lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
-p, li { white-space: pre-wrap; }
-&lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:'MS Shell Dlg 2'; font-size:10pt; font-weight:400; font-style:normal;&quot;&gt;
-&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-family:'Lucida Grande'; font-size:13pt;&quot;&gt;&lt;br /&gt;&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-             </property>
-            </widget>
-           </item>
-           <item row="1" column="1">
-            <widget class="QTextEdit" name="textEdit_interpretazione_taf">
-             <property name="minimumSize">
-              <size>
-               <width>250</width>
-               <height>150</height>
-              </size>
-             </property>
-             <property name="font">
-              <font>
-               <pointsize>10</pointsize>
-              </font>
-             </property>
             </widget>
            </item>
           </layout>
@@ -1293,71 +1437,43 @@ p, li { white-space: pre-wrap; }
          <string>Resti osteologici</string>
         </attribute>
         <layout class="QGridLayout" name="gridLayout_15">
+         <item row="3" column="0">
+          <widget class="QLabel" name="label_5">
+           <property name="font">
+            <font>
+             <pointsize>10</pointsize>
+            </font>
+           </property>
+           <property name="text">
+            <string>Posizione arti superiori</string>
+           </property>
+          </widget>
+         </item>
+         <item row="5" column="0">
+          <widget class="QLabel" name="label_10">
+           <property name="font">
+            <font>
+             <pointsize>10</pointsize>
+            </font>
+           </property>
+           <property name="text">
+            <string>Posizione arti inferiori</string>
+           </property>
+          </widget>
+         </item>
          <item row="0" column="0">
-          <widget class="QLineEdit" name="lineEdit_lunghezza_scheletro">
-           <property name="minimumSize">
-            <size>
-             <width>0</width>
-             <height>22</height>
-            </size>
-           </property>
+          <widget class="QLabel" name="label_33">
            <property name="font">
             <font>
              <pointsize>10</pointsize>
             </font>
            </property>
+           <property name="text">
+            <string>Lunghezza scheletro</string>
+           </property>
           </widget>
          </item>
-         <item row="0" column="1">
-          <widget class="QComboBox" name="comboBox_posizione_scheletro">
-           <property name="font">
-            <font>
-             <pointsize>10</pointsize>
-             <weight>75</weight>
-             <bold>true</bold>
-            </font>
-           </property>
-           <property name="editable">
-            <bool>true</bool>
-           </property>
-           <item>
-            <property name="text">
-             <string/>
-            </property>
-           </item>
-           <item>
-            <property name="text">
-             <string>Non determinabile</string>
-            </property>
-           </item>
-           <item>
-            <property name="text">
-             <string>Supino</string>
-            </property>
-           </item>
-           <item>
-            <property name="text">
-             <string>Prono</string>
-            </property>
-           </item>
-           <item>
-            <property name="text">
-             <string>Posizione fetale</string>
-            </property>
-           </item>
-           <item>
-            <property name="text">
-             <string>Su lato dx</string>
-            </property>
-           </item>
-           <item>
-            <property name="text">
-             <string>Su lato sx</string>
-            </property>
-           </item>
-          </widget>
-         </item>
-         <item row="0" column="2">
+         <item row="2" column="2">
           <widget class="QComboBox" name="comboBox_posizione_cranio">
            <property name="font">
             <font>
@@ -1421,43 +1537,71 @@ p, li { white-space: pre-wrap; }
            </item>
           </widget>
          </item>
-         <item row="1" column="0">
-          <widget class="QLabel" name="label_33">
-           <property name="font">
-            <font>
-             <pointsize>10</pointsize>
-            </font>
-           </property>
-           <property name="text">
-            <string>Lunghezza scheletro</string>
-           </property>
-          </widget>
-         </item>
-         <item row="1" column="1">
-          <widget class="QLabel" name="label_37">
-           <property name="font">
-            <font>
-             <pointsize>10</pointsize>
-            </font>
-           </property>
-           <property name="text">
-            <string>Posizione scheletro</string>
-           </property>
-          </widget>
-         </item>
-         <item row="1" column="2">
-          <widget class="QLabel" name="label_86">
-           <property name="font">
-            <font>
-             <pointsize>10</pointsize>
-            </font>
-           </property>
-           <property name="text">
-            <string>Posizione cranio</string>
-           </property>
-          </widget>
-         </item>
          <item row="2" column="0">
+          <widget class="QLineEdit" name="lineEdit_lunghezza_scheletro">
+           <property name="minimumSize">
+            <size>
+             <width>0</width>
+             <height>22</height>
+            </size>
+           </property>
+           <property name="font">
+            <font>
+             <pointsize>10</pointsize>
+            </font>
+           </property>
+          </widget>
+         </item>
+         <item row="2" column="1">
+          <widget class="QComboBox" name="comboBox_posizione_scheletro">
+           <property name="font">
+            <font>
+             <pointsize>10</pointsize>
+             <weight>75</weight>
+             <bold>true</bold>
+            </font>
+           </property>
+           <property name="editable">
+            <bool>true</bool>
+           </property>
+           <item>
+            <property name="text">
+             <string/>
+            </property>
+           </item>
+           <item>
+            <property name="text">
+             <string>Non determinabile</string>
+            </property>
+           </item>
+           <item>
+            <property name="text">
+             <string>Supino</string>
+            </property>
+           </item>
+           <item>
+            <property name="text">
+             <string>Prono</string>
+            </property>
+           </item>
+           <item>
+            <property name="text">
+             <string>Posizione fetale</string>
+            </property>
+           </item>
+           <item>
+            <property name="text">
+             <string>Su lato dx</string>
+            </property>
+           </item>
+           <item>
+            <property name="text">
+             <string>Su lato sx</string>
+            </property>
+           </item>
+          </widget>
+         </item>
+         <item row="4" column="0">
           <widget class="QComboBox" name="comboBox_arti_superiori">
            <property name="editable">
             <bool>true</bool>
@@ -1499,19 +1643,7 @@ p, li { white-space: pre-wrap; }
            </item>
           </widget>
          </item>
-         <item row="3" column="0">
-          <widget class="QLabel" name="label_5">
-           <property name="font">
-            <font>
-             <pointsize>10</pointsize>
-            </font>
-           </property>
-           <property name="text">
-            <string>Posizione arti superiori</string>
-           </property>
-          </widget>
-         </item>
-         <item row="4" column="0">
+         <item row="6" column="0">
           <widget class="QComboBox" name="comboBox_arti_inferiori">
            <property name="editable">
             <bool>true</bool>
@@ -1543,32 +1675,7 @@ p, li { white-space: pre-wrap; }
            </item>
           </widget>
          </item>
-         <item row="5" column="0">
-          <widget class="QLabel" name="label_10">
-           <property name="font">
-            <font>
-             <pointsize>10</pointsize>
-            </font>
-           </property>
-           <property name="text">
-            <string>Posizione arti inferiori</string>
-           </property>
-          </widget>
-         </item>
-         <item row="6" column="1">
-          <spacer name="verticalSpacer">
-           <property name="orientation">
-            <enum>Qt::Vertical</enum>
-           </property>
-           <property name="sizeHint" stdset="0">
-            <size>
-             <width>20</width>
-             <height>40</height>
-            </size>
-           </property>
-          </spacer>
-         </item>
-         <item row="2" column="1" rowspan="4" colspan="2">
+         <item row="4" column="1" rowspan="4" colspan="2">
           <layout class="QGridLayout" name="gridLayout_12">
            <item row="0" column="0">
             <widget class="QLabel" name="label_11">
@@ -1722,6 +1829,43 @@ p, li { white-space: pre-wrap; }
            </item>
           </layout>
          </item>
+         <item row="8" column="1">
+          <spacer name="verticalSpacer">
+           <property name="orientation">
+            <enum>Qt::Vertical</enum>
+           </property>
+           <property name="sizeHint" stdset="0">
+            <size>
+             <width>20</width>
+             <height>40</height>
+            </size>
+           </property>
+          </spacer>
+         </item>
+         <item row="1" column="1">
+          <widget class="QLabel" name="label_37">
+           <property name="font">
+            <font>
+             <pointsize>10</pointsize>
+            </font>
+           </property>
+           <property name="text">
+            <string>Posizione scheletro</string>
+           </property>
+          </widget>
+         </item>
+         <item row="1" column="2">
+          <widget class="QLabel" name="label_86">
+           <property name="font">
+            <font>
+             <pointsize>10</pointsize>
+            </font>
+           </property>
+           <property name="text">
+            <string>Posizione cranio</string>
+           </property>
+          </widget>
+         </item>
         </layout>
        </widget>
        <widget class="QWidget" name="tab_6">
@@ -1831,6 +1975,29 @@ p, li { white-space: pre-wrap; }
          <string>Periodizzazione</string>
         </attribute>
         <layout class="QGridLayout" name="gridLayout_3">
+         <item row="2" column="0">
+          <widget class="QLineEdit" name="lineEdit_datazione_estesa">
+           <property name="minimumSize">
+            <size>
+             <width>100</width>
+             <height>0</height>
+            </size>
+           </property>
+          </widget>
+         </item>
+         <item row="4" column="0">
+          <spacer name="verticalSpacer_2">
+           <property name="orientation">
+            <enum>Qt::Vertical</enum>
+           </property>
+           <property name="sizeHint" stdset="0">
+            <size>
+             <width>20</width>
+             <height>184</height>
+            </size>
+           </property>
+          </spacer>
+         </item>
          <item row="0" column="0">
           <layout class="QGridLayout" name="gridLayout_20">
            <item row="0" column="0" colspan="4">
@@ -1915,34 +2082,11 @@ p, li { white-space: pre-wrap; }
           </layout>
          </item>
          <item row="1" column="0">
-          <widget class="QLineEdit" name="lineEdit_datazione_estesa">
-           <property name="minimumSize">
-            <size>
-             <width>100</width>
-             <height>0</height>
-            </size>
-           </property>
-          </widget>
-         </item>
-         <item row="2" column="0">
           <widget class="QLabel" name="label_20">
            <property name="text">
             <string>Datazione estesa</string>
            </property>
           </widget>
-         </item>
-         <item row="3" column="0">
-          <spacer name="verticalSpacer_2">
-           <property name="orientation">
-            <enum>Qt::Vertical</enum>
-           </property>
-           <property name="sizeHint" stdset="0">
-            <size>
-             <width>20</width>
-             <height>184</height>
-            </size>
-           </property>
-          </spacer>
          </item>
         </layout>
        </widget>
@@ -2411,11 +2555,16 @@ p, li { white-space: pre-wrap; }
      </property>
      <property name="font">
       <font>
-       <pointsize>11</pointsize>
+       <pointsize>8</pointsize>
+       <weight>50</weight>
+       <bold>false</bold>
       </font>
      </property>
      <property name="layoutDirection">
       <enum>Qt::LeftToRight</enum>
+     </property>
+     <property name="autoFillBackground">
+      <bool>false</bool>
      </property>
      <property name="text">
       <string>Rito</string>
@@ -2435,10 +2584,13 @@ p, li { white-space: pre-wrap; }
      </property>
      <property name="font">
       <font>
-       <pointsize>10</pointsize>
-       <weight>75</weight>
-       <bold>true</bold>
+       <pointsize>8</pointsize>
+       <weight>50</weight>
+       <bold>false</bold>
       </font>
+     </property>
+     <property name="autoFillBackground">
+      <bool>false</bool>
      </property>
      <property name="editable">
       <bool>true</bool>

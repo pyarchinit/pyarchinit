@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>680</width>
-    <height>744</height>
+    <height>769</height>
    </rect>
   </property>
   <property name="minimumSize">
@@ -23,7 +23,7 @@
    <iconset resource="../../resources/resources.qrc">
     <normaloff>:/icons/finds.png</normaloff>:/icons/finds.png</iconset>
   </property>
-  <layout class="QGridLayout" name="gridLayout_21">
+  <layout class="QGridLayout" name="gridLayout_2">
    <item row="0" column="0">
     <layout class="QHBoxLayout" name="horizontalLayout_3">
      <item>
@@ -32,6 +32,7 @@
         <widget class="QLabel" name="label_32">
          <property name="font">
           <font>
+           <pointsize>8</pointsize>
            <weight>75</weight>
            <bold>true</bold>
           </font>
@@ -41,55 +42,31 @@
          </property>
         </widget>
        </item>
+       <item row="1" column="0">
+        <widget class="QPushButton" name="pushButton_connect">
+         <property name="font">
+          <font>
+           <pointsize>8</pointsize>
+          </font>
+         </property>
+         <property name="text">
+          <string>Connection test</string>
+         </property>
+        </widget>
+       </item>
        <item row="2" column="0" colspan="2">
         <layout class="QGridLayout" name="gridLayout_17">
-         <item row="0" column="5">
-          <widget class="QPushButton" name="pushButton_first_rec">
-           <property name="toolTip">
-            <string>First rec</string>
-           </property>
-           <property name="text">
-            <string/>
-           </property>
-           <property name="icon">
-            <iconset resource="../../resources/resources.qrc">
-             <normaloff>:/icons/5_leftArrows.png</normaloff>:/icons/5_leftArrows.png</iconset>
-           </property>
-          </widget>
-         </item>
-         <item row="0" column="7">
-          <widget class="QPushButton" name="pushButton_next_rec">
-           <property name="toolTip">
-            <string>Next rec</string>
-           </property>
-           <property name="text">
-            <string/>
-           </property>
-           <property name="icon">
-            <iconset resource="../../resources/resources.qrc">
-             <normaloff>:/icons/6_rightArrow.png</normaloff>:/icons/6_rightArrow.png</iconset>
-           </property>
-          </widget>
-         </item>
-         <item row="0" column="8">
-          <widget class="QPushButton" name="pushButton_last_rec">
-           <property name="toolTip">
-            <string>Last rec</string>
-           </property>
-           <property name="text">
-            <string/>
-           </property>
-           <property name="icon">
-            <iconset resource="../../resources/resources.qrc">
-             <normaloff>:/icons/7_rightArrows.png</normaloff>:/icons/7_rightArrows.png</iconset>
-           </property>
-          </widget>
-         </item>
          <item row="0" column="9">
           <widget class="QPushButton" name="pushButton_new_rec">
+           <property name="maximumSize">
+            <size>
+             <width>30</width>
+             <height>16777215</height>
+            </size>
+           </property>
            <property name="font">
             <font>
-             <pointsize>9</pointsize>
+             <pointsize>8</pointsize>
             </font>
            </property>
            <property name="toolTip">
@@ -104,11 +81,117 @@
            </property>
           </widget>
          </item>
-         <item row="0" column="10">
-          <widget class="QPushButton" name="pushButton_save">
+         <item row="0" column="8">
+          <widget class="QPushButton" name="pushButton_last_rec">
+           <property name="maximumSize">
+            <size>
+             <width>30</width>
+             <height>16777215</height>
+            </size>
+           </property>
            <property name="font">
             <font>
-             <pointsize>9</pointsize>
+             <pointsize>8</pointsize>
+            </font>
+           </property>
+           <property name="toolTip">
+            <string>Last rec</string>
+           </property>
+           <property name="text">
+            <string/>
+           </property>
+           <property name="icon">
+            <iconset resource="../../resources/resources.qrc">
+             <normaloff>:/icons/7_rightArrows.png</normaloff>:/icons/7_rightArrows.png</iconset>
+           </property>
+          </widget>
+         </item>
+         <item row="0" column="5">
+          <widget class="QPushButton" name="pushButton_first_rec">
+           <property name="maximumSize">
+            <size>
+             <width>30</width>
+             <height>16777215</height>
+            </size>
+           </property>
+           <property name="font">
+            <font>
+             <pointsize>8</pointsize>
+            </font>
+           </property>
+           <property name="toolTip">
+            <string>First rec</string>
+           </property>
+           <property name="text">
+            <string/>
+           </property>
+           <property name="icon">
+            <iconset resource="../../resources/resources.qrc">
+             <normaloff>:/icons/5_leftArrows.png</normaloff>:/icons/5_leftArrows.png</iconset>
+           </property>
+          </widget>
+         </item>
+         <item row="0" column="7">
+          <widget class="QPushButton" name="pushButton_next_rec">
+           <property name="maximumSize">
+            <size>
+             <width>30</width>
+             <height>16777215</height>
+            </size>
+           </property>
+           <property name="font">
+            <font>
+             <pointsize>8</pointsize>
+            </font>
+           </property>
+           <property name="toolTip">
+            <string>Next rec</string>
+           </property>
+           <property name="text">
+            <string/>
+           </property>
+           <property name="icon">
+            <iconset resource="../../resources/resources.qrc">
+             <normaloff>:/icons/6_rightArrow.png</normaloff>:/icons/6_rightArrow.png</iconset>
+           </property>
+          </widget>
+         </item>
+         <item row="1" column="7">
+          <widget class="QPushButton" name="pushButton_new_search">
+           <property name="maximumSize">
+            <size>
+             <width>30</width>
+             <height>16777215</height>
+            </size>
+           </property>
+           <property name="font">
+            <font>
+             <pointsize>8</pointsize>
+            </font>
+           </property>
+           <property name="toolTip">
+            <string>new search</string>
+           </property>
+           <property name="text">
+            <string/>
+           </property>
+           <property name="icon">
+            <iconset resource="../../resources/resources.qrc">
+             <normaloff>:/icons/new_search.png</normaloff>:/icons/new_search.png</iconset>
+           </property>
+          </widget>
+         </item>
+         <item row="0" column="10">
+          <widget class="QPushButton" name="pushButton_save">
+           <property name="maximumSize">
+            <size>
+             <width>30</width>
+             <height>16777215</height>
+            </size>
+           </property>
+           <property name="font">
+            <font>
+             <pointsize>8</pointsize>
             </font>
            </property>
            <property name="toolTip">
@@ -126,30 +209,17 @@
            </property>
           </widget>
          </item>
-         <item row="1" column="7">
-          <widget class="QPushButton" name="pushButton_new_search">
-           <property name="font">
-            <font>
-             <pointsize>9</pointsize>
-            </font>
-           </property>
-           <property name="toolTip">
-            <string>new search</string>
-           </property>
-           <property name="text">
-            <string/>
-           </property>
-           <property name="icon">
-            <iconset resource="../../resources/resources.qrc">
-             <normaloff>:/icons/new_search.png</normaloff>:/icons/new_search.png</iconset>
-           </property>
-          </widget>
-         </item>
          <item row="1" column="8">
           <widget class="QPushButton" name="pushButton_search_go">
+           <property name="maximumSize">
+            <size>
+             <width>30</width>
+             <height>16777215</height>
+            </size>
+           </property>
            <property name="font">
             <font>
-             <pointsize>9</pointsize>
+             <pointsize>8</pointsize>
             </font>
            </property>
            <property name="toolTip">
@@ -166,9 +236,15 @@
          </item>
          <item row="1" column="9">
           <widget class="QPushButton" name="pushButton_sort">
+           <property name="maximumSize">
+            <size>
+             <width>30</width>
+             <height>16777215</height>
+            </size>
+           </property>
            <property name="font">
             <font>
-             <pointsize>9</pointsize>
+             <pointsize>8</pointsize>
             </font>
            </property>
            <property name="toolTip">
@@ -185,9 +261,15 @@
          </item>
          <item row="1" column="10">
           <widget class="QPushButton" name="pushButton_view_all_2">
+           <property name="maximumSize">
+            <size>
+             <width>30</width>
+             <height>16777215</height>
+            </size>
+           </property>
            <property name="font">
             <font>
-             <pointsize>9</pointsize>
+             <pointsize>8</pointsize>
             </font>
            </property>
            <property name="toolTip">
@@ -202,14 +284,45 @@
            </property>
           </widget>
          </item>
-         <item row="1" column="2">
+         <item row="0" column="6">
+          <widget class="QPushButton" name="pushButton_prev_rec">
+           <property name="maximumSize">
+            <size>
+             <width>30</width>
+             <height>16777215</height>
+            </size>
+           </property>
+           <property name="font">
+            <font>
+             <pointsize>8</pointsize>
+            </font>
+           </property>
+           <property name="toolTip">
+            <string>Prev rec</string>
+           </property>
+           <property name="text">
+            <string/>
+           </property>
+           <property name="icon">
+            <iconset resource="../../resources/resources.qrc">
+             <normaloff>:/icons/4_leftArrow.png</normaloff>:/icons/4_leftArrow.png</iconset>
+           </property>
+          </widget>
+         </item>
+         <item row="1" column="6">
           <widget class="QPushButton" name="pushButton_delete">
            <property name="enabled">
             <bool>true</bool>
            </property>
+           <property name="maximumSize">
+            <size>
+             <width>30</width>
+             <height>16777215</height>
+            </size>
+           </property>
            <property name="font">
             <font>
-             <pointsize>9</pointsize>
+             <pointsize>8</pointsize>
             </font>
            </property>
            <property name="toolTip">
@@ -224,61 +337,45 @@
            </property>
           </widget>
          </item>
-         <item row="0" column="6">
-          <widget class="QPushButton" name="pushButton_prev_rec">
-           <property name="toolTip">
-            <string>Prev rec</string>
-           </property>
-           <property name="text">
-            <string/>
-           </property>
-           <property name="icon">
-            <iconset resource="../../resources/resources.qrc">
-             <normaloff>:/icons/4_leftArrow.png</normaloff>:/icons/4_leftArrow.png</iconset>
-           </property>
-          </widget>
-         </item>
-         <item row="1" column="6">
-          <widget class="QToolButton" name="toolButtonGis">
-           <property name="minimumSize">
-            <size>
-             <width>109</width>
-             <height>0</height>
-            </size>
-           </property>
-           <property name="toolTip">
-            <string/>
-           </property>
-           <property name="text">
-            <string>GIS Data Viewer</string>
-           </property>
-           <property name="icon">
-            <iconset resource="../../resources/resources.qrc">
-             <normaloff>:/icons/GIS.png</normaloff>:/icons/GIS.png</iconset>
-           </property>
-           <property name="shortcut">
-            <string>Ctrl+G</string>
-           </property>
-           <property name="checkable">
-            <bool>true</bool>
-           </property>
-           <property name="checked">
-            <bool>false</bool>
-           </property>
-           <property name="toolButtonStyle">
-            <enum>Qt::ToolButtonTextOnly</enum>
-           </property>
-           <property name="arrowType">
-            <enum>Qt::NoArrow</enum>
-           </property>
-          </widget>
-         </item>
         </layout>
        </item>
-       <item row="1" column="0">
-        <widget class="QPushButton" name="pushButton_connect">
+       <item row="1" column="1">
+        <widget class="QToolButton" name="toolButtonGis">
+         <property name="minimumSize">
+          <size>
+           <width>109</width>
+           <height>0</height>
+          </size>
+         </property>
+         <property name="font">
+          <font>
+           <pointsize>8</pointsize>
+          </font>
+         </property>
+         <property name="toolTip">
+          <string/>
+         </property>
          <property name="text">
-          <string>Connection test</string>
+          <string>GIS Data Viewer</string>
+         </property>
+         <property name="icon">
+          <iconset resource="../../resources/resources.qrc">
+           <normaloff>:/icons/GIS.png</normaloff>:/icons/GIS.png</iconset>
+         </property>
+         <property name="shortcut">
+          <string>Ctrl+G</string>
+         </property>
+         <property name="checkable">
+          <bool>true</bool>
+         </property>
+         <property name="checked">
+          <bool>false</bool>
+         </property>
+         <property name="toolButtonStyle">
+          <enum>Qt::ToolButtonTextOnly</enum>
+         </property>
+         <property name="arrowType">
+          <enum>Qt::NoArrow</enum>
          </property>
         </widget>
        </item>
@@ -286,6 +383,11 @@
      </item>
      <item>
       <widget class="Line" name="line_7">
+       <property name="font">
+        <font>
+         <pointsize>8</pointsize>
+        </font>
+       </property>
        <property name="orientation">
         <enum>Qt::Vertical</enum>
        </property>
@@ -297,6 +399,7 @@
         <widget class="QLabel" name="label_44">
          <property name="font">
           <font>
+           <pointsize>8</pointsize>
            <weight>75</weight>
            <bold>true</bold>
           </font>
@@ -315,7 +418,7 @@
           <widget class="QLabel" name="label_45">
            <property name="font">
             <font>
-             <pointsize>9</pointsize>
+             <pointsize>8</pointsize>
              <weight>75</weight>
              <bold>true</bold>
             </font>
@@ -338,7 +441,7 @@
            </property>
            <property name="font">
             <font>
-             <pointsize>10</pointsize>
+             <pointsize>8</pointsize>
              <weight>75</weight>
              <bold>true</bold>
             </font>
@@ -373,7 +476,7 @@
           <widget class="QLabel" name="label_sort">
            <property name="font">
             <font>
-             <pointsize>10</pointsize>
+             <pointsize>8</pointsize>
              <weight>75</weight>
              <bold>true</bold>
             </font>
@@ -408,7 +511,7 @@
           <widget class="QLabel" name="label_35">
            <property name="font">
             <font>
-             <pointsize>9</pointsize>
+             <pointsize>8</pointsize>
              <weight>75</weight>
              <bold>true</bold>
             </font>
@@ -429,7 +532,7 @@
           <widget class="QLabel" name="label_33">
            <property name="font">
             <font>
-             <pointsize>9</pointsize>
+             <pointsize>8</pointsize>
              <weight>75</weight>
              <bold>true</bold>
             </font>
@@ -447,7 +550,7 @@
            <property name="font">
             <font>
              <family>Microsoft Sans Serif</family>
-             <pointsize>12</pointsize>
+             <pointsize>8</pointsize>
             </font>
            </property>
            <property name="cursor">
@@ -474,7 +577,7 @@
           <widget class="QLabel" name="label_36">
            <property name="font">
             <font>
-             <pointsize>9</pointsize>
+             <pointsize>8</pointsize>
              <weight>75</weight>
              <bold>true</bold>
             </font>
@@ -492,7 +595,7 @@
            <property name="font">
             <font>
              <family>Microsoft Sans Serif</family>
-             <pointsize>12</pointsize>
+             <pointsize>8</pointsize>
             </font>
            </property>
            <property name="cursor">
@@ -522,30 +625,69 @@
     </layout>
    </item>
    <item row="1" column="0">
-    <layout class="QGridLayout" name="gridLayout_6">
-     <item row="0" column="0" colspan="3">
-      <widget class="Line" name="line_8">
+    <widget class="Line" name="line_8">
+     <property name="font">
+      <font>
+       <pointsize>8</pointsize>
+       <weight>75</weight>
+       <bold>true</bold>
+      </font>
+     </property>
+     <property name="orientation">
+      <enum>Qt::Horizontal</enum>
+     </property>
+    </widget>
+   </item>
+   <item row="2" column="0">
+    <layout class="QGridLayout" name="gridLayout">
+     <item row="0" column="0">
+      <widget class="QLabel" name="label_3">
+       <property name="sizePolicy">
+        <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
+         <horstretch>0</horstretch>
+         <verstretch>0</verstretch>
+        </sizepolicy>
+       </property>
        <property name="font">
         <font>
-         <weight>75</weight>
-         <bold>true</bold>
+         <pointsize>8</pointsize>
+         <weight>50</weight>
+         <bold>false</bold>
         </font>
        </property>
-       <property name="orientation">
-        <enum>Qt::Horizontal</enum>
+       <property name="text">
+        <string>Sito</string>
        </property>
       </widget>
      </item>
-     <item row="1" column="0" colspan="2">
+     <item row="0" column="1" colspan="6">
       <widget class="QComboBox" name="comboBox_sito">
        <property name="enabled">
         <bool>false</bool>
        </property>
+       <property name="sizePolicy">
+        <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
+         <horstretch>0</horstretch>
+         <verstretch>0</verstretch>
+        </sizepolicy>
+       </property>
+       <property name="minimumSize">
+        <size>
+         <width>0</width>
+         <height>0</height>
+        </size>
+       </property>
+       <property name="maximumSize">
+        <size>
+         <width>16777215</width>
+         <height>20</height>
+        </size>
+       </property>
        <property name="font">
         <font>
-         <pointsize>12</pointsize>
-         <weight>75</weight>
-         <bold>true</bold>
+         <pointsize>8</pointsize>
+         <weight>50</weight>
+         <bold>false</bold>
         </font>
        </property>
        <property name="mouseTracking">
@@ -573,63 +715,19 @@
        </item>
       </widget>
      </item>
-     <item row="1" column="2">
-      <widget class="QLineEdit" name="lineEdit_num_inv">
-       <property name="enabled">
-        <bool>false</bool>
-       </property>
-       <property name="font">
-        <font>
-         <pointsize>10</pointsize>
-        </font>
-       </property>
-       <property name="text">
-        <string>0</string>
-       </property>
-      </widget>
-     </item>
-     <item row="2" column="0">
-      <widget class="QLabel" name="label_3">
-       <property name="font">
-        <font>
-         <pointsize>12</pointsize>
-        </font>
-       </property>
-       <property name="text">
-        <string>Sito</string>
-       </property>
-      </widget>
-     </item>
-     <item row="2" column="1">
-      <spacer name="horizontalSpacer_3">
-       <property name="orientation">
-        <enum>Qt::Horizontal</enum>
-       </property>
-       <property name="sizeHint" stdset="0">
-        <size>
-         <width>300</width>
-         <height>20</height>
-        </size>
-       </property>
-      </spacer>
-     </item>
-     <item row="2" column="2">
-      <widget class="QLabel" name="label">
-       <property name="font">
-        <font>
-         <pointsize>12</pointsize>
-        </font>
-       </property>
-       <property name="text">
-        <string>Nr. Inventario</string>
-       </property>
-      </widget>
-     </item>
-     <item row="4" column="1">
+     <item row="1" column="0" colspan="2">
       <widget class="QLabel" name="label_5">
+       <property name="sizePolicy">
+        <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
+         <horstretch>0</horstretch>
+         <verstretch>0</verstretch>
+        </sizepolicy>
+       </property>
        <property name="font">
         <font>
-         <pointsize>11</pointsize>
+         <pointsize>8</pointsize>
+         <weight>50</weight>
+         <bold>false</bold>
         </font>
        </property>
        <property name="text">
@@ -637,16 +735,22 @@
        </property>
       </widget>
      </item>
-     <item row="3" column="1">
+     <item row="1" column="2" colspan="3">
       <widget class="QComboBox" name="comboBox_tipo_reperto">
        <property name="enabled">
         <bool>true</bool>
        </property>
+       <property name="sizePolicy">
+        <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
+         <horstretch>0</horstretch>
+         <verstretch>0</verstretch>
+        </sizepolicy>
+       </property>
        <property name="font">
         <font>
-         <pointsize>10</pointsize>
-         <weight>75</weight>
-         <bold>true</bold>
+         <pointsize>8</pointsize>
+         <weight>50</weight>
+         <bold>false</bold>
         </font>
        </property>
        <property name="mouseTracking">
@@ -719,16 +823,85 @@
        </item>
       </widget>
      </item>
-     <item row="3" column="2">
+     <item row="1" column="5">
+      <widget class="QLabel" name="label">
+       <property name="sizePolicy">
+        <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
+         <horstretch>0</horstretch>
+         <verstretch>0</verstretch>
+        </sizepolicy>
+       </property>
+       <property name="font">
+        <font>
+         <pointsize>8</pointsize>
+         <weight>50</weight>
+         <bold>false</bold>
+        </font>
+       </property>
+       <property name="text">
+        <string>Nr. Inventario</string>
+       </property>
+      </widget>
+     </item>
+     <item row="1" column="6">
+      <widget class="QLineEdit" name="lineEdit_num_inv">
+       <property name="enabled">
+        <bool>false</bool>
+       </property>
+       <property name="sizePolicy">
+        <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
+         <horstretch>0</horstretch>
+         <verstretch>0</verstretch>
+        </sizepolicy>
+       </property>
+       <property name="font">
+        <font>
+         <pointsize>8</pointsize>
+         <weight>50</weight>
+         <bold>false</bold>
+        </font>
+       </property>
+       <property name="text">
+        <string>0</string>
+       </property>
+      </widget>
+     </item>
+     <item row="2" column="0" colspan="3">
+      <widget class="QLabel" name="label_7">
+       <property name="sizePolicy">
+        <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
+         <horstretch>0</horstretch>
+         <verstretch>0</verstretch>
+        </sizepolicy>
+       </property>
+       <property name="font">
+        <font>
+         <pointsize>8</pointsize>
+         <weight>50</weight>
+         <bold>false</bold>
+        </font>
+       </property>
+       <property name="text">
+        <string>Classe materiale</string>
+       </property>
+      </widget>
+     </item>
+     <item row="2" column="3">
       <widget class="QComboBox" name="comboBox_criterio_schedatura">
        <property name="enabled">
         <bool>true</bool>
        </property>
+       <property name="sizePolicy">
+        <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
+         <horstretch>0</horstretch>
+         <verstretch>0</verstretch>
+        </sizepolicy>
+       </property>
        <property name="font">
         <font>
-         <pointsize>10</pointsize>
-         <weight>75</weight>
-         <bold>true</bold>
+         <pointsize>8</pointsize>
+         <weight>50</weight>
+         <bold>false</bold>
         </font>
        </property>
        <property name="mouseTracking">
@@ -776,16 +949,42 @@
        </item>
       </widget>
      </item>
-     <item row="7" column="1">
+     <item row="2" column="4" colspan="2">
+      <widget class="QLabel" name="label_4">
+       <property name="sizePolicy">
+        <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
+         <horstretch>0</horstretch>
+         <verstretch>0</verstretch>
+        </sizepolicy>
+       </property>
+       <property name="font">
+        <font>
+         <pointsize>8</pointsize>
+         <weight>50</weight>
+         <bold>false</bold>
+        </font>
+       </property>
+       <property name="text">
+        <string>Definizione reperto</string>
+       </property>
+      </widget>
+     </item>
+     <item row="2" column="6">
       <widget class="QComboBox" name="comboBox_definizione">
        <property name="enabled">
         <bool>true</bool>
        </property>
+       <property name="sizePolicy">
+        <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
+         <horstretch>0</horstretch>
+         <verstretch>0</verstretch>
+        </sizepolicy>
+       </property>
        <property name="font">
         <font>
-         <pointsize>10</pointsize>
-         <weight>75</weight>
-         <bold>true</bold>
+         <pointsize>8</pointsize>
+         <weight>50</weight>
+         <bold>false</bold>
         </font>
        </property>
        <property name="mouseTracking">
@@ -833,37 +1032,13 @@
        </item>
       </widget>
      </item>
-     <item row="8" column="1">
-      <widget class="QLabel" name="label_4">
-       <property name="font">
-        <font>
-         <pointsize>11</pointsize>
-        </font>
-       </property>
-       <property name="text">
-        <string>Definizione reperto</string>
-       </property>
-      </widget>
-     </item>
-     <item row="4" column="2">
-      <widget class="QLabel" name="label_7">
-       <property name="font">
-        <font>
-         <pointsize>11</pointsize>
-        </font>
-       </property>
-       <property name="text">
-        <string>Classe materiale</string>
-       </property>
-      </widget>
-     </item>
     </layout>
    </item>
-   <item row="2" column="0">
+   <item row="3" column="0">
     <widget class="QTabWidget" name="tabWidget">
      <property name="font">
       <font>
-       <pointsize>10</pointsize>
+       <pointsize>8</pointsize>
       </font>
      </property>
      <property name="currentIndex">
@@ -874,23 +1049,13 @@
        <string>Dati descrittivi</string>
       </attribute>
       <layout class="QGridLayout" name="gridLayout_8">
-       <item row="0" column="0">
-        <layout class="QGridLayout" name="gridLayout_7"/>
-       </item>
        <item row="1" column="0">
         <layout class="QHBoxLayout" name="horizontalLayout_2">
-         <item>
-          <widget class="QLabel" name="label_6">
-           <property name="text">
-            <string>Descrizione </string>
-           </property>
-          </widget>
-         </item>
          <item>
           <widget class="QTextEdit" name="textEdit_descrizione_reperto">
            <property name="font">
             <font>
-             <pointsize>10</pointsize>
+             <pointsize>8</pointsize>
             </font>
            </property>
           </widget>
@@ -898,36 +1063,26 @@
          <item>
           <layout class="QVBoxLayout" name="verticalLayout_2">
            <item>
-            <widget class="QComboBox" name="comboBox_repertato">
-             <property name="editable">
-              <bool>true</bool>
-             </property>
-             <item>
-              <property name="text">
-               <string>No</string>
-              </property>
-             </item>
-             <item>
-              <property name="text">
-               <string>Si</string>
-              </property>
-             </item>
-             <item>
-              <property name="text">
-               <string/>
-              </property>
-             </item>
-            </widget>
-           </item>
-           <item>
             <widget class="QLabel" name="label_30">
+             <property name="font">
+              <font>
+               <pointsize>8</pointsize>
+              </font>
+             </property>
              <property name="text">
               <string>Repertato</string>
              </property>
             </widget>
            </item>
            <item>
-            <widget class="QComboBox" name="comboBox_diagnostico">
+            <widget class="QComboBox" name="comboBox_repertato">
+             <property name="font">
+              <font>
+               <pointsize>8</pointsize>
+               <weight>50</weight>
+               <bold>false</bold>
+              </font>
+             </property>
              <property name="editable">
               <bool>true</bool>
              </property>
@@ -950,8 +1105,52 @@
            </item>
            <item>
             <widget class="QLabel" name="label_31">
+             <property name="font">
+              <font>
+               <pointsize>8</pointsize>
+              </font>
+             </property>
              <property name="text">
               <string>Diagnostico</string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QComboBox" name="comboBox_diagnostico">
+             <property name="font">
+              <font>
+               <pointsize>8</pointsize>
+              </font>
+             </property>
+             <property name="editable">
+              <bool>true</bool>
+             </property>
+             <item>
+              <property name="text">
+               <string>No</string>
+              </property>
+             </item>
+             <item>
+              <property name="text">
+               <string>Si</string>
+              </property>
+             </item>
+             <item>
+              <property name="text">
+               <string/>
+              </property>
+             </item>
+            </widget>
+           </item>
+           <item>
+            <widget class="QLabel" name="label_26">
+             <property name="font">
+              <font>
+               <pointsize>8</pointsize>
+              </font>
+             </property>
+             <property name="text">
+              <string>Stato di conservazione</string>
              </property>
             </widget>
            </item>
@@ -959,7 +1158,7 @@
             <widget class="QComboBox" name="comboBox_conservazione">
              <property name="font">
               <font>
-               <pointsize>10</pointsize>
+               <pointsize>8</pointsize>
               </font>
              </property>
              <property name="editable">
@@ -993,19 +1192,19 @@
             </widget>
            </item>
            <item>
-            <widget class="QLabel" name="label_26">
-             <property name="font">
-              <font>
-               <pointsize>10</pointsize>
-              </font>
-             </property>
-             <property name="text">
-              <string>Stato di conservazione</string>
-             </property>
-            </widget>
-           </item>
-           <item>
             <layout class="QVBoxLayout" name="verticalLayout_4">
+             <item>
+              <widget class="QLabel" name="label_13">
+               <property name="font">
+                <font>
+                 <pointsize>8</pointsize>
+                </font>
+               </property>
+               <property name="text">
+                <string>Tipo</string>
+               </property>
+              </widget>
+             </item>
              <item>
               <widget class="QLineEdit" name="lineEdit_tipo">
                <property name="minimumSize">
@@ -1014,12 +1213,22 @@
                  <height>24</height>
                 </size>
                </property>
+               <property name="font">
+                <font>
+                 <pointsize>8</pointsize>
+                </font>
+               </property>
               </widget>
              </item>
              <item>
-              <widget class="QLabel" name="label_13">
+              <widget class="QLabel" name="label_41">
+               <property name="font">
+                <font>
+                 <pointsize>8</pointsize>
+                </font>
+               </property>
                <property name="text">
-                <string>Tipo</string>
+                <string>Datazione reperto</string>
                </property>
               </widget>
              </item>
@@ -1033,7 +1242,7 @@
                </property>
                <property name="font">
                 <font>
-                 <pointsize>10</pointsize>
+                 <pointsize>8</pointsize>
                 </font>
                </property>
                <property name="text">
@@ -1041,22 +1250,15 @@
                </property>
               </widget>
              </item>
-             <item>
-              <widget class="QLabel" name="label_41">
-               <property name="font">
-                <font>
-                 <pointsize>10</pointsize>
-                </font>
-               </property>
-               <property name="text">
-                <string>Datazione reperto</string>
-               </property>
-              </widget>
-             </item>
             </layout>
            </item>
            <item>
             <spacer name="verticalSpacer_3">
+             <property name="font">
+              <font>
+               <pointsize>8</pointsize>
+              </font>
+             </property>
              <property name="orientation">
               <enum>Qt::Vertical</enum>
              </property>
@@ -1071,6 +1273,18 @@
           </layout>
          </item>
         </layout>
+       </item>
+       <item row="0" column="0">
+        <widget class="QLabel" name="label_6">
+         <property name="font">
+          <font>
+           <pointsize>8</pointsize>
+          </font>
+         </property>
+         <property name="text">
+          <string>Descrizione </string>
+         </property>
+        </widget>
        </item>
       </layout>
      </widget>
@@ -1401,31 +1615,14 @@
        <string>Tecnologie</string>
       </attribute>
       <layout class="QGridLayout" name="gridLayout_13">
-       <item row="0" column="0">
-        <widget class="QLabel" name="label_23">
+       <item row="2" column="0" colspan="2">
+        <widget class="QLineEdit" name="lineEditCorpoCeramico">
          <property name="font">
           <font>
-           <weight>75</weight>
-           <bold>true</bold>
+           <pointsize>8</pointsize>
           </font>
          </property>
-         <property name="text">
-          <string>Tecnologie</string>
-         </property>
         </widget>
-       </item>
-       <item row="0" column="1" colspan="2">
-        <spacer name="horizontalSpacer_5">
-         <property name="orientation">
-          <enum>Qt::Horizontal</enum>
-         </property>
-         <property name="sizeHint" stdset="0">
-          <size>
-           <width>228</width>
-           <height>20</height>
-          </size>
-         </property>
-        </spacer>
        </item>
        <item row="0" column="3">
         <widget class="QPushButton" name="pushButton_remove_row_tecnologie">
@@ -1437,7 +1634,7 @@
          </property>
          <property name="font">
           <font>
-           <pointsize>9</pointsize>
+           <pointsize>8</pointsize>
           </font>
          </property>
          <property name="text">
@@ -1445,28 +1642,52 @@
          </property>
         </widget>
        </item>
-       <item row="0" column="4">
-        <widget class="QPushButton" name="pushButton_insert_row_tecnologie">
-         <property name="maximumSize">
-          <size>
-           <width>200</width>
-           <height>16777215</height>
-          </size>
-         </property>
+       <item row="0" column="1" colspan="2">
+        <spacer name="horizontalSpacer_5">
          <property name="font">
           <font>
-           <pointsize>9</pointsize>
+           <pointsize>8</pointsize>
           </font>
          </property>
-         <property name="text">
-          <string>inserisci riga</string>
+         <property name="orientation">
+          <enum>Qt::Horizontal</enum>
+         </property>
+         <property name="sizeHint" stdset="0">
+          <size>
+           <width>228</width>
+           <height>20</height>
+          </size>
+         </property>
+        </spacer>
+       </item>
+       <item row="5" column="0" colspan="2">
+        <widget class="QLineEdit" name="lineEditRivestimento">
+         <property name="font">
+          <font>
+           <pointsize>8</pointsize>
+          </font>
          </property>
         </widget>
        </item>
-       <item row="1" column="0" colspan="2">
-        <widget class="QLineEdit" name="lineEditCorpoCeramico"/>
+       <item row="7" column="0">
+        <spacer name="verticalSpacer_4">
+         <property name="font">
+          <font>
+           <pointsize>8</pointsize>
+          </font>
+         </property>
+         <property name="orientation">
+          <enum>Qt::Vertical</enum>
+         </property>
+         <property name="sizeHint" stdset="0">
+          <size>
+           <width>20</width>
+           <height>136</height>
+          </size>
+         </property>
+        </spacer>
        </item>
-       <item row="1" column="2" rowspan="5" colspan="3">
+       <item row="2" column="2" rowspan="6" colspan="3">
         <widget class="QTableWidget" name="tableWidget_tecnologie">
          <property name="minimumSize">
           <size>
@@ -1476,7 +1697,7 @@
          </property>
          <property name="font">
           <font>
-           <pointsize>9</pointsize>
+           <pointsize>8</pointsize>
           </font>
          </property>
          <property name="frameShape">
@@ -1534,35 +1755,61 @@
          </column>
         </widget>
        </item>
-       <item row="2" column="0" colspan="2">
+       <item row="0" column="4">
+        <widget class="QPushButton" name="pushButton_insert_row_tecnologie">
+         <property name="maximumSize">
+          <size>
+           <width>200</width>
+           <height>16777215</height>
+          </size>
+         </property>
+         <property name="font">
+          <font>
+           <pointsize>8</pointsize>
+          </font>
+         </property>
+         <property name="text">
+          <string>inserisci riga</string>
+         </property>
+        </widget>
+       </item>
+       <item row="0" column="0">
+        <widget class="QLabel" name="label_23">
+         <property name="font">
+          <font>
+           <pointsize>8</pointsize>
+           <weight>75</weight>
+           <bold>true</bold>
+          </font>
+         </property>
+         <property name="text">
+          <string>Tecnologie</string>
+         </property>
+        </widget>
+       </item>
+       <item row="1" column="0">
         <widget class="QLabel" name="label_12">
+         <property name="font">
+          <font>
+           <pointsize>8</pointsize>
+          </font>
+         </property>
          <property name="text">
           <string>Corpo ceramico</string>
          </property>
         </widget>
        </item>
-       <item row="3" column="0" colspan="2">
-        <widget class="QLineEdit" name="lineEditRivestimento"/>
-       </item>
-       <item row="4" column="0" colspan="2">
+       <item row="4" column="0">
         <widget class="QLabel" name="label_11">
+         <property name="font">
+          <font>
+           <pointsize>8</pointsize>
+          </font>
+         </property>
          <property name="text">
           <string>Rivestimento</string>
          </property>
         </widget>
-       </item>
-       <item row="5" column="0">
-        <spacer name="verticalSpacer_4">
-         <property name="orientation">
-          <enum>Qt::Vertical</enum>
-         </property>
-         <property name="sizeHint" stdset="0">
-          <size>
-           <width>20</width>
-           <height>136</height>
-          </size>
-         </property>
-        </spacer>
        </item>
       </layout>
      </widget>
@@ -1718,31 +1965,7 @@
            </item>
            <item row="1" column="0">
             <layout class="QGridLayout" name="gridLayout_27">
-             <item row="0" column="0" colspan="2">
-              <widget class="QLineEdit" name="lineEdit_area">
-               <property name="font">
-                <font>
-                 <pointsize>10</pointsize>
-                </font>
-               </property>
-               <property name="text">
-                <string/>
-               </property>
-              </widget>
-             </item>
-             <item row="1" column="0">
-              <widget class="QLabel" name="label_37">
-               <property name="font">
-                <font>
-                 <pointsize>10</pointsize>
-                </font>
-               </property>
-               <property name="text">
-                <string>Area</string>
-               </property>
-              </widget>
-             </item>
-             <item row="1" column="1">
+             <item row="2" column="1">
               <spacer name="horizontalSpacer_15">
                <property name="orientation">
                 <enum>Qt::Horizontal</enum>
@@ -1755,12 +1978,20 @@
                </property>
               </spacer>
              </item>
-            </layout>
-           </item>
-           <item row="1" column="1">
-            <layout class="QGridLayout" name="gridLayout_28">
-             <item row="0" column="0" colspan="2">
-              <widget class="QLineEdit" name="lineEdit_us">
+             <item row="0" column="0">
+              <widget class="QLabel" name="label_37">
+               <property name="font">
+                <font>
+                 <pointsize>10</pointsize>
+                </font>
+               </property>
+               <property name="text">
+                <string>Area</string>
+               </property>
+              </widget>
+             </item>
+             <item row="0" column="1">
+              <widget class="QLineEdit" name="lineEdit_area">
                <property name="font">
                 <font>
                  <pointsize>10</pointsize>
@@ -1771,19 +2002,11 @@
                </property>
               </widget>
              </item>
-             <item row="1" column="0">
-              <widget class="QLabel" name="label_38">
-               <property name="font">
-                <font>
-                 <pointsize>10</pointsize>
-                </font>
-               </property>
-               <property name="text">
-                <string>US</string>
-               </property>
-              </widget>
-             </item>
-             <item row="1" column="1">
+            </layout>
+           </item>
+           <item row="1" column="1">
+            <layout class="QGridLayout" name="gridLayout_28">
+             <item row="2" column="1">
               <spacer name="horizontalSpacer_16">
                <property name="orientation">
                 <enum>Qt::Horizontal</enum>
@@ -1795,6 +2018,30 @@
                 </size>
                </property>
               </spacer>
+             </item>
+             <item row="0" column="0">
+              <widget class="QLabel" name="label_38">
+               <property name="font">
+                <font>
+                 <pointsize>10</pointsize>
+                </font>
+               </property>
+               <property name="text">
+                <string>US</string>
+               </property>
+              </widget>
+             </item>
+             <item row="0" column="1">
+              <widget class="QLineEdit" name="lineEdit_us">
+               <property name="font">
+                <font>
+                 <pointsize>10</pointsize>
+                </font>
+               </property>
+               <property name="text">
+                <string/>
+               </property>
+              </widget>
              </item>
             </layout>
            </item>
@@ -2061,7 +2308,6 @@
   </customwidget>
  </customwidgets>
  <tabstops>
-  <tabstop>lineEdit_num_inv</tabstop>
   <tabstop>comboBox_tipo_reperto</tabstop>
   <tabstop>comboBox_criterio_schedatura</tabstop>
   <tabstop>comboBox_definizione</tabstop>
@@ -2083,8 +2329,6 @@
   <tabstop>lineEditRivestimento</tabstop>
   <tabstop>tableWidget_tecnologie</tabstop>
   <tabstop>tableWidget_rif_biblio</tabstop>
-  <tabstop>lineEdit_area</tabstop>
-  <tabstop>lineEdit_us</tabstop>
   <tabstop>comboBox_lavato</tabstop>
   <tabstop>lineEdit_nr_cassa</tabstop>
   <tabstop>lineEdit_luogo_conservazione</tabstop>
@@ -2098,7 +2342,6 @@
   <tabstop>pushButton_remove_row_rif_biblio</tabstop>
   <tabstop>pushButton_insert_row_elementi</tabstop>
   <tabstop>pushButton_remove_row_elementi</tabstop>
-  <tabstop>comboBox_sito</tabstop>
   <tabstop>pushButtonQuant</tabstop>
  </tabstops>
  <resources>
