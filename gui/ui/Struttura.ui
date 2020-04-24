@@ -503,86 +503,7 @@
     <layout class="QVBoxLayout" name="verticalLayout_2">
      <item>
       <layout class="QGridLayout" name="gridLayout_18">
-       <item row="0" column="0">
-        <widget class="QComboBox" name="comboBox_sito">
-         <property name="enabled">
-          <bool>false</bool>
-         </property>
-         <property name="minimumSize">
-          <size>
-           <width>341</width>
-           <height>26</height>
-          </size>
-         </property>
-         <property name="font">
-          <font>
-           <pointsize>10</pointsize>
-           <weight>75</weight>
-           <bold>true</bold>
-          </font>
-         </property>
-         <property name="mouseTracking">
-          <bool>true</bool>
-         </property>
-         <property name="editable">
-          <bool>true</bool>
-         </property>
-         <property name="maxVisibleItems">
-          <number>99999</number>
-         </property>
-         <property name="maxCount">
-          <number>2147483647</number>
-         </property>
-        </widget>
-       </item>
-       <item row="0" column="2">
-        <widget class="QLineEdit" name="numero_struttura">
-         <property name="enabled">
-          <bool>false</bool>
-         </property>
-         <property name="minimumSize">
-          <size>
-           <width>61</width>
-           <height>21</height>
-          </size>
-         </property>
-         <property name="maximumSize">
-          <size>
-           <width>71</width>
-           <height>16777215</height>
-          </size>
-         </property>
-         <property name="font">
-          <font>
-           <pointsize>12</pointsize>
-           <weight>75</weight>
-           <bold>true</bold>
-          </font>
-         </property>
-        </widget>
-       </item>
-       <item row="1" column="0">
-        <widget class="QLabel" name="label">
-         <property name="text">
-          <string>Sito </string>
-         </property>
-        </widget>
-       </item>
        <item row="1" column="1">
-        <widget class="QLabel" name="label_2">
-         <property name="text">
-          <string>Sigla struttura</string>
-         </property>
-        </widget>
-       </item>
-       <item row="1" column="2">
-        <widget class="QLabel" name="label_3">
-         <property name="text">
-          <string>N°</string>
-         </property>
-        </widget>
-       </item>
-       <item row="0" column="1">
         <widget class="QComboBox" name="comboBox_sigla_struttura">
          <property name="enabled">
           <bool>false</bool>
@@ -621,12 +542,43 @@
          </item>
         </widget>
        </item>
-      </layout>
-     </item>
-     <item>
-      <layout class="QGridLayout" name="gridLayout_6">
-       <item row="0" column="0">
-        <widget class="QComboBox" name="comboBox_categoria_struttura">
+       <item row="1" column="2">
+        <widget class="QLineEdit" name="numero_struttura">
+         <property name="enabled">
+          <bool>false</bool>
+         </property>
+         <property name="minimumSize">
+          <size>
+           <width>61</width>
+           <height>21</height>
+          </size>
+         </property>
+         <property name="maximumSize">
+          <size>
+           <width>71</width>
+           <height>16777215</height>
+          </size>
+         </property>
+         <property name="font">
+          <font>
+           <pointsize>12</pointsize>
+           <weight>75</weight>
+           <bold>true</bold>
+          </font>
+         </property>
+        </widget>
+       </item>
+       <item row="1" column="0">
+        <widget class="QComboBox" name="comboBox_sito">
+         <property name="enabled">
+          <bool>false</bool>
+         </property>
+         <property name="minimumSize">
+          <size>
+           <width>341</width>
+           <height>26</height>
+          </size>
+         </property>
          <property name="font">
           <font>
            <pointsize>10</pointsize>
@@ -634,12 +586,46 @@
            <bold>true</bold>
           </font>
          </property>
+         <property name="mouseTracking">
+          <bool>true</bool>
+         </property>
          <property name="editable">
           <bool>true</bool>
+         </property>
+         <property name="maxVisibleItems">
+          <number>99999</number>
+         </property>
+         <property name="maxCount">
+          <number>2147483647</number>
+         </property>
+        </widget>
+       </item>
+       <item row="0" column="0">
+        <widget class="QLabel" name="label">
+         <property name="text">
+          <string>Sito </string>
          </property>
         </widget>
        </item>
        <item row="0" column="1">
+        <widget class="QLabel" name="label_2">
+         <property name="text">
+          <string>Sigla struttura</string>
+         </property>
+        </widget>
+       </item>
+       <item row="0" column="2">
+        <widget class="QLabel" name="label_3">
+         <property name="text">
+          <string>N°</string>
+         </property>
+        </widget>
+       </item>
+      </layout>
+     </item>
+     <item>
+      <layout class="QGridLayout" name="gridLayout_6">
+       <item row="1" column="1">
         <widget class="QComboBox" name="comboBox_tipologia_struttura">
          <property name="font">
           <font>
@@ -653,21 +639,7 @@
          </property>
         </widget>
        </item>
-       <item row="1" column="0">
-        <widget class="QLabel" name="label_4">
-         <property name="text">
-          <string>Categoria</string>
-         </property>
-        </widget>
-       </item>
-       <item row="1" column="1">
-        <widget class="QLabel" name="label_5">
-         <property name="text">
-          <string>Tipologia</string>
-         </property>
-        </widget>
-       </item>
-       <item row="0" column="2">
+       <item row="1" column="2">
         <widget class="QComboBox" name="comboBox_definizione_struttura">
          <property name="font">
           <font>
@@ -681,7 +653,35 @@
          </property>
         </widget>
        </item>
-       <item row="1" column="2">
+       <item row="1" column="0">
+        <widget class="QComboBox" name="comboBox_categoria_struttura">
+         <property name="font">
+          <font>
+           <pointsize>10</pointsize>
+           <weight>75</weight>
+           <bold>true</bold>
+          </font>
+         </property>
+         <property name="editable">
+          <bool>true</bool>
+         </property>
+        </widget>
+       </item>
+       <item row="0" column="0">
+        <widget class="QLabel" name="label_4">
+         <property name="text">
+          <string>Categoria</string>
+         </property>
+        </widget>
+       </item>
+       <item row="0" column="1">
+        <widget class="QLabel" name="label_5">
+         <property name="text">
+          <string>Tipologia</string>
+         </property>
+        </widget>
+       </item>
+       <item row="0" column="2">
         <widget class="QLabel" name="label_9">
          <property name="text">
           <string>Definizione</string>
