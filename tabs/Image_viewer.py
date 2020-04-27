@@ -111,15 +111,15 @@ class Main(QDialog,MAIN_DIALOG_CLASS):
         self.connection()
         self.setupUi(self)
         self.customize_gui()
-              
+        self.mDockWidget.setHidden(True)      
         self.iconListWidget.SelectionMode()
-        
+        self.tableWidgetTags_US.itemDoubleClicked.connect(self.remove_all)
         self.iconListWidget.setSelectionMode(QAbstractItemView.ExtendedSelection)
         self.iconListWidget.itemDoubleClicked.connect(self.openWide_image)
-        
-        self.mDockWidget.setHidden(True)
         self.sl.valueChanged.connect(self.valuechange)
         self.iconListWidget.itemSelectionChanged.connect(self.open_tags)
+        self.iconListWidget.itemEntered.connect(self.split_1)
+        self.iconListWidget.itemEntered.connect(self.split_2)
         self.setWindowTitle("pyArchInit - Media Manager")
         self.comboBox_sito.editTextChanged.connect(self.charge_us_list)
         self.comboBox_sito.editTextChanged.connect(self.charge_area_list)
@@ -139,9 +139,102 @@ class Main(QDialog,MAIN_DIALOG_CLASS):
         self.charge_data()
         self.view_num_rec()
         
+    def split_2(self):
+        
+        items_selected = self.iconListWidget.selectedItems()#seleziono le icone
+        res=[]
+        list=[]
+        self.tableWidgetTags_US.setHorizontalHeaderLabels(['Sito', 'Area', 'US'])
+        
+        row =0
+        
+        for name in items_selected: 
+            names = name.text()
+            
+            if '-' not in names: 
+                res.append(names) 
+                continue 
+            
+            a = names.split("_") 
+            
+            
+            for sub in a[2].split("-"): 
+                for sub2 in sub:
+                    res.append(f'{a[0]}_{a[1]}_{sub}') 
+                    for u in res:
+                        res1 = str(u)
+                        b = u.split("_")
+                    
+                        list.append(b)
+                        f = open(r"C:\Users\Utente\pyarchinit\pyarchinit_Report_folder\data_insert_list.txt", "w")
+                        f.write(str(b))
+                        f.close
+                            
+                        
+                        
+                    try:
+                        self.insert_new_row('self.tableWidgetTags_US')
+                        for i in list:    
+                           
+                            self.tableWidgetTags_US.setItem(row,0,QTableWidgetItem(str(b[0])))
+                            self.tableWidgetTags_US.setItem(row,1,QTableWidgetItem(str(b[1])))
+                            self.tableWidgetTags_US.setItem(row,2,QTableWidgetItem(str(b[2])))
+                                
+                            
+                    except Exception as e:
+                        QMessageBox.warning(self, "Messaggio", "Sistema di aggiornamento lista Sito: " + str(e), QMessageBox.Ok)
+            self.remove_row('self.tableWidgetTags_US')
+    def split_1(self):
+        items_selected = self.iconListWidget.selectedItems()#seleziono le icone
+        res=[]
+        list=[]
+        self.tableWidgetTags_US.setHorizontalHeaderLabels(['Sito', 'Area', 'US'])
+        
+        row =0
+        for name in items_selected: 
+            names = name.text()
+            
+            if '-'  in names: 
+                res.append(names) 
+                continue 
+            
+            a = names.split("_") 
+            
+            
+            list.append(a)
+                            
+                        
+                        
+            try:
+                #self.insert_new_row('self.tableWidgetTags_US')
+                for i in list:    
+                    #if row==0:    
+                        
+                    self.tableWidgetTags_US.setItem(row,0,QTableWidgetItem(str(a[0])))
+                    self.tableWidgetTags_US.setItem(row,1,QTableWidgetItem(str(a[1])))
+                    self.tableWidgetTags_US.setItem(row,2,QTableWidgetItem(str(a[2])))
+                     
+                                    
+                    
+                    # else:
+                        
+                        # self.tableWidgetTags_US.setItem(row,0,QTableWidgetItem(str(b[0])))
+                        # self.tableWidgetTags_US.setItem(row,1,QTableWidgetItem(str(b[1])))
+                        # self.tableWidgetTags_US.setItem(row,2,QTableWidgetItem(str(b[2])))
+                        # row+=1 
+                    # # else:
+                
+            except Exception as e:
+                QMessageBox.warning(self, "Messaggio", "Sistema di aggiornamento lista Sito: " + str(e), QMessageBox.Ok)
+        #self.remove_all()
+    def remove_all(self):
+        #hopefully this will let the Delete button remove the selected table row
+        self.tableWidgetTags_US.setRowCount(1)
     def customize_gui(self):
         self.tableWidgetTags_US.setColumnWidth(0, 300)
         self.tableWidgetTags_US.setColumnWidth(1, 100)
+        self.tableWidgetTags_MAT.setColumnWidth(0, 300)
+        self.tableWidgetTags_MAT.setColumnWidth(1, 150)
         self.tableWidgetTags_US.setColumnWidth(2, 100)
         self.tableWidget_tags.setColumnWidth(2, 300)
         self.iconListWidget.setIconSize(QSize(80, 180))
@@ -807,13 +900,34 @@ class Main(QDialog,MAIN_DIALOG_CLASS):
         """insert new row into a table based on table_name"""
         cmd = table_name + ".insertRow(0)"
         eval(cmd)
+    # def prova_remove(self):
+        # model = self.model
+        # indices = self.tableWidgetTags_US.selectionModel().selectedRows() 
+        # for index in sorted(indices):
+            # model.removeRow(index.row()) 
+            # index_list = []                                                          
+        # for model_index in self.tableWidgetTags_US.selectionModel().selectedRows():       
+            # index = QPersistentModelIndex(model_index)         
+            # index_list.append(index)                                             
+
+        # for index in index_list:                                      
+             # self.model.removeRow(index.row())
+    
     def remove_row(self, table_name):
-        """insert new row into a table based on table_name"""
+        """remove row into a table based on table_name"""
         table_row_count_cmd = ("%s.rowCount()") % (table_name)
         table_row_count = eval(table_row_count_cmd)
         row_index = table_row_count - 1
         cmd = ("%s.removeRow(%d)") % (table_name, row_index)
         eval(cmd)
+        
+    def remove_rowall(self, table_name):
+        """remove row into a table based on table_name"""
+        table_row_count_cmd = ("%s.currentRow()") % (table_name)
+        table_row_count = eval(table_row_count_cmd)
+        
+        cmd = ("%s.removeRow") % (table_name)
+        eval(cmd)    
     def openWide_image(self):
         items = self.iconListWidget.selectedItems()
         #conn = Connection()
@@ -1365,3 +1479,4 @@ class Main(QDialog,MAIN_DIALOG_CLASS):
                 item = QTableWidgetItem(self.data_list[row][col])
                 exec_str = ('%s.setItem(%d,%d,item)') % (self.table_name, row, col)
                 eval(exec_str)
+    
