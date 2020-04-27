@@ -283,7 +283,7 @@
           <bool>true</bool>
          </property>
          <property name="checked">
-          <bool>false</bool>
+          <bool>true</bool>
          </property>
          <property name="autoRepeat">
           <bool>false</bool>
@@ -450,13 +450,16 @@
             <set>QAbstractItemView::AllEditTriggers</set>
            </property>
            <property name="dragEnabled">
-            <bool>true</bool>
+            <bool>false</bool>
+           </property>
+           <property name="dragDropOverwriteMode">
+            <bool>false</bool>
            </property>
            <property name="dragDropMode">
             <enum>QAbstractItemView::DragDrop</enum>
            </property>
            <property name="defaultDropAction">
-            <enum>Qt::CopyAction</enum>
+            <enum>Qt::IgnoreAction</enum>
            </property>
            <property name="alternatingRowColors">
             <bool>true</bool>
@@ -466,6 +469,9 @@
            </property>
            <property name="sortingEnabled">
             <bool>true</bool>
+           </property>
+           <property name="rowCount">
+            <number>1</number>
            </property>
            <row>
             <property name="text">
@@ -510,445 +516,431 @@
             <bool>true</bool>
            </property>
            <property name="focusPolicy">
-            <enum>Qt::StrongFocus</enum>
+            <enum>Qt::NoFocus</enum>
            </property>
            <property name="toolTip">
             <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Barra di ricerca&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
            </property>
            <property name="floating">
-            <bool>true</bool>
+            <bool>false</bool>
+           </property>
+           <property name="features">
+            <set>QDockWidget::AllDockWidgetFeatures</set>
            </property>
            <property name="allowedAreas">
             <set>Qt::AllDockWidgetAreas</set>
            </property>
            <property name="windowTitle">
-            <string>Barra di ricerca delle immagine</string>
+            <string>Barra di ricerca delle immagini</string>
            </property>
            <widget class="QWidget" name="dockWidgetContents">
-            <widget class="QWidget" name="layoutWidget">
-             <property name="enabled">
-              <bool>true</bool>
-             </property>
-             <property name="geometry">
-              <rect>
-               <x>180</x>
-               <y>20</y>
-               <width>225</width>
-               <height>176</height>
-              </rect>
-             </property>
-             <layout class="QGridLayout" name="gridLayout_7">
-              <item row="0" column="1" colspan="2">
-               <widget class="QLabel" name="label_6">
-                <property name="enabled">
-                 <bool>true</bool>
-                </property>
-                <property name="frameShape">
-                 <enum>QFrame::StyledPanel</enum>
-                </property>
-                <property name="frameShadow">
-                 <enum>QFrame::Plain</enum>
-                </property>
-                <property name="text">
-                 <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-size:10pt; font-weight:600;&quot;&gt;Cerca le immagini taggate&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-                </property>
-               </widget>
-              </item>
-              <item row="2" column="1" colspan="2">
-               <widget class="QComboBox" name="comboBox_sito">
-                <property name="enabled">
-                 <bool>true</bool>
-                </property>
-                <property name="editable">
-                 <bool>true</bool>
-                </property>
-               </widget>
-              </item>
-              <item row="3" column="1" colspan="2">
-               <widget class="QComboBox" name="comboBox_area">
-                <property name="enabled">
-                 <bool>true</bool>
-                </property>
-                <property name="editable">
-                 <bool>true</bool>
-                </property>
-               </widget>
-              </item>
-              <item row="4" column="1" colspan="2">
-               <widget class="QComboBox" name="comboBox_us">
-                <property name="enabled">
-                 <bool>true</bool>
-                </property>
-                <property name="editable">
-                 <bool>true</bool>
-                </property>
-               </widget>
-              </item>
-              <item row="6" column="1">
-               <widget class="QPushButton" name="pushButton_go">
-                <property name="enabled">
-                 <bool>true</bool>
-                </property>
-                <property name="text">
-                 <string/>
-                </property>
-                <property name="icon">
-                 <iconset resource="../../resources/resources.qrc">
-                  <normaloff>:/icons/search.png</normaloff>:/icons/search.png</iconset>
-                </property>
-               </widget>
-              </item>
-              <item row="3" column="0">
-               <widget class="QLabel" name="label_9">
-                <property name="enabled">
-                 <bool>true</bool>
-                </property>
-                <property name="frameShape">
-                 <enum>QFrame::StyledPanel</enum>
-                </property>
-                <property name="frameShadow">
-                 <enum>QFrame::Plain</enum>
-                </property>
-                <property name="text">
-                 <string>Area</string>
-                </property>
-               </widget>
-              </item>
-              <item row="4" column="0">
-               <widget class="QLabel" name="label_8">
-                <property name="enabled">
-                 <bool>true</bool>
-                </property>
-                <property name="frameShape">
-                 <enum>QFrame::StyledPanel</enum>
-                </property>
-                <property name="frameShadow">
-                 <enum>QFrame::Plain</enum>
-                </property>
-                <property name="text">
-                 <string>US</string>
-                </property>
-               </widget>
-              </item>
-              <item row="2" column="0">
-               <widget class="QLabel" name="label_7">
-                <property name="enabled">
-                 <bool>true</bool>
-                </property>
-                <property name="frameShape">
-                 <enum>QFrame::StyledPanel</enum>
-                </property>
-                <property name="frameShadow">
-                 <enum>QFrame::Plain</enum>
-                </property>
-                <property name="text">
-                 <string>Sito</string>
-                </property>
-               </widget>
-              </item>
-              <item row="1" column="1">
-               <widget class="QRadioButton" name="radioButton_us">
-                <property name="text">
-                 <string>Unità Stratigrafiche</string>
-                </property>
-                <property name="checked">
-                 <bool>true</bool>
-                </property>
-               </widget>
-              </item>
-              <item row="1" column="2">
-               <widget class="QRadioButton" name="radioButton_materiali">
-                <property name="text">
-                 <string>Materiali</string>
-                </property>
-               </widget>
-              </item>
-             </layout>
-            </widget>
-            <widget class="QWidget" name="layoutWidget_3">
-             <property name="geometry">
-              <rect>
-               <x>25</x>
-               <y>20</y>
-               <width>149</width>
-               <height>123</height>
-              </rect>
-             </property>
-             <layout class="QGridLayout" name="gridLayout_6">
-              <item row="0" column="0">
-               <widget class="QLabel" name="label_42">
-                <property name="font">
-                 <font>
-                  <weight>75</weight>
-                  <bold>true</bold>
-                 </font>
-                </property>
-                <property name="autoFillBackground">
-                 <bool>true</bool>
-                </property>
-                <property name="frameShape">
-                 <enum>QFrame::StyledPanel</enum>
-                </property>
-                <property name="frameShadow">
-                 <enum>QFrame::Plain</enum>
-                </property>
-                <property name="text">
-                 <string>DB Info</string>
-                </property>
-               </widget>
-              </item>
-              <item row="2" column="0">
-               <layout class="QGridLayout" name="gridLayout_9">
-                <item row="1" column="1">
-                 <widget class="QLabel" name="label_rec_tot">
-                  <property name="font">
-                   <font>
-                    <family>Microsoft Sans Serif</family>
-                    <pointsize>12</pointsize>
-                   </font>
-                  </property>
-                  <property name="cursor">
-                   <cursorShape>ForbiddenCursor</cursorShape>
-                  </property>
-                  <property name="mouseTracking">
-                   <bool>false</bool>
-                  </property>
-                  <property name="contextMenuPolicy">
-                   <enum>Qt::DefaultContextMenu</enum>
-                  </property>
-                  <property name="frameShape">
-                   <enum>QFrame::StyledPanel</enum>
-                  </property>
-                  <property name="frameShadow">
-                   <enum>QFrame::Plain</enum>
-                  </property>
-                  <property name="text">
-                   <string>1</string>
-                  </property>
-                 </widget>
-                </item>
-                <item row="0" column="1">
-                 <widget class="QLabel" name="label_rec_corrente">
-                  <property name="font">
-                   <font>
-                    <family>Microsoft Sans Serif</family>
-                    <pointsize>12</pointsize>
-                   </font>
-                  </property>
-                  <property name="cursor">
-                   <cursorShape>ForbiddenCursor</cursorShape>
-                  </property>
-                  <property name="mouseTracking">
-                   <bool>false</bool>
-                  </property>
-                  <property name="contextMenuPolicy">
-                   <enum>Qt::DefaultContextMenu</enum>
-                  </property>
-                  <property name="frameShape">
-                   <enum>QFrame::StyledPanel</enum>
-                  </property>
-                  <property name="frameShadow">
-                   <enum>QFrame::Plain</enum>
-                  </property>
-                  <property name="text">
-                   <string>1</string>
-                  </property>
-                 </widget>
-                </item>
-                <item row="0" column="0">
-                 <widget class="QLabel" name="label_31">
-                  <property name="font">
-                   <font>
-                    <pointsize>9</pointsize>
-                    <weight>75</weight>
-                    <bold>true</bold>
-                   </font>
-                  </property>
-                  <property name="frameShape">
-                   <enum>QFrame::StyledPanel</enum>
-                  </property>
-                  <property name="frameShadow">
-                   <enum>QFrame::Plain</enum>
-                  </property>
-                  <property name="text">
-                   <string>record n.</string>
-                  </property>
-                  <property name="margin">
-                   <number>0</number>
-                  </property>
-                 </widget>
-                </item>
-                <item row="1" column="0">
-                 <widget class="QLabel" name="label_32">
-                  <property name="font">
-                   <font>
-                    <pointsize>9</pointsize>
-                    <weight>75</weight>
-                    <bold>true</bold>
-                   </font>
-                  </property>
-                  <property name="frameShape">
-                   <enum>QFrame::StyledPanel</enum>
-                  </property>
-                  <property name="frameShadow">
-                   <enum>QFrame::Plain</enum>
-                  </property>
-                  <property name="text">
-                   <string>record tot.</string>
-                  </property>
-                  <property name="margin">
-                   <number>0</number>
-                  </property>
-                 </widget>
-                </item>
-               </layout>
-              </item>
-              <item row="1" column="0">
-               <layout class="QGridLayout" name="gridLayout_10">
-                <item row="0" column="0">
-                 <widget class="QLabel" name="label_34">
-                  <property name="font">
-                   <font>
-                    <pointsize>9</pointsize>
-                    <weight>75</weight>
-                    <bold>true</bold>
-                   </font>
-                  </property>
-                  <property name="frameShape">
-                   <enum>QFrame::StyledPanel</enum>
-                  </property>
-                  <property name="frameShadow">
-                   <enum>QFrame::Plain</enum>
-                  </property>
-                  <property name="text">
-                   <string>Status</string>
-                  </property>
-                  <property name="margin">
-                   <number>0</number>
-                  </property>
-                 </widget>
-                </item>
-                <item row="0" column="1">
-                 <widget class="QLabel" name="label_43">
-                  <property name="font">
-                   <font>
-                    <pointsize>9</pointsize>
-                    <weight>75</weight>
-                    <bold>true</bold>
-                   </font>
-                  </property>
-                  <property name="frameShape">
-                   <enum>QFrame::StyledPanel</enum>
-                  </property>
-                  <property name="frameShadow">
-                   <enum>QFrame::Plain</enum>
-                  </property>
-                  <property name="text">
-                   <string>Ordinamento</string>
-                  </property>
-                  <property name="margin">
-                   <number>0</number>
-                  </property>
-                 </widget>
-                </item>
-                <item row="1" column="1">
-                 <widget class="QLabel" name="label_sort">
-                  <property name="minimumSize">
-                   <size>
-                    <width>40</width>
-                    <height>0</height>
-                   </size>
-                  </property>
-                  <property name="sizeIncrement">
-                   <size>
-                    <width>40</width>
-                    <height>0</height>
-                   </size>
-                  </property>
-                  <property name="baseSize">
-                   <size>
-                    <width>40</width>
-                    <height>0</height>
-                   </size>
-                  </property>
-                  <property name="font">
-                   <font>
-                    <pointsize>10</pointsize>
-                    <weight>75</weight>
-                    <bold>true</bold>
-                   </font>
-                  </property>
-                  <property name="cursor">
-                   <cursorShape>ForbiddenCursor</cursorShape>
-                  </property>
-                  <property name="mouseTracking">
-                   <bool>false</bool>
-                  </property>
-                  <property name="contextMenuPolicy">
-                   <enum>Qt::DefaultContextMenu</enum>
-                  </property>
-                  <property name="frameShape">
-                   <enum>QFrame::StyledPanel</enum>
-                  </property>
-                  <property name="frameShadow">
-                   <enum>QFrame::Plain</enum>
-                  </property>
-                  <property name="text">
-                   <string/>
-                  </property>
-                  <property name="alignment">
-                   <set>Qt::AlignCenter</set>
-                  </property>
-                  <property name="margin">
-                   <number>0</number>
-                  </property>
-                 </widget>
-                </item>
-                <item row="1" column="0">
-                 <widget class="QLabel" name="label_status">
-                  <property name="minimumSize">
-                   <size>
-                    <width>50</width>
-                    <height>0</height>
-                   </size>
-                  </property>
-                  <property name="font">
-                   <font>
-                    <pointsize>9</pointsize>
-                    <weight>75</weight>
-                    <bold>true</bold>
-                   </font>
-                  </property>
-                  <property name="cursor">
-                   <cursorShape>ForbiddenCursor</cursorShape>
-                  </property>
-                  <property name="mouseTracking">
-                   <bool>false</bool>
-                  </property>
-                  <property name="contextMenuPolicy">
-                   <enum>Qt::DefaultContextMenu</enum>
-                  </property>
-                  <property name="frameShape">
-                   <enum>QFrame::StyledPanel</enum>
-                  </property>
-                  <property name="frameShadow">
-                   <enum>QFrame::Plain</enum>
-                  </property>
-                  <property name="text">
-                   <string/>
-                  </property>
-                  <property name="alignment">
-                   <set>Qt::AlignCenter</set>
-                  </property>
-                  <property name="margin">
-                   <number>0</number>
-                  </property>
-                 </widget>
-                </item>
-               </layout>
-              </item>
-             </layout>
-            </widget>
+            <layout class="QGridLayout" name="gridLayout_12">
+             <item row="0" column="0">
+              <layout class="QGridLayout" name="gridLayout_6">
+               <item row="0" column="0">
+                <widget class="QLabel" name="label_42">
+                 <property name="font">
+                  <font>
+                   <weight>75</weight>
+                   <bold>true</bold>
+                  </font>
+                 </property>
+                 <property name="autoFillBackground">
+                  <bool>true</bool>
+                 </property>
+                 <property name="frameShape">
+                  <enum>QFrame::StyledPanel</enum>
+                 </property>
+                 <property name="frameShadow">
+                  <enum>QFrame::Plain</enum>
+                 </property>
+                 <property name="text">
+                  <string>DB Info</string>
+                 </property>
+                </widget>
+               </item>
+               <item row="2" column="0">
+                <layout class="QGridLayout" name="gridLayout_9">
+                 <item row="1" column="1">
+                  <widget class="QLabel" name="label_rec_tot">
+                   <property name="font">
+                    <font>
+                     <family>Microsoft Sans Serif</family>
+                     <pointsize>12</pointsize>
+                    </font>
+                   </property>
+                   <property name="cursor">
+                    <cursorShape>ForbiddenCursor</cursorShape>
+                   </property>
+                   <property name="mouseTracking">
+                    <bool>false</bool>
+                   </property>
+                   <property name="contextMenuPolicy">
+                    <enum>Qt::DefaultContextMenu</enum>
+                   </property>
+                   <property name="frameShape">
+                    <enum>QFrame::StyledPanel</enum>
+                   </property>
+                   <property name="frameShadow">
+                    <enum>QFrame::Plain</enum>
+                   </property>
+                   <property name="text">
+                    <string>1</string>
+                   </property>
+                  </widget>
+                 </item>
+                 <item row="0" column="1">
+                  <widget class="QLabel" name="label_rec_corrente">
+                   <property name="font">
+                    <font>
+                     <family>Microsoft Sans Serif</family>
+                     <pointsize>12</pointsize>
+                    </font>
+                   </property>
+                   <property name="cursor">
+                    <cursorShape>ForbiddenCursor</cursorShape>
+                   </property>
+                   <property name="mouseTracking">
+                    <bool>false</bool>
+                   </property>
+                   <property name="contextMenuPolicy">
+                    <enum>Qt::DefaultContextMenu</enum>
+                   </property>
+                   <property name="frameShape">
+                    <enum>QFrame::StyledPanel</enum>
+                   </property>
+                   <property name="frameShadow">
+                    <enum>QFrame::Plain</enum>
+                   </property>
+                   <property name="text">
+                    <string>1</string>
+                   </property>
+                  </widget>
+                 </item>
+                 <item row="0" column="0">
+                  <widget class="QLabel" name="label_31">
+                   <property name="font">
+                    <font>
+                     <pointsize>9</pointsize>
+                     <weight>75</weight>
+                     <bold>true</bold>
+                    </font>
+                   </property>
+                   <property name="frameShape">
+                    <enum>QFrame::StyledPanel</enum>
+                   </property>
+                   <property name="frameShadow">
+                    <enum>QFrame::Plain</enum>
+                   </property>
+                   <property name="text">
+                    <string>record n.</string>
+                   </property>
+                   <property name="margin">
+                    <number>0</number>
+                   </property>
+                  </widget>
+                 </item>
+                 <item row="1" column="0">
+                  <widget class="QLabel" name="label_32">
+                   <property name="font">
+                    <font>
+                     <pointsize>9</pointsize>
+                     <weight>75</weight>
+                     <bold>true</bold>
+                    </font>
+                   </property>
+                   <property name="frameShape">
+                    <enum>QFrame::StyledPanel</enum>
+                   </property>
+                   <property name="frameShadow">
+                    <enum>QFrame::Plain</enum>
+                   </property>
+                   <property name="text">
+                    <string>record tot.</string>
+                   </property>
+                   <property name="margin">
+                    <number>0</number>
+                   </property>
+                  </widget>
+                 </item>
+                </layout>
+               </item>
+               <item row="1" column="0">
+                <layout class="QGridLayout" name="gridLayout_10">
+                 <item row="0" column="0">
+                  <widget class="QLabel" name="label_34">
+                   <property name="font">
+                    <font>
+                     <pointsize>9</pointsize>
+                     <weight>75</weight>
+                     <bold>true</bold>
+                    </font>
+                   </property>
+                   <property name="frameShape">
+                    <enum>QFrame::StyledPanel</enum>
+                   </property>
+                   <property name="frameShadow">
+                    <enum>QFrame::Plain</enum>
+                   </property>
+                   <property name="text">
+                    <string>Status</string>
+                   </property>
+                   <property name="margin">
+                    <number>0</number>
+                   </property>
+                  </widget>
+                 </item>
+                 <item row="0" column="1">
+                  <widget class="QLabel" name="label_43">
+                   <property name="font">
+                    <font>
+                     <pointsize>9</pointsize>
+                     <weight>75</weight>
+                     <bold>true</bold>
+                    </font>
+                   </property>
+                   <property name="frameShape">
+                    <enum>QFrame::StyledPanel</enum>
+                   </property>
+                   <property name="frameShadow">
+                    <enum>QFrame::Plain</enum>
+                   </property>
+                   <property name="text">
+                    <string>Ordinamento</string>
+                   </property>
+                   <property name="margin">
+                    <number>0</number>
+                   </property>
+                  </widget>
+                 </item>
+                 <item row="1" column="1">
+                  <widget class="QLabel" name="label_sort">
+                   <property name="minimumSize">
+                    <size>
+                     <width>40</width>
+                     <height>0</height>
+                    </size>
+                   </property>
+                   <property name="sizeIncrement">
+                    <size>
+                     <width>40</width>
+                     <height>0</height>
+                    </size>
+                   </property>
+                   <property name="baseSize">
+                    <size>
+                     <width>40</width>
+                     <height>0</height>
+                    </size>
+                   </property>
+                   <property name="font">
+                    <font>
+                     <pointsize>10</pointsize>
+                     <weight>75</weight>
+                     <bold>true</bold>
+                    </font>
+                   </property>
+                   <property name="cursor">
+                    <cursorShape>ForbiddenCursor</cursorShape>
+                   </property>
+                   <property name="mouseTracking">
+                    <bool>false</bool>
+                   </property>
+                   <property name="contextMenuPolicy">
+                    <enum>Qt::DefaultContextMenu</enum>
+                   </property>
+                   <property name="frameShape">
+                    <enum>QFrame::StyledPanel</enum>
+                   </property>
+                   <property name="frameShadow">
+                    <enum>QFrame::Plain</enum>
+                   </property>
+                   <property name="text">
+                    <string/>
+                   </property>
+                   <property name="alignment">
+                    <set>Qt::AlignCenter</set>
+                   </property>
+                   <property name="margin">
+                    <number>0</number>
+                   </property>
+                  </widget>
+                 </item>
+                 <item row="1" column="0">
+                  <widget class="QLabel" name="label_status">
+                   <property name="minimumSize">
+                    <size>
+                     <width>50</width>
+                     <height>0</height>
+                    </size>
+                   </property>
+                   <property name="font">
+                    <font>
+                     <pointsize>9</pointsize>
+                     <weight>75</weight>
+                     <bold>true</bold>
+                    </font>
+                   </property>
+                   <property name="cursor">
+                    <cursorShape>ForbiddenCursor</cursorShape>
+                   </property>
+                   <property name="mouseTracking">
+                    <bool>false</bool>
+                   </property>
+                   <property name="contextMenuPolicy">
+                    <enum>Qt::DefaultContextMenu</enum>
+                   </property>
+                   <property name="frameShape">
+                    <enum>QFrame::StyledPanel</enum>
+                   </property>
+                   <property name="frameShadow">
+                    <enum>QFrame::Plain</enum>
+                   </property>
+                   <property name="text">
+                    <string/>
+                   </property>
+                   <property name="alignment">
+                    <set>Qt::AlignCenter</set>
+                   </property>
+                   <property name="margin">
+                    <number>0</number>
+                   </property>
+                  </widget>
+                 </item>
+                </layout>
+               </item>
+              </layout>
+             </item>
+             <item row="0" column="1">
+              <layout class="QGridLayout" name="gridLayout_7">
+               <item row="0" column="1" colspan="2">
+                <widget class="QLabel" name="label_6">
+                 <property name="enabled">
+                  <bool>true</bool>
+                 </property>
+                 <property name="frameShape">
+                  <enum>QFrame::StyledPanel</enum>
+                 </property>
+                 <property name="frameShadow">
+                  <enum>QFrame::Plain</enum>
+                 </property>
+                 <property name="text">
+                  <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-size:10pt; font-weight:600;&quot;&gt;Cerca le immagini taggate&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                 </property>
+                </widget>
+               </item>
+               <item row="2" column="1" colspan="2">
+                <widget class="QComboBox" name="comboBox_sito">
+                 <property name="enabled">
+                  <bool>true</bool>
+                 </property>
+                 <property name="editable">
+                  <bool>true</bool>
+                 </property>
+                </widget>
+               </item>
+               <item row="3" column="1" colspan="2">
+                <widget class="QComboBox" name="comboBox_area">
+                 <property name="enabled">
+                  <bool>true</bool>
+                 </property>
+                 <property name="editable">
+                  <bool>true</bool>
+                 </property>
+                </widget>
+               </item>
+               <item row="4" column="1" colspan="2">
+                <widget class="QComboBox" name="comboBox_us">
+                 <property name="enabled">
+                  <bool>true</bool>
+                 </property>
+                 <property name="editable">
+                  <bool>true</bool>
+                 </property>
+                </widget>
+               </item>
+               <item row="6" column="1">
+                <widget class="QPushButton" name="pushButton_go">
+                 <property name="enabled">
+                  <bool>true</bool>
+                 </property>
+                 <property name="text">
+                  <string/>
+                 </property>
+                 <property name="icon">
+                  <iconset resource="../../resources/resources.qrc">
+                   <normaloff>:/icons/search.png</normaloff>:/icons/search.png</iconset>
+                 </property>
+                </widget>
+               </item>
+               <item row="3" column="0">
+                <widget class="QLabel" name="label_9">
+                 <property name="enabled">
+                  <bool>true</bool>
+                 </property>
+                 <property name="frameShape">
+                  <enum>QFrame::StyledPanel</enum>
+                 </property>
+                 <property name="frameShadow">
+                  <enum>QFrame::Plain</enum>
+                 </property>
+                 <property name="text">
+                  <string>Area</string>
+                 </property>
+                </widget>
+               </item>
+               <item row="4" column="0">
+                <widget class="QLabel" name="label_8">
+                 <property name="enabled">
+                  <bool>true</bool>
+                 </property>
+                 <property name="frameShape">
+                  <enum>QFrame::StyledPanel</enum>
+                 </property>
+                 <property name="frameShadow">
+                  <enum>QFrame::Plain</enum>
+                 </property>
+                 <property name="text">
+                  <string>US</string>
+                 </property>
+                </widget>
+               </item>
+               <item row="2" column="0">
+                <widget class="QLabel" name="label_7">
+                 <property name="enabled">
+                  <bool>true</bool>
+                 </property>
+                 <property name="frameShape">
+                  <enum>QFrame::StyledPanel</enum>
+                 </property>
+                 <property name="frameShadow">
+                  <enum>QFrame::Plain</enum>
+                 </property>
+                 <property name="text">
+                  <string>Sito</string>
+                 </property>
+                </widget>
+               </item>
+               <item row="1" column="1">
+                <widget class="QRadioButton" name="radioButton_us">
+                 <property name="text">
+                  <string>Unità Stratigrafiche</string>
+                 </property>
+                 <property name="checked">
+                  <bool>true</bool>
+                 </property>
+                </widget>
+               </item>
+               <item row="1" column="2">
+                <widget class="QRadioButton" name="radioButton_materiali">
+                 <property name="text">
+                  <string>Materiali</string>
+                 </property>
+                </widget>
+               </item>
+              </layout>
+             </item>
+            </layout>
            </widget>
           </widget>
          </item>
@@ -1141,7 +1133,7 @@
         <bool>true</bool>
        </property>
        <property name="dragDropMode">
-        <enum>QAbstractItemView::DragDrop</enum>
+        <enum>QAbstractItemView::NoDragDrop</enum>
        </property>
        <property name="defaultDropAction">
         <enum>Qt::CopyAction</enum>
@@ -1150,7 +1142,7 @@
         <bool>false</bool>
        </property>
        <property name="selectionMode">
-        <enum>QAbstractItemView::MultiSelection</enum>
+        <enum>QAbstractItemView::SingleSelection</enum>
        </property>
        <property name="iconSize">
         <size>
@@ -1162,7 +1154,10 @@
         <enum>Qt::ElideMiddle</enum>
        </property>
        <property name="movement">
-        <enum>QListView::Snap</enum>
+        <enum>QListView::Static</enum>
+       </property>
+       <property name="isWrapping" stdset="0">
+        <bool>true</bool>
        </property>
        <property name="resizeMode">
         <enum>QListView::Fixed</enum>
@@ -1327,7 +1322,7 @@
  <connections>
   <connection>
    <sender>iconListWidget</sender>
-   <signal>itemClicked(QListWidgetItem*)</signal>
+   <signal>itemChanged(QListWidgetItem*)</signal>
    <receiver>iconListWidget</receiver>
    <slot>clearSelection()</slot>
    <hints>
@@ -1338,278 +1333,6 @@
     <hint type="destinationlabel">
      <x>227</x>
      <y>484</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>radioButton</sender>
-   <signal>toggled(bool)</signal>
-   <receiver>label_7</receiver>
-   <slot>setHidden(bool)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>74</x>
-     <y>57</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>776</x>
-     <y>351</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>radioButton</sender>
-   <signal>toggled(bool)</signal>
-   <receiver>label_9</receiver>
-   <slot>setHidden(bool)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>121</x>
-     <y>57</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>776</x>
-     <y>377</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>radioButton</sender>
-   <signal>toggled(bool)</signal>
-   <receiver>label_8</receiver>
-   <slot>setHidden(bool)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>98</x>
-     <y>57</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>776</x>
-     <y>403</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>radioButton</sender>
-   <signal>toggled(bool)</signal>
-   <receiver>comboBox_sito</receiver>
-   <slot>setHidden(bool)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>138</x>
-     <y>57</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>969</x>
-     <y>351</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>radioButton</sender>
-   <signal>toggled(bool)</signal>
-   <receiver>comboBox_area</receiver>
-   <slot>setHidden(bool)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>146</x>
-     <y>57</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>969</x>
-     <y>377</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>radioButton</sender>
-   <signal>toggled(bool)</signal>
-   <receiver>comboBox_us</receiver>
-   <slot>setHidden(bool)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>126</x>
-     <y>57</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>969</x>
-     <y>403</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>radioButton</sender>
-   <signal>toggled(bool)</signal>
-   <receiver>label_6</receiver>
-   <slot>setHidden(bool)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>48</x>
-     <y>57</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>969</x>
-     <y>301</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>radioButton</sender>
-   <signal>toggled(bool)</signal>
-   <receiver>label_42</receiver>
-   <slot>setHidden(bool)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>86</x>
-     <y>57</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>738</x>
-     <y>275</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>radioButton</sender>
-   <signal>toggled(bool)</signal>
-   <receiver>label_34</receiver>
-   <slot>setHidden(bool)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>63</x>
-     <y>57</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>642</x>
-     <y>299</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>radioButton</sender>
-   <signal>toggled(bool)</signal>
-   <receiver>label_43</receiver>
-   <slot>setHidden(bool)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>108</x>
-     <y>57</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>737</x>
-     <y>299</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>radioButton</sender>
-   <signal>toggled(bool)</signal>
-   <receiver>label_status</receiver>
-   <slot>setHidden(bool)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>37</x>
-     <y>57</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>642</x>
-     <y>323</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>radioButton</sender>
-   <signal>toggled(bool)</signal>
-   <receiver>label_sort</receiver>
-   <slot>setHidden(bool)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>47</x>
-     <y>57</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>737</x>
-     <y>323</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>radioButton</sender>
-   <signal>toggled(bool)</signal>
-   <receiver>label_31</receiver>
-   <slot>setHidden(bool)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>36</x>
-     <y>57</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>665</x>
-     <y>352</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>radioButton</sender>
-   <signal>toggled(bool)</signal>
-   <receiver>label_rec_corrente</receiver>
-   <slot>setHidden(bool)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>53</x>
-     <y>57</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>737</x>
-     <y>352</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>radioButton</sender>
-   <signal>toggled(bool)</signal>
-   <receiver>label_32</receiver>
-   <slot>setHidden(bool)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>41</x>
-     <y>57</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>665</x>
-     <y>379</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>radioButton</sender>
-   <signal>toggled(bool)</signal>
-   <receiver>label_rec_tot</receiver>
-   <slot>setHidden(bool)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>41</x>
-     <y>57</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>737</x>
-     <y>379</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>radioButton</sender>
-   <signal>toggled(bool)</signal>
-   <receiver>pushButton_go</receiver>
-   <slot>setHidden(bool)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>35</x>
-     <y>57</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>899</x>
-     <y>433</y>
     </hint>
    </hints>
   </connection>
@@ -1668,12 +1391,12 @@
    <slot>clearEditText()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>899</x>
-     <y>325</y>
+     <x>985</x>
+     <y>298</y>
     </hint>
     <hint type="destinationlabel">
-     <x>969</x>
-     <y>351</y>
+     <x>1055</x>
+     <y>324</y>
     </hint>
    </hints>
   </connection>
@@ -1684,12 +1407,12 @@
    <slot>clearEditText()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>969</x>
-     <y>325</y>
+     <x>1055</x>
+     <y>298</y>
     </hint>
     <hint type="destinationlabel">
-     <x>969</x>
-     <y>351</y>
+     <x>1055</x>
+     <y>324</y>
     </hint>
    </hints>
   </connection>
@@ -1700,12 +1423,12 @@
    <slot>clearEditText()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>899</x>
-     <y>325</y>
+     <x>985</x>
+     <y>298</y>
     </hint>
     <hint type="destinationlabel">
-     <x>969</x>
-     <y>377</y>
+     <x>1055</x>
+     <y>350</y>
     </hint>
    </hints>
   </connection>
@@ -1716,12 +1439,12 @@
    <slot>clearEditText()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>899</x>
-     <y>325</y>
+     <x>985</x>
+     <y>298</y>
     </hint>
     <hint type="destinationlabel">
-     <x>969</x>
-     <y>403</y>
+     <x>1055</x>
+     <y>376</y>
     </hint>
    </hints>
   </connection>
@@ -1732,12 +1455,12 @@
    <slot>clearEditText()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>969</x>
-     <y>325</y>
+     <x>1055</x>
+     <y>298</y>
     </hint>
     <hint type="destinationlabel">
-     <x>969</x>
-     <y>377</y>
+     <x>1055</x>
+     <y>350</y>
     </hint>
    </hints>
   </connection>
@@ -1748,28 +1471,28 @@
    <slot>clearEditText()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>969</x>
-     <y>325</y>
+     <x>1055</x>
+     <y>298</y>
     </hint>
     <hint type="destinationlabel">
-     <x>969</x>
-     <y>403</y>
+     <x>1055</x>
+     <y>376</y>
     </hint>
    </hints>
   </connection>
   <connection>
    <sender>iconListWidget</sender>
-   <signal>indexesMoved(QModelIndexList)</signal>
+   <signal>itemSelectionChanged()</signal>
    <receiver>tableWidgetTags_US</receiver>
-   <slot>clearSelection()</slot>
+   <slot>clear()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>447</x>
-     <y>240</y>
+     <x>278</x>
+     <y>385</y>
     </hint>
     <hint type="destinationlabel">
-     <x>576</x>
-     <y>186</y>
+     <x>815</x>
+     <y>141</y>
     </hint>
    </hints>
   </connection>
