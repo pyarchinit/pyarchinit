@@ -31,6 +31,10 @@ deprecated=False
 
 changelog=
      
+     release0.7.0:
+     -imahe view: auto fill tablewidget US TAG from selected image
+  -----------------------------------------------------------------------------
+     
      release0.6.9:
      -vector search function
   -----------------------------------------------------------------------------
