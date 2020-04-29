@@ -166,9 +166,7 @@ class Main(QDialog,MAIN_DIALOG_CLASS):
                         b = u.split("_")
                     
                         list.append(b)
-                        f = open(r"C:\Users\Utente\pyarchinit\pyarchinit_Report_folder\data_insert_list.txt", "w")
-                        f.write(str(b))
-                        f.close
+                        
                             
                         
                         
