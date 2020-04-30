@@ -26,8 +26,8 @@ from builtins import range
 from builtins import str
 import PIL as Image
 from PIL import *
-
-
+import shutil
+#import ffmpeg
 from qgis import PyQt
 from qgis.PyQt.QtCore import *
 from qgis.PyQt.QtGui import *
@@ -46,8 +46,6 @@ from ..modules.utility.pyarchinit_media_utility import *
 MAIN_DIALOG_CLASS, _ = loadUiType(
     os.path.join(os.path.dirname(__file__), os.pardir, 'gui', 'ui', 'pyarchinit_image_viewer_dialog.ui'))
 conn = Connection()
-
-
 class Main(QDialog,MAIN_DIALOG_CLASS):
     L=QgsSettings().value("locale/userLocale")[0:2]
     delegateSites = ''
@@ -99,21 +97,18 @@ class Main(QDialog,MAIN_DIALOG_CLASS):
                     "id_media",
                     "media_filename"
                     ]
-             
     SEARCH_DICT_TEMP = ""
     HOME = os.environ['PYARCHINIT_HOME']
     DB_SERVER = 'not defined'
     def __init__(self):
         # This is always the same
         QDialog.__init__(self)
-        
-                
         self.connection()
         self.setupUi(self)
         self.customize_gui()
         self.mDockWidget.setHidden(True)      
         self.iconListWidget.SelectionMode()
-        self.tableWidgetTags_US.itemDoubleClicked.connect(self.remove_all)
+        self.iconListWidget.itemSelectionChanged.connect(self.remove_all)
         self.iconListWidget.setSelectionMode(QAbstractItemView.ExtendedSelection)
         self.iconListWidget.itemDoubleClicked.connect(self.openWide_image)
         self.sl.valueChanged.connect(self.valuechange)
@@ -125,11 +120,8 @@ class Main(QDialog,MAIN_DIALOG_CLASS):
         self.comboBox_sito.editTextChanged.connect(self.charge_area_list)
         self.comboBox_sito.currentIndexChanged.connect(self.charge_area_list)
         self.comboBox_sito.currentIndexChanged.connect(self.charge_us_list)
-        
         self.comboBox_area.currentIndexChanged.connect(self.charge_us_list)
         self.comboBox_area.editTextChanged.connect(self.charge_us_list)
-        
-        
         self.fill_fields()
         sito = self.comboBox_sito.currentText()
         self.comboBox_sito.setEditText(sito)
@@ -138,7 +130,9 @@ class Main(QDialog,MAIN_DIALOG_CLASS):
         self.charge_area_list()
         self.charge_data()
         self.view_num_rec()
-        
+    def remove_all(self):
+        self.tableWidgetTags_US.setRowCount(1)
+    
     def split_2(self):
         items_selected = self.iconListWidget.selectedItems()#seleziono le icone
         res=[]
@@ -161,11 +155,9 @@ class Main(QDialog,MAIN_DIALOG_CLASS):
                 try:
                     self.insert_new_row('self.tableWidgetTags_US')
                     for i in list:    
-                        
                         self.tableWidgetTags_US.setItem(row,0,QTableWidgetItem(str(i[0])))
                         self.tableWidgetTags_US.setItem(row,1,QTableWidgetItem(str(i[1])))
                         self.tableWidgetTags_US.setItem(row,2,QTableWidgetItem(str(i[2])))
-                        
                 except Exception as e:
                     QMessageBox.warning(self, "Messaggio", "Sistema di aggiornamento lista Sito: " + str(e), QMessageBox.Ok)
                 self.remove_row('self.tableWidgetTags_US')
@@ -174,8 +166,8 @@ class Main(QDialog,MAIN_DIALOG_CLASS):
         res=[]
         list=[]
         self.tableWidgetTags_US.setHorizontalHeaderLabels(['Sito', 'Area', 'US'])
-        
         row =0
+        #self.insert_new_row('self.tableWidgetTags_US')
         for name in items_selected: 
             names = name.text()
             if '-'  in names: 
@@ -185,7 +177,6 @@ class Main(QDialog,MAIN_DIALOG_CLASS):
             list.append(a)
             try:
                 for i in list:    
-                    
                     self.tableWidgetTags_US.setItem(row,0,QTableWidgetItem(str(a[0])))
                     self.tableWidgetTags_US.setItem(row,1,QTableWidgetItem(str(a[1])))
                     self.tableWidgetTags_US.setItem(row,2,QTableWidgetItem(str(a[2])))
@@ -201,26 +192,17 @@ class Main(QDialog,MAIN_DIALOG_CLASS):
         self.iconListWidget.setIconSize(QSize(80, 180))
         self.iconListWidget.setLineWidth(2)
         self.iconListWidget.setMidLineWidth(2)
-        
-            
-       
         valuesSites = self.charge_sito_list()
-        
-        
         self.delegateSites = ComboBoxDelegate()
         self.delegateSites.def_values(valuesSites)
         self.delegateSites.def_editable('False')
         self.tableWidgetTags_US.setItemDelegateForColumn(0, self.delegateSites)
         self.tableWidgetTags_MAT.setItemDelegateForColumn(0, self.delegateSites)
         self.charge_sito_list()
-    
     def valuechange(self,value):
         self.sl.value() 
         self.iconListWidget.setIconSize(QSize(80 + value//40,180 + value//80))
-        
-    
     def charge_list(self):
-
         self.comboBox_sito.clear()
         sito_vl = self.UTILITY.tup_2_list_III(self.DB_MANAGER.group_by('site_table', 'sito', 'SITE'))
         try:
@@ -229,164 +211,86 @@ class Main(QDialog,MAIN_DIALOG_CLASS):
             if str(e) == "list.remove(x): x not in list":
                 pass
             else:
-                
                 QMessageBox.warning(self, "Messaggio", "Sistema di aggiornamento lista Sito: " + str(e), QMessageBox.Ok)
-
         self.comboBox_sito.clear()
-        
-
         sito_vl.sort()
         self.comboBox_sito.addItems(sito_vl)
-        
-    
     def charge_us_list(self):
         sito = str(self.comboBox_sito.currentText())
-        # sitob = sito.decode('utf-8')
         if self.radioButton_us.isChecked()==True:
             self.comboBox_us.clear()
             sito = str(self.comboBox_sito.currentText())
-            
             search_dict = {
                 'sito': "'" + sito + "'"
             }
-
             us_vl = self.DB_MANAGER.query_bool(search_dict, 'US')
-
             us_list = []
-
             if not us_vl:
                 return
-
             for i in range(len(us_vl)):
                 us_list.append(str(us_vl[i].us))
-
             try:
                 us_vl.remove('')
             except:
                 pass
-
             self.comboBox_us.clear()
-            
             self.comboBox_us.addItems(self.UTILITY.remove_dup_from_list(us_list))
-        
         else:
             self.comboBox_us.clear()
             sito = str(self.comboBox_sito.currentText())
-            
             search_dict = {
                 'sito': "'" + sito + "'"
             }
-
             us_vl = self.DB_MANAGER.query_bool(search_dict, 'INVENTARIO_MATERIALI')
-
             us_list = []
-
             if not us_vl:
                 return 0
-
             for i in range(len(us_vl)):
                 us_list.append(str(us_vl[i].us))
-
             try:
                 us_vl.remove('')
             except:
                 pass
-
             self.comboBox_us.clear()
-            
             self.comboBox_us.addItems(self.UTILITY.remove_dup_from_list(us_list))
-            
-        # if self.STATUS_ITEMS[self.BROWSE_STATUS] == "Trova" or "Find":
-            # self.comboBox_us.setEditText("")
-        # elif self.STATUS_ITEMS[self.BROWSE_STATUS] == "Usa" or "Current":
-            # if len(self.DATA_LIST) > 0:
-                # try:
-                    # self.comboBox_us.setEditText(self.DATA_LIST[self.rec_num].us)
-                # except:
-                    # pass  # non vi sono periodi per questo scavo
-    
-    
     def charge_area_list(self):
-        
-        # sitob = sito.decode('utf-8')
         if self.radioButton_us.isChecked()==True:
-            
             sito = str(self.comboBox_sito.currentText())
             search_dict = {
                 'sito': "'" + sito + "'"
             }
-
             area_vl = self.DB_MANAGER.query_bool(search_dict, 'US')
-
             area_list = []
-
             if not area_vl:
                 return
-
             for i in range(len(area_vl)):
                 area_list.append(str(area_vl[i].area))
-
             try:
                 area_vl.remove('')
             except:
                 pass
-
             self.comboBox_area.clear()
-            
             self.comboBox_area.addItems(self.UTILITY.remove_dup_from_list(area_list))
         else:
-            
             sito = str(self.comboBox_sito.currentText())
             self.comboBox_area.clear()
             search_dict = {
                 'sito': "'" + sito + "'"
             }
-
             area_vl = self.DB_MANAGER.query_bool(search_dict, 'INVENTARIO_MATERIALI')
-
             area_list = []
-
             if not area_vl:
                 return 0
-
             for i in range(len(area_vl)):
                 area_list.append(str(area_vl[i].area))
-
             try:
                 area_vl.remove('')
             except:
                 pass
-
             self.comboBox_area.clear()
-            
             self.comboBox_area.addItems(self.UTILITY.remove_dup_from_list(area_list))
-            
-        # if self.STATUS_ITEMS[self.BROWSE_STATUS] == "Trova" or "Find":
-            # self.comboBox_area.setEditText("")
-        # elif self.STATUS_ITEMS[self.BROWSE_STATUS] == "Usa" or "Current":
-            # if len(self.DATA_LIST) > 0:
-                # try:
-                    # self.comboBox_area.setEditText(self.DATA_LIST[self.rec_num].area)
-                # except:
-                    # pass  # non vi sono periodi per questo scavo
-    
-    
     def connection(self):
-        #QMessageBox.warning(self, "Alert", "system under development", QMessageBox.Ok)
         conn_str = conn.conn_str()
-        '''try:
-            self.DB_MANAGER = Pyarchinit_db_management(conn_str)
-            self.DB_MANAGER.connection()
-        except Exception as e:
-            e = str(e)
-            if e.find("no such table"):
-                QMessageBox.warning(self, "Alert",
-                                    "La connessione e' fallita <br><br> Tabella non presente. E' NECESSARIO RIAVVIARE QGIS",
-                                    QMessageBox.Ok)
-            else:
-                QMessageBox.warning(self, "Alert",
-                                    "Attenzione rilevato bug! Segnalarlo allo sviluppatore<br> Errore: <br>" + str(e),
-                                    QMessageBox.Ok)'''
         try:
             self.DB_MANAGER = Pyarchinit_db_management(conn_str)
             self.DB_MANAGER.connection()
@@ -405,17 +309,14 @@ class Main(QDialog,MAIN_DIALOG_CLASS):
                 QMessageBox.warning(self, "WELCOME", "Welcome in pyArchInit" + self.NOME_SCHEDA + ". The database is empty. Push 'Ok' and good work!",  QMessageBox.Ok)
                 self.charge_sito_list()
                 self.BROWSE_STATUS = 'x'
-                #self.on_pushButton_new_rec_pressed()
         except Exception as  e:
             e = str(e)
-    
     def enable_button(self, n):
         self.pushButton_first_rec.setEnabled(n)
         self.pushButton_last_rec.setEnabled(n)
         self.pushButton_prev_rec.setEnabled(n)
         self.pushButton_next_rec.setEnabled(n)
         self.pushButton_sort.setEnabled(n)
-        #self.pushButton_active_search.setEnabled(n)
         self.pushButton_go.setEnabled(n)
     def enable_button_search(self, n):
         self.pushButton_first_rec.setEnabled(n)
@@ -423,12 +324,8 @@ class Main(QDialog,MAIN_DIALOG_CLASS):
         self.pushButton_prev_rec.setEnabled(n)
         self.pushButton_next_rec.setEnabled(n)
         self.pushButton_sort.setEnabled(n)
-        #self.pushButton_active_search.setEnabled(n)
         self.pushButton_go.setEnabled(n)
-        
-   
     def on_pushButton_go_pressed(self):
-        #check_for_buttons = 0
         if self.radioButton_us.isChecked()==True:
             sito = str(self.comboBox_sito.currentText())
             area = str(self.comboBox_area.currentText())
@@ -438,7 +335,6 @@ class Main(QDialog,MAIN_DIALOG_CLASS):
                 'area': "'" + str(area) + "'",
                 'us': "'" + str(us) + "'"
             }
-
             u = Utility()
             search_dict = u.remove_empty_items_fr_dict(search_dict)
             us_vl = self.DB_MANAGER.select_medianame_2_from_db_sql(sito,area,us)
@@ -448,25 +344,19 @@ class Main(QDialog,MAIN_DIALOG_CLASS):
                 res = self.DB_MANAGER.select_medianame_2_from_db_sql(sito,area,us)
                 if not bool(res):
                     QMessageBox.warning(self, "Warning", "No records have been found!",  QMessageBox.Ok)
-
                     self.set_rec_counter(len(self.DATA_LIST), self.REC_CORR+1)
                     self.DATA_LIST_REC_TEMP = self.DATA_LIST_REC_CORR = self.DATA_LIST[0]
                     self.fill_fields(self.REC_CORR)
                     self.BROWSE_STATUS = "b"
                     self.label_status.setText(self.STATUS_ITEMS[self.BROWSE_STATUS])
-
-                    
                     self.setComboBoxEnable(["self.comboBox_sito"],"True")
                     self.setComboBoxEnable(["self.comboBox_area"],"True")
                     self.setComboBoxEnable(["self.comboBox_us"],"True")
-                   
-                    
                 else:
                     self.DATA_LIST = []
                     self.empty_fields()
                     for i in res:
                         self.DATA_LIST.append(i)
-
                     self.REC_TOT, self.REC_CORR = len(self.DATA_LIST), 0
                     self.DATA_LIST_REC_TEMP = self.DATA_LIST_REC_CORR = self.DATA_LIST[0]
                     self.fill_fields()
@@ -477,39 +367,26 @@ class Main(QDialog,MAIN_DIALOG_CLASS):
                         strings = ("Has been found", self.REC_TOT, "record")
                     else:
                         strings = ("Have been found", self.REC_TOT, "records")
-
                     self.setComboBoxEnable(["self.comboBox_sito"],"True")
                     self.setComboBoxEnable(["self.comboBox_area"],"True")
                     self.setComboBoxEnable(["self.comboBox_us"],"True")
                     #check_for_buttons = 1
-
                     QMessageBox.warning(self, "Messaggio", "%s %d %s" % strings, QMessageBox.Ok)
             self.NUM_DATA_BEGIN =  1
             self.NUM_DATA_END = len(self.DATA_LIST)
             self.view_num_rec()
             self.open_images()  
-            #if check_for_buttons == 1:
-            #self.enable_button_search(1)
-            
             self.iconListWidget.clear()
-            
             thumb_path = conn.thumb_path()
             thumb_path_str = thumb_path['thumb_path']
-            # search_dict = {
-                # 'id_entity': "'" + str(eval("self.DATA_LIST[int(self.REC_CORR)]." + self.ID_TABLE_US)) + "'",
-                # 'entity_type': "'US'"}
             record_us_list = self.DB_MANAGER.select_medianame_2_from_db_sql(sito,area,us)
-            
             for i in record_us_list:
                 search_dict = {'media_filename': "'" + str(i.media_name) + "'"}
-
                 u = Utility()
                 search_dict = u.remove_empty_items_fr_dict(search_dict)
                 mediathumb_data = self.DB_MANAGER.query_bool(search_dict, "MEDIA_THUMB")
                 thumb_path = str(mediathumb_data[0].filepath)
-
                 item = QListWidgetItem(str(i.media_name))
-
                 item.setData(Qt.UserRole, str(i.media_name))
                 icon = QIcon(thumb_path_str+thumb_path)
                 item.setIcon(icon)
@@ -523,7 +400,6 @@ class Main(QDialog,MAIN_DIALOG_CLASS):
                 'area': "'" + str(area) + "'",
                 'us': "'" + str(us) + "'"
             }
-
             u = Utility()
             search_dict = u.remove_empty_items_fr_dict(search_dict)
             us_vl = self.DB_MANAGER.select_medianame_3_from_db_sql(sito,area,us)
@@ -533,25 +409,19 @@ class Main(QDialog,MAIN_DIALOG_CLASS):
                 res = self.DB_MANAGER.select_medianame_3_from_db_sql(sito,area,us)
                 if not bool(res):
                     QMessageBox.warning(self, "Warning", "No records have been found!",  QMessageBox.Ok)
-
                     self.set_rec_counter(len(self.DATA_LIST), self.REC_CORR+1)
                     self.DATA_LIST_REC_TEMP = self.DATA_LIST_REC_CORR = self.DATA_LIST[0]
                     self.fill_fields(self.REC_CORR)
                     self.BROWSE_STATUS = "b"
                     self.label_status.setText(self.STATUS_ITEMS[self.BROWSE_STATUS])
-
-                    
                     self.setComboBoxEnable(["self.comboBox_sito"],"True")
                     self.setComboBoxEnable(["self.comboBox_area"],"True")
                     self.setComboBoxEnable(["self.comboBox_us"],"True")
-                   
-                    
                 else:
                     self.DATA_LIST = []
                     self.empty_fields()
                     for i in res:
                         self.DATA_LIST.append(i)
-
                     self.REC_TOT, self.REC_CORR = len(self.DATA_LIST), 0
                     self.DATA_LIST_REC_TEMP = self.DATA_LIST_REC_CORR = self.DATA_LIST[0]
                     self.fill_fields()
@@ -562,63 +432,51 @@ class Main(QDialog,MAIN_DIALOG_CLASS):
                         strings = ("Has been found", self.REC_TOT, "record")
                     else:
                         strings = ("Have been found", self.REC_TOT, "records")
-
                     self.setComboBoxEnable(["self.comboBox_sito"],"True")
                     self.setComboBoxEnable(["self.comboBox_area"],"True")
                     self.setComboBoxEnable(["self.comboBox_us"],"True")
-                    #check_for_buttons = 1
-
                     QMessageBox.warning(self, "Messaggio", "%s %d %s" % strings, QMessageBox.Ok)
             self.NUM_DATA_BEGIN =  1
             self.NUM_DATA_END = len(self.DATA_LIST)
             self.view_num_rec()
             self.open_images()  
-            #if check_for_buttons == 1:
-            #self.enable_button_search(1)
-            
             self.iconListWidget.clear()
-            
             thumb_path = conn.thumb_path()
             thumb_path_str = thumb_path['thumb_path']
-            # search_dict = {
-                # 'id_entity': "'" + str(eval("self.DATA_LIST[int(self.REC_CORR)]." + self.ID_TABLE_US)) + "'",
-                # 'entity_type': "'US'"}
             record_us_list = self.DB_MANAGER.select_medianame_3_from_db_sql(sito,area,us)
-            
             for i in record_us_list:
                 search_dict = {'media_filename': "'" + str(i.media_name) + "'"}
-
                 u = Utility()
                 search_dict = u.remove_empty_items_fr_dict(search_dict)
                 mediathumb_data = self.DB_MANAGER.query_bool(search_dict, "MEDIA_THUMB")
                 thumb_path = str(mediathumb_data[0].filepath)
-
                 item = QListWidgetItem(str(i.media_name))
-
                 item.setData(Qt.UserRole, str(i.media_name))
                 icon = QIcon(thumb_path_str+thumb_path)
                 item.setIcon(icon)
                 self.iconListWidget.addItem(item)
-
-    
     def getDirectory(self):
         thumb_path = conn.thumb_path()
         thumb_path_str = thumb_path['thumb_path']      
-        
         if thumb_path_str=='':
             QMessageBox.information(self, "Message", "devi settare prima la path per salvare le thumbnail e le immagini ricampionate. Vai in impostazioni di sistema/ path setting ")
         else:    
             image_list=[]
             directory = QFileDialog.getExistingDirectory(self, "Directory", "Choose a directory:",
                                                          QFileDialog.ShowDirsOnly)
-            
             if not directory:
                 return 0
-            #QMessageBox.warning(self, "Alert", str(dir(directory)), QMessageBox.Ok)
-            for image in sorted(os.listdir(directory)):
+            # for video in sorted(os.listdir(directory)):
+                # if video.endswith(".mp4"): #or .avi, .mpeg, whatever.
+                    # filenamev, filetypev = video.split(".")[0], video.split(".")[1]  # db definisce nome immagine originale
+                    # filepathv = directory + '/' + filenamev + "." + filetypev  # db definisce il path immagine originale
+                    # outputfile='{}.png'.format(directory + '/' + filenamev)
+                    # infile=ffmpeg.input(filepathv,ss='00:00:4').output(outputfile,vframes=1).overwrite_output()
+                    # ffmpeg.run(infile)                                            
+            for image in sorted(os.listdir(directory)):    
                 if image.endswith(".png") or image.endswith(".PNG") or image.endswith(".JPG") or image.endswith(
                         ".jpg") or image.endswith(".jpeg") or image.endswith(".JPEG") or image.endswith(
-                    ".tif") or image.endswith(".TIF") or image.endswith(".tiff") or image.endswith(".TIFF"):
+                    ".tif") or image.endswith(".TIF") or image.endswith(".tiff") or image.endswith(".TIFF"):# or image.endswith(".mp4"):
                     filename, filetype = image.split(".")[0], image.split(".")[1]  # db definisce nome immagine originale
                     filepath = directory + '/' + filename + "." + filetype  # db definisce il path immagine originale
                     idunique_image_check = self.db_search_check(self.MAPPER_TABLE_CLASS, 'filepath',
@@ -689,7 +547,6 @@ class Main(QDialog,MAIN_DIALOG_CLASS):
             self.charge_data ()
             self.view_num_rec()
             self.open_images()
-            
     def insert_record_media(self, mediatype, filename, filetype, filepath):
         self.mediatype = mediatype
         self.filename = filename
@@ -870,10 +727,8 @@ class Main(QDialog,MAIN_DIALOG_CLASS):
         # for model_index in self.tableWidgetTags_US.selectionModel().selectedRows():       
             # index = QPersistentModelIndex(model_index)         
             # index_list.append(index)                                             
-
         # for index in index_list:                                      
              # self.model.removeRow(index.row())
-    
     def remove_row(self, table_name):
         """remove row into a table based on table_name"""
         table_row_count_cmd = ("%s.rowCount()") % (table_name)
@@ -881,12 +736,10 @@ class Main(QDialog,MAIN_DIALOG_CLASS):
         row_index = table_row_count - 1
         cmd = ("%s.removeRow(%d)") % (table_name, row_index)
         eval(cmd)
-        
     def remove_rowall(self, table_name):
         """remove row into a table based on table_name"""
         table_row_count_cmd = ("%s.currentRow()") % (table_name)
         table_row_count = eval(table_row_count_cmd)
-        
         cmd = ("%s.removeRow") % (table_name)
         eval(cmd)    
     def openWide_image(self):
@@ -1013,10 +866,6 @@ class Main(QDialog,MAIN_DIALOG_CLASS):
                 item.setIcon(icon)
                 self.iconListWidget.addItem(item)
                 # Button utility
-    
-    
-    
-   
     def on_pushButton_chose_dir_pressed(self):
         self.getDirectory()
     def on_pushButton_addRow_US_pressed(self):
@@ -1027,7 +876,6 @@ class Main(QDialog,MAIN_DIALOG_CLASS):
         self.insert_new_row('self.tableWidgetTags_MAT')
     def on_pushButton_removeRow_MAT_pressed(self):
         self.remove_row('self.tableWidgetTags_MAT')
-    
     def on_pushButton_assignTags_US_pressed(self):
         """
         id_mediaToEntity,
@@ -1049,9 +897,6 @@ class Main(QDialog,MAIN_DIALOG_CLASS):
                 media_data = self.DB_MANAGER.query_bool(search_dict, 'MEDIA')
                 self.insert_mediaToEntity_rec(us_data[0], us_data[1], us_data[2], media_data[0].id_media,
                                               media_data[0].filepath, media_data[0].filename)
-    
-    
-    
     def on_pushButton_assignTags_MAT_pressed(self):
         """
         id_mediaToEntity,
@@ -1073,12 +918,9 @@ class Main(QDialog,MAIN_DIALOG_CLASS):
                 media_data = self.DB_MANAGER.query_bool(search_dict, 'MEDIA')
                 self.insert_mediaToEntity_rec(reperti_data[0], reperti_data[1], reperti_data[2], media_data[0].id_media,
                                               media_data[0].filepath, media_data[0].filename)
-    
-    
     ##################################funzione per eliminare le thumbnail###########################################
     def on_pushButton_remove_thumb_pressed(self):
         items_selected = self.iconListWidget.selectedItems()
-        
         if bool (items_selected):
             msg = QMessageBox.warning(self, "Attenzione!!!",
                                       "Vuoi veramente eliminare la thumb selezionata? \n L'azione è irreversibile",
@@ -1086,61 +928,41 @@ class Main(QDialog,MAIN_DIALOG_CLASS):
             if msg == QMessageBox.Cancel:
                 QMessageBox.warning(self, "Messaggio!!!", "Azione Annullata!")
             else:
-            
                 try:
-                
-                
-               
                     for item in items_selected:
-                        
                         id_orig_item = item.text()  # return the name of original file
                         s= str(id_orig_item)
                         self.DB_MANAGER.delete_thumb_from_db_sql(s)
-                        
-                        
                 except Exception as e:
                     QMessageBox.warning(self, "Messaggio!!!", "Tipo di errore: " + str(e))    
-        
                 self.iconListWidget.clear()
                 self.charge_data()
                 self.view_num_rec()
                 QMessageBox.warning(self, "Messaggio!!!", "Thumbnail eliminate!")
         else:
             QMessageBox.warning(self, "Messaggio!!!", "devi selezionare una thumbnail!")
-    
     ###################funzione poer rimuovere un tag alla volta dal tabklewidget##############
     def on_pushButton_remove_tags_pressed(self):
-        
         if not bool(self.tableWidget_tags.selectedItems()):
                 msg = QMessageBox.warning(self, "Attenzione!!!",
                                       "devi selezionare prima un tag",
                                       QMessageBox.Ok)
-        
         else:
             msg = QMessageBox.warning(self, "Attenzione!!!",
                                       "Vuoi veramente cancellare i tags dalle thumbnail selezionate? \n L'azione è irreversibile",
                                       QMessageBox.Ok | QMessageBox.Cancel)
             if msg == QMessageBox.Cancel:
                 QMessageBox.warning(self, "Messagio!!!", "Azione Annullata!")
-            
             else:
                 items_selected = self.tableWidget_tags.selectedItems()
-            
-            
-           
             for item in items_selected:
-                
                 id_orig_item = item.text()  # return the name of original file
                 s= self.tableWidget_tags.item(0,0).text()
                 self.DB_MANAGER.remove_tags_from_db_sql(s)
             QMessageBox.warning(self, "Messaggio!!!", "Tags rimossi!")
-    
-    
     #######################funzione per rimuovere tutti i tag da una foto da selezione thumbnail#########################
     def on_pushButton_remove_alltag_pressed(self):
-        
         items_selected = self.iconListWidget.selectedItems()
-        
         if bool (items_selected):
             msg = QMessageBox.warning(self, "Attenzione!!!",
                                       "Vuoi veramente eliminare tutti i tags dalle immagini selezionate? \n L'azione è irreversibile",
@@ -1148,28 +970,19 @@ class Main(QDialog,MAIN_DIALOG_CLASS):
             if msg == QMessageBox.Cancel:
                 QMessageBox.warning(self, "Messaggio!!!", "Azione Annullata!")
             else:
-            
                 try:
-                
-                
-               
                     for item in items_selected:
-                        
                         id_orig_item = item.text()  # return the name of original file
                         s= str(id_orig_item)
                         self.DB_MANAGER.remove_alltags_from_db_sql(s)
-                        
-                        
                 except Exception as e:
                     QMessageBox.warning(self, "Messaggio!!!", "Tipo di errore: " + str(e))    
-        
                 self.iconListWidget.clear()
                 self.charge_data()
                 self.view_num_rec()
                 QMessageBox.warning(self, "Messaggio!!!", "Tags eliminati!")
         else:
             QMessageBox.warning(self, "Messaggio!!!", "devi selezionare almeno una thumbnail!")
-    
     def on_pushButton_openMedia_pressed(self):
         self.charge_data()
         self.view_num_rec()
@@ -1195,7 +1008,6 @@ class Main(QDialog,MAIN_DIALOG_CLASS):
         self.NUM_DATA_END = len(self.DATA)
         self.view_num_rec()
         self.open_images()
-    
     def update_if(self, msg):
         rec_corr = self.REC_CORR
         self.msg = msg
@@ -1371,7 +1183,6 @@ class Main(QDialog,MAIN_DIALOG_CLASS):
         self.comboBox_sito.setEditText("")  # 1 - Sito
         self.comboBox_area.setEditText("")  # 2 - Area
         self.comboBox_us.setEditText("")  # 1 - US
-        
     def fill_fields(self, n=0):
         self.rec_num = n
         #QMessageBox.warning(self, "check fill fields", str(self.rec_num),  QMessageBox.Ok)
@@ -1387,15 +1198,12 @@ class Main(QDialog,MAIN_DIALOG_CLASS):
         for fn in field_names:
             cmd = ('%s%s%s%s') % (fn, '.setEnabled(', v, ')')
             eval(cmd)
-    
     def setComboBoxEditable(self, f, n):
         field_names = f
         value = n
-
         for fn in field_names:
             cmd = '{}{}{}{}'.format(fn, '.setEditable(', n, ')')
             eval(cmd)
-
     def setTableEnable(self, t, v):
         tab_names = t
         value = v
@@ -1440,4 +1248,3 @@ class Main(QDialog,MAIN_DIALOG_CLASS):
                 item = QTableWidgetItem(self.data_list[row][col])
                 exec_str = ('%s.setItem(%d,%d,item)') % (self.table_name, row, col)
                 eval(exec_str)
-    
