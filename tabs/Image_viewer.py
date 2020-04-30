@@ -140,48 +140,35 @@ class Main(QDialog,MAIN_DIALOG_CLASS):
         self.view_num_rec()
         
     def split_2(self):
-        
         items_selected = self.iconListWidget.selectedItems()#seleziono le icone
         res=[]
         list=[]
         self.tableWidgetTags_US.setHorizontalHeaderLabels(['Sito', 'Area', 'US'])
-        
         row =0
-        
         for name in items_selected: 
             names = name.text()
-            
             if '-' not in names: 
                 res.append(names) 
                 continue 
-            
             a = names.split("_") 
-            
-            
             for sub in a[2].split("-"): 
                 for sub2 in sub:
                     res.append(f'{a[0]}_{a[1]}_{sub}') 
-                    for u in res:
-                        res1 = str(u)
-                        b = u.split("_")
-                    
-                        list.append(b)
+                for u in res:
+                    res1 = str(u)
+                    b = res1.split("_")
+                    list.append(b)
+                try:
+                    self.insert_new_row('self.tableWidgetTags_US')
+                    for i in list:    
                         
-                            
+                        self.tableWidgetTags_US.setItem(row,0,QTableWidgetItem(str(i[0])))
+                        self.tableWidgetTags_US.setItem(row,1,QTableWidgetItem(str(i[1])))
+                        self.tableWidgetTags_US.setItem(row,2,QTableWidgetItem(str(i[2])))
                         
-                        
-                    try:
-                        self.insert_new_row('self.tableWidgetTags_US')
-                        for i in list:    
-                           
-                            self.tableWidgetTags_US.setItem(row,0,QTableWidgetItem(str(b[0])))
-                            self.tableWidgetTags_US.setItem(row,1,QTableWidgetItem(str(b[1])))
-                            self.tableWidgetTags_US.setItem(row,2,QTableWidgetItem(str(b[2])))
-                                
-                            
-                    except Exception as e:
-                        QMessageBox.warning(self, "Messaggio", "Sistema di aggiornamento lista Sito: " + str(e), QMessageBox.Ok)
-            self.remove_row('self.tableWidgetTags_US')
+                except Exception as e:
+                    QMessageBox.warning(self, "Messaggio", "Sistema di aggiornamento lista Sito: " + str(e), QMessageBox.Ok)
+                self.remove_row('self.tableWidgetTags_US')
     def split_1(self):
         items_selected = self.iconListWidget.selectedItems()#seleziono le icone
         res=[]
