@@ -178,43 +178,19 @@ class Main(QDialog,MAIN_DIALOG_CLASS):
         row =0
         for name in items_selected: 
             names = name.text()
-            
             if '-'  in names: 
                 res.append(names) 
                 continue 
-            
             a = names.split("_") 
-            
-            
             list.append(a)
-                            
-                        
-                        
             try:
-                #self.insert_new_row('self.tableWidgetTags_US')
                 for i in list:    
-                    #if row==0:    
-                        
+                    
                     self.tableWidgetTags_US.setItem(row,0,QTableWidgetItem(str(a[0])))
                     self.tableWidgetTags_US.setItem(row,1,QTableWidgetItem(str(a[1])))
                     self.tableWidgetTags_US.setItem(row,2,QTableWidgetItem(str(a[2])))
-                     
-                                    
-                    
-                    # else:
-                        
-                        # self.tableWidgetTags_US.setItem(row,0,QTableWidgetItem(str(b[0])))
-                        # self.tableWidgetTags_US.setItem(row,1,QTableWidgetItem(str(b[1])))
-                        # self.tableWidgetTags_US.setItem(row,2,QTableWidgetItem(str(b[2])))
-                        # row+=1 
-                    # # else:
-                
             except Exception as e:
                 QMessageBox.warning(self, "Messaggio", "Sistema di aggiornamento lista Sito: " + str(e), QMessageBox.Ok)
-        #self.remove_all()
-    def remove_all(self):
-        #hopefully this will let the Delete button remove the selected table row
-        self.tableWidgetTags_US.setRowCount(1)
     def customize_gui(self):
         self.tableWidgetTags_US.setColumnWidth(0, 300)
         self.tableWidgetTags_US.setColumnWidth(1, 100)
