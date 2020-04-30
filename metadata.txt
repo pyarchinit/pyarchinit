@@ -30,9 +30,12 @@ deprecated=False
 
 
 changelog=
+     release0.7.1:
+     -fix bug image viw split function
+  -----------------------------------------------------------------------------
      
      release0.7.0:
-     -imahe view: auto fill tablewidget US TAG from selected image
+     -image view: auto fill tablewidget US TAG from selected image
   -----------------------------------------------------------------------------
      
      release0.6.9:
