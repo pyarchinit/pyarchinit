@@ -1451,6 +1451,24 @@ class Pyarchinit_pyqgis(QDialog):
             else:
                 QMessageBox.warning(self, "TESTER", "Layer not valid", QMessageBox.Ok)
             
+            
+                
+            layer_name = 'pyarchinit_tafonomia'
+            layer_name_conv = "'" + str(layer_name) + "'"
+            value_conv = ('"sito = %s"') % ("'" + str(self.val) + "'")
+            cmq_set_uri_data_source = "uri.setDataSource('',%s, %s, %s)" % (layer_name_conv, "'the_geom'", value_conv)
+            eval(cmq_set_uri_data_source)
+            layer_label = self.LAYERS_CONVERT_DIZ[layer_name]
+            layer_label_conv = "'" + layer_label + "'"
+            cmq_set_vector_layer = "QgsVectorLayer(uri.uri(), %s, 'spatialite')" % (layer_label_conv)
+            layer = eval(cmq_set_vector_layer)
+
+            if layer.isValid():
+                QgsProject.instance().addMapLayers([layer], True)
+            else:
+                QMessageBox.warning(self, "TESTER", "Layer not valid", QMessageBox.Ok)    
+            
+            
             layer_name = 'pyarchinit_siti_polygonal'
             layer_name_conv = "'" + str(layer_name) + "'"
             value_conv = ('"sito_id = %s"') % ("'" + str(self.val) + "'")
