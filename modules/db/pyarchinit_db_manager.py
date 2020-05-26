@@ -1285,15 +1285,17 @@ class Pyarchinit_db_management(object):
         id_us = self.max_num_id('US', 'id_us')
         
         l=QgsSettings().value("locale/userLocale")[0:2]
+
         for i in range(us_range):
             id_us += 1
-            n_us += 1
-            
+
             data_ins = self.insert_values(id_us, sito, area, n_us, '', '', '', '', '', '', '', '', '', '', '', '', '[]',
                                           '[]', '[]', '', '', '', '', '', '', '', '', '0', '[]', unita_tipo, '', '', '', '',
                                           '', '', '', '', '', '', '', '', '', None, None, '', '[]','[]', '[]', '[]', '[]','','','','',None,None,'','','','','','','[]','[]',None,None,None,None,None,None,None,None,None,None,'','','','','','','','','','',None,None,None,'','','','','','','','')
                                            
             self.insert_data_session(data_ins)
+            n_us += 1
+        return
 
     def select_like_from_db_sql(self, rapp_list, us_rapp_list):
         # this is a test
