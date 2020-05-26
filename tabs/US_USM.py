@@ -4577,6 +4577,7 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
                     self.setComboBoxEnable(["self.comboBox_sito"], "False")
                     self.setComboBoxEnable(["self.comboBox_area"], "False")
                     self.setComboBoxEnable(["self.lineEdit_us"], "False")
+                    self.setComboBoxEnable(["comboBox_unita_tipo"], "False")
 
                     self.setTableEnable(
                         ["self.tableWidget_campioni",
@@ -4720,6 +4721,7 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
             # for i in range(len(self.data_list)):
             # self.insert_new_row(self.table_name)
 
+
         for row in range(len(self.data_list)):
             cmd = '{}.insertRow(int({}))'.format(self.table_name, row)
             eval(cmd)
@@ -4729,6 +4731,14 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
                 # TODO SL: evauation of QTableWidget does not work porperly
                 exec_str = '{}.setItem(int({}),int({}),QTableWidgetItem(self.data_list[row][col]))'.format(self.table_name, row, col)
                 eval(exec_str)
+
+        max_row_num = len(self.data_list)
+        value = eval(self.table_name+".item(max_row_num,1)")
+        if value == '':
+            cmd = ("%s.removeRow(%d)") % (self.table_name, max_row_num)
+            eval(cmd)
+
+
 
     def insert_new_row(self, table_name):
         """insert new row into a table based on table_name"""
