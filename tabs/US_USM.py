@@ -4577,7 +4577,7 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
                     self.setComboBoxEnable(["self.comboBox_sito"], "False")
                     self.setComboBoxEnable(["self.comboBox_area"], "False")
                     self.setComboBoxEnable(["self.lineEdit_us"], "False")
-                    self.setComboBoxEnable(["comboBox_unita_tipo"], "False")
+                    self.setComboBoxEnable(["self.comboBox_unita_tipo"], "False")
 
                     self.setTableEnable(
                         ["self.tableWidget_campioni",
