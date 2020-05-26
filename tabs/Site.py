@@ -993,6 +993,22 @@ class pyarchinit_Site(QDialog, MAIN_DIALOG_CLASS):
                                                               int(self.lineEdit_n_us.text()),
                                                               str(self.comboBox_t_us.currentText()))
 
+        if self.L=='it':
+            QMessageBox.warning(self, "Messaggio",
+                                    "US create con successo nella Scheda US", QMessageBox.Ok)
+
+        elif self.L=='de':
+            QMessageBox.warning(self, "Message",
+                                    "TO TRANSLATE: US create con successo nella Scheda US",
+                                    QMessageBox.Ok)
+
+
+        else:
+            QMessageBox.warning(self, "Message",
+                                    "SU successfully created on SU Sheet",
+                                    QMessageBox.Ok)
+
+
     def update_if(self, msg):
         rec_corr = self.REC_CORR
         if msg == QMessageBox.Ok:
@@ -1067,6 +1083,7 @@ class pyarchinit_Site(QDialog, MAIN_DIALOG_CLASS):
         self.comboBox_provincia.setEditText("")  # 6 - Provincia
         self.comboBox_definizione_sito.setEditText("")  # 7 - definizione_sito
         self.lineEdit_sito_path.setText("") # 8 - path
+
     def fill_fields(self, n=0):
         self.rec_num = n
 
@@ -1133,7 +1150,6 @@ class pyarchinit_Site(QDialog, MAIN_DIALOG_CLASS):
         else:
             return 1
 
-    
     def update_record(self):
         try:
             self.DB_MANAGER.update(self.MAPPER_TABLE_CLASS,
