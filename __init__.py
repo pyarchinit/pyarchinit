@@ -111,8 +111,9 @@ if install_libraries:
     if res == QMessageBox.Ok:
         import subprocess
 
+        python_path = sys.exec_prefix
         try:
-            cmd = 'python3'
+            cmd = '{}/bin/python3'.format(python_path)
             subprocess.call([cmd,'{}'.format(os.path.join(os.path.dirname(__file__), 'scripts', 'modules_installer.py')),
                              ','.join(install_libraries)], shell=True if Pyarchinit_OS_Utility.isWindows() else False)
         except Exception as e:
