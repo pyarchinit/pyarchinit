@@ -18,38 +18,33 @@
  ***************************************************************************/
 """
 
-
-
 import subprocess
 import sys
-
 
 packages = sys.argv[1].split(',') if len(sys.argv) >= 2 else []
 
 # Adding the dependencies python modules in
 # package list in order to install via pip module
 
-    
+
 if not packages:
-    packages = [ 
-                'SQLAlchemy',
-                'SQLAlchemy-Utils',
-                'reportlab',
-                'networkx',
-                'matplotlib',
-                'PypeR',
-                'graphviz==0.8.3',
-                'pysftp',
-                'xlsxwriter',
-				'pandas'
-                ]
+    packages = [
+        'SQLAlchemy',
+        'SQLAlchemy-Utils',
+        'reportlab',
+        'networkx',
+        'matplotlib',
+        'PypeR',
+        'graphviz==0.8.3',
+        'pysftp',
+        'xlsxwriter',
+        'pandas'
+    ]
+python_path = sys.exec_prefix
+cmd = '{}/bin/python3'.format(python_path)
 
+# TODO: @enzococca why this line?
+# subprocess.check_call([cmd, '-m', 'ensurepip'], shell=False)
 
-
-
-
-subprocess.check_call([sys.executable, '-m', 'ensurepip'], shell=False)
-    
 for p in packages:
-
-    subprocess.check_call([sys.executable, '-m', 'pip' ,'install','--upgrade', p], shell=False)
+    subprocess.check_call([cmd, '-m', 'pip', 'install', '--upgrade', p], shell=False)
