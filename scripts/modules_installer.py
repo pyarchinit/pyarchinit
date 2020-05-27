@@ -41,7 +41,8 @@ if not packages:
         'pandas'
     ]
 python_path = sys.exec_prefix
-cmd = '{}/bin/python3'.format(python_path)
+python_version = sys.version[:3]
+cmd = '{}/bin/python{}'.format(python_path, python_version)
 
 # install pip if it is not found
 subprocess.check_call([cmd, '-m', 'ensurepip'], shell=False)
