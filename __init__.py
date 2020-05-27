@@ -113,16 +113,16 @@ if install_libraries:
         import subprocess
 
         python_path = sys.exec_prefix
+        python_version = sys.version[:3]
         try:
-            cmd = '{}/bin/python3'.format(python_path)
+            cmd = '{}/bin/python{}'.format(python_path, python_version)
             subprocess.call(
                 [cmd, '{}'.format(os.path.join(os.path.dirname(__file__), 'scripts', 'modules_installer.py')),
                  ','.join(install_libraries)], shell=True if Pyarchinit_OS_Utility.isWindows() else False)
         except Exception as e:
             if Pyarchinit_OS_Utility.isMac():
-                python_version = sys.version[:3]
                 library_path = '/Library/Frameworks/Python.framework/Versions/{}/bin'.format(python_version)
-                cmd = '{}/python3'.format(library_path)
+                cmd = '{}/python{}'.format(library_path, python_version)
                 subprocess.call(
                     [cmd, '{}'.format(os.path.join(os.path.dirname(__file__), 'scripts', 'modules_installer.py')),
                      ','.join(install_libraries)])
