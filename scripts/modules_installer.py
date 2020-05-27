@@ -43,8 +43,8 @@ if not packages:
 python_path = sys.exec_prefix
 cmd = '{}/bin/python3'.format(python_path)
 
-# TODO: @enzococca why this line?
-# subprocess.check_call([cmd, '-m', 'ensurepip'], shell=False)
+# install pip if it is not found
+subprocess.check_call([cmd, '-m', 'ensurepip'], shell=False)
 
 for p in packages:
     subprocess.check_call([cmd, '-m', 'pip', 'install', '--upgrade', p], shell=False)
