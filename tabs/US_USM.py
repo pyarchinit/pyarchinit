@@ -774,6 +774,7 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
         self.charge_periodo_iniz_list()
         self.charge_periodo_fin_list()
         self.charge_struttura_list()
+        self.empty_fields()
         self.fill_fields()
         
         self.customize_GUI()
