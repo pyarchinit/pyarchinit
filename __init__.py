@@ -114,8 +114,11 @@ if install_libraries:
 
         python_path = sys.exec_prefix
         python_version = sys.version[:3]
-        try:
+        if Pyarchinit_OS_Utility.isWindows:
+            cmd = '{}/python3'.format(python_path)
+        else:
             cmd = '{}/bin/python{}'.format(python_path, python_version)
+        try:
             subprocess.call(
                 [cmd, '{}'.format(os.path.join(os.path.dirname(__file__), 'scripts', 'modules_installer.py')),
                  ','.join(install_libraries)], shell=True if Pyarchinit_OS_Utility.isWindows() else False)
