@@ -45,9 +45,9 @@ if not packages:
 python_path = sys.exec_prefix
 python_version = sys.version[:3]
 
-if platform.system=='Windows':
-    cmd = '{}/python'.format(python_path)
-elif platform.system=='Darwin':
+if platform.system()=='Windows':
+    cmd = '{}\python'.format(python_path)
+elif platform.system()=='Darwin':
     cmd = '{}/bin/python{}'.format(python_path, python_version)
 else:
     cmd = '{}/bin/python{}'.format(python_path, python_version)
