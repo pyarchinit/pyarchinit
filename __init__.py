@@ -115,7 +115,7 @@ if install_libraries:
         python_path = sys.exec_prefix
         python_version = sys.version[:3]
         if Pyarchinit_OS_Utility.isWindows():
-            cmd = '{}/python3'.format(python_path)
+            cmd = '{}/python'.format(python_path)
         else:
             cmd = '{}/bin/python{}'.format(python_path, python_version)
         try:
