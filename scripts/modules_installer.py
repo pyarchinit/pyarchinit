@@ -18,38 +18,40 @@
  ***************************************************************************/
 """
 
-
-
 import subprocess
 import sys
 
+from .. modules.utility.pyarchinit_OS_utility import Pyarchinit_OS_Utility
 
 packages = sys.argv[1].split(',') if len(sys.argv) >= 2 else []
 
 # Adding the dependencies python modules in
 # package list in order to install via pip module
 
-    
+
 if not packages:
-    packages = [ 
-                'SQLAlchemy',
-                'SQLAlchemy-Utils',
-                'reportlab',
-                'networkx',
-                'matplotlib',
-                'PypeR',
-                'graphviz==0.8.3',
-                'pysftp',
-                'xlsxwriter',
-				'pandas'
-                ]
+    packages = [
+        'SQLAlchemy',
+        'SQLAlchemy-Utils',
+        'reportlab',
+        'networkx',
+        'matplotlib',
+        'PypeR',
+        'graphviz==0.8.3',
+        'pysftp',
+        'xlsxwriter',
+        'pandas'
+    ]
+python_path = sys.exec_prefix
+python_version = sys.version[:3]
 
+if Pyarchinit_OS_Utility.isWindows():
+    cmd = '{}/python3'.format(python_path)
+else:
+    cmd = '{}/bin/python{}'.format(python_path, python_version)
 
+# install pip if it is not found
+subprocess.check_call([cmd, '-m', 'ensurepip'], shell=False)
 
-
-
-subprocess.check_call([sys.executable, '-m', 'ensurepip'], shell=False)
-    
 for p in packages:
-
-    subprocess.check_call([sys.executable, '-m', 'pip' ,'install','--upgrade', p], shell=False)
+    subprocess.check_call([cmd, '-m', 'pip', 'install', '--upgrade', p], shell=False)
