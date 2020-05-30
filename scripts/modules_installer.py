@@ -20,8 +20,8 @@
 
 import subprocess
 import sys
-
-from .. modules.utility.pyarchinit_OS_utility import Pyarchinit_OS_Utility
+import platform
+#from .. modules.utility.pyarchinit_OS_utility import Pyarchinit_OS_Utility
 
 packages = sys.argv[1].split(',') if len(sys.argv) >= 2 else []
 
@@ -45,8 +45,10 @@ if not packages:
 python_path = sys.exec_prefix
 python_version = sys.version[:3]
 
-if Pyarchinit_OS_Utility.isWindows():
-    cmd = '{}/python3'.format(python_path)
+if platform.system=='Windows':
+    cmd = '{}/python'.format(python_path)
+elif platform.system=='Darwin':
+    cmd = '{}/bin/python{}'.format(python_path, python_version)
 else:
     cmd = '{}/bin/python{}'.format(python_path, python_version)
 
@@ -54,4 +56,4 @@ else:
 subprocess.check_call([cmd, '-m', 'ensurepip'], shell=False)
 
 for p in packages:
-    subprocess.check_call([cmd, '-m', 'pip', 'install', '--upgrade', p], shell=False)
+    subprocess.check_call([cmd, '-m', 'pip', 'install', '--upgrade', p,'--user'], shell=False)
