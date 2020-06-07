@@ -2954,7 +2954,7 @@ class FOTO_index_pdf_sheet(object):
         else:
             us = Paragraph("<b>USM</b><br/>" + str(self.us), styNormal)
         foto = Paragraph("<b>Foto ID</b><br/>" + str(self.foto), styNormal)
-        d_stratigrafica = Paragraph("<b>Definizione stratigrafica</b><br/>" + str(self.d_stratigrafica), styNormal)
+        d_stratigrafica = Paragraph("<b>Descrizione</b><br/>" + str(self.d_stratigrafica), styNormal)
         us_presenti = Paragraph("<b>US-USM presenti</b><br/>", styNormal)
         
         logo= Image(self.thumbnail)
@@ -3009,7 +3009,7 @@ class FOTO_index_pdf_sheet_2(object):
         else:
             us = Paragraph("<b>USM</b><br/>" + str(self.us), styNormal)
         foto = Paragraph("<b>Foto ID</b><br/>" + str(self.foto), styNormal)
-        d_stratigrafica = Paragraph("<b>Definizione stratigrafica</b><br/>" + str(self.d_stratigrafica), styNormal)
+        d_stratigrafica = Paragraph("<b>Descrizione</b><br/>" + str(self.d_stratigrafica), styNormal)
         us_presenti = Paragraph("<b>US-USM presenti</b><br/>", styNormal)
         
         # logo= Image(self.thumbnail)
