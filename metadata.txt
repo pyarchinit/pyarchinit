@@ -30,6 +30,10 @@ deprecated=False
 
 
 changelog=
+release0.8.0:
+     -Raggruppamento us durante esportazione foto
+  -----------------------------------------------------------------------------
+
 release0.7.5:
      -fixed minor bug
      - fix instalation on mac
