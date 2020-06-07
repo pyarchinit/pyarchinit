@@ -2106,8 +2106,9 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
             foto= (media.media_name)
             #sito= (media.sito)
             area= (media.area)
+            
             us= (media.us)
-            d_stratigrafica= (media.d_stratigrafica)
+            d_stratigrafica= ''
             unita_tipo = (media.unita_tipo)
             data_list_foto.append([
                 str(sito), #0
