@@ -1207,7 +1207,7 @@ class Pyarchinit_db_management(object):
         return rows
     
     def select_thumbnail_from_db_sql(self,sito):
-        sql_query_string = ("SELECT c.filepath, group_concat ((select us from us_table where id_us like id_entity))as us,a.media_name,b.area,b.unita_tipo FROM media_to_entity_table as a,  us_table as b, media_thumb_table as c WHERE b.id_us=a.id_entity and c.id_media=a.id_media and sito='%s' group by a.media_name order by b.us")%(sito)
+        sql_query_string = ("SELECT c.filepath, group_concat ((select us from us_table where id_us like id_entity))as us,a.media_name,b.area,b.unita_tipo FROM  media_to_entity_table as a,  us_table as b, media_thumb_table as c WHERE b.id_us=a.id_entity and c.id_media=a.id_media and sito='%s' group by a.media_name order by b.us")%(sito)
         res = self.engine.execute(sql_query_string)
         rows= res.fetchall()
         return rows
