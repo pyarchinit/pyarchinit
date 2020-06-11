@@ -20,6 +20,125 @@ about=https://github.com/pyarchinit/pyarchinit
 
 tracker=https://github.com/pyarchinit/pyarchinit/issues
 repository=https://github.com/pyarchinit/pyarchinit
+
+
+
+changelog=release0.8.1:
+     	-Esportazione foto order by media name
+  	-----------------------------------------------------------------------------
+
+	release0.8.0:
+     	-Raggruppamento us durante esportazione foto
+  	-----------------------------------------------------------------------------
+
+	release0.7.5:
+     	-fixed minor bug
+     	- fix instalation on mac
+  	-----------------------------------------------------------------------------
+
+	release0.7.4:
+     	-fixed bug save data tablewidget
+  	-----------------------------------------------------------------------------
+
+	release0.7.3:
+     	-fixed bug import layr from site form
+     	- update db sqlite
+  	-----------------------------------------------------------------------------
+
+     	release0.7.2:
+     	-add into import layers Media
+  	-----------------------------------------------------------------------------
+     
+     	release0.7.1:
+     	-fix bug image viw split function
+  	-----------------------------------------------------------------------------
+     
+     	release0.7.0:
+     	-image view: auto fill tablewidget US TAG from selected image
+  	-----------------------------------------------------------------------------
+     
+    	release0.6.9:
+     	-vector search function
+  	-----------------------------------------------------------------------------
+    
+    	release0.6.8:
+  	-connection with struttura table
+  	-----------------------------------------------------------------------------
+   	release0.6.7:
+  	-minor bug fix
+  	-----------------------------------------------------------------------------
+   	release0.6.6:
+  	-resize image view
+  
+  	-----------------------------------------------------------------------------
+  
+  	release0.6.5:
+  	-update barra di ricerca in image view
+  
+  	-----------------------------------------------------------------------------
+   	release0.6.4:
+  	-changed view exp pdf us and list
+  	-add order by on exp pdf list photo
+  	-add option exp photo without thumbnail
+  
+  	-----------------------------------------------------------------------------
+  	release0.6.3:
+  	-bug fix export pdf us
+  
+  	-----------------------------------------------------------------------------
+    
+    	release0.6.2:
+  	-bug fix
+  	-image view uppdate
+  	-image view update reperti
+  	-----------------------------------------------------------------------------
+   	release0.6.1:
+  
+  	-fix bug
+  
+  	-----------------------------------------------------------------------------
+  
+  	release0.6:
+  
+  	-image view uppdate
+  
+  	-----------------------------------------------------------------------------
+   
+   
+   	release0.5:
+  	- fix bug export pdf US
+  	- add print pdf photo list
+  	- add list widget move from US form
+  
+  	-----------------------------------------------------------------------------
+   
+   
+   	release0.4:
+  	- fix bug export pdf US
+ 	- add print pdf photo list
+  	- add list widget move from US form
+  
+  	-----------------------------------------------------------------------------
+   
+  	release0.3.9:
+  	- fix bug toolbar image viewer
+  	-----------------------------------------------------------------------------
+
+  	release0.3.7:
+  	- UI Improvements
+ 	 - update sql
+  	-----------------------------------------------------------------------------
+ 
+  	release0.3.6:
+  	- UI Improvements
+  	- update database
+  	- minor bug fixed
+  	-----------------------------------------------------------------------------
+  	release0.3.5:
+  	- UI Improvements
+  	- more languages support: English, Deutsch
+  	- minor bug fixed
+
 tags=archaeology, analysis, database, digitizing, postgres, postgis, spatialite, sqlite, archeologia, funerary archaeology, pottery, bones, excavations, scavi, archeologici, siti, carte, archeologiche, carta di potenzialita, strutture, antiche, tempio, medioevo, romana, preistoria, roman, medieval, prehistoric
 
 homepage=https://www.adarteinfo.it
@@ -27,123 +146,4 @@ category=Plugins
 icon=icon.png
 experimental=False
 deprecated=False
-
-
-changelog=
-release0.8.1:
-     -Esportazione foto order by media name
-  -----------------------------------------------------------------------------
-
-release0.8.0:
-     -Raggruppamento us durante esportazione foto
-  -----------------------------------------------------------------------------
-
-release0.7.5:
-     -fixed minor bug
-     - fix instalation on mac
-  -----------------------------------------------------------------------------
-
-release0.7.4:
-     -fixed bug save data tablewidget
-  -----------------------------------------------------------------------------
-
-release0.7.3:
-     -fixed bug import layr from site form
-     - update db sqlite
-  -----------------------------------------------------------------------------
-
-     release0.7.2:
-     -add into import layers Media
-  -----------------------------------------------------------------------------
-     
-     release0.7.1:
-     -fix bug image viw split function
-  -----------------------------------------------------------------------------
-     
-     release0.7.0:
-     -image view: auto fill tablewidget US TAG from selected image
-  -----------------------------------------------------------------------------
-     
-     release0.6.9:
-     -vector search function
-  -----------------------------------------------------------------------------
-    
-    Bug fixing release0.6.8:
-  -connection with struttura table
-  -----------------------------------------------------------------------------
-   Bug fixing release0.6.7:
-  -minor bug fix
-  -----------------------------------------------------------------------------
-   Bug fixing release0.6.6:
-  -resize image view
-  
-  -----------------------------------------------------------------------------
-  
-  Bug fixing release0.6.5:
-  -update barra di ricerca in image view
-  
-  -----------------------------------------------------------------------------
-   Bug fixing release0.6.4:
-  -changed view exp pdf us and list
-  -add order by on exp pdf list photo
-  -add option exp photo without thumbnail
-  
-  -----------------------------------------------------------------------------
-  Bug fixing release0.6.3:
-  -bug fix export pdf us
-  
-  -----------------------------------------------------------------------------
-    
-    Bug fixing release0.6.2:
-  -bug fix
-  -image view uppdate
-  -image view update reperti
-  -----------------------------------------------------------------------------
-   Bug fixing release0.6.1:
-  
-  -fix bug
-  
-  -----------------------------------------------------------------------------
-  
-  Bug fixing release0.6:
-  
-  -image view uppdate
-  
-  -----------------------------------------------------------------------------
-   
-   
-   Bug fixing release0.5:
-  - fix bug export pdf US
-  - add print pdf photo list
-  - add list widget move from US form
-  
-  -----------------------------------------------------------------------------
-   
-   
-   Bug fixing release0.4:
-  - fix bug export pdf US
-  - add print pdf photo list
-  - add list widget move from US form
-  
-  -----------------------------------------------------------------------------
-   
-  Bug fixing release0.3.9:
-  - fix bug toolbar image viewer
-  -----------------------------------------------------------------------------
-
-  Bug fixing release0.3.7:
-  - UI Improvements
-  - update sql
-  -----------------------------------------------------------------------------
- 
-  Bug fixing release0.3.6:
-  - UI Improvements
-  - update database
-  - minor bug fixed
-  -----------------------------------------------------------------------------
-  Bug fixing release0.3.5:
-  - UI Improvements
-  - more languages support: English, Deutsch
-  - minor bug fixed
-
 
