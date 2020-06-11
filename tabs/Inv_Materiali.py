@@ -1019,8 +1019,8 @@ class pyarchinit_Inventario_reperti(QDialog, MAIN_DIALOG_CLASS):
                 item = QListWidgetItem(str(i.media_name))
 
                 item.setData(Qt.UserRole, str(i.media_name))
-                icon = QIcon(thumb_path)
                 icon = QIcon(thumb_path_str+thumb_path)
+                item.setIcon(icon)
                 self.iconListWidget.addItem(item)
         elif mode == 1:
             self.iconListWidget.clear()
