@@ -24,7 +24,7 @@ repository=https://github.com/pyarchinit/pyarchinit
 
 
 changelog=release0.8.2:
-     	-Fixed bug per visualizzazione media preview e grafico statistica in invewtario materiali
+     	-Fixed bug per visualizzazione media preview e grafico statistica in inventario materiali
   	-----------------------------------------------------------------------------
 	
 	
