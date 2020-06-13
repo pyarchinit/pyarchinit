@@ -4,6 +4,12 @@
 [![HitCount](http://hits.dwyl.io/pyarchinit/pyarchinit.svg)](http://hits.dwyl.io/pyarchinit/pyarchinit)
 [![Donate to QGIS](https://img.shields.io/badge/donate%20to-QGIS-green.svg?style=flat-square)](http://qgis.org/en/site/getinvolved/donations.html)
 
+## Installing adding pyarchinit repository into QGIS
+
+
+
+
+
 ## Installing from zip
 
 ### Linux/Windows/MacOS
