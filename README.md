@@ -6,7 +6,7 @@
 
 ## Installing adding pyarchinit repository into QGIS
 
-# ![PR](https://www.adarteinfo.it/FTP/pyarchinit-download/install.gif)
+![PR](https://www.adarteinfo.it/FTP/pyarchinit-download/install.gif)
 
 
 
