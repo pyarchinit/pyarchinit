@@ -594,7 +594,110 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
             c.execute(sql_view_rep_geom)
             
             
+            sql_ater_colum_materiali=( 
             
+            """ALTER TABLE inventario_materiali_table rename TO _table_old;""")
+            
+            c.execute(sql_ater_colum_materiali)
+            sql_ater_colum_materiali_1=( 
+            """CREATE TABLE inventario_materiali_table (
+
+            id_invmat 
+            INTEGER ,
+            sito 
+            TEXT ,
+            numero_inventario 
+            INTEGER ,
+            tipo_reperto 
+            TEXT ,
+            criterio_schedatura 
+            TEXT ,
+            definizione 
+            TEXT ,
+            descrizione 
+            TEXT ,
+            area 
+            TEXT,
+            us 
+            INTEGER ,
+            lavato 
+            VARCHAR(2) ,
+            nr_cassa 
+            INTEGER ,
+            luogo_conservazione 
+            TEXT ,
+            stato_conservazione 
+            VARCHAR(20) ,
+            datazione_reperto 
+            VARCHAR(100) ,
+            elementi_reperto 
+            TEXT ,
+            misurazioni 
+            TEXT ,
+            rif_biblio 
+            TEXT ,
+            tecnologie 
+            TEXT ,
+            forme_minime 
+            INTEGER ,
+            forme_massime 
+            INTEGER ,
+            totale_frammenti 
+            INTEGER ,
+            corpo_ceramico 
+            VARCHAR(20) ,
+            rivestimento 
+            VARCHAR(20) ,
+            diametro_orlo 
+            NUMERIC(7, 3) ,
+            peso 
+            NUMERIC(9, 3) ,
+            tipo 
+            VARCHAR(20) ,
+            eve_orlo 
+            NUMERIC(7, 3) ,
+            repertato 
+            varchar(2) ,
+            diagnostico 
+            varchar(2));""" )
+            c.execute(sql_ater_colum_materiali_1)
+            sql_ater_colum_materiali_2=( 
+            """INSERT INTO inventario_materiali_table (
+            id_invmat ,
+            sito ,
+            numero_inventario ,
+            tipo_reperto ,
+            criterio_schedatura ,
+            definizione ,
+            descrizione ,
+            area ,
+            us ,
+            lavato ,
+            nr_cassa ,
+            luogo_conservazione ,
+            stato_conservazione ,
+            datazione_reperto ,
+            elementi_reperto ,
+            misurazioni ,
+            rif_biblio ,
+            tecnologie ,
+            forme_minime ,
+            forme_massime ,
+            totale_frammenti ,
+            corpo_ceramico ,
+            rivestimento, 
+            diametro_orlo ,
+            peso ,
+            tipo ,
+            eve_orlo ,
+            repertato ,
+            diagnostico 
+            )
+              SELECT *
+              FROM _table_old; """)
+
+            
+            c.execute(sql_ater_colum_materiali_2)
             RestoreSchema(db_url,None).update_geom_srid_sl('%d' % int(self.lineEdit_crs.text()))
             c.close()
             QMessageBox.warning(self, "Message", "Update Done", QMessageBox.Ok)
