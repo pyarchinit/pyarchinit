@@ -698,6 +698,38 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
 
             
             c.execute(sql_ater_colum_materiali_2)
+            
+            sql_drop_view_materiali=(
+            """drop view inventario_materiali_view;""")
+            c.execute(sql_drop_view_materiali)
+            
+            sql_drop_table_materiali=(
+            """drop table _table_old;""")
+            c.execute(sql_drop_table_materiali)
+            sql_create_view_materiali=(
+            """CREATE VIEW "inventario_materiali_view" AS
+            SELECT "a"."ROWID" AS "ROWID", "a"."id" AS "id", "a"."id_sito" AS "id_sito",
+            "a"."sito_nome" AS "sito_nome", "a"."descr_sito" AS "descr_sito",
+            "a"."the_geom" AS "the_geom", "b"."ROWID" AS "ROWID_1",
+            "b"."id_invmat" AS "id_invmat", "b"."sito" AS "sito",
+            "b"."numero_inventario" AS "numero_inventario",
+            "b"."tipo_reperto" AS "tipo_reperto", "b"."criterio_schedatura" AS "criterio_schedatura",
+            "b"."definizione" AS "definizione", "b"."descrizione" AS "descrizione",
+            "b"."area" AS "area", "b"."us" AS "us", "b"."lavato" AS "lavato",
+            "b"."nr_cassa" AS "nr_cassa", "b"."luogo_conservazione" AS "luogo_conservazione",
+            "b"."stato_conservazione" AS "stato_conservazione",
+            "b"."datazione_reperto" AS "datazione_reperto",
+            "b"."elementi_reperto" AS "elementi_reperto", "b"."misurazioni" AS "misurazioni",
+            "b"."rif_biblio" AS "rif_biblio", "b"."tecnologie" AS "tecnologie",
+            "b"."forme_minime" AS "forme_minime", "b"."forme_massime" AS "forme_massime",
+            "b"."totale_frammenti" AS "totale_frammenti", "b"."corpo_ceramico" AS "corpo_ceramico",
+            "b"."rivestimento" AS "rivestimento", "b"."diametro_orlo" AS "diametro_orlo",
+            "b"."peso" AS "peso", "b"."tipo" AS "tipo", "b"."eve_orlo" AS "eve_orlo",
+            "b"."repertato" AS "repertato", "b"."diagnostico" AS "diagnostico"
+            FROM "pyarchinit_siti" AS "a"
+            JOIN "inventario_materiali_table" AS "b" ON ("a"."sito_nome" = "b"."sito")""")
+            c.execute(sql_create_view_materiali)
+            
             RestoreSchema(db_url,None).update_geom_srid_sl('%d' % int(self.lineEdit_crs.text()))
             c.close()
             QMessageBox.warning(self, "Message", "Update Done", QMessageBox.Ok)
