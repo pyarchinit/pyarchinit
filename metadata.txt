@@ -12,7 +12,7 @@
 name=pyArchInit
 qgisMinimumVersion=3.0
 description=pyarchinit an tool for archaeological works
-version=0.8.2
+version=0.8.3
 author=Luca Mandolesi
 email=pyarchinit@gmail.com
 
@@ -23,7 +23,12 @@ repository=https://github.com/pyarchinit/pyarchinit
 
 
 
-changelog=release0.8.2:
+changelog=release0.8.3:
+     	-aggiornamento db sqlite: aggiorna il db con l'apposita funzione, è stato cambiato 
+	il campo area da integer a text
+  	-----------------------------------------------------------------------------
+
+	release0.8.2:
      	-Fixed bug per visualizzazione media preview e grafico statistica in inventario materiali
   	-----------------------------------------------------------------------------
 	
