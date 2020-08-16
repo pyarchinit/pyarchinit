@@ -3077,6 +3077,86 @@ CREATE INDEX sidx_riipartizione_territoriale_geom ON public.riipartizione_territ
 -- Dependencies: 20
 -- Name: SCHEMA public; Type: ACL; Schema: -; Owner: postgres
 --
+CREATE OR REPLACE FUNCTION delete_media_table()
+  RETURNS trigger AS
+$BODY$
+
+BEGIN
+IF OLD.id_media!=OLD.id_media THEN
+update media_table set id_media=OLD.id_media;
+
+else 
+
+DELETE from media_table 
+where id_media = OLD.id_media ;
+end if;
+RETURN OLD;
+END;
+
+
+$BODY$
+  LANGUAGE plpgsql VOLATILE
+  COST 100;
+ALTER FUNCTION delete_media_table()
+  OWNER TO postgres; 
+
+DO $$
+BEGIN
+    IF NOT EXISTS (SELECT 1 FROM pg_trigger WHERE tgname = 'delete_media_table') THEN
+        CREATE TRIGGER delete_media_table
+		  AFTER UPDATE OR DELETE
+		  ON media_thumb_table
+		  FOR EACH ROW
+		  EXECUTE PROCEDURE delete_media_table();
+
+    END IF;
+END
+$$;  
+  
+ ---------------------------------------------------------------------------  
+CREATE OR REPLACE FUNCTION delete_media_to_entity_table()
+  RETURNS trigger AS
+$BODY$
+
+
+
+
+
+
+BEGIN
+IF OLD.id_media!=OLD.id_media THEN
+update media_to_entity_table set id_media=OLD.id_media;
+
+else 
+
+DELETE from media_to_entity_table 
+where id_media = OLD.id_media ;
+end if;
+RETURN OLD;
+END;
+
+
+$BODY$
+  LANGUAGE plpgsql VOLATILE
+  COST 100;
+ALTER FUNCTION delete_media_to_entity_table()
+  OWNER TO postgres;
+
+ 
+ 
+ 
+ DO $$
+BEGIN
+    IF NOT EXISTS (SELECT 1 FROM pg_trigger WHERE tgname = 'delete_media_to_entity_table') THEN
+        CREATE TRIGGER delete_media_to_entity_table
+  AFTER UPDATE OR DELETE
+  ON media_thumb_table
+  FOR EACH ROW
+  EXECUTE PROCEDURE delete_media_to_entity_table();
+
+    END IF;
+END
+$$;  
 
 REVOKE ALL ON SCHEMA public FROM PUBLIC;
 REVOKE ALL ON SCHEMA public FROM postgres;
