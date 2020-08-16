@@ -1948,13 +1948,13 @@ ALTER SEQUENCE public.us_table_id_us_seq OWNED BY public.us_table.id_us;
 -- Name: us_table_toimp; Type: TABLE; Schema: public; Owner: postgres
 --
 --------------------------------------------------------------------------------------
----CREATE SEQUENCE public.pyarchinit_reperti_gid_seq
----   START WITH 1
- ---   INCREMENT BY 1
- ---   NO MINVALUE
- --   NO MAXVALUE
- --   CACHE 1;
---ALTER TABLE public.pyarchinit_reperti_gid_seq OWNER TO postgres;
+CREATE SEQUENCE public.pyarchinit_reperti_gid_seq
+START WITH 1
+INCREMENT BY 1
+NO MINVALUE
+NO MAXVALUE
+CACHE 1;
+ALTER TABLE public.pyarchinit_reperti_gid_seq OWNER TO postgres;
 
 --ALTER SEQUENCE public.pyarchinit_reperti_gid_seq OWNED BY public.pyarchinit_reperti_gid_seq.id_rep;
 
@@ -2344,7 +2344,7 @@ ALTER TABLE ONLY public.riipartizione_territoriale_to_rip_terr ALTER COLUMN id_r
 -- TOC entry 4595 (class 2604 OID 66374)
 -- Name: riipartizione_territoriale_to_rip_terr id_rel_rip_ter_pk; Type: DEFAULT; Schema: public; Owner: postgres
 --
---ALTER TABLE ONLY public.pyarchinit_reperti ALTER COLUMN gid SET DEFAULT nextval('public.pyarchinit_reperti_gid_seq'::regclass);
+ALTER TABLE ONLY public.pyarchinit_reperti ALTER COLUMN gid SET DEFAULT nextval('public.pyarchinit_reperti_gid_seq'::regclass);
 
 --
 -- TOC entry 4570 (class 2604 OID 33176)
