@@ -3,7 +3,7 @@ SELECT pg_catalog.set_config('search_path', 'public', false);
 CREATE EXTENSION postgis;
 
 SET default_tablespace = '';
-SET default_with_oids = false;
+----SET default_with_oids = false;
 
 
 --
@@ -859,7 +859,7 @@ CREATE TABLE public.pyarchinit_inventario_materiali (
 
 ALTER TABLE public.pyarchinit_inventario_materiali OWNER TO postgres;
 
-SET default_with_oids = true;
+--SET default_with_oids = true;
 
 
 --
@@ -877,7 +877,7 @@ CREATE SEQUENCE public.pyarchinit_linee_rif_gid_seq
 
 ALTER TABLE public.pyarchinit_linee_rif_gid_seq OWNER TO postgres;
 
-SET default_with_oids = false;
+--SET default_with_oids = false;
 
 --
 -- TOC entry 343 (class 1259 OID 32780)
