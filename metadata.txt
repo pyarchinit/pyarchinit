@@ -23,7 +23,13 @@ repository=https://github.com/pyarchinit/pyarchinit
 
 
 
-changelog=release0.8.5:
+changelog=release0.8.6:
+     	-aggiornamento installazione e update db postgres
+  	-----------------------------------------------------------------------------
+
+
+
+	release0.8.5:
      	-aggiornamento installazione e update db postgres
   	-----------------------------------------------------------------------------
 
