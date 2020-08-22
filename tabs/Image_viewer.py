@@ -27,7 +27,7 @@ from builtins import str
 import PIL as Image
 from PIL import *
 import shutil
-import ffmpeg
+
 from qgis import PyQt
 from qgis.PyQt.QtCore import *
 from qgis.PyQt.QtGui import *
