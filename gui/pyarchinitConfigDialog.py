@@ -1,4 +1,4 @@
-# -*- coding: utf-8 -*-
+
 """
 /***************************************************************************
         pyArchInit Plugin  - A QGIS plugin to manage archaeological dataset
@@ -28,7 +28,8 @@ from sqlalchemy.event import listen
 import platform
 from builtins import range
 from builtins import str
-#import pysftp
+import pandas as pd
+from pandas import DataFrame
 import ftplib
 from ftplib import FTP
 import subprocess
@@ -37,12 +38,13 @@ from sqlalchemy import create_engine
 from qgis.PyQt.QtGui import QDesktopServices
 from qgis.PyQt.QtCore import  pyqtSlot, pyqtSignal,QThread,QUrl
 from qgis.PyQt.QtWidgets import QApplication, QDialog, QMessageBox, QFileDialog,QLineEdit,QWidget
-
+from qgis.PyQt.QtSql import *
 from qgis.PyQt.uic import loadUiType
 from qgis.core import QgsApplication, QgsSettings, QgsProject
 
 from modules.db.pyarchinit_conn_strings import Connection
 from modules.db.pyarchinit_db_manager import Pyarchinit_db_management
+from modules.db.pyarchinit_utility import Utility
 from modules.db.pyarchinit_db_update import DB_update
 from modules.db.db_createdump import CreateDatabase, RestoreSchema, DropDatabase, SchemaDump
 from modules.utility.pyarchinit_OS_utility import Pyarchinit_OS_Utility
@@ -57,7 +59,8 @@ MAIN_DIALOG_CLASS, _ = loadUiType(os.path.join(os.path.dirname(__file__), 'ui', 
 class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
     progressBarUpdated = pyqtSignal(int,int)
     L=QgsSettings().value("locale/userLocale")[0:2]
-    
+    UTILITY=Utility()
+    DB_MANAGER=""
     HOME = os.environ['PYARCHINIT_HOME']
     DBFOLDER = '{}{}{}'.format(HOME, os.sep, "pyarchinit_DB_folder")
     PARAMS_DICT = {'SERVER': '',
@@ -68,7 +71,8 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
                    'USER': '',
                    'THUMB_PATH': '',
                    'THUMB_RESIZE': '',
-                   'EXPERIMENTAL': ''}
+                   'EXPERIMENTAL': '',
+                   'SITE_SET': ''}
 
     def __init__(self, parent=None, db=None):
        
@@ -80,10 +84,18 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
         s = QgsSettings()
         self.load_dict()
         self.charge_data()
+        self.db_active()
+        self.comboBox_sito.currentIndexChanged.connect(self.summary)
+        self.comboBox_Database.currentIndexChanged.connect(self.db_active)
         self.comboBox_Database.currentIndexChanged.connect(self.set_db_parameter)
+        #self.comboBox_Database.currentTextChanged.connect(self.summary) and self.lineEdit_password.textChanged.connect (self.summary)
+        
         self.comboBox_server_rd.editTextChanged.connect(self.set_db_import_from_parameter)
         self.comboBox_server_wt.editTextChanged.connect(self.set_db_import_to_parameter)
+        #self.active()
+        self.pushButton_save.clicked.connect(self.summary)
         self.pushButton_save.clicked.connect(self.on_pushButton_save_pressed)
+        
         self.pushButtonGraphviz.clicked.connect(self.setPathGraphviz)
         self.pbnSaveEnvironPath.clicked.connect(self.setEnvironPath)
         self.toolButton_thumbpath.clicked.connect(self.setPathThumb)
@@ -95,6 +107,7 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
         self.toolButton_db.clicked.connect(self.setPathDB)
         self.pushButtonR.clicked.connect(self.setPathR)
         self.pbnSaveEnvironPathR.clicked.connect(self.setEnvironPathR)
+        
         self.pushButton_import.clicked.connect(self.on_pushButton_import_pressed)
         self.graphviz_bin = s.value('pyArchInit/graphvizBinPath', None, type=str)
         if self.graphviz_bin:
@@ -116,8 +129,96 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
         
         
         
+        
         self.selectorCrsWidget.setCrs(QgsProject.instance().crs())
         self.selectorCrsWidget_sl.setCrs(QgsProject.instance().crs())
+        #self.summary()
+    def summary(self):
+        self.comboBox_Database.update()
+        conn = Connection()
+        conn_str = conn.conn_str()
+        conn_sqlite = conn.databasename()
+        conn_user = conn.datauser()
+        conn_host = conn.datahost()
+        conn_port = conn.dataport()
+        port_int  = conn_port["port"]
+        port_int.replace("'", "")
+        #QMessageBox.warning(self, "Attenzione", port_int, QMessageBox.Ok)
+        conn_password = conn.datapassword()
+        
+        
+        sito_set= conn.sito_set()
+        sito_set_str = sito_set['sito_set']
+        
+        test_conn = conn_str.find('sqlite')
+        if test_conn == 0:
+            sqlite_DB_path = '{}{}{}'.format(self.HOME, os.sep,
+                                           "pyarchinit_DB_folder") 
+            db = QSqlDatabase("QSQLITE") 
+            db.setDatabaseName(sqlite_DB_path +os.sep+ conn_sqlite["db_name"])
+            db.open()
+            #self.table = QTableView() 
+            self.model_a = QSqlQueryModel() 
+            
+            self.tableView_summary.setModel(self.model_a) 
+            if bool(self.comboBox_sito.currentText()):
+                query = QSqlQuery("select distinct a.sito as 'Sito',case when count( distinct a.us)=0  then 'US/USM mancanti' else  count( distinct a.us)  end as 'Totale US/USM',case when count(distinct b.numero_inventario)=0 then 'No Materiali' else count(distinct b.numero_inventario)end as 'Totale Materiali',case when count(distinct c.id_struttura)=0 then 'No Strutture' else count(distinct c.id_struttura)end as 'Totale strutture',case when count(distinct d.id_tafonomia)=0 then 'No Tombe' else count(distinct d.id_tafonomia)end as 'Totale tombe' from us_table as a left join inventario_materiali_table as b on a.sito=b.sito left join struttura_table as c on a.sito=c.sito left join tafonomia_table as d on a.sito=d.sito where a.sito = '{}'".format(str(self.comboBox_sito.currentText())), db=db)
+                self.model_a.setQuery(query)
+            else:
+                query1 = QSqlQuery("select distinct a.sito as 'Sito',case when count( distinct a.us)=0  then 'US/USM mancanti' else  count( distinct a.us)  end as 'Totale US/USM',case when count(distinct b.numero_inventario)=0 then 'No Materiali' else count(distinct b.numero_inventario)end as 'Totale Materiali',case when count(distinct c.id_struttura)=0 then 'No Strutture' else count(distinct c.id_struttura)end as 'Totale strutture',case when count(distinct d.id_tafonomia)=0 then 'No Tombe' else count(distinct d.id_tafonomia)end as 'Totale tombe' from us_table as a left join inventario_materiali_table as b on a.sito=b.sito left join struttura_table as c on a.sito=c.sito left join tafonomia_table as d on a.sito=d.sito group by a.sito;",db=db)
+                self.model_a.setQuery(query1)
+            
+
+
+            #self.model_a.setTable("us_table") 
+            #self.model_a.setEditStrategy(QSqlTableModel.OnManualSubmit)
+            
+            # if bool (sito_set_str):
+                # filter_str = "sito = '{}'".format(str(self.comboBox_sito.currentText())) 
+                # self.model_a.setFilter(filter_str)
+                # self.model_a.select() 
+            # else:
+            
+                # self.model_a.select() 
+            self.tableView_summary.clearSpans()  
+        else:
+           
+            db = QSqlDatabase.addDatabase("QPSQL")
+            db.setHostName(conn_host["host"])
+                        
+            db.setDatabaseName(conn_sqlite["db_name"])
+            db.setPort(int(port_int))
+            db.setUserName(conn_user['user'])
+            db.setPassword(conn_password['password']) 
+            db.open()
+            
+            
+                
+            self.model_a = QSqlQueryModel() 
+            
+            self.tableView_summary.setModel(self.model_a) 
+            if bool(self.comboBox_sito.currentText()):
+                query = QSqlQuery("select distinct  a.sito as Sito ,count(distinct a.id_us) as us,count(distinct c.id_struttura)as Struttura,count(distinct d.id_tafonomia) as Tombe from us_table as a left join struttura_table as c on a.sito=c.sito left join tafonomia_table as d on a.sito=d.sito where a.sito = '{}' group by a.sito order by us DESC ".format(str(self.comboBox_sito.currentText())), db=db)
+                self.model_a.setQuery(query)
+            else:
+                query1 = QSqlQuery("select distinct  a.sito as Sito ,count(distinct a.id_us) as us,count(distinct c.id_struttura)as Struttura,count(distinct d.id_tafonomia) as Tombe from us_table as a left join struttura_table as c on a.sito=c.sito left join tafonomia_table as d on a.sito=d.sito group by a.sito order by us DESC ",db=db)
+                self.model_a.setQuery(query1) 
+                
+    
+    def db_active (self):
+        self.comboBox_Database.update()
+        self.comboBox_sito.clear()
+        if self.comboBox_Database.currentText() == 'sqlite':
+            #self.comboBox_Database.editTextChanged.connect(self.set_db_parameter)
+            self.toolButton_db.setEnabled(True)
+            self.pushButton_upd_postgres.setEnabled(False)
+            self.pushButton_upd_sqlite.setEnabled(True)
+        if self.comboBox_Database.currentText() == 'postgres':
+            #self.comboBox_Database.currentIndexChanged.connect(self.set_db_parameter)
+            self.toolButton_db.setEnabled(False)
+            self.pushButton_upd_sqlite.setEnabled(False)
+            self.pushButton_upd_postgres.setEnabled(True)
+        self.comboBox_sito.clear()
     def setPathDBsqlite1(self):
         s = QgsSettings()
         dbpath = QFileDialog.getOpenFileName(
@@ -239,6 +340,7 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
     def setEnvironPathR(self):
         os.environ['PATH'] += os.pathsep + os.path.normpath(self.r_bin)
         QMessageBox.warning(self, "Set Environmental Variable", "The path has been set successful", QMessageBox.Ok)
+        
     def set_db_parameter(self):
         if self.comboBox_Database.currentText() == 'postgres':
             self.lineEdit_DBname.setText("pyarchinit")
@@ -307,113 +409,155 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
         f.close()
 
     def on_pushButton_save_pressed(self):
-        self.PARAMS_DICT['SERVER'] = str(self.comboBox_Database.currentText())
-        self.PARAMS_DICT['HOST'] = str(self.lineEdit_Host.text())
-        self.PARAMS_DICT['DATABASE'] = str(self.lineEdit_DBname.text())
-        self.PARAMS_DICT['PASSWORD'] = str(self.lineEdit_Password.text())
-        self.PARAMS_DICT['PORT'] = str(self.lineEdit_Port.text())
-        self.PARAMS_DICT['USER'] = str(self.lineEdit_User.text())
-        self.PARAMS_DICT['THUMB_PATH'] = str(self.lineEdit_Thumb_path.text())
-        self.PARAMS_DICT['THUMB_RESIZE'] = str(self.lineEdit_Thumb_resize.text())
-        self.PARAMS_DICT['EXPERIMENTAL'] = str(self.comboBox_experimental.currentText())
+        
+        try:
+            if not bool(self.lineEdit_Password.text()) and str(self.comboBox_Database.currentText())=='postgres':
+                QMessageBox.warning(self, "INFO", 'non dimenticarti di inserire la password',QMessageBox.Ok)
+            else:
+                self.PARAMS_DICT['SERVER'] = str(self.comboBox_Database.currentText())
+                self.PARAMS_DICT['HOST'] = str(self.lineEdit_Host.text())
+                self.PARAMS_DICT['DATABASE'] = str(self.lineEdit_DBname.text())
+                self.PARAMS_DICT['PASSWORD'] = str(self.lineEdit_Password.text())
+                self.PARAMS_DICT['PORT'] = str(self.lineEdit_Port.text())
+                self.PARAMS_DICT['USER'] = str(self.lineEdit_User.text())
+                self.PARAMS_DICT['THUMB_PATH'] = str(self.lineEdit_Thumb_path.text())
+                self.PARAMS_DICT['THUMB_RESIZE'] = str(self.lineEdit_Thumb_resize.text())
+                self.PARAMS_DICT['EXPERIMENTAL'] = str(self.comboBox_experimental.currentText())
+                self.PARAMS_DICT['SITE_SET'] = str(self.comboBox_sito.currentText())
+                
+                self.save_dict()
+               
+                if str(self.comboBox_Database.currentText())=='postgres':
+                    
+                    
+                    b=str(self.select_version_sql())
+                        
+                    a = "90313"     
+                    
+                    if a == b:
+                        link = 'https://www.postgresql.org/download/'
+                        msg =   "Stai utilizzando la versione di Postgres: " + str(b)+". Tale versione è diventata obsoleta e potresti riscontrare degli errori. Aggiorna PostgreSQL ad una versione più recente. <br><a href='%s'>PostgreSQL</a>" %link
 
-        self.save_dict()
-        self.try_connection()
-        # QMessageBox.warning(self, "ok", "Per rendere effettive le modifiche e' necessario riavviare Qgis. Grazie.",
-        #                     QMessageBox.Ok)
-
+                        QMessageBox.information(self, "INFO", msg,QMessageBox.Ok)
+                    else:
+                        pass
+                else:
+                    pass
+            
+            
+                self.try_connection()
+            
+        except Exception as e:
+            QMessageBox.warning(self, "INFO", "Problema di connessione al db. Controlla i paramatri inseriti", QMessageBox.Ok)
     def on_pushButton_crea_database_pressed(self,):
         schema_file = os.path.join(os.path.dirname(__file__), os.pardir, 'resources', 'dbfiles',
                                    'pyarchinit_schema_clean.sql')
         view_file = os.path.join(os.path.dirname(__file__), os.pardir, 'resources', 'dbfiles',
                                    'create_view.sql')
-        create_database = CreateDatabase(self.lineEdit_dbname.text(), self.lineEdit_db_host.text(),
-                                         self.lineEdit_port_db.text(), self.lineEdit_db_user.text(),
-                                         self.lineEdit_db_passwd.text())
-
-        ok, db_url = create_database.createdb()
-
-        if ok:
-            try:
-                RestoreSchema(db_url, schema_file).restore_schema()
-            except Exception as e:
-                DropDatabase(db_url).dropdb()
-                ok = False
-                raise e
-
-        if ok:
-            crsid = self.selectorCrsWidget.crs().authid()
-            srid = crsid.split(':')[1]
-
-            res = RestoreSchema(db_url).update_geom_srid('public', srid)
-
-            # create views
-            RestoreSchema(db_url, view_file).restore_schema()
-            #set owner
-            if self.lineEdit_db_user.text() != 'postgres':
-                RestoreSchema(db_url).set_owner(self.lineEdit_db_user.text())
-
-        if self.L=='it':
-            if ok and res:
-                msg = QMessageBox.warning(self, 'INFO', 'Installazione avvenuta con successo, vuoi connetterti al nuovo DB?',
-                                          QMessageBox.Ok | QMessageBox.Cancel)
-                if msg == QMessageBox.Ok:
-                    self.comboBox_Database.setCurrentText('postgres')
-                    self.lineEdit_Host.setText(self.lineEdit_db_host.text())
-                    self.lineEdit_DBname.setText(self.lineEdit_dbname.text())
-                    self.lineEdit_Port.setText(self.lineEdit_port_db.text())
-                    self.lineEdit_User.setText(self.lineEdit_db_user.text())
-                    self.lineEdit_Password.setText(self.lineEdit_db_passwd.text())
-                    self.on_pushButton_save_pressed()
-            else:
-                QMessageBox.warning(self, "INFO", "Database esistente", QMessageBox.Ok)
-        elif self.L=='de':
-            if ok and res:
-                msg = QMessageBox.warning(self, 'INFO', 'Erfolgreiche Installation, möchten Sie sich mit der neuen Datenbank verbinden?',
-                                          QMessageBox.Ok | QMessageBox.Cancel)
-                if msg == QMessageBox.Ok:
-                    self.comboBox_Database.setCurrentText('postgres')
-                    self.lineEdit_Host.setText(self.lineEdit_db_host.text())
-                    self.lineEdit_DBname.setText(self.lineEdit_dbname.text())
-                    self.lineEdit_Port.setText(self.lineEdit_port_db.text())
-                    self.lineEdit_User.setText(self.lineEdit_db_user.text())
-                    self.lineEdit_Password.setText(self.lineEdit_db_passwd.text())
-                    self.on_pushButton_save_pressed()
-            else:
-                QMessageBox.warning(self, "INFO", "die Datenbank existiert", QMessageBox.Ok)
-        else:
-            if ok and res:
-                msg = QMessageBox.warning(self, 'INFO', 'Successful installation, do you want to connect to the new DB?',
-                                          QMessageBox.Ok | QMessageBox.Cancel)
-                if msg == QMessageBox.Ok:
-                    self.comboBox_Database.setCurrentText('postgres')
-                    self.lineEdit_Host.setText(self.lineEdit_db_host.text())
-                    self.lineEdit_DBname.setText(self.lineEdit_dbname.text())
-                    self.lineEdit_Port.setText(self.lineEdit_port_db.text())
-                    self.lineEdit_User.setText(self.lineEdit_db_user.text())
-                    self.lineEdit_Password.setText(self.lineEdit_db_passwd.text())
-                    self.on_pushButton_save_pressed()
-            else:
-                QMessageBox.warning(self, "INFO", "The DB exist already", QMessageBox.Ok)
-
-
-    def on_pushButton_upd_postgres_pressed(self):
-       
-        view_file = os.path.join(os.path.dirname(__file__), os.pardir, 'resources', 'dbfiles',
-                                   'pyarchinit_update_postgres.sql')
         
+        if not bool(self.lineEdit_db_passwd.text()):
+            QMessageBox.warning(self, "INFO", "Non dimenticarti di inserire la password", QMessageBox.Ok)
+        else:
+            
+            create_database = CreateDatabase(self.lineEdit_dbname.text(), self.lineEdit_db_host.text(),
+                                             self.lineEdit_port_db.text(), self.lineEdit_db_user.text(),
+                                             self.lineEdit_db_passwd.text())
+            
+            ok, db_url = create_database.createdb()
+        
+        
+            if ok:    
+                try:
+                    RestoreSchema(db_url, schema_file).restore_schema()
+                except Exception as e:
+                    QMessageBox.warning(self, "INFO", "Devi essere superutente per creare un db. Vedi l'errore seguente", QMessageBox.Ok)
+                    DropDatabase(db_url).dropdb()
+                    ok = False
+                    raise e
+
+            if ok:
+                crsid = self.selectorCrsWidget.crs().authid()
+                srid = crsid.split(':')[1]
+
+                res = RestoreSchema(db_url).update_geom_srid('public', srid)
+
+                # create views
+                RestoreSchema(db_url, view_file).restore_schema()
+                #set owner
+                if self.lineEdit_db_user.text() != 'postgres':
+                    RestoreSchema(db_url).set_owner(self.lineEdit_db_user.text())
+
+            if self.L=='it':
+                if ok and res:
+                    msg = QMessageBox.warning(self, 'INFO', 'Installazione avvenuta con successo, vuoi connetterti al nuovo DB?',
+                                              QMessageBox.Ok | QMessageBox.Cancel)
+                    if msg == QMessageBox.Ok:
+                        self.comboBox_Database.setCurrentText('postgres')
+                        self.lineEdit_Host.setText(self.lineEdit_db_host.text())
+                        self.lineEdit_DBname.setText(self.lineEdit_dbname.text())
+                        self.lineEdit_Port.setText(self.lineEdit_port_db.text())
+                        self.lineEdit_User.setText(self.lineEdit_db_user.text())
+                        self.lineEdit_Password.setText(self.lineEdit_db_passwd.text())
+                        self.on_pushButton_save_pressed()
+                else:
+                    QMessageBox.warning(self, "INFO", "Database esistente", QMessageBox.Ok)
+            elif self.L=='de':
+                if ok and res:
+                    msg = QMessageBox.warning(self, 'INFO', 'Erfolgreiche Installation, möchten Sie sich mit der neuen Datenbank verbinden?',
+                                              QMessageBox.Ok | QMessageBox.Cancel)
+                    if msg == QMessageBox.Ok:
+                        self.comboBox_Database.setCurrentText('postgres')
+                        self.lineEdit_Host.setText(self.lineEdit_db_host.text())
+                        self.lineEdit_DBname.setText(self.lineEdit_dbname.text())
+                        self.lineEdit_Port.setText(self.lineEdit_port_db.text())
+                        self.lineEdit_User.setText(self.lineEdit_db_user.text())
+                        self.lineEdit_Password.setText(self.lineEdit_db_passwd.text())
+                        self.on_pushButton_save_pressed()
+                else:
+                    QMessageBox.warning(self, "INFO", "die Datenbank existiert", QMessageBox.Ok)
+            else:
+                if ok and res:
+                    msg = QMessageBox.warning(self, 'INFO', 'Successful installation, do you want to connect to the new DB?',
+                                              QMessageBox.Ok | QMessageBox.Cancel)
+                    if msg == QMessageBox.Ok:
+                        self.comboBox_Database.setCurrentText('postgres')
+                        self.lineEdit_Host.setText(self.lineEdit_db_host.text())
+                        self.lineEdit_DBname.setText(self.lineEdit_dbname.text())
+                        self.lineEdit_Port.setText(self.lineEdit_port_db.text())
+                        self.lineEdit_User.setText(self.lineEdit_db_user.text())
+                        self.lineEdit_Password.setText(self.lineEdit_db_passwd.text())
+                        self.on_pushButton_save_pressed()
+                else:
+                    QMessageBox.warning(self, "INFO", "The DB exist already", QMessageBox.Ok)
+    def select_version_sql(self):
         conn = Connection()
         db_url = conn.conn_str()
-        #RestoreSchema(db_url,None).update_geom_srid( 'public','%d' % int(self.lineEdit_crs.text()))
-        
-        if RestoreSchema(db_url,view_file).restore_schema()== False:
-            
-            QMessageBox.warning(self, "INFO", "The DB exist already", QMessageBox.Ok)
-        else:
-            QMessageBox.warning(self, "INFO", "Updated", QMessageBox.Ok)
-        
+        sql_query_string = "SELECT current_setting('server_version_num')"
+        self.engine= create_engine(db_url)
+        res = self.engine.execute(sql_query_string)
+        rows= res.fetchone()
+        vers = ''.join(rows)
+        #QMessageBox.information(self, "INFO", str(vers),QMessageBox.Ok)
+        return vers
 
+    def on_pushButton_upd_postgres_pressed(self):
+        conn = Connection()
+        db_url = conn.conn_str()
+        view_file = os.path.join(os.path.dirname(__file__), os.pardir, 'resources', 'dbfiles',
+                                       'pyarchinit_update_postgres.sql')
+       
+        b=str(self.select_version_sql())
+            
+        a = "90313"     
         
+        if a == b:
+            QMessageBox.information(self, "INFO", " Non puoi aggiornare il db postgres per chè la tua versione è inferiore alla 9.4 "
+                                                                            "Aggiorna ad una versione più recente",QMessageBox.Ok)
+        else:
+            RestoreSchema(db_url,view_file).restore_schema()
+            
+            QMessageBox.information(self, "INFO", "il db è stato aggiornato", QMessageBox.Ok)
+       
     def load_spatialite(self,dbapi_conn, connection_record):
         dbapi_conn.enable_load_extension(True)
         
@@ -794,13 +938,16 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
   
 
     def try_connection(self):
+        self.summary()
         conn = Connection()
         conn_str = conn.conn_str()
 
         self.DB_MANAGER = Pyarchinit_db_management(
             conn_str)  # sqlite:///\Users\Windows\pyarchinit_DB_folder\pyarchinit_db.sqlite
-
+        
         test = self.DB_MANAGER.connection()
+        #self.charge_list()
+        
         if self.L=='it':
             if test:
                 QMessageBox.warning(self, "Messaggio", "Connessione avvenuta con successo", QMessageBox.Ok)
@@ -843,16 +990,37 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
         self.lineEdit_User.setText(self.PARAMS_DICT['USER'])
         self.lineEdit_Thumb_path.setText(self.PARAMS_DICT['THUMB_PATH'])
         self.lineEdit_Thumb_resize.setText(self.PARAMS_DICT['THUMB_RESIZE'])
+        
         try:
             self.comboBox_experimental.setEditText(self.PARAMS_DICT['EXPERIMENTAL'])
         except:
             self.comboBox_experimental.setEditText("No")
-            ###############
+        self.comboBox_sito.setCurrentText(self.PARAMS_DICT['SITE_SET'])    ###############
 
     def test_def(self):
         pass
     
-    
+    def on_toolButton_active_toggled(self):
+        
+        if self.toolButton_active.isChecked():
+            QMessageBox.information(self, "Pyarchinit", "Sistema query attivato. Seleziona un sito e clicca su salva parametri", QMessageBox.Ok)
+            self.charge_list()
+        else:
+            self.comboBox_sito.clear()
+            QMessageBox.information(self, "Pyarchinit", "Sistema query disattivato", QMessageBox.Ok)
+            
+    def charge_list(self):
+        
+        self.try_connection()
+        sito_vl = self.UTILITY.tup_2_list_III(self.DB_MANAGER.group_by('site_table', 'sito', 'SITE'))
+
+        try:
+            sito_vl.remove('')
+        except:
+            pass
+        self.comboBox_sito.clear()
+        sito_vl.sort()
+        self.comboBox_sito.addItems(sito_vl)
 
     
 

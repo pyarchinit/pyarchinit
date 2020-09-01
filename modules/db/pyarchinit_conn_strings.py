@@ -67,6 +67,64 @@ class Connection(object):
 
         return conn_str
 
+    def databasename(self):
+        cfg_rel_path = os.path.join(os.sep, 'pyarchinit_DB_folder', 'config.cfg')
+        file_path = '{}{}'.format(self.HOME, cfg_rel_path)
+        conf = open(file_path, "r")
+
+        data = conf.read()
+        settings = Settings(data)
+        settings.set_configuration()
+        conf.close()
+        dbname = {"db_name": settings.DATABASE}
+
+        return dbname
+    def datauser(self):
+        cfg_rel_path = os.path.join(os.sep, 'pyarchinit_DB_folder', 'config.cfg')
+        file_path = '{}{}'.format(self.HOME, cfg_rel_path)
+        conf = open(file_path, "r")
+
+        data = conf.read()
+        settings = Settings(data)
+        settings.set_configuration()
+        conf.close()
+        user = {"user": settings.USER}
+
+        return user
+    def datahost(self):
+        cfg_rel_path = os.path.join(os.sep, 'pyarchinit_DB_folder', 'config.cfg')
+        file_path = '{}{}'.format(self.HOME, cfg_rel_path)
+        conf = open(file_path, "r")
+
+        data = conf.read()
+        settings = Settings(data)
+        settings.set_configuration()
+        conf.close()
+        host = {"host": settings.HOST}
+        return host
+    def dataport(self):
+        cfg_rel_path = os.path.join(os.sep, 'pyarchinit_DB_folder', 'config.cfg')
+        file_path = '{}{}'.format(self.HOME, cfg_rel_path)
+        conf = open(file_path, "r")
+
+        data = conf.read()
+        settings = Settings(data)
+        settings.set_configuration()
+        conf.close()
+        port = {"port": settings.PORT}
+        return port
+    
+    def datapassword(self):
+        cfg_rel_path = os.path.join(os.sep, 'pyarchinit_DB_folder', 'config.cfg')
+        file_path = '{}{}'.format(self.HOME, cfg_rel_path)
+        conf = open(file_path, "r")
+
+        data = conf.read()
+        settings = Settings(data)
+        settings.set_configuration()
+        conf.close()
+        password = {"password": settings.PASSWORD}
+        return password
     def thumb_path(self):
         cfg_rel_path = os.path.join(os.sep, 'pyarchinit_DB_folder', 'config.cfg')
         file_path = '{}{}'.format(self.HOME, cfg_rel_path)
@@ -92,3 +150,15 @@ class Connection(object):
         thumb_resize = {"thumb_resize": settings.THUMB_RESIZE}
 
         return thumb_resize
+    def sito_set(self):
+        cfg_rel_path = os.path.join(os.sep, 'pyarchinit_DB_folder', 'config.cfg')
+        file_path = '{}{}'.format(self.HOME, cfg_rel_path)
+        conf = open(file_path, "r")
+
+        data = conf.read()
+        settings = Settings(data)
+        settings.set_configuration()
+        conf.close()
+        sito_set = {"sito_set": settings.SITE_SET}
+
+        return sito_set
