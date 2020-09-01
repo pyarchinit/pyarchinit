@@ -23,7 +23,16 @@ repository=https://github.com/pyarchinit/pyarchinit
 
 
 
-changelog=release0.8.6:
+changelog=release1.0.0:
+     	-aggiornamento installazione e update db postgres
+	-video manger
+	-list site from config form
+	-list us in tableview
+  	-----------------------------------------------------------------------------
+
+
+
+	release0.8.6:
      	-aggiornamento installazione e update db postgres
   	-----------------------------------------------------------------------------
 
