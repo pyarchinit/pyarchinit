@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-/***************************************************************************
+/****************************************************************************
     pyArchInit Plugin  - A QGIS plugin to manage archaeological dataset
     stored in Postgres
     -------------------

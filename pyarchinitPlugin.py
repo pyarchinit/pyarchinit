@@ -73,30 +73,30 @@ class PyArchInitPlugin(object):
                    'SITE_SET': ''
                   }
 
-    path_rel = os.path.join(os.sep, HOME, 'pyarchinit_DB_folder', 'config.cfg')
-    conf = open(path_rel, "rb+")
-    data = conf.read()
-    text = (b'THUMB_RESIZE')
-    text_a= (b'SITE_SET')
+    # path_rel = os.path.join(os.sep, HOME, 'pyarchinit_DB_folder', 'config.cfg')
+    # conf = open(path_rel)
+    # data = conf.read()
+    # text = ('THUMB_RESIZE')
+    # text_a = ('SITE_SET')
    
-    if text_a in data:
-        pass   
-    else:       
-        conf.seek(-3,2)
-        conf.read(1)    
-        conf.write(b"','SITE_SET' : ''}")
+
     
-    if text in data:
-        pass   
-    else:       
-        conf.seek(-3,2)
-        conf.read(1)    
-        conf.write(b"','THUMB_RESIZE' : 'insert path for the image resized'}")
+    # if text in data:
+        # pass   
+    # else:       
+        # conf.seek(-3,2)
+        # conf.read(1)    
+        # conf.write(b"','THUMB_RESIZE' : 'insert path for the image resized'}")
         
-    
+    # if text_a in data():
+        # pass
+    # else:
+        # conf.seek(-3,2)
+        # conf.read(1)
+        # conf.write(b"','SITE_SET' : ''}")
      
-    conf.close()
-    PARAMS_DICT = eval(data)
+    # conf.close()
+    #PARAMS_DICT = eval(data)
 
     # TODO: find a better way to settings config
     # if 'EXPERIMENTAL' in PARAMS_DICT:
