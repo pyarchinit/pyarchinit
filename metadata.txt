@@ -12,8 +12,8 @@
 name=pyArchInit
 qgisMinimumVersion=3.0
 description=pyarchinit an tool for archaeological works
-version=0.8.6
-author=Luca Mandolesi
+version=1.0.1
+author=Luca Mandolesi & Enzo Cocca
 email=pyarchinit@gmail.com
 
 about=https://github.com/pyarchinit/pyarchinit
@@ -23,11 +23,16 @@ repository=https://github.com/pyarchinit/pyarchinit
 
 
 
-changelog=release1.0.0:
+changelog=release1.0.1:
+     	-aggiornamento update file di configurazione
+
+  	-----------------------------------------------------------------------------
+
+    release1.0.0:
      	-aggiornamento installazione e update db postgres
-	-video manger
-	-list site from config form
-	-list us in tableview
+	    -video manger
+	    -list site from config form
+	    -list us in tableview
   	-----------------------------------------------------------------------------
 
 
