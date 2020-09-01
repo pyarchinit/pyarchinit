@@ -39,9 +39,12 @@ if not packages:
         'PypeR',
         'graphviz==0.8.3',
         'pysftp',
-        'xlsxwriter',
-        'pandas'
+        'xlsxwriter',        
+        'pandas',
+        'opencv-python'
+        
     ]
+
 python_path = sys.exec_prefix
 python_version = sys.version[:3]
 
@@ -57,3 +60,4 @@ subprocess.check_call([cmd, '-m', 'ensurepip'], shell=False)
 
 for p in packages:
     subprocess.check_call([cmd, '-m', 'pip', 'install', '--upgrade', p,'--user'], shell=False)
+    

@@ -441,7 +441,7 @@ ALTER TABLE pyarchinit_reperti
 
 
 ------------------------------------------------------------------------------------------------------------------------------------------------------
-drop view pyarchinit_reperti_view;	
+--drop view pyarchinit_reperti_view;	
 	CREATE OR REPLACE VIEW pyarchinit_reperti_view AS 
 	SELECT
 	the_geom,

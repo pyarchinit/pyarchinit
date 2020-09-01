@@ -25,10 +25,11 @@ import os
 
 from builtins import range
 from builtins import str
+from qgis.PyQt.QtCore import QVariant
 from qgis.PyQt.QtWidgets import QDialog, QMessageBox
 from qgis.PyQt.uic import loadUiType
 from qgis.gui import QgsMapToolPan
-from qgis.core import QgsSettings
+from qgis.core import QgsSettings, Qgis
 from ..modules.db.pyarchinit_conn_strings import Connection
 from ..modules.db.pyarchinit_db_manager import Pyarchinit_db_management
 from ..modules.db.pyarchinit_utility import Utility
@@ -36,7 +37,7 @@ from ..modules.gis.pyarchinit_pyqgis import Pyarchinit_pyqgis
 from ..modules.utility.pyarchinit_error_check import Error_check
 from ..gui.imageViewer import ImageViewer
 from ..gui.sortpanelmain import SortPanelMain
-
+from ..gui.pyarchinitConfigDialog import pyArchInitDialog_Config
 MAIN_DIALOG_CLASS, _ = loadUiType(os.path.join(os.path.dirname(__file__), os.pardir, 'gui', 'ui', 'Deteta.ui'))
 
 
@@ -53,7 +54,7 @@ class pyarchinit_Deteta(QDialog, MAIN_DIALOG_CLASS):
     DATA_LIST_REC_TEMP = []
     REC_CORR = 0
     REC_TOT = 0
-    
+    SITO = pyArchInitDialog_Config
     if L=='it':
         STATUS_ITEMS = {"b": "Usa", "f": "Trova", "n": "Nuovo Record"}
     else :
@@ -65,7 +66,7 @@ class pyarchinit_Deteta(QDialog, MAIN_DIALOG_CLASS):
     else:
         SORTED_ITEMS = {"n": "Not sorted", "o": "Sorted"}
     SORT_MODE = 'asc'
-    
+    SORT_STATUS = "n"
     
     UTILITY = Utility()
     DB_MANAGER = ""
@@ -658,7 +659,10 @@ class pyarchinit_Deteta(QDialog, MAIN_DIALOG_CLASS):
         except Exception as e:
             QMessageBox.warning(self, "Connection System", str(e), QMessageBox.Ok)
 
-        self.customize_GUI()  # call for GUI customizations
+        self.fill_fields()
+        self.customize_GUI()
+        self.set_sito()
+        self.msg_sito()
 
     def enable_button(self, n):
         self.pushButton_connect.setEnabled(n)
@@ -734,11 +738,11 @@ class pyarchinit_Deteta(QDialog, MAIN_DIALOG_CLASS):
     def on_pushButton_connect_pressed(self):
         conn = Connection()
         conn_str = conn.conn_str()
-
         test_conn = conn_str.find('sqlite')
 
         if test_conn == 0:
             self.DB_SERVER = "sqlite"
+
         try:
             self.DB_MANAGER = Pyarchinit_db_management(conn_str)
             self.DB_MANAGER.connection()
@@ -755,7 +759,7 @@ class pyarchinit_Deteta(QDialog, MAIN_DIALOG_CLASS):
                 self.fill_fields()
             else:
                 if self.L=='it':
-                    QMessageBox.warning(self,"BENVENUTO", "Benvenuto in pyArchInit" + "Scheda Campioni" + ". Il database e' vuoto. Premi 'Ok' e buon lavoro!",
+                    QMessageBox.warning(self,"BENVENUTO", "Benvenuto in pyArchInit " + self.NOME_SCHEDA + ". Il database e' vuoto. Premi 'Ok' e buon lavoro!",
                                         QMessageBox.Ok)
                 
                 elif self.L=='de':
@@ -764,9 +768,9 @@ class pyarchinit_Deteta(QDialog, MAIN_DIALOG_CLASS):
                                         QMessageBox.Ok) 
                 else:
                     QMessageBox.warning(self,"WELCOME", "Welcome in pyArchInit" + "Samples form" + ". The DB is empty. Push 'Ok' and Good Work!",
-                                        QMessageBox.Ok)   
-                self.BROWSE_STATUS = 'x'
+                                        QMessageBox.Ok)
                 self.charge_list()
+                self.BROWSE_STATUS = 'x'
                 self.on_pushButton_new_rec_pressed()
         except Exception as e:
             e = str(e)
@@ -794,7 +798,7 @@ class pyarchinit_Deteta(QDialog, MAIN_DIALOG_CLASS):
                     self.iface.messageBar().pushMessage(self.tr(msg), Qgis.Warning, 0)  
                 else:
                     msg = "Warning bug detected! Report it to the developer. Error: ".format(str(e))
-                    self.iface.messageBar().pushMessage(self.tr(msg), Qgis.Warning, 0)    
+                    self.iface.messageBar().pushMessage(self.tr(msg), Qgis.Warning, 0)       
 
     def customize_GUI(self):
         query_res = self.sex_from_individuo_table()
@@ -859,6 +863,60 @@ class pyarchinit_Deteta(QDialog, MAIN_DIALOG_CLASS):
         sito_vl.sort()
         self.comboBox_sito.addItems(sito_vl)
 
+    def msg_sito(self):
+        conn = Connection()
+        
+        sito_set= conn.sito_set()
+        sito_set_str = sito_set['sito_set']
+        
+        if bool(self.comboBox_sito.currentText()) and self.comboBox_sito.currentText()==sito_set_str:
+            QMessageBox.information(self, "OK" ,"Sei connesso al sito: %s" % str(sito_set_str),QMessageBox.Ok) 
+       
+        elif sito_set_str=='':    
+            QMessageBox.information(self, "Attenzione" ,"Non hai settato alcun sito pertanto vedrai tutti i record se il db non è vuoto",QMessageBox.Ok) 
+    
+    
+    def set_sito(self):
+        conn = Connection()
+            
+        sito_set= conn.sito_set()
+        sito_set_str = sito_set['sito_set']
+        
+        try:
+            if bool (sito_set_str):
+                
+                
+            
+           
+            
+                search_dict = {
+                    'sito': "'" + str(sito_set_str) + "'"}  # 1 - Sito
+                u = Utility()
+                search_dict = u.remove_empty_items_fr_dict(search_dict)
+                res = self.DB_MANAGER.query_bool(search_dict, self.MAPPER_TABLE_CLASS)
+                
+                self.DATA_LIST = []
+                for i in res:
+                    self.DATA_LIST.append(i)
+
+                self.REC_TOT, self.REC_CORR = len(self.DATA_LIST), 0
+                self.DATA_LIST_REC_TEMP = self.DATA_LIST_REC_CORR = self.DATA_LIST[0]  ####darivedere
+                self.fill_fields()
+                self.BROWSE_STATUS = "b"
+                self.SORT_STATUS = "n"
+                self.label_status.setText(self.STATUS_ITEMS[self.BROWSE_STATUS])
+                self.set_rec_counter(len(self.DATA_LIST), self.REC_CORR + 1)
+
+                self.setComboBoxEnable(["self.comboBox_sito"], "False")
+                
+            else:
+                
+                pass#
+                
+        except:
+            QMessageBox.information(self, "Attenzione" ,"Non esiste questo sito: "'"'+ str(sito_set_str) +'"'" in questa scheda, Per favore distattiva la 'scelta sito' dalla scheda di configurazione plugin per vedere tutti i record oppure crea la scheda",QMessageBox.Ok) 
+    
+    
     def charge_periodo_list(self):
         pass
 
@@ -1117,6 +1175,7 @@ class pyarchinit_Deteta(QDialog, MAIN_DIALOG_CLASS):
                     self.label_sort.setText(self.SORTED_ITEMS[self.SORT_STATUS])
                     self.charge_records()
                     self.charge_list()
+                    self.set_sito()
                     self.BROWSE_STATUS = "b"
                     self.label_status.setText(self.STATUS_ITEMS[self.BROWSE_STATUS])
                     self.REC_TOT, self.REC_CORR = len(self.DATA_LIST), len(self.DATA_LIST) - 1
@@ -2996,6 +3055,7 @@ class pyarchinit_Deteta(QDialog, MAIN_DIALOG_CLASS):
                     self.set_rec_counter(len(self.DATA_LIST), self.REC_CORR + 1)
                     self.charge_list()
                     self.fill_fields()
+                    self.set_sito()
         elif self.L=='de':
             msg = QMessageBox.warning(self, "Achtung!!!",
                                       "Willst du wirklich diesen Eintrag löschen? \n Der Vorgang ist unumkehrbar",
@@ -3028,6 +3088,7 @@ class pyarchinit_Deteta(QDialog, MAIN_DIALOG_CLASS):
                     self.set_rec_counter(len(self.DATA_LIST), self.REC_CORR + 1)
                     self.charge_list()
                     self.fill_fields()
+                    self.set_sito()
         else:
             msg = QMessageBox.warning(self, "Warning!!!",
                                       "Do you really want to break the record? \n Action is irreversible.",
@@ -3060,7 +3121,7 @@ class pyarchinit_Deteta(QDialog, MAIN_DIALOG_CLASS):
                     self.set_rec_counter(len(self.DATA_LIST), self.REC_CORR + 1)
                     self.charge_list()
                     self.fill_fields()  
-            
+                    self.set_sito()
             
             
         self.SORT_STATUS = "n"
@@ -3679,8 +3740,8 @@ class pyarchinit_Deteta(QDialog, MAIN_DIALOG_CLASS):
                 self.loadMapPreview()
             """
 
-        except Exception as e:
-            QMessageBox.warning(self, "Error", str(e), QMessageBox.Ok)
+        except :
+            pass#QMessageBox.warning(self, "Error", str(e), QMessageBox.Ok)
 
     def set_rec_counter(self, t, c):
         self.rec_tot = t

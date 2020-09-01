@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>715</width>
+    <width>608</width>
     <height>750</height>
    </rect>
   </property>
@@ -34,8 +34,8 @@
        <rect>
         <x>0</x>
         <y>0</y>
-        <width>691</width>
-        <height>572</height>
+        <width>588</width>
+        <height>597</height>
        </rect>
       </property>
       <layout class="QGridLayout" name="gridLayout_13">
@@ -661,11 +661,11 @@ Step 3 - Riavviare Qgis e cliccare sul pulsante Run Test per verificare l'output
               <layout class="QGridLayout" name="gridLayout_14">
                <item row="0" column="0">
                 <layout class="QGridLayout" name="gridLayout_Help">
-                 <property name="horizontalSpacing">
-                  <number>6</number>
-                 </property>
                  <property name="leftMargin">
                   <number>0</number>
+                 </property>
+                 <property name="horizontalSpacing">
+                  <number>6</number>
                  </property>
                  <item row="0" column="0">
                   <layout class="QHBoxLayout" name="horizontalLayout_8">

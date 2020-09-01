@@ -23,7 +23,7 @@ from __future__ import absolute_import
 
 import os
 from datetime import date
-
+import cv2
 import numpy as np
 import sys
 from builtins import range
@@ -46,7 +46,7 @@ from ..modules.gis.pyarchinit_pyqgis import Pyarchinit_pyqgis
 from ..gui.imageViewer import ImageViewer
 from ..gui.quantpanelmain import QuantPanelMain
 from ..gui.sortpanelmain import SortPanelMain
-
+from ..gui.pyarchinitConfigDialog import pyArchInitDialog_Config
 MAIN_DIALOG_CLASS, _ = loadUiType(os.path.join(os.path.dirname(__file__), os.pardir, 'gui', 'ui', 'Inv_Materiali.ui'))
 
 
@@ -63,6 +63,7 @@ class pyarchinit_Inventario_reperti(QDialog, MAIN_DIALOG_CLASS):
     DATA_LIST_REC_TEMP = []
     REC_CORR = 0
     REC_TOT = 0
+    SITO = pyArchInitDialog_Config
     if L=='it':
         STATUS_ITEMS = {"b": "Usa", "f": "Trova", "n": "Nuovo Record"}
     else :
@@ -362,7 +363,10 @@ class pyarchinit_Inventario_reperti(QDialog, MAIN_DIALOG_CLASS):
             self.on_pushButton_connect_pressed()
         except Exception as e:
             QMessageBox.warning(self, "Sistema di connessione", str(e), QMessageBox.Ok)
-        self.customize_gui()
+        self.fill_fields()
+        
+        self.set_sito()
+        self.msg_sito()
 
     def on_pushButtonQuant_pressed(self):
         dlg = QuantPanelMain(self)
@@ -747,7 +751,7 @@ class pyarchinit_Inventario_reperti(QDialog, MAIN_DIALOG_CLASS):
                 self.fill_fields()
             else:
                 if self.L=='it':
-                    QMessageBox.warning(self,"BENVENUTO", "Benvenuto in pyArchInit" + "Scheda Campioni" + ". Il database e' vuoto. Premi 'Ok' e buon lavoro!",
+                    QMessageBox.warning(self,"BENVENUTO", "Benvenuto in pyArchInit " + self.NOME_SCHEDA + ". Il database e' vuoto. Premi 'Ok' e buon lavoro!",
                                         QMessageBox.Ok)
                 
                 elif self.L=='de':
@@ -1022,26 +1026,39 @@ class pyarchinit_Inventario_reperti(QDialog, MAIN_DIALOG_CLASS):
     def openWide_image(self):
         items = self.iconListWidget.selectedItems()
         conn = Connection()
-        
+        conn_str = conn.conn_str()
         thumb_resize = conn.thumb_resize()
         thumb_resize_str = thumb_resize['thumb_resize']
         for item in items:
-            dlg = ImageViewer(self)
+            dlg = ImageViewer()
             id_orig_item = item.text()  # return the name of original file
-
-            search_dict = {'media_filename': "'" + str(id_orig_item) + "'"}
-
+            search_dict = {'media_filename': "'" + str(id_orig_item) + "'" , 'mediatype': "'" + 'video' + "'"} 
             u = Utility()
             search_dict = u.remove_empty_items_fr_dict(search_dict)
-
-            try:
-                res = self.DB_MANAGER.query_bool(search_dict, "MEDIA_THUMB")
-                file_path = str(res[0].path_resize)
-            except Exception as e:
-                QMessageBox.warning(self, "Error", "Warning 1 file: " + str(e), QMessageBox.Ok)
-
-            dlg.show_image(thumb_resize_str+file_path)  # item.data(QtCore.Qt.UserRole).toString()))
-            dlg.exec_()
+            #try:
+            res = self.DB_MANAGER.query_bool(search_dict, "MEDIA_THUMB")
+            
+            
+            search_dict_2 = {'media_filename': "'" + str(id_orig_item) + "'" , 'mediatype': "'" + 'image' + "'"}  
+            
+            search_dict_2 = u.remove_empty_items_fr_dict(search_dict_2)
+            #try:
+            res_2 = self.DB_MANAGER.query_bool(search_dict_2, "MEDIA_THUMB")
+            
+            search_dict_3 = {'media_filename': "'" + str(id_orig_item) + "'"}  
+            
+            search_dict_3 = u.remove_empty_items_fr_dict(search_dict_3)
+            #try:
+            res_3 = self.DB_MANAGER.query_bool(search_dict_3, "MEDIA_THUMB")
+            
+            # file_path = str(res[0].path_resize)
+            # file_path_2 = str(res_2[0].path_resize)
+            file_path_3 = str(res_3[0].path_resize)
+            if bool(res):
+                os.startfile(str(thumb_resize_str+file_path_3))
+            elif bool(res_2):
+                dlg.show_image(str(thumb_resize_str+file_path_3))  
+                dlg.exec_()
 
     def charge_list(self):
 
@@ -1183,7 +1200,58 @@ class pyarchinit_Inventario_reperti(QDialog, MAIN_DIALOG_CLASS):
         self.comboBox_lavato.addItems(lavato_vl)
 
 
-    # buttons functions
+    def msg_sito(self):
+        conn = Connection()
+        
+        sito_set= conn.sito_set()
+        sito_set_str = sito_set['sito_set']
+        
+        if bool(self.comboBox_sito.currentText()) and self.comboBox_sito.currentText()==sito_set_str:
+            QMessageBox.information(self, "OK" ,"Sei connesso al sito: %s" % str(sito_set_str),QMessageBox.Ok) 
+       
+        elif sito_set_str=='':    
+            QMessageBox.information(self, "Attenzione" ,"Non hai settato alcun sito pertanto vedrai tutti i record se il db non è vuoto",QMessageBox.Ok)  
+    
+    
+    def set_sito(self):
+        conn = Connection()
+            
+        sito_set= conn.sito_set()
+        sito_set_str = sito_set['sito_set']
+        
+        try:
+            if bool (sito_set_str):
+                
+                
+            
+           
+            
+                search_dict = {
+                    'sito': "'" + str(sito_set_str) + "'"}  # 1 - Sito
+                u = Utility()
+                search_dict = u.remove_empty_items_fr_dict(search_dict)
+                res = self.DB_MANAGER.query_bool(search_dict, self.MAPPER_TABLE_CLASS)
+                
+                self.DATA_LIST = []
+                for i in res:
+                    self.DATA_LIST.append(i)
+
+                self.REC_TOT, self.REC_CORR = len(self.DATA_LIST), 0
+                self.DATA_LIST_REC_TEMP = self.DATA_LIST_REC_CORR = self.DATA_LIST[0]  ####darivedere
+                self.fill_fields()
+                self.BROWSE_STATUS = "b"
+                self.SORT_STATUS = "n"
+                self.label_status.setText(self.STATUS_ITEMS[self.BROWSE_STATUS])
+                self.set_rec_counter(len(self.DATA_LIST), self.REC_CORR + 1)
+
+                self.setComboBoxEnable(["self.comboBox_sito"], "False")
+                
+            else:
+                
+                pass#
+                
+        except:
+            QMessageBox.information(self, "Attenzione" ,"Non esiste questo sito: "'"'+ str(sito_set_str) +'"'" in questa scheda, Per favore distattiva la 'scelta sito' dalla scheda di configurazione plugin per vedere tutti i record oppure crea la scheda",QMessageBox.Ok)  
 
     def on_pushButton_sort_pressed(self):
         if self.check_record_state() == 1:
@@ -1329,6 +1397,7 @@ class pyarchinit_Inventario_reperti(QDialog, MAIN_DIALOG_CLASS):
                     self.label_sort.setText(self.SORTED_ITEMS[self.SORT_STATUS])
                     self.charge_records()
                     self.charge_list()
+                    self.set_sito()
                     self.BROWSE_STATUS = "b"
                     self.label_status.setText(self.STATUS_ITEMS[self.BROWSE_STATUS])
                     self.REC_TOT, self.REC_CORR = len(self.DATA_LIST), len(self.DATA_LIST) - 1
@@ -2112,6 +2181,7 @@ class pyarchinit_Inventario_reperti(QDialog, MAIN_DIALOG_CLASS):
                     self.set_rec_counter(len(self.DATA_LIST), self.REC_CORR + 1)
                     self.charge_list()
                     self.fill_fields()
+                    self.set_sito()
         elif self.L=='de':
             msg = QMessageBox.warning(self, "Achtung!!!",
                                       "Willst du wirklich diesen Eintrag löschen? \n Der Vorgang ist unumkehrbar",
@@ -2144,6 +2214,7 @@ class pyarchinit_Inventario_reperti(QDialog, MAIN_DIALOG_CLASS):
                     self.set_rec_counter(len(self.DATA_LIST), self.REC_CORR + 1)
                     self.charge_list()
                     self.fill_fields()
+                    self.set_sito()
         else:
             msg = QMessageBox.warning(self, "Warning!!!",
                                       "Do you really want to break the record? \n Action is irreversible.",
@@ -2176,7 +2247,7 @@ class pyarchinit_Inventario_reperti(QDialog, MAIN_DIALOG_CLASS):
                     self.set_rec_counter(len(self.DATA_LIST), self.REC_CORR + 1)
                     self.charge_list()
                     self.fill_fields()  
-            
+                    self.set_sito()
             
             
             self.SORT_STATUS = "n"
@@ -2767,8 +2838,8 @@ class pyarchinit_Inventario_reperti(QDialog, MAIN_DIALOG_CLASS):
             
             if self.toolButtonPreviewMedia.isChecked():
                 self.loadMediaPreview()
-        except Exception as e:
-            QMessageBox.warning(self, "Error Fill Fields", str(e), QMessageBox.Ok)
+        except :
+            pass#QMessageBox.warning(self, "Error Fill Fields", str(e), QMessageBox.Ok)
 
     def set_rec_counter(self, t, c):
         self.rec_tot = t

@@ -40,7 +40,7 @@ from ..modules.utility.delegateComboBox import ComboBoxDelegate
 from ..modules.utility.pyarchinit_error_check import Error_check
 from ..modules.utility.pyarchinit_exp_Strutturasheet_pdf import generate_struttura_pdf
 from ..gui.sortpanelmain import SortPanelMain
-
+from ..gui.pyarchinitConfigDialog import pyArchInitDialog_Config
 MAIN_DIALOG_CLASS, _ = loadUiType(os.path.join(os.path.dirname(__file__), os.pardir, 'gui', 'ui', 'Struttura.ui'))
 
 
@@ -57,6 +57,7 @@ class pyarchinit_Struttura(QDialog, MAIN_DIALOG_CLASS):
     DATA_LIST_REC_TEMP = []
     REC_CORR = 0
     REC_TOT = 0
+    SITO = pyArchInitDialog_Config
     if L=='it':
         STATUS_ITEMS = {"b": "Usa", "f": "Trova", "n": "Nuovo Record"}
     else :
@@ -244,7 +245,8 @@ class pyarchinit_Struttura(QDialog, MAIN_DIALOG_CLASS):
         self.charge_periodo_fin_list()
         self.fill_fields()
         self.customize_GUI()
-
+        self.set_sito()
+        self.msg_sito()
     def enable_button(self, n):
         self.pushButton_connect.setEnabled(n)
 
@@ -313,7 +315,7 @@ class pyarchinit_Struttura(QDialog, MAIN_DIALOG_CLASS):
                 self.fill_fields()
             else:
                 if self.L=='it':
-                    QMessageBox.warning(self,"BENVENUTO", "Benvenuto in pyArchInit" + "Scheda Campioni" + ". Il database e' vuoto. Premi 'Ok' e buon lavoro!",
+                    QMessageBox.warning(self,"BENVENUTO", "Benvenuto in pyArchInit " + self.NOME_SCHEDA + ". Il database e' vuoto. Premi 'Ok' e buon lavoro!",
                                         QMessageBox.Ok)
                 
                 elif self.L=='de':
@@ -613,6 +615,58 @@ class pyarchinit_Struttura(QDialog, MAIN_DIALOG_CLASS):
         definizione_struttura_vl.sort()
         self.comboBox_definizione_struttura.addItems(definizione_struttura_vl)
 
+    def msg_sito(self):
+        conn = Connection()
+        
+        sito_set= conn.sito_set()
+        sito_set_str = sito_set['sito_set']
+        
+        if bool(self.comboBox_sito.currentText()) and self.comboBox_sito.currentText()==sito_set_str:
+            QMessageBox.information(self, "OK" ,"Sei connesso al sito: %s" % str(sito_set_str),QMessageBox.Ok) 
+       
+        elif sito_set_str=='':    
+            QMessageBox.information(self, "Attenzione" ,"Non hai settato alcun sito pertanto vedrai tutti i record se il db non è vuoto",QMessageBox.Ok)  
+    
+    
+    def set_sito(self):
+        conn = Connection()
+            
+        sito_set= conn.sito_set()
+        sito_set_str = sito_set['sito_set']
+        
+        try:
+            if bool (sito_set_str):
+                
+                
+            
+           
+            
+                search_dict = {
+                    'sito': "'" + str(sito_set_str) + "'"}  # 1 - Sito
+                u = Utility()
+                search_dict = u.remove_empty_items_fr_dict(search_dict)
+                res = self.DB_MANAGER.query_bool(search_dict, self.MAPPER_TABLE_CLASS)
+                
+                self.DATA_LIST = []
+                for i in res:
+                    self.DATA_LIST.append(i)
+
+                self.REC_TOT, self.REC_CORR = len(self.DATA_LIST), 0
+                self.DATA_LIST_REC_TEMP = self.DATA_LIST_REC_CORR = self.DATA_LIST[0]  ####darivedere
+                self.fill_fields()
+                self.BROWSE_STATUS = "b"
+                self.SORT_STATUS = "n"
+                self.label_status.setText(self.STATUS_ITEMS[self.BROWSE_STATUS])
+                self.set_rec_counter(len(self.DATA_LIST), self.REC_CORR + 1)
+
+                self.setComboBoxEnable(["self.comboBox_sito"], "False")
+                
+            else:
+                
+                pass#
+                
+        except:
+            QMessageBox.information(self, "Attenzione" ,"Non esiste questo sito: "'"'+ str(sito_set_str) +'"'" in questa scheda, Per favore distattiva la 'scelta sito' dalla scheda di configurazione plugin per vedere tutti i record oppure crea la scheda",QMessageBox.Ok) 
     def charge_periodo_iniz_list(self):
         sito = str(self.comboBox_sito.currentText())
         # sitob = sito.decode('utf-8')
@@ -854,6 +908,7 @@ class pyarchinit_Struttura(QDialog, MAIN_DIALOG_CLASS):
                     self.label_sort.setText(self.SORTED_ITEMS[self.SORT_STATUS])
                     self.charge_records()
                     self.charge_list()
+                    self.set_sito()
                     self.BROWSE_STATUS = "b"
                     self.label_status.setText(self.STATUS_ITEMS[self.BROWSE_STATUS])
                     self.REC_TOT, self.REC_CORR = len(self.DATA_LIST), len(self.DATA_LIST) - 1
@@ -868,7 +923,12 @@ class pyarchinit_Struttura(QDialog, MAIN_DIALOG_CLASS):
                     self.fill_fields(self.REC_CORR)
                     self.enable_button(1)
             else:
-                pass
+                    if self.L=='it':
+                        QMessageBox.warning(self, "ATTENZIONE", "Problema nell'inserimento dati", QMessageBox.Ok)
+                    elif self.L=='de':
+                        QMessageBox.warning(self, "ACHTUNG", "Problem der Dateneingabe", QMessageBox.Ok)
+                    else:
+                        QMessageBox.warning(self, "Warning", "Problem with data entry", QMessageBox.Ok)    
 
     def data_error_check(self):
         test = 0
@@ -1155,6 +1215,7 @@ class pyarchinit_Struttura(QDialog, MAIN_DIALOG_CLASS):
                     self.set_rec_counter(len(self.DATA_LIST), self.REC_CORR + 1)
                     self.charge_list()
                     self.fill_fields()
+                    self.set_sito()
         elif self.L=='de':
             msg = QMessageBox.warning(self, "Achtung!!!",
                                       "Willst du wirklich diesen Eintrag löschen? \n Der Vorgang ist unumkehrbar",
@@ -1187,6 +1248,7 @@ class pyarchinit_Struttura(QDialog, MAIN_DIALOG_CLASS):
                     self.set_rec_counter(len(self.DATA_LIST), self.REC_CORR + 1)
                     self.charge_list()
                     self.fill_fields()
+                    self.set_sito()
         else:
             msg = QMessageBox.warning(self, "Warning!!!",
                                       "Do you really want to break the record? \n Action is irreversible.",
@@ -1218,7 +1280,8 @@ class pyarchinit_Struttura(QDialog, MAIN_DIALOG_CLASS):
                     self.label_status.setText(self.STATUS_ITEMS[self.BROWSE_STATUS])
                     self.set_rec_counter(len(self.DATA_LIST), self.REC_CORR + 1)
                     self.charge_list()
-                    self.fill_fields()  
+                    self.fill_fields()
+                    self.set_sito()                    
             
             
             
@@ -1718,8 +1781,8 @@ class pyarchinit_Struttura(QDialog, MAIN_DIALOG_CLASS):
             else:
                 self.comboBox_fas_fin.setEditText(str(self.DATA_LIST[self.rec_num].fase_finale))
 
-        except Exception as e:
-            QMessageBox.warning(self, "Errore Fill Fields", "Problem insert value" + str(e), QMessageBox.Ok)
+        except :#Exception as e:
+            pass#QMessageBox.warning(self, "Errore fill", str(e), QMessageBox.Ok)
 
     def set_rec_counter(self, t, c):
         self.rec_tot = t
