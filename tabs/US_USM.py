@@ -1225,9 +1225,7 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
             sito =self.table.model().data(sito_item)
             area= self.table.model().data(area_item)
             us = self.table.model().data(us_item)
-            f = open("C:\\Users\\Utente\\data_insert_list.txt", "w")
-            f.write(str(us))
-            f.close
+
             search_dict = {'sito': "'" + str(sito) + "'",
                            'area': "'" + str(area) + "'",
                            'us': us}
