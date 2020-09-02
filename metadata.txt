@@ -23,7 +23,11 @@ repository=https://github.com/pyarchinit/pyarchinit
 
 
 
-changelog=release1.0.1:
+changelog=release1.0.2:
+     	-fix bug import/video and image
+
+  	-----------------------------------------------------------------------------
+    release1.0.1:
      	-aggiornamento update file di configurazione
 
   	-----------------------------------------------------------------------------
