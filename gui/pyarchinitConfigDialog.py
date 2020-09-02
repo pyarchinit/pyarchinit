@@ -160,7 +160,7 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
             #self.table = QTableView() 
             self.model_a = QSqlQueryModel() 
             
-            self.tableView_summary.setModel(self.model_a) 
+            self.tableView_summary.setModel(self.model_a)
             if bool(self.comboBox_sito.currentText()):
                 query = QSqlQuery("select distinct a.sito as 'Sito',case when count( distinct a.us)=0  then 'US/USM "
                                   "mancanti' else  count( distinct a.us)  end as 'Totale US/USM',case when count("
@@ -174,21 +174,18 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
                                   "}'".format(str(self.comboBox_sito.currentText())), db=db)
                 self.model_a.setQuery(query)
             else:
-                query1 = QSqlQuery("select distinct a.sito as 'Sito',case when count( distinct a.us)=0  then 'US/USM "
-                                   "mancanti' else  count( distinct a.us)  end as 'Totale US/USM',case when count("
-                                   "distinct b.numero_inventario)=0 then 'No Materiali' else count(distinct "
-                                   "b.numero_inventario)end as 'Totale Materiali',case when count(distinct "
-                                   "c.id_struttura)=0 then 'No Strutture' else count(distinct c.id_struttura)end as "
-                                   "'Totale strutture',case when count(distinct d.id_tafonomia)=0 then 'No Tombe' "
-                                   "else count(distinct d.id_tafonomia)end as 'Totale tombe' from us_table as a left "
-                                   "join inventario_materiali_table as b on a.sito=b.sito left join struttura_table "
-                                   "as c on a.sito=c.sito left join tafonomia_table as d on a.sito=d.sito group by "
-                                   "a.sito;",db=db)
+                query1 = QSqlQuery("select s.sito,(select count(distinct id_invmat) from inventario_materiali_table m "
+                                   "where s.sito = m.sito) as materiali,(select count(distinct id_struttura) from "
+                                   "struttura_table st where s.sito = st.sito) as Struttura,(select count(distinct "
+                                   "id_tafonomia) from tafonomia_table t where s.sito = t.sito) as tafonomia,"
+                                   "(select count(distinct id_us) from us_table ad where s.sito=ad.sito) as us from ("
+                                   "select sito , count(distinct id_us) from us_table group by sito) as s order by "
+                                   "s.sito;",db=db)
                 self.model_a.setQuery(query1)
-            
 
 
-            #self.model_a.setTable("us_table") 
+
+            #self.model_a.setTable("us_table")
             #self.model_a.setEditStrategy(QSqlTableModel.OnManualSubmit)
             
             # if bool (sito_set_str):
@@ -223,10 +220,13 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
                     str(self.comboBox_sito.currentText())), db=db)
                 self.model_a.setQuery(query)
             else:
-                query1 = QSqlQuery("select distinct  a.sito as Sito ,count(distinct a.id_us) as us,count(distinct "
-                                   "c.id_struttura)as Struttura,count(distinct d.id_tafonomia) as Tombe from us_table "
-                                   "as a left join struttura_table as c on a.sito=c.sito left join tafonomia_table as "
-                                   "d on a.sito=d.sito group by a.sito order by us DESC ",db=db)
+                query1 = QSqlQuery("select s.sito,(select count(distinct id_invmat) from inventario_materiali_table m "
+                                   "where s.sito = m.sito) as materiali,(select count(distinct id_struttura) from "
+                                   "struttura_table st where s.sito = st.sito) as Struttura,(select count(distinct "
+                                   "id_tafonomia) from tafonomia_table t where s.sito = t.sito) as tafonomia,"
+                                   "(select count(distinct id_us) from us_table ad where s.sito=ad.sito) as us from ("
+                                   "select sito , count(distinct id_us) from us_table group by sito) as s order by "
+                                   "s.sito;",db=db)
                 self.model_a.setQuery(query1) 
                 
     
