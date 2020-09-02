@@ -105,7 +105,7 @@ class Video_utility(object):
         infile = str(self.input_path)
         outfile = ('%s%s_%s%s') % (
         self.outpath, str(self.max_num_id), os.path.splitext(self.infile)[0], self.thumb_suffix)
-        shutil.copy(infile, outfile)
+        shutil.move(infile, outfile)
             
 
 if __name__ == '__main__':
