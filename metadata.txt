@@ -23,7 +23,12 @@ repository=https://github.com/pyarchinit/pyarchinit
 
 
 
-changelog=release1.0.3:
+changelog=release1.0.4:
+     	-fix bug to export list phtot thumb to pg
+  	-----------------------------------------------------------------------------
+
+
+   release1.0.3:
      	-fix query pyarchinit config dialog
 
   	-----------------------------------------------------------------------------
