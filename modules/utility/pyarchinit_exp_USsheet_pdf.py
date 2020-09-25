@@ -29,7 +29,7 @@ from builtins import object
 from builtins import range
 from builtins import str
 from reportlab.lib import colors
-from reportlab.lib.pagesizes import (A4)
+from reportlab.lib.pagesizes import (A4,A3)
 from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
 from reportlab.lib.units import inch, cm, mm 
 from reportlab.pdfgen import canvas
@@ -3187,10 +3187,10 @@ class generate_US_pdf(object):
 
         dt = datetime.datetime.now()
         filename = ('%s%s%s_%s_%s_%s_%s_%s_%s%s') % (
-        self.PDF_path, os.sep, 'elenco_us', dt.day, dt.month, dt.year, dt.hour, dt.minute, dt.second, ".pdf")
+        self.PDF_path, os.sep, 'Elenco_us', dt.day, dt.month, dt.year, dt.hour, dt.minute, dt.second, ".pdf")
         f = open(filename, "wb")
 
-        doc = SimpleDocTemplate(f, pagesize=(29 * cm, 21 * cm), showBoundary=0)
+        doc = SimpleDocTemplate(f, pagesize=(A3), showBoundary=0)
         doc.build(lst, canvasmaker=NumberedCanvas_USindex)
 
         f.close()
