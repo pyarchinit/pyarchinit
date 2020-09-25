@@ -2236,43 +2236,38 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
             QMessageBox.information(self, "Attenzione" ,"Non esiste questo sito: "'"'+ str(sito_set_str) +'"'" in questa scheda, Per favore distattiva la 'scelta sito' dalla scheda di configurazione plugin per vedere tutti i record oppure crea la scheda",QMessageBox.Ok) 
     def generate_list_foto(self):
         data_list_foto = []
+        for i in range(len(self.DATA_LIST)):
         
-        
-        
-        
-        #############inserimento nome fiel media############
-        #for i in range(len(self.DATA_LIST)):
-        sito = str(self.comboBox_sito.currentText()) 
-        
-        #############inserimento nome fiel media############
-        conn = Connection()
-        
-        
-        thumb_path = conn.thumb_path()
-        thumb_path_str = thumb_path['thumb_path']
-        refoto = self.DB_MANAGER.select_thumbnail_from_db_sql(sito)
-        thumbnail=''
-        foto= ''
-        elenco_foto = []
-        elenco_thumb = []
-        for media in refoto:
+            conn = Connection()
             
-            thumbnail = (thumb_path_str+media.filepath)
-            foto= (media.media_name)
-            #sito= (media.sito)
-            area= (media.area)
             
-            us= (media.us)
-            d_stratigrafica= ''
-            unita_tipo = (media.unita_tipo)
-            data_list_foto.append([
-                str(sito), #0
-                str(area), #1
-                str(us),    #2
-                str(unita_tipo),#3
-                str(d_stratigrafica),  #4 
-                str(foto),#5
-                str(thumbnail)])#6
+            thumb_path = conn.thumb_path()
+            thumb_path_str = thumb_path['thumb_path']
+            
+            search_dict = {'id_entity': "'"+ str(eval("self.DATA_LIST[i].id_us"))+"'", 'entity_type' : "'US'"}
+            
+            record_doc_list = self.DB_MANAGER.query_bool(search_dict, 'MEDIAVIEW')
+        
+         
+            
+            for media in record_doc_list:
+            
+                thumbnail = (thumb_path_str+media.filepath)
+                foto= (media.id_media)
+                # #sito= (media.sito)
+                # area= (media.area)
+                
+                # us= (media.us)
+                # d_stratigrafica= ''
+                # unita_tipo = (media.unita_tipo)
+                data_list_foto.append([
+                    str(self.DATA_LIST[i].sito), #0
+                    str(self.DATA_LIST[i].area), #1
+                    str(self.DATA_LIST[i].us),    #2
+                    str(self.DATA_LIST[i].unita_tipo),#3
+                    str(self.DATA_LIST[i].d_stratigrafica),  #4 
+                    str(foto),#5
+                    str(thumbnail)])#6
             
         return data_list_foto
             
