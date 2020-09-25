@@ -23,7 +23,11 @@ repository=https://github.com/pyarchinit/pyarchinit
 
 
 
-changelog=release1.0.4:
+changelog=release1.0.5:
+     	-export iccd US
+  	-----------------------------------------------------------------------------
+
+   release1.0.4:
      	-fix bug to export list phtot thumb to pg
   	-----------------------------------------------------------------------------
 
