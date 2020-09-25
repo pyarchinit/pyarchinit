@@ -20,7 +20,7 @@
 '''
 from __future__ import absolute_import
 import os
-from os import startfile
+from os import *
 import time
 import sys
 from builtins import range

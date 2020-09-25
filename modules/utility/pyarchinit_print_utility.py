@@ -88,8 +88,10 @@ class Print_utility(QObject):
 
         if server == 'postgres':
             for i in range(len(self.data)):
-                test = self.charge_layer_postgis(self.data[i].sito, self.data[i].area, self.data[i].us)
+                test = self.charge_layer_postgis(self.data[i].sito, self.data[i].area,self.data[i].us)
                 self.us = self.data[i].us
+                self.periodo_iniziale = self.data[i].periodo_iniziale
+                self.periodo_fianle = self.data[i].fase_finale
                 if test != 0:
                     if self.layerUS.featureCount() > 0:
                         self.test_bbox()
@@ -221,7 +223,7 @@ class Print_utility(QObject):
         l.addLayoutItem(map)
 
         intestazioneLabel = QgsLayoutItemLabel(l)
-        txt = "Tavola %s - US:%d" % (self.tav_num + 1, self.us)
+        txt = "Tavola %s - US:%d " % (self.tav_num + 1, self.us)
         intestazioneLabel.setText(txt)
         intestazioneLabel.adjustSizeToText()
         intestazioneLabel.attemptMove(QgsLayoutPoint(1, 0), page=0)
@@ -306,7 +308,7 @@ class Print_utility(QObject):
         uri.setDatabase(db_file_path)
         #srs = QgsCoordinateReferenceSystem(self.SRS, QgsCoordinateReferenceSystem.PostgisCrsId)
 
-        gidstr = "scavo_s = '%s' and area_s = '%s' and us_s = '%d'" % (sito, area, us)
+        gidstr = "scavo_s = '%s' and area_s = '%s' and us_s = '%s'" % (sito, area, us)
 
         #uri = QgsDataSourceUri()
         #uri.setDatabase(db_file_path)
@@ -355,8 +357,8 @@ class Print_utility(QObject):
             self.layerUS.setCrs(srs)
             self.USLayerId = self.layerUS.id()
             # self.mapLayerRegistry.append(USLayerId)
-            style_path = '{}{}'.format(self.LAYER_STYLE_PATH, 'us_caratterizzazioni.qml')
-            self.layerUS.loadNamedStyle(style_path)
+            #style_path = '{}{}'.format(self.LAYER_STYLE_PATH, 'us_caratterizzazioni.qml')
+            #self.layerUS.loadNamedStyle(style_path)
             self.iface.mapCanvas().setExtent(self.layerUS.extent())
             QgsProject.instance().addMapLayer(self.layerUS, True)
         else:
@@ -371,6 +373,6 @@ class Print_utility(QObject):
             self.layerQuote.setCrs(srs)
             self.QuoteLayerId = self.layerQuote.id()
             # self.mapLayerRegistry.append(QuoteLayerId)
-            style_path = '{}{}'.format(self.LAYER_STYLE_PATH, 'stile_quote.qml')
-            self.layerQuote.loadNamedStyle(style_path)
+            #style_path = '{}{}'.format(self.LAYER_STYLE_PATH, 'stile_quote.qml')
+            #self.layerQuote.loadNamedStyle(style_path)
             QgsProject.instance().addMapLayer(self.layerQuote, True)
