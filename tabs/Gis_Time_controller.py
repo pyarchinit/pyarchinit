@@ -97,9 +97,11 @@ class pyarchinit_Gis_Time_Controller(QDialog, MAIN_DIALOG_CLASS):
         self.dial_relative_cronology.setMaximum(max_num_order_layer[0])
         self.spinBox_relative_cronology.setMaximum(max_num_order_layer[0])
 
-    def define_order_layer_value(self, v):
+    def define_order_layer_value(self,v):
         try:
             self.ORDER_LAYER_VALUE = v
+            # self.ORDER_SITO = sito
+            # self.ORDER_AREA= area
             layer = self.iface.mapCanvas().currentLayer().dataProvider()
             originalSubsetString = layer.subsetString()
             newSubSetString = "order_layer <= %s" % (self.ORDER_LAYER_VALUE)  # 4D dimension
@@ -116,6 +118,7 @@ class pyarchinit_Gis_Time_Controller(QDialog, MAIN_DIALOG_CLASS):
 
     def reset_query(self):
         self.ORDER_LAYER_VALUE = v
+        
 
     def on_pushButton_visualize_pressed(self):
         op_cron_iniz = '<='

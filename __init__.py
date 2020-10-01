@@ -76,7 +76,7 @@ except Exception as e:
     missing_libraries.append(str(e))
 
 try:
-    import networkx
+    import pdf2docx
 except Exception as e:
     missing_libraries.append(str(e))
 

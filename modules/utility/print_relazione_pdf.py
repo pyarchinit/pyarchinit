@@ -97,8 +97,8 @@ class NumberedCanvas_Relazione(canvas.Canvas):
             self.line(35, 40, 550, 40)
             self.setFont("Helvetica", 8)
             self.drawRightString(548, 45, "pag. %d" % (self._pageNumber - 1))  # scheda us verticale 200mm x 20 mm
-            self.drawCentredString(300, 20, "adArte snc di Luca Mandolesi & C.")
-            self.drawCentredString(300, 10, "via San Lorenzo in Monte 7 - 47923 - Rimini")
+            self.drawCentredString(300, 20, "adArte srl Archeologia, Restauro, ICT")
+            self.drawCentredString(300, 10, "Piazzetta Plebiscito 7, 47921 Rimini (RN)")
 
 
 class exp_rel_pdf(object):
@@ -109,8 +109,8 @@ class exp_rel_pdf(object):
     HOME = os.environ['PYARCHINIT_HOME']
 
     PDF_path = '{}{}{}'.format(HOME, os.sep, "pyarchinit_PDF_folder")
-    Title = "Controllo in corso d'opera di via Parini 60"
-    pageinfo = "platypus example"
+    Title = ""
+    pageinfo = "adArte srl"
 
     PAGE_HEIGHT = defaultPageSize[1]
     PAGE_WIDTH = defaultPageSize[0]
@@ -166,9 +166,21 @@ class exp_rel_pdf(object):
         ############################
 
     def myFirstPage(self, canvas, doc):
+       
+        home = os.environ['PYARCHINIT_HOME']
+
+        home_DB_path = '{}{}{}'.format(home, os.sep, 'pyarchinit_DB_folder')
+        logo_path = '{}{}{}'.format(home_DB_path, os.sep, 'logo.jpg')
+        logo = Image(logo_path, 100, 100 )
+
+        ##      if test_image.drawWidth < 800:
+
+        logo.drawHeight = 1.5 * inch * logo.drawHeight / logo.drawWidth
+        logo.drawWidth = 1.5 * inch
+        
         canvas.saveState()
         canvas.setFont('Times-Bold', 16)
-        canvas.drawCentredString(self.PAGE_WIDTH / 2.0, self.PAGE_HEIGHT - 108, self.Title)
+        canvas.drawCentredString(self.PAGE_WIDTH / 2.0, self.PAGE_HEIGHT - 108, str(self.SITO).replace("_",' '))
         canvas.setFont('Times-Roman', 9)
         canvas.drawString(inch, 0.75 * inch, "First Page / %s" % self.pageinfo)
         canvas.restoreState()
