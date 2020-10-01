@@ -25,33 +25,38 @@ import datetime
 from datetime import date
 from graphviz import Digraph, Source
 from .pyarchinit_OS_utility import Pyarchinit_OS_Utility
-
+from ..db.pyarchinit_db_manager import Pyarchinit_db_management
 
 class HarrisMatrix:
     HOME = os.environ['PYARCHINIT_HOME']
-
+    DB_MANAGER = ""
+    TABLE_NAME = 'us_table'
+    MAPPER_TABLE_CLASS = "US"
+    ID_TABLE = "id_us"
     def __init__(self, sequence, periodi):
         self.sequence = sequence
         self.periodi = periodi
-
+        
     @property
     def export_matrix(self):
         G = Digraph(engine='neato', strict=False)
         G.graph_attr['splines'] = 'ortho'
         G.graph_attr['dpi'] = '300'
         elist = []
-
+        
         for i in self.sequence:
             a = (i[0], i[1])
             elist.append(a)
-
-        with G.subgraph(name='main') as d:
-            d.edges(elist)
-            d.node_attr['shape'] = 'box'
-            d.node_attr['style'] = 'strocked'
-            d.node_attr['color'] = 'red'
-            d.attr(label='pyArchInit - Harris Matrix Export System')
-
+           
+        
+        with G.subgraph(name='main') as e:
+            
+            e.edges(elist)
+            
+            e.node_attr['shape'] = 'box'
+            e.node_attr['style'] = 'strocked'
+            e.node_attr['color'] = 'red'    
+            e.edge_attr.update(arrowhead='inv', arrowsize='.7')
         for i in self.periodi:
             with G.subgraph(name=i[1]) as c:
                 # c.attr(bgcolor='lightgrey')
@@ -65,7 +70,7 @@ class HarrisMatrix:
         filename = ('%s_%s_%s_%s_%s_%s_%s') % (
         'Harris_matrix', dt.day, dt.month, dt.year, dt.hour, dt.minute, dt.second)
         f = open(filename, "w")
-
+        
         G.format = 'xdot'
         dot_file = G.render(directory=matrix_path, filename=filename)
         
@@ -91,5 +96,5 @@ class HarrisMatrix:
         g.render()
         f = Source.from_file(tred_file, format='png')
         f.render()
-
+        #f.view()
         return g

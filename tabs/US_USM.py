@@ -751,6 +751,7 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
         self.setupUi(self)
         self.mDockWidget_2.setHidden(True)
         self.mDockWidget_export.setHidden(True)
+        self.mDockWidget_3.setHidden(True)
         self.currentLayerId = None
         self.search = SearchLayers(iface)
         try:
@@ -762,22 +763,29 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
         self.comboBox_sito.editTextChanged.connect(self.charge_periodo_iniz_list)
         self.comboBox_sito.editTextChanged.connect(self.charge_periodo_fin_list)
         self.comboBox_sito.editTextChanged.connect(self.charge_struttura_list)
+        #self.comboBox_sito.editTextChanged.connect(self.charge_datazione_list)
+        #self.comboBox_sito.currentIndexChanged.connect(self.charge_datazione_list)
         self.comboBox_sito.currentIndexChanged.connect(self.charge_periodo_iniz_list)
         self.comboBox_sito.currentIndexChanged.connect(self.charge_periodo_fin_list)
         self.comboBox_sito.currentIndexChanged.connect(self.charge_struttura_list)
         self.comboBox_per_iniz.editTextChanged.connect(self.charge_fase_iniz_list)
         self.comboBox_per_iniz.currentIndexChanged.connect(self.charge_fase_iniz_list)
+        self.comboBox_per_iniz.editTextChanged.connect(self.charge_datazione_list)
+        self.comboBox_per_iniz.currentIndexChanged.connect(self.charge_datazione_list)
+        self.comboBox_fas_iniz.editTextChanged.connect(self.charge_datazione_list)
+        self.comboBox_fas_iniz.currentIndexChanged.connect(self.charge_datazione_list)
         self.search_1.textChanged.connect(self.update_filter)
         
         self.comboBox_per_fin.editTextChanged.connect(self.charge_fase_fin_list)
         self.comboBox_per_fin.currentIndexChanged.connect(self.charge_fase_fin_list)
-
+        
         self.progressBar.setTextVisible(True)
 
         sito = self.comboBox_sito.currentText()
         self.comboBox_sito.setEditText(sito)
         self.charge_periodo_iniz_list()
         self.charge_periodo_fin_list()
+        #self.charge_datazione_list()
         self.charge_struttura_list()
         self.empty_fields()
         self.fill_fields()
@@ -1065,7 +1073,7 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
         try:
             search_dict = {
                 'sito': "'" + str(self.comboBox_sito.currentText()) + "'",
-                'periodo': "'" + str(self.comboBox_per_fin.currentText()) + "'",
+                'periodo': "'" + str(self.comboBox_per_fin.currentText()) + "'"
             }
 
             fase_list_vl = self.DB_MANAGER.query_bool(search_dict, 'PERIODIZZAZIONE')
@@ -1092,6 +1100,38 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
             pass
 
             # buttons functions
+    
+    def charge_datazione_list(self):
+        try:
+            search_dict = {
+                'sito': "'" + str(self.comboBox_sito.currentText()) + "'",
+                'periodo': "'" + str(self.comboBox_per_iniz.currentText()) + "'",
+                'fase': "'" + str(self.comboBox_fas_iniz.currentText()) + "'"
+            }
+
+            datazione_list_vl = self.DB_MANAGER.query_bool(search_dict, 'PERIODIZZAZIONE')
+
+            datazione_list = []
+
+            for i in range(len(datazione_list_vl)):
+                datazione_list.append(str(datazione_list_vl[i].datazione_estesa))
+
+            try:
+                datazione_list.remove('')
+            except:
+                pass
+
+            self.comboBox_datazione.clear()
+            datazione_list.sort()
+            self.comboBox_datazione.addItems(self.UTILITY.remove_dup_from_list(datazione_list))
+
+            if self.STATUS_ITEMS[self.BROWSE_STATUS] == "Trova" or "Find":
+                self.comboBox_datazione.setEditText("")
+            else:
+                self.comboBox_datazione.setEditText(self.DATA_LIST[self.rec_num].datazione_estesa)
+        except:
+            pass
+
     
     def on_pushButton_draw_doc_pressed(self):
         sito = str(self.comboBox_sito.currentText())
@@ -4026,7 +4066,7 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
                 quota_min_abs,  # 73
                 quota_min_rel,  # 74
                 str(self.textEdit_osservazioni.toPlainText()),  # 75 osservazioni
-                str(self.lineEdit_datazione.text()),  # 76 datazione
+                str(self.comboBox_datazione.currentText()),  # 76 datazione
                 str(self.lineEdit_flottazione.text()),  # 77 flottazione
                 str(self.lineEdit_setacciatura.text()),  # 78 setacciatura
                 str(self.lineEdit_affidabilita.text()),  # 79 affidabilita
@@ -4631,7 +4671,7 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
                 self.TABLE_FIELDS[72]:quota_min_abs,  # 73
                 self.TABLE_FIELDS[73]:quota_min_rel,  # 74
                 self.TABLE_FIELDS[74]: "'" + str(self.textEdit_osservazioni.toPlainText()) + "'",  # 75 osservazioni
-                self.TABLE_FIELDS[75]: "'" + str(self.lineEdit_datazione.text()) + "'",  # 76 datazione
+                self.TABLE_FIELDS[75]: "'" + str(self.comboBox_datazione.currentText()) + "'",  # 76 datazione
                 self.TABLE_FIELDS[76]: "'" + str(self.lineEdit_flottazione.text()) + "'",  # 77 flottazione
                 self.TABLE_FIELDS[77]: "'" + str(self.lineEdit_setacciatura.text()) + "'",  # 78 setacciatura
                 self.TABLE_FIELDS[78]: "'" + str(self.lineEdit_affidabilita.text()) + "'",  # 79 affidabilita
@@ -5049,7 +5089,7 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
         self.lineEdit_quota_min_abs.clear()  # 73
         self.lineEdit_quota_min_rel.clear()  # 74
         self.textEdit_osservazioni.clear()  # 75 osservazioni
-        self.lineEdit_datazione.clear()  # 76 datazione
+        self.comboBox_datazione.setEditText("")  # 76 datazione
         self.lineEdit_flottazione.clear()  # 77 flottazione
         self.lineEdit_setacciatura.clear()  # 78 setacciatura
         self.lineEdit_affidabilita.clear()  # 79 affidabilita
@@ -5230,7 +5270,7 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
                 self.lineEdit_quota_min_rel.setText(str(self.DATA_LIST[self.rec_num].quota_min_rel))  # 74 quota_min_rel
 
             str(self.textEdit_osservazioni.setText(self.DATA_LIST[self.rec_num].osservazioni))  # 75 osservazioni
-            str(self.lineEdit_datazione.setText(self.DATA_LIST[self.rec_num].datazione))  # 76 datazione
+            str(self.comboBox_datazione.setEditText(self.DATA_LIST[self.rec_num].datazione))  # 76 datazione
             str(self.lineEdit_flottazione.setText(self.DATA_LIST[self.rec_num].flottazione))  # 77 flottazione
             str(self.lineEdit_setacciatura.setText(self.DATA_LIST[self.rec_num].setacciatura))  # 78 setacciatura
             str(self.lineEdit_affidabilita.setText(self.DATA_LIST[self.rec_num].affidabilita))        # 79 affidabilita
@@ -5495,7 +5535,7 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
             str(quota_min_abs),  # 73
             str(quota_min_rel),  # 74
             str(self.textEdit_osservazioni.toPlainText()),  # 75 osservazioni
-            str(self.lineEdit_datazione.text()),  # 76 datazione
+            str(self.comboBox_datazione.currentText()),  # 76 datazione
             str(self.lineEdit_flottazione.text()),  # 77 flottazione
             str(self.lineEdit_setacciatura.text()),  # 78 setacciatura
             str(self.lineEdit_affidabilita.text()),  # 79 affidabilita

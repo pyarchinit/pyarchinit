@@ -34,7 +34,7 @@ if not packages:
         'SQLAlchemy',
         'SQLAlchemy-Utils',
         'reportlab',
-        'networkx',
+        'pdf2docx',
         'matplotlib',
         'PypeR',
         'graphviz==0.8.3',
