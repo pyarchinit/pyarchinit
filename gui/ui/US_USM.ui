@@ -7049,6 +7049,9 @@ p, li { white-space: pre-wrap; }
      <property name="floating">
       <bool>true</bool>
      </property>
+     <property name="windowTitle">
+      <string>Pdf2Word</string>
+     </property>
      <widget class="QWidget" name="dockWidgetContents_3">
       <layout class="QGridLayout" name="gridLayout_33">
        <item row="1" column="1">
