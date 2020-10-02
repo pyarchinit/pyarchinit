@@ -2713,7 +2713,7 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
             docx_file = self.PDFFOLDER+'/'+filename+'.docx'
 
             # convert pdf to docx
-            parse(pdf_file, docx_file, start=0, end=1)
+            parse(pdf_file, docx_file, start=self.lineEdit_pag1.text(), end=self.lineEdit_pag2.text())
             QMessageBox.information(self, "INFO", "Conversione terminata",
                                 QMessageBox.Ok)
                                 
