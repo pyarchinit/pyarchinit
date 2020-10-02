@@ -12,7 +12,7 @@
 name=pyArchInit
 qgisMinimumVersion=3.0
 description=pyarchinit an tool for archaeological works
-version=1.0.5
+version=1.0.6
 author=Luca Mandolesi & Enzo Cocca
 email=pyarchinit@gmail.com
 
@@ -23,7 +23,13 @@ repository=https://github.com/pyarchinit/pyarchinit
 
 
 
-changelog=release1.0.5:
+changelog=release1.0.6:
+     	-add funzione pdf2word
+     	-add period name into matrix image
+
+  	-----------------------------------------------------------------------------
+
+   release1.0.5:
      	-export iccd US
   	-----------------------------------------------------------------------------
 
