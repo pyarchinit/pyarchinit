@@ -27,6 +27,7 @@ from sqlite3 import Error
 
 import os
 import platform
+from pdf2docx import parse
 from datetime import date
 import cv2
 from qgis.PyQt.QtCore import *
@@ -88,7 +89,8 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
     DB_MANAGER = ""
     TABLE_NAME = 'us_table'
     MAPPER_TABLE_CLASS = "US"
-    
+    HOME = os.environ['PYARCHINIT_HOME']
+    PDFFOLDER = '{}{}{}'.format(HOME, os.sep, "pyarchinit_PDF_folder")
     NOME_SCHEDA = "Scheda US"
     ID_TABLE = "id_us"
     ID_SITO ="sito"
@@ -778,7 +780,8 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
         
         self.comboBox_per_fin.editTextChanged.connect(self.charge_fase_fin_list)
         self.comboBox_per_fin.currentIndexChanged.connect(self.charge_fase_fin_list)
-        
+        self.toolButton_pdfpath.clicked.connect(self.setPathpdf)
+        self.pbnOpenpdfDirectory.clicked.connect(self.openpdfDir)
         self.progressBar.setTextVisible(True)
 
         sito = self.comboBox_sito.currentText()
@@ -2685,6 +2688,52 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
             # US_index_pdf.build_index_US_de(data_list, data_list[0][0])  
         # else:
             # pass    
+    def setPathpdf(self):
+        s = QgsSettings()
+        dbpath = QFileDialog.getOpenFileName(
+            self,
+            "Set file name",
+            self.PDFFOLDER,
+            " PDF (*.pdf)"
+        )[0]
+        #filename=dbpath.split("/")[-1]
+        if dbpath:
+             
+            self.lineEdit_pdf_path.setText(dbpath)
+            s.setValue('',dbpath)
+   
+    def on_pushButton_convert_pressed(self):
+        # if not bool(self.setPathpdf()):    
+            # QMessageBox.warning(self, "INFO", "devi scegliere un file pdf",
+                                # QMessageBox.Ok)
+        
+        try:
+            pdf_file = self.lineEdit_pdf_path.text()
+            filename=pdf_file.split("/")[-1]
+            docx_file = self.PDFFOLDER+'/'+filename+'.docx'
+
+            # convert pdf to docx
+            parse(pdf_file, docx_file, start=0, end=1)
+            QMessageBox.information(self, "INFO", "Conversione terminata",
+                                QMessageBox.Ok)
+                                
+        except Exception as e:
+            QMessageBox.warning(self, "Error", str(e),
+                                QMessageBox.Ok)
+    def openpdfDir(self):
+        HOME = os.environ['PYARCHINIT_HOME']
+        path = '{}{}{}'.format(HOME, os.sep, "pyarchinit_PDF_folder")
+
+        if platform.system() == "Windows":
+            os.startfile(path)
+        elif platform.system() == "Darwin":
+            subprocess.Popen(["open", path])
+        else:
+            subprocess.Popen(["xdg-open", path])
+    
+    
+    
+    
     def on_pushButton_export_matrix_pressed(self):
         id_us_dict = {}
         for i in range(len(self.DATA_LIST)):
