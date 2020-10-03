@@ -256,7 +256,8 @@ class Pyarchinit_db_management(object):
                                           arg[5],
                                           arg[6],
                                           arg[7],
-                                          arg[8])
+                                          arg[8],
+                                          arg[9])
 
         return periodizzazione
 
