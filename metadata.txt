@@ -23,7 +23,13 @@ repository=https://github.com/pyarchinit/pyarchinit
 
 
 
-changelog=release1.0.7:
+changelog=release1.0.8:
+     	-update matrix exportation
+     	-add new filed in table periodization: area
+
+  	-----------------------------------------------------------------------------
+
+   release1.0.7:
      	-add pagine into conversion function
 
   	-----------------------------------------------------------------------------

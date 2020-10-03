@@ -82,7 +82,8 @@ class pyarchinit_Periodizzazione(QDialog, MAIN_DIALOG_CLASS):
             "Cronologia finale": "cron_finale",
             "Descrizione": "descrizione",
             "Datazione estesa": "datazione_estesa",
-            "Codice periodo": "cont_per"
+            "Codice periodo": "cont_per",
+            "Area": "area"
         }
         SORT_ITEMS = [
             ID_TABLE,
@@ -92,7 +93,8 @@ class pyarchinit_Periodizzazione(QDialog, MAIN_DIALOG_CLASS):
             "Descrizione",
             "Cronologia iniziale",
             "Cronologia finale",
-            "Codice periodo"
+            "Codice periodo",
+            "Area"
         ]
     elif L=='de':   
         CONVERSION_DICT = {
@@ -148,7 +150,8 @@ class pyarchinit_Periodizzazione(QDialog, MAIN_DIALOG_CLASS):
         'cron_finale',
         'descrizione',
         'datazione_estesa',
-        'cont_per'
+        'cont_per',
+        'area'
     ]
 
     DB_SERVER = "not defined"  ####nuovo sistema sort
@@ -702,7 +705,10 @@ class pyarchinit_Periodizzazione(QDialog, MAIN_DIALOG_CLASS):
                 cont_per = ''
             else:
                 cont_per = int(self.lineEdit_codice_periodo.text())
-
+            if not self.comboBox_area.currentText():
+                area = ''
+            else:
+                area = int(self.comboBox_area.currentText())
             data = self.DB_MANAGER.insert_periodizzazione_values(
                 self.DB_MANAGER.max_num_id(self.MAPPER_TABLE_CLASS, self.ID_TABLE) + 1,  # 0 - max num id
                 str(self.comboBox_sito.currentText()),  # 1 - Sito
@@ -712,7 +718,8 @@ class pyarchinit_Periodizzazione(QDialog, MAIN_DIALOG_CLASS):
                 int(cron_fin),  # 5 - Cron finale
                 str(self.textEdit_descrizione_per.toPlainText()),  # 6 - Descrizione
                 str(self.lineEdit_per_estesa.text()),  # 7 - Periodizzazione estesa
-                int(cont_per))  # 8 - Cont_per
+                int(cont_per),
+                int(area))    # 8 - Cont_per
 
             try:
                 self.DB_MANAGER.insert_data_session(data)
@@ -1011,7 +1018,10 @@ class pyarchinit_Periodizzazione(QDialog, MAIN_DIALOG_CLASS):
                 fase = "'" + str(self.comboBox_fase.currentText()) + "'"
             else:
                 fase = ""
-
+            if self.comboBox_area.currentText() != "":
+                area = "'" + str(self.comboBox_area.currentText()) + "'"
+            else:
+                area = ""
             search_dict = {
                 'sito': "'" + str(self.comboBox_sito.currentText()) + "'",  # 1 - Sito
                 'periodo': periodo,  # 2 - Periodo
@@ -1020,7 +1030,8 @@ class pyarchinit_Periodizzazione(QDialog, MAIN_DIALOG_CLASS):
                 'cron_finale': cron_finale,  # 5 - Crion finale
                 'descrizione': str(self.textEdit_descrizione_per.toPlainText()),  # 6 - Descrizione
                 'datazione_estesa': "'" + str(self.lineEdit_per_estesa.text()) + "'",  # 7 - Periodizzazione estesa
-                'cont_per': "'" + str(self.lineEdit_codice_periodo.text()) + "'"  # 8 - Codice periodo
+                'cont_per': "'" + str(self.lineEdit_codice_periodo.text()) + "'",  # 8 - Codice periodo
+                'area' : area
             }
 
             u = Utility()
@@ -1188,7 +1199,8 @@ class pyarchinit_Periodizzazione(QDialog, MAIN_DIALOG_CLASS):
         self.lineEdit_cron_fin.clear()  # 5 - Cronologia finale
         self.lineEdit_per_estesa.clear()  # 6 - Datazione estesa
         self.textEdit_descrizione_per.clear()  # 7 - Descrizione
-        self.lineEdit_codice_periodo.clear()  # 8 - Codice periodo
+        self.lineEdit_codice_periodo.clear()
+        self.comboBox_area.setEditText("")        # 8 - Codice periodo
 
     def fill_fields(self, n=0):
         self.rec_num = n
@@ -1215,7 +1227,7 @@ class pyarchinit_Periodizzazione(QDialog, MAIN_DIALOG_CLASS):
                 self.lineEdit_codice_periodo.setText("")
             else:
                 self.lineEdit_codice_periodo.setText(str(self.DATA_LIST[self.rec_num].cont_per))
-
+            self.comboBox_area.setEditText(str(self.DATA_LIST[self.rec_num].area))
         except :
             pass#QMessageBox.warning(self, "Error Fill Fields", str(e), QMessageBox.Ok)
 
@@ -1250,7 +1262,8 @@ class pyarchinit_Periodizzazione(QDialog, MAIN_DIALOG_CLASS):
             str(cron_fin),  # 5 - Cron finale
             str(self.textEdit_descrizione_per.toPlainText()),  # 6 - Descrizioene
             str(self.lineEdit_per_estesa.text()),  # 7 - Cron estesa
-            str(cont_per)]  # 8 - Cont_per
+            str(cont_per),
+            str(self.comboBox_area.currentText())]  # 8 - Cont_per
 
     def set_LIST_REC_CORR(self):
         self.DATA_LIST_REC_CORR = []

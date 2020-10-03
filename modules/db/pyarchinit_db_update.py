@@ -288,7 +288,8 @@ class DB_update(object):
 
         if not table_column_names_list.__contains__('cont_per'):
             self.engine.execute("ALTER TABLE periodizzazione_table ADD COLUMN cont_per integer DEFAULT '' ")
-
+        if not table_column_names_list.__contains__('area'):
+            self.engine.execute("ALTER TABLE periodizzazione_table ADD COLUMN area integer DEFAULT '' ")
         ####inventario_materiali_table
         table = Table("inventario_materiali_table", self.metadata, autoload=True)
         table_column_names_list = []

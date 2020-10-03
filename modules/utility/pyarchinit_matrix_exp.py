@@ -33,21 +33,21 @@ class HarrisMatrix:
     TABLE_NAME = 'us_table'
     MAPPER_TABLE_CLASS = "US"
     ID_TABLE = "id_us"
-    def __init__(self, sequence, periodi):
+    def __init__(self, sequence,negative, periodi):
         self.sequence = sequence
+        self.negative=negative
         self.periodi = periodi
         
     @property
     def export_matrix(self):
         G = Digraph(engine='neato', strict=False)
         G.graph_attr['splines'] = 'ortho'
-        G.graph_attr['dpi'] = '300'
+        G.graph_attr['dpi'] = '400'
         elist = []
-        
+        elist2 = []
         for i in self.sequence:
             a = (i[0], i[1])
             elist.append(a)
-           
         
         with G.subgraph(name='main') as e:
             
@@ -55,16 +55,31 @@ class HarrisMatrix:
             
             e.node_attr['shape'] = 'box'
             e.node_attr['style'] = 'strocked'
+            e.node_attr.update(style='filled', fillcolor="#FCD975")
             e.node_attr['color'] = 'red'    
             e.edge_attr.update(arrowhead='inv', arrowsize='.7')
+            
+            for i in self.negative:
+                a = (i[0], i[1])
+                elist2.append(a)
+            with G.subgraph(name='main') as v:
+                
+                v.edges(elist2)
+                
+                v.node_attr['shape'] = 'box'
+                v.node_attr['style'] = 'dotted'
+                v.node_attr['color'] = 'black'    
+                v.edge_attr.update(arrowhead='curve', arrowsize='.8')    
         for i in self.periodi:
             with G.subgraph(name=i[1]) as c:
-                # c.attr(bgcolor='lightgrey')
+                #c.node_attr.update(style='filled', fillcolor="#FCD975")
                 for n in i[0]:
-                    c.attr('node', shape='square', label=str(n), color='blue')
+                    c.attr('node', shape='square',  label=str(n), color='black')
                     c.node(str(n))
                 c.attr(color='blue')
                 c.attr(label=i[2])
+                
+                
         dt = datetime.datetime.now()
         matrix_path = '{}{}{}'.format(self.HOME, os.sep, "pyarchinit_Matrix_folder")
         filename = ('%s_%s_%s_%s_%s_%s_%s') % (
