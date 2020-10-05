@@ -1,0 +1,1041 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>Dialog_Matrix</class>
+ <widget class="QDialog" name="Dialog_Matrix">
+  <property name="windowModality">
+   <enum>Qt::WindowModal</enum>
+  </property>
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>650</width>
+    <height>163</height>
+   </rect>
+  </property>
+  <property name="sizePolicy">
+   <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
+    <horstretch>0</horstretch>
+    <verstretch>0</verstretch>
+   </sizepolicy>
+  </property>
+  <property name="windowTitle">
+   <string>Setting matrix</string>
+  </property>
+  <property name="sizeGripEnabled">
+   <bool>true</bool>
+  </property>
+  <property name="modal">
+   <bool>true</bool>
+  </property>
+  <widget class="QWidget" name="layoutWidget">
+   <property name="geometry">
+    <rect>
+     <x>10</x>
+     <y>80</y>
+     <width>631</width>
+     <height>62</height>
+    </rect>
+   </property>
+   <property name="sizePolicy">
+    <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
+     <horstretch>0</horstretch>
+     <verstretch>0</verstretch>
+    </sizepolicy>
+   </property>
+   <layout class="QGridLayout" name="gridLayout_3">
+    <item row="2" column="2">
+     <widget class="QComboBox" name="comboBox_2">
+      <property name="sizePolicy">
+       <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
+        <horstretch>0</horstretch>
+        <verstretch>0</verstretch>
+       </sizepolicy>
+      </property>
+      <property name="editable">
+       <bool>true</bool>
+      </property>
+      <property name="currentText">
+       <string>yellow</string>
+      </property>
+      <item>
+       <property name="text">
+        <string>yellow</string>
+       </property>
+      </item>
+      <item>
+       <property name="text">
+        <string>white</string>
+       </property>
+      </item>
+      <item>
+       <property name="text">
+        <string>gray</string>
+       </property>
+      </item>
+      <item>
+       <property name="text">
+        <string>green</string>
+       </property>
+      </item>
+      <item>
+       <property name="text">
+        <string>cyan</string>
+       </property>
+      </item>
+      <item>
+       <property name="text">
+        <string>blue</string>
+       </property>
+      </item>
+      <item>
+       <property name="text">
+        <string>red</string>
+       </property>
+      </item>
+     </widget>
+    </item>
+    <item row="1" column="3">
+     <widget class="QLabel" name="label_5">
+      <property name="sizePolicy">
+       <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
+        <horstretch>0</horstretch>
+        <verstretch>0</verstretch>
+       </sizepolicy>
+      </property>
+      <property name="text">
+       <string>Forma nodo</string>
+      </property>
+     </widget>
+    </item>
+    <item row="1" column="4">
+     <widget class="QLabel" name="label_6">
+      <property name="sizePolicy">
+       <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
+        <horstretch>0</horstretch>
+        <verstretch>0</verstretch>
+       </sizepolicy>
+      </property>
+      <property name="text">
+       <string>Stile nodo</string>
+      </property>
+     </widget>
+    </item>
+    <item row="1" column="2">
+     <widget class="QLabel" name="label_7">
+      <property name="sizePolicy">
+       <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
+        <horstretch>0</horstretch>
+        <verstretch>0</verstretch>
+       </sizepolicy>
+      </property>
+      <property name="text">
+       <string>Colore</string>
+      </property>
+     </widget>
+    </item>
+    <item row="2" column="3">
+     <widget class="QComboBox" name="comboBox_6">
+      <property name="sizePolicy">
+       <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
+        <horstretch>0</horstretch>
+        <verstretch>0</verstretch>
+       </sizepolicy>
+      </property>
+      <property name="editable">
+       <bool>true</bool>
+      </property>
+      <property name="currentText">
+       <string>box</string>
+      </property>
+      <item>
+       <property name="text">
+        <string>box</string>
+       </property>
+      </item>
+      <item>
+       <property name="text">
+        <string>oval</string>
+       </property>
+      </item>
+      <item>
+       <property name="text">
+        <string>triangle</string>
+       </property>
+      </item>
+      <item>
+       <property name="text">
+        <string>circle</string>
+       </property>
+      </item>
+      <item>
+       <property name="text">
+        <string>plaintext</string>
+       </property>
+      </item>
+      <item>
+       <property name="text">
+        <string>octagon</string>
+       </property>
+      </item>
+     </widget>
+    </item>
+    <item row="1" column="5">
+     <widget class="QLabel" name="label_8">
+      <property name="sizePolicy">
+       <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
+        <horstretch>0</horstretch>
+        <verstretch>0</verstretch>
+       </sizepolicy>
+      </property>
+      <property name="text">
+       <string>Larghezza tratto</string>
+      </property>
+     </widget>
+    </item>
+    <item row="2" column="5">
+     <widget class="QComboBox" name="comboBox_7">
+      <property name="sizePolicy">
+       <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
+        <horstretch>0</horstretch>
+        <verstretch>0</verstretch>
+       </sizepolicy>
+      </property>
+      <property name="editable">
+       <bool>true</bool>
+      </property>
+      <property name="currentText">
+       <string>.1</string>
+      </property>
+      <item>
+       <property name="text">
+        <string>.1</string>
+       </property>
+      </item>
+      <item>
+       <property name="text">
+        <string>.3</string>
+       </property>
+      </item>
+      <item>
+       <property name="text">
+        <string>.5</string>
+       </property>
+      </item>
+      <item>
+       <property name="text">
+        <string>1</string>
+       </property>
+      </item>
+      <item>
+       <property name="text">
+        <string>1.5</string>
+       </property>
+      </item>
+      <item>
+       <property name="text">
+        <string>2</string>
+       </property>
+      </item>
+      <item>
+       <property name="text">
+        <string>3</string>
+       </property>
+      </item>
+     </widget>
+    </item>
+    <item row="1" column="1">
+     <widget class="QLabel" name="label_15">
+      <property name="sizePolicy">
+       <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
+        <horstretch>0</horstretch>
+        <verstretch>0</verstretch>
+       </sizepolicy>
+      </property>
+      <property name="text">
+       <string>Riempimento</string>
+      </property>
+     </widget>
+    </item>
+    <item row="2" column="1">
+     <widget class="QComboBox" name="comboBox_13">
+      <property name="sizePolicy">
+       <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
+        <horstretch>0</horstretch>
+        <verstretch>0</verstretch>
+       </sizepolicy>
+      </property>
+      <property name="editable">
+       <bool>true</bool>
+      </property>
+      <item>
+       <property name="text">
+        <string>filled</string>
+       </property>
+      </item>
+     </widget>
+    </item>
+    <item row="1" column="7">
+     <widget class="QLabel" name="label_16">
+      <property name="sizePolicy">
+       <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
+        <horstretch>0</horstretch>
+        <verstretch>0</verstretch>
+       </sizepolicy>
+      </property>
+      <property name="text">
+       <string>Aggancio</string>
+      </property>
+     </widget>
+    </item>
+    <item row="1" column="6">
+     <widget class="QLabel" name="label_17">
+      <property name="sizePolicy">
+       <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
+        <horstretch>0</horstretch>
+        <verstretch>0</verstretch>
+       </sizepolicy>
+      </property>
+      <property name="text">
+       <string>Stile tratto</string>
+      </property>
+     </widget>
+    </item>
+    <item row="1" column="8">
+     <widget class="QLabel" name="label_18">
+      <property name="sizePolicy">
+       <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
+        <horstretch>0</horstretch>
+        <verstretch>0</verstretch>
+       </sizepolicy>
+      </property>
+      <property name="text">
+       <string>Grandezza aggancio</string>
+      </property>
+     </widget>
+    </item>
+    <item row="2" column="7">
+     <widget class="QComboBox" name="comboBox_14">
+      <property name="sizePolicy">
+       <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
+        <horstretch>0</horstretch>
+        <verstretch>0</verstretch>
+       </sizepolicy>
+      </property>
+      <property name="editable">
+       <bool>true</bool>
+      </property>
+      <item>
+       <property name="text">
+        <string>box</string>
+       </property>
+      </item>
+      <item>
+       <property name="text">
+        <string>dot</string>
+       </property>
+      </item>
+      <item>
+       <property name="text">
+        <string>icurve</string>
+       </property>
+      </item>
+      <item>
+       <property name="text">
+        <string>curve</string>
+       </property>
+      </item>
+      <item>
+       <property name="text">
+        <string>none</string>
+       </property>
+      </item>
+      <item>
+       <property name="text">
+        <string>inv</string>
+       </property>
+      </item>
+      <item>
+       <property name="text">
+        <string>tee</string>
+       </property>
+      </item>
+      <item>
+       <property name="text">
+        <string>diamond</string>
+       </property>
+      </item>
+     </widget>
+    </item>
+    <item row="0" column="1" colspan="2">
+     <widget class="QLabel" name="label_10">
+      <property name="sizePolicy">
+       <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
+        <horstretch>0</horstretch>
+        <verstretch>0</verstretch>
+       </sizepolicy>
+      </property>
+      <property name="text">
+       <string>US negative</string>
+      </property>
+     </widget>
+    </item>
+    <item row="2" column="4">
+     <widget class="QComboBox" name="comboBox_8">
+      <property name="sizePolicy">
+       <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
+        <horstretch>0</horstretch>
+        <verstretch>0</verstretch>
+       </sizepolicy>
+      </property>
+      <property name="editable">
+       <bool>true</bool>
+      </property>
+      <property name="currentText">
+       <string>solid</string>
+      </property>
+      <item>
+       <property name="text">
+        <string>solid</string>
+       </property>
+      </item>
+      <item>
+       <property name="text">
+        <string>strocked</string>
+       </property>
+      </item>
+      <item>
+       <property name="text">
+        <string>dashed</string>
+       </property>
+      </item>
+      <item>
+       <property name="text">
+        <string>dotted</string>
+       </property>
+      </item>
+      <item>
+       <property name="text">
+        <string>bold</string>
+       </property>
+      </item>
+     </widget>
+    </item>
+    <item row="2" column="6">
+     <widget class="QComboBox" name="comboBox_15">
+      <property name="sizePolicy">
+       <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
+        <horstretch>0</horstretch>
+        <verstretch>0</verstretch>
+       </sizepolicy>
+      </property>
+      <property name="editable">
+       <bool>true</bool>
+      </property>
+      <property name="currentText">
+       <string>solid</string>
+      </property>
+      <item>
+       <property name="text">
+        <string>solid</string>
+       </property>
+      </item>
+      <item>
+       <property name="text">
+        <string>strocked</string>
+       </property>
+      </item>
+      <item>
+       <property name="text">
+        <string>dashed</string>
+       </property>
+      </item>
+      <item>
+       <property name="text">
+        <string>dotted</string>
+       </property>
+      </item>
+      <item>
+       <property name="text">
+        <string>bold</string>
+       </property>
+      </item>
+     </widget>
+    </item>
+    <item row="2" column="8">
+     <widget class="QComboBox" name="comboBox_16">
+      <property name="sizePolicy">
+       <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
+        <horstretch>0</horstretch>
+        <verstretch>0</verstretch>
+       </sizepolicy>
+      </property>
+      <property name="editable">
+       <bool>true</bool>
+      </property>
+      <property name="currentText">
+       <string>.1</string>
+      </property>
+      <item>
+       <property name="text">
+        <string>.1</string>
+       </property>
+      </item>
+      <item>
+       <property name="text">
+        <string>.3</string>
+       </property>
+      </item>
+      <item>
+       <property name="text">
+        <string>.5</string>
+       </property>
+      </item>
+      <item>
+       <property name="text">
+        <string>1</string>
+       </property>
+      </item>
+      <item>
+       <property name="text">
+        <string>1.5</string>
+       </property>
+      </item>
+      <item>
+       <property name="text">
+        <string>2</string>
+       </property>
+      </item>
+      <item>
+       <property name="text">
+        <string>3</string>
+       </property>
+      </item>
+     </widget>
+    </item>
+   </layout>
+  </widget>
+  <widget class="QWidget" name="">
+   <property name="geometry">
+    <rect>
+     <x>10</x>
+     <y>0</y>
+     <width>631</width>
+     <height>62</height>
+    </rect>
+   </property>
+   <property name="sizePolicy">
+    <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
+     <horstretch>0</horstretch>
+     <verstretch>0</verstretch>
+    </sizepolicy>
+   </property>
+   <layout class="QGridLayout" name="gridLayout_2">
+    <item row="2" column="2">
+     <widget class="QComboBox" name="comboBox">
+      <property name="sizePolicy">
+       <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
+        <horstretch>0</horstretch>
+        <verstretch>0</verstretch>
+       </sizepolicy>
+      </property>
+      <property name="editable">
+       <bool>true</bool>
+      </property>
+      <property name="currentText">
+       <string>yellow</string>
+      </property>
+      <item>
+       <property name="text">
+        <string>yellow</string>
+       </property>
+      </item>
+      <item>
+       <property name="text">
+        <string>white</string>
+       </property>
+      </item>
+      <item>
+       <property name="text">
+        <string>gray</string>
+       </property>
+      </item>
+      <item>
+       <property name="text">
+        <string>green</string>
+       </property>
+      </item>
+      <item>
+       <property name="text">
+        <string>cyan</string>
+       </property>
+      </item>
+      <item>
+       <property name="text">
+        <string>blue</string>
+       </property>
+      </item>
+      <item>
+       <property name="text">
+        <string>red</string>
+       </property>
+      </item>
+     </widget>
+    </item>
+    <item row="1" column="3">
+     <widget class="QLabel" name="label_2">
+      <property name="sizePolicy">
+       <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
+        <horstretch>0</horstretch>
+        <verstretch>0</verstretch>
+       </sizepolicy>
+      </property>
+      <property name="text">
+       <string>Forma nodo</string>
+      </property>
+     </widget>
+    </item>
+    <item row="1" column="4">
+     <widget class="QLabel" name="label_3">
+      <property name="sizePolicy">
+       <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
+        <horstretch>0</horstretch>
+        <verstretch>0</verstretch>
+       </sizepolicy>
+      </property>
+      <property name="text">
+       <string>Stile nodo</string>
+      </property>
+     </widget>
+    </item>
+    <item row="1" column="2">
+     <widget class="QLabel" name="label">
+      <property name="sizePolicy">
+       <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
+        <horstretch>0</horstretch>
+        <verstretch>0</verstretch>
+       </sizepolicy>
+      </property>
+      <property name="text">
+       <string>Colore</string>
+      </property>
+     </widget>
+    </item>
+    <item row="2" column="3">
+     <widget class="QComboBox" name="comboBox_3">
+      <property name="sizePolicy">
+       <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
+        <horstretch>0</horstretch>
+        <verstretch>0</verstretch>
+       </sizepolicy>
+      </property>
+      <property name="editable">
+       <bool>true</bool>
+      </property>
+      <property name="currentText">
+       <string>box</string>
+      </property>
+      <item>
+       <property name="text">
+        <string>box</string>
+       </property>
+      </item>
+      <item>
+       <property name="text">
+        <string>oval</string>
+       </property>
+      </item>
+      <item>
+       <property name="text">
+        <string>triangle</string>
+       </property>
+      </item>
+      <item>
+       <property name="text">
+        <string>circle</string>
+       </property>
+      </item>
+      <item>
+       <property name="text">
+        <string>plaintext</string>
+       </property>
+      </item>
+      <item>
+       <property name="text">
+        <string>octagon</string>
+       </property>
+      </item>
+     </widget>
+    </item>
+    <item row="1" column="5">
+     <widget class="QLabel" name="label_4">
+      <property name="sizePolicy">
+       <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
+        <horstretch>0</horstretch>
+        <verstretch>0</verstretch>
+       </sizepolicy>
+      </property>
+      <property name="text">
+       <string>Larghezza tratto</string>
+      </property>
+     </widget>
+    </item>
+    <item row="2" column="5">
+     <widget class="QComboBox" name="comboBox_5">
+      <property name="sizePolicy">
+       <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
+        <horstretch>0</horstretch>
+        <verstretch>0</verstretch>
+       </sizepolicy>
+      </property>
+      <property name="editable">
+       <bool>true</bool>
+      </property>
+      <property name="currentText">
+       <string>.1</string>
+      </property>
+      <item>
+       <property name="text">
+        <string>.1</string>
+       </property>
+      </item>
+      <item>
+       <property name="text">
+        <string>.3</string>
+       </property>
+      </item>
+      <item>
+       <property name="text">
+        <string>.5</string>
+       </property>
+      </item>
+      <item>
+       <property name="text">
+        <string>1</string>
+       </property>
+      </item>
+      <item>
+       <property name="text">
+        <string>1.5</string>
+       </property>
+      </item>
+      <item>
+       <property name="text">
+        <string>2</string>
+       </property>
+      </item>
+      <item>
+       <property name="text">
+        <string>3</string>
+       </property>
+      </item>
+     </widget>
+    </item>
+    <item row="1" column="1">
+     <widget class="QLabel" name="label_11">
+      <property name="sizePolicy">
+       <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
+        <horstretch>0</horstretch>
+        <verstretch>0</verstretch>
+       </sizepolicy>
+      </property>
+      <property name="text">
+       <string>Riempimento</string>
+      </property>
+     </widget>
+    </item>
+    <item row="2" column="1">
+     <widget class="QComboBox" name="comboBox_9">
+      <property name="sizePolicy">
+       <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
+        <horstretch>0</horstretch>
+        <verstretch>0</verstretch>
+       </sizepolicy>
+      </property>
+      <property name="editable">
+       <bool>true</bool>
+      </property>
+      <item>
+       <property name="text">
+        <string>filled</string>
+       </property>
+      </item>
+     </widget>
+    </item>
+    <item row="1" column="7">
+     <widget class="QLabel" name="label_13">
+      <property name="sizePolicy">
+       <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
+        <horstretch>0</horstretch>
+        <verstretch>0</verstretch>
+       </sizepolicy>
+      </property>
+      <property name="text">
+       <string>Aggancio</string>
+      </property>
+     </widget>
+    </item>
+    <item row="1" column="6">
+     <widget class="QLabel" name="label_12">
+      <property name="sizePolicy">
+       <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
+        <horstretch>0</horstretch>
+        <verstretch>0</verstretch>
+       </sizepolicy>
+      </property>
+      <property name="text">
+       <string>Stile tratto</string>
+      </property>
+     </widget>
+    </item>
+    <item row="1" column="8">
+     <widget class="QLabel" name="label_14">
+      <property name="sizePolicy">
+       <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
+        <horstretch>0</horstretch>
+        <verstretch>0</verstretch>
+       </sizepolicy>
+      </property>
+      <property name="text">
+       <string>Grandezza aggancio</string>
+      </property>
+     </widget>
+    </item>
+    <item row="2" column="7">
+     <widget class="QComboBox" name="comboBox_11">
+      <property name="sizePolicy">
+       <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
+        <horstretch>0</horstretch>
+        <verstretch>0</verstretch>
+       </sizepolicy>
+      </property>
+      <property name="editable">
+       <bool>true</bool>
+      </property>
+      <item>
+       <property name="text">
+        <string>box</string>
+       </property>
+      </item>
+      <item>
+       <property name="text">
+        <string>dot</string>
+       </property>
+      </item>
+      <item>
+       <property name="text">
+        <string>icurve</string>
+       </property>
+      </item>
+      <item>
+       <property name="text">
+        <string>curve</string>
+       </property>
+      </item>
+      <item>
+       <property name="text">
+        <string>none</string>
+       </property>
+      </item>
+      <item>
+       <property name="text">
+        <string>inv</string>
+       </property>
+      </item>
+      <item>
+       <property name="text">
+        <string>tee</string>
+       </property>
+      </item>
+      <item>
+       <property name="text">
+        <string>diamond</string>
+       </property>
+      </item>
+     </widget>
+    </item>
+    <item row="0" column="1" colspan="2">
+     <widget class="QLabel" name="label_9">
+      <property name="sizePolicy">
+       <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
+        <horstretch>0</horstretch>
+        <verstretch>0</verstretch>
+       </sizepolicy>
+      </property>
+      <property name="text">
+       <string>US positive</string>
+      </property>
+     </widget>
+    </item>
+    <item row="2" column="4">
+     <widget class="QComboBox" name="comboBox_4">
+      <property name="sizePolicy">
+       <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
+        <horstretch>0</horstretch>
+        <verstretch>0</verstretch>
+       </sizepolicy>
+      </property>
+      <property name="editable">
+       <bool>true</bool>
+      </property>
+      <property name="currentText">
+       <string>solid</string>
+      </property>
+      <item>
+       <property name="text">
+        <string>solid</string>
+       </property>
+      </item>
+      <item>
+       <property name="text">
+        <string>strocked</string>
+       </property>
+      </item>
+      <item>
+       <property name="text">
+        <string>dashed</string>
+       </property>
+      </item>
+      <item>
+       <property name="text">
+        <string>dotted</string>
+       </property>
+      </item>
+      <item>
+       <property name="text">
+        <string>bold</string>
+       </property>
+      </item>
+     </widget>
+    </item>
+    <item row="2" column="6">
+     <widget class="QComboBox" name="comboBox_10">
+      <property name="sizePolicy">
+       <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
+        <horstretch>0</horstretch>
+        <verstretch>0</verstretch>
+       </sizepolicy>
+      </property>
+      <property name="editable">
+       <bool>true</bool>
+      </property>
+      <property name="currentText">
+       <string>solid</string>
+      </property>
+      <item>
+       <property name="text">
+        <string>solid</string>
+       </property>
+      </item>
+      <item>
+       <property name="text">
+        <string>strocked</string>
+       </property>
+      </item>
+      <item>
+       <property name="text">
+        <string>dashed</string>
+       </property>
+      </item>
+      <item>
+       <property name="text">
+        <string>dotted</string>
+       </property>
+      </item>
+      <item>
+       <property name="text">
+        <string>bold</string>
+       </property>
+      </item>
+     </widget>
+    </item>
+    <item row="2" column="8">
+     <widget class="QComboBox" name="comboBox_12">
+      <property name="sizePolicy">
+       <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
+        <horstretch>0</horstretch>
+        <verstretch>0</verstretch>
+       </sizepolicy>
+      </property>
+      <property name="editable">
+       <bool>true</bool>
+      </property>
+      <property name="currentText">
+       <string>.1</string>
+      </property>
+      <item>
+       <property name="text">
+        <string>.1</string>
+       </property>
+      </item>
+      <item>
+       <property name="text">
+        <string>.3</string>
+       </property>
+      </item>
+      <item>
+       <property name="text">
+        <string>.5</string>
+       </property>
+      </item>
+      <item>
+       <property name="text">
+        <string>1</string>
+       </property>
+      </item>
+      <item>
+       <property name="text">
+        <string>1.5</string>
+       </property>
+      </item>
+      <item>
+       <property name="text">
+        <string>2</string>
+       </property>
+      </item>
+      <item>
+       <property name="text">
+        <string>3</string>
+       </property>
+      </item>
+     </widget>
+    </item>
+   </layout>
+  </widget>
+ </widget>
+ <resources/>
+ <connections>
+  <connection>
+   <sender>comboBox</sender>
+   <signal>currentTextChanged(QString)</signal>
+   <receiver>comboBox</receiver>
+   <slot>setEditText(QString)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>89</x>
+     <y>110</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>89</x>
+     <y>110</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>comboBox</sender>
+   <signal>currentTextChanged(QString)</signal>
+   <receiver>comboBox</receiver>
+   <slot>update()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>89</x>
+     <y>110</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>89</x>
+     <y>110</y>
+    </hint>
+   </hints>
+  </connection>
+ </connections>
+</ui>
