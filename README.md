@@ -37,7 +37,7 @@ https://www.adarteinfo.it/FTP/pyarchinit-download/pyarchinit.xml
 * [Graphviz Visualization Software](https://www.graphviz.org/)
 * [graphviz python module](https://github.com/xflr6/graphviz)
 * matplotlib
-* networkx
+* pdf2docx
 * pysftp
 
 The dependencies can be installed using the [modules_installer.py](/scripts/modules_installer.py) by running it from within a python shell:
