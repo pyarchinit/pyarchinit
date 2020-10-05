@@ -26,25 +26,31 @@ from datetime import date
 from graphviz import Digraph, Source
 from .pyarchinit_OS_utility import Pyarchinit_OS_Utility
 from ..db.pyarchinit_db_manager import Pyarchinit_db_management
-
+#from ...tabs.pyarchinit_setting_matrix import Setting_Matrix
 class HarrisMatrix:
     HOME = os.environ['PYARCHINIT_HOME']
     DB_MANAGER = ""
     TABLE_NAME = 'us_table'
     MAPPER_TABLE_CLASS = "US"
     ID_TABLE = "id_us"
+    MATRIX = ''
     def __init__(self, sequence,negative, periodi):
         self.sequence = sequence
         self.negative=negative
         self.periodi = periodi
-        
+        # self.MATRIX = Setting_Matrix()
+        # self.color_str = self.MATRIX.Ucolor()
     @property
     def export_matrix(self):
+        
         G = Digraph(engine='neato', strict=False)
         G.graph_attr['splines'] = 'ortho'
         G.graph_attr['dpi'] = '400'
+        
         elist = []
         elist2 = []
+       
+        
         for i in self.sequence:
             a = (i[0], i[1])
             elist.append(a)
@@ -53,10 +59,12 @@ class HarrisMatrix:
             
             e.edges(elist)
             
-            e.node_attr['shape'] = 'box'
+            e.node_attr['shape'] = 'square'
             e.node_attr['style'] = 'strocked'
-            e.node_attr.update(style='filled', fillcolor="#FCD975")
+            e.node_attr.update(style='filled', fillcolor="white")##{}'.format(self.color_str))
             e.node_attr['color'] = 'red'    
+            e.edge_attr['penwidth'] = '.5'
+            e.edge_attr['style'] = 'solid'
             e.edge_attr.update(arrowhead='inv', arrowsize='.7')
             
             for i in self.negative:
@@ -66,20 +74,25 @@ class HarrisMatrix:
                 
                 v.edges(elist2)
                 
-                v.node_attr['shape'] = 'box'
+                v.node_attr['shape'] = 'square'
+                
+                v.node_attr.update(style='filled', fillcolor="lightgray:white")
                 v.node_attr['style'] = 'dotted'
-                v.node_attr['color'] = 'black'    
-                v.edge_attr.update(arrowhead='curve', arrowsize='.8')    
+                v.node_attr['color'] = 'black'
+                v.edge_attr['penwidth'] = '.5'
+                v.edge_attr['style'] = 'dashed'      
+                v.edge_attr.update(arrowhead='tee', arrowsize='.8')    
         for i in self.periodi:
             with G.subgraph(name=i[1]) as c:
                 #c.node_attr.update(style='filled', fillcolor="#FCD975")
                 for n in i[0]:
-                    c.attr('node', shape='square',  label=str(n), color='black')
+                    c.attr('node', shape='box', label =str(n))
                     c.node(str(n))
                 c.attr(color='blue')
-                c.attr(label=i[2])
-                
-                
+                c.attr('node', shape='box', fillcolor='white', style='filled', gradientangle='90',label=i[2])
+                c.node(i[2])
+        
+        
         dt = datetime.datetime.now()
         matrix_path = '{}{}{}'.format(self.HOME, os.sep, "pyarchinit_Matrix_folder")
         filename = ('%s_%s_%s_%s_%s_%s_%s') % (

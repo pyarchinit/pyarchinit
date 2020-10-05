@@ -50,11 +50,13 @@ from ..modules.utility.pyarchinit_exp_Periodosheet_pdf import generate_US_pdf
 from ..modules.utility.pyarchinit_exp_USsheet_pdf import generate_US_pdf
 from ..modules.utility.pyarchinit_print_utility import Print_utility
 from ..modules.utility.settings import Settings
+from .pyarchinit_setting_matrix import Setting_Matrix
 from ..searchLayers import SearchLayers
 from ..gui.imageViewer import ImageViewer
 from ..gui.sortpanelmain import SortPanelMain
 from ..resources.resources_rc import *
 from ..gui.pyarchinitConfigDialog import pyArchInitDialog_Config
+
 MAIN_DIALOG_CLASS, _ = loadUiType(
     os.path.join(os.path.dirname(__file__), os.pardir, 'gui', 'ui', 'US_USM.ui'))
 
@@ -798,6 +800,17 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
         self.set_sito()
         self.show()
         self.listview_us()
+        
+    def on_set_matrix_clicked(self, checked=None):
+        if checked==None: return
+        dialog = QDialog()
+        dialog.ui = Setting_Matrix()
+        #dialog.ui.comboBox.setCurrentText(str(dialog.ui.comboBox.currentIndexChanged()))
+        dialog.ui.setupUi(dialog)
+        #dialog.setAttribute(Qt.WA_DeleteOnClose)
+        
+        dialog.exec_()
+    
     def listview_us(self):    #self.loadMedialist()
         conn = Connection()
         conn_str = conn.conn_str()

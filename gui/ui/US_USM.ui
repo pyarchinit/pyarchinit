@@ -2147,6 +2147,174 @@ border-color: rgb(0, 0, 0);
      </item>
     </layout>
    </item>
+   <item row="1" column="1">
+    <widget class="QgsDockWidget" name="mDockWidget_3">
+     <property name="sizePolicy">
+      <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
+       <horstretch>0</horstretch>
+       <verstretch>0</verstretch>
+      </sizepolicy>
+     </property>
+     <property name="minimumSize">
+      <size>
+       <width>600</width>
+       <height>89</height>
+      </size>
+     </property>
+     <property name="floating">
+      <bool>true</bool>
+     </property>
+     <property name="windowTitle">
+      <string>Pdf2Word</string>
+     </property>
+     <widget class="QWidget" name="dockWidgetContents_3">
+      <widget class="QLineEdit" name="lineEdit_pdf_path">
+       <property name="geometry">
+        <rect>
+         <x>57</x>
+         <y>10</y>
+         <width>311</width>
+         <height>20</height>
+        </rect>
+       </property>
+       <property name="acceptDrops">
+        <bool>true</bool>
+       </property>
+       <property name="text">
+        <string/>
+       </property>
+       <property name="placeholderText">
+        <string>choose the pdf convert to word</string>
+       </property>
+      </widget>
+      <widget class="QToolButton" name="toolButton_pdfpath">
+       <property name="geometry">
+        <rect>
+         <x>371</x>
+         <y>11</y>
+         <width>22</width>
+         <height>19</height>
+        </rect>
+       </property>
+       <property name="text">
+        <string>...</string>
+       </property>
+      </widget>
+      <widget class="QPushButton" name="pbnOpenpdfDirectory">
+       <property name="geometry">
+        <rect>
+         <x>480</x>
+         <y>9</y>
+         <width>75</width>
+         <height>23</height>
+        </rect>
+       </property>
+       <property name="text">
+        <string>Open folder</string>
+       </property>
+      </widget>
+      <widget class="QLabel" name="label_50">
+       <property name="geometry">
+        <rect>
+         <x>9</x>
+         <y>9</y>
+         <width>42</width>
+         <height>16</height>
+        </rect>
+       </property>
+       <property name="text">
+        <string>PDF path</string>
+       </property>
+      </widget>
+      <widget class="QPushButton" name="pushButton_convert">
+       <property name="geometry">
+        <rect>
+         <x>399</x>
+         <y>9</y>
+         <width>75</width>
+         <height>23</height>
+        </rect>
+       </property>
+       <property name="text">
+        <string>Convert</string>
+       </property>
+      </widget>
+      <widget class="QLineEdit" name="lineEdit_pag1">
+       <property name="geometry">
+        <rect>
+         <x>57</x>
+         <y>38</y>
+         <width>40</width>
+         <height>20</height>
+        </rect>
+       </property>
+       <property name="minimumSize">
+        <size>
+         <width>0</width>
+         <height>0</height>
+        </size>
+       </property>
+       <property name="maximumSize">
+        <size>
+         <width>40</width>
+         <height>16777215</height>
+        </size>
+       </property>
+       <property name="toolTip">
+        <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Lo &amp;quot;0&amp;quot; indica la prima pagina da convertire&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+       </property>
+       <property name="inputMask">
+        <string extracomment="Lo&quot;0&quot; indica la prima pagina"/>
+       </property>
+       <property name="text">
+        <string>0</string>
+       </property>
+      </widget>
+      <widget class="QLineEdit" name="lineEdit_pag2">
+       <property name="geometry">
+        <rect>
+         <x>120</x>
+         <y>38</y>
+         <width>40</width>
+         <height>20</height>
+        </rect>
+       </property>
+       <property name="maximumSize">
+        <size>
+         <width>40</width>
+         <height>16777215</height>
+        </size>
+       </property>
+      </widget>
+      <widget class="QLabel" name="label_51">
+       <property name="geometry">
+        <rect>
+         <x>9</x>
+         <y>38</y>
+         <width>41</width>
+         <height>16</height>
+        </rect>
+       </property>
+       <property name="text">
+        <string>Pagg.</string>
+       </property>
+      </widget>
+      <widget class="QLabel" name="label_59">
+       <property name="geometry">
+        <rect>
+         <x>105</x>
+         <y>38</y>
+         <width>16</width>
+         <height>16</height>
+        </rect>
+       </property>
+       <property name="text">
+        <string>to</string>
+       </property>
+      </widget>
+     </widget>
+    </widget>
+   </item>
    <item row="7" column="0" colspan="3">
     <widget class="QTabWidget" name="tabWidget">
      <property name="sizePolicy">
@@ -2180,7 +2348,7 @@ border-color: rgb(0, 0, 0);
       <string notr="true"/>
      </property>
      <property name="currentIndex">
-      <number>0</number>
+      <number>9</number>
      </property>
      <property name="movable">
       <bool>true</bool>
@@ -6520,6 +6688,13 @@ p, li { white-space: pre-wrap; }
                 </property>
                </widget>
               </item>
+              <item row="6" column="1">
+               <widget class="QPushButton" name="set_matrix">
+                <property name="text">
+                 <string>setting</string>
+                </property>
+               </widget>
+              </item>
              </layout>
             </widget>
            </widget>
@@ -7032,174 +7207,6 @@ p, li { white-space: pre-wrap; }
      </widget>
     </widget>
    </item>
-   <item row="1" column="1">
-    <widget class="QgsDockWidget" name="mDockWidget_3">
-     <property name="sizePolicy">
-      <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
-       <horstretch>0</horstretch>
-       <verstretch>0</verstretch>
-      </sizepolicy>
-     </property>
-     <property name="minimumSize">
-      <size>
-       <width>600</width>
-       <height>89</height>
-      </size>
-     </property>
-     <property name="floating">
-      <bool>true</bool>
-     </property>
-     <property name="windowTitle">
-      <string>Pdf2Word</string>
-     </property>
-     <widget class="QWidget" name="dockWidgetContents_3">
-      <widget class="QLineEdit" name="lineEdit_pdf_path">
-       <property name="geometry">
-        <rect>
-         <x>57</x>
-         <y>10</y>
-         <width>311</width>
-         <height>20</height>
-        </rect>
-       </property>
-       <property name="acceptDrops">
-        <bool>true</bool>
-       </property>
-       <property name="text">
-        <string/>
-       </property>
-       <property name="placeholderText">
-        <string>choose the pdf convert to word</string>
-       </property>
-      </widget>
-      <widget class="QToolButton" name="toolButton_pdfpath">
-       <property name="geometry">
-        <rect>
-         <x>371</x>
-         <y>11</y>
-         <width>22</width>
-         <height>19</height>
-        </rect>
-       </property>
-       <property name="text">
-        <string>...</string>
-       </property>
-      </widget>
-      <widget class="QPushButton" name="pbnOpenpdfDirectory">
-       <property name="geometry">
-        <rect>
-         <x>480</x>
-         <y>9</y>
-         <width>75</width>
-         <height>23</height>
-        </rect>
-       </property>
-       <property name="text">
-        <string>Open folder</string>
-       </property>
-      </widget>
-      <widget class="QLabel" name="label_50">
-       <property name="geometry">
-        <rect>
-         <x>9</x>
-         <y>9</y>
-         <width>42</width>
-         <height>16</height>
-        </rect>
-       </property>
-       <property name="text">
-        <string>PDF path</string>
-       </property>
-      </widget>
-      <widget class="QPushButton" name="pushButton_convert">
-       <property name="geometry">
-        <rect>
-         <x>399</x>
-         <y>9</y>
-         <width>75</width>
-         <height>23</height>
-        </rect>
-       </property>
-       <property name="text">
-        <string>Convert</string>
-       </property>
-      </widget>
-      <widget class="QLineEdit" name="lineEdit_pag1">
-       <property name="geometry">
-        <rect>
-         <x>57</x>
-         <y>38</y>
-         <width>40</width>
-         <height>20</height>
-        </rect>
-       </property>
-       <property name="minimumSize">
-        <size>
-         <width>0</width>
-         <height>0</height>
-        </size>
-       </property>
-       <property name="maximumSize">
-        <size>
-         <width>40</width>
-         <height>16777215</height>
-        </size>
-       </property>
-       <property name="toolTip">
-        <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Lo &amp;quot;0&amp;quot; indica la prima pagina da convertire&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-       </property>
-       <property name="inputMask">
-        <string extracomment="Lo&quot;0&quot; indica la prima pagina"/>
-       </property>
-       <property name="text">
-        <string>0</string>
-       </property>
-      </widget>
-      <widget class="QLineEdit" name="lineEdit_pag2">
-       <property name="geometry">
-        <rect>
-         <x>120</x>
-         <y>38</y>
-         <width>40</width>
-         <height>20</height>
-        </rect>
-       </property>
-       <property name="maximumSize">
-        <size>
-         <width>40</width>
-         <height>16777215</height>
-        </size>
-       </property>
-      </widget>
-      <widget class="QLabel" name="label_51">
-       <property name="geometry">
-        <rect>
-         <x>9</x>
-         <y>38</y>
-         <width>41</width>
-         <height>16</height>
-        </rect>
-       </property>
-       <property name="text">
-        <string>Pagg.</string>
-       </property>
-      </widget>
-      <widget class="QLabel" name="label_59">
-       <property name="geometry">
-        <rect>
-         <x>105</x>
-         <y>38</y>
-         <width>16</width>
-         <height>16</height>
-        </rect>
-       </property>
-       <property name="text">
-        <string>to</string>
-       </property>
-      </widget>
-     </widget>
-    </widget>
-   </item>
   </layout>
  </widget>
  <layoutdefault spacing="7" margin="11"/>
@@ -7383,7 +7390,7 @@ p, li { white-space: pre-wrap; }
    <slot>toggleUserVisible()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>497</x>
+     <x>470</x>
      <y>58</y>
     </hint>
     <hint type="destinationlabel">
@@ -7399,8 +7406,8 @@ p, li { white-space: pre-wrap; }
    <slot>toggleUserVisible()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>446</x>
-     <y>40</y>
+     <x>428</x>
+     <y>58</y>
     </hint>
     <hint type="destinationlabel">
      <x>258</x>
