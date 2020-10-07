@@ -23,9 +23,15 @@ repository=https://github.com/pyarchinit/pyarchinit
 
 
 
-changelog=release1.0.9:
+changelog=release1.1.0:
+     	-update matrix exportation
+     	- update us.ui
+
+   ----------------------------------------------------------------------------
+   release1.0.9:
      	-update matrix exportation
 
+   -----------------------------------------------------------------------------
    release1.0.8:
      	-update matrix exportation
      	-add new filed in table periodization: area
