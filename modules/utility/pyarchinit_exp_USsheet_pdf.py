@@ -1828,20 +1828,17 @@ class single_US_pdf_sheet(object):
             label_unita_stratigrafica = Paragraph("<b>UNITÀ STRATIGRAFICA</b><br/>"+ str(self.us), styNormal)
             t_muraria = Paragraph("<b>TECNICA MURARIA</b><br/>"+ str(self.tecnica_muraria_usm), styNormal)
             modulo = Paragraph("<b>MODULO</b><br/>"+ str(self.modulo_usm), styNormal)
-            
-            
-            
+            campioni_malta = Paragraph("<b>CAMPIONI MALTA</b><br/>"+ str(self.campioni_malta_usm), styNormal)
+            campioni_mattone = Paragraph("<b>CAMPIONI MATTONE</b><br/>"+ str(self.campioni_mattone_usm), styNormal)
+            campioni_pietra = Paragraph("<b>CAMPIONI PIETRA</b><br/>"+ str(self.campioni_pietra_usm), styNormal)
             
             piante = Paragraph("<b>PIANTE</b><br/>" + self.piante_iccd, styNormal)
             sezioni = Paragraph("<b>SEZIONI</b><br/>" + self.sezioni_iccd, styNormal)
             prospetti = Paragraph("<b>PROSPETTI</b><br/>"+ self.prospetti_iccd, styNormal)                    #manca valore
             foto = Paragraph("<b>FOTO</b><br/>"+ self.foto_iccd, styNormal)            #manca valore
 
-            tabelle_materiali = Paragraph("<b>TABELLE MATERIALI<br/><br/>RA</b>:"+ self.ref_ra, styNormal)  #manca valore
-
-            #5 row
-
-            d_stratigrafica = Paragraph("<b>DEFINIZIONE</b><br/>Definizione stratigrafica: " + self.d_stratigrafica+"<br/>Definizione interpretativa: "+self.d_interpretativa, styNormal)
+            d_stratigrafica = Paragraph("<b>DEFINIZIONE e POSIZIONE</b><br/>" + self.d_stratigrafica+"<br/>"+self.posizione, styNormal)
+            
 
             #6 row
 
@@ -1849,7 +1846,7 @@ class single_US_pdf_sheet(object):
 
             #7 row
 
-            modo_formazione = Paragraph("<b>MODO FORMAZIONE</b><br/>" + self.modo_formazione, styNormal)
+            provenienza_materiali = Paragraph("<b>PROVENIENA MATERIALI</b><br/>"+self.provenienza_materiali_usm+"<br/>"+"<b>USO PROMARIO</b><br/>"+self.uso_primario_usm+ '   ' + "<b>REIMPIEGO</b><br/>"+self.reimp, styNormal)
 
             #8-9 row
 

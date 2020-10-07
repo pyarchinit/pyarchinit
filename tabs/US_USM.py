@@ -756,6 +756,10 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
         self.mDockWidget_2.setHidden(True)
         self.mDockWidget_export.setHidden(True)
         self.mDockWidget_3.setHidden(True)
+        self.mDockWidget_7.setHidden(True)
+        self.mDockWidget_8.setHidden(True)
+        self.mDockWidget_9.setHidden(True)
+        self.mDockWidget_10.setHidden(True)
         self.currentLayerId = None
         self.search = SearchLayers(iface)
         try:
@@ -785,7 +789,9 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
         self.toolButton_pdfpath.clicked.connect(self.setPathpdf)
         self.pbnOpenpdfDirectory.clicked.connect(self.openpdfDir)
         self.progressBar.setTextVisible(True)
-
+        self.comboBox_unita_tipo.currentIndexChanged.connect(self.on_text)
+        self.comboBox_unita_tipo.currentTextChanged.connect(self.on_text2)
+        
         sito = self.comboBox_sito.currentText()
         self.comboBox_sito.setEditText(sito)
         self.charge_periodo_iniz_list()
@@ -801,11 +807,33 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
         self.show()
         self.listview_us()
         
+    def on_text(self,s):
+        if s==1:
+            self.label_5.setText('Posizione')
+            self.label_4.setText('Definizione stratigrafica muraria')
+            self.mDockWidget_4.setHidden(True)
+            self.mDockWidget_5.setHidden(False)
+        else:
+            self.label_5.setText('Definizione Interpretativa')
+            self.label_4.setText('Definizione stratigrafica')
+            self.mDockWidget_5.setHidden(True)
+            self.mDockWidget_4.setHidden(False)
+    def on_text2(self,ss):
+        if ss=='USM':
+            self.label_5.setText('Posizione')
+            self.label_4.setText('Definizione stratigrafica muraria')
+            self.mDockWidget_4.setHidden(True)
+            self.mDockWidget_5.setHidden(False)
+        else:
+            self.label_5.setText('Definizione Interpretativa')
+            self.label_4.setText('Definizione stratigrafica')
+            self.mDockWidget_5.setHidden(True)
+            self.mDockWidget_4.setHidden(False)
     def on_set_matrix_clicked(self, checked=None):
         if checked==None: return
         dialog = QDialog()
         dialog.ui = Setting_Matrix()
-        #dialog.ui.comboBox.setCurrentText(str(dialog.ui.comboBox.currentIndexChanged()))
+        #dialog.ui.combo_box.currentText()
         dialog.ui.setupUi(dialog)
         #dialog.setAttribute(Qt.WA_DeleteOnClose)
         
@@ -3089,6 +3117,7 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
             self.pyQGIS.addRasterLayer()
 
     def on_pushButton_new_rec_pressed(self):
+        
         if self.DATA_LIST:
             if self.data_error_check() == 1:
                 pass
@@ -4292,7 +4321,10 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
         # records surf functions
 
     def on_pushButton_first_rec_pressed(self):
-        
+        if self.comboBox_unita_tipo.currentIndex==1:
+            self.label_5.setText('Posizione')
+        else:
+            self.label_5.setText('Definizione Interpretativa')
         if self.check_record_state() == 1:
             pass
         else:
@@ -4305,7 +4337,10 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
                 pass
 
     def on_pushButton_last_rec_pressed(self):
-        
+        if self.comboBox_unita_tipo.currentIndex==1:
+            self.label_5.setText('Posizione')
+        else:
+            self.label_5.setText('Definizione Interpretativa')
         if self.check_record_state() == 1:
             pass
         else:
@@ -4319,6 +4354,10 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
                
 
     def on_pushButton_prev_rec_pressed(self):
+        if self.comboBox_unita_tipo.currentIndex==1:
+            self.label_5.setText('Posizione')
+        else:
+            self.label_5.setText('Definizione Interpretativa')
         rec_goto = int(self.lineEdit_goto.text())
         
         if self.check_record_state() == 1:
@@ -4339,6 +4378,10 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
                   
 
     def on_pushButton_next_rec_pressed(self):
+        if self.comboBox_unita_tipo.currentIndex==1:
+            self.label_5.setText('Posizione')
+        else:
+            self.label_5.setText('Definizione Interpretativa')
         rec_goto = int(self.lineEdit_goto.text())
         
         if self.check_record_state() == 1:
