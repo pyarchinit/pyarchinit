@@ -515,13 +515,13 @@
     </item>
    </layout>
   </widget>
-  <widget class="QWidget" name="">
+  <widget class="QWidget" name="layoutWidget">
    <property name="geometry">
     <rect>
      <x>10</x>
      <y>0</y>
-     <width>631</width>
-     <height>62</height>
+     <width>633</width>
+     <height>64</height>
     </rect>
    </property>
    <property name="sizePolicy">
@@ -532,7 +532,7 @@
    </property>
    <layout class="QGridLayout" name="gridLayout_2">
     <item row="2" column="2">
-     <widget class="QComboBox" name="comboBox">
+     <widget class="QComboBox" name="combo_box">
       <property name="sizePolicy">
        <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
         <horstretch>0</horstretch>
@@ -542,12 +542,25 @@
       <property name="editable">
        <bool>true</bool>
       </property>
-      <property name="currentText">
-       <string>yellow</string>
+      <property name="currentIndex">
+       <number>3</number>
+      </property>
+      <property name="insertPolicy">
+       <enum>QComboBox::InsertAlphabetically</enum>
+      </property>
+      <property name="sizeAdjustPolicy">
+       <enum>QComboBox::AdjustToContents</enum>
+      </property>
+      <property name="modelColumn">
+       <number>0</number>
       </property>
       <item>
        <property name="text">
         <string>yellow</string>
+       </property>
+       <property name="icon">
+        <iconset>
+         <normaloff>../../../../../../../../../../../Pictures/Cattura.PNG</normaloff>../../../../../../../../../../../Pictures/Cattura.PNG</iconset>
        </property>
       </item>
       <item>
@@ -1006,34 +1019,18 @@
  <resources/>
  <connections>
   <connection>
-   <sender>comboBox</sender>
-   <signal>currentTextChanged(QString)</signal>
-   <receiver>comboBox</receiver>
-   <slot>setEditText(QString)</slot>
+   <sender>combo_box</sender>
+   <signal>activated(QString)</signal>
+   <receiver>combo_box</receiver>
+   <slot>setCurrentText(QString)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>89</x>
-     <y>110</y>
+     <x>106</x>
+     <y>59</y>
     </hint>
     <hint type="destinationlabel">
-     <x>89</x>
-     <y>110</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>comboBox</sender>
-   <signal>currentTextChanged(QString)</signal>
-   <receiver>comboBox</receiver>
-   <slot>update()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>89</x>
-     <y>110</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>89</x>
-     <y>110</y>
+     <x>130</x>
+     <y>56</y>
     </hint>
    </hints>
   </connection>

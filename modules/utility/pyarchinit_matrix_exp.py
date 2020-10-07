@@ -20,13 +20,13 @@
 """
 import os
 import subprocess
-
+from qgis.PyQt.QtWidgets import *
 import datetime
 from datetime import date
 from graphviz import Digraph, Source
 from .pyarchinit_OS_utility import Pyarchinit_OS_Utility
 from ..db.pyarchinit_db_manager import Pyarchinit_db_management
-#from ...tabs.pyarchinit_setting_matrix import Setting_Matrix
+from ...tabs.pyarchinit_setting_matrix import Setting_Matrix
 class HarrisMatrix:
     HOME = os.environ['PYARCHINIT_HOME']
     DB_MANAGER = ""
@@ -34,14 +34,19 @@ class HarrisMatrix:
     MAPPER_TABLE_CLASS = "US"
     ID_TABLE = "id_us"
     MATRIX = ''
+    
     def __init__(self, sequence,negative, periodi):
         self.sequence = sequence
         self.negative=negative
         self.periodi = periodi
-        # self.MATRIX = Setting_Matrix()
-        # self.color_str = self.MATRIX.Ucolor()
+        self.MATRIX = Setting_Matrix()
+        
+        self.color_str = self.MATRIX.on_Ucolor(0)
+    
     @property
     def export_matrix(self):
+        
+        
         
         G = Digraph(engine='neato', strict=False)
         G.graph_attr['splines'] = 'ortho'
@@ -61,7 +66,7 @@ class HarrisMatrix:
             
             e.node_attr['shape'] = 'square'
             e.node_attr['style'] = 'strocked'
-            e.node_attr.update(style='filled', fillcolor="white")##{}'.format(self.color_str))
+            e.node_attr.update(style='filled', fillcolor='{}'.format(self.color_str))
             e.node_attr['color'] = 'red'    
             e.edge_attr['penwidth'] = '.5'
             e.edge_attr['style'] = 'solid'
@@ -75,9 +80,10 @@ class HarrisMatrix:
                 v.edges(elist2)
                 
                 v.node_attr['shape'] = 'square'
-                
-                v.node_attr.update(style='filled', fillcolor="lightgray:white")
                 v.node_attr['style'] = 'dotted'
+                v.node_attr.update(style='filled', fillcolor='lightgray')
+                
+                
                 v.node_attr['color'] = 'black'
                 v.edge_attr['penwidth'] = '.5'
                 v.edge_attr['style'] = 'dashed'      
