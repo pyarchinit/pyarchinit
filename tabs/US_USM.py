@@ -756,11 +756,7 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
         self.mDockWidget_2.setHidden(True)
         self.mDockWidget_export.setHidden(True)
         self.mDockWidget_3.setHidden(True)
-        self.mDockWidget_7.setHidden(True)
-        self.mDockWidget_8.setHidden(True)
-        self.mDockWidget_9.setHidden(True)
-        self.mDockWidget_10.setHidden(True)
-        self.mDockWidget_11.setHidden(True)
+        self.mDockWidget_4.setHidden(True)
         self.currentLayerId = None
         self.search = SearchLayers(iface)
         try:
@@ -790,9 +786,7 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
         self.toolButton_pdfpath.clicked.connect(self.setPathpdf)
         self.pbnOpenpdfDirectory.clicked.connect(self.openpdfDir)
         self.progressBar.setTextVisible(True)
-        self.comboBox_unita_tipo.currentIndexChanged.connect(self.on_text)
-        self.comboBox_unita_tipo.currentTextChanged.connect(self.on_text2)
-        
+
         sito = self.comboBox_sito.currentText()
         self.comboBox_sito.setEditText(sito)
         self.charge_periodo_iniz_list()
@@ -808,33 +802,11 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
         self.show()
         self.listview_us()
         
-    def on_text(self,s):
-        if s==1:
-            self.label_5.setText('Posizione')
-            self.label_4.setText('Definizione stratigrafica muraria')
-            self.mDockWidget_4.setHidden(True)
-            self.mDockWidget_5.setHidden(False)
-        else:
-            self.label_5.setText('Definizione Interpretativa')
-            self.label_4.setText('Definizione stratigrafica')
-            self.mDockWidget_5.setHidden(True)
-            self.mDockWidget_4.setHidden(False)
-    def on_text2(self,ss):
-        if ss=='USM':
-            self.label_5.setText('Posizione')
-            self.label_4.setText('Definizione stratigrafica muraria')
-            self.mDockWidget_4.setHidden(True)
-            self.mDockWidget_5.setHidden(False)
-        else:
-            self.label_5.setText('Definizione Interpretativa')
-            self.label_4.setText('Definizione stratigrafica')
-            self.mDockWidget_5.setHidden(True)
-            self.mDockWidget_4.setHidden(False)
     def on_set_matrix_clicked(self, checked=None):
         if checked==None: return
         dialog = QDialog()
         dialog.ui = Setting_Matrix()
-        #dialog.ui.combo_box.currentText()
+        #dialog.ui.comboBox.setCurrentText(str(dialog.ui.comboBox.currentIndexChanged()))
         dialog.ui.setupUi(dialog)
         #dialog.setAttribute(Qt.WA_DeleteOnClose)
         
@@ -3118,7 +3090,6 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
             self.pyQGIS.addRasterLayer()
 
     def on_pushButton_new_rec_pressed(self):
-        
         if self.DATA_LIST:
             if self.data_error_check() == 1:
                 pass
@@ -4076,16 +4047,7 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
             spessore_usm = None
         else:
             spessore_usm = float(self.lineEdit_spessore_usm.text())
-        if self.comboBox_unita_tipo.currentIndex==1:
-            a =self.textEdit_descrizione.toPlainText()  # 6 - descrizione
-            b =self.textEdit_interpretazione.toPlainText()
-            c =self.textEdit_osservazioni.toPlainText()
-            d = self.textEdit_elementi_datanti.toPlainText()
-        else:
-            a =self.textEdit_descrizione_2.toPlainText()  # 6 - descrizione
-            b =self.textEdit_interpretazione_2.toPlainText()
-            c =self.textEdit_osservazioni_2.toPlainText()
-            d = self.textEdit_elementi_datanti_2.toPlainText()
+
         try:
             # data
             data = self.DB_MANAGER.insert_values(
@@ -4095,8 +4057,7 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
                 int(self.lineEdit_us.text()),  # 3 - US
                 str(self.comboBox_def_strat.currentText()),  # 4 - Definizione stratigrafica
                 str(self.comboBox_def_intepret.currentText()),  # 5 - Definizione intepretata
-                str(a),
-                str(b),
+                str(self.textEdit_descrizione.toPlainText()),  # 6 - descrizione
                 str(self.textEdit_interpretazione.toPlainText()),  # 7 - interpretazione
                 str(self.comboBox_per_iniz.currentText()),  # 8 - periodo iniziale
                 str(self.comboBox_fas_iniz.currentText()),  # 9 - fase iniziale
@@ -4126,7 +4087,7 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
                 str(self.lineEdit_quadrato.text()),  # 31 quadrato
                 str(self.lineEdit_ambiente.text()),  # 32 ambiente
                 str(self.lineEdit_saggio.text()),  # 33 saggio
-                str(d),  # 34 elementi datanti
+                str(self.textEdit_elementi_datanti.toPlainText()),  # 34 elementi datanti
                 str(self.comboBox_funz_statica_usm.currentText()),  # 35 funzione statica
                 str(self.lineEdit_lavorazione_usm.text()),  # 36 lavorazione usm
                 str(self.lineEdit_spessore_giunti_usm.text()),  # 37 spessore giunti
@@ -4167,7 +4128,7 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
                 quota_max_rel,  # 72
                 quota_min_abs,  # 73
                 quota_min_rel,  # 74
-                str(c),  # 75 osservazioni
+                str(self.textEdit_osservazioni.toPlainText()),  # 75 osservazioni
                 str(self.comboBox_datazione.currentText()),  # 76 datazione
                 str(self.lineEdit_flottazione.text()),  # 77 flottazione
                 str(self.lineEdit_setacciatura.text()),  # 78 setacciatura
@@ -4332,10 +4293,7 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
         # records surf functions
 
     def on_pushButton_first_rec_pressed(self):
-        if self.comboBox_unita_tipo.currentIndex==1:
-            self.label_5.setText('Definizione Interpretativa USM')
-        else:
-            self.label_5.setText('Definizione Interpretativa')
+        
         if self.check_record_state() == 1:
             pass
         else:
@@ -4348,10 +4306,7 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
                 pass
 
     def on_pushButton_last_rec_pressed(self):
-        if self.comboBox_unita_tipo.currentIndex==1:
-            self.label_5.setText('Definizione Interpretativa USM')
-        else:
-            self.label_5.setText('Definizione Interpretativa')
+        
         if self.check_record_state() == 1:
             pass
         else:
@@ -4365,10 +4320,6 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
                
 
     def on_pushButton_prev_rec_pressed(self):
-        if self.comboBox_unita_tipo.currentIndex==1:
-            self.label_5.setText('Definizione Interpretativa USM')
-        else:
-            self.label_5.setText('Definizione Interpretativa')
         rec_goto = int(self.lineEdit_goto.text())
         
         if self.check_record_state() == 1:
@@ -4389,10 +4340,6 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
                   
 
     def on_pushButton_next_rec_pressed(self):
-        if self.comboBox_unita_tipo.currentIndex==1:
-            self.label_5.setText('Definizione Interpretativa USM')
-        else:
-            self.label_5.setText('Definizione Interpretativa')
         rec_goto = int(self.lineEdit_goto.text())
         
         if self.check_record_state() == 1:
@@ -4707,16 +4654,7 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
                 spessore_usm = None
             else:
                 spessore_usm = float(self.lineEdit_spessore_usm.text())
-            if self.comboBox_unita_tipo.currentIndex==1:
-                a =self.textEdit_descrizione.toPlainText()  # 6 - descrizione
-                b =self.textEdit_interpretazione.toPlainText()
-                c =self.textEdit_osservazioni.toPlainText()
-                d = self.textEdit_elementi_datanti.toPlainText()
-            else:
-                a =self.textEdit_descrizione_2.toPlainText()  # 6 - descrizione
-                b =self.textEdit_interpretazione_2.toPlainText()
-                c =self.textEdit_osservazioni_2.toPlainText()
-                d = self.textEdit_elementi_datanti_2.toPlainText()
+
             search_dict = {
                 self.TABLE_FIELDS[0]: "'" + str(self.comboBox_sito.currentText()) + "'",  # 1 - Sito
                 self.TABLE_FIELDS[1]: "'" + str(self.comboBox_area.currentText()) + "'",  # 2 - Area
@@ -4725,8 +4663,8 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
                 # 4 - Definizione stratigrafica
                 self.TABLE_FIELDS[4]: "'" + str(self.comboBox_def_intepret.currentText()) + "'",
                 # 5 - Definizione intepretata
-                self.TABLE_FIELDS[5]: str(a),  # 6 - descrizione
-                self.TABLE_FIELDS[6]: str(b),  # 7 - interpretazione
+                self.TABLE_FIELDS[5]: str(self.textEdit_descrizione.toPlainText()),  # 6 - descrizione
+                self.TABLE_FIELDS[6]: str(self.textEdit_interpretazione.toPlainText()),  # 7 - interpretazione
                 self.TABLE_FIELDS[7]: "'" + str(self.comboBox_per_iniz.currentText()) + "'",  # 8 - periodo iniziale
                 self.TABLE_FIELDS[8]: "'" + str(self.comboBox_fas_iniz.currentText()) + "'",  # 9 - fase iniziale
                 self.TABLE_FIELDS[9]: "'" + str(self.comboBox_per_fin.currentText()) + "'",
@@ -4750,7 +4688,7 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
                 self.TABLE_FIELDS[30]: "'" + str(self.lineEdit_quadrato.text()) + "'",  # 30 quadrato
                 self.TABLE_FIELDS[31]: "'" + str(self.lineEdit_ambiente.text()) + "'",  # 30 quadrato
                 self.TABLE_FIELDS[32]: "'" + str(self.lineEdit_saggio.text()) + "'",  # 30 quadrato
-                self.TABLE_FIELDS[33]: str(d),  # 6 - descrizione
+                self.TABLE_FIELDS[33]: str(self.textEdit_elementi_datanti.toPlainText()),  # 6 - descrizione
                 self.TABLE_FIELDS[34]: "'" + str(self.comboBox_funz_statica_usm.currentText()) + "'",
                 # 24 - order layer
                 self.TABLE_FIELDS[35]: "'" + str(self.lineEdit_lavorazione_usm.text()) + "'",  # 30 quadrato
@@ -4795,7 +4733,7 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
                 self.TABLE_FIELDS[71]:quota_max_rel,  # 72
                 self.TABLE_FIELDS[72]:quota_min_abs,  # 73
                 self.TABLE_FIELDS[73]:quota_min_rel,  # 74
-                self.TABLE_FIELDS[74]: "'" + str(c) + "'",  # 75 osservazioni
+                self.TABLE_FIELDS[74]: "'" + str(self.textEdit_osservazioni.toPlainText()) + "'",  # 75 osservazioni
                 self.TABLE_FIELDS[75]: "'" + str(self.comboBox_datazione.currentText()) + "'",  # 76 datazione
                 self.TABLE_FIELDS[76]: "'" + str(self.lineEdit_flottazione.text()) + "'",  # 77 flottazione
                 self.TABLE_FIELDS[77]: "'" + str(self.lineEdit_setacciatura.text()) + "'",  # 78 setacciatura
@@ -5092,12 +5030,8 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
         self.lineEdit_us.clear()  # 3 - US
         self.comboBox_def_strat.setEditText("")  # 4 - Definizione stratigrafica
         self.comboBox_def_intepret.setEditText("")  # 5 - Definizione intepretata
-        if self.comboBox_unita_tipo.currentIndex==1:
-            self.textEdit_descrizione.clear()  # 6 - descrizione
-            self.textEdit_interpretazione.clear()
-        else:
-            self.textEdit_descrizione_2.clear()
-            self.textEdit_interpretazione_2.clear()
+        self.textEdit_descrizione.clear()  # 6 - descrizione
+        self.textEdit_interpretazione.clear()  # 7 - interpretazione
         self.comboBox_per_iniz.setEditText("")  # 8 - periodo iniziale
         self.comboBox_fas_iniz.setEditText("")  # 9 - fase iniziale
         self.comboBox_per_fin.setEditText("")  # 10 - periodo finale iniziale
@@ -5176,11 +5110,7 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
         self.lineEdit_quadrato.clear()  # 31 quadrato
         self.lineEdit_ambiente.clear()  # 32 ambiente
         self.lineEdit_saggio.clear()  # 33 saggio
-        
-        if self.comboBox_unita_tipo.currentIndex==1:
-            self.textEdit_elementi_datanti.clear()  # 34 elementi datanti
-        else:
-            self.textEdit_elementi_datanti_2.clear()
+        self.textEdit_elementi_datanti.clear()  # 34 elementi datanti
         self.comboBox_funz_statica_usm.setEditText("")  # 35 funzione statica
         self.lineEdit_lavorazione_usm.clear()  # 36 lavorazione usm
         self.lineEdit_spessore_giunti_usm.clear()  # 37 spessore giunti
@@ -5221,10 +5151,7 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
         self.lineEdit_quota_max_rel.clear()  # 72
         self.lineEdit_quota_min_abs.clear()  # 73
         self.lineEdit_quota_min_rel.clear()  # 74
-        if self.comboBox_unita_tipo.currentIndex==1:
-            self.textEdit_osservazioni.clear()  # 75 osservazioni
-        else:
-            self.textEdit_osservazioni_2.clear()
+        self.textEdit_osservazioni.clear()  # 75 osservazioni
         self.comboBox_datazione.setEditText("")  # 76 datazione
         self.lineEdit_flottazione.clear()  # 77 flottazione
         self.lineEdit_setacciatura.clear()  # 78 setacciatura
@@ -5251,19 +5178,15 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
 
     def fill_fields(self, n=0):
         self.rec_num = n
-        
-        
+        # QMessageBox.warning(self, "Test", str(self.comboBox_per_fin.currentText()),  QMessageBox.Ok)
         try:
             str(self.comboBox_sito.setEditText(self.DATA_LIST[self.rec_num].sito))  # 1 - Sito
             str(self.comboBox_area.setEditText(self.DATA_LIST[self.rec_num].area))  # 2 - Area
             self.lineEdit_us.setText(str(self.DATA_LIST[self.rec_num].us))  # 3 - US
             str(self.comboBox_def_strat.setEditText(self.DATA_LIST[self.rec_num].d_stratigrafica))  # 4 - Definizione stratigrafica
             str(self.comboBox_def_intepret.setEditText(self.DATA_LIST[self.rec_num].d_interpretativa))  # 5 - Definizione intepretata
-            str(self.textEdit_descrizione.setText(self.DATA_LIST[self.rec_num].descrizione))#6 - descrizione
+            str(self.textEdit_descrizione.setText(self.DATA_LIST[self.rec_num].descrizione))  # 6 - descrizione
             str(self.textEdit_interpretazione.setText(self.DATA_LIST[self.rec_num].interpretazione))  # 7 - interpretazione
-            str(self.textEdit_descrizione_2.setText(self.DATA_LIST[self.rec_num].descrizione))#6 - descrizione
-            str(self.textEdit_interpretazione_2.setText(self.DATA_LIST[self.rec_num].interpretazione))  # 7 - interpretazione
-            
             str(self.comboBox_per_iniz.setEditText(self.DATA_LIST[self.rec_num].periodo_iniziale))  # 8 - periodo iniziale
             str(self.comboBox_fas_iniz.setEditText(self.DATA_LIST[self.rec_num].fase_iniziale))  # 9 - fase iniziale
             str(self.comboBox_per_fin.setEditText(self.DATA_LIST[self.rec_num].periodo_finale))  # 10 - periodo finale iniziale
@@ -5305,7 +5228,6 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
             str(self.lineEdit_ambiente.setText(self.DATA_LIST[self.rec_num].ambient))  # 32 ambiente
             str(self.lineEdit_saggio.setText(self.DATA_LIST[self.rec_num].saggio))  # 33 saggio
             str(self.textEdit_elementi_datanti.setText(self.DATA_LIST[self.rec_num].elem_datanti))  # 34 - elemtenti_datanti
-            str(self.textEdit_elementi_datanti_2.setText(self.DATA_LIST[self.rec_num].elem_datanti))
             str(self.comboBox_funz_statica_usm.setEditText(self.DATA_LIST[self.rec_num].funz_statica))  # 35 - funz statica
             str(self.lineEdit_lavorazione_usm.setText(self.DATA_LIST[self.rec_num].lavorazione))  # 36 lavorazione usm
             str(self.lineEdit_spessore_giunti_usm.setText(self.DATA_LIST[self.rec_num].spess_giunti))  # 37 spessore giunti usm
@@ -5410,8 +5332,7 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
             else:
                 self.lineEdit_quota_min_rel.setText(str(self.DATA_LIST[self.rec_num].quota_min_rel))  # 74 quota_min_rel
 
-            str(self.textEdit_osservazioni.setText(self.DATA_LIST[self.rec_num].osservazioni))
-            str(self.textEdit_osservazioni_2.setText(self.DATA_LIST[self.rec_num].osservazioni))            # 75 osservazioni
+            str(self.textEdit_osservazioni.setText(self.DATA_LIST[self.rec_num].osservazioni))  # 75 osservazioni
             str(self.comboBox_datazione.setEditText(self.DATA_LIST[self.rec_num].datazione))  # 76 datazione
             str(self.lineEdit_flottazione.setText(self.DATA_LIST[self.rec_num].flottazione))  # 77 flottazione
             str(self.lineEdit_setacciatura.setText(self.DATA_LIST[self.rec_num].setacciatura))  # 78 setacciatura
@@ -5597,24 +5518,16 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
             spessore_usm = None
         else:
             spessore_usm = self.lineEdit_spessore_usm.text()
-        if self.comboBox_unita_tipo.currentIndex==1:
-            a =self.textEdit_descrizione.toPlainText()  # 6 - descrizione
-            b =self.textEdit_interpretazione.toPlainText()
-            c =self.textEdit_osservazioni.toPlainText()
-            d = self.textEdit_elementi_datanti.toPlainText()
-        else:
-            a =self.textEdit_descrizione_2.toPlainText()  # 6 - descrizione
-            b =self.textEdit_interpretazione_2.toPlainText()
-            c =self.textEdit_osservazioni_2.toPlainText()
-            d = self.textEdit_elementi_datanti_2.toPlainText()
+
+            # data
         self.DATA_LIST_REC_TEMP = [
             str(self.comboBox_sito.currentText()),  # 1 - Sito
             str(self.comboBox_area.currentText()),  # 2 - Area
             str(self.lineEdit_us.text()),  # 3 - US
             str(self.comboBox_def_strat.currentText()),  # 4 - Definizione stratigrafica
             str(self.comboBox_def_intepret.currentText()),  # 5 - Definizione intepretata
-            str(a),
-            str(b),  # 7 - interpretazione
+            str(self.textEdit_descrizione.toPlainText()),  # 6 - descrizione
+            str(self.textEdit_interpretazione.toPlainText()),  # 7 - interpretazione
             str(self.comboBox_per_iniz.currentText()),  # 8 - periodo iniziale
             str(self.comboBox_fas_iniz.currentText()),  # 9 - fase iniziale
             str(self.comboBox_per_fin.currentText()),  # 10 - periodo finale iniziale
@@ -5643,7 +5556,7 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
             str(self.lineEdit_quadrato.text()),  # 31 quadrato
             str(self.lineEdit_ambiente.text()),  # 32 ambiente
             str(self.lineEdit_saggio.text()),  # 33 saggio
-            str(d),  # 34 elementi datanti
+            str(self.textEdit_elementi_datanti.toPlainText()),  # 34 elementi datanti
             str(self.comboBox_funz_statica_usm.currentText()),  # 35 funzione statica
             str(self.lineEdit_lavorazione_usm.text()),  # 36 lavorazione usm
             str(self.lineEdit_spessore_giunti_usm.text()),  # 37 spessore giunti
@@ -5684,7 +5597,7 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
             str(quota_max_rel),  # 72
             str(quota_min_abs),  # 73
             str(quota_min_rel),  # 74
-            str(c),  # 75 osservazioni
+            str(self.textEdit_osservazioni.toPlainText()),  # 75 osservazioni
             str(self.comboBox_datazione.currentText()),  # 76 datazione
             str(self.lineEdit_flottazione.text()),  # 77 flottazione
             str(self.lineEdit_setacciatura.text()),  # 78 setacciatura
