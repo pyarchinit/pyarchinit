@@ -23,11 +23,18 @@ repository=https://github.com/pyarchinit/pyarchinit
 
 
 
-changelog=release1.1.1:
+changelog=release1.1.2:
+
+     	- update reperti.ui
+
+   --------------------------------------------------------------------------------
+   release1.1.1:
 
      	- update us.ui
 
    --------------------------------------------------------------------------------
+
+
    release1.1.0:
      	-update matrix exportation
      	- update us.ui

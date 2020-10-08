@@ -51,6 +51,7 @@ from ..modules.utility.pyarchinit_exp_USsheet_pdf import generate_US_pdf
 from ..modules.utility.pyarchinit_print_utility import Print_utility
 from ..modules.utility.settings import Settings
 from .pyarchinit_setting_matrix import Setting_Matrix
+
 from ..searchLayers import SearchLayers
 from ..gui.imageViewer import ImageViewer
 from ..gui.sortpanelmain import SortPanelMain
