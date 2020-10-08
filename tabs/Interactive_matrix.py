@@ -78,30 +78,84 @@ class pyarchinit_Interactive_Matrix(QDialog, MAIN_DIALOG_CLASS):
                                 QMessageBox.Ok)
 
     def generate_matrix(self):
-        data = []
-        negative = []
+        copre = []
+        riempie = []
+        taglia =[]
+        si_appoggia_a =[]
+        si_lega_a = []
+        gli_si_appoggia=[]
+        riempito_da=[]
+        coperto_da=[]
+        tagliato_da=[]
+        
         for sing_rec in self.DATA_LIST:
             us = str(sing_rec.us)
             usm = str (sing_rec.d_stratigrafica)
             rapporti_stratigrafici = eval(sing_rec.rapporti)
             for sing_rapp in rapporti_stratigrafici:
                 try:
-                    if  sing_rapp[0] == 'Covers' or  sing_rapp[0] == 'Abuts' or  sing_rapp[0] == 'Fills' or sing_rapp[0] == 'Connected to' or  sing_rapp[0] == 'Same as'or sing_rapp[0] == 'Copre' or  sing_rapp[0] == 'Si appoggia a' or  sing_rapp[0] == 'Riempie'  or sing_rapp[0] == 'Si lega a' or  sing_rapp[0] == 'Uguale a' or  sing_rapp[0] == 'Liegt über' or  sing_rapp[0] == 'Stützt sich auf' or  sing_rapp[0] == 'Verfüllt' or sing_rapp[0] == 'Bindet an' or  sing_rapp[0] == 'Entspricht':
+                    if  sing_rapp[0] == 'Copre': 
                         if sing_rapp[1] != '':
                             harris_rapp = (us,str(sing_rapp[1]))
                             
-                            data.append(harris_rapp)
-                    if sing_rapp[0] == 'Taglia' or sing_rapp[0] == 'Cuts' or sing_rapp[0] == 'Schneidet':    
+                            copre.append(harris_rapp)
+                    
+                    if sing_rapp[0] == 'Riempie' :
                         if sing_rapp[1] != '':
                             harris_rapp = (us,str(sing_rapp[1]))
                             
-                            negative.append(harris_rapp)    
+                            riempie.append(harris_rapp)
+                    
+                    if sing_rapp[0] == 'Taglia'  :    
+                        if sing_rapp[1] != '':
+                            harris_rapp = (us,str(sing_rapp[1]))
+                            
+                            taglia.append(harris_rapp)    
+                
+                    if sing_rapp[0] == 'Si appoggia a'  :    
+                        if sing_rapp[1] != '':
+                            harris_rapp = (us,str(sing_rapp[1]))
+                            
+                            si_appoggia_a.append(harris_rapp)
+                    
+                    if sing_rapp[0] == 'Si lega a' or  sing_rapp[0] == 'Uguale a' :
+                        if sing_rapp[1] != '':
+                            harris_rapp = (us,str(sing_rapp[1]))
+                            
+                            si_lega_a.append(harris_rapp)    
+                    if sing_rapp[0] == 'Gli si appoggia' :
+                        
+                        if sing_rapp[1] != '':
+                            harris_rapp = (us,str(sing_rapp[1]))
+                            
+                            gli_si_appoggia.append(harris_rapp)  
+                
+                    if sing_rapp[0] == 'Riempito da' :
+                
+                        if sing_rapp[1] != '':
+                            harris_rapp = (us,str(sing_rapp[1]))
+                            
+                            riempito_da.append(harris_rapp) 
+                
+                    if sing_rapp[0] == 'Coperto da': 
+                
+                        if sing_rapp[1] != '':
+                            harris_rapp = (us,str(sing_rapp[1]))
+                            
+                            coperto_da.append(harris_rapp) 
+                
+                    if sing_rapp[0] == 'Tagliato da': 
+                        if sing_rapp[1] != '':
+                            harris_rapp = (us,str(sing_rapp[1]))
+                            
+                            tagliato_da.append(harris_rapp) 
+                
                 except Exception as e:
                     QMessageBox.warning(self, "Messaggio", "Problema nel sistema di esportazione del Matrix:" + str(e),
                                         QMessageBox.Ok)
 
         sito = self.DATA_LIST[0].sito
-        area = self.DATA_LIST[8].area
+        area = self.DATA_LIST[1].area
         search_dict = {
             'sito': "'" + str(sito) + "'",
             'area': "'" + str(area) + "'"
@@ -157,7 +211,7 @@ class pyarchinit_Interactive_Matrix(QDialog, MAIN_DIALOG_CLASS):
 
             clust_number += 1
         
-        matrix_exp = HarrisMatrix(data, negative,periodi_us_list)
+        matrix_exp = HarrisMatrix(copre,riempie,taglia,si_appoggia_a,si_lega_a,gli_si_appoggia,riempito_da,coperto_da,tagliato_da, periodi_us_list)
         data_plotting = matrix_exp.export_matrix
         QMessageBox.warning(self, "Messaggio", "Exportation complited", QMessageBox.Ok)
 

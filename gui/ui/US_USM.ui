@@ -6842,7 +6842,7 @@ p, li { white-space: pre-wrap; }
             <x>0</x>
             <y>0</y>
             <width>682</width>
-            <height>69</height>
+            <height>150</height>
            </rect>
           </property>
           <attribute name="label">
@@ -7080,7 +7080,7 @@ p, li { white-space: pre-wrap; }
             <x>0</x>
             <y>0</y>
             <width>682</width>
-            <height>69</height>
+            <height>150</height>
            </rect>
           </property>
           <attribute name="label">
