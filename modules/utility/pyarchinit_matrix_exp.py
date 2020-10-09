@@ -79,10 +79,10 @@ class HarrisMatrix:
             e.edge_attr['penwidth'] = '.5'
             e.edge_attr['style'] = 'solid'
             e.edge_attr.update(arrowhead='diamond', arrowsize='.7')
-            for i in self.negative:
-                a = (i[0], i[1])
-                elist2.append(a)
-            
+        for i in self.negative:
+            a = (i[0], i[1])
+            elist2.append(a)
+        
         with G.subgraph(name='main2') as a:
            
             a.edges(elist2)
