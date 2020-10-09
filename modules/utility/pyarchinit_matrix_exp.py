@@ -35,16 +35,9 @@ class HarrisMatrix:
     ID_TABLE = "id_us"
     MATRIX = ''
     
-    def __init__(self, copre,riempie,taglia,si_appoggia_a,si_lega_a,gli_si_appoggia,riempito_da,coperto_da,tagliato_da, periodi):
-        self.copre = copre
-        self.riempie=riempie
-        self.taglia = taglia
-        self.si_appoggia_a=si_appoggia_a
-        self.si_lega_a = si_lega_a
-        self.gli_si_appoggia=gli_si_appoggia
-        self.riempito_da=riempito_da
-        self.coperto_da=coperto_da
-        self.tagliato_da=tagliato_da
+    def __init__(self, sequence,negative, periodi):
+        self.sequence = sequence
+        self.negative = negative
         self.periodi=periodi
         
     
@@ -55,7 +48,8 @@ class HarrisMatrix:
         
         self.color_str = self.MATRIX.on_Ucolor(0)
         
-        G = Digraph(engine='neato', strict=False)
+        G = Digraph(engine='neato',strict=False)
+        
         G.graph_attr['splines'] = 'ortho'
         G.graph_attr['dpi'] = '300'
         
@@ -69,7 +63,7 @@ class HarrisMatrix:
         elist7 = []
         elist8 = []
         elist9 = []
-        for i in self.copre:
+        for i in self.sequence:
             a = (i[0], i[1])
             elist1.append(a)
         
@@ -80,156 +74,28 @@ class HarrisMatrix:
             e.node_attr['shape'] = 'square'
             e.node_attr['style'] = 'strocked'
             e.node_attr.update(style='filled', fillcolor='white')
-            e.node_attr['color'] = 'red'    
+            e.node_attr['color'] = 'black'    
+            e.node_attr['penwidth'] = '.5'
             e.edge_attr['penwidth'] = '.5'
             e.edge_attr['style'] = 'solid'
             e.edge_attr.update(arrowhead='diamond', arrowsize='.7')
-            
-            
-            
-            
-            for i in self.riempie:
+            for i in self.negative:
                 a = (i[0], i[1])
                 elist2.append(a)
-            with G.subgraph(name='main') as v:
-                
-                v.edges(elist2)
-                
-                v.node_attr['shape'] = 'square'
-                v.node_attr['style'] = 'strocked'
-                v.node_attr.update(style='filled', fillcolor='white')
-                
-                
-                v.node_attr['color'] = 'black'
-                v.edge_attr['penwidth'] = '.5'
-                v.edge_attr['style'] = 'bold'      
-                v.edge_attr.update(arrowhead='diamond', arrowsize='.8')    
             
+        with G.subgraph(name='main2') as a:
+           
+            a.edges(elist2)
             
-            for i in self.taglia:
-                a = (i[0], i[1])
-                elist3.append(a)
-            with G.subgraph(name='main') as t:
-               
-                t.edges(elist3)
-                
-                t.node_attr['shape'] = 'square'
-                t.node_attr['style'] = 'strocked'
-                t.node_attr.update(style='filled', fillcolor='white')
-                
-                
-                t.node_attr['color'] = 'black'
-                t.edge_attr['penwidth'] = '.5'
-                t.edge_attr['style'] = 'dashed'      
-                t.edge_attr.update(arrowhead='dot', arrowsize='.5') 
-            
-            
-            for i in self.si_appoggia_a:
-                a = (i[0], i[1])
-                elist4.append(a)
-            with G.subgraph(name='main') as s:
-                
-                s.edges(elist4)
-                
-                s.node_attr['shape'] = 'square'
-                s.node_attr['style'] = 'strocked'
-                s.node_attr.update(style='filled', fillcolor='white')
-                
-                
-                s.node_attr['color'] = 'black'
-                s.edge_attr['penwidth'] = '.5'
-                s.edge_attr['style'] = 'strocked'      
-                s.edge_attr.update(arrowhead='diamond', arrowsize='.5') 
-            
-            for i in self.si_lega_a:
-                a = (i[0], i[1])
-                elist5.append(a)
-            with G.subgraph(name='main') as n:
-                
-                n.edges(elist5)
-                
-                n.node_attr['shape'] = 'square'
-                n.node_attr['style'] = 'dotted'
-                n.node_attr.update(style='filled', fillcolor='white')
-                
-                
-                n.node_attr['color'] = 'black'
-                n.edge_attr['penwidth'] = '.5'
-                n.edge_attr['style'] = 'strocked'      
-                n.edge_attr.update(arrowhead='tee', arrowsize='.8')    
-            
-            
-            for i in self.gli_si_appoggia:
-                a = (i[0], i[1])
-                elist6.append(a)
-            with G.subgraph(name='main') as m:
-               
-                m.edges(elist6)
-                
-                m.node_attr['shape'] = 'square'
-                m.node_attr['style'] = 'strocked'
-                m.node_attr.update(style='filled', fillcolor='white')
-                
-                
-                m.node_attr['color'] = 'black'
-                m.edge_attr['penwidth'] = '.5'
-                m.edge_attr['style'] = 'strocked'      
-                m.edge_attr.update(arrowhead='dot', arrowsize='.5') 
-            
-            
-            for i in self.riempito_da:
-                a = (i[0], i[1])
-                elist7.append(a)
-            with G.subgraph(name='main') as o:
-                
-                o.edges(elist7)
-                
-                o.node_attr['shape'] = 'square'
-                o.node_attr['style'] = 'strocked'
-                o.node_attr.update(style='filled', fillcolor='white')
-                
-                
-                o.node_attr['color'] = 'black'
-                o.edge_attr['penwidth'] = '.5'
-                o.edge_attr['style'] = 'strocked'      
-                o.edge_attr.update(arrowhead='inv', arrowsize='.5') 
+            a.node_attr['shape'] = 'square'
+            a.node_attr['style'] = 'strocked'
+            a.node_attr.update(style='filled', fillcolor='gray')
+            a.node_attr['color'] = 'red'    
+            a.node_attr['penwidth'] = '.5'
+            a.edge_attr['penwidth'] = '.5'
+            a.edge_attr['style'] = 'dashed'
+            a.edge_attr.update(arrowhead='inv', arrowsize='.8')    
         
-        
-            for i in self.coperto_da:
-                a = (i[0], i[1])
-                elist8.append(a)
-            with G.subgraph(name='main') as x:
-               
-                x.edges(elist8)
-                
-                x.node_attr['shape'] = 'square'
-                x.node_attr['style'] = 'strocked'
-                x.node_attr.update(style='filled', fillcolor='white')
-                
-                
-                x.node_attr['color'] = 'black'
-                x.edge_attr['penwidth'] = '.5'
-                x.edge_attr['style'] = 'bold'      
-                x.edge_attr.update(arrowhead='inv', arrowsize='.5') 
-            
-            
-            for i in self.tagliato_da:
-                a = (i[0], i[1])
-                elist9.append(a)
-            with G.subgraph(name='main') as d:
-                
-                d.edges(elist9)
-                
-                d.node_attr['shape'] = 'square'
-                d.node_attr['style'] = 'strocked'
-                d.node_attr.update(style='filled', fillcolor='white')
-                
-                
-                d.node_attr['color'] = 'black'
-                d.edge_attr['penwidth'] = '.5'
-                d.edge_attr['style'] = 'strocked'      
-                d.edge_attr.update(arrowhead='inv', arrowsize='.5') 
-    
         for i in self.periodi:
             with G.subgraph(name=i[1]) as c:
                 
