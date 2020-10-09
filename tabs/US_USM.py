@@ -2369,14 +2369,14 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
             else:
                 if self.L=='it':
                 
-                    quota_min = "Non inserita su GIS"
-                    quota_max = "Non inserita su GIS"
+                    quota_min = ""
+                    quota_max = ""
                 elif self.L == 'de':
-                    quota_min = "Nicht im GIS einbinden "
-                    quota_max = "Nicht im GIS einbinden "
+                    quota_min = ""
+                    quota_max = ""
                 else :
-                    quota_min = "Not inserted in GIS "
-                    quota_max = "Not inserted in GIS  "
+                    quota_min = ""
+                    quota_max = ""
                 # assegnazione numero di pianta
             resus = self.DB_MANAGER.select_us_from_db_sql(sito, area, us, "2")
             elenco_record = []
