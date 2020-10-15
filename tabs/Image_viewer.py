@@ -471,91 +471,93 @@ class Main(QDialog,MAIN_DIALOG_CLASS):
                                                          QFileDialog.ShowDirsOnly)
             if not directory:
                 return 0
-            for video in sorted(os.listdir(directory)):
-                if video.endswith(".mp4"): #or .avi, .mpeg, whatever.
-                    filenamev, filetypev = video.split(".")[0], video.split(".")[1]  # db definisce nome immagine originale
-                    filepathv = directory + '/' + filenamev + "." + filetypev  # db definisce il path immagine originale
-                    idunique_video_check = self.db_search_check(self.MAPPER_TABLE_CLASS, 'filepath', filepathv)
-                    
-                    vcap = cv2.VideoCapture(filepathv)
-                    res, im_ar = vcap.read()
-                    while im_ar.mean() < 1 and res:
-                          res, im_ar = vcap.read()
-                    im_ar = cv2.resize(im_ar, (100, 100), 0, 0, cv2.INTER_LINEAR)
-                    #to save we have two options
-                    outputfile='{}.png'.format(directory + '/' + filenamev)
-                    cv2.imwrite(outputfile, im_ar)
+            try:
+                for video in sorted(os.listdir(directory)):
+                    if video.endswith(".mp4"): #or .avi, .mpeg, whatever.
+                        filenamev, filetypev = video.split(".")[0], video.split(".")[1]  # db definisce nome immagine originale
+                        filepathv = directory + '/' + filenamev + "." + filetypev  # db definisce il path immagine originale
+                        idunique_video_check = self.db_search_check(self.MAPPER_TABLE_CLASS, 'filepath', filepathv)
+                        
+                        vcap = cv2.VideoCapture(filepathv)
+                        res, im_ar = vcap.read()
+                        while im_ar.mean() < 1 and res:
+                              res, im_ar = vcap.read()
+                        im_ar = cv2.resize(im_ar, (100, 100), 0, 0, cv2.INTER_LINEAR)
+                        #to save we have two options
+                        outputfile='{}.png'.format(directory + '/' + filenamev)
+                        cv2.imwrite(outputfile, im_ar)
+           
+                        if not bool(idunique_video_check):
+                            mediatype = 'video'  # db definisce il tipo di immagine originale
+                            self.insert_record_media(mediatype, filenamev, filetypev,
+                                                     filepathv)  # db inserisce i dati nella tabella media originali
+                            MU = Video_utility()
+                            MUR = Video_utility_resize()
+                            media_max_num_id = self.DB_MANAGER.max_num_id(self.MAPPER_TABLE_CLASS,
+                                                                          self.ID_TABLE)  # db recupera il valore più alto ovvero l'ultimo immesso per l'immagine originale
+                            thumb_path = conn.thumb_path()
+                            thumb_path_str = thumb_path['thumb_path']
+                            thumb_resize = conn.thumb_resize()
+                            thumb_resize_str = thumb_resize['thumb_resize']
+                            media_thumb_suffix = '_video.png'
+                            media_resize_suffix = '.mp4'
+                            filenameorig = filenamev
+                            filename_thumb = str(media_max_num_id) + "_" + filenamev + media_thumb_suffix
+                            filename_resize = str(media_max_num_id) + "_" +filenamev + media_resize_suffix
+                            filepath_thumb =  filename_thumb
+                            filepath_resize = filename_resize
+                            self.SORT_ITEMS_CONVERTED = []
+                            # crea la thumbnail
+                            try:
+                                MUR.resample_images(media_max_num_id, filepathv, filenameorig, thumb_resize_str, media_resize_suffix)
+                            except Exception as e:
+                                QMessageBox.warning(self, "Cucu", str(e), QMessageBox.Ok)
+                                # progressBAr
 
-                    if not bool(idunique_video_check):
-                        mediatype = 'video'  # db definisce il tipo di immagine originale
-                        self.insert_record_media(mediatype, filenamev, filetypev,
-                                                 filepathv)  # db inserisce i dati nella tabella media originali
-                        MU = Video_utility()
-                        MUR = Video_utility_resize()
-                        media_max_num_id = self.DB_MANAGER.max_num_id(self.MAPPER_TABLE_CLASS,
-                                                                      self.ID_TABLE)  # db recupera il valore più alto ovvero l'ultimo immesso per l'immagine originale
-                        thumb_path = conn.thumb_path()
-                        thumb_path_str = thumb_path['thumb_path']
-                        thumb_resize = conn.thumb_resize()
-                        thumb_resize_str = thumb_resize['thumb_resize']
-                        media_thumb_suffix = '_video.png'
-                        media_resize_suffix = '.mp4'
-                        filenameorig = filenamev
-                        filename_thumb = str(media_max_num_id) + "_" + filenamev + media_thumb_suffix
-                        filename_resize = str(media_max_num_id) + "_" +filenamev + media_resize_suffix
-                        filepath_thumb =  filename_thumb
-                        filepath_resize = filename_resize
-                        self.SORT_ITEMS_CONVERTED = []
-                        # crea la thumbnail
-                        try:
-                            MUR.resample_images(media_max_num_id, filepathv, filenameorig, thumb_resize_str, media_resize_suffix)
-                        except Exception as e:
-                            QMessageBox.warning(self, "Cucu", str(e), QMessageBox.Ok)
-                            # progressBAr
+                            try:
+                                MU.resample_images(media_max_num_id, outputfile, filenameorig, thumb_path_str, media_thumb_suffix)
+                            except Exception as e:
+                                QMessageBox.warning(self, "Cucu", str(e), QMessageBox.Ok)
 
-                        try:
-                            MU.resample_images(media_max_num_id, outputfile, filenameorig, thumb_path_str, media_thumb_suffix)
-                        except Exception as e:
-                            QMessageBox.warning(self, "Cucu", str(e), QMessageBox.Ok)
-
-                        try:
-                            for i in enumerate(image):
-                                image_list.append(i[0])
-                            for n in range(len(image_list)):
-                                self.progressBar.setValue(((n)/100)*100)
-                                QApplication.processEvents()
-                        except:
-                            pass
-                        self.insert_record_mediathumb(media_max_num_id, mediatype, filenamev, filename_thumb, filetypev,
-                                                      filepath_thumb, filepath_resize)
-                        item = QListWidgetItem(str(filenameorig))
-                        item.setData(Qt.UserRole, str(media_max_num_id))
-                        icon = QIcon(str(thumb_path_str)+filepath_thumb)
-                        item.setIcon(icon)
-                        self.iconListWidget.addItem(item)
-                        self.progressBar.reset()
-                    elif bool(idunique_video_check):
-                        data = idunique_video_check
-                        id_media = data[0].id_media
-                        media_filename =data[0].filename
-                        # visualizza le immagini nella ui
-                        item = QListWidgetItem(str(media_filename))
-                        data_for_thumb = self.db_search_check(self.MAPPER_TABLE_CLASS_thumb, 'media_filename',
-                                                              media_filename)  # recupera i valori della thumb in base al valore id_media del file originale
-                        try:
-                            thumb_path = data_for_thumb[0].filepath_thumb
-                            item.setData(Qt.UserRole, thumb_path)
-                            icon = QIcon(str(thumb_path_str)+filepath_thumb)  # os.path.join('%s/%s' % (directory.toUtf8(), image)))
+                            try:
+                                for i in enumerate(image):
+                                    image_list.append(i[0])
+                                for n in range(len(image_list)):
+                                    self.progressBar.setValue(((n)/100)*100)
+                                    QApplication.processEvents()
+                            except:
+                                pass
+                            self.insert_record_mediathumb(media_max_num_id, mediatype, filenamev, filename_thumb, filetypev,
+                                                          filepath_thumb, filepath_resize)
+                            item = QListWidgetItem(str(filenameorig))
+                            item.setData(Qt.UserRole, str(media_max_num_id))
+                            icon = QIcon(str(thumb_path_str)+filepath_thumb)
                             item.setIcon(icon)
                             self.iconListWidget.addItem(item)
-                        except:
-                            pass
-            if bool(idunique_video_check):
-                QMessageBox.information(self, "Message", "I video sono già caricati nel database")
-            elif not bool(idunique_video_check):
-                QMessageBox.information(self, "Message", "Video caricati! Puoi taggarle")
+                            self.progressBar.reset()
+                        elif bool(idunique_video_check):
+                            data = idunique_video_check
+                            id_media = data[0].id_media
+                            media_filename =data[0].filename
+                            # visualizza le immagini nella ui
+                            item = QListWidgetItem(str(media_filename))
+                            data_for_thumb = self.db_search_check(self.MAPPER_TABLE_CLASS_thumb, 'media_filename',
+                                                                  media_filename)  # recupera i valori della thumb in base al valore id_media del file originale
+                            try:
+                                thumb_path = data_for_thumb[0].filepath_thumb
+                                item.setData(Qt.UserRole, thumb_path)
+                                icon = QIcon(str(thumb_path_str)+filepath_thumb)  # os.path.join('%s/%s' % (directory.toUtf8(), image)))
+                                item.setIcon(icon)
+                                self.iconListWidget.addItem(item)
+                            except:
+                                pass
+                if bool(idunique_video_check):
+                    QMessageBox.information(self, "Message", "I video sono già caricati nel database")
+                elif not bool(idunique_video_check):
+                    QMessageBox.information(self, "Message", "Video caricati! Puoi taggarle")
             
-            
+            except:
+                QMessageBox.warning(self, "Warning", "controlla che il nome del file non abbia caratteri speciali", QMessageBox.Ok)
             self.charge_data ()
             self.view_num_rec()
             self.open_images()
@@ -571,78 +573,82 @@ class Main(QDialog,MAIN_DIALOG_CLASS):
                                                          QFileDialog.ShowDirsOnly)
             if not directory:
                 return 0
-            
-            for image in sorted(os.listdir(directory)):    
-                if image.endswith(".png") or image.endswith(".PNG") or image.endswith(".JPG") or image.endswith(
-                        ".jpg") or image.endswith(".jpeg") or image.endswith(".JPEG") or image.endswith(
-                    ".tif") or image.endswith(".TIF") or image.endswith(".tiff") or image.endswith(".TIFF"):# or image.endswith(".mp4"):
-                    filename, filetype = image.split(".")[0], image.split(".")[1]  # db definisce nome immagine originale
-                    filepath = directory + '/' + filename + "." + filetype  # db definisce il path immagine originale
-                    idunique_image_check = self.db_search_check(self.MAPPER_TABLE_CLASS, 'filepath',
-                                                                filepath)  # controlla che l'immagine non sia già presente nel db sulla base del suo path
-                    if not bool(idunique_image_check):
-                        mediatype = 'image'  # db definisce il tipo di immagine originale
-                        self.insert_record_media(mediatype, filename, filetype,
-                                                 filepath)  # db inserisce i dati nella tabella media originali
-                        MU = Media_utility()
-                        MUR = Media_utility_resize()
-                        media_max_num_id = self.DB_MANAGER.max_num_id(self.MAPPER_TABLE_CLASS,
-                                                                      self.ID_TABLE)  # db recupera il valore più alto ovvero l'ultimo immesso per l'immagine originale
-                        thumb_path = conn.thumb_path()
-                        thumb_path_str = thumb_path['thumb_path']
-                        thumb_resize = conn.thumb_resize()
-                        thumb_resize_str = thumb_resize['thumb_resize']
-                        media_thumb_suffix = '_thumb.png'
-                        media_resize_suffix = '.png'
-                        filenameorig = filename
-                        filename_thumb = str(media_max_num_id) + "_" + filename + media_thumb_suffix
-                        filename_resize = str(media_max_num_id) + "_" +filename + media_resize_suffix
-                        filepath_thumb =  filename_thumb
-                        filepath_resize = filename_resize
-                        self.SORT_ITEMS_CONVERTED = []
-                        # crea la thumbnail
-                        try:
-                            MU.resample_images(media_max_num_id, filepath, filenameorig, thumb_path_str, media_thumb_suffix)
-                            MUR.resample_images(media_max_num_id, filepath, filenameorig, thumb_resize_str, media_resize_suffix)
-                        except Exception as e:
-                            QMessageBox.warning(self, "Cucu", str(e), QMessageBox.Ok)
-                            # progressBAr
-                        try:
-                            for i in enumerate(image):
-                                image_list.append(i[0])
-                            for n in range(len(image_list)):
-                                self.progressBar.setValue(((n)/100)*100)
-                                QApplication.processEvents()
-                        except:
-                            pass
-                        self.insert_record_mediathumb(media_max_num_id, mediatype, filename, filename_thumb, filetype,
-                                                      filepath_thumb, filepath_resize)
-                        item = QListWidgetItem(str(filenameorig))
-                        item.setData(Qt.UserRole, str(media_max_num_id))
-                        icon = QIcon(str(thumb_path_str)+filepath_thumb)
-                        item.setIcon(icon)
-                        self.iconListWidget.addItem(item)
-                        self.progressBar.reset()
-                    elif bool(idunique_image_check):
-                        data = idunique_image_check
-                        id_media = data[0].id_media
-                        media_filename =data[0].filename
-                        # visualizza le immagini nella ui
-                        item = QListWidgetItem(str(media_filename))
-                        data_for_thumb = self.db_search_check(self.MAPPER_TABLE_CLASS_thumb, 'media_filename',
-                                                              media_filename)  # recupera i valori della thumb in base al valore id_media del file originale
-                        try:
-                            thumb_path = data_for_thumb[0].filepath_thumb
-                            item.setData(Qt.UserRole, thumb_path)
-                            icon = QIcon(str(thumb_path_str)+filepath_thumb)  # os.path.join('%s/%s' % (directory.toUtf8(), image)))
+            try:
+                for image in sorted(os.listdir(directory)):    
+                    if image.endswith(".png") or image.endswith(".PNG") or image.endswith(".JPG") or image.endswith(
+                            ".jpg") or image.endswith(".jpeg") or image.endswith(".JPEG") or image.endswith(
+                        ".tif") or image.endswith(".TIF") or image.endswith(".tiff") or image.endswith(".TIFF"):# or image.endswith(".mp4"):
+                        filename, filetype = image.split(".")[0], image.split(".")[1]  # db definisce nome immagine originale
+                        filepath = directory + '/' + filename + "." + filetype  # db definisce il path immagine originale
+                        idunique_image_check = self.db_search_check(self.MAPPER_TABLE_CLASS, 'filepath',
+                                                                    filepath)  # controlla che l'immagine non sia già presente nel db sulla base del suo path
+                        if not bool(idunique_image_check):
+                            mediatype = 'image'  # db definisce il tipo di immagine originale
+                            self.insert_record_media(mediatype, filename, filetype,
+                                                     filepath)  # db inserisce i dati nella tabella media originali
+                            MU = Media_utility()
+                            MUR = Media_utility_resize()
+                            media_max_num_id = self.DB_MANAGER.max_num_id(self.MAPPER_TABLE_CLASS,
+                                                                          self.ID_TABLE)  # db recupera il valore più alto ovvero l'ultimo immesso per l'immagine originale
+                            thumb_path = conn.thumb_path()
+                            thumb_path_str = thumb_path['thumb_path']
+                            thumb_resize = conn.thumb_resize()
+                            thumb_resize_str = thumb_resize['thumb_resize']
+                            media_thumb_suffix = '_thumb.png'
+                            media_resize_suffix = '.png'
+                            filenameorig = filename
+                            filename_thumb = str(media_max_num_id) + "_" + filename + media_thumb_suffix
+                            filename_resize = str(media_max_num_id) + "_" +filename + media_resize_suffix
+                            filepath_thumb =  filename_thumb
+                            filepath_resize = filename_resize
+                            self.SORT_ITEMS_CONVERTED = []
+                            # crea la thumbnail
+                            try:
+                                MU.resample_images(media_max_num_id, filepath, filenameorig, thumb_path_str, media_thumb_suffix)
+                                MUR.resample_images(media_max_num_id, filepath, filenameorig, thumb_resize_str, media_resize_suffix)
+                            except Exception as e:
+                                QMessageBox.warning(self, "Cucu", str(e), QMessageBox.Ok)
+                                # progressBAr
+                            try:
+                                for i in enumerate(image):
+                                    image_list.append(i[0])
+                                for n in range(len(image_list)):
+                                    self.progressBar.setValue(((n)/100)*100)
+                                    QApplication.processEvents()
+                            except:
+                                pass
+                            self.insert_record_mediathumb(media_max_num_id, mediatype, filename, filename_thumb, filetype,
+                                                          filepath_thumb, filepath_resize)
+                            item = QListWidgetItem(str(filenameorig))
+                            item.setData(Qt.UserRole, str(media_max_num_id))
+                            icon = QIcon(str(thumb_path_str)+filepath_thumb)
                             item.setIcon(icon)
                             self.iconListWidget.addItem(item)
-                        except:
-                            pass
-            if bool(idunique_image_check):
-                QMessageBox.information(self, "Message", "Le immagini sono già caricate nel database")
-            elif not bool(idunique_image_check):
-                QMessageBox.information(self, "Message", "Imamagini caricate! Puoi taggarle")
+                            self.progressBar.reset()
+                        elif bool(idunique_image_check):
+                            data = idunique_image_check
+                            id_media = data[0].id_media
+                            media_filename =data[0].filename
+                            # visualizza le immagini nella ui
+                            item = QListWidgetItem(str(media_filename))
+                            data_for_thumb = self.db_search_check(self.MAPPER_TABLE_CLASS_thumb, 'media_filename',
+                                                                  media_filename)  # recupera i valori della thumb in base al valore id_media del file originale
+                            try:
+                                thumb_path = data_for_thumb[0].filepath_thumb
+                                item.setData(Qt.UserRole, thumb_path)
+                                icon = QIcon(str(thumb_path_str)+filepath_thumb)  # os.path.join('%s/%s' % (directory.toUtf8(), image)))
+                                item.setIcon(icon)
+                                self.iconListWidget.addItem(item)
+                            except:
+                                pass
+                if bool(idunique_image_check):
+                    QMessageBox.information(self, "Message", "Le immagini sono già caricate nel database")
+                elif not bool(idunique_image_check):
+                    QMessageBox.information(self, "Message", "Imamagini caricate! Puoi taggarle")
+            
+            except:
+                
+                QMessageBox.warning(self, "WARNING", "Controlla che il nome del file non abbia caratteri speciali", QMessageBox.Ok)
             self.charge_data ()
             self.view_num_rec()
             self.open_images()

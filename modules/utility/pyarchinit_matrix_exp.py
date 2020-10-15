@@ -8,7 +8,6 @@
     copyright            : (C) 2018 by Salvatore Larosa
     email                : lrssvtml (at) gmail (dot) com
  ***************************************************************************/
-
 /***************************************************************************
  *                                                                         *
  *   This program is free software; you can redistribute it and/or modify  *
@@ -138,10 +137,10 @@ class HarrisMatrix:
                              #startupinfo=si if Pyarchinit_OS_Utility.isWindows()else None)
 
         tred_file = os.path.join(matrix_path, filename + '_tred.dot')
-        g = Source.from_file(tred_file, format='svgz')
-        g.render()
+        
         f = Source.from_file(tred_file, format='jpeg')
         f.render()
-        #f.view()
+        g = Source.from_file(tred_file, format='svgz')
+        g.render()
         return g,f
         # return f

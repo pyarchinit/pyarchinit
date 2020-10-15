@@ -714,7 +714,8 @@ CREATE TABLE public.periodizzazione_table (
     cron_finale integer,
     descrizione text,
     datazione_estesa character varying(300),
-    cont_per integer
+    cont_per integer,
+	area integer
 );
 
 
@@ -1653,11 +1654,12 @@ CREATE TABLE public.pyunitastratigrafiche (
     the_geom public.geometry(MultiPolygon,-1),
     stratigraph_index_us integer,
     tipo_us_s character varying,
-    rilievo_orginale character varying,
+    rilievo_originale character varying(250),
     disegnatore character varying,
     data date,
     tipo_doc character varying(250),
-    nome_doc character varying(250)
+    nome_doc character varying(250),
+	coord text
 );
 
 
@@ -3157,6 +3159,41 @@ BEGIN
     END IF;
 END
 $$;  
+
+CREATE OR REPLACE FUNCTION public.create_geom()
+    RETURNS trigger
+    LANGUAGE 'plpgsql'
+    COST 100
+    VOLATILE NOT LEAKPROOF
+AS $BODY$
+BEGIN
+ if new.coord is null or new.coord!= old.coord then
+
+  update pyunitastratigrafiche set coord = ST_AsText(ST_Centroid(the_geom));
+END IF;
+RETURN NEW;
+END;
+$BODY$;
+
+ALTER FUNCTION public.create_geom()
+    OWNER TO postgres;
+
+COMMENT ON FUNCTION public.create_geom()
+    IS 'When a new record is added to write coordinates if coord is null in coord field';
+DO $$
+BEGIN
+    IF NOT EXISTS (SELECT 1 FROM pg_trigger WHERE tgname = 'create_geom') THEN
+CREATE TRIGGER create_geom
+    AFTER INSERT OR UPDATE 
+    ON public.pyunitastratigrafiche
+    FOR EACH ROW
+    EXECUTE PROCEDURE public.create_geom();
+
+
+END IF;
+END
+$$;  
+
 
 REVOKE ALL ON SCHEMA public FROM PUBLIC;
 REVOKE ALL ON SCHEMA public FROM postgres;

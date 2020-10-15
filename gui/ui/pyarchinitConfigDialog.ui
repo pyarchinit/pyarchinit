@@ -1105,17 +1105,12 @@
          <widget class="QComboBox" name="comboBox_mapper_read">
           <item>
            <property name="text">
-            <string>US</string>
-           </property>
-          </item>
-          <item>
-           <property name="text">
-            <string>UT</string>
-           </property>
-          </item>
-          <item>
-           <property name="text">
             <string>SITE</string>
+           </property>
+          </item>
+          <item>
+           <property name="text">
+            <string>US</string>
            </property>
           </item>
           <item>
@@ -1186,6 +1181,16 @@
           <item>
            <property name="text">
             <string>MEDIATOENTITY</string>
+           </property>
+          </item>
+          <item>
+           <property name="text">
+            <string>UT</string>
+           </property>
+          </item>
+          <item>
+           <property name="text">
+            <string>PYUS</string>
            </property>
           </item>
          </widget>
