@@ -23,7 +23,14 @@ repository=https://github.com/pyarchinit/pyarchinit
 
 
 
-changelog=release1.1.4:
+changelog=release1.1.5:
+
+     	-update db
+     	-add position
+     	-update form us ui
+
+   --------------------------------------------------------------------------------
+   release1.1.4:
 
      	- export usm
 

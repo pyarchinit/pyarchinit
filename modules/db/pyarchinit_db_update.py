@@ -35,6 +35,16 @@ class DB_update(object):
         self.metadata = MetaData(self.engine)
 
     def update_table(self):
+        ####invetario_materiali_table
+        table = Table("inventario_materiali_table", self.metadata, autoload=True)
+        table_column_names_list = []
+        for i in table.columns:
+            table_column_names_list.append(str(i.name))
+
+        if not table_column_names_list.__contains__('n_reperto'):
+            self.engine.execute("ALTER TABLE inventario_materiali_table ADD COLUMN n_reperto INTEGER")
+
+        
         ####site_table
         table = Table("site_table", self.metadata, autoload=True)
         table_column_names_list = []
@@ -289,7 +299,7 @@ class DB_update(object):
         if not table_column_names_list.__contains__('cont_per'):
             self.engine.execute("ALTER TABLE periodizzazione_table ADD COLUMN cont_per integer DEFAULT '' ")
         if not table_column_names_list.__contains__('area'):
-            self.engine.execute("ALTER TABLE periodizzazione_table ADD COLUMN area integer DEFAULT '' ")
+            self.engine.execute("ALTER TABLE periodizzazione_table ADD COLUMN area integer")
         ####inventario_materiali_table
         table = Table("inventario_materiali_table", self.metadata, autoload=True)
         table_column_names_list = []
@@ -360,10 +370,16 @@ class DB_update(object):
         table_column_names_list = []
         for i in table.columns:
             table_column_names_list.append(str(i.name))
-
-        if not table_column_names_list.__contains__('rilievo_originale'):
-            self.engine.execute("ALTER TABLE pyunitastratigrafiche ADD COLUMN rilievo_originale varchar(250)")
+        if table_column_names_list.__contains__('rilievo_orginale'):
+            self.engine.execute("ALTER TABLE pyunitastratigrafiche RENAME COLUMN rilievo_orginale TO rilievo_originale")   
+        # if not table_column_names_list.__contains__('rilievo_originale'):
+            # self.engine.execute("ALTER TABLE pyunitastratigrafiche ADD COLUMN rilievo_originale varchar(250)")
+        if not table_column_names_list.__contains__('coord'):
+            self.engine.execute("ALTER TABLE pyunitastratigrafiche ADD COLUMN coord text")
         
+        if table_column_names_list.__contains__('id'):
+            self.engine.execute("ALTER TABLE pyunitastratigrafiche RENAME COLUMN id TO gid")
+         
         ####tafonomia_table
         table = Table("tafonomia_table", self.metadata, autoload=True)
         table_column_names_list = []
@@ -396,6 +412,5 @@ class DB_update(object):
         except:
             pass
             # verificare se aggiorna le tabelle con i campi nuovi
-
-		
-		
+        
+        

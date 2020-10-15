@@ -9,7 +9,6 @@
     copyright            : (C) 2008 by Luca Mandolesi
     email                : mandoluca at gmail.com
  ***************************************************************************/
-
 /***************************************************************************
  *                                                                         *
  *   This program is free software; you can redistribute it and/or modify  *

@@ -42,6 +42,7 @@ from modules.db.entities.TAFONOMIA import TAFONOMIA
 from modules.db.entities.US import US
 from modules.db.entities.US_TOIMP import US_TOIMP
 from modules.db.entities.UT import UT
+from modules.db.entities.PYUS import PYUS
 from modules.db.structures.Archeozoology_table import Fauna
 from modules.db.structures.Campioni_table import Campioni_table
 from modules.db.structures.DETETA_table import DETETA_table
@@ -63,6 +64,7 @@ from modules.db.structures.Tafonomia_table import Tafonomia_table
 from modules.db.structures.US_table import US_table
 from modules.db.structures.US_table_toimp import US_table_toimp
 from modules.db.structures.UT_table import UT_table
+from modules.db.structures.pyunitastratigrafiche import pyunitastratigrafiche
 
 try:
     # mapper
@@ -130,6 +132,9 @@ try:
 
     # mapper
     mapper(TAFONOMIA, Tafonomia_table.tafonomia_table)
+    
+    # mapper
+    mapper(PYUS, pyunitastratigrafiche.pyunitastratigrafiche)
 
 except:
     pass

@@ -618,7 +618,7 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
                 "tipo_doc_n" text,
                 "nome_doc_n" text, "the_geom" LINESTRING);"""
             c.execute(sql_und)
-            c.execute(select([func.AddGeometryColumn('pyarchinit_us_negative_doc', 'the_geom', 4326, 'LINESTRING', 'XY')]))
+            c.execute(select([func.AddGeometryColumn('pyarchinit_us_negative_doc', 'the_geom', -1, 'LINESTRING', 'XY')]))
             c.execute(select([func.CreateSpatialIndex('pyarchinit_us_negative_doc', 'the_geom')]))
             sql_doc = """CREATE TABLE IF NOT EXISTS"pyarchinit_documentazione" (
                 "pkuid" integer PRIMARY KEY AUTOINCREMENT,
@@ -627,13 +627,13 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
                 "tipo_doc" text,
                 "path_qgis_pj" text, "the_geom" LINESTRING);"""
             c.execute(sql_doc)
-            c.execute(select([func.AddGeometryColumn('pyarchinit_documentazione', 'the_geom', 4326, 'LINESTRING', 'XY')]))
+            c.execute(select([func.AddGeometryColumn('pyarchinit_documentazione', 'the_geom', -1, 'LINESTRING', 'XY')]))
             c.execute(select([func.CreateSpatialIndex('pyarchinit_documentazione', 'the_geom')]))
                 
             sql_rep = """CREATE TABLE if not exists "pyarchinit_reperti" ("ROWIND" INTEGER PRIMARY KEY AUTOINCREMENT, "id_rep" INTEGER, "siti" TEXT, "link" TEXT);"""
             c.execute(sql_rep)
             #c.connect(db_path)
-            c.execute(select([func.AddGeometryColumn('pyarchinit_reperti', 'the_geom', 4326, 'POINT', 'XY')]))
+            c.execute(select([func.AddGeometryColumn('pyarchinit_reperti', 'the_geom', -1, 'POINT', 'XY')]))
             c.execute(select([func.CreateSpatialIndex('pyarchinit_reperti', 'the_geom')]))
             
             sql_view_ndv="""CREATE VIEW IF NOT EXISTS"pyarchinit_us_negative_doc_view" AS
@@ -687,7 +687,7 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
             sql_drop_view= """DROP view if EXISTS mediaentity_view;"""
             c.execute(sql_drop_view)
             
-            sql_alter= """alter table media_thumb_table rename to 'temp_media_thumb';"""
+            sql_alter= """alter table media_thumb_table rename to temp_media_thumb;"""
             c.execute(sql_alter)
             
             # sql_drop_media_thumb_table="""DROP TABLE media_thumb_table;"""
@@ -737,6 +737,150 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
                 where id_media = OLD.id_media ; 
                 END;"""
             c.execute(sql_trigger_delete_mediaentity)
+            
+            # sql_drop_table_materiali=(
+            # """drop table if exists table_old;""")
+            # c.execute(sql_drop_table_materiali)
+            
+            # sql_ater_colum_materiali=( 
+            
+            # """ALTER TABLE inventario_materiali_table rename TO table_old;""")
+            
+            # c.execute(sql_ater_colum_materiali)
+            # sql_ater_colum_materiali_1=( 
+            # """CREATE TABLE if not exists inventario_materiali_table (
+
+            # id_invmat 
+            # INTEGER ,
+            # sito 
+            # TEXT ,
+            # numero_inventario 
+            # INTEGER ,
+            # tipo_reperto 
+            # TEXT ,
+            # criterio_schedatura 
+            # TEXT ,
+            # definizione 
+            # TEXT ,
+            # descrizione 
+            # TEXT ,
+            # area 
+            # TEXT,
+            # us 
+            # INTEGER ,
+            # lavato 
+            # VARCHAR(2) ,
+            # nr_cassa 
+            # INTEGER ,
+            # luogo_conservazione 
+            # TEXT ,
+            # stato_conservazione 
+            # VARCHAR(20) ,
+            # datazione_reperto 
+            # VARCHAR(100) ,
+            # elementi_reperto 
+            # TEXT ,
+            # misurazioni 
+            # TEXT ,
+            # rif_biblio 
+            # TEXT ,
+            # tecnologie 
+            # TEXT ,
+            # forme_minime 
+            # INTEGER ,
+            # forme_massime 
+            # INTEGER ,
+            # totale_frammenti 
+            # INTEGER ,
+            # corpo_ceramico 
+            # VARCHAR(20) ,
+            # rivestimento 
+            # VARCHAR(20) ,
+            # diametro_orlo 
+            # NUMERIC(7, 3) ,
+            # peso 
+            # NUMERIC(9, 3) ,
+            # tipo 
+            # VARCHAR(20) ,
+            # eve_orlo 
+            # NUMERIC(7, 3) ,
+            # repertato 
+            # varchar(2) ,
+            # diagnostico 
+            # varchar(2),
+            # n_reperto 
+            # INTEGER );""" )
+            # c.execute(sql_ater_colum_materiali_1)
+            # sql_ater_colum_materiali_2=( 
+            # """INSERT INTO inventario_materiali_table (
+            # id_invmat ,
+            # sito ,
+            # numero_inventario ,
+            # tipo_reperto ,
+            # criterio_schedatura ,
+            # definizione ,
+            # descrizione ,
+            # area ,
+            # us ,
+            # lavato ,
+            # nr_cassa ,
+            # luogo_conservazione ,
+            # stato_conservazione ,
+            # datazione_reperto ,
+            # elementi_reperto ,
+            # misurazioni ,
+            # rif_biblio ,
+            # tecnologie ,
+            # forme_minime ,
+            # forme_massime ,
+            # totale_frammenti ,
+            # corpo_ceramico ,
+            # rivestimento, 
+            # diametro_orlo ,
+            # peso ,
+            # tipo ,
+            # eve_orlo ,
+            # repertato ,
+            # diagnostico ,
+            # n_reperto
+            # )
+              # SELECT *
+              # FROM table_old; """)
+
+            
+            # c.execute(sql_ater_colum_materiali_2)
+            
+            # sql_drop_view_materiali=(
+            # """drop view if exists inventario_materiali_view;""")
+            # c.execute(sql_drop_view_materiali)
+            
+            # sql_drop_table_materiali=(
+            # """drop table if exists table_old;""")
+            # c.execute(sql_drop_table_materiali)
+            # sql_create_view_materiali=(
+            # """CREATE VIEW if not exists "inventario_materiali_view" AS
+            # SELECT "a"."ROWID" AS "ROWID", "a"."id" AS "id", "a"."id_sito" AS "id_sito",
+            # "a"."sito_nome" AS "sito_nome", "a"."descr_sito" AS "descr_sito",
+            # "a"."the_geom" AS "the_geom", "b"."ROWID" AS "ROWID_1",
+            # "b"."id_invmat" AS "id_invmat", "b"."sito" AS "sito",
+            # "b"."numero_inventario" AS "numero_inventario",
+            # "b"."tipo_reperto" AS "tipo_reperto", "b"."criterio_schedatura" AS "criterio_schedatura",
+            # "b"."definizione" AS "definizione", "b"."descrizione" AS "descrizione",
+            # "b"."area" AS "area", "b"."us" AS "us", "b"."lavato" AS "lavato",
+            # "b"."nr_cassa" AS "nr_cassa", "b"."luogo_conservazione" AS "luogo_conservazione",
+            # "b"."stato_conservazione" AS "stato_conservazione",
+            # "b"."datazione_reperto" AS "datazione_reperto",
+            # "b"."elementi_reperto" AS "elementi_reperto", "b"."misurazioni" AS "misurazioni",
+            # "b"."rif_biblio" AS "rif_biblio", "b"."tecnologie" AS "tecnologie",
+            # "b"."forme_minime" AS "forme_minime", "b"."forme_massime" AS "forme_massime",
+            # "b"."totale_frammenti" AS "totale_frammenti", "b"."corpo_ceramico" AS "corpo_ceramico",
+            # "b"."rivestimento" AS "rivestimento", "b"."diametro_orlo" AS "diametro_orlo",
+            # "b"."peso" AS "peso", "b"."tipo" AS "tipo", "b"."eve_orlo" AS "eve_orlo",
+            # "b"."repertato" AS "repertato", "b"."diagnostico" AS "diagnostico","b"."n_reperto" AS "n_reperto"
+            # FROM "pyarchinit_siti" AS "a"
+            # JOIN "inventario_materiali_table" AS "b" ON ("a"."sito_nome" = "b"."sito")""")
+            # c.execute(sql_create_view_materiali)
+            
             sql_view_rep="""CREATE VIEW if not exists "pyarchinit_reperti_view" AS
                 SELECT "a"."ROWID" AS "ROWID", "a"."ROWIND" AS "ROWIND",
                     "a"."the_geom" AS "the_geom",
@@ -755,153 +899,239 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
                     "b"."totale_frammenti" AS "totale_frammenti", "b"."corpo_ceramico" AS "corpo_ceramico",
                     "b"."rivestimento" AS "rivestimento"
                 FROM "pyarchinit_reperti" AS "a"
-                JOIN "inventario_materiali_table_toimp" AS "b" ON ("a"."siti" = "b"."sito" AND "a"."id_rep" = "b"."numero_inventario")"""
+                JOIN "inventario_materiali_table" AS "b" ON ("a"."siti" = "b"."sito" AND "a"."id_rep" = "b"."numero_inventario")"""
             c.execute(sql_view_rep)
+            
             sql_view_rep_geom= """INSERT OR REPLACE INTO views_geometry_columns
                     (view_name, view_geometry, view_rowid, f_table_name, f_geometry_column)
                     VALUES ('pyarchinit_reperti_view', 'the_geom', 'rowid', 'pyarchinit_reperti', 'the_geom')"""  
             c.execute(sql_view_rep_geom)
             
             
-            sql_ater_colum_materiali=( 
+            sql_drop_view_us=(
+            """drop view if exists pyarchinit_us_view;""")
+            c.execute(sql_drop_view_us)
             
-            """ALTER TABLE inventario_materiali_table rename TO _table_old;""")
-            
-            c.execute(sql_ater_colum_materiali)
-            sql_ater_colum_materiali_1=( 
-            """CREATE TABLE inventario_materiali_table (
+            sql_drop_table_usold=(
+            """drop table if exists pyunitastratigrafiche_old;""")
+            c.execute(sql_drop_table_usold)
+            sql_trigger_coord="""CREATE TRIGGER IF NOT EXISTS create_geom 
+                After insert 
+                ON pyunitastratigrafiche 
 
-            id_invmat 
-            INTEGER ,
-            sito 
-            TEXT ,
-            numero_inventario 
-            INTEGER ,
-            tipo_reperto 
-            TEXT ,
-            criterio_schedatura 
-            TEXT ,
-            definizione 
-            TEXT ,
-            descrizione 
-            TEXT ,
-            area 
-            TEXT,
-            us 
-            INTEGER ,
-            lavato 
-            VARCHAR(2) ,
-            nr_cassa 
-            INTEGER ,
-            luogo_conservazione 
-            TEXT ,
-            stato_conservazione 
-            VARCHAR(20) ,
-            datazione_reperto 
-            VARCHAR(100) ,
-            elementi_reperto 
-            TEXT ,
-            misurazioni 
-            TEXT ,
-            rif_biblio 
-            TEXT ,
-            tecnologie 
-            TEXT ,
-            forme_minime 
-            INTEGER ,
-            forme_massime 
-            INTEGER ,
-            totale_frammenti 
-            INTEGER ,
-            corpo_ceramico 
-            VARCHAR(20) ,
-            rivestimento 
-            VARCHAR(20) ,
-            diametro_orlo 
-            NUMERIC(7, 3) ,
-            peso 
-            NUMERIC(9, 3) ,
-            tipo 
-            VARCHAR(20) ,
-            eve_orlo 
-            NUMERIC(7, 3) ,
-            repertato 
-            varchar(2) ,
-            diagnostico 
-            varchar(2));""" )
-            c.execute(sql_ater_colum_materiali_1)
-            sql_ater_colum_materiali_2=( 
-            """INSERT INTO inventario_materiali_table (
-            id_invmat ,
-            sito ,
-            numero_inventario ,
-            tipo_reperto ,
-            criterio_schedatura ,
-            definizione ,
-            descrizione ,
-            area ,
-            us ,
-            lavato ,
-            nr_cassa ,
-            luogo_conservazione ,
-            stato_conservazione ,
-            datazione_reperto ,
-            elementi_reperto ,
-            misurazioni ,
-            rif_biblio ,
-            tecnologie ,
-            forme_minime ,
-            forme_massime ,
-            totale_frammenti ,
-            corpo_ceramico ,
-            rivestimento, 
-            diametro_orlo ,
-            peso ,
-            tipo ,
-            eve_orlo ,
-            repertato ,
-            diagnostico 
-            )
-              SELECT *
-              FROM _table_old; """)
+                BEGIN 
+                
+                update pyunitastratigrafiche set coord = ST_AsText(ST_Centroid(the_geom)); 
+                
+                END;"""
+            c.execute(sql_trigger_coord)
+            sql_trigger_coord2="""CREATE TRIGGER IF NOT EXISTS create_geom2 
+                After update 
+                ON pyunitastratigrafiche 
+
+                BEGIN 
+                
+                update pyunitastratigrafiche set coord = ST_AsText(ST_Centroid(the_geom)); 
+                
+                END;"""
+            c.execute(sql_trigger_coord2)
+            
+            
+            sql_alter_table_pyus=(
+            """ALTER TABLE pyunitastratigrafiche rename TO pyunitastratigrafiche_old;""")
+            c.execute(sql_alter_table_pyus)
+            c.execute(select([func.AddGeometryColumn('pyunitastratigrafiche_old', 'the_geom', self.lineEdit_crs.text(), 'MULTIPOLYGON', 'XY')]))
+            c.execute(select([func.CreateSpatialIndex('pyunitastratigrafiche_old', 'the_geom')]))
+            sql_alter_table_us=( 
+            """CREATE TABLE if not exists pyunitastratigrafiche (
+            "gid" integer PRIMARY KEY AUTOINCREMENT,
+            "area_s" integer,
+            "scavo_s" text,
+            "us_s" integer,
+            
+            "stratigraph_index_us" integer,
+            "tipo_us_s" text,
+            "rilievo_originale" text,
+            "disegnatore" text,
+            "data" date,
+            "tipo_doc" text,
+            "nome_doc" text,
+            "coord" text,
+            "the_geom" MULTIPOLYGON); """ )
+            c.execute(sql_alter_table_us)
+            c.execute(select([func.AddGeometryColumn('pyunitastratigrafiche', 'the_geom', self.lineEdit_crs.text(), 'MULTIPOLYGON', 'XY')]))
+            c.execute(select([func.CreateSpatialIndex('pyunitastratigrafiche', 'the_geom')]))
+            
+            
+            sql_alter_table_us_2=( 
+            """INSERT INTO pyunitastratigrafiche (
+            gid,
+            area_s,
+            scavo_s,
+            us_s,
+            stratigraph_index_us,
+            tipo_us_s,
+            rilievo_originale,
+            disegnatore,
+            data,
+            tipo_doc,
+            nome_doc,
+            coord,
+            the_geom)
+            
+              SELECT gid,
+                    area_s,
+                    scavo_s,
+                    us_s,
+                    stratigraph_index_us,
+                    tipo_us_s,
+                    rilievo_originale,
+                    disegnatore,
+                    data,
+                    tipo_doc,
+                    nome_doc,
+                    coord,
+                    the_geom
+              FROM pyunitastratigrafiche_old; """)
+            c.execute(sql_alter_table_us_2)
+            aa=("""drop table if exists pyunitastratigrafiche_old;""")
+            c.execute(aa)
+            a = ("""CREATE TRIGGER "ggi_pyunitastratigrafiche_the_geom" BEFORE INSERT ON "pyunitastratigrafiche"
+            FOR EACH ROW BEGIN
+            SELECT RAISE(ROLLBACK, 'pyunitastratigrafiche.the_geom violates Geometry constraint [geom-type or SRID not allowed]')
+            WHERE (SELECT type FROM geometry_columns
+            WHERE f_table_name = 'pyunitastratigrafiche' AND f_geometry_column = 'the_geom'
+            AND GeometryConstraints(NEW."the_geom", type, srid, 'XY') = 1) IS NULL;
+            END;  """)
+            b = ("""CREATE TRIGGER "ggu_pyunitastratigrafiche_the_geom" BEFORE UPDATE ON "pyunitastratigrafiche"
+            FOR EACH ROW BEGIN
+            SELECT RAISE(ROLLBACK, 'pyunitastratigrafiche.the_geom violates Geometry constraint [geom-type or SRID not allowed]')
+            WHERE (SELECT type FROM geometry_columns
+            WHERE f_table_name = 'pyunitastratigrafiche' AND f_geometry_column = 'the_geom'
+            AND GeometryConstraints(NEW."the_geom", type, srid, 'XY') = 1) IS NULL;
+            END;  """)
+            cc=(""" CREATE TRIGGER "gii_pyunitastratigrafiche_the_geom" AFTER INSERT ON "pyunitastratigrafiche"
+            FOR EACH ROW BEGIN
+            DELETE FROM "idx_pyunitastratigrafiche_the_geom" WHERE pkid=NEW.ROWID;
+            SELECT RTreeAlign('idx_pyunitastratigrafiche_the_geom', NEW.ROWID, NEW."the_geom");
+            END; """)
+            d = ("""CREATE TRIGGER "giu_pyunitastratigrafiche_the_geom" AFTER UPDATE ON "pyunitastratigrafiche"
+            FOR EACH ROW BEGIN
+            DELETE FROM "idx_pyunitastratigrafiche_the_geom" WHERE pkid=NEW.ROWID;
+            SELECT RTreeAlign('idx_pyunitastratigrafiche_the_geom', NEW.ROWID, NEW."the_geom");
+            END;  """)
+            e=(""" CREATE TRIGGER "gid_pyunitastratigrafiche_the_geom" AFTER DELETE ON "pyunitastratigrafiche"
+            FOR EACH ROW BEGIN
+            DELETE FROM "idx_pyunitastratigrafiche_the_geom" WHERE pkid=OLD.ROWID;
+            END; """)
+            c.execute(a)
+            c.execute(b)
+            c.execute(cc)
+            c.execute(d)
+            c.execute(e)
+            
+            sql_view_us=(
+            """CREATE VIEW  "pyarchinit_us_view" AS
+            
+            SELECT "a"."ROWID" AS "ROWID", "a"."gid" AS "gid", "a"."area_s" AS "area_s",
+            "a"."scavo_s" AS "scavo_s", "a"."us_s" AS "us_s",
+            "a"."stratigraph_index_us" AS "stratigraph_index_us",
+            "a"."tipo_us_s" AS "tipo_us_s", "a"."rilievo_originale" AS "rilievo_originale",
+            "a"."disegnatore" AS "disegnatore", "a"."data" AS "data",
+            "a"."the_geom" AS "the_geom", "a"."tipo_doc" AS "tipo_doc",
+            "a"."nome_doc" AS "nome_doc", "b"."id_us" AS "id_us", "b"."sito" AS "sito", "b"."area" AS "area",
+            "b"."us" AS "us", "b"."d_stratigrafica" AS "d_stratigrafica",
+            "b"."d_interpretativa" AS "d_interpretativa", "b"."descrizione" AS "descrizione",
+            "b"."interpretazione" AS "interpretazione", "b"."periodo_iniziale" AS "periodo_iniziale",
+            "b"."fase_iniziale" AS "fase_iniziale", "b"."periodo_finale" AS "periodo_finale",
+            "b"."fase_finale" AS "fase_finale", "b"."scavato" AS "scavato",
+            "b"."attivita" AS "attivita", "b"."anno_scavo" AS "anno_scavo",
+            "b"."metodo_di_scavo" AS "metodo_di_scavo", "b"."inclusi" AS "inclusi",
+            "b"."campioni" AS "campioni", "b"."rapporti" AS "rapporti",
+            "b"."data_schedatura" AS "data_schedatura", "b"."schedatore" AS "schedatore",
+            "b"."formazione" AS "formazione", "b"."stato_di_conservazione" AS "stato_di_conservazione",
+            "b"."colore" AS "colore", "b"."consistenza" AS "consistenza",
+            "b"."struttura" AS "struttura", "b"."cont_per" AS "cont_per",
+            "b"."order_layer" AS "order_layer", "b"."documentazione" AS "documentazione",
+            "b"."unita_tipo" AS "unita_tipo", "b"."settore" AS "settore",
+            "b"."quad_par" AS "quad_par", "b"."ambient" AS "ambient",
+            "b"."saggio" AS "saggio", "b"."elem_datanti" AS "elem_datanti",
+            "b"."funz_statica" AS "funz_statica", "b"."lavorazione" AS "lavorazione",
+            "b"."spess_giunti" AS "spess_giunti", "b"."letti_posa" AS "letti_posa",
+            "b"."alt_mod" AS "alt_mod", "b"."un_ed_riass" AS "un_ed_riass",
+            "b"."reimp" AS "reimp", "b"."posa_opera" AS "posa_opera",
+            "b"."quota_min_usm" AS "quota_min_usm", "b"."quota_max_usm" AS "quota_max_usm",
+            "b"."cons_legante" AS "cons_legante", "b"."col_legante" AS "col_legante",
+            "b"."aggreg_legante" AS "aggreg_legante", "b"."con_text_mat" AS "con_text_mat",
+            "b"."col_materiale" AS "col_materiale", "b"."inclusi_materiali_usm" AS "inclusi_materiali_usm",
+            "b"."n_catalogo_generale" AS "n_catalogo_generale",
+            "b"."n_catalogo_interno" AS "n_catalogo_interno",
+            "b"."n_catalogo_internazionale" AS "n_catalogo_internazionale",
+            "b"."soprintendenza" AS "soprintendenza", "b"."quota_relativa" AS "quota_relativa",
+            "b"."quota_abs" AS "quota_abs", "b"."ref_tm" AS "ref_tm",
+            "b"."ref_ra" AS "ref_ra", "b"."ref_n" AS "ref_n",
+            "b"."posizione" AS "posizione", "b"."criteri_distinzione" AS "criteri_distinzione",
+            "b"."modo_formazione" AS "modo_formazione", "b"."componenti_organici" AS "componenti_organici",
+            "b"."componenti_inorganici" AS "componenti_inorganici",
+            "b"."lunghezza_max" AS "lunghezza_max", "b"."altezza_max" AS "altezza_max",
+            "b"."altezza_min" AS "altezza_min", "b"."profondita_max" AS "profondita_max",
+            "b"."profondita_min" AS "profondita_min", "b"."larghezza_media" AS "larghezza_media",
+            "b"."quota_max_abs" AS "quota_max_abs", "b"."quota_max_rel" AS "quota_max_rel",
+            "b"."quota_min_abs" AS "quota_min_abs", "b"."quota_min_rel" AS "quota_min_rel",
+            "b"."osservazioni" AS "osservazioni", "b"."datazione" AS "datazione",
+            "b"."flottazione" AS "flottazione", "b"."setacciatura" AS "setacciatura",
+            "b"."affidabilita" AS "affidabilita", "b"."direttore_us" AS "direttore_us",
+            "b"."responsabile_us" AS "responsabile_us", "b"."cod_ente_schedatore" AS "cod_ente_schedatore",
+            "b"."data_rilevazione" AS "data_rilevazione", "b"."data_rielaborazione" AS "data_rielaborazione",
+            "b"."lunghezza_usm" AS "lunghezza_usm", "b"."altezza_usm" AS "altezza_usm",
+            "b"."spessore_usm" AS "spessore_usm", "b"."tecnica_muraria_usm" AS "tecnica_muraria_usm",
+            "b"."modulo_usm" AS "modulo_usm", "b"."campioni_malta_usm" AS "campioni_malta_usm",
+            "b"."campioni_mattone_usm" AS "campioni_mattone_usm",
+            "b"."campioni_pietra_usm" AS "campioni_pietra_usm",
+            "b"."provenienza_materiali_usm" AS "provenienza_materiali_usm",
+            "b"."criteri_distinzione_usm" AS "criteri_distinzione_usm",
+            "b"."uso_primario_usm" AS "uso_primario_usm"
+            FROM "pyunitastratigrafiche" AS "a"
+            JOIN "us_table" AS "b" ON ("a"."area_s" = "b"."area" AND "a"."scavo_s" = "b"."sito"
+            AND "a"."us_s" = "b"."us")""")
 
             
-            c.execute(sql_ater_colum_materiali_2)
+            c.execute(sql_view_us)
             
-            sql_drop_view_materiali=(
-            """drop view inventario_materiali_view;""")
-            c.execute(sql_drop_view_materiali)
+            sql_view_us_geom= """INSERT OR REPLACE INTO views_geometry_columns
+                    (view_name, view_geometry, view_rowid, f_table_name, f_geometry_column)
+                    VALUES ('pyarchinit_us_view', 'the_geom', 'rowid', 'pyunitastratigrafiche', 'the_geom')"""  
+            c.execute(sql_view_rep_geom)
             
-            sql_drop_table_materiali=(
-            """drop table _table_old;""")
-            c.execute(sql_drop_table_materiali)
-            sql_create_view_materiali=(
-            """CREATE VIEW "inventario_materiali_view" AS
-            SELECT "a"."ROWID" AS "ROWID", "a"."id" AS "id", "a"."id_sito" AS "id_sito",
-            "a"."sito_nome" AS "sito_nome", "a"."descr_sito" AS "descr_sito",
-            "a"."the_geom" AS "the_geom", "b"."ROWID" AS "ROWID_1",
-            "b"."id_invmat" AS "id_invmat", "b"."sito" AS "sito",
-            "b"."numero_inventario" AS "numero_inventario",
-            "b"."tipo_reperto" AS "tipo_reperto", "b"."criterio_schedatura" AS "criterio_schedatura",
-            "b"."definizione" AS "definizione", "b"."descrizione" AS "descrizione",
-            "b"."area" AS "area", "b"."us" AS "us", "b"."lavato" AS "lavato",
-            "b"."nr_cassa" AS "nr_cassa", "b"."luogo_conservazione" AS "luogo_conservazione",
-            "b"."stato_conservazione" AS "stato_conservazione",
-            "b"."datazione_reperto" AS "datazione_reperto",
-            "b"."elementi_reperto" AS "elementi_reperto", "b"."misurazioni" AS "misurazioni",
-            "b"."rif_biblio" AS "rif_biblio", "b"."tecnologie" AS "tecnologie",
-            "b"."forme_minime" AS "forme_minime", "b"."forme_massime" AS "forme_massime",
-            "b"."totale_frammenti" AS "totale_frammenti", "b"."corpo_ceramico" AS "corpo_ceramico",
-            "b"."rivestimento" AS "rivestimento", "b"."diametro_orlo" AS "diametro_orlo",
-            "b"."peso" AS "peso", "b"."tipo" AS "tipo", "b"."eve_orlo" AS "eve_orlo",
-            "b"."repertato" AS "repertato", "b"."diagnostico" AS "diagnostico"
-            FROM "pyarchinit_siti" AS "a"
-            JOIN "inventario_materiali_table" AS "b" ON ("a"."sito_nome" = "b"."sito")""")
-            c.execute(sql_create_view_materiali)
+            sql_trigger_coord1="""CREATE TRIGGER IF NOT EXISTS create_geom3 
+                After insert 
+                ON pyunitastratigrafiche 
+
+                BEGIN 
+                
+                update pyunitastratigrafiche set coord = ST_AsText(ST_Centroid(the_geom)); 
+                
+                END;"""
+            c.execute(sql_trigger_coord1)
+            sql_trigger_coord3="""CREATE TRIGGER IF NOT EXISTS create_geom4 
+                After update 
+                ON pyunitastratigrafiche 
+
+                BEGIN 
+                
+                update pyunitastratigrafiche set coord = ST_AsText(ST_Centroid(the_geom)); 
+                
+                END;"""
+            c.execute(sql_trigger_coord3)
+            
+            
             
             RestoreSchema(db_url,None).update_geom_srid_sl('%d' % int(self.lineEdit_crs.text()))
             c.close()
             QMessageBox.warning(self, "Message", "Update Done", QMessageBox.Ok)
+        
+            
+        
         except Exception as e:
             QMessageBox.warning(self, "Update error", str(e), QMessageBox.Ok)
         
@@ -1054,7 +1284,7 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
         
         if self.L=='it':
             id_table_class_mapper_conv_dict = {
-                'SITE': 'id_sito',
+                'SITE':'id_sito',
                 'US': 'id_us',
                 'UT': 'id_ut',
                 'PERIODIZZAZIONE': 'id_perfas',
@@ -1067,7 +1297,8 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
                 'PYARCHINIT_THESAURUS_SIGLE': 'id_thesaurus_sigle',
                 'MEDIA': 'id_media',
                 'MEDIA_THUMB': 'id_media_thumb',
-                'MEDIATOENTITY':'id_mediaToEntity'
+                'MEDIATOENTITY':'id_mediaToEntity',
+                'PYUS':'gid'
                 
             }
         elif self.L=='de':
@@ -1204,7 +1435,42 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
         
 
         ####inserisce i dati dentro al database
-
+        ####PYUNITASTRATIGRAFICHE TABLE
+        if mapper_class_write == 'PYUS' :
+            
+            for sing_rec in range(len(data_list_toimp)):
+                
+                try:
+                    data = self.DB_MANAGER_write.insert_pyus(
+                        self.DB_MANAGER_write.max_num_id(mapper_class_write,
+                                                         id_table_class_mapper_conv_dict[mapper_class_write]) + 1,
+                        data_list_toimp[sing_rec].area_s,
+                        data_list_toimp[sing_rec].scavoa_s,
+                        data_list_toimp[sing_rec].us_s,
+                        data_list_toimp[sing_rec].the_geom,
+                        data_list_toimp[sing_rec].stratigraph_index_us,
+                        data_list_toimp[sing_rec].tipo_us_s,
+                        data_list_toimp[sing_rec].rilievo_originale,
+                        data_list_toimp[sing_rec].disegnatore,
+                        data_list_toimp[sing_rec].data,
+                        data_list_toimp[sing_rec].tipo_doc,
+                        data_list_toimp[sing_rec].nome_doc,
+                        data_list_toimp[sing_rec].coord)
+                        
+                   
+                    self.DB_MANAGER_write.insert_data_session(data)
+                    for i in range(sing_rec):    
+                        #time.sleep()
+                        self.progress_bar.setValue(((i)/100)*100)
+                     
+                        QApplication.processEvents()
+                    
+                except :
+                    
+                    QMessageBox.warning(self, "Errore", "Error ! \n"+ "duplicate key",  QMessageBox.Ok)
+                    return 0
+            self.progress_bar.reset()
+            QMessageBox.information(self, "Message", "Data Loaded")
         ####SITE TABLE
         if mapper_class_write == 'SITE' :
             

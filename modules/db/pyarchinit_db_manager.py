@@ -20,23 +20,25 @@
 """
 
 import os
-
+import sqlalchemy as db
 import psycopg2
 from builtins import object
 from builtins import range
 from builtins import str
 from builtins import zip
 from sqlalchemy import and_, or_, Table, select, func, asc
+
 from sqlalchemy.engine import create_engine
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.sql.schema import MetaData
 from qgis.core import QgsMessageLog, Qgis, QgsSettings
 from qgis.utils import iface
 
+
 from modules.db.pyarchinit_db_mapper import US, UT, SITE, PERIODIZZAZIONE, \
     STRUTTURA, SCHEDAIND, INVENTARIO_MATERIALI, DETSESSO, DOCUMENTAZIONE, DETETA, MEDIA, \
     MEDIA_THUMB, MEDIATOENTITY, MEDIAVIEW, TAFONOMIA, CAMPIONI, PYARCHINIT_THESAURUS_SIGLE, \
-    ARCHEOZOOLOGY, INVENTARIO_LAPIDEI, PDF_ADMINISTRATOR
+    ARCHEOZOOLOGY, INVENTARIO_LAPIDEI, PDF_ADMINISTRATOR,PYUS
 from modules.db.pyarchinit_db_update import DB_update
 from modules.db.pyarchinit_utility import Utility
 
@@ -79,7 +81,22 @@ class Pyarchinit_db_management(object):
         return test
 
         # insert statement
-
+    def insert_pyus(self, *arg):
+        pyus = PYUS(arg[0],
+                arg[1],
+                arg[2],
+                arg[3],
+                arg[4],
+                arg[5],
+                arg[6],
+                arg[7],
+                arg[8],
+                arg[9],
+                arg[10],
+                arg[11],
+                arg[12])
+        return pyus
+    
     def insert_values(self, *arg):
         """Istanzia la classe US da pyarchinit_db_mapper"""
 
@@ -838,7 +855,7 @@ class Pyarchinit_db_management(object):
         return res
     def query_operator(self, params, table):
         u = Utility()
-        # params = u.remove_empty_items_fr_dict(params)
+        #params = u.remove_empty_items_fr_dict(params)
         field_value_string = ''
         for i in params:
             if field_value_string == '':
@@ -1214,12 +1231,12 @@ class Pyarchinit_db_management(object):
         res = self.engine.execute(sql_query_string)
         rows= res.fetchall()
         return rows
+    
     def select_quote_from_db_sql(self, sito, area, us):
         sql_query_string = ("SELECT * FROM pyarchinit_quote WHERE sito_q = '%s' AND area_q = '%s' AND us_q = '%s'") % (
         sito, area, us)
         res = self.engine.execute(sql_query_string)
         return res
-
     def select_us_from_db_sql(self, sito, area, us, stratigraph_index_us):
         sql_query_string = (
                            "SELECT * FROM pyunitastratigrafiche WHERE scavo_s = '%s' AND area_s = '%s' AND us_s = '%s' AND stratigraph_index_us = '%s'") % (
