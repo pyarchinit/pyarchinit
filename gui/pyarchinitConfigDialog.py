@@ -620,6 +620,11 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
             c.execute(sql_und)
             c.execute(select([func.AddGeometryColumn('pyarchinit_us_negative_doc', 'the_geom', -1, 'LINESTRING', 'XY')]))
             c.execute(select([func.CreateSpatialIndex('pyarchinit_us_negative_doc', 'the_geom')]))
+            
+            sql_drop_view_doc= """DROP view if EXISTS pyarchinit_doc_view;"""
+            c.execute(sql_drop_view_doc)
+            
+            
             sql_doc = """CREATE TABLE IF NOT EXISTS"pyarchinit_documentazione" (
                 "pkuid" integer PRIMARY KEY AUTOINCREMENT,
                 "sito" text,
@@ -684,8 +689,25 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
                     VALUES ('pyarchinit_doc_view', 'the_geom', 'rowid', 'pyarchinit_documentazione', 'the_geom')"""
             c.execute(sql_view_doc_geom)
             
+            sql_drop_view_test_b= """DROP view if EXISTS test_b_view;"""
+            c.execute(sql_drop_view_test_b)
+            
+            sql_drop_view_test_v= """DROP view if EXISTS test_wiev;"""
+            c.execute(sql_drop_view_test_v)
+            
+            sql_drop_view_nuova= """DROP view if EXISTS nuova;"""
+            c.execute(sql_drop_view_nuova)
+            
             sql_drop_view= """DROP view if EXISTS mediaentity_view;"""
             c.execute(sql_drop_view)
+            
+            sql_drop_view_1= """DROP table if EXISTS mediaentity_view;"""
+            c.execute(sql_drop_view_1)
+            
+            sql_drop_view_2= """DROP table if EXISTS mediaentity_view_;"""
+            c.execute(sql_drop_view_2)
+            
+            
             
             sql_alter= """alter table media_thumb_table rename to temp_media_thumb;"""
             c.execute(sql_alter)
@@ -962,65 +984,103 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
             c.execute(select([func.AddGeometryColumn('pyunitastratigrafiche', 'the_geom', self.lineEdit_crs.text(), 'MULTIPOLYGON', 'XY')]))
             c.execute(select([func.CreateSpatialIndex('pyunitastratigrafiche', 'the_geom')]))
             
+            select_gid=("""select gid from pyunitastratigrafiche_old;""")
+            c.execute(select_gid)
+            if bool(select_gid):
+                sql_alter_table_us_2=( 
+                """INSERT INTO pyunitastratigrafiche (
+                gid,
+                area_s,
+                scavo_s,
+                us_s,
+                stratigraph_index_us,
+                tipo_us_s,
+                rilievo_originale,
+                disegnatore,
+                data,
+                tipo_doc,
+                nome_doc,
+                coord,
+                the_geom)
+                
+                  SELECT gid,
+                        area_s,
+                        scavo_s,
+                        us_s,
+                        stratigraph_index_us,
+                        tipo_us_s,
+                        rilievo_originale,
+                        disegnatore,
+                        data,
+                        tipo_doc,
+                        nome_doc,
+                        coord,
+                        the_geom
+                  FROM pyunitastratigrafiche_old; """)
+                c.execute(sql_alter_table_us_2)
+                aa=("""drop table if exists pyunitastratigrafiche_old;""")
+                c.execute(aa)
+            else:
+                sql_alter_table_us_2=( 
+                """INSERT INTO pyunitastratigrafiche (
+                gid,
+                area_s,
+                scavo_s,
+                us_s,
+                stratigraph_index_us,
+                tipo_us_s,
+                rilievo_originale,
+                disegnatore,
+                data,
+                tipo_doc,
+                nome_doc,
+                
+                the_geom)
+                
+                  SELECT id,
+                        area_s,
+                        scavo_s,
+                        us_s,
+                        stratigraph_index_us,
+                        tipo_us_s,
+                        rilievo_originale,
+                        disegnatore,
+                        data,
+                        tipo_doc,
+                        nome_doc,
+                        
+                        the_geom
+                  FROM pyunitastratigrafiche_old; """)
+                c.execute(sql_alter_table_us_2)
+                aa=("""drop table if exists pyunitastratigrafiche_old;""")
+                c.execute(aa)
             
-            sql_alter_table_us_2=( 
-            """INSERT INTO pyunitastratigrafiche (
-            gid,
-            area_s,
-            scavo_s,
-            us_s,
-            stratigraph_index_us,
-            tipo_us_s,
-            rilievo_originale,
-            disegnatore,
-            data,
-            tipo_doc,
-            nome_doc,
-            coord,
-            the_geom)
             
-              SELECT gid,
-                    area_s,
-                    scavo_s,
-                    us_s,
-                    stratigraph_index_us,
-                    tipo_us_s,
-                    rilievo_originale,
-                    disegnatore,
-                    data,
-                    tipo_doc,
-                    nome_doc,
-                    coord,
-                    the_geom
-              FROM pyunitastratigrafiche_old; """)
-            c.execute(sql_alter_table_us_2)
-            aa=("""drop table if exists pyunitastratigrafiche_old;""")
-            c.execute(aa)
-            a = ("""CREATE TRIGGER "ggi_pyunitastratigrafiche_the_geom" BEFORE INSERT ON "pyunitastratigrafiche"
+            a = ("""CREATE TRIGGER IF NOT EXISTS "ggi_pyunitastratigrafiche_the_geom" BEFORE INSERT ON "pyunitastratigrafiche"
             FOR EACH ROW BEGIN
             SELECT RAISE(ROLLBACK, 'pyunitastratigrafiche.the_geom violates Geometry constraint [geom-type or SRID not allowed]')
             WHERE (SELECT type FROM geometry_columns
             WHERE f_table_name = 'pyunitastratigrafiche' AND f_geometry_column = 'the_geom'
             AND GeometryConstraints(NEW."the_geom", type, srid, 'XY') = 1) IS NULL;
             END;  """)
-            b = ("""CREATE TRIGGER "ggu_pyunitastratigrafiche_the_geom" BEFORE UPDATE ON "pyunitastratigrafiche"
+            b = ("""CREATE TRIGGER IF NOT EXISTS "ggu_pyunitastratigrafiche_the_geom" BEFORE UPDATE ON "pyunitastratigrafiche"
             FOR EACH ROW BEGIN
             SELECT RAISE(ROLLBACK, 'pyunitastratigrafiche.the_geom violates Geometry constraint [geom-type or SRID not allowed]')
             WHERE (SELECT type FROM geometry_columns
             WHERE f_table_name = 'pyunitastratigrafiche' AND f_geometry_column = 'the_geom'
             AND GeometryConstraints(NEW."the_geom", type, srid, 'XY') = 1) IS NULL;
             END;  """)
-            cc=(""" CREATE TRIGGER "gii_pyunitastratigrafiche_the_geom" AFTER INSERT ON "pyunitastratigrafiche"
+            cc=(""" CREATE TRIGGER IF NOT EXISTS "gii_pyunitastratigrafiche_the_geom" AFTER INSERT ON "pyunitastratigrafiche"
             FOR EACH ROW BEGIN
             DELETE FROM "idx_pyunitastratigrafiche_the_geom" WHERE pkid=NEW.ROWID;
             SELECT RTreeAlign('idx_pyunitastratigrafiche_the_geom', NEW.ROWID, NEW."the_geom");
             END; """)
-            d = ("""CREATE TRIGGER "giu_pyunitastratigrafiche_the_geom" AFTER UPDATE ON "pyunitastratigrafiche"
+            d = ("""CREATE TRIGGER IF NOT EXISTS "giu_pyunitastratigrafiche_the_geom" AFTER UPDATE ON "pyunitastratigrafiche"
             FOR EACH ROW BEGIN
             DELETE FROM "idx_pyunitastratigrafiche_the_geom" WHERE pkid=NEW.ROWID;
             SELECT RTreeAlign('idx_pyunitastratigrafiche_the_geom', NEW.ROWID, NEW."the_geom");
             END;  """)
-            e=(""" CREATE TRIGGER "gid_pyunitastratigrafiche_the_geom" AFTER DELETE ON "pyunitastratigrafiche"
+            e=(""" CREATE TRIGGER  IF NOT EXISTS "gid_pyunitastratigrafiche_the_geom" AFTER DELETE ON "pyunitastratigrafiche"
             FOR EACH ROW BEGIN
             DELETE FROM "idx_pyunitastratigrafiche_the_geom" WHERE pkid=OLD.ROWID;
             END; """)
@@ -1031,7 +1091,7 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
             c.execute(e)
             
             sql_view_us=(
-            """CREATE VIEW  "pyarchinit_us_view" AS
+            """CREATE VIEW  IF NOT EXISTS "pyarchinit_us_view" AS
             
             SELECT "a"."ROWID" AS "ROWID", "a"."gid" AS "gid", "a"."area_s" AS "area_s",
             "a"."scavo_s" AS "scavo_s", "a"."us_s" AS "us_s",
