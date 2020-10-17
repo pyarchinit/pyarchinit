@@ -107,7 +107,8 @@ class pyarchinit_Inventario_reperti(QDialog, MAIN_DIALOG_CLASS):
             "Tipo": 'tipo',
             "Valore E.v.e. orlo": 'eve_orlo',
             "Repertato": 'repertato',
-            "Diagnostico": 'diagnostico'
+            "Diagnostico": 'diagnostico',
+            "RA":'n_reperto'
         }
         QUANT_ITEMS = ['Tipo reperto',
                        'Classe materiale',
@@ -115,7 +116,8 @@ class pyarchinit_Inventario_reperti(QDialog, MAIN_DIALOG_CLASS):
                        'Corpo ceramico',
                        'Rivestimento',
                        "Tipo",
-                       "Datazione reperto"]
+                       "Datazione reperto",
+                       "RA"]
 
         SORT_ITEMS = [
             ID_TABLE,
@@ -142,7 +144,8 @@ class pyarchinit_Inventario_reperti(QDialog, MAIN_DIALOG_CLASS):
             "Tipo",
             "Valore E.v.e. orlo",
             "Repertato",
-            "Diagnostico"
+            "Diagnostico",
+            "RA"
         ]
     if L =='de':
         CONVERSION_DICT = {
@@ -170,7 +173,8 @@ class pyarchinit_Inventario_reperti(QDialog, MAIN_DIALOG_CLASS):
             "Typ": 'tipo',
             "E.V.E. edge": 'eve_orlo',
             "Abgerufen": 'repertato',
-            "Diagnose": 'diagnostico'
+            "Diagnose": 'diagnostico',
+            "RA":'n_reperto'
         }
         QUANT_ITEMS = ['Art des Artefakts',
                        'Materialklasse',
@@ -178,7 +182,8 @@ class pyarchinit_Inventario_reperti(QDialog, MAIN_DIALOG_CLASS):
                        'Keramikkörper',
                        'Oberflächenbehandlung',
                        'Typ',
-                       'Datierung - Artefakt']
+                       'Datierung - Artefakt',
+                       'RA']
 
         SORT_ITEMS = [
             ID_TABLE,
@@ -205,7 +210,8 @@ class pyarchinit_Inventario_reperti(QDialog, MAIN_DIALOG_CLASS):
             "Typ",
             "E.V.E. edge",
             "Abgerufen",
-            "Diagnose"
+            "Diagnose",
+            "RA"
         ]
     if L =='en':
         CONVERSION_DICT = {
@@ -233,7 +239,8 @@ class pyarchinit_Inventario_reperti(QDialog, MAIN_DIALOG_CLASS):
             "Type": 'tipo',
             "Value E.v.e. rim": 'eve_orlo',
             "Reperted": 'repertato',
-            "Diagnostic": 'diagnostico'
+            "Diagnostic": 'diagnostico',
+            "RA":'n_reperto'
         }
         QUANT_ITEMS = ['Artefact type',
                        'Material class',
@@ -241,7 +248,8 @@ class pyarchinit_Inventario_reperti(QDialog, MAIN_DIALOG_CLASS):
                        'Body sherds',
                        'Coating',
                        'Type',
-                       'Artefact period']
+                       'Artefact period',
+                       'RA']
 
         SORT_ITEMS = [
             ID_TABLE,
@@ -268,7 +276,8 @@ class pyarchinit_Inventario_reperti(QDialog, MAIN_DIALOG_CLASS):
             "Type",
             "Value E.v.e. rim",
             "Reperted",
-            "Diagnostic"
+            "Diagnostic",
+            "RA"
         ]   
     TABLE_FIELDS = [
         "sito",
@@ -298,7 +307,8 @@ class pyarchinit_Inventario_reperti(QDialog, MAIN_DIALOG_CLASS):
         'tipo',
         'eve_orlo',
         'repertato',
-        'diagnostico'
+        'diagnostico',
+        'n_reperto'
     ]
 
     TABLE_FIELDS_UPDATE = [
@@ -327,7 +337,8 @@ class pyarchinit_Inventario_reperti(QDialog, MAIN_DIALOG_CLASS):
         'tipo',
         'eve_orlo',
         'repertato',
-        'diagnostico'
+        'diagnostico',
+        'n_reperto'
     ]
 
     LANG = {
@@ -357,6 +368,7 @@ class pyarchinit_Inventario_reperti(QDialog, MAIN_DIALOG_CLASS):
         super().__init__()
         self.iface = iface
         self.setupUi(self)
+        self.mDockWidget_export.setHidden(True)
         self.pyQGIS = Pyarchinit_pyqgis(iface)
         self.currentLayerId = None
         try:
@@ -367,7 +379,7 @@ class pyarchinit_Inventario_reperti(QDialog, MAIN_DIALOG_CLASS):
         
         self.set_sito()
         self.msg_sito()
-    
+        self.comboBox_repertato.currentTextChanged.connect(self.numero_reperto)
     def on_pushButtonQuant_pressed(self):
         dlg = QuantPanelMain(self)
         dlg.insertItems(self.QUANT_ITEMS)
@@ -1060,6 +1072,29 @@ class pyarchinit_Inventario_reperti(QDialog, MAIN_DIALOG_CLASS):
                 dlg.show_image(str(thumb_resize_str+file_path_3))  
                 dlg.exec_()
 
+    
+    def numero_reperto(self):
+        contatore = 0
+        list=[]
+        if self.comboBox_repertato.currentText()=='No':
+            self.lineEdit_n_reperto.clear()
+            self.lineEdit_n_reperto.setText('0')
+        else:    
+            for i in range(len(self.DATA_LIST)):
+                self.lineEdit_n_reperto.clear()
+                contatore = int(self.DATA_LIST[i].n_reperto)
+                #contatore.sort(reverse=False)
+                list.append(contatore)
+                
+               
+                list[-1]+=1
+                
+                list.sort(reverse=False)
+                for e in list:    
+                    
+                    self.lineEdit_n_reperto.setText(str(e))
+       
+    
     def charge_list(self):
 
         l = QgsSettings().value("locale/userLocale", QVariant)
@@ -1465,7 +1500,8 @@ class pyarchinit_Inventario_reperti(QDialog, MAIN_DIALOG_CLASS):
                 str(self.DATA_LIST[i].corpo_ceramico),  # 20 - corpo_ceramico
                 str(self.DATA_LIST[i].rivestimento),  # 21 - rivestimento
                 str(self.DATA_LIST[i].repertato),  # 22 - repertato
-                str(self.DATA_LIST[i].diagnostico)  # 23 - diagnostico
+                str(self.DATA_LIST[i].diagnostico),
+                str(self.DATA_LIST[i].n_reperto)# 23 - diagnostico
             ])
         return data_list
 
@@ -1939,6 +1975,12 @@ class pyarchinit_Inventario_reperti(QDialog, MAIN_DIALOG_CLASS):
             else:
                 eve_orlo = float(self.lineEdit_eve_orlo.text())
 
+            
+            if self.lineEdit_n_reperto.text() == "":
+                n_reperto = None
+            else:
+                n_reperto = int(self.lineEdit_n_reperto.text())
+
             data = self.DB_MANAGER.insert_values_reperti(
                 self.DB_MANAGER.max_num_id(self.MAPPER_TABLE_CLASS, self.ID_TABLE) + 1,  # 0 - IDsito
                 str(self.comboBox_sito.currentText()),  # 1 - Sito
@@ -1969,7 +2011,7 @@ class pyarchinit_Inventario_reperti(QDialog, MAIN_DIALOG_CLASS):
                 eve_orlo,  # 25 - eve_orlo,
                 str(self.comboBox_repertato.currentText()),  # 9 - lavato
                 str(self.comboBox_diagnostico.currentText()),  # 9 - lavato
-
+                n_reperto
             )
 
             try:
@@ -2344,6 +2386,11 @@ class pyarchinit_Inventario_reperti(QDialog, MAIN_DIALOG_CLASS):
             else:
                 eve_orlo = ""
 
+            if self.lineEdit_n_reperto.text() != "":
+                n_reperto = int(self.lineEdit_n_reperto.text())
+            else:
+                n_reperto = ""
+            
             search_dict = {
                 self.TABLE_FIELDS[0]: "'" + str(self.comboBox_sito.currentText()) + "'",
                 self.TABLE_FIELDS[1]: numero_inventario,
@@ -2369,6 +2416,7 @@ class pyarchinit_Inventario_reperti(QDialog, MAIN_DIALOG_CLASS):
                 self.TABLE_FIELDS[25]: eve_orlo,
                 self.TABLE_FIELDS[26]: "'" + str(self.comboBox_repertato.currentText()) + "'",
                 self.TABLE_FIELDS[27]: "'" + str(self.comboBox_diagnostico.currentText()) + "'",
+                self.TABLE_FIELDS[28]: n_reperto
             }
 
             u = Utility()
@@ -2730,7 +2778,7 @@ class pyarchinit_Inventario_reperti(QDialog, MAIN_DIALOG_CLASS):
 
         self.comboBox_repertato.setEditText("")  # 9 - repertato
         self.comboBox_diagnostico.setEditText("")  # 9 - diagnostico
-
+        self.lineEdit_n_reperto.clear()
         for i in range(elementi_reperto_row_count):
             self.tableWidget_elementi_reperto.removeRow(0)
         self.insert_new_row("self.tableWidget_elementi_reperto")  # 14 - elementi reperto
@@ -2746,7 +2794,7 @@ class pyarchinit_Inventario_reperti(QDialog, MAIN_DIALOG_CLASS):
         for i in range(tecnologie_row_count):
             self.tableWidget_tecnologie.removeRow(0)
         self.insert_new_row("self.tableWidget_tecnologie")  # 17 - misurazioni
-
+        
     def fill_fields(self, n=0):
         self.rec_num = n
         # QMessageBox.warning(self, "check fill fields", str(self.rec_num),  QMessageBox.Ok)
@@ -2833,7 +2881,11 @@ class pyarchinit_Inventario_reperti(QDialog, MAIN_DIALOG_CLASS):
                 self.lineEdit_eve_orlo.setText("")
             else:
                 self.lineEdit_eve_orlo.setText(str(self.DATA_LIST[self.rec_num].eve_orlo))
-
+            
+            if self.DATA_LIST[self.rec_num].n_reperto == None:  # 8 - US
+                self.lineEdit_n_reperto.setText("")
+            else:
+                self.lineEdit_n_reperto.setText(str(self.DATA_LIST[self.rec_num].n_reperto))
 
             
             if self.toolButtonPreviewMedia.isChecked():
@@ -2903,7 +2955,11 @@ class pyarchinit_Inventario_reperti(QDialog, MAIN_DIALOG_CLASS):
             eve_orlo = None
         else:
             eve_orlo = self.lineEdit_eve_orlo.text()
-
+        
+        if self.lineEdit_n_reperto.text() == "":
+            n_reperto = None
+        else:
+            n_reperto = self.lineEdit_n_reperto.text()
             # data
         self.DATA_LIST_REC_TEMP = [
             str(self.comboBox_sito.currentText()),  # 1 - Sito
@@ -2933,7 +2989,8 @@ class pyarchinit_Inventario_reperti(QDialog, MAIN_DIALOG_CLASS):
             str(self.lineEdit_tipo.text()),  # 25 - tipo
             str(eve_orlo),  # 26 - eve orlo
             str(self.comboBox_repertato.currentText()),  # 27 - repertato
-            str(self.comboBox_diagnostico.currentText()),  # 28 - diagnostico
+            str(self.comboBox_diagnostico.currentText()),
+            str(n_reperto)# 28 - diagnostico
         ]
 
     def enable_button(self, n):
