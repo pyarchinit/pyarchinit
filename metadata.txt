@@ -23,7 +23,14 @@ repository=https://github.com/pyarchinit/pyarchinit
 
 
 
-changelog=release1.1.7:
+changelog=release1.1.8:
+
+     	-update trigger db sqlite
+
+   --------------------------------------------------------------------------------
+
+
+   release1.1.7:
 
      	-update db
      	-update ui inv materiali

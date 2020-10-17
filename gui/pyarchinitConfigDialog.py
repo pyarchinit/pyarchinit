@@ -707,8 +707,14 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
             sql_drop_view_2= """DROP table if EXISTS mediaentity_view_;"""
             c.execute(sql_drop_view_2)
             
-            
-            
+            sql_drop_trigger_1= """DROP trigger if EXISTS create_geom3;"""
+            c.execute(sql_drop_trigger_1)
+            sql_drop_trigger_2= """DROP trigger if EXISTS create_geom4;"""
+            c.execute(sql_drop_trigger_2)
+            sql_drop_trigger_3= """DROP trigger if EXISTS create_geom;"""
+            c.execute(sql_drop_trigger_3)
+            sql_drop_trigger_4= """DROP trigger if EXISTS create_geom2;"""
+            c.execute(sql_drop_trigger_4)
             sql_alter= """alter table media_thumb_table rename to temp_media_thumb;"""
             c.execute(sql_alter)
             
@@ -760,148 +766,7 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
                 END;"""
             c.execute(sql_trigger_delete_mediaentity)
             
-            # sql_drop_table_materiali=(
-            # """drop table if exists table_old;""")
-            # c.execute(sql_drop_table_materiali)
             
-            # sql_ater_colum_materiali=( 
-            
-            # """ALTER TABLE inventario_materiali_table rename TO table_old;""")
-            
-            # c.execute(sql_ater_colum_materiali)
-            # sql_ater_colum_materiali_1=( 
-            # """CREATE TABLE if not exists inventario_materiali_table (
-
-            # id_invmat 
-            # INTEGER ,
-            # sito 
-            # TEXT ,
-            # numero_inventario 
-            # INTEGER ,
-            # tipo_reperto 
-            # TEXT ,
-            # criterio_schedatura 
-            # TEXT ,
-            # definizione 
-            # TEXT ,
-            # descrizione 
-            # TEXT ,
-            # area 
-            # TEXT,
-            # us 
-            # INTEGER ,
-            # lavato 
-            # VARCHAR(2) ,
-            # nr_cassa 
-            # INTEGER ,
-            # luogo_conservazione 
-            # TEXT ,
-            # stato_conservazione 
-            # VARCHAR(20) ,
-            # datazione_reperto 
-            # VARCHAR(100) ,
-            # elementi_reperto 
-            # TEXT ,
-            # misurazioni 
-            # TEXT ,
-            # rif_biblio 
-            # TEXT ,
-            # tecnologie 
-            # TEXT ,
-            # forme_minime 
-            # INTEGER ,
-            # forme_massime 
-            # INTEGER ,
-            # totale_frammenti 
-            # INTEGER ,
-            # corpo_ceramico 
-            # VARCHAR(20) ,
-            # rivestimento 
-            # VARCHAR(20) ,
-            # diametro_orlo 
-            # NUMERIC(7, 3) ,
-            # peso 
-            # NUMERIC(9, 3) ,
-            # tipo 
-            # VARCHAR(20) ,
-            # eve_orlo 
-            # NUMERIC(7, 3) ,
-            # repertato 
-            # varchar(2) ,
-            # diagnostico 
-            # varchar(2),
-            # n_reperto 
-            # INTEGER );""" )
-            # c.execute(sql_ater_colum_materiali_1)
-            # sql_ater_colum_materiali_2=( 
-            # """INSERT INTO inventario_materiali_table (
-            # id_invmat ,
-            # sito ,
-            # numero_inventario ,
-            # tipo_reperto ,
-            # criterio_schedatura ,
-            # definizione ,
-            # descrizione ,
-            # area ,
-            # us ,
-            # lavato ,
-            # nr_cassa ,
-            # luogo_conservazione ,
-            # stato_conservazione ,
-            # datazione_reperto ,
-            # elementi_reperto ,
-            # misurazioni ,
-            # rif_biblio ,
-            # tecnologie ,
-            # forme_minime ,
-            # forme_massime ,
-            # totale_frammenti ,
-            # corpo_ceramico ,
-            # rivestimento, 
-            # diametro_orlo ,
-            # peso ,
-            # tipo ,
-            # eve_orlo ,
-            # repertato ,
-            # diagnostico ,
-            # n_reperto
-            # )
-              # SELECT *
-              # FROM table_old; """)
-
-            
-            # c.execute(sql_ater_colum_materiali_2)
-            
-            # sql_drop_view_materiali=(
-            # """drop view if exists inventario_materiali_view;""")
-            # c.execute(sql_drop_view_materiali)
-            
-            # sql_drop_table_materiali=(
-            # """drop table if exists table_old;""")
-            # c.execute(sql_drop_table_materiali)
-            # sql_create_view_materiali=(
-            # """CREATE VIEW if not exists "inventario_materiali_view" AS
-            # SELECT "a"."ROWID" AS "ROWID", "a"."id" AS "id", "a"."id_sito" AS "id_sito",
-            # "a"."sito_nome" AS "sito_nome", "a"."descr_sito" AS "descr_sito",
-            # "a"."the_geom" AS "the_geom", "b"."ROWID" AS "ROWID_1",
-            # "b"."id_invmat" AS "id_invmat", "b"."sito" AS "sito",
-            # "b"."numero_inventario" AS "numero_inventario",
-            # "b"."tipo_reperto" AS "tipo_reperto", "b"."criterio_schedatura" AS "criterio_schedatura",
-            # "b"."definizione" AS "definizione", "b"."descrizione" AS "descrizione",
-            # "b"."area" AS "area", "b"."us" AS "us", "b"."lavato" AS "lavato",
-            # "b"."nr_cassa" AS "nr_cassa", "b"."luogo_conservazione" AS "luogo_conservazione",
-            # "b"."stato_conservazione" AS "stato_conservazione",
-            # "b"."datazione_reperto" AS "datazione_reperto",
-            # "b"."elementi_reperto" AS "elementi_reperto", "b"."misurazioni" AS "misurazioni",
-            # "b"."rif_biblio" AS "rif_biblio", "b"."tecnologie" AS "tecnologie",
-            # "b"."forme_minime" AS "forme_minime", "b"."forme_massime" AS "forme_massime",
-            # "b"."totale_frammenti" AS "totale_frammenti", "b"."corpo_ceramico" AS "corpo_ceramico",
-            # "b"."rivestimento" AS "rivestimento", "b"."diametro_orlo" AS "diametro_orlo",
-            # "b"."peso" AS "peso", "b"."tipo" AS "tipo", "b"."eve_orlo" AS "eve_orlo",
-            # "b"."repertato" AS "repertato", "b"."diagnostico" AS "diagnostico","b"."n_reperto" AS "n_reperto"
-            # FROM "pyarchinit_siti" AS "a"
-            # JOIN "inventario_materiali_table" AS "b" ON ("a"."sito_nome" = "b"."sito")""")
-            # c.execute(sql_create_view_materiali)
             
             sql_view_rep="""CREATE VIEW if not exists "pyarchinit_reperti_view" AS
                 SELECT "a"."ROWID" AS "ROWID", "a"."ROWIND" AS "ROWIND",
@@ -943,7 +808,7 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
 
                 BEGIN 
                 
-                update pyunitastratigrafiche set coord = ST_AsText(ST_Centroid(the_geom)); 
+                update pyunitastratigrafiche set coord = ST_AsText(ST_Centroid(the_geom)) where scavo_s=New.scavo_s and area_s=New.area_s and us_s=New.us_s;
                 
                 END;"""
             c.execute(sql_trigger_coord)
@@ -953,7 +818,7 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
 
                 BEGIN 
                 
-                update pyunitastratigrafiche set coord = ST_AsText(ST_Centroid(the_geom)); 
+                update pyunitastratigrafiche set coord = ST_AsText(ST_Centroid(the_geom)) where scavo_s=New.scavo_s and area_s=New.area_s and us_s=New.us_s; 
                 
                 END;"""
             c.execute(sql_trigger_coord2)
@@ -986,75 +851,40 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
             
             select_gid=("""select gid from pyunitastratigrafiche_old;""")
             c.execute(select_gid)
-            if bool(select_gid):
-                sql_alter_table_us_2=( 
-                """INSERT INTO pyunitastratigrafiche (
-                gid,
-                area_s,
-                scavo_s,
-                us_s,
-                stratigraph_index_us,
-                tipo_us_s,
-                rilievo_originale,
-                disegnatore,
-                data,
-                tipo_doc,
-                nome_doc,
-                coord,
-                the_geom)
-                
-                  SELECT gid,
-                        area_s,
-                        scavo_s,
-                        us_s,
-                        stratigraph_index_us,
-                        tipo_us_s,
-                        rilievo_originale,
-                        disegnatore,
-                        data,
-                        tipo_doc,
-                        nome_doc,
-                        coord,
-                        the_geom
-                  FROM pyunitastratigrafiche_old; """)
-                c.execute(sql_alter_table_us_2)
-                aa=("""drop table if exists pyunitastratigrafiche_old;""")
-                c.execute(aa)
-            else:
-                sql_alter_table_us_2=( 
-                """INSERT INTO pyunitastratigrafiche (
-                gid,
-                area_s,
-                scavo_s,
-                us_s,
-                stratigraph_index_us,
-                tipo_us_s,
-                rilievo_originale,
-                disegnatore,
-                data,
-                tipo_doc,
-                nome_doc,
-                
-                the_geom)
-                
-                  SELECT id,
-                        area_s,
-                        scavo_s,
-                        us_s,
-                        stratigraph_index_us,
-                        tipo_us_s,
-                        rilievo_originale,
-                        disegnatore,
-                        data,
-                        tipo_doc,
-                        nome_doc,
-                        
-                        the_geom
-                  FROM pyunitastratigrafiche_old; """)
-                c.execute(sql_alter_table_us_2)
-                aa=("""drop table if exists pyunitastratigrafiche_old;""")
-                c.execute(aa)
+            #if bool(select_gid):
+            sql_alter_table_us_2=( 
+            """INSERT INTO pyunitastratigrafiche (
+            gid,
+            area_s,
+            scavo_s,
+            us_s,
+            stratigraph_index_us,
+            tipo_us_s,
+            rilievo_originale,
+            disegnatore,
+            data,
+            tipo_doc,
+            nome_doc,
+            coord,
+            the_geom)
             
+              SELECT gid,
+                    area_s,
+                    scavo_s,
+                    us_s,
+                    stratigraph_index_us,
+                    tipo_us_s,
+                    rilievo_originale,
+                    disegnatore,
+                    data,
+                    tipo_doc,
+                    nome_doc,
+                    coord,
+                    the_geom
+              FROM pyunitastratigrafiche_old; """)
+            c.execute(sql_alter_table_us_2)
+            aa=("""drop table if exists pyunitastratigrafiche_old;""")
+            c.execute(aa)
             
             a = ("""CREATE TRIGGER IF NOT EXISTS "ggi_pyunitastratigrafiche_the_geom" BEFORE INSERT ON "pyunitastratigrafiche"
             FOR EACH ROW BEGIN
@@ -1163,23 +993,23 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
                     VALUES ('pyarchinit_us_view', 'the_geom', 'rowid', 'pyunitastratigrafiche', 'the_geom')"""  
             c.execute(sql_view_rep_geom)
             
-            sql_trigger_coord1="""CREATE TRIGGER IF NOT EXISTS create_geom3 
+            sql_trigger_coord1="""CREATE TRIGGER IF NOT EXISTS create_geom_insert 
                 After insert 
                 ON pyunitastratigrafiche 
 
                 BEGIN 
                 
-                update pyunitastratigrafiche set coord = ST_AsText(ST_Centroid(the_geom)); 
+                update pyunitastratigrafiche set coord = ST_AsText(ST_Centroid(the_geom)) where scavo_s=New.scavo_s and area_s=New.area_s and us_s=New.us_s; 
                 
                 END;"""
             c.execute(sql_trigger_coord1)
-            sql_trigger_coord3="""CREATE TRIGGER IF NOT EXISTS create_geom4 
+            sql_trigger_coord3="""CREATE TRIGGER IF NOT EXISTS create_geom_update 
                 After update 
                 ON pyunitastratigrafiche 
 
                 BEGIN 
                 
-                update pyunitastratigrafiche set coord = ST_AsText(ST_Centroid(the_geom)); 
+                update pyunitastratigrafiche set coord = ST_AsText(ST_Centroid(the_geom)) where scavo_s=New.scavo_s and area_s=New.area_s and us_s=New.us_s;
                 
                 END;"""
             c.execute(sql_trigger_coord3)
