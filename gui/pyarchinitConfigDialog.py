@@ -851,38 +851,72 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
             
             select_gid=("""select gid from pyunitastratigrafiche_old;""")
             c.execute(select_gid)
-            #if bool(select_gid):
-            sql_alter_table_us_2=( 
-            """INSERT INTO pyunitastratigrafiche (
-            gid,
-            area_s,
-            scavo_s,
-            us_s,
-            stratigraph_index_us,
-            tipo_us_s,
-            rilievo_originale,
-            disegnatore,
-            data,
-            tipo_doc,
-            nome_doc,
-            coord,
-            the_geom)
+            if bool(select_gid):
+                sql_alter_table_us_2=( 
+                """INSERT INTO pyunitastratigrafiche (
+                gid,
+                area_s,
+                scavo_s,
+                us_s,
+                stratigraph_index_us,
+                tipo_us_s,
+                rilievo_originale,
+                disegnatore,
+                data,
+                tipo_doc,
+                nome_doc,
+                coord,
+                the_geom)
+                
+                  SELECT gid,
+                        area_s,
+                        scavo_s,
+                        us_s,
+                        stratigraph_index_us,
+                        tipo_us_s,
+                        rilievo_originale,
+                        disegnatore,
+                        data,
+                        tipo_doc,
+                        nome_doc,
+                        coord,
+                        the_geom
+                  FROM pyunitastratigrafiche_old; """)
+                c.execute(sql_alter_table_us_2)
+            else:
+                sql_alter_table_us_2=( 
+                """INSERT INTO pyunitastratigrafiche (
+                gid,
+                area_s,
+                scavo_s,
+                us_s,
+                stratigraph_index_us,
+                tipo_us_s,
+                rilievo_originale,
+                disegnatore,
+                data,
+                tipo_doc,
+                nome_doc,
+                
+                the_geom)
+                
+                  SELECT id,
+                        area_s,
+                        scavo_s,
+                        us_s,
+                        stratigraph_index_us,
+                        tipo_us_s,
+                        rilievo_originale,
+                        disegnatore,
+                        data,
+                        tipo_doc,
+                        nome_doc,
+                        
+                        the_geom
+                  FROM pyunitastratigrafiche_old; """)
+                c.execute(sql_alter_table_us_2)
             
-              SELECT gid,
-                    area_s,
-                    scavo_s,
-                    us_s,
-                    stratigraph_index_us,
-                    tipo_us_s,
-                    rilievo_originale,
-                    disegnatore,
-                    data,
-                    tipo_doc,
-                    nome_doc,
-                    coord,
-                    the_geom
-              FROM pyunitastratigrafiche_old; """)
-            c.execute(sql_alter_table_us_2)
+            
             aa=("""drop table if exists pyunitastratigrafiche_old;""")
             c.execute(aa)
             
