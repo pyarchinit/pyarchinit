@@ -861,10 +861,11 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
                 filter_str = "sito = '{}'".format(str(self.comboBox_sito.currentText())) 
                 self.model_a.setFilter(filter_str)
                 self.model_a.select() 
+                db1.close()
             else:
             
                 self.model_a.select() 
-               
+                db1.close()
         else:
            
             db = QSqlDatabase.addDatabase("QPSQL")
@@ -890,10 +891,10 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
                 filter_str = "sito = '{}'".format(str(self.comboBox_sito.currentText())) 
                 self.model_a.setFilter(filter_str)
                 self.model_a.select()
-                             
+                db.close()             
             else:
                 self.model_a.select() 
-                
+                db.close()
             
                
     def submit(self):
