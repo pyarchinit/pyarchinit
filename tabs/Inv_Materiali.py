@@ -380,6 +380,7 @@ class pyarchinit_Inventario_reperti(QDialog, MAIN_DIALOG_CLASS):
         self.set_sito()
         self.msg_sito()
         self.comboBox_repertato.currentTextChanged.connect(self.numero_reperto)
+        self.numero_invetario()
     def on_pushButtonQuant_pressed(self):
         dlg = QuantPanelMain(self)
         dlg.insertItems(self.QUANT_ITEMS)
@@ -1094,7 +1095,26 @@ class pyarchinit_Inventario_reperti(QDialog, MAIN_DIALOG_CLASS):
                     
                     self.lineEdit_n_reperto.setText(str(e))
        
-    
+    def numero_invetario(self):
+        contatore = 0
+        list=[]
+        if self.lineEdit_num_inv.text()=='':
+            self.lineEdit_num_inv.setText('1')
+        else:
+            for i in range(len(self.DATA_LIST)):
+                #self.lineEdit_n_reperto.clear()
+                contatore = int(self.DATA_LIST[i].numero_inventario)
+                #contatore.sort(reverse=False)
+                list.append(contatore)
+                
+               
+                list[-1]+=1
+                
+                list.sort(reverse=False)
+                for e in list:    
+                    
+                    self.lineEdit_num_inv.setText(str(e))
+       
     def charge_list(self):
 
         l = QgsSettings().value("locale/userLocale", QVariant)
@@ -1391,7 +1411,7 @@ class pyarchinit_Inventario_reperti(QDialog, MAIN_DIALOG_CLASS):
             self.label_status.setText(self.STATUS_ITEMS[self.BROWSE_STATUS])
             self.set_rec_counter('', '')
             self.label_sort.setText(self.SORTED_ITEMS["n"])
-            self.empty_fields()
+            self.numero_invetario()
 
             self.enable_button(0)
 
