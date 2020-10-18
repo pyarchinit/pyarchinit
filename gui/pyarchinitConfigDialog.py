@@ -697,13 +697,18 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
             
             sql_drop_view_nuova= """DROP view if EXISTS nuova;"""
             c.execute(sql_drop_view_nuova)
-            
-            sql_drop_view= """DROP view if EXISTS mediaentity_view;"""
-            c.execute(sql_drop_view)
-            
-            sql_drop_view_1= """DROP table if EXISTS mediaentity_view;"""
-            c.execute(sql_drop_view_1)
-            
+            try:
+                sql_drop_view= """DROP table if EXISTS mediaentity_view;"""
+                c.execute(sql_drop_view)
+                sql_drop_view_1= """DROP view if EXISTS mediaentity_view;"""
+                c.execute(sql_drop_view_1)
+                if not bool(sql_drop_view):
+                    pass
+                if not bool(sql_drop_view_1):
+                    pass
+                
+            except:
+                pass
             sql_drop_view_2= """DROP table if EXISTS mediaentity_view_;"""
             c.execute(sql_drop_view_2)
             
@@ -848,78 +853,89 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
             c.execute(sql_alter_table_us)
             c.execute(select([func.AddGeometryColumn('pyunitastratigrafiche', 'the_geom', self.lineEdit_crs.text(), 'MULTIPOLYGON', 'XY')]))
             c.execute(select([func.CreateSpatialIndex('pyunitastratigrafiche', 'the_geom')]))
-            
-            select_gid=("""select gid from pyunitastratigrafiche_old;""")
-            c.execute(select_gid)
-            if bool(select_gid):
-                sql_alter_table_us_2=( 
-                """INSERT INTO pyunitastratigrafiche (
-                gid,
-                area_s,
-                scavo_s,
-                us_s,
-                stratigraph_index_us,
-                tipo_us_s,
-                rilievo_originale,
-                disegnatore,
-                data,
-                tipo_doc,
-                nome_doc,
-                coord,
-                the_geom)
+            try:
+                select_gid=("""select id from pyunitastratigrafiche_old;""")
                 
-                  SELECT gid,
-                        area_s,
-                        scavo_s,
-                        us_s,
-                        stratigraph_index_us,
-                        tipo_us_s,
-                        rilievo_originale,
-                        disegnatore,
-                        data,
-                        tipo_doc,
-                        nome_doc,
-                        coord,
-                        the_geom
-                  FROM pyunitastratigrafiche_old; """)
-                c.execute(sql_alter_table_us_2)
-            else:
-                sql_alter_table_us_2=( 
-                """INSERT INTO pyunitastratigrafiche (
-                gid,
-                area_s,
-                scavo_s,
-                us_s,
-                stratigraph_index_us,
-                tipo_us_s,
-                rilievo_originale,
-                disegnatore,
-                data,
-                tipo_doc,
-                nome_doc,
+            
+                c.execute(select_gid)
+            
+            
+                if bool(select_gid):
+                    sql_alter_table_us_2=( 
+                    """INSERT INTO pyunitastratigrafiche (
+                    gid,
+                    area_s,
+                    scavo_s,
+                    us_s,
+                    stratigraph_index_us,
+                    tipo_us_s,
+                    rilievo_originale,
+                    disegnatore,
+                    data,
+                    tipo_doc,
+                    nome_doc,
+                    
+                    the_geom)
+                    
+                      SELECT id,
+                            area_s,
+                            scavo_s,
+                            us_s,
+                            stratigraph_index_us,
+                            tipo_us_s,
+                            rilievo_originale,
+                            disegnatore,
+                            data,
+                            tipo_doc,
+                            nome_doc,
+                            
+                            the_geom
+                      FROM pyunitastratigrafiche_old; """)
+                    c.execute(sql_alter_table_us_2)
+                    aa=("""drop table if exists pyunitastratigrafiche_old;""")
+                    c.execute(aa)
+                else:
+                    select_gid=("""select id from pyunitastratigrafiche_old;""")
+                    
                 
-                the_geom)
+                    c.execute(select_gid)
+                    sql_alter_table_us_2=( 
+                    """INSERT INTO pyunitastratigrafiche (
+                    gid,
+                    area_s,
+                    scavo_s,
+                    us_s,
+                    stratigraph_index_us,
+                    tipo_us_s,
+                    rilievo_originale,
+                    disegnatore,
+                    data,
+                    tipo_doc,
+                    nome_doc,
+                    coord,
+                    the_geom)
+                    
+                      SELECT gid,
+                            area_s,
+                            scavo_s,
+                            us_s,
+                            stratigraph_index_us,
+                            tipo_us_s,
+                            rilievo_originale,
+                            disegnatore,
+                            data,
+                            tipo_doc,
+                            nome_doc,
+                            coord,
+                            the_geom
+                      FROM pyunitastratigrafiche_old; """)
+                    c.execute(sql_alter_table_us_2)
                 
-                  SELECT id,
-                        area_s,
-                        scavo_s,
-                        us_s,
-                        stratigraph_index_us,
-                        tipo_us_s,
-                        rilievo_originale,
-                        disegnatore,
-                        data,
-                        tipo_doc,
-                        nome_doc,
-                        
-                        the_geom
-                  FROM pyunitastratigrafiche_old; """)
-                c.execute(sql_alter_table_us_2)
-            
-            
-            aa=("""drop table if exists pyunitastratigrafiche_old;""")
-            c.execute(aa)
-            
+                
+                    aa=("""drop table if exists pyunitastratigrafiche_old;""")
+                    c.execute(aa)
+            except:
+                pass
             a = ("""CREATE TRIGGER IF NOT EXISTS "ggi_pyunitastratigrafiche_the_geom" BEFORE INSERT ON "pyunitastratigrafiche"
             FOR EACH ROW BEGIN
             SELECT RAISE(ROLLBACK, 'pyunitastratigrafiche.the_geom violates Geometry constraint [geom-type or SRID not allowed]')
