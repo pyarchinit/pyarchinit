@@ -1077,10 +1077,11 @@ class pyarchinit_Inventario_reperti(QDialog, MAIN_DIALOG_CLASS):
     def numero_reperto(self):
         contatore = 0
         list=[]
+        
         if self.comboBox_repertato.currentText()=='No':
             self.lineEdit_n_reperto.clear()
             self.lineEdit_n_reperto.setText('0')
-        else:    
+        elif self.comboBox_repertato.currentText()!='No':    
             for i in range(len(self.DATA_LIST)):
                 self.lineEdit_n_reperto.clear()
                 contatore = int(self.DATA_LIST[i].n_reperto)
@@ -1090,17 +1091,16 @@ class pyarchinit_Inventario_reperti(QDialog, MAIN_DIALOG_CLASS):
                
                 list[-1]+=1
                 
-                list.sort(reverse=False)
-                for e in list:    
-                    
-                    self.lineEdit_n_reperto.setText(str(e))
-       
+                list.sort()
+            for e in list:    
+                
+                self.lineEdit_n_reperto.setText(str(e))
+                self.lineEdit_n_reperto.update()
     def numero_invetario(self):
         contatore = 0
         list=[]
         if self.lineEdit_num_inv.text()=='':
-            self.lineEdit_num_inv.setText('1')
-        else:
+            
             for i in range(len(self.DATA_LIST)):
                 #self.lineEdit_n_reperto.clear()
                 contatore = int(self.DATA_LIST[i].numero_inventario)
@@ -1110,10 +1110,10 @@ class pyarchinit_Inventario_reperti(QDialog, MAIN_DIALOG_CLASS):
                
                 list[-1]+=1
                 
-                list.sort(reverse=False)
-                for e in list:    
-                    
-                    self.lineEdit_num_inv.setText(str(e))
+                list.sort()
+            for e in list:    
+                
+                self.lineEdit_num_inv.setText(str(e))
        
     def charge_list(self):
 
@@ -1412,7 +1412,7 @@ class pyarchinit_Inventario_reperti(QDialog, MAIN_DIALOG_CLASS):
             self.set_rec_counter('', '')
             self.label_sort.setText(self.SORTED_ITEMS["n"])
             self.numero_invetario()
-
+            self.numero_reperto()
             self.enable_button(0)
 
     def on_pushButton_save_pressed(self):
