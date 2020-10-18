@@ -697,18 +697,28 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
             
             sql_drop_view_nuova= """DROP view if EXISTS nuova;"""
             c.execute(sql_drop_view_nuova)
+            # check_table = ("""SELECT 
+                                # name
+                            # FROM 
+                                # sqlite_master 
+                            # WHERE 
+                                # type ='table' and 
+                                # name = 'mediaentity_view';)""")
+            # c.execute(check_table)
+            # if bool(check_table):
             try:
+                
                 sql_drop_view= """DROP table if EXISTS mediaentity_view;"""
                 c.execute(sql_drop_view)
-                sql_drop_view_1= """DROP view if EXISTS mediaentity_view;"""
-                c.execute(sql_drop_view_1)
-                if not bool(sql_drop_view):
-                    pass
-                if not bool(sql_drop_view_1):
-                    pass
-                
+                #c.close()
+            
             except:
                 pass
+            
+            
+            sql_drop_view_1= """DROP view if EXISTS mediaentity_view;"""
+            c.execute(sql_drop_view_1)
+            
             sql_drop_view_2= """DROP table if EXISTS mediaentity_view_;"""
             c.execute(sql_drop_view_2)
             
