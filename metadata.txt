@@ -23,7 +23,14 @@ repository=https://github.com/pyarchinit/pyarchinit
 
 
 
-changelog=release1.1.10:
+changelog=release1.1.11:
+
+     	-fix bug
+
+   --------------------------------------------------------------------------------
+
+
+   release1.1.10:
 
      	-update pyarchinit config
      	-insert automatic enumerate n inv
