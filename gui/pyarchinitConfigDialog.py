@@ -562,7 +562,7 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
         res = self.engine.execute(sql_query_string)
         rows= res.fetchone()
         vers = ''.join(rows)
-        #QMessageBox.information(self, "INFO", str(vers),QMessageBox.Ok)
+        res.close()#QMessageBox.information(self, "INFO", str(vers),QMessageBox.Ok)
         return vers
 
     def on_pushButton_upd_postgres_pressed(self):

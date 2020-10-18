@@ -1368,12 +1368,12 @@ class Pyarchinit_db_management(object):
         pass
 
 
-def main():
-    db = Pyarchinit_db_management('sqlite:////Users//Luca//pyarchinit_DB_folder//pyarchinit_db.sqlite')
-    db.connection()
+# def main():
+    # db = Pyarchinit_db_management('sqlite:////Users//Luca//pyarchinit_DB_folder//pyarchinit_db.sqlite')
+    # db.connection()
 
-    db.insert_arbitrary_number_of_records(10, 'Giorgio', 1, 1, 'US')  # us_range, sito, area, n_us)
+    # db.insert_arbitrary_number_of_records(10, 'Giorgio', 1, 1, 'US')  # us_range, sito, area, n_us)
     
 
-if __name__ == '__main__':
-    main()
+# if __name__ == '__main__':
+    # main()
