@@ -33,6 +33,7 @@ from pandas import DataFrame
 import ftplib
 from ftplib import FTP
 import subprocess
+from geoalchemy2 import *
 from sqlalchemy.sql import select, func
 from sqlalchemy import create_engine
 from qgis.PyQt.QtGui import QDesktopServices
@@ -132,7 +133,7 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
         
         self.selectorCrsWidget.setCrs(QgsProject.instance().crs())
         self.selectorCrsWidget_sl.setCrs(QgsProject.instance().crs())
-        #self.summary()
+        
     def summary(self):
         self.comboBox_Database.update()
         conn = Connection()
@@ -744,7 +745,7 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
             c.execute(sql_insert_media_thumb)
             
             
-            sql_drop_temp="""DROP TABLE temp_media_thumb;"""
+            sql_drop_temp="""DROP TABLE IF EXISTS temp_media_thumb;"""
             c.execute(sql_drop_temp)
             
             
@@ -868,84 +869,88 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
                 
             
                 c.execute(select_gid)
+                
+            
+                
+                sql_alter_table_us_2=( 
+                """INSERT INTO pyunitastratigrafiche (
+                gid,
+                area_s,
+                scavo_s,
+                us_s,
+                stratigraph_index_us,
+                tipo_us_s,
+                rilievo_originale,
+                disegnatore,
+                data,
+                tipo_doc,
+                nome_doc,
+                
+                the_geom)
+                
+                  SELECT id,
+                        area_s,
+                        scavo_s,
+                        us_s,
+                        stratigraph_index_us,
+                        tipo_us_s,
+                        rilievo_originale,
+                        disegnatore,
+                        data,
+                        tipo_doc,
+                        nome_doc,
+                        
+                        the_geom
+                  FROM pyunitastratigrafiche_old; """)
+                c.execute(sql_alter_table_us_2)
+                aa=("""drop table  pyunitastratigrafiche_old;""")
+                c.execute(aa)
+            except :
+                pass    
+                
+                
+            try:
+                select_gid2=("""select gid from pyunitastratigrafiche_old;""")
+                
+            
+                c.execute(select_gid2)
+                sql_alter_table_us_3=( 
+                """INSERT INTO pyunitastratigrafiche (
+                gid,
+                area_s,
+                scavo_s,
+                us_s,
+                stratigraph_index_us,
+                tipo_us_s,
+                rilievo_originale,
+                disegnatore,
+                data,
+                tipo_doc,
+                nome_doc,
+                coord,
+                the_geom)
+                
+                  SELECT gid,
+                        area_s,
+                        scavo_s,
+                        us_s,
+                        stratigraph_index_us,
+                        tipo_us_s,
+                        rilievo_originale,
+                        disegnatore,
+                        data,
+                        tipo_doc,
+                        nome_doc,
+                        coord,
+                        the_geom
+                  FROM pyunitastratigrafiche_old; """)
+                c.execute(sql_alter_table_us_3)
             
             
-                if bool(select_gid):
-                    sql_alter_table_us_2=( 
-                    """INSERT INTO pyunitastratigrafiche (
-                    gid,
-                    area_s,
-                    scavo_s,
-                    us_s,
-                    stratigraph_index_us,
-                    tipo_us_s,
-                    rilievo_originale,
-                    disegnatore,
-                    data,
-                    tipo_doc,
-                    nome_doc,
-                    
-                    the_geom)
-                    
-                      SELECT id,
-                            area_s,
-                            scavo_s,
-                            us_s,
-                            stratigraph_index_us,
-                            tipo_us_s,
-                            rilievo_originale,
-                            disegnatore,
-                            data,
-                            tipo_doc,
-                            nome_doc,
-                            
-                            the_geom
-                      FROM pyunitastratigrafiche_old; """)
-                    c.execute(sql_alter_table_us_2)
-                    aa=("""drop table if exists pyunitastratigrafiche_old;""")
-                    c.execute(aa)
-                else:
-                    select_gid=("""select id from pyunitastratigrafiche_old;""")
-                    
-                
-                    c.execute(select_gid)
-                    sql_alter_table_us_2=( 
-                    """INSERT INTO pyunitastratigrafiche (
-                    gid,
-                    area_s,
-                    scavo_s,
-                    us_s,
-                    stratigraph_index_us,
-                    tipo_us_s,
-                    rilievo_originale,
-                    disegnatore,
-                    data,
-                    tipo_doc,
-                    nome_doc,
-                    coord,
-                    the_geom)
-                    
-                      SELECT gid,
-                            area_s,
-                            scavo_s,
-                            us_s,
-                            stratigraph_index_us,
-                            tipo_us_s,
-                            rilievo_originale,
-                            disegnatore,
-                            data,
-                            tipo_doc,
-                            nome_doc,
-                            coord,
-                            the_geom
-                      FROM pyunitastratigrafiche_old; """)
-                    c.execute(sql_alter_table_us_2)
-                
-                
-                    aa=("""drop table if exists pyunitastratigrafiche_old;""")
-                    c.execute(aa)
-            except:
-                pass
+                aa2=("""drop table pyunitastratigrafiche_old;""")
+                c.execute(aa2)
+            except :
+                pass#QMessageBox.warning(self, 'Ok',str(e),QMessageBox.Ok)
             a = ("""CREATE TRIGGER IF NOT EXISTS "ggi_pyunitastratigrafiche_the_geom" BEFORE INSERT ON "pyunitastratigrafiche"
             FOR EACH ROW BEGIN
             SELECT RAISE(ROLLBACK, 'pyunitastratigrafiche.the_geom violates Geometry constraint [geom-type or SRID not allowed]')
@@ -1311,7 +1316,11 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
                     "postgresql", conn_str_dict_read["user"], conn_str_dict_read["password"],
                     conn_str_dict_read["host"],
                     conn_str_dict_read["port"], conn_str_dict_read["db_name"])
+        
+        
+        
         elif conn_str_dict_read["server"] == 'sqlite':
+            
             sqlite_DB_path = '{}{}{}'.format(self.HOME, os.sep,
                                              "pyarchinit_DB_folder")  # "C:\\Users\\Windows\\Dropbox\\pyarchinit_san_marco\\" fare modifiche anche in pyarchinit_pyqgis
             dbname_abs = sqlite_DB_path + os.sep + conn_str_dict_read["db_name"]
@@ -1319,11 +1328,13 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
             QMessageBox.warning(self, "Alert", str(conn_str_dict_read["db_name"]), QMessageBox.Ok)
         ####SI CONNETTE AL DATABASE
         self.DB_MANAGER_read = Pyarchinit_db_management(conn_str_read)
+        
         test = self.DB_MANAGER_read.connection()
+        
         if test:
-            QMessageBox.warning(self, "Message", "Connection ok", QMessageBox.Ok)
+            QMessageBox.warning(self, "Message", "Connection ok", QMessageBox.Ok|QMessageBox.Cancel)
         else:
-            QMessageBox.warning(self, "Alert", "Connection error: <br>", QMessageBox.Ok)
+            QMessageBox.warning(self, "Alert", "Connection error: <br>", QMessageBox.Cancel)
         """elif test.find("create_engine") != -1:
             #QMessageBox.warning(self, "Alert",
                                 "Try connection parameter. <br> If they are correct restart QGIS",
@@ -1377,7 +1388,7 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
         self.DB_MANAGER_write = Pyarchinit_db_management(conn_str_write)
         test = self.DB_MANAGER_write.connection()
         test = str(test)
-
+        
       
         
         mapper_class_write = str(self.comboBox_mapper_read.currentText())
@@ -1395,9 +1406,8 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
                         self.DB_MANAGER_write.max_num_id(mapper_class_write,
                                                          id_table_class_mapper_conv_dict[mapper_class_write]) + 1,
                         data_list_toimp[sing_rec].area_s,
-                        data_list_toimp[sing_rec].scavoa_s,
+                        data_list_toimp[sing_rec].scavo_s,
                         data_list_toimp[sing_rec].us_s,
-                        data_list_toimp[sing_rec].the_geom,
                         data_list_toimp[sing_rec].stratigraph_index_us,
                         data_list_toimp[sing_rec].tipo_us_s,
                         data_list_toimp[sing_rec].rilievo_originale,
@@ -1405,19 +1415,20 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
                         data_list_toimp[sing_rec].data,
                         data_list_toimp[sing_rec].tipo_doc,
                         data_list_toimp[sing_rec].nome_doc,
-                        data_list_toimp[sing_rec].coord)
+                        data_list_toimp[sing_rec].coord,
+                        data_list_toimp[sing_rec].the_geom)
                         
                    
                     self.DB_MANAGER_write.insert_data_session(data)
-                    for i in range(sing_rec):    
-                        #time.sleep()
-                        self.progress_bar.setValue(((i)/100)*100)
-                     
-                        QApplication.processEvents()
                     
-                except :
+                    value = (float(sing_rec)/float(len(data_list_toimp)))*100
+                    self.progress_bar.setValue(value)
                     
-                    QMessageBox.warning(self, "Errore", "Error ! \n"+ "duplicate key",  QMessageBox.Ok)
+                    QApplication.processEvents()
+                    
+                except Exception as e :
+                    
+                    QMessageBox.warning(self, "Errore", "Error ! \n"+ str(e),  QMessageBox.Ok)
                     return 0
             self.progress_bar.reset()
             QMessageBox.information(self, "Message", "Data Loaded")
@@ -1442,11 +1453,11 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
                         
                    
                     self.DB_MANAGER_write.insert_data_session(data)
-                    for i in range(sing_rec):    
-                        #time.sleep()
-                        self.progress_bar.setValue(((i)/100)*100)
-                     
-                        QApplication.processEvents()
+                    
+                    value = (float(sing_rec)/float(len(data_list_toimp)))*100
+                    self.progress_bar.setValue(value)
+                    
+                    QApplication.processEvents()
                     
                 except :
                     
@@ -1566,11 +1577,11 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
                     
 
                     self.DB_MANAGER_write.insert_data_session(data)
-                    for i in range(sing_rec):    
-                        #time.sleep()
-                        self.progress_bar.setValue(((i)/100)*100)
-                     
-                        QApplication.processEvents()
+                    
+                    value = (float(sing_rec)/float(len(data_list_toimp)))*100
+                    self.progress_bar.setValue(value)
+                    
+                    QApplication.processEvents()
                         
                     
                     
@@ -1594,15 +1605,16 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
                         data_list_toimp[sing_rec].cron_finale,
                         data_list_toimp[sing_rec].descrizione,
                         data_list_toimp[sing_rec].datazione_estesa,
-                        data_list_toimp[sing_rec].cont_per)
+                        data_list_toimp[sing_rec].cont_per,
+                        data_list_toimp[sing_rec].area)
                 
                 
                     self.DB_MANAGER_write.insert_data_session(data)
-                    for i in range(sing_rec):    
-                        #time.sleep()
-                        self.progress_bar.setValue(((i)/100)*100)
-                     
-                        QApplication.processEvents()
+                    
+                    value = (float(sing_rec)/float(len(data_list_toimp)))*100
+                    self.progress_bar.setValue(value)
+                    
+                    QApplication.processEvents()
                     
                 except :
                     
@@ -1645,17 +1657,17 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
                         data_list_toimp[sing_rec].tipo,
                         data_list_toimp[sing_rec].eve_orlo,
                         data_list_toimp[sing_rec].repertato,
-                        data_list_toimp[sing_rec].diagnostico
+                        data_list_toimp[sing_rec].diagnostico,
+                        data_list_toimp[sing_rec].n_reperto,
                     )
                     
                     
                     self.DB_MANAGER_write.insert_data_session(data)
-                    for i in range(sing_rec):    
-                        #time.sleep()
-                        self.progress_bar.setValue(((i)/100)*100)
-                     
-                        QApplication.processEvents()
                     
+                    value = (float(sing_rec)/float(len(data_list_toimp)))*100
+                    self.progress_bar.setValue(value)
+                    
+                    QApplication.processEvents()
                 
                 except :
                     
@@ -1690,11 +1702,11 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
                     )
                     
                     self.DB_MANAGER_write.insert_data_session(data)
-                    for i in range(sing_rec):    
-                        #time.sleep()
-                        self.progress_bar.setValue(((i)/100)*100)
-                     
-                        QApplication.processEvents()
+                    
+                    value = (float(sing_rec)/float(len(data_list_toimp)))*100
+                    self.progress_bar.setValue(value)
+                    
+                    QApplication.processEvents()
                 except :
                     
                     QMessageBox.warning(self, "Errore", "Error ! \n"+ "duplicate key",  QMessageBox.Ok)
@@ -1798,11 +1810,11 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
                     )
                         
                     self.DB_MANAGER_write.insert_data_session(data)
-                    for i in range(sing_rec):    
-                        #time.sleep()
-                        self.progress_bar.setValue(((i)/100)*100)
-                     
-                        QApplication.processEvents()
+                    
+                    value = (float(sing_rec)/float(len(data_list_toimp)))*100
+                    self.progress_bar.setValue(value)
+                    
+                    QApplication.processEvents()
                     
                 except :
                     
@@ -1831,11 +1843,11 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
                     )
                 
                     self.DB_MANAGER_write.insert_data_session(data)
-                    for i in range(sing_rec):    
-                        #time.sleep()
-                        self.progress_bar.setValue(((i)/100)*100)
-                     
-                        QApplication.processEvents()
+                    
+                    value = (float(sing_rec)/float(len(data_list_toimp)))*100
+                    self.progress_bar.setValue(value)
+                    
+                    QApplication.processEvents()
                     
                 except :
                     
@@ -1891,11 +1903,11 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
                     )
 
                     self.DB_MANAGER_write.insert_data_session(data)
-                    for i in range(sing_rec):    
-                        #time.sleep()
-                        self.progress_bar.setValue(((i)/100)*100)
-                     
-                        QApplication.processEvents()
+                    
+                    value = (float(sing_rec)/float(len(data_list_toimp)))*100
+                    self.progress_bar.setValue(value)
+                    
+                    QApplication.processEvents()
                     
                 except Exception as  e:
                     e_str = str(e)
@@ -1958,11 +1970,11 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
 
                 
                     self.DB_MANAGER_write.insert_data_session(data)
-                    for i in range(sing_rec):    
-                        #time.sleep()
-                        self.progress_bar.setValue(((i)/100)*100)
-                     
-                        QApplication.processEvents()
+                    
+                    value = (float(sing_rec)/float(len(data_list_toimp)))*100
+                    self.progress_bar.setValue(value)
+                    
+                    QApplication.processEvents()
                     
                     
                 except :
@@ -1993,11 +2005,11 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
                         
                     
                     self.DB_MANAGER_write.insert_data_session(data)
-                    for i in range(sing_rec):    
-                        #time.sleep()
-                        self.progress_bar.setValue(((i)/100)*100)
-                     
-                        QApplication.processEvents()
+                    
+                    value = (float(sing_rec)/float(len(data_list_toimp)))*100
+                    self.progress_bar.setValue(value)
+                    
+                    QApplication.processEvents()
                     
                 except :
                     
@@ -2022,12 +2034,11 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
 
                     
                     self.DB_MANAGER_write.insert_data_session(data)
-                    for i in range(sing_rec):    
-                        #time.sleep()
-                        self.progress_bar.setValue(((i)/100)*100)
-                     
-                        QApplication.processEvents()
-                        
+                    
+                    value = (float(sing_rec)/float(len(data_list_toimp)))*100
+                    self.progress_bar.setValue(value)
+                    
+                    QApplication.processEvents()
                 except Exception as  e:
                     e_str = str(e)
                     QMessageBox.warning(self, "Errore", "Error ! \n"+ str(e),  QMessageBox.Ok)
@@ -2053,11 +2064,11 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
 
                     
                     self.DB_MANAGER_write.insert_data_session(data)
-                    for i in range(sing_rec):    
-                        #time.sleep()
-                        self.progress_bar.setValue(((i)/100)*100)
-                     
-                        QApplication.processEvents()
+                    
+                    value = (float(sing_rec)/float(len(data_list_toimp)))*100
+                    self.progress_bar.setValue(value)
+                    
+                    QApplication.processEvents()
                
                 except Exception as  e:
                     e_str = str(e)
@@ -2084,12 +2095,11 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
 
                     
                     self.DB_MANAGER_write.insert_data_session(data)
-                    for i in range(sing_rec):    
-                        #time.sleep()
-                        self.progress_bar.setValue(((i)/100)*100)
-                     
-                        QApplication.processEvents()
-                        
+                    
+                    value = (float(sing_rec)/float(len(data_list_toimp)))*100
+                    self.progress_bar.setValue(value)
+                    
+                    QApplication.processEvents()
                 except Exception as  e:
                     e_str = str(e)
                     QMessageBox.warning(self, "Errore", "Error ! \n"+ str(e),  QMessageBox.Ok)
@@ -2098,31 +2108,31 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
             self.progress_bar.reset()
             QMessageBox.information(self, "Message", "Data Loaded")
     #######################importa tutte le geometrie##########################################
-    def on_pushButton_geometry_pressed (self):
-        try:
-            subprocess.check_output([
-                'ogr2ogr',
-                '--config', 'PG_LIST_ALL_TABLES', 'YES',
-                '--config', 'PG_SKIP_VIEWS', 'YES',
-                '-f',
-                'SQLITE',
-                "'{}'".format(self.lineEdit_database_wt),
-                '-progress',
+    # def on_pushButton_geometry_pressed (self):
+        # try:
+            # subprocess.check_output([
+                # 'ogr2ogr',
+                # '--config', 'PG_LIST_ALL_TABLES', 'YES',
+                # '--config', 'PG_SKIP_VIEWS', 'YES',
+                # '-f',
+                # 'SQLITE',
+                # "'{}'".format(self.lineEdit_database_wt),
+                # '-progress',
                 
-                "PG:host='{}' port={} dbname='{}' user='{} password='{}'".format(self.lineEdit_host_rd, self.lineEdit_port_rd, self.lineEdit_database_rd, self.lineEdit_username_rd, self.lineEdit_pass_rd),
-                '-lco',
-                'LAUNDER=yes'
-                "SCHEMA={}".format('public'),
-                '-dsco',
-                'SPATIALITE=yes',
-                '-lco',
-                'SPATIAL_INDEX=yes'
-                ])
-        except Exception as e :
+                # "PG:host='{}' port={} dbname='{}' user='{} password='{}'".format(self.lineEdit_host_rd, self.lineEdit_port_rd, self.lineEdit_database_rd, self.lineEdit_username_rd, self.lineEdit_pass_rd),
+                # '-lco',
+                # 'LAUNDER=yes'
+                # "SCHEMA={}".format('public'),
+                # '-dsco',
+                # 'SPATIALITE=yes',
+                # '-lco',
+                # 'SPATIAL_INDEX=yes'
+                # ])
+        # except Exception as e :
                     
-            QMessageBox.warning(self, "Update error", str(e),  QMessageBox.Ok)
-            return 0
-        QMessageBox.information(self, "Message", "Data Loaded")
+            # QMessageBox.warning(self, "Update error", str(e),  QMessageBox.Ok)
+            # return 0
+        # QMessageBox.information(self, "Message", "Data Loaded")
     
         
     def openthumbDir(self):
