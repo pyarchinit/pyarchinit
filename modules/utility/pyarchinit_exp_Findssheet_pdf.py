@@ -21,7 +21,7 @@
 """
 
 from datetime import date
-
+from qgis.PyQt.QtWidgets import QDialog, QMessageBox
 from builtins import object
 from builtins import range
 from builtins import str
@@ -31,7 +31,8 @@ from reportlab.lib.units import inch, cm, mm
 from reportlab.pdfgen import canvas
 from reportlab.platypus import Table, PageBreak, SimpleDocTemplate, Spacer, TableStyle, Image
 from reportlab.platypus.paragraph import Paragraph
-
+from ..db.pyarchinit_conn_strings import Connection
+from .pyarchinit_OS_utility import *
 from .pyarchinit_OS_utility import *
 
 
@@ -138,6 +139,7 @@ class single_Finds_pdf_sheet(object):
         self.tecnologie = data[17]
         self.repertato = data[21]
         self.diagnostico = data[22]
+        self.n_reperto = data[23]
 
     def datestrfdate(self):
         now = date.today()
@@ -171,199 +173,202 @@ class single_Finds_pdf_sheet(object):
 
         logo.drawHeight = 1.5 * inch * logo.drawHeight / logo.drawWidth
         logo.drawWidth = 1.5 * inch
-
-        # 1 row
-        sito = Paragraph("<b>Sito</b><br/>" + str(self.sito), styNormal)
-        nr_inventario = Paragraph("<b>Nr. Inventario</b><br/>" + str(self.numero_inventario), styNormal)
-
-        # 2 row
-        riferimenti_stratigrafici = Paragraph("<b>Riferimenti stratigrafici</b>", styNormal)
-        area = Paragraph("<b>Area</b><br/>" + str(self.area), styNormal)
-        us = Paragraph("<b>US</b><br/>" + str(self.us), styNormal)
-
-        # 3 row
-        criterio_schedatura = Paragraph("<b>Criterio schedatura</b><br/>" + self.criterio_schedatura, styNormal)
-        tipo_reperto = Paragraph("<b>Tipo reperto</b><br/>" + self.tipo_reperto, styNormal)
-        definizione = Paragraph("<b>Definizione</b><br/>" + self.definizione, styNormal)
-
-        # 4 row
-        stato_conservazione = Paragraph("<b>Stato Conservazione</b><br/>" + self.stato_conservazione, styNormal)
-        datazione = Paragraph("<b>Datazione</b><br/>" + self.datazione_reperto, styNormal)
-
-        # 5 row
-        descrizione = ''
-        try:
-            descrizione = Paragraph("<b>Descrizione</b><br/>" + str(self.descrizione), styDescrizione)
-        except:
+        if str(self.n_reperto)=='0':
+            print("no schede RA")
             pass
-
-        # 6 row
-        elementi_reperto = ''
-        if eval(self.elementi_reperto):
-            for i in eval(self.elementi_reperto):
-                if elementi_reperto == '':
-                    try:
-                        elementi_reperto += ("Elemento rinvenuto: %s, Unita' di misura: %s, Quantita': %s") % (
-                        str(i[0]), str(i[1]), str(i[2]))
-                    except:
-                        pass
-                else:
-                    try:
-                        elementi_reperto += ("<br/>Elemento rinvenuto: %s, Unita' di misura: %s, Quantita': %s") % (
-                        str(i[0]), str(i[1]), str(i[2]))
-                    except:
-                        pass
-
-        elementi_reperto = Paragraph("<b>Elementi reperto</b><br/>" + elementi_reperto, styNormal)
-
-        # 7 row
-        misurazioni = ''
-        if eval(self.misurazioni):
-            for i in eval(self.misurazioni):
-                if misurazioni == '':
-                    try:
-                        misurazioni += ("%s: %s %s") % (str(i[0]), str(i[1]), str(i[2]))
-                    except:
-                        pass
-                else:
-                    try:
-                        misurazioni += ("<br/>%s: %s %s") % (str(i[0]), str(i[1]), str(i[2]))
-                    except:
-                        pass
-        misurazioni = Paragraph("<b>Misurazioni</b><br/>" + misurazioni, styNormal)
-
-        # 8 row
-        tecnologie = ''
-        if eval(self.tecnologie):
-            for i in eval(self.tecnologie):
-                if tecnologie == '':
-                    try:
-                        tecnologie += (
-                                      "Tipo tecnologia: %s, Posizione: %s, Tipo quantita': %s, Unita' di misura: %s, Quantita': %s") % (
-                                      str(i[0]), str(i[1]), str(i[2]), str(i[3]), str(i[4]))
-                    except:
-                        pass
-                else:
-                    try:
-                        tecnologie += (
-                                      "<br/>Tipo tecnologia: %s, Posizione: %s, Tipo quantita': %s, Unita' di misura: %s, Quantita': %s") % (
-                                      str(i[0]), str(i[1]), str(i[2]), str(i[3]), str(i[4]))
-                    except:
-                        pass
-        tecnologie = Paragraph("<b>Tecnologie</b><br/>" + tecnologie, styNormal)
-
-        # 9 row
-        rif_biblio = ''
-        if eval(self.rif_biblio):
-            for i in eval(self.rif_biblio):  # gigi
-                if rif_biblio == '':
-                    try:
-                        rif_biblio += ("Autore: %s, Anno: %s, Titolo: %s, Pag.: %s, Fig.: %s") % (
-                        str(i[0]), str(i[1]), str(i[2]), str(i[3]), str(i[4]))
-                    except:
-                        pass
-                else:
-                    try:
-                        rif_biblio += ("<br/>Autore: %s, Anno: %s, Titolo: %s, Pag.: %s, Fig.: %s") % (
-                        str(i[0]), str(i[1]), str(i[2]), str(i[3]), str(i[4]))
-                    except:
-                        pass
-
-        rif_biblio = Paragraph("<b>Riferimenti bibliografici</b><br/>" + rif_biblio, styNormal)
-
-        # 10 row
-        repertato = Paragraph("<b>Repertato</b><br/>" + self.repertato, styNormal)
-        diagnostico = Paragraph("<b>Diagnostico</b><br/>" + self.diagnostico, styNormal)
-
-        # 11 row
-        riferimenti_magazzino = Paragraph("<b>Riferimenti magazzino</b>", styNormal)
-
-        # 12 row
-        lavato = Paragraph("<b>Lavato</b><br/>" + self.lavato, styNormal)
-        nr_cassa = Paragraph("<b>Nr. Cassa</b><br/>" + self.nr_cassa, styNormal)
-        luogo_conservazione = Paragraph("<b>Luogo di conservazione</b><br/>" + self.luogo_conservazione, styNormal)
-
-        # schema
-        cell_schema = [  # 00, 01, 02, 03, 04, 05, 06, 07, 08, 09 rows
-            [intestazione, '01', '02', '03', '04', '05', '06', logo, '08', '09'],  # 0 row ok
-            [sito, '01', '02', '03', '04', '05', '06', '07', nr_inventario, '09'],  # 1 row ok
-            [riferimenti_stratigrafici, '01', '02', '03', area, '05', '06', us, '08', '09'],  # 2 row ok
-            [tipo_reperto, '01', '02', criterio_schedatura, '04', '05', definizione, '07', '08', '09'],
-            # 3 row ok
-            [datazione, '01', '02', '03', '04', stato_conservazione, '06', '07', '08', '09'],  # 4 row ok
-            [descrizione, '01', '02', '03', '04', '05', '06', '07', '08', '09'],  # 5 row ok
-            [elementi_reperto, '01', '02', '03', '04', '05', '06', '07', '08', '09'],  # 6 row ok
-            [misurazioni, '01', '02', '03', '04', '05', '06', '07', '08', '09'],  # 7 row ok
-            [tecnologie, '01', '02', '03', '04', '05', '06', '07', '08', '09'],  # 8 row ok
-            [rif_biblio, '01', '02', '03', '04', '05', '06', '07', '08', '09'],  # 9 row ok
-            [repertato, '01', '02', diagnostico, '04', '05', '06', '07', '08', '09'],  # 10 row ok
-            [riferimenti_magazzino, '01', '02', '03', '04', '05', '06', '07', '08', '09'],  # 11 row ok
-            [lavato, '01', '02', nr_cassa, '04', '05', luogo_conservazione, '07', '08', '09']  # 12 row ok
-        ]
-
-        # table style
-        table_style = [
-
-            ('GRID', (0, 0), (-1, -1), 0.5, colors.black),
-
-            # 0 row
-            ('SPAN', (0, 0), (6, 0)),  # intestazione
-            ('SPAN', (7, 0), (9, 0)),  # intestazione
-
+        else:
             # 1 row
-            ('SPAN', (0, 1), (7, 1)),  # sito
-            ('SPAN', (8, 1), (9, 1)),  # nr_inventario
+            sito = Paragraph("<b>Sito</b><br/>" + str(self.sito), styNormal)
+            n_reperto = Paragraph("<b>Nr. Reperto</b><br/>" + str(self.n_reperto) +"<br/>" "<b>(n. inv.: </b>" + str(self.numero_inventario)+"<b>)</b>", styNormal)
 
             # 2 row
-            ('SPAN', (0, 2), (3, 2)),  # rif stratigrafici
-            ('SPAN', (4, 2), (6, 2)),  # area
-            ('SPAN', (7, 2), (9, 2)),  # us
-            ('VALIGN', (0, 2), (9, 2), 'TOP'),
+            riferimenti_stratigrafici = Paragraph("<b>Riferimenti stratigrafici</b>", styNormal)
+            area = Paragraph("<b>Area</b><br/>" + str(self.area), styNormal)
+            us = Paragraph("<b>US</b><br/>" + str(self.us), styNormal)
 
             # 3 row
-            ('SPAN', (0, 3), (2, 3)),  # tipo_reperto
-            ('SPAN', (3, 3), (5, 3)),  # criterio_schedatura
-            ('SPAN', (6, 3), (9, 3)),  # definizione
-            ('VALIGN', (0, 3), (9, 3), 'TOP'),
+            criterio_schedatura = Paragraph("<b>Criterio schedatura</b><br/>" + self.criterio_schedatura, styNormal)
+            tipo_reperto = Paragraph("<b>Tipo reperto</b><br/>" + self.tipo_reperto, styNormal)
+            definizione = Paragraph("<b>Definizione</b><br/>" + self.definizione, styNormal)
 
             # 4 row
-            ('SPAN', (0, 4), (4, 4)),  # datazione
-            ('SPAN', (5, 4), (9, 4)),  # conservazione
+            stato_conservazione = Paragraph("<b>Stato Conservazione</b><br/>" + self.stato_conservazione, styNormal)
+            datazione = Paragraph("<b>Datazione</b><br/>" + self.datazione_reperto, styNormal)
 
             # 5 row
-            ('SPAN', (0, 5), (9, 5)),  # descrizione
+            descrizione = ''
+            try:
+                descrizione = Paragraph("<b>Descrizione</b><br/>" + str(self.descrizione), styDescrizione)
+            except:
+                pass
 
             # 6 row
-            ('SPAN', (0, 6), (9, 6)),  # elementi_reperto
+            elementi_reperto = ''
+            if eval(self.elementi_reperto):
+                for i in eval(self.elementi_reperto):
+                    if elementi_reperto == '':
+                        try:
+                            elementi_reperto += ("Elemento rinvenuto: %s, Unita' di misura: %s, Quantita': %s") % (
+                            str(i[0]), str(i[1]), str(i[2]))
+                        except:
+                            pass
+                    else:
+                        try:
+                            elementi_reperto += ("<br/>Elemento rinvenuto: %s, Unita' di misura: %s, Quantita': %s") % (
+                            str(i[0]), str(i[1]), str(i[2]))
+                        except:
+                            pass
+
+            elementi_reperto = Paragraph("<b>Elementi reperto</b><br/>" + elementi_reperto, styNormal)
 
             # 7 row
-            ('SPAN', (0, 7), (9, 7)),  # misurazioni
+            misurazioni = ''
+            if eval(self.misurazioni):
+                for i in eval(self.misurazioni):
+                    if misurazioni == '':
+                        try:
+                            misurazioni += ("%s: %s %s") % (str(i[0]), str(i[1]), str(i[2]))
+                        except:
+                            pass
+                    else:
+                        try:
+                            misurazioni += ("<br/>%s: %s %s") % (str(i[0]), str(i[1]), str(i[2]))
+                        except:
+                            pass
+            misurazioni = Paragraph("<b>Misurazioni</b><br/>" + misurazioni, styNormal)
 
             # 8 row
-            ('SPAN', (0, 8), (9, 8)),  # tecnologie
+            tecnologie = ''
+            if eval(self.tecnologie):
+                for i in eval(self.tecnologie):
+                    if tecnologie == '':
+                        try:
+                            tecnologie += (
+                                          "Tipo tecnologia: %s, Posizione: %s, Tipo quantita': %s, Unita' di misura: %s, Quantita': %s") % (
+                                          str(i[0]), str(i[1]), str(i[2]), str(i[3]), str(i[4]))
+                        except:
+                            pass
+                    else:
+                        try:
+                            tecnologie += (
+                                          "<br/>Tipo tecnologia: %s, Posizione: %s, Tipo quantita': %s, Unita' di misura: %s, Quantita': %s") % (
+                                          str(i[0]), str(i[1]), str(i[2]), str(i[3]), str(i[4]))
+                        except:
+                            pass
+            tecnologie = Paragraph("<b>Tecnologie</b><br/>" + tecnologie, styNormal)
 
             # 9 row
-            ('SPAN', (0, 9), (9, 9)),  # bibliografia
+            rif_biblio = ''
+            if eval(self.rif_biblio):
+                for i in eval(self.rif_biblio):  # gigi
+                    if rif_biblio == '':
+                        try:
+                            rif_biblio += ("Autore: %s, Anno: %s, Titolo: %s, Pag.: %s, Fig.: %s") % (
+                            str(i[0]), str(i[1]), str(i[2]), str(i[3]), str(i[4]))
+                        except:
+                            pass
+                    else:
+                        try:
+                            rif_biblio += ("<br/>Autore: %s, Anno: %s, Titolo: %s, Pag.: %s, Fig.: %s") % (
+                            str(i[0]), str(i[1]), str(i[2]), str(i[3]), str(i[4]))
+                        except:
+                            pass
+
+            rif_biblio = Paragraph("<b>Riferimenti bibliografici</b><br/>" + rif_biblio, styNormal)
 
             # 10 row
-            ('SPAN', (0, 10), (2, 10)),  # Repertato Diagnostico
-            ('SPAN', (3, 10), (9, 10)),   # Repertato Diagnostico
+            repertato = Paragraph("<b>Repertato</b><br/>" + self.repertato, styNormal)
+            diagnostico = Paragraph("<b>Diagnostico</b><br/>" + self.diagnostico, styNormal)
 
             # 11 row
-            ('SPAN', (0, 11), (9, 11)),  # Riferimenti magazzino - Titolo
+            riferimenti_magazzino = Paragraph("<b>Riferimenti magazzino</b>", styNormal)
 
             # 12 row
-            ('SPAN', (0, 12), (2, 12)),  # Riferimenti magazzino - lavato
-            ('SPAN', (3, 12), (5, 12)),  # Riferimenti magazzino - nr_cassa
-            ('SPAN', (6, 12), (9, 12)),  # Riferimenti magazzino - luogo conservazione
+            lavato = Paragraph("<b>Lavato</b><br/>" + self.lavato, styNormal)
+            nr_cassa = Paragraph("<b>Nr. Cassa</b><br/>" + self.nr_cassa, styNormal)
+            luogo_conservazione = Paragraph("<b>Luogo di conservazione</b><br/>" + self.luogo_conservazione, styNormal)
 
-            ('VALIGN', (0, 0), (-1, -1), 'TOP')
+            # schema
+            cell_schema = [  # 00, 01, 02, 03, 04, 05, 06, 07, 08, 09 rows
+                [intestazione, '01', '02', '03', '04', '05', '06', logo, '08', '09'],  # 0 row ok
+                [sito, '01', '02', '03', '04', '05', '06', '07', n_reperto, '09'],  # 1 row ok
+                [riferimenti_stratigrafici, '01', '02', '03', area, '05', '06', us, '08', '09'],  # 2 row ok
+                [tipo_reperto, '01', '02', criterio_schedatura, '04', '05', definizione, '07', '08', '09'],
+                # 3 row ok
+                [datazione, '01', '02', '03', '04', stato_conservazione, '06', '07', '08', '09'],  # 4 row ok
+                [descrizione, '01', '02', '03', '04', '05', '06', '07', '08', '09'],  # 5 row ok
+                [elementi_reperto, '01', '02', '03', '04', '05', '06', '07', '08', '09'],  # 6 row ok
+                [misurazioni, '01', '02', '03', '04', '05', '06', '07', '08', '09'],  # 7 row ok
+                [tecnologie, '01', '02', '03', '04', '05', '06', '07', '08', '09'],  # 8 row ok
+                [rif_biblio, '01', '02', '03', '04', '05', '06', '07', '08', '09'],  # 9 row ok
+                [repertato, '01', '02', diagnostico, '04', '05', '06', '07', '08', '09'],  # 10 row ok
+                [riferimenti_magazzino, '01', '02', '03', '04', '05', '06', '07', '08', '09'],  # 11 row ok
+                [lavato, '01', '02', nr_cassa, '04', '05', luogo_conservazione, '07', '08', '09']  # 12 row ok
+            ]
 
-        ]
+            # table style
+            table_style = [
 
-        t = Table(cell_schema, colWidths=50, rowHeights=None, style=table_style)
+                ('GRID', (0, 0), (-1, -1), 0.5, colors.black),
 
-        return t
+                # 0 row
+                ('SPAN', (0, 0), (6, 0)),  # intestazione
+                ('SPAN', (7, 0), (9, 0)),  # intestazione
+
+                # 1 row
+                ('SPAN', (0, 1), (7, 1)),  # sito
+                ('SPAN', (8, 1), (9, 1)),  # nr_inventario
+
+                # 2 row
+                ('SPAN', (0, 2), (3, 2)),  # rif stratigrafici
+                ('SPAN', (4, 2), (6, 2)),  # area
+                ('SPAN', (7, 2), (9, 2)),  # us
+                ('VALIGN', (0, 2), (9, 2), 'TOP'),
+
+                # 3 row
+                ('SPAN', (0, 3), (2, 3)),  # tipo_reperto
+                ('SPAN', (3, 3), (5, 3)),  # criterio_schedatura
+                ('SPAN', (6, 3), (9, 3)),  # definizione
+                ('VALIGN', (0, 3), (9, 3), 'TOP'),
+
+                # 4 row
+                ('SPAN', (0, 4), (4, 4)),  # datazione
+                ('SPAN', (5, 4), (9, 4)),  # conservazione
+
+                # 5 row
+                ('SPAN', (0, 5), (9, 5)),  # descrizione
+
+                # 6 row
+                ('SPAN', (0, 6), (9, 6)),  # elementi_reperto
+
+                # 7 row
+                ('SPAN', (0, 7), (9, 7)),  # misurazioni
+
+                # 8 row
+                ('SPAN', (0, 8), (9, 8)),  # tecnologie
+
+                # 9 row
+                ('SPAN', (0, 9), (9, 9)),  # bibliografia
+
+                # 10 row
+                ('SPAN', (0, 10), (2, 10)),  # Repertato Diagnostico
+                ('SPAN', (3, 10), (9, 10)),   # Repertato Diagnostico
+
+                # 11 row
+                ('SPAN', (0, 11), (9, 11)),  # Riferimenti magazzino - Titolo
+
+                # 12 row
+                ('SPAN', (0, 12), (2, 12)),  # Riferimenti magazzino - lavato
+                ('SPAN', (3, 12), (5, 12)),  # Riferimenti magazzino - nr_cassa
+                ('SPAN', (6, 12), (9, 12)),  # Riferimenti magazzino - luogo conservazione
+
+                ('VALIGN', (0, 0), (-1, -1), 'TOP')
+
+            ]
+
+            t = Table(cell_schema, colWidths=50, rowHeights=None, style=table_style)
+
+            return t
 
     def create_sheet_de(self):
         styleSheet = getSampleStyleSheet()
@@ -1441,7 +1446,116 @@ class FINDS_index_pdf_sheet(object):
                              ])  # finale
 
         return styles
+class FOTO_index_pdf_sheet(object):
+    
 
+    def __init__(self, data):
+        
+        self.sito= data[0]
+        self.foto = data[5]
+        self.thumbnail = data[6]
+        self.us = data[2]
+        self.area = data[1]
+        self.d_stratigrafica= data[4]
+        #self.unita_tipo =data[3]
+    def getTable(self):
+        styleSheet = getSampleStyleSheet()
+        styNormal = styleSheet['Normal']
+        styNormal.spaceBefore = 20
+        styNormal.spaceAfter = 20
+        styNormal.alignment = 0  # LEFT
+        styNormal.fontSize = 6
+
+        
+
+        conn = Connection()
+    
+        thumb_path = conn.thumb_path()
+        thumb_path_str = thumb_path['thumb_path']
+        area = Paragraph("<b>Area</b><br/>" + str(self.area), styNormal)
+        if self.unita_tipo == 'US':
+            us = Paragraph("<b>US</b><br/>" + str(self.us), styNormal)
+        else:
+            us = Paragraph("<b>USM</b><br/>" + str(self.us), styNormal)
+        foto = Paragraph("<b>Foto ID</b><br/>" + str(self.foto), styNormal)
+        d_stratigrafica = Paragraph("<b>Descrizione</b><br/>" + str(self.d_stratigrafica), styNormal)
+        us_presenti = Paragraph("<b>US-USM presenti</b><br/>", styNormal)
+        
+        logo= Image(self.thumbnail)
+        logo.drawHeight = 1 * inch * logo.drawHeight / logo.drawWidth
+        logo.drawWidth = 1 * inch
+        logo.hAlign = "CENTER"
+        
+        thumbnail= logo
+        data = [
+                foto,
+                thumbnail,
+                us,
+                area,
+                d_stratigrafica
+                ]
+
+        return data
+    def makeStyles(self):
+        styles = TableStyle([('GRID', (0, 0), (-1, -1), 0.0, colors.black), ('VALIGN', (0, 0), (-1, -1), 'TOP')
+                             ])  # finale
+
+        return styles
+class FOTO_index_pdf_sheet_2(object):
+    
+
+    def __init__(self, data):
+        
+        self.sito= data[0]
+        self.foto = data[5]
+        #self.thumbnail = data[6]
+        self.us = data[2]
+        self.area = data[1]
+        self.d_stratigrafica= data[4]
+        #self.unita_tipo =data[3]
+    def getTable(self):
+        styleSheet = getSampleStyleSheet()
+        styNormal = styleSheet['Normal']
+        styNormal.spaceBefore = 20
+        styNormal.spaceAfter = 20
+        styNormal.alignment = 0  # LEFT
+        styNormal.fontSize = 6
+
+        
+
+        conn = Connection()
+    
+        thumb_path = conn.thumb_path()
+        thumb_path_str = thumb_path['thumb_path']
+        area = Paragraph("<b>Area</b><br/>" + str(self.area), styNormal)
+        if self.unita_tipo == 'US':
+            us = Paragraph("<b>US</b><br/>" + str(self.us), styNormal)
+        else:
+            us = Paragraph("<b>USM</b><br/>" + str(self.us), styNormal)
+        foto = Paragraph("<b>Foto ID</b><br/>" + str(self.foto), styNormal)
+        d_stratigrafica = Paragraph("<b>Descrizione</b><br/>" + str(self.d_stratigrafica), styNormal)
+        us_presenti = Paragraph("<b>US-USM presenti</b><br/>", styNormal)
+        
+        # logo= Image(self.thumbnail)
+        # logo.drawHeight = 1 * inch * logo.drawHeight / logo.drawWidth
+        # logo.drawWidth = 1 * inch
+        # logo.hAlign = "CENTER"
+        
+        #thumbnail= logo
+        data = [
+                foto,
+                #thumbnail,
+                us,
+                area,
+                d_stratigrafica
+                ]
+
+        return data
+    def makeStyles(self):
+        styles = TableStyle([('GRID', (0, 0), (-1, -1), 0.0, colors.black), ('VALIGN', (0, 0), (-1, -1), 'TOP')
+                             ])  # finale
+
+        return styles    
 
 class generate_reperti_pdf(object):
     HOME = os.environ['PYARCHINIT_HOME']
@@ -1452,7 +1566,100 @@ class generate_reperti_pdf(object):
         now = date.today()
         today = now.strftime("%d-%m-%Y")
         return today
+    
+    def build_index_Foto(self, records, sito):
+        home = os.environ['PYARCHINIT_HOME']
 
+        home_DB_path = '{}{}{}'.format(home, os.sep, 'pyarchinit_DB_folder')
+        logo_path = '{}{}{}'.format(home_DB_path, os.sep, 'logo.jpg')
+        
+        logo = Image(logo_path)
+        logo.drawHeight = 1.5 * inch * logo.drawHeight / logo.drawWidth
+        logo.drawWidth = 1.5 * inch
+        logo.hAlign = "LEFT"
+
+        styleSheet = getSampleStyleSheet()
+        styNormal = styleSheet['Normal']
+        styBackground = ParagraphStyle('background', parent=styNormal, backColor=colors.pink)
+        styH1 = styleSheet['Heading3']
+
+        data = self.datestrfdate()
+
+        lst = []
+        lst.append(logo)
+        lst.append(
+            Paragraph("<b>ELENCO FOTO MATERIALI</b><br/><b> Scavo: %s,  Data: %s</b>" % (sito, data), styH1))
+
+        table_data = []
+        for i in range(len(records)):
+            exp_index = FOTO_index_pdf_sheet(records[i])
+            table_data.append(exp_index.getTable())
+
+        styles = exp_index.makeStyles()
+        colWidths = [100, 105, 30, 30, 200]
+
+        table_data_formatted = Table(table_data, colWidths, style=styles)
+        table_data_formatted.hAlign = "LEFT"
+
+        lst.append(table_data_formatted)
+        lst.append(Spacer(0, 2))
+
+        dt = datetime.datetime.now()
+        filename = ('%s%s%s_%s_%s_%s_%s_%s_%s%s') % (
+        self.PDF_path, os.sep, 'Elenco_foto', dt.day, dt.month, dt.year, dt.hour, dt.minute, dt.second, ".pdf")
+        f = open(filename, "wb")
+
+        doc = SimpleDocTemplate(f, pagesize=A4)
+        doc.build(lst, canvasmaker=NumberedCanvas_USsheet)
+
+        f.close()
+    def build_index_Foto_2(self, records, sito):
+        home = os.environ['PYARCHINIT_HOME']
+
+        home_DB_path = '{}{}{}'.format(home, os.sep, 'pyarchinit_DB_folder')
+        logo_path = '{}{}{}'.format(home_DB_path, os.sep, 'logo.jpg')
+        
+        logo = Image(logo_path)
+        logo.drawHeight = 1.5 * inch * logo.drawHeight / logo.drawWidth
+        logo.drawWidth = 1.5 * inch
+        logo.hAlign = "LEFT"
+
+        styleSheet = getSampleStyleSheet()
+        styNormal = styleSheet['Normal']
+        styBackground = ParagraphStyle('background', parent=styNormal, backColor=colors.pink)
+        styH1 = styleSheet['Heading3']
+
+        data = self.datestrfdate()
+
+        lst = []
+        lst.append(logo)
+        lst.append(
+            Paragraph("<b>ELENCO FOTO MATERILAI</b><br/><b> Scavo: %s,  Data: %s</b>" % (sito, data), styH1))
+
+        table_data = []
+        for i in range(len(records)):
+            exp_index = FOTO_index_pdf_sheet_2(records[i])
+            table_data.append(exp_index.getTable())
+
+        styles = exp_index.makeStyles()
+        colWidths = [100, 50, 50, 200]
+
+        table_data_formatted = Table(table_data, colWidths, style=styles)
+        table_data_formatted.hAlign = "LEFT"
+
+        lst.append(table_data_formatted)
+        lst.append(Spacer(0, 2))
+
+        dt = datetime.datetime.now()
+        filename = ('%s%s%s_%s_%s_%s_%s_%s_%s%s') % (
+        self.PDF_path, os.sep, 'Elenco_foto', dt.day, dt.month, dt.year, dt.hour, dt.minute, dt.second, ".pdf")
+        f = open(filename, "wb")
+
+        doc = SimpleDocTemplate(f, pagesize=A4)
+        doc.build(lst, canvasmaker=NumberedCanvas_USsheet)
+
+        f.close()
+    
     def build_Finds_sheets(self, records):
         elements = []
         for i in range(len(records)):

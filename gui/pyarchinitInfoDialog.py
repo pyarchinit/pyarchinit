@@ -43,9 +43,8 @@ class pyArchInitDialog_Info(QDialog, MAIN_DIALOG_CLASS):
 
         self.text += """<b>Developers:</b><br>
                         Luca Mandolesi<br>
-                        adArte snc - Rimini - www.adartesnc.com<br>
                         Enzo Cocca<br>
-                        Simona Gugnali<br><br>
+                        adArte srl - Rimini - www.adarteinfo.it<br><br><br>
                         """
         self.text += """<b>Special thanks for testing to:</b><br>
                         Giovanni Manghi<br>
@@ -57,6 +56,7 @@ class pyArchInitDialog_Info(QDialog, MAIN_DIALOG_CLASS):
                         Fabio Alboni<br>
                         Yuri Godino<br>
                         Manuela Battaglia<br>
+                        Simona Gugnali<br>
                         Tommaso Gallo<br><br>
                         """
         self.text += """<b>and supporting to:</b><br>

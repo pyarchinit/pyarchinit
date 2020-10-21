@@ -21,19 +21,20 @@
 
 import os
 import sqlalchemy as db
+from sqlalchemy.event import listen
 import psycopg2
 from builtins import object
 from builtins import range
 from builtins import str
 from builtins import zip
 from sqlalchemy import and_, or_, Table, select, func, asc
-
+from geoalchemy2 import *
 from sqlalchemy.engine import create_engine
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.sql.schema import MetaData
 from qgis.core import QgsMessageLog, Qgis, QgsSettings
 from qgis.utils import iface
-
+from modules.utility.pyarchinit_OS_utility import Pyarchinit_OS_Utility
 
 from modules.db.pyarchinit_db_mapper import US, UT, SITE, PERIODIZZAZIONE, \
     STRUTTURA, SCHEDAIND, INVENTARIO_MATERIALI, DETSESSO, DOCUMENTAZIONE, DETETA, MEDIA, \
@@ -55,13 +56,23 @@ class Pyarchinit_db_management(object):
 
     def __init__(self, c):
         self.conn_str = c
-
+    def load_spatialite(self,dbapi_conn, connection_record):
+        dbapi_conn.enable_load_extension(True)
+        
+        if Pyarchinit_OS_Utility.isWindows()== True:
+            dbapi_conn.load_extension('mod_spatialite.dll')
+        
+        elif Pyarchinit_OS_Utility.isMac()== True:
+            dbapi_conn.load_extension('mod_spatialite.dylib')
+        else:
+            dbapi_conn.load_extension('mod_spatialite.so')  
     def connection(self):
         test = True
         try:
             test_conn = self.conn_str.find("sqlite")
             if test_conn == 0:
                 self.engine = create_engine(self.conn_str, echo=eval(self.boolean))
+                listen(self.engine, 'connect', self.load_spatialite)
             else:
                 self.engine = create_engine(self.conn_str, max_overflow=-1, echo=eval(self.boolean))
             self.metadata = MetaData(self.engine)
