@@ -64,7 +64,10 @@ try:
     import sqlalchemy
 except Exception as e:
     missing_libraries.append(str(e))
-
+try:
+    import geoalchemy2
+except Exception as e:
+    missing_libraries.append(str(e))
 try:
     import reportlab
 except Exception as e:
