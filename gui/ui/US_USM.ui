@@ -1659,7 +1659,7 @@ border-color: rgb(0, 0, 0);
            <rect>
             <x>0</x>
             <y>0</y>
-            <width>581</width>
+            <width>753</width>
             <height>177</height>
            </rect>
           </property>
@@ -1897,7 +1897,7 @@ border-color: rgb(0, 0, 0);
            <rect>
             <x>0</x>
             <y>0</y>
-            <width>581</width>
+            <width>753</width>
             <height>177</height>
            </rect>
           </property>
@@ -7801,7 +7801,7 @@ p, li { white-space: pre-wrap; }
    <slot>toggleUserVisible()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>390</x>
+     <x>488</x>
      <y>58</y>
     </hint>
     <hint type="destinationlabel">
@@ -7817,7 +7817,7 @@ p, li { white-space: pre-wrap; }
    <slot>toggleUserVisible()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>362</x>
+     <x>440</x>
      <y>58</y>
     </hint>
     <hint type="destinationlabel">
@@ -7849,7 +7849,7 @@ p, li { white-space: pre-wrap; }
    <slot>toggleUserVisible()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>444</x>
+     <x>582</x>
      <y>58</y>
     </hint>
     <hint type="destinationlabel">

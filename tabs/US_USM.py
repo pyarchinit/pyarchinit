@@ -759,6 +759,7 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
         self.mDockWidget_4.setHidden(True)
         self.currentLayerId = None
         self.search = SearchLayers(iface)
+        self.listview_us()
         try:
             self.on_pushButton_connect_pressed()
         except Exception as e:
@@ -800,7 +801,7 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
         self.msg_sito()
         self.set_sito()
         self.show()
-        self.listview_us()
+        
     
     
     def on_set_matrix_clicked(self, checked=None):
@@ -830,18 +831,23 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
         sito_set_str = sito_set['sito_set']
         
         test_conn = conn_str.find('sqlite')
+         
         if test_conn == 0:
             sqlite_DB_path = '{}{}{}'.format(self.HOME, os.sep,
                                            "pyarchinit_DB_folder") 
             db1 = QSqlDatabase("QSQLITE") 
             db1.setDatabaseName(sqlite_DB_path +os.sep+ conn_sqlite["db_name"])
-            db1.open()
-            #self.table = QTableView() 
+            
+            if self.search_1.text=='':
+                db1.close()
+            else:
+                db1.open()
             self.model_a = QSqlTableModel(db = db1) 
             
             self.table.setModel(self.model_a) 
             self.model_a.setTable("us_table") 
             self.model_a.setEditStrategy(QSqlTableModel.OnManualSubmit)
+            
             self.pushButton_submit.clicked.connect(self.submit)
             self.pushButton_revert.clicked.connect(self.model_a.revertAll)
             column_titles = { 
@@ -861,11 +867,12 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
                 filter_str = "sito = '{}'".format(str(self.comboBox_sito.currentText())) 
                 self.model_a.setFilter(filter_str)
                 self.model_a.select() 
-                db1.close()
+                
             else:
             
                 self.model_a.select() 
-                db1.close()
+                
+        
         else:
            
             db = QSqlDatabase.addDatabase("QPSQL")
@@ -875,6 +882,7 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
             db.setPort(int(port_int))
             db.setUserName(conn_user['user'])
             db.setPassword(conn_password['password']) 
+            
             db.open()
             
             
@@ -891,12 +899,14 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
                 filter_str = "sito = '{}'".format(str(self.comboBox_sito.currentText())) 
                 self.model_a.setFilter(filter_str)
                 self.model_a.select()
-                db.close()             
+                             
             else:
                 self.model_a.select() 
-                db.close()
-            
-               
+          
+         
+        
+       
+    
     def submit(self):
         self.model_a.database().transaction()
         if self.model_a.submitAll():
@@ -940,6 +950,7 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
                     if bool(filter_str):
                         self.model_a.setFilter(filter_str)
                         self.model_a.select()
+                        
                     else:
                         pass
                 else:
@@ -949,6 +960,7 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
                     if bool(filter_str):
                         self.model_a.setFilter(filter_str)
                         self.model_a.select() 
+                        
                     else:
                         pass
             except Exception as e:
@@ -1441,11 +1453,11 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
             
             db = QSqlDatabase("QSQLITE") 
             db.setDatabaseName(conn_str) 
-            db.open()
+            db.close()
         else:
             db = QSqlDatabase("QPSQL") 
             db.setDatabaseName(conn_str) 
-            db.open()
+            db.close()
         try:
             self.DB_MANAGER = Pyarchinit_db_management(conn_str)
             self.DB_MANAGER.connection()
@@ -2715,41 +2727,110 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
                 except Exception as e :
                     QMessageBox.warning(self, 'ATTENZIONE',str(e),QMessageBox.Ok)
         
-        # elif self.L=='en':  
-            # US_index_pdf = generate_US_pdf()
-            # data_list = self.generate_list_pdf()
-            # US_index_pdf.build_index_US_en(data_list, data_list[0][0])
+        elif self.L=='en':  
+            if self.checkBox_s_us.isChecked():
+                US_pdf_sheet = generate_US_pdf()
+                data_list = self.generate_list_pdf()
+                US_pdf_sheet.build_US_sheets(data_list)
+                QMessageBox.warning(self, 'Ok',"Export finished SU Forms",QMessageBox.Ok)
+            else:   
+                pass
+        
+            if self.checkBox_e_us.isChecked() :
+                US_index_pdf = generate_US_pdf()
+                data_list = self.generate_list_pdf()
+                try:               
+                    if bool(data_list):
+                        US_index_pdf.build_index_US(data_list, data_list[0][0])
+                        QMessageBox.warning(self, 'Ok',"Export finished SU List",QMessageBox.Ok)
+                    else:
+                        QMessageBox.warning(self, 'WARNING',"The SU list cannot be exported you have to fill in the SU tabs first",QMessageBox.Ok)
+                except Exception as e :
+                    QMessageBox.warning(self, 'WARNING',str(e),QMessageBox.Ok)
+            else:
+                pass
+        
+            if self.checkBox_e_foto_t.isChecked():
+                US_index_pdf = generate_US_pdf()
+                data_list_foto = self.generate_list_foto()
+        
+                try:
+                        if bool(data_list_foto):
+                            US_index_pdf.build_index_Foto(data_list_foto, data_list_foto[0][0])
+                            QMessageBox.warning(self, 'Ok',"Export finished SU List",QMessageBox.Ok)
+                                       
+                        else:
+                            QMessageBox.warning(self, 'WARNING', 'The photo list cannot be exported because you do not have tagged images.',QMessageBox.Ok)
+                except Exception as e :
+                    QMessageBox.warning(self, 'WARNING',str(e),QMessageBox.Ok)
             
-        # elif self.L=='en':
-            
-            # if self.checkBox_s_us.isChecked():
-                # US_pdf_sheet = generate_US_pdf()
-                # data_list = self.generate_list_pdf()
-                # US_pdf_sheet.build_US_sheets(data_list)
-            # else:   
-                # pass
+            if self.checkBox_e_foto.isChecked():
+                US_index_pdf = generate_US_pdf()
+                data_list_foto = self.generate_list_foto()
+        
+                try:
+                        if bool(data_list_foto):
+                            US_index_pdf.build_index_Foto_2(data_list_foto, data_list_foto[0][0])
+                            QMessageBox.warning(self, 'Ok', "Export finished Photo List without thumbanil",QMessageBox.Ok)
+                                       
+                        else:
+                            QMessageBox.warning(self, 'WARNING', "The photo list cannot be exported because you do not have tagged images.",QMessageBox.Ok)
+                except Exception as e :
+                    QMessageBox.warning(self, 'WARNING',str(e),QMessageBox.Ok)
                 
             
       
            
-        # elif self.L=='de':
-         
-            # if self.checkBox_s_us.isChecked():
-                # US_pdf_sheet = generate_US_pdf()
-                # data_list = self.generate_list_pdf()
-                # US_pdf_sheet.build_US_sheets(data_list)
-            # else:   
-                # pass
-            
-        # else:
-            # pass
+        elif self.L=='de':
+            if self.checkBox_s_us.isChecked():
+                US_pdf_sheet = generate_US_pdf()
+                data_list = self.generate_list_pdf()
+                US_pdf_sheet.build_US_sheets(data_list)
+                QMessageBox.warning(self, 'Ok',"Esportazione terminata Schede US",QMessageBox.Ok)
+            else:   
+                pass
         
-        # elif self.L=='de':  
-            # US_index_pdf = generate_US_pdf()
-            # data_list = self.generate_list_pdf()
-            # US_index_pdf.build_index_US_de(data_list, data_list[0][0])  
-        # else:
-            # pass    
+            if self.checkBox_e_us.isChecked() :
+                US_index_pdf = generate_US_pdf()
+                data_list = self.generate_list_pdf()
+                try:               
+                    if bool(data_list):
+                        US_index_pdf.build_index_US(data_list, data_list[0][0])
+                        QMessageBox.warning(self, 'Ok',"Esportazione terminata Elenco US",QMessageBox.Ok)
+                    else:
+                        QMessageBox.warning(self, 'ATTENZIONE',"L'elenco US non può essere esportato devi riempire prima le schede US",QMessageBox.Ok)
+                except Exception as e :
+                    QMessageBox.warning(self, 'ATTENZIONE',str(e),QMessageBox.Ok)
+            else:
+                pass
+        
+            if self.checkBox_e_foto_t.isChecked():
+                US_index_pdf = generate_US_pdf()
+                data_list_foto = self.generate_list_foto()
+        
+                try:
+                        if bool(data_list_foto):
+                            US_index_pdf.build_index_Foto(data_list_foto, data_list_foto[0][0])
+                            QMessageBox.warning(self, 'Ok',"Esportazione terminata Elenco Foto",QMessageBox.Ok)
+                                       
+                        else:
+                            QMessageBox.warning(self, 'ATTENZIONE',"L'elenco foto non può essere esportato perchè non hai immagini taggate.",QMessageBox.Ok)
+                except Exception as e :
+                    QMessageBox.warning(self, 'ATTENZIONE',str(e),QMessageBox.Ok)
+            
+            if self.checkBox_e_foto.isChecked():
+                US_index_pdf = generate_US_pdf()
+                data_list_foto = self.generate_list_foto()
+        
+                try:
+                        if bool(data_list_foto):
+                            US_index_pdf.build_index_Foto_2(data_list_foto, data_list_foto[0][0])
+                            QMessageBox.warning(self, 'Ok',"Esportazione terminata Elenco Foto senza thumbanil",QMessageBox.Ok)
+                                       
+                        else:
+                            QMessageBox.warning(self, 'ATTENZIONE',"L'elenco foto non può essere esportato perchè non hai immagini taggate.",QMessageBox.Ok)
+                except Exception as e :
+                    QMessageBox.warning(self, 'ATTENZIONE',str(e),QMessageBox.Ok)
     def setPathpdf(self):
         s = QgsSettings()
         dbpath = QFileDialog.getOpenFileName(
@@ -3183,7 +3264,7 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
             self.enable_button(0)
 
     def on_pushButton_save_pressed(self):
-        # save record
+        self.listview_us()
         if self.BROWSE_STATUS == "b":
             if self.data_error_check() == 0:
                 if self.records_equal_check() == 1:
@@ -4324,6 +4405,7 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
             # records surf functions
 
     def on_pushButton_view_all_pressed(self):
+        self.listview_us()
         self.empty_fields()
         self.charge_records()
         self.fill_fields()
@@ -4342,7 +4424,7 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
         # records surf functions
 
     def on_pushButton_first_rec_pressed(self):
-        
+        self.listview_us()
         if self.check_record_state() == 1:
             pass
         else:
@@ -4355,7 +4437,7 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
                 pass
 
     def on_pushButton_last_rec_pressed(self):
-        
+        self.listview_us()
         if self.check_record_state() == 1:
             pass
         else:
@@ -4369,6 +4451,7 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
                
 
     def on_pushButton_prev_rec_pressed(self):
+        self.listview_us()
         rec_goto = int(self.lineEdit_goto.text())
         
         if self.check_record_state() == 1:
@@ -4389,6 +4472,7 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
                   
 
     def on_pushButton_next_rec_pressed(self):
+        self.listview_us()
         rec_goto = int(self.lineEdit_goto.text())
         
         if self.check_record_state() == 1:
@@ -4409,7 +4493,7 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
                 pass#QMessageBox.warning(self, "Error", str(e), QMessageBox.Ok)
 
     def on_pushButton_delete_pressed(self):
-        
+        self.listview_us()
         if self.L=='it':
             msg = QMessageBox.warning(self, "Attenzione!!!",
                                       "Vuoi veramente eliminare il record? \n L'azione è irreversibile",
