@@ -841,40 +841,38 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
             db = QSqlDatabase("QSQLITE") 
             db.setDatabaseName(sqlite_DB_path +os.sep+ conn_sqlite["db_name"])
             
-            if self.search_1.text=='':
-                db.close()
-            else:
-                db.open()
-                
-                self.model_a = QSqlTableModel(db = db) 
-                
-                self.table.setModel(self.model_a) 
-                self.model_a.setTable("us_table") 
-                self.model_a.setEditStrategy(QSqlTableModel.OnManualSubmit)
-                
-                self.pushButton_submit.clicked.connect(self.submit)
-                self.pushButton_revert.clicked.connect(self.model_a.revertAll)
-                column_titles = { 
-                    "sito": "SITO", 
-                    "area": "Area", 
-                    "us": "US"} 
-                for n, t in column_titles.items(): 
-                    idx = self.model_a.fieldIndex( n) 
-                    self.model_a.setHeaderData( idx, Qt.Horizontal, t)
+            
+            db.open()
+            
+            self.model_a = QSqlTableModel(db = db) 
+            
+            self.table.setModel(self.model_a) 
+            self.model_a.setTable("us_table") 
+            self.model_a.setEditStrategy(QSqlTableModel.OnManualSubmit)
+            
+            self.pushButton_submit.clicked.connect(self.submit)
+            self.pushButton_revert.clicked.connect(self.model_a.revertAll)
+            column_titles = { 
+                "sito": "SITO", 
+                "area": "Area", 
+                "us": "US"} 
+            for n, t in column_titles.items(): 
+                idx = self.model_a.fieldIndex( n) 
+                self.model_a.setHeaderData( idx, Qt.Horizontal, t)
 
-                #self.model.removeColumns(0,1 and 2,3)
-                # columns_to_remove = ['id_us'] 
-                # for cn in columns_to_remove: 
-                    # idx = self.model.fieldIndex(cn) 
-                    # self.model.removeColumns(idx, 1)
-                if bool (sito_set_str):
-                    filter_str = "sito = '{}'".format(str(self.comboBox_sito.currentText())) 
-                    self.model_a.setFilter(filter_str)
-                    self.model_a.select() 
-                    
-                else:
+            #self.model.removeColumns(0,1 and 2,3)
+            # columns_to_remove = ['id_us'] 
+            # for cn in columns_to_remove: 
+                # idx = self.model.fieldIndex(cn) 
+                # self.model.removeColumns(idx, 1)
+            if bool (sito_set_str):
+                filter_str = "sito = '{}'".format(str(self.comboBox_sito.currentText())) 
+                self.model_a.setFilter(filter_str)
+                self.model_a.select() 
                 
-                    self.model_a.select() 
+            else:
+            
+                self.model_a.select() 
                     
                 
                 #self.model_a.database().close()
@@ -1456,13 +1454,13 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
         if test_conn == 0:
             self.DB_SERVER = "sqlite"
             
-            db = QSqlDatabase("QSQLITE") 
-            db.setDatabaseName(conn_str) 
-            db.close()
-        else:
-            db = QSqlDatabase("QPSQL") 
-            db.setDatabaseName(conn_str) 
-            db.close()
+            # db = QSqlDatabase("QSQLITE") 
+            # db.setDatabaseName(conn_str) 
+            # db.close()
+            # else:
+                # db = QSqlDatabase("QPSQL") 
+                # db.setDatabaseName(conn_str) 
+                # db.close()
         try:
             self.DB_MANAGER = Pyarchinit_db_management(conn_str)
             self.DB_MANAGER.connection()
@@ -2305,7 +2303,7 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
         
         
     def msg_sito(self):
-        self.model_a.database().close()
+        #self.model_a.database().close()
         conn = Connection()
         
         sito_set= conn.sito_set()
@@ -2319,7 +2317,7 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
     
     
     def set_sito(self):
-        self.model_a.database().close()
+        #self.model_a.database().close()
         conn = Connection()
             
         sito_set= conn.sito_set()
@@ -4673,7 +4671,7 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
         elif self.L=='en':   
             QMessageBox.warning(self, "Attention", "Updated period code for excavation %s" % (sito), QMessageBox.Ok)
     def on_pushButton_search_go_pressed(self):
-        self.model_a.database().close()
+        #self.model_a.database().close()
         if self.BROWSE_STATUS != "f":
             if self.L=='it':
                 QMessageBox.warning(self, "ATTENZIONE", "Per eseguire una nuova ricerca clicca sul pulsante 'new search' ",
@@ -5029,7 +5027,7 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
                 return 0
     
     def update_record(self):
-        self.model_a.database().close()
+        #self.model_a.database().close()
         try:
             self.DB_MANAGER.update(self.MAPPER_TABLE_CLASS,
                                    self.ID_TABLE,
@@ -5061,7 +5059,7 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
         # custom functions
 
     def charge_records(self):
-        self.model_a.database().close()
+        #self.model_a.database().close()
         self.DATA_LIST = []
 
         if self.DB_SERVER == 'sqlite':
