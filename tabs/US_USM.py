@@ -764,7 +764,7 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
             self.on_pushButton_connect_pressed()
         except Exception as e:
             QMessageBox.warning(self, "Connection System", str(e), QMessageBox.Ok)
-
+        #self.listview_us()
             # SIGNALS & SLOTS Functions
         self.comboBox_sito.editTextChanged.connect(self.charge_periodo_iniz_list)
         self.comboBox_sito.editTextChanged.connect(self.charge_periodo_fin_list)
@@ -814,6 +814,9 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
         
         dialog.exec_()
     
+    
+    
+            
     def listview_us(self):    #self.loadMedialist()
         conn = Connection()
         conn_str = conn.conn_str()
@@ -835,44 +838,46 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
         if test_conn == 0:
             sqlite_DB_path = '{}{}{}'.format(self.HOME, os.sep,
                                            "pyarchinit_DB_folder") 
-            db1 = QSqlDatabase("QSQLITE") 
-            db1.setDatabaseName(sqlite_DB_path +os.sep+ conn_sqlite["db_name"])
+            db = QSqlDatabase("QSQLITE") 
+            db.setDatabaseName(sqlite_DB_path +os.sep+ conn_sqlite["db_name"])
             
             if self.search_1.text=='':
-                db1.close()
+                db.close()
             else:
-                db1.open()
-            self.model_a = QSqlTableModel(db = db1) 
-            
-            self.table.setModel(self.model_a) 
-            self.model_a.setTable("us_table") 
-            self.model_a.setEditStrategy(QSqlTableModel.OnManualSubmit)
-            
-            self.pushButton_submit.clicked.connect(self.submit)
-            self.pushButton_revert.clicked.connect(self.model_a.revertAll)
-            column_titles = { 
-                "sito": "SITO", 
-                "area": "Area", 
-                "us": "US"} 
-            for n, t in column_titles.items(): 
-                idx = self.model_a.fieldIndex( n) 
-                self.model_a.setHeaderData( idx, Qt.Horizontal, t)
+                db.open()
+                
+                self.model_a = QSqlTableModel(db = db) 
+                
+                self.table.setModel(self.model_a) 
+                self.model_a.setTable("us_table") 
+                self.model_a.setEditStrategy(QSqlTableModel.OnManualSubmit)
+                
+                self.pushButton_submit.clicked.connect(self.submit)
+                self.pushButton_revert.clicked.connect(self.model_a.revertAll)
+                column_titles = { 
+                    "sito": "SITO", 
+                    "area": "Area", 
+                    "us": "US"} 
+                for n, t in column_titles.items(): 
+                    idx = self.model_a.fieldIndex( n) 
+                    self.model_a.setHeaderData( idx, Qt.Horizontal, t)
 
-            #self.model.removeColumns(0,1 and 2,3)
-            # columns_to_remove = ['id_us'] 
-            # for cn in columns_to_remove: 
-                # idx = self.model.fieldIndex(cn) 
-                # self.model.removeColumns(idx, 1)
-            if bool (sito_set_str):
-                filter_str = "sito = '{}'".format(str(self.comboBox_sito.currentText())) 
-                self.model_a.setFilter(filter_str)
-                self.model_a.select() 
+                #self.model.removeColumns(0,1 and 2,3)
+                # columns_to_remove = ['id_us'] 
+                # for cn in columns_to_remove: 
+                    # idx = self.model.fieldIndex(cn) 
+                    # self.model.removeColumns(idx, 1)
+                if bool (sito_set_str):
+                    filter_str = "sito = '{}'".format(str(self.comboBox_sito.currentText())) 
+                    self.model_a.setFilter(filter_str)
+                    self.model_a.select() 
+                    
+                else:
                 
-            else:
-            
-                self.model_a.select() 
+                    self.model_a.select() 
+                    
                 
-        
+                #self.model_a.database().close()
         else:
            
             db = QSqlDatabase.addDatabase("QPSQL")
@@ -906,7 +911,7 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
          
         
        
-    
+        
     def submit(self):
         self.model_a.database().transaction()
         if self.model_a.submitAll():
@@ -2300,6 +2305,7 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
         
         
     def msg_sito(self):
+        self.model_a.database().close()
         conn = Connection()
         
         sito_set= conn.sito_set()
@@ -2313,6 +2319,7 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
     
     
     def set_sito(self):
+        self.model_a.database().close()
         conn = Connection()
             
         sito_set= conn.sito_set()
@@ -3092,6 +3099,7 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
         self.DATA_LIST_REC_TEMP = self.DATA_LIST_REC_CORR = self.DATA_LIST[0]
 
     def on_pushButton_sort_pressed(self):
+        self.model_a.database().close()
         if self.check_record_state() == 1:
             pass
         else:
@@ -3264,7 +3272,7 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
             self.enable_button(0)
 
     def on_pushButton_save_pressed(self):
-        self.listview_us()
+        self.model_a.database().close()
         if self.BROWSE_STATUS == "b":
             if self.data_error_check() == 0:
                 if self.records_equal_check() == 1:
@@ -4405,7 +4413,7 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
             # records surf functions
 
     def on_pushButton_view_all_pressed(self):
-        self.listview_us()
+        self.model_a.database().close()
         self.empty_fields()
         self.charge_records()
         self.fill_fields()
@@ -4424,7 +4432,7 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
         # records surf functions
 
     def on_pushButton_first_rec_pressed(self):
-        self.listview_us()
+        self.model_a.database().close()
         if self.check_record_state() == 1:
             pass
         else:
@@ -4437,7 +4445,7 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
                 pass
 
     def on_pushButton_last_rec_pressed(self):
-        self.listview_us()
+        self.model_a.database().close()
         if self.check_record_state() == 1:
             pass
         else:
@@ -4451,7 +4459,7 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
                
 
     def on_pushButton_prev_rec_pressed(self):
-        self.listview_us()
+        self.model_a.database().close()
         rec_goto = int(self.lineEdit_goto.text())
         
         if self.check_record_state() == 1:
@@ -4472,7 +4480,7 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
                   
 
     def on_pushButton_next_rec_pressed(self):
-        self.listview_us()
+        self.model_a.database().close()
         rec_goto = int(self.lineEdit_goto.text())
         
         if self.check_record_state() == 1:
@@ -4493,7 +4501,7 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
                 pass#QMessageBox.warning(self, "Error", str(e), QMessageBox.Ok)
 
     def on_pushButton_delete_pressed(self):
-        self.listview_us()
+        self.model_a.database().close()
         if self.L=='it':
             msg = QMessageBox.warning(self, "Attenzione!!!",
                                       "Vuoi veramente eliminare il record? \n L'azione è irreversibile",
@@ -4665,6 +4673,7 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
         elif self.L=='en':   
             QMessageBox.warning(self, "Attention", "Updated period code for excavation %s" % (sito), QMessageBox.Ok)
     def on_pushButton_search_go_pressed(self):
+        self.model_a.database().close()
         if self.BROWSE_STATUS != "f":
             if self.L=='it':
                 QMessageBox.warning(self, "ATTENZIONE", "Per eseguire una nuova ricerca clicca sul pulsante 'new search' ",
@@ -5020,7 +5029,7 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
                 return 0
     
     def update_record(self):
-        # self.set_sito()
+        self.model_a.database().close()
         try:
             self.DB_MANAGER.update(self.MAPPER_TABLE_CLASS,
                                    self.ID_TABLE,
@@ -5052,6 +5061,7 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
         # custom functions
 
     def charge_records(self):
+        self.model_a.database().close()
         self.DATA_LIST = []
 
         if self.DB_SERVER == 'sqlite':
