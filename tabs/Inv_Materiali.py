@@ -1504,7 +1504,7 @@ class pyarchinit_Inventario_reperti(QDialog, MAIN_DIALOG_CLASS):
             thumb_path = conn.thumb_path()
             thumb_path_str = thumb_path['thumb_path']
             
-            search_dict = {'id_entity': "'"+ str(eval("self.DATA_LIST[i].id_us"))+"'", 'entity_type' : "'REPERTO'"}
+            search_dict = {'id_entity': "'"+ str(eval("self.DATA_LIST[i].id_invmat"))+"'", 'entity_type' : "'REPERTO'"}
             
             record_doc_list = self.DB_MANAGER.query_bool(search_dict, 'MEDIAVIEW')
         
@@ -1521,13 +1521,18 @@ class pyarchinit_Inventario_reperti(QDialog, MAIN_DIALOG_CLASS):
                 # d_stratigrafica= ''
                 # unita_tipo = (media.unita_tipo)
                 data_list_foto.append([
-                    str(self.DATA_LIST[i].sito), #0
-                    str(self.DATA_LIST[i].area), #1
-                    str(self.DATA_LIST[i].us),    #2
-                    str(self.DATA_LIST[i].num_inv),#3
-                    str(self.DATA_LIST[i].n_reperto),  #4 
-                    str(foto),#5
-                    str(thumbnail)])#6
+                    str(self.DATA_LIST[i].numero_inventario), #0
+                    str(self.DATA_LIST[i].sito), #2
+                    str(self.DATA_LIST[i].area), #3
+                    str(self.DATA_LIST[i].us),    #4
+                    str(self.DATA_LIST[i].tipo_reperto),#5
+                    str(self.DATA_LIST[i].repertato), #6
+                    str(self.DATA_LIST[i].n_reperto),  #7 
+                    str(self.DATA_LIST[i].tipo), #8
+                    str(self.DATA_LIST[i].nr_cassa), #9
+                    str(self.DATA_LIST[i].luogo_conservazione),#10
+                    str(foto),#11
+                    str(thumbnail)])#12
             
         return data_list_foto
             
