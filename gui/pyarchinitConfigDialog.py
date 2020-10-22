@@ -184,7 +184,7 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
                                    "s.sito;",db=db)
                 self.model_a.setQuery(query1)
 
-
+            
 
             #self.model_a.setTable("us_table")
             #self.model_a.setEditStrategy(QSqlTableModel.OnManualSubmit)
@@ -230,7 +230,7 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
                                    "s.sito;",db=db)
                 self.model_a.setQuery(query1) 
                 
-    
+        
     def db_active (self):
         self.comboBox_Database.update()
         self.comboBox_sito.clear()

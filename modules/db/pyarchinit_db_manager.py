@@ -21,13 +21,15 @@
 
 import os
 import sqlalchemy as db
+from sqlalchemy.ext.compiler import compiles
+from sqlalchemy.sql.expression import *
 from sqlalchemy.event import listen
 import psycopg2
 from builtins import object
 from builtins import range
 from builtins import str
 from builtins import zip
-from sqlalchemy import and_, or_, Table, select, func, asc
+from sqlalchemy import and_, or_, Table, select, func, asc,UniqueConstraint
 from geoalchemy2 import *
 from sqlalchemy.engine import create_engine
 from sqlalchemy.orm import sessionmaker
@@ -42,7 +44,10 @@ from modules.db.pyarchinit_db_mapper import US, UT, SITE, PERIODIZZAZIONE, \
     ARCHEOZOOLOGY, INVENTARIO_LAPIDEI, PDF_ADMINISTRATOR,PYUS
 from modules.db.pyarchinit_db_update import DB_update
 from modules.db.pyarchinit_utility import Utility
+from sqlalchemy.ext.compiler import compiles
+from sqlalchemy.sql.expression import Insert
 
+        
 
 class Pyarchinit_db_management(object):
     metadata = ''
@@ -56,6 +61,11 @@ class Pyarchinit_db_management(object):
 
     def __init__(self, c):
         self.conn_str = c
+    
+    @compiles(Insert)
+    def _prefix_insert_with_ignore(insert, compiler, **kw):
+        return compiler.visit_insert(insert.prefix_with('OR IGNORE'), **kw)
+    
     def load_spatialite(self,dbapi_conn, connection_record):
         dbapi_conn.enable_load_extension(True)
         
@@ -766,7 +776,6 @@ class Pyarchinit_db_management(object):
 
         # query statement
 
-    #
     def query(self, n):
         class_name = eval(n)
         # engine = self.connection()
@@ -821,6 +830,9 @@ class Pyarchinit_db_management(object):
         '''
         session.close()
         return res
+    
+    
+    
     def query_bool_special(self, params, table):
         u = Utility()
         params = u.remove_empty_items_fr_dict(params)
@@ -855,7 +867,7 @@ class Pyarchinit_db_management(object):
         # self.connection()
         Session = sessionmaker(bind=self.engine, autoflush=True, autocommit=True)
         session = Session()
-        query_str = "session.query(" + table + ").filter(and_("+field_value_string+" )).all()"
+        query_str = "session.query(" + table + ").populate_existing().filter(and_("+field_value_string+" )).all()"
         res = eval(query_str)
 
         '''
@@ -942,7 +954,15 @@ class Pyarchinit_db_management(object):
         session.add(data)
         session.commit()
         session.close()
-
+    def insert_data_conflict(self, data):
+        Session = sessionmaker(bind=self.engine, autoflush=False)
+        session = Session()
+        session.begin_nested()
+        session.merge(data)
+       
+        session.commit()
+        
+        session.close()
     def update(self, table_class_str, id_table_str, value_id_list, columns_name_list, values_update_list):
         """
         Receives 5 values then putted in a list. The values must be passed
@@ -1054,6 +1074,23 @@ class Pyarchinit_db_management(object):
         else:
             return int(res_max_num_id)
         
+    # def max_num_id2(self, tc, f):
+        # self.table_class = tc
+        # self.field_id = f
+
+        # Session = sessionmaker(bind=self.engine, autoflush=True, autocommit=True)
+        # session = Session()
+        # exec_str = "session.query(func.max({}.{}))".format(self.table_class, self.field_id)
+        # exec_str = exec_str.on_conflict_do_nothing(index_elements="{}".format( self.field_id))
+        # max_id_func = eval(exec_str)
+        # res_all = max_id_func.all()
+        # res_max_num_id = res_all[0][0]
+        # session.close()
+        # if not res_max_num_id:
+            # return 0
+        # else:
+            # return int(res_max_num_id)
+    
     def dir_query(self):
         Session = sessionmaker(bind=self.engine, autoflush=True, autocommit=True)
         session = Session()
