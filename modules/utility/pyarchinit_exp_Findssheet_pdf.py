@@ -19,13 +19,14 @@
  *                                                                         *
  ***************************************************************************/
 """
-
+import datetime
 from datetime import date
 from qgis.PyQt.QtWidgets import QDialog, QMessageBox
 from builtins import object
 from builtins import range
 from builtins import str
 from reportlab.lib import colors
+from reportlab.lib.pagesizes import (A4,A3)
 from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
 from reportlab.lib.units import inch, cm, mm
 from reportlab.pdfgen import canvas
@@ -1451,13 +1452,20 @@ class FOTO_index_pdf_sheet(object):
 
     def __init__(self, data):
         
-        self.sito= data[0]
-        self.foto = data[5]
-        self.thumbnail = data[6]
-        self.us = data[2]
-        self.area = data[1]
-        self.d_stratigrafica= data[4]
-        #self.unita_tipo =data[3]
+        self.numero_inventario= data[0]
+        self.sito= data[1]
+        self.thumbnail = data[11]
+        self.us = data[3]
+        self.tipo_reperto = data[4]
+        self.repertato= data[5]
+        self.n_reperto=data[6]
+        self.tipo =data[7]
+        self.nr_cassa= data[8]
+        self.luogo_conservazione =data[9]
+        
+        
+        
+        
     def getTable(self):
         styleSheet = getSampleStyleSheet()
         styNormal = styleSheet['Normal']
@@ -1472,14 +1480,16 @@ class FOTO_index_pdf_sheet(object):
     
         thumb_path = conn.thumb_path()
         thumb_path_str = thumb_path['thumb_path']
-        area = Paragraph("<b>Area</b><br/>" + str(self.area), styNormal)
-        if self.unita_tipo == 'US':
-            us = Paragraph("<b>US</b><br/>" + str(self.us), styNormal)
-        else:
-            us = Paragraph("<b>USM</b><br/>" + str(self.us), styNormal)
-        foto = Paragraph("<b>Foto ID</b><br/>" + str(self.foto), styNormal)
-        d_stratigrafica = Paragraph("<b>Descrizione</b><br/>" + str(self.d_stratigrafica), styNormal)
-        us_presenti = Paragraph("<b>US-USM presenti</b><br/>", styNormal)
+        numero_inventario = Paragraph("<b>Numero inv.</b><br/>" + str(self.numero_inventario), styNormal)
+        us = Paragraph("<b>US</b><br/>" + str(self.us), styNormal)
+        tipo_reperto = Paragraph("<b>Tipo reperto</b><br/>" + str(self.tipo_reperto), styNormal)
+        repertato = Paragraph("<b>Repertato</b><br/>" + str(self.repertato), styNormal)
+        n_reperto = Paragraph("<b>Numero reperto</b><br/>"+ str(self.n_reperto), styNormal)
+        tipo = Paragraph("<b>Tipo di contenitore</b><br/>"+ str(self.tipo), styNormal)
+        nr_cassa = Paragraph("<b>Numero contenitore</b><br/>"+ str(self.nr_cassa), styNormal)
+        luogo_conservazione = Paragraph("<b>Luogo di conservazione</b><br/>"+ str(self.luogo_conservazione), styNormal)
+        
+        
         
         logo= Image(self.thumbnail)
         logo.drawHeight = 1 * inch * logo.drawHeight / logo.drawWidth
@@ -1488,11 +1498,14 @@ class FOTO_index_pdf_sheet(object):
         
         thumbnail= logo
         data = [
-                foto,
-                thumbnail,
-                us,
-                area,
-                d_stratigrafica
+                numero_inventario,
+                us ,
+                tipo_reperto,
+                repertato,
+                n_reperto,
+                tipo,
+                nr_cassa,
+                luogo_conservazione
                 ]
 
         return data
@@ -1506,13 +1519,20 @@ class FOTO_index_pdf_sheet_2(object):
 
     def __init__(self, data):
         
-        self.sito= data[0]
-        self.foto = data[5]
-        #self.thumbnail = data[6]
-        self.us = data[2]
-        self.area = data[1]
-        self.d_stratigrafica= data[4]
-        #self.unita_tipo =data[3]
+        self.numero_inventario= data[0]
+        self.sito= data[1]
+        self.foto = data[10]
+        self.us = data[3]
+        self.tipo_reperto = data[4]
+        self.repertato= data[5]
+        self.n_reperto=data[6]
+        self.tipo =data[7]
+        self.nr_cassa= data[8]
+        self.luogo_conservazione =data[9]
+        
+        
+        
+        
     def getTable(self):
         styleSheet = getSampleStyleSheet()
         styNormal = styleSheet['Normal']
@@ -1527,14 +1547,17 @@ class FOTO_index_pdf_sheet_2(object):
     
         thumb_path = conn.thumb_path()
         thumb_path_str = thumb_path['thumb_path']
-        area = Paragraph("<b>Area</b><br/>" + str(self.area), styNormal)
-        if self.unita_tipo == 'US':
-            us = Paragraph("<b>US</b><br/>" + str(self.us), styNormal)
-        else:
-            us = Paragraph("<b>USM</b><br/>" + str(self.us), styNormal)
-        foto = Paragraph("<b>Foto ID</b><br/>" + str(self.foto), styNormal)
-        d_stratigrafica = Paragraph("<b>Descrizione</b><br/>" + str(self.d_stratigrafica), styNormal)
-        us_presenti = Paragraph("<b>US-USM presenti</b><br/>", styNormal)
+        numero_inventario = Paragraph("<b>Numero inv.</b><br/>" + str(self.numero_inventario), styNormal)
+        us = Paragraph("<b>US</b><br/>" + str(self.us), styNormal)
+        foto = Paragraph("<b>Foto</b><br/>" + str(self.foto), styNormal)
+        tipo_reperto = Paragraph("<b>Tipo reperto</b><br/>" + str(self.tipo_reperto), styNormal)
+        repertato = Paragraph("<b>Repertato</b><br/>" + str(self.repertato), styNormal)
+        n_reperto = Paragraph("<b>Numero reperto</b><br/>"+ str(self.n_reperto), styNormal)
+        tipo = Paragraph("<b>Tipo di contenitore</b><br/>"+ str(self.tipo), styNormal)
+        nr_cassa = Paragraph("<b>Numero contenitore</b><br/>"+ str(self.nr_cassa), styNormal)
+        luogo_conservazione = Paragraph("<b>Luogo di conservazione</b><br/>"+ str(self.luogo_conservazione), styNormal)
+        
+        
         
         # logo= Image(self.thumbnail)
         # logo.drawHeight = 1 * inch * logo.drawHeight / logo.drawWidth
@@ -1543,14 +1566,23 @@ class FOTO_index_pdf_sheet_2(object):
         
         #thumbnail= logo
         data = [
+                numero_inventario,
+                us ,
                 foto,
-                #thumbnail,
-                us,
-                area,
-                d_stratigrafica
+                tipo_reperto,
+                repertato,
+                n_reperto,
+                tipo,
+                nr_cassa,
+                luogo_conservazione
                 ]
 
         return data
+    def makeStyles(self):
+        styles = TableStyle([('GRID', (0, 0), (-1, -1), 0.0, colors.black), ('VALIGN', (0, 0), (-1, -1), 'TOP')
+                             ])  # finale
+
+        return styles
     def makeStyles(self):
         styles = TableStyle([('GRID', (0, 0), (-1, -1), 0.0, colors.black), ('VALIGN', (0, 0), (-1, -1), 'TOP')
                              ])  # finale
@@ -1596,7 +1628,7 @@ class generate_reperti_pdf(object):
             table_data.append(exp_index.getTable())
 
         styles = exp_index.makeStyles()
-        colWidths = [100, 105, 30, 30, 200]
+        colWidths = [50, 50, 50, 50,50,50,50,100]
 
         table_data_formatted = Table(table_data, colWidths, style=styles)
         table_data_formatted.hAlign = "LEFT"
@@ -1610,7 +1642,7 @@ class generate_reperti_pdf(object):
         f = open(filename, "wb")
 
         doc = SimpleDocTemplate(f, pagesize=A4)
-        doc.build(lst, canvasmaker=NumberedCanvas_USsheet)
+        doc.build(lst, canvasmaker=NumberedCanvas_FINDSindex)
 
         f.close()
     def build_index_Foto_2(self, records, sito):
@@ -1642,7 +1674,7 @@ class generate_reperti_pdf(object):
             table_data.append(exp_index.getTable())
 
         styles = exp_index.makeStyles()
-        colWidths = [100, 50, 50, 200]
+        colWidths = [50, 50, 50, 50,50,50,50,100]
 
         table_data_formatted = Table(table_data, colWidths, style=styles)
         table_data_formatted.hAlign = "LEFT"
@@ -1656,7 +1688,7 @@ class generate_reperti_pdf(object):
         f = open(filename, "wb")
 
         doc = SimpleDocTemplate(f, pagesize=A4)
-        doc.build(lst, canvasmaker=NumberedCanvas_USsheet)
+        doc.build(lst, canvasmaker=NumberedCanvas_FINDSindex)
 
         f.close()
     
