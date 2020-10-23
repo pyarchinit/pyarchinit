@@ -63,8 +63,8 @@ class Pyarchinit_db_management(object):
         self.conn_str = c
     
     @compiles(Insert)
-    def _prefix_insert_with_ignore(insert, compiler, **kw):
-        return compiler.visit_insert(insert.prefix_with('OR IGNORE'), **kw)
+    def _prefix_insert_with_replace(insert, compiler, **kw):
+        return compiler.visit_insert(insert.prefix_with('OR REPLACE'), **kw)
     
     def load_spatialite(self,dbapi_conn, connection_record):
         dbapi_conn.enable_load_extension(True)
@@ -954,15 +954,15 @@ class Pyarchinit_db_management(object):
         session.add(data)
         session.commit()
         session.close()
-    def insert_data_conflict(self, data):
-        Session = sessionmaker(bind=self.engine, autoflush=False)
-        session = Session()
-        session.begin_nested()
-        session.merge(data)
+    # def insert_data_conflict(self, data):
+        # Session = sessionmaker(bind=self.engine, autoflush=False)
+        # session = Session()
+        # session.begin_nested()
+        # session.merge(data)
        
-        session.commit()
+        # session.commit()
         
-        session.close()
+        # session.close()
     def update(self, table_class_str, id_table_str, value_id_list, columns_name_list, values_update_list):
         """
         Receives 5 values then putted in a list. The values must be passed
