@@ -3853,7 +3853,14 @@ p, li { white-space: pre-wrap; }
           </widget>
          </item>
          <item row="8" column="0">
-          <widget class="QgsCheckableComboBox" name="comboBox_ref_ra"/>
+          <widget class="QgsCheckableComboBox" name="comboBox_ref_ra">
+           <property name="duplicatesEnabled">
+            <bool>true</bool>
+           </property>
+           <property name="checkedItems">
+            <stringlist/>
+           </property>
+          </widget>
          </item>
         </layout>
        </item>
