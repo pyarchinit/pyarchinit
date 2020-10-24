@@ -230,7 +230,7 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
                                    "s.sito;",db=db)
                 self.model_a.setQuery(query1) 
                 
-        
+            self.tableView_summary.clearSpans()
     def db_active (self):
         self.comboBox_Database.update()
         self.comboBox_sito.clear()

@@ -793,7 +793,7 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
         self.comboBox_sito.setEditText(sito)
         self.charge_periodo_iniz_list()
         self.charge_periodo_fin_list()
-        #self.charge_datazione_list()
+        self.lineEdit_us.textChanged.connect(self.insert_ra)
         self.charge_struttura_list()
         self.empty_fields()
         self.fill_fields()
@@ -817,7 +817,69 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
     
     
     
+    def insert_ra(self):
+        
+        sito = str(self.comboBox_sito.currentText())
+        area = str(self.comboBox_area.currentText())
+        us = str(self.lineEdit_us.text())
+        
+        
+        search_dict = {
             
+            'area': "'" + area + "'",
+            'sito': "'" + sito + "'",
+            'us': "'" + us + "'"
+            
+        }
+
+        geometry_vl = self.DB_MANAGER.query_bool(search_dict,'INVENTARIO_MATERIALI')
+
+        geometry_list = []
+
+        #if not periodo_vl:
+            #return
+
+        for i in range(len(geometry_vl)):
+           
+            geometry_list.append(str(geometry_vl[i].n_reperto))
+            
+        try:
+            geometry_vl.remove('')
+           
+        
+        except :
+            pass
+
+        self.comboBox_ref_ra.clear()
+        #geometry_list.exec_('SELECT   st_astext(st_transform(the_geom,4326)) from pyunitastratigrafiche')
+        self.comboBox_ref_ra.addItems(self.UTILITY.remove_dup_from_list(geometry_list))
+        # index list 
+        indexs = [1, 3, 2] 
+  
+        # adding separator at maximum index 
+        self.comboBox_ref_ra.insertSeparator(max(indexs)) 
+  
+        # adding separator at middle index 
+        index = 0
+        for i in indexs: 
+            if i > min(indexs) and i < max(indexs): 
+                index = i 
+        self.comboBox_ref_ra.insertSeparator(index) 
+  
+        # adding separator at minimum index 
+        self.comboBox_ref_ra.insertSeparator(min(indexs))
+        if self.STATUS_ITEMS[self.BROWSE_STATUS] == "Trova" or "Find":
+            self.comboBox_ref_ra.setEditText("")
+        elif self.STATUS_ITEMS[self.BROWSE_STATUS] == "Usa" or "Current":
+            if len(self.DATA_LIST) > 0:
+                try:
+                    self.comboBox_ref_ra.setEditText(self.DATA_LIST[self.rec_num].n_reperto)
+                    
+                except :
+                    pass
+
+
+    
     def listview_us(self):    #self.loadMedialist()
         conn = Connection()
         conn_str = conn.conn_str()
