@@ -53,9 +53,10 @@ from .pyarchinit_setting_matrix import Setting_Matrix
 
 from ..searchLayers import SearchLayers
 from ..gui.imageViewer import ImageViewer
+from ..gui.pyarchinitConfigDialog import pyArchInitDialog_Config
 from ..gui.sortpanelmain import SortPanelMain
 from ..resources.resources_rc import *
-from ..gui.pyarchinitConfigDialog import pyArchInitDialog_Config
+
 
 MAIN_DIALOG_CLASS, _ = loadUiType(
     os.path.join(os.path.dirname(__file__), os.pardir, 'gui', 'ui', 'US_USM.ui'))
@@ -2313,9 +2314,15 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
             QMessageBox.information(self, "OK" ,"Sei connesso al sito: %s" % str(sito_set_str),QMessageBox.Ok) 
        
         elif sito_set_str=='':    
-            QMessageBox.information(self, "Attenzione" ,"Non hai settato alcun sito pertanto vedrai tutti i record se il db non è vuoto",QMessageBox.Ok) 
+            msg = QMessageBox.information(self, "Attenzione" ,"Non hai settato alcun sito. Vuoi settarne uno? click Ok altrimenti Annulla per  vedere tutti i record",QMessageBox.Ok | QMessageBox.Cancel) 
     
-    
+            if msg == QMessageBox.Cancel:
+                pass
+            else: 
+                dlg = pyArchInitDialog_Config(self)
+                dlg.charge_list()
+                dlg.exec_()
+                
     def set_sito(self):
         #self.model_a.database().close()
         conn = Connection()
