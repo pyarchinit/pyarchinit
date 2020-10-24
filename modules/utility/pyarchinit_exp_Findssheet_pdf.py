@@ -1650,16 +1650,16 @@ class generate_reperti_pdf(object):
 
         home_DB_path = '{}{}{}'.format(home, os.sep, 'pyarchinit_DB_folder')
         logo_path = '{}{}{}'.format(home_DB_path, os.sep, 'logo.jpg')
-        logo_path2 = '{}{}{}'.format(home_DB_path, os.sep, 'logo2.png')
+        logo_path2 = '{}{}{}'.format(home_DB_path, os.sep, 'logo_2.png')
         logo = Image(logo_path)
         logo.drawHeight = 1.5 * inch * logo.drawHeight / logo.drawWidth
         logo.drawWidth = 1.5 * inch
         logo.hAlign = "LEFT"
         
-        logo2 = Image(logo_path2)
-        logo2.drawHeight = 1.5 * inch * logo2.drawHeight / logo2.drawWidth
-        logo2.drawWidth = 1.5 * inch
-        logo2.hAlign = "CENTER"
+        logo_2 = Image(logo_path2)
+        logo_2.drawHeight = 1.5 * inch * logo_2.drawHeight / logo_2.drawWidth
+        logo_2.drawWidth = 1.5 * inch
+        logo_2.hAlign = "CENTER"
         
         styleSheet = getSampleStyleSheet()
         styNormal = styleSheet['Normal']
@@ -1671,7 +1671,7 @@ class generate_reperti_pdf(object):
         lst = []
         lst2=[]
         lst.append(logo)
-        lst2.append(logo2)
+        lst2.append(logo_2)
         lst.append(
             Paragraph("<b>ELENCO INVENTARIO</b><br/><b> Scavo: %s </b><br/><b>  Data: %s</b>" % (sito, data), styH1))
 
