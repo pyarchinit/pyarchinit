@@ -853,21 +853,7 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
         self.comboBox_ref_ra.clear()
         #geometry_list.exec_('SELECT   st_astext(st_transform(the_geom,4326)) from pyunitastratigrafiche')
         self.comboBox_ref_ra.addItems(self.UTILITY.remove_dup_from_list(geometry_list))
-        # index list 
-        indexs = [1, 3, 2] 
-  
-        # adding separator at maximum index 
-        self.comboBox_ref_ra.insertSeparator(max(indexs)) 
-  
-        # adding separator at middle index 
-        index = 0
-        for i in indexs: 
-            if i > min(indexs) and i < max(indexs): 
-                index = i 
-        self.comboBox_ref_ra.insertSeparator(index) 
-  
-        # adding separator at minimum index 
-        self.comboBox_ref_ra.insertSeparator(min(indexs))
+        
         if self.STATUS_ITEMS[self.BROWSE_STATUS] == "Trova" or "Find":
             self.comboBox_ref_ra.setEditText("")
         elif self.STATUS_ITEMS[self.BROWSE_STATUS] == "Usa" or "Current":
