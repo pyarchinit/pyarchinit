@@ -395,6 +395,8 @@ class pyarchinit_Inventario_reperti(QDialog, MAIN_DIALOG_CLASS):
         self.msg_sito()
         self.comboBox_repertato.currentTextChanged.connect(self.numero_reperto)
         self.numero_invetario()
+    
+    
     def setnone(self):
         if self.lineEdit_tipo_contenitore.text=='None' or None:
             self.lineEdit_tipo_contenitore.clear()
@@ -1283,6 +1285,7 @@ class pyarchinit_Inventario_reperti(QDialog, MAIN_DIALOG_CLASS):
 
 
     def msg_sito(self):
+        #self.model_a.database().close()
         conn = Connection()
         
         sito_set= conn.sito_set()
@@ -1292,7 +1295,14 @@ class pyarchinit_Inventario_reperti(QDialog, MAIN_DIALOG_CLASS):
             QMessageBox.information(self, "OK" ,"Sei connesso al sito: %s" % str(sito_set_str),QMessageBox.Ok) 
        
         elif sito_set_str=='':    
-            QMessageBox.information(self, "Attenzione" ,"Non hai settato alcun sito pertanto vedrai tutti i record se il db non è vuoto",QMessageBox.Ok)  
+            msg = QMessageBox.information(self, "Attenzione" ,"Non hai settato alcun sito. Vuoi settarne uno? click Ok altrimenti Annulla per  vedere tutti i record",QMessageBox.Ok | QMessageBox.Cancel) 
+    
+            if msg == QMessageBox.Cancel:
+                pass
+            else: 
+                dlg = pyArchInitDialog_Config(self)
+                dlg.charge_list()
+                dlg.exec_()
     
     
     def set_sito(self):
