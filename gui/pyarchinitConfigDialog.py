@@ -1235,904 +1235,908 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
     
 
     def on_pushButton_import_pressed(self):
-        
-        
-        if self.L=='it':
-            id_table_class_mapper_conv_dict = {
-                'SITE':'id_sito',
-                'US': 'id_us',
-                'UT': 'id_ut',
-                'PERIODIZZAZIONE': 'id_perfas',
-                'INVENTARIO_MATERIALI': 'id_invmat',
-                'STRUTTURA': 'id_struttura',
-                'TAFONOMIA': 'id_tafonomia',
-                'SCHEDAIND': 'id_scheda_ind',
-                'CAMPIONI': 'id_campione',
-                'DOCUMENTAZIONE': 'id_documentazione',
-                'PYARCHINIT_THESAURUS_SIGLE': 'id_thesaurus_sigle',
-                'MEDIA': 'id_media',
-                'MEDIA_THUMB': 'id_media_thumb',
-                'MEDIATOENTITY':'id_mediaToEntity',
-                'PYUS':'gid'
-                
+        msg = QMessageBox.warning(self, "Warning", "Il sistema aggiornerà la tabella con i dati importati. Schiaccia Annulla per abortire altrimenti schiaccia Ok per contiunuare." ,  QMessageBox.Ok  | QMessageBox.Cancel)
+        if msg == QMessageBox.Cancel:
+            QMessageBox.warning(self, "Warning", "Azione annullata" ,  QMessageBox.Ok)
+            
+        else:    
+            if self.L=='it':
+                id_table_class_mapper_conv_dict = {
+                    'SITE':'id_sito',
+                    'US': 'id_us',
+                    'UT': 'id_ut',
+                    'PERIODIZZAZIONE': 'id_perfas',
+                    'INVENTARIO_MATERIALI': 'id_invmat',
+                    'STRUTTURA': 'id_struttura',
+                    'TAFONOMIA': 'id_tafonomia',
+                    'SCHEDAIND': 'id_scheda_ind',
+                    'CAMPIONI': 'id_campione',
+                    'DOCUMENTAZIONE': 'id_documentazione',
+                    'PYARCHINIT_THESAURUS_SIGLE': 'id_thesaurus_sigle',
+                    'MEDIA': 'id_media',
+                    'MEDIA_THUMB': 'id_media_thumb',
+                    'MEDIATOENTITY':'id_mediaToEntity',
+                    'PYUS':'gid'
+                    
+                }
+            elif self.L=='de':
+                id_table_class_mapper_conv_dict = {
+                    'SE': 'id_us',
+                    'TE': 'id_ut',
+                    'AUSGRABUNGSSTÄTTE': 'id_sito',
+                    'PERIODISIERUNG': 'id_perfas',
+                    'ARTEFAKT-INVENTAR': 'id_invmat',
+                    'STRUKTUREN': 'id_struttura',
+                    'TAPHONOMIE': 'id_tafonomia',
+                    'INDIVIDUEL': 'id_scheda_ind',
+                    'BEISPIELS': 'id_campione',
+                    'DOKUMENTATION': 'id_documentazione',
+                    'PYARCHINIT_THESAURUS_SIGLE': 'id_thesaurus_sigle',
+                    'MEDIA': 'id_media',
+                    'MEDIA_THUMB': 'id_media_thumb',
+                    'MEDIATOENTITY':'id_mediaToEntity'
+                }
+            else:
+                id_table_class_mapper_conv_dict = {
+                    'SU': 'id_us',
+                    'TU': 'id_ut',
+                    'SITE': 'id_sito',
+                    'PERIODIATION': 'id_perfas',
+                    'ARTEFACT': 'id_invmat',
+                    'STRUCTURE': 'id_struttura',
+                    'TAPHONOMY': 'id_tafonomia',
+                    'INDIVIDUAL': 'id_scheda_ind',
+                    'SAMPLE': 'id_campione',
+                    'DOCUMENTATION': 'id_documentazione',
+                    'PYARCHINIT_THESAURUS_SIGLE': 'id_thesaurus_sigle',
+                    'MEDIA': 'id_media',
+                    'MEDIA_THUMB': 'id_media_thumb',
+                    'MEDIATOENTITY':'id_mediaToEntity'
+                }       
+            # creazione del cursore di lettura
+            """if os.name == 'posix':
+                home = os.environ['HOME']
+            elif os.name == 'nt':
+                home = os.environ['HOMEPATH']"""
+            ####RICAVA I DATI IN LETTURA PER LA CONNESSIONE DALLA GUI
+            conn_str_dict_read = {
+                "server": str(self.comboBox_server_rd.currentText()),
+                "user": str(self.lineEdit_username_rd.text()),
+                "password": str(self.lineEdit_pass_rd.text()),
+                "host": str(self.lineEdit_host_rd.text()),
+                "port": str(self.lineEdit_port_rd.text()),
+                "db_name": str(self.lineEdit_database_rd.text())
             }
-        elif self.L=='de':
-            id_table_class_mapper_conv_dict = {
-                'SE': 'id_us',
-                'TE': 'id_ut',
-                'AUSGRABUNGSSTÄTTE': 'id_sito',
-                'PERIODISIERUNG': 'id_perfas',
-                'ARTEFAKT-INVENTAR': 'id_invmat',
-                'STRUKTUREN': 'id_struttura',
-                'TAPHONOMIE': 'id_tafonomia',
-                'INDIVIDUEL': 'id_scheda_ind',
-                'BEISPIELS': 'id_campione',
-                'DOKUMENTATION': 'id_documentazione',
-                'PYARCHINIT_THESAURUS_SIGLE': 'id_thesaurus_sigle',
-                'MEDIA': 'id_media',
-                'MEDIA_THUMB': 'id_media_thumb',
-                'MEDIATOENTITY':'id_mediaToEntity'
+            ####CREA LA STRINGA DI CONNESSIONE IN LETTURA
+            if conn_str_dict_read["server"] == 'postgres':
+                
+                try:
+                    conn_str_read = "%s://%s:%s@%s:%s/%s%s?charset=utf8" % (
+                        "postgresql", conn_str_dict_read["user"], conn_str_dict_read["password"],
+                        conn_str_dict_read["host"],
+                        conn_str_dict_read["port"], conn_str_dict_read["db_name"], "?sslmode=allow")
+                except:
+                    conn_str_read = "%s://%s:%s@%s:%d/%s" % (
+                        "postgresql", conn_str_dict_read["user"], conn_str_dict_read["password"],
+                        conn_str_dict_read["host"],
+                        conn_str_dict_read["port"], conn_str_dict_read["db_name"])
+            
+            
+            
+            elif conn_str_dict_read["server"] == 'sqlite':
+                
+                sqlite_DB_path = '{}{}{}'.format(self.HOME, os.sep,
+                                                 "pyarchinit_DB_folder")  # "C:\\Users\\Windows\\Dropbox\\pyarchinit_san_marco\\" fare modifiche anche in pyarchinit_pyqgis
+                dbname_abs = sqlite_DB_path + os.sep + conn_str_dict_read["db_name"]
+                conn_str_read = "%s:///%s" % (conn_str_dict_read["server"], dbname_abs)
+                QMessageBox.warning(self, "Alert", str(conn_str_dict_read["db_name"]), QMessageBox.Ok)
+            ####SI CONNETTE AL DATABASE
+            self.DB_MANAGER_read = Pyarchinit_db_management(conn_str_read)
+            
+            test = self.DB_MANAGER_read.connection()
+            
+            if test:
+                QMessageBox.warning(self, "Message", "Connection ok", QMessageBox.Ok)
+            else:
+                QMessageBox.warning(self, "Alert", "Connection error: <br>", QMessageBox.Cancel)
+            """elif test.find("create_engine") != -1:
+                #QMessageBox.warning(self, "Alert",
+                                    "Try connection parameter. <br> If they are correct restart QGIS",
+                                    QMessageBox.Ok)"""
+
+
+            ####LEGGE I RECORD IN BASE AL PARAMETRO CAMPO=VALORE
+            search_dict = {
+                self.lineEdit_field_rd.text(): "'" + str(self.lineEdit_value_rd.text()) + "'"
             }
-        else:
-            id_table_class_mapper_conv_dict = {
-                'SU': 'id_us',
-                'TU': 'id_ut',
-                'SITE': 'id_sito',
-                'PERIODIATION': 'id_perfas',
-                'ARTEFACT': 'id_invmat',
-                'STRUCTURE': 'id_struttura',
-                'TAPHONOMY': 'id_tafonomia',
-                'INDIVIDUAL': 'id_scheda_ind',
-                'SAMPLE': 'id_campione',
-                'DOCUMENTATION': 'id_documentazione',
-                'PYARCHINIT_THESAURUS_SIGLE': 'id_thesaurus_sigle',
-                'MEDIA': 'id_media',
-                'MEDIA_THUMB': 'id_media_thumb',
-                'MEDIATOENTITY':'id_mediaToEntity'
-            }       
-        # creazione del cursore di lettura
-        """if os.name == 'posix':
-            home = os.environ['HOME']
-        elif os.name == 'nt':
-            home = os.environ['HOMEPATH']"""
-        ####RICAVA I DATI IN LETTURA PER LA CONNESSIONE DALLA GUI
-        conn_str_dict_read = {
-            "server": str(self.comboBox_server_rd.currentText()),
-            "user": str(self.lineEdit_username_rd.text()),
-            "password": str(self.lineEdit_pass_rd.text()),
-            "host": str(self.lineEdit_host_rd.text()),
-            "port": str(self.lineEdit_port_rd.text()),
-            "db_name": str(self.lineEdit_database_rd.text())
-        }
-        ####CREA LA STRINGA DI CONNESSIONE IN LETTURA
-        if conn_str_dict_read["server"] == 'postgres':
-            try:
-                conn_str_read = "%s://%s:%s@%s:%s/%s%s?charset=utf8" % (
-                    "postgresql", conn_str_dict_read["user"], conn_str_dict_read["password"],
-                    conn_str_dict_read["host"],
-                    conn_str_dict_read["port"], conn_str_dict_read["db_name"], "?sslmode=allow")
-            except:
-                conn_str_read = "%s://%s:%s@%s:%d/%s" % (
-                    "postgresql", conn_str_dict_read["user"], conn_str_dict_read["password"],
-                    conn_str_dict_read["host"],
-                    conn_str_dict_read["port"], conn_str_dict_read["db_name"])
-        
-        
-        
-        elif conn_str_dict_read["server"] == 'sqlite':
+            mapper_class_read = str(self.comboBox_mapper_read.currentText())
+            res_read = self.DB_MANAGER_read.query_bool(search_dict, mapper_class_read)
+
+            ####INSERISCE I DATI DA UPLOADARE DENTRO ALLA LISTA DATA_LIST_TOIMP
+            data_list_toimp = []
+            for i in res_read:
+                data_list_toimp.append(i)
+
+            QMessageBox.warning(self, "Total record to import", str(len(data_list_toimp)), QMessageBox.Ok)
             
-            sqlite_DB_path = '{}{}{}'.format(self.HOME, os.sep,
-                                             "pyarchinit_DB_folder")  # "C:\\Users\\Windows\\Dropbox\\pyarchinit_san_marco\\" fare modifiche anche in pyarchinit_pyqgis
-            dbname_abs = sqlite_DB_path + os.sep + conn_str_dict_read["db_name"]
-            conn_str_read = "%s:///%s" % (conn_str_dict_read["server"], dbname_abs)
-            QMessageBox.warning(self, "Alert", str(conn_str_dict_read["db_name"]), QMessageBox.Ok)
-        ####SI CONNETTE AL DATABASE
-        self.DB_MANAGER_read = Pyarchinit_db_management(conn_str_read)
-        
-        test = self.DB_MANAGER_read.connection()
-        
-        if test:
-            QMessageBox.warning(self, "Message", "Connection ok", QMessageBox.Ok|QMessageBox.Cancel)
-        else:
-            QMessageBox.warning(self, "Alert", "Connection error: <br>", QMessageBox.Cancel)
-        """elif test.find("create_engine") != -1:
-            #QMessageBox.warning(self, "Alert",
-                                "Try connection parameter. <br> If they are correct restart QGIS",
-                                QMessageBox.Ok)"""
+            ####RICAVA I DATI IN LETTURA PER LA CONNESSIONE DALLA GUI
+            conn_str_dict_write = {
+                "server": str(self.comboBox_server_wt.currentText()),
+                "user": str(self.lineEdit_username_wt.text()),
+                "password": str(self.lineEdit_pass_wt.text()),
+                "host": str(self.lineEdit_host_wt.text()),
+                "port": str(self.lineEdit_port_wt.text()),
+                "db_name": str(self.lineEdit_database_wt.text())
+            }
 
-
-        ####LEGGE I RECORD IN BASE AL PARAMETRO CAMPO=VALORE
-        search_dict = {
-            self.lineEdit_field_rd.text(): "'" + str(self.lineEdit_value_rd.text()) + "'"
-        }
-        mapper_class_read = str(self.comboBox_mapper_read.currentText())
-        res_read = self.DB_MANAGER_read.query_bool(search_dict, mapper_class_read)
-
-        ####INSERISCE I DATI DA UPLOADARE DENTRO ALLA LISTA DATA_LIST_TOIMP
-        data_list_toimp = []
-        for i in res_read:
-            data_list_toimp.append(i)
-
-        QMessageBox.warning(self, "Total record to import", str(len(data_list_toimp)), QMessageBox.Ok)
-        
-        ####RICAVA I DATI IN LETTURA PER LA CONNESSIONE DALLA GUI
-        conn_str_dict_write = {
-            "server": str(self.comboBox_server_wt.currentText()),
-            "user": str(self.lineEdit_username_wt.text()),
-            "password": str(self.lineEdit_pass_wt.text()),
-            "host": str(self.lineEdit_host_wt.text()),
-            "port": str(self.lineEdit_port_wt.text()),
-            "db_name": str(self.lineEdit_database_wt.text())
-        }
-
-        ####CREA LA STRINGA DI CONNESSIONE IN LETTURA
-        if conn_str_dict_write["server"] == 'postgres':
-            try:
-                conn_str_write = "%s://%s:%s@%s:%s/%s%s?charset=utf8" % (
-                    "postgresql", conn_str_dict_writed["user"], conn_str_dict_write["password"],
-                    conn_str_dict_write["host"], conn_str_dict_write["port"], conn_str_dict_write["db_name"],
-                    "?sslmode=allow")
-            except:
-                conn_str_write = "%s://%s:%s@%s:%d/%s" % (
-                    "postgresql", conn_str_dict_write["user"], conn_str_dict_write["password"],
-                    conn_str_dict_write["host"],
-                    int(conn_str_dict_write["port"]), conn_str_dict_write["db_name"])
-        elif conn_str_dict_write["server"] == 'sqlite':
-            sqlite_DB_path = '{}{}{}'.format(self.HOME, os.sep,
-                                             "pyarchinit_DB_folder")  # "C:\\Users\\Windows\\Dropbox\\pyarchinit_san_marco\\" fare modifiche anche in pyarchinit_pyqgis
-            dbname_abs = sqlite_DB_path + os.sep + conn_str_dict_write["db_name"]
-            conn_str_write = "%s:///%s" % (conn_str_dict_write["server"], dbname_abs)
-            QMessageBox.warning(self, "Alert", str(conn_str_dict_write["db_name"]), QMessageBox.Ok)
-        ####SI CONNETTE AL DATABASE IN SCRITTURA
-        
-        self.DB_MANAGER_write = Pyarchinit_db_management(conn_str_write)
-        test = self.DB_MANAGER_write.connection()
-        test = str(test)
-        
-      
-        
-        mapper_class_write = str(self.comboBox_mapper_read.currentText())
-        
-        
-
-        ####inserisce i dati dentro al database
-        ####PYUNITASTRATIGRAFICHE TABLE
-        if mapper_class_write == 'PYUS' :
+            ####CREA LA STRINGA DI CONNESSIONE IN LETTURA
+            if conn_str_dict_write["server"] == 'postgres':
+                try:
+                    conn_str_write = "%s://%s:%s@%s:%s/%s%s?charset=utf8" % (
+                        "postgresql", conn_str_dict_writed["user"], conn_str_dict_write["password"],
+                        conn_str_dict_write["host"], conn_str_dict_write["port"], conn_str_dict_write["db_name"],
+                        "?sslmode=allow")
+                except:
+                    conn_str_write = "%s://%s:%s@%s:%d/%s" % (
+                        "postgresql", conn_str_dict_write["user"], conn_str_dict_write["password"],
+                        conn_str_dict_write["host"],
+                        int(conn_str_dict_write["port"]), conn_str_dict_write["db_name"])
+            elif conn_str_dict_write["server"] == 'sqlite':
+                sqlite_DB_path = '{}{}{}'.format(self.HOME, os.sep,
+                                                 "pyarchinit_DB_folder")  # "C:\\Users\\Windows\\Dropbox\\pyarchinit_san_marco\\" fare modifiche anche in pyarchinit_pyqgis
+                dbname_abs = sqlite_DB_path + os.sep + conn_str_dict_write["db_name"]
+                conn_str_write = "%s:///%s" % (conn_str_dict_write["server"], dbname_abs)
+                QMessageBox.warning(self, "Alert", str(conn_str_dict_write["db_name"]), QMessageBox.Ok)
+            ####SI CONNETTE AL DATABASE IN SCRITTURA
             
-            for sing_rec in range(len(data_list_toimp)):
-                
-                try:
-                    data = self.DB_MANAGER_write.insert_pyus(
-                        self.DB_MANAGER_write.max_num_id(mapper_class_write,
-                                                         id_table_class_mapper_conv_dict[mapper_class_write]) + 1,
-                        data_list_toimp[sing_rec].area_s,
-                        data_list_toimp[sing_rec].scavo_s,
-                        data_list_toimp[sing_rec].us_s,
-                        data_list_toimp[sing_rec].stratigraph_index_us,
-                        data_list_toimp[sing_rec].tipo_us_s,
-                        data_list_toimp[sing_rec].rilievo_originale,
-                        data_list_toimp[sing_rec].disegnatore,
-                        data_list_toimp[sing_rec].data,
-                        data_list_toimp[sing_rec].tipo_doc,
-                        data_list_toimp[sing_rec].nome_doc,
-                        data_list_toimp[sing_rec].coord,
-                        data_list_toimp[sing_rec].the_geom)
-                        
-                   
-                    self.DB_MANAGER_write.insert_data_session(data)
-                    
-                    value = (float(sing_rec)/float(len(data_list_toimp)))*100
-                    self.progress_bar.setValue(value)
-                    
-                    QApplication.processEvents()
-                    
-                except Exception as e :
-                    
-                    QMessageBox.warning(self, "Errore", "Error ! \n"+ str(e),  QMessageBox.Ok)
-                    return 0
-            self.progress_bar.reset()
-            QMessageBox.information(self, "Message", "Data Loaded")
-        ####SITE TABLE
-        if mapper_class_write == 'SITE' :
+            self.DB_MANAGER_write = Pyarchinit_db_management(conn_str_write)
+            test = self.DB_MANAGER_write.connection()
+            test = str(test)
             
-            for sing_rec in range(len(data_list_toimp)):
-                
-                try:
-                    data = self.DB_MANAGER_write.insert_site_values(
-                        self.DB_MANAGER_write.max_num_id(mapper_class_write,
-                                                         id_table_class_mapper_conv_dict[mapper_class_write]) + 1,
-                        data_list_toimp[sing_rec].sito,
-                        data_list_toimp[sing_rec].nazione,
-                        data_list_toimp[sing_rec].regione,
-                        data_list_toimp[sing_rec].comune,
-                        data_list_toimp[sing_rec].descrizione,
-                        data_list_toimp[sing_rec].provincia,
-                        data_list_toimp[sing_rec].definizione_sito,
-                        data_list_toimp[sing_rec].sito_path,
-                        data_list_toimp[sing_rec].find_check)
-                        
-                   
-                    self.DB_MANAGER_write.insert_data_session(data)
-                    
-                    value = (float(sing_rec)/float(len(data_list_toimp)))*100
-                    self.progress_bar.setValue(value)
-                    
-                    QApplication.processEvents()
-                    
-                except :
-                    
-                    QMessageBox.warning(self, "Errore", "Error ! \n"+ "duplicate key",  QMessageBox.Ok)
-                    return 0
-            self.progress_bar.reset()
-            QMessageBox.information(self, "Message", "Data Loaded")
-        
-        #### US TABLE
-        
-        
-        if  mapper_class_write == 'US':
+          
             
-            for sing_rec in range(len(data_list_toimp)):
-                try:
-                    data = self.DB_MANAGER_write.insert_values(
-                        self.DB_MANAGER_write.max_num_id(mapper_class_write,
-                                                         id_table_class_mapper_conv_dict[mapper_class_write]) + 1,
-                        
-                        data_list_toimp[sing_rec].sito,
-                        data_list_toimp[sing_rec].area,
-                        data_list_toimp[sing_rec].us,
-                        data_list_toimp[sing_rec].d_stratigrafica,
-                        data_list_toimp[sing_rec].d_interpretativa,
-                        data_list_toimp[sing_rec].descrizione,
-                        data_list_toimp[sing_rec].interpretazione,
-                        data_list_toimp[sing_rec].periodo_iniziale,
-                        data_list_toimp[sing_rec].fase_iniziale,
-                        data_list_toimp[sing_rec].periodo_finale,
-                        data_list_toimp[sing_rec].fase_finale,
-                        data_list_toimp[sing_rec].scavato,
-                        data_list_toimp[sing_rec].attivita,
-                        data_list_toimp[sing_rec].anno_scavo,
-                        data_list_toimp[sing_rec].metodo_di_scavo,
-                        data_list_toimp[sing_rec].inclusi,
-                        data_list_toimp[sing_rec].campioni,
-                        data_list_toimp[sing_rec].rapporti,
-                        data_list_toimp[sing_rec].data_schedatura,
-                        data_list_toimp[sing_rec].schedatore,
-                        data_list_toimp[sing_rec].formazione,
-                        data_list_toimp[sing_rec].stato_di_conservazione,
-                        data_list_toimp[sing_rec].colore,
-                        data_list_toimp[sing_rec].consistenza,
-                        data_list_toimp[sing_rec].struttura,
-                        data_list_toimp[sing_rec].cont_per,
-                        data_list_toimp[sing_rec].order_layer,
-                        data_list_toimp[sing_rec].documentazione,
-                        data_list_toimp[sing_rec].unita_tipo,
-                        # campi aggiunti per USM
-                        data_list_toimp[sing_rec].settore,
-                        data_list_toimp[sing_rec].quad_par,
-                        data_list_toimp[sing_rec].ambient,
-                        data_list_toimp[sing_rec].saggio,
-                        data_list_toimp[sing_rec].elem_datanti,
-                        data_list_toimp[sing_rec].funz_statica,
-                        data_list_toimp[sing_rec].lavorazione,
-                        data_list_toimp[sing_rec].spess_giunti,
-                        data_list_toimp[sing_rec].letti_posa,
-                        data_list_toimp[sing_rec].alt_mod,
-                        data_list_toimp[sing_rec].un_ed_riass,
-                        data_list_toimp[sing_rec].reimp,
-                        data_list_toimp[sing_rec].posa_opera,
-                        data_list_toimp[sing_rec].quota_min_usm,
-                        data_list_toimp[sing_rec].quota_max_usm,
-                        data_list_toimp[sing_rec].cons_legante,
-                        data_list_toimp[sing_rec].col_legante,
-                        data_list_toimp[sing_rec].aggreg_legante,
-                        data_list_toimp[sing_rec].con_text_mat,
-                        data_list_toimp[sing_rec].col_materiale,
-                        data_list_toimp[sing_rec].inclusi_materiali_usm,
-                        data_list_toimp[sing_rec].n_catalogo_generale,
-                        data_list_toimp[sing_rec].n_catalogo_interno,
-                        data_list_toimp[sing_rec].n_catalogo_internazionale,
-                        data_list_toimp[sing_rec].soprintendenza,
-                        data_list_toimp[sing_rec].quota_relativa,
-                        data_list_toimp[sing_rec].quota_abs,
-                        data_list_toimp[sing_rec].ref_tm,
-                        data_list_toimp[sing_rec].ref_ra,
-                        data_list_toimp[sing_rec].ref_n,
-                        data_list_toimp[sing_rec].posizione,
-                        data_list_toimp[sing_rec].criteri_distinzione,
-                        data_list_toimp[sing_rec].modo_formazione,
-                        data_list_toimp[sing_rec].componenti_organici,
-                        data_list_toimp[sing_rec].componenti_inorganici,
-                        data_list_toimp[sing_rec].lunghezza_max,
-                        data_list_toimp[sing_rec].altezza_max,
-                        data_list_toimp[sing_rec].altezza_min,
-                        data_list_toimp[sing_rec].profondita_max,
-                        data_list_toimp[sing_rec].profondita_min,
-                        data_list_toimp[sing_rec].larghezza_media,
-                        data_list_toimp[sing_rec].quota_max_abs,
-                        data_list_toimp[sing_rec].quota_max_rel,
-                        data_list_toimp[sing_rec].quota_min_abs,
-                        data_list_toimp[sing_rec].quota_min_rel,
-                        data_list_toimp[sing_rec].osservazioni,
-                        data_list_toimp[sing_rec].datazione,
-                        data_list_toimp[sing_rec].flottazione,
-                        data_list_toimp[sing_rec].setacciatura,
-                        data_list_toimp[sing_rec].affidabilita,
-                        data_list_toimp[sing_rec].direttore_us,
-                        data_list_toimp[sing_rec].responsabile_us,
-                        data_list_toimp[sing_rec].cod_ente_schedatore,
-                        data_list_toimp[sing_rec].data_rilevazione,
-                        data_list_toimp[sing_rec].data_rielaborazione,
-                        data_list_toimp[sing_rec].lunghezza_usm,
-                        data_list_toimp[sing_rec].altezza_usm,
-                        data_list_toimp[sing_rec].spessore_usm,
-                        data_list_toimp[sing_rec].tecnica_muraria_usm,
-                        data_list_toimp[sing_rec].modulo_usm,
-                        data_list_toimp[sing_rec].campioni_malta_usm,
-                        data_list_toimp[sing_rec].campioni_mattone_usm,
-                        data_list_toimp[sing_rec].campioni_pietra_usm,
-                        data_list_toimp[sing_rec].provenienza_materiali_usm,
-                        data_list_toimp[sing_rec].criteri_distinzione_usm,
-                        data_list_toimp[sing_rec].uso_primario_usm
-                    )
-                    
+            mapper_class_write = str(self.comboBox_mapper_read.currentText())
+            
+            
 
-                    self.DB_MANAGER_write.insert_data_session(data)
-                    
-                    value = (float(sing_rec)/float(len(data_list_toimp)))*100
-                    self.progress_bar.setValue(value)
-                    
-                    QApplication.processEvents()
-                        
-                    
-                    
-                    
-                except Exception as e :
-                    e_error= str(e)
-                    QMessageBox.warning(self, "Errore", "Error ! \n"+ str(e),  QMessageBox.Ok)
-                    return 0
-            self.progress_bar.reset()
-            QMessageBox.information(self, "Message", "Data Loaded")
-        elif mapper_class_write == 'PERIODIZZAZIONE' :
-            for sing_rec in range(len(data_list_toimp)):
-                try:
-                    data = self.DB_MANAGER_write.insert_periodizzazione_values(
-                        self.DB_MANAGER_write.max_num_id(mapper_class_write,
-                                                         id_table_class_mapper_conv_dict[mapper_class_write]) + 1,
-                        data_list_toimp[sing_rec].sito,
-                        data_list_toimp[sing_rec].periodo,
-                        data_list_toimp[sing_rec].fase,
-                        data_list_toimp[sing_rec].cron_iniziale,
-                        data_list_toimp[sing_rec].cron_finale,
-                        data_list_toimp[sing_rec].descrizione,
-                        data_list_toimp[sing_rec].datazione_estesa,
-                        data_list_toimp[sing_rec].cont_per,
-                        data_list_toimp[sing_rec].area)
+            ####inserisce i dati dentro al database
+            ####PYUNITASTRATIGRAFICHE TABLE
+            if mapper_class_write == 'PYUS' :
                 
-                
-                    self.DB_MANAGER_write.insert_data_session(data)
+                for sing_rec in range(len(data_list_toimp)):
                     
-                    value = (float(sing_rec)/float(len(data_list_toimp)))*100
-                    self.progress_bar.setValue(value)
-                    
-                    QApplication.processEvents()
-                    
-                except :
-                    
-                    QMessageBox.warning(self, "Errore", "Error ! \n"+ "duplicate key",  QMessageBox.Ok)
-                    return 0
-            self.progress_bar.reset()
-            QMessageBox.information(self, "Message", "Data Loaded")
-        
-        elif mapper_class_write == 'INVENTARIO_MATERIALI' :
-            for sing_rec in range(len(data_list_toimp)):
-                try:
-                    data = self.DB_MANAGER_write.insert_values_reperti(
-                        self.DB_MANAGER_write.max_num_id(mapper_class_write,
-                                                         id_table_class_mapper_conv_dict[mapper_class_write]) + 1,
+                    try:
+                        data = self.DB_MANAGER_write.insert_pyus(
+                            self.DB_MANAGER_write.max_num_id(mapper_class_write,
+                                                             id_table_class_mapper_conv_dict[mapper_class_write]) + 1,
+                            data_list_toimp[sing_rec].area_s,
+                            data_list_toimp[sing_rec].scavo_s,
+                            data_list_toimp[sing_rec].us_s,
+                            data_list_toimp[sing_rec].stratigraph_index_us,
+                            data_list_toimp[sing_rec].tipo_us_s,
+                            data_list_toimp[sing_rec].rilievo_originale,
+                            data_list_toimp[sing_rec].disegnatore,
+                            data_list_toimp[sing_rec].data,
+                            data_list_toimp[sing_rec].tipo_doc,
+                            data_list_toimp[sing_rec].nome_doc,
+                            data_list_toimp[sing_rec].coord,
+                            data_list_toimp[sing_rec].the_geom)
+                            
+                       
+                        self.DB_MANAGER_write.insert_data_session(data)
                         
-                        data_list_toimp[sing_rec].sito,
-                        data_list_toimp[sing_rec].numero_inventario,
-                        data_list_toimp[sing_rec].tipo_reperto,
-                        data_list_toimp[sing_rec].criterio_schedatura,
-                        data_list_toimp[sing_rec].definizione,
-                        data_list_toimp[sing_rec].descrizione,
-                        data_list_toimp[sing_rec].area,
-                        data_list_toimp[sing_rec].us,
-                        data_list_toimp[sing_rec].lavato,
-                        data_list_toimp[sing_rec].nr_cassa,
-                        data_list_toimp[sing_rec].luogo_conservazione,
-                        data_list_toimp[sing_rec].stato_conservazione,
-                        data_list_toimp[sing_rec].datazione_reperto,
-                        data_list_toimp[sing_rec].elementi_reperto,
-                        data_list_toimp[sing_rec].misurazioni,
-                        data_list_toimp[sing_rec].rif_biblio,
-                        data_list_toimp[sing_rec].tecnologie,
-                        data_list_toimp[sing_rec].forme_minime,
-                        data_list_toimp[sing_rec].forme_massime,
-                        data_list_toimp[sing_rec].totale_frammenti,
-                        data_list_toimp[sing_rec].corpo_ceramico,
-                        data_list_toimp[sing_rec].rivestimento,
-                        data_list_toimp[sing_rec].diametro_orlo,
-                        data_list_toimp[sing_rec].peso,
-                        data_list_toimp[sing_rec].tipo,
-                        data_list_toimp[sing_rec].eve_orlo,
-                        data_list_toimp[sing_rec].repertato,
-                        data_list_toimp[sing_rec].diagnostico,
-                        data_list_toimp[sing_rec].n_reperto,
-                    )
-                    
-                    
-                    self.DB_MANAGER_write.insert_data_session(data)
-                    
-                    value = (float(sing_rec)/float(len(data_list_toimp)))*100
-                    self.progress_bar.setValue(value)
-                    
-                    QApplication.processEvents()
-                
-                except :
-                    
-                    QMessageBox.warning(self, "Errore", "Error ! \n"+ "duplicate key",  QMessageBox.Ok)
-                    return 0
-            self.progress_bar.reset()
-            QMessageBox.information(self, "Message", "Data Loaded")
-      
-        elif mapper_class_write == 'STRUTTURA' :
-            for sing_rec in range(len(data_list_toimp)):
-                try:
-                    data = self.DB_MANAGER_write.insert_struttura_values(
-                        self.DB_MANAGER_write.max_num_id(mapper_class_write,
-                                                         id_table_class_mapper_conv_dict[mapper_class_write]) + 1,
-                        data_list_toimp[sing_rec].sito,
-                        data_list_toimp[sing_rec].sigla_struttura,
-                        data_list_toimp[sing_rec].numero_struttura,
-                        data_list_toimp[sing_rec].categoria_struttura,
-                        data_list_toimp[sing_rec].tipologia_struttura,
-                        data_list_toimp[sing_rec].definizione_struttura,
-                        data_list_toimp[sing_rec].descrizione,
-                        data_list_toimp[sing_rec].interpretazione,
-                        data_list_toimp[sing_rec].periodo_iniziale,
-                        data_list_toimp[sing_rec].fase_iniziale,
-                        data_list_toimp[sing_rec].periodo_finale,
-                        data_list_toimp[sing_rec].fase_finale,
-                        data_list_toimp[sing_rec].datazione_estesa,
-                        data_list_toimp[sing_rec].materiali_impiegati,
-                        data_list_toimp[sing_rec].elementi_strutturali,
-                        data_list_toimp[sing_rec].rapporti_struttura,
-                        data_list_toimp[sing_rec].misure_struttura
-                    )
-                    
-                    self.DB_MANAGER_write.insert_data_session(data)
-                    
-                    value = (float(sing_rec)/float(len(data_list_toimp)))*100
-                    self.progress_bar.setValue(value)
-                    
-                    QApplication.processEvents()
-                except :
-                    
-                    QMessageBox.warning(self, "Errore", "Error ! \n"+ "duplicate key",  QMessageBox.Ok)
-                    return 0
-            self.progress_bar.reset()
-            QMessageBox.information(self, "Message", "Data Loaded")
-        
-        elif mapper_class_write == 'TAFONOMIA' :
-            for sing_rec in range(len(data_list_toimp)):
-
-                # blocco oritentamento_azimut
-                test_azimut = data_list_toimp[sing_rec].orientamento_azimut
-
-                if test_azimut == "" or test_azimut == None:
-                    orientamento_azimut = None
-                else:
-                    orientamento_azimut = float(data_list_toimp[sing_rec].orientamento_azimut)
-                ##                  if conn_str_dict_write['server'] == 'postgres':
-                ##                      orientamento_azimut = float(orientamento_azimut)
-                ##
-
-                # blocco oritentamento_azimut
-                test_lunghezza_scheletro = data_list_toimp[sing_rec].lunghezza_scheletro
-
-                if test_lunghezza_scheletro == "" or test_lunghezza_scheletro == None:
-                    lunghezza_scheletro = None
-                else:
-                    lunghezza_scheletro = float(data_list_toimp[sing_rec].lunghezza_scheletro)
-
-                    # blocco periodo_iniziale
-                test_per_iniz = data_list_toimp[sing_rec].periodo_iniziale
-
-                if test_per_iniz == "" or test_per_iniz == None:
-                    per_iniz = None
-                else:
-                    per_iniz = int(data_list_toimp[sing_rec].periodo_iniziale)
-
-                    # blocco fase_iniziale
-                test_fas_iniz = data_list_toimp[sing_rec].fase_iniziale
-
-                if test_fas_iniz == "" or test_fas_iniz == None:
-                    fase_iniz = None
-                else:
-                    fase_iniz = int(data_list_toimp[sing_rec].fase_iniziale)
-
-                    # blocco periodo_finale
-                test_per_fin = data_list_toimp[sing_rec].periodo_finale
-
-                if test_per_fin == "" or test_per_fin == None:
-                    per_fin = None
-                else:
-                    per_fin = int(data_list_toimp[sing_rec].periodo_finale)
-
-                    # blocco fase_finale
-                test_fas_fin = data_list_toimp[sing_rec].fase_finale
-
-                if test_fas_fin == "" or test_fas_fin == None:
-                    fase_fin = None
-                else:
-                    fase_fin = int(data_list_toimp[sing_rec].fase_finale)
-
-                try:
-                    data = self.DB_MANAGER_write.insert_values_tafonomia(
-
-                        self.DB_MANAGER_write.max_num_id(mapper_class_write,
-                                                         id_table_class_mapper_conv_dict[mapper_class_write]) + 1,
-                        str(data_list_toimp[sing_rec].sito),
-                        int(data_list_toimp[sing_rec].nr_scheda_taf),
-                        str(data_list_toimp[sing_rec].sigla_struttura),
-                        int(data_list_toimp[sing_rec].nr_struttura),
-                        int(data_list_toimp[sing_rec].nr_individuo),
-                        str(data_list_toimp[sing_rec].rito),
-                        str(data_list_toimp[sing_rec].descrizione_taf),
-                        str(data_list_toimp[sing_rec].interpretazione_taf),
-                        str(data_list_toimp[sing_rec].segnacoli),
-                        str(data_list_toimp[sing_rec].canale_libatorio_si_no),
-                        str(data_list_toimp[sing_rec].oggetti_rinvenuti_esterno),
-                        str(data_list_toimp[sing_rec].stato_di_conservazione),
-                        str(data_list_toimp[sing_rec].copertura_tipo),
-                        str(data_list_toimp[sing_rec].tipo_conteni+++tore_resti),
-                        str(data_list_toimp[sing_rec].orientamento_asse),
-                        orientamento_azimut,
-                        str(data_list_toimp[sing_rec].corredo_presenza),
-                        str(data_list_toimp[sing_rec].corredo_tipo),
-                        str(data_list_toimp[sing_rec].corredo_descrizione),
-                        lunghezza_scheletro,
-                        str(data_list_toimp[sing_rec].posizione_scheletro),
-                        str(data_list_toimp[sing_rec].posizione_cranio),
-                        str(data_list_toimp[sing_rec].posizione_arti_superiori),
-                        str(data_list_toimp[sing_rec].posizione_arti_inferiori),
-                        str(data_list_toimp[sing_rec].completo_si_no),
-                        str(data_list_toimp[sing_rec].disturbato_si_no),
-                        str(data_list_toimp[sing_rec].in_connessione_si_no),
-                        str(data_list_toimp[sing_rec].caratteristiche),
-                        per_iniz,
-                        fase_iniz,
-                        per_fin,
-                        fase_fin,
-                        str(data_list_toimp[sing_rec].datazione_estesa),
-                        str(data_list_toimp[sing_rec].misure_tafonomia)
-                    )
+                        value = (float(sing_rec)/float(len(data_list_toimp)))*100
+                        self.progress_bar.setValue(value)
                         
-                    self.DB_MANAGER_write.insert_data_session(data)
-                    
-                    value = (float(sing_rec)/float(len(data_list_toimp)))*100
-                    self.progress_bar.setValue(value)
-                    
-                    QApplication.processEvents()
-                    
-                except :
-                    
-                    QMessageBox.warning(self, "Errore", "Error ! \n"+ "duplicate key",  QMessageBox.Ok)
-                    return 0
-            self.progress_bar.reset()
-            QMessageBox.information(self, "Message", "Data Loaded")
-        
-        elif mapper_class_write == 'SCHEDAIND' :
-            for sing_rec in range(len(data_list_toimp)):
-                try:
-                    data = self.DB_MANAGER_write.insert_values_ind(
-                        self.DB_MANAGER_write.max_num_id(mapper_class_write,
-                                                         id_table_class_mapper_conv_dict[mapper_class_write]) + 1,
-                        data_list_toimp[sing_rec].sito,
-                        data_list_toimp[sing_rec].area,
-                        data_list_toimp[sing_rec].us,
-                        data_list_toimp[sing_rec].nr_individuo,
-                        data_list_toimp[sing_rec].data_schedatura,
-                        data_list_toimp[sing_rec].schedatore,
-                        data_list_toimp[sing_rec].sesso,
-                        data_list_toimp[sing_rec].eta_min,
-                        data_list_toimp[sing_rec].eta_max,
-                        data_list_toimp[sing_rec].classi_eta,
-                        data_list_toimp[sing_rec].osservazioni
-                    )
-                
-                    self.DB_MANAGER_write.insert_data_session(data)
-                    
-                    value = (float(sing_rec)/float(len(data_list_toimp)))*100
-                    self.progress_bar.setValue(value)
-                    
-                    QApplication.processEvents()
-                    
-                except :
-                    
-                    QMessageBox.warning(self, "Errore", "Error ! \n"+ "duplicate key",  QMessageBox.Ok)
-                    return 0
-            self.progress_bar.reset()
-            QMessageBox.information(self, "Message", "Data Loaded")
-        
-        elif mapper_class_write == 'CAMPIONI':
-            for sing_rec in range(len(data_list_toimp)):
-                try:
-                    data = self.DB_MANAGER_write.insert_values_campioni(
-                        self.DB_MANAGER_write.max_num_id(mapper_class_write,
-                                                         id_table_class_mapper_conv_dict[mapper_class_write]) + 1,
-                        data_list_toimp[sing_rec].sito,
-                        data_list_toimp[sing_rec].nr_campione,
-                        data_list_toimp[sing_rec].tipo_campione,
-                        data_list_toimp[sing_rec].descrizione,
-                        data_list_toimp[sing_rec].area,
-                        data_list_toimp[sing_rec].us,
-                        data_list_toimp[sing_rec].numero_inventario_materiale,
-                        data_list_toimp[sing_rec].nr_cassa,
-                        data_list_toimp[sing_rec].luogo_conservazione
-                    )
-                    self.DB_MANAGER_write.insert_data_session(data)
-                    for i in range(sing_rec):    
-                        #time.sleep()
-                        self.progress_bar.setValue(((i)/100)*100)
-                     
                         QApplication.processEvents()
-                    
-                except :
-                    
-                    QMessageBox.warning(self, "Errore", "Error ! \n"+ "duplicate key",  QMessageBox.Ok)
-                    return 0
-            self.progress_bar.reset()
-            QMessageBox.information(self, "Message", "Data Loaded")
-       
-        elif mapper_class_write == 'DOCUMENTAZIONE' :
-            for sing_rec in range(len(data_list_toimp)):
-                try:
-                    data = self.DB_MANAGER_write.insert_values_documentazione(
-                        self.DB_MANAGER_write.max_num_id(mapper_class_write,
-                                                         id_table_class_mapper_conv_dict[mapper_class_write]) + 1,
-                        data_list_toimp[sing_rec].sito,
-                        data_list_toimp[sing_rec].nome_doc,
-                        data_list_toimp[sing_rec].data,
-                        data_list_toimp[sing_rec].tipo_documentazione,
-                        data_list_toimp[sing_rec].sorgente,
-                        data_list_toimp[sing_rec].scala,
-                        data_list_toimp[sing_rec].disegnatore,
-                        data_list_toimp[sing_rec].note
-                    )
-
-                    self.DB_MANAGER_write.insert_data_session(data)
-                    
-                    value = (float(sing_rec)/float(len(data_list_toimp)))*100
-                    self.progress_bar.setValue(value)
-                    
-                    QApplication.processEvents()
-                    
-                except Exception as  e:
-                    e_str = str(e)
-                    QMessageBox.warning(self, "Errore", "Error ! \n"+ "duplicate key",  QMessageBox.Ok)
-               
-                    return 0
-            
-            self.progress_bar.reset()
-            QMessageBox.information(self, "Message", "Data Loaded")
-           
-        elif mapper_class_write == 'UT':
-            for sing_rec in range(len(data_list_toimp)):
-                try: 
-                    data = self.DB_MANAGER_write.insert_ut_values(
-                        self.DB_MANAGER_write.max_num_id(mapper_class_write,
-                                                         id_table_class_mapper_conv_dict[mapper_class_write]) + 1,
-                        data_list_toimp[sing_rec].sito,
-                        data_list_toimp[sing_rec].progetto,
-                        data_list_toimp[sing_rec].nr_ut,
-                        data_list_toimp[sing_rec].ut_letterale,
-                        data_list_toimp[sing_rec].def_ut,
-                        data_list_toimp[sing_rec].descrizione_ut,
-                        data_list_toimp[sing_rec].interpretazione_ut,
-                        data_list_toimp[sing_rec].nazione,
-                        data_list_toimp[sing_rec].regione,
-                        data_list_toimp[sing_rec].provincia,
-                        data_list_toimp[sing_rec].comune,
-                        data_list_toimp[sing_rec].frazione,
-                        data_list_toimp[sing_rec].localita,
-                        data_list_toimp[sing_rec].indirizzo,
-                        data_list_toimp[sing_rec].nr_civico,
-                        data_list_toimp[sing_rec].carta_topo_igm,
-                        data_list_toimp[sing_rec].coord_geografiche,
-                        data_list_toimp[sing_rec].coord_piane,
-                        data_list_toimp[sing_rec].andamento_terreno_pendenza,
-                        data_list_toimp[sing_rec].utilizzo_suolo_vegetazione,
-                        data_list_toimp[sing_rec].descrizione_empirica_suolo,
-                        data_list_toimp[sing_rec].descrizione_luogo,
-                        data_list_toimp[sing_rec].metodo_rilievo_e_ricognizione,
-                        data_list_toimp[sing_rec].geometria,
-                        data_list_toimp[sing_rec].bibliografia,
-                        data_list_toimp[sing_rec].data,
-                        data_list_toimp[sing_rec].ora_meteo,
-                        data_list_toimp[sing_rec].descrizione_luogo,
-                        data_list_toimp[sing_rec].responsabile,
-                        data_list_toimp[sing_rec].dimensioni_ut,
-                        data_list_toimp[sing_rec].rep_per_mq,
-                        data_list_toimp[sing_rec].rep_datanti,
-                        data_list_toimp[sing_rec].periodo_I,
-                        data_list_toimp[sing_rec].datazione_I,
-                        data_list_toimp[sing_rec].responsabile,
-                        data_list_toimp[sing_rec].interpretazione_I,
-                        data_list_toimp[sing_rec].periodo_II,
-                        data_list_toimp[sing_rec].datazione_II,
-                        data_list_toimp[sing_rec].interpretazione_II,
-                        data_list_toimp[sing_rec].documentazione,
-                        data_list_toimp[sing_rec].enti_tutela_vincoli,
-                        data_list_toimp[sing_rec].indagini_preliminari
-                    )
-
+                        
+                    except Exception as e :
+                        
+                        QMessageBox.warning(self, "Errore", "Error ! \n"+ str(e),  QMessageBox.Ok)
+                        return 0
+                self.progress_bar.reset()
+                QMessageBox.information(self, "Message", "Data Loaded")
+            ####SITE TABLE
+            if mapper_class_write == 'SITE' :
                 
-                    self.DB_MANAGER_write.insert_data_session(data)
+                for sing_rec in range(len(data_list_toimp)):
                     
-                    value = (float(sing_rec)/float(len(data_list_toimp)))*100
-                    self.progress_bar.setValue(value)
-                    
-                    QApplication.processEvents()
-                    
-                    
-                except :
-                    
-                    QMessageBox.warning(self, "Errore", "Error ! \n"+ "duplicate key",  QMessageBox.Ok)
-                    return 0
-            self.progress_bar.reset()
-            QMessageBox.information(self, "Message", "Data Loaded")
-
-
-        
-        
-        elif mapper_class_write == 'PYARCHINIT_THESAURUS_SIGLE' :
+                    try:
+                        data = self.DB_MANAGER_write.insert_site_values(
+                            self.DB_MANAGER_write.max_num_id(mapper_class_write,
+                                                             id_table_class_mapper_conv_dict[mapper_class_write]) + 1,
+                            data_list_toimp[sing_rec].sito,
+                            data_list_toimp[sing_rec].nazione,
+                            data_list_toimp[sing_rec].regione,
+                            data_list_toimp[sing_rec].comune,
+                            data_list_toimp[sing_rec].descrizione,
+                            data_list_toimp[sing_rec].provincia,
+                            data_list_toimp[sing_rec].definizione_sito,
+                            data_list_toimp[sing_rec].sito_path,
+                            data_list_toimp[sing_rec].find_check)
+                            
+                       
+                        self.DB_MANAGER_write.insert_data_session(data)
+                        
+                        value = (float(sing_rec)/float(len(data_list_toimp)))*100
+                        self.progress_bar.setValue(value)
+                        
+                        QApplication.processEvents()
+                        
+                    except :
+                        
+                        QMessageBox.warning(self, "Errore", "Error ! \n"+ "duplicate key",  QMessageBox.Ok)
+                        return 0
+                self.progress_bar.reset()
+                QMessageBox.information(self, "Message", "Data Loaded")
             
-            for sing_rec in range(len(data_list_toimp)):
+            #### US TABLE
+            
+            
+            if  mapper_class_write == 'US':
                 
-                try:
-                    data = self.DB_MANAGER_write.insert_values_thesaurus(
-                        self.DB_MANAGER_write.max_num_id(mapper_class_write,
-                                                         id_table_class_mapper_conv_dict[mapper_class_write]) + 1,
-                        data_list_toimp[sing_rec].nome_tabella,
-                        data_list_toimp[sing_rec].sigla,
-                        data_list_toimp[sing_rec].sigla_estesa,
-                        data_list_toimp[sing_rec].descrizione,
-                        data_list_toimp[sing_rec].tipologia_sigla,
-                        data_list_toimp[sing_rec].lingua
+                for sing_rec in range(len(data_list_toimp)):
+                    try:
+                        data = self.DB_MANAGER_write.insert_values(
+                            self.DB_MANAGER_write.max_num_id(mapper_class_write,
+                                                             id_table_class_mapper_conv_dict[mapper_class_write]) + 1,
+                            
+                            data_list_toimp[sing_rec].sito,
+                            data_list_toimp[sing_rec].area,
+                            data_list_toimp[sing_rec].us,
+                            data_list_toimp[sing_rec].d_stratigrafica,
+                            data_list_toimp[sing_rec].d_interpretativa,
+                            data_list_toimp[sing_rec].descrizione,
+                            data_list_toimp[sing_rec].interpretazione,
+                            data_list_toimp[sing_rec].periodo_iniziale,
+                            data_list_toimp[sing_rec].fase_iniziale,
+                            data_list_toimp[sing_rec].periodo_finale,
+                            data_list_toimp[sing_rec].fase_finale,
+                            data_list_toimp[sing_rec].scavato,
+                            data_list_toimp[sing_rec].attivita,
+                            data_list_toimp[sing_rec].anno_scavo,
+                            data_list_toimp[sing_rec].metodo_di_scavo,
+                            data_list_toimp[sing_rec].inclusi,
+                            data_list_toimp[sing_rec].campioni,
+                            data_list_toimp[sing_rec].rapporti,
+                            data_list_toimp[sing_rec].data_schedatura,
+                            data_list_toimp[sing_rec].schedatore,
+                            data_list_toimp[sing_rec].formazione,
+                            data_list_toimp[sing_rec].stato_di_conservazione,
+                            data_list_toimp[sing_rec].colore,
+                            data_list_toimp[sing_rec].consistenza,
+                            data_list_toimp[sing_rec].struttura,
+                            data_list_toimp[sing_rec].cont_per,
+                            data_list_toimp[sing_rec].order_layer,
+                            data_list_toimp[sing_rec].documentazione,
+                            data_list_toimp[sing_rec].unita_tipo,
+                            # campi aggiunti per USM
+                            data_list_toimp[sing_rec].settore,
+                            data_list_toimp[sing_rec].quad_par,
+                            data_list_toimp[sing_rec].ambient,
+                            data_list_toimp[sing_rec].saggio,
+                            data_list_toimp[sing_rec].elem_datanti,
+                            data_list_toimp[sing_rec].funz_statica,
+                            data_list_toimp[sing_rec].lavorazione,
+                            data_list_toimp[sing_rec].spess_giunti,
+                            data_list_toimp[sing_rec].letti_posa,
+                            data_list_toimp[sing_rec].alt_mod,
+                            data_list_toimp[sing_rec].un_ed_riass,
+                            data_list_toimp[sing_rec].reimp,
+                            data_list_toimp[sing_rec].posa_opera,
+                            data_list_toimp[sing_rec].quota_min_usm,
+                            data_list_toimp[sing_rec].quota_max_usm,
+                            data_list_toimp[sing_rec].cons_legante,
+                            data_list_toimp[sing_rec].col_legante,
+                            data_list_toimp[sing_rec].aggreg_legante,
+                            data_list_toimp[sing_rec].con_text_mat,
+                            data_list_toimp[sing_rec].col_materiale,
+                            data_list_toimp[sing_rec].inclusi_materiali_usm,
+                            data_list_toimp[sing_rec].n_catalogo_generale,
+                            data_list_toimp[sing_rec].n_catalogo_interno,
+                            data_list_toimp[sing_rec].n_catalogo_internazionale,
+                            data_list_toimp[sing_rec].soprintendenza,
+                            data_list_toimp[sing_rec].quota_relativa,
+                            data_list_toimp[sing_rec].quota_abs,
+                            data_list_toimp[sing_rec].ref_tm,
+                            data_list_toimp[sing_rec].ref_ra,
+                            data_list_toimp[sing_rec].ref_n,
+                            data_list_toimp[sing_rec].posizione,
+                            data_list_toimp[sing_rec].criteri_distinzione,
+                            data_list_toimp[sing_rec].modo_formazione,
+                            data_list_toimp[sing_rec].componenti_organici,
+                            data_list_toimp[sing_rec].componenti_inorganici,
+                            data_list_toimp[sing_rec].lunghezza_max,
+                            data_list_toimp[sing_rec].altezza_max,
+                            data_list_toimp[sing_rec].altezza_min,
+                            data_list_toimp[sing_rec].profondita_max,
+                            data_list_toimp[sing_rec].profondita_min,
+                            data_list_toimp[sing_rec].larghezza_media,
+                            data_list_toimp[sing_rec].quota_max_abs,
+                            data_list_toimp[sing_rec].quota_max_rel,
+                            data_list_toimp[sing_rec].quota_min_abs,
+                            data_list_toimp[sing_rec].quota_min_rel,
+                            data_list_toimp[sing_rec].osservazioni,
+                            data_list_toimp[sing_rec].datazione,
+                            data_list_toimp[sing_rec].flottazione,
+                            data_list_toimp[sing_rec].setacciatura,
+                            data_list_toimp[sing_rec].affidabilita,
+                            data_list_toimp[sing_rec].direttore_us,
+                            data_list_toimp[sing_rec].responsabile_us,
+                            data_list_toimp[sing_rec].cod_ente_schedatore,
+                            data_list_toimp[sing_rec].data_rilevazione,
+                            data_list_toimp[sing_rec].data_rielaborazione,
+                            data_list_toimp[sing_rec].lunghezza_usm,
+                            data_list_toimp[sing_rec].altezza_usm,
+                            data_list_toimp[sing_rec].spessore_usm,
+                            data_list_toimp[sing_rec].tecnica_muraria_usm,
+                            data_list_toimp[sing_rec].modulo_usm,
+                            data_list_toimp[sing_rec].campioni_malta_usm,
+                            data_list_toimp[sing_rec].campioni_mattone_usm,
+                            data_list_toimp[sing_rec].campioni_pietra_usm,
+                            data_list_toimp[sing_rec].provenienza_materiali_usm,
+                            data_list_toimp[sing_rec].criteri_distinzione_usm,
+                            data_list_toimp[sing_rec].uso_primario_usm
                         )
                         
-                    
-                    self.DB_MANAGER_write.insert_data_session(data)
-                    
-                    value = (float(sing_rec)/float(len(data_list_toimp)))*100
-                    self.progress_bar.setValue(value)
-                    
-                    QApplication.processEvents()
-                    
-                except :
-                    
-                    QMessageBox.warning(self, "Errore", "Error ! \n"+ "duplicate key",  QMessageBox.Ok)
-                    return 0
-            self.progress_bar.reset()
-            QMessageBox.information(self, "Message", "Data Loaded")
-        ###########################IMPORTAZIONE MEDIA##############################################    
-        elif mapper_class_write == 'MEDIA' :
-            for sing_rec in range(len(data_list_toimp)):
-                try:
-                    data = self.DB_MANAGER_write.insert_media_values(
-                        self.DB_MANAGER_write.max_num_id(mapper_class_write,
-                                                         id_table_class_mapper_conv_dict[mapper_class_write]) + 1,
-                        #data_list_toimp[sing_rec].id_media,
-                        data_list_toimp[sing_rec].mediatype,
-                        data_list_toimp[sing_rec].filename,
-                        data_list_toimp[sing_rec].filetype,
-                        data_list_toimp[sing_rec].filepath,
-                        data_list_toimp[sing_rec].descrizione,
-                        data_list_toimp[sing_rec].tags)
 
+                        self.DB_MANAGER_write.insert_data_session(data)
+                        
+                        value = (float(sing_rec)/float(len(data_list_toimp)))*100
+                        self.progress_bar.setValue(value)
+                        
+                        QApplication.processEvents()
+                            
+                        
+                        
+                        
+                    except Exception as e :
+                        e_error= str(e)
+                        QMessageBox.warning(self, "Errore", "Error ! \n"+ str(e),  QMessageBox.Ok)
+                        return 0
+                self.progress_bar.reset()
+                QMessageBox.information(self, "Message", "Data Loaded")
+            elif mapper_class_write == 'PERIODIZZAZIONE' :
+                for sing_rec in range(len(data_list_toimp)):
+                    try:
+                        data = self.DB_MANAGER_write.insert_periodizzazione_values(
+                            self.DB_MANAGER_write.max_num_id(mapper_class_write,
+                                                             id_table_class_mapper_conv_dict[mapper_class_write]) + 1,
+                            data_list_toimp[sing_rec].sito,
+                            data_list_toimp[sing_rec].periodo,
+                            data_list_toimp[sing_rec].fase,
+                            data_list_toimp[sing_rec].cron_iniziale,
+                            data_list_toimp[sing_rec].cron_finale,
+                            data_list_toimp[sing_rec].descrizione,
+                            data_list_toimp[sing_rec].datazione_estesa,
+                            data_list_toimp[sing_rec].cont_per,
+                            data_list_toimp[sing_rec].area)
                     
-                    self.DB_MANAGER_write.insert_data_session(data)
                     
-                    value = (float(sing_rec)/float(len(data_list_toimp)))*100
-                    self.progress_bar.setValue(value)
+                        self.DB_MANAGER_write.insert_data_session(data)
+                        
+                        value = (float(sing_rec)/float(len(data_list_toimp)))*100
+                        self.progress_bar.setValue(value)
+                        
+                        QApplication.processEvents()
+                        
+                    except :
+                        
+                        QMessageBox.warning(self, "Errore", "Error ! \n"+ "duplicate key",  QMessageBox.Ok)
+                        return 0
+                self.progress_bar.reset()
+                QMessageBox.information(self, "Message", "Data Loaded")
+            
+            elif mapper_class_write == 'INVENTARIO_MATERIALI' :
+                for sing_rec in range(len(data_list_toimp)):
+                    try:
+                        data = self.DB_MANAGER_write.insert_values_reperti(
+                            self.DB_MANAGER_write.max_num_id(mapper_class_write,
+                                                             id_table_class_mapper_conv_dict[mapper_class_write]) + 1,
+                            
+                            data_list_toimp[sing_rec].sito,
+                            data_list_toimp[sing_rec].numero_inventario,
+                            data_list_toimp[sing_rec].tipo_reperto,
+                            data_list_toimp[sing_rec].criterio_schedatura,
+                            data_list_toimp[sing_rec].definizione,
+                            data_list_toimp[sing_rec].descrizione,
+                            data_list_toimp[sing_rec].area,
+                            data_list_toimp[sing_rec].us,
+                            data_list_toimp[sing_rec].lavato,
+                            data_list_toimp[sing_rec].nr_cassa,
+                            data_list_toimp[sing_rec].luogo_conservazione,
+                            data_list_toimp[sing_rec].stato_conservazione,
+                            data_list_toimp[sing_rec].datazione_reperto,
+                            data_list_toimp[sing_rec].elementi_reperto,
+                            data_list_toimp[sing_rec].misurazioni,
+                            data_list_toimp[sing_rec].rif_biblio,
+                            data_list_toimp[sing_rec].tecnologie,
+                            data_list_toimp[sing_rec].forme_minime,
+                            data_list_toimp[sing_rec].forme_massime,
+                            data_list_toimp[sing_rec].totale_frammenti,
+                            data_list_toimp[sing_rec].corpo_ceramico,
+                            data_list_toimp[sing_rec].rivestimento,
+                            data_list_toimp[sing_rec].diametro_orlo,
+                            data_list_toimp[sing_rec].peso,
+                            data_list_toimp[sing_rec].tipo,
+                            data_list_toimp[sing_rec].eve_orlo,
+                            data_list_toimp[sing_rec].repertato,
+                            data_list_toimp[sing_rec].diagnostico,
+                            data_list_toimp[sing_rec].n_reperto,
+                        )
+                        
+                        
+                        self.DB_MANAGER_write.insert_data_session(data)
+                        
+                        value = (float(sing_rec)/float(len(data_list_toimp)))*100
+                        self.progress_bar.setValue(value)
+                        
+                        QApplication.processEvents()
                     
-                    QApplication.processEvents()
-                except Exception as  e:
-                    e_str = str(e)
-                    QMessageBox.warning(self, "Errore", "Error ! \n"+ str(e),  QMessageBox.Ok)
-               
-                    return 0
-            self.progress_bar.reset()
-            QMessageBox.information(self, "Message", "Data Loaded")
-    
-        elif mapper_class_write == 'MEDIA_THUMB' :
-            for sing_rec in range(len(data_list_toimp)):
-                try:
-                    data = self.DB_MANAGER_write.insert_mediathumb_values(
-                        self.DB_MANAGER_write.max_num_id(mapper_class_write,
-                                                         id_table_class_mapper_conv_dict[mapper_class_write]) + 1,
-                        #data_list_toimp[sing_rec].id_media_thumb,
-                        data_list_toimp[sing_rec].id_media,
-                        data_list_toimp[sing_rec].mediatype,
-                        data_list_toimp[sing_rec].media_filename,
-                        data_list_toimp[sing_rec].media_thumb_filename,
-                        data_list_toimp[sing_rec].filetype,
-                        data_list_toimp[sing_rec].filepath,
-                        data_list_toimp[sing_rec].path_resize)
+                    except :
+                        
+                        QMessageBox.warning(self, "Errore", "Error ! \n"+ "duplicate key",  QMessageBox.Ok)
+                        return 0
+                self.progress_bar.reset()
+                QMessageBox.information(self, "Message", "Data Loaded")
+          
+            elif mapper_class_write == 'STRUTTURA' :
+                for sing_rec in range(len(data_list_toimp)):
+                    try:
+                        data = self.DB_MANAGER_write.insert_struttura_values(
+                            self.DB_MANAGER_write.max_num_id(mapper_class_write,
+                                                             id_table_class_mapper_conv_dict[mapper_class_write]) + 1,
+                            data_list_toimp[sing_rec].sito,
+                            data_list_toimp[sing_rec].sigla_struttura,
+                            data_list_toimp[sing_rec].numero_struttura,
+                            data_list_toimp[sing_rec].categoria_struttura,
+                            data_list_toimp[sing_rec].tipologia_struttura,
+                            data_list_toimp[sing_rec].definizione_struttura,
+                            data_list_toimp[sing_rec].descrizione,
+                            data_list_toimp[sing_rec].interpretazione,
+                            data_list_toimp[sing_rec].periodo_iniziale,
+                            data_list_toimp[sing_rec].fase_iniziale,
+                            data_list_toimp[sing_rec].periodo_finale,
+                            data_list_toimp[sing_rec].fase_finale,
+                            data_list_toimp[sing_rec].datazione_estesa,
+                            data_list_toimp[sing_rec].materiali_impiegati,
+                            data_list_toimp[sing_rec].elementi_strutturali,
+                            data_list_toimp[sing_rec].rapporti_struttura,
+                            data_list_toimp[sing_rec].misure_struttura
+                        )
+                        
+                        self.DB_MANAGER_write.insert_data_session(data)
+                        
+                        value = (float(sing_rec)/float(len(data_list_toimp)))*100
+                        self.progress_bar.setValue(value)
+                        
+                        QApplication.processEvents()
+                    except :
+                        
+                        QMessageBox.warning(self, "Errore", "Error ! \n"+ "duplicate key",  QMessageBox.Ok)
+                        return 0
+                self.progress_bar.reset()
+                QMessageBox.information(self, "Message", "Data Loaded")
+            
+            elif mapper_class_write == 'TAFONOMIA' :
+                for sing_rec in range(len(data_list_toimp)):
 
-                    
-                    self.DB_MANAGER_write.insert_data_session(data)
-                    
-                    value = (float(sing_rec)/float(len(data_list_toimp)))*100
-                    self.progress_bar.setValue(value)
-                    
-                    QApplication.processEvents()
-               
-                except Exception as  e:
-                    e_str = str(e)
-                    QMessageBox.warning(self, "Errore", "Error ! \n"+ "duplicate key",  QMessageBox.Ok)
-               
-                    return 0
-            self.progress_bar.reset()
-            QMessageBox.information(self, "Message", "Data Loaded")
-    
-    
-        elif mapper_class_write == 'MEDIATOENTITY' :
-            for sing_rec in range(len(data_list_toimp)):
-                try:
-                    data = self.DB_MANAGER_write.insert_media2entity_values(
-                        self.DB_MANAGER_write.max_num_id(mapper_class_write,
-                                                         id_table_class_mapper_conv_dict[mapper_class_write]) + 1,
-                        #data_list_toimp[sing_rec].id_mediaToEntity,
-                        data_list_toimp[sing_rec].id_entity,
-                        data_list_toimp[sing_rec].entity_type,
-                        data_list_toimp[sing_rec].table_name,
-                        data_list_toimp[sing_rec].id_media,
-                        data_list_toimp[sing_rec].filepath,
-                        data_list_toimp[sing_rec].media_name)
+                    # blocco oritentamento_azimut
+                    test_azimut = data_list_toimp[sing_rec].orientamento_azimut
 
+                    if test_azimut == "" or test_azimut == None:
+                        orientamento_azimut = None
+                    else:
+                        orientamento_azimut = float(data_list_toimp[sing_rec].orientamento_azimut)
+                    ##                  if conn_str_dict_write['server'] == 'postgres':
+                    ##                      orientamento_azimut = float(orientamento_azimut)
+                    ##
+
+                    # blocco oritentamento_azimut
+                    test_lunghezza_scheletro = data_list_toimp[sing_rec].lunghezza_scheletro
+
+                    if test_lunghezza_scheletro == "" or test_lunghezza_scheletro == None:
+                        lunghezza_scheletro = None
+                    else:
+                        lunghezza_scheletro = float(data_list_toimp[sing_rec].lunghezza_scheletro)
+
+                        # blocco periodo_iniziale
+                    test_per_iniz = data_list_toimp[sing_rec].periodo_iniziale
+
+                    if test_per_iniz == "" or test_per_iniz == None:
+                        per_iniz = None
+                    else:
+                        per_iniz = int(data_list_toimp[sing_rec].periodo_iniziale)
+
+                        # blocco fase_iniziale
+                    test_fas_iniz = data_list_toimp[sing_rec].fase_iniziale
+
+                    if test_fas_iniz == "" or test_fas_iniz == None:
+                        fase_iniz = None
+                    else:
+                        fase_iniz = int(data_list_toimp[sing_rec].fase_iniziale)
+
+                        # blocco periodo_finale
+                    test_per_fin = data_list_toimp[sing_rec].periodo_finale
+
+                    if test_per_fin == "" or test_per_fin == None:
+                        per_fin = None
+                    else:
+                        per_fin = int(data_list_toimp[sing_rec].periodo_finale)
+
+                        # blocco fase_finale
+                    test_fas_fin = data_list_toimp[sing_rec].fase_finale
+
+                    if test_fas_fin == "" or test_fas_fin == None:
+                        fase_fin = None
+                    else:
+                        fase_fin = int(data_list_toimp[sing_rec].fase_finale)
+
+                    try:
+                        data = self.DB_MANAGER_write.insert_values_tafonomia(
+
+                            self.DB_MANAGER_write.max_num_id(mapper_class_write,
+                                                             id_table_class_mapper_conv_dict[mapper_class_write]) + 1,
+                            str(data_list_toimp[sing_rec].sito),
+                            int(data_list_toimp[sing_rec].nr_scheda_taf),
+                            str(data_list_toimp[sing_rec].sigla_struttura),
+                            int(data_list_toimp[sing_rec].nr_struttura),
+                            int(data_list_toimp[sing_rec].nr_individuo),
+                            str(data_list_toimp[sing_rec].rito),
+                            str(data_list_toimp[sing_rec].descrizione_taf),
+                            str(data_list_toimp[sing_rec].interpretazione_taf),
+                            str(data_list_toimp[sing_rec].segnacoli),
+                            str(data_list_toimp[sing_rec].canale_libatorio_si_no),
+                            str(data_list_toimp[sing_rec].oggetti_rinvenuti_esterno),
+                            str(data_list_toimp[sing_rec].stato_di_conservazione),
+                            str(data_list_toimp[sing_rec].copertura_tipo),
+                            str(data_list_toimp[sing_rec].tipo_conteni+++tore_resti),
+                            str(data_list_toimp[sing_rec].orientamento_asse),
+                            orientamento_azimut,
+                            str(data_list_toimp[sing_rec].corredo_presenza),
+                            str(data_list_toimp[sing_rec].corredo_tipo),
+                            str(data_list_toimp[sing_rec].corredo_descrizione),
+                            lunghezza_scheletro,
+                            str(data_list_toimp[sing_rec].posizione_scheletro),
+                            str(data_list_toimp[sing_rec].posizione_cranio),
+                            str(data_list_toimp[sing_rec].posizione_arti_superiori),
+                            str(data_list_toimp[sing_rec].posizione_arti_inferiori),
+                            str(data_list_toimp[sing_rec].completo_si_no),
+                            str(data_list_toimp[sing_rec].disturbato_si_no),
+                            str(data_list_toimp[sing_rec].in_connessione_si_no),
+                            str(data_list_toimp[sing_rec].caratteristiche),
+                            per_iniz,
+                            fase_iniz,
+                            per_fin,
+                            fase_fin,
+                            str(data_list_toimp[sing_rec].datazione_estesa),
+                            str(data_list_toimp[sing_rec].misure_tafonomia)
+                        )
+                            
+                        self.DB_MANAGER_write.insert_data_session(data)
+                        
+                        value = (float(sing_rec)/float(len(data_list_toimp)))*100
+                        self.progress_bar.setValue(value)
+                        
+                        QApplication.processEvents()
+                        
+                    except :
+                        
+                        QMessageBox.warning(self, "Errore", "Error ! \n"+ "duplicate key",  QMessageBox.Ok)
+                        return 0
+                self.progress_bar.reset()
+                QMessageBox.information(self, "Message", "Data Loaded")
+            
+            elif mapper_class_write == 'SCHEDAIND' :
+                for sing_rec in range(len(data_list_toimp)):
+                    try:
+                        data = self.DB_MANAGER_write.insert_values_ind(
+                            self.DB_MANAGER_write.max_num_id(mapper_class_write,
+                                                             id_table_class_mapper_conv_dict[mapper_class_write]) + 1,
+                            data_list_toimp[sing_rec].sito,
+                            data_list_toimp[sing_rec].area,
+                            data_list_toimp[sing_rec].us,
+                            data_list_toimp[sing_rec].nr_individuo,
+                            data_list_toimp[sing_rec].data_schedatura,
+                            data_list_toimp[sing_rec].schedatore,
+                            data_list_toimp[sing_rec].sesso,
+                            data_list_toimp[sing_rec].eta_min,
+                            data_list_toimp[sing_rec].eta_max,
+                            data_list_toimp[sing_rec].classi_eta,
+                            data_list_toimp[sing_rec].osservazioni
+                        )
                     
-                    self.DB_MANAGER_write.insert_data_session(data)
-                    
-                    value = (float(sing_rec)/float(len(data_list_toimp)))*100
-                    self.progress_bar.setValue(value)
-                    
-                    QApplication.processEvents()
-                except Exception as  e:
-                    e_str = str(e)
-                    QMessageBox.warning(self, "Errore", "Error ! \n"+ str(e),  QMessageBox.Ok)
-               
-                    return 0
-            self.progress_bar.reset()
-            QMessageBox.information(self, "Message", "Data Loaded")
-    #######################importa tutte le geometrie##########################################
-    # def on_pushButton_geometry_pressed (self):
-        # try:
-            # subprocess.check_output([
-                # 'ogr2ogr',
-                # '--config', 'PG_LIST_ALL_TABLES', 'YES',
-                # '--config', 'PG_SKIP_VIEWS', 'YES',
-                # '-f',
-                # 'SQLITE',
-                # "'{}'".format(self.lineEdit_database_wt),
-                # '-progress',
+                        self.DB_MANAGER_write.insert_data_session(data)
+                        
+                        value = (float(sing_rec)/float(len(data_list_toimp)))*100
+                        self.progress_bar.setValue(value)
+                        
+                        QApplication.processEvents()
+                        
+                    except :
+                        
+                        QMessageBox.warning(self, "Errore", "Error ! \n"+ "duplicate key",  QMessageBox.Ok)
+                        return 0
+                self.progress_bar.reset()
+                QMessageBox.information(self, "Message", "Data Loaded")
+            
+            elif mapper_class_write == 'CAMPIONI':
+                for sing_rec in range(len(data_list_toimp)):
+                    try:
+                        data = self.DB_MANAGER_write.insert_values_campioni(
+                            self.DB_MANAGER_write.max_num_id(mapper_class_write,
+                                                             id_table_class_mapper_conv_dict[mapper_class_write]) + 1,
+                            data_list_toimp[sing_rec].sito,
+                            data_list_toimp[sing_rec].nr_campione,
+                            data_list_toimp[sing_rec].tipo_campione,
+                            data_list_toimp[sing_rec].descrizione,
+                            data_list_toimp[sing_rec].area,
+                            data_list_toimp[sing_rec].us,
+                            data_list_toimp[sing_rec].numero_inventario_materiale,
+                            data_list_toimp[sing_rec].nr_cassa,
+                            data_list_toimp[sing_rec].luogo_conservazione
+                        )
+                        self.DB_MANAGER_write.insert_data_session(data)
+                        for i in range(sing_rec):    
+                            #time.sleep()
+                            self.progress_bar.setValue(((i)/100)*100)
+                         
+                            QApplication.processEvents()
+                        
+                    except :
+                        
+                        QMessageBox.warning(self, "Errore", "Error ! \n"+ "duplicate key",  QMessageBox.Ok)
+                        return 0
+                self.progress_bar.reset()
+                QMessageBox.information(self, "Message", "Data Loaded")
+           
+            elif mapper_class_write == 'DOCUMENTAZIONE' :
+                for sing_rec in range(len(data_list_toimp)):
+                    try:
+                        data = self.DB_MANAGER_write.insert_values_documentazione(
+                            self.DB_MANAGER_write.max_num_id(mapper_class_write,
+                                                             id_table_class_mapper_conv_dict[mapper_class_write]) + 1,
+                            data_list_toimp[sing_rec].sito,
+                            data_list_toimp[sing_rec].nome_doc,
+                            data_list_toimp[sing_rec].data,
+                            data_list_toimp[sing_rec].tipo_documentazione,
+                            data_list_toimp[sing_rec].sorgente,
+                            data_list_toimp[sing_rec].scala,
+                            data_list_toimp[sing_rec].disegnatore,
+                            data_list_toimp[sing_rec].note
+                        )
+
+                        self.DB_MANAGER_write.insert_data_session(data)
+                        
+                        value = (float(sing_rec)/float(len(data_list_toimp)))*100
+                        self.progress_bar.setValue(value)
+                        
+                        QApplication.processEvents()
+                        
+                    except Exception as  e:
+                        e_str = str(e)
+                        QMessageBox.warning(self, "Errore", "Error ! \n"+ "duplicate key",  QMessageBox.Ok)
+                   
+                        return 0
                 
-                # "PG:host='{}' port={} dbname='{}' user='{} password='{}'".format(self.lineEdit_host_rd, self.lineEdit_port_rd, self.lineEdit_database_rd, self.lineEdit_username_rd, self.lineEdit_pass_rd),
-                # '-lco',
-                # 'LAUNDER=yes'
-                # "SCHEMA={}".format('public'),
-                # '-dsco',
-                # 'SPATIALITE=yes',
-                # '-lco',
-                # 'SPATIAL_INDEX=yes'
-                # ])
-        # except Exception as e :
+                self.progress_bar.reset()
+                QMessageBox.information(self, "Message", "Data Loaded")
+               
+            elif mapper_class_write == 'UT':
+                for sing_rec in range(len(data_list_toimp)):
+                    try: 
+                        data = self.DB_MANAGER_write.insert_ut_values(
+                            self.DB_MANAGER_write.max_num_id(mapper_class_write,
+                                                             id_table_class_mapper_conv_dict[mapper_class_write]) + 1,
+                            data_list_toimp[sing_rec].sito,
+                            data_list_toimp[sing_rec].progetto,
+                            data_list_toimp[sing_rec].nr_ut,
+                            data_list_toimp[sing_rec].ut_letterale,
+                            data_list_toimp[sing_rec].def_ut,
+                            data_list_toimp[sing_rec].descrizione_ut,
+                            data_list_toimp[sing_rec].interpretazione_ut,
+                            data_list_toimp[sing_rec].nazione,
+                            data_list_toimp[sing_rec].regione,
+                            data_list_toimp[sing_rec].provincia,
+                            data_list_toimp[sing_rec].comune,
+                            data_list_toimp[sing_rec].frazione,
+                            data_list_toimp[sing_rec].localita,
+                            data_list_toimp[sing_rec].indirizzo,
+                            data_list_toimp[sing_rec].nr_civico,
+                            data_list_toimp[sing_rec].carta_topo_igm,
+                            data_list_toimp[sing_rec].coord_geografiche,
+                            data_list_toimp[sing_rec].coord_piane,
+                            data_list_toimp[sing_rec].andamento_terreno_pendenza,
+                            data_list_toimp[sing_rec].utilizzo_suolo_vegetazione,
+                            data_list_toimp[sing_rec].descrizione_empirica_suolo,
+                            data_list_toimp[sing_rec].descrizione_luogo,
+                            data_list_toimp[sing_rec].metodo_rilievo_e_ricognizione,
+                            data_list_toimp[sing_rec].geometria,
+                            data_list_toimp[sing_rec].bibliografia,
+                            data_list_toimp[sing_rec].data,
+                            data_list_toimp[sing_rec].ora_meteo,
+                            data_list_toimp[sing_rec].descrizione_luogo,
+                            data_list_toimp[sing_rec].responsabile,
+                            data_list_toimp[sing_rec].dimensioni_ut,
+                            data_list_toimp[sing_rec].rep_per_mq,
+                            data_list_toimp[sing_rec].rep_datanti,
+                            data_list_toimp[sing_rec].periodo_I,
+                            data_list_toimp[sing_rec].datazione_I,
+                            data_list_toimp[sing_rec].responsabile,
+                            data_list_toimp[sing_rec].interpretazione_I,
+                            data_list_toimp[sing_rec].periodo_II,
+                            data_list_toimp[sing_rec].datazione_II,
+                            data_list_toimp[sing_rec].interpretazione_II,
+                            data_list_toimp[sing_rec].documentazione,
+                            data_list_toimp[sing_rec].enti_tutela_vincoli,
+                            data_list_toimp[sing_rec].indagini_preliminari
+                        )
+
                     
-            # QMessageBox.warning(self, "Update error", str(e),  QMessageBox.Ok)
-            # return 0
-        # QMessageBox.information(self, "Message", "Data Loaded")
+                        self.DB_MANAGER_write.insert_data_session(data)
+                        
+                        value = (float(sing_rec)/float(len(data_list_toimp)))*100
+                        self.progress_bar.setValue(value)
+                        
+                        QApplication.processEvents()
+                        
+                        
+                    except :
+                        
+                        QMessageBox.warning(self, "Errore", "Error ! \n"+ "duplicate key",  QMessageBox.Ok)
+                        return 0
+                self.progress_bar.reset()
+                QMessageBox.information(self, "Message", "Data Loaded")
+
+
+            
+            
+            elif mapper_class_write == 'PYARCHINIT_THESAURUS_SIGLE' :
+                
+                for sing_rec in range(len(data_list_toimp)):
+                    
+                    try:
+                        data = self.DB_MANAGER_write.insert_values_thesaurus(
+                            self.DB_MANAGER_write.max_num_id(mapper_class_write,
+                                                             id_table_class_mapper_conv_dict[mapper_class_write]) + 1,
+                            data_list_toimp[sing_rec].nome_tabella,
+                            data_list_toimp[sing_rec].sigla,
+                            data_list_toimp[sing_rec].sigla_estesa,
+                            data_list_toimp[sing_rec].descrizione,
+                            data_list_toimp[sing_rec].tipologia_sigla,
+                            data_list_toimp[sing_rec].lingua
+                            )
+                            
+                        
+                        self.DB_MANAGER_write.insert_data_session(data)
+                        
+                        value = (float(sing_rec)/float(len(data_list_toimp)))*100
+                        self.progress_bar.setValue(value)
+                        
+                        QApplication.processEvents()
+                        
+                    except :
+                        
+                        QMessageBox.warning(self, "Errore", "Error ! \n"+ "duplicate key",  QMessageBox.Ok)
+                        return 0
+                self.progress_bar.reset()
+                QMessageBox.information(self, "Message", "Data Loaded")
+            ###########################IMPORTAZIONE MEDIA##############################################    
+            elif mapper_class_write == 'MEDIA' :
+                for sing_rec in range(len(data_list_toimp)):
+                    try:
+                        data = self.DB_MANAGER_write.insert_media_values(
+                            self.DB_MANAGER_write.max_num_id(mapper_class_write,
+                                                             id_table_class_mapper_conv_dict[mapper_class_write]) + 1,
+                            #data_list_toimp[sing_rec].id_media,
+                            data_list_toimp[sing_rec].mediatype,
+                            data_list_toimp[sing_rec].filename,
+                            data_list_toimp[sing_rec].filetype,
+                            data_list_toimp[sing_rec].filepath,
+                            data_list_toimp[sing_rec].descrizione,
+                            data_list_toimp[sing_rec].tags)
+
+                        
+                        self.DB_MANAGER_write.insert_data_session(data)
+                        
+                        value = (float(sing_rec)/float(len(data_list_toimp)))*100
+                        self.progress_bar.setValue(value)
+                        
+                        QApplication.processEvents()
+                    except Exception as  e:
+                        e_str = str(e)
+                        QMessageBox.warning(self, "Errore", "Error ! \n"+ str(e),  QMessageBox.Ok)
+                   
+                        return 0
+                self.progress_bar.reset()
+                QMessageBox.information(self, "Message", "Data Loaded")
+        
+            elif mapper_class_write == 'MEDIA_THUMB' :
+                for sing_rec in range(len(data_list_toimp)):
+                    try:
+                        data = self.DB_MANAGER_write.insert_mediathumb_values(
+                            self.DB_MANAGER_write.max_num_id(mapper_class_write,
+                                                             id_table_class_mapper_conv_dict[mapper_class_write]) + 1,
+                            #data_list_toimp[sing_rec].id_media_thumb,
+                            data_list_toimp[sing_rec].id_media,
+                            data_list_toimp[sing_rec].mediatype,
+                            data_list_toimp[sing_rec].media_filename,
+                            data_list_toimp[sing_rec].media_thumb_filename,
+                            data_list_toimp[sing_rec].filetype,
+                            data_list_toimp[sing_rec].filepath,
+                            data_list_toimp[sing_rec].path_resize)
+
+                        
+                        self.DB_MANAGER_write.insert_data_session(data)
+                        
+                        value = (float(sing_rec)/float(len(data_list_toimp)))*100
+                        self.progress_bar.setValue(value)
+                        
+                        QApplication.processEvents()
+                   
+                    except Exception as  e:
+                        e_str = str(e)
+                        QMessageBox.warning(self, "Errore", "Error ! \n"+ "duplicate key",  QMessageBox.Ok)
+                   
+                        return 0
+                self.progress_bar.reset()
+                QMessageBox.information(self, "Message", "Data Loaded")
+        
+        
+            elif mapper_class_write == 'MEDIATOENTITY' :
+                for sing_rec in range(len(data_list_toimp)):
+                    try:
+                        data = self.DB_MANAGER_write.insert_media2entity_values(
+                            self.DB_MANAGER_write.max_num_id(mapper_class_write,
+                                                             id_table_class_mapper_conv_dict[mapper_class_write]) + 1,
+                            #data_list_toimp[sing_rec].id_mediaToEntity,
+                            data_list_toimp[sing_rec].id_entity,
+                            data_list_toimp[sing_rec].entity_type,
+                            data_list_toimp[sing_rec].table_name,
+                            data_list_toimp[sing_rec].id_media,
+                            data_list_toimp[sing_rec].filepath,
+                            data_list_toimp[sing_rec].media_name)
+
+                        
+                        self.DB_MANAGER_write.insert_data_session(data)
+                        
+                        value = (float(sing_rec)/float(len(data_list_toimp)))*100
+                        self.progress_bar.setValue(value)
+                        
+                        QApplication.processEvents()
+                    except Exception as  e:
+                        e_str = str(e)
+                        QMessageBox.warning(self, "Errore", "Error ! \n"+ str(e),  QMessageBox.Ok)
+                   
+                        return 0
+                self.progress_bar.reset()
+                QMessageBox.information(self, "Message", "Data Loaded")
+        #######################importa tutte le geometrie##########################################
+        # def on_pushButton_geometry_pressed (self):
+            # try:
+                # subprocess.check_output([
+                    # 'ogr2ogr',
+                    # '--config', 'PG_LIST_ALL_TABLES', 'YES',
+                    # '--config', 'PG_SKIP_VIEWS', 'YES',
+                    # '-f',
+                    # 'SQLITE',
+                    # "'{}'".format(self.lineEdit_database_wt),
+                    # '-progress',
+                    
+                    # "PG:host='{}' port={} dbname='{}' user='{} password='{}'".format(self.lineEdit_host_rd, self.lineEdit_port_rd, self.lineEdit_database_rd, self.lineEdit_username_rd, self.lineEdit_pass_rd),
+                    # '-lco',
+                    # 'LAUNDER=yes'
+                    # "SCHEMA={}".format('public'),
+                    # '-dsco',
+                    # 'SPATIALITE=yes',
+                    # '-lco',
+                    # 'SPATIAL_INDEX=yes'
+                    # ])
+            # except Exception as e :
+                        
+                # QMessageBox.warning(self, "Update error", str(e),  QMessageBox.Ok)
+                # return 0
+            # QMessageBox.information(self, "Message", "Data Loaded")
     
         
     def openthumbDir(self):
