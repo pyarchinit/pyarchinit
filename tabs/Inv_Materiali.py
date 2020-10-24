@@ -108,7 +108,8 @@ class pyarchinit_Inventario_reperti(QDialog, MAIN_DIALOG_CLASS):
             "Valore E.v.e. orlo": 'eve_orlo',
             "Repertato": 'repertato',
             "Diagnostico": 'diagnostico',
-            "RA":'n_reperto'
+            "RA":'n_reperto',
+            "Tipo contenitore":'tipo_contenitore'
         }
         QUANT_ITEMS = ['Tipo reperto',
                        'Classe materiale',
@@ -145,7 +146,8 @@ class pyarchinit_Inventario_reperti(QDialog, MAIN_DIALOG_CLASS):
             "Valore E.v.e. orlo",
             "Repertato",
             "Diagnostico",
-            "RA"
+            "RA",
+            "Tipo contenitore"
         ]
     if L =='de':
         CONVERSION_DICT = {
@@ -174,7 +176,8 @@ class pyarchinit_Inventario_reperti(QDialog, MAIN_DIALOG_CLASS):
             "E.V.E. edge": 'eve_orlo',
             "Abgerufen": 'repertato',
             "Diagnose": 'diagnostico',
-            "RA":'n_reperto'
+            "RA":'n_reperto',
+            "Behältertyp":'tipo_contenitore'
         }
         QUANT_ITEMS = ['Art des Artefakts',
                        'Materialklasse',
@@ -211,7 +214,8 @@ class pyarchinit_Inventario_reperti(QDialog, MAIN_DIALOG_CLASS):
             "E.V.E. edge",
             "Abgerufen",
             "Diagnose",
-            "RA"
+            "RA",
+            "Behältertyp"
         ]
     if L =='en':
         CONVERSION_DICT = {
@@ -240,7 +244,8 @@ class pyarchinit_Inventario_reperti(QDialog, MAIN_DIALOG_CLASS):
             "Value E.v.e. rim": 'eve_orlo',
             "Reperted": 'repertato',
             "Diagnostic": 'diagnostico',
-            "RA":'n_reperto'
+            "RA":'n_reperto',
+            "Type of container":'tipo_contenitore'
         }
         QUANT_ITEMS = ['Artefact type',
                        'Material class',
@@ -277,7 +282,8 @@ class pyarchinit_Inventario_reperti(QDialog, MAIN_DIALOG_CLASS):
             "Value E.v.e. rim",
             "Reperted",
             "Diagnostic",
-            "RA"
+            "RA",
+            "Type of container"
         ]   
     TABLE_FIELDS = [
         "sito",
@@ -308,7 +314,8 @@ class pyarchinit_Inventario_reperti(QDialog, MAIN_DIALOG_CLASS):
         'eve_orlo',
         'repertato',
         'diagnostico',
-        'n_reperto'
+        'n_reperto',
+        'tipo_contenitore'
     ]
 
     TABLE_FIELDS_UPDATE = [
@@ -338,7 +345,8 @@ class pyarchinit_Inventario_reperti(QDialog, MAIN_DIALOG_CLASS):
         'eve_orlo',
         'repertato',
         'diagnostico',
-        'n_reperto'
+        'n_reperto',
+        'tipo_contenitore'
     ]
 
     LANG = {
@@ -371,16 +379,26 @@ class pyarchinit_Inventario_reperti(QDialog, MAIN_DIALOG_CLASS):
         self.mDockWidget_export.setHidden(True)
         self.pyQGIS = Pyarchinit_pyqgis(iface)
         self.currentLayerId = None
+        
+        
         try:
             self.on_pushButton_connect_pressed()
         except Exception as e:
             QMessageBox.warning(self, "Sistema di connessione", str(e), QMessageBox.Ok)
+        self.setnone()
         self.fill_fields()
         
         self.set_sito()
         self.msg_sito()
         self.comboBox_repertato.currentTextChanged.connect(self.numero_reperto)
         self.numero_invetario()
+    def setnone(self):
+        if self.lineEdit_tipo_contenitore.text=='None' or None:
+            self.lineEdit_tipo_contenitore.clear()
+            self.lineEdit_tipo_contenitore.setText('')
+            self.lineEdit_tipo_contenitore.update()
+        if self.lineEdit_n_reperto.text()=='None' or '' or None:
+            elf.lineEdit_n_reperto.setText('0')
     def on_pushButtonQuant_pressed(self):
         dlg = QuantPanelMain(self)
         dlg.insertItems(self.QUANT_ITEMS)
@@ -1081,7 +1099,12 @@ class pyarchinit_Inventario_reperti(QDialog, MAIN_DIALOG_CLASS):
         if self.comboBox_repertato.currentText()=='No':
             self.lineEdit_n_reperto.clear()
             self.lineEdit_n_reperto.setText('0')
-        elif self.comboBox_repertato.currentText()!='No':    
+        elif self.comboBox_repertato.currentText()=='':
+            self.lineEdit_n_reperto.clear()
+            self.lineEdit_n_reperto.setText('')
+            self.lineEdit_n_reperto.update()
+        
+        elif self.comboBox_repertato.currentText()=='Si' or 'si' or 'Yes' or 'yes':    
             for i in range(len(self.DATA_LIST)):
                 self.lineEdit_n_reperto.clear()
                 contatore = int(self.DATA_LIST[i].n_reperto)
@@ -1096,6 +1119,7 @@ class pyarchinit_Inventario_reperti(QDialog, MAIN_DIALOG_CLASS):
                 
                 self.lineEdit_n_reperto.setText(str(e))
                 self.lineEdit_n_reperto.update()
+        
     def numero_invetario(self):
         contatore = 0
         list=[]
@@ -1116,7 +1140,7 @@ class pyarchinit_Inventario_reperti(QDialog, MAIN_DIALOG_CLASS):
                 self.lineEdit_num_inv.setText(str(e))
        
     def charge_list(self):
-
+        
         l = QgsSettings().value("locale/userLocale", QVariant)
         lang = ""
         for key, values in self.LANG.items():
@@ -1523,7 +1547,7 @@ class pyarchinit_Inventario_reperti(QDialog, MAIN_DIALOG_CLASS):
                     str(self.DATA_LIST[i].tipo_reperto),#4
                     str(self.DATA_LIST[i].repertato), #5
                     str(self.DATA_LIST[i].n_reperto),  #6 
-                    str(self.DATA_LIST[i].tipo), #7
+                    str(self.DATA_LIST[i].tipo_contenitore), #7
                     str(self.DATA_LIST[i].nr_cassa), #8
                     str(self.DATA_LIST[i].luogo_conservazione),#9
                     str(foto),#10
@@ -1546,7 +1570,7 @@ class pyarchinit_Inventario_reperti(QDialog, MAIN_DIALOG_CLASS):
                 str(self.DATA_LIST[i].tipo_reperto),#4
                 str(self.DATA_LIST[i].repertato), #5
                 str(self.DATA_LIST[i].n_reperto),  #6 
-                str(self.DATA_LIST[i].tipo), #7
+                str(self.DATA_LIST[i].tipo_contenitore), #7
                 str(self.DATA_LIST[i].nr_cassa), #8
                 str(self.DATA_LIST[i].luogo_conservazione)])#9
                     
@@ -2291,7 +2315,8 @@ class pyarchinit_Inventario_reperti(QDialog, MAIN_DIALOG_CLASS):
                 eve_orlo,  # 25 - eve_orlo,
                 str(self.comboBox_repertato.currentText()),  # 9 - lavato
                 str(self.comboBox_diagnostico.currentText()),  # 9 - lavato
-                n_reperto
+                n_reperto,
+                str(self.lineEdit_tipo_contenitore.text()),
             )
 
             try:
@@ -2428,6 +2453,7 @@ class pyarchinit_Inventario_reperti(QDialog, MAIN_DIALOG_CLASS):
                 QMessageBox.warning(self, "Error", str(e), QMessageBox.Ok)
 
     def on_pushButton_prev_rec_pressed(self):
+        self.setnone()
         if self.check_record_state() == 1:
             pass
         else:
@@ -2696,7 +2722,8 @@ class pyarchinit_Inventario_reperti(QDialog, MAIN_DIALOG_CLASS):
                 self.TABLE_FIELDS[25]: eve_orlo,
                 self.TABLE_FIELDS[26]: "'" + str(self.comboBox_repertato.currentText()) + "'",
                 self.TABLE_FIELDS[27]: "'" + str(self.comboBox_diagnostico.currentText()) + "'",
-                self.TABLE_FIELDS[28]: n_reperto
+                self.TABLE_FIELDS[28]: n_reperto,
+                self.TABLE_FIELDS[29]: "'" + str(self.lineEdit_tipo_contenitore.text()) + "'"
             }
 
             u = Utility()
@@ -2824,7 +2851,7 @@ class pyarchinit_Inventario_reperti(QDialog, MAIN_DIALOG_CLASS):
                 if bool(elementi_reperto):
                     tot_framm = 0
                     for elrep in elementi_reperto:
-                        if elrep[1] == 'frammenti' or elrep[1] == 'frammento':
+                        if elrep[1] == 'frammenti' or elrep[1] == 'frammento'or elrep[1] == 'fragment' or elrep[1] == 'fragments':
                             try:
                                 tot_framm += int(elrep[2])
                             except:
@@ -3040,7 +3067,7 @@ class pyarchinit_Inventario_reperti(QDialog, MAIN_DIALOG_CLASS):
         self.lineEdit_area.clear()  # 7 - area
         self.lineEdit_us.clear()  # 8 - US
         self.comboBox_lavato.setEditText("")  # 9 - lavato
-        self.lineEdit_nr_cassa.clear()  # 10 - nr_cassa
+        self.lineEdit_nr_cassa.setText('')  # 10 - nr_cassa
         self.lineEdit_luogo_conservazione.clear()  # 11 - luogo_conservazione
         self.comboBox_conservazione.setEditText("")  # 12 - stato conservazione
         self.lineEdit_datazione_rep.clear()  # 13 - datazione reperto
@@ -3058,7 +3085,8 @@ class pyarchinit_Inventario_reperti(QDialog, MAIN_DIALOG_CLASS):
 
         self.comboBox_repertato.setEditText("")  # 9 - repertato
         self.comboBox_diagnostico.setEditText("")  # 9 - diagnostico
-        self.lineEdit_n_reperto.clear()
+        self.lineEdit_n_reperto.setText('0')
+        self.lineEdit_tipo_contenitore.setText('')
         for i in range(elementi_reperto_row_count):
             self.tableWidget_elementi_reperto.removeRow(0)
         self.insert_new_row("self.tableWidget_elementi_reperto")  # 14 - elementi reperto
@@ -3167,7 +3195,7 @@ class pyarchinit_Inventario_reperti(QDialog, MAIN_DIALOG_CLASS):
             else:
                 self.lineEdit_n_reperto.setText(str(self.DATA_LIST[self.rec_num].n_reperto))
 
-            
+            self.lineEdit_tipo_contenitore.setText(str(self.DATA_LIST[self.rec_num].tipo_contenitore))
             if self.toolButtonPreviewMedia.isChecked():
                 self.loadMediaPreview()
         except :
@@ -3270,7 +3298,8 @@ class pyarchinit_Inventario_reperti(QDialog, MAIN_DIALOG_CLASS):
             str(eve_orlo),  # 26 - eve orlo
             str(self.comboBox_repertato.currentText()),  # 27 - repertato
             str(self.comboBox_diagnostico.currentText()),
-            str(n_reperto)# 28 - diagnostico
+            str(n_reperto),
+            str(self.lineEdit_tipo_contenitore.text()),# 28 - diagnostico
         ]
 
     def enable_button(self, n):

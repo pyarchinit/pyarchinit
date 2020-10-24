@@ -1459,7 +1459,7 @@ class FOTO_index_pdf_sheet(object):
         self.tipo_reperto = data[4]
         self.repertato= data[5]
         self.n_reperto=data[6]
-        self.tipo =data[7]
+        self.tipo_contenitore =data[7]
         self.nr_cassa= data[8]
         self.luogo_conservazione =data[9]
         
@@ -1485,7 +1485,7 @@ class FOTO_index_pdf_sheet(object):
         tipo_reperto = Paragraph("<b>Tipo reperto</b><br/>" + str(self.tipo_reperto), styNormal)
         repertato = Paragraph("<b>Repertato</b><br/>" + str(self.repertato), styNormal)
         n_reperto = Paragraph("<b>Numero reperto</b><br/>"+ str(self.n_reperto), styNormal)
-        tipo = Paragraph("<b>Tipo di contenitore</b><br/>"+ str(self.tipo), styNormal)
+        tipo_contenitore = Paragraph("<b>Tipo di contenitore</b><br/>"+ str(self.tipo_contenitore), styNormal)
         nr_cassa = Paragraph("<b>Numero contenitore</b><br/>"+ str(self.nr_cassa), styNormal)
         luogo_conservazione = Paragraph("<b>Luogo di conservazione</b><br/>"+ str(self.luogo_conservazione), styNormal)
         
@@ -1503,7 +1503,7 @@ class FOTO_index_pdf_sheet(object):
                 tipo_reperto,
                 repertato,
                 n_reperto,
-                tipo,
+                tipo_contenitore,
                 nr_cassa,
                 luogo_conservazione
                 ]
@@ -1526,7 +1526,7 @@ class FOTO_index_pdf_sheet_2(object):
         self.tipo_reperto = data[4]
         self.repertato= data[5]
         self.n_reperto=data[6]
-        self.tipo =data[7]
+        self.tipo_contenitore =data[7]
         self.nr_cassa= data[8]
         self.luogo_conservazione =data[9]
         
@@ -1557,7 +1557,7 @@ class FOTO_index_pdf_sheet_2(object):
             n_reperto = Paragraph("<b>Numero reperto</b><br/>", styNormal)
         else:
             n_reperto = Paragraph("<b>Numero reperto</b><br/>"+ str(self.n_reperto), styNormal)
-        tipo = Paragraph("<b>Tipo di contenitore</b><br/>"+ str(self.tipo), styNormal)
+        tipo_contenitore = Paragraph("<b>Tipo di contenitore</b><br/>"+ str(self.tipo_contenitore), styNormal)
         nr_cassa = Paragraph("<b>Numero contenitore</b><br/>"+ str(self.nr_cassa), styNormal)
         luogo_conservazione = Paragraph("<b>Luogo di conservazione</b><br/>"+ str(self.luogo_conservazione), styNormal)
         
@@ -1576,7 +1576,7 @@ class FOTO_index_pdf_sheet_2(object):
                 tipo_reperto,
                 repertato,
                 n_reperto,
-                tipo,
+                tipo_contenitore,
                 nr_cassa,
                 luogo_conservazione
                 ]

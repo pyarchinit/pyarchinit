@@ -43,7 +43,8 @@ class DB_update(object):
 
         if not table_column_names_list.__contains__('n_reperto'):
             self.engine.execute("ALTER TABLE inventario_materiali_table ADD COLUMN n_reperto INTEGER")
-
+        if not table_column_names_list.__contains__('tipo_contenitore'):
+            self.engine.execute("ALTER TABLE inventario_materiali_table ADD COLUMN tipo_contenitore varchar DEFAULT ''")
         
         ####site_table
         table = Table("site_table", self.metadata, autoload=True)
