@@ -910,12 +910,12 @@
           </property>
           <item>
            <property name="text">
-            <string>postgres</string>
+            <string>sqlite</string>
            </property>
           </item>
           <item>
            <property name="text">
-            <string>sqlite</string>
+            <string>postgres</string>
            </property>
           </item>
          </widget>
@@ -1097,7 +1097,7 @@
         <item row="0" column="6">
          <widget class="QLabel" name="label_21">
           <property name="text">
-           <string>Mappatura pyArchInit</string>
+           <string>Tabelle</string>
           </property>
          </widget>
         </item>
@@ -1240,6 +1240,58 @@
          <widget class="QProgressBar" name="progress_bar">
           <property name="value">
            <number>0</number>
+          </property>
+         </widget>
+        </item>
+        <item row="1" column="7">
+         <widget class="QComboBox" name="comboBox_geometry_read">
+          <property name="enabled">
+           <bool>false</bool>
+          </property>
+          <item>
+           <property name="text">
+            <string>PYUS</string>
+           </property>
+          </item>
+          <item>
+           <property name="text">
+            <string>PYQUOTE</string>
+           </property>
+          </item>
+          <item>
+           <property name="text">
+            <string>PYTAFONOMIA</string>
+           </property>
+          </item>
+          <item>
+           <property name="text">
+            <string>PYUT</string>
+           </property>
+          </item>
+          <item>
+           <property name="text">
+            <string>PYSITO</string>
+           </property>
+          </item>
+          <item>
+           <property name="text">
+            <string>PYUS_NEGATIVE</string>
+           </property>
+          </item>
+          <item>
+           <property name="text">
+            <string>PYDOCUMENTAZIONE</string>
+           </property>
+          </item>
+         </widget>
+        </item>
+        <item row="1" column="6">
+         <widget class="QLabel" name="label_41">
+          <property name="enabled">
+           <bool>false</bool>
+          </property>
+          <property name="text">
+           <string>Geometrie</string>
           </property>
          </widget>
         </item>
