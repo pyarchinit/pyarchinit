@@ -48,7 +48,11 @@ class pyarchinit_Folder_installation(object):
         logo_copy_from_path_rel = os.path.join(os.sep, 'dbfiles', 'logo.jpg')
         logo_copy_from_path = '{}{}'.format(self.RESOURCES_PATH, logo_copy_from_path_rel)
         logo_copy_to_path = '{}{}{}'.format(home_DB_path, os.sep, 'logo.jpg')
-
+        
+        logo_copy_from_path_rel_adarte = os.path.join(os.sep, 'dbfiles', 'logo_2.png')
+        logo_copy_from_path_adarte = '{}{}'.format(self.RESOURCES_PATH, logo_copy_from_path_rel_adarte)
+        logo_copy_to_path_adarte = '{}{}{}'.format(home_DB_path, os.sep, 'logo_2.png')
+        
         ### logo per la versione tedesca
         logo_copy_from_path_rel_de = os.path.join(os.sep, 'dbfiles', 'logo_de.jpg')
         logo_copy_from_path_de = '{}{}'.format(self.RESOURCES_PATH, logo_copy_from_path_rel_de)
@@ -56,6 +60,7 @@ class pyarchinit_Folder_installation(object):
         
         self.OS_UTILITY.copy_file(db_copy_from_path, db_copy_to_path)
         self.OS_UTILITY.copy_file(logo_copy_from_path, logo_copy_to_path)
+        self.OS_UTILITY.copy_file(logo_copy_from_path_adarte, logo_copy_to_path_adarte)   
         ### logo per versione tedesca
         self.OS_UTILITY.copy_file(logo_copy_from_path_de, logo_copy_to_path_de)   
 
@@ -102,6 +107,12 @@ class pyarchinit_Folder_installation(object):
         logo_copy_from_path = '{}{}'.format(self.RESOURCES_PATH, logo_copy_from_path_rel)
         logo_copy_to_path = '{}{}{}'.format(path, os.sep, 'logo.jpg')
         self.OS_UTILITY.copy_file(logo_copy_from_path, logo_copy_to_path)
+        
+        logo_copy_from_path_rel_adarte = os.path.join(os.sep, 'dbfiles', 'logo_2.png')
+        logo_copy_from_path_adarte = '{}{}'.format(self.RESOURCES_PATH, logo_copy_from_path_rel_adarte)
+        logo_copy_to_path_adarte = '{}{}{}'.format(path, os.sep, 'logo_2.png')
+        self.OS_UTILITY.copy_file(logo_copy_from_path_adarte, logo_copy_to_path_adarte)
+        
         
         logo_copy_from_path_rel_de = os.path.join(os.sep, 'dbfiles', 'logo_de.jpg')
         logo_copy_from_path_de = '{}{}'.format(self.RESOURCES_PATH, logo_copy_from_path_rel_de)

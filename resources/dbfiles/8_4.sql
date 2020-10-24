@@ -1,1 +1,0 @@
-DROP view if EXISTS mediaentity_view;
