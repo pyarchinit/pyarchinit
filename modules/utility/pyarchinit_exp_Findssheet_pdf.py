@@ -1452,16 +1452,17 @@ class FOTO_index_pdf_sheet(object):
 
     def __init__(self, data):
         
-        self.numero_inventario= data[0]
-        self.sito= data[1]
-        self.thumbnail = data[11]
-        self.us = data[3]
-        self.tipo_reperto = data[4]
-        self.repertato= data[5]
-        self.n_reperto=data[6]
-        self.tipo_contenitore =data[7]
-        self.nr_cassa= data[8]
-        self.luogo_conservazione =data[9]
+        
+        self.sito= data[0]
+        self.n_reperto=data[1]
+        #self.thumbnail = data[2]
+        self.us = data[2]
+        self.definizione = data[3]
+        self.datazione_reperto= data[4]
+        self.stato_conservazione =data[5]
+        self.tipo_contenitore =data[6]
+        self.nr_cassa= data[7]
+        
         
         
         
@@ -1476,36 +1477,41 @@ class FOTO_index_pdf_sheet(object):
 
         
 
-        conn = Connection()
+        # conn = Connection()
     
-        thumb_path = conn.thumb_path()
-        thumb_path_str = thumb_path['thumb_path']
-        numero_inventario = Paragraph("<b>Numero inv.</b><br/>" + str(self.numero_inventario), styNormal)
+        # thumb_path = conn.thumb_path()
+        
+        n_reperto = Paragraph("<b>Numero reperto</b><br/>" + str(self.n_reperto), styNormal)
         us = Paragraph("<b>US</b><br/>" + str(self.us), styNormal)
-        tipo_reperto = Paragraph("<b>Tipo reperto</b><br/>" + str(self.tipo_reperto), styNormal)
-        repertato = Paragraph("<b>Repertato</b><br/>" + str(self.repertato), styNormal)
-        n_reperto = Paragraph("<b>Numero reperto</b><br/>"+ str(self.n_reperto), styNormal)
-        tipo_contenitore = Paragraph("<b>Tipo di contenitore</b><br/>"+ str(self.tipo_contenitore), styNormal)
+        definizione = Paragraph("<b>Tipo materiale</b><br/>" + str(self.definizione), styNormal)
+        datazione_reperto = Paragraph("<b>Datazione</b><br/>" + str(self.datazione_reperto), styNormal)
+        stato_conservazione = Paragraph("<b>Stato di conservazione</b><br/>"+ str(self.stato_conservazione), styNormal)
+        if self.tipo_contenitore=='None':
+            tipo_contenitore = Paragraph("<b>Tipo di contenitore</b><br/>", styNormal)
+        else:
+            tipo_contenitore = Paragraph("<b>Tipo di contenitore</b><br/>"+ str(self.tipo_contenitore), styNormal)
         nr_cassa = Paragraph("<b>Numero contenitore</b><br/>"+ str(self.nr_cassa), styNormal)
-        luogo_conservazione = Paragraph("<b>Luogo di conservazione</b><br/>"+ str(self.luogo_conservazione), styNormal)
         
         
         
-        logo= Image(self.thumbnail)
-        logo.drawHeight = 1 * inch * logo.drawHeight / logo.drawWidth
-        logo.drawWidth = 1 * inch
-        logo.hAlign = "CENTER"
+        # if self.thumbnail:
+            # logo= Image(self.thumbnail)
+            # logo.drawHeight = 1 * inch * logo.drawHeight / logo.drawWidth
+            # logo.drawWidth = 1 * inch
+            # logo.hAlign = "CENTER"
+            # thumbnail= logo
+        # else:
+            # thumbnail= ''
         
-        thumbnail= logo
-        data = [
-                numero_inventario,
-                us ,
-                tipo_reperto,
-                repertato,
+        data = [                
                 n_reperto,
+                #thumbnail,
+                us,
+                definizione,
+                datazione_reperto,
+                stato_conservazione,
                 tipo_contenitore,
-                nr_cassa,
-                luogo_conservazione
+                nr_cassa
                 ]
 
         return data
@@ -1553,7 +1559,6 @@ class FOTO_index_pdf_sheet_2(object):
         tipo_reperto = Paragraph("<b>Tipo reperto</b><br/>" + str(self.tipo_reperto), styNormal)
         repertato = Paragraph("<b>Repertato</b><br/>" + str(self.repertato), styNormal)
         if self.repertato=='No':
-            
             n_reperto = Paragraph("<b>Numero reperto</b><br/>", styNormal)
         else:
             n_reperto = Paragraph("<b>Numero reperto</b><br/>"+ str(self.n_reperto), styNormal)
@@ -1605,11 +1610,19 @@ class generate_reperti_pdf(object):
         home_DB_path = '{}{}{}'.format(home, os.sep, 'pyarchinit_DB_folder')
         logo_path = '{}{}{}'.format(home_DB_path, os.sep, 'logo.jpg')
         
+        home_DB_path = '{}{}{}'.format(home, os.sep, 'pyarchinit_DB_folder')
+        logo_path = '{}{}{}'.format(home_DB_path, os.sep, 'logo.jpg')
+        logo_path2 = '{}{}{}'.format(home_DB_path, os.sep, 'logo_2.png')
         logo = Image(logo_path)
         logo.drawHeight = 1.5 * inch * logo.drawHeight / logo.drawWidth
         logo.drawWidth = 1.5 * inch
         logo.hAlign = "LEFT"
-
+        
+        logo_2 = Image(logo_path2)
+        logo_2.drawHeight = 1.5 * inch * logo_2.drawHeight / logo_2.drawWidth
+        logo_2.drawWidth = 1.5 * inch
+        logo_2.hAlign = "CENTER"
+        
         styleSheet = getSampleStyleSheet()
         styNormal = styleSheet['Normal']
         styBackground = ParagraphStyle('background', parent=styNormal, backColor=colors.pink)
@@ -1618,9 +1631,11 @@ class generate_reperti_pdf(object):
         data = self.datestrfdate()
 
         lst = []
+        lst2=[]
         lst.append(logo)
+        lst2.append(logo_2)
         lst.append(
-            Paragraph("<b>ELENCO FOTO MATERIALI</b><br/><b> Scavo: %s,  Data: %s</b>" % (sito, data), styH1))
+            Paragraph("<b>ELENCO INVENTARIO</b><br/><b> Scavo: %s </b><br/><b>  Data: %s</b>" % (sito, data), styH1))
 
         table_data = []
         for i in range(len(records)):
@@ -1628,7 +1643,7 @@ class generate_reperti_pdf(object):
             table_data.append(exp_index.getTable())
 
         styles = exp_index.makeStyles()
-        colWidths = [50, 50, 50, 50,50,50,50,100]
+        colWidths = [100, 50, 100, 100,100,100,100]
 
         table_data_formatted = Table(table_data, colWidths, style=styles)
         table_data_formatted.hAlign = "LEFT"
@@ -1638,11 +1653,12 @@ class generate_reperti_pdf(object):
 
         dt = datetime.datetime.now()
         filename = ('%s%s%s_%s_%s_%s_%s_%s_%s%s') % (
-        self.PDF_path, os.sep, 'Elenco_foto', dt.day, dt.month, dt.year, dt.hour, dt.minute, dt.second, ".pdf")
+        self.PDF_path, os.sep, 'Elenco_Reperti', dt.day, dt.month, dt.year, dt.hour, dt.minute, dt.second, ".pdf")
         f = open(filename, "wb")
 
-        doc = SimpleDocTemplate(f, pagesize=A4)
-        doc.build(lst, canvasmaker=NumberedCanvas_FINDSindex)
+        doc = SimpleDocTemplate(f, pagesize=(29 * cm, 21 * cm), showBoundary=0, topMargin=15, bottomMargin=40,
+                                leftMargin=30, rightMargin=30)
+        doc.build(lst+lst2, canvasmaker=NumberedCanvas_FINDSindex)
 
         f.close()
     def build_index_Foto_2(self, records, sito):
@@ -1691,7 +1707,7 @@ class generate_reperti_pdf(object):
 
         dt = datetime.datetime.now()
         filename = ('%s%s%s_%s_%s_%s_%s_%s_%s%s') % (
-        self.PDF_path, os.sep, 'Elenco_foto', dt.day, dt.month, dt.year, dt.hour, dt.minute, dt.second, ".pdf")
+        self.PDF_path, os.sep, 'Elenco_invetario', dt.day, dt.month, dt.year, dt.hour, dt.minute, dt.second, ".pdf")
         f = open(filename, "wb")
 
         doc = SimpleDocTemplate(f, pagesize=(29 * cm, 21 * cm), showBoundary=0, topMargin=15, bottomMargin=40,

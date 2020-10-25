@@ -1531,40 +1531,41 @@ class pyarchinit_Inventario_reperti(QDialog, MAIN_DIALOG_CLASS):
                                     "GIS mode disabled. From now on, your searches will no longer be displayed on the GIS.",
                                     QMessageBox.Ok)
     
+    
     def generate_list_foto(self):
         data_list_foto = []
         for i in range(len(self.DATA_LIST)):
         
-            conn = Connection()
+            # conn = Connection()
             
             
-            thumb_path = conn.thumb_path()
-            thumb_path_str = thumb_path['thumb_path']
+            # thumb_path = conn.thumb_path()
+            # thumb_path_str = thumb_path['thumb_path']
             
-            search_dict = {'id_entity': "'"+ str(eval("self.DATA_LIST[i].id_invmat"))+"'", 'entity_type' : "'REPERTO'"}
+            # search_dict = {'id_entity': "'"+ str(eval("self.DATA_LIST[i].id_invmat"))+"'", 'entity_type' : "'REPERTO'"}
             
-            record_doc_list = self.DB_MANAGER.query_bool(search_dict, 'MEDIAVIEW')
+            # record_doc_list = self.DB_MANAGER.query_bool(search_dict, 'MEDIAVIEW')
         
          
             
-            for media in record_doc_list:
+            # for media in record_doc_list:
             
-                thumbnail = (thumb_path_str+media.filepath)
-                foto= (media.id_media)
-            
-                data_list_foto.append([
-                    str(self.DATA_LIST[i].numero_inventario), #0
-                    str(self.DATA_LIST[i].sito), #1
-                    str(self.DATA_LIST[i].area), #2
-                    str(self.DATA_LIST[i].us),    #3
-                    str(self.DATA_LIST[i].tipo_reperto),#4
-                    str(self.DATA_LIST[i].repertato), #5
-                    str(self.DATA_LIST[i].n_reperto),  #6 
-                    str(self.DATA_LIST[i].tipo_contenitore), #7
-                    str(self.DATA_LIST[i].nr_cassa), #8
-                    str(self.DATA_LIST[i].luogo_conservazione),#9
-                    str(foto),#10
-                    str(thumbnail)])#11
+                # thumbnail = (thumb_path_str+media.filepath)
+                
+                    
+                
+                
+            data_list_foto.append([
+                
+                str(self.DATA_LIST[i].sito), #1
+                str(self.DATA_LIST[i].n_reperto),  #6 
+                #str(thumbnail),
+                str(self.DATA_LIST[i].us),    #3
+                str(self.DATA_LIST[i].definizione),#4
+                str(self.DATA_LIST[i].datazione_reperto), #5
+                str(self.DATA_LIST[i].stato_conservazione), #5
+                str(self.DATA_LIST[i].tipo_contenitore), #7
+                str(self.DATA_LIST[i].nr_cassa)])
             
         return data_list_foto
             
@@ -1648,12 +1649,12 @@ class pyarchinit_Inventario_reperti(QDialog, MAIN_DIALOG_CLASS):
                 data_list_foto = self.generate_list_foto()
         
                 try:
-                        if bool(data_list_foto):
-                            US_index_pdf.build_index_Foto(data_list_foto, data_list_foto[0][0])
-                            QMessageBox.warning(self, 'Ok',"Esportazione terminata Elenco Foto",QMessageBox.Ok)
+                        
+                    US_index_pdf.build_index_Foto(data_list_foto, data_list_foto[0][0])
+                    QMessageBox.warning(self, 'Ok',"Esportazione terminata Elenco Reperti",QMessageBox.Ok)
                                        
-                        else:
-                            QMessageBox.warning(self, 'ATTENZIONE',"L'elenco foto non può essere esportato perchè non hai immagini taggate.",QMessageBox.Ok)
+                        # else:
+                            # QMessageBox.warning(self, 'ATTENZIONE',"L'elenco foto non può essere esportato perchè non hai immagini taggate.",QMessageBox.Ok)
                 except Exception as e :
                     QMessageBox.warning(self, 'ATTENZIONE',str(e),QMessageBox.Ok)
             
@@ -1664,7 +1665,7 @@ class pyarchinit_Inventario_reperti(QDialog, MAIN_DIALOG_CLASS):
                 try:
                         
                     US_index_pdf.build_index_Foto_2(data_list, data_list[0][0])
-                    QMessageBox.warning(self, 'Ok',"Esportazione terminata Elenco Foto senza thumbanil",QMessageBox.Ok)
+                    QMessageBox.warning(self, 'Ok',"Esportazione terminata Elenco Inventario",QMessageBox.Ok)
                                        
                         # else:
                             # QMessageBox.warning(self, 'ATTENZIONE',"L'elenco foto non può essere esportato perchè non hai immagini taggate.",QMessageBox.Ok)
