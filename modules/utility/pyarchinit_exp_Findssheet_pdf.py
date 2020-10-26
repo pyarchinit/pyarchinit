@@ -1289,7 +1289,12 @@ class FINDS_index_pdf_sheet(object):
             nr_cassa = Paragraph("<b>Nr. Cassa</b><br/>", styNormal)
         else:
             nr_cassa = Paragraph("<b>Nr. Cassa</b><br/>" + str(self.numero_cassa), styNormal)
-
+        
+        if str(self.n_reperto) == "None":
+            n_reperto = Paragraph("<b>Nr. Reperto</b><br/>", styNormal)
+        else:
+            nr_cassa = Paragraph("<b>Nr. Reperto</b><br/>" + str(self.n_reperto), styNormal)
+        
         data = [num_inventario,
                 tipo_reperto,
                 classe_materiale,
@@ -1299,7 +1304,8 @@ class FINDS_index_pdf_sheet(object):
                 lavato,
                 repertato,
                 diagnostico,
-                nr_cassa]
+                nr_cassa,
+                n_reperto]
 
         return data
     
@@ -1886,20 +1892,30 @@ class generate_reperti_pdf(object):
 
         home_DB_path = '{}{}{}'.format(home, os.sep, 'pyarchinit_DB_folder')
         logo_path = '{}{}{}'.format(home_DB_path, os.sep, 'logo.jpg')
-
+        logo_path2 = '{}{}{}'.format(home_DB_path, os.sep, 'logo_2.png')
         logo = Image(logo_path)
         logo.drawHeight = 1.5 * inch * logo.drawHeight / logo.drawWidth
         logo.drawWidth = 1.5 * inch
         logo.hAlign = "LEFT"
-
+        
+        logo_2 = Image(logo_path2)
+        logo_2.drawHeight = 1.5 * inch * logo_2.drawHeight / logo_2.drawWidth
+        logo_2.drawWidth = 1.5 * inch
+        logo_2.hAlign = "CENTER"
+        
         styleSheet = getSampleStyleSheet()
         styNormal = styleSheet['Normal']
         styBackground = ParagraphStyle('background', parent=styNormal, backColor=colors.pink)
         styH1 = styleSheet['Heading3']
 
         data = self.datestrfdate()
-        lst = [logo]
-        lst.append(Paragraph("<b>ELENCO CASSE MATERIALI</b><br/><b>Scavo: %s,  Data: %s</b>" % (sito, data), styH1))
+
+        lst = []
+        lst2=[]
+        lst.append(logo)
+        lst2.append(logo_2)
+        lst.append(
+            Paragraph("<b>ELENCO CASSE</b><br/><b> Scavo: %s </b><br/><b>  Data: %s</b>" % (sito, data), styH1))
 
         table_data = []
         for i in range(len(records)):
@@ -1907,23 +1923,25 @@ class generate_reperti_pdf(object):
             table_data.append(exp_index.getTable())
 
         styles = exp_index.makeStyles()
-        colWidths = [20, 350, 250, 100]
+        colWidths = [50, 350, 250, 100]
 
         table_data_formatted = Table(table_data, colWidths, style=styles)
         table_data_formatted.hAlign = "LEFT"
 
-        # table_data_formatted.setStyle(styles)
-
         lst.append(table_data_formatted)
-        lst.append(Spacer(0, 0))
+        lst.append(Spacer(0, 2))
 
-        filename = '{}{}{}'.format(self.PDF_path, os.sep, 'elenco_casse.pdf')
+        dt = datetime.datetime.now()
+        filename = ('%s%s%s_%s_%s_%s_%s_%s_%s%s') % (
+        self.PDF_path, os.sep, 'Elenco_Casse', dt.day, dt.month, dt.year, dt.hour, dt.minute, dt.second, ".pdf")
         f = open(filename, "wb")
 
         doc = SimpleDocTemplate(f, pagesize=(29 * cm, 21 * cm), showBoundary=0, topMargin=15, bottomMargin=40,
                                 leftMargin=30, rightMargin=30)
         # doc.build(lst, canvasmaker=NumberedCanvas_Sindex)
-        doc.build(lst)
+        doc.build(lst+lst2)
+
+        f.close()
 
         f.close()
     def build_index_Casse_de(self, records, sito):

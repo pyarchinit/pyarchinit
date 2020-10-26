@@ -1617,7 +1617,8 @@ class pyarchinit_Inventario_reperti(QDialog, MAIN_DIALOG_CLASS):
                 str(self.DATA_LIST[i].rivestimento),  # 21 - rivestimento
                 str(self.DATA_LIST[i].repertato),  # 22 - repertato
                 str(self.DATA_LIST[i].diagnostico),
-                str(self.DATA_LIST[i].n_reperto)# 23 - diagnostico
+                str(self.DATA_LIST[i].n_reperto),
+                str(self.DATA_LIST[i].tipo_contenitore)# 23 - diagnostico
             ])
         return data_list
     def on_pushButton_print_pressed(self):
@@ -1631,16 +1632,19 @@ class pyarchinit_Inventario_reperti(QDialog, MAIN_DIALOG_CLASS):
                 pass
         
             if self.checkBox_e_us.isChecked() :
-                US_index_pdf = generate_reperti_pdf()
-                data_list = self.generate_list_pdf()
-                try:               
-                    if bool(data_list):
-                        US_index_pdf.build_index_Finds(data_list, data_list[0][0])
-                        QMessageBox.warning(self, 'Ok',"Esportazione terminata Elenco US",QMessageBox.Ok)
-                    else:
-                        QMessageBox.warning(self, 'ATTENZIONE',"L'elenco US non può essere esportato devi riempire prima le schede US",QMessageBox.Ok)
-                except Exception as e :
-                    QMessageBox.warning(self, 'ATTENZIONE',str(e),QMessageBox.Ok)
+                # US_index_pdf = generate_reperti_pdf()
+                # data_list = self.generate_el_casse_pdf()
+                               
+                    
+                        
+                sito_ec = str(self.comboBox_sito.currentText())
+                Mat_casse_pdf = generate_reperti_pdf()
+                data_list = self.generate_el_casse_pdf(sito_ec)
+
+                Mat_casse_pdf.build_index_Casse(data_list, sito_ec)
+                QMessageBox.warning(self, 'Ok',"Esportazione terminata Elenco Casse",QMessageBox.Ok)
+        
+                
             else:
                 pass
         
@@ -1823,61 +1827,30 @@ class pyarchinit_Inventario_reperti(QDialog, MAIN_DIALOG_CLASS):
     
     
     
-    def on_pushButton_exp_pdf_sheet_pressed(self):
-        #if self.records_equal_check() == 1:
-            #self.update_if(
-                #QMessageBox.warning(self, 'Errore', "Il record è stato modificato. Vuoi salvare le modifiche?",
-                                    #QMessageBox.Ok | QMessageBox.Cancel))
-        if self.L=='it':
-            Finds_pdf_sheet = generate_reperti_pdf()
-            data_list = self.generate_list_pdf()
-            Finds_pdf_sheet.build_Finds_sheets(data_list)
-        elif self.L=='de':
-            Finds_pdf_sheet = generate_reperti_pdf()
-            data_list = self.generate_list_pdf()
-            Finds_pdf_sheet.build_Finds_sheets_de(data_list)
-        else:
-            Finds_pdf_sheet = generate_reperti_pdf()
-            data_list = self.generate_list_pdf()
-            Finds_pdf_sheet.build_Finds_sheets_en(data_list)   
-    def on_pushButton_exp_index_mat_pressed(self):
+    
+    # def on_pushButton_elenco_casse_pressed(self):
         
-        if self.L=='it':
-            Mat_index_pdf = generate_reperti_pdf()
-            data_list = self.generate_list_pdf()
-            Mat_index_pdf.build_index_Finds(data_list, data_list[0][1])
-        elif self.L=='de':
-            Mat_index_pdf = generate_reperti_pdf()
-            data_list = self.generate_list_pdf()
-            Mat_index_pdf.build_index_Finds_de(data_list, data_list[0][1])
-            
-        else:
-            Mat_index_pdf = generate_reperti_pdf()
-            data_list = self.generate_list_pdf()
-            Mat_index_pdf.build_index_Finds_en(data_list, data_list[0][1]) 
-    def on_pushButton_elenco_casse_pressed(self):
-        
-        if self.L=='it': 
-            sito_ec = str(self.comboBox_sito.currentText())
-            Mat_casse_pdf = generate_reperti_pdf()
-            data_list = self.generate_el_casse_pdf(sito_ec)
+        # if self.L=='it': 
+            # sito_ec = str(self.comboBox_sito.currentText())
+            # Mat_casse_pdf = generate_reperti_pdf()
+            # data_list = self.generate_el_casse_pdf(sito_ec)
 
-            Mat_casse_pdf.build_index_Casse(data_list, sito_ec)
-            Mat_casse_pdf.build_box_labels_Finds(data_list, sito_ec)
-        elif self.L=='de': 
-            sito_ec = str(self.comboBox_sito.currentText())
-            Mat_casse_pdf = generate_reperti_pdf()
-            data_list = self.generate_el_casse_pdf(sito_ec)
+            # Mat_casse_pdf.build_index_Casse(data_list, sito_ec)
+            # Mat_casse_pdf.build_box_labels_Finds(data_list, sito_ec)
+        # elif self.L=='de': 
+            # sito_ec = str(self.comboBox_sito.currentText())
+            # Mat_casse_pdf = generate_reperti_pdf()
+            # data_list = self.generate_el_casse_pdf(sito_ec)
 
-            Mat_casse_pdf.build_index_Casse_de(data_list, sito_ec)
-            Mat_casse_pdf.build_box_labels_Finds_de(data_list, sito_ec)
-        else: 
-            sito_ec = str(self.comboBox_sito.currentText())
-            Mat_casse_pdf = generate_reperti_pdf()
-            data_list = self.generate_el_casse_pdf(sito_ec)
+            # Mat_casse_pdf.build_index_Casse_de(data_list, sito_ec)
+            # Mat_casse_pdf.build_box_labels_Finds_de(data_list, sito_ec)
+        # else: 
+            # sito_ec = str(self.comboBox_sito.currentText())
+            # Mat_casse_pdf = generate_reperti_pdf()
+            # data_list = self.generate_el_casse_pdf(sito_ec)
 
-            Mat_casse_pdf.build_index_Casse_en(data_list, sito_ec)
-            Mat_casse_pdf.build_box_labels_Finds_en(data_list, sito_ec)    
+            # Mat_casse_pdf.build_index_Casse_en(data_list, sito_ec)
+            # Mat_casse_pdf.build_box_labels_Finds_en(data_list, sito_ec)    
         # ********************************************************************************
 
     def generate_el_casse_pdf(self, sito):
