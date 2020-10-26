@@ -1135,7 +1135,7 @@ class CASSE_index_pdf_sheet(object):
             elenco_inv_tip_rep = Paragraph("<b>N. Inv./Tipo materiale</b><br/>" + str(self.elenco_inv_tip_rep),
                                            styNormal)
 
-        if self.elenco_us == None:
+        if self.elenco_us == 'None':
             elenco_us = Paragraph("<b>US(Struttura)</b><br/>", styNormal)
         else:
             elenco_us = Paragraph("<b>US(Struttura)</b><br/>" + str(self.elenco_us), styNormal)
