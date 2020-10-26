@@ -35,6 +35,19 @@ from reportlab.lib.units import inch, cm, mm
 from reportlab.pdfgen import canvas
 from reportlab.platypus import Table, PageBreak, SimpleDocTemplate, Spacer, TableStyle, Image
 from reportlab.platypus.paragraph import Paragraph
+from reportlab.pdfbase import pdfmetrics
+from reportlab.pdfbase.pdfmetrics import registerFontFamily
+from reportlab.pdfbase.ttfonts import TTFont
+# Registered font family
+pdfmetrics.registerFont(TTFont('Calibri', 'Calibri.ttf'))
+# pdfmetrics.registerFont(TTFont('VeraBd', 'VeraBd.ttf'))
+# pdfmetrics.registerFont(TTFont('VeraIt', 'VeraIt.ttf'))
+# pdfmetrics.registerFont(TTFont('VeraBI', 'VeraBI.ttf'))
+# Registered fontfamily
+registerFontFamily('Calibri',normal='Calibri')
+
+
+
 from ..db.pyarchinit_conn_strings import Connection
 from .pyarchinit_OS_utility import *
 from PIL import Image as giggino
@@ -61,8 +74,8 @@ class NumberedCanvas_USsheet(canvas.Canvas):
         canvas.Canvas.save(self)
 
     def draw_page_number(self, page_count):
-        self.setFont("Times-Roman", 7)
-        self.drawRightString(200 * mm, 20 * mm,
+        self.setFont("Times-Roman", 6)
+        self.drawRightString(200 * mm, 8 * mm,
                              "Pag. %d di %d" % (self._pageNumber, page_count))  # scheda us verticale 200mm x 20 mm
 
 
@@ -1434,15 +1447,26 @@ class single_US_pdf_sheet(object):
         styNormal = styleSheet['Normal']
         styNormal.spaceBefore = 20
         styNormal.spaceAfter = 20
-        styNormal.fontSize = 5.5
+        styNormal.fontSize = 5
+        styNormal.fontName='Times-Roman'
         styNormal.alignment = 0  # LEFT
 
-
+        
+        styleSheet = getSampleStyleSheet()
+        styL = styleSheet['Normal']
+        styL.spaceBefore = 20
+        styL.spaceAfter = 20
+        styL.fontSize = 2
+        styL.fontName='Times-Roman'
+        styL.alignment = 1
+        
+        
         styleSheet = getSampleStyleSheet()
         styDescrizione = styleSheet['Normal']
         styDescrizione.spaceBefore = 20
         styDescrizione.spaceAfter = 20
-        styDescrizione.fontSize = 5.5
+        styDescrizione.fontSize = 5
+        styDescrizione.fontName='Times-Roman'
         styDescrizione.alignment = 4  # Justified
 
         styleSheet = getSampleStyleSheet()
@@ -1450,20 +1474,24 @@ class single_US_pdf_sheet(object):
         styUnitaTipo.spaceBefore = 20
         styUnitaTipo.spaceAfter = 20
         styUnitaTipo.fontSize = 14
+        styUnitaTipo.fontName='Times-Roman'
         styUnitaTipo.alignment = 1  # CENTER
 
         styleSheet = getSampleStyleSheet()
         styTitoloComponenti = styleSheet['Normal']
         styTitoloComponenti.spaceBefore = 20
         styTitoloComponenti.spaceAfter = 20
-        styTitoloComponenti.fontSize = 5.5
+        styTitoloComponenti. rowHeights=0.5
+        styTitoloComponenti.fontSize = 5
+        styTitoloComponenti.fontName='Times-Roman'
         styTitoloComponenti.alignment = 1  # CENTER
 
         styleSheet = getSampleStyleSheet()
         styVerticale = styleSheet['Normal']
         styVerticale.spaceBefore = 20
         styVerticale.spaceAfter = 20
-        styVerticale.fontSize = 5.5
+        styVerticale.fontSize = 5
+        styVerticale.fontName='Times-Roman'
         styVerticale.alignment = 1  # CENTER
         styVerticale.leading=8
 
@@ -1476,25 +1504,38 @@ class single_US_pdf_sheet(object):
         logo_path = '{}{}{}'.format(home_DB_path, os.sep, 'logo.jpg')
         logo = Image(logo_path)
 
-        logo.drawHeight = 1.5 * inch * logo.drawHeight / logo.drawWidth
-        logo.drawWidth = 1.5 * inch
+        logo.drawHeight = 2 * inch * logo.drawHeight / logo.drawWidth
+        logo.drawWidth = 2 * inch
+        logo.hAlign = 'CENTER'
+        lst = []
+        lst2=[]
+        lst.append(logo)
         if str(self.unita_tipo)== 'US':
             unita_tipo = Paragraph(str(self.unita_tipo), styUnitaTipo)
-            label_catalogo_generale = Paragraph("<b>N. CATALOGO GENERALE</b>", styNormal)
-            label_catalogo_internazionale = Paragraph("<b>N. CATALOGO INTERNAZIONALE</b>", styNormal)
-            catalogo_generale = Paragraph(str(self.n_catalogo_generale), styNormal)
-            catalogo_internazionale = Paragraph(str(self.n_catalogo_internazionale), styNormal)
-            sop =  Paragraph("<b></b><br/>" +str(self.soprintendenza), styNormal)
+            label_ente_responsabile = Paragraph("<b>ENTE RESPONSABILE</b>", styNormal)
+            #label_catalogo_internazionale = Paragraph("<b>N. CATALOGO INTERNAZIONALE</b>", styNormal)
+            ente_responsabile = Paragraph(str(self.n_catalogo_generale), styNormal)
+            #catalogo_internazionale = Paragraph(str(self.n_catalogo_internazionale), styNormal)
+            sop =  Paragraph("<b>SOPRINTENDENZA MIBACT COMPETENTE PER TUTELA</b><br/>" +str(self.soprintendenza), styNormal)
             #2-3 row
 
             sito = Paragraph("<b>LOCALITÀ</b><br/>" + str(self.sito), styNormal)
-            anno_di_scavo = Paragraph("<b>ANNO</b><br/>" + self.anno_scavo, styNormal)
-            area = Paragraph("<b>AREA</b><br/>" + str(self.area),styNormal)
+            #anno_di_scavo = Paragraph("<b>ANNO</b><br/>" + self.anno_scavo, styNormal)
+            if self.struttura!='':
+            
+                area = Paragraph("<b>AREA/EDIFICIO/STRUTTURA</b><br/>" + str(self.area)+'/'+str(self.struttura),styNormal)
+            
+            else:
+                area = Paragraph("<b>AREA/EDIFICIO/STRUTTURA</b><br/>" + str(self.area),styNormal)
+            
+            saggio = Paragraph("<b>SAGGIO</b><br/>" + self.saggio, styNormal)
+            ambiente = Paragraph("<b>AMBIENTE</b><br/>" + self.ambient, styNormal)
+            posizione = Paragraph("<b>POSIZIONE NELL'AMBIENTE</b><br/>" + self.posizione, styNormal)
             settore = Paragraph("<b>SETTORE/I</b><br/>" + self.settore, styNormal)
             quadrato = Paragraph("<b>QUADRATO/I</b><br/>" + self.quad_par, styNormal)
             quote = Paragraph("<b>QUOTE</b><br/>min: " + self.quota_min + "<br/>max: "+self.quota_max, styNormal)
-            label_unita_stratigrafica = Paragraph("<b>UNITÀ STRATIGRAFICA</b><br/>"+ str(self.us), styNormal)
-            
+            label_unita_stratigrafica = Paragraph("<b>NUMERO/CODICE IDENTIFICATIVO DELL’UNITÀ STRATIGRAFICA</b><br/>"+ str(self.us), styNormal)
+            label_sas = Paragraph("<b>NUMERO/CODICE IDENTIFICATIVO DEL SAGGIO STRATIGRAFICO/DELL’EDIFICIO/DELLA STRUTTURA/DELLA DEPOSIZIONE FUNERARIA DI RIFERIMENTO</b><br/>", styNormal)
             
             if self.formazione == 'Naturale':
                 label_NAT = Paragraph("<i>NAT.</i><br/>" + self.formazione, styNormal)
@@ -1510,13 +1551,13 @@ class single_US_pdf_sheet(object):
             piante = Paragraph("<b>PIANTE</b><br/>" + self.piante_iccd, styNormal)
             sezioni = Paragraph("<b>SEZIONI</b><br/>" + self.sezioni_iccd, styNormal)
             prospetti = Paragraph("<b>PROSPETTI</b><br/>"+ self.prospetti_iccd, styNormal)                    #manca valore
-            foto = Paragraph("<b>FOTO</b><br/>"+ self.foto_iccd, styNormal)            #manca valore
+            foto = Paragraph("<b>FOTOGRAFIE</b><br/>"+ self.foto_iccd, styNormal)            #manca valore
 
-            tabelle_materiali = Paragraph("<b>TABELLE MATERIALI<br/><br/>RA</b>:"+ self.ref_ra, styNormal)  #manca valore
+            tabelle_materiali = Paragraph("<b>RIFERIMENTI TABELLE MATERIALI<br/><br/>RA</b>:"+ self.ref_ra, styNormal)  #manca valore
 
             #5 row
 
-            d_stratigrafica = Paragraph("<b>DEFINIZIONE</b><br/>Definizione stratigrafica: " + self.d_stratigrafica+"<br/>Definizione interpretativa: "+self.d_interpretativa, styNormal)
+            d_stratigrafica = Paragraph("<b>DEFINIZIONE E POSIZIONE</b><br/>Definizione stratigrafica: " + self.d_stratigrafica+"<br/>Definizione interpretativa: "+self.d_interpretativa, styNormal)
 
             #6 row
 
@@ -1545,13 +1586,13 @@ class single_US_pdf_sheet(object):
 
             label_componenti = Paragraph("<b>COMPONENTI</b>",styVerticale)
 
-            label_geologici = Paragraph("<i>GEOLOGICI</i>",styTitoloComponenti) #inorganici
+            label_inorganici = Paragraph("<i>INORGANICI</i>",styTitoloComponenti) #inorganici
             label_organici = Paragraph("<i>ORGANICI</i>", styTitoloComponenti) #organici
-            label_artificiali = Paragraph("<i>ARTIFICIALI</i>", styTitoloComponenti) #inclusi
+            #label_artificiali = Paragraph("<i>INORGANICI</i>", styTitoloComponenti) #inclusi
 
             comp_organici = Paragraph(organici, styNormal) #organici
             comp_inorganici = Paragraph(inorganici, styNormal)  #geologici
-            inclusi = Paragraph(inclusi, styNormal)  #artificiali
+            #inclusi = Paragraph(inclusi, styNormal)  #artificiali
 
             #10 row
 
@@ -1633,26 +1674,31 @@ class single_US_pdf_sheet(object):
 
             #28 row
 
-            affidabilita = Paragraph("<b>AFFIDABILITÀ</b><br/>" + self.affidabilita, styNormal)
-            direttore = Paragraph("<b>DIRETTORE</b><br/>" + self.direttore_us, styNormal)
-            responsabile = Paragraph("<b>RESPONSABILE</b><br/>" + self.responsabile_us, styNormal)
-
+            affidabilita = Paragraph("<b>AFFIDABILITÀ STRATIGRAFICA</b><br/>" + self.affidabilita, styNormal)
+            direttore = Paragraph("<b>RESPONSABILE SCIENTIFICO DELLE INDAGINI</b><br/>" + self.direttore_us, styNormal)
+            responsabile = Paragraph("<b>RESPONSABILE COMPILAZIONE SUL CAMPO</b><br/>" + self.responsabile_us, styNormal)
+            responsabile2 = Paragraph("<b>RESPONSABILE RIELABORAZIONE</b><br/>" + self.responsabile_us, styNormal)
+            data_rilievo = Paragraph("<b>DATA RILEVAMENTO SUL CAMPO</b><br/>" + self.data_rilevazione, styNormal)
+            data_rielaborazione = Paragraph("<b>DATA RIELABORAZIONE</b><br/>" + self.data_rielaborazione, styNormal)
+            attivita = Paragraph("<b>ATTIVITÀ</b><br/>" + self.attivita, styNormal)
+            licenza =  Paragraph("<b>MIBACT- ICCD_licenza CC BY-SA 4.0_Creative Commons Attribution-ShareAlike 4.0 International</b>",styL)
             # schema
             cell_schema = [
-                # 00, 01, 02, 03, 04, 05, 06, 07, 08, 09 rows
-                [unita_tipo, '01' , label_catalogo_generale, '03', '04', '05', '06', label_catalogo_internazionale , '08', '09', '10', '11', '12', logo , '14', '15', '16', '17'],
-                ['00', '01', catalogo_generale, '03', '04' , '05', '06', catalogo_internazionale , '08', '09', '10', '11', '12', sop, '14', '15', '16', '17'],
-                [sito, '01', '02', '03', '04', anno_di_scavo , area, settore, '08', quadrato, '10', quote, '12', '13', label_unita_stratigrafica, '15', '16', '17'],
-                ['00', '01', '02', '03', '04', '05','06' , '07', '08', '09', '10', '11', '12', '13', label_NAT, '15', label_ART, '17'],    #
-                [piante, '01', '02', sezioni, '04', '05', prospetti, '07', '08', foto, '10', '11', '12', '13', tabelle_materiali, '15', '16', '17'],
+                
+                [unita_tipo, '01' , label_ente_responsabile, '03', '04', '05', '06', '07' , '08', '09', '10', label_unita_stratigrafica, '12', '13', '14', '15', '16', '17'],
+                ['00', '01', sop, '03', '04' , '05', '06','07' , '08','09', '10', label_sas, '12', '13', '14', '15', '16', '17'],
+                [sito, '01', '02', '03', '04', '05' , '06', '07', '08', '09', '10', '11', '12', '13', '14', '15', '16', '17'],
+                [area, '01', '02', '03', '04', '05' , '06', '07', '08', '09', '10', saggio, '12', '13', '14', '15', '16', '17'],
+                [ambiente, '01', '02', '03', posizione, '04' , '06', settore, '08', quadrato, '10', quote, '12', '13', label_NAT, '15', label_ART, '17'],
+                [piante, '01', prospetti, '03', sezioni, '05', '06',foto, '08', '09', '10', tabelle_materiali, '12', '13', '14', '15', '16', '17'],
                 [d_stratigrafica, '01', '02', '03', '04', '05', '06', '07', '08', '09', '10', '11', '12', '13', '14', '15', '16', '17'],
                 [criteri_distinzione, '01', '02', '03', '04', '05', '06', '07', '08', '09', '10', '11', '12', '13', '14', '15', '16', '17'],
                 [modo_formazione, '01', '02', '03', '04', '05', '06', '07', '08', '09', '10', '11', '12', '13', '14', '15', '16', '17'],
-                [label_componenti, label_geologici, '02', '03', '04', '05', label_organici, '07', '08', '09', '10', '11', label_artificiali, '13', '14', '15', '16', '17'],
-                ['00', comp_inorganici, '02', '03', '04', '05', comp_organici, '07', '08', '09', '10', '11', inclusi, '13', '14', '15', '16', '17'],
+                [ label_organici, '01','02', '03', '04', '05', '06', '07', '08', label_inorganici, '10', '11','12' , '13', '14', '15', '16', '17'],
+                [label_componenti, comp_organici, '02', '03', '04', '05', '06', '07', '08', comp_inorganici, '10', '11', '12', '13', '14', '15', '16', '17'],
                 [consistenza, '01', '02', '03', '04', '05', colore, '07', '08', '09', '10', '11', misure, '13', '14', '15', '16', '17'],
                 [stato_conservazione, '01', '02', '03', '04', '05', '06', '07', '08', '09', '10', '11', '12', '13', '14', '15', '16', '17'],
-                [descrizione, '01', '02', '03', '04', '05', '06', '07', '08', '09', '10', '11', '12', '13', '14', '15', '16', '17'],
+                
                 [uguale_a, '01', '02', '03', '04', '05', si_lega_a, '07', '08', '09', '10', '11', label_sequenza_stratigrafica, posteriore_a, '14', '15', '16', '17'],
                 ['00', '01', '02', '03', '04', '05', '06', '07', '08', '09', '10', '11', '12', '13', '14', '15', '16', '17'],
                 [gli_si_appoggia, '01', '02', '03', '04', '05', si_appoggia_a, '07', '08', '09', '10', '11', '12', '13', '14', '15', '16', '17'],
@@ -1663,90 +1709,98 @@ class single_US_pdf_sheet(object):
                 ['00', '01', '02', '03', '04', '05', '06', '07', '08', '09', '10', '11', '12', '13', '14', '15', '16', '17'],
                 [riempito_da, '01', '02', '03', '04', '05', riempie, '07', '08', '09', '10', '11', '12', '13', '14', '15', '16', '17'],
                 ['00', '01', '02', '03', '04', '05', '06', '07', '08', '09', '10', '11', '12', '13', '14', '15', '16', '17'],
+                [descrizione, '01', '02', '03', '04', '05', '06', '07', '08', '09', '10', '11', '12', '13', '14', '15', '16', '17'],
                 [osservazioni, '01', '02', '03', '04', '05', '06', '07', '08', '09', '10', '11', '12', '13', '14', '15', '16', '17'],
                 [interpretazione, '01', '02', '03', '04', '05', '06', '07', '08', '09', '10', '11', '12', '13', '14', '15', '16', '17'],
+                
+                [datazione_ipotesi, '01', '02', '03', '04', '05', periodo_o_fase, '07', '08', '09', '10', '11', attivita, '13', '14', '15', '16', '17'],
                 [elementi_datanti, '01', '02', '03', '04', '05', '06', '07', '08', '09', '10', '11', '12', '13', '14', '15', '16', '17'],
-                [datazione_ipotesi, '01', '02', '03', '04', '05', '06', '07', '08', periodo_o_fase, '10', '11', '12', '13', '14', '15', '16', '17'],
-                [dati_quantitativi, '01', '02', '03', '04', '05', '06', '07', '08', periodo_o_fase, '10', '11', '12', '13', '14', '15', '16', '17'],
+                [dati_quantitativi, '01', '02', '03', '04', '05', '06', '07', '08', '09', '10', '11', '12', '13', '14', '15', '16', '17'],
                 [campioni, '01', '02', '03', '04', '05', flottazione, '07', '08', '09', '10', '11', setacciatura, '13', '14', '15', '16', '17'],
-                [affidabilita, '01', '02', '03', '04', '05', direttore, '07', '08', '09', '10', '11', responsabile, '13', '14', '15', '16', '17'],
+                [affidabilita, '01', '02', '03', '04', '05', '06', '07', '08', '09', '10', '11', '12', '13', '14', '15', '16', '17'],
+                [direttore, '01', '02', '03', '04', '05', '06', '07', '08', '09', '10', '11', '12', '13', '14', '15', '16', '17'],
+                [data_rilievo, '01', '02', '03', '04', '05', '06', '07', '08', responsabile, '10', '11', '12', '13', '14', '15', '16', '17'],
+                [data_rielaborazione, '01', '02', '03', '04', '05', '06', '07', '08', responsabile2, '10', '11', '12', '13', '14', '15', '16', '17'],
                 ]
 
             # table style
             table_style = [
-                ('GRID', (0, 0), (-1, -1), 0.5, colors.black),
+               
+                ('GRID', (0, 0), (-1, -1), 0.3, colors.black),
                 # 0 row
-
                 ('SPAN', (0, 0), (1, 1)),  # unita tipo
                 ('VALIGN', (0, 0), (1, 1), 'MIDDLE'),
 
-                ('SPAN', (2, 0), (6, 1)),  # label n. catalogo generale
-                ('SPAN', (7, 0), (12, 1)),  # label n. catalogo internazionale
-                ('VALIGN', (2, 0), (12,1), 'MIDDLE'),
+                ('SPAN', (2, 0), (10, 0)),  # label n. catalogo generale
+                ('SPAN', (11, 0), (17, 0)),  # label n. catalogo internazionale
+                ('VALIGN', (2, 0), (12,1), 'TOP'),
 
                 # 1 row
-                ('SPAN', (2, 1), (6, 1)),  # n. catalogo generale
-                ('SPAN', (7, 1), (12, 1)),  # catalogo internazionale
-                ('SPAN', (13, 1), (17, 1)),
-                ('SPAN', (13, 0), (17, 0)),  # logo
-                ('ALIGN', (13, 0), (17, 0), 'CENTER'),
-                ('VALIGN', (13, 0), (17, 0), 'MIDDLE'),
+                ('SPAN', (2, 1), (10, 1)),  # n. catalogo generale
+                ('SPAN', (11, 1), (17, 1)),  # catalogo internazionale
+                ('VALIGN', (2, 0), (17, 1), 'TOP'),
 
-                # 2-3 row
-                ('SPAN', (0, 2), (4, 3)),  # sito
-                ('SPAN', (5, 2), (5, 3)),  # anno di scavo
-                ('SPAN', (6, 2), (6, 3)),  # area
-                ('SPAN', (7, 2), (8, 3)),  # settore
-                ('SPAN', (9, 2), (10, 3)),  # quadrato
-                ('SPAN', (11, 2), (13, 3)),  # quote
-                ('SPAN', (14, 2), (17, 2)),  # label unita stratigrafica
-                ('SPAN', (14, 3), (15, 3)),  # label NAT
-                ('SPAN', (16, 3), (17, 3)),  # label ART
-                #('VALIGN', (0, 2), (17, 3), 'TOP'),
+                # 2 row
+                ('SPAN', (0, 2), (17, 2)),  # sito
+                
+                ('VALIGN', (0, 2), (17, 2), 'TOP'),
+
+                # 3 row
+                ('SPAN', (0, 3), (10, 3)),  # piante
+                ('SPAN', (11, 3), (17, 3)),  # sezioni
+                ('VALIGN', (0, 3), (17, 3), 'TOP'),
 
                 # 4 row
-                ('SPAN', (0, 4), (2, 4)),  # piante
-                ('SPAN', (3, 4), (5, 4)),  # sezioni
-                ('SPAN', (6, 4), (8, 4)),  # prospetti
-                ('SPAN', (9, 4), (13, 4)),  # foto
-                ('SPAN', (14, 4), (17, 4)),  # tabelle materiali
-                #('VALIGN', (0, 4), (17, 4), 'TOP'),
+                ('SPAN', (0, 4), (3, 4)),  # definizione
+                ('SPAN', (4, 4), (6, 4)),  # definizione
+                ('SPAN', (7, 4), (8, 4)),  # definizione
+                ('SPAN', (9, 4), (10, 4)),  # definizione
+                ('SPAN', (11, 4), (13, 4)),  # definizione
+                ('SPAN', (14, 4), (15, 4)),  # definizione
+                ('SPAN', (16, 4), (17, 4)),  # definizione        
+                ('VALIGN', (0, 4), (17, 4), 'TOP'),
 
                 # 5 row
-                ('SPAN', (0, 5), (17, 5)),  # definizione
-                #('VALIGN', (0, 5), (17, 5), 'TOP'),
+                ('SPAN', (0, 5), (1, 5)),  # definizione
+                ('SPAN', (2,5), (3, 5)),  # definizione
+                ('SPAN', (4, 5), (6, 5)),  # definizione
+                ('SPAN', (7, 5), (10, 5)),  # definizione
+                ('SPAN', (11, 5), (17, 5)),  # definizione
+                ('VALIGN', (0, 5), (17, 5), 'TOP'),
 
                 # 6 row
-                ('SPAN', (0, 6), (17, 6)),  # criteri di distinzione
-                #('VALIGN', (0, 6), (17, 6), 'TOP'),
+                ('SPAN', (0, 6), (17, 6)),  # modo di formazione
+                ('VALIGN', (0, 6), (17, 6), 'TOP'),
 
                 # 7 row
-                ('SPAN', (0, 7), (17, 7)),  # modo di formazione
-                #('VALIGN', (0, 7), (17, 7), 'TOP'),
+                ('SPAN', (0, 7), (17, 7)),  # label componenti
+                ('VALIGN', (0, 7), (17, 7), 'TOP'),
 
-                # 8-9 row
-                ('SPAN', (0, 8), (0, 9)),  # label componenti
-                ('SPAN', (1, 8), (5, 9)),  # label geologici
-                ('SPAN', (6, 8), (11, 9)),  # label organici
-                ('SPAN', (12, 8), (17, 9)),  # label artificiali
-                ('SPAN', (1, 9), (5, 9)),  #  geologici
-                ('SPAN', (6, 9), (11, 9)),  #  organici
-                ('SPAN', (12, 9), (17, 9)),  #  artificiali
-                #('VALIGN', (0, 8), (17, 9), 'TOP'),
-
-                # 10 row
-                ('SPAN', (0, 10), (5, 10)),  # consistenza
-                ('SPAN', (6, 10), (11, 10)),  # colore
-                ('SPAN', (12, 10), (17, 10)),  # misure
-                #('VALIGN', (0, 10), (17, 10), 'TOP'),
-
+                # 8 row
+                ('SPAN', (0, 8), (17, 8)),  # consistenza
+                ('VALIGN', (0, 8), (17, 8), 'TOP'),
+                
+                # 9-10 row
+                
+                ('SPAN', (0, 9), (8, 9)),  # consistenza
+                ('SPAN', (9, 9), (17, 9)),  # consistenza
+                ('SPAN', (0, 10), (0, 10)),  # consistenza
+                ('SPAN', (1, 10), (8, 10)),  # consistenza
+                ('SPAN', (9, 10), (17, 10)),  # consistenza
+                ('VALIGN', (0, 9), (17, 10), 'TOP'),
+                
+                
+                
+                
                 # 11 row
-                ('SPAN', (0, 11), (17, 11)),  # stato di conservazione
-                #('VALIGN', (0, 11), (17, 11), 'TOP'),
+                ('SPAN', (0, 11), (5, 11)),  # stato di conservazione
+                ('SPAN', (6, 11), (11, 11)),  # stato di conservazione
+                ('SPAN', (12, 11), (17, 11)),  # stato di conservazione
+                ('VALIGN', (0, 11), (17, 11), 'TOP'),
 
                 # 12 row
                 ('SPAN', (0, 12), (17, 12)),  # descrizione
-                #('VALIGN', (0, 12), (17, 12), 'TOP'),
+                ('VALIGN', (0, 12), (17, 12), 'TOP'),
 
                 # 13-22 row
                 ('SPAN', (0, 13), (5, 14)),    # uguale a
@@ -1762,52 +1816,65 @@ class single_US_pdf_sheet(object):
                 ('SPAN', (12, 13), (12, 22)),  # label sequenza stratigrafica
                 ('SPAN', (13, 13), (17, 17)),  # posteriore a
                 ('SPAN', (13, 18), (17, 22)),  # uguale a
-                #('VALIGN', (0, 13), (17, 22), 'TOP'),
+                ('VALIGN', (0, 13), (17, 22), 'TOP'),
 
                 # 23 row
-                ('SPAN', (0, 23), (17, 23)),  # osservazioni
-                #('VALIGN', (0, 23), (17, 23), 'TOP'),
+                ('SPAN', (0, 23), (17, 23)),  # DESCRIZIONE
+                ('VALIGN', (0, 23), (17, 23), 'TOP'),
 
                 # 24 row
-                ('SPAN', (0, 24), (17, 24)),  # interpretazione
-                #('VALIGN', (0, 24), (17, 24), 'TOP'),
+                ('SPAN', (0, 24), (17, 24)),  # OSSERVAZIONI
+                ('VALIGN', (0, 24), (17, 24), 'TOP'),
 
                 # 25 row
 
-                ('SPAN', (0, 25), (17, 25)),  # elementi datanti
-                #('VALIGN', (0, 25), (17, 25), 'TOP'),
+                ('SPAN', (0, 25), (17, 25)),  # INTERPRETAZIONI
+                ('VALIGN', (0, 25), (17, 25), 'TOP'),
 
                 #26 row
 
-                ('SPAN', (0, 26), (8, 26)),  # datazione
-                ('SPAN', (9, 26), (17, 26)),  # periodo o fase
-                #('VALIGN', (0, 26), (17, 26), 'TOP'),
+                ('SPAN', (0, 26), (5, 26)),  # datazione
+                ('SPAN', (6, 26), (11, 26)),  # periodo o fase
+                ('SPAN', (12, 26), (17, 26)),  # ATTIVITA
+                ('VALIGN', (0, 26), (17, 26), 'TOP'),
 
-                #27 row
+                # #27 row
 
-                ('SPAN', (0, 27), (17, 27)),  # dati quantitativi dei reperti
-                #('VALIGN', (0, 27), (17, 27), 'TOP'),
+                ('SPAN', (0, 27), (17, 27)),  # elementi datanti
+                ('VALIGN', (0, 27), (17, 27), 'TOP'),
 
+                ('SPAN', (0, 28), (17, 28)),  # elementi datanti
+                ('VALIGN', (0, 28), (17, 28), 'TOP'),
+                
                 #28 row
-                ('SPAN', (0, 28), (5, 28)),  # campionature
-                ('SPAN', (6, 28), (11, 28)),  # flottazione
-                ('SPAN', (12, 28), (17, 28)),  # setacciatura
-                #('VALIGN', (0, 28), (17, 28), 'TOP'),
+                ('SPAN', (0, 29), (5, 29)),  # campionature
+                ('SPAN', (6, 29), (11, 29)),  # flottazione
+                ('SPAN', (12, 29), (17, 29)),  # setacciatura
+                ('VALIGN', (0, 29), (17, 29), 'TOP'),
 
                 #29 row
-                ('SPAN', (0, 29), (5, 29)),  # affidabilita stratigrafica
-                ('SPAN', (6, 29), (11, 29)),  # direttore
-                ('SPAN', (12, 29), (17, 29)),  # responsabile
-                #('VALIGN', (0, 29), (17, 29), 'TOP'),
+                ('SPAN', (0, 30), (17, 30)),  # affidabilita stratigrafica
+                
+                ('VALIGN', (0, 30), (17, 30), 'TOP'),
 
-                ('VALIGN', (0, 2), (17, 29), 'TOP'),
+                ('SPAN', (0, 31), (17, 31)),  # affidabilita stratigrafica
+                ('VALIGN', (0, 31), (17, 31), 'TOP'),
+                
+                ('SPAN', (0, 32), (8, 32)),  # affidabilita stratigrafica
+                ('SPAN', (9, 32), (17, 32)),  # affidabilita stratigrafica
+                ('VALIGN', (0, 32), (17, 32), 'TOP'),
+                
+                ('SPAN', (0, 33), (8, 33)),  # affidabilita stratigrafica
+                ('SPAN', (9, 33), (17, 33)),  # affidabilita stratigrafica
+                ('VALIGN', (0, 33), (17, 33), 'TOP'),               
             ]
 
             colWidths = (15,30,30,30,30,30,30,30,30,30,30,30,20,30,30,30,30,30)
             rowHeights = None
-
+            
             t = Table(cell_schema, colWidths=colWidths, rowHeights=rowHeights, style=table_style)
-
+            lst.append(logo)
+            
             return t
         elif str(self.unita_tipo)=='USM':
             unita_tipo = Paragraph(str(self.unita_tipo), styUnitaTipo)
@@ -2211,15 +2278,7 @@ class single_US_pdf_sheet(object):
 
         #format labels
 
-        #0-1 row Unita tipo, logo, n. catalogo generale, n. catalogo internazionale
-        home = os.environ['PYARCHINIT_HOME']
-
-        home_DB_path = '{}{}{}'.format(home, os.sep, 'pyarchinit_DB_folder')
-        logo_path = '{}{}{}'.format(home_DB_path, os.sep, 'logo.jpg')
-        logo = Image(logo_path)
-
-        logo.drawHeight = 1.5 * inch * logo.drawHeight / logo.drawWidth
-        logo.drawWidth = 1.5 * inch
+        
 
         unita_tipo = Paragraph(str(self.unita_tipo), styUnitaTipo)
         label_catalogo_generale = Paragraph("<b>N. GENERAL CATALOG</b>", styNormal)
@@ -2392,7 +2451,7 @@ class single_US_pdf_sheet(object):
 
         # table style
         table_style = [
-            ('GRID', (0, 0), (-1, -1), 0.5, colors.black),
+            ('GRID', (0, 0), (-1, -1), 0.2, colors.black),
             # 0 row
 
             ('SPAN', (0, 0), (1, 1)),  # unita tipo
@@ -2520,7 +2579,8 @@ class single_US_pdf_sheet(object):
 
             ('VALIGN', (0, 2), (17, 29), 'TOP'),
         ]
-
+        
+        
         colWidths = (15,30,30,30,30,30,30,30,30,30,30,30,20,30,30,30,30,30)
         rowHeights = None
 
@@ -2571,15 +2631,7 @@ class single_US_pdf_sheet(object):
 
         #format labels
 
-        #0-1 row Unita tipo, logo, n. catalogo generale, n. catalogo internazionale
-        home = os.environ['PYARCHINIT_HOME']
-
-        home_DB_path = '{}{}{}'.format(home, os.sep, 'pyarchinit_DB_folder')
-        logo_path = '{}{}{}'.format(home_DB_path, os.sep, 'logo_de.jpg')
-        logo = Image(logo_path)
-
-        logo.drawHeight = 1.5 * inch * logo.drawHeight / logo.drawWidth
-        logo.drawWidth = 1.5 * inch
+       
 
         unita_tipo = Paragraph(str(self.unita_tipo), styUnitaTipo)
         label_catalogo_generale = Paragraph("<b>ALLGEMEINE KATALOGNUMMER</b>", styNormal)
@@ -3405,27 +3457,33 @@ class generate_US_pdf(object):
         return today
 
     def build_US_sheets(self, records):
+        home = os.environ['PYARCHINIT_HOME']
 
-        # elements_us_pyarchinit = []
-        # for i in range(len(records)):
-            # single_us_sheet = single_US_pdf_sheet(records[i])
-            # elements_us_pyarchinit.append(single_us_sheet.create_sheet())                       #prima versione scheda US
-            # elements_us_pyarchinit.append(PageBreak())                                          #prima versione scheda US
-
-        # elements_ususm_pyarchinit = []
-        # for i in range(len(records)):
-            # single_us_sheet = single_US_pdf_sheet(records[i])
-            # elements_ususm_pyarchinit.append(single_us_sheet.create_sheet_archeo3_usm_fields()) #seconda versione scheda US con USM
-            # elements_ususm_pyarchinit.append(PageBreak())                                       #seconda versione scheda US con USM
-
+        home_DB_path = '{}{}{}'.format(home, os.sep, 'pyarchinit_DB_folder')
+        logo_path = '{}{}{}'.format(home_DB_path, os.sep, 'logo.jpg')
+        logo_path2 = '{}{}{}'.format(home_DB_path, os.sep, 'logo_2.png')
+        logo = Image(logo_path)
+        logo.drawHeight = 2.5 * inch * logo.drawHeight / logo.drawWidth
+        logo.drawWidth = 2.5 * inch
+        logo.hAlign = "CENTER"
+        
         elements_us_iccd = []
         for i in range(len(records)):
             single_us_sheet = single_US_pdf_sheet(records[i])
-            elements_us_iccd.append(single_us_sheet.create_sheet_archeo3_usm_fields_2())        #terza versione scheda US SENZA CAMPI US formato Ministeriale ICCD
-            elements_us_iccd.append(PageBreak())                                                #terza versione scheda US SENZA CAMPI US formato Ministeriale ICCD
-
+            elements_us_iccd.append(logo)
+            elements_us_iccd.append(Spacer(4, 6))
+            elements_us_iccd.append(single_us_sheet.create_sheet_archeo3_usm_fields_2()) 
+            
+            elements_us_iccd.append(PageBreak())
+            
+            
+            #terza versione scheda US SENZA CAMPI US formato Ministeriale ICCD
+            
+            
         dt = datetime.datetime.now()
-
+        
+        
+        
         #us
         # filename = ('%s%s%s_%s_%s_%s_%s_%s_%s%s') % (
         # self.PDF_path, os.sep, 'scheda_US', dt.day, dt.month, dt.year, dt.hour, dt.minute, dt.second, ".pdf")
@@ -3451,7 +3509,8 @@ class generate_US_pdf(object):
         self.PDF_path, os.sep, 'scheda_USICCD', dt.day, dt.month, dt.year, dt.hour, dt.minute, dt.second, ".pdf")
         f = open(filename, "wb")
 
-        doc = SimpleDocTemplate(f, pagesize=A4)
+        doc = SimpleDocTemplate(f, pagesize=(21 * cm, 29 * cm),  topMargin=10, bottomMargin=20,
+                                leftMargin=10, rightMargin=10)
         doc.build(elements_us_iccd, canvasmaker=NumberedCanvas_USsheet)
 
         f.close()
@@ -3459,7 +3518,15 @@ class generate_US_pdf(object):
     
     
     def build_US_sheets_en(self, records):
+        home = os.environ['PYARCHINIT_HOME']
 
+        home_DB_path = '{}{}{}'.format(home, os.sep, 'pyarchinit_DB_folder')
+        logo_path = '{}{}{}'.format(home_DB_path, os.sep, 'logo.jpg')
+        logo_path2 = '{}{}{}'.format(home_DB_path, os.sep, 'logo_2.png')
+        logo = Image(logo_path)
+        logo.drawHeight = 1.5 * inch * logo.drawHeight / logo.drawWidth
+        logo.drawWidth = 1.5 * inch
+        logo.hAlign = "CENTER"
         elements = []
         for i in range(len(records)):
             single_us_sheet = single_US_pdf_sheet(records[i])
@@ -3467,7 +3534,9 @@ class generate_US_pdf(object):
             #elements.append(PageBreak())
             #elements.append(single_us_sheet.create_sheet_archeo3_usm_fields())
             #elements.append(PageBreak())
+            
             elements.append(single_us_sheet.create_sheet_en())
+            elements.append(logo)
             elements.append(PageBreak())
 
         dt = datetime.datetime.now()

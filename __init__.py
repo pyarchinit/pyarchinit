@@ -42,8 +42,11 @@ else:
     os.environ['PYARCHINIT_HOME'] = pyarchinit_home
 
 confing_path = os.path.join(os.sep, pyarchinit_home, 'pyarchinit_DB_folder', 'config.cfg')
+logo_iccd = os.path.join(os.sep, pyarchinit_home, 'pyarchinit_DB_folder', 'logo.jpg')
 if not os.path.isfile(confing_path):
     fi.installConfigFile(os.path.dirname(confing_path))
+
+fi.installConfigFile(os.path.dirname(logo_iccd))
 
 missing_libraries = []
 try:

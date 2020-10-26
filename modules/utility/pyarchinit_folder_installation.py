@@ -20,7 +20,7 @@
 
 import os
 from os.path import expanduser
-
+import shutil
 from builtins import object
 from builtins import str
 
@@ -44,10 +44,13 @@ class pyarchinit_Folder_installation(object):
         db_copy_from_path_rel = os.path.join(os.sep, 'dbfiles', 'pyarchinit_db.sqlite')
         db_copy_from_path = '{}{}'.format(self.RESOURCES_PATH, db_copy_from_path_rel)
         db_copy_to_path = '{}{}{}'.format(home_DB_path, os.sep, 'pyarchinit_db.sqlite')
-
+        
         logo_copy_from_path_rel = os.path.join(os.sep, 'dbfiles', 'logo.jpg')
         logo_copy_from_path = '{}{}'.format(self.RESOURCES_PATH, logo_copy_from_path_rel)
-        logo_copy_to_path = '{}{}{}'.format(home_DB_path, os.sep, 'logo.jpg')
+        logo_copy_to_path = '{}{}{}'.format(path, os.sep, 'logo.jpg')
+        
+        
+       
         
         logo_copy_from_path_rel_adarte = os.path.join(os.sep, 'dbfiles', 'logo_2.png')
         logo_copy_from_path_adarte = '{}{}'.format(self.RESOURCES_PATH, logo_copy_from_path_rel_adarte)
@@ -97,24 +100,30 @@ class pyarchinit_Folder_installation(object):
         home_R_export_path = '{}{}{}'.format(self.HOME, os.sep, 'pyarchinit_R_export')
         self.OS_UTILITY.create_dir(home_image_export_path)
     def installConfigFile(self, path):
+        
         config_copy_from_path_rel = os.path.join(os.sep, 'dbfiles', 'config.cfg')
         config_copy_from_path = '{}{}'.format(self.RESOURCES_PATH, config_copy_from_path_rel)
         config_copy_to_path = '{}{}{}'.format(path, os.sep, 'config.cfg')
         self.OS_UTILITY.copy_file(config_copy_from_path, config_copy_to_path)
 
         #added by pyarchinit test for logo re-installation
+        #added by pyarchinit test for logo re-installation
+        
         logo_copy_from_path_rel = os.path.join(os.sep, 'dbfiles', 'logo.jpg')
         logo_copy_from_path = '{}{}'.format(self.RESOURCES_PATH, logo_copy_from_path_rel)
         logo_copy_to_path = '{}{}{}'.format(path, os.sep, 'logo.jpg')
+        
         self.OS_UTILITY.copy_file(logo_copy_from_path, logo_copy_to_path)
         
         logo_copy_from_path_rel_adarte = os.path.join(os.sep, 'dbfiles', 'logo_2.png')
         logo_copy_from_path_adarte = '{}{}'.format(self.RESOURCES_PATH, logo_copy_from_path_rel_adarte)
         logo_copy_to_path_adarte = '{}{}{}'.format(path, os.sep, 'logo_2.png')
+        
         self.OS_UTILITY.copy_file(logo_copy_from_path_adarte, logo_copy_to_path_adarte)
         
         
         logo_copy_from_path_rel_de = os.path.join(os.sep, 'dbfiles', 'logo_de.jpg')
         logo_copy_from_path_de = '{}{}'.format(self.RESOURCES_PATH, logo_copy_from_path_rel_de)
         logo_copy_to_path_de = '{}{}{}'.format(path, os.sep, 'logo_de.jpg')
+        
         self.OS_UTILITY.copy_file(logo_copy_from_path_de, logo_copy_to_path_de)

@@ -42,10 +42,10 @@ class Pyarchinit_OS_Utility(object):
                 raise
 
     def copy_file_img(self, f, d):
-        file_path = f
-        destination = d
+        file_path = os.path.normpath(f)
+        destination = os.path.normpath(d)
         shutil.copy(file_path, destination)
-
+        return 0
     def copy_file(self, f, d):
         file_path = os.path.normpath(f)
         destination = os.path.normpath(d)
