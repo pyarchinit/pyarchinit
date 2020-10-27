@@ -216,7 +216,21 @@ class Pyarchinit_db_management(object):
                 arg[92],
                 arg[93],
                 arg[94],
-                arg[95]
+                arg[95],
+                arg[96],
+                arg[97],
+                arg[98],
+                arg[99],
+                arg[100],
+                arg[101],
+                arg[102],
+                arg[103],
+                arg[104],
+                arg[105],
+                arg[106],
+                arg[107],
+                arg[108],
+                arg[109],
                 )
 
         return us

@@ -660,12 +660,12 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
         'ambient',
         'saggio',
         'elem_datanti',
-        'funz_statica',
+        #'funz_statica',
         'lavorazione',
         'spess_giunti',
         'letti_posa',
         'alt_mod',
-        'un_ed_riass',
+        #'un_ed_riass',
         'reimp',
         'posa_opera',
         'quota_min_usm',
@@ -720,7 +720,22 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
         'campioni_pietra_usm',  # 92
         'provenienza_materiali_usm',  # 93
         'criteri_distinzione_usm',  # 94
-        'uso_primario_usm'  # 95
+        'uso_primario_usm',
+        #####nuovi campi per usm#######
+        'tipologia_opera',
+        'sezione_muraria',
+        'superficie_analizzata',
+        'orientamento',
+        'materiali_lat',
+        'lavorazione_lat',
+        'consistenza_lat',
+        'forma_lat',
+        'colore_lat',
+        'impasto_lat',
+        'forma_p',
+        'colore_p',
+        'taglio_p',
+        'posa_opera_p',
 
     ]
     
@@ -2120,24 +2135,24 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
         d_interpretativa_vl.sort()
         self.comboBox_def_intepret.addItems(d_interpretativa_vl)
 
-        # lista funzione statica
+        # # lista funzione statica
 
-        self.comboBox_funz_statica_usm.clear()
-        search_dict = {
-            'lingua': lang,
-            'nome_tabella': "'" + 'us_table' + "'",
-            'tipologia_sigla': "'" + '2.5' + "'"
-        }
+        # self.comboBox_funz_statica_usm.clear()
+        # search_dict = {
+            # 'lingua': lang,
+            # 'nome_tabella': "'" + 'us_table' + "'",
+            # 'tipologia_sigla': "'" + '2.5' + "'"
+        # }
 
-        funz_statica = self.DB_MANAGER.query_bool(search_dict, 'PYARCHINIT_THESAURUS_SIGLE')
-        funz_statica_vl = []
+        # funz_statica = self.DB_MANAGER.query_bool(search_dict, 'PYARCHINIT_THESAURUS_SIGLE')
+        # funz_statica_vl = []
 
-        for i in range(len(funz_statica)):
-            if funz_statica[i].sigla_estesa not in funz_statica_vl:
-                funz_statica_vl.append(funz_statica[i].sigla_estesa)
+        # for i in range(len(funz_statica)):
+            # if funz_statica[i].sigla_estesa not in funz_statica_vl:
+                # funz_statica_vl.append(funz_statica[i].sigla_estesa)
 
-        funz_statica_vl.sort()
-        self.comboBox_funz_statica_usm.addItems(funz_statica_vl)
+        # funz_statica_vl.sort()
+        #self.comboBox_funz_statica_usm.addItems(funz_statica_vl)
 
         #lista consistenza legante usm
 
@@ -2350,7 +2365,80 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
         responsabile_us_vl.sort()
         self.comboBox_responsabile_us.addItems(responsabile_us_vl)
         
+        # lista tipologia_opera
+        self.comboBox_tipologia_opera.clear()
+        search_dict = {
+            'lingua': lang,
+            'nome_tabella': "'" + 'us_table' + "'",
+            'tipologia_sigla': "'" + '2.19' + "'"
+        }
+
+        tipologia_opera = self.DB_MANAGER.query_bool(search_dict, 'PYARCHINIT_THESAURUS_SIGLE')
+        tipologia_opera_us_vl = []
+
+        for i in range(len(tipologia_opera)):
+            if tipologia_opera[i].sigla_estesa not in tipologia_opera_us_vl:
+                tipologia_opera_us_vl.append(tipologia_opera[i].sigla_estesa)
+
+        tipologia_opera_us_vl.sort()
+        self.comboBox_tipologia_opera.addItems(tipologia_opera_us_vl)
+    
+        # # lista sezione muraria
+        # self.comboBox_unita_edilizia_riassuntiva_usm.clear()
+        # search_dict = {
+            # 'lingua': lang,
+            # 'nome_tabella': "'" + 'us_table' + "'",
+            # 'tipologia_sigla': "'" + '2.20' + "'"
+        # }
+
+        # sezione_muraria = self.DB_MANAGER.query_bool(search_dict, 'PYARCHINIT_THESAURUS_SIGLE')
+        # sezione_muraria_us_vl = []
+
+        # for i in range(len(sezione_muraria)):
+            # if sezione_muraria[i].sigla_estesa not in sezione_muraria_us_vl:
+                # sezione_muraria_us_vl.append(sezione_muraria[i].sigla_estesa)
+
+        # sezione_muraria_us_vl.sort()
+        # self.comboBox_unita_edilizia_riassuntiva_usm.addItems(sezione_muraria_us_vl)
+    
+        # # lista superficie_analizzata
+        # self.comboBox_unita_edilizia_riassuntiva_usm.clear()
+        # search_dict = {
+            # 'lingua': lang,
+            # 'nome_tabella': "'" + 'us_table' + "'",
+            # 'tipologia_sigla': "'" + '2.21' + "'"
+        # }
+
+        # sezione_muraria = self.DB_MANAGER.query_bool(search_dict, 'PYARCHINIT_THESAURUS_SIGLE')
+        # sezione_muraria_us_vl = []
+
+        # for i in range(len(sezione_muraria)):
+            # if sezione_muraria[i].sigla_estesa not in sezione_muraria_us_vl:
+                # sezione_muraria_us_vl.append(sezione_muraria[i].sigla_estesa)
+
+        # sezione_muraria_us_vl.sort()
+        # self.comboBox_unita_edilizia_riassuntiva_usm.addItems(sezione_muraria_us_vl)
+    
+        # lista orientamento
+        self.comboBox_orientamento.clear()
+        search_dict = {
+            'lingua': lang,
+            'nome_tabella': "'" + 'us_table' + "'",
+            'tipologia_sigla': "'" + '2.22' + "'"
+        }
+
+        orientamento = self.DB_MANAGER.query_bool(search_dict, 'PYARCHINIT_THESAURUS_SIGLE')
+        orientamento_us_vl = []
+
+        for i in range(len(orientamento)):
+            if orientamento[i].sigla_estesa not in orientamento_us_vl:
+                orientamento_us_vl.append(orientamento[i].sigla_estesa)
+
+        orientamento_us_vl.sort()
+        self.comboBox_orientamento.addItems(orientamento_us_vl)
+    
         
+    
     def msg_sito(self):
         #self.model_a.database().close()
         conn = Connection()
@@ -2649,12 +2737,12 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
                 str(self.DATA_LIST[i].ambient),  # 32 ambiente
                 str(self.DATA_LIST[i].saggio),  # 33 saggio
                 str(self.DATA_LIST[i].elem_datanti),  # 34 - elem_datanti
-                str(self.DATA_LIST[i].funz_statica),  # 35 - funz_statica
+                #str(self.DATA_LIST[i].funz_statica),  # 35 - funz_statica
                 str(self.DATA_LIST[i].lavorazione),  # 36 lavorazione
                 str(self.DATA_LIST[i].spess_giunti),  # 37 spess_giunti
                 str(self.DATA_LIST[i].letti_posa),            #38 letti posa
                 str(self.DATA_LIST[i].alt_mod),               #39  al modulo
-                str(self.DATA_LIST[i].un_ed_riass),           #40 unita edilizia riassuntiva
+                #str(self.DATA_LIST[i].un_ed_riass),           #40 unita edilizia riassuntiva
                 str(self.DATA_LIST[i].reimp),                 #41 reimpiego
                 str(self.DATA_LIST[i].posa_opera),            #42 posa opera
                 str(quota_min_usm),                           #43 quota min usm
@@ -2712,7 +2800,20 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
                 str(self.DATA_LIST[i].provenienza_materiali_usm),  # 93 provenienza_materiali_usm
                 str(self.DATA_LIST[i].criteri_distinzione_usm),  # 94 criteri distinzione usm
                 str(self.DATA_LIST[i].uso_primario_usm),  #95 uso primario
-               
+                
+                str(self.DATA_LIST[i].tipologia_opera),
+                str(self.DATA_LIST[i].sezione_muraria),
+                str(self.DATA_LIST[i].orientamento),
+                str(self.DATA_LIST[i].materiali_lat),
+                str(self.DATA_LIST[i].lavorazione_lat),
+                str(self.DATA_LIST[i].consistenza_lat),
+                str(self.DATA_LIST[i].forma_lat),
+                str(self.DATA_LIST[i].colore_lat),
+                str(self.DATA_LIST[i].impasto_lat),
+                str(self.DATA_LIST[i].forma_p),
+                str(self.DATA_LIST[i].colore_p),
+                str(self.DATA_LIST[i].taglio_p),
+                str(self.DATA_LIST[i].posa_opera_p)
             ])
         return data_list
        
@@ -4279,12 +4380,12 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
                 str(self.lineEdit_ambiente.text()),  # 32 ambiente
                 str(self.lineEdit_saggio.text()),  # 33 saggio
                 str(self.textEdit_elementi_datanti.toPlainText()),  # 34 elementi datanti
-                str(self.comboBox_funz_statica_usm.currentText()),  # 35 funzione statica
+                #str(self.comboBox_funz_statica_usm.currentText()),  # 35 funzione statica
                 str(self.comboBox_lavorazione_usm.currentText()),  # 36 lavorazione usm
                 str(self.lineEdit_spessore_giunti_usm.text()),  # 37 spessore giunti
                 str(self.lineEdit_letti_di_posa_giunti_usm.text()),  # 38 letti posa giunti usm
                 str(self.lineEdit_h_modulo_c_corsi_usm.text()),  # 39 altezza modulo corsi usm
-                str(self.comboBox_unita_edilizia_riassuntiva_usm.currentText()),  # 40 unita edilizia riassuntiva
+                #str(self.comboBox_unita_edilizia_riassuntiva_usm.currentText()),  # 40 unita edilizia riassuntiva
                 str(self.comboBox_reimpiego_usm.currentText()),  # 41 unita edilizia riassuntiva
                 str(self.comboBox_posa_in_opera_usm.currentText()),  # 42 posa in opera
                 qmin_usm,  # 43 quota minima
@@ -4339,8 +4440,23 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
                 str(self.lineEdit_campioni_pietra_usm.text()),  # 92 campioni pietra usm
                 str(self.lineEdit_provenienza_materiali_usm.text()),  # 93 provenienza_materiali_usm
                 str(self.lineEdit_criteri_distinzione_usm.text()),  # 94 criteri distinzione usm
-                str(self.comboBox_uso_primario_usm.currentText())  # 95 uso primario usm
-            )
+                str(self.comboBox_uso_primario_usm.currentText()),
+                
+                str(self.comboBox_tipologia_opera.currentText()),
+                str(self.comboBox_sezione_muraria.currentText()),
+                str(self.comboBox_superficie_analizzata.currentText()),
+                str(self.comboBox_orientamento.currentText()),
+                str(self.comboBox_materiali_lat.currentText()),
+                str(self.comboBox_lavorazione_lat.currentText()),
+                str(self.comboBox_consistenza_lat.currentText()),
+                str(self.comboBox_forma_lat.currentText()),
+                str(self.comboBox_colore_lat.currentText()),
+                str(self.comboBox_impasto_lat.currentText()),
+                str(self.comboBox_forma_p.currentText()),
+                str(self.comboBox_colore_p.currentText()),
+                str(self.comboBox_taglio_p.currentText()),
+                str(self.comboBox_posa_opera_p.currentText()),
+                )
 
             # todelete
             # f = open("C:\\Users\\Luca\\pyarchinit_Report_folder\\data_insert_list.txt", "w")
@@ -4884,72 +5000,85 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
                 self.TABLE_FIELDS[31]: "'" + str(self.lineEdit_ambiente.text()) + "'",  # 30 quadrato
                 self.TABLE_FIELDS[32]: "'" + str(self.lineEdit_saggio.text()) + "'",  # 30 quadrato
                 self.TABLE_FIELDS[33]: str(self.textEdit_elementi_datanti.toPlainText()),  # 6 - descrizione
-                self.TABLE_FIELDS[34]: "'" + str(self.comboBox_funz_statica_usm.currentText()) + "'",
+                #self.TABLE_FIELDS[34]: "'" + str(self.comboBox_funz_statica_usm.currentText()) + "'",
                 # 24 - order layer
-                self.TABLE_FIELDS[35]: "'" + str(self.comboBox_lavorazione_usm.currentText()) + "'",  # 30 quadrato
-                self.TABLE_FIELDS[36]: "'" + str(self.lineEdit_spessore_giunti_usm.text()) + "'",  # 30 quadrato
-                self.TABLE_FIELDS[37]: "'" + str(self.lineEdit_letti_di_posa_giunti_usm.text()) + "'",
-                self.TABLE_FIELDS[38]: "'" + str(self.lineEdit_h_modulo_c_corsi_usm.text()) + "'",
-                self.TABLE_FIELDS[39]: "'" + str(self.comboBox_unita_edilizia_riassuntiva_usm.currentText()) + "'",
-                self.TABLE_FIELDS[40]: "'" + str(self.comboBox_reimpiego_usm.currentText()) + "'",
-                self.TABLE_FIELDS[41]: "'" + str(self.comboBox_posa_in_opera_usm.currentText()) + "'",
-                self.TABLE_FIELDS[42]: qmin_usm,
-                self.TABLE_FIELDS[43]: qmax_usm,
-                self.TABLE_FIELDS[44]: "'" + str(self.comboBox_consistenza_legante_usm.currentText()) + "'",
-                self.TABLE_FIELDS[50]: "'" + str(self.lineEdit_n_catalogo_generale.text()) + "'",
+                self.TABLE_FIELDS[34]: "'" + str(self.comboBox_lavorazione_usm.currentText()) + "'",  # 30 quadrato
+                self.TABLE_FIELDS[35]: "'" + str(self.lineEdit_spessore_giunti_usm.text()) + "'",  # 30 quadrato
+                self.TABLE_FIELDS[36]: "'" + str(self.lineEdit_letti_di_posa_giunti_usm.text()) + "'",
+                self.TABLE_FIELDS[37]: "'" + str(self.lineEdit_h_modulo_c_corsi_usm.text()) + "'",
+                #self.TABLE_FIELDS[39]: "'" + str(self.comboBox_unita_edilizia_riassuntiva_usm.currentText()) + "'",
+                self.TABLE_FIELDS[39]: "'" + str(self.comboBox_reimpiego_usm.currentText()) + "'",
+                self.TABLE_FIELDS[40]: "'" + str(self.comboBox_posa_in_opera_usm.currentText()) + "'",
+                self.TABLE_FIELDS[41]: qmin_usm,
+                self.TABLE_FIELDS[42]: qmax_usm,
+                self.TABLE_FIELDS[43]: "'" + str(self.comboBox_consistenza_legante_usm.currentText()) + "'",
+                self.TABLE_FIELDS[49]: "'" + str(self.lineEdit_n_catalogo_generale.text()) + "'",
             # 51 nr catalogo generale campi aggiunti per archeo 3.0 e allineamento ICCD
-                self.TABLE_FIELDS[51]: "'" + str(self.lineEdit_n_catalogo_interno.text()) + "'",
+                self.TABLE_FIELDS[50]: "'" + str(self.lineEdit_n_catalogo_interno.text()) + "'",
             # 52 nr catalogo interno
-                self.TABLE_FIELDS[52]: "'" + str(self.lineEdit_n_catalogo_internazionale.text()) + "'",
+                self.TABLE_FIELDS[51]: "'" + str(self.lineEdit_n_catalogo_internazionale.text()) + "'",
             # 53 nr catalogo internazionale
-                self.TABLE_FIELDS[53]: "'" + str(self.comboBox_soprintendenza.currentText()) + "'",
+                self.TABLE_FIELDS[52]: "'" + str(self.comboBox_soprintendenza.currentText()) + "'",
             # 54 nr soprintendenza
-                self.TABLE_FIELDS[54]:  quota_relativa,  # 55 quota relativa
-                self.TABLE_FIELDS[55]:  quota_abs,  # 56 quota abs
-                self.TABLE_FIELDS[56]: "'" + str(self.lineEdit_ref_tm.text()) + "'",  # 57 ref tm
-                self.TABLE_FIELDS[57]: "'" + str(self.comboBox_ref_ra.currentText()) + "'",  # 58 ref ra
-                self.TABLE_FIELDS[58]: "'" + str(self.lineEdit_ref_n.text()) + "'",  # 59 ref n
-                self.TABLE_FIELDS[59]: "'" + str(self.comboBox_posizione.currentText()) + "'",  # 60 posizione
-                self.TABLE_FIELDS[60]: "'" + str(self.lineEdit_criteri_distinzione.text()) + "'",
+                self.TABLE_FIELDS[53]:  quota_relativa,  # 55 quota relativa
+                self.TABLE_FIELDS[54]:  quota_abs,  # 56 quota abs
+                self.TABLE_FIELDS[55]: "'" + str(self.lineEdit_ref_tm.text()) + "'",  # 57 ref tm
+                self.TABLE_FIELDS[56]: "'" + str(self.comboBox_ref_ra.currentText()) + "'",  # 58 ref ra
+                self.TABLE_FIELDS[57]: "'" + str(self.lineEdit_ref_n.text()) + "'",  # 59 ref n
+                self.TABLE_FIELDS[58]: "'" + str(self.comboBox_posizione.currentText()) + "'",  # 60 posizione
+                self.TABLE_FIELDS[59]: "'" + str(self.lineEdit_criteri_distinzione.text()) + "'",
             # 61 criteri distinzione
-                self.TABLE_FIELDS[61]: "'" + str(self.comboBox_modo_formazione.currentText()) + "'",
+                self.TABLE_FIELDS[60]: "'" + str(self.comboBox_modo_formazione.currentText()) + "'",
             # 62 modo formazione
             #    self.TABLE_FIELDS[62]: "'" + str(self.comboBox_componenti_organici.currentText()) + "'",
             # 63 componenti organici
             #    self.TABLE_FIELDS[63]: "'" + str(self.comboBox_componenti_inorganici.currentText()) + "'",
             # 64 componenti inorganici
-                self.TABLE_FIELDS[64]:lunghezza_max,  # 65
-                self.TABLE_FIELDS[65]:altezza_max,  # 66
-                self.TABLE_FIELDS[66]:altezza_min,  # 67
-                self.TABLE_FIELDS[67]:profondita_max,  # 68
-                self.TABLE_FIELDS[68]:profondita_min,  # 69
-                self.TABLE_FIELDS[69]:larghezza_media,  # 70
-                self.TABLE_FIELDS[70]:quota_max_abs,  # 71
-                self.TABLE_FIELDS[71]:quota_max_rel,  # 72
-                self.TABLE_FIELDS[72]:quota_min_abs,  # 73
-                self.TABLE_FIELDS[73]:quota_min_rel,  # 74
-                self.TABLE_FIELDS[74]: "'" + str(self.textEdit_osservazioni.toPlainText()) + "'",  # 75 osservazioni
-                self.TABLE_FIELDS[75]: "'" + str(self.comboBox_datazione.currentText()) + "'",  # 76 datazione
-                self.TABLE_FIELDS[76]: "'" + str(self.lineEdit_flottazione.text()) + "'",  # 77 flottazione
-                self.TABLE_FIELDS[77]: "'" + str(self.lineEdit_setacciatura.text()) + "'",  # 78 setacciatura
-                self.TABLE_FIELDS[78]: "'" + str(self.lineEdit_affidabilita.text()) + "'",  # 79 affidabilita
-                self.TABLE_FIELDS[79]: "'" + str(self.comboBox_direttore_us.currentText()) + "'",  # 80 direttore us
-                self.TABLE_FIELDS[80]: "'" + str(self.comboBox_responsabile_us.currentText()) + "'", # 81 responsabile us
-                self.TABLE_FIELDS[81]: "'" + str(self.lineEdit_cod_ente_schedatore.text()) + "'", # 82 cod ente schedatore
-                self.TABLE_FIELDS[82]: "'" + str(self.lineEdit_data_rilevazione.text()) + "'",  # 83 data rilevazione
-                self.TABLE_FIELDS[83]: "'" + str(self.lineEdit_data_rielaborazione.text()) + "'", # 84 data rielaborazione
-                self.TABLE_FIELDS[84]: lunghezza_usm,  # 85
-                self.TABLE_FIELDS[85]: altezza_usm,  # 86
-                self.TABLE_FIELDS[86]: spessore_usm,  # 87
-                self.TABLE_FIELDS[87]: "'" + str(self.comboBox_tecnica_muraria_usm.currentText()) + "'", # 88 tecnica muraria usm
-                self.TABLE_FIELDS[88]: "'" + str(self.comboBox_modulo_usm.currentText()) + "'", # 89 modulo usm
-                self.TABLE_FIELDS[89]: "'" + str(self.lineEdit_campioni_malta_usm.text()) + "'", # 90 campioni malta usm
-                self.TABLE_FIELDS[90]: "'" + str(self.lineEdit_campioni_mattone_usm.text()) + "'", # 91 campioni mattone usm
-                self.TABLE_FIELDS[91]: "'" + str(self.lineEdit_campioni_pietra_usm.text()) + "'", # 92 campioni pietra usm
-                self.TABLE_FIELDS[92]: "'" + str(self.lineEdit_provenienza_materiali_usm.text()) + "'", # 93 provenienza_materiali_usm
-                self.TABLE_FIELDS[93]: "'" + str(self.lineEdit_criteri_distinzione_usm.text()) + "'", # 94 criteri distinzione usm
-                self.TABLE_FIELDS[94]: "'" + str(self.comboBox_uso_primario_usm.currentText()) + "'"  # 95 uso primario usm
-
+                self.TABLE_FIELDS[62]:lunghezza_max,  # 65
+                self.TABLE_FIELDS[63]:altezza_max,  # 66
+                self.TABLE_FIELDS[64]:altezza_min,  # 67
+                self.TABLE_FIELDS[65]:profondita_max,  # 68
+                self.TABLE_FIELDS[66]:profondita_min,  # 69
+                self.TABLE_FIELDS[67]:larghezza_media,  # 70
+                self.TABLE_FIELDS[68]:quota_max_abs,  # 71
+                self.TABLE_FIELDS[69]:quota_max_rel,  # 72
+                self.TABLE_FIELDS[70]:quota_min_abs,  # 73
+                self.TABLE_FIELDS[71]:quota_min_rel,  # 74
+                self.TABLE_FIELDS[72]: "'" + str(self.textEdit_osservazioni.toPlainText()) + "'",  # 75 osservazioni
+                self.TABLE_FIELDS[73]: "'" + str(self.comboBox_datazione.currentText()) + "'",  # 76 datazione
+                self.TABLE_FIELDS[74]: "'" + str(self.lineEdit_flottazione.text()) + "'",  # 77 flottazione
+                self.TABLE_FIELDS[75]: "'" + str(self.lineEdit_setacciatura.text()) + "'",  # 78 setacciatura
+                self.TABLE_FIELDS[76]: "'" + str(self.lineEdit_affidabilita.text()) + "'",  # 79 affidabilita
+                self.TABLE_FIELDS[77]: "'" + str(self.comboBox_direttore_us.currentText()) + "'",  # 80 direttore us
+                self.TABLE_FIELDS[78]: "'" + str(self.comboBox_responsabile_us.currentText()) + "'", # 81 responsabile us
+                self.TABLE_FIELDS[79]: "'" + str(self.lineEdit_cod_ente_schedatore.text()) + "'", # 82 cod ente schedatore
+                self.TABLE_FIELDS[80]: "'" + str(self.lineEdit_data_rilevazione.text()) + "'",  # 83 data rilevazione
+                self.TABLE_FIELDS[81]: "'" + str(self.lineEdit_data_rielaborazione.text()) + "'", # 84 data rielaborazione
+                self.TABLE_FIELDS[82]: lunghezza_usm,  # 85
+                self.TABLE_FIELDS[83]: altezza_usm,  # 86
+                self.TABLE_FIELDS[84]: spessore_usm,  # 87
+                self.TABLE_FIELDS[85]: "'" + str(self.comboBox_tecnica_muraria_usm.currentText()) + "'", # 88 tecnica muraria usm
+                self.TABLE_FIELDS[86]: "'" + str(self.comboBox_modulo_usm.currentText()) + "'", # 89 modulo usm
+                self.TABLE_FIELDS[87]: "'" + str(self.lineEdit_campioni_malta_usm.text()) + "'", # 90 campioni malta usm
+                self.TABLE_FIELDS[88]: "'" + str(self.lineEdit_campioni_mattone_usm.text()) + "'", # 91 campioni mattone usm
+                self.TABLE_FIELDS[89]: "'" + str(self.lineEdit_campioni_pietra_usm.text()) + "'", # 92 campioni pietra usm
+                self.TABLE_FIELDS[90]: "'" + str(self.lineEdit_provenienza_materiali_usm.text()) + "'", # 93 provenienza_materiali_usm
+                self.TABLE_FIELDS[91]: "'" + str(self.lineEdit_criteri_distinzione_usm.text()) + "'", # 94 criteri distinzione usm
+                self.TABLE_FIELDS[92]: "'" + str(self.comboBox_uso_primario_usm.currentText()) + "'",  # 95 uso primario usm
+                self.TABLE_FIELDS[93]: "'" + str(self.comboBox_tipologia_opera.currentText()) + "'",  # 95 uso primario usm
+                self.TABLE_FIELDS[94]: "'" + str(self.comboBox_sezione_muraria.currentText()) + "'" , # 95 uso primario usm
+                self.TABLE_FIELDS[95]: "'" + str(self.comboBox_superficie_analizzata.currentText()) + "'" , # 95 uso primario usm
+                self.TABLE_FIELDS[96]: "'" + str(self.comboBox_orientamento.currentText()) + "'" , # 95 uso primario usm
+                self.TABLE_FIELDS[97]: "'" + str(self.comboBox_materiali_lat.currentText()) + "'",  # 95 uso primario usm
+                self.TABLE_FIELDS[98]: "'" + str(self.comboBox_lavorazione_lat.currentText()) + "'",  # 95 uso primario usm
+                self.TABLE_FIELDS[99]: "'" + str(self.comboBox_consistenza_lat.currentText()) + "'",  # 95 uso primario usm
+                self.TABLE_FIELDS[100]: "'" + str(self.comboBox_forma_lat.currentText()) + "'" , # 95 uso primario usm
+                self.TABLE_FIELDS[101]: "'" + str(self.comboBox_colore_lat.currentText()) + "'",  # 95 uso primario usm
+                self.TABLE_FIELDS[102]: "'" + str(self.comboBox_impasto_lat.currentText()) + "'", # 95 uso primario usm
+                self.TABLE_FIELDS[103]: "'" + str(self.comboBox_forma_p.currentText()) + "'" , # 95 uso primario usm
+                self.TABLE_FIELDS[104]: "'" + str(self.comboBox_colore_p.currentText()) + "'",  # 95 uso primario usm
+                self.TABLE_FIELDS[105]: "'" + str(self.comboBox_taglio_p.currentText()) + "'" , # 95 uso primario usm
+                self.TABLE_FIELDS[106]: "'" + str(self.comboBox_posa_opera_p.currentText()) + "'",  # 95 uso primario usm
 
             }
 
@@ -5307,12 +5436,12 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
         self.lineEdit_ambiente.clear()  # 32 ambiente
         self.lineEdit_saggio.clear()  # 33 saggio
         self.textEdit_elementi_datanti.clear()  # 34 elementi datanti
-        self.comboBox_funz_statica_usm.setEditText("")  # 35 funzione statica
+        #self.comboBox_funz_statica_usm.setEditText("")  # 35 funzione statica
         self.comboBox_lavorazione_usm.setEditText("")  # 36 lavorazione usm
         self.lineEdit_spessore_giunti_usm.clear()  # 37 spessore giunti
         self.lineEdit_letti_di_posa_giunti_usm.clear()  # 38 letti posa giunti usm
         self.lineEdit_h_modulo_c_corsi_usm.clear()  # 39 altezza modulo corsi usm
-        self.comboBox_unita_edilizia_riassuntiva_usm.setEditText("")  # 40 unita edilizia riassuntiva
+        #self.comboBox_unita_edilizia_riassuntiva_usm.setEditText("")  # 40 unita edilizia riassuntiva
         self.comboBox_reimpiego_usm.setEditText("")  # 41 unita edilizia riassuntiva
         self.comboBox_posa_in_opera_usm.setEditText("")  # 42 posa in opera
         self.lineEdit_qmin_usm.clear()  # 3 - US
@@ -5368,6 +5497,21 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
         self.lineEdit_provenienza_materiali_usm.clear()  # 93 provenienza_materiali_usm
         self.lineEdit_criteri_distinzione_usm.clear()  # 94 criteri distinzione usm
         self.comboBox_uso_primario_usm.setEditText("")  # 95 uso primario usm
+        
+        self.comboBox_tipologia_opera.setEditText("")  # 95 uso primario usm
+        self.comboBox_sezione_muraria.setEditText("")  # 95 uso primario usm
+        self.comboBox_superficie_analizzata.setEditText("")  # 95 uso primario usm
+        self.comboBox_orientamento.setEditText("")  # 95 uso primario usm
+        self.comboBox_materiali_lat.setEditText("")  # 95 uso primario usm
+        self.comboBox_lavorazione_lat.setEditText("")  # 95 uso primario usm
+        self.comboBox_consistenza_lat.setEditText("")  # 95 uso primario usm
+        self.comboBox_forma_lat.setEditText("")  # 95 uso primario usm
+        self.comboBox_colore_lat.setEditText("")  # 95 uso primario usm
+        self.comboBox_impasto_lat.setEditText("")  # 95 uso primario usm
+        self.comboBox_forma_p.setEditText("")  # 95 uso primario usm
+        self.comboBox_colore_p.setEditText("")  # 95 uso primario usm
+        self.comboBox_taglio_p.setEditText("")  # 95 uso primario usm
+        self.comboBox_posa_opera_p.setEditText("")  # 95 uso primario usm
 
 
 
@@ -5424,12 +5568,12 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
             str(self.lineEdit_ambiente.setText(self.DATA_LIST[self.rec_num].ambient))  # 32 ambiente
             str(self.lineEdit_saggio.setText(self.DATA_LIST[self.rec_num].saggio))  # 33 saggio
             str(self.textEdit_elementi_datanti.setText(self.DATA_LIST[self.rec_num].elem_datanti))  # 34 - elemtenti_datanti
-            str(self.comboBox_funz_statica_usm.setEditText(self.DATA_LIST[self.rec_num].funz_statica))  # 35 - funz statica
+            #str(self.comboBox_funz_statica_usm.setEditText(self.DATA_LIST[self.rec_num].funz_statica))  # 35 - funz statica
             str(self.comboBox_lavorazione_usm.setEditText(self.DATA_LIST[self.rec_num].lavorazione))  # 36 lavorazione usm
             str(self.lineEdit_spessore_giunti_usm.setText(self.DATA_LIST[self.rec_num].spess_giunti))  # 37 spessore giunti usm
             str(self.lineEdit_letti_di_posa_giunti_usm.setText(self.DATA_LIST[self.rec_num].letti_posa)) #38 letti_posa
             str(self.lineEdit_h_modulo_c_corsi_usm.setText(self.DATA_LIST[self.rec_num].alt_mod)) #39 altezza modulo corsi
-            str(self.comboBox_unita_edilizia_riassuntiva_usm.setEditText(self.DATA_LIST[self.rec_num].un_ed_riass)) #40 unita edilizia riassuntiva
+            #str(self.comboBox_unita_edilizia_riassuntiva_usm.setEditText(self.DATA_LIST[self.rec_num].un_ed_riass)) #40 unita edilizia riassuntiva
             str(self.comboBox_reimpiego_usm.setEditText(self.DATA_LIST[self.rec_num].reimp))  #41 reimpiego
             str(self.comboBox_posa_in_opera_usm.setEditText(self.DATA_LIST[self.rec_num].posa_opera)) #42 posa opera
 
@@ -5562,7 +5706,20 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
             str(self.lineEdit_provenienza_materiali_usm.setText(self.DATA_LIST[self.rec_num].provenienza_materiali_usm))  # 93 provenienza_materiali_usm
             str(self.lineEdit_criteri_distinzione_usm.setText(self.DATA_LIST[self.rec_num].criteri_distinzione_usm))  # 94 criteri distinzione usm
             str(self.comboBox_uso_primario_usm.setEditText(self.DATA_LIST[self.rec_num].uso_primario_usm))  # 95 uso primario usm
-
+            str(self.comboBox_tipologia_opera.setEditText(self.DATA_LIST[self.rec_num].tipologia_opera)) 
+            str(self.comboBox_sezione_muraria.setEditText(self.DATA_LIST[self.rec_num].sezione_muraria)) 
+            str(self.comboBox_superficie_analizzata.setEditText(self.DATA_LIST[self.rec_num].superficie_analizzata)) 
+            str(self.comboBox_orientamento.setEditText(self.DATA_LIST[self.rec_num].orientamento)) 
+            str(self.comboBox_materiali_lat.setEditText(self.DATA_LIST[self.rec_num].materiali_lat)) 
+            str(self.comboBox_lavorazione_lat.setEditText(self.DATA_LIST[self.rec_num].lavorazione_lat)) 
+            str(self.comboBox_consistenza_lat.setEditText(self.DATA_LIST[self.rec_num].consistenza_lat)) 
+            str(self.comboBox_forma_lat.setEditText(self.DATA_LIST[self.rec_num].forma_lat)) 
+            str(self.comboBox_colore_lat.setEditText(self.DATA_LIST[self.rec_num].colore_lat)) 
+            str(self.comboBox_impasto_lat.setEditText(self.DATA_LIST[self.rec_num].impasto_lat)) 
+            str(self.comboBox_forma_p.setEditText(self.DATA_LIST[self.rec_num].forma_p)) 
+            str(self.comboBox_colore_p.setEditText(self.DATA_LIST[self.rec_num].colore_p)) 
+            str(self.comboBox_taglio_p.setEditText(self.DATA_LIST[self.rec_num].taglio_p)) 
+            str(self.comboBox_posa_opera_p.setEditText(self.DATA_LIST[self.rec_num].posa_opera_p)) 
             # gestione tool
             if self.toolButtonPreview.isChecked():
                 self.loadMapPreview()
@@ -5753,12 +5910,12 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
             str(self.lineEdit_ambiente.text()),  # 32 ambiente
             str(self.lineEdit_saggio.text()),  # 33 saggio
             str(self.textEdit_elementi_datanti.toPlainText()),  # 34 elementi datanti
-            str(self.comboBox_funz_statica_usm.currentText()),  # 35 funzione statica
+            #str(self.comboBox_funz_statica_usm.currentText()),  # 35 funzione statica
             str(self.comboBox_lavorazione_usm.currentText()),  # 36 lavorazione usm
             str(self.lineEdit_spessore_giunti_usm.text()),  # 37 spessore giunti
             str(self.lineEdit_letti_di_posa_giunti_usm.text()),  # 38 letti posa giunti usm
             str(self.lineEdit_h_modulo_c_corsi_usm.text()),  # 39 altezza modulo corsi usm
-            str(self.comboBox_unita_edilizia_riassuntiva_usm.currentText()),  # 40 unita edilizia riassuntiva
+            #str(self.comboBox_unita_edilizia_riassuntiva_usm.currentText()),  # 40 unita edilizia riassuntiva
             str(self.comboBox_reimpiego_usm.currentText()),  # 41 unita edilizia riassuntiva
             str(self.comboBox_posa_in_opera_usm.currentText()),  # 42 posa in opera
             str(qmin_usm),  # 43 quota minima
@@ -5814,6 +5971,21 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
             str(self.lineEdit_provenienza_materiali_usm.text()), # 93 provenienza_materiali_usm
             str(self.lineEdit_criteri_distinzione_usm.text()), # 94 criteri distinzione usm
             str(self.comboBox_uso_primario_usm.currentText()),  # 95 uso primario usm
+            
+            str(self.comboBox_tipologia_opera.currentText()),  # 95 uso primario usm
+            str(self.comboBox_sezione_muraria.currentText()),  # 95 uso primario usm
+            str(self.comboBox_superficie_analizzata.currentText()),  # 95 uso primario usm
+            str(self.comboBox_orientamento.currentText()),  # 95 uso primario usm
+            str(self.comboBox_materiali_lat.currentText()),  # 95 uso primario usm
+            str(self.comboBox_lavorazione_lat.currentText()),  # 95 uso primario usm
+            str(self.comboBox_consistenza_lat.currentText()),  # 95 uso primario usm
+            str(self.comboBox_forma_lat.currentText()),  # 95 uso primario usm
+            str(self.comboBox_colore_lat.currentText()),  # 95 uso primario usm
+            str(self.comboBox_impasto_lat.currentText()),  # 95 uso primario usm
+            str(self.comboBox_forma_p.currentText()),  # 95 uso primario usm
+            str(self.comboBox_colore_p.currentText()),  # 95 uso primario usm
+            str(self.comboBox_taglio_p.currentText()),  # 95 uso primario usm
+            str(self.comboBox_posa_opera_p.currentText()),  # 95 uso primario usm
             #str(list_foto)
         ]
 
