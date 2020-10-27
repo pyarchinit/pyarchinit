@@ -129,6 +129,11 @@ class US_table:
                      Column('colore_p', Text),  #95 ok
                      Column('taglio_p', Text),  #95 ok
                      Column('posa_opera_p', Text),  #95 ok
+                     Column('inerti_usm', Text),  #95 ok
+                     Column('tipo_legante_usm', Text),  #95 ok
+                     Column('rifinitura_usm', Text),  #95 ok
+                     Column('materiale_p', Text),  #95 ok
+                     Column('consistenza_p', Text),  #95 ok
 
                      # explicit/composite unique constraint.  'name' is optional.
                      UniqueConstraint('sito', 'area', 'us', name='ID_us_unico')

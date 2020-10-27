@@ -288,29 +288,40 @@ class DB_update(object):
         if not table_column_names_list.__contains__('superficie_analizzata'):
             self.engine.execute("ALTER TABLE us_table ADD COLUMN superficie_analizzata text DEFAULT '' ")
         if not table_column_names_list.__contains__('orientamento'):
-                    self.engine.execute("ALTER TABLE us_table ADD COLUMN orientamento text DEFAULT '' ")
+                self.engine.execute("ALTER TABLE us_table ADD COLUMN orientamento text DEFAULT '' ")
         if not table_column_names_list.__contains__('materiali_lat'):
-                    self.engine.execute("ALTER TABLE us_table ADD COLUMN materiali_lat text DEFAULT '' ")
+                self.engine.execute("ALTER TABLE us_table ADD COLUMN materiali_lat text DEFAULT '' ")
         if not table_column_names_list.__contains__('lavorazione_lat'):
-                    self.engine.execute("ALTER TABLE us_table ADD COLUMN lavorazione_lat text DEFAULT '' ")
+                self.engine.execute("ALTER TABLE us_table ADD COLUMN lavorazione_lat text DEFAULT '' ")
         if not table_column_names_list.__contains__('consistenza_lat'):
-                    self.engine.execute("ALTER TABLE us_table ADD COLUMN consistenza_lat text DEFAULT '' ")
+                self.engine.execute("ALTER TABLE us_table ADD COLUMN consistenza_lat text DEFAULT '' ")
         if not table_column_names_list.__contains__('forma_lat'):
-                    self.engine.execute("ALTER TABLE us_table ADD COLUMN forma_lat text DEFAULT '' ")
+                self.engine.execute("ALTER TABLE us_table ADD COLUMN forma_lat text DEFAULT '' ")
         if not table_column_names_list.__contains__('colore_lat'):
-                    self.engine.execute("ALTER TABLE us_table ADD COLUMN colore_lat text DEFAULT '' ")
+                self.engine.execute("ALTER TABLE us_table ADD COLUMN colore_lat text DEFAULT '' ")
         if not table_column_names_list.__contains__('impasto_lat'):
-                    self.engine.execute("ALTER TABLE us_table ADD COLUMN impasto_lat text DEFAULT '' ")
+                self.engine.execute("ALTER TABLE us_table ADD COLUMN impasto_lat text DEFAULT '' ")
         
         
         if not table_column_names_list.__contains__('forma_p'):
-                    self.engine.execute("ALTER TABLE us_table ADD COLUMN forma_p text DEFAULT '' ")
+                self.engine.execute("ALTER TABLE us_table ADD COLUMN forma_p text DEFAULT '' ")
         if not table_column_names_list.__contains__('colore_p'):
-                    self.engine.execute("ALTER TABLE us_table ADD COLUMN colore_p text DEFAULT '' ")
+                self.engine.execute("ALTER TABLE us_table ADD COLUMN colore_p text DEFAULT '' ")
         if not table_column_names_list.__contains__('taglio_p'):
-                    self.engine.execute("ALTER TABLE us_table ADD COLUMN taglio_p text DEFAULT '' ")
+                self.engine.execute("ALTER TABLE us_table ADD COLUMN taglio_p text DEFAULT '' ")
         if not table_column_names_list.__contains__('posa_opera_p'):
-                    self.engine.execute("ALTER TABLE us_table ADD COLUMN posa_opera_p text DEFAULT '' ")         
+                self.engine.execute("ALTER TABLE us_table ADD COLUMN posa_opera_p text DEFAULT '' ")
+        if not table_column_names_list.__contains__('inerti_usm'):
+                self.engine.execute("ALTER TABLE us_table ADD COLUMN inerti_usm text DEFAULT '' ")
+        if not table_column_names_list.__contains__('tipo_legante_usm'):
+                self.engine.execute("ALTER TABLE us_table ADD COLUMN tipo_legante_usm text DEFAULT '' ")
+        if not table_column_names_list.__contains__('rifinitura_usm'):
+                self.engine.execute("ALTER TABLE us_table ADD COLUMN rifinitura_usm text DEFAULT '' ")
+        if not table_column_names_list.__contains__('materiale_p'):
+                self.engine.execute("ALTER TABLE us_table ADD COLUMN materiale_p text DEFAULT '' ")
+        if not table_column_names_list.__contains__('consistenza_p'):
+                self.engine.execute("ALTER TABLE us_table ADD COLUMN consistenza_p text DEFAULT '' ")
+                    
         
         ####pyarchinit_thesaurus_sigle
         table = Table("pyarchinit_thesaurus_sigle", self.metadata, autoload=True)

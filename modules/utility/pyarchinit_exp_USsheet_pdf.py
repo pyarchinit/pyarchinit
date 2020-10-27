@@ -230,9 +230,25 @@ class single_US_pdf_sheet(object):
         self.provenienza_materiali_usm = data[93]
         self.criteri_distinzione_usm = data[94]
         self.uso_primario_usm = data[95]
-        # self.foto=data[96]
-        # self.unitatipo = data[97]
-        # self.thumbanil = data[98]
+        self.tipologia_opera= data[96]
+        self.sezione_muraria= data[97]
+        self.superficie_analizzata= data[98]
+        self.orientamento= data[99]
+        self.materiali_lat= data[100]
+        self.lavorazione_lat= data[101]
+        self.consistenza_lat= data[102]
+        self.forma_lat= data[103]
+        self.colore_lat= data[104]
+        self.impasto_lat= data[105]
+        self.forma_p= data[106]
+        self.colore_p= data[107]
+        self.taglio_p= data[108]
+        self.posa_opera_p= data[109]
+        self.inerti_usm= data[110]
+        self.tipo_legante_usm= data[111]
+        self.rifinitura_usm= data[112]
+        self.materiale_p= data[113]
+        self.consistenza_p= data[113]
     def unzip_componenti(self):
         org = eval(self.componenti_organici)
         inorg = eval(self.componenti_inorganici)
@@ -1030,9 +1046,9 @@ class single_US_pdf_sheet(object):
 
            
 
-            t_muraria = Paragraph("<b>TIPOLOGIA DELL'OPERA</b><br/>"+ str(self.tecnica_muraria_usm), styNormal)
+            t_muraria = Paragraph("<b>TIPOLOGIA DELL'OPERA</b><br/>"+ str(self.tipologia_opera), styNormal)
             t_costruttiva = Paragraph("<b>TECNICA COSTRUTTIVA</b><br/>"+ str(self.tecnica_muraria_usm), styNormal)
-            sezione_muraria = Paragraph("<b>SEZIONE MURARIA</b><br/>"+ str(self.tecnica_muraria_usm), styNormal)
+            sezione_muraria = Paragraph("<b>SEZIONE MURARIA</b><br/>"+ str(self.sezione_muraria), styNormal)
             
             modulo = Paragraph("<b>MODULO</b><br/>"+ str(self.modulo_usm), styNormal)
             
@@ -1045,7 +1061,7 @@ class single_US_pdf_sheet(object):
             else:
                 misure = Paragraph("<b>MISURE</b><br/>", styNormal)
 
-            superficie_analizzata = Paragraph("<b>SUPERFICIE ANALIZZATA</b><br/>"+ str(self.tecnica_muraria_usm), styNormal)
+            superficie_analizzata = Paragraph("<b>SUPERFICIE ANALIZZATA</b><br/>"+ str(self.superficie_analizzata), styNormal)
             
             d_stratigrafica = Paragraph("<b>DEFINIZIONE E POSIZIONE</b><br/>" + self.d_stratigrafica+"<br/>"+self.posizione, styNormal)
             
@@ -1062,7 +1078,7 @@ class single_US_pdf_sheet(object):
             
             reimpiego = Paragraph("<b>REIMPIEGO</b><br/>"+self.reimp, styNormal2)
 
-            orientamento = Paragraph("<b>ORIENTAMENTO</b><br/>"+self.reimp, styNormal)
+            orientamento = Paragraph("<b>ORIENTAMENTO</b><br/>"+self.orientamento, styNormal)
             
             #8-9 row
             stato_conservazione = Paragraph("<b>STATO DI CONSERVAZIONE</b><br/>" + self.stato_di_conservazione, styNormal)
@@ -1077,24 +1093,24 @@ class single_US_pdf_sheet(object):
             colore = Paragraph("<b>COLORE</b><br/>", styNormal)
             impasto = Paragraph("<b>IMPASTO</b><br/>", styNormal)
             posa_opera= Paragraph("<b>POSA IN OPERA</b><br/>", styNormal)
-            taglio= Paragraph("<b>TAGLIO</b><br/>", styNormal)
             
-            materiali_1 =Paragraph("",styNormal)
-            lavorazione_1 =Paragraph("",styNormal)
-            consistenza_1 =Paragraph("",styNormal)
-            forma_1 =Paragraph("",styNormal)
-            colore_1 =Paragraph("",styNormal)
-            impasto_1 =Paragraph("",styNormal)
-            posa_opera_1 =Paragraph("",styNormal)
-            taglio_l = Paragraph("",styNormal)
+            
+            materiali_1 =Paragraph(self.materiali_lat,styNormal)
+            lavorazione_1 =Paragraph(self.lavorazione_lat,styNormal)
+            consistenza_1 =Paragraph(self.consistenza_lat,styNormal)
+            forma_1 =Paragraph(self.forma_lat,styNormal)
+            colore_1 =Paragraph(self.colore_lat,styNormal)
+            impasto_1 =Paragraph(self.impasto_lat,styNormal)
+            posa_opera_1 =Paragraph(self.posa_opera,styNormal)
+            #taglio_l = Paragraph(self.taglio_p,styNormal)
             label_pietra = Paragraph("<b>ELEMENTI LITICI</b>", styVerticale)
-            p_1 =Paragraph('',styNormal)
-            p_2 =Paragraph('',styNormal)
-            p_3 =Paragraph('',styNormal)
-            p_4 =Paragraph('',styNormal)
-            p_5 =Paragraph('',styNormal)
-            p_6 =Paragraph('',styNormal)
-            p_7 =Paragraph('',styNormal)
+            p_1 =Paragraph(self.materiale_p,styNormal)
+            p_2 =Paragraph(self.lavorazione,styNormal)
+            p_3 =Paragraph(self.consistenza_p,styNormal)
+            p_4 =Paragraph(self.forma_p,styNormal)
+            p_5 =Paragraph(self.colore_p,styNormal)
+            taglio= Paragraph("<b>TAGLIO</b><br/>"+ self.taglio_p, styNormal)
+            p_7 =Paragraph(self.posa_opera_p,styNormal)
             
             #12 row
             n=Paragraph('',styNormal)
@@ -1107,15 +1123,15 @@ class single_US_pdf_sheet(object):
             rifinitura = Paragraph("<b>RIFINITURA</b><br/>", styNormal)
             
             label_legante= Paragraph("<b>LEGANTE</b>", styVerticale)
-            tipo_1 =Paragraph('',styNormal)
-            consistenza_2 =Paragraph('',styNormal)
-            colore_3 =Paragraph('',styNormal)
-            inerti_4 =Paragraph('',styNormal)
-            spessore_5 =Paragraph('',styNormal)
-            rifinitura_6 =Paragraph('',styNormal)
+            tipo_1 =Paragraph(self.tipo_legante_usm,styNormal)
+            consistenza_2 =Paragraph(self.cons_legante,styNormal)
+            colore_3 =Paragraph(self.col_legante,styNormal)
+            inerti_4 =Paragraph(self.aggreg_legante,styNormal)
+            spessore_5 =Paragraph(self.spessore_usm,styNormal)
+            rifinitura_6 =Paragraph(self.rifinitura_usm,styNormal)
             
-            note_legante = Paragraph("<b>NOTE SPECIFICHE DEL LEGANTE</b><br/>" + self.descrizione, styDescrizione)
-            note_materiali = Paragraph("<b>NOTE SPECIFICHE SUI MATERIALI</b><br/>" + self.descrizione, styDescrizione)
+            note_legante = Paragraph("<b>NOTE SPECIFICHE DEL LEGANTE</b><br/>" , styDescrizione)
+            note_materiali = Paragraph("<b>NOTE SPECIFICHE SUI MATERIALI</b><br/>" , styDescrizione)
             
 
             #13-22 row
@@ -1192,8 +1208,8 @@ class single_US_pdf_sheet(object):
                 
                 [note_materiali, '01', '02', '03', '04', '05', '06', '07', '08', '09', '10', '11', '12', '13', '14', '15', '16', '17'],
                 
-                [n, tipo, '02', '03', consistenza_l,'05' , '06',colore_l, '08','09' , inerti, '11', spessore, '13', '14', rifinitura, '16', '17'],
-                [label_legante, tipo_1, '02', '03', consistenza_2, '05', '06', colore_3, '08', '09', inerti_4, '11', spessore_5, '13', '14', rifinitura_6, '16', '17'],
+                [n, tipo, '02', '03', consistenza_l,'05' , '06',inerti, '08','09' , colore_l, '11', spessore, '13', '14', rifinitura, '16', '17'],
+                [label_legante, tipo_1, '02', '03', consistenza_2, '05', '06', inerti_4, '08', '09', colore_3, '11', spessore_5, '13', '14', rifinitura_6, '16', '17'],
                 [note_legante, '01', '02', '03', '04', '05', '06', '07', '08', '09', '10', '11', '12', '13', '14', '15', '16', '17'],
 				
 				[uguale_a, '01', '02', '03', '04', '05', si_lega_a, '07', '08', '09', '10', '11', label_sequenza_stratigrafica, posteriore_a, '14', '15', '16', '17'],
