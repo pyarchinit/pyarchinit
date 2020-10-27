@@ -660,12 +660,12 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
         'ambient',
         'saggio',
         'elem_datanti',
-        #'funz_statica',
+        'funz_statica',
         'lavorazione',
         'spess_giunti',
         'letti_posa',
         'alt_mod',
-        #'un_ed_riass',
+        'un_ed_riass',
         'reimp',
         'posa_opera',
         'quota_min_usm',
@@ -721,7 +721,6 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
         'provenienza_materiali_usm',  # 93
         'criteri_distinzione_usm',  # 94
         'uso_primario_usm',
-        #####nuovi campi per usm#######
         'tipologia_opera',
         'sezione_muraria',
         'superficie_analizzata',
@@ -2737,12 +2736,12 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
                 str(self.DATA_LIST[i].ambient),  # 32 ambiente
                 str(self.DATA_LIST[i].saggio),  # 33 saggio
                 str(self.DATA_LIST[i].elem_datanti),  # 34 - elem_datanti
-                #str(self.DATA_LIST[i].funz_statica),  # 35 - funz_statica
+                str(self.DATA_LIST[i].funz_statica),  # 35 - funz_statica
                 str(self.DATA_LIST[i].lavorazione),  # 36 lavorazione
                 str(self.DATA_LIST[i].spess_giunti),  # 37 spess_giunti
                 str(self.DATA_LIST[i].letti_posa),            #38 letti posa
                 str(self.DATA_LIST[i].alt_mod),               #39  al modulo
-                #str(self.DATA_LIST[i].un_ed_riass),           #40 unita edilizia riassuntiva
+                str(self.DATA_LIST[i].un_ed_riass),           #40 unita edilizia riassuntiva
                 str(self.DATA_LIST[i].reimp),                 #41 reimpiego
                 str(self.DATA_LIST[i].posa_opera),            #42 posa opera
                 str(quota_min_usm),                           #43 quota min usm
@@ -4380,12 +4379,12 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
                 str(self.lineEdit_ambiente.text()),  # 32 ambiente
                 str(self.lineEdit_saggio.text()),  # 33 saggio
                 str(self.textEdit_elementi_datanti.toPlainText()),  # 34 elementi datanti
-                #str(self.comboBox_funz_statica_usm.currentText()),  # 35 funzione statica
+                str(self.comboBox_funz_statica_usm.currentText()),  # 35 funzione statica
                 str(self.comboBox_lavorazione_usm.currentText()),  # 36 lavorazione usm
                 str(self.lineEdit_spessore_giunti_usm.text()),  # 37 spessore giunti
                 str(self.lineEdit_letti_di_posa_giunti_usm.text()),  # 38 letti posa giunti usm
                 str(self.lineEdit_h_modulo_c_corsi_usm.text()),  # 39 altezza modulo corsi usm
-                #str(self.comboBox_unita_edilizia_riassuntiva_usm.currentText()),  # 40 unita edilizia riassuntiva
+                str(self.comboBox_unita_edilizia_riassuntiva_usm.currentText()),  # 40 unita edilizia riassuntiva
                 str(self.comboBox_reimpiego_usm.currentText()),  # 41 unita edilizia riassuntiva
                 str(self.comboBox_posa_in_opera_usm.currentText()),  # 42 posa in opera
                 qmin_usm,  # 43 quota minima
@@ -5000,35 +4999,35 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
                 self.TABLE_FIELDS[31]: "'" + str(self.lineEdit_ambiente.text()) + "'",  # 30 quadrato
                 self.TABLE_FIELDS[32]: "'" + str(self.lineEdit_saggio.text()) + "'",  # 30 quadrato
                 self.TABLE_FIELDS[33]: str(self.textEdit_elementi_datanti.toPlainText()),  # 6 - descrizione
-                #self.TABLE_FIELDS[34]: "'" + str(self.comboBox_funz_statica_usm.currentText()) + "'",
+                self.TABLE_FIELDS[34]: "'" + str(self.comboBox_funz_statica_usm.currentText()) + "'",
                 # 24 - order layer
-                self.TABLE_FIELDS[34]: "'" + str(self.comboBox_lavorazione_usm.currentText()) + "'",  # 30 quadrato
-                self.TABLE_FIELDS[35]: "'" + str(self.lineEdit_spessore_giunti_usm.text()) + "'",  # 30 quadrato
-                self.TABLE_FIELDS[36]: "'" + str(self.lineEdit_letti_di_posa_giunti_usm.text()) + "'",
-                self.TABLE_FIELDS[37]: "'" + str(self.lineEdit_h_modulo_c_corsi_usm.text()) + "'",
-                #self.TABLE_FIELDS[39]: "'" + str(self.comboBox_unita_edilizia_riassuntiva_usm.currentText()) + "'",
-                self.TABLE_FIELDS[39]: "'" + str(self.comboBox_reimpiego_usm.currentText()) + "'",
-                self.TABLE_FIELDS[40]: "'" + str(self.comboBox_posa_in_opera_usm.currentText()) + "'",
-                self.TABLE_FIELDS[41]: qmin_usm,
-                self.TABLE_FIELDS[42]: qmax_usm,
-                self.TABLE_FIELDS[43]: "'" + str(self.comboBox_consistenza_legante_usm.currentText()) + "'",
-                self.TABLE_FIELDS[49]: "'" + str(self.lineEdit_n_catalogo_generale.text()) + "'",
+                self.TABLE_FIELDS[35]: "'" + str(self.comboBox_lavorazione_usm.currentText()) + "'",  # 30 quadrato
+                self.TABLE_FIELDS[36]: "'" + str(self.lineEdit_spessore_giunti_usm.text()) + "'",  # 30 quadrato
+                self.TABLE_FIELDS[37]: "'" + str(self.lineEdit_letti_di_posa_giunti_usm.text()) + "'",
+                self.TABLE_FIELDS[38]: "'" + str(self.lineEdit_h_modulo_c_corsi_usm.text()) + "'",
+                self.TABLE_FIELDS[39]: "'" + str(self.comboBox_unita_edilizia_riassuntiva_usm.currentText()) + "'",
+                self.TABLE_FIELDS[40]: "'" + str(self.comboBox_reimpiego_usm.currentText()) + "'",
+                self.TABLE_FIELDS[41]: "'" + str(self.comboBox_posa_in_opera_usm.currentText()) + "'",
+                self.TABLE_FIELDS[42]: qmin_usm,
+                self.TABLE_FIELDS[43]: qmax_usm,
+                self.TABLE_FIELDS[44]: "'" + str(self.comboBox_consistenza_legante_usm.currentText()) + "'",
+                self.TABLE_FIELDS[50]: "'" + str(self.lineEdit_n_catalogo_generale.text()) + "'",
             # 51 nr catalogo generale campi aggiunti per archeo 3.0 e allineamento ICCD
-                self.TABLE_FIELDS[50]: "'" + str(self.lineEdit_n_catalogo_interno.text()) + "'",
+                self.TABLE_FIELDS[51]: "'" + str(self.lineEdit_n_catalogo_interno.text()) + "'",
             # 52 nr catalogo interno
-                self.TABLE_FIELDS[51]: "'" + str(self.lineEdit_n_catalogo_internazionale.text()) + "'",
+                self.TABLE_FIELDS[52]: "'" + str(self.lineEdit_n_catalogo_internazionale.text()) + "'",
             # 53 nr catalogo internazionale
-                self.TABLE_FIELDS[52]: "'" + str(self.comboBox_soprintendenza.currentText()) + "'",
+                self.TABLE_FIELDS[53]: "'" + str(self.comboBox_soprintendenza.currentText()) + "'",
             # 54 nr soprintendenza
-                self.TABLE_FIELDS[53]:  quota_relativa,  # 55 quota relativa
-                self.TABLE_FIELDS[54]:  quota_abs,  # 56 quota abs
-                self.TABLE_FIELDS[55]: "'" + str(self.lineEdit_ref_tm.text()) + "'",  # 57 ref tm
-                self.TABLE_FIELDS[56]: "'" + str(self.comboBox_ref_ra.currentText()) + "'",  # 58 ref ra
-                self.TABLE_FIELDS[57]: "'" + str(self.lineEdit_ref_n.text()) + "'",  # 59 ref n
-                self.TABLE_FIELDS[58]: "'" + str(self.comboBox_posizione.currentText()) + "'",  # 60 posizione
-                self.TABLE_FIELDS[59]: "'" + str(self.lineEdit_criteri_distinzione.text()) + "'",
+                self.TABLE_FIELDS[54]:  quota_relativa,  # 55 quota relativa
+                self.TABLE_FIELDS[55]:  quota_abs,  # 56 quota abs
+                self.TABLE_FIELDS[56]: "'" + str(self.lineEdit_ref_tm.text()) + "'",  # 57 ref tm
+                self.TABLE_FIELDS[57]: "'" + str(self.comboBox_ref_ra.currentText()) + "'",  # 58 ref ra
+                self.TABLE_FIELDS[58]: "'" + str(self.lineEdit_ref_n.text()) + "'",  # 59 ref n
+                self.TABLE_FIELDS[59]: "'" + str(self.comboBox_posizione.currentText()) + "'",  # 60 posizione
+                self.TABLE_FIELDS[60]: "'" + str(self.lineEdit_criteri_distinzione.text()) + "'",
             # 61 criteri distinzione
-                self.TABLE_FIELDS[60]: "'" + str(self.comboBox_modo_formazione.currentText()) + "'",
+                self.TABLE_FIELDS[61]: "'" + str(self.comboBox_modo_formazione.currentText()) + "'",
             # 62 modo formazione
             #    self.TABLE_FIELDS[62]: "'" + str(self.comboBox_componenti_organici.currentText()) + "'",
             # 63 componenti organici
@@ -5436,12 +5435,12 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
         self.lineEdit_ambiente.clear()  # 32 ambiente
         self.lineEdit_saggio.clear()  # 33 saggio
         self.textEdit_elementi_datanti.clear()  # 34 elementi datanti
-        #self.comboBox_funz_statica_usm.setEditText("")  # 35 funzione statica
+        self.comboBox_funz_statica_usm.setEditText("")  # 35 funzione statica
         self.comboBox_lavorazione_usm.setEditText("")  # 36 lavorazione usm
         self.lineEdit_spessore_giunti_usm.clear()  # 37 spessore giunti
         self.lineEdit_letti_di_posa_giunti_usm.clear()  # 38 letti posa giunti usm
         self.lineEdit_h_modulo_c_corsi_usm.clear()  # 39 altezza modulo corsi usm
-        #self.comboBox_unita_edilizia_riassuntiva_usm.setEditText("")  # 40 unita edilizia riassuntiva
+        self.comboBox_unita_edilizia_riassuntiva_usm.setEditText("")  # 40 unita edilizia riassuntiva
         self.comboBox_reimpiego_usm.setEditText("")  # 41 unita edilizia riassuntiva
         self.comboBox_posa_in_opera_usm.setEditText("")  # 42 posa in opera
         self.lineEdit_qmin_usm.clear()  # 3 - US
@@ -5568,12 +5567,12 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
             str(self.lineEdit_ambiente.setText(self.DATA_LIST[self.rec_num].ambient))  # 32 ambiente
             str(self.lineEdit_saggio.setText(self.DATA_LIST[self.rec_num].saggio))  # 33 saggio
             str(self.textEdit_elementi_datanti.setText(self.DATA_LIST[self.rec_num].elem_datanti))  # 34 - elemtenti_datanti
-            #str(self.comboBox_funz_statica_usm.setEditText(self.DATA_LIST[self.rec_num].funz_statica))  # 35 - funz statica
+            str(self.comboBox_funz_statica_usm.setEditText(self.DATA_LIST[self.rec_num].funz_statica))  # 35 - funz statica
             str(self.comboBox_lavorazione_usm.setEditText(self.DATA_LIST[self.rec_num].lavorazione))  # 36 lavorazione usm
             str(self.lineEdit_spessore_giunti_usm.setText(self.DATA_LIST[self.rec_num].spess_giunti))  # 37 spessore giunti usm
             str(self.lineEdit_letti_di_posa_giunti_usm.setText(self.DATA_LIST[self.rec_num].letti_posa)) #38 letti_posa
             str(self.lineEdit_h_modulo_c_corsi_usm.setText(self.DATA_LIST[self.rec_num].alt_mod)) #39 altezza modulo corsi
-            #str(self.comboBox_unita_edilizia_riassuntiva_usm.setEditText(self.DATA_LIST[self.rec_num].un_ed_riass)) #40 unita edilizia riassuntiva
+            str(self.comboBox_unita_edilizia_riassuntiva_usm.setEditText(self.DATA_LIST[self.rec_num].un_ed_riass)) #40 unita edilizia riassuntiva
             str(self.comboBox_reimpiego_usm.setEditText(self.DATA_LIST[self.rec_num].reimp))  #41 reimpiego
             str(self.comboBox_posa_in_opera_usm.setEditText(self.DATA_LIST[self.rec_num].posa_opera)) #42 posa opera
 
@@ -5910,12 +5909,12 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
             str(self.lineEdit_ambiente.text()),  # 32 ambiente
             str(self.lineEdit_saggio.text()),  # 33 saggio
             str(self.textEdit_elementi_datanti.toPlainText()),  # 34 elementi datanti
-            #str(self.comboBox_funz_statica_usm.currentText()),  # 35 funzione statica
+            str(self.comboBox_funz_statica_usm.currentText()),  # 35 funzione statica
             str(self.comboBox_lavorazione_usm.currentText()),  # 36 lavorazione usm
             str(self.lineEdit_spessore_giunti_usm.text()),  # 37 spessore giunti
             str(self.lineEdit_letti_di_posa_giunti_usm.text()),  # 38 letti posa giunti usm
             str(self.lineEdit_h_modulo_c_corsi_usm.text()),  # 39 altezza modulo corsi usm
-            #str(self.comboBox_unita_edilizia_riassuntiva_usm.currentText()),  # 40 unita edilizia riassuntiva
+            str(self.comboBox_unita_edilizia_riassuntiva_usm.currentText()),  # 40 unita edilizia riassuntiva
             str(self.comboBox_reimpiego_usm.currentText()),  # 41 unita edilizia riassuntiva
             str(self.comboBox_posa_in_opera_usm.currentText()),  # 42 posa in opera
             str(qmin_usm),  # 43 quota minima
