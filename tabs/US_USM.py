@@ -4284,7 +4284,7 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
                 str(self.lineEdit_spessore_giunti_usm.text()),  # 37 spessore giunti
                 str(self.lineEdit_letti_di_posa_giunti_usm.text()),  # 38 letti posa giunti usm
                 str(self.lineEdit_h_modulo_c_corsi_usm.text()),  # 39 altezza modulo corsi usm
-                str(self.lineEdit_unita_edilizia_riassuntiva_usm.text()),  # 40 unita edilizia riassuntiva
+                str(self.comboBox_unita_edilizia_riassuntiva_usm.currentText()),  # 40 unita edilizia riassuntiva
                 str(self.comboBox_reimpiego_usm.currentText()),  # 41 unita edilizia riassuntiva
                 str(self.comboBox_posa_in_opera_usm.currentText()),  # 42 posa in opera
                 qmin_usm,  # 43 quota minima
@@ -4890,7 +4890,7 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
                 self.TABLE_FIELDS[36]: "'" + str(self.lineEdit_spessore_giunti_usm.text()) + "'",  # 30 quadrato
                 self.TABLE_FIELDS[37]: "'" + str(self.lineEdit_letti_di_posa_giunti_usm.text()) + "'",
                 self.TABLE_FIELDS[38]: "'" + str(self.lineEdit_h_modulo_c_corsi_usm.text()) + "'",
-                self.TABLE_FIELDS[39]: "'" + str(self.lineEdit_unita_edilizia_riassuntiva_usm.text()) + "'",
+                self.TABLE_FIELDS[39]: "'" + str(self.comboBox_unita_edilizia_riassuntiva_usm.currentText()) + "'",
                 self.TABLE_FIELDS[40]: "'" + str(self.comboBox_reimpiego_usm.currentText()) + "'",
                 self.TABLE_FIELDS[41]: "'" + str(self.comboBox_posa_in_opera_usm.currentText()) + "'",
                 self.TABLE_FIELDS[42]: qmin_usm,
@@ -5312,7 +5312,7 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
         self.lineEdit_spessore_giunti_usm.clear()  # 37 spessore giunti
         self.lineEdit_letti_di_posa_giunti_usm.clear()  # 38 letti posa giunti usm
         self.lineEdit_h_modulo_c_corsi_usm.clear()  # 39 altezza modulo corsi usm
-        self.lineEdit_unita_edilizia_riassuntiva_usm.clear()  # 40 unita edilizia riassuntiva
+        self.comboBox_unita_edilizia_riassuntiva_usm.setEditText("")  # 40 unita edilizia riassuntiva
         self.comboBox_reimpiego_usm.setEditText("")  # 41 unita edilizia riassuntiva
         self.comboBox_posa_in_opera_usm.setEditText("")  # 42 posa in opera
         self.lineEdit_qmin_usm.clear()  # 3 - US
@@ -5429,7 +5429,7 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
             str(self.lineEdit_spessore_giunti_usm.setText(self.DATA_LIST[self.rec_num].spess_giunti))  # 37 spessore giunti usm
             str(self.lineEdit_letti_di_posa_giunti_usm.setText(self.DATA_LIST[self.rec_num].letti_posa)) #38 letti_posa
             str(self.lineEdit_h_modulo_c_corsi_usm.setText(self.DATA_LIST[self.rec_num].alt_mod)) #39 altezza modulo corsi
-            str(self.lineEdit_unita_edilizia_riassuntiva_usm.setText(self.DATA_LIST[self.rec_num].un_ed_riass)) #40 unita edilizia riassuntiva
+            str(self.comboBox_unita_edilizia_riassuntiva_usm.setEditText(self.DATA_LIST[self.rec_num].un_ed_riass)) #40 unita edilizia riassuntiva
             str(self.comboBox_reimpiego_usm.setEditText(self.DATA_LIST[self.rec_num].reimp))  #41 reimpiego
             str(self.comboBox_posa_in_opera_usm.setEditText(self.DATA_LIST[self.rec_num].posa_opera)) #42 posa opera
 
@@ -5758,7 +5758,7 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
             str(self.lineEdit_spessore_giunti_usm.text()),  # 37 spessore giunti
             str(self.lineEdit_letti_di_posa_giunti_usm.text()),  # 38 letti posa giunti usm
             str(self.lineEdit_h_modulo_c_corsi_usm.text()),  # 39 altezza modulo corsi usm
-            str(self.lineEdit_unita_edilizia_riassuntiva_usm.text()),  # 40 unita edilizia riassuntiva
+            str(self.comboBox_unita_edilizia_riassuntiva_usm.currentText()),  # 40 unita edilizia riassuntiva
             str(self.comboBox_reimpiego_usm.currentText()),  # 41 unita edilizia riassuntiva
             str(self.comboBox_posa_in_opera_usm.currentText()),  # 42 posa in opera
             str(qmin_usm),  # 43 quota minima
