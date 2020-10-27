@@ -308,7 +308,7 @@ class DB_update(object):
         if not table_column_names_list.__contains__('colore_p'):
                     self.engine.execute("ALTER TABLE us_table ADD COLUMN colore_p text DEFAULT '' ")
         if not table_column_names_list.__contains__('taglio_p'):
-                    self.engine.execute("ALTER TABLE us_table ADD COLUMN tagliop_p text DEFAULT '' ")
+                    self.engine.execute("ALTER TABLE us_table ADD COLUMN taglio_p text DEFAULT '' ")
         if not table_column_names_list.__contains__('posa_opera_p'):
                     self.engine.execute("ALTER TABLE us_table ADD COLUMN posa_opera_p text DEFAULT '' ")         
         

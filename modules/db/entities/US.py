@@ -102,7 +102,8 @@ class US(object):
                  campioni_mattone_usm,  # 91
                  campioni_pietra_usm,  # 92
                  provenienza_materiali_usm,  # 93
-                 criteri_distinzione_usm,  # 94
+                 criteri_distinzione_usm,
+                 uso_primario_usm,# 94
                  tipologia_opera,
                  sezione_muraria,
                  superficie_analizzata,
