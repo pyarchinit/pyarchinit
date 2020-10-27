@@ -117,7 +117,12 @@ class US(object):
                  forma_p,
                  colore_p,
                  taglio_p,
-                 posa_opera_p  # 95
+                 posa_opera_p,
+                 inerti_usm,
+                 tipo_legante_usm,
+                 rifinitura_usm,
+                 materiale_p,
+                 consistenza_p
                  ):
         self.id_us = id_us  # 0
         self.sito = sito  # 1
@@ -229,11 +234,16 @@ class US(object):
         self.colore_p=colore_p
         self.taglio_p=taglio_p
         self.posa_opera_p=posa_opera_p
+        self.inerti_usm=inerti_usm
+        self.tipo_legante_usm=tipo_legante_usm
+        self.rifinitura_usm=rifinitura_usm
+        self.materiale_p=materiale_p
+        self.consistenza_p=consistenza_p
 
     # def __repr__"
     @property
     def __repr__(self):
-        return "<US('%d','%s', '%s', '%d','%s','%s','%s','%s','%s','%s','%s','%s','%s','%s','%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%d', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s','%r','%r','%s','%s','%s','%s','%s','%s','%s','%s','%s','%s','%r','%r','%s','%s','%s','%s','%s','%s','%s','%s','%r','%r','%r','%r','%r','%r','%r','%r','%r','%r','%s','%s','%s','%s','%s','%s','%s','%s','%s','%s','%r','%r','%r','%s','%s','%s','%s','%s','%s','%s','%s','%s','%s','%s','%s','%s','%s','%s','%s','%s','%s','%s','%s','%s','%s')>" % (
+        return "<US('%d','%s', '%s', '%d','%s','%s','%s','%s','%s','%s','%s','%s','%s','%s','%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%d', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s','%r','%r','%s','%s','%s','%s','%s','%s','%s','%s','%s','%s','%r','%r','%s','%s','%s','%s','%s','%s','%s','%s','%r','%r','%r','%r','%r','%r','%r','%r','%r','%r','%s','%s','%s','%s','%s','%s','%s','%s','%s','%s','%r','%r','%r','%s','%s','%s','%s','%s','%s','%s','%s','%s','%s','%s','%s','%s','%s','%s','%s','%s','%s','%s','%s','%s','%s','%s','%s','%s','%s','%s')>" % (
             self.id_us,  # 0
             self.sito,  # 1
             self.area,  # 2
@@ -343,5 +353,11 @@ class US(object):
             self.forma_p,
             self.colore_p,
             self.taglio_p,
-            self.posa_opera_p
+            self.posa_opera_p,
+            self.inerti_usm,
+            self.tipo_legante_usm,
+            self.rifinitura_usm,
+            self.materiale_p,
+            self.consistenza_p
+            
         )

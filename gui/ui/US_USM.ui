@@ -3628,11 +3628,17 @@ p, li { white-space: pre-wrap; }
          </item>
          <item row="8" column="0">
           <widget class="QgsCheckableComboBox" name="comboBox_ref_ra">
-           <property name="duplicatesEnabled">
+           <property name="autoFillBackground">
             <bool>true</bool>
            </property>
-           <property name="checkedItems">
-            <stringlist/>
+           <property name="currentIndex">
+            <number>-1</number>
+           </property>
+           <property name="maxVisibleItems">
+            <number>100</number>
+           </property>
+           <property name="duplicatesEnabled">
+            <bool>false</bool>
            </property>
           </widget>
          </item>
@@ -5003,7 +5009,7 @@ p, li { white-space: pre-wrap; }
              </widget>
             </item>
             <item row="6" column="0">
-             <widget class="QComboBox" name="comboBox_materiali_usm">
+             <widget class="QComboBox" name="comboBox_materiale_p">
               <property name="editable">
                <bool>true</bool>
               </property>
@@ -5155,7 +5161,7 @@ p, li { white-space: pre-wrap; }
              </widget>
             </item>
             <item row="6" column="2">
-             <widget class="QComboBox" name="comboBox_consistenza_usm">
+             <widget class="QComboBox" name="comboBox_consistenza_p">
               <property name="editable">
                <bool>true</bool>
               </property>
@@ -8027,8 +8033,8 @@ p, li { white-space: pre-wrap; }
      <y>50</y>
     </hint>
     <hint type="destinationlabel">
-     <x>465</x>
-     <y>362</y>
+     <x>769</x>
+     <y>665</y>
     </hint>
    </hints>
   </connection>
@@ -8040,7 +8046,7 @@ p, li { white-space: pre-wrap; }
    <hints>
     <hint type="sourcelabel">
      <x>353</x>
-     <y>586</y>
+     <y>614</y>
     </hint>
     <hint type="destinationlabel">
      <x>424</x>

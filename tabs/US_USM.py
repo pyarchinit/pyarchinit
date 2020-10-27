@@ -735,8 +735,12 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
         'colore_p',
         'taglio_p',
         'posa_opera_p',
-
-    ]
+        'inerti_usm',
+        'tipo_legante_usm',
+        'rifinitura_usm',
+        'materiale_p',
+        'consistenza_p'
+        ]
     
     
     LANG = {
@@ -2812,7 +2816,12 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
                 str(self.DATA_LIST[i].forma_p),
                 str(self.DATA_LIST[i].colore_p),
                 str(self.DATA_LIST[i].taglio_p),
-                str(self.DATA_LIST[i].posa_opera_p)
+                str(self.DATA_LIST[i].posa_opera_p),
+                str(self.DATA_LIST[i].inerti_usm),
+                str(self.DATA_LIST[i].tipo_legante_usm),
+                str(self.DATA_LIST[i].rifinitura_usm),
+                str(self.DATA_LIST[i].materiale_p),
+                str(self.DATA_LIST[i].consistenza_p),
             ])
         return data_list
        
@@ -4455,6 +4464,11 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
                 str(self.comboBox_colore_p.currentText()),
                 str(self.comboBox_taglio_p.currentText()),
                 str(self.comboBox_posa_opera_p.currentText()),
+                str(self.comboBox_inerti_usm.currentText()),  # 95 uso primario usm
+                str(self.comboBox_tipo_legante_usm.currentText()),  # 95 uso primario usm
+                str(self.comboBox_rifinitura_usm.currentText()),  # 95 uso primario usm
+                str(self.comboBox_materiale_p.currentText()),  # 95 uso primario usm
+                str(self.comboBox_consistenza_p.currentText()),  # 95 uso primario usm
                 )
 
             # todelete
@@ -5078,6 +5092,11 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
                 self.TABLE_FIELDS[104]: "'" + str(self.comboBox_colore_p.currentText()) + "'",  # 95 uso primario usm
                 self.TABLE_FIELDS[105]: "'" + str(self.comboBox_taglio_p.currentText()) + "'" , # 95 uso primario usm
                 self.TABLE_FIELDS[106]: "'" + str(self.comboBox_posa_opera_p.currentText()) + "'",  # 95 uso primario usm
+                self.TABLE_FIELDS[107]: "'" + str(self.comboBox_inerti_usm.currentText()) + "'",  # 95 uso primario usm
+                self.TABLE_FIELDS[108]: "'" + str(self.comboBox_tipo_legante_usm.currentText()) + "'",  # 95 uso primario usm
+                self.TABLE_FIELDS[109]: "'" + str(self.comboBox_rifinitura_usm.currentText()) + "'",  # 95 uso primario usm
+                self.TABLE_FIELDS[110]: "'" + str(self.comboBox_materiale_p.currentText()) + "'",  # 95 uso primario usm
+                self.TABLE_FIELDS[111]: "'" + str(self.comboBox_consistenza_p.currentText()) + "'",  # 95 uso primario usm
 
             }
 
@@ -5511,6 +5530,12 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
         self.comboBox_colore_p.setEditText("")  # 95 uso primario usm
         self.comboBox_taglio_p.setEditText("")  # 95 uso primario usm
         self.comboBox_posa_opera_p.setEditText("")  # 95 uso primario usm
+        self.comboBox_inerti_usm.setEditText("")  # 95 uso primario usm
+        self.comboBox_tipo_legante_usm.setEditText("")  # 95 uso primario usm
+        self.comboBox_rifinitura_usm.setEditText("")  # 95 uso primario usm
+        self.comboBox_materiale_p.setEditText("")  # 95 uso primario usm
+        self.comboBox_consistenza_p.setEditText("")  # 95 uso primario usm
+        
 
 
 
@@ -5719,6 +5744,12 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
             str(self.comboBox_colore_p.setEditText(self.DATA_LIST[self.rec_num].colore_p)) 
             str(self.comboBox_taglio_p.setEditText(self.DATA_LIST[self.rec_num].taglio_p)) 
             str(self.comboBox_posa_opera_p.setEditText(self.DATA_LIST[self.rec_num].posa_opera_p)) 
+            str(self.comboBox_inerti_usm.setEditText(self.DATA_LIST[self.rec_num].inerti_usm)) 
+            str(self.comboBox_tipo_legante_usm.setEditText(self.DATA_LIST[self.rec_num].tipo_legante_usm)) 
+            str(self.comboBox_rifinitura_usm.setEditText(self.DATA_LIST[self.rec_num].rifinitura_usm)) 
+            str(self.comboBox_materiale_p.setEditText(self.DATA_LIST[self.rec_num].materiale_p)) 
+            str(self.comboBox_consistenza_p.setEditText(self.DATA_LIST[self.rec_num].consistenza_p)) 
+            
             # gestione tool
             if self.toolButtonPreview.isChecked():
                 self.loadMapPreview()
@@ -5986,6 +6017,11 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
             str(self.comboBox_taglio_p.currentText()),  # 95 uso primario usm
             str(self.comboBox_posa_opera_p.currentText()),  # 95 uso primario usm
             #str(list_foto)
+            str(self.comboBox_inerti_usm.currentText()),  # 95 uso primario usm
+            str(self.comboBox_tipo_legante_usm.currentText()),  # 95 uso primario usm
+            str(self.comboBox_rifinitura_usm.currentText()),  # 95 uso primario usm
+            str(self.comboBox_materiale_p.currentText()),  # 95 uso primario usm
+            str(self.comboBox_consistenza_p.currentText()),  # 95 uso primario usm
         ]
 
     def set_LIST_REC_CORR(self):
