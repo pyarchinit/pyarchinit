@@ -1063,7 +1063,7 @@ class single_US_pdf_sheet(object):
 
             superficie_analizzata = Paragraph("<b>SUPERFICIE ANALIZZATA</b><br/>"+ str(self.superficie_analizzata), styNormal)
             
-            d_stratigrafica = Paragraph("<b>DEFINIZIONE E POSIZIONE</b><br/>" + self.d_stratigrafica+"<br/>"+self.posizione, styNormal)
+            d_stratigrafica = Paragraph("<b>DEFINIZIONE E POSIZIONE</b><br/>" + self.d_stratigrafica+"<br/>"+self.d_interpretativa, styNormal)
             
 
             #6 row
