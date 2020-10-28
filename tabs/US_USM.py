@@ -807,7 +807,7 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
         self.pbnOpenpdfDirectory.clicked.connect(self.openpdfDir)
         self.progressBar.setTextVisible(True)
         #self.lineEdit_us.textChanged.connect( self.geometry_unitastratigrafiche)### rallenta molto
-        self.geometry_unitastratigrafiche()
+        
         sito = self.comboBox_sito.currentText()
         self.comboBox_sito.setEditText(sito)
         self.charge_periodo_iniz_list()
