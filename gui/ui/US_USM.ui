@@ -661,7 +661,7 @@ border-color: rgb(0, 0, 0);
      </property>
      <property name="styleSheet">
       <string notr="true">QgsCollapsibleGroupBoxBasic::title, QgsCollapsibleGroupBox::title {  subcontrol-origin: margin;  subcontrol-position: top left;  margin-left: 20px;  margin-right: 5px;  left: 0px;  top: 3px;}
-</string>
+QgsCollapsibleGroupBoxBasic::title, QgsCollapsibleGroupBox::title {  subcontrol-origin: margin;  subcontrol-position: top left;  margin-left: 20px;  margin-right: 5px;  left: 0px;  top: 3px;}</string>
      </property>
      <property name="title">
       <string>Identificatori</string>
@@ -1067,7 +1067,7 @@ border-color: rgb(0, 0, 0);
      </property>
      <property name="styleSheet">
       <string notr="true">QgsCollapsibleGroupBoxBasic::title, QgsCollapsibleGroupBox::title {  subcontrol-origin: margin;  subcontrol-position: top left;  margin-left: 20px;  margin-right: 5px;  left: 0px;  top: 3px;}
-background-color: rgb(180, 180, 180);</string>
+background-color: rgb(180, 180, 180);QgsCollapsibleGroupBoxBasic::title, QgsCollapsibleGroupBox::title {  subcontrol-origin: margin;  subcontrol-position: top left;  margin-left: 20px;  margin-right: 5px;  left: 0px;  top: 3px;}</string>
      </property>
      <property name="title">
       <string>Localizzazione</string>
@@ -8017,8 +8017,8 @@ p, li { white-space: pre-wrap; }
      <y>56</y>
     </hint>
     <hint type="destinationlabel">
-     <x>165</x>
-     <y>413</y>
+     <x>174</x>
+     <y>689</y>
     </hint>
    </hints>
   </connection>
@@ -8046,7 +8046,7 @@ p, li { white-space: pre-wrap; }
    <hints>
     <hint type="sourcelabel">
      <x>353</x>
-     <y>614</y>
+     <y>638</y>
     </hint>
     <hint type="destinationlabel">
      <x>424</x>

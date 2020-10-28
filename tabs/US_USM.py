@@ -778,7 +778,7 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
         self.mDockWidget_4.setHidden(True)
         self.currentLayerId = None
         self.search = SearchLayers(iface)
-        self.listview_us()
+        
         try:
             self.on_pushButton_connect_pressed()
         except Exception as e:
@@ -806,7 +806,7 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
         self.toolButton_pdfpath.clicked.connect(self.setPathpdf)
         self.pbnOpenpdfDirectory.clicked.connect(self.openpdfDir)
         self.progressBar.setTextVisible(True)
-        self.lineEdit_us.textChanged.connect(self.geometry_unitastratigrafiche)
+        #self.lineEdit_us.textChanged.connect( self.geometry_unitastratigrafiche)### rallenta molto
         sito = self.comboBox_sito.currentText()
         self.comboBox_sito.setEditText(sito)
         self.charge_periodo_iniz_list()
@@ -821,6 +821,7 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
         self.set_sito()
         self.show()
         
+        self.listview_us()###anche questo
     
     
     def on_set_matrix_clicked(self, checked=None):
@@ -885,6 +886,7 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
 
     
     def listview_us(self):    #self.loadMedialist()
+        #if self.pushButton_list.setEnabled(True):
         conn = Connection()
         conn_str = conn.conn_str()
         conn_sqlite = conn.databasename()
@@ -1450,7 +1452,7 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
     
         
     def enable_button(self, n):
-        # self.pushButton_connect.setEnabled(n)
+        self.pushButton_list.setEnabled(n)
 
         self.pushButton_new_rec.setEnabled(n)
 
@@ -5002,7 +5004,7 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
                   
 
     def on_pushButton_next_rec_pressed(self):
-        self.model_a.database().close()
+        #self.model_a.database().close()
         rec_goto = int(self.lineEdit_goto.text())
         
         if self.check_record_state() == 1:
