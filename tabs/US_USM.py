@@ -2138,24 +2138,24 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
         d_interpretativa_vl.sort()
         self.comboBox_def_intepret.addItems(d_interpretativa_vl)
 
-        # # lista funzione statica
+        # lista funzione statica
 
-        # self.comboBox_funz_statica_usm.clear()
-        # search_dict = {
-            # 'lingua': lang,
-            # 'nome_tabella': "'" + 'us_table' + "'",
-            # 'tipologia_sigla': "'" + '2.5' + "'"
-        # }
+        self.comboBox_funz_statica_usm.clear()
+        search_dict = {
+            'lingua': lang,
+            'nome_tabella': "'" + 'us_table' + "'",
+            'tipologia_sigla': "'" + '2.5' + "'"
+        }
 
-        # funz_statica = self.DB_MANAGER.query_bool(search_dict, 'PYARCHINIT_THESAURUS_SIGLE')
-        # funz_statica_vl = []
+        funz_statica = self.DB_MANAGER.query_bool(search_dict, 'PYARCHINIT_THESAURUS_SIGLE')
+        funz_statica_vl = []
 
-        # for i in range(len(funz_statica)):
-            # if funz_statica[i].sigla_estesa not in funz_statica_vl:
-                # funz_statica_vl.append(funz_statica[i].sigla_estesa)
+        for i in range(len(funz_statica)):
+            if funz_statica[i].sigla_estesa not in funz_statica_vl:
+                funz_statica_vl.append(funz_statica[i].sigla_estesa)
 
-        # funz_statica_vl.sort()
-        #self.comboBox_funz_statica_usm.addItems(funz_statica_vl)
+        funz_statica_vl.sort()
+        self.comboBox_funz_statica_usm.addItems(funz_statica_vl)
 
         #lista consistenza legante usm
 
@@ -2373,7 +2373,7 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
         search_dict = {
             'lingua': lang,
             'nome_tabella': "'" + 'us_table' + "'",
-            'tipologia_sigla': "'" + '2.19' + "'"
+            'tipologia_sigla': "'" + '2.20' + "'"
         }
 
         tipologia_opera = self.DB_MANAGER.query_bool(search_dict, 'PYARCHINIT_THESAURUS_SIGLE')
@@ -2386,48 +2386,48 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
         tipologia_opera_us_vl.sort()
         self.comboBox_tipologia_opera.addItems(tipologia_opera_us_vl)
     
-        # # lista sezione muraria
-        # self.comboBox_unita_edilizia_riassuntiva_usm.clear()
-        # search_dict = {
-            # 'lingua': lang,
-            # 'nome_tabella': "'" + 'us_table' + "'",
-            # 'tipologia_sigla': "'" + '2.20' + "'"
-        # }
+        # lista sezione muraria
+        self.comboBox_sezione_muraria.clear()
+        search_dict = {
+            'lingua': lang,
+            'nome_tabella': "'" + 'us_table' + "'",
+            'tipologia_sigla': "'" + '2.21' + "'"
+        }
 
-        # sezione_muraria = self.DB_MANAGER.query_bool(search_dict, 'PYARCHINIT_THESAURUS_SIGLE')
-        # sezione_muraria_us_vl = []
+        sezione_muraria = self.DB_MANAGER.query_bool(search_dict, 'PYARCHINIT_THESAURUS_SIGLE')
+        sezione_muraria_us_vl = []
 
-        # for i in range(len(sezione_muraria)):
-            # if sezione_muraria[i].sigla_estesa not in sezione_muraria_us_vl:
-                # sezione_muraria_us_vl.append(sezione_muraria[i].sigla_estesa)
+        for i in range(len(sezione_muraria)):
+            if sezione_muraria[i].sigla_estesa not in sezione_muraria_us_vl:
+                sezione_muraria_us_vl.append(sezione_muraria[i].sigla_estesa)
 
-        # sezione_muraria_us_vl.sort()
-        # self.comboBox_unita_edilizia_riassuntiva_usm.addItems(sezione_muraria_us_vl)
+        sezione_muraria_us_vl.sort()
+        self.comboBox_sezione_muraria.addItems(sezione_muraria_us_vl)
     
-        # # lista superficie_analizzata
-        # self.comboBox_unita_edilizia_riassuntiva_usm.clear()
-        # search_dict = {
-            # 'lingua': lang,
-            # 'nome_tabella': "'" + 'us_table' + "'",
-            # 'tipologia_sigla': "'" + '2.21' + "'"
-        # }
+        # lista superficie_analizzata
+        self.comboBox_superficie_analizzata.clear()
+        search_dict = {
+            'lingua': lang,
+            'nome_tabella': "'" + 'us_table' + "'",
+            'tipologia_sigla': "'" + '2.22' + "'"
+        }
 
-        # sezione_muraria = self.DB_MANAGER.query_bool(search_dict, 'PYARCHINIT_THESAURUS_SIGLE')
-        # sezione_muraria_us_vl = []
+        sup_analiz = self.DB_MANAGER.query_bool(search_dict, 'PYARCHINIT_THESAURUS_SIGLE')
+        sup_analiz_vl = []
 
-        # for i in range(len(sezione_muraria)):
-            # if sezione_muraria[i].sigla_estesa not in sezione_muraria_us_vl:
-                # sezione_muraria_us_vl.append(sezione_muraria[i].sigla_estesa)
+        for i in range(len(sezione_muraria)):
+            if sup_analiz[i].sigla_estesa not in sup_analiz_vl:
+                sup_analiz_vl.append(sup_analiz[i].sigla_estesa)
 
-        # sezione_muraria_us_vl.sort()
-        # self.comboBox_unita_edilizia_riassuntiva_usm.addItems(sezione_muraria_us_vl)
+        sezione_muraria_us_vl.sort()
+        self.comboBox_superficie_analizzata.addItems(sup_analiz_vl)
     
         # lista orientamento
         self.comboBox_orientamento.clear()
         search_dict = {
             'lingua': lang,
             'nome_tabella': "'" + 'us_table' + "'",
-            'tipologia_sigla': "'" + '2.22' + "'"
+            'tipologia_sigla': "'" + '2.23' + "'"
         }
 
         orientamento = self.DB_MANAGER.query_bool(search_dict, 'PYARCHINIT_THESAURUS_SIGLE')
@@ -2440,7 +2440,347 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
         orientamento_us_vl.sort()
         self.comboBox_orientamento.addItems(orientamento_us_vl)
     
+        # lista materiali_laterizi
+        self.comboBox_materiali_lat.clear()
+        search_dict = {
+            'lingua': lang,
+            'nome_tabella': "'" + 'us_table' + "'",
+            'tipologia_sigla': "'" + '2.24' + "'"
+        }
+
+        materiali_lat = self.DB_MANAGER.query_bool(search_dict, 'PYARCHINIT_THESAURUS_SIGLE')
+        materiali_lat_us_vl = []
+
+        for i in range(len(materiali_lat)):
+            if materiali_lat[i].sigla_estesa not in materiali_lat_us_vl:
+                materiali_lat_us_vl.append(materiali_lat[i].sigla_estesa)
+
+        materiali_lat_us_vl.sort()
+        self.comboBox_materiali_lat.addItems(materiali_lat_us_vl)
+    
+        # lista lavorazione laterizi
+        self.comboBox_lavorazione_lat.clear()
+        search_dict = {
+            'lingua': lang,
+            'nome_tabella': "'" + 'us_table' + "'",
+            'tipologia_sigla': "'" + '2.25' + "'"
+        }
+
+        lavorazione_lat = self.DB_MANAGER.query_bool(search_dict, 'PYARCHINIT_THESAURUS_SIGLE')
+        lavorazione_lat_us_vl = []
+
+        for i in range(len(lavorazione_lat)):
+            if lavorazione_lat[i].sigla_estesa not in lavorazione_lat_us_vl:
+                lavorazione_lat_us_vl.append(lavorazione_lat[i].sigla_estesa)
+
+        lavorazione_lat_us_vl.sort()
+        self.comboBox_lavorazione_lat.addItems(lavorazione_lat_us_vl)
+    
+        # lista consistenza laterizi
+        self.comboBox_consistenza_lat.clear()
+        search_dict = {
+            'lingua': lang,
+            'nome_tabella': "'" + 'us_table' + "'",
+            'tipologia_sigla': "'" + '2.26' + "'"
+        }
+
+        consistenza_lat = self.DB_MANAGER.query_bool(search_dict, 'PYARCHINIT_THESAURUS_SIGLE')
+        consistenza_lat_us_vl = []
+
+        for i in range(len(consistenza_lat)):
+            if consistenza_lat[i].sigla_estesa not in consistenza_lat_us_vl:
+                consistenza_lat_us_vl.append(consistenza_lat[i].sigla_estesa)
+
+        consistenza_lat_us_vl.sort()
+        self.comboBox_consistenza_lat.addItems(consistenza_lat_us_vl)
         
+        # lista forma laterizi
+        self.comboBox_forma_lat.clear()
+        search_dict = {
+            'lingua': lang,
+            'nome_tabella': "'" + 'us_table' + "'",
+            'tipologia_sigla': "'" + '2.27' + "'"
+        }
+
+        forma_lat = self.DB_MANAGER.query_bool(search_dict, 'PYARCHINIT_THESAURUS_SIGLE')
+        forma_lat_us_vl = []
+
+        for i in range(len(forma_lat)):
+            if forma_lat[i].sigla_estesa not in forma_lat_us_vl:
+                forma_lat_us_vl.append(forma_lat[i].sigla_estesa)
+
+        forma_lat_us_vl.sort()
+        self.comboBox_forma_lat.addItems(forma_lat_us_vl)
+        
+        # lista colore laterizi
+        self.comboBox_colore_lat.clear()
+        search_dict = {
+            'lingua': lang,
+            'nome_tabella': "'" + 'us_table' + "'",
+            'tipologia_sigla': "'" + '2.28' + "'"
+        }
+
+        colore_lat = self.DB_MANAGER.query_bool(search_dict, 'PYARCHINIT_THESAURUS_SIGLE')
+        colore_lat_us_vl = []
+
+        for i in range(len(colore_lat)):
+            if colore_lat[i].sigla_estesa not in colore_lat_us_vl:
+                colore_lat_us_vl.append(colore_lat[i].sigla_estesa)
+
+        colore_lat_us_vl.sort()
+        self.comboBox_colore_lat.addItems(colore_lat_us_vl)
+    
+        # lista impasto laterizi
+        self.comboBox_impasto_lat.clear()
+        search_dict = {
+            'lingua': lang,
+            'nome_tabella': "'" + 'us_table' + "'",
+            'tipologia_sigla': "'" + '2.29' + "'"
+        }
+
+        impasto_lat = self.DB_MANAGER.query_bool(search_dict, 'PYARCHINIT_THESAURUS_SIGLE')
+        impasto_lat_us_vl = []
+
+        for i in range(len(impasto_lat)):
+            if impasto_lat[i].sigla_estesa not in impasto_lat_us_vl:
+                impasto_lat_us_vl.append(impasto_lat[i].sigla_estesa)
+
+        impasto_lat_us_vl.sort()
+        self.comboBox_impasto_lat.addItems(impasto_lat_us_vl)
+    
+        # lista materiali litici
+        self.comboBox_materiale_p.clear()
+        search_dict = {
+            'lingua': lang,
+            'nome_tabella': "'" + 'us_table' + "'",
+            'tipologia_sigla': "'" + '2.30' + "'"
+        }
+
+        materiale_p = self.DB_MANAGER.query_bool(search_dict, 'PYARCHINIT_THESAURUS_SIGLE')
+        materiale_p_us_vl = []
+
+        for i in range(len(materiale_p)):
+            if materiale_p[i].sigla_estesa not in materiale_p_us_vl:
+                materiale_p_us_vl.append(materiale_p[i].sigla_estesa)
+
+        materiale_p_us_vl.sort()
+        self.comboBox_materiale_p.addItems(materiale_p_us_vl)
+    
+        # lista consistenza materiali litici
+        self.comboBox_consistenza_p.clear()
+        search_dict = {
+            'lingua': lang,
+            'nome_tabella': "'" + 'us_table' + "'",
+            'tipologia_sigla': "'" + '2.31' + "'"
+        }
+
+        consistenza_p = self.DB_MANAGER.query_bool(search_dict, 'PYARCHINIT_THESAURUS_SIGLE')
+        consistenza_p_us_vl = []
+
+        for i in range(len(consistenza_p)):
+            if consistenza_p[i].sigla_estesa not in consistenza_p_us_vl:
+                consistenza_p_us_vl.append(consistenza_p[i].sigla_estesa)
+
+        consistenza_p_us_vl.sort()
+        self.comboBox_consistenza_p.addItems(consistenza_p_us_vl)
+    
+        # lista forma materiali litici
+        self.comboBox_forma_p.clear()
+        search_dict = {
+            'lingua': lang,
+            'nome_tabella': "'" + 'us_table' + "'",
+            'tipologia_sigla': "'" + '2.32' + "'"
+        }
+
+        forma_p = self.DB_MANAGER.query_bool(search_dict, 'PYARCHINIT_THESAURUS_SIGLE')
+        forma_p_us_vl = []
+
+        for i in range(len(forma_p)):
+            if forma_p[i].sigla_estesa not in forma_p_us_vl:
+                forma_p_us_vl.append(forma_p[i].sigla_estesa)
+
+        forma_p_us_vl.sort()
+        self.comboBox_forma_p.addItems(forma_p_us_vl)
+    
+        # lista colore materiali litici
+        self.comboBox_colore_p.clear()
+        search_dict = {
+            'lingua': lang,
+            'nome_tabella': "'" + 'us_table' + "'",
+            'tipologia_sigla': "'" + '2.33' + "'"
+        }
+
+        colore_p = self.DB_MANAGER.query_bool(search_dict, 'PYARCHINIT_THESAURUS_SIGLE')
+        colore_p_us_vl = []
+
+        for i in range(len(colore_p)):
+            if colore_p[i].sigla_estesa not in colore_p_us_vl:
+                colore_p_us_vl.append(colore_p[i].sigla_estesa)
+
+        colore_p_us_vl.sort()
+        self.comboBox_colore_p.addItems(colore_p_us_vl)
+        
+        # lista taglio materiali litici
+        self.comboBox_taglio_p.clear()
+        search_dict = {
+            'lingua': lang,
+            'nome_tabella': "'" + 'us_table' + "'",
+            'tipologia_sigla': "'" + '2.34' + "'"
+        }
+
+        taglio_p = self.DB_MANAGER.query_bool(search_dict, 'PYARCHINIT_THESAURUS_SIGLE')
+        taglio_p_us_vl = []
+
+        for i in range(len(taglio_p)):
+            if taglio_p[i].sigla_estesa not in taglio_p_us_vl:
+                taglio_p_us_vl.append(taglio_p[i].sigla_estesa)
+
+        taglio_p_us_vl.sort()
+        self.comboBox_taglio_p.addItems(taglio_p_us_vl)
+        
+        # lista posa opera materiali litici
+        self.comboBox_posa_opera_p.clear()
+        search_dict = {
+            'lingua': lang,
+            'nome_tabella': "'" + 'us_table' + "'",
+            'tipologia_sigla': "'" + '2.35' + "'"
+        }
+
+        posa_opera_p = self.DB_MANAGER.query_bool(search_dict, 'PYARCHINIT_THESAURUS_SIGLE')
+        posa_opera_p_us_vl = []
+
+        for i in range(len(posa_opera_p)):
+            if posa_opera_p[i].sigla_estesa not in posa_opera_p_us_vl:
+                posa_opera_p_us_vl.append(posa_opera_p[i].sigla_estesa)
+
+        posa_opera_p_us_vl.sort()
+        self.comboBox_posa_opera_p.addItems(posa_opera_p_us_vl)
+    
+        # lista posa opera materiali laterizi
+        self.comboBox_posa_in_opera_usm.clear()
+        search_dict = {
+            'lingua': lang,
+            'nome_tabella': "'" + 'us_table' + "'",
+            'tipologia_sigla': "'" + '2.36' + "'"
+        }
+
+        posa_opera_usm = self.DB_MANAGER.query_bool(search_dict, 'PYARCHINIT_THESAURUS_SIGLE')
+        posa_opera_usm_us_vl = []
+
+        for i in range(len(posa_opera_usm)):
+            if posa_opera_usm[i].sigla_estesa not in posa_opera_usm_us_vl:
+                posa_opera_usm_us_vl.append(posa_opera_usm[i].sigla_estesa)
+
+        posa_opera_usm_us_vl.sort()
+        self.comboBox_posa_in_opera_usm.addItems(posa_opera_usm_us_vl)
+    
+        # lista tecniche costruttive
+        self.comboBox_tecnica_muraria_usm.clear()
+        search_dict = {
+            'lingua': lang,
+            'nome_tabella': "'" + 'us_table' + "'",
+            'tipologia_sigla': "'" + '2.37' + "'"
+        }
+
+        t_costruttiva = self.DB_MANAGER.query_bool(search_dict, 'PYARCHINIT_THESAURUS_SIGLE')
+        t_costruttiva_us_vl = []
+
+        for i in range(len(t_costruttiva)):
+            if t_costruttiva[i].sigla_estesa not in t_costruttiva_us_vl:
+                t_costruttiva_us_vl.append(t_costruttiva[i].sigla_estesa)
+
+        t_costruttiva_us_vl.sort()
+        self.comboBox_tecnica_muraria_usm.addItems(t_costruttiva_us_vl)
+    
+        # lista modulo
+        self.comboBox_modulo_usm.clear()
+        search_dict = {
+            'lingua': lang,
+            'nome_tabella': "'" + 'us_table' + "'",
+            'tipologia_sigla': "'" + '2.38' + "'"
+        }
+
+        modulo = self.DB_MANAGER.query_bool(search_dict, 'PYARCHINIT_THESAURUS_SIGLE')
+        modulo_us_vl = []
+
+        for i in range(len(modulo)):
+            if modulo[i].sigla_estesa not in modulo_us_vl:
+                modulo_us_vl.append(modulo[i].sigla_estesa)
+
+        modulo_us_vl.sort()
+        self.comboBox_modulo_usm.addItems(modulo_us_vl)
+        
+        # lista inerti
+        self.comboBox_inerti_usm.clear()
+        search_dict = {
+            'lingua': lang,
+            'nome_tabella': "'" + 'us_table' + "'",
+            'tipologia_sigla': "'" + '2.39' + "'"
+        }
+
+        inerti = self.DB_MANAGER.query_bool(search_dict, 'PYARCHINIT_THESAURUS_SIGLE')
+        inerti_us_vl = []
+
+        for i in range(len(inerti)):
+            if inerti[i].sigla_estesa not in inerti_us_vl:
+                inerti_us_vl.append(inerti[i].sigla_estesa)
+
+        inerti_us_vl.sort()
+        self.comboBox_inerti_usm.addItems(inerti_us_vl)
+        
+        # lista tipologia legante
+        self.comboBox_tipo_legante_usm.clear()
+        search_dict = {
+            'lingua': lang,
+            'nome_tabella': "'" + 'us_table' + "'",
+            'tipologia_sigla': "'" + '2.40' + "'"
+        }
+
+        tipo_legante = self.DB_MANAGER.query_bool(search_dict, 'PYARCHINIT_THESAURUS_SIGLE')
+        tipo_legante_us_vl = []
+
+        for i in range(len(tipo_legante)):
+            if tipo_legante[i].sigla_estesa not in tipo_legante_us_vl:
+                tipo_legante_us_vl.append(tipo_legante[i].sigla_estesa)
+
+        tipo_legante_us_vl.sort()
+        self.comboBox_tipo_legante_usm.addItems(tipo_legante_us_vl)
+        
+        # lista rifinitura
+        self.comboBox_rifinitura_usm.clear()
+        search_dict = {
+            'lingua': lang,
+            'nome_tabella': "'" + 'us_table' + "'",
+            'tipologia_sigla': "'" + '2.41' + "'"
+        }
+
+        rifinitura = self.DB_MANAGER.query_bool(search_dict, 'PYARCHINIT_THESAURUS_SIGLE')
+        rifinitura_us_vl = []
+
+        for i in range(len(rifinitura)):
+            if rifinitura[i].sigla_estesa not in rifinitura_us_vl:
+                rifinitura_us_vl.append(rifinitura[i].sigla_estesa)
+
+        rifinitura_us_vl.sort()
+        self.comboBox_rifinitura_usm.addItems(rifinitura_us_vl)
+        
+        # lista lavorazione litica
+        self.comboBox_lavorazione_usm.clear()
+        search_dict = {
+            'lingua': lang,
+            'nome_tabella': "'" + 'us_table' + "'",
+            'tipologia_sigla': "'" + '2.42' + "'"
+        }
+
+        lavorazione_p = self.DB_MANAGER.query_bool(search_dict, 'PYARCHINIT_THESAURUS_SIGLE')
+        lavorazione_p_us_vl = []
+
+        for i in range(len(lavorazione_p)):
+            if lavorazione_p[i].sigla_estesa not in lavorazione_p_us_vl:
+                lavorazione_p_us_vl.append(lavorazione_p[i].sigla_estesa)
+
+        lavorazione_p_us_vl.sort()
+        self.comboBox_lavorazione_usm.addItems(lavorazione_p_us_vl)
     
     def msg_sito(self):
         #self.model_a.database().close()
