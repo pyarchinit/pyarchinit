@@ -806,7 +806,7 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
         self.toolButton_pdfpath.clicked.connect(self.setPathpdf)
         self.pbnOpenpdfDirectory.clicked.connect(self.openpdfDir)
         self.progressBar.setTextVisible(True)
-        self.lineEdit_us.textChanged.connect( self.geometry_unitastratigrafiche)### rallenta molto
+        #self.lineEdit_us.textChanged.connect( self.geometry_unitastratigrafiche)### rallenta molto
         
         sito = self.comboBox_sito.currentText()
         self.comboBox_sito.setEditText(sito)
@@ -880,7 +880,7 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
             if len(self.DATA_LIST) > 0:
                 try:
                     self.comboBox_ref_ra.setEditText(self.DATA_LIST[self.rec_num].n_reperto)
-                    
+                    self.comboBox_ref_ra.show()
                 except :
                     pass
 
