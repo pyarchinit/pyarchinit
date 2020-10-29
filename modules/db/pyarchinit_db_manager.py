@@ -37,7 +37,8 @@ from sqlalchemy.sql.schema import MetaData
 from qgis.core import QgsMessageLog, Qgis, QgsSettings
 from qgis.utils import iface
 from modules.utility.pyarchinit_OS_utility import Pyarchinit_OS_Utility
-
+from sqlalchemy.dialects import postgresql
+from sqlalchemy.dialects.postgresql import insert
 from modules.db.pyarchinit_db_mapper import US, UT, SITE, PERIODIZZAZIONE, \
     STRUTTURA, SCHEDAIND, INVENTARIO_MATERIALI, DETSESSO, DOCUMENTAZIONE, DETETA, MEDIA, \
     MEDIA_THUMB, MEDIATOENTITY, MEDIAVIEW, TAFONOMIA, CAMPIONI, PYARCHINIT_THESAURUS_SIGLE, \
@@ -46,7 +47,7 @@ from modules.db.pyarchinit_db_update import DB_update
 from modules.db.pyarchinit_utility import Utility
 from sqlalchemy.ext.compiler import compiles
 from sqlalchemy.sql.expression import Insert
-
+from modules.db.pyarchinit_conn_strings import Connection
         
 
 class Pyarchinit_db_management(object):
@@ -63,9 +64,21 @@ class Pyarchinit_db_management(object):
         self.conn_str = c
     
     @compiles(Insert)
-    def _prefix_insert_with_replace(insert, compiler, **kw):
-        return compiler.visit_insert(insert.prefix_with('OR REPLACE'), **kw)
-    
+    def _prefix_insert_with_replace(insert_srt, compiler, **kw):
+        
+        conn = Connection()
+        conn_str = conn.conn_str()
+        test_conn = conn_str.find("sqlite")
+        if test_conn == 0:
+            return compiler.visit_insert(insert_srt.prefix_with('OR REPLACE'), **kw)
+        else:
+            #return compiler.visit_insert(insert.prefix_with(''), **kw)
+            pk = insert_srt.table.primary_key
+            insert = compiler.visit_insert(insert_srt, **kw)
+            ondup = f'ON CONFLICT ({",".join(c.name for c in pk)}) DO UPDATE SET'
+            updates = ', '.join(f"{c.name}=EXCLUDED.{c.name}" for c in insert_srt.table.columns)
+            upsert = ' '.join((insert, ondup, updates))
+            return upsert
     def load_spatialite(self,dbapi_conn, connection_record):
         dbapi_conn.enable_load_extension(True)
         

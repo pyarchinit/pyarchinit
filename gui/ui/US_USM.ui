@@ -685,53 +685,8 @@ QgsCollapsibleGroupBoxBasic::title, QgsCollapsibleGroupBox::title {  subcontrol-
       <bool>false</bool>
      </property>
      <layout class="QGridLayout" name="gridLayout_6">
-      <item row="1" column="0">
-       <widget class="QComboBox" name="comboBox_sito">
-        <property name="enabled">
-         <bool>false</bool>
-        </property>
-        <property name="sizePolicy">
-         <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
-          <horstretch>0</horstretch>
-          <verstretch>0</verstretch>
-         </sizepolicy>
-        </property>
-        <property name="minimumSize">
-         <size>
-          <width>0</width>
-          <height>20</height>
-         </size>
-        </property>
-        <property name="font">
-         <font>
-          <family>Times New Roman</family>
-          <pointsize>8</pointsize>
-          <weight>50</weight>
-          <italic>false</italic>
-          <bold>false</bold>
-         </font>
-        </property>
-        <property name="mouseTracking">
-         <bool>true</bool>
-        </property>
-        <property name="editable">
-         <bool>true</bool>
-        </property>
-        <property name="maxVisibleItems">
-         <number>99999</number>
-        </property>
-        <property name="maxCount">
-         <number>2147483647</number>
-        </property>
-        <item>
-         <property name="text">
-          <string>Inserisci un valore</string>
-         </property>
-        </item>
-       </widget>
-      </item>
       <item row="0" column="2">
-       <widget class="QLabel" name="label_3">
+       <widget class="QLabel" name="label_2">
         <property name="sizePolicy">
          <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
           <horstretch>0</horstretch>
@@ -745,12 +700,12 @@ QgsCollapsibleGroupBoxBasic::title, QgsCollapsibleGroupBox::title {  subcontrol-
          </size>
         </property>
         <property name="text">
-         <string>US/USM</string>
+         <string>Area</string>
         </property>
        </widget>
       </item>
-      <item row="1" column="2">
-       <widget class="QLineEdit" name="lineEdit_us">
+      <item row="1" column="4">
+       <widget class="QComboBox" name="comboBox_unita_tipo">
         <property name="enabled">
          <bool>false</bool>
         </property>
@@ -781,9 +736,44 @@ QgsCollapsibleGroupBoxBasic::title, QgsCollapsibleGroupBox::title {  subcontrol-
           <bold>false</bold>
          </font>
         </property>
+        <property name="styleSheet">
+         <string notr="true">background-color: rgb(255, 255, 255);</string>
+        </property>
+        <property name="editable">
+         <bool>true</bool>
+        </property>
+        <item>
+         <property name="text">
+          <string>US</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>USM</string>
+         </property>
+        </item>
        </widget>
       </item>
-      <item row="1" column="1">
+      <item row="0" column="4">
+       <widget class="QLabel" name="label_30">
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
+        <property name="minimumSize">
+         <size>
+          <width>0</width>
+          <height>0</height>
+         </size>
+        </property>
+        <property name="text">
+         <string>Unita tipo</string>
+        </property>
+       </widget>
+      </item>
+      <item row="1" column="2">
        <widget class="QComboBox" name="comboBox_area">
         <property name="enabled">
          <bool>false</bool>
@@ -925,8 +915,21 @@ QgsCollapsibleGroupBoxBasic::title, QgsCollapsibleGroupBox::title {  subcontrol-
         </item>
        </widget>
       </item>
+      <item row="2" column="1">
+       <spacer name="verticalSpacer_4">
+        <property name="orientation">
+         <enum>Qt::Vertical</enum>
+        </property>
+        <property name="sizeHint" stdset="0">
+         <size>
+          <width>20</width>
+          <height>40</height>
+         </size>
+        </property>
+       </spacer>
+      </item>
       <item row="0" column="1">
-       <widget class="QLabel" name="label_2">
+       <widget class="QLabel" name="label">
         <property name="sizePolicy">
          <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
           <horstretch>0</horstretch>
@@ -940,12 +943,76 @@ QgsCollapsibleGroupBoxBasic::title, QgsCollapsibleGroupBox::title {  subcontrol-
          </size>
         </property>
         <property name="text">
-         <string>Area</string>
+         <string>Sito </string>
+        </property>
+       </widget>
+      </item>
+      <item row="1" column="1">
+       <widget class="QComboBox" name="comboBox_sito">
+        <property name="enabled">
+         <bool>false</bool>
+        </property>
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
+        <property name="minimumSize">
+         <size>
+          <width>0</width>
+          <height>20</height>
+         </size>
+        </property>
+        <property name="font">
+         <font>
+          <family>Times New Roman</family>
+          <pointsize>8</pointsize>
+          <weight>50</weight>
+          <italic>false</italic>
+          <bold>false</bold>
+         </font>
+        </property>
+        <property name="mouseTracking">
+         <bool>true</bool>
+        </property>
+        <property name="editable">
+         <bool>true</bool>
+        </property>
+        <property name="maxVisibleItems">
+         <number>99999</number>
+        </property>
+        <property name="maxCount">
+         <number>2147483647</number>
+        </property>
+        <item>
+         <property name="text">
+          <string>Inserisci un valore</string>
+         </property>
+        </item>
+       </widget>
+      </item>
+      <item row="0" column="3">
+       <widget class="QLabel" name="label_3">
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
+        <property name="minimumSize">
+         <size>
+          <width>0</width>
+          <height>0</height>
+         </size>
+        </property>
+        <property name="text">
+         <string>US/USM</string>
         </property>
        </widget>
       </item>
       <item row="1" column="3">
-       <widget class="QComboBox" name="comboBox_unita_tipo">
+       <widget class="QLineEdit" name="lineEdit_us">
         <property name="enabled">
          <bool>false</bool>
         </property>
@@ -976,74 +1043,7 @@ QgsCollapsibleGroupBoxBasic::title, QgsCollapsibleGroupBox::title {  subcontrol-
           <bold>false</bold>
          </font>
         </property>
-        <property name="styleSheet">
-         <string notr="true">background-color: rgb(255, 255, 255);</string>
-        </property>
-        <property name="editable">
-         <bool>true</bool>
-        </property>
-        <item>
-         <property name="text">
-          <string>US</string>
-         </property>
-        </item>
-        <item>
-         <property name="text">
-          <string>USM</string>
-         </property>
-        </item>
        </widget>
-      </item>
-      <item row="0" column="0">
-       <widget class="QLabel" name="label">
-        <property name="sizePolicy">
-         <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
-          <horstretch>0</horstretch>
-          <verstretch>0</verstretch>
-         </sizepolicy>
-        </property>
-        <property name="minimumSize">
-         <size>
-          <width>0</width>
-          <height>0</height>
-         </size>
-        </property>
-        <property name="text">
-         <string>Sito </string>
-        </property>
-       </widget>
-      </item>
-      <item row="0" column="3">
-       <widget class="QLabel" name="label_30">
-        <property name="sizePolicy">
-         <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
-          <horstretch>0</horstretch>
-          <verstretch>0</verstretch>
-         </sizepolicy>
-        </property>
-        <property name="minimumSize">
-         <size>
-          <width>0</width>
-          <height>0</height>
-         </size>
-        </property>
-        <property name="text">
-         <string>Unita tipo</string>
-        </property>
-       </widget>
-      </item>
-      <item row="2" column="0">
-       <spacer name="verticalSpacer_4">
-        <property name="orientation">
-         <enum>Qt::Vertical</enum>
-        </property>
-        <property name="sizeHint" stdset="0">
-         <size>
-          <width>20</width>
-          <height>40</height>
-         </size>
-        </property>
-       </spacer>
       </item>
      </layout>
     </widget>
@@ -1929,7 +1929,7 @@ background-color: rgb(180, 180, 180);QgsCollapsibleGroupBoxBasic::title, QgsColl
       <enum>QTabWidget::Rounded</enum>
      </property>
      <property name="currentIndex">
-      <number>0</number>
+      <number>2</number>
      </property>
      <property name="elideMode">
       <enum>Qt::ElideNone</enum>
@@ -6422,6 +6422,19 @@ p, li { white-space: pre-wrap; }
              </property>
             </widget>
            </item>
+           <item row="1" column="3">
+            <widget class="QCheckBox" name="checkBox_query">
+             <property name="maximumSize">
+              <size>
+               <width>20</width>
+               <height>16777215</height>
+              </size>
+             </property>
+             <property name="text">
+              <string>CheckBox</string>
+             </property>
+            </widget>
+           </item>
           </layout>
          </widget>
         </widget>
@@ -8055,18 +8068,18 @@ p, li { white-space: pre-wrap; }
    </hints>
   </connection>
   <connection>
-   <sender>lineEdit_us</sender>
-   <signal>textChanged(QString)</signal>
+   <sender>comboBox_sito</sender>
+   <signal>editTextChanged(QString)</signal>
    <receiver>comboBox_ref_ra</receiver>
-   <slot>setCurrentText(QString)</slot>
+   <slot>show()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>576</x>
-     <y>118</y>
+     <x>172</x>
+     <y>121</y>
     </hint>
     <hint type="destinationlabel">
-     <x>340</x>
-     <y>817</y>
+     <x>152</x>
+     <y>829</y>
     </hint>
    </hints>
   </connection>
