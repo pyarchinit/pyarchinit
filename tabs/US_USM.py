@@ -807,7 +807,7 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
         self.toolButton_pdfpath.clicked.connect(self.setPathpdf)
         self.pbnOpenpdfDirectory.clicked.connect(self.openpdfDir)
         self.progressBar.setTextVisible(True)
-        #self.checkBox_query.stateChanged.connect( self.geometry_unitastratigrafiche)### rallenta molto
+        self.comboBox_sito.currentIndexChanged.connect(self.geometry_unitastratigrafiche)### rallenta molto
         
         sito = self.comboBox_sito.currentText()
         self.comboBox_sito.setEditText(sito)

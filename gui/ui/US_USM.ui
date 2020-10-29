@@ -1929,7 +1929,7 @@ background-color: rgb(180, 180, 180);QgsCollapsibleGroupBoxBasic::title, QgsColl
       <enum>QTabWidget::Rounded</enum>
      </property>
      <property name="currentIndex">
-      <number>2</number>
+      <number>0</number>
      </property>
      <property name="elideMode">
       <enum>Qt::ElideNone</enum>
@@ -8064,22 +8064,6 @@ p, li { white-space: pre-wrap; }
     <hint type="destinationlabel">
      <x>728</x>
      <y>784</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>comboBox_sito</sender>
-   <signal>editTextChanged(QString)</signal>
-   <receiver>comboBox_ref_ra</receiver>
-   <slot>show()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>172</x>
-     <y>121</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>152</x>
-     <y>829</y>
     </hint>
    </hints>
   </connection>
