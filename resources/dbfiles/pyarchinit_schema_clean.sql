@@ -3169,7 +3169,7 @@ AS $BODY$
 BEGIN
  if new.coord is null or new.coord!= old.coord then
 
-  update pyunitastratigrafiche set coord = ST_AsText(ST_Centroid(the_geom));
+  update pyunitastratigrafiche set coord = ST_AsText(ST_Centroid(the_geom)) where scavo_s=New.scavo_s and area_s=New.area_s and us_s=New.us_s ;
 END IF;
 RETURN NEW;
 END;

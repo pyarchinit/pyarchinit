@@ -785,35 +785,38 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
             QMessageBox.warning(self, "Connection System", str(e), QMessageBox.Ok)
         #self.listview_us()
             # SIGNALS & SLOTS Functions
-        self.comboBox_sito.editTextChanged.connect(self.charge_periodo_iniz_list)
-        self.comboBox_sito.editTextChanged.connect(self.charge_periodo_fin_list)
-        self.comboBox_sito.editTextChanged.connect(self.charge_struttura_list)
-        #self.comboBox_sito.editTextChanged.connect(self.charge_datazione_list)
-        #self.comboBox_sito.currentIndexChanged.connect(self.charge_datazione_list)
         self.comboBox_sito.currentIndexChanged.connect(self.charge_periodo_iniz_list)
         self.comboBox_sito.currentIndexChanged.connect(self.charge_periodo_fin_list)
         self.comboBox_sito.currentIndexChanged.connect(self.charge_struttura_list)
-        self.comboBox_per_iniz.editTextChanged.connect(self.charge_fase_iniz_list)
+        #self.comboBox_sito.editTextChanged.connect(self.charge_datazione_list)
+        #self.comboBox_sito.currentIndexChanged.connect(self.charge_datazione_list)
+        # self.comboBox_sito.currentIndexChanged.connect(self.charge_periodo_iniz_list)
+        self.comboBox_sito.currentIndexChanged.connect(self.charge_periodo_fin_list)
+        self.comboBox_sito.currentIndexChanged.connect(self.charge_struttura_list)
+        #self.comboBox_per_iniz.editTextChanged.connect(self.charge_fase_iniz_list)
         self.comboBox_per_iniz.currentIndexChanged.connect(self.charge_fase_iniz_list)
-        self.comboBox_per_iniz.editTextChanged.connect(self.charge_datazione_list)
+        #self.comboBox_per_iniz.editTextChanged.connect(self.charge_datazione_list)
         self.comboBox_per_iniz.currentIndexChanged.connect(self.charge_datazione_list)
-        self.comboBox_fas_iniz.editTextChanged.connect(self.charge_datazione_list)
+        #self.comboBox_fas_iniz.editTextChanged.connect(self.charge_datazione_list)
         self.comboBox_fas_iniz.currentIndexChanged.connect(self.charge_datazione_list)
         self.search_1.textChanged.connect(self.update_filter)
-        
-        self.comboBox_per_fin.editTextChanged.connect(self.charge_fase_fin_list)
+        #self.comboBox_per_fin.editTextChanged.connect(self.insert_ra)
+        self.comboBox_sito.currentIndexChanged.connect(self.insert_ra)
+        #self.comboBox_per_fin.editTextChanged.connect(self.charge_fase_fin_list)
         self.comboBox_per_fin.currentIndexChanged.connect(self.charge_fase_fin_list)
         self.toolButton_pdfpath.clicked.connect(self.setPathpdf)
         self.pbnOpenpdfDirectory.clicked.connect(self.openpdfDir)
         self.progressBar.setTextVisible(True)
-        #self.lineEdit_us.textChanged.connect( self.geometry_unitastratigrafiche)### rallenta molto
+        #self.checkBox_query.stateChanged.connect( self.geometry_unitastratigrafiche)### rallenta molto
         
         sito = self.comboBox_sito.currentText()
         self.comboBox_sito.setEditText(sito)
-        self.charge_periodo_iniz_list()
-        self.charge_periodo_fin_list()
-        self.lineEdit_us.textChanged.connect(self.insert_ra)
-        self.charge_struttura_list()
+        # self.charge_periodo_iniz_list()
+        # self.charge_periodo_fin_list()
+        # self.charge_struttura_list()
+        # self.charge_datazione_list()
+        # self.insert_ra()
+        # self.geometry_unitastratigrafiche()
         self.empty_fields()
         self.fill_fields()
         
@@ -821,8 +824,8 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
         self.msg_sito()
         self.set_sito()
         self.show()
-        
-        self.listview_us()###anche questo
+        self.checkBox_query.update()
+        self.checkBox_query.stateChanged.connect(self.listview_us)###anche questo
         
     
     def on_set_matrix_clicked(self, checked=None):
@@ -839,6 +842,8 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
     
     def insert_ra(self):
         
+        
+             
         sito = str(self.comboBox_sito.currentText())
         area = str(self.comboBox_area.currentText())
         us = str(self.lineEdit_us.text())
@@ -852,28 +857,28 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
             
         }
 
-        geometry_vl = self.DB_MANAGER.query_bool(search_dict,'INVENTARIO_MATERIALI')
+        inv_vl = self.DB_MANAGER.query_bool(search_dict,'INVENTARIO_MATERIALI')
 
-        geometry_list = []
+        inv_list = []
 
         #if not periodo_vl:
             #return
-
-        for i in range(len(geometry_vl)):
+        
+        for i in range(len(inv_vl)):
            
-            geometry_list.append(str(geometry_vl[i].n_reperto))
+            inv_list.append(str(inv_vl[i].n_reperto))
             
         try:
-            geometry_vl.remove('')
+            inv_vl.remove('')
            
         
         except :
             pass
-
+        
         self.comboBox_ref_ra.clear()
         #geometry_list.exec_('SELECT   st_astext(st_transform(the_geom,4326)) from pyunitastratigrafiche')
-        self.comboBox_ref_ra.addItems(self.UTILITY.remove_dup_from_list(geometry_list))
-        
+        self.comboBox_ref_ra.addItems(self.UTILITY.remove_dup_from_list(inv_list))
+    
         if self.STATUS_ITEMS[self.BROWSE_STATUS] == "Trova" or "Find":
             self.comboBox_ref_ra.setEditText("")
         elif self.STATUS_ITEMS[self.BROWSE_STATUS] == "Usa" or "Current":
@@ -883,406 +888,431 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
                     self.comboBox_ref_ra.show()
                 except :
                     pass
-
+        
+            
 
     
     def listview_us(self):    #self.loadMedialist()
-        #if self.pushButton_list.setEnabled(True):
-        conn = Connection()
-        conn_str = conn.conn_str()
-        conn_sqlite = conn.databasename()
-        conn_user = conn.datauser()
-        conn_host = conn.datahost()
-        conn_port = conn.dataport()
-        port_int  = conn_port["port"]
-        port_int.replace("'", "")
-        #QMessageBox.warning(self, "Attenzione", port_int, QMessageBox.Ok)
-        conn_password = conn.datapassword()
-        
-        
-        sito_set= conn.sito_set()
-        sito_set_str = sito_set['sito_set']
-        
-        test_conn = conn_str.find('sqlite')
-         
-        if test_conn == 0:
-            sqlite_DB_path = '{}{}{}'.format(self.HOME, os.sep,
-                                           "pyarchinit_DB_folder") 
-            db = QSqlDatabase("QSQLITE") 
-            db.setDatabaseName(sqlite_DB_path +os.sep+ conn_sqlite["db_name"])
+        if self.checkBox_query.isChecked():
+            conn = Connection()
+            conn_str = conn.conn_str()
+            conn_sqlite = conn.databasename()
+            conn_user = conn.datauser()
+            conn_host = conn.datahost()
+            conn_port = conn.dataport()
+            port_int  = conn_port["port"]
+            port_int.replace("'", "")
+            #QMessageBox.warning(self, "Attenzione", port_int, QMessageBox.Ok)
+            conn_password = conn.datapassword()
             
             
-            db.open()
+            sito_set= conn.sito_set()
+            sito_set_str = sito_set['sito_set']
             
-            self.model_a = QSqlTableModel(db = db) 
-            
-            self.table.setModel(self.model_a) 
-            self.model_a.setTable("us_table") 
-            self.model_a.setEditStrategy(QSqlTableModel.OnManualSubmit)
-            
-            self.pushButton_submit.clicked.connect(self.submit)
-            self.pushButton_revert.clicked.connect(self.model_a.revertAll)
-            column_titles = { 
-                "sito": "SITO", 
-                "area": "Area", 
-                "us": "US"} 
-            for n, t in column_titles.items(): 
-                idx = self.model_a.fieldIndex( n) 
-                self.model_a.setHeaderData( idx, Qt.Horizontal, t)
+            test_conn = conn_str.find('sqlite')
+             
+            if test_conn == 0:
+                sqlite_DB_path = '{}{}{}'.format(self.HOME, os.sep,
+                                               "pyarchinit_DB_folder") 
+                db = QSqlDatabase("QSQLITE") 
+                db.setDatabaseName(sqlite_DB_path +os.sep+ conn_sqlite["db_name"])
+                
+                
+                db.open()
+                
+                self.model_a = QSqlTableModel(db = db) 
+                
+                self.table.setModel(self.model_a) 
+                self.model_a.setTable("us_table") 
+                self.model_a.setEditStrategy(QSqlTableModel.OnManualSubmit)
+                
+                self.pushButton_submit.clicked.connect(self.submit)
+                self.pushButton_revert.clicked.connect(self.model_a.revertAll)
+                column_titles = { 
+                    "sito": "SITO", 
+                    "area": "Area", 
+                    "us": "US"} 
+                for n, t in column_titles.items(): 
+                    idx = self.model_a.fieldIndex( n) 
+                    self.model_a.setHeaderData( idx, Qt.Horizontal, t)
 
-            #self.model.removeColumns(0,1 and 2,3)
-            # columns_to_remove = ['id_us'] 
-            # for cn in columns_to_remove: 
-                # idx = self.model.fieldIndex(cn) 
-                # self.model.removeColumns(idx, 1)
-            if bool (sito_set_str):
-                filter_str = "sito = '{}'".format(str(self.comboBox_sito.currentText())) 
-                self.model_a.setFilter(filter_str)
-                self.model_a.select() 
-                
-            else:
-            
-                self.model_a.select() 
+                #self.model.removeColumns(0,1 and 2,3)
+                # columns_to_remove = ['id_us'] 
+                # for cn in columns_to_remove: 
+                    # idx = self.model.fieldIndex(cn) 
+                    # self.model.removeColumns(idx, 1)
+                if bool (sito_set_str):
+                    filter_str = "sito = '{}'".format(str(self.comboBox_sito.currentText())) 
+                    self.model_a.setFilter(filter_str)
+                    self.model_a.select() 
                     
+                else:
                 
-                #self.model_a.database().close()
-        else:
-           
-            db = QSqlDatabase.addDatabase("QPSQL")
-            db.setHostName(conn_host["host"])
+                    self.model_a.select() 
                         
-            db.setDatabaseName(conn_sqlite["db_name"])
-            db.setPort(int(port_int))
-            db.setUserName(conn_user['user'])
-            db.setPassword(conn_password['password']) 
-            
-            db.open()
-            
-            
-                
-            self.model_a = QSqlTableModel(db = db) 
-           
-            self.table.setModel(self.model_a) 
-            self.model_a.setTable("us_table")
-            self.model_a.setEditStrategy(QSqlTableModel.OnManualSubmit)
-            self.pushButton_submit.clicked.connect(self.submit)
-            self.pushButton_revert.clicked.connect(self.model_a.revertAll)
-        
-            if bool (sito_set_str):
-                filter_str = "sito = '{}'".format(str(self.comboBox_sito.currentText())) 
-                self.model_a.setFilter(filter_str)
-                self.model_a.select()
-                             
+                    
+                    #self.model_a.database().close()
             else:
-                self.model_a.select() 
+               
+                db = QSqlDatabase.addDatabase("QPSQL")
+                db.setHostName(conn_host["host"])
+                            
+                db.setDatabaseName(conn_sqlite["db_name"])
+                db.setPort(int(port_int))
+                db.setUserName(conn_user['user'])
+                db.setPassword(conn_password['password']) 
+                
+                db.open()
+                
+                
+                    
+                self.model_a = QSqlTableModel(db = db) 
+               
+                self.table.setModel(self.model_a) 
+                self.model_a.setTable("us_table")
+                self.model_a.setEditStrategy(QSqlTableModel.OnManualSubmit)
+                self.pushButton_submit.clicked.connect(self.submit)
+                self.pushButton_revert.clicked.connect(self.model_a.revertAll)
+            
+                if bool (sito_set_str):
+                    filter_str = "sito = '{}'".format(str(self.comboBox_sito.currentText())) 
+                    self.model_a.setFilter(filter_str)
+                    self.model_a.select()
+                                 
+                else:
+                    self.model_a.select() 
           
-         
-        
+        else:
+            
+            self.checkBox_query.setChecked(False)
        
         
     def submit(self):
-        self.model_a.database().transaction()
-        if self.model_a.submitAll():
-            self.model_a.database().commit()
-            QMessageBox.information(self, "Record",  "record salvato")
-        else:
-            self.model_a.database().rollback()
-            QMessageBox.warning(self, "Cached Table",
-                        "The database reported an error: %s" % self.model_a.lastError().text())    
+        if self.checkBox_query.isChecked():
+            self.model_a.database().transaction()
+            if self.model_a.submitAll():
+                self.model_a.database().commit()
+                QMessageBox.information(self, "Record",  "record salvato")
+            else:
+                self.model_a.database().rollback()
+                QMessageBox.warning(self, "Cached Table",
+                            "The database reported an error: %s" % self.model_a.lastError().text())    
+        else:    
+            self.checkBox_query.setChecked(False)
+    
     def update_filter(self, s): 
-        conn = Connection()
-        conn_str = conn.conn_str()    
-        sito_set= conn.sito_set()
-        sito_set_str = sito_set['sito_set']
-        test_conn = conn_str.find('sqlite')
-        if test_conn == 0:
-            try:
-                if bool(sito_set_str):
-            
-                    s_field = self.field.currentText()
-                    s = re.sub("[\W_] +", "", s)
-                    filter_str = "{} LIKE '%{}%' and sito = '{}'".format(s_field,s,str(self.comboBox_sito.currentText())) 
-                    self.model_a.setFilter(filter_str)
-                    
-                else:
-                    s_field = self.field.currentText()
-                    s = re.sub("[\W_] +", "", s)
-                    filter_str = "{} LIKE '%{}%'".format(s_field,s) 
-                    self.model_a.setFilter(filter_str)
-                    
-            except Exception as e:
-                QMessageBox.warning(self, "Attenzione", str(e), QMessageBox.Ok)
+        if self.checkBox_query.isChecked():
+            conn = Connection()
+            conn_str = conn.conn_str()    
+            sito_set= conn.sito_set()
+            sito_set_str = sito_set['sito_set']
+            test_conn = conn_str.find('sqlite')
+            if test_conn == 0:
+                try:
+                    if bool(sito_set_str):
                 
-        else:
-            try:
-                if bool(sito_set_str):
-            
-                    s_field = self.field.currentText()
-                    s = re.sub("[\W_] +", "", s)
-                    filter_str = "{} LIKE '%{}%' and sito = '{}'".format(s_field,s,str(self.comboBox_sito.currentText()))
-                    if bool(filter_str):
+                        s_field = self.field.currentText()
+                        s = re.sub("[\W_] +", "", s)
+                        filter_str = "{} LIKE '%{}%' and sito = '{}'".format(s_field,s,str(self.comboBox_sito.currentText())) 
                         self.model_a.setFilter(filter_str)
-                        self.model_a.select()
                         
                     else:
-                        pass
-                else:
-                    s_field = self.field.currentText()
-                    s = re.sub("[\W_] +", "", s)
-                    filter_str = "{} LIKE '%{}%'".format(s_field,s) 
-                    if bool(filter_str):
+                        s_field = self.field.currentText()
+                        s = re.sub("[\W_] +", "", s)
+                        filter_str = "{} LIKE '%{}%'".format(s_field,s) 
                         self.model_a.setFilter(filter_str)
-                        self.model_a.select() 
                         
+                except Exception as e:
+                    QMessageBox.warning(self, "Attenzione", str(e), QMessageBox.Ok)
+                    
+            else:
+                try:
+                    if bool(sito_set_str):
+                
+                        s_field = self.field.currentText()
+                        s = re.sub("[\W_] +", "", s)
+                        filter_str = "{} LIKE '%{}%' and sito = '{}'".format(s_field,s,str(self.comboBox_sito.currentText()))
+                        if bool(filter_str):
+                            self.model_a.setFilter(filter_str)
+                            self.model_a.select()
+                            
+                        else:
+                            pass
                     else:
-                        pass
-            except Exception as e:
-                QMessageBox.warning(self, "Attenzione", str(e), QMessageBox.Ok)
-        
+                        s_field = self.field.currentText()
+                        s = re.sub("[\W_] +", "", s)
+                        filter_str = "{} LIKE '%{}%'".format(s_field,s) 
+                        if bool(filter_str):
+                            self.model_a.setFilter(filter_str)
+                            self.model_a.select() 
+                            
+                        else:
+                            pass
+                except Exception as e:
+                    QMessageBox.warning(self, "Attenzione", str(e), QMessageBox.Ok)
+        else:    
+            self.checkBox_query.setChecked(False)
     
     def on_pushButton_globalsearch_pressed(self):#395.684 800900 
         self.search.showSearchDialog()    
     def charge_struttura_list(self):
-        sito = str(self.comboBox_sito.currentText())
-        # sitob = sito.decode('utf-8')
+        if self.comboBox_sito.editTextChanged: 
+            sito = str(self.comboBox_sito.currentText())
+            # sitob = sito.decode('utf-8')
 
-        search_dict = {
-            'sito': "'" + sito + "'"
-        }
+            search_dict = {
+                'sito': "'" + sito + "'"
+            }
 
-        struttura_vl = self.DB_MANAGER.query_bool(search_dict, 'STRUTTURA')
+            struttura_vl = self.DB_MANAGER.query_bool(search_dict, 'STRUTTURA')
 
-        struttura_list = []
+            struttura_list = []
 
-        #if not struttura_vl:
-            #return
+            #if not struttura_vl:
+                #return
+            #if self.checkBox_query.isChecked():
+            for i in range(len(struttura_vl)):
+                struttura_list.append(str(struttura_vl[i].sigla_struttura+'-'+str(struttura_vl[i].numero_struttura)))
 
-        for i in range(len(struttura_vl)):
-            struttura_list.append(str(struttura_vl[i].sigla_struttura+'-'+str(struttura_vl[i].numero_struttura)))
+            try:
+                struttura_vl.remove('')
+            except:
+                pass
+            # else:    
+                # self.checkBox_query.setChecked(False)
+            self.comboBox_struttura.clear()
+            self.comboBox_struttura.addItems(self.UTILITY.remove_dup_from_list(struttura_list))
 
-        try:
-            struttura_vl.remove('')
-        except:
-            pass
-
-        self.comboBox_struttura.clear()
-        self.comboBox_struttura.addItems(self.UTILITY.remove_dup_from_list(struttura_list))
-
-        if self.STATUS_ITEMS[self.BROWSE_STATUS] == "Trova" or "Find":
-            self.comboBox_struttura.setEditText("")
-        elif self.STATUS_ITEMS[self.BROWSE_STATUS] == "Usa" or "Current":
-            if len(self.DATA_LIST) > 0:
-                try:
-                    self.comboBox_struttura.setEditText(self.DATA_LIST[self.rec_num].sigla_struttura+'-'+numero_struttura)
-                except:
-                    pass  # non vi sono periodi per questo scavo
-    
+            if self.STATUS_ITEMS[self.BROWSE_STATUS] == "Trova" or "Find":
+                self.comboBox_struttura.setEditText("")
+            elif self.STATUS_ITEMS[self.BROWSE_STATUS] == "Usa" or "Current":
+                if len(self.DATA_LIST) > 0:
+                    try:
+                        self.comboBox_struttura.setEditText(self.DATA_LIST[self.rec_num].sigla_struttura+'-'+numero_struttura)
+                    except:
+                        pass  # non vi sono periodi per questo scavo
+        
     def geometry_unitastratigrafiche(self):
-        sito = str(self.comboBox_sito.currentText())
-        area = str(self.comboBox_area.currentText())
-        us = str(self.lineEdit_us.text())
-        
-        
-        search_dict = {
+        if self.comboBox_sito.editTextChanged: 
+            sito = str(self.comboBox_sito.currentText())
+            area = str(self.comboBox_area.currentText())
+            us = str(self.lineEdit_us.text())
             
-            'area_s': "'" + area + "'",
-            'scavo_s': "'" + sito + "'",
-            'us_s': "'" + us + "'"
             
-        }
+            search_dict = {
+                
+                'area_s': "'" + area + "'",
+                'scavo_s': "'" + sito + "'",
+                'us_s': "'" + us + "'"
+                
+            }
 
-        geometry_vl = self.DB_MANAGER.query_bool(search_dict,'PYUS')
+            geometry_vl = self.DB_MANAGER.query_bool(search_dict,'PYUS')
 
-        geometry_list = []
+            geometry_list = []
 
-        #if not periodo_vl:
-            #return
-
-        for i in range(len(geometry_vl)):
-           
-            geometry_list.append(str(geometry_vl[i].coord))
-        try:
-            geometry_vl.remove('')
-           
-        
-        except:
-            pass
-
-        self.comboBox_posizione.clear()
-        #geometry_list.exec_('SELECT   st_astext(st_transform(the_geom,4326)) from pyunitastratigrafiche')
-        self.comboBox_posizione.addItems(self.UTILITY.remove_dup_from_list(geometry_list))
-
-        if self.STATUS_ITEMS[self.BROWSE_STATUS] == "Trova" or "Find":
-            self.comboBox_posizione.setEditText("")
-        elif self.STATUS_ITEMS[self.BROWSE_STATUS] == "Usa" or "Current":
-            if len(self.DATA_LIST) > 0:
+            #if not periodo_vl:
+                #return
+            if self.checkBox_query.isChecked():
+                for i in range(len(geometry_vl)):
+                   
+                    geometry_list.append(str(geometry_vl[i].coord))
                 try:
-                    self.comboBox_posizione.setEditText(self.DATA_LIST[self.rec_num].coord)
-                except:
-                    pass  # non vi sono periodi per questo scavo
-    
-    
-    def charge_periodo_iniz_list(self):
-        sito = str(self.comboBox_sito.currentText())
-        # sitob = sito.decode('utf-8')
-
-        search_dict = {
-            'sito': "'" + sito + "'"
-        }
-
-        periodo_vl = self.DB_MANAGER.query_bool(search_dict, 'PERIODIZZAZIONE')
-
-        periodo_list = []
-
-        #if not periodo_vl:
-            #return
-
-        for i in range(len(periodo_vl)):
-            periodo_list.append(str(periodo_vl[i].periodo))
-
-        try:
-            periodo_vl.remove('')
-        except:
-            pass
-
-        self.comboBox_per_iniz.clear()
-        self.comboBox_per_iniz.addItems(self.UTILITY.remove_dup_from_list(periodo_list))
-
-        if self.STATUS_ITEMS[self.BROWSE_STATUS] == "Trova" or "Find":
-            self.comboBox_per_iniz.setEditText("")
-        elif self.STATUS_ITEMS[self.BROWSE_STATUS] == "Usa" or "Current":
-            if len(self.DATA_LIST) > 0:
-                try:
-                    self.comboBox_per_iniz.setEditText(self.DATA_LIST[self.rec_num].periodo_iniziale)
-                except:
-                    pass  # non vi sono periodi per questo scavo
-
-    def charge_periodo_fin_list(self):
-        search_dict = {
-            'sito': "'" + str(self.comboBox_sito.currentText()) + "'"
-        }
-
-        periodo_vl = self.DB_MANAGER.query_bool(search_dict, 'PERIODIZZAZIONE')
-        periodo_list = []
-
-        #if not periodo_list:
-            #return
-
-        for i in range(len(periodo_vl)):
-            periodo_list.append(str(periodo_vl[i].periodo))
-        try:
-            periodo_vl.remove('')
-        except:
-            pass
-
-        self.comboBox_per_fin.clear()
-        self.comboBox_per_fin.addItems(self.UTILITY.remove_dup_from_list(periodo_list))
-
-        if self.STATUS_ITEMS[self.BROWSE_STATUS] == "Trova" or "Find":
-            self.comboBox_per_fin.setEditText("")
-        elif self.STATUS_ITEMS[self.BROWSE_STATUS] == "Usa" or "Current":
-            if len(self.DATA_LIST) > 0:
-                try:
-                    self.comboBox_per_fin.setEditText(self.DATA_LIST[self.rec_num].periodo_iniziale)
+                    geometry_vl.remove('')
+                   
+                
                 except:
                     pass
-    
-    def charge_fase_iniz_list(self):
-        try:
-            search_dict = {
-                'sito': "'" + str(self.comboBox_sito.currentText()) + "'",
-                'periodo': "'" + str(self.comboBox_per_iniz.currentText()) + "'",
-            }
-
-            fase_list_vl = self.DB_MANAGER.query_bool(search_dict, 'PERIODIZZAZIONE')
-
-            fase_list = []
-
-            for i in range(len(fase_list_vl)):
-                fase_list.append(str(fase_list_vl[i].fase))
-
-            try:
-                fase_list.remove('')
-            except:
-                pass
-
-            self.comboBox_fas_iniz.clear()
-
-            fase_list.sort()
-            self.comboBox_fas_iniz.addItems(self.UTILITY.remove_dup_from_list(fase_list))
+            else:    
+                self.checkBox_query.setChecked(False)
+            self.comboBox_posizione.clear()
+            #geometry_list.exec_('SELECT   st_astext(st_transform(the_geom,4326)) from pyunitastratigrafiche')
+            self.comboBox_posizione.addItems(self.UTILITY.remove_dup_from_list(geometry_list))
 
             if self.STATUS_ITEMS[self.BROWSE_STATUS] == "Trova" or "Find":
-                self.comboBox_fas_iniz.setEditText("")
-            else:
-                self.comboBox_fas_iniz.setEditText(self.DATA_LIST[self.rec_num].fase_iniziale)
-        except:
-            pass
+                self.comboBox_posizione.setEditText("")
+            elif self.STATUS_ITEMS[self.BROWSE_STATUS] == "Usa" or "Current":
+                if len(self.DATA_LIST) > 0:
+                    try:
+                        self.comboBox_posizione.setEditText(self.DATA_LIST[self.rec_num].coord)
+                    except:
+                        pass  # non vi sono periodi per questo scavo
+        
+    
+    def charge_periodo_iniz_list(self):
+        if self.comboBox_sito.editTextChanged: 
+            try: 
+                sito = str(self.comboBox_sito.currentText())
+                # sitob = sito.decode('utf-8')
 
+                search_dict = {
+                    'sito': "'" + sito + "'"
+                }
+
+                periodo_vl = self.DB_MANAGER.query_bool(search_dict, 'PERIODIZZAZIONE')
+
+                periodo_list = []
+
+                #if not periodo_vl:
+                    #return
+                #if self.checkBox_query.isChecked() and self.comboBox_sito.currentText==sito:
+                for i in range(len(periodo_vl)):
+                    periodo_list.append(str(periodo_vl[i].periodo))
+
+                try:
+                    periodo_vl.remove('')
+                except:
+                    pass
+                #
+                self.comboBox_per_iniz.clear()
+                self.comboBox_per_iniz.addItems(self.UTILITY.remove_dup_from_list(periodo_list))
+
+                if self.STATUS_ITEMS[self.BROWSE_STATUS] == "Trova" or "Find":
+                    self.comboBox_per_iniz.setEditText("")
+                elif self.STATUS_ITEMS[self.BROWSE_STATUS] == "Usa" or "Current":
+                    if len(self.DATA_LIST) > 0:
+                        try:
+                            self.comboBox_per_iniz.setEditText(self.DATA_LIST[self.rec_num].periodo_iniziale)
+                            self.comboBox_per_iniz.show()
+                        except:
+                            pass  # non vi sono periodi per questo scavo
+            except:
+                pass  # non vi sono periodi per questo scavo
+    def charge_periodo_fin_list(self):
+        if self.comboBox_sito.editTextChanged: 
+            try:
+                search_dict = {
+                    'sito': "'" + str(self.comboBox_sito.currentText()) + "'"
+                }
+
+                periodo_vl = self.DB_MANAGER.query_bool(search_dict, 'PERIODIZZAZIONE')
+                periodo_list = []
+
+                #if not periodo_list:
+                    #return
+                #if self.checkBox_query.isChecked():
+                for i in range(len(periodo_vl)):
+                    periodo_list.append(str(periodo_vl[i].periodo))
+                try:
+                    periodo_vl.remove('')
+                except:
+                    pass
+                #
+                self.comboBox_per_fin.clear()
+                self.comboBox_per_fin.addItems(self.UTILITY.remove_dup_from_list(periodo_list))
+
+                if self.STATUS_ITEMS[self.BROWSE_STATUS] == "Trova" or "Find":
+                    self.comboBox_per_fin.setEditText("")
+                elif self.STATUS_ITEMS[self.BROWSE_STATUS] == "Usa" or "Current":
+                    if len(self.DATA_LIST) > 0:
+                        try:
+                            self.comboBox_per_fin.setEditText(self.DATA_LIST[self.rec_num].periodo_iniziale)
+                        except:
+                            pass
+            except:
+                pass  # non vi sono periodi per questo scavo
+    def charge_fase_iniz_list(self):
+        if self.comboBox_sito.editTextChanged: 
+            try:
+                search_dict = {
+                    'sito': "'" + str(self.comboBox_sito.currentText()) + "'",
+                    'periodo': "'" + str(self.comboBox_per_iniz.currentText()) + "'",
+                }
+
+                fase_list_vl = self.DB_MANAGER.query_bool(search_dict, 'PERIODIZZAZIONE')
+
+                fase_list = []
+                #if self.checkBox_query.isChecked():
+                for i in range(len(fase_list_vl)):
+                    fase_list.append(str(fase_list_vl[i].fase))
+
+                try:
+                    fase_list.remove('')
+                except:
+                    pass
+                # else:    
+                    # self.checkBox_query.setChecked(False)
+                self.comboBox_fas_iniz.clear()
+
+                fase_list.sort()
+                self.comboBox_fas_iniz.addItems(self.UTILITY.remove_dup_from_list(fase_list))
+
+                if self.STATUS_ITEMS[self.BROWSE_STATUS] == "Trova" or "Find":
+                    self.comboBox_fas_iniz.setEditText("")
+                else:
+                    self.comboBox_fas_iniz.setEditText(self.DATA_LIST[self.rec_num].fase_iniziale)
+            except:
+                pass
+        
 
     def charge_fase_fin_list(self):
-        try:
-            search_dict = {
-                'sito': "'" + str(self.comboBox_sito.currentText()) + "'",
-                'periodo': "'" + str(self.comboBox_per_fin.currentText()) + "'"
-            }
-
-            fase_list_vl = self.DB_MANAGER.query_bool(search_dict, 'PERIODIZZAZIONE')
-
-            fase_list = []
-
-            for i in range(len(fase_list_vl)):
-                fase_list.append(str(fase_list_vl[i].fase))
-
+        if self.comboBox_sito.editTextChanged: 
             try:
-                fase_list.remove('')
+                search_dict = {
+                    'sito': "'" + str(self.comboBox_sito.currentText()) + "'",
+                    'periodo': "'" + str(self.comboBox_per_fin.currentText()) + "'"
+                }
+
+                fase_list_vl = self.DB_MANAGER.query_bool(search_dict, 'PERIODIZZAZIONE')
+
+                fase_list = []
+                #if self.checkBox_query.isChecked():
+                for i in range(len(fase_list_vl)):
+                    fase_list.append(str(fase_list_vl[i].fase))
+
+                try:
+                    fase_list.remove('')
+                except:
+                    pass
+                # else:    
+                    # self.checkBox_query.setChecked(False)
+                self.comboBox_fas_fin.clear()
+                fase_list.sort()
+                self.comboBox_fas_fin.addItems(self.UTILITY.remove_dup_from_list(fase_list))
+
+                if self.STATUS_ITEMS[self.BROWSE_STATUS] == "Trova" or "Find":
+                    self.comboBox_fas_fin.setEditText("")
+                else:
+                    self.comboBox_fas_fin.setEditText(self.DATA_LIST[self.rec_num].fase_finale)
             except:
                 pass
-
-            self.comboBox_fas_fin.clear()
-            fase_list.sort()
-            self.comboBox_fas_fin.addItems(self.UTILITY.remove_dup_from_list(fase_list))
-
-            if self.STATUS_ITEMS[self.BROWSE_STATUS] == "Trova" or "Find":
-                self.comboBox_fas_fin.setEditText("")
-            else:
-                self.comboBox_fas_fin.setEditText(self.DATA_LIST[self.rec_num].fase_finale)
-        except:
-            pass
 
             # buttons functions
-    
+        
     def charge_datazione_list(self):
-        try:
-            search_dict = {
-                'sito': "'" + str(self.comboBox_sito.currentText()) + "'",
-                'periodo': "'" + str(self.comboBox_per_iniz.currentText()) + "'",
-                'fase': "'" + str(self.comboBox_fas_iniz.currentText()) + "'"
-            }
-
-            datazione_list_vl = self.DB_MANAGER.query_bool(search_dict, 'PERIODIZZAZIONE')
-
-            datazione_list = []
-
-            for i in range(len(datazione_list_vl)):
-                datazione_list.append(str(datazione_list_vl[i].datazione_estesa))
-
+        if self.comboBox_sito.editTextChanged: 
             try:
-                datazione_list.remove('')
+                search_dict = {
+                    'sito': "'" + str(self.comboBox_sito.currentText()) + "'",
+                    'periodo': "'" + str(self.comboBox_per_iniz.currentText()) + "'",
+                    'fase': "'" + str(self.comboBox_fas_iniz.currentText()) + "'"
+                }
+
+                datazione_list_vl = self.DB_MANAGER.query_bool(search_dict, 'PERIODIZZAZIONE')
+
+                datazione_list = []
+                #if self.checkBox_query.isChecked():
+                for i in range(len(datazione_list_vl)):
+                    datazione_list.append(str(datazione_list_vl[i].datazione_estesa))
+
+                try:
+                    datazione_list.remove('')
+                except:
+                    pass
+                # else:    
+                    # self.checkBox_query.setChecked(False)
+                self.comboBox_datazione.clear()
+                datazione_list.sort()
+                self.comboBox_datazione.addItems(self.UTILITY.remove_dup_from_list(datazione_list))
+
+                if self.STATUS_ITEMS[self.BROWSE_STATUS] == "Trova" or "Find":
+                    self.comboBox_datazione.setEditText("")
+                else:
+                    self.comboBox_datazione.setEditText(self.DATA_LIST[self.rec_num].datazione_estesa)
             except:
                 pass
 
-            self.comboBox_datazione.clear()
-            datazione_list.sort()
-            self.comboBox_datazione.addItems(self.UTILITY.remove_dup_from_list(datazione_list))
-
-            if self.STATUS_ITEMS[self.BROWSE_STATUS] == "Trova" or "Find":
-                self.comboBox_datazione.setEditText("")
-            else:
-                self.comboBox_datazione.setEditText(self.DATA_LIST[self.rec_num].datazione_estesa)
-        except:
-            pass
-
-    
+        
     def on_pushButton_draw_doc_pressed(self):
         sito = str(self.comboBox_sito.currentText())
         area = str(self.comboBox_area.currentText())
@@ -3777,7 +3807,9 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
             self.enable_button(0)
 
     def on_pushButton_save_pressed(self):
-        self.model_a.database().close()
+        self.checkBox_query.setChecked(False)
+        if self.checkBox_query.isChecked():
+            self.model_a.database().close()
         if self.BROWSE_STATUS == "b":
             if self.data_error_check() == 0:
                 if self.records_equal_check() == 1:
@@ -4938,7 +4970,9 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
             # records surf functions
 
     def on_pushButton_view_all_pressed(self):
-        self.model_a.database().close()
+        self.checkBox_query.setChecked(False)
+        if self.checkBox_query.isChecked():
+            self.model_a.database().close()
         self.empty_fields()
         self.charge_records()
         self.fill_fields()
@@ -4957,7 +4991,9 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
         # records surf functions
 
     def on_pushButton_first_rec_pressed(self):
-        self.model_a.database().close()
+        self.checkBox_query.setChecked(False)
+        if self.checkBox_query.isChecked():
+            self.model_a.database().close()
         if self.check_record_state() == 1:
             pass
         else:
@@ -4970,7 +5006,9 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
                 pass
 
     def on_pushButton_last_rec_pressed(self):
-        self.model_a.database().close()
+        self.checkBox_query.setChecked(False)
+        if self.checkBox_query.isChecked():
+            self.model_a.database().close()
         if self.check_record_state() == 1:
             pass
         else:
@@ -4984,7 +5022,9 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
                
 
     def on_pushButton_prev_rec_pressed(self):
-        self.model_a.database().close()
+        self.checkBox_query.setChecked(False)
+        if self.checkBox_query.isChecked():
+            self.model_a.database().close()
         rec_goto = int(self.lineEdit_goto.text())
         
         if self.check_record_state() == 1:
@@ -5005,7 +5045,9 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
                   
 
     def on_pushButton_next_rec_pressed(self):
-        #self.model_a.database().close()
+        self.checkBox_query.setChecked(False)
+        if self.checkBox_query.isChecked():
+            self.model_a.database().close()
         rec_goto = int(self.lineEdit_goto.text())
         
         if self.check_record_state() == 1:
@@ -5026,7 +5068,9 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
                 pass#QMessageBox.warning(self, "Error", str(e), QMessageBox.Ok)
 
     def on_pushButton_delete_pressed(self):
-        self.model_a.database().close()
+        self.checkBox_query.setChecked(False)
+        if self.checkBox_query.isChecked():
+            self.model_a.database().close()
         if self.L=='it':
             msg = QMessageBox.warning(self, "Attenzione!!!",
                                       "Vuoi veramente eliminare il record? \n L'azione è irreversibile",
@@ -5132,6 +5176,9 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
             self.label_sort.setText(self.SORTED_ITEMS[self.SORT_STATUS])
             #
     def on_pushButton_new_search_pressed(self):
+        self.checkBox_query.setChecked(False)
+        if self.checkBox_query.isChecked():
+            self.model_a.database().close()
         if self.BROWSE_STATUS != "f" and self.check_record_state() == 1:
             pass
         else:
@@ -5198,7 +5245,7 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
         elif self.L=='en':   
             QMessageBox.warning(self, "Attention", "Updated period code for excavation %s" % (sito), QMessageBox.Ok)
     def on_pushButton_search_go_pressed(self):
-        #self.model_a.database().close()
+        self.checkBox_query.setChecked(False)
         if self.BROWSE_STATUS != "f":
             if self.L=='it':
                 QMessageBox.warning(self, "ATTENZIONE", "Per eseguire una nuova ricerca clicca sul pulsante 'new search' ",

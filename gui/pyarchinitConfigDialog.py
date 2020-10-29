@@ -1463,9 +1463,9 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
                         
                         QApplication.processEvents()
                         
-                    except :
+                    except Exception as e :
                         
-                        QMessageBox.warning(self, "Errore", "Error ! \n"+ "duplicate key",  QMessageBox.Ok)
+                        QMessageBox.warning(self, "Errore", "Error ! \n"+ str(e),  QMessageBox.Ok)
                         return 0
                 self.progress_bar.reset()
                 QMessageBox.information(self, "Message", "Data Loaded")
