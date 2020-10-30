@@ -41,7 +41,7 @@
    <string>Impostazioni del sistema</string>
   </property>
   <property name="windowIcon">
-   <iconset>
+   <iconset resource="../../resources/resources.qrc">
     <normaloff>:/icons/iconConn.png</normaloff>:/icons/iconConn.png</iconset>
   </property>
   <property name="autoFillBackground">
@@ -786,536 +786,687 @@
       <attribute name="title">
        <string>Tool di importazione</string>
       </attribute>
-      <widget class="QLabel" name="label_11">
-       <property name="geometry">
-        <rect>
-         <x>11</x>
-         <y>11</y>
-         <width>137</width>
-         <height>16</height>
-        </rect>
-       </property>
-       <property name="text">
-        <string>Esportazione directories</string>
-       </property>
-      </widget>
-      <widget class="QPushButton" name="pushButton_exp_directories">
-       <property name="geometry">
-        <rect>
-         <x>11</x>
-         <y>34</y>
-         <width>160</width>
-         <height>28</height>
-        </rect>
-       </property>
-       <property name="text">
-        <string>Esportazione experimental</string>
-       </property>
-      </widget>
-      <widget class="Line" name="line">
-       <property name="geometry">
-        <rect>
-         <x>11</x>
-         <y>69</y>
-         <width>730</width>
-         <height>16</height>
-        </rect>
-       </property>
-       <property name="orientation">
-        <enum>Qt::Horizontal</enum>
-       </property>
-      </widget>
-      <widget class="QLabel" name="label_22">
-       <property name="geometry">
-        <rect>
-         <x>584</x>
-         <y>336</y>
-         <width>16</width>
-         <height>16</height>
-        </rect>
-       </property>
-       <property name="text">
-        <string/>
-       </property>
-      </widget>
-      <widget class="QWidget" name="layoutWidget">
-       <property name="geometry">
-        <rect>
-         <x>11</x>
-         <y>79</y>
-         <width>721</width>
-         <height>601</height>
-        </rect>
-       </property>
-       <layout class="QGridLayout" name="gridLayout_6">
-        <item row="17" column="7">
-         <widget class="QPushButton" name="pushButton_import">
-          <property name="font">
-           <font>
-            <pointsize>9</pointsize>
-            <weight>75</weight>
-            <bold>true</bold>
-           </font>
-          </property>
-          <property name="text">
-           <string>Import Table</string>
-          </property>
-         </widget>
-        </item>
-        <item row="19" column="1">
-         <spacer name="verticalSpacer">
-          <property name="orientation">
-           <enum>Qt::Vertical</enum>
-          </property>
-          <property name="sizeHint" stdset="0">
-           <size>
-            <width>20</width>
-            <height>24</height>
-           </size>
-          </property>
-         </spacer>
-        </item>
-        <item row="11" column="0" colspan="2">
-         <widget class="QLabel" name="label_61">
-          <property name="font">
-           <font>
-            <pointsize>15</pointsize>
-            <weight>75</weight>
-            <italic>true</italic>
-            <bold>true</bold>
-           </font>
-          </property>
-          <property name="text">
-           <string>TO</string>
-          </property>
-         </widget>
-        </item>
-        <item row="0" column="0" colspan="2">
-         <widget class="QLabel" name="label_59">
-          <property name="font">
-           <font>
-            <pointsize>14</pointsize>
-            <weight>75</weight>
-            <bold>true</bold>
-           </font>
-          </property>
-          <property name="text">
-           <string>Importazione dati</string>
-          </property>
-         </widget>
-        </item>
-        <item row="1" column="0" colspan="2">
-         <widget class="QLabel" name="label_60">
-          <property name="font">
-           <font>
-            <pointsize>15</pointsize>
-            <weight>75</weight>
-            <italic>true</italic>
-            <bold>true</bold>
-           </font>
-          </property>
-          <property name="text">
-           <string>FROM</string>
-          </property>
-         </widget>
-        </item>
-        <item row="12" column="0" colspan="2">
-         <widget class="QComboBox" name="comboBox_server_wt">
-          <property name="minimumSize">
-           <size>
-            <width>20</width>
-            <height>0</height>
-           </size>
-          </property>
-          <item>
+      <layout class="QGridLayout" name="gridLayout_17">
+       <item row="0" column="0" rowspan="2" colspan="2">
+        <layout class="QGridLayout" name="gridLayout_6">
+         <item row="13" column="0">
+          <widget class="QLabel" name="label_27">
            <property name="text">
-            <string>sqlite</string>
+            <string>Host</string>
            </property>
-          </item>
-          <item>
+          </widget>
+         </item>
+         <item row="8" column="0">
+          <widget class="QLabel" name="label_19">
            <property name="text">
-            <string>postgres</string>
+            <string>Password</string>
            </property>
-          </item>
-         </widget>
-        </item>
-        <item row="13" column="7">
-         <widget class="QLineEdit" name="lineEdit_username_wt"/>
-        </item>
-        <item row="14" column="7">
-         <widget class="QLineEdit" name="lineEdit_pass_wt">
-          <property name="echoMode">
-           <enum>QLineEdit::Password</enum>
-          </property>
-         </widget>
-        </item>
-        <item row="13" column="6">
-         <widget class="QLabel" name="label_28">
-          <property name="text">
-           <string>Username</string>
-          </property>
-         </widget>
-        </item>
-        <item row="4" column="7">
-         <widget class="QLineEdit" name="lineEdit_value_rd"/>
-        </item>
-        <item row="14" column="0">
-         <widget class="QLabel" name="label_24">
-          <property name="text">
-           <string>Database</string>
-          </property>
-         </widget>
-        </item>
-        <item row="14" column="4">
-         <widget class="QToolButton" name="toolButton_set_dbsqlite2">
-          <property name="text">
-           <string>...</string>
-          </property>
-         </widget>
-        </item>
-        <item row="3" column="7">
-         <widget class="QLineEdit" name="lineEdit_field_rd"/>
-        </item>
-        <item row="14" column="1">
-         <widget class="QLineEdit" name="lineEdit_database_wt">
-          <property name="text">
-           <string/>
-          </property>
-          <property name="placeholderText">
-           <string/>
-          </property>
-         </widget>
-        </item>
-        <item row="4" column="4">
-         <widget class="QToolButton" name="toolButton_set_dbsqlite1">
-          <property name="text">
-           <string>...</string>
-          </property>
-         </widget>
-        </item>
-        <item row="4" column="5">
-         <spacer name="horizontalSpacer_2">
-          <property name="orientation">
-           <enum>Qt::Horizontal</enum>
-          </property>
-          <property name="sizeHint" stdset="0">
-           <size>
-            <width>40</width>
-            <height>20</height>
-           </size>
-          </property>
-         </spacer>
-        </item>
-        <item row="5" column="1">
-         <widget class="QLineEdit" name="lineEdit_port_rd">
-          <property name="text">
-           <string/>
-          </property>
-         </widget>
-        </item>
-        <item row="5" column="0">
-         <widget class="QLabel" name="label_25">
-          <property name="text">
-           <string>Port</string>
-          </property>
-         </widget>
-        </item>
-        <item row="13" column="0">
-         <widget class="QLabel" name="label_27">
-          <property name="text">
-           <string>Host</string>
-          </property>
-         </widget>
-        </item>
-        <item row="3" column="1">
-         <widget class="QLineEdit" name="lineEdit_host_rd">
-          <property name="text">
-           <string/>
-          </property>
-         </widget>
-        </item>
-        <item row="3" column="0">
-         <widget class="QLabel" name="label_17">
-          <property name="text">
-           <string>Host</string>
-          </property>
-         </widget>
-        </item>
-        <item row="9" column="1">
-         <widget class="QLineEdit" name="lineEdit_username_rd">
-          <property name="text">
-           <string/>
-          </property>
-         </widget>
-        </item>
-        <item row="15" column="1">
-         <widget class="QLineEdit" name="lineEdit_port_wt"/>
-        </item>
-        <item row="4" column="0">
-         <widget class="QLabel" name="label_20">
-          <property name="text">
-           <string>Database</string>
-          </property>
-         </widget>
-        </item>
-        <item row="8" column="0">
-         <widget class="QLabel" name="label_19">
-          <property name="text">
-           <string>Password</string>
-          </property>
-         </widget>
-        </item>
-        <item row="14" column="6">
-         <widget class="QLabel" name="label_29">
-          <property name="text">
-           <string>Password</string>
-          </property>
-         </widget>
-        </item>
-        <item row="8" column="1">
-         <widget class="QLineEdit" name="lineEdit_pass_rd">
-          <property name="text">
-           <string/>
-          </property>
-          <property name="echoMode">
-           <enum>QLineEdit::Password</enum>
-          </property>
-         </widget>
-        </item>
-        <item row="4" column="1">
-         <widget class="QLineEdit" name="lineEdit_database_rd">
-          <property name="text">
-           <string/>
-          </property>
-          <property name="placeholderText">
-           <string/>
-          </property>
-         </widget>
-        </item>
-        <item row="2" column="0" colspan="2">
-         <widget class="QComboBox" name="comboBox_server_rd">
-          <item>
+          </widget>
+         </item>
+         <item row="5" column="1">
+          <widget class="QLineEdit" name="lineEdit_port_rd">
            <property name="text">
-            <string>sqlite</string>
+            <string/>
            </property>
-          </item>
-          <item>
+          </widget>
+         </item>
+         <item row="4" column="0">
+          <widget class="QLabel" name="label_20">
            <property name="text">
-            <string>postgres</string>
+            <string>Database</string>
            </property>
-          </item>
-         </widget>
-        </item>
-        <item row="9" column="0">
-         <widget class="QLabel" name="label_18">
-          <property name="text">
-           <string>Username</string>
-          </property>
-         </widget>
-        </item>
-        <item row="0" column="6">
-         <widget class="QLabel" name="label_21">
-          <property name="text">
-           <string>Tabelle</string>
-          </property>
-         </widget>
-        </item>
-        <item row="0" column="7">
-         <widget class="QComboBox" name="comboBox_mapper_read">
-          <item>
+          </widget>
+         </item>
+         <item row="18" column="7">
+          <widget class="QPushButton" name="pushButton_import">
+           <property name="font">
+            <font>
+             <pointsize>9</pointsize>
+             <weight>75</weight>
+             <bold>true</bold>
+            </font>
+           </property>
            <property name="text">
-            <string>SITE</string>
+            <string>Import Table</string>
            </property>
-          </item>
-          <item>
+          </widget>
+         </item>
+         <item row="11" column="0" colspan="2">
+          <widget class="QLabel" name="label_61">
+           <property name="font">
+            <font>
+             <pointsize>15</pointsize>
+             <weight>75</weight>
+             <italic>true</italic>
+             <bold>true</bold>
+            </font>
+           </property>
            <property name="text">
-            <string>US</string>
+            <string>Destinazione</string>
            </property>
-          </item>
-          <item>
+          </widget>
+         </item>
+         <item row="8" column="1">
+          <widget class="QLineEdit" name="lineEdit_pass_rd">
            <property name="text">
-            <string>PERIODIZZAZIONE</string>
+            <string/>
            </property>
-          </item>
-          <item>
+           <property name="echoMode">
+            <enum>QLineEdit::Password</enum>
+           </property>
+          </widget>
+         </item>
+         <item row="9" column="1">
+          <widget class="QLineEdit" name="lineEdit_username_rd">
            <property name="text">
-            <string>INVENTARIO_MATERIALI</string>
+            <string/>
            </property>
-          </item>
-          <item>
+          </widget>
+         </item>
+         <item row="3" column="1">
+          <widget class="QLineEdit" name="lineEdit_host_rd">
            <property name="text">
-            <string>STRUTTURA</string>
+            <string/>
            </property>
-          </item>
-          <item>
+          </widget>
+         </item>
+         <item row="4" column="4">
+          <widget class="QToolButton" name="toolButton_set_dbsqlite1">
            <property name="text">
-            <string>TAFONOMIA</string>
+            <string>...</string>
            </property>
-          </item>
-          <item>
+          </widget>
+         </item>
+         <item row="0" column="6">
+          <widget class="QLabel" name="label_21">
            <property name="text">
-            <string>PYARCHINIT_THESAURUS_SIGLE</string>
+            <string>Tabelle</string>
            </property>
-          </item>
-          <item>
+          </widget>
+         </item>
+         <item row="22" column="1">
+          <spacer name="verticalSpacer">
+           <property name="orientation">
+            <enum>Qt::Vertical</enum>
+           </property>
+           <property name="sizeHint" stdset="0">
+            <size>
+             <width>20</width>
+             <height>24</height>
+            </size>
+           </property>
+          </spacer>
+         </item>
+         <item row="14" column="1">
+          <widget class="QLineEdit" name="lineEdit_database_wt">
            <property name="text">
-            <string>SCHEDAIND</string>
+            <string/>
            </property>
-          </item>
-          <item>
+           <property name="placeholderText">
+            <string/>
+           </property>
+          </widget>
+         </item>
+         <item row="3" column="0">
+          <widget class="QLabel" name="label_17">
            <property name="text">
-            <string>DETSESSO</string>
+            <string>Host</string>
            </property>
-          </item>
-          <item>
+          </widget>
+         </item>
+         <item row="2" column="0" colspan="2">
+          <widget class="QComboBox" name="comboBox_server_rd">
+           <item>
+            <property name="text">
+             <string>sqlite</string>
+            </property>
+           </item>
+           <item>
+            <property name="text">
+             <string>postgres</string>
+            </property>
+           </item>
+          </widget>
+         </item>
+         <item row="15" column="1">
+          <widget class="QLineEdit" name="lineEdit_port_wt"/>
+         </item>
+         <item row="5" column="0">
+          <widget class="QLabel" name="label_25">
            <property name="text">
-            <string>DETETA</string>
+            <string>Port</string>
            </property>
-          </item>
-          <item>
+          </widget>
+         </item>
+         <item row="4" column="1">
+          <widget class="QLineEdit" name="lineEdit_database_rd">
            <property name="text">
-            <string>ARCHEOZOOLOGY</string>
+            <string/>
            </property>
-          </item>
-          <item>
+           <property name="placeholderText">
+            <string/>
+           </property>
+          </widget>
+         </item>
+         <item row="9" column="0">
+          <widget class="QLabel" name="label_18">
            <property name="text">
-            <string>CAMPIONI</string>
+            <string>Username</string>
            </property>
-          </item>
-          <item>
+          </widget>
+         </item>
+         <item row="4" column="5">
+          <spacer name="horizontalSpacer_2">
+           <property name="orientation">
+            <enum>Qt::Horizontal</enum>
+           </property>
+           <property name="sizeHint" stdset="0">
+            <size>
+             <width>40</width>
+             <height>20</height>
+            </size>
+           </property>
+          </spacer>
+         </item>
+         <item row="0" column="0" colspan="2">
+          <widget class="QLabel" name="label_59">
+           <property name="font">
+            <font>
+             <pointsize>14</pointsize>
+             <weight>75</weight>
+             <bold>true</bold>
+            </font>
+           </property>
            <property name="text">
-            <string>DOCUMENTAZIONE</string>
+            <string>Importazione dati</string>
            </property>
-          </item>
-          <item>
+          </widget>
+         </item>
+         <item row="12" column="0" colspan="2">
+          <widget class="QComboBox" name="comboBox_server_wt">
+           <property name="minimumSize">
+            <size>
+             <width>20</width>
+             <height>0</height>
+            </size>
+           </property>
+           <item>
+            <property name="text">
+             <string>sqlite</string>
+            </property>
+           </item>
+           <item>
+            <property name="text">
+             <string>postgres</string>
+            </property>
+           </item>
+          </widget>
+         </item>
+         <item row="1" column="0" colspan="2">
+          <widget class="QLabel" name="label_60">
+           <property name="font">
+            <font>
+             <pointsize>15</pointsize>
+             <weight>75</weight>
+             <italic>true</italic>
+             <bold>true</bold>
+            </font>
+           </property>
            <property name="text">
-            <string>MEDIA</string>
+            <string>Risorsa</string>
            </property>
-          </item>
-          <item>
+          </widget>
+         </item>
+         <item row="14" column="0">
+          <widget class="QLabel" name="label_24">
            <property name="text">
-            <string>MEIDA_THUMB</string>
+            <string>Database</string>
            </property>
-          </item>
-          <item>
+          </widget>
+         </item>
+         <item row="14" column="4">
+          <widget class="QToolButton" name="toolButton_set_dbsqlite2">
            <property name="text">
-            <string>MEDIATOENTITY</string>
+            <string>...</string>
            </property>
-          </item>
-          <item>
+          </widget>
+         </item>
+         <item row="15" column="0">
+          <widget class="QLabel" name="label_57">
            <property name="text">
-            <string>UT</string>
+            <string>Port</string>
            </property>
-          </item>
-          <item>
+          </widget>
+         </item>
+         <item row="1" column="6">
+          <widget class="QLabel" name="label_41">
+           <property name="enabled">
+            <bool>true</bool>
+           </property>
            <property name="text">
-            <string>PYUS</string>
+            <string>Geometrie</string>
            </property>
-          </item>
-         </widget>
-        </item>
-        <item row="13" column="1">
-         <widget class="QLineEdit" name="lineEdit_host_wt"/>
-        </item>
-        <item row="3" column="6">
-         <widget class="QLabel" name="label_62">
-          <property name="text">
-           <string>Nome campo</string>
-          </property>
-         </widget>
-        </item>
-        <item row="15" column="0">
-         <widget class="QLabel" name="label_57">
-          <property name="text">
-           <string>Port</string>
-          </property>
-         </widget>
-        </item>
-        <item row="4" column="6">
-         <widget class="QLabel" name="label_23">
-          <property name="text">
-           <string>Valore</string>
-          </property>
-         </widget>
-        </item>
-        <item row="18" column="7">
-         <widget class="QPushButton" name="pushButton_geometry">
-          <property name="enabled">
-           <bool>false</bool>
-          </property>
-          <property name="font">
-           <font>
-            <pointsize>9</pointsize>
-            <weight>75</weight>
-            <bold>true</bold>
-           </font>
-          </property>
-          <property name="text">
-           <string>Import Geometry</string>
-          </property>
-         </widget>
-        </item>
-        <item row="17" column="0" colspan="7">
-         <widget class="QProgressBar" name="progress_bar">
-          <property name="value">
-           <number>0</number>
-          </property>
-         </widget>
-        </item>
-        <item row="1" column="7">
-         <widget class="QComboBox" name="comboBox_geometry_read">
-          <property name="enabled">
-           <bool>false</bool>
-          </property>
-          <item>
+          </widget>
+         </item>
+         <item row="18" column="0" colspan="7">
+          <widget class="QProgressBar" name="progress_bar">
+           <property name="value">
+            <number>0</number>
+           </property>
+          </widget>
+         </item>
+         <item row="19" column="7">
+          <widget class="QPushButton" name="pushButton_import_geometry">
+           <property name="enabled">
+            <bool>true</bool>
+           </property>
+           <property name="font">
+            <font>
+             <pointsize>9</pointsize>
+             <weight>75</weight>
+             <bold>true</bold>
+            </font>
+           </property>
            <property name="text">
-            <string>PYUS</string>
+            <string>Import Geometry</string>
            </property>
-          </item>
-          <item>
+          </widget>
+         </item>
+         <item row="1" column="7">
+          <widget class="QComboBox" name="comboBox_geometry_read">
+           <property name="enabled">
+            <bool>true</bool>
+           </property>
+           <item>
+            <property name="text">
+             <string>PYSITO_POLYGON</string>
+            </property>
+            <property name="icon">
+             <iconset resource="../../resources/resources.qrc">
+              <normaloff>:/icons/iconSite.png</normaloff>:/icons/iconSite.png</iconset>
+            </property>
+           </item>
+           <item>
+            <property name="text">
+             <string>PYSITO_POINT</string>
+            </property>
+            <property name="icon">
+             <iconset resource="../../resources/resources.qrc">
+              <normaloff>:/icons/iconSite.png</normaloff>:/icons/iconSite.png</iconset>
+            </property>
+           </item>
+           <item>
+            <property name="text">
+             <string>PYUS</string>
+            </property>
+            <property name="icon">
+             <iconset resource="../../resources/resources.qrc">
+              <normaloff>:/icons/IconPAI.png</normaloff>:/icons/IconPAI.png</iconset>
+            </property>
+           </item>
+           <item>
+            <property name="text">
+             <string>PYQUOTE</string>
+            </property>
+            <property name="icon">
+             <iconset resource="../../resources/resources.qrc">
+              <normaloff>:/icons/IconPAI.png</normaloff>:/icons/IconPAI.png</iconset>
+            </property>
+           </item>
+           <item>
+            <property name="text">
+             <string>PYUS_NEGATIVE</string>
+            </property>
+            <property name="icon">
+             <iconset resource="../../resources/resources.qrc">
+              <normaloff>:/icons/IconPAI.png</normaloff>:/icons/IconPAI.png</iconset>
+            </property>
+           </item>
+           <item>
+            <property name="text">
+             <string>PYSTRUTTURE</string>
+            </property>
+            <property name="icon">
+             <iconset resource="../../resources/resources.qrc">
+              <normaloff>:/icons/iconStrutt.png</normaloff>:/icons/iconStrutt.png</iconset>
+            </property>
+           </item>
+           <item>
+            <property name="text">
+             <string>PYREPERTI</string>
+            </property>
+            <property name="icon">
+             <iconset resource="../../resources/resources.qrc">
+              <normaloff>:/icons/finds.png</normaloff>:/icons/finds.png</iconset>
+            </property>
+           </item>
+           <item>
+            <property name="text">
+             <string>PYINDIVIDUI</string>
+            </property>
+            <property name="icon">
+             <iconset resource="../../resources/resources.qrc">
+              <normaloff>:/icons/iconIND.png</normaloff>:/icons/iconIND.png</iconset>
+            </property>
+           </item>
+           <item>
+            <property name="text">
+             <string>PYCAMPIONI</string>
+            </property>
+            <property name="icon">
+             <iconset resource="../../resources/resources.qrc">
+              <normaloff>:/icons/champion.png</normaloff>:/icons/champion.png</iconset>
+            </property>
+           </item>
+           <item>
+            <property name="text">
+             <string>PYTAFONOMIA</string>
+            </property>
+            <property name="icon">
+             <iconset resource="../../resources/resources.qrc">
+              <normaloff>:/icons/iconGrave.png</normaloff>:/icons/iconGrave.png</iconset>
+            </property>
+           </item>
+           <item>
+            <property name="text">
+             <string>PYUT</string>
+            </property>
+            <property name="icon">
+             <iconset resource="../../resources/resources.qrc">
+              <normaloff>:/icons/iconUT.png</normaloff>:/icons/iconUT.png</iconset>
+            </property>
+           </item>
+           <item>
+            <property name="text">
+             <string>PYDOCUMENTAZIONE</string>
+            </property>
+            <property name="icon">
+             <iconset resource="../../resources/resources.qrc">
+              <normaloff>:/icons/sheet.png</normaloff>:/icons/sheet.png</iconset>
+            </property>
+           </item>
+           <item>
+            <property name="text">
+             <string>PYLINEERIFERIMENTO</string>
+            </property>
+            <property name="icon">
+             <iconset resource="../../resources/resources.qrc">
+              <normaloff>:/icons/tracking-icon.png</normaloff>:/icons/tracking-icon.png</iconset>
+            </property>
+           </item>
+           <item>
+            <property name="text">
+             <string>PYRIPARTIZIONI_SPAZIALI</string>
+            </property>
+            <property name="icon">
+             <iconset resource="../../resources/resources.qrc">
+              <normaloff>:/icons/tracking-icon.png</normaloff>:/icons/tracking-icon.png</iconset>
+            </property>
+           </item>
+           <item>
+            <property name="text">
+             <string>ALL</string>
+            </property>
+            <property name="icon">
+             <iconset resource="../../resources/resources.qrc">
+              <normaloff>:/icons/GIS.png</normaloff>:/icons/GIS.png</iconset>
+            </property>
+           </item>
+          </widget>
+         </item>
+         <item row="0" column="7">
+          <widget class="QComboBox" name="comboBox_mapper_read">
+           <item>
+            <property name="text">
+             <string>SITE</string>
+            </property>
+            <property name="icon">
+             <iconset resource="../../resources/resources.qrc">
+              <normaloff>:/icons/iconSite.png</normaloff>:/icons/iconSite.png</iconset>
+            </property>
+           </item>
+           <item>
+            <property name="text">
+             <string>US</string>
+            </property>
+            <property name="icon">
+             <iconset resource="../../resources/resources.qrc">
+              <normaloff>:/icons/iconsus.png</normaloff>:/icons/iconsus.png</iconset>
+            </property>
+           </item>
+           <item>
+            <property name="text">
+             <string>PERIODIZZAZIONE</string>
+            </property>
+            <property name="icon">
+             <iconset resource="../../resources/resources.qrc">
+              <normaloff>:/icons/iconPER.png</normaloff>:/icons/iconPER.png</iconset>
+            </property>
+           </item>
+           <item>
+            <property name="text">
+             <string>INVENTARIO_MATERIALI</string>
+            </property>
+            <property name="icon">
+             <iconset resource="../../resources/resources.qrc">
+              <normaloff>:/icons/finds.png</normaloff>:/icons/finds.png</iconset>
+            </property>
+           </item>
+           <item>
+            <property name="text">
+             <string>STRUTTURA</string>
+            </property>
+            <property name="icon">
+             <iconset resource="../../resources/resources.qrc">
+              <normaloff>:/icons/iconStrutt.png</normaloff>:/icons/iconStrutt.png</iconset>
+            </property>
+           </item>
+           <item>
+            <property name="text">
+             <string>TAFONOMIA</string>
+            </property>
+            <property name="icon">
+             <iconset resource="../../resources/resources.qrc">
+              <normaloff>:/icons/iconGrave.png</normaloff>:/icons/iconGrave.png</iconset>
+            </property>
+           </item>
+           <item>
+            <property name="text">
+             <string>PYARCHINIT_THESAURUS_SIGLE</string>
+            </property>
+            <property name="icon">
+             <iconset resource="../../resources/resources.qrc">
+              <normaloff>:/icons/thesaurusicon.png</normaloff>:/icons/thesaurusicon.png</iconset>
+            </property>
+           </item>
+           <item>
+            <property name="text">
+             <string>SCHEDAIND</string>
+            </property>
+            <property name="icon">
+             <iconset resource="../../resources/resources.qrc">
+              <normaloff>:/icons/iconIND.png</normaloff>:/icons/iconIND.png</iconset>
+            </property>
+           </item>
+           <item>
+            <property name="text">
+             <string>DETSESSO</string>
+            </property>
+            <property name="icon">
+             <iconset resource="../../resources/resources.qrc">
+              <normaloff>:/icons/iconSex.png</normaloff>:/icons/iconSex.png</iconset>
+            </property>
+           </item>
+           <item>
+            <property name="text">
+             <string>DETETA</string>
+            </property>
+            <property name="icon">
+             <iconset resource="../../resources/resources.qrc">
+              <normaloff>:/icons/iconEta.png</normaloff>:/icons/iconEta.png</iconset>
+            </property>
+           </item>
+           <item>
+            <property name="text">
+             <string>ARCHEOZOOLOGY</string>
+            </property>
+            <property name="icon">
+             <iconset resource="../../resources/resources.qrc">
+              <normaloff>:/icons/iconZoo.png</normaloff>:/icons/iconZoo.png</iconset>
+            </property>
+           </item>
+           <item>
+            <property name="text">
+             <string>CAMPIONI</string>
+            </property>
+            <property name="icon">
+             <iconset resource="../../resources/resources.qrc">
+              <normaloff>:/icons/champion.png</normaloff>:/icons/champion.png</iconset>
+            </property>
+           </item>
+           <item>
+            <property name="text">
+             <string>DOCUMENTAZIONE</string>
+            </property>
+            <property name="icon">
+             <iconset resource="../../resources/resources.qrc">
+              <normaloff>:/icons/sheet.png</normaloff>:/icons/sheet.png</iconset>
+            </property>
+           </item>
+           <item>
+            <property name="text">
+             <string>MEDIA</string>
+            </property>
+            <property name="icon">
+             <iconset resource="../../resources/resources.qrc">
+              <normaloff>:/icons/photo.png</normaloff>:/icons/photo.png</iconset>
+            </property>
+           </item>
+           <item>
+            <property name="text">
+             <string>MEIDA_THUMB</string>
+            </property>
+            <property name="icon">
+             <iconset resource="../../resources/resources.qrc">
+              <normaloff>:/icons/photo.png</normaloff>:/icons/photo.png</iconset>
+            </property>
+           </item>
+           <item>
+            <property name="text">
+             <string>MEDIATOENTITY</string>
+            </property>
+            <property name="icon">
+             <iconset resource="../../resources/resources.qrc">
+              <normaloff>:/icons/add_tag.png</normaloff>:/icons/add_tag.png</iconset>
+            </property>
+           </item>
+           <item>
+            <property name="text">
+             <string>UT</string>
+            </property>
+            <property name="icon">
+             <iconset resource="../../resources/resources.qrc">
+              <normaloff>:/icons/iconUT.png</normaloff>:/icons/iconUT.png</iconset>
+            </property>
+           </item>
+           <item>
+            <property name="text">
+             <string>ALL</string>
+            </property>
+            <property name="icon">
+             <iconset resource="../../resources/resources.qrc">
+              <normaloff>:/icons/newrec.png</normaloff>:/icons/newrec.png</iconset>
+            </property>
+           </item>
+          </widget>
+         </item>
+         <item row="13" column="1">
+          <widget class="QLineEdit" name="lineEdit_host_wt"/>
+         </item>
+         <item row="16" column="0">
+          <widget class="QLabel" name="label_28">
            <property name="text">
-            <string>PYQUOTE</string>
+            <string>Username</string>
            </property>
-          </item>
-          <item>
+          </widget>
+         </item>
+         <item row="17" column="1">
+          <widget class="QLineEdit" name="lineEdit_pass_wt">
+           <property name="echoMode">
+            <enum>QLineEdit::Password</enum>
+           </property>
+          </widget>
+         </item>
+         <item row="5" column="6">
+          <widget class="QLabel" name="label_23">
            <property name="text">
-            <string>PYTAFONOMIA</string>
+            <string>Valore</string>
            </property>
-          </item>
-          <item>
+          </widget>
+         </item>
+         <item row="16" column="1">
+          <widget class="QLineEdit" name="lineEdit_username_wt"/>
+         </item>
+         <item row="4" column="7">
+          <widget class="QLineEdit" name="lineEdit_field_rd"/>
+         </item>
+         <item row="17" column="0">
+          <widget class="QLabel" name="label_29">
            <property name="text">
-            <string>PYUT</string>
+            <string>Password</string>
            </property>
-          </item>
-          <item>
+          </widget>
+         </item>
+         <item row="2" column="4">
+          <widget class="QCheckBox" name="checkBox_ignore">
+           <property name="enabled">
+            <bool>false</bool>
+           </property>
            <property name="text">
-            <string>PYSITO</string>
+            <string>Ignore</string>
            </property>
-          </item>
-          <item>
+          </widget>
+         </item>
+         <item row="4" column="6">
+          <widget class="QLabel" name="label_62">
            <property name="text">
-            <string>PYUS_NEGATIVE</string>
+            <string>Nome campo</string>
            </property>
-          </item>
-          <item>
+          </widget>
+         </item>
+         <item row="5" column="7">
+          <widget class="QLineEdit" name="lineEdit_value_rd"/>
+         </item>
+         <item row="3" column="5" colspan="3">
+          <widget class="QLabel" name="label_42">
            <property name="text">
-            <string>PYDOCUMENTAZIONE</string>
+            <string>Inserisci il nome del campo e/o il valore da importare</string>
            </property>
-          </item>
-         </widget>
-        </item>
-        <item row="1" column="6">
-         <widget class="QLabel" name="label_41">
-          <property name="enabled">
-           <bool>false</bool>
-          </property>
-          <property name="text">
-           <string>Geometrie</string>
-          </property>
-         </widget>
-        </item>
-       </layout>
-      </widget>
+          </widget>
+         </item>
+         <item row="20" column="7">
+          <widget class="QLabel" name="label_11">
+           <property name="enabled">
+            <bool>false</bool>
+           </property>
+           <property name="text">
+            <string>Esportazione directories</string>
+           </property>
+          </widget>
+         </item>
+         <item row="21" column="7">
+          <widget class="QPushButton" name="pushButton_exp_directories">
+           <property name="enabled">
+            <bool>false</bool>
+           </property>
+           <property name="text">
+            <string>Esportazione experimental</string>
+           </property>
+          </widget>
+         </item>
+        </layout>
+       </item>
+      </layout>
      </widget>
      <widget class="QWidget" name="tab_4">
       <attribute name="title">
@@ -1888,6 +2039,7 @@
  </tabstops>
  <resources>
   <include location="resources.qrc"/>
+  <include location="../../resources/resources.qrc"/>
  </resources>
  <connections/>
 </ui>

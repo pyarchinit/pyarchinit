@@ -54,9 +54,15 @@ from modules.utility.pyarchinit_print_utility import Print_utility
 MAIN_DIALOG_CLASS, _ = loadUiType(os.path.join(os.path.dirname(__file__), 'ui', 'pyarchinitConfigDialog.ui'))
 
 
+class Config2(QDialog, MAIN_DIALOG_CLASS):
 
+    def __init__(self, parent=None, db=None):
+       
+        QDialog.__init__(self, parent)
+        # Set up the user interface from Designer.
 
-
+    def check_tool(self):
+        self.checkBox_ignore.setCheked(False)
 class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
     progressBarUpdated = pyqtSignal(int,int)
     L=QgsSettings().value("locale/userLocale")[0:2]
@@ -133,7 +139,7 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
         
         self.selectorCrsWidget.setCrs(QgsProject.instance().crs())
         self.selectorCrsWidget_sl.setCrs(QgsProject.instance().crs())
-        
+    
     def summary(self):
         self.comboBox_Database.update()
         conn = Connection()
@@ -1232,8 +1238,156 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
         sito_vl.sort()
         self.comboBox_sito.addItems(sito_vl)
 
+    def on_pushButton_import_geometry_pressed(self):
+        msg = QMessageBox.warning(self, "Warning", "Il sistema aggiornerà le geometrie con i dati importati. Schiaccia Annulla per abortire altrimenti schiaccia Ok per contiunuare." ,  QMessageBox.Ok  | QMessageBox.Cancel)
+        if msg == QMessageBox.Cancel:
+            QMessageBox.warning(self, "Warning", "Azione annullata" ,  QMessageBox.Ok)
+        else:    
+            if self.L=='it':
+                id_table_class_mapper_conv_dict = {
+                    'PYUS':'gid'
+                    
+                }
     
+            ####RICAVA I DATI IN LETTURA PER LA CONNESSIONE DALLA GUI
+            conn_str_dict_read = {
+                "server": str(self.comboBox_server_rd.currentText()),
+                "user": str(self.lineEdit_username_rd.text()),
+                "password": str(self.lineEdit_pass_rd.text()),
+                "host": str(self.lineEdit_host_rd.text()),
+                "port": str(self.lineEdit_port_rd.text()),
+                "db_name": str(self.lineEdit_database_rd.text())
+            }
+            ####CREA LA STRINGA DI CONNESSIONE IN LETTURA
+            if conn_str_dict_read["server"] == 'postgres':
+                
+                try:
+                    conn_str_read = "%s://%s:%s@%s:%s/%s%s?charset=utf8" % (
+                        "postgresql", conn_str_dict_read["user"], conn_str_dict_read["password"],
+                        conn_str_dict_read["host"],
+                        conn_str_dict_read["port"], conn_str_dict_read["db_name"], "?sslmode=allow")
+                except:
+                    conn_str_read = "%s://%s:%s@%s:%d/%s" % (
+                        "postgresql", conn_str_dict_read["user"], conn_str_dict_read["password"],
+                        conn_str_dict_read["host"],
+                        conn_str_dict_read["port"], conn_str_dict_read["db_name"])
+            
+            
+            
+            elif conn_str_dict_read["server"] == 'sqlite':
+                
+                sqlite_DB_path = '{}{}{}'.format(self.HOME, os.sep,
+                                                 "pyarchinit_DB_folder")  # "C:\\Users\\Windows\\Dropbox\\pyarchinit_san_marco\\" fare modifiche anche in pyarchinit_pyqgis
+                dbname_abs = sqlite_DB_path + os.sep + conn_str_dict_read["db_name"]
+                conn_str_read = "%s:///%s" % (conn_str_dict_read["server"], dbname_abs)
+                QMessageBox.warning(self, "Alert", str(conn_str_dict_read["db_name"]), QMessageBox.Ok)
+            ####SI CONNETTE AL DATABASE
+            self.DB_MANAGER_read = Pyarchinit_db_management(conn_str_read)
+            
+            test = self.DB_MANAGER_read.connection()
+            
+            if test:
+                QMessageBox.warning(self, "Message", "Connection ok", QMessageBox.Ok)
+            else:
+                QMessageBox.warning(self, "Alert", "Connection error: <br>", QMessageBox.Cancel)
+            """elif test.find("create_engine") != -1:
+                #QMessageBox.warning(self, "Alert",
+                                    "Try connection parameter. <br> If they are correct restart QGIS",
+                                    QMessageBox.Ok)"""
 
+
+            ####LEGGE I RECORD IN BASE AL PARAMETRO CAMPO=VALORE
+            search_dict = {
+                self.lineEdit_field_rd.text(): "'" + str(self.lineEdit_value_rd.text()) + "'"
+            }
+            mapper_class_read = str(self.comboBox_geometry_read.currentText())
+            res_read = self.DB_MANAGER_read.query_bool(search_dict, mapper_class_read)
+
+            ####INSERISCE I DATI DA UPLOADARE DENTRO ALLA LISTA DATA_LIST_TOIMP
+            data_list_toimp = []
+            for i in res_read:
+                data_list_toimp.append(i)
+
+            QMessageBox.warning(self, "Total record to import", str(len(data_list_toimp)), QMessageBox.Ok)
+            
+            ####RICAVA I DATI IN LETTURA PER LA CONNESSIONE DALLA GUI
+            conn_str_dict_write = {
+                "server": str(self.comboBox_server_wt.currentText()),
+                "user": str(self.lineEdit_username_wt.text()),
+                "password": str(self.lineEdit_pass_wt.text()),
+                "host": str(self.lineEdit_host_wt.text()),
+                "port": str(self.lineEdit_port_wt.text()),
+                "db_name": str(self.lineEdit_database_wt.text())
+            }
+
+            ####CREA LA STRINGA DI CONNESSIONE IN LETTURA
+            if conn_str_dict_write["server"] == 'postgres':
+                try:
+                    conn_str_write = "%s://%s:%s@%s:%s/%s%s?charset=utf8" % (
+                        "postgresql", conn_str_dict_writed["user"], conn_str_dict_write["password"],
+                        conn_str_dict_write["host"], conn_str_dict_write["port"], conn_str_dict_write["db_name"],
+                        "?sslmode=allow")
+                except:
+                    conn_str_write = "%s://%s:%s@%s:%d/%s" % (
+                        "postgresql", conn_str_dict_write["user"], conn_str_dict_write["password"],
+                        conn_str_dict_write["host"],
+                        int(conn_str_dict_write["port"]), conn_str_dict_write["db_name"])
+            elif conn_str_dict_write["server"] == 'sqlite':
+                sqlite_DB_path = '{}{}{}'.format(self.HOME, os.sep,
+                                                 "pyarchinit_DB_folder")  # "C:\\Users\\Windows\\Dropbox\\pyarchinit_san_marco\\" fare modifiche anche in pyarchinit_pyqgis
+                dbname_abs = sqlite_DB_path + os.sep + conn_str_dict_write["db_name"]
+                conn_str_write = "%s:///%s" % (conn_str_dict_write["server"], dbname_abs)
+                QMessageBox.warning(self, "Alert", str(conn_str_dict_write["db_name"]), QMessageBox.Ok)
+            ####SI CONNETTE AL DATABASE IN SCRITTURA
+            
+            self.DB_MANAGER_write = Pyarchinit_db_management(conn_str_write)
+            test = self.DB_MANAGER_write.connection()
+            test = str(test)
+            
+          
+            
+            mapper_class_write = str(self.comboBox_geometry_read.currentText())
+            
+            
+
+            ####inserisce i dati dentro al database
+            ####PYUNITASTRATIGRAFICHE TABLE
+            if mapper_class_write == 'PYUS' :
+                
+                for sing_rec in range(len(data_list_toimp)):
+                    
+                    try:
+                        data = self.DB_MANAGER_write.insert_pyus(
+                            self.DB_MANAGER_write.max_num_id(mapper_class_write,
+                                                             id_table_class_mapper_conv_dict[mapper_class_write]) + 1,
+                            data_list_toimp[sing_rec].area_s,
+                            data_list_toimp[sing_rec].scavo_s,
+                            data_list_toimp[sing_rec].us_s,
+                            data_list_toimp[sing_rec].stratigraph_index_us,
+                            data_list_toimp[sing_rec].tipo_us_s,
+                            data_list_toimp[sing_rec].rilievo_originale,
+                            data_list_toimp[sing_rec].disegnatore,
+                            data_list_toimp[sing_rec].data,
+                            data_list_toimp[sing_rec].tipo_doc,
+                            data_list_toimp[sing_rec].nome_doc,
+                            data_list_toimp[sing_rec].coord,
+                            data_list_toimp[sing_rec].the_geom)
+                            
+                       
+                        self.DB_MANAGER_write.insert_data_session(data)
+                        
+                        value = (float(sing_rec)/float(len(data_list_toimp)))*100
+                        self.progress_bar.setValue(value)
+                        
+                        QApplication.processEvents()
+                        
+                    except Exception as e :
+                        
+                        QMessageBox.warning(self, "Errore", "Error ! \n"+ str(e),  QMessageBox.Ok)
+                        return 0
+                self.progress_bar.reset()
+                QMessageBox.information(self, "Message", "Data Loaded")
+    
     def on_pushButton_import_pressed(self):
         msg = QMessageBox.warning(self, "Warning", "Il sistema aggiornerà la tabella con i dati importati. Schiaccia Annulla per abortire altrimenti schiaccia Ok per contiunuare." ,  QMessageBox.Ok  | QMessageBox.Cancel)
         if msg == QMessageBox.Cancel:
@@ -1255,8 +1409,7 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
                     'PYARCHINIT_THESAURUS_SIGLE': 'id_thesaurus_sigle',
                     'MEDIA': 'id_media',
                     'MEDIA_THUMB': 'id_media_thumb',
-                    'MEDIATOENTITY':'id_mediaToEntity',
-                    'PYUS':'gid'
+                    'MEDIATOENTITY':'id_mediaToEntity'
                     
                 }
             elif self.L=='de':
@@ -1400,42 +1553,7 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
             
 
             ####inserisce i dati dentro al database
-            ####PYUNITASTRATIGRAFICHE TABLE
-            if mapper_class_write == 'PYUS' :
-                
-                for sing_rec in range(len(data_list_toimp)):
-                    
-                    try:
-                        data = self.DB_MANAGER_write.insert_pyus(
-                            self.DB_MANAGER_write.max_num_id(mapper_class_write,
-                                                             id_table_class_mapper_conv_dict[mapper_class_write]) + 1,
-                            data_list_toimp[sing_rec].area_s,
-                            data_list_toimp[sing_rec].scavo_s,
-                            data_list_toimp[sing_rec].us_s,
-                            data_list_toimp[sing_rec].stratigraph_index_us,
-                            data_list_toimp[sing_rec].tipo_us_s,
-                            data_list_toimp[sing_rec].rilievo_originale,
-                            data_list_toimp[sing_rec].disegnatore,
-                            data_list_toimp[sing_rec].data,
-                            data_list_toimp[sing_rec].tipo_doc,
-                            data_list_toimp[sing_rec].nome_doc,
-                            data_list_toimp[sing_rec].coord,
-                            data_list_toimp[sing_rec].the_geom)
-                            
-                       
-                        self.DB_MANAGER_write.insert_data_session(data)
-                        
-                        value = (float(sing_rec)/float(len(data_list_toimp)))*100
-                        self.progress_bar.setValue(value)
-                        
-                        QApplication.processEvents()
-                        
-                    except Exception as e :
-                        
-                        QMessageBox.warning(self, "Errore", "Error ! \n"+ str(e),  QMessageBox.Ok)
-                        return 0
-                self.progress_bar.reset()
-                QMessageBox.information(self, "Message", "Data Loaded")
+            
             ####SITE TABLE
             if mapper_class_write == 'SITE' :
                 
@@ -2187,6 +2305,7 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
             self.lineEdit_2.insert("Errore di connessione ......... ")
         
         
+
         
         
         # #Download the file from the remote server
