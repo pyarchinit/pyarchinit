@@ -1058,7 +1058,7 @@
          <item row="19" column="7">
           <widget class="QPushButton" name="pushButton_import_geometry">
            <property name="enabled">
-            <bool>true</bool>
+            <bool>false</bool>
            </property>
            <property name="font">
             <font>
@@ -1075,7 +1075,7 @@
          <item row="1" column="7">
           <widget class="QComboBox" name="comboBox_geometry_read">
            <property name="enabled">
-            <bool>true</bool>
+            <bool>false</bool>
            </property>
            <item>
             <property name="text">
