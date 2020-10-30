@@ -1420,7 +1420,7 @@
          <item row="2" column="4">
           <widget class="QCheckBox" name="checkBox_ignore">
            <property name="enabled">
-            <bool>false</bool>
+            <bool>true</bool>
            </property>
            <property name="text">
             <string>Ignore</string>

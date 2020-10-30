@@ -3072,7 +3072,7 @@ class pyarchinit_Inventario_reperti(QDialog, MAIN_DIALOG_CLASS):
 
         self.comboBox_repertato.setEditText("")  # 9 - repertato
         self.comboBox_diagnostico.setEditText("")  # 9 - diagnostico
-        self.lineEdit_n_reperto.setText('0')
+        self.lineEdit_n_reperto.setText('')
         self.lineEdit_tipo_contenitore.setText('')
         for i in range(elementi_reperto_row_count):
             self.tableWidget_elementi_reperto.removeRow(0)

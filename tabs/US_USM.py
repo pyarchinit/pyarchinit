@@ -786,33 +786,34 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
         dialog.ui.setupUi(dialog)
         dialog.exec_()
     def insert_ra(self):
-        sito = str(self.comboBox_sito.currentText())
-        area = str(self.comboBox_area.currentText())
-        us = str(self.lineEdit_us.text())
-        search_dict = {
-            'area': "'" + area + "'",
-            'sito': "'" + sito + "'",
-            'us': "'" + us + "'"
-        }
-        inv_vl = self.DB_MANAGER.query_bool(search_dict,'INVENTARIO_MATERIALI')
-        inv_list = []
-        for i in range(len(inv_vl)):
-            inv_list.append(str(inv_vl[i].n_reperto))
-        try:
-            inv_vl.remove('')
-        except :
-            pass
-        self.comboBox_ref_ra.clear()
-        self.comboBox_ref_ra.addItems(self.UTILITY.remove_dup_from_list(inv_list))
-        if self.STATUS_ITEMS[self.BROWSE_STATUS] == "Trova" or "Find":
-            self.comboBox_ref_ra.setEditText("")
-        elif self.STATUS_ITEMS[self.BROWSE_STATUS] == "Usa" or "Current":
-            if len(self.DATA_LIST) > 0:
-                try:
-                    self.comboBox_ref_ra.setEditText(self.DATA_LIST[self.rec_num].n_reperto)
-                    self.comboBox_ref_ra.show()
-                except :
-                    pass
+        if self.comboBox_ref_ra.activated:
+            sito = str(self.comboBox_sito.currentText())
+            area = str(self.comboBox_area.currentText())
+            us = str(self.lineEdit_us.text())
+            search_dict = {
+                'area': "'" + area + "'",
+                'sito': "'" + sito + "'",
+                'us': "'" + us + "'"
+            }
+            inv_vl = self.DB_MANAGER.query_bool(search_dict,'INVENTARIO_MATERIALI')
+            inv_list = []
+            for i in range(len(inv_vl)):
+                inv_list.append(str(inv_vl[i].n_reperto))
+            try:
+                inv_vl.remove('')
+            except :
+                pass
+            self.comboBox_ref_ra.clear()
+            self.comboBox_ref_ra.addItems(self.UTILITY.remove_dup_from_list(inv_list))
+            if self.STATUS_ITEMS[self.BROWSE_STATUS] == "Trova" or "Find":
+                self.comboBox_ref_ra.setEditText("")
+            elif self.STATUS_ITEMS[self.BROWSE_STATUS] == "Usa" or "Current":
+                if len(self.DATA_LIST) > 0:
+                    try:
+                        self.comboBox_ref_ra.setEditText(self.DATA_LIST[self.rec_num].n_reperto)
+                        self.comboBox_ref_ra.show()
+                    except :
+                        pass
     def listview_us(self):
         if self.checkBox_query.isChecked():
             conn = Connection()
@@ -928,7 +929,7 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
     def on_pushButton_globalsearch_pressed(self):
         self.search.showSearchDialog()    
     def charge_struttura_list(self):
-        if self.comboBox_sito.editTextChanged: 
+        if self.comboBox_struttura.activated: 
             sito = str(self.comboBox_sito.currentText())
             search_dict = {
                 'sito': "'" + sito + "'"
@@ -952,7 +953,7 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
                     except:
                         pass  # non vi sono periodi per questo scavo
     def geometry_unitastratigrafiche(self):
-        if self.comboBox_sito.editTextChanged: 
+        if self.comboBox_posizione.activated: 
             sito = str(self.comboBox_sito.currentText())
             area = str(self.comboBox_area.currentText())
             us = str(self.lineEdit_us.text())
@@ -963,15 +964,14 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
             }
             geometry_vl = self.DB_MANAGER.query_bool(search_dict,'PYUS')
             geometry_list = []
-            if self.checkBox_query.isChecked():
-                for i in range(len(geometry_vl)):
-                    geometry_list.append(str(geometry_vl[i].coord))
-                try:
-                    geometry_vl.remove('')
-                except:
-                    pass
-            else:    
-                self.checkBox_query.setChecked(False)
+            
+            for i in range(len(geometry_vl)):
+                geometry_list.append(str(geometry_vl[i].coord))
+            try:
+                geometry_vl.remove('')
+            except:
+                pass
+            
             self.comboBox_posizione.clear()
             self.comboBox_posizione.addItems(self.UTILITY.remove_dup_from_list(geometry_list))
             if self.STATUS_ITEMS[self.BROWSE_STATUS] == "Trova" or "Find":
@@ -983,7 +983,7 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
                     except:
                         pass  # non vi sono periodi per questo scavo
     def charge_periodo_iniz_list(self):
-        if self.comboBox_sito.editTextChanged: 
+        if self.comboBox_per_iniz.activated: 
             try: 
                 sito = str(self.comboBox_sito.currentText())
                 search_dict = {
@@ -1012,7 +1012,7 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
             except:
                 pass  
     def charge_periodo_fin_list(self):
-        if self.comboBox_sito.editTextChanged: 
+        if self.comboBox_per_fin.activated: 
             try:
                 search_dict = {
                     'sito': "'" + str(self.comboBox_sito.currentText()) + "'"
@@ -1038,7 +1038,7 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
             except:
                 pass  # non vi sono periodi per questo scavo
     def charge_fase_iniz_list(self):
-        if self.comboBox_sito.editTextChanged: 
+        if self.comboBox_fas_iniz.activated: 
             try:
                 search_dict = {
                     'sito': "'" + str(self.comboBox_sito.currentText()) + "'",
@@ -1062,7 +1062,7 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
             except:
                 pass
     def charge_fase_fin_list(self):
-        if self.comboBox_sito.editTextChanged: 
+        if self.comboBox_fas_fin.activated: 
             try:
                 search_dict = {
                     'sito': "'" + str(self.comboBox_sito.currentText()) + "'",
@@ -1086,7 +1086,7 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
             except:
                 pass
     def charge_datazione_list(self):
-        if self.comboBox_sito.editTextChanged: 
+        if self.comboBox_datazione.activated: 
             try:
                 search_dict = {
                     'sito': "'" + str(self.comboBox_sito.currentText()) + "'",

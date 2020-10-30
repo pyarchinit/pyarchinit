@@ -36,9 +36,13 @@ import subprocess
 from geoalchemy2 import *
 from sqlalchemy.sql import select, func
 from sqlalchemy import create_engine
+# from sqlalchemy.dialects import postgresql
+# from sqlalchemy.dialects.postgresql import insert
+# from sqlalchemy.ext.compiler import compiles
+# from sqlalchemy.sql.expression import *
 from qgis.PyQt.QtGui import QDesktopServices
 from qgis.PyQt.QtCore import  pyqtSlot, pyqtSignal,QThread,QUrl
-from qgis.PyQt.QtWidgets import QApplication, QDialog, QMessageBox, QFileDialog,QLineEdit,QWidget
+from qgis.PyQt.QtWidgets import QApplication, QDialog, QMessageBox, QFileDialog,QLineEdit,QWidget,QCheckBox
 from qgis.PyQt.QtSql import *
 from qgis.PyQt.uic import loadUiType
 from qgis.core import QgsApplication, QgsSettings, QgsProject
@@ -53,21 +57,13 @@ from modules.utility.pyarchinit_OS_utility import Pyarchinit_OS_Utility
 from modules.utility.pyarchinit_print_utility import Print_utility
 MAIN_DIALOG_CLASS, _ = loadUiType(os.path.join(os.path.dirname(__file__), 'ui', 'pyarchinitConfigDialog.ui'))
 
-
-class Config2(QDialog, MAIN_DIALOG_CLASS):
-
-    def __init__(self, parent=None, db=None):
-       
-        QDialog.__init__(self, parent)
-        # Set up the user interface from Designer.
-
-    def check_tool(self):
-        self.checkBox_ignore.setCheked(False)
+ 
 class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
     progressBarUpdated = pyqtSignal(int,int)
     L=QgsSettings().value("locale/userLocale")[0:2]
     UTILITY=Utility()
     DB_MANAGER=""
+    
     HOME = os.environ['PYARCHINIT_HOME']
     DBFOLDER = '{}{}{}'.format(HOME, os.sep, "pyarchinit_DB_folder")
     PARAMS_DICT = {'SERVER': '',
@@ -139,6 +135,8 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
         
         self.selectorCrsWidget.setCrs(QgsProject.instance().crs())
         self.selectorCrsWidget_sl.setCrs(QgsProject.instance().crs())
+        
+    
     
     def summary(self):
         self.comboBox_Database.update()
