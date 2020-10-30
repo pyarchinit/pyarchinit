@@ -227,22 +227,14 @@ class pyarchinit_Struttura(QDialog, MAIN_DIALOG_CLASS):
         self.comboBox_sigla_struttura.editTextChanged.connect(self.add_value_to_categoria)
 
         # SIGNALS & SLOTS Functions
-        self.comboBox_sito.editTextChanged.connect(self.charge_periodo_iniz_list)
-        self.comboBox_sito.editTextChanged.connect(self.charge_periodo_fin_list)
-
         self.comboBox_sito.currentIndexChanged.connect(self.charge_periodo_iniz_list)
         self.comboBox_sito.currentIndexChanged.connect(self.charge_periodo_fin_list)
-
-        self.comboBox_per_iniz.editTextChanged.connect(self.charge_fase_iniz_list)
         self.comboBox_per_iniz.currentIndexChanged.connect(self.charge_fase_iniz_list)
-
-        self.comboBox_per_fin.editTextChanged.connect(self.charge_fase_fin_list)
         self.comboBox_per_fin.currentIndexChanged.connect(self.charge_fase_fin_list)
-
+        self.comboBox_per_iniz.currentIndexChanged.connect(self.charge_datazione_list)
+        self.comboBox_fas_iniz.currentIndexChanged.connect(self.charge_datazione_list)
         sito = self.comboBox_sito.currentText()
         self.comboBox_sito.setEditText(sito)
-        self.charge_periodo_iniz_list()
-        self.charge_periodo_fin_list()
         self.fill_fields()
         self.customize_GUI()
         self.set_sito()
@@ -789,6 +781,32 @@ class pyarchinit_Struttura(QDialog, MAIN_DIALOG_CLASS):
 
             # buttons functions
 
+    def charge_datazione_list(self):
+        if self.comboBox_sito.editTextChanged: 
+            try:
+                search_dict = {
+                    'sito': "'" + str(self.comboBox_sito.currentText()) + "'",
+                    'periodo': "'" + str(self.comboBox_per_iniz.currentText()) + "'",
+                    'fase': "'" + str(self.comboBox_fas_iniz.currentText()) + "'"
+                }
+                datazione_list_vl = self.DB_MANAGER.query_bool(search_dict, 'PERIODIZZAZIONE')
+                datazione_list = []
+                for i in range(len(datazione_list_vl)):
+                    datazione_list.append(str(datazione_list_vl[i].datazione_estesa))
+                try:
+                    datazione_list.remove('')
+                except:
+                    pass
+                self.comboBox_datazione_estesa.clear()
+                datazione_list.sort()
+                self.comboBox_datazione_estesa.addItems(self.UTILITY.remove_dup_from_list(datazione_list))
+                if self.STATUS_ITEMS[self.BROWSE_STATUS] == "Trova" or "Find":
+                    self.comboBox_datazione_estesa.setEditText("")
+                else:
+                    self.comboBox_datazione_estesa.setEditText(self.DATA_LIST[self.rec_num].datazione_estesa)
+            except:
+                pass
+    
     def on_pushButton_sort_pressed(self):
         if self.check_record_state() == 1:
             pass
@@ -1041,7 +1059,7 @@ class pyarchinit_Struttura(QDialog, MAIN_DIALOG_CLASS):
                 fas_iniz,  # 10 - fase iniziale
                 per_fin,  # 11 - periodo finale iniziale
                 fas_fin,  # 12 - fase finale
-                str(self.lineEdit_datazione_estesa.text()),  # 13 - datazione estesa
+                str(self.comboBox_datazione_estesa.currentText()),  # 13 - datazione estesa
                 str(materiali_impiegati),  # 14 - materiali impiegati
                 str(elementi_strutturali),  # 15 - elementi_strutturali
                 str(rapporti_struttura),  # 16 - rapporti struttura
@@ -1370,7 +1388,7 @@ class pyarchinit_Struttura(QDialog, MAIN_DIALOG_CLASS):
                 self.TABLE_FIELDS[9]: fase_iniziale,  # 10 - fase iniziale
                 self.TABLE_FIELDS[10]: periodo_finale,  # 11 - periodo finale
                 self.TABLE_FIELDS[11]: fase_finale,  # 12 - fase finale
-                self.TABLE_FIELDS[12]: "'" + str(self.lineEdit_datazione_estesa.text()) + "'"  # 10 - datazione_estesa
+                self.TABLE_FIELDS[12]: "'" + str(self.comboBox_datazione_estesa.currentText()) + "'"  # 10 - datazione_estesa
             }
 
             u = Utility()
@@ -1714,7 +1732,7 @@ class pyarchinit_Struttura(QDialog, MAIN_DIALOG_CLASS):
         self.comboBox_fas_iniz.setEditText("")  # 10 - fase iniziale
         self.comboBox_per_fin.setEditText("")  # 11 - periodo finale iniziale
         self.comboBox_fas_fin.setEditText("")  # 12 - fase finale
-        self.lineEdit_datazione_estesa.clear()  # 13 - datazione estesa
+        self.comboBox_datazione_estesa.setEditText("")  # 13 - datazione estesa
 
         for i in range(materiali_impiegati_row_count):
             self.tableWidget_materiali_impiegati.removeRow(0)
@@ -1750,7 +1768,7 @@ class pyarchinit_Struttura(QDialog, MAIN_DIALOG_CLASS):
                 self.DATA_LIST[self.rec_num].descrizione))  # 6 - descrizione
             str(self.textEdit_interpretazione_struttura.setText(
                 self.DATA_LIST[self.rec_num].interpretazione))  # 7 - interpretazione
-            self.lineEdit_datazione_estesa.setText(
+            self.comboBox_datazione_estesa.setEditText(
                 str(self.DATA_LIST[self.rec_num].datazione_estesa))  # 12 - datazione estesa
             self.tableInsertData("self.tableWidget_materiali_impiegati",
                                  self.DATA_LIST[self.rec_num].materiali_impiegati)  # 13 - materiali impiegati
@@ -1839,7 +1857,7 @@ class pyarchinit_Struttura(QDialog, MAIN_DIALOG_CLASS):
             str(fase_iniziale),  # 6 - fase iniziale
             str(periodo_finale),  # 6 - periodo finale
             str(fase_finale),  # 6 - fase finale
-            str(self.lineEdit_datazione_estesa.text()),  # 7- cron estesa
+            str(self.comboBox_datazione_estesa.currentText()),  # 7- cron estesa
             str(materiali_impiegati),  # 8-  materiali impiegati
             str(elementi_strutturali),  # 8- elementi strutturali
             str(rapporti_struttura),  # 8- rapporti struttura
