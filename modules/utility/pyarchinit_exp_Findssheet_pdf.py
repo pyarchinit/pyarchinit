@@ -188,7 +188,7 @@ class single_Finds_pdf_sheet(object):
             us = Paragraph("<b>US</b><br/>" + str(self.us), styNormal)
 
             # 3 row
-            criterio_schedatura = Paragraph("<b>Criterio schedatura</b><br/>" + self.criterio_schedatura, styNormal)
+            criterio_schedatura = Paragraph("<b>Classe materiale</b><br/>" + self.criterio_schedatura, styNormal)
             tipo_reperto = Paragraph("<b>Tipo reperto</b><br/>" + self.tipo_reperto, styNormal)
             definizione = Paragraph("<b>Definizione</b><br/>" + self.definizione, styNormal)
 
@@ -1618,16 +1618,16 @@ class generate_reperti_pdf(object):
         
         home_DB_path = '{}{}{}'.format(home, os.sep, 'pyarchinit_DB_folder')
         logo_path = '{}{}{}'.format(home_DB_path, os.sep, 'logo.jpg')
-        logo_path2 = '{}{}{}'.format(home_DB_path, os.sep, 'logo_2.png')
+        #logo_path2 = '{}{}{}'.format(home_DB_path, os.sep, 'logo_2.png')
         logo = Image(logo_path)
         logo.drawHeight = 1.5 * inch * logo.drawHeight / logo.drawWidth
         logo.drawWidth = 1.5 * inch
         logo.hAlign = "LEFT"
         
-        logo_2 = Image(logo_path2)
-        logo_2.drawHeight = 1.5 * inch * logo_2.drawHeight / logo_2.drawWidth
-        logo_2.drawWidth = 1.5 * inch
-        logo_2.hAlign = "CENTER"
+        # logo_2 = Image(logo_path2)
+        # logo_2.drawHeight = 1.5 * inch * logo_2.drawHeight / logo_2.drawWidth
+        # logo_2.drawWidth = 1.5 * inch
+        # logo_2.hAlign = "CENTER"
         
         styleSheet = getSampleStyleSheet()
         styNormal = styleSheet['Normal']
@@ -1637,11 +1637,11 @@ class generate_reperti_pdf(object):
         data = self.datestrfdate()
 
         lst = []
-        lst2=[]
+        #lst2=[]
         lst.append(logo)
-        lst2.append(logo_2)
+        #lst2.append(logo_2)
         lst.append(
-            Paragraph("<b>ELENCO INVENTARIO</b><br/><b> Scavo: %s </b><br/><b>  Data: %s</b>" % (sito, data), styH1))
+            Paragraph("<b>ELENCO INVENTARIO REPERTATI</b><br/><b> Scavo: %s </b><br/><b>  Data: %s</b>" % (sito, data), styH1))
 
         table_data = []
         for i in range(len(records)):
@@ -1664,7 +1664,7 @@ class generate_reperti_pdf(object):
 
         doc = SimpleDocTemplate(f, pagesize=(29 * cm, 21 * cm), showBoundary=0, topMargin=15, bottomMargin=40,
                                 leftMargin=30, rightMargin=30)
-        doc.build(lst+lst2, canvasmaker=NumberedCanvas_FINDSindex)
+        doc.build(lst, canvasmaker=NumberedCanvas_FINDSindex)
 
         f.close()
     def build_index_Foto_2(self, records, sito):
@@ -1672,16 +1672,16 @@ class generate_reperti_pdf(object):
 
         home_DB_path = '{}{}{}'.format(home, os.sep, 'pyarchinit_DB_folder')
         logo_path = '{}{}{}'.format(home_DB_path, os.sep, 'logo.jpg')
-        logo_path2 = '{}{}{}'.format(home_DB_path, os.sep, 'logo_2.png')
+        #logo_path2 = '{}{}{}'.format(home_DB_path, os.sep, 'logo_2.png')
         logo = Image(logo_path)
         logo.drawHeight = 1.5 * inch * logo.drawHeight / logo.drawWidth
         logo.drawWidth = 1.5 * inch
         logo.hAlign = "LEFT"
         
-        logo_2 = Image(logo_path2)
-        logo_2.drawHeight = 1.5 * inch * logo_2.drawHeight / logo_2.drawWidth
-        logo_2.drawWidth = 1.5 * inch
-        logo_2.hAlign = "CENTER"
+        # logo_2 = Image(logo_path2)
+        # logo_2.drawHeight = 1.5 * inch * logo_2.drawHeight / logo_2.drawWidth
+        # logo_2.drawWidth = 1.5 * inch
+        # logo_2.hAlign = "CENTER"
         
         styleSheet = getSampleStyleSheet()
         styNormal = styleSheet['Normal']
@@ -1691,9 +1691,9 @@ class generate_reperti_pdf(object):
         data = self.datestrfdate()
 
         lst = []
-        lst2=[]
+        #lst2=[]
         lst.append(logo)
-        lst2.append(logo_2)
+        #lst2.append(logo_2)
         lst.append(
             Paragraph("<b>ELENCO INVENTARIO</b><br/><b> Scavo: %s </b><br/><b>  Data: %s</b>" % (sito, data), styH1))
 
@@ -1718,7 +1718,7 @@ class generate_reperti_pdf(object):
 
         doc = SimpleDocTemplate(f, pagesize=(29 * cm, 21 * cm), showBoundary=0, topMargin=15, bottomMargin=40,
                                 leftMargin=30, rightMargin=30)
-        doc.build(lst+lst2, canvasmaker=NumberedCanvas_FINDSindex)
+        doc.build(lst, canvasmaker=NumberedCanvas_FINDSindex)
 
         f.close()
     
@@ -1892,16 +1892,16 @@ class generate_reperti_pdf(object):
 
         home_DB_path = '{}{}{}'.format(home, os.sep, 'pyarchinit_DB_folder')
         logo_path = '{}{}{}'.format(home_DB_path, os.sep, 'logo.jpg')
-        logo_path2 = '{}{}{}'.format(home_DB_path, os.sep, 'logo_2.png')
+        #logo_path2 = '{}{}{}'.format(home_DB_path, os.sep, 'logo_2.png')
         logo = Image(logo_path)
         logo.drawHeight = 1.5 * inch * logo.drawHeight / logo.drawWidth
         logo.drawWidth = 1.5 * inch
         logo.hAlign = "LEFT"
         
-        logo_2 = Image(logo_path2)
-        logo_2.drawHeight = 1.5 * inch * logo_2.drawHeight / logo_2.drawWidth
-        logo_2.drawWidth = 1.5 * inch
-        logo_2.hAlign = "CENTER"
+        # logo_2 = Image(logo_path2)
+        # logo_2.drawHeight = 1.5 * inch * logo_2.drawHeight / logo_2.drawWidth
+        # logo_2.drawWidth = 1.5 * inch
+        # logo_2.hAlign = "CENTER"
         
         styleSheet = getSampleStyleSheet()
         styNormal = styleSheet['Normal']
@@ -1911,9 +1911,9 @@ class generate_reperti_pdf(object):
         data = self.datestrfdate()
 
         lst = []
-        lst2=[]
+        #lst2=[]
         lst.append(logo)
-        lst2.append(logo_2)
+        #lst2.append(logo_2)
         lst.append(
             Paragraph("<b>ELENCO CASSE</b><br/><b> Scavo: %s </b><br/><b>  Data: %s</b>" % (sito, data), styH1))
 
@@ -1939,7 +1939,7 @@ class generate_reperti_pdf(object):
         doc = SimpleDocTemplate(f, pagesize=(29 * cm, 21 * cm), showBoundary=0, topMargin=15, bottomMargin=40,
                                 leftMargin=30, rightMargin=30)
         # doc.build(lst, canvasmaker=NumberedCanvas_Sindex)
-        doc.build(lst+lst2)
+        doc.build(lst)
 
         f.close()
 

@@ -3056,7 +3056,11 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
         if self.toolButtonGis.isChecked():
             self.pyQGIS.addRasterLayer()
     def on_pushButton_new_rec_pressed(self):
-        if self.DATA_LIST:
+        conn = Connection()
+        
+        sito_set= conn.sito_set()
+        sito_set_str = sito_set['sito_set']
+        if bool(self.DATA_LIST):
             if self.data_error_check() == 1:
                 pass
             # else:
@@ -3075,22 +3079,41 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
                                                                    # "The record has been changed. Do you want to save the changes?",
                                                                    # QMessageBox.Ok | QMessageBox.Cancel))
         if self.BROWSE_STATUS != "n":
-            self.BROWSE_STATUS = "n"
-            self.label_status.setText(self.STATUS_ITEMS[self.BROWSE_STATUS])
-            self.empty_fields()
-            self.setComboBoxEditable(["self.comboBox_sito"], 0)
-            self.setComboBoxEditable(["self.comboBox_area"], 0)
-            self.setComboBoxEditable(["self.comboBox_unita_tipo"], 0)
-            self.setComboBoxEnable(["self.comboBox_sito"], "True")
-            self.setComboBoxEnable(["self.comboBox_area"], "True")
-            self.setComboBoxEnable(["self.lineEdit_us"], "True")
-            self.setComboBoxEnable(["self.comboBox_unita_tipo"], "True")
-            self.SORT_STATUS = "n"
-            self.label_sort.setText(self.SORTED_ITEMS[self.SORT_STATUS])
-            self.label_status.setText(self.STATUS_ITEMS[self.BROWSE_STATUS])
-            self.set_rec_counter('', '')
-            self.label_sort.setText(self.SORTED_ITEMS["n"])
-            #self.empty_fields()
+            if bool(self.comboBox_sito.currentText()) and self.comboBox_sito.currentText()==sito_set_str:
+                self.BROWSE_STATUS = "n"
+                self.label_status.setText(self.STATUS_ITEMS[self.BROWSE_STATUS])
+                self.empty_fields_nosite()
+                
+                self.setComboBoxEditable(["self.comboBox_area"], 0)
+                self.setComboBoxEditable(["self.comboBox_unita_tipo"], 0)
+                self.setComboBoxEnable(["self.comboBox_sito"], "False")
+                self.setComboBoxEnable(["self.comboBox_area"], "True")
+                self.setComboBoxEnable(["self.lineEdit_us"], "True")
+                self.setComboBoxEnable(["self.comboBox_unita_tipo"], "True")
+                self.SORT_STATUS = "n"
+                self.label_sort.setText(self.SORTED_ITEMS[self.SORT_STATUS])
+                self.label_status.setText(self.STATUS_ITEMS[self.BROWSE_STATUS])
+                self.set_rec_counter('', '')
+                self.label_sort.setText(self.SORTED_ITEMS["n"])
+                
+            else:
+                self.BROWSE_STATUS = "n"
+                self.label_status.setText(self.STATUS_ITEMS[self.BROWSE_STATUS])
+                self.empty_fields()
+                self.setComboBoxEditable(["self.comboBox_sito"], 0)
+                self.setComboBoxEditable(["self.comboBox_area"], 0)
+                self.setComboBoxEditable(["self.comboBox_unita_tipo"], 0)
+                self.setComboBoxEnable(["self.comboBox_sito"], "True")
+                self.setComboBoxEnable(["self.comboBox_area"], "True")
+                self.setComboBoxEnable(["self.lineEdit_us"], "True")
+                self.setComboBoxEnable(["self.comboBox_unita_tipo"], "True")
+                self.SORT_STATUS = "n"
+                self.label_sort.setText(self.SORTED_ITEMS[self.SORT_STATUS])
+                self.label_status.setText(self.STATUS_ITEMS[self.BROWSE_STATUS])
+                self.set_rec_counter('', '')
+                self.label_sort.setText(self.SORTED_ITEMS["n"])
+                
+            
             self.enable_button(0)
     def on_pushButton_save_pressed(self):
         self.checkBox_query.setChecked(False)
@@ -4268,42 +4291,79 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
             pass
         else:
             self.enable_button_search(0)
-            # set the GUI for a new search
+            conn = Connection()
+        
+            sito_set= conn.sito_set()
+            sito_set_str = sito_set['sito_set']
             if self.BROWSE_STATUS != "f":
-                self.BROWSE_STATUS = "f"
-                ###
-                self.lineEdit_data_schedatura.setText("")
-                self.lineEdit_anno.setText("")
-                self.comboBox_formazione.setEditText("")
-                self.comboBox_metodo.setEditText("")
-                self.setComboBoxEditable(["self.comboBox_sito"], 1)
-                self.setComboBoxEditable(["self.comboBox_area"], 1)
-                self.setComboBoxEditable(["self.comboBox_unita_tipo"], 1)
-                self.setComboBoxEnable(["self.comboBox_sito"], "True")
-                self.setComboBoxEnable(["self.comboBox_area"], "True")
-                self.setComboBoxEnable(["self.comboBox_unita_tipo"], "True")
-                self.setComboBoxEnable(["self.lineEdit_us"], "True")
-                self.setComboBoxEnable(["self.textEdit_descrizione"], "False")
-                self.setComboBoxEnable(["self.textEdit_interpretazione"], "False")
-                self.setTableEnable(
-                    ["self.tableWidget_campioni",
-                     "self.tableWidget_rapporti",
-                     "self.tableWidget_inclusi",
-                     "self.tableWidget_organici",
-                     "self.tableWidget_inorganici",
-                     "self.tableWidget_documentazione",
-                     "self.tableWidget_inclusi_materiali_usm",
-                     "self.tableWidget_colore_legante_usm",
-                     "self.tableWidget_inclusi_leganti_usm",
-                     "self.tableWidget_consistenza_texture_mat_usm",
-                     "self.tableWidget_colore_materiale_usm"], "False")
-                ###
-                self.label_status.setText(self.STATUS_ITEMS[self.BROWSE_STATUS])
-                self.set_rec_counter('', '')
-                self.label_sort.setText(self.SORTED_ITEMS["n"])
-                self.charge_list()
-                self.empty_fields()
-                #self.set_sito()
+                if bool(self.comboBox_sito.currentText()) and self.comboBox_sito.currentText()==sito_set_str:
+                    self.BROWSE_STATUS = "f"
+                    self.empty_fields_nosite()
+                    self.lineEdit_data_schedatura.setText("")
+                    self.lineEdit_anno.setText("")
+                    self.comboBox_formazione.setEditText("")
+                    self.comboBox_metodo.setEditText("")
+                    #self.setComboBoxEditable(["self.comboBox_sito"], 1)
+                    self.setComboBoxEditable(["self.comboBox_area"], 0)
+                    self.setComboBoxEditable(["self.comboBox_unita_tipo"], 0)
+                    self.setComboBoxEnable(["self.comboBox_sito"], "False")
+                    self.setComboBoxEnable(["self.comboBox_area"], "True")
+                    self.setComboBoxEnable(["self.comboBox_unita_tipo"], "True")
+                    self.setComboBoxEnable(["self.lineEdit_us"], "True")
+                    self.setComboBoxEnable(["self.textEdit_descrizione"], "False")
+                    self.setComboBoxEnable(["self.textEdit_interpretazione"], "False")
+                    self.setTableEnable(
+                        ["self.tableWidget_campioni",
+                         "self.tableWidget_rapporti",
+                         "self.tableWidget_inclusi",
+                         "self.tableWidget_organici",
+                         "self.tableWidget_inorganici",
+                         "self.tableWidget_documentazione",
+                         "self.tableWidget_inclusi_materiali_usm",
+                         "self.tableWidget_colore_legante_usm",
+                         "self.tableWidget_inclusi_leganti_usm",
+                         "self.tableWidget_consistenza_texture_mat_usm",
+                         "self.tableWidget_colore_materiale_usm"], "False")
+                    ###
+                    self.label_status.setText(self.STATUS_ITEMS[self.BROWSE_STATUS])
+                    self.set_rec_counter('', '')
+                    self.label_sort.setText(self.SORTED_ITEMS["n"])
+                    #self.charge_list()
+                    
+                else:
+                    self.BROWSE_STATUS = "f"
+                    ###
+                    self.lineEdit_data_schedatura.setText("")
+                    self.lineEdit_anno.setText("")
+                    self.comboBox_formazione.setEditText("")
+                    self.comboBox_metodo.setEditText("")
+                    self.setComboBoxEditable(["self.comboBox_sito"], 0)
+                    self.setComboBoxEditable(["self.comboBox_area"], 0)
+                    self.setComboBoxEditable(["self.comboBox_unita_tipo"], 0)
+                    self.setComboBoxEnable(["self.comboBox_sito"], "True")
+                    self.setComboBoxEnable(["self.comboBox_area"], "True")
+                    self.setComboBoxEnable(["self.comboBox_unita_tipo"], "True")
+                    self.setComboBoxEnable(["self.lineEdit_us"], "True")
+                    self.setComboBoxEnable(["self.textEdit_descrizione"], "False")
+                    self.setComboBoxEnable(["self.textEdit_interpretazione"], "False")
+                    self.setTableEnable(
+                        ["self.tableWidget_campioni",
+                         "self.tableWidget_rapporti",
+                         "self.tableWidget_inclusi",
+                         "self.tableWidget_organici",
+                         "self.tableWidget_inorganici",
+                         "self.tableWidget_documentazione",
+                         "self.tableWidget_inclusi_materiali_usm",
+                         "self.tableWidget_colore_legante_usm",
+                         "self.tableWidget_inclusi_leganti_usm",
+                         "self.tableWidget_consistenza_texture_mat_usm",
+                         "self.tableWidget_colore_materiale_usm"], "False")
+                    ###
+                    self.label_status.setText(self.STATUS_ITEMS[self.BROWSE_STATUS])
+                    self.set_rec_counter('', '')
+                    self.label_sort.setText(self.SORTED_ITEMS["n"])
+                    self.charge_list()
+                    self.empty_fields()
     def on_pushButton_showLayer_pressed(self):
         """
         for sing_us in range(len(self.DATA_LIST)):
@@ -4773,6 +4833,163 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
         inorganici_row_count = self.tableWidget_inorganici.rowCount()
         documentazione_row_count = self.tableWidget_documentazione.rowCount()
         self.comboBox_sito.setEditText("")  # 1 - Sito
+        self.comboBox_area.setEditText("")  # 2 - Area
+        self.lineEdit_us.clear()  # 3 - US
+        self.comboBox_def_strat.setEditText("")  # 4 - Definizione stratigrafica
+        self.comboBox_def_intepret.setEditText("")  # 5 - Definizione intepretata
+        self.textEdit_descrizione.clear()  # 6 - descrizione
+        self.textEdit_interpretazione.clear()  # 7 - interpretazione
+        self.comboBox_per_iniz.setEditText("")  # 8 - periodo iniziale
+        self.comboBox_fas_iniz.setEditText("")  # 9 - fase iniziale
+        self.comboBox_per_fin.setEditText("")  # 10 - periodo finale iniziale
+        self.comboBox_fas_fin.setEditText("")  # 11 - fase finale
+        self.comboBox_scavato.setEditText("")  # 12 - scavato
+        self.lineEdit_attivita.clear()  # 13 - attivita
+        if self.BROWSE_STATUS == "n":
+            self.lineEdit_anno.setText(self.yearstrfdate())  # 14 - anno scavo
+        else:
+            self.lineEdit_anno.clear()
+        self.comboBox_metodo.setEditText("")  # 15 - metodo
+        for i in range(inclusi_row_count):
+            self.tableWidget_inclusi.removeRow(0)
+        self.insert_new_row("self.tableWidget_inclusi")  # 16 - inclusi
+        for i in range(campioni_row_count):
+            self.tableWidget_campioni.removeRow(0)
+        self.insert_new_row("self.tableWidget_campioni")  # 17 - campioni
+        for i in range(organici_row_count):
+            self.tableWidget_organici.removeRow(0)
+        self.insert_new_row("self.tableWidget_organici")  # organici
+        for i in range(inorganici_row_count):
+            self.tableWidget_inorganici.removeRow(0)
+        self.insert_new_row("self.tableWidget_inorganici")  # inorganici
+        for i in range(rapporti_row_count):
+            self.tableWidget_rapporti.removeRow(0)
+        self.insert_new_row("self.tableWidget_rapporti")                #18 - rapporti
+        for i in range(documentazione_row_count):
+            self.tableWidget_documentazione.removeRow(0)
+        self.insert_new_row("self.tableWidget_documentazione")  # 19 - documentazione
+        colore_legante_usm_row_count = self.tableWidget_colore_legante_usm.rowCount()
+        for i in range(colore_legante_usm_row_count):
+            self.tableWidget_colore_legante_usm.removeRow(0)
+        self.insert_new_row("self.tableWidget_colore_legante_usm")  # 19 - aggregati
+        inclusi_leganti_usm_row_count = self.tableWidget_inclusi_leganti_usm.rowCount()
+        for i in range(inclusi_leganti_usm_row_count):
+            self.tableWidget_inclusi_leganti_usm.removeRow(0)
+        self.insert_new_row("self.tableWidget_inclusi_leganti_usm")  # 19 - aggregati
+        cont_text_mat_row_count = self.tableWidget_consistenza_texture_mat_usm.rowCount()
+        for i in range(cont_text_mat_row_count):
+            self.tableWidget_consistenza_texture_mat_usm.removeRow(0)
+        self.insert_new_row("self.tableWidget_consistenza_texture_mat_usm")  # 19 - colore legante usm
+        aggreg_inclusi_materiale_row_count = self.tableWidget_inclusi_materiali_usm.rowCount()
+        for i in range(aggreg_inclusi_materiale_row_count):
+            self.tableWidget_inclusi_materiali_usm.removeRow(0)
+        self.insert_new_row("self.tableWidget_inclusi_materiali_usm")  # 19 - aggregati
+        colore_materiali_usm_row_count = self.tableWidget_colore_materiale_usm.rowCount()
+        for i in range(colore_materiali_usm_row_count):
+            self.tableWidget_colore_materiale_usm.removeRow(0)
+        self.insert_new_row("self.tableWidget_colore_materiale_usm")  # 19 - aggregati
+        if self.BROWSE_STATUS == "n":
+            self.lineEdit_data_schedatura.setText(self.datestrfdate())  # 20 - data schedatura
+        else:
+            self.lineEdit_data_schedatura.setText("")  # 20 - data schedatura
+        self.comboBox_schedatore.setEditText("")  # 21 - schedatore
+        self.comboBox_formazione.setEditText("")  # 22 - formazione
+        self.comboBox_conservazione.setEditText("")  # 23 - conservazione
+        self.comboBox_colore.setEditText("")  # 24 - colore
+        self.comboBox_consistenza.setEditText("")  # 25 - consistenza
+        self.comboBox_struttura.setEditText("")  # 26 - struttura
+        self.lineEdit_codice_periodo.clear()  # 27 - codice periodo
+        self.lineEditOrderLayer.clear()  # 28 - order layer
+        self.comboBox_unita_tipo.setEditText("")  # 29 us_tipo            NUOVI CAMPI NUOVI CAMPI
+        self.comboBox_settore.setEditText("")  # 30 settore
+        self.lineEdit_quadrato.clear()  # 31 quadrato
+        self.lineEdit_ambiente.clear()  # 32 ambiente
+        self.lineEdit_saggio.clear()  # 33 saggio
+        self.textEdit_elementi_datanti.clear()  # 34 elementi datanti
+        self.comboBox_funz_statica_usm.setEditText("")  # 35 funzione statica
+        self.comboBox_lavorazione_usm.setEditText("")  # 36 lavorazione usm
+        self.lineEdit_spessore_giunti_usm.clear()  # 37 spessore giunti
+        self.lineEdit_letti_di_posa_giunti_usm.clear()  # 38 letti posa giunti usm
+        self.lineEdit_h_modulo_c_corsi_usm.clear()  # 39 altezza modulo corsi usm
+        self.comboBox_unita_edilizia_riassuntiva_usm.setEditText("")  # 40 unita edilizia riassuntiva
+        self.comboBox_reimpiego_usm.setEditText("")  # 41 unita edilizia riassuntiva
+        self.comboBox_posa_in_opera_usm.setEditText("")  # 42 posa in opera
+        self.lineEdit_qmin_usm.clear()  # 3 - US
+        self.lineEdit_qmax_usm.clear()  # 3 - US
+        self.comboBox_consistenza_legante_usm.setEditText("")  # 45 consitenza legante usm
+        self.lineEdit_n_catalogo_generale.clear()  # 51 nr catalogo generale campi aggiunti per archeo 3.0 e allineamento ICCD
+        self.lineEdit_n_catalogo_interno.clear()  # 52 nr catalogo interno
+        self.lineEdit_n_catalogo_internazionale.clear()  # 53 nr catalogo internazionale
+        self.comboBox_soprintendenza.setEditText("")  # 54 nr soprintendenza
+        self.lineEdit_quota_relativa.clear()  # 55
+        self.lineEdit_quota_abs.clear()  # 56
+        self.lineEdit_ref_tm.clear()  # 57 ref tm
+        self.comboBox_ref_ra.setEditText("")   # 58 ref ra
+        self.lineEdit_ref_n.clear()  # 59 ref n
+        self.comboBox_posizione.setEditText("")  # 60 posizione
+        self.lineEdit_criteri_distinzione.clear()  # 61 criteri distinzione
+        self.comboBox_modo_formazione.setEditText("")  # 62 modo formazione
+        #self.comboBox_componenti_organici.setEditText("")  # 63 componenti organici
+        #self.comboBox_componenti_inorganici.setEditText("")  # 64 componenti inorganici
+        self.lineEdit_lunghezza_max.clear()  # 65
+        self.lineEdit_altezza_max.clear()  # 66
+        self.lineEdit_altezza_min.clear()  # 67
+        self.lineEdit_profondita_max.clear()  # 68
+        self.lineEdit_profondita_min.clear()  # 69
+        self.lineEdit_larghezza_media.clear()  # 70
+        self.lineEdit_quota_max_abs.clear()  # 71
+        self.lineEdit_quota_max_rel.clear()  # 72
+        self.lineEdit_quota_min_abs.clear()  # 73
+        self.lineEdit_quota_min_rel.clear()  # 74
+        self.textEdit_osservazioni.clear()  # 75 osservazioni
+        self.comboBox_datazione.setEditText("")  # 76 datazione
+        self.lineEdit_flottazione.clear()  # 77 flottazione
+        self.lineEdit_setacciatura.clear()  # 78 setacciatura
+        self.lineEdit_affidabilita.clear()  # 79 affidabilita
+        self.comboBox_direttore_us.setEditText("")  # 80 direttore us
+        self.comboBox_responsabile_us.setEditText("")  # 81 responsabile us
+        self.lineEdit_cod_ente_schedatore.clear()  # 82 cod ente schedatore
+        self.lineEdit_data_rilevazione.clear()  # 83 data rilevazione
+        self.lineEdit_data_rielaborazione.clear()  # 84 data rielaborazione
+        self.lineEdit_lunghezza_usm.clear()  # 85
+        self.lineEdit_altezza_usm.clear()  # 86
+        self.lineEdit_spessore_usm.clear()  # 87
+        self.comboBox_tecnica_muraria_usm.setEditText("")  # 88 tecnica muraria usm
+        self.comboBox_modulo_usm.setEditText("")  # 89 modulo usm
+        self.lineEdit_campioni_malta_usm.clear()  # 90 campioni malta usm
+        self.lineEdit_campioni_mattone_usm.clear()  # 91 campioni mattone usm
+        self.lineEdit_campioni_pietra_usm.clear()  # 92 campioni pietra usm
+        self.lineEdit_provenienza_materiali_usm.clear()  # 93 provenienza_materiali_usm
+        self.lineEdit_criteri_distinzione_usm.clear()  # 94 criteri distinzione usm
+        self.comboBox_uso_primario_usm.setEditText("")  # 95 uso primario usm
+        self.comboBox_tipologia_opera.setEditText("")  # 95 uso primario usm
+        self.comboBox_sezione_muraria.setEditText("")  # 95 uso primario usm
+        self.comboBox_superficie_analizzata.setEditText("")  # 95 uso primario usm
+        self.comboBox_orientamento.setEditText("")  # 95 uso primario usm
+        self.comboBox_materiali_lat.setEditText("")  # 95 uso primario usm
+        self.comboBox_lavorazione_lat.setEditText("")  # 95 uso primario usm
+        self.comboBox_consistenza_lat.setEditText("")  # 95 uso primario usm
+        self.comboBox_forma_lat.setEditText("")  # 95 uso primario usm
+        self.comboBox_colore_lat.setEditText("")  # 95 uso primario usm
+        self.comboBox_impasto_lat.setEditText("")  # 95 uso primario usm
+        self.comboBox_forma_p.setEditText("")  # 95 uso primario usm
+        self.comboBox_colore_p.setEditText("")  # 95 uso primario usm
+        self.comboBox_taglio_p.setEditText("")  # 95 uso primario usm
+        self.comboBox_posa_opera_p.setEditText("")  # 95 uso primario usm
+        self.comboBox_inerti_usm.setEditText("")  # 95 uso primario usm
+        self.comboBox_tipo_legante_usm.setEditText("")  # 95 uso primario usm
+        self.comboBox_rifinitura_usm.setEditText("")  # 95 uso primario usm
+        self.comboBox_materiale_p.setEditText("")  # 95 uso primario usm
+        self.comboBox_consistenza_p.setEditText("")  # 95 uso primario usm
+    
+    def empty_fields_nosite(self):
+        rapporti_row_count = self.tableWidget_rapporti.rowCount()
+        campioni_row_count = self.tableWidget_campioni.rowCount()
+        inclusi_row_count = self.tableWidget_inclusi.rowCount()
+        organici_row_count = self.tableWidget_organici.rowCount()
+        inorganici_row_count = self.tableWidget_inorganici.rowCount()
+        documentazione_row_count = self.tableWidget_documentazione.rowCount()
+        
         self.comboBox_area.setEditText("")  # 2 - Area
         self.lineEdit_us.clear()  # 3 - US
         self.comboBox_def_strat.setEditText("")  # 4 - Definizione stratigrafica

@@ -669,6 +669,10 @@ class pyarchinit_Inventario_Lapidei(QDialog, MAIN_DIALOG_CLASS):
             ##          self.loadMediaPreview(1)
 
     def on_pushButton_new_rec_pressed(self):
+        conn = Connection()
+        
+        sito_set= conn.sito_set()
+        sito_set_str = sito_set['sito_set']
         if bool(self.DATA_LIST):
             if self.data_error_check() == 1:
                 pass
@@ -690,22 +694,38 @@ class pyarchinit_Inventario_Lapidei(QDialog, MAIN_DIALOG_CLASS):
                                                                    QMessageBox.Ok | QMessageBox.Cancel))
 
         if self.BROWSE_STATUS != "n":
-            self.BROWSE_STATUS = "n"
-            self.label_status.setText(self.STATUS_ITEMS[self.BROWSE_STATUS])
-            self.empty_fields()
+            if bool(self.comboBox_sito.currentText()) and self.comboBox_sito.currentText()==sito_set_str:
+                self.BROWSE_STATUS = "n"
+                self.label_status.setText(self.STATUS_ITEMS[self.BROWSE_STATUS])
+                self.empty_fields()
 
-            self.setComboBoxEditable(['self.comboBox_sito'], 0)
-            # self.setComboBoxEditable(['self.comboBox_sito'], 1)
-            self.setComboBoxEnable(['self.comboBox_sito'], 'True')
-            self.setComboBoxEnable(['self.lineEdit_num_inv'], 'True')
+                #self.setComboBoxEditable(['self.comboBox_sito'], 0)
+                # self.setComboBoxEditable(['self.comboBox_sito'], 1)
+                self.setComboBoxEnable(['self.comboBox_sito'], 'False')
+                self.setComboBoxEnable(['self.lineEdit_num_inv'], 'True')
 
-            self.label_sort.setText(self.SORTED_ITEMS[self.SORT_STATUS])
+                self.label_sort.setText(self.SORTED_ITEMS[self.SORT_STATUS])
 
-            self.label_status.setText(self.STATUS_ITEMS[self.BROWSE_STATUS])
-            self.set_rec_counter('', '')
-            self.label_sort.setText(self.SORTED_ITEMS["n"])
-            self.empty_fields()
+                self.label_status.setText(self.STATUS_ITEMS[self.BROWSE_STATUS])
+                self.set_rec_counter('', '')
+                self.label_sort.setText(self.SORTED_ITEMS["n"])
+                self.empty_fields_nosite()
+            else:
+                self.BROWSE_STATUS = "n"
+                self.label_status.setText(self.STATUS_ITEMS[self.BROWSE_STATUS])
+                self.empty_fields()
 
+                self.setComboBoxEditable(['self.comboBox_sito'], 0)
+                # self.setComboBoxEditable(['self.comboBox_sito'], 1)
+                self.setComboBoxEnable(['self.comboBox_sito'], 'True')
+                self.setComboBoxEnable(['self.lineEdit_num_inv'], 'True')
+
+                self.label_sort.setText(self.SORTED_ITEMS[self.SORT_STATUS])
+
+                self.label_status.setText(self.STATUS_ITEMS[self.BROWSE_STATUS])
+                self.set_rec_counter('', '')
+                self.label_sort.setText(self.SORTED_ITEMS["n"])
+                self.empty_fields()
             self.enable_button(0)
 
     def on_pushButton_save_pressed(self):
@@ -1177,24 +1197,38 @@ class pyarchinit_Inventario_Lapidei(QDialog, MAIN_DIALOG_CLASS):
         else:
             self.enable_button_search(0)
 
-            # set the GUI for a new search
+            conn = Connection()
+        
+            sito_set= conn.sito_set()
+            sito_set_str = sito_set['sito_set']
 
 
             if self.BROWSE_STATUS != "f":
-                self.BROWSE_STATUS = "f"
-                ###
-                self.setComboBoxEditable(['self.comboBox_sito'], 1)
-                self.setComboBoxEnable(['self.comboBox_sito'], 'True')
-                self.setlineEditEnable(['self.lineEdit_num_inv'], 'True')  # verificare
-                self.settextEditEnable(["self.textEdit_descrizione"], "False")  # verificare
-                self.setTableEnable(["self.tableWidget_bibliografia"], "False")
-                ###
-                self.label_status.setText(self.STATUS_ITEMS[self.BROWSE_STATUS])
-                self.set_rec_counter('', '')
-                self.label_sort.setText(self.SORTED_ITEMS["n"])
-                self.charge_list()
-                self.empty_fields()
-
+                if bool(self.comboBox_sito.currentText()) and self.comboBox_sito.currentText()==sito_set_str:
+                    self.BROWSE_STATUS = "f"
+                    ###
+                    #self.setComboBoxEditable(['self.comboBox_sito'], 1)
+                    self.setComboBoxEnable(['self.comboBox_sito'], 'False')
+                    
+                    ###
+                    self.label_status.setText(self.STATUS_ITEMS[self.BROWSE_STATUS])
+                    self.set_rec_counter('', '')
+                    self.label_sort.setText(self.SORTED_ITEMS["n"])
+                    #self.charge_list()
+                    self.empty_fields_nosite()
+                else:
+                    self.BROWSE_STATUS = "f"
+                    ###
+                    self.setComboBoxEditable(['self.comboBox_sito'], 1)
+                    self.setComboBoxEnable(['self.comboBox_sito'], 'True')
+                   
+                    
+                    ###
+                    self.label_status.setText(self.STATUS_ITEMS[self.BROWSE_STATUS])
+                    self.set_rec_counter('', '')
+                    self.label_sort.setText(self.SORTED_ITEMS["n"])
+                    self.charge_list()
+                    self.empty_fields()
     def on_pushButton_search_go_pressed(self):
         check_for_buttons = 0
         if self.BROWSE_STATUS != "f":
@@ -1255,7 +1289,7 @@ class pyarchinit_Inventario_Lapidei(QDialog, MAIN_DIALOG_CLASS):
                 self.TABLE_FIELDS[2]: "'" + str(self.lineEdit_collocazione.text()) + "'",
                 self.TABLE_FIELDS[3]: "'" + str(self.comboBox_oggetto.currentText()) + "'",
                 self.TABLE_FIELDS[4]: "'" + str(self.comboBox_tipologia.currentText()) + "'",
-                self.TABLE_FIELDS[5]: "'" + str(self.textEdit_materiale.text()) + "'",
+                self.TABLE_FIELDS[5]: "'" + str(self.comboBox_materiale.currentText()) + "'",
                 self.TABLE_FIELDS[6]: d_letto_posa,
                 self.TABLE_FIELDS[7]: d_letto_attesa,
                 self.TABLE_FIELDS[8]: toro,
@@ -1301,7 +1335,7 @@ class pyarchinit_Inventario_Lapidei(QDialog, MAIN_DIALOG_CLASS):
 
                     self.setComboBoxEditable(["self.comboBox_sito"], 1)
                     self.setComboBoxEnable(["self.comboBox_sito"], "False")
-                    self.setlineEditEnable(["self.lineEdit_num_inv"], "False")
+                    #self.setlineEditEnable(["self.lineEdit_num_inv"], "False")
                     self.settextEditEnable(["self.textEdit_descrizione"], "True")
                     self.setTableEnable(["self.tableWidget_bibliografia"], "True")
                     check_for_buttons = 1
@@ -1339,7 +1373,7 @@ class pyarchinit_Inventario_Lapidei(QDialog, MAIN_DIALOG_CLASS):
                             strings = ("They have been found", self.REC_TOT, "records")
 
                     self.setComboBoxEditable(["self.comboBox_sito"], 1)
-                    self.setlineEditEnable(['self.lineEdit_num_inv'], "False")
+                    #self.setlineEditEnable(['self.lineEdit_num_inv'], "False")
                     self.setComboBoxEnable(['self.comboBox_sito'], "False")
                     self.setTableEnable(["self.tableWidget_bibliografia"], "True")
                     check_for_buttons = 1
@@ -1521,7 +1555,33 @@ class pyarchinit_Inventario_Lapidei(QDialog, MAIN_DIALOG_CLASS):
             eval(cmd)
         except:
             QMessageBox.warning(self, "Messaggio", "Devi selezionare una riga", QMessageBox.Ok)
+    
+    
+    def empty_fields_nosite(self):
+        bibliografia_row_count = self.tableWidget_bibliografia.rowCount()
 
+        #self.comboBox_sito.setEditText("")  # 1 - Sito
+        self.lineEdit_num_inv.clear()  # 2 - num_inv
+        self.lineEdit_collocazione.clear()  # 3 - collocazione
+        self.comboBox_oggetto.setEditText("")  # 4 - oggetto
+        self.comboBox_tipologia.setEditText("")  # 5 - tipologia
+        self.comboBox_materiale.setEditText("")  # 9 - materiale
+        self.lineEdit_d_letto_posa.clear()  # 6 - d_letto_posa
+        self.lineEdit_d_letto_attesa.clear()  # 7 - d_letto_attesa
+        self.lineEdit_toro.clear()  # 8 - toro
+        self.lineEdit_spessore.clear()  # 10 - spessore
+        self.lineEdit_larghezza.clear()  # 11 - larghezza
+        self.lineEdit_lunghezza.clear()  # 13 - lunghezza
+        self.lineEdit_h.clear()  # 14 - h
+        self.textEdit_descrizione.clear()  # 12 - descrizione
+        self.textEdit_lavorazione_e_stato_di_conservazione.clear()  # 15 - lavorazione e stato...
+        self.textEdit_confronti.clear()  # 16 - confronti
+        self.lineEdit_cronologia.clear()  # 17 - cronologia
+        self.lineEdit_compilatore.clear()  # 18 - compilatore
+
+        for i in range(bibliografia_row_count):
+            self.tableWidget_bibliografia.removeRow(0)
+        self.insert_new_row("self.tableWidget_bibliografia")  # 19- bibliografia
     def empty_fields(self):
         bibliografia_row_count = self.tableWidget_bibliografia.rowCount()
 
