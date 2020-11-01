@@ -852,6 +852,11 @@ class pyarchinit_Struttura(QDialog, MAIN_DIALOG_CLASS):
             self.setComboBoxEditable(["self.comboBox_sigla_struttura"], 1)
 
     def on_pushButton_new_rec_pressed(self):
+        conn = Connection()
+        
+        sito_set= conn.sito_set()
+        sito_set_str = sito_set['sito_set']
+        
         if bool(self.DATA_LIST):
             if self.data_error_check() == 1:
                 pass
@@ -873,19 +878,32 @@ class pyarchinit_Struttura(QDialog, MAIN_DIALOG_CLASS):
                                                                    QMessageBox.Ok | QMessageBox.Cancel))
                             # set the GUI for a new record
         if self.BROWSE_STATUS != "n":
-            self.BROWSE_STATUS = "n"
-            self.label_status.setText(self.STATUS_ITEMS[self.BROWSE_STATUS])
-            self.empty_fields()
-            self.label_sort.setText(self.SORTED_ITEMS["n"])
+            if bool(self.comboBox_sito.currentText()) and self.comboBox_sito.currentText()==sito_set_str:
+                self.BROWSE_STATUS = "n"
+                self.label_status.setText(self.STATUS_ITEMS[self.BROWSE_STATUS])
+                self.empty_fields_nosite()
+                self.label_sort.setText(self.SORTED_ITEMS["n"])
 
-            self.setComboBoxEditable(["self.comboBox_sito"], 1)
-            self.setComboBoxEditable(["self.comboBox_sigla_struttura"], 1)
-            self.setComboBoxEnable(["self.comboBox_sito"], True)
-            self.setComboBoxEnable(["self.comboBox_sigla_struttura"], True)
-            self.setComboBoxEnable(["self.numero_struttura"], True)
+                #self.setComboBoxEditable(["self.comboBox_sito"], 1)
+                self.setComboBoxEditable(["self.comboBox_sigla_struttura"], 0)
+                self.setComboBoxEnable(["self.comboBox_sito"], False)
+                self.setComboBoxEnable(["self.comboBox_sigla_struttura"], True)
+                self.setComboBoxEnable(["self.numero_struttura"], True)
 
-            self.set_rec_counter('', '')
+                self.set_rec_counter('', '')
+            else:
+                self.BROWSE_STATUS = "n"
+                self.label_status.setText(self.STATUS_ITEMS[self.BROWSE_STATUS])
+                self.empty_fields()
+                self.label_sort.setText(self.SORTED_ITEMS["n"])
 
+                self.setComboBoxEditable(["self.comboBox_sito"], 1)
+                self.setComboBoxEditable(["self.comboBox_sigla_struttura"], 1)
+                self.setComboBoxEnable(["self.comboBox_sito"], True)
+                self.setComboBoxEnable(["self.comboBox_sigla_struttura"], True)
+                self.setComboBoxEnable(["self.numero_struttura"], True)
+
+                self.set_rec_counter('', '')
             self.enable_button(0)
 
     def on_pushButton_save_pressed(self):
@@ -1311,29 +1329,53 @@ class pyarchinit_Struttura(QDialog, MAIN_DIALOG_CLASS):
             pass
         else:
             self.enable_button_search(0)
-            # set the GUI for a new search
+            conn = Connection()
+        
+            sito_set= conn.sito_set()
+            sito_set_str = sito_set['sito_set']
             if self.BROWSE_STATUS != "f":
-                self.BROWSE_STATUS = "f"
-                ###
-                self.setComboBoxEditable(["self.comboBox_sito"], 1)
-                self.setComboBoxEditable(["self.comboBox_sigla_struttura"], 1)
-                self.setComboBoxEnable(["self.comboBox_sito"], True)
-                self.setComboBoxEnable(["self.comboBox_sigla_struttura"], True)
-                self.setComboBoxEnable(["self.numero_struttura"], True)
+                if bool(self.comboBox_sito.currentText()) and self.comboBox_sito.currentText()==sito_set_str:
+                    self.BROWSE_STATUS = "f"
+                    ###
+                    #self.setComboBoxEditable(["self.comboBox_sito"], 1)
+                    self.setComboBoxEditable(["self.comboBox_sigla_struttura"], 0)
+                    self.setComboBoxEnable(["self.comboBox_sito"], False)
+                    self.setComboBoxEnable(["self.comboBox_sigla_struttura"], True)
+                    self.setComboBoxEnable(["self.numero_struttura"], True)
 
-                self.setComboBoxEnable(["self.textEdit_descrizione_struttura"], "False")
-                self.setComboBoxEnable(["self.textEdit_interpretazione_struttura"], "False")
-                self.setTableEnable(["self.tableWidget_materiali_impiegati", "self.tableWidget_elementi_strutturali",
-                                     "self.tableWidget_rapporti",
-                                     "self.tableWidget_misurazioni"], "False")
+                    self.setComboBoxEnable(["self.textEdit_descrizione_struttura"], "False")
+                    self.setComboBoxEnable(["self.textEdit_interpretazione_struttura"], "False")
+                    self.setTableEnable(["self.tableWidget_materiali_impiegati", "self.tableWidget_elementi_strutturali",
+                                         "self.tableWidget_rapporti",
+                                         "self.tableWidget_misurazioni"], "False")
 
-                ###
-                self.label_status.setText(self.STATUS_ITEMS[self.BROWSE_STATUS])
-                self.set_rec_counter('', '')
-                self.label_sort.setText(self.SORTED_ITEMS["n"])
-                self.charge_list()
-                self.empty_fields()
+                    ###
+                    self.label_status.setText(self.STATUS_ITEMS[self.BROWSE_STATUS])
+                    self.set_rec_counter('', '')
+                    self.label_sort.setText(self.SORTED_ITEMS["n"])
+                    #self.charge_list()
+                    self.empty_fields_nosite()
+                else:
+                    self.BROWSE_STATUS = "f"
+                    ###
+                    self.setComboBoxEditable(["self.comboBox_sito"], 0)
+                    self.setComboBoxEditable(["self.comboBox_sigla_struttura"], 0)
+                    self.setComboBoxEnable(["self.comboBox_sito"], True)
+                    self.setComboBoxEnable(["self.comboBox_sigla_struttura"], True)
+                    self.setComboBoxEnable(["self.numero_struttura"], True)
 
+                    self.setComboBoxEnable(["self.textEdit_descrizione_struttura"], "False")
+                    self.setComboBoxEnable(["self.textEdit_interpretazione_struttura"], "False")
+                    self.setTableEnable(["self.tableWidget_materiali_impiegati", "self.tableWidget_elementi_strutturali",
+                                         "self.tableWidget_rapporti",
+                                         "self.tableWidget_misurazioni"], "False")
+
+                    ###
+                    self.label_status.setText(self.STATUS_ITEMS[self.BROWSE_STATUS])
+                    self.set_rec_counter('', '')
+                    self.label_sort.setText(self.SORTED_ITEMS["n"])
+                    self.charge_list()
+                    self.empty_fields()
     def on_pushButton_search_go_pressed(self):
         if self.BROWSE_STATUS != "f":
             if self.L=='it':
@@ -1713,6 +1755,42 @@ class pyarchinit_Struttura(QDialog, MAIN_DIALOG_CLASS):
             cmd = '{}{}{}{}'.format(tn, '.setEnabled(', v, ')')
             eval(cmd)
 
+    def empty_fields_nosite(self):
+
+        materiali_impiegati_row_count = self.tableWidget_materiali_impiegati.rowCount()
+        elementi_strutturali_row_count = self.tableWidget_elementi_strutturali.rowCount()
+        rapporti_struttura_row_count = self.tableWidget_rapporti.rowCount()
+        misurazioni_row_count = self.tableWidget_misurazioni.rowCount()
+
+        
+        self.comboBox_sigla_struttura.setEditText("")  # 2 - sigla_struttura
+        self.numero_struttura.clear()  # 3 - numero_struttura
+        self.comboBox_categoria_struttura.setEditText("")  # 4 - categoria_struttura
+        self.comboBox_tipologia_struttura.setEditText("")  # 5 - tipologia_struttura
+        self.comboBox_definizione_struttura.setEditText("")  # 6 - definizione_struttura
+        self.textEdit_descrizione_struttura.clear()  # 7 - descrizione
+        self.textEdit_interpretazione_struttura.clear()  # 8 - interpretazione
+        self.comboBox_per_iniz.setEditText("")  # 9 - periodo iniziale
+        self.comboBox_fas_iniz.setEditText("")  # 10 - fase iniziale
+        self.comboBox_per_fin.setEditText("")  # 11 - periodo finale iniziale
+        self.comboBox_fas_fin.setEditText("")  # 12 - fase finale
+        self.comboBox_datazione_estesa.setEditText("")  # 13 - datazione estesa
+
+        for i in range(materiali_impiegati_row_count):
+            self.tableWidget_materiali_impiegati.removeRow(0)
+        self.insert_new_row("self.tableWidget_materiali_impiegati")  # 14 - materiali impiegati
+
+        for i in range(elementi_strutturali_row_count):
+            self.tableWidget_elementi_strutturali.removeRow(0)
+        self.insert_new_row("self.tableWidget_elementi_strutturali")  # 15 - elementi_strutturali
+
+        for i in range(rapporti_struttura_row_count):
+            self.tableWidget_rapporti.removeRow(0)
+        self.insert_new_row("self.tableWidget_rapporti")  # 16 - rapporti struttura
+
+        for i in range(misurazioni_row_count):
+            self.tableWidget_misurazioni.removeRow(0)
+        self.insert_new_row("self.tableWidget_misurazioni")  # 17 - rapporti struttura
     def empty_fields(self):
 
         materiali_impiegati_row_count = self.tableWidget_materiali_impiegati.rowCount()

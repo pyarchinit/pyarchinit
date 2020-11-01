@@ -395,6 +395,7 @@ class pyarchinit_Inventario_reperti(QDialog, MAIN_DIALOG_CLASS):
         self.msg_sito()
         self.comboBox_repertato.currentTextChanged.connect(self.numero_reperto)
         self.numero_invetario()
+        # self.numero_reperto()
     
     
     def setnone(self):
@@ -1098,18 +1099,22 @@ class pyarchinit_Inventario_reperti(QDialog, MAIN_DIALOG_CLASS):
 
     
     def numero_reperto(self):
+        # self.set_sito()
         contatore = 0
         list=[]
+        
+        
+        
+        
         
         if self.comboBox_repertato.currentText()=='No':
             self.lineEdit_n_reperto.clear()
             self.lineEdit_n_reperto.setText('0')
-        elif self.comboBox_repertato.currentText()=='':
-            self.lineEdit_n_reperto.clear()
-            self.lineEdit_n_reperto.setText('')
             self.lineEdit_n_reperto.update()
         
-        elif self.comboBox_repertato.currentText()=='Si' or 'si' or 'Yes' or 'yes':    
+        
+        
+        elif self.comboBox_repertato.currentText()!='No' or '':    
             for i in range(len(self.DATA_LIST)):
                 self.lineEdit_n_reperto.clear()
                 contatore = int(self.DATA_LIST[i].n_reperto)
@@ -1124,8 +1129,14 @@ class pyarchinit_Inventario_reperti(QDialog, MAIN_DIALOG_CLASS):
                 
                 self.lineEdit_n_reperto.setText(str(e))
                 self.lineEdit_n_reperto.update()
+        elif self.comboBox_repertato.currentText()=='':
+            self.lineEdit_n_reperto.clear()
+            self.lineEdit_n_reperto.setText('')
+            self.lineEdit_n_reperto.update()
+        
         
     def numero_invetario(self):
+        # self.set_sito()
         contatore = 0
         list=[]
         if self.lineEdit_num_inv.text()=='':
@@ -1413,6 +1424,11 @@ class pyarchinit_Inventario_reperti(QDialog, MAIN_DIALOG_CLASS):
                 self.loadMediaPreview(1) 
 
     def on_pushButton_new_rec_pressed(self):
+        conn = Connection()
+        
+        sito_set= conn.sito_set()
+        sito_set_str = sito_set['sito_set']
+        
         if bool(self.DATA_LIST):
             if self.data_error_check() == 1:
                 pass
@@ -1434,22 +1450,41 @@ class pyarchinit_Inventario_reperti(QDialog, MAIN_DIALOG_CLASS):
                                                                    QMessageBox.Ok | QMessageBox.Cancel))
 
         if self.BROWSE_STATUS != "n":
-            self.BROWSE_STATUS = "n"
-            self.label_status.setText(self.STATUS_ITEMS[self.BROWSE_STATUS])
-            self.empty_fields()
+            if bool(self.comboBox_sito.currentText()) and self.comboBox_sito.currentText()==sito_set_str:
+                self.BROWSE_STATUS = "n"
+                self.label_status.setText(self.STATUS_ITEMS[self.BROWSE_STATUS])
+                self.empty_fields_nosite()
 
-            self.setComboBoxEditable(['self.comboBox_sito'], 0)
-            # self.setComboBoxEditable(['self.comboBox_sito'], 1)
-            self.setComboBoxEnable(['self.comboBox_sito'], 'True')
-            self.setComboBoxEnable(['self.lineEdit_num_inv'], 'True')
+                #self.setComboBoxEditable(['self.comboBox_sito'],0)
+                # self.setComboBoxEditable(['self.comboBox_sito'], 1)
+                self.setComboBoxEnable(['self.comboBox_sito'], 'False')
+                self.setComboBoxEnable(['self.lineEdit_num_inv'], 'True')
 
-            self.label_sort.setText(self.SORTED_ITEMS[self.SORT_STATUS])
+                self.label_sort.setText(self.SORTED_ITEMS[self.SORT_STATUS])
 
-            self.label_status.setText(self.STATUS_ITEMS[self.BROWSE_STATUS])
-            self.set_rec_counter('', '')
-            self.label_sort.setText(self.SORTED_ITEMS["n"])
-            self.numero_invetario()
-            self.numero_reperto()
+                self.label_status.setText(self.STATUS_ITEMS[self.BROWSE_STATUS])
+                self.set_rec_counter('', '')
+                self.label_sort.setText(self.SORTED_ITEMS["n"])
+                self.numero_invetario()
+                self.numero_reperto()
+            else:
+                self.BROWSE_STATUS = "n"
+                self.label_status.setText(self.STATUS_ITEMS[self.BROWSE_STATUS])
+                self.empty_fields()
+
+                self.setComboBoxEditable(['self.comboBox_sito'],0)
+                # self.setComboBoxEditable(['self.comboBox_sito'], 1)
+                self.setComboBoxEnable(['self.comboBox_sito'], 'True')
+                self.setComboBoxEnable(['self.lineEdit_num_inv'], 'True')
+
+                self.label_sort.setText(self.SORTED_ITEMS[self.SORT_STATUS])
+
+                self.label_status.setText(self.STATUS_ITEMS[self.BROWSE_STATUS])
+                self.set_rec_counter('', '')
+                self.label_sort.setText(self.SORTED_ITEMS["n"])
+                self.numero_invetario()
+                self.numero_reperto()
+            
             self.enable_button(0)
 
     def on_pushButton_save_pressed(self):
@@ -2589,33 +2624,58 @@ class pyarchinit_Inventario_reperti(QDialog, MAIN_DIALOG_CLASS):
             self.label_sort.setText(self.SORTED_ITEMS[self.SORT_STATUS])
 
     def on_pushButton_new_search_pressed(self):
+        
+        
         if self.check_record_state() == 1:
             pass
         else:
             self.enable_button_search(0)
 
-            # set the GUI for a new search
-
+            conn = Connection()
+        
+            sito_set= conn.sito_set()
+            sito_set_str = sito_set['sito_set']
+            
             if self.BROWSE_STATUS != "f":
-                self.BROWSE_STATUS = "f"
-                ###
-                self.setComboBoxEditable(['self.comboBox_sito'], 1)
-                self.setComboBoxEnable(['self.comboBox_sito'], 'True')
-                self.setComboBoxEditable(['self.comboBox_lavato'], 1)
-                self.setComboBoxEnable(['self.comboBox_lavato'], 'True')
-                self.setComboBoxEnable(['self.lineEdit_num_inv'], 'True')
-                self.setComboBoxEnable(["self.textEdit_descrizione_reperto"], "False")
-                self.setTableEnable(
-                    ["self.tableWidget_elementi_reperto", "self.tableWidget_misurazioni", "self.tableWidget_rif_biblio",
-                     "self.tableWidget_tecnologie"], "False")
-                ###
-                self.label_status.setText(self.STATUS_ITEMS[self.BROWSE_STATUS])
-                self.set_rec_counter('', '')
-                self.label_sort.setText(self.SORTED_ITEMS["n"])
-                self.charge_list()
-                self.empty_fields()
-
+                if bool(self.comboBox_sito.currentText()) and self.comboBox_sito.currentText()==sito_set_str:
+                    self.BROWSE_STATUS = "f"
+                    ###
+                    #self.setComboBoxEditable(['self.comboBox_sito'], 1)
+                    self.setComboBoxEnable(['self.comboBox_sito'], 'False')
+                    self.setComboBoxEditable(['self.comboBox_lavato'], 1)
+                    self.setComboBoxEnable(['self.comboBox_lavato'], 'True')
+                    self.setComboBoxEnable(['self.lineEdit_num_inv'], 'True')
+                    self.setComboBoxEnable(["self.textEdit_descrizione_reperto"], "False")
+                    self.setTableEnable(
+                        ["self.tableWidget_elementi_reperto", "self.tableWidget_misurazioni", "self.tableWidget_rif_biblio",
+                         "self.tableWidget_tecnologie"], "False")
+                    ###
+                    self.label_status.setText(self.STATUS_ITEMS[self.BROWSE_STATUS])
+                    self.set_rec_counter('', '')
+                    self.label_sort.setText(self.SORTED_ITEMS["n"])
+                    #self.charge_list()
+                    self.empty_fields_nosite()
+                else:
+                    self.BROWSE_STATUS = "f"
+                    ###
+                    self.setComboBoxEditable(['self.comboBox_sito'], 1)
+                    self.setComboBoxEnable(['self.comboBox_sito'], 'True')
+                    self.setComboBoxEditable(['self.comboBox_lavato'], 1)
+                    self.setComboBoxEnable(['self.comboBox_lavato'], 'True')
+                    self.setComboBoxEnable(['self.lineEdit_num_inv'], 'True')
+                    self.setComboBoxEnable(["self.textEdit_descrizione_reperto"], "False")
+                    self.setTableEnable(
+                        ["self.tableWidget_elementi_reperto", "self.tableWidget_misurazioni", "self.tableWidget_rif_biblio",
+                         "self.tableWidget_tecnologie"], "False")
+                    ###
+                    self.label_status.setText(self.STATUS_ITEMS[self.BROWSE_STATUS])
+                    self.set_rec_counter('', '')
+                    self.label_sort.setText(self.SORTED_ITEMS["n"])
+                    self.charge_list()
+                    self.empty_fields()
+                 
     def on_pushButton_search_go_pressed(self):
+        self.lineEdit_n_reperto.setText('')
         check_for_buttons = 0
         if self.BROWSE_STATUS != "f":
             if self.L=='it':
@@ -3090,6 +3150,58 @@ class pyarchinit_Inventario_reperti(QDialog, MAIN_DIALOG_CLASS):
             self.tableWidget_tecnologie.removeRow(0)
         self.insert_new_row("self.tableWidget_tecnologie")  # 17 - misurazioni
         
+    
+    def empty_fields_nosite(self):
+        elementi_reperto_row_count = self.tableWidget_elementi_reperto.rowCount()
+        misurazioni_row_count = self.tableWidget_misurazioni.rowCount()
+        rif_biblio_row_count = self.tableWidget_rif_biblio.rowCount()
+        tecnologie_row_count = self.tableWidget_tecnologie.rowCount()
+
+       
+        self.lineEdit_num_inv.clear()  # 2 - num_inv
+        self.comboBox_tipo_reperto.setEditText("")  # 3 - tipo_reperto
+        self.comboBox_criterio_schedatura.setEditText("")  # 4 - criterio
+        self.comboBox_definizione.setEditText("")  # 5 - definizione
+        self.textEdit_descrizione_reperto.clear()  # 6 - descrizione
+        self.lineEdit_area.clear()  # 7 - area
+        self.lineEdit_us.clear()  # 8 - US
+        self.comboBox_lavato.setEditText("")  # 9 - lavato
+        self.lineEdit_nr_cassa.setText('')  # 10 - nr_cassa
+        self.lineEdit_luogo_conservazione.clear()  # 11 - luogo_conservazione
+        self.comboBox_conservazione.setEditText("")  # 12 - stato conservazione
+        self.lineEdit_datazione_rep.clear()  # 13 - datazione reperto
+
+        self.lineEditFormeMin.clear()
+        self.lineEditFormeMax.clear()
+        self.lineEditTotFram.clear()
+        self.lineEditRivestimento.clear()
+        self.lineEditCorpoCeramico.clear()
+
+        self.lineEdit_diametro_orlo.clear()
+        self.lineEdit_peso.clear()
+        self.lineEdit_tipo.clear()
+        self.lineEdit_eve_orlo.clear()
+
+        self.comboBox_repertato.setEditText("")  # 9 - repertato
+        self.comboBox_diagnostico.setEditText("")  # 9 - diagnostico
+        self.lineEdit_n_reperto.setText('')
+        self.lineEdit_tipo_contenitore.setText('')
+        for i in range(elementi_reperto_row_count):
+            self.tableWidget_elementi_reperto.removeRow(0)
+        self.insert_new_row("self.tableWidget_elementi_reperto")  # 14 - elementi reperto
+
+        for i in range(misurazioni_row_count):
+            self.tableWidget_misurazioni.removeRow(0)
+        self.insert_new_row("self.tableWidget_misurazioni")  # 15 - misurazioni
+
+        for i in range(rif_biblio_row_count):
+            self.tableWidget_rif_biblio.removeRow(0)
+        self.insert_new_row("self.tableWidget_rif_biblio")  # 16 - rif_biblio
+
+        for i in range(tecnologie_row_count):
+            self.tableWidget_tecnologie.removeRow(0)
+        self.insert_new_row("self.tableWidget_tecnologie")  # 17 - misurazioni
+    
     def fill_fields(self, n=0):
         self.rec_num = n
         # QMessageBox.warning(self, "check fill fields", str(self.rec_num),  QMessageBox.Ok)

@@ -561,30 +561,58 @@ class pyarchinit_Schedaind(QDialog, MAIN_DIALOG_CLASS):
     """
 
     def on_pushButton_new_rec_pressed(self):
+        conn = Connection()
+        
+        sito_set= conn.sito_set()
+        sito_set_str = sito_set['sito_set']
+        
         if bool(self.DATA_LIST):
             if self.data_error_check() == 1:
                 pass
-            '''else:
+            else:
                 if self.BROWSE_STATUS == "b":
                     if bool(self.DATA_LIST):
                         if self.records_equal_check() == 1:
-                            self.update_if(QMessageBox.warning(self, 'Errore',
-                                                               "Il record e' stato modificato. Vuoi salvare le modifiche?",
-                                                               QMessageBox.Ok | QMessageBox.Cancel))'''
-                            # set the GUI for a new record
+                            if self.L=='it':
+                                self.update_if(QMessageBox.warning(self, 'Errore',
+                                                                   "Il record e' stato modificato. Vuoi salvare le modifiche?",QMessageBox.Ok | QMessageBox.Cancel))
+                            elif self.L=='de':
+                                self.update_if(QMessageBox.warning(self, 'Error',
+                                                                   "Der Record wurde geändert. Möchtest du die Änderungen speichern?",
+                                                                   QMessageBox.Ok | QMessageBox.Cancel))
+                                                                   
+                            else:
+                                self.update_if(QMessageBox.warning(self, 'Error',
+                                                                   "The record has been changed. Do you want to save the changes?",
+                                                                   QMessageBox.Ok | QMessageBox.Cancel))
+
         if self.BROWSE_STATUS != "n":
-            self.BROWSE_STATUS = "n"
-            self.label_status.setText(self.STATUS_ITEMS[self.BROWSE_STATUS])
-            self.empty_fields()
-            self.label_sort.setText(self.SORTED_ITEMS["n"])
+            if bool(self.comboBox_sito.currentText()) and self.comboBox_sito.currentText()==sito_set_str:
+                self.BROWSE_STATUS = "n"
+                self.label_status.setText(self.STATUS_ITEMS[self.BROWSE_STATUS])
+                self.empty_fields_nosite()
+                self.label_sort.setText(self.SORTED_ITEMS["n"])
 
-            self.setComboBoxEditable(["self.comboBox_sito"], 0)
-            self.setComboBoxEnable(["self.comboBox_sito"], "True")
-            self.setComboBoxEnable(["self.lineEdit_area"], "True")
-            self.setComboBoxEnable(["self.lineEdit_us"], "True")
-            self.setComboBoxEnable(["self.lineEdit_individuo"], "True")
+                #self.setComboBoxEditable(["self.comboBox_sito"], 0)
+                self.setComboBoxEnable(["self.comboBox_sito"], "False")
+                self.setComboBoxEnable(["self.lineEdit_area"], "True")
+                self.setComboBoxEnable(["self.lineEdit_us"], "True")
+                self.setComboBoxEnable(["self.lineEdit_individuo"], "True")
 
-            self.set_rec_counter('', '')
+                self.set_rec_counter('', '')
+            else:
+                self.BROWSE_STATUS = "n"
+                self.label_status.setText(self.STATUS_ITEMS[self.BROWSE_STATUS])
+                self.empty_fields()
+                self.label_sort.setText(self.SORTED_ITEMS["n"])
+
+                self.setComboBoxEditable(["self.comboBox_sito"], 0)
+                self.setComboBoxEnable(["self.comboBox_sito"], "True")
+                self.setComboBoxEnable(["self.lineEdit_area"], "True")
+                self.setComboBoxEnable(["self.lineEdit_us"], "True")
+                self.setComboBoxEnable(["self.lineEdit_individuo"], "True")
+
+                self.set_rec_counter('', '') 
             self.enable_button(0)
 
     def on_pushButton_save_pressed(self):
@@ -1094,26 +1122,43 @@ class pyarchinit_Schedaind(QDialog, MAIN_DIALOG_CLASS):
             pass
         else:
             self.enable_button_search(0)
-            # set the GUI for a new search
+            conn = Connection()
+        
+            sito_set= conn.sito_set()
+            sito_set_str = sito_set['sito_set']
 
             if self.BROWSE_STATUS != "f":
-                self.BROWSE_STATUS = "f"
-                ###
+                if bool(self.comboBox_sito.currentText()) and self.comboBox_sito.currentText()==sito_set_str:
+                    self.BROWSE_STATUS = "f"
+                    ###
 
-                self.setComboBoxEditable(["self.comboBox_sito"], 1)
-                self.setComboBoxEnable(["self.comboBox_sito"], "True")
-                self.setComboBoxEnable(["self.lineEdit_area"], "True")
-                self.setComboBoxEnable(["self.lineEdit_us"], "True")
-                self.setComboBoxEnable(["self.lineEdit_individuo"], "True")
-                self.setComboBoxEnable(["self.textEdit_osservazioni"], "False")
+                    #self.setComboBoxEditable(["self.comboBox_sito"], 1)
+                    self.setComboBoxEnable(["self.comboBox_sito"], "False")
+                    self.setComboBoxEnable(["self.lineEdit_area"], "True")
+                    self.setComboBoxEnable(["self.lineEdit_us"], "True")
+                    self.setComboBoxEnable(["self.lineEdit_individuo"], "True")
+                    self.setComboBoxEnable(["self.textEdit_osservazioni"], "False")
 
-                ###
-                self.label_status.setText(self.STATUS_ITEMS[self.BROWSE_STATUS])
-                self.set_rec_counter('', '')
-                self.label_sort.setText(self.SORTED_ITEMS["n"])
-                self.charge_list()
-                self.empty_fields()
+                    ###
+                    self.label_status.setText(self.STATUS_ITEMS[self.BROWSE_STATUS])
+                    self.set_rec_counter('', '')
+                    self.label_sort.setText(self.SORTED_ITEMS["n"])
+                    #self.charge_list()
+                    self.empty_fields_nosite()
+                else:
+                    self.setComboBoxEditable(["self.comboBox_sito"], 1)
+                    self.setComboBoxEnable(["self.comboBox_sito"], "True")
+                    self.setComboBoxEnable(["self.lineEdit_area"], "True")
+                    self.setComboBoxEnable(["self.lineEdit_us"], "True")
+                    self.setComboBoxEnable(["self.lineEdit_individuo"], "True")
+                    self.setComboBoxEnable(["self.textEdit_osservazioni"], "False")
 
+                    ###
+                    self.label_status.setText(self.STATUS_ITEMS[self.BROWSE_STATUS])
+                    self.set_rec_counter('', '')
+                    self.label_sort.setText(self.SORTED_ITEMS["n"])
+                    self.charge_list()
+                    self.empty_fields()
     def on_pushButton_search_go_pressed(self):
         if self.BROWSE_STATUS != "f":
             if self.L=='it':
@@ -1360,6 +1405,23 @@ class pyarchinit_Schedaind(QDialog, MAIN_DIALOG_CLASS):
         cmd = table_name + ".insertRow(0)"
         eval(cmd)
 
+    def empty_fields_nosite(self):
+        # rapporti_row_count = self.tableWidget_rapporti.rowCount()
+        # campioni_row_count = self.tableWidget_campioni.rowCount()
+        # inclusi_row_count = self.tableWidget_inclusi.rowCount()
+
+        #self.comboBox_sito.setEditText("")  # 1 - Sito
+        self.lineEdit_area.clear()  # 2 - area
+        self.lineEdit_us.clear()  # 3 - US
+        self.lineEdit_data_schedatura.clear()  # 4 - data schedatura
+        self.lineEdit_schedatore.clear()  # 5 - schedatore
+        self.lineEdit_individuo.clear()  # 6 - individuo
+        self.comboBox_sesso.setEditText("")  # 7 - sesso
+        self.comboBox_eta_min.setEditText("")  # 8 - eta' minima
+        self.comboBox_eta_max.setEditText("")  # 9 - eta' massima
+        self.comboBox_classi_eta.setEditText("")  # 10 - classi di eta'
+        self.textEdit_osservazioni.clear()  # 11 - osservazioni
+    
     def empty_fields(self):
         # rapporti_row_count = self.tableWidget_rapporti.rowCount()
         # campioni_row_count = self.tableWidget_campioni.rowCount()

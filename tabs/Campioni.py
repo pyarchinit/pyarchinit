@@ -362,15 +362,16 @@ class pyarchinit_Campioni(QDialog, MAIN_DIALOG_CLASS):
         sito_set= conn.sito_set()
         sito_set_str = sito_set['sito_set']
         
-        if bool(self.comboBox_sito.currentText())==sito_set_str:
+        if bool(self.comboBox_sito.currentText())and self.comboBox_sito.currentText()==sito_set_str:
             QMessageBox.information(self, "OK" ,"Sei connesso al sito: %s" % str(sito_set_str),QMessageBox.Ok) 
-        
-        
-        elif not bool(self.comboBox_sito.currentText()):
-            pass
-            
-        else:    
-            QMessageBox.information(self, "Attenzione" ,"Non hai settato alcun sito pertanto vedrai tutti i record se il db non è vuoto",QMessageBox.Ok) 
+        elif sito_set_str=='':    
+            msg = QMessageBox.information(self, "Attenzione" ,"Non hai settato alcun sito. Vuoi settarne uno? click Ok altrimenti Annulla per  vedere tutti i record",QMessageBox.Ok | QMessageBox.Cancel) 
+            if msg == QMessageBox.Cancel:
+                pass
+            else: 
+                dlg = pyArchInitDialog_Config(self)
+                dlg.charge_list()
+                dlg.exec_()
     
     
     def set_sito(self):
@@ -458,7 +459,12 @@ class pyarchinit_Campioni(QDialog, MAIN_DIALOG_CLASS):
             self.fill_fields()
 
     def on_pushButton_new_rec_pressed(self):
-        if self.DATA_LIST:
+        conn = Connection()
+        
+        sito_set= conn.sito_set()
+        sito_set_str = sito_set['sito_set']
+        
+        if bool(self.DATA_LIST):
             if self.data_error_check() == 1:
                 pass
             else:
@@ -480,17 +486,32 @@ class pyarchinit_Campioni(QDialog, MAIN_DIALOG_CLASS):
 
                             # set the GUI for a new record
         if self.BROWSE_STATUS != "n":
-            self.BROWSE_STATUS = "n"
-            self.label_status.setText(self.STATUS_ITEMS[self.BROWSE_STATUS])
-            self.empty_fields()
-            self.label_sort.setText(self.SORTED_ITEMS["n"])
+            if bool(self.comboBox_sito.currentText()) and self.comboBox_sito.currentText()==sito_set_str:
+                self.BROWSE_STATUS = "n"
+                self.label_status.setText(self.STATUS_ITEMS[self.BROWSE_STATUS])
+                self.empty_fields_nosite()
+                self.label_sort.setText(self.SORTED_ITEMS["n"])
 
-            self.setComboBoxEditable(["self.comboBox_sito"], 1)
+                #self.setComboBoxEditable(["self.comboBox_sito"], 1)
 
-            self.setComboBoxEnable(["self.comboBox_sito"], "True")
-            self.setComboBoxEnable(["self.lineEdit_nr_campione"], "True")
+                self.setComboBoxEnable(["self.comboBox_sito"], "False")
+                self.setComboBoxEnable(["self.lineEdit_nr_campione"], "True")
 
-            self.set_rec_counter('', '')
+                self.set_rec_counter('', '')
+            
+            
+            else:
+                self.BROWSE_STATUS = "n"
+                self.label_status.setText(self.STATUS_ITEMS[self.BROWSE_STATUS])
+                self.empty_fields_nosite()
+                self.label_sort.setText(self.SORTED_ITEMS["n"])
+
+                self.setComboBoxEditable(["self.comboBox_sito"], 0)
+
+                self.setComboBoxEnable(["self.comboBox_sito"], "True")
+                self.setComboBoxEnable(["self.lineEdit_nr_campione"], "True")
+
+                self.set_rec_counter('', '')
             self.enable_button(0)
 
     def on_pushButton_save_pressed(self):
@@ -894,21 +915,38 @@ class pyarchinit_Campioni(QDialog, MAIN_DIALOG_CLASS):
         else:
             self.enable_button_search(0)
 
-            # set the GUI for a new search
+            self.enable_button_search(0)
+            conn = Connection()
+        
+            sito_set= conn.sito_set()
+            sito_set_str = sito_set['sito_set']
             if self.BROWSE_STATUS != "f":
-                self.BROWSE_STATUS = "f"
-                self.label_status.setText(self.STATUS_ITEMS[self.BROWSE_STATUS])
-                ###
-                self.setComboBoxEnable(["self.comboBox_sito"], "True")
-                self.setComboBoxEnable(["self.lineEdit_nr_campione"], "True")
-                self.setComboBoxEnable(["self.textEdit_descrizione_camp"], "False")
-                ###
-                self.label_status.setText(self.STATUS_ITEMS[self.BROWSE_STATUS])
-                self.set_rec_counter('', '')
-                self.label_sort.setText(self.SORTED_ITEMS["n"])
-                self.charge_list()
-                self.empty_fields()
-
+                if bool(self.comboBox_sito.currentText()) and self.comboBox_sito.currentText()==sito_set_str:
+                    self.BROWSE_STATUS = "f"
+                    self.label_status.setText(self.STATUS_ITEMS[self.BROWSE_STATUS])
+                    ###
+                    self.setComboBoxEnable(["self.comboBox_sito"], "False")
+                    self.setComboBoxEnable(["self.lineEdit_nr_campione"], "True")
+                    self.setComboBoxEnable(["self.textEdit_descrizione_camp"], "False")
+                    ###
+                    self.label_status.setText(self.STATUS_ITEMS[self.BROWSE_STATUS])
+                    self.set_rec_counter('', '')
+                    self.label_sort.setText(self.SORTED_ITEMS["n"])
+                    #self.charge_list()
+                    self.empty_fields_nosite()
+                else:
+                    self.BROWSE_STATUS = "f"
+                    self.label_status.setText(self.STATUS_ITEMS[self.BROWSE_STATUS])
+                    ###
+                    self.setComboBoxEnable(["self.comboBox_sito"], "True")
+                    self.setComboBoxEnable(["self.lineEdit_nr_campione"], "True")
+                    self.setComboBoxEnable(["self.textEdit_descrizione_camp"], "False")
+                    ###
+                    self.label_status.setText(self.STATUS_ITEMS[self.BROWSE_STATUS])
+                    self.set_rec_counter('', '')
+                    self.label_sort.setText(self.SORTED_ITEMS["n"])
+                    self.charge_list()
+                    self.empty_fields()
     def on_pushButton_search_go_pressed(self):
         if self.BROWSE_STATUS != "f":
             if self.L=='it':
@@ -1277,6 +1315,18 @@ class pyarchinit_Campioni(QDialog, MAIN_DIALOG_CLASS):
             lista.append(sub_list)
         return lista
 
+    def empty_fields_nosite(self):
+        
+        self.lineEdit_nr_campione.clear()  # 2 - Nr campione
+        self.comboBox_tipo_campione.setEditText("")  # 3 - Sito
+        self.textEdit_descrizione_camp.clear()  # 4 - descrizione
+        self.lineEdit_nr_campione.clear()  # 5 - Nr campione
+        self.lineEdit_area.clear()  # 6 - area
+        self.lineEdit_us.clear()  # 7 - us
+        self.lineEdit_n_inv_mat.clear()  # 8 - numero inventario_materiale
+        self.lineEdit_luogo_conservazione.clear()  # 9 - luogo di conservazione
+        self.lineEdit_cassa.clear()  # 10 - cassa
+
     def empty_fields(self):
         self.comboBox_sito.setEditText("")  # 1 - Sito
         self.lineEdit_nr_campione.clear()  # 2 - Nr campione
@@ -1289,6 +1339,7 @@ class pyarchinit_Campioni(QDialog, MAIN_DIALOG_CLASS):
         self.lineEdit_luogo_conservazione.clear()  # 9 - luogo di conservazione
         self.lineEdit_cassa.clear()  # 10 - cassa
 
+    
     def fill_fields(self, n=0):
         self.rec_num = n
         try:

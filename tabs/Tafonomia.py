@@ -1174,7 +1174,10 @@ class pyarchinit_Tafonomia(QDialog, MAIN_DIALOG_CLASS):
             self.pyQGIS.addRasterLayer()
 
     def on_pushButton_new_rec_pressed(self):
-        # set the GUI for a new record
+        conn = Connection()
+        
+        sito_set= conn.sito_set()
+        sito_set_str = sito_set['sito_set']
         if bool(self.DATA_LIST):
             if self.data_error_check() == 1:
                 pass
@@ -1196,25 +1199,44 @@ class pyarchinit_Tafonomia(QDialog, MAIN_DIALOG_CLASS):
                                                                    QMessageBox.Ok | QMessageBox.Cancel))
 
         if self.BROWSE_STATUS != "n":
-            self.BROWSE_STATUS = "n"
-            self.label_status_2.setText(self.STATUS_ITEMS[self.BROWSE_STATUS])
-            self.empty_fields()
+            if bool(self.comboBox_sito.currentText()) and self.comboBox_sito.currentText()==sito_set_str:
+                self.BROWSE_STATUS = "n"
+                self.label_status_2.setText(self.STATUS_ITEMS[self.BROWSE_STATUS])
+                self.empty_fields_nosite()
 
-            self.setComboBoxEnable(["self.lineEdit_nr_scheda"], "True")
+                self.setComboBoxEnable(["self.lineEdit_nr_scheda"], "True")
 
-            self.setComboBoxEditable(["self.comboBox_sito"], 0)
-            self.setComboBoxEditable(["self.comboBox_sigla_struttura"], 1)
-            self.setComboBoxEditable(["self.comboBox_nr_struttura"], 1)
-            self.setComboBoxEditable(["self.comboBox_nr_individuo"], 1)
+                #self.setComboBoxEditable(["self.comboBox_sito"], 0)
+                self.setComboBoxEditable(["self.comboBox_sigla_struttura"], 1)
+                self.setComboBoxEditable(["self.comboBox_nr_struttura"], 1)
+                self.setComboBoxEditable(["self.comboBox_nr_individuo"], 1)
 
-            self.setComboBoxEnable(["self.comboBox_sito"], "True")
-            self.setComboBoxEnable(["self.comboBox_sigla_struttura"], "True")
-            self.setComboBoxEnable(["self.comboBox_nr_struttura"], "True")
-            self.setComboBoxEnable(["self.comboBox_nr_individuo"], "True")
+                self.setComboBoxEnable(["self.comboBox_sito"], "False")
+                self.setComboBoxEnable(["self.comboBox_sigla_struttura"], "True")
+                self.setComboBoxEnable(["self.comboBox_nr_struttura"], "True")
+                self.setComboBoxEnable(["self.comboBox_nr_individuo"], "True")
 
-            self.SORT_STATUS = "n"
-            self.label_sort_2.setText(self.SORTED_ITEMS[self.SORT_STATUS])
+                self.SORT_STATUS = "n"
+                self.label_sort_2.setText(self.SORTED_ITEMS[self.SORT_STATUS])
+            else:
+                self.BROWSE_STATUS = "n"
+                self.label_status_2.setText(self.STATUS_ITEMS[self.BROWSE_STATUS])
+                self.empty_fields()
 
+                self.setComboBoxEnable(["self.lineEdit_nr_scheda"], "True")
+
+                self.setComboBoxEditable(["self.comboBox_sito"], 0)
+                self.setComboBoxEditable(["self.comboBox_sigla_struttura"], 1)
+                self.setComboBoxEditable(["self.comboBox_nr_struttura"], 1)
+                self.setComboBoxEditable(["self.comboBox_nr_individuo"], 1)
+
+                self.setComboBoxEnable(["self.comboBox_sito"], "True")
+                self.setComboBoxEnable(["self.comboBox_sigla_struttura"], "True")
+                self.setComboBoxEnable(["self.comboBox_nr_struttura"], "True")
+                self.setComboBoxEnable(["self.comboBox_nr_individuo"], "True")
+
+                self.SORT_STATUS = "n"
+                self.label_sort_2.setText(self.SORTED_ITEMS[self.SORT_STATUS])
             self.enable_button(0)
 
     def on_pushButton_save_pressed(self):
@@ -1644,33 +1666,61 @@ class pyarchinit_Tafonomia(QDialog, MAIN_DIALOG_CLASS):
         else:
             self.enable_button_search(0)
 
-            # set the GUI for a new search
+            conn = Connection()
+        
+            sito_set= conn.sito_set()
+            sito_set_str = sito_set['sito_set']
             if self.BROWSE_STATUS != "f":
-                self.BROWSE_STATUS = "f"
-                ###
-                self.setComboBoxEditable(["self.comboBox_sito"], 1)
-                self.setComboBoxEditable(["self.comboBox_sigla_struttura"], 1)
-                self.setComboBoxEditable(["self.comboBox_nr_struttura"], 1)
-                self.setComboBoxEditable(["self.comboBox_nr_individuo"], 1)
-                self.setComboBoxEnable(["self.lineEdit_nr_scheda"], "True")
-                self.setComboBoxEnable(["self.comboBox_sito"], "True")
-                self.setComboBoxEnable(["self.comboBox_sigla_struttura"], "True")
-                self.setComboBoxEnable(["self.comboBox_nr_struttura"], "True")
-                self.setComboBoxEnable(["self.comboBox_nr_individuo"], "True")
+                if bool(self.comboBox_sito.currentText()) and self.comboBox_sito.currentText()==sito_set_str:
+                    self.BROWSE_STATUS = "f"
+                    ###
+                    #self.setComboBoxEditable(["self.comboBox_sito"], 1)
+                    self.setComboBoxEditable(["self.comboBox_sigla_struttura"], 1)
+                    self.setComboBoxEditable(["self.comboBox_nr_struttura"], 1)
+                    self.setComboBoxEditable(["self.comboBox_nr_individuo"], 1)
+                    self.setComboBoxEnable(["self.lineEdit_nr_scheda"], "True")
+                    self.setComboBoxEnable(["self.comboBox_sito"], "False")
+                    self.setComboBoxEnable(["self.comboBox_sigla_struttura"], "True")
+                    self.setComboBoxEnable(["self.comboBox_nr_struttura"], "True")
+                    self.setComboBoxEnable(["self.comboBox_nr_individuo"], "True")
 
-                self.setComboBoxEnable(["self.textEdit_descrizione_taf"], "False")
-                self.setComboBoxEnable(["self.textEdit_interpretazione_taf"], "False")
-                self.setComboBoxEnable(["self.textEdit_descrizione_corredo"], "False")
-                self.setTableEnable(["self.tableWidget_caratteristiche", "self.tableWidget_corredo_tipo",
-                                     "self.tableWidget_misurazioni"], "False")
+                    self.setComboBoxEnable(["self.textEdit_descrizione_taf"], "False")
+                    self.setComboBoxEnable(["self.textEdit_interpretazione_taf"], "False")
+                    self.setComboBoxEnable(["self.textEdit_descrizione_corredo"], "False")
+                    self.setTableEnable(["self.tableWidget_caratteristiche", "self.tableWidget_corredo_tipo",
+                                         "self.tableWidget_misurazioni"], "False")
 
-                ###
-                self.label_status_2.setText(self.STATUS_ITEMS[self.BROWSE_STATUS])
-                self.set_rec_counter('', '')
-                self.label_sort_2.setText(self.SORTED_ITEMS["n"])
-                self.charge_list()
-                self.empty_fields()
+                    ###
+                    self.label_status_2.setText(self.STATUS_ITEMS[self.BROWSE_STATUS])
+                    self.set_rec_counter('', '')
+                    self.label_sort_2.setText(self.SORTED_ITEMS["n"])
+                    #self.charge_list()
+                    self.empty_fields_nosite()
+                else:
+                    self.BROWSE_STATUS = "f"
+                    ###
+                    self.setComboBoxEditable(["self.comboBox_sito"], 1)
+                    self.setComboBoxEditable(["self.comboBox_sigla_struttura"], 1)
+                    self.setComboBoxEditable(["self.comboBox_nr_struttura"], 1)
+                    self.setComboBoxEditable(["self.comboBox_nr_individuo"], 1)
+                    self.setComboBoxEnable(["self.lineEdit_nr_scheda"], "True")
+                    self.setComboBoxEnable(["self.comboBox_sito"], "True")
+                    self.setComboBoxEnable(["self.comboBox_sigla_struttura"], "True")
+                    self.setComboBoxEnable(["self.comboBox_nr_struttura"], "True")
+                    self.setComboBoxEnable(["self.comboBox_nr_individuo"], "True")
 
+                    self.setComboBoxEnable(["self.textEdit_descrizione_taf"], "False")
+                    self.setComboBoxEnable(["self.textEdit_interpretazione_taf"], "False")
+                    self.setComboBoxEnable(["self.textEdit_descrizione_corredo"], "False")
+                    self.setTableEnable(["self.tableWidget_caratteristiche", "self.tableWidget_corredo_tipo",
+                                         "self.tableWidget_misurazioni"], "False")
+
+                    ###
+                    self.label_status_2.setText(self.STATUS_ITEMS[self.BROWSE_STATUS])
+                    self.set_rec_counter('', '')
+                    self.label_sort_2.setText(self.SORTED_ITEMS["n"])
+                    self.charge_list()
+                    self.empty_fields()
     def on_pushButton_showLayer_pressed(self):
         sing_layer = [self.DATA_LIST[self.REC_CORR]]
         self.pyQGIS.charge_vector_layers(sing_layer)
@@ -2177,7 +2227,54 @@ class pyarchinit_Tafonomia(QDialog, MAIN_DIALOG_CLASS):
         rowIndex = (rowSelected[0].row())
         cmd = ("%s.removeRow(%d)") % (table_name, rowIndex)
         eval(cmd)
+    def empty_fields_nosite(self):
+        caratteristiche_row_count = self.tableWidget_caratteristiche.rowCount()
+        corredo_tipo_row_count = self.tableWidget_corredo_tipo.rowCount()
+        misurazioni_row_count = self.tableWidget_misurazioni.rowCount()
 
+        for i in range(caratteristiche_row_count):
+            self.tableWidget_caratteristiche.removeRow(0)
+        self.insert_new_row("self.tableWidget_caratteristiche")  # 17 - caratteristiche
+
+        for i in range(corredo_tipo_row_count):
+            self.tableWidget_corredo_tipo.removeRow(0)
+        self.insert_new_row("self.tableWidget_corredo_tipo")  # 18 - corredo tipo
+
+        for i in range(misurazioni_row_count):
+            self.tableWidget_misurazioni.removeRow(0)
+        self.insert_new_row("self.tableWidget_misurazioni")  # 19 - misurazioni
+
+        #self.comboBox_sito.setEditText("")  # 1 - Sito
+        self.lineEdit_nr_scheda.clear()  # 2 - nr scheda tafonomica
+        self.comboBox_sigla_struttura.setEditText("")  # 3 - tipo struttura
+        self.comboBox_nr_struttura.setEditText("")  # 4 - nr struttura
+        self.comboBox_nr_individuo.setEditText("")  # 4 - nr struttura
+        self.comboBox_rito.setEditText("")  # 5 - rito
+        self.textEdit_descrizione_taf.clear()  # 6 - descrizione
+        self.textEdit_interpretazione_taf.clear()  # 7 - interpretazione
+        self.comboBox_segnacoli.setEditText("")  # 8 - segnacoli
+        self.comboBox_canale_libatorio.setEditText("")  # 9 - canale libatorio
+        self.comboBox_oggetti_esterno.setEditText("")  # 10 - oggetti esterno
+        self.comboBox_conservazione_taf.setEditText("")  # 11 - conservazione
+        self.comboBox_copertura_tipo.setEditText("")  # 12 - copertura
+        self.comboBox_tipo_contenitore_resti.setEditText("")  # 13 - tipo contenitore resti
+        self.lineEdit_orientamento_asse.clear()  # 14 - orientamento asse
+        self.lineEdit_orientamento_azimut.clear()  # 14 - orientamento azimut
+        self.comboBox_corredo_presenza.setEditText("")  # 19 - corredo presenza
+        self.textEdit_descrizione_corredo.clear()  # 20 - descrizione corredo
+        self.lineEdit_lunghezza_scheletro.clear()  # 21 - lunghezza scheletro
+        self.comboBox_posizione_scheletro.setEditText("")  # 22 - posizione scheletro
+        self.comboBox_posizione_cranio.setEditText("")  # 23 - posizione cranio
+        self.comboBox_arti_superiori.setEditText("")  # 24 - arti inferiori
+        self.comboBox_arti_inferiori.setEditText("")  # 25 - arti superiori
+        self.comboBox_completo.setEditText("")  # 26 - completo
+        self.comboBox_disturbato.setEditText("")  # 27 - disturbato
+        self.comboBox_in_connessione.setEditText("")  # 28 - in connessione
+        self.comboBox_per_iniz.setEditText("")  # 9 - periodo iniziale
+        self.comboBox_fas_iniz.setEditText("")  # 10 - fase iniziale
+        self.comboBox_per_fin.setEditText("")  # 11 - periodo finale iniziale
+        self.comboBox_fas_fin.setEditText("")  # 12 - fase finale
+        self.lineEdit_datazione_estesa.clear()  # 13 - datazione estesa
     def empty_fields(self):
         caratteristiche_row_count = self.tableWidget_caratteristiche.rowCount()
         corredo_tipo_row_count = self.tableWidget_corredo_tipo.rowCount()
