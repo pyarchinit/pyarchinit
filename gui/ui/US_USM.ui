@@ -630,7 +630,11 @@ border-color: rgb(0, 0, 0);
      <item row="1" column="4">
       <widget class="QPushButton" name="pushButton_2">
        <property name="text">
-        <string>ToolBox</string>
+        <string/>
+       </property>
+       <property name="icon">
+        <iconset resource="../../resources/resources.qrc">
+         <normaloff>:/icons/toolbox.png</normaloff>:/icons/toolbox.png</iconset>
        </property>
       </widget>
      </item>
@@ -661,7 +665,7 @@ border-color: rgb(0, 0, 0);
      </property>
      <property name="styleSheet">
       <string notr="true">QgsCollapsibleGroupBoxBasic::title, QgsCollapsibleGroupBox::title {  subcontrol-origin: margin;  subcontrol-position: top left;  margin-left: 20px;  margin-right: 5px;  left: 0px;  top: 3px;}
-QgsCollapsibleGroupBoxBasic::title, QgsCollapsibleGroupBox::title {  subcontrol-origin: margin;  subcontrol-position: top left;  margin-left: 20px;  margin-right: 5px;  left: 0px;  top: 3px;}QgsCollapsibleGroupBoxBasic::title, QgsCollapsibleGroupBox::title {  subcontrol-origin: margin;  subcontrol-position: top left;  margin-left: 20px;  margin-right: 5px;  left: 0px;  top: 3px;}QgsCollapsibleGroupBoxBasic::title, QgsCollapsibleGroupBox::title {  subcontrol-origin: margin;  subcontrol-position: top left;  margin-left: 20px;  margin-right: 5px;  left: 0px;  top: 3px;}</string>
+QgsCollapsibleGroupBoxBasic::title, QgsCollapsibleGroupBox::title {  subcontrol-origin: margin;  subcontrol-position: top left;  margin-left: 20px;  margin-right: 5px;  left: 0px;  top: 3px;}QgsCollapsibleGroupBoxBasic::title, QgsCollapsibleGroupBox::title {  subcontrol-origin: margin;  subcontrol-position: top left;  margin-left: 20px;  margin-right: 5px;  left: 0px;  top: 3px;}QgsCollapsibleGroupBoxBasic::title, QgsCollapsibleGroupBox::title {  subcontrol-origin: margin;  subcontrol-position: top left;  margin-left: 20px;  margin-right: 5px;  left: 0px;  top: 3px;}QgsCollapsibleGroupBoxBasic::title, QgsCollapsibleGroupBox::title {  subcontrol-origin: margin;  subcontrol-position: top left;  margin-left: 20px;  margin-right: 5px;  left: 0px;  top: 3px;}</string>
      </property>
      <property name="title">
       <string>Identificatori</string>
@@ -1067,7 +1071,7 @@ QgsCollapsibleGroupBoxBasic::title, QgsCollapsibleGroupBox::title {  subcontrol-
      </property>
      <property name="styleSheet">
       <string notr="true">QgsCollapsibleGroupBoxBasic::title, QgsCollapsibleGroupBox::title {  subcontrol-origin: margin;  subcontrol-position: top left;  margin-left: 20px;  margin-right: 5px;  left: 0px;  top: 3px;}
-background-color: rgb(180, 180, 180);QgsCollapsibleGroupBoxBasic::title, QgsCollapsibleGroupBox::title {  subcontrol-origin: margin;  subcontrol-position: top left;  margin-left: 20px;  margin-right: 5px;  left: 0px;  top: 3px;}QgsCollapsibleGroupBoxBasic::title, QgsCollapsibleGroupBox::title {  subcontrol-origin: margin;  subcontrol-position: top left;  margin-left: 20px;  margin-right: 5px;  left: 0px;  top: 3px;}QgsCollapsibleGroupBoxBasic::title, QgsCollapsibleGroupBox::title {  subcontrol-origin: margin;  subcontrol-position: top left;  margin-left: 20px;  margin-right: 5px;  left: 0px;  top: 3px;}</string>
+background-color: rgb(180, 180, 180);QgsCollapsibleGroupBoxBasic::title, QgsCollapsibleGroupBox::title {  subcontrol-origin: margin;  subcontrol-position: top left;  margin-left: 20px;  margin-right: 5px;  left: 0px;  top: 3px;}QgsCollapsibleGroupBoxBasic::title, QgsCollapsibleGroupBox::title {  subcontrol-origin: margin;  subcontrol-position: top left;  margin-left: 20px;  margin-right: 5px;  left: 0px;  top: 3px;}QgsCollapsibleGroupBoxBasic::title, QgsCollapsibleGroupBox::title {  subcontrol-origin: margin;  subcontrol-position: top left;  margin-left: 20px;  margin-right: 5px;  left: 0px;  top: 3px;}QgsCollapsibleGroupBoxBasic::title, QgsCollapsibleGroupBox::title {  subcontrol-origin: margin;  subcontrol-position: top left;  margin-left: 20px;  margin-right: 5px;  left: 0px;  top: 3px;}</string>
      </property>
      <property name="title">
       <string>Localizzazione</string>
@@ -6635,222 +6639,30 @@ p, li { white-space: pre-wrap; }
               <string>Tool Box</string>
              </property>
              <widget class="QWidget" name="dockWidgetContents_6">
-              <widget class="QToolBox" name="toolBox">
-               <property name="geometry">
-                <rect>
-                 <x>9</x>
-                 <y>9</y>
-                 <width>386</width>
-                 <height>347</height>
-                </rect>
-               </property>
-               <property name="frameShape">
-                <enum>QFrame::StyledPanel</enum>
-               </property>
-               <property name="currentIndex">
-                <number>0</number>
-               </property>
-               <widget class="QWidget" name="page">
-                <property name="geometry">
-                 <rect>
-                  <x>0</x>
-                  <y>0</y>
-                  <width>367</width>
-                  <height>348</height>
-                 </rect>
-                </property>
-                <attribute name="label">
-                 <string>Sistemi di controllo</string>
-                </attribute>
-                <layout class="QGridLayout" name="gridLayout_34">
-                 <item row="0" column="0">
-                  <widget class="QLabel" name="label_36">
-                   <property name="font">
-                    <font>
-                     <family>Times New Roman</family>
-                     <pointsize>8</pointsize>
-                     <weight>50</weight>
-                     <italic>false</italic>
-                     <bold>false</bold>
-                    </font>
-                   </property>
-                   <property name="text">
-                    <string>TOOLS</string>
-                   </property>
-                  </widget>
-                 </item>
-                 <item row="1" column="0">
-                  <widget class="QLabel" name="label_9">
-                   <property name="text">
-                    <string>Selezione del sito per i controlli</string>
-                   </property>
-                  </widget>
-                 </item>
-                 <item row="2" column="0">
-                  <widget class="QComboBox" name="comboBox_sito_rappcheck">
-                   <property name="enabled">
-                    <bool>true</bool>
-                   </property>
-                   <property name="sizePolicy">
-                    <sizepolicy hsizetype="Preferred" vsizetype="Expanding">
-                     <horstretch>0</horstretch>
-                     <verstretch>0</verstretch>
-                    </sizepolicy>
-                   </property>
-                   <property name="minimumSize">
-                    <size>
-                     <width>341</width>
-                     <height>26</height>
-                    </size>
-                   </property>
-                   <property name="font">
-                    <font>
-                     <family>Times New Roman</family>
-                     <pointsize>8</pointsize>
-                     <weight>50</weight>
-                     <italic>false</italic>
-                     <bold>false</bold>
-                    </font>
-                   </property>
-                   <property name="mouseTracking">
-                    <bool>true</bool>
-                   </property>
-                   <property name="editable">
-                    <bool>false</bool>
-                   </property>
-                   <property name="maxVisibleItems">
-                    <number>99999</number>
-                   </property>
-                   <property name="maxCount">
-                    <number>2147483647</number>
-                   </property>
-                   <item>
-                    <property name="text">
-                     <string>Inserisci un valore</string>
-                    </property>
-                   </item>
-                  </widget>
-                 </item>
-                 <item row="3" column="0">
-                  <widget class="QComboBox" name="comboBox_area_rappcheck">
-                   <item>
-                    <property name="text">
-                     <string>1</string>
-                    </property>
-                   </item>
-                   <item>
-                    <property name="text">
-                     <string>2</string>
-                    </property>
-                   </item>
-                   <item>
-                    <property name="text">
-                     <string>3</string>
-                    </property>
-                   </item>
-                   <item>
-                    <property name="text">
-                     <string>4</string>
-                    </property>
-                   </item>
-                   <item>
-                    <property name="text">
-                     <string>5</string>
-                    </property>
-                   </item>
-                   <item>
-                    <property name="text">
-                     <string>6</string>
-                    </property>
-                   </item>
-                   <item>
-                    <property name="text">
-                     <string>7</string>
-                    </property>
-                   </item>
-                   <item>
-                    <property name="text">
-                     <string>8</string>
-                    </property>
-                   </item>
-                   <item>
-                    <property name="text">
-                     <string>9</string>
-                    </property>
-                   </item>
-                   <item>
-                    <property name="text">
-                     <string>10</string>
-                    </property>
-                   </item>
-                  </widget>
-                 </item>
-                 <item row="4" column="0">
-                  <widget class="QPushButton" name="pushButton_rapp_check">
-                   <property name="font">
-                    <font>
-                     <family>Times New Roman</family>
-                     <pointsize>8</pointsize>
-                     <weight>50</weight>
-                     <italic>false</italic>
-                     <bold>false</bold>
-                    </font>
-                   </property>
-                   <property name="toolTip">
-                    <string>Check, go!!!!</string>
-                   </property>
-                   <property name="text">
-                    <string>Check, go!!!!</string>
-                   </property>
-                   <property name="icon">
-                    <iconset resource="../../resources/resources.qrc">
-                     <normaloff>:/icons/sheet.png</normaloff>:/icons/sheet.png</iconset>
-                   </property>
-                  </widget>
-                 </item>
-                 <item row="5" column="0">
-                  <widget class="QLabel" name="label_70">
-                   <property name="font">
-                    <font>
-                     <family>Times New Roman</family>
-                     <pointsize>8</pointsize>
-                     <weight>50</weight>
-                     <italic>false</italic>
-                     <bold>false</bold>
-                    </font>
-                   </property>
-                   <property name="text">
-                    <string>Check rapporti stratigrafici</string>
-                   </property>
-                  </widget>
-                 </item>
-                 <item row="6" column="0">
-                  <widget class="Line" name="line">
-                   <property name="orientation">
-                    <enum>Qt::Horizontal</enum>
-                   </property>
-                  </widget>
-                 </item>
-                 <item row="7" column="0">
-                  <layout class="QGridLayout" name="gridLayout_30">
-                   <item row="3" column="0">
-                    <widget class="QLabel" name="label_45">
-                     <property name="font">
-                      <font>
-                       <family>Times New Roman</family>
-                       <pointsize>8</pointsize>
-                       <weight>50</weight>
-                       <italic>false</italic>
-                       <bold>false</bold>
-                      </font>
-                     </property>
-                     <property name="text">
-                      <string>Esporta Matrix</string>
-                     </property>
-                    </widget>
-                   </item>
+              <layout class="QGridLayout" name="gridLayout_28">
+               <item row="0" column="0">
+                <widget class="QToolBox" name="toolBox">
+                 <property name="frameShape">
+                  <enum>QFrame::StyledPanel</enum>
+                 </property>
+                 <property name="currentIndex">
+                  <number>0</number>
+                 </property>
+                 <widget class="QWidget" name="page">
+                  <property name="geometry">
+                   <rect>
+                    <x>0</x>
+                    <y>-85</y>
+                    <width>435</width>
+                    <height>348</height>
+                   </rect>
+                  </property>
+                  <attribute name="label">
+                   <string>Sistemi di controllo</string>
+                  </attribute>
+                  <layout class="QGridLayout" name="gridLayout_34">
                    <item row="0" column="0">
-                    <widget class="QLabel" name="label_48">
+                    <widget class="QLabel" name="label_36">
                      <property name="font">
                       <font>
                        <family>Times New Roman</family>
@@ -6861,59 +6673,118 @@ p, li { white-space: pre-wrap; }
                       </font>
                      </property>
                      <property name="text">
-                      <string>Crea Codice Periodo</string>
-                     </property>
-                    </widget>
-                   </item>
-                   <item row="4" column="0">
-                    <widget class="QPushButton" name="pushButton_orderLayers">
-                     <property name="maximumSize">
-                      <size>
-                       <width>150</width>
-                       <height>16777215</height>
-                      </size>
-                     </property>
-                     <property name="font">
-                      <font>
-                       <family>Times New Roman</family>
-                       <pointsize>8</pointsize>
-                       <weight>50</weight>
-                       <italic>false</italic>
-                       <bold>false</bold>
-                      </font>
-                     </property>
-                     <property name="text">
-                      <string>Ordine startigrafico</string>
-                     </property>
-                    </widget>
-                   </item>
-                   <item row="2" column="0">
-                    <widget class="QLineEdit" name="lineEdit_codice_periodo">
-                     <property name="enabled">
-                      <bool>false</bool>
-                     </property>
-                     <property name="minimumSize">
-                      <size>
-                       <width>120</width>
-                       <height>0</height>
-                      </size>
-                     </property>
-                     <property name="maximumSize">
-                      <size>
-                       <width>120</width>
-                       <height>16777215</height>
-                      </size>
+                      <string>TOOLS</string>
                      </property>
                     </widget>
                    </item>
                    <item row="1" column="0">
-                    <widget class="QPushButton" name="pushButton_crea_codice_periodo">
-                     <property name="maximumSize">
+                    <widget class="QLabel" name="label_9">
+                     <property name="text">
+                      <string>Selezione del sito per i controlli</string>
+                     </property>
+                    </widget>
+                   </item>
+                   <item row="2" column="0">
+                    <widget class="QComboBox" name="comboBox_sito_rappcheck">
+                     <property name="enabled">
+                      <bool>true</bool>
+                     </property>
+                     <property name="sizePolicy">
+                      <sizepolicy hsizetype="Preferred" vsizetype="Expanding">
+                       <horstretch>0</horstretch>
+                       <verstretch>0</verstretch>
+                      </sizepolicy>
+                     </property>
+                     <property name="minimumSize">
                       <size>
-                       <width>150</width>
-                       <height>16777215</height>
+                       <width>341</width>
+                       <height>26</height>
                       </size>
                      </property>
+                     <property name="font">
+                      <font>
+                       <family>Times New Roman</family>
+                       <pointsize>8</pointsize>
+                       <weight>50</weight>
+                       <italic>false</italic>
+                       <bold>false</bold>
+                      </font>
+                     </property>
+                     <property name="mouseTracking">
+                      <bool>true</bool>
+                     </property>
+                     <property name="editable">
+                      <bool>false</bool>
+                     </property>
+                     <property name="maxVisibleItems">
+                      <number>99999</number>
+                     </property>
+                     <property name="maxCount">
+                      <number>2147483647</number>
+                     </property>
+                     <item>
+                      <property name="text">
+                       <string>Inserisci un valore</string>
+                      </property>
+                     </item>
+                    </widget>
+                   </item>
+                   <item row="3" column="0">
+                    <widget class="QComboBox" name="comboBox_area_rappcheck">
+                     <item>
+                      <property name="text">
+                       <string>1</string>
+                      </property>
+                     </item>
+                     <item>
+                      <property name="text">
+                       <string>2</string>
+                      </property>
+                     </item>
+                     <item>
+                      <property name="text">
+                       <string>3</string>
+                      </property>
+                     </item>
+                     <item>
+                      <property name="text">
+                       <string>4</string>
+                      </property>
+                     </item>
+                     <item>
+                      <property name="text">
+                       <string>5</string>
+                      </property>
+                     </item>
+                     <item>
+                      <property name="text">
+                       <string>6</string>
+                      </property>
+                     </item>
+                     <item>
+                      <property name="text">
+                       <string>7</string>
+                      </property>
+                     </item>
+                     <item>
+                      <property name="text">
+                       <string>8</string>
+                      </property>
+                     </item>
+                     <item>
+                      <property name="text">
+                       <string>9</string>
+                      </property>
+                     </item>
+                     <item>
+                      <property name="text">
+                       <string>10</string>
+                      </property>
+                     </item>
+                    </widget>
+                   </item>
+                   <item row="4" column="0">
+                    <widget class="QPushButton" name="pushButton_rapp_check">
                      <property name="font">
                       <font>
                        <family>Times New Roman</family>
@@ -6924,10 +6795,10 @@ p, li { white-space: pre-wrap; }
                       </font>
                      </property>
                      <property name="toolTip">
-                      <string>Crea codice periodo</string>
+                      <string>Check, go!!!!</string>
                      </property>
                      <property name="text">
-                      <string>1- Crea codice periodo</string>
+                      <string>Check, go!!!!</string>
                      </property>
                      <property name="icon">
                       <iconset resource="../../resources/resources.qrc">
@@ -6936,26 +6807,7 @@ p, li { white-space: pre-wrap; }
                     </widget>
                    </item>
                    <item row="5" column="0">
-                    <widget class="QLineEdit" name="lineEditOrderLayer">
-                     <property name="enabled">
-                      <bool>false</bool>
-                     </property>
-                     <property name="maximumSize">
-                      <size>
-                       <width>150</width>
-                       <height>16777215</height>
-                      </size>
-                     </property>
-                    </widget>
-                   </item>
-                   <item row="6" column="0">
-                    <widget class="QPushButton" name="pushButton_export_matrix">
-                     <property name="maximumSize">
-                      <size>
-                       <width>150</width>
-                       <height>16777215</height>
-                      </size>
-                     </property>
+                    <widget class="QLabel" name="label_70">
                      <property name="font">
                       <font>
                        <family>Times New Roman</family>
@@ -6965,363 +6817,518 @@ p, li { white-space: pre-wrap; }
                        <bold>false</bold>
                       </font>
                      </property>
-                     <property name="toolTip">
-                      <string>Export Matrix</string>
-                     </property>
                      <property name="text">
-                      <string>Matrix</string>
-                     </property>
-                     <property name="icon">
-                      <iconset resource="../../resources/resources.qrc">
-                       <normaloff>:/icons/sheet.png</normaloff>:/icons/sheet.png</iconset>
+                      <string>Check rapporti stratigrafici</string>
                      </property>
                     </widget>
                    </item>
-                   <item row="4" column="1">
-                    <widget class="QPushButton" name="pushButton_open_dir_matrix">
-                     <property name="maximumSize">
-                      <size>
-                       <width>150</width>
-                       <height>16777215</height>
-                      </size>
-                     </property>
-                     <property name="text">
-                      <string>Open folder</string>
-                     </property>
-                     <property name="icon">
-                      <iconset resource="../../resources/resources.qrc">
-                       <normaloff>:/icons/directoryExp.png</normaloff>:/icons/directoryExp.png</iconset>
+                   <item row="6" column="0">
+                    <widget class="Line" name="line">
+                     <property name="orientation">
+                      <enum>Qt::Horizontal</enum>
                      </property>
                     </widget>
                    </item>
-                   <item row="6" column="1">
-                    <widget class="QPushButton" name="set_matrix">
-                     <property name="text">
-                      <string>setting</string>
-                     </property>
-                    </widget>
+                   <item row="7" column="0">
+                    <layout class="QGridLayout" name="gridLayout_30">
+                     <item row="3" column="0">
+                      <widget class="QLabel" name="label_45">
+                       <property name="font">
+                        <font>
+                         <family>Times New Roman</family>
+                         <pointsize>8</pointsize>
+                         <weight>50</weight>
+                         <italic>false</italic>
+                         <bold>false</bold>
+                        </font>
+                       </property>
+                       <property name="text">
+                        <string>Esporta Matrix</string>
+                       </property>
+                      </widget>
+                     </item>
+                     <item row="0" column="0">
+                      <widget class="QLabel" name="label_48">
+                       <property name="font">
+                        <font>
+                         <family>Times New Roman</family>
+                         <pointsize>8</pointsize>
+                         <weight>50</weight>
+                         <italic>false</italic>
+                         <bold>false</bold>
+                        </font>
+                       </property>
+                       <property name="text">
+                        <string>Crea Codice Periodo</string>
+                       </property>
+                      </widget>
+                     </item>
+                     <item row="4" column="0">
+                      <widget class="QPushButton" name="pushButton_orderLayers">
+                       <property name="maximumSize">
+                        <size>
+                         <width>150</width>
+                         <height>16777215</height>
+                        </size>
+                       </property>
+                       <property name="font">
+                        <font>
+                         <family>Times New Roman</family>
+                         <pointsize>8</pointsize>
+                         <weight>50</weight>
+                         <italic>false</italic>
+                         <bold>false</bold>
+                        </font>
+                       </property>
+                       <property name="text">
+                        <string>Ordine startigrafico</string>
+                       </property>
+                      </widget>
+                     </item>
+                     <item row="2" column="0">
+                      <widget class="QLineEdit" name="lineEdit_codice_periodo">
+                       <property name="enabled">
+                        <bool>false</bool>
+                       </property>
+                       <property name="minimumSize">
+                        <size>
+                         <width>120</width>
+                         <height>0</height>
+                        </size>
+                       </property>
+                       <property name="maximumSize">
+                        <size>
+                         <width>120</width>
+                         <height>16777215</height>
+                        </size>
+                       </property>
+                      </widget>
+                     </item>
+                     <item row="1" column="0">
+                      <widget class="QPushButton" name="pushButton_crea_codice_periodo">
+                       <property name="maximumSize">
+                        <size>
+                         <width>150</width>
+                         <height>16777215</height>
+                        </size>
+                       </property>
+                       <property name="font">
+                        <font>
+                         <family>Times New Roman</family>
+                         <pointsize>8</pointsize>
+                         <weight>50</weight>
+                         <italic>false</italic>
+                         <bold>false</bold>
+                        </font>
+                       </property>
+                       <property name="toolTip">
+                        <string>Crea codice periodo</string>
+                       </property>
+                       <property name="text">
+                        <string>1- Crea codice periodo</string>
+                       </property>
+                       <property name="icon">
+                        <iconset resource="../../resources/resources.qrc">
+                         <normaloff>:/icons/sheet.png</normaloff>:/icons/sheet.png</iconset>
+                       </property>
+                      </widget>
+                     </item>
+                     <item row="5" column="0">
+                      <widget class="QLineEdit" name="lineEditOrderLayer">
+                       <property name="enabled">
+                        <bool>false</bool>
+                       </property>
+                       <property name="maximumSize">
+                        <size>
+                         <width>150</width>
+                         <height>16777215</height>
+                        </size>
+                       </property>
+                      </widget>
+                     </item>
+                     <item row="6" column="0">
+                      <widget class="QPushButton" name="pushButton_export_matrix">
+                       <property name="maximumSize">
+                        <size>
+                         <width>150</width>
+                         <height>16777215</height>
+                        </size>
+                       </property>
+                       <property name="font">
+                        <font>
+                         <family>Times New Roman</family>
+                         <pointsize>8</pointsize>
+                         <weight>50</weight>
+                         <italic>false</italic>
+                         <bold>false</bold>
+                        </font>
+                       </property>
+                       <property name="toolTip">
+                        <string>Export Matrix</string>
+                       </property>
+                       <property name="text">
+                        <string>Matrix</string>
+                       </property>
+                       <property name="icon">
+                        <iconset resource="../../resources/resources.qrc">
+                         <normaloff>:/icons/matrix.png</normaloff>:/icons/matrix.png</iconset>
+                       </property>
+                      </widget>
+                     </item>
+                     <item row="4" column="1">
+                      <widget class="QPushButton" name="pushButton_open_dir_matrix">
+                       <property name="maximumSize">
+                        <size>
+                         <width>150</width>
+                         <height>16777215</height>
+                        </size>
+                       </property>
+                       <property name="text">
+                        <string>Open folder</string>
+                       </property>
+                       <property name="icon">
+                        <iconset resource="../../resources/resources.qrc">
+                         <normaloff>:/icons/directoryExp.png</normaloff>:/icons/directoryExp.png</iconset>
+                       </property>
+                      </widget>
+                     </item>
+                     <item row="6" column="1">
+                      <widget class="QPushButton" name="set_matrix">
+                       <property name="enabled">
+                        <bool>false</bool>
+                       </property>
+                       <property name="text">
+                        <string>setting</string>
+                       </property>
+                       <property name="icon">
+                        <iconset resource="../../resources/resources.qrc">
+                         <normaloff>:/icons/toolbox.png</normaloff>:/icons/toolbox.png</iconset>
+                       </property>
+                      </widget>
+                     </item>
+                    </layout>
                    </item>
                   </layout>
-                 </item>
-                </layout>
-               </widget>
-               <widget class="QWidget" name="page_2">
-                <property name="geometry">
-                 <rect>
-                  <x>0</x>
-                  <y>0</y>
-                  <width>100</width>
-                  <height>30</height>
-                 </rect>
-                </property>
-                <attribute name="label">
-                 <string>Funzioni di controllo</string>
-                </attribute>
-                <widget class="QWidget" name="layoutWidget_2">
-                 <property name="geometry">
-                  <rect>
-                   <x>9</x>
-                   <y>9</y>
-                   <width>341</width>
-                   <height>251</height>
-                  </rect>
-                 </property>
-                 <layout class="QGridLayout" name="gridLayout_21">
-                  <item row="0" column="0">
-                   <widget class="QLabel" name="label_38">
-                    <property name="font">
-                     <font>
-                      <family>Times New Roman</family>
-                      <pointsize>8</pointsize>
-                      <weight>50</weight>
-                      <italic>false</italic>
-                      <bold>false</bold>
-                     </font>
-                    </property>
-                    <property name="text">
-                     <string>Visualizzazione GIS</string>
-                    </property>
-                   </widget>
-                  </item>
-                  <item row="1" column="0">
-                   <widget class="QPushButton" name="pushButton_showLayer">
-                    <property name="font">
-                     <font>
-                      <family>Times New Roman</family>
-                      <pointsize>8</pointsize>
-                      <weight>50</weight>
-                      <italic>false</italic>
-                      <bold>false</bold>
-                     </font>
-                    </property>
-                    <property name="toolTip">
-                     <string>Show Selcted Features</string>
-                    </property>
-                    <property name="text">
-                     <string>Disegna US</string>
-                    </property>
-                    <property name="icon">
-                     <iconset resource="../../resources/resources.qrc">
-                      <normaloff>:/icons/sheet.png</normaloff>:/icons/sheet.png</iconset>
-                    </property>
-                   </widget>
-                  </item>
-                  <item row="1" column="1">
-                   <widget class="QLabel" name="label_46">
-                    <property name="font">
-                     <font>
-                      <family>Times New Roman</family>
-                      <pointsize>8</pointsize>
-                      <weight>50</weight>
-                      <italic>false</italic>
-                      <bold>false</bold>
-                     </font>
-                    </property>
-                    <property name="text">
-                     <string>Disegna US</string>
-                    </property>
-                   </widget>
-                  </item>
-                  <item row="2" column="0" colspan="2">
-                   <widget class="QLabel" name="label_40">
-                    <property name="font">
-                     <font>
-                      <family>Times New Roman</family>
-                      <pointsize>8</pointsize>
-                      <weight>50</weight>
-                      <italic>false</italic>
-                      <bold>false</bold>
-                     </font>
-                    </property>
-                    <property name="text">
-                     <string>Apri schede US selezionate</string>
-                    </property>
-                   </widget>
-                  </item>
-                  <item row="3" column="0">
-                   <widget class="QPushButton" name="pushButton_showSelectedFeatures">
-                    <property name="font">
-                     <font>
-                      <family>Times New Roman</family>
-                      <pointsize>8</pointsize>
-                      <weight>50</weight>
-                      <italic>false</italic>
-                      <bold>false</bold>
-                     </font>
-                    </property>
-                    <property name="toolTip">
-                     <string>Show Selcted Features</string>
-                    </property>
-                    <property name="text">
-                     <string>Apri schede US</string>
-                    </property>
-                    <property name="icon">
-                     <iconset resource="../../resources/resources.qrc">
-                      <normaloff>:/icons/sheet.png</normaloff>:/icons/sheet.png</iconset>
-                    </property>
-                   </widget>
-                  </item>
-                  <item row="4" column="0" colspan="2">
-                   <widget class="QLabel" name="label_39">
-                    <property name="font">
-                     <font>
-                      <family>Times New Roman</family>
-                      <pointsize>8</pointsize>
-                      <weight>50</weight>
-                      <italic>false</italic>
-                      <bold>false</bold>
-                     </font>
-                    </property>
-                    <property name="text">
-                     <string>Attivazione Preview pianta US</string>
-                    </property>
-                   </widget>
-                  </item>
-                  <item row="5" column="0">
-                   <widget class="QToolButton" name="toolButtonPreview">
-                    <property name="toolTip">
-                     <string/>
-                    </property>
-                    <property name="text">
-                     <string>Preview pianta US</string>
-                    </property>
-                    <property name="icon">
-                     <iconset resource="../../resources/resources.qrc">
-                      <normaloff>:/icons/GIS.png</normaloff>:/icons/GIS.png</iconset>
-                    </property>
-                    <property name="shortcut">
-                     <string>Ctrl+G</string>
-                    </property>
-                    <property name="checkable">
-                     <bool>true</bool>
-                    </property>
-                    <property name="checked">
-                     <bool>false</bool>
-                    </property>
-                    <property name="toolButtonStyle">
-                     <enum>Qt::ToolButtonTextOnly</enum>
-                    </property>
-                    <property name="arrowType">
-                     <enum>Qt::NoArrow</enum>
-                    </property>
-                   </widget>
-                  </item>
-                  <item row="5" column="1">
-                   <widget class="QToolButton" name="toolButtonPan">
-                    <property name="minimumSize">
-                     <size>
-                      <width>109</width>
-                      <height>0</height>
-                     </size>
-                    </property>
-                    <property name="toolTip">
-                     <string>Pan tool</string>
-                    </property>
-                    <property name="text">
-                     <string>Pan</string>
-                    </property>
-                    <property name="icon">
-                     <iconset resource="../../resources/resources.qrc">
-                      <normaloff>:/icons/mActionPan.png</normaloff>:/icons/mActionPan.png</iconset>
-                    </property>
-                    <property name="shortcut">
-                     <string>Ctrl+G</string>
-                    </property>
-                    <property name="checkable">
-                     <bool>true</bool>
-                    </property>
-                    <property name="checked">
-                     <bool>false</bool>
-                    </property>
-                    <property name="toolButtonStyle">
-                     <enum>Qt::ToolButtonTextOnly</enum>
-                    </property>
-                    <property name="arrowType">
-                     <enum>Qt::NoArrow</enum>
-                    </property>
-                   </widget>
-                  </item>
-                  <item row="6" column="0">
-                   <widget class="QLabel" name="label_44">
-                    <property name="font">
-                     <font>
-                      <family>Times New Roman</family>
-                      <pointsize>8</pointsize>
-                      <weight>50</weight>
-                      <italic>false</italic>
-                      <bold>false</bold>
-                     </font>
-                    </property>
-                    <property name="text">
-                     <string>Mostra immagini</string>
-                    </property>
-                   </widget>
-                  </item>
-                  <item row="7" column="0">
-                   <widget class="QToolButton" name="toolButtonPreviewMedia">
-                    <property name="minimumSize">
-                     <size>
-                      <width>109</width>
-                      <height>0</height>
-                     </size>
-                    </property>
-                    <property name="text">
-                     <string>Mostra immagini</string>
-                    </property>
-                    <property name="icon">
-                     <iconset resource="../../resources/resources.qrc">
-                      <normaloff>:/icons/photo.png</normaloff>:/icons/photo.png</iconset>
-                    </property>
-                    <property name="checkable">
-                     <bool>true</bool>
-                    </property>
-                    <property name="checked">
-                     <bool>true</bool>
-                    </property>
-                   </widget>
-                  </item>
-                 </layout>
+                 </widget>
+                 <widget class="QWidget" name="page_2">
+                  <property name="geometry">
+                   <rect>
+                    <x>0</x>
+                    <y>0</y>
+                    <width>452</width>
+                    <height>177</height>
+                   </rect>
+                  </property>
+                  <attribute name="label">
+                   <string>Funzioni di controllo</string>
+                  </attribute>
+                  <widget class="QWidget" name="layoutWidget_2">
+                   <property name="geometry">
+                    <rect>
+                     <x>9</x>
+                     <y>9</y>
+                     <width>341</width>
+                     <height>251</height>
+                    </rect>
+                   </property>
+                   <layout class="QGridLayout" name="gridLayout_21">
+                    <item row="0" column="0">
+                     <widget class="QLabel" name="label_38">
+                      <property name="font">
+                       <font>
+                        <family>Times New Roman</family>
+                        <pointsize>8</pointsize>
+                        <weight>50</weight>
+                        <italic>false</italic>
+                        <bold>false</bold>
+                       </font>
+                      </property>
+                      <property name="text">
+                       <string>Visualizzazione GIS</string>
+                      </property>
+                     </widget>
+                    </item>
+                    <item row="1" column="0">
+                     <widget class="QPushButton" name="pushButton_showLayer">
+                      <property name="font">
+                       <font>
+                        <family>Times New Roman</family>
+                        <pointsize>8</pointsize>
+                        <weight>50</weight>
+                        <italic>false</italic>
+                        <bold>false</bold>
+                       </font>
+                      </property>
+                      <property name="toolTip">
+                       <string>Show Selcted Features</string>
+                      </property>
+                      <property name="text">
+                       <string>Disegna US</string>
+                      </property>
+                      <property name="icon">
+                       <iconset resource="../../resources/resources.qrc">
+                        <normaloff>:/icons/sheet.png</normaloff>:/icons/sheet.png</iconset>
+                      </property>
+                     </widget>
+                    </item>
+                    <item row="1" column="1">
+                     <widget class="QLabel" name="label_46">
+                      <property name="font">
+                       <font>
+                        <family>Times New Roman</family>
+                        <pointsize>8</pointsize>
+                        <weight>50</weight>
+                        <italic>false</italic>
+                        <bold>false</bold>
+                       </font>
+                      </property>
+                      <property name="text">
+                       <string>Disegna US</string>
+                      </property>
+                     </widget>
+                    </item>
+                    <item row="2" column="0" colspan="2">
+                     <widget class="QLabel" name="label_40">
+                      <property name="font">
+                       <font>
+                        <family>Times New Roman</family>
+                        <pointsize>8</pointsize>
+                        <weight>50</weight>
+                        <italic>false</italic>
+                        <bold>false</bold>
+                       </font>
+                      </property>
+                      <property name="text">
+                       <string>Apri schede US selezionate</string>
+                      </property>
+                     </widget>
+                    </item>
+                    <item row="3" column="0">
+                     <widget class="QPushButton" name="pushButton_showSelectedFeatures">
+                      <property name="font">
+                       <font>
+                        <family>Times New Roman</family>
+                        <pointsize>8</pointsize>
+                        <weight>50</weight>
+                        <italic>false</italic>
+                        <bold>false</bold>
+                       </font>
+                      </property>
+                      <property name="toolTip">
+                       <string>Show Selcted Features</string>
+                      </property>
+                      <property name="text">
+                       <string>Apri schede US</string>
+                      </property>
+                      <property name="icon">
+                       <iconset resource="../../resources/resources.qrc">
+                        <normaloff>:/icons/sheet.png</normaloff>:/icons/sheet.png</iconset>
+                      </property>
+                     </widget>
+                    </item>
+                    <item row="4" column="0" colspan="2">
+                     <widget class="QLabel" name="label_39">
+                      <property name="font">
+                       <font>
+                        <family>Times New Roman</family>
+                        <pointsize>8</pointsize>
+                        <weight>50</weight>
+                        <italic>false</italic>
+                        <bold>false</bold>
+                       </font>
+                      </property>
+                      <property name="text">
+                       <string>Attivazione Preview pianta US</string>
+                      </property>
+                     </widget>
+                    </item>
+                    <item row="5" column="0">
+                     <widget class="QToolButton" name="toolButtonPreview">
+                      <property name="toolTip">
+                       <string/>
+                      </property>
+                      <property name="text">
+                       <string>Preview pianta US</string>
+                      </property>
+                      <property name="icon">
+                       <iconset resource="../../resources/resources.qrc">
+                        <normaloff>:/icons/GIS.png</normaloff>:/icons/GIS.png</iconset>
+                      </property>
+                      <property name="shortcut">
+                       <string>Ctrl+G</string>
+                      </property>
+                      <property name="checkable">
+                       <bool>true</bool>
+                      </property>
+                      <property name="checked">
+                       <bool>false</bool>
+                      </property>
+                      <property name="toolButtonStyle">
+                       <enum>Qt::ToolButtonTextOnly</enum>
+                      </property>
+                      <property name="arrowType">
+                       <enum>Qt::NoArrow</enum>
+                      </property>
+                     </widget>
+                    </item>
+                    <item row="5" column="1">
+                     <widget class="QToolButton" name="toolButtonPan">
+                      <property name="minimumSize">
+                       <size>
+                        <width>109</width>
+                        <height>0</height>
+                       </size>
+                      </property>
+                      <property name="toolTip">
+                       <string>Pan tool</string>
+                      </property>
+                      <property name="text">
+                       <string>Pan</string>
+                      </property>
+                      <property name="icon">
+                       <iconset resource="../../resources/resources.qrc">
+                        <normaloff>:/icons/mActionPan.png</normaloff>:/icons/mActionPan.png</iconset>
+                      </property>
+                      <property name="shortcut">
+                       <string>Ctrl+G</string>
+                      </property>
+                      <property name="checkable">
+                       <bool>true</bool>
+                      </property>
+                      <property name="checked">
+                       <bool>false</bool>
+                      </property>
+                      <property name="toolButtonStyle">
+                       <enum>Qt::ToolButtonTextOnly</enum>
+                      </property>
+                      <property name="arrowType">
+                       <enum>Qt::NoArrow</enum>
+                      </property>
+                     </widget>
+                    </item>
+                    <item row="6" column="0">
+                     <widget class="QLabel" name="label_44">
+                      <property name="font">
+                       <font>
+                        <family>Times New Roman</family>
+                        <pointsize>8</pointsize>
+                        <weight>50</weight>
+                        <italic>false</italic>
+                        <bold>false</bold>
+                       </font>
+                      </property>
+                      <property name="text">
+                       <string>Mostra immagini</string>
+                      </property>
+                     </widget>
+                    </item>
+                    <item row="7" column="0">
+                     <widget class="QToolButton" name="toolButtonPreviewMedia">
+                      <property name="minimumSize">
+                       <size>
+                        <width>109</width>
+                        <height>0</height>
+                       </size>
+                      </property>
+                      <property name="text">
+                       <string>Mostra immagini</string>
+                      </property>
+                      <property name="icon">
+                       <iconset resource="../../resources/resources.qrc">
+                        <normaloff>:/icons/photo.png</normaloff>:/icons/photo.png</iconset>
+                      </property>
+                      <property name="checkable">
+                       <bool>true</bool>
+                      </property>
+                      <property name="checked">
+                       <bool>true</bool>
+                      </property>
+                     </widget>
+                    </item>
+                   </layout>
+                  </widget>
+                 </widget>
+                 <widget class="QWidget" name="page_3">
+                  <property name="geometry">
+                   <rect>
+                    <x>0</x>
+                    <y>0</y>
+                    <width>452</width>
+                    <height>177</height>
+                   </rect>
+                  </property>
+                  <attribute name="label">
+                   <string>Esportazioni</string>
+                  </attribute>
+                  <widget class="QLabel" name="countLabel">
+                   <property name="geometry">
+                    <rect>
+                     <x>228</x>
+                     <y>10</y>
+                     <width>16</width>
+                     <height>16</height>
+                    </rect>
+                   </property>
+                   <property name="text">
+                    <string/>
+                   </property>
+                  </widget>
+                  <widget class="QWidget" name="layoutWidget_3">
+                   <property name="geometry">
+                    <rect>
+                     <x>10</x>
+                     <y>10</y>
+                     <width>951</width>
+                     <height>91</height>
+                    </rect>
+                   </property>
+                   <layout class="QGridLayout" name="gridLayout_18">
+                    <item row="0" column="0">
+                     <widget class="QPushButton" name="pushButton_exp_tavole">
+                      <property name="minimumSize">
+                       <size>
+                        <width>0</width>
+                        <height>20</height>
+                       </size>
+                      </property>
+                      <property name="toolTip">
+                       <string>Esportazione Tavole</string>
+                      </property>
+                      <property name="text">
+                       <string>Esportazione Tavole</string>
+                      </property>
+                     </widget>
+                    </item>
+                    <item row="0" column="1">
+                     <widget class="QProgressBar" name="progressBar">
+                      <property name="minimumSize">
+                       <size>
+                        <width>0</width>
+                        <height>20</height>
+                       </size>
+                      </property>
+                      <property name="value">
+                       <number>0</number>
+                      </property>
+                     </widget>
+                    </item>
+                    <item row="1" column="0">
+                     <widget class="QPushButton" name="pushButton_open_dir_tavole">
+                      <property name="text">
+                       <string>Open folder</string>
+                      </property>
+                      <property name="icon">
+                       <iconset resource="../../resources/resources.qrc">
+                        <normaloff>:/icons/directoryExp.png</normaloff>:/icons/directoryExp.png</iconset>
+                      </property>
+                     </widget>
+                    </item>
+                   </layout>
+                  </widget>
+                 </widget>
                 </widget>
-               </widget>
-               <widget class="QWidget" name="page_3">
-                <property name="geometry">
-                 <rect>
-                  <x>0</x>
-                  <y>0</y>
-                  <width>100</width>
-                  <height>30</height>
-                 </rect>
-                </property>
-                <attribute name="label">
-                 <string>Esportazioni</string>
-                </attribute>
-                <widget class="QLabel" name="countLabel">
-                 <property name="geometry">
-                  <rect>
-                   <x>228</x>
-                   <y>10</y>
-                   <width>16</width>
-                   <height>16</height>
-                  </rect>
-                 </property>
-                 <property name="text">
-                  <string/>
-                 </property>
-                </widget>
-                <widget class="QWidget" name="layoutWidget_3">
-                 <property name="geometry">
-                  <rect>
-                   <x>10</x>
-                   <y>10</y>
-                   <width>951</width>
-                   <height>91</height>
-                  </rect>
-                 </property>
-                 <layout class="QGridLayout" name="gridLayout_18">
-                  <item row="0" column="0">
-                   <widget class="QPushButton" name="pushButton_exp_tavole">
-                    <property name="minimumSize">
-                     <size>
-                      <width>0</width>
-                      <height>20</height>
-                     </size>
-                    </property>
-                    <property name="toolTip">
-                     <string>Esportazione Tavole</string>
-                    </property>
-                    <property name="text">
-                     <string>Esportazione Tavole</string>
-                    </property>
-                   </widget>
-                  </item>
-                  <item row="0" column="1">
-                   <widget class="QProgressBar" name="progressBar">
-                    <property name="minimumSize">
-                     <size>
-                      <width>0</width>
-                      <height>20</height>
-                     </size>
-                    </property>
-                    <property name="value">
-                     <number>0</number>
-                    </property>
-                   </widget>
-                  </item>
-                  <item row="1" column="0">
-                   <widget class="QPushButton" name="pushButton_open_dir_tavole">
-                    <property name="text">
-                     <string>Open folder</string>
-                    </property>
-                    <property name="icon">
-                     <iconset resource="../../resources/resources.qrc">
-                      <normaloff>:/icons/directoryExp.png</normaloff>:/icons/directoryExp.png</iconset>
-                    </property>
-                   </widget>
-                  </item>
-                 </layout>
-                </widget>
-               </widget>
-              </widget>
+               </item>
+              </layout>
              </widget>
             </widget>
            </item>
@@ -7358,7 +7365,7 @@ p, li { white-space: pre-wrap; }
                  </property>
                  <property name="maximumSize">
                   <size>
-                   <width>120</width>
+                   <width>81</width>
                    <height>20</height>
                   </size>
                  </property>
@@ -7400,8 +7407,18 @@ p, li { white-space: pre-wrap; }
                </item>
                <item row="2" column="1">
                 <widget class="QPushButton" name="pushButton_word">
+                 <property name="maximumSize">
+                  <size>
+                   <width>122</width>
+                   <height>16777215</height>
+                  </size>
+                 </property>
                  <property name="text">
                   <string>Converti in Word</string>
+                 </property>
+                 <property name="icon">
+                  <iconset resource="../../resources/resources.qrc">
+                   <normaloff>:/icons/word.png</normaloff>:/icons/word.png</iconset>
                  </property>
                 </widget>
                </item>

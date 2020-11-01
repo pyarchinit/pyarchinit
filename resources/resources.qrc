@@ -61,5 +61,8 @@
     <file>icons/import-excel.png</file>
 	<file>icons/remove_tag.png</file>
     <file>icons/add_tag.png</file>
+	<file>icons/word.png</file>
+	<file>icons/toolbox.png</file>
+	<file>icons/matrix.png</file>
   </qresource>
 </RCC>
