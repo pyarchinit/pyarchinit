@@ -36,10 +36,10 @@ import subprocess
 from geoalchemy2 import *
 from sqlalchemy.sql import select, func
 from sqlalchemy import create_engine
-# from sqlalchemy.dialects import postgresql
-# from sqlalchemy.dialects.postgresql import insert
-# from sqlalchemy.ext.compiler import compiles
-# from sqlalchemy.sql.expression import *
+from sqlalchemy.dialects import postgresql
+from sqlalchemy.dialects.postgresql import insert
+from sqlalchemy.ext.compiler import compiles
+from sqlalchemy.sql.expression import *
 from qgis.PyQt.QtGui import QDesktopServices
 from qgis.PyQt.QtCore import  pyqtSlot, pyqtSignal,QThread,QUrl
 from qgis.PyQt.QtWidgets import QApplication, QDialog, QMessageBox, QFileDialog,QLineEdit,QWidget,QCheckBox
@@ -135,9 +135,57 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
         
         self.selectorCrsWidget.setCrs(QgsProject.instance().crs())
         self.selectorCrsWidget_sl.setCrs(QgsProject.instance().crs())
+        self.checkBox_ignore.setChecked(False)
+        self.checkBox_ignore.stateChanged.connect(self.check)
+        self.checkBox_ignore.stateChanged.connect(self.message)
+        self.check()
         
+    def message(self):
+        if self.checkBox_ignore.isChecked():
+            QMessageBox.warning(self, "Attenzione", 'Verranno copiati solo i dati nuovi', QMessageBox.Ok)
+        else:
+            QMessageBox.warning(self, "Attenzione", 'Verranno copiati solo i dati nuovi e aggiornati quelli esistenti', QMessageBox.Ok)
     
-    
+    def check(self):
+        try:
+            if self.checkBox_ignore.isChecked():
+                
+                @compiles(Insert)
+                def _prefix_insert_with_ignore(insert_srt, compiler, **kw):
+            
+                    conn = Connection()
+                    conn_str = conn.conn_str()
+                    test_conn = conn_str.find("sqlite")
+                    if test_conn == 0:
+                        return compiler.visit_insert(insert_srt.prefix_with('OR IGNORE'), **kw)
+                    else:
+                        #return compiler.visit_insert(insert.prefix_with(''), **kw)
+                        pk = insert_srt.table.primary_key
+                        insert = compiler.visit_insert(insert_srt, **kw)
+                        ondup = f'ON CONFLICT ({",".join(c.name for c in pk)}) DO NOTHING'
+                        #updates = ', '.join(f"{c.name}=EXCLUDED.{c.name}" for c in insert_srt.table.columns)
+                        upsert = ' '.join((insert, ondup))
+                        return upsert    
+            else:
+                
+                @compiles(Insert)
+                def _prefix_insert_with_replace(insert_srt, compiler, **kw):
+                    ##############importo i dati nuovi aggiornando i vecchi dati########################
+                    conn = Connection()
+                    conn_str = conn.conn_str()
+                    test_conn = conn_str.find("sqlite")
+                    if test_conn == 0:
+                        return compiler.visit_insert(insert_srt.prefix_with('OR REPLACE'), **kw)
+                    else:
+                        #return compiler.visit_insert(insert.prefix_with(''), **kw)
+                        pk = insert_srt.table.primary_key
+                        insert = compiler.visit_insert(insert_srt, **kw)
+                        ondup = f'ON CONFLICT ({",".join(c.name for c in pk)}) DO UPDATE SET'
+                        updates = ', '.join(f"{c.name}=EXCLUDED.{c.name}" for c in insert_srt.table.columns)
+                        upsert = ' '.join((insert, ondup, updates))
+                        return upsert
+        except:
+            pass
     def summary(self):
         self.comboBox_Database.update()
         conn = Connection()
