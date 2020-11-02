@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>540</width>
-    <height>679</height>
+    <height>696</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -440,134 +440,6 @@
      </property>
     </widget>
    </item>
-   <item row="5" column="0" rowspan="2">
-    <widget class="QPushButton" name="pushButton_delete">
-     <property name="enabled">
-      <bool>true</bool>
-     </property>
-     <property name="sizePolicy">
-      <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
-       <horstretch>0</horstretch>
-       <verstretch>0</verstretch>
-      </sizepolicy>
-     </property>
-     <property name="font">
-      <font>
-       <pointsize>9</pointsize>
-      </font>
-     </property>
-     <property name="toolTip">
-      <string>Delete record</string>
-     </property>
-     <property name="text">
-      <string/>
-     </property>
-     <property name="icon">
-      <iconset resource="../../resources/resources.qrc">
-       <normaloff>:/icons/delete.png</normaloff>:/icons/delete.png</iconset>
-     </property>
-    </widget>
-   </item>
-   <item row="5" column="3" rowspan="2">
-    <widget class="QPushButton" name="pushButton_new_search">
-     <property name="sizePolicy">
-      <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
-       <horstretch>0</horstretch>
-       <verstretch>0</verstretch>
-      </sizepolicy>
-     </property>
-     <property name="font">
-      <font>
-       <pointsize>9</pointsize>
-      </font>
-     </property>
-     <property name="toolTip">
-      <string>new search</string>
-     </property>
-     <property name="text">
-      <string/>
-     </property>
-     <property name="icon">
-      <iconset resource="../../resources/resources.qrc">
-       <normaloff>:/icons/new_search.png</normaloff>:/icons/new_search.png</iconset>
-     </property>
-    </widget>
-   </item>
-   <item row="5" column="4" rowspan="2">
-    <widget class="QPushButton" name="pushButton_search_go">
-     <property name="sizePolicy">
-      <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
-       <horstretch>0</horstretch>
-       <verstretch>0</verstretch>
-      </sizepolicy>
-     </property>
-     <property name="font">
-      <font>
-       <pointsize>9</pointsize>
-      </font>
-     </property>
-     <property name="toolTip">
-      <string>search !!!</string>
-     </property>
-     <property name="text">
-      <string/>
-     </property>
-     <property name="icon">
-      <iconset resource="../../resources/resources.qrc">
-       <normaloff>:/icons/search.png</normaloff>:/icons/search.png</iconset>
-     </property>
-    </widget>
-   </item>
-   <item row="5" column="5" rowspan="2">
-    <widget class="QPushButton" name="pushButton_sort">
-     <property name="sizePolicy">
-      <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
-       <horstretch>0</horstretch>
-       <verstretch>0</verstretch>
-      </sizepolicy>
-     </property>
-     <property name="font">
-      <font>
-       <pointsize>9</pointsize>
-      </font>
-     </property>
-     <property name="toolTip">
-      <string>Order by</string>
-     </property>
-     <property name="text">
-      <string/>
-     </property>
-     <property name="icon">
-      <iconset resource="../../resources/resources.qrc">
-       <normaloff>:/icons/sort.png</normaloff>:/icons/sort.png</iconset>
-     </property>
-    </widget>
-   </item>
-   <item row="5" column="6" rowspan="2">
-    <widget class="QPushButton" name="pushButton_view_all">
-     <property name="sizePolicy">
-      <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
-       <horstretch>0</horstretch>
-       <verstretch>0</verstretch>
-      </sizepolicy>
-     </property>
-     <property name="font">
-      <font>
-       <pointsize>9</pointsize>
-      </font>
-     </property>
-     <property name="toolTip">
-      <string>View alls records</string>
-     </property>
-     <property name="text">
-      <string/>
-     </property>
-     <property name="icon">
-      <iconset resource="../../resources/resources.qrc">
-       <normaloff>:/icons/view_all.png</normaloff>:/icons/view_all.png</iconset>
-     </property>
-    </widget>
-   </item>
    <item row="6" column="7" colspan="2">
     <widget class="QLabel" name="label_28">
      <property name="sizePolicy">
@@ -647,7 +519,7 @@
         <x>0</x>
         <y>0</y>
         <width>520</width>
-        <height>540</height>
+        <height>535</height>
        </rect>
       </property>
       <layout class="QGridLayout" name="gridLayout_2">
@@ -672,6 +544,12 @@
          </property>
          <property name="currentIndex">
           <number>0</number>
+         </property>
+         <property name="documentMode">
+          <bool>true</bool>
+         </property>
+         <property name="tabBarAutoHide">
+          <bool>false</bool>
          </property>
          <widget class="QWidget" name="tabWidgetPage1">
           <attribute name="title">
@@ -771,9 +649,9 @@
             </property>
             <property name="font">
              <font>
-              <pointsize>9</pointsize>
-              <weight>75</weight>
-              <bold>true</bold>
+              <pointsize>8</pointsize>
+              <weight>50</weight>
+              <bold>false</bold>
              </font>
             </property>
             <property name="mouseTracking">
@@ -785,11 +663,17 @@
             <property name="editable">
              <bool>true</bool>
             </property>
+            <property name="currentText">
+             <string/>
+            </property>
             <property name="maxVisibleItems">
              <number>99999</number>
             </property>
             <property name="maxCount">
              <number>2147483647</number>
+            </property>
+            <property name="sizeAdjustPolicy">
+             <enum>QComboBox::AdjustToMinimumContentsLength</enum>
             </property>
             <item>
              <property name="text">
@@ -874,7 +758,7 @@
              <rect>
               <x>95</x>
               <y>89</y>
-              <width>167</width>
+              <width>281</width>
               <height>20</height>
              </rect>
             </property>
@@ -905,9 +789,9 @@
            <widget class="QPushButton" name="pbn_browse_folder">
             <property name="geometry">
              <rect>
-              <x>268</x>
-              <y>88</y>
-              <width>75</width>
+              <x>380</x>
+              <y>90</y>
+              <width>30</width>
               <height>20</height>
              </rect>
             </property>
@@ -925,7 +809,7 @@
             </property>
             <property name="maximumSize">
              <size>
-              <width>16777215</width>
+              <width>30</width>
               <height>20</height>
              </size>
             </property>
@@ -941,9 +825,9 @@
            <widget class="QPushButton" name="pbnOpenSiteDirectory">
             <property name="geometry">
              <rect>
-              <x>349</x>
-              <y>88</y>
-              <width>95</width>
+              <x>410</x>
+              <y>90</y>
+              <width>30</width>
               <height>20</height>
              </rect>
             </property>
@@ -955,7 +839,7 @@
             </property>
             <property name="maximumSize">
              <size>
-              <width>16777215</width>
+              <width>30</width>
               <height>20</height>
              </size>
             </property>
@@ -965,11 +849,15 @@
              </font>
             </property>
             <property name="text">
-             <string>Open Folder</string>
+             <string/>
+            </property>
+            <property name="icon">
+             <iconset resource="../../resources/resources.qrc">
+              <normaloff>:/icons/open-folder.png</normaloff>:/icons/open-folder.png</iconset>
             </property>
            </widget>
           </widget>
-          <widget class="QWidget" name="">
+          <widget class="QWidget" name="layoutWidget">
            <property name="geometry">
             <rect>
              <x>10</x>
@@ -1192,8 +1080,12 @@
           </widget>
          </widget>
          <widget class="QWidget" name="tabWidgetPage2">
+          <attribute name="icon">
+           <iconset resource="../../resources/resources.qrc">
+            <normaloff>:/icons/toolbox.png</normaloff>:/icons/toolbox.png</iconset>
+          </attribute>
           <attribute name="title">
-           <string>Tools</string>
+           <string/>
           </attribute>
           <layout class="QGridLayout" name="gridLayout_12">
            <item row="0" column="0" colspan="2">
@@ -1208,6 +1100,214 @@
               <string>Genera un numero arbitrario di schede US per il sito corrente</string>
              </property>
             </widget>
+           </item>
+           <item row="2" column="0" colspan="2">
+            <layout class="QGridLayout" name="gridLayout_16">
+             <item row="0" column="0">
+              <layout class="QGridLayout" name="gridLayout_17">
+               <item row="1" column="0">
+                <widget class="QLabel" name="label_8">
+                 <property name="toolTip">
+                  <string>Carica tutti layer che contengono geometrie relative a questo sito</string>
+                 </property>
+                 <property name="text">
+                  <string>Carica i layer per questo sito</string>
+                 </property>
+                </widget>
+               </item>
+               <item row="1" column="1">
+                <widget class="QPushButton" name="pushButton_sites_geometry">
+                 <property name="maximumSize">
+                  <size>
+                   <width>30</width>
+                   <height>20</height>
+                  </size>
+                 </property>
+                 <property name="text">
+                  <string/>
+                 </property>
+                 <property name="icon">
+                  <iconset resource="../../resources/resources.qrc">
+                   <normaloff>:/icons/layers-icon.png</normaloff>:/icons/layers-icon.png</iconset>
+                 </property>
+                </widget>
+               </item>
+               <item row="0" column="1">
+                <widget class="QPushButton" name="pushButton_draw">
+                 <property name="maximumSize">
+                  <size>
+                   <width>30</width>
+                   <height>20</height>
+                  </size>
+                 </property>
+                 <property name="text">
+                  <string/>
+                 </property>
+                 <property name="icon">
+                  <iconset resource="../../resources/resources.qrc">
+                   <normaloff>:/icons/layers-icon.png</normaloff>:/icons/layers-icon.png</iconset>
+                 </property>
+                </widget>
+               </item>
+               <item row="0" column="0">
+                <widget class="QLabel" name="label_3">
+                 <property name="toolTip">
+                  <string>Carica tutti i layer per poter inserire nuove geometrie</string>
+                 </property>
+                 <property name="text">
+                  <string>Carica layer per il disegno</string>
+                 </property>
+                </widget>
+               </item>
+               <item row="0" column="2">
+                <spacer name="horizontalSpacer_3">
+                 <property name="orientation">
+                  <enum>Qt::Horizontal</enum>
+                 </property>
+                 <property name="sizeHint" stdset="0">
+                  <size>
+                   <width>40</width>
+                   <height>20</height>
+                  </size>
+                 </property>
+                </spacer>
+               </item>
+              </layout>
+             </item>
+            </layout>
+           </item>
+           <item row="4" column="0" colspan="2">
+            <layout class="QGridLayout" name="gridLayout_18">
+             <item row="0" column="0">
+              <widget class="QLabel" name="label_9">
+               <property name="enabled">
+                <bool>false</bool>
+               </property>
+               <property name="text">
+                <string>Esporta relazione di scavo per questo sito (Versione di sviluppo)</string>
+               </property>
+              </widget>
+             </item>
+             <item row="0" column="1">
+              <widget class="QPushButton" name="pushButton_rel_pdf">
+               <property name="enabled">
+                <bool>false</bool>
+               </property>
+               <property name="text">
+                <string>Esporta</string>
+               </property>
+              </widget>
+             </item>
+            </layout>
+           </item>
+           <item row="5" column="0" colspan="2">
+            <layout class="QVBoxLayout" name="verticalLayout_4">
+             <item>
+              <widget class="Line" name="line">
+               <property name="minimumSize">
+                <size>
+                 <width>539</width>
+                 <height>0</height>
+                </size>
+               </property>
+               <property name="orientation">
+                <enum>Qt::Horizontal</enum>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <widget class="QLabel" name="label_10">
+               <property name="text">
+                <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;GIS Tools&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+               </property>
+              </widget>
+             </item>
+            </layout>
+           </item>
+           <item row="7" column="0">
+            <layout class="QGridLayout" name="gridLayout_20">
+             <item row="0" column="1">
+              <widget class="QToolButton" name="toolButton_draw_siti">
+               <property name="text">
+                <string>Abilita il caricamento delle ricerche</string>
+               </property>
+               <property name="icon">
+                <iconset resource="../../resources/resources.qrc">
+                 <normaloff>:/icons/GIS.png</normaloff>:/icons/GIS.png</iconset>
+               </property>
+               <property name="checkable">
+                <bool>true</bool>
+               </property>
+              </widget>
+             </item>
+             <item row="0" column="0">
+              <widget class="QLabel" name="label_12">
+               <property name="toolTip">
+                <string>Carica tutti i layer per poter inserire nuove geometrie</string>
+               </property>
+               <property name="text">
+                <string>Gis viewer</string>
+               </property>
+              </widget>
+             </item>
+             <item row="0" column="2">
+              <spacer name="horizontalSpacer">
+               <property name="orientation">
+                <enum>Qt::Horizontal</enum>
+               </property>
+               <property name="sizeHint" stdset="0">
+                <size>
+                 <width>307</width>
+                 <height>20</height>
+                </size>
+               </property>
+              </spacer>
+             </item>
+            </layout>
+           </item>
+           <item row="6" column="0">
+            <layout class="QGridLayout" name="gridLayout_19">
+             <item row="0" column="1">
+              <widget class="QPushButton" name="pushButton_draw_sito">
+               <property name="maximumSize">
+                <size>
+                 <width>30</width>
+                 <height>20</height>
+                </size>
+               </property>
+               <property name="text">
+                <string/>
+               </property>
+               <property name="icon">
+                <iconset resource="../../resources/resources.qrc">
+                 <normaloff>:/icons/layers-icon.png</normaloff>:/icons/layers-icon.png</iconset>
+               </property>
+              </widget>
+             </item>
+             <item row="0" column="0">
+              <widget class="QLabel" name="label_11">
+               <property name="toolTip">
+                <string>Carica tutti i layer per poter inserire nuove geometrie</string>
+               </property>
+               <property name="text">
+                <string>Carica il puntuale del sito</string>
+               </property>
+              </widget>
+             </item>
+             <item row="0" column="2">
+              <spacer name="horizontalSpacer_2">
+               <property name="orientation">
+                <enum>Qt::Horizontal</enum>
+               </property>
+               <property name="sizeHint" stdset="0">
+                <size>
+                 <width>261</width>
+                 <height>20</height>
+                </size>
+               </property>
+              </spacer>
+             </item>
+            </layout>
            </item>
            <item row="1" column="0">
             <layout class="QGridLayout" name="gridLayout_10">
@@ -1265,7 +1365,7 @@
              <item row="6" column="0">
               <widget class="QLabel" name="label_17">
                <property name="text">
-                <string>Tipo di scheda</string>
+                <string>Tipo di unità stratigrafica</string>
                </property>
               </widget>
              </item>
@@ -1297,167 +1397,6 @@
               </widget>
              </item>
             </layout>
-           </item>
-           <item row="2" column="0" colspan="2">
-            <layout class="QGridLayout" name="gridLayout_16">
-             <item row="0" column="0">
-              <layout class="QGridLayout" name="gridLayout_17">
-               <item row="0" column="0">
-                <widget class="QLabel" name="label_3">
-                 <property name="toolTip">
-                  <string>Carica tutti i layer per poter inserire nuove geometrie</string>
-                 </property>
-                 <property name="text">
-                  <string>Carica layer per il disegno</string>
-                 </property>
-                </widget>
-               </item>
-               <item row="0" column="1">
-                <widget class="QPushButton" name="pushButton_draw">
-                 <property name="text">
-                  <string>Carica</string>
-                 </property>
-                </widget>
-               </item>
-              </layout>
-             </item>
-             <item row="0" column="1">
-              <widget class="QLabel" name="label_8">
-               <property name="toolTip">
-                <string>Carica tutti layer che contengono geometrie relative a questo sito</string>
-               </property>
-               <property name="text">
-                <string>Carica i layer per questo sito</string>
-               </property>
-              </widget>
-             </item>
-             <item row="0" column="2">
-              <widget class="QPushButton" name="pushButton_sites_geometry">
-               <property name="text">
-                <string>Carica</string>
-               </property>
-              </widget>
-             </item>
-            </layout>
-           </item>
-           <item row="3" column="0" colspan="2">
-            <layout class="QGridLayout" name="gridLayout_18">
-             <item row="0" column="0">
-              <widget class="QLabel" name="label_9">
-               <property name="enabled">
-                <bool>false</bool>
-               </property>
-               <property name="text">
-                <string>Esporta relazione di scavo per questo sito (Versione di sviluppo)</string>
-               </property>
-              </widget>
-             </item>
-             <item row="0" column="1">
-              <widget class="QPushButton" name="pushButton_rel_pdf">
-               <property name="enabled">
-                <bool>false</bool>
-               </property>
-               <property name="text">
-                <string>Esporta</string>
-               </property>
-              </widget>
-             </item>
-            </layout>
-           </item>
-           <item row="4" column="0" colspan="2">
-            <layout class="QVBoxLayout" name="verticalLayout_4">
-             <item>
-              <widget class="Line" name="line">
-               <property name="minimumSize">
-                <size>
-                 <width>539</width>
-                 <height>0</height>
-                </size>
-               </property>
-               <property name="orientation">
-                <enum>Qt::Horizontal</enum>
-               </property>
-              </widget>
-             </item>
-             <item>
-              <widget class="QLabel" name="label_10">
-               <property name="text">
-                <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;GIS Tools&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-               </property>
-              </widget>
-             </item>
-            </layout>
-           </item>
-           <item row="5" column="0">
-            <layout class="QGridLayout" name="gridLayout_19">
-             <item row="0" column="0">
-              <widget class="QLabel" name="label_11">
-               <property name="toolTip">
-                <string>Carica tutti i layer per poter inserire nuove geometrie</string>
-               </property>
-               <property name="text">
-                <string>Carica il puntuale del sito</string>
-               </property>
-              </widget>
-             </item>
-             <item row="0" column="1">
-              <widget class="QPushButton" name="pushButton_draw_sito">
-               <property name="text">
-                <string>Carica</string>
-               </property>
-              </widget>
-             </item>
-            </layout>
-           </item>
-           <item row="5" column="1">
-            <spacer name="horizontalSpacer_2">
-             <property name="orientation">
-              <enum>Qt::Horizontal</enum>
-             </property>
-             <property name="sizeHint" stdset="0">
-              <size>
-               <width>261</width>
-               <height>20</height>
-              </size>
-             </property>
-            </spacer>
-           </item>
-           <item row="6" column="0">
-            <layout class="QGridLayout" name="gridLayout_20">
-             <item row="0" column="0">
-              <widget class="QLabel" name="label_12">
-               <property name="toolTip">
-                <string>Carica tutti i layer per poter inserire nuove geometrie</string>
-               </property>
-               <property name="text">
-                <string>Gis viewer</string>
-               </property>
-              </widget>
-             </item>
-             <item row="0" column="1">
-              <widget class="QToolButton" name="toolButton_draw_siti">
-               <property name="text">
-                <string>Abilita il caricamento delle ricerche</string>
-               </property>
-               <property name="checkable">
-                <bool>true</bool>
-               </property>
-              </widget>
-             </item>
-            </layout>
-           </item>
-           <item row="6" column="1">
-            <spacer name="horizontalSpacer">
-             <property name="orientation">
-              <enum>Qt::Horizontal</enum>
-             </property>
-             <property name="sizeHint" stdset="0">
-              <size>
-               <width>307</width>
-               <height>20</height>
-              </size>
-             </property>
-            </spacer>
            </item>
           </layout>
          </widget>
@@ -1676,6 +1615,134 @@ Step 3 - Riavviare Qgis e cliccare sul pulsante Run Test per verificare l'output
        </item>
       </layout>
      </widget>
+    </widget>
+   </item>
+   <item row="5" column="1">
+    <widget class="QPushButton" name="pushButton_delete">
+     <property name="enabled">
+      <bool>true</bool>
+     </property>
+     <property name="sizePolicy">
+      <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
+       <horstretch>0</horstretch>
+       <verstretch>0</verstretch>
+      </sizepolicy>
+     </property>
+     <property name="font">
+      <font>
+       <pointsize>9</pointsize>
+      </font>
+     </property>
+     <property name="toolTip">
+      <string>Delete record</string>
+     </property>
+     <property name="text">
+      <string/>
+     </property>
+     <property name="icon">
+      <iconset resource="../../resources/resources.qrc">
+       <normaloff>:/icons/delete.png</normaloff>:/icons/delete.png</iconset>
+     </property>
+    </widget>
+   </item>
+   <item row="5" column="2">
+    <widget class="QPushButton" name="pushButton_new_search">
+     <property name="sizePolicy">
+      <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
+       <horstretch>0</horstretch>
+       <verstretch>0</verstretch>
+      </sizepolicy>
+     </property>
+     <property name="font">
+      <font>
+       <pointsize>9</pointsize>
+      </font>
+     </property>
+     <property name="toolTip">
+      <string>new search</string>
+     </property>
+     <property name="text">
+      <string/>
+     </property>
+     <property name="icon">
+      <iconset resource="../../resources/resources.qrc">
+       <normaloff>:/icons/new_search.png</normaloff>:/icons/new_search.png</iconset>
+     </property>
+    </widget>
+   </item>
+   <item row="5" column="3">
+    <widget class="QPushButton" name="pushButton_search_go">
+     <property name="sizePolicy">
+      <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
+       <horstretch>0</horstretch>
+       <verstretch>0</verstretch>
+      </sizepolicy>
+     </property>
+     <property name="font">
+      <font>
+       <pointsize>9</pointsize>
+      </font>
+     </property>
+     <property name="toolTip">
+      <string>search !!!</string>
+     </property>
+     <property name="text">
+      <string/>
+     </property>
+     <property name="icon">
+      <iconset resource="../../resources/resources.qrc">
+       <normaloff>:/icons/search.png</normaloff>:/icons/search.png</iconset>
+     </property>
+    </widget>
+   </item>
+   <item row="5" column="4">
+    <widget class="QPushButton" name="pushButton_sort">
+     <property name="sizePolicy">
+      <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
+       <horstretch>0</horstretch>
+       <verstretch>0</verstretch>
+      </sizepolicy>
+     </property>
+     <property name="font">
+      <font>
+       <pointsize>9</pointsize>
+      </font>
+     </property>
+     <property name="toolTip">
+      <string>Order by</string>
+     </property>
+     <property name="text">
+      <string/>
+     </property>
+     <property name="icon">
+      <iconset resource="../../resources/resources.qrc">
+       <normaloff>:/icons/sort.png</normaloff>:/icons/sort.png</iconset>
+     </property>
+    </widget>
+   </item>
+   <item row="5" column="5">
+    <widget class="QPushButton" name="pushButton_view_all">
+     <property name="sizePolicy">
+      <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
+       <horstretch>0</horstretch>
+       <verstretch>0</verstretch>
+      </sizepolicy>
+     </property>
+     <property name="font">
+      <font>
+       <pointsize>9</pointsize>
+      </font>
+     </property>
+     <property name="toolTip">
+      <string>View alls records</string>
+     </property>
+     <property name="text">
+      <string/>
+     </property>
+     <property name="icon">
+      <iconset resource="../../resources/resources.qrc">
+       <normaloff>:/icons/view_all.png</normaloff>:/icons/view_all.png</iconset>
+     </property>
     </widget>
    </item>
   </layout>
