@@ -65,22 +65,40 @@ class Pyarchinit_db_management(object):
     def __init__(self, c):
         self.conn_str = c
         
-    @compiles(Insert)
-    def _prefix_insert_with_replace(insert_srt, compiler, **kw):
-        ##############importo i dati aggiornando i vecchi dati########################
-        conn = Connection()
-        conn_str = conn.conn_str()
-        test_conn = conn_str.find("sqlite")
-        if test_conn == 0:
-            return compiler.visit_insert(insert_srt.prefix_with('OR REPLACE'), **kw)
-        else:
-            #return compiler.visit_insert(insert.prefix_with(''), **kw)
-            pk = insert_srt.table.primary_key
-            insert = compiler.visit_insert(insert_srt, **kw)
-            ondup = f'ON CONFLICT ({",".join(c.name for c in pk)}) DO UPDATE SET'
-            updates = ', '.join(f"{c.name}=EXCLUDED.{c.name}" for c in insert_srt.table.columns)
-            upsert = ' '.join((insert, ondup, updates))
-            return upsert
+    # @compiles(Insert)
+    # def _prefix_insert_with_replace(insert_srt, compiler, **kw):
+        # ##############importo i dati nuovi aggiornando i vecchi dati########################
+        # conn = Connection()
+        # conn_str = conn.conn_str()
+        # test_conn = conn_str.find("sqlite")
+        # if test_conn == 0:
+            # return compiler.visit_insert(insert_srt.prefix_with('OR REPLACE'), **kw)
+        # else:
+            # #return compiler.visit_insert(insert.prefix_with(''), **kw)
+            # pk = insert_srt.table.primary_key
+            # insert = compiler.visit_insert(insert_srt, **kw)
+            # ondup = f'ON CONFLICT ({",".join(c.name for c in pk)}) DO UPDATE SET'
+            # updates = ', '.join(f"{c.name}=EXCLUDED.{c.name}" for c in insert_srt.table.columns)
+            # upsert = ' '.join((insert, ondup, updates))
+            # return upsert
+        
+    # @compiles(Insert)
+    # def _prefix_insert_with_ignore(insert_srt, compiler, **kw):
+        # ##############importo i dati aggiornando i vecchi dati########################
+        # conn = Connection()
+        # conn_str = conn.conn_str()
+        # test_conn = conn_str.find("sqlite")
+        # if test_conn == 0:
+            # return compiler.visit_insert(insert_srt.prefix_with('OR IGNORE'), **kw)
+        # else:
+            # #return compiler.visit_insert(insert.prefix_with(''), **kw)
+            # pk = insert_srt.table.primary_key
+            # insert = compiler.visit_insert(insert_srt, **kw)
+            # ondup = f'ON CONFLICT ({",".join(c.name for c in pk)}) DO NOTHING'
+            # #updates = ', '.join(f"{c.name}=EXCLUDED.{c.name}" for c in insert_srt.table.columns)
+            # upsert = ' '.join((insert, ondup))
+            # return upsert    
+        
         
         ######da studiare per importare i dati ingorando il costraint############################
         # else:
