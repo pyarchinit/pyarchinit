@@ -406,7 +406,11 @@
           <item row="0" column="3">
            <widget class="QPushButton" name="pbnOpenthumbDirectory">
             <property name="text">
-             <string>Open folder</string>
+             <string/>
+            </property>
+            <property name="icon">
+             <iconset resource="../../resources/resources.qrc">
+              <normaloff>:/icons/open-folder.png</normaloff>:/icons/open-folder.png</iconset>
             </property>
            </widget>
           </item>
@@ -496,7 +500,11 @@
           <item row="1" column="3">
            <widget class="QPushButton" name="pbnOpenresizeDirectory">
             <property name="text">
-             <string>Open folder</string>
+             <string/>
+            </property>
+            <property name="icon">
+             <iconset resource="../../resources/resources.qrc">
+              <normaloff>:/icons/open-folder.png</normaloff>:/icons/open-folder.png</iconset>
             </property>
            </widget>
           </item>
@@ -586,6 +594,10 @@
               </property>
               <property name="text">
                <string>Installa</string>
+              </property>
+              <property name="icon">
+               <iconset resource="../../resources/resources.qrc">
+                <normaloff>:/icons/install_db.png</normaloff>:/icons/install_db.png</iconset>
               </property>
              </widget>
             </item>
@@ -724,6 +736,10 @@
               <property name="text">
                <string>Installa</string>
               </property>
+              <property name="icon">
+               <iconset resource="../../resources/resources.qrc">
+                <normaloff>:/icons/install_db.png</normaloff>:/icons/install_db.png</iconset>
+              </property>
              </widget>
             </item>
             <item row="0" column="1">
@@ -828,6 +844,10 @@
            </property>
            <property name="text">
             <string>Import Table</string>
+           </property>
+           <property name="icon">
+            <iconset resource="../../resources/resources.qrc">
+             <normaloff>:/icons/insert_table.png</normaloff>:/icons/insert_table.png</iconset>
            </property>
           </widget>
          </item>
@@ -1069,6 +1089,10 @@
            </property>
            <property name="text">
             <string>Import Geometry</string>
+           </property>
+           <property name="icon">
+            <iconset resource="../../resources/resources.qrc">
+             <normaloff>:/icons/insert_geometry.png</normaloff>:/icons/insert_geometry.png</iconset>
            </property>
           </widget>
          </item>
@@ -1420,7 +1444,7 @@
          <item row="2" column="4">
           <widget class="QCheckBox" name="checkBox_ignore">
            <property name="enabled">
-            <bool>true</bool>
+            <bool>false</bool>
            </property>
            <property name="text">
             <string>Ignore</string>
