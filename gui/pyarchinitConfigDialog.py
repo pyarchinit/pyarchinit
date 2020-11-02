@@ -1435,7 +1435,7 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
                 QMessageBox.information(self, "Message", "Data Loaded")
     
     def on_pushButton_import_pressed(self):
-        msg = QMessageBox.warning(self, "Warning", "Il sistema aggiornerà la tabella con i dati importati. Schiaccia Annulla per abortire altrimenti schiaccia Ok per contiunuare." ,  QMessageBox.Ok  | QMessageBox.Cancel)
+        msg = QMessageBox.warning(self, "Warning", "Il sistema aggiornerà la tabella con i dati importati. Se hai spuntato la casella <b>'Ignora'</b>, il db aggiornerà i dati vecchi con quelli nuovi, altrimenti li ignorerà. Schiaccia Annulla per abortire altrimenti schiaccia Ok per contiunuare." ,  QMessageBox.Ok  | QMessageBox.Cancel)
         if msg == QMessageBox.Cancel:
             QMessageBox.warning(self, "Warning", "Azione annullata" ,  QMessageBox.Ok)
             
