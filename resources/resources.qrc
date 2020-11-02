@@ -72,5 +72,9 @@
 	<file>icons/db_update_sqlite.png</file>
 	<file>icons/postgres.png</file>
 	<file>icons/spatialite.png</file>
+	<file>icons/save_setting.png</file>
+	<file>icons/video.png</file>
+	<file>icons/photo2.png</file>
+	<file>icons/find.png</file>
   </qresource>
 </RCC>
