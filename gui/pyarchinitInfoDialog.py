@@ -48,7 +48,7 @@ class pyArchInitDialog_Info(QDialog, MAIN_DIALOG_CLASS):
         self.text = "<b>PyArchinit version: " + config['general']['version'] + "</b><br>" \
                     "<i>Archeological GIS Tools - PyArchInit it's a tool to manage archaeological dataset with an high portability on the main platform</i><br><br>"
 
-        self.text +="<img src ="+logo_path+"><br><br>"
+        self.img ="<img src ="+logo_path+"><br><br>"
         
         
         self.text +="""<b>Developers:</b><br>
@@ -79,7 +79,7 @@ class pyArchInitDialog_Info(QDialog, MAIN_DIALOG_CLASS):
                         or email me pyarchinit@gmail.com<br><br>
                         """
         self.text += """<b>Site:</b><br>
-                        <a href="https://sites.google.com/site/pyarchinit/">https://sites.google.com/site/pyarchinit/</a>
+                        <a href="https://github.com/pyarchinit/pyarchinit">https://github.com/pyarchinit/pyarchinit</a>
         """
-        self.textBrowser.setText(self.text)
+        self.textBrowser.setText(self.img+self.text)
 
