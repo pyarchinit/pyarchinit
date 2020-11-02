@@ -88,14 +88,17 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
         self.load_dict()
         self.charge_data()
         self.db_active()
+        
+        self.pushButton_upd_postgres.setEnabled(False)
+        self.pushButton_upd_sqlite.setEnabled(False)
         self.comboBox_sito.currentIndexChanged.connect(self.summary)
         self.comboBox_Database.currentIndexChanged.connect(self.db_active)
         self.comboBox_Database.currentIndexChanged.connect(self.set_db_parameter)
-        #self.comboBox_Database.currentTextChanged.connect(self.summary) and self.lineEdit_password.textChanged.connect (self.summary)
+        
         
         self.comboBox_server_rd.editTextChanged.connect(self.set_db_import_from_parameter)
         self.comboBox_server_wt.editTextChanged.connect(self.set_db_import_to_parameter)
-        #self.active()
+        
         self.pushButton_save.clicked.connect(self.summary)
         self.pushButton_save.clicked.connect(self.on_pushButton_save_pressed)
         
@@ -289,13 +292,13 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
         if self.comboBox_Database.currentText() == 'sqlite':
             #self.comboBox_Database.editTextChanged.connect(self.set_db_parameter)
             self.toolButton_db.setEnabled(True)
-            self.pushButton_upd_postgres.setEnabled(False)
-            self.pushButton_upd_sqlite.setEnabled(True)
+            # self.pushButton_upd_postgres.setEnabled(False)
+            # self.pushButton_upd_sqlite.setEnabled(True)
         if self.comboBox_Database.currentText() == 'postgres':
             #self.comboBox_Database.currentIndexChanged.connect(self.set_db_parameter)
             self.toolButton_db.setEnabled(False)
-            self.pushButton_upd_sqlite.setEnabled(False)
-            self.pushButton_upd_postgres.setEnabled(True)
+            # self.pushButton_upd_sqlite.setEnabled(False)
+            # self.pushButton_upd_postgres.setEnabled(True)
         self.comboBox_sito.clear()
     def setPathDBsqlite1(self):
         s = QgsSettings()
@@ -1213,8 +1216,22 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
         if self.L=='it':
             if test:
                 QMessageBox.warning(self, "Messaggio", "Connessione avvenuta con successo", QMessageBox.Ok)
-           
+                self.pushButton_upd_postgres.setEnabled(False)
+                self.pushButton_upd_sqlite.setEnabled(False)
             else:
+                self.comboBox_Database.update()
+                self.comboBox_sito.clear()
+                if self.comboBox_Database.currentText() == 'sqlite':
+                    #self.comboBox_Database.editTextChanged.connect(self.set_db_parameter)
+                    self.toolButton_db.setEnabled(True)
+                    self.pushButton_upd_postgres.setEnabled(False)
+                    self.pushButton_upd_sqlite.setEnabled(True)
+                if self.comboBox_Database.currentText() == 'postgres':
+                    #self.comboBox_Database.currentIndexChanged.connect(self.set_db_parameter)
+                    self.toolButton_db.setEnabled(False)
+                    self.pushButton_upd_sqlite.setEnabled(False)
+                    self.pushButton_upd_postgres.setEnabled(True)
+                self.comboBox_sito.clear()
                 QMessageBox.warning(self, "Alert", "Errore di connessione: <br>" +
                     "Cambia i parametri e riprova a connetterti. Oppure aggiorna il database con l'apposita funzione che trovi in basso a sinistra",
                                     QMessageBox.Ok)
