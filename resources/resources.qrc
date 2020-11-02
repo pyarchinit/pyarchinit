@@ -68,5 +68,9 @@
 	<file>icons/insert_table.png</file>
 	<file>icons/install_db.png</file>
 	<file>icons/open-folder.png</file>
+	<file>icons/db_update_postgres.png</file>
+	<file>icons/db_update_sqlite.png</file>
+	<file>icons/postgres.png</file>
+	<file>icons/spatialite.png</file>
   </qresource>
 </RCC>

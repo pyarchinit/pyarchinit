@@ -1216,7 +1216,7 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
            
             else:
                 QMessageBox.warning(self, "Alert", "Errore di connessione: <br>" +
-                    "Cambia i parametri e riprova a connetterti. Se cambi server (Postgres o Sqlite) ricordati di cliccare su connetti e RIAVVIARE Qgis",
+                    "Cambia i parametri e riprova a connetterti. Oppure aggiorna il database con l'apposita funzione che trovi in basso a sinistra",
                                     QMessageBox.Ok)
         elif self.L=='de':
             if test:
