@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>794</width>
+    <width>661</width>
     <height>793</height>
    </rect>
   </property>
@@ -1268,6 +1268,29 @@
          </property>
         </widget>
        </item>
+       <item row="0" column="5">
+        <widget class="QToolButton" name="toolButtonPreviewMedia">
+         <property name="enabled">
+          <bool>true</bool>
+         </property>
+         <property name="minimumSize">
+          <size>
+           <width>30</width>
+           <height>20</height>
+          </size>
+         </property>
+         <property name="text">
+          <string/>
+         </property>
+         <property name="icon">
+          <iconset resource="../../resources/resources.qrc">
+           <normaloff>:/icons/photo.png</normaloff>:/icons/photo.png</iconset>
+         </property>
+         <property name="checkable">
+          <bool>true</bool>
+         </property>
+        </widget>
+       </item>
       </layout>
      </item>
      <item row="3" column="2">
@@ -2198,62 +2221,6 @@
        </item>
       </layout>
      </widget>
-     <widget class="QWidget" name="tab_5">
-      <attribute name="title">
-       <string>Tools</string>
-      </attribute>
-      <layout class="QFormLayout" name="formLayout">
-       <property name="fieldGrowthPolicy">
-        <enum>QFormLayout::FieldsStayAtSizeHint</enum>
-       </property>
-       <item row="1" column="1">
-        <widget class="QPushButton" name="pushButton_exp_pdf_sheet">
-         <property name="maximumSize">
-          <size>
-           <width>200</width>
-           <height>16777215</height>
-          </size>
-         </property>
-         <property name="text">
-          <string>Exp schede Pdf </string>
-         </property>
-        </widget>
-       </item>
-       <item row="2" column="1">
-        <widget class="QPushButton" name="pushButton_exp_index_mat">
-         <property name="text">
-          <string>Exp indice  Pdf </string>
-         </property>
-        </widget>
-       </item>
-       <item row="3" column="1">
-        <widget class="QPushButton" name="pushButton_elenco_casse">
-         <property name="text">
-          <string>Elenco casse</string>
-         </property>
-        </widget>
-       </item>
-       <item row="4" column="1">
-        <widget class="QToolButton" name="toolButtonPreviewMedia">
-         <property name="enabled">
-          <bool>true</bool>
-         </property>
-         <property name="minimumSize">
-          <size>
-           <width>150</width>
-           <height>0</height>
-          </size>
-         </property>
-         <property name="text">
-          <string>Media Preview</string>
-         </property>
-         <property name="checkable">
-          <bool>true</bool>
-         </property>
-        </widget>
-       </item>
-      </layout>
-     </widget>
     </widget>
    </item>
    <item row="2" column="1" colspan="9">
@@ -2526,7 +2493,11 @@
         <item row="0" column="4">
          <widget class="QPushButton" name="pbnOpenpdfDirectory">
           <property name="text">
-           <string>Open folder</string>
+           <string/>
+          </property>
+          <property name="icon">
+           <iconset resource="../../resources/resources.qrc">
+            <normaloff>:/icons/open-folder.png</normaloff>:/icons/open-folder.png</iconset>
           </property>
          </widget>
         </item>

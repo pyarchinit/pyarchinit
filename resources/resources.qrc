@@ -64,5 +64,9 @@
 	<file>icons/word.png</file>
 	<file>icons/toolbox.png</file>
 	<file>icons/matrix.png</file>
+	<file>icons/insert_geometry.png</file>
+	<file>icons/insert_table.png</file>
+	<file>icons/install_db.png</file>
+	<file>icons/open-folder.png</file>
   </qresource>
 </RCC>
