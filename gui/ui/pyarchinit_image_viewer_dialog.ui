@@ -129,6 +129,10 @@
          <property name="text">
           <string>Rimuovi barra di ricerca</string>
          </property>
+         <property name="icon">
+          <iconset resource="../../resources/resources.qrc">
+           <normaloff>:/icons/find.png</normaloff>:/icons/find.png</iconset>
+         </property>
          <property name="checkable">
           <bool>true</bool>
          </property>
@@ -148,12 +152,20 @@
          <property name="text">
           <string>Upload video</string>
          </property>
+         <property name="icon">
+          <iconset resource="../../resources/resources.qrc">
+           <normaloff>:/icons/video.png</normaloff>:/icons/video.png</iconset>
+         </property>
         </widget>
        </item>
        <item row="0" column="1">
         <widget class="QRadioButton" name="radioButton_2">
          <property name="text">
-          <string>Mostra barra di ricerca</string>
+          <string>searchbar</string>
+         </property>
+         <property name="icon">
+          <iconset resource="../../resources/resources.qrc">
+           <normaloff>:/icons/find.png</normaloff>:/icons/find.png</iconset>
          </property>
         </widget>
        </item>
@@ -248,6 +260,10 @@
          </property>
          <property name="text">
           <string>Upload image</string>
+         </property>
+         <property name="icon">
+          <iconset resource="../../resources/resources.qrc">
+           <normaloff>:/icons/photo2.png</normaloff>:/icons/photo2.png</iconset>
          </property>
         </widget>
        </item>
