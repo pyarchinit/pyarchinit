@@ -1519,7 +1519,7 @@ class Pyarchinit_pyqgis(QDialog):
             else:
                 QMessageBox.warning(self, "TESTER", "Layer not valid", QMessageBox.Ok)
             
-            layer_name = 'pyarchinit_reperti'
+            layer_name = 'pyarchinit_sezioni'
             layer_name_conv = "'" + str(layer_name) + "'"
             value_conv = ('"siti = %s"') % ("'" + str(self.val) + "'")
             cmq_set_uri_data_source = "uri.setDataSource('',%s, %s, %s)" % (layer_name_conv, "'the_geom'", value_conv)

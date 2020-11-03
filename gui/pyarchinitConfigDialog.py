@@ -666,6 +666,7 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
 
             listen(engine, 'connect', self.load_spatialite)
             c = engine.connect()
+            
             sql_und = """CREATE TABLE IF NOT EXISTS"pyarchinit_us_negative_doc" (
                 "pkuid" integer PRIMARY KEY AUTOINCREMENT,
                 "sito_n" text,
