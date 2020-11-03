@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>661</width>
+    <width>937</width>
     <height>793</height>
    </rect>
   </property>
@@ -2651,8 +2651,8 @@
      <y>104</y>
     </hint>
     <hint type="destinationlabel">
-     <x>383</x>
-     <y>202</y>
+     <x>370</x>
+     <y>275</y>
     </hint>
    </hints>
   </connection>
@@ -2663,7 +2663,7 @@
    <slot>toggleUserVisible()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>206</x>
+     <x>208</x>
      <y>233</y>
     </hint>
     <hint type="destinationlabel">
