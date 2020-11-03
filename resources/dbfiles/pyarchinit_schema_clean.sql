@@ -1651,15 +1651,15 @@ CREATE TABLE public.pyunitastratigrafiche (
     area_s integer,
     scavo_s character varying(80),
     us_s integer,
-    the_geom public.geometry(MultiPolygon,-1),
     stratigraph_index_us integer,
-    tipo_us_s character varying,
+    tipo_us_s character varying(250),
     rilievo_originale character varying(250),
-    disegnatore character varying,
+    disegnatore character varying(250),
     data date,
     tipo_doc character varying(250),
     nome_doc character varying(250),
-	coord text
+	coord text,
+	the_geom public.geometry(MultiPolygon,-1),
 );
 
 
