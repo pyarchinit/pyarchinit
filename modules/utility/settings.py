@@ -21,12 +21,15 @@
 """
 
 import os
+import traceback
 
 from builtins import object
 from qgis.PyQt.QtWidgets import *
+
 from .pyarchinit_OS_utility import Pyarchinit_OS_Utility
 
 class Settings(object):
+    
     SERVER = ""
     HOST = ""
     DATABASE = ""
@@ -47,10 +50,6 @@ class Settings(object):
     
     text = (b'THUMB_RESIZE')
     text_a = (b'SITE_SET')
-    text_database= (b'sqlite')
-    test_name_database= (b'pyarchinit_db.sqlite')
-    
-
     
     if text in data:
         pass   
@@ -65,25 +64,14 @@ class Settings(object):
         conf.seek(-3,2)
         conf.read(1)
         conf.write(b"','SITE_SET' : ''}")
-     
-    if data==True:
-        conf.close()
-        
-        
-    else:
-        QMessageBox.warning(None,"BENVENUTO", "Problemi di connessione: verrà ripristinato il db sqlite di default",  QMessageBox.Ok)
-        home_DB_path = '{}{}{}'.format(HOME, os.sep, 'pyarchinit_DB_folder')
-        
-        config_copy_from_path_rel = os.path.join(os.sep, 'dbfiles', 'config.cfg')
-        config_copy_from_path = '{}{}'.format(RESOURCES_PATH, config_copy_from_path_rel)
-        config_copy_to_path = '{}{}{}'.format(home_DB_path, os.sep, 'config.cfg')
-        OS_UTILITY.copy_file_img(config_copy_from_path, config_copy_to_path)
-        data
-        conf.close()
-    def __init__(self, s):
-        self.configuration = eval(s)
 
+    conf.close()
+    def __init__(self, s):
+        
+        self.configuration = eval(s)
+        
     def set_configuration(self):
+        
         self.SERVER = self.configuration['SERVER']
         self.HOST = self.configuration['HOST']
         self.DATABASE = self.configuration['DATABASE']
@@ -94,3 +82,4 @@ class Settings(object):
         self.THUMB_RESIZE = self.configuration['THUMB_RESIZE']
         self.SITE_SET = self.configuration['SITE_SET']
         PLUGIN_PATH = path = os.path.dirname(__file__)
+        

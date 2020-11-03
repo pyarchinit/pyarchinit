@@ -23,21 +23,23 @@ import os
 from builtins import object
 
 from ..utility.settings import Settings
-
+from ..utility.pyarchinit_OS_utility import Pyarchinit_OS_Utility
 
 class Connection(object):
     HOME = os.environ['PYARCHINIT_HOME']
-
+    RESOURCES_PATH = os.path.join(os.path.dirname(__file__), os.pardir, os.pardir, 'resources')
+    OS_UTILITY = Pyarchinit_OS_Utility()
     def conn_str(self):
+       
         cfg_rel_path = os.path.join(os.sep, 'pyarchinit_DB_folder', 'config.cfg')
         file_path = '{}{}'.format(self.HOME, cfg_rel_path)
         conf = open(file_path, "r")
-
         data = conf.read()
         settings = Settings(data)
+        
         settings.set_configuration()
-        conf.close()
-
+        conf.close()    
+            
         conn_str_dict = {"server": settings.SERVER,
                          "user": settings.USER,
                          "host": settings.HOST,
