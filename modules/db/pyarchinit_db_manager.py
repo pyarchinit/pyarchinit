@@ -134,6 +134,7 @@ class Pyarchinit_db_management(object):
                 listen(self.engine, 'connect', self.load_spatialite)
             else:
                 self.engine = create_engine(self.conn_str, max_overflow=-1, echo=eval(self.boolean))
+                
             self.metadata = MetaData(self.engine)
             conn = self.engine.connect()
         except:
