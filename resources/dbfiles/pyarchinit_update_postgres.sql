@@ -1,40 +1,6 @@
+DROP TABLE IF EXISTS mediaentity_view;
+DROP VIEW IF EXISTS pyarchinit_us_view;
 
-
--- DROP FUNCTION public.create_geom();
-
-CREATE OR REPLACE FUNCTION public.create_geom()
-    RETURNS trigger
-    LANGUAGE 'plpgsql'
-    COST 100
-    VOLATILE NOT LEAKPROOF
-AS $BODY$
-BEGIN
- if new.coord is null or new.coord!= old.coord then
-
-  update pyunitastratigrafiche set coord = ST_AsText(ST_Centroid(the_geom))where scavo_s=New.scavo_s and area_s=New.area_s and us_s=New.us_s;
-END IF;
-RETURN NEW;
-END;
-$BODY$;
-
-ALTER FUNCTION public.create_geom()
-    OWNER TO postgres;
-
-COMMENT ON FUNCTION public.create_geom()
-    IS 'When a new record is added to write coordinates if coord is null in coord field';
-DO $$
-BEGIN
-    IF NOT EXISTS (SELECT 1 FROM pg_trigger WHERE tgname = 'create_geom') THEN
-CREATE TRIGGER create_geom
-    AFTER INSERT OR UPDATE 
-    ON public.pyunitastratigrafiche
-    FOR EACH ROW
-    EXECUTE PROCEDURE public.create_geom();
-
-
-END IF;
-END
-$$;  
 
 
 CREATE OR REPLACE FUNCTION delete_media_table()
@@ -325,7 +291,7 @@ ALTER TABLE pyarchinit_doc_view
 ALTER TABLE pyarchinit_us_negative_doc_view
     OWNER TO postgres;
 	
-drop view if exists pyarchinit_us_view;
+
 
 
 
@@ -522,3 +488,38 @@ drop view pyarchinit_reperti_view;
 
 ALTER TABLE pyarchinit_reperti_view
     OWNER TO postgres;	
+-- DROP FUNCTION public.create_geom();
+
+CREATE OR REPLACE FUNCTION public.create_geom()
+    RETURNS trigger
+    LANGUAGE 'plpgsql'
+    COST 100
+    VOLATILE NOT LEAKPROOF
+AS $BODY$
+BEGIN
+ if new.coord is null or new.coord!= old.coord then
+
+  update pyunitastratigrafiche set coord = ST_AsText(ST_Centroid(the_geom))where scavo_s=New.scavo_s and area_s=New.area_s and us_s=New.us_s;
+END IF;
+RETURN NEW;
+END;
+$BODY$;
+
+ALTER FUNCTION public.create_geom()
+    OWNER TO postgres;
+
+COMMENT ON FUNCTION public.create_geom()
+    IS 'When a new record is added to write coordinates if coord is null in coord field';
+DO $$
+BEGIN
+    IF NOT EXISTS (SELECT 1 FROM pg_trigger WHERE tgname = 'create_geom') THEN
+CREATE TRIGGER create_geom
+    AFTER INSERT OR UPDATE 
+    ON public.pyunitastratigrafiche
+    FOR EACH ROW
+    EXECUTE PROCEDURE public.create_geom();
+
+
+END IF;
+END
+$$;  
