@@ -32,8 +32,7 @@ from builtins import range
 from builtins import str
 from qgis.PyQt.QtCore import Qt, QSize, QVariant
 from qgis.PyQt.QtGui import QIcon
-from qgis.PyQt.QtWidgets import QDialog, QMessageBox, QListWidget, QListView, QFrame, QAbstractItemView, \
-    QTableWidgetItem, QListWidgetItem
+from qgis.PyQt.QtWidgets import *
 from qgis.PyQt.uic import loadUiType
 from qgis.core import QgsSettings
 
@@ -66,6 +65,7 @@ class pyarchinit_Inventario_reperti(QDialog, MAIN_DIALOG_CLASS):
     REC_CORR = 0
     REC_TOT = 0
     SITO = pyArchInitDialog_Config
+    
     if L=='it':
         STATUS_ITEMS = {"b": "Usa", "f": "Trova", "n": "Nuovo Record"}
     else :
@@ -369,7 +369,7 @@ class pyarchinit_Inventario_reperti(QDialog, MAIN_DIALOG_CLASS):
     SEARCH_DICT_TEMP = ""
 
     HOME = os.environ['PYARCHINIT_HOME']
-
+    PDFFOLDER = '{}{}{}'.format(HOME, os.sep, "pyarchinit_PDF_folder")
     QUANT_PATH = '{}{}{}'.format(HOME, os.sep, "pyarchinit_Quantificazioni_folder")
 
     DB_SERVER = 'not defined'
@@ -395,7 +395,7 @@ class pyarchinit_Inventario_reperti(QDialog, MAIN_DIALOG_CLASS):
         self.msg_sito()
         self.comboBox_repertato.currentTextChanged.connect(self.numero_reperto)
         self.numero_invetario()
-        # self.numero_reperto()
+        self.toolButton_pdfpath.clicked.connect(self.setPathpdf)
     
     
     def setnone(self):
