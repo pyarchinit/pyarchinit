@@ -111,15 +111,15 @@ class Periodizzazione_index_pdf_sheet(object):
 
         fase = Paragraph("<b>Fase</b><br/>" + str(self.fase), styNormal)
 
-        if str(self.cron_iniziale) == "None":
-            cron_iniziale = Paragraph("<b>Cronologia iniziale</b><br/>" + str(self.cron_iniziale), styNormal)
+        if str(self.cron_iniziale) == 'None':
+            cron_iniziale = Paragraph("<b>Cronologia iniziale</b><br/>" , styNormal)
         else:
-            cron_iniziale = Paragraph("<b>Cronologia iniziale</b><br/>", styNormal)
+            cron_iniziale = Paragraph("<b>Cronologia iniziale</b><br/>" +str(self.cron_iniziale), styNormal)
 
-        if str(self.cron_finale) == "None":
-            cron_finale = Paragraph("<b>Cronologia finale</b><br/>" + str(self.cron_finale), styNormal)
+        if str(self.cron_finale) == 'None':
+            cron_finale = Paragraph("<b>Cronologia finale</b><br/>" , styNormal)
         else:
-            cron_finale = Paragraph("<b>Cronologia finale</b><br/>", styNormal)
+            cron_finale = Paragraph("<b>Cronologia finale</b><br/>" + str(self.cron_finale), styNormal)
 
         datazione_estesa = Paragraph("<b>Datazione estesa</b><br/>" + str(self.datazione_estesa), styNormal)
 

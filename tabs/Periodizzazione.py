@@ -401,10 +401,10 @@ class pyarchinit_Periodizzazione(QDialog, MAIN_DIALOG_CLASS):
         """
 
     def generate_list_pdf(self):
-        periodo = ""
-        fase = ""
-        cron_iniz = ""
-        cron_fin = ""
+        # periodo = ""
+        # fase = ""
+        # cron_iniz = ""
+        # cron_fin = ""
 
         data_list = []
         for i in range(len(self.DATA_LIST)):
