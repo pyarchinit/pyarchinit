@@ -131,22 +131,6 @@
             </property>
            </widget>
           </item>
-          <item row="5" column="1">
-           <widget class="QLineEdit" name="lineEdit_Password">
-            <property name="inputMask">
-             <string notr="true"/>
-            </property>
-            <property name="text">
-             <string notr="true"/>
-            </property>
-            <property name="echoMode">
-             <enum>QLineEdit::Password</enum>
-            </property>
-            <property name="placeholderText">
-             <string>password</string>
-            </property>
-           </widget>
-          </item>
           <item row="3" column="1">
            <widget class="QLineEdit" name="lineEdit_DBname">
             <property name="text">
@@ -157,30 +141,10 @@
             </property>
            </widget>
           </item>
-          <item row="2" column="1">
-           <widget class="QLineEdit" name="lineEdit_Port">
+          <item row="1" column="0">
+           <widget class="QLabel" name="label_2">
             <property name="text">
-             <string/>
-            </property>
-            <property name="placeholderText">
-             <string>port</string>
-            </property>
-           </widget>
-          </item>
-          <item row="4" column="1">
-           <widget class="QLineEdit" name="lineEdit_User">
-            <property name="text">
-             <string/>
-            </property>
-            <property name="placeholderText">
-             <string>dbuser</string>
-            </property>
-           </widget>
-          </item>
-          <item row="5" column="0">
-           <widget class="QLabel" name="label_5">
-            <property name="text">
-             <string>Password</string>
+             <string>Host</string>
             </property>
            </widget>
           </item>
@@ -188,6 +152,16 @@
            <widget class="QLabel" name="label_3">
             <property name="text">
              <string>DBname</string>
+            </property>
+           </widget>
+          </item>
+          <item row="1" column="1">
+           <widget class="QLineEdit" name="lineEdit_Host">
+            <property name="text">
+             <string/>
+            </property>
+            <property name="placeholderText">
+             <string>host</string>
             </property>
            </widget>
           </item>
@@ -226,13 +200,6 @@
             </item>
            </widget>
           </item>
-          <item row="1" column="0">
-           <widget class="QLabel" name="label_2">
-            <property name="text">
-             <string>Host</string>
-            </property>
-           </widget>
-          </item>
           <item row="0" column="0">
            <widget class="QLabel" name="label">
             <property name="text">
@@ -240,20 +207,23 @@
             </property>
            </widget>
           </item>
-          <item row="1" column="1">
-           <widget class="QLineEdit" name="lineEdit_Host">
+          <item row="2" column="1">
+           <widget class="QLineEdit" name="lineEdit_Port">
             <property name="text">
              <string/>
             </property>
             <property name="placeholderText">
-             <string>host</string>
+             <string>port</string>
             </property>
            </widget>
           </item>
-          <item row="2" column="0">
-           <widget class="QLabel" name="label_7">
+          <item row="4" column="1">
+           <widget class="QLineEdit" name="lineEdit_User">
             <property name="text">
-             <string>Port</string>
+             <string/>
+            </property>
+            <property name="placeholderText">
+             <string>dbuser</string>
             </property>
            </widget>
           </item>
@@ -264,7 +234,7 @@
             </property>
            </widget>
           </item>
-          <item row="6" column="1">
+          <item row="9" column="1">
            <widget class="QPushButton" name="pushButton_save">
             <property name="maximumSize">
              <size>
@@ -296,6 +266,27 @@
             </property>
             <property name="flat">
              <bool>true</bool>
+            </property>
+           </widget>
+          </item>
+          <item row="2" column="0">
+           <widget class="QLabel" name="label_7">
+            <property name="text">
+             <string>Port</string>
+            </property>
+           </widget>
+          </item>
+          <item row="5" column="1">
+           <widget class="QgsPasswordLineEdit" name="lineEdit_Password">
+            <property name="showLockIcon">
+             <bool>true</bool>
+            </property>
+           </widget>
+          </item>
+          <item row="5" column="0">
+           <widget class="QLabel" name="label_5">
+            <property name="text">
+             <string>Password</string>
             </property>
            </widget>
           </item>
@@ -695,19 +686,6 @@
             <item row="5" column="1">
              <widget class="QgsProjectionSelectionWidget" name="selectorCrsWidget"/>
             </item>
-            <item row="4" column="1">
-             <widget class="QLineEdit" name="lineEdit_db_passwd">
-              <property name="text">
-               <string/>
-              </property>
-              <property name="echoMode">
-               <enum>QLineEdit::Password</enum>
-              </property>
-              <property name="placeholderText">
-               <string>password</string>
-              </property>
-             </widget>
-            </item>
             <item row="2" column="0">
              <widget class="QLabel" name="label_15">
               <property name="toolTip">
@@ -771,6 +749,13 @@
              <widget class="QLabel" name="label_6">
               <property name="text">
                <string>Inserisi host</string>
+              </property>
+             </widget>
+            </item>
+            <item row="4" column="1">
+             <widget class="QgsPasswordLineEdit" name="lineEdit_db_passwd">
+              <property name="showLockIcon">
+               <bool>true</bool>
               </property>
              </widget>
             </item>
@@ -940,16 +925,6 @@
            </property>
            <property name="text">
             <string>Destinazione</string>
-           </property>
-          </widget>
-         </item>
-         <item row="8" column="1">
-          <widget class="QLineEdit" name="lineEdit_pass_rd">
-           <property name="text">
-            <string/>
-           </property>
-           <property name="echoMode">
-            <enum>QLineEdit::Password</enum>
            </property>
           </widget>
          </item>
@@ -1491,13 +1466,6 @@
            </property>
           </widget>
          </item>
-         <item row="17" column="1">
-          <widget class="QLineEdit" name="lineEdit_pass_wt">
-           <property name="echoMode">
-            <enum>QLineEdit::Password</enum>
-           </property>
-          </widget>
-         </item>
          <item row="5" column="6">
           <widget class="QLabel" name="label_23">
            <property name="text">
@@ -1562,6 +1530,20 @@
            </property>
            <property name="text">
             <string>Ignora dati esistenti</string>
+           </property>
+          </widget>
+         </item>
+         <item row="8" column="1">
+          <widget class="QgsPasswordLineEdit" name="lineEdit_pass_rd">
+           <property name="showLockIcon">
+            <bool>true</bool>
+           </property>
+          </widget>
+         </item>
+         <item row="17" column="1">
+          <widget class="QgsPasswordLineEdit" name="lineEdit_pass_wt">
+           <property name="showLockIcon">
+            <bool>true</bool>
            </property>
           </widget>
          </item>
@@ -2119,6 +2101,11 @@
    <container>1</container>
   </customwidget>
   <customwidget>
+   <class>QgsPasswordLineEdit</class>
+   <extends>QLineEdit</extends>
+   <header>qgspasswordlineedit.h</header>
+  </customwidget>
+  <customwidget>
    <class>QgsProjectionSelectionWidget</class>
    <extends>QWidget</extends>
    <header>qgsprojectionselectionwidget.h</header>
@@ -2136,7 +2123,6 @@
   <tabstop>lineEdit_Port</tabstop>
   <tabstop>lineEdit_DBname</tabstop>
   <tabstop>lineEdit_User</tabstop>
-  <tabstop>lineEdit_Password</tabstop>
  </tabstops>
  <resources>
   <include location="resources.qrc"/>
