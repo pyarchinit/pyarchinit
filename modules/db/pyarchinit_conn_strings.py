@@ -21,7 +21,8 @@
 import os
 import traceback
 from builtins import object
-from qgis.core import QgsMessageLog, Qgis, QgsSettings
+from qgis.PyQt import QtWidgets
+from qgis.PyQt.QtWidgets import *
 from ..utility.settings import Settings
 from ..utility.pyarchinit_OS_utility import Pyarchinit_OS_Utility
 
@@ -29,6 +30,7 @@ class Connection(object):
     HOME = os.environ['PYARCHINIT_HOME']
     RESOURCES_PATH = os.path.join(os.path.dirname(__file__), os.pardir, os.pardir, 'resources')
     OS_UTILITY = Pyarchinit_OS_Utility()
+    
     def conn_str(self):
         
         cfg_rel_path = os.path.join(os.sep, 'pyarchinit_DB_folder', 'config.cfg')
@@ -55,20 +57,13 @@ class Connection(object):
                 conn_str_dict["port"], conn_str_dict["db_name"], "?sslmode=allow")
                 
             except:
-                
+                QMessageBox.warning(None, "Attenzione", 'Problema di connessione: \n ricontrolla i dati di inserimento')
                 conn_str = "%s://%s:%s@%s:%d/%s" % (
                 "postgresql", conn_str_dict["user"], conn_str_dict["password"], conn_str_dict["host"],
                 conn_str_dict["port"], conn_str_dict["db_name"])
             
-            else:
-                
-                sqlite_DB_path = '{}{}{}'.format(self.HOME, os.sep,
-                                           "pyarchinit_DB_folder")
-
-                dbname_abs = sqlite_DB_path + os.sep + "pyarchinit_db.sqlite"
-                
-                conn_str = "%s:///%s" % ("sqlite", dbname_abs)
-                
+            
+                  
         elif conn_str_dict["server"] == 'sqlite':
             sqlite_DB_path = '{}{}{}'.format(self.HOME, os.sep,
                                            "pyarchinit_DB_folder")
@@ -78,7 +73,7 @@ class Connection(object):
             conn_str = "%s:///%s" % (conn_str_dict["server"], dbname_abs)
         else:
             conn_str = None
-
+        
         return conn_str
         
     
