@@ -19,9 +19,9 @@
  ***************************************************************************/
 """
 import os
-
+import traceback
 from builtins import object
-
+from qgis.core import QgsMessageLog, Qgis, QgsSettings
 from ..utility.settings import Settings
 from ..utility.pyarchinit_OS_utility import Pyarchinit_OS_Utility
 
@@ -30,7 +30,7 @@ class Connection(object):
     RESOURCES_PATH = os.path.join(os.path.dirname(__file__), os.pardir, os.pardir, 'resources')
     OS_UTILITY = Pyarchinit_OS_Utility()
     def conn_str(self):
-       
+        
         cfg_rel_path = os.path.join(os.sep, 'pyarchinit_DB_folder', 'config.cfg')
         file_path = '{}{}'.format(self.HOME, cfg_rel_path)
         conf = open(file_path, "r")
@@ -46,18 +46,29 @@ class Connection(object):
                          "port": settings.PORT,
                          "db_name": settings.DATABASE,
                          "password": settings.PASSWORD}
-
+        
         if conn_str_dict["server"] == 'postgres':
             try:
+                
                 conn_str = "%s://%s:%s@%s:%s/%s%s?charset=utf8" % (
                 "postgresql", conn_str_dict["user"], conn_str_dict["password"], conn_str_dict["host"],
                 conn_str_dict["port"], conn_str_dict["db_name"], "?sslmode=allow")
                 
             except:
+                
                 conn_str = "%s://%s:%s@%s:%d/%s" % (
                 "postgresql", conn_str_dict["user"], conn_str_dict["password"], conn_str_dict["host"],
                 conn_str_dict["port"], conn_str_dict["db_name"])
             
+            else:
+                
+                sqlite_DB_path = '{}{}{}'.format(self.HOME, os.sep,
+                                           "pyarchinit_DB_folder")
+
+                dbname_abs = sqlite_DB_path + os.sep + "pyarchinit_db.sqlite"
+                
+                conn_str = "%s:///%s" % ("sqlite", dbname_abs)
+                
         elif conn_str_dict["server"] == 'sqlite':
             sqlite_DB_path = '{}{}{}'.format(self.HOME, os.sep,
                                            "pyarchinit_DB_folder")
@@ -69,7 +80,9 @@ class Connection(object):
             conn_str = None
 
         return conn_str
-
+        
+    
+       
     def databasename(self):
         cfg_rel_path = os.path.join(os.sep, 'pyarchinit_DB_folder', 'config.cfg')
         file_path = '{}{}'.format(self.HOME, cfg_rel_path)
@@ -118,6 +131,7 @@ class Connection(object):
         return port
     
     def datapassword(self):
+        
         cfg_rel_path = os.path.join(os.sep, 'pyarchinit_DB_folder', 'config.cfg')
         file_path = '{}{}'.format(self.HOME, cfg_rel_path)
         conf = open(file_path, "r")
@@ -128,6 +142,7 @@ class Connection(object):
         conf.close()
         password = {"password": settings.PASSWORD}
         return password
+        
     def thumb_path(self):
         cfg_rel_path = os.path.join(os.sep, 'pyarchinit_DB_folder', 'config.cfg')
         file_path = '{}{}'.format(self.HOME, cfg_rel_path)
