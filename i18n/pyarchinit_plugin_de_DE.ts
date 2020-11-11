@@ -8469,7 +8469,7 @@ p, li { Leerzeichen: Vorverpackung; }
     </message>
     <message>
         <location filename="../gui/ui/pyarchinitConfigDialog.ui" line="1133"/>
-        <source>TAFONOMIA</source>
+        <source>TOMBA</source>
         <translation>PHONOMIE</translation>
     </message>
     <message>
@@ -9535,7 +9535,7 @@ p, li { Leerzeichen: Vorverpackung; }
     </message>
     <message>
         <location filename="../gui/ui/Pdf_export.ui" line="401"/>
-        <source>Tafonomia</source>
+        <source>Tomba</source>
         <translation>Tafonomie</translation>
     </message>
     <message>
@@ -9565,149 +9565,149 @@ p, li { Leerzeichen: Vorverpackung; }
     </message>
 </context>
 <context>
-    <name>Dialog_tafonomia</name>
+    <name>Dialog_tomba</name>
     <message>
-        <location filename="../gui/ui/Tafonomia.ui" line="20"/>
+        <location filename="../gui/ui/Tomba.ui" line="20"/>
         <source>pyArchInit Gestione Scavi - Scheda Tafonomica</source>
         <translation>pyArchInit Grabungsmanagement - Tafonomische Karte</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Tafonomia.ui" line="40"/>
+        <location filename="../gui/ui/Tomba.ui" line="40"/>
         <source>DBMS Toolbar</source>
         <translation>DBMS-Symbolleiste</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Tafonomia.ui" line="49"/>
+        <location filename="../gui/ui/Tomba.ui" line="49"/>
         <source>First rec</source>
         <translation>Erstes Erwägungsgrund</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Tafonomia.ui" line="63"/>
+        <location filename="../gui/ui/Tomba.ui" line="63"/>
         <source>Next rec</source>
         <translation>Nächster rec</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Tafonomia.ui" line="77"/>
+        <location filename="../gui/ui/Tomba.ui" line="77"/>
         <source>Last rec</source>
         <translation>Letzte Wiederholung</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Tafonomia.ui" line="96"/>
+        <location filename="../gui/ui/Tomba.ui" line="96"/>
         <source>New record</source>
         <translation>Neuer Rekord</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Tafonomia.ui" line="115"/>
+        <location filename="../gui/ui/Tomba.ui" line="115"/>
         <source>Save</source>
         <translation>Speichern</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Tafonomia.ui" line="137"/>
+        <location filename="../gui/ui/Tomba.ui" line="137"/>
         <source>new search</source>
         <translation>neue Suche</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Tafonomia.ui" line="156"/>
+        <location filename="../gui/ui/Tomba.ui" line="156"/>
         <source>search !!!</source>
         <translation>suche!!!!</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Tafonomia.ui" line="175"/>
+        <location filename="../gui/ui/Tomba.ui" line="175"/>
         <source>Order by</source>
         <translation>Bestellen nach</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Tafonomia.ui" line="194"/>
+        <location filename="../gui/ui/Tomba.ui" line="194"/>
         <source>View alls records</source>
         <translation>Alle Datensätze anzeigen</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Tafonomia.ui" line="216"/>
+        <location filename="../gui/ui/Tomba.ui" line="216"/>
         <source>Delete record</source>
         <translation>Datensatz löschen</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Tafonomia.ui" line="230"/>
+        <location filename="../gui/ui/Tomba.ui" line="230"/>
         <source>Prev rec</source>
         <translation>Vorherige rec</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Tafonomia.ui" line="246"/>
+        <location filename="../gui/ui/Tomba.ui" line="246"/>
         <source>Connection test</source>
         <translation>Verbindungstest</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Tafonomia.ui" line="273"/>
+        <location filename="../gui/ui/Tomba.ui" line="273"/>
         <source>DB Info</source>
         <translation>DB-Informationen</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Tafonomia.ui" line="289"/>
+        <location filename="../gui/ui/Tomba.ui" line="289"/>
         <source>Ordinamento</source>
         <translation>Sortierung</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Tafonomia.ui" line="382"/>
+        <location filename="../gui/ui/Tomba.ui" line="382"/>
         <source>Status</source>
         <translation>Stand</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Tafonomia.ui" line="403"/>
+        <location filename="../gui/ui/Tomba.ui" line="403"/>
         <source>record n.</source>
         <translation>datensatz-Nr.</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Tafonomia.ui" line="479"/>
+        <location filename="../gui/ui/Tomba.ui" line="479"/>
         <source>1</source>
         <translation>1</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Tafonomia.ui" line="448"/>
+        <location filename="../gui/ui/Tomba.ui" line="448"/>
         <source>record tot.</source>
         <translation>gesamteintrag.</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Tafonomia.ui" line="518"/>
+        <location filename="../gui/ui/Tomba.ui" line="518"/>
         <source>Sito </source>
         <translation>Website</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Tafonomia.ui" line="554"/>
+        <location filename="../gui/ui/Tomba.ui" line="554"/>
         <source>Inserisci un valore</source>
         <translation>Einen Wert eingeben</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Tafonomia.ui" line="568"/>
+        <location filename="../gui/ui/Tomba.ui" line="568"/>
         <source>Nr Scheda</source>
         <translation>Nr. Karte</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Tafonomia.ui" line="600"/>
+        <location filename="../gui/ui/Tomba.ui" line="600"/>
         <source>Rif. struttura</source>
         <translation>Struktur ref</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Tafonomia.ui" line="674"/>
+        <location filename="../gui/ui/Tomba.ui" line="674"/>
         <source>Nr Individuo        </source>
         <translation>Nr. Einzelperson</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Tafonomia.ui" line="721"/>
+        <location filename="../gui/ui/Tomba.ui" line="721"/>
         <source>Dati descrittivi</source>
         <translation>Beschreibende Daten</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Tafonomia.ui" line="742"/>
+        <location filename="../gui/ui/Tomba.ui" line="742"/>
         <source>Interpretazione </source>
         <translation>Auslegung</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Tafonomia.ui" line="1429"/>
+        <location filename="../gui/ui/Tomba.ui" line="1429"/>
         <source>Descrizione </source>
         <translation>Beschreibung</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Tafonomia.ui" line="782"/>
+        <location filename="../gui/ui/Tomba.ui" line="782"/>
         <source>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
 &lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
 p, li { white-space: pre-wrap; }
@@ -9720,192 +9720,192 @@ p, li { Leerzeichen: Vorverpackung; }
 &lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-family:&apos;Lucida Grande&apos;; font-size:13pt;&quot;&gt;&lt;br /&gt;&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Tafonomia.ui" line="837"/>
+        <location filename="../gui/ui/Tomba.ui" line="837"/>
         <source>Non rilevabile</source>
         <translation>Nicht nachweisbar</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Tafonomia.ui" line="842"/>
+        <location filename="../gui/ui/Tomba.ui" line="842"/>
         <source>Copertura assente</source>
         <translation>Fehlende Abdeckung</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Tafonomia.ui" line="847"/>
+        <location filename="../gui/ui/Tomba.ui" line="847"/>
         <source>Tegole alla cappuccina</source>
         <translation>Kapuziner-Dachziegel</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Tafonomia.ui" line="852"/>
+        <location filename="../gui/ui/Tomba.ui" line="852"/>
         <source>In cassa</source>
         <translation>Kasse</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Tafonomia.ui" line="880"/>
+        <location filename="../gui/ui/Tomba.ui" line="880"/>
         <source>Entro sudario</source>
         <translation>Innerhalb des Leichentuchs</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Tafonomia.ui" line="885"/>
+        <location filename="../gui/ui/Tomba.ui" line="885"/>
         <source>In cassa fittile</source>
         <translation>Im fiktilen Fall</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Tafonomia.ui" line="890"/>
+        <location filename="../gui/ui/Tomba.ui" line="890"/>
         <source>In cassa lignea</source>
         <translation>In Holzkiste</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Tafonomia.ui" line="895"/>
+        <location filename="../gui/ui/Tomba.ui" line="895"/>
         <source>In urna litica</source>
         <translation>In lithischer Urne</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Tafonomia.ui" line="900"/>
+        <location filename="../gui/ui/Tomba.ui" line="900"/>
         <source>Nella terra</source>
         <translation>Im Land</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Tafonomia.ui" line="938"/>
+        <location filename="../gui/ui/Tomba.ui" line="938"/>
         <source>Orientamento</source>
         <translation>Orientierung</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Tafonomia.ui" line="961"/>
+        <location filename="../gui/ui/Tomba.ui" line="961"/>
         <source>0</source>
         <translation>0</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Tafonomia.ui" line="978"/>
+        <location filename="../gui/ui/Tomba.ui" line="978"/>
         <source>Tipo copertura</source>
         <translation>Deckungsart</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Tafonomia.ui" line="995"/>
+        <location filename="../gui/ui/Tomba.ui" line="995"/>
         <source>Tipo contenitore resti</source>
         <translation>Verbleibender Behältertyp</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Tafonomia.ui" line="1815"/>
+        <location filename="../gui/ui/Tomba.ui" line="1815"/>
         <source>Si</source>
         <translation>Ja</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Tafonomia.ui" line="1820"/>
+        <location filename="../gui/ui/Tomba.ui" line="1820"/>
         <source>No</source>
         <translation>Nein</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Tafonomia.ui" line="1673"/>
+        <location filename="../gui/ui/Tomba.ui" line="1673"/>
         <source>Non determinabile</source>
         <translation>Nicht bestimmbar</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Tafonomia.ui" line="1055"/>
+        <location filename="../gui/ui/Tomba.ui" line="1055"/>
         <source>Asse</source>
         <translation>Achse</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Tafonomia.ui" line="1072"/>
+        <location filename="../gui/ui/Tomba.ui" line="1072"/>
         <source>Azimut</source>
         <translation>Azimut</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Tafonomia.ui" line="1092"/>
+        <location filename="../gui/ui/Tomba.ui" line="1092"/>
         <source>Segnacoli</source>
         <translation>Schilder</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Tafonomia.ui" line="1109"/>
+        <location filename="../gui/ui/Tomba.ui" line="1109"/>
         <source>Stato di conserv.</source>
         <translation>Erhaltungszustand.</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Tafonomia.ui" line="1136"/>
+        <location filename="../gui/ui/Tomba.ui" line="1136"/>
         <source>Insufficiente</source>
         <translation>Unzureichend</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Tafonomia.ui" line="1141"/>
+        <location filename="../gui/ui/Tomba.ui" line="1141"/>
         <source>Scarso</source>
         <translation>Schwach</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Tafonomia.ui" line="1146"/>
+        <location filename="../gui/ui/Tomba.ui" line="1146"/>
         <source>Sufficiente</source>
         <translation>Zureichend</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Tafonomia.ui" line="1151"/>
+        <location filename="../gui/ui/Tomba.ui" line="1151"/>
         <source>Discreto</source>
         <translation>Diskret</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Tafonomia.ui" line="1156"/>
+        <location filename="../gui/ui/Tomba.ui" line="1156"/>
         <source>Buono</source>
         <translation>Gut</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Tafonomia.ui" line="1161"/>
+        <location filename="../gui/ui/Tomba.ui" line="1161"/>
         <source>Ottimo</source>
         <translation>Ausgezeichnet</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Tafonomia.ui" line="1222"/>
+        <location filename="../gui/ui/Tomba.ui" line="1222"/>
         <source>Canale libatorio</source>
         <translation>Befreiender Kanal</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Tafonomia.ui" line="1239"/>
+        <location filename="../gui/ui/Tomba.ui" line="1239"/>
         <source>Ogg. rinv. all&apos;esterno</source>
         <translation>Äußere Objekte</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Tafonomia.ui" line="1292"/>
+        <location filename="../gui/ui/Tomba.ui" line="1292"/>
         <source>Corredo</source>
         <translation>Bausatz</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Tafonomia.ui" line="1304"/>
+        <location filename="../gui/ui/Tomba.ui" line="1304"/>
         <source>Corredo </source>
         <translation>Bausatz</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Tafonomia.ui" line="1315"/>
+        <location filename="../gui/ui/Tomba.ui" line="1315"/>
         <source>Corredo assente</source>
         <translation>Fehlender Bausatz</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Tafonomia.ui" line="1320"/>
+        <location filename="../gui/ui/Tomba.ui" line="1320"/>
         <source>Corredo presente</source>
         <translation>Aktueller Bausatz</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Tafonomia.ui" line="1362"/>
+        <location filename="../gui/ui/Tomba.ui" line="1362"/>
         <source>Nr. reperto</source>
         <translation>Nein. finden</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Tafonomia.ui" line="1367"/>
+        <location filename="../gui/ui/Tomba.ui" line="1367"/>
         <source>Tipo di corredo</source>
         <translation>Art des Bausatzes</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Tafonomia.ui" line="1372"/>
+        <location filename="../gui/ui/Tomba.ui" line="1372"/>
         <source>Descrizione</source>
         <translation>Beschreibung</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Tafonomia.ui" line="2125"/>
+        <location filename="../gui/ui/Tomba.ui" line="2125"/>
         <source>+</source>
         <translation>+</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Tafonomia.ui" line="2107"/>
+        <location filename="../gui/ui/Tomba.ui" line="2107"/>
         <source>-</source>
         <translation>-</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Tafonomia.ui" line="1418"/>
+        <location filename="../gui/ui/Tomba.ui" line="1418"/>
         <source>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
 &lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
 p, li { white-space: pre-wrap; }
@@ -9918,322 +9918,322 @@ p, li { Leerzeichen: Vorverpackung; }
 &lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-family:&apos;Lucida Grande&apos;; font-size:13pt;&quot;&gt;&lt;br /&gt;&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Tafonomia.ui" line="1437"/>
+        <location filename="../gui/ui/Tomba.ui" line="1437"/>
         <source>Resti osteologici</source>
         <translation>Osteologische Überreste</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Tafonomia.ui" line="1448"/>
+        <location filename="../gui/ui/Tomba.ui" line="1448"/>
         <source>Posizione arti superiori</source>
         <translation>Position der oberen Gliedmaßen</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Tafonomia.ui" line="1460"/>
+        <location filename="../gui/ui/Tomba.ui" line="1460"/>
         <source>Posizione arti inferiori</source>
         <translation>Position der unteren Extremität</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Tafonomia.ui" line="1472"/>
+        <location filename="../gui/ui/Tomba.ui" line="1472"/>
         <source>Lunghezza scheletro</source>
         <translation>Länge des Skeletts</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Tafonomia.ui" line="1500"/>
+        <location filename="../gui/ui/Tomba.ui" line="1500"/>
         <source>Nord</source>
         <translation>Norden</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Tafonomia.ui" line="1505"/>
+        <location filename="../gui/ui/Tomba.ui" line="1505"/>
         <source>Est</source>
         <translation>Osten</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Tafonomia.ui" line="1510"/>
+        <location filename="../gui/ui/Tomba.ui" line="1510"/>
         <source>Ovest</source>
         <translation>West</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Tafonomia.ui" line="1515"/>
+        <location filename="../gui/ui/Tomba.ui" line="1515"/>
         <source>Sud</source>
         <translation>Süden</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Tafonomia.ui" line="1520"/>
+        <location filename="../gui/ui/Tomba.ui" line="1520"/>
         <source>Nord-Est</source>
         <translation>Nordosten</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Tafonomia.ui" line="1525"/>
+        <location filename="../gui/ui/Tomba.ui" line="1525"/>
         <source>Nord-Ovest</source>
         <translation>Nordwest</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Tafonomia.ui" line="1530"/>
+        <location filename="../gui/ui/Tomba.ui" line="1530"/>
         <source>Sud-Est</source>
         <translation>Südosten</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Tafonomia.ui" line="1535"/>
+        <location filename="../gui/ui/Tomba.ui" line="1535"/>
         <source>Sud-Ovest</source>
         <translation>Südwest</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Tafonomia.ui" line="1579"/>
+        <location filename="../gui/ui/Tomba.ui" line="1579"/>
         <source>Supino</source>
         <translation>Auf dem Rücken liegend</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Tafonomia.ui" line="1584"/>
+        <location filename="../gui/ui/Tomba.ui" line="1584"/>
         <source>Prono</source>
         <translation>Prono</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Tafonomia.ui" line="1589"/>
+        <location filename="../gui/ui/Tomba.ui" line="1589"/>
         <source>Posizione fetale</source>
         <translation>Fetale Position</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Tafonomia.ui" line="1594"/>
+        <location filename="../gui/ui/Tomba.ui" line="1594"/>
         <source>Su lato dx</source>
         <translation>Auf der rechten Seite</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Tafonomia.ui" line="1599"/>
+        <location filename="../gui/ui/Tomba.ui" line="1599"/>
         <source>Su lato sx</source>
         <translation>Auf der linken Seite</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Tafonomia.ui" line="1621"/>
+        <location filename="../gui/ui/Tomba.ui" line="1621"/>
         <source>Braccia lungo il corpo</source>
         <translation>Arme entlang des Körpers</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Tafonomia.ui" line="1626"/>
+        <location filename="../gui/ui/Tomba.ui" line="1626"/>
         <source>Braccia Incrociate sul petto</source>
         <translation>Arme auf der Brust gekreuzt</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Tafonomia.ui" line="1631"/>
+        <location filename="../gui/ui/Tomba.ui" line="1631"/>
         <source>Braccia Incrociate sul bacino</source>
         <translation>Arme über dem Becken gekreuzt</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Tafonomia.ui" line="1636"/>
+        <location filename="../gui/ui/Tomba.ui" line="1636"/>
         <source>Mani congiunte sul petto</source>
         <translation>Beide Hände auf der Brust</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Tafonomia.ui" line="1641"/>
+        <location filename="../gui/ui/Tomba.ui" line="1641"/>
         <source>Mani congiunte sul bacino  </source>
         <translation>Hände auf dem Becken zusammengelegt</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Tafonomia.ui" line="1658"/>
+        <location filename="../gui/ui/Tomba.ui" line="1658"/>
         <source>Distesi</source>
         <translation>Liegend</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Tafonomia.ui" line="1663"/>
+        <location filename="../gui/ui/Tomba.ui" line="1663"/>
         <source>Incrociati</source>
         <translation>Übergang</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Tafonomia.ui" line="1668"/>
+        <location filename="../gui/ui/Tomba.ui" line="1668"/>
         <source>Asimmetrici</source>
         <translation>Asymmetrisch</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Tafonomia.ui" line="1688"/>
+        <location filename="../gui/ui/Tomba.ui" line="1688"/>
         <source>Disturbato</source>
         <translation>Gestört</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Tafonomia.ui" line="1737"/>
+        <location filename="../gui/ui/Tomba.ui" line="1737"/>
         <source>Completo</source>
         <translation>Vollständige</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Tafonomia.ui" line="1786"/>
+        <location filename="../gui/ui/Tomba.ui" line="1786"/>
         <source>In connessione</source>
         <translation>Im Zusammenhang</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Tafonomia.ui" line="1853"/>
+        <location filename="../gui/ui/Tomba.ui" line="1853"/>
         <source>Posizione scheletro</source>
         <translation>Skelett-Position</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Tafonomia.ui" line="1865"/>
+        <location filename="../gui/ui/Tomba.ui" line="1865"/>
         <source>Posizione cranio</source>
         <translation>Schädel-Position</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Tafonomia.ui" line="1873"/>
+        <location filename="../gui/ui/Tomba.ui" line="1873"/>
         <source>Misure</source>
         <translation>Maßnahmen</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Tafonomia.ui" line="1956"/>
+        <location filename="../gui/ui/Tomba.ui" line="1956"/>
         <source>Tipo misura</source>
         <translation>Art der Maßnahme</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Tafonomia.ui" line="1961"/>
+        <location filename="../gui/ui/Tomba.ui" line="1961"/>
         <source>Unita&apos; di misura</source>
         <translation>Maßeinheit</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Tafonomia.ui" line="1966"/>
+        <location filename="../gui/ui/Tomba.ui" line="1966"/>
         <source>Valore</source>
         <translation>Wert</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Tafonomia.ui" line="1975"/>
+        <location filename="../gui/ui/Tomba.ui" line="1975"/>
         <source>Periodizzazione</source>
         <translation>Periodisierung</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Tafonomia.ui" line="2012"/>
+        <location filename="../gui/ui/Tomba.ui" line="2012"/>
         <source>Periodizzazione </source>
         <translation>Periodisierung</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Tafonomia.ui" line="2025"/>
+        <location filename="../gui/ui/Tomba.ui" line="2025"/>
         <source>Iniziale </source>
         <translation>Anfangs</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Tafonomia.ui" line="2038"/>
+        <location filename="../gui/ui/Tomba.ui" line="2038"/>
         <source>Finale </source>
         <translation>Finale</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Tafonomia.ui" line="2075"/>
+        <location filename="../gui/ui/Tomba.ui" line="2075"/>
         <source>Periodo </source>
         <translation>Zeitraum</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Tafonomia.ui" line="2068"/>
+        <location filename="../gui/ui/Tomba.ui" line="2068"/>
         <source>Fase </source>
         <translation>Phase</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Tafonomia.ui" line="2087"/>
+        <location filename="../gui/ui/Tomba.ui" line="2087"/>
         <source>Datazione estesa</source>
         <translation>Erweiterte Datierung</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Tafonomia.ui" line="2095"/>
+        <location filename="../gui/ui/Tomba.ui" line="2095"/>
         <source>Caratteristiche</source>
         <translation>Merkmale</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Tafonomia.ui" line="2168"/>
+        <location filename="../gui/ui/Tomba.ui" line="2168"/>
         <source>Tipo caratteristica</source>
         <translation>Charakteristischer Typ</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Tafonomia.ui" line="2173"/>
+        <location filename="../gui/ui/Tomba.ui" line="2173"/>
         <source>Posizione</source>
         <translation>Standort</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Tafonomia.ui" line="2182"/>
+        <location filename="../gui/ui/Tomba.ui" line="2182"/>
         <source>Tools</source>
         <translation>Werkzeuge</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Tafonomia.ui" line="2196"/>
+        <location filename="../gui/ui/Tomba.ui" line="2196"/>
         <source>Visualizzazione GIS</source>
         <translation>GIS-Visualisierung</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Tafonomia.ui" line="2322"/>
+        <location filename="../gui/ui/Tomba.ui" line="2322"/>
         <source>Ctrl+G</source>
         <translation>Strg+G</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Tafonomia.ui" line="2264"/>
+        <location filename="../gui/ui/Tomba.ui" line="2264"/>
         <source>Attivazione Preview pianta US</source>
         <translation>Aktivierungsanlage SE-Vorschau</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Tafonomia.ui" line="2277"/>
+        <location filename="../gui/ui/Tomba.ui" line="2277"/>
         <source>Preview pianta US</source>
         <translation>Vorschau US-Anlage</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Tafonomia.ui" line="2312"/>
+        <location filename="../gui/ui/Tomba.ui" line="2312"/>
         <source>Pan tool</source>
         <translation>Pan-Werkzeug</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Tafonomia.ui" line="2380"/>
+        <location filename="../gui/ui/Tomba.ui" line="2380"/>
         <source>Mostra immagini</source>
         <translation>Bilder anzeigen</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Tafonomia.ui" line="2417"/>
+        <location filename="../gui/ui/Tomba.ui" line="2417"/>
         <source>Esporta schede Tafonomiche in formato PDF</source>
         <translation>Tafonomische Registerkarten im PDF-Format exportieren</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Tafonomia.ui" line="2432"/>
+        <location filename="../gui/ui/Tomba.ui" line="2432"/>
         <source>Export PDF</source>
         <translation>PDF exportieren</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Tafonomia.ui" line="2435"/>
+        <location filename="../gui/ui/Tomba.ui" line="2435"/>
         <source>Singole schede</source>
         <translation>Einzelne Karten</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Tafonomia.ui" line="2454"/>
+        <location filename="../gui/ui/Tomba.ui" line="2454"/>
         <source>Elenco </source>
         <translation>Liste</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Tafonomia.ui" line="2488"/>
+        <location filename="../gui/ui/Tomba.ui" line="2488"/>
         <source>Apri schede US selezionate</source>
         <translation>Ausgewählte US-Registerkarten öffnen</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Tafonomia.ui" line="2503"/>
+        <location filename="../gui/ui/Tomba.ui" line="2503"/>
         <source>Show Selcted Features</source>
         <translation>Ausgewählte Features anzeigen</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Tafonomia.ui" line="2506"/>
+        <location filename="../gui/ui/Tomba.ui" line="2506"/>
         <source>apri schede US</source>
         <translation>offene US-Karten</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Tafonomia.ui" line="2570"/>
+        <location filename="../gui/ui/Tomba.ui" line="2570"/>
         <source>Rito</source>
         <translation>Ritus</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Tafonomia.ui" line="2600"/>
+        <location filename="../gui/ui/Tomba.ui" line="2600"/>
         <source>Riduzione</source>
         <translation>Ermäßigung</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Tafonomia.ui" line="2605"/>
+        <location filename="../gui/ui/Tomba.ui" line="2605"/>
         <source>Ad inumazione</source>
         <translation>Beim Begräbnis</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Tafonomia.ui" line="2610"/>
+        <location filename="../gui/ui/Tomba.ui" line="2610"/>
         <source>Ad incinerazione diretta</source>
         <translation>Direkte Verbrennung</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Tafonomia.ui" line="2615"/>
+        <location filename="../gui/ui/Tomba.ui" line="2615"/>
         <source>Ad incinerazione indiretta</source>
         <translation>Indirekte Verbrennung</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Tafonomia.ui" line="2620"/>
+        <location filename="../gui/ui/Tomba.ui" line="2620"/>
         <source>Mummuficazione</source>
         <translation>Mumifizierung</translation>
     </message>

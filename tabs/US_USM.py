@@ -755,10 +755,11 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
             QMessageBox.warning(self, "Connection System", str(e), QMessageBox.Ok)
             # SIGNALS & SLOTS Functions
         self.comboBox_sito.currentIndexChanged.connect(self.charge_periodo_iniz_list)
-        self.comboBox_sito.currentIndexChanged.connect(self.charge_periodo_fin_list)
+        self.comboBox_sito.currentTextChanged.connect(self.charge_periodo_iniz_list)
+        self.comboBox_per_iniz.currentIndexChanged.connect(self.charge_periodo_fin_list)
         self.comboBox_sito.currentIndexChanged.connect(self.charge_struttura_list)
-        self.comboBox_sito.currentIndexChanged.connect(self.charge_periodo_fin_list)
-        self.comboBox_sito.currentIndexChanged.connect(self.charge_struttura_list)
+        self.comboBox_sito.currentTextChanged.connect(self.charge_struttura_list)
+        self.comboBox_per_iniz.currentIndexChanged.connect(self.charge_periodo_fin_list)
         self.comboBox_per_iniz.currentIndexChanged.connect(self.charge_fase_iniz_list)
         self.comboBox_per_iniz.currentIndexChanged.connect(self.charge_datazione_list)
         self.comboBox_fas_iniz.currentIndexChanged.connect(self.charge_datazione_list)
@@ -771,7 +772,6 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
         self.progressBar.setTextVisible(True)
         sito = self.comboBox_sito.currentText()
         self.comboBox_sito.setEditText(sito)
-        self.empty_fields()
         self.fill_fields()
         self.customize_GUI()
         self.msg_sito()
@@ -1124,11 +1124,60 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
         nome_doc = str(nome_doc_item.text())
         lista_draw_doc = [sito, area, us, tipo_doc, nome_doc]
         self.pyQGIS.charge_vector_layers_doc_from_scheda_US(lista_draw_doc)
-    def on_pushButton_go_to_us_pressed(self):
-        if self.L=='it':
-            QMessageBox.warning(self, "ATTENZIONE", "Se hai modificato il record e non lo hai salvato perderai il dato. Slavare?", QMessageBox.Ok | QMessageBox.Cancel)
+    def save_us(self):
+        self.checkBox_query.setChecked(False)
+        if self.checkBox_query.isChecked():
+            self.model_a.database().close()
+        if self.BROWSE_STATUS == "b":
+            if self.data_error_check() == 0:
+                if self.records_equal_check() == 1:
+                    if self.L=='it':
+                        self.update_if(QMessageBox.warning(self, 'Attenzione',
+                                                           "Il record e' stato modificato. Vuoi salvare le modifiche? \n Clicca OK per salvare o Annulla per abortire.\n Poi riselezione l'US su cui vuoi andare",QMessageBox.Ok | QMessageBox.Cancel))
+                    elif self.L=='de':
+                        self.update_if(QMessageBox.warning(self, 'Error',
+                                                           "Der Record wurde geändert. Möchtest du die Änderungen speichern?",
+                                                           QMessageBox.Ok | QMessageBox.Cancel))
+                                                           
+                    else:
+                        self.update_if(QMessageBox.warning(self, 'Error',
+                                                           "The record has been changed. Do you want to save the changes?",
+                                                           QMessageBox.Ok | QMessageBox.Cancel))
+                    self.SORT_STATUS = "n"
+                    self.label_sort.setText(self.SORTED_ITEMS[self.SORT_STATUS])
+                    self.enable_button(1)
+                    self.fill_fields(self.REC_CORR)
+                    
+            else:
+                pass
+                
+        
         else:
-            QMessageBox.warning(self, "Warning", "If you changed the record and didn't save it, you'll lose the record. Do you want save it?", QMessageBox.Ok | QMessageBox.Cancel)
+            if self.data_error_check() == 0:
+                test_insert = self.insert_new_rec()
+                if test_insert == 1:
+                    self.empty_fields()
+                    self.label_sort.setText(self.SORTED_ITEMS["n"])
+                    self.charge_list()
+                    self.set_sito()
+                    self.charge_records()
+                    self.BROWSE_STATUS = "b"
+                    self.label_status.setText(self.STATUS_ITEMS[self.BROWSE_STATUS])
+                    self.REC_TOT, self.REC_CORR = len(self.DATA_LIST), len(self.DATA_LIST) - 1
+                    self.set_rec_counter(self.REC_TOT, self.REC_CORR + 1)
+
+                    self.set_rec_counter(self.REC_TOT, self.REC_CORR + 1)
+                    self.setComboBoxEditable(["self.comboBox_sito"], 1)
+                    
+                    self.fill_fields(self.REC_CORR)
+                    self.enable_button(1)
+                    
+            else:
+                pass
+                
+        
+    def on_pushButton_go_to_us_pressed(self):    
+        self.save_us()
         try:
             table_name = "self.tableWidget_rapporti"
             rowSelected_cmd = ("%s.selectedIndexes()") % (table_name)
@@ -1191,17 +1240,10 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
                 self.setComboBoxEnable(["self.comboBox_sito"], "False")
                 self.setComboBoxEnable(["self.comboBox_area"], "False")
                 self.setComboBoxEnable(["self.lineEdit_us"], "False")
-        except Exception as e:
-            e = str(e)
-            if self.L=='it':
-                QMessageBox.warning(self, "Alert", "Non hai selezionato nessuna riga. Errore python: %s " % (str(e)),
-                                QMessageBox.Ok)
-            elif self.L=='de':
-                QMessageBox.warning(self, "ACHTUNG", "Keine Spalte ausgewält. Error python: %s " % (str(e)),
-                                QMessageBox.Ok)
-            else:
-                QMessageBox.warning(self, "Alert", "You didn't select any row. Python error: %s " % (str(e)),
-                                QMessageBox.Ok)                 
+        except:
+            pass
+
+        
     def on_pushButton_go_to_scheda_pressed(self):
         try:
             #table_name = "self.table"
@@ -2939,7 +2981,9 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
         self.REC_TOT, self.REC_CORR = len(self.DATA_LIST), 0
         self.DATA_LIST_REC_TEMP = self.DATA_LIST_REC_CORR = self.DATA_LIST[0]
     def on_pushButton_sort_pressed(self):
-        self.model_a.database().close()
+        self.checkBox_query.setChecked(False)
+        if self.checkBox_query.isChecked():
+            self.model_a.database().close()
         if self.check_record_state() == 1:
             pass
         else:
@@ -3085,7 +3129,7 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
                 self.empty_fields_nosite()
                 
                 self.setComboBoxEditable(["self.comboBox_area"], 0)
-                self.setComboBoxEditable(["self.comboBox_unita_tipo"], 0)
+                self.setComboBoxEditable(["self.comboBox_unita_tipo"], 1)
                 self.setComboBoxEnable(["self.comboBox_sito"], "False")
                 self.setComboBoxEnable(["self.comboBox_area"], "True")
                 self.setComboBoxEnable(["self.lineEdit_us"], "True")
@@ -3102,7 +3146,7 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
                 self.empty_fields()
                 self.setComboBoxEditable(["self.comboBox_sito"], 0)
                 self.setComboBoxEditable(["self.comboBox_area"], 0)
-                self.setComboBoxEditable(["self.comboBox_unita_tipo"], 0)
+                self.setComboBoxEditable(["self.comboBox_unita_tipo"], 1)
                 self.setComboBoxEnable(["self.comboBox_sito"], "True")
                 self.setComboBoxEnable(["self.comboBox_area"], "True")
                 self.setComboBoxEnable(["self.lineEdit_us"], "True")
@@ -3137,7 +3181,7 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
                     self.SORT_STATUS = "n"
                     self.label_sort.setText(self.SORTED_ITEMS[self.SORT_STATUS])
                     self.enable_button(1)
-                    #self.set_sito()
+                    
                     self.fill_fields(self.REC_CORR)
                 else:
                     if self.L=='it':
@@ -3166,7 +3210,7 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
                     self.setComboBoxEnable(["self.comboBox_sito"], "False")
                     self.setComboBoxEnable(["self.comboBox_area"], "False")
                     self.setComboBoxEnable(["self.lineEdit_us"], "False")
-                    self.setComboBoxEnable(["self.comboBox_unita_tipo"], "False")
+                    self.setComboBoxEnable(["self.comboBox_unita_tipo"], "True")
                     self.fill_fields(self.REC_CORR)
                     self.enable_button(1)
             else:
@@ -4631,7 +4675,7 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
                     self.label_status.setText(self.STATUS_ITEMS[self.BROWSE_STATUS])
                     self.setComboBoxEnable(["self.comboBox_sito"], "False")
                     self.setComboBoxEnable(["self.comboBox_area"], "False")
-                    self.setComboBoxEnable(["self.comboBox_unita_tipo"], "False")
+                    self.setComboBoxEnable(["self.comboBox_unita_tipo"], "True")
                     self.setComboBoxEnable(["self.lineEdit_us"], "False")
                     self.setComboBoxEnable(["self.textEdit_descrizione"], "True")
                     self.setComboBoxEnable(["self.textEdit_interpretazione"], "True")
@@ -4679,7 +4723,7 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
                     self.setComboBoxEnable(["self.comboBox_sito"], "False")
                     self.setComboBoxEnable(["self.comboBox_area"], "False")
                     self.setComboBoxEnable(["self.lineEdit_us"], "False")
-                    self.setComboBoxEnable(["self.comboBox_unita_tipo"], "False")
+                    self.setComboBoxEnable(["self.comboBox_unita_tipo"], "True")
                     self.setTableEnable(
                         ["self.tableWidget_campioni",
                          "self.tableWidget_rapporti",
@@ -5218,7 +5262,7 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
             else:
                 self.lineEdit_quota_abs.setText(str(self.DATA_LIST[self.rec_num].quota_abs))
             str(self.lineEdit_ref_tm.setText(self.DATA_LIST[self.rec_num].ref_tm))  # 57 ref tm
-            str(self.comboBox_ref_ra.setEditText(self.DATA_LIST[self.rec_num].ref_ra))  # 58 ref ra
+            str(self.comboBox_ref_ra.setDefaultText(self.DATA_LIST[self.rec_num].ref_ra))  # 58 ref ra
             str(self.lineEdit_ref_n.setText(self.DATA_LIST[self.rec_num].ref_n))  # 59 ref n
             str(self.comboBox_posizione.setEditText(self.DATA_LIST[self.rec_num].posizione))  # 60 posizione
             str(self.lineEdit_criteri_distinzione.setText(self.DATA_LIST[self.rec_num].criteri_distinzione))  # 61 criteri distinzione

@@ -255,7 +255,7 @@ class pyarchinit_excel_export(QDialog, MAIN_DIALOG_CLASS):
             if self.checkBox_anchor.isChecked():
                 anchor_= '%s' % (sito_location+'_Taphonomy_' +  time.strftime('%Y%m%d_') + '.xlsx')
                 dump_dir=os.path.join(sito_path, anchor_)
-                cur.execute("SELECT * FROM tafonomia_table where sito='%s';" % sito_location)
+                cur.execute("SELECT * FROM tomba_table where sito='%s';" % sito_location)
                 rows = cur.fetchall()
                 col_names = []
                 for i in cur.description:

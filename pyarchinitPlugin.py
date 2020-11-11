@@ -47,14 +47,14 @@ from .tabs.Periodizzazione import pyarchinit_Periodizzazione
 from .tabs.Schedaind import pyarchinit_Schedaind
 from .tabs.Site import pyarchinit_Site
 from .tabs.Struttura import pyarchinit_Struttura
-from .tabs.Tafonomia import pyarchinit_Tafonomia
+from .tabs.Tomba import pyarchinit_Tomba
 from .tabs.Thesaurus import pyarchinit_Thesaurus
 from .tabs.US_USM import pyarchinit_US
 from .tabs.UT import pyarchinit_UT
 from .gui.pyarchinitConfigDialog import pyArchInitDialog_Config
 from .gui.dbmanagment import pyarchinit_dbmanagment
 from .gui.pyarchinitInfoDialog import pyArchInitDialog_Info
-import mmap
+
 filepath = os.path.dirname(__file__)
 
 
@@ -73,38 +73,7 @@ class PyArchInitPlugin(object):
                    'SITE_SET': ''
                   }
 
-    # path_rel = os.path.join(os.sep, HOME, 'pyarchinit_DB_folder', 'config.cfg')
-    # conf = open(path_rel)
-    # data = conf.read()
-    # text = ('THUMB_RESIZE')
-    # text_a = ('SITE_SET')
-   
-
     
-    # if text in data:
-        # pass   
-    # else:       
-        # conf.seek(-3,2)
-        # conf.read(1)    
-        # conf.write(b"','THUMB_RESIZE' : 'insert path for the image resized'}")
-        
-    # if text_a in data():
-        # pass
-    # else:
-        # conf.seek(-3,2)
-        # conf.read(1)
-        # conf.write(b"','SITE_SET' : ''}")
-     
-    # conf.close()
-    #PARAMS_DICT = eval(data)
-
-    # TODO: find a better way to settings config
-    # if 'EXPERIMENTAL' in PARAMS_DICT:
-    #     PARAMS_DICT['EXPERIMENTAL'] = 'No'
-    #     f = open(path_rel, "w")
-    #     f.write(str(PARAMS_DICT))
-    #     f.close()
-
     def __init__(self, iface):
         self.iface = iface
         userPluginPath = os.path.dirname(__file__)
@@ -215,10 +184,10 @@ class PyArchInitPlugin(object):
             self.actionSchedaind.setWhatsThis("Individui")
             self.actionSchedaind.triggered.connect(self.runSchedaind)
 
-            icon_Tafonomia = '{}{}'.format(filepath, os.path.join(os.sep, 'resources', 'icons', 'iconGrave.png'))
-            self.actionTafonomia = QAction(QIcon(icon_Tafonomia), "Tafonomica/Sepolture", self.iface.mainWindow())
-            self.actionTafonomia.setWhatsThis("Tafonomica/Sepolture")
-            self.actionTafonomia.triggered.connect(self.runTafonomia)
+            icon_Tomba = '{}{}'.format(filepath, os.path.join(os.sep, 'resources', 'icons', 'iconGrave.png'))
+            self.actionTomba = QAction(QIcon(icon_Tomba), "Tomba", self.iface.mainWindow())
+            self.actionTomba.setWhatsThis("Tomba")
+            self.actionTomba.triggered.connect(self.runTomba)
 
             if self.PARAMS_DICT['EXPERIMENTAL'] == 'Si':
                 icon_Detsesso = '{}{}'.format(filepath, os.path.join(os.sep, 'resources', 'icons', 'iconSesso.png'))
@@ -231,7 +200,7 @@ class PyArchInitPlugin(object):
                 self.actionSchedaind.setWhatsThis(u"Determinazione dell'età")
                 self.actionDeteta.triggered.connect(self.runDeteta)
 
-            self.funeraryToolButton.addActions([self.actionSchedaind, self.actionTafonomia])
+            self.funeraryToolButton.addActions([self.actionSchedaind, self.actionTomba])
             self.funeraryToolButton.setDefaultAction(self.actionSchedaind)
 
             if self.PARAMS_DICT['EXPERIMENTAL'] == 'Si':
@@ -376,7 +345,7 @@ class PyArchInitPlugin(object):
             self.iface.addPluginToMenu("&pyArchInit - Archaeological GIS Tools", self.actionPer)
 
             self.iface.addPluginToMenu("&pyArchInit - Archaeological GIS Tools", self.actionSchedaind)
-            self.iface.addPluginToMenu("&pyArchInit - Archaeological GIS Tools", self.actionTafonomia)
+            self.iface.addPluginToMenu("&pyArchInit - Archaeological GIS Tools", self.actionTomba)
 
             if self.PARAMS_DICT['EXPERIMENTAL'] == 'Si':
                 self.iface.addPluginToMenu("&pyArchInit - Archaeological GIS Tools", self.actionDetsesso)
@@ -406,7 +375,7 @@ class PyArchInitPlugin(object):
             self.menu.addSeparator()
             self.menu.addActions([self.actionPer, self.actionStruttura])
             self.menu.addSeparator()
-            self.menu.addActions([self.actionTafonomia, self.actionSchedaind])
+            self.menu.addActions([self.actionTomba, self.actionSchedaind])
             if self.PARAMS_DICT['EXPERIMENTAL'] == 'Si':
                 self.menu.addActions([self.actionDetsesso, self.actionDeteta])
             self.menu.addSeparator()
@@ -509,10 +478,10 @@ class PyArchInitPlugin(object):
             self.actionSchedaind.setWhatsThis("Individual")
             self.actionSchedaind.triggered.connect(self.runSchedaind)
 
-            icon_Tafonomia = '{}{}'.format(filepath, os.path.join(os.sep, 'resources', 'icons', 'iconGrave.png'))
-            self.actionTafonomia = QAction(QIcon(icon_Tafonomia), "Taphonomy", self.iface.mainWindow())
-            self.actionTafonomia.setWhatsThis("Taphonomy")
-            self.actionTafonomia.triggered.connect(self.runTafonomia)
+            icon_Tomba = '{}{}'.format(filepath, os.path.join(os.sep, 'resources', 'icons', 'iconGrave.png'))
+            self.actionTomba = QAction(QIcon(icon_Tomba), "Taphonomy", self.iface.mainWindow())
+            self.actionTomba.setWhatsThis("Taphonomy")
+            self.actionTomba.triggered.connect(self.runTomba)
 
             if self.PARAMS_DICT['EXPERIMENTAL'] == 'Yes':
                 icon_Detsesso = '{}{}'.format(filepath, os.path.join(os.sep, 'resources', 'icons', 'iconSesso.png'))
@@ -525,7 +494,7 @@ class PyArchInitPlugin(object):
                 self.actionSchedaind.setWhatsThis(u"Age determination")
                 self.actionDeteta.triggered.connect(self.runDeteta)
 
-            self.funeraryToolButton.addActions([self.actionSchedaind, self.actionTafonomia])
+            self.funeraryToolButton.addActions([self.actionSchedaind, self.actionTomba])
             self.funeraryToolButton.setDefaultAction(self.actionSchedaind)
 
             if self.PARAMS_DICT['EXPERIMENTAL'] == 'Yes':
@@ -668,7 +637,7 @@ class PyArchInitPlugin(object):
             self.iface.addPluginToMenu("&pyArchInit - Archaeological GIS Tools", self.actionPer)
 
             self.iface.addPluginToMenu("&pyArchInit - Archaeological GIS Tools", self.actionSchedaind)
-            self.iface.addPluginToMenu("&pyArchInit - Archaeological GIS Tools", self.actionTafonomia)
+            self.iface.addPluginToMenu("&pyArchInit - Archaeological GIS Tools", self.actionTomba)
 
             if self.PARAMS_DICT['EXPERIMENTAL'] == 'Yes':
                 self.iface.addPluginToMenu("&pyArchInit - Archaeological GIS Tools", self.actionDetsesso)
@@ -698,7 +667,7 @@ class PyArchInitPlugin(object):
             self.menu.addSeparator()
             self.menu.addActions([self.actionPer, self.actionStruttura])
             self.menu.addSeparator()
-            self.menu.addActions([self.actionTafonomia, self.actionSchedaind])
+            self.menu.addActions([self.actionTomba, self.actionSchedaind])
             if self.PARAMS_DICT['EXPERIMENTAL'] == 'Yes':
                 self.menu.addActions([self.actionDetsesso, self.actionDeteta])
             self.menu.addSeparator()
@@ -800,10 +769,10 @@ class PyArchInitPlugin(object):
             self.actionSchedaind.setWhatsThis("Individuen")
             self.actionSchedaind.triggered.connect(self.runSchedaind)
 
-            icon_Tafonomia = '{}{}'.format(filepath, os.path.join(os.sep, 'resources', 'icons', 'iconGrave.png'))
-            self.actionTafonomia = QAction(QIcon(icon_Tafonomia), "Taphonomie", self.iface.mainWindow())
-            self.actionTafonomia.setWhatsThis("Taphonomie")
-            self.actionTafonomia.triggered.connect(self.runTafonomia)
+            icon_Tomba = '{}{}'.format(filepath, os.path.join(os.sep, 'resources', 'icons', 'iconGrave.png'))
+            self.actionTomba = QAction(QIcon(icon_Tomba), "Taphonomie", self.iface.mainWindow())
+            self.actionTomba.setWhatsThis("Taphonomie")
+            self.actionTomba.triggered.connect(self.runTomba)
 
             if self.PARAMS_DICT['EXPERIMENTAL'] == 'Ja':
                 icon_Detsesso = '{}{}'.format(filepath, os.path.join(os.sep, 'resources', 'icons', 'iconSesso.png'))
@@ -816,7 +785,7 @@ class PyArchInitPlugin(object):
                 self.actionSchedaind.setWhatsThis(u"DAltersbestimmung")
                 self.actionDeteta.triggered.connect(self.runDeteta)
 
-            self.funeraryToolButton.addActions([self.actionSchedaind, self.actionTafonomia])
+            self.funeraryToolButton.addActions([self.actionSchedaind, self.actionTomba])
             self.funeraryToolButton.setDefaultAction(self.actionSchedaind)
 
             if self.PARAMS_DICT['EXPERIMENTAL'] == 'Ja':
@@ -967,7 +936,7 @@ class PyArchInitPlugin(object):
             self.iface.addPluginToMenu("&pyArchInit - Archaeological GIS Tools", self.actionPer)
 
             self.iface.addPluginToMenu("&pyArchInit - Archaeological GIS Tools", self.actionSchedaind)
-            self.iface.addPluginToMenu("&pyArchInit - Archaeological GIS Tools", self.actionTafonomia)
+            self.iface.addPluginToMenu("&pyArchInit - Archaeological GIS Tools", self.actionTomba)
 
             if self.PARAMS_DICT['EXPERIMENTAL'] == 'Ja':
                 self.iface.addPluginToMenu("&pyArchInit - Archaeological GIS Tools", self.actionDetsesso)
@@ -997,7 +966,7 @@ class PyArchInitPlugin(object):
             self.menu.addSeparator()
             self.menu.addActions([self.actionPer, self.actionStruttura])
             self.menu.addSeparator()
-            self.menu.addActions([self.actionTafonomia, self.actionSchedaind])
+            self.menu.addActions([self.actionTomba, self.actionSchedaind])
             if self.PARAMS_DICT['EXPERIMENTAL'] == 'Ja':
                 self.menu.addActions([self.actionDetsesso, self.actionDeteta])
             self.menu.addSeparator()
@@ -1071,10 +1040,10 @@ class PyArchInitPlugin(object):
         pluginImageView.show()
         self.pluginGui = pluginImageView  # save
 
-    def runTafonomia(self):
-        pluginTafonomia = pyarchinit_Tafonomia(self.iface)
-        pluginTafonomia.show()
-        self.pluginGui = pluginTafonomia  # save
+    def runTomba(self):
+        pluginTomba = pyarchinit_Tomba(self.iface)
+        pluginTomba.show()
+        self.pluginGui = pluginTomba  # save
 
     def runSchedaind(self):
         pluginIndividui = pyarchinit_Schedaind(self.iface)
@@ -1146,13 +1115,13 @@ class PyArchInitPlugin(object):
             self.iface.removePluginMenu("&pyArchInit - Archaeological GIS Tools", self.actionCampioni)
             #self.iface.removePluginMenu("&pyArchInit - Archaeological GIS Tools", self.actionLapidei)
             self.iface.removePluginMenu("&pyArchInit - Archaeological GIS Tools", self.actionSchedaind)
-            self.iface.removePluginMenu("&pyArchInit - Archaeological GIS Tools", self.actionTafonomia)
+            self.iface.removePluginMenu("&pyArchInit - Archaeological GIS Tools", self.actionTomba)
             self.iface.removePluginMenu("&pyArchInit - Archaeological GIS Tools", self.actionDocumentazione)
             self.iface.removePluginMenu("&pyArchInit - Archaeological GIS Tools", self.actionExcel)
             if self.PARAMS_DICT['EXPERIMENTAL'] == 'Si':
                 self.iface.removePluginMenu("&pyArchInit - Archaeological GIS Tools", self.actionDetsesso)
                 self.iface.removePluginMenu("&pyArchInit - Archaeological GIS Tools", self.actionDeteta)
-                self.iface.removePluginMenu("&pyArchInit - Archaeological GIS Tools", self.actionTafonomia)
+                self.iface.removePluginMenu("&pyArchInit - Archaeological GIS Tools", self.actionTomba)
                 self.iface.removePluginMenu("&pyArchInit - Archaeological GIS Tools", self.actionArcheozoology)
                 self.iface.removePluginMenu("&pyArchInit - Archaeological GIS Tools", self.actionUT)
                 self.iface.removePluginMenu("&pyArchInit - Archaeological GIS Tools", self.actionimageViewer)
@@ -1172,7 +1141,7 @@ class PyArchInitPlugin(object):
             self.iface.removeToolBarIcon(self.actionInr)
             self.iface.removeToolBarIcon(self.actionCampioni)
             #self.iface.removeToolBarIcon(self.actionLapidei)
-            self.iface.removeToolBarIcon(self.actionTafonomia)
+            self.iface.removeToolBarIcon(self.actionTomba)
             self.iface.removeToolBarIcon(self.actionSchedaind)
             self.iface.removeToolBarIcon(self.actionDocumentazione)
             self.iface.removeToolBarIcon(self.actionExcel)
@@ -1206,13 +1175,13 @@ class PyArchInitPlugin(object):
             self.iface.removePluginMenu("&pyArchInit - Archaeological GIS Tools", self.actionCampioni)
             #self.iface.removePluginMenu("&pyArchInit - Archaeological GIS Tools", self.actionLapidei)
             self.iface.removePluginMenu("&pyArchInit - Archaeological GIS Tools", self.actionSchedaind)
-            self.iface.removePluginMenu("&pyArchInit - Archaeological GIS Tools", self.actionTafonomia)
+            self.iface.removePluginMenu("&pyArchInit - Archaeological GIS Tools", self.actionTomba)
             self.iface.removePluginMenu("&pyArchInit - Archaeological GIS Tools", self.actionDocumentazione)
             self.iface.removePluginMenu("&pyArchInit - Archaeological GIS Tools", self.actionExcel)
             if self.PARAMS_DICT['EXPERIMENTAL'] == 'Yes':
                 self.iface.removePluginMenu("&pyArchInit - Archaeological GIS Tools", self.actionDetsesso)
                 self.iface.removePluginMenu("&pyArchInit - Archaeological GIS Tools", self.actionDeteta)
-                self.iface.removePluginMenu("&pyArchInit - Archaeological GIS Tools", self.actionTafonomia)
+                self.iface.removePluginMenu("&pyArchInit - Archaeological GIS Tools", self.actionTomba)
                 self.iface.removePluginMenu("&pyArchInit - Archaeological GIS Tools", self.actionArcheozoology)
                 self.iface.removePluginMenu("&pyArchInit - Archaeological GIS Tools", self.actionUT)
                 self.iface.removePluginMenu("&pyArchInit - Archaeological GIS Tools", self.actionimageViewer)
@@ -1232,7 +1201,7 @@ class PyArchInitPlugin(object):
             self.iface.removeToolBarIcon(self.actionInr)
             self.iface.removeToolBarIcon(self.actionCampioni)
             #self.iface.removeToolBarIcon(self.actionLapidei)
-            self.iface.removeToolBarIcon(self.actionTafonomia)
+            self.iface.removeToolBarIcon(self.actionTomba)
             self.iface.removeToolBarIcon(self.actionSchedaind)
             self.iface.removeToolBarIcon(self.actionDocumentazione)
             self.iface.removeToolBarIcon(self.actionExcel)
@@ -1266,13 +1235,13 @@ class PyArchInitPlugin(object):
             self.iface.removePluginMenu("&pyArchInit - Archaeological GIS Tools", self.actionCampioni)
             #self.iface.removePluginMenu("&pyArchInit - Archaeological GIS Tools", self.actionLapidei)
             self.iface.removePluginMenu("&pyArchInit - Archaeological GIS Tools", self.actionSchedaind)
-            self.iface.removePluginMenu("&pyArchInit - Archaeological GIS Tools", self.actionTafonomia)
+            self.iface.removePluginMenu("&pyArchInit - Archaeological GIS Tools", self.actionTomba)
             self.iface.removePluginMenu("&pyArchInit - Archaeological GIS Tools", self.actionDocumentazione)
             self.iface.removePluginMenu("&pyArchInit - Archaeological GIS Tools", self.actionExcel)
             if self.PARAMS_DICT['EXPERIMENTAL'] == 'Ja':
                 self.iface.removePluginMenu("&pyArchInit - Archaeological GIS Tools", self.actionDetsesso)
                 self.iface.removePluginMenu("&pyArchInit - Archaeological GIS Tools", self.actionDeteta)
-                self.iface.removePluginMenu("&pyArchInit - Archaeological GIS Tools", self.actionTafonomia)
+                self.iface.removePluginMenu("&pyArchInit - Archaeological GIS Tools", self.actionTomba)
                 self.iface.removePluginMenu("&pyArchInit - Archaeological GIS Tools", self.actionArcheozoology)
                 self.iface.removePluginMenu("&pyArchInit - Archaeological GIS Tools", self.actionUT)
                 self.iface.removePluginMenu("&pyArchInit - Archaeological GIS Tools", self.actionimageViewer)
@@ -1292,7 +1261,7 @@ class PyArchInitPlugin(object):
             self.iface.removeToolBarIcon(self.actionInr)
             self.iface.removeToolBarIcon(self.actionCampioni)
             #self.iface.removeToolBarIcon(self.actionLapidei)
-            self.iface.removeToolBarIcon(self.actionTafonomia)
+            self.iface.removeToolBarIcon(self.actionTomba)
             self.iface.removeToolBarIcon(self.actionSchedaind)
             self.iface.removeToolBarIcon(self.actionDocumentazione)
             self.iface.removeToolBarIcon(self.actionExcel)

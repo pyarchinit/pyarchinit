@@ -46,7 +46,6 @@ from qgis.PyQt.QtWidgets import QApplication, QDialog, QMessageBox, QFileDialog,
 from qgis.PyQt.QtSql import *
 from qgis.PyQt.uic import loadUiType
 from qgis.core import QgsApplication, QgsSettings, QgsProject
-
 from modules.db.pyarchinit_conn_strings import Connection
 from modules.db.pyarchinit_db_manager import Pyarchinit_db_management
 from modules.db.pyarchinit_utility import Utility
@@ -85,6 +84,7 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
         self.setupUi(self)
         
         s = QgsSettings()
+        
         self.load_dict()
         self.charge_data()
         self.db_active()
@@ -116,6 +116,7 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
         
         self.pushButton_import.clicked.connect(self.on_pushButton_import_pressed)
         self.graphviz_bin = s.value('pyArchInit/graphvizBinPath', None, type=str)
+        
         if self.graphviz_bin:
             self.lineEditGraphviz.setText(self.graphviz_bin)
 
@@ -223,17 +224,17 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
                                   "distinct b.numero_inventario)=0 then 'No Materiali' else count(distinct "
                                   "b.numero_inventario)end as 'Totale Materiali',case when count(distinct "
                                   "c.id_struttura)=0 then 'No Strutture' else count(distinct c.id_struttura)end as "
-                                  "'Totale strutture',case when count(distinct d.id_tafonomia)=0 then 'No Tombe' else "
-                                  "count(distinct d.id_tafonomia)end as 'Totale tombe' from us_table as a left join "
+                                  "'Totale strutture',case when count(distinct d.id_tomba)=0 then 'No Tombe' else "
+                                  "count(distinct d.id_tomba)end as 'Totale tombe' from us_table as a left join "
                                   "inventario_materiali_table as b on a.sito=b.sito left join struttura_table as c on "
-                                  "a.sito=c.sito left join tafonomia_table as d on a.sito=d.sito where a.sito = '{"
+                                  "a.sito=c.sito left join tomba_table as d on a.sito=d.sito where a.sito = '{"
                                   "}'".format(str(self.comboBox_sito.currentText())), db=db)
                 self.model_a.setQuery(query)
             else:
                 query1 = QSqlQuery("select s.sito,(select count(distinct id_invmat) from inventario_materiali_table m "
                                    "where s.sito = m.sito) as materiali,(select count(distinct id_struttura) from "
                                    "struttura_table st where s.sito = st.sito) as Struttura,(select count(distinct "
-                                   "id_tafonomia) from tafonomia_table t where s.sito = t.sito) as tafonomia,"
+                                   "id_tomba) from tomba_table t where s.sito = t.sito) as tomba,"
                                    "(select count(distinct id_us) from us_table ad where s.sito=ad.sito) as us from ("
                                    "select sito , count(distinct id_us) from us_table group by sito) as s order by "
                                    "s.sito;",db=db)
@@ -270,8 +271,8 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
             self.tableView_summary.setModel(self.model_a) 
             if bool(self.comboBox_sito.currentText()):
                 query = QSqlQuery("select distinct  a.sito as Sito ,count(distinct a.id_us) as us,count(distinct "
-                                  "c.id_struttura)as Struttura,count(distinct d.id_tafonomia) as Tombe from us_table "
-                                  "as a left join struttura_table as c on a.sito=c.sito left join tafonomia_table as "
+                                  "c.id_struttura)as Struttura,count(distinct d.id_tomba) as Tombe from us_table "
+                                  "as a left join struttura_table as c on a.sito=c.sito left join tomba_table as "
                                   "d on a.sito=d.sito where a.sito = '{}' group by a.sito order by us DESC ".format(
                     str(self.comboBox_sito.currentText())), db=db)
                 self.model_a.setQuery(query)
@@ -279,7 +280,7 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
                 query1 = QSqlQuery("select s.sito,(select count(distinct id_invmat) from inventario_materiali_table m "
                                    "where s.sito = m.sito) as materiali,(select count(distinct id_struttura) from "
                                    "struttura_table st where s.sito = st.sito) as Struttura,(select count(distinct "
-                                   "id_tafonomia) from tafonomia_table t where s.sito = t.sito) as tafonomia,"
+                                   "id_tomba) from tomba_table t where s.sito = t.sito) as tomba,"
                                    "(select count(distinct id_us) from us_table ad where s.sito=ad.sito) as us from ("
                                    "select sito , count(distinct id_us) from us_table group by sito) as s order by "
                                    "s.sito;",db=db)
@@ -490,7 +491,7 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
         f.close()
          
     def on_pushButton_save_pressed(self):
-        
+        self.comboBox_Database.update()
         try:
             if not bool(self.lineEdit_Password.text()) and str(self.comboBox_Database.currentText())=='postgres':
                 QMessageBox.warning(self, "INFO", 'non dimenticarti di inserire la password',QMessageBox.Ok)
@@ -1468,7 +1469,7 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
                     'PERIODIZZAZIONE': 'id_perfas',
                     'INVENTARIO_MATERIALI': 'id_invmat',
                     'STRUTTURA': 'id_struttura',
-                    'TAFONOMIA': 'id_tafonomia',
+                    'TOMBA': 'id_tomba',
                     'SCHEDAIND': 'id_scheda_ind',
                     'CAMPIONI': 'id_campione',
                     'DOCUMENTAZIONE': 'id_documentazione',
@@ -1486,7 +1487,7 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
                     'PERIODISIERUNG': 'id_perfas',
                     'ARTEFAKT-INVENTAR': 'id_invmat',
                     'STRUKTUREN': 'id_struttura',
-                    'TAPHONOMIE': 'id_tafonomia',
+                    'TAPHONOMIE': 'id_tomba',
                     'INDIVIDUEL': 'id_scheda_ind',
                     'BEISPIELS': 'id_campione',
                     'DOKUMENTATION': 'id_documentazione',
@@ -1503,7 +1504,7 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
                     'PERIODIATION': 'id_perfas',
                     'ARTEFACT': 'id_invmat',
                     'STRUCTURE': 'id_struttura',
-                    'TAPHONOMY': 'id_tafonomia',
+                    'TAPHONOMY': 'id_tomba',
                     'INDIVIDUAL': 'id_scheda_ind',
                     'SAMPLE': 'id_campione',
                     'DOCUMENTATION': 'id_documentazione',
@@ -1902,7 +1903,7 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
                 self.progress_bar.reset()
                 QMessageBox.information(self, "Message", "Data Loaded")
             
-            elif mapper_class_write == 'TAFONOMIA' :
+            elif mapper_class_write == 'TOMBA' :
                 for sing_rec in range(len(data_list_toimp)):
 
                     # blocco oritentamento_azimut
@@ -1957,7 +1958,7 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
                         fase_fin = int(data_list_toimp[sing_rec].fase_finale)
 
                     try:
-                        data = self.DB_MANAGER_write.insert_values_tafonomia(
+                        data = self.DB_MANAGER_write.insert_values_tomba(
 
                             self.DB_MANAGER_write.max_num_id(mapper_class_write,
                                                              id_table_class_mapper_conv_dict[mapper_class_write]) + 1,
@@ -1994,7 +1995,7 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
                             per_fin,
                             fase_fin,
                             str(data_list_toimp[sing_rec].datazione_estesa),
-                            str(data_list_toimp[sing_rec].misure_tafonomia)
+                            str(data_list_toimp[sing_rec].misure_tomba)
                         )
                             
                         self.DB_MANAGER_write.insert_data_session(data)

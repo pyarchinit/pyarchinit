@@ -61,8 +61,8 @@ class Pyarchinit_pyqgis(QDialog):
                   "20": "pyarchinit_siti_polygonal_view",
                   "21": "pyarchinit_site_view",
                   "22": "pyarchinit_strutture_view",
-                  "23": "pyarchinit_tafonomia_view",
-                  "24": "pyarchinit_tafonomia",
+                  "23": "pyarchinit_tomba_view",
+                  "24": "pyarchinit_tomba",
                   "25": "pyarchinit_doc_view_b",
                   "26": "pyarchinit_reperti",
                   "27": "pyarchinit_reperti_view",
@@ -89,8 +89,8 @@ class Pyarchinit_pyqgis(QDialog):
                               "pyarchinit_siti_polygonal_view": "Perimetrazione siti poligonali Vista",
                               "pyarchinit_site_view": "Localizzazione siti puntuale Vista",
                               "pyarchinit_strutture_view": "Ipotesi strutture da scavo Vista",
-                              "pyarchinit_tafonomia_view": "Tafonomia Vista",
-                              "pyarchinit_tafonomia": "Tafonomia",
+                              "pyarchinit_tomba_view": "Tomba Vista",
+                              "pyarchinit_tomba": "Tomba",
                               "pyarchinit_doc_view_b": "Documentazione Vista B",
                               "pyarchinit_reperti": "Reperti",
                               "pyarchinit_reperti_view": "Reperti view",
@@ -118,8 +118,8 @@ class Pyarchinit_pyqgis(QDialog):
                               "pyarchinit_siti_polygonal_view": "Perimeterstand Ausgrabungsstätte poligonal Ansicht",
                               "pyarchinit_site_view": "Genauer Ausgrabungsstättenbereich Ansicht",
                               "pyarchinit_strutture_view": "Vorläufige Strukturinterpretation der Grabung Ansicht",
-                              "pyarchinit_tafonomia_view": "Taphonomie Ansicht",
-                              "pyarchinit_tafonomia": "Taphonomie",
+                              "pyarchinit_tomba_view": "Taphonomie Ansicht",
+                              "pyarchinit_tomba": "Taphonomie",
                               "pyarchinit_doc_view_b": "Dokumentation Ansicht B",
                               "pyarchinit_reperti": "Artefakt",
                               "pyarchinit_reperti_view": "Artefakt view",
@@ -147,8 +147,8 @@ class Pyarchinit_pyqgis(QDialog):
                               "pyarchinit_siti_polygonal_view": "Areal site view",
                               "pyarchinit_site_view": "Site point view",
                               "pyarchinit_strutture_view": "Hypothetical excavation structures view",
-                              "pyarchinit_tafonomia_view": "Taphonomy view",
-                              "pyarchinit_tafonomia": "Taphonomy",
+                              "pyarchinit_tomba_view": "Taphonomy view",
+                              "pyarchinit_tomba": "Taphonomy",
                               "pyarchinit_doc_view_b": "Documentation view B",
                               "pyarchinit_reperti": "Artefact",
                               "pyarchinit_reperti_view": "Artefact view",
@@ -1453,7 +1453,7 @@ class Pyarchinit_pyqgis(QDialog):
             
             
                 
-            layer_name = 'pyarchinit_tafonomia'
+            layer_name = 'pyarchinit_tomba'
             layer_name_conv = "'" + str(layer_name) + "'"
             value_conv = ('"sito = %s"') % ("'" + str(self.val) + "'")
             cmq_set_uri_data_source = "uri.setDataSource('',%s, %s, %s)" % (layer_name_conv, "'the_geom'", value_conv)
