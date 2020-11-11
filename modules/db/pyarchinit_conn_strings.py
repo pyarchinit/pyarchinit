@@ -19,35 +19,35 @@
  ***************************************************************************/
 """
 import os
-import traceback
+
 from builtins import object
-from qgis.PyQt import QtWidgets
-from qgis.PyQt.QtWidgets import *
+import traceback
 from ..utility.settings import Settings
 from ..utility.pyarchinit_OS_utility import Pyarchinit_OS_Utility
+from qgis.PyQt.QtWidgets import QDialog, QMessageBox
 
 class Connection(object):
     HOME = os.environ['PYARCHINIT_HOME']
     RESOURCES_PATH = os.path.join(os.path.dirname(__file__), os.pardir, os.pardir, 'resources')
+
     OS_UTILITY = Pyarchinit_OS_Utility()
     
     def conn_str(self):
+        
         
         cfg_rel_path = os.path.join(os.sep, 'pyarchinit_DB_folder', 'config.cfg')
         file_path = '{}{}'.format(self.HOME, cfg_rel_path)
         conf = open(file_path, "r")
         data = conf.read()
         settings = Settings(data)
-        
         settings.set_configuration()
-        conf.close()    
-            
+        conf.close()  
         conn_str_dict = {"server": settings.SERVER,
-                         "user": settings.USER,
-                         "host": settings.HOST,
-                         "port": settings.PORT,
-                         "db_name": settings.DATABASE,
-                         "password": settings.PASSWORD}
+                     "user": settings.USER,
+                     "host": settings.HOST,
+                     "port": settings.PORT,
+                     "db_name": settings.DATABASE,
+                     "password": settings.PASSWORD}
         
         if conn_str_dict["server"] == 'postgres':
             try:
@@ -55,29 +55,23 @@ class Connection(object):
                 conn_str = "%s://%s:%s@%s:%s/%s%s?charset=utf8" % (
                 "postgresql", conn_str_dict["user"], conn_str_dict["password"], conn_str_dict["host"],
                 conn_str_dict["port"], conn_str_dict["db_name"], "?sslmode=allow")
-                
+                test=True
             except:
-                QMessageBox.warning(None, "Attenzione", 'Problema di connessione: \n ricontrolla i dati di inserimento')
+                #QMessageBox.warning(self, "Attenzione", 'Problema', QMessageBox.Ok)
                 conn_str = "%s://%s:%s@%s:%d/%s" % (
                 "postgresql", conn_str_dict["user"], conn_str_dict["password"], conn_str_dict["host"],
                 conn_str_dict["port"], conn_str_dict["db_name"])
-            
-            
-                  
+           
         elif conn_str_dict["server"] == 'sqlite':
             sqlite_DB_path = '{}{}{}'.format(self.HOME, os.sep,
                                            "pyarchinit_DB_folder")
-
             dbname_abs = sqlite_DB_path + os.sep + conn_str_dict["db_name"]
-
             conn_str = "%s:///%s" % (conn_str_dict["server"], dbname_abs)
         else:
             conn_str = None
-        
+    
         return conn_str
         
-    
-       
     def databasename(self):
         cfg_rel_path = os.path.join(os.sep, 'pyarchinit_DB_folder', 'config.cfg')
         file_path = '{}{}'.format(self.HOME, cfg_rel_path)

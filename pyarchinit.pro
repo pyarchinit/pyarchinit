@@ -18,7 +18,7 @@ SOURCES = 	 tabs/__init__.py\
 			 tabs/Schedaind.py\
 			 tabs/Site.py\
 			 tabs/Struttura.py\
-			 tabs/Tafonomia.py\
+			 tabs/Tomba.py\
 			 tabs/Thesaurus.py\
 			 tabs/Upd.py\
 			 tabs/US_USM.py\
@@ -52,7 +52,7 @@ SOURCES = 	 tabs/__init__.py\
 			 modules/utility/pyarchinit_exp_Periodizzazionesheet_pdf.py\
 			 modules/utility/pyarchinit_exp_Periodosheet_pdf.py\
 			 modules/utility/pyarchinit_exp_Strutturasheet_pdf.py\
-			 modules/utility/pyarchinit_exp_Tafonomiasheet_pdf.py\
+			 modules/utility/pyarchinit_exp_Tombasheet_pdf.py\
 			 modules/utility/pyarchinit_exp_USsheet_pdf.py\
 			 modules/utility/pyarchinit_exp_UTsheet_pdf.py\
 			 modules/utility/pyarchinit_folder_installation.py\
@@ -93,7 +93,7 @@ FORMS =   	gui/ui/Archeozoology.ui\
 			gui/ui/Site.ui\
 			gui/ui/sortpanelmain.ui\
 			gui/ui/Struttura.ui\
-			gui/ui/Tafonomia.ui\
+			gui/ui/Tomba.ui\
 			gui/ui/Thesaurus.ui\
 			gui/ui/Upd.ui\
 			gui/ui/US_USM.ui\

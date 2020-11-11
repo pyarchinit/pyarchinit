@@ -34,13 +34,13 @@ from ..modules.db.pyarchinit_db_manager import Pyarchinit_db_management
 from ..modules.db.pyarchinit_utility import Utility
 from ..modules.gis.pyarchinit_pyqgis import Pyarchinit_pyqgis
 from ..modules.utility.pyarchinit_error_check import Error_check
-from ..modules.utility.pyarchinit_exp_Tafonomiasheet_pdf import generate_tafonomia_pdf
+from ..modules.utility.pyarchinit_exp_Tombasheet_pdf import generate_tomba_pdf
 from ..gui.sortpanelmain import SortPanelMain
 from ..gui.pyarchinitConfigDialog import pyArchInitDialog_Config
-MAIN_DIALOG_CLASS, _ = loadUiType(os.path.join(os.path.dirname(__file__), os.pardir, 'gui', 'ui', 'Tafonomia.ui'))
+MAIN_DIALOG_CLASS, _ = loadUiType(os.path.join(os.path.dirname(__file__), os.pardir, 'gui', 'ui', 'Tomba.ui'))
 
 
-class pyarchinit_Tafonomia(QDialog, MAIN_DIALOG_CLASS):
+class pyarchinit_Tomba(QDialog, MAIN_DIALOG_CLASS):
     L=QgsSettings().value("locale/userLocale")[0:2]
     if L=='it':
         MSG_BOX_TITLE = "PyArchInit - Scheda Tafonomica"
@@ -69,10 +69,10 @@ class pyarchinit_Tafonomia(QDialog, MAIN_DIALOG_CLASS):
     SORT_ITEMS_CONVERTED = ''
     UTILITY = Utility()
     DB_MANAGER = ""
-    TABLE_NAME = 'Tafonomia_table'
-    MAPPER_TABLE_CLASS = "TAFONOMIA"
+    TABLE_NAME = 'Tomba_table'
+    MAPPER_TABLE_CLASS = "TOMBA"
     NOME_SCHEDA = "Scheda Tafonomica"
-    ID_TABLE = "id_tafonomia"
+    ID_TABLE = "id_tomba"
     if L=='it':
         CONVERSION_DICT = {
             ID_TABLE: ID_TABLE,
@@ -345,7 +345,7 @@ class pyarchinit_Tafonomia(QDialog, MAIN_DIALOG_CLASS):
         "periodo_finale",
         "fase_finale",
         "datazione_estesa",
-        "misure_tafonomia"
+        "misure_tomba"
     ]
 
     DB_SERVER = "not defined"  ####nuovo sistema sort
@@ -356,6 +356,7 @@ class pyarchinit_Tafonomia(QDialog, MAIN_DIALOG_CLASS):
         self.pyQGIS = Pyarchinit_pyqgis(iface)
         self.setupUi(self)
         self.currentLayerId = None
+        
         try:
             self.on_pushButton_connect_pressed()
         except Exception as e:
@@ -497,8 +498,8 @@ class pyarchinit_Tafonomia(QDialog, MAIN_DIALOG_CLASS):
                     self.iface.messageBar().pushMessage(self.tr(msg), Qgis.Warning, 0)
 
     def customize_GUI(self):
-        self.tableWidget_caratteristiche.setColumnWidth(1, 300)
-        self.tableWidget_caratteristiche.setColumnWidth(1, 200)
+        # self.tableWidget_caratteristiche.setColumnWidth(1, 300)
+        # self.tableWidget_caratteristiche.setColumnWidth(1, 200)
 
         # comboBox customizations
         self.setComboBoxEditable(["self.comboBox_sito"], 1)
@@ -508,9 +509,9 @@ class pyarchinit_Tafonomia(QDialog, MAIN_DIALOG_CLASS):
         self.setComboBoxEnable(["self.lineEdit_nr_scheda"], "True")
 
         """soluzione provvisoria"""
-        self.setComboBoxEditable(["self.comboBox_in_connessione"], 1)
-        self.setComboBoxEditable(["self.comboBox_disturbato"], 1)
-        self.setComboBoxEditable(["self.comboBox_completo"], 1)
+        # self.setComboBoxEditable(["self.comboBox_in_connessione"], 1)
+        # self.setComboBoxEditable(["self.comboBox_disturbato"], 1)
+        # self.setComboBoxEditable(["self.comboBox_completo"], 1)
 
         self.setComboBoxEditable(["self.comboBox_per_iniz"], 1)
         self.setComboBoxEditable(["self.comboBox_fas_iniz"], 1)
@@ -574,7 +575,7 @@ class pyarchinit_Tafonomia(QDialog, MAIN_DIALOG_CLASS):
         self.comboBox_rito.clear()
         search_dict = {
             'lingua': lang,
-            'nome_tabella': "'" + 'Tafonomia_table' + "'",
+            'nome_tabella': "'" + 'Tomba_table' + "'",
             'tipologia_sigla': "'" + '7.1' + "'"
         }
 
@@ -592,7 +593,7 @@ class pyarchinit_Tafonomia(QDialog, MAIN_DIALOG_CLASS):
         self.comboBox_segnacoli.clear()
         search_dict = {
             'lingua': lang,
-            'nome_tabella': "'" + 'Tafonomia_table' + "'",
+            'nome_tabella': "'" + 'Tomba_table' + "'",
             'tipologia_sigla': "'" + '702.702' + "'"
         }
 
@@ -610,7 +611,7 @@ class pyarchinit_Tafonomia(QDialog, MAIN_DIALOG_CLASS):
         self.comboBox_canale_libatorio.clear()
         search_dict = {
             'lingua': lang,
-            'nome_tabella': "'" + 'Tafonomia_table' + "'",
+            'nome_tabella': "'" + 'Tomba_table' + "'",
             'tipologia_sigla': "'" + '702.702' + "'"
         }
 
@@ -628,7 +629,7 @@ class pyarchinit_Tafonomia(QDialog, MAIN_DIALOG_CLASS):
         self.comboBox_oggetti_esterno.clear()
         search_dict = {
             'lingua': lang,
-            'nome_tabella': "'" + 'Tafonomia_table' + "'",
+            'nome_tabella': "'" + 'Tomba_table' + "'",
             'tipologia_sigla': "'" + '702.702' + "'"
         }
 
@@ -646,7 +647,7 @@ class pyarchinit_Tafonomia(QDialog, MAIN_DIALOG_CLASS):
         self.comboBox_conservazione_taf.clear()
         search_dict = {
             'lingua': lang,
-            'nome_tabella': "'" + 'Tafonomia_table' + "'",
+            'nome_tabella': "'" + 'Tomba_table' + "'",
             'tipologia_sigla': "'" + '7.2' + "'"
         }
 
@@ -664,7 +665,7 @@ class pyarchinit_Tafonomia(QDialog, MAIN_DIALOG_CLASS):
         self.comboBox_copertura_tipo.clear()
         search_dict = {
             'lingua': lang,
-            'nome_tabella': "'" + 'Tafonomia_table' + "'",
+            'nome_tabella': "'" + 'Tomba_table' + "'",
             'tipologia_sigla': "'" + '7.3' + "'"
         }
 
@@ -682,7 +683,7 @@ class pyarchinit_Tafonomia(QDialog, MAIN_DIALOG_CLASS):
         self.comboBox_tipo_contenitore_resti.clear()
         search_dict = {
             'lingua': lang,
-            'nome_tabella': "'" + 'Tafonomia_table' + "'",
+            'nome_tabella': "'" + 'Tomba_table' + "'",
             'tipologia_sigla': "'" + '7.4' + "'"
         }
 
@@ -700,7 +701,7 @@ class pyarchinit_Tafonomia(QDialog, MAIN_DIALOG_CLASS):
         self.comboBox_corredo_presenza.clear()
         search_dict = {
             'lingua': lang,
-            'nome_tabella': "'" + 'Tafonomia_table' + "'",
+            'nome_tabella': "'" + 'Tomba_table' + "'",
             'tipologia_sigla': "'" + '7.5' + "'"
         }
 
@@ -718,7 +719,7 @@ class pyarchinit_Tafonomia(QDialog, MAIN_DIALOG_CLASS):
         self.comboBox_disturbato.clear()
         search_dict = {
             'lingua': lang,
-            'nome_tabella': "'" + 'Tafonomia_table' + "'",
+            'nome_tabella': "'" + 'Tomba_table' + "'",
             'tipologia_sigla': "'" + '701.701' + "'"
         }
 
@@ -736,7 +737,7 @@ class pyarchinit_Tafonomia(QDialog, MAIN_DIALOG_CLASS):
         self.comboBox_completo.clear()
         search_dict = {
             'lingua': lang,
-            'nome_tabella': "'" + 'Tafonomia_table' + "'",
+            'nome_tabella': "'" + 'Tomba_table' + "'",
             'tipologia_sigla': "'" + '701.701' + "'"
         }
 
@@ -754,7 +755,7 @@ class pyarchinit_Tafonomia(QDialog, MAIN_DIALOG_CLASS):
         self.comboBox_in_connessione.clear()
         search_dict = {
             'lingua': lang,
-            'nome_tabella': "'" + 'Tafonomia_table' + "'",
+            'nome_tabella': "'" + 'Tomba_table' + "'",
             'tipologia_sigla': "'" + '701.701' + "'"
         }
 
@@ -1005,9 +1006,9 @@ class pyarchinit_Tafonomia(QDialog, MAIN_DIALOG_CLASS):
             # buttons functions
 
     def on_pushButton_exp_index_pressed(self):
-        Tafonomia_index_pdf = generate_tafonomia_pdf()
+        Tomba_index_pdf = generate_tomba_pdf()
         data_list = self.generate_list_pdf()
-        Tafonomia_index_pdf.build_index_Tafonomia(data_list, data_list[0][0])
+        Tomba_index_pdf.build_index_Tomba(data_list, data_list[0][0])
 
     def on_toolButtonPan_toggled(self):
         self.toolPan = QgsMapToolPan(self.mapPreview)
@@ -1364,7 +1365,7 @@ class pyarchinit_Tafonomia(QDialog, MAIN_DIALOG_CLASS):
 
         try:
             # data
-            data = self.DB_MANAGER.insert_values_tafonomia(
+            data = self.DB_MANAGER.insert_values_tomba(
                 self.DB_MANAGER.max_num_id(self.MAPPER_TABLE_CLASS, self.ID_TABLE) + 1,
                 str(self.comboBox_sito.currentText()),  # 1 - Sito
                 int(self.lineEdit_nr_scheda.text()),  # 2 - nr scheda tafonomica
@@ -1814,7 +1815,7 @@ class pyarchinit_Tafonomia(QDialog, MAIN_DIALOG_CLASS):
                 self.TABLE_FIELDS[10]: "'" + str(self.comboBox_oggetti_esterno.currentText()) + "'",
                 # 11 - Oggetti esterno
                 self.TABLE_FIELDS[11]: "'" + str(self.comboBox_conservazione_taf.currentText()) + "'",
-                # 12 - Conservazione tafonomia
+                # 12 - Conservazione tomba
                 self.TABLE_FIELDS[12]: "'" + str(self.comboBox_copertura_tipo.currentText()) + "'",
                 # 13 - Copertura tipo
                 self.TABLE_FIELDS[13]: "'" + str(self.comboBox_tipo_contenitore_resti.currentText()) + "'",
@@ -1942,17 +1943,17 @@ class pyarchinit_Tafonomia(QDialog, MAIN_DIALOG_CLASS):
 
     def on_pushButton_pdf_exp_pressed(self):
         if self.L=='it':
-            Tafonomia_pdf_sheet = generate_tafonomia_pdf()
+            Tomba_pdf_sheet = generate_tomba_pdf()
             data_list = self.generate_list_pdf()
-            Tafonomia_pdf_sheet.build_Tafonomia_sheets(data_list)
+            Tomba_pdf_sheet.build_Tomba_sheets(data_list)
         elif self.L=='de':
-            Tafonomia_pdf_sheet = generate_tafonomia_pdf()
+            Tomba_pdf_sheet = generate_tomba_pdf()
             data_list = self.generate_list_pdf()
-            Tafonomia_pdf_sheet.build_Tafonomia_sheets_de(data_list)
+            Tomba_pdf_sheet.build_Tomba_sheets_de(data_list)
         else:
-            Tafonomia_pdf_sheet = generate_tafonomia_pdf()
+            Tomba_pdf_sheet = generate_tomba_pdf()
             data_list = self.generate_list_pdf()
-            Tafonomia_pdf_sheet.build_Tafonomia_sheets_en(data_list)    
+            Tomba_pdf_sheet.build_Tomba_sheets_en(data_list)    
 
     def generate_list_pdf(self):
         data_list = []
@@ -2080,7 +2081,7 @@ class pyarchinit_Tafonomia(QDialog, MAIN_DIALOG_CLASS):
                 str(self.DATA_LIST[i].periodo_finale),  # 30 - periodo finale
                 str(self.DATA_LIST[i].fase_finale),  # 31 - fase finale
                 str(self.DATA_LIST[i].datazione_estesa),  # 32 - datazione estesa
-                str(self.DATA_LIST[i].misure_tafonomia),  # 33 - misure tafonomia
+                str(self.DATA_LIST[i].misure_tomba),  # 33 - misure tomba
                 quota_min_ind,  # 34 - quota min individuo
                 quota_max_ind,  # 35 - quota max individuo
                 quota_min_strutt,  # 36 - quota min struttura
@@ -2377,7 +2378,7 @@ class pyarchinit_Tafonomia(QDialog, MAIN_DIALOG_CLASS):
             self.tableInsertData("self.tableWidget_corredo_tipo",
                                      self.DATA_LIST[self.rec_num].corredo_tipo)  # 27 - corredo tipo
             self.tableInsertData("self.tableWidget_misurazioni",
-                                self.DATA_LIST[self.rec_num].misure_tafonomia)  # 28 - misure struttura
+                                self.DATA_LIST[self.rec_num].misure_tomba)  # 28 - misure struttura
 
             if self.DATA_LIST[self.rec_num].periodo_iniziale == None:
                 self.comboBox_per_iniz.setEditText("")
@@ -2495,7 +2496,7 @@ class pyarchinit_Tafonomia(QDialog, MAIN_DIALOG_CLASS):
             str(self.comboBox_segnacoli.currentText()),  # 9 - Segnacoli
             str(self.comboBox_canale_libatorio.currentText()),  # 10 - Canale libatorio
             str(self.comboBox_oggetti_esterno.currentText()),  # 11 - Oggetti esterno
-            str(self.comboBox_conservazione_taf.currentText()),  # 12 - Conservazione tafonomia
+            str(self.comboBox_conservazione_taf.currentText()),  # 12 - Conservazione tomba
             str(self.comboBox_copertura_tipo.currentText()),  # 13 - Copertura tipo
             str(self.comboBox_tipo_contenitore_resti.currentText()),  # 14 - Tipo contenitore resti
             str(self.lineEdit_orientamento_asse.text()),  # 15 - orientamento asse

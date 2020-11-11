@@ -67,206 +67,6 @@
      </item>
      <item row="5" column="0" colspan="2">
       <layout class="QGridLayout" name="gridLayout_5">
-       <item row="3" column="3" colspan="2">
-        <widget class="QPushButton" name="pushButton_remove_alltag">
-         <property name="toolTip">
-          <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Rimuovi tutti i tag selezionati all'immagine&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-         </property>
-         <property name="text">
-          <string>Rimovi tutti i tag da selezione</string>
-         </property>
-         <property name="icon">
-          <iconset resource="../../resources/resources.qrc">
-           <normaloff>:/icons/remove_tag.png</normaloff>:/icons/remove_tag.png</iconset>
-         </property>
-        </widget>
-       </item>
-       <item row="1" column="0">
-        <widget class="QPushButton" name="pushButton_first_rec">
-         <property name="sizePolicy">
-          <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
-           <horstretch>0</horstretch>
-           <verstretch>0</verstretch>
-          </sizepolicy>
-         </property>
-         <property name="maximumSize">
-          <size>
-           <width>120</width>
-           <height>16777215</height>
-          </size>
-         </property>
-         <property name="toolTip">
-          <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Prime 25 foto&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-         </property>
-         <property name="text">
-          <string/>
-         </property>
-         <property name="icon">
-          <iconset resource="../../resources/resources.qrc">
-           <normaloff>:/icons/5_leftArrows.png</normaloff>:/icons/5_leftArrows.png</iconset>
-         </property>
-        </widget>
-       </item>
-       <item row="3" column="2">
-        <widget class="QPushButton" name="pushButton_remove_thumb">
-         <property name="enabled">
-          <bool>true</bool>
-         </property>
-         <property name="toolTip">
-          <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Rimuovi le thumbnail selezionate&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-         </property>
-         <property name="text">
-          <string>Rimuovi Thumbs</string>
-         </property>
-         <property name="icon">
-          <iconset resource="../../resources/resources.qrc">
-           <normaloff>:/icons/delete.png</normaloff>:/icons/delete.png</iconset>
-         </property>
-        </widget>
-       </item>
-       <item row="0" column="0">
-        <widget class="QRadioButton" name="radioButton">
-         <property name="text">
-          <string>Rimuovi barra di ricerca</string>
-         </property>
-         <property name="icon">
-          <iconset resource="../../resources/resources.qrc">
-           <normaloff>:/icons/find.png</normaloff>:/icons/find.png</iconset>
-         </property>
-         <property name="checkable">
-          <bool>true</bool>
-         </property>
-         <property name="checked">
-          <bool>false</bool>
-         </property>
-         <property name="autoRepeat">
-          <bool>false</bool>
-         </property>
-        </widget>
-       </item>
-       <item row="3" column="1">
-        <widget class="QPushButton" name="pushButton_dir_video">
-         <property name="enabled">
-          <bool>true</bool>
-         </property>
-         <property name="text">
-          <string>Upload video</string>
-         </property>
-         <property name="icon">
-          <iconset resource="../../resources/resources.qrc">
-           <normaloff>:/icons/video.png</normaloff>:/icons/video.png</iconset>
-         </property>
-        </widget>
-       </item>
-       <item row="0" column="1">
-        <widget class="QRadioButton" name="radioButton_2">
-         <property name="text">
-          <string>searchbar</string>
-         </property>
-         <property name="icon">
-          <iconset resource="../../resources/resources.qrc">
-           <normaloff>:/icons/find.png</normaloff>:/icons/find.png</iconset>
-         </property>
-        </widget>
-       </item>
-       <item row="1" column="1">
-        <widget class="QPushButton" name="pushButton_prev_rec">
-         <property name="sizePolicy">
-          <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
-           <horstretch>0</horstretch>
-           <verstretch>0</verstretch>
-          </sizepolicy>
-         </property>
-         <property name="maximumSize">
-          <size>
-           <width>120</width>
-           <height>16777215</height>
-          </size>
-         </property>
-         <property name="toolTip">
-          <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Torna indietro di 25 foto alla volta&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-         </property>
-         <property name="text">
-          <string/>
-         </property>
-         <property name="icon">
-          <iconset resource="../../resources/resources.qrc">
-           <normaloff>:/icons/4_leftArrow.png</normaloff>:/icons/4_leftArrow.png</iconset>
-         </property>
-        </widget>
-       </item>
-       <item row="1" column="2">
-        <widget class="QPushButton" name="pushButton_next_rec">
-         <property name="sizePolicy">
-          <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
-           <horstretch>0</horstretch>
-           <verstretch>0</verstretch>
-          </sizepolicy>
-         </property>
-         <property name="maximumSize">
-          <size>
-           <width>120</width>
-           <height>16777215</height>
-          </size>
-         </property>
-         <property name="toolTip">
-          <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Avanza di 25 foto alla volta&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-         </property>
-         <property name="text">
-          <string/>
-         </property>
-         <property name="icon">
-          <iconset resource="../../resources/resources.qrc">
-           <normaloff>:/icons/6_rightArrow.png</normaloff>:/icons/6_rightArrow.png</iconset>
-         </property>
-        </widget>
-       </item>
-       <item row="1" column="3">
-        <widget class="QPushButton" name="pushButton_last_rec">
-         <property name="sizePolicy">
-          <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
-           <horstretch>0</horstretch>
-           <verstretch>0</verstretch>
-          </sizepolicy>
-         </property>
-         <property name="maximumSize">
-          <size>
-           <width>120</width>
-           <height>16777215</height>
-          </size>
-         </property>
-         <property name="toolTip">
-          <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Ultimi 25 foto&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-         </property>
-         <property name="text">
-          <string/>
-         </property>
-         <property name="icon">
-          <iconset resource="../../resources/resources.qrc">
-           <normaloff>:/icons/7_rightArrows.png</normaloff>:/icons/7_rightArrows.png</iconset>
-         </property>
-        </widget>
-       </item>
-       <item row="3" column="0">
-        <widget class="QPushButton" name="pushButton_chose_dir">
-         <property name="sizePolicy">
-          <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
-           <horstretch>0</horstretch>
-           <verstretch>0</verstretch>
-          </sizepolicy>
-         </property>
-         <property name="toolTip">
-          <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Carica le foto nel database (link) e visualizza le stesse nella listWidget&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-         </property>
-         <property name="text">
-          <string>Upload image</string>
-         </property>
-         <property name="icon">
-          <iconset resource="../../resources/resources.qrc">
-           <normaloff>:/icons/photo2.png</normaloff>:/icons/photo2.png</iconset>
-         </property>
-        </widget>
-       </item>
        <item row="0" column="2">
         <widget class="QPushButton" name="pushButton_view_all">
          <property name="enabled">
@@ -322,6 +122,243 @@
            <normaloff>:/icons/sort.png</normaloff>:/icons/sort.png</iconset>
          </property>
         </widget>
+       </item>
+       <item row="1" column="3">
+        <widget class="QPushButton" name="pushButton_last_rec">
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
+           <horstretch>0</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
+         </property>
+         <property name="maximumSize">
+          <size>
+           <width>30</width>
+           <height>16777215</height>
+          </size>
+         </property>
+         <property name="toolTip">
+          <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Ultimi 25 foto&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+         </property>
+         <property name="text">
+          <string/>
+         </property>
+         <property name="icon">
+          <iconset resource="../../resources/resources.qrc">
+           <normaloff>:/icons/7_rightArrows.png</normaloff>:/icons/7_rightArrows.png</iconset>
+         </property>
+        </widget>
+       </item>
+       <item row="2" column="0">
+        <widget class="QPushButton" name="pushButton_chose_dir">
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
+           <horstretch>0</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
+         </property>
+         <property name="maximumSize">
+          <size>
+           <width>30</width>
+           <height>16777215</height>
+          </size>
+         </property>
+         <property name="toolTip">
+          <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Carica le foto nel database (link) e visualizza le stesse nella listWidget&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+         </property>
+         <property name="text">
+          <string/>
+         </property>
+         <property name="icon">
+          <iconset resource="../../resources/resources.qrc">
+           <normaloff>:/icons/photo2.png</normaloff>:/icons/photo2.png</iconset>
+         </property>
+        </widget>
+       </item>
+       <item row="2" column="1">
+        <widget class="QPushButton" name="pushButton_dir_video">
+         <property name="enabled">
+          <bool>true</bool>
+         </property>
+         <property name="maximumSize">
+          <size>
+           <width>30</width>
+           <height>16777215</height>
+          </size>
+         </property>
+         <property name="text">
+          <string/>
+         </property>
+         <property name="icon">
+          <iconset resource="../../resources/resources.qrc">
+           <normaloff>:/icons/video.png</normaloff>:/icons/video.png</iconset>
+         </property>
+        </widget>
+       </item>
+       <item row="1" column="5">
+        <widget class="QRadioButton" name="radioButton_2">
+         <property name="text">
+          <string>searchbar</string>
+         </property>
+         <property name="icon">
+          <iconset resource="../../resources/resources.qrc">
+           <normaloff>:/icons/find.png</normaloff>:/icons/find.png</iconset>
+         </property>
+        </widget>
+       </item>
+       <item row="2" column="2">
+        <widget class="QPushButton" name="pushButton_remove_thumb">
+         <property name="enabled">
+          <bool>true</bool>
+         </property>
+         <property name="maximumSize">
+          <size>
+           <width>30</width>
+           <height>16777215</height>
+          </size>
+         </property>
+         <property name="toolTip">
+          <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Rimuovi le thumbnail selezionate&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+         </property>
+         <property name="text">
+          <string/>
+         </property>
+         <property name="icon">
+          <iconset resource="../../resources/resources.qrc">
+           <normaloff>:/icons/delete.png</normaloff>:/icons/delete.png</iconset>
+         </property>
+        </widget>
+       </item>
+       <item row="2" column="3" colspan="3">
+        <widget class="QPushButton" name="pushButton_remove_alltag">
+         <property name="maximumSize">
+          <size>
+           <width>30</width>
+           <height>16777215</height>
+          </size>
+         </property>
+         <property name="toolTip">
+          <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Rimuovi tutti i tag selezionati all'immagine&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+         </property>
+         <property name="text">
+          <string/>
+         </property>
+         <property name="icon">
+          <iconset resource="../../resources/resources.qrc">
+           <normaloff>:/icons/remove_tag.png</normaloff>:/icons/remove_tag.png</iconset>
+         </property>
+        </widget>
+       </item>
+       <item row="1" column="1">
+        <widget class="QPushButton" name="pushButton_prev_rec">
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
+           <horstretch>0</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
+         </property>
+         <property name="maximumSize">
+          <size>
+           <width>30</width>
+           <height>16777215</height>
+          </size>
+         </property>
+         <property name="toolTip">
+          <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Torna indietro di 25 foto alla volta&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+         </property>
+         <property name="text">
+          <string/>
+         </property>
+         <property name="icon">
+          <iconset resource="../../resources/resources.qrc">
+           <normaloff>:/icons/4_leftArrow.png</normaloff>:/icons/4_leftArrow.png</iconset>
+         </property>
+        </widget>
+       </item>
+       <item row="1" column="2">
+        <widget class="QPushButton" name="pushButton_next_rec">
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
+           <horstretch>0</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
+         </property>
+         <property name="maximumSize">
+          <size>
+           <width>30</width>
+           <height>16777215</height>
+          </size>
+         </property>
+         <property name="toolTip">
+          <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Avanza di 25 foto alla volta&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+         </property>
+         <property name="text">
+          <string/>
+         </property>
+         <property name="icon">
+          <iconset resource="../../resources/resources.qrc">
+           <normaloff>:/icons/6_rightArrow.png</normaloff>:/icons/6_rightArrow.png</iconset>
+         </property>
+        </widget>
+       </item>
+       <item row="0" column="5">
+        <widget class="QRadioButton" name="radioButton">
+         <property name="text">
+          <string>Rimuovi barra di ricerca</string>
+         </property>
+         <property name="icon">
+          <iconset resource="../../resources/resources.qrc">
+           <normaloff>:/icons/find.png</normaloff>:/icons/find.png</iconset>
+         </property>
+         <property name="checkable">
+          <bool>true</bool>
+         </property>
+         <property name="checked">
+          <bool>false</bool>
+         </property>
+         <property name="autoRepeat">
+          <bool>false</bool>
+         </property>
+        </widget>
+       </item>
+       <item row="1" column="0">
+        <widget class="QPushButton" name="pushButton_first_rec">
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
+           <horstretch>0</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
+         </property>
+         <property name="maximumSize">
+          <size>
+           <width>30</width>
+           <height>16777215</height>
+          </size>
+         </property>
+         <property name="toolTip">
+          <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Prime 25 foto&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+         </property>
+         <property name="text">
+          <string/>
+         </property>
+         <property name="icon">
+          <iconset resource="../../resources/resources.qrc">
+           <normaloff>:/icons/5_leftArrows.png</normaloff>:/icons/5_leftArrows.png</iconset>
+         </property>
+        </widget>
+       </item>
+       <item row="0" column="4">
+        <spacer name="horizontalSpacer_4">
+         <property name="orientation">
+          <enum>Qt::Horizontal</enum>
+         </property>
+         <property name="sizeHint" stdset="0">
+          <size>
+           <width>40</width>
+           <height>20</height>
+          </size>
+         </property>
+        </spacer>
        </item>
       </layout>
      </item>
@@ -410,7 +447,7 @@
           <widget class="QPushButton" name="pushButton_assignTags_US">
            <property name="maximumSize">
             <size>
-             <width>120</width>
+             <width>30</width>
              <height>16777215</height>
             </size>
            </property>
@@ -418,7 +455,7 @@
             <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Con questo bottone si assegna il tag alla foto selezionata corrispondente al sito area e us indicato&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
            </property>
            <property name="text">
-            <string>Assegna i tags</string>
+            <string/>
            </property>
            <property name="icon">
             <iconset resource="../../resources/resources.qrc">
@@ -450,6 +487,12 @@
            </item>
            <item>
             <widget class="QPushButton" name="pushButton_addRow_US">
+             <property name="maximumSize">
+              <size>
+               <width>30</width>
+               <height>16777215</height>
+              </size>
+             </property>
              <property name="text">
               <string>+</string>
              </property>
@@ -457,6 +500,12 @@
            </item>
            <item>
             <widget class="QPushButton" name="pushButton_removeRow_US">
+             <property name="maximumSize">
+              <size>
+               <width>30</width>
+               <height>16777215</height>
+              </size>
+             </property>
              <property name="text">
               <string>-</string>
              </property>
@@ -525,7 +574,7 @@
           <widget class="QgsDockWidget" name="mDockWidget">
            <property name="minimumSize">
             <size>
-             <width>450</width>
+             <width>538</width>
              <height>200</height>
             </size>
            </property>
@@ -561,6 +610,148 @@
            </property>
            <widget class="QWidget" name="dockWidgetContents">
             <layout class="QGridLayout" name="gridLayout_12">
+             <item row="0" column="1">
+              <layout class="QGridLayout" name="gridLayout_7">
+               <item row="0" column="1" colspan="3">
+                <widget class="QLabel" name="label_6">
+                 <property name="enabled">
+                  <bool>true</bool>
+                 </property>
+                 <property name="frameShape">
+                  <enum>QFrame::StyledPanel</enum>
+                 </property>
+                 <property name="frameShadow">
+                  <enum>QFrame::Plain</enum>
+                 </property>
+                 <property name="text">
+                  <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-size:10pt; font-weight:600;&quot;&gt;Cerca le immagini taggate&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                 </property>
+                </widget>
+               </item>
+               <item row="4" column="1" colspan="3">
+                <widget class="QComboBox" name="comboBox_us">
+                 <property name="enabled">
+                  <bool>true</bool>
+                 </property>
+                 <property name="editable">
+                  <bool>true</bool>
+                 </property>
+                </widget>
+               </item>
+               <item row="3" column="1" colspan="3">
+                <widget class="QComboBox" name="comboBox_area">
+                 <property name="enabled">
+                  <bool>true</bool>
+                 </property>
+                 <property name="editable">
+                  <bool>true</bool>
+                 </property>
+                </widget>
+               </item>
+               <item row="2" column="1" colspan="3">
+                <widget class="QComboBox" name="comboBox_sito">
+                 <property name="enabled">
+                  <bool>true</bool>
+                 </property>
+                 <property name="editable">
+                  <bool>true</bool>
+                 </property>
+                </widget>
+               </item>
+               <item row="1" column="3">
+                <widget class="QRadioButton" name="radioButton_tomba">
+                 <property name="text">
+                  <string>Tomba</string>
+                 </property>
+                </widget>
+               </item>
+               <item row="4" column="0">
+                <widget class="QLabel" name="label_8">
+                 <property name="enabled">
+                  <bool>true</bool>
+                 </property>
+                 <property name="frameShape">
+                  <enum>QFrame::StyledPanel</enum>
+                 </property>
+                 <property name="frameShadow">
+                  <enum>QFrame::Plain</enum>
+                 </property>
+                 <property name="text">
+                  <string>US</string>
+                 </property>
+                </widget>
+               </item>
+               <item row="2" column="0">
+                <widget class="QLabel" name="label_7">
+                 <property name="enabled">
+                  <bool>true</bool>
+                 </property>
+                 <property name="frameShape">
+                  <enum>QFrame::StyledPanel</enum>
+                 </property>
+                 <property name="frameShadow">
+                  <enum>QFrame::Plain</enum>
+                 </property>
+                 <property name="text">
+                  <string>Sito</string>
+                 </property>
+                </widget>
+               </item>
+               <item row="1" column="2">
+                <widget class="QRadioButton" name="radioButton_materiali">
+                 <property name="text">
+                  <string>Materiali</string>
+                 </property>
+                </widget>
+               </item>
+               <item row="6" column="1">
+                <widget class="QPushButton" name="pushButton_go">
+                 <property name="enabled">
+                  <bool>true</bool>
+                 </property>
+                 <property name="maximumSize">
+                  <size>
+                   <width>30</width>
+                   <height>16777215</height>
+                  </size>
+                 </property>
+                 <property name="text">
+                  <string/>
+                 </property>
+                 <property name="icon">
+                  <iconset resource="../../resources/resources.qrc">
+                   <normaloff>:/icons/search.png</normaloff>:/icons/search.png</iconset>
+                 </property>
+                </widget>
+               </item>
+               <item row="3" column="0">
+                <widget class="QLabel" name="label_9">
+                 <property name="enabled">
+                  <bool>true</bool>
+                 </property>
+                 <property name="frameShape">
+                  <enum>QFrame::StyledPanel</enum>
+                 </property>
+                 <property name="frameShadow">
+                  <enum>QFrame::Plain</enum>
+                 </property>
+                 <property name="text">
+                  <string>Area</string>
+                 </property>
+                </widget>
+               </item>
+               <item row="1" column="1">
+                <widget class="QRadioButton" name="radioButton_us">
+                 <property name="text">
+                  <string>Unità Stratigrafiche</string>
+                 </property>
+                 <property name="checked">
+                  <bool>true</bool>
+                 </property>
+                </widget>
+               </item>
+              </layout>
+             </item>
              <item row="0" column="0">
               <layout class="QGridLayout" name="gridLayout_6">
                <item row="0" column="0">
@@ -837,135 +1028,6 @@
                </item>
               </layout>
              </item>
-             <item row="0" column="1">
-              <layout class="QGridLayout" name="gridLayout_7">
-               <item row="0" column="1" colspan="2">
-                <widget class="QLabel" name="label_6">
-                 <property name="enabled">
-                  <bool>true</bool>
-                 </property>
-                 <property name="frameShape">
-                  <enum>QFrame::StyledPanel</enum>
-                 </property>
-                 <property name="frameShadow">
-                  <enum>QFrame::Plain</enum>
-                 </property>
-                 <property name="text">
-                  <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-size:10pt; font-weight:600;&quot;&gt;Cerca le immagini taggate&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-                 </property>
-                </widget>
-               </item>
-               <item row="2" column="1" colspan="2">
-                <widget class="QComboBox" name="comboBox_sito">
-                 <property name="enabled">
-                  <bool>true</bool>
-                 </property>
-                 <property name="editable">
-                  <bool>true</bool>
-                 </property>
-                </widget>
-               </item>
-               <item row="3" column="1" colspan="2">
-                <widget class="QComboBox" name="comboBox_area">
-                 <property name="enabled">
-                  <bool>true</bool>
-                 </property>
-                 <property name="editable">
-                  <bool>true</bool>
-                 </property>
-                </widget>
-               </item>
-               <item row="4" column="1" colspan="2">
-                <widget class="QComboBox" name="comboBox_us">
-                 <property name="enabled">
-                  <bool>true</bool>
-                 </property>
-                 <property name="editable">
-                  <bool>true</bool>
-                 </property>
-                </widget>
-               </item>
-               <item row="6" column="1">
-                <widget class="QPushButton" name="pushButton_go">
-                 <property name="enabled">
-                  <bool>true</bool>
-                 </property>
-                 <property name="text">
-                  <string/>
-                 </property>
-                 <property name="icon">
-                  <iconset resource="../../resources/resources.qrc">
-                   <normaloff>:/icons/search.png</normaloff>:/icons/search.png</iconset>
-                 </property>
-                </widget>
-               </item>
-               <item row="3" column="0">
-                <widget class="QLabel" name="label_9">
-                 <property name="enabled">
-                  <bool>true</bool>
-                 </property>
-                 <property name="frameShape">
-                  <enum>QFrame::StyledPanel</enum>
-                 </property>
-                 <property name="frameShadow">
-                  <enum>QFrame::Plain</enum>
-                 </property>
-                 <property name="text">
-                  <string>Area</string>
-                 </property>
-                </widget>
-               </item>
-               <item row="4" column="0">
-                <widget class="QLabel" name="label_8">
-                 <property name="enabled">
-                  <bool>true</bool>
-                 </property>
-                 <property name="frameShape">
-                  <enum>QFrame::StyledPanel</enum>
-                 </property>
-                 <property name="frameShadow">
-                  <enum>QFrame::Plain</enum>
-                 </property>
-                 <property name="text">
-                  <string>US</string>
-                 </property>
-                </widget>
-               </item>
-               <item row="2" column="0">
-                <widget class="QLabel" name="label_7">
-                 <property name="enabled">
-                  <bool>true</bool>
-                 </property>
-                 <property name="frameShape">
-                  <enum>QFrame::StyledPanel</enum>
-                 </property>
-                 <property name="frameShadow">
-                  <enum>QFrame::Plain</enum>
-                 </property>
-                 <property name="text">
-                  <string>Sito</string>
-                 </property>
-                </widget>
-               </item>
-               <item row="1" column="1">
-                <widget class="QRadioButton" name="radioButton_us">
-                 <property name="text">
-                  <string>Unità Stratigrafiche</string>
-                 </property>
-                 <property name="checked">
-                  <bool>true</bool>
-                 </property>
-                </widget>
-               </item>
-               <item row="1" column="2">
-                <widget class="QRadioButton" name="radioButton_materiali">
-                 <property name="text">
-                  <string>Materiali</string>
-                 </property>
-                </widget>
-               </item>
-              </layout>
-             </item>
             </layout>
            </widget>
           </widget>
@@ -1005,6 +1067,12 @@
            </item>
            <item>
             <widget class="QPushButton" name="pushButton_addRow_MAT">
+             <property name="maximumSize">
+              <size>
+               <width>30</width>
+               <height>16777215</height>
+              </size>
+             </property>
              <property name="text">
               <string>+</string>
              </property>
@@ -1012,6 +1080,12 @@
            </item>
            <item>
             <widget class="QPushButton" name="pushButton_removeRow_MAT">
+             <property name="maximumSize">
+              <size>
+               <width>30</width>
+               <height>16777215</height>
+              </size>
+             </property>
              <property name="text">
               <string>-</string>
              </property>
@@ -1042,7 +1116,7 @@
           <widget class="QPushButton" name="pushButton_assignTags_MAT">
            <property name="maximumSize">
             <size>
-             <width>120</width>
+             <width>30</width>
              <height>16777215</height>
             </size>
            </property>
@@ -1050,7 +1124,106 @@
             <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Assegna i tag alle foto materiali selezionate corrispondenti al sito e numero inventario&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
            </property>
            <property name="text">
-            <string>Assegna i tags</string>
+            <string/>
+           </property>
+           <property name="icon">
+            <iconset resource="../../resources/resources.qrc">
+             <normaloff>:/icons/add_tag.png</normaloff>:/icons/add_tag.png</iconset>
+           </property>
+          </widget>
+         </item>
+        </layout>
+       </widget>
+       <widget class="QWidget" name="tab_3">
+        <attribute name="title">
+         <string>Tags Tomba</string>
+        </attribute>
+        <layout class="QGridLayout" name="gridLayout_13">
+         <item row="0" column="0">
+          <layout class="QHBoxLayout" name="horizontalLayout_3">
+           <item>
+            <spacer name="horizontalSpacer_3">
+             <property name="orientation">
+              <enum>Qt::Horizontal</enum>
+             </property>
+             <property name="sizeHint" stdset="0">
+              <size>
+               <width>40</width>
+               <height>20</height>
+              </size>
+             </property>
+            </spacer>
+           </item>
+           <item>
+            <widget class="QLabel" name="label_10">
+             <property name="text">
+              <string>Tags manager</string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QPushButton" name="pushButton_addRow_tomba">
+             <property name="maximumSize">
+              <size>
+               <width>30</width>
+               <height>16777215</height>
+              </size>
+             </property>
+             <property name="text">
+              <string>+</string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QPushButton" name="pushButton_removeRow_tomba">
+             <property name="maximumSize">
+              <size>
+               <width>30</width>
+               <height>16777215</height>
+              </size>
+             </property>
+             <property name="text">
+              <string>-</string>
+             </property>
+            </widget>
+           </item>
+          </layout>
+         </item>
+         <item row="1" column="0">
+          <widget class="QTableWidget" name="tableWidgetTags_tomba">
+           <attribute name="horizontalHeaderDefaultSectionSize">
+            <number>244</number>
+           </attribute>
+           <row>
+            <property name="text">
+             <string/>
+            </property>
+           </row>
+           <column>
+            <property name="text">
+             <string>Sito</string>
+            </property>
+           </column>
+           <column>
+            <property name="text">
+             <string>Numero Inventario</string>
+            </property>
+           </column>
+          </widget>
+         </item>
+         <item row="2" column="0">
+          <widget class="QPushButton" name="pushButton_assignTags_tomba">
+           <property name="maximumSize">
+            <size>
+             <width>30</width>
+             <height>16777215</height>
+            </size>
+           </property>
+           <property name="toolTip">
+            <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Assegna i tag alle foto materiali selezionate corrispondenti al sito e numero inventario&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+           </property>
+           <property name="text">
+            <string/>
            </property>
            <property name="icon">
             <iconset resource="../../resources/resources.qrc">
@@ -1083,7 +1256,14 @@
      <property name="sizeConstraint">
       <enum>QLayout::SetDefaultConstraint</enum>
      </property>
-     <item row="1" column="0">
+     <item row="3" column="2">
+      <widget class="QLabel" name="label_img_visualizzate">
+       <property name="text">
+        <string/>
+       </property>
+      </widget>
+     </item>
+     <item row="2" column="0">
       <widget class="QLabel" name="label_2">
        <property name="font">
         <font>
@@ -1096,21 +1276,7 @@
        </property>
       </widget>
      </item>
-     <item row="2" column="0">
-      <widget class="QLabel" name="label_num_tot_immagini">
-       <property name="text">
-        <string/>
-       </property>
-      </widget>
-     </item>
      <item row="2" column="2">
-      <widget class="QLabel" name="label_img_visualizzate">
-       <property name="text">
-        <string/>
-       </property>
-      </widget>
-     </item>
-     <item row="1" column="2">
       <widget class="QLabel" name="label_4">
        <property name="font">
         <font>
@@ -1123,7 +1289,14 @@
        </property>
       </widget>
      </item>
-     <item row="3" column="0" colspan="3">
+     <item row="3" column="0">
+      <widget class="QLabel" name="label_num_tot_immagini">
+       <property name="text">
+        <string/>
+       </property>
+      </widget>
+     </item>
+     <item row="4" column="0" colspan="3">
       <widget class="QListWidget" name="iconListWidget">
        <property name="maximumSize">
         <size>
@@ -1226,7 +1399,7 @@
        </property>
       </widget>
      </item>
-     <item row="1" column="1">
+     <item row="2" column="1">
       <widget class="QSlider" name="sl">
        <property name="maximumSize">
         <size>
@@ -1257,15 +1430,19 @@
        </property>
       </widget>
      </item>
+     <item row="1" column="0" colspan="3">
+      <widget class="Line" name="line">
+       <property name="orientation">
+        <enum>Qt::Horizontal</enum>
+       </property>
+      </widget>
+     </item>
     </layout>
    </item>
    <item row="2" column="0">
     <widget class="QProgressBar" name="progressBar">
      <property name="value">
       <number>0</number>
-     </property>
-     <property name="format">
-      <string>%v/%m (%p%)</string>
      </property>
     </widget>
    </item>
@@ -1313,7 +1490,7 @@
      </property>
      <property name="maximumSize">
       <size>
-       <width>120</width>
+       <width>30</width>
        <height>16777215</height>
       </size>
      </property>
@@ -1321,7 +1498,7 @@
       <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Rimuovi un tag alla volta selezionandolo dalla TabWidget TAG&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
      </property>
      <property name="text">
-      <string>Rimuovi Tag</string>
+      <string/>
      </property>
      <property name="icon">
       <iconset resource="../../resources/resources.qrc">
@@ -1369,7 +1546,7 @@
    <slot>setHidden(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>74</x>
+     <x>478</x>
      <y>57</y>
     </hint>
     <hint type="destinationlabel">
@@ -1385,8 +1562,8 @@
    <slot>setVisible(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>282</x>
-     <y>57</y>
+     <x>506</x>
+     <y>88</y>
     </hint>
     <hint type="destinationlabel">
      <x>1065</x>
@@ -1401,8 +1578,8 @@
    <slot>resizeColumnsToContents()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>673</x>
-     <y>623</y>
+     <x>659</x>
+     <y>622</y>
     </hint>
     <hint type="destinationlabel">
      <x>1078</x>
@@ -1417,7 +1594,7 @@
    <slot>clearEditText()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>985</x>
+     <x>949</x>
      <y>298</y>
     </hint>
     <hint type="destinationlabel">
@@ -1433,7 +1610,7 @@
    <slot>clearEditText()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>1055</x>
+     <x>1018</x>
      <y>298</y>
     </hint>
     <hint type="destinationlabel">
@@ -1449,7 +1626,7 @@
    <slot>clearEditText()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>985</x>
+     <x>949</x>
      <y>298</y>
     </hint>
     <hint type="destinationlabel">
@@ -1465,7 +1642,7 @@
    <slot>clearEditText()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>985</x>
+     <x>949</x>
      <y>298</y>
     </hint>
     <hint type="destinationlabel">
@@ -1481,7 +1658,7 @@
    <slot>clearEditText()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>1055</x>
+     <x>1018</x>
      <y>298</y>
     </hint>
     <hint type="destinationlabel">
@@ -1497,7 +1674,7 @@
    <slot>clearEditText()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>1055</x>
+     <x>1018</x>
      <y>298</y>
     </hint>
     <hint type="destinationlabel">
@@ -1519,6 +1696,54 @@
     <hint type="destinationlabel">
      <x>815</x>
      <y>141</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>radioButton_tomba</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>comboBox_sito</receiver>
+   <slot>clearEditText()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>1048</x>
+     <y>293</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>1044</x>
+     <y>308</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>radioButton_tomba</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>comboBox_area</receiver>
+   <slot>clearEditText()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>1028</x>
+     <y>289</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>1037</x>
+     <y>341</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>radioButton_tomba</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>comboBox_us</receiver>
+   <slot>clearEditText()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>1072</x>
+     <y>291</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>1075</x>
+     <y>366</y>
     </hint>
    </hints>
   </connection>

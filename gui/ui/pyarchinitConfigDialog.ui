@@ -1236,7 +1236,7 @@
            </item>
            <item>
             <property name="text">
-             <string>PYTAFONOMIA</string>
+             <string>PYTOMBA</string>
             </property>
             <property name="icon">
              <iconset resource="../../resources/resources.qrc">
@@ -1339,7 +1339,7 @@
            </item>
            <item>
             <property name="text">
-             <string>TAFONOMIA</string>
+             <string>TOMBA</string>
             </property>
             <property name="icon">
              <iconset resource="../../resources/resources.qrc">

@@ -1405,26 +1405,26 @@ ALTER TABLE public.struttura_table OWNER TO postgres;
 
 --
 -- TOC entry 366 (class 1259 OID 32891)
--- Name: pyarchinit_tafonomia; Type: TABLE; Schema: public; Owner: postgres
+-- Name: pyarchinit_tomba; Type: TABLE; Schema: public; Owner: postgres
 --
 
-CREATE TABLE public.pyarchinit_tafonomia (
+CREATE TABLE public.pyarchinit_tomba (
     gid integer NOT NULL,
     the_geom public.geometry(Point,-1),
-    id_tafonomia_pk bigint,
+    id_tomba_pk bigint,
     sito character varying,
     nr_scheda bigint
 );
 
 
-ALTER TABLE public.pyarchinit_tafonomia OWNER TO postgres;
+ALTER TABLE public.pyarchinit_tomba OWNER TO postgres;
 
 --
 -- TOC entry 367 (class 1259 OID 32897)
--- Name: pyarchinit_tafonomia_gid_seq; Type: SEQUENCE; Schema: public; Owner: postgres
+-- Name: pyarchinit_tomba_gid_seq; Type: SEQUENCE; Schema: public; Owner: postgres
 --
 
-CREATE SEQUENCE public.pyarchinit_tafonomia_gid_seq
+CREATE SEQUENCE public.pyarchinit_tomba_gid_seq
     START WITH 1
     INCREMENT BY 1
     NO MINVALUE
@@ -1432,24 +1432,24 @@ CREATE SEQUENCE public.pyarchinit_tafonomia_gid_seq
     CACHE 1;
 
 
-ALTER TABLE public.pyarchinit_tafonomia_gid_seq OWNER TO postgres;
+ALTER TABLE public.pyarchinit_tomba_gid_seq OWNER TO postgres;
 
 --
 -- TOC entry 5056 (class 0 OID 0)
 -- Dependencies: 367
--- Name: pyarchinit_tafonomia_gid_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
+-- Name: pyarchinit_tomba_gid_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
 --
 
-ALTER SEQUENCE public.pyarchinit_tafonomia_gid_seq OWNED BY public.pyarchinit_tafonomia.gid;
+ALTER SEQUENCE public.pyarchinit_tomba_gid_seq OWNED BY public.pyarchinit_tomba.gid;
 
 
 --
 -- TOC entry 368 (class 1259 OID 32899)
--- Name: tafonomia_table; Type: TABLE; Schema: public; Owner: postgres
+-- Name: tomba_table; Type: TABLE; Schema: public; Owner: postgres
 --
 
-CREATE TABLE public.tafonomia_table (
-    id_tafonomia integer NOT NULL,
+CREATE TABLE public.tomba_table (
+    id_tomba integer NOT NULL,
     sito text,
     nr_scheda_taf integer,
     sigla_struttura text,
@@ -1484,11 +1484,11 @@ CREATE TABLE public.tafonomia_table (
     periodo_finale integer,
     fase_finale integer,
     datazione_estesa text,
-    misure_tafonomia text DEFAULT '[]'::text
+    misure_tomba text DEFAULT '[]'::text
 );
 
 
-ALTER TABLE public.tafonomia_table OWNER TO postgres;
+ALTER TABLE public.tomba_table OWNER TO postgres;
 
 
 --
@@ -1899,10 +1899,10 @@ ALTER SEQUENCE public.struttura_table_id_struttura_seq OWNED BY public.struttura
 
 --
 -- TOC entry 406 (class 1259 OID 33096)
--- Name: tafonomia_table_id_tafonomia_seq; Type: SEQUENCE; Schema: public; Owner: postgres
+-- Name: tomba_table_id_tomba_seq; Type: SEQUENCE; Schema: public; Owner: postgres
 --
 
-CREATE SEQUENCE public.tafonomia_table_id_tafonomia_seq
+CREATE SEQUENCE public.tomba_table_id_tomba_seq
     START WITH 1
     INCREMENT BY 1
     NO MINVALUE
@@ -1910,15 +1910,15 @@ CREATE SEQUENCE public.tafonomia_table_id_tafonomia_seq
     CACHE 1;
 
 
-ALTER TABLE public.tafonomia_table_id_tafonomia_seq OWNER TO postgres;
+ALTER TABLE public.tomba_table_id_tomba_seq OWNER TO postgres;
 
 --
 -- TOC entry 5077 (class 0 OID 0)
 -- Dependencies: 406
--- Name: tafonomia_table_id_tafonomia_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
+-- Name: tomba_table_id_tomba_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
 --
 
-ALTER SEQUENCE public.tafonomia_table_id_tafonomia_seq OWNED BY public.tafonomia_table.id_tafonomia;
+ALTER SEQUENCE public.tomba_table_id_tomba_seq OWNED BY public.tomba_table.id_tomba;
 
 
 --
@@ -2283,10 +2283,10 @@ ALTER TABLE ONLY public.pyarchinit_rou_thesaurus ALTER COLUMN "ID_rou" SET DEFAU
 
 --
 -- TOC entry 4551 (class 2604 OID 33172)
--- Name: pyarchinit_tafonomia gid; Type: DEFAULT; Schema: public; Owner: postgres
+-- Name: pyarchinit_tomba gid; Type: DEFAULT; Schema: public; Owner: postgres
 --
 
-ALTER TABLE ONLY public.pyarchinit_tafonomia ALTER COLUMN gid SET DEFAULT nextval('public.pyarchinit_tafonomia_gid_seq'::regclass);
+ALTER TABLE ONLY public.pyarchinit_tomba ALTER COLUMN gid SET DEFAULT nextval('public.pyarchinit_tomba_gid_seq'::regclass);
 
 
 --
@@ -2364,10 +2364,10 @@ ALTER TABLE ONLY public.struttura_table ALTER COLUMN id_struttura SET DEFAULT ne
 
 --
 -- TOC entry 4553 (class 2604 OID 33183)
--- Name: tafonomia_table id_tafonomia; Type: DEFAULT; Schema: public; Owner: postgres
+-- Name: tomba_table id_tomba; Type: DEFAULT; Schema: public; Owner: postgres
 --
 
-ALTER TABLE ONLY public.tafonomia_table ALTER COLUMN id_tafonomia SET DEFAULT nextval('public.tafonomia_table_id_tafonomia_seq'::regclass);
+ALTER TABLE ONLY public.tomba_table ALTER COLUMN id_tomba SET DEFAULT nextval('public.tomba_table_id_tomba_seq'::regclass);
 
 
 
@@ -2549,11 +2549,11 @@ ALTER TABLE ONLY public.struttura_table
 
 --
 -- TOC entry 4763 (class 2606 OID 41050)
--- Name: tafonomia_table ID_tafonomia_unico; Type: CONSTRAINT; Schema: public; Owner: postgres
+-- Name: tomba_table ID_tomba_unico; Type: CONSTRAINT; Schema: public; Owner: postgres
 --
 
-ALTER TABLE ONLY public.tafonomia_table
-    ADD CONSTRAINT "ID_tafonomia_unico" UNIQUE (sito, nr_scheda_taf);
+ALTER TABLE ONLY public.tomba_table
+    ADD CONSTRAINT "ID_tomba_unico" UNIQUE (sito, nr_scheda_taf);
 
 
 --
@@ -2852,11 +2852,11 @@ ALTER TABLE ONLY public.pyarchinit_strutture_ipotesi
 
 --
 -- TOC entry 4760 (class 2606 OID 41156)
--- Name: pyarchinit_tafonomia pyarchinit_tafonomia_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
+-- Name: pyarchinit_tomba pyarchinit_tomba_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
 --
 
-ALTER TABLE ONLY public.pyarchinit_tafonomia
-    ADD CONSTRAINT pyarchinit_tafonomia_pkey PRIMARY KEY (gid);
+ALTER TABLE ONLY public.pyarchinit_tomba
+    ADD CONSTRAINT pyarchinit_tomba_pkey PRIMARY KEY (gid);
 
 
 --
@@ -2967,11 +2967,11 @@ ALTER TABLE ONLY public.struttura_table
 
 --
 -- TOC entry 4765 (class 2606 OID 41190)
--- Name: tafonomia_table tafonomia_table_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
+-- Name: tomba_table tomba_table_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
 --
 
-ALTER TABLE ONLY public.tafonomia_table
-    ADD CONSTRAINT tafonomia_table_pkey PRIMARY KEY (id_tafonomia);
+ALTER TABLE ONLY public.tomba_table
+    ADD CONSTRAINT tomba_table_pkey PRIMARY KEY (id_tomba);
 
 
 --
@@ -3044,10 +3044,10 @@ CREATE INDEX sidx_pyarchinit_siti_polygonal_geom ON public.pyarchinit_siti_polyg
 
 --
 -- TOC entry 4761 (class 1259 OID 41213)
--- Name: sidx_pyarchinit_tafonomia_geom; Type: INDEX; Schema: public; Owner: postgres
+-- Name: sidx_pyarchinit_tomba_geom; Type: INDEX; Schema: public; Owner: postgres
 --
 
-CREATE INDEX sidx_pyarchinit_tafonomia_geom ON public.pyarchinit_tafonomia USING gist (the_geom);
+CREATE INDEX sidx_pyarchinit_tomba_geom ON public.pyarchinit_tomba USING gist (the_geom);
 
 
 --

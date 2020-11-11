@@ -97,6 +97,9 @@ class Individui_index_pdf_sheet(object):
         self.eta_min = data[7]
         self.eta_max = data[8]
         self.classi_eta = data[9]
+        self.sigla_struttura=data[11]
+        self.nr_struttura=data[12]
+        
 
     def getTable(self):
         styleSheet = getSampleStyleSheet()
@@ -109,7 +112,8 @@ class Individui_index_pdf_sheet(object):
         # self.unzip_rapporti_stratigrafici()
 
         individuo = Paragraph("<b>Nr Individuo</b><br/>" + str(self.nr_individuo), styNormal)
-
+        sigla = Paragraph("<b>Struttura</b><br/>" + str(self.sigla_struttura) +'-'+ str(self.nr_struttura), styNormal)
+        
         if self.area == None:
             area = Paragraph("<b>Area</b><br/>", styNormal)
         else:
@@ -136,6 +140,7 @@ class Individui_index_pdf_sheet(object):
             classi_eta = Paragraph("<b>Classi età</b><br/>" + str(self.classi_eta), styNormal)
 
         data = [individuo,
+                sigla,
                 area,
                 us,
                 eta_min,
@@ -253,6 +258,19 @@ class single_Individui_pdf_sheet(object):
         self.eta_max = data[8]
         self.classi_eta = data[9]
         self.osservazioni = data[10]
+        self.sigla_struttura = data[11]
+        self.nr_struttura = data[12]
+        self.completo = data[13]
+        self.disturbato = data[14]
+        self.connessione = data[15]
+        self.lunghezza_scheletro = data[16]
+        self.posizione_scheletro = data[17]
+        self.posizione_cranio = data[18]
+        self.posizione_arti_sup = data[19]
+        self.posizione_arti_inf = data[20]
+        self.orientamento_asse = data[21]
+        self.orientamento_azimut = data[22]
+        
 
     def datestrfdate(self):
         now = date.today()
@@ -336,7 +354,22 @@ class single_Individui_pdf_sheet(object):
             # 12 row
         data_schedatura = Paragraph("<b>Data schedatura</b><br/>" + self.data_schedatura, styNormal)
         schedatore = Paragraph("<b>Schedatore</b><br/>" + self.schedatore, styNormal)
-
+        sigla_struttura = Paragraph("<b>Sigla Struttura</b><br/>" + self.sigla_struttura, styNormal)
+        nr_struttura = Paragraph("<b>N. Struttura</b><br/>" + self.nr_struttura, styNormal)
+        completo = Paragraph("<b>Completo</b><br/>" + self.completo, styNormal)
+        disturbato = Paragraph("<b>Disturbato</b><br/>" + self.disturbato, styNormal)
+        connessione = Paragraph("<b>In connessione</b><br/>" + self.connessione, styNormal)
+        lunghezza_scheletro = Paragraph("<b>Lunghezza scheletro</b><br/>" + self.lunghezza_scheletro, styNormal)
+        posizione_scheletro = Paragraph("<b>Posizione scheletro</b><br/>" + self.posizione_scheletro, styNormal)
+        posizione_cranio = Paragraph("<b>Posizione cranio</b><br/>" + self.posizione_cranio, styNormal)
+        posizione_arti_sup = Paragraph("<b>Posizione arti superiori</b><br/>" + self.posizione_arti_sup, styNormal)
+        posizione_arti_inf = Paragraph("<b>Posizione arti inferiori</b><br/>" + self.posizione_arti_inf, styNormal)
+        orientamento_asse = Paragraph("<b>Orientamento asse</b><br/>" + self.orientamento_asse, styNormal)
+        orientamento_azimut = Paragraph("<b>Orientamento azimut</b><br/>" + self.orientamento_azimut, styNormal)
+        
+        
+        
+        
         # schema
         cell_schema = [  # 00, 01, 02, 03, 04, 05, 06, 07, 08, 09 rows
             [intestazione, '01', '02', '03', '04', '05', '06', logo, '08', '09'],
@@ -344,6 +377,13 @@ class single_Individui_pdf_sheet(object):
             [area, '01', '02', us, '04', '05', nr_inventario, '07', '08', '09'],  # 2row ok
             [sesso, '01', '02', eta_min, '04', '05', eta_max, '07', '08', '09'],  # 3row ok
             [classi_eta, '01', '02', '03', '04', '05', '06', '07', '08', '09'],  # 4 row ok
+            
+            [sigla_struttura, '01', '02', '03', nr_struttura, '05', '06', '07', '08', '09'],  # 4 row ok
+            [completo, '01', '02', disturbato, '04', '05', connessione, '07', '08', '09'],  # 4 row ok
+            [posizione_scheletro, '01', '02', '03', '04', posizione_cranio, '06', '07', '08', '09'],  # 4 row ok
+            [posizione_arti_sup, '01', '02', '03', '04', posizione_arti_inf, '06', '07', '08', '09'],  
+            [orientamento_asse, '01', '02', '03', '04', orientamento_azimut, '06', '07', '08', '09'],  
+            
             [osservazioni, '01', '02', '03', '04', '05', '06', '07', '08', '09'],  # 5 row ok
             [data_schedatura, '01', '02', '03', '04', '05', schedatore, '07', '08', '09']  # 5 row ok
             # ['https://sites.google.com/site/pyarchinit/', '01', '02', '03', '04','05', '06', '07','08', '09'] #6 row
@@ -352,7 +392,7 @@ class single_Individui_pdf_sheet(object):
         # table style
         table_style = [
 
-            ('GRID', (0, 0), (-1, -1), 0.5, colors.black),
+            ('GRID', (0, 0), (-1, -1), 0.3, colors.black),
             # 0 row
             ('SPAN', (0, 0), (6, 0)),  # intestazione
             ('SPAN', (7, 0), (9, 0)),  # intestazione2
@@ -369,17 +409,36 @@ class single_Individui_pdf_sheet(object):
             ('SPAN', (0, 3), (2, 3)),  # sesso
             ('SPAN', (3, 3), (5, 3)),  # eta_min
             ('SPAN', (6, 3), (9, 3)),  # eta_max
-            ('VALIGN', (0, 3), (9, 3), 'TOP'),
-
+            
             # 3 row
             ('SPAN', (0, 4), (9, 4)),  # classi_eta
+            #
+            ('SPAN', (0, 5), (3, 5)),  # data_schedatura
+            ('SPAN', (4, 5), (9, 5)),  # schedatore
 
+            # 2 row
+            ('SPAN', (0, 6), (2, 6)),  # sesso
+            ('SPAN', (3, 6), (5, 6)),  # eta_min
+            ('SPAN', (6, 6), (9, 6)),  # eta_max
+            
+            #
+            ('SPAN', (0, 7), (4, 7)),  # data_schedatura
+            ('SPAN', (5, 7), (9, 7)),  # schedatore
+            
+             #
+            ('SPAN', (0, 8), (4, 8)),  # data_schedatura
+            ('SPAN', (5, 8), (9, 8)),  # schedatore
+            
+             #
+            ('SPAN', (0, 9), (4, 9)),  # data_schedatura
+            ('SPAN', (5, 9), (9, 9)),  # schedatore
+            
             # 4 row
-            ('SPAN', (0, 5), (9, 5)),  # osservazioni
+            ('SPAN', (0, 10), (9, 10)),  # osservazioni
 
             # 5 row
-            ('SPAN', (0, 6), (5, 6)),  # data_schedatura
-            ('SPAN', (6, 6), (9, 6)),  # schedatore
+            ('SPAN', (0, 11), (5, 11)),  # data_schedatura
+            ('SPAN', (6, 11), (9, 11)),  # schedatore
 
             ('VALIGN', (0, 0), (-1, -1), 'TOP')
         ]
@@ -660,7 +719,7 @@ class generate_pdf(object):
             single_individui_sheet = single_Individui_pdf_sheet(records[i])
             elements.append(single_individui_sheet.create_sheet())
             elements.append(PageBreak())
-        filename = '{}{}{}'.format(self.PDF_path, os.sep, 'scheda_Individui.pdf')
+        filename = '{}{}{}'.format(self.PDF_path, os.sep, 'Scheda Individui.pdf')
         f = open(filename, "wb")
         doc = SimpleDocTemplate(f)
         doc.build(elements, canvasmaker=NumberedCanvas_Individuisheet)
@@ -707,7 +766,7 @@ class generate_pdf(object):
 
         lst = []
         lst.append(logo)
-        lst.append(Paragraph("<b>ELENCO INDIVIDUI</b><br/><b>Scavo: %s, Data: %s</b>" % (sito, data), styH1))
+        lst.append(Paragraph("<b>ELENCO INDIVIDUI</b><br/><b>Scavo: %s<br/> Data: %s</b>" % (sito, data), styH1))
 
         table_data = []
         for i in range(len(records)):
@@ -715,7 +774,7 @@ class generate_pdf(object):
             table_data.append(exp_index.getTable())
 
         styles = exp_index.makeStyles()
-        colWidths = [60, 60, 60, 60, 60, 250]
+        colWidths = [100, 60, 60, 60, 60, 60,60]
 
         table_data_formatted = Table(table_data, colWidths, style=styles)
         table_data_formatted.hAlign = "LEFT"
@@ -723,7 +782,7 @@ class generate_pdf(object):
         lst.append(table_data_formatted)
         # lst.append(Spacer(0,2))
 
-        filename = '{}{}{}'.format(self.PDF_path, os.sep, 'elenco_individui.pdf')
+        filename = '{}{}{}'.format(self.PDF_path, os.sep, 'Elenco individui.pdf')
         f = open(filename, "wb")
 
         doc = SimpleDocTemplate(f, pagesize=(29 * cm, 21 * cm), showBoundary=0)
