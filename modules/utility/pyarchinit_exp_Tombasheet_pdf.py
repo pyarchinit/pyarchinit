@@ -435,8 +435,8 @@ class Tomba_index_II_pdf_sheet(object):
 
         self.quota_min_strutt = data[26]
         self.quota_max_strutt = data[27]
-        self.misure_tomba = data[23]
-        self.datazione_estesa = data[22]
+        self.misure_tomba = data[24]
+        self.datazione_estesa = data[23]
 
     def getTable(self):
         styleSheet = getSampleStyleSheet()
