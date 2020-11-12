@@ -1463,6 +1463,7 @@ ALTER SEQUENCE public.pyarchinit_tomba_gid_seq OWNED BY public.pyarchinit_tomba.
 CREATE TABLE public.tomba_table (
     id_tomba integer NOT NULL,
     sito text,
+	area integer,
     nr_scheda_taf integer,
     sigla_struttura text,
     nr_struttura integer,

@@ -525,7 +525,7 @@ END
 $$;  
 
 INSERT INTO tomba_table (
-            
+            id_tomba,
 			sito, 
 			area, 
 			nr_scheda_taf ,
@@ -554,6 +554,7 @@ INSERT INTO tomba_table (
 			)
                 
                   SELECT
+				    id_tafonomia,
 					sito, 
 					area, 
 					nr_scheda_taf ,
