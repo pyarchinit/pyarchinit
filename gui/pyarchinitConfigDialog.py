@@ -1135,8 +1135,121 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
                 
                 END;"""
             c.execute(sql_trigger_coord3)
+            sql_alter_table_tb=( 
+            """CREATE TABLE if not exists tomba_table (
             
+            "id_tomba"  INTEGER, 
+            "sito"     TEXT, 
+            "nr_scheda_taf"  INTEGER, 
+            "sigla_struttura" TEXT ,
+            "nr_struttura" INTEGER ,
+            "nr_individuo" TEXT ,
+            "rito"  TEXT ,
+            "descrizione_taf"  TEXT ,
+            "interpretazione_taf"  TEXT ,
+            "segnacoli"  TEXT ,
+            "canale_libatorio_si_no"  TEXT ,
+            "oggetti_rinvenuti_esterno" TEXT, 
+            "stato_di_conservazione" TEXT ,
+            "copertura_tipo" TEXT ,
+            "tipo_contenitore_resti"  TEXT ,
+            "tipo_deposizione"  TEXT ,
+            "tipo_sepoltura" TEXT ,
+            "corredo_presenza" TEXT ,
+            "corredo_tipo" TEXT ,
+            "corredo_descrizione" TEXT ,
+            "periodo_iniziale" INTEGER ,
+            "fase_iniziale" INTEGER ,
+            "periodo_finale" INTEGER ,
+            "fase_finale" INTEGER ,
+            "datazione_estesa" VARCHAR(300) 
+            ); """ )
+            c.execute(sql_alter_table_tb)
+            sql_alter_table_tomba=( 
+                """INSERT OR IGNORE INTO tomba_table (
             
+			sito, 
+			nr_scheda_taf ,
+			sigla_struttura, 
+			nr_struttura ,
+			nr_individuo ,
+			rito ,
+			descrizione_taf ,
+			interpretazione_taf ,
+			segnacoli ,
+			canale_libatorio_si_no, 
+			oggetti_rinvenuti_esterno ,
+			stato_di_conservazione, 
+			copertura_tipo ,
+			tipo_contenitore_resti ,
+			corredo_presenza ,
+			corredo_tipo ,
+			corredo_descrizione ,
+			periodo_iniziale ,
+			fase_iniziale ,
+			periodo_finale ,
+			fase_finale ,
+			datazione_estesa 
+			)
+                
+            SELECT
+            sito, 
+            nr_scheda_taf ,
+            sigla_struttura, 
+            nr_struttura ,
+            nr_individuo ,
+            rito ,
+            descrizione_taf ,
+            interpretazione_taf ,
+            segnacoli ,
+            canale_libatorio_si_no, 
+            oggetti_rinvenuti_esterno ,
+            stato_di_conservazione, 
+            copertura_tipo ,
+            tipo_contenitore_resti ,
+            corredo_presenza ,
+            corredo_tipo ,
+            corredo_descrizione ,
+            periodo_iniziale ,
+            fase_iniziale ,
+            periodo_finale ,
+            fase_finale ,
+            datazione_estesa 
+
+            FROM tafonomia_table; """)
+            c.execute(sql_alter_table_tomba)
+            
+            sql_alter_table_individui=( 
+            """INSERT OR IGNORE INTO individui_table (
+            nr_individuo,
+            completo_si_no ,
+            disturbato_si_no ,
+            in_connessione_si_no, 
+            lunghezza_scheletro ,
+            posizione_scheletro ,
+            posizione_cranio ,
+            posizione_arti_superiori ,
+            posizione_arti_inferiori, 
+            orientamento_asse ,
+            orientamento_azimut 
+
+            )
+            
+            SELECT
+            nr_individuo,
+            completo_si_no ,
+            disturbato_si_no ,
+            in_connessione_si_no, 
+            lunghezza_scheletro ,
+            posizione_scheletro ,
+            posizione_cranio ,
+            posizione_arti_superiori ,
+            posizione_arti_inferiori, 
+            orientamento_asse ,
+            orientamento_azimut 
+
+            FROM tafonomia_table; """)
+            c.execute(sql_alter_table_individui)    
             
             RestoreSchema(db_url,None).update_geom_srid_sl('%d' % int(self.lineEdit_crs.text()))
             c.close()

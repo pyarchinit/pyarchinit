@@ -523,3 +523,96 @@ CREATE TRIGGER create_geom
 END IF;
 END
 $$;  
+
+INSERT INTO tomba_table (
+            
+			sito, 
+			area, 
+			nr_scheda_taf ,
+			sigla_struttura, 
+			nr_struttura ,
+			nr_individuo ,
+			rito ,
+			descrizione_taf ,
+			interpretazione_taf ,
+			segnacoli ,
+			canale_libatorio_si_no, 
+			oggetti_rinvenuti_esterno ,
+			stato_di_conservazione, 
+			copertura_tipo ,
+			tipo_contenitore_resti ,
+			tipo_deposizione ,
+			tipo_sepoltura ,
+			corredo_presenza ,
+			corredo_tipo ,
+			corredo_descrizione ,
+			periodo_iniziale ,
+			fase_iniziale ,
+			periodo_finale ,
+			fase_finale ,
+			datazione_estesa ,
+			)
+                
+                  SELECT
+					sito, 
+					area, 
+					nr_scheda_taf ,
+					sigla_struttura, 
+					nr_struttura ,
+					nr_individuo ,
+					rito ,
+					descrizione_taf ,
+					interpretazione_taf ,
+					segnacoli ,
+					canale_libatorio_si_no, 
+					oggetti_rinvenuti_esterno ,
+					stato_di_conservazione, 
+					copertura_tipo ,
+					tipo_contenitore_resti ,
+					tipo_deposizione ,
+					tipo_sepoltura ,
+					corredo_presenza ,
+					corredo_tipo ,
+					corredo_descrizione ,
+					periodo_iniziale ,
+					fase_iniziale ,
+					periodo_finale ,
+					fase_finale ,
+					datazione_estesa ,
+
+                  FROM tafonomia_table
+				  ON CONFLICT (sito, nr_scheda_taf) DO NOTHING;
+				  
+				  
+INSERT INTO individui_table (
+            	nr_individuo
+				area,
+				completo_si_no ,
+				disturbato_si_no ,
+				in_connessione_si_no, 
+				lunghezza_scheletro ,
+				posizione_scheletro ,
+				posizione_cranio ,
+				posizione_arti_superiori ,
+				posizione_arti_inferiori, 
+				orientamento_asse ,
+				orientamento_azimut 
+
+			)
+                
+                  SELECT
+					nr_individuo
+					completo_si_no ,
+					disturbato_si_no ,
+					in_connessione_si_no, 
+					lunghezza_scheletro ,
+					posizione_scheletro ,
+					posizione_cranio ,
+					posizione_arti_superiori ,
+					posizione_arti_inferiori, 
+					orientamento_asse ,
+					orientamento_azimut 
+
+                  FROM tafonomia_table
+				  ON CONFLICT (nr_individuo) DO NOTHING;				  
+				  
