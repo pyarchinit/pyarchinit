@@ -353,7 +353,7 @@ CREATE TABLE public.individui_table (
 	nr_struttura integer,
 	completo_si_no character varying(4),
     disturbato_si_no character varying(4),
-    in_connessione_si_no character varying(4)
+    in_connessione_si_no character varying(4),
 	lunghezza_scheletro real,
     posizione_scheletro character varying(250),
     posizione_cranio character varying(250),
@@ -1660,7 +1660,7 @@ CREATE TABLE public.pyunitastratigrafiche (
     tipo_doc character varying(250),
     nome_doc character varying(250),
 	coord text,
-	the_geom public.geometry(MultiPolygon,-1),
+	the_geom public.geometry(MultiPolygon,-1)
 );
 
 
