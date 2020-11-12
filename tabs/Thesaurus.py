@@ -232,6 +232,7 @@ class pyarchinit_Thesaurus(QDialog, MAIN_DIALOG_CLASS):
                 self.set_rec_counter(len(self.DATA_LIST), self.REC_CORR + 1)
                 self.charge_list()
                 self.fill_fields()
+                self.comboBox_nome_tabella.currentTextChanged.connect(self.charge_n_sigla)
             else:
                 if self.L=='it':
                     QMessageBox.warning(self,"BENVENUTO", "Benvenuto in pyArchInit" + "Scheda Campioni" + ". Il database e' vuoto. Premi 'Ok' e buon lavoro!",
@@ -283,21 +284,44 @@ class pyarchinit_Thesaurus(QDialog, MAIN_DIALOG_CLASS):
         for key, values in self.LANG.items():
             lingua.append(key)
         self.comboBox_lingua.addItems(lingua)
-
-    ##      sito_vl = self.UTILITY.tup_2_list_III(self.DB_MANAGER.group_by('site_table', 'sito', 'SITE'))
-    ##
-    ##      try:
-    ##          sito_vl.remove('')
-    ##      except:
-    ##          pass
-    ##      self.comboBox_sito.clear()
-    ##      sito_vl.sort()
-    ##      self.comboBox_sito.addItems(sito_vl)
-
-    # buttons functions
-    def on_pushButton_pdf_pressed(self):
-        pass
-
+    def charge_n_sigla(self):    
+        self.comboBox_tipologia_sigla.clear()
+        self.comboBox_tipologia_sigla.update()
+        list1=['1.1']
+        list2=['2.1','2.2','2.3','2.4','2.5','2.6','2.7','2.8','2.9','2.10','2.11','2.12','2.13','2.14','2.15','2.16','2.17','2.18','2.19','2.20','2.21','2.22','2.23','2.24','2.25','2.26','2.27','2.28','2.29','2.30','2.31','2.32','2.33','2.34','2.35','2.36','2.37','2.38','2.39','2.40','2.41','2.42','201.201','202.202','203.203']
+        list3=['3.1','3.2','3.3','3.4','3.5','3.6','3.7','3.8','3.9','3.10','301.301']
+        list4=['4.1']
+        list5=['5.1','5.2','5.3']
+        list6=['6.1','6.2','6.3','6.4','6.5','6.6','6.7','6.8']
+        list7=['7.1','7.2','7.3','7.4','7.5','7.6','7.7','701.701','702.702']
+        list8=['8.1','8.2','8.3','8.4','8.5','801.801']
+        if self.comboBox_nome_tabella.currentText()=='site_table':
+            
+            self.comboBox_tipologia_sigla.clear()
+            self.comboBox_tipologia_sigla.addItems(list1)
+        if self.comboBox_nome_tabella.currentText()=='us_table':
+            self.comboBox_tipologia_sigla.clear()
+            self.comboBox_tipologia_sigla.addItems(list2)
+        if self.comboBox_nome_tabella.currentText()=='inventario_materiali_table':
+            self.comboBox_tipologia_sigla.clear()
+            self.comboBox_tipologia_sigla.addItems(list3)
+        if self.comboBox_nome_tabella.currentText()=='campioni_table':
+            self.comboBox_tipologia_sigla.clear()
+            self.comboBox_tipologia_sigla.addItems(list4)
+        if self.comboBox_nome_tabella.currentText()=='inventario_lapidei_table':
+            self.comboBox_tipologia_sigla.clear()
+            self.comboBox_tipologia_sigla.addItems(list5)
+        if self.comboBox_nome_tabella.currentText()=='struttura_table':
+            self.comboBox_tipologia_sigla.clear()
+            self.comboBox_tipologia_sigla.addItems(list6)
+        if self.comboBox_nome_tabella.currentText()=='tomba_table':
+            self.comboBox_tipologia_sigla.clear()
+            self.comboBox_tipologia_sigla.addItems(list7)
+        if self.comboBox_nome_tabella.currentText()=='individui_table':
+            self.comboBox_tipologia_sigla.clear()
+            self.comboBox_tipologia_sigla.addItems(list8)
+    
+    
     def on_pushButton_sort_pressed(self):
         if self.check_record_state() == 1:
             pass
@@ -340,6 +364,7 @@ class pyarchinit_Thesaurus(QDialog, MAIN_DIALOG_CLASS):
             self.fill_fields()
 
     def on_pushButton_new_rec_pressed(self):
+        
         if bool(self.DATA_LIST):
             if self.data_error_check() == 1:
                 pass
@@ -472,6 +497,17 @@ class pyarchinit_Thesaurus(QDialog, MAIN_DIALOG_CLASS):
                 QMessageBox.warning(self, "ATTENZIONE", "Campo Descrizione \n Il campo non deve essere vuoto",
                                     QMessageBox.Ok)
                 test = 1
+        
+        
+            """controllo lunghezza campo alfanumerico"""
+            sigla = self.comboBox_sigla.currentText()
+            if sigla!='':
+                if EC.data_lenght(sigla, 3) == 0:
+                    QMessageBox.warning(self, "ATTENZIONE",
+                                        "Campo Sigla. \n Il valore non deve superare i 3 caratteri alfabetici",
+                                        QMessageBox.Ok)
+                                        
+                    test = 1                    
         elif self.L=='de':
             if EC.data_is_empty(str(self.comboBox_sigla.currentText())) == 0:
                 QMessageBox.warning(self, "ACHTUNG", "Feld Abkürzung \n Das Feld darf nicht leer sein", QMessageBox.Ok)
