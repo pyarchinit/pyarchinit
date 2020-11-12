@@ -54,7 +54,7 @@ class pyarchinit_Tomba(QDialog, MAIN_DIALOG_CLASS):
         MSG_BOX_TITLE = "PyArchInit - Scheda Tomba"
     
     elif L=='de':
-        MSG_BOX_TITLE = "PyArchInit - Formular Grave"
+        MSG_BOX_TITLE = "PyArchInit - Formular Gravel"
     else:
         MSG_BOX_TITLE = "PyArchInit - Gravel form" 
     DATA_LIST = []
