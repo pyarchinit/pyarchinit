@@ -1906,24 +1906,7 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
             elif mapper_class_write == 'TOMBA' :
                 for sing_rec in range(len(data_list_toimp)):
 
-                    # blocco oritentamento_azimut
-                    test_azimut = data_list_toimp[sing_rec].orientamento_azimut
-
-                    if test_azimut == "" or test_azimut == None:
-                        orientamento_azimut = None
-                    else:
-                        orientamento_azimut = float(data_list_toimp[sing_rec].orientamento_azimut)
-                    ##                  if conn_str_dict_write['server'] == 'postgres':
-                    ##                      orientamento_azimut = float(orientamento_azimut)
-                    ##
-
-                    # blocco oritentamento_azimut
-                    test_lunghezza_scheletro = data_list_toimp[sing_rec].lunghezza_scheletro
-
-                    if test_lunghezza_scheletro == "" or test_lunghezza_scheletro == None:
-                        lunghezza_scheletro = None
-                    else:
-                        lunghezza_scheletro = float(data_list_toimp[sing_rec].lunghezza_scheletro)
+                    
 
                         # blocco periodo_iniziale
                     test_per_iniz = data_list_toimp[sing_rec].periodo_iniziale
@@ -1975,27 +1958,17 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
                             str(data_list_toimp[sing_rec].oggetti_rinvenuti_esterno),
                             str(data_list_toimp[sing_rec].stato_di_conservazione),
                             str(data_list_toimp[sing_rec].copertura_tipo),
-                            str(data_list_toimp[sing_rec].tipo_conteni+++tore_resti),
-                            str(data_list_toimp[sing_rec].orientamento_asse),
-                            orientamento_azimut,
+                            str(data_list_toimp[sing_rec].tipo_contenitore_resti),
+                            str(data_list_toimp[sing_rec].tipo_deposizione),
+                            str(data_list_toimp[sing_rec].tipo_sepoltura),
                             str(data_list_toimp[sing_rec].corredo_presenza),
                             str(data_list_toimp[sing_rec].corredo_tipo),
                             str(data_list_toimp[sing_rec].corredo_descrizione),
-                            lunghezza_scheletro,
-                            str(data_list_toimp[sing_rec].posizione_scheletro),
-                            str(data_list_toimp[sing_rec].posizione_cranio),
-                            str(data_list_toimp[sing_rec].posizione_arti_superiori),
-                            str(data_list_toimp[sing_rec].posizione_arti_inferiori),
-                            str(data_list_toimp[sing_rec].completo_si_no),
-                            str(data_list_toimp[sing_rec].disturbato_si_no),
-                            str(data_list_toimp[sing_rec].in_connessione_si_no),
-                            str(data_list_toimp[sing_rec].caratteristiche),
                             per_iniz,
                             fase_iniz,
                             per_fin,
                             fase_fin,
-                            str(data_list_toimp[sing_rec].datazione_estesa),
-                            str(data_list_toimp[sing_rec].misure_tomba)
+                            str(data_list_toimp[sing_rec].datazione_estesa)
                         )
                             
                         self.DB_MANAGER_write.insert_data_session(data)
@@ -2014,6 +1987,25 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
             
             elif mapper_class_write == 'SCHEDAIND' :
                 for sing_rec in range(len(data_list_toimp)):
+                    # blocco oritentamento_azimut
+                    test_azimut = data_list_toimp[sing_rec].orientamento_azimut
+
+                    if test_azimut == "" or test_azimut == None:
+                        orientamento_azimut = None
+                    else:
+                        orientamento_azimut = float(data_list_toimp[sing_rec].orientamento_azimut)
+                    ##                  if conn_str_dict_write['server'] == 'postgres':
+                    ##                      orientamento_azimut = float(orientamento_azimut)
+                    ##
+
+                    # blocco oritentamento_azimut
+                    test_lunghezza_scheletro = data_list_toimp[sing_rec].lunghezza_scheletro
+
+                    if test_lunghezza_scheletro == "" or test_lunghezza_scheletro == None:
+                        lunghezza_scheletro = None
+                    else:
+                        lunghezza_scheletro = float(data_list_toimp[sing_rec].lunghezza_scheletro)
+                    
                     try:
                         data = self.DB_MANAGER_write.insert_values_ind(
                             self.DB_MANAGER_write.max_num_id(mapper_class_write,
@@ -2028,9 +2020,21 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
                             data_list_toimp[sing_rec].eta_min,
                             data_list_toimp[sing_rec].eta_max,
                             data_list_toimp[sing_rec].classi_eta,
-                            data_list_toimp[sing_rec].osservazioni
+                            data_list_toimp[sing_rec].osservazioni,
+                            data_list_toimp[sing_rec].sigla_struttura,
+                            data_list_toimp[sing_rec].nr_struttura,
+                            data_list_toimp[sing_rec].completo_si_no,
+                            data_list_toimp[sing_rec].disturbato_si_no,
+                            data_list_toimp[sing_rec].in_connessione_si_no,
+                            lunghezza_scheletro,
+                            data_list_toimp[sing_rec].posizione_scheletro,
+                            data_list_toimp[sing_rec].posizione_cranio,
+                            data_list_toimp[sing_rec].posizione_arti_superiori,
+                            data_list_toimp[sing_rec].posizione_arti_inferiori,
+                            data_list_toimp[sing_rec].orientamento_asse,
+                            orientamento_azimut                            
                         )
-                    
+                        
                         self.DB_MANAGER_write.insert_data_session(data)
                         
                         value = (float(sing_rec)/float(len(data_list_toimp)))*100

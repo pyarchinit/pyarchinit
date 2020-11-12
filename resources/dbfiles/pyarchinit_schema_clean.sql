@@ -348,8 +348,20 @@ CREATE TABLE public.individui_table (
     eta_min integer,
     eta_max integer,
     classi_eta character varying(100),
-    osservazioni text
-);
+    osservazioni text,
+	sigla_struttura character varying(100),
+	nr_struttura integer,
+	completo_si_no character varying(4),
+    disturbato_si_no character varying(4),
+    in_connessione_si_no character varying(4)
+	lunghezza_scheletro real,
+    posizione_scheletro character varying(250),
+    posizione_cranio character varying(250),
+    posizione_arti_superiori character varying(250),
+    posizione_arti_inferiori character varying(250),
+	orientamento_asse text,
+	orientamento_azimut real
+	);
 
 
 ALTER TABLE public.individui_table OWNER TO postgres;
@@ -396,8 +408,8 @@ CREATE TABLE public.inventario_materiali_table (
     lavato character varying(2),
     nr_cassa integer,
     luogo_conservazione text,
-    stato_conservazione character varying DEFAULT 'inserisci un valore'::character varying,
-    datazione_reperto character varying(30) DEFAULT 'inserisci un valore'::character varying,
+    stato_conservazione character varying DEFAULT ''::character varying,
+    datazione_reperto character varying(30) DEFAULT ''::character varying,
     elementi_reperto text,
     misurazioni text,
     rif_biblio text,
@@ -1464,27 +1476,16 @@ CREATE TABLE public.tomba_table (
     stato_di_conservazione text,
     copertura_tipo text,
     tipo_contenitore_resti text,
-    orientamento_asse text,
-    orientamento_azimut real,
-    riferimenti_stratigrafici text,
+    tipo_deposizione text,
+	tipo_sepoltura text,
     corredo_presenza text,
     corredo_tipo text,
-    corredo_descrizione text,
-    lunghezza_scheletro real,
-    posizione_scheletro character varying(150),
-    posizione_cranio character varying(150),
-    posizione_arti_superiori character varying(150),
-    posizione_arti_inferiori character varying(150),
-    completo_si_no character varying(2),
-    disturbato_si_no character varying(2),
-    in_connessione_si_no character varying(2),
-    caratteristiche text,
+    corredo_descrizione text,    
     periodo_iniziale integer,
     fase_iniziale integer,
     periodo_finale integer,
     fase_finale integer,
-    datazione_estesa text,
-    misure_tomba text DEFAULT '[]'::text
+    datazione_estesa text
 );
 
 
