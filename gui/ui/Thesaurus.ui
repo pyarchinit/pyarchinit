@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>540</width>
-    <height>468</height>
+    <height>750</height>
    </rect>
   </property>
   <property name="minimumSize">
@@ -541,12 +541,27 @@
         </property>
         <item>
          <property name="text">
+          <string>site_table</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
           <string>us_table</string>
          </property>
         </item>
         <item>
          <property name="text">
-          <string>site_table</string>
+          <string>inventario_materiali_table</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>campioni_table</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>inventario_lapidei_table</string>
          </property>
         </item>
         <item>
@@ -556,12 +571,12 @@
         </item>
         <item>
          <property name="text">
-          <string>pyunitastratigrafiche</string>
+          <string>tomba_table</string>
          </property>
         </item>
         <item>
          <property name="text">
-          <string>inventario_materiali_table</string>
+          <string>individui_table</string>
          </property>
         </item>
        </widget>
@@ -868,5 +883,22 @@
  <resources>
   <include location="../../resources/resources.qrc"/>
  </resources>
- <connections/>
+ <connections>
+  <connection>
+   <sender>comboBox_nome_tabella</sender>
+   <signal>currentTextChanged(QString)</signal>
+   <receiver>comboBox_tipologia_sigla</receiver>
+   <slot>update()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>90</x>
+     <y>235</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>302</x>
+     <y>234</y>
+    </hint>
+   </hints>
+  </connection>
+ </connections>
 </ui>
