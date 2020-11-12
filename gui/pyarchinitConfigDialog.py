@@ -1140,6 +1140,7 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
             
             "id_tomba"  INTEGER, 
             "sito"     TEXT, 
+            "area"     INTEGER,
             "nr_scheda_taf"  INTEGER, 
             "sigla_struttura" TEXT ,
             "nr_struttura" INTEGER ,
@@ -1167,7 +1168,7 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
             c.execute(sql_alter_table_tb)
             sql_alter_table_tomba=( 
                 """INSERT OR IGNORE INTO tomba_table (
-            
+            id_tomba,
 			sito, 
 			nr_scheda_taf ,
 			sigla_struttura, 
@@ -1193,6 +1194,7 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
 			)
                 
             SELECT
+            id_tafonomia,
             sito, 
             nr_scheda_taf ,
             sigla_struttura, 
