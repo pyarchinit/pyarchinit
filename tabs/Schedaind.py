@@ -27,7 +27,11 @@ from datetime import date
 import cv2
 from builtins import range
 from builtins import str
-from qgis.PyQt.QtWidgets import QDialog, QMessageBox
+from qgis.PyQt.QtWidgets import QDialog, QMessageBox, QTableWidgetItem
+from qgis.PyQt.uic import loadUiType
+from qgis.PyQt.QtCore import *
+from qgis.PyQt.QtGui import QColor, QIcon
+from qgis.PyQt.QtWidgets import *
 from qgis.PyQt.uic import loadUiType
 from qgis.core import QgsSettings
 from ..modules.db.pyarchinit_conn_strings import Connection
@@ -197,6 +201,21 @@ class pyarchinit_Schedaind(QDialog, MAIN_DIALOG_CLASS):
         'orientamento_asse',
         'orientamento_azimut'   
     ]
+    LANG = {
+        "IT": ['it_IT', 'IT', 'it', 'IT_IT'],
+        "EN_US": ['en_US','EN_US'],
+        "DE": ['de_DE','de','DE', 'DE_DE'],
+        "FR": ['fr_FR','fr','FR', 'FR_FR'],
+        "ES": ['es_ES','es','ES', 'ES_ES'],
+        "PT": ['pt_PT','pt','PT', 'PT_PT'],
+        "SV": ['sv_SV','sv','SV', 'SV_SV'],
+        "RU": ['ru_RU','ru','RU', 'RU_RU'],
+        "RO": ['ro_RO','ro','RO', 'RO_RO'],
+        "AR": ['ar_AR','ar','AR', 'AR_AR'],
+        "PT_BR": ['pt_BR','PT_BR'],
+        "SL": ['sl_SL','sl','SL', 'SL_SL'],
+    }
+    
     HOME = os.environ['PYARCHINIT_HOME']
     PDFFOLDER = '{}{}{}'.format(HOME, os.sep, "pyarchinit_PDF_folder")
     DB_SERVER = "not defined"  ####nuovo sistema sort
@@ -340,7 +359,14 @@ class pyarchinit_Schedaind(QDialog, MAIN_DIALOG_CLASS):
 
     def charge_list(self):
 
-        #lista sito
+        l = QgsSettings().value("locale/userLocale", QVariant)
+        lang = ""
+        for key, values in self.LANG.items():
+            if values.__contains__(l):
+                lang = str(key)
+        lang = "'" + lang + "'"
+
+        # lista sito
 
         sito_vl = self.UTILITY.tup_2_list_III(self.DB_MANAGER.group_by('site_table', 'sito', 'SITE'))
         try:
@@ -353,6 +379,146 @@ class pyarchinit_Schedaind(QDialog, MAIN_DIALOG_CLASS):
         sito_vl.sort()
         self.comboBox_sito.addItems(sito_vl)
 
+        # lista rito
+
+        self.comboBox_disturbato.clear()
+        search_dict = {
+            'lingua': lang,
+            'nome_tabella': "'" + 'individui_table' + "'",
+            'tipologia_sigla': "'" + '801.801' + "'"
+        }
+
+        disturbato = self.DB_MANAGER.query_bool(search_dict, 'PYARCHINIT_THESAURUS_SIGLE')
+        disturbato_vl = []
+
+        for i in range(len(disturbato)):
+            disturbato_vl.append(disturbato[i].sigla)
+
+        disturbato_vl.sort()
+        self.comboBox_disturbato.addItems(disturbato_vl)
+
+        self.comboBox_completo.clear()
+        search_dict = {
+            'lingua': lang,
+            'nome_tabella': "'" + 'individui_table' + "'",
+            'tipologia_sigla': "'" + '801.801' + "'"
+        }
+
+        completo = self.DB_MANAGER.query_bool(search_dict, 'PYARCHINIT_THESAURUS_SIGLE')
+        completo_vl = []
+
+        for i in range(len(completo)):
+            completo_vl.append(completo[i].sigla)
+
+        completo_vl.sort()
+        self.comboBox_completo.addItems(completo_vl)
+
+        
+        self.comboBox_in_connessione.clear()
+        search_dict = {
+            'lingua': lang,
+            'nome_tabella': "'" + 'individui_table' + "'",
+            'tipologia_sigla': "'" + '801.801' + "'"
+        }
+
+        in_connessione = self.DB_MANAGER.query_bool(search_dict, 'PYARCHINIT_THESAURUS_SIGLE')
+        in_connessione_vl = []
+
+        for i in range(len(in_connessione)):
+            in_connessione_vl.append(in_connessione[i].sigla)
+
+        in_connessione_vl.sort()
+        self.comboBox_in_connessione.addItems(in_connessione_vl)
+
+        
+        # lista segnacoli
+
+        self.comboBox_posizione_cranio.clear()
+        search_dict = {
+            'lingua': lang,
+            'nome_tabella': "'" + 'individui_table' + "'",
+            'tipologia_sigla': "'" + '8.1' + "'"
+        }
+
+        posizione_cranio = self.DB_MANAGER.query_bool(search_dict, 'PYARCHINIT_THESAURUS_SIGLE')
+        posizione_cranio_vl = []
+
+        for i in range(len(posizione_cranio)):
+            posizione_cranio_vl.append(posizione_cranio[i].sigla_estesa)
+
+        posizione_cranio_vl.sort()
+        self.comboBox_posizione_cranio.addItems(posizione_cranio_vl)
+
+        
+        self.comboBox_posizione_scheletro.clear()
+        search_dict = {
+            'lingua': lang,
+            'nome_tabella': "'" + 'individui_table' + "'",
+            'tipologia_sigla': "'" + '8.2' + "'"
+        }
+
+        posizione_scheletro = self.DB_MANAGER.query_bool(search_dict, 'PYARCHINIT_THESAURUS_SIGLE')
+        posizione_scheletro_vl = []
+
+        for i in range(len(posizione_scheletro)):
+            posizione_scheletro_vl.append(posizione_scheletro[i].sigla_estesa)
+
+        posizione_scheletro_vl.sort()
+        self.comboBox_posizione_scheletro.addItems(posizione_scheletro_vl)
+        
+        self.comboBox_orientamento_asse.clear()
+        search_dict = {
+            'lingua': lang,
+            'nome_tabella': "'" + 'individui_table' + "'",
+            'tipologia_sigla': "'" + '8.3' + "'"
+        }
+
+        orientamento_asse = self.DB_MANAGER.query_bool(search_dict, 'PYARCHINIT_THESAURUS_SIGLE')
+        orientamento_asse_vl = []
+
+        for i in range(len(orientamento_asse)):
+            orientamento_asse_vl.append(orientamento_asse[i].sigla_estesa)
+
+        orientamento_asse_vl.sort()
+        self.comboBox_orientamento_asse.addItems(orientamento_asse_vl)
+       
+        self.comboBox_arti_superiori.clear()
+        search_dict = {
+            'lingua': lang,
+            'nome_tabella': "'" + 'individui_table' + "'",
+            'tipologia_sigla': "'" + '8.4' + "'"
+        }
+
+        arti_superiori = self.DB_MANAGER.query_bool(search_dict, 'PYARCHINIT_THESAURUS_SIGLE')
+        arti_superiori_vl = []
+
+        for i in range(len(arti_superiori)):
+            arti_superiori_vl.append(arti_superiori[i].sigla_estesa)
+
+        arti_superiori_vl.sort()
+        self.comboBox_arti_superiori.addItems(arti_superiori_vl)
+       
+        self.comboBox_arti_inferiori.clear()
+        search_dict = {
+            'lingua': lang,
+            'nome_tabella': "'" + 'individui_table' + "'",
+            'tipologia_sigla': "'" + '8.5' + "'"
+        }
+
+        arti_inferiori = self.DB_MANAGER.query_bool(search_dict, 'PYARCHINIT_THESAURUS_SIGLE')
+        arti_inferiori_vl = []
+
+        for i in range(len(arti_inferiori)):
+            arti_inferiori_vl.append(arti_inferiori[i].sigla_estesa)
+
+        arti_inferiori_vl.sort()
+        self.comboBox_arti_inferiori.addItems(arti_inferiori_vl)
+        
+        
+        
+    
+    
+    
     def msg_sito(self):
         conn = Connection()
         
