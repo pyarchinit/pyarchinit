@@ -27,7 +27,7 @@ from datetime import date
 import cv2
 from builtins import range
 from builtins import str
-from qgis.PyQt.QtWidgets import QDialog, QMessageBox, QTableWidgetItem
+from qgis.PyQt.QtWidgets import *
 from qgis.PyQt.uic import loadUiType
 from qgis.PyQt.QtCore import *
 from qgis.PyQt.QtGui import QColor, QIcon
@@ -35,7 +35,7 @@ from qgis.PyQt.QtWidgets import *
 from qgis.PyQt.uic import loadUiType
 from qgis.core import Qgis, QgsSettings,QgsGeometry
 from qgis.gui import QgsMapCanvas, QgsMapToolPan
-
+from ..modules.utility.delegateComboBox import ComboBoxDelegate
 from ..modules.db.pyarchinit_conn_strings import Connection
 from ..modules.db.pyarchinit_db_manager import Pyarchinit_db_management
 from ..modules.db.pyarchinit_utility import Utility
@@ -81,7 +81,7 @@ class pyarchinit_Tomba(QDialog, MAIN_DIALOG_CLASS):
     MAPPER_TABLE_CLASS = "TOMBA"
     NOME_SCHEDA = "Scheda Tomba"
     ID_TABLE = "id_tomba"
-    
+    ID_SITO ="sito"
     
     if L=='it':
         CONVERSION_DICT = {
@@ -346,12 +346,13 @@ class pyarchinit_Tomba(QDialog, MAIN_DIALOG_CLASS):
         self.currentLayerId = None
         self.mDockWidget_export.setHidden(True)
         self.mDockWidget_3.setHidden(True)
+        
         try:
             self.on_pushButton_connect_pressed()
         except Exception as e:
             QMessageBox.warning(self, "Connection system", str(e), QMessageBox.Ok)
         #self.customize_GUI()  # call for GUI customizations
-
+        self.loadCorredolist()
         # SIGNALS & SLOTS Functions
         self.comboBox_sito.currentIndexChanged.connect(self.charge_struttura_list)
         self.comboBox_sito.currentTextChanged.connect(self.charge_struttura_list)
@@ -365,7 +366,6 @@ class pyarchinit_Tomba(QDialog, MAIN_DIALOG_CLASS):
 
         
         self.comboBox_per_iniz.currentIndexChanged.connect(self.charge_fase_iniz_list)
-
         
         self.comboBox_per_fin.currentIndexChanged.connect(self.charge_fase_fin_list)
         self.comboBox_per_iniz.currentIndexChanged.connect(self.charge_datazione_list)
@@ -376,8 +376,67 @@ class pyarchinit_Tomba(QDialog, MAIN_DIALOG_CLASS):
         self.pbnOpenpdfDirectory.clicked.connect(self.openpdfDir)
         self.fill_fields()
         self.customize_GUI()
+        
         self.set_sito()
         self.msg_sito()
+    def loadCorredolist(self):
+        self.tableWidget_corredo_tipo.clear()
+        col =['ID Reperto','ID Indv.','Materiale','Posizione del corredo','Posizione nel corredo']
+        self.tableWidget_corredo_tipo.setHorizontalHeaderLabels(col)
+        numRows = self.tableWidget_corredo_tipo.setRowCount(100)
+        conn = Connection()
+        area= str(self.comboBox_area.currentText())    
+        sito_set= conn.sito_set()
+        sito_set_str = sito_set['sito_set']
+        
+        try:
+            if bool (sito_set_str):
+                search_dict = {
+                        'sito': "'"+str(sito_set_str)+"'",
+                        'area' : "'"+str(area)+"'"
+                    }
+                u = Utility()
+                search_dict = u.remove_empty_items_fr_dict(search_dict)
+                
+                record_inventario_list = self.DB_MANAGER.query_bool(search_dict, 'INVENTARIO_MATERIALI')
+                
+                nus=0
+                reperto=[]
+                materiale = []
+                individuo=[]
+                for i in record_inventario_list:
+                    reperto.append(str(i.n_reperto))
+                    materiale.append(i.definizione)
+                
+                
+                    for b in record_inventario_list:
+                         
+                        self.delegateRS = ComboBoxDelegate()
+                        self.delegateRS.def_values(reperto)
+                        self.delegateRS.def_editable('False')
+                        self.tableWidget_corredo_tipo.setItemDelegateForColumn(0,self.delegateRS)
+                        
+                        self.delegateMS = ComboBoxDelegate()
+                        self.delegateMS.def_values(materiale)
+                        self.delegateMS.def_editable('False')
+                        self.tableWidget_corredo_tipo.setItemDelegateForColumn(2,self.delegateMS)
+                
+                record_individui_list = self.DB_MANAGER.query_bool(search_dict, 'SCHEDAIND')
+                for e in record_individui_list:
+                    individuo.append(str(e.nr_individuo))
+                    for a in record_individui_list:
+                        
+                        self.delegateIS = ComboBoxDelegate()
+                        self.delegateIS.def_values(individuo)
+                        self.delegateIS.def_editable('False')
+                        self.tableWidget_corredo_tipo.setItemDelegateForColumn(1,self.delegateIS)
+        
+        
+        except Exception as e:
+            QMessageBox.warning(self, "Alert", " %s " % (str(e)),
+                        QMessageBox.Ok)
+        
+    
     def enable_button(self, n):
         self.pushButton_connect.setEnabled(n)
 
@@ -489,9 +548,13 @@ class pyarchinit_Tomba(QDialog, MAIN_DIALOG_CLASS):
                     self.iface.messageBar().pushMessage(self.tr(msg), Qgis.Warning, 0)
 
     def customize_GUI(self):
-        #self.setComboBoxEditable(["self.comboBox_sito"], 1)
+        self.tableWidget_corredo_tipo.setColumnWidth(0, 100)
+        self.tableWidget_corredo_tipo.setColumnWidth(1, 100)
+        self.tableWidget_corredo_tipo.setColumnWidth(2, 100)
+        self.tableWidget_corredo_tipo.setColumnWidth(3, 200)
+        self.tableWidget_corredo_tipo.setColumnWidth(4, 200)
         
-        #self.setComboBoxEnable(["self.lineEdit_nr_scheda"], "True")
+        self.setComboBoxEnable(["self.lineEdit_nr_scheda"], "True")
         self.mapPreview = QgsMapCanvas(self)
         self.mapPreview.setCanvasColor(QColor(225, 225, 225))
         self.tabWidget.addTab(self.mapPreview, "Piante")
@@ -2624,4 +2687,8 @@ class pyarchinit_Tomba(QDialog, MAIN_DIALOG_CLASS):
             subprocess.Popen(["open", path])
         else:
             subprocess.Popen(["xdg-open", path])
+
+    
+        
+
 ## Class end
