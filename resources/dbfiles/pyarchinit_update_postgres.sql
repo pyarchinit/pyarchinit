@@ -1,3 +1,4 @@
+drop view if exists mediaentity_view;
 DROP TABLE IF EXISTS mediaentity_view;
 DROP VIEW IF EXISTS pyarchinit_us_view;
 
@@ -104,7 +105,7 @@ ALTER TABLE mediaentity_view_id_media_thumb_seq
 
 
 --------------------------------------------------------------------------------------
-drop view if exists mediaentity_view;
+--drop view if exists mediaentity_view;
 
 CREATE OR REPLACE VIEW mediaentity_view AS 
  SELECT media_thumb_table.id_media_thumb,
@@ -524,10 +525,32 @@ END IF;
 END
 $$;  
 
+        ALTER TABLE individui_table ADD COLUMN IF NOT EXISTS sigla_struttura text;
+
+        ALTER TABLE individui_table ADD COLUMN IF NOT EXISTS nr_struttura integer;
+
+        ALTER TABLE individui_table ADD COLUMN IF NOT EXISTS completo_si_no character varying(5);
+
+        ALTER TABLE individui_table ADD COLUMN IF NOT EXISTS disturbato_si_no character varying(5);
+
+        ALTER TABLE individui_table ADD COLUMN IF NOT EXISTS in_connessione_si_no character varying(5);
+
+        ALTER TABLE individui_table ADD COLUMN IF NOT EXISTS lunghezza_scheletro NUMERIC(2,2);
+
+        ALTER TABLE individui_table ADD COLUMN IF NOT EXISTS posizione_scheletro character varying(255);
+
+        ALTER TABLE individui_table ADD COLUMN IF NOT EXISTS posizione_cranio character varying(255);
+
+        ALTER TABLE individui_table ADD COLUMN IF NOT EXISTS posizione_arti_superiori character varying(255);
+
+        ALTER TABLE individui_table ADD COLUMN IF NOT EXISTS posizione_arti_inferiori character varying(255);
+        
+        ALTER TABLE individui_table ADD COLUMN IF NOT EXISTS orientamento_asse text;
+
+        ALTER TABLE individui_table ADD COLUMN IF NOT EXISTS orientamento_azimut NUMERIC(2,2);
 INSERT INTO tomba_table (
             id_tomba,
-			sito, 
-			area, 
+			sito,
 			nr_scheda_taf ,
 			sigla_struttura, 
 			nr_struttura ,
@@ -541,8 +564,6 @@ INSERT INTO tomba_table (
 			stato_di_conservazione, 
 			copertura_tipo ,
 			tipo_contenitore_resti ,
-			tipo_deposizione ,
-			tipo_sepoltura ,
 			corredo_presenza ,
 			corredo_tipo ,
 			corredo_descrizione ,
@@ -550,13 +571,12 @@ INSERT INTO tomba_table (
 			fase_iniziale ,
 			periodo_finale ,
 			fase_finale ,
-			datazione_estesa ,
+			datazione_estesa 
 			)
                 
                   SELECT
 				    id_tafonomia,
-					sito, 
-					area, 
+					sito,
 					nr_scheda_taf ,
 					sigla_struttura, 
 					nr_struttura ,
@@ -570,8 +590,6 @@ INSERT INTO tomba_table (
 					stato_di_conservazione, 
 					copertura_tipo ,
 					tipo_contenitore_resti ,
-					tipo_deposizione ,
-					tipo_sepoltura ,
 					corredo_presenza ,
 					corredo_tipo ,
 					corredo_descrizione ,
@@ -579,15 +597,14 @@ INSERT INTO tomba_table (
 					fase_iniziale ,
 					periodo_finale ,
 					fase_finale ,
-					datazione_estesa ,
+					datazione_estesa 
 
                   FROM tafonomia_table
 				  ON CONFLICT (sito, nr_scheda_taf) DO NOTHING;
 				  
 				  
 INSERT INTO individui_table (
-            	nr_individuo
-				area,
+            	nr_individuo,
 				completo_si_no ,
 				disturbato_si_no ,
 				in_connessione_si_no, 
@@ -602,7 +619,7 @@ INSERT INTO individui_table (
 			)
                 
                   SELECT
-					nr_individuo
+					nr_individuo,
 					completo_si_no ,
 					disturbato_si_no ,
 					in_connessione_si_no, 
@@ -615,5 +632,6 @@ INSERT INTO individui_table (
 					orientamento_azimut 
 
                   FROM tafonomia_table
-				  ON CONFLICT (nr_individuo) DO NOTHING;				  
+				  /* where nr_individuo=nr_individuo
+				  ON CONFLICT (nr_individuo) DO NOTHING */;				  
 				  
