@@ -1562,27 +1562,27 @@ p, li { white-space: pre-wrap; }
            </attribute>
            <column>
             <property name="text">
-             <string> ID Reperto (RA)</string>
+             <string>New Column</string>
             </property>
            </column>
            <column>
             <property name="text">
-             <string>ID Individuo</string>
+             <string>New Column</string>
             </property>
            </column>
            <column>
             <property name="text">
-             <string>Materiale</string>
+             <string>New Column</string>
             </property>
            </column>
            <column>
             <property name="text">
-             <string>Posizione del corredo</string>
+             <string>New Column</string>
             </property>
            </column>
            <column>
             <property name="text">
-             <string>Posizione nel corredo</string>
+             <string>New Column</string>
             </property>
            </column>
           </widget>
