@@ -1,7 +1,7 @@
 drop view if exists mediaentity_view;
 DROP TABLE IF EXISTS mediaentity_view;
 DROP VIEW IF EXISTS pyarchinit_us_view;
-
+DROP VIEW IF EXISTS pyarchinit_tafonomia_view;
 
 
 CREATE OR REPLACE FUNCTION delete_media_table()
@@ -635,3 +635,36 @@ INSERT INTO individui_table (
 				  /* where nr_individuo=nr_individuo
 				  ON CONFLICT (nr_individuo) DO NOTHING */;				  
 				  
+				  
+CREATE OR REPLACE VIEW public.pyarchinit_tomba_view AS
+ SELECT a.id_tomba,
+    a.sito,
+	a.area,
+    a.nr_scheda_taf,
+    a.sigla_struttura,
+    a.nr_struttura,
+    a.nr_individuo,
+    a.rito,
+    a.descrizione_taf,
+    a.interpretazione_taf,
+    a.segnacoli,
+    a.canale_libatorio_si_no,
+    a.oggetti_rinvenuti_esterno,
+    a.stato_di_conservazione,
+    a.copertura_tipo,
+    a.tipo_contenitore_resti,
+    a.tipo_deposizione,
+    a.tipo_sepoltura,
+    a.corredo_presenza,
+    a.corredo_tipo,
+    a.corredo_descrizione,
+    b.gid,
+    b.id_tafonomia_pk,
+    b.sito AS sito_1,
+    b.nr_scheda,
+    b.the_geom
+   FROM tomba_table a
+     JOIN pyarchinit_tafonomia b ON a.sito = b.sito::text AND a.nr_scheda_taf = b.nr_scheda;
+
+ALTER TABLE public.pyarchinit_tomba_view
+    OWNER TO postgres;
