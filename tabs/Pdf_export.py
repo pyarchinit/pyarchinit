@@ -40,7 +40,7 @@ from ..modules.utility.pyarchinit_exp_Findssheet_pdf import generate_reperti_pdf
 from ..modules.utility.pyarchinit_exp_Periodizzazionesheet_pdf import generate_Periodizzazione_pdf
 from ..modules.utility.pyarchinit_exp_Individui_pdf import generate_pdf
 from ..modules.utility.pyarchinit_exp_Strutturasheet_pdf import generate_struttura_pdf
-from ..modules.utility.pyarchinit_exp_Tafonomiasheet_pdf import generate_tafonomia_pdf
+from ..modules.utility.pyarchinit_exp_Tombasheet_pdf import generate_tomba_pdf
 from ..modules.utility.pyarchinit_exp_Campsheet_pdf import generate_campioni_pdf
 from ..modules.utility.pyarchinit_OS_utility import Pyarchinit_OS_Utility
 MAIN_DIALOG_CLASS, _ = loadUiType(os.path.join(os.path.dirname(__file__), os.pardir, 'gui', 'ui', 'Pdf_export.ui'))
@@ -293,33 +293,33 @@ class pyarchinit_pdf_export(QDialog, MAIN_DIALOG_CLASS):
                 printed = True
                 self.DATA_LIST = []
         
-        ####Esportazione della Scheda tafonomia
-        if self.checkBox_tafonomia.isChecked():
-            tafonomia_res = self.db_search_DB('TAFONOMIA', 'sito', sito)
+        ####Esportazione della Scheda tomba
+        if self.checkBox_tomba.isChecked():
+            tomba_res = self.db_search_DB('TOMBA', 'sito', sito)
 
-            if bool(tafonomia_res):
+            if bool(tomba_res):
                 id_list = []
-                for i in range(len(tafonomia_res)):
-                    id_list.append(tafonomia_res[i].id_tafonomia)
+                for i in range(len(tomba_res)):
+                    id_list.append(tomba_res[i].id_tomba)
 
-                temp_data_list = self.DB_MANAGER.query_sort(id_list, ['nr_scheda_taf'], 'asc', 'TAFONOMIA',
-                                                            'id_tafonomia')
+                temp_data_list = self.DB_MANAGER.query_sort(id_list, ['nr_scheda_taf'], 'asc', 'TOMBA',
+                                                            'id_tomba')
 
                 for i in temp_data_list:
                     self.DATA_LIST.append(i)
 
-                Tafonomia_pdf_sheet = generate_tafonomia_pdf()
-                data_list = self.generate_list_tafonomia_pdf()
+                Tomba_pdf_sheet = generate_tomba_pdf()
+                data_list = self.generate_list_tomba_pdf()
                 
                 if self.L=='it':
-                    Tafonomia_pdf_sheet.build_Tafonomia_sheets(data_list)
-                    Tafonomia_pdf_sheet.build_index_Tafonomia(data_list, data_list[0][0])
+                    Tomba_pdf_sheet.build_Tomba_sheets(data_list)
+                    Tomba_pdf_sheet.build_index_Tomba(data_list, data_list[0][0])
                 elif self.L=='de':
-                    Tafonomia_pdf_sheet.build_Tafonomia_sheets_de(data_list)
-                    Tafonomia_pdf_sheet.build_index_Tafonomia(data_list, data_list[0][0])
+                    Tomba_pdf_sheet.build_Tomba_sheets_de(data_list)
+                    Tomba_pdf_sheet.build_index_Tomba(data_list, data_list[0][0])
                 else:
-                    Tafonomia_pdf_sheet.build_Tafonomia_sheets_en(data_list)
-                    Tafonomia_pdf_sheet.build_index_Tafonomia(data_list, data_list[0][0])    
+                    Tomba_pdf_sheet.build_Tomba_sheets_en(data_list)
+                    Tomba_pdf_sheet.build_index_Tomba(data_list, data_list[0][0])    
                     
             if self.DATA_LIST:
                 printed = True
@@ -819,7 +819,7 @@ class pyarchinit_pdf_export(QDialog, MAIN_DIALOG_CLASS):
             ])
         return data_list
 
-    def generate_list_tafonomia_pdf(self):
+    def generate_list_tomba_pdf(self):
         data_list = []
         for i in range(len(self.DATA_LIST)):
             sito = str(self.DATA_LIST[i].sito)
@@ -945,7 +945,7 @@ class pyarchinit_pdf_export(QDialog, MAIN_DIALOG_CLASS):
                 str(self.DATA_LIST[i].periodo_finale),  # 30 - periodo finale
                 str(self.DATA_LIST[i].fase_finale),  # 31 - fase finale
                 str(self.DATA_LIST[i].datazione_estesa),  # 32 - datazione estesa
-                str(self.DATA_LIST[i].misure_tafonomia),  # 33 - misure tafonomia
+                str(self.DATA_LIST[i].misure_tomba),  # 33 - misure tomba
                 quota_min_ind,  # 34 - quota min individuo
                 quota_max_ind,  # 35 - quota max individuo
                 quota_min_strutt,  # 36 - quota min struttura

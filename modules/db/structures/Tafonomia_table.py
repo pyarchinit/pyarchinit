@@ -9,7 +9,7 @@ from sqlalchemy import Table, Column, Integer, String, Text, Float, MetaData, cr
 from modules.db.pyarchinit_conn_strings import Connection
 
 
-class Tafonomia_table:
+class Tomba_table:
     # connection string postgres"
     internal_connection = Connection()
 
@@ -19,8 +19,8 @@ class Tafonomia_table:
     metadata = MetaData(engine)
 
     # define tables
-    tafonomia_table = Table('tafonomia_table', metadata,
-                            Column('id_tafonomia', Integer, primary_key=True),
+    tomba_table = Table('tomba_table', metadata,
+                            Column('id_tomba', Integer, primary_key=True),
                             Column('sito', Text),
                             Column('nr_scheda_taf', Integer),
                             Column('sigla_struttura', Text),
@@ -55,10 +55,10 @@ class Tafonomia_table:
                             Column('periodo_finale', Integer),
                             Column('fase_finale', Integer),
                             Column('datazione_estesa', String(300)),
-                            Column('misure_tafonomia', Text),
+                            Column('misure_tomba', Text),
 
                             # explicit/composite unique constraint.  'name' is optional.
-                            UniqueConstraint('sito', 'nr_scheda_taf', name='ID_tafonomia_unico')
+                            UniqueConstraint('sito', 'nr_scheda_taf', name='ID_tomba_unico')
                             )
 
     metadata.create_all(engine)

@@ -401,10 +401,10 @@ class pyarchinit_Periodizzazione(QDialog, MAIN_DIALOG_CLASS):
         """
 
     def generate_list_pdf(self):
-        periodo = ""
-        fase = ""
-        cron_iniz = ""
-        cron_fin = ""
+        # periodo = ""
+        # fase = ""
+        # cron_iniz = ""
+        # cron_fin = ""
 
         data_list = []
         for i in range(len(self.DATA_LIST)):
@@ -484,37 +484,73 @@ class pyarchinit_Periodizzazione(QDialog, MAIN_DIALOG_CLASS):
             self.fill_fields()
 
     def on_pushButton_new_rec_pressed(self):
+        conn = Connection()
+        
+        sito_set= conn.sito_set()
+        sito_set_str = sito_set['sito_set']
+        
         if bool(self.DATA_LIST):
             if self.data_error_check() == 1:
                 pass
-            '''else:
+            else:
                 if self.BROWSE_STATUS == "b":
                     if bool(self.DATA_LIST):
                         if self.records_equal_check() == 1:
-                            self.update_if(QMessageBox.warning(self, 'Errore',
-                                                               "Il record e' stato modificato. Vuoi salvare le modifiche?",
-                                                               QMessageBox.Ok | QMessageBox.Cancel))'''
+                            if self.L=='it':
+                                self.update_if(QMessageBox.warning(self, 'Errore',
+                                                                   "Il record e' stato modificato. Vuoi salvare le modifiche?",QMessageBox.Ok | QMessageBox.Cancel))
+                            elif self.L=='de':
+                                self.update_if(QMessageBox.warning(self, 'Error',
+                                                                   "Der Record wurde geändert. Möchtest du die Änderungen speichern?",
+                                                                   QMessageBox.Ok | QMessageBox.Cancel))
+                                                                   
+                            else:
+                                self.update_if(QMessageBox.warning(self, 'Error',
+                                                                   "The record has been changed. Do you want to save the changes?",
+                                                                   QMessageBox.Ok | QMessageBox.Cancel))
 
         if self.BROWSE_STATUS != "n":
-            self.BROWSE_STATUS = "n"
+            if bool(self.comboBox_sito.currentText()) and self.comboBox_sito.currentText()==sito_set_str:
+            
+                self.BROWSE_STATUS = "n"
 
-            ###
+                ###
 
-            self.setComboBoxEditable(["self.comboBox_sito"], 0)
-            self.setComboBoxEditable(["self.comboBox_periodo"], 0)
-            self.setComboBoxEditable(["self.comboBox_fase"], 0)
-            self.setComboBoxEnable(["self.comboBox_sito"], "True")
-            self.setComboBoxEnable(["self.comboBox_periodo"], "True")
-            self.setComboBoxEnable(["self.comboBox_fase"], "True")
+                #self.setComboBoxEditable(["self.comboBox_sito"], 0)
+                self.setComboBoxEditable(["self.comboBox_periodo"], 0)
+                self.setComboBoxEditable(["self.comboBox_fase"], 0)
+                self.setComboBoxEnable(["self.comboBox_sito"], "False")
+                self.setComboBoxEnable(["self.comboBox_periodo"], "True")
+                self.setComboBoxEnable(["self.comboBox_fase"], "True")
 
-            ###
-            self.label_sort.setText(self.SORTED_ITEMS[self.SORT_STATUS])
+                ###
+                self.label_sort.setText(self.SORTED_ITEMS[self.SORT_STATUS])
 
-            self.label_status.setText(self.STATUS_ITEMS[self.BROWSE_STATUS])
-            self.set_rec_counter('', '')
-            self.label_sort.setText(self.SORTED_ITEMS["n"])
-            self.empty_fields()
+                self.label_status.setText(self.STATUS_ITEMS[self.BROWSE_STATUS])
+                self.set_rec_counter('', '')
+                self.label_sort.setText(self.SORTED_ITEMS["n"])
+                self.empty_fields_nosite()
 
+            else:
+                self.BROWSE_STATUS = "n"
+
+                ###
+
+                self.setComboBoxEditable(["self.comboBox_sito"], 0)
+                self.setComboBoxEditable(["self.comboBox_periodo"], 0)
+                self.setComboBoxEditable(["self.comboBox_fase"], 0)
+                self.setComboBoxEnable(["self.comboBox_sito"], "True")
+                self.setComboBoxEnable(["self.comboBox_periodo"], "True")
+                self.setComboBoxEnable(["self.comboBox_fase"], "True")
+
+                ###
+                self.label_sort.setText(self.SORTED_ITEMS[self.SORT_STATUS])
+
+                self.label_status.setText(self.STATUS_ITEMS[self.BROWSE_STATUS])
+                self.set_rec_counter('', '')
+                self.label_sort.setText(self.SORTED_ITEMS["n"])
+                self.empty_fields()
+            
             self.enable_button(0)
 
     def on_pushButton_save_pressed(self):
@@ -966,26 +1002,45 @@ class pyarchinit_Periodizzazione(QDialog, MAIN_DIALOG_CLASS):
             pass
         else:
             self.enable_button_search(0)
-
-            self.setComboBoxEditable(["self.comboBox_sito"], 1)
+            conn = Connection()
+        
+            sito_set= conn.sito_set()
+            sito_set_str = sito_set['sito_set']
+            
 
             # set the GUI for a new search
 
             if self.BROWSE_STATUS != "f":
-                self.BROWSE_STATUS = "f"
-                self.label_status.setText(self.STATUS_ITEMS[self.BROWSE_STATUS])
-                self.empty_fields()
-                self.set_rec_counter('', '')
-                self.label_sort.setText(self.SORTED_ITEMS["n"])
+                if bool(self.comboBox_sito.currentText()) and self.comboBox_sito.currentText()==sito_set_str:
+                    self.BROWSE_STATUS = "f"
+                    self.label_status.setText(self.STATUS_ITEMS[self.BROWSE_STATUS])
+                    self.empty_fields_nosite()
+                    self.set_rec_counter('', '')
+                    self.label_sort.setText(self.SORTED_ITEMS["n"])
 
-                self.setComboBoxEditable(["self.comboBox_sito"], 1)
-                self.setComboBoxEditable(["self.comboBox_periodo"], 1)
-                self.setComboBoxEditable(["self.comboBox_fase"], 1)
-                self.setComboBoxEnable(["self.comboBox_sito"], "True")
-                self.setComboBoxEnable(["self.comboBox_periodo"], "True")
-                self.setComboBoxEnable(["self.comboBox_fase"], "True")
-                self.setComboBoxEnable(["self.textEdit_descrizione_per"], "False")
-                self.charge_list()
+                    #self.setComboBoxEditable(["self.comboBox_sito"], 1)
+                    self.setComboBoxEditable(["self.comboBox_periodo"], 1)
+                    self.setComboBoxEditable(["self.comboBox_fase"], 1)
+                    self.setComboBoxEnable(["self.comboBox_sito"], "False")
+                    self.setComboBoxEnable(["self.comboBox_periodo"], "True")
+                    self.setComboBoxEnable(["self.comboBox_fase"], "True")
+                    self.setComboBoxEnable(["self.textEdit_descrizione_per"], "False")
+                    #self.charge_list()
+                else:
+                    self.BROWSE_STATUS = "f"
+                    self.label_status.setText(self.STATUS_ITEMS[self.BROWSE_STATUS])
+                    self.empty_fields()
+                    self.set_rec_counter('', '')
+                    self.label_sort.setText(self.SORTED_ITEMS["n"])
+
+                    self.setComboBoxEditable(["self.comboBox_sito"], 1)
+                    self.setComboBoxEditable(["self.comboBox_periodo"], 1)
+                    self.setComboBoxEditable(["self.comboBox_fase"], 1)
+                    self.setComboBoxEnable(["self.comboBox_sito"], "True")
+                    self.setComboBoxEnable(["self.comboBox_periodo"], "True")
+                    self.setComboBoxEnable(["self.comboBox_fase"], "True")
+                    self.setComboBoxEnable(["self.textEdit_descrizione_per"], "False")
+                    self.charge_list()
 
     def on_pushButton_search_go_pressed(self):
         if self.BROWSE_STATUS != "f":
@@ -1191,6 +1246,17 @@ class pyarchinit_Periodizzazione(QDialog, MAIN_DIALOG_CLASS):
             lista.append(sub_list)
         return lista
 
+    def empty_fields_nosite(self):
+        #self.comboBox_sito.setEditText("")  # 1 - Sito
+        self.comboBox_periodo.setEditText("")  # 2 - Periodo
+        self.comboBox_fase.setEditText("")  # 3 - Fase
+        self.lineEdit_cron_iniz.clear()  # 4 - Cronologia iniziale
+        self.lineEdit_cron_fin.clear()  # 5 - Cronologia finale
+        self.lineEdit_per_estesa.clear()  # 6 - Datazione estesa
+        self.textEdit_descrizione_per.clear()  # 7 - Descrizione
+        self.lineEdit_codice_periodo.clear()
+        self.comboBox_area.setEditText("")        # 8 - Codice periodo
+    
     def empty_fields(self):
         self.comboBox_sito.setEditText("")  # 1 - Sito
         self.comboBox_periodo.setEditText("")  # 2 - Periodo

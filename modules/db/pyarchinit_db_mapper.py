@@ -38,7 +38,7 @@ from modules.db.entities.PYARCHINIT_THESAURUS_SIGLE import PYARCHINIT_THESAURUS_
 from modules.db.entities.SCHEDAIND import SCHEDAIND
 from modules.db.entities.SITE import SITE
 from modules.db.entities.STRUTTURA import STRUTTURA
-from modules.db.entities.TAFONOMIA import TAFONOMIA
+from modules.db.entities.TOMBA import TOMBA
 from modules.db.entities.US import US
 from modules.db.entities.US_TOIMP import US_TOIMP
 from modules.db.entities.UT import UT
@@ -60,7 +60,7 @@ from modules.db.structures.Pyarchinit_thesaurus_sigle import Pyarchinit_thesauru
 from modules.db.structures.SCHEDAIND_table import SCHEDAIND_table
 from modules.db.structures.Site_table import Site_table
 from modules.db.structures.Struttura_table import Struttura_table
-from modules.db.structures.Tafonomia_table import Tafonomia_table
+from modules.db.structures.Tomba_table import Tomba_table
 from modules.db.structures.US_table import US_table
 from modules.db.structures.US_table_toimp import US_table_toimp
 from modules.db.structures.UT_table import UT_table
@@ -131,7 +131,7 @@ try:
     mapper(SITE, Site_table.site_table)
 
     # mapper
-    mapper(TAFONOMIA, Tafonomia_table.tafonomia_table)
+    mapper(TOMBA, Tomba_table.tomba_table)
     
     # mapper
     mapper(PYUS, pyunitastratigrafiche.pyunitastratigrafiche)

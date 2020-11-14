@@ -191,6 +191,8 @@ class Main(QDialog,MAIN_DIALOG_CLASS):
         self.tableWidgetTags_US.setColumnWidth(1, 100)
         self.tableWidgetTags_MAT.setColumnWidth(0, 300)
         self.tableWidgetTags_MAT.setColumnWidth(1, 150)
+        self.tableWidgetTags_tomba.setColumnWidth(0, 300)
+        self.tableWidgetTags_tomba.setColumnWidth(1, 150)
         self.tableWidgetTags_US.setColumnWidth(2, 100)
         self.tableWidget_tags.setColumnWidth(2, 300)
         self.iconListWidget.setIconSize(QSize(80, 180))
@@ -202,6 +204,7 @@ class Main(QDialog,MAIN_DIALOG_CLASS):
         self.delegateSites.def_editable('False')
         self.tableWidgetTags_US.setItemDelegateForColumn(0, self.delegateSites)
         self.tableWidgetTags_MAT.setItemDelegateForColumn(0, self.delegateSites)
+        self.tableWidgetTags_tomba.setItemDelegateForColumn(0, self.delegateSites)
         self.charge_sito_list()
     def valuechange(self,value):
         self.sl.value() 
@@ -221,44 +224,84 @@ class Main(QDialog,MAIN_DIALOG_CLASS):
         self.comboBox_sito.addItems(sito_vl)
     def charge_us_list(self):
         sito = str(self.comboBox_sito.currentText())
-        if self.radioButton_us.isChecked()==True:
-            self.comboBox_us.clear()
-            sito = str(self.comboBox_sito.currentText())
-            search_dict = {
-                'sito': "'" + sito + "'"
-            }
-            us_vl = self.DB_MANAGER.query_bool(search_dict, 'US')
-            us_list = []
-            if not us_vl:
-                return
-            for i in range(len(us_vl)):
-                us_list.append(str(us_vl[i].us))
+        if self.radioButton_us.isChecked():
             try:
-                us_vl.remove('')
+                self.label_8.clear()
+                self.label_8.setText('US')
+                self.label_8.update()
+                self.comboBox_us.clear()
+                self.comboBox_us.update()
+                sito = str(self.comboBox_sito.currentText())
+                search_dict = {
+                    'sito': "'" + sito + "'"
+                }
+                us_vl = self.DB_MANAGER.query_bool(search_dict, 'US')
+                us_list = []
+                if not us_vl:
+                    return
+                for i in range(len(us_vl)):
+                    us_list.append(str(us_vl[i].us))
+                try:
+                    us_vl.remove('')
+                except:
+                    pass
+                self.comboBox_us.clear()
+                self.comboBox_us.addItems(self.UTILITY.remove_dup_from_list(us_list))
             except:
-                pass
-            self.comboBox_us.clear()
-            self.comboBox_us.addItems(self.UTILITY.remove_dup_from_list(us_list))
-        else:
-            self.comboBox_us.clear()
-            sito = str(self.comboBox_sito.currentText())
-            search_dict = {
-                'sito': "'" + sito + "'"
-            }
-            us_vl = self.DB_MANAGER.query_bool(search_dict, 'INVENTARIO_MATERIALI')
-            us_list = []
-            if not us_vl:
-                return 0
-            for i in range(len(us_vl)):
-                us_list.append(str(us_vl[i].us))
+                QMessageBox.warning(self, "Messaggio", "Sistema di aggiornamento lista Sito: " + str(e), QMessageBox.Ok)
+        if self.radioButton_materiali.isChecked():
+            try: 
+                self.label_8.clear()
+                self.label_8.setText('US')
+                self.label_8.update()
+                self.comboBox_us.clear()
+                self.comboBox_us.update()
+                sito = str(self.comboBox_sito.currentText())
+                search_dict = {
+                    'sito': "'" + sito + "'"
+                }
+                us_vl = self.DB_MANAGER.query_bool(search_dict, 'INVENTARIO_MATERIALI')
+                us_list = []
+                if not us_vl:
+                    return 0
+                for i in range(len(us_vl)):
+                    us_list.append(str(us_vl[i].us))
+                try:
+                    us_vl.remove('')
+                except:
+                    pass
+                self.comboBox_us.clear()
+                self.comboBox_us.addItems(self.UTILITY.remove_dup_from_list(us_list))
+        
+            except:
+                QMessageBox.warning(self, "Messaggio", "Sistema di aggiornamento lista Sito: " + str(e), QMessageBox.Ok)
+        if self.radioButton_tomba.isChecked():
             try:
-                us_vl.remove('')
+                self.label_8.clear()
+                self.label_8.setText('N. Tomba')
+                self.label_8.update()
+                self.comboBox_us.clear()
+                self.comboBox_us.update()
+                sito = str(self.comboBox_sito.currentText())
+                search_dict = {
+                    'sito': "'" + sito + "'"
+                }
+                us_vl = self.DB_MANAGER.query_bool(search_dict, 'TOMBA')
+                us_list = []
+                if not us_vl:
+                    return 0
+                for i in range(len(us_vl)):
+                    us_list.append(str(us_vl[i].nr_scheda_taf))
+                try:
+                    us_vl.remove('')
+                except:
+                    pass
+                self.comboBox_us.clear()
+                self.comboBox_us.addItems(self.UTILITY.remove_dup_from_list(us_list))
             except:
-                pass
-            self.comboBox_us.clear()
-            self.comboBox_us.addItems(self.UTILITY.remove_dup_from_list(us_list))
+                QMessageBox.warning(self, "Messaggio", "Sistema di aggiornamento lista Sito: " + str(e), QMessageBox.Ok)    
     def charge_area_list(self):
-        if self.radioButton_us.isChecked()==True:
+        if self.radioButton_us.isChecked():
             sito = str(self.comboBox_sito.currentText())
             search_dict = {
                 'sito': "'" + sito + "'"
@@ -275,7 +318,7 @@ class Main(QDialog,MAIN_DIALOG_CLASS):
                 pass
             self.comboBox_area.clear()
             self.comboBox_area.addItems(self.UTILITY.remove_dup_from_list(area_list))
-        else:
+        if self.radioButton_materiali.isChecked():
             sito = str(self.comboBox_sito.currentText())
             self.comboBox_area.clear()
             search_dict = {
@@ -293,6 +336,26 @@ class Main(QDialog,MAIN_DIALOG_CLASS):
                 pass
             self.comboBox_area.clear()
             self.comboBox_area.addItems(self.UTILITY.remove_dup_from_list(area_list))
+    
+        if self.radioButton_tomba.isChecked():
+            sito = str(self.comboBox_sito.currentText())
+            self.comboBox_area.clear()
+            search_dict = {
+                'sito': "'" + sito + "'"
+            }
+            area_vl = self.DB_MANAGER.query_bool(search_dict, 'TOMBA')
+            area_list = []
+            if not area_vl:
+                return 0
+            for i in range(len(area_vl)):
+                area_list.append(str(area_vl[i].area))
+            try:
+                area_vl.remove('')
+            except:
+                pass
+            self.comboBox_area.clear()
+            self.comboBox_area.addItems(self.UTILITY.remove_dup_from_list(area_list))
+    
     def connection(self):
         conn_str = conn.conn_str()
         try:
@@ -523,7 +586,8 @@ class Main(QDialog,MAIN_DIALOG_CLASS):
                                 for i in enumerate(image):
                                     image_list.append(i[0])
                                 for n in range(len(image_list)):
-                                    self.progressBar.setValue(((n)/100)*100)
+                                    value = (float(n)/float(len(image_list)))*100
+                                    self.progressBar.setValue(value)
                                     QApplication.processEvents()
                             except:
                                 pass
@@ -609,14 +673,14 @@ class Main(QDialog,MAIN_DIALOG_CLASS):
                             except Exception as e:
                                 QMessageBox.warning(self, "Cucu", str(e), QMessageBox.Ok)
                                 # progressBAr
-                            try:
-                                for i in enumerate(image):
-                                    image_list.append(i[0])
-                                for n in range(len(image_list)):
-                                    self.progressBar.setValue(((n)/100)*100)
-                                    QApplication.processEvents()
-                            except:
-                                pass
+                            
+                            for i in enumerate(image):
+                                image_list.append(i[0])
+                            for n in range(len(image_list)):
+                                value = (float(n)/float(len(image_list)))*100
+                                self.progressBar.setValue(value)
+                                QApplication.processEvents()
+                            
                             self.insert_record_mediathumb(media_max_num_id, mediatype, filename, filename_thumb, filetype,
                                                           filepath_thumb, filepath_resize)
                             item = QListWidgetItem(str(filenameorig))
@@ -952,6 +1016,35 @@ class Main(QDialog,MAIN_DIALOG_CLASS):
         for r in record_rep_list:
             rep_list.append([r[0].id_invmat, 'REPERTO', 'inventario_materiali_table'])
         return rep_list
+    
+    def generate_Tombe(self):
+        tags_list = self.table2dict('self.tableWidgetTags_tomba')
+        record_tmb_list = []
+        for sing_tags in tags_list:
+            search_dict = {'sito': "'" + str(sing_tags[0]) + "'",
+                           'nr_scheda_taf': "'" + str(sing_tags[1]) + "'"
+                           }
+            record_tmb_list.append(self.DB_MANAGER.query_bool(search_dict, 'TOMBA'))
+        if not record_tmb_list[0]:
+            QMessageBox.warning(self, "Errore", "Scheda Tomba non presente", QMessageBox.Ok)
+            return
+        tmb_list = []
+        for r in record_tmb_list:
+            tmb_list.append([r[0].id_tomba, 'TOMBA', 'tomba_table'])
+        return tmb_list
+    def remove_Tombe(self):
+        tags_list = self.table2dict('self.tableWidgetTags_tomba')
+        record_tmb_list = []
+        for sing_tags in tags_list:
+                search_dict = {'sito': "'" + str(sing_tags[0]) + "'",
+                           'nr_scheda_taf': "'" + str(sing_tags[1]) + "'"
+                           }
+                record_tmb_list.remove(self.DB_MANAGER.query_bool(search_dict, 'TOMBA'))
+        tmb_list = []
+        for r in record_tmb_list:
+            tmb_list.append([r[0].id_tomba, 'TOMBA', 'tomba_table'])
+        return tmb_list
+    
     def table2dict(self, n):
         self.tablename = n
         row = eval(self.tablename + ".rowCount()")
@@ -1005,6 +1098,10 @@ class Main(QDialog,MAIN_DIALOG_CLASS):
         self.insert_new_row('self.tableWidgetTags_MAT')
     def on_pushButton_removeRow_MAT_pressed(self):
         self.remove_row('self.tableWidgetTags_MAT')
+    def on_pushButton_addRow_tomba_pressed(self):
+        self.insert_new_row('self.tableWidgetTags_tomba')
+    def on_pushButton_removeRow_tomba_pressed(self):
+        self.remove_row('self.tableWidgetTags_tomba')    
     def on_pushButton_assignTags_US_pressed(self):
         """
         id_mediaToEntity,
@@ -1047,6 +1144,30 @@ class Main(QDialog,MAIN_DIALOG_CLASS):
                 media_data = self.DB_MANAGER.query_bool(search_dict, 'MEDIA')
                 self.insert_mediaToEntity_rec(reperti_data[0], reperti_data[1], reperti_data[2], media_data[0].id_media,
                                               media_data[0].filepath, media_data[0].filename)
+    
+    
+    def on_pushButton_assignTags_tomba_pressed(self):
+        """
+        id_mediaToEntity,
+        id_entity,
+        entity_type,
+        table_name,
+        id_media,
+        filepath,
+        media_name
+        """
+        items_selected = self.iconListWidget.selectedItems()
+        reperti_list = self.generate_Tombe()
+        if not reperti_list:
+            return
+        for item in items_selected:
+            for reperti_data in reperti_list:
+                id_orig_item = item.text()  # return the name of original file
+                search_dict = {'filename': "'" + str(id_orig_item) + "'"}
+                media_data = self.DB_MANAGER.query_bool(search_dict, 'MEDIA')
+                self.insert_mediaToEntity_rec(reperti_data[0], reperti_data[1], reperti_data[2], media_data[0].id_media,
+                                              media_data[0].filepath, media_data[0].filename)
+    
     ##################################funzione per eliminare le thumbnail###########################################
     def on_pushButton_remove_thumb_pressed(self):
         items_selected = self.iconListWidget.selectedItems()
@@ -1267,6 +1388,18 @@ class Main(QDialog,MAIN_DIALOG_CLASS):
                                 ##              #else
                                 mediaToEntity_list.append(
                                     [str(sing_res_media.id_entity), sing_res_media.entity_type, Rep_string])
+                                    
+                            elif sing_res_media.entity_type == 'TOMBA':
+                                search_dict = {'id_tomba': "'" + str(sing_res_media.id_entity) + "'"}
+                                u = Utility()
+                                search_dict = u.remove_empty_items_fr_dict(search_dict)
+                                rep_data = self.DB_MANAGER.query_bool(search_dict, "TOMBA")
+                                TMB_string = ('Sito: %s - N. Tomba.: %d') % (
+                                    rep_data[0].sito, rep_data[0].nr_scheda_taf)
+                                ##              #else
+                                mediaToEntity_list.append(
+                                    [str(sing_res_media.id_entity), sing_res_media.entity_type, TMB_string])        
+                                    
             if bool(mediaToEntity_list):
                 tags_row_count = self.tableWidget_tags.rowCount()
                 for i in range(tags_row_count):

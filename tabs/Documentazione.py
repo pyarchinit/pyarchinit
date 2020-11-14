@@ -561,6 +561,10 @@ class pyarchinit_Documentazione(QDialog, MAIN_DIALOG_CLASS):
             self.fill_fields()
 
     def on_pushButton_new_rec_pressed(self):
+        conn = Connection()
+        
+        sito_set= conn.sito_set()
+        sito_set_str = sito_set['sito_set']
         if bool(self.DATA_LIST):
             if self.data_error_check() == 1:
                 pass
@@ -582,17 +586,31 @@ class pyarchinit_Documentazione(QDialog, MAIN_DIALOG_CLASS):
                                                                    QMessageBox.Ok | QMessageBox.Cancel))
                             # set the GUI for a new record
         if self.BROWSE_STATUS != "n":
-            self.BROWSE_STATUS = "n"
-            self.label_status.setText(self.STATUS_ITEMS[self.BROWSE_STATUS])
-            self.empty_fields()
-            self.label_sort.setText(self.SORTED_ITEMS["n"])
+            if bool(self.comboBox_sito_doc.currentText()) and self.comboBox_sito_doc.currentText()==sito_set_str:
+                self.BROWSE_STATUS = "n"
+                self.label_status.setText(self.STATUS_ITEMS[self.BROWSE_STATUS])
+                self.empty_fields_nosite()
+                self.label_sort.setText(self.SORTED_ITEMS["n"])
 
-            self.setComboBoxEditable(["self.comboBox_sito_doc"], 1)
-            self.setComboBoxEnable(["self.comboBox_sito_doc"], "True")
-            self.setComboBoxEnable(["self.comboBox_tipo_doc"], "True")
-            self.setComboBoxEnable(["self.lineEdit_nome_doc"], "True")
+                #self.setComboBoxEditable(["self.comboBox_sito_doc"], 1)
+                self.setComboBoxEnable(["self.comboBox_sito_doc"], "False")
+                self.setComboBoxEnable(["self.comboBox_tipo_doc"], "True")
+                self.setComboBoxEnable(["self.lineEdit_nome_doc"], "True")
 
-            self.set_rec_counter('', '')
+                self.set_rec_counter('', '')
+            else:
+                self.BROWSE_STATUS = "n"
+                self.label_status.setText(self.STATUS_ITEMS[self.BROWSE_STATUS])
+                self.empty_fields()
+                self.label_sort.setText(self.SORTED_ITEMS["n"])
+
+                self.setComboBoxEditable(["self.comboBox_sito_doc"], 1)
+                self.setComboBoxEnable(["self.comboBox_sito_doc"], "True")
+                self.setComboBoxEnable(["self.comboBox_tipo_doc"], "True")
+                self.setComboBoxEnable(["self.lineEdit_nome_doc"], "True")
+
+                self.set_rec_counter('', '')
+            
             self.enable_button(0)
 
 
@@ -946,23 +964,39 @@ class pyarchinit_Documentazione(QDialog, MAIN_DIALOG_CLASS):
         else:
             self.enable_button_search(0)
 
-            ################################################
+            conn = Connection()
+        
+            sito_set= conn.sito_set()
+            sito_set_str = sito_set['sito_set']
 
             # set the GUI for a new search
             if self.BROWSE_STATUS != "f":
-                self.BROWSE_STATUS = "f"
-                self.label_status.setText(self.STATUS_ITEMS[self.BROWSE_STATUS])
-                self.setComboBoxEnable(["self.comboBox_sito_doc"], "True")
-                self.setComboBoxEnable(["self.lineEdit_nome_doc"], "True")
-                self.setComboBoxEnable(["self.comboBox_tipo_doc"], "True")
-                self.setComboBoxEnable(["self.textEdit_note_doc"], "False")
-                self.setComboBoxEditable(["self.comboBox_sito_doc"], 1)
-                self.label_status.setText(self.STATUS_ITEMS[self.BROWSE_STATUS])
-                self.set_rec_counter('', '')
-                self.label_sort.setText(self.SORTED_ITEMS["n"])
-                self.charge_list()
-                self.empty_fields()
-
+                if bool(self.comboBox_sito_doc.currentText()) and self.comboBox_sito_doc.currentText()==sito_set_str:
+                    self.BROWSE_STATUS = "f"
+                    self.label_status.setText(self.STATUS_ITEMS[self.BROWSE_STATUS])
+                    self.setComboBoxEnable(["self.comboBox_sito_doc"], "False")
+                    self.setComboBoxEnable(["self.lineEdit_nome_doc"], "True")
+                    self.setComboBoxEnable(["self.comboBox_tipo_doc"], "True")
+                    self.setComboBoxEnable(["self.textEdit_note_doc"], "False")
+                    #self.setComboBoxEditable(["self.comboBox_sito_doc"], 1)
+                    self.label_status.setText(self.STATUS_ITEMS[self.BROWSE_STATUS])
+                    self.set_rec_counter('', '')
+                    self.label_sort.setText(self.SORTED_ITEMS["n"])
+                    #self.charge_list()
+                    self.empty_fields_nosite()
+                else:
+                    self.BROWSE_STATUS = "f"
+                    self.label_status.setText(self.STATUS_ITEMS[self.BROWSE_STATUS])
+                    self.setComboBoxEnable(["self.comboBox_sito_doc"], "True")
+                    self.setComboBoxEnable(["self.lineEdit_nome_doc"], "True")
+                    self.setComboBoxEnable(["self.comboBox_tipo_doc"], "True")
+                    self.setComboBoxEnable(["self.textEdit_note_doc"], "False")
+                    self.setComboBoxEditable(["self.comboBox_sito_doc"], 1)
+                    self.label_status.setText(self.STATUS_ITEMS[self.BROWSE_STATUS])
+                    self.set_rec_counter('', '')
+                    self.label_sort.setText(self.SORTED_ITEMS["n"])
+                    self.charge_list()
+                    self.empty_fields()
                 ################################################
 
     def on_pushButton_search_go_pressed(self):
@@ -1128,6 +1162,15 @@ class pyarchinit_Documentazione(QDialog, MAIN_DIALOG_CLASS):
             lista.append(sub_list)
         return lista
 
+    def empty_fields_nosite(self):
+        
+        self.lineEdit_nome_doc.clear()  # 2 - Nome Dcumentazione
+        self.lineEdit_data_doc.clear()  # 3 - Data
+        self.comboBox_tipo_doc.setEditText("")  # 4 - Tipo Documentazione
+        self.comboBox_sorgente_doc.setEditText("")  # 5 - Sorgente
+        self.comboBox_scala_doc.setEditText("")  # 6 - Scala
+        self.lineEdit_disegnatore_doc.clear()  # 7 - Dsegnatore
+        self.textEdit_note_doc.clear()  # 8 - Note
     def empty_fields(self):
         self.comboBox_sito_doc.setEditText("")  # 1 - Sito
         self.lineEdit_nome_doc.clear()  # 2 - Nome Dcumentazione

@@ -39,7 +39,7 @@ from .tabs.Periodizzazione import pyarchinit_Periodizzazione
 from .tabs.Schedaind import pyarchinit_Schedaind
 from .tabs.Site import pyarchinit_Site
 from .tabs.Struttura import pyarchinit_Struttura
-from .tabs.Tafonomia import pyarchinit_Tafonomia
+from .tabs.Tomba import pyarchinit_Tomba
 from .tabs.US_USM import pyarchinit_US
 from .tabs.UT import pyarchinit_UT
 from .tabs.Upd import pyarchinit_Upd_Values
@@ -130,10 +130,10 @@ class PyarchinitPluginDialog(QgsDockWidget, MAIN_DIALOG_CLASS):
         pluginImage_directory_export.show()
         self.pluginGui = pluginImage_directory_export  # save
 
-    def runTafonomia(self):
-        pluginTafonomia = pyarchinit_Tafonomia(self.iface)
-        pluginTafonomia.show()
-        self.pluginGui = pluginTafonomia  # save
+    def runTomba(self):
+        pluginTomba = pyarchinit_Tomba(self.iface)
+        pluginTomba.show()
+        self.pluginGui = pluginTomba  # save
 
     def runSchedaind(self):
         pluginIndividui = pyarchinit_Schedaind(self.iface)

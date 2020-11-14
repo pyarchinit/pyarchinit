@@ -3,7 +3,7 @@ Created on 19 feb 2018
 
 @author: Serena Sensini
 '''
-from sqlalchemy.event import listen
+
 from sqlalchemy import Table, Column, Integer, String, Text, Numeric, MetaData, create_engine, UniqueConstraint
 from geoalchemy2 import Geometry
 from modules.db.pyarchinit_conn_strings import Connection

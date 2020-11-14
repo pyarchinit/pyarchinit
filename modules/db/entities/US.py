@@ -102,8 +102,27 @@ class US(object):
                  campioni_mattone_usm,  # 91
                  campioni_pietra_usm,  # 92
                  provenienza_materiali_usm,  # 93
-                 criteri_distinzione_usm,  # 94
-                 uso_primario_usm  # 95
+                 criteri_distinzione_usm,
+                 uso_primario_usm,# 94
+                 tipologia_opera,
+                 sezione_muraria,
+                 superficie_analizzata,
+                 orientamento,
+                 materiali_lat,
+                 lavorazione_lat,
+                 consistenza_lat,
+                 forma_lat,
+                 colore_lat,
+                 impasto_lat,
+                 forma_p,
+                 colore_p,
+                 taglio_p,
+                 posa_opera_p,
+                 inerti_usm,
+                 tipo_legante_usm,
+                 rifinitura_usm,
+                 materiale_p,
+                 consistenza_p
                  ):
         self.id_us = id_us  # 0
         self.sito = sito  # 1
@@ -201,11 +220,30 @@ class US(object):
         self.provenienza_materiali_usm = provenienza_materiali_usm  # 93
         self.criteri_distinzione_usm = criteri_distinzione_usm  # 94
         self.uso_primario_usm = uso_primario_usm  # 95
+        self.tipologia_opera=tipologia_opera
+        self.sezione_muraria=sezione_muraria
+        self.superficie_analizzata=superficie_analizzata
+        self.orientamento=orientamento
+        self.materiali_lat=materiali_lat
+        self.lavorazione_lat=lavorazione_lat
+        self.consistenza_lat=consistenza_lat
+        self.forma_lat=forma_lat
+        self.colore_lat=colore_lat
+        self.impasto_lat=impasto_lat
+        self.forma_p=forma_p
+        self.colore_p=colore_p
+        self.taglio_p=taglio_p
+        self.posa_opera_p=posa_opera_p
+        self.inerti_usm=inerti_usm
+        self.tipo_legante_usm=tipo_legante_usm
+        self.rifinitura_usm=rifinitura_usm
+        self.materiale_p=materiale_p
+        self.consistenza_p=consistenza_p
 
     # def __repr__"
     @property
     def __repr__(self):
-        return "<US('%d','%s', '%s', '%d','%s','%s','%s','%s','%s','%s','%s','%s','%s','%s','%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%d', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s','%r','%r','%s','%s','%s','%s','%s','%s','%s','%s','%s','%s','%r','%r','%s','%s','%s','%s','%s','%s','%s','%s','%r','%r','%r','%r','%r','%r','%r','%r','%r','%r','%s','%s','%s','%s','%s','%s','%s','%s','%s','%s','%r','%r','%r','%s','%s','%s','%s','%s','%s','%s','%s')>" % (
+        return "<US('%d','%s', '%s', '%d','%s','%s','%s','%s','%s','%s','%s','%s','%s','%s','%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%d', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s','%r','%r','%s','%s','%s','%s','%s','%s','%s','%s','%s','%s','%r','%r','%s','%s','%s','%s','%s','%s','%s','%s','%r','%r','%r','%r','%r','%r','%r','%r','%r','%r','%s','%s','%s','%s','%s','%s','%s','%s','%s','%s','%r','%r','%r','%s','%s','%s','%s','%s','%s','%s','%s','%s','%s','%s','%s','%s','%s','%s','%s','%s','%s','%s','%s','%s','%s','%s','%s','%s','%s','%s')>" % (
             self.id_us,  # 0
             self.sito,  # 1
             self.area,  # 2
@@ -301,5 +339,25 @@ class US(object):
             self.campioni_pietra_usm,  # 92 ok
             self.provenienza_materiali_usm,  # 93
             self.criteri_distinzione_usm,  # 94
-            self.uso_primario_usm  # 95
+            self.uso_primario_usm,  # 95
+            self.tipologia_opera,
+            self.sezione_muraria,
+            self.superficie_analizzata,
+            self.orientamento,
+            self.materiali_lat,
+            self.lavorazione_lat,
+            self.consistenza_lat,
+            self.forma_lat,
+            self.colore_lat,
+            self.impasto_lat,
+            self.forma_p,
+            self.colore_p,
+            self.taglio_p,
+            self.posa_opera_p,
+            self.inerti_usm,
+            self.tipo_legante_usm,
+            self.rifinitura_usm,
+            self.materiale_p,
+            self.consistenza_p
+            
         )

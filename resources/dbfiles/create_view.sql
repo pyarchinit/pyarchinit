@@ -134,12 +134,12 @@ CREATE OR REPLACE VIEW public.pyarchinit_strutture_view AS
 ALTER TABLE public.pyarchinit_strutture_view
     OWNER TO postgres;
 
--- View: public.pyarchinit_tafonomia_view
+-- View: public.pyarchinit_tomba_view
 
--- DROP VIEW public.pyarchinit_tafonomia_view;
+-- DROP VIEW public.pyarchinit_tomba_view;
 
-CREATE OR REPLACE VIEW public.pyarchinit_tafonomia_view AS
- SELECT a.id_tafonomia,
+CREATE OR REPLACE VIEW public.pyarchinit_tomba_view AS
+ SELECT a.id_tomba,
     a.sito,
     a.nr_scheda_taf,
     a.sigla_struttura,
@@ -154,30 +154,20 @@ CREATE OR REPLACE VIEW public.pyarchinit_tafonomia_view AS
     a.stato_di_conservazione,
     a.copertura_tipo,
     a.tipo_contenitore_resti,
-    a.orientamento_asse,
-    a.orientamento_azimut,
-    a.riferimenti_stratigrafici,
+    a.tipo_deposizione,
+    a.tipo_sepoltura,
     a.corredo_presenza,
     a.corredo_tipo,
     a.corredo_descrizione,
-    a.lunghezza_scheletro,
-    a.posizione_scheletro,
-    a.posizione_cranio,
-    a.posizione_arti_superiori,
-    a.posizione_arti_inferiori,
-    a.completo_si_no,
-    a.disturbato_si_no,
-    a.in_connessione_si_no,
-    a.caratteristiche,
     b.gid,
-    b.id_tafonomia_pk,
+    b.id_tomba_pk,
     b.sito AS sito_1,
     b.nr_scheda,
     b.the_geom
-   FROM tafonomia_table a
-     JOIN pyarchinit_tafonomia b ON a.sito = b.sito::text AND a.nr_scheda_taf = b.nr_scheda;
+   FROM tomba_table a
+     JOIN pyarchinit_tomba b ON a.sito = b.sito::text AND a.nr_scheda_taf = b.nr_scheda;
 
-ALTER TABLE public.pyarchinit_tafonomia_view
+ALTER TABLE public.pyarchinit_tomba_view
     OWNER TO postgres;
 
 -- View: public.pyarchinit_tipologie_sepolture_view

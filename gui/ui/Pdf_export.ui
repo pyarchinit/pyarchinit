@@ -308,12 +308,12 @@
          <item>
           <widget class="QLabel" name="label_7">
            <property name="text">
-            <string>Tafonomia</string>
+            <string>Tomba</string>
            </property>
           </widget>
          </item>
          <item>
-          <widget class="QCheckBox" name="checkBox_tafonomia">
+          <widget class="QCheckBox" name="checkBox_tomba">
            <property name="minimumSize">
             <size>
              <width>0</width>
@@ -321,7 +321,7 @@
             </size>
            </property>
            <property name="toolTip">
-            <string>Tafonomia</string>
+            <string>Tomba</string>
            </property>
            <property name="text">
             <string/>
@@ -398,7 +398,7 @@
             </size>
            </property>
            <property name="toolTip">
-            <string>Tafonomia</string>
+            <string>Tomba</string>
            </property>
            <property name="text">
             <string/>

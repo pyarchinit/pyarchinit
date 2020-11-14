@@ -36,7 +36,7 @@ from .pyarchinit_OS_utility import *
 from ..db.pyarchinit_utility import Utility
 
 
-class NumberedCanvas_TAFONOMIAsheet(canvas.Canvas):
+class NumberedCanvas_TOMBAsheet(canvas.Canvas):
     def __init__(self, *args, **kwargs):
         canvas.Canvas.__init__(self, *args, **kwargs)
         self._saved_page_states = []
@@ -63,7 +63,7 @@ class NumberedCanvas_TAFONOMIAsheet(canvas.Canvas):
                              "Pag. %d di %d" % (self._pageNumber, page_count))  # scheda us verticale 200mm x 20 mm
 
 
-class NumberedCanvas_TAFONOMIAindex(canvas.Canvas):
+class NumberedCanvas_TOMBAindex(canvas.Canvas):
     def __init__(self, *args, **kwargs):
         canvas.Canvas.__init__(self, *args, **kwargs)
         self._saved_page_states = []
@@ -90,7 +90,7 @@ class NumberedCanvas_TAFONOMIAindex(canvas.Canvas):
                              "Pag. %d di %d" % (self._pageNumber, page_count))  # scheda us verticale 200mm x 20 mm
 
 
-class Tafonomia_index_pdf_sheet(object):
+class Tomba_index_pdf_sheet(object):
     L=QgsSettings().value("locale/userLocale")[0:2]
     def __init__(self, data):
         self.nr_scheda_taf = data[1]
@@ -411,7 +411,7 @@ class Tafonomia_index_pdf_sheet(object):
         return styles
 
 
-class Tafonomia_index_II_pdf_sheet(object):
+class Tomba_index_II_pdf_sheet(object):
     L=QgsSettings().value("locale/userLocale")[0:2]
     PU = Utility()
     # this model includes str.n., area/sett, descrizione, rito
@@ -440,7 +440,7 @@ class Tafonomia_index_II_pdf_sheet(object):
 
         self.quota_min_strutt = data[36]
         self.quota_max_strutt = data[37]
-        self.misure_tafonomia = data[33]
+        self.misure_tomba = data[33]
         self.datazione_estesa = data[32]
 
     def getTable(self):
@@ -701,7 +701,7 @@ class Tafonomia_index_II_pdf_sheet(object):
         return styles
 
 
-class single_Tafonomia_pdf_sheet(object):
+class single_Tomba_pdf_sheet(object):
     L=QgsSettings().value("locale/userLocale")[0:2]
     PU = Utility()
 
@@ -741,7 +741,7 @@ class single_Tafonomia_pdf_sheet(object):
         self.periodo_finale = data[30]
         self.fase_finale = data[31]
         self.datazione_estesa = data[32]
-        self.misure_tafonomia = data[33]
+        self.misure_tomba = data[33]
         self.quota_min_ind = data[34]
         self.quota_max_ind = data[35]
         self.quota_min_strutt = data[36]
@@ -923,24 +923,24 @@ class single_Tafonomia_pdf_sheet(object):
         corredo_tipo_txt = Paragraph("<b>Singoli oggetti di corredo</b><br/>" + corredo_tipo, styNormal)
 
         # 18 row
-        misure_tafonomia = ''
-        if len(self.misure_tafonomia) > 0:
-            for i in eval(self.misure_tafonomia):
-                if misure_tafonomia == '':
+        misure_tomba = ''
+        if len(self.misure_tomba) > 0:
+            for i in eval(self.misure_tomba):
+                if misure_tomba == '':
                     try:
-                        misure_tafonomia += ("%s: %s %s") % (str(i[0]), str(i[2]), str(i[1]))
+                        misure_tomba += ("%s: %s %s") % (str(i[0]), str(i[2]), str(i[1]))
                     except:
                         pass
                 else:
                     try:
-                        misure_tafonomia += ("<br/>%s: %s %s") % (str(i[0]), str(i[2]), str(i[1]))
+                        misure_tomba += ("<br/>%s: %s %s") % (str(i[0]), str(i[2]), str(i[1]))
                     except:
                         pass
 
-        misure_tafonomia_txt = Paragraph("<b>Misurazioni</b><br/>" + misure_tafonomia, styNormal)
+        misure_tomba_txt = Paragraph("<b>Misurazioni</b><br/>" + misure_tomba, styNormal)
 
         # 19 row
-        quote_tafonomia = Paragraph("<b>QUOTE INDIVIDUO E STRUTTURA</b><br/>", styNormal)
+        quote_tomba = Paragraph("<b>QUOTE INDIVIDUO E STRUTTURA</b><br/>", styNormal)
 
         # 20 row
         quota_min_ind = Paragraph("<b>Quota min individuo</b><br/>" + str(self.quota_min_ind), styNormal)
@@ -973,8 +973,8 @@ class single_Tafonomia_pdf_sheet(object):
             [corredo_presente, '01', '02', '03', '04', '05', '06', '07', '08', '09'],  # 15 ow
             [corredo_descrizione, '01', '02', '03', '04', '05', '06', '07', '08', '09'],  # 16 row
             [corredo_tipo_txt, '01', '02', '03', '04', '05', '06', '07', '08', '09'],  # 17 row
-            [misure_tafonomia_txt, '01', '02', '03', '04', '05', '06', '07', '08', '09'],  # 18 row
-            [quote_tafonomia, '01', '02', '03', '04', '07', '06', '07', '08', '09'],  # 19 row ok
+            [misure_tomba_txt, '01', '02', '03', '04', '05', '06', '07', '08', '09'],  # 18 row
+            [quote_tomba, '01', '02', '03', '04', '07', '06', '07', '08', '09'],  # 19 row ok
             [quota_min_ind, '01', '02', quota_max_ind, '04', quota_min_strutt, '06', quota_max_strutt, '08', '09']
             # 20 row ok
         ]
@@ -1248,24 +1248,24 @@ class single_Tafonomia_pdf_sheet(object):
         corredo_tipo_txt = Paragraph("<b>Einzelne Geräte</b><br/>" + corredo_tipo, styNormal)
 
         # 18 row
-        misure_tafonomia = ''
-        if len(self.misure_tafonomia) > 0:
-            for i in eval(self.misure_tafonomia):
-                if misure_tafonomia == '':
+        misure_tomba = ''
+        if len(self.misure_tomba) > 0:
+            for i in eval(self.misure_tomba):
+                if misure_tomba == '':
                     try:
-                        misure_tafonomia += ("%s: %s %s") % (str(i[0]), str(i[2]), str(i[1]))
+                        misure_tomba += ("%s: %s %s") % (str(i[0]), str(i[2]), str(i[1]))
                     except:
                         pass
                 else:
                     try:
-                        misure_tafonomia += ("<br/>%s: %s %s") % (str(i[0]), str(i[2]), str(i[1]))
+                        misure_tomba += ("<br/>%s: %s %s") % (str(i[0]), str(i[2]), str(i[1]))
                     except:
                         pass
 
-        misure_tafonomia_txt = Paragraph("<b>Messungen</b><br/>" + misure_tafonomia, styNormal)
+        misure_tomba_txt = Paragraph("<b>Messungen</b><br/>" + misure_tomba, styNormal)
 
         # 19 row
-        quote_tafonomia = Paragraph("<b>INDIVIDUELLES Höhe UND STRUKTUR</b><br/>", styNormal)
+        quote_tomba = Paragraph("<b>INDIVIDUELLES Höhe UND STRUKTUR</b><br/>", styNormal)
 
         # 20 row
         quota_min_ind = Paragraph("<b>Höhe min ind.</b><br/>" + str(self.quota_min_ind), styNormal)
@@ -1298,8 +1298,8 @@ class single_Tafonomia_pdf_sheet(object):
             [corredo_presente, '01', '02', '03', '04', '05', '06', '07', '08', '09'],  # 15 ow
             [corredo_descrizione, '01', '02', '03', '04', '05', '06', '07', '08', '09'],  # 16 row
             [corredo_tipo_txt, '01', '02', '03', '04', '05', '06', '07', '08', '09'],  # 17 row
-            [misure_tafonomia_txt, '01', '02', '03', '04', '05', '06', '07', '08', '09'],  # 18 row
-            [quote_tafonomia, '01', '02', '03', '04', '07', '06', '07', '08', '09'],  # 19 row ok
+            [misure_tomba_txt, '01', '02', '03', '04', '05', '06', '07', '08', '09'],  # 18 row
+            [quote_tomba, '01', '02', '03', '04', '07', '06', '07', '08', '09'],  # 19 row ok
             [quota_min_ind, '01', '02', quota_max_ind, '04', quota_min_strutt, '06', quota_max_strutt, '08', '09']
             # 20 row ok
         ]
@@ -1573,24 +1573,24 @@ class single_Tafonomia_pdf_sheet(object):
         corredo_tipo_txt = Paragraph("<b>Single items of trousseau</b><br/>" + corredo_tipo, styNormal)
 
         # 18 row
-        misure_tafonomia = ''
-        if len(self.misure_tafonomia) > 0:
-            for i in eval(self.misure_tafonomia):
-                if misure_tafonomia == '':
+        misure_tomba = ''
+        if len(self.misure_tomba) > 0:
+            for i in eval(self.misure_tomba):
+                if misure_tomba == '':
                     try:
-                        misure_tafonomia += ("%s: %s %s") % (str(i[0]), str(i[2]), str(i[1]))
+                        misure_tomba += ("%s: %s %s") % (str(i[0]), str(i[2]), str(i[1]))
                     except:
                         pass
                 else:
                     try:
-                        misure_tafonomia += ("<br/>%s: %s %s") % (str(i[0]), str(i[2]), str(i[1]))
+                        misure_tomba += ("<br/>%s: %s %s") % (str(i[0]), str(i[2]), str(i[1]))
                     except:
                         pass
 
-        misure_tafonomia_txt = Paragraph("<b>Measurement</b><br/>" + misure_tafonomia, styNormal)
+        misure_tomba_txt = Paragraph("<b>Measurement</b><br/>" + misure_tomba, styNormal)
 
         # 19 row
-        quote_tafonomia = Paragraph("<b>INDIVIDUAL AND STRUCTURE ELEVATION </b><br/>", styNormal)
+        quote_tomba = Paragraph("<b>INDIVIDUAL AND STRUCTURE ELEVATION </b><br/>", styNormal)
 
         # 20 row
         quota_min_ind = Paragraph("<b>Elev. min ind.</b><br/>" + str(self.quota_min_ind), styNormal)
@@ -1623,8 +1623,8 @@ class single_Tafonomia_pdf_sheet(object):
             [corredo_presente, '01', '02', '03', '04', '05', '06', '07', '08', '09'],  # 15 ow
             [corredo_descrizione, '01', '02', '03', '04', '05', '06', '07', '08', '09'],  # 16 row
             [corredo_tipo_txt, '01', '02', '03', '04', '05', '06', '07', '08', '09'],  # 17 row
-            [misure_tafonomia_txt, '01', '02', '03', '04', '05', '06', '07', '08', '09'],  # 18 row
-            [quote_tafonomia, '01', '02', '03', '04', '07', '06', '07', '08', '09'],  # 19 row ok
+            [misure_tomba_txt, '01', '02', '03', '04', '05', '06', '07', '08', '09'],  # 18 row
+            [quote_tomba, '01', '02', '03', '04', '07', '06', '07', '08', '09'],  # 19 row ok
             [quota_min_ind, '01', '02', quota_max_ind, '04', quota_min_strutt, '06', quota_max_strutt, '08', '09']
             # 20 row ok
         ]
@@ -1726,7 +1726,7 @@ class single_Tafonomia_pdf_sheet(object):
         t = Table(cell_schema, colWidths=50, rowHeights=None, style=table_style)
 
         return t    
-class generate_tafonomia_pdf(object):
+class generate_tomba_pdf(object):
     L=QgsSettings().value("locale/userLocale")[0:2]
     HOME = os.environ['PYARCHINIT_HOME']
 
@@ -1737,40 +1737,40 @@ class generate_tafonomia_pdf(object):
         today = now.strftime("%d-%m-%Y")
         return today
 
-    def build_Tafonomia_sheets(self, records):
+    def build_Tomba_sheets(self, records):
         elements = []
         for i in range(len(records)):
-            single_tafonomia_sheet = single_Tafonomia_pdf_sheet(records[i])
-            elements.append(single_tafonomia_sheet.create_sheet())
+            single_tomba_sheet = single_Tomba_pdf_sheet(records[i])
+            elements.append(single_tomba_sheet.create_sheet())
             elements.append(PageBreak())
         filename = '{}{}{}'.format(self.PDF_path, os.sep, 'scheda_Tafonomica.pdf')
         f = open(filename, "wb")
         doc = SimpleDocTemplate(f)
-        doc.build(elements, canvasmaker=NumberedCanvas_TAFONOMIAsheet)
+        doc.build(elements, canvasmaker=NumberedCanvas_TOMBAsheet)
         f.close()
-    def build_Tafonomia_sheets_de(self, records):
+    def build_Tomba_sheets_de(self, records):
         elements = []
         for i in range(len(records)):
-            single_tafonomia_sheet = single_Tafonomia_pdf_sheet(records[i])
-            elements.append(single_tafonomia_sheet.create_sheet_de())
+            single_tomba_sheet = single_Tomba_pdf_sheet(records[i])
+            elements.append(single_tomba_sheet.create_sheet_de())
             elements.append(PageBreak())
         filename = '{}{}{}'.format(self.PDF_path, os.sep, 'Formular_taphonomie.pdf')
         f = open(filename, "wb")
         doc = SimpleDocTemplate(f)
-        doc.build(elements, canvasmaker=NumberedCanvas_TAFONOMIAsheet)
+        doc.build(elements, canvasmaker=NumberedCanvas_TOMBAsheet)
         f.close()
-    def build_Tafonomia_sheets_en(self, records):
+    def build_Tomba_sheets_en(self, records):
         elements = []
         for i in range(len(records)):
-            single_tafonomia_sheet = single_Tafonomia_pdf_sheet(records[i])
-            elements.append(single_tafonomia_sheet.create_sheet_en())
+            single_tomba_sheet = single_Tomba_pdf_sheet(records[i])
+            elements.append(single_tomba_sheet.create_sheet_en())
             elements.append(PageBreak())
         filename = '{}{}{}'.format(self.PDF_path, os.sep, 'Taphonomic_form.pdf')
         f = open(filename, "wb")
         doc = SimpleDocTemplate(f)
-        doc.build(elements, canvasmaker=NumberedCanvas_TAFONOMIAsheet)
+        doc.build(elements, canvasmaker=NumberedCanvas_TOMBAsheet)
         f.close()   
-    def build_index_Tafonomia(self, records, sito):
+    def build_index_Tomba(self, records, sito):
 
         home = os.environ['PYARCHINIT_HOME']
 
@@ -1813,15 +1813,15 @@ class generate_tafonomia_pdf(object):
         
         if self.L=='it':
             for i in range(len(records)):
-                exp_index = Tafonomia_index_pdf_sheet(records[i])
+                exp_index = Tomba_index_pdf_sheet(records[i])
                 table_data.append(exp_index.getTable())
         elif self.L=='de':
             for i in range(len(records)):
-                exp_index = Tafonomia_index_pdf_sheet(records[i])
+                exp_index = Tomba_index_pdf_sheet(records[i])
                 table_data.append(exp_index.getTable_de())
         else:
             for i in range(len(records)):
-                exp_index = Tafonomia_index_pdf_sheet(records[i])
+                exp_index = Tomba_index_pdf_sheet(records[i])
                 table_data.append(exp_index.getTable_en())      
                 
         styles = exp_index.makeStyles()
@@ -1834,7 +1834,7 @@ class generate_tafonomia_pdf(object):
         # lst.append(Spacer(0,2))
 
         if self.L=='it':
-            filename = '{}{}{}'.format(self.PDF_path, os.sep, 'Elenco_tafonomia.pdf')
+            filename = '{}{}{}'.format(self.PDF_path, os.sep, 'Elenco_tomba.pdf')
         elif self.L=='it':
             filename = '{}{}{}'.format(self.PDF_path, os.sep, 'Listen_thaphonomie.pdf')
         else:
@@ -1842,7 +1842,7 @@ class generate_tafonomia_pdf(object):
         f = open(filename, "wb")
 
         doc = SimpleDocTemplate(f, pagesize=(29 * cm, 21 * cm), showBoundary=0)
-        doc.build(lst, canvasmaker=NumberedCanvas_TAFONOMIAindex)
+        doc.build(lst, canvasmaker=NumberedCanvas_TOMBAindex)
 
         f.close()
 
@@ -1865,16 +1865,16 @@ class generate_tafonomia_pdf(object):
         table_data = []
         if self.L=='it':
             for i in range(len(records)):
-                exp_index = Tafonomia_index_II_pdf_sheet(records[i])
+                exp_index = Tomba_index_II_pdf_sheet(records[i])
                 table_data.append(exp_index.getTable())
         elif self.L=='de':
             for i in range(len(records)):
-                exp_index = Tafonomia_index_II_pdf_sheet(records[i])
+                exp_index = Tomba_index_II_pdf_sheet(records[i])
                 table_data.append(exp_index.getTable_de())
                 
         else:
             for i in range(len(records)):
-                exp_index = Tafonomia_index_II_pdf_sheet(records[i])
+                exp_index = Tomba_index_II_pdf_sheet(records[i])
                 table_data.append(exp_index.getTable_en())
 
                 
@@ -1887,7 +1887,7 @@ class generate_tafonomia_pdf(object):
         lst.append(table_data_formatted)
         # lst.append(Spacer(0,2))
         if self.L=='it':
-            filename = '{}{}{}'.format(self.PDF_path, os.sep, 'elenco_strutture_tafonomia.pdf')
+            filename = '{}{}{}'.format(self.PDF_path, os.sep, 'elenco_strutture_tomba.pdf')
         elif self.L=='it':
             filename = '{}{}{}'.format(self.PDF_path, os.sep, 'listen_thaphonomie_struktur.pdf')
         else:
@@ -1896,6 +1896,6 @@ class generate_tafonomia_pdf(object):
         f = open(filename, "wb")
 
         doc = SimpleDocTemplate(f, pagesize=(29 * cm, 21 * cm), showBoundary=0)
-        doc.build(lst, canvasmaker=NumberedCanvas_TAFONOMIAindex)
+        doc.build(lst, canvasmaker=NumberedCanvas_TOMBAindex)
 
         f.close()
