@@ -6,10 +6,10 @@
 
 ## Installing adding pyarchinit repository into QGIS
 
-# Video per installazione plugin -> [Video](https://www.adarteinfo.it/FTP/pyarchinit-download/install.gif)
+# Video per installazione plugin -> [Video](https://www.adarteinfo.it/archivio/pyarchinit-download/install.gif)
 
 Into QGIS add this link
-https://www.adarteinfo.it/FTP/pyarchinit-download/pyarchinit.xml
+https://www.adarteinfo.it/archivio/pyarchinit-download/pyarchinit.xml
 
 
 ## Installing from zip
