@@ -115,6 +115,25 @@ class US_table:
                      Column('provenienza_materiali_usm', Text),  #93
                      Column('criteri_distinzione_usm', Text),  #94
                      Column('uso_primario_usm', Text),  #95 ok
+                     Column('tipologia_opera', Text),  #95 ok
+                     Column('sezione_muraria', Text),  #95 ok
+                     Column('superficie_analizzata', Text),  #95 ok
+                     Column('orientamento', Text),  #95 ok
+                     Column('materiali_lat', Text),  #95 ok
+                     Column('lavorazione_lat', Text),  #95 ok
+                     Column('consistenza_lat', Text),  #95 ok
+                     Column('forma_lat', Text),  #95 ok
+                     Column('colore_lat', Text),  #95 ok
+                     Column('impasto_lat', Text),  #95 ok
+                     Column('forma_p', Text),  #95 ok
+                     Column('colore_p', Text),  #95 ok
+                     Column('taglio_p', Text),  #95 ok
+                     Column('posa_opera_p', Text),  #95 ok
+                     Column('inerti_usm', Text),  #95 ok
+                     Column('tipo_legante_usm', Text),  #95 ok
+                     Column('rifinitura_usm', Text),  #95 ok
+                     Column('materiale_p', Text),  #95 ok
+                     Column('consistenza_p', Text),  #95 ok
 
                      # explicit/composite unique constraint.  'name' is optional.
                      UniqueConstraint('sito', 'area', 'us', name='ID_us_unico')

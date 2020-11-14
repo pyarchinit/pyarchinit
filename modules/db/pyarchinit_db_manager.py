@@ -21,34 +21,43 @@
 
 import os
 import sqlalchemy as db
+from sqlalchemy.ext.compiler import compiles
+from sqlalchemy.sql.expression import *
 from sqlalchemy.event import listen
 import psycopg2
 from builtins import object
 from builtins import range
 from builtins import str
 from builtins import zip
-from sqlalchemy import and_, or_, Table, select, func, asc
+from sqlalchemy import and_, or_, Table, select, func, asc,UniqueConstraint
 from geoalchemy2 import *
 from sqlalchemy.engine import create_engine
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.sql.schema import MetaData
 from qgis.core import QgsMessageLog, Qgis, QgsSettings
 from qgis.utils import iface
+from qgis.PyQt.QtWidgets import QMessageBox
 from modules.utility.pyarchinit_OS_utility import Pyarchinit_OS_Utility
+from sqlalchemy.dialects import postgresql
+from sqlalchemy.dialects.postgresql import insert
 
 from modules.db.pyarchinit_db_mapper import US, UT, SITE, PERIODIZZAZIONE, \
     STRUTTURA, SCHEDAIND, INVENTARIO_MATERIALI, DETSESSO, DOCUMENTAZIONE, DETETA, MEDIA, \
-    MEDIA_THUMB, MEDIATOENTITY, MEDIAVIEW, TAFONOMIA, CAMPIONI, PYARCHINIT_THESAURUS_SIGLE, \
+    MEDIA_THUMB, MEDIATOENTITY, MEDIAVIEW, TOMBA, CAMPIONI, PYARCHINIT_THESAURUS_SIGLE, \
     ARCHEOZOOLOGY, INVENTARIO_LAPIDEI, PDF_ADMINISTRATOR,PYUS
 from modules.db.pyarchinit_db_update import DB_update
 from modules.db.pyarchinit_utility import Utility
+from sqlalchemy.ext.compiler import compiles
+from sqlalchemy.sql.expression import Insert
+from modules.db.pyarchinit_conn_strings import Connection
 
+        
 
 class Pyarchinit_db_management(object):
     metadata = ''
     engine = ''
     boolean = ''
-
+    
     if os.name == 'posix':
         boolean = 'True'
     elif os.name == 'nt':
@@ -56,6 +65,57 @@ class Pyarchinit_db_management(object):
 
     def __init__(self, c):
         self.conn_str = c
+        
+    # @compiles(Insert)
+    # def _prefix_insert_with_replace(insert_srt, compiler, **kw):
+        # ##############importo i dati nuovi aggiornando i vecchi dati########################
+        # conn = Connection()
+        # conn_str = conn.conn_str()
+        # test_conn = conn_str.find("sqlite")
+        # if test_conn == 0:
+            # return compiler.visit_insert(insert_srt.prefix_with('OR REPLACE'), **kw)
+        # else:
+            # #return compiler.visit_insert(insert.prefix_with(''), **kw)
+            # pk = insert_srt.table.primary_key
+            # insert = compiler.visit_insert(insert_srt, **kw)
+            # ondup = f'ON CONFLICT ({",".join(c.name for c in pk)}) DO UPDATE SET'
+            # updates = ', '.join(f"{c.name}=EXCLUDED.{c.name}" for c in insert_srt.table.columns)
+            # upsert = ' '.join((insert, ondup, updates))
+            # return upsert
+        
+    # @compiles(Insert)
+    # def _prefix_insert_with_ignore(insert_srt, compiler, **kw):
+        # ##############importo i dati aggiornando i vecchi dati########################
+        # conn = Connection()
+        # conn_str = conn.conn_str()
+        # test_conn = conn_str.find("sqlite")
+        # if test_conn == 0:
+            # return compiler.visit_insert(insert_srt.prefix_with('OR IGNORE'), **kw)
+        # else:
+            # #return compiler.visit_insert(insert.prefix_with(''), **kw)
+            # pk = insert_srt.table.primary_key
+            # insert = compiler.visit_insert(insert_srt, **kw)
+            # ondup = f'ON CONFLICT ({",".join(c.name for c in pk)}) DO NOTHING'
+            # #updates = ', '.join(f"{c.name}=EXCLUDED.{c.name}" for c in insert_srt.table.columns)
+            # upsert = ' '.join((insert, ondup))
+            # return upsert    
+        
+        
+        ######da studiare per importare i dati ingorando il costraint############################
+        # else:
+            # conn = Connection()
+            # conn_str = conn.conn_str()
+            # test_conn = conn_str.find("sqlite")
+            # if test_conn == 0:
+                # return compiler.visit_insert(insert_srt.prefix_with('OR IGNORE'), **kw)
+            # else:
+                # #return compiler.visit_insert(insert.prefix_with(''), **kw)
+                # pk = insert_srt.table.primary_key
+                # insert = compiler.visit_insert(insert_srt, **kw)
+                # ondup = f'ON CONFLICT ({",".join(c.name for c in pk)}) DO NOTHING'
+                # #updates = ', '.join(f"{c.name}=EXCLUDED.{c.name}" for c in insert_srt.table.columns)
+                # upsert = ' '.join((insert, ondup))
+                # return upsert
     def load_spatialite(self,dbapi_conn, connection_record):
         dbapi_conn.enable_load_extension(True)
         
@@ -75,8 +135,11 @@ class Pyarchinit_db_management(object):
                 listen(self.engine, 'connect', self.load_spatialite)
             else:
                 self.engine = create_engine(self.conn_str, max_overflow=-1, echo=eval(self.boolean))
+            
+                
             self.metadata = MetaData(self.engine)
             conn = self.engine.connect()
+            
         except:
             pass
             test = False
@@ -206,7 +269,26 @@ class Pyarchinit_db_management(object):
                 arg[92],
                 arg[93],
                 arg[94],
-                arg[95]
+                arg[95],
+                arg[96],
+                arg[97],
+                arg[98],
+                arg[99],
+                arg[100],
+                arg[101],
+                arg[102],
+                arg[103],
+                arg[104],
+                arg[105],
+                arg[106],
+                arg[107],
+                arg[108],
+                arg[109],
+                arg[110],
+                arg[111],
+                arg[112],
+                arg[113],
+                arg[114],
                 )
 
         return us
@@ -320,7 +402,8 @@ class Pyarchinit_db_management(object):
                                                     arg[26],
                                                     arg[27],
                                                     arg[28],
-                                                    arg[29])
+                                                    arg[29],
+                                                    arg[30])
 
         return inventario_materiali
 
@@ -360,7 +443,19 @@ class Pyarchinit_db_management(object):
                               arg[8],
                               arg[9],
                               arg[10],
-                              arg[11])
+                              arg[11],
+                              arg[12],
+                              arg[13],
+                              arg[14],
+                              arg[15],
+                              arg[16],
+                              arg[17],
+                              arg[18],
+                              arg[19],
+                              arg[20],
+                              arg[21],
+                              arg[22],
+                              arg[23])
 
         return schedaind
 
@@ -535,10 +630,10 @@ class Pyarchinit_db_management(object):
 
         return mediaentity_view 
     
-    def insert_values_tafonomia(self, *arg):
-        """Istanzia la classe TAFONOMIA da pyarchinit_db_mapper"""
+    def insert_values_tomba(self, *arg):
+        """Istanzia la classe TOMBA da pyarchinit_db_mapper"""
 
-        tafonomia = TAFONOMIA(arg[0],
+        tomba = TOMBA(arg[0],
                               arg[1],
                               arg[2],
                               arg[3],
@@ -563,18 +658,9 @@ class Pyarchinit_db_management(object):
                               arg[22],
                               arg[23],
                               arg[24],
-                              arg[25],
-                              arg[26],
-                              arg[27],
-                              arg[28],
-                              arg[29],
-                              arg[30],
-                              arg[31],
-                              arg[32],
-                              arg[33],
-                              arg[34])
+                              arg[25])
 
-        return tafonomia
+        return tomba
 
     def insert_values_campioni(self, *arg):
         """Istanzia la classe CAMPIONI da pyarchinit_db_mapper"""
@@ -766,7 +852,6 @@ class Pyarchinit_db_management(object):
 
         # query statement
 
-    #
     def query(self, n):
         class_name = eval(n)
         # engine = self.connection()
@@ -801,7 +886,7 @@ class Pyarchinit_db_management(object):
                     field_value_string = field_value_string + "," + table + ".%s == %s" % (
                     list_keys_values[sing_couple_n][0], list_keys_values[sing_couple_n][1])
 
-                    # field_value_string = ", ".join([table + ".%s == u%s" % (k, v) for k, v in params.items()])
+                    #field_value_string = ", ".join([table + ".%s == u%s" % (k, v) for k, v in params.items()])
 
         """
         Per poter utilizzare l'operatore LIKE è necessario fare una iterazione attraverso il dizionario per discriminare tra
@@ -821,6 +906,9 @@ class Pyarchinit_db_management(object):
         '''
         session.close()
         return res
+    
+    
+    
     def query_bool_special(self, params, table):
         u = Utility()
         params = u.remove_empty_items_fr_dict(params)
@@ -842,10 +930,10 @@ class Pyarchinit_db_management(object):
                     field_value_string = field_value_string + "," + table + ".%s == %s" % (
                     list_keys_values[sing_couple_n][0], list_keys_values[sing_couple_n][1])
                 else:
-                    field_value_string = field_value_string + "," + table + ".%s == %s" % (
+                    field_value_string = field_value_string + "," + table + ".%s.like(%s)" % (
                     list_keys_values[sing_couple_n][0], list_keys_values[sing_couple_n][1])
 
-                    # field_value_string = ", ".join([table + ".%s == u%s" % (k, v) for k, v in params.items()])
+                    #field_value_string = ", ".join([table + ".%s.like(%s)" % (k, v) for k, v in params.items()])
 
         """
         Per poter utilizzare l'operatore LIKE è necessario fare una iterazione attraverso il dizionario per discriminare tra
@@ -855,7 +943,7 @@ class Pyarchinit_db_management(object):
         # self.connection()
         Session = sessionmaker(bind=self.engine, autoflush=True, autocommit=True)
         session = Session()
-        query_str = "session.query(" + table + ").filter(and_("+field_value_string+" )).all()"
+        query_str = "session.query(" + table + ").filter(and_(" + field_value_string + ")).all()"
         res = eval(query_str)
 
         '''
@@ -942,7 +1030,15 @@ class Pyarchinit_db_management(object):
         session.add(data)
         session.commit()
         session.close()
-
+    # def insert_data_conflict(self, data):
+        # Session = sessionmaker(bind=self.engine, autoflush=False)
+        # session = Session()
+        # session.begin_nested()
+        # session.merge(data)
+       
+        # session.commit()
+        
+        # session.close()
     def update(self, table_class_str, id_table_str, value_id_list, columns_name_list, values_update_list):
         """
         Receives 5 values then putted in a list. The values must be passed
@@ -1054,6 +1150,23 @@ class Pyarchinit_db_management(object):
         else:
             return int(res_max_num_id)
         
+    # def max_num_id2(self, tc, f):
+        # self.table_class = tc
+        # self.field_id = f
+
+        # Session = sessionmaker(bind=self.engine, autoflush=True, autocommit=True)
+        # session = Session()
+        # exec_str = "session.query(func.max({}.{}))".format(self.table_class, self.field_id)
+        # exec_str = exec_str.on_conflict_do_nothing(index_elements="{}".format( self.field_id))
+        # max_id_func = eval(exec_str)
+        # res_all = max_id_func.all()
+        # res_max_num_id = res_all[0][0]
+        # session.close()
+        # if not res_max_num_id:
+            # return 0
+        # else:
+            # return int(res_max_num_id)
+    
     def dir_query(self):
         Session = sessionmaker(bind=self.engine, autoflush=True, autocommit=True)
         session = Session()
@@ -1315,7 +1428,7 @@ class Pyarchinit_db_management(object):
 
             data_ins = self.insert_values(id_us, sito, area, n_us, '', '', '', '', '', '', '', '', '', '', '', '', '[]',
                                           '[]', '[]', '', '', '', '', '', '', '', '', '0', '[]', unita_tipo, '', '', '', '',
-                                          '', '', '', '', '', '', '', '', '', None, None, '', '[]','[]', '[]', '[]', '[]','','','','',None,None,'','','','','','','[]','[]',None,None,None,None,None,None,None,None,None,None,'','','','','','','','','','',None,None,None,'','','','','','','','')
+                                          '', '', '', '', '', '', '', '', '', None, None, '', '[]','[]', '[]', '[]', '[]','','','','',None,None,'','','','','','','[]','[]',None,None,None,None,None,None,None,None,None,None,'','','','','','','','','','',None,None,None,'','','','','','','','','','','','','','','','','','','','','','','','','','','','')
                                            
             self.insert_data_session(data_ins)
             n_us += 1

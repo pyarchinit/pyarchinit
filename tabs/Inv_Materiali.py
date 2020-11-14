@@ -23,6 +23,8 @@ from __future__ import absolute_import
 
 import os
 from datetime import date
+import platform
+from pdf2docx import parse
 import cv2
 import numpy as np
 import sys
@@ -30,8 +32,7 @@ from builtins import range
 from builtins import str
 from qgis.PyQt.QtCore import Qt, QSize, QVariant
 from qgis.PyQt.QtGui import QIcon
-from qgis.PyQt.QtWidgets import QDialog, QMessageBox, QListWidget, QListView, QFrame, QAbstractItemView, \
-    QTableWidgetItem, QListWidgetItem
+from qgis.PyQt.QtWidgets import *
 from qgis.PyQt.uic import loadUiType
 from qgis.core import QgsSettings
 
@@ -64,6 +65,7 @@ class pyarchinit_Inventario_reperti(QDialog, MAIN_DIALOG_CLASS):
     REC_CORR = 0
     REC_TOT = 0
     SITO = pyArchInitDialog_Config
+    
     if L=='it':
         STATUS_ITEMS = {"b": "Usa", "f": "Trova", "n": "Nuovo Record"}
     else :
@@ -108,7 +110,8 @@ class pyarchinit_Inventario_reperti(QDialog, MAIN_DIALOG_CLASS):
             "Valore E.v.e. orlo": 'eve_orlo',
             "Repertato": 'repertato',
             "Diagnostico": 'diagnostico',
-            "RA":'n_reperto'
+            "RA":'n_reperto',
+            "Tipo contenitore":'tipo_contenitore'
         }
         QUANT_ITEMS = ['Tipo reperto',
                        'Classe materiale',
@@ -145,7 +148,8 @@ class pyarchinit_Inventario_reperti(QDialog, MAIN_DIALOG_CLASS):
             "Valore E.v.e. orlo",
             "Repertato",
             "Diagnostico",
-            "RA"
+            "RA",
+            "Tipo contenitore"
         ]
     if L =='de':
         CONVERSION_DICT = {
@@ -174,7 +178,8 @@ class pyarchinit_Inventario_reperti(QDialog, MAIN_DIALOG_CLASS):
             "E.V.E. edge": 'eve_orlo',
             "Abgerufen": 'repertato',
             "Diagnose": 'diagnostico',
-            "RA":'n_reperto'
+            "RA":'n_reperto',
+            "Behältertyp":'tipo_contenitore'
         }
         QUANT_ITEMS = ['Art des Artefakts',
                        'Materialklasse',
@@ -211,7 +216,8 @@ class pyarchinit_Inventario_reperti(QDialog, MAIN_DIALOG_CLASS):
             "E.V.E. edge",
             "Abgerufen",
             "Diagnose",
-            "RA"
+            "RA",
+            "Behältertyp"
         ]
     if L =='en':
         CONVERSION_DICT = {
@@ -240,7 +246,8 @@ class pyarchinit_Inventario_reperti(QDialog, MAIN_DIALOG_CLASS):
             "Value E.v.e. rim": 'eve_orlo',
             "Reperted": 'repertato',
             "Diagnostic": 'diagnostico',
-            "RA":'n_reperto'
+            "RA":'n_reperto',
+            "Type of container":'tipo_contenitore'
         }
         QUANT_ITEMS = ['Artefact type',
                        'Material class',
@@ -277,7 +284,8 @@ class pyarchinit_Inventario_reperti(QDialog, MAIN_DIALOG_CLASS):
             "Value E.v.e. rim",
             "Reperted",
             "Diagnostic",
-            "RA"
+            "RA",
+            "Type of container"
         ]   
     TABLE_FIELDS = [
         "sito",
@@ -308,7 +316,8 @@ class pyarchinit_Inventario_reperti(QDialog, MAIN_DIALOG_CLASS):
         'eve_orlo',
         'repertato',
         'diagnostico',
-        'n_reperto'
+        'n_reperto',
+        'tipo_contenitore'
     ]
 
     TABLE_FIELDS_UPDATE = [
@@ -338,7 +347,8 @@ class pyarchinit_Inventario_reperti(QDialog, MAIN_DIALOG_CLASS):
         'eve_orlo',
         'repertato',
         'diagnostico',
-        'n_reperto'
+        'n_reperto',
+        'tipo_contenitore'
     ]
 
     LANG = {
@@ -359,7 +369,7 @@ class pyarchinit_Inventario_reperti(QDialog, MAIN_DIALOG_CLASS):
     SEARCH_DICT_TEMP = ""
 
     HOME = os.environ['PYARCHINIT_HOME']
-
+    PDFFOLDER = '{}{}{}'.format(HOME, os.sep, "pyarchinit_PDF_folder")
     QUANT_PATH = '{}{}{}'.format(HOME, os.sep, "pyarchinit_Quantificazioni_folder")
 
     DB_SERVER = 'not defined'
@@ -369,18 +379,32 @@ class pyarchinit_Inventario_reperti(QDialog, MAIN_DIALOG_CLASS):
         self.iface = iface
         self.setupUi(self)
         self.mDockWidget_export.setHidden(True)
+        self.mDockWidget.setHidden(True)
         self.pyQGIS = Pyarchinit_pyqgis(iface)
         self.currentLayerId = None
+        
+        
         try:
             self.on_pushButton_connect_pressed()
         except Exception as e:
             QMessageBox.warning(self, "Sistema di connessione", str(e), QMessageBox.Ok)
+        self.setnone()
         self.fill_fields()
         
         self.set_sito()
         self.msg_sito()
         self.comboBox_repertato.currentTextChanged.connect(self.numero_reperto)
         self.numero_invetario()
+        self.toolButton_pdfpath.clicked.connect(self.setPathpdf)
+    
+    
+    def setnone(self):
+        if self.lineEdit_tipo_contenitore.text=='None' or None:
+            self.lineEdit_tipo_contenitore.clear()
+            self.lineEdit_tipo_contenitore.setText('')
+            self.lineEdit_tipo_contenitore.update()
+        if self.lineEdit_n_reperto.text()=='None' or '' or None:
+            elf.lineEdit_n_reperto.setText('0')
     def on_pushButtonQuant_pressed(self):
         dlg = QuantPanelMain(self)
         dlg.insertItems(self.QUANT_ITEMS)
@@ -1075,13 +1099,22 @@ class pyarchinit_Inventario_reperti(QDialog, MAIN_DIALOG_CLASS):
 
     
     def numero_reperto(self):
+        # self.set_sito()
         contatore = 0
         list=[]
+        
+        
+        
+        
         
         if self.comboBox_repertato.currentText()=='No':
             self.lineEdit_n_reperto.clear()
             self.lineEdit_n_reperto.setText('0')
-        elif self.comboBox_repertato.currentText()!='No':    
+            self.lineEdit_n_reperto.update()
+        
+        
+        
+        elif self.comboBox_repertato.currentText()!='No' or '':    
             for i in range(len(self.DATA_LIST)):
                 self.lineEdit_n_reperto.clear()
                 contatore = int(self.DATA_LIST[i].n_reperto)
@@ -1096,7 +1129,14 @@ class pyarchinit_Inventario_reperti(QDialog, MAIN_DIALOG_CLASS):
                 
                 self.lineEdit_n_reperto.setText(str(e))
                 self.lineEdit_n_reperto.update()
+        elif self.comboBox_repertato.currentText()=='':
+            self.lineEdit_n_reperto.clear()
+            self.lineEdit_n_reperto.setText('')
+            self.lineEdit_n_reperto.update()
+        
+        
     def numero_invetario(self):
+        # self.set_sito()
         contatore = 0
         list=[]
         if self.lineEdit_num_inv.text()=='':
@@ -1116,7 +1156,7 @@ class pyarchinit_Inventario_reperti(QDialog, MAIN_DIALOG_CLASS):
                 self.lineEdit_num_inv.setText(str(e))
        
     def charge_list(self):
-
+        
         l = QgsSettings().value("locale/userLocale", QVariant)
         lang = ""
         for key, values in self.LANG.items():
@@ -1256,6 +1296,7 @@ class pyarchinit_Inventario_reperti(QDialog, MAIN_DIALOG_CLASS):
 
 
     def msg_sito(self):
+        #self.model_a.database().close()
         conn = Connection()
         
         sito_set= conn.sito_set()
@@ -1265,7 +1306,14 @@ class pyarchinit_Inventario_reperti(QDialog, MAIN_DIALOG_CLASS):
             QMessageBox.information(self, "OK" ,"Sei connesso al sito: %s" % str(sito_set_str),QMessageBox.Ok) 
        
         elif sito_set_str=='':    
-            QMessageBox.information(self, "Attenzione" ,"Non hai settato alcun sito pertanto vedrai tutti i record se il db non è vuoto",QMessageBox.Ok)  
+            msg = QMessageBox.information(self, "Attenzione" ,"Non hai settato alcun sito. Vuoi settarne uno? click Ok altrimenti Annulla per  vedere tutti i record",QMessageBox.Ok | QMessageBox.Cancel) 
+    
+            if msg == QMessageBox.Cancel:
+                pass
+            else: 
+                dlg = pyArchInitDialog_Config(self)
+                dlg.charge_list()
+                dlg.exec_()
     
     
     def set_sito(self):
@@ -1376,6 +1424,11 @@ class pyarchinit_Inventario_reperti(QDialog, MAIN_DIALOG_CLASS):
                 self.loadMediaPreview(1) 
 
     def on_pushButton_new_rec_pressed(self):
+        conn = Connection()
+        
+        sito_set= conn.sito_set()
+        sito_set_str = sito_set['sito_set']
+        
         if bool(self.DATA_LIST):
             if self.data_error_check() == 1:
                 pass
@@ -1397,22 +1450,41 @@ class pyarchinit_Inventario_reperti(QDialog, MAIN_DIALOG_CLASS):
                                                                    QMessageBox.Ok | QMessageBox.Cancel))
 
         if self.BROWSE_STATUS != "n":
-            self.BROWSE_STATUS = "n"
-            self.label_status.setText(self.STATUS_ITEMS[self.BROWSE_STATUS])
-            self.empty_fields()
+            if bool(self.comboBox_sito.currentText()) and self.comboBox_sito.currentText()==sito_set_str:
+                self.BROWSE_STATUS = "n"
+                self.label_status.setText(self.STATUS_ITEMS[self.BROWSE_STATUS])
+                self.empty_fields_nosite()
 
-            self.setComboBoxEditable(['self.comboBox_sito'], 0)
-            # self.setComboBoxEditable(['self.comboBox_sito'], 1)
-            self.setComboBoxEnable(['self.comboBox_sito'], 'True')
-            self.setComboBoxEnable(['self.lineEdit_num_inv'], 'True')
+                #self.setComboBoxEditable(['self.comboBox_sito'],0)
+                # self.setComboBoxEditable(['self.comboBox_sito'], 1)
+                self.setComboBoxEnable(['self.comboBox_sito'], 'False')
+                self.setComboBoxEnable(['self.lineEdit_num_inv'], 'True')
 
-            self.label_sort.setText(self.SORTED_ITEMS[self.SORT_STATUS])
+                self.label_sort.setText(self.SORTED_ITEMS[self.SORT_STATUS])
 
-            self.label_status.setText(self.STATUS_ITEMS[self.BROWSE_STATUS])
-            self.set_rec_counter('', '')
-            self.label_sort.setText(self.SORTED_ITEMS["n"])
-            self.numero_invetario()
-            self.numero_reperto()
+                self.label_status.setText(self.STATUS_ITEMS[self.BROWSE_STATUS])
+                self.set_rec_counter('', '')
+                self.label_sort.setText(self.SORTED_ITEMS["n"])
+                self.numero_invetario()
+                self.numero_reperto()
+            else:
+                self.BROWSE_STATUS = "n"
+                self.label_status.setText(self.STATUS_ITEMS[self.BROWSE_STATUS])
+                self.empty_fields()
+
+                self.setComboBoxEditable(['self.comboBox_sito'],0)
+                # self.setComboBoxEditable(['self.comboBox_sito'], 1)
+                self.setComboBoxEnable(['self.comboBox_sito'], 'True')
+                self.setComboBoxEnable(['self.lineEdit_num_inv'], 'True')
+
+                self.label_sort.setText(self.SORTED_ITEMS[self.SORT_STATUS])
+
+                self.label_status.setText(self.STATUS_ITEMS[self.BROWSE_STATUS])
+                self.set_rec_counter('', '')
+                self.label_sort.setText(self.SORTED_ITEMS["n"])
+                self.numero_invetario()
+                self.numero_reperto()
+            
             self.enable_button(0)
 
     def on_pushButton_save_pressed(self):
@@ -1494,44 +1566,65 @@ class pyarchinit_Inventario_reperti(QDialog, MAIN_DIALOG_CLASS):
                                     "GIS mode disabled. From now on, your searches will no longer be displayed on the GIS.",
                                     QMessageBox.Ok)
     
+    
     def generate_list_foto(self):
         data_list_foto = []
         for i in range(len(self.DATA_LIST)):
         
-            conn = Connection()
+            # conn = Connection()
             
             
-            thumb_path = conn.thumb_path()
-            thumb_path_str = thumb_path['thumb_path']
+            # thumb_path = conn.thumb_path()
+            # thumb_path_str = thumb_path['thumb_path']
             
-            search_dict = {'id_entity': "'"+ str(eval("self.DATA_LIST[i].id_us"))+"'", 'entity_type' : "'REPERTO'"}
+            # search_dict = {'id_entity': "'"+ str(eval("self.DATA_LIST[i].id_invmat"))+"'", 'entity_type' : "'REPERTO'"}
             
-            record_doc_list = self.DB_MANAGER.query_bool(search_dict, 'MEDIAVIEW')
+            # record_doc_list = self.DB_MANAGER.query_bool(search_dict, 'MEDIAVIEW')
         
          
             
-            for media in record_doc_list:
+            # for media in record_doc_list:
             
-                thumbnail = (thumb_path_str+media.filepath)
-                foto= (media.id_media)
-                # #sito= (media.sito)
-                # area= (media.area)
+                # thumbnail = (thumb_path_str+media.filepath)
                 
-                # us= (media.us)
-                # d_stratigrafica= ''
-                # unita_tipo = (media.unita_tipo)
-                data_list_foto.append([
-                    str(self.DATA_LIST[i].sito), #0
-                    str(self.DATA_LIST[i].area), #1
-                    str(self.DATA_LIST[i].us),    #2
-                    str(self.DATA_LIST[i].num_inv),#3
-                    str(self.DATA_LIST[i].n_reperto),  #4 
-                    str(foto),#5
-                    str(thumbnail)])#6
+                    
+                
+                
+            data_list_foto.append([
+                
+                str(self.DATA_LIST[i].sito), #1
+                str(self.DATA_LIST[i].n_reperto),  #6 
+                #str(thumbnail),
+                str(self.DATA_LIST[i].us),    #3
+                str(self.DATA_LIST[i].definizione),#4
+                str(self.DATA_LIST[i].datazione_reperto), #5
+                str(self.DATA_LIST[i].stato_conservazione), #5
+                str(self.DATA_LIST[i].tipo_contenitore), #7
+                str(self.DATA_LIST[i].nr_cassa)])
             
         return data_list_foto
             
-    
+    def generate_list(self):
+        data_list = []
+        for i in range(len(self.DATA_LIST)):
+        
+            
+                
+            
+            data_list.append([
+                str(self.DATA_LIST[i].sito), #0
+                str(self.DATA_LIST[i].numero_inventario), #1
+                str(self.DATA_LIST[i].area), #2
+                str(self.DATA_LIST[i].us),    #3
+                str(self.DATA_LIST[i].tipo_reperto),#4
+                str(self.DATA_LIST[i].repertato), #5
+                str(self.DATA_LIST[i].n_reperto),  #6 
+                str(self.DATA_LIST[i].tipo_contenitore), #7
+                str(self.DATA_LIST[i].nr_cassa), #8
+                str(self.DATA_LIST[i].luogo_conservazione)])#9
+                    
+            
+        return data_list
     def generate_list_pdf(self):
         data_list = []
         for i in range(len(self.DATA_LIST)):
@@ -1559,7 +1652,8 @@ class pyarchinit_Inventario_reperti(QDialog, MAIN_DIALOG_CLASS):
                 str(self.DATA_LIST[i].rivestimento),  # 21 - rivestimento
                 str(self.DATA_LIST[i].repertato),  # 22 - repertato
                 str(self.DATA_LIST[i].diagnostico),
-                str(self.DATA_LIST[i].n_reperto)# 23 - diagnostico
+                str(self.DATA_LIST[i].n_reperto),
+                str(self.DATA_LIST[i].tipo_contenitore)# 23 - diagnostico
             ])
         return data_list
     def on_pushButton_print_pressed(self):
@@ -1568,21 +1662,24 @@ class pyarchinit_Inventario_reperti(QDialog, MAIN_DIALOG_CLASS):
                 US_pdf_sheet = generate_reperti_pdf()
                 data_list = self.generate_list_pdf()
                 US_pdf_sheet.build_Finds_sheets(data_list)
-                QMessageBox.warning(self, 'Ok',"Esportazione terminata Schede US",QMessageBox.Ok)
+                QMessageBox.warning(self, 'Ok',"Esportazione terminata Schede Materiali",QMessageBox.Ok)
             else:   
                 pass
         
             if self.checkBox_e_us.isChecked() :
-                US_index_pdf = generate_reperti_pdf()
-                data_list = self.generate_list_pdf()
-                try:               
-                    if bool(data_list):
-                        US_index_pdf.build_index_US(data_list, data_list[0][0])
-                        QMessageBox.warning(self, 'Ok',"Esportazione terminata Elenco US",QMessageBox.Ok)
-                    else:
-                        QMessageBox.warning(self, 'ATTENZIONE',"L'elenco US non può essere esportato devi riempire prima le schede US",QMessageBox.Ok)
-                except Exception as e :
-                    QMessageBox.warning(self, 'ATTENZIONE',str(e),QMessageBox.Ok)
+                # US_index_pdf = generate_reperti_pdf()
+                # data_list = self.generate_el_casse_pdf()
+                               
+                    
+                        
+                sito_ec = str(self.comboBox_sito.currentText())
+                Mat_casse_pdf = generate_reperti_pdf()
+                data_list = self.generate_el_casse_pdf(sito_ec)
+
+                Mat_casse_pdf.build_index_Casse(data_list, sito_ec)
+                QMessageBox.warning(self, 'Ok',"Esportazione terminata Elenco Casse",QMessageBox.Ok)
+        
+                
             else:
                 pass
         
@@ -1591,133 +1688,133 @@ class pyarchinit_Inventario_reperti(QDialog, MAIN_DIALOG_CLASS):
                 data_list_foto = self.generate_list_foto()
         
                 try:
-                        if bool(data_list_foto):
-                            US_index_pdf.build_index_Foto(data_list_foto, data_list_foto[0][0])
-                            QMessageBox.warning(self, 'Ok',"Esportazione terminata Elenco Foto",QMessageBox.Ok)
+                        
+                    US_index_pdf.build_index_Foto(data_list_foto, data_list_foto[0][0])
+                    QMessageBox.warning(self, 'Ok',"Esportazione terminata Elenco Reperti",QMessageBox.Ok)
                                        
-                        else:
-                            QMessageBox.warning(self, 'ATTENZIONE',"L'elenco foto non può essere esportato perchè non hai immagini taggate.",QMessageBox.Ok)
+                        # else:
+                            # QMessageBox.warning(self, 'ATTENZIONE',"L'elenco foto non può essere esportato perchè non hai immagini taggate.",QMessageBox.Ok)
                 except Exception as e :
                     QMessageBox.warning(self, 'ATTENZIONE',str(e),QMessageBox.Ok)
             
             if self.checkBox_e_foto.isChecked():
                 US_index_pdf = generate_reperti_pdf()
-                data_list_foto = self.generate_list_foto()
+                data_list = self.generate_list()
         
                 try:
-                        if bool(data_list_foto):
-                            US_index_pdf.build_index_Foto_2(data_list_foto, data_list_foto[0][0])
-                            QMessageBox.warning(self, 'Ok',"Esportazione terminata Elenco Foto senza thumbanil",QMessageBox.Ok)
+                        
+                    US_index_pdf.build_index_Foto_2(data_list, data_list[0][0])
+                    QMessageBox.warning(self, 'Ok',"Esportazione terminata Elenco Inventario",QMessageBox.Ok)
                                        
-                        else:
-                            QMessageBox.warning(self, 'ATTENZIONE',"L'elenco foto non può essere esportato perchè non hai immagini taggate.",QMessageBox.Ok)
+                        # else:
+                            # QMessageBox.warning(self, 'ATTENZIONE',"L'elenco foto non può essere esportato perchè non hai immagini taggate.",QMessageBox.Ok)
                 except Exception as e :
                     QMessageBox.warning(self, 'ATTENZIONE',str(e),QMessageBox.Ok)
         
-        elif self.L=='en':  
-            if self.checkBox_s_us.isChecked():
-                US_pdf_sheet = generate_reperti_pdf()
-                data_list = self.generate_list_pdf()
-                US_pdf_sheet.build_Finds_sheets(data_list)
-                QMessageBox.warning(self, 'Ok',"Export finished SU Forms",QMessageBox.Ok)
-            else:   
-                pass
+        # elif self.L=='en':  
+            # if self.checkBox_s_us.isChecked():
+                # US_pdf_sheet = generate_reperti_pdf()
+                # data_list = self.generate_list_pdf()
+                # US_pdf_sheet.build_Finds_sheets(data_list)
+                # QMessageBox.warning(self, 'Ok',"Export finished SU Forms",QMessageBox.Ok)
+            # else:   
+                # pass
         
-            if self.checkBox_e_us.isChecked() :
-                US_index_pdf = generate_reperti_pdf()
-                data_list = self.generate_list_pdf()
-                try:               
-                    if bool(data_list):
-                        US_index_pdf.build_index_US(data_list, data_list[0][0])
-                        QMessageBox.warning(self, 'Ok',"Export finished SU List",QMessageBox.Ok)
-                    else:
-                        QMessageBox.warning(self, 'WARNING',"The SU list cannot be exported you have to fill in the SU tabs first",QMessageBox.Ok)
-                except Exception as e :
-                    QMessageBox.warning(self, 'WARNING',str(e),QMessageBox.Ok)
-            else:
-                pass
+            # if self.checkBox_e_us.isChecked() :
+                # US_index_pdf = generate_reperti_pdf()
+                # data_list = self.generate_list_pdf()
+                # try:               
+                    # if bool(data_list):
+                        # US_index_pdf.build_index_US(data_list, data_list[0][0])
+                        # QMessageBox.warning(self, 'Ok',"Export finished SU List",QMessageBox.Ok)
+                    # else:
+                        # QMessageBox.warning(self, 'WARNING',"The SU list cannot be exported you have to fill in the SU tabs first",QMessageBox.Ok)
+                # except Exception as e :
+                    # QMessageBox.warning(self, 'WARNING',str(e),QMessageBox.Ok)
+            # else:
+                # pass
         
-            if self.checkBox_e_foto_t.isChecked():
-                US_index_pdf = generate_reperti_pdf()
-                data_list_foto = self.generate_list_foto()
+            # if self.checkBox_e_foto_t.isChecked():
+                # US_index_pdf = generate_reperti_pdf()
+                # data_list_foto = self.generate_list_foto()
         
-                try:
-                        if bool(data_list_foto):
-                            US_index_pdf.build_index_Foto(data_list_foto, data_list_foto[0][0])
-                            QMessageBox.warning(self, 'Ok',"Export finished SU List",QMessageBox.Ok)
+                # try:
+                        # if bool(data_list_foto):
+                            # US_index_pdf.build_index_Foto(data_list_foto, data_list_foto[0][0])
+                            # QMessageBox.warning(self, 'Ok',"Export finished SU List",QMessageBox.Ok)
                                        
-                        else:
-                            QMessageBox.warning(self, 'WARNING', 'The photo list cannot be exported because you do not have tagged images.',QMessageBox.Ok)
-                except Exception as e :
-                    QMessageBox.warning(self, 'WARNING',str(e),QMessageBox.Ok)
+                        # else:
+                            # QMessageBox.warning(self, 'WARNING', 'The photo list cannot be exported because you do not have tagged images.',QMessageBox.Ok)
+                # except Exception as e :
+                    # QMessageBox.warning(self, 'WARNING',str(e),QMessageBox.Ok)
             
-            if self.checkBox_e_foto.isChecked():
-                US_index_pdf = generate_reperti_pdf()
-                data_list_foto = self.generate_list_foto()
+            # if self.checkBox_e_foto.isChecked():
+                # US_index_pdf = generate_reperti_pdf()
+                # data_list_foto = self.generate_list_foto()
         
-                try:
-                        if bool(data_list_foto):
-                            US_index_pdf.build_index_Foto_2(data_list_foto, data_list_foto[0][0])
-                            QMessageBox.warning(self, 'Ok', "Export finished Photo List without thumbanil",QMessageBox.Ok)
+                # try:
+                        # if bool(data_list_foto):
+                            # US_index_pdf.build_index_Foto_2(data_list_foto, data_list_foto[0][0])
+                            # QMessageBox.warning(self, 'Ok', "Export finished Photo List without thumbanil",QMessageBox.Ok)
                                        
-                        else:
-                            QMessageBox.warning(self, 'WARNING', "The photo list cannot be exported because you do not have tagged images.",QMessageBox.Ok)
-                except Exception as e :
-                    QMessageBox.warning(self, 'WARNING',str(e),QMessageBox.Ok)
+                        # else:
+                            # QMessageBox.warning(self, 'WARNING', "The photo list cannot be exported because you do not have tagged images.",QMessageBox.Ok)
+                # except Exception as e :
+                    # QMessageBox.warning(self, 'WARNING',str(e),QMessageBox.Ok)
                 
             
       
            
-        elif self.L=='de':
-            if self.checkBox_s_us.isChecked():
-                US_pdf_sheet = generate_reperti_pdf()
-                data_list = self.generate_list_pdf()
-                US_pdf_sheet.build_Finds_sheets(data_list)
-                QMessageBox.warning(self, 'Ok',"Esportazione terminata Schede US",QMessageBox.Ok)
-            else:   
-                pass
+        # elif self.L=='de':
+            # if self.checkBox_s_us.isChecked():
+                # US_pdf_sheet = generate_reperti_pdf()
+                # data_list = self.generate_list_pdf()
+                # US_pdf_sheet.build_Finds_sheets(data_list)
+                # QMessageBox.warning(self, 'Ok',"Esportazione terminata Schede US",QMessageBox.Ok)
+            # else:   
+                # pass
         
-            if self.checkBox_e_us.isChecked() :
-                US_index_pdf = generate_reperti_pdf()
-                data_list = self.generate_list_pdf()
-                try:               
-                    if bool(data_list):
-                        US_index_pdf.build_index_US(data_list, data_list[0][0])
-                        QMessageBox.warning(self, 'Ok',"Esportazione terminata Elenco US",QMessageBox.Ok)
-                    else:
-                        QMessageBox.warning(self, 'ATTENZIONE',"L'elenco US non può essere esportato devi riempire prima le schede US",QMessageBox.Ok)
-                except Exception as e :
-                    QMessageBox.warning(self, 'ATTENZIONE',str(e),QMessageBox.Ok)
-            else:
-                pass
+            # if self.checkBox_e_us.isChecked() :
+                # US_index_pdf = generate_reperti_pdf()
+                # data_list = self.generate_list_pdf()
+                # try:               
+                    # if bool(data_list):
+                        # US_index_pdf.build_index_US(data_list, data_list[0][0])
+                        # QMessageBox.warning(self, 'Ok',"Esportazione terminata Elenco US",QMessageBox.Ok)
+                    # else:
+                        # QMessageBox.warning(self, 'ATTENZIONE',"L'elenco US non può essere esportato devi riempire prima le schede US",QMessageBox.Ok)
+                # except Exception as e :
+                    # QMessageBox.warning(self, 'ATTENZIONE',str(e),QMessageBox.Ok)
+            # else:
+                # pass
         
-            if self.checkBox_e_foto_t.isChecked():
-                US_index_pdf = generate_reperti_pdf()
-                data_list_foto = self.generate_list_foto()
+            # if self.checkBox_e_foto_t.isChecked():
+                # US_index_pdf = generate_reperti_pdf()
+                # data_list_foto = self.generate_list_foto()
         
-                try:
-                        if bool(data_list_foto):
-                            US_index_pdf.build_index_Foto(data_list_foto, data_list_foto[0][0])
-                            QMessageBox.warning(self, 'Ok',"Esportazione terminata Elenco Foto",QMessageBox.Ok)
+                # try:
+                        # if bool(data_list_foto):
+                            # US_index_pdf.build_index_Foto(data_list_foto, data_list_foto[0][0])
+                            # QMessageBox.warning(self, 'Ok',"Esportazione terminata Elenco Foto",QMessageBox.Ok)
                                        
-                        else:
-                            QMessageBox.warning(self, 'ATTENZIONE',"L'elenco foto non può essere esportato perchè non hai immagini taggate.",QMessageBox.Ok)
-                except Exception as e :
-                    QMessageBox.warning(self, 'ATTENZIONE',str(e),QMessageBox.Ok)
+                        # else:
+                            # QMessageBox.warning(self, 'ATTENZIONE',"L'elenco foto non può essere esportato perchè non hai immagini taggate.",QMessageBox.Ok)
+                # except Exception as e :
+                    # QMessageBox.warning(self, 'ATTENZIONE',str(e),QMessageBox.Ok)
             
-            if self.checkBox_e_foto.isChecked():
-                US_index_pdf = generate_reperti_pdf()
-                data_list_foto = self.generate_list_foto()
+            # if self.checkBox_e_foto.isChecked():
+                # US_index_pdf = generate_reperti_pdf()
+                # data_list_foto = self.generate_list_foto()
         
-                try:
-                        if bool(data_list_foto):
-                            US_index_pdf.build_index_Foto_2(data_list_foto, data_list_foto[0][0])
-                            QMessageBox.warning(self, 'Ok',"Esportazione terminata Elenco Foto senza thumbanil",QMessageBox.Ok)
+                # try:
+                        # if bool(data_list_foto):
+                            # US_index_pdf.build_index_Foto_2(data_list_foto, data_list_foto[0][0])
+                            # QMessageBox.warning(self, 'Ok',"Esportazione terminata Elenco Foto senza thumbanil",QMessageBox.Ok)
                                        
-                        else:
-                            QMessageBox.warning(self, 'ATTENZIONE',"L'elenco foto non può essere esportato perchè non hai immagini taggate.",QMessageBox.Ok)
-                except Exception as e :
-                    QMessageBox.warning(self, 'ATTENZIONE',str(e),QMessageBox.Ok)
+                        # else:
+                            # QMessageBox.warning(self, 'ATTENZIONE',"L'elenco foto non può essere esportato perchè non hai immagini taggate.",QMessageBox.Ok)
+                # except Exception as e :
+                    # QMessageBox.warning(self, 'ATTENZIONE',str(e),QMessageBox.Ok)
     
     def setPathpdf(self):
         s = QgsSettings()
@@ -1765,61 +1862,30 @@ class pyarchinit_Inventario_reperti(QDialog, MAIN_DIALOG_CLASS):
     
     
     
-    def on_pushButton_exp_pdf_sheet_pressed(self):
-        #if self.records_equal_check() == 1:
-            #self.update_if(
-                #QMessageBox.warning(self, 'Errore', "Il record è stato modificato. Vuoi salvare le modifiche?",
-                                    #QMessageBox.Ok | QMessageBox.Cancel))
-        if self.L=='it':
-            Finds_pdf_sheet = generate_reperti_pdf()
-            data_list = self.generate_list_pdf()
-            Finds_pdf_sheet.build_Finds_sheets(data_list)
-        elif self.L=='de':
-            Finds_pdf_sheet = generate_reperti_pdf()
-            data_list = self.generate_list_pdf()
-            Finds_pdf_sheet.build_Finds_sheets_de(data_list)
-        else:
-            Finds_pdf_sheet = generate_reperti_pdf()
-            data_list = self.generate_list_pdf()
-            Finds_pdf_sheet.build_Finds_sheets_en(data_list)   
-    def on_pushButton_exp_index_mat_pressed(self):
+    
+    # def on_pushButton_elenco_casse_pressed(self):
         
-        if self.L=='it':
-            Mat_index_pdf = generate_reperti_pdf()
-            data_list = self.generate_list_pdf()
-            Mat_index_pdf.build_index_Finds(data_list, data_list[0][1])
-        elif self.L=='de':
-            Mat_index_pdf = generate_reperti_pdf()
-            data_list = self.generate_list_pdf()
-            Mat_index_pdf.build_index_Finds_de(data_list, data_list[0][1])
-            
-        else:
-            Mat_index_pdf = generate_reperti_pdf()
-            data_list = self.generate_list_pdf()
-            Mat_index_pdf.build_index_Finds_en(data_list, data_list[0][1]) 
-    def on_pushButton_elenco_casse_pressed(self):
-        
-        if self.L=='it': 
-            sito_ec = str(self.comboBox_sito.currentText())
-            Mat_casse_pdf = generate_reperti_pdf()
-            data_list = self.generate_el_casse_pdf(sito_ec)
+        # if self.L=='it': 
+            # sito_ec = str(self.comboBox_sito.currentText())
+            # Mat_casse_pdf = generate_reperti_pdf()
+            # data_list = self.generate_el_casse_pdf(sito_ec)
 
-            Mat_casse_pdf.build_index_Casse(data_list, sito_ec)
-            Mat_casse_pdf.build_box_labels_Finds(data_list, sito_ec)
-        elif self.L=='de': 
-            sito_ec = str(self.comboBox_sito.currentText())
-            Mat_casse_pdf = generate_reperti_pdf()
-            data_list = self.generate_el_casse_pdf(sito_ec)
+            # Mat_casse_pdf.build_index_Casse(data_list, sito_ec)
+            # Mat_casse_pdf.build_box_labels_Finds(data_list, sito_ec)
+        # elif self.L=='de': 
+            # sito_ec = str(self.comboBox_sito.currentText())
+            # Mat_casse_pdf = generate_reperti_pdf()
+            # data_list = self.generate_el_casse_pdf(sito_ec)
 
-            Mat_casse_pdf.build_index_Casse_de(data_list, sito_ec)
-            Mat_casse_pdf.build_box_labels_Finds_de(data_list, sito_ec)
-        else: 
-            sito_ec = str(self.comboBox_sito.currentText())
-            Mat_casse_pdf = generate_reperti_pdf()
-            data_list = self.generate_el_casse_pdf(sito_ec)
+            # Mat_casse_pdf.build_index_Casse_de(data_list, sito_ec)
+            # Mat_casse_pdf.build_box_labels_Finds_de(data_list, sito_ec)
+        # else: 
+            # sito_ec = str(self.comboBox_sito.currentText())
+            # Mat_casse_pdf = generate_reperti_pdf()
+            # data_list = self.generate_el_casse_pdf(sito_ec)
 
-            Mat_casse_pdf.build_index_Casse_en(data_list, sito_ec)
-            Mat_casse_pdf.build_box_labels_Finds_en(data_list, sito_ec)    
+            # Mat_casse_pdf.build_index_Casse_en(data_list, sito_ec)
+            # Mat_casse_pdf.build_box_labels_Finds_en(data_list, sito_ec)    
         # ********************************************************************************
 
     def generate_el_casse_pdf(self, sito):
@@ -2271,7 +2337,8 @@ class pyarchinit_Inventario_reperti(QDialog, MAIN_DIALOG_CLASS):
                 eve_orlo,  # 25 - eve_orlo,
                 str(self.comboBox_repertato.currentText()),  # 9 - lavato
                 str(self.comboBox_diagnostico.currentText()),  # 9 - lavato
-                n_reperto
+                n_reperto,
+                str(self.lineEdit_tipo_contenitore.text()),
             )
 
             try:
@@ -2408,6 +2475,7 @@ class pyarchinit_Inventario_reperti(QDialog, MAIN_DIALOG_CLASS):
                 QMessageBox.warning(self, "Error", str(e), QMessageBox.Ok)
 
     def on_pushButton_prev_rec_pressed(self):
+        self.setnone()
         if self.check_record_state() == 1:
             pass
         else:
@@ -2556,33 +2624,58 @@ class pyarchinit_Inventario_reperti(QDialog, MAIN_DIALOG_CLASS):
             self.label_sort.setText(self.SORTED_ITEMS[self.SORT_STATUS])
 
     def on_pushButton_new_search_pressed(self):
+        
+        
         if self.check_record_state() == 1:
             pass
         else:
             self.enable_button_search(0)
 
-            # set the GUI for a new search
-
+            conn = Connection()
+        
+            sito_set= conn.sito_set()
+            sito_set_str = sito_set['sito_set']
+            
             if self.BROWSE_STATUS != "f":
-                self.BROWSE_STATUS = "f"
-                ###
-                self.setComboBoxEditable(['self.comboBox_sito'], 1)
-                self.setComboBoxEnable(['self.comboBox_sito'], 'True')
-                self.setComboBoxEditable(['self.comboBox_lavato'], 1)
-                self.setComboBoxEnable(['self.comboBox_lavato'], 'True')
-                self.setComboBoxEnable(['self.lineEdit_num_inv'], 'True')
-                self.setComboBoxEnable(["self.textEdit_descrizione_reperto"], "False")
-                self.setTableEnable(
-                    ["self.tableWidget_elementi_reperto", "self.tableWidget_misurazioni", "self.tableWidget_rif_biblio",
-                     "self.tableWidget_tecnologie"], "False")
-                ###
-                self.label_status.setText(self.STATUS_ITEMS[self.BROWSE_STATUS])
-                self.set_rec_counter('', '')
-                self.label_sort.setText(self.SORTED_ITEMS["n"])
-                self.charge_list()
-                self.empty_fields()
-
+                if bool(self.comboBox_sito.currentText()) and self.comboBox_sito.currentText()==sito_set_str:
+                    self.BROWSE_STATUS = "f"
+                    ###
+                    #self.setComboBoxEditable(['self.comboBox_sito'], 1)
+                    self.setComboBoxEnable(['self.comboBox_sito'], 'False')
+                    self.setComboBoxEditable(['self.comboBox_lavato'], 1)
+                    self.setComboBoxEnable(['self.comboBox_lavato'], 'True')
+                    self.setComboBoxEnable(['self.lineEdit_num_inv'], 'True')
+                    self.setComboBoxEnable(["self.textEdit_descrizione_reperto"], "False")
+                    self.setTableEnable(
+                        ["self.tableWidget_elementi_reperto", "self.tableWidget_misurazioni", "self.tableWidget_rif_biblio",
+                         "self.tableWidget_tecnologie"], "False")
+                    ###
+                    self.label_status.setText(self.STATUS_ITEMS[self.BROWSE_STATUS])
+                    self.set_rec_counter('', '')
+                    self.label_sort.setText(self.SORTED_ITEMS["n"])
+                    #self.charge_list()
+                    self.empty_fields_nosite()
+                else:
+                    self.BROWSE_STATUS = "f"
+                    ###
+                    self.setComboBoxEditable(['self.comboBox_sito'], 1)
+                    self.setComboBoxEnable(['self.comboBox_sito'], 'True')
+                    self.setComboBoxEditable(['self.comboBox_lavato'], 1)
+                    self.setComboBoxEnable(['self.comboBox_lavato'], 'True')
+                    self.setComboBoxEnable(['self.lineEdit_num_inv'], 'True')
+                    self.setComboBoxEnable(["self.textEdit_descrizione_reperto"], "False")
+                    self.setTableEnable(
+                        ["self.tableWidget_elementi_reperto", "self.tableWidget_misurazioni", "self.tableWidget_rif_biblio",
+                         "self.tableWidget_tecnologie"], "False")
+                    ###
+                    self.label_status.setText(self.STATUS_ITEMS[self.BROWSE_STATUS])
+                    self.set_rec_counter('', '')
+                    self.label_sort.setText(self.SORTED_ITEMS["n"])
+                    self.charge_list()
+                    self.empty_fields()
+                 
     def on_pushButton_search_go_pressed(self):
+        self.lineEdit_n_reperto.setText('')
         check_for_buttons = 0
         if self.BROWSE_STATUS != "f":
             if self.L=='it':
@@ -2676,7 +2769,8 @@ class pyarchinit_Inventario_reperti(QDialog, MAIN_DIALOG_CLASS):
                 self.TABLE_FIELDS[25]: eve_orlo,
                 self.TABLE_FIELDS[26]: "'" + str(self.comboBox_repertato.currentText()) + "'",
                 self.TABLE_FIELDS[27]: "'" + str(self.comboBox_diagnostico.currentText()) + "'",
-                self.TABLE_FIELDS[28]: n_reperto
+                self.TABLE_FIELDS[28]: n_reperto,
+                self.TABLE_FIELDS[29]: "'" + str(self.lineEdit_tipo_contenitore.text()) + "'"
             }
 
             u = Utility()
@@ -2804,7 +2898,7 @@ class pyarchinit_Inventario_reperti(QDialog, MAIN_DIALOG_CLASS):
                 if bool(elementi_reperto):
                     tot_framm = 0
                     for elrep in elementi_reperto:
-                        if elrep[1] == 'frammenti' or elrep[1] == 'frammento':
+                        if elrep[1] == 'frammenti' or elrep[1] == 'frammento'or elrep[1] == 'fragment' or elrep[1] == 'fragments':
                             try:
                                 tot_framm += int(elrep[2])
                             except:
@@ -3020,7 +3114,7 @@ class pyarchinit_Inventario_reperti(QDialog, MAIN_DIALOG_CLASS):
         self.lineEdit_area.clear()  # 7 - area
         self.lineEdit_us.clear()  # 8 - US
         self.comboBox_lavato.setEditText("")  # 9 - lavato
-        self.lineEdit_nr_cassa.clear()  # 10 - nr_cassa
+        self.lineEdit_nr_cassa.setText('')  # 10 - nr_cassa
         self.lineEdit_luogo_conservazione.clear()  # 11 - luogo_conservazione
         self.comboBox_conservazione.setEditText("")  # 12 - stato conservazione
         self.lineEdit_datazione_rep.clear()  # 13 - datazione reperto
@@ -3038,7 +3132,8 @@ class pyarchinit_Inventario_reperti(QDialog, MAIN_DIALOG_CLASS):
 
         self.comboBox_repertato.setEditText("")  # 9 - repertato
         self.comboBox_diagnostico.setEditText("")  # 9 - diagnostico
-        self.lineEdit_n_reperto.clear()
+        self.lineEdit_n_reperto.setText('')
+        self.lineEdit_tipo_contenitore.setText('')
         for i in range(elementi_reperto_row_count):
             self.tableWidget_elementi_reperto.removeRow(0)
         self.insert_new_row("self.tableWidget_elementi_reperto")  # 14 - elementi reperto
@@ -3055,6 +3150,58 @@ class pyarchinit_Inventario_reperti(QDialog, MAIN_DIALOG_CLASS):
             self.tableWidget_tecnologie.removeRow(0)
         self.insert_new_row("self.tableWidget_tecnologie")  # 17 - misurazioni
         
+    
+    def empty_fields_nosite(self):
+        elementi_reperto_row_count = self.tableWidget_elementi_reperto.rowCount()
+        misurazioni_row_count = self.tableWidget_misurazioni.rowCount()
+        rif_biblio_row_count = self.tableWidget_rif_biblio.rowCount()
+        tecnologie_row_count = self.tableWidget_tecnologie.rowCount()
+
+       
+        self.lineEdit_num_inv.clear()  # 2 - num_inv
+        self.comboBox_tipo_reperto.setEditText("")  # 3 - tipo_reperto
+        self.comboBox_criterio_schedatura.setEditText("")  # 4 - criterio
+        self.comboBox_definizione.setEditText("")  # 5 - definizione
+        self.textEdit_descrizione_reperto.clear()  # 6 - descrizione
+        self.lineEdit_area.clear()  # 7 - area
+        self.lineEdit_us.clear()  # 8 - US
+        self.comboBox_lavato.setEditText("")  # 9 - lavato
+        self.lineEdit_nr_cassa.setText('')  # 10 - nr_cassa
+        self.lineEdit_luogo_conservazione.clear()  # 11 - luogo_conservazione
+        self.comboBox_conservazione.setEditText("")  # 12 - stato conservazione
+        self.lineEdit_datazione_rep.clear()  # 13 - datazione reperto
+
+        self.lineEditFormeMin.clear()
+        self.lineEditFormeMax.clear()
+        self.lineEditTotFram.clear()
+        self.lineEditRivestimento.clear()
+        self.lineEditCorpoCeramico.clear()
+
+        self.lineEdit_diametro_orlo.clear()
+        self.lineEdit_peso.clear()
+        self.lineEdit_tipo.clear()
+        self.lineEdit_eve_orlo.clear()
+
+        self.comboBox_repertato.setEditText("")  # 9 - repertato
+        self.comboBox_diagnostico.setEditText("")  # 9 - diagnostico
+        self.lineEdit_n_reperto.setText('')
+        self.lineEdit_tipo_contenitore.setText('')
+        for i in range(elementi_reperto_row_count):
+            self.tableWidget_elementi_reperto.removeRow(0)
+        self.insert_new_row("self.tableWidget_elementi_reperto")  # 14 - elementi reperto
+
+        for i in range(misurazioni_row_count):
+            self.tableWidget_misurazioni.removeRow(0)
+        self.insert_new_row("self.tableWidget_misurazioni")  # 15 - misurazioni
+
+        for i in range(rif_biblio_row_count):
+            self.tableWidget_rif_biblio.removeRow(0)
+        self.insert_new_row("self.tableWidget_rif_biblio")  # 16 - rif_biblio
+
+        for i in range(tecnologie_row_count):
+            self.tableWidget_tecnologie.removeRow(0)
+        self.insert_new_row("self.tableWidget_tecnologie")  # 17 - misurazioni
+    
     def fill_fields(self, n=0):
         self.rec_num = n
         # QMessageBox.warning(self, "check fill fields", str(self.rec_num),  QMessageBox.Ok)
@@ -3147,7 +3294,7 @@ class pyarchinit_Inventario_reperti(QDialog, MAIN_DIALOG_CLASS):
             else:
                 self.lineEdit_n_reperto.setText(str(self.DATA_LIST[self.rec_num].n_reperto))
 
-            
+            self.lineEdit_tipo_contenitore.setText(str(self.DATA_LIST[self.rec_num].tipo_contenitore))
             if self.toolButtonPreviewMedia.isChecked():
                 self.loadMediaPreview()
         except :
@@ -3250,7 +3397,8 @@ class pyarchinit_Inventario_reperti(QDialog, MAIN_DIALOG_CLASS):
             str(eve_orlo),  # 26 - eve orlo
             str(self.comboBox_repertato.currentText()),  # 27 - repertato
             str(self.comboBox_diagnostico.currentText()),
-            str(n_reperto)# 28 - diagnostico
+            str(n_reperto),
+            str(self.lineEdit_tipo_contenitore.text()),# 28 - diagnostico
         ]
 
     def enable_button(self, n):
@@ -3335,6 +3483,59 @@ class pyarchinit_Inventario_reperti(QDialog, MAIN_DIALOG_CLASS):
         f = open(str(name_file), 'w')
         f.write(str(message))
         f.close()
+
+    def on_pushButton_open_dir_pressed(self):
+        HOME = os.environ['PYARCHINIT_HOME']
+        path = '{}{}{}'.format(HOME, os.sep, "pyarchinit_PDF_folder")
+
+        if platform.system() == "Windows":
+            os.startfile(path)
+        elif platform.system() == "Darwin":
+            subprocess.Popen(["open", path])
+        else:
+            subprocess.Popen(["xdg-open", path])
+    def setPathpdf(self):
+        s = QgsSettings()
+        dbpath = QFileDialog.getOpenFileName(
+            self,
+            "Set file name",
+            self.PDFFOLDER,
+            " PDF (*.pdf)"
+        )[0]
+        #filename=dbpath.split("/")[-1]
+        if dbpath:
+             
+            self.lineEdit_pdf_path.setText(dbpath)
+            s.setValue('',dbpath)
+   
+    def on_pushButton_convert_pressed(self):
+        # if not bool(self.setPathpdf()):    
+            # QMessageBox.warning(self, "INFO", "devi scegliere un file pdf",
+                                # QMessageBox.Ok)
+        
+        try:
+            pdf_file = self.lineEdit_pdf_path.text()
+            filename=pdf_file.split("/")[-1]
+            docx_file = self.PDFFOLDER+'/'+filename+'.docx'
+
+            # convert pdf to docx
+            parse(pdf_file, docx_file, start=self.lineEdit_pag1.text(), end=self.lineEdit_pag2.text())
+            QMessageBox.information(self, "INFO", "Conversione terminata",
+                                QMessageBox.Ok)
+                                
+        except Exception as e:
+            QMessageBox.warning(self, "Error", str(e),
+                                QMessageBox.Ok)
+    def openpdfDir(self):
+        HOME = os.environ['PYARCHINIT_HOME']
+        path = '{}{}{}'.format(HOME, os.sep, "pyarchinit_PDF_folder")
+
+        if platform.system() == "Windows":
+            os.startfile(path)
+        elif platform.system() == "Darwin":
+            subprocess.Popen(["open", path])
+        else:
+            subprocess.Popen(["xdg-open", path])
 
 
 ## Class end

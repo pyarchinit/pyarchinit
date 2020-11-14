@@ -4,7 +4,7 @@ Created on 19 feb 2018
 @author: Serena Sensini
 '''
 
-from sqlalchemy import Table, Column, Integer, String, Text, MetaData, create_engine, UniqueConstraint
+from sqlalchemy import Table, Column, Integer, Float, String, Text, MetaData, create_engine, UniqueConstraint
 
 from modules.db.pyarchinit_conn_strings import Connection
 
@@ -32,6 +32,18 @@ class SCHEDAIND_table:
                             Column('eta_max', Integer),
                             Column('classi_eta', String(100)),
                             Column('osservazioni', Text),
+                            Column('sigla_struttura', Text),
+                            Column('nr_struttura', Integer),
+                            Column('completo_si_no', String(5)),
+                            Column('disturbato_si_no', String(5)),
+                            Column('in_connessione_si_no', String(5)),
+                            Column('lunghezza_scheletro', Float(2, 2)),
+                            Column('posizione_scheletro', String(50)),
+                            Column('posizione_cranio', String(50)),
+                            Column('posizione_arti_superiori', String(50)),
+                            Column('posizione_arti_inferiori', String(50)),
+                            Column('orientamento_asse', Text),
+                            Column('orientamento_azimut', Float(2, 2)),
 
                             # explicit/composite unique constraint.  'name' is optional.
                             UniqueConstraint('sito', 'nr_individuo', name='ID_individuo_unico')

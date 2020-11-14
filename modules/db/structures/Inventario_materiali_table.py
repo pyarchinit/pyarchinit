@@ -50,6 +50,7 @@ class Inventario_materiali_table:
                                        Column('repertato', String(2)),
                                        Column('diagnostico', String(2)),
                                        Column('n_reperto', Integer),
+                                       Column('tipo_contenitore', String(200)),
                                        # explicit/composite unique constraint.  'name' is optional.
                                        UniqueConstraint('sito', 'numero_inventario', name='ID_invmat_unico')
                                        )

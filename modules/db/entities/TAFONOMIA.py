@@ -5,9 +5,9 @@ Created on 19 feb 2018
 '''
 
 
-class TAFONOMIA(object):
+class TOMBA(object):
     def __init__(self,
-                 id_tafonomia,
+                 id_tomba,
                  sito,
                  nr_scheda_taf,
                  sigla_struttura,
@@ -41,9 +41,9 @@ class TAFONOMIA(object):
                  periodo_finale,
                  fase_finale,
                  datazione_estesa,
-                 misure_tafonomia
+                 misure_tomba
                  ):
-        self.id_tafonomia = id_tafonomia  # 0
+        self.id_tomba = id_tomba  # 0
         self.sito = sito  # 1
         self.nr_scheda_taf = nr_scheda_taf  # 2
         self.sigla_struttura = sigla_struttura  # 3
@@ -77,12 +77,12 @@ class TAFONOMIA(object):
         self.periodo_finale = periodo_finale
         self.fase_finale = fase_finale
         self.datazione_estesa = datazione_estesa
-        self.misure_tafonomia = misure_tafonomia
+        self.misure_tomba = misure_tomba
         # def __repr__"
 
     def __repr__(self):
-        return "<TAFONOMIA('%d', '%s', '%d', '%s', '%d', '%d', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%r', '%s', '%s', '%s', '%r', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%d','%d','%d','%d', '%s', '%s')>" % (
-            self.id_tafonomia,
+        return "<TOMBA('%d', '%s', '%d', '%s', '%d', '%d', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%r', '%s', '%s', '%s', '%r', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%d','%d','%d','%d', '%s', '%s')>" % (
+            self.id_tomba,
             self.sito,
             self.nr_scheda_taf,
             self.sigla_struttura,
@@ -116,5 +116,5 @@ class TAFONOMIA(object):
             self.periodo_finale,
             self.fase_finale,
             self.datazione_estesa,
-            self.misure_tafonomia
+            self.misure_tomba
         )

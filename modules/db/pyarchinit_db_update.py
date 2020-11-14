@@ -43,7 +43,8 @@ class DB_update(object):
 
         if not table_column_names_list.__contains__('n_reperto'):
             self.engine.execute("ALTER TABLE inventario_materiali_table ADD COLUMN n_reperto INTEGER")
-
+        if not table_column_names_list.__contains__('tipo_contenitore'):
+            self.engine.execute("ALTER TABLE inventario_materiali_table ADD COLUMN tipo_contenitore varchar DEFAULT ''")
         
         ####site_table
         table = Table("site_table", self.metadata, autoload=True)
@@ -278,7 +279,50 @@ class DB_update(object):
 
         if not table_column_names_list.__contains__('uso_primario_usm'):
             self.engine.execute("ALTER TABLE us_table ADD COLUMN uso_primario_usm text DEFAULT '' ")
-
+        #############nuovi##############################################################
+        if not table_column_names_list.__contains__('tipologia_opera'):
+            self.engine.execute("ALTER TABLE us_table ADD COLUMN tipologia_opera text DEFAULT '' ")
+        
+        if not table_column_names_list.__contains__('sezione_muraria'):
+            self.engine.execute("ALTER TABLE us_table ADD COLUMN sezione_muraria text DEFAULT '' ")
+        if not table_column_names_list.__contains__('superficie_analizzata'):
+            self.engine.execute("ALTER TABLE us_table ADD COLUMN superficie_analizzata text DEFAULT '' ")
+        if not table_column_names_list.__contains__('orientamento'):
+                self.engine.execute("ALTER TABLE us_table ADD COLUMN orientamento text DEFAULT '' ")
+        if not table_column_names_list.__contains__('materiali_lat'):
+                self.engine.execute("ALTER TABLE us_table ADD COLUMN materiali_lat text DEFAULT '' ")
+        if not table_column_names_list.__contains__('lavorazione_lat'):
+                self.engine.execute("ALTER TABLE us_table ADD COLUMN lavorazione_lat text DEFAULT '' ")
+        if not table_column_names_list.__contains__('consistenza_lat'):
+                self.engine.execute("ALTER TABLE us_table ADD COLUMN consistenza_lat text DEFAULT '' ")
+        if not table_column_names_list.__contains__('forma_lat'):
+                self.engine.execute("ALTER TABLE us_table ADD COLUMN forma_lat text DEFAULT '' ")
+        if not table_column_names_list.__contains__('colore_lat'):
+                self.engine.execute("ALTER TABLE us_table ADD COLUMN colore_lat text DEFAULT '' ")
+        if not table_column_names_list.__contains__('impasto_lat'):
+                self.engine.execute("ALTER TABLE us_table ADD COLUMN impasto_lat text DEFAULT '' ")
+        
+        
+        if not table_column_names_list.__contains__('forma_p'):
+                self.engine.execute("ALTER TABLE us_table ADD COLUMN forma_p text DEFAULT '' ")
+        if not table_column_names_list.__contains__('colore_p'):
+                self.engine.execute("ALTER TABLE us_table ADD COLUMN colore_p text DEFAULT '' ")
+        if not table_column_names_list.__contains__('taglio_p'):
+                self.engine.execute("ALTER TABLE us_table ADD COLUMN taglio_p text DEFAULT '' ")
+        if not table_column_names_list.__contains__('posa_opera_p'):
+                self.engine.execute("ALTER TABLE us_table ADD COLUMN posa_opera_p text DEFAULT '' ")
+        if not table_column_names_list.__contains__('inerti_usm'):
+                self.engine.execute("ALTER TABLE us_table ADD COLUMN inerti_usm text DEFAULT '' ")
+        if not table_column_names_list.__contains__('tipo_legante_usm'):
+                self.engine.execute("ALTER TABLE us_table ADD COLUMN tipo_legante_usm text DEFAULT '' ")
+        if not table_column_names_list.__contains__('rifinitura_usm'):
+                self.engine.execute("ALTER TABLE us_table ADD COLUMN rifinitura_usm text DEFAULT '' ")
+        if not table_column_names_list.__contains__('materiale_p'):
+                self.engine.execute("ALTER TABLE us_table ADD COLUMN materiale_p text DEFAULT '' ")
+        if not table_column_names_list.__contains__('consistenza_p'):
+                self.engine.execute("ALTER TABLE us_table ADD COLUMN consistenza_p text DEFAULT '' ")
+                    
+        
         ####pyarchinit_thesaurus_sigle
         table = Table("pyarchinit_thesaurus_sigle", self.metadata, autoload=True)
         table_column_names_list = []
@@ -380,30 +424,70 @@ class DB_update(object):
         if table_column_names_list.__contains__('id'):
             self.engine.execute("ALTER TABLE pyunitastratigrafiche RENAME COLUMN id TO gid")
          
-        ####tafonomia_table
-        table = Table("tafonomia_table", self.metadata, autoload=True)
+        ####tomba_table
+        table = Table("tomba_table", self.metadata, autoload=True)
         table_column_names_list = []
         for i in table.columns:
             table_column_names_list.append(str(i.name))
 
         if not table_column_names_list.__contains__('periodo_iniziale'):
-            self.engine.execute("ALTER TABLE tafonomia_table ADD COLUMN periodo_iniziale integer")
+            self.engine.execute("ALTER TABLE tomba_table ADD COLUMN periodo_iniziale integer")
 
         if not table_column_names_list.__contains__('fase_iniziale'):
-            self.engine.execute("ALTER TABLE tafonomia_table ADD COLUMN fase_iniziale integer")
+            self.engine.execute("ALTER TABLE tomba_table ADD COLUMN fase_iniziale integer")
 
         if not table_column_names_list.__contains__('periodo_finale'):
-            self.engine.execute("ALTER TABLE tafonomia_table ADD COLUMN periodo_finale integer")
+            self.engine.execute("ALTER TABLE tomba_table ADD COLUMN periodo_finale integer")
 
         if not table_column_names_list.__contains__('fase_finale'):
-            self.engine.execute("ALTER TABLE tafonomia_table ADD COLUMN fase_finale integer")
+            self.engine.execute("ALTER TABLE tomba_table ADD COLUMN fase_finale integer")
 
         if not table_column_names_list.__contains__('datazione_estesa'):
-            self.engine.execute("ALTER TABLE tafonomia_table ADD COLUMN datazione_estesa text")
+            self.engine.execute("ALTER TABLE tomba_table ADD COLUMN datazione_estesa text")
 
-        if not table_column_names_list.__contains__('misure_tafonomia'):
-            self.engine.execute("ALTER TABLE tafonomia_table ADD COLUMN misure_tafonomia text DEFAULT '[]' ")
+        ####individui_table
+        table = Table("individui_table", self.metadata, autoload=True)
+        table_column_names_list = []
+        for i in table.columns:
+            table_column_names_list.append(str(i.name))
 
+        if not table_column_names_list.__contains__('sigla_struttura'):
+            self.engine.execute("ALTER TABLE individui_table ADD COLUMN sigla_struttura text")
+
+        if not table_column_names_list.__contains__('nr_struttura'):
+            self.engine.execute("ALTER TABLE individui_table ADD COLUMN nr_struttura integer")
+
+        if not table_column_names_list.__contains__('completo_si_no'):
+            self.engine.execute("ALTER TABLE individui_table ADD COLUMN completo_si_no varchar")
+
+        if not table_column_names_list.__contains__('disturbato_si_no'):
+            self.engine.execute("ALTER TABLE individui_table ADD COLUMN disturbato_si_no varchar")
+
+        if not table_column_names_list.__contains__('in_connessione_si_no'):
+            self.engine.execute("ALTER TABLE individui_table ADD COLUMN in_connessione_si_no varchar")
+
+        if not table_column_names_list.__contains__('lunghezza_scheletro'):
+            self.engine.execute("ALTER TABLE individui_table ADD COLUMN lunghezza_scheletro NUMERIC(2,2)")
+
+        if not table_column_names_list.__contains__('posizione_scheletro'):
+            self.engine.execute("ALTER TABLE individui_table ADD COLUMN posizione_scheletro varchar")
+
+        if not table_column_names_list.__contains__('posizione_cranio'):
+            self.engine.execute("ALTER TABLE individui_table ADD COLUMN posizione_cranio varchar")
+
+        if not table_column_names_list.__contains__('posizione_arti_superiori'):
+            self.engine.execute("ALTER TABLE individui_table ADD COLUMN posizione_arti_superiori varchar")
+
+        if not table_column_names_list.__contains__('posizione_arti_inferiori'):
+            self.engine.execute("ALTER TABLE individui_table ADD COLUMN posizione_arti_inferiori varchar")
+        
+        if not table_column_names_list.__contains__('orientamento_asse'):
+            self.engine.execute("ALTER TABLE individui_table ADD COLUMN orientamento_asse text")
+
+        if not table_column_names_list.__contains__('orientamento_azimut'):
+            self.engine.execute("ALTER TABLE individui_table ADD COLUMN orientamento_azimut NUMERIC(2,2)")
+        
+        
         ####aggiornamento tabelle geografiche
         try:
             self.engine.execute("ALTER TABLE pyarchinit_strutture_ipotesi ADD COLUMN nr_strut integer DEFAULT 0 ")

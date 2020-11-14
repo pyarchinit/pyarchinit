@@ -1,40 +1,7 @@
+drop view if exists mediaentity_view;
+DROP TABLE IF EXISTS mediaentity_view;
+DROP VIEW IF EXISTS pyarchinit_us_view;
 
-
--- DROP FUNCTION public.create_geom();
-
-CREATE OR REPLACE FUNCTION public.create_geom()
-    RETURNS trigger
-    LANGUAGE 'plpgsql'
-    COST 100
-    VOLATILE NOT LEAKPROOF
-AS $BODY$
-BEGIN
- if new.coord is null or new.coord!= old.coord then
-
-  update pyunitastratigrafiche set coord = ST_AsText(ST_Centroid(the_geom));
-END IF;
-RETURN NEW;
-END;
-$BODY$;
-
-ALTER FUNCTION public.create_geom()
-    OWNER TO postgres;
-
-COMMENT ON FUNCTION public.create_geom()
-    IS 'When a new record is added to write coordinates if coord is null in coord field';
-DO $$
-BEGIN
-    IF NOT EXISTS (SELECT 1 FROM pg_trigger WHERE tgname = 'create_geom') THEN
-CREATE TRIGGER create_geom
-    AFTER INSERT OR UPDATE 
-    ON public.pyunitastratigrafiche
-    FOR EACH ROW
-    EXECUTE PROCEDURE public.create_geom();
-
-
-END IF;
-END
-$$;  
 
 
 CREATE OR REPLACE FUNCTION delete_media_table()
@@ -138,7 +105,7 @@ ALTER TABLE mediaentity_view_id_media_thumb_seq
 
 
 --------------------------------------------------------------------------------------
-drop view if exists mediaentity_view;
+--drop view if exists mediaentity_view;
 
 CREATE OR REPLACE VIEW mediaentity_view AS 
  SELECT media_thumb_table.id_media_thumb,
@@ -325,7 +292,7 @@ ALTER TABLE pyarchinit_doc_view
 ALTER TABLE pyarchinit_us_negative_doc_view
     OWNER TO postgres;
 	
-drop view if exists pyarchinit_us_view;
+
 
 
 
@@ -522,3 +489,149 @@ drop view pyarchinit_reperti_view;
 
 ALTER TABLE pyarchinit_reperti_view
     OWNER TO postgres;	
+-- DROP FUNCTION public.create_geom();
+
+CREATE OR REPLACE FUNCTION public.create_geom()
+    RETURNS trigger
+    LANGUAGE 'plpgsql'
+    COST 100
+    VOLATILE NOT LEAKPROOF
+AS $BODY$
+BEGIN
+ if new.coord is null or new.coord!= old.coord then
+
+  update pyunitastratigrafiche set coord = ST_AsText(ST_Centroid(the_geom))where scavo_s=New.scavo_s and area_s=New.area_s and us_s=New.us_s;
+END IF;
+RETURN NEW;
+END;
+$BODY$;
+
+ALTER FUNCTION public.create_geom()
+    OWNER TO postgres;
+
+COMMENT ON FUNCTION public.create_geom()
+    IS 'When a new record is added to write coordinates if coord is null in coord field';
+DO $$
+BEGIN
+    IF NOT EXISTS (SELECT 1 FROM pg_trigger WHERE tgname = 'create_geom') THEN
+CREATE TRIGGER create_geom
+    AFTER INSERT OR UPDATE 
+    ON public.pyunitastratigrafiche
+    FOR EACH ROW
+    EXECUTE PROCEDURE public.create_geom();
+
+
+END IF;
+END
+$$;  
+
+        ALTER TABLE individui_table ADD COLUMN IF NOT EXISTS sigla_struttura text;
+
+        ALTER TABLE individui_table ADD COLUMN IF NOT EXISTS nr_struttura integer;
+
+        ALTER TABLE individui_table ADD COLUMN IF NOT EXISTS completo_si_no character varying(5);
+
+        ALTER TABLE individui_table ADD COLUMN IF NOT EXISTS disturbato_si_no character varying(5);
+
+        ALTER TABLE individui_table ADD COLUMN IF NOT EXISTS in_connessione_si_no character varying(5);
+
+        ALTER TABLE individui_table ADD COLUMN IF NOT EXISTS lunghezza_scheletro NUMERIC(2,2);
+
+        ALTER TABLE individui_table ADD COLUMN IF NOT EXISTS posizione_scheletro character varying(255);
+
+        ALTER TABLE individui_table ADD COLUMN IF NOT EXISTS posizione_cranio character varying(255);
+
+        ALTER TABLE individui_table ADD COLUMN IF NOT EXISTS posizione_arti_superiori character varying(255);
+
+        ALTER TABLE individui_table ADD COLUMN IF NOT EXISTS posizione_arti_inferiori character varying(255);
+        
+        ALTER TABLE individui_table ADD COLUMN IF NOT EXISTS orientamento_asse text;
+
+        ALTER TABLE individui_table ADD COLUMN IF NOT EXISTS orientamento_azimut NUMERIC(2,2);
+INSERT INTO tomba_table (
+            id_tomba,
+			sito,
+			nr_scheda_taf ,
+			sigla_struttura, 
+			nr_struttura ,
+			nr_individuo ,
+			rito ,
+			descrizione_taf ,
+			interpretazione_taf ,
+			segnacoli ,
+			canale_libatorio_si_no, 
+			oggetti_rinvenuti_esterno ,
+			stato_di_conservazione, 
+			copertura_tipo ,
+			tipo_contenitore_resti ,
+			corredo_presenza ,
+			corredo_tipo ,
+			corredo_descrizione ,
+			periodo_iniziale ,
+			fase_iniziale ,
+			periodo_finale ,
+			fase_finale ,
+			datazione_estesa 
+			)
+                
+                  SELECT
+				    id_tafonomia,
+					sito,
+					nr_scheda_taf ,
+					sigla_struttura, 
+					nr_struttura ,
+					nr_individuo ,
+					rito ,
+					descrizione_taf ,
+					interpretazione_taf ,
+					segnacoli ,
+					canale_libatorio_si_no, 
+					oggetti_rinvenuti_esterno ,
+					stato_di_conservazione, 
+					copertura_tipo ,
+					tipo_contenitore_resti ,
+					corredo_presenza ,
+					corredo_tipo ,
+					corredo_descrizione ,
+					periodo_iniziale ,
+					fase_iniziale ,
+					periodo_finale ,
+					fase_finale ,
+					datazione_estesa 
+
+                  FROM tafonomia_table
+				  ON CONFLICT (sito, nr_scheda_taf) DO NOTHING;
+				  
+				  
+INSERT INTO individui_table (
+            	nr_individuo,
+				completo_si_no ,
+				disturbato_si_no ,
+				in_connessione_si_no, 
+				lunghezza_scheletro ,
+				posizione_scheletro ,
+				posizione_cranio ,
+				posizione_arti_superiori ,
+				posizione_arti_inferiori, 
+				orientamento_asse ,
+				orientamento_azimut 
+
+			)
+                
+                  SELECT
+					nr_individuo,
+					completo_si_no ,
+					disturbato_si_no ,
+					in_connessione_si_no, 
+					lunghezza_scheletro ,
+					posizione_scheletro ,
+					posizione_cranio ,
+					posizione_arti_superiori ,
+					posizione_arti_inferiori, 
+					orientamento_asse ,
+					orientamento_azimut 
+
+                  FROM tafonomia_table
+				  /* where nr_individuo=nr_individuo
+				  ON CONFLICT (nr_individuo) DO NOTHING */;				  
+				  
