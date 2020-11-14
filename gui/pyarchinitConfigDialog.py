@@ -1113,7 +1113,7 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
             sql_view_us_geom= """INSERT OR REPLACE INTO views_geometry_columns
                     (view_name, view_geometry, view_rowid, f_table_name, f_geometry_column)
                     VALUES ('pyarchinit_us_view', 'the_geom', 'rowid', 'pyunitastratigrafiche', 'the_geom')"""  
-            c.execute(sql_view_rep_geom)
+            c.execute(sql_view_us_geom)
             
             sql_trigger_coord1="""CREATE TRIGGER IF NOT EXISTS create_geom_insert 
                 After insert 
@@ -1252,6 +1252,36 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
 
             FROM tafonomia_table; """)
             c.execute(sql_alter_table_individui)    
+            
+            sql_drop_tombaview_doc= """DROP view if EXISTS pyarchinit_tafonomia_view;"""
+            c.execute(sql_drop_tombaview_doc)
+            
+            sql_create_tombaview_doc= """CREATE VIEW if NOT EXISTS "pyarchinit_tomba_view" AS
+            SELECT "a"."id_tomba" AS "id_tomba", "a"."sito" AS "sito","a"."area" AS "area",
+            "a"."nr_scheda_taf" AS "nr_scheda_taf", "a"."sigla_struttura" AS "sigla_struttura",
+            "a"."nr_struttura" AS "nr_struttura", "a"."nr_individuo" AS "nr_individuo",
+            "a"."rito" AS "rito", "a"."descrizione_taf" AS "descrizione_taf",
+            "a"."interpretazione_taf" AS "interpretazione_taf",
+            "a"."segnacoli" AS "segnacoli", "a"."canale_libatorio_si_no" AS "canale_libatorio_si_no",
+            "a"."oggetti_rinvenuti_esterno" AS "oggetti_rinvenuti_esterno",
+            "a"."stato_di_conservazione" AS "stato_di_conservazione",
+            "a"."copertura_tipo" AS "copertura_tipo", "a"."tipo_contenitore_resti" AS "tipo_contenitore_resti",
+            "a"."tipo_deposizione" AS "tipo_deposizione", "a"."tipo_sepoltura" AS "tipo_sepoltura",            
+            "a"."corredo_presenza" AS "corredo_presenza", "a"."corredo_tipo" AS "corredo_tipo",
+            "a"."corredo_descrizione" AS "corredo_descrizione",
+            "b"."ROWID" AS "ROWID",
+            "b"."id_tafonomia_pk" AS "id_tafonomia_pk", "b"."sito" AS "sito_1",
+            "b"."nr_scheda" AS "nr_scheda", "b"."the_geom" AS "the_geom"
+            FROM "tomba_table" AS "a"
+            JOIN "pyarchinit_tafonomia" AS "b" ON ("a"."sito" = "b"."sito" AND "a"."nr_scheda_taf" = "b"."nr_scheda")
+            ORDER BY "a"."nr_scheda_taf"; """
+            
+            
+            c.execute(sql_create_tombaview_doc)
+            sql_view_tomba_geom= """INSERT OR REPLACE INTO views_geometry_columns
+                    (view_name, view_geometry, view_rowid, f_table_name, f_geometry_column)
+                    VALUES ('pyarchinit_tomba_view', 'the_geom', 'rowid', 'pyarchinit_tafonomia', 'the_geom')"""  
+            c.execute(sql_view_tomba_geom)
             
             RestoreSchema(db_url,None).update_geom_srid_sl('%d' % int(self.lineEdit_crs.text()))
             c.close()

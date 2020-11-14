@@ -141,6 +141,7 @@ ALTER TABLE public.pyarchinit_strutture_view
 CREATE OR REPLACE VIEW public.pyarchinit_tomba_view AS
  SELECT a.id_tomba,
     a.sito,
+	a.area,
     a.nr_scheda_taf,
     a.sigla_struttura,
     a.nr_struttura,
@@ -160,12 +161,12 @@ CREATE OR REPLACE VIEW public.pyarchinit_tomba_view AS
     a.corredo_tipo,
     a.corredo_descrizione,
     b.gid,
-    b.id_tomba_pk,
+    b.id_tafonomia_pk,
     b.sito AS sito_1,
     b.nr_scheda,
     b.the_geom
    FROM tomba_table a
-     JOIN pyarchinit_tomba b ON a.sito = b.sito::text AND a.nr_scheda_taf = b.nr_scheda;
+     JOIN pyarchinit_tafonomia b ON a.sito = b.sito::text AND a.nr_scheda_taf = b.nr_scheda;
 
 ALTER TABLE public.pyarchinit_tomba_view
     OWNER TO postgres;
