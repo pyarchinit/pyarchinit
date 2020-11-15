@@ -393,7 +393,7 @@ class pyarchinit_Tomba(QDialog, MAIN_DIALOG_CLASS):
             if bool (sito_set_str):
                 search_dict = {
                         'sito': "'"+str(sito_set_str)+"'",
-                        'area' : "'"+str(area)+"'"
+                        'area': "'" + str(eval("self.DATA_LIST[int(self.REC_CORR)].area"))+ "'"
                     }
                 u = Utility()
                 search_dict = u.remove_empty_items_fr_dict(search_dict)
@@ -1121,7 +1121,7 @@ class pyarchinit_Tomba(QDialog, MAIN_DIALOG_CLASS):
         area = str(self.comboBox_area.currentText())
         
         search_dict = {
-            'area': "'" + area + "'",
+            'area': "'" + str(eval("self.DATA_LIST[int(self.REC_CORR)].area"))+ "'",
             'sito': "'" + sito + "'"
         }
         inv_vl = self.DB_MANAGER.query_bool(search_dict,'INVENTARIO_MATERIALI')
