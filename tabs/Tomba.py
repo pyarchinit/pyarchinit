@@ -1806,7 +1806,7 @@ class pyarchinit_Tomba(QDialog, MAIN_DIALOG_CLASS):
                     self.empty_fields()
     def on_pushButton_showLayer_pressed(self):
         sing_layer = [self.DATA_LIST[self.REC_CORR]]
-        self.pyQGIS.charge_vector_layers(sing_layer)
+        self.pyQGIS.charge_tomba_layers(sing_layer)
 
     
 
@@ -1951,29 +1951,29 @@ class pyarchinit_Tomba(QDialog, MAIN_DIALOG_CLASS):
                         if self.REC_TOT == 1:
                             strings = ("E' stato trovato", self.REC_TOT, "record")
                             if self.toolButtonGis.isChecked():
-                                self.pyQGIS.charge_vector_layers(self.DATA_LIST)
+                                self.pyQGIS.charge_tomba_layers(self.DATA_LIST)
                         else:
                             strings = ("Sono stati trovati", self.REC_TOT, "records")
                             if self.toolButtonGis.isChecked():
-                                self.pyQGIS.charge_vector_layers(self.DATA_LIST)
+                                self.pyQGIS.charge_tomba_layers(self.DATA_LIST)
                     elif self.L=='de':
                         if self.REC_TOT == 1:
                             strings = ("Es wurde gefunden", self.REC_TOT, "record")
                             if self.toolButtonGis.isChecked():
-                                self.pyQGIS.charge_vector_layers(self.DATA_LIST)
+                                self.pyQGIS.charge_tomba_layers(self.DATA_LIST)
                         else:
                             strings = ("Sie wurden gefunden", self.REC_TOT, "records")
                             if self.toolButtonGis.isChecked():
-                                self.pyQGIS.charge_vector_layers(self.DATA_LIST)
+                                self.pyQGIS.charge_tomba_layers(self.DATA_LIST)
                     else:
                         if self.REC_TOT == 1:
                             strings = ("It has been found", self.REC_TOT, "record")
                             if self.toolButtonGis.isChecked():
-                                self.pyQGIS.charge_vector_layers(self.DATA_LIST)
+                                self.pyQGIS.charge_tomba_layers(self.DATA_LIST)
                         else:
                             strings = ("They have been found", self.REC_TOT, "records")
                             if self.toolButtonGis.isChecked():
-                                self.pyQGIS.charge_vector_layers(self.DATA_LIST)
+                                self.pyQGIS.charge_tomba_layers(self.DATA_LIST)
 
                     self.setComboBoxEditable(["self.comboBox_sito"], 1)
                     # self.setComboBoxEditable(["self.comboBox_sigla_struttura"], 1)
