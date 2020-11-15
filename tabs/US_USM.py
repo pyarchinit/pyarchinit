@@ -763,8 +763,10 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
         self.comboBox_per_iniz.currentIndexChanged.connect(self.charge_fase_iniz_list)
         self.comboBox_per_iniz.currentIndexChanged.connect(self.charge_datazione_list)
         self.comboBox_fas_iniz.currentIndexChanged.connect(self.charge_datazione_list)
-        self.comboBox_sito.currentIndexChanged.connect(self.geometry_unitastratigrafiche)### rallenta molto
-        self.comboBox_sito.currentIndexChanged.connect(self.insert_ra)
+        # self.comboBox_sito.currentTextChanged.connect(self.geometry_unitastratigrafiche)### rallenta molto
+        # self.comboBox_sito.currentIndexChanged.connect(self.geometry_unitastratigrafiche)### rallenta molto
+        self.comboBox_sito.currentTextChanged.connect(self.insert_ra)
+        #self.comboBox_sito.currentIndexChanged.connect(self.insert_ra)
         self.search_1.textChanged.connect(self.update_filter)
         self.comboBox_per_fin.currentIndexChanged.connect(self.charge_fase_fin_list)
         self.toolButton_pdfpath.clicked.connect(self.setPathpdf)
@@ -786,34 +788,33 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
         dialog.ui.setupUi(dialog)
         dialog.exec_()
     def insert_ra(self):
-        if self.comboBox_ref_ra.activated:
-            sito = str(self.comboBox_sito.currentText())
-            area = str(self.comboBox_area.currentText())
-            us = str(self.lineEdit_us.text())
-            search_dict = {
-                'area': "'" + area + "'",
-                'sito': "'" + sito + "'",
-                'us': "'" + us + "'"
-            }
-            inv_vl = self.DB_MANAGER.query_bool(search_dict,'INVENTARIO_MATERIALI')
-            inv_list = []
-            for i in range(len(inv_vl)):
-                inv_list.append(str(inv_vl[i].n_reperto))
-            try:
-                inv_vl.remove('')
-            except :
-                pass
-            self.comboBox_ref_ra.clear()
-            self.comboBox_ref_ra.addItems(self.UTILITY.remove_dup_from_list(inv_list))
-            if self.STATUS_ITEMS[self.BROWSE_STATUS] == "Trova" or "Find":
-                self.comboBox_ref_ra.setEditText("")
-            elif self.STATUS_ITEMS[self.BROWSE_STATUS] == "Usa" or "Current":
-                if len(self.DATA_LIST) > 0:
-                    try:
-                        self.comboBox_ref_ra.setEditText(self.DATA_LIST[self.rec_num].n_reperto)
-                        self.comboBox_ref_ra.show()
-                    except :
-                        pass
+        area=str(self.comboBox_area.currentText())
+        sito=str(self.comboBox_sito.currentText())
+        us=str(self.lineEdit_us.text())
+        # search_dict = {
+            # 'area': "'" + str(self.comboBox_area.currentText()) + "'",
+            # 'sito': "'" +str(self.comboBox_sito.currentText()) + "'",
+            # 'us': "'" + str(self.lineEdit_us.text()) + "'"
+        # }
+        inv_vl = self.DB_MANAGER.select_ra_from_db_sql(sito,area,us)
+        inv_list = []
+        for i in range(len(inv_vl)):
+            inv_list.append(str(inv_vl[i].n_reperto))
+        try:
+            inv_vl.remove('') 
+        except :
+            pass
+        self.comboBox_ref_ra.clear()
+        self.comboBox_ref_ra.addItems(self.UTILITY.remove_dup_from_list(inv_list))
+        if self.STATUS_ITEMS[self.BROWSE_STATUS] == "Trova" or "Find":
+            self.comboBox_ref_ra.setEditText("")
+        elif self.STATUS_ITEMS[self.BROWSE_STATUS] == "Usa" or "Current":
+            if len(self.DATA_LIST) > 0:
+                try:
+                    self.comboBox_ref_ra.setEditText(self.DATA_LIST[self.rec_num].ref_ra)
+                    self.comboBox_ref_ra.show()
+                except :
+                    pass
     def listview_us(self):
         if self.checkBox_query.isChecked():
             conn = Connection()
@@ -929,65 +930,69 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
     def on_pushButton_globalsearch_pressed(self):
         self.search.showSearchDialog()    
     def charge_struttura_list(self):
-        if self.comboBox_struttura.activated: 
-            sito = str(self.comboBox_sito.currentText())
-            search_dict = {
-                'sito': "'" + sito + "'"
-            }
-            struttura_vl = self.DB_MANAGER.query_bool(search_dict, 'STRUTTURA')
-            struttura_list = []
-            for i in range(len(struttura_vl)):
-                struttura_list.append(str(struttura_vl[i].sigla_struttura+'-'+str(struttura_vl[i].numero_struttura)))
-            try:
-                struttura_vl.remove('')
-            except:
-                pass
-            self.comboBox_struttura.clear()
-            self.comboBox_struttura.addItems(self.UTILITY.remove_dup_from_list(struttura_list))
-            if self.STATUS_ITEMS[self.BROWSE_STATUS] == "Trova" or "Find":
-                self.comboBox_struttura.setEditText("")
-            elif self.STATUS_ITEMS[self.BROWSE_STATUS] == "Usa" or "Current":
-                if len(self.DATA_LIST) > 0:
-                    try:
-                        self.comboBox_struttura.setEditText(self.DATA_LIST[self.rec_num].sigla_struttura+'-'+numero_struttura)
-                    except:
-                        pass  # non vi sono periodi per questo scavo
+         
+        sito = str(self.comboBox_sito.currentText())
+        search_dict = {
+            'sito': "'" + sito + "'"
+        }
+        struttura_vl = self.DB_MANAGER.query_bool(search_dict, 'STRUTTURA')
+        struttura_list = []
+        for i in range(len(struttura_vl)):
+            struttura_list.append(str(struttura_vl[i].sigla_struttura+'-'+str(struttura_vl[i].numero_struttura)))
+        try:
+            struttura_vl.remove('')
+        except:
+            pass
+        self.comboBox_struttura.clear()
+        self.comboBox_struttura.addItems(self.UTILITY.remove_dup_from_list(struttura_list))
+        if self.STATUS_ITEMS[self.BROWSE_STATUS] == "Trova" or "Find":
+            self.comboBox_struttura.setEditText("")
+        elif self.STATUS_ITEMS[self.BROWSE_STATUS] == "Usa" or "Current":
+            if len(self.DATA_LIST) > 0:
+                try:
+                    self.comboBox_struttura.setEditText(self.DATA_LIST[self.rec_num].sigla_struttura+'-'+numero_struttura)
+                except:
+                    pass  # non vi sono periodi per questo scavo
     def geometry_unitastratigrafiche(self):
-        if self.comboBox_posizione.activated: 
-            sito = str(self.comboBox_sito.currentText())
-            area = str(self.comboBox_area.currentText())
-            us = str(self.lineEdit_us.text())
-            search_dict = {
-                'area_s': "'" + area + "'",
-                'scavo_s': "'" + sito + "'",
-                'us_s': "'" + us + "'"
-            }
-            geometry_vl = self.DB_MANAGER.query_bool(search_dict,'PYUS')
-            geometry_list = []
+        
+        sito = str(self.comboBox_sito.currentText())
+        area = str(self.comboBox_area.currentText())
+        us = str(self.lineEdit_us.text())
+        # search_dict = {
+            # 'scavo_s': "'" + sito + "'",
+            # 'area_s': "'" + area + "'",
+            # 'us_s': "'" + us + "'"
             
-            for i in range(len(geometry_vl)):
-                geometry_list.append(str(geometry_vl[i].coord))
-            try:
-                geometry_vl.remove('')
-            except:
-                pass
-            
-            self.comboBox_posizione.clear()
-            self.comboBox_posizione.addItems(self.UTILITY.remove_dup_from_list(geometry_list))
-            if self.STATUS_ITEMS[self.BROWSE_STATUS] == "Trova" or "Find":
-                self.comboBox_posizione.setEditText("")
-            elif self.STATUS_ITEMS[self.BROWSE_STATUS] == "Usa" or "Current":
-                if len(self.DATA_LIST) > 0:
-                    try:
-                        self.comboBox_posizione.setEditText(self.DATA_LIST[self.rec_num].coord)
-                    except:
-                        pass  # non vi sono periodi per questo scavo
+        # }
+        geometry_vl = self.DB_MANAGER.select_coord_from_db_sql(sito,area,us)
+        geometry_list = []
+        
+        for i in range(len(geometry_vl)):
+            geometry_list.append(str(geometry_vl[i].coord))
+        try:
+            geometry_vl.remove('')
+        except:
+            pass
+        
+        self.comboBox_posizione.clear()
+        self.comboBox_posizione.addItems(self.UTILITY.remove_dup_from_list(geometry_list))
+        if self.STATUS_ITEMS[self.BROWSE_STATUS] == "Trova" or "Find":
+            self.comboBox_posizione.setEditText("")
+        elif self.STATUS_ITEMS[self.BROWSE_STATUS] == "Usa" or "Current":
+            if len(self.DATA_LIST) > 0:
+                try:
+                    self.comboBox_posizione.setEditText(self.DATA_LIST[self.rec_num].posizione)
+                    self.comboBox_posizione.show()
+                except:
+                    pass  # non vi sono periodi per questo scavo
     def charge_periodo_iniz_list(self):
-        if self.comboBox_per_iniz.activated: 
+        
             try: 
                 sito = str(self.comboBox_sito.currentText())
+                area = str(self.comboBox_area.currentText())
                 search_dict = {
-                    'sito': "'" + sito + "'"
+                    'sito': "'" + sito + "'",
+                    'area': "'" + area + "'",
                 }
                 periodo_vl = self.DB_MANAGER.query_bool(search_dict, 'PERIODIZZAZIONE')
                 periodo_list = []
@@ -1012,104 +1017,107 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
             except:
                 pass  
     def charge_periodo_fin_list(self):
-        if self.comboBox_per_fin.activated: 
+        
+        try:
+            sito = str(self.comboBox_sito.currentText())
+            area = str(self.comboBox_area.currentText())
+            search_dict = {
+                'sito': "'" + sito + "'",
+                'area': "'" + area + "'",
+            }
+            periodo_vl = self.DB_MANAGER.query_bool(search_dict, 'PERIODIZZAZIONE')
+            periodo_list = []
+            for i in range(len(periodo_vl)):
+                periodo_list.append(str(periodo_vl[i].periodo))
             try:
-                search_dict = {
-                    'sito': "'" + str(self.comboBox_sito.currentText()) + "'"
-                }
-                periodo_vl = self.DB_MANAGER.query_bool(search_dict, 'PERIODIZZAZIONE')
-                periodo_list = []
-                for i in range(len(periodo_vl)):
-                    periodo_list.append(str(periodo_vl[i].periodo))
-                try:
-                    periodo_vl.remove('')
-                except:
-                    pass
-                self.comboBox_per_fin.clear()
-                self.comboBox_per_fin.addItems(self.UTILITY.remove_dup_from_list(periodo_list))
-                if self.STATUS_ITEMS[self.BROWSE_STATUS] == "Trova" or "Find":
-                    self.comboBox_per_fin.setEditText("")
-                elif self.STATUS_ITEMS[self.BROWSE_STATUS] == "Usa" or "Current":
-                    if len(self.DATA_LIST) > 0:
-                        try:
-                            self.comboBox_per_fin.setEditText(self.DATA_LIST[self.rec_num].periodo_iniziale)
-                        except:
-                            pass
+                periodo_vl.remove('')
             except:
-                pass  # non vi sono periodi per questo scavo
+                pass
+            self.comboBox_per_fin.clear()
+            self.comboBox_per_fin.addItems(self.UTILITY.remove_dup_from_list(periodo_list))
+            if self.STATUS_ITEMS[self.BROWSE_STATUS] == "Trova" or "Find":
+                self.comboBox_per_fin.setEditText("")
+            elif self.STATUS_ITEMS[self.BROWSE_STATUS] == "Usa" or "Current":
+                if len(self.DATA_LIST) > 0:
+                    try:
+                        self.comboBox_per_fin.setEditText(self.DATA_LIST[self.rec_num].periodo_iniziale)
+                    except:
+                        pass
+        except:
+            pass  # non vi sono periodi per questo scavo
     def charge_fase_iniz_list(self):
-        if self.comboBox_fas_iniz.activated: 
+        #if self.comboBox_fas_iniz.activated: 
+        try:
+            search_dict = {
+                'sito': "'" + str(self.comboBox_sito.currentText()) + "'",
+                'periodo': "'" + str(self.comboBox_per_iniz.currentText()) + "'",
+            }
+            fase_list_vl = self.DB_MANAGER.query_bool(search_dict, 'PERIODIZZAZIONE')
+            fase_list = []
+            for i in range(len(fase_list_vl)):
+                fase_list.append(str(fase_list_vl[i].fase))
             try:
-                search_dict = {
-                    'sito': "'" + str(self.comboBox_sito.currentText()) + "'",
-                    'periodo': "'" + str(self.comboBox_per_iniz.currentText()) + "'",
-                }
-                fase_list_vl = self.DB_MANAGER.query_bool(search_dict, 'PERIODIZZAZIONE')
-                fase_list = []
-                for i in range(len(fase_list_vl)):
-                    fase_list.append(str(fase_list_vl[i].fase))
-                try:
-                    fase_list.remove('')
-                except:
-                    pass
-                self.comboBox_fas_iniz.clear()
-                fase_list.sort()
-                self.comboBox_fas_iniz.addItems(self.UTILITY.remove_dup_from_list(fase_list))
-                if self.STATUS_ITEMS[self.BROWSE_STATUS] == "Trova" or "Find":
-                    self.comboBox_fas_iniz.setEditText("")
-                else:
-                    self.comboBox_fas_iniz.setEditText(self.DATA_LIST[self.rec_num].fase_iniziale)
+                fase_list.remove('')
             except:
                 pass
+            self.comboBox_fas_iniz.clear()
+            fase_list.sort()
+            self.comboBox_fas_iniz.addItems(self.UTILITY.remove_dup_from_list(fase_list))
+            if self.STATUS_ITEMS[self.BROWSE_STATUS] == "Trova" or "Find":
+                self.comboBox_fas_iniz.setEditText("")
+            else:
+                self.comboBox_fas_iniz.setEditText(self.DATA_LIST[self.rec_num].fase_iniziale)
+        except:
+            pass
     def charge_fase_fin_list(self):
-        if self.comboBox_fas_fin.activated: 
+        #if self.comboBox_fas_fin.activated: 
+        try:
+            search_dict = {
+                'sito': "'" + str(self.comboBox_sito.currentText()) + "'",
+                'periodo': "'" + str(self.comboBox_per_fin.currentText()) + "'"
+            }
+            fase_list_vl = self.DB_MANAGER.query_bool(search_dict, 'PERIODIZZAZIONE')
+            fase_list = []
+            for i in range(len(fase_list_vl)):
+                fase_list.append(str(fase_list_vl[i].fase))
             try:
-                search_dict = {
-                    'sito': "'" + str(self.comboBox_sito.currentText()) + "'",
-                    'periodo': "'" + str(self.comboBox_per_fin.currentText()) + "'"
-                }
-                fase_list_vl = self.DB_MANAGER.query_bool(search_dict, 'PERIODIZZAZIONE')
-                fase_list = []
-                for i in range(len(fase_list_vl)):
-                    fase_list.append(str(fase_list_vl[i].fase))
-                try:
-                    fase_list.remove('')
-                except:
-                    pass
-                self.comboBox_fas_fin.clear()
-                fase_list.sort()
-                self.comboBox_fas_fin.addItems(self.UTILITY.remove_dup_from_list(fase_list))
-                if self.STATUS_ITEMS[self.BROWSE_STATUS] == "Trova" or "Find":
-                    self.comboBox_fas_fin.setEditText("")
-                else:
-                    self.comboBox_fas_fin.setEditText(self.DATA_LIST[self.rec_num].fase_finale)
+                fase_list.remove('')
             except:
                 pass
+            self.comboBox_fas_fin.clear()
+            fase_list.sort()
+            self.comboBox_fas_fin.addItems(self.UTILITY.remove_dup_from_list(fase_list))
+            if self.STATUS_ITEMS[self.BROWSE_STATUS] == "Trova" or "Find":
+                self.comboBox_fas_fin.setEditText("")
+            else:
+                self.comboBox_fas_fin.setEditText(self.DATA_LIST[self.rec_num].fase_finale)
+        except:
+            pass
     def charge_datazione_list(self):
-        if self.comboBox_datazione.activated: 
+        #if self.comboBox_datazione.activated: 
+        try:
+            search_dict = {
+                'sito': "'" + str(self.comboBox_sito.currentText()) + "'",
+                'periodo': "'" + str(self.comboBox_per_iniz.currentText()) + "'",
+                'fase': "'" + str(self.comboBox_fas_iniz.currentText()) + "'"
+            }
+            datazione_list_vl = self.DB_MANAGER.query_bool(search_dict, 'PERIODIZZAZIONE')
+            datazione_list = []
+            for i in range(len(datazione_list_vl)):
+                datazione_list.append(str(datazione_list_vl[i].datazione_estesa))
             try:
-                search_dict = {
-                    'sito': "'" + str(self.comboBox_sito.currentText()) + "'",
-                    'periodo': "'" + str(self.comboBox_per_iniz.currentText()) + "'",
-                    'fase': "'" + str(self.comboBox_fas_iniz.currentText()) + "'"
-                }
-                datazione_list_vl = self.DB_MANAGER.query_bool(search_dict, 'PERIODIZZAZIONE')
-                datazione_list = []
-                for i in range(len(datazione_list_vl)):
-                    datazione_list.append(str(datazione_list_vl[i].datazione_estesa))
-                try:
-                    datazione_list.remove('')
-                except:
-                    pass
-                self.comboBox_datazione.clear()
-                datazione_list.sort()
-                self.comboBox_datazione.addItems(self.UTILITY.remove_dup_from_list(datazione_list))
-                if self.STATUS_ITEMS[self.BROWSE_STATUS] == "Trova" or "Find":
-                    self.comboBox_datazione.setEditText("")
-                else:
-                    self.comboBox_datazione.setEditText(self.DATA_LIST[self.rec_num].datazione_estesa)
+                datazione_list.remove('')
             except:
                 pass
+            self.comboBox_datazione.clear()
+            datazione_list.sort()
+            self.comboBox_datazione.addItems(self.UTILITY.remove_dup_from_list(datazione_list))
+            if self.STATUS_ITEMS[self.BROWSE_STATUS] == "Trova" or "Find":
+                self.comboBox_datazione.setEditText("")
+            else:
+                self.comboBox_datazione.setEditText(self.DATA_LIST[self.rec_num].datazione_estesa)
+        except:
+            pass
     def on_pushButton_draw_doc_pressed(self):
         sito = str(self.comboBox_sito.currentText())
         area = str(self.comboBox_area.currentText())
