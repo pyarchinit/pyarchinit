@@ -1906,7 +1906,27 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
                             data_list_toimp[sing_rec].campioni_pietra_usm,
                             data_list_toimp[sing_rec].provenienza_materiali_usm,
                             data_list_toimp[sing_rec].criteri_distinzione_usm,
-                            data_list_toimp[sing_rec].uso_primario_usm
+                            data_list_toimp[sing_rec].uso_primario_usm,
+                            data_list_toimp[sing_rec].tipologia_opera, 
+                            data_list_toimp[sing_rec].sezione_muraria, 
+                            data_list_toimp[sing_rec].superficie_analizzata, 
+                            data_list_toimp[sing_rec].orientamento ,
+                            data_list_toimp[sing_rec].materiali_lat ,
+                            data_list_toimp[sing_rec].lavorazione_lat, 
+                            data_list_toimp[sing_rec].consistenza_lat ,
+                            data_list_toimp[sing_rec].forma_lat ,
+                            data_list_toimp[sing_rec].colore_lat ,
+                            data_list_toimp[sing_rec].impasto_lat ,
+                            data_list_toimp[sing_rec].forma_p ,
+                            data_list_toimp[sing_rec].colore_p ,
+                            data_list_toimp[sing_rec].taglio_p ,
+                            data_list_toimp[sing_rec].posa_opera_p ,
+                            data_list_toimp[sing_rec].inerti_usm ,
+                            data_list_toimp[sing_rec].tipo_legante_usm, 
+                            data_list_toimp[sing_rec].rifinitura_usm, 
+                            data_list_toimp[sing_rec].materiale_p ,
+                            data_list_toimp[sing_rec].consistenza_p 
+
                         )
                         
 
@@ -1993,6 +2013,7 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
                             data_list_toimp[sing_rec].repertato,
                             data_list_toimp[sing_rec].diagnostico,
                             data_list_toimp[sing_rec].n_reperto,
+                            data_list_toimp[sing_rec].tipo_contenitore 
                         )
                         
                         
@@ -2091,6 +2112,7 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
                             self.DB_MANAGER_write.max_num_id(mapper_class_write,
                                                              id_table_class_mapper_conv_dict[mapper_class_write]) + 1,
                             str(data_list_toimp[sing_rec].sito),
+                            str(data_list_toimp[sing_rec].area),
                             int(data_list_toimp[sing_rec].nr_scheda_taf),
                             str(data_list_toimp[sing_rec].sigla_struttura),
                             int(data_list_toimp[sing_rec].nr_struttura),
@@ -2145,11 +2167,16 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
 
                     # blocco oritentamento_azimut
                     test_lunghezza_scheletro = data_list_toimp[sing_rec].lunghezza_scheletro
-
+                    
                     if test_lunghezza_scheletro == "" or test_lunghezza_scheletro == None:
                         lunghezza_scheletro = None
                     else:
                         lunghezza_scheletro = float(data_list_toimp[sing_rec].lunghezza_scheletro)
+                    test_orientamento_azimut = data_list_toimp[sing_rec].orientamento_azimut    
+                    if test_orientamento_azimut == "" or test_orientamento_azimut == None:
+                        orientamento_azimut = None
+                    else:
+                        orientamento_azimut = float(data_list_toimp[sing_rec].orientamento_azimut)    
                     
                     try:
                         data = self.DB_MANAGER_write.insert_values_ind(
@@ -2177,7 +2204,7 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
                             data_list_toimp[sing_rec].posizione_arti_superiori,
                             data_list_toimp[sing_rec].posizione_arti_inferiori,
                             data_list_toimp[sing_rec].orientamento_asse,
-                            orientamento_azimut                            
+                            orientamento_azimut                           
                         )
                         
                         self.DB_MANAGER_write.insert_data_session(data)
