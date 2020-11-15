@@ -909,7 +909,7 @@ class Pyarchinit_db_management(object):
     
     
     
-    def query_bool(self, params, table):
+    def query_bool_special(self, params, table):
         u = Utility()
         params = u.remove_empty_items_fr_dict(params)
 
