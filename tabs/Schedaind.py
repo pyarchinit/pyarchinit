@@ -612,7 +612,7 @@ class pyarchinit_Schedaind(QDialog, MAIN_DIALOG_CLASS):
             'struttura': "'TB" +'-'+ str(self.comboBox_nr_struttura.currentText())+"%'"
         }
 
-        us_vl = self.DB_MANAGER.query_bool_special(search_dict, 'US')
+        us_vl = self.DB_MANAGER.query_bool(search_dict, 'US')
         
         nr_us_list=[]
         for i in range(len(us_vl)):
