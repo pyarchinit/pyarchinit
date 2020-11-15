@@ -763,10 +763,10 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
         self.comboBox_per_iniz.currentIndexChanged.connect(self.charge_fase_iniz_list)
         self.comboBox_per_iniz.currentIndexChanged.connect(self.charge_datazione_list)
         self.comboBox_fas_iniz.currentIndexChanged.connect(self.charge_datazione_list)
-        # self.comboBox_sito.currentTextChanged.connect(self.geometry_unitastratigrafiche)### rallenta molto
-        # self.comboBox_sito.currentIndexChanged.connect(self.geometry_unitastratigrafiche)### rallenta molto
+        self.comboBox_sito.currentTextChanged.connect(self.geometry_unitastratigrafiche)### rallenta molto
+        self.comboBox_sito.currentIndexChanged.connect(self.geometry_unitastratigrafiche)### rallenta molto
         self.comboBox_sito.currentTextChanged.connect(self.insert_ra)
-        #self.comboBox_sito.currentIndexChanged.connect(self.insert_ra)
+        self.comboBox_sito.currentIndexChanged.connect(self.insert_ra)
         self.search_1.textChanged.connect(self.update_filter)
         self.comboBox_per_fin.currentIndexChanged.connect(self.charge_fase_fin_list)
         self.toolButton_pdfpath.clicked.connect(self.setPathpdf)
@@ -791,12 +791,12 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
         area=str(self.comboBox_area.currentText())
         sito=str(self.comboBox_sito.currentText())
         us=str(self.lineEdit_us.text())
-        # search_dict = {
-            # 'area': "'" + str(self.comboBox_area.currentText()) + "'",
-            # 'sito': "'" +str(self.comboBox_sito.currentText()) + "'",
-            # 'us': "'" + str(self.lineEdit_us.text()) + "'"
-        # }
-        inv_vl = self.DB_MANAGER.select_ra_from_db_sql(sito,area,us)
+        search_dict = {
+            'area': "'" + str(self.comboBox_area.currentText()) + "'",
+            'sito': "'" +str(self.comboBox_sito.currentText()) + "'",
+            'us': "'" + str(self.lineEdit_us.text()) + "'"
+        }
+        inv_vl = self.DB_MANAGER.query_bool(search_dict,'INVENTARIO_MATERIALI')
         inv_list = []
         for i in range(len(inv_vl)):
             inv_list.append(str(inv_vl[i].n_reperto))
@@ -958,13 +958,13 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
         sito = str(self.comboBox_sito.currentText())
         area = str(self.comboBox_area.currentText())
         us = str(self.lineEdit_us.text())
-        # search_dict = {
-            # 'scavo_s': "'" + sito + "'",
-            # 'area_s': "'" + area + "'",
-            # 'us_s': "'" + us + "'"
+        search_dict = {
+            'scavo_s': "'" + sito + "'",
+            'area_s': "'" + area + "'",
+            'us_s': "'" + us + "'"
             
-        # }
-        geometry_vl = self.DB_MANAGER.select_coord_from_db_sql(sito,area,us)
+        }
+        geometry_vl = self.DB_MANAGER.query_bool(search_dict,'PYUS')
         geometry_list = []
         
         for i in range(len(geometry_vl)):
