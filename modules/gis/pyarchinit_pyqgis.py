@@ -1833,6 +1833,81 @@ class Pyarchinit_pyqgis(QDialog):
            
             else:
                 QMessageBox.warning(self, "TESTER", "OK Layer not valid", QMessageBox.Ok)
+    
+    def charge_tomba_layers(self, data):
+        # Clean Qgis Map Later Registry
+        # QgsProject.instance().removeAllMapLayers()
+        # Get the user input, starting with the table name
+
+        # self.find_us_cutted(data)
+
+        cfg_rel_path = os.path.join(os.sep, 'pyarchinit_DB_folder', 'config.cfg')
+        file_path = '{}{}'.format(self.HOME, cfg_rel_path)
+        conf = open(file_path, "r")
+        con_sett = conf.read()
+        conf.close()
+
+        settings = Settings(con_sett)
+        settings.set_configuration()
+        
+        if self.L=='it':
+            name_layer='Tomba view'
+        elif self.L=='de':
+            name_layer='ArtefaKt view'
+        else:
+            name_layer='Artefact view'
+        if settings.SERVER == 'sqlite':
+            sqliteDB_path = os.path.join(os.sep, 'pyarchinit_DB_folder', settings.DATABASE)
+            db_file_path = '{}{}'.format(self.HOME, sqliteDB_path)
+
+            gidstr = "nr_scheda_taf = '" + str(data[0].nr_scheda_taf) + "'"
+            if len(data) > 1:
+                for i in range(len(data)):
+                    gidstr += " OR nr_scheda_taf = '" + str(data[i].nr_scheda_taf) + "'"
+
+            uri = QgsDataSourceUri()
+            uri.setDatabase(db_file_path)
+
+            uri.setDataSource('', 'pyarchinit_tomba_view', 'the_geom', gidstr, "ROWID")
+            layerUS = QgsVectorLayer(uri.uri(), name_layer, 'spatialite')
+
+            if layerUS.isValid():
+                QMessageBox.warning(self, "TESTER", "OK Layer US valido", QMessageBox.Ok)
+
+                
+
+                
+                QgsProject.instance().addMapLayers([layerUS], True)
+            else:
+                QMessageBox.warning(self, "TESTER", "OK Layer not valid", QMessageBox.Ok)    
+            
+
+        elif settings.SERVER == 'postgres':
+
+            uri = QgsDataSourceUri()
+            # set host name, port, database name, username and password
+
+            uri.setConnection(settings.HOST, settings.PORT, settings.DATABASE, settings.USER, settings.PASSWORD)
+
+            gidstr = id_us = "nr_scheda_taf = " + str(data[0].nr_scheda_taf)
+            if len(data) > 1:
+                for i in range(len(data)):
+                    gidstr += " OR nr_scheda_taf = " + str(data[i].nr_scheda_taf)
+
+            srs = QgsCoordinateReferenceSystem(self.SRS, QgsCoordinateReferenceSystem.PostgisCrsId)
+
+            uri.setDataSource("public", "pyarchinit_tomba_view", "the_geom", gidstr, "gid")
+            layerUS = QgsVectorLayer(uri.uri(), name_layer, "postgres")
+
+            if layerUS.isValid():
+                layerUS.setCrs(srs)
+                
+               
+                QgsProject.instance().addMapLayers([layerUS], True)
+           
+            else:
+                QMessageBox.warning(self, "TESTER", "OK Layer not valid", QMessageBox.Ok)
+    
     def charge_structure_from_research(self, data):
         # Clean Qgis Map Later Registry
         # QgsProject.instance().removeAllMapLayers()
