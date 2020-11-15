@@ -12,7 +12,7 @@
 name=pyArchInit
 qgisMinimumVersion=3.0
 description=pyarchinit an tool for archaeological works
-version=2.0.4
+version=2.0.5
 author=Luca Mandolesi&Enzo Cocca
 email=pyarchinit@gmail.com
 
@@ -23,7 +23,11 @@ repository=https://github.com/pyarchinit/pyarchinit
 
 
 
-changelog=release2.0.4:
+changelog=release2.0.5:
+        -update pyqgis layer tomba
+   -------------------------------------------------------------------------------
+
+   release2.0.4:
         -update pyqgis layer tomba
    -------------------------------------------------------------------------------
    release2.0.3:
