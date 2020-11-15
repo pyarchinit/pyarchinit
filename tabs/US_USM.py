@@ -764,9 +764,11 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
         self.comboBox_per_iniz.currentIndexChanged.connect(self.charge_datazione_list)
         self.comboBox_fas_iniz.currentIndexChanged.connect(self.charge_datazione_list)
         self.comboBox_sito.currentTextChanged.connect(self.geometry_unitastratigrafiche)### rallenta molto
+        
         self.comboBox_sito.currentIndexChanged.connect(self.geometry_unitastratigrafiche)### rallenta molto
-        self.comboBox_sito.currentTextChanged.connect(self.insert_ra)
-        self.comboBox_sito.currentIndexChanged.connect(self.insert_ra)
+        self.comboBox_per_iniz.currentIndexChanged.connect(self.charge_insert_ra)
+        #self.comboBox_sito.currentTextChanged.connect(self.charge_insert_ra)
+        #self.charge_insert_ra()
         self.search_1.textChanged.connect(self.update_filter)
         self.comboBox_per_fin.currentIndexChanged.connect(self.charge_fase_fin_list)
         self.toolButton_pdfpath.clicked.connect(self.setPathpdf)
@@ -787,21 +789,23 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
         dialog.ui = Setting_Matrix()
         dialog.ui.setupUi(dialog)
         dialog.exec_()
-    def insert_ra(self):
-        area=str(self.comboBox_area.currentText())
-        sito=str(self.comboBox_sito.currentText())
-        us=str(self.lineEdit_us.text())
-        search_dict = {
-            'area': "'" + str(self.comboBox_area.currentText()) + "'",
+    def charge_insert_ra(self):
+        self.comboBox_ref_ra.update()
+        self.comboBox_ref_ra.clear()
+        us =str(self.lineEdit_us.text())
+        search_dict_inv = {
+            
             'sito': "'" +str(self.comboBox_sito.currentText()) + "'",
-            'us': "'" + str(self.lineEdit_us.text()) + "'"
+            'area': "'" + str(eval("self.DATA_LIST[int(self.REC_CORR)].area"))+ "'",
+            'us': "'" + str(eval("self.DATA_LIST[int(self.REC_CORR)].us"))+"'"
         }
-        inv_vl = self.DB_MANAGER.query_bool(search_dict,'INVENTARIO_MATERIALI')
+        inv_vl = self.DB_MANAGER.query_bool(search_dict_inv,'INVENTARIO_MATERIALI')
         inv_list = []
         for i in range(len(inv_vl)):
             inv_list.append(str(inv_vl[i].n_reperto))
+            inv_list.sort()
         try:
-            inv_vl.remove('') 
+            inv_vl.remove('')
         except :
             pass
         self.comboBox_ref_ra.clear()
@@ -812,7 +816,6 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
             if len(self.DATA_LIST) > 0:
                 try:
                     self.comboBox_ref_ra.setEditText(self.DATA_LIST[self.rec_num].ref_ra)
-                    self.comboBox_ref_ra.show()
                 except :
                     pass
     def listview_us(self):
@@ -959,9 +962,9 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
         area = str(self.comboBox_area.currentText())
         us = str(self.lineEdit_us.text())
         search_dict = {
-            'scavo_s': "'" + sito + "'",
-            'area_s': "'" + area + "'",
-            'us_s': "'" + us + "'"
+            'scavo_s': "'" +str(self.comboBox_sito.currentText()) + "'",
+            'area_s': "'" + str(eval("self.DATA_LIST[int(self.REC_CORR)].area")) + "'",
+            'us_s': "'" + str(eval("self.DATA_LIST[int(self.REC_CORR)].us"))+"'"
             
         }
         geometry_vl = self.DB_MANAGER.query_bool(search_dict,'PYUS')
@@ -3136,7 +3139,7 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
                 self.label_status.setText(self.STATUS_ITEMS[self.BROWSE_STATUS])
                 self.empty_fields_nosite()
                 
-                self.setComboBoxEditable(["self.comboBox_area"], 0)
+                self.setComboBoxEditable(["self.comboBox_area"], 1)
                 self.setComboBoxEditable(["self.comboBox_unita_tipo"], 1)
                 self.setComboBoxEnable(["self.comboBox_sito"], "False")
                 self.setComboBoxEnable(["self.comboBox_area"], "True")
@@ -3152,8 +3155,8 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
                 self.BROWSE_STATUS = "n"
                 self.label_status.setText(self.STATUS_ITEMS[self.BROWSE_STATUS])
                 self.empty_fields()
-                self.setComboBoxEditable(["self.comboBox_sito"], 0)
-                self.setComboBoxEditable(["self.comboBox_area"], 0)
+                self.setComboBoxEditable(["self.comboBox_sito"], 1)
+                self.setComboBoxEditable(["self.comboBox_area"], 1)
                 self.setComboBoxEditable(["self.comboBox_unita_tipo"], 1)
                 self.setComboBoxEnable(["self.comboBox_sito"], "True")
                 self.setComboBoxEnable(["self.comboBox_area"], "True")
@@ -4356,8 +4359,8 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
                     self.comboBox_formazione.setEditText("")
                     self.comboBox_metodo.setEditText("")
                     #self.setComboBoxEditable(["self.comboBox_sito"], 1)
-                    self.setComboBoxEditable(["self.comboBox_area"], 0)
-                    self.setComboBoxEditable(["self.comboBox_unita_tipo"], 0)
+                    self.setComboBoxEditable(["self.comboBox_area"], 1)
+                    self.setComboBoxEditable(["self.comboBox_unita_tipo"],1)
                     self.setComboBoxEnable(["self.comboBox_sito"], "False")
                     self.setComboBoxEnable(["self.comboBox_area"], "True")
                     self.setComboBoxEnable(["self.comboBox_unita_tipo"], "True")
@@ -4389,9 +4392,9 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
                     self.lineEdit_anno.setText("")
                     self.comboBox_formazione.setEditText("")
                     self.comboBox_metodo.setEditText("")
-                    self.setComboBoxEditable(["self.comboBox_sito"], 0)
-                    self.setComboBoxEditable(["self.comboBox_area"], 0)
-                    self.setComboBoxEditable(["self.comboBox_unita_tipo"], 0)
+                    self.setComboBoxEditable(["self.comboBox_sito"], 1)
+                    self.setComboBoxEditable(["self.comboBox_area"], 1)
+                    self.setComboBoxEditable(["self.comboBox_unita_tipo"], 1)
                     self.setComboBoxEnable(["self.comboBox_sito"], "True")
                     self.setComboBoxEnable(["self.comboBox_area"], "True")
                     self.setComboBoxEnable(["self.comboBox_unita_tipo"], "True")

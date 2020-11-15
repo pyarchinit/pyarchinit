@@ -909,7 +909,7 @@ class Pyarchinit_db_management(object):
     
     
     
-    def query_bool_special(self, params, table):
+    def query_bool(self, params, table):
         u = Utility()
         params = u.remove_empty_items_fr_dict(params)
 
@@ -930,10 +930,10 @@ class Pyarchinit_db_management(object):
                     field_value_string = field_value_string + "," + table + ".%s == %s" % (
                     list_keys_values[sing_couple_n][0], list_keys_values[sing_couple_n][1])
                 else:
-                    field_value_string = field_value_string + "," + table + ".%s.like(%s)" % (
+                    field_value_string = field_value_string + "," + table + ".%s == %s" % (
                     list_keys_values[sing_couple_n][0], list_keys_values[sing_couple_n][1])
 
-                    #field_value_string = ", ".join([table + ".%s.like(%s)" % (k, v) for k, v in params.items()])
+                    # field_value_string = ", ".join([table + ".%s == u%s" % (k, v) for k, v in params.items()])
 
         """
         Per poter utilizzare l'operatore LIKE è necessario fare una iterazione attraverso il dizionario per discriminare tra
