@@ -2078,7 +2078,7 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
                     test_per_iniz = data_list_toimp[sing_rec].periodo_iniziale
 
                     if test_per_iniz == "" or test_per_iniz == None:
-                        per_iniz = None
+                        per_iniz = ''
                     else:
                         per_iniz = int(data_list_toimp[sing_rec].periodo_iniziale)
 
@@ -2086,7 +2086,7 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
                     test_fas_iniz = data_list_toimp[sing_rec].fase_iniziale
 
                     if test_fas_iniz == "" or test_fas_iniz == None:
-                        fase_iniz = None
+                        fase_iniz = ''
                     else:
                         fase_iniz = int(data_list_toimp[sing_rec].fase_iniziale)
 
@@ -2094,7 +2094,7 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
                     test_per_fin = data_list_toimp[sing_rec].periodo_finale
 
                     if test_per_fin == "" or test_per_fin == None:
-                        per_fin = None
+                        per_fin = ''
                     else:
                         per_fin = int(data_list_toimp[sing_rec].periodo_finale)
 
@@ -2102,7 +2102,7 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
                     test_fas_fin = data_list_toimp[sing_rec].fase_finale
 
                     if test_fas_fin == "" or test_fas_fin == None:
-                        fase_fin = None
+                        fase_fin = ''
                     else:
                         fase_fin = int(data_list_toimp[sing_rec].fase_finale)
 
@@ -2113,10 +2113,10 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
                                                              id_table_class_mapper_conv_dict[mapper_class_write]) + 1,
                             str(data_list_toimp[sing_rec].sito),
                             str(data_list_toimp[sing_rec].area),
-                            int(data_list_toimp[sing_rec].nr_scheda_taf),
+                            str(data_list_toimp[sing_rec].nr_scheda_taf),
                             str(data_list_toimp[sing_rec].sigla_struttura),
-                            int(data_list_toimp[sing_rec].nr_struttura),
-                            int(data_list_toimp[sing_rec].nr_individuo),
+                            str(data_list_toimp[sing_rec].nr_struttura),
+                            str(data_list_toimp[sing_rec].nr_individuo),
                             str(data_list_toimp[sing_rec].rito),
                             str(data_list_toimp[sing_rec].descrizione_taf),
                             str(data_list_toimp[sing_rec].interpretazione_taf),
