@@ -403,7 +403,7 @@ class Pyarchinit_db_management(object):
                                                     arg[27],
                                                     arg[28],
                                                     arg[29],
-                                                    arg[30])
+                                                    arg[30],)
 
         return inventario_materiali
 
@@ -658,7 +658,7 @@ class Pyarchinit_db_management(object):
                               arg[22],
                               arg[23],
                               arg[24],
-                              arg[25])
+                              arg[25],)
 
         return tomba
 
@@ -1444,6 +1444,50 @@ class Pyarchinit_db_management(object):
             n_us += 1
         return
 
+    
+    def insert_number_of_us_records(self, sito, area, n_us, unita_tipo):
+        id_us = self.max_num_id('US', 'id_us')
+        
+        l=QgsSettings().value("locale/userLocale")[0:2]
+
+        
+        id_us += 1
+
+        data_ins = self.insert_values(id_us, sito, area, n_us, '', '', '', '', '', '', '', '', '', '', '', '', '[]',
+                                      '[]', '[]', '', '', '', '', '', '', '', '', '0', '[]', unita_tipo, '', '', '', '',
+                                      '', '', '', '', '', '', '', '', '', None, None, '', '[]','[]', '[]', '[]', '[]','','','','',None,None,'','','','','','','[]','[]',None,None,None,None,None,None,None,None,None,None,'','','','','','','','','','',None,None,None,'','','','','','','','','','','','','','','','','','','','','','','','','','','','')
+                                           
+        self.insert_data_session(data_ins)
+        
+        return
+    
+    def insert_number_of_reperti_records(self, sito, numero_invetario):
+        id_invmat = self.max_num_id('INVENTARIO_MATERIALI', 'id_invmat')
+        
+        l=QgsSettings().value("locale/userLocale")[0:2]
+
+        
+        id_invmat += 1
+
+        data_ins = self.insert_values_reperti(id_invmat, sito, numero_invetario, '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', None, None, '', None, '', '','0','')
+                                           
+        self.insert_data_session(data_ins)
+        
+        return
+    def insert_number_of_tomba_records(self, sito, nr_scheda_taf):
+        id_tomba = self.max_num_id('TOMBA', 'id_tomba')
+        
+        l=QgsSettings().value("locale/userLocale")[0:2]
+
+        
+        id_tomba += 1
+
+        data_ins = self.insert_values_tomba(id_tomba, sito, '', nr_scheda_taf, '', '', '', '', '', '', '', '', '', '', '', '', '','', '', '', '', '', '', '', '','')
+                                           
+        self.insert_data_session(data_ins)
+        
+        return
+    
     def select_like_from_db_sql(self, rapp_list, us_rapp_list):
         # this is a test
         pass
