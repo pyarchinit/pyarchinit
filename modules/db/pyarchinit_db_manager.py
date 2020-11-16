@@ -1473,6 +1473,7 @@ class Pyarchinit_db_management(object):
                                            
         self.insert_data_session(data_ins)
         
+        
         return
     def insert_number_of_tomba_records(self, sito, nr_scheda_taf):
         id_tomba = self.max_num_id('TOMBA', 'id_tomba')
