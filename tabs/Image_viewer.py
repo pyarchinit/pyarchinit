@@ -963,6 +963,7 @@ class Main(QDialog,MAIN_DIALOG_CLASS):
     def generate_US(self):
         tags_list = self.table2dict('self.tableWidgetTags_US')
         record_us_list = []
+        
         for sing_tags in tags_list:
             search_dict = {'sito': "'" + str(sing_tags[0]) + "'",
                            'area': "'" + str(sing_tags[1]) + "'",
@@ -970,8 +971,14 @@ class Main(QDialog,MAIN_DIALOG_CLASS):
                            }
             record_us_list.append(self.DB_MANAGER.query_bool(search_dict, 'US'))
         if not record_us_list[0]:
-            QMessageBox.warning(self, "Errore", "Scheda US non presente.", QMessageBox.Ok)
-            return
+            result=QMessageBox.warning(self, "Errore", "Scheda US non presente. Vuoi generala? Clicca ok oppure Annulla per abortire", QMessageBox.Ok|QMessageBox.Cancel)
+            if result==QMessageBox.Ok:
+                rs= self.DB_MANAGER.insert_number_of_us_records(str(sing_tags[0]),str(sing_tags[1]),str(sing_tags[2]),'US')
+                QMessageBox.information(self, "Scheda US", "US creata", QMessageBox.Ok)
+                return rs
+            else:
+                QMessageBox.information(self, "Scheda US", "Azione annullata", QMessageBox.Ok)
+                return
         us_list = []
         for r in record_us_list:
             us_list.append([r[0].id_us, 'US', 'us_table'])
@@ -998,8 +1005,14 @@ class Main(QDialog,MAIN_DIALOG_CLASS):
                            }
             record_rep_list.append(self.DB_MANAGER.query_bool(search_dict, 'INVENTARIO_MATERIALI'))
         if not record_rep_list[0]:
-            QMessageBox.warning(self, "Errore", "Scheda Inventario materiali non presente", QMessageBox.Ok)
-            return
+            result=QMessageBox.warning(self, "Errore", "Scheda Reperti non presente. Vuoi generala? Clicca ok oppure Annulla per abortire", QMessageBox.Ok|QMessageBox.Cancel)
+            if result==QMessageBox.Ok:
+                rs= self.DB_MANAGER.insert_number_of_reperti_records(str(sing_tags[0]),str(sing_tags[1]))
+                QMessageBox.information(self, "Scheda Reperti", "Reperti creata", QMessageBox.Ok)
+                return rs
+            else:
+                QMessageBox.information(self, "Scheda Reperti", "Azione annullata", QMessageBox.Ok)
+                return
         rep_list = []
         for r in record_rep_list:
             rep_list.append([r[0].id_invmat, 'REPERTO', 'inventario_materiali_table'])
@@ -1026,8 +1039,14 @@ class Main(QDialog,MAIN_DIALOG_CLASS):
                            }
             record_tmb_list.append(self.DB_MANAGER.query_bool(search_dict, 'TOMBA'))
         if not record_tmb_list[0]:
-            QMessageBox.warning(self, "Errore", "Scheda Tomba non presente", QMessageBox.Ok)
-            return
+            result=QMessageBox.warning(self, "Errore", "Scheda Tomba non presente. Vuoi generala? Clicca ok oppure Annulla per abortire", QMessageBox.Ok|QMessageBox.Cancel)
+            if result==QMessageBox.Ok:
+                rs= self.DB_MANAGER.insert_number_of_tomba_records(str(sing_tags[0]),str(sing_tags[1]))
+                QMessageBox.information(self, "Scheda Tomba", "Tomba creata", QMessageBox.Ok)
+                return rs
+            else:
+                QMessageBox.information(self, "Scheda Tomba", "Azione annullata", QMessageBox.Ok)
+                return
         tmb_list = []
         for r in record_tmb_list:
             tmb_list.append([r[0].id_tomba, 'TOMBA', 'tomba_table'])
