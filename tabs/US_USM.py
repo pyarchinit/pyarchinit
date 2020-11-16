@@ -4170,39 +4170,39 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
         self.checkBox_query.setChecked(False)
         if self.checkBox_query.isChecked():
             self.model_a.database().close()
-        if self.check_record_state() == 1:
-            pass
-        else:
-            try:
-                self.empty_fields()
-                self.REC_TOT, self.REC_CORR = len(self.DATA_LIST), 0
-                self.fill_fields(0)
-                self.set_rec_counter(self.REC_TOT, self.REC_CORR + 1)
-            except :
-                pass
+        # if self.check_record_state() == 1:
+            # pass
+        # else:
+            # try:
+            self.empty_fields()
+            self.REC_TOT, self.REC_CORR = len(self.DATA_LIST), 0
+            self.fill_fields(0)
+            self.set_rec_counter(self.REC_TOT, self.REC_CORR + 1)
+            # except :
+                # pass
     def on_pushButton_last_rec_pressed(self):
         self.checkBox_query.setChecked(False)
         if self.checkBox_query.isChecked():
             self.model_a.database().close()
-        if self.check_record_state() == 1:
-            pass
-        else:
-            try:
-                self.empty_fields()
-                self.REC_TOT, self.REC_CORR = len(self.DATA_LIST), len(self.DATA_LIST) - 1
-                self.fill_fields(self.REC_CORR)
-                self.set_rec_counter(self.REC_TOT, self.REC_CORR + 1)
-            except:
-                pass
+        # if self.check_record_state() == 1:
+            # pass
+        # else:
+            # try:
+            self.empty_fields()
+            self.REC_TOT, self.REC_CORR = len(self.DATA_LIST), len(self.DATA_LIST) - 1
+            self.fill_fields(self.REC_CORR)
+            self.set_rec_counter(self.REC_TOT, self.REC_CORR + 1)
+            # except:
+                # pass
     def on_pushButton_prev_rec_pressed(self):
         self.checkBox_query.setChecked(False)
         if self.checkBox_query.isChecked():
             self.model_a.database().close()
         rec_goto = int(self.lineEdit_goto.text())
-        if self.check_record_state() == 1:
-            pass
-        else:
-            self.REC_CORR = self.REC_CORR - rec_goto
+        # if self.check_record_state() == 1:
+            # pass
+        # else:
+        self.REC_CORR = self.REC_CORR - rec_goto
         if self.REC_CORR <= -1:
             self.REC_CORR = self.REC_CORR + rec_goto
             QMessageBox.warning(self, "Attenzione", "Numero troppo elevato!", QMessageBox.Ok)
@@ -4218,10 +4218,10 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
         if self.checkBox_query.isChecked():
             self.model_a.database().close()
         rec_goto = int(self.lineEdit_goto.text())
-        if self.check_record_state() == 1:
-            pass
-        else:
-            self.REC_CORR = self.REC_CORR + rec_goto
+        # if self.check_record_state() == 1:
+            # pass
+        # else:
+        self.REC_CORR = self.REC_CORR + rec_goto
         if self.REC_CORR >= self.REC_TOT:
             self.REC_CORR = self.REC_CORR - rec_goto
             QMessageBox.warning(self, "Attenzione", "Numero troppo elevato!", QMessageBox.Ok)
