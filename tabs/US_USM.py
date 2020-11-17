@@ -4167,11 +4167,11 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
         self.label_sort.setText(self.SORTED_ITEMS[self.SORT_STATUS])
         # records surf functions
     def on_pushButton_first_rec_pressed(self):
-        #self.check_record_state.update()
+        
         self.checkBox_query.setChecked(False)
         if self.checkBox_query.isChecked():
             self.model_a.database().close()
-        if self.check_record_state():
+        if self.check_record_state() == 1:
             pass
         else:
             try:
@@ -4185,7 +4185,7 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
         self.checkBox_query.setChecked(False)
         if self.checkBox_query.isChecked():
             self.model_a.database().close()
-        if self.check_record_state():
+        if self.check_record_state() == 1:
             pass
         else:
             try:
@@ -4200,7 +4200,7 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
         if self.checkBox_query.isChecked():
             self.model_a.database().close()
         rec_goto = int(self.lineEdit_goto.text())
-        if self.check_record_state():
+        if self.check_record_state() == 1:
             pass
         else:
             self.REC_CORR = self.REC_CORR - rec_goto
@@ -4219,7 +4219,7 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
         if self.checkBox_query.isChecked():
             self.model_a.database().close()
         rec_goto = int(self.lineEdit_goto.text())
-        if self.check_record_state():
+        if self.check_record_state() == 1:
             pass
         else:
             self.REC_CORR = self.REC_CORR + rec_goto
@@ -5617,7 +5617,7 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
     def set_LIST_REC_CORR(self):
         self.DATA_LIST_REC_CORR = []
         for i in self.TABLE_FIELDS:
-            self.DATA_LIST_REC_CORR.append(eval("str(self.DATA_LIST[self.REC_CORR]." + i + ")"))
+            self.DATA_LIST_REC_CORR.append(eval("unicode(self.DATA_LIST[self.REC_CORR]." + i + ")"))
     def records_equal_check(self):
         # self.set_sito()
         self.set_LIST_REC_TEMP()
