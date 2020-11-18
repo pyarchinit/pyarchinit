@@ -409,21 +409,9 @@ class DB_update(object):
             self.engine.execute("ALTER TABLE inventario_materiali_table ADD COLUMN diagnostico varchar(2)")
             self.engine.execute("update inventario_materiali_table set diagnostico = ''No")
         
-        ####pyunitastratigrafiche
-        table = Table("pyunitastratigrafiche", self.metadata, autoload=True)
-        table_column_names_list = []
-        for i in table.columns:
-            table_column_names_list.append(str(i.name))
-        if table_column_names_list.__contains__('rilievo_orginale'):
-            self.engine.execute("ALTER TABLE pyunitastratigrafiche RENAME COLUMN rilievo_orginale TO rilievo_originale")   
-        # if not table_column_names_list.__contains__('rilievo_originale'):
-            # self.engine.execute("ALTER TABLE pyunitastratigrafiche ADD COLUMN rilievo_originale varchar(250)")
-        if not table_column_names_list.__contains__('coord'):
-            self.engine.execute("ALTER TABLE pyunitastratigrafiche ADD COLUMN coord text")
         
-        if table_column_names_list.__contains__('id'):
-            self.engine.execute("ALTER TABLE pyunitastratigrafiche RENAME COLUMN id TO gid")
          
+        
         ####tomba_table
         table = Table("tomba_table", self.metadata, autoload=True)
         table_column_names_list = []
@@ -489,12 +477,32 @@ class DB_update(object):
         
         
         ####aggiornamento tabelle geografiche
-        try:
+        ####pyunitastratigrafiche
+        table = Table("pyunitastratigrafiche", self.metadata, autoload=True)
+        table_column_names_list = []
+        for i in table.columns:
+            table_column_names_list.append(str(i.name))
+        if table_column_names_list.__contains__('rilievo_orginale'):
+            self.engine.execute("ALTER TABLE pyunitastratigrafiche RENAME COLUMN rilievo_orginale TO rilievo_originale")   
+        
+        if not table_column_names_list.__contains__('coord'):
+            self.engine.execute("ALTER TABLE pyunitastratigrafiche ADD COLUMN coord text")
+        
+        if table_column_names_list.__contains__('id'):
+            self.engine.execute("ALTER TABLE pyunitastratigrafiche RENAME COLUMN id TO gid")
+
+        
+        table = Table("pyarchinit_strutture_ipotesi", self.metadata, autoload=True)
+        table_column_names_list = []
+        for i in table.columns:
+            table_column_names_list.append(str(i.name))
+        
+        if not table_column_names_list.__contains__('sigla_strut'):
+        
+            self.engine.execute( "ALTER TABLE pyarchinit_strutture_ipotesi ADD COLUMN sigla_strut varchar(3) DEFAULT 'NoD'")
+        if not table_column_names_list.__contains__('nr_strut'):
             self.engine.execute("ALTER TABLE pyarchinit_strutture_ipotesi ADD COLUMN nr_strut integer DEFAULT 0 ")
-            self.engine.execute(
-                "ALTER TABLE pyarchinit_strutture_ipotesi ADD COLUMN sigla_strut varchar(3) DEFAULT 'NoD'")
-        except:
-            pass
-            # verificare se aggiorna le tabelle con i campi nuovi
+        
+       
         
         
