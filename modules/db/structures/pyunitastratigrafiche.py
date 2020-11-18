@@ -35,8 +35,7 @@ class pyunitastratigrafiche:
                      Column('data', Text),  # 8
                      Column('tipo_doc', Text),  # 9
                      Column('nome_doc', Text),  # 10
-                     Column('coord', Text),  # 7
-                     Column('the_geom', Geometry('MULTIPOLYGON',-1)),
+                     Column('coord', Text),
                      # explicit/composite unique constraint.  'name' is optional.
                      UniqueConstraint('gid', name='ID_us_unico_s')
                      )

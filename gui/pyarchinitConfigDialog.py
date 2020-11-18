@@ -19,8 +19,8 @@
 /***************************************************************************/
 """
 from __future__ import absolute_import
-
-
+import sys
+import traceback
 import os
 import sqlite3
 import time
@@ -35,6 +35,7 @@ from ftplib import FTP
 import subprocess
 from geoalchemy2 import *
 from sqlalchemy.sql import select, func
+from geoalchemy2 import func as funcgeom
 from sqlalchemy import create_engine
 from sqlalchemy.dialects import postgresql
 from sqlalchemy.dialects.postgresql import insert
@@ -113,6 +114,7 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
         self.toolButton_db.clicked.connect(self.setPathDB)
         self.pushButtonR.clicked.connect(self.setPathR)
         self.pbnSaveEnvironPathR.clicked.connect(self.setEnvironPathR)
+        self.comboBox_server_rd.currentTextChanged.connect(self.geometry_conn)
         
         self.pushButton_import.clicked.connect(self.on_pushButton_import_pressed)
         self.graphviz_bin = s.value('pyArchInit/graphvizBinPath', None, type=str)
@@ -144,6 +146,12 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
         self.checkBox_ignore.stateChanged.connect(self.message)
         self.check()
         
+    def geometry_conn(self):
+        if self.comboBox_server_rd.currentText()!='sqlite':
+            self.pushButton_import_geometry.setEnabled(False)
+        else:
+            self.pushButton_import_geometry.setEnabled(True)
+    
     def message(self):
         if self.checkBox_ignore.isChecked():
             QMessageBox.warning(self, "Attenzione", 'Verranno copiati solo i dati nuovi', QMessageBox.Ok)
@@ -526,7 +534,7 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
                 else:
                     pass
             
-            
+                
                 self.try_connection()
             
         except Exception as e:
@@ -668,38 +676,88 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
             listen(engine, 'connect', self.load_spatialite)
             c = engine.connect()
             
-            sql_und = """CREATE TABLE IF NOT EXISTS"pyarchinit_us_negative_doc" (
+            sql_und = ("""CREATE TABLE IF NOT EXISTS "pyarchinit_us_negative_doc" (
                 "pkuid" integer PRIMARY KEY AUTOINCREMENT,
                 "sito_n" text,
                 "area_n" text,
                 "us_n" integer,
                 "tipo_doc_n" text,
-                "nome_doc_n" text, "the_geom" LINESTRING);"""
+                "nome_doc_n" text);""")
             c.execute(sql_und)
-            c.execute(select([func.AddGeometryColumn('pyarchinit_us_negative_doc', 'the_geom', -1, 'LINESTRING', 'XY')]))
-            c.execute(select([func.CreateSpatialIndex('pyarchinit_us_negative_doc', 'the_geom')]))
+            sql_und_geom = """ select AddGeometryColumn('pyarchinit_us_negative_doc', 'the_geom',"""+ self.lineEdit_crs.text()+""" ,'LINESTRING', 'XY'); """
+            c.execute(sql_und_geom)
+            sql_und_geom_spatial =""" select CreateSpatialIndex('pyarchinit_us_negative_doc', 'the_geom');"""
+            c.execute(sql_und_geom_spatial)
             
             sql_drop_view_doc= """DROP view if EXISTS pyarchinit_doc_view;"""
             c.execute(sql_drop_view_doc)
             
             
-            sql_doc = """CREATE TABLE IF NOT EXISTS"pyarchinit_documentazione" (
+            sql_doc = ("""CREATE TABLE IF NOT EXISTS "pyarchinit_documentazione" (
                 "pkuid" integer PRIMARY KEY AUTOINCREMENT,
                 "sito" text,
                 "nome_doc" text,
                 "tipo_doc" text,
-                "path_qgis_pj" text, "the_geom" LINESTRING);"""
+                "path_qgis_pj" text);""")
             c.execute(sql_doc)
-            c.execute(select([func.AddGeometryColumn('pyarchinit_documentazione', 'the_geom', -1, 'LINESTRING', 'XY')]))
-            c.execute(select([func.CreateSpatialIndex('pyarchinit_documentazione', 'the_geom')]))
-                
-            sql_rep = """CREATE TABLE if not exists "pyarchinit_reperti" ("ROWIND" INTEGER PRIMARY KEY AUTOINCREMENT, "id_rep" INTEGER, "siti" TEXT, "link" TEXT);"""
-            c.execute(sql_rep)
-            #c.connect(db_path)
-            c.execute(select([func.AddGeometryColumn('pyarchinit_reperti', 'the_geom', -1, 'POINT', 'XY')]))
-            c.execute(select([func.CreateSpatialIndex('pyarchinit_reperti', 'the_geom')]))
+            sql_doc_geom = """ select AddGeometryColumn('pyarchinit_documentazione', 'the_geom',"""+ self.lineEdit_crs.text()+""" ,'LINESTRING', 'XY'); """
+            c.execute(sql_doc_geom)
+            sql_doc_geom_spatial =""" select CreateSpatialIndex('pyarchinit_documentazione', 'the_geom');"""
+            c.execute(sql_doc_geom_spatial)
             
-            sql_view_ndv="""CREATE VIEW IF NOT EXISTS"pyarchinit_us_negative_doc_view" AS
+            ad = ("""CREATE TRIGGER IF NOT EXISTS "ggi_pyarchinit_documentazione_the_geom" BEFORE INSERT ON "pyarchinit_documentazione"
+            FOR EACH ROW BEGIN
+            SELECT RAISE(ROLLBACK, 'pyarchinit_documentazione.the_geom violates Geometry constraint [geom-type or SRID not allowed]')
+            WHERE (SELECT type FROM geometry_columns
+            WHERE f_table_name = 'pyarchinit_documentazione' AND f_geometry_column = 'the_geom'
+            AND GeometryConstraints(NEW."the_geom", type, srid, 'XY') = 1) IS NULL;
+            END;  """)
+            bd = ("""CREATE TRIGGER IF NOT EXISTS "ggu_pyarchinit_documentazione_the_geom" BEFORE UPDATE ON "pyarchinit_documentazione"
+            FOR EACH ROW BEGIN
+            SELECT RAISE(ROLLBACK, 'pyarchinit_documentazione.the_geom violates Geometry constraint [geom-type or SRID not allowed]')
+            WHERE (SELECT type FROM geometry_columns
+            WHERE f_table_name = 'pyarchinit_documentazione' AND f_geometry_column = 'the_geom'
+            AND GeometryConstraints(NEW."the_geom", type, srid, 'XY') = 1) IS NULL;
+            END;  """)
+            ccd=(""" CREATE TRIGGER IF NOT EXISTS "gii_pyarchinit_documentazione_the_geom" AFTER INSERT ON "pyarchinit_documentazione"
+            FOR EACH ROW BEGIN
+            DELETE FROM "idx_pyarchinit_documentazione_the_geom" WHERE pkid=NEW.ROWID;
+            SELECT RTreeAlign('idx_pyarchinit_documentazione_the_geom', NEW.ROWID, NEW."the_geom");
+            END; """)
+            dd = ("""CREATE TRIGGER IF NOT EXISTS "giu_pyarchinit_documentazione_the_geom" AFTER UPDATE ON "pyarchinit_documentazione"
+            FOR EACH ROW BEGIN
+            DELETE FROM "idx_pyarchinit_documentazione_the_geom" WHERE pkid=NEW.ROWID;
+            SELECT RTreeAlign('idx_pyarchinit_documentazione_the_geom', NEW.ROWID, NEW."the_geom");
+            END;  """)
+            ed=(""" CREATE TRIGGER  IF NOT EXISTS "gid_pyarchinit_documentazione_the_geom" AFTER DELETE ON "pyarchinit_documentazione"
+            FOR EACH ROW BEGIN
+            DELETE FROM "idx_pyarchinit_documentazione_the_geom" WHERE pkid=OLD.ROWID;
+            END; """)
+            c.execute(ad)
+            c.execute(bd)
+            c.execute(ccd)
+            c.execute(dd)
+            c.execute(ed)
+
+
+
+
+
+
+
+            
+            sql_rep = ("""CREATE TABLE if not exists "pyarchinit_reperti" (
+            "ROWIND" INTEGER PRIMARY KEY AUTOINCREMENT, 
+            "id_rep" INTEGER, 
+            "siti" TEXT, 
+            "link" TEXT);""")
+            c.execute(sql_rep)
+            sql_rep_geom = """ select AddGeometryColumn('pyarchinit_reperti', 'the_geom',"""+ self.lineEdit_crs.text()+""" ,'POINT', 'XY'); """
+            c.execute(sql_rep_geom)
+            sql_rep_geom_spatial =""" select CreateSpatialIndex('pyarchinit_reperti', 'the_geom');"""
+            c.execute(sql_rep_geom_spatial)
+            
+            sql_view_ndv=("""CREATE VIEW IF NOT EXISTS "pyarchinit_us_negative_doc_view" AS
                 SELECT "a"."ROWID" AS "ROWID", "a"."pkuid" AS "pkuid",
                 "a"."sito_n" AS "sito_n", "a"."area_n" AS "area_n",
                 "a"."us_n" AS "us_n", "a"."tipo_doc_n" AS "tipo_doc_n",
@@ -721,14 +779,14 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
                 "b"."order_layer" AS "order_layer", "b"."documentazione" AS "documentazione"
                 FROM "pyarchinit_us_negative_doc" AS "a"
                 JOIN "us_table" AS "b" ON ("a"."sito_n" = "b"."sito" AND "a"."area_n" = "b"."area"
-                AND "a"."us_n" = "b"."us");"""
+                AND "a"."us_n" = "b"."us");""")
             c.execute(sql_view_ndv)
-            sql_view_ndv_geom= """INSERT OR REPLACE INTO views_geometry_columns
+            sql_view_ndv_geom= ("""INSERT OR REPLACE INTO views_geometry_columns
                     (view_name, view_geometry, view_rowid, f_table_name, f_geometry_column)
-                    VALUES ('pyarchinit_us_negative_doc_view', 'the_geom', 'ROWID', 'pyarchinit_us_negative_doc', 'the_geom')"""  
+                    VALUES ('pyarchinit_us_negative_doc_view', 'the_geom', 'ROWID', 'pyarchinit_us_negative_doc', 'the_geom')""")  
             c.execute(sql_view_ndv_geom)
             
-            sql_doc_view= """CREATE VIEW IF NOT EXISTS"pyarchinit_doc_view" AS
+            sql_doc_view= ("""CREATE VIEW IF NOT EXISTS "pyarchinit_doc_view" AS
                     SELECT "a"."ROWID" AS "ROWID", "a"."id_documentazione" AS "id_documentazione",
                     "a"."sito" AS "sito", "a"."nome_doc" AS "nome_doc",
                     "a"."data" AS "data", "a"."tipo_documentazione" AS "tipo_documentazione",
@@ -740,11 +798,11 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
                     "b"."the_geom" AS "the_geom"
                     FROM "documentazione_table" AS "a"
                     JOIN "pyarchinit_documentazione" AS "b" ON ("a"."sito" = "b"."sito" AND "a"."nome_doc" = "b"."nome_doc"
-                    AND "a"."tipo_documentazione" = "b"."tipo_doc");"""
+                    AND "a"."tipo_documentazione" = "b"."tipo_doc");""")
             c.execute(sql_doc_view)
-            sql_view_doc_geom ="""INSERT OR REPLACE INTO views_geometry_columns
+            sql_view_doc_geom = ("""INSERT OR REPLACE INTO views_geometry_columns
                     (view_name, view_geometry, view_rowid, f_table_name, f_geometry_column)
-                    VALUES ('pyarchinit_doc_view', 'the_geom', 'rowid', 'pyarchinit_documentazione', 'the_geom')"""
+                    VALUES ('pyarchinit_doc_view', 'the_geom', 'rowid', 'pyarchinit_documentazione', 'the_geom')""")
             c.execute(sql_view_doc_geom)
             
             sql_drop_view_test_b= """DROP view if EXISTS test_b_view;"""
@@ -755,21 +813,12 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
             
             sql_drop_view_nuova= """DROP view if EXISTS nuova;"""
             c.execute(sql_drop_view_nuova)
-            # check_table = ("""SELECT 
-                                # name
-                            # FROM 
-                                # sqlite_master 
-                            # WHERE 
-                                # type ='table' and 
-                                # name = 'mediaentity_view';)""")
-            # c.execute(check_table)
-            # if bool(check_table):
+            
             try:
                 
                 sql_drop_view= """DROP table if EXISTS mediaentity_view;"""
                 c.execute(sql_drop_view)
-                #c.close()
-            
+                
             except:
                 pass
             
@@ -790,9 +839,6 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
             c.execute(sql_drop_trigger_4)
             sql_alter= """alter table media_thumb_table rename to temp_media_thumb;"""
             c.execute(sql_alter)
-            
-            # sql_drop_media_thumb_table="""DROP TABLE media_thumb_table;"""
-            # c.execute(sql_drop_media_thumb_table)
             
             sql_media_thumb="""CREATE TABLE media_thumb_table (id_media_thumb INTEGER NOT NULL, id_media INTEGER, mediatype TEXT, media_filename TEXT, media_thumb_filename TEXT, filetype VARCHAR(10), filepath TEXT, path_resize TEXT, PRIMARY KEY (id_media_thumb), CONSTRAINT "ID_media_thumb_unico" UNIQUE (media_thumb_filename) )"""
             c.execute(sql_media_thumb)
@@ -900,15 +946,16 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
             sql_alter_table_pyus=(
             """ALTER TABLE pyunitastratigrafiche rename TO pyunitastratigrafiche_old;""")
             c.execute(sql_alter_table_pyus)
-            c.execute(select([func.AddGeometryColumn('pyunitastratigrafiche_old', 'the_geom', self.lineEdit_crs.text(), 'MULTIPOLYGON', 'XY')]))
-            c.execute(select([func.CreateSpatialIndex('pyunitastratigrafiche_old', 'the_geom')]))
+            sql_pyusold_geom = """ select AddGeometryColumn('pyunitastratigrafiche_old', 'the_geom',"""+ self.lineEdit_crs.text()+""" ,'MULTIPOLYGON', 'XY'); """
+            c.execute(sql_pyusold_geom)
+            sql_pyusold_geom_spatial =""" select CreateSpatialIndex('pyunitastratigrafiche_old', 'the_geom');"""
+            c.execute(sql_pyusold_geom_spatial)
             sql_alter_table_us=( 
             """CREATE TABLE if not exists pyunitastratigrafiche (
             "gid" integer PRIMARY KEY AUTOINCREMENT,
             "area_s" integer,
             "scavo_s" text,
-            "us_s" integer,
-            
+            "us_s" integer,            
             "stratigraph_index_us" integer,
             "tipo_us_s" text,
             "rilievo_originale" text,
@@ -916,11 +963,12 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
             "data" date,
             "tipo_doc" text,
             "nome_doc" text,
-            "coord" text,
-            "the_geom" MULTIPOLYGON); """ )
+            "coord" text); """ )
             c.execute(sql_alter_table_us)
-            c.execute(select([func.AddGeometryColumn('pyunitastratigrafiche', 'the_geom', self.lineEdit_crs.text(), 'MULTIPOLYGON', 'XY')]))
-            c.execute(select([func.CreateSpatialIndex('pyunitastratigrafiche', 'the_geom')]))
+            sql_pyus_geom = """ select AddGeometryColumn('pyunitastratigrafiche', 'the_geom',"""+ self.lineEdit_crs.text()+""" ,'MULTIPOLYGON', 'XY'); """
+            c.execute(sql_pyus_geom)
+            sql_pyus_geom_spatial =""" select CreateSpatialIndex('pyunitastratigrafiche', 'the_geom');"""
+            c.execute(sql_pyus_geom_spatial)
             try:
                 select_gid=("""select id from pyunitastratigrafiche_old;""")
                 
@@ -1354,17 +1402,12 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
         conn = Connection()
         conn_str = conn.conn_str()
         
-        
-        
-        self.DB_MANAGER = Pyarchinit_db_management(
-            conn_str)  # sqlite:///\Users\Windows\pyarchinit_DB_folder\pyarchinit_db.sqlite
-        
+        self.DB_MANAGER = Pyarchinit_db_management(conn_str) 
         test = self.DB_MANAGER.connection()
-        #self.charge_list()
         
         if self.L=='it':
             if test:
-                QMessageBox.warning(self, "Messaggio", "Connessione avvenuta con successo", QMessageBox.Ok)
+                QMessageBox.information(self, "Messaggio", "Connessione avvenuta con successo", QMessageBox.Ok)
                 self.pushButton_upd_postgres.setEnabled(False)
                 self.pushButton_upd_sqlite.setEnabled(False)
             else:
@@ -1381,6 +1424,7 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
                     self.pushButton_upd_sqlite.setEnabled(False)
                     self.pushButton_upd_postgres.setEnabled(True)
                 self.comboBox_sito.clear()
+                
                 QMessageBox.warning(self, "Alert", "Errore di connessione: <br>" +
                     "Cambia i parametri e riprova a connetterti. Oppure aggiorna il database con l'apposita funzione che trovi in basso a sinistra",
                                     QMessageBox.Ok)
@@ -1457,10 +1501,21 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
         else:    
             if self.L=='it':
                 id_table_class_mapper_conv_dict = {
-                    'PYUS':'gid'
-                    
+                    'PYSITO_POINT': 'id',
+                    'PYSITO_POLYGON':'pkuid',
+                    'PYUS':'gid',
+                    'PYQUOTE':'id',
+                    'PYUS_NEGATIVE':'pkuid',
+                    'PYSTRUTTURE':'id',
+                    'PYREPERTI':'ROWIND',
+                    'PYINDIVIDUI':'id' ,
+                    'PYCAMPIONI':'id',
+                    'PYTOMBA':'id_tafonomia_pk',
+                    'PYDOCUMENTAZIONE':'pkuid' ,
+                    'PYLINEERIFERIMENTO':'id',
+                    'PYRIPARTIZIONI_SPAZIALI':'id',
+                    'PYSEZIONI':'id'
                 }
-    
             ####RICAVA I DATI IN LETTURA PER LA CONNESSIONE DALLA GUI
             conn_str_dict_read = {
                 "server": str(self.comboBox_server_rd.currentText()),
@@ -1472,7 +1527,6 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
             }
             ####CREA LA STRINGA DI CONNESSIONE IN LETTURA
             if conn_str_dict_read["server"] == 'postgres':
-                
                 try:
                     conn_str_read = "%s://%s:%s@%s:%s/%s%s?charset=utf8" % (
                         "postgresql", conn_str_dict_read["user"], conn_str_dict_read["password"],
@@ -1483,45 +1537,31 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
                         "postgresql", conn_str_dict_read["user"], conn_str_dict_read["password"],
                         conn_str_dict_read["host"],
                         conn_str_dict_read["port"], conn_str_dict_read["db_name"])
-            
-            
-            
             elif conn_str_dict_read["server"] == 'sqlite':
-                
                 sqlite_DB_path = '{}{}{}'.format(self.HOME, os.sep,
-                                                 "pyarchinit_DB_folder")  # "C:\\Users\\Windows\\Dropbox\\pyarchinit_san_marco\\" fare modifiche anche in pyarchinit_pyqgis
+                                                 "pyarchinit_DB_folder")  
                 dbname_abs = sqlite_DB_path + os.sep + conn_str_dict_read["db_name"]
                 conn_str_read = "%s:///%s" % (conn_str_dict_read["server"], dbname_abs)
                 QMessageBox.warning(self, "Alert", str(conn_str_dict_read["db_name"]), QMessageBox.Ok)
             ####SI CONNETTE AL DATABASE
             self.DB_MANAGER_read = Pyarchinit_db_management(conn_str_read)
-            
             test = self.DB_MANAGER_read.connection()
-            
             if test:
                 QMessageBox.warning(self, "Message", "Connection ok", QMessageBox.Ok)
             else:
                 QMessageBox.warning(self, "Alert", "Connection error: <br>", QMessageBox.Cancel)
-            """elif test.find("create_engine") != -1:
-                #QMessageBox.warning(self, "Alert",
-                                    "Try connection parameter. <br> If they are correct restart QGIS",
-                                    QMessageBox.Ok)"""
-
-
+            
             ####LEGGE I RECORD IN BASE AL PARAMETRO CAMPO=VALORE
             search_dict = {
                 self.lineEdit_field_rd.text(): "'" + str(self.lineEdit_value_rd.text()) + "'"
             }
             mapper_class_read = str(self.comboBox_geometry_read.currentText())
             res_read = self.DB_MANAGER_read.query_bool(search_dict, mapper_class_read)
-
             ####INSERISCE I DATI DA UPLOADARE DENTRO ALLA LISTA DATA_LIST_TOIMP
             data_list_toimp = []
             for i in res_read:
                 data_list_toimp.append(i)
-
             QMessageBox.warning(self, "Total record to import", str(len(data_list_toimp)), QMessageBox.Ok)
-            
             ####RICAVA I DATI IN LETTURA PER LA CONNESSIONE DALLA GUI
             conn_str_dict_write = {
                 "server": str(self.comboBox_server_wt.currentText()),
@@ -1531,7 +1571,6 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
                 "port": str(self.lineEdit_port_wt.text()),
                 "db_name": str(self.lineEdit_database_wt.text())
             }
-
             ####CREA LA STRINGA DI CONNESSIONE IN LETTURA
             if conn_str_dict_write["server"] == 'postgres':
                 try:
@@ -1551,23 +1590,14 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
                 conn_str_write = "%s:///%s" % (conn_str_dict_write["server"], dbname_abs)
                 QMessageBox.warning(self, "Alert", str(conn_str_dict_write["db_name"]), QMessageBox.Ok)
             ####SI CONNETTE AL DATABASE IN SCRITTURA
-            
             self.DB_MANAGER_write = Pyarchinit_db_management(conn_str_write)
             test = self.DB_MANAGER_write.connection()
             test = str(test)
-            
-          
-            
             mapper_class_write = str(self.comboBox_geometry_read.currentText())
-            
-            
-
             ####inserisce i dati dentro al database
             ####PYUNITASTRATIGRAFICHE TABLE
             if mapper_class_write == 'PYUS' :
-                
                 for sing_rec in range(len(data_list_toimp)):
-                    
                     try:
                         data = self.DB_MANAGER_write.insert_pyus(
                             self.DB_MANAGER_write.max_num_id(mapper_class_write,
@@ -1584,22 +1614,280 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
                             data_list_toimp[sing_rec].nome_doc,
                             data_list_toimp[sing_rec].coord,
                             data_list_toimp[sing_rec].the_geom)
-                            
-                       
                         self.DB_MANAGER_write.insert_data_session(data)
-                        
                         value = (float(sing_rec)/float(len(data_list_toimp)))*100
                         self.progress_bar.setValue(value)
-                        
                         QApplication.processEvents()
-                        
                     except Exception as e :
-                        
                         QMessageBox.warning(self, "Errore", "Error ! \n"+ str(e),  QMessageBox.Ok)
                         return 0
                 self.progress_bar.reset()
                 QMessageBox.information(self, "Message", "Data Loaded")
-    
+            elif mapper_class_write == 'PYSITO_POINT' :
+                for sing_rec in range(len(data_list_toimp)):
+                    try:
+                        data = self.DB_MANAGER_write.insert_pysito_point(
+                            self.DB_MANAGER_write.max_num_id(mapper_class_write,
+                                                             id_table_class_mapper_conv_dict[mapper_class_write]) + 1,
+                            data_list_toimp[sing_rec].sito_nome,
+                            data_list_toimp[sing_rec].the_geom)
+                        self.DB_MANAGER_write.insert_data_session(data)
+                        value = (float(sing_rec)/float(len(data_list_toimp)))*100
+                        self.progress_bar.setValue(value)
+                        QApplication.processEvents()
+                    except Exception as e :
+                        QMessageBox.warning(self, "Errore", "Error ! \n"+ str(e),  QMessageBox.Ok)
+                        return 0
+                self.progress_bar.reset()
+                QMessageBox.information(self, "Message", "Data Loaded")
+            elif mapper_class_write == 'PYSITO_POLYGON' :
+                for sing_rec in range(len(data_list_toimp)):
+                    try:
+                        data = self.DB_MANAGER_write.insert_pysito_polygon(
+                            self.DB_MANAGER_write.max_num_id(mapper_class_write,
+                                                             id_table_class_mapper_conv_dict[mapper_class_write]) + 1,
+                            data_list_toimp[sing_rec].sito_id,
+                            data_list_toimp[sing_rec].the_geom)
+                        self.DB_MANAGER_write.insert_data_session(data)
+                        value = (float(sing_rec)/float(len(data_list_toimp)))*100
+                        self.progress_bar.setValue(value)
+                        QApplication.processEvents()
+                    except Exception as e :
+                        QMessageBox.warning(self, "Errore", "Error ! \n"+ str(e),  QMessageBox.Ok)
+                        return 0
+                self.progress_bar.reset()
+                QMessageBox.information(self, "Message", "Data Loaded")
+            elif mapper_class_write == 'PYQUOTE' :
+                for sing_rec in range(len(data_list_toimp)):
+                    try:
+                        data = self.DB_MANAGER_write.insert_pyquote(
+                            self.DB_MANAGER_write.max_num_id(mapper_class_write,
+                                                             id_table_class_mapper_conv_dict[mapper_class_write]) + 1,
+                            data_list_toimp[sing_rec].sito_q, 
+                            data_list_toimp[sing_rec].area_q ,
+                            data_list_toimp[sing_rec].us_q ,
+                            data_list_toimp[sing_rec].unita_misu_q ,
+                            data_list_toimp[sing_rec].quota_q ,
+                            data_list_toimp[sing_rec].data ,
+                            data_list_toimp[sing_rec].disegnatore ,
+                            data_list_toimp[sing_rec].rilievo_originale ,
+                            data_list_toimp[sing_rec].the_geom) 
+                        self.DB_MANAGER_write.insert_data_session(data)
+                        value = (float(sing_rec)/float(len(data_list_toimp)))*100
+                        self.progress_bar.setValue(value)
+                        QApplication.processEvents()
+                    except Exception as e :
+                        QMessageBox.warning(self, "Errore", "Error ! \n"+ str(e),  QMessageBox.Ok)
+                        return 0
+                self.progress_bar.reset()
+                QMessageBox.information(self, "Message", "Data Loaded")
+            elif mapper_class_write == 'PYUS_NEGATIVE' :
+                for sing_rec in range(len(data_list_toimp)):
+                    try:
+                        data = self.DB_MANAGER_write.insert_pyus_negative(
+                            self.DB_MANAGER_write.max_num_id(mapper_class_write,
+                                                             id_table_class_mapper_conv_dict[mapper_class_write]) + 1,
+                            data_list_toimp[sing_rec].sito_n ,
+                            data_list_toimp[sing_rec].area_n ,
+                            data_list_toimp[sing_rec].us_n ,
+                            data_list_toimp[sing_rec].tipo_doc_n ,
+                            data_list_toimp[sing_rec].nome_doc_n, 
+                            data_list_toimp[sing_rec].the_geom) 
+                        self.DB_MANAGER_write.insert_data_session(data)
+                        value = (float(sing_rec)/float(len(data_list_toimp)))*100
+                        self.progress_bar.setValue(value)
+                        QApplication.processEvents()
+                    except Exception as e :
+                        QMessageBox.warning(self, "Errore", "Error ! \n"+ str(e),  QMessageBox.Ok)
+                        return 0
+                self.progress_bar.reset()
+                QMessageBox.information(self, "Message", "Data Loaded")
+            elif mapper_class_write == 'PYSTRUTTURE' :
+                for sing_rec in range(len(data_list_toimp)):
+                    try:
+                        data = self.DB_MANAGER_write.insert_pystrutture(
+                            self.DB_MANAGER_write.max_num_id(mapper_class_write,
+                                                             id_table_class_mapper_conv_dict[mapper_class_write]) + 1,
+                            data_list_toimp[sing_rec].sito ,
+                            data_list_toimp[sing_rec].id_strutt ,
+                            data_list_toimp[sing_rec].per_iniz, 
+                            data_list_toimp[sing_rec].per_fin ,
+                            data_list_toimp[sing_rec].dataz_ext ,
+                            data_list_toimp[sing_rec].fase_iniz, 
+                            data_list_toimp[sing_rec].fase_fin ,
+                            data_list_toimp[sing_rec].descrizione, 
+                            data_list_toimp[sing_rec].the_geom ,
+                            data_list_toimp[sing_rec].sigla_strut, 
+                            data_list_toimp[sing_rec].nr_strut) 
+                        self.DB_MANAGER_write.insert_data_session(data)
+                        value = (float(sing_rec)/float(len(data_list_toimp)))*100
+                        self.progress_bar.setValue(value)
+                        QApplication.processEvents()
+                    except Exception as e :
+                        QMessageBox.warning(self, "Errore", "Error ! \n"+ str(e),  QMessageBox.Ok)
+                        return 0
+                self.progress_bar.reset()
+                QMessageBox.information(self, "Message", "Data Loaded")
+            elif mapper_class_write == 'PYREPERTI' :
+                for sing_rec in range(len(data_list_toimp)):
+                    try:
+                        data = self.DB_MANAGER_write.insert_pyreperti(
+                            self.DB_MANAGER_write.max_num_id(mapper_class_write,
+                                                             id_table_class_mapper_conv_dict[mapper_class_write]) + 1,
+                            data_list_toimp[sing_rec].id_rep ,
+                            data_list_toimp[sing_rec].siti ,
+                            data_list_toimp[sing_rec].link ,
+                            data_list_toimp[sing_rec].the_geom)
+                        self.DB_MANAGER_write.insert_data_session(data)
+                        value = (float(sing_rec)/float(len(data_list_toimp)))*100
+                        self.progress_bar.setValue(value)
+                        QApplication.processEvents()
+                    except Exception as e :
+                        QMessageBox.warning(self, "Errore", "Error ! \n"+ str(e),  QMessageBox.Ok)
+                        return 0
+                self.progress_bar.reset()
+                QMessageBox.information(self, "Message", "Data Loaded")
+            elif mapper_class_write == 'PYINDIVIDUI':
+                for sing_rec in range(len(data_list_toimp)):
+                    try:
+                        data = self.DB_MANAGER_write.insert_pyindividui(
+                            self.DB_MANAGER_write.max_num_id(mapper_class_write,
+                                                             id_table_class_mapper_conv_dict[mapper_class_write]) + 1,
+                            data_list_toimp[sing_rec].sito, 
+                            data_list_toimp[sing_rec].sigla_struttura, 
+                            data_list_toimp[sing_rec].note, 
+                            data_list_toimp[sing_rec].id_individuo, 
+                            data_list_toimp[sing_rec].the_geom)
+                        self.DB_MANAGER_write.insert_data_session(data)
+                        value = (float(sing_rec)/float(len(data_list_toimp)))*100
+                        self.progress_bar.setValue(value)
+                        QApplication.processEvents()
+                    except Exception as e :
+                        QMessageBox.warning(self, "Errore", "Error ! \n"+ str(e),  QMessageBox.Ok)
+                        return 0
+                self.progress_bar.reset()
+                QMessageBox.information(self, "Message", "Data Loaded")
+            elif mapper_class_write == 'PYCAMPIONI':
+                for sing_rec in range(len(data_list_toimp)):
+                    try:
+                        data = self.DB_MANAGER_write.insert_pycampioni(
+                            self.DB_MANAGER_write.max_num_id(mapper_class_write,
+                                                             id_table_class_mapper_conv_dict[mapper_class_write]) + 1,
+                            data_list_toimp[sing_rec].id_campion, 
+                            data_list_toimp[sing_rec].sito, 
+                            data_list_toimp[sing_rec].tipo_camp ,
+                            data_list_toimp[sing_rec].dataz ,
+                            data_list_toimp[sing_rec].cronologia ,
+                            data_list_toimp[sing_rec].link_immag, 
+                            data_list_toimp[sing_rec].sigla_camp ,
+                            data_list_toimp[sing_rec].the_geom) 
+                        self.DB_MANAGER_write.insert_data_session(data)
+                        value = (float(sing_rec)/float(len(data_list_toimp)))*100
+                        self.progress_bar.setValue(value)
+                        QApplication.processEvents()
+                    except Exception as e :
+                        QMessageBox.warning(self, "Errore", "Error ! \n"+ str(e),  QMessageBox.Ok)
+                        return 0
+                self.progress_bar.reset()
+                QMessageBox.information(self, "Message", "Data Loaded")
+            elif mapper_class_write == 'PYTOMBA':
+                for sing_rec in range(len(data_list_toimp)):
+                    try:
+                        data = self.DB_MANAGER_write.insert_pytomba(
+                            self.DB_MANAGER_write.max_num_id(mapper_class_write,
+                                                             id_table_class_mapper_conv_dict[mapper_class_write]) + 1,
+                            data_list_toimp[sing_rec].sito, 
+                            data_list_toimp[sing_rec].nr_scheda, 
+                            data_list_toimp[sing_rec].the_geom) 
+                        self.DB_MANAGER_write.insert_data_session(data)
+                        value = (float(sing_rec)/float(len(data_list_toimp)))*100
+                        self.progress_bar.setValue(value)
+                        QApplication.processEvents()
+                    except Exception as e :
+                        QMessageBox.warning(self, "Errore", "Error ! \n"+ str(e),  QMessageBox.Ok)
+                        return 0
+                self.progress_bar.reset()
+                QMessageBox.information(self, "Message", "Data Loaded")
+            elif mapper_class_write == 'PYDOCUMENTAZIONE':
+                for sing_rec in range(len(data_list_toimp)):
+                    try:
+                        data = self.DB_MANAGER_write.insert_pydocumentazione(
+                            self.DB_MANAGER_write.max_num_id(mapper_class_write,
+                                                             id_table_class_mapper_conv_dict[mapper_class_write]) + 1,
+                            data_list_toimp[sing_rec].sito, 
+                            data_list_toimp[sing_rec].nome_doc, 
+                            data_list_toimp[sing_rec].tipo_doc, 
+                            data_list_toimp[sing_rec].path_qgis_pj, 
+                            data_list_toimp[sing_rec].geom, 
+                            data_list_toimp[sing_rec].the_geom) 
+                        self.DB_MANAGER_write.insert_data_session(data)
+                        value = (float(sing_rec)/float(len(data_list_toimp)))*100
+                        self.progress_bar.setValue(value)
+                        QApplication.processEvents()
+                    except Exception as e :
+                        QMessageBox.warning(self, "Errore", "Error ! \n"+ str(e),  QMessageBox.Ok)
+                        return 0
+                self.progress_bar.reset()
+                QMessageBox.information(self, "Message", "Data Loaded")
+            elif mapper_class_write == 'PYLINEERIFERIMENTO':
+                for sing_rec in range(len(data_list_toimp)):
+                    try:
+                        data = self.DB_MANAGER_write.insert_pylineeriferimento(
+                            self.DB_MANAGER_write.max_num_id(mapper_class_write,
+                                                             id_table_class_mapper_conv_dict[mapper_class_write]) + 1,
+                            data_list_toimp[sing_rec].sito, 
+                            data_list_toimp[sing_rec].definizion ,
+                            data_list_toimp[sing_rec].descrizion, 
+                            data_list_toimp[sing_rec].the_geom) 
+                        self.DB_MANAGER_write.insert_data_session(data)
+                        value = (float(sing_rec)/float(len(data_list_toimp)))*100
+                        self.progress_bar.setValue(value)
+                        QApplication.processEvents()
+                    except Exception as e :
+                        QMessageBox.warning(self, "Errore", "Error ! \n"+ str(e),  QMessageBox.Ok)
+                        return 0
+                self.progress_bar.reset()
+                QMessageBox.information(self, "Message", "Data Loaded")
+            elif mapper_class_write == 'PYRIPARTIZIONI_SPAZIALI':
+                for sing_rec in range(len(data_list_toimp)):
+                    try:
+                        data = self.DB_MANAGER_write.insert_pyripartizioni_spaziali(
+                            self.DB_MANAGER_write.max_num_id(mapper_class_write,
+                                                             id_table_class_mapper_conv_dict[mapper_class_write]) + 1,
+                            data_list_toimp[sing_rec].id_rs, 
+                            data_list_toimp[sing_rec].sito_rs, 
+                            data_list_toimp[sing_rec].tip_rip, 
+                            data_list_toimp[sing_rec].descr_rs, 
+                            data_list_toimp[sing_rec].the_geom) 
+                        self.DB_MANAGER_write.insert_data_session(data)
+                        value = (float(sing_rec)/float(len(data_list_toimp)))*100
+                        self.progress_bar.setValue(value)
+                        QApplication.processEvents()
+                    except Exception as e :
+                        QMessageBox.warning(self, "Errore", "Error ! \n"+ str(e),  QMessageBox.Ok)
+                        return 0
+                self.progress_bar.reset()
+                QMessageBox.information(self, "Message", "Data Loaded")    
+            elif mapper_class_write == 'PYSEZIONI':
+                for sing_rec in range(len(data_list_toimp)):
+                    try:
+                        data = self.DB_MANAGER_write.insert_pysezioni(
+                            self.DB_MANAGER_write.max_num_id(mapper_class_write,
+                                                             id_table_class_mapper_conv_dict[mapper_class_write]) + 1,
+                            data_list_toimp[sing_rec].id_sezione, 
+                            data_list_toimp[sing_rec].sito, 
+                            data_list_toimp[sing_rec].area, 
+                            data_list_toimp[sing_rec].descr, 
+                            data_list_toimp[sing_rec].the_geom) 
+                        self.DB_MANAGER_write.insert_data_session(data)
+                        value = (float(sing_rec)/float(len(data_list_toimp)))*100
+                        self.progress_bar.setValue(value)
+                        QApplication.processEvents()
+                    except Exception as e :
+                        QMessageBox.warning(self, "Errore", "Error ! \n"+ str(e),  QMessageBox.Ok)
+                        return 0
+                self.progress_bar.reset()
+                QMessageBox.information(self, "Message", "Data Loaded")   
     def on_pushButton_import_pressed(self):
         msg = QMessageBox.warning(self, "Warning", "Il sistema aggiornerà la tabella con i dati importati. Se hai spuntato la casella <b>'Ignora'</b>, il db aggiornerà i dati vecchi con quelli nuovi, altrimenti li ignorerà. Schiaccia Annulla per abortire altrimenti schiaccia Ok per contiunuare." ,  QMessageBox.Ok  | QMessageBox.Cancel)
         if msg == QMessageBox.Cancel:
@@ -1621,7 +1909,8 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
                     'PYARCHINIT_THESAURUS_SIGLE': 'id_thesaurus_sigle',
                     'MEDIA': 'id_media',
                     'MEDIA_THUMB': 'id_media_thumb',
-                    'MEDIATOENTITY':'id_mediaToEntity'
+                    'MEDIATOENTITY':'id_mediaToEntity',
+                    'ALL':''
                     
                 }
             elif self.L=='de':
@@ -2472,33 +2761,11 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
                         return 0
                 self.progress_bar.reset()
                 QMessageBox.information(self, "Message", "Data Loaded")
-        #######################importa tutte le geometrie##########################################
-        # def on_pushButton_geometry_pressed (self):
-            # try:
-                # subprocess.check_output([
-                    # 'ogr2ogr',
-                    # '--config', 'PG_LIST_ALL_TABLES', 'YES',
-                    # '--config', 'PG_SKIP_VIEWS', 'YES',
-                    # '-f',
-                    # 'SQLITE',
-                    # "'{}'".format(self.lineEdit_database_wt),
-                    # '-progress',
-                    
-                    # "PG:host='{}' port={} dbname='{}' user='{} password='{}'".format(self.lineEdit_host_rd, self.lineEdit_port_rd, self.lineEdit_database_rd, self.lineEdit_username_rd, self.lineEdit_pass_rd),
-                    # '-lco',
-                    # 'LAUNDER=yes'
-                    # "SCHEMA={}".format('public'),
-                    # '-dsco',
-                    # 'SPATIALITE=yes',
-                    # '-lco',
-                    # 'SPATIAL_INDEX=yes'
-                    # ])
-            # except Exception as e :
-                        
-                # QMessageBox.warning(self, "Update error", str(e),  QMessageBox.Ok)
-                # return 0
-            # QMessageBox.information(self, "Message", "Data Loaded")
-    
+        
+        
+        
+        
+        
         
     def openthumbDir(self):
         s = QgsSettings()

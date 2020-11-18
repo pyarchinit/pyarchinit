@@ -43,6 +43,19 @@ from modules.db.entities.US import US
 from modules.db.entities.US_TOIMP import US_TOIMP
 from modules.db.entities.UT import UT
 from modules.db.entities.PYUS import PYUS
+from modules.db.entities.PYSITO_POINT import PYSITO_POINT
+from modules.db.entities.PYSITO_POLYGON import PYSITO_POLYGON
+from modules.db.entities.PYQUOTE import PYQUOTE
+from modules.db.entities.PYUS_NEGATIVE import PYUS_NEGATIVE
+from modules.db.entities.PYSTRUTTURE import PYSTRUTTURE
+from modules.db.entities.PYREPERTI import PYREPERTI
+from modules.db.entities.PYINDIVIDUI import PYINDIVIDUI
+from modules.db.entities.PYCAMPIONI import PYCAMPIONI
+from modules.db.entities.PYTOMBA import PYTOMBA
+from modules.db.entities.PYDOCUMENTAZIONE import PYDOCUMENTAZIONE
+from modules.db.entities.PYLINEERIFERIMENTO import PYLINEERIFERIMENTO
+from modules.db.entities.PYRIPARTIZIONI_SPAZIALI import PYRIPARTIZIONI_SPAZIALI
+from modules.db.entities.PYSEZIONI import PYSEZIONI
 from modules.db.structures.Archeozoology_table import Fauna
 from modules.db.structures.Campioni_table import Campioni_table
 from modules.db.structures.DETETA_table import DETETA_table
@@ -65,6 +78,19 @@ from modules.db.structures.US_table import US_table
 from modules.db.structures.US_table_toimp import US_table_toimp
 from modules.db.structures.UT_table import UT_table
 from modules.db.structures.pyunitastratigrafiche import pyunitastratigrafiche
+from modules.db.structures.pysito_point import pysito_point
+from modules.db.structures.pysito_polygon import pysito_polygon
+from modules.db.structures.pyquote import pyquote 
+from modules.db.structures.pyus_negative import pyus_negative
+from modules.db.structures.pystrutture import pystrutture
+from modules.db.structures.pyreperti import pyreperti
+from modules.db.structures.pyindividui import pyindividui
+from modules.db.structures.pycampioni import pycampioni
+from modules.db.structures.pytomba import pytomba
+from modules.db.structures.pydocumentazione import pydocumentazione
+from modules.db.structures.pylineeriferimento import pylineeriferimento
+from modules.db.structures.pyripartizioni_spaziali import pyripartizioni_spaziali
+from modules.db.structures.pysezioni import pysezioni
 
 try:
     # mapper
@@ -135,6 +161,46 @@ try:
     
     # mapper
     mapper(PYUS, pyunitastratigrafiche.pyunitastratigrafiche)
+    
+    # mapper
+    mapper(PYSITO_POINT, pysito_point.pysito_point)
+    
+    # mapper
+    mapper(PYSITO_POLYGON, pysito_polygon.pysito_polygon)
+    
+    # mapper
+    mapper(PYQUOTE, pyquote.pyquote)
+    
+    # mapper
+    mapper(PYUS_NEGATIVE, pyus_negative.pyus_negative)
+    
+    # mapper
+    mapper(PYSTRUTTURE, pystrutture.pystrutture)
+    
+    # mapper
+    mapper(PYREPERTI, pyreperti.pyreperti)
+    
+    # mapper
+    mapper(PYINDIVIDUI, pyindividui.pyindividui)
+    
+    # mapper
+    mapper(PYCAMPIONI, pycampioni.pycampioni)
+    
+    # mapper
+    mapper(PYTOMBA, pytomba.pytomba)
+    
+    # mapper
+    mapper(PYDOCUMENTAZIONE, pydocumentazione.pydocumentazione)
+    
+    # mapper
+    mapper(PYLINEERIFERIMENTO, pylineeriferimento.pylineeriferimento)
+    
+    # mapper
+    mapper(PYRIPARTIZIONI_SPAZIALI, pyripartizioni_spaziali.pyripartizioni_spaziali)
+    
+    # mapper
+    mapper(PYSEZIONI, pysezioni.pysezioni)
+    
 
 except:
     pass
