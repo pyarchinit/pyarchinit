@@ -155,13 +155,15 @@ class pyarchinit_pdf_export(QDialog, MAIN_DIALOG_CLASS):
 
     def on_pushButton_exp_pdf_pressed(self):
         sito = str(self.comboBox_sito.currentText())
-        printed = False
+        
         ####Esportazione della Scheda e indice US
+        
         if self.checkBox_US.isChecked():
 
             us_res = self.db_search_DB('US', 'sito', sito)
 
             if bool(us_res):
+                
                 id_list = []
                 for i in range(len(us_res)):
                     id_list.append(us_res[i].id_us)
@@ -173,6 +175,7 @@ class pyarchinit_pdf_export(QDialog, MAIN_DIALOG_CLASS):
                 if len(self.DATA_LIST) < 1:
                     QMessageBox.warning(self, "Alert", "No form to print, before you need fill it", QMessageBox.Ok)
                 else:
+                    
                     US_pdf_sheet = generate_US_pdf()
                     data_list = self.generate_list_US_pdf()
                     if self.L=='it':
@@ -184,11 +187,11 @@ class pyarchinit_pdf_export(QDialog, MAIN_DIALOG_CLASS):
                     else:
                         US_pdf_sheet.build_US_sheets_en(data_list)  # export sheet
                         US_pdf_sheet.build_index_US_en(data_list, data_list[0][0])  # export list   
-                        
+            
             if self.DATA_LIST:
                 printed = True
                 self.DATA_LIST = []
-
+        
         ####Esportazione della Scheda e indice Periodizzazione
         if self.checkBox_periodo.isChecked():
 
@@ -326,7 +329,7 @@ class pyarchinit_pdf_export(QDialog, MAIN_DIALOG_CLASS):
                 self.DATA_LIST = []
 
         
-        self.messageOnSuccess(printed)
+        #self.messageOnSuccess(printed)
         ####Esportazione della Scheda campioni
         if self.checkBox_campioni.isChecked():
             campioni_res = self.db_search_DB('CAMPIONI', 'sito', sito)
@@ -358,7 +361,7 @@ class pyarchinit_pdf_export(QDialog, MAIN_DIALOG_CLASS):
             if self.DATA_LIST:
                 printed = True
                 self.DATA_LIST = []
-        self.messageOnSuccess(printed)
+        #self.messageOnSuccess(printed)
         ####Esportazione della Scheda individui
         if self.checkBox_individui.isChecked():
             ind_res = self.db_search_DB('SCHEDAIND', 'sito', sito)
@@ -390,7 +393,7 @@ class pyarchinit_pdf_export(QDialog, MAIN_DIALOG_CLASS):
             if self.DATA_LIST:
                 printed = True
                 self.DATA_LIST = []
-        self.messageOnSuccess(printed)
+        #self.messageOnSuccess(printed)
         
     def db_search_DB(self, table_class, field, value):
         self.table_class = table_class
