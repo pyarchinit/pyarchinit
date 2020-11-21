@@ -1413,7 +1413,7 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
             if test:
                 QMessageBox.information(self, "Messaggio", "Connessione avvenuta con successo", QMessageBox.Ok)
                 self.pushButton_upd_postgres.setEnabled(False)
-                self.pushButton_upd_sqlite.setEnabled(False)
+                self.pushButton_upd_sqlite.setEnabled(True)
             else:
                 self.comboBox_Database.update()
                 self.comboBox_sito.clear()
