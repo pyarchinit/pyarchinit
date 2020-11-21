@@ -328,7 +328,7 @@ class pyarchinit_Images_directory_export(QDialog, MAIN_DIALOG_CLASS):
                         sing_US_path = ('%s%sStruttura - %s') % (sing_Fase_path , os.sep, sing_us_num)
                         self.OS_UTILITY.create_dir(sing_US_path)
 
-                        search_dict = {'id_entity': sing_s.id_struttura, 'entity_type': "'" + "ST" + "'"}
+                        search_dict = {'id_entity': sing_s.id_struttura, 'entity_type': "'" + "STRUTTURA" + "'"}
 
                         u = Utility()
                         search_dict = u.remove_empty_items_fr_dict(search_dict)
