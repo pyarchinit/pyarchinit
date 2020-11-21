@@ -1153,7 +1153,8 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
             "b"."uso_primario_usm" AS "uso_primario_usm"
             FROM "pyunitastratigrafiche" AS "a"
             JOIN "us_table" AS "b" ON ("a"."area_s" = "b"."area" AND "a"."scavo_s" = "b"."sito"
-            AND "a"."us_s" = "b"."us")""")
+            AND "a"."us_s" = "b"."us")
+            ORDER BY "b"."order_layer" asc ;""")
 
             
             c.execute(sql_view_us)
