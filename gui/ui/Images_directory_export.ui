@@ -149,7 +149,7 @@
            </property>
            <item>
             <property name="text">
-             <string>Tutte le immagini</string>
+             <string>Tutte le immagini \ in periodi e fasi</string>
             </property>
            </item>
            <item>
@@ -181,7 +181,7 @@
            </item>
            <item>
             <property name="text">
-             <string>Reperti / in periodi e fasi</string>
+             <string>Reperti \ in Definizione materiali</string>
             </property>
             <property name="icon">
              <iconset resource="../../resources/resources.qrc">
@@ -190,34 +190,7 @@
            </item>
            <item>
             <property name="text">
-             <string>Definizione materiali</string>
-            </property>
-            <property name="icon">
-             <iconset resource="../../resources/resources.qrc">
-              <normaloff>:/icons/pottery.png</normaloff>:/icons/pottery.png</iconset>
-            </property>
-           </item>
-           <item>
-            <property name="text">
-             <string>Definizione materiale / in periodi e fasi</string>
-            </property>
-            <property name="icon">
-             <iconset resource="../../resources/resources.qrc">
-              <normaloff>:/icons/pottery.png</normaloff>:/icons/pottery.png</iconset>
-            </property>
-           </item>
-           <item>
-            <property name="text">
-             <string>Tipo reperto</string>
-            </property>
-            <property name="icon">
-             <iconset resource="../../resources/resources.qrc">
-              <normaloff>:/icons/pottery.png</normaloff>:/icons/pottery.png</iconset>
-            </property>
-           </item>
-           <item>
-            <property name="text">
-             <string>Tipo reperto / in periodi e fasi</string>
+             <string>Reperti \ in Tipo reperto</string>
             </property>
             <property name="icon">
              <iconset resource="../../resources/resources.qrc">
