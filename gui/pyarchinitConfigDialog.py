@@ -676,6 +676,10 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
             listen(engine, 'connect', self.load_spatialite)
             c = engine.connect()
             
+            sql_drop_tombaview_doc= """DROP view if EXISTS pyarchinit_tafonomia_view;"""
+            c.execute(sql_drop_tombaview_doc)
+            sql_drop_tafbaview_doc= """DROP view if EXISTS pyarchinit_tomba_view;"""
+            c.execute(sql_drop_tafbaview_doc)
             sql_und = ("""CREATE TABLE IF NOT EXISTS "pyarchinit_us_negative_doc" (
                 "pkuid" integer PRIMARY KEY AUTOINCREMENT,
                 "sito_n" text,
@@ -1302,8 +1306,7 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
             FROM tafonomia_table; """)
             c.execute(sql_alter_table_individui)    
             
-            sql_drop_tombaview_doc= """DROP view if EXISTS pyarchinit_tafonomia_view;"""
-            c.execute(sql_drop_tombaview_doc)
+            
             
             sql_create_tombaview_doc= """CREATE VIEW if NOT EXISTS "pyarchinit_tomba_view" AS
             SELECT "a"."id_tomba" AS "id_tomba", "a"."sito" AS "sito","a"."area" AS "area",
