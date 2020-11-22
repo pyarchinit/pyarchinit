@@ -2037,12 +2037,12 @@ class pyarchinit_Schedaind(QDialog, MAIN_DIALOG_CLASS):
             us = int(self.DATA_LIST[rec].us)
 
             serch_dict_us = {'sito': sito, 'area': area, 'us': us}
-            us_ind = self.DB_MANAGER.query_bool(serch_dict_us, "US")
+            us_ind = self.DB_MANAGER.query_bool(serch_dict_us, "SCHEDAIND")
             data_list_us.append(us_ind)
 
         data_list_id_us = []
         for us in range(len(data_list_us)):
-            data_list_id_us.append(data_list_us[us][0].id_us)
+            data_list_id_us.append(data_list_us[us][0].id_scheda_ind)
 
         return data_list_id_us
 
