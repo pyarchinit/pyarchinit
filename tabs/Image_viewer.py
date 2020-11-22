@@ -140,6 +140,9 @@ class Main(QDialog,MAIN_DIALOG_CLASS):
         self.view_num_rec()
     def remove_all(self):
         self.tableWidgetTags_US.setRowCount(1)
+        self.tableWidgetTags_MAT.setRowCount(1)
+        self.tableWidgetTags_tomba.setRowCount(1)
+        self.tableWidgetTags_tomba_2.setRowCount(1)
     
     def split_2(self):
         items_selected = self.iconListWidget.selectedItems()#seleziono le icone
@@ -484,7 +487,7 @@ class Main(QDialog,MAIN_DIALOG_CLASS):
         self.pushButton_sort.setEnabled(n)
         self.pushButton_go.setEnabled(n)
     def on_pushButton_go_pressed(self):
-        if self.radioButton_us.isChecked()==True:
+        if self.radioButton_us.isChecked():
             sito = str(self.comboBox_sito.currentText())
             area = str(self.comboBox_area.currentText())
             us = str(self.comboBox_us.currentText())
@@ -495,7 +498,7 @@ class Main(QDialog,MAIN_DIALOG_CLASS):
             }
             u = Utility()
             search_dict = u.remove_empty_items_fr_dict(search_dict)
-            us_vl = self.DB_MANAGER.query_bool(search_dict, 'US')
+            us_vl = self.DB_MANAGER.select_medianame_2_from_db_sql(sito,area,us)
             if not bool(search_dict):
                 QMessageBox.warning(self, "Warning", "Insert Value!!!",  QMessageBox.Ok)
             else:
@@ -549,7 +552,7 @@ class Main(QDialog,MAIN_DIALOG_CLASS):
                 icon = QIcon(thumb_path_str+thumb_path)
                 item.setIcon(icon)
                 self.iconListWidget.addItem(item)
-        elif self.radioButton_materiali.isChecked() ==True:
+        if self.radioButton_materiali.isChecked():
             sito = str(self.comboBox_sito.currentText())
             area = str(self.comboBox_area.currentText())
             us = str(self.comboBox_us.currentText())
@@ -560,11 +563,11 @@ class Main(QDialog,MAIN_DIALOG_CLASS):
             }
             u = Utility()
             search_dict = u.remove_empty_items_fr_dict(search_dict)
-            us_vl = self.DB_MANAGER.query_bool(search_dict, 'INVENTARIO_MATERIALI')
+            us_vl = self.DB_MANAGER.select_medianame_ra_from_db_sql(sito,area,us)
             if not bool(search_dict):
                 QMessageBox.warning(self, "Warning", "Insert Value!!!",  QMessageBox.Ok)
             else:
-                res = self.DB_MANAGER.query_bool(search_dict, 'INVENTARIO_MATERIALI')
+                res = self.DB_MANAGER.select_medianame_ra_from_db_sql(sito,area,us)
                 if not bool(res):
                     QMessageBox.warning(self, "Warning", "No records have been found!",  QMessageBox.Ok)
                     self.set_rec_counter(len(self.DATA_LIST), self.REC_CORR+1)
@@ -601,7 +604,7 @@ class Main(QDialog,MAIN_DIALOG_CLASS):
             self.iconListWidget.clear()
             thumb_path = conn.thumb_path()
             thumb_path_str = thumb_path['thumb_path']
-            record_us_list = self.DB_MANAGER.query_bool(search_dict, 'INVENTARIO_MATERIALI')
+            record_us_list = self.DB_MANAGER.select_medianame_ra_from_db_sql(sito,area,us)
             for i in record_us_list:
                 search_dict = {'media_filename': "'" + str(i.media_name) + "'"}
                 u = Utility()
@@ -614,7 +617,7 @@ class Main(QDialog,MAIN_DIALOG_CLASS):
                 item.setIcon(icon)
                 self.iconListWidget.addItem(item)
         
-        elif self.radioButton_tomba.isChecked() ==True:
+        if self.radioButton_tomba.isChecked():
             sito = str(self.comboBox_sito.currentText())
             area = str(self.comboBox_area.currentText())
             #us = str(self.comboBox_us.currentText())
@@ -624,11 +627,11 @@ class Main(QDialog,MAIN_DIALOG_CLASS):
             }
             u = Utility()
             search_dict = u.remove_empty_items_fr_dict(search_dict)
-            us_vl = self.DB_MANAGER.query_bool(search_dict,'TOMBA')
+            us_vl = self.DB_MANAGER.select_medianame_tb_from_db_sql(sito,area)
             if not bool(search_dict):
                 QMessageBox.warning(self, "Warning", "Insert Value!!!",  QMessageBox.Ok)
             else:
-                res = self.DB_MANAGER.query_bool(search_dict,'TOMBA')
+                res = self.DB_MANAGER.select_medianame_tb_from_db_sql(sito,area)
                 if not bool(res):
                     QMessageBox.warning(self, "Warning", "No records have been found!",  QMessageBox.Ok)
                     self.set_rec_counter(len(self.DATA_LIST), self.REC_CORR+1)
@@ -665,7 +668,7 @@ class Main(QDialog,MAIN_DIALOG_CLASS):
             self.iconListWidget.clear()
             thumb_path = conn.thumb_path()
             thumb_path_str = thumb_path['thumb_path']
-            record_us_list = self.DB_MANAGER.query_bool(search_dict,'TOMBA')
+            record_us_list = self.DB_MANAGER.select_medianame_tb_from_db_sql(sito,area)
             for i in record_us_list:
                 search_dict = {'media_filename': "'" + str(i.media_name) + "'"}
                 u = Utility()
@@ -681,10 +684,14 @@ class Main(QDialog,MAIN_DIALOG_CLASS):
     
     
     
-        elif self.radioButton_struttura.isChecked() ==True:
+        if self.radioButton_struttura.isChecked():
             sito = str(self.comboBox_sito.currentText())
             sigla = str(self.comboBox_sigla_struttura.currentText())
             nr_st = str(self.comboBox_nr_struttura.currentText())
+            
+            
+            
+            
             search_dict = {
                 'sito': "'" + str(sito) + "'",
                 'sigla_struttura': "'" + str(sigla) + "'",
@@ -692,11 +699,11 @@ class Main(QDialog,MAIN_DIALOG_CLASS):
             }
             u = Utility()
             search_dict = u.remove_empty_items_fr_dict(search_dict)
-            us_vl = self.DB_MANAGER.query_bool(search_dict,'STRUTTURA')
+            us_vl = self.DB_MANAGER.select_medianame_from_st_sql(sito,sigla,nr_st)
             if not bool(search_dict):
                 QMessageBox.warning(self, "Warning", "Insert Value!!!",  QMessageBox.Ok)
             else:
-                res = self.DB_MANAGER.query_bool(search_dict,'STRUTTURA')
+                res = self.DB_MANAGER.select_medianame_from_st_sql(sito,sigla,nr_st)
                 if not bool(res):
                     QMessageBox.warning(self, "Warning", "No records have been found!",  QMessageBox.Ok)
                     self.set_rec_counter(len(self.DATA_LIST), self.REC_CORR+1)
@@ -733,7 +740,7 @@ class Main(QDialog,MAIN_DIALOG_CLASS):
             self.iconListWidget.clear()
             thumb_path = conn.thumb_path()
             thumb_path_str = thumb_path['thumb_path']
-            record_us_list = self.DB_MANAGER.query_bool(search_dict,'STRUTTURA')
+            record_us_list = self.DB_MANAGER.select_medianame_from_st_sql(sito,sigla,nr_st)
             for i in record_us_list:
                 search_dict = {'media_filename': "'" + str(i.media_name) + "'"}
                 u = Utility()

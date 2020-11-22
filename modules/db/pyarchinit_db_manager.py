@@ -1407,14 +1407,34 @@ class Pyarchinit_db_management(object):
         res = self.engine.execute(sql_query_string)
         # rows= res.fetchall()
         return res    
+    def select_medianame_from_st_sql(self,sito,sigla,numero):
+        sql_query_string = ("SELECT c.filepath, a.media_name FROM media_to_entity_table as a,  struttura_table as b, media_thumb_table as c WHERE b.id_struttura=a.id_entity and c.id_media=a.id_media  and b.sito= '%s' and b.sigla_struttura='%s' and b.numero_struttura='%s' and entity_type='STRUTTURA'")%(sito,sigla,numero) 
+        
+        res = self.engine.execute(sql_query_string)
+        rows= res.fetchall()
+        return rows    
     def select_medianame_from_db_sql(self,sito,area):
         sql_query_string = ("SELECT c.filepath, b.us,a.media_name FROM media_to_entity_table as a,  us_table as b, media_thumb_table as c WHERE b.id_us=a.id_entity and c.id_media=a.id_media  and b.sito= '%s' and b.area='%s'")%(sito,area) 
         
         res = self.engine.execute(sql_query_string)
         rows= res.fetchall()
         return rows
+    def select_medianame_tb_from_db_sql(self,sito,area):
+        sql_query_string = ("SELECT c.filepath, a.media_name FROM media_to_entity_table as a,  tomba_table as b, media_thumb_table as c WHERE b.id_tomba=a.id_entity and c.id_media=a.id_media  and b.sito= '%s' and b.area='%s'and entity_type='TOMBA'")%(sito,area) 
+        
+        res = self.engine.execute(sql_query_string)
+        rows= res.fetchall()
+        return rows
+    
+    def select_medianame_ra_from_db_sql(self,sito,area,us):
+        sql_query_string = ("SELECT c.filepath, a.media_name FROM media_to_entity_table as a,  inventario_materiali_table as b, media_thumb_table as c WHERE b.id_invmat=a.id_entity and c.id_media=a.id_media  and b.sito= '%s' and b.area='%s' and b.us = '%s' and entity_type='REPERTO'")%(sito,area,us) 
+        
+        res = self.engine.execute(sql_query_string)
+        rows= res.fetchall()
+        return rows
+    
     def select_medianame_2_from_db_sql(self,sito,area,us):
-        sql_query_string = ("SELECT c.filepath, b.us,a.media_name FROM media_to_entity_table as a,  us_table as b, media_thumb_table as c WHERE b.id_us=a.id_entity and c.id_media=a.id_media  and b.sito= '%s' and b.area='%s' and us = '%s'")%(sito,area,us) 
+        sql_query_string = ("SELECT c.filepath, a.media_name FROM media_to_entity_table as a,  us_table as b, media_thumb_table as c WHERE b.id_us=a.id_entity and c.id_media=a.id_media  and b.sito= '%s' and b.area='%s' and b.us = '%s' and entity_type='US'")%(sito,area,us) 
         
         res = self.engine.execute(sql_query_string)
         rows= res.fetchall()
