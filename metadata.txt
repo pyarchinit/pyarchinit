@@ -24,7 +24,7 @@ repository=https://github.com/pyarchinit/pyarchinit
 
 
 changelog=release2.1.2
-        -update export image
+        -#297
    -------------------------------------------------------------------------------
    release2.1.1
         -update export image
