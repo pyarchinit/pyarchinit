@@ -1232,6 +1232,7 @@ class FINDS_index_pdf_sheet(object):
         self.numero_cassa = data[10]  # 10 - numero cassa
         self.repertato = data[21]  # 22 - repertato
         self.diagnostico = data[22]  # 23 - diagnostico
+        self.n_reperto = data[23]  # 23 - diagnostico
 
     def getTable(self):
         styleSheet = getSampleStyleSheet()
@@ -1293,7 +1294,7 @@ class FINDS_index_pdf_sheet(object):
         if str(self.n_reperto) == "None":
             n_reperto = Paragraph("<b>Nr. Reperto</b><br/>", styNormal)
         else:
-            nr_cassa = Paragraph("<b>Nr. Reperto</b><br/>" + str(self.n_reperto), styNormal)
+            n_reperto = Paragraph("<b>Nr. Reperto</b><br/>" + str(self.n_reperto), styNormal)
         
         data = [num_inventario,
                 tipo_reperto,
