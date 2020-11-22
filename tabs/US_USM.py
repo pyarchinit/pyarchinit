@@ -766,8 +766,8 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
         self.comboBox_sito.currentTextChanged.connect(self.geometry_unitastratigrafiche)### rallenta molto
         
         self.comboBox_sito.currentIndexChanged.connect(self.geometry_unitastratigrafiche)### rallenta molto
-        self.comboBox_per_iniz.currentIndexChanged.connect(self.charge_insert_ra)
-        #self.comboBox_sito.currentTextChanged.connect(self.charge_insert_ra)
+        self.comboBox_sito.currentIndexChanged.connect(self.charge_insert_ra)
+        self.comboBox_sito.currentTextChanged.connect(self.charge_insert_ra)
         #self.charge_insert_ra()
         self.search_1.textChanged.connect(self.update_filter)
         self.comboBox_per_fin.currentIndexChanged.connect(self.charge_fase_fin_list)
@@ -790,8 +790,7 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
         dialog.ui.setupUi(dialog)
         dialog.exec_()
     def charge_insert_ra(self):
-        self.comboBox_ref_ra.update()
-        self.comboBox_ref_ra.clear()
+        
         us =str(self.lineEdit_us.text())
         search_dict_inv = {
             
