@@ -194,871 +194,707 @@ selection-color: rgb(140, 140, 105);</string>
            <attribute name="title">
             <string>Scavo archeologico</string>
            </attribute>
-           <widget class="Line" name="line_35">
-            <property name="geometry">
-             <rect>
-              <x>10</x>
-              <y>208</y>
-              <width>75</width>
-              <height>221</height>
-             </rect>
-            </property>
-            <property name="sizePolicy">
-             <sizepolicy hsizetype="Expanding" vsizetype="Minimum">
-              <horstretch>0</horstretch>
-              <verstretch>0</verstretch>
-             </sizepolicy>
-            </property>
-            <property name="orientation">
-             <enum>Qt::Vertical</enum>
-            </property>
-           </widget>
-           <widget class="Line" name="line_12">
-            <property name="geometry">
-             <rect>
-              <x>60</x>
-              <y>190</y>
-              <width>21</width>
-              <height>21</height>
-             </rect>
-            </property>
-            <property name="sizePolicy">
-             <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
-              <horstretch>0</horstretch>
-              <verstretch>0</verstretch>
-             </sizepolicy>
-            </property>
-            <property name="orientation">
-             <enum>Qt::Horizontal</enum>
-            </property>
-           </widget>
-           <widget class="Line" name="line_16">
-            <property name="geometry">
-             <rect>
-              <x>90</x>
-              <y>30</y>
-              <width>121</width>
-              <height>31</height>
-             </rect>
-            </property>
-            <property name="sizePolicy">
-             <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
-              <horstretch>0</horstretch>
-              <verstretch>0</verstretch>
-             </sizepolicy>
-            </property>
-            <property name="orientation">
-             <enum>Qt::Horizontal</enum>
-            </property>
-           </widget>
-           <widget class="QLabel" name="label_6">
-            <property name="geometry">
-             <rect>
-              <x>210</x>
-              <y>50</y>
-              <width>16</width>
-              <height>16</height>
-             </rect>
-            </property>
-            <property name="sizePolicy">
-             <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
-              <horstretch>0</horstretch>
-              <verstretch>0</verstretch>
-             </sizepolicy>
-            </property>
-            <property name="font">
-             <font>
-              <pointsize>6</pointsize>
-             </font>
-            </property>
-            <property name="text">
-             <string>1:N</string>
-            </property>
-           </widget>
-           <widget class="Line" name="line_7">
-            <property name="geometry">
-             <rect>
-              <x>200</x>
-              <y>150</y>
-              <width>29</width>
-              <height>21</height>
-             </rect>
-            </property>
-            <property name="sizePolicy">
-             <sizepolicy hsizetype="Expanding" vsizetype="Minimum">
-              <horstretch>0</horstretch>
-              <verstretch>0</verstretch>
-             </sizepolicy>
-            </property>
-            <property name="orientation">
-             <enum>Qt::Vertical</enum>
-            </property>
-           </widget>
-           <widget class="Line" name="line_11">
-            <property name="geometry">
-             <rect>
-              <x>140</x>
-              <y>130</y>
-              <width>71</width>
-              <height>31</height>
-             </rect>
-            </property>
-            <property name="sizePolicy">
-             <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
-              <horstretch>0</horstretch>
-              <verstretch>0</verstretch>
-             </sizepolicy>
-            </property>
-            <property name="orientation">
-             <enum>Qt::Horizontal</enum>
-            </property>
-           </widget>
-           <widget class="QPushButton" name="btnUStable">
-            <property name="geometry">
-             <rect>
-              <x>91</x>
-              <y>179</y>
-              <width>75</width>
-              <height>31</height>
-             </rect>
-            </property>
-            <property name="sizePolicy">
-             <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
-              <horstretch>0</horstretch>
-              <verstretch>0</verstretch>
-             </sizepolicy>
-            </property>
-            <property name="maximumSize">
-             <size>
-              <width>16777215</width>
-              <height>40</height>
-             </size>
-            </property>
-            <property name="text">
-             <string>US</string>
-            </property>
-            <property name="icon">
-             <iconset>
-              <normaloff>:/icons/iconPAI.png</normaloff>:/icons/iconPAI.png</iconset>
-            </property>
-            <property name="iconSize">
-             <size>
-              <width>25</width>
-              <height>25</height>
-             </size>
-            </property>
-           </widget>
-           <widget class="QPushButton" name="btnReptable">
-            <property name="geometry">
-             <rect>
-              <x>91</x>
-              <y>420</y>
-              <width>75</width>
-              <height>33</height>
-             </rect>
-            </property>
-            <property name="sizePolicy">
-             <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
-              <horstretch>0</horstretch>
-              <verstretch>0</verstretch>
-             </sizepolicy>
-            </property>
-            <property name="maximumSize">
-             <size>
-              <width>16777215</width>
-              <height>40</height>
-             </size>
-            </property>
-            <property name="styleSheet">
-             <string notr="true">background-color: rgb(170, 170, 127);</string>
-            </property>
-            <property name="text">
-             <string>Reperti</string>
-            </property>
-            <property name="icon">
-             <iconset resource="../../resources/resources.qrc">
-              <normaloff>:/icons/finds.png</normaloff>:/icons/finds.png</iconset>
-            </property>
-            <property name="iconSize">
-             <size>
-              <width>25</width>
-              <height>25</height>
-             </size>
-            </property>
-           </widget>
-           <widget class="Line" name="line_6">
-            <property name="geometry">
-             <rect>
-              <x>200</x>
-              <y>106</y>
-              <width>29</width>
-              <height>41</height>
-             </rect>
-            </property>
-            <property name="sizePolicy">
-             <sizepolicy hsizetype="Expanding" vsizetype="Minimum">
-              <horstretch>0</horstretch>
-              <verstretch>0</verstretch>
-             </sizepolicy>
-            </property>
-            <property name="orientation">
-             <enum>Qt::Vertical</enum>
-            </property>
-           </widget>
-           <widget class="QLabel" name="label">
-            <property name="geometry">
-             <rect>
-              <x>178</x>
-              <y>190</y>
-              <width>16</width>
-              <height>16</height>
-             </rect>
-            </property>
-            <property name="sizePolicy">
-             <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
-              <horstretch>0</horstretch>
-              <verstretch>0</verstretch>
-             </sizepolicy>
-            </property>
-            <property name="font">
-             <font>
-              <pointsize>6</pointsize>
-             </font>
-            </property>
-            <property name="text">
-             <string>N:N</string>
-            </property>
-           </widget>
-           <widget class="QPushButton" name="btnStrutturatable">
-            <property name="geometry">
-             <rect>
-              <x>207</x>
-              <y>175</y>
-              <width>76</width>
-              <height>31</height>
-             </rect>
-            </property>
-            <property name="sizePolicy">
-             <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
-              <horstretch>0</horstretch>
-              <verstretch>0</verstretch>
-             </sizepolicy>
-            </property>
-            <property name="maximumSize">
-             <size>
-              <width>16777215</width>
-              <height>40</height>
-             </size>
-            </property>
-            <property name="sizeIncrement">
-             <size>
-              <width>397</width>
-              <height>0</height>
-             </size>
-            </property>
-            <property name="text">
-             <string>Struttura</string>
-            </property>
-            <property name="icon">
-             <iconset resource="../../resources/resources.qrc">
-              <normaloff>:/icons/iconStrutt.png</normaloff>:/icons/iconStrutt.png</iconset>
-            </property>
-            <property name="iconSize">
-             <size>
-              <width>20</width>
-              <height>80</height>
-             </size>
-            </property>
-           </widget>
-           <widget class="Line" name="line_13">
-            <property name="geometry">
-             <rect>
-              <x>120</x>
-              <y>215</y>
-              <width>31</width>
-              <height>51</height>
-             </rect>
-            </property>
-            <property name="sizePolicy">
-             <sizepolicy hsizetype="Expanding" vsizetype="Minimum">
-              <horstretch>0</horstretch>
-              <verstretch>0</verstretch>
-             </sizepolicy>
-            </property>
-            <property name="orientation">
-             <enum>Qt::Vertical</enum>
-            </property>
-           </widget>
-           <widget class="QLabel" name="label_5">
-            <property name="geometry">
-             <rect>
-              <x>207</x>
-              <y>137</y>
-              <width>16</width>
-              <height>16</height>
-             </rect>
-            </property>
-            <property name="sizePolicy">
-             <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
-              <horstretch>0</horstretch>
-              <verstretch>0</verstretch>
-             </sizepolicy>
-            </property>
-            <property name="font">
-             <font>
-              <pointsize>6</pointsize>
-             </font>
-            </property>
-            <property name="text">
-             <string>1:N</string>
-            </property>
-           </widget>
-           <widget class="QLabel" name="label_8">
-            <property name="geometry">
-             <rect>
-              <x>126</x>
-              <y>270</y>
-              <width>20</width>
-              <height>20</height>
-             </rect>
-            </property>
-            <property name="sizePolicy">
-             <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
-              <horstretch>0</horstretch>
-              <verstretch>0</verstretch>
-             </sizepolicy>
-            </property>
-            <property name="font">
-             <font>
-              <pointsize>6</pointsize>
-             </font>
-            </property>
-            <property name="text">
-             <string>1:N</string>
-            </property>
-           </widget>
-           <widget class="Line" name="line_8">
-            <property name="geometry">
-             <rect>
-              <x>51</x>
-              <y>430</y>
-              <width>34</width>
-              <height>16</height>
-             </rect>
-            </property>
-            <property name="sizePolicy">
-             <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
-              <horstretch>0</horstretch>
-              <verstretch>0</verstretch>
-             </sizepolicy>
-            </property>
-            <property name="orientation">
-             <enum>Qt::Horizontal</enum>
-            </property>
-           </widget>
-           <widget class="Line" name="line_10">
-            <property name="geometry">
-             <rect>
-              <x>110</x>
-              <y>148</y>
-              <width>54</width>
-              <height>21</height>
-             </rect>
-            </property>
-            <property name="sizePolicy">
-             <sizepolicy hsizetype="Expanding" vsizetype="Minimum">
-              <horstretch>0</horstretch>
-              <verstretch>0</verstretch>
-             </sizepolicy>
-            </property>
-            <property name="font">
-             <font>
-              <pointsize>6</pointsize>
-             </font>
-            </property>
-            <property name="orientation">
-             <enum>Qt::Vertical</enum>
-            </property>
-           </widget>
-           <widget class="QPushButton" name="btnSitotable">
-            <property name="geometry">
-             <rect>
-              <x>10</x>
-              <y>39</y>
-              <width>75</width>
-              <height>21</height>
-             </rect>
-            </property>
-            <property name="sizePolicy">
-             <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
-              <horstretch>0</horstretch>
-              <verstretch>0</verstretch>
-             </sizepolicy>
-            </property>
-            <property name="minimumSize">
-             <size>
-              <width>0</width>
-              <height>0</height>
-             </size>
-            </property>
-            <property name="maximumSize">
-             <size>
-              <width>100</width>
-              <height>40</height>
-             </size>
-            </property>
-            <property name="baseSize">
-             <size>
-              <width>0</width>
-              <height>0</height>
-             </size>
-            </property>
-            <property name="text">
-             <string>Sito</string>
-            </property>
-            <property name="icon">
-             <iconset resource="../../resources/resources.qrc">
-              <normaloff>:/icons/iconSite.png</normaloff>:/icons/iconSite.png</iconset>
-            </property>
-            <property name="iconSize">
-             <size>
-              <width>20</width>
-              <height>100</height>
-             </size>
-            </property>
-           </widget>
-           <widget class="Line" name="line_15">
-            <property name="geometry">
-             <rect>
-              <x>10</x>
-              <y>65</y>
-              <width>75</width>
-              <height>121</height>
-             </rect>
-            </property>
-            <property name="sizePolicy">
-             <sizepolicy hsizetype="Expanding" vsizetype="Minimum">
-              <horstretch>0</horstretch>
-              <verstretch>0</verstretch>
-             </sizepolicy>
-            </property>
-            <property name="orientation">
-             <enum>Qt::Vertical</enum>
-            </property>
-           </widget>
-           <widget class="QLabel" name="label_11">
-            <property name="geometry">
-             <rect>
-              <x>10</x>
-              <y>10</y>
-              <width>108</width>
-              <height>16</height>
-             </rect>
-            </property>
-            <property name="sizePolicy">
-             <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
-              <horstretch>0</horstretch>
-              <verstretch>0</verstretch>
-             </sizepolicy>
-            </property>
-            <property name="font">
-             <font>
-              <weight>75</weight>
-              <bold>true</bold>
-             </font>
-            </property>
-            <property name="text">
-             <string>Scavo Archeologico</string>
-            </property>
-            <property name="scaledContents">
-             <bool>true</bool>
-            </property>
-           </widget>
-           <widget class="Line" name="line_14">
-            <property name="geometry">
-             <rect>
-              <x>110</x>
-              <y>295</y>
-              <width>48</width>
-              <height>121</height>
-             </rect>
-            </property>
-            <property name="sizePolicy">
-             <sizepolicy hsizetype="Expanding" vsizetype="Minimum">
-              <horstretch>0</horstretch>
-              <verstretch>0</verstretch>
-             </sizepolicy>
-            </property>
-            <property name="orientation">
-             <enum>Qt::Vertical</enum>
-            </property>
-           </widget>
-           <widget class="QLabel" name="label_14">
-            <property name="geometry">
-             <rect>
-              <x>40</x>
-              <y>190</y>
-              <width>16</width>
-              <height>16</height>
-             </rect>
-            </property>
-            <property name="sizePolicy">
-             <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
-              <horstretch>0</horstretch>
-              <verstretch>0</verstretch>
-             </sizepolicy>
-            </property>
-            <property name="font">
-             <font>
-              <pointsize>6</pointsize>
-             </font>
-            </property>
-            <property name="text">
-             <string>1:N</string>
-            </property>
-           </widget>
-           <widget class="QPushButton" name="btnPeriodotable">
-            <property name="geometry">
-             <rect>
-              <x>178</x>
-              <y>70</y>
-              <width>93</width>
-              <height>28</height>
-             </rect>
-            </property>
-            <property name="sizePolicy">
-             <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
-              <horstretch>0</horstretch>
-              <verstretch>0</verstretch>
-             </sizepolicy>
-            </property>
-            <property name="maximumSize">
-             <size>
-              <width>16777215</width>
-              <height>40</height>
-             </size>
-            </property>
-            <property name="styleSheet">
-             <string notr="true"/>
-            </property>
-            <property name="text">
-             <string>Periodo/fase</string>
-            </property>
-            <property name="icon">
-             <iconset resource="../../resources/resources.qrc">
-              <normaloff>:/icons/iconPER.png</normaloff>:/icons/iconPER.png</iconset>
-            </property>
-            <property name="iconSize">
-             <size>
-              <width>20</width>
-              <height>20</height>
-             </size>
-            </property>
-           </widget>
-           <zorder>line_35</zorder>
-           <zorder>line_11</zorder>
-           <zorder>label_5</zorder>
-           <zorder>btnSitotable</zorder>
-           <zorder>line_12</zorder>
-           <zorder>line_16</zorder>
-           <zorder>label_6</zorder>
+           <layout class="QGridLayout" name="gridLayout_7">
+            <item row="0" column="0">
+             <layout class="QGridLayout" name="gridLayout_5">
+              <item row="0" column="0">
+               <widget class="QLabel" name="label_11">
+                <property name="sizePolicy">
+                 <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
+                  <horstretch>0</horstretch>
+                  <verstretch>0</verstretch>
+                 </sizepolicy>
+                </property>
+                <property name="maximumSize">
+                 <size>
+                  <width>16777215</width>
+                  <height>30</height>
+                 </size>
+                </property>
+                <property name="font">
+                 <font>
+                  <weight>75</weight>
+                  <bold>true</bold>
+                 </font>
+                </property>
+                <property name="text">
+                 <string>Scavo Archeologico</string>
+                </property>
+                <property name="scaledContents">
+                 <bool>true</bool>
+                </property>
+               </widget>
+              </item>
+              <item row="1" column="0">
+               <layout class="QGridLayout" name="gridLayout_3">
+                <item row="7" column="0" rowspan="5" colspan="3">
+                 <widget class="Line" name="line_35">
+                  <property name="sizePolicy">
+                   <sizepolicy hsizetype="Expanding" vsizetype="Minimum">
+                    <horstretch>0</horstretch>
+                    <verstretch>0</verstretch>
+                   </sizepolicy>
+                  </property>
+                  <property name="orientation">
+                   <enum>Qt::Vertical</enum>
+                  </property>
+                 </widget>
+                </item>
+                <item row="8" column="4" colspan="2">
+                 <widget class="Line" name="line_13">
+                  <property name="sizePolicy">
+                   <sizepolicy hsizetype="Expanding" vsizetype="Minimum">
+                    <horstretch>0</horstretch>
+                    <verstretch>0</verstretch>
+                   </sizepolicy>
+                  </property>
+                  <property name="orientation">
+                   <enum>Qt::Vertical</enum>
+                  </property>
+                 </widget>
+                </item>
+                <item row="1" column="0" rowspan="5" colspan="3">
+                 <widget class="Line" name="line_15">
+                  <property name="sizePolicy">
+                   <sizepolicy hsizetype="Expanding" vsizetype="Minimum">
+                    <horstretch>0</horstretch>
+                    <verstretch>0</verstretch>
+                   </sizepolicy>
+                  </property>
+                  <property name="orientation">
+                   <enum>Qt::Vertical</enum>
+                  </property>
+                 </widget>
+                </item>
+                <item row="9" column="4" colspan="2">
+                 <widget class="QLabel" name="label_8">
+                  <property name="sizePolicy">
+                   <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
+                    <horstretch>0</horstretch>
+                    <verstretch>0</verstretch>
+                   </sizepolicy>
+                  </property>
+                  <property name="font">
+                   <font>
+                    <pointsize>6</pointsize>
+                   </font>
+                  </property>
+                  <property name="text">
+                   <string>1:N</string>
+                  </property>
+                 </widget>
+                </item>
+                <item row="10" column="3" colspan="3">
+                 <widget class="Line" name="line_14">
+                  <property name="sizePolicy">
+                   <sizepolicy hsizetype="Expanding" vsizetype="Minimum">
+                    <horstretch>0</horstretch>
+                    <verstretch>0</verstretch>
+                   </sizepolicy>
+                  </property>
+                  <property name="orientation">
+                   <enum>Qt::Vertical</enum>
+                  </property>
+                 </widget>
+                </item>
+                <item row="0" column="10">
+                 <widget class="QLabel" name="label_6">
+                  <property name="sizePolicy">
+                   <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
+                    <horstretch>0</horstretch>
+                    <verstretch>0</verstretch>
+                   </sizepolicy>
+                  </property>
+                  <property name="font">
+                   <font>
+                    <pointsize>6</pointsize>
+                   </font>
+                  </property>
+                  <property name="text">
+                   <string>1:N</string>
+                  </property>
+                 </widget>
+                </item>
+                <item row="1" column="8" colspan="3">
+                 <widget class="QPushButton" name="btnPeriodotable">
+                  <property name="sizePolicy">
+                   <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
+                    <horstretch>0</horstretch>
+                    <verstretch>0</verstretch>
+                   </sizepolicy>
+                  </property>
+                  <property name="maximumSize">
+                   <size>
+                    <width>30</width>
+                    <height>16777215</height>
+                   </size>
+                  </property>
+                  <property name="styleSheet">
+                   <string notr="true"/>
+                  </property>
+                  <property name="text">
+                   <string/>
+                  </property>
+                  <property name="icon">
+                   <iconset resource="../../resources/resources.qrc">
+                    <normaloff>:/icons/iconPER.png</normaloff>:/icons/iconPER.png</iconset>
+                  </property>
+                  <property name="iconSize">
+                   <size>
+                    <width>20</width>
+                    <height>20</height>
+                   </size>
+                  </property>
+                 </widget>
+                </item>
+                <item row="1" column="5" colspan="3">
+                 <widget class="Line" name="line_11">
+                  <property name="sizePolicy">
+                   <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
+                    <horstretch>0</horstretch>
+                    <verstretch>0</verstretch>
+                   </sizepolicy>
+                  </property>
+                  <property name="orientation">
+                   <enum>Qt::Horizontal</enum>
+                  </property>
+                 </widget>
+                </item>
+                <item row="0" column="2" colspan="8">
+                 <widget class="Line" name="line_16">
+                  <property name="sizePolicy">
+                   <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
+                    <horstretch>0</horstretch>
+                    <verstretch>0</verstretch>
+                   </sizepolicy>
+                  </property>
+                  <property name="orientation">
+                   <enum>Qt::Horizontal</enum>
+                  </property>
+                 </widget>
+                </item>
+                <item row="2" column="3" rowspan="3" colspan="3">
+                 <widget class="Line" name="line_10">
+                  <property name="sizePolicy">
+                   <sizepolicy hsizetype="Expanding" vsizetype="Minimum">
+                    <horstretch>0</horstretch>
+                    <verstretch>0</verstretch>
+                   </sizepolicy>
+                  </property>
+                  <property name="font">
+                   <font>
+                    <pointsize>6</pointsize>
+                   </font>
+                  </property>
+                  <property name="orientation">
+                   <enum>Qt::Vertical</enum>
+                  </property>
+                 </widget>
+                </item>
+                <item row="4" column="8" rowspan="2" colspan="3">
+                 <widget class="Line" name="line_7">
+                  <property name="sizePolicy">
+                   <sizepolicy hsizetype="Expanding" vsizetype="Minimum">
+                    <horstretch>0</horstretch>
+                    <verstretch>0</verstretch>
+                   </sizepolicy>
+                  </property>
+                  <property name="orientation">
+                   <enum>Qt::Vertical</enum>
+                  </property>
+                 </widget>
+                </item>
+                <item row="2" column="8" rowspan="2" colspan="3">
+                 <widget class="Line" name="line_6">
+                  <property name="sizePolicy">
+                   <sizepolicy hsizetype="Expanding" vsizetype="Minimum">
+                    <horstretch>0</horstretch>
+                    <verstretch>0</verstretch>
+                   </sizepolicy>
+                  </property>
+                  <property name="orientation">
+                   <enum>Qt::Vertical</enum>
+                  </property>
+                 </widget>
+                </item>
+                <item row="5" column="4" rowspan="3" colspan="2">
+                 <widget class="QPushButton" name="btnUStable">
+                  <property name="sizePolicy">
+                   <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
+                    <horstretch>0</horstretch>
+                    <verstretch>0</verstretch>
+                   </sizepolicy>
+                  </property>
+                  <property name="maximumSize">
+                   <size>
+                    <width>30</width>
+                    <height>16777215</height>
+                   </size>
+                  </property>
+                  <property name="text">
+                   <string/>
+                  </property>
+                  <property name="icon">
+                   <iconset resource="../../resources/resources.qrc">
+                    <normaloff>:/icons/IconPAI.png</normaloff>:/icons/IconPAI.png</iconset>
+                  </property>
+                  <property name="iconSize">
+                   <size>
+                    <width>25</width>
+                    <height>25</height>
+                   </size>
+                  </property>
+                 </widget>
+                </item>
+                <item row="3" column="9" colspan="2">
+                 <widget class="QLabel" name="label_5">
+                  <property name="sizePolicy">
+                   <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
+                    <horstretch>0</horstretch>
+                    <verstretch>0</verstretch>
+                   </sizepolicy>
+                  </property>
+                  <property name="font">
+                   <font>
+                    <pointsize>6</pointsize>
+                   </font>
+                  </property>
+                  <property name="text">
+                   <string>1:N</string>
+                  </property>
+                 </widget>
+                </item>
+                <item row="1" column="4">
+                 <widget class="QLabel" name="label_15">
+                  <property name="sizePolicy">
+                   <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
+                    <horstretch>0</horstretch>
+                    <verstretch>0</verstretch>
+                   </sizepolicy>
+                  </property>
+                  <property name="font">
+                   <font>
+                    <pointsize>6</pointsize>
+                   </font>
+                  </property>
+                  <property name="text">
+                   <string>1:N</string>
+                  </property>
+                 </widget>
+                </item>
+                <item row="11" column="4" rowspan="2" colspan="2">
+                 <widget class="QPushButton" name="btnReptable">
+                  <property name="sizePolicy">
+                   <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
+                    <horstretch>0</horstretch>
+                    <verstretch>0</verstretch>
+                   </sizepolicy>
+                  </property>
+                  <property name="maximumSize">
+                   <size>
+                    <width>30</width>
+                    <height>16777215</height>
+                   </size>
+                  </property>
+                  <property name="styleSheet">
+                   <string notr="true">background-color: rgb(170, 170, 127);</string>
+                  </property>
+                  <property name="text">
+                   <string/>
+                  </property>
+                  <property name="icon">
+                   <iconset resource="../../resources/resources.qrc">
+                    <normaloff>:/icons/finds.png</normaloff>:/icons/finds.png</iconset>
+                  </property>
+                  <property name="iconSize">
+                   <size>
+                    <width>25</width>
+                    <height>25</height>
+                   </size>
+                  </property>
+                 </widget>
+                </item>
+                <item row="6" column="1">
+                 <widget class="QLabel" name="label_14">
+                  <property name="sizePolicy">
+                   <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
+                    <horstretch>0</horstretch>
+                    <verstretch>0</verstretch>
+                   </sizepolicy>
+                  </property>
+                  <property name="font">
+                   <font>
+                    <pointsize>6</pointsize>
+                   </font>
+                  </property>
+                  <property name="text">
+                   <string>1:N</string>
+                  </property>
+                 </widget>
+                </item>
+                <item row="6" column="10">
+                 <widget class="QPushButton" name="btnStrutturatable">
+                  <property name="sizePolicy">
+                   <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
+                    <horstretch>0</horstretch>
+                    <verstretch>0</verstretch>
+                   </sizepolicy>
+                  </property>
+                  <property name="maximumSize">
+                   <size>
+                    <width>16777215</width>
+                    <height>30</height>
+                   </size>
+                  </property>
+                  <property name="sizeIncrement">
+                   <size>
+                    <width>0</width>
+                    <height>0</height>
+                   </size>
+                  </property>
+                  <property name="text">
+                   <string/>
+                  </property>
+                  <property name="icon">
+                   <iconset resource="../../resources/resources.qrc">
+                    <normaloff>:/icons/iconStrutt.png</normaloff>:/icons/iconStrutt.png</iconset>
+                  </property>
+                  <property name="iconSize">
+                   <size>
+                    <width>20</width>
+                    <height>80</height>
+                   </size>
+                  </property>
+                 </widget>
+                </item>
+                <item row="0" column="1">
+                 <widget class="QPushButton" name="btnSitotable">
+                  <property name="sizePolicy">
+                   <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
+                    <horstretch>0</horstretch>
+                    <verstretch>0</verstretch>
+                   </sizepolicy>
+                  </property>
+                  <property name="minimumSize">
+                   <size>
+                    <width>0</width>
+                    <height>0</height>
+                   </size>
+                  </property>
+                  <property name="maximumSize">
+                   <size>
+                    <width>16777215</width>
+                    <height>30</height>
+                   </size>
+                  </property>
+                  <property name="baseSize">
+                   <size>
+                    <width>0</width>
+                    <height>0</height>
+                   </size>
+                  </property>
+                  <property name="text">
+                   <string/>
+                  </property>
+                  <property name="icon">
+                   <iconset resource="../../resources/resources.qrc">
+                    <normaloff>:/icons/iconSite.png</normaloff>:/icons/iconSite.png</iconset>
+                  </property>
+                  <property name="iconSize">
+                   <size>
+                    <width>20</width>
+                    <height>100</height>
+                   </size>
+                  </property>
+                 </widget>
+                </item>
+                <item row="6" column="6">
+                 <widget class="Line" name="line">
+                  <property name="orientation">
+                   <enum>Qt::Horizontal</enum>
+                  </property>
+                 </widget>
+                </item>
+                <item row="6" column="8">
+                 <widget class="Line" name="line_2">
+                  <property name="orientation">
+                   <enum>Qt::Horizontal</enum>
+                  </property>
+                 </widget>
+                </item>
+                <item row="6" column="2">
+                 <widget class="Line" name="line_12">
+                  <property name="sizePolicy">
+                   <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
+                    <horstretch>0</horstretch>
+                    <verstretch>0</verstretch>
+                   </sizepolicy>
+                  </property>
+                  <property name="orientation">
+                   <enum>Qt::Horizontal</enum>
+                  </property>
+                 </widget>
+                </item>
+                <item row="6" column="7">
+                 <widget class="QLabel" name="label">
+                  <property name="sizePolicy">
+                   <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
+                    <horstretch>0</horstretch>
+                    <verstretch>0</verstretch>
+                   </sizepolicy>
+                  </property>
+                  <property name="font">
+                   <font>
+                    <pointsize>6</pointsize>
+                   </font>
+                  </property>
+                  <property name="text">
+                   <string>N:N</string>
+                  </property>
+                 </widget>
+                </item>
+                <item row="12" column="2" colspan="2">
+                 <widget class="Line" name="line_8">
+                  <property name="sizePolicy">
+                   <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
+                    <horstretch>0</horstretch>
+                    <verstretch>0</verstretch>
+                   </sizepolicy>
+                  </property>
+                  <property name="orientation">
+                   <enum>Qt::Horizontal</enum>
+                  </property>
+                 </widget>
+                </item>
+               </layout>
+              </item>
+             </layout>
+            </item>
+           </layout>
           </widget>
           <widget class="QWidget" name="tab">
            <attribute name="title">
             <string>Ricognizione del territorio</string>
            </attribute>
-           <widget class="Line" name="line_18">
-            <property name="geometry">
-             <rect>
-              <x>165</x>
-              <y>90</y>
-              <width>16</width>
-              <height>41</height>
-             </rect>
-            </property>
-            <property name="orientation">
-             <enum>Qt::Vertical</enum>
-            </property>
-           </widget>
-           <widget class="QLabel" name="label_9">
-            <property name="geometry">
-             <rect>
-              <x>164</x>
-              <y>131</y>
-              <width>21</width>
-              <height>16</height>
-             </rect>
-            </property>
-            <property name="text">
-             <string>1:N</string>
-            </property>
-           </widget>
-           <widget class="Line" name="line_19">
-            <property name="geometry">
-             <rect>
-              <x>161</x>
-              <y>270</y>
-              <width>16</width>
-              <height>31</height>
-             </rect>
-            </property>
-            <property name="orientation">
-             <enum>Qt::Vertical</enum>
-            </property>
-           </widget>
-           <widget class="Line" name="line_20">
-            <property name="geometry">
-             <rect>
-              <x>162</x>
-              <y>210</y>
-              <width>16</width>
-              <height>41</height>
-             </rect>
-            </property>
-            <property name="orientation">
-             <enum>Qt::Vertical</enum>
-            </property>
-           </widget>
-           <widget class="QPushButton" name="btnReptable_2">
-            <property name="geometry">
-             <rect>
-              <x>150</x>
-              <y>300</y>
-              <width>101</width>
-              <height>31</height>
-             </rect>
-            </property>
-            <property name="styleSheet">
-             <string notr="true">background-color: rgb(170, 170, 127);</string>
-            </property>
-            <property name="text">
-             <string>Reperti</string>
-            </property>
-            <property name="icon">
-             <iconset resource="../../resources/resources.qrc">
-              <normaloff>:/icons/finds.png</normaloff>:/icons/finds.png</iconset>
-            </property>
-            <property name="iconSize">
-             <size>
-              <width>25</width>
-              <height>25</height>
-             </size>
-            </property>
-           </widget>
-           <widget class="Line" name="line_21">
-            <property name="geometry">
-             <rect>
-              <x>131</x>
-              <y>110</y>
-              <width>16</width>
-              <height>201</height>
-             </rect>
-            </property>
-            <property name="orientation">
-             <enum>Qt::Vertical</enum>
-            </property>
-           </widget>
-           <widget class="QPushButton" name="btnUTtable">
-            <property name="geometry">
-             <rect>
-              <x>144</x>
-              <y>180</y>
-              <width>101</width>
-              <height>31</height>
-             </rect>
-            </property>
-            <property name="text">
-             <string>UT</string>
-            </property>
-            <property name="icon">
-             <iconset resource="../../resources/resources.qrc">
-              <normaloff>:/icons/iconUT.png</normaloff>:/icons/iconUT.png</iconset>
-            </property>
-            <property name="iconSize">
-             <size>
-              <width>25</width>
-              <height>25</height>
-             </size>
-            </property>
-           </widget>
-           <widget class="QLabel" name="label_10">
-            <property name="geometry">
-             <rect>
-              <x>161</x>
-              <y>251</y>
-              <width>21</width>
-              <height>16</height>
-             </rect>
-            </property>
-            <property name="text">
-             <string>1:N</string>
-            </property>
-           </widget>
-           <widget class="QPushButton" name="btnSitotable_2">
-            <property name="geometry">
-             <rect>
-              <x>71</x>
-              <y>50</y>
-              <width>201</width>
-              <height>31</height>
-             </rect>
-            </property>
-            <property name="sizePolicy">
-             <sizepolicy hsizetype="Minimum" vsizetype="Preferred">
-              <horstretch>0</horstretch>
-              <verstretch>0</verstretch>
-             </sizepolicy>
-            </property>
-            <property name="minimumSize">
-             <size>
-              <width>0</width>
-              <height>0</height>
-             </size>
-            </property>
-            <property name="maximumSize">
-             <size>
-              <width>16777215</width>
-              <height>80</height>
-             </size>
-            </property>
-            <property name="baseSize">
-             <size>
-              <width>0</width>
-              <height>0</height>
-             </size>
-            </property>
-            <property name="text">
-             <string>Sito</string>
-            </property>
-            <property name="icon">
-             <iconset resource="../../resources/resources.qrc">
-              <normaloff>:/icons/iconSite.png</normaloff>:/icons/iconSite.png</iconset>
-            </property>
-            <property name="iconSize">
-             <size>
-              <width>20</width>
-              <height>100</height>
-             </size>
-            </property>
-           </widget>
-           <widget class="Line" name="line_22">
-            <property name="geometry">
-             <rect>
-              <x>139</x>
-              <y>102</y>
-              <width>31</width>
-              <height>16</height>
-             </rect>
-            </property>
-            <property name="orientation">
-             <enum>Qt::Horizontal</enum>
-            </property>
-           </widget>
-           <widget class="Line" name="line_23">
-            <property name="geometry">
-             <rect>
-              <x>164</x>
-              <y>150</y>
-              <width>16</width>
-              <height>31</height>
-             </rect>
-            </property>
-            <property name="orientation">
-             <enum>Qt::Vertical</enum>
-            </property>
-           </widget>
-           <widget class="Line" name="line_24">
-            <property name="geometry">
-             <rect>
-              <x>139</x>
-              <y>304</y>
-              <width>11</width>
-              <height>16</height>
-             </rect>
-            </property>
-            <property name="orientation">
-             <enum>Qt::Horizontal</enum>
-            </property>
-           </widget>
-           <widget class="QLabel" name="label_12">
-            <property name="geometry">
-             <rect>
-              <x>100</x>
-              <y>10</y>
-              <width>181</width>
-              <height>16</height>
-             </rect>
-            </property>
-            <property name="font">
-             <font>
-              <weight>75</weight>
-              <bold>true</bold>
-             </font>
-            </property>
-            <property name="text">
-             <string>Ricognizione del territorio</string>
-            </property>
-           </widget>
-           <widget class="Line" name="line_26">
-            <property name="geometry">
-             <rect>
-              <x>63</x>
-              <y>26</y>
-              <width>241</width>
-              <height>16</height>
-             </rect>
-            </property>
-            <property name="orientation">
-             <enum>Qt::Horizontal</enum>
-            </property>
-           </widget>
+           <layout class="QGridLayout" name="gridLayout_9">
+            <item row="0" column="0">
+             <widget class="QLabel" name="label_12">
+              <property name="sizePolicy">
+               <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+                <horstretch>0</horstretch>
+                <verstretch>0</verstretch>
+               </sizepolicy>
+              </property>
+              <property name="maximumSize">
+               <size>
+                <width>16777215</width>
+                <height>10</height>
+               </size>
+              </property>
+              <property name="font">
+               <font>
+                <weight>75</weight>
+                <bold>true</bold>
+               </font>
+              </property>
+              <property name="text">
+               <string>Ricognizione del territorio</string>
+              </property>
+             </widget>
+            </item>
+            <item row="1" column="0">
+             <widget class="Line" name="line_26">
+              <property name="orientation">
+               <enum>Qt::Horizontal</enum>
+              </property>
+             </widget>
+            </item>
+            <item row="2" column="0">
+             <layout class="QGridLayout" name="gridLayout_8">
+              <item row="0" column="2" colspan="2">
+               <widget class="QPushButton" name="btnSitotable_2">
+                <property name="sizePolicy">
+                 <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
+                  <horstretch>0</horstretch>
+                  <verstretch>0</verstretch>
+                 </sizepolicy>
+                </property>
+                <property name="minimumSize">
+                 <size>
+                  <width>0</width>
+                  <height>0</height>
+                 </size>
+                </property>
+                <property name="maximumSize">
+                 <size>
+                  <width>30</width>
+                  <height>30</height>
+                 </size>
+                </property>
+                <property name="baseSize">
+                 <size>
+                  <width>0</width>
+                  <height>0</height>
+                 </size>
+                </property>
+                <property name="text">
+                 <string/>
+                </property>
+                <property name="icon">
+                 <iconset resource="../../resources/resources.qrc">
+                  <normaloff>:/icons/iconSite.png</normaloff>:/icons/iconSite.png</iconset>
+                </property>
+                <property name="iconSize">
+                 <size>
+                  <width>20</width>
+                  <height>100</height>
+                 </size>
+                </property>
+               </widget>
+              </item>
+              <item row="1" column="0" rowspan="9">
+               <widget class="Line" name="line_21">
+                <property name="orientation">
+                 <enum>Qt::Vertical</enum>
+                </property>
+               </widget>
+              </item>
+              <item row="2" column="2" colspan="2">
+               <widget class="QLabel" name="label_9">
+                <property name="text">
+                 <string>1:N</string>
+                </property>
+               </widget>
+              </item>
+              <item row="3" column="2" colspan="2">
+               <widget class="Line" name="line_23">
+                <property name="orientation">
+                 <enum>Qt::Vertical</enum>
+                </property>
+               </widget>
+              </item>
+              <item row="4" column="2" colspan="2">
+               <widget class="QPushButton" name="btnUTtable">
+                <property name="maximumSize">
+                 <size>
+                  <width>30</width>
+                  <height>16777215</height>
+                 </size>
+                </property>
+                <property name="text">
+                 <string/>
+                </property>
+                <property name="icon">
+                 <iconset resource="../../resources/resources.qrc">
+                  <normaloff>:/icons/iconUT.png</normaloff>:/icons/iconUT.png</iconset>
+                </property>
+                <property name="iconSize">
+                 <size>
+                  <width>25</width>
+                  <height>25</height>
+                 </size>
+                </property>
+               </widget>
+              </item>
+              <item row="5" column="2" colspan="2">
+               <widget class="Line" name="line_20">
+                <property name="orientation">
+                 <enum>Qt::Vertical</enum>
+                </property>
+               </widget>
+              </item>
+              <item row="6" column="2" colspan="2">
+               <widget class="QLabel" name="label_10">
+                <property name="text">
+                 <string>1:N</string>
+                </property>
+               </widget>
+              </item>
+              <item row="7" column="2" colspan="2">
+               <widget class="Line" name="line_19">
+                <property name="orientation">
+                 <enum>Qt::Vertical</enum>
+                </property>
+               </widget>
+              </item>
+              <item row="8" column="2" rowspan="2" colspan="2">
+               <widget class="QPushButton" name="btnReptable_2">
+                <property name="maximumSize">
+                 <size>
+                  <width>30</width>
+                  <height>16777215</height>
+                 </size>
+                </property>
+                <property name="styleSheet">
+                 <string notr="true">background-color: rgb(170, 170, 127);</string>
+                </property>
+                <property name="text">
+                 <string/>
+                </property>
+                <property name="icon">
+                 <iconset resource="../../resources/resources.qrc">
+                  <normaloff>:/icons/finds.png</normaloff>:/icons/finds.png</iconset>
+                </property>
+                <property name="iconSize">
+                 <size>
+                  <width>25</width>
+                  <height>25</height>
+                 </size>
+                </property>
+               </widget>
+              </item>
+              <item row="9" column="1">
+               <widget class="Line" name="line_24">
+                <property name="orientation">
+                 <enum>Qt::Horizontal</enum>
+                </property>
+               </widget>
+              </item>
+              <item row="0" column="1">
+               <widget class="Line" name="line_22">
+                <property name="orientation">
+                 <enum>Qt::Horizontal</enum>
+                </property>
+               </widget>
+              </item>
+              <item row="1" column="2">
+               <widget class="Line" name="line_18">
+                <property name="orientation">
+                 <enum>Qt::Vertical</enum>
+                </property>
+               </widget>
+              </item>
+             </layout>
+            </item>
+           </layout>
            <zorder>line_26</zorder>
-           <zorder>line_18</zorder>
-           <zorder>line_24</zorder>
-           <zorder>label_9</zorder>
-           <zorder>line_19</zorder>
-           <zorder>line_20</zorder>
-           <zorder>btnReptable_2</zorder>
-           <zorder>line_21</zorder>
-           <zorder>btnUTtable</zorder>
-           <zorder>label_10</zorder>
-           <zorder>btnSitotable_2</zorder>
-           <zorder>line_22</zorder>
-           <zorder>line_23</zorder>
            <zorder>label_12</zorder>
           </widget>
           <widget class="QWidget" name="tab_2">
            <attribute name="title">
             <string>Media</string>
            </attribute>
-           <widget class="Line" name="line_9">
-            <property name="geometry">
-             <rect>
-              <x>245</x>
-              <y>82</y>
-              <width>16</width>
-              <height>41</height>
-             </rect>
-            </property>
-            <property name="orientation">
-             <enum>Qt::Vertical</enum>
-            </property>
-           </widget>
            <widget class="QPushButton" name="btnUStable_2">
             <property name="geometry">
              <rect>
-              <x>225</x>
-              <y>50</y>
-              <width>61</width>
-              <height>31</height>
+              <x>150</x>
+              <y>140</y>
+              <width>30</width>
+              <height>33</height>
              </rect>
             </property>
+            <property name="maximumSize">
+             <size>
+              <width>30</width>
+              <height>16777215</height>
+             </size>
+            </property>
             <property name="text">
-             <string>US</string>
+             <string/>
             </property>
             <property name="icon">
-             <iconset>
-              <normaloff>:/icons/iconPAI.png</normaloff>:/icons/iconPAI.png</iconset>
+             <iconset resource="../../resources/resources.qrc">
+              <normaloff>:/icons/IconPAI.png</normaloff>:/icons/IconPAI.png</iconset>
             </property>
             <property name="iconSize">
              <size>
@@ -1067,25 +903,12 @@ selection-color: rgb(140, 140, 105);</string>
              </size>
             </property>
            </widget>
-           <widget class="Line" name="line_30">
-            <property name="geometry">
-             <rect>
-              <x>170</x>
-              <y>136</y>
-              <width>16</width>
-              <height>41</height>
-             </rect>
-            </property>
-            <property name="orientation">
-             <enum>Qt::Vertical</enum>
-            </property>
-           </widget>
            <widget class="QLabel" name="label_17">
             <property name="geometry">
              <rect>
-              <x>169</x>
-              <y>119</y>
-              <width>21</width>
+              <x>108</x>
+              <y>185</y>
+              <width>18</width>
               <height>16</height>
              </rect>
             </property>
@@ -1096,17 +919,23 @@ selection-color: rgb(140, 140, 105);</string>
            <widget class="QPushButton" name="btnReptable_3">
             <property name="geometry">
              <rect>
-              <x>65</x>
-              <y>50</y>
-              <width>101</width>
-              <height>31</height>
+              <x>50</x>
+              <y>140</y>
+              <width>30</width>
+              <height>33</height>
              </rect>
+            </property>
+            <property name="maximumSize">
+             <size>
+              <width>30</width>
+              <height>16777215</height>
+             </size>
             </property>
             <property name="styleSheet">
              <string notr="true">background-color: rgb(170, 170, 127);</string>
             </property>
             <property name="text">
-             <string>Reperti</string>
+             <string/>
             </property>
             <property name="icon">
              <iconset resource="../../resources/resources.qrc">
@@ -1119,59 +948,26 @@ selection-color: rgb(140, 140, 105);</string>
              </size>
             </property>
            </widget>
-           <widget class="Line" name="line_31">
-            <property name="geometry">
-             <rect>
-              <x>192</x>
-              <y>116</y>
-              <width>61</width>
-              <height>20</height>
-             </rect>
-            </property>
-            <property name="orientation">
-             <enum>Qt::Horizontal</enum>
-            </property>
-           </widget>
-           <widget class="Line" name="line_32">
-            <property name="geometry">
-             <rect>
-              <x>95</x>
-              <y>82</y>
-              <width>16</width>
-              <height>41</height>
-             </rect>
-            </property>
-            <property name="orientation">
-             <enum>Qt::Vertical</enum>
-            </property>
-           </widget>
-           <widget class="Line" name="line_33">
-            <property name="geometry">
-             <rect>
-              <x>103</x>
-              <y>118</y>
-              <width>61</width>
-              <height>16</height>
-             </rect>
-            </property>
-            <property name="orientation">
-             <enum>Qt::Horizontal</enum>
-            </property>
-           </widget>
            <widget class="QPushButton" name="btnMedtable">
             <property name="geometry">
              <rect>
-              <x>138</x>
-              <y>180</y>
-              <width>81</width>
-              <height>31</height>
+              <x>108</x>
+              <y>204</y>
+              <width>30</width>
+              <height>33</height>
              </rect>
+            </property>
+            <property name="maximumSize">
+             <size>
+              <width>30</width>
+              <height>16777215</height>
+             </size>
             </property>
             <property name="styleSheet">
              <string notr="true">background-color: rgb(170, 170, 127);</string>
             </property>
             <property name="text">
-             <string>Media</string>
+             <string/>
             </property>
             <property name="icon">
              <iconset resource="../../resources/resources.qrc">
@@ -1187,17 +983,23 @@ selection-color: rgb(140, 140, 105);</string>
            <widget class="QPushButton" name="btnExptable">
             <property name="geometry">
              <rect>
-              <x>113</x>
-              <y>259</y>
-              <width>131</width>
-              <height>31</height>
+              <x>108</x>
+              <y>260</y>
+              <width>30</width>
+              <height>33</height>
              </rect>
+            </property>
+            <property name="maximumSize">
+             <size>
+              <width>30</width>
+              <height>16777215</height>
+             </size>
             </property>
             <property name="styleSheet">
              <string notr="true">background-color: rgb(170, 170, 127);</string>
             </property>
             <property name="text">
-             <string>Esportazione Media</string>
+             <string/>
             </property>
             <property name="icon">
              <iconset resource="../../resources/resources.qrc">
@@ -1210,30 +1012,71 @@ selection-color: rgb(140, 140, 105);</string>
              </size>
             </property>
            </widget>
-           <widget class="Line" name="line_34">
+           <widget class="Line" name="line_5">
             <property name="geometry">
              <rect>
-              <x>170</x>
-              <y>214</y>
+              <x>110</x>
+              <y>240</y>
               <width>16</width>
-              <height>41</height>
+              <height>16</height>
              </rect>
             </property>
             <property name="orientation">
              <enum>Qt::Vertical</enum>
             </property>
            </widget>
-           <zorder>btnUStable_2</zorder>
-           <zorder>line_30</zorder>
-           <zorder>label_17</zorder>
-           <zorder>btnReptable_3</zorder>
-           <zorder>line_31</zorder>
-           <zorder>line_9</zorder>
-           <zorder>line_32</zorder>
-           <zorder>line_33</zorder>
-           <zorder>btnMedtable</zorder>
-           <zorder>btnExptable</zorder>
-           <zorder>line_34</zorder>
+           <widget class="Line" name="line_4">
+            <property name="geometry">
+             <rect>
+              <x>160</x>
+              <y>179</y>
+              <width>16</width>
+              <height>16</height>
+             </rect>
+            </property>
+            <property name="orientation">
+             <enum>Qt::Vertical</enum>
+            </property>
+           </widget>
+           <widget class="Line" name="line_3">
+            <property name="geometry">
+             <rect>
+              <x>60</x>
+              <y>179</y>
+              <width>16</width>
+              <height>16</height>
+             </rect>
+            </property>
+            <property name="orientation">
+             <enum>Qt::Vertical</enum>
+            </property>
+           </widget>
+           <widget class="Line" name="line_9">
+            <property name="geometry">
+             <rect>
+              <x>72</x>
+              <y>190</y>
+              <width>30</width>
+              <height>20</height>
+             </rect>
+            </property>
+            <property name="orientation">
+             <enum>Qt::Horizontal</enum>
+            </property>
+           </widget>
+           <widget class="Line" name="line_17">
+            <property name="geometry">
+             <rect>
+              <x>129</x>
+              <y>190</y>
+              <width>30</width>
+              <height>20</height>
+             </rect>
+            </property>
+            <property name="orientation">
+             <enum>Qt::Horizontal</enum>
+            </property>
+           </widget>
           </widget>
           <widget class="QWidget" name="tab_3">
            <attribute name="title">
