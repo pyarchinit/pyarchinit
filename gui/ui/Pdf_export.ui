@@ -44,8 +44,14 @@
   <layout class="QGridLayout" name="gridLayout_2">
    <item row="8" column="0">
     <widget class="QPushButton" name="pushButton_open_dir">
+     <property name="maximumSize">
+      <size>
+       <width>30</width>
+       <height>16777215</height>
+      </size>
+     </property>
      <property name="text">
-      <string>Apri la cartella di esportazione PDF</string>
+      <string/>
      </property>
      <property name="icon">
       <iconset resource="../../resources/resources.qrc">
@@ -55,12 +61,18 @@
    </item>
    <item row="7" column="0">
     <widget class="QPushButton" name="pushButton_exp_pdf">
+     <property name="maximumSize">
+      <size>
+       <width>30</width>
+       <height>16777215</height>
+      </size>
+     </property>
      <property name="text">
-      <string>Esporta PDF</string>
+      <string/>
      </property>
      <property name="icon">
-      <iconset>
-       <normaloff>:/icons/pdf-icon.jpg</normaloff>:/icons/pdf-icon.jpg</iconset>
+      <iconset resource="../../resources/resources.qrc">
+       <normaloff>:/icons/pdf-icon.png</normaloff>:/icons/pdf-icon.png</iconset>
      </property>
     </widget>
    </item>
@@ -156,11 +168,6 @@
          <property name="frame">
           <bool>true</bool>
          </property>
-         <item>
-          <property name="text">
-           <string>Seleziona un valore...</string>
-          </property>
-         </item>
         </widget>
        </item>
        <item row="2" column="0">
@@ -240,7 +247,7 @@
             <string/>
            </property>
            <property name="icon">
-            <iconset resource="../../resources/resources.qrc">
+            <iconset>
              <normaloff>:/icons/iconPAI.png</normaloff>:/icons/iconPAI.png</iconset>
            </property>
            <property name="iconSize">

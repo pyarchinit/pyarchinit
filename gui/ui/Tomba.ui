@@ -78,7 +78,11 @@
       </widget>
      </item>
      <item row="4" column="0">
-      <widget class="QComboBox" name="comboBox_per_iniz"/>
+      <widget class="QComboBox" name="comboBox_per_iniz">
+       <property name="editable">
+        <bool>true</bool>
+       </property>
+      </widget>
      </item>
      <item row="4" column="6">
       <widget class="QComboBox" name="comboBox_datazione_estesa">
@@ -95,15 +99,23 @@
         </size>
        </property>
        <property name="editable">
-        <bool>false</bool>
+        <bool>true</bool>
        </property>
       </widget>
      </item>
      <item row="4" column="4">
-      <widget class="QComboBox" name="comboBox_fas_fin"/>
+      <widget class="QComboBox" name="comboBox_fas_fin">
+       <property name="editable">
+        <bool>true</bool>
+       </property>
+      </widget>
      </item>
      <item row="4" column="1">
-      <widget class="QComboBox" name="comboBox_fas_iniz"/>
+      <widget class="QComboBox" name="comboBox_fas_iniz">
+       <property name="editable">
+        <bool>true</bool>
+       </property>
+      </widget>
      </item>
      <item row="1" column="0">
       <widget class="QLabel" name="label_42">
@@ -157,7 +169,11 @@
       </widget>
      </item>
      <item row="4" column="3">
-      <widget class="QComboBox" name="comboBox_per_fin"/>
+      <widget class="QComboBox" name="comboBox_per_fin">
+       <property name="editable">
+        <bool>true</bool>
+       </property>
+      </widget>
      </item>
      <item row="2" column="4">
       <widget class="QLabel" name="label_34">
@@ -980,11 +996,6 @@
        <property name="maxCount">
         <number>2147483647</number>
        </property>
-       <item>
-        <property name="text">
-         <string>Inserisci un valore</string>
-        </property>
-       </item>
       </widget>
      </item>
      <item row="0" column="5">
@@ -2470,11 +2481,8 @@ p, li { white-space: pre-wrap; }
        <property name="autoFillBackground">
         <bool>true</bool>
        </property>
-       <property name="currentIndex">
-        <number>-1</number>
-       </property>
-       <property name="maxVisibleItems">
-        <number>100</number>
+       <property name="editable">
+        <bool>true</bool>
        </property>
        <property name="separator">
         <string>; </string>
@@ -2549,8 +2557,8 @@ p, li { white-space: pre-wrap; }
      <y>112</y>
     </hint>
     <hint type="destinationlabel">
-     <x>375</x>
-     <y>462</y>
+     <x>373</x>
+     <y>560</y>
     </hint>
    </hints>
   </connection>
@@ -2561,8 +2569,8 @@ p, li { white-space: pre-wrap; }
    <slot>toggleUserVisible()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>506</x>
-     <y>785</y>
+     <x>128</x>
+     <y>436</y>
     </hint>
     <hint type="destinationlabel">
      <x>224</x>

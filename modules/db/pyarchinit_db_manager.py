@@ -44,7 +44,9 @@ from sqlalchemy.dialects.postgresql import insert
 from modules.db.pyarchinit_db_mapper import US, UT, SITE, PERIODIZZAZIONE, \
     STRUTTURA, SCHEDAIND, INVENTARIO_MATERIALI, DETSESSO, DOCUMENTAZIONE, DETETA, MEDIA, \
     MEDIA_THUMB, MEDIATOENTITY, MEDIAVIEW, TOMBA, CAMPIONI, PYARCHINIT_THESAURUS_SIGLE, \
-    ARCHEOZOOLOGY, INVENTARIO_LAPIDEI, PDF_ADMINISTRATOR,PYUS
+    ARCHEOZOOLOGY, INVENTARIO_LAPIDEI, PDF_ADMINISTRATOR,PYUS,PYSITO_POINT,PYSITO_POLYGON,PYQUOTE, \
+    PYUS_NEGATIVE, PYSTRUTTURE, PYREPERTI, PYINDIVIDUI, PYCAMPIONI, PYTOMBA, PYDOCUMENTAZIONE, PYLINEERIFERIMENTO, \
+    PYRIPARTIZIONI_SPAZIALI, PYSEZIONI
 from modules.db.pyarchinit_db_update import DB_update
 from modules.db.pyarchinit_utility import Utility
 from sqlalchemy.ext.compiler import compiles
@@ -66,56 +68,7 @@ class Pyarchinit_db_management(object):
     def __init__(self, c):
         self.conn_str = c
         
-    # @compiles(Insert)
-    # def _prefix_insert_with_replace(insert_srt, compiler, **kw):
-        # ##############importo i dati nuovi aggiornando i vecchi dati########################
-        # conn = Connection()
-        # conn_str = conn.conn_str()
-        # test_conn = conn_str.find("sqlite")
-        # if test_conn == 0:
-            # return compiler.visit_insert(insert_srt.prefix_with('OR REPLACE'), **kw)
-        # else:
-            # #return compiler.visit_insert(insert.prefix_with(''), **kw)
-            # pk = insert_srt.table.primary_key
-            # insert = compiler.visit_insert(insert_srt, **kw)
-            # ondup = f'ON CONFLICT ({",".join(c.name for c in pk)}) DO UPDATE SET'
-            # updates = ', '.join(f"{c.name}=EXCLUDED.{c.name}" for c in insert_srt.table.columns)
-            # upsert = ' '.join((insert, ondup, updates))
-            # return upsert
-        
-    # @compiles(Insert)
-    # def _prefix_insert_with_ignore(insert_srt, compiler, **kw):
-        # ##############importo i dati aggiornando i vecchi dati########################
-        # conn = Connection()
-        # conn_str = conn.conn_str()
-        # test_conn = conn_str.find("sqlite")
-        # if test_conn == 0:
-            # return compiler.visit_insert(insert_srt.prefix_with('OR IGNORE'), **kw)
-        # else:
-            # #return compiler.visit_insert(insert.prefix_with(''), **kw)
-            # pk = insert_srt.table.primary_key
-            # insert = compiler.visit_insert(insert_srt, **kw)
-            # ondup = f'ON CONFLICT ({",".join(c.name for c in pk)}) DO NOTHING'
-            # #updates = ', '.join(f"{c.name}=EXCLUDED.{c.name}" for c in insert_srt.table.columns)
-            # upsert = ' '.join((insert, ondup))
-            # return upsert    
-        
-        
-        ######da studiare per importare i dati ingorando il costraint############################
-        # else:
-            # conn = Connection()
-            # conn_str = conn.conn_str()
-            # test_conn = conn_str.find("sqlite")
-            # if test_conn == 0:
-                # return compiler.visit_insert(insert_srt.prefix_with('OR IGNORE'), **kw)
-            # else:
-                # #return compiler.visit_insert(insert.prefix_with(''), **kw)
-                # pk = insert_srt.table.primary_key
-                # insert = compiler.visit_insert(insert_srt, **kw)
-                # ondup = f'ON CONFLICT ({",".join(c.name for c in pk)}) DO NOTHING'
-                # #updates = ', '.join(f"{c.name}=EXCLUDED.{c.name}" for c in insert_srt.table.columns)
-                # upsert = ' '.join((insert, ondup))
-                # return upsert
+    
     def load_spatialite(self,dbapi_conn, connection_record):
         dbapi_conn.enable_load_extension(True)
         
@@ -140,8 +93,8 @@ class Pyarchinit_db_management(object):
             self.metadata = MetaData(self.engine)
             conn = self.engine.connect()
             
-        except:
-            pass
+        except Exception as e:
+            QMessageBox.warning(None, "Message", "Eroore: "+str(e), QMessageBox.Ok)
             test = False
         finally:
             conn.close()
@@ -149,8 +102,8 @@ class Pyarchinit_db_management(object):
         try:
             db_upd = DB_update(self.conn_str)
             db_upd.update_table()
-        except:
-            pass
+        except Exception as e:
+            QMessageBox.warning(None, "Message", "Eroore: "+str(e), QMessageBox.Ok)
             test = False
         return test
 
@@ -170,6 +123,131 @@ class Pyarchinit_db_management(object):
                 arg[11],
                 arg[12])
         return pyus
+    
+    def insert_pysito_point(self, *arg):
+        pysito_point = PYSITO_POINT(arg[0],
+                arg[1],
+                arg[2])
+        return pysito_point
+    
+    
+    def insert_pysito_polygon(self, *arg):
+        pysito_polygon = PYSITO_POLYGON(arg[0],
+                arg[1],
+                arg[2])
+        return pysito_polygon
+        
+    def insert_pyquote(self, *arg):
+        pyquote = PYQUOTE(arg[0],
+                arg[1],
+                arg[2],
+                arg[3],
+                arg[4],
+                arg[5],
+                arg[6],
+                arg[7],
+                arg[8],
+                arg[9])
+        return pyquote    
+    
+    def insert_pyus_negative(self, *arg):
+        pyus_negative = PYUS_NEGATIVE(arg[0],
+                arg[1],
+                arg[2],
+                arg[3],
+                arg[4],
+                arg[5],
+                arg[6])
+        return pyus_negative
+    
+    def insert_pystrutture(self, *arg):
+        pystrutture = PYSTRUTTURE(arg[0],
+                arg[1],
+                arg[2],
+                arg[3],
+                arg[4],
+                arg[5],
+                arg[6],
+                arg[7],
+                arg[8],
+                arg[9],
+                arg[10],
+                arg[11])
+        return pystrutture
+    
+    def insert_pyreperti(self, *arg):
+        pyreperti = PYREPERTI(arg[0],
+                arg[1],
+                arg[2],
+                arg[3],
+                arg[4])
+        return pyreperti
+    
+    def insert_pyindividui(self, *arg):
+        pyindividui = PYINDIVIDUI(arg[0],
+                arg[1],
+                arg[2],
+                arg[3],
+                arg[4],
+                arg[5])
+        return pyindividui
+    
+    def insert_pycampioni(self, *arg):
+        pycampioni = PYCAMPIONI(arg[0],
+                arg[1],
+                arg[2],
+                arg[3],
+                arg[4],
+                arg[5],
+                arg[6],
+                arg[7],
+                arg[8])
+        return pycampioni
+    
+    def insert_pytomba(self, *arg):
+        pytomba = PYTOMBA(arg[0],
+                arg[1],
+                arg[2],
+                arg[3])
+        return pytomba
+    
+    def insert_pydocumentazione(self, *arg):
+        pydocumentazione = PYDOCUMENTAZIONE(arg[0],
+                arg[1],
+                arg[2],
+                arg[3],
+                arg[4],
+                arg[5],
+                arg[6])
+        return pydocumentazione
+    
+    def insert_pylineeriferimento(self, *arg):
+        pylineeriferimento = PYLINEERIFERIMENTO(arg[0],
+                arg[1],
+                arg[2],
+                arg[3],
+                arg[4])
+        return pylineeriferimento
+    
+    def insert_pyripartizioni_spaziali(self, *arg):
+        pyripartizioni_spaziali = PYRIPARTIZIONI_SPAZIALI(arg[0],
+                arg[1],
+                arg[2],
+                arg[3],
+                arg[4],
+                arg[5])
+        return pyripartizioni_spaziali
+    
+    def insert_pysezioni(self, *arg):
+        pysezioni = PYSEZIONI(arg[0],
+                arg[1],
+                arg[2],
+                arg[3],
+                arg[4],
+                arg[5])
+        return pysezioni
+    
+    
     
     def insert_values(self, *arg):
         """Istanzia la classe US da pyarchinit_db_mapper"""

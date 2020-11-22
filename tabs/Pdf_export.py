@@ -155,13 +155,15 @@ class pyarchinit_pdf_export(QDialog, MAIN_DIALOG_CLASS):
 
     def on_pushButton_exp_pdf_pressed(self):
         sito = str(self.comboBox_sito.currentText())
-        printed = False
+        
         ####Esportazione della Scheda e indice US
+        
         if self.checkBox_US.isChecked():
 
             us_res = self.db_search_DB('US', 'sito', sito)
 
             if bool(us_res):
+                
                 id_list = []
                 for i in range(len(us_res)):
                     id_list.append(us_res[i].id_us)
@@ -173,6 +175,7 @@ class pyarchinit_pdf_export(QDialog, MAIN_DIALOG_CLASS):
                 if len(self.DATA_LIST) < 1:
                     QMessageBox.warning(self, "Alert", "No form to print, before you need fill it", QMessageBox.Ok)
                 else:
+                    
                     US_pdf_sheet = generate_US_pdf()
                     data_list = self.generate_list_US_pdf()
                     if self.L=='it':
@@ -184,11 +187,11 @@ class pyarchinit_pdf_export(QDialog, MAIN_DIALOG_CLASS):
                     else:
                         US_pdf_sheet.build_US_sheets_en(data_list)  # export sheet
                         US_pdf_sheet.build_index_US_en(data_list, data_list[0][0])  # export list   
-                        
+                    
             if self.DATA_LIST:
                 printed = True
                 self.DATA_LIST = []
-
+            self.messageOnSuccess(printed)
         ####Esportazione della Scheda e indice Periodizzazione
         if self.checkBox_periodo.isChecked():
 
@@ -227,7 +230,7 @@ class pyarchinit_pdf_export(QDialog, MAIN_DIALOG_CLASS):
             if self.DATA_LIST:
                 printed = True
                 self.DATA_LIST = []
-
+            self.messageOnSuccess(printed)
         ####Esportazione della Scheda e indice Struttura
         if self.checkBox_struttura.isChecked():
             struttura_res = self.db_search_DB('STRUTTURA', 'sito', sito)
@@ -261,7 +264,7 @@ class pyarchinit_pdf_export(QDialog, MAIN_DIALOG_CLASS):
                 printed = True
                 self.DATA_LIST = []
                 
-                
+            self.messageOnSuccess(printed)        
         ####Esportazione della Scheda materiali
         if self.checkBox_reperti.isChecked():
             reperti_res = self.db_search_DB('INVENTARIO_MATERIALI', 'sito', sito)
@@ -292,7 +295,7 @@ class pyarchinit_pdf_export(QDialog, MAIN_DIALOG_CLASS):
             if self.DATA_LIST:
                 printed = True
                 self.DATA_LIST = []
-        
+            self.messageOnSuccess(printed)
         ####Esportazione della Scheda tomba
         if self.checkBox_tomba.isChecked():
             tomba_res = self.db_search_DB('TOMBA', 'sito', sito)
@@ -326,7 +329,7 @@ class pyarchinit_pdf_export(QDialog, MAIN_DIALOG_CLASS):
                 self.DATA_LIST = []
 
         
-        self.messageOnSuccess(printed)
+            self.messageOnSuccess(printed)
         ####Esportazione della Scheda campioni
         if self.checkBox_campioni.isChecked():
             campioni_res = self.db_search_DB('CAMPIONI', 'sito', sito)
@@ -358,7 +361,7 @@ class pyarchinit_pdf_export(QDialog, MAIN_DIALOG_CLASS):
             if self.DATA_LIST:
                 printed = True
                 self.DATA_LIST = []
-        self.messageOnSuccess(printed)
+            self.messageOnSuccess(printed)
         ####Esportazione della Scheda individui
         if self.checkBox_individui.isChecked():
             ind_res = self.db_search_DB('SCHEDAIND', 'sito', sito)
@@ -390,8 +393,8 @@ class pyarchinit_pdf_export(QDialog, MAIN_DIALOG_CLASS):
             if self.DATA_LIST:
                 printed = True
                 self.DATA_LIST = []
-        self.messageOnSuccess(printed)
-        
+            #self.messageOnSuccess(printed)
+            self.messageOnSuccess(printed)
     def db_search_DB(self, table_class, field, value):
         self.table_class = table_class
         self.field = field
@@ -408,46 +411,42 @@ class pyarchinit_pdf_export(QDialog, MAIN_DIALOG_CLASS):
 
     def generate_list_US_pdf(self):
         data_list = []
+        #############inserimento nome fiel media############
         for i in range(len(self.DATA_LIST)):
             # assegnazione valori di quota mn e max
+            id_us = str(self.DATA_LIST[i].id_us)
             sito = str(self.DATA_LIST[i].sito)
             area = str(self.DATA_LIST[i].area)
             us = str(self.DATA_LIST[i].us)
-
             res = self.DB_MANAGER.select_quote_from_db_sql(sito, area, us)
             quote = []
-
             for sing_us in res:
                 sing_quota_value = str(sing_us[5])
                 if sing_quota_value[0] == '-':
                     sing_quota_value = sing_quota_value[:7]
                 else:
                     sing_quota_value = sing_quota_value[:6]
-
                 sing_quota = [sing_quota_value, sing_us[4]]
                 quote.append(sing_quota)
             quote.sort()
-
             if bool(quote):
                 quota_min = '%s %s' % (quote[0][0], quote[0][1])
                 quota_max = '%s %s' % (quote[-1][0], quote[-1][1])
             else:
                 if self.L=='it':
-                
-                    quota_min = "Non inserita su GIS"
-                    quota_max = "Non inserita su GIS"
+                    quota_min = ""
+                    quota_max = ""
                 elif self.L == 'de':
-                    quota_min = "Nicht im GIS einbinden "
-                    quota_max = "Nicht im GIS einbinden "
+                    quota_min = ""
+                    quota_max = ""
                 else :
-                    quota_min = "Not inserted in GIS "
-                    quota_max = "Not inserted in GIS  "
+                    quota_min = ""
+                    quota_max = ""
                 # assegnazione numero di pianta
             resus = self.DB_MANAGER.select_us_from_db_sql(sito, area, us, "2")
             elenco_record = []
             for us in resus:
                 elenco_record.append(us)
-
             if bool(elenco_record):
                 sing_rec = elenco_record[0]
                 elenco_piante = sing_rec[6]
@@ -467,94 +466,75 @@ class pyarchinit_pdf_export(QDialog, MAIN_DIALOG_CLASS):
                     piante = "SE im GIS gezeichnet" 
                 else:
                     piante= "SU draft on GIS"
-
             if self.DATA_LIST[i].quota_min_usm == None:
                 quota_min_usm = ""
             else:
                 quota_min_usm = str(self.DATA_LIST[i].quota_min_usm)
-
             if self.DATA_LIST[i].quota_max_usm == None:
                 quota_max_usm = ""
             else:
                 quota_max_usm = str(self.DATA_LIST[i].quota_max_usm)
-
             #nuovi campi per Archeo3
-
             if not self.DATA_LIST[i].quota_relativa:
                 quota_relativa = ""  # 55
             else:
                 quota_relativa = str(self.DATA_LIST[i].quota_relativa)
-
             if not self.DATA_LIST[i].quota_abs:
                 quota_abs = ""  # 56
             else:
                 quota_abs = str(self.DATA_LIST[i].quota_abs)
-
             if not self.DATA_LIST[i].lunghezza_max:
                 lunghezza_max = ""
             else:
                 lunghezza_max = str(self.DATA_LIST[i].lunghezza_max)  # 65 lunghezza max
-
             if not self.DATA_LIST[i].altezza_max:
                 altezza_max = ""
             else:
                 altezza_max = str(self.DATA_LIST[i].altezza_max)  # 66 altezza max
-
             if not self.DATA_LIST[i].altezza_min:
                 altezza_min = ""
             else:
                 altezza_min = str(self.DATA_LIST[i].altezza_min)  # 67 altezza min
-
             if not self.DATA_LIST[i].profondita_max:
                 profondita_max = ""
             else:
                 profondita_max = str(self.DATA_LIST[i].profondita_max)  # 68 profondita_max
-
             if not self.DATA_LIST[i].profondita_min:
                 profondita_min = ""
             else:
                 profondita_min = str(self.DATA_LIST[i].profondita_min)  # 69 profondita min
-
             if not self.DATA_LIST[i].larghezza_media:
                 larghezza_media = ""
             else:
                 larghezza_media = str(self.DATA_LIST[i].larghezza_media)  # 70 larghezza media
-
             if not self.DATA_LIST[i].quota_max_abs:
                 quota_max_abs = ""
             else:
                 quota_max_abs = str(self.DATA_LIST[i].quota_max_abs)  # 71 quota_max_abs
-
             if not self.DATA_LIST[i].quota_max_rel:
                 quota_max_rel = ""
             else:
                 quota_max_rel = str(self.DATA_LIST[i].quota_max_rel)  # 72 quota_max_rel
-
             if not self.DATA_LIST[i].quota_min_abs:
                 quota_min_abs = ""
             else:
                 quota_min_abs = str(self.DATA_LIST[i].quota_min_abs)  # 73 quota_min_abs
-
             if not self.DATA_LIST[i].quota_min_rel:
                 quota_min_rel = ""
             else:
                 quota_min_rel = str(self.DATA_LIST[i].quota_min_rel)  # 74 quota_min_rel
-
             if not self.DATA_LIST[i].lunghezza_usm:
                 lunghezza_usm = ""
             else:
                 lunghezza_usm = str(self.DATA_LIST[i].lunghezza_usm)  # 85 lunghezza usm
-
             if not self.DATA_LIST[i].altezza_usm:
                 altezza_usm = ""
             else:
                 altezza_usm = str(self.DATA_LIST[i].altezza_usm)  # 86 altezza usm
-
             if not self.DATA_LIST[i].spessore_usm:
                 spessore_usm = ""
             else:
                 spessore_usm = str(self.DATA_LIST[i].spessore_usm)  # 87 spessore usm
-
             data_list.append([
                 str(self.DATA_LIST[i].sito),  # 0 - Sito
                 str(self.DATA_LIST[i].area),  # 1 - Area
@@ -587,7 +567,6 @@ class pyarchinit_pdf_export(QDialog, MAIN_DIALOG_CLASS):
                 str(quota_max),  # 26 - quota_max
                 str(piante),  # 27 - piante CAMPO RICAVATO DA GIS CON VALORI SI/NO
                 str(self.DATA_LIST[i].documentazione),  # 28 - documentazione
-
                 #campi USM
                 str(self.DATA_LIST[i].unita_tipo),  # 29 - unita tipo
                 str(self.DATA_LIST[i].settore),  # 30 - settore
@@ -611,7 +590,6 @@ class pyarchinit_pdf_export(QDialog, MAIN_DIALOG_CLASS):
                 str(self.DATA_LIST[i].con_text_mat),          #48  con text mat
                 str(self.DATA_LIST[i].col_materiale),         #49  col materiale
                 str(self.DATA_LIST[i].inclusi_materiali_usm),  #50 inclusi materili usm
-
                 #NUOVI CAMPI PER ARCHEO3
                 str(self.DATA_LIST[i].n_catalogo_generale),  # 51 nr catalogo generale campi aggiunti per archeo 3.0 e allineamento ICCD
                 str(self.DATA_LIST[i].n_catalogo_interno),  # 52 nr catalogo interno
@@ -657,8 +635,25 @@ class pyarchinit_pdf_export(QDialog, MAIN_DIALOG_CLASS):
                 str(self.DATA_LIST[i].campioni_pietra_usm),  # 92 campioni pietra usm
                 str(self.DATA_LIST[i].provenienza_materiali_usm),  # 93 provenienza_materiali_usm
                 str(self.DATA_LIST[i].criteri_distinzione_usm),  # 94 criteri distinzione usm
-                str(self.DATA_LIST[i].uso_primario_usm)  #95 uso primario
-
+                str(self.DATA_LIST[i].uso_primario_usm),  #95 uso primario
+                str(self.DATA_LIST[i].tipologia_opera),
+                str(self.DATA_LIST[i].sezione_muraria),
+                str(self.DATA_LIST[i].orientamento),
+                str(self.DATA_LIST[i].materiali_lat),
+                str(self.DATA_LIST[i].lavorazione_lat),
+                str(self.DATA_LIST[i].consistenza_lat),
+                str(self.DATA_LIST[i].forma_lat),
+                str(self.DATA_LIST[i].colore_lat),
+                str(self.DATA_LIST[i].impasto_lat),
+                str(self.DATA_LIST[i].forma_p),
+                str(self.DATA_LIST[i].colore_p),
+                str(self.DATA_LIST[i].taglio_p),
+                str(self.DATA_LIST[i].posa_opera_p),
+                str(self.DATA_LIST[i].inerti_usm),
+                str(self.DATA_LIST[i].tipo_legante_usm),
+                str(self.DATA_LIST[i].rifinitura_usm),
+                str(self.DATA_LIST[i].materiale_p),
+                str(self.DATA_LIST[i].consistenza_p),
             ])
         return data_list
 
@@ -797,37 +792,51 @@ class pyarchinit_pdf_export(QDialog, MAIN_DIALOG_CLASS):
                 str(self.DATA_LIST[i].corpo_ceramico),  # 20 - corpo_ceramico
                 str(self.DATA_LIST[i].rivestimento),  # 21 - rivestimento
                 str(self.DATA_LIST[i].repertato),  # 22 - repertato
-                str(self.DATA_LIST[i].diagnostico)  # 23 - diagnostico
+                str(self.DATA_LIST[i].diagnostico),
+                str(self.DATA_LIST[i].n_reperto),
+                str(self.DATA_LIST[i].tipo_contenitore)# 23 - diagnostico
             ])
         return data_list
-
     def generate_list_individui_pdf(self):
         data_list = []
         for i in range(len(self.DATA_LIST)):
             data_list.append([
                 str(self.DATA_LIST[i].sito),  # 1 - Sito
-                int(self.DATA_LIST[i].area),  # 2 - Area
-                int(self.DATA_LIST[i].us),  # 3 - us
-                int(self.DATA_LIST[i].nr_individuo),  # 4 -  nr individuo
+                str(self.DATA_LIST[i].area),  # 2 - Area
+                str(self.DATA_LIST[i].us),  # 3 - us
+                str(self.DATA_LIST[i].nr_individuo),  # 4 -  nr individuo
                 str(self.DATA_LIST[i].data_schedatura),  # 5 - data schedatura
                 str(self.DATA_LIST[i].schedatore),  # 6 - schedatore
                 str(self.DATA_LIST[i].sesso),  # 7 - sesso
                 str(self.DATA_LIST[i].eta_min),  # 8 - eta' minima
                 str(self.DATA_LIST[i].eta_max),  # 9- eta massima
                 str(self.DATA_LIST[i].classi_eta),  # 10 - classi di eta'
-                str(self.DATA_LIST[i].osservazioni)  # 11 - osservazioni
+                str(self.DATA_LIST[i].osservazioni),
+                str(self.DATA_LIST[i].sigla_struttura),
+                str(self.DATA_LIST[i].nr_struttura),
+                str(self.DATA_LIST[i].completo_si_no),
+                str(self.DATA_LIST[i].disturbato_si_no),
+                str(self.DATA_LIST[i].in_connessione_si_no),
+                str(self.DATA_LIST[i].lunghezza_scheletro),
+                str(self.DATA_LIST[i].posizione_scheletro),
+                str(self.DATA_LIST[i].posizione_cranio),
+                str(self.DATA_LIST[i].posizione_arti_superiori),
+                str(self.DATA_LIST[i].posizione_arti_inferiori),
+                str(self.DATA_LIST[i].orientamento_asse),
+                str(self.DATA_LIST[i].orientamento_azimut)   
             ])
         return data_list
+
 
     def generate_list_tomba_pdf(self):
         data_list = []
         for i in range(len(self.DATA_LIST)):
             sito = str(self.DATA_LIST[i].sito)
             nr_individuo = str(self.DATA_LIST[i].nr_individuo)
-            nr_individuo_find = int(self.DATA_LIST[i].nr_individuo)
-            sigla_struttura = '{}{}'.format(str(self.DATA_LIST[i].sigla_struttura), str(self.DATA_LIST[i].nr_struttura))
+            nr_individuo_find = str(self.DATA_LIST[i].nr_individuo)
+            sigla_struttura = '{}{}{}'.format(str(self.DATA_LIST[i].sigla_struttura),'-', str(self.DATA_LIST[i].nr_struttura))
 
-            res_ind = self.DB_MANAGER.query_bool({"sito": "'" + sito + "'", "nr_individuo": nr_individuo_find},
+            res_ind = self.DB_MANAGER.query_bool({"sito": "'" + sito + "'"},
                                                  "SCHEDAIND")
 
             us_ind_list = []
@@ -835,8 +844,6 @@ class pyarchinit_pdf_export(QDialog, MAIN_DIALOG_CLASS):
                 for ri in res_ind:
                     us_ind_list.append([str(ri.sito), str(ri.area), str(ri.us)])
                 us_ind_list.sort()
-
-                # self.testing('C:\Users\Luca\pyarchinit_Test_folder\lista_strutture.txt', str(res_ind))
 
             quote_ind = []
             if bool(us_ind_list):
@@ -860,8 +867,8 @@ class pyarchinit_pdf_export(QDialog, MAIN_DIALOG_CLASS):
             else:
                 if self.L=='it':
                 
-                    quota_min_ind = "Non inserita su GIS"
-                    quota_max_ind = "Non inserita su GIS"
+                    quota_min_ind = ""
+                    quota_max_ind = ""
                 elif self.L == 'de':
                     quota_min_ind = "Nicht im GIS einbinden "
                     quota_max_ind = "Nicht im GIS einbinden "
@@ -873,7 +880,7 @@ class pyarchinit_pdf_export(QDialog, MAIN_DIALOG_CLASS):
 
             res_strutt = self.DB_MANAGER.query_bool(
                 {"sito": "'" + str(sito) + "'", "struttura": "'" + str(sigla_struttura) + "'"}, "US")
-            # res = db.query_distinct('INVENTARIO_MATERIALI',[['sito','"Sito archeologico"']], ['area', 'us'])
+            
             us_strutt_list = []
             if bool(res_strutt):
                 for rs in res_strutt:
@@ -926,32 +933,22 @@ class pyarchinit_pdf_export(QDialog, MAIN_DIALOG_CLASS):
                 str(self.DATA_LIST[i].stato_di_conservazione),  # 11 - stato_di_conservazione
                 str(self.DATA_LIST[i].copertura_tipo),  # 12 - copertura tipo
                 str(self.DATA_LIST[i].tipo_contenitore_resti),  # 13 - tipo contenitore resti
-                str(self.DATA_LIST[i].orientamento_asse),  # 14 - orientamento asse
-                self.DATA_LIST[i].orientamento_azimut,  # 15 orientamento azimut
+                str(self.DATA_LIST[i].tipo_deposizione),  # 14 - orientamento asse
+                str(self.DATA_LIST[i].tipo_sepoltura),  # 15 orientamento azimut
                 str(self.DATA_LIST[i].corredo_presenza),  # 16-  corredo presenza
                 str(self.DATA_LIST[i].corredo_tipo),  # 17 - corredo tipo
                 str(self.DATA_LIST[i].corredo_descrizione),  # 18 - corredo descrizione
-                self.DATA_LIST[i].lunghezza_scheletro,  # 19 - lunghezza scheletro
-                str(self.DATA_LIST[i].posizione_cranio),  # 20 - posizione cranio
-                str(self.DATA_LIST[i].posizione_scheletro),  # 21 - posizione cranio
-                str(self.DATA_LIST[i].posizione_arti_superiori),  # 22 - posizione arti superiori
-                str(self.DATA_LIST[i].posizione_arti_inferiori),  # 23 - posizione arti inferiori
-                str(self.DATA_LIST[i].completo_si_no),  # 24 - completo
-                str(self.DATA_LIST[i].disturbato_si_no),  # 25- disturbato
-                str(self.DATA_LIST[i].in_connessione_si_no),  # 26 - in connessione
-                str(self.DATA_LIST[i].caratteristiche),  # 27 - caratteristiche
-                str(self.DATA_LIST[i].periodo_iniziale),  # 28 - periodo iniziale
-                str(self.DATA_LIST[i].fase_iniziale),  # 29 - fase iniziale
-                str(self.DATA_LIST[i].periodo_finale),  # 30 - periodo finale
-                str(self.DATA_LIST[i].fase_finale),  # 31 - fase finale
-                str(self.DATA_LIST[i].datazione_estesa),  # 32 - datazione estesa
-                str(self.DATA_LIST[i].misure_tomba),  # 33 - misure tomba
-                quota_min_ind,  # 34 - quota min individuo
-                quota_max_ind,  # 35 - quota max individuo
-                quota_min_strutt,  # 36 - quota min struttura
-                quota_max_strutt,  # 37 - quota max struttura
-                us_ind_list,  # 38 - us individuo
-                us_strutt_list  # 39 - us struttura
+                str(self.DATA_LIST[i].periodo_iniziale),  # 19 - periodo iniziale
+                str(self.DATA_LIST[i].fase_iniziale),  # 20 - fase iniziale
+                str(self.DATA_LIST[i].periodo_finale),  # 21 - periodo finale
+                str(self.DATA_LIST[i].fase_finale),  # 22 - fase finale
+                str(self.DATA_LIST[i].datazione_estesa),#23
+                quota_min_ind,  # 24 - quota min individuo
+                quota_max_ind,  # 25 - quota max individuo
+                quota_min_strutt,  # 26 - quota min struttura
+                quota_max_strutt,  # 27 - quota max struttura
+                us_ind_list,  # 28 - us individuo
+                us_strutt_list  # 29 - us struttura
             ])
 
         return data_list

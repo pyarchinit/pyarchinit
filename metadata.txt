@@ -12,18 +12,45 @@
 name=pyArchInit
 qgisMinimumVersion=3.0
 description=pyarchinit an tool for archaeological works
-version=2.0.6
+version=2.1.3
 author=Luca Mandolesi&Enzo Cocca
 email=pyarchinit@gmail.com
 
 about=https://github.com/pyarchinit/pyarchinit
+
 
 tracker=https://github.com/pyarchinit/pyarchinit/issues
 repository=https://github.com/pyarchinit/pyarchinit
 
 
 
-changelog=release2.0.6:
+changelog=release2.1.3
+        -#290
+   -------------------------------------------------------------------------------
+   release2.1.2
+        -#297
+   -------------------------------------------------------------------------------
+   release2.1.1
+        -update export image
+   -------------------------------------------------------------------------------
+
+   release2.1.0
+        -fix bug #295
+        -fig bug #296
+   -------------------------------------------------------------------------------
+
+   release2.0.9
+        -add struttura view in media manger
+   -------------------------------------------------------------------------------
+   release2.0.8
+        -update order layer #288
+        - update export image in period and phase
+   -------------------------------------------------------------------------------
+
+   release2.0.7
+        -create vector layer
+   -------------------------------------------------------------------------------
+   release2.0.6:
         -create form us, reperti and tomba from media manger if not exists
    -------------------------------------------------------------------------------
    release2.0.5:

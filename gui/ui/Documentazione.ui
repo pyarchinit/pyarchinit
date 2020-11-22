@@ -24,7 +24,7 @@
     <normaloff>:/icons/iconSite.png</normaloff>:/icons/iconSite.png</iconset>
   </property>
   <layout class="QGridLayout" name="gridLayout_7">
-   <item row="2" column="0">
+   <item row="3" column="0">
     <widget class="QComboBox" name="comboBox_sito_doc">
      <property name="enabled">
       <bool>false</bool>
@@ -61,10 +61,33 @@
      </item>
     </widget>
    </item>
-   <item row="3" column="0">
-    <widget class="QLabel" name="label_sito_doc">
-     <property name="text">
-      <string>Sito</string>
+   <item row="8" column="0">
+    <widget class="QLineEdit" name="lineEdit_nome_doc">
+     <property name="enabled">
+      <bool>false</bool>
+     </property>
+    </widget>
+   </item>
+   <item row="1" column="0">
+    <widget class="Line" name="line_8">
+     <property name="font">
+      <font>
+       <weight>75</weight>
+       <bold>true</bold>
+      </font>
+     </property>
+     <property name="orientation">
+      <enum>Qt::Horizontal</enum>
+     </property>
+    </widget>
+   </item>
+   <item row="5" column="0">
+    <widget class="QComboBox" name="comboBox_tipo_doc">
+     <property name="enabled">
+      <bool>false</bool>
+     </property>
+     <property name="editable">
+      <bool>true</bool>
      </property>
     </widget>
    </item>
@@ -528,51 +551,14 @@
      </item>
     </layout>
    </item>
-   <item row="6" column="0">
-    <widget class="QLineEdit" name="lineEdit_nome_doc">
-     <property name="enabled">
-      <bool>false</bool>
-     </property>
-    </widget>
-   </item>
-   <item row="7" column="0">
-    <widget class="QLabel" name="label">
+   <item row="2" column="0">
+    <widget class="QLabel" name="label_sito_doc">
      <property name="text">
-      <string>Nome documentazione</string>
+      <string>Sito</string>
      </property>
     </widget>
    </item>
-   <item row="1" column="0">
-    <widget class="Line" name="line_8">
-     <property name="font">
-      <font>
-       <weight>75</weight>
-       <bold>true</bold>
-      </font>
-     </property>
-     <property name="orientation">
-      <enum>Qt::Horizontal</enum>
-     </property>
-    </widget>
-   </item>
-   <item row="5" column="0">
-    <widget class="QLabel" name="label_2_tipo_doc">
-     <property name="text">
-      <string>Tipo documentazione</string>
-     </property>
-    </widget>
-   </item>
-   <item row="4" column="0">
-    <widget class="QComboBox" name="comboBox_tipo_doc">
-     <property name="enabled">
-      <bool>false</bool>
-     </property>
-     <property name="editable">
-      <bool>true</bool>
-     </property>
-    </widget>
-   </item>
-   <item row="8" column="0">
+   <item row="10" column="0">
     <widget class="QTabWidget" name="tabWidget_tab_doc">
      <property name="currentIndex">
       <number>0</number>
@@ -589,13 +575,6 @@
          </property>
          <property name="editable">
           <bool>true</bool>
-         </property>
-        </widget>
-       </item>
-       <item row="3" column="0">
-        <widget class="QLabel" name="label_2_sorgente_doc">
-         <property name="text">
-          <string>Sorgente</string>
          </property>
         </widget>
        </item>
@@ -641,32 +620,11 @@
          </item>
         </widget>
        </item>
-       <item row="5" column="0">
-        <widget class="QLabel" name="label_2_scala_doc">
-         <property name="text">
-          <string>Scala</string>
-         </property>
-        </widget>
-       </item>
        <item row="6" column="0" colspan="3">
         <widget class="QLineEdit" name="lineEdit_disegnatore_doc"/>
        </item>
-       <item row="7" column="0">
-        <widget class="QLabel" name="label_2_disegnatore_doc">
-         <property name="text">
-          <string>Disegnatore</string>
-         </property>
-        </widget>
-       </item>
        <item row="10" column="0" colspan="3">
         <widget class="QLineEdit" name="lineEdit_data_doc"/>
-       </item>
-       <item row="11" column="0">
-        <widget class="QLabel" name="label_2_data_doc">
-         <property name="text">
-          <string>Data</string>
-         </property>
-        </widget>
        </item>
        <item row="12" column="2">
         <widget class="QPushButton" name="pushButton_disegno_doc">
@@ -707,35 +665,56 @@
          </property>
         </spacer>
        </item>
+       <item row="0" column="0">
+        <widget class="QLabel" name="label_2_sorgente_doc">
+         <property name="text">
+          <string>Sorgente</string>
+         </property>
+        </widget>
+       </item>
+       <item row="3" column="0">
+        <widget class="QLabel" name="label_2_scala_doc">
+         <property name="text">
+          <string>Scala</string>
+         </property>
+        </widget>
+       </item>
+       <item row="5" column="0">
+        <widget class="QLabel" name="label_2_disegnatore_doc">
+         <property name="text">
+          <string>Disegnatore</string>
+         </property>
+        </widget>
+       </item>
+       <item row="8" column="0">
+        <widget class="QLabel" name="label_2_data_doc">
+         <property name="text">
+          <string>Data</string>
+         </property>
+        </widget>
+       </item>
       </layout>
      </widget>
      <widget class="QWidget" name="tab_2_doc">
       <attribute name="title">
        <string>Note</string>
       </attribute>
-      <widget class="QTextEdit" name="textEdit_note_doc">
-       <property name="geometry">
-        <rect>
-         <x>10</x>
-         <y>20</y>
-         <width>491</width>
-         <height>191</height>
-        </rect>
-       </property>
-      </widget>
-      <widget class="QLabel" name="label_2_note_doc">
-       <property name="geometry">
-        <rect>
-         <x>10</x>
-         <y>220</y>
-         <width>46</width>
-         <height>13</height>
-        </rect>
-       </property>
-       <property name="text">
-        <string>Note</string>
-       </property>
-      </widget>
+      <layout class="QGridLayout" name="gridLayout_10">
+       <item row="0" column="0">
+        <layout class="QGridLayout" name="gridLayout_9">
+         <item row="0" column="0">
+          <widget class="QLabel" name="label_2_note_doc">
+           <property name="text">
+            <string>Note</string>
+           </property>
+          </widget>
+         </item>
+         <item row="1" column="0">
+          <widget class="QTextEdit" name="textEdit_note_doc"/>
+         </item>
+        </layout>
+       </item>
+      </layout>
      </widget>
      <widget class="QWidget" name="tab">
       <attribute name="title">
@@ -794,6 +773,20 @@
        </item>
       </layout>
      </widget>
+    </widget>
+   </item>
+   <item row="4" column="0">
+    <widget class="QLabel" name="label_2_tipo_doc">
+     <property name="text">
+      <string>Tipo documentazione</string>
+     </property>
+    </widget>
+   </item>
+   <item row="7" column="0">
+    <widget class="QLabel" name="label">
+     <property name="text">
+      <string>Nome documentazione</string>
+     </property>
     </widget>
    </item>
   </layout>
