@@ -343,13 +343,13 @@ class pyarchinit_Images_directory_export(QDialog, MAIN_DIALOG_CLASS):
                 QMessageBox.warning(self, "Alert", "Creazione directories terminata", QMessageBox.Ok)
                 
         
-        if self.comboBox_export.currentText()=='US':
+        if self.comboBox_export.currentText()=='US / in periodi e fasi':
             
             us_res = self.db_search_DB('US', 'sito', sito)
             sito_path = '{}{}{}'.format(self.HOME, os.sep, "pyarchinit_image_export")
             self.OS_UTILITY.create_dir(sito_path)
             if bool(us_res):
-                sito_folder =  '{}{}{}'.format(sito_path, os.sep, self.comboBox_sito.currentText() +' - '+ str('Tutte le immagini'))
+                sito_folder =  '{}{}{}'.format(sito_path, os.sep, self.comboBox_sito.currentText() +' - '+ str('US in periodi e fasi'))
                 # Periodo_path = '{}{}{}'.format(sito_folder, os.sep, "Periodo")
                 # self.OS_UTILITY.create_dir(Periodo_path)
                 for sing_us in us_res:
@@ -409,6 +409,397 @@ class pyarchinit_Images_directory_export(QDialog, MAIN_DIALOG_CLASS):
                         self.OS_UTILITY.copy_file_img(thumb_resize_str+str(sing_media.path_resize), sing_US_path)
                 
                     search_images_res = ""
+            QMessageBox.warning(self, "Alert", "Creazione directories terminata", QMessageBox.Ok)
+        if self.comboBox_export.currentText()=='US':
+            
+            us_res = self.db_search_DB('US', 'sito', sito)
+            sito_path = '{}{}{}'.format(self.HOME, os.sep, "pyarchinit_image_export")
+            self.OS_UTILITY.create_dir(sito_path)
+            if bool(us_res):
+                sito_folder =  '{}{}{}'.format(sito_path, os.sep, self.comboBox_sito.currentText() +' - '+ str('US'))
+                # Periodo_path = '{}{}{}'.format(sito_folder, os.sep, "Periodo")
+                # self.OS_UTILITY.create_dir(Periodo_path)
+                for sing_us in us_res:
+                    
+                    sing_us_num = str(sing_us.us)
+                    prefix = '0'
+                    sing_us_num_len = len(sing_us_num)
+                    if sing_us_num_len == 1:
+                        prefix = prefix * 4
+                    elif sing_us_num_len == 2:
+                        prefix = prefix * 3
+                    elif sing_us_num_len == 3:
+                        prefix = prefix * 2
+                    else:
+                        pass
+                    
+                    
+                    
+                    sing_us_dir = prefix + str(sing_us_num)
+                    sing_US_path = ('%s%sUS - %s') % (sito_folder , os.sep, sing_us_dir)
+                    self.OS_UTILITY.create_dir(sing_US_path)
+
+                    search_dict = {'id_entity': sing_us.id_us, 'entity_type': "'" + "US" + "'"}
+
+                    u = Utility()
+                    search_dict = u.remove_empty_items_fr_dict(search_dict)
+                    search_images_res = self.DB_MANAGER.query_bool(search_dict, 'MEDIAVIEW')
+
+                    for sing_media in search_images_res:
+                        self.OS_UTILITY.copy_file_img(thumb_resize_str+str(sing_media.path_resize), sing_US_path)
+                
+                    search_images_res = ""
+            QMessageBox.warning(self, "Alert", "Creazione directories terminata", QMessageBox.Ok)
+        if self.comboBox_export.currentText()=='Reperti':
+            
+            us_res = self.db_search_DB('INVENTARIO_MATERIALI', 'sito', sito)
+            sito_path = '{}{}{}'.format(self.HOME, os.sep, "pyarchinit_image_export")
+            self.OS_UTILITY.create_dir(sito_path)
+            if bool(us_res):
+                sito_folder =  '{}{}{}'.format(sito_path, os.sep, self.comboBox_sito.currentText() +' - '+ str('RA'))
+                # Periodo_path = '{}{}{}'.format(sito_folder, os.sep, "Periodo")
+                # self.OS_UTILITY.create_dir(Periodo_path)
+                for sing_us in us_res:
+                    
+                    sing_us_num = str(sing_us.numero_inventario)
+                    prefix = '0'
+                    sing_us_num_len = len(sing_us_num)
+                    if sing_us_num_len == 1:
+                        prefix = prefix * 4
+                    elif sing_us_num_len == 2:
+                        prefix = prefix * 3
+                    elif sing_us_num_len == 3:
+                        prefix = prefix * 2
+                    else:
+                        pass
+                    
+                    
+                    
+                    sing_us_dir = prefix + str(sing_us_num)
+                    sing_US_path = ('%s%sRA - %s') % (sito_folder , os.sep, sing_us_dir)
+                    self.OS_UTILITY.create_dir(sing_US_path)
+
+                    search_dict = {'id_entity': sing_us.id_invmat, 'entity_type': "'" + "REPERTO" + "'"}
+
+                    u = Utility()
+                    search_dict = u.remove_empty_items_fr_dict(search_dict)
+                    search_images_res = self.DB_MANAGER.query_bool(search_dict, 'MEDIAVIEW')
+
+                    for sing_media in search_images_res:
+                        self.OS_UTILITY.copy_file_img(thumb_resize_str+str(sing_media.path_resize), sing_US_path)
+                
+                    search_images_res = ""
+            QMessageBox.warning(self, "Alert", "Creazione directories terminata", QMessageBox.Ok)
+        
+        if self.comboBox_export.currentText()=='Reperti \ in Definizione materiali':
+            
+            us_res = self.db_search_DB('INVENTARIO_MATERIALI', 'sito', sito)
+            sito_path = '{}{}{}'.format(self.HOME, os.sep, "pyarchinit_image_export")
+            self.OS_UTILITY.create_dir(sito_path)
+            if bool(us_res):
+                sito_folder =  '{}{}{}'.format(sito_path, os.sep, self.comboBox_sito.currentText() +' - '+ str('RA Definizione Materiali'))
+                # Periodo_path = '{}{}{}'.format(sito_folder, os.sep, "Periodo")
+                # self.OS_UTILITY.create_dir(Periodo_path)
+                for sing_us in us_res:
+                    sing_per_num = str(sing_us.definizione)
+                    
+                    #sing_per_dir = prefix + str(sing_per_num)
+                    sing_def_path = ('%s%sDefinizione - %s') % (sito_folder, os.sep, sing_per_num)
+                    self.OS_UTILITY.create_dir(sing_def_path)
+                    
+                    sing_us_num = str(sing_us.numero_inventario)
+                    prefix = '0'
+                    sing_us_num_len = len(sing_us_num)
+                    if sing_us_num_len == 1:
+                        prefix = prefix * 4
+                    elif sing_us_num_len == 2:
+                        prefix = prefix * 3
+                    elif sing_us_num_len == 3:
+                        prefix = prefix * 2
+                    else:
+                        pass
+                    
+                    
+                    
+                    sing_us_dir = prefix + str(sing_us_num)
+                    sing_US_path = ('%s%sRA - %s') % (sing_def_path , os.sep, sing_us_dir)
+                    self.OS_UTILITY.create_dir(sing_US_path)
+
+                    search_dict = {'id_entity': sing_us.id_invmat, 'entity_type': "'" + "REPERTO" + "'"}
+
+                    u = Utility()
+                    search_dict = u.remove_empty_items_fr_dict(search_dict)
+                    search_images_res = self.DB_MANAGER.query_bool(search_dict, 'MEDIAVIEW')
+
+                    for sing_media in search_images_res:
+                        self.OS_UTILITY.copy_file_img(thumb_resize_str+str(sing_media.path_resize), sing_US_path)
+                
+                    search_images_res = ""
+            QMessageBox.warning(self, "Alert", "Creazione directories terminata", QMessageBox.Ok)
+        
+        if self.comboBox_export.currentText()=='Reperti \ in Tipo reperto':
+            
+            us_res = self.db_search_DB('INVENTARIO_MATERIALI', 'sito', sito)
+            sito_path = '{}{}{}'.format(self.HOME, os.sep, "pyarchinit_image_export")
+            self.OS_UTILITY.create_dir(sito_path)
+            if bool(us_res):
+                sito_folder =  '{}{}{}'.format(sito_path, os.sep, self.comboBox_sito.currentText() +' - '+ str('RA Tipo Reperto'))
+                # Periodo_path = '{}{}{}'.format(sito_folder, os.sep, "Periodo")
+                # self.OS_UTILITY.create_dir(Periodo_path)
+                for sing_us in us_res:
+                    sing_per_num = str(sing_us.definizione)
+                    
+                    #sing_per_dir = prefix + str(sing_per_num)
+                    sing_def_path = ('%s%sDefinizione - %s') % (sito_folder, os.sep, sing_per_num)
+                    self.OS_UTILITY.create_dir(sing_def_path)
+                    
+                    
+                    sing_tipo_num = str(sing_us.tipo_reperto)
+                    
+                    #sing_per_dir = prefix + str(sing_per_num)
+                    sing_tipo_path = ('%s%sDefinizione - %s') % (sing_def_path , os.sep, sing_tipo_num)
+                    self.OS_UTILITY.create_dir(sing_tipo_path)
+                    
+                    sing_us_num = str(sing_us.numero_inventario)
+                    prefix = '0'
+                    sing_us_num_len = len(sing_us_num)
+                    if sing_us_num_len == 1:
+                        prefix = prefix * 4
+                    elif sing_us_num_len == 2:
+                        prefix = prefix * 3
+                    elif sing_us_num_len == 3:
+                        prefix = prefix * 2
+                    else:
+                        pass
+                    
+                    
+                    
+                    sing_us_dir = prefix + str(sing_us_num)
+                    sing_US_path = ('%s%sRA - %s') % (sing_tipo_path , os.sep, sing_us_dir)
+                    self.OS_UTILITY.create_dir(sing_US_path)
+
+                    search_dict = {'id_entity': sing_us.id_invmat, 'entity_type': "'" + "REPERTO" + "'"}
+
+                    u = Utility()
+                    search_dict = u.remove_empty_items_fr_dict(search_dict)
+                    search_images_res = self.DB_MANAGER.query_bool(search_dict, 'MEDIAVIEW')
+
+                    for sing_media in search_images_res:
+                        self.OS_UTILITY.copy_file_img(thumb_resize_str+str(sing_media.path_resize), sing_US_path)
+                
+                    search_images_res = ""
+            QMessageBox.warning(self, "Alert", "Creazione directories terminata", QMessageBox.Ok)
+        
+        if self.comboBox_export.currentText()=='Tomba':
+            
+            us_res = self.db_search_DB('TOMBA', 'sito', sito)
+            sito_path = '{}{}{}'.format(self.HOME, os.sep, "pyarchinit_image_export")
+            self.OS_UTILITY.create_dir(sito_path)
+            if bool(us_res):
+                sito_folder =  '{}{}{}'.format(sito_path, os.sep, self.comboBox_sito.currentText() +' - '+ str('TB'))
+                # Periodo_path = '{}{}{}'.format(sito_folder, os.sep, "Periodo")
+                # self.OS_UTILITY.create_dir(Periodo_path)
+                for sing_us in us_res:
+                    
+                    sing_us_num = str(sing_us.nr_scheda_taf)
+                    prefix = '0'
+                    sing_us_num_len = len(sing_us_num)
+                    if sing_us_num_len == 1:
+                        prefix = prefix * 4
+                    elif sing_us_num_len == 2:
+                        prefix = prefix * 3
+                    elif sing_us_num_len == 3:
+                        prefix = prefix * 2
+                    else:
+                        pass
+                    
+                    
+                    
+                    sing_us_dir = prefix + str(sing_us_num)
+                    sing_US_path = ('%s%sTB - %s') % (sito_folder , os.sep, sing_us_dir)
+                    self.OS_UTILITY.create_dir(sing_US_path)
+
+                    search_dict = {'id_entity': sing_us.id_tomba, 'entity_type': "'" + "TOMBA" + "'"}
+
+                    u = Utility()
+                    search_dict = u.remove_empty_items_fr_dict(search_dict)
+                    search_images_res = self.DB_MANAGER.query_bool(search_dict, 'MEDIAVIEW')
+
+                    for sing_media in search_images_res:
+                        self.OS_UTILITY.copy_file_img(thumb_resize_str+str(sing_media.path_resize), sing_US_path)
+                
+                    search_images_res = ""
+            QMessageBox.warning(self, "Alert", "Creazione directories terminata", QMessageBox.Ok)
+        
+        if self.comboBox_export.currentText()=='Tomba / in periodi e fasi':
+            
+            us_res = self.db_search_DB('TOMBA', 'sito', sito)
+            sito_path = '{}{}{}'.format(self.HOME, os.sep, "pyarchinit_image_export")
+            self.OS_UTILITY.create_dir(sito_path)
+            if bool(us_res):
+                sito_folder =  '{}{}{}'.format(sito_path, os.sep, self.comboBox_sito.currentText() +' - '+ str('TB in periodi e fasi'))
+                # Periodo_path = '{}{}{}'.format(sito_folder, os.sep, "Periodo")
+                # self.OS_UTILITY.create_dir(Periodo_path)
+                for sing_us in us_res:
+                    sing_per_num = str(sing_us.periodo_iniziale)
+                    prefix = ''
+                    sing_per_num_len = len(sing_per_num)
+                    if sing_per_num_len == 1:
+                        prefix = prefix * 1
+                    
+                    else:
+                        pass
+                    sing_per_dir = prefix + str(sing_per_num)
+                    sing_Periodo_path = ('%s%sPeriodo - %s') % (sito_folder, os.sep, sing_per_dir)
+                    self.OS_UTILITY.create_dir(sing_Periodo_path)
+                    
+                    
+                    
+                    sing_fase_num = str(sing_us.fase_iniziale)
+                    prefix = ''
+                    sing_fase_num_len = len(sing_fase_num)
+                    if sing_fase_num_len == 1:
+                        prefix = prefix * 1
+                    
+                    else:
+                        pass
+                    sing_fase_dir = prefix + str(sing_fase_num)
+                    sing_Fase_path = ('%s%sFase - %s') % (sing_Periodo_path, os.sep, sing_fase_dir)
+                    self.OS_UTILITY.create_dir(sing_Fase_path)
+                        
+                        
+                        
+                    sing_us_num = str(sing_us.nr_scheda_taf)
+                    prefix = '0'
+                    sing_us_num_len = len(sing_us_num)
+                    if sing_us_num_len == 1:
+                        prefix = prefix * 4
+                    elif sing_us_num_len == 2:
+                        prefix = prefix * 3
+                    elif sing_us_num_len == 3:
+                        prefix = prefix * 2
+                    else:
+                        pass
+                    
+                    
+                    
+                    sing_us_dir = prefix + str(sing_us_num)
+                    sing_US_path = ('%s%sTB - %s') % (sing_Fase_path , os.sep, sing_us_dir)
+                    self.OS_UTILITY.create_dir(sing_US_path)
+
+                    search_dict = {'id_entity': sing_us.id_tomba, 'entity_type': "'" + "TOMBA" + "'"}
+
+                    u = Utility()
+                    search_dict = u.remove_empty_items_fr_dict(search_dict)
+                    search_images_res = self.DB_MANAGER.query_bool(search_dict, 'MEDIAVIEW')
+
+                    for sing_media in search_images_res:
+                        self.OS_UTILITY.copy_file_img(thumb_resize_str+str(sing_media.path_resize), sing_US_path)
+                
+                    search_images_res = ""
+            QMessageBox.warning(self, "Alert", "Creazione directories terminata", QMessageBox.Ok)
+        
+        
+        
+        
+        
+        if self.comboBox_export.currentText()=='Strutture':
+            
+            us_res = self.db_search_DB('STRUTTURA', 'sito', sito)
+            sito_path = '{}{}{}'.format(self.HOME, os.sep, "pyarchinit_image_export")
+            self.OS_UTILITY.create_dir(sito_path)
+            if bool(us_res):
+                sito_folder =  '{}{}{}'.format(sito_path, os.sep, self.comboBox_sito.currentText() +' - '+ str('ST'))
+                # Periodo_path = '{}{}{}'.format(sito_folder, os.sep, "Periodo")
+                # self.OS_UTILITY.create_dir(Periodo_path)
+                for sing_us in us_res:
+                    
+                    sing_us_num = str(sing_us.sigla_struttura+str(sing_us.numero_struttura))
+                        
+                        
+                        
+                    
+                    sing_US_path = ('%s%sStruttura - %s') % (sito_folder , os.sep, sing_us_num)
+                    self.OS_UTILITY.create_dir(sing_US_path)
+
+                    search_dict = {'id_entity': sing_us.id_struttura, 'entity_type': "'" + "STRUTTURA" + "'"}
+
+                    u = Utility()
+                    search_dict = u.remove_empty_items_fr_dict(search_dict)
+                    search_images_res = self.DB_MANAGER.query_bool(search_dict, 'MEDIAVIEW')
+
+                    for sing_media in search_images_res:
+                        try:
+                            self.OS_UTILITY.copy_file_img(thumb_resize_str+str(sing_media.path_resize), sing_US_path)
+                        except:
+                            pass
+                    search_images_res = ""
+            QMessageBox.warning(self, "Alert", "Creazione directories terminata", QMessageBox.Ok)
+        
+        if self.comboBox_export.currentText()=='Strutture / in periodi e fasi':
+            
+            us_res = self.db_search_DB('STRUTTURA', 'sito', sito)
+            sito_path = '{}{}{}'.format(self.HOME, os.sep, "pyarchinit_image_export")
+            self.OS_UTILITY.create_dir(sito_path)
+            if bool(us_res):
+                sito_folder =  '{}{}{}'.format(sito_path, os.sep, self.comboBox_sito.currentText() +' - '+ str('ST in periodi e fasi'))
+                # Periodo_path = '{}{}{}'.format(sito_folder, os.sep, "Periodo")
+                # self.OS_UTILITY.create_dir(Periodo_path)
+                for sing_us in us_res:
+                    sing_per_num = str(sing_us.periodo_iniziale)
+                    prefix = ''
+                    sing_per_num_len = len(sing_per_num)
+                    if sing_per_num_len == 1:
+                        prefix = prefix * 1
+                    
+                    else:
+                        pass
+                    sing_per_dir = prefix + str(sing_per_num)
+                    sing_Periodo_path = ('%s%sPeriodo - %s') % (sito_folder, os.sep, sing_per_dir)
+                    self.OS_UTILITY.create_dir(sing_Periodo_path)
+                    
+                    
+                    
+                    sing_fase_num = str(sing_us.fase_iniziale)
+                    prefix = ''
+                    sing_fase_num_len = len(sing_fase_num)
+                    if sing_fase_num_len == 1:
+                        prefix = prefix * 1
+                    
+                    else:
+                        pass
+                    sing_fase_dir = prefix + str(sing_fase_num)
+                    sing_Fase_path = ('%s%sFase - %s') % (sing_Periodo_path, os.sep, sing_fase_dir)
+                    self.OS_UTILITY.create_dir(sing_Fase_path)
+                        
+                        
+                        
+                    sing_us_num = str(sing_us.sigla_struttura+str(sing_us.numero_struttura))
+                        
+                        
+                        
+                    sing_us_dir = prefix + str(sing_us_num)
+                    sing_US_path = ('%s%sStruttura - %s') % (sing_Fase_path , os.sep, sing_us_num)
+                    self.OS_UTILITY.create_dir(sing_US_path)
+
+                    search_dict = {'id_entity': sing_us.id_struttura, 'entity_type': "'" + "STRUTTURA" + "'"}
+
+                    u = Utility()
+                    search_dict = u.remove_empty_items_fr_dict(search_dict)
+                    search_images_res = self.DB_MANAGER.query_bool(search_dict, 'MEDIAVIEW')
+
+                    for sing_media in search_images_res:
+                        try:
+                            self.OS_UTILITY.copy_file_img(thumb_resize_str+str(sing_media.path_resize), sing_US_path)
+                        except:
+                            pass
+                    search_images_res = ""
+            QMessageBox.warning(self, "Alert", "Creazione directories terminata", QMessageBox.Ok)
+        
+        
+        
+        
+        
         
         # if self.checkBox_US.isChecked()== True:
             # us_res = self.db_search_DB('US', 'sito', sito)
