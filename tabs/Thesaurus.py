@@ -161,6 +161,7 @@ class pyarchinit_Thesaurus(QDialog, MAIN_DIALOG_CLASS):
         self.pyQGIS = Pyarchinit_pyqgis(iface)
         self.setupUi(self)
         self.currentLayerId = None
+        #self.comboBox_nome_tabella.currentTextChanged.connect(self.charge_n_sigla)
         try:
             self.on_pushButton_connect_pressed()
         except Exception as e:
@@ -232,7 +233,7 @@ class pyarchinit_Thesaurus(QDialog, MAIN_DIALOG_CLASS):
                 self.set_rec_counter(len(self.DATA_LIST), self.REC_CORR + 1)
                 self.charge_list()
                 self.fill_fields()
-                self.comboBox_nome_tabella.currentTextChanged.connect(self.charge_n_sigla)
+                #
             else:
                 if self.L=='it':
                     QMessageBox.warning(self,"BENVENUTO", "Benvenuto in pyArchInit" + "Scheda Campioni" + ". Il database e' vuoto. Premi 'Ok' e buon lavoro!",
