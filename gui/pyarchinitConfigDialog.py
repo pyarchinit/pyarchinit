@@ -141,7 +141,7 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
         
         self.selectorCrsWidget.setCrs(QgsProject.instance().crs())
         self.selectorCrsWidget_sl.setCrs(QgsProject.instance().crs())
-        self.checkBox_ignore.setChecked(False)
+        self.checkBox_ignore.setChecked(True)
         self.checkBox_ignore.stateChanged.connect(self.check)
         self.checkBox_ignore.stateChanged.connect(self.message)
         self.check()
