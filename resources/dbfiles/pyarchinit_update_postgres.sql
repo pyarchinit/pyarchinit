@@ -525,7 +525,8 @@ END IF;
 END
 $$;  
 
-        ALTER TABLE individui_table ADD COLUMN IF NOT EXISTS sigla_struttura text;
+	
+        /* ALTER TABLE individui_table ADD COLUMN IF NOT EXISTS sigla_struttura text;
 
         ALTER TABLE individui_table ADD COLUMN IF NOT EXISTS nr_struttura integer;
 
@@ -535,7 +536,7 @@ $$;
 
         ALTER TABLE individui_table ADD COLUMN IF NOT EXISTS in_connessione_si_no character varying(5);
 
-        ALTER TABLE individui_table ADD COLUMN IF NOT EXISTS lunghezza_scheletro NUMERIC(2,2);
+        ALTER TABLE individui_table ADD COLUMN IF NOT EXISTS lunghezza_scheletro NUMERIC(20,5);
 
         ALTER TABLE individui_table ADD COLUMN IF NOT EXISTS posizione_scheletro character varying(255);
 
@@ -547,7 +548,55 @@ $$;
         
         ALTER TABLE individui_table ADD COLUMN IF NOT EXISTS orientamento_asse text;
 
-        ALTER TABLE individui_table ADD COLUMN IF NOT EXISTS orientamento_azimut NUMERIC(2,2);
+        ALTER TABLE individui_table ADD COLUMN IF NOT EXISTS orientamento_azimut NUMERIC(20,5); */
+
+CREATE TABLE IF NOT EXISTS public.tomba_table (
+    id_tomba integer NOT NULL,
+    sito text,
+	area integer,
+    nr_scheda_taf integer,
+    sigla_struttura text,
+    nr_struttura integer,
+    nr_individuo integer,
+    rito text,
+    descrizione_taf text,
+    interpretazione_taf text,
+    segnacoli text,
+    canale_libatorio_si_no text,
+    oggetti_rinvenuti_esterno text,
+    stato_di_conservazione text,
+    copertura_tipo text,
+    tipo_contenitore_resti text,
+    tipo_deposizione text,
+	tipo_sepoltura text,
+    corredo_presenza text,
+    corredo_tipo text,
+    corredo_descrizione text,    
+    periodo_iniziale integer,
+    fase_iniziale integer,
+    periodo_finale integer,
+    fase_finale integer,
+    datazione_estesa text
+);
+
+
+ALTER TABLE public.tomba_table OWNER TO postgres;
+
+CREATE SEQUENCE IF NOT EXISTS public.tomba_table_id_tomba_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+ALTER TABLE public.tomba_table_id_tomba_seq OWNER TO postgres;
+
+ALTER TABLE ONLY public.tomba_table ALTER COLUMN id_tomba SET DEFAULT nextval('public.tomba_table_id_tomba_seq'::regclass);
+ALTER TABLE ONLY public.tomba_table ADD CONSTRAINT "ID_tomba_unico" UNIQUE (sito, nr_scheda_taf);
+ALTER TABLE ONLY public.tomba_table ADD CONSTRAINT tomba_table_pkey PRIMARY KEY (id_tomba);	
+	
+
 INSERT INTO tomba_table (
             id_tomba,
 			sito,
@@ -604,7 +653,10 @@ INSERT INTO tomba_table (
 				  
 				  
 INSERT INTO individui_table (
-            	nr_individuo,
+            	sito,
+				nr_individuo,
+				sigla_struttura,
+				nr_struttura,
 				completo_si_no ,
 				disturbato_si_no ,
 				in_connessione_si_no, 
@@ -619,7 +671,10 @@ INSERT INTO individui_table (
 			)
                 
                   SELECT
+					sito,
 					nr_individuo,
+					sigla_struttura,
+					nr_struttura,
 					completo_si_no ,
 					disturbato_si_no ,
 					in_connessione_si_no, 
@@ -632,10 +687,34 @@ INSERT INTO individui_table (
 					orientamento_azimut 
 
                   FROM tafonomia_table
-				  /* where nr_individuo=nr_individuo
-				  ON CONFLICT (nr_individuo) DO NOTHING */;				  
 				  
+				  ON CONFLICT (id_scheda_ind,id_tafonomia) DO UPDATE
+				  set sito=EXCLUDED.sito, nr_individuo=EXCLUDED.nr_individuo;
 				  
+CREATE OR REPLACE VIEW public.pyarchinit_individui_view AS
+ SELECT pyarchinit_individui.gid,
+    pyarchinit_individui.the_geom,
+    pyarchinit_individui.sito AS scavo,
+    pyarchinit_individui.id_individuo,
+    pyarchinit_individui.note,
+    individui_table.id_scheda_ind,
+    individui_table.sito,
+    individui_table.area,
+    individui_table.us,
+    individui_table.nr_individuo,
+    individui_table.data_schedatura,
+    individui_table.schedatore,
+    individui_table.sesso,
+    individui_table.eta_min,
+    individui_table.eta_max,
+    individui_table.classi_eta,
+    individui_table.osservazioni
+   FROM pyarchinit_individui
+     JOIN individui_table ON pyarchinit_individui.sito::text = individui_table.sito AND pyarchinit_individui.id_individuo::text = individui_table.nr_individuo::text;
+
+ALTER TABLE public.pyarchinit_individui_view
+    OWNER TO postgres;
+	
 CREATE OR REPLACE VIEW public.pyarchinit_tomba_view AS
  SELECT a.id_tomba,
     a.sito,
@@ -667,4 +746,4 @@ CREATE OR REPLACE VIEW public.pyarchinit_tomba_view AS
      JOIN pyarchinit_tafonomia b ON a.sito = b.sito::text AND a.nr_scheda_taf = b.nr_scheda;
 
 ALTER TABLE public.pyarchinit_tomba_view
-    OWNER TO postgres;
+    OWNER TO postgres;	
