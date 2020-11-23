@@ -655,6 +655,8 @@ INSERT INTO tomba_table (
 INSERT INTO individui_table (
             	sito,
 				nr_individuo,
+				sigla_struttura,
+				nr_struttura,
 				completo_si_no ,
 				disturbato_si_no ,
 				in_connessione_si_no, 
@@ -671,6 +673,8 @@ INSERT INTO individui_table (
                   SELECT
 					sito,
 					nr_individuo,
+					sigla_struttura,
+					nr_struttura,
 					completo_si_no ,
 					disturbato_si_no ,
 					in_connessione_si_no, 
@@ -684,8 +688,8 @@ INSERT INTO individui_table (
 
                   FROM tafonomia_table
 				  
-				  /* ON CONFLICT (id_scheda_ind) DO update				  
-				  set sito = EXCLUDED.sito ,  nr_individuo=EXCLUDED.nr_individuo; */
+				  ON CONFLICT (id_scheda_ind,id_tafonomia) DO UPDATE
+				  set sito=EXCLUDED.sito, nr_individuo=EXCLUDED.nr_individuo;
 				  
 CREATE OR REPLACE VIEW public.pyarchinit_individui_view AS
  SELECT pyarchinit_individui.gid,
