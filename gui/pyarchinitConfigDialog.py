@@ -1335,6 +1335,20 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
                     VALUES ('pyarchinit_tomba_view', 'the_geom', 'rowid', 'pyarchinit_tafonomia', 'the_geom')"""  
             c.execute(sql_view_tomba_geom)
             
+            sql_index = """CREATE  UNIQUE  INDEX IF NOT EXISTS idx_inv
+                            ON "inventario_materiali_table"
+                            (
+                            sito,numero_inventario
+                            );"""
+                                        
+            c.execute(sql_index)
+            sql_index_t = """CREATE  UNIQUE  INDEX IF NOT EXISTS idx_tomba
+                            ON "tomba_table"
+                            (
+                            sito,nr_scheda_taf
+                            );"""
+                                        
+            c.execute(sql_index_t)
             RestoreSchema(db_url,None).update_geom_srid_sl('%d' % int(self.lineEdit_crs.text()))
             c.close()
             QMessageBox.warning(self, "Message", "Update Done", QMessageBox.Ok)
