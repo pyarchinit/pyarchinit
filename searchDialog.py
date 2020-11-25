@@ -217,3 +217,42 @@ class LayerSearchDialog(QDialog, FORM_CLASS):
     def showErrorMessage(self, message):
         '''Si mostra un messaggio di errore'''
         self.iface.messageBar().pushMessage("", message, level=Qgis.Warning, duration=2)
+    
+    
+    def on_pushButton_go_to_scheda_pressed(self):
+        # field_position = self.pyQGIS.findFieldFrDict(self.ID_TABLE) #ricava la posizione del campo
+        layer = self.iface.mapCanvas().currentLayer()
+        fieldname = self.ID_TABLE
+        if not layer:
+            if self.L=='it':
+                QMessageBox.warning(self, 'ATTENZIONE', "Nessun elemento selezionato", QMessageBox.Ok)
+            elif self.L=='de':
+                QMessageBox.warning(self, 'ACHTUNG', "keine Elemente ausgewählt", QMessageBox.Ok)
+            else:
+                QMessageBox.warning(self, 'WARNING', "No items selected", QMessageBox.Ok)
+        features_list = layer.selectedFeatures()
+        field_position = ""
+        for single in layer.getFeatures():
+            field_position = single.fieldNameIndex(fieldname)
+        id_list = []
+        for feat in features_list:
+            attr_list = feat.attributes()
+            id_list.append(attr_list[field_position])
+            # viene impostata la query per il database
+        items, order_type = [self.ID_TABLE], "asc"
+        self.empty_fields()
+        self.DATA_LIST = []
+        temp_data_list = self.DB_MANAGER.query_sort(id_list, items, order_type, self.MAPPER_TABLE_CLASS, self.ID_TABLE)
+        for us in temp_data_list:
+            self.DATA_LIST.append(us)
+            # vengono riempiti i campi con i dati trovati
+        self.fill_fields()
+        self.BROWSE_STATUS = 'b'
+        self.label_status.setText(self.STATUS_ITEMS[self.BROWSE_STATUS])
+        if type(self.REC_CORR) == "<type 'str'>":
+            corr = 0
+        else:
+            corr = self.REC_CORR
+        self.set_rec_counter(len(self.DATA_LIST), self.REC_CORR + 1)
+        self.REC_TOT, self.REC_CORR = len(self.DATA_LIST), 0
+        self.DATA_LIST_REC_TEMP = self.DATA_LIST_REC_CORR = self.DATA_LIST[0]
