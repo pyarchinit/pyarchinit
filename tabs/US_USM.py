@@ -783,12 +783,7 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
         self.show()
         self.checkBox_query.update()
         self.checkBox_query.stateChanged.connect(self.listview_us)###anche questo
-    def on_set_matrix_clicked(self, checked=None):
-        if checked==None: return
-        dialog = QDialog()
-        dialog.ui = Setting_Matrix()
-        dialog.ui.setupUi(dialog)
-        dialog.exec_()
+        
     def charge_insert_ra(self):
         
         us =str(self.lineEdit_us.text())
@@ -2809,6 +2804,7 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
         else:
             subprocess.Popen(["xdg-open", path])
     def on_pushButton_export_matrix_pressed(self):
+        
         id_us_dict = {}
         for i in range(len(self.DATA_LIST)):
             id_us_dict[self.DATA_LIST[i].us] = self.DATA_LIST[i].id_us
@@ -4067,14 +4063,14 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
                 e_str = str(e)
                 if e_str.__contains__("IntegrityError"):
                     if self.L=='it':
-                        msg = self.ID_TABLE + " gia' presente nel database"
-                        QMessageBox.warning(self, "Error", "Error" + str(msg), QMessageBox.Ok)
+                        msg = "US già presente nel database"
+                        QMessageBox.warning(self, "Error", "Error: " + str(msg), QMessageBox.Ok)
                     elif self.L=='de':
                         msg = self.ID_TABLE + " bereits in der Datenbank"
-                        QMessageBox.warning(self, "Error", "Error" + str(msg), QMessageBox.Ok)  
+                        QMessageBox.warning(self, "Error", "Error: " + str(msg), QMessageBox.Ok)  
                     else:
                         msg = self.ID_TABLE + " exist in db"
-                        QMessageBox.warning(self, "Error", "Error" + str(msg), QMessageBox.Ok)  
+                        QMessageBox.warning(self, "Error", "Error: " + str(msg), QMessageBox.Ok)  
                 else:
                     msg = e
                     QMessageBox.warning(self, "Error", "Error 1 \n" + str(msg), QMessageBox.Ok)
