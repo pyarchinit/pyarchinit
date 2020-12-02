@@ -260,7 +260,14 @@ class PyArchInitPlugin(object):
             self.actionpdfExp.setWhatsThis("Esportazione PDF")
             self.actionpdfExp.triggered.connect(self.runPdfexp)
 
-            self.docToolButton.addActions([self.actionDocumentazione,self.actionimageViewer,self.actionImages_Directory_export,self.actionpdfExp, self.actionExcel])
+            icon_GisTimeController = '{}{}'.format(filepath, os.path.join(os.sep, 'resources', 'icons', 'iconTimeControll.png'))
+            self.actionGisTimeController = QAction(QIcon(icon_GisTimeController), "Time Manager",
+                                                   self.iface.mainWindow())
+            self.actionGisTimeController.setWhatsThis("Time Manager")
+            self.actionGisTimeController.triggered.connect(self.runGisTimeController)
+
+            
+            self.docToolButton.addActions([self.actionDocumentazione,self.actionimageViewer,self.actionImages_Directory_export,self.actionpdfExp, self.actionExcel,self.actionGisTimeController])
 
             
 
@@ -282,12 +289,7 @@ class PyArchInitPlugin(object):
                 self.actionArcheozoology.setWhatsThis("Statistiche Archeozoologiche")
                 self.actionArcheozoology.triggered.connect(self.runArcheozoology)
 
-                icon_GisTimeController = '{}{}'.format(filepath, os.path.join(os.sep, 'resources', 'icons', 'iconTimeControll.png'))
-                self.actionGisTimeController = QAction(QIcon(icon_GisTimeController), "Time Manager",
-                                                       self.iface.mainWindow())
-                self.actionGisTimeController.setWhatsThis("Time Manager")
-                self.actionGisTimeController.triggered.connect(self.runGisTimeController)
-
+                
                 icon_Comparision = '{}{}'.format(filepath, os.path.join(os.sep, 'resources', 'icons', 'comparision.png'))
                 self.actionComparision = QAction(QIcon(icon_Comparision), "Comparazione immagini", self.iface.mainWindow())
                 self.actionComparision.setWhatsThis("Comparazione immagini")
@@ -358,10 +360,11 @@ class PyArchInitPlugin(object):
             self.iface.addPluginToMenu("&pyArchInit - Archaeological GIS Tools", self.actionimageViewer)
             self.iface.addPluginToMenu("&pyArchInit - Archaeological GIS Tools", self.actionpdfExp)
             self.iface.addPluginToMenu("&pyArchInit - Archaeological GIS Tools", self.actionImages_Directory_export)
+            self.iface.addPluginToMenu("&pyArchInit - Archaeological GIS Tools", self.actionGisTimeController)
             if self.PARAMS_DICT['EXPERIMENTAL'] == 'Si':
                 self.iface.addPluginToMenu("&pyArchInit - Archaeological GIS Tools", self.actionArcheozoology)
                 self.iface.addPluginToMenu("&pyArchInit - Archaeological GIS Tools", self.actionComparision)
-                self.iface.addPluginToMenu("&pyArchInit - Archaeological GIS Tools", self.actionGisTimeController)
+                
 
             self.iface.addPluginToMenu("&pyArchInit - Archaeological GIS Tools", self.actionConf)
             self.iface.addPluginToMenu("&pyArchInit - Archaeological GIS Tools", self.actionThesaurus)
@@ -381,13 +384,13 @@ class PyArchInitPlugin(object):
             self.menu.addSeparator()
             if self.PARAMS_DICT['EXPERIMENTAL'] == 'Si':
                 self.menu.addActions([self.actionUT])
-            self.menu.addActions([self.actionDocumentazione,self.actionimageViewer, self.actionpdfExp, self.actionImages_Directory_export,self.actionExcel])
+            self.menu.addActions([self.actionDocumentazione,self.actionimageViewer, self.actionpdfExp, self.actionImages_Directory_export,self.actionExcel,self.actionGisTimeController])
             
             
             
             self.menu.addSeparator()
             if self.PARAMS_DICT['EXPERIMENTAL'] == 'Si':
-                self.menu.addActions([self.actionArcheozoology, self.actionComparision, self.actionGisTimeController])
+                self.menu.addActions([self.actionArcheozoology, self.actionComparision])
             self.menu.addSeparator()
             self.menu.addActions([self.actionConf, self.actionThesaurus, self.actionDbmanagment, self.actionInfo])
             menuBar = self.iface.mainWindow().menuBar()
