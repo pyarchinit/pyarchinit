@@ -23,6 +23,7 @@ SOURCES = 	 tabs/__init__.py\
 			 tabs/Upd.py\
 			 tabs/US_USM.py\
 			 tabs/UT.py\
+			 tabs/pyarchinit_setting_matrix.py\
 			 gui/__init__.py\
 			 gui/dbmanagment.py\
 			 gui/imageViewer.py\
@@ -97,7 +98,8 @@ FORMS =   	gui/ui/Archeozoology.ui\
 			gui/ui/Thesaurus.ui\
 			gui/ui/Upd.ui\
 			gui/ui/US_USM.ui\
-			gui/ui/UT_ui.ui
+			gui/ui/UT_ui.ui\
+			gui/ui/Setting_Matrix.ui\
 
 TRANSLATIONS = i18n/pyarchinit_plugin_it_IT.ts \
                i18n/pyarchinit_plugin_de_DE.ts \
