@@ -9,8 +9,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>650</width>
-    <height>206</height>
+    <width>627</width>
+    <height>211</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -177,8 +177,13 @@
         <bool>true</bool>
        </property>
        <property name="currentText">
-        <string>.1</string>
+        <string>.5</string>
        </property>
+       <item>
+        <property name="text">
+         <string>.5</string>
+        </property>
+       </item>
        <item>
         <property name="text">
          <string>.1</string>
@@ -187,11 +192,6 @@
        <item>
         <property name="text">
          <string>.3</string>
-        </property>
-       </item>
-       <item>
-        <property name="text">
-         <string>.5</string>
         </property>
        </item>
        <item>
@@ -260,6 +260,11 @@
        </property>
        <item>
         <property name="text">
+         <string>diamond</string>
+        </property>
+       </item>
+       <item>
+        <property name="text">
          <string>box</string>
         </property>
        </item>
@@ -291,11 +296,6 @@
        <item>
         <property name="text">
          <string>tee</string>
-        </property>
-       </item>
-       <item>
-        <property name="text">
-         <string>diamond</string>
         </property>
        </item>
       </widget>
@@ -358,8 +358,13 @@
         <bool>true</bool>
        </property>
        <property name="currentText">
-        <string>.1</string>
+        <string>1</string>
        </property>
+       <item>
+        <property name="text">
+         <string>1</string>
+        </property>
+       </item>
        <item>
         <property name="text">
          <string>.1</string>
@@ -373,11 +378,6 @@
        <item>
         <property name="text">
          <string>.5</string>
-        </property>
-       </item>
-       <item>
-        <property name="text">
-         <string>1</string>
         </property>
        </item>
        <item>
@@ -454,14 +454,17 @@
        <property name="editable">
         <bool>true</bool>
        </property>
+       <property name="currentIndex">
+        <number>0</number>
+       </property>
        <item>
         <property name="text">
-         <string>yellow</string>
+         <string>white</string>
         </property>
        </item>
        <item>
         <property name="text">
-         <string>white</string>
+         <string>yellow</string>
         </property>
        </item>
        <item>
@@ -510,11 +513,16 @@
         <bool>true</bool>
        </property>
        <property name="currentText">
-        <string>yellow</string>
+        <string>gray</string>
        </property>
        <property name="currentIndex">
         <number>0</number>
        </property>
+       <item>
+        <property name="text">
+         <string>gray</string>
+        </property>
+       </item>
        <item>
         <property name="text">
          <string>yellow</string>
@@ -523,11 +531,6 @@
        <item>
         <property name="text">
          <string>white</string>
-        </property>
-       </item>
-       <item>
-        <property name="text">
-         <string>gray</string>
         </property>
        </item>
        <item>
@@ -662,8 +665,13 @@
         <bool>true</bool>
        </property>
        <property name="currentText">
-        <string>.1</string>
+        <string>.5</string>
        </property>
+       <item>
+        <property name="text">
+         <string>.5</string>
+        </property>
+       </item>
        <item>
         <property name="text">
          <string>.1</string>
@@ -672,11 +680,6 @@
        <item>
         <property name="text">
          <string>.3</string>
-        </property>
-       </item>
-       <item>
-        <property name="text">
-         <string>.5</string>
         </property>
        </item>
        <item>
@@ -784,6 +787,11 @@
        </property>
        <item>
         <property name="text">
+         <string>inv</string>
+        </property>
+       </item>
+       <item>
+        <property name="text">
          <string>box</string>
         </property>
        </item>
@@ -805,11 +813,6 @@
        <item>
         <property name="text">
          <string>none</string>
-        </property>
-       </item>
-       <item>
-        <property name="text">
-         <string>inv</string>
         </property>
        </item>
        <item>
@@ -890,8 +893,13 @@
         <bool>true</bool>
        </property>
        <property name="currentText">
-        <string>solid</string>
+        <string>dashed</string>
        </property>
+       <item>
+        <property name="text">
+         <string>dashed</string>
+        </property>
+       </item>
        <item>
         <property name="text">
          <string>solid</string>
@@ -900,11 +908,6 @@
        <item>
         <property name="text">
          <string>strocked</string>
-        </property>
-       </item>
-       <item>
-        <property name="text">
-         <string>dashed</string>
         </property>
        </item>
        <item>
@@ -931,8 +934,13 @@
         <bool>true</bool>
        </property>
        <property name="currentText">
-        <string>.1</string>
+        <string>1</string>
        </property>
+       <item>
+        <property name="text">
+         <string>1</string>
+        </property>
+       </item>
        <item>
         <property name="text">
          <string>.1</string>
@@ -946,11 +954,6 @@
        <item>
         <property name="text">
          <string>.5</string>
-        </property>
-       </item>
-       <item>
-        <property name="text">
-         <string>1</string>
         </property>
        </item>
        <item>

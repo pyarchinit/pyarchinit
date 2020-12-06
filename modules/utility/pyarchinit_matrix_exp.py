@@ -78,22 +78,22 @@ class HarrisMatrix:
             e.edge_attr['penwidth'] = str(dialog.combo_box_5.currentText())
             e.edge_attr['style'] = str(dialog.combo_box_10.currentText())
             e.edge_attr.update(arrowhead=str(dialog.combo_box_11.currentText()), arrowsize=str(dialog.combo_box_12.currentText()))
-        for i in self.negative:
-            a = (i[0], i[1])
-            elist2.append(a)
-        
-        with G.subgraph(name='main2') as a:
-           
-            a.edges(elist2)
+            for i in self.negative:
+                a = (i[0], i[1])
+                elist2.append(a)
             
-            a.node_attr['shape'] = str(dialog.combo_box_6.currentText())
-            a.node_attr['style'] = str(dialog.combo_box_8.currentText())
-            a.node_attr.update(style='filled', fillcolor=str(dialog.combo_box_2.currentText()))
-            a.node_attr['color'] = 'red'    
-            a.node_attr['penwidth'] = str(dialog.combo_box_7.currentText())
-            a.edge_attr['penwidth'] = str(dialog.combo_box_7.currentText())
-            a.edge_attr['style'] = str(dialog.combo_box_15.currentText())
-            a.edge_attr.update(arrowhead=str(dialog.combo_box_14.currentText()), arrowsize=str(dialog.combo_box_16.currentText()))    
+            with G.subgraph(name='main2') as a:
+               
+                a.edges(elist2)
+                
+                a.node_attr['shape'] = str(dialog.combo_box_6.currentText())
+                a.node_attr['style'] = str(dialog.combo_box_8.currentText())
+                a.node_attr.update(style='filled', fillcolor=str(dialog.combo_box_2.currentText()))
+                a.node_attr['color'] = 'red'    
+                a.node_attr['penwidth'] = str(dialog.combo_box_7.currentText())
+                a.edge_attr['penwidth'] = str(dialog.combo_box_7.currentText())
+                a.edge_attr['style'] = str(dialog.combo_box_15.currentText())
+                a.edge_attr.update(arrowhead=str(dialog.combo_box_14.currentText()), arrowsize=str(dialog.combo_box_16.currentText()))    
         
         for i in self.periodi:
             with G.subgraph(name=i[1]) as c:
@@ -116,7 +116,7 @@ class HarrisMatrix:
         'Harris_matrix', dt.day, dt.month, dt.year, dt.hour, dt.minute, dt.second)
         f = open(filename, "w")
         
-        G.format = 'xdot1.4'
+        G.format = 'xdot'
         dot_file = G.render(directory=matrix_path, filename=filename)
         
         # For MS-Windows, we need to hide the console window.
@@ -138,7 +138,7 @@ class HarrisMatrix:
 
         tred_file = os.path.join(matrix_path, filename + '_tred.dot')
         
-        f = Source.from_file(tred_file, format='svgz')
+        f = Source.from_file(tred_file, format='png')
         f.render()
         g = Source.from_file(tred_file, format='jpg')
         g.render()
