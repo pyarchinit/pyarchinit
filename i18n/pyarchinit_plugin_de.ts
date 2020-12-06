@@ -87,7 +87,7 @@
     <message>
         <location filename="../gui/ui/Archeozoology.ui" line="140"/>
         <source>US</source>
-        <translation>USA</translation>
+        <translation>SE</translation>
     </message>
     <message>
         <location filename="../gui/ui/Archeozoology.ui" line="156"/>
@@ -1620,12 +1620,12 @@ p, li { Leerzeichen: Vorverpackung; }
     <message>
         <location filename="../gui/ui/Archeozoology.ui" line="6881"/>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-size:10pt; color:#ff0000;&quot;&gt;US&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-size:10pt; color:#ff0000;&quot;&gt;USA&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-size:10pt; color:#ff0000;&quot;&gt;SE&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <location filename="../gui/ui/Archeozoology.ui" line="6896"/>
         <source>Sito</source>
-        <translation>Baustelle</translation>
+        <translation>Ausgrabungsstätte</translation>
     </message>
     <message>
         <location filename="../gui/ui/Archeozoology.ui" line="6903"/>
@@ -1813,7 +1813,7 @@ p, li { Leerzeichen: Vorverpackung; }
     <message>
         <location filename="../gui/ui/Campioni.ui" line="666"/>
         <source>US</source>
-        <translation>USA</translation>
+        <translation>SE</translation>
     </message>
     <message>
         <location filename="../gui/ui/Campioni.ui" line="688"/>
@@ -1833,7 +1833,7 @@ p, li { Leerzeichen: Vorverpackung; }
     <message>
         <location filename="../gui/ui/Campioni.ui" line="717"/>
         <source>Carica tutti layer che contengono geometrie relative a questo sito</source>
-        <translation>Laden Sie alle Layer hoch, die Geometrien mit Bezug zu dieser Baustelle enthalten</translation>
+        <translation>Laden Sie alle Layer hoch, die Geometrien mit Bezug zu dieser Ausgrabungsstätte enthalten</translation>
     </message>
     <message>
         <location filename="../gui/ui/Campioni.ui" line="720"/>
@@ -1968,7 +1968,7 @@ p, li { Leerzeichen: Vorverpackung; }
     <message>
         <location filename="../gui/ui/Campioni.ui" line="940"/>
         <source>Sito</source>
-        <translation>Baustelle</translation>
+        <translation>Ausgrabungsstätte</translation>
     </message>
 </context>
 <context>
@@ -2086,7 +2086,7 @@ p, li { Leerzeichen: Vorverpackung; }
     <message>
         <location filename="../gui/ui/Detsesso.ui" line="552"/>
         <source>Sito </source>
-        <translation>Baustelle </translation>
+        <translation>Ausgrabungsstätte </translation>
     </message>
     <message>
         <location filename="../gui/ui/Detsesso.ui" line="2474"/>
@@ -2530,7 +2530,7 @@ p, li { Leerzeichen: Vorverpackung; }
     <message>
         <location filename="../gui/ui/Documentazione.ui" line="557"/>
         <source>Sito</source>
-        <translation>Baustelle</translation>
+        <translation>Ausgrabungsstätte</translation>
     </message>
     <message>
         <location filename="../gui/ui/Documentazione.ui" line="568"/>
@@ -2786,7 +2786,7 @@ p, li { Leerzeichen: Vorverpackung; }
     <message>
         <location filename="../gui/ui/pyarchinit_image_viewer_dialog.ui" line="455"/>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Con questo bottone si assegna il tag alla foto selezionata corrispondente al sito area e us indicato&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Mit dieser Schaltfläche weisen Sie dem ausgewählten Foto den Tag zu, der dem Bereich der Baustelle entspricht und von uns angegeben wurde&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Mit dieser Schaltfläche weisen Sie dem ausgewählten Foto den Tag zu, der dem Bereich der Ausgrabungsstätte entspricht und von uns angegeben wurde&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <location filename="../gui/ui/pyarchinit_image_viewer_dialog.ui" line="1309"/>
@@ -2806,7 +2806,7 @@ p, li { Leerzeichen: Vorverpackung; }
     <message>
         <location filename="../gui/ui/pyarchinit_image_viewer_dialog.ui" line="1353"/>
         <source>Sito</source>
-        <translation>Baustelle</translation>
+        <translation>Ausgrabungsstätte</translation>
     </message>
     <message>
         <location filename="../gui/ui/pyarchinit_image_viewer_dialog.ui" line="703"/>
@@ -2816,7 +2816,7 @@ p, li { Leerzeichen: Vorverpackung; }
     <message>
         <location filename="../gui/ui/pyarchinit_image_viewer_dialog.ui" line="650"/>
         <source>US</source>
-        <translation>USA</translation>
+        <translation>SE</translation>
     </message>
     <message>
         <location filename="../gui/ui/pyarchinit_image_viewer_dialog.ui" line="597"/>
@@ -3397,7 +3397,7 @@ p, li { Leerzeichen: Vorverpackung; }
     <message>
         <location filename="../gui/ui/Schedaind.ui" line="1611"/>
         <source>Sito </source>
-        <translation>Baustelle </translation>
+        <translation>Ausgrabungsstätte </translation>
     </message>
     <message>
         <location filename="../gui/ui/Schedaind.ui" line="1641"/>
@@ -3407,7 +3407,7 @@ p, li { Leerzeichen: Vorverpackung; }
     <message>
         <location filename="../gui/ui/Schedaind.ui" line="1677"/>
         <source>US</source>
-        <translation>USA</translation>
+        <translation>SE</translation>
     </message>
     <message>
         <location filename="../gui/ui/Schedaind.ui" line="1734"/>
@@ -3616,7 +3616,7 @@ p, li { Leerzeichen: Vorverpackung; }
     <message>
         <location filename="../gui/ui/Inv_Materiali.ui" line="293"/>
         <source>Sito</source>
-        <translation>Baustelle</translation>
+        <translation>Ausgrabungsstätte</translation>
     </message>
     <message>
         <location filename="../gui/ui/Inv_Materiali.ui" line="308"/>
@@ -3631,7 +3631,7 @@ p, li { Leerzeichen: Vorverpackung; }
     <message>
         <location filename="../gui/ui/Inv_Materiali.ui" line="350"/>
         <source>US</source>
-        <translation>USA</translation>
+        <translation>SE</translation>
     </message>
     <message>
         <location filename="../gui/ui/Inv_Materiali.ui" line="386"/>
@@ -4447,7 +4447,7 @@ p, li { Leerzeichen: Vorverpackung; }
     <message>
         <location filename="../gui/ui/Periodizzazione.ui" line="539"/>
         <source>Sito</source>
-        <translation>Baustelle</translation>
+        <translation>Ausgrabungsstätte</translation>
     </message>
     <message>
         <location filename="../gui/ui/Periodizzazione.ui" line="552"/>
@@ -4703,7 +4703,7 @@ p, li { Leerzeichen: Vorverpackung; }
     <message>
         <location filename="../gui/ui/pyarchinit_rel_check_ui.ui" line="739"/>
         <source>Sito</source>
-        <translation>Baustelle</translation>
+        <translation>Ausgrabungsstätte</translation>
     </message>
     <message>
         <location filename="../gui/ui/pyarchinit_rel_check_ui.ui" line="757"/>
@@ -4718,7 +4718,7 @@ p, li { Leerzeichen: Vorverpackung; }
     <message>
         <location filename="../gui/ui/pyarchinit_rel_check_ui.ui" line="775"/>
         <source>US</source>
-        <translation>USA</translation>
+        <translation>SE</translation>
     </message>
     <message>
         <location filename="../gui/ui/pyarchinit_rel_check_ui.ui" line="658"/>
@@ -4728,7 +4728,7 @@ p, li { Leerzeichen: Vorverpackung; }
     <message>
         <location filename="../gui/ui/pyarchinit_rel_check_ui.ui" line="731"/>
         <source>Sito Monte Cavo</source>
-        <translation>Monte Cavo-Baustelle</translation>
+        <translation>Monte Cavo-Ausgrabungsstätte</translation>
     </message>
     <message>
         <location filename="../gui/ui/pyarchinit_rel_check_ui.ui" line="768"/>
@@ -5289,7 +5289,7 @@ p, li { Leerzeichen: Vorverpackung; }
     <message>
         <location filename="../gui/ui/Site.ui" line="37"/>
         <source>pyArchInit Gestione Scavi - Scheda Sito</source>
-        <translation>pyArchInit Ausgrabungsmanagement - Registerkarte &quot;Baustelle</translation>
+        <translation>pyArchInit Ausgrabungsmanagement - Registerkarte &quot;Ausgrabungsstätte</translation>
     </message>
     <message>
         <location filename="../gui/ui/Site.ui" line="225"/>
@@ -5344,7 +5344,7 @@ p, li { Leerzeichen: Vorverpackung; }
     <message>
         <location filename="../gui/ui/Site.ui" line="395"/>
         <source>Sito</source>
-        <translation>Baustelle</translation>
+        <translation>Ausgrabungsstätte</translation>
     </message>
     <message>
         <location filename="../gui/ui/Site.ui" line="412"/>
@@ -5409,7 +5409,7 @@ p, li { Leerzeichen: Vorverpackung; }
     <message>
         <location filename="../gui/ui/Site.ui" line="870"/>
         <source>Carica tutti layer che contengono geometrie relative a questo sito</source>
-        <translation>Laden Sie alle Layer hoch, die Geometrien mit Bezug zu dieser Baustelle enthalten</translation>
+        <translation>Laden Sie alle Layer hoch, die Geometrien mit Bezug zu dieser Ausgrabungsstätte enthalten</translation>
     </message>
     <message>
         <location filename="../gui/ui/Site.ui" line="873"/>
@@ -5454,7 +5454,7 @@ p, li { Leerzeichen: Vorverpackung; }
     <message>
         <location filename="../gui/ui/Site.ui" line="1052"/>
         <source>Carica il puntuale del sito</source>
-        <translation>Pünktliches Hochladen der Baustelle</translation>
+        <translation>Pünktliches Hochladen der Ausgrabungsstätte</translation>
     </message>
     <message>
         <location filename="../gui/ui/Site.ui" line="1076"/>
@@ -5479,12 +5479,12 @@ p, li { Leerzeichen: Vorverpackung; }
     <message>
         <location filename="../gui/ui/Site.ui" line="1141"/>
         <source>US</source>
-        <translation>USA</translation>
+        <translation>SE</translation>
     </message>
     <message>
         <location filename="../gui/ui/Site.ui" line="1146"/>
         <source>USM</source>
-        <translation>USM</translation>
+        <translation>MSE</translation>
     </message>
     <message>
         <location filename="../gui/ui/Site.ui" line="1154"/>
@@ -5540,7 +5540,7 @@ Schritt 3 - Starten Sie Qgis neu und klicken Sie auf die Schaltfläche Test ausf
     <message>
         <location filename="../gui/ui/Site.ui" line="1325"/>
         <source>https://pyarchinit.github.io/pyarchinit_doc/03_ilplugin.html#scheda-sito</source>
-        <translation>https://pyarchinit.github.io/pyarchinit_doc/03_ilplugin.html#scheda-sito</translation>
+        <translation>https://pyarchinit.github.io/pyarchinit_doc/03_ilplugin.html#scheda-Ausgrabungsstätte</translation>
     </message>
     <message>
         <location filename="../gui/ui/Site.ui" line="1402"/>
@@ -5751,7 +5751,7 @@ Schritt 3 - Starten Sie Qgis neu und klicken Sie auf die Schaltfläche Test ausf
     <message>
         <location filename="../gui/ui/Struttura.ui" line="704"/>
         <source>Sito </source>
-        <translation>Baustelle </translation>
+        <translation>Ausgrabungsstätte </translation>
     </message>
     <message>
         <location filename="../gui/ui/Struttura.ui" line="716"/>
@@ -5864,7 +5864,7 @@ p, li { Leerzeichen: Vorverpackung; }
     <message>
         <location filename="../gui/ui/Struttura.ui" line="1133"/>
         <source>Sito</source>
-        <translation>Baustelle</translation>
+        <translation>Ausgrabungsstätte</translation>
     </message>
     <message>
         <location filename="../gui/ui/Struttura.ui" line="1138"/>
@@ -6215,7 +6215,7 @@ p, li { Leerzeichen: Vorverpackung; }
     <message>
         <location filename="../gui/ui/US_USM.ui" line="39"/>
         <source>pyArchInit Gestione Scavi - Scheda US/USM</source>
-        <translation>pyArchInit Ausgrabungsmanagement - US/USM-Karte</translation>
+        <translation>pyArchInit Ausgrabungsmanagement - US/MSE-Karte</translation>
     </message>
     <message>
         <location filename="../gui/ui/US_USM.ui" line="88"/>
@@ -6335,12 +6335,12 @@ p, li { Leerzeichen: Vorverpackung; }
     <message>
         <location filename="../gui/ui/US_USM.ui" line="2615"/>
         <source>US</source>
-        <translation>USA</translation>
+        <translation>SE</translation>
     </message>
     <message>
         <location filename="../gui/ui/US_USM.ui" line="756"/>
         <source>USM</source>
-        <translation>USM</translation>
+        <translation>MSE</translation>
     </message>
     <message>
         <location filename="../gui/ui/US_USM.ui" line="776"/>
@@ -6445,7 +6445,7 @@ p, li { Leerzeichen: Vorverpackung; }
     <message>
         <location filename="../gui/ui/US_USM.ui" line="950"/>
         <source>Sito </source>
-        <translation>Baustelle </translation>
+        <translation>Ausgrabungsstätte </translation>
     </message>
     <message>
         <location filename="../gui/ui/US_USM.ui" line="6733"/>
@@ -6455,7 +6455,7 @@ p, li { Leerzeichen: Vorverpackung; }
     <message>
         <location filename="../gui/ui/US_USM.ui" line="1020"/>
         <source>US/USM</source>
-        <translation>US/USM</translation>
+        <translation>US/MSE</translation>
     </message>
     <message>
         <location filename="../gui/ui/US_USM.ui" line="1083"/>
@@ -6655,7 +6655,7 @@ p, li { Leerzeichen: Vorverpackung; }
     <message>
         <location filename="../gui/ui/US_USM.ui" line="1808"/>
         <source>Attivita&apos; di cantiere</source>
-        <translation>Aktivitäten auf der Baustelle</translation>
+        <translation>Aktivitäten auf der Ausgrabungsstätte</translation>
     </message>
     <message>
         <location filename="../gui/ui/US_USM.ui" line="1813"/>
@@ -6853,7 +6853,7 @@ p, li { Leerzeichen: Vorverpackung; }
     <message>
         <location filename="../gui/ui/US_USM.ui" line="2679"/>
         <source>Vai all&apos;US</source>
-        <translation>Gehen Sie in die USA</translation>
+        <translation>Gehen Sie in die SE</translation>
     </message>
     <message>
         <location filename="../gui/ui/US_USM.ui" line="2689"/>
@@ -7163,22 +7163,22 @@ p, li { Leerzeichen: Vorverpackung; }
     <message>
         <location filename="../gui/ui/US_USM.ui" line="4174"/>
         <source>Tecnica Edilizia USM</source>
-        <translation>USM Gebäudetechnik</translation>
+        <translation>MSE Gebäudetechnik</translation>
     </message>
     <message>
         <location filename="../gui/ui/US_USM.ui" line="4180"/>
         <source>Dati specifici USM </source>
-        <translation>USM-spezifische Daten </translation>
+        <translation>MSE-spezifische Daten </translation>
     </message>
     <message>
         <location filename="../gui/ui/US_USM.ui" line="4210"/>
         <source>Lunghezza USM  (metri)</source>
-        <translation>USM-Länge (Meter)</translation>
+        <translation>MSE-Länge (Meter)</translation>
     </message>
     <message>
         <location filename="../gui/ui/US_USM.ui" line="4217"/>
         <source>Altezza USM  (metri)</source>
-        <translation>Höhe USM (Meter)</translation>
+        <translation>Höhe MSE (Meter)</translation>
     </message>
     <message>
         <location filename="../gui/ui/US_USM.ui" line="4358"/>
@@ -7233,7 +7233,7 @@ p, li { Leerzeichen: Vorverpackung; }
     <message>
         <location filename="../gui/ui/US_USM.ui" line="4611"/>
         <source>Uso primario</source>
-        <translation>USM Primärer Verwendungszweck</translation>
+        <translation>MSE Primärer Verwendungszweck</translation>
     </message>
     <message>
         <location filename="../gui/ui/US_USM.ui" line="4625"/>
@@ -7468,7 +7468,7 @@ p, li { Leerzeichen: Vorverpackung; }
     <message>
         <location filename="../gui/ui/US_USM.ui" line="5229"/>
         <source>Leganti USM</source>
-        <translation>USM Bindemittel</translation>
+        <translation>MSE Bindemittel</translation>
     </message>
     <message>
         <location filename="../gui/ui/US_USM.ui" line="5676"/>
@@ -7518,7 +7518,7 @@ p, li { Leerzeichen: Vorverpackung; }
     <message>
         <location filename="../gui/ui/US_USM.ui" line="5601"/>
         <source>Altre caratteristiche USM</source>
-        <translation>Weitere Merkmale von USM</translation>
+        <translation>Weitere Merkmale von MSE</translation>
     </message>
     <message>
         <location filename="../gui/ui/US_USM.ui" line="5613"/>
@@ -8219,7 +8219,7 @@ p, li { Leerzeichen: Vorverpackung; }
     <message>
         <location filename="../gui/ui/UT_ui.ui" line="1270"/>
         <source>Descrizione sito</source>
-        <translation>Beschreibung der Baustelle</translation>
+        <translation>Beschreibung der Ausgrabungsstätte</translation>
     </message>
     <message>
         <location filename="../gui/ui/UT_ui.ui" line="1354"/>
@@ -9403,7 +9403,7 @@ p, li { Leerzeichen: Vorverpackung; }
     <message>
         <location filename="../gui/ui/Deteta.ui" line="556"/>
         <source>Sito </source>
-        <translation>Baustelle </translation>
+        <translation>Ausgrabungsstätte </translation>
     </message>
     <message>
         <location filename="../gui/ui/Deteta.ui" line="563"/>
@@ -10000,12 +10000,12 @@ p, li { Leerzeichen: Vorverpackung; }
     <message>
         <location filename="../gui/ui/Images_directory_export.ui" line="157"/>
         <source>US</source>
-        <translation>USA</translation>
+        <translation>SE</translation>
     </message>
     <message>
         <location filename="../gui/ui/Images_directory_export.ui" line="166"/>
         <source>US / in periodi e fasi</source>
-        <translation>USA / in Perioden und Phasen</translation>
+        <translation>SE / in Perioden und Phasen</translation>
     </message>
     <message>
         <location filename="../gui/ui/pyarchinit_images_export_ui.ui" line="313"/>
@@ -10108,7 +10108,7 @@ p, li { Leerzeichen: Vorverpackung; }
     <message>
         <location filename="../gui/ui/Pdf_export.ui" line="178"/>
         <source>Sito</source>
-        <translation>Baustelle</translation>
+        <translation>Ausgrabungsstätte</translation>
     </message>
     <message>
         <location filename="../gui/ui/Pdf_export.ui" line="244"/>
@@ -10316,7 +10316,7 @@ p, li { Leerzeichen: Vorverpackung; }
     <message>
         <location filename="../gui/ui/Tomba.ui" line="962"/>
         <source>Sito </source>
-        <translation>Baustelle </translation>
+        <translation>Ausgrabungsstätte </translation>
     </message>
     <message>
         <location filename="../gui/ui/Tomba.ui" line="1078"/>
@@ -10517,7 +10517,7 @@ p, li { Leerzeichen: Vorverpackung; }
     <message>
         <location filename="../gui/ui/Tomba.ui" line="2488"/>
         <source>; </source>
-        <translation></translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../gui/ui/Tomba.ui" line="1778"/>
@@ -10815,7 +10815,7 @@ p, li { Leerzeichen: Vorverpackung; }
 &lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-family:&apos;Sans Serif&apos;; font-size:11pt; font-weight:600; color:#aa0000;&quot;&gt;pyArchInit-Unterstützung&lt;/span&gt;&lt;/p&gt;
 &lt;p style=&quot;-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px; font-family:&apos;Sans Serif&apos;; font-size:9pt;&quot;&gt;&lt;/p&gt;
 &lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-family:&apos;Sans Serif&apos;; font-size:9pt;&quot;&gt;&lt;br /&gt;&lt;/span&gt;&lt;/p&gt;
-&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-family:&apos;Sans Serif&apos;; font-size:9pt;&quot;&gt;Offizielle Baustelle&lt;/span&gt;&lt;/p&gt;
+&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-family:&apos;Sans Serif&apos;; font-size:9pt;&quot;&gt;Offizielle Ausgrabungsstätte&lt;/span&gt;&lt;/p&gt;
 &lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;a href=&quot;https://sites.google.com/site/pyarchinit/&quot;&gt;&lt;span style=&quot; font-size:8pt; text-decoration: underline; color:#0000ff;&quot;&gt;https://sites.google.com/site/pyarchinit/&lt;/span&gt;&lt;/a&gt;&lt;/p&gt;
 &lt;p style=&quot;-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px; font-size:8pt; text-decoration: underline; color:#0000ff;&quot;&gt;&lt;/p&gt;
 &lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:8pt; text-decoration: underline; color:#0000ff;&quot;&gt;&lt;br /&gt;&lt;/span&gt;&lt;/p&gt;

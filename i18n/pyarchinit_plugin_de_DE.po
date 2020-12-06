@@ -88,7 +88,7 @@ msgstr "hafen"
 #: ../gui/ui/Archeozoology.ui:140
 msgctxt "DialogArcheoZoology|"
 msgid "US"
-msgstr "USA"
+msgstr "SE"
 
 #: ../gui/ui/Archeozoology.ui:156
 msgctxt "DialogArcheoZoology|"
@@ -1720,13 +1720,13 @@ msgid ""
 "<html><head/><body><p><span style=\" font-size:10pt; color:#ff0000;\">US</"
 "span></p></body></html>"
 msgstr ""
-"<html><head/><body><p><span style=\" font-size:10pt; color:#ff0000;\">USA</"
+"<html><head/><body><p><span style=\" font-size:10pt; color:#ff0000;\">SE</"
 "span></p></body></html>"
 
 #: ../gui/ui/Archeozoology.ui:6896
 msgctxt "DialogArcheoZoology|"
 msgid "Sito"
-msgstr "Baustelle"
+msgstr "Ausgrabungsstätte"
 
 #: ../gui/ui/Archeozoology.ui:6903
 msgctxt "DialogArcheoZoology|"
@@ -1919,7 +1919,7 @@ msgstr "Bereich"
 #: ../gui/ui/Campioni.ui:666
 msgctxt "DialogCampioni|"
 msgid "US"
-msgstr "USA"
+msgstr "SE"
 
 #: ../gui/ui/Campioni.ui:688
 msgctxt "DialogCampioni|"
@@ -1940,8 +1940,8 @@ msgstr "PDF-Beispielliste exportieren"
 msgctxt "DialogCampioni|"
 msgid "Carica tutti layer che contengono geometrie relative a questo sito"
 msgstr ""
-"Laden Sie alle Layer hoch, die Geometrien mit Bezug zu dieser Baustelle "
-"enthalten"
+"Laden Sie alle Layer hoch, die Geometrien mit Bezug zu dieser "
+"Ausgrabungsstätte enthalten"
 
 #: ../gui/ui/Campioni.ui:720
 msgctxt "DialogCampioni|"
@@ -2076,7 +2076,7 @@ msgstr "Einen Wert eingeben"
 #: ../gui/ui/Campioni.ui:940
 msgctxt "DialogCampioni|"
 msgid "Sito"
-msgstr "Baustelle"
+msgstr "Ausgrabungsstätte"
 
 #: ../gui/ui/Detsesso.ui:20
 msgctxt "DialogDetsesso|"
@@ -2191,7 +2191,7 @@ msgstr "Einzelne Nr"
 #: ../gui/ui/Detsesso.ui:552
 msgctxt "DialogDetsesso|"
 msgid "Sito "
-msgstr "Baustelle "
+msgstr "Ausgrabungsstätte "
 
 #: ../gui/ui/Detsesso.ui:2474
 msgctxt "DialogDetsesso|"
@@ -2654,7 +2654,7 @@ msgstr "Alle Datensätze anzeigen"
 #: ../gui/ui/Documentazione.ui:557
 msgctxt "DialogDocumentazione_tipo_doc|"
 msgid "Sito"
-msgstr "Baustelle"
+msgstr "Ausgrabungsstätte"
 
 #: ../gui/ui/Documentazione.ui:568
 msgctxt "DialogDocumentazione_tipo_doc|"
@@ -2953,8 +2953,8 @@ msgid ""
 "selezionata corrispondente al sito area e us indicato</p></body></html>"
 msgstr ""
 "<html><head/><body><p>Mit dieser Schaltfläche weisen Sie dem ausgewählten "
-"Foto den Tag zu, der dem Bereich der Baustelle entspricht und von uns "
-"angegeben wurde</p></body></html>"
+"Foto den Tag zu, der dem Bereich der Ausgrabungsstätte entspricht und von "
+"uns angegeben wurde</p></body></html>"
 
 #: ../gui/ui/pyarchinit_image_viewer_dialog.ui:1309
 msgctxt "DialogImageViewer|"
@@ -2974,7 +2974,7 @@ msgstr "-"
 #: ../gui/ui/pyarchinit_image_viewer_dialog.ui:1353
 msgctxt "DialogImageViewer|"
 msgid "Sito"
-msgstr "Baustelle"
+msgstr "Ausgrabungsstätte"
 
 #: ../gui/ui/pyarchinit_image_viewer_dialog.ui:703
 msgctxt "DialogImageViewer|"
@@ -2984,7 +2984,7 @@ msgstr "Bereich"
 #: ../gui/ui/pyarchinit_image_viewer_dialog.ui:650
 msgctxt "DialogImageViewer|"
 msgid "US"
-msgstr "USA"
+msgstr "SE"
 
 #: ../gui/ui/pyarchinit_image_viewer_dialog.ui:597
 msgctxt "DialogImageViewer|"
@@ -3575,7 +3575,7 @@ msgstr "Im Zusammenhang"
 #: ../gui/ui/Schedaind.ui:1611
 msgctxt "DialogInd|"
 msgid "Sito "
-msgstr "Baustelle "
+msgstr "Ausgrabungsstätte "
 
 #: ../gui/ui/Schedaind.ui:1641
 msgctxt "DialogInd|"
@@ -3585,7 +3585,7 @@ msgstr "Bereich"
 #: ../gui/ui/Schedaind.ui:1677
 msgctxt "DialogInd|"
 msgid "US"
-msgstr "USA"
+msgstr "SE"
 
 #: ../gui/ui/Schedaind.ui:1734
 msgctxt "DialogInd|"
@@ -3785,7 +3785,7 @@ msgstr "In Word konvertieren"
 #: ../gui/ui/Inv_Materiali.ui:293
 msgctxt "DialogInventarioMateriali|"
 msgid "Sito"
-msgstr "Baustelle"
+msgstr "Ausgrabungsstätte"
 
 #: ../gui/ui/Inv_Materiali.ui:308
 msgctxt "DialogInventarioMateriali|"
@@ -3800,7 +3800,7 @@ msgstr "Typ finden"
 #: ../gui/ui/Inv_Materiali.ui:350
 msgctxt "DialogInventarioMateriali|"
 msgid "US"
-msgstr "USA"
+msgstr "SE"
 
 #: ../gui/ui/Inv_Materiali.ui:386
 msgctxt "DialogInventarioMateriali|"
@@ -4614,7 +4614,7 @@ msgstr "gesamteintrag."
 #: ../gui/ui/Periodizzazione.ui:539
 msgctxt "DialogPeriodoFase|"
 msgid "Sito"
-msgstr "Baustelle"
+msgstr "Ausgrabungsstätte"
 
 #: ../gui/ui/Periodizzazione.ui:552
 msgctxt "DialogPeriodoFase|"
@@ -4865,7 +4865,7 @@ msgstr "Standort Monte Cavo"
 #: ../gui/ui/pyarchinit_rel_check_ui.ui:739
 msgctxt "DialogRelCheck|"
 msgid "Sito"
-msgstr "Baustelle"
+msgstr "Ausgrabungsstätte"
 
 #: ../gui/ui/pyarchinit_rel_check_ui.ui:757
 msgctxt "DialogRelCheck|"
@@ -4880,7 +4880,7 @@ msgstr "2"
 #: ../gui/ui/pyarchinit_rel_check_ui.ui:775
 msgctxt "DialogRelCheck|"
 msgid "US"
-msgstr "USA"
+msgstr "SE"
 
 #: ../gui/ui/pyarchinit_rel_check_ui.ui:658
 msgctxt "DialogRelCheck|"
@@ -4890,7 +4890,7 @@ msgstr "Deckt  ab"
 #: ../gui/ui/pyarchinit_rel_check_ui.ui:731
 msgctxt "DialogRelCheck|"
 msgid "Sito Monte Cavo"
-msgstr "Monte Cavo-Baustelle"
+msgstr "Monte Cavo-Ausgrabungsstätte"
 
 #: ../gui/ui/pyarchinit_rel_check_ui.ui:768
 msgctxt "DialogRelCheck|"
@@ -5445,7 +5445,7 @@ msgstr "Bild aufladen"
 #: ../gui/ui/Site.ui:37
 msgctxt "DialogSite|"
 msgid "pyArchInit Gestione Scavi - Scheda Sito"
-msgstr "pyArchInit Ausgrabungsmanagement - Registerkarte \"Baustelle"
+msgstr "pyArchInit Ausgrabungsmanagement - Registerkarte \"Ausgrabungsstätte"
 
 #: ../gui/ui/Site.ui:225
 msgctxt "DialogSite|"
@@ -5500,7 +5500,7 @@ msgstr "Beschreibende Daten"
 #: ../gui/ui/Site.ui:395
 msgctxt "DialogSite|"
 msgid "Sito"
-msgstr "Baustelle"
+msgstr "Ausgrabungsstätte"
 
 #: ../gui/ui/Site.ui:412
 msgctxt "DialogSite|"
@@ -5574,8 +5574,8 @@ msgstr ""
 msgctxt "DialogSite|"
 msgid "Carica tutti layer che contengono geometrie relative a questo sito"
 msgstr ""
-"Laden Sie alle Layer hoch, die Geometrien mit Bezug zu dieser Baustelle "
-"enthalten"
+"Laden Sie alle Layer hoch, die Geometrien mit Bezug zu dieser "
+"Ausgrabungsstätte enthalten"
 
 #: ../gui/ui/Site.ui:873
 msgctxt "DialogSite|"
@@ -5624,7 +5624,7 @@ msgstr "Gis Betrachter"
 #: ../gui/ui/Site.ui:1052
 msgctxt "DialogSite|"
 msgid "Carica il puntuale del sito"
-msgstr "Pünktliches Hochladen der Baustelle"
+msgstr "Pünktliches Hochladen der Ausgrabungsstätte"
 
 #: ../gui/ui/Site.ui:1076
 msgctxt "DialogSite|"
@@ -5649,12 +5649,12 @@ msgstr "Typ der stratigraphischen Einheit"
 #: ../gui/ui/Site.ui:1141
 msgctxt "DialogSite|"
 msgid "US"
-msgstr "USA"
+msgstr "SE"
 
 #: ../gui/ui/Site.ui:1146
 msgctxt "DialogSite|"
 msgid "USM"
-msgstr "USM"
+msgstr "MSE"
 
 #: ../gui/ui/Site.ui:1154
 msgctxt "DialogSite|"
@@ -5732,7 +5732,8 @@ msgctxt "DialogSite|"
 msgid ""
 "https://pyarchinit.github.io/pyarchinit_doc/03_ilplugin.html#scheda-sito"
 msgstr ""
-"https://pyarchinit.github.io/pyarchinit_doc/03_ilplugin.html#scheda-sito"
+"https://pyarchinit.github.io/pyarchinit_doc/03_ilplugin.html#scheda-"
+"Ausgrabungsstätte"
 
 #: ../gui/ui/Site.ui:1402
 msgctxt "DialogSite|"
@@ -5937,7 +5938,7 @@ msgstr "gesamteintrag."
 #: ../gui/ui/Struttura.ui:704
 msgctxt "DialogStruttura|"
 msgid "Sito "
-msgstr "Baustelle "
+msgstr "Ausgrabungsstätte "
 
 #: ../gui/ui/Struttura.ui:716
 msgctxt "DialogStruttura|"
@@ -6062,7 +6063,7 @@ msgstr "Art der Beziehung"
 #: ../gui/ui/Struttura.ui:1133
 msgctxt "DialogStruttura|"
 msgid "Sito"
-msgstr "Baustelle"
+msgstr "Ausgrabungsstätte"
 
 #: ../gui/ui/Struttura.ui:1138
 msgctxt "DialogStruttura|"
@@ -6407,7 +6408,7 @@ msgstr "Beschreibende Daten"
 #: ../gui/ui/US_USM.ui:39
 msgctxt "DialogUS|"
 msgid "pyArchInit Gestione Scavi - Scheda US/USM"
-msgstr "pyArchInit Ausgrabungsmanagement - US/USM-Karte"
+msgstr "pyArchInit Ausgrabungsmanagement - US/MSE-Karte"
 
 #: ../gui/ui/US_USM.ui:88
 msgctxt "DialogUS|"
@@ -6535,12 +6536,12 @@ msgstr "Bereich"
 #: ../gui/ui/US_USM.ui:2615
 msgctxt "DialogUS|"
 msgid "US"
-msgstr "USA"
+msgstr "SE"
 
 #: ../gui/ui/US_USM.ui:756
 msgctxt "DialogUS|"
 msgid "USM"
-msgstr "USM"
+msgstr "MSE"
 
 #: ../gui/ui/US_USM.ui:776
 msgctxt "DialogUS|"
@@ -6645,7 +6646,7 @@ msgstr "20"
 #: ../gui/ui/US_USM.ui:950
 msgctxt "DialogUS|"
 msgid "Sito "
-msgstr "Baustelle "
+msgstr "Ausgrabungsstätte "
 
 #: ../gui/ui/US_USM.ui:6733
 msgctxt "DialogUS|"
@@ -6655,7 +6656,7 @@ msgstr "Einen Wert eingeben"
 #: ../gui/ui/US_USM.ui:1020
 msgctxt "DialogUS|"
 msgid "US/USM"
-msgstr "US/USM"
+msgstr "US/MSE"
 
 #: ../gui/ui/US_USM.ui:1083
 msgctxt "DialogUS|"
@@ -6855,7 +6856,7 @@ msgstr "Auslegende Definition"
 #: ../gui/ui/US_USM.ui:1808
 msgctxt "DialogUS|"
 msgid "Attivita' di cantiere"
-msgstr "Aktivitäten auf der Baustelle"
+msgstr "Aktivitäten auf der Ausgrabungsstätte"
 
 #: ../gui/ui/US_USM.ui:1813
 msgctxt "DialogUS|"
@@ -7073,7 +7074,7 @@ msgstr "zeile entfernen"
 #: ../gui/ui/US_USM.ui:2679
 msgctxt "DialogUS|"
 msgid "Vai all'US"
-msgstr "Gehen Sie in die USA"
+msgstr "Gehen Sie in die SE"
 
 #: ../gui/ui/US_USM.ui:2689
 msgctxt "DialogUS|"
@@ -7383,22 +7384,22 @@ msgstr "Dokumentation ansehen"
 #: ../gui/ui/US_USM.ui:4174
 msgctxt "DialogUS|"
 msgid "Tecnica Edilizia USM"
-msgstr "USM Gebäudetechnik"
+msgstr "MSE Gebäudetechnik"
 
 #: ../gui/ui/US_USM.ui:4180
 msgctxt "DialogUS|"
 msgid "Dati specifici USM "
-msgstr "USM-spezifische Daten "
+msgstr "MSE-spezifische Daten "
 
 #: ../gui/ui/US_USM.ui:4210
 msgctxt "DialogUS|"
 msgid "Lunghezza USM  (metri)"
-msgstr "USM-Länge (Meter)"
+msgstr "MSE-Länge (Meter)"
 
 #: ../gui/ui/US_USM.ui:4217
 msgctxt "DialogUS|"
 msgid "Altezza USM  (metri)"
-msgstr "Höhe USM (Meter)"
+msgstr "Höhe MSE (Meter)"
 
 #: ../gui/ui/US_USM.ui:4358
 msgctxt "DialogUS|"
@@ -7453,7 +7454,7 @@ msgstr "Proben aus Stein"
 #: ../gui/ui/US_USM.ui:4611
 msgctxt "DialogUS|"
 msgid "Uso primario"
-msgstr "USM Primärer Verwendungszweck"
+msgstr "MSE Primärer Verwendungszweck"
 
 #: ../gui/ui/US_USM.ui:4625
 msgctxt "DialogUS|"
@@ -7688,7 +7689,7 @@ msgstr "Verstreut"
 #: ../gui/ui/US_USM.ui:5229
 msgctxt "DialogUS|"
 msgid "Leganti USM"
-msgstr "USM Bindemittel"
+msgstr "MSE Bindemittel"
 
 #: ../gui/ui/US_USM.ui:5676
 msgctxt "DialogUS|"
@@ -7742,7 +7743,7 @@ msgstr "Hartnäckig"
 #: ../gui/ui/US_USM.ui:5601
 msgctxt "DialogUS|"
 msgid "Altre caratteristiche USM"
-msgstr "Weitere Merkmale von USM"
+msgstr "Weitere Merkmale von MSE"
 
 #: ../gui/ui/US_USM.ui:5613
 msgctxt "DialogUS|"
@@ -8474,7 +8475,7 @@ msgstr "Katasterblatt"
 #: ../gui/ui/UT_ui.ui:1270
 msgctxt "DialogUT|"
 msgid "Descrizione sito"
-msgstr "Beschreibung der Baustelle"
+msgstr "Beschreibung der Ausgrabungsstätte"
 
 #: ../gui/ui/UT_ui.ui:1354
 msgctxt "DialogUT|"
@@ -9678,7 +9679,7 @@ msgstr "Einen Wert eingeben"
 #: ../gui/ui/Deteta.ui:556
 msgctxt "Dialog_eta|"
 msgid "Sito "
-msgstr "Baustelle "
+msgstr "Ausgrabungsstätte "
 
 #: ../gui/ui/Deteta.ui:563
 msgctxt "Dialog_eta|"
@@ -10334,12 +10335,12 @@ msgstr "Alle Bilder \\ in Perioden und Phasen"
 #: ../gui/ui/Images_directory_export.ui:157
 msgctxt "Dialog_img_exp|"
 msgid "US"
-msgstr "USA"
+msgstr "SE"
 
 #: ../gui/ui/Images_directory_export.ui:166
 msgctxt "Dialog_img_exp|"
 msgid "US / in periodi e fasi"
-msgstr "USA / in Perioden und Phasen"
+msgstr "SE / in Perioden und Phasen"
 
 #: ../gui/ui/pyarchinit_images_export_ui.ui:313
 msgctxt "Dialog_img_exp|"
@@ -10439,7 +10440,7 @@ msgstr "Wählen Sie eine Seite zum Exportieren aus ..."
 #: ../gui/ui/Pdf_export.ui:178
 msgctxt "Dialog_pdf_exp|"
 msgid "Sito"
-msgstr "Baustelle"
+msgstr "Ausgrabungsstätte"
 
 #: ../gui/ui/Pdf_export.ui:244
 msgctxt "Dialog_pdf_exp|"
@@ -10644,7 +10645,7 @@ msgstr "Nr. Karte"
 #: ../gui/ui/Tomba.ui:962
 msgctxt "Dialog_tomba|"
 msgid "Sito "
-msgstr "Baustelle "
+msgstr "Ausgrabungsstätte "
 
 #: ../gui/ui/Tomba.ui:1078
 msgctxt "Dialog_tomba|"
@@ -11226,7 +11227,8 @@ msgstr ""
 "family:'Sans Serif'; font-size:9pt;\"><br /></span></p>\n"
 "<p style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-"
 "right:0px; -qt-block-indent:0; text-indent:0px;\"><span style=\" font-"
-"family:'Sans Serif'; font-size:9pt;\">Offizielle Baustelle</span></p>\n"
+"family:'Sans Serif'; font-size:9pt;\">Offizielle Ausgrabungsstätte</span></"
+"p>\n"
 "<p style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-"
 "right:0px; -qt-block-indent:0; text-indent:0px;\"><a href=\"https://sites."
 "google.com/site/pyarchinit/\"><span style=\" font-size:8pt; text-decoration: "
