@@ -686,7 +686,7 @@ INSERT INTO individui_table (
 					orientamento_asse ,
 					orientamento_azimut 
 
-                  FROM tafonomia_table
+                  FROM tafonomia_table;
 				  
 				  /* ON CONFLICT (id_scheda_ind,nr_individuo) DO UPDATE
 				  set sito=EXCLUDED.sito, nr_individuo=EXCLUDED.nr_individuo; */
