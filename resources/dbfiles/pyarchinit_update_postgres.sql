@@ -688,7 +688,7 @@ INSERT INTO individui_table (
 
                   FROM tafonomia_table
 				  
-				  ON CONFLICT (id_scheda_ind,id_tafonomia) DO UPDATE
+				  ON CONFLICT (id_scheda_ind,nr_individuo) DO UPDATE
 				  set sito=EXCLUDED.sito, nr_individuo=EXCLUDED.nr_individuo;
 				  
 CREATE OR REPLACE VIEW public.pyarchinit_individui_view AS
