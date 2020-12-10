@@ -652,7 +652,7 @@ INSERT INTO tomba_table (
 				  ON CONFLICT (sito, nr_scheda_taf) DO NOTHING;
 				  
 				  
-INSERT INTO individui_table (
+/* INSERT INTO individui_table (
             	sito,
 				nr_individuo,
 				sigla_struttura,
@@ -686,7 +686,7 @@ INSERT INTO individui_table (
 					orientamento_asse ,
 					orientamento_azimut 
 
-                  FROM tafonomia_table;
+                  FROM tafonomia_table; */
 				  
 				  /* ON CONFLICT (id_scheda_ind,nr_individuo) DO UPDATE
 				  set sito=EXCLUDED.sito, nr_individuo=EXCLUDED.nr_individuo; */
