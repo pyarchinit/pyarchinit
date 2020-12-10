@@ -593,8 +593,8 @@ CREATE SEQUENCE IF NOT EXISTS public.tomba_table_id_tomba_seq
 ALTER TABLE public.tomba_table_id_tomba_seq OWNER TO postgres;
 
 ALTER TABLE ONLY public.tomba_table ALTER COLUMN id_tomba SET DEFAULT nextval('public.tomba_table_id_tomba_seq'::regclass);
-ALTER TABLE ONLY public.tomba_table ADD CONSTRAINT if not exists "ID_tomba_unico" UNIQUE (sito, nr_scheda_taf);
-ALTER TABLE ONLY public.tomba_table ADD CONSTRAINT if not exists tomba_table_pkey PRIMARY KEY (id_tomba);	
+ALTER TABLE ONLY public.tomba_table ADD CONSTRAINT  "ID_tomba_unico" UNIQUE (sito, nr_scheda_taf);
+ALTER TABLE ONLY public.tomba_table ADD CONSTRAINT  tomba_table_pkey PRIMARY KEY (id_tomba);	
 	
 
 INSERT INTO tomba_table (
