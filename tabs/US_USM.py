@@ -71,12 +71,18 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
     SITO = pyArchInitDialog_Config
     if L=='it':
         STATUS_ITEMS = {"b": "Usa", "f": "Trova", "n": "Nuovo Record"}
+    
+    if L=='de':
+        STATUS_ITEMS = {"b": "Aktuell ", "f": "Finden", "n": "Neuer Rekord"}
+    
     else :
         STATUS_ITEMS = {"b": "Current", "f": "Find", "n": "New Record"}
     BROWSE_STATUS = "b"
     SORT_MODE = 'asc'
     if L=='it':
         SORTED_ITEMS = {"n": "Non ordinati", "o": "Ordinati"}
+    if L=='de':
+        SORTED_ITEMS = {"n": "Nicht sortiert", "o": "Sortiert"}
     else:
         SORTED_ITEMS = {"n": "Not sorted", "o": "Sorted"}
     SORT_STATUS = "n"
@@ -804,9 +810,9 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
             pass
         self.comboBox_ref_ra.clear()
         self.comboBox_ref_ra.addItems(self.UTILITY.remove_dup_from_list(inv_list))
-        if self.STATUS_ITEMS[self.BROWSE_STATUS] == "Trova" or "Find":
+        if self.STATUS_ITEMS[self.BROWSE_STATUS] == "Trova" or "Finden" or "Find":
             self.comboBox_ref_ra.setEditText("")
-        elif self.STATUS_ITEMS[self.BROWSE_STATUS] == "Usa" or "Current":
+        elif self.STATUS_ITEMS[self.BROWSE_STATUS] == "Usa" or "Aktuell " or "Current":
             if len(self.DATA_LIST) > 0:
                 try:
                     self.comboBox_ref_ra.setEditText(self.DATA_LIST[self.rec_num].ref_ra)
@@ -878,11 +884,27 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
             self.model_a.database().transaction()
             if self.model_a.submitAll():
                 self.model_a.database().commit()
-                QMessageBox.information(self, "Record",  "record salvato")
+                if self.L=='it':
+                    QMessageBox.information(self, "Record",  "record salvato")
+                elif self.L=='de':
+                    QMessageBox.information(self, "Datensatz",  "Datensatz gespeichert")
+                else:
+                    QMessageBox.information(self, "Record",  "record saved")
+            
             else:
                 self.model_a.database().rollback()
-                QMessageBox.warning(self, "Cached Table",
-                            "The database reported an error: %s" % self.model_a.lastError().text())    
+                if self.L=='it':
+                    QMessageBox.warning(self, "Cached Table",
+                            "Il db ha segnalato un errore: %s" % self.model_a.lastError().text())    
+        
+                elif self.L=='de':
+                    QMessageBox.warning(self, "Cached Table",
+                            "Die Datenbank meldete einen Fehler: %s" % self.model_a.lastError().text())    
+                            
+                else:
+                    QMessageBox.warning(self, "Cached Table",
+                            "The database reported an error: %s" % self.model_a.lastError().text())                
+        
         else:    
             self.checkBox_query.setChecked(False)
     def update_filter(self, s): 
@@ -903,7 +925,7 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
                         filter_str = "{} LIKE '%{}%'".format(s_field,s) 
                         self.model_a.setFilter(filter_str)
                 except Exception as e:
-                    QMessageBox.warning(self, "Attenzione", str(e), QMessageBox.Ok)
+                    QMessageBox.warning(self, "Warniong", str(e), QMessageBox.Ok)
             else:
                 try:
                     if bool(sito_set_str):
@@ -921,7 +943,7 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
                         else:
                             pass
                 except Exception as e:
-                    QMessageBox.warning(self, "Attenzione", str(e), QMessageBox.Ok)
+                    QMessageBox.warning(self, "Warning", str(e), QMessageBox.Ok)
         else:    
             self.checkBox_query.setChecked(False)
     def on_pushButton_globalsearch_pressed(self):
@@ -942,9 +964,9 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
             pass
         self.comboBox_struttura.clear()
         self.comboBox_struttura.addItems(self.UTILITY.remove_dup_from_list(struttura_list))
-        if self.STATUS_ITEMS[self.BROWSE_STATUS] == "Trova" or "Find":
+        if self.STATUS_ITEMS[self.BROWSE_STATUS] == "Trova" or "Finden" or "Find":
             self.comboBox_struttura.setEditText("")
-        elif self.STATUS_ITEMS[self.BROWSE_STATUS] == "Usa" or "Current":
+        elif self.STATUS_ITEMS[self.BROWSE_STATUS] == "Usa" or "Aktuell " or "Current":
             if len(self.DATA_LIST) > 0:
                 try:
                     self.comboBox_struttura.setEditText(self.DATA_LIST[self.rec_num].sigla_struttura+'-'+numero_struttura)
@@ -973,9 +995,9 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
         
         self.comboBox_posizione.clear()
         self.comboBox_posizione.addItems(self.UTILITY.remove_dup_from_list(geometry_list))
-        if self.STATUS_ITEMS[self.BROWSE_STATUS] == "Trova" or "Find":
+        if self.STATUS_ITEMS[self.BROWSE_STATUS] == "Trova" or "Finden" or "Find":
             self.comboBox_posizione.setEditText("")
-        elif self.STATUS_ITEMS[self.BROWSE_STATUS] == "Usa" or "Current":
+        elif self.STATUS_ITEMS[self.BROWSE_STATUS] == "Usa" or "Aktuell " or "Current":		
             if len(self.DATA_LIST) > 0:
                 try:
                     self.comboBox_posizione.setEditText(self.DATA_LIST[self.rec_num].posizione)
@@ -1002,9 +1024,9 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
                 #
                 self.comboBox_per_iniz.clear()
                 self.comboBox_per_iniz.addItems(self.UTILITY.remove_dup_from_list(periodo_list))
-                if self.STATUS_ITEMS[self.BROWSE_STATUS] == "Trova" or "Find":
+                if self.STATUS_ITEMS[self.BROWSE_STATUS] == "Trova" or "Finden" or "Find":
                     self.comboBox_per_iniz.setEditText("")
-                elif self.STATUS_ITEMS[self.BROWSE_STATUS] == "Usa" or "Current":
+                elif self.STATUS_ITEMS[self.BROWSE_STATUS] == "Usa" or "Aktuell " or "Current":	
                     if len(self.DATA_LIST) > 0:
                         try:
                             self.comboBox_per_iniz.setEditText(self.DATA_LIST[self.rec_num].periodo_iniziale)
@@ -1032,9 +1054,9 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
                 pass
             self.comboBox_per_fin.clear()
             self.comboBox_per_fin.addItems(self.UTILITY.remove_dup_from_list(periodo_list))
-            if self.STATUS_ITEMS[self.BROWSE_STATUS] == "Trova" or "Find":
+            if self.STATUS_ITEMS[self.BROWSE_STATUS] == "Trova" or "Finden" or "Find":
                 self.comboBox_per_fin.setEditText("")
-            elif self.STATUS_ITEMS[self.BROWSE_STATUS] == "Usa" or "Current":
+            elif self.STATUS_ITEMS[self.BROWSE_STATUS] == "Usa" or "Aktuell " or "Current":	
                 if len(self.DATA_LIST) > 0:
                     try:
                         self.comboBox_per_fin.setEditText(self.DATA_LIST[self.rec_num].periodo_iniziale)
@@ -1060,7 +1082,7 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
             self.comboBox_fas_iniz.clear()
             fase_list.sort()
             self.comboBox_fas_iniz.addItems(self.UTILITY.remove_dup_from_list(fase_list))
-            if self.STATUS_ITEMS[self.BROWSE_STATUS] == "Trova" or "Find":
+            if self.STATUS_ITEMS[self.BROWSE_STATUS] == "Trova" or "Finden" or "Find":
                 self.comboBox_fas_iniz.setEditText("")
             else:
                 self.comboBox_fas_iniz.setEditText(self.DATA_LIST[self.rec_num].fase_iniziale)
@@ -1084,7 +1106,7 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
             self.comboBox_fas_fin.clear()
             fase_list.sort()
             self.comboBox_fas_fin.addItems(self.UTILITY.remove_dup_from_list(fase_list))
-            if self.STATUS_ITEMS[self.BROWSE_STATUS] == "Trova" or "Find":
+            if self.STATUS_ITEMS[self.BROWSE_STATUS] == "Trova" or "Finden" or "Find":
                 self.comboBox_fas_fin.setEditText("")
             else:
                 self.comboBox_fas_fin.setEditText(self.DATA_LIST[self.rec_num].fase_finale)
@@ -1109,7 +1131,7 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
             self.comboBox_datazione.clear()
             datazione_list.sort()
             self.comboBox_datazione.addItems(self.UTILITY.remove_dup_from_list(datazione_list))
-            if self.STATUS_ITEMS[self.BROWSE_STATUS] == "Trova" or "Find":
+            if self.STATUS_ITEMS[self.BROWSE_STATUS] == "Trova" or "Finden" or "Find":
                 self.comboBox_datazione.setEditText("")
             else:
                 self.comboBox_datazione.setEditText(self.DATA_LIST[self.rec_num].datazione_estesa)
@@ -1471,6 +1493,17 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
             valuesDoc.append("ICCD-Sezioni")
             valuesDoc.append("ICCD-Prospetti")
             valuesDoc.append("ICCD-Foto")
+        elif self.L=='de':
+            valuesDoc.append("Pflanzen")
+            valuesDoc.append("Sektionen")
+            valuesDoc.append("Prospekte")
+            valuesDoc.append("Foto")
+        else:
+            valuesDoc.append("Maps")
+            valuesDoc.append("Sections")
+            valuesDoc.append("Elevations")
+            valuesDoc.append("Photo")
+        
         for i in range(len(tipo_di_documentazione)):
             valuesDoc.append(tipo_di_documentazione[i].sigla_estesa)
         #valuesDoc.sort()
@@ -1478,6 +1511,10 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
         self.delegateDoc.def_values(valuesDoc)
         self.delegateDoc.def_editable('False')
         self.tableWidget_documentazione.setItemDelegateForColumn(0, self.delegateDoc)
+        
+        
+        
+        
         # lista colore legante usm
         search_dict = {
             'lingua': lang,
