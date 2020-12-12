@@ -2325,7 +2325,7 @@ class pyarchinit_Tomba(QDialog, MAIN_DIALOG_CLASS):
         self.textEdit_interpretazione_taf.clear()  # 7 - interpretazione
         self.comboBox_segnacoli.setEditText("")  # 8 - segnacoli
         self.comboBox_canale_libatorio.setEditText("")  # 9 - canale libatorio
-        self.comboBox_oggetti_esterno.setDefaultText("")  # 10 - oggetti esterno
+        self.comboBox_oggetti_esterno.setEditText("")  # 10 - oggetti esterno
         self.comboBox_conservazione_taf.setEditText("")  # 11 - conservazione
         self.comboBox_copertura_tipo.setEditText("")  # 12 - copertura
         self.comboBox_tipo_contenitore_resti.setEditText("")  # 13 - tipo contenitore resti
