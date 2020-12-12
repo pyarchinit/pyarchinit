@@ -27,7 +27,7 @@ from qgis.core import QgsMessageLog, Qgis, QgsSettings
 
 from .modules.utility.pyarchinit_OS_utility import Pyarchinit_OS_Utility
 from .modules.utility.pyarchinit_folder_installation import pyarchinit_Folder_installation
-
+L=QgsSettings().value("locale/userLocale")[0:2]
 sys.path.append(os.path.dirname(__file__))
 sys.path.insert(0, os.path.abspath(
     os.path.join(os.path.dirname(__file__), 'resources')))
@@ -50,9 +50,16 @@ fi.installConfigFile(os.path.dirname(logo_iccd))
 
 missing_libraries = []
 try:
-    import pkg_resources
+    
+    import pytesseract
 
-    pkg_resources.require("graphviz==0.8.3")
+except Exception as e:
+    missing_libraries.append(str(e))
+
+try:
+    # import pkg_resources
+
+    # pkg_resources.require("graphviz==0.8.3")
     import graphviz
 
 except Exception as e:
@@ -120,11 +127,25 @@ for l in missing_libraries:
 
 if install_libraries:
     from qgis.PyQt.QtWidgets import QMessageBox
-
-    res = QMessageBox.warning(None, 'PyArchInit',
+    if L=='it':
+        res = QMessageBox.warning(None, 'PyArchInit',
+                              "Se vedete questo messaggio significa che alcuni dei pacchetti richiesti mancano dalla vostra macchina:\n{}\n\n"
+                              "Vuoi installare i pacchetti mancanti? Ricordate che è necessario avviare QGIS come Admin".format(
+                                  ',\n'.join(missing_libraries)), QMessageBox.Ok | QMessageBox.Cancel)
+    
+    elif L=='de':
+        res = QMessageBox.warning(None, 'PyArchInit',
+                              "Wenn Sie diese Meldung sehen, bedeutet dies, dass einige der erforderlichen Pakete auf Ihrem Rechner fehlen:\n{}\n\n\n"
+                              "Möchten Sie die fehlenden Pakete installieren? Denken Sie daran, dass Sie QGIS wie Admin starten müssen".format(
+                                  ',\n'.join(missing_libraries)), QMessageBox.Ok | QMessageBox.Cancel)
+    
+    else:
+        res = QMessageBox.warning(None, 'PyArchInit',
                               "If you see this message it means some of the required packages are missing from your machine:\n{}\n\n"
                               "Do you want install the missing packages? Remember you need start QGIS like Admin".format(
                                   ',\n'.join(missing_libraries)), QMessageBox.Ok | QMessageBox.Cancel)
+    
+    
     if res == QMessageBox.Ok:
         import subprocess
 
@@ -169,17 +190,40 @@ for p in packages:
         try:
             subprocess.call(['R', '--version'])
         except Exception as e:
-            QMessageBox.warning(None, 'Pyarchinit',
+            if L=='it':
+                QMessageBox.warning(None, 'Pyarchinit',
+                                "INFO: Sembra che R non sia installato sul vostro sistema o che non abbiate impostato il percorso in Pyarchinit config. In ogni caso il modulo pyper sarà installato sul vostro sistema, ma non è possibile utilizzare la funzione di archeologia.",
+                                QMessageBox.Ok | QMessageBox.Cancel)
+    
+            elif L=='de':
+                QMessageBox.warning(None, 'Pyarchinit',
+                                "INFO: Es scheint, dass R nicht auf Ihrem System installiert ist oder dass Sie den Pfad in der Pyarchinit-Konfiguration nicht festgelegt haben. Wie auch immer, das pyper-Modul wird auf Ihrem System installiert sein, aber Sie können die Archäologie-Funktion nicht benutzen.",
+                                QMessageBox.Ok | QMessageBox.Cancel)
+    
+    
+            else:
+                QMessageBox.warning(None, 'Pyarchinit',
                                 "INFO: It seems that R is not installed on your system or you don't have set the path in Pyarchinit config. Anyway the pyper module will be installed on your system, but you can not use archaezoology function.",
                                 QMessageBox.Ok | QMessageBox.Cancel)
+    
+    
     if p.startswith('graphviz'):
         try:
             subprocess.call(['dot', '-V'])
         except Exception as e:
-            QMessageBox.warning(None, 'Pyarchinit',
-                                "INFO: It seems that Graphviz is not installed on your system or you don't have set the path in Pyarchinit config. Anyway the graphviz python module will be installed on your system, but the export matrix functionality from pyarchinit plugin will be disabled.",
+            if L=='it':
+                QMessageBox.warning(None, 'Pyarchinit',
+                                "INFO: Sembra che Graphviz non sia installato sul vostro sistema o che non abbiate impostato il percorso in Pyarchinit config. In ogni caso il modulo python di graphviz sarà installato sul vostro sistema, ma la funzionalità di esportazione della matrice dal plugin pyarchinit sarà disabilitata.",
                                 QMessageBox.Ok | QMessageBox.Cancel)
-
+            elif L=='de':
+                QMessageBox.warning(None, 'Pyarchinit',
+                                "INFO: Es scheint, dass Graphviz nicht auf Ihrem System installiert ist oder dass Sie den Pfad in der Pyarchinit-Konfiguration nicht festgelegt haben. Wie auch immer, das Graphviz-Python-Modul wird auf Ihrem System installiert sein, aber die Exportmatrix-Funktionalität aus dem Pyarchinit-Plugin wird deaktiviert sein.",
+                                QMessageBox.Ok | QMessageBox.Cancel)
+                                
+            else:
+                QMessageBox.warning(None, 'Pyarchinit',
+                                "INFO: It seems that Graphviz is not installed on your system or you don't have set the path in Pyarchinit config. Anyway the graphviz python module will be installed on your system, but the export matrix functionality from pyarchinit plugin will be disabled.",
+                                QMessageBox.Ok | QMessageBox.Cancel)                    
     
 def classFactory(iface):
     from .pyarchinitPlugin import PyArchInitPlugin

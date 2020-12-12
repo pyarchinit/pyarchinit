@@ -47,7 +47,7 @@ class HarrisMatrix:
         dialog.exec_()
         
         
-        G = Digraph(engine='neato',strict=False)
+        G = Digraph(engine='dot',strict=False)
         
         G.graph_attr['splines'] = 'ortho'
         G.graph_attr['dpi'] = '300'
@@ -116,7 +116,7 @@ class HarrisMatrix:
         'Harris_matrix', dt.day, dt.month, dt.year, dt.hour, dt.minute, dt.second)
         f = open(filename, "w")
         
-        G.format = 'xdot'
+        G.format = 'dot'
         dot_file = G.render(directory=matrix_path, filename=filename)
         
         # For MS-Windows, we need to hide the console window.
@@ -138,7 +138,7 @@ class HarrisMatrix:
 
         tred_file = os.path.join(matrix_path, filename + '_tred.dot')
         
-        f = Source.from_file(tred_file, format='png')
+        f = Source.from_file(tred_file, format='svg')
         f.render()
         g = Source.from_file(tred_file, format='jpg')
         g.render()
