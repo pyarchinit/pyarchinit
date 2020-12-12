@@ -2766,7 +2766,7 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
                 US_pdf_sheet = generate_US_pdf()
                 data_list = self.generate_list_pdf()
                 US_pdf_sheet.build_US_sheets(data_list)
-                QMessageBox.warning(self, 'Ok',"Esportazione terminata Schede US",QMessageBox.Ok)
+                QMessageBox.warning(self, "Okay", "Export beendet",QMessageBox.Ok)
             else:   
                 pass
             if self.checkBox_e_us.isChecked() :
@@ -2775,11 +2775,11 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
                 try:               
                     if bool(data_list):
                         US_index_pdf.build_index_US(data_list, data_list[0][0])
-                        QMessageBox.warning(self, 'Ok',"Esportazione terminata Elenco US",QMessageBox.Ok)
+                        QMessageBox.warning(self, "Okay", "Export beendet",QMessageBox.Ok)
                     else:
-                        QMessageBox.warning(self, 'ATTENZIONE',"L'elenco US non può essere esportato devi riempire prima le schede US",QMessageBox.Ok)
+                        QMessageBox.warning(self, 'WARNUNG', 'Die SE-Liste kann nicht exportiert werden, Sie müssen zuerst die SE-Formulare ausfüllen'.,QMessageBox.Ok)
                 except Exception as e :
-                    QMessageBox.warning(self, 'ATTENZIONE',str(e),QMessageBox.Ok)
+                    QMessageBox.warning(self, 'WARNUNG',str(e),QMessageBox.Ok)
             else:
                 pass
             if self.checkBox_e_foto_t.isChecked():
@@ -2788,22 +2788,22 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
                 try:
                         if bool(data_list_foto):
                             US_index_pdf.build_index_Foto(data_list_foto, data_list_foto[0][0])
-                            QMessageBox.warning(self, 'Ok',"Esportazione terminata Elenco Foto",QMessageBox.Ok)
+                            QMessageBox.warning(self, "Okay", "Fertige Fotoliste exportieren",QMessageBox.Ok)
                         else:
-                            QMessageBox.warning(self, 'ATTENZIONE',"L'elenco foto non può essere esportato perchè non hai immagini taggate.",QMessageBox.Ok)
+                            QMessageBox.warning(self, 'WARNUNG', 'Die Fotoliste kann nicht exportiert werden, da Sie keine markierten Bilder haben.',QMessageBox.Ok)
                 except Exception as e :
-                    QMessageBox.warning(self, 'ATTENZIONE',str(e),QMessageBox.Ok)
+                    QMessageBox.warning(self, 'WARNUNG',str(e),QMessageBox.Ok)
             if self.checkBox_e_foto.isChecked():
                 US_index_pdf = generate_US_pdf()
                 data_list_foto = self.generate_list_foto()
                 try:
                         if bool(data_list_foto):
                             US_index_pdf.build_index_Foto_2(data_list_foto, data_list_foto[0][0])
-                            QMessageBox.warning(self, 'Ok',"Esportazione terminata Elenco Foto senza thumbanil",QMessageBox.Ok)
+                            QMessageBox.warning(self, 'Ok', 'Fertige Fotoliste ohne Daumenballen exportieren',QMessageBox.Ok)
                         else:
-                            QMessageBox.warning(self, 'ATTENZIONE',"L'elenco foto non può essere esportato perchè non hai immagini taggate.",QMessageBox.Ok)
+                            QMessageBox.warning(self, 'WARNUNG', 'Die Fotoliste kann nicht exportiert werden, da Sie keine markierten Bilder haben.',QMessageBox.Ok)
                 except Exception as e :
-                    QMessageBox.warning(self, 'ATTENZIONE',str(e),QMessageBox.Ok)
+                    QMessageBox.warning(self, 'WARNUNG',str(e),QMessageBox.Ok)
     def setPathpdf(self):
         s = QgsSettings()
         dbpath = QFileDialog.getOpenFileName(
@@ -2826,7 +2826,8 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
             docx_file = self.PDFFOLDER+'/'+filename+'.docx'
             # convert pdf to docx
             parse(pdf_file, docx_file, start=self.lineEdit_pag1.text(), end=self.lineEdit_pag2.text())
-            QMessageBox.information(self, "INFO", "Conversione terminata",
+            
+            QMessageBox.information(self, "INFO", "Conversion completed",
                                 QMessageBox.Ok)
         except Exception as e:
             QMessageBox.warning(self, "Error", str(e),
