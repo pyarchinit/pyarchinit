@@ -2777,7 +2777,7 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
                         US_index_pdf.build_index_US(data_list, data_list[0][0])
                         QMessageBox.warning(self, "Okay", "Export beendet",QMessageBox.Ok)
                     else:
-                        QMessageBox.warning(self, 'WARNUNG', 'Die SE-Liste kann nicht exportiert werden, Sie müssen zuerst die SE-Formulare ausfüllen'.,QMessageBox.Ok)
+                        QMessageBox.warning(self, 'WARNUNG', 'Die SE-Liste kann nicht exportiert werden, Sie müssen zuerst die SE-Formulare ausfüllen',QMessageBox.Ok)
                 except Exception as e :
                     QMessageBox.warning(self, 'WARNUNG',str(e),QMessageBox.Ok)
             else:
