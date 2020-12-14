@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>889</width>
+    <width>898</width>
     <height>635</height>
    </rect>
   </property>
@@ -1278,7 +1278,7 @@
         <attribute name="title">
          <string>Struttura</string>
         </attribute>
-        <widget class="QWidget" name="">
+        <widget class="QWidget" name="layoutWidget">
          <property name="geometry">
           <rect>
            <x>1</x>
@@ -1842,7 +1842,7 @@
    <sender>iconListWidget</sender>
    <signal>itemSelectionChanged()</signal>
    <receiver>tableWidgetTags_US</receiver>
-   <slot>clear()</slot>
+   <slot>update()</slot>
    <hints>
     <hint type="sourcelabel">
      <x>278</x>

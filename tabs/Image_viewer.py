@@ -31,11 +31,18 @@ import shutil
 
 
 import cv2
+import pytesseract
 import numpy as np
+#####################nuovi#######################
+from PIL import ImageGrab
+import time
+from pytesseract import Output
+pytesseract.pytesseract.tesseract_cmd = 'C:\\Program Files (x86)\\Tesseract-OCR\\tesseract.exe'# funziona meglio 
+###############################
 from qgis import PyQt
 from qgis.PyQt.QtCore import *
 from qgis.PyQt.QtGui import *
-from qgis.PyQt.QtWidgets import *#QMainWindow, QDialog, QMessageBox, QAbstractItemView, QListWidget, QListWidgetItem, QFileDialog, QTableWidget,QTableWidgetItem,QProgressBar, QPushButton,QBoxLayout, QVBoxLayout
+from qgis.PyQt.QtWidgets import *
 from qgis.PyQt.uic import loadUiType
 from qgis.core import QgsSettings
 from ..gui.pyarchinitConfigDialog import pyArchInitDialog_Config
@@ -45,7 +52,6 @@ from ..modules.utility.delegateComboBox import ComboBoxDelegate
 from ..modules.db.pyarchinit_conn_strings import *
 from ..modules.db.pyarchinit_db_manager import *
 from ..modules.db.pyarchinit_utility import *
-#from ..modules.utility.delegateComboBox import *
 from ..modules.utility.pyarchinit_media_utility import *
 MAIN_DIALOG_CLASS, _ = loadUiType(
     os.path.join(os.path.dirname(__file__), os.pardir, 'gui', 'ui', 'pyarchinit_image_viewer_dialog.ui'))
@@ -75,12 +81,18 @@ class Main(QDialog,MAIN_DIALOG_CLASS):
     REC_TOT = 0
     if L=='it':
         STATUS_ITEMS = {"b": "Usa", "f": "Trova", "n": "Nuovo Record"}
+    
+    elif L=='de':
+        STATUS_ITEMS = {"b": "Aktuell ", "f": "Finden", "n": "Neuer Rekord"}
+    
     else :
         STATUS_ITEMS = {"b": "Current", "f": "Find", "n": "New Record"}
     BROWSE_STATUS = "b"
     SORT_MODE = 'asc'
     if L=='it':
         SORTED_ITEMS = {"n": "Non ordinati", "o": "Ordinati"}
+    elif L=='de':
+        SORTED_ITEMS = {"n": "Nicht sortiert", "o": "Sortiert"}
     else:
         SORTED_ITEMS = {"n": "Not sorted", "o": "Sorted"}
     SORT_STATUS = "n"
@@ -112,13 +124,13 @@ class Main(QDialog,MAIN_DIALOG_CLASS):
         self.customize_gui()
         self.mDockWidget.setHidden(True)      
         self.iconListWidget.SelectionMode()
-        self.iconListWidget.itemSelectionChanged.connect(self.remove_all)
+        #self.iconListWidget.itemSelectionChanged.connect(self.remove_all)
         self.iconListWidget.setSelectionMode(QAbstractItemView.ExtendedSelection)
         self.iconListWidget.itemDoubleClicked.connect(self.openWide_image)
         self.sl.valueChanged.connect(self.valuechange)
         self.iconListWidget.itemSelectionChanged.connect(self.open_tags)
-        self.iconListWidget.itemEntered.connect(self.split_1)
-        self.iconListWidget.itemEntered.connect(self.split_2)
+        #self.iconListWidget.itemEntered.connect(self.split_1)
+        #self.iconListWidget.itemEntered.connect(self.split_2)
         self.setWindowTitle("pyArchInit - Media Manager")
         self.comboBox_sito.editTextChanged.connect(self.charge_us_list)
         self.comboBox_sito.editTextChanged.connect(self.charge_area_list)
@@ -197,6 +209,7 @@ class Main(QDialog,MAIN_DIALOG_CLASS):
         self.tableWidgetTags_US.setColumnWidth(0, 300)
         self.tableWidgetTags_US.setColumnWidth(1, 100)
         self.tableWidgetTags_US.setColumnWidth(2, 100)
+        #self.tableWidgetTags_US.setColumnWidth(3, 100)
         self.tableWidgetTags_MAT.setColumnWidth(0, 300)
         self.tableWidgetTags_MAT.setColumnWidth(1, 150)
         self.tableWidgetTags_tomba.setColumnWidth(0, 300)
@@ -260,7 +273,7 @@ class Main(QDialog,MAIN_DIALOG_CLASS):
             if str(e) == "list.remove(x): x not in list":
                 pass
             else:
-                QMessageBox.warning(self, "Messaggio", "Sistema di aggiornamento lista Sito: " + str(e), QMessageBox.Ok)
+                QMessageBox.warning(self, "Warning", str(e), QMessageBox.Ok)
         self.comboBox_sito.clear()
         sito_vl.sort()
         self.comboBox_sito.addItems(sito_vl)
@@ -290,7 +303,7 @@ class Main(QDialog,MAIN_DIALOG_CLASS):
                 self.comboBox_sigla_struttura.clear()
                 self.comboBox_sigla_struttura.addItems(self.UTILITY.remove_dup_from_list(us_list))
             except:
-                QMessageBox.warning(self, "Messaggio", "Sistema di aggiornamento lista Sito: " + str(e), QMessageBox.Ok)
+                MessageBox.warning(self, "Warning", str(e), QMessageBox.Ok)
     def charge_nr_st_list(self):
         sito = str(self.comboBox_sito.currentText())
         if self.radioButton_struttura.isChecked():
@@ -315,7 +328,7 @@ class Main(QDialog,MAIN_DIALOG_CLASS):
                 self.comboBox_nr_struttura.clear()
                 self.comboBox_nr_struttura.addItems(self.UTILITY.remove_dup_from_list(us_list))
             except:
-                QMessageBox.warning(self, "Messaggio", "Sistema di aggiornamento lista Sito: " + str(e), QMessageBox.Ok)
+                MessageBox.warning(self, "Warning", str(e), QMessageBox.Ok)
     def charge_us_list(self):
         sito = str(self.comboBox_sito.currentText())
         if self.radioButton_us.isChecked():
@@ -342,7 +355,7 @@ class Main(QDialog,MAIN_DIALOG_CLASS):
                 self.comboBox_us.clear()
                 self.comboBox_us.addItems(self.UTILITY.remove_dup_from_list(us_list))
             except:
-                QMessageBox.warning(self, "Messaggio", "Sistema di aggiornamento lista Sito: " + str(e), QMessageBox.Ok)
+                MessageBox.warning(self, "Warning", str(e), QMessageBox.Ok)
         if self.radioButton_materiali.isChecked():
             try: 
                 self.label_8.clear()
@@ -368,7 +381,7 @@ class Main(QDialog,MAIN_DIALOG_CLASS):
                 self.comboBox_us.addItems(self.UTILITY.remove_dup_from_list(us_list))
         
             except:
-                QMessageBox.warning(self, "Messaggio", "Sistema di aggiornamento lista Sito: " + str(e), QMessageBox.Ok)
+                MessageBox.warning(self, "Warning", str(e), QMessageBox.Ok)
         if self.radioButton_tomba.isChecked():
             try:
                 self.label_8.clear()
@@ -393,7 +406,7 @@ class Main(QDialog,MAIN_DIALOG_CLASS):
                 self.comboBox_us.clear()
                 self.comboBox_us.addItems(self.UTILITY.remove_dup_from_list(us_list))
             except:
-                QMessageBox.warning(self, "Messaggio", "Sistema di aggiornamento lista Sito: " + str(e), QMessageBox.Ok)    
+                MessageBox.warning(self, "Warning", str(e), QMessageBox.Ok)    
     def charge_area_list(self):
         if self.radioButton_us.isChecked():
             sito = str(self.comboBox_sito.currentText())
@@ -467,11 +480,17 @@ class Main(QDialog,MAIN_DIALOG_CLASS):
                 self.charge_sito_list()
                 self.fill_fields()
             else:
-                QMessageBox.warning(self, "WELCOME", "Welcome in pyArchInit" + self.NOME_SCHEDA + ". The database is empty. Push 'Ok' and good work!",  QMessageBox.Ok)
+                if self.L=='it':
+                    QMessageBox.warning(self, "BENVENUTI", "Benvenuti in pyArchInit" + self.NOME_SCHEDA + ". Il database è vuoto. premere 'Ok' e buon lavoro!",  QMessageBox.Ok)
+                if self.L=='de':
+                    QMessageBox.warning(self, "WILLKOMMEN", "Willkommen in pyArchInit" + self.NOME_SCHEDA + ". Die Datenbank ist leer. Drücken Sie 'Ok' und gute Arbeit!",  QMessageBox.Ok)
+                else:
+                    QMessageBox.warning(self, "WELCOME", "Welcome in pyArchInit" + self.NOME_SCHEDA + ". The database is empty. Push 'Ok' and good work!",  QMessageBox.Ok)
+                
                 self.charge_sito_list()
                 self.BROWSE_STATUS = 'x'
         except Exception as  e:
-            e = str(e)
+            e = str(e)#QMessageBox.warning(self, "Warning", str(e), QMessageBox.Ok)
     def enable_button(self, n):
         self.pushButton_first_rec.setEnabled(n)
         self.pushButton_last_rec.setEnabled(n)
@@ -500,11 +519,21 @@ class Main(QDialog,MAIN_DIALOG_CLASS):
             search_dict = u.remove_empty_items_fr_dict(search_dict)
             us_vl = self.DB_MANAGER.select_medianame_2_from_db_sql(sito,area,us)
             if not bool(search_dict):
-                QMessageBox.warning(self, "Warning", "Insert Value!!!",  QMessageBox.Ok)
+                if self.L=='it':
+                    QMessageBox.warning(self, "ATTENZIONE", "Inserisci un valore", QMessageBox.Ok)
+                elif self.L=='de':
+                    QMessageBox.warning(self, "ACHTUNG", "Einen Wert einfügen", QMessageBox.Ok)
+                else:
+                    QMessageBox.warning(self, "WARNING", "Insert a value", QMessageBox.Ok)   
             else:
                 res = self.DB_MANAGER.select_medianame_2_from_db_sql(sito,area,us)
                 if not bool(res):
-                    QMessageBox.warning(self, "Warning", "No records have been found!",  QMessageBox.Ok)
+                    if self.L=='it':
+                        QMessageBox.warning(self, "ATTENZIONE", "Non è stato trovato nessun record!", QMessageBox.Ok)
+                    elif self.L=='de':
+                        QMessageBox.warning(self, "ACHTUNG", "Keinen Record gefunden!", QMessageBox.Ok)
+                    else:
+                        QMessageBox.warning(self, "WARNING", "No record found!", QMessageBox.Ok)   
                     self.set_rec_counter(len(self.DATA_LIST), self.REC_CORR+1)
                     self.DATA_LIST_REC_TEMP = self.DATA_LIST_REC_CORR = self.DATA_LIST[0]
                     self.fill_fields(self.REC_CORR)
@@ -524,15 +553,33 @@ class Main(QDialog,MAIN_DIALOG_CLASS):
                     self.BROWSE_STATUS = "b"
                     self.label_status.setText(self.STATUS_ITEMS[self.BROWSE_STATUS])
                     self.set_rec_counter(len(self.DATA_LIST), self.REC_CORR+1)
-                    if self.REC_TOT == 1:
-                        strings = ("Has been found", self.REC_TOT, "record")
+                    if self.L=='it':
+                        if self.REC_TOT == 1:
+                            strings = ("E' stato trovato", self.REC_TOT, "record")
+                            
+                        else:
+                            strings = ("Sono stati trovati", self.REC_TOT, "records")
+                            
+                    elif self.L=='de':
+                        if self.REC_TOT == 1:
+                            strings = ("Es wurde gefunden", self.REC_TOT, "record")
+                            
+                        else:
+                            strings = ("Sie wurden gefunden", self.REC_TOT, "records")
+                            
                     else:
-                        strings = ("Have been found", self.REC_TOT, "records")
+                        if self.REC_TOT == 1:
+                            strings = ("It has been found", self.REC_TOT, "record")
+                            
+                        else:
+                            strings = ("They have been found", self.REC_TOT, "records")
+                            
+                    
                     self.setComboBoxEnable(["self.comboBox_sito"],"True")
                     self.setComboBoxEnable(["self.comboBox_area"],"True")
                     self.setComboBoxEnable(["self.comboBox_us"],"True")
                     #check_for_buttons = 1
-                    QMessageBox.warning(self, "Messaggio", "%s %d %s" % strings, QMessageBox.Ok)
+                    QMessageBox.information(self, "Info", "%s %d %s" % strings, QMessageBox.Ok)
             self.NUM_DATA_BEGIN =  1
             self.NUM_DATA_END = len(self.DATA_LIST)
             self.view_num_rec()
@@ -565,11 +612,21 @@ class Main(QDialog,MAIN_DIALOG_CLASS):
             search_dict = u.remove_empty_items_fr_dict(search_dict)
             us_vl = self.DB_MANAGER.select_medianame_ra_from_db_sql(sito,area,us)
             if not bool(search_dict):
-                QMessageBox.warning(self, "Warning", "Insert Value!!!",  QMessageBox.Ok)
+                if self.L=='it':
+                    QMessageBox.warning(self, "ATTENZIONE", "Inserisci un valore", QMessageBox.Ok)
+                elif self.L=='de':
+                    QMessageBox.warning(self, "ACHTUNG", "Einen Wert einfügen", QMessageBox.Ok)
+                else:
+                    QMessageBox.warning(self, "WARNING", "Insert a value", QMessageBox.Ok)
             else:
                 res = self.DB_MANAGER.select_medianame_ra_from_db_sql(sito,area,us)
                 if not bool(res):
-                    QMessageBox.warning(self, "Warning", "No records have been found!",  QMessageBox.Ok)
+                    if self.L=='it':
+                        QMessageBox.warning(self, "ATTENZIONE", "Non è stato trovato nessun record!", QMessageBox.Ok)
+                    elif self.L=='de':
+                        QMessageBox.warning(self, "ACHTUNG", "Keinen Record gefunden!", QMessageBox.Ok)
+                    else:
+                        QMessageBox.warning(self, "WARNING", "No record found!", QMessageBox.Ok)   
                     self.set_rec_counter(len(self.DATA_LIST), self.REC_CORR+1)
                     self.DATA_LIST_REC_TEMP = self.DATA_LIST_REC_CORR = self.DATA_LIST[0]
                     self.fill_fields(self.REC_CORR)
@@ -589,10 +646,26 @@ class Main(QDialog,MAIN_DIALOG_CLASS):
                     self.BROWSE_STATUS = "b"
                     self.label_status.setText(self.STATUS_ITEMS[self.BROWSE_STATUS])
                     self.set_rec_counter(len(self.DATA_LIST), self.REC_CORR+1)
-                    if self.REC_TOT == 1:
-                        strings = ("Has been found", self.REC_TOT, "record")
+                    if self.L=='it':
+                        if self.REC_TOT == 1:
+                            strings = ("E' stato trovato", self.REC_TOT, "record")
+                            
+                        else:
+                            strings = ("Sono stati trovati", self.REC_TOT, "records")
+                            
+                    elif self.L=='de':
+                        if self.REC_TOT == 1:
+                            strings = ("Es wurde gefunden", self.REC_TOT, "record")
+                            
+                        else:
+                            strings = ("Sie wurden gefunden", self.REC_TOT, "records")
+                            
                     else:
-                        strings = ("Have been found", self.REC_TOT, "records")
+                        if self.REC_TOT == 1:
+                            strings = ("It has been found", self.REC_TOT, "record")
+                            
+                        else:
+                            strings = ("They have been found", self.REC_TOT, "records")
                     self.setComboBoxEnable(["self.comboBox_sito"],"True")
                     self.setComboBoxEnable(["self.comboBox_area"],"True")
                     self.setComboBoxEnable(["self.comboBox_us"],"True")
@@ -629,11 +702,21 @@ class Main(QDialog,MAIN_DIALOG_CLASS):
             search_dict = u.remove_empty_items_fr_dict(search_dict)
             us_vl = self.DB_MANAGER.select_medianame_tb_from_db_sql(sito,area)
             if not bool(search_dict):
-                QMessageBox.warning(self, "Warning", "Insert Value!!!",  QMessageBox.Ok)
+                if self.L=='it':
+                    QMessageBox.warning(self, "ATTENZIONE", "Inserisci un valore", QMessageBox.Ok)
+                elif self.L=='de':
+                    QMessageBox.warning(self, "ACHTUNG", "Einen Wert einfügen", QMessageBox.Ok)
+                else:
+                    QMessageBox.warning(self, "WARNING", "Insert a value", QMessageBox.Ok)
             else:
                 res = self.DB_MANAGER.select_medianame_tb_from_db_sql(sito,area)
                 if not bool(res):
-                    QMessageBox.warning(self, "Warning", "No records have been found!",  QMessageBox.Ok)
+                    if self.L=='it':
+                        QMessageBox.warning(self, "ATTENZIONE", "Non è stato trovato nessun record!", QMessageBox.Ok)
+                    elif self.L=='de':
+                        QMessageBox.warning(self, "ACHTUNG", "Keinen Record gefunden!", QMessageBox.Ok)
+                    else:
+                        QMessageBox.warning(self, "WARNING", "No record found!", QMessageBox.Ok)   
                     self.set_rec_counter(len(self.DATA_LIST), self.REC_CORR+1)
                     self.DATA_LIST_REC_TEMP = self.DATA_LIST_REC_CORR = self.DATA_LIST[0]
                     self.fill_fields(self.REC_CORR)
@@ -653,10 +736,26 @@ class Main(QDialog,MAIN_DIALOG_CLASS):
                     self.BROWSE_STATUS = "b"
                     self.label_status.setText(self.STATUS_ITEMS[self.BROWSE_STATUS])
                     self.set_rec_counter(len(self.DATA_LIST), self.REC_CORR+1)
-                    if self.REC_TOT == 1:
-                        strings = ("Has been found", self.REC_TOT, "record")
+                    if self.L=='it':
+                        if self.REC_TOT == 1:
+                            strings = ("E' stato trovato", self.REC_TOT, "record")
+                            
+                        else:
+                            strings = ("Sono stati trovati", self.REC_TOT, "records")
+                            
+                    elif self.L=='de':
+                        if self.REC_TOT == 1:
+                            strings = ("Es wurde gefunden", self.REC_TOT, "record")
+                            
+                        else:
+                            strings = ("Sie wurden gefunden", self.REC_TOT, "records")
+                            
                     else:
-                        strings = ("Have been found", self.REC_TOT, "records")
+                        if self.REC_TOT == 1:
+                            strings = ("It has been found", self.REC_TOT, "record")
+                            
+                        else:
+                            strings = ("They have been found", self.REC_TOT, "records")
                     self.setComboBoxEnable(["self.comboBox_sito"],"True")
                     self.setComboBoxEnable(["self.comboBox_area"],"True")
                     #self.setComboBoxEnable(["self.comboBox_us"],"True")
@@ -701,11 +800,21 @@ class Main(QDialog,MAIN_DIALOG_CLASS):
             search_dict = u.remove_empty_items_fr_dict(search_dict)
             us_vl = self.DB_MANAGER.select_medianame_from_st_sql(sito,sigla,nr_st)
             if not bool(search_dict):
-                QMessageBox.warning(self, "Warning", "Insert Value!!!",  QMessageBox.Ok)
+                if self.L=='it':
+                    QMessageBox.warning(self, "ATTENZIONE", "Inserisci un valore", QMessageBox.Ok)
+                elif self.L=='de':
+                    QMessageBox.warning(self, "ACHTUNG", "Einen Wert einfügen", QMessageBox.Ok)
+                else:
+                    QMessageBox.warning(self, "WARNING", "Insert a value", QMessageBox.Ok)
             else:
                 res = self.DB_MANAGER.select_medianame_from_st_sql(sito,sigla,nr_st)
                 if not bool(res):
-                    QMessageBox.warning(self, "Warning", "No records have been found!",  QMessageBox.Ok)
+                    if self.L=='it':
+                        QMessageBox.warning(self, "ATTENZIONE", "Non è stato trovato nessun record!", QMessageBox.Ok)
+                    elif self.L=='de':
+                        QMessageBox.warning(self, "ACHTUNG", "Keinen Record gefunden!", QMessageBox.Ok)
+                    else:
+                        QMessageBox.warning(self, "WARNING", "No record found!", QMessageBox.Ok)   
                     self.set_rec_counter(len(self.DATA_LIST), self.REC_CORR+1)
                     self.DATA_LIST_REC_TEMP = self.DATA_LIST_REC_CORR = self.DATA_LIST[0]
                     self.fill_fields(self.REC_CORR)
@@ -725,10 +834,26 @@ class Main(QDialog,MAIN_DIALOG_CLASS):
                     self.BROWSE_STATUS = "b"
                     self.label_status.setText(self.STATUS_ITEMS[self.BROWSE_STATUS])
                     self.set_rec_counter(len(self.DATA_LIST), self.REC_CORR+1)
-                    if self.REC_TOT == 1:
-                        strings = ("Has been found", self.REC_TOT, "record")
+                    if self.L=='it':
+                        if self.REC_TOT == 1:
+                            strings = ("E' stato trovato", self.REC_TOT, "record")
+                            
+                        else:
+                            strings = ("Sono stati trovati", self.REC_TOT, "records")
+                            
+                    elif self.L=='de':
+                        if self.REC_TOT == 1:
+                            strings = ("Es wurde gefunden", self.REC_TOT, "record")
+                            
+                        else:
+                            strings = ("Sie wurden gefunden", self.REC_TOT, "records")
+                            
                     else:
-                        strings = ("Have been found", self.REC_TOT, "records")
+                        if self.REC_TOT == 1:
+                            strings = ("It has been found", self.REC_TOT, "record")
+                            
+                        else:
+                            strings = ("They have been found", self.REC_TOT, "records")
                     self.setComboBoxEnable(["self.comboBox_sito"],"True")
                     self.setComboBoxEnable(["self.comboBox_sigla_struttura"],"True")
                     self.setComboBoxEnable(["self.comboBox_nr_struttura"],"True")
@@ -757,7 +882,12 @@ class Main(QDialog,MAIN_DIALOG_CLASS):
         thumb_path = conn.thumb_path()
         thumb_path_str = thumb_path['thumb_path']      
         if thumb_path_str=='':
-            QMessageBox.information(self, "Message", "devi settare prima la path per salvare le thumbnail e i video. Vai in impostazioni di sistema/ path setting ")
+            if self.L=='it':
+                QMessageBox.information(self, "Info", "devi settare prima la path per salvare le thumbnail e i video. Vai in impostazioni di sistema/ path setting ")
+            elif self.L=='de':
+                QMessageBox.information(self, "Info", "müssen Sie zuerst den Pfad zum Speichern der Miniaturansichten und Videos festlegen. Gehen Sie zu System-/Pfad-Einstellung")
+            else:
+                QMessageBox.information(self, "Message", "you must first set the path to save the thumbnails and videos. Go to system/path setting")
         else:    
             video_list=[]
             directory = QFileDialog.getExistingDirectory(self, "Directory", "Choose a directory:",
@@ -846,12 +976,27 @@ class Main(QDialog,MAIN_DIALOG_CLASS):
                             except:
                                 pass
                 if bool(idunique_video_check):
-                    QMessageBox.information(self, "Message", "I video sono già caricati nel database")
+                    if self.L=='it':
+                        QMessageBox.information(self, "Info", "I video sono già caricati nel database")
+                    elif self.L=='de':
+                        QMessageBox.information(self, "Info", "Videos sind bereits in die Datenbank hochgeladen")
+                    else:
+                        QMessageBox.information(self, "Info", "The videos are already uploaded to the database")
                 elif not bool(idunique_video_check):
-                    QMessageBox.information(self, "Message", "Video caricati! Puoi taggarle")
-            
+                    if self.L=='it':
+                        QMessageBox.information(self, "Message", "Video caricati! Puoi taggarle")
+                    elif self.L=='de':
+                        QMessageBox.information(self, "Message", "Hochgeladene Videos! Sie können sie taggen")
+                    else:
+                        QMessageBox.information(self, "Message", "Uploaded videos! You can tag them")    
             except:
-                QMessageBox.warning(self, "Warning", "controlla che il nome del file non abbia caratteri speciali", QMessageBox.Ok)
+                if self.L=='it':
+                    QMessageBox.warning(self, "Warning", "controlla che il nome del file non abbia caratteri speciali", QMessageBox.Ok)
+                if self.L=='de':
+                    QMessageBox.warning(self, "Warning", "prüfen, ob der Dateiname keine Sonderzeichen enthält", QMessageBox.Ok)
+                else:
+                    QMessageBox.warning(self, "Warning", "check that the file name has no special characters", QMessageBox.Ok)    
+            
             self.charge_data ()
             self.view_num_rec()
             self.open_images()
@@ -860,7 +1005,12 @@ class Main(QDialog,MAIN_DIALOG_CLASS):
         thumb_path = conn.thumb_path()
         thumb_path_str = thumb_path['thumb_path']      
         if thumb_path_str=='':
-            QMessageBox.information(self, "Message", "devi settare prima la path per salvare le thumbnail e le immagini ricampionate. Vai in impostazioni di sistema/ path setting ")
+            if self.L=='it':
+                QMessageBox.information(self, "Info", "devi settare prima la path per salvare le thumbnail e i video. Vai in impostazioni di sistema/ path setting ")
+            elif self.L=='de':
+                QMessageBox.information(self, "Info", "müssen Sie zuerst den Pfad zum Speichern der Miniaturansichten und Videos festlegen. Gehen Sie zu System-/Pfad-Einstellung")
+            else:
+                QMessageBox.information(self, "Message", "you must first set the path to save the thumbnails and videos. Go to system/path setting")
         else:    
             image_list=[]
             directory = QFileDialog.getExistingDirectory(self, "Directory", "Choose a directory:",
@@ -935,17 +1085,111 @@ class Main(QDialog,MAIN_DIALOG_CLASS):
                                 self.iconListWidget.addItem(item)
                             except:
                                 pass
-                if bool(idunique_image_check):
-                    QMessageBox.information(self, "Message", "Le immagini sono già caricate nel database")
-                elif not bool(idunique_image_check):
-                    QMessageBox.information(self, "Message", "Imamagini caricate! Puoi taggarle")
-            
-            except:
+                        
                 
-                QMessageBox.warning(self, "WARNING", "Controlla che il nome del file non abbia caratteri speciali", QMessageBox.Ok)
+                if bool(idunique_image_check):
+                    if self.L=='it':
+                        QMessageBox.information(self, "Info", "Le immagini sono già caricate nel database")
+                    elif self.L=='de':
+                        QMessageBox.information(self, "Info", "Die Bilder sind bereits in die Datenbank geladen")
+                    else:
+                        QMessageBox.information(self, "Info", "The images are already uploaded to the database")
+                elif not bool(idunique_image_check):
+                    if self.L=='it':
+                        QMessageBox.information(self, "Message", "Immagini caricate! Puoi taggarle")
+                    elif self.L=='de':
+                        QMessageBox.information(self, "Message", "Bilder hochgeladen! Sie können sie markieren")
+                    else:
+                        QMessageBox.information(self, "Message", "Uploaded images! You can tag them")    
+            except:
+                if self.L=='it':
+                    QMessageBox.warning(self, "Warning", "controlla che il nome del file non abbia caratteri speciali", QMessageBox.Ok)
+                if self.L=='de':
+                    QMessageBox.warning(self, "Warning", "prüfen, ob der Dateiname keine Sonderzeichen enthält", QMessageBox.Ok)
+                else:
+                    QMessageBox.warning(self, "Warning", "check that the file name has no special characters", QMessageBox.Ok)    
+            
+            
+            #####codice da sviluppare per lautotag#########################################
+            # for root, directories, files in os.walk(directory, topdown=False):
+                # for name in files:
+                    
+
+                    # filename = name.split(".")[0] 
+                    # img = cv2.imread(os.path.join(root, name))### importo una foto
+                    # img = cv2.cvtColor(img,  cv2.COLOR_BGR2RGB)## setto il colore rgb
+
+
+                    # # box = pytesseract.image_to_data(img)
+                    # # print(box)
+                    # boxes = pytesseract.image_to_string(img, config='--oem 1 --psm 3')#, config='-c tessedit_create_tsv=1',output_type="dict") #######do in pasto a tesseract
+                    # #############################################
+                    # #### Detecting Words  ######
+                    # #############################################
+                    # #[   0          1           2           3           4          5         6       7       8        9        10       11 ]
+                    # #['level', 'page_num', 'block_num', 'par_num', 'line_num', 'word_num', 'left', 'top', 'width', 'height', 'conf', 'text']
+                    # # crea una tabella di 11 colonne. questo non è necessario al fine del riconoscimento del testo 
+                    # for a,b in enumerate(boxes.splitlines()):
+                            # print(b)
+                            # if a!=0:
+                                # b = b.split()
+                                # if len(b)==12:
+                                    # x,y,w,h = int(b[6]),int(b[7]),int(b[8]),int(b[9])
+                                    # cv2.putText(img,b[11],(x,y-180),cv2.FONT_HERSHEY_SIMPLEX,0.6,(255,27,0),2)
+                                    # cv2.rectangle(img, (x,y), (x+w, y+h), (50, 50, 255), 2)
+
+                    # # ########### cerco area e us se esistono nel box e le stampo#######
+
+                    # # # area= str('AREA 1')
+                    # # # us = str('US 4')
+                    # # # if area or us in boxes:
+                        # # # print(area[5])
+                        # # # print (us[3])
+                    # # # ##############visualizzo l'immagine con il testo evidenziato#############
+                    # scale_percent = 60 # percent of original size
+                    # width = int(img.shape[1] * scale_percent / 100)
+                    # height = int(img.shape[0] * scale_percent / 100)
+                    # dim = (width, height)
+                    # # resize image
+                    # resized = cv2.resize(img, dim, interpolation = cv2.INTER_AREA)
+                    
+                    # # cv2.imshow('img', resized)
+                    # # cv2.waitKey(0)               
+                    # row=0
+                    
+                    # #aa = boxes.find('-')
+                    # bb = boxes.find('-')
+                    # cc = boxes.find('US')
+                    # # for name in items_selected: 
+                        # # names = name.text()
+                        # # if '-'  in names: 
+                            # # res.append(names) 
+                            # # continue 
+                        # # a = names.split("_") 
+                        # # list.append(a)
+                    
+                    # s1 = bb+1 
+               
+                    # s2 = cc+3
+                    
+                    
+                    # try:
+                        # self.insert_new_row('self.tableWidgetTags_US')
+                        
+                        # self.tableWidgetTags_US.setItem(row,0,QTableWidgetItem(str('Vico Rosario di Palazzo 25(NA)')))
+                        # self.tableWidgetTags_US.setItem(row,1,QTableWidgetItem(str('1')))
+                        # self.tableWidgetTags_US.setItem(row,3,QTableWidgetItem(str(filename)))
+                        # if bb:
+                            # self.tableWidgetTags_US.setItem(row,2,QTableWidgetItem(boxes[s1]))
+                        # elif cc and not bb:
+                            # self.tableWidgetTags_US.setItem(row,2,QTableWidgetItem(boxes[s2]))
+                    # except Exception as e:
+                        # QMessageBox.warning(self, "Messaggio", "Sistema di aggiornamento lista Sito: " + str(e), QMessageBox.Ok)
+            
             self.charge_data ()
             self.view_num_rec()
             self.open_images()
+    
     def insert_record_media(self, mediatype, filename, filetype, filepath):
         self.mediatype = mediatype
         self.filename = filename
@@ -1234,18 +1478,44 @@ class Main(QDialog,MAIN_DIALOG_CLASS):
                            'us': "'" + str(sing_tags[2]) + "'"
                            }
             record_us_list.append(self.DB_MANAGER.query_bool(search_dict, 'US'))
+            
         if not record_us_list[0]:
-            result=QMessageBox.warning(self, "Errore", "Scheda US non presente. Vuoi generala? Clicca ok oppure Annulla per abortire", QMessageBox.Ok|QMessageBox.Cancel)
+            if self.L=='it':
+                result=QMessageBox.warning(self, "Attenzione",  "Scheda US non presente. Vuoi generala? Clicca ok oppure Annulla per abortire", QMessageBox.Ok|QMessageBox.Cancel)
+            elif self.L=='de':
+                result=QMessageBox.warning(self, "Warnung", "SE-Karte nicht vorhanden. Sie wollen es generieren? Klicken Sie auf OK oder Abbrechen, um abzubrechen", QMessageBox.Ok|QMessageBox.Cancel)
+            else:
+                result=QMessageBox.warning(self, "Warning", "SU form not present. Do you want to generate it? Click OK or Cancel to abort", QMessageBox.Ok|QMessageBox.Cancel)    
+                
+            
             if result==QMessageBox.Ok:
-                rs= self.DB_MANAGER.insert_number_of_us_records(str(sing_tags[0]),str(sing_tags[1]),str(sing_tags[2]),'US')
-                QMessageBox.information(self, "Scheda US", "US creata", QMessageBox.Ok)
+                  
+                rs= self.DB_MANAGER.insert_number_of_us_records(str(i[0]),str(i[1]),str(i[2]),'US')
+                
+                if self.L=='it':
+                    QMessageBox.information(self, "Info",  "US creata", QMessageBox.Ok)
+                if self.L=='de':
+                    QMessageBox.information(self, "Info",  "Formular erstellt", QMessageBox.Ok)
+                else:
+                    QMessageBox.information(self, "Info",  "Form created", QMessageBox.Ok)
+                
                 return rs
             else:
-                QMessageBox.information(self, "Scheda US", "Azione annullata", QMessageBox.Ok)
+                if self.L=='it':
+                
+                    QMessageBox.information(self, "Info", "Azione annullata", QMessageBox.Ok)
+                elif self.L=='de':
+                
+                    QMessageBox.information(self, "Info", "Aktion abgebrochen", QMessageBox.Ok)
+                else:
+                
+                    QMessageBox.information(self, "Info", "Action cancelled", QMessageBox.Ok)
                 return
         us_list = []
         for r in record_us_list:
+            
             us_list.append([r[0].id_us, 'US', 'us_table'])
+        # QMessageBox.information(self, "Scheda US", str(us_list), QMessageBox.Ok)
         return us_list
     def remove_US(self):
         tags_list = self.table2dict('self.tableWidgetTags_US')
@@ -1269,14 +1539,33 @@ class Main(QDialog,MAIN_DIALOG_CLASS):
                            }
             record_rep_list.append(self.DB_MANAGER.query_bool(search_dict, 'INVENTARIO_MATERIALI'))
         if not record_rep_list[0]:
-            result=QMessageBox.warning(self, "Errore", "Scheda Reperti non presente. Vuoi generala? Clicca ok oppure Annulla per abortire", QMessageBox.Ok|QMessageBox.Cancel)
+            if self.L=='it':
+                result=QMessageBox.warning(self, "Attenzione",  "Scheda Reperti non presente. Vuoi generala? Clicca ok oppure Annulla per abortire", QMessageBox.Ok|QMessageBox.Cancel)
+            elif self.L=='de':
+                result=QMessageBox.warning(self, "Warnung", "Karte nicht vorhanden. Sie wollen es generieren? Klicken Sie auf OK oder Abbrechen, um abzubrechen", QMessageBox.Ok|QMessageBox.Cancel)
+            else:
+                result=QMessageBox.warning(self, "Warning", "Form not present. Do you want to generate it? Click OK or Cancel to abort", QMessageBox.Ok|QMessageBox.Cancel)    
             if result==QMessageBox.Ok:
                 rs= self.DB_MANAGER.insert_number_of_reperti_records(str(sing_tags[0]),str(sing_tags[1]))
-                QMessageBox.information(self, "Scheda Reperti", "Reperti creata", QMessageBox.Ok)
+                if self.L=='it':
+                    QMessageBox.information(self, "Info",  "Scheda creata", QMessageBox.Ok)
+                if self.L=='de':
+                    QMessageBox.information(self, "Info",  "Formular erstellt", QMessageBox.Ok)
+                else:
+                    QMessageBox.information(self, "Info",  "Form created", QMessageBox.Ok)
+                
                 return rs
             else:
-                QMessageBox.information(self, "Scheda Reperti", "Azione annullata", QMessageBox.Ok)
-                return
+                if self.L=='it':
+                
+                    QMessageBox.information(self, "Info", "Azione annullata", QMessageBox.Ok)
+                elif self.L=='de':
+                
+                    QMessageBox.information(self, "Info", "Aktion abgebrochen", QMessageBox.Ok)
+                else:
+                
+                    QMessageBox.information(self, "Info", "Action cancelled", QMessageBox.Ok)
+                return    
         rep_list = []
         for r in record_rep_list:
             rep_list.append([r[0].id_invmat, 'REPERTO', 'inventario_materiali_table'])
@@ -1303,14 +1592,33 @@ class Main(QDialog,MAIN_DIALOG_CLASS):
                            }
             record_tmb_list.append(self.DB_MANAGER.query_bool(search_dict, 'TOMBA'))
         if not record_tmb_list[0]:
-            result=QMessageBox.warning(self, "Errore", "Scheda Tomba non presente. Vuoi generala? Clicca ok oppure Annulla per abortire", QMessageBox.Ok|QMessageBox.Cancel)
+            if self.L=='it':
+                result=QMessageBox.warning(self, "Attenzione",  "Scheda Tomba non presente. Vuoi generala? Clicca ok oppure Annulla per abortire", QMessageBox.Ok|QMessageBox.Cancel)
+            elif self.L=='de':
+                result=QMessageBox.warning(self, "Warnung", "Karte nicht vorhanden. Sie wollen es generieren? Klicken Sie auf OK oder Abbrechen, um abzubrechen", QMessageBox.Ok|QMessageBox.Cancel)
+            else:
+                result=QMessageBox.warning(self, "Warning", "Form not present. Do you want to generate it? Click OK or Cancel to abort", QMessageBox.Ok|QMessageBox.Cancel)  
             if result==QMessageBox.Ok:
                 rs= self.DB_MANAGER.insert_number_of_tomba_records(str(sing_tags[0]),str(sing_tags[1]))
-                QMessageBox.information(self, "Scheda Tomba", "Tomba creata", QMessageBox.Ok)
+                if self.L=='it':
+                    QMessageBox.information(self, "Info",  "Scheda creata", QMessageBox.Ok)
+                if self.L=='de':
+                    QMessageBox.information(self, "Info",  "Formular erstellt", QMessageBox.Ok)
+                else:
+                    QMessageBox.information(self, "Info",  "Form created", QMessageBox.Ok)
+                
                 return rs
             else:
-                QMessageBox.information(self, "Scheda Tomba", "Azione annullata", QMessageBox.Ok)
-                return
+                if self.L=='it':
+                
+                    QMessageBox.information(self, "Info", "Azione annullata", QMessageBox.Ok)
+                elif self.L=='de':
+                
+                    QMessageBox.information(self, "Info", "Aktion abgebrochen", QMessageBox.Ok)
+                else:
+                
+                    QMessageBox.information(self, "Info", "Action cancelled", QMessageBox.Ok)
+                return    
         tmb_list = []
         for r in record_tmb_list:
             tmb_list.append([r[0].id_tomba, 'TOMBA', 'tomba_table'])
@@ -1340,14 +1648,33 @@ class Main(QDialog,MAIN_DIALOG_CLASS):
                            }
             record_tmb_list.append(self.DB_MANAGER.query_bool(search_dict, 'STRUTTURA'))
         if not record_tmb_list[0]:
-            result=QMessageBox.warning(self, "Errore", "Scheda Tomba non presente. Vuoi generala? Clicca ok oppure Annulla per abortire", QMessageBox.Ok|QMessageBox.Cancel)
+            if self.L=='it':
+                result=QMessageBox.warning(self, "Attenzione",  "Scheda Struttura non presente. Vuoi generala? Clicca ok oppure Annulla per abortire", QMessageBox.Ok|QMessageBox.Cancel)
+            elif self.L=='de':
+                result=QMessageBox.warning(self, "Warnung", "Karte nicht vorhanden. Sie wollen es generieren? Klicken Sie auf OK oder Abbrechen, um abzubrechen", QMessageBox.Ok|QMessageBox.Cancel)
+            else:
+                result=QMessageBox.warning(self, "Warning", "Form not present. Do you want to generate it? Click OK or Cancel to abort", QMessageBox.Ok|QMessageBox.Cancel)  
             if result==QMessageBox.Ok:
                 rs= self.DB_MANAGER.insert_struttura_records(str(sing_tags[0]),str(sing_tags[1]),str(sing_tags[2]))
-                QMessageBox.information(self, "Scheda Struttura", "Struttura creata", QMessageBox.Ok)
+                if self.L=='it':
+                    QMessageBox.information(self, "Info",  "Scheda creata", QMessageBox.Ok)
+                if self.L=='de':
+                    QMessageBox.information(self, "Info",  "Formular erstellt", QMessageBox.Ok)
+                else:
+                    QMessageBox.information(self, "Info",  "Form created", QMessageBox.Ok)
+                
                 return rs
             else:
-                QMessageBox.information(self, "Scheda Struttura", "Azione annullata", QMessageBox.Ok)
-                return
+                if self.L=='it':
+                
+                    QMessageBox.information(self, "Info", "Azione annullata", QMessageBox.Ok)
+                elif self.L=='de':
+                
+                    QMessageBox.information(self, "Info", "Aktion abgebrochen", QMessageBox.Ok)
+                else:
+                
+                    QMessageBox.information(self, "Info", "Action cancelled", QMessageBox.Ok)
+                return    
         tmb_list = []
         for r in record_tmb_list:
             tmb_list.append([r[0].id_struttura, 'STRUTTURA', 'struttura_table'])
@@ -1439,7 +1766,7 @@ class Main(QDialog,MAIN_DIALOG_CLASS):
         filepath,
         media_name
         """
-        items_selected = self.iconListWidget.selectedItems()
+        items_selected =self.iconListWidget.selectedItems()
         us_list = self.generate_US()
         if not us_list:
             return
@@ -1523,67 +1850,207 @@ class Main(QDialog,MAIN_DIALOG_CLASS):
     def on_pushButton_remove_thumb_pressed(self):
         items_selected = self.iconListWidget.selectedItems()
         if bool (items_selected):
-            msg = QMessageBox.warning(self, "Attenzione!!!",
+            if self.L=='it':
+            
+                msg = QMessageBox.warning(self, "Attenzione",
                                       "Vuoi veramente eliminare la thumb selezionata? \n L'azione è irreversibile",
                                       QMessageBox.Ok | QMessageBox.Cancel)
-            if msg == QMessageBox.Cancel:
-                QMessageBox.warning(self, "Messaggio!!!", "Azione Annullata!")
+                if msg == QMessageBox.Cancel:
+                    QMessageBox.warning(self, "Info", "Azione Annullata!")
+                else:
+                    try:
+                        for item in items_selected:
+                            id_orig_item = item.text()  # return the name of original file
+                            s= str(id_orig_item)
+                            self.DB_MANAGER.delete_thumb_from_db_sql(s)
+                    except Exception as e:
+                        QMessageBox.warning(self, "Info", "error: " + str(e))    
+                    self.iconListWidget.clear()
+                    self.charge_data()
+                    self.view_num_rec()
+                    QMessageBox.warning(self, "Info", "Thumbnail eliminate")
+            elif self.L=='de':
+            
+                msg = QMessageBox.warning(self, "Warnung",
+                                      "Wollen Sie den ausgewählten Daumen wirklich beseitigen? \Die Aktion ist unumkehrbar",
+                                      QMessageBox.Ok | QMessageBox.Cancel)
+                if msg == QMessageBox.Cancel:
+                    QMessageBox.warning(self, "Info", "Aktion abgebrochen")
+                else:
+                    try:
+                        for item in items_selected:
+                            id_orig_item = item.text()  # return the name of original file
+                            s= str(id_orig_item)
+                            self.DB_MANAGER.delete_thumb_from_db_sql(s)
+                    except Exception as e:
+                        QMessageBox.warning(self, "Info", "error: " + str(e))    
+                    self.iconListWidget.clear()
+                    self.charge_data()
+                    self.view_num_rec()
+                    QMessageBox.warning(self, "Info", "Thumbnail gelöscht")
+            
             else:
-                try:
-                    for item in items_selected:
-                        id_orig_item = item.text()  # return the name of original file
-                        s= str(id_orig_item)
-                        self.DB_MANAGER.delete_thumb_from_db_sql(s)
-                except Exception as e:
-                    QMessageBox.warning(self, "Messaggio!!!", "Tipo di errore: " + str(e))    
-                self.iconListWidget.clear()
-                self.charge_data()
-                self.view_num_rec()
-                QMessageBox.warning(self, "Messaggio!!!", "Thumbnail eliminate!")
+            
+                msg = QMessageBox.warning(self, "Warning",
+                                      "Do you really want to delete the selected thumb? \n The action is irreversible",
+                                      QMessageBox.Ok | QMessageBox.Cancel)
+                if msg == QMessageBox.Cancel:
+                    QMessageBox.warning(self, "Info", "Action cancelled")
+                else:
+                    try:
+                        for item in items_selected:
+                            id_orig_item = item.text()  # return the name of original file
+                            s= str(id_orig_item)
+                            self.DB_MANAGER.delete_thumb_from_db_sql(s)
+                    except Exception as e:
+                        QMessageBox.warning(self, "Info", "error: " + str(e))    
+                    self.iconListWidget.clear()
+                    self.charge_data()
+                    self.view_num_rec()
+                    QMessageBox.warning(self, "Info", "Thumbnail deleted")
         else:
-            QMessageBox.warning(self, "Messaggio!!!", "devi selezionare una thumbnail!")
+            if self.L=='it':
+                QMessageBox.warning(self, "Info", "devi selezionare una thumbnail!")
+            elif self.L=='de':
+                QMessageBox.warning(self, "Info", "Sie müssen eine Miniaturansicht auswählen")
+            else:
+                QMessageBox.warning(self, "Info", "you must select a thumbnail")
+    
     ###################funzione poer rimuovere un tag alla volta dal tabklewidget##############
     def on_pushButton_remove_tags_pressed(self):
         if not bool(self.tableWidget_tags.selectedItems()):
+            if self.L=='it':
+                
                 msg = QMessageBox.warning(self, "Attenzione!!!",
                                       "devi selezionare prima un tag",
                                       QMessageBox.Ok)
-        else:
-            msg = QMessageBox.warning(self, "Attenzione!!!",
-                                      "Vuoi veramente cancellare i tags dalle thumbnail selezionate? \n L'azione è irreversibile",
-                                      QMessageBox.Ok | QMessageBox.Cancel)
-            if msg == QMessageBox.Cancel:
-                QMessageBox.warning(self, "Messagio!!!", "Azione Annullata!")
+        
+            elif self.L=='de':
+                
+                msg = QMessageBox.warning(self, "Warnung",
+                                      "Sie müssen zuerst ein Tag auswählen",
+                                      QMessageBox.Ok)
             else:
-                items_selected = self.tableWidget_tags.selectedItems()
-            for item in items_selected:
-                id_orig_item = item.text()  # return the name of original file
-                s= self.tableWidget_tags.item(0,0).text()
-                self.DB_MANAGER.remove_tags_from_db_sql(s)
-            QMessageBox.warning(self, "Messaggio!!!", "Tags rimossi!")
+                
+                msg = QMessageBox.warning(self, "Warning",
+                                      "you must first select a tag",
+                                      QMessageBox.Ok)
+        else:
+            if self.L=='it':
+                msg = QMessageBox.warning(self, "Warning",
+                                          "Vuoi veramente cancellare i tags dalle thumbnail selezionate? \n L'azione è irreversibile",
+                                          QMessageBox.Ok | QMessageBox.Cancel)
+                if msg == QMessageBox.Cancel:
+                    QMessageBox.warning(self, "Messaggio!!!", "Azione Annullata!")
+                else:
+                    items_selected = self.tableWidget_tags.selectedItems()
+                for item in items_selected:
+                    id_orig_item = item.text()  # return the name of original file
+                    s= self.tableWidget_tags.item(0,0).text()
+                    self.DB_MANAGER.remove_tags_from_db_sql(s)
+                QMessageBox.warning(self, "Info", "Tags rimossi!")
+            elif self.L=='de':
+                msg = QMessageBox.warning(self, "Warning",
+                                          "Wollen Sie wirklich die Tags aus den ausgewählten Miniaturbildern löschen? \n Die Aktion ist unumkehrbar",
+                                          QMessageBox.Ok | QMessageBox.Cancel)
+                if msg == QMessageBox.Cancel:
+                    QMessageBox.warning(self, "Warnung", "Azione Annullata!")
+                else:
+                    items_selected = self.tableWidget_tags.selectedItems()
+                for item in items_selected:
+                    id_orig_item = item.text()  # return the name of original file
+                    s= self.tableWidget_tags.item(0,0).text()
+                    self.DB_MANAGER.remove_tags_from_db_sql(s)
+                QMessageBox.warning(self, "Info", "Tags entfernt")
+    
+            else:
+                msg = QMessageBox.warning(self, "Warning",
+                                          "Do you really want to delete the tags from the selected thumbnails? \n The action is irreversible",
+                                          QMessageBox.Ok | QMessageBox.Cancel)
+                if msg == QMessageBox.Cancel:
+                    QMessageBox.warning(self, "Warning", "Action cancelled")
+                else:
+                    items_selected = self.tableWidget_tags.selectedItems()
+                for item in items_selected:
+                    id_orig_item = item.text()  # return the name of original file
+                    s= self.tableWidget_tags.item(0,0).text()
+                    self.DB_MANAGER.remove_tags_from_db_sql(s)
+                QMessageBox.warning(self, "Info", "Tags removed")
+    
+    
+    
+    
     #######################funzione per rimuovere tutti i tag da una foto da selezione thumbnail#########################
     def on_pushButton_remove_alltag_pressed(self):
         items_selected = self.iconListWidget.selectedItems()
         if bool (items_selected):
-            msg = QMessageBox.warning(self, "Attenzione!!!",
-                                      "Vuoi veramente eliminare tutti i tags dalle immagini selezionate? \n L'azione è irreversibile",
-                                      QMessageBox.Ok | QMessageBox.Cancel)
-            if msg == QMessageBox.Cancel:
-                QMessageBox.warning(self, "Messaggio!!!", "Azione Annullata!")
+            if self.L=='it':
+                msg = QMessageBox.warning(self, "Attenzione!!!",
+                                          "Vuoi veramente eliminare tutti i tags dalle immagini selezionate? \n L'azione è irreversibile",
+                                          QMessageBox.Ok | QMessageBox.Cancel)
+                if msg == QMessageBox.Cancel:
+                    QMessageBox.warning(self, "Info", "Azione Annullata!")
+                else:
+                    try:
+                        for item in items_selected:
+                            id_orig_item = item.text()  # return the name of original file
+                            s= str(id_orig_item)
+                            self.DB_MANAGER.remove_alltags_from_db_sql(s)
+                    except Exception as e:
+                        QMessageBox.warning(self, "Info", "error: " + str(e))    
+                    self.iconListWidget.clear()
+                    self.charge_data()
+                    self.view_num_rec()
+                    QMessageBox.warning(self, "Info", "Tags eliminati!")
+            elif self.L=='de':
+                msg = QMessageBox.warning(self, "Warnung",
+                                          "Wollen Sie wirklich alle Tags aus den ausgewählten Bildern löschen? \n Die Aktion ist unumkehrbar",
+                                          QMessageBox.Ok | QMessageBox.Cancel)
+                if msg == QMessageBox.Cancel:
+                    QMessageBox.warning(self, "Info", "Aktion abgebrochen")
+                else:
+                    try:
+                        for item in items_selected:
+                            id_orig_item = item.text()  # return the name of original file
+                            s= str(id_orig_item)
+                            self.DB_MANAGER.remove_alltags_from_db_sql(s)
+                    except Exception as e:
+                        QMessageBox.warning(self, "Info", "error: " + str(e))    
+                    self.iconListWidget.clear()
+                    self.charge_data()
+                    self.view_num_rec()
+                    QMessageBox.warning(self, "Info", "Tags entfernt")
+        
             else:
-                try:
-                    for item in items_selected:
-                        id_orig_item = item.text()  # return the name of original file
-                        s= str(id_orig_item)
-                        self.DB_MANAGER.remove_alltags_from_db_sql(s)
-                except Exception as e:
-                    QMessageBox.warning(self, "Messaggio!!!", "Tipo di errore: " + str(e))    
-                self.iconListWidget.clear()
-                self.charge_data()
-                self.view_num_rec()
-                QMessageBox.warning(self, "Messaggio!!!", "Tags eliminati!")
+                msg = QMessageBox.warning(self, "Worning",
+                                          "Do you really want to delete all tags from the selected images? \n The action is irreversible",
+                                          QMessageBox.Ok | QMessageBox.Cancel)
+                if msg == QMessageBox.Cancel:
+                    QMessageBox.warning(self, "Info", "Action cancelled")
+                else:
+                    try:
+                        for item in items_selected:
+                            id_orig_item = item.text()  # return the name of original file
+                            s= str(id_orig_item)
+                            self.DB_MANAGER.remove_alltags_from_db_sql(s)
+                    except Exception as e:
+                        QMessageBox.warning(self, "Info", "error: " + str(e))    
+                    self.iconListWidget.clear()
+                    self.charge_data()
+                    self.view_num_rec()
+                    QMessageBox.warning(self, "Info", "Tags removed")
+        
+        
+        
+        
         else:
-            QMessageBox.warning(self, "Messaggio!!!", "devi selezionare almeno una thumbnail!")
+            
+            if self.L=='it':
+                QMessageBox.warning(self, "Info", "devi selezionare almeno una thumbnail!")
+            elif self.L=='de':
+                QMessageBox.warning(self, "Info", "Sie müssen mindestens eine Miniaturansicht auswählen")    
+            else:
+                QMessageBox.warning(self, "Info", "you must select at least one thumbnail")    
     def on_pushButton_openMedia_pressed(self):
         self.charge_data()
         self.view_num_rec()
