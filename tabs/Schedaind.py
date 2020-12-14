@@ -62,12 +62,18 @@ class pyarchinit_Schedaind(QDialog, MAIN_DIALOG_CLASS):
     SITO = pyArchInitDialog_Config
     if L=='it':
         STATUS_ITEMS = {"b": "Usa", "f": "Trova", "n": "Nuovo Record"}
+    
+    if L=='de':
+        STATUS_ITEMS = {"b": "Aktuell ", "f": "Finden", "n": "Neuer Rekord"}
+    
     else :
         STATUS_ITEMS = {"b": "Current", "f": "Find", "n": "New Record"}
     BROWSE_STATUS = "b"
     SORT_MODE = 'asc'
     if L=='it':
         SORTED_ITEMS = {"n": "Non ordinati", "o": "Ordinati"}
+    if L=='de':
+        SORTED_ITEMS = {"n": "Nicht sortiert", "o": "Sortiert"}
     else:
         SORTED_ITEMS = {"n": "Not sorted", "o": "Sorted"}
     SORT_STATUS = "n"
@@ -526,11 +532,28 @@ class pyarchinit_Schedaind(QDialog, MAIN_DIALOG_CLASS):
         sito_set_str = sito_set['sito_set']
         
         if bool(self.comboBox_sito.currentText()) and self.comboBox_sito.currentText()==sito_set_str:
-            QMessageBox.information(self, "OK" ,"Sei connesso al sito: %s" % str(sito_set_str),QMessageBox.Ok) 
-       
+            if self.L=='it':
+                QMessageBox.information(self, "OK" ,"Sei connesso al sito: %s" % str(sito_set_str),QMessageBox.Ok) 
+        
+            elif self.L=='de':
+                QMessageBox.information(self, "OK", "Sie sind mit der archäologischen Stätte verbunden: %s" % str(sito_set_str),QMessageBox.Ok) 
+                
+            else:
+                QMessageBox.information(self, "OK", "You are connected to the site: %s" % str(sito_set_str),QMessageBox.Ok)     
+        
         elif sito_set_str=='':    
-            QMessageBox.information(self, "Attenzione" ,"Non hai settato alcun sito pertanto vedrai tutti i record se il db non è vuoto",QMessageBox.Ok) 
-    
+            if self.L=='it':
+                msg = QMessageBox.information(self, "Attenzione" ,"Non hai settato alcun sito. Vuoi settarne uno? click Ok altrimenti Annulla per  vedere tutti i record",QMessageBox.Ok | QMessageBox.Cancel) 
+            elif self.L=='de':
+                msg = QMessageBox.information(self, "Achtung", "Sie haben keine archäologischen Stätten eingerichtet. Klicken Sie auf OK oder Abbrechen, um alle Datensätze zu sehen",QMessageBox.Ok | QMessageBox.Cancel) 
+            else:
+                msg = QMessageBox.information(self, "Warning" , "You have not set up any archaeological site. Do you want to set one? click Ok otherwise Cancel to see all records",QMessageBox.Ok | QMessageBox.Cancel) 
+            if msg == QMessageBox.Cancel:
+                pass
+            else: 
+                dlg = pyArchInitDialog_Config(self)
+                dlg.charge_list()
+                dlg.exec_()
     
     def set_sito(self):
         conn = Connection()
@@ -570,7 +593,15 @@ class pyarchinit_Schedaind(QDialog, MAIN_DIALOG_CLASS):
                 pass#
                 
         except:
-            QMessageBox.information(self, "Attenzione" ,"Non esiste questo sito: "'"'+ str(sito_set_str) +'"'" in questa scheda, Per favore distattiva la 'scelta sito' dalla scheda di configurazione plugin per vedere tutti i record oppure crea la scheda",QMessageBox.Ok) 
+            if self.L=='it':
+            
+                QMessageBox.information(self, "Attenzione" ,"Non esiste questo sito: "'"'+ str(sito_set_str) +'"'" in questa scheda, Per favore distattiva la 'scelta sito' dalla scheda di configurazione plugin per vedere tutti i record oppure crea la scheda",QMessageBox.Ok) 
+            elif self.L=='de':
+            
+                QMessageBox.information(self, "Warnung" , "Es gibt keine solche archäologische Stätte: "'""'+ str(site_set_str) +'"'" in dieser Registerkarte, Bitte deaktivieren Sie die 'Site-Wahl' in der Plugin-Konfigurationsregisterkarte, um alle Datensätze zu sehen oder die Registerkarte zu erstellen",QMessageBox.Ok) 
+            else:
+            
+                QMessageBox.information(self, "Warning" , "There is no such site: "'"'+ str(site_set_str) +'"'" in this tab, Please disable the 'site choice' from the plugin configuration tab to see all records or create the tab",QMessageBox.Ok) 
     
     def charge_area(self): 
         
@@ -591,10 +622,10 @@ class pyarchinit_Schedaind(QDialog, MAIN_DIALOG_CLASS):
         self.comboBox_area.clear()
         nr_area_list.sort()
         self.comboBox_area.addItems(self.UTILITY.remove_dup_from_list(nr_area_list))
-        if self.STATUS_ITEMS[self.BROWSE_STATUS] == "Trova" or "Find":
+        if self.STATUS_ITEMS[self.BROWSE_STATUS] == "Trova" or "Finden" or "Find":
                 
                 self.comboBox_area.setEditText("")
-        elif self.STATUS_ITEMS[self.BROWSE_STATUS] == "Usa" or "Current":
+        elif self.STATUS_ITEMS[self.BROWSE_STATUS] == "Usa" or "Aktuell " or "Current":
             try:    
                 if len(self.DATA_LIST) > 0:
         
@@ -625,10 +656,10 @@ class pyarchinit_Schedaind(QDialog, MAIN_DIALOG_CLASS):
         self.comboBox_us.clear()
         nr_us_list.sort()
         self.comboBox_us.addItems(self.UTILITY.remove_dup_from_list(nr_us_list))
-        if self.STATUS_ITEMS[self.BROWSE_STATUS] == "Trova" or "Find":
+        if self.STATUS_ITEMS[self.BROWSE_STATUS] == "Trova" or "Finden" or "Find":
                 
                 self.comboBox_us.setEditText("")
-        elif self.STATUS_ITEMS[self.BROWSE_STATUS] == "Usa" or "Current":
+        elif self.STATUS_ITEMS[self.BROWSE_STATUS] == "Usa" or "Aktuell " or "Current":
             try:    
                 if len(self.DATA_LIST) > 0:
         
@@ -660,10 +691,10 @@ class pyarchinit_Schedaind(QDialog, MAIN_DIALOG_CLASS):
         self.comboBox_nr_struttura.clear()
         nr_struttura_list.sort()
         self.comboBox_nr_struttura.addItems(self.UTILITY.remove_dup_from_list(nr_struttura_list))
-        if self.STATUS_ITEMS[self.BROWSE_STATUS] == "Trova" or "Find":
+        if self.STATUS_ITEMS[self.BROWSE_STATUS] == "Trova" or "Finden" or "Find":
                 
                 self.comboBox_nr_struttura.setEditText("")
-        elif self.STATUS_ITEMS[self.BROWSE_STATUS] == "Usa" or "Current":
+        elif self.STATUS_ITEMS[self.BROWSE_STATUS] == "Usa" or "Aktuell " or "Current":
             try:    
                 if len(self.DATA_LIST) > 0:
         
@@ -690,10 +721,10 @@ class pyarchinit_Schedaind(QDialog, MAIN_DIALOG_CLASS):
 
         self.comboBox_sigla_struttura.addItems(self.UTILITY.remove_dup_from_list(sigla_struttura_list))
 
-        if self.STATUS_ITEMS[self.BROWSE_STATUS] == "Trova" or "Find":
+        if self.STATUS_ITEMS[self.BROWSE_STATUS] == "Trova" or "Finden" or "Find":
                 self.comboBox_sigla_struttura.setEditText("")
                 
-        elif self.STATUS_ITEMS[self.BROWSE_STATUS] == "Usa" or "Current":
+        elif self.STATUS_ITEMS[self.BROWSE_STATUS] == "Usa" or "Aktuell " or "Current":
             try:    
                 if len(self.DATA_LIST) > 0:
         
@@ -743,73 +774,7 @@ class pyarchinit_Schedaind(QDialog, MAIN_DIALOG_CLASS):
             ])
         return data_list
 
-    # def on_pushButton_pdf_exp_pressed(self):
-        # if self.L=='it':
-            # Individui_pdf_sheet = generate_pdf()
-            # data_list = self.generate_list_pdf()
-            # Individui_pdf_sheet.build_Individui_sheets(data_list)
-        # elif self.L=='de':
-            # Individui_pdf_sheet = generate_pdf()
-            # data_list = self.generate_list_pdf()
-            # Individui_pdf_sheet.build_Individui_sheets_de(data_list)
-        # else:
-            # Individui_pdf_sheet = generate_pdf()
-            # data_list = self.generate_list_pdf()
-            # Individui_pdf_sheet.build_Individui_sheets_en(data_list)    
-    # def on_pushButton_exp_index_ind_pressed(self):
-        # if self.L=='it':
-            # Individui_pdf_index = generate_pdf()
-            # data_list = self.generate_list_pdf()
-            # Individui_pdf_index.build_index_individui(data_list, data_list[0][0])
-        # elif self.L=='de':
-            # Individui_pdf_index = generate_pdf()
-            # data_list = self.generate_list_pdf()
-            # Individui_pdf_index.build_index_individui_de(data_list, data_list[0][0])
-        # else:
-            # Individui_pdf_index = generate_pdf()
-            # data_list = self.generate_list_pdf()
-            # Individui_pdf_index.build_index_individui_en(data_list, data_list[0][0])    
-    """
-    def on_toolButtonPan_toggled(self):
-        self.toolPan = QgsMapToolPan(self.mapPreview)
-        self.mapPreview.setMapTool(self.toolPan)
-    """
-    """
-    def on_pushButton_showSelectedFeatures_pressed(self):
-
-        field_position = self.pyQGIS.findFieldFrDict(self.ID_TABLE)
-
-        field_list = self.pyQGIS.selectedFeatures()
-
-        id_list_sf = self.pyQGIS.findItemInAttributeMap(field_position, field_list)
-        id_list = []
-        for idl in id_list_sf:
-            sid = idl.toInt()
-            id_list.append(sid[0])
-
-        items,order_type = [self.ID_TABLE], "asc"
-        self.empty_fields()
-
-        self.DATA_LIST = []
-
-        temp_data_list = self.DB_MANAGER.query_sort(id_list, items, order_type, self.MAPPER_TABLE_CLASS, self.ID_TABLE)
-
-        for us in temp_data_list:
-            self.DATA_LIST.append(us)
-
-        self.fill_fields()
-        self.label_status.setText(self.STATUS["usa"])
-        if type(self.REC_CORR) == "<type 'str'>":
-            corr = 0
-        else:
-            corr = self.REC_CORR
-
-        self.set_rec_counter(len(self.DATA_LIST), self.REC_CORR+1)
-        self.REC_TOT, self.REC_CORR = len(self.DATA_LIST), 0
-        self.DATA_LIST_REC_TEMP = self.DATA_LIST_REC_CORR = self.DATA_LIST[0]
-    """
-
-    # buttons functions
+    
     def on_pushButton_sort_pressed(self):
         if self.check_record_state() == 1:
             pass
@@ -1072,10 +1037,10 @@ class pyarchinit_Schedaind(QDialog, MAIN_DIALOG_CLASS):
                     test = 1
         
         
-        # elif self.L=='de':  
-            # if EC.data_is_empty(str(self.comboBox_sito.currentText())) == 0:
-                # QMessageBox.warning(self, "ACHTUNG", " Feld Ausgrabungstätte. \n Das Feld darf nicht leer sein", QMessageBox.Ok)
-                # test = 1
+        elif self.L=='de':  
+            if EC.data_is_empty(str(self.comboBox_sito.currentText())) == 0:
+                QMessageBox.warning(self, "ACHTUNG", " Feld Ausgrabungstätte. \n Das Feld darf nicht leer sein", QMessageBox.Ok)
+                test = 1
 
             # if EC.data_is_empty(str(self.lineEdit_area.text())) == 0:
                 # QMessageBox.warning(self, "ACHTUNG", "Feld Areal. \n Das Feld darf nicht leer sein", QMessageBox.Ok)
@@ -1085,16 +1050,16 @@ class pyarchinit_Schedaind(QDialog, MAIN_DIALOG_CLASS):
                 # QMessageBox.warning(self, "ACHTUNG", "Feld SE. \n Das Feld darf nicht leer sein", QMessageBox.Ok)
                 # test = 1
                 
-            # if EC.data_is_empty(str(self.lineEdit_individuo.text())) == 0:
-                # QMessageBox.warning(self, "ACHTUNG", "Feld nr individuel. \n Das Feld darf nicht leer sein",
-                                    # QMessageBox.Ok)
-                # test = 1    
+            if EC.data_is_empty(str(self.lineEdit_individuo.text())) == 0:
+                QMessageBox.warning(self, "ACHTUNG", "Feld nr individuel. \n Das Feld darf nicht leer sein",
+                                    QMessageBox.Ok)
+                test = 1    
                 
             # area = self.lineEdit_area.text()
             # us = self.lineEdit_us.text()
-            # nr_individuo = self.lineEdit_individuo.text()
-            # eta_min = self.comboBox_eta_min.currentText()
-            # eta_max = self.comboBox_eta_max.currentText()   
+            nr_individuo = self.lineEdit_individuo.text()
+            eta_min = self.comboBox_eta_min.currentText()
+            eta_max = self.comboBox_eta_max.currentText()   
             
             # if area != "":
                 # if EC.data_is_int(area) == 0:
@@ -1107,30 +1072,30 @@ class pyarchinit_Schedaind(QDialog, MAIN_DIALOG_CLASS):
                     # QMessageBox.warning(self, "ACHTUNG", "Feld SE. \n Der Wert muss numerisch eingegeben werden",
                                         # QMessageBox.Ok)
                     # test = 1
-            # if nr_individuo != "":
-                # if EC.data_is_int(nr_individuo) == 0:
-                    # QMessageBox.warning(self, "ACHTUNG", "Feld Individuel nr. \n Der Wert muss numerisch eingegeben werden",
-                                        # QMessageBox.Ok)
-                    # test = 1
+            if nr_individuo != "":
+                if EC.data_is_int(nr_individuo) == 0:
+                    QMessageBox.warning(self, "ACHTUNG", "Feld Individuel nr. \n Der Wert muss numerisch eingegeben werden",
+                                        QMessageBox.Ok)
+                    test = 1
 
-            # if eta_min != "":
-                # if EC.data_is_int(eta_min) == 0:
-                    # QMessageBox.warning(self, "ACHTUNG", "Feld Todesalters  min \n Der Wert muss numerisch eingegeben werden",
-                                        # QMessageBox.Ok)
-                    # test = 1
+            if eta_min != "":
+                if EC.data_is_int(eta_min) == 0:
+                    QMessageBox.warning(self, "ACHTUNG", "Feld Todesalters  min \n Der Wert muss numerisch eingegeben werden",
+                                        QMessageBox.Ok)
+                    test = 1
 
-            # if eta_max != "":
-                # if EC.data_is_int(eta_max) == 0:
-                    # QMessageBox.warning(self, "ACHTUNG", "Feld Todesalters  max \n Der Wert muss numerisch eingegeben werden",
-                                        # QMessageBox.Ok)
-                    # test = 1
+            if eta_max != "":
+                if EC.data_is_int(eta_max) == 0:
+                    QMessageBox.warning(self, "ACHTUNG", "Feld Todesalters  max \n Der Wert muss numerisch eingegeben werden",
+                                        QMessageBox.Ok)
+                    test = 1
         
         
         
-        # else:  
-            # if EC.data_is_empty(str(self.comboBox_sito.currentText())) == 0:
-                # QMessageBox.warning(self, "WARNING", "Site Field. \n The field must not be empty", QMessageBox.Ok)
-                # test = 1
+        else:  
+            if EC.data_is_empty(str(self.comboBox_sito.currentText())) == 0:
+                QMessageBox.warning(self, "WARNING", "Site Field. \n The field must not be empty", QMessageBox.Ok)
+                test = 1
 
             # if EC.data_is_empty(str(self.lineEdit_area.text())) == 0:
                 # QMessageBox.warning(self, "WARNING", "Area Field. \n The field must not be empty", QMessageBox.Ok)
@@ -1140,16 +1105,16 @@ class pyarchinit_Schedaind(QDialog, MAIN_DIALOG_CLASS):
                 # QMessageBox.warning(self, "WARNING", "SU Field. \n The field must not be empty", QMessageBox.Ok)
                 # test = 1
                 
-            # if EC.data_is_empty(str(self.lineEdit_individuo.text())) == 0:
-                # QMessageBox.warning(self, "WARNING", "Individual nr. Field. \n The field must not be empty",
-                                    # QMessageBox.Ok)
-                # test = 1    
+            if EC.data_is_empty(str(self.lineEdit_individuo.text())) == 0:
+                QMessageBox.warning(self, "WARNING", "Individual nr. Field. \n The field must not be empty",
+                                    QMessageBox.Ok)
+                test = 1    
                 
             # area = self.lineEdit_area.text()
             # us = self.lineEdit_us.text()
-            # nr_individuo = self.lineEdit_individuo.text()
-            # eta_min = self.comboBox_eta_min.currentText()
-            # eta_max = self.comboBox_eta_max.currentText()   
+            nr_individuo = self.lineEdit_individuo.text()
+            eta_min = self.comboBox_eta_min.currentText()
+            eta_max = self.comboBox_eta_max.currentText()   
             
             # if area != "":
                 # if EC.data_is_int(area) == 0:
@@ -1162,23 +1127,23 @@ class pyarchinit_Schedaind(QDialog, MAIN_DIALOG_CLASS):
                     # QMessageBox.warning(self, "WARNING", "SU Field. \n The value must be numerical",
                                         # QMessageBox.Ok)
                     # test = 1
-            # if nr_individuo != "":
-                # if EC.data_is_int(nr_individuo) == 0:
-                    # QMessageBox.warning(self, "WARNING", "Individual nr. Field. \n The value must be numerical",
-                                        # QMessageBox.Ok)
-                    # test = 1
+            if nr_individuo != "":
+                if EC.data_is_int(nr_individuo) == 0:
+                    QMessageBox.warning(self, "WARNING", "Individual nr. Field. \n The value must be numerical",
+                                        QMessageBox.Ok)
+                    test = 1
 
-            # if eta_min != "":
-                # if EC.data_is_int(eta_min) == 0:
-                    # QMessageBox.warning(self, "WARNING", "Age min Field. \n The value must be numerical",
-                                        # QMessageBox.Ok)
-                    # test = 1
+            if eta_min != "":
+                if EC.data_is_int(eta_min) == 0:
+                    QMessageBox.warning(self, "WARNING", "Age min Field. \n The value must be numerical",
+                                        QMessageBox.Ok)
+                    test = 1
 
-            # if eta_max != "":
-                # if EC.data_is_int(eta_max) == 0:
-                    # QMessageBox.warning(self, "WARNING", "Age max Field. \n The value must be numerical",
-                                        # QMessageBox.Ok)
-                    # test = 1    
+            if eta_max != "":
+                if EC.data_is_int(eta_max) == 0:
+                    QMessageBox.warning(self, "WARNING", "Age max Field. \n The value must be numerical",
+                                        QMessageBox.Ok)
+                    test = 1    
         return test
 
     def insert_new_rec(self):
@@ -2142,7 +2107,7 @@ class pyarchinit_Schedaind(QDialog, MAIN_DIALOG_CLASS):
                 US_pdf_sheet = generate_US_pdf()
                 data_list = self.generate_list_pdf()
                 US_pdf_sheet.build_US_sheets(data_list)
-                QMessageBox.warning(self, 'Ok',"Esportazione terminata Schede US",QMessageBox.Ok)
+                QMessageBox.warning(self, "Okay", "Export beendet",QMessageBox.Ok)
             else:   
                 pass
             if self.checkBox_e_us.isChecked() :
@@ -2151,11 +2116,11 @@ class pyarchinit_Schedaind(QDialog, MAIN_DIALOG_CLASS):
                 try:               
                     if bool(data_list):
                         US_index_pdf.build_index_US(data_list, data_list[0][0])
-                        QMessageBox.warning(self, 'Ok',"Esportazione terminata Elenco US",QMessageBox.Ok)
+                        QMessageBox.warning(self, "Okay", "Export beendet",QMessageBox.Ok)
                     else:
-                        QMessageBox.warning(self, 'ATTENZIONE',"L'elenco US non può essere esportato devi riempire prima le schede US",QMessageBox.Ok)
+                        QMessageBox.warning(self, 'WARNUNG', 'Die Liste kann nicht exportiert werden, Sie müssen zuerst die Formulare ausfüllen',QMessageBox.Ok)
                 except Exception as e :
-                    QMessageBox.warning(self, 'ATTENZIONE',str(e),QMessageBox.Ok)
+                    QMessageBox.warning(self, 'WARNUNG',str(e),QMessageBox.Ok)
             else:
                 pass
             if self.checkBox_e_foto_t.isChecked():
@@ -2164,22 +2129,22 @@ class pyarchinit_Schedaind(QDialog, MAIN_DIALOG_CLASS):
                 try:
                         if bool(data_list_foto):
                             US_index_pdf.build_index_Foto(data_list_foto, data_list_foto[0][0])
-                            QMessageBox.warning(self, 'Ok',"Esportazione terminata Elenco Foto",QMessageBox.Ok)
+                            QMessageBox.warning(self, "Okay", "Fertige Fotoliste exportieren",QMessageBox.Ok)
                         else:
-                            QMessageBox.warning(self, 'ATTENZIONE',"L'elenco foto non può essere esportato perchè non hai immagini taggate.",QMessageBox.Ok)
+                            QMessageBox.warning(self, 'WARNUNG', 'Die Fotoliste kann nicht exportiert werden, da Sie keine markierten Bilder haben.',QMessageBox.Ok)
                 except Exception as e :
-                    QMessageBox.warning(self, 'ATTENZIONE',str(e),QMessageBox.Ok)
+                    QMessageBox.warning(self, 'WARNUNG',str(e),QMessageBox.Ok)
             if self.checkBox_e_foto.isChecked():
                 US_index_pdf = generate_US_pdf()
                 data_list_foto = self.generate_list_foto()
                 try:
                         if bool(data_list_foto):
                             US_index_pdf.build_index_Foto_2(data_list_foto, data_list_foto[0][0])
-                            QMessageBox.warning(self, 'Ok',"Esportazione terminata Elenco Foto senza thumbanil",QMessageBox.Ok)
+                            QMessageBox.warning(self, 'Ok', 'Fertige Fotoliste ohne Daumenballen exportieren',QMessageBox.Ok)
                         else:
-                            QMessageBox.warning(self, 'ATTENZIONE',"L'elenco foto non può essere esportato perchè non hai immagini taggate.",QMessageBox.Ok)
+                            QMessageBox.warning(self, 'WARNUNG', 'Die Fotoliste kann nicht exportiert werden, da Sie keine markierten Bilder haben.',QMessageBox.Ok)
                 except Exception as e :
-                    QMessageBox.warning(self, 'ATTENZIONE',str(e),QMessageBox.Ok)
+                    QMessageBox.warning(self, 'WARNUNG',str(e),QMessageBox.Ok)
     def setPathpdf(self):
         s = QgsSettings()
         dbpath = QFileDialog.getOpenFileName(
