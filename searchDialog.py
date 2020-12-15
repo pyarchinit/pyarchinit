@@ -5,7 +5,7 @@ from qgis.PyQt.uic import loadUiType
 from qgis.PyQt.QtWidgets import QDialog, QAbstractItemView, QTableWidgetItem
 from qgis.PyQt.QtCore import QThread
 
-from qgis.core import QgsVectorLayer, Qgis, QgsProject, QgsMapLayer
+from qgis.core import QgsVectorLayer, Qgis, QgsSettings, QgsProject, QgsMapLayer
 from .searchWorker import Worker
 
 
@@ -14,6 +14,7 @@ FORM_CLASS, _ = loadUiType(os.path.join(
 
 
 class LayerSearchDialog(QDialog, FORM_CLASS):
+    L=QgsSettings().value("locale/userLocale")[0:2]
     def __init__(self, iface, parent):
         '''Initialize the LayerSearch dialog box'''
         super(LayerSearchDialog, self).__init__(parent)
@@ -33,9 +34,18 @@ class LayerSearchDialog(QDialog, FORM_CLASS):
         self.maxResults = 1500
         self.resultsTable.setColumnCount(4)
         self.resultsTable.setSortingEnabled(True)
-        self.resultsTable.setHorizontalHeaderLabels(['Valore','Tabella','Campo','Feature Id'])
+        if self.L=='it':
+            self.resultsTable.setHorizontalHeaderLabels(['Valore','Tabella','Campo','Feature Id'])
+            self.comparisonComboBox.addItems(['=','contiene','inizia con'])
+        if self.L=='de':
+            self.resultsTable.setHorizontalHeaderLabels(['Wert','Tabelle','Feld','Feature Id'])
+            self.comparisonComboBox.addItems(['=','enthält','beginnen mit'])
+        else:
+            self.resultsTable.setHorizontalHeaderLabels(['Value','Table','Field','Feature Id'])
+            self.comparisonComboBox.addItems(['=','contains','start with'])    
+            
         self.resultsTable.setSelectionBehavior(QAbstractItemView.SelectRows)
-        self.comparisonComboBox.addItems(['=','contiene','inizia con'])
+        
         self.resultsTable.itemSelectionChanged.connect(self.select_feature)
         self.worker = None
 
@@ -101,7 +111,13 @@ class LayerSearchDialog(QDialog, FORM_CLASS):
     def initFieldList(self):
         selectedLayer = self.layerListComboBox.currentIndex()
         self.searchFieldComboBox.clear()
-        self.searchFieldComboBox.addItem('<Tutti i campi>')
+        if self.L=='it':
+            self.searchFieldComboBox.addItem('<Tutti i campi>')
+        elif self.L=='de':
+            self.searchFieldComboBox.addItem('<Alle felder>')
+        if self.L=='it':
+            self.searchFieldComboBox.addItem('<All fields>')    
+        
         if selectedLayer > 1:
             self.searchFieldComboBox.setEnabled(True)
             for field in self.searchLayers[selectedLayer].fields():
@@ -118,11 +134,11 @@ class LayerSearchDialog(QDialog, FORM_CLASS):
         try:
             sstr = self.findStringEdit.text().strip()
         except:
-            self.showErrorMessage('Ricerca invalida ')
+            self.showErrorMessage('Invalid search')
             return
             
         if str == '':
-            self.showErrorMessage('La stringa cercata è vuota')
+            self.showErrorMessage('The searched string is empty')
             return
         if selectedLayer == 0:
             # Include all vector layers
@@ -139,7 +155,7 @@ class LayerSearchDialog(QDialog, FORM_CLASS):
             if isinstance(layer, QgsVectorLayer):
                 self.vlayers.append(layer)
         if len(self.vlayers) == 0:
-            self.showErrorMessage('qui non ci sono strati vettoriali da cercare')
+            self.showErrorMessage('no vectors')
             return
         
         # vlayers contains the layers that we will search in
@@ -176,7 +192,7 @@ class LayerSearchDialog(QDialog, FORM_CLASS):
         self.thread.wait()
         self.thread.deleteLater()
         self.worker = None
-        self.resultsLabel.setText('Risultati: '+str(self.found))
+        self.resultsLabel.setText('Results: '+str(self.found))
 
         self.vlayers = []
         self.searchButton.setEnabled(True)

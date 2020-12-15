@@ -65,12 +65,18 @@ class pyarchinit_Tomba(QDialog, MAIN_DIALOG_CLASS):
     SITO = pyArchInitDialog_Config
     if L=='it':
         STATUS_ITEMS = {"b": "Usa", "f": "Trova", "n": "Nuovo Record"}
+    
+    if L=='de':
+        STATUS_ITEMS = {"b": "Aktuell ", "f": "Finden", "n": "Neuer Rekord"}
+    
     else :
         STATUS_ITEMS = {"b": "Current", "f": "Find", "n": "New Record"}
     BROWSE_STATUS = "b"
     SORT_MODE = 'asc'
     if L=='it':
         SORTED_ITEMS = {"n": "Non ordinati", "o": "Ordinati"}
+    if L=='de':
+        SORTED_ITEMS = {"n": "Nicht sortiert", "o": "Sortiert"}
     else:
         SORTED_ITEMS = {"n": "Not sorted", "o": "Sorted"}
     SORT_STATUS = "n"
@@ -381,7 +387,12 @@ class pyarchinit_Tomba(QDialog, MAIN_DIALOG_CLASS):
         self.msg_sito()
     def loadCorredolist(self):
         self.tableWidget_corredo_tipo.clear()
-        col =['ID Reperto','ID Indv.','Materiale','Posizione del corredo','Posizione nel corredo']
+        if self.L=='it':
+            col =['ID Reperto','ID Indv.','Materiale','Posizione del corredo','Posizione nel corredo']
+        elif self.L=='de':
+            col =['Artefakt ID','Indv. ID','Material','Ort in Aussteuer','Ort in Aussteuer']
+        else:
+             col =['Item ID','Indv. ID','Material','Position in trousseau','Position in trousseau']
         self.tableWidget_corredo_tipo.setHorizontalHeaderLabels(col)
         numRows = self.tableWidget_corredo_tipo.setRowCount(100)
         conn = Connection()
@@ -498,8 +509,8 @@ class pyarchinit_Tomba(QDialog, MAIN_DIALOG_CLASS):
                 self.REC_TOT, self.REC_CORR = len(self.DATA_LIST), 0
                 self.DATA_LIST_REC_TEMP = self.DATA_LIST_REC_CORR = self.DATA_LIST[0]
                 self.BROWSE_STATUS = 'b'
-                self.label_status_2.setText(self.STATUS_ITEMS[self.BROWSE_STATUS])
-                self.label_sort_2.setText(self.SORTED_ITEMS["n"])
+                self.label_status.setText(self.STATUS_ITEMS[self.BROWSE_STATUS])
+                self.label_sort.setText(self.SORTED_ITEMS["n"])
                 self.set_rec_counter(len(self.DATA_LIST), self.REC_CORR + 1)
                 self.charge_list()
                 self.fill_fields()
@@ -541,7 +552,7 @@ class pyarchinit_Tomba(QDialog, MAIN_DIALOG_CLASS):
                     self.iface.messageBar().pushMessage(self.tr(msg), Qgis.Warning, 0)
                 
                 elif self.L=='de':
-                    msg = "ACHTUNG. Es wurde ein bug gefunden! Fehler einsenden: ".format(str(e))
+                    msg = "Warnung. Es wurde ein bug gefunden! Fehler einsenden: ".format(str(e))
                     self.iface.messageBar().pushMessage(self.tr(msg), Qgis.Warning, 0)  
                 else:
                     msg = "Warning bug detected! Report it to the developer. Error: ".format(str(e))
@@ -837,53 +848,69 @@ class pyarchinit_Tomba(QDialog, MAIN_DIALOG_CLASS):
 
        
     def msg_sito(self):
+        #self.model_a.database().close()
         conn = Connection()
-        
         sito_set= conn.sito_set()
         sito_set_str = sito_set['sito_set']
-        
         if bool(self.comboBox_sito.currentText()) and self.comboBox_sito.currentText()==sito_set_str:
-            QMessageBox.information(self, "OK" ,"Sei connesso al sito: %s" % str(sito_set_str),QMessageBox.Ok) 
-       
-        elif sito_set_str=='':    
-            QMessageBox.information(self, "Attenzione" ,"Non hai settato alcun sito pertanto vedrai tutti i record se il db non è vuoto",QMessageBox.Ok) 
-    
-    
-    def set_sito(self):
-        conn = Connection()
             
+            if self.L=='it':
+                QMessageBox.information(self, "OK" ,"Sei connesso al sito: %s" % str(sito_set_str),QMessageBox.Ok) 
+        
+            elif self.L=='de':
+                QMessageBox.information(self, "OK", "Sie sind mit der archäologischen Stätte verbunden: %s" % str(sito_set_str),QMessageBox.Ok) 
+                
+            else:
+                QMessageBox.information(self, "OK", "You are connected to the site: %s" % str(sito_set_str),QMessageBox.Ok)     
+        
+        elif sito_set_str=='':    
+            if self.L=='it':
+                msg = QMessageBox.information(self, "Attenzione" ,"Non hai settato alcun sito. Vuoi settarne uno? click Ok altrimenti Annulla per  vedere tutti i record",QMessageBox.Ok | QMessageBox.Cancel) 
+            elif self.L=='de':
+                msg = QMessageBox.information(self, "Warnung", "Sie haben keine archäologischen Stätten eingerichtet. Klicken Sie auf OK oder Abbrechen, um alle Datensätze zu sehen",QMessageBox.Ok | QMessageBox.Cancel) 
+            else:
+                msg = QMessageBox.information(self, "Warning" , "You have not set up any archaeological site. Do you want to set one? click Ok otherwise Cancel to see all records",QMessageBox.Ok | QMessageBox.Cancel) 
+            if msg == QMessageBox.Cancel:
+                pass
+            else: 
+                dlg = pyArchInitDialog_Config(self)
+                dlg.charge_list()
+                dlg.exec_()
+    def set_sito(self):
+        #self.model_a.database().close()
+        conn = Connection()
         sito_set= conn.sito_set()
         sito_set_str = sito_set['sito_set']
-        
         try:
             if bool (sito_set_str):
-                
                 search_dict = {
                     'sito': "'" + str(sito_set_str) + "'"}  # 1 - Sito
                 u = Utility()
                 search_dict = u.remove_empty_items_fr_dict(search_dict)
                 res = self.DB_MANAGER.query_bool(search_dict, self.MAPPER_TABLE_CLASS)
-                
                 self.DATA_LIST = []
                 for i in res:
                     self.DATA_LIST.append(i)
-
                 self.REC_TOT, self.REC_CORR = len(self.DATA_LIST), 0
                 self.DATA_LIST_REC_TEMP = self.DATA_LIST_REC_CORR = self.DATA_LIST[0]  ####darivedere
                 self.fill_fields()
                 self.BROWSE_STATUS = "b"
                 self.SORT_STATUS = "n"
-                self.label_status_2.setText(self.STATUS_ITEMS[self.BROWSE_STATUS])
+                self.label_status.setText(self.STATUS_ITEMS[self.BROWSE_STATUS])
                 self.set_rec_counter(len(self.DATA_LIST), self.REC_CORR + 1)
-
                 self.setComboBoxEnable(["self.comboBox_sito"], "False")
-                
             else:
-                
                 pass#
-                
         except:
-            QMessageBox.information(self, "Attenzione" ,"Non esiste questo sito: "'"'+ str(sito_set_str) +'"'" in questa scheda, Per favore distattiva la 'scelta sito' dalla scheda di configurazione plugin per vedere tutti i record oppure crea la scheda",QMessageBox.Ok) 
+            if self.L=='it':
+            
+                QMessageBox.information(self, "Attenzione" ,"Non esiste questo sito: "'"'+ str(sito_set_str) +'"'" in questa scheda, Per favore distattiva la 'scelta sito' dalla scheda di configurazione plugin per vedere tutti i record oppure crea la scheda",QMessageBox.Ok) 
+            elif self.L=='de':
+            
+                QMessageBox.information(self, "Warnung" , "Es gibt keine solche archäologische Stätte: "'""'+ str(site_set_str) +'"'" in dieser Registerkarte, Bitte deaktivieren Sie die 'Site-Wahl' in der Plugin-Konfigurationsregisterkarte, um alle Datensätze zu sehen oder die Registerkarte zu erstellen",QMessageBox.Ok) 
+            else:
+            
+                QMessageBox.information(self, "Warning" , "There is no such site: "'"'+ str(site_set_str) +'"'" in this tab, Please disable the 'site choice' from the plugin configuration tab to see all records or create the tab",QMessageBox.Ok) 
     def charge_periodo_iniz_list(self):
         sito = str(self.comboBox_sito.currentText())
 
@@ -905,7 +932,7 @@ class pyarchinit_Tomba(QDialog, MAIN_DIALOG_CLASS):
         self.comboBox_per_iniz.clear()
         self.comboBox_per_iniz.addItems(self.UTILITY.remove_dup_from_list(periodo_list))
 
-        if self.STATUS_ITEMS[self.BROWSE_STATUS] == "Trova" or "Find":
+        if self.STATUS_ITEMS[self.BROWSE_STATUS] == "Trova" or "Finden" or "Find":
             self.comboBox_per_iniz.setEditText("")
         elif self.STATUS_ITEMS[self.BROWSE_STATUS] == "Trova" or "Find":
             if len(self.DATA_LIST) > 0:
@@ -932,9 +959,9 @@ class pyarchinit_Tomba(QDialog, MAIN_DIALOG_CLASS):
         self.comboBox_per_fin.clear()
         self.comboBox_per_fin.addItems(self.UTILITY.remove_dup_from_list(periodo_list))
 
-        if self.STATUS_ITEMS[self.BROWSE_STATUS] == "Trova" or "Find":
+        if self.STATUS_ITEMS[self.BROWSE_STATUS] == "Trova" or "Finden" or "Find":
             self.comboBox_per_fin.setEditText("")
-        elif self.STATUS_ITEMS[self.BROWSE_STATUS] == "Usa" or "Current":
+        elif self.STATUS_ITEMS[self.BROWSE_STATUS] == "Usa" or "Aktuell " or "Current":
             if len(self.DATA_LIST) > 0:
                 try:
                     self.comboBox_per_fin.setEditText(self.DATA_LIST[self.rec_num].periodo_iniziale)
@@ -964,7 +991,7 @@ class pyarchinit_Tomba(QDialog, MAIN_DIALOG_CLASS):
             fase_list.sort()
             self.comboBox_fas_iniz.addItems(self.UTILITY.remove_dup_from_list(fase_list))
 
-            if self.STATUS_ITEMS[self.BROWSE_STATUS] == "Trova" or "Find":
+            if self.STATUS_ITEMS[self.BROWSE_STATUS] == "Trova" or "Finden" or "Find":
                 self.comboBox_fas_iniz.setEditText("")
             else:
                 self.comboBox_fas_iniz.setEditText(self.DATA_LIST[self.rec_num].fase_iniziale)
@@ -993,7 +1020,7 @@ class pyarchinit_Tomba(QDialog, MAIN_DIALOG_CLASS):
             fase_list.sort()
             self.comboBox_fas_fin.addItems(self.UTILITY.remove_dup_from_list(fase_list))
 
-            if self.STATUS_ITEMS[self.BROWSE_STATUS] == "Trova" or "Find":
+            if self.STATUS_ITEMS[self.BROWSE_STATUS] == "Trova" or "Finden" or "Find":
                 self.comboBox_fas_fin.setEditText("")
             else:
                 self.comboBox_fas_fin.setEditText(self.DATA_LIST[self.rec_num].fase_finale)
@@ -1019,7 +1046,7 @@ class pyarchinit_Tomba(QDialog, MAIN_DIALOG_CLASS):
             self.comboBox_datazione_estesa.clear()
             datazione_list.sort()
             self.comboBox_datazione_estesa.addItems(self.UTILITY.remove_dup_from_list(datazione_list))
-            if self.STATUS_ITEMS[self.BROWSE_STATUS] == "Trova" or "Find":
+            if self.STATUS_ITEMS[self.BROWSE_STATUS] == "Trova" or "Finden" or "Find":
                 self.comboBox_datazione_estesa.setEditText("")
             else:
                 self.comboBox_datazione_estesa.setEditText(self.DATA_LIST[self.rec_num].datazione_estesa)
@@ -1045,10 +1072,10 @@ class pyarchinit_Tomba(QDialog, MAIN_DIALOG_CLASS):
         self.comboBox_nr_struttura.clear()
         nr_struttura_list.sort()
         self.comboBox_nr_struttura.addItems(self.UTILITY.remove_dup_from_list(nr_struttura_list))
-        if self.STATUS_ITEMS[self.BROWSE_STATUS] == "Trova" or "Find":
+        if self.STATUS_ITEMS[self.BROWSE_STATUS] == "Trova" or "Finden" or "Find":
                 
                 self.comboBox_nr_struttura.setEditText("")
-        elif self.STATUS_ITEMS[self.BROWSE_STATUS] == "Usa" or "Current":
+        elif self.STATUS_ITEMS[self.BROWSE_STATUS] == "Usa" or "Aktuell " or "Current":
             try:    
                 if len(self.DATA_LIST) > 0:
         
@@ -1075,10 +1102,10 @@ class pyarchinit_Tomba(QDialog, MAIN_DIALOG_CLASS):
 
         self.comboBox_sigla_struttura.addItems(self.UTILITY.remove_dup_from_list(sigla_struttura_list))
 
-        if self.STATUS_ITEMS[self.BROWSE_STATUS] == "Trova" or "Find":
+        if self.STATUS_ITEMS[self.BROWSE_STATUS] == "Trova" or "Finden" or "Find":
                 self.comboBox_sigla_struttura.setEditText("")
                 
-        elif self.STATUS_ITEMS[self.BROWSE_STATUS] == "Usa" or "Current":
+        elif self.STATUS_ITEMS[self.BROWSE_STATUS] == "Usa" or "Aktuell " or "Current":
             try:    
                 if len(self.DATA_LIST) > 0:
         
@@ -1105,9 +1132,9 @@ class pyarchinit_Tomba(QDialog, MAIN_DIALOG_CLASS):
             pass
         self.comboBox_nr_individuo.clear()
         self.comboBox_nr_individuo.addItems(self.UTILITY.remove_dup_from_list(inv_list))
-        if self.STATUS_ITEMS[self.BROWSE_STATUS] == "Trova" or "Find":
+        if self.STATUS_ITEMS[self.BROWSE_STATUS] == "Trova" or "Finden" or "Find":
             self.comboBox_nr_individuo.setEditText("")
-        elif self.STATUS_ITEMS[self.BROWSE_STATUS] == "Usa" or "Current":
+        elif self.STATUS_ITEMS[self.BROWSE_STATUS] == "Usa" or "Aktuell " or "Current":
             if len(self.DATA_LIST) > 0:
                 try:
                     self.comboBox_nr_individuo.setEditText(self.DATA_LIST[self.rec_num].nr_individuo)
@@ -1133,20 +1160,16 @@ class pyarchinit_Tomba(QDialog, MAIN_DIALOG_CLASS):
             pass
         self.comboBox_oggetti_esterno.clear()
         self.comboBox_oggetti_esterno.addItems(self.UTILITY.remove_dup_from_list(inv_list))
-        if self.STATUS_ITEMS[self.BROWSE_STATUS] == "Trova" or "Find":
+        if self.STATUS_ITEMS[self.BROWSE_STATUS] == "Trova" or "Finden" or "Find":
             self.comboBox_oggetti_esterno.setEditText("")
-        elif self.STATUS_ITEMS[self.BROWSE_STATUS] == "Usa" or "Current":
+        elif self.STATUS_ITEMS[self.BROWSE_STATUS] == "Usa" or "Aktuell " or "Current":
             if len(self.DATA_LIST) > 0:
                 try:
                     self.comboBox_oggetti_esterno.setEditText(self.DATA_LIST[self.rec_num].oggetti_esterno)
                     
                 except :
                     pass
-    # def on_pushButton_exp_index_pressed(self):
-        # Tomba_index_pdf = generate_tomba_pdf()
-        # data_list = self.generate_list_pdf()
-        # Tomba_index_pdf.build_index_Tomba(data_list, data_list[0][0])
-
+    
     def on_toolButtonPan_toggled(self):
         self.toolPan = QgsMapToolPan(self.mapPreview)
         self.mapPreview.setMapTool(self.toolPan)
@@ -1174,7 +1197,7 @@ class pyarchinit_Tomba(QDialog, MAIN_DIALOG_CLASS):
 
         self.fill_fields()
         self.BROWSE_STATUS = 'b'
-        self.label_status_2.setText(self.STATUS_ITEMS[self.BROWSE_STATUS])
+        self.label_status.setText(self.STATUS_ITEMS[self.BROWSE_STATUS])
         if type(self.REC_CORR) == "<type 'str'>":
             corr = 0
         else:
@@ -1212,7 +1235,7 @@ class pyarchinit_Tomba(QDialog, MAIN_DIALOG_CLASS):
             for i in temp_data_list:
                 self.DATA_LIST.append(i)
             self.BROWSE_STATUS = 'b'
-            self.label_status_2.setText(self.STATUS_ITEMS[self.BROWSE_STATUS])
+            self.label_status.setText(self.STATUS_ITEMS[self.BROWSE_STATUS])
             if type(self.REC_CORR) == "<type 'str'>":
                 corr = 0
             else:
@@ -1221,7 +1244,7 @@ class pyarchinit_Tomba(QDialog, MAIN_DIALOG_CLASS):
             self.REC_TOT, self.REC_CORR = len(self.DATA_LIST), 0
             self.DATA_LIST_REC_TEMP = self.DATA_LIST_REC_CORR = self.DATA_LIST[0]
             self.SORT_STATUS = "o"
-            self.label_sort_2.setText(self.SORTED_ITEMS[self.SORT_STATUS])
+            self.label_sort.setText(self.SORTED_ITEMS[self.SORT_STATUS])
             self.set_rec_counter(len(self.DATA_LIST), self.REC_CORR + 1)
             self.fill_fields()
 
@@ -1281,33 +1304,7 @@ class pyarchinit_Tomba(QDialog, MAIN_DIALOG_CLASS):
             else:
                 self.loadMapPreview(1)
 
-    # def on_toolButtonPreviewMedia_toggled(self):
-        # if self.L=='it':
-            # if self.toolButtonPreviewMedia.isChecked():
-                # QMessageBox.warning(self, "Messaggio",
-                                    # "Modalita' Preview Media US attivata. Le immagini delle US saranno visualizzate nella sezione Media",
-                                    # QMessageBox.Ok)
-                # self.loadMediaPreview()
-            # else:
-                # self.loadMediaPreview(1)
-        # elif self.L=='de':
-            # if self.toolButtonPreviewMedia.isChecked():
-                # QMessageBox.warning(self, "Message",
-                                    # "Modalität' Preview Media SE aktiviert. Die Bilder der SE werden in der Preview media Auswahl visualisiert",
-                                    # QMessageBox.Ok)
-                # self.loadMediaPreview()
-            # else:
-                # self.loadMediaPreview(1)
-        # else:
-            # if self.toolButtonPreviewMedia.isChecked():
-                # QMessageBox.warning(self, "Message",
-                                    # "SU Media Preview mode enabled. US images will be displayed in the Media section",
-                                    # QMessageBox.Ok)
-                # self.loadMediaPreview()
-            # else:
-                # self.loadMediaPreview(1)       
-
-   
+    
     def on_pushButton_new_rec_pressed(self):
         conn = Connection()
         
@@ -1316,27 +1313,11 @@ class pyarchinit_Tomba(QDialog, MAIN_DIALOG_CLASS):
         if bool(self.DATA_LIST):
             if self.data_error_check() == 1:
                 pass
-            # else:
-                # if self.BROWSE_STATUS == "b":
-                    # if bool(self.DATA_LIST):
-                       # if self.records_equal_check() == 1:
-                            # if self.L=='it':
-                                # self.update_if(QMessageBox.warning(self, 'Errore',
-                                                                   # "Il record e' stato modificato. Vuoi salvare le modifiche?",QMessageBox.Ok | QMessageBox.Cancel))
-                            # elif self.L=='de':
-                                # self.update_if(QMessageBox.warning(self, 'Error',
-                                                                   # "Der Record wurde geändert. Möchtest du die Änderungen speichern?",
-                                                                   # QMessageBox.Ok | QMessageBox.Cancel))
-                                                                   
-                            # else:
-                                # self.update_if(QMessageBox.warning(self, 'Error',
-                                                                   # "The record has been changed. Do you want to save the changes?",
-                                                                   # QMessageBox.Ok | QMessageBox.Cancel))
-
+            
         if self.BROWSE_STATUS != "n":
             if bool(self.comboBox_sito.currentText()) and self.comboBox_sito.currentText()==sito_set_str:
                 self.BROWSE_STATUS = "n"
-                self.label_status_2.setText(self.STATUS_ITEMS[self.BROWSE_STATUS])
+                self.label_status.setText(self.STATUS_ITEMS[self.BROWSE_STATUS])
                 self.empty_fields_nosite()
 
                 self.setComboBoxEnable(["self.lineEdit_nr_scheda"], "True")
@@ -1344,23 +1325,23 @@ class pyarchinit_Tomba(QDialog, MAIN_DIALOG_CLASS):
                 
 
                 self.SORT_STATUS = "n"
-                self.label_sort_2.setText(self.SORTED_ITEMS[self.SORT_STATUS])
-                self.label_status_2.setText(self.STATUS_ITEMS[self.BROWSE_STATUS])
+                self.label_sort.setText(self.SORTED_ITEMS[self.SORT_STATUS])
+                self.label_status.setText(self.STATUS_ITEMS[self.BROWSE_STATUS])
                 self.set_rec_counter('', '')
-                self.label_sort_2.setText(self.SORTED_ITEMS["n"])
+                self.label_sort.setText(self.SORTED_ITEMS["n"])
             else:
                 self.BROWSE_STATUS = "n"
-                self.label_status_2.setText(self.STATUS_ITEMS[self.BROWSE_STATUS])
+                self.label_status.setText(self.STATUS_ITEMS[self.BROWSE_STATUS])
                 self.empty_fields()
 
                 self.setComboBoxEnable(["self.lineEdit_nr_scheda"], "True")
 
                 
                 self.SORT_STATUS = "n"
-                self.label_sort_2.setText(self.SORTED_ITEMS[self.SORT_STATUS])
-                self.label_status_2.setText(self.STATUS_ITEMS[self.BROWSE_STATUS])
+                self.label_sort.setText(self.SORTED_ITEMS[self.SORT_STATUS])
+                self.label_status.setText(self.STATUS_ITEMS[self.BROWSE_STATUS])
                 self.set_rec_counter('', '')
-                self.label_sort_2.setText(self.SORTED_ITEMS["n"])
+                self.label_sort.setText(self.SORTED_ITEMS["n"])
             self.enable_button(0)
 
     def on_pushButton_save_pressed(self):
@@ -1382,7 +1363,7 @@ class pyarchinit_Tomba(QDialog, MAIN_DIALOG_CLASS):
                                                            QMessageBox.Ok | QMessageBox.Cancel))
                     self.empty_fields()
                     self.SORT_STATUS = "n"
-                    self.label_sort_2.setText(self.SORTED_ITEMS[self.SORT_STATUS])
+                    self.label_sort.setText(self.SORTED_ITEMS[self.SORT_STATUS])
                     self.enable_button(1)
                     self.fill_fields(self.REC_CORR)
                 
@@ -1390,7 +1371,7 @@ class pyarchinit_Tomba(QDialog, MAIN_DIALOG_CLASS):
                     if self.L=='it':
                         QMessageBox.warning(self, "ATTENZIONE", "Non è stata realizzata alcuna modifica.", QMessageBox.Ok)
                     elif self.L=='de':
-                        QMessageBox.warning(self, "ACHTUNG", "Keine Änderung vorgenommen", QMessageBox.Ok)
+                        QMessageBox.warning(self, "Warnung", "Keine Änderung vorgenommen", QMessageBox.Ok)
                     else:
                         QMessageBox.warning(self, "Warning", "No changes have been made", QMessageBox.Ok)           
                                                            
@@ -1399,12 +1380,12 @@ class pyarchinit_Tomba(QDialog, MAIN_DIALOG_CLASS):
                 test_insert = self.insert_new_rec()
                 if test_insert == 1:
                     self.empty_fields()
-                    self.label_sort_2.setText(self.SORTED_ITEMS["n"])
+                    self.label_sort.setText(self.SORTED_ITEMS["n"])
                     self.charge_list()
                     self.set_sito()
                     self.charge_records()
                     self.BROWSE_STATUS = "b"
-                    self.label_status_2.setText(self.STATUS_ITEMS[self.BROWSE_STATUS])
+                    self.label_status.setText(self.STATUS_ITEMS[self.BROWSE_STATUS])
                     self.REC_TOT, self.REC_CORR = len(self.DATA_LIST), len(self.DATA_LIST) - 1
                     self.set_rec_counter(self.REC_TOT, self.REC_CORR + 1)
 
@@ -1423,7 +1404,7 @@ class pyarchinit_Tomba(QDialog, MAIN_DIALOG_CLASS):
                     if self.L=='it':
                         QMessageBox.warning(self, "ATTENZIONE", "Problema nell'inserimento dati", QMessageBox.Ok)
                     elif self.L=='de':
-                        QMessageBox.warning(self, "ACHTUNG", "Problem der Dateneingabe", QMessageBox.Ok)
+                        QMessageBox.warning(self, "Warnung", "Problem der Dateneingabe", QMessageBox.Ok)
                     else:
                         QMessageBox.warning(self, "Warning", "Problem with data entry", QMessageBox.Ok)    
 
@@ -1437,7 +1418,7 @@ class pyarchinit_Tomba(QDialog, MAIN_DIALOG_CLASS):
                 
         elif self.L=='de':  
             if EC.data_is_empty(str(self.comboBox_sito.currentText())) == 0:
-                QMessageBox.warning(self, "ACHTUNG", " Feld Ausgrabungstätte. \n Das Feld darf nicht leer sein", QMessageBox.Ok)
+                QMessageBox.warning(self, "Warnung", " Feld Ausgrabungstätte. \n Das Feld darf nicht leer sein", QMessageBox.Ok)
                 test = 1
 
         else:   
@@ -1567,7 +1548,7 @@ class pyarchinit_Tomba(QDialog, MAIN_DIALOG_CLASS):
             self.charge_records()
             self.fill_fields()
             self.BROWSE_STATUS = "b"
-            self.label_status_2.setText(self.STATUS_ITEMS[self.BROWSE_STATUS])
+            self.label_status.setText(self.STATUS_ITEMS[self.BROWSE_STATUS])
             if type(self.REC_CORR) == "<type 'str'>":
                 corr = 0
             else:
@@ -1575,7 +1556,7 @@ class pyarchinit_Tomba(QDialog, MAIN_DIALOG_CLASS):
             self.set_rec_counter(len(self.DATA_LIST), self.REC_CORR + 1)
             self.REC_TOT, self.REC_CORR = len(self.DATA_LIST), 0
             self.DATA_LIST_REC_TEMP = self.DATA_LIST_REC_CORR = self.DATA_LIST[0]
-            self.label_sort_2.setText(self.SORTED_ITEMS["n"])
+            self.label_sort.setText(self.SORTED_ITEMS["n"])
 
     def on_pushButton_first_rec_pressed(self):
         if self.check_record_state() == 1:
@@ -1587,7 +1568,7 @@ class pyarchinit_Tomba(QDialog, MAIN_DIALOG_CLASS):
                 self.fill_fields(0)
                 self.set_rec_counter(self.REC_TOT, self.REC_CORR + 1)
             except Exception as e:
-                QMessageBox.warning(self, "Errore", str(e), QMessageBox.Ok)
+                QMessageBox.warning(self, "Error", str(e), QMessageBox.Ok)
 
     def on_pushButton_last_rec_pressed(self):
         if self.check_record_state() == 1:
@@ -1599,7 +1580,7 @@ class pyarchinit_Tomba(QDialog, MAIN_DIALOG_CLASS):
                 self.fill_fields(self.REC_CORR)
                 self.set_rec_counter(self.REC_TOT, self.REC_CORR + 1)
             except Exception as e:
-                QMessageBox.warning(self, "Errore", str(e), QMessageBox.Ok)
+                QMessageBox.warning(self, "Error", str(e), QMessageBox.Ok)
 
     def on_pushButton_prev_rec_pressed(self):
         if self.check_record_state() == 1:
@@ -1611,7 +1592,7 @@ class pyarchinit_Tomba(QDialog, MAIN_DIALOG_CLASS):
                 if self.L=='it':
                     QMessageBox.warning(self, "Attenzione", "Sei al primo record!", QMessageBox.Ok)
                 elif self.L=='de':
-                    QMessageBox.warning(self, "Achtung", "du befindest dich im ersten Datensatz!", QMessageBox.Ok)
+                    QMessageBox.warning(self, "Warnung", "du befindest dich im ersten Datensatz!", QMessageBox.Ok)
                 else:
                     QMessageBox.warning(self, "Warning", "You are to the first record!", QMessageBox.Ok)        
             else:
@@ -1632,7 +1613,7 @@ class pyarchinit_Tomba(QDialog, MAIN_DIALOG_CLASS):
                 if self.L=='it':
                     QMessageBox.warning(self, "Attenzione", "Sei all'ultimo record!", QMessageBox.Ok)
                 elif self.L=='de':
-                    QMessageBox.warning(self, "Achtung", "du befindest dich im letzten Datensatz!", QMessageBox.Ok)
+                    QMessageBox.warning(self, "Warnung", "du befindest dich im letzten Datensatz!", QMessageBox.Ok)
                 else:
                     QMessageBox.warning(self, "Error", "You are to the first record!", QMessageBox.Ok)  
             else:
@@ -1673,13 +1654,13 @@ class pyarchinit_Tomba(QDialog, MAIN_DIALOG_CLASS):
                     self.REC_TOT, self.REC_CORR = len(self.DATA_LIST), 0
                     self.DATA_LIST_REC_TEMP = self.DATA_LIST_REC_CORR = self.DATA_LIST[0]
                     self.BROWSE_STATUS = "b"
-                    self.label_status_2.setText(self.STATUS_ITEMS[self.BROWSE_STATUS])
+                    self.label_status.setText(self.STATUS_ITEMS[self.BROWSE_STATUS])
                     self.set_rec_counter(len(self.DATA_LIST), self.REC_CORR + 1)
                     self.charge_list()
                     self.fill_fields()
                     self.set_sito()
         elif self.L=='de':
-            msg = QMessageBox.warning(self, "Achtung!!!",
+            msg = QMessageBox.warning(self, "Warnung!!!",
                                       "Willst du wirklich diesen Eintrag löschen? \n Der Vorgang ist unumkehrbar",
                                       QMessageBox.Ok | QMessageBox.Cancel)
             if msg == QMessageBox.Cancel:
@@ -1693,7 +1674,7 @@ class pyarchinit_Tomba(QDialog, MAIN_DIALOG_CLASS):
                 except Exception as e:
                     QMessageBox.warning(self, "Messagge!!!", "Errortyp: " + str(e))
                 if not bool(self.DATA_LIST):
-                    QMessageBox.warning(self, "Achtung", "Die Datenbank ist leer!", QMessageBox.Ok)
+                    QMessageBox.warning(self, "Warnung", "Die Datenbank ist leer!", QMessageBox.Ok)
                     self.DATA_LIST = []
                     self.DATA_LIST_REC_CORR = []
                     self.DATA_LIST_REC_TEMP = []
@@ -1706,7 +1687,7 @@ class pyarchinit_Tomba(QDialog, MAIN_DIALOG_CLASS):
                     self.REC_TOT, self.REC_CORR = len(self.DATA_LIST), 0
                     self.DATA_LIST_REC_TEMP = self.DATA_LIST_REC_CORR = self.DATA_LIST[0]
                     self.BROWSE_STATUS = "b"
-                    self.label_status_2.setText(self.STATUS_ITEMS[self.BROWSE_STATUS])
+                    self.label_status.setText(self.STATUS_ITEMS[self.BROWSE_STATUS])
                     self.set_rec_counter(len(self.DATA_LIST), self.REC_CORR + 1)
                     self.charge_list()
                     self.fill_fields()
@@ -1739,7 +1720,7 @@ class pyarchinit_Tomba(QDialog, MAIN_DIALOG_CLASS):
                     self.REC_TOT, self.REC_CORR = len(self.DATA_LIST), 0
                     self.DATA_LIST_REC_TEMP = self.DATA_LIST_REC_CORR = self.DATA_LIST[0]
                     self.BROWSE_STATUS = "b"
-                    self.label_status_2.setText(self.STATUS_ITEMS[self.BROWSE_STATUS])
+                    self.label_status.setText(self.STATUS_ITEMS[self.BROWSE_STATUS])
                     self.set_rec_counter(len(self.DATA_LIST), self.REC_CORR + 1)
                     self.charge_list()
                     self.fill_fields()
@@ -1748,7 +1729,7 @@ class pyarchinit_Tomba(QDialog, MAIN_DIALOG_CLASS):
             
             
             self.SORT_STATUS = "n"
-            self.label_sort_2.setText(self.SORTED_ITEMS[self.SORT_STATUS])
+            self.label_sort.setText(self.SORTED_ITEMS[self.SORT_STATUS])
 
     def on_pushButton_new_search_pressed(self):
         if self.BROWSE_STATUS != "f" and self.check_record_state() == 1:
@@ -1780,9 +1761,9 @@ class pyarchinit_Tomba(QDialog, MAIN_DIALOG_CLASS):
                     # self.setTableEnable(["self.tableWidget_corredo_tipo"], "False")
 
                     ###
-                    self.label_status_2.setText(self.STATUS_ITEMS[self.BROWSE_STATUS])
+                    self.label_status.setText(self.STATUS_ITEMS[self.BROWSE_STATUS])
                     self.set_rec_counter('', '')
-                    self.label_sort_2.setText(self.SORTED_ITEMS["n"])
+                    self.label_sort.setText(self.SORTED_ITEMS["n"])
                     #self.charge_list()
                     self.empty_fields_nosite()
                 else:
@@ -1804,9 +1785,9 @@ class pyarchinit_Tomba(QDialog, MAIN_DIALOG_CLASS):
                     # self.setTableEnable(["self.tableWidget_corredo_tipo"], "False")
 
                     ###
-                    self.label_status_2.setText(self.STATUS_ITEMS[self.BROWSE_STATUS])
+                    self.label_status.setText(self.STATUS_ITEMS[self.BROWSE_STATUS])
                     self.set_rec_counter('', '')
-                    self.label_sort_2.setText(self.SORTED_ITEMS["n"])
+                    self.label_sort.setText(self.SORTED_ITEMS["n"])
                     self.charge_list()
                     self.empty_fields()
     def on_pushButton_showLayer_pressed(self):
@@ -1822,7 +1803,7 @@ class pyarchinit_Tomba(QDialog, MAIN_DIALOG_CLASS):
                     QMessageBox.warning(self, "ATTENZIONE", "Per eseguire una nuova ricerca clicca sul pulsante 'new search' ",
                                         QMessageBox.Ok)
                 elif self.L=='de':
-                    QMessageBox.warning(self, "ACHTUNG", "Um eine neue Abfrage zu starten drücke  'new search' ",
+                    QMessageBox.warning(self, "Warnung", "Um eine neue Abfrage zu starten drücke  'new search' ",
                                         QMessageBox.Ok)
                 else:
                     QMessageBox.warning(self, "WARNING", "To perform a new search click on the 'new search' button ",
@@ -1911,7 +1892,7 @@ class pyarchinit_Tomba(QDialog, MAIN_DIALOG_CLASS):
                     if self.L=='it':
                         QMessageBox.warning(self, "ATTENZIONE", "Non è stata impostata nessuna ricerca!!!", QMessageBox.Ok)
                     elif self.L=='de':
-                        QMessageBox.warning(self, "ACHTUNG", "Keine Abfrage definiert!!!", QMessageBox.Ok)
+                        QMessageBox.warning(self, "Warnung", "Keine Abfrage definiert!!!", QMessageBox.Ok)
                     else:
                         QMessageBox.warning(self, " WARNING", "No search has been set!!!", QMessageBox.Ok)      
                 else:
@@ -1920,7 +1901,7 @@ class pyarchinit_Tomba(QDialog, MAIN_DIALOG_CLASS):
                         if self.L=='it':
                             QMessageBox.warning(self, "ATTENZIONE", "Non è stato trovato nessun record!", QMessageBox.Ok)
                         elif self.L=='de':
-                            QMessageBox.warning(self, "ACHTUNG", "Keinen Record gefunden!", QMessageBox.Ok)
+                            QMessageBox.warning(self, "Warnung", "Keinen Record gefunden!", QMessageBox.Ok)
                         else:
                             QMessageBox.warning(self, "WARNING," "No record found!", QMessageBox.Ok) 
 
@@ -1928,7 +1909,7 @@ class pyarchinit_Tomba(QDialog, MAIN_DIALOG_CLASS):
                         self.DATA_LIST_REC_TEMP = self.DATA_LIST_REC_CORR = self.DATA_LIST[0]
                         self.fill_fields(self.REC_CORR)
                         self.BROWSE_STATUS = "b"
-                        self.label_status_2.setText(self.STATUS_ITEMS[self.BROWSE_STATUS])
+                        self.label_status.setText(self.STATUS_ITEMS[self.BROWSE_STATUS])
 
                         self.setComboBoxEnable(["self.comboBox_sito"], "False")
                         self.setComboBoxEditable(["self.comboBox_sigla_struttura"], 1)
@@ -1953,7 +1934,7 @@ class pyarchinit_Tomba(QDialog, MAIN_DIALOG_CLASS):
                         self.DATA_LIST_REC_TEMP = self.DATA_LIST_REC_CORR = self.DATA_LIST[0]
                         self.fill_fields()
                         self.BROWSE_STATUS = "b"
-                        self.label_status_2.setText(self.STATUS_ITEMS[self.BROWSE_STATUS])
+                        self.label_status.setText(self.STATUS_ITEMS[self.BROWSE_STATUS])
                         self.set_rec_counter(len(self.DATA_LIST), self.REC_CORR + 1)
 
                         if self.L=='it':
@@ -2149,7 +2130,7 @@ class pyarchinit_Tomba(QDialog, MAIN_DIALOG_CLASS):
                 for i in temp_data_list:
                     self.DATA_LIST.append(i)
                 self.BROWSE_STATUS = "b"
-                self.label_status_2.setText(self.STATUS_ITEMS[self.BROWSE_STATUS])
+                self.label_status.setText(self.STATUS_ITEMS[self.BROWSE_STATUS])
                 if type(self.REC_CORR) == "<type 'str'>":
                     corr = 0
                 else:
@@ -2390,8 +2371,8 @@ class pyarchinit_Tomba(QDialog, MAIN_DIALOG_CLASS):
     def set_rec_counter(self, t, c):
         self.rec_tot = t
         self.rec_corr = c
-        self.label_rec_tot_2.setText(str(self.rec_tot))
-        self.label_rec_corrente_2.setText(str(self.rec_corr))
+        self.label_rec_tot.setText(str(self.rec_tot))
+        self.label_rec_corrente.setText(str(self.rec_corr))
 
     def set_LIST_REC_TEMP(self):
         ## nr scheda
@@ -2560,7 +2541,7 @@ class pyarchinit_Tomba(QDialog, MAIN_DIALOG_CLASS):
                 US_pdf_sheet = generate_US_pdf()
                 data_list = self.generate_list_pdf()
                 US_pdf_sheet.build_US_sheets(data_list)
-                QMessageBox.warning(self, 'Ok',"Export finished SU Forms",QMessageBox.Ok)
+                QMessageBox.warning(self, 'Ok',"Export finished Forms",QMessageBox.Ok)
             else:   
                 pass
             if self.checkBox_e_us.isChecked() :
@@ -2569,9 +2550,9 @@ class pyarchinit_Tomba(QDialog, MAIN_DIALOG_CLASS):
                 try:               
                     if bool(data_list):
                         US_index_pdf.build_index_US(data_list, data_list[0][0])
-                        QMessageBox.warning(self, 'Ok',"Export finished SU List",QMessageBox.Ok)
+                        QMessageBox.warning(self, 'Ok',"Export finished Grave List",QMessageBox.Ok)
                     else:
-                        QMessageBox.warning(self, 'WARNING',"The SU list cannot be exported you have to fill in the SU tabs first",QMessageBox.Ok)
+                        QMessageBox.warning(self, 'WARNING',"The Grave list cannot be exported you have to fill in the Grave tabs first",QMessageBox.Ok)
                 except Exception as e :
                     QMessageBox.warning(self, 'WARNING',str(e),QMessageBox.Ok)
             else:
@@ -2582,7 +2563,7 @@ class pyarchinit_Tomba(QDialog, MAIN_DIALOG_CLASS):
                 try:
                         if bool(data_list_foto):
                             US_index_pdf.build_index_Foto(data_list_foto, data_list_foto[0][0])
-                            QMessageBox.warning(self, 'Ok',"Export finished SU List",QMessageBox.Ok)
+                            QMessageBox.warning(self, 'Ok',"Export finished Grave List",QMessageBox.Ok)
                         else:
                             QMessageBox.warning(self, 'WARNING', 'The photo list cannot be exported because you do not have tagged images.',QMessageBox.Ok)
                 except Exception as e :
@@ -2612,11 +2593,11 @@ class pyarchinit_Tomba(QDialog, MAIN_DIALOG_CLASS):
                 try:               
                     if bool(data_list):
                         US_index_pdf.build_index_US(data_list, data_list[0][0])
-                        QMessageBox.warning(self, 'Ok',"Esportazione terminata Elenco US",QMessageBox.Ok)
+                        QMessageBox.warning(self, "Okay", "Export beendet",QMessageBox.Ok)
                     else:
-                        QMessageBox.warning(self, 'ATTENZIONE',"L'elenco US non può essere esportato devi riempire prima le schede US",QMessageBox.Ok)
+                        QMessageBox.warning(self, 'WARNUNG', 'Die Liste kann nicht exportiert werden, Sie müssen zuerst die Formulare ausfüllen',QMessageBox.Ok)
                 except Exception as e :
-                    QMessageBox.warning(self, 'ATTENZIONE',str(e),QMessageBox.Ok)
+                    QMessageBox.warning(self, 'WARNUNG',str(e),QMessageBox.Ok)
             else:
                 pass
             if self.checkBox_e_foto_t.isChecked():
@@ -2625,22 +2606,22 @@ class pyarchinit_Tomba(QDialog, MAIN_DIALOG_CLASS):
                 try:
                         if bool(data_list_foto):
                             US_index_pdf.build_index_Foto(data_list_foto, data_list_foto[0][0])
-                            QMessageBox.warning(self, 'Ok',"Esportazione terminata Elenco Foto",QMessageBox.Ok)
+                            QMessageBox.warning(self, "Okay", "Fertige Fotoliste exportieren",QMessageBox.Ok)
                         else:
-                            QMessageBox.warning(self, 'ATTENZIONE',"L'elenco foto non può essere esportato perchè non hai immagini taggate.",QMessageBox.Ok)
+                            QMessageBox.warning(self, 'WARNUNG', 'Die Fotoliste kann nicht exportiert werden, da Sie keine markierten Bilder haben.',QMessageBox.Ok)
                 except Exception as e :
-                    QMessageBox.warning(self, 'ATTENZIONE',str(e),QMessageBox.Ok)
+                    QMessageBox.warning(self, 'WARNUNG',str(e),QMessageBox.Ok)
             if self.checkBox_e_foto.isChecked():
                 US_index_pdf = generate_US_pdf()
                 data_list_foto = self.generate_list_foto()
                 try:
                         if bool(data_list_foto):
                             US_index_pdf.build_index_Foto_2(data_list_foto, data_list_foto[0][0])
-                            QMessageBox.warning(self, 'Ok',"Esportazione terminata Elenco Foto senza thumbanil",QMessageBox.Ok)
+                            QMessageBox.warning(self, 'Ok', 'Fertige Fotoliste ohne Daumenballen exportieren',QMessageBox.Ok)
                         else:
-                            QMessageBox.warning(self, 'ATTENZIONE',"L'elenco foto non può essere esportato perchè non hai immagini taggate.",QMessageBox.Ok)
+                            QMessageBox.warning(self, 'WARNUNG', 'Die Fotoliste kann nicht exportiert werden, da Sie keine markierten Bilder haben.',QMessageBox.Ok)
                 except Exception as e :
-                    QMessageBox.warning(self, 'ATTENZIONE',str(e),QMessageBox.Ok)
+                    QMessageBox.warning(self, 'WARNUNG',str(e),QMessageBox.Ok)
     def setPathpdf(self):
         s = QgsSettings()
         dbpath = QFileDialog.getOpenFileName(
@@ -2663,7 +2644,7 @@ class pyarchinit_Tomba(QDialog, MAIN_DIALOG_CLASS):
             docx_file = self.PDFFOLDER+'/'+filename+'.docx'
             # convert pdf to docx
             parse(pdf_file, docx_file, start=self.lineEdit_pag1.text(), end=self.lineEdit_pag2.text())
-            QMessageBox.information(self, "INFO", "Conversione terminata",
+            QMessageBox.information(self, "INFO", "Conversion completed",
                                 QMessageBox.Ok)
         except Exception as e:
             QMessageBox.warning(self, "Error", str(e),
