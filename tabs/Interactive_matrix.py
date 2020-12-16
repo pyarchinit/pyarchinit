@@ -40,7 +40,7 @@ MAIN_DIALOG_CLASS, _ = loadUiType(
 
 class pyarchinit_Interactive_Matrix(QDialog, MAIN_DIALOG_CLASS):
     L=QgsSettings().value("locale/userLocale")[0:2]
-    MSG_BOX_TITLE = "PyArchInit - Scheda Sistema Matrix Interattivo"
+    MSG_BOX_TITLE = "PyArchInit - Harrys Matrix"
     DB_MANAGER = ""
     DATA_LIST = ""
     ID_US_DICT = {}
@@ -72,10 +72,20 @@ class pyarchinit_Interactive_Matrix(QDialog, MAIN_DIALOG_CLASS):
             self.DB_MANAGER.connection()
         except Exception as e:
             e = str(e)
-            QMessageBox.warning(self, "Alert",
-                                "bug! write to the developer <br> Error: <br>" + str(e),
+            
+            if self.L=='it':
+                QMessageBox.warning(self, "Attenzione",
+                                "bug! Scrivere allo sviluppatore <br> Error: <br>" + str(e),
                                 QMessageBox.Ok)
-
+            if self.L=='it':
+                QMessageBox.warning(self, "Warnung",
+                                "bug! Schreiben Sie an den Entwickler <br> Error: <br>" + str(e),
+                                QMessageBox.Ok)
+                                
+            else:
+                QMessageBox.warning(self, "Alert",
+                                "bug! write to the developer <br> Error: <br>" + str(e),
+                                QMessageBox.Ok)                    
     def generate_matrix(self):
         data = []
         negative =[]
@@ -97,9 +107,17 @@ class pyarchinit_Interactive_Matrix(QDialog, MAIN_DIALOG_CLASS):
                 
                 
                 except Exception as e:
-                    QMessageBox.warning(self, "Messaggio", "Problema nel sistema di esportazione del Matrix:" + str(e),
+                    
+                    if self.L=='it':
+                        QMessageBox.warning(self, "Warning", "Problema nel sistema di esportazione del Matrix:" + str(e),
                                         QMessageBox.Ok)
-
+                    elif self.L=='de':
+                        QMessageBox.warning(self, "Warnung", "Problem im Matrix-Exportsystem:" + str(e),
+                                        QMessageBox.Ok)
+                                        
+                    else:
+                        QMessageBox.warning(self, "Warning", "Problem in the Matrix export system:" + str(e),
+                                        QMessageBox.Ok)                    
         sito = self.DATA_LIST[0].sito
         area = self.DATA_LIST[1].area
         search_dict = {
@@ -140,6 +158,15 @@ class pyarchinit_Interactive_Matrix(QDialog, MAIN_DIALOG_CLASS):
                 sing_us = []
                 sing_def=[]
                 
+            elif self.L=='de':
+                periodo_label = "Period %s - Phase %s - %s" % (str(i[0]), str(i[1]),str(i[2]))
+
+                sing_per = [cluster_label, periodo_label]
+                
+                sing_us = []
+                sing_def=[]
+            
+            
             else:
                 periodo_label = "Period %s - Phase %s - %s" % (str(i[0]), str(i[1]), str(i[2]))
 
@@ -160,8 +187,13 @@ class pyarchinit_Interactive_Matrix(QDialog, MAIN_DIALOG_CLASS):
         matrix_exp = HarrisMatrix(data, negative,periodi_us_list)
         
         data_plotting = matrix_exp.export_matrix
-        QMessageBox.warning(self, "Messaggio", "Exportation complited", QMessageBox.Ok)
-
+        if self.L=='it':
+            QMessageBox.information(self, "Info", "Esportazione completata", QMessageBox.Ok)
+        elif self.L=='de':
+            QMessageBox.information(self, "Info", "Exportieren kompliziert", QMessageBox.Ok)
+        else:
+            QMessageBox.information(self, "Info", "Exportation complited", QMessageBox.Ok)    
+            
         return data_plotting
 
     # def plot_matrix(self, dp):
