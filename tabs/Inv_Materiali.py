@@ -68,12 +68,18 @@ class pyarchinit_Inventario_reperti(QDialog, MAIN_DIALOG_CLASS):
     
     if L=='it':
         STATUS_ITEMS = {"b": "Usa", "f": "Trova", "n": "Nuovo Record"}
+    
+    if L=='de':
+        STATUS_ITEMS = {"b": "Aktuell ", "f": "Finden", "n": "Neuer Rekord"}
+    
     else :
         STATUS_ITEMS = {"b": "Current", "f": "Find", "n": "New Record"}
     BROWSE_STATUS = "b"
     SORT_MODE = 'asc'
     if L=='it':
         SORTED_ITEMS = {"n": "Non ordinati", "o": "Ordinati"}
+    if L=='de':
+        SORTED_ITEMS = {"n": "Nicht sortiert", "o": "Sortiert"}
     else:
         SORTED_ITEMS = {"n": "Not sorted", "o": "Sorted"}
     SORT_STATUS = "n"
@@ -387,7 +393,7 @@ class pyarchinit_Inventario_reperti(QDialog, MAIN_DIALOG_CLASS):
         try:
             self.on_pushButton_connect_pressed()
         except Exception as e:
-            QMessageBox.warning(self, "Sistema di connessione", str(e), QMessageBox.Ok)
+            QMessageBox.warning(self, "Connection system", str(e), QMessageBox.Ok)
         self.setnone()
         self.fill_fields()
         
@@ -1298,47 +1304,47 @@ class pyarchinit_Inventario_reperti(QDialog, MAIN_DIALOG_CLASS):
     def msg_sito(self):
         #self.model_a.database().close()
         conn = Connection()
-        
         sito_set= conn.sito_set()
         sito_set_str = sito_set['sito_set']
-        
         if bool(self.comboBox_sito.currentText()) and self.comboBox_sito.currentText()==sito_set_str:
-            QMessageBox.information(self, "OK" ,"Sei connesso al sito: %s" % str(sito_set_str),QMessageBox.Ok) 
-       
+            
+            if self.L=='it':
+                QMessageBox.information(self, "OK" ,"Sei connesso al sito: %s" % str(sito_set_str),QMessageBox.Ok) 
+        
+            elif self.L=='de':
+                QMessageBox.information(self, "OK", "Sie sind mit der archäologischen Stätte verbunden: %s" % str(sito_set_str),QMessageBox.Ok) 
+                
+            else:
+                QMessageBox.information(self, "OK", "You are connected to the site: %s" % str(sito_set_str),QMessageBox.Ok)     
+        
         elif sito_set_str=='':    
-            msg = QMessageBox.information(self, "Attenzione" ,"Non hai settato alcun sito. Vuoi settarne uno? click Ok altrimenti Annulla per  vedere tutti i record",QMessageBox.Ok | QMessageBox.Cancel) 
-    
+            if self.L=='it':
+                msg = QMessageBox.information(self, "Attenzione" ,"Non hai settato alcun sito. Vuoi settarne uno? click Ok altrimenti Annulla per  vedere tutti i record",QMessageBox.Ok | QMessageBox.Cancel) 
+            elif self.L=='de':
+                msg = QMessageBox.information(self, "Achtung", "Sie haben keine archäologischen Stätten eingerichtet. Klicken Sie auf OK oder Abbrechen, um alle Datensätze zu sehen",QMessageBox.Ok | QMessageBox.Cancel) 
+            else:
+                msg = QMessageBox.information(self, "Warning" , "You have not set up any archaeological site. Do you want to set one? click Ok otherwise Cancel to see all records",QMessageBox.Ok | QMessageBox.Cancel) 
             if msg == QMessageBox.Cancel:
                 pass
             else: 
                 dlg = pyArchInitDialog_Config(self)
                 dlg.charge_list()
                 dlg.exec_()
-    
-    
     def set_sito(self):
+        #self.model_a.database().close()
         conn = Connection()
-            
         sito_set= conn.sito_set()
         sito_set_str = sito_set['sito_set']
-        
         try:
             if bool (sito_set_str):
-                
-                
-            
-           
-            
                 search_dict = {
                     'sito': "'" + str(sito_set_str) + "'"}  # 1 - Sito
                 u = Utility()
                 search_dict = u.remove_empty_items_fr_dict(search_dict)
                 res = self.DB_MANAGER.query_bool(search_dict, self.MAPPER_TABLE_CLASS)
-                
                 self.DATA_LIST = []
                 for i in res:
                     self.DATA_LIST.append(i)
-
                 self.REC_TOT, self.REC_CORR = len(self.DATA_LIST), 0
                 self.DATA_LIST_REC_TEMP = self.DATA_LIST_REC_CORR = self.DATA_LIST[0]  ####darivedere
                 self.fill_fields()
@@ -1346,15 +1352,19 @@ class pyarchinit_Inventario_reperti(QDialog, MAIN_DIALOG_CLASS):
                 self.SORT_STATUS = "n"
                 self.label_status.setText(self.STATUS_ITEMS[self.BROWSE_STATUS])
                 self.set_rec_counter(len(self.DATA_LIST), self.REC_CORR + 1)
-
                 self.setComboBoxEnable(["self.comboBox_sito"], "False")
-                
             else:
-                
                 pass#
-                
         except:
-            QMessageBox.information(self, "Attenzione" ,"Non esiste questo sito: "'"'+ str(sito_set_str) +'"'" in questa scheda, Per favore distattiva la 'scelta sito' dalla scheda di configurazione plugin per vedere tutti i record oppure crea la scheda",QMessageBox.Ok)  
+            if self.L=='it':
+            
+                QMessageBox.information(self, "Attenzione" ,"Non esiste questo sito: "'"'+ str(sito_set_str) +'"'" in questa scheda, Per favore distattiva la 'scelta sito' dalla scheda di configurazione plugin per vedere tutti i record oppure crea la scheda",QMessageBox.Ok) 
+            elif self.L=='de':
+            
+                QMessageBox.information(self, "Warnung" , "Es gibt keine solche archäologische Stätte: "'""'+ str(site_set_str) +'"'" in dieser Registerkarte, Bitte deaktivieren Sie die 'Site-Wahl' in der Plugin-Konfigurationsregisterkarte, um alle Datensätze zu sehen oder die Registerkarte zu erstellen",QMessageBox.Ok) 
+            else:
+            
+                QMessageBox.information(self, "Warning" , "There is no such site: "'"'+ str(site_set_str) +'"'" in this tab, Please disable the 'site choice' from the plugin configuration tab to see all records or create the tab",QMessageBox.Ok)  
 
     def on_pushButton_sort_pressed(self):
         if self.check_record_state() == 1:
@@ -1711,110 +1721,114 @@ class pyarchinit_Inventario_reperti(QDialog, MAIN_DIALOG_CLASS):
                 except Exception as e :
                     QMessageBox.warning(self, 'ATTENZIONE',str(e),QMessageBox.Ok)
         
-        # elif self.L=='en':  
-            # if self.checkBox_s_us.isChecked():
-                # US_pdf_sheet = generate_reperti_pdf()
-                # data_list = self.generate_list_pdf()
-                # US_pdf_sheet.build_Finds_sheets(data_list)
-                # QMessageBox.warning(self, 'Ok',"Export finished SU Forms",QMessageBox.Ok)
-            # else:   
-                # pass
+        elif self.L=='de':
+            if self.checkBox_s_us.isChecked():
+                US_pdf_sheet = generate_reperti_pdf()
+                data_list = self.generate_list_pdf()
+                US_pdf_sheet.build_Finds_sheets(data_list)
+                QMessageBox.warning(self, 'Ok',"Export beendet",QMessageBox.Ok)
+            else:   
+                pass
         
-            # if self.checkBox_e_us.isChecked() :
+            if self.checkBox_e_us.isChecked() :
                 # US_index_pdf = generate_reperti_pdf()
-                # data_list = self.generate_list_pdf()
-                # try:               
-                    # if bool(data_list):
-                        # US_index_pdf.build_index_US(data_list, data_list[0][0])
-                        # QMessageBox.warning(self, 'Ok',"Export finished SU List",QMessageBox.Ok)
-                    # else:
-                        # QMessageBox.warning(self, 'WARNING',"The SU list cannot be exported you have to fill in the SU tabs first",QMessageBox.Ok)
-                # except Exception as e :
-                    # QMessageBox.warning(self, 'WARNING',str(e),QMessageBox.Ok)
-            # else:
-                # pass
+                # data_list = self.generate_el_casse_pdf()
+                               
+                    
+                        
+                sito_ec = str(self.comboBox_sito.currentText())
+                Mat_casse_pdf = generate_reperti_pdf()
+                data_list = self.generate_el_casse_pdf(sito_ec)
+
+                Mat_casse_pdf.build_index_Casse(data_list, sito_ec)
+                QMessageBox.warning(self, 'Ok',"Export beendet",QMessageBox.Ok)
         
-            # if self.checkBox_e_foto_t.isChecked():
-                # US_index_pdf = generate_reperti_pdf()
-                # data_list_foto = self.generate_list_foto()
-        
-                # try:
-                        # if bool(data_list_foto):
-                            # US_index_pdf.build_index_Foto(data_list_foto, data_list_foto[0][0])
-                            # QMessageBox.warning(self, 'Ok',"Export finished SU List",QMessageBox.Ok)
-                                       
-                        # else:
-                            # QMessageBox.warning(self, 'WARNING', 'The photo list cannot be exported because you do not have tagged images.',QMessageBox.Ok)
-                # except Exception as e :
-                    # QMessageBox.warning(self, 'WARNING',str(e),QMessageBox.Ok)
-            
-            # if self.checkBox_e_foto.isChecked():
-                # US_index_pdf = generate_reperti_pdf()
-                # data_list_foto = self.generate_list_foto()
-        
-                # try:
-                        # if bool(data_list_foto):
-                            # US_index_pdf.build_index_Foto_2(data_list_foto, data_list_foto[0][0])
-                            # QMessageBox.warning(self, 'Ok', "Export finished Photo List without thumbanil",QMessageBox.Ok)
-                                       
-                        # else:
-                            # QMessageBox.warning(self, 'WARNING', "The photo list cannot be exported because you do not have tagged images.",QMessageBox.Ok)
-                # except Exception as e :
-                    # QMessageBox.warning(self, 'WARNING',str(e),QMessageBox.Ok)
                 
-            
-      
-           
-        # elif self.L=='de':
-            # if self.checkBox_s_us.isChecked():
-                # US_pdf_sheet = generate_reperti_pdf()
-                # data_list = self.generate_list_pdf()
-                # US_pdf_sheet.build_Finds_sheets(data_list)
-                # QMessageBox.warning(self, 'Ok',"Esportazione terminata Schede US",QMessageBox.Ok)
-            # else:   
-                # pass
+            else:
+                pass
         
-            # if self.checkBox_e_us.isChecked() :
-                # US_index_pdf = generate_reperti_pdf()
-                # data_list = self.generate_list_pdf()
-                # try:               
-                    # if bool(data_list):
-                        # US_index_pdf.build_index_US(data_list, data_list[0][0])
-                        # QMessageBox.warning(self, 'Ok',"Esportazione terminata Elenco US",QMessageBox.Ok)
-                    # else:
-                        # QMessageBox.warning(self, 'ATTENZIONE',"L'elenco US non può essere esportato devi riempire prima le schede US",QMessageBox.Ok)
-                # except Exception as e :
-                    # QMessageBox.warning(self, 'ATTENZIONE',str(e),QMessageBox.Ok)
-            # else:
-                # pass
+            if self.checkBox_e_foto_t.isChecked():
+                US_index_pdf = generate_reperti_pdf()
+                data_list_foto = self.generate_list_foto()
         
-            # if self.checkBox_e_foto_t.isChecked():
-                # US_index_pdf = generate_reperti_pdf()
-                # data_list_foto = self.generate_list_foto()
-        
-                # try:
-                        # if bool(data_list_foto):
-                            # US_index_pdf.build_index_Foto(data_list_foto, data_list_foto[0][0])
-                            # QMessageBox.warning(self, 'Ok',"Esportazione terminata Elenco Foto",QMessageBox.Ok)
+                try:
+                        
+                    US_index_pdf.build_index_Foto(data_list_foto, data_list_foto[0][0])
+                    QMessageBox.warning(self, 'Ok',"Export beendet",QMessageBox.Ok)
                                        
                         # else:
                             # QMessageBox.warning(self, 'ATTENZIONE',"L'elenco foto non può essere esportato perchè non hai immagini taggate.",QMessageBox.Ok)
-                # except Exception as e :
-                    # QMessageBox.warning(self, 'ATTENZIONE',str(e),QMessageBox.Ok)
+                except Exception as e :
+                    QMessageBox.warning(self, 'Warnung',str(e),QMessageBox.Ok)
             
-            # if self.checkBox_e_foto.isChecked():
-                # US_index_pdf = generate_reperti_pdf()
-                # data_list_foto = self.generate_list_foto()
+            if self.checkBox_e_foto.isChecked():
+                US_index_pdf = generate_reperti_pdf()
+                data_list = self.generate_list()
         
-                # try:
-                        # if bool(data_list_foto):
-                            # US_index_pdf.build_index_Foto_2(data_list_foto, data_list_foto[0][0])
-                            # QMessageBox.warning(self, 'Ok',"Esportazione terminata Elenco Foto senza thumbanil",QMessageBox.Ok)
+                try:
+                        
+                    US_index_pdf.build_index_Foto_2(data_list, data_list[0][0])
+                    QMessageBox.warning(self, 'Ok',"Export beendet",QMessageBox.Ok)
                                        
                         # else:
                             # QMessageBox.warning(self, 'ATTENZIONE',"L'elenco foto non può essere esportato perchè non hai immagini taggate.",QMessageBox.Ok)
-                # except Exception as e :
-                    # QMessageBox.warning(self, 'ATTENZIONE',str(e),QMessageBox.Ok)
+                except Exception as e :
+                    QMessageBox.warning(self, 'Warnung',str(e),QMessageBox.Ok)
+        
+        
+        else:
+            if self.checkBox_s_us.isChecked():
+                US_pdf_sheet = generate_reperti_pdf()
+                data_list = self.generate_list_pdf()
+                US_pdf_sheet.build_Finds_sheets(data_list)
+                QMessageBox.warning(self, 'Ok',"Exportation Forms complited",QMessageBox.Ok)
+            else:   
+                pass
+        
+            if self.checkBox_e_us.isChecked() :
+                # US_index_pdf = generate_reperti_pdf()
+                # data_list = self.generate_el_casse_pdf()
+                               
+                    
+                        
+                sito_ec = str(self.comboBox_sito.currentText())
+                Mat_casse_pdf = generate_reperti_pdf()
+                data_list = self.generate_el_casse_pdf(sito_ec)
+
+                Mat_casse_pdf.build_index_Casse(data_list, sito_ec)
+                QMessageBox.warning(self, 'Ok',"Exportation list box complited",QMessageBox.Ok)
+        
+                
+            else:
+                pass
+        
+            if self.checkBox_e_foto_t.isChecked():
+                US_index_pdf = generate_reperti_pdf()
+                data_list_foto = self.generate_list_foto()
+        
+                try:
+                        
+                    US_index_pdf.build_index_Foto(data_list_foto, data_list_foto[0][0])
+                    QMessageBox.warning(self, 'Ok',"Exportation Artefact complited",QMessageBox.Ok)
+                                       
+                        # else:
+                            # QMessageBox.warning(self, 'ATTENZIONE',"L'elenco foto non può essere esportato perchè non hai immagini taggate.",QMessageBox.Ok)
+                except Exception as e :
+                    QMessageBox.warning(self, 'Warning',str(e),QMessageBox.Ok)
+            
+            if self.checkBox_e_foto.isChecked():
+                US_index_pdf = generate_reperti_pdf()
+                data_list = self.generate_list()
+        
+                try:
+                        
+                    US_index_pdf.build_index_Foto_2(data_list, data_list[0][0])
+                    QMessageBox.warning(self, 'Ok',"Exportation list complited",QMessageBox.Ok)
+                                       
+                        # else:
+                            # QMessageBox.warning(self, 'ATTENZIONE',"L'elenco foto non può essere esportato perchè non hai immagini taggate.",QMessageBox.Ok)
+                except Exception as e :
+                    QMessageBox.warning(self, 'Warning',str(e),QMessageBox.Ok)
     
     def setPathpdf(self):
         s = QgsSettings()
@@ -2915,7 +2929,7 @@ class pyarchinit_Inventario_reperti(QDialog, MAIN_DIALOG_CLASS):
 
             tot_framm = 0
             for sing_fr in lista_valori:
-                if sing_fr[1] == 'frammenti':
+                if sing_fr[1] == 'frammenti' or 'frammento'or 'fragment' or 'fragments':
                     tot_framm += int(sing_fr[2])
 
             self.lineEditTotFram.setText(str(tot_framm))
@@ -3520,7 +3534,7 @@ class pyarchinit_Inventario_reperti(QDialog, MAIN_DIALOG_CLASS):
 
             # convert pdf to docx
             parse(pdf_file, docx_file, start=self.lineEdit_pag1.text(), end=self.lineEdit_pag2.text())
-            QMessageBox.information(self, "INFO", "Conversione terminata",
+            QMessageBox.information(self, "INFO", "Conversion complite",
                                 QMessageBox.Ok)
                                 
         except Exception as e:
