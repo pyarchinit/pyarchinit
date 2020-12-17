@@ -25,7 +25,7 @@ repository=https://github.com/pyarchinit/pyarchinit
 
 
 changelog=release2.2.7
-        -update lang export all image
+        -update lang export all forms
    -------------------------------------------------------------------------------
 
    release2.2.5
