@@ -2549,62 +2549,62 @@ class single_US_pdf_sheet(object):
         lst = []
         lst2=[]
         lst.append(logo)
-        if str(self.unita_tipo)== 'US':
+        if str(self.unita_tipo)== 'SE':
             unita_tipo = Paragraph(str(self.unita_tipo), styUnitaTipo)
-            label_ente_responsabile = Paragraph("<b>ENTE RESPONSABILE</b>", styNormal)
+            label_ente_responsabile = Paragraph("<b>VERANTWORTLICHE STELLE</b>", styNormal)
             #label_catalogo_internazionale = Paragraph("<b>N. CATALOGO INTERNAZIONALE</b>", styNormal)
             ente_responsabile = Paragraph(str(self.n_catalogo_generale), styNormal)
             #catalogo_internazionale = Paragraph(str(self.n_catalogo_internazionale), styNormal)
-            sop =  Paragraph("<b>SOPRINTENDENZA MIBACT COMPETENTE PER TUTELA</b><br/>" +str(self.soprintendenza), styNormal)
+            sop =  Paragraph("<b>ZUSTÄNDIGE AUFSICHTSBEHÖRDE FÜR DEN SCHUTZ</b><br/>" +str(self.soprintendenza), styNormal)
             #2-3 row
 
-            sito = Paragraph("<b>LOCALITÀ</b><br/>" + str(self.sito), styNormal)
+            sito = Paragraph("<b>LOKALITÄT</b><br/>" + str(self.sito), styNormal)
             #anno_di_scavo = Paragraph("<b>ANNO</b><br/>" + self.anno_scavo, styNormal)
             if self.struttura!='':
             
-                area = Paragraph("<b>AREA/EDIFICIO/STRUTTURA</b><br/>" + str(self.area)+'/'+str(self.struttura),styNormal)
+                area = Paragraph("<b>FLÄCHE/GEBÄUDE/STRUKTUR</b><br/>" + str(self.area)+'/'+str(self.struttura),styNormal)
             
             else:
-                area = Paragraph("<b>AREA/EDIFICIO/STRUTTURA</b><br/>" + str(self.area),styNormal)
+                area = Paragraph("<b>FLÄCHE/GEBÄUDE/STRUKTUR</b><br/>" + str(self.area),styNormal)
             
-            saggio = Paragraph("<b>SAGGIO</b><br/>" + self.saggio, styNormal)
-            ambiente = Paragraph("<b>AMBIENTE</b><br/>" + self.ambient, styNormal)
-            posizione = Paragraph("<b>POSIZIONE NELL'AMBIENTE</b><br/>" + self.posizione, styNormal)
-            settore = Paragraph("<b>SETTORE/I</b><br/>" + self.settore, styNormal)
-            quadrato = Paragraph("<b>QUADRATO/I</b><br/>" + self.quad_par, styNormal)
-            quote = Paragraph("<b>QUOTE</b><br/>min: " + self.quota_min + "<br/>max: "+self.quota_max, styNormal)
-            label_unita_stratigrafica = Paragraph("<b>NUMERO/CODICE IDENTIFICATIVO DELL’UNITÀ STRATIGRAFICA</b><br/>"+ str(self.us), styNormal)
-            label_sas = Paragraph("<b>NUMERO/CODICE IDENTIFICATIVO DEL SAGGIO STRATIGRAFICO/DELL’EDIFICIO/DELLA STRUTTURA/DELLA DEPOSIZIONE FUNERARIA DI RIFERIMENTO</b><br/>", styNormal)
+            saggio = Paragraph("<b>AUFSATZ</b><br/>" + self.saggio, styNormal)
+            ambiente = Paragraph("<b>UMWELT</b><br/>" + self.ambient, styNormal)
+            posizione = Paragraph("<b>POSITION IM UMFELD</b><br/>" + self.posizione, styNormal)
+            settore = Paragraph("<b>SECTOR</b><br/>" + self.settore, styNormal)
+            quadrato = Paragraph("<b>PLATZ</b><br/>" + self.quad_par, styNormal)
+            quote = Paragraph("<b>ELEVATION</b><br/>min: " + self.quota_min + "<br/>max: "+self.quota_max, styNormal)
+            label_unita_stratigrafica = Paragraph("<b>NUMMER/IDENTIFIKATIONSCODE DER STRATIGRAPHISCHEN EINHEIT</b><br/>"+ str(self.us), styNormal)
+            label_sas = Paragraph("<b>NUMMER/IDENTIFIZIERUNGSCODE DES STRATIGRAPHISCHEN AUFSATZES/GEBÄUDES/DER STRUKTUR/DER FUNERÄREN ABLAGERUNG DER REFERENZ</b><br/>", styNormal)
             
-            if self.formazione == 'Naturale':
+            if self.formazione == 'Natürlich':
                 label_NAT = Paragraph("<i>NAT.</i><br/>" + self.formazione, styNormal)
-                label_ART = Paragraph("<i>ART.</i>",  styNormal) 
-            elif self.formazione == 'Artificiale':
+                label_ART = Paragraph("<i>KÜN.</i>",  styNormal) 
+            elif self.formazione == 'Künstliche':
                 label_NAT = Paragraph("<i>NAT.</i>", styNormal)
-                label_ART = Paragraph("<i>ART.</i><br/>"+ self.formazione, styNormal)
-            elif self.formazione !='Naturale' or 'Artificiale':    
+                label_ART = Paragraph("<i>KÜN.</i><br/>"+ self.formazione, styNormal)
+            elif self.formazione !='Natürlich' or 'Künstliche':    
                 label_NAT = Paragraph("<i>NAT.</i><br/>", styNormal)
-                label_ART = Paragraph("<i>ART.</i>",  styNormal) 
+                label_ART = Paragraph("<i>KÜN.</i>",  styNormal) 
             
 
-            piante = Paragraph("<b>PIANTE</b><br/>" + self.piante_iccd, styNormal)
-            sezioni = Paragraph("<b>SEZIONI</b><br/>" + self.sezioni_iccd, styNormal)
-            prospetti = Paragraph("<b>PROSPETTI</b><br/>"+ self.prospetti_iccd, styNormal)                    #manca valore
-            foto = Paragraph("<b>FOTOGRAFIE</b><br/>"+ self.foto_iccd, styNormal)            #manca valore
+            piante = Paragraph("<b>PFLAZEN</b><br/>" + self.piante_iccd, styNormal)
+            sezioni = Paragraph("<b>SEKTIONEN</b><br/>" + self.sezioni_iccd, styNormal)
+            prospetti = Paragraph("<b>PROSPEKTE</b><br/>"+ self.prospetti_iccd, styNormal)                    #manca valore
+            foto = Paragraph("<b>FOTO</b><br/>"+ self.foto_iccd, styNormal)            #manca valore
 
-            tabelle_materiali = Paragraph("<b>RIFERIMENTI TABELLE MATERIALI<br/><br/>RA</b>:"+ self.ref_ra, styNormal)  #manca valore
+            tabelle_materiali = Paragraph("<b>REFERENZEN MATERIALTABELLEN<br/><br/>RA</b>:"+ self.ref_ra, styNormal)  #manca valore
 
             #5 row
 
-            d_stratigrafica = Paragraph("<b>DEFINIZIONE E POSIZIONE</b><br/>Definizione stratigrafica: " + self.d_stratigrafica+"<br/>Definizione interpretativa: "+self.d_interpretativa, styNormal)
+            d_stratigrafica = Paragraph("<b>DEFINITION UND POSITION</b><br/>Stratigraphische Definition: " + self.d_stratigrafica+"<br/>Interpretierende Definition: "+self.d_interpretativa, styNormal)
 
             #6 row
 
-            criteri_distinzione = Paragraph("<b>CRITERI DI DISTINZIONE</b><br/>" + self.criteri_distinzione, styNormal)
+            criteri_distinzione = Paragraph("<b>UNTERSCHEIDUNGSKRITERIEN</b><br/>" + self.criteri_distinzione, styNormal)
 
             #7 row
 
-            modo_formazione = Paragraph("<b>MODO FORMAZIONE</b><br/>" + self.modo_formazione, styNormal)
+            modo_formazione = Paragraph("<b>AUSBILDUNGSMODUS</b><br/>" + self.modo_formazione, styNormal)
 
             #8-9 row
 
@@ -2623,10 +2623,10 @@ class single_US_pdf_sheet(object):
                     except:
                         pass
 
-            label_componenti = Paragraph("<b>COMPONENTI</b>",styVerticale)
+            label_componenti = Paragraph("<b>KOMPONENTEN</b>",styVerticale)
 
-            label_inorganici = Paragraph("<i>INORGANICI</i>",styTitoloComponenti) #inorganici
-            label_organici = Paragraph("<i>ORGANICI</i>", styTitoloComponenti) #organici
+            label_inorganici = Paragraph("<i>INORGANIK</i>",styTitoloComponenti) #inorganici
+            label_organici = Paragraph("<i>ORGANIK</i>", styTitoloComponenti) #organici
             #label_artificiali = Paragraph("<i>INORGANICI</i>", styTitoloComponenti) #inclusi
 
             comp_organici = Paragraph(organici, styNormal) #organici
@@ -2635,62 +2635,62 @@ class single_US_pdf_sheet(object):
 
             #10 row
 
-            consistenza = Paragraph("<b>CONSISTENZA</b><br/>" + self.consistenza, styNormal)
-            colore = Paragraph("<b>COLORE</b><br/>" + self.colore, styNormal)
+            consistenza = Paragraph("<b>KONSISTENZ</b><br/>" + self.consistenza, styNormal)
+            colore = Paragraph("<b>FARBE</b><br/>" + self.colore, styNormal)
             #misure = ''                 # manca valore
             if bool(self.lunghezza_max) and bool(self.larghezza_media) and bool(self.altezza_max):
-                misure = Paragraph("<b>MISURE</b><br/>" + 'Lun. '+ self.lunghezza_max + ' x '+ 'Larg. ' + self.larghezza_media + ' x '+ 'Sp. ' + self.altezza_max + 'm', styNormal)
+                misure = Paragraph("<b>MASSNAHMEN</b><br/>" + 'Länge '+ self.lunghezza_max + ' x '+ 'Breite ' + self.larghezza_media + ' x '+ 'Dicke ' + self.altezza_max + 'm', styNormal)
             elif bool(self.lunghezza_max) and bool(self.larghezza_media) and not bool(self.altezza_max):
-                misure = Paragraph("<b>MISURE</b><br/>" + 'Lun. ' + self.lunghezza_max + ' x '+ 'Larg. '+ self.larghezza_media + 'm', styNormal)
+                misure = Paragraph("<b>MASSNAHMEN</b><br/>" + 'Länge ' + self.lunghezza_max + ' x '+ 'Breite '+ self.larghezza_media + 'm', styNormal)
             
             else:
-                misure = Paragraph("<b>MISURE</b><br/>", styNormal)
+                misure = Paragraph("<b>MASSNAHMEN</b><br/>", styNormal)
             #11 row
 
-            stato_conservazione = Paragraph("<b>STATO DI CONSERVAZIONE</b><br/>" + self.stato_di_conservazione, styNormal)
+            stato_conservazione = Paragraph("<b>ERHALTUNGSZUSTAND</b><br/>" + self.stato_di_conservazione, styNormal)
 
             #12 row
 
-            descrizione = Paragraph("<b>DESCRIZIONE</b><br/>" + self.descrizione, styDescrizione)
+            descrizione = Paragraph("<b>BESCHREIBUNG</b><br/>" + self.descrizione, styDescrizione)
 
             #13-22 row
 
-            si_lega_a = Paragraph("<b>SI LEGA A</b><br/>" + self.si_lega_a, styNormal)
-            uguale_a = Paragraph("<b>UGUALE A</b><br/>" + self.uguale_a, styNormal)
-            copre = Paragraph("<b>COPRE</b><br/>" + self.copre, styNormal)
-            coperto_da = Paragraph("<b>COPERTO DA</b><br/>" + self.coperto_da, styNormal)
-            riempie = Paragraph("<b>RIEMPIE</b><br/>" + self.riempie, styNormal)
-            riempito_da = Paragraph("<b>RIEMPITO DA</b><br/>" + self.riempito_da, styNormal)
-            taglia = Paragraph("<b>TAGLIA</b><br/>" + self.taglia, styNormal)
-            tagliato_da = Paragraph("<b>TAGLIATO DA</b><br/>" + self.tagliato_da, styNormal)
-            si_appoggia_a = Paragraph("<b>SI APPOGGIA A</b><br/>" + self.si_appoggia_a, styNormal)
-            gli_si_appoggia = Paragraph("<b>GLI SI APPOGGIA</b><br/>" + self.gli_si_appoggia, styNormal)
+            si_lega_a = Paragraph("<b>BINDET AN</b><br/>" + self.si_lega_a, styNormal)
+            uguale_a = Paragraph("<b>ENTSPRICHT</b><br/>" + self.uguale_a, styNormal)
+            copre = Paragraph("<b>LIEGT ÜBER</b><br/>" + self.copre, styNormal)
+            coperto_da = Paragraph("<b>LIEGT UNTER</b><br/>" + self.coperto_da, styNormal)
+            riempie = Paragraph("<b>VERFÜLLT</b><br/>" + self.riempie, styNormal)
+            riempito_da = Paragraph("<b>WIRD VERFÜLLT DURCH</b><br/>" + self.riempito_da, styNormal)
+            taglia = Paragraph("<b>SCHNEIDET</b><br/>" + self.taglia, styNormal)
+            tagliato_da = Paragraph("<b>WIRD GESCHNITTEN</b><br/>" + self.tagliato_da, styNormal)
+            si_appoggia_a = Paragraph("<b>STÜTZT SICH AUF</b><br/>" + self.si_appoggia_a, styNormal)
+            gli_si_appoggia = Paragraph("<b>WIRD GESTÜZT VON</b><br/>" + self.gli_si_appoggia, styNormal)
 
-            label_sequenza_stratigrafica = Paragraph("<b>S<br/>E<br/>Q<br/>U<br/>E<br/>N<br/>Z<br/>A<br/><br/>S<br/>T<br/>R<br/>A<br/>T<br/>I<br/>G<br/>R<br/>A<br/>F<br/>I<br/>C<br/>A</b>", styVerticale)
+            label_sequenza_stratigrafica = Paragraph("<b>S<br/>T<br/>R<br/>A<br/>T<br/>I<br/>G<br/>R<br/>A<br/>F<br/>I<br/>S<br/>C<br/>H<br/>E<br/><br/> F<br/>O<br/>L<br/>G<br/>E</b>", styVerticale)
 
-            posteriore_a = Paragraph("<b>POSTERIORE A</b><br/>" + self.copre +"<br/>" + self.riempie +"<br/>"+  self.taglia+ "<br/>" +   self.si_appoggia_a, styNormal)               # manca valore
-            anteriore_a = Paragraph("<b>ANTERIORE A</b><br/>"+ self.coperto_da +"<br/>"+  self.riempito_da +"<br/>"+ self.tagliato_da +  "<br/>" + self.gli_si_appoggia, styNormal)                 # manca valore
+            posteriore_a = Paragraph("<b>REAR</b><br/>" + self.copre +"<br/>" + self.riempie +"<br/>"+  self.taglia+ "<br/>" +   self.si_appoggia_a, styNormal)               # manca valore
+            anteriore_a = Paragraph("<b>FRONT</b><br/>"+ self.coperto_da +"<br/>"+  self.riempito_da +"<br/>"+ self.tagliato_da +  "<br/>" + self.gli_si_appoggia, styNormal)                 # manca valore
 
             #23 row
 
-            osservazioni = Paragraph("<b>OSSERVAZIONI</b><br/>" + self.osservazioni, styDescrizione)
+            osservazioni = Paragraph("<b>BEOBACHTUNGEN</b><br/>" + self.osservazioni, styDescrizione)
 
             #24 row
 
-            interpretazione = Paragraph("<b>INTERPRETAZIONE</b><br/>" + self.interpretazione, styDescrizione)
+            interpretazione = Paragraph("<b>INTERPRETATION</b><br/>" + self.interpretazione, styDescrizione)
 
             #25 row
 
-            elementi_datanti = Paragraph("<b>ELEMENTI DATANTI</b><br/>" + self.elem_datanti, styDescrizione)
+            elementi_datanti = Paragraph("<b>ELEMENTEN DATEN</b><br/>" + self.elem_datanti, styDescrizione)
 
             #26 row
 
-            datazione_ipotesi = Paragraph("<b>DATAZIONE</b><br/>" + str(self.datazione), styNormal)
-            periodo_o_fase = Paragraph("<b>PERIODO O FASE</b><br/>Periodo iniziale: "+self.periodo_iniziale+"<br/>Fase iniziale: "+self.fase_iniziale+"<br/>Periodo finale: "+self.periodo_finale+"<br/>Fase finale: "+self.fase_finale, styNormal)
+            datazione_ipotesi = Paragraph("<b>DATEN</b><br/>" + str(self.datazione), styNormal)
+            periodo_o_fase = Paragraph("<b>PERIODE ODER PHASE</b><br/>Anfangszeit: "+self.periodo_iniziale+"<br/>Anfangsphase: "+self.fase_iniziale+"<br/>Letzte Periode: "+self.periodo_finale+"<br/>Endphase: "+self.fase_finale, styNormal)
 
             #27 row
 
-            dati_quantitativi = Paragraph("<b>DATI QUANTITATIVI DEI REPERTI</b><br/>", styNormal)  # manca valore
+            dati_quantitativi = Paragraph("<b>QUANTITATIVE DATEN DER BEFUNDE</b><br/>", styNormal)  # manca valore
 
             #28 row
 
@@ -2707,19 +2707,19 @@ class single_US_pdf_sheet(object):
                         campioni += ', ' + str(i[0])
                     except:
                         pass
-            campioni = Paragraph("<b>CAMPIONATURE</b><br/>" + campioni, styNormal)
-            flottazione = Paragraph("<b>FLOTTAZIONE</b><br/>" + self.flottazione, styNormal)
-            setacciatura = Paragraph("<b>SETACCIATURA</b><br/>" + self.setacciatura, styNormal)
+            campioni = Paragraph("<b>BEISPIEL</b><br/>" + campioni, styNormal)
+            flottazione = Paragraph("<b>FLOTATION</b><br/>" + self.flottazione, styNormal)
+            setacciatura = Paragraph("<b>SEPARATION</b><br/>" + self.setacciatura, styNormal)
 
             #28 row
 
-            affidabilita = Paragraph("<b>AFFIDABILITÀ STRATIGRAFICA</b><br/>" + self.affidabilita, styNormal)
-            direttore = Paragraph("<b>RESPONSABILE SCIENTIFICO DELLE INDAGINI</b><br/>" + self.direttore_us, styNormal)
-            responsabile = Paragraph("<b>RESPONSABILE COMPILAZIONE SUL CAMPO</b><br/>" + self.responsabile_us, styNormal)
-            responsabile2 = Paragraph("<b>RESPONSABILE RIELABORAZIONE</b><br/>" + self.responsabile_us, styNormal)
-            data_rilievo = Paragraph("<b>DATA RILEVAMENTO SUL CAMPO</b><br/>" + self.data_rilevazione, styNormal)
-            data_rielaborazione = Paragraph("<b>DATA RIELABORAZIONE</b><br/>" + self.data_rielaborazione, styNormal)
-            attivita = Paragraph("<b>ATTIVITÀ</b><br/>" + self.attivita, styNormal)
+            affidabilita = Paragraph("<b>STRATIGRAPHISCHE SICHERHEIT</b><br/>" + self.affidabilita, styNormal)
+            direttore = Paragraph("<b>WISSENSCHAFTLICHER LEITER DER UNTERSUCHUNGEN</b><br/>" + self.direttore_us, styNormal)
+            responsabile = Paragraph("<b>VERANTWORTLICH FÜR DIE ZUSAMMENSTELLUNG IM FELD</b><br/>" + self.responsabile_us, styNormal)
+            responsabile2 = Paragraph("<b>VERANTWORTLICH FÜR DIE NACHARBEIT</b><br/>" + self.responsabile_us, styNormal)
+            data_rilievo = Paragraph("<b>DATUM FELDARBEIT</b><br/>" + self.data_rilevazione, styNormal)
+            data_rielaborazione = Paragraph("<b>ÜBERARBEITUNGSDATUM</b><br/>" + self.data_rielaborazione, styNormal)
+            attivita = Paragraph("<b>AKTIVITÄTEN</b><br/>" + self.attivita, styNormal)
             licenza =  Paragraph("<b>MIBACT- ICCD_licenza CC BY-SA 4.0_Creative Commons Attribution-ShareAlike 4.0 International</b>",styL)
             # schema
             cell_schema = [
@@ -2915,89 +2915,89 @@ class single_US_pdf_sheet(object):
             lst.append(logo)
             
             return t
-        elif str(self.unita_tipo)=='USM':
+        elif str(self.unita_tipo)=='MSE':
             unita_tipo = Paragraph(str(self.unita_tipo), styUnitaTipo)
-            label_ente_responsabile = Paragraph("<b>ENTE RESPONSABILE</b>", styNormal)
+            label_ente_responsabile = Paragraph("<b>VERANTWORTLICHE STELLE</b>", styNormal)
             #label_catalogo_internazionale = Paragraph("<b>N. CATALOGO INTERNAZIONALE</b>", styNormal)
             ente_responsabile = Paragraph(str(self.n_catalogo_generale), styNormal)
             #catalogo_internazionale = Paragraph(str(self.n_catalogo_internazionale), styNormal)
-            sop =  Paragraph("<b>SOPRINTENDENZA MIBACT COMPETENTE PER TUTELA</b><br/>" +str(self.soprintendenza), styNormal)
+            sop =  Paragraph("<b>ZUSTÄNDIGE AUFSICHTSBEHÖRDE FÜR DEN SCHUTZ</b><br/>" +str(self.soprintendenza), styNormal)
             #2-3 row
 
-            sito = Paragraph("<b>LOCALITÀ</b><br/>" + str(self.sito), styNormal)
+            sito = Paragraph("<b>LOKALITÄT</b><br/>" + str(self.sito), styNormal)
             #anno_di_scavo = Paragraph("<b>ANNO</b><br/>" + self.anno_scavo, styNormal)
             if self.struttura!='':
             
-                area = Paragraph("<b>AREA/EDIFICIO/STRUTTURA</b><br/>" + str(self.area)+'/'+str(self.struttura),styNormal)
+                area = Paragraph("<b>FLÄCHE/GEBÄUDE/STRUKTUR</b><br/>" + str(self.area)+'/'+str(self.struttura),styNormal)
             
             else:
-                area = Paragraph("<b>AREA/EDIFICIO/STRUTTURA</b><br/>" + str(self.area),styNormal)
+                area = Paragraph("<b>FLÄCHE/GEBÄUDE/STRUKTUR</b><br/>" + str(self.area),styNormal)
             
-            saggio = Paragraph("<b>SAGGIO</b><br/>" + self.saggio, styNormal)
-            ambiente = Paragraph("<b>AMBIENTE</b><br/>" + self.ambient, styNormal)
-            posizione = Paragraph("<b>POSIZIONE NELL'AMBIENTE</b><br/>" + self.posizione, styNormal)
-            settore = Paragraph("<b>SETTORE/I</b><br/>" + self.settore, styNormal)
-            quadrato = Paragraph("<b>QUADRATO/I</b><br/>" + self.quad_par, styNormal)
-            quote = Paragraph("<b>QUOTE</b><br/>min: " + self.quota_min + "<br/>max: "+self.quota_max, styNormal)
-            label_unita_stratigrafica = Paragraph("<b>NUMERO/CODICE IDENTIFICATIVO DELL’UNITÀ STRATIGRAFICA</b><br/>"+ str(self.us), styNormal)
-            label_sas = Paragraph("<b>NUMERO/CODICE IDENTIFICATIVO DEL SAGGIO STRATIGRAFICO/DELL’EDIFICIO/DELLA STRUTTURA/DELLA DEPOSIZIONE FUNERARIA DI RIFERIMENTO</b><br/>", styNormal)
+            saggio = Paragraph("<b>AUFSATZ</b><br/>" + self.saggio, styNormal)
+            ambiente = Paragraph("<b>UMWELT</b><br/>" + self.ambient, styNormal)
+            posizione = Paragraph("<b>POSITION IM UMFELD</b><br/>" + self.posizione, styNormal)
+            settore = Paragraph("<b>SECTOR</b><br/>" + self.settore, styNormal)
+            quadrato = Paragraph("<b>PLATZ</b><br/>" + self.quad_par, styNormal)
+            quote = Paragraph("<b>ELEVATION</b><br/>min: " + self.quota_min + "<br/>max: "+self.quota_max, styNormal)
+            label_unita_stratigrafica = Paragraph("<b>NUMMER/IDENTIFIKATIONSCODE DER STRATIGRAPHISCHEN EINHEIT</b><br/>"+ str(self.us), styNormal)
+            label_sas = Paragraph("<b>NUMMER/IDENTIFIZIERUNGSCODE DES STRATIGRAPHISCHEN AUFSATZES/GEBÄUDES/DER STRUKTUR/DER FUNERÄREN ABLAGERUNG DER REFERENZ</b><br/>", styNormal)
             
            
 
-            piante = Paragraph("<b>PIANTE</b><br/>" + self.piante_iccd, styNormal)
-            sezioni = Paragraph("<b>SEZIONI</b><br/>" + self.sezioni_iccd, styNormal)
-            prospetti = Paragraph("<b>PROSPETTI</b><br/>"+ self.prospetti_iccd, styNormal)                    #manca valore
-            foto = Paragraph("<b>FOTOGRAFIE</b><br/>"+ self.foto_iccd, styNormal)            #manca valore
+            piante = Paragraph("<b>PFLAZEN</b><br/>" + self.piante_iccd, styNormal)
+            sezioni = Paragraph("<b>SEKTIONEN</b><br/>" + self.sezioni_iccd, styNormal)
+            prospetti = Paragraph("<b>PROSPEKTE</b><br/>"+ self.prospetti_iccd, styNormal)                    #manca valore
+            foto = Paragraph("<b>FOTO</b><br/>"+ self.foto_iccd, styNormal)            #manca valore
 
            
 
-            t_muraria = Paragraph("<b>TIPOLOGIA DELL'OPERA</b><br/>"+ str(self.tipologia_opera), styNormal)
-            t_costruttiva = Paragraph("<b>TECNICA COSTRUTTIVA</b><br/>"+ str(self.tecnica_muraria_usm), styNormal)
-            sezione_muraria = Paragraph("<b>SEZIONE MURARIA</b><br/>"+ str(self.sezione_muraria), styNormal)
+            t_muraria = Paragraph("<b>TYPOLOGIE DER ARBEIT</b><br/>"+ str(self.tipologia_opera), styNormal)
+            t_costruttiva = Paragraph("<b>KONSTRUKTIONSTECHNIK</b><br/>"+ str(self.tecnica_muraria_usm), styNormal)
+            sezione_muraria = Paragraph("<b>MAUERWERKSABSCHNITT</b><br/>"+ str(self.sezione_muraria), styNormal)
             
-            modulo = Paragraph("<b>MODULO</b><br/>"+ str(self.modulo_usm), styNormal)
+            modulo = Paragraph("<b>MODUL</b><br/>"+ str(self.modulo_usm), styNormal)
             
             
-            if bool(self.lunghezza_max) and bool(self.larghezza_media) and bool(self.altezza_usm):
-                misure = Paragraph("<b>MISURE</b><br/>" + 'Lun. '+ self.lunghezza_usm + ' x '+ 'Alt. ' + self.altezza_usm + ' x '+ 'Sp. ' + self.spessore_usm + 'm', styNormal)
-            elif bool(self.lunghezza_max) and bool(self.larghezza_media) and not bool(self.altezza_usm):
-                misure = Paragraph("<b>MISURE</b><br/>" + 'Lun. ' + self.lunghezza_usm + ' x '+ 'Alt. '+ self.altezza_usm + 'm', styNormal)
+            if bool(self.lunghezza_max) and bool(self.larghezza_media) and bool(self.altezza_max):
+                misure = Paragraph("<b>MASSNAHMEN</b><br/>" + 'Länge '+ self.lunghezza_max + ' x '+ 'Breite ' + self.larghezza_media + ' x '+ 'Dicke ' + self.altezza_max + 'm', styNormal)
+            elif bool(self.lunghezza_max) and bool(self.larghezza_media) and not bool(self.altezza_max):
+                misure = Paragraph("<b>MASSNAHMEN</b><br/>" + 'Länge ' + self.lunghezza_max + ' x '+ 'Breite '+ self.larghezza_media + 'm', styNormal)
             
             else:
-                misure = Paragraph("<b>MISURE</b><br/>", styNormal)
+                misure = Paragraph("<b>MASSNAHMEN</b><br/>", styNormal)
 
-            superficie_analizzata = Paragraph("<b>SUPERFICIE ANALIZZATA</b><br/>"+ str(self.superficie_analizzata), styNormal)
+            superficie_analizzata = Paragraph("<b>ANALYSIERTE OBERFLÄCHE</b><br/>"+ str(self.superficie_analizzata), styNormal)
             
-            d_stratigrafica = Paragraph("<b>DEFINIZIONE E POSIZIONE</b><br/>" + self.d_stratigrafica+"<br/>"+self.d_interpretativa, styNormal)
+            d_stratigrafica = Paragraph("<b>DEFINITION UND POSITION</b><br/>" + self.d_stratigrafica+"<br/>"+self.d_interpretativa, styNormal)
             
 
             #6 row
 
-            criteri_distinzione = Paragraph("<b>CRITERI DI DISTINZIONE</b><br/>" + self.criteri_distinzione, styNormal)
+            criteri_distinzione = Paragraph("<b>UNTERSCHEIDUNGSKRITERIEN</b><br/>" + self.criteri_distinzione, styNormal)
 
             #7 row
 
-            provenienza_materiali = Paragraph("<b>PROVENIENZA MATERIALI</b><br/>"+self.provenienza_materiali_usm,styNormal2)
+            provenienza_materiali = Paragraph("<b>HERKUNFT DER MATERIALIEN</b><br/>"+self.provenienza_materiali_usm,styNormal2)
             
-            uso_primario = Paragraph("<b>USO PRIMARIO</b><br/>" + self.uso_primario_usm,styNormal2)
+            uso_primario = Paragraph("<b>PRIMÄRER GEBRAUCH</b><br/>" + self.uso_primario_usm,styNormal2)
             
-            reimpiego = Paragraph("<b>REIMPIEGO</b><br/>"+self.reimp, styNormal2)
+            reimpiego = Paragraph("<b>WIEDERVERWENDEN</b><br/>"+self.reimp, styNormal2)
 
-            orientamento = Paragraph("<b>ORIENTAMENTO</b><br/>"+self.orientamento, styNormal)
+            orientamento = Paragraph("<b>ORIENTIERUNG</b><br/>"+self.orientamento, styNormal)
             
             #8-9 row
-            stato_conservazione = Paragraph("<b>STATO DI CONSERVAZIONE</b><br/>" + self.stato_di_conservazione, styNormal)
-            
+            stato_conservazione = Paragraph("<b>ERHALTUNGSZUSTAND</b><br/>" + self.stato_di_conservazione, styNormal)
+
             
            
             label_laterizi = Paragraph("<b>LATERIZI</b>", styVerticale)
-            materiali = Paragraph("<b>MATERIALI</b><br/>", styNormal)
-            lavorazione = Paragraph("<b>LAVORAZIONE</b><br/>",  styNormal)
-            consistenza = Paragraph("<b>CONSISTENZA</b><br/>", styNormal)
-            forma = Paragraph("<b>FORMA</b><br/>", styNormal)
-            colore = Paragraph("<b>COLORE</b><br/>", styNormal)
-            impasto = Paragraph("<b>IMPASTO</b><br/>", styNormal)
-            posa_opera= Paragraph("<b>POSA IN OPERA</b><br/>", styNormal)
+            materiali = Paragraph("<b>MATERIALIEN</b><br/>", styNormal)
+            lavorazione = Paragraph("<b>VERARBEITUNG</b><br/>",  styNormal)
+            consistenza = Paragraph("<b>KONSISTENZ</b><br/>", styNormal)
+            forma = Paragraph("<b>FORM</b><br/>", styNormal)
+            colore = Paragraph("<b>FARBE</b><br/>", styNormal)
+            impasto = Paragraph("<b>PAST</b><br/>", styNormal)
+            posa_opera= Paragraph("<b>INSTALLIERUNG</b><br/>", styNormal)
             
             
             materiali_1 =Paragraph(self.materiali_lat,styNormal)
@@ -3008,26 +3008,26 @@ class single_US_pdf_sheet(object):
             impasto_1 =Paragraph(self.impasto_lat,styNormal)
             posa_opera_1 =Paragraph(self.posa_opera,styNormal)
             #taglio_l = Paragraph(self.taglio_p,styNormal)
-            label_pietra = Paragraph("<b>ELEMENTI LITICI</b>", styVerticale)
+            label_pietra = Paragraph("<b>LITHIK</b>", styVerticale)
             p_1 =Paragraph(self.materiale_p,styNormal)
             p_2 =Paragraph(self.lavorazione,styNormal)
             p_3 =Paragraph(self.consistenza_p,styNormal)
             p_4 =Paragraph(self.forma_p,styNormal)
             p_5 =Paragraph(self.colore_p,styNormal)
-            taglio= Paragraph("<b>TAGLIO</b><br/>"+ self.taglio_p, styNormal)
+            taglio= Paragraph("<b>SCHNITT</b><br/>"+ self.taglio_p, styNormal)
             p_7 =Paragraph(self.posa_opera_p,styNormal)
             
             #12 row
             n=Paragraph('',styNormal)
             
-            tipo = Paragraph("<b>TIPO</b><br/>", styNormal)
-            consistenza_l = Paragraph("<b>CONSISTENZA</b><br/>",  styNormal)
-            colore_l = Paragraph("<b>COLORE</b><br/>", styNormal)
-            inerti = Paragraph("<b>INERTI</b><br/>", styNormal)
-            spessore = Paragraph("<b>SPESSORE</b><br/>", styNormal)
-            rifinitura = Paragraph("<b>RIFINITURA</b><br/>", styNormal)
+            tipo = Paragraph("<b>TYP</b><br/>", styNormal)
+            consistenza_l = Paragraph("<b>CKONSISTENZ</b><br/>",  styNormal)
+            colore_l = Paragraph("<b>FARBE</b><br/>", styNormal)
+            inerti = Paragraph("<b>INERTS</b><br/>", styNormal)
+            spessore = Paragraph("<b>DICHTE</b><br/>", styNormal)
+            rifinitura = Paragraph("<b>ENDE</b><br/>", styNormal)
             
-            label_legante= Paragraph("<b>LEGANTE</b>", styVerticale)
+            label_legante= Paragraph("<b>HINWEISE</b>", styVerticale)
             tipo_1 =Paragraph(self.tipo_legante_usm,styNormal)
             consistenza_2 =Paragraph(self.cons_legante,styNormal)
             colore_3 =Paragraph(self.col_legante,styNormal)
@@ -3035,54 +3035,54 @@ class single_US_pdf_sheet(object):
             spessore_5 =Paragraph(self.spessore_usm,styNormal)
             rifinitura_6 =Paragraph(self.rifinitura_usm,styNormal)
             
-            note_legante = Paragraph("<b>NOTE SPECIFICHE DEL LEGANTE</b><br/>" , styDescrizione)
-            note_materiali = Paragraph("<b>NOTE SPECIFICHE SUI MATERIALI</b><br/>" , styDescrizione)
+            note_legante = Paragraph("<b>BINDERSPEZIFISCHE HINWEISE</b><br/>" , styDescrizione)
+            note_materiali = Paragraph("<b>BESONDERE HINWEISE ZU WERKSTOFFEN</b><br/>" , styDescrizione)
             
 
             #13-22 row
 
-            si_lega_a = Paragraph("<b>SI LEGA A</b><br/>" + self.si_lega_a, styNormal)
-            uguale_a = Paragraph("<b>UGUALE A</b><br/>" + self.uguale_a, styNormal)
-            copre = Paragraph("<b>COPRE</b><br/>" + self.copre, styNormal)
-            coperto_da = Paragraph("<b>COPERTO DA</b><br/>" + self.coperto_da, styNormal)
-            riempie = Paragraph("<b>RIEMPIE</b><br/>" + self.riempie, styNormal)
-            riempito_da = Paragraph("<b>RIEMPITO DA</b><br/>" + self.riempito_da, styNormal)
-            taglia = Paragraph("<b>TAGLIA</b><br/>" + self.taglia, styNormal)
-            tagliato_da = Paragraph("<b>TAGLIATO DA</b><br/>" + self.tagliato_da, styNormal)
-            si_appoggia_a = Paragraph("<b>SI APPOGGIA A</b><br/>" + self.si_appoggia_a, styNormal)
-            gli_si_appoggia = Paragraph("<b>GLI SI APPOGGIA</b><br/>" + self.gli_si_appoggia, styNormal)
+            si_lega_a = Paragraph("<b>BINDET AN</b><br/>" + self.si_lega_a, styNormal)
+            uguale_a = Paragraph("<b>ENTSPRICHT</b><br/>" + self.uguale_a, styNormal)
+            copre = Paragraph("<b>LIEGT ÜBER</b><br/>" + self.copre, styNormal)
+            coperto_da = Paragraph("<b>LIEGT UNTER</b><br/>" + self.coperto_da, styNormal)
+            riempie = Paragraph("<b>VERFÜLLT</b><br/>" + self.riempie, styNormal)
+            riempito_da = Paragraph("<b>WIRD VERFÜLLT DURCH</b><br/>" + self.riempito_da, styNormal)
+            taglia = Paragraph("<b>SCHNEIDET</b><br/>" + self.taglia, styNormal)
+            tagliato_da = Paragraph("<b>WIRD GESCHNITTEN</b><br/>" + self.tagliato_da, styNormal)
+            si_appoggia_a = Paragraph("<b>STÜTZT SICH AUF</b><br/>" + self.si_appoggia_a, styNormal)
+            gli_si_appoggia = Paragraph("<b>WIRD GESTÜZT VON</b><br/>" + self.gli_si_appoggia, styNormal)
 
-            label_sequenza_stratigrafica = Paragraph("<b>S<br/>E<br/>Q<br/>U<br/>E<br/>N<br/>Z<br/>A<br/><br/>S<br/>T<br/>R<br/>A<br/>T<br/>I<br/>G<br/>R<br/>A<br/>F<br/>I<br/>C<br/>A</b>", styVerticale)
+            label_sequenza_stratigrafica = Paragraph("<b>S<br/>T<br/>R<br/>A<br/>T<br/>I<br/>G<br/>R<br/>A<br/>F<br/>I<br/>S<br/>C<br/>H<br/>E<br/><br/> F<br/>O<br/>L<br/>G<br/>E</b>", styVerticale)
 
-            posteriore_a = Paragraph("<b>POSTERIORE A</b><br/>" + self.copre +"<br/>" + self.riempie +"<br/>"+  self.taglia+ "<br/>" +   self.si_appoggia_a, styNormal)               # manca valore
-            anteriore_a = Paragraph("<b>ANTERIORE A</b><br/>"+ self.coperto_da +"<br/>"+  self.riempito_da +"<br/>"+ self.tagliato_da +  "<br/>" + self.gli_si_appoggia, styNormal)                 # manca valore
+            posteriore_a = Paragraph("<b>REAR</b><br/>" + self.copre +"<br/>" + self.riempie +"<br/>"+  self.taglia+ "<br/>" +   self.si_appoggia_a, styNormal)               # manca valore
+            anteriore_a = Paragraph("<b>FRONT</b><br/>"+ self.coperto_da +"<br/>"+  self.riempito_da +"<br/>"+ self.tagliato_da +  "<br/>" + self.gli_si_appoggia, styNormal)                 # manca valore
 
-            descrizione = Paragraph("<b>DESCRIZIONE</b><br/>" + self.descrizione, styDescrizione)
+            descrizione = Paragraph("<b>DESCRIPTION</b><br/>" + self.descrizione, styDescrizione)
 
-            osservazioni = Paragraph("<b>OSSERVAZIONI</b><br/>" + self.osservazioni, styDescrizione)
+            osservazioni = Paragraph("<b>BEOBACHTUNGEN</b><br/>" + self.osservazioni, styDescrizione)
 
             #24 row
 
-            interpretazione = Paragraph("<b>INTERPRETAZIONE</b><br/>" + self.interpretazione, styDescrizione)
+            interpretazione = Paragraph("<b>INTERPRETATION</b><br/>" + self.interpretazione, styDescrizione)
 
-            campioni_malta = Paragraph("<b>CAMPIONATURE MALTA</b><br/>"+ str(self.campioni_malta_usm), styNormal)
-            campioni_mattone = Paragraph("<b>CAMPIONATURE LATERIZI</b><br/>"+ str(self.campioni_mattone_usm), styNormal)
-            campioni_pietra = Paragraph("<b>CAMPIONATURE ELEMENTI LITICI</b><br/>"+ str(self.campioni_pietra_usm), styNormal)
+            campioni_malta = Paragraph("<b>MEISTER MALTA</b><br/>"+ str(self.campioni_malta_usm), styNormal)
+            campioni_mattone = Paragraph("<b>MEISTER LATERIZI</b><br/>"+ str(self.campioni_mattone_usm), styNormal)
+            campioni_pietra = Paragraph("<b>MEISTER LITHIK</b><br/>"+ str(self.campioni_pietra_usm), styNormal)
 
-            elementi_datanti = Paragraph("<b>ELEMENTI DATANTI</b><br/>" + self.elem_datanti, styDescrizione)
+            elementi_datanti = Paragraph("<b>ELEMENTEN DATEN</b><br/>" + self.elem_datanti, styDescrizione)
 
             #26 row
 
-            datazione_ipotesi = Paragraph("<b>DATAZIONE</b><br/>" + str(self.datazione), styNormal)
-            periodo_o_fase = Paragraph("<b>PERIODO O FASE</b><br/>Periodo iniziale: "+self.periodo_iniziale+"<br/>Fase iniziale: "+self.fase_iniziale+"<br/>Periodo finale: "+self.periodo_finale+"<br/>Fase finale: "+self.fase_finale, styNormal)
+            datazione_ipotesi = Paragraph("<b>DATEN</b><br/>" + str(self.datazione), styNormal)
+            periodo_o_fase = Paragraph("<b>PERIODE ODER PHASE</b><br/>Anfangszeit: "+self.periodo_iniziale+"<br/>Anfangsphase: "+self.fase_iniziale+"<br/>Letzte Periode: "+self.periodo_finale+"<br/>Endphase: "+self.fase_finale, styNormal)
 
-            affidabilita = Paragraph("<b>AFFIDABILITÀ STRATIGRAFICA</b><br/>" + self.affidabilita, styNormal)
-            direttore = Paragraph("<b>RESPONSABILE SCIENTIFICO DELLE INDAGINI</b><br/>" + self.direttore_us, styNormal)
-            responsabile = Paragraph("<b>RESPONSABILE COMPILAZIONE SUL CAMPO</b><br/>" + self.responsabile_us, styNormal)
-            responsabile2 = Paragraph("<b>RESPONSABILE RIELABORAZIONE</b><br/>" + self.responsabile_us, styNormal)
-            data_rilievo = Paragraph("<b>DATA RILEVAMENTO SUL CAMPO</b><br/>" + self.data_rilevazione, styNormal)
-            data_rielaborazione = Paragraph("<b>DATA RIELABORAZIONE</b><br/>" + self.data_rielaborazione, styNormal)
-            attivita = Paragraph("<b>ATTIVITÀ</b><br/>" + self.attivita, styNormal)
+            affidabilita = Paragraph("<b>STRATIGRAPHISCHE SICHERHEIT</b><br/>" + self.affidabilita, styNormal)
+            direttore = Paragraph("<b>WISSENSCHAFTLICHER LEITER DER UNTERSUCHUNGEN</b><br/>" + self.direttore_us, styNormal)
+            responsabile = Paragraph("<b>VERANTWORTLICH FÜR DIE ZUSAMMENSTELLUNG IM FELD</b><br/>" + self.responsabile_us, styNormal)
+            responsabile2 = Paragraph("<b>VERANTWORTLICH FÜR DIE NACHARBEIT</b><br/>" + self.responsabile_us, styNormal)
+            data_rilievo = Paragraph("<b>DATUM FELDARBEIT</b><br/>" + self.data_rilevazione, styNormal)
+            data_rielaborazione = Paragraph("<b>ÜBERARBEITUNGSDATUM</b><br/>" + self.data_rielaborazione, styNormal)
+            attivita = Paragraph("<b>AKTIVITÄTEN</b><br/>" + self.attivita, styNormal)
             licenza =  Paragraph("<b>MIBACT- ICCD_licenza CC BY-SA 4.0_Creative Commons Attribution-ShareAlike 4.0 International</b>",styL)
             # schema
 
@@ -3816,13 +3816,13 @@ class FOTO_index_pdf_sheet(object):
         thumb_path = conn.thumb_path()
         thumb_path_str = thumb_path['thumb_path']
         area = Paragraph("<b>Area</b><br/>" + str(self.area), styNormal)
-        if self.unita_tipo == 'US':
-            us = Paragraph("<b>US</b><br/>" + str(self.us), styNormal)
+        if self.unita_tipo == 'SU':
+            us = Paragraph("<b>SU</b><br/>" + str(self.us), styNormal)
         else:
-            us = Paragraph("<b>USM</b><br/>" + str(self.us), styNormal)
-        foto = Paragraph("<b>Foto ID</b><br/>" + str(self.foto), styNormal)
-        d_stratigrafica = Paragraph("<b>Descrizione</b><br/>" + str(self.d_stratigrafica), styNormal)
-        us_presenti = Paragraph("<b>US-USM presenti</b><br/>", styNormal)
+            us = Paragraph("<b>WSU</b><br/>" + str(self.us), styNormal)
+        foto = Paragraph("<b>ID</b><br/>" + str(self.foto), styNormal)
+        d_stratigrafica = Paragraph("<b>Description</b><br/>" + str(self.d_stratigrafica), styNormal)
+        us_presenti = Paragraph("<b>SU-WSU in list</b><br/>", styNormal)
         
         logo= Image(self.thumbnail)
         logo.drawHeight = 1 * inch * logo.drawHeight / logo.drawWidth
@@ -3855,13 +3855,13 @@ class FOTO_index_pdf_sheet(object):
         thumb_path = conn.thumb_path()
         thumb_path_str = thumb_path['thumb_path']
         area = Paragraph("<b>Area</b><br/>" + str(self.area), styNormal)
-        if self.unita_tipo == 'US':
-            us = Paragraph("<b>US</b><br/>" + str(self.us), styNormal)
+        if self.unita_tipo == 'SE':
+            us = Paragraph("<b>SE</b><br/>" + str(self.us), styNormal)
         else:
-            us = Paragraph("<b>USM</b><br/>" + str(self.us), styNormal)
+            us = Paragraph("<b>MSE</b><br/>" + str(self.us), styNormal)
         foto = Paragraph("<b>Foto ID</b><br/>" + str(self.foto), styNormal)
-        d_stratigrafica = Paragraph("<b>Descrizione</b><br/>" + str(self.d_stratigrafica), styNormal)
-        us_presenti = Paragraph("<b>US-USM presenti</b><br/>", styNormal)
+        d_stratigrafica = Paragraph("<b>Beschreibung</b><br/>" + str(self.d_stratigrafica), styNormal)
+        us_presenti = Paragraph("<b>SE-MSE in Liste</b><br/>", styNormal)
         
         logo= Image(self.thumbnail)
         logo.drawHeight = 1 * inch * logo.drawHeight / logo.drawWidth
@@ -3950,13 +3950,13 @@ class FOTO_index_pdf_sheet_2(object):
         thumb_path = conn.thumb_path()
         thumb_path_str = thumb_path['thumb_path']
         area = Paragraph("<b>Area</b><br/>" + str(self.area), styNormal)
-        if self.unita_tipo == 'US':
-            us = Paragraph("<b>US</b><br/>" + str(self.us), styNormal)
+        if self.unita_tipo == 'SU':
+            us = Paragraph("<b>SU</b><br/>" + str(self.us), styNormal)
         else:
-            us = Paragraph("<b>USM</b><br/>" + str(self.us), styNormal)
-        foto = Paragraph("<b>Foto ID</b><br/>" + str(self.foto), styNormal)
-        d_stratigrafica = Paragraph("<b>Descrizione</b><br/>" + str(self.d_stratigrafica), styNormal)
-        us_presenti = Paragraph("<b>US-USM presenti</b><br/>", styNormal)
+            us = Paragraph("<b>WSU</b><br/>" + str(self.us), styNormal)
+        foto = Paragraph("<b>ID</b><br/>" + str(self.foto), styNormal)
+        d_stratigrafica = Paragraph("<b>Description</b><br/>" + str(self.d_stratigrafica), styNormal)
+        us_presenti = Paragraph("<b>SU-WSU in list</b><br/>", styNormal)
         
         # logo= Image(self.thumbnail)
         # logo.drawHeight = 1 * inch * logo.drawHeight / logo.drawWidth
@@ -3988,13 +3988,13 @@ class FOTO_index_pdf_sheet_2(object):
         thumb_path = conn.thumb_path()
         thumb_path_str = thumb_path['thumb_path']
         area = Paragraph("<b>Area</b><br/>" + str(self.area), styNormal)
-        if self.unita_tipo == 'US':
-            us = Paragraph("<b>US</b><br/>" + str(self.us), styNormal)
+        if self.unita_tipo == 'SE':
+            us = Paragraph("<b>SE</b><br/>" + str(self.us), styNormal)
         else:
-            us = Paragraph("<b>USM</b><br/>" + str(self.us), styNormal)
+            us = Paragraph("<b>MSE</b><br/>" + str(self.us), styNormal)
         foto = Paragraph("<b>Foto ID</b><br/>" + str(self.foto), styNormal)
-        d_stratigrafica = Paragraph("<b>Descrizione</b><br/>" + str(self.d_stratigrafica), styNormal)
-        us_presenti = Paragraph("<b>US-USM presenti</b><br/>", styNormal)
+        d_stratigrafica = Paragraph("<b>Beschreibung</b><br/>" + str(self.d_stratigrafica), styNormal)
+        us_presenti = Paragraph("<b>SE-MSE in Liste</b><br/>", styNormal)
         
         # logo= Image(self.thumbnail)
         # logo.drawHeight = 1 * inch * logo.drawHeight / logo.drawWidth
@@ -4138,7 +4138,7 @@ class generate_US_pdf(object):
 
         #usICCD
         filename = ('%s%s%s_%s_%s_%s_%s_%s_%s%s') % (
-        self.PDF_path, os.sep, 'scheda_USICCD', dt.day, dt.month, dt.year, dt.hour, dt.minute, dt.second, ".pdf")
+        self.PDF_path, os.sep, 'Form SU', dt.day, dt.month, dt.year, dt.hour, dt.minute, dt.second, ".pdf")
         f = open(filename, "wb")
 
         doc = SimpleDocTemplate(f, pagesize=(21 * cm, 29 * cm),  topMargin=10, bottomMargin=20,
@@ -4199,7 +4199,7 @@ class generate_US_pdf(object):
 
         #usICCD
         filename = ('%s%s%s_%s_%s_%s_%s_%s_%s%s') % (
-        self.PDF_path, os.sep, 'scheda_USICCD', dt.day, dt.month, dt.year, dt.hour, dt.minute, dt.second, ".pdf")
+        self.PDF_path, os.sep, 'Form SE', dt.day, dt.month, dt.year, dt.hour, dt.minute, dt.second, ".pdf")
         f = open(filename, "wb")
 
         doc = SimpleDocTemplate(f, pagesize=(21 * cm, 29 * cm),  topMargin=10, bottomMargin=20,
@@ -4350,148 +4350,6 @@ class generate_US_pdf(object):
 
         f.close()
         
-    def build_index_US_en(self, records, sito):
-        home = os.environ['PYARCHINIT_HOME']
-
-        home_DB_path = '{}{}{}'.format(home, os.sep, 'pyarchinit_DB_folder')
-        logo_path = '{}{}{}'.format(home_DB_path, os.sep, 'logo.jpg')
-
-        logo = Image(logo_path)
-        logo.drawHeight = 1.5 * inch * logo.drawHeight / logo.drawWidth
-        logo.drawWidth = 1.5 * inch
-        logo.hAlign = "LEFT"
-
-        styleSheet = getSampleStyleSheet()
-        styNormal = styleSheet['Normal']
-        styBackground = ParagraphStyle('background', parent=styNormal, backColor=colors.pink)
-        styH1 = styleSheet['Heading3']
-
-        data = self.datestrfdate()
-
-        lst = []
-        lst.append(logo)
-        lst.append(
-            Paragraph("<b>ELENCO UNITA' STRATIGRAFICHE</b><br/><b>Scavo: %s,  Data: %s</b>" % (sito, data), styH1))
-
-        table_data = []
-        for i in range(len(records)):
-            exp_index = US_index_pdf_sheet(records[i])
-            table_data.append(exp_index.getTable_en())
-
-        styles = exp_index.makeStyles()
-        colWidths = [28, 28, 120, 45, 58, 45, 58, 55, 64, 64, 52, 52, 52]
-
-        table_data_formatted = Table(table_data, colWidths, style=styles)
-        table_data_formatted.hAlign = "LEFT"
-
-        lst.append(table_data_formatted)
-        lst.append(Spacer(0, 2))
-
-        dt = datetime.datetime.now()
-        filename = ('%s%s%s_%s_%s_%s_%s_%s_%s%s') % (
-        self.PDF_path, os.sep, 'Elenco_us', dt.day, dt.month, dt.year, dt.hour, dt.minute, dt.second, ".pdf")
-        f = open(filename, "wb")
-
-        doc = SimpleDocTemplate(f, pagesize=(A3), showBoundary=0)
-        doc.build(lst, canvasmaker=NumberedCanvas_USindex)
-
-        f.close()
-        
-    def build_index_Foto_en(self, records, sito):
-        home = os.environ['PYARCHINIT_HOME']
-
-        home_DB_path = '{}{}{}'.format(home, os.sep, 'pyarchinit_DB_folder')
-        logo_path = '{}{}{}'.format(home_DB_path, os.sep, 'logo.jpg')
-        
-        logo = Image(logo_path)
-        logo.drawHeight = 1.5 * inch * logo.drawHeight / logo.drawWidth
-        logo.drawWidth = 1.5 * inch
-        logo.hAlign = "LEFT"
-
-        styleSheet = getSampleStyleSheet()
-        styNormal = styleSheet['Normal']
-        styBackground = ParagraphStyle('background', parent=styNormal, backColor=colors.pink)
-        styH1 = styleSheet['Heading3']
-
-        data = self.datestrfdate()
-
-        lst = []
-        lst.append(logo)
-        lst.append(
-            Paragraph("<b>ELENCO FOTO STRATIGRAFICHE</b><br/><b> Scavo: %s,  Data: %s</b>" % (sito, data), styH1))
-
-        table_data = []
-        for i in range(len(records)):
-            exp_index = FOTO_index_pdf_sheet(records[i])
-            table_data.append(exp_index.getTable_en())
-
-        styles = exp_index.makeStyles()
-        colWidths = [100, 105, 30, 30, 200]
-
-        table_data_formatted = Table(table_data, colWidths, style=styles)
-        table_data_formatted.hAlign = "LEFT"
-
-        lst.append(table_data_formatted)
-        lst.append(Spacer(0, 2))
-
-        dt = datetime.datetime.now()
-        filename = ('%s%s%s_%s_%s_%s_%s_%s_%s%s') % (
-        self.PDF_path, os.sep, 'Elenco_foto', dt.day, dt.month, dt.year, dt.hour, dt.minute, dt.second, ".pdf")
-        f = open(filename, "wb")
-
-        doc = SimpleDocTemplate(f, pagesize=A4)
-        doc.build(lst, canvasmaker=NumberedCanvas_USsheet)
-
-        f.close()
-    def build_index_Foto_2_en(self, records, sito):
-        home = os.environ['PYARCHINIT_HOME']
-
-        home_DB_path = '{}{}{}'.format(home, os.sep, 'pyarchinit_DB_folder')
-        logo_path = '{}{}{}'.format(home_DB_path, os.sep, 'logo.jpg')
-        
-        logo = Image(logo_path)
-        logo.drawHeight = 1.5 * inch * logo.drawHeight / logo.drawWidth
-        logo.drawWidth = 1.5 * inch
-        logo.hAlign = "LEFT"
-
-        styleSheet = getSampleStyleSheet()
-        styNormal = styleSheet['Normal']
-        styBackground = ParagraphStyle('background', parent=styNormal, backColor=colors.pink)
-        styH1 = styleSheet['Heading3']
-
-        data = self.datestrfdate()
-
-        lst = []
-        lst.append(logo)
-        lst.append(
-            Paragraph("<b>ELENCO FOTO STRATIGRAFICHE</b><br/><b> Scavo: %s,  Data: %s</b>" % (sito, data), styH1))
-
-        table_data = []
-        for i in range(len(records)):
-            exp_index = FOTO_index_pdf_sheet_2(records[i])
-            table_data.append(exp_index.getTable_en())
-
-        styles = exp_index.makeStyles()
-        colWidths = [100, 50, 50, 200]
-
-        table_data_formatted = Table(table_data, colWidths, style=styles)
-        table_data_formatted.hAlign = "LEFT"
-
-        lst.append(table_data_formatted)
-        lst.append(Spacer(0, 2))
-
-        dt = datetime.datetime.now()
-        filename = ('%s%s%s_%s_%s_%s_%s_%s_%s%s') % (
-        self.PDF_path, os.sep, 'Elenco_foto', dt.day, dt.month, dt.year, dt.hour, dt.minute, dt.second, ".pdf")
-        f = open(filename, "wb")
-
-        doc = SimpleDocTemplate(f, pagesize=A4)
-        doc.build(lst, canvasmaker=NumberedCanvas_USsheet)
-
-        f.close()
-    
-    
-    
     def build_index_US_de(self, records, sito):
         home = os.environ['PYARCHINIT_HOME']
 
@@ -4513,7 +4371,7 @@ class generate_US_pdf(object):
         lst = []
         lst.append(logo)
         lst.append(
-            Paragraph("<b>ELENCO UNITA' STRATIGRAFICHE</b><br/><b>Scavo: %s,  Data: %s</b>" % (sito, data), styH1))
+            Paragraph("<b>LISTE DER STRATIGRAPHISCHEN EINHEITEN</b><br/><b>Ausgrabung: %s,  Datum: %s</b>" % (sito, data), styH1))
 
         table_data = []
         for i in range(len(records)):
@@ -4531,7 +4389,7 @@ class generate_US_pdf(object):
 
         dt = datetime.datetime.now()
         filename = ('%s%s%s_%s_%s_%s_%s_%s_%s%s') % (
-        self.PDF_path, os.sep, 'Elenco_us', dt.day, dt.month, dt.year, dt.hour, dt.minute, dt.second, ".pdf")
+        self.PDF_path, os.sep, 'LISTE SE', dt.day, dt.month, dt.year, dt.hour, dt.minute, dt.second, ".pdf")
         f = open(filename, "wb")
 
         doc = SimpleDocTemplate(f, pagesize=(A3), showBoundary=0)
@@ -4560,7 +4418,7 @@ class generate_US_pdf(object):
         lst = []
         lst.append(logo)
         lst.append(
-            Paragraph("<b>ELENCO FOTO STRATIGRAFICHE</b><br/><b> Scavo: %s,  Data: %s</b>" % (sito, data), styH1))
+            Paragraph("<b>LISTE DER STRATIGRAPHISCHEN FOTOS</b><br/><b> Ausgrabung: %s,  Datum: %s</b>" % (sito, data), styH1))
 
         table_data = []
         for i in range(len(records)):
@@ -4578,7 +4436,7 @@ class generate_US_pdf(object):
 
         dt = datetime.datetime.now()
         filename = ('%s%s%s_%s_%s_%s_%s_%s_%s%s') % (
-        self.PDF_path, os.sep, 'Elenco_foto', dt.day, dt.month, dt.year, dt.hour, dt.minute, dt.second, ".pdf")
+        self.PDF_path, os.sep, 'Liste foto', dt.day, dt.month, dt.year, dt.hour, dt.minute, dt.second, ".pdf")
         f = open(filename, "wb")
 
         doc = SimpleDocTemplate(f, pagesize=A4)
@@ -4606,7 +4464,7 @@ class generate_US_pdf(object):
         lst = []
         lst.append(logo)
         lst.append(
-            Paragraph("<b>ELENCO FOTO STRATIGRAFICHE</b><br/><b> Scavo: %s,  Data: %s</b>" % (sito, data), styH1))
+            Paragraph("<b>LISTE DER STRATIGRAPHISCHEN FOTOS</b><br/><b> Ausgrabung: %s,  Datum: %s</b>" % (sito, data), styH1))
 
         table_data = []
         for i in range(len(records)):
@@ -4624,7 +4482,149 @@ class generate_US_pdf(object):
 
         dt = datetime.datetime.now()
         filename = ('%s%s%s_%s_%s_%s_%s_%s_%s%s') % (
-        self.PDF_path, os.sep, 'Elenco_foto', dt.day, dt.month, dt.year, dt.hour, dt.minute, dt.second, ".pdf")
+        self.PDF_path, os.sep, 'Liste foto', dt.day, dt.month, dt.year, dt.hour, dt.minute, dt.second, ".pdf")
+        f = open(filename, "wb")
+
+        doc = SimpleDocTemplate(f, pagesize=A4)
+        doc.build(lst, canvasmaker=NumberedCanvas_USsheet)
+
+        f.close()
+    
+    
+    
+    def build_index_US_en(self, records, sito):
+        home = os.environ['PYARCHINIT_HOME']
+
+        home_DB_path = '{}{}{}'.format(home, os.sep, 'pyarchinit_DB_folder')
+        logo_path = '{}{}{}'.format(home_DB_path, os.sep, 'logo.jpg')
+
+        logo = Image(logo_path)
+        logo.drawHeight = 1.5 * inch * logo.drawHeight / logo.drawWidth
+        logo.drawWidth = 1.5 * inch
+        logo.hAlign = "LEFT"
+
+        styleSheet = getSampleStyleSheet()
+        styNormal = styleSheet['Normal']
+        styBackground = ParagraphStyle('background', parent=styNormal, backColor=colors.pink)
+        styH1 = styleSheet['Heading3']
+
+        data = self.datestrfdate()
+
+        lst = []
+        lst.append(logo)
+        lst.append(
+            Paragraph("<b>LIST OF STRATIGRAPHIC UNITS</b><br/><b>Site: %s,  Date: %s</b>" % (sito, data), styH1))
+
+        table_data = []
+        for i in range(len(records)):
+            exp_index = US_index_pdf_sheet(records[i])
+            table_data.append(exp_index.getTable_en())
+
+        styles = exp_index.makeStyles()
+        colWidths = [28, 28, 120, 45, 58, 45, 58, 55, 64, 64, 52, 52, 52]
+
+        table_data_formatted = Table(table_data, colWidths, style=styles)
+        table_data_formatted.hAlign = "LEFT"
+
+        lst.append(table_data_formatted)
+        lst.append(Spacer(0, 2))
+
+        dt = datetime.datetime.now()
+        filename = ('%s%s%s_%s_%s_%s_%s_%s_%s%s') % (
+        self.PDF_path, os.sep, 'List SU', dt.day, dt.month, dt.year, dt.hour, dt.minute, dt.second, ".pdf")
+        f = open(filename, "wb")
+
+        doc = SimpleDocTemplate(f, pagesize=(A3), showBoundary=0)
+        doc.build(lst, canvasmaker=NumberedCanvas_USindex)
+
+        f.close()
+        
+    def build_index_Foto_en(self, records, sito):
+        home = os.environ['PYARCHINIT_HOME']
+
+        home_DB_path = '{}{}{}'.format(home, os.sep, 'pyarchinit_DB_folder')
+        logo_path = '{}{}{}'.format(home_DB_path, os.sep, 'logo.jpg')
+        
+        logo = Image(logo_path)
+        logo.drawHeight = 1.5 * inch * logo.drawHeight / logo.drawWidth
+        logo.drawWidth = 1.5 * inch
+        logo.hAlign = "LEFT"
+
+        styleSheet = getSampleStyleSheet()
+        styNormal = styleSheet['Normal']
+        styBackground = ParagraphStyle('background', parent=styNormal, backColor=colors.pink)
+        styH1 = styleSheet['Heading3']
+
+        data = self.datestrfdate()
+
+        lst = []
+        lst.append(logo)
+        lst.append(
+            Paragraph("<b>LIST OF STRATIGRAPHIC PHOTOS</b><br/><b> Site: %s,  Date: %s</b>" % (sito, data), styH1))
+
+        table_data = []
+        for i in range(len(records)):
+            exp_index = FOTO_index_pdf_sheet(records[i])
+            table_data.append(exp_index.getTable_en())
+
+        styles = exp_index.makeStyles()
+        colWidths = [100, 105, 30, 30, 200]
+
+        table_data_formatted = Table(table_data, colWidths, style=styles)
+        table_data_formatted.hAlign = "LEFT"
+
+        lst.append(table_data_formatted)
+        lst.append(Spacer(0, 2))
+
+        dt = datetime.datetime.now()
+        filename = ('%s%s%s_%s_%s_%s_%s_%s_%s%s') % (
+        self.PDF_path, os.sep, 'List Photo', dt.day, dt.month, dt.year, dt.hour, dt.minute, dt.second, ".pdf")
+        f = open(filename, "wb")
+
+        doc = SimpleDocTemplate(f, pagesize=A4)
+        doc.build(lst, canvasmaker=NumberedCanvas_USsheet)
+
+        f.close()
+    def build_index_Foto_2_en(self, records, sito):
+        home = os.environ['PYARCHINIT_HOME']
+
+        home_DB_path = '{}{}{}'.format(home, os.sep, 'pyarchinit_DB_folder')
+        logo_path = '{}{}{}'.format(home_DB_path, os.sep, 'logo.jpg')
+        
+        logo = Image(logo_path)
+        logo.drawHeight = 1.5 * inch * logo.drawHeight / logo.drawWidth
+        logo.drawWidth = 1.5 * inch
+        logo.hAlign = "LEFT"
+
+        styleSheet = getSampleStyleSheet()
+        styNormal = styleSheet['Normal']
+        styBackground = ParagraphStyle('background', parent=styNormal, backColor=colors.pink)
+        styH1 = styleSheet['Heading3']
+
+        data = self.datestrfdate()
+
+        lst = []
+        lst.append(logo)
+        lst.append(
+            Paragraph("<b>LIST OF STRATIGRAPHIC PHOTOS</b><br/><b> Site: %s,  Date: %s</b>" % (sito, data), styH1))
+
+        table_data = []
+        for i in range(len(records)):
+            exp_index = FOTO_index_pdf_sheet_2(records[i])
+            table_data.append(exp_index.getTable_en())
+
+        styles = exp_index.makeStyles()
+        colWidths = [100, 50, 50, 200]
+
+        table_data_formatted = Table(table_data, colWidths, style=styles)
+        table_data_formatted.hAlign = "LEFT"
+
+        lst.append(table_data_formatted)
+        lst.append(Spacer(0, 2))
+
+        dt = datetime.datetime.now()
+        filename = ('%s%s%s_%s_%s_%s_%s_%s_%s%s') % (
+        self.PDF_path, os.sep, 'List Photo', dt.day, dt.month, dt.year, dt.hour, dt.minute, dt.second, ".pdf")
         f = open(filename, "wb")
 
         doc = SimpleDocTemplate(f, pagesize=A4)
