@@ -731,7 +731,7 @@
           </widget>
          </item>
          <item row="1" column="0">
-          <widget class="QLabel" name="label_status_2">
+          <widget class="QLabel" name="label_status">
            <property name="minimumSize">
             <size>
              <width>40</width>
@@ -772,7 +772,7 @@
           </widget>
          </item>
          <item row="1" column="1">
-          <widget class="QLabel" name="label_sort_2">
+          <widget class="QLabel" name="label_sort">
            <property name="font">
             <font>
              <pointsize>9</pointsize>
@@ -845,7 +845,7 @@
           </widget>
          </item>
          <item row="0" column="1">
-          <widget class="QLabel" name="label_rec_corrente_2">
+          <widget class="QLabel" name="label_rec_corrente">
            <property name="font">
             <font>
              <family>Microsoft Sans Serif</family>
@@ -890,7 +890,7 @@
           </widget>
          </item>
          <item row="1" column="1">
-          <widget class="QLabel" name="label_rec_tot_2">
+          <widget class="QLabel" name="label_rec_tot">
            <property name="font">
             <font>
              <family>Microsoft Sans Serif</family>

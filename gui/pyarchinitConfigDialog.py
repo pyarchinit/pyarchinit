@@ -154,10 +154,19 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
     
     def message(self):
         if self.checkBox_ignore.isChecked():
-            QMessageBox.warning(self, "Attenzione", 'Verranno copiati solo i dati nuovi', QMessageBox.Ok)
+            if self.L=='it':
+                QMessageBox.warning(self, "Attenzione", 'Verranno copiati solo i dati nuovi', QMessageBox.Ok)
+            elif self.L=='de':
+                QMessageBox.warning(self, "Warnung", 'Es werden nur neue Daten kopiert.', QMessageBox.Ok)
+            else:
+                QMessageBox.warning(self, "Warning", 'Only new data will be copied', QMessageBox.Ok)
         else:
-            QMessageBox.warning(self, "Attenzione", 'Verranno copiati i dati nuovi e aggiornati quelli esistenti', QMessageBox.Ok)
-    
+            if self.L=='it':
+                QMessageBox.warning(self, "Attenzione", 'Verranno copiati i dati nuovi e aggiornati quelli esistenti', QMessageBox.Ok)
+            elif self.L=='de':
+                QMessageBox.warning(self, "Warnung", 'Neue Daten werden kopiert und bestehende Daten werden aktualisiert', QMessageBox.Ok)
+            else:
+                QMessageBox.warning(self, "Warning", 'New data will be copied and existing data will be updated', QMessageBox.Ok)    
     def check(self):
         try:
             if self.checkBox_ignore.isChecked():
@@ -426,11 +435,24 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
     
     def setEnvironPath(self):
         os.environ['PATH'] += os.pathsep + os.path.normpath(self.graphviz_bin)
-        QMessageBox.warning(self, "Set Environmental Variable", "The path has been set successful", QMessageBox.Ok)
+        
+        if self.L=='it':
+            QMessageBox.warning(self, "Imposta variabile ambientale", "Il percorso è stato impostato con successo", QMessageBox.Ok)
+    
+        elif self.L=='de':
+            QMessageBox.warning(self, "Umweltvariable setzen", "Der Weg wurde erfolgreich eingeschlagen", QMessageBox.Ok)
+        else:
+            QMessageBox.warning(self, "Set Environmental Variable", "The path has been set successful", QMessageBox.Ok)
     def setEnvironPathR(self):
         os.environ['PATH'] += os.pathsep + os.path.normpath(self.r_bin)
-        QMessageBox.warning(self, "Set Environmental Variable", "The path has been set successful", QMessageBox.Ok)
         
+        if self.L=='it':
+            QMessageBox.warning(self, "Imposta variabile ambientale", "Il percorso è stato impostato con successo", QMessageBox.Ok)
+    
+        elif self.L=='de':
+            QMessageBox.warning(self, "Umweltvariable setzen", "Der Weg wurde erfolgreich eingeschlagen", QMessageBox.Ok)
+        else:
+            QMessageBox.warning(self, "Set Environmental Variable", "The path has been set successful", QMessageBox.Ok)
     def set_db_parameter(self):
         if self.comboBox_Database.currentText() == 'postgres':
             self.lineEdit_DBname.setText("pyarchinit")
@@ -526,8 +548,12 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
                     
                     if a == b:
                         link = 'https://www.postgresql.org/download/'
-                        msg =   "Stai utilizzando la versione di Postgres: " + str(b)+". Tale versione è diventata obsoleta e potresti riscontrare degli errori. Aggiorna PostgreSQL ad una versione più recente. <br><a href='%s'>PostgreSQL</a>" %link
-
+                        if self.L=='it':
+                            msg =   "Stai utilizzando la versione di Postgres: " + str(b)+". Tale versione è diventata obsoleta e potresti riscontrare degli errori. Aggiorna PostgreSQL ad una versione più recente. <br><a href='%s'>PostgreSQL</a>" %link
+                        if self.L=='de':
+                            msg =   "Sie benutzen die Postgres-Version: " + str(b)+". Diese Version ist veraltet, und Sie werden möglicherweise einige Fehler finden. Aktualisieren Sie PostgreSQL auf eine neuere Version. <br><a href='%s'>PostgreSQL</a>" %link
+                        else:
+                            msg = "You are using the Postgres version: " + str(b)+". This version has become obsolete and you may find some errors. Update PostgreSQL to a newer version. <br><a href='%s'>PostgreSQL</a>" %link
                         QMessageBox.information(self, "INFO", msg,QMessageBox.Ok)
                     else:
                         pass
@@ -538,7 +564,12 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
                 self.try_connection()
             
         except Exception as e:
-            QMessageBox.warning(self, "INFO", "Problema di connessione al db. Controlla i paramatri inseriti", QMessageBox.Ok)
+            if self.L=='it':
+                QMessageBox.warning(self, "INFO", "Problema di connessione al db. Controlla i paramatri inseriti", QMessageBox.Ok)
+            elif self.L=='de':
+                QMessageBox.warning(self, "INFO", "Db-Verbindungsproblem. Überprüfen Sie die eingegebenen Parameter", QMessageBox.Ok)    
+            else:
+                QMessageBox.warning(self, "INFO", "Db connection problem. Check the parameters inserted", QMessageBox.Ok)    
     def on_pushButton_crea_database_pressed(self,):
         schema_file = os.path.join(os.path.dirname(__file__), os.pardir, 'resources', 'dbfiles',
                                    'pyarchinit_schema_clean.sql')
@@ -560,7 +591,12 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
                 try:
                     RestoreSchema(db_url, schema_file).restore_schema()
                 except Exception as e:
-                    QMessageBox.warning(self, "INFO", "Devi essere superutente per creare un db. Vedi l'errore seguente", QMessageBox.Ok)
+                    if self.L=='it':
+                        QMessageBox.warning(self, "INFO", "Devi essere superutente per creare un db. Vedi l'errore seguente", QMessageBox.Ok)
+                    elif self.L=='de':
+                        QMessageBox.warning(self, "INFO", "Sie müssen Superuser sein, um eine Db anzulegen. Siehe folgenden Fehler", QMessageBox.Ok)
+                    else:
+                        QMessageBox.warning(self, "INFO", "You have to be super user to create a db. See the following error", QMessageBox.Ok)
                     DropDatabase(db_url).dropdb()
                     ok = False
                     raise e
@@ -579,6 +615,7 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
 
             if self.L=='it':
                 if ok and res:
+                    
                     msg = QMessageBox.warning(self, 'INFO', 'Installazione avvenuta con successo, vuoi connetterti al nuovo DB?',
                                               QMessageBox.Ok | QMessageBox.Cancel)
                     if msg == QMessageBox.Ok:
@@ -639,15 +676,33 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
         b=str(self.select_version_sql())
             
         a = "90313"     
-        
-        if a == b:
-            QMessageBox.information(self, "INFO", " Non puoi aggiornare il db postgres per chè la tua versione è inferiore alla 9.4 "
-                                                                            "Aggiorna ad una versione più recente",QMessageBox.Ok)
+        if self.L== 'it':
+            if a == b:
+                QMessageBox.information(self, "INFO", " Non puoi aggiornare il db postgres per chè la tua versione è inferiore alla 9.4 "
+                                                                                "Aggiorna ad una versione più recente",QMessageBox.Ok)
+            else:
+                RestoreSchema(db_url,view_file).restore_schema()
+                
+                QMessageBox.information(self, "INFO", "il db è stato aggiornato", QMessageBox.Ok)
+        elif self.L== 'de':
+            if a == b:
+                QMessageBox.information(self, "INFO", " Sie können die db postgres nicht aktualisieren, da Ihre Version niedriger als 9.4 ist. "
+                                                                                "Upgrade auf eine neuere Version",QMessageBox.Ok)
+            else:
+                RestoreSchema(db_url,view_file).restore_schema()
+                
+                QMessageBox.information(self, "INFO", "die db wurde aktualisiert", QMessageBox.Ok)
         else:
-            RestoreSchema(db_url,view_file).restore_schema()
-            
-            QMessageBox.information(self, "INFO", "il db è stato aggiornato", QMessageBox.Ok)
-       
+            if a == b:
+                QMessageBox.information(self, "INFO", " You cannot update the db postgres because your version is lower than 9.4 "
+                                                                                "Upgrade to a newer version",QMessageBox.Ok)
+            else:
+                RestoreSchema(db_url,view_file).restore_schema()
+                
+                QMessageBox.information(self, "INFO", "the db has been updated", QMessageBox.Ok)
+    
+    
+    
     def load_spatialite(self,dbapi_conn, connection_record):
         dbapi_conn.enable_load_extension(True)
         
@@ -1491,14 +1546,28 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
         pass
     
     def on_toolButton_active_toggled(self):
-        
-        if self.toolButton_active.isChecked():
-            QMessageBox.information(self, "Pyarchinit", "Sistema query attivato. Seleziona un sito e clicca su salva parametri", QMessageBox.Ok)
-            self.charge_list()
+        if self.L=='it':
+            if self.toolButton_active.isChecked():
+                QMessageBox.information(self, "Pyarchinit", "Sistema query attivato. Seleziona un sito e clicca su salva parametri", QMessageBox.Ok)
+                self.charge_list()
+            else:
+                self.comboBox_sito.clear()
+                QMessageBox.information(self, "Pyarchinit", "Sistema query disattivato", QMessageBox.Ok)
+        elif self.L=='de':
+            if self.toolButton_active.isChecked():
+                QMessageBox.information(self, "Pyarchinit", "Abfragesystem aktiviert. Wählen Sie einen Standort und klicken Sie auf Parameter speichern", QMessageBox.Ok)
+                self.charge_list()
+            else:
+                self.comboBox_sito.clear()
+                QMessageBox.information(self, "Pyarchinit", "Abfragesystem deaktiviert", QMessageBox.Ok)
+
         else:
-            self.comboBox_sito.clear()
-            QMessageBox.information(self, "Pyarchinit", "Sistema query disattivato", QMessageBox.Ok)
-            
+            if self.toolButton_active.isChecked():
+                QMessageBox.information(self, "Pyarchinit", "Query system activated. Select a site and click on save parameters", QMessageBox.Ok)
+                self.charge_list()
+            else:
+                self.comboBox_sito.clear()
+                QMessageBox.information(self, "Pyarchinit", "Query system deactivated", QMessageBox.Ok)        
     def charge_list(self):
         
         self.try_connection()
@@ -1513,27 +1582,44 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
         self.comboBox_sito.addItems(sito_vl)
 
     def on_pushButton_import_geometry_pressed(self):
-        msg = QMessageBox.warning(self, "Warning", "Il sistema aggiornerà le geometrie con i dati importati. Schiaccia Annulla per abortire altrimenti schiaccia Ok per contiunuare." ,  QMessageBox.Ok  | QMessageBox.Cancel)
+        if self.L=='it':
+        
+            msg = QMessageBox.warning(self, "Attenzione", "Il sistema aggiornerà le geometrie con i dati importati. Schiaccia Annulla per abortire altrimenti schiaccia Ok per contiunuare." ,  QMessageBox.Ok  | QMessageBox.Cancel)
+        
+        elif self.L=='de':
+        
+            msg = QMessageBox.warning(self, "Warning", "Das System wird die Geometrien mit den importierten Daten aktualisieren. Drücken Sie Abbrechen, um abzubrechen, oder drücken Sie Ok, um fortzufahren." ,  QMessageBox.Ok  | QMessageBox.Cancel)
+            
+        else:
+        
+            msg = QMessageBox.warning(self, "Warnung", "The system will update the geometries with the imported data. Press Cancel to abort otherwise press Ok to contiunue." ,  QMessageBox.Ok  | QMessageBox.Cancel)    
+        
         if msg == QMessageBox.Cancel:
-            QMessageBox.warning(self, "Warning", "Azione annullata" ,  QMessageBox.Ok)
-        else:    
             if self.L=='it':
-                id_table_class_mapper_conv_dict = {
-                    'PYSITO_POINT': 'id',
-                    'PYSITO_POLYGON':'pkuid',
-                    'PYUS':'gid',
-                    'PYQUOTE':'id',
-                    'PYUS_NEGATIVE':'pkuid',
-                    'PYSTRUTTURE':'id',
-                    'PYREPERTI':'ROWIND',
-                    'PYINDIVIDUI':'id' ,
-                    'PYCAMPIONI':'id',
-                    'PYTOMBA':'id_tafonomia_pk',
-                    'PYDOCUMENTAZIONE':'pkuid' ,
-                    'PYLINEERIFERIMENTO':'id',
-                    'PYRIPARTIZIONI_SPAZIALI':'id',
-                    'PYSEZIONI':'id'
-                }
+                QMessageBox.warning(self, "Attenzione", "Azione annullata" ,  QMessageBox.Ok)
+            elif self.L=='de':
+                QMessageBox.warning(self, "Warnung", "Aktion abgebrochen" ,  QMessageBox.Ok)
+        
+            else:
+                QMessageBox.warning(self, "Warning", "Action aborted" ,  QMessageBox.Ok)
+        else:    
+            #if self.L=='it':
+            id_table_class_mapper_conv_dict = {
+                'PYSITO_POINT': 'id',
+                'PYSITO_POLYGON':'pkuid',
+                'PYUS':'gid',
+                'PYQUOTE':'id',
+                'PYUS_NEGATIVE':'pkuid',
+                'PYSTRUTTURE':'id',
+                'PYREPERTI':'ROWIND',
+                'PYINDIVIDUI':'id' ,
+                'PYCAMPIONI':'id',
+                'PYTOMBA':'id_tafonomia_pk',
+                'PYDOCUMENTAZIONE':'pkuid' ,
+                'PYLINEERIFERIMENTO':'id',
+                'PYRIPARTIZIONI_SPAZIALI':'id',
+                'PYSEZIONI':'id'
+            }
             ####RICAVA I DATI IN LETTURA PER LA CONNESSIONE DALLA GUI
             conn_str_dict_read = {
                 "server": str(self.comboBox_server_rd.currentText()),
@@ -1907,9 +1993,26 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
                 self.progress_bar.reset()
                 QMessageBox.information(self, "Message", "Data Loaded")   
     def on_pushButton_import_pressed(self):
-        msg = QMessageBox.warning(self, "Warning", "Il sistema aggiornerà la tabella con i dati importati. Se hai spuntato la casella <b>'Ignora'</b>, il db aggiornerà i dati vecchi con quelli nuovi, altrimenti li ignorerà. Schiaccia Annulla per abortire altrimenti schiaccia Ok per contiunuare." ,  QMessageBox.Ok  | QMessageBox.Cancel)
+        if self.L=='it':
+        
+            msg = QMessageBox.warning(self, "Attenzione", "Il sistema aggiornerà le tabelle con i dati importati. Schiaccia Annulla per abortire altrimenti schiaccia Ok per contiunuare." ,  QMessageBox.Ok  | QMessageBox.Cancel)
+        
+        elif self.L=='de':
+        
+            msg = QMessageBox.warning(self, "Warning", "Das System wird die tabellarisch mit den importierten Daten aktualisieren. Drücken Sie Abbrechen, um abzubrechen, oder drücken Sie Ok, um fortzufahren." ,  QMessageBox.Ok  | QMessageBox.Cancel)
+            
+        else:
+        
+            msg = QMessageBox.warning(self, "Warnung", "The system will update the tables with the imported data. Press Cancel to abort otherwise press Ok to contiunue." ,  QMessageBox.Ok  | QMessageBox.Cancel)    
+        
         if msg == QMessageBox.Cancel:
-            QMessageBox.warning(self, "Warning", "Azione annullata" ,  QMessageBox.Ok)
+            if self.L=='it':
+                QMessageBox.warning(self, "Attenzione", "Azione annullata" ,  QMessageBox.Ok)
+            elif self.L=='de':
+                QMessageBox.warning(self, "Warnung", "Aktion abgebrochen" ,  QMessageBox.Ok)
+        
+            else:
+                QMessageBox.warning(self, "Warning", "Action aborted" ,  QMessageBox.Ok)
             
         else:    
             if self.L=='it':

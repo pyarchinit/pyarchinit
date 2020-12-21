@@ -27,7 +27,7 @@ import sys
 from builtins import str
 from qgis.PyQt.QtWidgets import QDialog, QMessageBox
 from qgis.PyQt.uic import loadUiType
-
+from qgis.core import QgsSettings
 from ..gui.pyarchinitConfigDialog import pyArchInitDialog_Config
 from ..modules.db.pyarchinit_conn_strings import Connection
 from ..modules.db.pyarchinit_db_manager import Pyarchinit_db_management
@@ -39,6 +39,7 @@ MAIN_DIALOG_CLASS, _ = loadUiType(
 
 
 class pyarchinit_Images_directory_export(QDialog, MAIN_DIALOG_CLASS):
+    L=QgsSettings().value("locale/userLocale")[0:2]
     UTILITY = Utility()
     OS_UTILITY = Pyarchinit_OS_Utility()
     DB_MANAGER = ""
@@ -106,13 +107,18 @@ class pyarchinit_Images_directory_export(QDialog, MAIN_DIALOG_CLASS):
         conn_str = conn.conn_str()
         thumb_resize = conn.thumb_resize()
         thumb_resize_str = thumb_resize['thumb_resize']
-        if self.comboBox_export.currentText()=='Tutte le immagini \ in periodi e fasi':
+        if self.comboBox_export.currentText()=='Tutte le immagini \ in periodi e fasi' or 'Alle Bilder \ in Perioden und Phasen' or 'All images \ in periods and phases' :
             
             us_res = self.db_search_DB('US', 'sito', sito)
             sito_path = '{}{}{}'.format(self.HOME, os.sep, "pyarchinit_image_export")
             self.OS_UTILITY.create_dir(sito_path)
             if bool(us_res):
-                sito_folder =  '{}{}{}'.format(sito_path, os.sep, self.comboBox_sito.currentText() +' - '+ str('Tutte le immagini'))
+                if self.L=='it':
+                    sito_folder =  '{}{}{}'.format(sito_path, os.sep, self.comboBox_sito.currentText() +' - '+ str('Tutte le immagini'))
+                elif self.L=='de':
+                    sito_folder =  '{}{}{}'.format(sito_path, os.sep, self.comboBox_sito.currentText() +' - '+ str('Alle Bilder'))
+                else:
+                    sito_folder =  '{}{}{}'.format(sito_path, os.sep, self.comboBox_sito.currentText() +' - '+ str('All Images'))
                 # Periodo_path = '{}{}{}'.format(sito_folder, os.sep, "Periodo")
                 # self.OS_UTILITY.create_dir(Periodo_path)
                 for sing_us in us_res:
@@ -125,7 +131,12 @@ class pyarchinit_Images_directory_export(QDialog, MAIN_DIALOG_CLASS):
                     else:
                         pass
                     sing_per_dir = prefix + str(sing_per_num)
-                    sing_Periodo_path = ('%s%sPeriodo - %s') % (sito_folder, os.sep, sing_per_dir)
+                    if self.L=='it':
+                        sing_Periodo_path = ('%s%sPeriodo - %s') % (sito_folder, os.sep, sing_per_dir)
+                    elif self.L=='de':
+                        sing_Periodo_path = ('%s%sPeriod - %s') % (sito_folder, os.sep, sing_per_dir)
+                    else:
+                        sing_Periodo_path = ('%s%sPeriod - %s') % (sito_folder, os.sep, sing_per_dir)
                     self.OS_UTILITY.create_dir(sing_Periodo_path)
                     
                     
@@ -139,7 +150,12 @@ class pyarchinit_Images_directory_export(QDialog, MAIN_DIALOG_CLASS):
                     else:
                         pass
                     sing_fase_dir = prefix + str(sing_fase_num)
-                    sing_Fase_path = ('%s%sFase - %s') % (sing_Periodo_path, os.sep, sing_fase_dir)
+                    if self.L=='it':
+                        sing_Fase_path = ('%s%sFase - %s') % (sing_Periodo_path, os.sep, sing_fase_dir)
+                    elif self.L=='de':
+                        sing_Fase_path = ('%s%sPhase - %s') % (sing_Periodo_path, os.sep, sing_fase_dir)
+                    else:
+                        sing_Fase_path = ('%s%sPhase - %s') % (sing_Periodo_path, os.sep, sing_fase_dir)
                     self.OS_UTILITY.create_dir(sing_Fase_path)
                         
                         
@@ -159,7 +175,12 @@ class pyarchinit_Images_directory_export(QDialog, MAIN_DIALOG_CLASS):
                     
                     
                     sing_us_dir = prefix + str(sing_us_num)
-                    sing_US_path = ('%s%sUS - %s') % (sing_Fase_path , os.sep, sing_us_dir)
+                    if self.L=='it':
+                        sing_US_path = ('%s%sUS - %s') % (sing_Fase_path , os.sep, sing_us_dir)
+                    elif self.L=='de':
+                        sing_US_path = ('%s%sSE - %s') % (sing_Fase_path , os.sep, sing_us_dir)
+                    else:
+                        sing_US_path = ('%s%sSU - %s') % (sing_Fase_path , os.sep, sing_us_dir)
                     self.OS_UTILITY.create_dir(sing_US_path)
 
                     search_dict = {'id_entity': sing_us.id_us, 'entity_type': "'" + "US" + "'"}
@@ -187,7 +208,12 @@ class pyarchinit_Images_directory_export(QDialog, MAIN_DIALOG_CLASS):
                         else:
                             pass
                         sing_per_dir = prefix + str(sing_per_num)
-                        sing_Periodo_path = ('%s%sPeriodo - %s') % (sito_folder, os.sep, sing_per_dir)
+                        if self.L=='it':
+                            sing_Periodo_path = ('%s%sPeriodo - %s') % (sito_folder, os.sep, sing_per_dir)
+                        elif self.L=='de':
+                            sing_Periodo_path = ('%s%sPeriod - %s') % (sito_folder, os.sep, sing_per_dir)
+                        else:
+                            sing_Periodo_path = ('%s%sPeriod - %s') % (sito_folder, os.sep, sing_per_dir)
                         self.OS_UTILITY.create_dir(sing_Periodo_path)
                         
                         
@@ -201,7 +227,12 @@ class pyarchinit_Images_directory_export(QDialog, MAIN_DIALOG_CLASS):
                         else:
                             pass
                         sing_fase_dir = prefix + str(sing_fase_num)
-                        sing_Fase_path = ('%s%sFase - %s') % (sing_Periodo_path, os.sep, sing_fase_dir)
+                        if self.L=='it':
+                            sing_Fase_path = ('%s%sFase - %s') % (sing_Periodo_path, os.sep, sing_fase_dir)
+                        elif self.L=='de':
+                            sing_Fase_path = ('%s%sPhase - %s') % (sing_Periodo_path, os.sep, sing_fase_dir)
+                        else:
+                            sing_Fase_path = ('%s%sPhase - %s') % (sing_Periodo_path, os.sep, sing_fase_dir)
                         self.OS_UTILITY.create_dir(sing_Fase_path)
                             
                             
@@ -218,7 +249,10 @@ class pyarchinit_Images_directory_export(QDialog, MAIN_DIALOG_CLASS):
                             pass
 
                         sing_reperti_dir = prefix + str(sing_reperti_num)
-                        sing_REPERTI_path = ('%s%sRA - %s') % (sing_Fase_path, os.sep, sing_reperti_dir)
+                        if self.L=='it':
+                            sing_REPERTI_path = ('%s%sRA - %s') % (sing_Fase_path, os.sep, sing_reperti_dir)
+                        else:
+                            sing_REPERTI_path = ('%s%sAA - %s') % (sing_Fase_path, os.sep, sing_reperti_dir)
                         self.OS_UTILITY.create_dir(sing_REPERTI_path)
 
                         search_dict = {'id_entity': a.id_invmat, 'entity_type': "'" + "REPERTO" + "'"}
@@ -243,7 +277,12 @@ class pyarchinit_Images_directory_export(QDialog, MAIN_DIALOG_CLASS):
                         else:
                             pass
                         sing_per_dir = prefix + str(sing_per_num)
-                        sing_Periodo_path = ('%s%sPeriodo - %s') % (sito_folder, os.sep, sing_per_dir)
+                        if self.L=='it':
+                            sing_Periodo_path = ('%s%sPeriodo - %s') % (sito_folder, os.sep, sing_per_dir)
+                        elif self.L=='de':
+                            sing_Periodo_path = ('%s%sPeriod - %s') % (sito_folder, os.sep, sing_per_dir)
+                        else:
+                            sing_Periodo_path = ('%s%sPeriod - %s') % (sito_folder, os.sep, sing_per_dir)
                         self.OS_UTILITY.create_dir(sing_Periodo_path)
                         
                         
@@ -257,7 +296,12 @@ class pyarchinit_Images_directory_export(QDialog, MAIN_DIALOG_CLASS):
                         else:
                             pass
                         sing_fase_dir = prefix + str(sing_fase_num)
-                        sing_Fase_path = ('%s%sFase - %s') % (sing_Periodo_path, os.sep, sing_fase_dir)
+                        if self.L=='it':
+                            sing_Fase_path = ('%s%sFase - %s') % (sing_Periodo_path, os.sep, sing_fase_dir)
+                        elif self.L=='de':
+                            sing_Fase_path = ('%s%sPhase - %s') % (sing_Periodo_path, os.sep, sing_fase_dir)
+                        else:
+                            sing_Fase_path = ('%s%sPhase - %s') % (sing_Periodo_path, os.sep, sing_fase_dir)
                         self.OS_UTILITY.create_dir(sing_Fase_path)
                         
                         sing_tomba_num = str(sing_t.nr_scheda_taf)
@@ -273,7 +317,13 @@ class pyarchinit_Images_directory_export(QDialog, MAIN_DIALOG_CLASS):
                             pass
 
                         sing_tomba_dir = prefix + str(sing_tomba_num)
-                        sing_TOMBA_path = ('%s%sTB - %s') % (sing_Fase_path, os.sep, sing_tomba_dir)
+                        if self.L=='it':
+                            sing_TOMBA_path = ('%s%sTB - %s') % (sing_Fase_path, os.sep, sing_tomba_dir)
+                        elif self.L=='de':
+                            sing_TOMBA_path = ('%s%sGrab - %s') % (sing_Fase_path, os.sep, sing_tomba_dir)
+                        else:
+                            sing_TOMBA_path = ('%s%sGrave - %s') % (sing_Fase_path, os.sep, sing_tomba_dir)    
+                        
                         self.OS_UTILITY.create_dir(sing_TOMBA_path)
 
                         search_dict = {'id_entity': sing_t.id_tomba, 'entity_type': "'" + "TOMBA" + "'"}
@@ -301,7 +351,12 @@ class pyarchinit_Images_directory_export(QDialog, MAIN_DIALOG_CLASS):
                         else:
                             pass
                         sing_per_dir = prefix + str(sing_per_num)
-                        sing_Periodo_path = ('%s%sPeriodo - %s') % (sito_folder, os.sep, sing_per_dir)
+                        if self.L=='it':
+                            sing_Periodo_path = ('%s%sPeriodo - %s') % (sito_folder, os.sep, sing_per_dir)
+                        elif self.L=='de':
+                            sing_Periodo_path = ('%s%sPeriod - %s') % (sito_folder, os.sep, sing_per_dir)
+                        else:
+                            sing_Periodo_path = ('%s%sPeriod - %s') % (sito_folder, os.sep, sing_per_dir)
                         self.OS_UTILITY.create_dir(sing_Periodo_path)
                         
                         
@@ -315,7 +370,12 @@ class pyarchinit_Images_directory_export(QDialog, MAIN_DIALOG_CLASS):
                         else:
                             pass
                         sing_fase_dir = prefix + str(sing_fase_num)
-                        sing_Fase_path = ('%s%sFase - %s') % (sing_Periodo_path, os.sep, sing_fase_dir)
+                        if self.L=='it':
+                            sing_Fase_path = ('%s%sFase - %s') % (sing_Periodo_path, os.sep, sing_fase_dir)
+                        elif self.L=='de':
+                            sing_Fase_path = ('%s%sPhase - %s') % (sing_Periodo_path, os.sep, sing_fase_dir)
+                        else:
+                            sing_Fase_path = ('%s%sPhase - %s') % (sing_Periodo_path, os.sep, sing_fase_dir)
                         self.OS_UTILITY.create_dir(sing_Fase_path)
                             
                             
@@ -325,7 +385,13 @@ class pyarchinit_Images_directory_export(QDialog, MAIN_DIALOG_CLASS):
                         
                         
                         sing_us_dir = prefix + str(sing_us_num)
-                        sing_US_path = ('%s%sStruttura - %s') % (sing_Fase_path , os.sep, sing_us_num)
+                        if self.L=='it':
+                            sing_US_path = ('%s%sStruttura - %s') % (sing_Fase_path , os.sep, sing_us_num)
+                        elif self.L=='de':
+                            sing_US_path = ('%s%sStruktur - %s') % (sing_Fase_path , os.sep, sing_us_num)
+                        else:
+                            sing_US_path = ('%s%sStructure - %s') % (sing_Fase_path , os.sep, sing_us_num)
+                        
                         self.OS_UTILITY.create_dir(sing_US_path)
 
                         search_dict = {'id_entity': sing_s.id_struttura, 'entity_type': "'" + "STRUTTURA" + "'"}
@@ -340,18 +406,26 @@ class pyarchinit_Images_directory_export(QDialog, MAIN_DIALOG_CLASS):
                             except:
                                 pass
                         search_images_res = ""
-                QMessageBox.warning(self, "Alert", "Creazione directories terminata", QMessageBox.Ok)
+                if self.L=='it':
+                    QMessageBox.warning(self, "Alert", "Creazione directories terminata", QMessageBox.Ok)
+                elif self.L=='de':
+                    QMessageBox.warning(self, "Alert", "Verzeichniserstellung abgeschlossen", QMessageBox.Ok)
+                else:
+                    QMessageBox.warning(self, "Alert", "Directory creation complete", QMessageBox.Ok)    
                 
         ############################immagini us##########################################################
-        if self.comboBox_export.currentText()=='US / in periodi e fasi':
+        if self.comboBox_export.currentText()=='US / in periodi e fasi' or 'SU / in periods e phases' or 'SE / in Perioden und Phasen':
             
             us_res = self.db_search_DB('US', 'sito', sito)
             sito_path = '{}{}{}'.format(self.HOME, os.sep, "pyarchinit_image_export")
             self.OS_UTILITY.create_dir(sito_path)
             if bool(us_res):
-                sito_folder =  '{}{}{}'.format(sito_path, os.sep, self.comboBox_sito.currentText() +' - '+ str('US in periodi e fasi'))
-                # Periodo_path = '{}{}{}'.format(sito_folder, os.sep, "Periodo")
-                # self.OS_UTILITY.create_dir(Periodo_path)
+                if self.L=='it':
+                    sito_folder =  '{}{}{}'.format(sito_path, os.sep, self.comboBox_sito.currentText() +' - '+ str('US in periodi e fasi'))
+                elif self.L=='de':
+                    sito_folder =  '{}{}{}'.format(sito_path, os.sep, self.comboBox_sito.currentText() +' - '+ str('SE in Perioden und Phasen'))
+                else:
+                    sito_folder =  '{}{}{}'.format(sito_path, os.sep, self.comboBox_sito.currentText() +' - '+ str('SU in period e phase'))
                 for sing_us in us_res:
                     sing_per_num = str(sing_us.periodo_iniziale)
                     prefix = ''
@@ -362,7 +436,12 @@ class pyarchinit_Images_directory_export(QDialog, MAIN_DIALOG_CLASS):
                     else:
                         pass
                     sing_per_dir = prefix + str(sing_per_num)
-                    sing_Periodo_path = ('%s%sPeriodo - %s') % (sito_folder, os.sep, sing_per_dir)
+                    if self.L=='it':
+                        sing_Periodo_path = ('%s%sPeriodo - %s') % (sito_folder, os.sep, sing_per_dir)
+                    elif self.L=='de':
+                        sing_Periodo_path = ('%s%sPeriod - %s') % (sito_folder, os.sep, sing_per_dir)
+                    else:
+                        sing_Periodo_path = ('%s%sPeriod - %s') % (sito_folder, os.sep, sing_per_dir)
                     self.OS_UTILITY.create_dir(sing_Periodo_path)
                     
                     
@@ -376,7 +455,12 @@ class pyarchinit_Images_directory_export(QDialog, MAIN_DIALOG_CLASS):
                     else:
                         pass
                     sing_fase_dir = prefix + str(sing_fase_num)
-                    sing_Fase_path = ('%s%sFase - %s') % (sing_Periodo_path, os.sep, sing_fase_dir)
+                    if self.L=='it':
+                        sing_Fase_path = ('%s%sFase - %s') % (sing_Periodo_path, os.sep, sing_fase_dir)
+                    elif self.L=='de':
+                        sing_Fase_path = ('%s%sPhase - %s') % (sing_Periodo_path, os.sep, sing_fase_dir)
+                    else:
+                        sing_Fase_path = ('%s%sPhase - %s') % (sing_Periodo_path, os.sep, sing_fase_dir)
                     self.OS_UTILITY.create_dir(sing_Fase_path)
                         
                         
@@ -396,7 +480,13 @@ class pyarchinit_Images_directory_export(QDialog, MAIN_DIALOG_CLASS):
                     
                     
                     sing_us_dir = prefix + str(sing_us_num)
-                    sing_US_path = ('%s%sUS - %s') % (sing_Fase_path , os.sep, sing_us_dir)
+                    if self.L=='it':
+                        sing_US_path = ('%s%sUS - %s') % (sing_Fase_path , os.sep, sing_us_dir)
+                    elif self.L=='de':
+                        sing_US_path = ('%s%sSE - %s') % (sing_Fase_path , os.sep, sing_us_dir)
+                    else:
+                        sing_US_path = ('%s%sSU - %s') % (sing_Fase_path , os.sep, sing_us_dir)    
+                    
                     self.OS_UTILITY.create_dir(sing_US_path)
 
                     search_dict = {'id_entity': sing_us.id_us, 'entity_type': "'" + "US" + "'"}
@@ -412,14 +502,25 @@ class pyarchinit_Images_directory_export(QDialog, MAIN_DIALOG_CLASS):
                     
             
             
-            QMessageBox.warning(self, "Alert", "Creazione directories terminata", QMessageBox.Ok)
-        if self.comboBox_export.currentText()=='US':
+            if self.L=='it':
+                QMessageBox.warning(self, "Alert", "Creazione directories terminata", QMessageBox.Ok)
+            elif self.L=='de':
+                QMessageBox.warning(self, "Alert", "Verzeichniserstellung abgeschlossen", QMessageBox.Ok)
+            else:
+                QMessageBox.warning(self, "Alert", "Directory creation complete", QMessageBox.Ok)
+        if self.comboBox_export.currentText()=='US' or 'SE' or 'SU':
             
             us_res = self.db_search_DB('US', 'sito', sito)
             sito_path = '{}{}{}'.format(self.HOME, os.sep, "pyarchinit_image_export")
             self.OS_UTILITY.create_dir(sito_path)
             if bool(us_res):
-                sito_folder =  '{}{}{}'.format(sito_path, os.sep, self.comboBox_sito.currentText() +' - '+ str('US'))
+                if self.L=='it':
+                    sito_folder =  '{}{}{}'.format(sito_path, os.sep, self.comboBox_sito.currentText() +' - '+ str('US'))
+                elif self.L=='de':
+                    sito_folder =  '{}{}{}'.format(sito_path, os.sep, self.comboBox_sito.currentText() +' - '+ str('SE'))
+                else:
+                    sito_folder =  '{}{}{}'.format(sito_path, os.sep, self.comboBox_sito.currentText() +' - '+ str('SU'))    
+                
                 # Periodo_path = '{}{}{}'.format(sito_folder, os.sep, "Periodo")
                 # self.OS_UTILITY.create_dir(Periodo_path)
                 for sing_us in us_res:
@@ -439,7 +540,13 @@ class pyarchinit_Images_directory_export(QDialog, MAIN_DIALOG_CLASS):
                     
                     
                     sing_us_dir = prefix + str(sing_us_num)
-                    sing_US_path = ('%s%sUS - %s') % (sito_folder , os.sep, sing_us_dir)
+                    if self.L=='it':
+                        sing_US_path = ('%s%sUS - %s') % (sito_folder , os.sep, sing_us_dir)
+                    elif self.L=='de':
+                        sing_US_path = ('%s%sSE - %s') % (sito_folder , os.sep, sing_us_dir)
+                    else:
+                        sing_US_path = ('%s%sSU - %s') % (sito_folder , os.sep, sing_us_dir)    
+                    
                     self.OS_UTILITY.create_dir(sing_US_path)
 
                     search_dict = {'id_entity': sing_us.id_us, 'entity_type': "'" + "US" + "'"}
@@ -452,20 +559,28 @@ class pyarchinit_Images_directory_export(QDialog, MAIN_DIALOG_CLASS):
                         self.OS_UTILITY.copy_file_img(thumb_resize_str+str(sing_media.path_resize), sing_US_path)
                 
                     search_images_res = ""
-            QMessageBox.warning(self, "Alert", "Creazione directories terminata", QMessageBox.Ok)
+            if self.L=='it':
+                QMessageBox.warning(self, "Alert", "Creazione directories terminata", QMessageBox.Ok)
+            elif self.L=='de':
+                QMessageBox.warning(self, "Alert", "Verzeichniserstellung abgeschlossen", QMessageBox.Ok)
+            else:
+                QMessageBox.warning(self, "Alert", "Directory creation complete", QMessageBox.Ok)
         
         ############################Immagini reperti#################################################
         
         
-        if self.comboBox_export.currentText()=='Reperti':
+        if self.comboBox_export.currentText()=='Reperti' or 'Ergebnisse' or 'Artifact':
             
             us_res = self.db_search_DB('INVENTARIO_MATERIALI', 'sito', sito)
             sito_path = '{}{}{}'.format(self.HOME, os.sep, "pyarchinit_image_export")
             self.OS_UTILITY.create_dir(sito_path)
             if bool(us_res):
-                sito_folder =  '{}{}{}'.format(sito_path, os.sep, self.comboBox_sito.currentText() +' - '+ str('RA'))
-                # Periodo_path = '{}{}{}'.format(sito_folder, os.sep, "Periodo")
-                # self.OS_UTILITY.create_dir(Periodo_path)
+                if self.L=='it':
+                    sito_folder =  '{}{}{}'.format(sito_path, os.sep, self.comboBox_sito.currentText() +' - '+ str('RA'))
+                elif self.L=='de':
+                    sito_folder =  '{}{}{}'.format(sito_path, os.sep, self.comboBox_sito.currentText() +' - '+ str('EA'))
+                else:
+                    sito_folder =  '{}{}{}'.format(sito_path, os.sep, self.comboBox_sito.currentText() +' - '+ str('AA'))
                 for sing_us in us_res:
                     
                     sing_us_num = str(sing_us.numero_inventario)
@@ -496,17 +611,25 @@ class pyarchinit_Images_directory_export(QDialog, MAIN_DIALOG_CLASS):
                         self.OS_UTILITY.copy_file_img(thumb_resize_str+str(sing_media.path_resize), sing_US_path)
                 
                     search_images_res = ""
-            QMessageBox.warning(self, "Alert", "Creazione directories terminata", QMessageBox.Ok)
+            if self.L=='it':
+                QMessageBox.warning(self, "Alert", "Creazione directories terminata", QMessageBox.Ok)
+            elif self.L=='de':
+                QMessageBox.warning(self, "Alert", "Verzeichniserstellung abgeschlossen", QMessageBox.Ok)
+            else:
+                QMessageBox.warning(self, "Alert", "Directory creation complete", QMessageBox.Ok)
         
-        if self.comboBox_export.currentText()=='Reperti \ in Definizione materiali':
+        if self.comboBox_export.currentText()=='Reperti \ in Definizione materiali' or 'Findings \ in Material Definition' or 'Egebnisse \ in der Materialdefinition' :
             
             us_res = self.db_search_DB('INVENTARIO_MATERIALI', 'sito', sito)
             sito_path = '{}{}{}'.format(self.HOME, os.sep, "pyarchinit_image_export")
             self.OS_UTILITY.create_dir(sito_path)
             if bool(us_res):
-                sito_folder =  '{}{}{}'.format(sito_path, os.sep, self.comboBox_sito.currentText() +' - '+ str('RA Definizione Materiali'))
-                # Periodo_path = '{}{}{}'.format(sito_folder, os.sep, "Periodo")
-                # self.OS_UTILITY.create_dir(Periodo_path)
+                if self.L=='it':
+                    sito_folder =  '{}{}{}'.format(sito_path, os.sep, self.comboBox_sito.currentText() +' - '+ str('RA Definizione Materiali'))
+                elif self.L=='de':
+                    sito_folder =  '{}{}{}'.format(sito_path, os.sep, self.comboBox_sito.currentText() +' - '+ str('EA Materialdefinition'))
+                else:
+                    sito_folder =  '{}{}{}'.format(sito_path, os.sep, self.comboBox_sito.currentText() +' - '+ str('AA Material Definition'))
                 for sing_us in us_res:
                     sing_per_num = str(sing_us.definizione)
                     
@@ -542,29 +665,47 @@ class pyarchinit_Images_directory_export(QDialog, MAIN_DIALOG_CLASS):
                         self.OS_UTILITY.copy_file_img(thumb_resize_str+str(sing_media.path_resize), sing_US_path)
                 
                     search_images_res = ""
-            QMessageBox.warning(self, "Alert", "Creazione directories terminata", QMessageBox.Ok)
+            if self.L=='it':
+                QMessageBox.warning(self, "Alert", "Creazione directories terminata", QMessageBox.Ok)
+            elif self.L=='de':
+                QMessageBox.warning(self, "Alert", "Verzeichniserstellung abgeschlossen", QMessageBox.Ok)
+            else:
+                QMessageBox.warning(self, "Alert", "Directory creation complete", QMessageBox.Ok)
         
-        if self.comboBox_export.currentText()=='Reperti \ in Tipo reperto':
+        if self.comboBox_export.currentText()=='Reperti \ in Tipo reperto' or 'Find \ in Find Type' or 'Suchen \ in Suchen Typ' :
             
             us_res = self.db_search_DB('INVENTARIO_MATERIALI', 'sito', sito)
             sito_path = '{}{}{}'.format(self.HOME, os.sep, "pyarchinit_image_export")
             self.OS_UTILITY.create_dir(sito_path)
             if bool(us_res):
-                sito_folder =  '{}{}{}'.format(sito_path, os.sep, self.comboBox_sito.currentText() +' - '+ str('RA Tipo Reperto'))
-                # Periodo_path = '{}{}{}'.format(sito_folder, os.sep, "Periodo")
-                # self.OS_UTILITY.create_dir(Periodo_path)
+                if self.L=='it':
+                    sito_folder =  '{}{}{}'.format(sito_path, os.sep, self.comboBox_sito.currentText() +' - '+ str('RA Tipo Reperto'))
+                elif self.L=='de':
+                    sito_folder =  '{}{}{}'.format(sito_path, os.sep, self.comboBox_sito.currentText() +' - '+ str('EA Suchen Typ'))
+                else:
+                    sito_folder =  '{}{}{}'.format(sito_path, os.sep, self.comboBox_sito.currentText() +' - '+ str('AA Type Artefact'))
+                
                 for sing_us in us_res:
                     sing_per_num = str(sing_us.definizione)
                     
-                    #sing_per_dir = prefix + str(sing_per_num)
-                    sing_def_path = ('%s%sDefinizione - %s') % (sito_folder, os.sep, sing_per_num)
+                    if self.L=='it':
+                        sing_def_path = ('%s%sDefinizione - %s') % (sito_folder, os.sep, sing_per_num)
+                    elif self.L=='de':
+                        sing_def_path = ('%s%sDefinition - %s') % (sito_folder, os.sep, sing_per_num)
+                    else:
+                        sing_def_path = ('%s%sDefinition - %s') % (sito_folder, os.sep, sing_per_num)
+                    
                     self.OS_UTILITY.create_dir(sing_def_path)
                     
                     
                     sing_tipo_num = str(sing_us.tipo_reperto)
                     
-                    #sing_per_dir = prefix + str(sing_per_num)
-                    sing_tipo_path = ('%s%sDefinizione - %s') % (sing_def_path , os.sep, sing_tipo_num)
+                    if self.L=='it':
+                        sing_tipo_path = ('%s%sDefinizione - %s') % (sing_def_path , os.sep, sing_tipo_num)
+                    elif self.L=='de':
+                        sing_tipo_path = ('%s%sDefinition - %s') % (sing_def_path , os.sep, sing_tipo_num)
+                    else:
+                        sing_tipo_path = ('%s%sDefinition - %s') % (sing_def_path , os.sep, sing_tipo_num)    
                     self.OS_UTILITY.create_dir(sing_tipo_path)
                     
                     sing_us_num = str(sing_us.numero_inventario)
@@ -582,7 +723,13 @@ class pyarchinit_Images_directory_export(QDialog, MAIN_DIALOG_CLASS):
                     
                     
                     sing_us_dir = prefix + str(sing_us_num)
-                    sing_US_path = ('%s%sRA - %s') % (sing_tipo_path , os.sep, sing_us_dir)
+                    
+                    if self.L=='it':
+                        sing_US_path = ('%s%sRA - %s') % (sing_tipo_path , os.sep, sing_us_dir)
+                    elif self.L=='de':
+                        sing_US_path = ('%s%sEA - %s') % (sing_tipo_path , os.sep, sing_us_dir)
+                    else:
+                        sing_US_path = ('%s%sAA - %s') % (sing_tipo_path , os.sep, sing_us_dir)
                     self.OS_UTILITY.create_dir(sing_US_path)
 
                     search_dict = {'id_entity': sing_us.id_invmat, 'entity_type': "'" + "REPERTO" + "'"}
@@ -595,19 +742,27 @@ class pyarchinit_Images_directory_export(QDialog, MAIN_DIALOG_CLASS):
                         self.OS_UTILITY.copy_file_img(thumb_resize_str+str(sing_media.path_resize), sing_US_path)
                 
                     search_images_res = ""
-            QMessageBox.warning(self, "Alert", "Creazione directories terminata", QMessageBox.Ok)
+            if self.L=='it':
+                QMessageBox.warning(self, "Alert", "Creazione directories terminata", QMessageBox.Ok)
+            elif self.L=='de':
+                QMessageBox.warning(self, "Alert", "Verzeichniserstellung abgeschlossen", QMessageBox.Ok)
+            else:
+                QMessageBox.warning(self, "Alert", "Directory creation complete", QMessageBox.Ok)
             
             
         #############################################immagini Tomba############################################
-        if self.comboBox_export.currentText()=='Tomba':
+        if self.comboBox_export.currentText()=='Tomba' or 'Grab' or 'Grave':
             
             us_res = self.db_search_DB('TOMBA', 'sito', sito)
             sito_path = '{}{}{}'.format(self.HOME, os.sep, "pyarchinit_image_export")
             self.OS_UTILITY.create_dir(sito_path)
             if bool(us_res):
-                sito_folder =  '{}{}{}'.format(sito_path, os.sep, self.comboBox_sito.currentText() +' - '+ str('TB'))
-                # Periodo_path = '{}{}{}'.format(sito_folder, os.sep, "Periodo")
-                # self.OS_UTILITY.create_dir(Periodo_path)
+                if self.L=='it':
+                    sito_folder =  '{}{}{}'.format(sito_path, os.sep, self.comboBox_sito.currentText() +' - '+ str('TB'))
+                elif self.L=='de':
+                    sito_folder =  '{}{}{}'.format(sito_path, os.sep, self.comboBox_sito.currentText() +' - '+ str('Grab'))
+                else:
+                    sito_folder =  '{}{}{}'.format(sito_path, os.sep, self.comboBox_sito.currentText() +' - '+ str('Grave'))
                 for sing_us in us_res:
                     
                     sing_us_num = str(sing_us.nr_scheda_taf)
@@ -623,7 +778,13 @@ class pyarchinit_Images_directory_export(QDialog, MAIN_DIALOG_CLASS):
                         pass
                                        
                     sing_us_dir = prefix + str(sing_us_num)
-                    sing_US_path = ('%s%sTB - %s') % (sito_folder , os.sep, sing_us_dir)
+                    if self.L=='it':
+                        sing_US_path = ('%s%sTB - %s') % (sito_folder , os.sep, sing_us_dir)
+                    elif self.L=='de':
+                        sing_US_path = ('%s%sGrab - %s') % (sito_folder , os.sep, sing_us_dir)
+                    else:
+                        sing_US_path = ('%s%sGrave - %s') % (sito_folder , os.sep, sing_us_dir)
+                    
                     self.OS_UTILITY.create_dir(sing_US_path)
 
                     search_dict = {'id_entity': sing_us.id_tomba, 'entity_type': "'" + "TOMBA" + "'"}
@@ -636,17 +797,25 @@ class pyarchinit_Images_directory_export(QDialog, MAIN_DIALOG_CLASS):
                         self.OS_UTILITY.copy_file_img(thumb_resize_str+str(sing_media.path_resize), sing_US_path)
                 
                     search_images_res = ""
-            QMessageBox.warning(self, "Alert", "Creazione directories terminata", QMessageBox.Ok)
+            if self.L=='it':
+                QMessageBox.warning(self, "Alert", "Creazione directories terminata", QMessageBox.Ok)
+            elif self.L=='de':
+                QMessageBox.warning(self, "Alert", "Verzeichniserstellung abgeschlossen", QMessageBox.Ok)
+            else:
+                QMessageBox.warning(self, "Alert", "Directory creation complete", QMessageBox.Ok)
         
-        if self.comboBox_export.currentText()=='Tomba / in periodi e fasi':
+        if self.comboBox_export.currentText()=='Tomba / in periodi e fasi' or 'Grave / in periods and phases' or 'Grab / in Perioden und Phasen':
             
             us_res = self.db_search_DB('TOMBA', 'sito', sito)
             sito_path = '{}{}{}'.format(self.HOME, os.sep, "pyarchinit_image_export")
             self.OS_UTILITY.create_dir(sito_path)
             if bool(us_res):
-                sito_folder =  '{}{}{}'.format(sito_path, os.sep, self.comboBox_sito.currentText() +' - '+ str('TB in periodi e fasi'))
-                # Periodo_path = '{}{}{}'.format(sito_folder, os.sep, "Periodo")
-                # self.OS_UTILITY.create_dir(Periodo_path)
+                if self.L=='it':
+                    sito_folder =  '{}{}{}'.format(sito_path, os.sep, self.comboBox_sito.currentText() +' - '+ str('TB in periodi e fasi'))
+                elif self.L=='de':
+                    sito_folder =  '{}{}{}'.format(sito_path, os.sep, self.comboBox_sito.currentText() +' - '+ str('Grab in Perioden und Phasen'))
+                else:
+                    sito_folder =  '{}{}{}'.format(sito_path, os.sep, self.comboBox_sito.currentText() +' - '+ str('Grave in periods and phases'))
                 for sing_us in us_res:
                     sing_per_num = str(sing_us.periodo_iniziale)
                     prefix = ''
@@ -657,9 +826,16 @@ class pyarchinit_Images_directory_export(QDialog, MAIN_DIALOG_CLASS):
                     else:
                         pass
                     sing_per_dir = prefix + str(sing_per_num)
-                    sing_Periodo_path = ('%s%sPeriodo - %s') % (sito_folder, os.sep, sing_per_dir)
+                    if self.L=='it':
+                        sing_Periodo_path = ('%s%sPeriodo - %s') % (sito_folder, os.sep, sing_per_dir)
+                    elif self.L=='de':
+                        sing_Periodo_path = ('%s%sPeriod - %s') % (sito_folder, os.sep, sing_per_dir)
+                    else:
+                        sing_Periodo_path = ('%s%sPeriod - %s') % (sito_folder, os.sep, sing_per_dir)
                     self.OS_UTILITY.create_dir(sing_Periodo_path)
-                   
+                    
+                    
+                    
                     sing_fase_num = str(sing_us.fase_iniziale)
                     prefix = ''
                     sing_fase_num_len = len(sing_fase_num)
@@ -669,7 +845,12 @@ class pyarchinit_Images_directory_export(QDialog, MAIN_DIALOG_CLASS):
                     else:
                         pass
                     sing_fase_dir = prefix + str(sing_fase_num)
-                    sing_Fase_path = ('%s%sFase - %s') % (sing_Periodo_path, os.sep, sing_fase_dir)
+                    if self.L=='it':
+                        sing_Fase_path = ('%s%sFase - %s') % (sing_Periodo_path, os.sep, sing_fase_dir)
+                    elif self.L=='de':
+                        sing_Fase_path = ('%s%sPhase - %s') % (sing_Periodo_path, os.sep, sing_fase_dir)
+                    else:
+                        sing_Fase_path = ('%s%sPhase - %s') % (sing_Periodo_path, os.sep, sing_fase_dir)
                     self.OS_UTILITY.create_dir(sing_Fase_path)
                      
                     sing_us_num = str(sing_us.nr_scheda_taf)
@@ -685,7 +866,13 @@ class pyarchinit_Images_directory_export(QDialog, MAIN_DIALOG_CLASS):
                         pass
                    
                     sing_us_dir = prefix + str(sing_us_num)
-                    sing_US_path = ('%s%sTB - %s') % (sing_Fase_path , os.sep, sing_us_dir)
+                    if self.L=='it':
+                        sing_US_path = ('%s%sTB - %s') % (sing_Fase_path , os.sep, sing_us_dir)
+                    elif self.L=='de':
+                        sing_US_path = ('%s%sGrab - %s') % (sing_Fase_path , os.sep, sing_us_dir)
+                    else:
+                        sing_US_path = ('%s%sGrave - %s') % (sing_Fase_path , os.sep, sing_us_dir)
+                    
                     self.OS_UTILITY.create_dir(sing_US_path)
 
                     search_dict = {'id_entity': sing_us.id_tomba, 'entity_type': "'" + "TOMBA" + "'"}
@@ -698,13 +885,18 @@ class pyarchinit_Images_directory_export(QDialog, MAIN_DIALOG_CLASS):
                         self.OS_UTILITY.copy_file_img(thumb_resize_str+str(sing_media.path_resize), sing_US_path)
                 
                     search_images_res = ""
-            QMessageBox.warning(self, "Alert", "Creazione directories terminata", QMessageBox.Ok)
+            if self.L=='it':
+                QMessageBox.warning(self, "Alert", "Creazione directories terminata", QMessageBox.Ok)
+            elif self.L=='de':
+                QMessageBox.warning(self, "Alert", "Verzeichniserstellung abgeschlossen", QMessageBox.Ok)
+            else:
+                QMessageBox.warning(self, "Alert", "Directory creation complete", QMessageBox.Ok)
         
         
         ########################################Immagini strutture##################################################
         
         
-        if self.comboBox_export.currentText()=='Strutture':
+        if self.comboBox_export.currentText()=='Strutture' or 'Architecture' or 'Einrichtungen':
             
             us_res = self.db_search_DB('STRUTTURA', 'sito', sito)
             sito_path = '{}{}{}'.format(self.HOME, os.sep, "pyarchinit_image_export")
@@ -716,8 +908,13 @@ class pyarchinit_Images_directory_export(QDialog, MAIN_DIALOG_CLASS):
                 for sing_us in us_res:
                     
                     sing_us_num = str(sing_us.sigla_struttura+str(sing_us.numero_struttura))
+                    if self.L=='it':
+                        sing_US_path = ('%s%sStruttura - %s') % (sito_folder , os.sep, sing_us_num)
+                    elif self.L=='it':
+                        sing_US_path = ('%s%sStrukturen - %s') % (sito_folder , os.sep, sing_us_num)
+                    else:
+                        sing_US_path = ('%s%sStructure - %s') % (sito_folder , os.sep, sing_us_num)
                     
-                    sing_US_path = ('%s%sStruttura - %s') % (sito_folder , os.sep, sing_us_num)
                     self.OS_UTILITY.create_dir(sing_US_path)
 
                     search_dict = {'id_entity': sing_us.id_struttura, 'entity_type': "'" + "STRUTTURA" + "'"}
@@ -732,17 +929,29 @@ class pyarchinit_Images_directory_export(QDialog, MAIN_DIALOG_CLASS):
                         except:
                             pass
                     search_images_res = ""
-            QMessageBox.warning(self, "Alert", "Creazione directories terminata", QMessageBox.Ok)
+            if self.L=='it':
+                QMessageBox.warning(self, "Alert", "Creazione directories terminata", QMessageBox.Ok)
+            elif self.L=='de':
+                QMessageBox.warning(self, "Alert", "Verzeichniserstellung abgeschlossen", QMessageBox.Ok)
+            else:
+                QMessageBox.warning(self, "Alert", "Directory creation complete", QMessageBox.Ok)
         
-        if self.comboBox_export.currentText()=='Strutture / in periodi e fasi':
+        if self.comboBox_export.currentText()=='Strutture / in periodi e fasi' or 'Strukturen / in Perioden un Phasen' or 'Structures / in periods and phases' :
             
             us_res = self.db_search_DB('STRUTTURA', 'sito', sito)
             sito_path = '{}{}{}'.format(self.HOME, os.sep, "pyarchinit_image_export")
             self.OS_UTILITY.create_dir(sito_path)
             if bool(us_res):
-                sito_folder =  '{}{}{}'.format(sito_path, os.sep, self.comboBox_sito.currentText() +' - '+ str('ST in periodi e fasi'))
-                # Periodo_path = '{}{}{}'.format(sito_folder, os.sep, "Periodo")
-                # self.OS_UTILITY.create_dir(Periodo_path)
+                if self.L=='it':
+                
+                    sito_folder =  '{}{}{}'.format(sito_path, os.sep, self.comboBox_sito.currentText() +' - '+ str('ST in periodi e fasi'))
+                elif self.L=='de':
+                
+                    sito_folder =  '{}{}{}'.format(sito_path, os.sep, self.comboBox_sito.currentText() +' - '+ str('ST in Perioden un Phasen'))
+                    
+                else:
+                
+                    sito_folder =  '{}{}{}'.format(sito_path, os.sep, self.comboBox_sito.currentText() +' - '+ str('ST in periods and phases'))    
                 for sing_us in us_res:
                     sing_per_num = str(sing_us.periodo_iniziale)
                     prefix = ''
@@ -753,8 +962,15 @@ class pyarchinit_Images_directory_export(QDialog, MAIN_DIALOG_CLASS):
                     else:
                         pass
                     sing_per_dir = prefix + str(sing_per_num)
-                    sing_Periodo_path = ('%s%sPeriodo - %s') % (sito_folder, os.sep, sing_per_dir)
+                    if self.L=='it':
+                        sing_Periodo_path = ('%s%sPeriodo - %s') % (sito_folder, os.sep, sing_per_dir)
+                    elif self.L=='de':
+                        sing_Periodo_path = ('%s%sPeriod - %s') % (sito_folder, os.sep, sing_per_dir)
+                    else:
+                        sing_Periodo_path = ('%s%sPeriod - %s') % (sito_folder, os.sep, sing_per_dir)
                     self.OS_UTILITY.create_dir(sing_Periodo_path)
+                    
+                    
                     
                     sing_fase_num = str(sing_us.fase_iniziale)
                     prefix = ''
@@ -765,7 +981,12 @@ class pyarchinit_Images_directory_export(QDialog, MAIN_DIALOG_CLASS):
                     else:
                         pass
                     sing_fase_dir = prefix + str(sing_fase_num)
-                    sing_Fase_path = ('%s%sFase - %s') % (sing_Periodo_path, os.sep, sing_fase_dir)
+                    if self.L=='it':
+                        sing_Fase_path = ('%s%sFase - %s') % (sing_Periodo_path, os.sep, sing_fase_dir)
+                    elif self.L=='de':
+                        sing_Fase_path = ('%s%sPhase - %s') % (sing_Periodo_path, os.sep, sing_fase_dir)
+                    else:
+                        sing_Fase_path = ('%s%sPhase - %s') % (sing_Periodo_path, os.sep, sing_fase_dir)
                     self.OS_UTILITY.create_dir(sing_Fase_path)
                        
                     sing_us_num = str(sing_us.sigla_struttura+str(sing_us.numero_struttura))
@@ -786,7 +1007,12 @@ class pyarchinit_Images_directory_export(QDialog, MAIN_DIALOG_CLASS):
                         except:
                             pass
                     search_images_res = ""
-            QMessageBox.warning(self, "Alert", "Creazione directories terminata", QMessageBox.Ok)
+            if self.L=='it':
+                QMessageBox.warning(self, "Alert", "Creazione directories terminata", QMessageBox.Ok)
+            elif self.L=='de':
+                QMessageBox.warning(self, "Alert", "Verzeichniserstellung abgeschlossen", QMessageBox.Ok)
+            else:
+                QMessageBox.warning(self, "Alert", "Directory creation complete", QMessageBox.Ok)
         
         
     def db_search_DB(self, table_class, field, value):

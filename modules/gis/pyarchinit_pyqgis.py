@@ -25,7 +25,7 @@ from builtins import object
 from builtins import range
 from builtins import str
 from qgis.PyQt.QtWidgets import QDialog, QMessageBox, QFileDialog
-from qgis.core import QgsProject, QgsDataSourceUri, QgsVectorLayer, QgsCoordinateReferenceSystem, QgsSettings
+from qgis.core import QgsProject, QgsDataSourceUri, QgsVectorLayer, QgsCoordinateReferenceSystem, QgsSettings,QgsEditorWidgetSetup
 from qgis.gui import QgsMapCanvas
 
 from ..utility.settings import Settings
@@ -361,7 +361,7 @@ class Pyarchinit_pyqgis(QDialog):
                     # f.close()
             else:
                 QMessageBox.warning(self, "TESTER", "OK Layer Quote non valido", QMessageBox.Ok)
-
+        
     def charge_vector_layers_doc(self, data):
         # Clean Qgis Map Later Registry
         # QgsProject.instance().removeAllMapLayers()
@@ -1292,7 +1292,7 @@ class Pyarchinit_pyqgis(QDialog):
                 layer_label_conv = "'" + layer_label + "'"
                 cmq_set_vector_layer = "QgsVectorLayer(uri.uri(), %s, 'spatialite')" % (layer_label_conv)
                 layer = eval(cmq_set_vector_layer)
-
+                
                 if layer.isValid():
                     # self.USLayerId = layerUS.getLayerID()
                     ##style_path = '{}{}'.format(self.LAYER_STYLE_PATH_SPATIALITE, 'us_view.qml')
@@ -1318,7 +1318,13 @@ class Pyarchinit_pyqgis(QDialog):
                 layer_label_conv = "'" + layer_label + "'"
                 cmq_set_vector_layer = "QgsVectorLayer(uri.uri(), %s, 'postgres')" % (layer_label_conv)
                 layer = eval(cmq_set_vector_layer)
-
+                #fieldIndex = layer.fields().indexFromName( 'scavo_s' )
+                #editor_widget_setup = QgsEditorWidgetSetup( 'ValueMap', {
+                #                         'map': {u'Description 1': u'value1',
+                #                                 u'Description 2': u'value2'}
+                #                        }
+                #                      )
+                #layer.setEditorWidgetSetup( fieldIndex, editor_widget_setup )
                 if layer.isValid():
                     layer.setCrs(srs)
                     # self.USLayerId = layerUS.getLayerID()
@@ -1327,7 +1333,7 @@ class Pyarchinit_pyqgis(QDialog):
                     QgsProject.instance().addMapLayers([layer], True)
                 else:
                     QMessageBox.warning(self, "TESTER", "Layer not valid", QMessageBox.Ok)
-
+        
     def charge_sites_geometry(self, options, col, val):
         self.options = options
         self.col = col

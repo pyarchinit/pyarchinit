@@ -449,7 +449,7 @@ ALTER TABLE pyarchinit_reperti
 
 
 ------------------------------------------------------------------------------------------------------------------------------------------------------
-drop view pyarchinit_reperti_view;	
+drop view if exists pyarchinit_reperti_view;	
 	CREATE OR REPLACE VIEW pyarchinit_reperti_view AS 
 	SELECT
 	the_geom,
@@ -593,8 +593,8 @@ CREATE SEQUENCE IF NOT EXISTS public.tomba_table_id_tomba_seq
 ALTER TABLE public.tomba_table_id_tomba_seq OWNER TO postgres;
 
 ALTER TABLE ONLY public.tomba_table ALTER COLUMN id_tomba SET DEFAULT nextval('public.tomba_table_id_tomba_seq'::regclass);
-ALTER TABLE ONLY public.tomba_table ADD CONSTRAINT "ID_tomba_unico" UNIQUE (sito, nr_scheda_taf);
-ALTER TABLE ONLY public.tomba_table ADD CONSTRAINT tomba_table_pkey PRIMARY KEY (id_tomba);	
+ALTER TABLE ONLY public.tomba_table ADD CONSTRAINT  "ID_tomba_unico" UNIQUE (sito, nr_scheda_taf);
+ALTER TABLE ONLY public.tomba_table ADD CONSTRAINT  tomba_table_pkey PRIMARY KEY (id_tomba);	
 	
 
 INSERT INTO tomba_table (
@@ -652,7 +652,7 @@ INSERT INTO tomba_table (
 				  ON CONFLICT (sito, nr_scheda_taf) DO NOTHING;
 				  
 				  
-INSERT INTO individui_table (
+/* INSERT INTO individui_table (
             	sito,
 				nr_individuo,
 				sigla_struttura,
@@ -686,10 +686,10 @@ INSERT INTO individui_table (
 					orientamento_asse ,
 					orientamento_azimut 
 
-                  FROM tafonomia_table
+                  FROM tafonomia_table; */
 				  
-				  ON CONFLICT (id_scheda_ind,id_tafonomia) DO UPDATE
-				  set sito=EXCLUDED.sito, nr_individuo=EXCLUDED.nr_individuo;
+				  /* ON CONFLICT (id_scheda_ind,nr_individuo) DO UPDATE
+				  set sito=EXCLUDED.sito, nr_individuo=EXCLUDED.nr_individuo; */
 				  
 CREATE OR REPLACE VIEW public.pyarchinit_individui_view AS
  SELECT pyarchinit_individui.gid,

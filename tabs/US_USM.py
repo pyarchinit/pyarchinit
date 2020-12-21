@@ -71,12 +71,18 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
     SITO = pyArchInitDialog_Config
     if L=='it':
         STATUS_ITEMS = {"b": "Usa", "f": "Trova", "n": "Nuovo Record"}
+    
+    if L=='de':
+        STATUS_ITEMS = {"b": "Aktuell ", "f": "Finden", "n": "Neuer Rekord"}
+    
     else :
         STATUS_ITEMS = {"b": "Current", "f": "Find", "n": "New Record"}
     BROWSE_STATUS = "b"
     SORT_MODE = 'asc'
     if L=='it':
         SORTED_ITEMS = {"n": "Non ordinati", "o": "Ordinati"}
+    if L=='de':
+        SORTED_ITEMS = {"n": "Nicht sortiert", "o": "Sortiert"}
     else:
         SORTED_ITEMS = {"n": "Not sorted", "o": "Sorted"}
     SORT_STATUS = "n"
@@ -783,12 +789,7 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
         self.show()
         self.checkBox_query.update()
         self.checkBox_query.stateChanged.connect(self.listview_us)###anche questo
-    def on_set_matrix_clicked(self, checked=None):
-        if checked==None: return
-        dialog = QDialog()
-        dialog.ui = Setting_Matrix()
-        dialog.ui.setupUi(dialog)
-        dialog.exec_()
+        
     def charge_insert_ra(self):
         
         us =str(self.lineEdit_us.text())
@@ -809,9 +810,9 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
             pass
         self.comboBox_ref_ra.clear()
         self.comboBox_ref_ra.addItems(self.UTILITY.remove_dup_from_list(inv_list))
-        if self.STATUS_ITEMS[self.BROWSE_STATUS] == "Trova" or "Find":
+        if self.STATUS_ITEMS[self.BROWSE_STATUS] == "Trova" or "Finden" or "Find":
             self.comboBox_ref_ra.setEditText("")
-        elif self.STATUS_ITEMS[self.BROWSE_STATUS] == "Usa" or "Current":
+        elif self.STATUS_ITEMS[self.BROWSE_STATUS] == "Usa" or "Aktuell " or "Current":
             if len(self.DATA_LIST) > 0:
                 try:
                     self.comboBox_ref_ra.setEditText(self.DATA_LIST[self.rec_num].ref_ra)
@@ -883,11 +884,27 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
             self.model_a.database().transaction()
             if self.model_a.submitAll():
                 self.model_a.database().commit()
-                QMessageBox.information(self, "Record",  "record salvato")
+                if self.L=='it':
+                    QMessageBox.information(self, "Record",  "record salvato")
+                elif self.L=='de':
+                    QMessageBox.information(self, "Datensatz",  "Datensatz gespeichert")
+                else:
+                    QMessageBox.information(self, "Record",  "record saved")
+            
             else:
                 self.model_a.database().rollback()
-                QMessageBox.warning(self, "Cached Table",
-                            "The database reported an error: %s" % self.model_a.lastError().text())    
+                if self.L=='it':
+                    QMessageBox.warning(self, "Cached Table",
+                            "Il db ha segnalato un errore: %s" % self.model_a.lastError().text())    
+        
+                elif self.L=='de':
+                    QMessageBox.warning(self, "Cached Table",
+                            "Die Datenbank meldete einen Fehler: %s" % self.model_a.lastError().text())    
+                            
+                else:
+                    QMessageBox.warning(self, "Cached Table",
+                            "The database reported an error: %s" % self.model_a.lastError().text())                
+        
         else:    
             self.checkBox_query.setChecked(False)
     def update_filter(self, s): 
@@ -908,7 +925,7 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
                         filter_str = "{} LIKE '%{}%'".format(s_field,s) 
                         self.model_a.setFilter(filter_str)
                 except Exception as e:
-                    QMessageBox.warning(self, "Attenzione", str(e), QMessageBox.Ok)
+                    QMessageBox.warning(self, "Warniong", str(e), QMessageBox.Ok)
             else:
                 try:
                     if bool(sito_set_str):
@@ -926,7 +943,7 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
                         else:
                             pass
                 except Exception as e:
-                    QMessageBox.warning(self, "Attenzione", str(e), QMessageBox.Ok)
+                    QMessageBox.warning(self, "Warning", str(e), QMessageBox.Ok)
         else:    
             self.checkBox_query.setChecked(False)
     def on_pushButton_globalsearch_pressed(self):
@@ -947,9 +964,9 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
             pass
         self.comboBox_struttura.clear()
         self.comboBox_struttura.addItems(self.UTILITY.remove_dup_from_list(struttura_list))
-        if self.STATUS_ITEMS[self.BROWSE_STATUS] == "Trova" or "Find":
+        if self.STATUS_ITEMS[self.BROWSE_STATUS] == "Trova" or "Finden" or "Find":
             self.comboBox_struttura.setEditText("")
-        elif self.STATUS_ITEMS[self.BROWSE_STATUS] == "Usa" or "Current":
+        elif self.STATUS_ITEMS[self.BROWSE_STATUS] == "Usa" or "Aktuell " or "Current":
             if len(self.DATA_LIST) > 0:
                 try:
                     self.comboBox_struttura.setEditText(self.DATA_LIST[self.rec_num].sigla_struttura+'-'+numero_struttura)
@@ -978,9 +995,9 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
         
         self.comboBox_posizione.clear()
         self.comboBox_posizione.addItems(self.UTILITY.remove_dup_from_list(geometry_list))
-        if self.STATUS_ITEMS[self.BROWSE_STATUS] == "Trova" or "Find":
+        if self.STATUS_ITEMS[self.BROWSE_STATUS] == "Trova" or "Finden" or "Find":
             self.comboBox_posizione.setEditText("")
-        elif self.STATUS_ITEMS[self.BROWSE_STATUS] == "Usa" or "Current":
+        elif self.STATUS_ITEMS[self.BROWSE_STATUS] == "Usa" or "Aktuell " or "Current":		
             if len(self.DATA_LIST) > 0:
                 try:
                     self.comboBox_posizione.setEditText(self.DATA_LIST[self.rec_num].posizione)
@@ -1007,9 +1024,9 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
                 #
                 self.comboBox_per_iniz.clear()
                 self.comboBox_per_iniz.addItems(self.UTILITY.remove_dup_from_list(periodo_list))
-                if self.STATUS_ITEMS[self.BROWSE_STATUS] == "Trova" or "Find":
+                if self.STATUS_ITEMS[self.BROWSE_STATUS] == "Trova" or "Finden" or "Find":
                     self.comboBox_per_iniz.setEditText("")
-                elif self.STATUS_ITEMS[self.BROWSE_STATUS] == "Usa" or "Current":
+                elif self.STATUS_ITEMS[self.BROWSE_STATUS] == "Usa" or "Aktuell " or "Current":	
                     if len(self.DATA_LIST) > 0:
                         try:
                             self.comboBox_per_iniz.setEditText(self.DATA_LIST[self.rec_num].periodo_iniziale)
@@ -1037,9 +1054,9 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
                 pass
             self.comboBox_per_fin.clear()
             self.comboBox_per_fin.addItems(self.UTILITY.remove_dup_from_list(periodo_list))
-            if self.STATUS_ITEMS[self.BROWSE_STATUS] == "Trova" or "Find":
+            if self.STATUS_ITEMS[self.BROWSE_STATUS] == "Trova" or "Finden" or "Find":
                 self.comboBox_per_fin.setEditText("")
-            elif self.STATUS_ITEMS[self.BROWSE_STATUS] == "Usa" or "Current":
+            elif self.STATUS_ITEMS[self.BROWSE_STATUS] == "Usa" or "Aktuell " or "Current":	
                 if len(self.DATA_LIST) > 0:
                     try:
                         self.comboBox_per_fin.setEditText(self.DATA_LIST[self.rec_num].periodo_iniziale)
@@ -1065,7 +1082,7 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
             self.comboBox_fas_iniz.clear()
             fase_list.sort()
             self.comboBox_fas_iniz.addItems(self.UTILITY.remove_dup_from_list(fase_list))
-            if self.STATUS_ITEMS[self.BROWSE_STATUS] == "Trova" or "Find":
+            if self.STATUS_ITEMS[self.BROWSE_STATUS] == "Trova" or "Finden" or "Find":
                 self.comboBox_fas_iniz.setEditText("")
             else:
                 self.comboBox_fas_iniz.setEditText(self.DATA_LIST[self.rec_num].fase_iniziale)
@@ -1089,7 +1106,7 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
             self.comboBox_fas_fin.clear()
             fase_list.sort()
             self.comboBox_fas_fin.addItems(self.UTILITY.remove_dup_from_list(fase_list))
-            if self.STATUS_ITEMS[self.BROWSE_STATUS] == "Trova" or "Find":
+            if self.STATUS_ITEMS[self.BROWSE_STATUS] == "Trova" or "Finden" or "Find":
                 self.comboBox_fas_fin.setEditText("")
             else:
                 self.comboBox_fas_fin.setEditText(self.DATA_LIST[self.rec_num].fase_finale)
@@ -1114,7 +1131,7 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
             self.comboBox_datazione.clear()
             datazione_list.sort()
             self.comboBox_datazione.addItems(self.UTILITY.remove_dup_from_list(datazione_list))
-            if self.STATUS_ITEMS[self.BROWSE_STATUS] == "Trova" or "Find":
+            if self.STATUS_ITEMS[self.BROWSE_STATUS] == "Trova" or "Finden" or "Find":
                 self.comboBox_datazione.setEditText("")
             else:
                 self.comboBox_datazione.setEditText(self.DATA_LIST[self.rec_num].datazione_estesa)
@@ -1476,6 +1493,17 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
             valuesDoc.append("ICCD-Sezioni")
             valuesDoc.append("ICCD-Prospetti")
             valuesDoc.append("ICCD-Foto")
+        elif self.L=='de':
+            valuesDoc.append("Pflanzen")
+            valuesDoc.append("Sektionen")
+            valuesDoc.append("Prospekte")
+            valuesDoc.append("Foto")
+        else:
+            valuesDoc.append("Maps")
+            valuesDoc.append("Sections")
+            valuesDoc.append("Elevations")
+            valuesDoc.append("Photo")
+        
         for i in range(len(tipo_di_documentazione)):
             valuesDoc.append(tipo_di_documentazione[i].sigla_estesa)
         #valuesDoc.sort()
@@ -1483,6 +1511,10 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
         self.delegateDoc.def_values(valuesDoc)
         self.delegateDoc.def_editable('False')
         self.tableWidget_documentazione.setItemDelegateForColumn(0, self.delegateDoc)
+        
+        
+        
+        
         # lista colore legante usm
         search_dict = {
             'lingua': lang,
@@ -2317,9 +2349,23 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
         sito_set= conn.sito_set()
         sito_set_str = sito_set['sito_set']
         if bool(self.comboBox_sito.currentText()) and self.comboBox_sito.currentText()==sito_set_str:
-            QMessageBox.information(self, "OK" ,"Sei connesso al sito: %s" % str(sito_set_str),QMessageBox.Ok) 
+            
+            if self.L=='it':
+                QMessageBox.information(self, "OK" ,"Sei connesso al sito: %s" % str(sito_set_str),QMessageBox.Ok) 
+        
+            elif self.L=='de':
+                QMessageBox.information(self, "OK", "Sie sind mit der archäologischen Stätte verbunden: %s" % str(sito_set_str),QMessageBox.Ok) 
+                
+            else:
+                QMessageBox.information(self, "OK", "You are connected to the site: %s" % str(sito_set_str),QMessageBox.Ok)     
+        
         elif sito_set_str=='':    
-            msg = QMessageBox.information(self, "Attenzione" ,"Non hai settato alcun sito. Vuoi settarne uno? click Ok altrimenti Annulla per  vedere tutti i record",QMessageBox.Ok | QMessageBox.Cancel) 
+            if self.L=='it':
+                msg = QMessageBox.information(self, "Attenzione" ,"Non hai settato alcun sito. Vuoi settarne uno? click Ok altrimenti Annulla per  vedere tutti i record",QMessageBox.Ok | QMessageBox.Cancel) 
+            elif self.L=='de':
+                msg = QMessageBox.information(self, "Achtung", "Sie haben keine archäologischen Stätten eingerichtet. Klicken Sie auf OK oder Abbrechen, um alle Datensätze zu sehen",QMessageBox.Ok | QMessageBox.Cancel) 
+            else:
+                msg = QMessageBox.information(self, "Warning" , "You have not set up any archaeological site. Do you want to set one? click Ok otherwise Cancel to see all records",QMessageBox.Ok | QMessageBox.Cancel) 
             if msg == QMessageBox.Cancel:
                 pass
             else: 
@@ -2352,7 +2398,15 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
             else:
                 pass#
         except:
-            QMessageBox.information(self, "Attenzione" ,"Non esiste questo sito: "'"'+ str(sito_set_str) +'"'" in questa scheda, Per favore distattiva la 'scelta sito' dalla scheda di configurazione plugin per vedere tutti i record oppure crea la scheda",QMessageBox.Ok) 
+            if self.L=='it':
+            
+                QMessageBox.information(self, "Attenzione" ,"Non esiste questo sito: "'"'+ str(sito_set_str) +'"'" in questa scheda, Per favore distattiva la 'scelta sito' dalla scheda di configurazione plugin per vedere tutti i record oppure crea la scheda",QMessageBox.Ok) 
+            elif self.L=='de':
+            
+                QMessageBox.information(self, "Warnung" , "Es gibt keine solche archäologische Stätte: "'""'+ str(site_set_str) +'"'" in dieser Registerkarte, Bitte deaktivieren Sie die 'Site-Wahl' in der Plugin-Konfigurationsregisterkarte, um alle Datensätze zu sehen oder die Registerkarte zu erstellen",QMessageBox.Ok) 
+            else:
+            
+                QMessageBox.information(self, "Warning" , "There is no such site: "'"'+ str(site_set_str) +'"'" in this tab, Please disable the 'site choice' from the plugin configuration tab to see all records or create the tab",QMessageBox.Ok) 
     def generate_list_foto(self):
         data_list_foto = []
         for i in range(len(self.DATA_LIST)):
@@ -2690,7 +2744,7 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
             if self.checkBox_s_us.isChecked():
                 US_pdf_sheet = generate_US_pdf()
                 data_list = self.generate_list_pdf()
-                US_pdf_sheet.build_US_sheets(data_list)
+                US_pdf_sheet.build_US_sheets_en(data_list)
                 QMessageBox.warning(self, 'Ok',"Export finished SU Forms",QMessageBox.Ok)
             else:   
                 pass
@@ -2699,7 +2753,7 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
                 data_list = self.generate_list_pdf()
                 try:               
                     if bool(data_list):
-                        US_index_pdf.build_index_US(data_list, data_list[0][0])
+                        US_index_pdf.build_index_US_en(data_list, data_list[0][0])
                         QMessageBox.warning(self, 'Ok',"Export finished SU List",QMessageBox.Ok)
                     else:
                         QMessageBox.warning(self, 'WARNING',"The SU list cannot be exported you have to fill in the SU tabs first",QMessageBox.Ok)
@@ -2712,7 +2766,7 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
                 data_list_foto = self.generate_list_foto()
                 try:
                         if bool(data_list_foto):
-                            US_index_pdf.build_index_Foto(data_list_foto, data_list_foto[0][0])
+                            US_index_pdf.build_index_Foto_en(data_list_foto, data_list_foto[0][0])
                             QMessageBox.warning(self, 'Ok',"Export finished SU List",QMessageBox.Ok)
                         else:
                             QMessageBox.warning(self, 'WARNING', 'The photo list cannot be exported because you do not have tagged images.',QMessageBox.Ok)
@@ -2723,7 +2777,7 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
                 data_list_foto = self.generate_list_foto()
                 try:
                         if bool(data_list_foto):
-                            US_index_pdf.build_index_Foto_2(data_list_foto, data_list_foto[0][0])
+                            US_index_pdf.build_index_Foto_2_en(data_list_foto, data_list_foto[0][0])
                             QMessageBox.warning(self, 'Ok', "Export finished Photo List without thumbanil",QMessageBox.Ok)
                         else:
                             QMessageBox.warning(self, 'WARNING', "The photo list cannot be exported because you do not have tagged images.",QMessageBox.Ok)
@@ -2733,8 +2787,8 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
             if self.checkBox_s_us.isChecked():
                 US_pdf_sheet = generate_US_pdf()
                 data_list = self.generate_list_pdf()
-                US_pdf_sheet.build_US_sheets(data_list)
-                QMessageBox.warning(self, 'Ok',"Esportazione terminata Schede US",QMessageBox.Ok)
+                US_pdf_sheet.build_US_sheets_de(data_list)
+                QMessageBox.warning(self, "Okay", "Export beendet",QMessageBox.Ok)
             else:   
                 pass
             if self.checkBox_e_us.isChecked() :
@@ -2742,12 +2796,12 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
                 data_list = self.generate_list_pdf()
                 try:               
                     if bool(data_list):
-                        US_index_pdf.build_index_US(data_list, data_list[0][0])
-                        QMessageBox.warning(self, 'Ok',"Esportazione terminata Elenco US",QMessageBox.Ok)
+                        US_index_pdf.build_index_US_de(data_list, data_list[0][0])
+                        QMessageBox.warning(self, "Okay", "Export beendet",QMessageBox.Ok)
                     else:
-                        QMessageBox.warning(self, 'ATTENZIONE',"L'elenco US non può essere esportato devi riempire prima le schede US",QMessageBox.Ok)
+                        QMessageBox.warning(self, 'WARNUNG', 'Die SE-Liste kann nicht exportiert werden, Sie müssen zuerst die SE-Formulare ausfüllen',QMessageBox.Ok)
                 except Exception as e :
-                    QMessageBox.warning(self, 'ATTENZIONE',str(e),QMessageBox.Ok)
+                    QMessageBox.warning(self, 'WARNUNG',str(e),QMessageBox.Ok)
             else:
                 pass
             if self.checkBox_e_foto_t.isChecked():
@@ -2755,23 +2809,23 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
                 data_list_foto = self.generate_list_foto()
                 try:
                         if bool(data_list_foto):
-                            US_index_pdf.build_index_Foto(data_list_foto, data_list_foto[0][0])
-                            QMessageBox.warning(self, 'Ok',"Esportazione terminata Elenco Foto",QMessageBox.Ok)
+                            US_index_pdf.build_index_Foto_de(data_list_foto, data_list_foto[0][0])
+                            QMessageBox.warning(self, "Okay", "Fertige Fotoliste exportieren",QMessageBox.Ok)
                         else:
-                            QMessageBox.warning(self, 'ATTENZIONE',"L'elenco foto non può essere esportato perchè non hai immagini taggate.",QMessageBox.Ok)
+                            QMessageBox.warning(self, 'WARNUNG', 'Die Fotoliste kann nicht exportiert werden, da Sie keine markierten Bilder haben.',QMessageBox.Ok)
                 except Exception as e :
-                    QMessageBox.warning(self, 'ATTENZIONE',str(e),QMessageBox.Ok)
+                    QMessageBox.warning(self, 'WARNUNG',str(e),QMessageBox.Ok)
             if self.checkBox_e_foto.isChecked():
                 US_index_pdf = generate_US_pdf()
                 data_list_foto = self.generate_list_foto()
                 try:
                         if bool(data_list_foto):
-                            US_index_pdf.build_index_Foto_2(data_list_foto, data_list_foto[0][0])
-                            QMessageBox.warning(self, 'Ok',"Esportazione terminata Elenco Foto senza thumbanil",QMessageBox.Ok)
+                            US_index_pdf.build_index_Foto_2_de(data_list_foto, data_list_foto[0][0])
+                            QMessageBox.warning(self, 'Ok', 'Fertige Fotoliste ohne Daumenballen exportieren',QMessageBox.Ok)
                         else:
-                            QMessageBox.warning(self, 'ATTENZIONE',"L'elenco foto non può essere esportato perchè non hai immagini taggate.",QMessageBox.Ok)
+                            QMessageBox.warning(self, 'WARNUNG', 'Die Fotoliste kann nicht exportiert werden, da Sie keine markierten Bilder haben.',QMessageBox.Ok)
                 except Exception as e :
-                    QMessageBox.warning(self, 'ATTENZIONE',str(e),QMessageBox.Ok)
+                    QMessageBox.warning(self, 'WARNUNG',str(e),QMessageBox.Ok)
     def setPathpdf(self):
         s = QgsSettings()
         dbpath = QFileDialog.getOpenFileName(
@@ -2794,7 +2848,8 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
             docx_file = self.PDFFOLDER+'/'+filename+'.docx'
             # convert pdf to docx
             parse(pdf_file, docx_file, start=self.lineEdit_pag1.text(), end=self.lineEdit_pag2.text())
-            QMessageBox.information(self, "INFO", "Conversione terminata",
+            
+            QMessageBox.information(self, "INFO", "Conversion completed",
                                 QMessageBox.Ok)
         except Exception as e:
             QMessageBox.warning(self, "Error", str(e),
@@ -2809,6 +2864,7 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
         else:
             subprocess.Popen(["xdg-open", path])
     def on_pushButton_export_matrix_pressed(self):
+        
         id_us_dict = {}
         for i in range(len(self.DATA_LIST)):
             id_us_dict[self.DATA_LIST[i].us] = self.DATA_LIST[i].id_us
@@ -4067,14 +4123,14 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
                 e_str = str(e)
                 if e_str.__contains__("IntegrityError"):
                     if self.L=='it':
-                        msg = self.ID_TABLE + " gia' presente nel database"
-                        QMessageBox.warning(self, "Error", "Error" + str(msg), QMessageBox.Ok)
+                        msg = "US già presente nel database"
+                        QMessageBox.warning(self, "Error", "Error: " + str(msg), QMessageBox.Ok)
                     elif self.L=='de':
                         msg = self.ID_TABLE + " bereits in der Datenbank"
-                        QMessageBox.warning(self, "Error", "Error" + str(msg), QMessageBox.Ok)  
+                        QMessageBox.warning(self, "Error", "Error: " + str(msg), QMessageBox.Ok)  
                     else:
                         msg = self.ID_TABLE + " exist in db"
-                        QMessageBox.warning(self, "Error", "Error" + str(msg), QMessageBox.Ok)  
+                        QMessageBox.warning(self, "Error", "Error: " + str(msg), QMessageBox.Ok)  
                 else:
                     msg = e
                     QMessageBox.warning(self, "Error", "Error 1 \n" + str(msg), QMessageBox.Ok)
@@ -4307,17 +4363,17 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
                                       "Do you really want to break the record? \n Action is irreversible.",
                                       QMessageBox.Ok | QMessageBox.Cancel)
             if msg == QMessageBox.Cancel:
-                QMessageBox.warning(self, "Messagio!!!", "Action deleted!")
+                QMessageBox.warning(self, "Message!!!", "Action deleted!")
             else:
                 try:
                     id_to_delete = eval("self.DATA_LIST[self.REC_CORR]." + self.ID_TABLE)
                     self.DB_MANAGER.delete_one_record(self.TABLE_NAME, self.ID_TABLE, id_to_delete)
                     self.charge_records()  # charge records from DB
-                    QMessageBox.warning(self, "Messaggio!!!", "Record deleted!")
+                    QMessageBox.warning(self, "Message!!!", "Record deleted!")
                 except Exception as e:
-                    QMessageBox.warning(self, "Messaggio!!!", "error type: " + str(e))
+                    QMessageBox.warning(self, "Message", "error type: " + str(e))
                 if not bool(self.DATA_LIST):
-                    QMessageBox.warning(self, "Attenzione", "the db is empty!", QMessageBox.Ok)
+                    QMessageBox.warning(self, "Warning", "the db is empty!", QMessageBox.Ok)
                     self.DATA_LIST = []
                     self.DATA_LIST_REC_CORR = []
                     self.DATA_LIST_REC_TEMP = []
