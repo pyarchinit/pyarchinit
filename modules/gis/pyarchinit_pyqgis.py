@@ -2190,6 +2190,7 @@ class Order_layer_v2(object):
     order_count = 0
     db = ''  # Pyarchinit_db_management('sqlite:////Users//Windows//pyarchinit_DB_folder//pyarchinit_db.sqlite')
     # db.connection()
+    L=QgsSettings().value("locale/userLocale")[0:2]
     SITO = ""
     AREA = ""
 
@@ -2210,7 +2211,13 @@ class Order_layer_v2(object):
             for i in matrix_us_level:
                 rec_list_str.append(str(i))
                 # cerca prima di tutto se ci sono us uguali o che si legano alle US sottostanti
-            value_list_equal = self.create_list_values(['Uguale a', 'Si lega a','Same as','Connected to',"Entspricht", "Bindet an"], rec_list_str)
+            if self.L=='it':
+                value_list_equal = self.create_list_values(['Uguale a', 'Si lega a'], rec_list_str)
+            elif self.L=='de':
+                value_list_equal = self.create_list_values(["Entspricht", "Bindet an"], rec_list_str)
+            else:
+                value_list_equal = self.create_list_values(['Same as','Connected to'], rec_list_str)
+            
             res = self.db.query_in_contains(value_list_equal, self.SITO, self.AREA)
 
             matrix_us_equal_level = []
@@ -2225,22 +2232,27 @@ class Order_layer_v2(object):
                 # se l'US è già presente non la aggiunge
                 # le us che derivano dall'uguaglianza vanno aggiunte al rec_list_str
             rec_list_str = rec_list_str + matrix_us_equal_level
-            value_list_post = value_list_equal = self.create_list_values(
-                ['Copre', 'Riempie', 'Taglia', 'Si appoggia a',"Covers","Fills","Cuts","Abuts","Liegt über","Verfüllt","Schneidet","Stützt sich auf"], rec_list_str)
+            if self.L=='it':
+                value_list_post = value_list_equal = self.create_list_values(['Copre', 'Riempie', 'Taglia', 'Si appoggia a'], rec_list_str)
+            elif self.L=='de':
+                value_list_post = value_list_equal = self.create_list_values(["Liegt über","Verfüllt","Schneidet","Stützt sich auf"], rec_list_str)
+            else:
+                value_list_post = value_list_equal = self.create_list_values(["Covers","Fills","Cuts","Abuts"], rec_list_str)
+            
             res = self.db.query_in_contains(value_list_post, self.SITO, self.AREA)
 
             matrix_us_level = []
             for r in res:
                 matrix_us_level.append(str(r.us))
-
+                #QMessageBox.warning(self, "Errore", str(matrix_us_level), QMessageBox.Ok)
             if not matrix_us_level:
                 test = 1
                 return self.order_dict
             elif self.order_count >= 500:
                 test = 1
-                QMessageBox.warning(None, "Errore", str(self.order_count), QMessageBox.Ok)
+                #QMessageBox.warning(self, "Errore", str(self.order_dict), QMessageBox.Ok)
 
-                return "error"
+                return self.order_dict
             else:
                 self.insert_into_dict(matrix_us_level, 1)
 

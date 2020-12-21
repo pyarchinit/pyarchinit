@@ -2968,7 +2968,7 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
                                                              self.MAPPER_TABLE_CLASS)  # carica tutti i dati di uno scavo ordinati per numero di US
                         self.DB_MANAGER.update(self.MAPPER_TABLE_CLASS, self.ID_TABLE, [int(records[0].id_us)],
                                                ['order_layer'], [order_number])
-                        self.on_pushButton_view_all_pressed()
+                        #self.on_pushButton_view_all_pressed()
                     except Exception as e:
                         msg_us_mancanti = str(
                             e)  # msg_us_mancanti + "\n"+str(sito) + "area: " + str(area) + " us: " + (us)
