@@ -2540,7 +2540,7 @@ class pyarchinit_Tomba(QDialog, MAIN_DIALOG_CLASS):
             if self.checkBox_s_us.isChecked():
                 US_pdf_sheet = generate_US_pdf()
                 data_list = self.generate_list_pdf()
-                US_pdf_sheet.build_US_sheets(data_list)
+                US_pdf_sheet.build_US_sheets_en(data_list)
                 QMessageBox.warning(self, 'Ok',"Export finished Forms",QMessageBox.Ok)
             else:   
                 pass
@@ -2549,7 +2549,7 @@ class pyarchinit_Tomba(QDialog, MAIN_DIALOG_CLASS):
                 data_list = self.generate_list_pdf()
                 try:               
                     if bool(data_list):
-                        US_index_pdf.build_index_US(data_list, data_list[0][0])
+                        US_index_pdf.build_index_US_en(data_list, data_list[0][0])
                         QMessageBox.warning(self, 'Ok',"Export finished Grave List",QMessageBox.Ok)
                     else:
                         QMessageBox.warning(self, 'WARNING',"The Grave list cannot be exported you have to fill in the Grave tabs first",QMessageBox.Ok)
@@ -2562,7 +2562,7 @@ class pyarchinit_Tomba(QDialog, MAIN_DIALOG_CLASS):
                 data_list_foto = self.generate_list_foto()
                 try:
                         if bool(data_list_foto):
-                            US_index_pdf.build_index_Foto(data_list_foto, data_list_foto[0][0])
+                            US_index_pdf.build_index_Foto_en(data_list_foto, data_list_foto[0][0])
                             QMessageBox.warning(self, 'Ok',"Export finished Grave List",QMessageBox.Ok)
                         else:
                             QMessageBox.warning(self, 'WARNING', 'The photo list cannot be exported because you do not have tagged images.',QMessageBox.Ok)
@@ -2573,7 +2573,7 @@ class pyarchinit_Tomba(QDialog, MAIN_DIALOG_CLASS):
                 data_list_foto = self.generate_list_foto()
                 try:
                         if bool(data_list_foto):
-                            US_index_pdf.build_index_Foto_2(data_list_foto, data_list_foto[0][0])
+                            US_index_pdf.build_index_Foto_2_en(data_list_foto, data_list_foto[0][0])
                             QMessageBox.warning(self, 'Ok', "Export finished Photo List without thumbanil",QMessageBox.Ok)
                         else:
                             QMessageBox.warning(self, 'WARNING', "The photo list cannot be exported because you do not have tagged images.",QMessageBox.Ok)
@@ -2583,7 +2583,7 @@ class pyarchinit_Tomba(QDialog, MAIN_DIALOG_CLASS):
             if self.checkBox_s_us.isChecked():
                 US_pdf_sheet = generate_US_pdf()
                 data_list = self.generate_list_pdf()
-                US_pdf_sheet.build_US_sheets(data_list)
+                US_pdf_sheet.build_US_sheets_de(data_list)
                 QMessageBox.warning(self, 'Ok',"Esportazione terminata Schede US",QMessageBox.Ok)
             else:   
                 pass
@@ -2592,7 +2592,7 @@ class pyarchinit_Tomba(QDialog, MAIN_DIALOG_CLASS):
                 data_list = self.generate_list_pdf()
                 try:               
                     if bool(data_list):
-                        US_index_pdf.build_index_US(data_list, data_list[0][0])
+                        US_index_pdf.build_index_US_de(data_list, data_list[0][0])
                         QMessageBox.warning(self, "Okay", "Export beendet",QMessageBox.Ok)
                     else:
                         QMessageBox.warning(self, 'WARNUNG', 'Die Liste kann nicht exportiert werden, Sie müssen zuerst die Formulare ausfüllen',QMessageBox.Ok)
@@ -2605,7 +2605,7 @@ class pyarchinit_Tomba(QDialog, MAIN_DIALOG_CLASS):
                 data_list_foto = self.generate_list_foto()
                 try:
                         if bool(data_list_foto):
-                            US_index_pdf.build_index_Foto(data_list_foto, data_list_foto[0][0])
+                            US_index_pdf.build_index_Foto_de(data_list_foto, data_list_foto[0][0])
                             QMessageBox.warning(self, "Okay", "Fertige Fotoliste exportieren",QMessageBox.Ok)
                         else:
                             QMessageBox.warning(self, 'WARNUNG', 'Die Fotoliste kann nicht exportiert werden, da Sie keine markierten Bilder haben.',QMessageBox.Ok)
@@ -2616,7 +2616,7 @@ class pyarchinit_Tomba(QDialog, MAIN_DIALOG_CLASS):
                 data_list_foto = self.generate_list_foto()
                 try:
                         if bool(data_list_foto):
-                            US_index_pdf.build_index_Foto_2(data_list_foto, data_list_foto[0][0])
+                            US_index_pdf.build_index_Foto_2_de(data_list_foto, data_list_foto[0][0])
                             QMessageBox.warning(self, 'Ok', 'Fertige Fotoliste ohne Daumenballen exportieren',QMessageBox.Ok)
                         else:
                             QMessageBox.warning(self, 'WARNUNG', 'Die Fotoliste kann nicht exportiert werden, da Sie keine markierten Bilder haben.',QMessageBox.Ok)

@@ -402,7 +402,7 @@ class single_Finds_pdf_sheet(object):
         logo.drawWidth = 1.5 * inch
 
         # 1 row
-        sito = Paragraph("<b>Ausgrabungsstätte</b><br/>" + str(self.sito), styNormal)
+        sito = Paragraph("<b>Ausgrabungsstättesstätte</b><br/>" + str(self.sito), styNormal)
         nr_inventario = Paragraph("<b>Referenzmaterial Best.-Nr.</b><br/>" + str(self.numero_inventario), styNormal)
 
         # 2 row
@@ -964,7 +964,7 @@ class Box_labels_Finds_pdf_sheet(object):
         logo.drawWidth = 1.5 * inch
 
         num_cassa = Paragraph("<b>Nr. Box</b>" + str(self.cassa), styCassaLabel)
-        sito = Paragraph("<b>Ausgrabungsstätte: </b>" + str(self.sito), stySitoLabel)
+        sito = Paragraph("<b>Ausgrabungsstättesstätte: </b>" + str(self.sito), stySitoLabel)
 
         if self.elenco_inv_tip_rep == None:
             elenco_inv_tip_rep = Paragraph("<b>Liste N. Inv. / Art material</b><br/>", styNormal)
@@ -1522,6 +1522,82 @@ class FOTO_index_pdf_sheet(object):
                 ]
 
         return data
+    
+    def getTable_en(self):
+        styleSheet = getSampleStyleSheet()
+        styNormal = styleSheet['Normal']
+        styNormal.spaceBefore = 20
+        styNormal.spaceAfter = 20
+        styNormal.alignment = 0  # LEFT
+        styNormal.fontSize = 6
+
+        
+
+        # conn = Connection()
+    
+        # thumb_path = conn.thumb_path()
+        
+        n_reperto = Paragraph("<b>Aretfact number</b><br/>" + str(self.n_reperto), styNormal)
+        us = Paragraph("<b>SU</b><br/>" + str(self.us), styNormal)
+        definizione = Paragraph("<b>Artefact type</b><br/>" + str(self.definizione), styNormal)
+        datazione_reperto = Paragraph("<b>Dating</b><br/>" + str(self.datazione_reperto), styNormal)
+        stato_conservazione = Paragraph("<b>State of preservation</b><br/>"+ str(self.stato_conservazione), styNormal)
+        if self.tipo_contenitore=='None':
+            tipo_contenitore = Paragraph("<b>Container type</b><br/>", styNormal)
+        else:
+            tipo_contenitore = Paragraph("<b>Container type</b><br/>"+ str(self.tipo_contenitore), styNormal)
+        nr_cassa = Paragraph("<b>Container number</b><br/>"+ str(self.nr_cassa), styNormal)
+        
+        data = [                
+                n_reperto,
+                #thumbnail,
+                us,
+                definizione,
+                datazione_reperto,
+                stato_conservazione,
+                tipo_contenitore,
+                nr_cassa
+                ]
+
+        return data
+    
+    def getTable_de(self):
+        styleSheet = getSampleStyleSheet()
+        styNormal = styleSheet['Normal']
+        styNormal.spaceBefore = 20
+        styNormal.spaceAfter = 20
+        styNormal.alignment = 0  # LEFT
+        styNormal.fontSize = 6
+
+        
+
+        # conn = Connection()
+    
+        # thumb_path = conn.thumb_path()
+        
+        n_reperto = Paragraph("<b>Artefaktnummer</b><br/>" + str(self.n_reperto), styNormal)
+        us = Paragraph("<b>SE</b><br/>" + str(self.us), styNormal)
+        definizione = Paragraph("<b>Artefakttyp</b><br/>" + str(self.definizione), styNormal)
+        datazione_reperto = Paragraph("<b>Datum</b><br/>" + str(self.datazione_reperto), styNormal)
+        stato_conservazione = Paragraph("<b>Erhaltungszustand</b><br/>"+ str(self.stato_conservazione), styNormal)
+        if self.tipo_contenitore=='None':
+            tipo_contenitore = Paragraph("<b>Typ des Container</b><br/>", styNormal)
+        else:
+            tipo_contenitore = Paragraph("<b>Typ des Container</b><br/>"+ str(self.tipo_contenitore), styNormal)
+        nr_cassa = Paragraph("<b>Container-Nummer</b><br/>"+ str(self.nr_cassa), styNormal)
+        
+        data = [                
+                n_reperto,
+                #thumbnail,
+                us,
+                definizione,
+                datazione_reperto,
+                stato_conservazione,
+                tipo_contenitore,
+                nr_cassa
+                ]
+
+        return data
     def makeStyles(self):
         styles = TableStyle([('GRID', (0, 0), (-1, -1), 0.0, colors.black), ('VALIGN', (0, 0), (-1, -1), 'TOP')
                              ])  # finale
@@ -1594,6 +1670,88 @@ class FOTO_index_pdf_sheet_2(object):
                 ]
 
         return data
+    
+    def getTable_en(self):
+        styleSheet = getSampleStyleSheet()
+        styNormal = styleSheet['Normal']
+        styNormal.spaceBefore = 20
+        styNormal.spaceAfter = 20
+        styNormal.alignment = 0  # LEFT
+        styNormal.fontSize = 6
+
+        
+
+        
+        numero_inventario = Paragraph("<b>Inventory Number</b><br/>" + str(self.numero_inventario), styNormal)
+        us = Paragraph("<b>SU</b><br/>" + str(self.us), styNormal)
+        
+        tipo_reperto = Paragraph("<b>Artefact type</b><br/>" + str(self.tipo_reperto), styNormal)
+        repertato = Paragraph("<b>Aretfact</b><br/>" + str(self.repertato), styNormal)
+        if self.repertato=='No':
+            n_reperto = Paragraph("<b>Number artefact</b><br/>", styNormal)
+        else:
+            n_reperto = Paragraph("<b>Number artefact</b><br/>"+ str(self.n_reperto), styNormal)
+        tipo_contenitore = Paragraph("<b>Container type</b><br/>"+ str(self.tipo_contenitore), styNormal)
+        nr_cassa = Paragraph("<b>Container numebr</b><br/>"+ str(self.nr_cassa), styNormal)
+        luogo_conservazione = Paragraph("<b>Place of conservation</b><br/>"+ str(self.luogo_conservazione), styNormal)
+        
+       
+        data = [
+                numero_inventario,
+                us ,
+                #foto,
+                tipo_reperto,
+                repertato,
+                n_reperto,
+                tipo_contenitore,
+                nr_cassa,
+                luogo_conservazione
+                ]
+
+        return data
+    
+    def getTable_de(self):
+        styleSheet = getSampleStyleSheet()
+        styNormal = styleSheet['Normal']
+        styNormal.spaceBefore = 20
+        styNormal.spaceAfter = 20
+        styNormal.alignment = 0  # LEFT
+        styNormal.fontSize = 6
+
+        
+
+        
+        numero_inventario = Paragraph("<b>Artefaktnummer</b><br/>" + str(self.numero_inventario), styNormal)
+        us = Paragraph("<b>SE</b><br/>" + str(self.us), styNormal)
+        # if bool(self.foto):
+            # foto = Paragraph("<b>Foto</b><br/>" + str(self.foto), styNormal)
+        # else:
+            # pass
+        tipo_reperto = Paragraph("<b>Artefakttyp</b><br/>" + str(self.tipo_reperto), styNormal)
+        repertato = Paragraph("<b>Artefakt</b><br/>" + str(self.repertato), styNormal)
+        if self.repertato=='No':
+            n_reperto = Paragraph("<b>Artefakt n.</b><br/>", styNormal)
+        else:
+            n_reperto = Paragraph("<b>Artefakt n.</b><br/>"+ str(self.n_reperto), styNormal)
+        tipo_contenitore = Paragraph("<b>Container-Typ</b><br/>"+ str(self.tipo_contenitore), styNormal)
+        nr_cassa = Paragraph("<b>Container-Nummer</b><br/>"+ str(self.nr_cassa), styNormal)
+        luogo_conservazione = Paragraph("<b>Ort der Lagerung</b><br/>"+ str(self.luogo_conservazione), styNormal)
+        
+       
+        data = [
+                numero_inventario,
+                us ,
+                #foto,
+                tipo_reperto,
+                repertato,
+                n_reperto,
+                tipo_contenitore,
+                nr_cassa,
+                luogo_conservazione
+                ]
+
+        return data
+    
     def makeStyles(self):
         styles = TableStyle([('GRID', (0, 0), (-1, -1), 0.0, colors.black), ('VALIGN', (0, 0), (-1, -1), 'TOP')
                              ])  # finale
@@ -1668,6 +1826,124 @@ class generate_reperti_pdf(object):
         doc.build(lst, canvasmaker=NumberedCanvas_FINDSindex)
 
         f.close()
+    
+    def build_index_Foto_en(self, records, sito):
+        home = os.environ['PYARCHINIT_HOME']
+
+        home_DB_path = '{}{}{}'.format(home, os.sep, 'pyarchinit_DB_folder')
+        logo_path = '{}{}{}'.format(home_DB_path, os.sep, 'logo.jpg')
+        
+        home_DB_path = '{}{}{}'.format(home, os.sep, 'pyarchinit_DB_folder')
+        logo_path = '{}{}{}'.format(home_DB_path, os.sep, 'logo.jpg')
+        #logo_path2 = '{}{}{}'.format(home_DB_path, os.sep, 'logo_2.png')
+        logo = Image(logo_path)
+        logo.drawHeight = 1.5 * inch * logo.drawHeight / logo.drawWidth
+        logo.drawWidth = 1.5 * inch
+        logo.hAlign = "LEFT"
+        
+        # logo_2 = Image(logo_path2)
+        # logo_2.drawHeight = 1.5 * inch * logo_2.drawHeight / logo_2.drawWidth
+        # logo_2.drawWidth = 1.5 * inch
+        # logo_2.hAlign = "CENTER"
+        
+        styleSheet = getSampleStyleSheet()
+        styNormal = styleSheet['Normal']
+        styBackground = ParagraphStyle('background', parent=styNormal, backColor=colors.pink)
+        styH1 = styleSheet['Heading3']
+
+        data = self.datestrfdate()
+
+        lst = []
+        #lst2=[]
+        lst.append(logo)
+        #lst2.append(logo_2)
+        lst.append(
+            Paragraph("<b>INVENTORY LIST ARTIFACTS</b><br/><b> Site: %s </b><br/><b>  Date: %s</b>" % (sito, data), styH1))
+
+        table_data = []
+        for i in range(len(records)):
+            exp_index = FOTO_index_pdf_sheet(records[i])
+            table_data.append(exp_index.getTable_en())
+
+        styles = exp_index.makeStyles()
+        colWidths = [100, 50, 100, 100,100,100,100]
+
+        table_data_formatted = Table(table_data, colWidths, style=styles)
+        table_data_formatted.hAlign = "LEFT"
+
+        lst.append(table_data_formatted)
+        lst.append(Spacer(0, 2))
+
+        dt = datetime.datetime.now()
+        filename = ('%s%s%s_%s_%s_%s_%s_%s_%s%s') % (
+        self.PDF_path, os.sep, 'List Artefact', dt.day, dt.month, dt.year, dt.hour, dt.minute, dt.second, ".pdf")
+        f = open(filename, "wb")
+
+        doc = SimpleDocTemplate(f, pagesize=(29 * cm, 21 * cm), showBoundary=0, topMargin=15, bottomMargin=40,
+                                leftMargin=30, rightMargin=30)
+        doc.build(lst, canvasmaker=NumberedCanvas_FINDSindex)
+
+        f.close()
+    
+    
+    def build_index_Foto_de(self, records, sito):
+        home = os.environ['PYARCHINIT_HOME']
+
+        home_DB_path = '{}{}{}'.format(home, os.sep, 'pyarchinit_DB_folder')
+        logo_path = '{}{}{}'.format(home_DB_path, os.sep, 'logo.jpg')
+        
+        home_DB_path = '{}{}{}'.format(home, os.sep, 'pyarchinit_DB_folder')
+        logo_path = '{}{}{}'.format(home_DB_path, os.sep, 'logo.jpg')
+        #logo_path2 = '{}{}{}'.format(home_DB_path, os.sep, 'logo_2.png')
+        logo = Image(logo_path)
+        logo.drawHeight = 1.5 * inch * logo.drawHeight / logo.drawWidth
+        logo.drawWidth = 1.5 * inch
+        logo.hAlign = "LEFT"
+        
+        # logo_2 = Image(logo_path2)
+        # logo_2.drawHeight = 1.5 * inch * logo_2.drawHeight / logo_2.drawWidth
+        # logo_2.drawWidth = 1.5 * inch
+        # logo_2.hAlign = "CENTER"
+        
+        styleSheet = getSampleStyleSheet()
+        styNormal = styleSheet['Normal']
+        styBackground = ParagraphStyle('background', parent=styNormal, backColor=colors.pink)
+        styH1 = styleSheet['Heading3']
+
+        data = self.datestrfdate()
+
+        lst = []
+        #lst2=[]
+        lst.append(logo)
+        #lst2.append(logo_2)
+        lst.append(
+            Paragraph("<b>INVENTURLISTE gefertigter ARTIKEL</b><br/><b> Ausgrabungsstätte: %s </b><br/><b>  Datum: %s</b>" % (sito, data), styH1))
+
+        table_data = []
+        for i in range(len(records)):
+            exp_index = FOTO_index_pdf_sheet(records[i])
+            table_data.append(exp_index.getTable_de())
+
+        styles = exp_index.makeStyles()
+        colWidths = [100, 50, 100, 100,100,100,100]
+
+        table_data_formatted = Table(table_data, colWidths, style=styles)
+        table_data_formatted.hAlign = "LEFT"
+
+        lst.append(table_data_formatted)
+        lst.append(Spacer(0, 2))
+
+        dt = datetime.datetime.now()
+        filename = ('%s%s%s_%s_%s_%s_%s_%s_%s%s') % (
+        self.PDF_path, os.sep, 'Liste der Artefakte', dt.day, dt.month, dt.year, dt.hour, dt.minute, dt.second, ".pdf")
+        f = open(filename, "wb")
+
+        doc = SimpleDocTemplate(f, pagesize=(29 * cm, 21 * cm), showBoundary=0, topMargin=15, bottomMargin=40,
+                                leftMargin=30, rightMargin=30)
+        doc.build(lst, canvasmaker=NumberedCanvas_FINDSindex)
+
+        f.close()
+    
     def build_index_Foto_2(self, records, sito):
         home = os.environ['PYARCHINIT_HOME']
 
@@ -1722,6 +1998,117 @@ class generate_reperti_pdf(object):
         doc.build(lst, canvasmaker=NumberedCanvas_FINDSindex)
 
         f.close()
+    
+    def build_index_Foto_2_en(self, records, sito):
+        home = os.environ['PYARCHINIT_HOME']
+
+        home_DB_path = '{}{}{}'.format(home, os.sep, 'pyarchinit_DB_folder')
+        logo_path = '{}{}{}'.format(home_DB_path, os.sep, 'logo.jpg')
+        #logo_path2 = '{}{}{}'.format(home_DB_path, os.sep, 'logo_2.png')
+        logo = Image(logo_path)
+        logo.drawHeight = 1.5 * inch * logo.drawHeight / logo.drawWidth
+        logo.drawWidth = 1.5 * inch
+        logo.hAlign = "LEFT"
+        
+        # logo_2 = Image(logo_path2)
+        # logo_2.drawHeight = 1.5 * inch * logo_2.drawHeight / logo_2.drawWidth
+        # logo_2.drawWidth = 1.5 * inch
+        # logo_2.hAlign = "CENTER"
+        
+        styleSheet = getSampleStyleSheet()
+        styNormal = styleSheet['Normal']
+        styBackground = ParagraphStyle('background', parent=styNormal, backColor=colors.pink)
+        styH1 = styleSheet['Heading3']
+
+        data = self.datestrfdate()
+
+        lst = []
+        #lst2=[]
+        lst.append(logo)
+        #lst2.append(logo_2)
+        lst.append(
+            Paragraph("<b>INVENTORY LIST</b><br/><b> Site: %s </b><br/><b>  Date: %s</b>" % (sito, data), styH1))
+
+        table_data = []
+        for i in range(len(records)):
+            exp_index = FOTO_index_pdf_sheet_2(records[i])
+            table_data.append(exp_index.getTable_en())
+
+        styles = exp_index.makeStyles()
+        colWidths = [50, 50, 100,50,100,100,100,150]
+
+        table_data_formatted = Table(table_data, colWidths, style=styles)
+        table_data_formatted.hAlign = "LEFT"
+
+        lst.append(table_data_formatted)
+        lst.append(Spacer(0, 2))
+
+        dt = datetime.datetime.now()
+        filename = ('%s%s%s_%s_%s_%s_%s_%s_%s%s') % (
+        self.PDF_path, os.sep, 'List Inventory', dt.day, dt.month, dt.year, dt.hour, dt.minute, dt.second, ".pdf")
+        f = open(filename, "wb")
+
+        doc = SimpleDocTemplate(f, pagesize=(29 * cm, 21 * cm), showBoundary=0, topMargin=15, bottomMargin=40,
+                                leftMargin=30, rightMargin=30)
+        doc.build(lst, canvasmaker=NumberedCanvas_FINDSindex)
+
+        f.close()
+    
+    def build_index_Foto_2_de(self, records, sito):
+        home = os.environ['PYARCHINIT_HOME']
+
+        home_DB_path = '{}{}{}'.format(home, os.sep, 'pyarchinit_DB_folder')
+        logo_path = '{}{}{}'.format(home_DB_path, os.sep, 'logo.jpg')
+        #logo_path2 = '{}{}{}'.format(home_DB_path, os.sep, 'logo_2.png')
+        logo = Image(logo_path)
+        logo.drawHeight = 1.5 * inch * logo.drawHeight / logo.drawWidth
+        logo.drawWidth = 1.5 * inch
+        logo.hAlign = "LEFT"
+        
+        # logo_2 = Image(logo_path2)
+        # logo_2.drawHeight = 1.5 * inch * logo_2.drawHeight / logo_2.drawWidth
+        # logo_2.drawWidth = 1.5 * inch
+        # logo_2.hAlign = "CENTER"
+        
+        styleSheet = getSampleStyleSheet()
+        styNormal = styleSheet['Normal']
+        styBackground = ParagraphStyle('background', parent=styNormal, backColor=colors.pink)
+        styH1 = styleSheet['Heading3']
+
+        data = self.datestrfdate()
+
+        lst = []
+        #lst2=[]
+        lst.append(logo)
+        #lst2.append(logo_2)
+        lst.append(
+            Paragraph("<b>INVENTURLISTE</b><br/><b> Ausgrabungsstätte: %s </b><br/><b>  Datum: %s</b>" % (sito, data), styH1))
+
+        table_data = []
+        for i in range(len(records)):
+            exp_index = FOTO_index_pdf_sheet_2(records[i])
+            table_data.append(exp_index.getTable_de())
+
+        styles = exp_index.makeStyles()
+        colWidths = [50, 50, 100,50,100,100,100,150]
+
+        table_data_formatted = Table(table_data, colWidths, style=styles)
+        table_data_formatted.hAlign = "LEFT"
+
+        lst.append(table_data_formatted)
+        lst.append(Spacer(0, 2))
+
+        dt = datetime.datetime.now()
+        filename = ('%s%s%s_%s_%s_%s_%s_%s_%s%s') % (
+        self.PDF_path, os.sep, 'Inventurliste', dt.day, dt.month, dt.year, dt.hour, dt.minute, dt.second, ".pdf")
+        f = open(filename, "wb")
+
+        doc = SimpleDocTemplate(f, pagesize=(29 * cm, 21 * cm), showBoundary=0, topMargin=15, bottomMargin=40,
+                                leftMargin=30, rightMargin=30)
+        doc.build(lst, canvasmaker=NumberedCanvas_FINDSindex)
+
+        f.close()
+    
     
     def build_Finds_sheets(self, records):
         elements = []
@@ -1820,7 +2207,7 @@ class generate_reperti_pdf(object):
 
         lst = []
         lst.append(logo)
-        lst.append(Paragraph("<b>LISTE MATERIAL</b><br/><b>Ausgrabungsstätte: %s,  Datum: %s</b>" % (sito, data), styH1))
+        lst.append(Paragraph("<b>LISTE MATERIAL</b><br/><b>Ausgrabungsstättesstätte: %s,  Datum: %s</b>" % (sito, data), styH1))
 
         table_data = []
         for i in range(len(records)):
