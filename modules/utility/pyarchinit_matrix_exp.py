@@ -20,34 +20,34 @@
 import os
 import subprocess
 from qgis.PyQt.QtWidgets import *
+from qgis.PyQt.QtCore import *
 import datetime
 from datetime import date
 from graphviz import Digraph, Source
 from .pyarchinit_OS_utility import Pyarchinit_OS_Utility
 from ..db.pyarchinit_db_manager import Pyarchinit_db_management
-from ...tabs.pyarchinit_setting_matrix import Setting_Matrix
+from ...tabs.pyarchinit_setting_matrix import *
 class HarrisMatrix:
     HOME = os.environ['PYARCHINIT_HOME']
     DB_MANAGER = ""
     TABLE_NAME = 'us_table'
     MAPPER_TABLE_CLASS = "US"
     ID_TABLE = "id_us"
-    MATRIX = ''
-    
+    MATRIX = Setting_Matrix()
+    #s=pyqtSignal(str)
     def __init__(self, sequence,negative, periodi):
         self.sequence = sequence
         self.negative = negative
         self.periodi=periodi
         
-    
     @property
     def export_matrix(self):
+        dialog = Setting_Matrix()
         
-        self.MATRIX = Setting_Matrix()
+        dialog.exec_()
         
-        self.color_str = self.MATRIX.on_Ucolor(0)
         
-        G = Digraph(engine='neato',strict=False)
+        G = Digraph(engine='dot',strict=False)
         
         G.graph_attr['splines'] = 'ortho'
         G.graph_attr['dpi'] = '300'
@@ -70,36 +70,38 @@ class HarrisMatrix:
            
             e.edges(elist1)
             
-            e.node_attr['shape'] = 'square'
-            e.node_attr['style'] = 'strocked'
-            e.node_attr.update(style='filled', fillcolor='white')
+            e.node_attr['shape'] = str(dialog.combo_box_3.currentText())
+            e.node_attr['style'] = str(dialog.combo_box_4.currentText())
+            e.node_attr.update(style='filled', fillcolor=str(dialog.combo_box.currentText()))
             e.node_attr['color'] = 'black'    
-            e.node_attr['penwidth'] = '.5'
-            e.edge_attr['penwidth'] = '.5'
-            e.edge_attr['style'] = 'solid'
-            e.edge_attr.update(arrowhead='diamond', arrowsize='.7')
-        for i in self.negative:
-            a = (i[0], i[1])
-            elist2.append(a)
-        
-        with G.subgraph(name='main2') as a:
-           
-            a.edges(elist2)
+            e.node_attr['penwidth'] = str(dialog.combo_box_5.currentText())
+            e.edge_attr['penwidth'] = str(dialog.combo_box_5.currentText())
+            e.edge_attr['style'] = str(dialog.combo_box_10.currentText())
+            e.edge_attr.update(arrowhead=str(dialog.combo_box_11.currentText()), arrowsize=str(dialog.combo_box_12.currentText()))
+            for i in self.negative:
+                a = (i[0], i[1])
+                elist2.append(a)
             
-            a.node_attr['shape'] = 'square'
-            a.node_attr['style'] = 'strocked'
-            a.node_attr.update(style='filled', fillcolor='gray')
-            a.node_attr['color'] = 'red'    
-            a.node_attr['penwidth'] = '.5'
-            a.edge_attr['penwidth'] = '.5'
-            a.edge_attr['style'] = 'dashed'
-            a.edge_attr.update(arrowhead='inv', arrowsize='.8')    
+            with G.subgraph(name='main2') as a:
+                
+                a.edges(elist2)
+                
+                a.node_attr['shape'] = str(dialog.combo_box_6.currentText())
+                a.node_attr['style'] = str(dialog.combo_box_8.currentText())
+                a.node_attr.update(style='filled', fillcolor=str(dialog.combo_box_2.currentText()))
+                a.node_attr['color'] = 'red'    
+                a.node_attr['penwidth'] = str(dialog.combo_box_7.currentText())
+                a.edge_attr['penwidth'] = str(dialog.combo_box_7.currentText())
+                a.edge_attr['style'] = str(dialog.combo_box_15.currentText())
+                a.edge_attr.update(arrowhead=str(dialog.combo_box_14.currentText()), arrowsize=str(dialog.combo_box_16.currentText()))    
         
         for i in self.periodi:
+            
             with G.subgraph(name=i[1]) as c:
                 
                 for n in i[0]:
-                    c.attr('node', shape='box', label =str(n))
+                    
+                    c.attr('node',shape='box', label =str(n))
                     
                     c.node(str(n))
                 
@@ -116,7 +118,7 @@ class HarrisMatrix:
         'Harris_matrix', dt.day, dt.month, dt.year, dt.hour, dt.minute, dt.second)
         f = open(filename, "w")
         
-        G.format = 'xdot1.4'
+        G.format = 'dot'
         dot_file = G.render(directory=matrix_path, filename=filename)
         
         # For MS-Windows, we need to hide the console window.
@@ -138,9 +140,9 @@ class HarrisMatrix:
 
         tred_file = os.path.join(matrix_path, filename + '_tred.dot')
         
-        f = Source.from_file(tred_file, format='jpeg')
+        f = Source.from_file(tred_file, format='png')
         f.render()
-        g = Source.from_file(tred_file, format='svgz')
+        g = Source.from_file(tred_file, format='jpg')
         g.render()
         return g,f
         # return f

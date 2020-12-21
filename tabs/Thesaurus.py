@@ -165,7 +165,7 @@ class pyarchinit_Thesaurus(QDialog, MAIN_DIALOG_CLASS):
         try:
             self.on_pushButton_connect_pressed()
         except Exception as e:
-            QMessageBox.warning(self, "Sistema di connessione", str(e), QMessageBox.Ok)
+            QMessageBox.warning(self, "Connection system", str(e), QMessageBox.Ok)
 
     def enable_button(self, n):
         self.pushButton_connect.setEnabled(n)

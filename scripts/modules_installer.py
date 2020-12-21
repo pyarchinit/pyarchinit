@@ -38,11 +38,12 @@ if not packages:
         'pdf2docx',
         'matplotlib',
         'PypeR',
-        'graphviz==0.8.3',
+        'graphviz',
         'pysftp',
         'xlsxwriter',        
         'pandas',
-        'opencv-python'
+        'opencv-python',
+        'pytesseract'
         
     ]
 
