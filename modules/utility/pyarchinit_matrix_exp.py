@@ -83,7 +83,7 @@ class HarrisMatrix:
                 elist2.append(a)
             
             with G.subgraph(name='main2') as a:
-               
+                
                 a.edges(elist2)
                 
                 a.node_attr['shape'] = str(dialog.combo_box_6.currentText())
@@ -96,10 +96,12 @@ class HarrisMatrix:
                 a.edge_attr.update(arrowhead=str(dialog.combo_box_14.currentText()), arrowsize=str(dialog.combo_box_16.currentText()))    
         
         for i in self.periodi:
+            
             with G.subgraph(name=i[1]) as c:
                 
                 for n in i[0]:
-                    c.attr('node', shape='box', label =str(n))
+                    
+                    c.attr('node',shape='box', label =str(n))
                     
                     c.node(str(n))
                 
@@ -138,7 +140,7 @@ class HarrisMatrix:
 
         tred_file = os.path.join(matrix_path, filename + '_tred.dot')
         
-        f = Source.from_file(tred_file, format='svg')
+        f = Source.from_file(tred_file, format='png')
         f.render()
         g = Source.from_file(tred_file, format='jpg')
         g.render()
