@@ -2231,28 +2231,28 @@ class Order_layer_v2(object):
                 # aggiunge le us al dizionario nel livello in xui trova l'us uguale a cui è uguale
                 # se l'US è già presente non la aggiunge
                 # le us che derivano dall'uguaglianza vanno aggiunte al rec_list_str
-            rec_list_str = rec_list_str + matrix_us_equal_level
+            rec = matrix_us_equal_level#rec_list_str+
             if self.L=='it':
-                value_list_post = value_list_equal = self.create_list_values(['Copre', 'Riempie', 'Taglia', 'Si appoggia a'], rec_list_str)
+                value_list_post = value_list_equal = self.create_list_values(['Copre', 'Riempie', 'Taglia', 'Si appoggia a'], rec)
             elif self.L=='de':
-                value_list_post = value_list_equal = self.create_list_values(["Liegt über","Verfüllt","Schneidet","Stützt sich auf"], rec_list_str)
+                value_list_post = value_list_equal = self.create_list_values(["Liegt über","Verfüllt","Schneidet","Stützt sich auf"], rec)
             else:
-                value_list_post = value_list_equal = self.create_list_values(["Covers","Fills","Cuts","Abuts"], rec_list_str)
+                value_list_post = value_list_equal = self.create_list_values(["Covers","Fills","Cuts","Abuts"], rec)
             
-            res = self.db.query_in_contains(value_list_post, self.SITO, self.AREA)
+            res_t = self.db.query_in_contains(value_list_post, self.SITO, self.AREA)
 
             matrix_us_level = []
-            for r in res:
-                matrix_us_level.append(str(r.us))
+            for e in res_t:
+                matrix_us_level.append(str(e.us))
                 #QMessageBox.warning(self, "Errore", str(matrix_us_level), QMessageBox.Ok)
             if not matrix_us_level:
                 test = 1
                 return self.order_dict
-            elif self.order_count >= 500:
+            elif self.order_count >=500:
                 test = 1
                 #QMessageBox.warning(self, "Errore", str(self.order_dict), QMessageBox.Ok)
 
-                return self.order_dict
+                return "error"
             else:
                 self.insert_into_dict(matrix_us_level, 1)
 
