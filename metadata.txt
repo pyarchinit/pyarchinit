@@ -25,7 +25,7 @@ repository=https://github.com/pyarchinit/pyarchinit
 
 
 changelog=release2.3.0
-        -update order layer
+        -update matrix
    -------------------------------------------------------------------------------
 
    release2.2.9
