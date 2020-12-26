@@ -82,27 +82,11 @@ class HarrisMatrix:
             e.edge_attr['penwidth'] = str(dialog.combo_box_5.currentText())
             e.edge_attr['style'] = str(dialog.combo_box_10.currentText())
             e.edge_attr.update(arrowhead=str(dialog.combo_box_11.currentText()), arrowsize=str(dialog.combo_box_12.currentText()))
-            for i in self.negative:
-                a = (i[0], i[1])
-                elist2.append(a)
-        
-            with G.subgraph(name='main1') as a:
-                #a.attr(rank='same')
-                a.edges(elist2)
-                
-                a.node_attr['shape'] = str(dialog.combo_box_6.currentText())
-                a.node_attr['style'] = str(dialog.combo_box_8.currentText())
-                a.node_attr.update(style='filled', fillcolor=str(dialog.combo_box_2.currentText()))
-                a.node_attr['color'] = 'red'    
-                a.node_attr['penwidth'] = str(dialog.combo_box_7.currentText())
-                a.edge_attr['penwidth'] = str(dialog.combo_box_7.currentText())
-                a.edge_attr['style'] = str(dialog.combo_box_15.currentText())
-                a.edge_attr.update(arrowhead=str(dialog.combo_box_14.currentText()), arrowsize=str(dialog.combo_box_16.currentText()))    
             for b in self.conteporene:
                 a = (b[0], b[1])
                 elist3.append(a)
         
-            with G.subgraph(name='main2') as b:
+            with G.subgraph(name='main1') as b:
                 
                 
                 b.edges(elist3)
@@ -115,6 +99,24 @@ class HarrisMatrix:
                 b.edge_attr['penwidth'] = str(dialog.combo_box_19.currentText())
                 b.edge_attr['style'] = str(dialog.combo_box_23.currentText())
                 b.edge_attr.update(arrowhead=str(dialog.combo_box_21.currentText()), arrowsize=str(dialog.combo_box_24.currentText()))
+            
+            for i in self.negative:
+                a = (i[0], i[1])
+                elist2.append(a)
+        
+            with G.subgraph(name='main2') as a:
+                #a.attr(rank='same')
+                a.edges(elist2)
+                
+                a.node_attr['shape'] = str(dialog.combo_box_6.currentText())
+                a.node_attr['style'] = str(dialog.combo_box_8.currentText())
+                a.node_attr.update(style='filled', fillcolor=str(dialog.combo_box_2.currentText()))
+                a.node_attr['color'] = 'red'    
+                a.node_attr['penwidth'] = str(dialog.combo_box_7.currentText())
+                a.edge_attr['penwidth'] = str(dialog.combo_box_7.currentText())
+                a.edge_attr['style'] = str(dialog.combo_box_15.currentText())
+                a.edge_attr.update(arrowhead=str(dialog.combo_box_14.currentText()), arrowsize=str(dialog.combo_box_16.currentText()))    
+            
         
         if bool(dialog.checkBox_period.isChecked()):         
             for i in self.periodi:
