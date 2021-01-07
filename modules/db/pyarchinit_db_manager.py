@@ -1625,8 +1625,8 @@ class Pyarchinit_db_management(object):
         
         if l=='it':
             res = session.query(US).filter_by(sito=sitof).filter_by(area=areaf).filter(
-                and_(~US.rapporti.like("%'Taglia'%"), ~US.rapporti.like("%'Si appoggia a'%"),
-                     ~US.rapporti.like("%'Copre'%"), ~US.rapporti.like("%'Riempie'%")))
+                and_(~US.rapporti.like("%'Copre'%"), ~US.rapporti.like("%'Riempie'%"),
+                     ~US.rapporti.like("%'Taglia'%"), ~US.rapporti.like("%'Si appoggia a'%")))
                 # MyModel.query.filter(sqlalchemy.not_(Mymodel.name.contains('a_string')))
         elif l=='en':
             res = session.query(US).filter_by(sito=sitof).filter_by(area=areaf).filter(

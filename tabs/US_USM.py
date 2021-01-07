@@ -2955,8 +2955,8 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
             OL = Order_layer_v2(self.DB_MANAGER, sito, area)
             order_layer_dict = OL.main_order_layer()
             # script order layer from pyqgis
-            order_number = ""
-            us = ""
+            #order_number = ""
+            #us = ""
             for k, v in order_layer_dict.items():#era items prima 
                 order_number = str(k)
                 us = v
@@ -2970,8 +2970,7 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
                                                ['order_layer'], [order_number])
                         self.on_pushButton_view_all_pressed()
                     except Exception as e:
-                        msg_us_mancanti = str(
-                            e)  # msg_us_mancanti + "\n"+str(sito) + "area: " + str(area) + " us: " + (us)
+                        pass#QMessageBox.warning(self, "Messaggio", "DATA LIST" + str(e), QMessageBox.Ok)
             # blocco output errori
             if self.L=='it':
                 filename_tipo_rapporti_mancanti = '{}{}{}'.format(self.REPORT_PATH, os.sep, 'tipo_rapporti_mancanti.txt')

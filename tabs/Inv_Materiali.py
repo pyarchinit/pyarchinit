@@ -1725,7 +1725,7 @@ class pyarchinit_Inventario_reperti(QDialog, MAIN_DIALOG_CLASS):
             if self.checkBox_s_us.isChecked():
                 US_pdf_sheet = generate_reperti_pdf()
                 data_list = self.generate_list_pdf()
-                US_pdf_sheet.build_Finds_sheets(data_list)
+                US_pdf_sheet.build_Finds_sheets_de(data_list)
                 QMessageBox.warning(self, 'Ok',"Export beendet",QMessageBox.Ok)
             else:   
                 pass
@@ -1740,7 +1740,7 @@ class pyarchinit_Inventario_reperti(QDialog, MAIN_DIALOG_CLASS):
                 Mat_casse_pdf = generate_reperti_pdf()
                 data_list = self.generate_el_casse_pdf(sito_ec)
 
-                Mat_casse_pdf.build_index_Casse(data_list, sito_ec)
+                Mat_casse_pdf.build_index_Casse_de(data_list, sito_ec)
                 QMessageBox.warning(self, 'Ok',"Export beendet",QMessageBox.Ok)
         
                 
@@ -1767,7 +1767,7 @@ class pyarchinit_Inventario_reperti(QDialog, MAIN_DIALOG_CLASS):
         
                 try:
                         
-                    US_index_pdf.build_index_Foto_2(data_list, data_list[0][0])
+                    US_index_pdf.build_index_Foto_2_de(data_list, data_list[0][0])
                     QMessageBox.warning(self, 'Ok',"Export beendet",QMessageBox.Ok)
                                        
                         # else:
@@ -1780,7 +1780,7 @@ class pyarchinit_Inventario_reperti(QDialog, MAIN_DIALOG_CLASS):
             if self.checkBox_s_us.isChecked():
                 US_pdf_sheet = generate_reperti_pdf()
                 data_list = self.generate_list_pdf()
-                US_pdf_sheet.build_Finds_sheets(data_list)
+                US_pdf_sheet.build_Finds_sheets_en(data_list)
                 QMessageBox.warning(self, 'Ok',"Exportation Forms complited",QMessageBox.Ok)
             else:   
                 pass
@@ -1795,7 +1795,7 @@ class pyarchinit_Inventario_reperti(QDialog, MAIN_DIALOG_CLASS):
                 Mat_casse_pdf = generate_reperti_pdf()
                 data_list = self.generate_el_casse_pdf(sito_ec)
 
-                Mat_casse_pdf.build_index_Casse(data_list, sito_ec)
+                Mat_casse_pdf.build_index_Casse_en(data_list, sito_ec)
                 QMessageBox.warning(self, 'Ok',"Exportation list box complited",QMessageBox.Ok)
         
                 
@@ -1822,7 +1822,7 @@ class pyarchinit_Inventario_reperti(QDialog, MAIN_DIALOG_CLASS):
         
                 try:
                         
-                    US_index_pdf.build_index_Foto_2(data_list, data_list[0][0])
+                    US_index_pdf.build_index_Foto_2_en(data_list, data_list[0][0])
                     QMessageBox.warning(self, 'Ok',"Exportation list complited",QMessageBox.Ok)
                                        
                         # else:
