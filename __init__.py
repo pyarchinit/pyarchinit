@@ -172,6 +172,7 @@ if install_libraries:
     else:
         pass
 
+
 s = QgsSettings()
 if not Pyarchinit_OS_Utility.checkGraphvizInstallation() and s.value('pyArchInit/graphvizBinPath'):
     os.environ['PATH'] += os.pathsep + os.path.normpath(s.value('pyArchInit/graphvizBinPath'))
@@ -181,7 +182,7 @@ if not Pyarchinit_OS_Utility.checkRInstallation() and s.value('pyArchInit/rBinPa
 
 packages = [
     'PypeR',
-    'graphviz==0.8.3',
+    'graphviz',
 ]
 for p in packages:
     from qgis.PyQt.QtWidgets import QMessageBox
