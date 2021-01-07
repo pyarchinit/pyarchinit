@@ -208,6 +208,198 @@ class Tomba_index_pdf_sheet(object):
                 materiali]
 
         return data
+    
+    def getTable_en(self):
+        styleSheet = getSampleStyleSheet()
+        styNormal = styleSheet['Normal']
+        styNormal.spaceBefore = 20
+        styNormal.spaceAfter = 20
+        styNormal.alignment = 0  # LEFT
+        styNormal.fontSize = 9
+
+        
+
+        num_scheda = Paragraph("<b>Nr. Form</b><br/>" + str(self.nr_scheda_taf), styNormal)
+
+        sigla_struttura = Paragraph("<b>Structure code</b><br/>" + str(self.sigla_struttura)+'-'+ str(self.nr_struttura), styNormal)
+
+        #numero_struttura = Paragraph("<b>Nr. Struttura</b><br/>" + str(self.nr_struttura), styNormal)
+
+        numero_individuo = Paragraph("<b>Nr. Ind</b><br/>" + str(self.nr_individuo), styNormal)
+
+        if self.rito == None:
+            rito = Paragraph("<b>Rite</b><br/>", styNormal)
+        else:
+            rito = Paragraph("<b>Rite</b><br/>" + str(self.rito), styNormal)
+
+        if self.tipo_contenitore_resti == None:
+            tipo_contenitore_resti = Paragraph("<b>Container type</b><br/>", styNormal)
+        else:
+            tipo_contenitore_resti = Paragraph("<b>Container type</b><br/>" + str(self.tipo_contenitore_resti),
+                                               styNormal)
+
+        if self.deposizione == None:
+            deposizione = Paragraph("<b>Deposition type</b><br/>", styNormal)
+        else:
+            deposizione = Paragraph("<b>Deposition type</b><br/>" + str(self.deposizione), styNormal)
+
+        if self.sepoltura == None:
+            sepoltura = Paragraph("<b>Grave type</b><br/>", styNormal)
+        else:
+            sepoltura = Paragraph("<b>Grave type</b><br/>" + str(self.sepoltura), styNormal)
+        
+        materiali = ''
+        if eval(self.materiali):
+            for i in eval(self.materiali):  # gigi
+                if materiali == '':
+                    try:
+                        materiali += ("N. Ind: %s- Rif AA: %s - Material: %s<br/>") % (
+                        str(i[1]), str(i[0]), str(i[2]))
+                    except Exception as e:
+                        str(e)
+                else:
+                    try:
+                        materiali += ("N. Ind: %s- Rif AA: %s - Material: %s<br/>") % (
+                        str(i[1]), str(i[0]), str(i[2]))
+                    except Exception as e:
+                        str(e)
+        
+        materiali = Paragraph("<b> Ind and Equipment</b><br/>" + str(materiali), styNormal)
+
+        
+        if self.periodo_iniziale == None:
+            periodo_iniziale = Paragraph("<b>Start period</b><br/>", styNormal)
+        else:
+            periodo_iniziale = Paragraph("<b>Start period</b><br/>" + self.periodo_iniziale, styNormal)
+
+        if self.fase_iniziale == None:
+            fase_iniziale = Paragraph("<b>Start Phase</b><br/>", styNormal)
+        else:
+            fase_iniziale = Paragraph("<b>Start Phase</b><br/>" + self.fase_iniziale, styNormal)
+
+        if self.periodo_finale == None:
+            periodo_finale = Paragraph("<b>Final Period</b><br/>", styNormal)
+        else:
+            periodo_finale = Paragraph("<b>Final Period</b><br/>" + self.periodo_finale, styNormal)
+
+        if self.fase_finale == None:
+            fase_finale = Paragraph("<b>Final Phase</b><br/>", styNormal)
+        else:
+            fase_finale = Paragraph("<b>Final Phase</b><br/>" + self.fase_finale, styNormal)
+
+        if self.datazione_estesa == None:
+            datazione_estesa = Paragraph("<b>Dating</b><br/>", styNormal)
+        else:
+            datazione_estesa = Paragraph("<b>Dating</b><br/>" + self.datazione_estesa, styNormal)
+
+        data = [num_scheda,
+                sigla_struttura,
+                rito,
+                sepoltura,
+                deposizione,
+                datazione_estesa,
+                materiali]
+
+        return data
+    
+    def getTable_de(self):
+        styleSheet = getSampleStyleSheet()
+        styNormal = styleSheet['Normal']
+        styNormal.spaceBefore = 20
+        styNormal.spaceAfter = 20
+        styNormal.alignment = 0  # LEFT
+        styNormal.fontSize = 9
+
+        
+
+        num_scheda = Paragraph("<b>Kartennummer</b><br/>" + str(self.nr_scheda_taf), styNormal)
+
+        sigla_struttura = Paragraph("<b>Struktur-Code</b><br/>" + str(self.sigla_struttura)+'-'+ str(self.nr_struttura), styNormal)
+
+        #numero_struttura = Paragraph("<b>Nr. Struttura</b><br/>" + str(self.nr_struttura), styNormal)
+
+        numero_individuo = Paragraph("<b>Nr. Individuell</b><br/>" + str(self.nr_individuo), styNormal)
+
+        if self.rito == None:
+            rito = Paragraph("<b>Ritus</b><br/>", styNormal)
+        else:
+            rito = Paragraph("<b>Ritus</b><br/>" + str(self.rito), styNormal)
+
+        if self.tipo_contenitore_resti == None:
+            tipo_contenitore_resti = Paragraph("<b>Container typ</b><br/>", styNormal)
+        else:
+            tipo_contenitore_resti = Paragraph("<b>Container typ</b><br/>" + str(self.tipo_contenitore_resti),
+                                               styNormal)
+
+        if self.deposizione == None:
+            deposizione = Paragraph("<b>Typ Deposition</b><br/>", styNormal)
+        else:
+            deposizione = Paragraph("<b>Typ Deposition</b><br/>" + str(self.deposizione), styNormal)
+
+        if self.sepoltura == None:
+            sepoltura = Paragraph("<b>Bestattungsart</b><br/>", styNormal)
+        else:
+            sepoltura = Paragraph("<b>Bestattungsart</b><br/>" + str(self.sepoltura), styNormal)
+        
+        materiali = ''
+        if eval(self.materiali):
+            for i in eval(self.materiali):  # gigi
+                if materiali == '':
+                    try:
+                        materiali += ("N. Ind: %s- Rif EA: %s - Material: %s<br/>") % (
+                        str(i[1]), str(i[0]), str(i[2]))
+                    except Exception as e:
+                        str(e)
+                else:
+                    try:
+                        materiali += ("N. Ind: %s- Rif EA: %s - Material: %s<br/>") % (
+                        str(i[1]), str(i[0]), str(i[2]))
+                    except Exception as e:
+                        str(e)
+        
+        materiali = Paragraph("<b> Individuell und Bausatz</b><br/>" + str(materiali), styNormal)
+
+        
+        if self.periodo_iniziale == None:
+            periodo_iniziale = Paragraph("<b>Anfangszeit</b><br/>", styNormal)
+        else:
+            periodo_iniziale = Paragraph("<b>Anfangszeit</b><br/>" + self.periodo_iniziale, styNormal)
+
+        if self.fase_iniziale == None:
+            fase_iniziale = Paragraph("<b>Anfangsphase</b><br/>", styNormal)
+        else:
+            fase_iniziale = Paragraph("<b>Anfangsphase</b><br/>" + self.fase_iniziale, styNormal)
+
+        if self.periodo_finale == None:
+            periodo_finale = Paragraph("<b>Letzter Zeitraum</b><br/>", styNormal)
+        else:
+            periodo_finale = Paragraph("<b>Letzter Zeitraum</b><br/>" + self.periodo_finale, styNormal)
+
+        if self.fase_finale == None:
+            fase_finale = Paragraph("<b>Letzte Etappe</b><br/>", styNormal)
+        else:
+            fase_finale = Paragraph("<b>Letzte Etappe</b><br/>" + self.fase_finale, styNormal)
+
+        if self.datazione_estesa == None:
+            datazione_estesa = Paragraph("<b>Datum</b><br/>", styNormal)
+        else:
+            datazione_estesa = Paragraph("<b>Datum</b><br/>" + self.datazione_estesa, styNormal)
+
+        data = [num_scheda,
+                sigla_struttura,
+                rito,
+                sepoltura,
+                deposizione,
+                datazione_estesa,
+                materiali]
+
+        return data
+    
+    
+    
+    
+    
+    
     # def getTable_de(self):
         # styleSheet = getSampleStyleSheet()
         # styNormal = styleSheet['Normal']

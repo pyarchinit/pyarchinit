@@ -89,13 +89,14 @@ class pyarchinit_Interactive_Matrix(QDialog, MAIN_DIALOG_CLASS):
     def generate_matrix(self):
         data = []
         negative =[]
+        conteporane=[]
         for sing_rec in self.DATA_LIST:
             us = str(sing_rec.us)
             #unita_t = str (sing_rec.unita_tipo)
             rapporti_stratigrafici = eval(sing_rec.rapporti)
             for sing_rapp in rapporti_stratigrafici:
                 try:
-                    if   sing_rapp[0] == 'Covers' or  sing_rapp[0] == 'Abuts' or  sing_rapp[0] == 'Fills' or sing_rapp[0] == 'Connected to' or  sing_rapp[0] == 'Same as'or   sing_rapp[0] == 'Copre' or  sing_rapp[0] == 'Si appoggia a' or  sing_rapp[0] == 'Riempie'  or sing_rapp[0] == 'Si lega a' or  sing_rapp[0] == 'Uguale a'  or   sing_rapp[0] == 'Liegt über' or  sing_rapp[0] == 'Stützt sich auf' or  sing_rapp[0] == 'Verfüllt' or sing_rapp[0] == 'Bindet an' or  sing_rapp[0] == 'Entspricht' :
+                    if   sing_rapp[0] == 'Covers' or  sing_rapp[0] == 'Abuts' or  sing_rapp[0] == 'Fills' or  sing_rapp[0] == 'Copre' or  sing_rapp[0] == 'Si appoggia a' or  sing_rapp[0] == 'Riempie'   or  sing_rapp[0] == 'Verfüllt' or sing_rapp[0] == 'Bindet an' or  sing_rapp[0] == 'Entspricht' :
                         if sing_rapp[1] != '':
                             harris_rapp = (us, str(sing_rapp[1]))
                             data.append(harris_rapp)
@@ -105,7 +106,12 @@ class pyarchinit_Interactive_Matrix(QDialog, MAIN_DIALOG_CLASS):
                             harris_rapp = (us, str(sing_rapp[1]))
                             negative.append(harris_rapp)
                 
-                
+                    if sing_rapp[0] == 'Si lega a' or  sing_rapp[0] == 'Uguale a' or sing_rapp[0] == 'Connected to' or  sing_rapp[0] == 'Same as'or sing_rapp[0] == 'Liegt über' or  sing_rapp[0] == 'Stützt sich auf':
+                        if sing_rapp[1] != '':
+                            harris_rapp = (us, str(sing_rapp[1]))
+                            conteporane.append(harris_rapp)
+                            
+                            
                 except Exception as e:
                     
                     if self.L=='it':
@@ -184,7 +190,7 @@ class pyarchinit_Interactive_Matrix(QDialog, MAIN_DIALOG_CLASS):
 
             clust_number += 1
         
-        matrix_exp = HarrisMatrix(data, negative,periodi_us_list)
+        matrix_exp = HarrisMatrix(data, negative,conteporane,periodi_us_list)
         
         data_plotting = matrix_exp.export_matrix
         if self.L=='it':

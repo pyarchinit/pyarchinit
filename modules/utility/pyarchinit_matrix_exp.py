@@ -21,6 +21,7 @@ import os
 import subprocess
 from qgis.PyQt.QtWidgets import *
 from qgis.PyQt.QtCore import *
+from qgis.core import QgsSettings
 import datetime
 from datetime import date
 from graphviz import Digraph, Source
@@ -28,6 +29,7 @@ from .pyarchinit_OS_utility import Pyarchinit_OS_Utility
 from ..db.pyarchinit_db_manager import Pyarchinit_db_management
 from ...tabs.pyarchinit_setting_matrix import *
 class HarrisMatrix:
+    L=QgsSettings().value("locale/userLocale")[0:2]
     HOME = os.environ['PYARCHINIT_HOME']
     DB_MANAGER = ""
     TABLE_NAME = 'us_table'
@@ -35,11 +37,11 @@ class HarrisMatrix:
     ID_TABLE = "id_us"
     MATRIX = Setting_Matrix()
     #s=pyqtSignal(str)
-    def __init__(self, sequence,negative, periodi):
+    def __init__(self, sequence,negative, conteporene, periodi):
         self.sequence = sequence
         self.negative = negative
         self.periodi=periodi
-        
+        self.conteporene=conteporene
     @property
     def export_matrix(self):
         dialog = Setting_Matrix()
@@ -48,26 +50,28 @@ class HarrisMatrix:
         
         
         G = Digraph(engine='dot',strict=False)
-        
+        G.attr(rankdir='TB')
+        G.attr(compound='true')
+        G.graph_attr['pad']="0.5"
+        G.graph_attr['nodesep']="1"
+        G.graph_attr['ranksep']="1.5"
         G.graph_attr['splines'] = 'ortho'
         G.graph_attr['dpi'] = '300'
-        
         
         elist1 = []
         elist2 = []
         elist3 = []
-        elist4 = []
-        elist5 = []
-        elist6 = []
-        elist7 = []
-        elist8 = []
-        elist9 = []
+        
+        
+            
+            
+        
         for i in self.sequence:
             a = (i[0], i[1])
             elist1.append(a)
         
         with G.subgraph(name='main') as e:
-           
+            e.attr(rankdir='TB')
             e.edges(elist1)
             
             e.node_attr['shape'] = str(dialog.combo_box_3.currentText())
@@ -78,12 +82,30 @@ class HarrisMatrix:
             e.edge_attr['penwidth'] = str(dialog.combo_box_5.currentText())
             e.edge_attr['style'] = str(dialog.combo_box_10.currentText())
             e.edge_attr.update(arrowhead=str(dialog.combo_box_11.currentText()), arrowsize=str(dialog.combo_box_12.currentText()))
+            for b in self.conteporene:
+                a = (b[0], b[1])
+                elist3.append(a)
+        
+            with G.subgraph(name='main1') as b:
+                
+                
+                b.edges(elist3)
+                
+                b.node_attr['shape'] = str(dialog.combo_box_18.currentText())
+                b.node_attr['style'] = str(dialog.combo_box_22.currentText())
+                b.node_attr.update(style='filled', fillcolor=str(dialog.combo_box_17.currentText()))
+                b.node_attr['color'] = 'blue'    
+                b.node_attr['penwidth'] = str(dialog.combo_box_19.currentText())
+                b.edge_attr['penwidth'] = str(dialog.combo_box_19.currentText())
+                b.edge_attr['style'] = str(dialog.combo_box_23.currentText())
+                b.edge_attr.update(arrowhead=str(dialog.combo_box_21.currentText()), arrowsize=str(dialog.combo_box_24.currentText()))
+            
             for i in self.negative:
                 a = (i[0], i[1])
                 elist2.append(a)
-            
+        
             with G.subgraph(name='main2') as a:
-               
+                #a.attr(rank='same')
                 a.edges(elist2)
                 
                 a.node_attr['shape'] = str(dialog.combo_box_6.currentText())
@@ -94,21 +116,62 @@ class HarrisMatrix:
                 a.edge_attr['penwidth'] = str(dialog.combo_box_7.currentText())
                 a.edge_attr['style'] = str(dialog.combo_box_15.currentText())
                 a.edge_attr.update(arrowhead=str(dialog.combo_box_14.currentText()), arrowsize=str(dialog.combo_box_16.currentText()))    
+            
         
-        for i in self.periodi:
-            with G.subgraph(name=i[1]) as c:
+        if bool(dialog.checkBox_period.isChecked()):         
+            for i in self.periodi:
                 
-                for n in i[0]:
-                    c.attr('node', shape='box', label =str(n))
+                with G.subgraph(name=i[1]) as c:
                     
-                    c.node(str(n))
-                
-                c.attr(color='blue')
-                c.attr('node', shape='box', fillcolor='white', style='filled', gradientangle='90',label=i[2])
-                
-                c.node(i[2])
-               
-               
+                    for n in i[0]:
+                        
+                        c.attr('node',shape='record', label =str(n))
+                        
+                        c.node(str(n))
+                    
+                    c.attr(color='blue')
+                    c.attr('node', shape='record', fillcolor='white', style='filled', gradientangle='90',label=i[2])
+                    
+                    c.node(i[2])       
+         
+        if bool(dialog.checkBox_legend.isChecked()):
+            with G.subgraph(name='cluster3') as j:
+                j.attr(rank='max')
+                j.attr(fillcolor='white', label='Legend', fontcolor='black',fontsize='16',
+                style='filled')
+                with G.subgraph(name='cluster3') as i:
+                    i.attr(rank='max')
+                    if self.L=='it':
+                        i.node('a0', shape=str(dialog.combo_box_3.currentText()), fillcolor=str(dialog.combo_box.currentText()), style='filled', gradientangle='90',label='Ante/Post') 
+                        i.edge('a0', 'a1',shape=str(dialog.combo_box_3.currentText()), fillcolor=str(dialog.combo_box.currentText()), style=str(dialog.combo_box_10.currentText()),arrowhead=str(dialog.combo_box_11.currentText()), arrowsize=str(dialog.combo_box_12.currentText()))
+                        
+                        i.node('a1', shape=str(dialog.combo_box_6.currentText()), fillcolor=str(dialog.combo_box_2.currentText()), style='filled', gradientangle='90',label='Negative')
+                        i.edge('a1', 'a2',shape=str(dialog.combo_box_8.currentText()), fillcolor=str(dialog.combo_box_2.currentText()), style=str(dialog.combo_box_15.currentText()),arrowhead=str(dialog.combo_box_14.currentText()), arrowsize=str(dialog.combo_box_16.currentText()))
+                        
+                        i.node('a2', shape=str(dialog.combo_box_18.currentText()), fillcolor=str(dialog.combo_box_17.currentText()), style='filled', gradientangle='1',label='Cont.')
+                        #i.node('node3', shape=str(dialog.combo_box_18.currentText()), fillcolor=str(dialog.combo_box_17.currentText()), style='filled', gradientangle='1')
+                        i.edge('a2', 'a1',shape=str(dialog.combo_box_22.currentText()), fillcolor=str(dialog.combo_box_17.currentText()), style=str(dialog.combo_box_23.currentText()),arrowhead=str(dialog.combo_box_21.currentText()), arrowsize=str(dialog.combo_box_24.currentText()))
+                    elif self.L=='de':
+                        i.node('a0', shape=str(dialog.combo_box_3.currentText()), fillcolor=str(dialog.combo_box.currentText()), style='filled', gradientangle='90',label='Ante/Post') 
+                        i.edge('a0', 'a1',shape=str(dialog.combo_box_3.currentText()), fillcolor=str(dialog.combo_box.currentText()), style=str(dialog.combo_box_10.currentText()),arrowhead=str(dialog.combo_box_11.currentText()), arrowsize=str(dialog.combo_box_12.currentText()))
+                        
+                        i.node('a1', shape=str(dialog.combo_box_6.currentText()), fillcolor=str(dialog.combo_box_2.currentText()), style='filled', gradientangle='90',label='Negativ')
+                        i.edge('a1', 'a2',shape=str(dialog.combo_box_8.currentText()), fillcolor=str(dialog.combo_box_2.currentText()), style=str(dialog.combo_box_15.currentText()),arrowhead=str(dialog.combo_box_14.currentText()), arrowsize=str(dialog.combo_box_16.currentText()))
+                        
+                        i.node('a2', shape=str(dialog.combo_box_18.currentText()), fillcolor=str(dialog.combo_box_17.currentText()), style='filled', gradientangle='1',label='Wie')
+                        #i.node('node3', shape=str(dialog.combo_box_18.currentText()), fillcolor=str(dialog.combo_box_17.currentText()), style='filled', gradientangle='1')
+                        i.edge('a2', 'a1',shape=str(dialog.combo_box_22.currentText()), fillcolor=str(dialog.combo_box_17.currentText()), style=str(dialog.combo_box_23.currentText()),arrowhead=str(dialog.combo_box_21.currentText()), arrowsize=str(dialog.combo_box_24.currentText()))
+                    else:
+                        i.node('a0', shape=str(dialog.combo_box_3.currentText()), fillcolor=str(dialog.combo_box.currentText()), style='filled', gradientangle='90',label='Ante/Post') 
+                        i.edge('a0', 'a1',shape=str(dialog.combo_box_3.currentText()), fillcolor=str(dialog.combo_box.currentText()), style=str(dialog.combo_box_10.currentText()),arrowhead=str(dialog.combo_box_11.currentText()), arrowsize=str(dialog.combo_box_12.currentText()))
+                        
+                        i.node('a1', shape=str(dialog.combo_box_6.currentText()), fillcolor=str(dialog.combo_box_2.currentText()), style='filled', gradientangle='90',label='Negative')
+                        i.edge('a1', 'a2',shape=str(dialog.combo_box_8.currentText()), fillcolor=str(dialog.combo_box_2.currentText()), style=str(dialog.combo_box_15.currentText()),arrowhead=str(dialog.combo_box_14.currentText()), arrowsize=str(dialog.combo_box_16.currentText()))
+                        
+                        i.node('a2', shape=str(dialog.combo_box_18.currentText()), fillcolor=str(dialog.combo_box_17.currentText()), style='filled', gradientangle='1',label='Same')
+                        #i.node('node3', shape=str(dialog.combo_box_18.currentText()), fillcolor=str(dialog.combo_box_17.currentText()), style='filled', gradientangle='1')
+                        i.edge('a2', 'a1',shape=str(dialog.combo_box_22.currentText()), fillcolor=str(dialog.combo_box_17.currentText()), style=str(dialog.combo_box_23.currentText()),arrowhead=str(dialog.combo_box_21.currentText()), arrowsize=str(dialog.combo_box_24.currentText()))
+                    
         
         dt = datetime.datetime.now()
         matrix_path = '{}{}{}'.format(self.HOME, os.sep, "pyarchinit_Matrix_folder")
@@ -138,7 +201,7 @@ class HarrisMatrix:
 
         tred_file = os.path.join(matrix_path, filename + '_tred.dot')
         
-        f = Source.from_file(tred_file, format='svg')
+        f = Source.from_file(tred_file, format='png')
         f.render()
         g = Source.from_file(tred_file, format='jpg')
         g.render()
