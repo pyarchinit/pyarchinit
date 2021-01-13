@@ -34,11 +34,15 @@ https://www.adarteinfo.it/archivio/pyarchinit-download/pyarchinit.xml
 * reportlab
 * PypeR (for R)
 * [R Software](https://www.r-project.org/)
-* [Graphviz Visualization Software](https://www.graphviz.org/)
+* [Graphviz Visualization Software](https://www.graphviz.org/)*(see note)
 * [graphviz python module](https://github.com/xflr6/graphviz)
 * matplotlib
 * pdf2docx
 * pysftp
+**Note6:** _indtruction to install Graphviz on Windows OS
+- Download zip file of the [last release of Graphviz (2.44.1)](https://www2.graphviz.org/Packages/stable/windows/10/msbuild/Release/Win32/graphviz-2.44.1-win32.zip)
+- unzip file and save it in some location ( example in C:/) and enjoy.
+
 
 The dependencies can be installed using the [modules_installer.py](/scripts/modules_installer.py) by running it from within a python shell:
 
