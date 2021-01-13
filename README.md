@@ -40,7 +40,7 @@ https://www.adarteinfo.it/archivio/pyarchinit-download/pyarchinit.xml
 * pdf2docx
 * pysftp
 
-**Note6:** _indtruction to install Graphviz on Windows OS
+**Note6:** _Indtruction to install Graphviz on Windows OS_
 - Download zip file of the [last release of Graphviz (2.44.1)](https://www2.graphviz.org/Packages/stable/windows/10/msbuild/Release/Win32/graphviz-2.44.1-win32.zip)
 - unzip file and save it in some location ( example in C:/) and enjoy.
 
