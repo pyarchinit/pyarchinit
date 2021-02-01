@@ -336,7 +336,7 @@ class pyarchinit_Documentazione(QDialog, MAIN_DIALOG_CLASS):
         conn = Connection()
         sito_set= conn.sito_set()
         sito_set_str = sito_set['sito_set']
-        if bool(self.comboBox_sito.currentText()) and self.comboBox_sito.currentText()==sito_set_str:
+        if bool(self.comboBox_sito_doc.currentText()) and self.comboBox_sito_doc.currentText()==sito_set_str:
             
             if self.L=='it':
                 QMessageBox.information(self, "OK" ,"Sei connesso al sito: %s" % str(sito_set_str),QMessageBox.Ok) 
@@ -382,7 +382,7 @@ class pyarchinit_Documentazione(QDialog, MAIN_DIALOG_CLASS):
                 self.SORT_STATUS = "n"
                 self.label_status.setText(self.STATUS_ITEMS[self.BROWSE_STATUS])
                 self.set_rec_counter(len(self.DATA_LIST), self.REC_CORR + 1)
-                self.setComboBoxEnable(["self.comboBox_sito"], "False")
+                self.setComboBoxEnable(["self.comboBox_sito_doc"], "False")
             else:
                 pass#
         except:
