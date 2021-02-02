@@ -66,6 +66,7 @@ class Pyarchinit_pyqgis(QDialog):
                   "25": "pyarchinit_doc_view_b",
                   "26": "pyarchinit_reperti",
                   "27": "pyarchinit_reperti_view",
+                  "28": "pyarchinit_sezioni_view"
                   }
     if L=='it':
         LAYERS_CONVERT_DIZ = {"pyarchinit_campionature": "Punti di campionatura",
@@ -94,6 +95,7 @@ class Pyarchinit_pyqgis(QDialog):
                               "pyarchinit_doc_view_b": "Documentazione Vista B",
                               "pyarchinit_reperti": "Reperti",
                               "pyarchinit_reperti_view": "Reperti view",
+                              "pyarchinit_sezioni_view": "Sezioni di scavo Vista",
 
                               }
     elif L=='de':
@@ -123,6 +125,7 @@ class Pyarchinit_pyqgis(QDialog):
                               "pyarchinit_doc_view_b": "Dokumentation Ansicht B",
                               "pyarchinit_reperti": "Artefakt",
                               "pyarchinit_reperti_view": "Artefakt view",
+                              "pyarchinit_sezioni_view": "Profile view",
 
                               }
     else:
@@ -152,6 +155,7 @@ class Pyarchinit_pyqgis(QDialog):
                               "pyarchinit_doc_view_b": "Documentation view B",
                               "pyarchinit_reperti": "Artefact",
                               "pyarchinit_reperti_view": "Artefact view",
+                              "pyarchinit_sezioni_view": "Excavation section view",
                               }
 
     def __init__(self, iface):
@@ -383,6 +387,40 @@ class Pyarchinit_pyqgis(QDialog):
             sqliteDB_path = os.path.join(os.sep, 'pyarchinit_DB_folder', settings.DATABASE)
             db_file_path = '{}{}'.format(self.HOME, sqliteDB_path)
 
+            sezstr = ""
+            if len(data) == 1:
+                sezstr = "sito = '" + str(data[0].sito) + "' AND nome_doc = '" + str(
+                    data[0].nome_doc) + "' AND tipo_doc = '" + str(data[0].tipo_documentazione) + "'"
+            elif len(data) > 1:
+                sezstr = "(sito = '" + str(data[0].sito) + "' AND nome_doc = '" + str(
+                    data[0].nome_doc) + "' AND tipo_doc = '" + str(data[0].tipo_documentazione) + "')"
+                for i in range(len(data)):
+                    sezstr += " OR (sito = '" + str(data[i].sito) + "' AND tipo_doc = '" + str(
+                        data[i].tipo_documentazione) + " AND nome_doc = '" + str(data[i].nome_doc) + "')"
+            else:
+                pass
+            uri = QgsDataSourceUri()
+            uri.setDatabase(db_file_path)
+            
+            
+            
+            
+            
+            layer_name_pos = "Sezione - "+ str(data[0].sito)+ ": " + str(data[0].tipo_documentazione) + ": " + str(data[0].nome_doc)
+            uri.setDataSource('', 'pyarchinit_sezioni_view', 'the_geom', sezstr, "ROWID")
+            ##          uri.setDataSource('','pyarchinit_doc_view_b', 'the_geom', docstr, "ROWID")
+            layerPos = QgsVectorLayer(uri.uri(), layer_name_pos, 'spatialite')
+            if layerPos.isValid():
+                QMessageBox.warning(self, "TESTER", "Layer Sezioni valido", QMessageBox.Ok)
+                QgsProject.instance().addMapLayers([layerPos], True)
+           
+            else:
+                QMessageBox.warning(self, "TESTER", "Layer Sezioni non valido", QMessageBox.Ok)
+            
+            
+            
+            
+            
             docstr = ""
             if len(data) == 1:
                 docstr = "sito = '" + str(data[0].sito) + "' AND nome_doc = '" + str(
@@ -402,16 +440,16 @@ class Pyarchinit_pyqgis(QDialog):
             
             
             
-            layer_name_pos = str(data[0].sito)+ ": " + str(data[0].tipo_documentazione) + ": " + str(data[0].nome_doc)
+            layer_name_pos = "Registro Doc - "+str(data[0].sito)+ ": " + str(data[0].tipo_documentazione) + ": " + str(data[0].nome_doc)
             uri.setDataSource('', 'pyarchinit_doc_view', 'the_geom', docstr, "ROWID")
             ##          uri.setDataSource('','pyarchinit_doc_view_b', 'the_geom', docstr, "ROWID")
             layerPos = QgsVectorLayer(uri.uri(), layer_name_pos, 'spatialite')
             if layerPos.isValid():
-                QMessageBox.warning(self, "TESTER", "OK Layer US valido", QMessageBox.Ok)
+                QMessageBox.warning(self, "TESTER", "Layer Registro Documentazione valido", QMessageBox.Ok)
                 QgsProject.instance().addMapLayers([layerPos], True)
            
             else:
-                QMessageBox.warning(self, "TESTER", "Layer US non valido", QMessageBox.Ok)
+                QMessageBox.warning(self, "TESTER", "Layer Registro Documentazione non valido", QMessageBox.Ok)
                 
 
 
@@ -432,7 +470,7 @@ class Pyarchinit_pyqgis(QDialog):
             uri = QgsDataSourceUri()
             uri.setDatabase(db_file_path)
 
-            layer_name_neg = str(data[0].sito)+ ": " + str(data[0].tipo_documentazione) + ": " + str(data[0].nome_doc)
+            layer_name_neg = "US Negative - "+str(data[0].sito)+ ": " + str(data[0].tipo_documentazione) + ": " + str(data[0].nome_doc)
             uri.setDataSource('', 'pyarchinit_us_negative_doc_view', 'the_geom', gdrst, "ROWID")
             layerNeg = QgsVectorLayer(uri.uri(), layer_name_neg, 'spatialite')
             
@@ -460,7 +498,7 @@ class Pyarchinit_pyqgis(QDialog):
                 pass
             
 
-            layer_name_pos = str(data[0].tipo_documentazione) + ": " + str(data[0].nome_doc)
+            layer_name_pos = "US Positive - "+ str(data[0].tipo_documentazione) + ": " + str(data[0].nome_doc)
 
             uri.setDataSource("public", 'pyarchinit_us_view', 'the_geom', docstr, "ROWID")
             
@@ -2231,7 +2269,7 @@ class Order_layer_v2(object):
                 # aggiunge le us al dizionario nel livello in xui trova l'us uguale a cui è uguale
                 # se l'US è già presente non la aggiunge
                 # le us che derivano dall'uguaglianza vanno aggiunte al rec_list_str
-            rec = matrix_us_equal_level#rec_list_str+
+            rec = rec_list_str+matrix_us_equal_level#rec_list_str+
             if self.L=='it':
                 value_list_post = value_list_equal = self.create_list_values(['Copre', 'Riempie', 'Taglia', 'Si appoggia a'], rec)
             elif self.L=='de':
