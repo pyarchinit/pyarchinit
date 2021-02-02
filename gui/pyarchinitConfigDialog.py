@@ -797,9 +797,11 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
             c.execute(ccd)
             c.execute(dd)
             c.execute(ed)
+            
+            sql_drop_sezioniview_doc= """DROP view if EXISTS pyarchinit_sezioni_view;"""
+            c.execute(sql_drop_sezioniview_doc)
 
-
-
+            
 
 
 
@@ -863,6 +865,24 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
                     (view_name, view_geometry, view_rowid, f_table_name, f_geometry_column)
                     VALUES ('pyarchinit_doc_view', 'the_geom', 'rowid', 'pyarchinit_documentazione', 'the_geom')""")
             c.execute(sql_view_doc_geom)
+            
+            sql_view_sezioni=("""CREATE VIEW IF NOT EXISTS "pyarchinit_sezioni_view" AS
+            SELECT "a"."ROWID" AS "ROWID", "a"."id" AS "id", "a"."sito" AS "sito",
+            "a"."area" AS "area", "a"."tipo_doc" AS "tipo_doc","a"."nome_doc" AS "nome_doc",
+            "a"."the_geom" AS "the_geom", "b"."ROWID" AS "ROWID", "b"."id_documentazione" AS "id_documentazione",
+            "b"."sito" AS "sito", "b"."nome_doc" AS "nome_doc",
+            "b"."data" AS "data", "b"."tipo_documentazione" AS "tipo_documentazione",
+            "b"."sorgente" AS "sorgente", "b"."scala" AS "scala",
+            "b"."disegnatore" AS "disegnatore", "b"."note" AS "note"
+            FROM "pyarchinit_sezioni" AS "a"
+            JOIN "documentazione_table" AS "b" ON ("a"."sito" = "b"."sito"  AND "a"."tipo_doc" = "b"."tipo_documentazione"
+                AND "a"."nome_doc" = "b"."nome_doc");""")
+            c.execute(sql_view_sezioni)
+            sql_view_sezioni_geom= ("""INSERT OR REPLACE INTO views_geometry_columns
+                    (view_name, view_geometry, view_rowid, f_table_name, f_geometry_column)
+                    VALUES ('pyarchinit_sezioni_view', 'the_geom', 'ROWID', 'pyarchinit_sezioni', 'the_geom')""")  
+            c.execute(sql_view_sezioni_geom)
+            
             
             sql_drop_view_test_b= """DROP view if EXISTS test_b_view;"""
             c.execute(sql_drop_view_test_b)
