@@ -1119,11 +1119,15 @@ class pyarchinit_Inventario_reperti(QDialog, MAIN_DIALOG_CLASS):
             self.lineEdit_n_reperto.update()
         
         
-        
+            
         elif self.comboBox_repertato.currentText()!='No' or '':    
+            self.lineEdit_n_reperto.clear()
+            self.lineEdit_n_reperto.setText('1')
+            self.lineEdit_n_reperto.update()
             for i in range(len(self.DATA_LIST)):
                 self.lineEdit_n_reperto.clear()
                 contatore = int(self.DATA_LIST[i].n_reperto)
+                
                 #contatore.sort(reverse=False)
                 list.append(contatore)
                 
