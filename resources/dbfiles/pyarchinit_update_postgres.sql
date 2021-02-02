@@ -747,3 +747,27 @@ CREATE OR REPLACE VIEW public.pyarchinit_tomba_view AS
 
 ALTER TABLE public.pyarchinit_tomba_view
     OWNER TO postgres;	
+	
+CREATE OR REPLACE VIEW pyarchinit_sezioni_view AS 
+	
+SELECT 
+pyarchinit_sezioni.gid,
+pyarchinit_sezioni.sito as site,
+pyarchinit_sezioni.area,
+pyarchinit_sezioni.the_geom,
+pyarchinit_sezioni.tipo_doc,
+pyarchinit_sezioni.nome_doc,
+documentazione_table.id_documentazione,
+documentazione_table.sito,
+documentazione_table.nome_doc as nome_documentazione,
+documentazione_table.data,
+documentazione_table.tipo_documentazione,
+documentazione_table.sorgente,
+documentazione_table.scala,
+documentazione_table.disegnatore,
+documentazione_table.note
+FROM pyarchinit_sezioni 
+JOIN documentazione_table  ON pyarchinit_sezioni.sito::text=documentazione_table.sito and pyarchinit_sezioni.tipo_doc::text=documentazione_table.tipo_documentazione and pyarchinit_sezioni.nome_doc::text=documentazione_table.nome_doc;
+ALTER TABLE pyarchinit_sezioni_view
+    OWNER TO postgres;
+		
