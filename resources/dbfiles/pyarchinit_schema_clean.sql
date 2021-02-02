@@ -1223,7 +1223,7 @@ ALTER SEQUENCE public."pyarchinit_rou_thesaurus_ID_rou_seq" OWNED BY public.pyar
 --
 
 CREATE SEQUENCE public.pyarchinit_sezioni_gid_seq
-    START WITH 1223
+    START WITH 1
     INCREMENT BY 1
     NO MINVALUE
     NO MAXVALUE
@@ -1243,7 +1243,9 @@ CREATE TABLE public.pyarchinit_sezioni (
     sito character varying(80),
     area integer,
     descr character varying(80),
-    the_geom public.geometry(LineString,-1)
+    the_geom public.geometry(LineString,-1),
+	tipo_doc text,
+	nome_doc text
 );
 
 
