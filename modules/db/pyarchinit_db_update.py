@@ -500,9 +500,18 @@ class DB_update(object):
         if not table_column_names_list.__contains__('sigla_strut'):
         
             self.engine.execute( "ALTER TABLE pyarchinit_strutture_ipotesi ADD COLUMN sigla_strut varchar(3) DEFAULT 'NoD'")
+        
         if not table_column_names_list.__contains__('nr_strut'):
             self.engine.execute("ALTER TABLE pyarchinit_strutture_ipotesi ADD COLUMN nr_strut integer DEFAULT 0 ")
         
        
+        table = Table("pyarchinit_sezioni", self.metadata, autoload=True)
+        table_column_names_list = []
+        for i in table.columns:
+            table_column_names_list.append(str(i.name))
+        if not table_column_names_list.__contains__('tipo_doc'):
+            self.engine.execute("ALTER TABLE pyarchinit_sezioni  ADD COLUMN tipo_doc text")   
         
+        if not table_column_names_list.__contains__('nome_doc'):
+            self.engine.execute("ALTER TABLE pyarchinit_sezioni  ADD COLUMN nome_doc text")
         
