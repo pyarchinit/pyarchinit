@@ -515,3 +515,9 @@ class DB_update(object):
         if not table_column_names_list.__contains__('nome_doc'):
             self.engine.execute("ALTER TABLE pyarchinit_sezioni  ADD COLUMN nome_doc text")
         
+        # table = Table("pyarchinit_tafonomia", self.metadata, autoload=True)
+        # table_column_names_list = []
+        # for i in table.columns:
+            # table_column_names_list.append(str(i.name))
+        # if table_column_names_list.__contains__('geom'):
+            # self.engine.execute("ALTER TABLE pyarchinit_tafonomia RENAME COLUMN geom TO the_geom")   
