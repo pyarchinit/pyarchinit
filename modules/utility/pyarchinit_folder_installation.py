@@ -40,8 +40,30 @@ class pyarchinit_Folder_installation(object):
         self.OS_UTILITY.create_dir(home_DB_path)
 
         self.installConfigFile(home_DB_path)
-        
-        
+
+        home_bin_export_path = '{}{}{}'.format(self.HOME, os.sep, 'bin')
+        self.OS_UTILITY.create_dir(home_bin_export_path)
+
+        db_copy_from_bin_rel = os.path.join(os.sep, 'dbfiles', 'pyarchinit.sqlite')
+        db_copy_from_bin = '{}{}'.format(self.RESOURCES_PATH, db_copy_from_bin_rel)
+        db_copy_to_bin = '{}{}{}'.format(home_bin_export_path, os.sep, 'pyarchinit.sqlite')
+
+        w_copy_from_path_rel = os.path.join(os.sep, 'dbfiles', 'sqldiff.exe')
+        w_copy_from_path = '{}{}'.format(self.RESOURCES_PATH, w_copy_from_path_rel)
+        w_copy_to_path = '{}{}{}'.format(home_bin_export_path, os.sep, 'sqldiff.exe')
+
+        linux_copy_from_path_rel = os.path.join(os.sep, 'dbfiles', 'sqldiff_linux')
+        linux_copy_from_path = '{}{}'.format(self.RESOURCES_PATH, linux_copy_from_path_rel)
+        linux_copy_to_path = '{}{}{}'.format(home_bin_export_path, os.sep, 'sqldiff_linux')
+
+        osx_copy_from_path_rel = os.path.join(os.sep, 'dbfiles', 'sqldiff_osx')
+        osx_copy_from_path = '{}{}'.format(self.RESOURCES_PATH, osx_copy_from_path_rel)
+        osx_copy_to_path = '{}{}{}'.format(home_bin_export_path, os.sep, 'sqldiff_osx')
+        self.OS_UTILITY.copy_file(db_copy_from_bin, db_copy_to_bin)
+        self.OS_UTILITY.copy_file(w_copy_from_path, w_copy_to_path)
+        self.OS_UTILITY.copy_file(linux_copy_from_path, linux_copy_to_path)
+        self.OS_UTILITY.copy_file(osx_copy_from_path, osx_copy_to_path)
+
         db_copy_from_path_rel = os.path.join(os.sep, 'dbfiles', 'pyarchinit_db.sqlite')
         db_copy_from_path = '{}{}'.format(self.RESOURCES_PATH, db_copy_from_path_rel)
         db_copy_to_path = '{}{}{}'.format(home_DB_path, os.sep, 'pyarchinit_db.sqlite')
@@ -97,7 +119,10 @@ class pyarchinit_Folder_installation(object):
         self.OS_UTILITY.create_dir(home_image_export_path)
         
         home_R_export_path = '{}{}{}'.format(self.HOME, os.sep, 'pyarchinit_R_export')
-        self.OS_UTILITY.create_dir(home_image_export_path)
+        self.OS_UTILITY.create_dir(home_R_export_path)
+
+
+
     def installConfigFile(self, path):
         
         config_copy_from_path_rel = os.path.join(os.sep, 'dbfiles', 'config.cfg')
@@ -123,3 +148,26 @@ class pyarchinit_Folder_installation(object):
         logo_copy_to_path_de = '{}{}{}'.format(path, os.sep, 'logo_de.jpg')
         
         self.OS_UTILITY.copy_file(logo_copy_from_path_de, logo_copy_to_path_de)
+
+        home_bin_export_path = '{}{}{}'.format(self.HOME, os.sep, 'bin')
+        self.OS_UTILITY.create_dir(home_bin_export_path)
+
+        db_copy_from_bin_rel = os.path.join(os.sep, 'dbfiles', 'pyarchinit.sqlite')
+        db_copy_from_bin = '{}{}'.format(self.RESOURCES_PATH, db_copy_from_bin_rel)
+        db_copy_to_bin = '{}{}{}'.format(home_bin_export_path, os.sep, 'pyarchinit.sqlite')
+
+        w_copy_from_path_rel = os.path.join(os.sep, 'dbfiles', 'sqldiff.exe')
+        w_copy_from_path = '{}{}'.format(self.RESOURCES_PATH, w_copy_from_path_rel)
+        w_copy_to_path = '{}{}{}'.format(home_bin_export_path, os.sep, 'sqldiff.exe')
+
+        linux_copy_from_path_rel = os.path.join(os.sep, 'dbfiles', 'sqldiff_linux')
+        linux_copy_from_path = '{}{}'.format(self.RESOURCES_PATH, linux_copy_from_path_rel)
+        linux_copy_to_path = '{}{}{}'.format(home_bin_export_path, os.sep, 'sqldiff_linux')
+
+        osx_copy_from_path_rel = os.path.join(os.sep, 'dbfiles', 'sqldiff_osx')
+        osx_copy_from_path = '{}{}'.format(self.RESOURCES_PATH, osx_copy_from_path_rel)
+        osx_copy_to_path = '{}{}{}'.format(home_bin_export_path, os.sep, 'sqldiff_osx')
+        self.OS_UTILITY.copy_file(db_copy_from_bin, db_copy_to_bin)
+        self.OS_UTILITY.copy_file(w_copy_from_path, w_copy_to_path)
+        self.OS_UTILITY.copy_file(linux_copy_from_path, linux_copy_to_path)
+        self.OS_UTILITY.copy_file(osx_copy_from_path, osx_copy_to_path)

@@ -145,7 +145,33 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
         self.checkBox_ignore.stateChanged.connect(self.check)
         self.checkBox_ignore.stateChanged.connect(self.message)
         self.check()
-        
+        if self.comboBox_server_wt.currentText() == 'sqlite':
+            try:
+                if platform.system() == "Windows":
+                    cmd = os.path.join(os.sep, self.HOME, 'bin', 'sqldiff.exe')
+                elif platform.system() == "Darwin":
+                    cmd = os.path.join(os.sep, self.HOME, 'bin', 'sqldiff_osx')
+                else:
+                    cmd = os.path.join(os.sep, self.HOME, 'bin', 'sqldiff_linux')
+
+                db1 = os.path.join(os.sep, self.HOME, 'bin', 'pyarchinit.sqlite')
+                db2 = os.path.join(os.sep, self.HOME, 'pyarchinit_DB_folder', self.lineEdit_DBname.text())
+
+                text_ = cmd, ' --schema ', db1 + ' ', db2
+                result = subprocess.check_output([text_], stderr=subprocess.STDOUT)
+
+                if result == b'':
+
+                    pass
+                else:
+                    QMessageBox.warning(self, "Attenzione",
+                                        "Il db non allineato devi aggiornarlo. Chiudi questa finestra e clicca il bottone con l'icona di spatialite in basso a sinistra aggiungendo l'epsg del tuo db",
+                                        QMessageBox.Ok)
+                    # # #break
+            except:
+                pass
+        else:
+            pass
     def geometry_conn(self):
         if self.comboBox_server_rd.currentText()!='sqlite':
             self.pushButton_import_geometry.setEnabled(False)
@@ -559,8 +585,32 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
                         pass
                 else:
                     pass
-            
-                
+
+                if self.comboBox_server_wt.currentText() == 'sqlite':
+                    try:
+                        if platform.system() == "Windows":
+                            cmd = os.path.join(os.sep, self.HOME, 'bin', 'sqldiff.exe')
+                        elif platform.system() == "Darwin":
+                            cmd = os.path.join(os.sep, self.HOME, 'bin', 'sqldiff_osx')
+                        else:
+                            cmd = os.path.join(os.sep, self.HOME, 'bin', 'sqldiff_linux')
+
+                        db1 = os.path.join(os.sep, self.HOME, 'bin', 'pyarchinit.sqlite')
+                        db2 = os.path.join(os.sep, self.HOME, 'pyarchinit_DB_folder', self.lineEdit_DBname.text())
+
+                        text_ = cmd, ' --schema ', db1 + ' ', db2
+                        result = subprocess.check_output([text_], stderr=subprocess.STDOUT)
+
+                        if result == b'':
+                            self.try_connection()
+                            pass
+                        else:
+                            QMessageBox.warning(self, "Attenzione", "Il db non allineato devi aggiornarlo. Chiudi questa finestra e clicca il bottone con l'icona di spatialite in basso a sinistra aggiungendo l'epsg del tuo db", QMessageBox.Ok)
+                            # # #break
+                    except:
+                        pass
+                else:
+                    pass
                 self.try_connection()
             
         except Exception as e:
