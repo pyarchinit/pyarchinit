@@ -4071,9 +4071,9 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
                 quota_min_rel,  # 74
                 str(self.textEdit_osservazioni.toPlainText()),  # 75 osservazioni
                 str(self.comboBox_datazione.currentText()),  # 76 datazione
-                str(self.lineEdit_flottazione.text()),  # 77 flottazione
-                str(self.lineEdit_setacciatura.text()),  # 78 setacciatura
-                str(self.lineEdit_affidabilita.text()),  # 79 affidabilita
+                str(self.comboBox_flottazione.currentText()),  # 77 flottazione
+                str(self.comboBox_setacciatura.currentText()),  # 78 setacciatura
+                str(self.comboBox_affidabilita.currentText()),  # 79 affidabilita
                 str(self.comboBox_direttore_us.currentText()),  # 80 direttore us
                 str(self.comboBox_responsabile_us.currentText()),  # 81 responsabile us
                 str(self.lineEdit_cod_ente_schedatore.text()),  # 82 cod ente schedatore
@@ -4678,10 +4678,10 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
                 self.TABLE_FIELDS[71]:quota_min_rel,  # 74
                 self.TABLE_FIELDS[72]: "'" + str(self.textEdit_osservazioni.toPlainText()) + "'",  # 75 osservazioni
                 self.TABLE_FIELDS[73]: "'" + str(self.comboBox_datazione.currentText()) + "'",  # 76 datazione
-                self.TABLE_FIELDS[74]: "'" + str(self.lineEdit_flottazione.text()) + "'",  # 77 flottazione
-                self.TABLE_FIELDS[75]: "'" + str(self.lineEdit_setacciatura.text()) + "'",  # 78 setacciatura
-                self.TABLE_FIELDS[76]: "'" + str(self.lineEdit_affidabilita.text()) + "'",  # 79 affidabilita
-                self.TABLE_FIELDS[77]: "'" + str(self.comboBox_direttore_us.currentText()) + "'",  # 80 direttore us
+                self.TABLE_FIELDS[74]: "'" + str(self.comboBox_flottazione.currentText()) + "'",  # 77 flottazione
+                self.TABLE_FIELDS[75]: "'" + str(self.comboBox_setacciatura.currentText()) + "'",  # 78 setacciatura
+                self.TABLE_FIELDS[76]: "'" + str(self.comboBox_affidabilita.currentText()) + "'",  # 79 affidabilita
+                self.TABLE_FIELDS[77]: "'" + str(self._direttore_us.currentText()) + "'",  # 80 direttore us
                 self.TABLE_FIELDS[78]: "'" + str(self.comboBox_responsabile_us.currentText()) + "'", # 81 responsabile us
                 self.TABLE_FIELDS[79]: "'" + str(self.lineEdit_cod_ente_schedatore.text()) + "'", # 82 cod ente schedatore
                 self.TABLE_FIELDS[80]: "'" + str(self.lineEdit_data_rilevazione.text()) + "'",  # 83 data rilevazione
@@ -5053,9 +5053,9 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
         self.lineEdit_quota_min_rel.clear()  # 74
         self.textEdit_osservazioni.clear()  # 75 osservazioni
         self.comboBox_datazione.setEditText("")  # 76 datazione
-        self.lineEdit_flottazione.clear()  # 77 flottazione
-        self.lineEdit_setacciatura.clear()  # 78 setacciatura
-        self.lineEdit_affidabilita.clear()  # 79 affidabilita
+        self.comboBox_flottazione.setEditText("")  # 77 flottazione
+        self.comboBox_setacciatura.setEditText("")   # 78 setacciatura
+        self.comboBox_affidabilita.setEditText("")   # 79 affidabilita
         self.comboBox_direttore_us.setEditText("")  # 80 direttore us
         self.comboBox_responsabile_us.setEditText("")  # 81 responsabile us
         self.lineEdit_cod_ente_schedatore.clear()  # 82 cod ente schedatore
@@ -5210,9 +5210,9 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
         self.lineEdit_quota_min_rel.clear()  # 74
         self.textEdit_osservazioni.clear()  # 75 osservazioni
         self.comboBox_datazione.setEditText("")  # 76 datazione
-        self.lineEdit_flottazione.clear()  # 77 flottazione
-        self.lineEdit_setacciatura.clear()  # 78 setacciatura
-        self.lineEdit_affidabilita.clear()  # 79 affidabilita
+        self.comboBox_flottazione.setEditText("")   # 77 flottazione
+        self.comboBoxt_setacciatura.setEditText("")  # 78 setacciatura
+        self.comboBox_affidabilita.setEditText("")  # 79 affidabilita
         self.comboBox_direttore_us.setEditText("")  # 80 direttore us
         self.comboBox_responsabile_us.setEditText("")  # 81 responsabile us
         self.lineEdit_cod_ente_schedatore.clear()  # 82 cod ente schedatore
@@ -5379,9 +5379,9 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
                 self.lineEdit_quota_min_rel.setText(str(self.DATA_LIST[self.rec_num].quota_min_rel))  # 74 quota_min_rel
             str(self.textEdit_osservazioni.setText(self.DATA_LIST[self.rec_num].osservazioni))  # 75 osservazioni
             str(self.comboBox_datazione.setEditText(self.DATA_LIST[self.rec_num].datazione))  # 76 datazione
-            str(self.lineEdit_flottazione.setText(self.DATA_LIST[self.rec_num].flottazione))  # 77 flottazione
-            str(self.lineEdit_setacciatura.setText(self.DATA_LIST[self.rec_num].setacciatura))  # 78 setacciatura
-            str(self.lineEdit_affidabilita.setText(self.DATA_LIST[self.rec_num].affidabilita))        # 79 affidabilita
+            str(self.comboBox_flottazione.setEditText(self.DATA_LIST[self.rec_num].flottazione))  # 77 flottazione
+            str(self.comboBox_setacciatura.setEditText(self.DATA_LIST[self.rec_num].setacciatura))  # 78 setacciatura
+            str(self.comboBox_affidabilita.setEditText(self.DATA_LIST[self.rec_num].affidabilita))        # 79 affidabilita
             str(self.comboBox_direttore_us.setEditText(self.DATA_LIST[self.rec_num].direttore_us))  # 80 direttore us
             str(self.comboBox_responsabile_us.setEditText(self.DATA_LIST[self.rec_num].responsabile_us))  # 81 responsabile us
             str(self.lineEdit_cod_ente_schedatore.setText(self.DATA_LIST[self.rec_num].cod_ente_schedatore))  # 82 cod ente schedatore
@@ -5628,9 +5628,9 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
             str(quota_min_rel),  # 74
             str(self.textEdit_osservazioni.toPlainText()),  # 75 osservazioni
             str(self.comboBox_datazione.currentText()),  # 76 datazione
-            str(self.lineEdit_flottazione.text()),  # 77 flottazione
-            str(self.lineEdit_setacciatura.text()),  # 78 setacciatura
-            str(self.lineEdit_affidabilita.text()),  # 79 affidabilita
+            str(self.comboBox_flottazione.currentText()),  # 77 flottazione
+            str(self.comboBox_setacciatura.currentText()),  # 78 setacciatura
+            str(self.comboBox_affidabilita.currentText()),  # 79 affidabilita
             str(self.comboBox_direttore_us.currentText()),  # 80 direttore us
             str(self.comboBox_responsabile_us.currentText()), # 81 responsabile us
             str(self.lineEdit_cod_ente_schedatore.text()), # 82 cod ente schedatore
