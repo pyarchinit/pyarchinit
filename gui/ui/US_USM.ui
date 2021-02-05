@@ -3775,7 +3775,7 @@ p, li { white-space: pre-wrap; }
           <item row="2" column="0">
            <widget class="QLabel" name="label_88">
             <property name="text">
-             <string>Altezza (metri)</string>
+             <string>Spessore (metri)</string>
             </property>
            </widget>
           </item>
