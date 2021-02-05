@@ -4842,18 +4842,28 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
                                    self.rec_toupdate())
             return 1
         except Exception as e:
+            str(e)
+            save_file='{}{}{}'.format(self.HOME, os.sep,"pyarchinit_Report_folder") 
+            file_=os.path.join(save_file,'error_encodig_data_recover.txt')
+            with open(file_, "a") as fh:
+                try:
+                    raise ValueError(str(e))
+                except ValueError as s:
+                    print(s, file=fh)
             if self.L=='it':
                 QMessageBox.warning(self, "Messaggio",
-                                    "Problema di encoding: sono stati inseriti accenti o caratteri non accettati dal database. Se chiudete ora la scheda senza correggere gli errori perderete i dati. Fare una copia di tutto su un foglio word a parte. Errore :" + str(
-                                        e), QMessageBox.Ok)
+                                    "Problema di encoding: sono stati inseriti accenti o caratteri non accettati dal database. Verrà fatta una copia dell'errore con i dati che puoi recuperare nella cartella pyarchinit_Report _Folder", QMessageBox.Ok)
+            
+            
             elif self.L=='de':
                 QMessageBox.warning(self, "Message",
-                                    "encoding Problem: Sonderszeichen wurden in die Datenbank eingefügt. Nicht alle Sonderzeichen werden von der Datenbank akzepptiert. Bitte ändern. Wenn du das Formular ietzt schliesst gehen die Daten verloren.Erstelle eine Sicherungskopie in Word. Error :" + str(
-                                        e), QMessageBox.Ok) 
+                                    "Encoding problem: accents or characters not accepted by the database were entered. A copy of the error will be made with the data you can retrieve in the pyarchinit_Report _Folder" QMessageBox.Ok) 
             else:
                 QMessageBox.warning(self, "Message",
-                                    "encoding problem: accents or characters not accepted by the database have been inserted. If you close the card now without correcting the errors you will lose the data. Make a copy of everything on a separate word sheet. Error :" + str(
-                                        e), QMessageBox.Ok)                                 
+                                    "Kodierungsproblem: Es wurden Akzente oder Zeichen eingegeben, die von der Datenbank nicht akzeptiert werden. Es wird eine Kopie des Fehlers mit den Daten erstellt, die Sie im pyarchinit_Report _Ordner abrufen können", QMessageBox.Ok)                                 
+            
+            
+            
             return 0
     def rec_toupdate(self):
         rec_to_update = self.UTILITY.pos_none_in_list(self.DATA_LIST_REC_TEMP)
@@ -5211,7 +5221,7 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
         self.textEdit_osservazioni.clear()  # 75 osservazioni
         self.comboBox_datazione.setEditText("")  # 76 datazione
         self.comboBox_flottazione.setEditText("")   # 77 flottazione
-        self.comboBoxt_setacciatura.setEditText("")  # 78 setacciatura
+        self.comboBox_setacciatura.setEditText("")  # 78 setacciatura
         self.comboBox_affidabilita.setEditText("")  # 79 affidabilita
         self.comboBox_direttore_us.setEditText("")  # 80 direttore us
         self.comboBox_responsabile_us.setEditText("")  # 81 responsabile us
