@@ -434,6 +434,12 @@
                 <height>16777215</height>
                </size>
               </property>
+              <property name="toolTip">
+               <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Funzione per allinere e aggiornare db postgres&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+              </property>
+              <property name="whatsThis">
+               <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Funzione per allinere e aggiornare db postgres&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+              </property>
               <property name="text">
                <string/>
               </property>
@@ -469,6 +475,15 @@
                 <height>16777215</height>
                </size>
               </property>
+              <property name="mouseTracking">
+               <bool>true</bool>
+              </property>
+              <property name="toolTip">
+               <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Funzione per aggiornare e allineare i database sqlite&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+              </property>
+              <property name="whatsThis">
+               <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Funzione per aggiornare e allineare i database sqlite&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+              </property>
               <property name="text">
                <string/>
               </property>
@@ -495,6 +510,12 @@
                 <height>16777215</height>
                </size>
               </property>
+              <property name="toolTip">
+               <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Inserire l'EPSG del database. funzione da utilizzare quando si deve aggiornare /allineare il database&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+              </property>
+              <property name="whatsThis">
+               <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Inserire l'EPSG del database. funzione da utilizzare quando si deve aggiornare /allineare il database&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+              </property>
               <property name="text">
                <string/>
               </property>
@@ -518,6 +539,12 @@
               <width>30</width>
               <height>16777215</height>
              </size>
+            </property>
+            <property name="toolTip">
+             <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Advance setting per comparare il databse sqlite in uso e verificare il mismatch per poter correggere manualmente in caso l'allineamento automatico non funzioni&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+            </property>
+            <property name="whatsThis">
+             <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Advance setting per comparare  il databse sqlite in uso e verificare il mismatch per poter correggere manualmente in caso l'allineamento automatico non funzioni&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
             </property>
             <property name="text">
              <string/>
@@ -603,6 +630,12 @@
           </item>
           <item row="2" column="0">
            <widget class="QToolButton" name="toolButton_active">
+            <property name="toolTip">
+             <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Attivazione del sito che si vuole usare&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+            </property>
+            <property name="whatsThis">
+             <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Attivazione del sito che si vuole usare&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+            </property>
             <property name="text">
              <string>Attiva query sito</string>
             </property>
