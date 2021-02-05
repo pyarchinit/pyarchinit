@@ -4260,7 +4260,7 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
             self.REC_CORR = self.REC_CORR - rec_goto
         if self.REC_CORR <= -1:
             self.REC_CORR = self.REC_CORR + rec_goto
-            QMessageBox.warning(self, "Attenzione", "Numero troppo elevato!", QMessageBox.Ok)
+            QMessageBox.warning(self, "Attenzione", "Numero Rec Step troppo elevato", QMessageBox.Ok)
         else:
             try:
                 self.empty_fields()
@@ -4279,7 +4279,7 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
             self.REC_CORR = self.REC_CORR + rec_goto
         if self.REC_CORR >= self.REC_TOT:
             self.REC_CORR = self.REC_CORR - rec_goto
-            QMessageBox.warning(self, "Attenzione", "Numero troppo elevato!", QMessageBox.Ok)
+            QMessageBox.warning(self, "Attenzione", "Numero Rec Step troppo elevato", QMessageBox.Ok)
         else:
             try:
                 self.empty_fields()
