@@ -1565,7 +1565,7 @@ class pyarchinit_Detsesso(QDialog, MAIN_DIALOG_CLASS):
             
             elif self.L=='de':
                 QMessageBox.warning(self, "Message",
-                                    "Encoding problem: accents or characters not accepted by the database were entered. A copy of the error will be made with the data you can retrieve in the pyarchinit_Report _Folder" QMessageBox.Ok) 
+                                    "Encoding problem: accents or characters not accepted by the database were entered. A copy of the error will be made with the data you can retrieve in the pyarchinit_Report _Folder", QMessageBox.Ok) 
             else:
                 QMessageBox.warning(self, "Message",
                                     "Kodierungsproblem: Es wurden Akzente oder Zeichen eingegeben, die von der Datenbank nicht akzeptiert werden. Es wird eine Kopie des Fehlers mit den Daten erstellt, die Sie im pyarchinit_Report _Ordner abrufen können", QMessageBox.Ok)
