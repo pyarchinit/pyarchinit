@@ -3729,7 +3729,7 @@ p, li { white-space: pre-wrap; }
           <item row="0" column="0">
            <widget class="QLabel" name="label_87">
             <property name="text">
-             <string>Lunghezza (metri)</string>
+             <string>Lunghezza media (metri)</string>
             </property>
            </widget>
           </item>
@@ -3752,7 +3752,7 @@ p, li { white-space: pre-wrap; }
           <item row="1" column="0">
            <widget class="QLabel" name="label_114">
             <property name="text">
-             <string>Larghezza (metri)</string>
+             <string>Larghezza max (metri)</string>
             </property>
            </widget>
           </item>

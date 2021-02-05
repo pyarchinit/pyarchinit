@@ -3381,62 +3381,62 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
             ###########################
             if quota_abs != "":
                 if EC.data_is_float(quota_abs) == 0:
-                    QMessageBox.warning(self, "ATTENZIONE", "Campo Misure-Quota Assoluta. \n Il valore deve essere di tipo numerico. \n (Sono stati inserite lettere, virgole, accenti o caratteri non numerici.",
+                    QMessageBox.warning(self, "ATTENZIONE", "Campo Quota Assoluta. \n Il valore deve essere di tipo numerico. \n (Sono stati inserite lettere, virgole, accenti o caratteri non numerici.",
                                         QMessageBox.Ok)
                     test = 1
             if quota_relativa != "":
                 if EC.data_is_float(quota_relativa) == 0:
-                    QMessageBox.warning(self, "ATTENZIONE", "Campo Misure-Quota Relativa. \n Il valore deve essere di tipo numerico. \n (Sono stati inserite lettere, virgole, accenti o caratteri non numerici.",
+                    QMessageBox.warning(self, "ATTENZIONE", "Campo Quota Relativa. \n Il valore deve essere di tipo numerico. \n (Sono stati inserite lettere, virgole, accenti o caratteri non numerici.",
                                         QMessageBox.Ok)
                     test = 1
             if quota_max_abs != "":
                 if EC.data_is_float(quota_max_abs) == 0:
-                    QMessageBox.warning(self, "ATTENZIONE", "Campo Misure-Quota Massima Assoluta. \n Il valore deve essere di tipo numerico. \n (Sono stati inserite lettere, virgole, accenti o caratteri non numerici.",
+                    QMessageBox.warning(self, "ATTENZIONE", "Campo Quota Massima Assoluta. \n Il valore deve essere di tipo numerico. \n (Sono stati inserite lettere, virgole, accenti o caratteri non numerici.",
                                         QMessageBox.Ok)
                     test = 1
             if quota_max_rel != "":
                 if EC.data_is_float(quota_max_rel) == 0:
-                    QMessageBox.warning(self, "ATTENZIONE", "Campo Misure-Quota Massima Relativa. \n Il valore deve essere di tipo numerico. \n (Sono stati inserite lettere, virgole, accenti o caratteri non numerici.",
+                    QMessageBox.warning(self, "ATTENZIONE", "Campo Quota Massima Relativa. \n Il valore deve essere di tipo numerico. \n (Sono stati inserite lettere, virgole, accenti o caratteri non numerici.",
                                         QMessageBox.Ok)
                     test = 1
             if quota_min_abs != "":
                 if EC.data_is_float(quota_min_abs) == 0:
-                    QMessageBox.warning(self, "ATTENZIONE", "Campo Misure-Quota Minima Assoluta. \n Il valore deve essere di tipo numerico. \n (Sono stati inserite lettere, virgole, accenti o caratteri non numerici.",
+                    QMessageBox.warning(self, "ATTENZIONE", "Campo Quota Minima Assoluta. \n Il valore deve essere di tipo numerico. \n (Sono stati inserite lettere, virgole, accenti o caratteri non numerici.",
                                         QMessageBox.Ok)
                     test = 1
             if quota_min_rel != "":
                 if EC.data_is_float(quota_min_rel) == 0:
-                    QMessageBox.warning(self, "ATTENZIONE", "Campo Misure-Quota Minima Relativa. \n Il valore deve essere di tipo numerico. \n (Sono stati inserite lettere, virgole, accenti o caratteri non numerici.",
+                    QMessageBox.warning(self, "ATTENZIONE", "Campo Quota Minima Relativa. \n Il valore deve essere di tipo numerico. \n (Sono stati inserite lettere, virgole, accenti o caratteri non numerici.",
                                         QMessageBox.Ok)
                     test = 1
             if larghezza_media != "":
                 if EC.data_is_float(larghezza_media) == 0:
-                    QMessageBox.warning(self, "ATTENZIONE", "Campo Misure-Larghezza Media. \n Il valore deve essere di tipo numerico. \n (Sono stati inserite lettere, virgole, accenti o caratteri non numerici.",
+                    QMessageBox.warning(self, "ATTENZIONE", "Campo Larghezza Media. \n Il valore deve essere di tipo numerico. \n (Sono stati inserite lettere, virgole, accenti o caratteri non numerici.",
                                         QMessageBox.Ok)
                     test = 1
             if lunghezza_max != "":
                 if EC.data_is_float(lunghezza_max) == 0:
-                    QMessageBox.warning(self, "ATTENZIONE", "Campo Misure-Lunghezza Massima. \n Il valore deve essere di tipo numerico. \n (Sono stati inserite lettere, virgole, accenti o caratteri non numerici.",
+                    QMessageBox.warning(self, "ATTENZIONE", "Campo Lunghezza Massima. \n Il valore deve essere di tipo numerico. \n (Sono stati inserite lettere, virgole, accenti o caratteri non numerici.",
                                         QMessageBox.Ok)
                     test = 1
             if profondita_min != "":
                 if EC.data_is_float(profondita_min) == 0:
-                    QMessageBox.warning(self, "ATTENZIONE", "Campo Misure-Profondità Minima. \n Il valore deve essere di tipo numerico. \n (Sono stati inserite lettere, virgole, accenti o caratteri non numerici.",
+                    QMessageBox.warning(self, "ATTENZIONE", "Campo Profondità Minima. \n Il valore deve essere di tipo numerico. \n (Sono stati inserite lettere, virgole, accenti o caratteri non numerici.",
                                         QMessageBox.Ok)
                     test = 1
             if profondita_max != "":
                 if EC.data_is_float(profondita_max) == 0:
-                    QMessageBox.warning(self, "ATTENZIONE", "Campo Misure-Profondità Massima. \n Il valore deve essere di tipo numerico. \n (Sono stati inserite lettere, virgole, accenti o caratteri non numerici.",
+                    QMessageBox.warning(self, "ATTENZIONE", "Campo Profondità Massima. \n Il valore deve essere di tipo numerico. \n (Sono stati inserite lettere, virgole, accenti o caratteri non numerici.",
                                         QMessageBox.Ok)
                     test = 1
             if altezza_max != "":
                 if EC.data_is_float(altezza_max) == 0:
-                    QMessageBox.warning(self, "ATTENZIONE", "Campo Misure-Spessore. \n Il valore deve essere di tipo numerico. \n (Sono stati inserite lettere, virgole, accenti o caratteri non numerici.",
+                    QMessageBox.warning(self, "ATTENZIONE", "Campo Spessore. \n Il valore deve essere di tipo numerico. \n (Sono stati inserite lettere, virgole, accenti o caratteri non numerici.",
                                         QMessageBox.Ok)
                     test = 1
             if altezza_min != "":
                 if EC.data_is_float(altezza_min) == 0:
-                    QMessageBox.warning(self, "ATTENZIONE", "Campo Misure-Spessore Minima. \n Il valore deve essere di tipo numerico. \n (Sono stati inserite lettere, virgole, accenti o caratteri non numerici.",
+                    QMessageBox.warning(self, "ATTENZIONE", "Campo Spessore Minima. \n Il valore deve essere di tipo numerico. \n (Sono stati inserite lettere, virgole, accenti o caratteri non numerici.",
                                         QMessageBox.Ok)
                     test = 1
             """controllo lunghezza campo alfanumerico"""
