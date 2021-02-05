@@ -357,11 +357,11 @@ class pyarchinit_Site(QDialog, MAIN_DIALOG_CLASS):
             self.comboBox_regione.addItems(regioni_list)
 
             province_list = ['Agrigento', 'Alessandria', 'Ancona', 'Aosta', 'Arezzo', 'Ascoli Piceno', 'Asti', 'Avellino',
-                             'Bari', 'Barletta-Andria-Trani', 'Basilicata', 'Belluno', 'Benevento', 'Bergamo', 'Biella',
-                             'Bologna', 'Bolzano', 'Brescia', 'Brindisi', 'Cagliari', 'Calabria', 'Caltanissetta',
-                             'Campania', 'Campobasso', 'Carbonia-Iglesias', 'Caserta', 'Catania', 'Catanzaro', 'Chieti',
-                             'Como', 'Cosenza', 'Cremona', 'Crotone', 'Cuneo', 'Emilia-Romagna', 'Enna', 'Fermo', 'Ferrara',
-                             'Firenze', 'Foggia', "Forl'-Cesena", 'Frosinone', 'Genova', 'Gorizia', 'Grosseto', 'Imperia',
+                             'Bari', 'Barletta-Andria-Trani',  'Belluno', 'Benevento', 'Bergamo', 'Biella',
+                             'Bologna', 'Bolzano', 'Brescia', 'Brindisi', 'Cagliari',  'Caltanissetta',
+                             'Campobasso', 'Carbonia-Iglesias', 'Caserta', 'Catania', 'Catanzaro', 'Chieti',
+                             'Como', 'Cosenza', 'Cremona', 'Crotone', 'Cuneo',  'Enna', 'Fermo', 'Ferrara',
+                             'Firenze', 'Foggia', "Forlì-Cesena", 'Frosinone', 'Genova', 'Gorizia', 'Grosseto', 'Imperia',
                              'Isernia', "L'Aquila", 'La Spezia', 'Latina', 'Lecce', 'Lecco', 'Livorno', 'Lodi', 'Lucca',
                              'Macerata', 'Mantova', 'Massa e Carrara', 'Matera', 'Medio Campidano', 'Messina', 'Milano',
                              'Modena', 'Monza e Brianza', 'Napoli', 'Novara', 'Nuoro', 'Ogliastra', 'Olbia-Tempio',

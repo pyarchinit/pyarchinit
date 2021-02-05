@@ -2071,7 +2071,9 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
                             data_list_toimp[sing_rec].sito,
                             data_list_toimp[sing_rec].area,
                             data_list_toimp[sing_rec].descr,
-                            data_list_toimp[sing_rec].the_geom)
+                            data_list_toimp[sing_rec].the_geom,
+                            data_list_toimp[sing_rec].tipo_doc,
+                            data_list_toimp[sing_rec].nome_doc)
                         self.DB_MANAGER_write.insert_data_session(data)
                         value = (float(sing_rec)/float(len(data_list_toimp)))*100
                         self.progress_bar.setValue(value)
@@ -2120,7 +2122,7 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
                     'MEDIA': 'id_media',
                     'MEDIA_THUMB': 'id_media_thumb',
                     'MEDIATOENTITY':'id_mediaToEntity',
-                    'ALL':''
+                    #'ALL':''
 
                 }
             elif self.L=='de':
@@ -2973,10 +2975,7 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
                 QMessageBox.information(self, "Message", "Data Loaded")
 
 
-
-
-
-
+            
     def openthumbDir(self):
         s = QgsSettings()
         dir = self.lineEdit_Thumb_path.text()
