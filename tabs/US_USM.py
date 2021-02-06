@@ -760,6 +760,7 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
         except Exception as e:
             QMessageBox.warning(self, "Connection System", str(e), QMessageBox.Ok)
             # SIGNALS & SLOTS Functions
+        self.comboBox_sito.setCurrentIndex(1)
         self.comboBox_sito.currentIndexChanged.connect(self.charge_periodo_iniz_list)
         self.comboBox_sito.currentTextChanged.connect(self.charge_periodo_iniz_list)
         self.comboBox_per_iniz.currentIndexChanged.connect(self.charge_periodo_fin_list)
@@ -790,34 +791,40 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
         self.checkBox_query.update()
         self.checkBox_query.stateChanged.connect(self.listview_us)###anche questo
         
+    
     def charge_insert_ra(self):
-        
-        us =str(self.lineEdit_us.text())
-        search_dict_inv = {
-            
-            'sito': "'" +str(self.comboBox_sito.currentText()) + "'",
-            'area': "'" + str(eval("self.DATA_LIST[int(self.REC_CORR)].area"))+ "'",
-            'us': "'" + str(eval("self.DATA_LIST[int(self.REC_CORR)].us"))+"'"
-        }
-        inv_vl = self.DB_MANAGER.query_bool(search_dict_inv,'INVENTARIO_MATERIALI')
-        inv_list = []
-        for i in range(len(inv_vl)):
-            inv_list.append(str(inv_vl[i].n_reperto))
-            inv_list.sort()
         try:
-            inv_vl.remove('')
-        except :
-            pass
-        self.comboBox_ref_ra.clear()
-        self.comboBox_ref_ra.addItems(self.UTILITY.remove_dup_from_list(inv_list))
-        if self.STATUS_ITEMS[self.BROWSE_STATUS] == "Trova" or "Finden" or "Find":
-            self.comboBox_ref_ra.setEditText("")
-        elif self.STATUS_ITEMS[self.BROWSE_STATUS] == "Usa" or "Aktuell " or "Current":
-            if len(self.DATA_LIST) > 0:
-                try:
-                    self.comboBox_ref_ra.setEditText(self.DATA_LIST[self.rec_num].ref_ra)
-                except :
-                    pass
+            
+            us =str(self.lineEdit_us.text())
+        
+            search_dict_inv = {
+                
+                'sito': "'" +str(self.comboBox_sito.currentText()) + "'",
+                'area': "'" + str(eval("self.DATA_LIST[int(self.REC_CORR)].area"))+ "'",
+                'us': "'" + str(eval("self.DATA_LIST[int(self.REC_CORR)].us"))+"'"
+            }
+        
+            inv_vl = self.DB_MANAGER.query_bool(search_dict_inv,'INVENTARIO_MATERIALI')
+            inv_list = []
+            for i in range(len(inv_vl)):
+                inv_list.append(str(inv_vl[i].n_reperto))
+                inv_list.sort()
+            try:
+                inv_vl.remove('')
+            except :
+                pass
+            self.comboBox_ref_ra.clear()
+            self.comboBox_ref_ra.addItems(self.UTILITY.remove_dup_from_list(inv_list))
+            if self.STATUS_ITEMS[self.BROWSE_STATUS] == "Trova" or "Finden" or "Find":
+                self.comboBox_ref_ra.setEditText("")
+            elif self.STATUS_ITEMS[self.BROWSE_STATUS] == "Usa" or "Aktuell " or "Current":
+                if len(self.DATA_LIST) > 0:
+                    try:
+                        self.comboBox_ref_ra.setEditText(self.DATA_LIST[self.rec_num].ref_ra)
+                    except :
+                        pass
+        except:
+            pass                
     def listview_us(self):
         if self.checkBox_query.isChecked():
             conn = Connection()
@@ -973,76 +980,82 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
                 except:
                     pass  # non vi sono periodi per questo scavo
     def geometry_unitastratigrafiche(self):
-        
-        sito = str(self.comboBox_sito.currentText())
-        area = str(self.comboBox_area.currentText())
-        us = str(self.lineEdit_us.text())
-        search_dict = {
-            'scavo_s': "'" +str(self.comboBox_sito.currentText()) + "'",
-            'area_s': "'" + str(eval("self.DATA_LIST[int(self.REC_CORR)].area")) + "'",
-            'us_s': "'" + str(eval("self.DATA_LIST[int(self.REC_CORR)].us"))+"'"
-            
-        }
-        geometry_vl = self.DB_MANAGER.query_bool(search_dict,'PYUS')
-        geometry_list = []
-        
-        for i in range(len(geometry_vl)):
-            geometry_list.append(str(geometry_vl[i].coord))
         try:
-            geometry_vl.remove('')
+            sito = str(self.comboBox_sito.currentText())
+            area = str(self.comboBox_area.currentText())
+            us = str(self.lineEdit_us.text())
+        
+            search_dict = {
+                'scavo_s': "'" +str(self.comboBox_sito.currentText()) + "'",
+                'area_s': "'" + str(eval("self.DATA_LIST[int(self.REC_CORR)].area")) + "'",
+                'us_s': "'" + str(eval("self.DATA_LIST[int(self.REC_CORR)].us"))+"'"
+                
+            }
+        
+            geometry_vl = self.DB_MANAGER.query_bool(search_dict,'PYUS')
+            geometry_list = []
+            
+            for i in range(len(geometry_vl)):
+                geometry_list.append(str(geometry_vl[i].coord))
+            try:
+                geometry_vl.remove('')
+            except:
+                pass
+        
+            self.comboBox_posizione.clear()
+            self.comboBox_posizione.addItems(self.UTILITY.remove_dup_from_list(geometry_list))
+            if self.STATUS_ITEMS[self.BROWSE_STATUS] == "Trova" or "Finden" or "Find":
+                self.comboBox_posizione.setEditText("")
+            elif self.STATUS_ITEMS[self.BROWSE_STATUS] == "Usa" or "Aktuell " or "Current":		
+                if len(self.DATA_LIST) > 0:
+                    try:
+                        self.comboBox_posizione.setEditText(self.DATA_LIST[self.rec_num].posizione)
+                        self.comboBox_posizione.show()
+                    except:
+                        pass  # non vi sono periodi per questo scavo
         except:
             pass
-        
-        self.comboBox_posizione.clear()
-        self.comboBox_posizione.addItems(self.UTILITY.remove_dup_from_list(geometry_list))
-        if self.STATUS_ITEMS[self.BROWSE_STATUS] == "Trova" or "Finden" or "Find":
-            self.comboBox_posizione.setEditText("")
-        elif self.STATUS_ITEMS[self.BROWSE_STATUS] == "Usa" or "Aktuell " or "Current":		
-            if len(self.DATA_LIST) > 0:
-                try:
-                    self.comboBox_posizione.setEditText(self.DATA_LIST[self.rec_num].posizione)
-                    self.comboBox_posizione.show()
-                except:
-                    pass  # non vi sono periodi per questo scavo
     def charge_periodo_iniz_list(self):
         
-            try: 
-                sito = str(self.comboBox_sito.currentText())
-                area = str(self.comboBox_area.currentText())
-                search_dict = {
-                    'sito': "'" + sito + "'",
-                    'area': "'" + area + "'",
-                }
-                periodo_vl = self.DB_MANAGER.query_bool(search_dict, 'PERIODIZZAZIONE')
-                periodo_list = []
-                for i in range(len(periodo_vl)):
-                    periodo_list.append(str(periodo_vl[i].periodo))
-                try:
-                    periodo_vl.remove('')
-                except:
-                    pass
-                #
-                self.comboBox_per_iniz.clear()
-                self.comboBox_per_iniz.addItems(self.UTILITY.remove_dup_from_list(periodo_list))
-                if self.STATUS_ITEMS[self.BROWSE_STATUS] == "Trova" or "Finden" or "Find":
-                    self.comboBox_per_iniz.setEditText("")
-                elif self.STATUS_ITEMS[self.BROWSE_STATUS] == "Usa" or "Aktuell " or "Current":	
-                    if len(self.DATA_LIST) > 0:
-                        try:
-                            self.comboBox_per_iniz.setEditText(self.DATA_LIST[self.rec_num].periodo_iniziale)
-                            self.comboBox_per_iniz.show()
-                        except:
-                            pass  # non vi sono periodi per questo scavo
-            except:
-                pass  
-    def charge_periodo_fin_list(self):
-        
-        try:
+        try: 
+            
             sito = str(self.comboBox_sito.currentText())
             area = str(self.comboBox_area.currentText())
             search_dict = {
                 'sito': "'" + sito + "'",
-                'area': "'" + area + "'",
+                'area': "'" + str(eval("self.DATA_LIST[int(self.REC_CORR)].area")) + "'",
+            }
+            periodo_vl = self.DB_MANAGER.query_bool(search_dict, 'PERIODIZZAZIONE')
+            periodo_list = []
+            for i in range(len(periodo_vl)):
+                periodo_list.append(str(periodo_vl[i].periodo))
+            try:
+                periodo_vl.remove('')
+            except:
+                pass
+            #
+            self.comboBox_per_iniz.clear()
+            self.comboBox_per_iniz.addItems(self.UTILITY.remove_dup_from_list(periodo_list))
+            if self.STATUS_ITEMS[self.BROWSE_STATUS] == "Trova" or "Finden" or "Find":
+                self.comboBox_per_iniz.setEditText("")
+            elif self.STATUS_ITEMS[self.BROWSE_STATUS] == "Usa" or "Aktuell " or "Current":	
+                if len(self.DATA_LIST) > 0:
+                    try:
+                        self.comboBox_per_iniz.setEditText(self.DATA_LIST[self.rec_num].periodo_iniziale)
+                        self.comboBox_per_iniz.show()
+                    except:
+                        pass  # non vi sono periodi per questo scavo
+        except:
+            pass  
+    def charge_periodo_fin_list(self):
+        
+        try:
+            
+            sito = str(self.comboBox_sito.currentText())
+            area = str(self.comboBox_area.currentText())
+            search_dict = {
+                'sito': "'" + sito + "'",
+                'area': "'" + str(eval("self.DATA_LIST[int(self.REC_CORR)].area")) + "'",
             }
             periodo_vl = self.DB_MANAGER.query_bool(search_dict, 'PERIODIZZAZIONE')
             periodo_list = []
@@ -1349,6 +1362,7 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
         self.pushButton_insert_row_documentazione.setEnabled(n)
         self.pushButton_remove_row_documentazione.setEnabled(n)
     def on_pushButton_connect_pressed(self):
+        
         conn = Connection()
         conn_str = conn.conn_str()
         test_conn = conn_str.find('sqlite')
@@ -1455,6 +1469,9 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
         self.setComboBoxEditable(["self.comboBox_fas_fin"], 1)
         self.setComboBoxEditable(["self.comboBox_per_iniz"], 1)
         self.setComboBoxEditable(["self.comboBox_fas_iniz"], 1)
+        self.setComboBoxEditable(["self.comboBox_struttura"], 1)
+        self.setComboBoxEditable(["self.comboBox_ref_ra"], 1)
+        self.setComboBoxEditable(["self.comboBox_datazione"],1)
         # lista tipo rapporti stratigrafici
         if self.L=='it':
             valuesRS = ["Uguale a", "Si lega a", "Copre", "Coperto da", "Riempie", "Riempito da", "Taglia", "Tagliato da", "Si appoggia a", "Gli si appoggia", ""]
