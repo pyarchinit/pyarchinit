@@ -239,6 +239,10 @@ class pyarchinit_Schedaind(QDialog, MAIN_DIALOG_CLASS):
         except Exception as e:
             QMessageBox.warning(self, "Connection System", str(e), QMessageBox.Ok)
         # SIGNALS & SLOTS Functions
+        self.comboBox_sito.setCurrentIndex(1)
+        self.comboBox_sigla_struttura.setCurrentIndex(1)
+        #self.comboBox_area.setCurrentIndex(1)
+        
         self.comboBox_sito.currentIndexChanged.connect(self.charge_struttura_list)
         self.comboBox_sito.currentTextChanged.connect(self.charge_struttura_list)
         self.comboBox_sito.currentIndexChanged.connect(self.charge_area)
@@ -639,7 +643,7 @@ class pyarchinit_Schedaind(QDialog, MAIN_DIALOG_CLASS):
         search_dict = {
             'sito': "'" + str(self.comboBox_sito.currentText()) + "'",
             'area': "'" + str(self.comboBox_area.currentText()) + "'",
-            'unita_tipo': "'US'",
+            #'unita_tipo': "US",
             'struttura': "'TB" +'-'+ str(self.comboBox_nr_struttura.currentText())+"%'"
         }
 
@@ -923,8 +927,8 @@ class pyarchinit_Schedaind(QDialog, MAIN_DIALOG_CLASS):
                 self.empty_fields()
                 self.label_sort.setText(self.SORTED_ITEMS["n"])
 
-                self.setComboBoxEditable(["self.comboBox_sito"], 0)
-                # self.setComboBoxEnable(["self.comboBox_sito"], "True")
+                self.setComboBoxEditable(["self.comboBox_sito"], 1)
+                self.setComboBoxEnable(["self.comboBox_sito"], "True")
                 # self.setComboBoxEnable(["self.comboBox_area"], "True")
                 # self.setComboBoxEnable(["self.comboBox_us"], "True")
                 # self.setComboBoxEnable(["self.lineEdit_individuo"], "True")
@@ -976,7 +980,7 @@ class pyarchinit_Schedaind(QDialog, MAIN_DIALOG_CLASS):
 
                     self.set_rec_counter(self.REC_TOT, self.REC_CORR + 1)
                     self.setComboBoxEditable(["self.comboBox_sito"], 1)
-                    # self.setComboBoxEnable(["self.comboBox_sito"], "False")
+                    self.setComboBoxEnable(["self.comboBox_sito"], "False")
                     # self.setComboBoxEnable(["self.comboBox_area"], "False")
                     # self.setComboBoxEnable(["self.comboBox_us"], "False")
                     # self.setComboBoxEnable(["self.lineEdit_individuo"], "False")
@@ -1537,16 +1541,18 @@ class pyarchinit_Schedaind(QDialog, MAIN_DIALOG_CLASS):
             else:
                 
                 nr_struttura = ""
-            if self.lineEdit_lunghezza_scheletro.text() != "":
+            if self.lineEdit_lunghezza_scheletro.text() == "":
+                lunghezza_scheletro = None
+                
+            else:
+                
                 lunghezza_scheletro = float(self.lineEdit_lunghezza_scheletro.text())
-            else:
+            if self.lineEdit_orientamento_azimut.text() == "":
+                orientamento_azimut = None
                 
-                lunghezza_scheletro = ""
-            if self.lineEdit_orientamento_azimut.text() != "":
+            else:
                 orientamento_azimut = float(self.lineEdit_orientamento_azimut.text())
-            else:
                 
-                orientamento_azimut = ""
             search_dict = {
                 self.TABLE_FIELDS[0]: "'" + str(self.comboBox_sito.currentText()) + "'",  # 1 - Sito
                 self.TABLE_FIELDS[1]: "'" + str(self.comboBox_area.currentText()) + "'",  # 2 - Area
@@ -1892,27 +1898,27 @@ class pyarchinit_Schedaind(QDialog, MAIN_DIALOG_CLASS):
 
     def set_LIST_REC_TEMP(self):
         if self.comboBox_eta_min.currentText() == "":
-            eta_min = None
+            eta_min = ''
         else:
             eta_min = self.comboBox_eta_min.currentText()
 
         if self.comboBox_eta_max.currentText() == "":
-            eta_max = None
+            eta_max = ''
         else:
             eta_max = self.comboBox_eta_max.currentText()
         
         if self.comboBox_nr_struttura.currentText() == "":
-            nr_struttura = None
+            nr_struttura = ''
         else:
             nr_struttura = self.comboBox_nr_struttura.currentText()
         
         if self.lineEdit_lunghezza_scheletro.text() == "":
-            lunghezza_scheletro = None
+            lunghezza_scheletro = ''
         else:
             lunghezza_scheletro = self.lineEdit_lunghezza_scheletro.text()
         
         if self.lineEdit_orientamento_azimut.text() == "":
-            orientamento_azimut = None
+            orientamento_azimut = ''
         else:
             orientamento_azimut = self.lineEdit_orientamento_azimut.text()
             # data
