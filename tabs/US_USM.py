@@ -760,7 +760,10 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
         except Exception as e:
             QMessageBox.warning(self, "Connection System", str(e), QMessageBox.Ok)
             # SIGNALS & SLOTS Functions
-        self.comboBox_sito.setCurrentIndex(1)
+        if len(self.DATA_LIST)==0:
+            self.comboBox_sito.setCurrentIndex(0)
+        else:
+            self.comboBox_sito.setCurrentIndex(1)
         self.comboBox_sito.currentIndexChanged.connect(self.charge_periodo_iniz_list)
         self.comboBox_sito.currentTextChanged.connect(self.charge_periodo_iniz_list)
         self.comboBox_per_iniz.currentIndexChanged.connect(self.charge_periodo_fin_list)

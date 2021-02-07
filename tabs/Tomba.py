@@ -357,20 +357,18 @@ class pyarchinit_Tomba(QDialog, MAIN_DIALOG_CLASS):
             self.on_pushButton_connect_pressed()
         except Exception as e:
             QMessageBox.warning(self, "Connection system", str(e), QMessageBox.Ok)
-        #self.customize_GUI()  # call for GUI customizations
+        
+        self.lineEdit_nr_scheda.textChanged.connect(self.update)
+        self.lineEdit_nr_scheda.textChanged.connect(self.charge_struttura_list)
+        #self.comboBox_sito.currentTextChanged.connect(self.charge_struttura_list)
+        self.lineEdit_nr_scheda.textChanged.connect(self.charge_struttura_nr)
+        self.lineEdit_nr_scheda.textChanged.connect(self.charge_individuo_list)
+        self.lineEdit_nr_scheda.textChanged.connect(self.charge_oggetti_esterno_list)
         
         # SIGNALS & SLOTS Functions
-        self.comboBox_sito.setCurrentIndex(1)
-        self.comboBox_sigla_struttura.setCurrentIndex(1)
-        self.comboBox_sito.currentIndexChanged.connect(self.charge_struttura_list)
-        self.comboBox_sito.currentTextChanged.connect(self.charge_struttura_list)
-        self.comboBox_sigla_struttura.currentIndexChanged.connect(self.charge_struttura_nr)
-        self.comboBox_sigla_struttura.currentIndexChanged.connect(self.charge_individuo_list)
-        self.comboBox_sigla_struttura.currentIndexChanged.connect(self.charge_oggetti_esterno_list)
-        # SIGNALS & SLOTS Functions
         
-        self.comboBox_sigla_struttura.currentIndexChanged.connect(self.charge_periodo_iniz_list)
-        self.comboBox_sigla_struttura.currentIndexChanged.connect(self.charge_periodo_fin_list)
+        self.lineEdit_nr_scheda.textChanged.connect(self.charge_periodo_iniz_list)
+        self.lineEdit_nr_scheda.textChanged.connect(self.charge_periodo_fin_list)
 
         
         self.comboBox_per_iniz.currentIndexChanged.connect(self.charge_fase_iniz_list)
@@ -387,6 +385,28 @@ class pyarchinit_Tomba(QDialog, MAIN_DIALOG_CLASS):
         self.loadCorredolist()
         self.set_sito()
         self.msg_sito()
+        self.numero_invetario()
+    def numero_invetario(self):
+        # self.set_sito()
+        contatore = 0
+        list=[]
+        if self.lineEdit_nr_scheda.text()=='':
+            self.lineEdit_nr_scheda.clear()
+            self.lineEdit_nr_scheda.setText('1')
+            self.lineEdit_nr_scheda.update()
+            for i in range(len(self.DATA_LIST)):
+                self.lineEdit_nr_scheda.clear()
+                contatore = int(self.DATA_LIST[i].nr_scheda_taf)
+                #contatore.sort(reverse=False)
+                list.append(contatore)
+                
+               
+                list[-1]+=1
+                
+                list.sort()
+            for e in list:    
+                
+                self.lineEdit_nr_scheda.setText(str(e))
     def loadCorredolist(self):
         self.tableWidget_corredo_tipo.clear()
         if self.L=='it':
@@ -406,7 +426,7 @@ class pyarchinit_Tomba(QDialog, MAIN_DIALOG_CLASS):
             if bool (sito_set_str):
                 search_dict = {
                         'sito': "'"+str(sito_set_str)+"'",
-                        #'area': "'" + str(eval("self.DATA_LIST[int(self.REC_CORR)].area"))+ "'"
+                        'area': "'" + str(eval("self.DATA_LIST[int(self.REC_CORR)].area"))+ "'"
                     }
                 u = Utility()
                 search_dict = u.remove_empty_items_fr_dict(search_dict)
@@ -448,6 +468,7 @@ class pyarchinit_Tomba(QDialog, MAIN_DIALOG_CLASS):
         except:
             pass
         
+    
     
     def enable_button(self, n):
         self.pushButton_connect.setEnabled(n)
@@ -693,6 +714,29 @@ class pyarchinit_Tomba(QDialog, MAIN_DIALOG_CLASS):
         sito_vl.sort()
         self.comboBox_sito.addItems(sito_vl)
 
+        
+        area_vl = self.UTILITY.tup_2_list_III(self.DB_MANAGER.group_by('us_table', 'area', 'US'))
+        try:
+            area_vl.remove('')
+        except Exception as e:
+            if str(e) == "list.remove(x): x not in list":
+                pass
+            else:
+                if self.L=='it':
+                    QMessageBox.warning(self, "Messaggio", "Sistema di aggiornamento lista area: " + str(e), QMessageBox.Ok)
+                elif self.L=='en':
+                    QMessageBox.warning(self, "Message", "Site list update system: " + str(e), QMessageBox.Ok)
+                elif self.L=='de':
+                    QMessageBox.warning(self, "Nachricht", "Aktualisierungssystem für die Ausgrabungstätte: " + str(e), QMessageBox.Ok)
+                else:
+                    pass
+
+        self.comboBox_area.clear()
+
+        area_vl.sort()
+        self.comboBox_area.addItems(area_vl)
+        
+        
         # lista rito
 
         self.comboBox_rito.clear()
@@ -937,7 +981,7 @@ class pyarchinit_Tomba(QDialog, MAIN_DIALOG_CLASS):
 
             if self.STATUS_ITEMS[self.BROWSE_STATUS] == "Trova" or "Finden" or "Find":
                 self.comboBox_per_iniz.setEditText("")
-            elif self.STATUS_ITEMS[self.BROWSE_STATUS] == "Trova" or "Find":
+            elif self.STATUS_ITEMS[self.BROWSE_STATUS] == "Usa" or "Aktuell " or "Current":
                 if len(self.DATA_LIST) > 0:
                     try:
                         self.comboBox_per_iniz.setEditText(self.DATA_LIST[self.rec_num].periodo_iniziale)
@@ -1129,7 +1173,9 @@ class pyarchinit_Tomba(QDialog, MAIN_DIALOG_CLASS):
             search_dict = {
                 
                 'sito': "'" + sito + "'",
-                #'area': "'" + str(eval("self.DATA_LIST[int(self.REC_CORR)].area"))+ "'",
+                'area': "'" + str(eval("self.DATA_LIST[int(self.REC_CORR)].area"))+ "'",
+                'sigla_struttura': "'"+ str(eval("self.DATA_LIST[int(self.REC_CORR)].sigla_struttura"))+"'",
+                'nr_struttura': "'"+ str(eval("self.DATA_LIST[int(self.REC_CORR)].nr_struttura"))+"'"
             }
             inv_vl = self.DB_MANAGER.query_bool(search_dict,'SCHEDAIND')
             inv_list = []
@@ -1342,6 +1388,7 @@ class pyarchinit_Tomba(QDialog, MAIN_DIALOG_CLASS):
                 self.label_status.setText(self.STATUS_ITEMS[self.BROWSE_STATUS])
                 self.set_rec_counter('', '')
                 self.label_sort.setText(self.SORTED_ITEMS["n"])
+                self.numero_invetario()
             else:
                 self.BROWSE_STATUS = "n"
                 self.label_status.setText(self.STATUS_ITEMS[self.BROWSE_STATUS])
@@ -1357,6 +1404,7 @@ class pyarchinit_Tomba(QDialog, MAIN_DIALOG_CLASS):
                 self.label_status.setText(self.STATUS_ITEMS[self.BROWSE_STATUS])
                 self.set_rec_counter('', '')
                 self.label_sort.setText(self.SORTED_ITEMS["n"])
+                self.numero_invetario()
             self.enable_button(0)
 
     def on_pushButton_save_pressed(self):

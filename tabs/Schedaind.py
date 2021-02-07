@@ -87,8 +87,8 @@ class pyarchinit_Schedaind(QDialog, MAIN_DIALOG_CLASS):
         CONVERSION_DICT = {
             ID_TABLE: ID_TABLE,
             "Sito": "sito",
-            "US": "us",
             "Area": "area",
+            "US": "us",
             "Nr. Individuo": "nr_individuo",
             "Data Schedatura": "data_schedatura",
             "Schedatore": "schedatore",
@@ -239,16 +239,15 @@ class pyarchinit_Schedaind(QDialog, MAIN_DIALOG_CLASS):
         except Exception as e:
             QMessageBox.warning(self, "Connection System", str(e), QMessageBox.Ok)
         # SIGNALS & SLOTS Functions
-        self.comboBox_sito.setCurrentIndex(1)
-        self.comboBox_sigla_struttura.setCurrentIndex(1)
-        #self.comboBox_area.setCurrentIndex(1)
+        self.lineEdit_individuo.setText('')
+        self.lineEdit_individuo.textChanged.connect(self.update)
+        self.lineEdit_individuo.textChanged.connect(self.charge_struttura_list)
+        #self.comboBox_sito.currentTextChanged.connect(self.charge_struttura_list)
         
-        self.comboBox_sito.currentIndexChanged.connect(self.charge_struttura_list)
-        self.comboBox_sito.currentTextChanged.connect(self.charge_struttura_list)
-        self.comboBox_sito.currentIndexChanged.connect(self.charge_area)
-        self.comboBox_sito.currentTextChanged.connect(self.charge_area)
-        self.comboBox_area.currentIndexChanged.connect(self.charge_us)
-        self.comboBox_sigla_struttura.currentIndexChanged.connect(self.charge_struttura_nr)
+        self.lineEdit_individuo.textChanged.connect(self.charge_area)
+        #self.comboBox_sito.currentTextChanged.connect(self.charge_area)
+        self.comboBox_area.currentTextChanged.connect(self.charge_us)
+        self.lineEdit_individuo.textChanged.connect(self.charge_struttura_nr)
         self.toolButton_pdfpath.clicked.connect(self.setPathpdf)
         self.pbnOpenpdfDirectory.clicked.connect(self.openpdfDir)
         sito = self.comboBox_sito.currentText()
@@ -257,6 +256,29 @@ class pyarchinit_Schedaind(QDialog, MAIN_DIALOG_CLASS):
         self.fill_fields()
         self.set_sito()
         self.msg_sito()
+        self.numero_invetario()
+    def numero_invetario(self):
+        
+        contatore = 0
+        list=[]
+        if self.lineEdit_individuo.text()=='':
+            self.lineEdit_individuo.clear()
+            self.lineEdit_individuo.setText('1')
+            self.lineEdit_individuo.update()
+            for i in range(len(self.DATA_LIST)):
+                self.lineEdit_individuo.clear()
+                contatore = int(self.DATA_LIST[i].nr_individuo)
+                #contatore.sort(reverse=False)
+                list.append(contatore)
+                
+               
+                list[-1]+=1
+                
+                list.sort()
+            for e in list:    
+                
+                self.lineEdit_individuo.setText(str(e))
+    
     def enable_button(self, n):
         self.pushButton_connect.setEnabled(n)
 
@@ -304,6 +326,9 @@ class pyarchinit_Schedaind(QDialog, MAIN_DIALOG_CLASS):
     def on_pushButton_connect_pressed(self):
         conn = Connection()
         conn_str = conn.conn_str()
+        test_conn = conn_str.find('sqlite')
+        if test_conn == 0:
+            self.DB_SERVER = "sqlite"
         try:
             self.DB_MANAGER = Pyarchinit_db_management(conn_str)
             self.DB_MANAGER.connection()
@@ -624,7 +649,7 @@ class pyarchinit_Schedaind(QDialog, MAIN_DIALOG_CLASS):
         except:
             pass
         self.comboBox_area.clear()
-        nr_area_list.sort()
+        #nr_area_list.sort()
         self.comboBox_area.addItems(self.UTILITY.remove_dup_from_list(nr_area_list))
         if self.STATUS_ITEMS[self.BROWSE_STATUS] == "Trova" or "Finden" or "Find":
                 
@@ -642,11 +667,11 @@ class pyarchinit_Schedaind(QDialog, MAIN_DIALOG_CLASS):
         
         search_dict = {
             'sito': "'" + str(self.comboBox_sito.currentText()) + "'",
-            'area': "'" + str(self.comboBox_area.currentText()) + "'",
+            #'area': "'" + str(self.comboBox_area.currentText())+ "'",
             #'unita_tipo': "US",
-            'struttura': "'TB" +'-'+ str(self.comboBox_nr_struttura.currentText())+"%'"
+            'struttura': "'" + str(self.comboBox_sigla_struttura.currentText())+'-'+str(self.comboBox_nr_struttura.currentText())+"'"
         }
-
+        #QMessageBox.warning(self, "ATTENZIONE", str(search_dict), QMessageBox.Ok)
         us_vl = self.DB_MANAGER.query_bool(search_dict, 'US')
         
         nr_us_list=[]
@@ -658,7 +683,7 @@ class pyarchinit_Schedaind(QDialog, MAIN_DIALOG_CLASS):
         except:
             pass
         self.comboBox_us.clear()
-        nr_us_list.sort()
+        #nr_us_list.sort()
         self.comboBox_us.addItems(self.UTILITY.remove_dup_from_list(nr_us_list))
         if self.STATUS_ITEMS[self.BROWSE_STATUS] == "Trova" or "Finden" or "Find":
                 
@@ -682,12 +707,12 @@ class pyarchinit_Schedaind(QDialog, MAIN_DIALOG_CLASS):
             'sito': "'" + str(self.comboBox_sito.currentText()) + "'"
         }
 
-        struttura_vl = self.DB_MANAGER.query_bool(search_dict, 'STRUTTURA')
+        struttura_vl = self.DB_MANAGER.query_bool(search_dict, 'TOMBA')
         
         nr_struttura_list=[]
         for i in range(len(struttura_vl)):
             #if not nr_struttura_list.__contains__(str(struttura_vl[i].numero_struttura)):
-            nr_struttura_list.append(str(struttura_vl[i].numero_struttura))
+            nr_struttura_list.append(str(struttura_vl[i].nr_struttura))
         try:
             nr_struttura_list.remove('')
         except:
@@ -712,7 +737,7 @@ class pyarchinit_Schedaind(QDialog, MAIN_DIALOG_CLASS):
             'sito': "'" + str(self.comboBox_sito.currentText()) + "'"
         }
 
-        struttura_vl = self.DB_MANAGER.query_bool(search_dict, 'STRUTTURA')
+        struttura_vl = self.DB_MANAGER.query_bool(search_dict, 'TOMBA')
         sigla_struttura_list = []
         for i in range(len(struttura_vl)):
             sigla_struttura_list.append(str(struttura_vl[i].sigla_struttura))
@@ -848,32 +873,32 @@ class pyarchinit_Schedaind(QDialog, MAIN_DIALOG_CLASS):
                                     "GIS mode disabled. From now on, your searches will no longer be displayed on the GIS.",
                                     QMessageBox.Ok)
                                     
-    def on_toolButtonPreview_toggled(self):
-        if self.L=='it':
-            if self.toolButtonPreview.isChecked():
-                QMessageBox.warning(self, "Messaggio",
-                                    "Modalita' Preview US attivata. Le piante delle US saranno visualizzate nella sezione Piante",
-                                    QMessageBox.Ok)
-                self.loadMapPreview()
-            else:
-                self.loadMapPreview(1)
-        elif self.L=='de':
-            if self.toolButtonPreview.isChecked():
-                QMessageBox.warning(self, "Message",
-                                    "Modalität' Preview der aktivierten SE. Die Plana der SE werden in der Auswahl der Plana visualisiert",
-                                    QMessageBox.Ok)
-                self.loadMapPreview()
-            else:
-                self.loadMapPreview(1)
+    # def on_toolButtonPreview_toggled(self):
+        # if self.L=='it':
+            # if self.toolButtonPreview.isChecked():
+                # QMessageBox.warning(self, "Messaggio",
+                                    # "Modalita' Preview US attivata. Le piante delle US saranno visualizzate nella sezione Piante",
+                                    # QMessageBox.Ok)
+                # self.loadMapPreview()
+            # else:
+                # self.loadMapPreview(1)
+        # elif self.L=='de':
+            # if self.toolButtonPreview.isChecked():
+                # QMessageBox.warning(self, "Message",
+                                    # "Modalität' Preview der aktivierten SE. Die Plana der SE werden in der Auswahl der Plana visualisiert",
+                                    # QMessageBox.Ok)
+                # self.loadMapPreview()
+            # else:
+                # self.loadMapPreview(1)
                 
-        else:
-            if self.toolButtonPreview.isChecked():
-                QMessageBox.warning(self, "Message",
-                                    "Preview SU mode enabled. US plants will be displayed in the Plants section",
-                                    QMessageBox.Ok)
-                self.loadMapPreview()
-            else:
-                self.loadMapPreview(1)
+        # else:
+            # if self.toolButtonPreview.isChecked():
+                # QMessageBox.warning(self, "Message",
+                                    # "Preview SU mode enabled. US plants will be displayed in the Plants section",
+                                    # QMessageBox.Ok)
+                # self.loadMapPreview()
+            # else:
+                # self.loadMapPreview(1)
 
     """
     def on_pushButton_addRaster_pressed(self):
@@ -894,18 +919,19 @@ class pyarchinit_Schedaind(QDialog, MAIN_DIALOG_CLASS):
                 if self.BROWSE_STATUS == "b":
                     if bool(self.DATA_LIST):
                         if self.records_equal_check() == 1:
-                            if self.L=='it':
-                                self.update_if(QMessageBox.warning(self, 'Errore',
-                                                                   "Il record e' stato modificato. Vuoi salvare le modifiche?",QMessageBox.Ok | QMessageBox.Cancel))
-                            elif self.L=='de':
-                                self.update_if(QMessageBox.warning(self, 'Error',
-                                                                   "Der Record wurde geändert. Möchtest du die Änderungen speichern?",
-                                                                   QMessageBox.Ok | QMessageBox.Cancel))
+                            pass
+                            # if self.L=='it':
+                                # self.update_if(QMessageBox.warning(self, 'Errore',
+                                                                   # "Il record e' stato modificato. Vuoi salvare le modifiche?",QMessageBox.Ok | QMessageBox.Cancel))
+                            # elif self.L=='de':
+                                # self.update_if(QMessageBox.warning(self, 'Error',
+                                                                   # "Der Record wurde geändert. Möchtest du die Änderungen speichern?",
+                                                                   # QMessageBox.Ok | QMessageBox.Cancel))
                                                                    
-                            else:
-                                self.update_if(QMessageBox.warning(self, 'Error',
-                                                                   "The record has been changed. Do you want to save the changes?",
-                                                                   QMessageBox.Ok | QMessageBox.Cancel))
+                            # else:
+                                # self.update_if(QMessageBox.warning(self, 'Error',
+                                                                   # "The record has been changed. Do you want to save the changes?",
+                                                                   # QMessageBox.Ok | QMessageBox.Cancel))
 
         if self.BROWSE_STATUS != "n":
             if bool(self.comboBox_sito.currentText()) and self.comboBox_sito.currentText()==sito_set_str:
@@ -918,9 +944,13 @@ class pyarchinit_Schedaind(QDialog, MAIN_DIALOG_CLASS):
                 self.setComboBoxEnable(["self.comboBox_sito"], "False")
                 # self.setComboBoxEnable(["self.comboBox_area"], "True")
                 # self.setComboBoxEnable(["self.comboBox_us"], "True")
-                # self.setComboBoxEnable(["self.lineEdit_individuo"], "True")
-
+                self.setComboBoxEnable(["self.lineEdit_individuo"], "True")
+                self.SORT_STATUS = "n"
+                self.label_sort.setText(self.SORTED_ITEMS[self.SORT_STATUS])
+                self.label_status.setText(self.STATUS_ITEMS[self.BROWSE_STATUS])
                 self.set_rec_counter('', '')
+                self.label_sort.setText(self.SORTED_ITEMS["n"])
+                self.numero_invetario()
             else:
                 self.BROWSE_STATUS = "n"
                 self.label_status.setText(self.STATUS_ITEMS[self.BROWSE_STATUS])
@@ -931,9 +961,13 @@ class pyarchinit_Schedaind(QDialog, MAIN_DIALOG_CLASS):
                 self.setComboBoxEnable(["self.comboBox_sito"], "True")
                 # self.setComboBoxEnable(["self.comboBox_area"], "True")
                 # self.setComboBoxEnable(["self.comboBox_us"], "True")
-                # self.setComboBoxEnable(["self.lineEdit_individuo"], "True")
+                self.setComboBoxEnable(["self.lineEdit_individuo"], "True")
 
-                self.set_rec_counter('', '') 
+                self.SORT_STATUS = "n"
+                self.label_sort.setText(self.SORTED_ITEMS[self.SORT_STATUS])
+                self.label_status.setText(self.STATUS_ITEMS[self.BROWSE_STATUS])
+                self.set_rec_counter('', '')
+                self.numero_invetario()                
             self.enable_button(0)
 
     def on_pushButton_save_pressed(self):
@@ -953,6 +987,7 @@ class pyarchinit_Schedaind(QDialog, MAIN_DIALOG_CLASS):
                         self.update_if(QMessageBox.warning(self, 'Error',
                                                            "The record has been changed. Do you want to save the changes?",
                                                            QMessageBox.Ok | QMessageBox.Cancel))
+                    self.empty_fields()
                     self.SORT_STATUS = "n"
                     self.label_sort.setText(self.SORTED_ITEMS[self.SORT_STATUS])
                     self.enable_button(1)
@@ -969,10 +1004,11 @@ class pyarchinit_Schedaind(QDialog, MAIN_DIALOG_CLASS):
                 test_insert = self.insert_new_rec()
                 if test_insert == 1:
                     self.empty_fields()
-                    self.label_sort.setText(self.SORTED_ITEMS["n"])
+                    self.SORT_STATUS = "n"
+                    self.label_sort.setText(self.SORTED_ITEMS[self.SORT_STATUS])
+                    self.charge_records()
                     self.charge_list()
                     self.set_sito()
-                    self.charge_records()
                     self.BROWSE_STATUS = "b"
                     self.label_status.setText(self.STATUS_ITEMS[self.BROWSE_STATUS])
                     self.REC_TOT, self.REC_CORR = len(self.DATA_LIST), len(self.DATA_LIST) - 1
@@ -983,12 +1019,16 @@ class pyarchinit_Schedaind(QDialog, MAIN_DIALOG_CLASS):
                     self.setComboBoxEnable(["self.comboBox_sito"], "False")
                     # self.setComboBoxEnable(["self.comboBox_area"], "False")
                     # self.setComboBoxEnable(["self.comboBox_us"], "False")
-                    # self.setComboBoxEnable(["self.lineEdit_individuo"], "False")
+                    self.setComboBoxEnable(["self.lineEdit_individuo"], "False")
                     self.fill_fields(self.REC_CORR)
                     self.enable_button(1)
             else:
-                pass
-
+                if self.L=='it':
+                    QMessageBox.warning(self, "ATTENZIONE", "Problema nell'inserimento dati", QMessageBox.Ok)
+                elif self.L=='de':
+                    QMessageBox.warning(self, "ACHTUNG", "Problem der Dateneingabe", QMessageBox.Ok)
+                else:
+                    QMessageBox.warning(self, "Warning", "Problem with data entry", QMessageBox.Ok) 
     def data_error_check(self):
         test = 0
         EC = Error_check()
@@ -1003,24 +1043,25 @@ class pyarchinit_Schedaind(QDialog, MAIN_DIALOG_CLASS):
                                     QMessageBox.Ok)
                 test = 1
 
-            # area = self.lineEdit_area.text()
-            # us = self.lineEdit_us.text()
+            area = self.comboBox_area.currentText()
+            us = self.comboBox_us.currentText()
             nr_individuo = self.lineEdit_individuo.text()
             eta_min = self.comboBox_eta_min.currentText()
             eta_max = self.comboBox_eta_max.currentText()
+            lunghezza_scheletro = self.lineEdit_lunghezza_scheletro.text()
+            azimut = self.lineEdit_orientamento_azimut.text()
+            if area != "":
+                if EC.data_lenght(area, 3) == '':
+                    QMessageBox.warning(self, "ATTENZIONE",
+                                        "Campo Area. \n Il valore deve essere lungo massimo 4 caratteri alfanumerici",
+                                        QMessageBox.Ok)
+                    test = 1
 
-            # if area != "":
-                # if EC.data_lenght(area, 3) == 0:
-                    # QMessageBox.warning(self, "ATTENZIONE",
-                                        # "Campo Area. \n Il valore deve essere lungo massimo 4 caratteri alfanumerici",
-                                        # QMessageBox.Ok)
-                    # test = 1
-
-            # if us != "":
-                # if EC.data_is_int(us) == 0:
-                    # QMessageBox.warning(self, "ATTENZIONE", "Campo US. \n Il valore deve essere di tipo numerico",
-                                        # QMessageBox.Ok)
-                    # test = 1
+            if us != "":
+                if EC.data_is_int(us) == 0:
+                    QMessageBox.warning(self, "ATTENZIONE", "Campo US. \n Il valore deve essere di tipo numerico",
+                                        QMessageBox.Ok)
+                    test = 1
 
             if nr_individuo != "":
                 if EC.data_is_int(nr_individuo) == 0:
@@ -1039,7 +1080,16 @@ class pyarchinit_Schedaind(QDialog, MAIN_DIALOG_CLASS):
                     QMessageBox.warning(self, "ATTENZIONE", "Campo Età massima \n Il valore deve essere di tipo numerico",
                                         QMessageBox.Ok)
                     test = 1
-        
+            if lunghezza_scheletro != "":
+                if EC.data_is_float(lunghezza_scheletro) == 0:
+                    QMessageBox.warning(self, "ATTENZIONE", "Campo Lunghezza Scheletro. \n Il valore deve essere di tipo numerico. \n (Sono stati inserite lettere, virgole, accenti o caratteri non numerici.",
+                                        QMessageBox.Ok)
+                    test = 1
+            if azimut != "":
+                if EC.data_is_float(azimut) == 0:
+                    QMessageBox.warning(self, "ATTENZIONE", "Campo Orientamento azimut. \n Il valore deve essere di tipo numerico. \n (Sono stati inserite lettere, virgole, accenti o caratteri non numerici.",
+                                        QMessageBox.Ok)
+                    test = 1
         
         elif self.L=='de':  
             if EC.data_is_empty(str(self.comboBox_sito.currentText())) == 0:
@@ -1151,10 +1201,10 @@ class pyarchinit_Schedaind(QDialog, MAIN_DIALOG_CLASS):
         return test
 
     def insert_new_rec(self):
-        if self.comboBox_us.currentText() == "":
-            us = ''
-        else:
-            us = int(self.comboBox_us.currentText())
+        # if self.comboBox_us.currentText() == "":
+            # us = ''
+        # else:
+            # us = int(self.comboBox_us.currentText())
         
         if self.comboBox_eta_min.currentText() == "":
             eta_min = ''
@@ -1166,10 +1216,10 @@ class pyarchinit_Schedaind(QDialog, MAIN_DIALOG_CLASS):
         else:
             eta_max = int(self.comboBox_eta_max.currentText())
 
-        if self.comboBox_classi_eta.currentText() == "":
-            classi_eta = ''
-        else:
-            classi_eta = str(self.comboBox_classi_eta.currentText())
+        # if self.comboBox_classi_eta.currentText() == "":
+            # classi_eta = ''
+        # else:
+            # classi_eta = str(self.comboBox_classi_eta.currentText())
 
         if self.comboBox_nr_struttura.currentText() == "":
             nr_struttura = ''
@@ -1191,14 +1241,14 @@ class pyarchinit_Schedaind(QDialog, MAIN_DIALOG_CLASS):
                 self.DB_MANAGER.max_num_id(self.MAPPER_TABLE_CLASS, self.ID_TABLE) + 1,
                 str(self.comboBox_sito.currentText()),  # 1 - Sito
                 str(self.comboBox_area.currentText()),  # 2 - area
-                us,  # 3 - US
+                int(self.comboBox_us.currentText()),
                 int(self.lineEdit_individuo.text()),  # 4 - individuo
                 str(self.lineEdit_data_schedatura.text()),  # 5 - data schedatura
                 str(self.lineEdit_schedatore.text()),  # 6 - schedatore
                 str(self.comboBox_sesso.currentText()),  # 7 - sesso
                 eta_min,  # 8 - eta' min
                 eta_max,  # 9 - eta' max
-                classi_eta,  # 10 - classi eta
+                str(self.comboBox_classi_eta.currentText()), # 10 - classi eta
                 str(self.textEdit_osservazioni.toPlainText()),  # 11 - osservazioni
                 str(self.comboBox_sigla_struttura.currentText()),
                 nr_struttura,
@@ -1299,8 +1349,8 @@ class pyarchinit_Schedaind(QDialog, MAIN_DIALOG_CLASS):
                 self.REC_TOT, self.REC_CORR = len(self.DATA_LIST), 0
                 self.fill_fields(0)
                 self.set_rec_counter(self.REC_TOT, self.REC_CORR + 1)
-            except Exception as e:
-                QMessageBox.warning(self, "Error", str(e), QMessageBox.Ok)
+            except :
+                pass
 
     def on_pushButton_last_rec_pressed(self):
         if self.check_record_state() == 1:
@@ -1311,8 +1361,8 @@ class pyarchinit_Schedaind(QDialog, MAIN_DIALOG_CLASS):
                 self.REC_TOT, self.REC_CORR = len(self.DATA_LIST), len(self.DATA_LIST) - 1
                 self.fill_fields(self.REC_CORR)
                 self.set_rec_counter(self.REC_TOT, self.REC_CORR + 1)
-            except Exception as e:
-                QMessageBox.warning(self, "Error", str(e), QMessageBox.Ok)
+            except :
+                pass
 
     def on_pushButton_prev_rec_pressed(self):
         if self.check_record_state() == 1:
@@ -1332,8 +1382,8 @@ class pyarchinit_Schedaind(QDialog, MAIN_DIALOG_CLASS):
                     self.empty_fields()
                     self.fill_fields(self.REC_CORR)
                     self.set_rec_counter(self.REC_TOT, self.REC_CORR + 1)
-                except Exception as e:
-                    QMessageBox.warning(self, "Error", str(e), QMessageBox.Ok)
+                except:
+                    pass
 
     def on_pushButton_next_rec_pressed(self):
         if self.check_record_state() == 1:
@@ -1353,8 +1403,8 @@ class pyarchinit_Schedaind(QDialog, MAIN_DIALOG_CLASS):
                     self.empty_fields()
                     self.fill_fields(self.REC_CORR)
                     self.set_rec_counter(self.REC_TOT, self.REC_CORR + 1)
-                except Exception as e:
-                    QMessageBox.warning(self, "Error", str(e), QMessageBox.Ok)
+                except:
+                    pass
 
     def on_pushButton_delete_pressed(self):
         
@@ -1480,8 +1530,8 @@ class pyarchinit_Schedaind(QDialog, MAIN_DIALOG_CLASS):
 
                     #self.setComboBoxEditable(["self.comboBox_sito"], 1)
                     self.setComboBoxEnable(["self.comboBox_sito"], "False")
-                    self.setComboBoxEnable(["self.comboBox_area"], "True")
-                    self.setComboBoxEnable(["self.comboBox_us"], "True")
+                    # self.setComboBoxEnable(["self.comboBox_area"], "True")
+                    # self.setComboBoxEnable(["self.comboBox_us"], "True")
                     self.setComboBoxEnable(["self.lineEdit_individuo"], "True")
                     self.setComboBoxEnable(["self.textEdit_osservazioni"], "False")
 
@@ -1494,8 +1544,8 @@ class pyarchinit_Schedaind(QDialog, MAIN_DIALOG_CLASS):
                 else:
                     self.setComboBoxEditable(["self.comboBox_sito"], 1)
                     self.setComboBoxEnable(["self.comboBox_sito"], "True")
-                    self.setComboBoxEnable(["self.comboBox_area"], "True")
-                    self.setComboBoxEnable(["self.comboBox_us"], "True")
+                    # self.setComboBoxEnable(["self.comboBox_area"], "True")
+                    # self.setComboBoxEnable(["self.comboBox_us"], "True")
                     self.setComboBoxEnable(["self.lineEdit_individuo"], "True")
                     self.setComboBoxEnable(["self.textEdit_osservazioni"], "False")
 
@@ -1541,17 +1591,19 @@ class pyarchinit_Schedaind(QDialog, MAIN_DIALOG_CLASS):
             else:
                 
                 nr_struttura = ""
-            if self.lineEdit_lunghezza_scheletro.text() == "":
+            
+            if self.lineEdit_lunghezza_scheletro.text() != "":
+                lunghezza_scheletro = float(self.lineEdit_lunghezza_scheletro.text())
+                
+            else:
                 lunghezza_scheletro = None
                 
-            else:
-                
-                lunghezza_scheletro = float(self.lineEdit_lunghezza_scheletro.text())
-            if self.lineEdit_orientamento_azimut.text() == "":
-                orientamento_azimut = None
-                
-            else:
+            if self.lineEdit_orientamento_azimut.text() != "":
                 orientamento_azimut = float(self.lineEdit_orientamento_azimut.text())
+                
+                
+            else:
+                orientamento_azimut = None
                 
             search_dict = {
                 self.TABLE_FIELDS[0]: "'" + str(self.comboBox_sito.currentText()) + "'",  # 1 - Sito
@@ -1564,7 +1616,7 @@ class pyarchinit_Schedaind(QDialog, MAIN_DIALOG_CLASS):
                 self.TABLE_FIELDS[7]: eta_min,  # 8 - eta min
                 self.TABLE_FIELDS[8]: eta_max,  # 9 - eta max
                 self.TABLE_FIELDS[9]: "'" + str(self.comboBox_classi_eta.currentText()) + "'",  # 10 - classi eta
-                self.TABLE_FIELDS[10]: str(self.textEdit_osservazioni.toPlainText()),  # 11 - osservazioni
+                self.TABLE_FIELDS[10]: "'" +str(self.textEdit_osservazioni.toPlainText())+ "'",  # 11 - osservazioni
                 self.TABLE_FIELDS[11]: "'" + str(self.comboBox_sigla_struttura.currentText()) + "'",  # 1 - Sito
                 self.TABLE_FIELDS[12]: nr_struttura,  # 1 - Sito
                 self.TABLE_FIELDS[13]: "'" + str(self.comboBox_completo.currentText()) + "'",  # 1 - Sito
@@ -1576,7 +1628,7 @@ class pyarchinit_Schedaind(QDialog, MAIN_DIALOG_CLASS):
                 self.TABLE_FIELDS[19]: "'" + str(self.comboBox_arti_superiori.currentText()) + "'",  # 1 - Sito
                 self.TABLE_FIELDS[20]: "'" + str(self.comboBox_arti_inferiori.currentText()) + "'",  # 1 - Sito
                 self.TABLE_FIELDS[21]: "'" + str(self.comboBox_orientamento_asse.currentText()) + "'",  # 1 - Sito
-                self.TABLE_FIELDS[22]: orientamento_azimut  # 1 - Sito
+                self.TABLE_FIELDS[22]:orientamento_azimut
             }
 
             u = Utility()
@@ -1606,8 +1658,8 @@ class pyarchinit_Schedaind(QDialog, MAIN_DIALOG_CLASS):
                         self.label_status.setText(self.STATUS_ITEMS[self.BROWSE_STATUS])
 
                         self.setComboBoxEnable(["self.comboBox_sito"], "False")
-                        self.setComboBoxEnable(["self.comboBox_area"], "False")
-                        self.setComboBoxEnable(["self.comboBox_us"], "False")
+                        # self.setComboBoxEnable(["self.comboBox_area"], "False")
+                        # self.setComboBoxEnable(["self.comboBox_us"], "False")
                         self.setComboBoxEnable(["self.lineEdit_individuo"], "False")
                         self.setComboBoxEnable(["self.textEdit_osservazioni"], "True")
                 else:
@@ -1840,20 +1892,15 @@ class pyarchinit_Schedaind(QDialog, MAIN_DIALOG_CLASS):
             self.comboBox_area.setEditText(str(self.DATA_LIST[self.rec_num].area))  # 2 - area
             self.comboBox_us.setEditText(str(self.DATA_LIST[self.rec_num].us))  # 3 - us
             self.lineEdit_individuo.setText(str(self.DATA_LIST[self.rec_num].nr_individuo))  # 4 - nr individuo
-            self.lineEdit_data_schedatura.setText(
-                str(self.DATA_LIST[self.rec_num].data_schedatura))  # 5 - data schedatura
+            self.lineEdit_data_schedatura.setText(str(self.DATA_LIST[self.rec_num].data_schedatura))  # 5 - data schedatura
             self.lineEdit_schedatore.setText(str(self.DATA_LIST[self.rec_num].schedatore))  # 6 - schedatore
             self.comboBox_sesso.setEditText(str(self.DATA_LIST[self.rec_num].sesso))  # 7 - sesso
 
-            if not self.DATA_LIST[self.rec_num].eta_min:  # 8 - eta minima
-                self.comboBox_eta_min.setEditText("")
-            else:
-                self.comboBox_eta_min.setEditText(str(self.DATA_LIST[self.rec_num].eta_min))
+            
+            self.comboBox_eta_min.setEditText(str(self.DATA_LIST[self.rec_num].eta_min))
 
-            if not self.DATA_LIST[self.rec_num].eta_max:  # 9 - eta massima
-                self.comboBox_eta_max.setEditText("")
-            else:
-                self.comboBox_eta_max.setEditText(str(self.DATA_LIST[self.rec_num].eta_max))
+            
+            self.comboBox_eta_max.setEditText(str(self.DATA_LIST[self.rec_num].eta_max))
 
             self.comboBox_classi_eta.setEditText(str(self.DATA_LIST[self.rec_num].classi_eta))  # 10 - classi di eta
 
@@ -1861,17 +1908,15 @@ class pyarchinit_Schedaind(QDialog, MAIN_DIALOG_CLASS):
             
             self.comboBox_sigla_struttura.setEditText(str(self.DATA_LIST[self.rec_num].sigla_struttura))  # 1 - Sito
             
-            if not self.DATA_LIST[self.rec_num].nr_struttura:
-                self.comboBox_nr_struttura.setEditText("")
-            else:
-                self.comboBox_nr_struttura.setEditText(str(self.DATA_LIST[self.rec_num].nr_struttura))
+            
+            self.comboBox_nr_struttura.setEditText(str(self.DATA_LIST[self.rec_num].nr_struttura))
             
             self.comboBox_completo.setEditText(str(self.DATA_LIST[self.rec_num].completo_si_no))  # 1 - Sito
             self.comboBox_disturbato.setEditText(str(self.DATA_LIST[self.rec_num].disturbato_si_no))  # 1 - Sito
             self.comboBox_in_connessione.setEditText(str(self.DATA_LIST[self.rec_num].in_connessione_si_no))  # 1 - Sito
             
             if not self.DATA_LIST[self.rec_num].lunghezza_scheletro:
-                self.lineEdit_lunghezza_scheletro.setText("")
+                str(self.lineEdit_lunghezza_scheletro.setText(""))
             else:
                 self.lineEdit_lunghezza_scheletro.setText(str(self.DATA_LIST[self.rec_num].lunghezza_scheletro))  # 1 - Sito
             self.comboBox_posizione_scheletro.setEditText(str(self.DATA_LIST[self.rec_num].posizione_scheletro))  # 1 - Sito
@@ -1881,14 +1926,13 @@ class pyarchinit_Schedaind(QDialog, MAIN_DIALOG_CLASS):
             self.comboBox_orientamento_asse.setEditText(str(self.DATA_LIST[self.rec_num].orientamento_asse))  # 1 - Sito
             
             if not self.DATA_LIST[self.rec_num].orientamento_azimut:
-                self.lineEdit_orientamento_azimut.setText("")
+                str(self.lineEdit_orientamento_azimut.setText(""))
             else:
                 self.lineEdit_orientamento_azimut.setText(str(self.DATA_LIST[self.rec_num].orientamento_azimut))  # 1 - Sito
             
-            if self.toolButtonPreview.isChecked():
-                self.loadMapPreview()
-        except :
-            pass#QMessageBox.warning(self, "Error", str(e), QMessageBox.Ok)
+            
+        except Exception as e :
+            QMessageBox.warning(self, "Error", str(e), QMessageBox.Ok)
 
     def set_rec_counter(self, t, c):
         self.rec_tot = t
@@ -1913,12 +1957,12 @@ class pyarchinit_Schedaind(QDialog, MAIN_DIALOG_CLASS):
             nr_struttura = self.comboBox_nr_struttura.currentText()
         
         if self.lineEdit_lunghezza_scheletro.text() == "":
-            lunghezza_scheletro = ''
+            lunghezza_scheletro = None
         else:
             lunghezza_scheletro = self.lineEdit_lunghezza_scheletro.text()
         
         if self.lineEdit_orientamento_azimut.text() == "":
-            orientamento_azimut = ''
+            orientamento_azimut = None
         else:
             orientamento_azimut = self.lineEdit_orientamento_azimut.text()
             # data

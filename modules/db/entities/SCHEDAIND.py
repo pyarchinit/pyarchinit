@@ -60,7 +60,7 @@ class SCHEDAIND(object):
 
     # def __repr__"
     def __repr__(self):
-        return "<SCHEDAIND('%d','%s', '%d','%s','%d','%s','%s','%s','%d','%d','%s','%s','%s','%d','%s','%s','%s','%f','%s','%s','%s','%s','%s','%f')>" % (
+        return "<SCHEDAIND('%d','%s', '%s','%d','%d','%s','%s','%s','%d','%d','%s','%s','%s','%d','%s','%s','%s','%r','%s','%s','%s','%s','%s','%r')>" % (
             self.id_scheda_ind,
             self.sito,
             self.area,
