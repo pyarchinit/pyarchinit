@@ -117,7 +117,8 @@ class pyarchinit_Inventario_reperti(QDialog, MAIN_DIALOG_CLASS):
             "Repertato": 'repertato',
             "Diagnostico": 'diagnostico',
             "RA":'n_reperto',
-            "Tipo contenitore":'tipo_contenitore'
+            "Tipo contenitore":'tipo_contenitore',
+            "Struttura":'struttura'
         }
         QUANT_ITEMS = ['Tipo reperto',
                        'Classe materiale',
@@ -155,7 +156,8 @@ class pyarchinit_Inventario_reperti(QDialog, MAIN_DIALOG_CLASS):
             "Repertato",
             "Diagnostico",
             "RA",
-            "Tipo contenitore"
+            "Tipo contenitore",
+            "Struttura"
         ]
     if L =='de':
         CONVERSION_DICT = {
@@ -185,7 +187,8 @@ class pyarchinit_Inventario_reperti(QDialog, MAIN_DIALOG_CLASS):
             "Abgerufen": 'repertato',
             "Diagnose": 'diagnostico',
             "RA":'n_reperto',
-            "Behältertyp":'tipo_contenitore'
+            "Behältertyp":'tipo_contenitore',
+            "Strukturen":'struttura'
         }
         QUANT_ITEMS = ['Art des Artefakts',
                        'Materialklasse',
@@ -223,7 +226,8 @@ class pyarchinit_Inventario_reperti(QDialog, MAIN_DIALOG_CLASS):
             "Abgerufen",
             "Diagnose",
             "RA",
-            "Behältertyp"
+            "Behältertyp",
+            "Strukturen"
         ]
     if L =='en':
         CONVERSION_DICT = {
@@ -253,7 +257,8 @@ class pyarchinit_Inventario_reperti(QDialog, MAIN_DIALOG_CLASS):
             "Reperted": 'repertato',
             "Diagnostic": 'diagnostico',
             "RA":'n_reperto',
-            "Type of container":'tipo_contenitore'
+            "Type of container":'tipo_contenitore',
+            "Structure":'struttura'
         }
         QUANT_ITEMS = ['Artefact type',
                        'Material class',
@@ -291,7 +296,8 @@ class pyarchinit_Inventario_reperti(QDialog, MAIN_DIALOG_CLASS):
             "Reperted",
             "Diagnostic",
             "RA",
-            "Type of container"
+            "Type of container",
+            "Structure"
         ]   
     TABLE_FIELDS = [
         "sito",
@@ -323,7 +329,8 @@ class pyarchinit_Inventario_reperti(QDialog, MAIN_DIALOG_CLASS):
         'repertato',
         'diagnostico',
         'n_reperto',
-        'tipo_contenitore'
+        'tipo_contenitore',
+        'struttura'
     ]
 
     TABLE_FIELDS_UPDATE = [
@@ -354,7 +361,8 @@ class pyarchinit_Inventario_reperti(QDialog, MAIN_DIALOG_CLASS):
         'repertato',
         'diagnostico',
         'n_reperto',
-        'tipo_contenitore'
+        'tipo_contenitore',
+        'struttura'
     ]
 
     LANG = {
@@ -396,7 +404,9 @@ class pyarchinit_Inventario_reperti(QDialog, MAIN_DIALOG_CLASS):
             QMessageBox.warning(self, "Connection system", str(e), QMessageBox.Ok)
         self.setnone()
         self.fill_fields()
-        
+        self.lineEdit_num_inv.setText('')
+        self.lineEdit_num_inv.textChanged.connect(self.update)
+        self.lineEdit_num_inv.textChanged.connect(self.charge_struttura)
         self.set_sito()
         self.msg_sito()
         self.comboBox_repertato.currentTextChanged.connect(self.numero_reperto)
@@ -2357,6 +2367,7 @@ class pyarchinit_Inventario_reperti(QDialog, MAIN_DIALOG_CLASS):
                 str(self.comboBox_diagnostico.currentText()),  # 9 - lavato
                 n_reperto,
                 str(self.lineEdit_tipo_contenitore.text()),
+                str(self.comboBox_struttura.currentText()),
             )
 
             try:
@@ -2788,7 +2799,8 @@ class pyarchinit_Inventario_reperti(QDialog, MAIN_DIALOG_CLASS):
                 self.TABLE_FIELDS[26]: "'" + str(self.comboBox_repertato.currentText()) + "'",
                 self.TABLE_FIELDS[27]: "'" + str(self.comboBox_diagnostico.currentText()) + "'",
                 self.TABLE_FIELDS[28]: n_reperto,
-                self.TABLE_FIELDS[29]: "'" + str(self.lineEdit_tipo_contenitore.text()) + "'"
+                self.TABLE_FIELDS[29]: "'" + str(self.lineEdit_tipo_contenitore.text()) + "'",
+                self.TABLE_FIELDS[30]: "'" + str(self.comboBox_struttura.currentText()) + "'",
             }
 
             u = Utility()
@@ -2996,6 +3008,38 @@ class pyarchinit_Inventario_reperti(QDialog, MAIN_DIALOG_CLASS):
                                     "Kodierungsproblem: Es wurden Akzente oder Zeichen eingegeben, die von der Datenbank nicht akzeptiert werden. Es wird eine Kopie des Fehlers mit den Daten erstellt, die Sie im pyarchinit_Report _Ordner abrufen können", QMessageBox.Ok)
             return 0
 
+    def charge_struttura(self):
+        try:
+            sito = str(self.comboBox_sito.currentText())
+            area = str(self.lineEdit_area.text())
+            us = str(self.lineEdit_us.text())
+            search_dict = {
+                'sito': "'" + sito + "'",
+                'area': "'" + str(eval("self.DATA_LIST[int(self.REC_CORR)].area"))+ "'",
+                'us': "'" + str(eval("self.DATA_LIST[int(self.REC_CORR)].us"))+"'"
+                
+            }
+            struttura_vl = self.DB_MANAGER.query_bool(search_dict, 'US')
+            struttura_list = []
+            for i in range(len(struttura_vl)):
+                struttura_list.append(str(struttura_vl[i].struttura))
+            try:
+                struttura_vl.remove('')
+            except:
+                pass
+            self.comboBox_struttura.clear()
+            self.comboBox_struttura.addItems(self.UTILITY.remove_dup_from_list(struttura_list))
+            if self.STATUS_ITEMS[self.BROWSE_STATUS] == "Trova" or "Finden" or "Find":
+                self.comboBox_struttura.setEditText("")
+            elif self.STATUS_ITEMS[self.BROWSE_STATUS] == "Usa" or "Aktuell " or "Current":
+                if len(self.DATA_LIST) > 0:
+                    try:
+                        self.comboBox_struttura.setEditText(self.DATA_LIST[self.rec_num].struttura)
+                    except:
+                        pass  # non vi sono periodi per questo scavo
+            
+        except:
+            pass
     def rec_toupdate(self):
         rec_to_update = self.UTILITY.pos_none_in_list(self.DATA_LIST_REC_TEMP)
         # rec_to_update = rec_to_update[:2]
@@ -3174,7 +3218,7 @@ class pyarchinit_Inventario_reperti(QDialog, MAIN_DIALOG_CLASS):
             self.tableWidget_tecnologie.removeRow(0)
         self.insert_new_row("self.tableWidget_tecnologie")  # 17 - misurazioni
         
-    
+        self.comboBox_struttura.setEditText("")  # 9 - diagnostico
     def empty_fields_nosite(self):
         elementi_reperto_row_count = self.tableWidget_elementi_reperto.rowCount()
         misurazioni_row_count = self.tableWidget_misurazioni.rowCount()
@@ -3225,7 +3269,7 @@ class pyarchinit_Inventario_reperti(QDialog, MAIN_DIALOG_CLASS):
         for i in range(tecnologie_row_count):
             self.tableWidget_tecnologie.removeRow(0)
         self.insert_new_row("self.tableWidget_tecnologie")  # 17 - misurazioni
-    
+        self.comboBox_struttura.setEditText("")  # 9 - diagnostico
     def fill_fields(self, n=0):
         self.rec_num = n
         # QMessageBox.warning(self, "check fill fields", str(self.rec_num),  QMessageBox.Ok)
@@ -3321,6 +3365,8 @@ class pyarchinit_Inventario_reperti(QDialog, MAIN_DIALOG_CLASS):
             self.lineEdit_tipo_contenitore.setText(str(self.DATA_LIST[self.rec_num].tipo_contenitore))
             if self.toolButtonPreviewMedia.isChecked():
                 self.loadMediaPreview()
+            self.comboBox_struttura.setEditText(
+                str(self.DATA_LIST[self.rec_num].struttura))
         except :
             pass#QMessageBox.warning(self, "Error Fill Fields", str(e), QMessageBox.Ok)
 
@@ -3423,6 +3469,7 @@ class pyarchinit_Inventario_reperti(QDialog, MAIN_DIALOG_CLASS):
             str(self.comboBox_diagnostico.currentText()),
             str(n_reperto),
             str(self.lineEdit_tipo_contenitore.text()),# 28 - diagnostico
+            str(self.comboBox_struttura.currentText()),
         ]
 
     def enable_button(self, n):

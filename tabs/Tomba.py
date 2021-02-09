@@ -357,7 +357,7 @@ class pyarchinit_Tomba(QDialog, MAIN_DIALOG_CLASS):
             self.on_pushButton_connect_pressed()
         except Exception as e:
             QMessageBox.warning(self, "Connection system", str(e), QMessageBox.Ok)
-        
+        self.lineEdit_nr_scheda.setText('')
         self.lineEdit_nr_scheda.textChanged.connect(self.update)
         self.lineEdit_nr_scheda.textChanged.connect(self.charge_struttura_list)
         #self.comboBox_sito.currentTextChanged.connect(self.charge_struttura_list)
@@ -426,7 +426,7 @@ class pyarchinit_Tomba(QDialog, MAIN_DIALOG_CLASS):
             if bool (sito_set_str):
                 search_dict = {
                         'sito': "'"+str(sito_set_str)+"'",
-                        'area': "'" + str(eval("self.DATA_LIST[int(self.REC_CORR)].area"))+ "'"
+                        'struttura': "'" + str(eval('self.DATA_LIST[int(self.REC_CORR)].sigla_struttura'))+'-'+ str(eval('self.DATA_LIST[int(self.REC_CORR)].nr_struttura'))+"'"
                     }
                 u = Utility()
                 search_dict = u.remove_empty_items_fr_dict(search_dict)
@@ -1173,7 +1173,7 @@ class pyarchinit_Tomba(QDialog, MAIN_DIALOG_CLASS):
             search_dict = {
                 
                 'sito': "'" + sito + "'",
-                'area': "'" + str(eval("self.DATA_LIST[int(self.REC_CORR)].area"))+ "'",
+                #'area': "'" + str(eval("self.DATA_LIST[int(self.REC_CORR)].area"))+ "'",
                 'sigla_struttura': "'"+ str(eval("self.DATA_LIST[int(self.REC_CORR)].sigla_struttura"))+"'",
                 'nr_struttura': "'"+ str(eval("self.DATA_LIST[int(self.REC_CORR)].nr_struttura"))+"'"
             }
@@ -1206,7 +1206,7 @@ class pyarchinit_Tomba(QDialog, MAIN_DIALOG_CLASS):
             search_dict = {
                 
                 'sito': "'" + sito + "'",
-                'area': "'" + str(eval("self.DATA_LIST[int(self.REC_CORR)].area"))+ "'"#str(eval("self.DATA_LIST[int(self.REC_CORR)].area"))+ "'",
+                'struttura': "'" + str(eval('self.DATA_LIST[int(self.REC_CORR)].sigla_struttura'))+'-'+ str(eval('self.DATA_LIST[int(self.REC_CORR)].nr_struttura'))+"'"#str(eval("self.DATA_LIST[int(self.REC_CORR)].area"))+ "'",
             }
             inv_vl = self.DB_MANAGER.query_bool(search_dict,'INVENTARIO_MATERIALI')
             inv_list = []

@@ -29,7 +29,7 @@ class Inventario_materiali_table:
                                        Column('descrizione', Text),
                                        Column('area', Integer),
                                        Column('us', Integer),
-                                       Column('lavato', String(2)),
+                                       Column('lavato', String(3)),
                                        Column('nr_cassa', Integer),
                                        Column('luogo_conservazione', Text),
                                        Column('stato_conservazione', String(20)),
@@ -47,10 +47,11 @@ class Inventario_materiali_table:
                                        Column('peso', Numeric(9, 3)),
                                        Column('tipo', String(100)),
                                        Column('eve_orlo', Numeric(7, 3)),
-                                       Column('repertato', String(2)),
-                                       Column('diagnostico', String(2)),
+                                       Column('repertato', String(3)),
+                                       Column('diagnostico', String(3)),
                                        Column('n_reperto', Integer),
                                        Column('tipo_contenitore', String(200)),
+                                       Column('struttura', String(200)),
                                        # explicit/composite unique constraint.  'name' is optional.
                                        UniqueConstraint('sito', 'numero_inventario', name='ID_invmat_unico')
                                        )
