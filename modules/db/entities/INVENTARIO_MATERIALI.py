@@ -38,7 +38,8 @@ class INVENTARIO_MATERIALI(object):
                  repertato,
                  diagnostico,
                  n_reperto,
-                 tipo_contenitore
+                 tipo_contenitore,
+                 struttura
                  ):
         self.id_invmat = id_invmat  # 0
         self.sito = sito  # 1
@@ -71,10 +72,11 @@ class INVENTARIO_MATERIALI(object):
         self.diagnostico = diagnostico  # 28
         self.n_reperto=n_reperto
         self.tipo_contenitore = tipo_contenitore
+        self.struttura = struttura
 
     # def __repr__"
     def __repr__(self):
-        return "<INVENTARIO_MATERIALI('%d', '%s', '%d', '%s', '%s', '%s', '%s', '%d', '%d', '%s', '%d', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%d', '%d', '%d', '%s', '%s', '%r', '%r','%s', '%r', '%s', '%s','%d','%s' )>" % (
+        return "<INVENTARIO_MATERIALI('%d', '%s', '%d', '%s', '%s', '%s', '%s', '%d', '%d', '%s', '%d', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%d', '%d', '%d', '%s', '%s', '%r', '%r','%s', '%r', '%s', '%s','%d','%s', '%s')>" % (
             self.id_invmat,
             self.sito,
             self.numero_inventario,
@@ -105,5 +107,6 @@ class INVENTARIO_MATERIALI(object):
             self.repertato,
             self.diagnostico,
             self.n_reperto,
-            self.tipo_contenitore
+            self.tipo_contenitore,
+            self.struttura
         )

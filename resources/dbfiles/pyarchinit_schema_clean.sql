@@ -405,7 +405,7 @@ CREATE TABLE public.inventario_materiali_table (
     descrizione text,
     area integer,
     us integer,
-    lavato character varying(2),
+    lavato character varying(3),
     nr_cassa integer,
     luogo_conservazione text,
     stato_conservazione character varying DEFAULT ''::character varying,
@@ -423,8 +423,11 @@ CREATE TABLE public.inventario_materiali_table (
     peso numeric(9,3) DEFAULT 0,
     tipo character varying(20),
     eve_orlo numeric(7,3) DEFAULT 0,
-    repertato character varying(2),
-    diagnostico character varying(2)
+    repertato character varying(3),
+    diagnostico character varying(3),
+	n_reperto integer,
+	tipo_contenitore character varying(200),
+	struttura character varying(200)
 );
 
 

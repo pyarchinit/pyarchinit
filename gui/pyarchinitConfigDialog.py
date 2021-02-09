@@ -2514,7 +2514,8 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
                             data_list_toimp[sing_rec].repertato,
                             data_list_toimp[sing_rec].diagnostico,
                             data_list_toimp[sing_rec].n_reperto,
-                            data_list_toimp[sing_rec].tipo_contenitore
+                            data_list_toimp[sing_rec].tipo_contenitore,
+                            data_list_toimp[sing_rec].struttura
                         )
 
 

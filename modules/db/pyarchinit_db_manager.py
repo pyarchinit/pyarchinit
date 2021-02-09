@@ -483,7 +483,8 @@ class Pyarchinit_db_management(object):
                                                     arg[27],
                                                     arg[28],
                                                     arg[29],
-                                                    arg[30],)
+                                                    arg[30],
+                                                    arg[31])
 
         return inventario_materiali
 

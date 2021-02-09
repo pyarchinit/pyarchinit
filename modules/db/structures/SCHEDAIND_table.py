@@ -37,13 +37,13 @@ class SCHEDAIND_table:
                             Column('completo_si_no', String(5)),
                             Column('disturbato_si_no', String(5)),
                             Column('in_connessione_si_no', String(5)),
-                            Column('lunghezza_scheletro', Numeric(2,2)),
+                            Column('lunghezza_scheletro', Numeric(6,2)),
                             Column('posizione_scheletro', String(50)),
                             Column('posizione_cranio', String(50)),
                             Column('posizione_arti_superiori', String(50)),
                             Column('posizione_arti_inferiori', String(50)),
                             Column('orientamento_asse', Text),
-                            Column('orientamento_azimut', Numeric(2,2)),
+                            Column('orientamento_azimut', Numeric(6,2)),
 
                             # explicit/composite unique constraint.  'name' is optional.
                             UniqueConstraint('sito', 'nr_individuo', name='ID_individuo_unico')

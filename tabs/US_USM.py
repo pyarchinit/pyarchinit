@@ -4701,7 +4701,7 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
                 self.TABLE_FIELDS[74]: "'" + str(self.comboBox_flottazione.currentText()) + "'",  # 77 flottazione
                 self.TABLE_FIELDS[75]: "'" + str(self.comboBox_setacciatura.currentText()) + "'",  # 78 setacciatura
                 self.TABLE_FIELDS[76]: "'" + str(self.comboBox_affidabilita.currentText()) + "'",  # 79 affidabilita
-                self.TABLE_FIELDS[77]: "'" + str(self._direttore_us.currentText()) + "'",  # 80 direttore us
+                self.TABLE_FIELDS[77]: "'" + str(self.comboBox_direttore_us.currentText()) + "'",  # 80 direttore us
                 self.TABLE_FIELDS[78]: "'" + str(self.comboBox_responsabile_us.currentText()) + "'", # 81 responsabile us
                 self.TABLE_FIELDS[79]: "'" + str(self.lineEdit_cod_ente_schedatore.text()) + "'", # 82 cod ente schedatore
                 self.TABLE_FIELDS[80]: "'" + str(self.lineEdit_data_rilevazione.text()) + "'",  # 83 data rilevazione

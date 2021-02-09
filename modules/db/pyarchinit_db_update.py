@@ -409,7 +409,9 @@ class DB_update(object):
             self.engine.execute("ALTER TABLE inventario_materiali_table ADD COLUMN diagnostico varchar(2)")
             self.engine.execute("update inventario_materiali_table set diagnostico = ''No")
         
-        
+        if not table_column_names_list.__contains__('struttura'):
+            self.engine.execute(
+                "ALTER TABLE inventario_materiali_table ADD COLUMN struttura text")
          
         
         ####tomba_table
@@ -455,7 +457,7 @@ class DB_update(object):
             self.engine.execute("ALTER TABLE individui_table ADD COLUMN in_connessione_si_no varchar")
 
         if not table_column_names_list.__contains__('lunghezza_scheletro'):
-            self.engine.execute("ALTER TABLE individui_table ADD COLUMN lunghezza_scheletro NUMERIC(2,2)")
+            self.engine.execute("ALTER TABLE individui_table ADD COLUMN lunghezza_scheletro NUMERIC(6,2)")
 
         if not table_column_names_list.__contains__('posizione_scheletro'):
             self.engine.execute("ALTER TABLE individui_table ADD COLUMN posizione_scheletro varchar")
@@ -473,7 +475,7 @@ class DB_update(object):
             self.engine.execute("ALTER TABLE individui_table ADD COLUMN orientamento_asse text")
 
         if not table_column_names_list.__contains__('orientamento_azimut'):
-            self.engine.execute("ALTER TABLE individui_table ADD COLUMN orientamento_azimut NUMERIC(2,2)")
+            self.engine.execute("ALTER TABLE individui_table ADD COLUMN orientamento_azimut NUMERIC(6,2)")
         
         
         ####aggiornamento tabelle geografiche
