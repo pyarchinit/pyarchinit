@@ -105,12 +105,14 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
 
         self.pushButtonGraphviz.clicked.connect(self.setPathGraphviz)
         self.pbnSaveEnvironPath.clicked.connect(self.setEnvironPath)
+        self.toolButton_logo.clicked.connect(self.setPathlogo)
         self.toolButton_thumbpath.clicked.connect(self.setPathThumb)
         self.toolButton_resizepath.clicked.connect(self.setPathResize)
         self.toolButton_set_dbsqlite1.clicked.connect(self.setPathDBsqlite1)
         self.toolButton_set_dbsqlite2.clicked.connect(self.setPathDBsqlite2)
         self.pbnOpenthumbDirectory.clicked.connect(self.openthumbDir)
         self.pbnOpenresizeDirectory.clicked.connect(self.openresizeDir)
+        
         self.toolButton_db.clicked.connect(self.setPathDB)
         self.pushButtonR.clicked.connect(self.setPathR)
         self.pbnSaveEnvironPathR.clicked.connect(self.setEnvironPathR)
@@ -518,7 +520,20 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
         if self.thumbpath:
             self.lineEdit_Thumb_path.setText(self.thumbpath+"/")
             s.setValue('pyArchInit/thumbpath', self.thumbpath)
+    def setPathlogo(self):
+        
+        s = QgsSettings()
+        dbpath = QFileDialog.getOpenFileName(
+            self,
+            "Set file name",
+            self.DBFOLDER,
+            "image (*.*)"
+        )[0]
+        #filename=dbpath.split("/")[-1]
+        if dbpath:
 
+            self.lineEdit_logo.setText(dbpath)
+            s.setValue('',dbpath)
     def setPathResize(self):
         s = QgsSettings()
         self.resizepath = QFileDialog.getExistingDirectory(
@@ -663,7 +678,7 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
                 self.PARAMS_DICT['THUMB_RESIZE'] = str(self.lineEdit_Thumb_resize.text())
                 self.PARAMS_DICT['EXPERIMENTAL'] = str(self.comboBox_experimental.currentText())
                 self.PARAMS_DICT['SITE_SET'] = str(self.comboBox_sito.currentText())
-
+                self.PARAMS_DICT['LOGO'] = str(self.lineEdit_logo.text())
                 self.save_dict()
 
                 if str(self.comboBox_Database.currentText())=='postgres':
@@ -1713,13 +1728,13 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
         self.lineEdit_User.setText(self.PARAMS_DICT['USER'])
         self.lineEdit_Thumb_path.setText(self.PARAMS_DICT['THUMB_PATH'])
         self.lineEdit_Thumb_resize.setText(self.PARAMS_DICT['THUMB_RESIZE'])
-
+        
         try:
             self.comboBox_experimental.setEditText(self.PARAMS_DICT['EXPERIMENTAL'])
         except:
             self.comboBox_experimental.setEditText("No")
         self.comboBox_sito.setCurrentText(self.PARAMS_DICT['SITE_SET'])    ###############
-
+        self.lineEdit_logo.setText(self.PARAMS_DICT['LOGO'])
     def test_def(self):
         pass
 
@@ -3082,6 +3097,7 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
             QMessageBox.warning(self, "INFO", "Directory not found",
                                 QMessageBox.Ok)
 
+    
     def on_pushButton_connect_pressed(self):
 
         # Defines parameter
