@@ -157,116 +157,119 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
 
         conn = Connection()
         db_url = conn.conn_str()
-        
-        try:
-            engine = create_engine(db_url, echo=True)
+        test_conn = db_url.find('sqlite')
+        if test_conn == 0:
+            try:
+                engine = create_engine(db_url, echo=True)
 
-            listen(engine, 'connect', self.load_spatialite)
-            c = engine.connect()
-            sql_upd=("""
-                    CREATE TABLE sqlitestudio_temp_table_ AS SELECT *
-                                                              FROM individui_table;""")
+                listen(engine, 'connect', self.load_spatialite)
+                c = engine.connect()
+                sql_upd=("""
+                        CREATE TABLE sqlitestudio_temp_table_ AS SELECT *
+                                                                  FROM individui_table;""")
 
-                    
-                    
-            sql_upd1=("""DROP TABLE individui_table;""")
+                        
+                        
+                sql_upd1=("""DROP TABLE individui_table;""")
 
-            sql_upd2=(""" CREATE TABLE individui_table (
-                        id_scheda_ind            INTEGER        NOT NULL,
-                        sito                     TEXT,
-                        area                     TEXT,
-                        us                       TEXT,
-                        nr_individuo             INTEGER,
-                        data_schedatura          VARCHAR (100),
-                        schedatore               VARCHAR (100),
-                        sesso                    VARCHAR (100),
-                        eta_min                  TEXT,
-                        eta_max                  TEXT,
-                        classi_eta               VARCHAR (100),
-                        osservazioni             TEXT,
-                        sigla_struttura          TEXT,
-                        nr_struttura             TEXT,
-                        completo_si_no           TEXT,
-                        disturbato_si_no         TEXT,
-                        in_connessione_si_no     TEXT,
-                        lunghezza_scheletro      NUMERIC (6, 2),
-                        posizione_scheletro      TEXT,
-                        posizione_cranio         TEXT,
-                        posizione_arti_superiori TEXT,
-                        posizione_arti_inferiori TEXT,
-                        orientamento_asse        TEXT,
-                        orientamento_azimut      TEXT,
-                        PRIMARY KEY (
-                            id_scheda_ind
-                        ),
-                        CONSTRAINT ID_individuo_unico UNIQUE (
-                            sito,
-                            nr_individuo
-                        )
-                    );""")
+                sql_upd2=(""" CREATE TABLE individui_table (
+                            id_scheda_ind            INTEGER        NOT NULL,
+                            sito                     TEXT,
+                            area                     TEXT,
+                            us                       TEXT,
+                            nr_individuo             INTEGER,
+                            data_schedatura          VARCHAR (100),
+                            schedatore               VARCHAR (100),
+                            sesso                    VARCHAR (100),
+                            eta_min                  TEXT,
+                            eta_max                  TEXT,
+                            classi_eta               VARCHAR (100),
+                            osservazioni             TEXT,
+                            sigla_struttura          TEXT,
+                            nr_struttura             TEXT,
+                            completo_si_no           TEXT,
+                            disturbato_si_no         TEXT,
+                            in_connessione_si_no     TEXT,
+                            lunghezza_scheletro      NUMERIC (6, 2),
+                            posizione_scheletro      TEXT,
+                            posizione_cranio         TEXT,
+                            posizione_arti_superiori TEXT,
+                            posizione_arti_inferiori TEXT,
+                            orientamento_asse        TEXT,
+                            orientamento_azimut      TEXT,
+                            PRIMARY KEY (
+                                id_scheda_ind
+                            ),
+                            CONSTRAINT ID_individuo_unico UNIQUE (
+                                sito,
+                                nr_individuo
+                            )
+                        );""")
 
-            sql_upd3=("""INSERT INTO individui_table (
-                                                id_scheda_ind,
-                                                sito,
-                                                area,
-                                                us,
-                                                nr_individuo,
-                                                data_schedatura,
-                                                schedatore,
-                                                sesso,
-                                                eta_min,
-                                                eta_max,
-                                                classi_eta,
-                                                osservazioni,
-                                                sigla_struttura,
-                                                nr_struttura,
-                                                completo_si_no,
-                                                disturbato_si_no,
-                                                in_connessione_si_no,
-                                                lunghezza_scheletro,
-                                                posizione_scheletro,
-                                                posizione_cranio,
-                                                posizione_arti_superiori,
-                                                posizione_arti_inferiori,
-                                                orientamento_asse,
-                                                orientamento_azimut
-                                            )
-                                            SELECT id_scheda_ind,
-                                                   sito,
-                                                   area,
-                                                   us,
-                                                   nr_individuo,
-                                                   data_schedatura,
-                                                   schedatore,
-                                                   sesso,
-                                                   eta_min,
-                                                   eta_max,
-                                                   classi_eta,
-                                                   osservazioni,
-                                                   sigla_struttura,
-                                                   nr_struttura,
-                                                   completo_si_no,
-                                                   disturbato_si_no,
-                                                   in_connessione_si_no,
-                                                   lunghezza_scheletro,
-                                                   posizione_scheletro,
-                                                   posizione_cranio,
-                                                   posizione_arti_superiori,
-                                                   posizione_arti_inferiori,
-                                                   orientamento_asse,
-                                                   orientamento_azimut
-                                              FROM sqlitestudio_temp_table_;""")
+                sql_upd3=("""INSERT INTO individui_table (
+                                                    id_scheda_ind,
+                                                    sito,
+                                                    area,
+                                                    us,
+                                                    nr_individuo,
+                                                    data_schedatura,
+                                                    schedatore,
+                                                    sesso,
+                                                    eta_min,
+                                                    eta_max,
+                                                    classi_eta,
+                                                    osservazioni,
+                                                    sigla_struttura,
+                                                    nr_struttura,
+                                                    completo_si_no,
+                                                    disturbato_si_no,
+                                                    in_connessione_si_no,
+                                                    lunghezza_scheletro,
+                                                    posizione_scheletro,
+                                                    posizione_cranio,
+                                                    posizione_arti_superiori,
+                                                    posizione_arti_inferiori,
+                                                    orientamento_asse,
+                                                    orientamento_azimut
+                                                )
+                                                SELECT id_scheda_ind,
+                                                       sito,
+                                                       area,
+                                                       us,
+                                                       nr_individuo,
+                                                       data_schedatura,
+                                                       schedatore,
+                                                       sesso,
+                                                       eta_min,
+                                                       eta_max,
+                                                       classi_eta,
+                                                       osservazioni,
+                                                       sigla_struttura,
+                                                       nr_struttura,
+                                                       completo_si_no,
+                                                       disturbato_si_no,
+                                                       in_connessione_si_no,
+                                                       lunghezza_scheletro,
+                                                       posizione_scheletro,
+                                                       posizione_cranio,
+                                                       posizione_arti_superiori,
+                                                       posizione_arti_inferiori,
+                                                       orientamento_asse,
+                                                       orientamento_azimut
+                                                  FROM sqlitestudio_temp_table_;""")
 
-                    
-            sql_upd4=("""DROP TABLE sqlitestudio_temp_table_;""")
-                    
-            c.execute(sql_upd)
-            c.execute(sql_upd1)  
-            c.execute(sql_upd2)  
-            c.execute(sql_upd3)  
-            c.execute(sql_upd4)              
-        except Exception as e:
-            QMessageBox.warning(self, "Warning", str(e), QMessageBox.Ok)
+                        
+                sql_upd4=("""DROP TABLE sqlitestudio_temp_table_;""")
+                        
+                c.execute(sql_upd)
+                c.execute(sql_upd1)  
+                c.execute(sql_upd2)  
+                c.execute(sql_upd3)  
+                c.execute(sql_upd4)              
+            except Exception as e:
+                QMessageBox.warning(self, "Warning", str(e), QMessageBox.Ok)
+        else:
+            pass
     def geometry_conn(self):
         if self.comboBox_server_rd.currentText()!='sqlite':
             self.pushButton_import_geometry.setEnabled(False)
@@ -369,27 +372,27 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
                                   "}'".format(str(self.comboBox_sito.currentText())), db=db)
                 self.model_a.setQuery(query)
             else:
-                query1 = QSqlQuery("select s.sito,(select count(distinct id_invmat) from inventario_materiali_table m "
+                query1 = QSqlQuery("select s.sito as 'Sito',(select count(distinct id_invmat) from inventario_materiali_table m "
                                    "where s.sito = m.sito) as materiali,(select count(distinct id_struttura) from "
                                    "struttura_table st where s.sito = st.sito) as Struttura,(select count(distinct "
-                                   "id_tomba) from tomba_table t where s.sito = t.sito) as tomba,"
-                                   "(select count(distinct id_us) from us_table ad where s.sito=ad.sito) as us from ("
+                                   "id_tomba) from tomba_table t where s.sito = t.sito) as Tomba,"
+                                   "(select count(distinct id_us) from us_table ad where s.sito=ad.sito) as U from ("
                                    "select sito , count(distinct id_us) from us_table group by sito) as s order by "
                                    "s.sito;",db=db)
                 self.model_a.setQuery(query1)
 
 
 
-            #self.model_a.setTable("us_table")
-            #self.model_a.setEditStrategy(QSqlTableModel.OnManualSubmit)
+            self.model_a.setTable("us_table")
+            self.model_a.setEditStrategy(QSqlTableModel.OnManualSubmit)
 
-            # if bool (sito_set_str):
-                # filter_str = "sito = '{}'".format(str(self.comboBox_sito.currentText()))
-                # self.model_a.setFilter(filter_str)
-                # self.model_a.select()
-            # else:
+            if bool (sito_set_str):
+                filter_str = "sito = '{}'".format(str(self.comboBox_sito.currentText()))
+                self.model_a.setFilter(filter_str)
+                self.model_a.select()
+            else:
 
-                # self.model_a.select()
+                self.model_a.select()
             self.tableView_summary.clearSpans()
         else:
 
