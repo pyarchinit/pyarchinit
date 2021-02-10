@@ -169,7 +169,7 @@ class Connection(object):
         sito_set = {"sito_set": settings.SITE_SET}
 
         return sito_set
-    def logo(self):
+    def logo_path(self):
         cfg_rel_path = os.path.join(os.sep, 'pyarchinit_DB_folder', 'config.cfg')
         file_path = '{}{}'.format(self.HOME, cfg_rel_path)
         conf = open(file_path, "r")
@@ -178,6 +178,6 @@ class Connection(object):
         settings = Settings(data)
         settings.set_configuration()
         conf.close()
-        logo = {"logo": settings.SITE_SET}
+        logo = {"logo": settings.LOGO}
 
         return logo
