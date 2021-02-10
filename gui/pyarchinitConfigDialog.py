@@ -372,27 +372,29 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
                                   "}'".format(str(self.comboBox_sito.currentText())), db=db)
                 self.model_a.setQuery(query)
             else:
-                query1 = QSqlQuery("select s.sito as 'Sito',(select count(distinct id_invmat) from inventario_materiali_table m "
-                                   "where s.sito = m.sito) as materiali,(select count(distinct id_struttura) from "
+                            
+                query1 = QSqlQuery("select s.sito as Sito,(select count(distinct id_invmat) from inventario_materiali_table m "
+                                   "where s.sito = m.sito) as Materiali,(select count(distinct id_struttura) from "
                                    "struttura_table st where s.sito = st.sito) as Struttura,(select count(distinct "
-                                   "id_tomba) from tomba_table t where s.sito = t.sito) as Tomba,"
-                                   "(select count(distinct id_us) from us_table ad where s.sito=ad.sito) as U from ("
+                                   "id_tomba) from tomba_table t where s.sito = t.sito) as Tombe,"
+                                   "(select count(distinct id_us) from us_table ad where s.sito=ad.sito) as US from ("
                                    "select sito , count(distinct id_us) from us_table group by sito) as s order by "
                                    "s.sito;",db=db)
+                                   
                 self.model_a.setQuery(query1)
 
 
 
-            self.model_a.setTable("us_table")
-            self.model_a.setEditStrategy(QSqlTableModel.OnManualSubmit)
+            # self.model_a.setTable("us_table")
+            # self.model_a.setEditStrategy(QSqlTableModel.OnManualSubmit)
 
-            if bool (sito_set_str):
-                filter_str = "sito = '{}'".format(str(self.comboBox_sito.currentText()))
-                self.model_a.setFilter(filter_str)
-                self.model_a.select()
-            else:
+            # if bool (sito_set_str):
+                # filter_str = "sito = '{}'".format(str(self.comboBox_sito.currentText()))
+                # self.model_a.setFilter(filter_str)
+                # self.model_a.select()
+            # else:
 
-                self.model_a.select()
+                # self.model_a.select()
             self.tableView_summary.clearSpans()
         else:
 
@@ -411,18 +413,18 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
 
             self.tableView_summary.setModel(self.model_a)
             if bool(self.comboBox_sito.currentText()):
-                query = QSqlQuery("select distinct  a.sito as Sito ,count(distinct a.id_us) as us,count(distinct "
+                query = QSqlQuery("select distinct  a.sito as Sito ,count(distinct a.id_us) as US,count(distinct "
                                   "c.id_struttura)as Struttura,count(distinct d.id_tomba) as Tombe from us_table "
                                   "as a left join struttura_table as c on a.sito=c.sito left join tomba_table as "
                                   "d on a.sito=d.sito where a.sito = '{}' group by a.sito order by us DESC ".format(
                     str(self.comboBox_sito.currentText())), db=db)
                 self.model_a.setQuery(query)
             else:
-                query1 = QSqlQuery("select s.sito,(select count(distinct id_invmat) from inventario_materiali_table m "
-                                   "where s.sito = m.sito) as materiali,(select count(distinct id_struttura) from "
+                query1 = QSqlQuery("select s.sito as Sito,(select count(distinct id_invmat) from inventario_materiali_table m "
+                                   "where s.sito = m.sito) as Materiali,(select count(distinct id_struttura) from "
                                    "struttura_table st where s.sito = st.sito) as Struttura,(select count(distinct "
-                                   "id_tomba) from tomba_table t where s.sito = t.sito) as tomba,"
-                                   "(select count(distinct id_us) from us_table ad where s.sito=ad.sito) as us from ("
+                                   "id_tomba) from tomba_table t where s.sito = t.sito) as Tombe,"
+                                   "(select count(distinct id_us) from us_table ad where s.sito=ad.sito) as US from ("
                                    "select sito , count(distinct id_us) from us_table group by sito) as s order by "
                                    "s.sito;",db=db)
                 self.model_a.setQuery(query1)
