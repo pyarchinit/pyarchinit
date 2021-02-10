@@ -40,6 +40,7 @@ class Settings(object):
     THUMB_PATH = ""
     THUMB_RESIZE = ""
     SITE_SET = ""
+    LOGO = ""
     RESOURCES_PATH = os.path.join(os.path.dirname(__file__), os.pardir, os.pardir, 'resources')
     OS_UTILITY = Pyarchinit_OS_Utility()
     HOME = os.environ['PYARCHINIT_HOME']
@@ -51,6 +52,7 @@ class Settings(object):
 
     text = (b'THUMB_RESIZE')
     text_a = (b'SITE_SET')
+    text_b = (b'LOGO')
 
     if text in data:
         pass
@@ -66,7 +68,12 @@ class Settings(object):
         conf.read(1)
         conf.write(b"','SITE_SET' : ''}")
         
-    
+    if text_b in data:
+        pass
+    else:
+        conf.seek(-3, 2)
+        conf.read(1)
+        conf.write(b"','LOGO' : ''}")
     
     conf.close()
 
@@ -85,4 +92,5 @@ class Settings(object):
         self.THUMB_PATH = self.configuration['THUMB_PATH']
         self.THUMB_RESIZE = self.configuration['THUMB_RESIZE']
         self.SITE_SET = self.configuration['SITE_SET']
+        self.LOGO = self.configuration['LOGO']
         PLUGIN_PATH = path = os.path.dirname(__file__)
