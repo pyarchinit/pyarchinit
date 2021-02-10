@@ -1220,7 +1220,7 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
                 
         
     def on_pushButton_go_to_us_pressed(self):    
-        self.save_us()
+        #self.save_us()
         try:
             table_name = "self.tableWidget_rapporti"
             rowSelected_cmd = ("%s.selectedIndexes()") % (table_name)
