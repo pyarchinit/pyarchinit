@@ -89,7 +89,7 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
         self.load_dict()
         self.charge_data()
         self.db_active()
-
+        self.lineEdit_DBname.textChanged.connect(self.db_uncheck)
         self.pushButton_upd_postgres.setEnabled(False)
         self.pushButton_upd_sqlite.setEnabled(False)
         self.comboBox_sito.currentIndexChanged.connect(self.summary)
@@ -147,6 +147,8 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
         self.check()
         self.upd_individui_table()
 
+    def db_uncheck(self):
+        self.toolButton_active.setChecked(False)
     def upd_individui_table(self):
         home_DB_path = '{}{}{}'.format(self.HOME, os.sep, 'pyarchinit_DB_folder')
 
@@ -640,6 +642,7 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
         f.close()
 
     def on_pushButton_save_pressed(self):
+        
         self.comboBox_Database.update()
         try:
             if not bool(self.lineEdit_Password.text()) and str(self.comboBox_Database.currentText())=='postgres':
@@ -1695,7 +1698,8 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
                                     QMessageBox.Ok)
     def charge_data(self):
         # load data from config.cfg file
-        # print self.PARAMS_DICT
+        
+            
         self.comboBox_Database.setCurrentText(self.PARAMS_DICT['SERVER'])
         self.lineEdit_Host.setText(self.PARAMS_DICT['HOST'])
         self.lineEdit_DBname.setText(self.PARAMS_DICT['DATABASE'])
@@ -1717,6 +1721,7 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
     def on_toolButton_active_toggled(self):
         if self.L=='it':
             if self.toolButton_active.isChecked():
+                
                 QMessageBox.information(self, "Pyarchinit", "Sistema query attivato. Seleziona un sito e clicca su salva parametri", QMessageBox.Ok)
                 self.charge_list()
             else:
