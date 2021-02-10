@@ -1390,118 +1390,6 @@
          </property>
         </widget>
        </item>
-       <item row="0" column="7">
-        <widget class="QPushButton" name="pushButton_last_rec">
-         <property name="maximumSize">
-          <size>
-           <width>30</width>
-           <height>16777215</height>
-          </size>
-         </property>
-         <property name="font">
-          <font>
-           <family>MS Shell Dlg 2</family>
-           <pointsize>8</pointsize>
-           <weight>50</weight>
-           <bold>false</bold>
-          </font>
-         </property>
-         <property name="toolTip">
-          <string>Last rec</string>
-         </property>
-         <property name="text">
-          <string/>
-         </property>
-         <property name="icon">
-          <iconset resource="../../resources/resources.qrc">
-           <normaloff>:/icons/7_rightArrows.png</normaloff>:/icons/7_rightArrows.png</iconset>
-         </property>
-        </widget>
-       </item>
-       <item row="0" column="6">
-        <widget class="QPushButton" name="pushButton_next_rec">
-         <property name="maximumSize">
-          <size>
-           <width>30</width>
-           <height>16777215</height>
-          </size>
-         </property>
-         <property name="font">
-          <font>
-           <family>MS Shell Dlg 2</family>
-           <pointsize>8</pointsize>
-           <weight>50</weight>
-           <bold>false</bold>
-          </font>
-         </property>
-         <property name="toolTip">
-          <string>Next rec</string>
-         </property>
-         <property name="text">
-          <string/>
-         </property>
-         <property name="icon">
-          <iconset resource="../../resources/resources.qrc">
-           <normaloff>:/icons/6_rightArrow.png</normaloff>:/icons/6_rightArrow.png</iconset>
-         </property>
-        </widget>
-       </item>
-       <item row="1" column="9">
-        <widget class="QPushButton" name="pushButton_view_all">
-         <property name="maximumSize">
-          <size>
-           <width>30</width>
-           <height>16777215</height>
-          </size>
-         </property>
-         <property name="font">
-          <font>
-           <family>MS Shell Dlg 2</family>
-           <pointsize>8</pointsize>
-           <weight>50</weight>
-           <bold>false</bold>
-          </font>
-         </property>
-         <property name="toolTip">
-          <string>View alls records</string>
-         </property>
-         <property name="text">
-          <string/>
-         </property>
-         <property name="icon">
-          <iconset resource="../../resources/resources.qrc">
-           <normaloff>:/icons/view_all.png</normaloff>:/icons/view_all.png</iconset>
-         </property>
-        </widget>
-       </item>
-       <item row="0" column="8">
-        <widget class="QPushButton" name="pushButton_new_rec">
-         <property name="maximumSize">
-          <size>
-           <width>30</width>
-           <height>16777215</height>
-          </size>
-         </property>
-         <property name="font">
-          <font>
-           <family>MS Shell Dlg 2</family>
-           <pointsize>8</pointsize>
-           <weight>50</weight>
-           <bold>false</bold>
-          </font>
-         </property>
-         <property name="toolTip">
-          <string>New record</string>
-         </property>
-         <property name="text">
-          <string/>
-         </property>
-         <property name="icon">
-          <iconset resource="../../resources/resources.qrc">
-           <normaloff>:/icons/newrec.png</normaloff>:/icons/newrec.png</iconset>
-         </property>
-        </widget>
-       </item>
        <item row="1" column="7">
         <widget class="QPushButton" name="pushButton_search_go">
          <property name="maximumSize">
@@ -1558,6 +1446,34 @@
          </property>
         </widget>
        </item>
+       <item row="1" column="9">
+        <widget class="QPushButton" name="pushButton_view_all">
+         <property name="maximumSize">
+          <size>
+           <width>30</width>
+           <height>16777215</height>
+          </size>
+         </property>
+         <property name="font">
+          <font>
+           <family>MS Shell Dlg 2</family>
+           <pointsize>8</pointsize>
+           <weight>50</weight>
+           <bold>false</bold>
+          </font>
+         </property>
+         <property name="toolTip">
+          <string>View alls records</string>
+         </property>
+         <property name="text">
+          <string/>
+         </property>
+         <property name="icon">
+          <iconset resource="../../resources/resources.qrc">
+           <normaloff>:/icons/view_all.png</normaloff>:/icons/view_all.png</iconset>
+         </property>
+        </widget>
+       </item>
        <item row="0" column="9">
         <widget class="QPushButton" name="pushButton_save">
          <property name="maximumSize">
@@ -1589,8 +1505,8 @@
          </property>
         </widget>
        </item>
-       <item row="1" column="6">
-        <widget class="QPushButton" name="pushButton_new_search">
+       <item row="0" column="8">
+        <widget class="QPushButton" name="pushButton_new_rec">
          <property name="maximumSize">
           <size>
            <width>30</width>
@@ -1606,14 +1522,42 @@
           </font>
          </property>
          <property name="toolTip">
-          <string>new search</string>
+          <string>New record</string>
          </property>
          <property name="text">
           <string/>
          </property>
          <property name="icon">
           <iconset resource="../../resources/resources.qrc">
-           <normaloff>:/icons/new_search.png</normaloff>:/icons/new_search.png</iconset>
+           <normaloff>:/icons/newrec.png</normaloff>:/icons/newrec.png</iconset>
+         </property>
+        </widget>
+       </item>
+       <item row="0" column="7">
+        <widget class="QPushButton" name="pushButton_last_rec">
+         <property name="maximumSize">
+          <size>
+           <width>30</width>
+           <height>16777215</height>
+          </size>
+         </property>
+         <property name="font">
+          <font>
+           <family>MS Shell Dlg 2</family>
+           <pointsize>8</pointsize>
+           <weight>50</weight>
+           <bold>false</bold>
+          </font>
+         </property>
+         <property name="toolTip">
+          <string>Last rec</string>
+         </property>
+         <property name="text">
+          <string/>
+         </property>
+         <property name="icon">
+          <iconset resource="../../resources/resources.qrc">
+           <normaloff>:/icons/7_rightArrows.png</normaloff>:/icons/7_rightArrows.png</iconset>
          </property>
         </widget>
        </item>
@@ -1642,6 +1586,34 @@
          <property name="icon">
           <iconset resource="../../resources/resources.qrc">
            <normaloff>:/icons/4_leftArrow.png</normaloff>:/icons/4_leftArrow.png</iconset>
+         </property>
+        </widget>
+       </item>
+       <item row="0" column="6">
+        <widget class="QPushButton" name="pushButton_next_rec">
+         <property name="maximumSize">
+          <size>
+           <width>30</width>
+           <height>16777215</height>
+          </size>
+         </property>
+         <property name="font">
+          <font>
+           <family>MS Shell Dlg 2</family>
+           <pointsize>8</pointsize>
+           <weight>50</weight>
+           <bold>false</bold>
+          </font>
+         </property>
+         <property name="toolTip">
+          <string>Next rec</string>
+         </property>
+         <property name="text">
+          <string/>
+         </property>
+         <property name="icon">
+          <iconset resource="../../resources/resources.qrc">
+           <normaloff>:/icons/6_rightArrow.png</normaloff>:/icons/6_rightArrow.png</iconset>
          </property>
         </widget>
        </item>
@@ -1701,31 +1673,20 @@
          </property>
         </widget>
        </item>
-       <item row="0" column="4">
-        <widget class="QPushButton" name="pushButton_first_rec">
+       <item row="1" column="1">
+        <widget class="QPushButton" name="pushButton_open_dir">
          <property name="maximumSize">
           <size>
            <width>30</width>
            <height>16777215</height>
           </size>
          </property>
-         <property name="font">
-          <font>
-           <family>MS Shell Dlg 2</family>
-           <pointsize>8</pointsize>
-           <weight>50</weight>
-           <bold>false</bold>
-          </font>
-         </property>
-         <property name="toolTip">
-          <string>First rec</string>
-         </property>
          <property name="text">
           <string/>
          </property>
          <property name="icon">
           <iconset resource="../../resources/resources.qrc">
-           <normaloff>:/icons/5_leftArrows.png</normaloff>:/icons/5_leftArrows.png</iconset>
+           <normaloff>:/icons/directoryExp.png</normaloff>:/icons/directoryExp.png</iconset>
          </property>
         </widget>
        </item>
@@ -1815,20 +1776,59 @@
          </property>
         </widget>
        </item>
-       <item row="1" column="1">
-        <widget class="QPushButton" name="pushButton_open_dir">
+       <item row="0" column="4">
+        <widget class="QPushButton" name="pushButton_first_rec">
          <property name="maximumSize">
           <size>
            <width>30</width>
            <height>16777215</height>
           </size>
          </property>
+         <property name="font">
+          <font>
+           <family>MS Shell Dlg 2</family>
+           <pointsize>8</pointsize>
+           <weight>50</weight>
+           <bold>false</bold>
+          </font>
+         </property>
+         <property name="toolTip">
+          <string>First rec</string>
+         </property>
          <property name="text">
           <string/>
          </property>
          <property name="icon">
           <iconset resource="../../resources/resources.qrc">
-           <normaloff>:/icons/directoryExp.png</normaloff>:/icons/directoryExp.png</iconset>
+           <normaloff>:/icons/5_leftArrows.png</normaloff>:/icons/5_leftArrows.png</iconset>
+         </property>
+        </widget>
+       </item>
+       <item row="1" column="6">
+        <widget class="QPushButton" name="pushButton_new_search">
+         <property name="maximumSize">
+          <size>
+           <width>30</width>
+           <height>16777215</height>
+          </size>
+         </property>
+         <property name="font">
+          <font>
+           <family>MS Shell Dlg 2</family>
+           <pointsize>8</pointsize>
+           <weight>50</weight>
+           <bold>false</bold>
+          </font>
+         </property>
+         <property name="toolTip">
+          <string>new search</string>
+         </property>
+         <property name="text">
+          <string/>
+         </property>
+         <property name="icon">
+          <iconset resource="../../resources/resources.qrc">
+           <normaloff>:/icons/new_search.png</normaloff>:/icons/new_search.png</iconset>
          </property>
         </widget>
        </item>
@@ -2395,6 +2395,9 @@
        <property name="editable">
         <bool>true</bool>
        </property>
+       <property name="sizeAdjustPolicy">
+        <enum>QComboBox::AdjustToContents</enum>
+       </property>
       </widget>
      </item>
      <item row="6" column="0">
@@ -2424,6 +2427,9 @@
        </property>
        <property name="editable">
         <bool>true</bool>
+       </property>
+       <property name="maxVisibleItems">
+        <number>100</number>
        </property>
       </widget>
      </item>
@@ -2595,8 +2601,8 @@
      <y>101</y>
     </hint>
     <hint type="destinationlabel">
-     <x>642</x>
-     <y>724</y>
+     <x>599</x>
+     <y>491</y>
     </hint>
    </hints>
   </connection>
@@ -2607,12 +2613,12 @@
    <slot>toggleUserVisible()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>576</x>
-     <y>674</y>
+     <x>448</x>
+     <y>471</y>
     </hint>
     <hint type="destinationlabel">
-     <x>210</x>
-     <y>724</y>
+     <x>219</x>
+     <y>586</y>
     </hint>
    </hints>
   </connection>

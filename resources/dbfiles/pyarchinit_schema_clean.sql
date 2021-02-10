@@ -340,13 +340,13 @@ CREATE TABLE public.individui_table (
     id_scheda_ind integer NOT NULL,
     sito text,
     area character varying(4),
-    us integer,
+    us text,
     nr_individuo integer,
     data_schedatura character varying(100),
     schedatore character varying(100),
     sesso character varying(100),
-    eta_min integer,
-    eta_max integer,
+    eta_min text,
+    eta_max text,
     classi_eta character varying(100),
     osservazioni text,
 	sigla_struttura character varying(100),
@@ -360,7 +360,7 @@ CREATE TABLE public.individui_table (
     posizione_arti_superiori character varying(250),
     posizione_arti_inferiori character varying(250),
 	orientamento_asse text,
-	orientamento_azimut real
+	orientamento_azimut text
 	);
 
 

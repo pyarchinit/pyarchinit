@@ -338,8 +338,17 @@ class single_Individui_pdf_sheet(object):
             eta_max = Paragraph("<b>Eta' massima</b><br/>", styNormal)
         else:
             eta_max = Paragraph("<b>Eta' massima</b><br/>" + str(self.eta_max), styNormal)
-
-            # 3 row
+        if str(self.orientamento_azimut) == "None" or None:
+            orientamento_azimut = Paragraph("<b>Orientamento azimut</b><br/>", styNormal)
+        else:
+            orientamento_azimut = Paragraph("<b>Orientamento azimut</b><br/>" + str(self.orientamento_azimut), styNormal)
+        if str(self.lunghezza_scheletro) == "None" or None:
+            lunghezza_scheletro = Paragraph("<b>Lunghezza scheletro</b><br/>", styNormal)
+        else:
+            lunghezza_scheletro = Paragraph("<b>Lunghezza scheletro</b><br/>" + str(self.lunghezza_scheletro), styNormal)
+        
+        
+        
         classi_eta_string = str(self.classi_eta).replace("<", "&lt;")
         # classi_eta = Paragraph(classi_eta_string, styNormal)
         classi_eta = Paragraph("<b>Classi di eta'</b><br/>" + classi_eta_string, styNormal)
