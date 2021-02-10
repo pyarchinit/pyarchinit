@@ -1468,6 +1468,8 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
         self.iconListWidget.setSelectionMode(QAbstractItemView.ExtendedSelection)
         self.iconListWidget.itemDoubleClicked.connect(self.openWide_image)
         # comboBox customizations
+        self.setComboBoxEnable(["self.comboBox_area"], "False")
+        self.setComboBoxEnable(["self.lineEdit_us"], "False")
         self.setComboBoxEditable(["self.comboBox_per_fin"], 1)
         self.setComboBoxEditable(["self.comboBox_fas_fin"], 1)
         self.setComboBoxEditable(["self.comboBox_per_iniz"], 1)
