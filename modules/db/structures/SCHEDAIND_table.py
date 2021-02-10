@@ -22,14 +22,14 @@ class SCHEDAIND_table:
     individui_table = Table('individui_table', metadata,
                             Column('id_scheda_ind', Integer, primary_key=True),
                             Column('sito', Text),
-                            Column('area', String(4)),
-                            Column('us', Integer),
+                            Column('area', Text),
+                            Column('us', Text),
                             Column('nr_individuo', Integer),
                             Column('data_schedatura', String(100)),
                             Column('schedatore', String(100)),
                             Column('sesso', String(100)),
-                            Column('eta_min', Integer),
-                            Column('eta_max', Integer),
+                            Column('eta_min', Text),
+                            Column('eta_max', Text),
                             Column('classi_eta', String(100)),
                             Column('osservazioni', Text),
                             Column('sigla_struttura', Text),
@@ -43,7 +43,7 @@ class SCHEDAIND_table:
                             Column('posizione_arti_superiori', String(50)),
                             Column('posizione_arti_inferiori', String(50)),
                             Column('orientamento_asse', Text),
-                            Column('orientamento_azimut', Numeric(6,2)),
+                            Column('orientamento_azimut',Text),
 
                             # explicit/composite unique constraint.  'name' is optional.
                             UniqueConstraint('sito', 'nr_individuo', name='ID_individuo_unico')

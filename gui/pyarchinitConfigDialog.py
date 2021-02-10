@@ -145,9 +145,126 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
         self.checkBox_ignore.stateChanged.connect(self.check)
         self.checkBox_ignore.stateChanged.connect(self.message)
         self.check()
+        self.upd_individui_table()
 
+    def upd_individui_table(self):
+        home_DB_path = '{}{}{}'.format(self.HOME, os.sep, 'pyarchinit_DB_folder')
 
+        sl_name = '{}.sqlite'.format(self.lineEdit_dbname_sl.text())
+        db_path = os.path.join(home_DB_path, sl_name)
 
+        conn = Connection()
+        db_url = conn.conn_str()
+        
+        try:
+            engine = create_engine(db_url, echo=True)
+
+            listen(engine, 'connect', self.load_spatialite)
+            c = engine.connect()
+            sql_upd=("""
+                    CREATE TABLE sqlitestudio_temp_table_ AS SELECT *
+                                                              FROM individui_table;""")
+
+                    
+                    
+            sql_upd1=("""DROP TABLE individui_table;""")
+
+            sql_upd2=(""" CREATE TABLE individui_table (
+                        id_scheda_ind            INTEGER        NOT NULL,
+                        sito                     TEXT,
+                        area                     TEXT,
+                        us                       TEXT,
+                        nr_individuo             INTEGER,
+                        data_schedatura          VARCHAR (100),
+                        schedatore               VARCHAR (100),
+                        sesso                    VARCHAR (100),
+                        eta_min                  TEXT,
+                        eta_max                  TEXT,
+                        classi_eta               VARCHAR (100),
+                        osservazioni             TEXT,
+                        sigla_struttura          TEXT,
+                        nr_struttura             TEXT,
+                        completo_si_no           TEXT,
+                        disturbato_si_no         TEXT,
+                        in_connessione_si_no     TEXT,
+                        lunghezza_scheletro      NUMERIC (6, 2),
+                        posizione_scheletro      TEXT,
+                        posizione_cranio         TEXT,
+                        posizione_arti_superiori TEXT,
+                        posizione_arti_inferiori TEXT,
+                        orientamento_asse        TEXT,
+                        orientamento_azimut      TEXT,
+                        PRIMARY KEY (
+                            id_scheda_ind
+                        ),
+                        CONSTRAINT ID_individuo_unico UNIQUE (
+                            sito,
+                            nr_individuo
+                        )
+                    );""")
+
+            sql_upd3=("""INSERT INTO individui_table (
+                                                id_scheda_ind,
+                                                sito,
+                                                area,
+                                                us,
+                                                nr_individuo,
+                                                data_schedatura,
+                                                schedatore,
+                                                sesso,
+                                                eta_min,
+                                                eta_max,
+                                                classi_eta,
+                                                osservazioni,
+                                                sigla_struttura,
+                                                nr_struttura,
+                                                completo_si_no,
+                                                disturbato_si_no,
+                                                in_connessione_si_no,
+                                                lunghezza_scheletro,
+                                                posizione_scheletro,
+                                                posizione_cranio,
+                                                posizione_arti_superiori,
+                                                posizione_arti_inferiori,
+                                                orientamento_asse,
+                                                orientamento_azimut
+                                            )
+                                            SELECT id_scheda_ind,
+                                                   sito,
+                                                   area,
+                                                   us,
+                                                   nr_individuo,
+                                                   data_schedatura,
+                                                   schedatore,
+                                                   sesso,
+                                                   eta_min,
+                                                   eta_max,
+                                                   classi_eta,
+                                                   osservazioni,
+                                                   sigla_struttura,
+                                                   nr_struttura,
+                                                   completo_si_no,
+                                                   disturbato_si_no,
+                                                   in_connessione_si_no,
+                                                   lunghezza_scheletro,
+                                                   posizione_scheletro,
+                                                   posizione_cranio,
+                                                   posizione_arti_superiori,
+                                                   posizione_arti_inferiori,
+                                                   orientamento_asse,
+                                                   orientamento_azimut
+                                              FROM sqlitestudio_temp_table_;""")
+
+                    
+            sql_upd4=("""DROP TABLE sqlitestudio_temp_table_;""")
+                    
+            c.execute(sql_upd)
+            c.execute(sql_upd1)  
+            c.execute(sql_upd2)  
+            c.execute(sql_upd3)  
+            c.execute(sql_upd4)              
+        except Exception as e:
+            QMessageBox.warning(self, "Warning", str(e), QMessageBox.Ok)
     def geometry_conn(self):
         if self.comboBox_server_rd.currentText()!='sqlite':
             self.pushButton_import_geometry.setEnabled(False)
@@ -765,43 +882,6 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
             c.execute(sql_drop_tombaview_doc)
             sql_drop_tafbaview_doc= """DROP view if EXISTS pyarchinit_tomba_view;"""
             c.execute(sql_drop_tafbaview_doc)
-
-            # try:
-            #     sql_tmp_taf = ("""CREATE TABLE IF NOT EXISTS "pyarchinit_tafonomia_temp" (
-            #                     "id_tafonomia_pk" integer PRIMARY KEY AUTOINCREMENT,
-            #                     "sito" text,
-            #                     "nr_scheda" integer)
-            #                     ;""")
-            #     c.execute(sql_tmp_taf)
-            #     sql_tem_geom = """ select AddGeometryColumn('pyarchinit_tafonomia_temp', 'the_geom',""" + self.lineEdit_crs.text() + """ ,'POINT', 'XY'); """
-            #     c.execute(sql_tem_geom)
-            #     sql_temp_geom_spatial = """ select CreateSpatialIndex('pyarchinit_tafonomia_temp', 'the_geom');"""
-            #     c.execute(sql_temp_geom_spatial)
-            #
-            #     sql_alter_table_us_2 = (
-            #         """INSERT INTO pyarchinit_tafonomia_temp (
-            #         id_tafonomia_pk,
-            #         sito,
-            #         nr_scheda,
-            #         the_geom)
-            #
-            #           SELECT id_tafonomia_pk,
-            #                 sito,
-            #                 nr_scheda,
-            #                 geom
-            #           FROM pyarchinit_tafonomia; """)
-            #     c.execute(sql_alter_table_us_2)
-            #
-            #
-            #
-            #
-            #     bb = ("""drop table  pyarchinit_tafonomia;""")
-            #
-            #     c.execute(bb)
-            #     aa = ("""Alter  table  pyarchinit_tafonomia_temp RENAME to pyarchinit_tafonomia;""")
-            #     c.execute(aa)
-            # except:
-            #     pass
 
 
             sql_und = ("""CREATE TABLE IF NOT EXISTS "pyarchinit_us_negative_doc" (
@@ -2657,12 +2737,12 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
             elif mapper_class_write == 'SCHEDAIND' :
                 for sing_rec in range(len(data_list_toimp)):
                     # blocco oritentamento_azimut
-                    test_azimut = data_list_toimp[sing_rec].orientamento_azimut
+                    # test_azimut = data_list_toimp[sing_rec].orientamento_azimut
 
-                    if test_azimut == "" or test_azimut == None:
-                        orientamento_azimut = None
-                    else:
-                        orientamento_azimut = float(data_list_toimp[sing_rec].orientamento_azimut)
+                    # if test_azimut == "" or test_azimut == None:
+                        # orientamento_azimut = None
+                    # else:
+                        # orientamento_azimut = float(data_list_toimp[sing_rec].orientamento_azimut)
                     ##                  if conn_str_dict_write['server'] == 'postgres':
                     ##                      orientamento_azimut = float(orientamento_azimut)
                     ##
@@ -2674,11 +2754,8 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
                         lunghezza_scheletro = None
                     else:
                         lunghezza_scheletro = float(data_list_toimp[sing_rec].lunghezza_scheletro)
-                    test_orientamento_azimut = data_list_toimp[sing_rec].orientamento_azimut
-                    if test_orientamento_azimut == "" or test_orientamento_azimut == None:
-                        orientamento_azimut = None
-                    else:
-                        orientamento_azimut = float(data_list_toimp[sing_rec].orientamento_azimut)
+                    
+                    
 
                     try:
                         data = self.DB_MANAGER_write.insert_values_ind(
@@ -2706,7 +2783,7 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
                             data_list_toimp[sing_rec].posizione_arti_superiori,
                             data_list_toimp[sing_rec].posizione_arti_inferiori,
                             data_list_toimp[sing_rec].orientamento_asse,
-                            orientamento_azimut
+                            data_list_toimp[sing_rec].orientamento_azimut
                         )
 
                         self.DB_MANAGER_write.insert_data_session(data)
