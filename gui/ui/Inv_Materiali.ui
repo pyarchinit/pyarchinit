@@ -24,20 +24,65 @@
     <normaloff>:/icons/finds.png</normaloff>:/icons/finds.png</iconset>
   </property>
   <layout class="QGridLayout" name="gridLayout">
-   <item row="5" column="1" colspan="4">
-    <widget class="QComboBox" name="comboBox_criterio_schedatura">
-     <property name="enabled">
-      <bool>true</bool>
+   <item row="6" column="6">
+    <widget class="QLabel" name="label_30">
+     <property name="font">
+      <font>
+       <pointsize>9</pointsize>
+      </font>
      </property>
+     <property name="text">
+      <string>Repertato</string>
+     </property>
+    </widget>
+   </item>
+   <item row="6" column="8">
+    <widget class="QLabel" name="label_31">
+     <property name="font">
+      <font>
+       <pointsize>9</pointsize>
+      </font>
+     </property>
+     <property name="text">
+      <string>Diagnostico</string>
+     </property>
+    </widget>
+   </item>
+   <item row="7" column="0">
+    <widget class="QLabel" name="label_4">
      <property name="sizePolicy">
-      <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
+      <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
        <horstretch>0</horstretch>
        <verstretch>0</verstretch>
       </sizepolicy>
      </property>
+     <property name="maximumSize">
+      <size>
+       <width>100</width>
+       <height>16777215</height>
+      </size>
+     </property>
+     <property name="font">
+      <font>
+       <pointsize>9</pointsize>
+      </font>
+     </property>
+     <property name="text">
+      <string>Definizione reperto</string>
+     </property>
+     <property name="wordWrap">
+      <bool>true</bool>
+     </property>
+    </widget>
+   </item>
+   <item row="5" column="9">
+    <widget class="QLineEdit" name="lineEdit_tipo_contenitore">
+     <property name="enabled">
+      <bool>true</bool>
+     </property>
      <property name="minimumSize">
       <size>
-       <width>0</width>
+       <width>40</width>
        <height>0</height>
       </size>
      </property>
@@ -46,28 +91,52 @@
        <pointsize>9</pointsize>
       </font>
      </property>
-     <property name="mouseTracking">
-      <bool>true</bool>
+    </widget>
+   </item>
+   <item row="6" column="0">
+    <widget class="QLabel" name="label_7">
+     <property name="sizePolicy">
+      <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
+       <horstretch>0</horstretch>
+       <verstretch>0</verstretch>
+      </sizepolicy>
      </property>
-     <property name="contextMenuPolicy">
-      <enum>Qt::NoContextMenu</enum>
+     <property name="maximumSize">
+      <size>
+       <width>100</width>
+       <height>16777215</height>
+      </size>
      </property>
-     <property name="editable">
-      <bool>true</bool>
+     <property name="font">
+      <font>
+       <pointsize>9</pointsize>
+      </font>
      </property>
-     <property name="maxVisibleItems">
-      <number>99999</number>
+     <property name="text">
+      <string>Classe materiale</string>
      </property>
-     <property name="maxCount">
-      <number>2147483647</number>
-     </property>
-     <property name="frame">
+     <property name="wordWrap">
       <bool>true</bool>
      </property>
     </widget>
    </item>
-   <item row="8" column="1" colspan="9">
-    <widget class="QLineEdit" name="lineEdit_luogo_conservazione">
+   <item row="7" column="6">
+    <widget class="QLabel" name="label_26">
+     <property name="font">
+      <font>
+       <pointsize>9</pointsize>
+      </font>
+     </property>
+     <property name="text">
+      <string>Stato di conservazione</string>
+     </property>
+     <property name="wordWrap">
+      <bool>true</bool>
+     </property>
+    </widget>
+   </item>
+   <item row="3" column="9">
+    <widget class="QLineEdit" name="lineEdit_nr_cassa">
      <property name="font">
       <font>
        <pointsize>9</pointsize>
@@ -78,14 +147,26 @@
      </property>
     </widget>
    </item>
-   <item row="4" column="7">
-    <widget class="QComboBox" name="comboBox_lavato">
-     <property name="sizePolicy">
-      <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
-       <horstretch>0</horstretch>
-       <verstretch>0</verstretch>
-      </sizepolicy>
+   <item row="5" column="8">
+    <widget class="QLabel" name="label_13">
+     <property name="enabled">
+      <bool>true</bool>
      </property>
+     <property name="font">
+      <font>
+       <pointsize>9</pointsize>
+      </font>
+     </property>
+     <property name="text">
+      <string> Tipo Contenitore</string>
+     </property>
+     <property name="wordWrap">
+      <bool>true</bool>
+     </property>
+    </widget>
+   </item>
+   <item row="6" column="7">
+    <widget class="QComboBox" name="comboBox_repertato">
      <property name="font">
       <font>
        <pointsize>9</pointsize>
@@ -96,12 +177,12 @@
      </property>
      <item>
       <property name="text">
-       <string>Si</string>
+       <string>No</string>
       </property>
      </item>
      <item>
       <property name="text">
-       <string>No</string>
+       <string>Si</string>
       </property>
      </item>
      <item>
@@ -111,13 +192,10 @@
      </item>
     </widget>
    </item>
-   <item row="3" column="5">
-    <widget class="QLineEdit" name="lineEdit_num_inv">
-     <property name="enabled">
-      <bool>false</bool>
-     </property>
+   <item row="2" column="0">
+    <widget class="QLabel" name="label_3">
      <property name="sizePolicy">
-      <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
+      <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
        <horstretch>0</horstretch>
        <verstretch>0</verstretch>
       </sizepolicy>
@@ -128,22 +206,58 @@
       </font>
      </property>
      <property name="text">
-      <string>0</string>
-     </property>
-     <property name="clearButtonEnabled">
-      <bool>false</bool>
+      <string>Sito</string>
      </property>
     </widget>
    </item>
-   <item row="3" column="8">
-    <widget class="QLabel" name="label_39">
+   <item row="5" column="0">
+    <widget class="QLabel" name="label_5">
+     <property name="sizePolicy">
+      <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
+       <horstretch>0</horstretch>
+       <verstretch>0</verstretch>
+      </sizepolicy>
+     </property>
+     <property name="maximumSize">
+      <size>
+       <width>100</width>
+       <height>16777215</height>
+      </size>
+     </property>
      <property name="font">
       <font>
        <pointsize>9</pointsize>
       </font>
      </property>
      <property name="text">
-      <string>Nr. Cassa</string>
+      <string>Tipo reperto</string>
+     </property>
+     <property name="wordWrap">
+      <bool>true</bool>
+     </property>
+    </widget>
+   </item>
+   <item row="3" column="2">
+    <widget class="QLabel" name="label_38">
+     <property name="font">
+      <font>
+       <pointsize>9</pointsize>
+      </font>
+     </property>
+     <property name="text">
+      <string>US</string>
+     </property>
+    </widget>
+   </item>
+   <item row="3" column="1">
+    <widget class="QLineEdit" name="lineEdit_area">
+     <property name="font">
+      <font>
+       <pointsize>9</pointsize>
+      </font>
+     </property>
+     <property name="text">
+      <string/>
      </property>
     </widget>
    </item>
@@ -276,150 +390,6 @@
      </widget>
     </widget>
    </item>
-   <item row="2" column="0">
-    <widget class="QLabel" name="label_3">
-     <property name="sizePolicy">
-      <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
-       <horstretch>0</horstretch>
-       <verstretch>0</verstretch>
-      </sizepolicy>
-     </property>
-     <property name="font">
-      <font>
-       <pointsize>9</pointsize>
-      </font>
-     </property>
-     <property name="text">
-      <string>Sito</string>
-     </property>
-    </widget>
-   </item>
-   <item row="4" column="8">
-    <widget class="QLabel" name="label_13">
-     <property name="enabled">
-      <bool>true</bool>
-     </property>
-     <property name="font">
-      <font>
-       <pointsize>9</pointsize>
-      </font>
-     </property>
-     <property name="text">
-      <string> Tipo Contenitore</string>
-     </property>
-     <property name="wordWrap">
-      <bool>true</bool>
-     </property>
-    </widget>
-   </item>
-   <item row="4" column="0">
-    <widget class="QLabel" name="label_5">
-     <property name="sizePolicy">
-      <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
-       <horstretch>0</horstretch>
-       <verstretch>0</verstretch>
-      </sizepolicy>
-     </property>
-     <property name="maximumSize">
-      <size>
-       <width>100</width>
-       <height>16777215</height>
-      </size>
-     </property>
-     <property name="font">
-      <font>
-       <pointsize>9</pointsize>
-      </font>
-     </property>
-     <property name="text">
-      <string>Tipo reperto</string>
-     </property>
-     <property name="wordWrap">
-      <bool>true</bool>
-     </property>
-    </widget>
-   </item>
-   <item row="3" column="2">
-    <widget class="QLabel" name="label_38">
-     <property name="font">
-      <font>
-       <pointsize>9</pointsize>
-      </font>
-     </property>
-     <property name="text">
-      <string>US</string>
-     </property>
-    </widget>
-   </item>
-   <item row="3" column="3">
-    <widget class="QLineEdit" name="lineEdit_us">
-     <property name="font">
-      <font>
-       <pointsize>9</pointsize>
-      </font>
-     </property>
-     <property name="text">
-      <string/>
-     </property>
-    </widget>
-   </item>
-   <item row="3" column="9">
-    <widget class="QLineEdit" name="lineEdit_nr_cassa">
-     <property name="font">
-      <font>
-       <pointsize>9</pointsize>
-      </font>
-     </property>
-     <property name="text">
-      <string/>
-     </property>
-    </widget>
-   </item>
-   <item row="4" column="6">
-    <widget class="QLabel" name="label_2">
-     <property name="font">
-      <font>
-       <pointsize>9</pointsize>
-      </font>
-     </property>
-     <property name="text">
-      <string>Lavato</string>
-     </property>
-    </widget>
-   </item>
-   <item row="3" column="6">
-    <widget class="QLabel" name="label_27">
-     <property name="font">
-      <font>
-       <pointsize>9</pointsize>
-      </font>
-     </property>
-     <property name="text">
-      <string>Nr. Reperto (RA)</string>
-     </property>
-     <property name="wordWrap">
-      <bool>true</bool>
-     </property>
-    </widget>
-   </item>
-   <item row="4" column="9">
-    <widget class="QLineEdit" name="lineEdit_tipo_contenitore">
-     <property name="enabled">
-      <bool>true</bool>
-     </property>
-     <property name="minimumSize">
-      <size>
-       <width>40</width>
-       <height>0</height>
-      </size>
-     </property>
-     <property name="font">
-      <font>
-       <pointsize>9</pointsize>
-      </font>
-     </property>
-    </widget>
-   </item>
    <item row="3" column="7">
     <widget class="QLineEdit" name="lineEdit_n_reperto">
      <property name="enabled">
@@ -438,6 +408,33 @@
      </property>
      <property name="clearButtonEnabled">
       <bool>false</bool>
+     </property>
+    </widget>
+   </item>
+   <item row="3" column="3">
+    <widget class="QLineEdit" name="lineEdit_us">
+     <property name="font">
+      <font>
+       <pointsize>9</pointsize>
+      </font>
+     </property>
+     <property name="text">
+      <string/>
+     </property>
+    </widget>
+   </item>
+   <item row="3" column="6">
+    <widget class="QLabel" name="label_27">
+     <property name="font">
+      <font>
+       <pointsize>9</pointsize>
+      </font>
+     </property>
+     <property name="text">
+      <string>Nr. Reperto (RA)</string>
+     </property>
+     <property name="wordWrap">
+      <bool>true</bool>
      </property>
     </widget>
    </item>
@@ -480,7 +477,19 @@
      </property>
     </widget>
    </item>
-   <item row="4" column="1" colspan="4">
+   <item row="5" column="6">
+    <widget class="QLabel" name="label_2">
+     <property name="font">
+      <font>
+       <pointsize>9</pointsize>
+      </font>
+     </property>
+     <property name="text">
+      <string>Lavato</string>
+     </property>
+    </widget>
+   </item>
+   <item row="5" column="1" colspan="4">
     <widget class="QComboBox" name="comboBox_tipo_reperto">
      <property name="enabled">
       <bool>true</bool>
@@ -567,139 +576,7 @@
      </item>
     </widget>
    </item>
-   <item row="3" column="1">
-    <widget class="QLineEdit" name="lineEdit_area">
-     <property name="font">
-      <font>
-       <pointsize>9</pointsize>
-      </font>
-     </property>
-     <property name="text">
-      <string/>
-     </property>
-    </widget>
-   </item>
-   <item row="5" column="0">
-    <widget class="QLabel" name="label_7">
-     <property name="sizePolicy">
-      <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
-       <horstretch>0</horstretch>
-       <verstretch>0</verstretch>
-      </sizepolicy>
-     </property>
-     <property name="maximumSize">
-      <size>
-       <width>100</width>
-       <height>16777215</height>
-      </size>
-     </property>
-     <property name="font">
-      <font>
-       <pointsize>9</pointsize>
-      </font>
-     </property>
-     <property name="text">
-      <string>Classe materiale</string>
-     </property>
-     <property name="wordWrap">
-      <bool>true</bool>
-     </property>
-    </widget>
-   </item>
-   <item row="5" column="6">
-    <widget class="QLabel" name="label_30">
-     <property name="font">
-      <font>
-       <pointsize>9</pointsize>
-      </font>
-     </property>
-     <property name="text">
-      <string>Repertato</string>
-     </property>
-    </widget>
-   </item>
-   <item row="5" column="8">
-    <widget class="QLabel" name="label_31">
-     <property name="font">
-      <font>
-       <pointsize>9</pointsize>
-      </font>
-     </property>
-     <property name="text">
-      <string>Diagnostico</string>
-     </property>
-    </widget>
-   </item>
-   <item row="6" column="0">
-    <widget class="QLabel" name="label_4">
-     <property name="sizePolicy">
-      <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
-       <horstretch>0</horstretch>
-       <verstretch>0</verstretch>
-      </sizepolicy>
-     </property>
-     <property name="maximumSize">
-      <size>
-       <width>100</width>
-       <height>16777215</height>
-      </size>
-     </property>
-     <property name="font">
-      <font>
-       <pointsize>9</pointsize>
-      </font>
-     </property>
-     <property name="text">
-      <string>Definizione reperto</string>
-     </property>
-     <property name="wordWrap">
-      <bool>true</bool>
-     </property>
-    </widget>
-   </item>
-   <item row="6" column="6">
-    <widget class="QLabel" name="label_26">
-     <property name="font">
-      <font>
-       <pointsize>9</pointsize>
-      </font>
-     </property>
-     <property name="text">
-      <string>Stato di conservazione</string>
-     </property>
-     <property name="wordWrap">
-      <bool>true</bool>
-     </property>
-    </widget>
-   </item>
-   <item row="5" column="7">
-    <widget class="QComboBox" name="comboBox_repertato">
-     <property name="font">
-      <font>
-       <pointsize>9</pointsize>
-      </font>
-     </property>
-     <property name="editable">
-      <bool>true</bool>
-     </property>
-     <item>
-      <property name="text">
-       <string>No</string>
-      </property>
-     </item>
-     <item>
-      <property name="text">
-       <string>Si</string>
-      </property>
-     </item>
-     <item>
-      <property name="text">
-       <string/>
-      </property>
-     </item>
-    </widget>
-   </item>
-   <item row="5" column="9">
+   <item row="6" column="9">
     <widget class="QComboBox" name="comboBox_diagnostico">
      <property name="font">
       <font>
@@ -1383,7 +1260,7 @@
      </item>
     </layout>
    </item>
-   <item row="9" column="0" colspan="10">
+   <item row="10" column="0" colspan="10">
     <widget class="QTabWidget" name="tabWidget">
      <property name="font">
       <font>
@@ -2223,6 +2100,115 @@
      </widget>
     </widget>
    </item>
+   <item row="7" column="1" colspan="4">
+    <widget class="QComboBox" name="comboBox_definizione">
+     <property name="enabled">
+      <bool>true</bool>
+     </property>
+     <property name="sizePolicy">
+      <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
+       <horstretch>0</horstretch>
+       <verstretch>0</verstretch>
+      </sizepolicy>
+     </property>
+     <property name="minimumSize">
+      <size>
+       <width>0</width>
+       <height>0</height>
+      </size>
+     </property>
+     <property name="font">
+      <font>
+       <pointsize>9</pointsize>
+      </font>
+     </property>
+     <property name="mouseTracking">
+      <bool>true</bool>
+     </property>
+     <property name="contextMenuPolicy">
+      <enum>Qt::NoContextMenu</enum>
+     </property>
+     <property name="editable">
+      <bool>true</bool>
+     </property>
+     <property name="maxVisibleItems">
+      <number>99999</number>
+     </property>
+     <property name="maxCount">
+      <number>2147483647</number>
+     </property>
+     <property name="frame">
+      <bool>true</bool>
+     </property>
+    </widget>
+   </item>
+   <item row="8" column="1" colspan="4">
+    <widget class="QLineEdit" name="lineEdit_tipo">
+     <property name="font">
+      <font>
+       <pointsize>9</pointsize>
+      </font>
+     </property>
+    </widget>
+   </item>
+   <item row="7" column="7">
+    <widget class="QComboBox" name="comboBox_conservazione">
+     <property name="font">
+      <font>
+       <pointsize>9</pointsize>
+      </font>
+     </property>
+     <property name="editable">
+      <bool>true</bool>
+     </property>
+     <item>
+      <property name="text">
+       <string>Insufficiente</string>
+      </property>
+     </item>
+     <item>
+      <property name="text">
+       <string>Scarso</string>
+      </property>
+     </item>
+     <item>
+      <property name="text">
+       <string>Buono</string>
+      </property>
+     </item>
+     <item>
+      <property name="text">
+       <string>Discreto</string>
+      </property>
+     </item>
+     <item>
+      <property name="text">
+       <string>Ottimo</string>
+      </property>
+     </item>
+    </widget>
+   </item>
+   <item row="9" column="0">
+    <widget class="QLabel" name="label_40">
+     <property name="sizePolicy">
+      <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
+       <horstretch>0</horstretch>
+       <verstretch>0</verstretch>
+      </sizepolicy>
+     </property>
+     <property name="font">
+      <font>
+       <pointsize>9</pointsize>
+      </font>
+     </property>
+     <property name="text">
+      <string>Luogo di conservazione</string>
+     </property>
+     <property name="wordWrap">
+      <bool>true</bool>
+     </property>
+    </widget>
+   </item>
    <item row="2" column="1" colspan="9">
     <widget class="QComboBox" name="comboBox_sito">
      <property name="enabled">
@@ -2279,107 +2265,7 @@
      </item>
     </widget>
    </item>
-   <item row="6" column="1" colspan="4">
-    <widget class="QComboBox" name="comboBox_definizione">
-     <property name="enabled">
-      <bool>true</bool>
-     </property>
-     <property name="sizePolicy">
-      <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
-       <horstretch>0</horstretch>
-       <verstretch>0</verstretch>
-      </sizepolicy>
-     </property>
-     <property name="minimumSize">
-      <size>
-       <width>0</width>
-       <height>0</height>
-      </size>
-     </property>
-     <property name="font">
-      <font>
-       <pointsize>9</pointsize>
-      </font>
-     </property>
-     <property name="mouseTracking">
-      <bool>true</bool>
-     </property>
-     <property name="contextMenuPolicy">
-      <enum>Qt::NoContextMenu</enum>
-     </property>
-     <property name="editable">
-      <bool>true</bool>
-     </property>
-     <property name="maxVisibleItems">
-      <number>99999</number>
-     </property>
-     <property name="maxCount">
-      <number>2147483647</number>
-     </property>
-     <property name="frame">
-      <bool>true</bool>
-     </property>
-    </widget>
-   </item>
    <item row="8" column="0">
-    <widget class="QLabel" name="label_40">
-     <property name="sizePolicy">
-      <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
-       <horstretch>0</horstretch>
-       <verstretch>0</verstretch>
-      </sizepolicy>
-     </property>
-     <property name="font">
-      <font>
-       <pointsize>9</pointsize>
-      </font>
-     </property>
-     <property name="text">
-      <string>Luogo di conservazione</string>
-     </property>
-     <property name="wordWrap">
-      <bool>true</bool>
-     </property>
-    </widget>
-   </item>
-   <item row="6" column="7">
-    <widget class="QComboBox" name="comboBox_conservazione">
-     <property name="font">
-      <font>
-       <pointsize>9</pointsize>
-      </font>
-     </property>
-     <property name="editable">
-      <bool>true</bool>
-     </property>
-     <item>
-      <property name="text">
-       <string>Insufficiente</string>
-      </property>
-     </item>
-     <item>
-      <property name="text">
-       <string>Scarso</string>
-      </property>
-     </item>
-     <item>
-      <property name="text">
-       <string>Buono</string>
-      </property>
-     </item>
-     <item>
-      <property name="text">
-       <string>Discreto</string>
-      </property>
-     </item>
-     <item>
-      <property name="text">
-       <string>Ottimo</string>
-      </property>
-     </item>
-    </widget>
-   </item>
-   <item row="7" column="0">
     <widget class="QLabel" name="label_18">
      <property name="font">
       <font>
@@ -2388,15 +2274,6 @@
      </property>
      <property name="text">
       <string>Tipologia</string>
-     </property>
-    </widget>
-   </item>
-   <item row="7" column="1" colspan="4">
-    <widget class="QLineEdit" name="lineEdit_tipo">
-     <property name="font">
-      <font>
-       <pointsize>9</pointsize>
-      </font>
      </property>
     </widget>
    </item>
@@ -2590,6 +2467,143 @@
        </layout>
       </widget>
      </widget>
+    </widget>
+   </item>
+   <item row="5" column="7">
+    <widget class="QComboBox" name="comboBox_lavato">
+     <property name="sizePolicy">
+      <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
+       <horstretch>0</horstretch>
+       <verstretch>0</verstretch>
+      </sizepolicy>
+     </property>
+     <property name="font">
+      <font>
+       <pointsize>9</pointsize>
+      </font>
+     </property>
+     <property name="editable">
+      <bool>true</bool>
+     </property>
+     <item>
+      <property name="text">
+       <string>Si</string>
+      </property>
+     </item>
+     <item>
+      <property name="text">
+       <string>No</string>
+      </property>
+     </item>
+     <item>
+      <property name="text">
+       <string/>
+      </property>
+     </item>
+    </widget>
+   </item>
+   <item row="6" column="1" colspan="4">
+    <widget class="QComboBox" name="comboBox_criterio_schedatura">
+     <property name="enabled">
+      <bool>true</bool>
+     </property>
+     <property name="sizePolicy">
+      <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
+       <horstretch>0</horstretch>
+       <verstretch>0</verstretch>
+      </sizepolicy>
+     </property>
+     <property name="minimumSize">
+      <size>
+       <width>0</width>
+       <height>0</height>
+      </size>
+     </property>
+     <property name="font">
+      <font>
+       <pointsize>9</pointsize>
+      </font>
+     </property>
+     <property name="mouseTracking">
+      <bool>true</bool>
+     </property>
+     <property name="contextMenuPolicy">
+      <enum>Qt::NoContextMenu</enum>
+     </property>
+     <property name="editable">
+      <bool>true</bool>
+     </property>
+     <property name="maxVisibleItems">
+      <number>99999</number>
+     </property>
+     <property name="maxCount">
+      <number>2147483647</number>
+     </property>
+     <property name="frame">
+      <bool>true</bool>
+     </property>
+    </widget>
+   </item>
+   <item row="9" column="1" colspan="9">
+    <widget class="QLineEdit" name="lineEdit_luogo_conservazione">
+     <property name="font">
+      <font>
+       <pointsize>9</pointsize>
+      </font>
+     </property>
+     <property name="text">
+      <string/>
+     </property>
+    </widget>
+   </item>
+   <item row="3" column="5">
+    <widget class="QLineEdit" name="lineEdit_num_inv">
+     <property name="enabled">
+      <bool>false</bool>
+     </property>
+     <property name="sizePolicy">
+      <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
+       <horstretch>0</horstretch>
+       <verstretch>0</verstretch>
+      </sizepolicy>
+     </property>
+     <property name="font">
+      <font>
+       <pointsize>9</pointsize>
+      </font>
+     </property>
+     <property name="text">
+      <string>0</string>
+     </property>
+     <property name="clearButtonEnabled">
+      <bool>false</bool>
+     </property>
+    </widget>
+   </item>
+   <item row="7" column="9">
+    <widget class="QComboBox" name="comboBox_struttura">
+     <property name="editable">
+      <bool>true</bool>
+     </property>
+    </widget>
+   </item>
+   <item row="7" column="8">
+    <widget class="QLabel" name="label_28">
+     <property name="text">
+      <string>Rif. Struttura</string>
+     </property>
+    </widget>
+   </item>
+   <item row="3" column="8">
+    <widget class="QLabel" name="label_39">
+     <property name="font">
+      <font>
+       <pointsize>9</pointsize>
+      </font>
+     </property>
+     <property name="text">
+      <string>Nr. Cassa</string>
+     </property>
     </widget>
    </item>
   </layout>

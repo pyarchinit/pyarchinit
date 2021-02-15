@@ -176,8 +176,8 @@ if install_libraries:
 s = QgsSettings()
 if not Pyarchinit_OS_Utility.checkGraphvizInstallation() and s.value('pyArchInit/graphvizBinPath'):
     os.environ['PATH'] += os.pathsep + os.path.normpath(s.value('pyArchInit/graphvizBinPath'))
-if not Pyarchinit_OS_Utility.checkRInstallation() and s.value('pyArchInit/rBinPath'):
-    os.environ['PATH'] += os.pathsep + os.path.normpath(s.value('pyArchInit/rBinPath'))
+# if not Pyarchinit_OS_Utility.checkRInstallation() and s.value('pyArchInit/rBinPath'):
+    # os.environ['PATH'] += os.pathsep + os.path.normpath(s.value('pyArchInit/rBinPath'))
 
 
 packages = [
@@ -187,25 +187,25 @@ packages = [
 for p in packages:
     from qgis.PyQt.QtWidgets import QMessageBox
 
-    if p.startswith('PypeR'):
-        try:
-            subprocess.call(['R', '--version'])
-        except Exception as e:
-            if L=='it':
-                QMessageBox.warning(None, 'Pyarchinit',
-                                "INFO: Sembra che R non sia installato sul vostro sistema o che non abbiate impostato il percorso in Pyarchinit config. In ogni caso il modulo pyper sarà installato sul vostro sistema, ma non è possibile utilizzare la funzione di archeologia.",
-                                QMessageBox.Ok | QMessageBox.Cancel)
+    # if p.startswith('PypeR'):
+        # try:
+            # subprocess.call(['R', '--version'])
+        # except Exception as e:
+            # if L=='it':
+                # QMessageBox.warning(None, 'Pyarchinit',
+                                # "INFO: Sembra che R non sia installato sul vostro sistema o che non abbiate impostato il percorso in Pyarchinit config. In ogni caso il modulo pyper sarà installato sul vostro sistema, ma non è possibile utilizzare la funzione di archeologia.",
+                                # QMessageBox.Ok | QMessageBox.Cancel)
     
-            elif L=='de':
-                QMessageBox.warning(None, 'Pyarchinit',
-                                "INFO: Es scheint, dass R nicht auf Ihrem System installiert ist oder dass Sie den Pfad in der Pyarchinit-Konfiguration nicht festgelegt haben. Wie auch immer, das pyper-Modul wird auf Ihrem System installiert sein, aber Sie können die Archäologie-Funktion nicht benutzen.",
-                                QMessageBox.Ok | QMessageBox.Cancel)
+            # elif L=='de':
+                # QMessageBox.warning(None, 'Pyarchinit',
+                                # "INFO: Es scheint, dass R nicht auf Ihrem System installiert ist oder dass Sie den Pfad in der Pyarchinit-Konfiguration nicht festgelegt haben. Wie auch immer, das pyper-Modul wird auf Ihrem System installiert sein, aber Sie können die Archäologie-Funktion nicht benutzen.",
+                                # QMessageBox.Ok | QMessageBox.Cancel)
     
     
-            else:
-                QMessageBox.warning(None, 'Pyarchinit',
-                                "INFO: It seems that R is not installed on your system or you don't have set the path in Pyarchinit config. Anyway the pyper module will be installed on your system, but you can not use archaezoology function.",
-                                QMessageBox.Ok | QMessageBox.Cancel)
+            # else:
+                # QMessageBox.warning(None, 'Pyarchinit',
+                                # "INFO: It seems that R is not installed on your system or you don't have set the path in Pyarchinit config. Anyway the pyper module will be installed on your system, but you can not use archaezoology function.",
+                                # QMessageBox.Ok | QMessageBox.Cancel)
     
     
     if p.startswith('graphviz'):

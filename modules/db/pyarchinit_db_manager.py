@@ -244,7 +244,9 @@ class Pyarchinit_db_management(object):
                 arg[2],
                 arg[3],
                 arg[4],
-                arg[5])
+                arg[5],
+                arg[6],
+                arg[7])
         return pysezioni
     
     
@@ -481,7 +483,8 @@ class Pyarchinit_db_management(object):
                                                     arg[27],
                                                     arg[28],
                                                     arg[29],
-                                                    arg[30],)
+                                                    arg[30],
+                                                    arg[31])
 
         return inventario_materiali
 

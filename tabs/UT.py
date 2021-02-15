@@ -1350,13 +1350,33 @@ class pyarchinit_UT(QDialog, MAIN_DIALOG_CLASS):
                 corr = self.REC_CORR
 
     def update_record(self):
-        self.DB_MANAGER.update(self.MAPPER_TABLE_CLASS,
-                               self.ID_TABLE,
-                               [eval("int(self.DATA_LIST[self.REC_CORR]." + self.ID_TABLE + ")")],
-                               self.TABLE_FIELDS,
-                               self.rec_toupdate())
-
-        # custom functions
+        try:
+            self.DB_MANAGER.update(self.MAPPER_TABLE_CLASS,
+                                   self.ID_TABLE,
+                                   [eval("int(self.DATA_LIST[self.REC_CORR]." + self.ID_TABLE + ")")],
+                                   self.TABLE_FIELDS,
+                                   self.rec_toupdate())
+            return 1
+        except Exception as e:
+            str(e)
+            save_file='{}{}{}'.format(self.HOME, os.sep,"pyarchinit_Report_folder") 
+            file_=os.path.join(save_file,'error_encodig_data_recover.txt')
+            with open(file_, "a") as fh:
+                try:
+                    raise ValueError(str(e))
+                except ValueError as s:
+                    print(s, file=fh)
+            if self.L=='it':
+                QMessageBox.warning(self, "Messaggio",
+                                    "Problema di encoding: sono stati inseriti accenti o caratteri non accettati dal database. Verrà fatta una copia dell'errore con i dati che puoi recuperare nella cartella pyarchinit_Report _Folder", QMessageBox.Ok)
+            
+            
+            elif self.L=='de':
+                QMessageBox.warning(self, "Message",
+                                    "Encoding problem: accents or characters not accepted by the database were entered. A copy of the error will be made with the data you can retrieve in the pyarchinit_Report _Folder", QMessageBox.Ok) 
+            else:
+                QMessageBox.warning(self, "Message",
+                                    "Kodierungsproblem: Es wurden Akzente oder Zeichen eingegeben, die von der Datenbank nicht akzeptiert werden. Es wird eine Kopie des Fehlers mit den Daten erstellt, die Sie im pyarchinit_Report _Ordner abrufen können", QMessageBox.Ok)       
 
     def charge_records(self):
         self.DATA_LIST = []
