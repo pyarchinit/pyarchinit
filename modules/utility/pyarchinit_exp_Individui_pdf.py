@@ -30,7 +30,7 @@ from reportlab.lib.units import inch, cm, mm
 from reportlab.pdfgen import canvas
 from reportlab.platypus import Table, PageBreak, SimpleDocTemplate, TableStyle, Image
 from reportlab.platypus.paragraph import Paragraph
-
+from ..db.pyarchinit_conn_strings import Connection
 from .pyarchinit_OS_utility import *
 
 
@@ -311,8 +311,11 @@ class single_Individui_pdf_sheet(object):
 
         home = os.environ['PYARCHINIT_HOME']
 
+        conn = Connection()
+        lo_path = conn.logo_path()
+        lo_path_str = lo_path['logo']
         home_DB_path = '{}{}{}'.format(home, os.sep, 'pyarchinit_DB_folder')
-        logo_path = '{}{}{}'.format(home_DB_path, os.sep, 'logo.jpg')
+        logo_path = lo_path_str# '{}{}{}'.format(home_DB_path, os.sep, 'logo.jpg')
         logo = Image(logo_path)
 
         ##      if test_image.drawWidth < 800:
@@ -338,8 +341,17 @@ class single_Individui_pdf_sheet(object):
             eta_max = Paragraph("<b>Eta' massima</b><br/>", styNormal)
         else:
             eta_max = Paragraph("<b>Eta' massima</b><br/>" + str(self.eta_max), styNormal)
-
-            # 3 row
+        if str(self.orientamento_azimut) == "None" or None:
+            orientamento_azimut = Paragraph("<b>Orientamento azimut</b><br/>", styNormal)
+        else:
+            orientamento_azimut = Paragraph("<b>Orientamento azimut</b><br/>" + str(self.orientamento_azimut), styNormal)
+        if str(self.lunghezza_scheletro) == "None" or None:
+            lunghezza_scheletro = Paragraph("<b>Lunghezza scheletro</b><br/>", styNormal)
+        else:
+            lunghezza_scheletro = Paragraph("<b>Lunghezza scheletro</b><br/>" + str(self.lunghezza_scheletro), styNormal)
+        
+        
+        
         classi_eta_string = str(self.classi_eta).replace("<", "&lt;")
         # classi_eta = Paragraph(classi_eta_string, styNormal)
         classi_eta = Paragraph("<b>Classi di eta'</b><br/>" + classi_eta_string, styNormal)
@@ -481,8 +493,11 @@ class single_Individui_pdf_sheet(object):
 
         home = os.environ['PYARCHINIT_HOME']
 
+        conn = Connection()
+        lo_path = conn.logo_path()
+        lo_path_str = lo_path['logo']
         home_DB_path = '{}{}{}'.format(home, os.sep, 'pyarchinit_DB_folder')
-        logo_path = '{}{}{}'.format(home_DB_path, os.sep, 'logo.jpg')
+        logo_path = lo_path_str# '{}{}{}'.format(home_DB_path, os.sep, 'logo.jpg')
         logo = Image(logo_path)
 
         ##      if test_image.drawWidth < 800:
@@ -609,8 +624,11 @@ class single_Individui_pdf_sheet(object):
 
         home = os.environ['PYARCHINIT_HOME']
 
+        conn = Connection()
+        lo_path = conn.logo_path()
+        lo_path_str = lo_path['logo']
         home_DB_path = '{}{}{}'.format(home, os.sep, 'pyarchinit_DB_folder')
-        logo_path = '{}{}{}'.format(home_DB_path, os.sep, 'logo.jpg')
+        logo_path = lo_path_str# '{}{}{}'.format(home_DB_path, os.sep, 'logo.jpg')
         logo = Image(logo_path)
 
         ##      if test_image.drawWidth < 800:
@@ -749,8 +767,11 @@ class generate_pdf(object):
     def build_index_individui(self, records, sito):
         home = os.environ['PYARCHINIT_HOME']
 
+        conn = Connection()
+        lo_path = conn.logo_path()
+        lo_path_str = lo_path['logo']
         home_DB_path = '{}{}{}'.format(home, os.sep, 'pyarchinit_DB_folder')
-        logo_path = '{}{}{}'.format(home_DB_path, os.sep, 'logo.jpg')
+        logo_path = lo_path_str# '{}{}{}'.format(home_DB_path, os.sep, 'logo.jpg')
 
         logo = Image(logo_path)
         logo.drawHeight = 1.5 * inch * logo.drawHeight / logo.drawWidth
@@ -792,8 +813,11 @@ class generate_pdf(object):
     def build_index_individui_de(self, records, sito):
         home = os.environ['PYARCHINIT_HOME']
 
+        conn = Connection()
+        lo_path = conn.logo_path()
+        lo_path_str = lo_path['logo']
         home_DB_path = '{}{}{}'.format(home, os.sep, 'pyarchinit_DB_folder')
-        logo_path = '{}{}{}'.format(home_DB_path, os.sep, 'logo_de.jpg')
+        logo_path = lo_path_str# '{}{}{}'.format(home_DB_path, os.sep, 'logo_de.jpg')
 
         logo = Image(logo_path)
         logo.drawHeight = 1.5 * inch * logo.drawHeight / logo.drawWidth
@@ -835,8 +859,11 @@ class generate_pdf(object):
     def build_index_individui_en(self, records, sito):
         home = os.environ['PYARCHINIT_HOME']
 
+        conn = Connection()
+        lo_path = conn.logo_path()
+        lo_path_str = lo_path['logo']
         home_DB_path = '{}{}{}'.format(home, os.sep, 'pyarchinit_DB_folder')
-        logo_path = '{}{}{}'.format(home_DB_path, os.sep, 'logo.jpg')
+        logo_path = lo_path_str# '{}{}{}'.format(home_DB_path, os.sep, 'logo.jpg')
 
         logo = Image(logo_path)
         logo.drawHeight = 1.5 * inch * logo.drawHeight / logo.drawWidth

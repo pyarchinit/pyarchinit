@@ -34,7 +34,7 @@ from reportlab.platypus.paragraph import Paragraph
 from qgis.core import QgsSettings
 from .pyarchinit_OS_utility import *
 from ..db.pyarchinit_utility import Utility
-
+from ..db.pyarchinit_conn_strings import Connection
 
 class NumberedCanvas_TOMBAsheet(canvas.Canvas):
     def __init__(self, *args, **kwargs):
@@ -775,8 +775,11 @@ class single_Tomba_pdf_sheet(object):
         # intestazione2  = Paragraph("<b>Ditta esecutrice</b><br/>", styNormal)
         home = os.environ['PYARCHINIT_HOME']
 
+        conn = Connection()
+        lo_path = conn.logo_path()
+        lo_path_str = lo_path['logo']
         home_DB_path = '{}{}{}'.format(home, os.sep, 'pyarchinit_DB_folder')
-        logo_path = '{}{}{}'.format(home_DB_path, os.sep, 'logo.jpg')
+        logo_path = lo_path_str# '{}{}{}'.format(home_DB_path, os.sep, 'logo.jpg')
         logo = Image(logo_path)
 
         ##      if test_image.drawWidth < 800:
@@ -1100,8 +1103,11 @@ class single_Tomba_pdf_sheet(object):
         # intestazione2  = Paragraph("<b>Ditta esecutrice</b><br/>", styNormal)
         home = os.environ['PYARCHINIT_HOME']
 
+        conn = Connection()
+        lo_path = conn.logo_path()
+        lo_path_str = lo_path['logo']
         home_DB_path = '{}{}{}'.format(home, os.sep, 'pyarchinit_DB_folder')
-        logo_path = '{}{}{}'.format(home_DB_path, os.sep, 'logo.jpg')
+        logo_path = lo_path_str# '{}{}{}'.format(home_DB_path, os.sep, 'logo.jpg')
         logo = Image(logo_path)
 
         ##      if test_image.drawWidth < 800:
@@ -1425,8 +1431,11 @@ class single_Tomba_pdf_sheet(object):
         # intestazione2  = Paragraph("<b>Ditta esecutrice</b><br/>", styNormal)
         home = os.environ['PYARCHINIT_HOME']
 
+        conn = Connection()
+        lo_path = conn.logo_path()
+        lo_path_str = lo_path['logo']
         home_DB_path = '{}{}{}'.format(home, os.sep, 'pyarchinit_DB_folder')
-        logo_path = '{}{}{}'.format(home_DB_path, os.sep, 'logo.jpg')
+        logo_path = lo_path_str#'{}{}{}'.format(home_DB_path, os.sep, 'logo.jpg')
         logo = Image(logo_path)
 
         ##      if test_image.drawWidth < 800:
@@ -1779,7 +1788,11 @@ class generate_tomba_pdf(object):
         if self.L=='de':
             logo_path = '{}{}{}'.format(home_DB_path, os.sep, 'logo_de.jpg')
         else:
-            logo_path = '{}{}{}'.format(home_DB_path, os.sep, 'logo.jpg')
+            conn = Connection()
+            lo_path = conn.logo_path()
+            lo_path_str = lo_path['logo']
+            home_DB_path = '{}{}{}'.format(home, os.sep, 'pyarchinit_DB_folder')
+            logo_path = lo_path_str#
         
         logo = Image(logo_path)
         logo.drawHeight = 1.5 * inch * logo.drawHeight / logo.drawWidth

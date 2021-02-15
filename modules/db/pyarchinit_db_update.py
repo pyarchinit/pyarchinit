@@ -40,11 +40,75 @@ class DB_update(object):
         table_column_names_list = []
         for i in table.columns:
             table_column_names_list.append(str(i.name))
+        if not table_column_names_list.__contains__('stato_conservazione'):
+            self.engine.execute(
+                "ALTER TABLE inventario_materiali_table ADD COLUMN stato_conservazione varchar DEFAULT ''")
 
+        if not table_column_names_list.__contains__('datazione_reperto'):
+            self.engine.execute(
+                "ALTER TABLE inventario_materiali_table ADD COLUMN datazione_reperto varchar(30) DEFAULT 'inserisci un valore'")
+
+        if not table_column_names_list.__contains__('elementi_reperto'):
+            self.engine.execute("ALTER TABLE inventario_materiali_table ADD COLUMN elementi_reperto text")
+
+        if not table_column_names_list.__contains__('misurazioni'):
+            self.engine.execute("ALTER TABLE inventario_materiali_table ADD COLUMN misurazioni text")
+
+        if not table_column_names_list.__contains__('rif_biblio'):
+            self.engine.execute("ALTER TABLE inventario_materiali_table ADD COLUMN rif_biblio text")
+
+        if not table_column_names_list.__contains__('tecnologie'):
+            self.engine.execute("ALTER TABLE inventario_materiali_table ADD COLUMN tecnologie text")
+
+        if not table_column_names_list.__contains__('forme_minime'):
+            self.engine.execute("ALTER TABLE inventario_materiali_table ADD COLUMN forme_minime integer DEFAULT 0")
+
+        if not table_column_names_list.__contains__('forme_massime'):
+            self.engine.execute("ALTER TABLE inventario_materiali_table ADD COLUMN forme_massime integer DEFAULT 0")
+
+        if not table_column_names_list.__contains__('totale_frammenti'):
+            self.engine.execute("ALTER TABLE inventario_materiali_table ADD COLUMN totale_frammenti integer DEFAULT 0")
+
+        if not table_column_names_list.__contains__('corpo_ceramico'):
+            self.engine.execute("ALTER TABLE inventario_materiali_table ADD COLUMN corpo_ceramico varchar(20)")
+            self.engine.execute("update inventario_materiali_table set corpo_ceramico = ''")
+
+        if not table_column_names_list.__contains__('rivestimento'):
+            self.engine.execute("ALTER TABLE inventario_materiali_table ADD COLUMN rivestimento varchar(20)")
+            self.engine.execute("update inventario_materiali_table set rivestimento = ''")
+
+        if not table_column_names_list.__contains__('diametro_orlo'):
+            self.engine.execute(
+                "ALTER TABLE inventario_materiali_table ADD COLUMN diametro_orlo Numeric(7,3) DEFAULT 0")
+
+        if not table_column_names_list.__contains__('peso'):
+            self.engine.execute("ALTER TABLE inventario_materiali_table ADD COLUMN peso Numeric(9,3) DEFAULT 0")
+
+        if not table_column_names_list.__contains__('tipo'):
+            self.engine.execute("ALTER TABLE inventario_materiali_table ADD COLUMN tipo varchar(20)")
+            self.engine.execute("update inventario_materiali_table set tipo = ''")
+
+        if not table_column_names_list.__contains__('eve_orlo'):
+            self.engine.execute("ALTER TABLE inventario_materiali_table ADD COLUMN eve_orlo Numeric(7,3) DEFAULT 0")
+
+        if not table_column_names_list.__contains__('repertato'):
+            self.engine.execute("ALTER TABLE inventario_materiali_table ADD COLUMN repertato varchar(3)")
+            self.engine.execute("update inventario_materiali_table set repertato = ''No")
+
+        if not table_column_names_list.__contains__('diagnostico'):
+            self.engine.execute("ALTER TABLE inventario_materiali_table ADD COLUMN diagnostico varchar(3)")
+            self.engine.execute("update inventario_materiali_table set diagnostico = ''No")
         if not table_column_names_list.__contains__('n_reperto'):
             self.engine.execute("ALTER TABLE inventario_materiali_table ADD COLUMN n_reperto INTEGER")
         if not table_column_names_list.__contains__('tipo_contenitore'):
             self.engine.execute("ALTER TABLE inventario_materiali_table ADD COLUMN tipo_contenitore varchar DEFAULT ''")
+        if not table_column_names_list.__contains__('struttura'):
+            self.engine.execute("ALTER TABLE inventario_materiali_table ADD COLUMN struttura text")
+         
+        
+        
+        
+        
         
         ####site_table
         table = Table("site_table", self.metadata, autoload=True)
@@ -344,73 +408,6 @@ class DB_update(object):
             self.engine.execute("ALTER TABLE periodizzazione_table ADD COLUMN cont_per integer DEFAULT '' ")
         if not table_column_names_list.__contains__('area'):
             self.engine.execute("ALTER TABLE periodizzazione_table ADD COLUMN area integer")
-        ####inventario_materiali_table
-        table = Table("inventario_materiali_table", self.metadata, autoload=True)
-        table_column_names_list = []
-        for i in table.columns:
-            table_column_names_list.append(str(i.name))
-
-        if not table_column_names_list.__contains__('stato_conservazione'):
-            self.engine.execute(
-                "ALTER TABLE inventario_materiali_table ADD COLUMN stato_conservazione varchar DEFAULT ''")
-
-        if not table_column_names_list.__contains__('datazione_reperto'):
-            self.engine.execute(
-                "ALTER TABLE inventario_materiali_table ADD COLUMN datazione_reperto varchar(30) DEFAULT 'inserisci un valore'")
-
-        if not table_column_names_list.__contains__('elementi_reperto'):
-            self.engine.execute("ALTER TABLE inventario_materiali_table ADD COLUMN elementi_reperto text")
-
-        if not table_column_names_list.__contains__('misurazioni'):
-            self.engine.execute("ALTER TABLE inventario_materiali_table ADD COLUMN misurazioni text")
-
-        if not table_column_names_list.__contains__('rif_biblio'):
-            self.engine.execute("ALTER TABLE inventario_materiali_table ADD COLUMN rif_biblio text")
-
-        if not table_column_names_list.__contains__('tecnologie'):
-            self.engine.execute("ALTER TABLE inventario_materiali_table ADD COLUMN tecnologie text")
-
-        if not table_column_names_list.__contains__('forme_minime'):
-            self.engine.execute("ALTER TABLE inventario_materiali_table ADD COLUMN forme_minime integer DEFAULT 0")
-
-        if not table_column_names_list.__contains__('forme_massime'):
-            self.engine.execute("ALTER TABLE inventario_materiali_table ADD COLUMN forme_massime integer DEFAULT 0")
-
-        if not table_column_names_list.__contains__('totale_frammenti'):
-            self.engine.execute("ALTER TABLE inventario_materiali_table ADD COLUMN totale_frammenti integer DEFAULT 0")
-
-        if not table_column_names_list.__contains__('corpo_ceramico'):
-            self.engine.execute("ALTER TABLE inventario_materiali_table ADD COLUMN corpo_ceramico varchar(20)")
-            self.engine.execute("update inventario_materiali_table set corpo_ceramico = ''")
-
-        if not table_column_names_list.__contains__('rivestimento'):
-            self.engine.execute("ALTER TABLE inventario_materiali_table ADD COLUMN rivestimento varchar(20)")
-            self.engine.execute("update inventario_materiali_table set rivestimento = ''")
-
-        if not table_column_names_list.__contains__('diametro_orlo'):
-            self.engine.execute(
-                "ALTER TABLE inventario_materiali_table ADD COLUMN diametro_orlo Numeric(7,3) DEFAULT 0")
-
-        if not table_column_names_list.__contains__('peso'):
-            self.engine.execute("ALTER TABLE inventario_materiali_table ADD COLUMN peso Numeric(9,3) DEFAULT 0")
-
-        if not table_column_names_list.__contains__('tipo'):
-            self.engine.execute("ALTER TABLE inventario_materiali_table ADD COLUMN tipo varchar(20)")
-            self.engine.execute("update inventario_materiali_table set tipo = ''")
-
-        if not table_column_names_list.__contains__('eve_orlo'):
-            self.engine.execute("ALTER TABLE inventario_materiali_table ADD COLUMN eve_orlo Numeric(7,3) DEFAULT 0")
-
-        if not table_column_names_list.__contains__('repertato'):
-            self.engine.execute("ALTER TABLE inventario_materiali_table ADD COLUMN repertato varchar(2)")
-            self.engine.execute("update inventario_materiali_table set repertato = ''No")
-
-        if not table_column_names_list.__contains__('diagnostico'):
-            self.engine.execute("ALTER TABLE inventario_materiali_table ADD COLUMN diagnostico varchar(2)")
-            self.engine.execute("update inventario_materiali_table set diagnostico = ''No")
-        
-        
-         
         
         ####tomba_table
         table = Table("tomba_table", self.metadata, autoload=True)
@@ -443,7 +440,7 @@ class DB_update(object):
             self.engine.execute("ALTER TABLE individui_table ADD COLUMN sigla_struttura text")
 
         if not table_column_names_list.__contains__('nr_struttura'):
-            self.engine.execute("ALTER TABLE individui_table ADD COLUMN nr_struttura integer")
+            self.engine.execute("ALTER TABLE individui_table ADD COLUMN nr_struttura text")
 
         if not table_column_names_list.__contains__('completo_si_no'):
             self.engine.execute("ALTER TABLE individui_table ADD COLUMN completo_si_no varchar")
@@ -455,7 +452,7 @@ class DB_update(object):
             self.engine.execute("ALTER TABLE individui_table ADD COLUMN in_connessione_si_no varchar")
 
         if not table_column_names_list.__contains__('lunghezza_scheletro'):
-            self.engine.execute("ALTER TABLE individui_table ADD COLUMN lunghezza_scheletro NUMERIC(2,2)")
+            self.engine.execute("ALTER TABLE individui_table ADD COLUMN lunghezza_scheletro NUMERIC(6,2)")
 
         if not table_column_names_list.__contains__('posizione_scheletro'):
             self.engine.execute("ALTER TABLE individui_table ADD COLUMN posizione_scheletro varchar")
@@ -473,9 +470,20 @@ class DB_update(object):
             self.engine.execute("ALTER TABLE individui_table ADD COLUMN orientamento_asse text")
 
         if not table_column_names_list.__contains__('orientamento_azimut'):
-            self.engine.execute("ALTER TABLE individui_table ADD COLUMN orientamento_azimut NUMERIC(2,2)")
-        
-        
+            self.engine.execute("ALTER TABLE individui_table ADD COLUMN orientamento_azimut text")
+        try:
+            if table_column_names_list.__contains__('nr_struttura'):
+                self.engine.execute("ALTER TABLE individui_table ALTER COLUMN nr_struttura  TYPE text")
+            if table_column_names_list.__contains__('orientamento_azimut'):
+                self.engine.execute("ALTER TABLE individui_table ALTER COLUMN orientamento_azimut TYPE text")
+            if table_column_names_list.__contains__('us'):
+                self.engine.execute("ALTER TABLE individui_table ALTER COLUMN us TYPE text")
+            if table_column_names_list.__contains__('eta_min'):
+                self.engine.execute("ALTER TABLE individui_table ALTER COLUMN eta_min TYPE text")
+            if table_column_names_list.__contains__('eta_max'):
+                self.engine.execute("ALTER TABLE individui_table ALTER COLUMN eta_max TYPE text")
+        except:
+            pass
         ####aggiornamento tabelle geografiche
         ####pyunitastratigrafiche
         table = Table("pyunitastratigrafiche", self.metadata, autoload=True)
@@ -515,3 +523,4 @@ class DB_update(object):
         if not table_column_names_list.__contains__('nome_doc'):
             self.engine.execute("ALTER TABLE pyarchinit_sezioni  ADD COLUMN nome_doc text")
         
+      

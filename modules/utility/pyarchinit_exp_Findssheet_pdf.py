@@ -168,8 +168,11 @@ class single_Finds_pdf_sheet(object):
 
         home = os.environ['PYARCHINIT_HOME']
 
+        conn = Connection()
+        lo_path = conn.logo_path()
+        lo_path_str = lo_path['logo']
         home_DB_path = '{}{}{}'.format(home, os.sep, 'pyarchinit_DB_folder')
-        logo_path = '{}{}{}'.format(home_DB_path, os.sep, 'logo.jpg')
+        logo_path = lo_path_str#'{}{}{}'.format(home_DB_path, os.sep, 'logo.jpg')
         logo = Image(logo_path)
 
         logo.drawHeight = 1.5 * inch * logo.drawHeight / logo.drawWidth
@@ -392,8 +395,11 @@ class single_Finds_pdf_sheet(object):
 
         home = os.environ['PYARCHINIT_HOME']
 
+        conn = Connection()
+        lo_path = conn.logo_path()
+        lo_path_str = lo_path['logo']
         home_DB_path = '{}{}{}'.format(home, os.sep, 'pyarchinit_DB_folder')
-        logo_path = '{}{}{}'.format(home_DB_path, os.sep, 'logo_de.jpg')
+        logo_path = lo_path_str# '{}{}{}'.format(home_DB_path, os.sep, 'logo_de.jpg')
         logo = Image(logo_path)
 
         ##      if test_image.drawWidth < 800:
@@ -615,8 +621,11 @@ class single_Finds_pdf_sheet(object):
 
         home = os.environ['PYARCHINIT_HOME']
 
+        conn = Connection()
+        lo_path = conn.logo_path()
+        lo_path_str = lo_path['logo']
         home_DB_path = '{}{}{}'.format(home, os.sep, 'pyarchinit_DB_folder')
-        logo_path = '{}{}{}'.format(home_DB_path, os.sep, 'logo.jpg')
+        logo_path = lo_path_str# '{}{}{}'.format(home_DB_path, os.sep, 'logo.jpg')
         logo = Image(logo_path)
 
         ##      if test_image.drawWidth < 800:
@@ -860,8 +869,11 @@ class Box_labels_Finds_pdf_sheet(object):
         # format labels
         home = os.environ['PYARCHINIT_HOME']
 
+        conn = Connection()
+        lo_path = conn.logo_path()
+        lo_path_str = lo_path['logo']
         home_DB_path = '{}{}{}'.format(home, os.sep, 'pyarchinit_DB_folder')
-        logo_path = '{}{}{}'.format(home_DB_path, os.sep, 'logo.jpg')
+        logo_path = lo_path_str# '{}{}{}'.format(home_DB_path, os.sep, 'logo.jpg')
         logo = Image(logo_path)
 
         ##      if test_image.drawWidth < 800:
@@ -954,8 +966,11 @@ class Box_labels_Finds_pdf_sheet(object):
         # format labels
         home = os.environ['PYARCHINIT_HOME']
 
+        conn = Connection()
+        lo_path = conn.logo_path()
+        lo_path_str = lo_path['logo']
         home_DB_path = '{}{}{}'.format(home, os.sep, 'pyarchinit_DB_folder')
-        logo_path = '{}{}{}'.format(home_DB_path, os.sep, 'logo_de.jpg')
+        logo_path = lo_path_str# '{}{}{}'.format(home_DB_path, os.sep, 'logo_de.jpg')
         logo = Image(logo_path)
 
         ##      if test_image.drawWidth < 800:
@@ -1048,8 +1063,11 @@ class Box_labels_Finds_pdf_sheet(object):
         # format labels
         home = os.environ['PYARCHINIT_HOME']
 
+        conn = Connection()
+        lo_path = conn.logo_path()
+        lo_path_str = lo_path['logo']
         home_DB_path = '{}{}{}'.format(home, os.sep, 'pyarchinit_DB_folder')
-        logo_path = '{}{}{}'.format(home_DB_path, os.sep, 'logo.jpg')
+        logo_path = lo_path_str# '{}{}{}'.format(home_DB_path, os.sep, 'logo.jpg')
         logo = Image(logo_path)
 
         ##      if test_image.drawWidth < 800:
@@ -1772,11 +1790,11 @@ class generate_reperti_pdf(object):
     def build_index_Foto(self, records, sito):
         home = os.environ['PYARCHINIT_HOME']
 
+        conn = Connection()
+        lo_path = conn.logo_path()
+        lo_path_str = lo_path['logo']
         home_DB_path = '{}{}{}'.format(home, os.sep, 'pyarchinit_DB_folder')
-        logo_path = '{}{}{}'.format(home_DB_path, os.sep, 'logo.jpg')
-        
-        home_DB_path = '{}{}{}'.format(home, os.sep, 'pyarchinit_DB_folder')
-        logo_path = '{}{}{}'.format(home_DB_path, os.sep, 'logo.jpg')
+        logo_path = lo_path_str# '{}{}{}'.format(home_DB_path, os.sep, 'logo.jpg')
         #logo_path2 = '{}{}{}'.format(home_DB_path, os.sep, 'logo_2.png')
         logo = Image(logo_path)
         logo.drawHeight = 1.5 * inch * logo.drawHeight / logo.drawWidth
@@ -1830,11 +1848,11 @@ class generate_reperti_pdf(object):
     def build_index_Foto_en(self, records, sito):
         home = os.environ['PYARCHINIT_HOME']
 
+        conn = Connection()
+        lo_path = conn.logo_path()
+        lo_path_str = lo_path['logo']
         home_DB_path = '{}{}{}'.format(home, os.sep, 'pyarchinit_DB_folder')
-        logo_path = '{}{}{}'.format(home_DB_path, os.sep, 'logo.jpg')
-        
-        home_DB_path = '{}{}{}'.format(home, os.sep, 'pyarchinit_DB_folder')
-        logo_path = '{}{}{}'.format(home_DB_path, os.sep, 'logo.jpg')
+        logo_path = lo_path_str# '{}{}{}'.format(home_DB_path, os.sep, 'logo.jpg')
         #logo_path2 = '{}{}{}'.format(home_DB_path, os.sep, 'logo_2.png')
         logo = Image(logo_path)
         logo.drawHeight = 1.5 * inch * logo.drawHeight / logo.drawWidth
@@ -1889,11 +1907,11 @@ class generate_reperti_pdf(object):
     def build_index_Foto_de(self, records, sito):
         home = os.environ['PYARCHINIT_HOME']
 
+        conn = Connection()
+        lo_path = conn.logo_path()
+        lo_path_str = lo_path['logo']
         home_DB_path = '{}{}{}'.format(home, os.sep, 'pyarchinit_DB_folder')
-        logo_path = '{}{}{}'.format(home_DB_path, os.sep, 'logo.jpg')
-        
-        home_DB_path = '{}{}{}'.format(home, os.sep, 'pyarchinit_DB_folder')
-        logo_path = '{}{}{}'.format(home_DB_path, os.sep, 'logo.jpg')
+        logo_path = lo_path_str#'{}{}{}'.format(home_DB_path, os.sep, 'logo.jpg')
         #logo_path2 = '{}{}{}'.format(home_DB_path, os.sep, 'logo_2.png')
         logo = Image(logo_path)
         logo.drawHeight = 1.5 * inch * logo.drawHeight / logo.drawWidth
@@ -1947,9 +1965,11 @@ class generate_reperti_pdf(object):
     def build_index_Foto_2(self, records, sito):
         home = os.environ['PYARCHINIT_HOME']
 
+        conn = Connection()
+        lo_path = conn.logo_path()
+        lo_path_str = lo_path['logo']
         home_DB_path = '{}{}{}'.format(home, os.sep, 'pyarchinit_DB_folder')
-        logo_path = '{}{}{}'.format(home_DB_path, os.sep, 'logo.jpg')
-        #logo_path2 = '{}{}{}'.format(home_DB_path, os.sep, 'logo_2.png')
+        logo_path = lo_path_str# '{}{}{}'.format(home_DB_path, os.sep, 'logo_2.png')
         logo = Image(logo_path)
         logo.drawHeight = 1.5 * inch * logo.drawHeight / logo.drawWidth
         logo.drawWidth = 1.5 * inch
@@ -2002,9 +2022,11 @@ class generate_reperti_pdf(object):
     def build_index_Foto_2_en(self, records, sito):
         home = os.environ['PYARCHINIT_HOME']
 
+        conn = Connection()
+        lo_path = conn.logo_path()
+        lo_path_str = lo_path['logo']
         home_DB_path = '{}{}{}'.format(home, os.sep, 'pyarchinit_DB_folder')
-        logo_path = '{}{}{}'.format(home_DB_path, os.sep, 'logo.jpg')
-        #logo_path2 = '{}{}{}'.format(home_DB_path, os.sep, 'logo_2.png')
+        logo_path = lo_path_str# '{}{}{}'.format(home_DB_path, os.sep, 'logo_2.png')
         logo = Image(logo_path)
         logo.drawHeight = 1.5 * inch * logo.drawHeight / logo.drawWidth
         logo.drawWidth = 1.5 * inch
@@ -2057,9 +2079,11 @@ class generate_reperti_pdf(object):
     def build_index_Foto_2_de(self, records, sito):
         home = os.environ['PYARCHINIT_HOME']
 
+        conn = Connection()
+        lo_path = conn.logo_path()
+        lo_path_str = lo_path['logo']
         home_DB_path = '{}{}{}'.format(home, os.sep, 'pyarchinit_DB_folder')
-        logo_path = '{}{}{}'.format(home_DB_path, os.sep, 'logo.jpg')
-        #logo_path2 = '{}{}{}'.format(home_DB_path, os.sep, 'logo_2.png')
+        logo_path = lo_path_str#'{}{}{}'.format(home_DB_path, os.sep, 'logo_2.png')
         logo = Image(logo_path)
         logo.drawHeight = 1.5 * inch * logo.drawHeight / logo.drawWidth
         logo.drawWidth = 1.5 * inch
@@ -2146,8 +2170,11 @@ class generate_reperti_pdf(object):
     def build_index_Finds(self, records, sito):
         home = os.environ['PYARCHINIT_HOME']
 
+        conn = Connection()
+        lo_path = conn.logo_path()
+        lo_path_str = lo_path['logo']
         home_DB_path = '{}{}{}'.format(home, os.sep, 'pyarchinit_DB_folder')
-        logo_path = '{}{}{}'.format(home_DB_path, os.sep, 'logo.jpg')
+        logo_path = lo_path_str# '{}{}{}'.format(home_DB_path, os.sep, 'logo.jpg')
 
         logo = Image(logo_path)
         logo.drawHeight = 1.5 * inch * logo.drawHeight / logo.drawWidth
@@ -2190,8 +2217,11 @@ class generate_reperti_pdf(object):
     def build_index_Finds_de(self, records, sito):
         home = os.environ['PYARCHINIT_HOME']
 
+        conn = Connection()
+        lo_path = conn.logo_path()
+        lo_path_str = lo_path['logo']
         home_DB_path = '{}{}{}'.format(home, os.sep, 'pyarchinit_DB_folder')
-        logo_path = '{}{}{}'.format(home_DB_path, os.sep, 'logo_de.jpg')
+        logo_path = lo_path_str# '{}{}{}'.format(home_DB_path, os.sep, 'logo_de.jpg')
 
         logo = Image(logo_path)
         logo.drawHeight = 1.5 * inch * logo.drawHeight / logo.drawWidth
@@ -2234,8 +2264,11 @@ class generate_reperti_pdf(object):
     def build_index_Finds_en(self, records, sito):
         home = os.environ['PYARCHINIT_HOME']
 
+        conn = Connection()
+        lo_path = conn.logo_path()
+        lo_path_str = lo_path['logo']
         home_DB_path = '{}{}{}'.format(home, os.sep, 'pyarchinit_DB_folder')
-        logo_path = '{}{}{}'.format(home_DB_path, os.sep, 'logo.jpg')
+        logo_path = lo_path_str# '{}{}{}'.format(home_DB_path, os.sep, 'logo.jpg')
 
         logo = Image(logo_path)
         logo.drawHeight = 1.5 * inch * logo.drawHeight / logo.drawWidth
@@ -2278,9 +2311,11 @@ class generate_reperti_pdf(object):
     def build_index_Casse(self, records, sito):
         home = os.environ['PYARCHINIT_HOME']
 
+        conn = Connection()
+        lo_path = conn.logo_path()
+        lo_path_str = lo_path['logo']
         home_DB_path = '{}{}{}'.format(home, os.sep, 'pyarchinit_DB_folder')
-        logo_path = '{}{}{}'.format(home_DB_path, os.sep, 'logo.jpg')
-        #logo_path2 = '{}{}{}'.format(home_DB_path, os.sep, 'logo_2.png')
+        logo_path = lo_path_str# '{}{}{}'.format(home_DB_path, os.sep, 'logo_2.png')
         logo = Image(logo_path)
         logo.drawHeight = 1.5 * inch * logo.drawHeight / logo.drawWidth
         logo.drawWidth = 1.5 * inch
@@ -2335,8 +2370,11 @@ class generate_reperti_pdf(object):
     def build_index_Casse_de(self, records, sito):
         home = os.environ['PYARCHINIT_HOME']
 
+        conn = Connection()
+        lo_path = conn.logo_path()
+        lo_path_str = lo_path['logo']
         home_DB_path = '{}{}{}'.format(home, os.sep, 'pyarchinit_DB_folder')
-        logo_path = '{}{}{}'.format(home_DB_path, os.sep, 'logo_de.jpg')
+        logo_path = lo_path_str#'{}{}{}'.format(home_DB_path, os.sep, 'logo_de.jpg')
 
         logo = Image(logo_path)
         logo.drawHeight = 1.5 * inch * logo.drawHeight / logo.drawWidth
@@ -2380,8 +2418,11 @@ class generate_reperti_pdf(object):
     def build_index_Casse_en(self, records, sito):
         home = os.environ['PYARCHINIT_HOME']
 
+        conn = Connection()
+        lo_path = conn.logo_path()
+        lo_path_str = lo_path['logo']
         home_DB_path = '{}{}{}'.format(home, os.sep, 'pyarchinit_DB_folder')
-        logo_path = '{}{}{}'.format(home_DB_path, os.sep, 'logo.jpg')
+        logo_path = lo_path_str#'{}{}{}'.format(home_DB_path, os.sep, 'logo.jpg')
 
         logo = Image(logo_path)
         logo.drawHeight = 1.5 * inch * logo.drawHeight / logo.drawWidth

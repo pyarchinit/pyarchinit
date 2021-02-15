@@ -340,13 +340,13 @@ CREATE TABLE public.individui_table (
     id_scheda_ind integer NOT NULL,
     sito text,
     area character varying(4),
-    us integer,
+    us text,
     nr_individuo integer,
     data_schedatura character varying(100),
     schedatore character varying(100),
     sesso character varying(100),
-    eta_min integer,
-    eta_max integer,
+    eta_min text,
+    eta_max text,
     classi_eta character varying(100),
     osservazioni text,
 	sigla_struttura character varying(100),
@@ -360,7 +360,7 @@ CREATE TABLE public.individui_table (
     posizione_arti_superiori character varying(250),
     posizione_arti_inferiori character varying(250),
 	orientamento_asse text,
-	orientamento_azimut real
+	orientamento_azimut text
 	);
 
 
@@ -405,7 +405,7 @@ CREATE TABLE public.inventario_materiali_table (
     descrizione text,
     area integer,
     us integer,
-    lavato character varying(2),
+    lavato character varying(3),
     nr_cassa integer,
     luogo_conservazione text,
     stato_conservazione character varying DEFAULT ''::character varying,
@@ -423,8 +423,11 @@ CREATE TABLE public.inventario_materiali_table (
     peso numeric(9,3) DEFAULT 0,
     tipo character varying(20),
     eve_orlo numeric(7,3) DEFAULT 0,
-    repertato character varying(2),
-    diagnostico character varying(2)
+    repertato character varying(3),
+    diagnostico character varying(3),
+	n_reperto integer,
+	tipo_contenitore character varying(200),
+	struttura character varying(200)
 );
 
 

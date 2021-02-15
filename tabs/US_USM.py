@@ -760,6 +760,10 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
         except Exception as e:
             QMessageBox.warning(self, "Connection System", str(e), QMessageBox.Ok)
             # SIGNALS & SLOTS Functions
+        if len(self.DATA_LIST)==0:
+            self.comboBox_sito.setCurrentIndex(0)
+        else:
+            self.comboBox_sito.setCurrentIndex(1)
         self.comboBox_sito.currentIndexChanged.connect(self.charge_periodo_iniz_list)
         self.comboBox_sito.currentTextChanged.connect(self.charge_periodo_iniz_list)
         self.comboBox_per_iniz.currentIndexChanged.connect(self.charge_periodo_fin_list)
@@ -790,34 +794,40 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
         self.checkBox_query.update()
         self.checkBox_query.stateChanged.connect(self.listview_us)###anche questo
         
+    
     def charge_insert_ra(self):
-        
-        us =str(self.lineEdit_us.text())
-        search_dict_inv = {
-            
-            'sito': "'" +str(self.comboBox_sito.currentText()) + "'",
-            'area': "'" + str(eval("self.DATA_LIST[int(self.REC_CORR)].area"))+ "'",
-            'us': "'" + str(eval("self.DATA_LIST[int(self.REC_CORR)].us"))+"'"
-        }
-        inv_vl = self.DB_MANAGER.query_bool(search_dict_inv,'INVENTARIO_MATERIALI')
-        inv_list = []
-        for i in range(len(inv_vl)):
-            inv_list.append(str(inv_vl[i].n_reperto))
-            inv_list.sort()
         try:
-            inv_vl.remove('')
-        except :
-            pass
-        self.comboBox_ref_ra.clear()
-        self.comboBox_ref_ra.addItems(self.UTILITY.remove_dup_from_list(inv_list))
-        if self.STATUS_ITEMS[self.BROWSE_STATUS] == "Trova" or "Finden" or "Find":
-            self.comboBox_ref_ra.setEditText("")
-        elif self.STATUS_ITEMS[self.BROWSE_STATUS] == "Usa" or "Aktuell " or "Current":
-            if len(self.DATA_LIST) > 0:
-                try:
-                    self.comboBox_ref_ra.setEditText(self.DATA_LIST[self.rec_num].ref_ra)
-                except :
-                    pass
+            
+            us =str(self.lineEdit_us.text())
+        
+            search_dict_inv = {
+                
+                'sito': "'" +str(self.comboBox_sito.currentText()) + "'",
+                'area': "'" + str(eval("self.DATA_LIST[int(self.REC_CORR)].area"))+ "'",
+                'us': "'" + str(eval("self.DATA_LIST[int(self.REC_CORR)].us"))+"'"
+            }
+        
+            inv_vl = self.DB_MANAGER.query_bool(search_dict_inv,'INVENTARIO_MATERIALI')
+            inv_list = []
+            for i in range(len(inv_vl)):
+                inv_list.append(str(inv_vl[i].n_reperto))
+                inv_list.sort()
+            try:
+                inv_vl.remove('')
+            except :
+                pass
+            self.comboBox_ref_ra.clear()
+            self.comboBox_ref_ra.addItems(self.UTILITY.remove_dup_from_list(inv_list))
+            if self.STATUS_ITEMS[self.BROWSE_STATUS] == "Trova" or "Finden" or "Find":
+                self.comboBox_ref_ra.setEditText("")
+            elif self.STATUS_ITEMS[self.BROWSE_STATUS] == "Usa" or "Aktuell " or "Current":
+                if len(self.DATA_LIST) > 0:
+                    try:
+                        self.comboBox_ref_ra.setEditText(self.DATA_LIST[self.rec_num].ref_ra)
+                    except :
+                        pass
+        except:
+            pass                
     def listview_us(self):
         if self.checkBox_query.isChecked():
             conn = Connection()
@@ -973,76 +983,82 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
                 except:
                     pass  # non vi sono periodi per questo scavo
     def geometry_unitastratigrafiche(self):
-        
-        sito = str(self.comboBox_sito.currentText())
-        area = str(self.comboBox_area.currentText())
-        us = str(self.lineEdit_us.text())
-        search_dict = {
-            'scavo_s': "'" +str(self.comboBox_sito.currentText()) + "'",
-            'area_s': "'" + str(eval("self.DATA_LIST[int(self.REC_CORR)].area")) + "'",
-            'us_s': "'" + str(eval("self.DATA_LIST[int(self.REC_CORR)].us"))+"'"
-            
-        }
-        geometry_vl = self.DB_MANAGER.query_bool(search_dict,'PYUS')
-        geometry_list = []
-        
-        for i in range(len(geometry_vl)):
-            geometry_list.append(str(geometry_vl[i].coord))
         try:
-            geometry_vl.remove('')
+            sito = str(self.comboBox_sito.currentText())
+            area = str(self.comboBox_area.currentText())
+            us = str(self.lineEdit_us.text())
+        
+            search_dict = {
+                'scavo_s': "'" +str(self.comboBox_sito.currentText()) + "'",
+                'area_s': "'" + str(eval("self.DATA_LIST[int(self.REC_CORR)].area")) + "'",
+                'us_s': "'" + str(eval("self.DATA_LIST[int(self.REC_CORR)].us"))+"'"
+                
+            }
+        
+            geometry_vl = self.DB_MANAGER.query_bool(search_dict,'PYUS')
+            geometry_list = []
+            
+            for i in range(len(geometry_vl)):
+                geometry_list.append(str(geometry_vl[i].coord))
+            try:
+                geometry_vl.remove('')
+            except:
+                pass
+        
+            self.comboBox_posizione.clear()
+            self.comboBox_posizione.addItems(self.UTILITY.remove_dup_from_list(geometry_list))
+            if self.STATUS_ITEMS[self.BROWSE_STATUS] == "Trova" or "Finden" or "Find":
+                self.comboBox_posizione.setEditText("")
+            elif self.STATUS_ITEMS[self.BROWSE_STATUS] == "Usa" or "Aktuell " or "Current":		
+                if len(self.DATA_LIST) > 0:
+                    try:
+                        self.comboBox_posizione.setEditText(self.DATA_LIST[self.rec_num].posizione)
+                        self.comboBox_posizione.show()
+                    except:
+                        pass  # non vi sono periodi per questo scavo
         except:
             pass
-        
-        self.comboBox_posizione.clear()
-        self.comboBox_posizione.addItems(self.UTILITY.remove_dup_from_list(geometry_list))
-        if self.STATUS_ITEMS[self.BROWSE_STATUS] == "Trova" or "Finden" or "Find":
-            self.comboBox_posizione.setEditText("")
-        elif self.STATUS_ITEMS[self.BROWSE_STATUS] == "Usa" or "Aktuell " or "Current":		
-            if len(self.DATA_LIST) > 0:
-                try:
-                    self.comboBox_posizione.setEditText(self.DATA_LIST[self.rec_num].posizione)
-                    self.comboBox_posizione.show()
-                except:
-                    pass  # non vi sono periodi per questo scavo
     def charge_periodo_iniz_list(self):
         
-            try: 
-                sito = str(self.comboBox_sito.currentText())
-                area = str(self.comboBox_area.currentText())
-                search_dict = {
-                    'sito': "'" + sito + "'",
-                    'area': "'" + area + "'",
-                }
-                periodo_vl = self.DB_MANAGER.query_bool(search_dict, 'PERIODIZZAZIONE')
-                periodo_list = []
-                for i in range(len(periodo_vl)):
-                    periodo_list.append(str(periodo_vl[i].periodo))
-                try:
-                    periodo_vl.remove('')
-                except:
-                    pass
-                #
-                self.comboBox_per_iniz.clear()
-                self.comboBox_per_iniz.addItems(self.UTILITY.remove_dup_from_list(periodo_list))
-                if self.STATUS_ITEMS[self.BROWSE_STATUS] == "Trova" or "Finden" or "Find":
-                    self.comboBox_per_iniz.setEditText("")
-                elif self.STATUS_ITEMS[self.BROWSE_STATUS] == "Usa" or "Aktuell " or "Current":	
-                    if len(self.DATA_LIST) > 0:
-                        try:
-                            self.comboBox_per_iniz.setEditText(self.DATA_LIST[self.rec_num].periodo_iniziale)
-                            self.comboBox_per_iniz.show()
-                        except:
-                            pass  # non vi sono periodi per questo scavo
-            except:
-                pass  
-    def charge_periodo_fin_list(self):
-        
-        try:
+        try: 
+            
             sito = str(self.comboBox_sito.currentText())
             area = str(self.comboBox_area.currentText())
             search_dict = {
                 'sito': "'" + sito + "'",
-                'area': "'" + area + "'",
+                'area': "'" + str(eval("self.DATA_LIST[int(self.REC_CORR)].area")) + "'",
+            }
+            periodo_vl = self.DB_MANAGER.query_bool(search_dict, 'PERIODIZZAZIONE')
+            periodo_list = []
+            for i in range(len(periodo_vl)):
+                periodo_list.append(str(periodo_vl[i].periodo))
+            try:
+                periodo_vl.remove('')
+            except:
+                pass
+            #
+            self.comboBox_per_iniz.clear()
+            self.comboBox_per_iniz.addItems(self.UTILITY.remove_dup_from_list(periodo_list))
+            if self.STATUS_ITEMS[self.BROWSE_STATUS] == "Trova" or "Finden" or "Find":
+                self.comboBox_per_iniz.setEditText("")
+            elif self.STATUS_ITEMS[self.BROWSE_STATUS] == "Usa" or "Aktuell " or "Current":	
+                if len(self.DATA_LIST) > 0:
+                    try:
+                        self.comboBox_per_iniz.setEditText(self.DATA_LIST[self.rec_num].periodo_iniziale)
+                        self.comboBox_per_iniz.show()
+                    except:
+                        pass  # non vi sono periodi per questo scavo
+        except:
+            pass  
+    def charge_periodo_fin_list(self):
+        
+        try:
+            
+            sito = str(self.comboBox_sito.currentText())
+            area = str(self.comboBox_area.currentText())
+            search_dict = {
+                'sito': "'" + sito + "'",
+                'area': "'" + str(eval("self.DATA_LIST[int(self.REC_CORR)].area")) + "'",
             }
             periodo_vl = self.DB_MANAGER.query_bool(search_dict, 'PERIODIZZAZIONE')
             periodo_list = []
@@ -1204,7 +1220,7 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
                 
         
     def on_pushButton_go_to_us_pressed(self):    
-        self.save_us()
+        #self.save_us()
         try:
             table_name = "self.tableWidget_rapporti"
             rowSelected_cmd = ("%s.selectedIndexes()") % (table_name)
@@ -1349,6 +1365,7 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
         self.pushButton_insert_row_documentazione.setEnabled(n)
         self.pushButton_remove_row_documentazione.setEnabled(n)
     def on_pushButton_connect_pressed(self):
+        
         conn = Connection()
         conn_str = conn.conn_str()
         test_conn = conn_str.find('sqlite')
@@ -1451,10 +1468,15 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
         self.iconListWidget.setSelectionMode(QAbstractItemView.ExtendedSelection)
         self.iconListWidget.itemDoubleClicked.connect(self.openWide_image)
         # comboBox customizations
+        self.setComboBoxEnable(["self.comboBox_area"], "False")
+        self.setComboBoxEnable(["self.lineEdit_us"], "False")
         self.setComboBoxEditable(["self.comboBox_per_fin"], 1)
         self.setComboBoxEditable(["self.comboBox_fas_fin"], 1)
         self.setComboBoxEditable(["self.comboBox_per_iniz"], 1)
         self.setComboBoxEditable(["self.comboBox_fas_iniz"], 1)
+        self.setComboBoxEditable(["self.comboBox_struttura"], 1)
+        self.setComboBoxEditable(["self.comboBox_ref_ra"], 1)
+        self.setComboBoxEditable(["self.comboBox_datazione"],1)
         # lista tipo rapporti stratigrafici
         if self.L=='it':
             valuesRS = ["Uguale a", "Si lega a", "Copre", "Coperto da", "Riempie", "Riempito da", "Taglia", "Tagliato da", "Si appoggia a", "Gli si appoggia", ""]
@@ -1551,21 +1573,21 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
             'nome_tabella': "'" + 'us_table' + "'",
             'tipologia_sigla': "'" + '202.202' + "'"
         }
-        inclusi = self.DB_MANAGER.query_bool(search_dict, 'PYARCHINIT_THESAURUS_SIGLE')
-        valuesInclusi = []
-        for i in range(len(inclusi)):
-            valuesInclusi.append(inclusi[i].sigla_estesa)
-        valuesCol.sort()
-        self.delegateInclusi = ComboBoxDelegate()
-        self.delegateInclusi.def_values(valuesInclusi)
-        self.delegateInclusi.def_editable('False')
-        self.tableWidget_inclusi_leganti_usm.setItemDelegateForColumn(0, self.delegateInclusi)
-        # lista inclusi materiali usm
-        search_dict = {
-            'lingua': lang,
-            'nome_tabella': "'" + 'us_table' + "'",
-            'tipologia_sigla': "'" + '202.202' + "'"
-        }
+        # inclusi = self.DB_MANAGER.query_bool(search_dict, 'PYARCHINIT_THESAURUS_SIGLE')
+        # valuesInclusi = []
+        # for i in range(len(inclusi)):
+            # valuesInclusi.append(inclusi[i].sigla_estesa)
+        # valuesCol.sort()
+        # self.delegateInclusi = ComboBoxDelegate()
+        # self.delegateInclusi.def_values(valuesInclusi)
+        # self.delegateInclusi.def_editable('False')
+        # self.tableWidget_inclusi_leganti_usm.setItemDelegateForColumn(0, self.delegateInclusi)
+        # # lista inclusi materiali usm
+        # search_dict = {
+            # 'lingua': lang,
+            # 'nome_tabella': "'" + 'us_table' + "'",
+            # 'tipologia_sigla': "'" + '202.202' + "'"
+        # }
         inclusi = self.DB_MANAGER.query_bool(search_dict, 'PYARCHINIT_THESAURUS_SIGLE')
         valuesInclusi = []
         for i in range(len(inclusi)):
@@ -1802,7 +1824,44 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
         sito_vl.sort()
         self.comboBox_sito.addItems(sito_vl)
         self.comboBox_sito_rappcheck.addItems(sito_vl)
-        self.comboBox_settore.clear()
+        
+        responsabile_vl = self.UTILITY.tup_2_list_III(self.DB_MANAGER.group_by('us_table', 'schedatore', 'US'))
+        try:
+            responsabile_vl.remove('')
+        except:
+            pass
+            
+        self.comboBox_schedatore.clear()
+        responsabile_vl.sort()
+        self.comboBox_schedatore.addItems(responsabile_vl)
+        
+        
+        responsabile2_vl = self.UTILITY.tup_2_list_III(self.DB_MANAGER.group_by('us_table', 'direttore_us', 'US'))
+        try:
+            responsabile2_vl.remove('')
+        except:
+            pass
+            
+        self.comboBox_direttore_us.clear()
+        responsabile2_vl.sort()
+        self.comboBox_direttore_us.addItems(responsabile2_vl)
+        
+        
+        responsabile3_vl = self.UTILITY.tup_2_list_III(self.DB_MANAGER.group_by('us_table', 'responsabile_us', 'US'))
+        try:
+            responsabile3_vl.remove('')
+        except:
+            pass
+            
+        self.comboBox_responsabile_us.clear()
+        responsabile3_vl.sort()
+        self.comboBox_responsabile_us.addItems(responsabile3_vl)
+        
+        
+        
+        
+        
+        self.comboBox_settore.clear()       
         search_dict = {
             'lingua': lang,
             'nome_tabella': "'" + 'us_table' + "'",
@@ -1980,48 +2039,50 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
         conservazione_vl.sort()
         self.comboBox_conservazione.addItems(conservazione_vl)
         # lista schedatore
-        self.comboBox_schedatore.clear()
-        search_dict = {
-            'lingua': lang,
-            'nome_tabella': "'" + 'us_table' + "'",
-            'tipologia_sigla': "'" + '2.16' + "'"
-        }
-        schedatore = self.DB_MANAGER.query_bool(search_dict, 'PYARCHINIT_THESAURUS_SIGLE')
-        schedatore_vl = []
-        for i in range(len(schedatore)):
-            if schedatore[i].sigla_estesa not in schedatore_vl:
-                schedatore_vl.append(schedatore[i].sigla_estesa)
-        schedatore_vl.sort()
-        self.comboBox_schedatore.addItems(schedatore_vl)
-        # lista direttore us
-        self.comboBox_direttore_us.clear()
-        search_dict = {
-            'lingua': lang,
-            'nome_tabella': "'" + 'us_table' + "'",
-            'tipologia_sigla': "'" + '2.17' + "'"
-        }
-        direttore_us = self.DB_MANAGER.query_bool(search_dict, 'PYARCHINIT_THESAURUS_SIGLE')
-        direttore_us_vl = []
-        for i in range(len(direttore_us)):
-            if direttore_us[i].sigla_estesa not in direttore_us_vl:
-                direttore_us_vl.append(direttore_us[i].sigla_estesa)
-        direttore_us_vl.sort()
-        self.comboBox_direttore_us.addItems(direttore_us_vl)
-        # lista responsabile us
-        self.comboBox_responsabile_us.clear()
-        search_dict = {
-            'lingua': lang,
-            'nome_tabella': "'" + 'us_table' + "'",
-            'tipologia_sigla': "'" + '2.18' + "'"
-        }
-        responsabile_us = self.DB_MANAGER.query_bool(search_dict, 'PYARCHINIT_THESAURUS_SIGLE')
-        responsabile_us_vl = []
-        for i in range(len(responsabile_us)):
-            if responsabile_us[i].sigla_estesa not in responsabile_us_vl:
-                responsabile_us_vl.append(responsabile_us[i].sigla_estesa)
-        responsabile_us_vl.sort()
-        self.comboBox_responsabile_us.addItems(responsabile_us_vl)
-        # lista tipologia_opera
+        # self.comboBox_schedatore.clear()
+        # search_dict = {
+            # 'lingua': lang,
+            # 'nome_tabella': "'" + 'us_table' + "'",
+            # 'tipologia_sigla': "'" + '2.16' + "'"
+        #}
+        # schedatore = self.DB_MANAGER.query_bool(search_dict, 'PYARCHINIT_THESAURUS_SIGLE')
+        # schedatore_vl = []
+        # for i in range(len(schedatore)):
+            # if schedatore[i].sigla_estesa not in schedatore_vl:
+                # schedatore_vl.append(schedatore[i].sigla_estesa)
+        # schedatore_vl.sort()
+        # self.comboBox_schedatore.addItems(schedatore_vl)
+        # # lista direttore us
+        # self.comboBox_direttore_us.clear()
+        # search_dict = {
+            # 'lingua': lang,
+            # 'nome_tabella': "'" + 'us_table' + "'",
+            # 'tipologia_sigla': "'" + '2.17' + "'"
+        # }
+        # direttore_us = self.DB_MANAGER.query_bool(search_dict, 'PYARCHINIT_THESAURUS_SIGLE')
+        # direttore_us_vl = []
+        # for i in range(len(direttore_us)):
+            # if direttore_us[i].sigla_estesa not in direttore_us_vl:
+                # direttore_us_vl.append(direttore_us[i].sigla_estesa)
+        # direttore_us_vl.sort()
+        # self.comboBox_direttore_us.addItems(direttore_us_vl)
+        # # lista responsabile us
+        # self.comboBox_responsabile_us.clear()
+        # search_dict = {
+            # 'lingua': lang,
+            # 'nome_tabella': "'" + 'us_table' + "'",
+            # 'tipologia_sigla': "'" + '2.18' + "'"
+        # }
+        # responsabile_us = self.DB_MANAGER.query_bool(search_dict, 'PYARCHINIT_THESAURUS_SIGLE')
+        # responsabile_us_vl = []
+        # for i in range(len(responsabile_us)):
+            # if responsabile_us[i].sigla_estesa not in responsabile_us_vl:
+                # responsabile_us_vl.append(responsabile_us[i].sigla_estesa)
+        # responsabile_us_vl.sort()
+        # self.comboBox_responsabile_us.addItems(responsabile_us_vl)
+        
+        
+        # # lista tipologia_opera
         self.comboBox_tipologia_opera.clear()
         search_dict = {
             'lingua': lang,
@@ -3381,62 +3442,62 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
             ###########################
             if quota_abs != "":
                 if EC.data_is_float(quota_abs) == 0:
-                    QMessageBox.warning(self, "ATTENZIONE", "Campo Misure-Quota Assoluta. \n Il valore deve essere di tipo numerico. \n (Sono stati inserite lettere, virgole, accenti o caratteri non numerici.",
+                    QMessageBox.warning(self, "ATTENZIONE", "Campo Quota Assoluta. \n Il valore deve essere di tipo numerico. \n (Sono stati inserite lettere, virgole, accenti o caratteri non numerici.",
                                         QMessageBox.Ok)
                     test = 1
             if quota_relativa != "":
                 if EC.data_is_float(quota_relativa) == 0:
-                    QMessageBox.warning(self, "ATTENZIONE", "Campo Misure-Quota Relativa. \n Il valore deve essere di tipo numerico. \n (Sono stati inserite lettere, virgole, accenti o caratteri non numerici.",
+                    QMessageBox.warning(self, "ATTENZIONE", "Campo Quota Relativa. \n Il valore deve essere di tipo numerico. \n (Sono stati inserite lettere, virgole, accenti o caratteri non numerici.",
                                         QMessageBox.Ok)
                     test = 1
             if quota_max_abs != "":
                 if EC.data_is_float(quota_max_abs) == 0:
-                    QMessageBox.warning(self, "ATTENZIONE", "Campo Misure-Quota Massima Assoluta. \n Il valore deve essere di tipo numerico. \n (Sono stati inserite lettere, virgole, accenti o caratteri non numerici.",
+                    QMessageBox.warning(self, "ATTENZIONE", "Campo Quota Massima Assoluta. \n Il valore deve essere di tipo numerico. \n (Sono stati inserite lettere, virgole, accenti o caratteri non numerici.",
                                         QMessageBox.Ok)
                     test = 1
             if quota_max_rel != "":
                 if EC.data_is_float(quota_max_rel) == 0:
-                    QMessageBox.warning(self, "ATTENZIONE", "Campo Misure-Quota Massima Relativa. \n Il valore deve essere di tipo numerico. \n (Sono stati inserite lettere, virgole, accenti o caratteri non numerici.",
+                    QMessageBox.warning(self, "ATTENZIONE", "Campo Quota Massima Relativa. \n Il valore deve essere di tipo numerico. \n (Sono stati inserite lettere, virgole, accenti o caratteri non numerici.",
                                         QMessageBox.Ok)
                     test = 1
             if quota_min_abs != "":
                 if EC.data_is_float(quota_min_abs) == 0:
-                    QMessageBox.warning(self, "ATTENZIONE", "Campo Misure-Quota Minima Assoluta. \n Il valore deve essere di tipo numerico. \n (Sono stati inserite lettere, virgole, accenti o caratteri non numerici.",
+                    QMessageBox.warning(self, "ATTENZIONE", "Campo Quota Minima Assoluta. \n Il valore deve essere di tipo numerico. \n (Sono stati inserite lettere, virgole, accenti o caratteri non numerici.",
                                         QMessageBox.Ok)
                     test = 1
             if quota_min_rel != "":
                 if EC.data_is_float(quota_min_rel) == 0:
-                    QMessageBox.warning(self, "ATTENZIONE", "Campo Misure-Quota Minima Relativa. \n Il valore deve essere di tipo numerico. \n (Sono stati inserite lettere, virgole, accenti o caratteri non numerici.",
+                    QMessageBox.warning(self, "ATTENZIONE", "Campo Quota Minima Relativa. \n Il valore deve essere di tipo numerico. \n (Sono stati inserite lettere, virgole, accenti o caratteri non numerici.",
                                         QMessageBox.Ok)
                     test = 1
             if larghezza_media != "":
                 if EC.data_is_float(larghezza_media) == 0:
-                    QMessageBox.warning(self, "ATTENZIONE", "Campo Misure-Lunghezza Media. \n Il valore deve essere di tipo numerico. \n (Sono stati inserite lettere, virgole, accenti o caratteri non numerici.",
+                    QMessageBox.warning(self, "ATTENZIONE", "Campo Larghezza Media. \n Il valore deve essere di tipo numerico. \n (Sono stati inserite lettere, virgole, accenti o caratteri non numerici.",
                                         QMessageBox.Ok)
                     test = 1
             if lunghezza_max != "":
                 if EC.data_is_float(lunghezza_max) == 0:
-                    QMessageBox.warning(self, "ATTENZIONE", "Campo Misure-Lunghezza Massima. \n Il valore deve essere di tipo numerico. \n (Sono stati inserite lettere, virgole, accenti o caratteri non numerici.",
+                    QMessageBox.warning(self, "ATTENZIONE", "Campo Lunghezza Massima. \n Il valore deve essere di tipo numerico. \n (Sono stati inserite lettere, virgole, accenti o caratteri non numerici.",
                                         QMessageBox.Ok)
                     test = 1
             if profondita_min != "":
                 if EC.data_is_float(profondita_min) == 0:
-                    QMessageBox.warning(self, "ATTENZIONE", "Campo Misure-Profondità Minima. \n Il valore deve essere di tipo numerico. \n (Sono stati inserite lettere, virgole, accenti o caratteri non numerici.",
+                    QMessageBox.warning(self, "ATTENZIONE", "Campo Profondità Minima. \n Il valore deve essere di tipo numerico. \n (Sono stati inserite lettere, virgole, accenti o caratteri non numerici.",
                                         QMessageBox.Ok)
                     test = 1
             if profondita_max != "":
                 if EC.data_is_float(profondita_max) == 0:
-                    QMessageBox.warning(self, "ATTENZIONE", "Campo Misure-Profondità Massima. \n Il valore deve essere di tipo numerico. \n (Sono stati inserite lettere, virgole, accenti o caratteri non numerici.",
+                    QMessageBox.warning(self, "ATTENZIONE", "Campo Profondità Massima. \n Il valore deve essere di tipo numerico. \n (Sono stati inserite lettere, virgole, accenti o caratteri non numerici.",
                                         QMessageBox.Ok)
                     test = 1
             if altezza_max != "":
                 if EC.data_is_float(altezza_max) == 0:
-                    QMessageBox.warning(self, "ATTENZIONE", "Campo Misure-Altezza Massima. \n Il valore deve essere di tipo numerico. \n (Sono stati inserite lettere, virgole, accenti o caratteri non numerici.",
+                    QMessageBox.warning(self, "ATTENZIONE", "Campo Spessore. \n Il valore deve essere di tipo numerico. \n (Sono stati inserite lettere, virgole, accenti o caratteri non numerici.",
                                         QMessageBox.Ok)
                     test = 1
             if altezza_min != "":
                 if EC.data_is_float(altezza_min) == 0:
-                    QMessageBox.warning(self, "ATTENZIONE", "Campo Misure-Altezza Minima. \n Il valore deve essere di tipo numerico. \n (Sono stati inserite lettere, virgole, accenti o caratteri non numerici.",
+                    QMessageBox.warning(self, "ATTENZIONE", "Campo Spessore Minima. \n Il valore deve essere di tipo numerico. \n (Sono stati inserite lettere, virgole, accenti o caratteri non numerici.",
                                         QMessageBox.Ok)
                     test = 1
             """controllo lunghezza campo alfanumerico"""
@@ -4071,9 +4132,9 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
                 quota_min_rel,  # 74
                 str(self.textEdit_osservazioni.toPlainText()),  # 75 osservazioni
                 str(self.comboBox_datazione.currentText()),  # 76 datazione
-                str(self.lineEdit_flottazione.text()),  # 77 flottazione
-                str(self.lineEdit_setacciatura.text()),  # 78 setacciatura
-                str(self.lineEdit_affidabilita.text()),  # 79 affidabilita
+                str(self.comboBox_flottazione.currentText()),  # 77 flottazione
+                str(self.comboBox_setacciatura.currentText()),  # 78 setacciatura
+                str(self.comboBox_affidabilita.currentText()),  # 79 affidabilita
                 str(self.comboBox_direttore_us.currentText()),  # 80 direttore us
                 str(self.comboBox_responsabile_us.currentText()),  # 81 responsabile us
                 str(self.lineEdit_cod_ente_schedatore.text()),  # 82 cod ente schedatore
@@ -4260,7 +4321,7 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
             self.REC_CORR = self.REC_CORR - rec_goto
         if self.REC_CORR <= -1:
             self.REC_CORR = self.REC_CORR + rec_goto
-            QMessageBox.warning(self, "Attenzione", "Numero troppo elevato!", QMessageBox.Ok)
+            QMessageBox.warning(self, "Attenzione", "Numero Rec Step troppo elevato", QMessageBox.Ok)
         else:
             try:
                 self.empty_fields()
@@ -4279,7 +4340,7 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
             self.REC_CORR = self.REC_CORR + rec_goto
         if self.REC_CORR >= self.REC_TOT:
             self.REC_CORR = self.REC_CORR - rec_goto
-            QMessageBox.warning(self, "Attenzione", "Numero troppo elevato!", QMessageBox.Ok)
+            QMessageBox.warning(self, "Attenzione", "Numero Rec Step troppo elevato", QMessageBox.Ok)
         else:
             try:
                 self.empty_fields()
@@ -4678,9 +4739,9 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
                 self.TABLE_FIELDS[71]:quota_min_rel,  # 74
                 self.TABLE_FIELDS[72]: "'" + str(self.textEdit_osservazioni.toPlainText()) + "'",  # 75 osservazioni
                 self.TABLE_FIELDS[73]: "'" + str(self.comboBox_datazione.currentText()) + "'",  # 76 datazione
-                self.TABLE_FIELDS[74]: "'" + str(self.lineEdit_flottazione.text()) + "'",  # 77 flottazione
-                self.TABLE_FIELDS[75]: "'" + str(self.lineEdit_setacciatura.text()) + "'",  # 78 setacciatura
-                self.TABLE_FIELDS[76]: "'" + str(self.lineEdit_affidabilita.text()) + "'",  # 79 affidabilita
+                self.TABLE_FIELDS[74]: "'" + str(self.comboBox_flottazione.currentText()) + "'",  # 77 flottazione
+                self.TABLE_FIELDS[75]: "'" + str(self.comboBox_setacciatura.currentText()) + "'",  # 78 setacciatura
+                self.TABLE_FIELDS[76]: "'" + str(self.comboBox_affidabilita.currentText()) + "'",  # 79 affidabilita
                 self.TABLE_FIELDS[77]: "'" + str(self.comboBox_direttore_us.currentText()) + "'",  # 80 direttore us
                 self.TABLE_FIELDS[78]: "'" + str(self.comboBox_responsabile_us.currentText()) + "'", # 81 responsabile us
                 self.TABLE_FIELDS[79]: "'" + str(self.lineEdit_cod_ente_schedatore.text()) + "'", # 82 cod ente schedatore
@@ -4842,18 +4903,28 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
                                    self.rec_toupdate())
             return 1
         except Exception as e:
+            str(e)
+            save_file='{}{}{}'.format(self.HOME, os.sep,"pyarchinit_Report_folder") 
+            file_=os.path.join(save_file,'error_encodig_data_recover.txt')
+            with open(file_, "a") as fh:
+                try:
+                    raise ValueError(str(e))
+                except ValueError as s:
+                    print(s, file=fh)
             if self.L=='it':
                 QMessageBox.warning(self, "Messaggio",
-                                    "Problema di encoding: sono stati inseriti accenti o caratteri non accettati dal database. Se chiudete ora la scheda senza correggere gli errori perderete i dati. Fare una copia di tutto su un foglio word a parte. Errore :" + str(
-                                        e), QMessageBox.Ok)
+                                    "Problema di encoding: sono stati inseriti accenti o caratteri non accettati dal database. Verrà fatta una copia dell'errore con i dati che puoi recuperare nella cartella pyarchinit_Report _Folder", QMessageBox.Ok)
+            
+            
             elif self.L=='de':
                 QMessageBox.warning(self, "Message",
-                                    "encoding Problem: Sonderszeichen wurden in die Datenbank eingefügt. Nicht alle Sonderzeichen werden von der Datenbank akzepptiert. Bitte ändern. Wenn du das Formular ietzt schliesst gehen die Daten verloren.Erstelle eine Sicherungskopie in Word. Error :" + str(
-                                        e), QMessageBox.Ok) 
+                                    "Encoding problem: accents or characters not accepted by the database were entered. A copy of the error will be made with the data you can retrieve in the pyarchinit_Report _Folder", QMessageBox.Ok) 
             else:
                 QMessageBox.warning(self, "Message",
-                                    "encoding problem: accents or characters not accepted by the database have been inserted. If you close the card now without correcting the errors you will lose the data. Make a copy of everything on a separate word sheet. Error :" + str(
-                                        e), QMessageBox.Ok)                                 
+                                    "Kodierungsproblem: Es wurden Akzente oder Zeichen eingegeben, die von der Datenbank nicht akzeptiert werden. Es wird eine Kopie des Fehlers mit den Daten erstellt, die Sie im pyarchinit_Report _Ordner abrufen können", QMessageBox.Ok)                                 
+            
+            
+            
             return 0
     def rec_toupdate(self):
         rec_to_update = self.UTILITY.pos_none_in_list(self.DATA_LIST_REC_TEMP)
@@ -5053,9 +5124,9 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
         self.lineEdit_quota_min_rel.clear()  # 74
         self.textEdit_osservazioni.clear()  # 75 osservazioni
         self.comboBox_datazione.setEditText("")  # 76 datazione
-        self.lineEdit_flottazione.clear()  # 77 flottazione
-        self.lineEdit_setacciatura.clear()  # 78 setacciatura
-        self.lineEdit_affidabilita.clear()  # 79 affidabilita
+        self.comboBox_flottazione.setEditText("")  # 77 flottazione
+        self.comboBox_setacciatura.setEditText("")   # 78 setacciatura
+        self.comboBox_affidabilita.setEditText("")   # 79 affidabilita
         self.comboBox_direttore_us.setEditText("")  # 80 direttore us
         self.comboBox_responsabile_us.setEditText("")  # 81 responsabile us
         self.lineEdit_cod_ente_schedatore.clear()  # 82 cod ente schedatore
@@ -5210,9 +5281,9 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
         self.lineEdit_quota_min_rel.clear()  # 74
         self.textEdit_osservazioni.clear()  # 75 osservazioni
         self.comboBox_datazione.setEditText("")  # 76 datazione
-        self.lineEdit_flottazione.clear()  # 77 flottazione
-        self.lineEdit_setacciatura.clear()  # 78 setacciatura
-        self.lineEdit_affidabilita.clear()  # 79 affidabilita
+        self.comboBox_flottazione.setEditText("")   # 77 flottazione
+        self.comboBox_setacciatura.setEditText("")  # 78 setacciatura
+        self.comboBox_affidabilita.setEditText("")  # 79 affidabilita
         self.comboBox_direttore_us.setEditText("")  # 80 direttore us
         self.comboBox_responsabile_us.setEditText("")  # 81 responsabile us
         self.lineEdit_cod_ente_schedatore.clear()  # 82 cod ente schedatore
@@ -5379,9 +5450,9 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
                 self.lineEdit_quota_min_rel.setText(str(self.DATA_LIST[self.rec_num].quota_min_rel))  # 74 quota_min_rel
             str(self.textEdit_osservazioni.setText(self.DATA_LIST[self.rec_num].osservazioni))  # 75 osservazioni
             str(self.comboBox_datazione.setEditText(self.DATA_LIST[self.rec_num].datazione))  # 76 datazione
-            str(self.lineEdit_flottazione.setText(self.DATA_LIST[self.rec_num].flottazione))  # 77 flottazione
-            str(self.lineEdit_setacciatura.setText(self.DATA_LIST[self.rec_num].setacciatura))  # 78 setacciatura
-            str(self.lineEdit_affidabilita.setText(self.DATA_LIST[self.rec_num].affidabilita))        # 79 affidabilita
+            str(self.comboBox_flottazione.setEditText(self.DATA_LIST[self.rec_num].flottazione))  # 77 flottazione
+            str(self.comboBox_setacciatura.setEditText(self.DATA_LIST[self.rec_num].setacciatura))  # 78 setacciatura
+            str(self.comboBox_affidabilita.setEditText(self.DATA_LIST[self.rec_num].affidabilita))        # 79 affidabilita
             str(self.comboBox_direttore_us.setEditText(self.DATA_LIST[self.rec_num].direttore_us))  # 80 direttore us
             str(self.comboBox_responsabile_us.setEditText(self.DATA_LIST[self.rec_num].responsabile_us))  # 81 responsabile us
             str(self.lineEdit_cod_ente_schedatore.setText(self.DATA_LIST[self.rec_num].cod_ente_schedatore))  # 82 cod ente schedatore
@@ -5628,9 +5699,9 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
             str(quota_min_rel),  # 74
             str(self.textEdit_osservazioni.toPlainText()),  # 75 osservazioni
             str(self.comboBox_datazione.currentText()),  # 76 datazione
-            str(self.lineEdit_flottazione.text()),  # 77 flottazione
-            str(self.lineEdit_setacciatura.text()),  # 78 setacciatura
-            str(self.lineEdit_affidabilita.text()),  # 79 affidabilita
+            str(self.comboBox_flottazione.currentText()),  # 77 flottazione
+            str(self.comboBox_setacciatura.currentText()),  # 78 setacciatura
+            str(self.comboBox_affidabilita.currentText()),  # 79 affidabilita
             str(self.comboBox_direttore_us.currentText()),  # 80 direttore us
             str(self.comboBox_responsabile_us.currentText()), # 81 responsabile us
             str(self.lineEdit_cod_ente_schedatore.text()), # 82 cod ente schedatore

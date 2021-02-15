@@ -13,7 +13,9 @@ class PYSEZIONI(object):
                 sito, 
                 area, 
                 descr, 
-                the_geom
+                the_geom,
+                tipo_doc,
+                nome_doc
                 ):
         self.id=id
         self.id_sezione=id_sezione 
@@ -21,13 +23,17 @@ class PYSEZIONI(object):
         self.area=area
         self.descr=descr
         self.the_geom=the_geom
+        self.tipo_doc=tipo=doc
+        self.nome_doc=nome_doc
     # def __repr__"
     @property
     def __repr__(self):
-        return "<PYSEZIONI('%d','%s', '%s', '%d', '%s', '%s')>" % (
+        return "<PYSEZIONI('%d','%s', '%s', '%d', '%s', '%s', '%s', '%s')>" % (
             self.id,
             self.id_sezione, 
             self.sito, 
             self.area, 
             self.descr, 
-            self.the_geom)
+            self.the_geom,
+            self.tipo_doc,
+            self.nome_doc)

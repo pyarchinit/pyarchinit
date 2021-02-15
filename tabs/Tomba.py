@@ -357,18 +357,18 @@ class pyarchinit_Tomba(QDialog, MAIN_DIALOG_CLASS):
             self.on_pushButton_connect_pressed()
         except Exception as e:
             QMessageBox.warning(self, "Connection system", str(e), QMessageBox.Ok)
-        #self.customize_GUI()  # call for GUI customizations
+        self.lineEdit_nr_scheda.setText('')
+        self.lineEdit_nr_scheda.textChanged.connect(self.update)
+        self.lineEdit_nr_scheda.textChanged.connect(self.charge_struttura_list)
+        #self.comboBox_sito.currentTextChanged.connect(self.charge_struttura_list)
+        self.lineEdit_nr_scheda.textChanged.connect(self.charge_struttura_nr)
+        self.lineEdit_nr_scheda.textChanged.connect(self.charge_individuo_list)
+        self.lineEdit_nr_scheda.textChanged.connect(self.charge_oggetti_esterno_list)
         
         # SIGNALS & SLOTS Functions
-        self.comboBox_sito.currentIndexChanged.connect(self.charge_struttura_list)
-        self.comboBox_sito.currentTextChanged.connect(self.charge_struttura_list)
-        self.comboBox_sigla_struttura.currentIndexChanged.connect(self.charge_struttura_nr)
-        self.comboBox_sigla_struttura.currentIndexChanged.connect(self.charge_individuo_list)
-        self.comboBox_sigla_struttura.currentIndexChanged.connect(self.charge_oggetti_esterno_list)
-        # SIGNALS & SLOTS Functions
         
-        self.comboBox_sigla_struttura.currentIndexChanged.connect(self.charge_periodo_iniz_list)
-        self.comboBox_sigla_struttura.currentIndexChanged.connect(self.charge_periodo_fin_list)
+        self.lineEdit_nr_scheda.textChanged.connect(self.charge_periodo_iniz_list)
+        self.lineEdit_nr_scheda.textChanged.connect(self.charge_periodo_fin_list)
 
         
         self.comboBox_per_iniz.currentIndexChanged.connect(self.charge_fase_iniz_list)
@@ -385,6 +385,28 @@ class pyarchinit_Tomba(QDialog, MAIN_DIALOG_CLASS):
         self.loadCorredolist()
         self.set_sito()
         self.msg_sito()
+        self.numero_invetario()
+    def numero_invetario(self):
+        # self.set_sito()
+        contatore = 0
+        list=[]
+        if self.lineEdit_nr_scheda.text()=='':
+            self.lineEdit_nr_scheda.clear()
+            self.lineEdit_nr_scheda.setText('1')
+            self.lineEdit_nr_scheda.update()
+            for i in range(len(self.DATA_LIST)):
+                self.lineEdit_nr_scheda.clear()
+                contatore = int(self.DATA_LIST[i].nr_scheda_taf)
+                #contatore.sort(reverse=False)
+                list.append(contatore)
+                
+               
+                list[-1]+=1
+                
+                list.sort()
+            for e in list:    
+                
+                self.lineEdit_nr_scheda.setText(str(e))
     def loadCorredolist(self):
         self.tableWidget_corredo_tipo.clear()
         if self.L=='it':
@@ -404,7 +426,7 @@ class pyarchinit_Tomba(QDialog, MAIN_DIALOG_CLASS):
             if bool (sito_set_str):
                 search_dict = {
                         'sito': "'"+str(sito_set_str)+"'",
-                        'area': "'" + str(eval("self.DATA_LIST[int(self.REC_CORR)].area"))+ "'"
+                        'struttura': "'" + str(eval('self.DATA_LIST[int(self.REC_CORR)].sigla_struttura'))+'-'+ str(eval('self.DATA_LIST[int(self.REC_CORR)].nr_struttura'))+"'"
                     }
                 u = Utility()
                 search_dict = u.remove_empty_items_fr_dict(search_dict)
@@ -443,10 +465,10 @@ class pyarchinit_Tomba(QDialog, MAIN_DIALOG_CLASS):
                         self.tableWidget_corredo_tipo.setItemDelegateForColumn(1,self.delegateIS)
         
         
-        except Exception as e:
-            QMessageBox.warning(self, "Alert", " %s " % (str(e)),
-                        QMessageBox.Ok)
+        except:
+            pass
         
+    
     
     def enable_button(self, n):
         self.pushButton_connect.setEnabled(n)
@@ -692,6 +714,29 @@ class pyarchinit_Tomba(QDialog, MAIN_DIALOG_CLASS):
         sito_vl.sort()
         self.comboBox_sito.addItems(sito_vl)
 
+        
+        area_vl = self.UTILITY.tup_2_list_III(self.DB_MANAGER.group_by('us_table', 'area', 'US'))
+        try:
+            area_vl.remove('')
+        except Exception as e:
+            if str(e) == "list.remove(x): x not in list":
+                pass
+            else:
+                if self.L=='it':
+                    QMessageBox.warning(self, "Messaggio", "Sistema di aggiornamento lista area: " + str(e), QMessageBox.Ok)
+                elif self.L=='en':
+                    QMessageBox.warning(self, "Message", "Site list update system: " + str(e), QMessageBox.Ok)
+                elif self.L=='de':
+                    QMessageBox.warning(self, "Nachricht", "Aktualisierungssystem für die Ausgrabungstätte: " + str(e), QMessageBox.Ok)
+                else:
+                    pass
+
+        self.comboBox_area.clear()
+
+        area_vl.sort()
+        self.comboBox_area.addItems(area_vl)
+        
+        
         # lista rito
 
         self.comboBox_rito.clear()
@@ -912,62 +957,68 @@ class pyarchinit_Tomba(QDialog, MAIN_DIALOG_CLASS):
             
                 QMessageBox.information(self, "Warning" , "There is no such site: "'"'+ str(site_set_str) +'"'" in this tab, Please disable the 'site choice' from the plugin configuration tab to see all records or create the tab",QMessageBox.Ok) 
     def charge_periodo_iniz_list(self):
-        sito = str(self.comboBox_sito.currentText())
+        try:    
+            sito = str(self.comboBox_sito.currentText())
 
-        search_dict = {
-            'sito': "'" + sito + "'"
-        }
+            search_dict = {
+                'sito': "'" + sito + "'",
+                'area': "'" + str(eval("self.DATA_LIST[int(self.REC_CORR)].area"))+ "'"
+            }
 
-        periodo_vl = self.DB_MANAGER.query_bool(search_dict, 'PERIODIZZAZIONE')
+            periodo_vl = self.DB_MANAGER.query_bool(search_dict, 'PERIODIZZAZIONE')
 
-        periodo_list = []
+            periodo_list = []
 
-        for i in range(len(periodo_vl)):
-            periodo_list.append(str(periodo_vl[i].periodo))
-        try:
-            periodo_vl.remove('')
+            for i in range(len(periodo_vl)):
+                periodo_list.append(str(periodo_vl[i].periodo))
+            try:
+                periodo_vl.remove('')
+            except:
+                pass
+
+            self.comboBox_per_iniz.clear()
+            self.comboBox_per_iniz.addItems(self.UTILITY.remove_dup_from_list(periodo_list))
+
+            if self.STATUS_ITEMS[self.BROWSE_STATUS] == "Trova" or "Finden" or "Find":
+                self.comboBox_per_iniz.setEditText("")
+            elif self.STATUS_ITEMS[self.BROWSE_STATUS] == "Usa" or "Aktuell " or "Current":
+                if len(self.DATA_LIST) > 0:
+                    try:
+                        self.comboBox_per_iniz.setEditText(self.DATA_LIST[self.rec_num].periodo_iniziale)
+                    except:
+                        pass  # non vi sono periodi per questo scavo
         except:
             pass
-
-        self.comboBox_per_iniz.clear()
-        self.comboBox_per_iniz.addItems(self.UTILITY.remove_dup_from_list(periodo_list))
-
-        if self.STATUS_ITEMS[self.BROWSE_STATUS] == "Trova" or "Finden" or "Find":
-            self.comboBox_per_iniz.setEditText("")
-        elif self.STATUS_ITEMS[self.BROWSE_STATUS] == "Trova" or "Find":
-            if len(self.DATA_LIST) > 0:
-                try:
-                    self.comboBox_per_iniz.setEditText(self.DATA_LIST[self.rec_num].periodo_iniziale)
-                except:
-                    pass  # non vi sono periodi per questo scavo
-
     def charge_periodo_fin_list(self):
-        search_dict = {
-            'sito': "'" + str(self.comboBox_sito.currentText()) + "'"
-        }
-
-        periodo_vl = self.DB_MANAGER.query_bool(search_dict, 'PERIODIZZAZIONE')
-        periodo_list = []
-
-        for i in range(len(periodo_vl)):
-            periodo_list.append(str(periodo_vl[i].periodo))
         try:
-            periodo_vl.remove('')
+            search_dict = {
+                'sito': "'" + str(self.comboBox_sito.currentText()) + "'",
+                'area': "'" + str(eval("self.DATA_LIST[int(self.REC_CORR)].area"))+ "'"
+            }
+
+            periodo_vl = self.DB_MANAGER.query_bool(search_dict, 'PERIODIZZAZIONE')
+            periodo_list = []
+
+            for i in range(len(periodo_vl)):
+                periodo_list.append(str(periodo_vl[i].periodo))
+            try:
+                periodo_vl.remove('')
+            except:
+                pass
+
+            self.comboBox_per_fin.clear()
+            self.comboBox_per_fin.addItems(self.UTILITY.remove_dup_from_list(periodo_list))
+
+            if self.STATUS_ITEMS[self.BROWSE_STATUS] == "Trova" or "Finden" or "Find":
+                self.comboBox_per_fin.setEditText("")
+            elif self.STATUS_ITEMS[self.BROWSE_STATUS] == "Usa" or "Aktuell " or "Current":
+                if len(self.DATA_LIST) > 0:
+                    try:
+                        self.comboBox_per_fin.setEditText(self.DATA_LIST[self.rec_num].periodo_iniziale)
+                    except:
+                        pass
         except:
             pass
-
-        self.comboBox_per_fin.clear()
-        self.comboBox_per_fin.addItems(self.UTILITY.remove_dup_from_list(periodo_list))
-
-        if self.STATUS_ITEMS[self.BROWSE_STATUS] == "Trova" or "Finden" or "Find":
-            self.comboBox_per_fin.setEditText("")
-        elif self.STATUS_ITEMS[self.BROWSE_STATUS] == "Usa" or "Aktuell " or "Current":
-            if len(self.DATA_LIST) > 0:
-                try:
-                    self.comboBox_per_fin.setEditText(self.DATA_LIST[self.rec_num].periodo_iniziale)
-                except:
-                    pass
-
     def charge_fase_iniz_list(self):
         try:
             search_dict = {
@@ -1114,62 +1165,70 @@ class pyarchinit_Tomba(QDialog, MAIN_DIALOG_CLASS):
             except:
                 pass
     def charge_individuo_list(self):
-        #if self.comboBox_nr_individuo.setEditText:
-        sito = str(self.comboBox_sito.currentText())
-        area = str(self.comboBox_area.currentText())
-        
-        search_dict = {
-            'area': "'" + area + "'",
-            'sito': "'" + sito + "'"
-        }
-        inv_vl = self.DB_MANAGER.query_bool(search_dict,'SCHEDAIND')
-        inv_list = []
-        for i in range(len(inv_vl)):
-            inv_list.append(str(inv_vl[i].nr_individuo))
         try:
-            inv_vl.remove('')
-        except :
+            #if self.comboBox_nr_individuo.setEditText:
+            sito = str(self.comboBox_sito.currentText())
+            
+            
+            search_dict = {
+                
+                'sito': "'" + sito + "'",
+                #'area': "'" + str(eval("self.DATA_LIST[int(self.REC_CORR)].area"))+ "'",
+                'sigla_struttura': "'"+ str(eval("self.DATA_LIST[int(self.REC_CORR)].sigla_struttura"))+"'",
+                'nr_struttura': "'"+ str(eval("self.DATA_LIST[int(self.REC_CORR)].nr_struttura"))+"'"
+            }
+            inv_vl = self.DB_MANAGER.query_bool(search_dict,'SCHEDAIND')
+            inv_list = []
+            for i in range(len(inv_vl)):
+                inv_list.append(str(inv_vl[i].nr_individuo))
+            try:
+                inv_vl.remove('')
+            except :
+                pass
+            self.comboBox_nr_individuo.clear()
+            self.comboBox_nr_individuo.addItems(self.UTILITY.remove_dup_from_list(inv_list))
+            if self.STATUS_ITEMS[self.BROWSE_STATUS] == "Trova" or "Finden" or "Find":
+                self.comboBox_nr_individuo.setEditText("")
+            elif self.STATUS_ITEMS[self.BROWSE_STATUS] == "Usa" or "Aktuell " or "Current":
+                if len(self.DATA_LIST) > 0:
+                    try:
+                        self.comboBox_nr_individuo.setEditText(self.DATA_LIST[self.rec_num].nr_individuo)
+                        
+                    except :
+                        pass
+        except:
             pass
-        self.comboBox_nr_individuo.clear()
-        self.comboBox_nr_individuo.addItems(self.UTILITY.remove_dup_from_list(inv_list))
-        if self.STATUS_ITEMS[self.BROWSE_STATUS] == "Trova" or "Finden" or "Find":
-            self.comboBox_nr_individuo.setEditText("")
-        elif self.STATUS_ITEMS[self.BROWSE_STATUS] == "Usa" or "Aktuell " or "Current":
-            if len(self.DATA_LIST) > 0:
-                try:
-                    self.comboBox_nr_individuo.setEditText(self.DATA_LIST[self.rec_num].nr_individuo)
-                    
-                except :
-                    pass
     def charge_oggetti_esterno_list(self):
-        
-        sito = str(self.comboBox_sito.currentText())
-        area = str(self.comboBox_area.currentText())
-        
-        search_dict = {
-            'area': "'" + str(eval("self.DATA_LIST[int(self.REC_CORR)].area"))+ "'",
-            'sito': "'" + sito + "'"
-        }
-        inv_vl = self.DB_MANAGER.query_bool(search_dict,'INVENTARIO_MATERIALI')
-        inv_list = []
-        for i in range(len(inv_vl)):
-            inv_list.append(str(inv_vl[i].n_reperto))
         try:
-            inv_vl.remove('')
-        except :
+            sito = str(self.comboBox_sito.currentText())
+            area = str(self.comboBox_area.currentText())
+            
+            search_dict = {
+                
+                'sito': "'" + sito + "'",
+                'struttura': "'" + str(eval('self.DATA_LIST[int(self.REC_CORR)].sigla_struttura'))+'-'+ str(eval('self.DATA_LIST[int(self.REC_CORR)].nr_struttura'))+"'"#str(eval("self.DATA_LIST[int(self.REC_CORR)].area"))+ "'",
+            }
+            inv_vl = self.DB_MANAGER.query_bool(search_dict,'INVENTARIO_MATERIALI')
+            inv_list = []
+            for i in range(len(inv_vl)):
+                inv_list.append(str(inv_vl[i].n_reperto))
+            try:
+                inv_vl.remove('')
+            except :
+                pass
+            self.comboBox_oggetti_esterno.clear()
+            self.comboBox_oggetti_esterno.addItems(self.UTILITY.remove_dup_from_list(inv_list))
+            if self.STATUS_ITEMS[self.BROWSE_STATUS] == "Trova" or "Finden" or "Find":
+                self.comboBox_oggetti_esterno.setEditText("")
+            elif self.STATUS_ITEMS[self.BROWSE_STATUS] == "Usa" or "Aktuell " or "Current":
+                if len(self.DATA_LIST) > 0:
+                    try:
+                        self.comboBox_oggetti_esterno.setEditText(self.DATA_LIST[self.rec_num].oggetti_esterno)
+                        
+                    except :
+                        pass
+        except:
             pass
-        self.comboBox_oggetti_esterno.clear()
-        self.comboBox_oggetti_esterno.addItems(self.UTILITY.remove_dup_from_list(inv_list))
-        if self.STATUS_ITEMS[self.BROWSE_STATUS] == "Trova" or "Finden" or "Find":
-            self.comboBox_oggetti_esterno.setEditText("")
-        elif self.STATUS_ITEMS[self.BROWSE_STATUS] == "Usa" or "Aktuell " or "Current":
-            if len(self.DATA_LIST) > 0:
-                try:
-                    self.comboBox_oggetti_esterno.setEditText(self.DATA_LIST[self.rec_num].oggetti_esterno)
-                    
-                except :
-                    pass
-    
     def on_toolButtonPan_toggled(self):
         self.toolPan = QgsMapToolPan(self.mapPreview)
         self.mapPreview.setMapTool(self.toolPan)
@@ -1319,7 +1378,7 @@ class pyarchinit_Tomba(QDialog, MAIN_DIALOG_CLASS):
                 self.BROWSE_STATUS = "n"
                 self.label_status.setText(self.STATUS_ITEMS[self.BROWSE_STATUS])
                 self.empty_fields_nosite()
-
+                self.setComboBoxEnable(["self.comboBox_sito"], "False")
                 self.setComboBoxEnable(["self.lineEdit_nr_scheda"], "True")
 
                 
@@ -1329,11 +1388,14 @@ class pyarchinit_Tomba(QDialog, MAIN_DIALOG_CLASS):
                 self.label_status.setText(self.STATUS_ITEMS[self.BROWSE_STATUS])
                 self.set_rec_counter('', '')
                 self.label_sort.setText(self.SORTED_ITEMS["n"])
+                self.numero_invetario()
             else:
                 self.BROWSE_STATUS = "n"
                 self.label_status.setText(self.STATUS_ITEMS[self.BROWSE_STATUS])
                 self.empty_fields()
-
+                self.setComboBoxEditable(["self.comboBox_sito"], 1)
+                
+                self.setComboBoxEnable(["self.comboBox_sito"], "True")
                 self.setComboBoxEnable(["self.lineEdit_nr_scheda"], "True")
 
                 
@@ -1342,6 +1404,7 @@ class pyarchinit_Tomba(QDialog, MAIN_DIALOG_CLASS):
                 self.label_status.setText(self.STATUS_ITEMS[self.BROWSE_STATUS])
                 self.set_rec_counter('', '')
                 self.label_sort.setText(self.SORTED_ITEMS["n"])
+                self.numero_invetario()
             self.enable_button(0)
 
     def on_pushButton_save_pressed(self):
@@ -2148,19 +2211,25 @@ class pyarchinit_Tomba(QDialog, MAIN_DIALOG_CLASS):
                                    self.rec_toupdate())
             return 1
         except Exception as e:
+            str(e)
+            save_file='{}{}{}'.format(self.HOME, os.sep,"pyarchinit_Report_folder") 
+            file_=os.path.join(save_file,'error_encodig_data_recover.txt')
+            with open(file_, "a") as fh:
+                try:
+                    raise ValueError(str(e))
+                except ValueError as s:
+                    print(s, file=fh)
             if self.L=='it':
                 QMessageBox.warning(self, "Messaggio",
-                                    "Problema di encoding: sono stati inseriti accenti o caratteri non accettati dal database. Se chiudete ora la scheda senza correggere gli errori perderete i dati. Fare una copia di tutto su un foglio word a parte. Errore :" + str(
-                                        e), QMessageBox.Ok)
+                                    "Problema di encoding: sono stati inseriti accenti o caratteri non accettati dal database. Verrà fatta una copia dell'errore con i dati che puoi recuperare nella cartella pyarchinit_Report _Folder", QMessageBox.Ok)
+            
+            
             elif self.L=='de':
                 QMessageBox.warning(self, "Message",
-                                    "encoding Problem: Sonderszeichen wurden in die Datenbank eingefügt. Nicht alle Sonderzeichen werden von der Datenbank akzepptiert. Bitte ändern. Wenn du das Formular ietzt schliesst gehen die Daten verloren.Erstelle eine Sicherungskopie in Word. Error :" + str(
-                                        e), QMessageBox.Ok) 
-
+                                    "Encoding problem: accents or characters not accepted by the database were entered. A copy of the error will be made with the data you can retrieve in the pyarchinit_Report _Folder", QMessageBox.Ok) 
             else:
                 QMessageBox.warning(self, "Message",
-                                    "encoding problem: accents or characters not accepted by the database have been inserted. If you close the card now without correcting the errors you will lose the data. Make a copy of everything on a separate word sheet. Error :" + str(
-                                        e), QMessageBox.Ok)                                 
+                                    "Kodierungsproblem: Es wurden Akzente oder Zeichen eingegeben, die von der Datenbank nicht akzeptiert werden. Es wird eine Kopie des Fehlers mit den Daten erstellt, die Sie im pyarchinit_Report _Ordner abrufen können", QMessageBox.Ok)                                                
             return 0
 
     def rec_toupdate(self):
