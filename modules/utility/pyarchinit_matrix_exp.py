@@ -28,6 +28,8 @@ from graphviz import Digraph, Source
 from .pyarchinit_OS_utility import Pyarchinit_OS_Utility
 from ..db.pyarchinit_db_manager import Pyarchinit_db_management
 from ...tabs.pyarchinit_setting_matrix import *
+
+
 class HarrisMatrix:
     L=QgsSettings().value("locale/userLocale")[0:2]
     HOME = os.environ['PYARCHINIT_HOME']
@@ -42,6 +44,7 @@ class HarrisMatrix:
         self.negative = negative
         self.periodi=periodi
         self.conteporene=conteporene
+        
     @property
     def export_matrix(self):
         dialog = Setting_Matrix()
@@ -200,10 +203,13 @@ class HarrisMatrix:
                              #startupinfo=si if Pyarchinit_OS_Utility.isWindows()else None)
 
         tred_file = os.path.join(matrix_path, filename + '_tred.dot')
-        
+        graphml_file = os.path.join(matrix_path, filename + '.graphml')
         f = Source.from_file(tred_file, format='png')
         f.render()
         g = Source.from_file(tred_file, format='jpg')
         g.render()
         return g,f
         # return f
+    def on_pushButton_graphml_pressed(self):
+        provo= dottoxml, tred, graphml_file
+        return provo
