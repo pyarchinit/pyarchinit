@@ -23,8 +23,8 @@
 import sys
 import locale
 import optparse
-
 import dot
+
 
 # Usage message
 usgmsg = "Usage: dottoxml.py [options] infile.dot outfile.graphml"

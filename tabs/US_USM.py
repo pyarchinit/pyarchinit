@@ -23,6 +23,8 @@ from builtins import str
 import sqlite3  
 from sqlite3 import Error
 import os
+import sys
+import subprocess
 import platform
 from pdf2docx import parse
 from datetime import date
@@ -53,6 +55,7 @@ from ..gui.imageViewer import ImageViewer
 from ..gui.pyarchinitConfigDialog import pyArchInitDialog_Config
 from ..gui.sortpanelmain import SortPanelMain
 from ..resources.resources_rc import *
+
 MAIN_DIALOG_CLASS, _ = loadUiType(
     os.path.join(os.path.dirname(__file__), os.pardir, 'gui', 'ui', 'US_USM.ui'))
 class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
@@ -743,6 +746,8 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
     }
     HOME = os.environ['PYARCHINIT_HOME']
     REPORT_PATH = '{}{}{}'.format(HOME, os.sep, "pyarchinit_Report_folder")
+    MATRIX_PATH = '{}{}{}'.format(HOME, os.sep, "pyarchinit_Matrix_folder")
+    BIN = '{}{}{}'.format(HOME, os.sep, "bin")
     DB_SERVER = "not defined"  ####nuovo sistema sort
     def __init__(self, iface):
         super().__init__()
@@ -753,6 +758,7 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
         self.mDockWidget_export.setHidden(True)
         self.mDockWidget_3.setHidden(True)
         self.mDockWidget_4.setHidden(True)
+        self.mDockWidget_5.setHidden(True)
         self.currentLayerId = None
         self.search = SearchLayers(iface)
         try:
@@ -782,6 +788,8 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
         self.search_1.textChanged.connect(self.update_filter)
         self.comboBox_per_fin.currentIndexChanged.connect(self.charge_fase_fin_list)
         self.toolButton_pdfpath.clicked.connect(self.setPathpdf)
+        self.toolButton_input.clicked.connect(self.setPathdot)
+        self.toolButton_output.clicked.connect(self.setPathgraphml)
         self.pbnOpenpdfDirectory.clicked.connect(self.openpdfDir)
         self.progressBar.setTextVisible(True)
         sito = self.comboBox_sito.currentText()
@@ -2909,6 +2917,57 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
             docx_file = self.PDFFOLDER+'/'+filename+'.docx'
             # convert pdf to docx
             parse(pdf_file, docx_file, start=self.lineEdit_pag1.text(), end=self.lineEdit_pag2.text())
+            
+            QMessageBox.information(self, "INFO", "Conversion completed",
+                                QMessageBox.Ok)
+        except Exception as e:
+            QMessageBox.warning(self, "Error", str(e),
+                                QMessageBox.Ok)
+    
+    def setPathdot(self):
+        s = QgsSettings()
+        dbpath = QFileDialog.getOpenFileName(
+            self,
+            "Set file name",
+            self.MATRIX_PATH,
+            " Dot (*.dot)"
+        )[0]
+        #filename=dbpath.split("/")[-1]
+        if dbpath:
+            self.lineEdit_input.setText(dbpath)
+            s.setValue('',dbpath)
+    
+    def setPathgraphml(self):
+        s = QgsSettings()
+        dbpath = QFileDialog.getSaveFileName(
+            self,
+            "Set file name",
+            self.MATRIX_PATH,
+            " Graphml (*.graphml)"
+        )[0]
+        #filename=dbpath.split("/")[-1]
+        if dbpath:
+            self.lineEdit_output.setText(dbpath)
+            s.setValue('',dbpath)
+    def on_pushButton_graphml_pressed(self):
+        # if not bool(self.setPathpdf()):    
+            # QMessageBox.warning(self, "INFO", "devi scegliere un file pdf",
+                                # QMessageBox.Ok)
+        dottoxml='{}{}{}'.format(self.BIN, os.sep, 'dottoxml.py')
+        try:
+            input_file = self.lineEdit_input.text()
+            output_file = self.lineEdit_output.text()
+            
+            python_path = sys.exec_prefix
+            python_version = sys.version[:3]
+
+            if platform.system()=='Windows':
+                cmd = '{}\python'.format(python_path)
+            elif platform.system()=='Darwin':
+                cmd = '{}/bin/python{}'.format(python_path, python_version)
+            else:
+                cmd = '{}/bin/python{}'.format(python_path, python_version)
+            subprocess.check_call([cmd, dottoxml, '-f', 'Graphml', input_file, output_file], shell=False)
             
             QMessageBox.information(self, "INFO", "Conversion completed",
                                 QMessageBox.Ok)

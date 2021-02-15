@@ -59,10 +59,26 @@ class pyarchinit_Folder_installation(object):
         osx_copy_from_path_rel = os.path.join(os.sep, 'dbfiles', 'sqldiff_osx')
         osx_copy_from_path = '{}{}'.format(self.RESOURCES_PATH, osx_copy_from_path_rel)
         osx_copy_to_path = '{}{}{}'.format(home_bin_export_path, os.sep, 'sqldiff_osx')
+        
+        dottoxml_copy_from_path_rel = os.path.join(os.sep, 'dbfiles', 'dottoxml.py')
+        dottoxml_copy_from_path = '{}{}'.format(self.RESOURCES_PATH, dottoxml_copy_from_path_rel)
+        dottoxml_copy_to_path = '{}{}{}'.format(home_bin_export_path, os.sep, 'dottoxml.py')
+        
+        dot_copy_from_path_rel = os.path.join(os.sep, 'dbfiles', 'dot.py')
+        dot_copy_from_path = '{}{}'.format(self.RESOURCES_PATH, dot_copy_from_path_rel)
+        dot_copy_to_path = '{}{}{}'.format(home_bin_export_path, os.sep, 'dot.py')
+        
+        X11Colors_copy_from_path_rel = os.path.join(os.sep, 'dbfiles', 'X11Colors.py')
+        X11Colors_copy_from_path = '{}{}'.format(self.RESOURCES_PATH, X11Colors_copy_from_path_rel)
+        X11Colors_copy_to_path = '{}{}{}'.format(home_bin_export_path, os.sep, 'X11Colors.py')
+        
         self.OS_UTILITY.copy_file(db_copy_from_bin, db_copy_to_bin)
         self.OS_UTILITY.copy_file(w_copy_from_path, w_copy_to_path)
         self.OS_UTILITY.copy_file(linux_copy_from_path, linux_copy_to_path)
         self.OS_UTILITY.copy_file(osx_copy_from_path, osx_copy_to_path)
+        self.OS_UTILITY.copy_file(dottoxml_copy_from_path, dottoxml_copy_to_path)
+        self.OS_UTILITY.copy_file(dot_copy_from_path, dot_copy_to_path)
+        self.OS_UTILITY.copy_file(X11Colors_copy_from_path, X11Colors_copy_to_path)
 
         db_copy_from_path_rel = os.path.join(os.sep, 'dbfiles', 'pyarchinit_db.sqlite')
         db_copy_from_path = '{}{}'.format(self.RESOURCES_PATH, db_copy_from_path_rel)
@@ -167,7 +183,23 @@ class pyarchinit_Folder_installation(object):
         osx_copy_from_path_rel = os.path.join(os.sep, 'dbfiles', 'sqldiff_osx')
         osx_copy_from_path = '{}{}'.format(self.RESOURCES_PATH, osx_copy_from_path_rel)
         osx_copy_to_path = '{}{}{}'.format(home_bin_export_path, os.sep, 'sqldiff_osx')
+        
+        dottoxml_copy_from_path_rel = os.path.join(os.sep, 'dbfiles', 'dottoxml.py')
+        dottoxml_copy_from_path = '{}{}'.format(self.RESOURCES_PATH, dottoxml_copy_from_path_rel)
+        dottoxml_copy_to_path = '{}{}{}'.format(home_bin_export_path, os.sep, 'dottoxml.py')
+        
+        dot_copy_from_path_rel = os.path.join(os.sep, 'dbfiles', 'dot.py')
+        dot_copy_from_path = '{}{}'.format(self.RESOURCES_PATH, dot_copy_from_path_rel)
+        dot_copy_to_path = '{}{}{}'.format(home_bin_export_path, os.sep, 'dot.py')
+        
+        X11Colors_copy_from_path_rel = os.path.join(os.sep, 'dbfiles', 'X11Colors.py')
+        X11Colors_copy_from_path = '{}{}'.format(self.RESOURCES_PATH, X11Colors_copy_from_path_rel)
+        X11Colors_copy_to_path = '{}{}{}'.format(home_bin_export_path, os.sep, 'X11Colors.py')
+        
         self.OS_UTILITY.copy_file(db_copy_from_bin, db_copy_to_bin)
         self.OS_UTILITY.copy_file(w_copy_from_path, w_copy_to_path)
         self.OS_UTILITY.copy_file(linux_copy_from_path, linux_copy_to_path)
         self.OS_UTILITY.copy_file(osx_copy_from_path, osx_copy_to_path)
+        self.OS_UTILITY.copy_file(dottoxml_copy_from_path, dottoxml_copy_to_path)
+        self.OS_UTILITY.copy_file(dot_copy_from_path, dot_copy_to_path)
+        self.OS_UTILITY.copy_file(X11Colors_copy_from_path, X11Colors_copy_to_path)
