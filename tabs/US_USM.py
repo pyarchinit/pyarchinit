@@ -20,12 +20,16 @@
 from __future__ import absolute_import
 from builtins import range
 from builtins import str
-import sqlite3  
+import psycopg2
+import sqlite3  as sq
 from sqlite3 import Error
 import os
 import sys
 import subprocess
 import platform
+import time
+import pandas as pd
+import numpy as np
 from pdf2docx import parse
 from datetime import date
 import cv2
@@ -2949,10 +2953,22 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
         if dbpath:
             self.lineEdit_output.setText(dbpath)
             s.setValue('',dbpath)
+    def list2pipe(self,x):
+        lista =[]
+        if isinstance(x,str) and x.startswith('[') and '], ['  and ', ' in x:
+            
+            return '; '.join(str(e) for e in eval(x)).replace("['",'').replace("']",'').replace("[",'').replace("]",'').replace("Copre', '",'').replace("Coperto da', '",'').replace("Riempie', '",'').replace("Riempito da', '",'').replace("Taglia', '",'').replace("Tagliato da', '",'').replace("Si appoggia a', '",'').replace("Gli si appoggia', '",'').replace("Si lega a', '",'').replace("Uguale a', '",'')
+        
+        
+        elif isinstance(x,str) and x.startswith('[['):    
+            return '; '.join(str(e) for e in eval(x)[0])
+        else: 
+            return x
     def on_pushButton_graphml_pressed(self):
         # if not bool(self.setPathpdf()):    
             # QMessageBox.warning(self, "INFO", "devi scegliere un file pdf",
                                 # QMessageBox.Ok)
+        
         dottoxml='{}{}{}'.format(self.BIN, os.sep, 'dottoxml.py')
         try:
             input_file = self.lineEdit_input.text()
@@ -2969,8 +2985,74 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
                 cmd = '{}/bin/python{}'.format(python_path, python_version)
             subprocess.check_call([cmd, dottoxml, '-f', 'Graphml', input_file, output_file], shell=False)
             
+            
+            sito_location = str(self.comboBox_sito.currentText())
+            cfg_rel_path = os.path.join(os.sep, 'pyarchinit_DB_folder', 'config.cfg')
+            file_path = '{}{}'.format(self.HOME, cfg_rel_path)
+            conf = open(file_path, "r")
+            data = conf.read()
+            settings = Settings(data)
+            settings.set_configuration()
+            conf.close()    
+            
+            db_username = settings.USER
+            host = settings.HOST
+            port = settings.PORT
+            database_password=settings.PASSWORD
+            db_names = settings.DATABASE
+            server=settings.SERVER    
+            
+            if server=='postgres':
+                connessione ="dbname=%s user=%s host=%s password=%s port=%s" % (db_names,db_username,host,database_password,port)
+                
+                
+                conn = psycopg2.connect(connessione)
+                cur = conn.cursor()
+                
+        
+            elif server=='sqlite':        
+            
+                
+                sqlite_DB_path = '{}{}{}'.format(self.HOME, os.sep,"pyarchinit_DB_folder")
+                
+                file_path_sqlite = sqlite_DB_path+os.sep+db_names
+                conn = sq.connect(file_path_sqlite)
+                conn.enable_load_extension(True)
+                
+                
+                #now we can load the extension
+                # depending on your OS and sqlite/spatialite version you might need to add 
+                # '.so' (Linux) or '.dll' (Windows) to the extension name
+
+                #mod_spatialite (recommended)
+                conn.execute('SELECT load_extension("mod_spatialite")')   
+                conn.execute('SELECT InitSpatialMetaData(1);')  
+                cur = conn.cursor()
+                
+                
+                name_= '%s' % (sito_location+'_' +  time.strftime('%Y%m%d_') + '.xlsx')
+                dump_dir=os.path.join(self.MATRIX_PATH, name_)
+                writer = pd.ExcelWriter(dump_dir, engine='xlsxwriter')
+                workbook  = writer.book
+                
+                
+                cur.execute("SELECT  area, us, rapporti,rapporti,rapporti, attivita,datazione From us_table where sito='%s' order by us;" % sito_location)
+                rows1 = cur.fetchall()
+                col_names1 = ['Area','US','Rapporti Posteriori','Rapporti Anteriori', 'Rapporti Contemporanei','Datazione Assoluta','Attività']
+                t1=pd.DataFrame(rows1,columns=col_names1).applymap(self.list2pipe)
+                t1.to_excel(writer, sheet_name='Rapporti',index=False)
+                worksheet1 = writer.sheets['Rapporti']
+                worksheet1.set_column('A:A', 30, None)
+                worksheet1.set_column('B:B', 30, None)
+                worksheet1.set_column('C:C', 30, None)
+                worksheet1.set_column('D:D', 30, None)
+                worksheet1.set_column('E:E', 30, None)
+                worksheet1.set_column('F:F', 30, None)
+                worksheet1.set_column('G:G', 30, None)
+                worksheet1.set_column('H:H', 30, None)
+                writer.save()
             QMessageBox.information(self, "INFO", "Conversion completed",
-                                QMessageBox.Ok)
+                                    QMessageBox.Ok)
         except Exception as e:
             QMessageBox.warning(self, "Error", str(e),
                                 QMessageBox.Ok)
