@@ -2957,7 +2957,7 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
         lista =[]
         if isinstance(x,str) and x.startswith('[') and '], ['  and ', ' in x:
             
-            return '; '.join(str(e) for e in eval(x)).replace("['",'').replace("']",'').replace("[",'').replace("]",'').replace("Copre', '",'').replace("Coperto da', '",'').replace("Riempie', '",'').replace("Riempito da', '",'').replace("Taglia', '",'').replace("Tagliato da', '",'').replace("Si appoggia a', '",'').replace("Gli si appoggia', '",'').replace("Si lega a', '",'').replace("Uguale a', '",'')
+            return '; '.join(str(e) for e in eval(x)).replace("['",'').replace("']",'').replace("[",'').replace("]",'').replace("'Copre', '",'').replace("Coperto da', '",'').replace("Riempie', '",'').replace("Riempito da', '",'').replace("Taglia', '",'').replace("Tagliato da', '",'').replace("Si appoggia a', '",'').replace("Gli si appoggia', '",'').replace("Si lega a', '",'').replace("Uguale a', '",'')
         
         
         elif isinstance(x,str) and x.startswith('[['):    
@@ -2984,7 +2984,17 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
             else:
                 cmd = '{}/bin/python{}'.format(python_path, python_version)
             subprocess.check_call([cmd, dottoxml, '-f', 'Graphml', input_file, output_file], shell=False)
+            # Read in the file
+            with open(output_file, 'r') as file :
+              filedata = file.read()
             
+            # Replace the target string
+            filedata = filedata.replace("b'", '')
+            filedata = filedata.replace("graphml>'", 'graphml>')
+            # Write the file out again
+            with open(output_file, 'w') as file:
+              file.write(filedata)
+              #file.write(filedata1)
             
             
             sito_location = str(self.comboBox_sito.currentText())
@@ -3029,7 +3039,7 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
                 conn.execute('SELECT load_extension("mod_spatialite")')   
                 conn.execute('SELECT InitSpatialMetaData(1);')  
                 cur = conn.cursor()
-                
+                cur2 = conn.cursor()
                 
                 name_= '%s' % (sito_location+'_' +  time.strftime('%Y%m%d_') + '.xlsx')
                 dump_dir=os.path.join(self.MATRIX_PATH, name_)
@@ -3037,37 +3047,55 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
                 workbook  = writer.book
                 
                 
-                cur.execute("SELECT  area, us, rapporti,rapporti,rapporti, attivita,datazione From us_table where sito='%s' order by us;" % sito_location)
+                cur.execute("SELECT  area, us, attivita,datazione From us_table where sito='%s' order by rowid;" % sito_location)
                 rows1 = cur.fetchall()
-                col_names1 = ['Area','US','Rapporti Posteriori','Rapporti Anteriori', 'Rapporti Contemporanei','Datazione Assoluta','Attività']
+                col_names1 = ['Area','US','Datazione Assoluta','Attività']
                 t1=pd.DataFrame(rows1,columns=col_names1).applymap(self.list2pipe)
                 t1.to_excel(writer, sheet_name='Rapporti',index=False)
+                
+                cur2.execute("""WITH cte AS 
+                    (   SELECT rowid ,
+                   SUBSTR(rapporti,  1, INSTR(rapporti || ';', ';') -1) col,
+                   SUBSTR(rapporti, INSTR(rapporti || ';', ';') + 1) rest
+                   FROM (SELECT rowid, REPLACE(REPLACE(REPLACE(rapporti, '[[', '['), ']]', ']'), '], [', '];[') rapporti FROM us_table)
+                   UNION all
+                   SELECT rowid us,
+                   SUBSTR(rest, 1, INSTR(rest || ';', ';')  -1),
+                   SUBSTR(rest, INSTR(rest || ';', ';') + 1)   FROM cte   WHERE LENGTH(rest) > 0 )
+                   SELECT 
+                   GROUP_CONCAT(CASE WHEN col LIKE '[''Copre'',%' OR col LIKE '[''Taglia'',%'
+                   OR col LIKE '[''Riempie'',%' OR col LIKE '[''Si appoggia a'',%'  THEN col END) post,
+                   
+                   GROUP_CONCAT(CASE WHEN col LIKE '[''Coperto da'',%' OR col LIKE '[''Riempito da'',%'
+                   OR col LIKE '[''Tagliato da'',%' OR col LIKE '[''Gli si appoggia'',%' THEN col END) ante,
+                   
+                   GROUP_CONCAT(CASE WHEN col LIKE '[''Si lega a'',%' or col LIKE '[''Uguale a'',%' THEN col END) contemp
+			
+                    FROM cte GROUP BY rowid order by rowid""")
+                rows2 = cur2.fetchall()
+                col_names2 = ['Rapporto Posteriore','Rapporto Anteriore', 'Rapporto Contemporaneo']
+                t2=pd.DataFrame(rows2,columns=col_names2).applymap(self.list2pipe)
+                t2.to_excel(writer, sheet_name='Rapporti2',index=False)
+                
                 worksheet1 = writer.sheets['Rapporti']
                 worksheet1.set_column('A:A', 30, None)
                 worksheet1.set_column('B:B', 30, None)
                 worksheet1.set_column('C:C', 30, None)
                 worksheet1.set_column('D:D', 30, None)
                 worksheet1.set_column('E:E', 30, None)
-                worksheet1.set_column('F:F', 30, None)
-                worksheet1.set_column('G:G', 30, None)
-                worksheet1.set_column('H:H', 30, None)
+                
+                
+                worksheet2 = writer.sheets['Rapporti2']
+                worksheet2.set_column('A:A', 30, None)
+                worksheet2.set_column('B:B', 30, None)
+                worksheet2.set_column('C:C', 30, None)
                 writer.save()
             QMessageBox.information(self, "INFO", "Conversion completed",
                                     QMessageBox.Ok)
         except Exception as e:
             QMessageBox.warning(self, "Error", str(e),
                                 QMessageBox.Ok)
-       # Read in the file
-        with open(output_file, 'r') as file :
-          filedata = file.read()
-        
-        # Replace the target string
-        filedata = filedata.replace("b'", '')
-        filedata = filedata.replace("graphml>'", 'graphml>')
-        # Write the file out again
-        with open(output_file, 'w') as file:
-          file.write(filedata)
-          #file.write(filedata1)
+       
       
     def openpdfDir(self):
         HOME = os.environ['PYARCHINIT_HOME']
