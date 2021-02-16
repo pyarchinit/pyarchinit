@@ -2986,6 +2986,7 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
             subprocess.check_call([cmd, dottoxml, '-f', 'Graphml', input_file, output_file], shell=False)
             
             
+            
             sito_location = str(self.comboBox_sito.currentText())
             cfg_rel_path = os.path.join(os.sep, 'pyarchinit_DB_folder', 'config.cfg')
             file_path = '{}{}'.format(self.HOME, cfg_rel_path)
@@ -3056,6 +3057,18 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
         except Exception as e:
             QMessageBox.warning(self, "Error", str(e),
                                 QMessageBox.Ok)
+       # Read in the file
+        with open(output_file, 'r') as file :
+          filedata = file.read()
+        
+        # Replace the target string
+        filedata = filedata.replace("b'", '')
+        filedata = filedata.replace("graphml>'", 'graphml>')
+        # Write the file out again
+        with open(output_file, 'w') as file:
+          file.write(filedata)
+          #file.write(filedata1)
+      
     def openpdfDir(self):
         HOME = os.environ['PYARCHINIT_HOME']
         path = '{}{}{}'.format(HOME, os.sep, "pyarchinit_PDF_folder")
