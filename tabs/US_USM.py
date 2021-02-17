@@ -2957,11 +2957,11 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
         lista =[]
         if isinstance(x,str) and x.startswith('[') and '], ['  and ', ' in x:
             
-            return '; '.join(str(e) for e in eval(x)).replace("]",'').replace("['Copre',",'').replace("['Coperto da',",'').replace("['Riempie',",'').replace("['Riempito da',",'').replace("['Taglia',",'').replace("['Tagliato da',",'').replace("['Si appoggia a',",'').replace("['Gli si appoggia',",'').replace("['Si lega a',",'').replace("['Uguale a',",'').replace("'",'').replace("Copre;",'').replace("Coperto da;",'').replace("Riempie;",'').replace("Riempito da;",'').replace("Taglia;",'').replace("Tagliato da;",'').replace("Si appoggia a;",'').replace("Gli si appoggia;",'').replace("Si lega a;",'').replace("Uguale a;",'')
+            return ', '.join(str(e) for e in eval(x)).replace("]",'').replace("['Copre',",'').replace("['Coperto da',",'').replace("['Riempie',",'').replace("['Riempito da',",'').replace("['Taglia',",'').replace("['Tagliato da',",'').replace("['Si appoggia a',",'').replace("['Gli si appoggia',",'').replace("['Si lega a',",'').replace("['Uguale a',",'').replace("'",'').replace("Copre,",'').replace("Coperto da,",'').replace("Riempie,",'').replace("Riempito da,",'').replace("Taglia,",'').replace("Tagliato da,",'').replace("Si appoggia a,",'').replace("Gli si appoggia,",'').replace("Si lega a,",'').replace("Uguale a,",'')
         
         
         elif isinstance(x,str) and x.startswith('['):    
-            return '; '.join(str(e) for e in eval(x)[0])
+            return ', '.join(str(e) for e in eval(x)[0])
         else: 
             return x
     def on_pushButton_graphml_pressed(self):
@@ -3019,7 +3019,23 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
                 
                 conn = psycopg2.connect(connessione)
                 cur = conn.cursor()
-                
+                # WITH RECURSIVE cte AS (
+                  # SELECT id,
+                         # SUBSTR(test, 1, STRPOS(test || ';', ';') - 1) col,
+                         # SUBSTR(test, STRPOS(test || ';', ';') + 1) rest
+                  # FROM (SELECT id, REPLACE(REPLACE(REPLACE(test, '[[', '['), ']]', ']'), '],[', '];[') test FROM tablename) t
+                  # UNION ALL
+                  # SELECT id,
+                         # SUBSTR(rest, 1, STRPOS(rest || ';', ';') - 1),
+                         # SUBSTR(rest, STRPOS(rest || ';', ';') + 1)
+                  # FROM cte
+                  # WHERE LENGTH(rest) > 0
+                # )
+                # SELECT STRING_AGG(CASE WHEN col LIKE '[''a'',%' OR col LIKE '[''b'',%' THEN col END, ',') x,
+                       # STRING_AGG(CASE WHEN col LIKE '[''c'',%' THEN col END, ',') y,
+                       # STRING_AGG(CASE WHEN col LIKE '[''d'',%' THEN col END, ',') z
+                # FROM cte
+                # GROUP BY id
         
             elif server=='sqlite':        
             
