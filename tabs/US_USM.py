@@ -3049,9 +3049,9 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
                 
                 cur.execute("SELECT  area, us, attivita,datazione From us_table where sito='%s' order by rowid;" % sito_location)
                 rows1 = cur.fetchall()
-                col_names1 = ['Area','US','Datazione Assoluta','Attività']
+                col_names1 = ['Area','US','Attività','Epoca']
                 t1=pd.DataFrame(rows1,columns=col_names1).applymap(self.list2pipe)
-                t1.to_excel(writer, sheet_name='Rapporti',index=False)
+                t1.to_excel(writer, sheet_name='US',index=False)
                 
                 cur2.execute("""WITH cte AS 
                     (   SELECT rowid ,
@@ -3076,9 +3076,9 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
                 rows2 = cur2.fetchall()
                 col_names2 = ['Rapporto Posteriore','Rapporto Anteriore', 'Rapporto Contemporaneo']
                 t2=pd.DataFrame(rows2,columns=col_names2).applymap(self.list2pipe)
-                t2.to_excel(writer, sheet_name='Rapporti2',index=False)
+                t2.to_excel(writer, sheet_name='Rapporti',index=False)
                 
-                worksheet1 = writer.sheets['Rapporti']
+                worksheet1 = writer.sheets['US']
                 worksheet1.set_column('A:A', 30, None)
                 worksheet1.set_column('B:B', 30, None)
                 worksheet1.set_column('C:C', 30, None)
@@ -3086,7 +3086,7 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
                 worksheet1.set_column('E:E', 30, None)
                 
                 
-                worksheet2 = writer.sheets['Rapporti2']
+                worksheet2 = writer.sheets['Rapporti']
                 worksheet2.set_column('A:A', 30, None)
                 worksheet2.set_column('B:B', 30, None)
                 worksheet2.set_column('C:C', 30, None)
