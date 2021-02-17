@@ -2957,10 +2957,10 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
         lista =[]
         if isinstance(x,str) and x.startswith('[') and '], ['  and ', ' in x:
             
-            return '; '.join(str(e) for e in eval(x)).replace("['",'').replace("']",'').replace("[",'').replace("]",'').replace("'Copre', '",'').replace("Coperto da', '",'').replace("Riempie', '",'').replace("Riempito da', '",'').replace("Taglia', '",'').replace("Tagliato da', '",'').replace("Si appoggia a', '",'').replace("Gli si appoggia', '",'').replace("Si lega a', '",'').replace("Uguale a', '",'')
+            return '; '.join(str(e) for e in eval(x)).replace("]",'').replace("['Copre',",'').replace("['Coperto da',",'').replace("['Riempie',",'').replace("['Riempito da',",'').replace("['Taglia',",'').replace("['Tagliato da',",'').replace("['Si appoggia a',",'').replace("['Gli si appoggia',",'').replace("['Si lega a',",'').replace("['Uguale a',",'').replace("'",'').replace("Copre;",'').replace("Coperto da;",'').replace("Riempie;",'').replace("Riempito da;",'').replace("Taglia;",'').replace("Tagliato da;",'').replace("Si appoggia a;",'').replace("Gli si appoggia;",'').replace("Si lega a;",'').replace("Uguale a;",'')
         
         
-        elif isinstance(x,str) and x.startswith('[['):    
+        elif isinstance(x,str) and x.startswith('['):    
             return '; '.join(str(e) for e in eval(x)[0])
         else: 
             return x
