@@ -3057,7 +3057,8 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
                     (   SELECT rowid ,
                    SUBSTR(rapporti,  1, INSTR(rapporti || ';', ';') -1) col,
                    SUBSTR(rapporti, INSTR(rapporti || ';', ';') + 1) rest
-                   FROM (SELECT rowid, REPLACE(REPLACE(REPLACE(rapporti, '[[', '['), ']]', ']'), '], [', '];[') rapporti FROM us_table)
+                   FROM (SELECT rowid, REPLACE(REPLACE(REPLACE(rapporti, '[[', '['), ']]', ']'), '], [', '];[') rapporti FROM us_table
+                   WHERE sito = """+"'"+sito_location+"'"+""")
                    UNION all
                    SELECT rowid us,
                    SUBSTR(rest, 1, INSTR(rest || ';', ';')  -1),
