@@ -172,11 +172,15 @@ class single_Finds_pdf_sheet(object):
         lo_path = conn.logo_path()
         lo_path_str = lo_path['logo']
         home_DB_path = '{}{}{}'.format(home, os.sep, 'pyarchinit_DB_folder')
-        logo_path = lo_path_str#'{}{}{}'.format(home_DB_path, os.sep, 'logo.jpg')
+        
+        if not bool(lo_path_str):
+            logo_path = '{}{}{}'.format(home_DB_path, os.sep, 'logo.jpg')
+        else:
+            logo_path=lo_path_str
         logo = Image(logo_path)
-
         logo.drawHeight = 1.5 * inch * logo.drawHeight / logo.drawWidth
         logo.drawWidth = 1.5 * inch
+            
         if str(self.n_reperto)=='0':
             print("no schede RA")
             pass
@@ -399,14 +403,13 @@ class single_Finds_pdf_sheet(object):
         lo_path = conn.logo_path()
         lo_path_str = lo_path['logo']
         home_DB_path = '{}{}{}'.format(home, os.sep, 'pyarchinit_DB_folder')
-        logo_path = lo_path_str# '{}{}{}'.format(home_DB_path, os.sep, 'logo_de.jpg')
+        if not bool(lo_path_str):
+            logo_path = '{}{}{}'.format(home_DB_path, os.sep, 'logo.jpg')
+        else:
+            logo_path=lo_path_str
         logo = Image(logo_path)
-
-        ##      if test_image.drawWidth < 800:
-
         logo.drawHeight = 1.5 * inch * logo.drawHeight / logo.drawWidth
         logo.drawWidth = 1.5 * inch
-
         # 1 row
         sito = Paragraph("<b>Ausgrabungsstättesstätte</b><br/>" + str(self.sito), styNormal)
         nr_inventario = Paragraph("<b>Referenzmaterial Best.-Nr.</b><br/>" + str(self.numero_inventario), styNormal)
@@ -625,14 +628,14 @@ class single_Finds_pdf_sheet(object):
         lo_path = conn.logo_path()
         lo_path_str = lo_path['logo']
         home_DB_path = '{}{}{}'.format(home, os.sep, 'pyarchinit_DB_folder')
-        logo_path = lo_path_str# '{}{}{}'.format(home_DB_path, os.sep, 'logo.jpg')
+        if not bool(lo_path_str):
+            logo_path = '{}{}{}'.format(home_DB_path, os.sep, 'logo.jpg')
+        else:
+            logo_path=lo_path_str
         logo = Image(logo_path)
-
-        ##      if test_image.drawWidth < 800:
-
         logo.drawHeight = 1.5 * inch * logo.drawHeight / logo.drawWidth
         logo.drawWidth = 1.5 * inch
-
+        logo.hAlign = "LEFT"
         # 1 row
         sito = Paragraph("<b>Site</b><br/>" + str(self.sito), styNormal)
         nr_inventario = Paragraph("<b>Inventary Nr.</b><br/>" + str(self.numero_inventario), styNormal)
@@ -873,11 +876,12 @@ class Box_labels_Finds_pdf_sheet(object):
         lo_path = conn.logo_path()
         lo_path_str = lo_path['logo']
         home_DB_path = '{}{}{}'.format(home, os.sep, 'pyarchinit_DB_folder')
-        logo_path = lo_path_str# '{}{}{}'.format(home_DB_path, os.sep, 'logo.jpg')
+        logo_path=lo_path_str
+        if not bool(lo_path_str):
+            logo_path = '{}{}{}'.format(home_DB_path, os.sep, 'logo.jpg')
+        else:
+            logo_path=lo_path_str
         logo = Image(logo_path)
-
-        ##      if test_image.drawWidth < 800:
-
         logo.drawHeight = 1.5 * inch * logo.drawHeight / logo.drawWidth
         logo.drawWidth = 1.5 * inch
 
@@ -970,14 +974,13 @@ class Box_labels_Finds_pdf_sheet(object):
         lo_path = conn.logo_path()
         lo_path_str = lo_path['logo']
         home_DB_path = '{}{}{}'.format(home, os.sep, 'pyarchinit_DB_folder')
-        logo_path = lo_path_str# '{}{}{}'.format(home_DB_path, os.sep, 'logo_de.jpg')
+        if not bool(lo_path_str):
+            logo_path = '{}{}{}'.format(home_DB_path, os.sep, 'logo.jpg')
+        else:
+            logo_path=lo_path_str
         logo = Image(logo_path)
-
-        ##      if test_image.drawWidth < 800:
-
         logo.drawHeight = 1.5 * inch * logo.drawHeight / logo.drawWidth
         logo.drawWidth = 1.5 * inch
-
         num_cassa = Paragraph("<b>Nr. Box</b>" + str(self.cassa), styCassaLabel)
         sito = Paragraph("<b>Ausgrabungsstättesstätte: </b>" + str(self.sito), stySitoLabel)
 
@@ -1067,11 +1070,12 @@ class Box_labels_Finds_pdf_sheet(object):
         lo_path = conn.logo_path()
         lo_path_str = lo_path['logo']
         home_DB_path = '{}{}{}'.format(home, os.sep, 'pyarchinit_DB_folder')
-        logo_path = lo_path_str# '{}{}{}'.format(home_DB_path, os.sep, 'logo.jpg')
+        logo_path=lo_path_str
+        if not bool(lo_path_str):
+            logo_path = '{}{}{}'.format(home_DB_path, os.sep, 'logo.jpg')
+        else:
+            logo_path=lo_path_str
         logo = Image(logo_path)
-
-        ##      if test_image.drawWidth < 800:
-
         logo.drawHeight = 1.5 * inch * logo.drawHeight / logo.drawWidth
         logo.drawWidth = 1.5 * inch
 
@@ -1794,8 +1798,11 @@ class generate_reperti_pdf(object):
         lo_path = conn.logo_path()
         lo_path_str = lo_path['logo']
         home_DB_path = '{}{}{}'.format(home, os.sep, 'pyarchinit_DB_folder')
-        logo_path = lo_path_str# '{}{}{}'.format(home_DB_path, os.sep, 'logo.jpg')
-        #logo_path2 = '{}{}{}'.format(home_DB_path, os.sep, 'logo_2.png')
+        logo_path=lo_path_str
+        if not bool(lo_path_str):
+            logo_path = '{}{}{}'.format(home_DB_path, os.sep, 'logo.jpg')
+        else:
+            logo_path=lo_path_str
         logo = Image(logo_path)
         logo.drawHeight = 1.5 * inch * logo.drawHeight / logo.drawWidth
         logo.drawWidth = 1.5 * inch
@@ -1852,13 +1859,15 @@ class generate_reperti_pdf(object):
         lo_path = conn.logo_path()
         lo_path_str = lo_path['logo']
         home_DB_path = '{}{}{}'.format(home, os.sep, 'pyarchinit_DB_folder')
-        logo_path = lo_path_str# '{}{}{}'.format(home_DB_path, os.sep, 'logo.jpg')
-        #logo_path2 = '{}{}{}'.format(home_DB_path, os.sep, 'logo_2.png')
+        logo_path=lo_path_str
+        if not bool(lo_path_str):
+            logo_path = '{}{}{}'.format(home_DB_path, os.sep, 'logo.jpg')
+        else:
+            logo_path=lo_path_str
         logo = Image(logo_path)
         logo.drawHeight = 1.5 * inch * logo.drawHeight / logo.drawWidth
         logo.drawWidth = 1.5 * inch
         logo.hAlign = "LEFT"
-        
         # logo_2 = Image(logo_path2)
         # logo_2.drawHeight = 1.5 * inch * logo_2.drawHeight / logo_2.drawWidth
         # logo_2.drawWidth = 1.5 * inch
@@ -1912,12 +1921,15 @@ class generate_reperti_pdf(object):
         lo_path_str = lo_path['logo']
         home_DB_path = '{}{}{}'.format(home, os.sep, 'pyarchinit_DB_folder')
         logo_path = lo_path_str#'{}{}{}'.format(home_DB_path, os.sep, 'logo.jpg')
-        #logo_path2 = '{}{}{}'.format(home_DB_path, os.sep, 'logo_2.png')
+        
+        if not bool(lo_path_str):
+            logo_path = '{}{}{}'.format(home_DB_path, os.sep, 'logo.jpg')
+        else:
+            logo_path=lo_path_str
         logo = Image(logo_path)
         logo.drawHeight = 1.5 * inch * logo.drawHeight / logo.drawWidth
         logo.drawWidth = 1.5 * inch
         logo.hAlign = "LEFT"
-        
         # logo_2 = Image(logo_path2)
         # logo_2.drawHeight = 1.5 * inch * logo_2.drawHeight / logo_2.drawWidth
         # logo_2.drawWidth = 1.5 * inch
@@ -1969,7 +1981,10 @@ class generate_reperti_pdf(object):
         lo_path = conn.logo_path()
         lo_path_str = lo_path['logo']
         home_DB_path = '{}{}{}'.format(home, os.sep, 'pyarchinit_DB_folder')
-        logo_path = lo_path_str# '{}{}{}'.format(home_DB_path, os.sep, 'logo_2.png')
+        if not bool(lo_path_str):
+            logo_path = '{}{}{}'.format(home_DB_path, os.sep, 'logo.jpg')
+        else:
+            logo_path=lo_path_str
         logo = Image(logo_path)
         logo.drawHeight = 1.5 * inch * logo.drawHeight / logo.drawWidth
         logo.drawWidth = 1.5 * inch
@@ -2026,7 +2041,11 @@ class generate_reperti_pdf(object):
         lo_path = conn.logo_path()
         lo_path_str = lo_path['logo']
         home_DB_path = '{}{}{}'.format(home, os.sep, 'pyarchinit_DB_folder')
-        logo_path = lo_path_str# '{}{}{}'.format(home_DB_path, os.sep, 'logo_2.png')
+        logo_path=lo_path_str
+        if not bool(lo_path_str):
+            logo_path = '{}{}{}'.format(home_DB_path, os.sep, 'logo.jpg')
+        else:
+            logo_path=lo_path_str
         logo = Image(logo_path)
         logo.drawHeight = 1.5 * inch * logo.drawHeight / logo.drawWidth
         logo.drawWidth = 1.5 * inch
@@ -2083,7 +2102,11 @@ class generate_reperti_pdf(object):
         lo_path = conn.logo_path()
         lo_path_str = lo_path['logo']
         home_DB_path = '{}{}{}'.format(home, os.sep, 'pyarchinit_DB_folder')
-        logo_path = lo_path_str#'{}{}{}'.format(home_DB_path, os.sep, 'logo_2.png')
+        logo_path=lo_path_str
+        if not bool(lo_path_str):
+            logo_path = '{}{}{}'.format(home_DB_path, os.sep, 'logo.jpg')
+        else:
+            logo_path=lo_path_str
         logo = Image(logo_path)
         logo.drawHeight = 1.5 * inch * logo.drawHeight / logo.drawWidth
         logo.drawWidth = 1.5 * inch
@@ -2173,9 +2196,12 @@ class generate_reperti_pdf(object):
         conn = Connection()
         lo_path = conn.logo_path()
         lo_path_str = lo_path['logo']
+        
         home_DB_path = '{}{}{}'.format(home, os.sep, 'pyarchinit_DB_folder')
-        logo_path = lo_path_str# '{}{}{}'.format(home_DB_path, os.sep, 'logo.jpg')
-
+        if not bool(lo_path_str):
+            logo_path = '{}{}{}'.format(home_DB_path, os.sep, 'logo.jpg')
+        else:
+            logo_path=lo_path_str
         logo = Image(logo_path)
         logo.drawHeight = 1.5 * inch * logo.drawHeight / logo.drawWidth
         logo.drawWidth = 1.5 * inch
@@ -2221,8 +2247,10 @@ class generate_reperti_pdf(object):
         lo_path = conn.logo_path()
         lo_path_str = lo_path['logo']
         home_DB_path = '{}{}{}'.format(home, os.sep, 'pyarchinit_DB_folder')
-        logo_path = lo_path_str# '{}{}{}'.format(home_DB_path, os.sep, 'logo_de.jpg')
-
+        if not bool(lo_path_str):
+            logo_path = '{}{}{}'.format(home_DB_path, os.sep, 'logo.jpg')
+        else:
+            logo_path=lo_path_str
         logo = Image(logo_path)
         logo.drawHeight = 1.5 * inch * logo.drawHeight / logo.drawWidth
         logo.drawWidth = 1.5 * inch
@@ -2268,8 +2296,10 @@ class generate_reperti_pdf(object):
         lo_path = conn.logo_path()
         lo_path_str = lo_path['logo']
         home_DB_path = '{}{}{}'.format(home, os.sep, 'pyarchinit_DB_folder')
-        logo_path = lo_path_str# '{}{}{}'.format(home_DB_path, os.sep, 'logo.jpg')
-
+        if not bool(lo_path_str):
+            logo_path = '{}{}{}'.format(home_DB_path, os.sep, 'logo.jpg')
+        else:
+            logo_path=lo_path_str
         logo = Image(logo_path)
         logo.drawHeight = 1.5 * inch * logo.drawHeight / logo.drawWidth
         logo.drawWidth = 1.5 * inch
@@ -2315,12 +2345,14 @@ class generate_reperti_pdf(object):
         lo_path = conn.logo_path()
         lo_path_str = lo_path['logo']
         home_DB_path = '{}{}{}'.format(home, os.sep, 'pyarchinit_DB_folder')
-        logo_path = lo_path_str# '{}{}{}'.format(home_DB_path, os.sep, 'logo_2.png')
+        if not bool(lo_path_str):
+            logo_path = '{}{}{}'.format(home_DB_path, os.sep, 'logo.jpg')
+        else:
+            logo_path=lo_path_str
         logo = Image(logo_path)
         logo.drawHeight = 1.5 * inch * logo.drawHeight / logo.drawWidth
         logo.drawWidth = 1.5 * inch
         logo.hAlign = "LEFT"
-        
         # logo_2 = Image(logo_path2)
         # logo_2.drawHeight = 1.5 * inch * logo_2.drawHeight / logo_2.drawWidth
         # logo_2.drawWidth = 1.5 * inch
@@ -2374,8 +2406,10 @@ class generate_reperti_pdf(object):
         lo_path = conn.logo_path()
         lo_path_str = lo_path['logo']
         home_DB_path = '{}{}{}'.format(home, os.sep, 'pyarchinit_DB_folder')
-        logo_path = lo_path_str#'{}{}{}'.format(home_DB_path, os.sep, 'logo_de.jpg')
-
+        if not bool(lo_path_str):
+            logo_path = '{}{}{}'.format(home_DB_path, os.sep, 'logo.jpg')
+        else:
+            logo_path=lo_path_str
         logo = Image(logo_path)
         logo.drawHeight = 1.5 * inch * logo.drawHeight / logo.drawWidth
         logo.drawWidth = 1.5 * inch
@@ -2422,13 +2456,14 @@ class generate_reperti_pdf(object):
         lo_path = conn.logo_path()
         lo_path_str = lo_path['logo']
         home_DB_path = '{}{}{}'.format(home, os.sep, 'pyarchinit_DB_folder')
-        logo_path = lo_path_str#'{}{}{}'.format(home_DB_path, os.sep, 'logo.jpg')
-
+        if not bool(lo_path_str):
+            logo_path = '{}{}{}'.format(home_DB_path, os.sep, 'logo.jpg')
+        else:
+            logo_path=lo_path_str
         logo = Image(logo_path)
         logo.drawHeight = 1.5 * inch * logo.drawHeight / logo.drawWidth
         logo.drawWidth = 1.5 * inch
         logo.hAlign = "LEFT"
-
         styleSheet = getSampleStyleSheet()
         styNormal = styleSheet['Normal']
         styBackground = ParagraphStyle('background', parent=styNormal, backColor=colors.pink)

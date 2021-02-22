@@ -1922,124 +1922,126 @@ class pyarchinit_Inventario_reperti(QDialog, MAIN_DIALOG_CLASS):
                                                           [['sito', '"' + str(self.sito_ec) + '"']], ['nr_cassa'])
 
         elenco_casse_list = []  # accoglie la sigla numerica delle casse presenti per un determinato sito.
-        for i in elenco_casse_res:
-            elenco_casse_list.append(i.nr_cassa)
+        try:
+            for i in elenco_casse_res:
+                elenco_casse_list.append(i.nr_cassa)
+            
+            data_for_pdf = []  # contiene i singoli dati per l'esportazione dell'elenco casse
 
-        data_for_pdf = []  # contiene i singoli dati per l'esportazione dell'elenco casse
+            # QMessageBox.warning(self,'elenco casse',str(elenco_casse_list), QMessageBox.Ok)
+            #elenco_casse_list.sort()
+            for cassa in elenco_casse_list:
+                single_cassa = []  # contiene i dati della singola cassa
 
-        # QMessageBox.warning(self,'elenco casse',str(elenco_casse_list), QMessageBox.Ok)
-        elenco_casse_list.sort()
-        for cassa in elenco_casse_list:
-            single_cassa = []  # contiene i dati della singola cassa
+                str_cassa = "<b>" + str(cassa) + "</b>"
+                single_cassa.append(str_cassa)  # inserisce la sigla di cassa
 
-            str_cassa = "<b>" + str(cassa) + "</b>"
-            single_cassa.append(str_cassa)  # inserisce la sigla di cassa
+                ###cerca le singole area/us presenti in quella cassa
+                res_inv = self.DB_MANAGER.query_distinct('INVENTARIO_MATERIALI',
+                                                         [['sito', '"' + str(self.sito_ec) + '"'], ['nr_cassa', cassa]],
+                                                         ['numero_inventario', 'tipo_reperto'])
 
-            ###cerca le singole area/us presenti in quella cassa
-            res_inv = self.DB_MANAGER.query_distinct('INVENTARIO_MATERIALI',
-                                                     [['sito', '"' + str(self.sito_ec) + '"'], ['nr_cassa', cassa]],
-                                                     ['numero_inventario', 'tipo_reperto'])
+                res_inv_list = []
+                for i in res_inv:
+                    res_inv_list.append(i)
 
-            res_inv_list = []
-            for i in res_inv:
-                res_inv_list.append(i)
-
-            n_inv_res_list = ""
-            for i in range(len(res_inv_list)):
-                if i != len(res_inv_list) - 1:
-                    n_inv_res_list += "Nr.inv:" + str(res_inv_list[i].numero_inventario) + "/" + str(
-                        res_inv_list[i].tipo_reperto) + ","
-                else:
-                    n_inv_res_list += "Nr.inv:" + str(res_inv_list[i].numero_inventario) + "/" + str(
-                        res_inv_list[i].tipo_reperto)
-
-                    # inserisce l'elenco degli inventari
-            single_cassa.append(n_inv_res_list)
-
-            ###cerca le singole area/us presenti in quella cassa
-            res_us = self.DB_MANAGER.query_distinct('INVENTARIO_MATERIALI',
-                                                    [['sito', '"' + str(self.sito_ec) + '"'], ['nr_cassa', cassa]],
-                                                    ['area', 'us'])
-
-            res_us_list = []
-            for i in res_us:
-                res_us_list.append(i)
-
-            us_res_list = ""  # [] #accoglie l'elenco delle US presenti in quella cassa
-            for i in range(len(res_us_list)):
-                params_dict = {'sito': '"' + str(self.sito_ec) + '"', 'area': '"' + str(res_us_list[i].area) + '"',
-                               'us': '"' + str(res_us_list[i].us) + '"'}
-                
-                res_struct = self.DB_MANAGER.query_bool(params_dict, 'US')
-                  
-                res_struct_list = []
-                for s_strutt in res_struct:
-                    res_struct_list.append(s_strutt)
-
-                structure_string = ""
-                if len(res_struct_list) > 0:
-                    for sing_us in res_struct_list:
-                        if sing_us.struttura != '':
-                            structure_string += "(" + str(sing_us.struttura) + '/'
-
-                    if structure_string != "":
-                        structure_string += ")"
-                if self.L=='it':
-                    if i != len(res_us_list) - 1:
-                        us_res_list += "Area:" + str(res_us_list[i].area) + ",US:" + str(
-                            res_us_list[i].us) + structure_string + ", "  # .append("Area:"+str(i.area) + ",US:"+str(i.us))
+                n_inv_res_list = ""
+                for i in range(len(res_inv_list)):
+                    if i != len(res_inv_list) - 1:
+                        n_inv_res_list += "Nr.inv:" + str(res_inv_list[i].numero_inventario) + "/" + str(
+                            res_inv_list[i].tipo_reperto) + ","
                     else:
-                        us_res_list += "Area:" + str(res_us_list[i].area) + ",US:" + str(
-                            res_us_list[i].us) + structure_string  # .append("Area:"+str(i.area) + ",US:"+str(i.us))
+                        n_inv_res_list += "Nr.inv:" + str(res_inv_list[i].numero_inventario) + "/" + str(
+                            res_inv_list[i].tipo_reperto)
 
-                        # us_res_list.sort()
-                        # inserisce l'elenco delle us
-                elif self.L=='de':
-                    if i != len(res_us_list) - 1:
-                        us_res_list += "Areal:" + str(res_us_list[i].area) + ",SE:" + str(
-                            res_us_list[i].us) + structure_string + ", "  # .append("Area:"+str(i.area) + ",US:"+str(i.us))
+                        # inserisce l'elenco degli inventari
+                single_cassa.append(n_inv_res_list)
+
+                ###cerca le singole area/us presenti in quella cassa
+                res_us = self.DB_MANAGER.query_distinct('INVENTARIO_MATERIALI',
+                                                        [['sito', '"' + str(self.sito_ec) + '"'], ['nr_cassa', cassa]],
+                                                        ['area', 'us'])
+
+                res_us_list = []
+                for i in res_us:
+                    res_us_list.append(i)
+
+                us_res_list = ""  # [] #accoglie l'elenco delle US presenti in quella cassa
+                for i in range(len(res_us_list)):
+                    params_dict = {'sito': '"' + str(self.sito_ec) + '"', 'area': '"' + str(res_us_list[i].area) + '"',
+                                   'us': '"' + str(res_us_list[i].us) + '"'}
+                    
+                    res_struct = self.DB_MANAGER.query_bool(params_dict, 'US')
+                      
+                    res_struct_list = []
+                    for s_strutt in res_struct:
+                        res_struct_list.append(s_strutt)
+
+                    structure_string = ""
+                    if len(res_struct_list) > 0:
+                        for sing_us in res_struct_list:
+                            if sing_us.struttura != '':
+                                structure_string += "(" + str(sing_us.struttura) + '/'
+
+                        if structure_string != "":
+                            structure_string += ")"
+                    if self.L=='it':
+                        if i != len(res_us_list) - 1:
+                            us_res_list += "Area:" + str(res_us_list[i].area) + ",US:" + str(
+                                res_us_list[i].us) + structure_string + ", "  # .append("Area:"+str(i.area) + ",US:"+str(i.us))
+                        else:
+                            us_res_list += "Area:" + str(res_us_list[i].area) + ",US:" + str(
+                                res_us_list[i].us) + structure_string  # .append("Area:"+str(i.area) + ",US:"+str(i.us))
+
+                            # us_res_list.sort()
+                            # inserisce l'elenco delle us
+                    elif self.L=='de':
+                        if i != len(res_us_list) - 1:
+                            us_res_list += "Areal:" + str(res_us_list[i].area) + ",SE:" + str(
+                                res_us_list[i].us) + structure_string + ", "  # .append("Area:"+str(i.area) + ",US:"+str(i.us))
+                        else:
+                            us_res_list += "Area:" + str(res_us_list[i].area) + ",SE:" + str(
+                                res_us_list[i].us) + structure_string  # .append("Area:"+str(i.area) + ",US:"+str(i.us))
+
+                            # us_res_list.sort()
+                            # inserisce l'elenco delle us       
+                            
                     else:
-                        us_res_list += "Areal:" + str(res_us_list[i].area) + ",SE:" + str(
-                            res_us_list[i].us) + structure_string  # .append("Area:"+str(i.area) + ",US:"+str(i.us))
+                        if i != len(res_us_list) - 1:
+                            us_res_list += "Area:" + str(res_us_list[i].area) + ",SU:" + str(
+                                res_us_list[i].us) + structure_string + ", "  # .append("Area:"+str(i.area) + ",US:"+str(i.us))
+                        else:
+                            us_res_list += "Area:" + str(res_us_list[i].area) + ",SU:" + str(
+                                res_us_list[i].us) + structure_string  # .append("Area:"+str(i.area) + ",US:"+str(i.us))
 
-                        # us_res_list.sort()
-                        # inserisce l'elenco delle us       
-                        
-                else:
-                    if i != len(res_us_list) - 1:
-                        us_res_list += "Area:" + str(res_us_list[i].area) + ",SU:" + str(
-                            res_us_list[i].us) + structure_string + ", "  # .append("Area:"+str(i.area) + ",US:"+str(i.us))
-                    else:
-                        us_res_list += "Area:" + str(res_us_list[i].area) + ",SU:" + str(
-                            res_us_list[i].us) + structure_string  # .append("Area:"+str(i.area) + ",US:"+str(i.us))
+                            # us_res_list.sort()
+                            # inserisce l'elenco delle us           
+                            
+                single_cassa.append(us_res_list)
 
-                        # us_res_list.sort()
-                        # inserisce l'elenco delle us           
-                        
-            single_cassa.append(us_res_list)
+                ###cerca il luogo di conservazione della cassa
+                params_dict = {'sito': '"' + str(self.sito_ec) + '"', 'nr_cassa': '"' + str(cassa) + '"'}
+                res_luogo_conservazione = self.DB_MANAGER.query_bool(params_dict, 'INVENTARIO_MATERIALI')
+                luogo_conservazione = res_luogo_conservazione[0].luogo_conservazione
+                single_cassa.append(luogo_conservazione)  # inserisce la sigla di cassa
 
-            ###cerca il luogo di conservazione della cassa
-            params_dict = {'sito': '"' + str(self.sito_ec) + '"', 'nr_cassa': '"' + str(cassa) + '"'}
-            res_luogo_conservazione = self.DB_MANAGER.query_bool(params_dict, 'INVENTARIO_MATERIALI')
-            luogo_conservazione = res_luogo_conservazione[0].luogo_conservazione
-            single_cassa.append(luogo_conservazione)  # inserisce la sigla di cassa
-
-            ##          ###cerca le singole area/us presenti in quella cassa
-            ##          res_tip_reperto = self.DB_MANAGER.query_distinct('INVENTARIO_MATERIALI',[['sito','"Sito archeologico"'], ['nr_cassa',cassa]], ['tipo_reperto'])
-            ##
-            ##          tip_rep_res_list = ""
-            ##          for i in res_tip_reperto:
-            ##              tip_rep_res_list += str(i.tipo_reperto) +"<br/>"
-            ##
-            ##          #inserisce l'elenco degli inventari
-            ##          single_cassa.append(tip_rep_res_list)
+                ##          ###cerca le singole area/us presenti in quella cassa
+                ##          res_tip_reperto = self.DB_MANAGER.query_distinct('INVENTARIO_MATERIALI',[['sito','"Sito archeologico"'], ['nr_cassa',cassa]], ['tipo_reperto'])
+                ##
+                ##          tip_rep_res_list = ""
+                ##          for i in res_tip_reperto:
+                ##              tip_rep_res_list += str(i.tipo_reperto) +"<br/>"
+                ##
+                ##          #inserisce l'elenco degli inventari
+                ##          single_cassa.append(tip_rep_res_list)
 
 
-            data_for_pdf.append(single_cassa)
+                data_for_pdf.append(single_cassa)
 
-            # QMessageBox.warning(self,'tk',str(data_for_pdf), QMessageBox.Ok)
-        return data_for_pdf
-
+                # QMessageBox.warning(self,'tk',str(data_for_pdf), QMessageBox.Ok)
+            return data_for_pdf
+        except Exception as e:
+            QMessageBox.warning(self,'Warning','Il campo cassa non deve essere vuoto', QMessageBox.Ok)
     ####################################################
     def exp_pdf_elenco_casse_main_experimental(self):
         ##campi per generare la lista da passare al pdf

@@ -32,7 +32,9 @@ import pandas as pd
 import numpy as np
 from pdf2docx import parse
 from datetime import date
+import xml.etree.ElementTree as ET
 import cv2
+from PyQt5 import QtCore, QtGui, QtWidgets
 from qgis.PyQt.QtCore import *
 from qgis.PyQt.QtGui import QColor, QIcon
 from qgis.PyQt.QtWidgets import *
@@ -805,7 +807,7 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
         self.show()
         self.checkBox_query.update()
         self.checkBox_query.stateChanged.connect(self.listview_us)###anche questo
-        
+        self.unitatipo()
     
     def charge_insert_ra(self):
         try:
@@ -1231,6 +1233,43 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
                 pass
                 
         
+    def unitatipo(self):
+        try:
+            table_name = "self.tableWidget_rapporti"
+            rowSelected_cmd = ("%s.selectedIndexes()") % (table_name)
+            rowSelected = eval(rowSelected_cmd)
+            rowIndex = (rowSelected[0].row())
+            
+            
+            sito = str(self.comboBox_sito.currentText())
+            area = str(self.comboBox_area.currentText())
+            
+            us_item = self.tableWidget_rapporti.item(rowIndex, 1)
+            us = str(us_item.text())
+            
+            search_dict = {'sito': "'" + str(sito) + "'",
+                           'area': "'" + str(area) + "'",
+                           'us': us}
+            u = Utility()
+            search_dict = u.remove_empty_items_fr_dict(search_dict)
+            res = self.DB_MANAGER.query_bool(search_dict, self.MAPPER_TABLE_CLASS)
+            
+            
+            
+            for p in res:
+                
+                if p.unita_tipo=='US':
+                #s.append([p.unita_tipo])
+                    self.tableWidget_rapporti.setItem(rowIndex, 2,QtWidgets.QTableWidgetItem('US'))
+                    
+                    
+                else:
+                    self.tableWidget_rapporti.setItem(rowIndex, 2,QtWidgets.QTableWidgetItem('USM'))
+                            
+               
+            self.tableWidget_rapporti.update()
+        except :
+            pass#QMessageBox.warning(self, "ATTENZIONE", str(e), QMessageBox.Ok)
     def on_pushButton_go_to_us_pressed(self):    
         #self.save_us()
         try:
@@ -1452,8 +1491,9 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
         if not Pyarchinit_OS_Utility.checkGraphvizInstallation():
             self.pushButton_export_matrix.setEnabled(False)
             self.pushButton_export_matrix.setToolTip("Funzione disabilitata")
-        self.tableWidget_rapporti.setColumnWidth(0, 200)
-        self.tableWidget_rapporti.setColumnWidth(1, 110)
+        self.tableWidget_rapporti.setColumnWidth(0, 100)
+        self.tableWidget_rapporti.setColumnWidth(1, 50)
+        self.tableWidget_rapporti.setColumnWidth(2, 100)
         self.tableWidget_documentazione.setColumnWidth(0, 150)
         self.tableWidget_documentazione.setColumnWidth(1, 300)
         # self.tableWidget_foto.setColumnWidth(0, 100)
@@ -1496,6 +1536,7 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
             self.delegateRS.def_values(valuesRS)
             self.delegateRS.def_editable('False')
             self.tableWidget_rapporti.setItemDelegateForColumn(0,self.delegateRS)
+           
         elif self.L=='en':
             valuesRS = ["Same as", "Connected to", "Covers", "Covered by", "Fills", "Filled by", "Cuts", "Cutted by", "Abuts", "Supports", ""]
             self.delegateRS = ComboBoxDelegate()
@@ -2486,24 +2527,32 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
             conn = Connection()
             thumb_path = conn.thumb_path()
             thumb_path_str = thumb_path['thumb_path']
-            search_dict = {'id_entity': "'"+ str(eval("self.DATA_LIST[i].id_us"))+"'", 'entity_type' : "'US'"}
-            record_doc_list = self.DB_MANAGER.query_bool(search_dict, 'MEDIAVIEW')
-            for media in record_doc_list:
-                thumbnail = (thumb_path_str+media.filepath)
-                foto= (media.id_media)
-                # #sito= (media.sito)
-                # area= (media.area)
-                # us= (media.us)
-                # d_stratigrafica= ''
-                # unita_tipo = (media.unita_tipo)
-                data_list_foto.append([
-                    str(self.DATA_LIST[i].sito), #0
-                    str(self.DATA_LIST[i].area), #1
-                    str(self.DATA_LIST[i].us),    #2
-                    str(self.DATA_LIST[i].unita_tipo),#3
-                    str(self.DATA_LIST[i].d_stratigrafica),  #4 
-                    str(foto),#5
-                    str(thumbnail)])#6
+            if thumb_path_str=='':
+                if self.L=='it':
+                    QMessageBox.information(self, "Info", "devi settare prima la path per salvare le thumbnail . Vai in impostazioni di sistema/ path setting ")
+                elif self.L=='de':
+                    QMessageBox.information(self, "Info", "müssen Sie zuerst den Pfad zum Speichern der Miniaturansichten und Videos festlegen. Gehen Sie zu System-/Pfad-Einstellung")
+                else:
+                    QMessageBox.information(self, "Message", "you must first set the path to save the thumbnails and videos. Go to system/path setting")
+            else:    
+                search_dict = {'id_entity': "'"+ str(eval("self.DATA_LIST[i].id_us"))+"'", 'entity_type' : "'US'"}
+                record_doc_list = self.DB_MANAGER.query_bool(search_dict, 'MEDIAVIEW')
+                for media in record_doc_list:
+                    thumbnail = (thumb_path_str+media.filepath)
+                    foto= (media.id_media)
+                    # #sito= (media.sito)
+                    # area= (media.area)
+                    # us= (media.us)
+                    # d_stratigrafica= ''
+                    # unita_tipo = (media.unita_tipo)
+                    data_list_foto.append([
+                        str(self.DATA_LIST[i].sito), #0
+                        str(self.DATA_LIST[i].area), #1
+                        str(self.DATA_LIST[i].us),    #2
+                        str(self.DATA_LIST[i].unita_tipo),#3
+                        str(self.DATA_LIST[i].d_stratigrafica),  #4 
+                        str(foto),#5
+                        str(thumbnail)])#6
         return data_list_foto
             # #####################fine########################
     def generate_list_pdf(self):
@@ -2983,8 +3032,8 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
                 cmd = '{}/bin/python{}'.format(python_path, python_version)
             else:
                 cmd = '{}/bin/python{}'.format(python_path, python_version)
-            subprocess.check_call([cmd, dottoxml, '-f', 'Graphml', input_file, output_file], shell=False)
-            # Read in the file
+            subprocess.check_call([cmd, dottoxml,  '-f', 'Graphml', input_file, output_file], shell=False)
+            
             with open(output_file, 'r') as file :
               filedata = file.read()
             
@@ -2993,8 +3042,9 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
             filedata = filedata.replace("graphml>'", 'graphml>')
             # Write the file out again
             with open(output_file, 'w') as file:
+              
               file.write(filedata)
-              #file.write(filedata1)
+            
             
             
             sito_location = str(self.comboBox_sito.currentText())
@@ -3113,7 +3163,7 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
             QMessageBox.warning(self, "Error", str(e),
                                 QMessageBox.Ok)
        
-      
+  
     def openpdfDir(self):
         HOME = os.environ['PYARCHINIT_HOME']
         path = '{}{}{}'.format(HOME, os.sep, "pyarchinit_PDF_folder")
@@ -3485,6 +3535,9 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
             
             self.enable_button(0)
     def on_pushButton_save_pressed(self):
+        
+        self.unitatipo()
+        
         self.checkBox_query.setChecked(False)
         if self.checkBox_query.isChecked():
             self.model_a.database().close()
