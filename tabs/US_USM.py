@@ -807,7 +807,8 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
         self.show()
         self.checkBox_query.update()
         self.checkBox_query.stateChanged.connect(self.listview_us)###anche questo
-        self.unitatipo()
+        self.tableWidget_rapporti.itemSelectionChanged.connect(self.unitatipo)
+        #self.unitatipo()
     
     def charge_insert_ra(self):
         try:
@@ -1254,19 +1255,17 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
             search_dict = u.remove_empty_items_fr_dict(search_dict)
             res = self.DB_MANAGER.query_bool(search_dict, self.MAPPER_TABLE_CLASS)
             
-            
-            
             for p in res:
                 
                 if p.unita_tipo=='US':
-                #s.append([p.unita_tipo])
-                    self.tableWidget_rapporti.setItem(rowIndex, 2,QtWidgets.QTableWidgetItem('US'))
-                    
+                
+                    a = self.tableWidget_rapporti.setItem(rowIndex, 2,QtWidgets.QTableWidgetItem('US'))
+                    #QMessageBox.warning(self, "ATTENZIONE", str(rowIndex)+' '+str(a), QMessageBox.Ok)
                     
                 else:
-                    self.tableWidget_rapporti.setItem(rowIndex, 2,QtWidgets.QTableWidgetItem('USM'))
-                            
-               
+                    a = self.tableWidget_rapporti.setItem(rowIndex, 2,QtWidgets.QTableWidgetItem('USM'))
+                    #QMessageBox.warning(self, "ATTENZIONE", str(e)+' '+str(a), QMessageBox.Ok)        
+                       
             self.tableWidget_rapporti.update()
         except :
             pass#QMessageBox.warning(self, "ATTENZIONE", str(e), QMessageBox.Ok)
@@ -3536,7 +3535,7 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
             self.enable_button(0)
     def on_pushButton_save_pressed(self):
         
-        self.unitatipo()
+        #self.unitatipo()
         
         self.checkBox_query.setChecked(False)
         if self.checkBox_query.isChecked():
