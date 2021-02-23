@@ -28,6 +28,8 @@ from graphviz import Digraph, Source
 from .pyarchinit_OS_utility import Pyarchinit_OS_Utility
 from ..db.pyarchinit_db_manager import Pyarchinit_db_management
 from ...tabs.pyarchinit_setting_matrix import *
+
+
 class HarrisMatrix:
     L=QgsSettings().value("locale/userLocale")[0:2]
     HOME = os.environ['PYARCHINIT_HOME']
@@ -42,6 +44,7 @@ class HarrisMatrix:
         self.negative = negative
         self.periodi=periodi
         self.conteporene=conteporene
+        
     @property
     def export_matrix(self):
         dialog = Setting_Matrix()
@@ -56,7 +59,7 @@ class HarrisMatrix:
         G.graph_attr['nodesep']="1"
         G.graph_attr['ranksep']="1.5"
         G.graph_attr['splines'] = 'ortho'
-        G.graph_attr['dpi'] = '300'
+        G.graph_attr['dpi'] = '50'
         
         elist1 = []
         elist2 = []
@@ -64,60 +67,6 @@ class HarrisMatrix:
         
         
             
-            
-        
-        for i in self.sequence:
-            a = (i[0], i[1])
-            elist1.append(a)
-        
-        with G.subgraph(name='main') as e:
-            e.attr(rankdir='TB')
-            e.edges(elist1)
-            
-            e.node_attr['shape'] = str(dialog.combo_box_3.currentText())
-            e.node_attr['style'] = str(dialog.combo_box_4.currentText())
-            e.node_attr.update(style='filled', fillcolor=str(dialog.combo_box.currentText()))
-            e.node_attr['color'] = 'black'    
-            e.node_attr['penwidth'] = str(dialog.combo_box_5.currentText())
-            e.edge_attr['penwidth'] = str(dialog.combo_box_5.currentText())
-            e.edge_attr['style'] = str(dialog.combo_box_10.currentText())
-            e.edge_attr.update(arrowhead=str(dialog.combo_box_11.currentText()), arrowsize=str(dialog.combo_box_12.currentText()))
-            for b in self.conteporene:
-                a = (b[0], b[1])
-                elist3.append(a)
-        
-            with G.subgraph(name='main1') as b:
-                
-                
-                b.edges(elist3)
-                
-                b.node_attr['shape'] = str(dialog.combo_box_18.currentText())
-                b.node_attr['style'] = str(dialog.combo_box_22.currentText())
-                b.node_attr.update(style='filled', fillcolor=str(dialog.combo_box_17.currentText()))
-                b.node_attr['color'] = 'blue'    
-                b.node_attr['penwidth'] = str(dialog.combo_box_19.currentText())
-                b.edge_attr['penwidth'] = str(dialog.combo_box_19.currentText())
-                b.edge_attr['style'] = str(dialog.combo_box_23.currentText())
-                b.edge_attr.update(arrowhead=str(dialog.combo_box_21.currentText()), arrowsize=str(dialog.combo_box_24.currentText()))
-            
-            for i in self.negative:
-                a = (i[0], i[1])
-                elist2.append(a)
-        
-            with G.subgraph(name='main2') as a:
-                #a.attr(rank='same')
-                a.edges(elist2)
-                
-                a.node_attr['shape'] = str(dialog.combo_box_6.currentText())
-                a.node_attr['style'] = str(dialog.combo_box_8.currentText())
-                a.node_attr.update(style='filled', fillcolor=str(dialog.combo_box_2.currentText()))
-                a.node_attr['color'] = 'red'    
-                a.node_attr['penwidth'] = str(dialog.combo_box_7.currentText())
-                a.edge_attr['penwidth'] = str(dialog.combo_box_7.currentText())
-                a.edge_attr['style'] = str(dialog.combo_box_15.currentText())
-                a.edge_attr.update(arrowhead=str(dialog.combo_box_14.currentText()), arrowsize=str(dialog.combo_box_16.currentText()))    
-            
-        
         if bool(dialog.checkBox_period.isChecked()):         
             for i in self.periodi:
                 
@@ -132,7 +81,61 @@ class HarrisMatrix:
                     c.attr(color='blue')
                     c.attr('node', shape='record', fillcolor='white', style='filled', gradientangle='90',label=i[2])
                     
-                    c.node(i[2])       
+                    c.node(i[2])           
+        
+        for i in self.sequence:
+            a = (i[0],i[1])
+            elist1.append(a)
+            
+        with G.subgraph(name='main') as e:
+            e.attr(rankdir='TB')
+            e.edges(elist1)
+            
+            e.node_attr['shape'] = str(dialog.combo_box_3.currentText())
+            e.node_attr['style'] = str(dialog.combo_box_4.currentText())
+            e.node_attr.update(style='filled', fillcolor=str(dialog.combo_box.currentText()))
+            e.node_attr['color'] = 'black'    
+            e.node_attr['penwidth'] = str(dialog.combo_box_5.currentText())
+            e.edge_attr['penwidth'] = str(dialog.combo_box_5.currentText())
+            e.edge_attr['style'] = str(dialog.combo_box_10.currentText())
+            e.edge_attr.update(arrowhead=str(dialog.combo_box_11.currentText()), arrowsize=str(dialog.combo_box_12.currentText()))
+            for b in self.conteporene:
+                a = (b[0],b[1])
+                elist3.append(a)
+        
+            with G.subgraph(name='main1') as b:
+                
+                
+                b.edges(elist3)
+                
+                b.node_attr['shape'] = str(dialog.combo_box_18.currentText())
+                b.node_attr['style'] = str(dialog.combo_box_22.currentText())
+                b.node_attr.update(style='filled', fillcolor=str(dialog.combo_box_17.currentText()))
+                b.node_attr['color'] = 'black'    
+                b.node_attr['penwidth'] = str(dialog.combo_box_19.currentText())
+                b.edge_attr['penwidth'] = str(dialog.combo_box_19.currentText())
+                b.edge_attr['style'] = str(dialog.combo_box_23.currentText())
+                b.edge_attr.update(arrowhead=str(dialog.combo_box_21.currentText()), arrowsize=str(dialog.combo_box_24.currentText()))
+            
+            for i in self.negative:
+                a = (i[0],i[1])
+                elist2.append(a)
+        
+            with G.subgraph(name='main2') as a:
+                #a.attr(rank='same')
+                a.edges(elist2)
+                
+                a.node_attr['shape'] = str(dialog.combo_box_6.currentText())
+                a.node_attr['style'] = str(dialog.combo_box_8.currentText())
+                a.node_attr.update(style='filled', fillcolor=str(dialog.combo_box_2.currentText()))
+                a.node_attr['color'] = 'black'    
+                a.node_attr['penwidth'] = str(dialog.combo_box_7.currentText())
+                a.edge_attr['penwidth'] = str(dialog.combo_box_7.currentText())
+                a.edge_attr['style'] = str(dialog.combo_box_15.currentText())
+                a.edge_attr.update(arrowhead=str(dialog.combo_box_14.currentText()), arrowsize=str(dialog.combo_box_16.currentText()))    
+            
+        
+        
          
         if bool(dialog.checkBox_legend.isChecked()):
             with G.subgraph(name='cluster3') as j:
@@ -200,10 +203,27 @@ class HarrisMatrix:
                              #startupinfo=si if Pyarchinit_OS_Utility.isWindows()else None)
 
         tred_file = os.path.join(matrix_path, filename + '_tred.dot')
+        ######################trasformazione in jsone xdot_jason###########################################
+        with open(os.path.join(matrix_path, filename + '_tred.gml'), "w") as out:
+            subprocess.Popen(['gv2gml',tred_file],
+                             #shell=True,
+                             stdout=out)
+                             #startupinfo=si if Pyarchinit_OS_Utility.isWindows()else None)
+
         
+        # with open(os.path.join(matrix_path, filename + '_tred.xdot_json'), "w") as out:
+            # subprocess.Popen(['tred',tred_file],
+                             # #shell=True,
+                             # stdout=out)
+                             # #startupinfo=si if Pyarchinit_OS_Utility.isWindows()else None)
+        
+        ##############################################################################################
         f = Source.from_file(tred_file, format='png')
         f.render()
         g = Source.from_file(tred_file, format='jpg')
         g.render()
         return g,f
         # return f
+    def on_pushButton_graphml_pressed(self):
+        provo= dottoxml, tred, graphml_file
+        return provo

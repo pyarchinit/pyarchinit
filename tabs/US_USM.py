@@ -20,13 +20,21 @@
 from __future__ import absolute_import
 from builtins import range
 from builtins import str
-import sqlite3  
+import psycopg2
+import sqlite3  as sq
 from sqlite3 import Error
 import os
+import sys
+import subprocess
 import platform
+import time
+import pandas as pd
+import numpy as np
 from pdf2docx import parse
 from datetime import date
+import xml.etree.ElementTree as ET
 import cv2
+from PyQt5 import QtCore, QtGui, QtWidgets
 from qgis.PyQt.QtCore import *
 from qgis.PyQt.QtGui import QColor, QIcon
 from qgis.PyQt.QtWidgets import *
@@ -53,6 +61,7 @@ from ..gui.imageViewer import ImageViewer
 from ..gui.pyarchinitConfigDialog import pyArchInitDialog_Config
 from ..gui.sortpanelmain import SortPanelMain
 from ..resources.resources_rc import *
+
 MAIN_DIALOG_CLASS, _ = loadUiType(
     os.path.join(os.path.dirname(__file__), os.pardir, 'gui', 'ui', 'US_USM.ui'))
 class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
@@ -743,6 +752,8 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
     }
     HOME = os.environ['PYARCHINIT_HOME']
     REPORT_PATH = '{}{}{}'.format(HOME, os.sep, "pyarchinit_Report_folder")
+    MATRIX_PATH = '{}{}{}'.format(HOME, os.sep, "pyarchinit_Matrix_folder")
+    BIN = '{}{}{}'.format(HOME, os.sep, "bin")
     DB_SERVER = "not defined"  ####nuovo sistema sort
     def __init__(self, iface):
         super().__init__()
@@ -753,6 +764,7 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
         self.mDockWidget_export.setHidden(True)
         self.mDockWidget_3.setHidden(True)
         self.mDockWidget_4.setHidden(True)
+        self.mDockWidget_5.setHidden(True)
         self.currentLayerId = None
         self.search = SearchLayers(iface)
         try:
@@ -782,6 +794,8 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
         self.search_1.textChanged.connect(self.update_filter)
         self.comboBox_per_fin.currentIndexChanged.connect(self.charge_fase_fin_list)
         self.toolButton_pdfpath.clicked.connect(self.setPathpdf)
+        self.toolButton_input.clicked.connect(self.setPathdot)
+        self.toolButton_output.clicked.connect(self.setPathgraphml)
         self.pbnOpenpdfDirectory.clicked.connect(self.openpdfDir)
         self.progressBar.setTextVisible(True)
         sito = self.comboBox_sito.currentText()
@@ -793,7 +807,8 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
         self.show()
         self.checkBox_query.update()
         self.checkBox_query.stateChanged.connect(self.listview_us)###anche questo
-        
+        self.tableWidget_rapporti.itemSelectionChanged.connect(self.unitatipo)
+        #self.unitatipo()
     
     def charge_insert_ra(self):
         try:
@@ -1219,6 +1234,58 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
                 pass
                 
         
+    def unitatipo(self):
+        try:
+            table_name = "self.tableWidget_rapporti"
+            rowSelected_cmd = ("%s.selectedIndexes()") % (table_name)
+            rowSelected = eval(rowSelected_cmd)
+            rowIndex = (rowSelected[0].row())
+            
+            
+            sito = str(self.comboBox_sito.currentText())
+            area = str(self.comboBox_area.currentText())
+            
+            us_item = self.tableWidget_rapporti.item(rowIndex, 1)
+            us = str(us_item.text())
+            
+            search_dict = {'sito': "'" + str(sito) + "'",
+                           'area': "'" + str(area) + "'",
+                           'us': us}
+            u = Utility()
+            search_dict = u.remove_empty_items_fr_dict(search_dict)
+            res = self.DB_MANAGER.query_bool(search_dict, self.MAPPER_TABLE_CLASS)
+            
+            for p in res:
+                if L=='it': 
+                    if p.unita_tipo=='US':
+                    
+                        a = self.tableWidget_rapporti.setItem(rowIndex, 2,QtWidgets.QTableWidgetItem('US'))
+                        #QMessageBox.warning(self, "ATTENZIONE", str(rowIndex)+' '+str(a), QMessageBox.Ok)
+                        
+                    else:
+                        a = self.tableWidget_rapporti.setItem(rowIndex, 2,QtWidgets.QTableWidgetItem('USM'))
+                        #QMessageBox.warning(self, "ATTENZIONE", str(e)+' '+str(a), QMessageBox.Ok)        
+                elif L=='de': 
+                    if p.unita_tipo=='SE':
+                    
+                        a = self.tableWidget_rapporti.setItem(rowIndex, 2,QtWidgets.QTableWidgetItem('SE'))
+                        #QMessageBox.warning(self, "ATTENZIONE", str(rowIndex)+' '+str(a), QMessageBox.Ok)
+                        
+                    else:
+                        a = self.tableWidget_rapporti.setItem(rowIndex, 2,QtWidgets.QTableWidgetItem('MSE'))
+                        #QMessageBox.warning(self, "ATTENZIONE", str(e)+' '+str(a), QMessageBox.Ok       
+                if L=='en': 
+                    if p.unita_tipo=='SU':
+                    
+                        a = self.tableWidget_rapporti.setItem(rowIndex, 2,QtWidgets.QTableWidgetItem('SU'))
+                        #QMessageBox.warning(self, "ATTENZIONE", str(rowIndex)+' '+str(a), QMessageBox.Ok)
+                        
+                    else:
+                        a = self.tableWidget_rapporti.setItem(rowIndex, 2,QtWidgets.QTableWidgetItem('WSU'))
+                        #QMessageBox.warning(self, "ATTENZIONE", str(e)+' '+str(a), QMessageBox.Ok
+            self.tableWidget_rapporti.update()
+        except :
+            pass#QMessageBox.warning(self, "ATTENZIONE", str(e), QMessageBox.Ok)
     def on_pushButton_go_to_us_pressed(self):    
         #self.save_us()
         try:
@@ -1440,8 +1507,9 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
         if not Pyarchinit_OS_Utility.checkGraphvizInstallation():
             self.pushButton_export_matrix.setEnabled(False)
             self.pushButton_export_matrix.setToolTip("Funzione disabilitata")
-        self.tableWidget_rapporti.setColumnWidth(0, 200)
-        self.tableWidget_rapporti.setColumnWidth(1, 110)
+        self.tableWidget_rapporti.setColumnWidth(0, 100)
+        self.tableWidget_rapporti.setColumnWidth(1, 50)
+        self.tableWidget_rapporti.setColumnWidth(2, 100)
         self.tableWidget_documentazione.setColumnWidth(0, 150)
         self.tableWidget_documentazione.setColumnWidth(1, 300)
         # self.tableWidget_foto.setColumnWidth(0, 100)
@@ -1484,6 +1552,7 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
             self.delegateRS.def_values(valuesRS)
             self.delegateRS.def_editable('False')
             self.tableWidget_rapporti.setItemDelegateForColumn(0,self.delegateRS)
+           
         elif self.L=='en':
             valuesRS = ["Same as", "Connected to", "Covers", "Covered by", "Fills", "Filled by", "Cuts", "Cutted by", "Abuts", "Supports", ""]
             self.delegateRS = ComboBoxDelegate()
@@ -2474,24 +2543,32 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
             conn = Connection()
             thumb_path = conn.thumb_path()
             thumb_path_str = thumb_path['thumb_path']
-            search_dict = {'id_entity': "'"+ str(eval("self.DATA_LIST[i].id_us"))+"'", 'entity_type' : "'US'"}
-            record_doc_list = self.DB_MANAGER.query_bool(search_dict, 'MEDIAVIEW')
-            for media in record_doc_list:
-                thumbnail = (thumb_path_str+media.filepath)
-                foto= (media.id_media)
-                # #sito= (media.sito)
-                # area= (media.area)
-                # us= (media.us)
-                # d_stratigrafica= ''
-                # unita_tipo = (media.unita_tipo)
-                data_list_foto.append([
-                    str(self.DATA_LIST[i].sito), #0
-                    str(self.DATA_LIST[i].area), #1
-                    str(self.DATA_LIST[i].us),    #2
-                    str(self.DATA_LIST[i].unita_tipo),#3
-                    str(self.DATA_LIST[i].d_stratigrafica),  #4 
-                    str(foto),#5
-                    str(thumbnail)])#6
+            if thumb_path_str=='':
+                if self.L=='it':
+                    QMessageBox.information(self, "Info", "devi settare prima la path per salvare le thumbnail . Vai in impostazioni di sistema/ path setting ")
+                elif self.L=='de':
+                    QMessageBox.information(self, "Info", "müssen Sie zuerst den Pfad zum Speichern der Miniaturansichten und Videos festlegen. Gehen Sie zu System-/Pfad-Einstellung")
+                else:
+                    QMessageBox.information(self, "Message", "you must first set the path to save the thumbnails and videos. Go to system/path setting")
+            else:    
+                search_dict = {'id_entity': "'"+ str(eval("self.DATA_LIST[i].id_us"))+"'", 'entity_type' : "'US'"}
+                record_doc_list = self.DB_MANAGER.query_bool(search_dict, 'MEDIAVIEW')
+                for media in record_doc_list:
+                    thumbnail = (thumb_path_str+media.filepath)
+                    foto= (media.id_media)
+                    # #sito= (media.sito)
+                    # area= (media.area)
+                    # us= (media.us)
+                    # d_stratigrafica= ''
+                    # unita_tipo = (media.unita_tipo)
+                    data_list_foto.append([
+                        str(self.DATA_LIST[i].sito), #0
+                        str(self.DATA_LIST[i].area), #1
+                        str(self.DATA_LIST[i].us),    #2
+                        str(self.DATA_LIST[i].unita_tipo),#3
+                        str(self.DATA_LIST[i].d_stratigrafica),  #4 
+                        str(foto),#5
+                        str(thumbnail)])#6
         return data_list_foto
             # #####################fine########################
     def generate_list_pdf(self):
@@ -2915,6 +2992,194 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
         except Exception as e:
             QMessageBox.warning(self, "Error", str(e),
                                 QMessageBox.Ok)
+    
+    def setPathdot(self):
+        s = QgsSettings()
+        dbpath = QFileDialog.getOpenFileName(
+            self,
+            "Set file name",
+            self.MATRIX_PATH,
+            " Dot (*.dot)"
+        )[0]
+        #filename=dbpath.split("/")[-1]
+        if dbpath:
+            self.lineEdit_input.setText(dbpath)
+            s.setValue('',dbpath)
+    
+    def setPathgraphml(self):
+        s = QgsSettings()
+        dbpath = QFileDialog.getSaveFileName(
+            self,
+            "Set file name",
+            self.MATRIX_PATH,
+            " Graphml (*.graphml)"
+        )[0]
+        #filename=dbpath.split("/")[-1]
+        if dbpath:
+            self.lineEdit_output.setText(dbpath)
+            s.setValue('',dbpath)
+    def list2pipe(self,x):
+        lista =[]
+        if isinstance(x,str) and x.startswith('[') and '], ['  and ', ' in x:
+            
+            return ', '.join(str(e) for e in eval(x)).replace("]",'').replace("['Copre',",'').replace("['Coperto da',",'').replace("['Riempie',",'').replace("['Riempito da',",'').replace("['Taglia',",'').replace("['Tagliato da',",'').replace("['Si appoggia a',",'').replace("['Gli si appoggia',",'').replace("['Si lega a',",'').replace("['Uguale a',",'').replace("'",'').replace("Copre,",'').replace("Coperto da,",'').replace("Riempie,",'').replace("Riempito da,",'').replace("Taglia,",'').replace("Tagliato da,",'').replace("Si appoggia a,",'').replace("Gli si appoggia,",'').replace("Si lega a,",'').replace("Uguale a,",'')
+        
+        
+        elif isinstance(x,str) and x.startswith('['):    
+            return ', '.join(str(e) for e in eval(x)[0])
+        else: 
+            return x
+    def on_pushButton_graphml_pressed(self):
+        # if not bool(self.setPathpdf()):    
+            # QMessageBox.warning(self, "INFO", "devi scegliere un file pdf",
+                                # QMessageBox.Ok)
+        
+        dottoxml='{}{}{}'.format(self.BIN, os.sep, 'dottoxml.py')
+        try:
+            input_file = self.lineEdit_input.text()
+            output_file = self.lineEdit_output.text()
+            
+            python_path = sys.exec_prefix
+            python_version = sys.version[:3]
+
+            if platform.system()=='Windows':
+                cmd = '{}\python'.format(python_path)
+            elif platform.system()=='Darwin':
+                cmd = '{}/bin/python{}'.format(python_path, python_version)
+            else:
+                cmd = '{}/bin/python{}'.format(python_path, python_version)
+            subprocess.check_call([cmd, dottoxml,  '-f', 'Graphml', input_file, output_file], shell=False)
+            
+            with open(output_file, 'r') as file :
+              filedata = file.read()
+            
+            # Replace the target string
+            filedata = filedata.replace("b'", '')
+            filedata = filedata.replace("graphml>'", 'graphml>')
+            # Write the file out again
+            with open(output_file, 'w') as file:
+              
+              file.write(filedata)
+            
+            
+            
+            sito_location = str(self.comboBox_sito.currentText())
+            cfg_rel_path = os.path.join(os.sep, 'pyarchinit_DB_folder', 'config.cfg')
+            file_path = '{}{}'.format(self.HOME, cfg_rel_path)
+            conf = open(file_path, "r")
+            data = conf.read()
+            settings = Settings(data)
+            settings.set_configuration()
+            conf.close()    
+            
+            db_username = settings.USER
+            host = settings.HOST
+            port = settings.PORT
+            database_password=settings.PASSWORD
+            db_names = settings.DATABASE
+            server=settings.SERVER    
+            
+            if server=='postgres':
+                connessione ="dbname=%s user=%s host=%s password=%s port=%s" % (db_names,db_username,host,database_password,port)
+                
+                
+                conn = psycopg2.connect(connessione)
+                cur = conn.cursor()
+                # WITH RECURSIVE cte AS (
+                  # SELECT id,
+                         # SUBSTR(test, 1, STRPOS(test || ';', ';') - 1) col,
+                         # SUBSTR(test, STRPOS(test || ';', ';') + 1) rest
+                  # FROM (SELECT id, REPLACE(REPLACE(REPLACE(test, '[[', '['), ']]', ']'), '],[', '];[') test FROM tablename) t
+                  # UNION ALL
+                  # SELECT id,
+                         # SUBSTR(rest, 1, STRPOS(rest || ';', ';') - 1),
+                         # SUBSTR(rest, STRPOS(rest || ';', ';') + 1)
+                  # FROM cte
+                  # WHERE LENGTH(rest) > 0
+                # )
+                # SELECT STRING_AGG(CASE WHEN col LIKE '[''a'',%' OR col LIKE '[''b'',%' THEN col END, ',') x,
+                       # STRING_AGG(CASE WHEN col LIKE '[''c'',%' THEN col END, ',') y,
+                       # STRING_AGG(CASE WHEN col LIKE '[''d'',%' THEN col END, ',') z
+                # FROM cte
+                # GROUP BY id
+        
+            elif server=='sqlite':        
+            
+                
+                sqlite_DB_path = '{}{}{}'.format(self.HOME, os.sep,"pyarchinit_DB_folder")
+                
+                file_path_sqlite = sqlite_DB_path+os.sep+db_names
+                conn = sq.connect(file_path_sqlite)
+                conn.enable_load_extension(True)
+                
+                
+                #now we can load the extension
+                # depending on your OS and sqlite/spatialite version you might need to add 
+                # '.so' (Linux) or '.dll' (Windows) to the extension name
+
+                #mod_spatialite (recommended)
+                conn.execute('SELECT load_extension("mod_spatialite")')   
+                conn.execute('SELECT InitSpatialMetaData(1);')  
+                cur = conn.cursor()
+                cur2 = conn.cursor()
+                
+                name_= '%s' % (sito_location+'_' +  time.strftime('%Y%m%d_') + '.xlsx')
+                dump_dir=os.path.join(self.MATRIX_PATH, name_)
+                writer = pd.ExcelWriter(dump_dir, engine='xlsxwriter')
+                workbook  = writer.book
+                
+                
+                cur.execute("SELECT  area, us, attivita,datazione From us_table where sito='%s' order by rowid;" % sito_location)
+                rows1 = cur.fetchall()
+                col_names1 = ['Area','US','Attività','Epoca']
+                t1=pd.DataFrame(rows1,columns=col_names1).applymap(self.list2pipe)
+                t1.to_excel(writer, sheet_name='US',index=False)
+                
+                cur2.execute("""WITH cte AS 
+                    (   SELECT rowid ,
+                   SUBSTR(rapporti,  1, INSTR(rapporti || ';', ';') -1) col,
+                   SUBSTR(rapporti, INSTR(rapporti || ';', ';') + 1) rest
+                   FROM (SELECT rowid, REPLACE(REPLACE(REPLACE(rapporti, '[[', '['), ']]', ']'), '], [', '];[') rapporti FROM us_table
+                   WHERE sito = """+"'"+sito_location+"'"+""")
+                   UNION all
+                   SELECT rowid us,
+                   SUBSTR(rest, 1, INSTR(rest || ';', ';')  -1),
+                   SUBSTR(rest, INSTR(rest || ';', ';') + 1)   FROM cte   WHERE LENGTH(rest) > 0 )
+                   SELECT 
+                   GROUP_CONCAT(CASE WHEN col LIKE '[''Copre'',%' OR col LIKE '[''Taglia'',%'
+                   OR col LIKE '[''Riempie'',%' OR col LIKE '[''Si appoggia a'',%'  THEN col END) post,
+                   
+                   GROUP_CONCAT(CASE WHEN col LIKE '[''Coperto da'',%' OR col LIKE '[''Riempito da'',%'
+                   OR col LIKE '[''Tagliato da'',%' OR col LIKE '[''Gli si appoggia'',%' THEN col END) ante,
+                   
+                   GROUP_CONCAT(CASE WHEN col LIKE '[''Si lega a'',%' or col LIKE '[''Uguale a'',%' THEN col END) contemp
+			
+                    FROM cte GROUP BY rowid order by rowid""")
+                rows2 = cur2.fetchall()
+                col_names2 = ['Rapporto Posteriore','Rapporto Anteriore', 'Rapporto Contemporaneo']
+                t2=pd.DataFrame(rows2,columns=col_names2).applymap(self.list2pipe)
+                t2.to_excel(writer, sheet_name='Rapporti',index=False)
+                
+                worksheet1 = writer.sheets['US']
+                worksheet1.set_column('A:A', 30, None)
+                worksheet1.set_column('B:B', 30, None)
+                worksheet1.set_column('C:C', 30, None)
+                worksheet1.set_column('D:D', 30, None)
+                worksheet1.set_column('E:E', 30, None)
+                
+                
+                worksheet2 = writer.sheets['Rapporti']
+                worksheet2.set_column('A:A', 30, None)
+                worksheet2.set_column('B:B', 30, None)
+                worksheet2.set_column('C:C', 30, None)
+                writer.save()
+            QMessageBox.information(self, "INFO", "Conversion completed",
+                                    QMessageBox.Ok)
+        except Exception as e:
+            QMessageBox.warning(self, "Error", str(e),
+                                QMessageBox.Ok)
+       
+  
     def openpdfDir(self):
         HOME = os.environ['PYARCHINIT_HOME']
         path = '{}{}{}'.format(HOME, os.sep, "pyarchinit_PDF_folder")
@@ -3286,6 +3551,9 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
             
             self.enable_button(0)
     def on_pushButton_save_pressed(self):
+        
+        #self.unitatipo()
+        
         self.checkBox_query.setChecked(False)
         if self.checkBox_query.isChecked():
             self.model_a.database().close()

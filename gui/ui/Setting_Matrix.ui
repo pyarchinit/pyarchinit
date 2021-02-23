@@ -9,7 +9,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>986</width>
+    <width>936</width>
     <height>322</height>
    </rect>
   </property>
@@ -260,7 +260,12 @@
        </property>
        <item>
         <property name="text">
-         <string>diamond</string>
+         <string>normal</string>
+        </property>
+       </item>
+       <item>
+        <property name="text">
+         <string>none</string>
         </property>
        </item>
        <item>
@@ -281,11 +286,6 @@
        <item>
         <property name="text">
          <string>curve</string>
-        </property>
-       </item>
-       <item>
-        <property name="text">
-         <string>none</string>
         </property>
        </item>
        <item>
@@ -358,8 +358,13 @@
         <bool>true</bool>
        </property>
        <property name="currentText">
-        <string>1</string>
+        <string>.8</string>
        </property>
+       <item>
+        <property name="text">
+         <string>.8</string>
+        </property>
+       </item>
        <item>
         <property name="text">
          <string>1</string>
@@ -368,11 +373,6 @@
        <item>
         <property name="text">
          <string>.1</string>
-        </property>
-       </item>
-       <item>
-        <property name="text">
-         <string>.3</string>
         </property>
        </item>
        <item>
@@ -533,11 +533,16 @@
         <bool>true</bool>
        </property>
        <property name="currentText">
-        <string>gray</string>
+        <string>white</string>
        </property>
        <property name="currentIndex">
         <number>0</number>
        </property>
+       <item>
+        <property name="text">
+         <string>white</string>
+        </property>
+       </item>
        <item>
         <property name="text">
          <string>gray</string>
@@ -546,11 +551,6 @@
        <item>
         <property name="text">
          <string>yellow</string>
-        </property>
-       </item>
-       <item>
-        <property name="text">
-         <string>white</string>
         </property>
        </item>
        <item>
@@ -807,6 +807,11 @@
        </property>
        <item>
         <property name="text">
+         <string>normal</string>
+        </property>
+       </item>
+       <item>
+        <property name="text">
          <string>inv</string>
         </property>
        </item>
@@ -913,16 +918,16 @@
         <bool>true</bool>
        </property>
        <property name="currentText">
-        <string>dashed</string>
+        <string>solid</string>
        </property>
        <item>
         <property name="text">
-         <string>dashed</string>
+         <string>solid</string>
         </property>
        </item>
        <item>
         <property name="text">
-         <string>solid</string>
+         <string>dashed</string>
         </property>
        </item>
        <item>
@@ -954,8 +959,13 @@
         <bool>true</bool>
        </property>
        <property name="currentText">
-        <string>1</string>
+        <string>.8</string>
        </property>
+       <item>
+        <property name="text">
+         <string>.8</string>
+        </property>
+       </item>
        <item>
         <property name="text">
          <string>1</string>
@@ -964,11 +974,6 @@
        <item>
         <property name="text">
          <string>.1</string>
-        </property>
-       </item>
-       <item>
-        <property name="text">
-         <string>.3</string>
         </property>
        </item>
        <item>
@@ -1009,11 +1014,16 @@
         <bool>true</bool>
        </property>
        <property name="currentText">
-        <string>yellow</string>
+        <string>white</string>
        </property>
        <property name="currentIndex">
         <number>0</number>
        </property>
+       <item>
+        <property name="text">
+         <string>white</string>
+        </property>
+       </item>
        <item>
         <property name="text">
          <string>yellow</string>
@@ -1022,11 +1032,6 @@
        <item>
         <property name="text">
          <string>gray</string>
-        </property>
-       </item>
-       <item>
-        <property name="text">
-         <string>white</string>
         </property>
        </item>
        <item>
@@ -1102,16 +1107,16 @@
         <bool>true</bool>
        </property>
        <property name="currentText">
-        <string>circle</string>
+        <string>box</string>
        </property>
        <item>
         <property name="text">
-         <string>circle</string>
+         <string>box</string>
         </property>
        </item>
        <item>
         <property name="text">
-         <string>box</string>
+         <string>circle</string>
         </property>
        </item>
        <item>
@@ -1283,6 +1288,11 @@
        </property>
        <item>
         <property name="text">
+         <string>normal</string>
+        </property>
+       </item>
+       <item>
+        <property name="text">
          <string>tee</string>
         </property>
        </item>
@@ -1389,16 +1399,16 @@
         <bool>true</bool>
        </property>
        <property name="currentText">
-        <string>dashed</string>
+        <string>solid</string>
        </property>
        <item>
         <property name="text">
-         <string>dashed</string>
+         <string>solid</string>
         </property>
        </item>
        <item>
         <property name="text">
-         <string>solid</string>
+         <string>dashed</string>
         </property>
        </item>
        <item>
@@ -1430,8 +1440,13 @@
         <bool>true</bool>
        </property>
        <property name="currentText">
-        <string>1</string>
+        <string>.8</string>
        </property>
+       <item>
+        <property name="text">
+         <string>.8</string>
+        </property>
+       </item>
        <item>
         <property name="text">
          <string>1</string>
@@ -1440,11 +1455,6 @@
        <item>
         <property name="text">
          <string>.1</string>
-        </property>
-       </item>
-       <item>
-        <property name="text">
-         <string>.3</string>
         </property>
        </item>
        <item>
@@ -1484,12 +1494,12 @@
    <slot>close()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>173</x>
-     <y>16</y>
+     <x>344</x>
+     <y>127</y>
     </hint>
     <hint type="destinationlabel">
      <x>250</x>
-     <y>-14</y>
+     <y>0</y>
     </hint>
    </hints>
   </connection>
