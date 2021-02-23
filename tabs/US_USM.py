@@ -1256,16 +1256,33 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
             res = self.DB_MANAGER.query_bool(search_dict, self.MAPPER_TABLE_CLASS)
             
             for p in res:
-                
-                if p.unita_tipo=='US':
-                
-                    a = self.tableWidget_rapporti.setItem(rowIndex, 2,QtWidgets.QTableWidgetItem('US'))
-                    #QMessageBox.warning(self, "ATTENZIONE", str(rowIndex)+' '+str(a), QMessageBox.Ok)
+                if L=='it': 
+                    if p.unita_tipo=='US':
                     
-                else:
-                    a = self.tableWidget_rapporti.setItem(rowIndex, 2,QtWidgets.QTableWidgetItem('USM'))
-                    #QMessageBox.warning(self, "ATTENZIONE", str(e)+' '+str(a), QMessageBox.Ok)        
-                       
+                        a = self.tableWidget_rapporti.setItem(rowIndex, 2,QtWidgets.QTableWidgetItem('US'))
+                        #QMessageBox.warning(self, "ATTENZIONE", str(rowIndex)+' '+str(a), QMessageBox.Ok)
+                        
+                    else:
+                        a = self.tableWidget_rapporti.setItem(rowIndex, 2,QtWidgets.QTableWidgetItem('USM'))
+                        #QMessageBox.warning(self, "ATTENZIONE", str(e)+' '+str(a), QMessageBox.Ok)        
+                elif L=='de': 
+                    if p.unita_tipo=='SE':
+                    
+                        a = self.tableWidget_rapporti.setItem(rowIndex, 2,QtWidgets.QTableWidgetItem('SE'))
+                        #QMessageBox.warning(self, "ATTENZIONE", str(rowIndex)+' '+str(a), QMessageBox.Ok)
+                        
+                    else:
+                        a = self.tableWidget_rapporti.setItem(rowIndex, 2,QtWidgets.QTableWidgetItem('MSE'))
+                        #QMessageBox.warning(self, "ATTENZIONE", str(e)+' '+str(a), QMessageBox.Ok       
+                if L=='en': 
+                    if p.unita_tipo=='SU':
+                    
+                        a = self.tableWidget_rapporti.setItem(rowIndex, 2,QtWidgets.QTableWidgetItem('SU'))
+                        #QMessageBox.warning(self, "ATTENZIONE", str(rowIndex)+' '+str(a), QMessageBox.Ok)
+                        
+                    else:
+                        a = self.tableWidget_rapporti.setItem(rowIndex, 2,QtWidgets.QTableWidgetItem('WSU'))
+                        #QMessageBox.warning(self, "ATTENZIONE", str(e)+' '+str(a), QMessageBox.Ok
             self.tableWidget_rapporti.update()
         except :
             pass#QMessageBox.warning(self, "ATTENZIONE", str(e), QMessageBox.Ok)
