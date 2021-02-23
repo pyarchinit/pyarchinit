@@ -1256,11 +1256,12 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
             res = self.DB_MANAGER.query_bool(search_dict, self.MAPPER_TABLE_CLASS)
             
             for p in res:
+                self.tableWidget_rapporti.setItem(rowIndex, 3,QtWidgets.QTableWidgetItem(p.d_stratigrafica))
                 if L=='it': 
                     if p.unita_tipo=='US':
                     
                         a = self.tableWidget_rapporti.setItem(rowIndex, 2,QtWidgets.QTableWidgetItem('US'))
-                        #QMessageBox.warning(self, "ATTENZIONE", str(rowIndex)+' '+str(a), QMessageBox.Ok)
+                        
                         
                     else:
                         a = self.tableWidget_rapporti.setItem(rowIndex, 2,QtWidgets.QTableWidgetItem('USM'))
