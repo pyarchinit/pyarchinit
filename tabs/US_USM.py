@@ -808,7 +808,7 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
         self.checkBox_query.update()
         self.checkBox_query.stateChanged.connect(self.listview_us)###anche questo
         self.tableWidget_rapporti.itemSelectionChanged.connect(self.unitatipo)
-        #self.unitatipo()
+        self.tableWidget_rapporti.itemSelectionChanged.connect(self.defin)
     
     def charge_insert_ra(self):
         try:
@@ -1256,34 +1256,35 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
             res = self.DB_MANAGER.query_bool(search_dict, self.MAPPER_TABLE_CLASS)
             
             for p in res:
+                self.tableWidget_rapporti.setItem(rowIndex, 2,QtWidgets.QTableWidgetItem(p.unita_tipo))
+            self.tableWidget_rapporti.update()
+        except :
+            pass#QMessageBox.warning(self, "ATTENZIONE", str(e), QMessageBox.Ok)
+    def defin(self):
+        try:
+            table_name = "self.tableWidget_rapporti"
+            rowSelected_cmd = ("%s.selectedIndexes()") % (table_name)
+            rowSelected = eval(rowSelected_cmd)
+            rowIndex = (rowSelected[0].row())
+            
+            
+            sito = str(self.comboBox_sito.currentText())
+            area = str(self.comboBox_area.currentText())
+            
+            us_item = self.tableWidget_rapporti.item(rowIndex, 1)
+            us = str(us_item.text())
+            
+            search_dict = {'sito': "'" + str(sito) + "'",
+                           'area': "'" + str(area) + "'",
+                           'us': us}
+            u = Utility()
+            search_dict = u.remove_empty_items_fr_dict(search_dict)
+            res = self.DB_MANAGER.query_bool(search_dict, self.MAPPER_TABLE_CLASS)
+            
+            for p in res:
                 self.tableWidget_rapporti.setItem(rowIndex, 3,QtWidgets.QTableWidgetItem(p.d_stratigrafica))
-                if L=='it': 
-                    if p.unita_tipo=='US':
-                    
-                        a = self.tableWidget_rapporti.setItem(rowIndex, 2,QtWidgets.QTableWidgetItem('US'))
-                        
-                        
-                    else:
-                        a = self.tableWidget_rapporti.setItem(rowIndex, 2,QtWidgets.QTableWidgetItem('USM'))
-                        #QMessageBox.warning(self, "ATTENZIONE", str(e)+' '+str(a), QMessageBox.Ok)        
-                elif L=='de': 
-                    if p.unita_tipo=='SE':
-                    
-                        a = self.tableWidget_rapporti.setItem(rowIndex, 2,QtWidgets.QTableWidgetItem('SE'))
-                        #QMessageBox.warning(self, "ATTENZIONE", str(rowIndex)+' '+str(a), QMessageBox.Ok)
-                        
-                    else:
-                        a = self.tableWidget_rapporti.setItem(rowIndex, 2,QtWidgets.QTableWidgetItem('MSE'))
-                        #QMessageBox.warning(self, "ATTENZIONE", str(e)+' '+str(a), QMessageBox.Ok       
-                if L=='en': 
-                    if p.unita_tipo=='SU':
-                    
-                        a = self.tableWidget_rapporti.setItem(rowIndex, 2,QtWidgets.QTableWidgetItem('SU'))
-                        #QMessageBox.warning(self, "ATTENZIONE", str(rowIndex)+' '+str(a), QMessageBox.Ok)
-                        
-                    else:
-                        a = self.tableWidget_rapporti.setItem(rowIndex, 2,QtWidgets.QTableWidgetItem('WSU'))
-                        #QMessageBox.warning(self, "ATTENZIONE", str(e)+' '+str(a), QMessageBox.Ok
+            
+           
             self.tableWidget_rapporti.update()
         except :
             pass#QMessageBox.warning(self, "ATTENZIONE", str(e), QMessageBox.Ok)
