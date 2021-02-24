@@ -490,14 +490,14 @@ class DB_update(object):
         table_column_names_list = []
         for i in table.columns:
             table_column_names_list.append(str(i.name))
-        if table_column_names_list.__contains__('rilievo_orginale'):
-            self.engine.execute("ALTER TABLE pyunitastratigrafiche RENAME COLUMN rilievo_orginale TO rilievo_originale")   
+        # if table_column_names_list.__contains__('rilievo_orginale'):
+            # self.engine.execute("ALTER TABLE pyunitastratigrafiche RENAME COLUMN rilievo_orginale TO rilievo_originale")   
         
         if not table_column_names_list.__contains__('coord'):
             self.engine.execute("ALTER TABLE pyunitastratigrafiche ADD COLUMN coord text")
         
-        if table_column_names_list.__contains__('id'):
-            self.engine.execute("ALTER TABLE pyunitastratigrafiche RENAME COLUMN id TO gid")
+        # if table_column_names_list.__contains__('id'):
+            # self.engine.execute("ALTER TABLE pyunitastratigrafiche RENAME COLUMN id TO gid")
 
         
         table = Table("pyarchinit_strutture_ipotesi", self.metadata, autoload=True)
@@ -517,6 +517,7 @@ class DB_update(object):
         table_column_names_list = []
         for i in table.columns:
             table_column_names_list.append(str(i.name))
+                
         if not table_column_names_list.__contains__('tipo_doc'):
             self.engine.execute("ALTER TABLE pyarchinit_sezioni  ADD COLUMN tipo_doc text")   
         
