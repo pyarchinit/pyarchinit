@@ -103,18 +103,18 @@ class pyarchinit_Interactive_Matrix(QDialog, MAIN_DIALOG_CLASS):
                     
                     if   sing_rapp[0] == 'Covers' or  sing_rapp[0] == 'Abuts' or  sing_rapp[0] == 'Fills' or  sing_rapp[0] == 'Copre' or  sing_rapp[0] == 'Si appoggia a' or  sing_rapp[0] == 'Riempie'   or  sing_rapp[0] == 'Verfüllt' or sing_rapp[0] == 'Bindet an' or  sing_rapp[0] == 'Entspricht' :
                         if sing_rapp[1] != '':
-                            harris_rapp = (un_t+us+"\n\r"+defin,str(sing_rapp[2])+str(sing_rapp[1])+"\n\r"+str(sing_rapp[3]))
+                            harris_rapp = (un_t+us+'_'+defin,str(sing_rapp[2])+str(sing_rapp[1])+'_'+str(sing_rapp[3]))
                             
                             data.append(harris_rapp)
                         
                     if sing_rapp[0] == 'Taglia' or sing_rapp[0] == 'Cuts' or sing_rapp[0] == 'Schneidet':
                         if sing_rapp[1] != '':
-                            harris_rapp1 = (un_t+us+"\n\r"+defin,str(sing_rapp[2])+str(sing_rapp[1])+"\n\r"+str(sing_rapp[3]))
+                            harris_rapp1 = (un_t+us+'_'+defin,str(sing_rapp[2])+str(sing_rapp[1])+'_'+str(sing_rapp[3]))
                             negative.append(harris_rapp1)
                             
                     if sing_rapp[0] == 'Si lega a' or  sing_rapp[0] == 'Uguale a' or sing_rapp[0] == 'Connected to' or  sing_rapp[0] == 'Same as'or sing_rapp[0] == 'Liegt über' or  sing_rapp[0] == 'Stützt sich auf':
                         if sing_rapp[1] != '':
-                            harris_rapp2 = (un_t+us+"\n\r"+defin,str(sing_rapp[2])+str(sing_rapp[1])+"\n\r"+str(sing_rapp[3]))
+                            harris_rapp2 = (un_t+us+'_'+defin,str(sing_rapp[2])+str(sing_rapp[1])+'_'+str(sing_rapp[3]))
                             conteporane.append(harris_rapp2)
                     
                     
@@ -189,7 +189,7 @@ class pyarchinit_Interactive_Matrix(QDialog, MAIN_DIALOG_CLASS):
             for rec in us_group:
                 #sing_ut.append(rec.unita_tipo)
                 #sing_ut.append(rec.unita_tipo)
-                sing_us.append(rec.unita_tipo+str(rec.us)+"\n\r"+rec.d_stratigrafica)
+                sing_us.append(rec.unita_tipo+str(rec.us)+'_'+rec.d_stratigrafica)
                 #sing_def.append(rec.d_stratigrafica)
             
             sing_per.insert(0, sing_us )
