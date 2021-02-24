@@ -1038,8 +1038,26 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
                     VALUES ('pyarchinit_doc_view', 'the_geom', 'rowid', 'pyarchinit_documentazione', 'the_geom')""")
             c.execute(sql_view_doc_geom)
 
+            
+            # sql_s = ("""CREATE TABLE IF NOT EXISTS "pyarchinit_sezioni" (
+                # "id" integer PRIMARY KEY AUTOINCREMENT,
+                # "id_sezione" text,
+                # "sito" text,
+                # "area" integer,
+                # "desc" text,
+                # "ti);""")
+            # c.execute(sql_s)
+            # sql_s_geom = """ select AddGeometryColumn('pyarchinit_sezioni', 'the_geom',"""+ self.lineEdit_crs.text()+""" ,'LINESTRING', 'XY'); """
+            # c.execute(sql_s_geom)
+            # sql_s_geom_spatial =""" select CreateSpatialIndex('pyarchinit_sezioni', 'the_geom');"""
+            # c.execute(sql_s_geom_spatial)
+
+            sql_drop_view_doc= """DROP view if EXISTS pyarchinit_doc_view;"""
+            c.execute(sql_drop_view_doc)
+            
+            
             sql_view_sezioni=("""CREATE VIEW IF NOT EXISTS "pyarchinit_sezioni_view" AS
-            SELECT "a"."ROWID" AS "ROWID", "a"."id" AS "id", "a"."sito" AS "sito",
+            SELECT  "a"."id" AS "id", "a"."sito" AS "sito",
             "a"."area" AS "area", "a"."tipo_doc" AS "tipo_doc","a"."nome_doc" AS "nome_doc",
             "a"."the_geom" AS "the_geom", "b"."ROWID" AS "ROWID", "b"."id_documentazione" AS "id_documentazione",
             "b"."sito" AS "sito", "b"."nome_doc" AS "nome_doc",
@@ -1048,7 +1066,7 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
             "b"."disegnatore" AS "disegnatore", "b"."note" AS "note"
             FROM "pyarchinit_sezioni" AS "a"
             JOIN "documentazione_table" AS "b" ON ("a"."sito" = "b"."sito"  AND "a"."tipo_doc" = "b"."tipo_documentazione"
-                AND "a"."nome_doc" = "b"."nome_doc");""")
+                AND "b"."nome_doc" = "b"."nome_doc");""")
             c.execute(sql_view_sezioni)
             sql_view_sezioni_geom= ("""INSERT OR REPLACE INTO views_geometry_columns
                     (view_name, view_geometry, view_rowid, f_table_name, f_geometry_column)
