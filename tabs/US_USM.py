@@ -3049,7 +3049,7 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
                 cmd = '{}/bin/python{}'.format(python_path, python_version)
             else:
                 cmd = '{}/bin/python{}'.format(python_path, python_version)
-            subprocess.check_call([cmd, dottoxml,  '-f', 'Graphml', input_file, output_file], shell=False)
+            subprocess.check_call([cmd, dottoxml, '--oenc','utf-8',  input_file, output_file], shell=False)
             
             with open(output_file, 'r') as file :
               filedata = file.read()
