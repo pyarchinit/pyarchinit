@@ -33,6 +33,7 @@ import numpy as np
 from pdf2docx import parse
 from datetime import date
 import xml.etree.ElementTree as ET
+from lxml import etree
 import cv2
 from PyQt5 import QtCore, QtGui, QtWidgets
 from qgis.PyQt.QtCore import *
@@ -1440,13 +1441,7 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
         test_conn = conn_str.find('sqlite')
         if test_conn == 0:
             self.DB_SERVER = "sqlite"
-            # db = QSqlDatabase("QSQLITE") 
-            # db.setDatabaseName(conn_str) 
-            # db.close()
-            # else:
-                # db = QSqlDatabase("QPSQL") 
-                # db.setDatabaseName(conn_str) 
-                # db.close()
+            
         try:
             self.DB_MANAGER = Pyarchinit_db_management(conn_str)
             self.DB_MANAGER.connection()
@@ -1461,6 +1456,8 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
                 self.set_rec_counter(len(self.DATA_LIST), self.REC_CORR + 1)
                 self.charge_list()
                 self.fill_fields()
+                self.setComboBoxEnable(["self.comboBox_area"], "False")
+                self.setComboBoxEnable(["self.lineEdit_us"], "False")
             else:
                 if self.L=='it':
                     QMessageBox.warning(self,"BENVENUTO", "Benvenuto in pyArchInit " + self.NOME_SCHEDA + ". Il database e' vuoto. Premi 'Ok' e buon lavoro!",
@@ -1473,6 +1470,8 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
                                         QMessageBox.Ok)    
                 self.charge_list()
                 self.BROWSE_STATUS = 'x'
+                self.setComboBoxEnable(["self.comboBox_area"], "True")
+                self.setComboBoxEnable(["self.lineEdit_us"], "True")
                 self.on_pushButton_new_rec_pressed()
         except Exception as e:
             e = str(e)
@@ -1514,32 +1513,24 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
         self.tableWidget_rapporti.setColumnWidth(2, 100)
         self.tableWidget_documentazione.setColumnWidth(0, 150)
         self.tableWidget_documentazione.setColumnWidth(1, 300)
-        # self.tableWidget_foto.setColumnWidth(0, 100)
-        # self.tableWidget_foto.setColumnWidth(1, 100)
-        # self.tableWidget_foto.setColumnWidth(2, 100)
-        # self.tableWidget_foto.setColumnWidth(3, 100)
-        # self.tableWidget_foto.setColumnWidth(4, 200)
+        
         self.mapPreview = QgsMapCanvas(self)
         self.mapPreview.setCanvasColor(QColor(225, 225, 225))
         self.tabWidget.addTab(self.mapPreview, "Piante")
         # media prevew system
-        # self.tableWidget_photo.setColumnWidth(5, 1000)
-        # self.tableWidget_video.setColumnWidth(5, 1000)
+        
         self.iconListWidget.setLineWidth(2)
         self.iconListWidget.setMidLineWidth(2)
         self.iconListWidget.setProperty("showDropIndicator", False)
         self.iconListWidget.setIconSize(QSize(430, 570))
-        # self.iconListWidget.setMovement(QListView.Snap)
-        # self.iconListWidget.setResizeMode(QListView.Adjust)
-        # self.iconListWidget.setLayoutMode(QListView.Batched)
+        
         self.iconListWidget.setUniformItemSizes(True)
         self.iconListWidget.setObjectName("iconListWidget")
         self.iconListWidget.SelectionMode()
         self.iconListWidget.setSelectionMode(QAbstractItemView.ExtendedSelection)
         self.iconListWidget.itemDoubleClicked.connect(self.openWide_image)
         # comboBox customizations
-        self.setComboBoxEnable(["self.comboBox_area"], "False")
-        self.setComboBoxEnable(["self.lineEdit_us"], "False")
+        
         self.setComboBoxEditable(["self.comboBox_per_fin"], 1)
         self.setComboBoxEditable(["self.comboBox_fas_fin"], 1)
         self.setComboBoxEditable(["self.comboBox_per_iniz"], 1)
@@ -3053,18 +3044,19 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
             subprocess.check_call([cmd, dottoxml, '--oenc','utf-8',  input_file, output_file], shell=False)
             
             with open(output_file, 'r') as file :
-              filedata = file.read()
+                filedata = file.read()
             
-            # Replace the target string
-            filedata = filedata.replace("b'", '')
-            filedata = filedata.replace("graphml>'", 'graphml>')
-            # Write the file out again
+                # Replace the target string
+                filedata = filedata.replace("b'", '')
+                filedata = filedata.replace("graphml>'", 'graphml>')
+                # Write the file out again
+                
+            
             with open(output_file, 'w') as file:
               
-              file.write(filedata)
-            
-            
-            
+                file.write(filedata)
+                
+           
             sito_location = str(self.comboBox_sito.currentText())
             cfg_rel_path = os.path.join(os.sep, 'pyarchinit_DB_folder', 'config.cfg')
             file_path = '{}{}'.format(self.HOME, cfg_rel_path)
