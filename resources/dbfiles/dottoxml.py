@@ -24,8 +24,8 @@ import sys
 import locale
 import optparse
 import dot
-
-
+import xml.dom.minidom as F
+from xml.dom.minidom import *
 # Usage message
 usgmsg = "Usage: dottoxml.py [options] infile.dot outfile.graphml"
 
@@ -46,7 +46,7 @@ def exportGML(o, nodes, edges, options):
     o.write("graph [\n")
     o.write("  comment \"Created by dottoxml.py\"\n")
     o.write("  directed 1\n")
-    o.write("  IsPlanar 1\n")
+    o.write("  hierarchic 1\n")
 
     for k,nod in nodes.items():
         nod.exportGML(o,options)
@@ -56,53 +56,91 @@ def exportGML(o, nodes, edges, options):
     o.write("]\n")
 
 def exportGraphml(o, nodes, edges, options):
-    import xml.dom.minidom
-    doc = xml.dom.minidom.Document()
+    
+    doc = F.Document()
     root = doc.createElement('graphml')
     root.setAttribute('xmlns','http://graphml.graphdrawing.org/xmlns')
+    root.setAttribute('xmlns:java','http://www.yworks.com/xml/yfiles-common/1.0/java')
+    root.setAttribute('xmlns:sys','http://www.yworks.com/xml/yfiles-common/markup/primitives/2.0')
+    root.setAttribute('xmlns:x','http://www.yworks.com/xml/yfiles-common/markup/2.0')
     root.setAttribute('xmlns:xsi','http://www.w3.org/2001/XMLSchema-instance')
     root.setAttribute('xmlns:y','http://www.yworks.com/xml/graphml')
-    root.setAttribute('xsi:schemaLocation','http://graphml.graphdrawing.org/xmlns http://www.yworks.com/xml/schema/graphml/1.0/ygraphml.xsd')
+    root.setAttribute('xmlns:yed','http://www.yworks.com/xml/yed/3')
+    root.setAttribute('xsi:schemaLocation','http://www.yworks.com/xml/schema/graphml/1.0/ygraphml.xsd')
     doc.appendChild(root)        
+    
     key = doc.createElement('key')
-    key.setAttribute('for','node')    
+    key.setAttribute('for','port')    
     key.setAttribute('id','d0')    
-    key.setAttribute('yfiles.type','nodegraphics')    
+    key.setAttribute('yfiles.type','portgraphics')    
     root.appendChild(key)
-
+    
     key = doc.createElement('key')
-    key.setAttribute('attr.name','description')    
+    key.setAttribute('for','port')    
+    key.setAttribute('id','d1')    
+    key.setAttribute('yfiles.type','portgeometry')    
+    root.appendChild(key)
+    
+    key = doc.createElement('key')
+    key.setAttribute('for','port')    
+    key.setAttribute('id','d2')    
+    key.setAttribute('yfiles.type','portuserdata')    
+    root.appendChild(key)
+   
+    key = doc.createElement('key')
+    key.setAttribute('attr.name','url')    
     key.setAttribute('attr.type','string')    
     key.setAttribute('for','node')    
-    key.setAttribute('id','d1')    
-    root.appendChild(key)
-
-    key = doc.createElement('key')
-    key.setAttribute('for','edge')    
-    key.setAttribute('id','d2')    
-    key.setAttribute('yfiles.type','edgegraphics')    
-    root.appendChild(key)
-
-    key = doc.createElement('key')
-    key.setAttribute('attr.name','description')    
-    key.setAttribute('attr.type','string')    
-    key.setAttribute('for','edge')    
     key.setAttribute('id','d3')    
     root.appendChild(key)
 
     key = doc.createElement('key')
-    key.setAttribute('for','graphml')    
+    key.setAttribute('attr.name','description')    
+    key.setAttribute('attr.type','string')    
+    key.setAttribute('for','node')    
     key.setAttribute('id','d4')    
-    key.setAttribute('yfiles.type','resources')    
+    root.appendChild(key)
+    
+    key = doc.createElement('key')
+    key.setAttribute('for','node')    
+    key.setAttribute('id','d5')    
+    key.setAttribute('yfiles.type','nodegraphics')    
     root.appendChild(key)
 
+    key = doc.createElement('key')
+    key.setAttribute('for','graphml')    
+    key.setAttribute('id','d6') 
+    key.setAttribute('yfiles.folder','group')
+    key.setAttribute('yfiles.type','resources')    
+    root.appendChild(key)
+    
+    key = doc.createElement('key')
+    key.setAttribute('attr.name','url')    
+    key.setAttribute('attr.type','string')    
+    key.setAttribute('for','edge')    
+    key.setAttribute('id','d7')    
+    root.appendChild(key)
+
+    key = doc.createElement('key')
+    key.setAttribute('attr.name','description')    
+    key.setAttribute('attr.type','string')    
+    key.setAttribute('for','edge')    
+    key.setAttribute('id','d8')    
+    root.appendChild(key)
+
+    key = doc.createElement('key')
+    key.setAttribute('for','edge')    
+    key.setAttribute('id','d9')    
+    key.setAttribute('yfiles.type','edgegraphics')    
+    root.appendChild(key)
+    
     graph = doc.createElement('graph')
     graph.setAttribute('edgedefault','directed')    
     graph.setAttribute('id','G')    
     graph.setAttribute('parse.edges','%d' % len(edges))   
     graph.setAttribute('parse.nodes','%d' % len(nodes))
     graph.setAttribute('parse.order', 'free')    
-    
+   
     for k,nod in nodes.items():
         nod.exportGraphml(doc, graph, options)
     for el in edges:
@@ -111,12 +149,13 @@ def exportGraphml(o, nodes, edges, options):
     root.appendChild(graph)
     
     data = doc.createElement('data')
-    data.setAttribute('key','d4')    
+    data.setAttribute('key','d6')    
     res = doc.createElement('y:Resources')
     data.appendChild(res)    
     root.appendChild(data)
     
-    o.write(str(doc.toxml(encoding="UTF-8")))
+    o.write(str(doc.toxml(encoding='UTF-8')))
+    
 def exportGDF(o, nodes, edges, options):
     o.write("nodedef> name\n")
     for k,nod in nodes.items():
@@ -259,6 +298,7 @@ def main():
             n.initFromString(l)
             lowlabel = n.label.lower()
             if (lowlabel != 'graph' and
+                lowlabel != 'subgraph' and
                 lowlabel != 'edge' and
                 lowlabel != 'node'):
                 n.id = nid
@@ -324,8 +364,9 @@ def main():
         exportGDF(o, nodes, edges, options)
     else: # GML
         exportGML(o, nodes, edges, options)
+    
     o.close()
-
+    
     if options.verbose:
         print("\nDone.")
 
