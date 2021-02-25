@@ -382,7 +382,7 @@ class pyarchinit_Tomba(QDialog, MAIN_DIALOG_CLASS):
         self.pbnOpenpdfDirectory.clicked.connect(self.openpdfDir)
         self.fill_fields()
         self.customize_GUI()
-        self.loadCorredolist()
+        self.lineEdit_nr_scheda.textChanged.connect(self.loadCorredolist)
         self.set_sito()
         self.msg_sito()
         self.numero_invetario()
@@ -416,7 +416,7 @@ class pyarchinit_Tomba(QDialog, MAIN_DIALOG_CLASS):
         else:
              col =['Item ID','Indv. ID','Material','Position in trousseau','Position in trousseau']
         self.tableWidget_corredo_tipo.setHorizontalHeaderLabels(col)
-        numRows = self.tableWidget_corredo_tipo.setRowCount(100)
+        numRows = self.tableWidget_corredo_tipo.setRowCount(0)
         conn = Connection()
         area= str(self.comboBox_area.currentText())    
         sito_set= conn.sito_set()
@@ -430,7 +430,13 @@ class pyarchinit_Tomba(QDialog, MAIN_DIALOG_CLASS):
                     }
                 u = Utility()
                 search_dict = u.remove_empty_items_fr_dict(search_dict)
-                
+                search_dict2 = {
+                        'sito': "'"+str(sito_set_str)+"'",
+                        'sigla_struttura': "'" + str(eval('self.DATA_LIST[int(self.REC_CORR)].sigla_struttura'))+"'",
+                        'nr_struttura': "'"+str(eval('self.DATA_LIST[int(self.REC_CORR)].nr_struttura'))+"'"
+                    }
+                u = Utility()
+                search_dict = u.remove_empty_items_fr_dict(search_dict)
                 record_inventario_list = self.DB_MANAGER.query_bool(search_dict, 'INVENTARIO_MATERIALI')
                 
                 nus=0
@@ -454,15 +460,15 @@ class pyarchinit_Tomba(QDialog, MAIN_DIALOG_CLASS):
                     self.delegateMS.def_editable('False')
                     self.tableWidget_corredo_tipo.setItemDelegateForColumn(2,self.delegateMS)
                 
-                record_individui_list = self.DB_MANAGER.query_bool(search_dict, 'SCHEDAIND')
+                record_individui_list = self.DB_MANAGER.query_bool(search_dict2, 'SCHEDAIND')
                 for e in record_individui_list:
                     individuo.append(str(e.nr_individuo))
-                    for a in record_individui_list:
-                        
-                        self.delegateIS = ComboBoxDelegate()
-                        self.delegateIS.def_values(individuo)
-                        self.delegateIS.def_editable('False')
-                        self.tableWidget_corredo_tipo.setItemDelegateForColumn(1,self.delegateIS)
+                for a in record_individui_list:
+                    
+                    self.delegateIS = ComboBoxDelegate()
+                    self.delegateIS.def_values(individuo)
+                    self.delegateIS.def_editable('False')
+                    self.tableWidget_corredo_tipo.setItemDelegateForColumn(1,self.delegateIS)
         
         
         except:

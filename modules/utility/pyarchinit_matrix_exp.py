@@ -39,7 +39,7 @@ class HarrisMatrix:
     ID_TABLE = "id_us"
     MATRIX = Setting_Matrix()
     #s=pyqtSignal(str)
-    def __init__(self, sequence,negative, conteporene, periodi):
+    def __init__(self, sequence,negative,conteporene,periodi):
         self.sequence = sequence
         self.negative = negative
         self.periodi=periodi
@@ -152,7 +152,7 @@ class HarrisMatrix:
                         i.edge('a1', 'a2',shape=str(dialog.combo_box_8.currentText()), fillcolor=str(dialog.combo_box_2.currentText()), style=str(dialog.combo_box_15.currentText()),arrowhead=str(dialog.combo_box_14.currentText()), arrowsize=str(dialog.combo_box_16.currentText()))
                         
                         i.node('a2', shape=str(dialog.combo_box_18.currentText()), fillcolor=str(dialog.combo_box_17.currentText()), style='filled', gradientangle='1',label='Cont.')
-                        #i.node('node3', shape=str(dialog.combo_box_18.currentText()), fillcolor=str(dialog.combo_box_17.currentText()), style='filled', gradientangle='1')
+                        # i.node('node3', shape=str(dialog.combo_box_18.currentText()), fillcolor=str(dialog.combo_box_17.currentText()), style='filled', gradientangle='1')
                         i.edge('a2', 'a1',shape=str(dialog.combo_box_22.currentText()), fillcolor=str(dialog.combo_box_17.currentText()), style=str(dialog.combo_box_23.currentText()),arrowhead=str(dialog.combo_box_21.currentText()), arrowsize=str(dialog.combo_box_24.currentText()))
                     elif self.L=='de':
                         i.node('a0', shape=str(dialog.combo_box_3.currentText()), fillcolor=str(dialog.combo_box.currentText()), style='filled', gradientangle='90',label='Ante/Post') 
