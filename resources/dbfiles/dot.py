@@ -214,7 +214,10 @@ class Node:
         self.attribs = {}
         self.referenced = False
         self.sections = []
-
+    # def listToString(list):
+    # """ converte la lista in stringa"""    
+        # str1 = " "
+        # return (str1.join(list))
     def initFromString(self, line):
         """ extract node info from the given text line """
         spos = findUnquoted(line, '[')
@@ -329,28 +332,20 @@ class Node:
         """ export the node in Graphml format and append it to the parent XML node """
         node = doc.createElement('node')
         node.setAttribute('id','n%d' % self.id)
-        
+        #node.setAttribute('yfiles.foldertype','group')
         data0 = doc.createElement('data')
-        data0.setAttribute('key', 'd0')
+        data0.setAttribute('key', 'd5')
 
-        exportUml = False
-        if len(self.sections) > 0 and conf.NodeUml and not conf.LumpAttributes:
-            exportUml = True
-            snode = doc.createElement('y:UMLClassNode')
-        else:
-            snode = doc.createElement('y:ShapeNode')
+        snode = doc.createElement('y:ShapeNode')
         geom = doc.createElement('y:Geometry')
         geom.setAttribute('height','30.0')
-        geom.setAttribute('width','30.0')
+        geom.setAttribute('width','90.0')
         geom.setAttribute('x','0.0')
         geom.setAttribute('y','0.0')
         snode.appendChild(geom)
-        if 'fillcolor' in self.attribs:
-            color = getColorAttribute(self.attribs, 'fillcolor', conf.DefaultNodeColor, conf)
-        else:
-            color = getColorAttribute(self.attribs, 'color', conf.DefaultNodeColor, conf)
+       
         fill = doc.createElement('y:Fill')
-        fill.setAttribute('color','%s' % color)
+        fill.setAttribute('color','#ffffff')
         fill.setAttribute('transparent','false')
         snode.appendChild(fill)
         border = doc.createElement('y:BorderStyle')
@@ -359,58 +354,64 @@ class Node:
         border.setAttribute('width','1.0')
         snode.appendChild(border)
         color = getColorAttribute(self.attribs, 'fontcolor', conf.DefaultNodeTextColor, conf)        
+        
         label = doc.createElement('y:NodeLabel')
-        if conf.LumpAttributes:
-            label.setAttribute('alignment','left')
-        else:
-            label.setAttribute('alignment','center')
+        label.setAttribute('alignment','center')
         label.setAttribute('autoSizePolicy','content')
         label.setAttribute('fontFamily','Dialog')
         label.setAttribute('fontSize','12')
         label.setAttribute('fontStyle','plain')
         label.setAttribute('hasBackgroundColor','false')
         label.setAttribute('hasLineColor','false')
-        label.setAttribute('modelName','internal')
+        label.setAttribute('modelName','custom')
         label.setAttribute('modelPosition','c')
         label.setAttribute('textColor','%s' % color)
         label.setAttribute('visible','true')
+        label.setAttribute('width','80.0')
+        label.setAttribute('x','0.0')
+        label.setAttribute('xml:space','preserve')
+        label.setAttribute('y','0.0')
         nodeLabelText = escapeNewlines(self.getLabel(conf, True))
-        if conf.LumpAttributes:
-            # Find maximum label width
-            width = self.getLabelWidth(conf, True)
-            nodeLabelText += '\n' + conf.SepChar*width + '\n'
-            nodeLabelText += '%s\n' % '\n'.join(self.sections[1])
-            nodeLabelText += conf.SepChar*width + '\n'
-            nodeLabelText += '%s' % '\n'.join(self.sections[2])
-        label.appendChild(doc.createTextNode('%s' % nodeLabelText))        
+        a = nodeLabelText.rsplit('_',)[0]
+       
+        label.appendChild(doc.createTextNode('{}'.format(a)))        
+        labelz = doc.createElement('y:LabelModel')
+        labelz1 = doc.createElement('y:SmartNodeLabelModel')
+        labelz1.setAttribute('distance','4.0')
+        
+        labelz2 = doc.createElement('y:ModelParameter')
+        labelz3 = doc.createElement('y:SmartNodeLabelModelParameter')
+        labelz3.setAttribute('labelRatioX','0.0')
+        labelz3.setAttribute('labelRatioY','0.0')
+        labelz3.setAttribute('nodeRatioX','0.0')
+        labelz3.setAttribute('nodeRatioY','0.0' )
+        labelz3.setAttribute('offsetX','0.0')
+        labelz3.setAttribute('offsetY','0.0')
+        labelz3.setAttribute('upX','0.0')
+        labelz3.setAttribute('upY','-1.0')
+        
+        snode.appendChild(labelz3)
+        snode.appendChild(labelz2)
+        snode.appendChild(labelz1)
+        snode.appendChild(labelz)
         snode.appendChild(label)
-        if exportUml and not conf.LumpAttributes:
-            shape = doc.createElement('y:UML')
-            shape.setAttribute('clipContent','true')
-            shape.setAttribute('constraint','')
-            shape.setAttribute('omitDetails','false')
-            shape.setAttribute('stereotype','') 
-            shape.setAttribute('use3DEffect','true')
-     
-            alabel = doc.createElement('y:AttributeLabel')
-            alabel.appendChild(doc.createTextNode('%s' % '\n'.join(self.sections[1])))
-            shape.appendChild(alabel)
-            mlabel = doc.createElement('y:MethodLabel')
-            mlabel.appendChild(doc.createTextNode('%s' % '\n'.join(self.sections[2])))
-            shape.appendChild(mlabel)
-        else:
-            shape = doc.createElement('y:Shape')
-            shape.setAttribute('type','rectangle')
+        
+        shape = doc.createElement('y:Shape')
+        shape.setAttribute('type','rectangle')
         snode.appendChild(shape)
         data0.appendChild(snode)
-        node.appendChild(data0)
-
-        data1 = doc.createElement('data')
-        data1.setAttribute('key', 'd1')
-        node.appendChild(data1)
         
+        LabelText = self.getLabel(conf, True)
+        bb = LabelText.rsplit('_',)[1:]
+        b = ' '.join(map(str, bb))
+        data1 = doc.createElement('data')
+        data1.setAttribute('key', 'd4')
+        data1.setAttribute('xml:space','preserve')
+        data1.appendChild(doc.createTextNode('{}'.format(b))) 
+        node.appendChild(data1)
+        node.appendChild(data0) 
         parent.appendChild(node)
-
+        
 class Edge:
     """ a single edge in the graph """
     def __init__(self):
@@ -508,11 +509,11 @@ class Edge:
         """ export the edge in Graphml format and append it to the parent XML node """
         edge = doc.createElement('edge')
         edge.setAttribute('id','e%d' % self.id)
-        edge.setAttribute('source','n%d' % nodes[self.src].id)
-        edge.setAttribute('target','n%d' % nodes[self.dest].id)
+        edge.setAttribute('source','n%d'% nodes[self.src].id)
+        edge.setAttribute('target','n%d'% nodes[self.dest].id)
         
         data2 = doc.createElement('data')
-        data2.setAttribute('key', 'd2')
+        data2.setAttribute('key', 'd9')
 
         pedge = doc.createElement('y:PolyLineEdge')
         line = doc.createElement('y:LineStyle')
@@ -562,7 +563,7 @@ class Edge:
         edge.appendChild(data2)
 
         data3 = doc.createElement('data')
-        data3.setAttribute('key', 'd3')
+        data3.setAttribute('key', 'd8')
         edge.appendChild(data3)
         
         parent.appendChild(edge)
