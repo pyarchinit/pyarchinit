@@ -134,7 +134,7 @@ class HarrisMatrix:
                 a.edge_attr['style'] = str(dialog.combo_box_15.currentText())
                 a.edge_attr.update(arrowhead=str(dialog.combo_box_14.currentText()), arrowsize=str(dialog.combo_box_16.currentText()))    
             
-        
+            
         
          
         if bool(dialog.checkBox_legend.isChecked()):

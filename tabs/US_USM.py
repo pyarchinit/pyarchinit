@@ -1283,7 +1283,7 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
             res = self.DB_MANAGER.query_bool(search_dict, self.MAPPER_TABLE_CLASS)
             
             for p in res:
-                self.tableWidget_rapporti.setItem(rowIndex, 3,QtWidgets.QTableWidgetItem(p.d_stratigrafica))
+                self.tableWidget_rapporti.setItem(rowIndex, 3,QtWidgets.QTableWidgetItem(p.d_interpretativa))
             
            
             self.tableWidget_rapporti.update()
@@ -1510,7 +1510,8 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
             self.pushButton_export_matrix.setToolTip("Funzione disabilitata")
         self.tableWidget_rapporti.setColumnWidth(0, 100)
         self.tableWidget_rapporti.setColumnWidth(1, 50)
-        self.tableWidget_rapporti.setColumnWidth(2, 100)
+        self.tableWidget_rapporti.setColumnWidth(2, 50)
+        self.tableWidget_rapporti.setColumnWidth(2, 200)
         self.tableWidget_documentazione.setColumnWidth(0, 150)
         self.tableWidget_documentazione.setColumnWidth(1, 300)
         
@@ -3041,7 +3042,7 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
                 cmd = '{}/bin/python{}'.format(python_path, python_version)
             else:
                 cmd = '{}/bin/python{}'.format(python_path, python_version)
-            subprocess.check_call([cmd, dottoxml, '--oenc','utf-8',  input_file, output_file], shell=False)
+            subprocess.check_call([cmd, dottoxml,'-f','Graphml', input_file, output_file], shell=False)
             
             with open(output_file, 'r') as file :
                 filedata = file.read()
@@ -3184,14 +3185,21 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
         else:
             subprocess.Popen(["xdg-open", path])
     def on_pushButton_export_matrix_pressed(self):
+        if self.checkBox_ED.isChecked():
+            
+            id_us_dict = {}
+            for i in range(len(self.DATA_LIST)):
+                id_us_dict[self.DATA_LIST[i].us] = self.DATA_LIST[i].id_us
+            dlg = pyarchinit_Interactive_Matrix(self.iface, self.DATA_LIST, id_us_dict)
+            data_plot = dlg.generate_matrix()
+            
         
-        id_us_dict = {}
-        for i in range(len(self.DATA_LIST)):
-            id_us_dict[self.DATA_LIST[i].us] = self.DATA_LIST[i].id_us
-        dlg = pyarchinit_Interactive_Matrix(self.iface, self.DATA_LIST, id_us_dict)
-        data_plot = dlg.generate_matrix()
-        # dlg.plot_matrix(data_plot)
-        # dlg.exec_()
+        else:
+            id_us_dict = {}
+            for i in range(len(self.DATA_LIST)):
+                id_us_dict[self.DATA_LIST[i].us] = self.DATA_LIST[i].id_us
+            dlg = pyarchinit_Interactive_Matrix(self.iface, self.DATA_LIST, id_us_dict)
+            data_plot = dlg.generate_matrix2()
     def launch_matrix_exp_if(self, msg):
         if msg == QMessageBox.Ok:
             self.on_pushButton_export_matrix_pressed()

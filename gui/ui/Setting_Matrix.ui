@@ -1495,11 +1495,27 @@
    <hints>
     <hint type="sourcelabel">
      <x>344</x>
-     <y>127</y>
+     <y>33</y>
     </hint>
     <hint type="destinationlabel">
      <x>250</x>
      <y>0</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>set_matrix</sender>
+   <signal>pressed()</signal>
+   <receiver>Dialog_Matrix</receiver>
+   <slot>deleteLater()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>272</x>
+     <y>22</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>25</x>
+     <y>-12</y>
     </hint>
    </hints>
   </connection>
