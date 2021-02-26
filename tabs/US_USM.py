@@ -1510,8 +1510,8 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
             self.pushButton_export_matrix.setToolTip("Funzione disabilitata")
         self.tableWidget_rapporti.setColumnWidth(0, 100)
         self.tableWidget_rapporti.setColumnWidth(1, 50)
-        self.tableWidget_rapporti.setColumnWidth(2, 50)
-        self.tableWidget_rapporti.setColumnWidth(2, 200)
+        self.tableWidget_rapporti.setColumnWidth(2, 60)
+        self.tableWidget_rapporti.setColumnWidth(3, 200)
         self.tableWidget_documentazione.setColumnWidth(0, 150)
         self.tableWidget_documentazione.setColumnWidth(1, 300)
         
