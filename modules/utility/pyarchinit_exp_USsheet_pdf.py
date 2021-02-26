@@ -275,7 +275,7 @@ class single_US_pdf_sheet(object):
     def unzip_rapporti_stratigrafici(self):
         rapporti = eval(self.rapporti)
         for rapporto in rapporti:
-            if len(rapporto) == 2:
+            if len(rapporto) == 4:
                 if rapporto[0] == 'Si lega a' or rapporto[0] == 'si lega a':
                     if self.si_lega_a == '':
                         self.si_lega_a += str(rapporto[1])
@@ -341,7 +341,7 @@ class single_US_pdf_sheet(object):
         rapporti.sort()
         
         for rapporto in rapporti:
-            if len(rapporto) == 2:
+            if len(rapporto) == 4:
                 if rapporto[0] == 'Bindet an' or rapporto[0] == 'bindet an':
                     if self.si_lega_a == '':
                         self.si_lega_a += str(rapporto[1])
@@ -408,7 +408,7 @@ class single_US_pdf_sheet(object):
         rapporti.sort()
         
         for rapporto in rapporti:
-            if len(rapporto) == 2:
+            if len(rapporto) == 4:
                 if rapporto[0] == 'Connected to' or rapporto[0] == 'Connected to':
                     if self.si_lega_a == '':
                         self.si_lega_a += str(rapporto[1])
@@ -3375,7 +3375,7 @@ class US_index_pdf_sheet(object):
         rapporti.sort()
         
         for rapporto in rapporti:
-            if len(rapporto) == 2:
+            if len(rapporto) == 4:
                 if rapporto[0] == 'Si lega a' or rapporto[0] == 'si lega a':
                     if self.si_lega_a == '':
                         self.si_lega_a += str(rapporto[1])
@@ -3502,7 +3502,7 @@ class US_index_pdf_sheet(object):
         rapporti.sort()
         
         for rapporto in rapporti:
-            if len(rapporto) == 2:
+            if len(rapporto) == 4:
                 if rapporto[0] == 'Connected to' or rapporto[0] == 'Connected to':
                     if self.si_lega_a == '':
                         self.si_lega_a += str(rapporto[1])
@@ -3627,7 +3627,7 @@ class US_index_pdf_sheet(object):
         rapporti.sort()
         
         for rapporto in rapporti:
-            if len(rapporto) == 2:
+            if len(rapporto) == 4:
                 if rapporto[0] == 'Bindet an' or rapporto[0] == 'bindet an':
                     if self.si_lega_a == '':
                         self.si_lega_a += str(rapporto[1])
