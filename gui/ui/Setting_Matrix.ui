@@ -517,6 +517,13 @@
        </property>
       </widget>
      </item>
+     <item row="0" column="4">
+      <widget class="QLineEdit" name="lineEdit_dpi">
+       <property name="placeholderText">
+        <string>insert dpi value</string>
+       </property>
+      </widget>
+     </item>
     </layout>
    </item>
    <item row="1" column="0">
@@ -1288,6 +1295,11 @@
        </property>
        <item>
         <property name="text">
+         <string>none</string>
+        </property>
+       </item>
+       <item>
+        <property name="text">
          <string>normal</string>
         </property>
        </item>
@@ -1319,11 +1331,6 @@
        <item>
         <property name="text">
          <string>curve</string>
-        </property>
-       </item>
-       <item>
-        <property name="text">
-         <string>none</string>
         </property>
        </item>
        <item>
@@ -1494,8 +1501,8 @@
    <slot>close()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>344</x>
-     <y>33</y>
+     <x>298</x>
+     <y>40</y>
     </hint>
     <hint type="destinationlabel">
      <x>250</x>
