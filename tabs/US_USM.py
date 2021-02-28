@@ -810,6 +810,7 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
         self.checkBox_query.stateChanged.connect(self.listview_us)###anche questo
         self.tableWidget_rapporti.itemSelectionChanged.connect(self.unitatipo)
         self.tableWidget_rapporti.itemSelectionChanged.connect(self.defin)
+        self.tableWidget_rapporti.itemSelectionChanged.connect(self.datazione)
     
     def charge_insert_ra(self):
         try:
@@ -1289,6 +1290,35 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
             self.tableWidget_rapporti.update()
         except :
             pass#QMessageBox.warning(self, "ATTENZIONE", str(e), QMessageBox.Ok)
+    def datazione(self):
+        try:
+            table_name = "self.tableWidget_rapporti"
+            rowSelected_cmd = ("%s.selectedIndexes()") % (table_name)
+            rowSelected = eval(rowSelected_cmd)
+            rowIndex = (rowSelected[0].row())
+            
+            
+            sito = str(self.comboBox_sito.currentText())
+            area = str(self.comboBox_area.currentText())
+            
+            us_item = self.tableWidget_rapporti.item(rowIndex, 1)
+            us = str(us_item.text())
+            
+            search_dict = {'sito': "'" + str(sito) + "'",
+                           'area': "'" + str(area) + "'",
+                           'us': us}
+            u = Utility()
+            search_dict = u.remove_empty_items_fr_dict(search_dict)
+            res = self.DB_MANAGER.query_bool(search_dict, self.MAPPER_TABLE_CLASS)
+            
+            for p in res:
+                self.tableWidget_rapporti.setItem(rowIndex, 4,QtWidgets.QTableWidgetItem(p.periodo_iniziale+'-'+p.fase_iniziale))
+            
+           
+            self.tableWidget_rapporti.update()
+        except :
+            pass#QMessageBox.warning(self, "ATTENZIONE", str(e), QMessageBox.Ok)
+    
     def on_pushButton_go_to_us_pressed(self):    
         #self.save_us()
         try:
@@ -1511,7 +1541,8 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
         self.tableWidget_rapporti.setColumnWidth(0, 100)
         self.tableWidget_rapporti.setColumnWidth(1, 50)
         self.tableWidget_rapporti.setColumnWidth(2, 60)
-        self.tableWidget_rapporti.setColumnWidth(3, 200)
+        self.tableWidget_rapporti.setColumnWidth(3, 150)
+        self.tableWidget_rapporti.setColumnWidth(4, 150)
         self.tableWidget_documentazione.setColumnWidth(0, 150)
         self.tableWidget_documentazione.setColumnWidth(1, 300)
         
@@ -3042,7 +3073,7 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
                 cmd = '{}/bin/python{}'.format(python_path, python_version)
             else:
                 cmd = '{}/bin/python{}'.format(python_path, python_version)
-            subprocess.check_call([cmd, dottoxml,'-f','Graphml', input_file, output_file], shell=False)
+            subprocess.check_call([cmd, dottoxml,'-f', 'Graphml', input_file, output_file], shell=False)
             
             with open(output_file, 'r') as file :
                 filedata = file.read()
@@ -3191,7 +3222,7 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
             for i in range(len(self.DATA_LIST)):
                 id_us_dict[self.DATA_LIST[i].us] = self.DATA_LIST[i].id_us
             dlg = pyarchinit_Interactive_Matrix(self.iface, self.DATA_LIST, id_us_dict)
-            data_plot = dlg.generate_matrix()
+            data_plot = dlg.generate_matrix_2()
             
         
         else:
@@ -3199,7 +3230,7 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
             for i in range(len(self.DATA_LIST)):
                 id_us_dict[self.DATA_LIST[i].us] = self.DATA_LIST[i].id_us
             dlg = pyarchinit_Interactive_Matrix(self.iface, self.DATA_LIST, id_us_dict)
-            data_plot = dlg.generate_matrix2()
+            data_plot = dlg.generate_matrix()
     def launch_matrix_exp_if(self, msg):
         if msg == QMessageBox.Ok:
             self.on_pushButton_export_matrix_pressed()

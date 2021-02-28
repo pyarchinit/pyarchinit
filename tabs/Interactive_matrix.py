@@ -95,7 +95,7 @@ class pyarchinit_Interactive_Matrix(QDialog, MAIN_DIALOG_CLASS):
         s = re.sub(r"\s+", '_', s)
 
         return s
-    def generate_matrix(self):
+    def generate_matrix_2(self):
         data = []
         negative =[]
         conteporane=[]
@@ -103,7 +103,7 @@ class pyarchinit_Interactive_Matrix(QDialog, MAIN_DIALOG_CLASS):
         for sing_rec in self.DATA_LIST:
             us = str(sing_rec.us)
             un_t = str(sing_rec.unita_tipo)##per inserire il termine US o USM
-            #datazione = str(sing_rec.datazione)##per inserire la datazione estesa
+            datazione = str(sing_rec.periodo_iniziale)+'-'+str(sing_rec.fase_iniziale)##per inserire la datazione estesa
             defin = str(sing_rec.d_interpretativa.replace(' ','_'))##per inserire la definizione startigrafica
             
             rapporti_stratigrafici = eval(sing_rec.rapporti)
@@ -113,20 +113,20 @@ class pyarchinit_Interactive_Matrix(QDialog, MAIN_DIALOG_CLASS):
                     
                     if   sing_rapp[0] == 'Covers' or  sing_rapp[0] == 'Abuts' or  sing_rapp[0] == 'Fills' or  sing_rapp[0] == 'Copre' or  sing_rapp[0] == 'Si appoggia a' or  sing_rapp[0] == 'Riempie'   or  sing_rapp[0] == 'Verfüllt' or sing_rapp[0] == 'Bindet an' or  sing_rapp[0] == 'Entspricht' :
                         if sing_rapp[1] != '':
-                            harris_rapp = (un_t+us+'_'+defin,str(sing_rapp[2])+str(sing_rapp[1])+'_'+str(sing_rapp[3].replace(' ','_')))
+                            harris_rapp = (un_t+us+'_'+defin+'_'+datazione,str(sing_rapp[2])+str(sing_rapp[1])+'_'+str(sing_rapp[3].replace(' ','_')+'_'+str(sing_rapp[4])))
                             data.append(harris_rapp)
                         
                         
                     
                     if sing_rapp[0] == 'Taglia' or sing_rapp[0] == 'Cuts' or sing_rapp[0] == 'Schneidet':
                         if sing_rapp[1] != '':
-                            harris_rapp1 = (un_t+us+'_'+defin,str(sing_rapp[2])+str(sing_rapp[1])+'_'+str(sing_rapp[3].replace(' ','_')))
+                            harris_rapp1 = (un_t+us+'_'+defin+'_'+datazione,str(sing_rapp[2])+str(sing_rapp[1])+'_'+str(sing_rapp[3].replace(' ','_')+'_'+str(sing_rapp[4])))
                             negative.append(harris_rapp1)
                             
                     
                     if sing_rapp[0] == 'Si lega a' or  sing_rapp[0] == 'Uguale a' or sing_rapp[0] == 'Connected to' or  sing_rapp[0] == 'Same as'or sing_rapp[0] == 'Liegt über' or  sing_rapp[0] == 'Stützt sich auf':
                         if sing_rapp[1] != '':
-                            harris_rapp2 = (un_t+us+'_'+defin,str(sing_rapp[2])+str(sing_rapp[1])+'_'+str(sing_rapp[3].replace(' ','_')))
+                            harris_rapp2 = (un_t+us+'_'+defin+'_'+datazione,str(sing_rapp[2])+str(sing_rapp[1])+'_'+str(sing_rapp[3].replace(' ','_')+'_'+str(sing_rapp[4])))
                             conteporane.append(harris_rapp2)
                     
                     
@@ -202,7 +202,7 @@ class pyarchinit_Interactive_Matrix(QDialog, MAIN_DIALOG_CLASS):
                 #sing_ut.append(rec.unita_tipo)
                 #sing_ut.append(rec.unita_tipo)
                 
-                sing_us.append(rec.unita_tipo+str(rec.us)+'_'+rec.d_interpretativa.replace(' ','_'))
+                sing_us.append(rec.unita_tipo+str(rec.us)+'_'+rec.d_interpretativa.replace(' ','_')+'_'+rec.periodo_iniziale+'-'+rec.fase_iniziale)
                 #sing_def.append(rec.d_stratigrafica)
             
             sing_per.insert(0, sing_us )
@@ -213,7 +213,7 @@ class pyarchinit_Interactive_Matrix(QDialog, MAIN_DIALOG_CLASS):
         
         matrix_exp = HarrisMatrix(data,negative,conteporane, periodi_us_list)
         
-        data_plotting = matrix_exp.export_matrix
+        data_plotting_2 = matrix_exp.export_matrix_2
         if self.L=='it':
             QMessageBox.information(self, "Info", "Esportazione completata", QMessageBox.Ok)
         elif self.L=='de':
@@ -221,8 +221,8 @@ class pyarchinit_Interactive_Matrix(QDialog, MAIN_DIALOG_CLASS):
         else:
             QMessageBox.information(self, "Info", "Exportation complited", QMessageBox.Ok)    
             
-        return data_plotting
-    def generate_matrix2(self):
+        return data_plotting_2
+    def generate_matrix(self):
         data = []
         negative =[]
         conteporane=[]
