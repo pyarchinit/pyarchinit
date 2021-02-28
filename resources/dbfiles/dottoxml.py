@@ -154,7 +154,7 @@ def exportGraphml(o, nodes, edges, options):
     data.appendChild(res)    
     root.appendChild(data)
     
-    o.write(str(doc.toxml(encoding='UTF-8')))
+    o.write('{}'.format(doc.toxml(encoding='UTF-8').decode()))
     
 def exportGDF(o, nodes, edges, options):
     o.write("nodedef> name\n")
@@ -267,14 +267,14 @@ def main():
 
     idx = 0
     while idx < len(content):
-        l = str(content[idx])#(content[idx].encode(), options.InputEncoding)
+        l = '{}'.format(content[idx])
         if '->' in l:
             # Check for multiline edge
             if '[' in l and ']' not in l:
                 ml = ""
                 while ']' not in ml:
                     idx += 1
-                    ml = str(content[idx])
+                    ml = '{}'.format(content[idx])
                     l = ' '.join([l.rstrip(), ml.lstrip()])
                     
             # Process edge
@@ -291,7 +291,7 @@ def main():
                 ml = ""
                 while ']' not in ml:
                     idx += 1
-                    ml = str(content[idx])
+                    ml = '{}'.format(content[idx])
                     l = ' '.join([l.rstrip(), ml.lstrip()])
             # Process node
             n = dot.Node()
