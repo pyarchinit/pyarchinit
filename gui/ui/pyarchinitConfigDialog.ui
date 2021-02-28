@@ -348,7 +348,7 @@
           <item row="1" column="1" colspan="3">
            <widget class="QLineEdit" name="lineEdit_Thumb_resize">
             <property name="placeholderText">
-             <string>choose path for the resize images</string>
+             <string/>
             </property>
            </widget>
           </item>
@@ -527,7 +527,7 @@
              <string/>
             </property>
             <property name="placeholderText">
-             <string>choose path thumbnail</string>
+             <string/>
             </property>
            </widget>
           </item>
@@ -633,7 +633,7 @@
           <item row="2" column="1" colspan="3">
            <widget class="QLineEdit" name="lineEdit_logo">
             <property name="placeholderText">
-             <string>choose logo </string>
+             <string/>
             </property>
            </widget>
           </item>
@@ -2184,7 +2184,7 @@
     <widget class="QgsDockWidget" name="mDockWidget">
      <property name="minimumSize">
       <size>
-       <width>80</width>
+       <width>95</width>
        <height>150</height>
       </size>
      </property>
