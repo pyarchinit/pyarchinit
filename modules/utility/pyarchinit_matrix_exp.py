@@ -28,7 +28,7 @@ from graphviz import Digraph, Source
 from .pyarchinit_OS_utility import Pyarchinit_OS_Utility
 from ..db.pyarchinit_db_manager import Pyarchinit_db_management
 from ...tabs.pyarchinit_setting_matrix import *
-import pyyed
+
 
 class HarrisMatrix:
     L=QgsSettings().value("locale/userLocale")[0:2]
