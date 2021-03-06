@@ -26,18 +26,20 @@ from builtins import str
 import os
 from datetime import date
 import psycopg2 
+try:
+    import matplotlib.pyplot as plt
+    from mpl_toolkits.mplot3d.axes3d import *
+    import matplotlib.pyplot as plt
+    from matplotlib import cm
 
-import matplotlib.pyplot as plt
-from mpl_toolkits.mplot3d.axes3d import *
-import matplotlib.pyplot as plt
-from matplotlib import cm
-#import visvis
-#import numpy as np
-#from matplotlib.mlab import griddata
-#import scipy as sp
-#import scipy.interpolate
-from pyper import R
+    #import numpy as np
+    #from matplotlib.mlab import griddata
+    #import scipy as sp
+    #import scipy.interpolate
+    from pyper import R
 
+except:
+    pass#import visvis
 from qgis.PyQt.QtGui import QColor, QIcon
 from qgis.PyQt.QtWidgets import QDialog, QMessageBox, QListWidget, QListView, QFrame, QAbstractItemView, \
     QTableWidgetItem, QListWidgetItem
