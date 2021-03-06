@@ -66,7 +66,7 @@ class Settings(object):
     else:
         conf.seek(-3, 2)
         conf.read(1)
-        conf.write(b"','SITE_SET' : ''")
+        conf.write(b"','SITE_SET' : '")
         
     if text_b in data:
         pass

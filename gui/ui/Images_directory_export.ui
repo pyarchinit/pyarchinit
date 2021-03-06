@@ -144,109 +144,65 @@
            <property name="editable">
             <bool>true</bool>
            </property>
+           <property name="currentIndex">
+            <number>0</number>
+           </property>
            <property name="maxVisibleItems">
             <number>15</number>
            </property>
+           <property name="frame">
+            <bool>true</bool>
+           </property>
            <item>
             <property name="text">
-             <string>Tutte le immagini \ in periodi e fasi</string>
+             <string>Tutte le immagini in periodi e fasi</string>
             </property>
            </item>
            <item>
             <property name="text">
              <string>US</string>
             </property>
-            <property name="icon">
-             <iconset resource="../../resources/resources.qrc">
-              <normaloff>:/icons/IconPAI.png</normaloff>:/icons/IconPAI.png</iconset>
-            </property>
            </item>
            <item>
             <property name="text">
-             <string>US / in periodi e fasi</string>
-            </property>
-            <property name="icon">
-             <iconset resource="../../resources/resources.qrc">
-              <normaloff>:/icons/IconPAI.png</normaloff>:/icons/IconPAI.png</iconset>
+             <string>US in periodi e fasi</string>
             </property>
            </item>
            <item>
             <property name="text">
              <string>Reperti</string>
             </property>
-            <property name="icon">
-             <iconset resource="../../resources/resources.qrc">
-              <normaloff>:/icons/pottery.png</normaloff>:/icons/pottery.png</iconset>
+           </item>
+           <item>
+            <property name="text">
+             <string>Reperti in Definizione materiali</string>
             </property>
            </item>
            <item>
             <property name="text">
-             <string>Reperti \ in Definizione materiali</string>
-            </property>
-            <property name="icon">
-             <iconset resource="../../resources/resources.qrc">
-              <normaloff>:/icons/pottery.png</normaloff>:/icons/pottery.png</iconset>
-            </property>
-           </item>
-           <item>
-            <property name="text">
-             <string>Reperti \ in Tipo reperto</string>
-            </property>
-            <property name="icon">
-             <iconset resource="../../resources/resources.qrc">
-              <normaloff>:/icons/pottery.png</normaloff>:/icons/pottery.png</iconset>
+             <string>Reperti in Tipo reperto</string>
             </property>
            </item>
            <item>
             <property name="text">
              <string>Tomba</string>
             </property>
-            <property name="icon">
-             <iconset resource="../../resources/resources.qrc">
-              <normaloff>:/icons/iconGrave.png</normaloff>:/icons/iconGrave.png</iconset>
-            </property>
            </item>
            <item>
             <property name="text">
-             <string>Tomba / in periodi e fasi</string>
-            </property>
-            <property name="icon">
-             <iconset resource="../../resources/resources.qrc">
-              <normaloff>:/icons/iconGrave.png</normaloff>:/icons/iconGrave.png</iconset>
+             <string>Tomba in periodi e fasi</string>
             </property>
            </item>
            <item>
             <property name="text">
              <string>Strutture</string>
             </property>
-            <property name="icon">
-             <iconset resource="../../resources/resources.qrc">
-              <normaloff>:/icons/iconStrutt.png</normaloff>:/icons/iconStrutt.png</iconset>
-            </property>
            </item>
            <item>
             <property name="text">
-             <string>Strutture / in periodi e fasi</string>
-            </property>
-            <property name="icon">
-             <iconset resource="../../resources/resources.qrc">
-              <normaloff>:/icons/iconStrutt.png</normaloff>:/icons/iconStrutt.png</iconset>
+             <string>Strutture in periodi e fasi</string>
             </property>
            </item>
-          </widget>
-         </item>
-         <item row="0" column="1">
-          <widget class="QPushButton" name="pushButton_exp_icons">
-           <property name="maximumSize">
-            <size>
-             <width>30</width>
-             <height>16777215</height>
-            </size>
-           </property>
-           <property name="icon">
-            <iconset resource="../../resources/resources.qrc">
-             <normaloff>:/icons/photo2.png</normaloff>:/icons/photo2.png</iconset>
-           </property>
           </widget>
          </item>
          <item row="0" column="2">
@@ -269,6 +225,20 @@
            <property name="icon">
             <iconset resource="../../resources/resources.qrc">
              <normaloff>:/icons/directoryExp.png</normaloff>:/icons/directoryExp.png</iconset>
+           </property>
+          </widget>
+         </item>
+         <item row="0" column="1">
+          <widget class="QPushButton" name="pushButton_exp_icons">
+           <property name="maximumSize">
+            <size>
+             <width>30</width>
+             <height>16777215</height>
+            </size>
+           </property>
+           <property name="icon">
+            <iconset resource="../../resources/resources.qrc">
+             <normaloff>:/icons/photo2.png</normaloff>:/icons/photo2.png</iconset>
            </property>
           </widget>
          </item>
