@@ -334,6 +334,187 @@ class single_US_pdf_sheet(object):
                         self.gli_si_appoggia += str(rapporto[1])
                     else:
                         self.gli_si_appoggia += ', ' + str(rapporto[1])
+            elif len(rapporto) == 4:
+                if rapporto[0] == 'Si lega a' or rapporto[0] == 'si lega a':
+                    if self.si_lega_a == '':
+                        self.si_lega_a += str(rapporto[1])
+                    else:
+                        self.si_lega_a += ', ' + str(rapporto[1])
+
+                if rapporto[0] == 'Uguale a' or rapporto[0] == 'uguale a':
+                    if self.uguale_a == '':
+                        self.uguale_a += str(rapporto[1])
+                    else:
+                        self.uguale_a += ', ' + str(rapporto[1])
+
+                if rapporto[0] == 'Copre' or rapporto[0] == 'copre':
+                    if self.copre == '':
+                        self.copre += str(rapporto[1])
+                    else:
+                        self.copre += ', ' + str(rapporto[1])
+
+                if rapporto[0] == 'Coperto da' or rapporto[0] == 'coperto da':
+                    if self.coperto_da == '':
+                        self.coperto_da += str(rapporto[1])
+                    else:
+                        self.coperto_da += ', ' + str(rapporto[1])
+
+                if rapporto[0] == 'Riempie' or rapporto[0] == 'riempie':
+                    if self.riempie == '':
+                        self.riempie += str(rapporto[1])
+                    else:
+                        self.riempie += ', ' + str(rapporto[1])
+
+                if rapporto[0] == 'Riempito da' or rapporto[0] == 'riempito da':
+                    if self.riempito_da == '':
+                        self.riempito_da += str(rapporto[1])
+                    else:
+                        self.riempito_da += ', ' + str(rapporto[1])
+                if rapporto[0] == 'Taglia' or rapporto[0] == 'taglia':
+                    if self.taglia == '':
+                        self.taglia += str(rapporto[1])
+                    else:
+                        self.taglia += ', ' + str(rapporto[1])
+
+                if rapporto[0] == 'Tagliato da' or rapporto[0] == 'tagliato da':
+                    if self.tagliato_da == '':
+                        self.tagliato_da += str(rapporto[1])
+                    else:
+                        self.tagliato_da += ', ' + str(rapporto[1])
+
+                if rapporto[0] == 'Si appoggia a' or rapporto[0] == 'si appoggia a':
+                    if self.si_appoggia_a == '':
+                        self.si_appoggia_a += str(rapporto[1])
+                    else:
+                        self.si_appoggia_a += ', ' + str(rapporto[1])
+
+                if rapporto[0] == 'Gli si appoggia' or rapporto[0] == 'gli si appoggia':
+                    if self.gli_si_appoggia == '':
+                        self.gli_si_appoggia += str(rapporto[1])
+                    else:
+                        self.gli_si_appoggia += ', ' + str(rapporto[1])
+    
+            elif len(rapporto) == 3:
+                if rapporto[0] == 'Si lega a' or rapporto[0] == 'si lega a':
+                    if self.si_lega_a == '':
+                        self.si_lega_a += str(rapporto[1])
+                    else:
+                        self.si_lega_a += ', ' + str(rapporto[1])
+
+                if rapporto[0] == 'Uguale a' or rapporto[0] == 'uguale a':
+                    if self.uguale_a == '':
+                        self.uguale_a += str(rapporto[1])
+                    else:
+                        self.uguale_a += ', ' + str(rapporto[1])
+
+                if rapporto[0] == 'Copre' or rapporto[0] == 'copre':
+                    if self.copre == '':
+                        self.copre += str(rapporto[1])
+                    else:
+                        self.copre += ', ' + str(rapporto[1])
+
+                if rapporto[0] == 'Coperto da' or rapporto[0] == 'coperto da':
+                    if self.coperto_da == '':
+                        self.coperto_da += str(rapporto[1])
+                    else:
+                        self.coperto_da += ', ' + str(rapporto[1])
+
+                if rapporto[0] == 'Riempie' or rapporto[0] == 'riempie':
+                    if self.riempie == '':
+                        self.riempie += str(rapporto[1])
+                    else:
+                        self.riempie += ', ' + str(rapporto[1])
+
+                if rapporto[0] == 'Riempito da' or rapporto[0] == 'riempito da':
+                    if self.riempito_da == '':
+                        self.riempito_da += str(rapporto[1])
+                    else:
+                        self.riempito_da += ', ' + str(rapporto[1])
+                if rapporto[0] == 'Taglia' or rapporto[0] == 'taglia':
+                    if self.taglia == '':
+                        self.taglia += str(rapporto[1])
+                    else:
+                        self.taglia += ', ' + str(rapporto[1])
+
+                if rapporto[0] == 'Tagliato da' or rapporto[0] == 'tagliato da':
+                    if self.tagliato_da == '':
+                        self.tagliato_da += str(rapporto[1])
+                    else:
+                        self.tagliato_da += ', ' + str(rapporto[1])
+
+                if rapporto[0] == 'Si appoggia a' or rapporto[0] == 'si appoggia a':
+                    if self.si_appoggia_a == '':
+                        self.si_appoggia_a += str(rapporto[1])
+                    else:
+                        self.si_appoggia_a += ', ' + str(rapporto[1])
+
+                if rapporto[0] == 'Gli si appoggia' or rapporto[0] == 'gli si appoggia':
+                    if self.gli_si_appoggia == '':
+                        self.gli_si_appoggia += str(rapporto[1])
+                    else:
+                        self.gli_si_appoggia += ', ' + str(rapporto[1])
+    
+            elif len(rapporto) == 2:
+                if rapporto[0] == 'Si lega a' or rapporto[0] == 'si lega a':
+                    if self.si_lega_a == '':
+                        self.si_lega_a += str(rapporto[1])
+                    else:
+                        self.si_lega_a += ', ' + str(rapporto[1])
+
+                if rapporto[0] == 'Uguale a' or rapporto[0] == 'uguale a':
+                    if self.uguale_a == '':
+                        self.uguale_a += str(rapporto[1])
+                    else:
+                        self.uguale_a += ', ' + str(rapporto[1])
+
+                if rapporto[0] == 'Copre' or rapporto[0] == 'copre':
+                    if self.copre == '':
+                        self.copre += str(rapporto[1])
+                    else:
+                        self.copre += ', ' + str(rapporto[1])
+
+                if rapporto[0] == 'Coperto da' or rapporto[0] == 'coperto da':
+                    if self.coperto_da == '':
+                        self.coperto_da += str(rapporto[1])
+                    else:
+                        self.coperto_da += ', ' + str(rapporto[1])
+
+                if rapporto[0] == 'Riempie' or rapporto[0] == 'riempie':
+                    if self.riempie == '':
+                        self.riempie += str(rapporto[1])
+                    else:
+                        self.riempie += ', ' + str(rapporto[1])
+
+                if rapporto[0] == 'Riempito da' or rapporto[0] == 'riempito da':
+                    if self.riempito_da == '':
+                        self.riempito_da += str(rapporto[1])
+                    else:
+                        self.riempito_da += ', ' + str(rapporto[1])
+                if rapporto[0] == 'Taglia' or rapporto[0] == 'taglia':
+                    if self.taglia == '':
+                        self.taglia += str(rapporto[1])
+                    else:
+                        self.taglia += ', ' + str(rapporto[1])
+
+                if rapporto[0] == 'Tagliato da' or rapporto[0] == 'tagliato da':
+                    if self.tagliato_da == '':
+                        self.tagliato_da += str(rapporto[1])
+                    else:
+                        self.tagliato_da += ', ' + str(rapporto[1])
+
+                if rapporto[0] == 'Si appoggia a' or rapporto[0] == 'si appoggia a':
+                    if self.si_appoggia_a == '':
+                        self.si_appoggia_a += str(rapporto[1])
+                    else:
+                        self.si_appoggia_a += ', ' + str(rapporto[1])
+
+                if rapporto[0] == 'Gli si appoggia' or rapporto[0] == 'gli si appoggia':
+                    if self.gli_si_appoggia == '':
+                        self.gli_si_appoggia += str(rapporto[1])
+                    else:
+                        self.gli_si_appoggia += ', ' + str(rapporto[1])
+    
+    
     
     def unzip_rapporti_stratigrafici_de(self):
         rapporti = eval(self.rapporti)
@@ -3371,9 +3552,6 @@ class US_index_pdf_sheet(object):
 
     def unzip_rapporti_stratigrafici(self):
         rapporti = eval(self.rapporti)
-
-        rapporti.sort()
-        
         for rapporto in rapporti:
             if len(rapporto) == 5:
                 if rapporto[0] == 'Si lega a' or rapporto[0] == 'si lega a':
@@ -3411,7 +3589,6 @@ class US_index_pdf_sheet(object):
                         self.riempito_da += str(rapporto[1])
                     else:
                         self.riempito_da += ', ' + str(rapporto[1])
-
                 if rapporto[0] == 'Taglia' or rapporto[0] == 'taglia':
                     if self.taglia == '':
                         self.taglia += str(rapporto[1])
@@ -3430,7 +3607,186 @@ class US_index_pdf_sheet(object):
                     else:
                         self.si_appoggia_a += ', ' + str(rapporto[1])
 
-                if rapporto[0] == 'Gli si appoggia' or rapporto[0] == 'gli si appoggia a':
+                if rapporto[0] == 'Gli si appoggia' or rapporto[0] == 'gli si appoggia':
+                    if self.gli_si_appoggia == '':
+                        self.gli_si_appoggia += str(rapporto[1])
+                    else:
+                        self.gli_si_appoggia += ', ' + str(rapporto[1])
+            elif len(rapporto) == 4:
+                if rapporto[0] == 'Si lega a' or rapporto[0] == 'si lega a':
+                    if self.si_lega_a == '':
+                        self.si_lega_a += str(rapporto[1])
+                    else:
+                        self.si_lega_a += ', ' + str(rapporto[1])
+
+                if rapporto[0] == 'Uguale a' or rapporto[0] == 'uguale a':
+                    if self.uguale_a == '':
+                        self.uguale_a += str(rapporto[1])
+                    else:
+                        self.uguale_a += ', ' + str(rapporto[1])
+
+                if rapporto[0] == 'Copre' or rapporto[0] == 'copre':
+                    if self.copre == '':
+                        self.copre += str(rapporto[1])
+                    else:
+                        self.copre += ', ' + str(rapporto[1])
+
+                if rapporto[0] == 'Coperto da' or rapporto[0] == 'coperto da':
+                    if self.coperto_da == '':
+                        self.coperto_da += str(rapporto[1])
+                    else:
+                        self.coperto_da += ', ' + str(rapporto[1])
+
+                if rapporto[0] == 'Riempie' or rapporto[0] == 'riempie':
+                    if self.riempie == '':
+                        self.riempie += str(rapporto[1])
+                    else:
+                        self.riempie += ', ' + str(rapporto[1])
+
+                if rapporto[0] == 'Riempito da' or rapporto[0] == 'riempito da':
+                    if self.riempito_da == '':
+                        self.riempito_da += str(rapporto[1])
+                    else:
+                        self.riempito_da += ', ' + str(rapporto[1])
+                if rapporto[0] == 'Taglia' or rapporto[0] == 'taglia':
+                    if self.taglia == '':
+                        self.taglia += str(rapporto[1])
+                    else:
+                        self.taglia += ', ' + str(rapporto[1])
+
+                if rapporto[0] == 'Tagliato da' or rapporto[0] == 'tagliato da':
+                    if self.tagliato_da == '':
+                        self.tagliato_da += str(rapporto[1])
+                    else:
+                        self.tagliato_da += ', ' + str(rapporto[1])
+
+                if rapporto[0] == 'Si appoggia a' or rapporto[0] == 'si appoggia a':
+                    if self.si_appoggia_a == '':
+                        self.si_appoggia_a += str(rapporto[1])
+                    else:
+                        self.si_appoggia_a += ', ' + str(rapporto[1])
+
+                if rapporto[0] == 'Gli si appoggia' or rapporto[0] == 'gli si appoggia':
+                    if self.gli_si_appoggia == '':
+                        self.gli_si_appoggia += str(rapporto[1])
+                    else:
+                        self.gli_si_appoggia += ', ' + str(rapporto[1])
+    
+            elif len(rapporto) == 3:
+                if rapporto[0] == 'Si lega a' or rapporto[0] == 'si lega a':
+                    if self.si_lega_a == '':
+                        self.si_lega_a += str(rapporto[1])
+                    else:
+                        self.si_lega_a += ', ' + str(rapporto[1])
+
+                if rapporto[0] == 'Uguale a' or rapporto[0] == 'uguale a':
+                    if self.uguale_a == '':
+                        self.uguale_a += str(rapporto[1])
+                    else:
+                        self.uguale_a += ', ' + str(rapporto[1])
+
+                if rapporto[0] == 'Copre' or rapporto[0] == 'copre':
+                    if self.copre == '':
+                        self.copre += str(rapporto[1])
+                    else:
+                        self.copre += ', ' + str(rapporto[1])
+
+                if rapporto[0] == 'Coperto da' or rapporto[0] == 'coperto da':
+                    if self.coperto_da == '':
+                        self.coperto_da += str(rapporto[1])
+                    else:
+                        self.coperto_da += ', ' + str(rapporto[1])
+
+                if rapporto[0] == 'Riempie' or rapporto[0] == 'riempie':
+                    if self.riempie == '':
+                        self.riempie += str(rapporto[1])
+                    else:
+                        self.riempie += ', ' + str(rapporto[1])
+
+                if rapporto[0] == 'Riempito da' or rapporto[0] == 'riempito da':
+                    if self.riempito_da == '':
+                        self.riempito_da += str(rapporto[1])
+                    else:
+                        self.riempito_da += ', ' + str(rapporto[1])
+                if rapporto[0] == 'Taglia' or rapporto[0] == 'taglia':
+                    if self.taglia == '':
+                        self.taglia += str(rapporto[1])
+                    else:
+                        self.taglia += ', ' + str(rapporto[1])
+
+                if rapporto[0] == 'Tagliato da' or rapporto[0] == 'tagliato da':
+                    if self.tagliato_da == '':
+                        self.tagliato_da += str(rapporto[1])
+                    else:
+                        self.tagliato_da += ', ' + str(rapporto[1])
+
+                if rapporto[0] == 'Si appoggia a' or rapporto[0] == 'si appoggia a':
+                    if self.si_appoggia_a == '':
+                        self.si_appoggia_a += str(rapporto[1])
+                    else:
+                        self.si_appoggia_a += ', ' + str(rapporto[1])
+
+                if rapporto[0] == 'Gli si appoggia' or rapporto[0] == 'gli si appoggia':
+                    if self.gli_si_appoggia == '':
+                        self.gli_si_appoggia += str(rapporto[1])
+                    else:
+                        self.gli_si_appoggia += ', ' + str(rapporto[1])
+    
+            elif len(rapporto) == 2:
+                if rapporto[0] == 'Si lega a' or rapporto[0] == 'si lega a':
+                    if self.si_lega_a == '':
+                        self.si_lega_a += str(rapporto[1])
+                    else:
+                        self.si_lega_a += ', ' + str(rapporto[1])
+
+                if rapporto[0] == 'Uguale a' or rapporto[0] == 'uguale a':
+                    if self.uguale_a == '':
+                        self.uguale_a += str(rapporto[1])
+                    else:
+                        self.uguale_a += ', ' + str(rapporto[1])
+
+                if rapporto[0] == 'Copre' or rapporto[0] == 'copre':
+                    if self.copre == '':
+                        self.copre += str(rapporto[1])
+                    else:
+                        self.copre += ', ' + str(rapporto[1])
+
+                if rapporto[0] == 'Coperto da' or rapporto[0] == 'coperto da':
+                    if self.coperto_da == '':
+                        self.coperto_da += str(rapporto[1])
+                    else:
+                        self.coperto_da += ', ' + str(rapporto[1])
+
+                if rapporto[0] == 'Riempie' or rapporto[0] == 'riempie':
+                    if self.riempie == '':
+                        self.riempie += str(rapporto[1])
+                    else:
+                        self.riempie += ', ' + str(rapporto[1])
+
+                if rapporto[0] == 'Riempito da' or rapporto[0] == 'riempito da':
+                    if self.riempito_da == '':
+                        self.riempito_da += str(rapporto[1])
+                    else:
+                        self.riempito_da += ', ' + str(rapporto[1])
+                if rapporto[0] == 'Taglia' or rapporto[0] == 'taglia':
+                    if self.taglia == '':
+                        self.taglia += str(rapporto[1])
+                    else:
+                        self.taglia += ', ' + str(rapporto[1])
+
+                if rapporto[0] == 'Tagliato da' or rapporto[0] == 'tagliato da':
+                    if self.tagliato_da == '':
+                        self.tagliato_da += str(rapporto[1])
+                    else:
+                        self.tagliato_da += ', ' + str(rapporto[1])
+
+                if rapporto[0] == 'Si appoggia a' or rapporto[0] == 'si appoggia a':
+                    if self.si_appoggia_a == '':
+                        self.si_appoggia_a += str(rapporto[1])
+                    else:
+                        self.si_appoggia_a += ', ' + str(rapporto[1])
+
+                if rapporto[0] == 'Gli si appoggia' or rapporto[0] == 'gli si appoggia':
                     if self.gli_si_appoggia == '':
                         self.gli_si_appoggia += str(rapporto[1])
                     else:
