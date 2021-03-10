@@ -900,7 +900,13 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
 
             listen(engine, 'connect', self.load_spatialite)
             c = engine.connect()
-
+            try:
+                createSecondaryIndex = """CREATE UNIQUE INDEX IF NOT EXISTS idx_n_reperto ON inventario_materiali_table(sito, n_reperto);"""
+                c.execute(createSecondaryIndex)
+            
+                
+            except Exception as e:
+                QMessageBox.warning(self, "Qualcosa è andato storto", str(e)+"Non posso creare l'indice: controlla\n nella tabella inventario materiali che non ci siano duplicati" , QMessageBox.Ok)
             sql_drop_tombaview_doc= """DROP view if EXISTS pyarchinit_tafonomia_view;"""
             c.execute(sql_drop_tombaview_doc)
             sql_drop_tafbaview_doc= """DROP view if EXISTS pyarchinit_tomba_view;"""

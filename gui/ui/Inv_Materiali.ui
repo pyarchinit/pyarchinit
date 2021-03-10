@@ -393,7 +393,7 @@
    <item row="3" column="7">
     <widget class="QLineEdit" name="lineEdit_n_reperto">
      <property name="enabled">
-      <bool>false</bool>
+      <bool>true</bool>
      </property>
      <property name="font">
       <font>
@@ -2559,7 +2559,7 @@
    <item row="3" column="5">
     <widget class="QLineEdit" name="lineEdit_num_inv">
      <property name="enabled">
-      <bool>false</bool>
+      <bool>true</bool>
      </property>
      <property name="sizePolicy">
       <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
@@ -2573,7 +2573,7 @@
       </font>
      </property>
      <property name="text">
-      <string>0</string>
+      <string/>
      </property>
      <property name="clearButtonEnabled">
       <bool>false</bool>

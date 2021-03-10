@@ -2390,12 +2390,11 @@ class generate_reperti_pdf(object):
         filename = ('%s%s%s_%s_%s_%s_%s_%s_%s%s') % (
         self.PDF_path, os.sep, 'Elenco_Casse', dt.day, dt.month, dt.year, dt.hour, dt.minute, dt.second, ".pdf")
         f = open(filename, "wb")
-
-        doc = SimpleDocTemplate(f, pagesize=(29 * cm, 21 * cm), showBoundary=0, topMargin=15, bottomMargin=40,
-                                leftMargin=30, rightMargin=30)
+        doc = SimpleDocTemplate(f, pagesize=(41 * cm, 29 * cm), showBoundary=0, topMargin=15, bottomMargin=40,leftMargin=30, rightMargin=30)
         # doc.build(lst, canvasmaker=NumberedCanvas_Sindex)
         doc.build(lst)
-
+        
+        
         f.close()
 
         f.close()
@@ -2443,7 +2442,7 @@ class generate_reperti_pdf(object):
         filename = '{}{}{}'.format(self.PDF_path, os.sep, 'liste_box.pdf')
         f = open(filename, "wb")
 
-        doc = SimpleDocTemplate(f, pagesize=(29 * cm, 21 * cm), showBoundary=0, topMargin=15, bottomMargin=40,
+        doc = SimpleDocTemplate(f, pagesize=(41 * cm, 29 * cm), showBoundary=0, topMargin=15, bottomMargin=40,
                                 leftMargin=30, rightMargin=30)
         # doc.build(lst, canvasmaker=NumberedCanvas_Sindex)
         doc.build(lst)
@@ -2492,7 +2491,7 @@ class generate_reperti_pdf(object):
         filename = '{}{}{}'.format(self.PDF_path, os.sep, 'list_box.pdf')
         f = open(filename, "wb")
 
-        doc = SimpleDocTemplate(f, pagesize=(29 * cm, 21 * cm), showBoundary=0, topMargin=15, bottomMargin=40,
+        doc = SimpleDocTemplate(f, pagesize=(41 * cm, 29 * cm), showBoundary=0, topMargin=15, bottomMargin=40,
                                 leftMargin=30, rightMargin=30)
         # doc.build(lst, canvasmaker=NumberedCanvas_Sindex)
         doc.build(lst)
