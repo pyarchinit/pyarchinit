@@ -1111,15 +1111,15 @@ class Pyarchinit_db_management(object):
         session.add(data)
         session.commit()
         session.close()
-    # def insert_data_conflict(self, data):
-        # Session = sessionmaker(bind=self.engine, autoflush=False)
-        # session = Session()
-        # session.begin_nested()
-        # session.merge(data)
+    def insert_data_conflict(self, data):
+        Session = sessionmaker(bind=self.engine, autoflush=False)
+        session = Session()
+        session.begin_nested()
+        session.merge(data)
        
-        # session.commit()
+        session.commit()
         
-        # session.close()
+        session.close()
     def update(self, table_class_str, id_table_str, value_id_list, columns_name_list, values_update_list):
         """
         Receives 5 values then putted in a list. The values must be passed
