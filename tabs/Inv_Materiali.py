@@ -409,8 +409,8 @@ class pyarchinit_Inventario_reperti(QDialog, MAIN_DIALOG_CLASS):
         self.lineEdit_num_inv.textChanged.connect(self.charge_struttura)
         self.set_sito()
         self.msg_sito()
-        self.comboBox_repertato.currentTextChanged.connect(self.numero_reperto)
-        self.numero_invetario()
+        #self.comboBox_repertato.currentTextChanged.connect(self.numero_reperto)
+        #self.numero_invetario()
         self.toolButton_pdfpath.clicked.connect(self.setPathpdf)
     
     
@@ -419,8 +419,13 @@ class pyarchinit_Inventario_reperti(QDialog, MAIN_DIALOG_CLASS):
             self.lineEdit_tipo_contenitore.clear()
             self.lineEdit_tipo_contenitore.setText('')
             self.lineEdit_tipo_contenitore.update()
-        if self.lineEdit_n_reperto.text()=='None' or '' or None:
-            elf.lineEdit_n_reperto.setText('0')
+        if self.lineEdit_n_reperto.text()=='None' or None:
+            self.lineEdit_n_reperto.setText('')
+        if self.comboBox_struttura.currentText=='None' or None:
+            self.comboBox_struttura.clear()
+            self.comboBox_struttura.setEditText('')
+            self.comboBox_struttura.update()
+    
     def on_pushButtonQuant_pressed(self):
         dlg = QuantPanelMain(self)
         dlg.insertItems(self.QUANT_ITEMS)
@@ -1114,45 +1119,45 @@ class pyarchinit_Inventario_reperti(QDialog, MAIN_DIALOG_CLASS):
                 dlg.exec_()
 
     
-    def numero_reperto(self):
-        # self.set_sito()
-        contatore = 0
-        list=[]
+    # def numero_reperto(self):
+        # # self.set_sito()
+        # contatore = 0
+        # list=[]
         
         
         
         
         
-        if self.comboBox_repertato.currentText()=='No':
-            self.lineEdit_n_reperto.clear()
-            self.lineEdit_n_reperto.setText('0')
-            self.lineEdit_n_reperto.update()
+        # if self.comboBox_repertato.currentText()=='No':
+            # self.lineEdit_n_reperto.clear()
+            # self.lineEdit_n_reperto.setText('0')
+            # self.lineEdit_n_reperto.update()
         
         
             
-        elif self.comboBox_repertato.currentText()!='No' or '':    
-            self.lineEdit_n_reperto.clear()
-            self.lineEdit_n_reperto.setText('1')
-            self.lineEdit_n_reperto.update()
-            for i in range(len(self.DATA_LIST)):
-                self.lineEdit_n_reperto.clear()
-                contatore = int(self.DATA_LIST[i].n_reperto)
+        # elif self.comboBox_repertato.currentText()!='No' or '':    
+            # self.lineEdit_n_reperto.clear()
+            # self.lineEdit_n_reperto.setText('1')
+            # self.lineEdit_n_reperto.update()
+            # for i in range(len(self.DATA_LIST)):
+                # self.lineEdit_n_reperto.clear()
+                # contatore = int(self.DATA_LIST[i].n_reperto)
                 
-                #contatore.sort(reverse=False)
-                list.append(contatore)
+                # #contatore.sort(reverse=False)
+                # list.append(contatore)
                 
                
-                list[-1]+=1
+                # list[-1]+=1
                 
-                list.sort()
-            for e in list:    
+                # list.sort()
+            # for e in list:    
                 
-                self.lineEdit_n_reperto.setText(str(e))
-                self.lineEdit_n_reperto.update()
-        elif self.comboBox_repertato.currentText()=='':
-            self.lineEdit_n_reperto.clear()
-            self.lineEdit_n_reperto.setText('')
-            self.lineEdit_n_reperto.update()
+                # self.lineEdit_n_reperto.setText(str(e))
+                # self.lineEdit_n_reperto.update()
+        # elif self.comboBox_repertato.currentText()=='':
+            # self.lineEdit_n_reperto.clear()
+            # self.lineEdit_n_reperto.setText('')
+            # self.lineEdit_n_reperto.update()
         
         
     def numero_invetario(self):
@@ -1489,8 +1494,8 @@ class pyarchinit_Inventario_reperti(QDialog, MAIN_DIALOG_CLASS):
                 self.label_status.setText(self.STATUS_ITEMS[self.BROWSE_STATUS])
                 self.set_rec_counter('', '')
                 self.label_sort.setText(self.SORTED_ITEMS["n"])
-                self.numero_invetario()
-                self.numero_reperto()
+                #self.numero_invetario()
+                #self.numero_reperto()
             else:
                 self.BROWSE_STATUS = "n"
                 self.label_status.setText(self.STATUS_ITEMS[self.BROWSE_STATUS])
@@ -1506,13 +1511,20 @@ class pyarchinit_Inventario_reperti(QDialog, MAIN_DIALOG_CLASS):
                 self.label_status.setText(self.STATUS_ITEMS[self.BROWSE_STATUS])
                 self.set_rec_counter('', '')
                 self.label_sort.setText(self.SORTED_ITEMS["n"])
-                self.numero_invetario()
-                self.numero_reperto()
+                #self.numero_invetario()
+                #self.numero_reperto()
             
             self.enable_button(0)
 
     def on_pushButton_save_pressed(self):
-        # save record
+        # duplicates=[]
+        # for value in self.DATA_LIST:
+            # duplicates.append(value.numero_inventario)
+        # if Error_check.checkIfDuplicates_3(duplicates):
+            # QMessageBox.warning(self, "INFO", "error",
+                                # QMessageBox.Ok)
+        
+        
         if self.BROWSE_STATUS == "b":
             if self.data_error_check() == 0:
                 if self.records_equal_check() == 1:
@@ -1530,8 +1542,9 @@ class pyarchinit_Inventario_reperti(QDialog, MAIN_DIALOG_CLASS):
                                                            QMessageBox.Ok | QMessageBox.Cancel))
                     self.SORT_STATUS = "n"
                     self.label_sort.setText(self.SORTED_ITEMS[self.SORT_STATUS])
-                    self.enable_button(1)
+                    
                     self.fill_fields(self.REC_CORR)
+                    self.enable_button(1)
                 else:
                     if self.L=='it':
                         QMessageBox.warning(self, "ATTENZIONE", "Non è stata realizzata alcuna modifica.", QMessageBox.Ok)
@@ -2173,7 +2186,7 @@ class pyarchinit_Inventario_reperti(QDialog, MAIN_DIALOG_CLASS):
         us = self.lineEdit_us.text()
         nr_cassa = self.lineEdit_nr_cassa.text()
         nr_inv = self.lineEdit_num_inv.text()
-
+        
         if self.L=='it':
             if EC.data_is_empty(str(self.comboBox_sito.currentText())) == 0:
                 QMessageBox.warning(self, "ATTENZIONE", "Campo Sito. \n Il campo non deve essere vuoto", QMessageBox.Ok)
@@ -2371,28 +2384,31 @@ class pyarchinit_Inventario_reperti(QDialog, MAIN_DIALOG_CLASS):
                 str(self.lineEdit_tipo_contenitore.text()),
                 str(self.comboBox_struttura.currentText()),
             )
-
+            
+            
             try:
                 self.DB_MANAGER.insert_data_session(data)
+                
                 return 1
+                
             except Exception as e:
                 e_str = str(e)
                 if e_str.__contains__("IntegrityError"):
                     
                     if self.L=='it':
                         msg = self.ID_TABLE + " gia' presente nel database"
-                        QMessageBox.warning(self, "Error", "Error" + str(msg), QMessageBox.Ok)
+                        QMessageBox.warning(self, "Error", "Error " + str(msg), QMessageBox.Ok)
                     elif self.L=='de':
                         msg = self.ID_TABLE + " bereits in der Datenbank"
-                        QMessageBox.warning(self, "Error", "Error" + str(msg), QMessageBox.Ok)  
+                        QMessageBox.warning(self, "Error", "Error " + str(msg), QMessageBox.Ok)  
                     else:
                         msg = self.ID_TABLE + " exist in db"
-                        QMessageBox.warning(self, "Error", "Error" + str(msg), QMessageBox.Ok)  
+                        QMessageBox.warning(self, "Error", "Error " + str(msg), QMessageBox.Ok)  
                 else:
                     msg = e
                     QMessageBox.warning(self, "Error", "Error 1 \n" + str(msg), QMessageBox.Ok)
                 return 0
-
+            
         except Exception as e:
             QMessageBox.warning(self, "Error", "Error 2 \n" + str(e), QMessageBox.Ok)
             return 0
@@ -2706,7 +2722,7 @@ class pyarchinit_Inventario_reperti(QDialog, MAIN_DIALOG_CLASS):
                     self.empty_fields()
                  
     def on_pushButton_search_go_pressed(self):
-        self.lineEdit_n_reperto.setText('')
+        #self.lineEdit_n_reperto.setText('')
         check_for_buttons = 0
         if self.BROWSE_STATUS != "f":
             if self.L=='it':
@@ -3184,7 +3200,7 @@ class pyarchinit_Inventario_reperti(QDialog, MAIN_DIALOG_CLASS):
         self.lineEdit_area.clear()  # 7 - area
         self.lineEdit_us.clear()  # 8 - US
         self.comboBox_lavato.setEditText("")  # 9 - lavato
-        self.lineEdit_nr_cassa.setText('')  # 10 - nr_cassa
+        self.lineEdit_nr_cassa.clear  # 10 - nr_cassa
         self.lineEdit_luogo_conservazione.clear()  # 11 - luogo_conservazione
         self.comboBox_conservazione.setEditText("")  # 12 - stato conservazione
         self.lineEdit_datazione_rep.clear()  # 13 - datazione reperto
@@ -3202,8 +3218,7 @@ class pyarchinit_Inventario_reperti(QDialog, MAIN_DIALOG_CLASS):
 
         self.comboBox_repertato.setEditText("")  # 9 - repertato
         self.comboBox_diagnostico.setEditText("")  # 9 - diagnostico
-        self.lineEdit_n_reperto.setText('')
-        self.lineEdit_tipo_contenitore.setText('')
+        
         for i in range(elementi_reperto_row_count):
             self.tableWidget_elementi_reperto.removeRow(0)
         self.insert_new_row("self.tableWidget_elementi_reperto")  # 14 - elementi reperto
@@ -3219,7 +3234,8 @@ class pyarchinit_Inventario_reperti(QDialog, MAIN_DIALOG_CLASS):
         for i in range(tecnologie_row_count):
             self.tableWidget_tecnologie.removeRow(0)
         self.insert_new_row("self.tableWidget_tecnologie")  # 17 - misurazioni
-        
+        self.lineEdit_n_reperto.clear()
+        self.lineEdit_tipo_contenitore.clear()
         self.comboBox_struttura.setEditText("")  # 9 - diagnostico
     def empty_fields_nosite(self):
         elementi_reperto_row_count = self.tableWidget_elementi_reperto.rowCount()
@@ -3236,7 +3252,7 @@ class pyarchinit_Inventario_reperti(QDialog, MAIN_DIALOG_CLASS):
         self.lineEdit_area.clear()  # 7 - area
         self.lineEdit_us.clear()  # 8 - US
         self.comboBox_lavato.setEditText("")  # 9 - lavato
-        self.lineEdit_nr_cassa.setText('')  # 10 - nr_cassa
+        self.lineEdit_nr_cassa.clear()  # 10 - nr_cassa
         self.lineEdit_luogo_conservazione.clear()  # 11 - luogo_conservazione
         self.comboBox_conservazione.setEditText("")  # 12 - stato conservazione
         self.lineEdit_datazione_rep.clear()  # 13 - datazione reperto
@@ -3254,8 +3270,7 @@ class pyarchinit_Inventario_reperti(QDialog, MAIN_DIALOG_CLASS):
 
         self.comboBox_repertato.setEditText("")  # 9 - repertato
         self.comboBox_diagnostico.setEditText("")  # 9 - diagnostico
-        self.lineEdit_n_reperto.setText('')
-        self.lineEdit_tipo_contenitore.setText('')
+        
         for i in range(elementi_reperto_row_count):
             self.tableWidget_elementi_reperto.removeRow(0)
         self.insert_new_row("self.tableWidget_elementi_reperto")  # 14 - elementi reperto
@@ -3271,6 +3286,8 @@ class pyarchinit_Inventario_reperti(QDialog, MAIN_DIALOG_CLASS):
         for i in range(tecnologie_row_count):
             self.tableWidget_tecnologie.removeRow(0)
         self.insert_new_row("self.tableWidget_tecnologie")  # 17 - misurazioni
+        self.lineEdit_n_reperto.clear()
+        self.lineEdit_tipo_contenitore.clear()
         self.comboBox_struttura.setEditText("")  # 9 - diagnostico
     def fill_fields(self, n=0):
         self.rec_num = n
@@ -3365,6 +3382,8 @@ class pyarchinit_Inventario_reperti(QDialog, MAIN_DIALOG_CLASS):
                 self.lineEdit_n_reperto.setText(str(self.DATA_LIST[self.rec_num].n_reperto))
 
             self.lineEdit_tipo_contenitore.setText(str(self.DATA_LIST[self.rec_num].tipo_contenitore))
+            self.comboBox_struttura.setEditText(
+                str(self.DATA_LIST[self.rec_num].struttura))
             if self.toolButtonPreviewMedia.isChecked():
                 self.loadMediaPreview()
             self.comboBox_struttura.setEditText(
@@ -3435,10 +3454,10 @@ class pyarchinit_Inventario_reperti(QDialog, MAIN_DIALOG_CLASS):
         else:
             eve_orlo = self.lineEdit_eve_orlo.text()
         
-        if self.lineEdit_n_reperto.text() == "":
-            n_reperto = None
-        else:
-            n_reperto = self.lineEdit_n_reperto.text()
+        # if self.lineEdit_n_reperto.text() == "":
+            # n_reperto = None
+        # else:
+            #n_reperto = self.lineEdit_n_reperto.text()
             # data
         self.DATA_LIST_REC_TEMP = [
             str(self.comboBox_sito.currentText()),  # 1 - Sito
@@ -3469,7 +3488,7 @@ class pyarchinit_Inventario_reperti(QDialog, MAIN_DIALOG_CLASS):
             str(eve_orlo),  # 26 - eve orlo
             str(self.comboBox_repertato.currentText()),  # 27 - repertato
             str(self.comboBox_diagnostico.currentText()),
-            str(n_reperto),
+            str(self.lineEdit_n_reperto.text()),
             str(self.lineEdit_tipo_contenitore.text()),# 28 - diagnostico
             str(self.comboBox_struttura.currentText()),
         ]
@@ -3535,18 +3554,10 @@ class pyarchinit_Inventario_reperti(QDialog, MAIN_DIALOG_CLASS):
         self.set_LIST_REC_TEMP()
         self.set_LIST_REC_CORR()
 
-        # test
-
-        # QMessageBox.warning(self, "ATTENZIONE", str(self.DATA_LIST_REC_CORR) + " temp " + str(self.DATA_LIST_REC_TEMP), QMessageBox.Ok)
-
-
-        # area TEST
-        # tes = str(self.DATA_LIST_REC_CORR) + str(self.DATA_LIST_REC_TEMP)
-        # self.testing("C:\\Users\\Luca\\pyarchinit_Test_folder\\tes_equal.txt", tes)
-        # QMessageBox.warning(self, "Errore", str(self.DATA_LIST_REC_CORR) + str(self.DATA_LIST_REC_TEMP),  QMessageBox.Ok)
 
         check_str = str(self.DATA_LIST_REC_CORR) + " " + str(self.DATA_LIST_REC_TEMP)
-
+        
+            
         if self.DATA_LIST_REC_CORR == self.DATA_LIST_REC_TEMP:
             return 0
         else:

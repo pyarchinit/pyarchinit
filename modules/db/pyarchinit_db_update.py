@@ -38,6 +38,7 @@ class DB_update(object):
         ####invetario_materiali_table
         table = Table("inventario_materiali_table", self.metadata, autoload=True)
         table_column_names_list = []
+        
         for i in table.columns:
             table_column_names_list.append(str(i.name))
         if not table_column_names_list.__contains__('stato_conservazione'):
