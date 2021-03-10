@@ -2387,17 +2387,33 @@ class pyarchinit_Inventario_reperti(QDialog, MAIN_DIALOG_CLASS):
             
             
             try:
+                # duplicate=[]
+                # duplicate2=[]
+                # for value in range(len(self.DATA_LIST)):
+                    # duplicate.append(value.n_reperto)
+                    # duplicate2.append(value.numero_inventario)
+                
+                
+                # if len(duplicate)!=len(set(duplicate)):
+                
+                
+                
+                    # QMessageBox.warning(self, "Error", str(len(set(duplicate))), QMessageBox.Ok)
+                    # return 0
+                    
+                # else:
                 self.DB_MANAGER.insert_data_session(data)
                 
                 return 1
-                
             except Exception as e:
                 e_str = str(e)
                 if e_str.__contains__("IntegrityError"):
                     
                     if self.L=='it':
-                        msg = self.ID_TABLE + " gia' presente nel database"
-                        QMessageBox.warning(self, "Error", "Error " + str(msg), QMessageBox.Ok)
+                        msg = "Numero reperto o inventario gia' presente nel database"
+                        
+                        QMessageBox.warning(self, "Error", "Errore: valore duplicato\n" + str(msg), QMessageBox.Ok)
+                        
                     elif self.L=='de':
                         msg = self.ID_TABLE + " bereits in der Datenbank"
                         QMessageBox.warning(self, "Error", "Error " + str(msg), QMessageBox.Ok)  

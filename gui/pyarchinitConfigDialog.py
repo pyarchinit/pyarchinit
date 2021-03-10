@@ -304,7 +304,7 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
                     conn_str = conn.conn_str()
                     test_conn = conn_str.find("sqlite")
                     if test_conn == 0:
-                        return compiler.visit_insert(insert_srt.prefix_with('OR IGNORE'), **kw)
+                        return compiler.visit_insert(insert_srt.prefix_with('OR ABORT'), **kw)
                     else:
                         #return compiler.visit_insert(insert.prefix_with(''), **kw)
                         pk = insert_srt.table.primary_key
