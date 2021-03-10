@@ -22,7 +22,7 @@ about=https://github.com/pyarchinit/pyarchinit
 tracker=https://github.com/pyarchinit/pyarchinit/issues
 repository=https://github.com/pyarchinit/pyarchinit
 
-changelog=release2.4.5
+changelog=release2.4.6
         -reperti fixed index numero reperto
    -------------------------------------------------------------------------------
 
