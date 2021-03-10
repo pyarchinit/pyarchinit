@@ -1,4 +1,4 @@
-# ![](icon.png) PyArchInit3 by Luca Mandolesi & Enzo Cocca - QGIS plugin for archaeology
+# ![](icon.png) PyArchInit3 by Luca Mandolesi & Enzo Cocca - QGIS plugin for archaeology - #MICH
 [![GitHub release](https://img.shields.io/github/release/pyarchinit/pyarchinit.svg?style=flat-square)](https://github.com/pyarchinit/pyarchinit)
 [![GitHub repo size in bytes](https://img.shields.io/github/repo-size/pyarchinit/pyarchinit.svg?style=flat-square)](https://github.com/pyarchinit/pyarchinit)
 [![HitCount](http://hits.dwyl.io/pyarchinit/pyarchinit.svg)](http://hits.dwyl.io/pyarchinit/pyarchinit)
@@ -8,8 +8,11 @@
 
 # Video per installazione plugin -> [Video](https://www.adarteinfo.it/archivio/pyarchinit-download/install.gif)
 
-Into QGIS add this link
-https://www.adarteinfo.it/archivio/pyarchinit-download/pyarchinit.xml
+Into QGIS add this link for the master version:
+http://pyarchinit.org/pyarchinit.xml
+
+Testing version #mich (no debugged):
+http://pyarchinit.org/pyarchinit2em.xml
 
 
 ## Installing from zip
