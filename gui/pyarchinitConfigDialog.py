@@ -143,9 +143,19 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
 
         self.selectorCrsWidget.setCrs(QgsProject.instance().crs())
         self.selectorCrsWidget_sl.setCrs(QgsProject.instance().crs())
-        self.checkBox_ignore.setChecked(True)
-        self.checkBox_ignore.stateChanged.connect(self.check)
-        self.checkBox_ignore.stateChanged.connect(self.message)
+        if self.checkBox_abort.isChecked():
+            self.checkBox_abort.setChecked(True)
+            self.checkBox_abort.stateChanged.connect(self.check)
+            self.checkBox_abort.stateChanged.connect(self.message)
+        elif self.checkBox_ignore.isChecked():
+            self.checkBox_ignore.setChecked(True)
+            self.checkBox_ignore.stateChanged.connect(self.check)
+            self.checkBox_ignore.stateChanged.connect(self.message)
+        elif self.checkBox_replace.isChecked():
+            self.checkBox_replace.setChecked(True)
+            self.checkBox_replace.stateChanged.connect(self.check)
+            self.checkBox_replace.stateChanged.connect(self.message)    
+        
         self.check()
         self.upd_individui_table()
 
@@ -279,20 +289,31 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
             self.pushButton_import_geometry.setEnabled(True)
 
     def message(self):
-        if self.checkBox_ignore.isChecked():
+        if self.checkBox_abort.isChecked():
+            if self.L=='it':
+                QMessageBox.warning(self, "Attenzione", "Se i ci sono duplicati l'importazione verrà abortita.\n Se vuoi ignorare i duplicati o aggiornare con i dati nuovi spunta una delle opzioni ignora o aggiorna", QMessageBox.Ok)
+            elif self.L=='de':
+                QMessageBox.warning(self, "Warnung", "Wenn es Duplikate gibt, wird der Import abgebrochen.\n Wenn Sie die Duplikate ignorieren oder mit neuen Daten aktualisieren möchten, aktivieren Sie eine der Optionen ignorieren oder aktualisieren", QMessageBox.Ok)
+            else:
+                QMessageBox.warning(self, "Warning", "If there are duplicates the import will be aborted.\n If you want to ignore the duplicates or update with new data check one of the options ignore or replace", QMessageBox.Ok)
+        
+        elif self.checkBox_ignore.isChecked():
             if self.L=='it':
                 QMessageBox.warning(self, "Attenzione", 'Verranno copiati solo i dati nuovi', QMessageBox.Ok)
             elif self.L=='de':
                 QMessageBox.warning(self, "Warnung", 'Es werden nur neue Daten kopiert.', QMessageBox.Ok)
             else:
                 QMessageBox.warning(self, "Warning", 'Only new data will be copied', QMessageBox.Ok)
-        else:
+        
+        elif self.checkBox_replace.isChecked():
             if self.L=='it':
                 QMessageBox.warning(self, "Attenzione", 'Verranno copiati i dati nuovi e aggiornati quelli esistenti', QMessageBox.Ok)
             elif self.L=='de':
                 QMessageBox.warning(self, "Warnung", 'Neue Daten werden kopiert und bestehende Daten werden aktualisiert', QMessageBox.Ok)
             else:
                 QMessageBox.warning(self, "Warning", 'New data will be copied and existing data will be updated', QMessageBox.Ok)
+        
+    
     def check(self):
         try:
             if self.checkBox_ignore.isChecked():
@@ -304,7 +325,7 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
                     conn_str = conn.conn_str()
                     test_conn = conn_str.find("sqlite")
                     if test_conn == 0:
-                        return compiler.visit_insert(insert_srt.prefix_with('OR ABORT'), **kw)
+                        return compiler.visit_insert(insert_srt.prefix_with('OR IGNORE'), **kw)
                     else:
                         #return compiler.visit_insert(insert.prefix_with(''), **kw)
                         pk = insert_srt.table.primary_key
@@ -313,7 +334,8 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
                         #updates = ', '.join(f"{c.name}=EXCLUDED.{c.name}" for c in insert_srt.table.columns)
                         upsert = ' '.join((insert, ondup))
                         return upsert
-            else:
+           
+            if self.checkBox_replace.isChecked():
 
                 @compiles(Insert)
                 def _prefix_insert_with_replace(insert_srt, compiler, **kw):
@@ -331,6 +353,27 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
                         updates = ', '.join(f"{c.name}=EXCLUDED.{c.name}" for c in insert_srt.table.columns)
                         upsert = ' '.join((insert, ondup, updates))
                         return upsert
+        
+            if self.checkBox_abort.isChecked():
+
+                @compiles(Insert)
+                def _prefix_insert_with_ignore(insert_srt, compiler, **kw):
+
+                    conn = Connection()
+                    conn_str = conn.conn_str()
+                    test_conn = conn_str.find("sqlite")
+                    if test_conn == 0:
+                        return compiler.visit_insert(insert_srt.prefix_with('OR ABORT'), **kw)
+                    else:
+                        #return compiler.visit_insert(insert.prefix_with(''), **kw)
+                        pk = insert_srt.table.primary_key
+                        insert = compiler.visit_insert(insert_srt, **kw)
+                        ondup = f'ON CONFLICT ({",".join(c.name for c in pk)}) DO NOTHING'
+                        #updates = ', '.join(f"{c.name}=EXCLUDED.{c.name}" for c in insert_srt.table.columns)
+                        upsert = ' '.join((insert, ondup))
+                        return upsert
+        
+        
         except:
             pass
     def summary(self):
