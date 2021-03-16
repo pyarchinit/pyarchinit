@@ -161,7 +161,7 @@ class single_Campioni_pdf_sheet(object):
             logo_path = '{}{}{}'.format(home_DB_path, os.sep, 'logo.jpg')
         else:
             logo_path=lo_path_str
-        logo_path = lo_path_str#'{}{}{}'.format(home_DB_path, os.sep, 'logo.jpg')
+        #logo_path = lo_path_str#'{}{}{}'.format(home_DB_path, os.sep, 'logo.jpg')
         logo = Image(logo_path)
 
         ##      if test_image.drawWidth < 800:
@@ -260,7 +260,7 @@ class single_Campioni_pdf_sheet(object):
             logo_path = '{}{}{}'.format(home_DB_path, os.sep, 'logo.jpg')
         else:
             logo_path=lo_path_str
-        logo_path = lo_path_str#'{}{}{}'.format(home_DB_path, os.sep, 'logo_de.jpg')
+        #logo_path = lo_path_str#'{}{}{}'.format(home_DB_path, os.sep, 'logo_de.jpg')
         logo = Image(logo_path)
 
         ##      if test_image.drawWidth < 800:
@@ -359,7 +359,7 @@ class single_Campioni_pdf_sheet(object):
             logo_path = '{}{}{}'.format(home_DB_path, os.sep, 'logo.jpg')
         else:
             logo_path=lo_path_str
-        logo_path = lo_path_str#'{}{}{}'.format(home_DB_path, os.sep, 'logo.jpg')
+        #logo_path = lo_path_str#'{}{}{}'.format(home_DB_path, os.sep, 'logo.jpg')
         logo = Image(logo_path)
 
         ##      if test_image.drawWidth < 800:
@@ -483,7 +483,7 @@ class Box_labels_Campioni_pdf_sheet(object):
             logo_path = '{}{}{}'.format(home_DB_path, os.sep, 'logo.jpg')
         else:
             logo_path=lo_path_str
-        logo_path = lo_path_str# '{}{}{}'.format(home_DB_path, os.sep, 'logo.jpg')
+        #logo_path = lo_path_str# '{}{}{}'.format(home_DB_path, os.sep, 'logo.jpg')
         logo = Image(logo_path)
 
         ##      if test_image.drawWidth < 800:
@@ -583,7 +583,7 @@ class Box_labels_Campioni_pdf_sheet(object):
             logo_path = '{}{}{}'.format(home_DB_path, os.sep, 'logo.jpg')
         else:
             logo_path=lo_path_str
-        logo_path = lo_path_str# '{}{}{}'.format(home_DB_path, os.sep, 'logo_de.jpg')
+        #logo_path = lo_path_str# '{}{}{}'.format(home_DB_path, os.sep, 'logo_de.jpg')
         logo = Image(logo_path)
 
         ##      if test_image.drawWidth < 800:
