@@ -1570,7 +1570,7 @@ class Pyarchinit_db_management(object):
         
         id_invmat += 1
 
-        data_ins = self.insert_values_reperti(id_invmat, sito, numero_invetario, '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', None, None, '', None, '', '','0','')
+        data_ins = self.insert_values_reperti(id_invmat, sito, numero_invetario, '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', None, None, '', None, '', '','0','','')
                                            
         self.insert_data_session(data_ins)
         
@@ -1589,7 +1589,19 @@ class Pyarchinit_db_management(object):
         self.insert_data_session(data_ins)
         
         return
-    
+    def insert_struttura_records(self, sito, sigla_struttura,numero_struttura):
+        id_struttura = self.max_num_id('STRUTTURA', 'id_struttura')
+        
+        l=QgsSettings().value("locale/userLocale")[0:2]
+
+        
+        id_struttura += 1
+
+        data_ins = self.insert_struttura_values(id_struttura, sito, sigla_struttura, numero_struttura, '', '', '', '', '', '', '', '', '', '', '', '', '', '')
+                                           
+        self.insert_data_session(data_ins)
+        
+        return
     def select_like_from_db_sql(self, rapp_list, us_rapp_list):
         # this is a test
         pass
