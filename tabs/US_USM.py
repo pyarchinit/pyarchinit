@@ -4845,17 +4845,26 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
         sing_layer = [self.DATA_LIST[self.REC_CORR]]
         self.pyQGIS.charge_vector_layers(sing_layer)
     def on_pushButton_crea_codice_periodo_pressed(self):
-        sito = str(self.comboBox_sito.currentText())
-        self.DB_MANAGER.update_cont_per(sito)
-        self.empty_fields()
-        self.charge_records()
-        self.fill_fields(self.REC_CORR)  # ricaricare tutti i record in uso e passare il valore REC_CORR a fill_fields
-        if self.L=='it':
-            QMessageBox.warning(self, "Attenzione", "Codice periodo aggiornato per lo scavo %s" % (sito), QMessageBox.Ok)
-        elif self.L=='de':
-            QMessageBox.warning(self, "Achtung", "Der Zeitstellungscode wurde für die Ausgrabung hochgeladen %s" % (sito), QMessageBox.Ok)
-        elif self.L=='en':   
-            QMessageBox.warning(self, "Attention", "Updated period code for excavation %s" % (sito), QMessageBox.Ok)
+        try:
+            self.set_sito()
+            sito = str(self.comboBox_sito.currentText())
+            self.DB_MANAGER.update_cont_per(sito)
+            self.empty_fields()
+            #self.charge_records()
+            self.fill_fields(self.REC_CORR)  # ricaricare tutti i record in uso e passare il valore REC_CORR a fill_fields
+            if self.L=='it':
+                QMessageBox.warning(self, "INFO", "Codice periodo aggiornato per lo scavo %s" % (sito), QMessageBox.Ok)
+            elif self.L=='de':
+                QMessageBox.warning(self, "INFO", "Der Zeitstellungscode wurde für die Ausgrabung hochgeladen %s" % (sito), QMessageBox.Ok)
+            elif self.L=='en':   
+                QMessageBox.warning(self, "INFO", "Updated period code for excavation %s" % (sito), QMessageBox.Ok)
+        except Exception as e:
+            if self.L=='it':
+                QMessageBox.warning(self, "Attenzione", "Priodo iniziale o fase iniziale mancante. Ricontrolla", QMessageBox.Ok)
+            elif self.L=='de':
+                QMessageBox.warning(self, "Achtung", str(e), QMessageBox.Ok)
+            elif self.L=='en':   
+                QMessageBox.warning(self, "Attention", str(e), QMessageBox.Ok)
     def on_pushButton_search_go_pressed(self):
         self.checkBox_query.setChecked(False)
         if self.BROWSE_STATUS != "f":
