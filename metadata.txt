@@ -12,7 +12,7 @@
 name=pyArchInit
 qgisMinimumVersion=3.0
 description=pyarchinit an tool for archaeological works
-version=2.4.8
+version=2.5.3
 author=Luca Mandolesi&Enzo Cocca
 email=pyarchinit@gmail.com
 
@@ -22,7 +22,31 @@ about=https://github.com/pyarchinit/pyarchinit
 tracker=https://github.com/pyarchinit/pyarchinit/issues
 repository=https://github.com/pyarchinit/pyarchinit
 
-changelog=release2.4.8
+changelog=release2.5.3
+        -update dbname in parametri connessione
+   -------------------------------------------------------------------------------
+
+
+   release2.5.2
+        -#418
+   -------------------------------------------------------------------------------
+
+   release2.5.1
+        -#417
+   -------------------------------------------------------------------------------
+
+
+   release2.5.0
+        -#413
+   -------------------------------------------------------------------------------
+
+
+   release2.4.9
+        -#413
+   -------------------------------------------------------------------------------
+
+
+   release2.4.8
         -add abort system intp parametri config
    -------------------------------------------------------------------------------
 

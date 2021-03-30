@@ -158,7 +158,25 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
         
         self.check()
         self.upd_individui_table()
-
+        if self.comboBox_Database.currentText()=='sqlite':
+            self.setComboBoxEnable(["self.lineEdit_DBname"], "False")
+        elif self.comboBox_Database.currentText()=='postgres':
+            self.setComboBoxEnable(["self.lineEdit_DBname"], "True")
+        self.comboBox_Database.currentIndexChanged.connect(self.customize)
+        
+    
+    def setComboBoxEnable(self, f, v):
+        field_names = f
+        value = v
+        for fn in field_names:
+            cmd = '{}{}{}{}'.format(fn, '.setEnabled(', v, ')')
+            eval(cmd)
+    
+    def customize(self):
+        if self.comboBox_Database.currentText()=='sqlite':
+            self.setComboBoxEnable(["self.lineEdit_DBname"], "False")
+        elif self.comboBox_Database.currentText()=='postgres':
+            self.setComboBoxEnable(["self.lineEdit_DBname"], "True")
     def db_uncheck(self):
         self.toolButton_active.setChecked(False)
     def upd_individui_table(self):
@@ -1533,93 +1551,95 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
             "datazione_estesa" VARCHAR(300) 
             ); """ )
             c.execute(sql_alter_table_tb)
-            sql_alter_table_tomba=(
-                """INSERT OR IGNORE INTO tomba_table (
-            id_tomba,
-			sito, 
-			nr_scheda_taf ,
-			sigla_struttura, 
-			nr_struttura ,
-			nr_individuo ,
-			rito ,
-			descrizione_taf ,
-			interpretazione_taf ,
-			segnacoli ,
-			canale_libatorio_si_no, 
-			oggetti_rinvenuti_esterno ,
-			stato_di_conservazione, 
-			copertura_tipo ,
-			tipo_contenitore_resti ,
-			corredo_presenza ,
-			corredo_tipo ,
-			corredo_descrizione ,
-			periodo_iniziale ,
-			fase_iniziale ,
-			periodo_finale ,
-			fase_finale ,
-			datazione_estesa 
-			)
+            try: 
+                sql_alter_table_tomba=(
+                    """INSERT OR IGNORE INTO tomba_table (
+                id_tomba,
+                sito, 
+                nr_scheda_taf ,
+                sigla_struttura, 
+                nr_struttura ,
+                nr_individuo ,
+                rito ,
+                descrizione_taf ,
+                interpretazione_taf ,
+                segnacoli ,
+                canale_libatorio_si_no, 
+                oggetti_rinvenuti_esterno ,
+                stato_di_conservazione, 
+                copertura_tipo ,
+                tipo_contenitore_resti ,
+                corredo_presenza ,
+                corredo_tipo ,
+                corredo_descrizione ,
+                periodo_iniziale ,
+                fase_iniziale ,
+                periodo_finale ,
+                fase_finale ,
+                datazione_estesa 
+                )
+                    
+                SELECT
+                id_tafonomia,
+                sito, 
+                nr_scheda_taf ,
+                sigla_struttura, 
+                nr_struttura ,
+                nr_individuo ,
+                rito ,
+                descrizione_taf ,
+                interpretazione_taf ,
+                segnacoli ,
+                canale_libatorio_si_no, 
+                oggetti_rinvenuti_esterno ,
+                stato_di_conservazione, 
+                copertura_tipo ,
+                tipo_contenitore_resti ,
+                corredo_presenza ,
+                corredo_tipo ,
+                corredo_descrizione ,
+                periodo_iniziale ,
+                fase_iniziale ,
+                periodo_finale ,
+                fase_finale ,
+                datazione_estesa 
+
+                FROM tafonomia_table; """)
+                c.execute(sql_alter_table_tomba)
+
+                sql_alter_table_individui=(
+                """INSERT OR IGNORE INTO individui_table (
+                nr_individuo,
+                completo_si_no ,
+                disturbato_si_no ,
+                in_connessione_si_no, 
+                lunghezza_scheletro ,
+                posizione_scheletro ,
+                posizione_cranio ,
+                posizione_arti_superiori ,
+                posizione_arti_inferiori, 
+                orientamento_asse ,
+                orientamento_azimut 
+
+                )
                 
-            SELECT
-            id_tafonomia,
-            sito, 
-            nr_scheda_taf ,
-            sigla_struttura, 
-            nr_struttura ,
-            nr_individuo ,
-            rito ,
-            descrizione_taf ,
-            interpretazione_taf ,
-            segnacoli ,
-            canale_libatorio_si_no, 
-            oggetti_rinvenuti_esterno ,
-            stato_di_conservazione, 
-            copertura_tipo ,
-            tipo_contenitore_resti ,
-            corredo_presenza ,
-            corredo_tipo ,
-            corredo_descrizione ,
-            periodo_iniziale ,
-            fase_iniziale ,
-            periodo_finale ,
-            fase_finale ,
-            datazione_estesa 
+                SELECT
+                nr_individuo,
+                completo_si_no ,
+                disturbato_si_no ,
+                in_connessione_si_no, 
+                lunghezza_scheletro ,
+                posizione_scheletro ,
+                posizione_cranio ,
+                posizione_arti_superiori ,
+                posizione_arti_inferiori, 
+                orientamento_asse ,
+                orientamento_azimut 
 
-            FROM tafonomia_table; """)
-            c.execute(sql_alter_table_tomba)
-
-            sql_alter_table_individui=(
-            """INSERT OR IGNORE INTO individui_table (
-            nr_individuo,
-            completo_si_no ,
-            disturbato_si_no ,
-            in_connessione_si_no, 
-            lunghezza_scheletro ,
-            posizione_scheletro ,
-            posizione_cranio ,
-            posizione_arti_superiori ,
-            posizione_arti_inferiori, 
-            orientamento_asse ,
-            orientamento_azimut 
-
-            )
-            
-            SELECT
-            nr_individuo,
-            completo_si_no ,
-            disturbato_si_no ,
-            in_connessione_si_no, 
-            lunghezza_scheletro ,
-            posizione_scheletro ,
-            posizione_cranio ,
-            posizione_arti_superiori ,
-            posizione_arti_inferiori, 
-            orientamento_asse ,
-            orientamento_azimut 
-
-            FROM tafonomia_table; """)
-            c.execute(sql_alter_table_individui)
-
+                FROM tafonomia_table; """)
+                c.execute(sql_alter_table_individui)
+            except:
+                pass
 
 
             sql_create_tombaview_doc= """CREATE VIEW if NOT EXISTS "pyarchinit_tomba_view" AS

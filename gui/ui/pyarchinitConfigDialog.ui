@@ -201,11 +201,20 @@
           </item>
           <item row="3" column="1">
            <widget class="QLineEdit" name="lineEdit_DBname">
+            <property name="enabled">
+             <bool>true</bool>
+            </property>
             <property name="text">
              <string/>
             </property>
+            <property name="echoMode">
+             <enum>QLineEdit::Normal</enum>
+            </property>
             <property name="placeholderText">
              <string>dbname</string>
+            </property>
+            <property name="clearButtonEnabled">
+             <bool>false</bool>
             </property>
            </widget>
           </item>
@@ -692,7 +701,7 @@
      </widget>
      <widget class="QWidget" name="tab_2">
       <attribute name="title">
-       <string>Installazione layers</string>
+       <string>Installazione DB</string>
       </attribute>
       <layout class="QGridLayout" name="gridLayout_9">
        <item row="0" column="0">
@@ -953,123 +962,6 @@
       <layout class="QGridLayout" name="gridLayout_17">
        <item row="0" column="0" rowspan="2" colspan="2">
         <layout class="QGridLayout" name="gridLayout_6">
-         <item row="5" column="8">
-          <widget class="QLineEdit" name="lineEdit_field_rd"/>
-         </item>
-         <item row="18" column="2">
-          <widget class="QgsPasswordLineEdit" name="lineEdit_pass_wt">
-           <property name="showLockIcon">
-            <bool>true</bool>
-           </property>
-          </widget>
-         </item>
-         <item row="18" column="0">
-          <widget class="QLabel" name="label_29">
-           <property name="text">
-            <string>Password</string>
-           </property>
-          </widget>
-         </item>
-         <item row="22" column="8">
-          <widget class="QPushButton" name="pushButton_exp_directories">
-           <property name="enabled">
-            <bool>false</bool>
-           </property>
-           <property name="text">
-            <string>Esportazione experimental</string>
-           </property>
-          </widget>
-         </item>
-         <item row="5" column="7">
-          <widget class="QLabel" name="label_62">
-           <property name="text">
-            <string>Nome campo</string>
-           </property>
-          </widget>
-         </item>
-         <item row="9" column="2">
-          <widget class="QgsPasswordLineEdit" name="lineEdit_pass_rd">
-           <property name="showLockIcon">
-            <bool>true</bool>
-           </property>
-          </widget>
-         </item>
-         <item row="21" column="8">
-          <widget class="QLabel" name="label_11">
-           <property name="enabled">
-            <bool>false</bool>
-           </property>
-           <property name="text">
-            <string>Esportazione directories</string>
-           </property>
-          </widget>
-         </item>
-         <item row="6" column="8">
-          <widget class="QLineEdit" name="lineEdit_value_rd"/>
-         </item>
-         <item row="4" column="6" colspan="3">
-          <widget class="QLabel" name="label_42">
-           <property name="text">
-            <string>Inserisci il nome del campo e/o il valore da importare</string>
-           </property>
-          </widget>
-         </item>
-         <item row="2" column="2">
-          <widget class="QCheckBox" name="checkBox_replace">
-           <property name="text">
-            <string>Replace</string>
-           </property>
-           <property name="checked">
-            <bool>false</bool>
-           </property>
-           <property name="autoRepeat">
-            <bool>true</bool>
-           </property>
-           <property name="autoExclusive">
-            <bool>true</bool>
-           </property>
-          </widget>
-         </item>
-         <item row="2" column="0">
-          <widget class="QCheckBox" name="checkBox_abort">
-           <property name="text">
-            <string>Abort</string>
-           </property>
-           <property name="checked">
-            <bool>true</bool>
-           </property>
-           <property name="autoRepeat">
-            <bool>true</bool>
-           </property>
-           <property name="autoExclusive">
-            <bool>true</bool>
-           </property>
-          </widget>
-         </item>
-         <item row="17" column="2">
-          <widget class="QLineEdit" name="lineEdit_username_wt"/>
-         </item>
-         <item row="20" column="8">
-          <widget class="QPushButton" name="pushButton_import_geometry">
-           <property name="enabled">
-            <bool>true</bool>
-           </property>
-           <property name="font">
-            <font>
-             <pointsize>9</pointsize>
-             <weight>75</weight>
-             <bold>true</bold>
-            </font>
-           </property>
-           <property name="text">
-            <string>Import Geometry</string>
-           </property>
-           <property name="icon">
-            <iconset resource="../../resources/resources.qrc">
-             <normaloff>:/icons/insert_geometry.png</normaloff>:/icons/insert_geometry.png</iconset>
-           </property>
-          </widget>
-         </item>
          <item row="1" column="8">
           <widget class="QComboBox" name="comboBox_geometry_read">
            <property name="enabled">
@@ -1378,6 +1270,75 @@
            </item>
           </widget>
          </item>
+         <item row="13" column="0" colspan="3">
+          <widget class="QComboBox" name="comboBox_server_wt">
+           <property name="minimumSize">
+            <size>
+             <width>20</width>
+             <height>0</height>
+            </size>
+           </property>
+           <item>
+            <property name="text">
+             <string>sqlite</string>
+            </property>
+           </item>
+           <item>
+            <property name="text">
+             <string>postgres</string>
+            </property>
+           </item>
+          </widget>
+         </item>
+         <item row="6" column="7">
+          <widget class="QLabel" name="label_23">
+           <property name="text">
+            <string>Valore</string>
+           </property>
+          </widget>
+         </item>
+         <item row="19" column="8">
+          <widget class="QPushButton" name="pushButton_import">
+           <property name="font">
+            <font>
+             <pointsize>9</pointsize>
+             <weight>75</weight>
+             <bold>true</bold>
+            </font>
+           </property>
+           <property name="text">
+            <string>Import Table</string>
+           </property>
+           <property name="icon">
+            <iconset resource="../../resources/resources.qrc">
+             <normaloff>:/icons/insert_table.png</normaloff>:/icons/insert_table.png</iconset>
+           </property>
+          </widget>
+         </item>
+         <item row="15" column="2">
+          <widget class="QLineEdit" name="lineEdit_database_wt">
+           <property name="text">
+            <string/>
+           </property>
+           <property name="placeholderText">
+            <string/>
+           </property>
+          </widget>
+         </item>
+         <item row="5" column="5">
+          <widget class="QToolButton" name="toolButton_set_dbsqlite1">
+           <property name="text">
+            <string>...</string>
+           </property>
+          </widget>
+         </item>
+         <item row="5" column="0">
+          <widget class="QLabel" name="label_20">
+           <property name="text">
+            <string>Database</string>
+           </property>
+          </widget>
+         </item>
          <item row="14" column="2">
           <widget class="QLineEdit" name="lineEdit_host_wt"/>
          </item>
@@ -1388,24 +1349,10 @@
            </property>
           </widget>
          </item>
-         <item row="6" column="7">
-          <widget class="QLabel" name="label_23">
-           <property name="text">
-            <string>Valore</string>
-           </property>
-          </widget>
-         </item>
          <item row="14" column="0">
           <widget class="QLabel" name="label_27">
            <property name="text">
             <string>Host</string>
-           </property>
-          </widget>
-         </item>
-         <item row="9" column="0">
-          <widget class="QLabel" name="label_19">
-           <property name="text">
-            <string>Password</string>
            </property>
           </widget>
          </item>
@@ -1423,20 +1370,21 @@
            </item>
           </widget>
          </item>
-         <item row="15" column="2">
-          <widget class="QLineEdit" name="lineEdit_database_wt">
-           <property name="text">
-            <string/>
-           </property>
-           <property name="placeholderText">
-            <string/>
-           </property>
-          </widget>
+         <item row="16" column="2">
+          <widget class="QLineEdit" name="lineEdit_port_wt"/>
          </item>
-         <item row="5" column="5">
-          <widget class="QToolButton" name="toolButton_set_dbsqlite1">
+         <item row="12" column="0" colspan="3">
+          <widget class="QLabel" name="label_61">
+           <property name="font">
+            <font>
+             <pointsize>15</pointsize>
+             <weight>75</weight>
+             <italic>true</italic>
+             <bold>true</bold>
+            </font>
+           </property>
            <property name="text">
-            <string>...</string>
+            <string>Destinazione</string>
            </property>
           </widget>
          </item>
@@ -1462,51 +1410,6 @@
            <property name="placeholderText">
             <string/>
            </property>
-          </widget>
-         </item>
-         <item row="5" column="0">
-          <widget class="QLabel" name="label_20">
-           <property name="text">
-            <string>Database</string>
-           </property>
-          </widget>
-         </item>
-         <item row="12" column="0" colspan="3">
-          <widget class="QLabel" name="label_61">
-           <property name="font">
-            <font>
-             <pointsize>15</pointsize>
-             <weight>75</weight>
-             <italic>true</italic>
-             <bold>true</bold>
-            </font>
-           </property>
-           <property name="text">
-            <string>Destinazione</string>
-           </property>
-          </widget>
-         </item>
-         <item row="16" column="2">
-          <widget class="QLineEdit" name="lineEdit_port_wt"/>
-         </item>
-         <item row="13" column="0" colspan="3">
-          <widget class="QComboBox" name="comboBox_server_wt">
-           <property name="minimumSize">
-            <size>
-             <width>20</width>
-             <height>0</height>
-            </size>
-           </property>
-           <item>
-            <property name="text">
-             <string>sqlite</string>
-            </property>
-           </item>
-           <item>
-            <property name="text">
-             <string>postgres</string>
-            </property>
-           </item>
           </widget>
          </item>
          <item row="5" column="6">
@@ -1536,8 +1439,75 @@
            </property>
           </widget>
          </item>
-         <item row="19" column="8">
-          <widget class="QPushButton" name="pushButton_import">
+         <item row="9" column="0">
+          <widget class="QLabel" name="label_19">
+           <property name="text">
+            <string>Password</string>
+           </property>
+          </widget>
+         </item>
+         <item row="18" column="0">
+          <widget class="QLabel" name="label_29">
+           <property name="text">
+            <string>Password</string>
+           </property>
+          </widget>
+         </item>
+         <item row="5" column="8">
+          <widget class="QLineEdit" name="lineEdit_field_rd"/>
+         </item>
+         <item row="18" column="2">
+          <widget class="QgsPasswordLineEdit" name="lineEdit_pass_wt">
+           <property name="showLockIcon">
+            <bool>true</bool>
+           </property>
+          </widget>
+         </item>
+         <item row="6" column="8">
+          <widget class="QLineEdit" name="lineEdit_value_rd"/>
+         </item>
+         <item row="4" column="6" colspan="3">
+          <widget class="QLabel" name="label_42">
+           <property name="text">
+            <string>Inserisci il nome del campo e/o il valore da importare</string>
+           </property>
+          </widget>
+         </item>
+         <item row="17" column="2">
+          <widget class="QLineEdit" name="lineEdit_username_wt"/>
+         </item>
+         <item row="21" column="8">
+          <widget class="QLabel" name="label_11">
+           <property name="enabled">
+            <bool>false</bool>
+           </property>
+           <property name="text">
+            <string>Esportazione directories</string>
+           </property>
+          </widget>
+         </item>
+         <item row="5" column="7">
+          <widget class="QLabel" name="label_62">
+           <property name="text">
+            <string>Nome campo</string>
+           </property>
+          </widget>
+         </item>
+         <item row="22" column="8">
+          <widget class="QPushButton" name="pushButton_exp_directories">
+           <property name="enabled">
+            <bool>false</bool>
+           </property>
+           <property name="text">
+            <string>Esportazione experimental</string>
+           </property>
+          </widget>
+         </item>
+         <item row="20" column="8">
+          <widget class="QPushButton" name="pushButton_import_geometry">
+           <property name="enabled">
+            <bool>true</bool>
+           </property>
            <property name="font">
             <font>
              <pointsize>9</pointsize>
@@ -1546,11 +1516,98 @@
             </font>
            </property>
            <property name="text">
-            <string>Import Table</string>
+            <string>Import Geometry</string>
            </property>
            <property name="icon">
             <iconset resource="../../resources/resources.qrc">
-             <normaloff>:/icons/insert_table.png</normaloff>:/icons/insert_table.png</iconset>
+             <normaloff>:/icons/insert_geometry.png</normaloff>:/icons/insert_geometry.png</iconset>
+           </property>
+          </widget>
+         </item>
+         <item row="9" column="2">
+          <widget class="QgsPasswordLineEdit" name="lineEdit_pass_rd">
+           <property name="showLockIcon">
+            <bool>true</bool>
+           </property>
+          </widget>
+         </item>
+         <item row="2" column="0">
+          <widget class="QCheckBox" name="checkBox_abort">
+           <property name="text">
+            <string>Abort</string>
+           </property>
+           <property name="checked">
+            <bool>true</bool>
+           </property>
+           <property name="autoRepeat">
+            <bool>true</bool>
+           </property>
+           <property name="autoExclusive">
+            <bool>true</bool>
+           </property>
+          </widget>
+         </item>
+         <item row="2" column="1">
+          <widget class="QCheckBox" name="checkBox_ignore">
+           <property name="enabled">
+            <bool>true</bool>
+           </property>
+           <property name="text">
+            <string>Ignore</string>
+           </property>
+           <property name="checked">
+            <bool>false</bool>
+           </property>
+           <property name="autoRepeat">
+            <bool>true</bool>
+           </property>
+           <property name="autoExclusive">
+            <bool>true</bool>
+           </property>
+          </widget>
+         </item>
+         <item row="19" column="0" colspan="8">
+          <widget class="QProgressBar" name="progress_bar">
+           <property name="value">
+            <number>0</number>
+           </property>
+          </widget>
+         </item>
+         <item row="15" column="5">
+          <widget class="QToolButton" name="toolButton_set_dbsqlite2">
+           <property name="text">
+            <string>...</string>
+           </property>
+          </widget>
+         </item>
+         <item row="0" column="0" colspan="3">
+          <widget class="QLabel" name="label_59">
+           <property name="font">
+            <font>
+             <pointsize>14</pointsize>
+             <weight>75</weight>
+             <bold>true</bold>
+            </font>
+           </property>
+           <property name="text">
+            <string>Importazione dati</string>
+           </property>
+          </widget>
+         </item>
+         <item row="10" column="0">
+          <widget class="QLabel" name="label_18">
+           <property name="text">
+            <string>Username</string>
+           </property>
+          </widget>
+         </item>
+         <item row="1" column="7">
+          <widget class="QLabel" name="label_41">
+           <property name="enabled">
+            <bool>true</bool>
+           </property>
+           <property name="text">
+            <string>Geometrie</string>
            </property>
           </widget>
          </item>
@@ -1576,20 +1633,6 @@
            </property>
           </widget>
          </item>
-         <item row="15" column="5">
-          <widget class="QToolButton" name="toolButton_set_dbsqlite2">
-           <property name="text">
-            <string>...</string>
-           </property>
-          </widget>
-         </item>
-         <item row="4" column="2">
-          <widget class="QLineEdit" name="lineEdit_host_rd">
-           <property name="text">
-            <string/>
-           </property>
-          </widget>
-         </item>
          <item row="23" column="2">
           <spacer name="verticalSpacer">
            <property name="orientation">
@@ -1603,10 +1646,10 @@
            </property>
           </spacer>
          </item>
-         <item row="10" column="0">
-          <widget class="QLabel" name="label_18">
+         <item row="4" column="0">
+          <widget class="QLabel" name="label_17">
            <property name="text">
-            <string>Username</string>
+            <string>Host</string>
            </property>
           </widget>
          </item>
@@ -1617,51 +1660,17 @@
            </property>
           </widget>
          </item>
-         <item row="4" column="0">
-          <widget class="QLabel" name="label_17">
+         <item row="4" column="2">
+          <widget class="QLineEdit" name="lineEdit_host_rd">
            <property name="text">
-            <string>Host</string>
+            <string/>
            </property>
           </widget>
          </item>
-         <item row="1" column="7">
-          <widget class="QLabel" name="label_41">
-           <property name="enabled">
-            <bool>true</bool>
-           </property>
+         <item row="2" column="2">
+          <widget class="QCheckBox" name="checkBox_replace">
            <property name="text">
-            <string>Geometrie</string>
-           </property>
-          </widget>
-         </item>
-         <item row="0" column="0" colspan="3">
-          <widget class="QLabel" name="label_59">
-           <property name="font">
-            <font>
-             <pointsize>14</pointsize>
-             <weight>75</weight>
-             <bold>true</bold>
-            </font>
-           </property>
-           <property name="text">
-            <string>Importazione dati</string>
-           </property>
-          </widget>
-         </item>
-         <item row="19" column="0" colspan="8">
-          <widget class="QProgressBar" name="progress_bar">
-           <property name="value">
-            <number>0</number>
-           </property>
-          </widget>
-         </item>
-         <item row="2" column="1">
-          <widget class="QCheckBox" name="checkBox_ignore">
-           <property name="enabled">
-            <bool>true</bool>
-           </property>
-           <property name="text">
-            <string>Ignore</string>
+            <string>Replace</string>
            </property>
            <property name="checked">
             <bool>false</bool>
