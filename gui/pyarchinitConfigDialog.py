@@ -158,7 +158,25 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
         
         self.check()
         self.upd_individui_table()
-
+        if self.comboBox_Database.currentText()=='sqlite':
+            self.setComboBoxEnable(["self.lineEdit_DBname"], "False")
+        elif self.comboBox_Database.currentText()=='postgres':
+            self.setComboBoxEnable(["self.lineEdit_DBname"], "True")
+        self.comboBox_Database.currentIndexChanged.connect(self.customize)
+        
+    
+    def setComboBoxEnable(self, f, v):
+        field_names = f
+        value = v
+        for fn in field_names:
+            cmd = '{}{}{}{}'.format(fn, '.setEnabled(', v, ')')
+            eval(cmd)
+    
+    def customize(self):
+        if self.comboBox_Database.currentText()=='sqlite':
+            self.setComboBoxEnable(["self.lineEdit_DBname"], "False")
+        elif self.comboBox_Database.currentText()=='postgres':
+            self.setComboBoxEnable(["self.lineEdit_DBname"], "True")
     def db_uncheck(self):
         self.toolButton_active.setChecked(False)
     def upd_individui_table(self):

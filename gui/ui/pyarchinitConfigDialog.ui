@@ -201,11 +201,20 @@
           </item>
           <item row="3" column="1">
            <widget class="QLineEdit" name="lineEdit_DBname">
+            <property name="enabled">
+             <bool>true</bool>
+            </property>
             <property name="text">
              <string/>
             </property>
+            <property name="echoMode">
+             <enum>QLineEdit::Normal</enum>
+            </property>
             <property name="placeholderText">
              <string>dbname</string>
+            </property>
+            <property name="clearButtonEnabled">
+             <bool>false</bool>
             </property>
            </widget>
           </item>
@@ -692,7 +701,7 @@
      </widget>
      <widget class="QWidget" name="tab_2">
       <attribute name="title">
-       <string>Installazione layers</string>
+       <string>Installazione DB</string>
       </attribute>
       <layout class="QGridLayout" name="gridLayout_9">
        <item row="0" column="0">
