@@ -961,6 +961,39 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
 
             listen(engine, 'connect', self.load_spatialite)
             c = engine.connect()
+            
+            # if self.comboBox_server_wt.currentText() == 'sqlite':
+
+                # if platform.system() == "Windows":
+                    # cmd = os.path.join(os.sep, self.HOME, 'bin', 'spatialite_convert.exe')
+                # # elif platform.system() == "Darwin":
+                    # # cmd = os.path.join(os.sep, self.HOME, 'bin', 'sqldiff_osx')
+                # # else:
+                    # # cmd = os.path.join(os.sep, self.HOME, 'bin', 'sqldiff_linux')
+                # else:
+                    # QMessageBox.warning(self, "Attenzione",
+                                         # "Il tuo db è nella versione 3 di spatialite, ma la funzione di conversione alla vesrione 4  funziona al momento solamente con windows",
+                                         # QMessageBox.Ok)
+                
+                # db2 = os.path.join(os.sep, self.HOME, 'pyarchinit_DB_folder', self.lineEdit_DBname.text())
+
+                # # text_ = cmd, self.comboBox_compare.currentText(), db1 + ' ', db2
+                # # result = subprocess.check_output([text_], stderr=subprocess.STDOUT)
+                # os.system("start cmd /k" + cmd + ' ' + '-d ' + db2 + ' -tv 4')
+                # # if result == b'':
+                # #
+                # #     pass
+                # # else:
+                # #     QMessageBox.warning(self, "Attenzione",
+                # #                         "Il db non allineato devi aggiornarlo. Chiudi questa finestra e clicca il bottone con l'icona di spatialite in basso a sinistra aggiungendo l'epsg del tuo db",
+                # #                         QMessageBox.Ok)
+                # #     # # #break
+
+            # else:
+                # pass
+            
+            
+            
             try:
                 createSecondaryIndex = """CREATE UNIQUE INDEX IF NOT EXISTS idx_n_reperto ON inventario_materiali_table(sito, n_reperto);"""
                 c.execute(createSecondaryIndex)
@@ -1510,13 +1543,18 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
                 
                 END;"""
             c.execute(sql_trigger_coord1)
+            
+            sql_drop_trigger="""Drop trigger if exists create_geom_update"""
+            c.execute(sql_drop_trigger)
+            
+            
             sql_trigger_coord3="""CREATE TRIGGER IF NOT EXISTS create_geom_update 
                 After update 
                 ON pyunitastratigrafiche 
 
                 BEGIN 
                 
-                update pyunitastratigrafiche set coord = ST_AsText(ST_Centroid(the_geom)) where scavo_s=New.scavo_s and area_s=New.area_s and us_s=New.us_s;
+                update pyunitastratigrafiche set coord = ST_AsText(ST_Centroid(the_geom)) where gid = New.gid and scavo_s=New.scavo_s and area_s=New.area_s and us_s=New.us_s;
                 
                 END;"""
             c.execute(sql_trigger_coord3)
