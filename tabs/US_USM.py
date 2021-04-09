@@ -1510,7 +1510,7 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
                     msg = "La connessione e' fallita {}. " \
                           "E' NECESSARIO RIAVVIARE QGIS oppure rilevato bug! Segnalarlo allo sviluppatore".format(str(e))
                     self.iface.messageBar().pushMessage(self.tr(msg), Qgis.Warning, 0)
-                    self.iface.messageBar().pushMessage(self.tr(msg), Qgis.Warning, 0)
+                    
                 elif self.L=='de':
                     msg = "Verbindungsfehler {}. " \
                           " QGIS neustarten oder es wurde ein bug gefunden! Fehler einsenden".format(str(e))
@@ -2552,10 +2552,10 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
                 self.setComboBoxEnable(["self.comboBox_sito"], "False")
             else:
                 pass#
-        except:
+        except Exception as e:
             if self.L=='it':
             
-                QMessageBox.information(self, "Attenzione" ,"Non esiste questo sito: "'"'+ str(sito_set_str) +'"'" in questa scheda, Per favore distattiva la 'scelta sito' dalla scheda di configurazione plugin per vedere tutti i record oppure crea la scheda",QMessageBox.Ok) 
+                QMessageBox.information(self, "Attenzione" ,"Non esiste questo sito: "'"'+str(sito_set_str) +'"'" in questa scheda, Per favore distattiva la 'scelta sito' dalla scheda di configurazione plugin per vedere tutti i record oppure crea la scheda",QMessageBox.Ok) 
             elif self.L=='de':
             
                 QMessageBox.information(self, "Warnung" , "Es gibt keine solche archäologische Stätte: "'""'+ str(site_set_str) +'"'" in dieser Registerkarte, Bitte deaktivieren Sie die 'Site-Wahl' in der Plugin-Konfigurationsregisterkarte, um alle Datensätze zu sehen oder die Registerkarte zu erstellen",QMessageBox.Ok) 
