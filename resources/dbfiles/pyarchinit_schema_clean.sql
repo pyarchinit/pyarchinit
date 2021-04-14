@@ -2463,7 +2463,7 @@ ALTER TABLE ONLY public.documentazione_table
 
 ALTER TABLE ONLY public.inventario_materiali_table
     ADD CONSTRAINT "ID_invmat_unico" UNIQUE (sito, numero_inventario);
-
+	
 
 --
 -- TOC entry 4681 (class 2606 OID 41028)
@@ -3080,7 +3080,7 @@ CREATE INDEX sidx_pyunitastratigrafiche_geom ON public.pyunitastratigrafiche USI
 
 CREATE INDEX sidx_riipartizione_territoriale_geom ON public.riipartizione_territoriale USING gist (the_geom);
 
-
+CREATE UNIQUE INDEX IF NOT EXISTS idx_n_reperto ON inventario_materiali_table(sito, n_reperto);
 --
 -- TOC entry 5011 (class 0 OID 0)
 -- Dependencies: 20

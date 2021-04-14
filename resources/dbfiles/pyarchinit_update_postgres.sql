@@ -2,7 +2,7 @@ drop view if exists mediaentity_view;
 DROP TABLE IF EXISTS mediaentity_view;
 DROP VIEW IF EXISTS pyarchinit_us_view;
 DROP VIEW IF EXISTS pyarchinit_tafonomia_view;
-
+CREATE UNIQUE INDEX IF NOT EXISTS idx_n_reperto ON inventario_materiali_table(sito, n_reperto)
 
 CREATE OR REPLACE FUNCTION delete_media_table()
   RETURNS trigger AS
