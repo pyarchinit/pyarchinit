@@ -163,7 +163,10 @@ class single_UT_pdf_sheet(object):
         lo_path = conn.logo_path()
         lo_path_str = lo_path['logo']
         home_DB_path = '{}{}{}'.format(home, os.sep, 'pyarchinit_DB_folder')
-        logo_path = lo_path_str#'{}{}{}'.format(home_DB_path, os.sep, 'logo.jpg')
+        if not bool(lo_path_str):
+            logo_path = '{}{}{}'.format(home_DB_path, os.sep, 'logo.jpg')
+        else:
+            logo_path=lo_path_str
         logo = Image(logo_path)
 
         ##      if test_image.drawWidth < 800:
@@ -512,7 +515,10 @@ class single_UT_pdf_sheet(object):
         lo_path = conn.logo_path()
         lo_path_str = lo_path['logo']
         home_DB_path = '{}{}{}'.format(home, os.sep, 'pyarchinit_DB_folder')
-        logo_path = lo_path_str#'{}{}{}'.format(home_DB_path, os.sep, 'logo.jpg')
+        if not bool(lo_path_str):
+            logo_path = '{}{}{}'.format(home_DB_path, os.sep, 'logo.jpg')
+        else:
+            logo_path=lo_path_str
         logo = Image(logo_path)
 
         ##      if test_image.drawWidth < 800:

@@ -31,7 +31,7 @@ packages = sys.argv[1].split(',') if len(sys.argv) >= 2 else []
 
 if not packages:
     packages = [
-        'SQLAlchemy',
+        'SQLAlchemy==1.3.23',
         'SQLAlchemy-Utils',
         'geoalchemy2',
         'reportlab',

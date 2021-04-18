@@ -4,7 +4,7 @@ Created on 15 feb 2018
 @author: Serena Sensini
 '''
 
-from sqlalchemy import Table, Column, Integer, String, Text, Numeric, MetaData, create_engine, UniqueConstraint
+from sqlalchemy import Index, Table, Column, Integer, String, Text, Numeric, MetaData, create_engine, UniqueConstraint
 
 from modules.db.pyarchinit_conn_strings import Connection
 
@@ -53,8 +53,12 @@ class Inventario_materiali_table:
                                        Column('tipo_contenitore', String(200)),
                                        Column('struttura', String(200)),
                                        # explicit/composite unique constraint.  'name' is optional.
-                                       UniqueConstraint('sito', 'numero_inventario', name='ID_invmat_unico')
-                                       )
+                                       
+                                       #Index('idx_n_reperto', 'sito', 'n_reperto', unique=True),
+                                       
+                                       UniqueConstraint('sito', 'numero_inventario', name='ID_invmat_unico'))
+                                       
+                                       
 
     metadata.create_all(engine)
 

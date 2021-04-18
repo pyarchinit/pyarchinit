@@ -49,4 +49,10 @@ class Error_check:
             return 0
         else:
             return 1
-
+            
+    def checkIfDuplicates_3(listOfElems):
+        ''' Check if given list contains any duplicates '''    
+        for elem in listOfElems:
+            if listOfElems.count(elem) > 1:
+                return True
+        return False
