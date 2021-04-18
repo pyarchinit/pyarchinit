@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>744</width>
+    <width>692</width>
     <height>901</height>
    </rect>
   </property>
@@ -1021,8 +1021,23 @@
      </item>
      <item row="0" column="3">
       <widget class="QComboBox" name="comboBox_area">
+       <property name="sizePolicy">
+        <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
+         <horstretch>0</horstretch>
+         <verstretch>0</verstretch>
+        </sizepolicy>
+       </property>
+       <property name="maximumSize">
+        <size>
+         <width>80</width>
+         <height>16777215</height>
+        </size>
+       </property>
        <property name="editable">
         <bool>true</bool>
+       </property>
+       <property name="modelColumn">
+        <number>0</number>
        </property>
       </widget>
      </item>

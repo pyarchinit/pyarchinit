@@ -87,7 +87,7 @@ class pyarchinit_Tomba(QDialog, MAIN_DIALOG_CLASS):
     MAPPER_TABLE_CLASS = "TOMBA"
     NOME_SCHEDA = "Scheda Tomba"
     ID_TABLE = "id_tomba"
-    ID_SITO ="sito"
+    
     
     if L=='it':
         CONVERSION_DICT = {
@@ -312,31 +312,31 @@ class pyarchinit_Tomba(QDialog, MAIN_DIALOG_CLASS):
     }
 
     TABLE_FIELDS = [
-        "sito",
-        "area",
-        "nr_scheda_taf",
-        "sigla_struttura",
-        "nr_struttura",
-        "nr_individuo",
-        "rito",
-        "descrizione_taf",
-        "interpretazione_taf",
-        "segnacoli",
-        "canale_libatorio_si_no",
-        "oggetti_rinvenuti_esterno",
-        "stato_di_conservazione",
-        "copertura_tipo",
-        "tipo_contenitore_resti",
-        "tipo_deposizione",
-        "tipo_sepoltura",
-        "corredo_presenza",
-        "corredo_tipo",
-        "corredo_descrizione",
-        "periodo_iniziale",
-        "fase_iniziale",
-        "periodo_finale",
-        "fase_finale",
-        "datazione_estesa"
+        'sito',
+        'area',
+        'nr_scheda_taf',
+        'sigla_struttura',
+        'nr_struttura',
+        'nr_individuo',
+        'rito',
+        'descrizione_taf',
+        'interpretazione_taf',
+        'segnacoli',
+        'canale_libatorio_si_no',
+        'oggetti_rinvenuti_esterno',
+        'stato_di_conservazione',
+        'copertura_tipo',
+        'tipo_contenitore_resti',
+        'tipo_deposizione',
+        'tipo_sepoltura',
+        'corredo_presenza',
+        'corredo_tipo',
+        'corredo_descrizione',
+        'periodo_iniziale',
+        'fase_iniziale',
+        'periodo_finale',
+        'fase_finale',
+        'datazione_estesa'
     ]
 
     HOME = os.environ['PYARCHINIT_HOME']
@@ -382,7 +382,7 @@ class pyarchinit_Tomba(QDialog, MAIN_DIALOG_CLASS):
         self.pbnOpenpdfDirectory.clicked.connect(self.openpdfDir)
         self.fill_fields()
         self.customize_GUI()
-        self.loadCorredolist()
+        self.lineEdit_nr_scheda.textChanged.connect(self.loadCorredolist)
         self.set_sito()
         self.msg_sito()
         self.numero_invetario()
@@ -416,7 +416,7 @@ class pyarchinit_Tomba(QDialog, MAIN_DIALOG_CLASS):
         else:
              col =['Item ID','Indv. ID','Material','Position in trousseau','Position in trousseau']
         self.tableWidget_corredo_tipo.setHorizontalHeaderLabels(col)
-        numRows = self.tableWidget_corredo_tipo.setRowCount(100)
+        numRows = self.tableWidget_corredo_tipo.setRowCount(0)
         conn = Connection()
         area= str(self.comboBox_area.currentText())    
         sito_set= conn.sito_set()
@@ -430,7 +430,13 @@ class pyarchinit_Tomba(QDialog, MAIN_DIALOG_CLASS):
                     }
                 u = Utility()
                 search_dict = u.remove_empty_items_fr_dict(search_dict)
-                
+                search_dict2 = {
+                        'sito': "'"+str(sito_set_str)+"'",
+                        'sigla_struttura': "'" + str(eval('self.DATA_LIST[int(self.REC_CORR)].sigla_struttura'))+"'",
+                        'nr_struttura': "'"+str(eval('self.DATA_LIST[int(self.REC_CORR)].nr_struttura'))+"'"
+                    }
+                u = Utility()
+                search_dict = u.remove_empty_items_fr_dict(search_dict)
                 record_inventario_list = self.DB_MANAGER.query_bool(search_dict, 'INVENTARIO_MATERIALI')
                 
                 nus=0
@@ -454,15 +460,15 @@ class pyarchinit_Tomba(QDialog, MAIN_DIALOG_CLASS):
                     self.delegateMS.def_editable('False')
                     self.tableWidget_corredo_tipo.setItemDelegateForColumn(2,self.delegateMS)
                 
-                record_individui_list = self.DB_MANAGER.query_bool(search_dict, 'SCHEDAIND')
+                record_individui_list = self.DB_MANAGER.query_bool(search_dict2, 'SCHEDAIND')
                 for e in record_individui_list:
                     individuo.append(str(e.nr_individuo))
-                    for a in record_individui_list:
-                        
-                        self.delegateIS = ComboBoxDelegate()
-                        self.delegateIS.def_values(individuo)
-                        self.delegateIS.def_editable('False')
-                        self.tableWidget_corredo_tipo.setItemDelegateForColumn(1,self.delegateIS)
+                for a in record_individui_list:
+                    
+                    self.delegateIS = ComboBoxDelegate()
+                    self.delegateIS.def_values(individuo)
+                    self.delegateIS.def_editable('False')
+                    self.tableWidget_corredo_tipo.setItemDelegateForColumn(1,self.delegateIS)
         
         
         except:
@@ -471,7 +477,7 @@ class pyarchinit_Tomba(QDialog, MAIN_DIALOG_CLASS):
     
     
     def enable_button(self, n):
-        self.pushButton_connect.setEnabled(n)
+        #self.pushButton_connect.setEnabled(n)
 
         self.pushButton_new_rec.setEnabled(n)
 
@@ -494,7 +500,7 @@ class pyarchinit_Tomba(QDialog, MAIN_DIALOG_CLASS):
         self.pushButton_sort.setEnabled(n)
 
     def enable_button_search(self, n):
-        self.pushButton_connect.setEnabled(n)
+        #self.pushButton_connect.setEnabled(n)
 
         self.pushButton_new_rec.setEnabled(n)
 
@@ -1336,32 +1342,32 @@ class pyarchinit_Tomba(QDialog, MAIN_DIALOG_CLASS):
                                     "GIS mode disabled. From now on, your searches will no longer be displayed on the GIS.",
                                     QMessageBox.Ok)
 
-    def on_toolButtonPreview_toggled(self):
-        if self.L=='it':
-            if self.toolButtonPreview.isChecked():
-                QMessageBox.warning(self, "Messaggio",
-                                    "Modalita' Preview US attivata. Le piante delle US saranno visualizzate nella sezione Piante",
-                                    QMessageBox.Ok)
-                self.loadMapPreview()
-            else:
-                self.loadMapPreview(1)
-        elif self.L=='de':
-            if self.toolButtonPreview.isChecked():
-                QMessageBox.warning(self, "Message",
-                                    "Modalität' Preview der aktivierten SE. Die Plana der SE werden in der Auswahl der Plana visualisiert",
-                                    QMessageBox.Ok)
-                self.loadMapPreview()
-            else:
-                self.loadMapPreview(1)
+    # def on_toolButtonPreview_toggled(self):
+        # if self.L=='it':
+            # if self.toolButtonPreview.isChecked():
+                # QMessageBox.warning(self, "Messaggio",
+                                    # "Modalita' Preview US attivata. Le piante delle US saranno visualizzate nella sezione Piante",
+                                    # QMessageBox.Ok)
+                # self.loadMapPreview()
+            # else:
+                # self.loadMapPreview(1)
+        # elif self.L=='de':
+            # if self.toolButtonPreview.isChecked():
+                # QMessageBox.warning(self, "Message",
+                                    # "Modalität' Preview der aktivierten SE. Die Plana der SE werden in der Auswahl der Plana visualisiert",
+                                    # QMessageBox.Ok)
+                # self.loadMapPreview()
+            # else:
+                # self.loadMapPreview(1)
                 
-        else:
-            if self.toolButtonPreview.isChecked():
-                QMessageBox.warning(self, "Message",
-                                    "Preview SU mode enabled. US plants will be displayed in the Plants section",
-                                    QMessageBox.Ok)
-                self.loadMapPreview()
-            else:
-                self.loadMapPreview(1)
+        # else:
+            # if self.toolButtonPreview.isChecked():
+                # QMessageBox.warning(self, "Message",
+                                    # "Preview SU mode enabled. US plants will be displayed in the Plants section",
+                                    # QMessageBox.Ok)
+                # self.loadMapPreview()
+            # else:
+                # self.loadMapPreview(1)
 
     
     def on_pushButton_new_rec_pressed(self):
@@ -1372,7 +1378,11 @@ class pyarchinit_Tomba(QDialog, MAIN_DIALOG_CLASS):
         if bool(self.DATA_LIST):
             if self.data_error_check() == 1:
                 pass
-            
+            else:
+                if self.BROWSE_STATUS == "b":
+                    if bool(self.DATA_LIST):
+                        if self.records_equal_check() == 1:
+                            pass
         if self.BROWSE_STATUS != "n":
             if bool(self.comboBox_sito.currentText()) and self.comboBox_sito.currentText()==sito_set_str:
                 self.BROWSE_STATUS = "n"
@@ -1443,6 +1453,7 @@ class pyarchinit_Tomba(QDialog, MAIN_DIALOG_CLASS):
                 test_insert = self.insert_new_rec()
                 if test_insert == 1:
                     self.empty_fields()
+                    self.SORT_STATUS = "n"
                     self.label_sort.setText(self.SORTED_ITEMS["n"])
                     self.charge_list()
                     self.set_sito()
@@ -1808,7 +1819,7 @@ class pyarchinit_Tomba(QDialog, MAIN_DIALOG_CLASS):
                 if bool(self.comboBox_sito.currentText()) and self.comboBox_sito.currentText()==sito_set_str:
                     self.BROWSE_STATUS = "f"
                     ###
-                    #self.setComboBoxEditable(["self.comboBox_sito"], 1)
+                    # self.setComboBoxEditable(["self.comboBox_sito"], 1)
                     # self.setComboBoxEditable(["self.comboBox_sigla_struttura"], 0)
                     # self.setComboBoxEditable(["self.comboBox_nr_struttura"], 0)
                     self.setComboBoxEditable(["self.comboBox_nr_individuo"], 1)
@@ -1860,194 +1871,185 @@ class pyarchinit_Tomba(QDialog, MAIN_DIALOG_CLASS):
     
 
     def on_pushButton_search_go_pressed(self):
-        try:
-            if self.BROWSE_STATUS != "f":
-                if self.L=='it':
-                    QMessageBox.warning(self, "ATTENZIONE", "Per eseguire una nuova ricerca clicca sul pulsante 'new search' ",
-                                        QMessageBox.Ok)
-                elif self.L=='de':
-                    QMessageBox.warning(self, "Warnung", "Um eine neue Abfrage zu starten drücke  'new search' ",
-                                        QMessageBox.Ok)
-                else:
-                    QMessageBox.warning(self, "WARNING", "To perform a new search click on the 'new search' button ",
-                                        QMessageBox.Ok)  
+        
+        if self.BROWSE_STATUS != "f":
+            if self.L=='it':
+                QMessageBox.warning(self, "ATTENZIONE", "Per eseguire una nuova ricerca clicca sul pulsante 'new search' ",
+                                    QMessageBox.Ok)
+            elif self.L=='de':
+                QMessageBox.warning(self, "Warnung", "Um eine neue Abfrage zu starten drücke  'new search' ",
+                                    QMessageBox.Ok)
             else:
-                ## nr struttura
-                if self.comboBox_area.currentText() != "":
-                    area = int(self.comboBox_area.currentText())
-                else:
-                    area = ""
-                
-                ## nr scheda
-                if self.lineEdit_nr_scheda.text() != "":
-                    nr_scheda = int(self.lineEdit_nr_scheda.text())
-                else:
-                    nr_scheda = ""
+                QMessageBox.warning(self, "WARNING", "To perform a new search click on the 'new search' button ",
+                                    QMessageBox.Ok)  
+        else:
+            ## nr struttura
+            # if self.comboBox_area.currentText() != "":
+                # area = int(self.comboBox_area.currentText())
+            # else:
+                # area = ""
+            
+            ## nr scheda
+            if self.lineEdit_nr_scheda.text() != "":
+                nr_scheda = int(self.lineEdit_nr_scheda.text())
+            else:
+                nr_scheda = ""
 
-                ## nr struttura
-                if self.comboBox_nr_struttura.currentText() != "":
-                    nr_struttura = int(self.comboBox_nr_struttura.currentText())
-                else:
-                    nr_struttura = ""
+            ## nr struttura
+            if self.comboBox_nr_struttura.currentText() != "":
+                nr_struttura = int(self.comboBox_nr_struttura.currentText())
+            else:
+                nr_struttura = ""
 
-                
-               
-                if self.comboBox_per_iniz.currentText() != "":
-                    periodo_iniziale = int(self.comboBox_per_iniz.currentText())
-                else:
-                    periodo_iniziale = ""
+            
+           
+            if self.comboBox_per_iniz.currentText() != "":
+                periodo_iniziale = int(self.comboBox_per_iniz.currentText())
+            else:
+                periodo_iniziale = ""
 
-                if self.comboBox_fas_iniz.currentText() != "":
-                    fase_iniziale = int(self.comboBox_fas_iniz.currentText())
-                else:
-                    fase_iniziale = ""
+            if self.comboBox_fas_iniz.currentText() != "":
+                fase_iniziale = int(self.comboBox_fas_iniz.currentText())
+            else:
+                fase_iniziale = ""
 
-                if self.comboBox_per_fin.currentText() != "":
-                    periodo_finale = int(self.comboBox_per_fin.currentText())
-                else:
-                    periodo_finale = ""
+            if self.comboBox_per_fin.currentText() != "":
+                periodo_finale = int(self.comboBox_per_fin.currentText())
+            else:
+                periodo_finale = ""
 
-                if self.comboBox_fas_fin.currentText() != "":
-                    fase_finale = int(self.comboBox_fas_fin.currentText())
-                else:
-                    fase_finale = ""
+            if self.comboBox_fas_fin.currentText() != "":
+                fase_finale = int(self.comboBox_fas_fin.currentText())
+            else:
+                fase_finale = ""
 
-                search_dict = {
-                    self.TABLE_FIELDS[0]: "'" + str(self.comboBox_sito.currentText()) + "'",  # 1 - Sito
-                    self.TABLE_FIELDS[1]: area,
-                    self.TABLE_FIELDS[2]: nr_scheda,  # 2 - Nr schede
-                    self.TABLE_FIELDS[3]: "'" + str(self.comboBox_sigla_struttura.currentText()) + "'",
-                    # 3 - Tipo struttura
-                    self.TABLE_FIELDS[4]: nr_struttura,  # 4 - Nr struttura
-                    self.TABLE_FIELDS[5]: "'" + str(self.comboBox_nr_individuo.currentText) + "'",  # 6 - Rito
-                    self.TABLE_FIELDS[6]: "'" + str(self.comboBox_rito.currentText()) + "'",  # 6 - Rito
-                    self.TABLE_FIELDS[7]: "'" + str(self.textEdit_descrizione_taf.toPlainText()) + "'",
-                    # 7 - Descrizione tafonimia
-                    self.TABLE_FIELDS[8]: "'" + str(self.textEdit_interpretazione_taf.toPlainText()) + "'",
-                    # 8 - Interpretazione tafonimia
-                    self.TABLE_FIELDS[9]: "'" + str(self.comboBox_segnacoli.currentText()) + "'",  # 9 - Segnacoli
-                    self.TABLE_FIELDS[10]: "'" + str(self.comboBox_canale_libatorio.currentText()) + "'",
-                    # 10 - Canale libatorio
-                    self.TABLE_FIELDS[11]: "'" + str(self.comboBox_oggetti_esterno.currentText()) + "'",
-                    # 11 - Oggetti esterno
-                    self.TABLE_FIELDS[12]: "'" + str(self.comboBox_conservazione_taf.currentText()) + "'",
-                    # 12 - Conservazione tomba
-                    self.TABLE_FIELDS[13]: "'" + str(self.comboBox_copertura_tipo.currentText()) + "'",
-                    # 13 - Copertura tipo
-                    self.TABLE_FIELDS[14]: "'" + str(self.comboBox_tipo_contenitore_resti.currentText()) + "'",
-                    # 14 - Tipo contenitore resti
-                    self.TABLE_FIELDS[15]: "'" + str(self.comboBox_deposizione.currentText()) + "'",
-                    # 15 - orientamento asse
-                    self.TABLE_FIELDS[16]: "'" + str(self.comboBox_sepoltura.currentText()) + "'",
-                    self.TABLE_FIELDS[17]: "'" + str(self.comboBox_corredo_presenza.currentText()) + "'",
-                    self.TABLE_FIELDS[19]: "'" +str(self.textEdit_descrizione_corredo.toPlainText())+ "'", 
-                    self.TABLE_FIELDS[20]: periodo_iniziale,  # 29 - periodo iniziale
-                    self.TABLE_FIELDS[21]: fase_iniziale,  # 10 - fase iniziale
-                    self.TABLE_FIELDS[22]: periodo_finale,  # 11 - periodo finale
-                    self.TABLE_FIELDS[23]: fase_finale,  # 12 - fase finale
-                    self.TABLE_FIELDS[24]: "'" +str(self.comboBox_datazione_estesa.currentText())+ "'"  # 10 - datazione_estesa
+            search_dict = {
+                self.TABLE_FIELDS[0]: "'" + str(self.comboBox_sito.currentText()) + "'",  
+                self.TABLE_FIELDS[1]: "'" + str(self.comboBox_area.currentText()) + "'",
+                self.TABLE_FIELDS[2]: nr_scheda,
+                self.TABLE_FIELDS[3]: "'" + str(self.comboBox_sigla_struttura.currentText()) + "'",
+                self.TABLE_FIELDS[4]: nr_struttura,
+                # self.TABLE_FIELDS[5]: "'" + str(self.comboBox_nr_individuo.currentText) + "'",
+                self.TABLE_FIELDS[6]: "'" + str(self.comboBox_rito.currentText()) + "'",
+                self.TABLE_FIELDS[7]: "'" + str(self.textEdit_descrizione_taf.toPlainText()) + "'",                
+                self.TABLE_FIELDS[8]: "'" + str(self.textEdit_interpretazione_taf.toPlainText()) + "'",                
+                self.TABLE_FIELDS[9]: "'" + str(self.comboBox_segnacoli.currentText()) + "'",
+                self.TABLE_FIELDS[10]: "'" + str(self.comboBox_canale_libatorio.currentText()) + "'",
+                #self.TABLE_FIELDS[11]: "'" + str(self.comboBox_oggetti_esterno.currentText()) + "'",
+                self.TABLE_FIELDS[12]: "'" + str(self.comboBox_conservazione_taf.currentText()) + "'",
+                self.TABLE_FIELDS[13]: "'" + str(self.comboBox_copertura_tipo.currentText()) + "'",
+                self.TABLE_FIELDS[14]: "'" + str(self.comboBox_tipo_contenitore_resti.currentText()) + "'",
+                self.TABLE_FIELDS[15]: "'" + str(self.comboBox_deposizione.currentText()) + "'",
+                self.TABLE_FIELDS[16]: "'" + str(self.comboBox_sepoltura.currentText()) + "'",
+                self.TABLE_FIELDS[17]: "'" + str(self.comboBox_corredo_presenza.currentText()) + "'",
+                self.TABLE_FIELDS[19]: "'" +str(self.textEdit_descrizione_corredo.toPlainText())+ "'", 
+                self.TABLE_FIELDS[20]: periodo_iniziale,
+                self.TABLE_FIELDS[21]: fase_iniziale, 
+                self.TABLE_FIELDS[22]: periodo_finale,
+                self.TABLE_FIELDS[23]: fase_finale,
+                self.TABLE_FIELDS[24]: "'" +str(self.comboBox_datazione_estesa.currentText())+ "'" 
                 }
+            
+            u = Utility()
+            search_dict = u.remove_empty_items_fr_dict(search_dict)
 
-                u = Utility()
-                search_dict = u.remove_empty_items_fr_dict(search_dict)
-
-                if not bool(search_dict):
-                    if self.L=='it':
-                        QMessageBox.warning(self, "ATTENZIONE", "Non è stata impostata nessuna ricerca!!!", QMessageBox.Ok)
-                    elif self.L=='de':
-                        QMessageBox.warning(self, "Warnung", "Keine Abfrage definiert!!!", QMessageBox.Ok)
-                    else:
-                        QMessageBox.warning(self, " WARNING", "No search has been set!!!", QMessageBox.Ok)      
+            if not bool(search_dict):
+                if self.L=='it':
+                    QMessageBox.warning(self, "ATTENZIONE", "Non è stata impostata nessuna ricerca!!!", QMessageBox.Ok)
+                elif self.L=='de':
+                    QMessageBox.warning(self, "Warnung", "Keine Abfrage definiert!!!", QMessageBox.Ok)
                 else:
-                    res = self.DB_MANAGER.query_bool(search_dict, self.MAPPER_TABLE_CLASS)
-                    if not bool(res):
-                        if self.L=='it':
-                            QMessageBox.warning(self, "ATTENZIONE", "Non è stato trovato nessun record!", QMessageBox.Ok)
-                        elif self.L=='de':
-                            QMessageBox.warning(self, "Warnung", "Keinen Record gefunden!", QMessageBox.Ok)
-                        else:
-                            QMessageBox.warning(self, "WARNING," "No record found!", QMessageBox.Ok) 
-
-                        self.set_rec_counter(len(self.DATA_LIST), self.REC_CORR + 1)
-                        self.DATA_LIST_REC_TEMP = self.DATA_LIST_REC_CORR = self.DATA_LIST[0]
-                        self.fill_fields(self.REC_CORR)
-                        self.BROWSE_STATUS = "b"
-                        self.label_status.setText(self.STATUS_ITEMS[self.BROWSE_STATUS])
-
-                        self.setComboBoxEnable(["self.comboBox_sito"], "False")
-                        self.setComboBoxEditable(["self.comboBox_sigla_struttura"], 1)
-                        self.setComboBoxEditable(["self.comboBox_nr_struttura"], 1)
-                        self.setComboBoxEditable(["self.comboBox_nr_individuo"], 0)
-                        self.setComboBoxEditable(["self.comboBox_oggetti_esterno"], 0)
-                        self.setComboBoxEnable(["self.lineEdit_nr_scheda"], "True")
-                        self.setComboBoxEnable(["self.comboBox_sito"], "True")
-                        self.setComboBoxEnable(["self.comboBox_sigla_struttura"], "True")
-                        self.setComboBoxEnable(["self.comboBox_nr_struttura"], "True")
-                        self.setComboBoxEnable(["self.comboBox_nr_individuo"], "False")
-                        self.setComboBoxEnable(["self.comboBox_oggetti_esterno"], "False")
-                        self.setComboBoxEnable(["self.textEdit_descrizione_taf"], "True")
-                        self.setComboBoxEnable(["self.textEdit_interpretazione_taf"], "True")
-                        self.setComboBoxEnable(["self.textEdit_descrizione_corredo"], "True")
-                        self.setTableEnable(["self.tableWidget_corredo_tipo"], "True")
+                    QMessageBox.warning(self, " WARNING", "No search has been set!!!", QMessageBox.Ok)      
+            else:
+                res = self.DB_MANAGER.query_bool(search_dict, self.MAPPER_TABLE_CLASS)
+                if not bool(res):
+                    if self.L=='it':
+                        QMessageBox.warning(self, "ATTENZIONE", str(res), QMessageBox.Ok)
+                    elif self.L=='de':
+                        QMessageBox.warning(self, "Warnung", "Keinen Record gefunden!", QMessageBox.Ok)
                     else:
-                        self.DATA_LIST = []
-                        for i in res:
-                            self.DATA_LIST.append(i)
-                        self.REC_TOT, self.REC_CORR = len(self.DATA_LIST), 0
-                        self.DATA_LIST_REC_TEMP = self.DATA_LIST_REC_CORR = self.DATA_LIST[0]
-                        self.fill_fields()
-                        self.BROWSE_STATUS = "b"
-                        self.label_status.setText(self.STATUS_ITEMS[self.BROWSE_STATUS])
-                        self.set_rec_counter(len(self.DATA_LIST), self.REC_CORR + 1)
+                        QMessageBox.warning(self, "WARNING," "No record found!", QMessageBox.Ok) 
 
-                        if self.L=='it':
-                            if self.REC_TOT == 1:
-                                strings = ("E' stato trovato", self.REC_TOT, "record")
-                                if self.toolButtonGis.isChecked():
-                                    self.pyQGIS.charge_tomba_layers(self.DATA_LIST)
-                            else:
-                                strings = ("Sono stati trovati", self.REC_TOT, "records")
-                                if self.toolButtonGis.isChecked():
-                                    self.pyQGIS.charge_tomba_layers(self.DATA_LIST)
-                        elif self.L=='de':
-                            if self.REC_TOT == 1:
-                                strings = ("Es wurde gefunden", self.REC_TOT, "record")
-                                if self.toolButtonGis.isChecked():
-                                    self.pyQGIS.charge_tomba_layers(self.DATA_LIST)
-                            else:
-                                strings = ("Sie wurden gefunden", self.REC_TOT, "records")
-                                if self.toolButtonGis.isChecked():
-                                    self.pyQGIS.charge_tomba_layers(self.DATA_LIST)
+                    self.set_rec_counter(len(self.DATA_LIST), self.REC_CORR + 1)
+                    self.DATA_LIST_REC_TEMP = self.DATA_LIST_REC_CORR = self.DATA_LIST[0]
+                    
+                    self.BROWSE_STATUS = "b"
+                    self.label_status.setText(self.STATUS_ITEMS[self.BROWSE_STATUS])
+
+                    self.setComboBoxEnable(["self.comboBox_sito"], "False")
+                    # self.setComboBoxEditable(["self.comboBox_sigla_struttura"], 1)
+                    # self.setComboBoxEditable(["self.comboBox_nr_struttura"], 1)
+                    self.setComboBoxEditable(["self.comboBox_nr_individuo"], 0)
+                    self.setComboBoxEditable(["self.comboBox_oggetti_esterno"], 0)
+                    # self.setComboBoxEnable(["self.lineEdit_nr_scheda"], "True")
+                    # self.setComboBoxEnable(["self.comboBox_sito"], "True")
+                    # self.setComboBoxEnable(["self.comboBox_sigla_struttura"], "True")
+                    # self.setComboBoxEnable(["self.comboBox_nr_struttura"], "True")
+                    self.setComboBoxEnable(["self.comboBox_nr_individuo"], "False")
+                    self.setComboBoxEnable(["self.comboBox_oggetti_esterno"], "False")
+                    # self.setComboBoxEnable(["self.textEdit_descrizione_taf"], "True")
+                    # self.setComboBoxEnable(["self.textEdit_interpretazione_taf"], "True")
+                    # self.setComboBoxEnable(["self.textEdit_descrizione_corredo"], "True")
+                    # self.setTableEnable(["self.tableWidget_corredo_tipo"], "True")
+                    self.fill_fields(self.REC_CORR)
+                else:
+                    self.DATA_LIST = []
+                    for i in res:
+                        self.DATA_LIST.append(i)
+                    self.REC_TOT, self.REC_CORR = len(self.DATA_LIST), 0
+                    self.DATA_LIST_REC_TEMP = self.DATA_LIST_REC_CORR = self.DATA_LIST[0]
+                    self.fill_fields()
+                    self.BROWSE_STATUS = "b"
+                    self.label_status.setText(self.STATUS_ITEMS[self.BROWSE_STATUS])
+                    self.set_rec_counter(len(self.DATA_LIST), self.REC_CORR + 1)
+
+                    if self.L=='it':
+                        if self.REC_TOT == 1:
+                            strings = ("E' stato trovato", self.REC_TOT, "record")
+                            if self.toolButtonGis.isChecked():
+                                self.pyQGIS.charge_tomba_layers(self.DATA_LIST)
                         else:
-                            if self.REC_TOT == 1:
-                                strings = ("It has been found", self.REC_TOT, "record")
-                                if self.toolButtonGis.isChecked():
-                                    self.pyQGIS.charge_tomba_layers(self.DATA_LIST)
-                            else:
-                                strings = ("They have been found", self.REC_TOT, "records")
-                                if self.toolButtonGis.isChecked():
-                                    self.pyQGIS.charge_tomba_layers(self.DATA_LIST)
+                            strings = ("Sono stati trovati", self.REC_TOT, "records")
+                            if self.toolButtonGis.isChecked():
+                                self.pyQGIS.charge_tomba_layers(self.DATA_LIST)
+                    elif self.L=='de':
+                        if self.REC_TOT == 1:
+                            strings = ("Es wurde gefunden", self.REC_TOT, "record")
+                            if self.toolButtonGis.isChecked():
+                                self.pyQGIS.charge_tomba_layers(self.DATA_LIST)
+                        else:
+                            strings = ("Sie wurden gefunden", self.REC_TOT, "records")
+                            if self.toolButtonGis.isChecked():
+                                self.pyQGIS.charge_tomba_layers(self.DATA_LIST)
+                    else:
+                        if self.REC_TOT == 1:
+                            strings = ("It has been found", self.REC_TOT, "record")
+                            if self.toolButtonGis.isChecked():
+                                self.pyQGIS.charge_tomba_layers(self.DATA_LIST)
+                        else:
+                            strings = ("They have been found", self.REC_TOT, "records")
+                            if self.toolButtonGis.isChecked():
+                                self.pyQGIS.charge_tomba_layers(self.DATA_LIST)
 
-                        # self.setComboBoxEnable(["self.comboBox_sito"], "False")
-                        # self.setComboBoxEditable(["self.comboBox_sigla_struttura"], 1)
-                        # self.setComboBoxEditable(["self.comboBox_nr_struttura"], 1)
-                        # self.setComboBoxEditable(["self.comboBox_nr_individuo"], 1)
-                        # self.setComboBoxEnable(["self.lineEdit_nr_scheda"], "False")
-                        # self.setComboBoxEnable(["self.comboBox_sito"], "False")
-                        # self.setComboBoxEnable(["self.comboBox_sigla_struttura"], "False")
-                        # self.setComboBoxEnable(["self.comboBox_nr_struttura"], "False")
-                        self.setComboBoxEnable(["self.comboBox_nr_individuo"], "True")
-                        self.setComboBoxEnable(["self.comboBox_oggetti_esterno"], "True")
-                        # self.setComboBoxEnable(["self.textEdit_descrizione_taf"], "True")
-                        # self.setComboBoxEnable(["self.textEdit_interpretazione_taf"], "True")
-                        # self.setComboBoxEnable(["self.textEdit_descrizione_corredo"], "True")
-                        self.setTableEnable(["self.tableWidget_corredo_tipo"], "False")
+                    self.setComboBoxEnable(["self.comboBox_sito"], "False")
+                    # self.setComboBoxEditable(["self.comboBox_sigla_struttura"], 1)
+                    # self.setComboBoxEditable(["self.comboBox_nr_struttura"], 1)
+                    # self.setComboBoxEditable(["self.comboBox_nr_individuo"], 1)
+                    # self.setComboBoxEnable(["self.lineEdit_nr_scheda"], "False")
+                    # self.setComboBoxEnable(["self.comboBox_sito"], "False")
+                    # self.setComboBoxEnable(["self.comboBox_sigla_struttura"], "False")
+                    # self.setComboBoxEnable(["self.comboBox_nr_struttura"], "False")
+                    self.setComboBoxEnable(["self.comboBox_nr_individuo"], "True")
+                    self.setComboBoxEnable(["self.comboBox_oggetti_esterno"], "True")
+                    # self.setComboBoxEnable(["self.textEdit_descrizione_taf"], "True")
+                    # self.setComboBoxEnable(["self.textEdit_interpretazione_taf"], "True")
+                    # self.setComboBoxEnable(["self.textEdit_descrizione_corredo"], "True")
+                    self.setTableEnable(["self.tableWidget_corredo_tipo"], "True")
 
-                        QMessageBox.warning(self, "Message", "%s %d %s" % strings, QMessageBox.Ok)
-            self.enable_button_search(1)
+                    QMessageBox.warning(self, "Message", "%s %d %s" % strings, QMessageBox.Ok)
+        self.enable_button_search(1)
 
-        except Exception as e:
-            QMessageBox.warning(self, "Message", str(e), QMessageBox.Ok)
+        
 
     def generate_list_pdf(self):
         data_list = []

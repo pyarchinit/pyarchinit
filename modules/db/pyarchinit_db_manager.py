@@ -1111,15 +1111,15 @@ class Pyarchinit_db_management(object):
         session.add(data)
         session.commit()
         session.close()
-    # def insert_data_conflict(self, data):
-        # Session = sessionmaker(bind=self.engine, autoflush=False)
-        # session = Session()
-        # session.begin_nested()
-        # session.merge(data)
+    def insert_data_conflict(self, data):
+        Session = sessionmaker(bind=self.engine, autoflush=False)
+        session = Session()
+        session.begin_nested()
+        session.merge(data)
        
-        # session.commit()
+        session.commit()
         
-        # session.close()
+        session.close()
     def update(self, table_class_str, id_table_str, value_id_list, columns_name_list, values_update_list):
         """
         Receives 5 values then putted in a list. The values must be passed
@@ -1570,7 +1570,7 @@ class Pyarchinit_db_management(object):
         
         id_invmat += 1
 
-        data_ins = self.insert_values_reperti(id_invmat, sito, numero_invetario, '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', None, None, '', None, '', '','0','')
+        data_ins = self.insert_values_reperti(id_invmat, sito, numero_invetario, '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', None, None, '', None, '', '','0','','')
                                            
         self.insert_data_session(data_ins)
         
@@ -1589,7 +1589,19 @@ class Pyarchinit_db_management(object):
         self.insert_data_session(data_ins)
         
         return
-    
+    def insert_struttura_records(self, sito, sigla_struttura,numero_struttura):
+        id_struttura = self.max_num_id('STRUTTURA', 'id_struttura')
+        
+        l=QgsSettings().value("locale/userLocale")[0:2]
+
+        
+        id_struttura += 1
+
+        data_ins = self.insert_struttura_values(id_struttura, sito, sigla_struttura, numero_struttura, '', '', '', '', '', '', '', '', '', '', '', '', '', '')
+                                           
+        self.insert_data_session(data_ins)
+        
+        return
     def select_like_from_db_sql(self, rapp_list, us_rapp_list):
         # this is a test
         pass

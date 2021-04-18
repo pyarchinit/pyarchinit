@@ -1490,7 +1490,7 @@ class Main(QDialog,MAIN_DIALOG_CLASS):
             
             if result==QMessageBox.Ok:
                   
-                rs= self.DB_MANAGER.insert_number_of_us_records(str(i[0]),str(i[1]),str(i[2]),'US')
+                rs= self.DB_MANAGER.insert_number_of_us_records(str(sing_tags[0]),str(sing_tags[1]),str(sing_tags[2]),'US')
                 
                 if self.L=='it':
                     QMessageBox.information(self, "Info",  "US creata", QMessageBox.Ok)
