@@ -24,6 +24,7 @@ repository=https://github.com/pyarchinit/pyarchinit
 
 changelog=release3.1
         -add subgroup layer
+        -group view period and phase
    -------------------------------------------------------------------------------
 
    release3
