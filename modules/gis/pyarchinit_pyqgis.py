@@ -25,7 +25,7 @@ from builtins import object
 from builtins import range
 from builtins import str
 from qgis.PyQt.QtWidgets import QDialog, QMessageBox, QFileDialog
-from qgis.core import QgsProject, QgsDataSourceUri, QgsVectorLayer, QgsCoordinateReferenceSystem, QgsSettings,QgsEditorWidgetSetup
+from qgis.core import QgsProject, QgsDataSourceUri, QgsVectorLayer, QgsCoordinateReferenceSystem, QgsSettings,QgsEditorWidgetSetup,QgsLayerTreeLayer
 from qgis.gui import QgsMapCanvas
 
 from ..utility.settings import Settings
@@ -194,6 +194,9 @@ class Pyarchinit_pyqgis(QDialog):
             name_layer_q='Hoch view'
         else:
             name_layer_q='Elevation view'   
+        groupName="View scheda US-Individui"
+        root = QgsProject.instance().layerTreeRoot()
+        group = root.addGroup(groupName)
         if settings.SERVER == 'sqlite':
             sqliteDB_path = os.path.join(os.sep, 'pyarchinit_DB_folder', settings.DATABASE)
             db_file_path = '{}{}'.format(self.HOME, sqliteDB_path)
@@ -208,20 +211,22 @@ class Pyarchinit_pyqgis(QDialog):
             
             
                 
-            uri.setDataSource('', 'pyarchinit_us_view', 'Geometry', gidstr, "ROWID")
+            uri.setDataSource('', 'pyarchinit_us_view', 'the_geom', gidstr, "ROWID")
             layerUS = QgsVectorLayer(uri.uri(), name_layer_s, 'spatialite')
             ###################################################################
             if layerUS.isValid():
                 # self.USLayerId = layerUS.getLayerID()
                 # style_path = '{}{}'.format(self.LAYER_STYLE_PATH_SPATIALITE, 'us_caratterizzazioni.qml')
                 # layerUS.loadNamedStyle(style_path)
-                QgsProject.instance().addMapLayers([layerUS], True)
-            
-            uri.setDataSource('', 'pyarchinit_quote_view', 'Geometry', gidstr, "ROWID")
+                group.insertChildNode(-1, QgsLayerTreeLayer(layerUS))
+                QgsProject.instance().addMapLayers([layerUS], False)
+                
+            uri.setDataSource('', 'pyarchinit_quote_view', 'the_geom', gidstr, "ROWID")
             layerQUOTE = QgsVectorLayer(uri.uri(), name_layer_q, 'spatialite')
 
             if layerQUOTE.isValid():
-                QgsProject.instance().addMapLayers([layerQUOTE], True)
+                group.insertChildNode(-1, QgsLayerTreeLayer(layerQUOTE))
+                QgsProject.instance().addMapLayers([layerQUOTE], False)
 
 
         elif settings.SERVER == 'postgres':
@@ -246,8 +251,9 @@ class Pyarchinit_pyqgis(QDialog):
                 # self.USLayerId = layerUS.getLayerID()
                 style_path = '{}{}'.format(self.LAYER_STYLE_PATH, 'us_caratterizzazioni.qml')
                 # style_path = QFileDialog.getOpenFileName(self, 'Open file', self.LAYER_STYLE_PATH)
+                group.insertChildNode(-1, QgsLayerTreeLayer(layerUS))
                 layerUS.loadNamedStyle(style_path)
-                QgsProject.instance().addMapLayers([layerUS], True)
+                QgsProject.instance().addMapLayers([layerUS], False)
 
             uri.setDataSource("public", "pyarchinit_quote_view", "the_geom", gidstr, "gid")
             layerQUOTE = QgsVectorLayer(uri.uri(), name_layer_q, "postgres")
@@ -257,7 +263,8 @@ class Pyarchinit_pyqgis(QDialog):
                 style_path = '{}{}'.format(self.LAYER_STYLE_PATH, 'stile_quote.qml')
                 layerQUOTE.loadNamedStyle(style_path)
                 try:
-                    QgsProject.instance().addMapLayers([layerQUOTE], True)
+                    group.insertChildNode(-1, QgsLayerTreeLayer(layerQUOTE))
+                    QgsProject.instance().addMapLayers([layerQUOTE], False)
                 except Exception as e:
                     pass
                     # f = open('/test_ok.txt','w')
@@ -292,6 +299,9 @@ class Pyarchinit_pyqgis(QDialog):
             name_layer_q='Hoch view'
         else:
             name_layer_q='Elevation view'
+        groupName="View scheda US-Matrix"
+        root = QgsProject.instance().layerTreeRoot()
+        group = root.addGroup(groupName)
         if settings.SERVER == 'sqlite':
             sqliteDB_path = os.path.join(os.sep, 'pyarchinit_DB_folder', settings.DATABASE)
             db_file_path = '{}{}'.format(self.HOME, sqliteDB_path)
@@ -310,7 +320,8 @@ class Pyarchinit_pyqgis(QDialog):
                 # self.USLayerId = layerUS.getLayerID()
                 style_path = '{}{}'.format(self.LAYER_STYLE_PATH_SPATIALITE, 'us_view.qml')
                 layerUS.loadNamedStyle(style_path)
-                QgsProject.instance().addMapLayers([layerUS], True)
+                group.insertChildNode(-1, QgsLayerTreeLayer(layerUS))
+                QgsProject.instance().addMapLayers([layerUS], False)
             else:
                 QMessageBox.warning(self, "TESTER", "Layer not valid", QMessageBox.Ok)
 
@@ -321,7 +332,8 @@ class Pyarchinit_pyqgis(QDialog):
                 # self.USLayerId = layerUS.getLayerID()
                 style_path = '{}{}'.format(self.LAYER_STYLE_PATH_SPATIALITE, 'quote_us_view.qml')
                 layerQUOTE.loadNamedStyle(style_path)
-                QgsProject.instance().addMapLayers([layerQUOTE], True)
+                group.insertChildNode(-1, QgsLayerTreeLayer(layerQUOTE))
+                QgsProject.instance().addMapLayers([layerQUOTE], False)
             else:
                 QMessageBox.warning(self, "TESTER", "OK Layer valid", QMessageBox.Ok)
 
@@ -345,7 +357,8 @@ class Pyarchinit_pyqgis(QDialog):
                 style_path = '{}{}'.format(self.LAYER_STYLE_PATH, 'us_caratterizzazioni.qml')
                 # style_path = QFileDialog.getOpenFileName(self, 'Open file', self.LAYER_STYLE_PATH)
                 layerUS.loadNamedStyle(style_path)
-                QgsProject.instance().addMapLayers([layerUS], True)
+                group.insertChildNode(-1, QgsLayerTreeLayer(layerUS))
+                QgsProject.instance().addMapLayers([layerUS], False)
             else:
                 QMessageBox.warning(self, "TESTER", "OK Layer US non valido", QMessageBox.Ok)
 
@@ -357,7 +370,8 @@ class Pyarchinit_pyqgis(QDialog):
                 style_path = '{}{}'.format(self.LAYER_STYLE_PATH, 'stile_quote.qml')
                 layerQUOTE.loadNamedStyle(style_path)
                 try:
-                    QgsProject.instance().addMapLayers([layerQUOTE], True)
+                    group.insertChildNode(-1, QgsLayerTreeLayer(layerQUOTE))
+                    QgsProject.instance().addMapLayers([layerQUOTE], False)
                 except Exception as e:
                     pass
                     # f = open('/test_ok.txt','w')
@@ -381,7 +395,9 @@ class Pyarchinit_pyqgis(QDialog):
 
         settings = Settings(con_sett)
         settings.set_configuration()
-        
+        groupName="View scheda Documentazione"
+        root = QgsProject.instance().layerTreeRoot()
+        group = root.addGroup(groupName)
 
         if settings.SERVER == 'sqlite':
             sqliteDB_path = os.path.join(os.sep, 'pyarchinit_DB_folder', settings.DATABASE)
@@ -412,7 +428,8 @@ class Pyarchinit_pyqgis(QDialog):
             layerPos = QgsVectorLayer(uri.uri(), layer_name_pos, 'spatialite')
             if layerPos.isValid():
                 QMessageBox.warning(self, "TESTER", "Layer Sezioni valido", QMessageBox.Ok)
-                QgsProject.instance().addMapLayers([layerPos], True)
+                group.insertChildNode(-1, QgsLayerTreeLayer(layerPos))
+                QgsProject.instance().addMapLayers([layerPos], False)
            
             else:
                 QMessageBox.warning(self, "TESTER", "Layer Sezioni non valido", QMessageBox.Ok)
@@ -446,7 +463,8 @@ class Pyarchinit_pyqgis(QDialog):
             layerPos = QgsVectorLayer(uri.uri(), layer_name_pos, 'spatialite')
             if layerPos.isValid():
                 QMessageBox.warning(self, "TESTER", "Layer Registro Documentazione valido", QMessageBox.Ok)
-                QgsProject.instance().addMapLayers([layerPos], True)
+                group.insertChildNode(-1, QgsLayerTreeLayer(layerPos))
+                QgsProject.instance().addMapLayers([layerPos], False)
            
             else:
                 QMessageBox.warning(self, "TESTER", "Layer Registro Documentazione non valido", QMessageBox.Ok)
@@ -478,7 +496,8 @@ class Pyarchinit_pyqgis(QDialog):
            
             if layerNeg.isValid():
                 QMessageBox.warning(self, "TESTER", "OK Layer US Negative valido", QMessageBox.Ok)
-                QgsProject.instance().addMapLayers([layerNeg], True)
+                group.insertChildNode(-1, QgsLayerTreeLayer(layerNeg))
+                QgsProject.instance().addMapLayers([layerNeg], False)
               
                 
             else:
@@ -504,9 +523,10 @@ class Pyarchinit_pyqgis(QDialog):
             
             layerPos = QgsVectorLayer(uri.uri(), layer_name_pos, 'spatialite')
 
-            if layerPos.isValid():
+            if layerPos1.isValid():
                 QMessageBox.warning(self, "TESTER", "OK Layer US valido", QMessageBox.Ok)
-                QgsProject.instance().addMapLayers([layerPos], True)
+                group.insertChildNode(-1, QgsLayerTreeLayer(layerPos))
+                QgsProject.instance().addMapLayers([layerPos], False)
                 self.canvas = QgsMapCanvas()
                 self.canvas.setExtent(layerPos.extent())
             
@@ -543,7 +563,8 @@ class Pyarchinit_pyqgis(QDialog):
 
             if layerPos.isValid():
                 QMessageBox.warning(self, "TESTER", "OK Layer US valido", QMessageBox.Ok)
-                QgsProject.instance().addMapLayers([layerPos], True)
+                group.insertChildNode(-1, QgsLayerTreeLayer(layerPos))
+                QgsProject.instance().addMapLayers([layerPos], False)
                 self.canvas = QgsMapCanvas()
                 self.canvas.setExtent(layerPos.extent())
 
@@ -573,7 +594,8 @@ class Pyarchinit_pyqgis(QDialog):
 
             if layerNeg.isValid():
                 QMessageBox.warning(self, "TESTER", "OK Layer US Negative valido", QMessageBox.Ok)
-                QgsProject.instance().addMapLayers([layerNeg], True)
+                group.insertChildNode(-1, QgsLayerTreeLayer(layerNeg))
+                QgsProject.instance().addMapLayers([layerNeg], False)
 
               
 
@@ -600,7 +622,8 @@ class Pyarchinit_pyqgis(QDialog):
             layerPos = QgsVectorLayer(uri.uri(), layer_name_pos, 'postgres')
             if layerPos.isValid():
                 QMessageBox.warning(self, "TESTER", "OK Layer US valido", QMessageBox.Ok)
-                QgsProject.instance().addMapLayers([layerPos], True)
+                group.insertChildNode(-1, QgsLayerTreeLayer(layerPos))
+                QgsProject.instance().addMapLayers([layerPos], False)
                 #self.canvas = QgsMapCanvas()
                 #self.canvas.setExtent(layerPos.extent())
             else:
@@ -659,6 +682,9 @@ class Pyarchinit_pyqgis(QDialog):
         else:
             name_layer_s_n='SU negative view'   
             
+        groupName="View scheda US-Documentazione"
+        root = QgsProject.instance().layerTreeRoot()
+        group = root.addGroup(groupName)
         if settings.SERVER == 'sqlite':
             sqliteDB_path = os.path.join(os.sep, 'pyarchinit_DB_folder', settings.DATABASE)
             db_file_path = '{}{}'.format(self.HOME, sqliteDB_path)
@@ -682,7 +708,8 @@ class Pyarchinit_pyqgis(QDialog):
                 # style_path = QtGui.QFileDialog.getOpenFileName(self, 'Open file',self.LAYER_STYLE_PATH)
 
                 # layerUS.loadNamedStyle(style_path)
-                QgsProject.instance().addMapLayers([layerUS], True)
+                group.insertChildNode(-1, QgsLayerTreeLayer(layerUS))
+                QgsProject.instance().addMapLayers([layerUS], False)
                 # originalSubsetString = layerUS.subsetString() 4D dimension
                 # newSubSetString = "%s OR id_us = '0'" % (originalSubsetString) 4D dimension
 
@@ -707,7 +734,8 @@ class Pyarchinit_pyqgis(QDialog):
                 # style_path = QtGui.QFileDialog.getOpenFileName(self, 'Open file',self.LAYER_STYLE_PATH)
 
                 # layerUS.loadNamedStyle(style_path)
-                QgsProject.instance().addMapLayers([layerUSneg], True)
+                group.insertChildNode(-1, QgsLayerTreeLayer(layerUSneg))
+                QgsProject.instance().addMapLayers([layerUSneg], False)
                 # originalSubsetString = layerUS.subsetString() 4D dimension
                 # newSubSetString = "%s OR id_us = '0'" % (originalSubsetString) 4D dimension
 
@@ -732,7 +760,8 @@ class Pyarchinit_pyqgis(QDialog):
                 # style_path = QtGui.QFileDialog.getOpenFileName(self, 'Open file',self.LAYER_STYLE_PATH)
 
                 # layerUS.loadNamedStyle(style_path)
-                QgsProject.instance().addMapLayers([layerUS], True)
+                group.insertChildNode(-1, QgsLayerTreeLayer(layerUS))
+                QgsProject.instance().addMapLayers([layerUS], False)
                 # originalSubsetString = layerUS.subsetString() 4D dimension
                 # newSubSetString = "%s OR id_us = '0'" % (originalSubsetString) 4D dimension
 
@@ -750,7 +779,7 @@ class Pyarchinit_pyqgis(QDialog):
                 #self.USLayerId = layerUS.getLayerID()
                 style_path = '{}{}'.format(self.LAYER_STYLE_PATH_SPATIALITE, 'quote_us_view.qml')
                 layerQUOTE.loadNamedStyle(style_path)
-                QgsProject.instance().addMapLayers([layerQUOTE], True)
+                QgsProject.instance().addMapLayers([layerQUOTE], False)
             else:
                 QMessageBox.warning(self, "TESTER", "OK Layer Quote non valido",QMessageBox.Ok)
             """
@@ -779,7 +808,8 @@ class Pyarchinit_pyqgis(QDialog):
                 # style_path = QtGui.QFileDialog.getOpenFileName(self, 'Open file',self.LAYER_STYLE_PATH)
 
                 # layerUS.loadNamedStyle(style_path)
-                QgsProject.instance().addMapLayers([layerUS], True)
+                group.insertChildNode(-1, QgsLayerTreeLayer(layerUS))
+                QgsProject.instance().addMapLayers([layerUS], False)
                 # originalSubsetString = layerUS.subsetString() 4D dimension
                 # newSubSetString = "%s OR id_us = '0'" % (originalSubsetString) 4D dimension
 
@@ -804,7 +834,8 @@ class Pyarchinit_pyqgis(QDialog):
                 # style_path = QtGui.QFileDialog.getOpenFileName(self, 'Open file',self.LAYER_STYLE_PATH)
 
                 # layerUS.loadNamedStyle(style_path)
-                QgsProject.instance().addMapLayers([layerUSneg], True)
+                group.insertChildNode(-1, QgsLayerTreeLayer(layerUSneg))
+                QgsProject.instance().addMapLayers([layerUSneg], False)
                 # originalSubsetString = layerUS.subsetString() 4D dimension
                 # newSubSetString = "%s OR id_us = '0'" % (originalSubsetString) 4D dimension
 
@@ -829,7 +860,8 @@ class Pyarchinit_pyqgis(QDialog):
                 # style_path = QtGui.QFileDialog.getOpenFileName(self, 'Open file',self.LAYER_STYLE_PATH)
 
                 # layerUS.loadNamedStyle(style_path)
-                QgsProject.instance().addMapLayers([layerUS], True)
+                group.insertChildNode(-1, QgsLayerTreeLayer(layerUS))
+                QgsProject.instance().addMapLayers([layerUS], False)
                 # originalSubsetString = layerUS.subsetString() 4D dimension
                 # newSubSetString = "%s OR id_us = '0'" % (originalSubsetString) 4D dimension
 
@@ -847,7 +879,7 @@ class Pyarchinit_pyqgis(QDialog):
                 #self.USLayerId = layerUS.getLayerID()
                 style_path = '{}{}'.format(self.LAYER_STYLE_PATH_SPATIALITE, 'quote_us_view.qml')
                 layerQUOTE.loadNamedStyle(style_path)
-                QgsProject.instance().addMapLayers([layerQUOTE], True)
+                QgsProject.instance().addMapLayers([layerQUOTE], False)
             else:
                 QMessageBox.warning(self, "TESTER", "OK Layer Quote non valido",QMessageBox.Ok)
             """
@@ -880,6 +912,9 @@ class Pyarchinit_pyqgis(QDialog):
             name_layer_q='Hoch view'
         else:
             name_layer_q='Elevation view'
+        groupName="View scheda US"
+        root = QgsProject.instance().layerTreeRoot()
+        group = root.addGroup(groupName)
         if settings.SERVER == 'sqlite':
             sqliteDB_path = os.path.join(os.sep, 'pyarchinit_DB_folder', settings.DATABASE)
             db_file_path = '{}{}'.format(self.HOME, sqliteDB_path)
@@ -901,9 +936,11 @@ class Pyarchinit_pyqgis(QDialog):
                 # self.USLayerId = layerUS.getLayerID()
                 style_path = '{}{}'.format(self.LAYER_STYLE_PATH_SPATIALITE, 'us_view.qml')
                 # style_path = QtGui.QFileDialog.getOpenFileName(self, 'Open file',self.LAYER_STYLE_PATH)
+                
 
+                group.insertChildNode(-1, QgsLayerTreeLayer(layerUS))
                 layerUS.loadNamedStyle(style_path)
-                QgsProject.instance().addMapLayers([layerUS], True)
+                QgsProject.instance().addMapLayers([layerUS], False)
                 # originalSubsetString = layerUS.subsetString() 4D dimension
                 # newSubSetString = "%s OR id_us = '0'" % (originalSubsetString) 4D dimension
 
@@ -918,8 +955,9 @@ class Pyarchinit_pyqgis(QDialog):
             if layerQUOTE.isValid():
                 # self.USLayerId = layerUS.getLayerID()
                 style_path = '{}{}'.format(self.LAYER_STYLE_PATH_SPATIALITE, 'quote_us_view.qml')
+                group.insertChildNode(-1, QgsLayerTreeLayer(layerQUOTE))
                 layerQUOTE.loadNamedStyle(style_path)
-                QgsProject.instance().addMapLayers([layerQUOTE], True)
+                QgsProject.instance().addMapLayers([layerQUOTE], False)
             else:
                 QMessageBox.warning(self, "TESTER", "OK Layer not valid", QMessageBox.Ok)
 
@@ -946,7 +984,8 @@ class Pyarchinit_pyqgis(QDialog):
                 style_path = '{}{}'.format(self.LAYER_STYLE_PATH, 'us_caratterizzazioni.qml')
                 # style_path = QFileDialog.getOpenFileName(self, 'Open file', self.LAYER_STYLE_PATH)
                 layerUS.loadNamedStyle(style_path)
-                QgsProject.instance().addMapLayers([layerUS], True)
+                group.insertChildNode(-1, QgsLayerTreeLayer(layerUS))
+                QgsProject.instance().addMapLayers([layerUS], False)
             else:
                 QMessageBox.warning(self, "TESTER", "OK Layer US non valido", QMessageBox.Ok)
 
@@ -958,7 +997,8 @@ class Pyarchinit_pyqgis(QDialog):
                 style_path = '{}{}'.format(self.LAYER_STYLE_PATH, 'stile_quote.qml')
                 layerQUOTE.loadNamedStyle(style_path)
                 try:
-                    QgsProject.instance().addMapLayers([layerQUOTE], True)
+                    group.insertChildNode(-1, QgsLayerTreeLayer(layerQUOTE))
+                    QgsProject.instance().addMapLayers([layerQUOTE], False)
                 except Exception as e:
                     pass
                     # f = open('/test_ok.txt','w')
@@ -983,6 +1023,9 @@ class Pyarchinit_pyqgis(QDialog):
         conf.close()
         settings = Settings(con_sett)
         settings.set_configuration()
+        groupName="View scheda Periodo"
+        root = QgsProject.instance().layerTreeRoot()
+        group = root.addGroup(groupName)
         if self.L=='it':
             layer_name_label_us = "Unita Stratigrafiche - Per: %s / Fas: %s" % (self.per_label, self.fas_label)
             layer_name_label_quote = "Quote US - Per: %s / Fas: %s" % (self.per_label, self.fas_label)
@@ -1013,7 +1056,8 @@ class Pyarchinit_pyqgis(QDialog):
                 # self.USLayerId = layerUS.getLayerID()
                 style_path = '{}{}'.format(self.LAYER_STYLE_PATH_SPATIALITE, 'us_view.qml')
                 layerUS.loadNamedStyle(style_path)
-                QgsProject.instance().addMapLayers([layerUS], True)
+                group.insertChildNode(-1, QgsLayerTreeLayer(layerUS))
+                QgsProject.instance().addMapLayers([layerUS], False)
             else:
                 QMessageBox.warning(self, "TESTER", "OK Layer US non valido", QMessageBox.Ok)
 
@@ -1024,7 +1068,8 @@ class Pyarchinit_pyqgis(QDialog):
                 # self.USLayerId = layerUS.getLayerID()
                 style_path = '{}{}'.format(self.LAYER_STYLE_PATH_SPATIALITE, 'quote_us_view.qml')
                 layerQUOTE.loadNamedStyle(style_path)
-                QgsProject.instance().addMapLayers([layerQUOTE], True)
+                group.insertChildNode(-1, QgsLayerTreeLayer(layerQUOTE))
+                QgsProject.instance().addMapLayers([layerQUOTE], False)
 
         elif settings.SERVER == 'postgres':
             uri = QgsDataSourceUri()
@@ -1041,7 +1086,8 @@ class Pyarchinit_pyqgis(QDialog):
                 style_path = '{}{}'.format(self.LAYER_STYLE_PATH, 'us_caratterizzazioni.qml')
                 # style_path = QFileDialog.getOpenFileName(self, 'Open file', self.LAYER_STYLE_PATH)
                 layerUS.loadNamedStyle(style_path)
-                QgsProject.instance().addMapLayers([layerUS], True)
+                group.insertChildNode(-1, QgsLayerTreeLayer(layerUS))
+                QgsProject.instance().addMapLayers([layerUS], False)
             else:
                 QMessageBox.warning(self, "TESTER", "OK Layer US non valido", QMessageBox.Ok)
 
@@ -1052,7 +1098,8 @@ class Pyarchinit_pyqgis(QDialog):
                 style_path = '{}{}'.format(self.LAYER_STYLE_PATH, 'stile_quote.qml')
                 layerQUOTE.loadNamedStyle(style_path)
                 try:
-                    QgsProject.instance().addMapLayers([layerQUOTE], True)
+                    group.insertChildNode(-1, QgsLayerTreeLayer(layerQUOTE))
+                    QgsProject.instance().addMapLayers([layerQUOTE], False)
                 except Exception as e:
                     pass
                     # f = open('/test_ok.txt','w')
@@ -1314,7 +1361,9 @@ class Pyarchinit_pyqgis(QDialog):
 
         settings = Settings(con_sett)
         settings.set_configuration()
-
+        groupName="Layer Archeologici da vettorializzare"
+        root = QgsProject.instance().layerTreeRoot()
+        group = root.addGroup(groupName)
         if settings.SERVER == 'sqlite':
             sqliteDB_path = os.path.join(os.sep, 'pyarchinit_DB_folder', settings.DATABASE)
             db_file_path = '{}{}'.format(self.HOME, sqliteDB_path)
@@ -1335,7 +1384,8 @@ class Pyarchinit_pyqgis(QDialog):
                     # self.USLayerId = layerUS.getLayerID()
                     ##style_path = '{}{}'.format(self.LAYER_STYLE_PATH_SPATIALITE, 'us_view.qml')
                     ##ayerUS.loadNamedStyle(style_path)
-                    QgsProject.instance().addMapLayers([layer], True)
+                    group.insertChildNode(-1, QgsLayerTreeLayer(layer))
+                    QgsProject.instance().addMapLayers([layer], False)
                 else:
                     QMessageBox.warning(self, "TESTER", "Layer not valid: " + str(layer_name), QMessageBox.Ok)
 
@@ -1368,7 +1418,8 @@ class Pyarchinit_pyqgis(QDialog):
                     # self.USLayerId = layerUS.getLayerID()
                     ##style_path = '{}{}'.format(self.LAYER_STYLE_PATH_SPATIALITE, 'us_view.qml')
                     ##ayerUS.loadNamedStyle(style_path)
-                    QgsProject.instance().addMapLayers([layer], True)
+                    group.insertChildNode(-1, QgsLayerTreeLayer(layer))
+                    QgsProject.instance().addMapLayers([layer], False)
                 else:
                     QMessageBox.warning(self, "TESTER", "Layer not valid", QMessageBox.Ok)
         
@@ -1385,7 +1436,9 @@ class Pyarchinit_pyqgis(QDialog):
 
         settings = Settings(con_sett)
         settings.set_configuration()
-
+        groupName="Layer Archelogici filtrati da vettorializzare"
+        root = QgsProject.instance().layerTreeRoot()
+        group = root.addGroup(groupName)
         if settings.SERVER == 'sqlite':
             sqliteDB_path = os.path.join(os.sep, 'pyarchinit_DB_folder', settings.DATABASE)
             db_file_path = '{}{}'.format(self.HOME, sqliteDB_path)
@@ -1409,7 +1462,8 @@ class Pyarchinit_pyqgis(QDialog):
                     ##style_path = '{}{}'.format(self.LAYER_STYLE_PATH_SPATIALITE, 'us_view.qml')
                     ##ayerUS.loadNamedStyle(style_path)
                     self.iface.mapCanvas().setExtent(layer.extent())
-                    QgsProject.instance().addMapLayers([layer], True)
+                    group.insertChildNode(-1, QgsLayerTreeLayer(layer))
+                    QgsProject.instance().addMapLayers([layer], False)
                 else:
                     QMessageBox.warning(self, "TESTER", "Layer not valid: {}".format(layer.name()), QMessageBox.Ok)
 
@@ -1428,7 +1482,8 @@ class Pyarchinit_pyqgis(QDialog):
                 # self.USLayerId = layerUS.getLayerID()
                 ##style_path = '{}{}'.format(self.LAYER_STYLE_PATH_SPATIALITE, 'us_view.qml')
                 ##ayerUS.loadNamedStyle(style_path)
-                QgsProject.instance().addMapLayers([layer], True)
+                group.insertChildNode(-1, QgsLayerTreeLayer(layer))
+                QgsProject.instance().addMapLayers([layer], False)
             else:
                 QMessageBox.warning(self, "TESTER", "Layer not valid", QMessageBox.Ok)
 
@@ -1446,7 +1501,8 @@ class Pyarchinit_pyqgis(QDialog):
                 # self.USLayerId = layerUS.getLayerID()
                 ##style_path = '{}{}'.format(self.LAYER_STYLE_PATH_SPATIALITE, 'us_view.qml')
                 ##ayerUS.loadNamedStyle(style_path)
-                QgsProject.instance().addMapLayers([layer], True)
+                group.insertChildNode(-1, QgsLayerTreeLayer(layer))
+                QgsProject.instance().addMapLayers([layer], False)
             else:
                 QMessageBox.warning(self, "TESTER", "Layer not valid", QMessageBox.Ok)
 
@@ -1461,7 +1517,8 @@ class Pyarchinit_pyqgis(QDialog):
             layer = eval(cmq_set_vector_layer)
 
             if layer.isValid():
-                QgsProject.instance().addMapLayers([layer], True)
+                group.insertChildNode(-1, QgsLayerTreeLayer(layer))
+                QgsProject.instance().addMapLayers([layer], False)
             else:
                 QMessageBox.warning(self, "TESTER", "Layer not valid", QMessageBox.Ok)
             
@@ -1476,7 +1533,8 @@ class Pyarchinit_pyqgis(QDialog):
             layer = eval(cmq_set_vector_layer)
 
             if layer.isValid():
-                QgsProject.instance().addMapLayers([layer], True)
+                group.insertChildNode(-1, QgsLayerTreeLayer(layer))
+                QgsProject.instance().addMapLayers([layer], False)
             else:
                 QMessageBox.warning(self, "TESTER", "Layer not valid", QMessageBox.Ok)
             
@@ -1491,7 +1549,8 @@ class Pyarchinit_pyqgis(QDialog):
             layer = eval(cmq_set_vector_layer)
 
             if layer.isValid():
-                QgsProject.instance().addMapLayers([layer], True)
+                group.insertChildNode(-1, QgsLayerTreeLayer(layer))
+                QgsProject.instance().addMapLayers([layer], False)
             else:
                 QMessageBox.warning(self, "TESTER", "Layer not valid", QMessageBox.Ok)
             
@@ -1508,7 +1567,8 @@ class Pyarchinit_pyqgis(QDialog):
             layer = eval(cmq_set_vector_layer)
 
             if layer.isValid():
-                QgsProject.instance().addMapLayers([layer], True)
+                group.insertChildNode(-1, QgsLayerTreeLayer(layer))
+                QgsProject.instance().addMapLayers([layer], False)
             else:
                 QMessageBox.warning(self, "TESTER", "Layer not valid", QMessageBox.Ok)    
             
@@ -1524,7 +1584,8 @@ class Pyarchinit_pyqgis(QDialog):
             layer = eval(cmq_set_vector_layer)
 
             if layer.isValid():
-                QgsProject.instance().addMapLayers([layer], True)
+                group.insertChildNode(-1, QgsLayerTreeLayer(layer))
+                QgsProject.instance().addMapLayers([layer], False)
             else:
                 QMessageBox.warning(self, "TESTER", "Layer not valid", QMessageBox.Ok)
             
@@ -1542,7 +1603,8 @@ class Pyarchinit_pyqgis(QDialog):
                 # self.USLayerId = layerUS.getLayerID()
                 ##style_path = '{}{}'.format(self.LAYER_STYLE_PATH_SPATIALITE, 'us_view.qml')
                 ##ayerUS.loadNamedStyle(style_path)
-                QgsProject.instance().addMapLayers([layer], True)
+                group.insertChildNode(-1, QgsLayerTreeLayer(layer))
+                QgsProject.instance().addMapLayers([layer], False)
             else:
                 QMessageBox.warning(self, "TESTER", "Layer not valid", QMessageBox.Ok)
             
@@ -1559,7 +1621,8 @@ class Pyarchinit_pyqgis(QDialog):
             layer = eval(cmq_set_vector_layer)
 
             if layer.isValid():
-                QgsProject.instance().addMapLayers([layer], True)
+                group.insertChildNode(-1, QgsLayerTreeLayer(layer))
+                QgsProject.instance().addMapLayers([layer], False)
             else:
                 QMessageBox.warning(self, "TESTER", "Layer not valid", QMessageBox.Ok)
             
@@ -1574,7 +1637,8 @@ class Pyarchinit_pyqgis(QDialog):
             layer = eval(cmq_set_vector_layer)
 
             if layer.isValid():
-                QgsProject.instance().addMapLayers([layer], True)
+                group.insertChildNode(-1, QgsLayerTreeLayer(layer))
+                QgsProject.instance().addMapLayers([layer], False)
             else:
                 QMessageBox.warning(self, "TESTER", "Layer not valid", QMessageBox.Ok)
 
@@ -1602,7 +1666,8 @@ class Pyarchinit_pyqgis(QDialog):
                     # self.USLayerId = layerUS.getLayerID()
                     ##style_path = '{}{}'.format(self.LAYER_STYLE_PATH_SPATIALITE, 'us_view.qml')
                     ##ayerUS.loadNamedStyle(style_path)
-                    QgsProject.instance().addMapLayers([layer], True)
+                    group.insertChildNode(-1, QgsLayerTreeLayer(layer))
+                    QgsProject.instance().addMapLayers([layer], False)
                 else:
                     QMessageBox.warning(self, "TESTER", "Layer not valid", QMessageBox.Ok)
 
@@ -1620,7 +1685,8 @@ class Pyarchinit_pyqgis(QDialog):
 
             if layer.isValid():
                 layer.setCrs(srs)
-                QgsProject.instance().addMapLayers([layer], True)
+                group.insertChildNode(-1, QgsLayerTreeLayer(layer))
+                QgsProject.instance().addMapLayers([layer], False)
             else:
                 QMessageBox.warning(self, "TESTER", "Layer not valid", QMessageBox.Ok)
             
@@ -1636,7 +1702,8 @@ class Pyarchinit_pyqgis(QDialog):
 
             if layer.isValid():
                 layer.setCrs(srs)
-                QgsProject.instance().addMapLayers([layer], True)
+                group.insertChildNode(-1, QgsLayerTreeLayer(layer))
+                QgsProject.instance().addMapLayers([layer], False)
             else:
                 QMessageBox.warning(self, "TESTER", "Layer not valid", QMessageBox.Ok)
                 
@@ -1653,7 +1720,8 @@ class Pyarchinit_pyqgis(QDialog):
 
             if layer.isValid():
                 layer.setCrs(srs)
-                QgsProject.instance().addMapLayers([layer], True)
+                group.insertChildNode(-1, QgsLayerTreeLayer(layer))
+                QgsProject.instance().addMapLayers([layer], False)
             else:
                 QMessageBox.warning(self, "TESTER", "Layer not valid", QMessageBox.Ok)
 
@@ -1668,7 +1736,8 @@ class Pyarchinit_pyqgis(QDialog):
             layer = eval(cmq_set_vector_layer)
 
             if layer.isValid():
-                QgsProject.instance().addMapLayers([layer], True)
+                group.insertChildNode(-1, QgsLayerTreeLayer(layer))
+                QgsProject.instance().addMapLayers([layer], False)
             else:
                 QMessageBox.warning(self, "TESTER", "Layer not valid", QMessageBox.Ok)
             
@@ -1686,7 +1755,8 @@ class Pyarchinit_pyqgis(QDialog):
                 # self.USLayerId = layerUS.getLayerID()
                 ##style_path = '{}{}'.format(self.LAYER_STYLE_PATH_SPATIALITE, 'us_view.qml')
                 ##ayerUS.loadNamedStyle(style_path)
-                QgsProject.instance().addMapLayers([layer], True)
+                group.insertChildNode(-1, QgsLayerTreeLayer(layer))
+                QgsProject.instance().addMapLayers([layer], False)
             else:
                 QMessageBox.warning(self, "TESTER", "Layer not valid", QMessageBox.Ok)  
             
@@ -1702,7 +1772,8 @@ class Pyarchinit_pyqgis(QDialog):
 
             if layer.isValid():
                 layer.setCrs(srs)
-                QgsProject.instance().addMapLayers([layer], True)
+                group.insertChildNode(-1, QgsLayerTreeLayer(layer))
+                QgsProject.instance().addMapLayers([layer], False)
             else:
                 QMessageBox.warning(self, "TESTER", "Layer not valid", QMessageBox.Ok)
 
@@ -1719,7 +1790,8 @@ class Pyarchinit_pyqgis(QDialog):
 
             if layer.isValid():
                 layer.setCrs(srs)
-                QgsProject.instance().addMapLayers([layer], True)
+                group.insertChildNode(-1, QgsLayerTreeLayer(layer))
+                QgsProject.instance().addMapLayers([layer], False)
             else:
                 QMessageBox.warning(self, "TESTER", "Layer not valid", QMessageBox.Ok)
 
@@ -1735,7 +1807,8 @@ class Pyarchinit_pyqgis(QDialog):
 
             if layer.isValid():
                 layer.setCrs(srs)
-                QgsProject.instance().addMapLayers([layer], True)
+                group.insertChildNode(-1, QgsLayerTreeLayer(layer))
+                QgsProject.instance().addMapLayers([layer], False)
             else:
                 QMessageBox.warning(self, "TESTER", "Layer not valid", QMessageBox.Ok)
 
@@ -1757,7 +1830,9 @@ class Pyarchinit_pyqgis(QDialog):
 
         settings = Settings(con_sett)
         settings.set_configuration()
-
+        groupName="View Localizzazione Sito archeologico"
+        root = QgsProject.instance().layerTreeRoot()
+        group = root.addGroup(groupName)
         if settings.SERVER == 'sqlite':
             sqliteDB_path = os.path.join(os.sep, 'pyarchinit_DB_folder', settings.DATABASE)
             db_file_path = '{}{}'.format(self.HOME, sqliteDB_path)
@@ -1777,7 +1852,8 @@ class Pyarchinit_pyqgis(QDialog):
                 QMessageBox.warning(self, "TESTER", "OK Layer Sito valido", QMessageBox.Ok)
 
                 self.iface.mapCanvas().setExtent(layerSITE.extent())
-                QgsProject.instance().addMapLayers([layerSITE], True)
+                group.insertChildNode(-1, QgsLayerTreeLayer(layerSITE))
+                QgsProject.instance().addMapLayers([layerSITE], False)
             else:
                 QMessageBox.warning(self, "TESTER", "Layer US non valido", QMessageBox.Ok)
 
@@ -1801,7 +1877,8 @@ class Pyarchinit_pyqgis(QDialog):
                 ##              style_path = '{}{}'.format(self.LAYER_STYLE_PATH_SPATIALITE, 'us_view.qml')
                 ##              layerUS.loadNamedStyle(style_path)
                 self.iface.mapCanvas().setExtent(layerSITE.extent())
-                QgsProject.instance().addMapLayers([layerSITE], True)
+                group.insertChildNode(-1, QgsLayerTreeLayer(layerSITE))
+                QgsProject.instance().addMapLayers([layerSITE], False)
             else:
                 QMessageBox.warning(self, "TESTER", "Layer US non valido", QMessageBox.Ok)
     def charge_reperti_layers(self, data):
@@ -1819,7 +1896,9 @@ class Pyarchinit_pyqgis(QDialog):
 
         settings = Settings(con_sett)
         settings.set_configuration()
-        
+        groupName="View scheda Reperti"
+        root = QgsProject.instance().layerTreeRoot()
+        group = root.addGroup(groupName)
         if self.L=='it':
             name_layer='Reperti view'
         elif self.L=='de':
@@ -1846,8 +1925,8 @@ class Pyarchinit_pyqgis(QDialog):
 
                 
 
-                
-                QgsProject.instance().addMapLayers([layerUS], True)
+                group.insertChildNode(-1, QgsLayerTreeLayer(layerUS))
+                QgsProject.instance().addMapLayers([layerUS], False)
             else:
                 QMessageBox.warning(self, "TESTER", "OK Layer not valid", QMessageBox.Ok)    
             
@@ -1872,8 +1951,8 @@ class Pyarchinit_pyqgis(QDialog):
             if layerUS.isValid():
                 layerUS.setCrs(srs)
                 
-               
-                QgsProject.instance().addMapLayers([layerUS], True)
+                group.insertChildNode(-1, QgsLayerTreeLayer(layerUS))
+                QgsProject.instance().addMapLayers([layerUS], False)
            
             else:
                 QMessageBox.warning(self, "TESTER", "OK Layer not valid", QMessageBox.Ok)
@@ -1893,7 +1972,9 @@ class Pyarchinit_pyqgis(QDialog):
 
         settings = Settings(con_sett)
         settings.set_configuration()
-        
+        groupName="View scheda Tomba"
+        root = QgsProject.instance().layerTreeRoot()
+        group = root.addGroup(groupName)
         if self.L=='it':
             name_layer='Tomba view'
         elif self.L=='de':
@@ -1920,8 +2001,8 @@ class Pyarchinit_pyqgis(QDialog):
 
                 
 
-                
-                QgsProject.instance().addMapLayers([layerUS], True)
+                group.insertChildNode(-1, QgsLayerTreeLayer(layerUS))
+                QgsProject.instance().addMapLayers([layerUS], False)
             else:
                 QMessageBox.warning(self, "TESTER", "OK Layer not valid", QMessageBox.Ok)    
             
@@ -1946,8 +2027,8 @@ class Pyarchinit_pyqgis(QDialog):
             if layerUS.isValid():
                 layerUS.setCrs(srs)
                 
-               
-                QgsProject.instance().addMapLayers([layerUS], True)
+                group.insertChildNode(-1, QgsLayerTreeLayer(layerUS))
+                QgsProject.instance().addMapLayers([layerUS], False)
            
             else:
                 QMessageBox.warning(self, "TESTER", "OK Layer not valid", QMessageBox.Ok)
@@ -1967,7 +2048,9 @@ class Pyarchinit_pyqgis(QDialog):
 
         settings = Settings(con_sett)
         settings.set_configuration()
-
+        groupName="View scheda Struttura"
+        root = QgsProject.instance().layerTreeRoot()
+        group = root.addGroup(groupName)
         if settings.SERVER == 'sqlite':
             sqliteDB_path = os.path.join(os.sep, 'pyarchinit_DB_folder', settings.DATABASE)
             db_file_path = '{}{}'.format(self.HOME, sqliteDB_path)
@@ -1987,7 +2070,8 @@ class Pyarchinit_pyqgis(QDialog):
                 QMessageBox.warning(self, "TESTER", "OK Layer Struttura valido", QMessageBox.Ok)
 
                 self.iface.mapCanvas().setExtent(layerSTRUTTURA.extent())
-                QgsProject.instance().addMapLayers([layerSTRUTTURA], True)
+                group.insertChildNode(-1, QgsLayerTreeLayer(layerSTRUTTURA))
+                QgsProject.instance().addMapLayers([layerSTRUTTURA], False)
             else:
                 QMessageBox.warning(self, "TESTER", "Layer Struttura non valido", QMessageBox.Ok)
 
@@ -2009,7 +2093,8 @@ class Pyarchinit_pyqgis(QDialog):
                 QMessageBox.warning(self, "TESTER", "OK Layer Struttura valido", QMessageBox.Ok)
 
                 self.iface.mapCanvas().setExtent(layerSTRUTTURA.extent())
-                QgsProject.instance().addMapLayers([layerSTRUTTURA], True)
+                group.insertChildNode(-1, QgsLayerTreeLayer(layerSTRUTTURA))
+                QgsProject.instance().addMapLayers([layerSTRUTTURA], False)
             else:
                 QMessageBox.warning(self, "TESTER", "Layer Struttura non valido", QMessageBox.Ok)
 
@@ -2028,7 +2113,9 @@ class Pyarchinit_pyqgis(QDialog):
 
         settings = Settings(con_sett)
         settings.set_configuration()
-
+        groupName="View scheda Individui"
+        root = QgsProject.instance().layerTreeRoot()
+        group = root.addGroup(groupName)
         if settings.SERVER == 'sqlite':
             sqliteDB_path = os.path.join(os.sep, 'pyarchinit_DB_folder', settings.DATABASE)
             db_file_path = '{}{}'.format(self.HOME, sqliteDB_path)
@@ -2051,7 +2138,8 @@ class Pyarchinit_pyqgis(QDialog):
                 ##              style_path = '{}{}'.format(self.LAYER_STYLE_PATH_SPATIALITE, 'us_view.qml')
                 ##              layerUS.loadNamedStyle(style_path)
                 self.iface.mapCanvas().setExtent(layerIndividui.extent())
-                QgsProject.instance().addMapLayers([layerIndividui], True)
+                group.insertChildNode(-1, QgsLayerTreeLayer(layerIndividui))
+                QgsProject.instance().addMapLayers([layerIndividui], False)
             else:
                 QMessageBox.warning(self, "TESTER", "Layer Individui non valido", QMessageBox.Ok)
 
@@ -2079,7 +2167,8 @@ class Pyarchinit_pyqgis(QDialog):
                 ##              style_path = '{}{}'.format(self.LAYER_STYLE_PATH_SPATIALITE, 'us_view.qml')
                 ##              layerUS.loadNamedStyle(style_path)
                 self.iface.mapCanvas().setExtent(layerIndividui.extent())
-                QgsProject.instance().addMapLayers([layerIndividui], True)
+                group.insertChildNode(-1, QgsLayerTreeLayer(layerIndividui))
+                QgsProject.instance().addMapLayers([layerIndividui], False)
             else:
                 QMessageBox.warning(self, "TESTER", "Layer Individui non valido", QMessageBox.Ok)
 
