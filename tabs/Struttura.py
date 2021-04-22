@@ -215,7 +215,7 @@ class pyarchinit_Struttura(QDialog, MAIN_DIALOG_CLASS):
     }
 
     DB_SERVER = "not defined"  ####nuovo sistema sort
-
+    HOME = os.environ['PYARCHINIT_HOME']
 
 
     def __init__(self, iface):
@@ -2055,6 +2055,7 @@ class pyarchinit_Struttura(QDialog, MAIN_DIALOG_CLASS):
         eval(cmd)
 
     def update_record(self):
+        
         try:
             self.DB_MANAGER.update(self.MAPPER_TABLE_CLASS,
                                    self.ID_TABLE,
