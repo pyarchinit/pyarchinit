@@ -1023,7 +1023,7 @@ class Pyarchinit_pyqgis(QDialog):
         conf.close()
         settings = Settings(con_sett)
         settings.set_configuration()
-        groupName="View scheda Periodo"
+        groupName="View scheda Periodo  - Per: %s / Fas: %s" % (self.per_label, self.fas_label)
         root = QgsProject.instance().layerTreeRoot()
         group = root.addGroup(groupName)
         if self.L=='it':
