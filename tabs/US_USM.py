@@ -35,12 +35,15 @@ from datetime import date
 import xml.etree.ElementTree as ET
 from lxml import etree
 import cv2
+from distutils.dir_util import copy_tree
+from random import randrange as rand
 from PyQt5 import QtCore, QtGui, QtWidgets
+#from PyQt5.QtXml import QDomDocument
 from qgis.PyQt.QtCore import *
 from qgis.PyQt.QtGui import QColor, QIcon
 from qgis.PyQt.QtWidgets import *
 from qgis.PyQt.uic import loadUiType
-from qgis.core import Qgis, QgsSettings,QgsGeometry
+from qgis.core import Qgis, QgsSettings,QgsGeometry,QgsProject,QgsApplication
 from qgis.gui import QgsMapCanvas, QgsMapToolPan
 from qgis.PyQt.QtSql import QSqlDatabase, QSqlTableModel
 import re
@@ -56,6 +59,7 @@ from ..modules.utility.pyarchinit_exp_Periodosheet_pdf import generate_US_pdf
 from ..modules.utility.pyarchinit_exp_USsheet_pdf import generate_US_pdf
 from ..modules.utility.pyarchinit_print_utility import Print_utility
 from ..modules.utility.settings import Settings
+#from ..modules.utility.layout_loader import LayoutLoader
 from .pyarchinit_setting_matrix import Setting_Matrix
 from ..searchLayers import SearchLayers
 from ..gui.imageViewer import ImageViewer
@@ -756,6 +760,7 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
     MATRIX_PATH = '{}{}{}'.format(HOME, os.sep, "pyarchinit_Matrix_folder")
     BIN = '{}{}{}'.format(HOME, os.sep, "bin")
     DB_SERVER = "not defined"  ####nuovo sistema sort
+    
     def __init__(self, iface):
         super().__init__()
         self.iface = iface
@@ -768,6 +773,7 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
         self.mDockWidget_5.setHidden(True)
         self.currentLayerId = None
         self.search = SearchLayers(iface)
+        self.txtLayoutName.setEnabled(False)
         try:
             self.on_pushButton_connect_pressed()
         except Exception as e:
@@ -811,6 +817,281 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
         self.tableWidget_rapporti.itemSelectionChanged.connect(self.unitatipo)
         self.tableWidget_rapporti.itemSelectionChanged.connect(self.defin)
         self.tableWidget_rapporti.itemSelectionChanged.connect(self.datazione)
+        
+        self.plugin_dir = os.path.dirname(__file__)
+        self.listWidget.itemClicked.connect(self.suggestLayoutName)
+        self.btnAddMore.clicked.connect(self.addMoreTemplates)        
+        self.listWidget.setContextMenuPolicy(Qt.CustomContextMenu)
+        self.listWidget.customContextMenuRequested.connect(self.listMenu)
+        self.txtLayoutName.setEnabled(False)
+        self.run()
+        #self.listWidget.customContextMenuRequested.connect(self.loadTemplatePreview)
+    # def loadTemplatePreview(self):
+        
+        # self.listWidget_2.clear()
+        # template_name = self.listWidget.selectedItems()[0].text()
+        # template_path = os.path.join(self.HOME,'bin','profile','composer_templates',template_name + '.jpeg')
+        
+        # item = QListWidgetItem(str(template_name))
+        # item.setData(Qt.UserRole, str(template_name))
+        # icon = QIcon(template_path)
+        # item.setIcon(icon)
+        # self.listWidget_2.addItem(item)
+        # # elif mode == 1:
+            # self.iconListWidget.clear()
+    
+    def loadTemplates(self):
+        self.listWidget.clear()
+        profile_dir = self.HOME
+        templates_dir = os.path.join(profile_dir,'bin','profile','template')
+          
+        # Does the composer_templates folder exist? Otherwise create it.
+        if os.path.isdir(templates_dir) == False:
+            os.mkdir(templates_dir)
+          
+        # Search the templates folder and add files to templates list and sort it
+        templates = [f.name for f in os.scandir(templates_dir) if f.is_file() ]
+        templates.sort()
+          
+        # Get the project file name and if it exist the project title. Use for Title suggestion
+        project_file_name = QFileInfo(QgsProject.instance().fileName()).baseName()
+        project_title = QgsProject.instance().title()
+        if project_title == '':
+            project_title = project_file_name
+        self.txtMapTitle.setText(project_title)
+          
+        # Add all the templates from the list to the listWidget (only add files with *.qpt extension)
+        for template in templates:
+            filename, extension = os.path.splitext(template) 
+            if extension == '.qpt':
+                self.listWidget.addItem(filename)
+            
+                
+   
+    
+    def listMenu(self, position):
+        self.txtLayoutName.setEnabled(False)
+        indexes = self.listWidget.selectedIndexes()
+        template_name = self.listWidget.selectedItems()[0].text()
+        template_path = os.path.join(self.HOME,'bin','profile','template',template_name + '.qpt')
+        
+        if indexes:
+            
+            
+            menu = QMenu()
+            menu.addAction('Cancella Template')
+            menu.addAction('Mostra Preview')
+            # menu.addAction(self.tr('Future context menu option'))
+         
+            menu_choice = menu.exec_(self.listWidget.viewport().mapToGlobal(position))
+
+            try:
+                
+                if menu_choice.text() == 'Cancella Template':
+                    template_name = self.listWidget.selectedItems()[0].text()
+                    template_path = os.path.join(self.HOME,'bin','profile','template',template_name + '.qpt')
+                    
+                    
+                    if os.path.exists(str(template_path)):
+                        os.remove(template_path)
+                        self.loadTemplates
+                        self.txtLayoutName.setText('{} - Cancellato'.format(template_name))
+            
+                    else:
+                        self.txtLayoutName.setText('{} - non è stato cancellato'.format(template_name))
+                elif menu_choice.text() == 'Mostra Preview':
+                    self.listWidget_2.clear()
+                    template_name = self.listWidget.selectedItems()[0].text()
+                    template_path = os.path.join(self.HOME,'bin','profile','template',template_name + '.jpeg')
+                    
+                    item = QListWidgetItem(str(template_name))
+                    item.setData(Qt.UserRole, str(template_name))
+                    icon = QIcon(template_path)
+                    item.setIcon(icon)
+                    self.listWidget_2.addItem(item)
+                    
+            except:# Exception as e:
+                pass#QMessageBox.warning(self, "Errore", str(e),  QMessageBox.Ok)
+          
+    def opentepmplatePreview(self):
+    
+        self.listWidget_2.clear()
+        template_name = self.listWidget.selectedItems()[0].text()
+        template_path = os.path.join(self.HOME,'bin','profile','template',template_name + '.jpeg')
+        dlg = ImageViewer()
+        dlg.show_image(template_path)  
+        dlg.exec_()
+    
+    
+    # Does a layout already exist
+    
+    
+    def addMoreTemplates(self):
+          are_you_sure = 'Questo aggiungerà modelli e risorse come file SVG e funzioni di script.\n\n'
+          are_you_sure += 'Vuoi sovrascrivere i file esistenti con lo stesso nome?'
+          addMoreBox = QMessageBox()
+          addMoreBox.setIcon(QMessageBox.Question)
+          addMoreBox.setWindowTitle('Aggiungi Template')
+          addMoreBox.setText(are_you_sure)
+          more_information = 'Se schiacci \'No\', i file non saranno sovrascritti, ma un nuovo fila verrà aggiunto.\n\n'
+          more_information += 'Se schiacci \'Sì\' i file che hai modificato manualmente saranno sovrascritti con quelli nuovi.\n'
+          more_information += 'Se schiacci \'Annulla\' Non si apporterà nessuna modifica!\n\n'
+          more_information += 'Alcune funzioni potrebbero richiedere il riavvio di QGIS come per le mappe militari prima di funzionare correttamente.'
+          addMoreBox.setDetailedText(more_information)
+          addMoreBox.setStandardButtons(QMessageBox.Cancel|QMessageBox.No|QMessageBox.Yes)
+          
+          button_pressed = addMoreBox.exec_()
+          
+          # Paths to source files and qgis profile directory
+          source_profile = os.path.join(self.HOME,'bin', 'profile')
+          profile_home = QgsApplication.qgisSettingsDirPath()
+
+          # The acutal "copy" with or without overwrite (update)
+          if button_pressed == QMessageBox.Yes:
+              copy_tree(source_profile, profile_home)
+              self.loadTemplates()
+          elif button_pressed == QMessageBox.No:
+              copy_tree(source_profile, profile_home, update=1)
+              self.loadTemplates()
+    
+    def suggestLayoutName(self):
+          self.txtLayoutName.setEnabled(True)
+          layout_name_string = self.listWidget.currentItem().text()
+          if self.txtMapTitle != '':
+              layout_name_string += ' ' + self.txtMapTitle.text()
+          self.txtLayoutName.setText(layout_name_string)
+    
+    
+    
+    def layout_exists(self, layout_name):
+          lm = QgsProject.instance().layoutManager()
+          layouts = []
+          for l in lm.layouts():
+              layouts.append(l.name())
+          if layout_name in layouts:
+             return sum(layout_name in s for s in layouts)
+          else:
+             return 0  
+    # Add templates and resources from plugin to user profile (triggers on dialog button clicked signal)
+    # Somehow a lot of QMessageBox's are generated.
+    
+    def layoutLoader(self, template_source, layout_name, title_text):
+        """ Generate the layout """
+        from qgis.core import (QgsProject,
+                       QgsPrintLayout,
+                       QgsReadWriteContext)
+        from qgis.utils import iface
+        from PyQt5.QtXml import QDomDocument
+
+        #template_source = '/home/user/Document/Template.qpt'
+        #layout_name = 'NewLayout'
+        #title_text = 'New Title'
+        
+        # Create objects lm = layout manager, l = print layout
+        lm = QgsProject.instance().layoutManager()
+        l = QgsPrintLayout(QgsProject.instance())
+        l.initializeDefaults()
+        
+        # Load template file and load it into the layout (l)
+        template_file = open(template_source, 'r+', encoding='utf-8')
+        template_content = template_file.read()
+        template_file.close()
+        document = QDomDocument()
+        document.setContent(template_content)
+        context = QgsReadWriteContext()
+        l.loadFromTemplate(document, context)
+        
+        # Give the layout a name (must be unique)
+        l.setName(layout_name)
+        
+        # Get current canvas extent and apply that to all maps (items) in layout
+        # Replace any text "{{title}}" in any layout label with the dialog Title text
+        canvas = self.iface.mapCanvas()
+        for item in l.items():
+            if item.type()==65639: # Map
+                item.zoomToExtent(canvas.extent())
+            if item.type()==65641: # Label
+                item.setText(item.text().replace('{{title}}',title_text))
+        
+        # Add layout to layout manager
+        l.refresh()
+        lm.addLayout(l)
+        
+        # Open and show the layout in designer
+        try:
+           self.iface.openLayoutDesigner(l)
+        except:
+           oopsBox = QMessageBox()
+           oopsBox.setIcon(QMessageBox.Warning)
+           oopsBox.setText('Ooops. Qualcosa è andato storto. Il tentativo di aprire il layout generato ({}) ha restituito errori.'.format(l.name()))
+           oopsBox.setWindowTitle('Crea la tua mappa')
+           oopsBox.exec_()
+    
+    def run(self):
+        """Run method that performs all the real work"""
+        # This loads the dialog with templates (again) TODO check when it's best to do this
+        self.loadTemplates()
+        
+        
+
+        # See if OK was pressed TODO: probably need something to happen when pressing "cancel" too.
+        #if result:
+        # Get values from dialog list and text fields
+        #show the dialog
+        self.show()
+        # Run the dialog event loop
+        result = self.exec_()
+
+        # See if OK was pressed TODO: probably need something to happen when pressing "cancel" too.
+        if result:
+            try:
+               template_name = self.listWidget.currentItem().text()
+            except:
+                template_name = ''
+            layout_name = self.txtLayoutName.text()
+            # Generate random layout name for blank names (REDUNDANT?)
+            if layout_name == '':
+               layout_name = 'Layout'
+            
+            # Add function to test the layout name so that it doesn't exist. If it does handle the exception
+            
+            map_title = self.txtMapTitle.text()
+            profile_dir = self.HOME
+            # create the template item selected full path (assuming extension is lower case)
+            template_source = os.path.join(profile_dir,'bin','profile','template',template_name + '.qpt')
+            
+            # Call function to generate layout, renaming duplicate layout names
+            layout_count = self.layout_exists(layout_name) # How many layouts with the same name exist already
+            if layout_count >> 0:
+               name = layout_name.split('_')
+               if layout_count >> 1:
+                  layout_name = '_'.join(name) + '_' + str(layout_count + 1)
+               else:
+                layout_name += '_2'
+            try:
+               if os.path.exists(template_source):
+                  self.layoutLoader(template_source, layout_name, map_title) # CALLING MAIN LAYOUT LOADING PROCESS
+               else:
+                  infoBox = QMessageBox()
+                  infoBox.setIcon(QMessageBox.Information)
+                  infoBox.setText('Seleziona un template valido dalla lista.')
+                  infoBox.setWindowTitle('Crea la tua mappa')
+                  infoBox.exec_()
+            except:
+               oopsBox = QMessageBox()
+               oopsBox.setIcon(QMessageBox.Warning)
+               oopsBox.setText('Ooops. qualcosa è andato storto ({}). Ma non so cosa?'.format(layout_name))
+               oopsBox.setWindowTitle('Crea la tua mappa')
+               oopsBox.setDetailedText('Titolo della Mappa: {}\nNome del Template: {}\nNome del Layout: {}\nDorectory del profilo {}\nPath del Template: {}\nConteggio Layout: {}' % (map_title, template_name, layout_name, profile_dir, template_source, layout_count))
+               oopsBox.exec_()
+                   
+            # Clean up
+            self.txtLayoutName.clear()
+            self.txtLayoutName.setEnabled(False)
+            self.txtMapTitle.clear()
+            self.txtMapTitle.setFocus()
+
+    
     
     def charge_insert_ra(self):
         try:
@@ -1026,7 +1307,7 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
             self.comboBox_posizione.addItems(self.UTILITY.remove_dup_from_list(geometry_list))
             if self.STATUS_ITEMS[self.BROWSE_STATUS] == "Trova" or "Finden" or "Find":
                 self.comboBox_posizione.setEditText("")
-            elif self.STATUS_ITEMS[self.BROWSE_STATUS] == "Usa" or "Aktuell " or "Current":		
+            elif self.STATUS_ITEMS[self.BROWSE_STATUS] == "Usa" or "Aktuell " or "Current":     
                 if len(self.DATA_LIST) > 0:
                     try:
                         self.comboBox_posizione.setEditText(self.DATA_LIST[self.rec_num].posizione)
@@ -1058,7 +1339,7 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
             self.comboBox_per_iniz.addItems(self.UTILITY.remove_dup_from_list(periodo_list))
             if self.STATUS_ITEMS[self.BROWSE_STATUS] == "Trova" or "Finden" or "Find":
                 self.comboBox_per_iniz.setEditText("")
-            elif self.STATUS_ITEMS[self.BROWSE_STATUS] == "Usa" or "Aktuell " or "Current":	
+            elif self.STATUS_ITEMS[self.BROWSE_STATUS] == "Usa" or "Aktuell " or "Current": 
                 if len(self.DATA_LIST) > 0:
                     try:
                         self.comboBox_per_iniz.setEditText(self.DATA_LIST[self.rec_num].periodo_iniziale)
@@ -1089,7 +1370,7 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
             self.comboBox_per_fin.addItems(self.UTILITY.remove_dup_from_list(periodo_list))
             if self.STATUS_ITEMS[self.BROWSE_STATUS] == "Trova" or "Finden" or "Find":
                 self.comboBox_per_fin.setEditText("")
-            elif self.STATUS_ITEMS[self.BROWSE_STATUS] == "Usa" or "Aktuell " or "Current":	
+            elif self.STATUS_ITEMS[self.BROWSE_STATUS] == "Usa" or "Aktuell " or "Current": 
                 if len(self.DATA_LIST) > 0:
                     try:
                         self.comboBox_per_fin.setEditText(self.DATA_LIST[self.rec_num].periodo_iniziale)
@@ -1561,6 +1842,7 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
         self.iconListWidget.SelectionMode()
         self.iconListWidget.setSelectionMode(QAbstractItemView.ExtendedSelection)
         self.iconListWidget.itemDoubleClicked.connect(self.openWide_image)
+        self.listWidget_2.itemDoubleClicked.connect(self.opentepmplatePreview)
         # comboBox customizations
         
         self.setComboBoxEditable(["self.comboBox_per_fin"], 1)
@@ -3179,7 +3461,7 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
                    OR col LIKE '[''Tagliato da'',%' OR col LIKE '[''Gli si appoggia'',%' THEN col END) ante,
                    
                    GROUP_CONCAT(CASE WHEN col LIKE '[''Si lega a'',%' or col LIKE '[''Uguale a'',%' THEN col END) contemp
-			
+            
                     FROM cte GROUP BY rowid order by rowid""")
                 rows2 = cur2.fetchall()
                 col_names2 = ['Rapporto Posteriore','Rapporto Anteriore', 'Rapporto Contemporaneo']

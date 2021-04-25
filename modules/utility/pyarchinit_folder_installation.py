@@ -19,8 +19,10 @@
 """
 
 import os
+from os import path
 from os.path import expanduser
 import shutil
+import zipfile
 from builtins import object
 from builtins import str
 
@@ -36,6 +38,7 @@ class pyarchinit_Folder_installation(object):
     OS_UTILITY = Pyarchinit_OS_Utility()
 
     def install_dir(self):
+        
         home_DB_path = '{}{}{}'.format(self.HOME, os.sep, 'pyarchinit_DB_folder')
         self.OS_UTILITY.create_dir(home_DB_path)
 
@@ -195,6 +198,17 @@ class pyarchinit_Folder_installation(object):
         X11Colors_copy_from_path_rel = os.path.join(os.sep, 'dbfiles', 'X11Colors.py')
         X11Colors_copy_from_path = '{}{}'.format(self.RESOURCES_PATH, X11Colors_copy_from_path_rel)
         X11Colors_copy_to_path = '{}{}{}'.format(home_bin_export_path, os.sep, 'X11Colors.py')
+        
+        profile_zip = os.path.join(os.sep, 'dbfiles', 'profile.zip')
+        profile_zip_copy_from_path = '{}{}'.format(self.RESOURCES_PATH, profile_zip)
+        test=os.path.join(home_bin_export_path,'profile')
+        if not os.path.exists(test):
+            with zipfile.ZipFile(profile_zip_copy_from_path, 'r') as zip_ref:
+                zip_ref.extractall(home_bin_export_path)
+        else:
+            pass
+        
+        
         
         self.OS_UTILITY.copy_file(db_copy_from_bin, db_copy_to_bin)
         self.OS_UTILITY.copy_file(w_copy_from_path, w_copy_to_path)
