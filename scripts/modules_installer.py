@@ -53,7 +53,7 @@ python_version = sys.version[:3]
 if platform.system()=='Windows':
     cmd = '{}\python'.format(python_path)
 elif platform.system()=='Darwin':
-    cmd = '{}/bin/python{}'.format(python_path, python_version)
+    cmd = '{}/bin/python3{}'.format(python_path, python_version)
 else:
     cmd = '{}/bin/python{}'.format(python_path, python_version)
 
