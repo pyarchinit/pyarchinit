@@ -76,5 +76,6 @@
 	<file>icons/video.png</file>
 	<file>icons/photo2.png</file>
 	<file>icons/find.png</file>
+	<file>icons/print_map.png</file>
   </qresource>
 </RCC>

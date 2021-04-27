@@ -755,7 +755,7 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
         "EN_US": ['en_US','EN_US','en','EN'],
         "DE": ['de_DE','de','DE', 'DE_DE']
     }
-    HOME = os.environ['PYARCHINIT_HOME']
+    
     REPORT_PATH = '{}{}{}'.format(HOME, os.sep, "pyarchinit_Report_folder")
     MATRIX_PATH = '{}{}{}'.format(HOME, os.sep, "pyarchinit_Matrix_folder")
     BIN = '{}{}{}'.format(HOME, os.sep, "bin")
