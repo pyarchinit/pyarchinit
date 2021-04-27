@@ -26,6 +26,7 @@ changelog=release3.3
         -update template qpt
         -view all period in subfolder
         -fix bug struttura
+        -view structures
    -------------------------------------------------------------------------------
 
    release3.2
