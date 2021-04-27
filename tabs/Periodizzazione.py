@@ -1182,6 +1182,25 @@ class pyarchinit_Periodizzazione(QDialog, MAIN_DIALOG_CLASS):
             fas_label = self.comboBox_fase.currentText()
             self.pyQGIS.charge_vector_layers_periodo(sito_p, int(cont_per), per_label, fas_label)
 
+    def on_pushButton_all_period_pressed(self):
+        if not self.lineEdit_codice_periodo.text():
+            QMessageBox.warning(self, "Message", "Period code not add", QMessageBox.Ok)
+        else:
+            lista=[]
+            for i in self.DB_MANAGER.query(self.MAPPER_TABLE_CLASS):
+                lista.append(i)
+            
+            for e in lista:
+                sito_p = e.sito
+                cont_per = e.cont_per
+                per_label = e.periodo
+                fas_label = e.fase
+                
+                self.pyQGIS.charge_vector_layers_all_period(sito_p, int(cont_per),per_label,fas_label)
+    
+                
+    
+    
     def update_if(self, msg):
         rec_corr = self.REC_CORR
         if msg == QMessageBox.Ok:
