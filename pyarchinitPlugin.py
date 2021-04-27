@@ -51,6 +51,7 @@ from .tabs.Tomba import pyarchinit_Tomba
 from .tabs.Thesaurus import pyarchinit_Thesaurus
 from .tabs.US_USM import pyarchinit_US
 from .tabs.UT import pyarchinit_UT
+from .tabs.PRINTMAP import pyarchinit_PRINTMAP
 from .gui.pyarchinitConfigDialog import pyArchInitDialog_Config
 from .gui.dbmanagment import pyarchinit_dbmanagment
 from .gui.pyarchinitInfoDialog import pyArchInitDialog_Info
@@ -303,6 +304,26 @@ class PyArchInitPlugin(object):
 
                 self.toolBar.addSeparator()
 
+            
+            ######  Section dedicated to the plugin management
+
+            self.manageToolButton = QToolButton(self.toolBar)
+            #self.manageToolButton.setPopupMode(QToolButton.MenuButtonPopup)
+
+            icon_print = '{}{}'.format(filepath, os.path.join(os.sep, 'resources', 'icons', 'print_map.png'))
+            self.actionPrint = QAction(QIcon(icon_print), "Crea la tua Mappa", self.iface.mainWindow())
+            self.actionPrint.setWhatsThis("Crea la tua Mappa")
+            self.actionPrint.triggered.connect(self.runPrint)
+            
+           
+            self.manageToolButton.addActions(
+                [self.actionPrint])
+            self.manageToolButton.setDefaultAction(self.actionPrint)
+
+            self.toolBar.addWidget(self.manageToolButton)
+
+            self.toolBar.addSeparator()
+            
             ######  Section dedicated to the plugin management
 
             self.manageToolButton = QToolButton(self.toolBar)
@@ -365,7 +386,7 @@ class PyArchInitPlugin(object):
                 self.iface.addPluginToMenu("&pyArchInit - Archaeological GIS Tools", self.actionArcheozoology)
                 self.iface.addPluginToMenu("&pyArchInit - Archaeological GIS Tools", self.actionComparision)
                 
-
+            self.iface.addPluginToMenu("&pyArchInit - Archaeological GIS Tools", self.actionPrint)
             self.iface.addPluginToMenu("&pyArchInit - Archaeological GIS Tools", self.actionConf)
             self.iface.addPluginToMenu("&pyArchInit - Archaeological GIS Tools", self.actionThesaurus)
             self.iface.addPluginToMenu("&pyArchInit - Archaeological GIS Tools", self.actionDbmanagment)
@@ -391,6 +412,8 @@ class PyArchInitPlugin(object):
             self.menu.addSeparator()
             if self.PARAMS_DICT['EXPERIMENTAL'] == 'Si':
                 self.menu.addActions([self.actionArcheozoology, self.actionComparision])
+            self.menu.addSeparator()
+            self.menu.addActions([self.actionPrint])
             self.menu.addSeparator()
             self.menu.addActions([self.actionConf, self.actionThesaurus, self.actionDbmanagment, self.actionInfo])
             menuBar = self.iface.mainWindow().menuBar()
@@ -596,6 +619,24 @@ class PyArchInitPlugin(object):
 
                 self.toolBar.addSeparator()
 
+            
+            self.manageToolButton = QToolButton(self.toolBar)
+            self.manageToolButton.setPopupMode(QToolButton.MenuButtonPopup)
+
+            icon_print = '{}{}'.format(filepath, os.path.join(os.sep, 'resources', 'icons', 'print_map.png'))
+            self.actionPrint = QAction(QIcon(icon_print), "Make your Map", self.iface.mainWindow())
+            self.actionPrint.setWhatsThis("Make your Map")
+            self.actionPrint.triggered.connect(self.runPrint)
+            
+            self.manageToolButton.addActions(
+                [self.actionPrint])
+            self.manageToolButton.setDefaultAction(self.actionPrint)
+
+            self.toolBar.addWidget(self.manageToolButton)
+
+            self.toolBar.addSeparator()
+            
+            
             ######  Section dedicated to the plugin management
 
             self.manageToolButton = QToolButton(self.toolBar)
@@ -657,7 +698,7 @@ class PyArchInitPlugin(object):
                 self.iface.addPluginToMenu("&pyArchInit - Archaeological GIS Tools", self.actionArcheozoology)
                 self.iface.addPluginToMenu("&pyArchInit - Archaeological GIS Tools", self.actionComparision)
                 self.iface.addPluginToMenu("&pyArchInit - Archaeological GIS Tools", self.actionGisTimeController)
-
+            self.iface.addPluginToMenu("&pyArchInit - Archaeological GIS Tools", self.actionPrint)
             self.iface.addPluginToMenu("&pyArchInit - Archaeological GIS Tools", self.actionConf)
             self.iface.addPluginToMenu("&pyArchInit - Archaeological GIS Tools", self.actionThesaurus)
             self.iface.addPluginToMenu("&pyArchInit - Archaeological GIS Tools", self.actionDbmanagment)
@@ -681,6 +722,8 @@ class PyArchInitPlugin(object):
             self.menu.addSeparator()
             if self.PARAMS_DICT['EXPERIMENTAL'] == 'Yes':
                 self.menu.addActions([self.actionArcheozoology, self.actionComparision, self.actionGisTimeController])
+            self.menu.addSeparator()
+            self.menu.addActions([self.actionPrint])
             self.menu.addSeparator()
             self.menu.addActions([self.actionConf, self.actionThesaurus, self.actionDbmanagment, self.actionInfo])
             menuBar = self.iface.mainWindow().menuBar()
@@ -895,6 +938,24 @@ class PyArchInitPlugin(object):
 
                 self.toolBar.addSeparator()
 
+            
+            self.manageToolButton = QToolButton(self.toolBar)
+            self.manageToolButton.setPopupMode(QToolButton.MenuButtonPopup)
+
+            icon_print = '{}{}'.format(filepath, os.path.join(os.sep, 'resources', 'icons', 'print_map.png'))
+            self.actionPrint = QAction(QIcon(icon_print), "Make your Map", self.iface.mainWindow())
+            self.actionPrint.setWhatsThis("Make your Map")
+            self.actionPrint.triggered.connect(self.runPrint)
+            
+            self.manageToolButton.addActions(
+                [self.actionPrint])
+            self.manageToolButton.setDefaultAction(self.actionPrint)
+
+            self.toolBar.addWidget(self.manageToolButton)
+
+            self.toolBar.addSeparator()
+            
+            
             ######  Section dedicated to the plugin management
 
             self.manageToolButton = QToolButton(self.toolBar)
@@ -956,7 +1017,7 @@ class PyArchInitPlugin(object):
                 self.iface.addPluginToMenu("&pyArchInit - Archaeological GIS Tools", self.actionArcheozoology)
                 self.iface.addPluginToMenu("&pyArchInit - Archaeological GIS Tools", self.actionComparision)
                 self.iface.addPluginToMenu("&pyArchInit - Archaeological GIS Tools", self.actionGisTimeController)
-            
+            self.iface.addPluginToMenu("&pyArchInit - Archaeological GIS Tools", self.actionPrint)
             self.iface.addPluginToMenu("&pyArchInit - Archaeological GIS Tools", self.actionConf)
             self.iface.addPluginToMenu("&pyArchInit - Archaeological GIS Tools", self.actionThesaurus)
             self.iface.addPluginToMenu("&pyArchInit - Archaeological GIS Tools", self.actionDbmanagment)
@@ -981,6 +1042,8 @@ class PyArchInitPlugin(object):
             self.menu.addSeparator()
             if self.PARAMS_DICT['EXPERIMENTAL'] == 'Ja':
                 self.menu.addActions([self.actionArcheozoology, self.actionComparision, self.actionGisTimeController])
+            self.menu.addSeparator()
+            self.menu.addActions([self.actionPrint])
             self.menu.addSeparator()
             self.menu.addActions([self.actionConf, self.actionThesaurus, self.actionDbmanagment, self.actionInfo])
             menuBar = self.iface.mainWindow().menuBar()
@@ -1028,6 +1091,11 @@ class PyArchInitPlugin(object):
         pluginGui.show()
         self.pluginGui = pluginGui  # save
 
+    def runPrint(self):
+        pluginPrint = pyarchinit_PRINTMAP(self.iface)
+        pluginPrint.show()
+        self.pluginGui = pluginPrint  # save
+    
     def runConf(self):
         pluginConfGui = pyArchInitDialog_Config()
         pluginConfGui.show()
@@ -1132,6 +1200,7 @@ class PyArchInitPlugin(object):
                 self.iface.removePluginMenu("&pyArchInit - Archaeological GIS Tools", self.actionpdfExp)
                 self.iface.removePluginMenu("&pyArchInit - Archaeological GIS Tools", self.actionComparision)
                 self.iface.removePluginMenu("&pyArchInit - Archaeological GIS Tools", self.actionGisTimeController)
+            self.iface.removePluginMenu("&pyArchInit - Archaeological GIS Tools", self.actionPrint)    
             self.iface.removePluginMenu("&pyArchInit - Archaeological GIS Tools", self.actionConf)
             self.iface.removePluginMenu("&pyArchInit - Archaeological GIS Tools", self.actionThesaurus)
             self.iface.removePluginMenu("&pyArchInit - Archaeological GIS Tools", self.actionInfo)
@@ -1159,6 +1228,7 @@ class PyArchInitPlugin(object):
                 self.iface.removeToolBarIcon(self.actionpdfExp)
                 self.iface.removeToolBarIcon(self.actionComparision)
                 self.iface.removeToolBarIcon(self.actionGisTimeController)
+            self.iface.removeToolBarIcon(self.actionPrint)
             self.iface.removeToolBarIcon(self.actionConf)
             self.iface.removeToolBarIcon(self.actionThesaurus)
             self.iface.removeToolBarIcon(self.actionInfo)
@@ -1192,6 +1262,7 @@ class PyArchInitPlugin(object):
                 self.iface.removePluginMenu("&pyArchInit - Archaeological GIS Tools", self.actionpdfExp)
                 self.iface.removePluginMenu("&pyArchInit - Archaeological GIS Tools", self.actionComparision)
                 self.iface.removePluginMenu("&pyArchInit - Archaeological GIS Tools", self.actionGisTimeController)
+            self.iface.removePluginMenu("&pyArchInit - Archaeological GIS Tools", self.actionPrint)
             self.iface.removePluginMenu("&pyArchInit - Archaeological GIS Tools", self.actionConf)
             self.iface.removePluginMenu("&pyArchInit - Archaeological GIS Tools", self.actionThesaurus)
             self.iface.removePluginMenu("&pyArchInit - Archaeological GIS Tools", self.actionInfo)
@@ -1219,6 +1290,7 @@ class PyArchInitPlugin(object):
                 self.iface.removeToolBarIcon(self.actionpdfExp)
                 self.iface.removeToolBarIcon(self.actionComparision)
                 self.iface.removeToolBarIcon(self.actionGisTimeController)
+            self.iface.removeToolBarIcon(self.actionPrint)    
             self.iface.removeToolBarIcon(self.actionConf)
             self.iface.removeToolBarIcon(self.actionThesaurus)
             self.iface.removeToolBarIcon(self.actionInfo)
@@ -1252,6 +1324,7 @@ class PyArchInitPlugin(object):
                 self.iface.removePluginMenu("&pyArchInit - Archaeological GIS Tools", self.actionpdfExp)
                 self.iface.removePluginMenu("&pyArchInit - Archaeological GIS Tools", self.actionComparision)
                 self.iface.removePluginMenu("&pyArchInit - Archaeological GIS Tools", self.actionGisTimeController)
+            self.iface.removePluginMenu("&pyArchInit - Archaeological GIS Tools", self.actionPrint)
             self.iface.removePluginMenu("&pyArchInit - Archaeological GIS Tools", self.actionConf)
             self.iface.removePluginMenu("&pyArchInit - Archaeological GIS Tools", self.actionThesaurus)
             self.iface.removePluginMenu("&pyArchInit - Archaeological GIS Tools", self.actionInfo)
@@ -1279,6 +1352,7 @@ class PyArchInitPlugin(object):
                 self.iface.removeToolBarIcon(self.actionpdfExp)
                 self.iface.removeToolBarIcon(self.actionComparision)
                 self.iface.removeToolBarIcon(self.actionGisTimeController)
+            self.iface.removeToolBarIcon(self.actionPrint)    
             self.iface.removeToolBarIcon(self.actionConf)
             self.iface.removeToolBarIcon(self.actionThesaurus)
             self.iface.removeToolBarIcon(self.actionInfo)
