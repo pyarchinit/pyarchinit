@@ -2959,7 +2959,7 @@ class Pyarchinit_pyqgis(QDialog):
                 group.insertChildNode(-1, QgsLayerTreeLayer(layerSTRUTTURA))
                 QgsProject.instance().addMapLayers([layerSTRUTTURA], False)
             else:
-                QMessageBox.warning(self, "TESTER", "Layer Struttura non valido", QMessageBox.Ok)
+                pass#QMessageBox.warning(self, "TESTER", "Layer Struttura non valido", QMessageBox.Ok)
 
     
     def charge_structure_from_research(self, data):

@@ -90,7 +90,7 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
         self.charge_data()
         self.db_active()
         self.lineEdit_DBname.textChanged.connect(self.db_uncheck)
-        self.pushButton_upd_postgres.setEnabled(False)
+        self.pushButton_upd_postgres.setEnabled(True)
         self.pushButton_upd_sqlite.setEnabled(False)
         self.comboBox_sito.currentIndexChanged.connect(self.summary)
         self.comboBox_Database.currentIndexChanged.connect(self.db_active)

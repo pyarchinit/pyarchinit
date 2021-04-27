@@ -1686,17 +1686,32 @@ class pyarchinit_Struttura(QDialog, MAIN_DIALOG_CLASS):
     def on_pushButton_view_all_st_pressed(self):
         
         lista=[]
-        for i in self.DB_MANAGER.query(self.MAPPER_TABLE_CLASS):
-            lista.append(i)
+        conn = Connection()
+        sito_set= conn.sito_set()
+        sito_set_str = sito_set['sito_set']
+        try:
+            if bool (sito_set_str):
+                search_dict = {
+                    'sito': "'" + str(sito_set_str) + "'"}  # 1 - Sito
+                u = Utility()
+                search_dict = u.remove_empty_items_fr_dict(search_dict)
+                res = self.DB_MANAGER.query_bool(search_dict, self.MAPPER_TABLE_CLASS)
+                self.DATA_LIST = []
+            for i in res:
+                self.DATA_LIST.append(i)
         
-        for e in lista:
+        
+            for e in self.DATA_LIST:
             
-            sito_p = e.sito
-            sigla_st = e.sigla_struttura
-            n_st = e.numero_struttura
+                sito_p = e.sito
+                sigla_st = e.sigla_struttura
+                n_st = e.numero_struttura
             
             
-            self.pyQGIS.charge_vector_layers_all_st(sito_p, sigla_st,n_st)
+                self.pyQGIS.charge_vector_layers_all_st(sito_p, sigla_st,n_st)
+    
+        except Exception as e:
+            print(str(e))  
     
     def update_if(self, msg):
         rec_corr = self.REC_CORR
