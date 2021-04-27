@@ -1651,11 +1651,11 @@ class pyarchinit_Struttura(QDialog, MAIN_DIALOG_CLASS):
         if self.L=='it':    
             if self.toolButton_draw_strutture.isChecked():
                 QMessageBox.warning(self, "Messaggio",
-                                    "DA DEBUGGARE Modalita' GIS attiva. Da ora le tue ricerche verranno visualizzate sul GIS",
+                                    "Modalita' GIS attiva. Da ora le tue ricerche verranno visualizzate sul GIS",
                                     QMessageBox.Ok)
             else:
                 QMessageBox.warning(self, "Messaggio",
-                                    " DA DEBUGGARE Modalita' GIS disattivata. Da ora le tue ricerche non verranno piu' visualizzate sul GIS",
+                                    "Modalita' GIS disattivata. Da ora le tue ricerche non verranno piu' visualizzate sul GIS",
                                     QMessageBox.Ok)
         elif self.L=='de':  
             if self.toolButton_draw_strutture.isChecked():
@@ -1678,11 +1678,26 @@ class pyarchinit_Struttura(QDialog, MAIN_DIALOG_CLASS):
                                     "GIS mode disabled. From now on, your searches will no longer be displayed on the GIS.",
                                     QMessageBox.Ok)                     
     def on_pushButton_draw_struttura_pressed(self):
-        QMessageBox.warning(self, "Messaggio", " DA DEBUGGARE", QMessageBox.Ok)
-
+        
         sing_layer = [self.DATA_LIST[self.REC_CORR]]
         self.pyQGIS.charge_structure_from_research(sing_layer)
 
+    
+    def on_pushButton_view_all_st_pressed(self):
+        
+        lista=[]
+        for i in self.DB_MANAGER.query(self.MAPPER_TABLE_CLASS):
+            lista.append(i)
+        
+        for e in lista:
+            
+            sito_p = e.sito
+            sigla_st = e.sigla_struttura
+            n_st = e.numero_struttura
+            
+            
+            self.pyQGIS.charge_vector_layers_all_st(sito_p, sigla_st,n_st)
+    
     def update_if(self, msg):
         rec_corr = self.REC_CORR
         if msg == QMessageBox.Ok:

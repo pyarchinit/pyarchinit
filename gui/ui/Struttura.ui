@@ -300,7 +300,7 @@
            </property>
            <property name="icon">
             <iconset resource="../../resources/resources.qrc">
-             <normaloff>:/icons/layers-icon.png</normaloff>:/icons/layers-icon.png</iconset>
+             <normaloff>:/icons/iconStrutt.png</normaloff>:/icons/iconStrutt.png</iconset>
            </property>
           </widget>
          </item>
@@ -320,6 +320,12 @@
        </item>
        <item row="1" column="1">
         <widget class="QToolButton" name="toolButton_draw_strutture">
+         <property name="maximumSize">
+          <size>
+           <width>30</width>
+           <height>30</height>
+          </size>
+         </property>
          <property name="font">
           <font>
            <pointsize>8</pointsize>
@@ -334,6 +340,23 @@
          </property>
          <property name="checkable">
           <bool>true</bool>
+         </property>
+        </widget>
+       </item>
+       <item row="0" column="1">
+        <widget class="QPushButton" name="pushButton_view_all_st">
+         <property name="maximumSize">
+          <size>
+           <width>30</width>
+           <height>30</height>
+          </size>
+         </property>
+         <property name="whatsThis">
+          <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Carica tutte vie per singole strutture&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+         </property>
+         <property name="icon">
+          <iconset resource="../../resources/resources.qrc">
+           <normaloff>:/icons/layers-icon.png</normaloff>:/icons/layers-icon.png</iconset>
          </property>
         </widget>
        </item>
