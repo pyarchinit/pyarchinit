@@ -1038,10 +1038,10 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
         #if result:
         # Get values from dialog list and text fields
         #show the dialog
-        self.show()
+        #self.show()
         # Run the dialog event loop
         result = self.exec_()
-
+        
         # See if OK was pressed TODO: probably need something to happen when pressing "cancel" too.
         if result:
             try:
@@ -1090,7 +1090,7 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
             self.txtLayoutName.setEnabled(False)
             self.txtMapTitle.clear()
             self.txtMapTitle.setFocus()
-
+        self.reject()
     
     
     def charge_insert_ra(self):
