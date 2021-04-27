@@ -12,7 +12,7 @@
 name=pyArchInit
 qgisMinimumVersion=3.0
 description=pyarchinit an tool for archaeological works
-version=3.3
+version=3.4
 author=Luca Mandolesi&Enzo Cocca
 email=pyarchinit@gmail.com
 
@@ -22,7 +22,14 @@ about=https://github.com/pyarchinit/pyarchinit
 tracker=https://github.com/pyarchinit/pyarchinit/issues
 repository=https://github.com/pyarchinit/pyarchinit
 
-changelog=release3.3
+changelog= release3.4
+
+        -fix bug struttura e periodi view
+        -fix bug postgres update
+
+   -------------------------------------------------------------------------------
+
+   release3.3
         -update template qpt
         -view all period in subfolder
         -fix bug struttura
