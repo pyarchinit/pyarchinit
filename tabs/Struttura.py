@@ -1356,7 +1356,7 @@ class pyarchinit_Struttura(QDialog, MAIN_DIALOG_CLASS):
                     self.BROWSE_STATUS = "f"
                     ###
                     #self.setComboBoxEditable(["self.comboBox_sito"], 1)
-                    self.setComboBoxEditable(["self.comboBox_sigla_struttura"], 0)
+                    self.setComboBoxEditable(["self.comboBox_sigla_struttura"], 1)
                     self.setComboBoxEnable(["self.comboBox_sito"], False)
                     self.setComboBoxEnable(["self.comboBox_sigla_struttura"], True)
                     self.setComboBoxEnable(["self.numero_struttura"], True)
@@ -1377,7 +1377,7 @@ class pyarchinit_Struttura(QDialog, MAIN_DIALOG_CLASS):
                     self.BROWSE_STATUS = "f"
                     ###
                     self.setComboBoxEditable(["self.comboBox_sito"], 0)
-                    self.setComboBoxEditable(["self.comboBox_sigla_struttura"], 0)
+                    self.setComboBoxEditable(["self.comboBox_sigla_struttura"], 1)
                     self.setComboBoxEnable(["self.comboBox_sito"], True)
                     self.setComboBoxEnable(["self.comboBox_sigla_struttura"], True)
                     self.setComboBoxEnable(["self.numero_struttura"], True)

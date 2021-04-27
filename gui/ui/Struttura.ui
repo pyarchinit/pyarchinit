@@ -282,9 +282,6 @@
              <pointsize>8</pointsize>
             </font>
            </property>
-           <property name="text">
-            <string>PDF indice exp</string>
-           </property>
            <property name="icon">
             <iconset resource="../../resources/resources.qrc">
              <normaloff>:/icons/sheet.png</normaloff>:/icons/sheet.png</iconset>
@@ -1172,7 +1169,7 @@ p, li { white-space: pre-wrap; }
       <attribute name="title">
        <string>Elementi costruttivi</string>
       </attribute>
-      <widget class="QWidget" name="">
+      <widget class="QWidget" name="layoutWidget">
        <property name="geometry">
         <rect>
          <x>9</x>
@@ -1274,7 +1271,7 @@ p, li { white-space: pre-wrap; }
         </item>
        </layout>
       </widget>
-      <widget class="QWidget" name="">
+      <widget class="QWidget" name="layoutWidget">
        <property name="geometry">
         <rect>
          <x>430</x>
