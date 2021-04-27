@@ -2,7 +2,7 @@ drop view if exists mediaentity_view;
 DROP TABLE IF EXISTS mediaentity_view;
 DROP VIEW IF EXISTS pyarchinit_us_view;
 DROP VIEW IF EXISTS pyarchinit_tafonomia_view;
-CREATE UNIQUE INDEX IF NOT EXISTS idx_n_reperto ON inventario_materiali_table(sito, n_reperto)
+CREATE UNIQUE INDEX IF NOT EXISTS idx_n_reperto ON inventario_materiali_table(sito, n_reperto);
 
 CREATE OR REPLACE FUNCTION delete_media_table()
   RETURNS trigger AS
@@ -593,8 +593,10 @@ CREATE SEQUENCE IF NOT EXISTS public.tomba_table_id_tomba_seq
 ALTER TABLE public.tomba_table_id_tomba_seq OWNER TO postgres;
 
 ALTER TABLE ONLY public.tomba_table ALTER COLUMN id_tomba SET DEFAULT nextval('public.tomba_table_id_tomba_seq'::regclass);
-ALTER TABLE ONLY public.tomba_table ADD CONSTRAINT  "ID_tomba_unico" UNIQUE (sito, nr_scheda_taf);
-ALTER TABLE ONLY public.tomba_table ADD CONSTRAINT  tomba_table_pkey PRIMARY KEY (id_tomba);	
+ALTER TABLE ONLY public.tomba_table DROP CONSTRAINT IF EXISTS "ID_tomba_unico";
+ALTER TABLE ONLY public.tomba_table DROP CONSTRAINT IF EXISTS tomba_table_pkey;
+ALTER TABLE ONLY public.tomba_table  ADD CONSTRAINT  "ID_tomba_unico" UNIQUE (sito, nr_scheda_taf);
+ALTER TABLE ONLY public.tomba_table  ADD CONSTRAINT  tomba_table_pkey PRIMARY KEY (id_tomba);	
 	
 
 INSERT INTO tomba_table (
@@ -691,6 +693,43 @@ INSERT INTO tomba_table (
 				  /* ON CONFLICT (id_scheda_ind,nr_individuo) DO UPDATE
 				  set sito=EXCLUDED.sito, nr_individuo=EXCLUDED.nr_individuo; */
 				  
+
+CREATE OR REPLACE VIEW public.pyarchinit_strutture_view AS
+ SELECT a.gid,
+    a.sito,
+    a.id_strutt,
+    a.per_iniz,
+    a.per_fin,
+    a.dataz_ext,
+    a.fase_iniz,
+    a.fase_fin,
+    a.descrizione,
+    a.the_geom,
+    a.sigla_strut,
+    a.nr_strut,
+    b.id_struttura,
+    b.sito AS sito_1,
+    b.sigla_struttura,
+    b.numero_struttura,
+    b.categoria_struttura,
+    b.tipologia_struttura,
+    b.definizione_struttura,
+    b.descrizione AS descrizione_1,
+    b.interpretazione,
+    b.periodo_iniziale,
+    b.fase_iniziale,
+    b.periodo_finale,
+    b.fase_finale,
+    b.datazione_estesa,
+    b.materiali_impiegati,
+    b.elementi_strutturali,
+    b.rapporti_struttura,
+    b.misure_struttura
+   FROM pyarchinit_strutture_ipotesi a
+     JOIN struttura_table b ON a.sito::text = b.sito AND a.sigla_strut::text = b.sigla_struttura AND a.nr_strut = b.numero_struttura;
+
+ALTER TABLE public.pyarchinit_strutture_view
+    OWNER TO postgres;
 CREATE OR REPLACE VIEW public.pyarchinit_individui_view AS
  SELECT pyarchinit_individui.gid,
     pyarchinit_individui.the_geom,

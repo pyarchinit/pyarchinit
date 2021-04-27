@@ -62,6 +62,9 @@ try:
     subprocess.check_call([cmd, '-m', 'ensurepip'], shell=False)
 except:
     pass
+subprocess.check_call([cmd, '-m', 'pip', 'install', '--upgrade', 'pip','--user'], shell=False) 
 for p in packages:
-    subprocess.check_call([cmd, '-m', 'pip', 'install', '--upgrade', p,'--user'], shell=False)
-    
+    try:
+        subprocess.check_call([cmd, '-m', 'pip', 'install', '--upgrade', p,'--user'], shell=False)
+    except Exception as e:
+        print(str(e))

@@ -1183,22 +1183,36 @@ class pyarchinit_Periodizzazione(QDialog, MAIN_DIALOG_CLASS):
             self.pyQGIS.charge_vector_layers_periodo(sito_p, int(cont_per), per_label, fas_label)
 
     def on_pushButton_all_period_pressed(self):
+        #self.set_sito()
         if not self.lineEdit_codice_periodo.text():
             QMessageBox.warning(self, "Message", "Period code not add", QMessageBox.Ok)
         else:
             lista=[]
-            for i in self.DB_MANAGER.query(self.MAPPER_TABLE_CLASS):
-                lista.append(i)
+            conn = Connection()
+            sito_set= conn.sito_set()
+            sito_set_str = sito_set['sito_set']
+            try:
+                if bool (sito_set_str):
+                    search_dict = {
+                        'sito': "'" + str(sito_set_str) + "'"}  # 1 - Sito
+                    u = Utility()
+                    search_dict = u.remove_empty_items_fr_dict(search_dict)
+                    res = self.DB_MANAGER.query_bool(search_dict, self.MAPPER_TABLE_CLASS)
+                    self.DATA_LIST = []
+                for i in res:
+                    self.DATA_LIST.append(i)
             
-            for e in lista:
-                sito_p = e.sito
-                cont_per = e.cont_per
-                per_label = e.periodo
-                fas_label = e.fase
-                
-                self.pyQGIS.charge_vector_layers_all_period(sito_p, int(cont_per),per_label,fas_label)
+            
+                for e in self.DATA_LIST:
+                    sito_p = e.sito
+                    cont_per = e.cont_per
+                    per_label = e.periodo
+                    fas_label = e.fase
+                    
+                    self.pyQGIS.charge_vector_layers_all_period(sito_p, str(cont_per),per_label,fas_label)
     
-                
+            except Exception as e:
+                print(str(e))    
     
     
     def update_if(self, msg):
