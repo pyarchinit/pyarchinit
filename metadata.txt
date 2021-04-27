@@ -25,6 +25,7 @@ repository=https://github.com/pyarchinit/pyarchinit
 changelog=release3.3
         -update template qpt
         -view all period in subfolder
+        -fix bug struttura
    -------------------------------------------------------------------------------
 
    release3.2
