@@ -2896,7 +2896,7 @@ class Pyarchinit_pyqgis(QDialog):
     def charge_vector_layers_all_st(self, sito_p,sigla_st,n_st):
         self.sito_p = sito_p
         self.sigla_st = sigla_st
-        self.n_st = n_st
+        self.n_st = str(n_st)
        
 
         cfg_rel_path = os.path.join(os.sep, 'pyarchinit_DB_folder', 'config.cfg')
@@ -2915,7 +2915,7 @@ class Pyarchinit_pyqgis(QDialog):
             db_file_path = '{}{}'.format(self.HOME, sqliteDB_path)
 
             
-            string = "sito = '" + self.sito_p + "'"
+            string = "sito = '" + self.sito_p + "' AND  sigla_struttura = '" + self.sigla_st + "' AND numero_struttura= '" + self.n_st + "'"
             
             #gidstr = "id_struttura = '" + str(self.data[0].id_struttura) + "'"
             # if len(data) > 1:
@@ -2942,8 +2942,10 @@ class Pyarchinit_pyqgis(QDialog):
             uri = QgsDataSourceUri()
 
             uri.setConnection(settings.HOST, settings.PORT, settings.DATABASE, settings.USER, settings.PASSWORD)
-
-            string = "sito = '" + self.sito_p + "'"
+            try:
+                string = "sito = '" + self.sito_p + "' AND  sigla_struttura = '" + self.sigla_st + "' AND numero_struttura= '" + self.n_st + "'"
+            except Exception as e:
+                QMessageBox.warning(self, "TESTER", str(e), QMessageBox.Ok)
             #gidstr = "id_struttura = '" + str(self.data[0].id_struttura) + "'"
             # if len(data) > 1:
                 # for i in range(len(data)):
