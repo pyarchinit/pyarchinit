@@ -2893,6 +2893,75 @@ class Pyarchinit_pyqgis(QDialog):
             else:
                 QMessageBox.warning(self, "TESTER", "OK Layer not valid", QMessageBox.Ok)
     
+    def charge_vector_layers_all_st(self, sito_p,sigla_st,n_st):
+        self.sito_p = sito_p
+        self.sigla_st = sigla_st
+        self.n_st = n_st
+       
+
+        cfg_rel_path = os.path.join(os.sep, 'pyarchinit_DB_folder', 'config.cfg')
+        file_path = '{}{}'.format(self.HOME, cfg_rel_path)
+        conf = open(file_path, "r")
+        con_sett = conf.read()
+        conf.close()
+
+        settings = Settings(con_sett)
+        settings.set_configuration()
+        groupName="View scheda Struttura  - Sigla: %s / Num: %s" % (self.sigla_st, self.n_st)
+        root = QgsProject.instance().layerTreeRoot()
+        group = root.addGroup(groupName)
+        if settings.SERVER == 'sqlite':
+            sqliteDB_path = os.path.join(os.sep, 'pyarchinit_DB_folder', settings.DATABASE)
+            db_file_path = '{}{}'.format(self.HOME, sqliteDB_path)
+
+            
+            string = "sito = '" + self.sito_p + "'"
+            
+            #gidstr = "id_struttura = '" + str(self.data[0].id_struttura) + "'"
+            # if len(data) > 1:
+                # for i in range(len(data)):
+                    # gidstr += " OR id_struttura = '" + str(data[i].id_struttura) + "'"
+
+            uri = QgsDataSourceUri()
+            uri.setDatabase(db_file_path)
+
+            uri.setDataSource('', 'pyarchinit_strutture_view', 'the_geom', string, "ROWID")
+            layerSTRUTTURA = QgsVectorLayer(uri.uri(), 'pyarchinit_strutture_view', 'spatialite')
+
+            if layerSTRUTTURA.isValid():
+                #QMessageBox.warning(self, "TESTER", "OK Layer Struttura valido", QMessageBox.Ok)
+
+                self.iface.mapCanvas().setExtent(layerSTRUTTURA.extent())
+                group.insertChildNode(-1, QgsLayerTreeLayer(layerSTRUTTURA))
+                QgsProject.instance().addMapLayers([layerSTRUTTURA], False)
+            else:
+                QMessageBox.warning(self, "TESTER", "Layer Struttura non valido", QMessageBox.Ok)
+
+        elif settings.SERVER == 'postgres':
+
+            uri = QgsDataSourceUri()
+
+            uri.setConnection(settings.HOST, settings.PORT, settings.DATABASE, settings.USER, settings.PASSWORD)
+
+            string = "sito = '" + self.sito_p + "'"
+            #gidstr = "id_struttura = '" + str(self.data[0].id_struttura) + "'"
+            # if len(data) > 1:
+                # for i in range(len(data)):
+                    # gidstr += " OR id_struttura = '" + str(data[i].id_struttura) + "'"
+
+            uri.setDataSource("public", 'pyarchinit_strutture_view', 'the_geom', string, "gid")
+            layerSTRUTTURA = QgsVectorLayer(uri.uri(), 'pyarchinit_strutture_view', 'postgres')
+
+            if layerSTRUTTURA.isValid():
+                #QMessageBox.warning(self, "TESTER", "OK Layer Struttura valido", QMessageBox.Ok)
+
+                self.iface.mapCanvas().setExtent(layerSTRUTTURA.extent())
+                group.insertChildNode(-1, QgsLayerTreeLayer(layerSTRUTTURA))
+                QgsProject.instance().addMapLayers([layerSTRUTTURA], False)
+            else:
+                QMessageBox.warning(self, "TESTER", "Layer Struttura non valido", QMessageBox.Ok)
+
+    
     def charge_structure_from_research(self, data):
         # Clean Qgis Map Later Registry
         # QgsProject.instance().removeAllMapLayers()
@@ -2957,7 +3026,7 @@ class Pyarchinit_pyqgis(QDialog):
                 QgsProject.instance().addMapLayers([layerSTRUTTURA], False)
             else:
                 QMessageBox.warning(self, "TESTER", "Layer Struttura non valido", QMessageBox.Ok)
-
+    
     def charge_individui_from_research(self, data):
         # Clean Qgis Map Later Registry
         # QgsProject.instance().removeAllMapLayers()
