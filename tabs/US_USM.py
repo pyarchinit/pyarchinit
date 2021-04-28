@@ -1324,7 +1324,7 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
             area = str(self.comboBox_area.currentText())
             search_dict = {
                 'sito': "'" + sito + "'",
-                'area': "'" + str(eval("self.DATA_LIST[int(self.REC_CORR)].area")) + "'",
+                #'area': "'" + str(eval("self.DATA_LIST[int(self.REC_CORR)].area")) + "'",
             }
             periodo_vl = self.DB_MANAGER.query_bool(search_dict, 'PERIODIZZAZIONE')
             periodo_list = []
@@ -1356,7 +1356,7 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
             area = str(self.comboBox_area.currentText())
             search_dict = {
                 'sito': "'" + sito + "'",
-                'area': "'" + str(eval("self.DATA_LIST[int(self.REC_CORR)].area")) + "'",
+                #'area': "'" + str(eval("self.DATA_LIST[int(self.REC_CORR)].area")) + "'",
             }
             periodo_vl = self.DB_MANAGER.query_bool(search_dict, 'PERIODIZZAZIONE')
             periodo_list = []
