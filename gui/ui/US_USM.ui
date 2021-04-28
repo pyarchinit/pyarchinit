@@ -8248,28 +8248,12 @@ p, li { white-space: pre-wrap; }
    <slot>toggleUserVisible()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>283</x>
-     <y>679</y>
+     <x>736</x>
+     <y>827</y>
     </hint>
     <hint type="destinationlabel">
      <x>67</x>
      <y>757</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>DialogUS</sender>
-   <signal>rejected()</signal>
-   <receiver>DialogUS</receiver>
-   <slot>deleteLater()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>410</x>
-     <y>450</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>410</x>
-     <y>450</y>
     </hint>
    </hints>
   </connection>
