@@ -2690,8 +2690,7 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
                             data_list_toimp[sing_rec].cron_finale,
                             data_list_toimp[sing_rec].descrizione,
                             data_list_toimp[sing_rec].datazione_estesa,
-                            data_list_toimp[sing_rec].cont_per,
-                            data_list_toimp[sing_rec].area)
+                            data_list_toimp[sing_rec].cont_per)
 
 
                         self.DB_MANAGER_write.insert_data_session(data)
