@@ -66,9 +66,14 @@ class pyarchinit_PRINTMAP(QDialog, MAIN_DIALOG_CLASS):
         self.btnAddMore.clicked.connect(self.addMoreTemplates)        
         self.listWidget.setContextMenuPolicy(Qt.CustomContextMenu)
         self.listWidget.customContextMenuRequested.connect(self.listMenu)
+        self.customize_GUI()
         self.txtLayoutName.setEnabled(False)
         self.run()
+        
+        
+    def customize_GUI(self):
         self.listWidget_2.itemDoubleClicked.connect(self.opentepmplatePreview)
+    
     def loadTemplates(self):
         self.listWidget.clear()
         profile_dir = self.HOME
