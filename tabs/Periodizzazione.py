@@ -759,10 +759,10 @@ class pyarchinit_Periodizzazione(QDialog, MAIN_DIALOG_CLASS):
                 cont_per = ''
             else:
                 cont_per = int(self.lineEdit_codice_periodo.text())
-            if not self.comboBox_area.currentText():
-                area = ''
-            else:
-                area = int(self.comboBox_area.currentText())
+            # if not self.comboBox_area.currentText():
+                # area = ''
+            # else:
+                # area = int(self.comboBox_area.currentText())
             data = self.DB_MANAGER.insert_periodizzazione_values(
                 self.DB_MANAGER.max_num_id(self.MAPPER_TABLE_CLASS, self.ID_TABLE) + 1,  # 0 - max num id
                 str(self.comboBox_sito.currentText()),  # 1 - Sito
