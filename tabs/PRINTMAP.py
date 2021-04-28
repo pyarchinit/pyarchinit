@@ -44,7 +44,7 @@ from qgis.PyQt.uic import loadUiType
 from qgis.core import Qgis, QgsSettings,QgsGeometry,QgsProject,QgsApplication
 from qgis.gui import QgsMapCanvas, QgsMapToolPan
 from qgis.PyQt.QtSql import QSqlDatabase, QSqlTableModel
-
+from ..gui.imageViewer import ImageViewer
 from ..modules.utility.pyarchinit_OS_utility import Pyarchinit_OS_Utility
 
 from ..resources.resources_rc import *
@@ -68,7 +68,7 @@ class pyarchinit_PRINTMAP(QDialog, MAIN_DIALOG_CLASS):
         self.listWidget.customContextMenuRequested.connect(self.listMenu)
         self.txtLayoutName.setEnabled(False)
         self.run()
-        
+        self.listWidget_2.itemDoubleClicked.connect(self.opentepmplatePreview)
     def loadTemplates(self):
         self.listWidget.clear()
         profile_dir = self.HOME
