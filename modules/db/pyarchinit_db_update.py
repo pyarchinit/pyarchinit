@@ -407,8 +407,8 @@ class DB_update(object):
 
         if not table_column_names_list.__contains__('cont_per'):
             self.engine.execute("ALTER TABLE periodizzazione_table ADD COLUMN cont_per integer DEFAULT '' ")
-        if not table_column_names_list.__contains__('area'):
-            self.engine.execute("ALTER TABLE periodizzazione_table ADD COLUMN area integer")
+        # if not table_column_names_list.__contains__('area'):
+            # self.engine.execute("ALTER TABLE periodizzazione_table ADD COLUMN area integer")
         
         ####tomba_table
         table = Table("tomba_table", self.metadata, autoload=True)

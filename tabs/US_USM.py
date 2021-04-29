@@ -35,12 +35,15 @@ from datetime import date
 import xml.etree.ElementTree as ET
 from lxml import etree
 import cv2
+from distutils.dir_util import copy_tree
+from random import randrange as rand
 from PyQt5 import QtCore, QtGui, QtWidgets
+#from PyQt5.QtXml import QDomDocument
 from qgis.PyQt.QtCore import *
 from qgis.PyQt.QtGui import QColor, QIcon
 from qgis.PyQt.QtWidgets import *
 from qgis.PyQt.uic import loadUiType
-from qgis.core import Qgis, QgsSettings,QgsGeometry
+from qgis.core import Qgis, QgsSettings,QgsGeometry,QgsProject,QgsApplication
 from qgis.gui import QgsMapCanvas, QgsMapToolPan
 from qgis.PyQt.QtSql import QSqlDatabase, QSqlTableModel
 import re
@@ -56,6 +59,7 @@ from ..modules.utility.pyarchinit_exp_Periodosheet_pdf import generate_US_pdf
 from ..modules.utility.pyarchinit_exp_USsheet_pdf import generate_US_pdf
 from ..modules.utility.pyarchinit_print_utility import Print_utility
 from ..modules.utility.settings import Settings
+#from ..modules.utility.layout_loader import LayoutLoader
 from .pyarchinit_setting_matrix import Setting_Matrix
 from ..searchLayers import SearchLayers
 from ..gui.imageViewer import ImageViewer
@@ -751,11 +755,12 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
         "EN_US": ['en_US','EN_US','en','EN'],
         "DE": ['de_DE','de','DE', 'DE_DE']
     }
-    HOME = os.environ['PYARCHINIT_HOME']
+    
     REPORT_PATH = '{}{}{}'.format(HOME, os.sep, "pyarchinit_Report_folder")
     MATRIX_PATH = '{}{}{}'.format(HOME, os.sep, "pyarchinit_Matrix_folder")
     BIN = '{}{}{}'.format(HOME, os.sep, "bin")
     DB_SERVER = "not defined"  ####nuovo sistema sort
+    
     def __init__(self, iface):
         super().__init__()
         self.iface = iface
@@ -768,6 +773,7 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
         self.mDockWidget_5.setHidden(True)
         self.currentLayerId = None
         self.search = SearchLayers(iface)
+        
         try:
             self.on_pushButton_connect_pressed()
         except Exception as e:
@@ -811,6 +817,9 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
         self.tableWidget_rapporti.itemSelectionChanged.connect(self.unitatipo)
         self.tableWidget_rapporti.itemSelectionChanged.connect(self.defin)
         self.tableWidget_rapporti.itemSelectionChanged.connect(self.datazione)
+        
+        
+    
     
     def charge_insert_ra(self):
         try:
@@ -1026,7 +1035,7 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
             self.comboBox_posizione.addItems(self.UTILITY.remove_dup_from_list(geometry_list))
             if self.STATUS_ITEMS[self.BROWSE_STATUS] == "Trova" or "Finden" or "Find":
                 self.comboBox_posizione.setEditText("")
-            elif self.STATUS_ITEMS[self.BROWSE_STATUS] == "Usa" or "Aktuell " or "Current":		
+            elif self.STATUS_ITEMS[self.BROWSE_STATUS] == "Usa" or "Aktuell " or "Current":     
                 if len(self.DATA_LIST) > 0:
                     try:
                         self.comboBox_posizione.setEditText(self.DATA_LIST[self.rec_num].posizione)
@@ -1043,7 +1052,7 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
             area = str(self.comboBox_area.currentText())
             search_dict = {
                 'sito': "'" + sito + "'",
-                'area': "'" + str(eval("self.DATA_LIST[int(self.REC_CORR)].area")) + "'",
+                #'area': "'" + str(eval("self.DATA_LIST[int(self.REC_CORR)].area")) + "'",
             }
             periodo_vl = self.DB_MANAGER.query_bool(search_dict, 'PERIODIZZAZIONE')
             periodo_list = []
@@ -1058,7 +1067,7 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
             self.comboBox_per_iniz.addItems(self.UTILITY.remove_dup_from_list(periodo_list))
             if self.STATUS_ITEMS[self.BROWSE_STATUS] == "Trova" or "Finden" or "Find":
                 self.comboBox_per_iniz.setEditText("")
-            elif self.STATUS_ITEMS[self.BROWSE_STATUS] == "Usa" or "Aktuell " or "Current":	
+            elif self.STATUS_ITEMS[self.BROWSE_STATUS] == "Usa" or "Aktuell " or "Current": 
                 if len(self.DATA_LIST) > 0:
                     try:
                         self.comboBox_per_iniz.setEditText(self.DATA_LIST[self.rec_num].periodo_iniziale)
@@ -1075,7 +1084,7 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
             area = str(self.comboBox_area.currentText())
             search_dict = {
                 'sito': "'" + sito + "'",
-                'area': "'" + str(eval("self.DATA_LIST[int(self.REC_CORR)].area")) + "'",
+                #'area': "'" + str(eval("self.DATA_LIST[int(self.REC_CORR)].area")) + "'",
             }
             periodo_vl = self.DB_MANAGER.query_bool(search_dict, 'PERIODIZZAZIONE')
             periodo_list = []
@@ -1089,7 +1098,7 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
             self.comboBox_per_fin.addItems(self.UTILITY.remove_dup_from_list(periodo_list))
             if self.STATUS_ITEMS[self.BROWSE_STATUS] == "Trova" or "Finden" or "Find":
                 self.comboBox_per_fin.setEditText("")
-            elif self.STATUS_ITEMS[self.BROWSE_STATUS] == "Usa" or "Aktuell " or "Current":	
+            elif self.STATUS_ITEMS[self.BROWSE_STATUS] == "Usa" or "Aktuell " or "Current": 
                 if len(self.DATA_LIST) > 0:
                     try:
                         self.comboBox_per_fin.setEditText(self.DATA_LIST[self.rec_num].periodo_iniziale)
@@ -1561,6 +1570,7 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
         self.iconListWidget.SelectionMode()
         self.iconListWidget.setSelectionMode(QAbstractItemView.ExtendedSelection)
         self.iconListWidget.itemDoubleClicked.connect(self.openWide_image)
+        #self.listWidget_2.itemDoubleClicked.connect(self.opentepmplatePreview)
         # comboBox customizations
         
         self.setComboBoxEditable(["self.comboBox_per_fin"], 1)
@@ -3179,7 +3189,7 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
                    OR col LIKE '[''Tagliato da'',%' OR col LIKE '[''Gli si appoggia'',%' THEN col END) ante,
                    
                    GROUP_CONCAT(CASE WHEN col LIKE '[''Si lega a'',%' or col LIKE '[''Uguale a'',%' THEN col END) contemp
-			
+            
                     FROM cte GROUP BY rowid order by rowid""")
                 rows2 = cur2.fetchall()
                 col_names2 = ['Rapporto Posteriore','Rapporto Anteriore', 'Rapporto Contemporaneo']

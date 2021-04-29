@@ -968,7 +968,7 @@ class pyarchinit_Tomba(QDialog, MAIN_DIALOG_CLASS):
 
             search_dict = {
                 'sito': "'" + sito + "'",
-                'area': "'" + str(eval("self.DATA_LIST[int(self.REC_CORR)].area"))+ "'"
+                #'area': "'" + str(eval("self.DATA_LIST[int(self.REC_CORR)].area"))+ "'"
             }
 
             periodo_vl = self.DB_MANAGER.query_bool(search_dict, 'PERIODIZZAZIONE')
@@ -999,7 +999,7 @@ class pyarchinit_Tomba(QDialog, MAIN_DIALOG_CLASS):
         try:
             search_dict = {
                 'sito': "'" + str(self.comboBox_sito.currentText()) + "'",
-                'area': "'" + str(eval("self.DATA_LIST[int(self.REC_CORR)].area"))+ "'"
+                #'area': "'" + str(eval("self.DATA_LIST[int(self.REC_CORR)].area"))+ "'"
             }
 
             periodo_vl = self.DB_MANAGER.query_bool(search_dict, 'PERIODIZZAZIONE')
