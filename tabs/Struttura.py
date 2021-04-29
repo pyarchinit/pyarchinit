@@ -215,7 +215,7 @@ class pyarchinit_Struttura(QDialog, MAIN_DIALOG_CLASS):
     }
 
     DB_SERVER = "not defined"  ####nuovo sistema sort
-
+    HOME = os.environ['PYARCHINIT_HOME']
 
 
     def __init__(self, iface):
@@ -1356,7 +1356,7 @@ class pyarchinit_Struttura(QDialog, MAIN_DIALOG_CLASS):
                     self.BROWSE_STATUS = "f"
                     ###
                     #self.setComboBoxEditable(["self.comboBox_sito"], 1)
-                    self.setComboBoxEditable(["self.comboBox_sigla_struttura"], 0)
+                    self.setComboBoxEditable(["self.comboBox_sigla_struttura"], 1)
                     self.setComboBoxEnable(["self.comboBox_sito"], False)
                     self.setComboBoxEnable(["self.comboBox_sigla_struttura"], True)
                     self.setComboBoxEnable(["self.numero_struttura"], True)
@@ -1377,7 +1377,7 @@ class pyarchinit_Struttura(QDialog, MAIN_DIALOG_CLASS):
                     self.BROWSE_STATUS = "f"
                     ###
                     self.setComboBoxEditable(["self.comboBox_sito"], 0)
-                    self.setComboBoxEditable(["self.comboBox_sigla_struttura"], 0)
+                    self.setComboBoxEditable(["self.comboBox_sigla_struttura"], 1)
                     self.setComboBoxEnable(["self.comboBox_sito"], True)
                     self.setComboBoxEnable(["self.comboBox_sigla_struttura"], True)
                     self.setComboBoxEnable(["self.numero_struttura"], True)
@@ -1651,11 +1651,11 @@ class pyarchinit_Struttura(QDialog, MAIN_DIALOG_CLASS):
         if self.L=='it':    
             if self.toolButton_draw_strutture.isChecked():
                 QMessageBox.warning(self, "Messaggio",
-                                    "DA DEBUGGARE Modalita' GIS attiva. Da ora le tue ricerche verranno visualizzate sul GIS",
+                                    "Modalita' GIS attiva. Da ora le tue ricerche verranno visualizzate sul GIS",
                                     QMessageBox.Ok)
             else:
                 QMessageBox.warning(self, "Messaggio",
-                                    " DA DEBUGGARE Modalita' GIS disattivata. Da ora le tue ricerche non verranno piu' visualizzate sul GIS",
+                                    "Modalita' GIS disattivata. Da ora le tue ricerche non verranno piu' visualizzate sul GIS",
                                     QMessageBox.Ok)
         elif self.L=='de':  
             if self.toolButton_draw_strutture.isChecked():
@@ -1678,11 +1678,41 @@ class pyarchinit_Struttura(QDialog, MAIN_DIALOG_CLASS):
                                     "GIS mode disabled. From now on, your searches will no longer be displayed on the GIS.",
                                     QMessageBox.Ok)                     
     def on_pushButton_draw_struttura_pressed(self):
-        QMessageBox.warning(self, "Messaggio", " DA DEBUGGARE", QMessageBox.Ok)
-
+        
         sing_layer = [self.DATA_LIST[self.REC_CORR]]
         self.pyQGIS.charge_structure_from_research(sing_layer)
 
+    
+    def on_pushButton_view_all_st_pressed(self):
+        
+        lista=[]
+        conn = Connection()
+        sito_set= conn.sito_set()
+        sito_set_str = sito_set['sito_set']
+        try:
+            if bool (sito_set_str):
+                search_dict = {
+                    'sito': "'" + str(sito_set_str) + "'"}  # 1 - Sito
+                u = Utility()
+                search_dict = u.remove_empty_items_fr_dict(search_dict)
+                res = self.DB_MANAGER.query_bool(search_dict, self.MAPPER_TABLE_CLASS)
+                self.DATA_LIST = []
+            for i in res:
+                self.DATA_LIST.append(i)
+        
+        
+            for e in self.DATA_LIST:
+            
+                sito_p = e.sito
+                sigla_st = e.sigla_struttura
+                n_st = e.numero_struttura
+            
+            
+                self.pyQGIS.charge_vector_layers_all_st(sito_p, sigla_st,n_st)
+    
+        except Exception as e:
+            print(str(e))  
+    
     def update_if(self, msg):
         rec_corr = self.REC_CORR
         if msg == QMessageBox.Ok:
@@ -2055,6 +2085,7 @@ class pyarchinit_Struttura(QDialog, MAIN_DIALOG_CLASS):
         eval(cmd)
 
     def update_record(self):
+        
         try:
             self.DB_MANAGER.update(self.MAPPER_TABLE_CLASS,
                                    self.ID_TABLE,
