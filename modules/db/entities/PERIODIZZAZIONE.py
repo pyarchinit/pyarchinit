@@ -16,8 +16,7 @@ class PERIODIZZAZIONE(object):
                  cron_finale,
                  descrizione,
                  datazione_estesa,
-                 cont_per,
-                 area
+                 cont_per
                  ):
         self.id_perfas = id_perfas  # 0
         self.sito = sito  # 1
@@ -28,11 +27,11 @@ class PERIODIZZAZIONE(object):
         self.descrizione = descrizione  # 6
         self.datazione_estesa = datazione_estesa  # 7
         self.cont_per = cont_per  # 8
-        self.area = area
+        
 
     # def __repr__"
     def __repr__(self):
-        return "<PERIODIZZAZIONE('%d', '%s', '%d', '%d', '%d', '%d', '%s', '%s', '%d','%d')>" % (
+        return "<PERIODIZZAZIONE('%d', '%s', '%d', '%d', '%d', '%d', '%s', '%s', '%d')>" % (
             self.id_perfas,
             self.sito,
             self.periodo,
@@ -41,6 +40,5 @@ class PERIODIZZAZIONE(object):
             self.cron_finale,
             self.descrizione,
             self.datazione_estesa,
-            self.cont_per,
-            self.area
+            self.cont_per
         )
