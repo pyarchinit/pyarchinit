@@ -348,8 +348,8 @@
        </property>
        <property name="maximumSize">
         <size>
-         <width>30</width>
-         <height>30</height>
+         <width>40</width>
+         <height>40</height>
         </size>
        </property>
        <property name="font">
@@ -379,8 +379,8 @@
        </property>
        <property name="maximumSize">
         <size>
-         <width>30</width>
-         <height>30</height>
+         <width>40</width>
+         <height>40</height>
         </size>
        </property>
        <property name="font">
@@ -413,8 +413,8 @@
        </property>
        <property name="maximumSize">
         <size>
-         <width>30</width>
-         <height>30</height>
+         <width>40</width>
+         <height>40</height>
         </size>
        </property>
        <property name="font">
@@ -437,8 +437,8 @@
        </property>
        <property name="maximumSize">
         <size>
-         <width>30</width>
-         <height>30</height>
+         <width>40</width>
+         <height>40</height>
         </size>
        </property>
        <property name="font">
@@ -474,8 +474,8 @@
        </property>
        <property name="maximumSize">
         <size>
-         <width>30</width>
-         <height>30</height>
+         <width>40</width>
+         <height>40</height>
         </size>
        </property>
        <property name="font">
@@ -505,8 +505,8 @@
        </property>
        <property name="maximumSize">
         <size>
-         <width>30</width>
-         <height>30</height>
+         <width>40</width>
+         <height>40</height>
         </size>
        </property>
        <property name="font">
@@ -536,8 +536,8 @@
        </property>
        <property name="maximumSize">
         <size>
-         <width>30</width>
-         <height>30</height>
+         <width>40</width>
+         <height>40</height>
         </size>
        </property>
        <property name="font">
@@ -567,8 +567,8 @@
        </property>
        <property name="maximumSize">
         <size>
-         <width>30</width>
-         <height>30</height>
+         <width>40</width>
+         <height>40</height>
         </size>
        </property>
        <property name="font">
@@ -592,8 +592,8 @@
       <widget class="QPushButton" name="pushButton_draw_sito">
        <property name="maximumSize">
         <size>
-         <width>30</width>
-         <height>30</height>
+         <width>40</width>
+         <height>40</height>
         </size>
        </property>
        <property name="toolTip">
@@ -607,7 +607,7 @@
        </property>
        <property name="icon">
         <iconset resource="../../resources/resources.qrc">
-         <normaloff>:/icons/GIS.png</normaloff>:/icons/GIS.png</iconset>
+         <normaloff>:/icons/site_point.png</normaloff>:/icons/site_point.png</iconset>
        </property>
       </widget>
      </item>
@@ -621,8 +621,8 @@
        </property>
        <property name="maximumSize">
         <size>
-         <width>30</width>
-         <height>30</height>
+         <width>40</width>
+         <height>40</height>
         </size>
        </property>
        <property name="font">
@@ -652,8 +652,8 @@
        </property>
        <property name="maximumSize">
         <size>
-         <width>30</width>
-         <height>30</height>
+         <width>40</width>
+         <height>40</height>
         </size>
        </property>
        <property name="font">
@@ -683,8 +683,8 @@
        </property>
        <property name="maximumSize">
         <size>
-         <width>30</width>
-         <height>30</height>
+         <width>40</width>
+         <height>40</height>
         </size>
        </property>
        <property name="font">
@@ -714,8 +714,8 @@
        </property>
        <property name="maximumSize">
         <size>
-         <width>30</width>
-         <height>30</height>
+         <width>40</width>
+         <height>40</height>
         </size>
        </property>
        <property name="font">
@@ -739,8 +739,8 @@
       <widget class="QPushButton" name="pushButton_sites_geometry">
        <property name="maximumSize">
         <size>
-         <width>30</width>
-         <height>30</height>
+         <width>40</width>
+         <height>40</height>
         </size>
        </property>
        <property name="toolTip">
@@ -765,8 +765,8 @@
       <widget class="QPushButton" name="pushButton_draw">
        <property name="maximumSize">
         <size>
-         <width>30</width>
-         <height>30</height>
+         <width>40</width>
+         <height>40</height>
         </size>
        </property>
        <property name="toolTip">
