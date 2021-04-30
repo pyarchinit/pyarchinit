@@ -1451,7 +1451,7 @@ class Pyarchinit_pyqgis(QDialog):
 
         settings = Settings(con_sett)
         settings.set_configuration()
-        groupName="Layer Archeologici da vettorializzare"
+        groupName="Layer Archeologici"
         root = QgsProject.instance().layerTreeRoot()
         group = root.addGroup(groupName)
         group.setExpanded(False)
@@ -2076,7 +2076,7 @@ class Pyarchinit_pyqgis(QDialog):
 
         settings = Settings(con_sett)
         settings.set_configuration()
-        groupName="Layer Archelogici filtrati da vettorializzare"
+        groupName="Layer Archelogici(%s)"%(val)
         root = QgsProject.instance().layerTreeRoot()
         group = root.addGroup(groupName)
         group.setExpanded(False)
