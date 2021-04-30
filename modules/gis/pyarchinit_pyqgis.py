@@ -197,6 +197,7 @@ class Pyarchinit_pyqgis(QDialog):
         groupName="View scheda US-Individui"
         root = QgsProject.instance().layerTreeRoot()
         group = root.addGroup(groupName)
+        group.setExpanded(False)
         if settings.SERVER == 'sqlite':
             sqliteDB_path = os.path.join(os.sep, 'pyarchinit_DB_folder', settings.DATABASE)
             db_file_path = '{}{}'.format(self.HOME, sqliteDB_path)
@@ -302,6 +303,7 @@ class Pyarchinit_pyqgis(QDialog):
         groupName="View scheda US-Matrix"
         root = QgsProject.instance().layerTreeRoot()
         group = root.addGroup(groupName)
+        group.setExpanded(False)
         if settings.SERVER == 'sqlite':
             sqliteDB_path = os.path.join(os.sep, 'pyarchinit_DB_folder', settings.DATABASE)
             db_file_path = '{}{}'.format(self.HOME, sqliteDB_path)
@@ -400,7 +402,7 @@ class Pyarchinit_pyqgis(QDialog):
         groupName="View scheda Documentazione"
         root = QgsProject.instance().layerTreeRoot()
         group = root.addGroup(groupName)
-
+        group.setExpanded(False)
         if settings.SERVER == 'sqlite':
             sqliteDB_path = os.path.join(os.sep, 'pyarchinit_DB_folder', settings.DATABASE)
             db_file_path = '{}{}'.format(self.HOME, sqliteDB_path)
@@ -687,6 +689,7 @@ class Pyarchinit_pyqgis(QDialog):
         groupName="View scheda US-Documentazione"
         root = QgsProject.instance().layerTreeRoot()
         group = root.addGroup(groupName)
+        group.setExpanded(False)
         if settings.SERVER == 'sqlite':
             sqliteDB_path = os.path.join(os.sep, 'pyarchinit_DB_folder', settings.DATABASE)
             db_file_path = '{}{}'.format(self.HOME, sqliteDB_path)
@@ -917,6 +920,7 @@ class Pyarchinit_pyqgis(QDialog):
         groupName="View scheda US"
         root = QgsProject.instance().layerTreeRoot()
         group = root.addGroup(groupName)
+        group.setExpanded(False)  
         if settings.SERVER == 'sqlite':
             sqliteDB_path = os.path.join(os.sep, 'pyarchinit_DB_folder', settings.DATABASE)
             db_file_path = '{}{}'.format(self.HOME, sqliteDB_path)
@@ -1033,6 +1037,7 @@ class Pyarchinit_pyqgis(QDialog):
         groupName="View scheda Periodo  - Per: %s / Fas: %s" % (self.per_label, self.fas_label)
         root = QgsProject.instance().layerTreeRoot()
         group = root.addGroup(groupName)
+        group.setExpanded(False)  
         if self.L=='it':
             layer_name_label_us = "Unita Stratigrafiche - Per: %s / Fas: %s" % (self.per_label, self.fas_label)
             layer_name_label_quote = "Quote US - Per: %s / Fas: %s" % (self.per_label, self.fas_label)
@@ -1130,14 +1135,17 @@ class Pyarchinit_pyqgis(QDialog):
         settings = Settings(con_sett)
         settings.set_configuration()
         
+        
+        
+        
         groupName="View scheda Periodo  - Per: %s / Fas: %s" % (self.per_label, self.fas_label)
         root = QgsProject.instance().layerTreeRoot()
+       
         group = root.addGroup(groupName)
         
-        #group.insertGroup(1,"View scheda Periodo  - Per: %s / Fas: %s" % (self.per_label, self.fas_label))
-            
-            
-            
+        group.setExpanded(False)    
+        
+        
         if self.L=='it':
             layer_name_label_us = "Unita Stratigrafiche - Per: %s / Fas: %s" % (self.per_label, self.fas_label)
             layer_name_label_quote = "Quote US - Per: %s / Fas: %s" % (self.per_label, self.fas_label)
@@ -1184,6 +1192,8 @@ class Pyarchinit_pyqgis(QDialog):
             else:
                 QMessageBox.warning(self, "TESTER", "OK Layer US non valido", QMessageBox.Ok)
 
+            
+            
             srs = QgsCoordinateReferenceSystem(self.SRS, QgsCoordinateReferenceSystem.PostgisCrsId)
 
         elif settings.SERVER == 'postgres':
@@ -1444,9 +1454,14 @@ class Pyarchinit_pyqgis(QDialog):
         groupName="Layer Archeologici da vettorializzare"
         root = QgsProject.instance().layerTreeRoot()
         group = root.addGroup(groupName)
-        myGroup1 = group.insertGroup(1, "Point")
-        myGroup2 = group.insertGroup(2, "Line")        
-        myGroup3 = group.insertGroup(3, "Poligon")
+        group.setExpanded(False)
+        myGroup1 = group.insertGroup(1, "Riferimenti di localizzazione")
+        myGroup2 = group.insertGroup(2, "Linee di riferimento")        
+        myGroup3 = group.insertGroup(3, "Ingombri")
+        myGroup1.setExpanded(False)
+        myGroup2.setExpanded(False)
+        myGroup3.setExpanded(False)
+            
         if settings.SERVER == 'sqlite':
             sqliteDB_path = os.path.join(os.sep, 'pyarchinit_DB_folder', settings.DATABASE)
             db_file_path = '{}{}'.format(self.HOME, sqliteDB_path)
@@ -2064,9 +2079,13 @@ class Pyarchinit_pyqgis(QDialog):
         groupName="Layer Archelogici filtrati da vettorializzare"
         root = QgsProject.instance().layerTreeRoot()
         group = root.addGroup(groupName)
-        myGroup1 = group.insertGroup(1, "Point")
-        myGroup2 = group.insertGroup(2, "Line")        
-        myGroup3 = group.insertGroup(3, "Poligon")
+        group.setExpanded(False)
+        myGroup1 = group.insertGroup(1, "Riferimenti di localizzazione")
+        myGroup2 = group.insertGroup(2, "Linee di riferimento")        
+        myGroup3 = group.insertGroup(3, "Ingombri")
+        myGroup1.setExpanded(False)
+        myGroup2.setExpanded(False)
+        myGroup3.setExpanded(False)
         if settings.SERVER == 'sqlite':
             sqliteDB_path = os.path.join(os.sep, 'pyarchinit_DB_folder', settings.DATABASE)
             db_file_path = '{}{}'.format(self.HOME, sqliteDB_path)
@@ -2693,6 +2712,8 @@ class Pyarchinit_pyqgis(QDialog):
         groupName="View Localizzazione Sito archeologico"
         root = QgsProject.instance().layerTreeRoot()
         group = root.addGroup(groupName)
+        group.setExpanded(False)
+        
         if settings.SERVER == 'sqlite':
             sqliteDB_path = os.path.join(os.sep, 'pyarchinit_DB_folder', settings.DATABASE)
             db_file_path = '{}{}'.format(self.HOME, sqliteDB_path)
@@ -2759,6 +2780,7 @@ class Pyarchinit_pyqgis(QDialog):
         groupName="View scheda Reperti"
         root = QgsProject.instance().layerTreeRoot()
         group = root.addGroup(groupName)
+        group.setExpanded(False)
         if self.L=='it':
             name_layer='Reperti view'
         elif self.L=='de':
@@ -2835,6 +2857,7 @@ class Pyarchinit_pyqgis(QDialog):
         groupName="View scheda Tomba"
         root = QgsProject.instance().layerTreeRoot()
         group = root.addGroup(groupName)
+        group.setExpanded(False)
         if self.L=='it':
             name_layer='Tomba view'
         elif self.L=='de':
@@ -2893,11 +2916,17 @@ class Pyarchinit_pyqgis(QDialog):
             else:
                 QMessageBox.warning(self, "TESTER", "OK Layer not valid", QMessageBox.Ok)
     
+    #def dothejob(group_name):
+        
+
+        #dothejob()
+    
+    
     def charge_vector_layers_all_st(self, sito_p,sigla_st,n_st):
         self.sito_p = sito_p
         self.sigla_st = sigla_st
         self.n_st = str(n_st)
-       
+        self.dothejob()
 
         cfg_rel_path = os.path.join(os.sep, 'pyarchinit_DB_folder', 'config.cfg')
         file_path = '{}{}'.format(self.HOME, cfg_rel_path)
@@ -2910,6 +2939,9 @@ class Pyarchinit_pyqgis(QDialog):
         groupName="View scheda Struttura  - Sigla: %s / Num: %s" % (self.sigla_st, self.n_st)
         root = QgsProject.instance().layerTreeRoot()
         group = root.addGroup(groupName)
+        group.setExpanded(False)
+        
+        
         if settings.SERVER == 'sqlite':
             sqliteDB_path = os.path.join(os.sep, 'pyarchinit_DB_folder', settings.DATABASE)
             db_file_path = '{}{}'.format(self.HOME, sqliteDB_path)
@@ -2982,6 +3014,7 @@ class Pyarchinit_pyqgis(QDialog):
         groupName="View scheda Struttura"
         root = QgsProject.instance().layerTreeRoot()
         group = root.addGroup(groupName)
+        group.setExpanded(False)
         if settings.SERVER == 'sqlite':
             sqliteDB_path = os.path.join(os.sep, 'pyarchinit_DB_folder', settings.DATABASE)
             db_file_path = '{}{}'.format(self.HOME, sqliteDB_path)
@@ -3047,6 +3080,7 @@ class Pyarchinit_pyqgis(QDialog):
         groupName="View scheda Individui"
         root = QgsProject.instance().layerTreeRoot()
         group = root.addGroup(groupName)
+        group.setExpanded(False)
         if settings.SERVER == 'sqlite':
             sqliteDB_path = os.path.join(os.sep, 'pyarchinit_DB_folder', settings.DATABASE)
             db_file_path = '{}{}'.format(self.HOME, sqliteDB_path)
