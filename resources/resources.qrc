@@ -79,5 +79,6 @@
 	<file>icons/print_map.png</file>
 	<file>icons/layers-icon_d.png</file>
 	<file>icons/Layer_plus.png</file>
+	<file>icons/site_point.png</file>
   </qresource>
 </RCC>
