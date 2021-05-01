@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>780</width>
+    <width>785</width>
     <height>795</height>
    </rect>
   </property>
@@ -1363,78 +1363,13 @@ Step 2 - editare la funzione def run_test e salvare il file.
 Step 3 - Riavviare Qgis e cliccare sul pulsante Run Test per verificare l'output della vostra funzione.</string>
            </property>
           </widget>
-          <widget class="QWidget" name="">
-           <layout class="QGridLayout" name="gridLayout_18">
-            <item row="0" column="0">
-             <widget class="QLabel" name="label_9">
-              <property name="enabled">
-               <bool>false</bool>
-              </property>
-              <property name="text">
-               <string>Esporta relazione di scavo per questo sito (Versione di sviluppo)</string>
-              </property>
-             </widget>
-            </item>
-            <item row="0" column="1">
-             <widget class="QPushButton" name="pushButton_rel_pdf">
-              <property name="enabled">
-               <bool>false</bool>
-              </property>
-              <property name="text">
-               <string>Esporta</string>
-              </property>
-             </widget>
-            </item>
-           </layout>
-          </widget>
-          <widget class="QWidget" name="">
-           <layout class="QGridLayout" name="gridLayout_20">
-            <item row="0" column="0">
-             <widget class="QLabel" name="label_12">
-              <property name="toolTip">
-               <string>Carica tutti i layer per poter inserire nuove geometrie</string>
-              </property>
-              <property name="text">
-               <string>Gis viewer</string>
-              </property>
-             </widget>
-            </item>
-            <item row="0" column="2">
-             <spacer name="horizontalSpacer">
-              <property name="orientation">
-               <enum>Qt::Horizontal</enum>
-              </property>
-              <property name="sizeHint" stdset="0">
-               <size>
-                <width>307</width>
-                <height>20</height>
-               </size>
-              </property>
-             </spacer>
-            </item>
-            <item row="0" column="1">
-             <widget class="QToolButton" name="toolButton_draw_siti">
-              <property name="text">
-               <string>Abilita il caricamento delle ricerche</string>
-              </property>
-              <property name="icon">
-               <iconset resource="../../resources/resources.qrc">
-                <normaloff>:/icons/GIS.png</normaloff>:/icons/GIS.png</iconset>
-              </property>
-              <property name="checkable">
-               <bool>true</bool>
-              </property>
-             </widget>
-            </item>
-           </layout>
-          </widget>
-          <widget class="QWidget" name="">
+          <widget class="QWidget" name="layoutWidget">
            <property name="geometry">
             <rect>
              <x>11</x>
              <y>60</y>
-             <width>232</width>
-             <height>285</height>
+             <width>239</width>
+             <height>311</height>
             </rect>
            </property>
            <layout class="QGridLayout" name="gridLayout_8">
@@ -1452,47 +1387,6 @@ Step 3 - Riavviare Qgis e cliccare sul pulsante Run Test per verificare l'output
                 <width>60</width>
                 <height>16777215</height>
                </size>
-              </property>
-             </widget>
-            </item>
-            <item row="2" column="0">
-             <widget class="QLabel" name="label_16">
-              <property name="text">
-               <string>Numero Area</string>
-              </property>
-             </widget>
-            </item>
-            <item row="3" column="0">
-             <widget class="QLineEdit" name="lineEdit_area">
-              <property name="maximumSize">
-               <size>
-                <width>60</width>
-                <height>16777215</height>
-               </size>
-              </property>
-             </widget>
-            </item>
-            <item row="4" column="0">
-             <widget class="QLabel" name="label_20">
-              <property name="text">
-               <string>Numero di scheda US da cui partire</string>
-              </property>
-             </widget>
-            </item>
-            <item row="5" column="0">
-             <widget class="QLineEdit" name="lineEdit_n_us">
-              <property name="maximumSize">
-               <size>
-                <width>60</width>
-                <height>16777215</height>
-               </size>
-              </property>
-             </widget>
-            </item>
-            <item row="6" column="0">
-             <widget class="QLabel" name="label_17">
-              <property name="text">
-               <string>Tipo di unità stratigrafica</string>
               </property>
              </widget>
             </item>
@@ -1516,14 +1410,24 @@ Step 3 - Riavviare Qgis e cliccare sul pulsante Run Test per verificare l'output
               </item>
              </widget>
             </item>
-            <item row="8" column="0">
-             <widget class="QPushButton" name="pushButton_genera_us">
+            <item row="6" column="0">
+             <widget class="QLabel" name="label_17">
               <property name="text">
-               <string>Genera US (Azione irreversibile)</string>
+               <string>Tipo di unità stratigrafica</string>
               </property>
              </widget>
             </item>
-            <item row="9" column="0">
+            <item row="5" column="0">
+             <widget class="QLineEdit" name="lineEdit_n_us">
+              <property name="maximumSize">
+               <size>
+                <width>60</width>
+                <height>16777215</height>
+               </size>
+              </property>
+             </widget>
+            </item>
+            <item row="10" column="0">
              <layout class="QGridLayout" name="gridLayout_16">
               <item row="0" column="0">
                <layout class="QGridLayout" name="gridLayout_17">
@@ -1544,7 +1448,129 @@ Step 3 - Riavviare Qgis e cliccare sul pulsante Run Test per verificare l'output
               </item>
              </layout>
             </item>
+            <item row="2" column="0">
+             <widget class="QLabel" name="label_16">
+              <property name="text">
+               <string>Numero Area</string>
+              </property>
+             </widget>
+            </item>
+            <item row="9" column="0">
+             <widget class="QPushButton" name="pushButton_genera_us">
+              <property name="maximumSize">
+               <size>
+                <width>40</width>
+                <height>40</height>
+               </size>
+              </property>
+              <property name="text">
+               <string/>
+              </property>
+              <property name="icon">
+               <iconset resource="../../resources/resources.qrc">
+                <normaloff>:/icons/IconPAI.png</normaloff>:/icons/IconPAI.png</iconset>
+              </property>
+             </widget>
+            </item>
+            <item row="4" column="0">
+             <widget class="QLabel" name="label_20">
+              <property name="text">
+               <string>Numero di scheda US da cui partire</string>
+              </property>
+             </widget>
+            </item>
+            <item row="3" column="0">
+             <widget class="QLineEdit" name="lineEdit_area">
+              <property name="maximumSize">
+               <size>
+                <width>60</width>
+                <height>16777215</height>
+               </size>
+              </property>
+             </widget>
+            </item>
+            <item row="8" column="0">
+             <widget class="QLabel" name="label_3">
+              <property name="text">
+               <string>Genera US</string>
+              </property>
+             </widget>
+            </item>
            </layout>
+          </widget>
+          <widget class="QLabel" name="label_9">
+           <property name="enabled">
+            <bool>false</bool>
+           </property>
+           <property name="geometry">
+            <rect>
+             <x>10</x>
+             <y>370</y>
+             <width>413</width>
+             <height>28</height>
+            </rect>
+           </property>
+           <property name="text">
+            <string>Esporta relazione di scavo per questo sito (Versione di sviluppo)</string>
+           </property>
+          </widget>
+          <widget class="QPushButton" name="pushButton_rel_pdf">
+           <property name="enabled">
+            <bool>false</bool>
+           </property>
+           <property name="geometry">
+            <rect>
+             <x>430</x>
+             <y>370</y>
+             <width>81</width>
+             <height>28</height>
+            </rect>
+           </property>
+           <property name="text">
+            <string>Esporta</string>
+           </property>
+          </widget>
+          <widget class="QLabel" name="label_12">
+           <property name="enabled">
+            <bool>false</bool>
+           </property>
+           <property name="geometry">
+            <rect>
+             <x>18</x>
+             <y>470</y>
+             <width>65</width>
+             <height>26</height>
+            </rect>
+           </property>
+           <property name="toolTip">
+            <string>Carica tutti i layer per poter inserire nuove geometrie</string>
+           </property>
+           <property name="text">
+            <string>Gis viewer</string>
+           </property>
+          </widget>
+          <widget class="QToolButton" name="toolButton_draw_siti">
+           <property name="enabled">
+            <bool>false</bool>
+           </property>
+           <property name="geometry">
+            <rect>
+             <x>90</x>
+             <y>470</y>
+             <width>27</width>
+             <height>26</height>
+            </rect>
+           </property>
+           <property name="text">
+            <string>Abilita il caricamento delle ricerche</string>
+           </property>
+           <property name="icon">
+            <iconset resource="../../resources/resources.qrc">
+             <normaloff>:/icons/GIS.png</normaloff>:/icons/GIS.png</iconset>
+           </property>
+           <property name="checkable">
+            <bool>true</bool>
+           </property>
           </widget>
          </widget>
          <widget class="QWidget" name="tab">
