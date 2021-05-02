@@ -22,7 +22,15 @@ about=https://github.com/pyarchinit/pyarchinit
 tracker=https://github.com/pyarchinit/pyarchinit/issues
 repository=https://github.com/pyarchinit/pyarchinit
 
-changelog=release3.7
+changelog=release3.8
+
+    -new icon
+	-update template qpt
+	-fix bug create view postgres
+
+   -------------------------------------------------------------------------------
+
+   release3.7
 
     -new icon
 	-update form site
