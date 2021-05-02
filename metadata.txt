@@ -24,7 +24,7 @@ repository=https://github.com/pyarchinit/pyarchinit
 
 changelog=release3.7
 
-        -new icon
+    -new icon
 	-update form site
 	-update pyarchinit_pyqgis
 
