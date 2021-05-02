@@ -61,6 +61,7 @@ class pyarchinit_PRINTMAP(QDialog, MAIN_DIALOG_CLASS):
         super().__init__()
         self.iface = iface
         self.setupUi(self)
+        self.mDockWidget.setHidden(True)
         self.plugin_dir = os.path.dirname(__file__)
         self.listWidget.itemClicked.connect(self.suggestLayoutName)
         self.btnAddMore.clicked.connect(self.addMoreTemplates)        

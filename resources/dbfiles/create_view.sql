@@ -421,7 +421,7 @@ ALTER TABLE pyarchinit_doc_view
 CREATE OR REPLACE VIEW pyarchinit_site_view AS 
  SELECT 
     sito,
-	nazione,
+	regione,
     comune,
     provincia,
     descrizione,
@@ -438,12 +438,12 @@ ALTER TABLE pyarchinit_site_view
 CREATE OR REPLACE VIEW pyarchinit_site_polygonal_view AS 
  SELECT 
     sito,
-	nazione,
+	regione,
     comune,
     provincia,
     descrizione,
     definizione_sito,
-	gid,
+	
     the_geom,
     sito_id
    FROM site_table
