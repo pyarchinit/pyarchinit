@@ -80,3 +80,6 @@ The dependencies can be installed using the [modules_installer.py](/scripts/modu
 * Carta Archeologica Comune di Santarcangelo di Romagna
 * Scavi proprietà dell’Ente Nazionale Assistenza Biologi (ENPAB) Roma
 *Scavi di Piana S. Marco Castel del Monte (AQ)
+* Scavi del monastero di S. Scolastica, Baullo, Gagliano Aterno AQ
+* Scavi di Amiternum (AQ)
+
