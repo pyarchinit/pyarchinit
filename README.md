@@ -1,4 +1,4 @@
-# ![](icon.png) PyArchInit3 by Luca Mandolesi & Enzo Cocca - QGIS plugin for archaeology
+# ![](icon.png) PyArchInit3 by Luca Mandolesi & Enzo Cocca - QGIS plugin for archaeology - #MICH
 [![GitHub release](https://img.shields.io/github/release/pyarchinit/pyarchinit.svg?style=flat-square)](https://github.com/pyarchinit/pyarchinit)
 [![GitHub repo size in bytes](https://img.shields.io/github/repo-size/pyarchinit/pyarchinit.svg?style=flat-square)](https://github.com/pyarchinit/pyarchinit)
 [![HitCount](http://hits.dwyl.io/pyarchinit/pyarchinit.svg)](http://hits.dwyl.io/pyarchinit/pyarchinit)
@@ -8,8 +8,11 @@
 
 # Video per installazione plugin -> [Video](https://www.adarteinfo.it/archivio/pyarchinit-download/install.gif)
 
-Into QGIS add this link
-https://www.adarteinfo.it/archivio/pyarchinit-download/pyarchinit.xml
+Into QGIS add this link for the master version:
+http://pyarchinit.org/pyarchinit.xml
+
+Testing version #mich (no debugged):
+http://pyarchinit.org/pyarchinit2em.xml
 
 
 ## Installing from zip
@@ -57,3 +60,27 @@ The dependencies can be installed using the [modules_installer.py](/scripts/modu
 4. Create a pull request: ```git push -u origin <your_branch>```
 
 ![PR](https://services.github.com/on-demand/images/gifs/github-cli/push-and-pull.gif)
+
+## pyArchInit is used by:
+
+* Dottorato di ricerca in corso (2021) presso Ludwig Maximilian Universität
+* Progetti con X-Cavate
+* Tesi di laurea, Manuela Battaglia, Necropoli di Malignano, Sovicille (SI)
+* Tesi di Laurea, Simona Gugnali, La Necropoli di Via Arnaldo da Brescia (Rimini)
+* Parco Archeologico Paestum - Ministero della Cultura
+* Dipartimento di archeologia di Università di Salerno
+* Scavi archeologici adArte Srl circa 150 contesti
+* Scavo del quartiere tardoanitico di Portus
+* Scavo di Vicolo del Bologna a Roma centro
+* Scavo del comprensorio di S. Giovanni Bosco sull’Appia nuova
+* Scavi della Regione Lazio in Via delle Antenne, Roma
+* Ricognizioni archeologiche adArte Srl 
+* Viarch adArte Srl
+* Carta Archeologica Comune di Rimini
+* Carta Archeologica Comune di Santarcangelo di Romagna
+* Scavi proprietà dell’Ente Nazionale Assistenza Biologi (ENPAB) Roma
+* Scavi di Piana S. Marco Castel del Monte (AQ)
+* Scavi del monastero di S. Scolastica, Baullo, Gagliano Aterno AQ
+* Scavi di Amiternum (AQ)
+* Scavi della villa di Poggio Gramignano, Lugnano in Teverina TR
+* Scavi della necropoli etrusca di Trocchi, Bomarzo, VT
