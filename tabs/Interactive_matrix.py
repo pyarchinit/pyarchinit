@@ -143,10 +143,10 @@ class pyarchinit_Interactive_Matrix(QDialog, MAIN_DIALOG_CLASS):
                         QMessageBox.warning(self, "Warning", "You have to enter the unit type and startigraphic interpretation in the startigraphic reports tablewidget",
                                         QMessageBox.Ok)                    
         sito = self.DATA_LIST[0].sito
-        area = self.DATA_LIST[1].area
+        #area = self.DATA_LIST[1].area
         search_dict = {
             'sito': "'" + str(sito) + "'",
-            'area': "'" + str(area) + "'"
+            #'area': "'" + str(area) + "'"
         }
 
         periodizz_data_list = self.DB_MANAGER.query_bool(search_dict, 'PERIODIZZAZIONE')
@@ -270,10 +270,10 @@ class pyarchinit_Interactive_Matrix(QDialog, MAIN_DIALOG_CLASS):
                         QMessageBox.warning(self, "Warning", "Problem in the Matrix export system:" + str(e),
                                         QMessageBox.Ok)                    
         sito = self.DATA_LIST[0].sito
-        area = self.DATA_LIST[1].area
+        #area = self.DATA_LIST[1].area
         search_dict = {
             'sito': "'" + str(sito) + "'",
-            'area': "'" + str(area) + "'"
+            #'area': "'" + str(area) + "'"
         }
 
         periodizz_data_list = self.DB_MANAGER.query_bool(search_dict, 'PERIODIZZAZIONE')
