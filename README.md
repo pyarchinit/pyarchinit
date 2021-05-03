@@ -84,3 +84,4 @@ The dependencies can be installed using the [modules_installer.py](/scripts/modu
 * Scavi di Amiternum (AQ)
 * Scavi della villa di Poggio Gramignano, Lugnano in Teverina TR
 * Scavi della necropoli etrusca di Trocchi, Bomarzo, VT
+* Maasser el-Shouf Archaeological Project in Libano
