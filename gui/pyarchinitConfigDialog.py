@@ -90,7 +90,7 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
         self.charge_data()
         self.db_active()
         self.lineEdit_DBname.textChanged.connect(self.db_uncheck)
-        self.pushButton_upd_postgres.setEnabled(False)
+        self.pushButton_upd_postgres.setEnabled(True)
         self.pushButton_upd_sqlite.setEnabled(False)
         self.comboBox_sito.currentIndexChanged.connect(self.summary)
         self.comboBox_Database.currentIndexChanged.connect(self.db_active)
@@ -1152,8 +1152,7 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
             # sql_s_geom_spatial =""" select CreateSpatialIndex('pyarchinit_sezioni', 'the_geom');"""
             # c.execute(sql_s_geom_spatial)
 
-            sql_drop_view_doc= """DROP view if EXISTS pyarchinit_doc_view;"""
-            c.execute(sql_drop_view_doc)
+            
             
             
             sql_view_sezioni=("""CREATE VIEW IF NOT EXISTS "pyarchinit_sezioni_view" AS
@@ -2690,8 +2689,7 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
                             data_list_toimp[sing_rec].cron_finale,
                             data_list_toimp[sing_rec].descrizione,
                             data_list_toimp[sing_rec].datazione_estesa,
-                            data_list_toimp[sing_rec].cont_per,
-                            data_list_toimp[sing_rec].area)
+                            data_list_toimp[sing_rec].cont_per)
 
 
                         self.DB_MANAGER_write.insert_data_session(data)
