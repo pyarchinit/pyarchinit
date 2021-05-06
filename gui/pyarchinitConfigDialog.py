@@ -1152,8 +1152,7 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
             # sql_s_geom_spatial =""" select CreateSpatialIndex('pyarchinit_sezioni', 'the_geom');"""
             # c.execute(sql_s_geom_spatial)
 
-            sql_drop_view_doc= """DROP view if EXISTS pyarchinit_doc_view;"""
-            c.execute(sql_drop_view_doc)
+            
             
             
             sql_view_sezioni=("""CREATE VIEW IF NOT EXISTS "pyarchinit_sezioni_view" AS
