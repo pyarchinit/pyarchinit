@@ -1180,7 +1180,8 @@ class pyarchinit_Periodizzazione(QDialog, MAIN_DIALOG_CLASS):
             cont_per = self.lineEdit_codice_periodo.text()
             per_label = self.comboBox_periodo.currentText()
             fas_label = self.comboBox_fase.currentText()
-            self.pyQGIS.charge_vector_layers_periodo(sito_p, int(cont_per), per_label, fas_label)
+            dat=self.lineEdit_per_estesa.text()
+            self.pyQGIS.charge_vector_layers_periodo(sito_p, int(cont_per), per_label, fas_label,dat)
 
     def on_pushButton_all_period_pressed(self):
         #self.set_sito()
@@ -1208,8 +1209,8 @@ class pyarchinit_Periodizzazione(QDialog, MAIN_DIALOG_CLASS):
                     cont_per = e.cont_per
                     per_label = e.periodo
                     fas_label = e.fase
-                    
-                    self.pyQGIS.charge_vector_layers_all_period(sito_p, str(cont_per),per_label,fas_label)
+                    dat=e.datazione_estesa
+                    self.pyQGIS.charge_vector_layers_all_period(sito_p, str(cont_per),per_label,fas_label,dat)
     
             except Exception as e:
                 print(str(e))    

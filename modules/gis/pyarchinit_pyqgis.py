@@ -1018,11 +1018,12 @@ class Pyarchinit_pyqgis(QDialog):
 
             
 
-    def charge_vector_layers_periodo(self, sito_p, cont_per, per_label, fas_label):
+    def charge_vector_layers_periodo(self, sito_p, cont_per, per_label, fas_label, dat):
         self.sito_p = sito_p
         self.cont_per = str(cont_per)
         self.per_label = per_label
         self.fas_label = fas_label
+        self.dat = dat
         # Clean Qgis Map Later Registry
         # QgsProject.instance().removeAllMapLayers()
         # Get the user input, starting with the table name
@@ -1034,19 +1035,19 @@ class Pyarchinit_pyqgis(QDialog):
         conf.close()
         settings = Settings(con_sett)
         settings.set_configuration()
-        groupName="View scheda Periodo  - Per: %s / Fas: %s" % (self.per_label, self.fas_label)
+        groupName="%s " % (self.dat)
         root = QgsProject.instance().layerTreeRoot()
         group = root.addGroup(groupName)
         group.setExpanded(False)  
         if self.L=='it':
-            layer_name_label_us = "Unita Stratigrafiche - Per: %s / Fas: %s" % (self.per_label, self.fas_label)
-            layer_name_label_quote = "Quote US - Per: %s / Fas: %s" % (self.per_label, self.fas_label)
+            layer_name_label_us = "Unita Stratigrafiche" 
+            layer_name_label_quote = "Quote US"
         elif self.L=='de':
-            layer_name_label_us = "Stratigraphischen Einheiten  - Period: %s / Phase: %s" % (self.per_label, self.fas_label)
-            layer_name_label_quote = "Nivellements der SE - Period: %s / Phase: %s" % (self.per_label, self.fas_label)
+            layer_name_label_us = "Stratigraphischen Einheiten" 
+            layer_name_label_quote = "Nivellements der SE"
         else:
-            layer_name_label_us = "Stratigraphic Units - Per: %s / Phase: %s" % (self.per_label, self.fas_label)
-            layer_name_label_quote = "Elevations SU - Per: %s / Phase: %s" % (self.per_label, self.fas_label)
+            layer_name_label_us = "Stratigraphic Units"
+            layer_name_label_quote = "Elevations SU"
         
         if settings.SERVER == 'sqlite':
             sqliteDB_path = os.path.join(os.sep, 'pyarchinit_DB_folder', settings.DATABASE)
@@ -1121,12 +1122,12 @@ class Pyarchinit_pyqgis(QDialog):
             
             
     
-    def charge_vector_layers_all_period(self, sito_p, cont_per, per_label, fas_label):
+    def charge_vector_layers_all_period(self, sito_p, cont_per, per_label, fas_label,dat):
         self.sito_p = sito_p
         self.cont_per = str(cont_per)
         self.per_label = per_label
         self.fas_label = fas_label
-        
+        self.dat=dat
         cfg_rel_path = os.path.join(os.sep, 'pyarchinit_DB_folder', 'config.cfg')
         file_path = '{}{}'.format(self.HOME, cfg_rel_path)
         conf = open(file_path, "r")
@@ -1138,7 +1139,7 @@ class Pyarchinit_pyqgis(QDialog):
         
         
         
-        groupName="View scheda Periodo  - Per: %s / Fas: %s" % (self.per_label, self.fas_label)
+        groupName="%s" % (self.dat)
         root = QgsProject.instance().layerTreeRoot()
        
         group = root.addGroup(groupName)
@@ -1147,14 +1148,14 @@ class Pyarchinit_pyqgis(QDialog):
         
         
         if self.L=='it':
-            layer_name_label_us = "Unita Stratigrafiche - Per: %s / Fas: %s" % (self.per_label, self.fas_label)
-            layer_name_label_quote = "Quote US - Per: %s / Fas: %s" % (self.per_label, self.fas_label)
+            layer_name_label_us = "Unita Stratigrafiche"
+            layer_name_label_quote = "Quote US" 
         elif self.L=='de':
-            layer_name_label_us = "Stratigraphischen Einheiten  - Period: %s / Phase: %s" % (self.per_label, self.fas_label)
-            layer_name_label_quote = "Nivellements der SE - Period: %s / Phase: %s" % (self.per_label, self.fas_label)
+            layer_name_label_us = "Stratigraphischen Einheiten" 
+            layer_name_label_quote = "Nivellements der SE"
         else:
-            layer_name_label_us = "Stratigraphic Units - Per: %s / Phase: %s" % (self.per_label, self.fas_label)
-            layer_name_label_quote = "Elevations SU - Per: %s / Phase: %s" % (self.per_label, self.fas_label)
+            layer_name_label_us = "Stratigraphic Units" 
+            layer_name_label_quote = "Elevations SU"
         
         if settings.SERVER == 'sqlite':
             sqliteDB_path = os.path.join(os.sep, 'pyarchinit_DB_folder', settings.DATABASE)
