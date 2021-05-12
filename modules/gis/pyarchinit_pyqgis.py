@@ -1090,6 +1090,7 @@ class Pyarchinit_pyqgis(QDialog):
                 layerUS.loadNamedStyle(style_path)
                 
                 group.insertChildNode(-1, QgsLayerTreeLayer(layerUS))
+                # a=QgsLayerTreeUtils.setLegendFilterByExpression(QgsLayerTreeLayer(layerUS),str('a'),True)
                 
                 QgsProject.instance().addMapLayers([layerUS], False)
                 
