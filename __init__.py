@@ -121,12 +121,13 @@ except Exception as e:
     missing_libraries.append(str(e))
 
 
-
-install_libraries = []
-for l in missing_libraries:
-    p = re.findall(r"'(.*?)'", l)
-    install_libraries.append(p[0])
-
+try:
+    install_libraries = []
+    for l in missing_libraries:
+        p = re.findall(r"'(.*?)'", l)
+        install_libraries.append(p[0])
+except:
+    pass#QMessageBox.warning(None, 'PyArchInit',str(e), QMessageBox.Ok)
 if install_libraries:
     from qgis.PyQt.QtWidgets import QMessageBox
     if L=='it':

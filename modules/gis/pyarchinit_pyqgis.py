@@ -24,9 +24,10 @@ import os
 from builtins import object
 from builtins import range
 from builtins import str
-from qgis.PyQt.QtWidgets import QDialog, QMessageBox, QFileDialog
-from qgis.core import QgsProject, QgsDataSourceUri, QgsVectorLayer, QgsCoordinateReferenceSystem, QgsSettings,QgsEditorWidgetSetup,QgsLayerTreeLayer
-from qgis.gui import QgsMapCanvas
+from qgis.PyQt.QtWidgets import *#QDialog, QMessageBox, QFileDialog
+from qgis.core import *
+from qgis.gui import *
+
 
 from ..utility.settings import Settings
 
@@ -323,13 +324,13 @@ class Pyarchinit_pyqgis(QDialog):
                 group.insertChildNode(-1, QgsLayerTreeLayer(layerQUOTE))
                 QgsProject.instance().addMapLayers([layerQUOTE], False)
             else:
-                QMessageBox.warning(self, "TESTER", "OK Layer valid", QMessageBox.Ok)
+                QMessageBox.warning(self, "Pyarchinit", "OK Layer valid", QMessageBox.Ok)
             
             uri.setDataSource('', 'pyarchinit_us_view', 'the_geom', gidstr, "ROWID")
             layerUS = QgsVectorLayer(uri.uri(), name_layer_s, 'spatialite')
 
             if layerUS.isValid():
-                QMessageBox.warning(self, "TESTER", "OK Layer valid", QMessageBox.Ok)
+                QMessageBox.warning(self, "Pyarchinit", "OK Layer valid", QMessageBox.Ok)
 
                 # self.USLayerId = layerUS.getLayerID()
                 style_path = '{}{}'.format(self.LAYER_STYLE_PATH_SPATIALITE, 'us_view.qml')
@@ -337,7 +338,7 @@ class Pyarchinit_pyqgis(QDialog):
                 group.insertChildNode(-1, QgsLayerTreeLayer(layerUS))
                 QgsProject.instance().addMapLayers([layerUS], False)
             else:
-                QMessageBox.warning(self, "TESTER", "Layer not valid", QMessageBox.Ok)
+                QMessageBox.warning(self, "Pyarchinit", "Layer not valid", QMessageBox.Ok)
 
             
 
@@ -366,7 +367,7 @@ class Pyarchinit_pyqgis(QDialog):
                     pass
                    
             else:
-                QMessageBox.warning(self, "TESTER", "OK Layer Quote non valido", QMessageBox.Ok)
+                QMessageBox.warning(self, "Pyarchinit", "OK Layer Quote non valido", QMessageBox.Ok)
             
             uri.setDataSource("public", "pyarchinit_us_view", "the_geom", gidstr, "gid")
             layerUS = QgsVectorLayer(uri.uri(),name_layer_s , "postgres")
@@ -380,7 +381,7 @@ class Pyarchinit_pyqgis(QDialog):
                 group.insertChildNode(-1, QgsLayerTreeLayer(layerUS))
                 QgsProject.instance().addMapLayers([layerUS], False)
             else:
-                QMessageBox.warning(self, "TESTER", "OK Layer US non valido", QMessageBox.Ok)
+                QMessageBox.warning(self, "Pyarchinit", "OK Layer US non valido", QMessageBox.Ok)
 
             
         
@@ -431,12 +432,12 @@ class Pyarchinit_pyqgis(QDialog):
             ##          uri.setDataSource('','pyarchinit_doc_view_b', 'the_geom', docstr, "ROWID")
             layerPos = QgsVectorLayer(uri.uri(), layer_name_pos, 'spatialite')
             if layerPos.isValid():
-                QMessageBox.warning(self, "TESTER", "Layer Sezioni valido", QMessageBox.Ok)
+                QMessageBox.warning(self, "Pyarchinit", "Layer Sezioni valido", QMessageBox.Ok)
                 group.insertChildNode(-1, QgsLayerTreeLayer(layerPos))
                 QgsProject.instance().addMapLayers([layerPos], False)
            
             else:
-                QMessageBox.warning(self, "TESTER", "Layer Sezioni non valido", QMessageBox.Ok)
+                QMessageBox.warning(self, "Pyarchinit", "Layer Sezioni non valido", QMessageBox.Ok)
             
             
             
@@ -466,12 +467,12 @@ class Pyarchinit_pyqgis(QDialog):
             ##          uri.setDataSource('','pyarchinit_doc_view_b', 'the_geom', docstr, "ROWID")
             layerPos = QgsVectorLayer(uri.uri(), layer_name_pos, 'spatialite')
             if layerPos.isValid():
-                QMessageBox.warning(self, "TESTER", "Layer Registro Documentazione valido", QMessageBox.Ok)
+                QMessageBox.warning(self, "Pyarchinit", "Layer Registro Documentazione valido", QMessageBox.Ok)
                 group.insertChildNode(-1, QgsLayerTreeLayer(layerPos))
                 QgsProject.instance().addMapLayers([layerPos], False)
            
             else:
-                QMessageBox.warning(self, "TESTER", "Layer Registro Documentazione non valido", QMessageBox.Ok)
+                QMessageBox.warning(self, "Pyarchinit", "Layer Registro Documentazione non valido", QMessageBox.Ok)
                 
 
 
@@ -499,13 +500,13 @@ class Pyarchinit_pyqgis(QDialog):
 
            
             if layerNeg.isValid():
-                QMessageBox.warning(self, "TESTER", "OK Layer US Negative valido", QMessageBox.Ok)
+                QMessageBox.warning(self, "Pyarchinit", "OK Layer US Negative valido", QMessageBox.Ok)
                 group.insertChildNode(-1, QgsLayerTreeLayer(layerNeg))
                 QgsProject.instance().addMapLayers([layerNeg], False)
               
                 
             else:
-                QMessageBox.warning(self, "TESTER", "Layer US Negative non valido", QMessageBox.Ok)
+                QMessageBox.warning(self, "Pyarchinit", "Layer US Negative non valido", QMessageBox.Ok)
             
             docstr = ""
             if len(data) == 1:
@@ -528,7 +529,7 @@ class Pyarchinit_pyqgis(QDialog):
             layerPos = QgsVectorLayer(uri.uri(), layer_name_pos, 'spatialite')
 
             if layerPos1.isValid():
-                QMessageBox.warning(self, "TESTER", "OK Layer US valido", QMessageBox.Ok)
+                QMessageBox.warning(self, "Pyarchinit", "OK Layer US valido", QMessageBox.Ok)
                 group.insertChildNode(-1, QgsLayerTreeLayer(layerPos))
                 QgsProject.instance().addMapLayers([layerPos], False)
                 self.canvas = QgsMapCanvas()
@@ -566,7 +567,7 @@ class Pyarchinit_pyqgis(QDialog):
             layerPos = QgsVectorLayer(uri.uri(), layer_name_pos, 'postgres')
 
             if layerPos.isValid():
-                QMessageBox.warning(self, "TESTER", "OK Layer US valido", QMessageBox.Ok)
+                QMessageBox.warning(self, "Pyarchinit", "OK Layer US valido", QMessageBox.Ok)
                 group.insertChildNode(-1, QgsLayerTreeLayer(layerPos))
                 QgsProject.instance().addMapLayers([layerPos], False)
                 self.canvas = QgsMapCanvas()
@@ -597,14 +598,14 @@ class Pyarchinit_pyqgis(QDialog):
             layerNeg = QgsVectorLayer(uri.uri(), layer_name_neg, 'postgres')
 
             if layerNeg.isValid():
-                QMessageBox.warning(self, "TESTER", "OK Layer US Negative valido", QMessageBox.Ok)
+                QMessageBox.warning(self, "Pyarchinit", "OK Layer US Negative valido", QMessageBox.Ok)
                 group.insertChildNode(-1, QgsLayerTreeLayer(layerNeg))
                 QgsProject.instance().addMapLayers([layerNeg], False)
 
               
 
             else:
-                QMessageBox.warning(self, "TESTER", "Layer US Negative non valido", QMessageBox.Ok)
+                QMessageBox.warning(self, "Pyarchinit", "Layer US Negative non valido", QMessageBox.Ok)
             
             
             if len(data) == 1:
@@ -625,13 +626,13 @@ class Pyarchinit_pyqgis(QDialog):
             ##          uri.setDataSource('','pyarchinit_doc_view_b', 'the_geom', docstr, "ROWID")
             layerPos = QgsVectorLayer(uri.uri(), layer_name_pos, 'postgres')
             if layerPos.isValid():
-                QMessageBox.warning(self, "TESTER", "OK Layer US valido", QMessageBox.Ok)
+                QMessageBox.warning(self, "Pyarchinit", "OK Layer US valido", QMessageBox.Ok)
                 group.insertChildNode(-1, QgsLayerTreeLayer(layerPos))
                 QgsProject.instance().addMapLayers([layerPos], False)
                 #self.canvas = QgsMapCanvas()
                 #self.canvas.setExtent(layerPos.extent())
             else:
-                QMessageBox.warning(self, "TESTER", "Layer US non valido", QMessageBox.Ok)
+                QMessageBox.warning(self, "Pyarchinit", "Layer US non valido", QMessageBox.Ok)
                 
 
           
@@ -706,7 +707,7 @@ class Pyarchinit_pyqgis(QDialog):
             layerUS = QgsVectorLayer(uri.uri(), name_layer_d, 'spatialite')
 
             if layerUS.isValid():
-                QMessageBox.warning(self, "TESTER", "OK Layer US valido", QMessageBox.Ok)
+                QMessageBox.warning(self, "Pyarchinit", "OK Layer US valido", QMessageBox.Ok)
 
                 # self.USLayerId = layerUS.getLayerID()
                 # style_path = '{}{}'.format(self.LAYER_STYLE_PATH_SPATIALITE, 'us_view.qml')
@@ -732,7 +733,7 @@ class Pyarchinit_pyqgis(QDialog):
             layerUSneg = QgsVectorLayer(uri.uri(), name_layer_s_n, 'spatialite')
 
             if layerUSneg.isValid():
-                QMessageBox.warning(self, "TESTER", "OK Layer US negative valido", QMessageBox.Ok)
+                QMessageBox.warning(self, "Pyarchinit", "OK Layer US negative valido", QMessageBox.Ok)
 
                 # self.USLayerId = layerUS.getLayerID()
                 # style_path = '{}{}'.format(self.LAYER_STYLE_PATH_SPATIALITE, 'us_view.qml')
@@ -758,7 +759,7 @@ class Pyarchinit_pyqgis(QDialog):
             layerUS = QgsVectorLayer(uri.uri(), name_layer_s, 'spatialite')
 
             if layerUS.isValid():
-                QMessageBox.warning(self, "TESTER", "OK Layer valid", QMessageBox.Ok)
+                QMessageBox.warning(self, "Pyarchinit", "OK Layer valid", QMessageBox.Ok)
 
                 # self.USLayerId = layerUS.getLayerID()
                 # style_path = '{}{}'.format(self.LAYER_STYLE_PATH_SPATIALITE, 'us_view.qml')
@@ -773,7 +774,7 @@ class Pyarchinit_pyqgis(QDialog):
                 # layerUS.setSubsetString(newSubSetString)
 
             else:
-                QMessageBox.warning(self, "TESTER", "Layer US non valido", QMessageBox.Ok)
+                QMessageBox.warning(self, "Pyarchinit", "Layer US non valido", QMessageBox.Ok)
 
                 # implementare sistema per quote se si vogliono visualizzare sulle piante
             """
@@ -786,7 +787,7 @@ class Pyarchinit_pyqgis(QDialog):
                 layerQUOTE.loadNamedStyle(style_path)
                 QgsProject.instance().addMapLayers([layerQUOTE], False)
             else:
-                QMessageBox.warning(self, "TESTER", "OK Layer Quote non valido",QMessageBox.Ok)
+                QMessageBox.warning(self, "Pyarchinit", "OK Layer Quote non valido",QMessageBox.Ok)
             """
 
         elif settings.SERVER == 'postgres':
@@ -806,7 +807,7 @@ class Pyarchinit_pyqgis(QDialog):
             layerUS = QgsVectorLayer(uri.uri(), name_layer_d, 'postgres')
 
             if layerUS.isValid():
-                QMessageBox.warning(self, "TESTER", "OK Layer US valido", QMessageBox.Ok)
+                QMessageBox.warning(self, "Pyarchinit", "OK Layer US valido", QMessageBox.Ok)
 
                 # self.USLayerId = layerUS.getLayerID()
                 # style_path = '{}{}'.format(self.LAYER_STYLE_PATH_SPATIALITE, 'us_view.qml')
@@ -832,7 +833,7 @@ class Pyarchinit_pyqgis(QDialog):
             layerUSneg = QgsVectorLayer(uri.uri(), name_layer_s_n, 'postgres')
 
             if layerUSneg.isValid():
-                QMessageBox.warning(self, "TESTER", "OK Layer US negative valido", QMessageBox.Ok)
+                QMessageBox.warning(self, "Pyarchinit", "OK Layer US negative valido", QMessageBox.Ok)
 
                 # self.USLayerId = layerUS.getLayerID()
                 # style_path = '{}{}'.format(self.LAYER_STYLE_PATH_SPATIALITE, 'us_view.qml')
@@ -858,7 +859,7 @@ class Pyarchinit_pyqgis(QDialog):
             layerUS = QgsVectorLayer(uri.uri(), name_layer_s, 'postgres')
 
             if layerUS.isValid():
-                QMessageBox.warning(self, "TESTER", "OK Layer valid", QMessageBox.Ok)
+                QMessageBox.warning(self, "Pyarchinit", "OK Layer valid", QMessageBox.Ok)
 
                 # self.USLayerId = layerUS.getLayerID()
                 # style_path = '{}{}'.format(self.LAYER_STYLE_PATH_SPATIALITE, 'us_view.qml')
@@ -873,7 +874,7 @@ class Pyarchinit_pyqgis(QDialog):
                 # layerUS.setSubsetString(newSubSetString)
 
             else:
-                QMessageBox.warning(self, "TESTER", "Layer US non valido", QMessageBox.Ok)
+                QMessageBox.warning(self, "Pyarchinit", "Layer US non valido", QMessageBox.Ok)
 
                 # implementare sistema per quote se si vogliono visualizzare sulle piante
             """
@@ -886,10 +887,11 @@ class Pyarchinit_pyqgis(QDialog):
                 layerQUOTE.loadNamedStyle(style_path)
                 QgsProject.instance().addMapLayers([layerQUOTE], False)
             else:
-                QMessageBox.warning(self, "TESTER", "OK Layer Quote non valido",QMessageBox.Ok)
+                QMessageBox.warning(self, "Pyarchinit", "OK Layer Quote non valido",QMessageBox.Ok)
             """
             
-
+    
+    
     def charge_vector_layers(self, data):
         # Clean Qgis Map Later Registry
         # QgsProject.instance().removeAllMapLayers()
@@ -943,13 +945,13 @@ class Pyarchinit_pyqgis(QDialog):
                 layerQUOTE.loadNamedStyle(style_path)
                 QgsProject.instance().addMapLayers([layerQUOTE], False)
             else:
-                QMessageBox.warning(self, "TESTER", "OK Layer not valid", QMessageBox.Ok)
+                QMessageBox.warning(self, "Pyarchinit", "OK Layer not valid", QMessageBox.Ok)
             
             uri.setDataSource('', 'pyarchinit_us_view', 'the_geom', gidstr, "ROWID")
             layerUS = QgsVectorLayer(uri.uri(), name_layer_s, 'spatialite')
 
             if layerUS.isValid():
-                QMessageBox.warning(self, "TESTER", "OK Layer US valido", QMessageBox.Ok)
+                QMessageBox.warning(self, "Pyarchinit", "OK Layer US valido", QMessageBox.Ok)
 
                 # self.USLayerId = layerUS.getLayerID()
                 style_path = '{}{}'.format(self.LAYER_STYLE_PATH_SPATIALITE, 'us_view.qml')
@@ -965,7 +967,7 @@ class Pyarchinit_pyqgis(QDialog):
                 # layerUS.setSubsetString(newSubSetString)
 
             else:
-                QMessageBox.warning(self, "TESTER", "Layer not valid", QMessageBox.Ok)
+                QMessageBox.warning(self, "Pyarchinit", "Layer not valid", QMessageBox.Ok)
 
             
 
@@ -999,7 +1001,7 @@ class Pyarchinit_pyqgis(QDialog):
                     # f.write(str(e))
                     # f.close()
             else:
-                QMessageBox.warning(self, "TESTER", "OK Layer not valide", QMessageBox.Ok)
+                QMessageBox.warning(self, "Pyarchinit", "OK Layer not valide", QMessageBox.Ok)
             
             
             uri.setDataSource("public", "pyarchinit_us_view", "the_geom", gidstr, "gid")
@@ -1014,11 +1016,15 @@ class Pyarchinit_pyqgis(QDialog):
                 group.insertChildNode(-1, QgsLayerTreeLayer(layerUS))
                 QgsProject.instance().addMapLayers([layerUS], False)
             else:
-                QMessageBox.warning(self, "TESTER", "OK Layer US non valido", QMessageBox.Ok)
+                QMessageBox.warning(self, "Pyarchinit", "OK Layer US non valido", QMessageBox.Ok)
 
             
-
+    
     def charge_vector_layers_periodo(self, sito_p, cont_per, per_label, fas_label, dat):
+        
+        # a = QgsProject.instance().layerTreeRoot()
+        # QgsLayoutItemLegend(a).legendFilterByMapEnabled(True) 
+        
         self.sito_p = sito_p
         self.cont_per = str(cont_per)
         self.per_label = per_label
@@ -1036,9 +1042,15 @@ class Pyarchinit_pyqgis(QDialog):
         settings = Settings(con_sett)
         settings.set_configuration()
         groupName="%s " % (self.dat)
+        
         root = QgsProject.instance().layerTreeRoot()
+        
         group = root.addGroup(groupName)
         group.setExpanded(False)  
+        
+        #group.setItemVisibilityChecked(False)
+        #a.legendFilterMapSettings()
+        
         if self.L=='it':
             layer_name_label_us = "Unita Stratigrafiche" 
             layer_name_label_quote = "Quote US"
@@ -1070,19 +1082,19 @@ class Pyarchinit_pyqgis(QDialog):
             
             uri.setDataSource('', 'pyarchinit_us_view', 'the_geom', cont_per_string, "ROWID")
             layerUS = QgsVectorLayer(uri.uri(), layer_name_label_us, 'spatialite')
-
+            
             srs = QgsCoordinateReferenceSystem(self.SRS, QgsCoordinateReferenceSystem.PostgisCrsId)
 
             if layerUS.isValid():
-                QMessageBox.warning(self, "TESTER", "OK Layer US valido", QMessageBox.Ok)
-
-                # self.USLayerId = layerUS.getLayerID()
                 style_path = '{}{}'.format(self.LAYER_STYLE_PATH_SPATIALITE, 'us_view.qml')
                 layerUS.loadNamedStyle(style_path)
+                
                 group.insertChildNode(-1, QgsLayerTreeLayer(layerUS))
+                
                 QgsProject.instance().addMapLayers([layerUS], False)
+                
             else:
-                QMessageBox.warning(self, "TESTER", "OK Layer US non valido", QMessageBox.Ok)
+                QMessageBox.warning(self, "Pyarchinit", "OK Layer US non valido", QMessageBox.Ok)
 
             
 
@@ -1114,10 +1126,11 @@ class Pyarchinit_pyqgis(QDialog):
                 style_path = '{}{}'.format(self.LAYER_STYLE_PATH, 'us_caratterizzazioni.qml')
                 # style_path = QFileDialog.getOpenFileName(self, 'Open file', self.LAYER_STYLE_PATH)
                 layerUS.loadNamedStyle(style_path)
+                
                 group.insertChildNode(-1, QgsLayerTreeLayer(layerUS))
                 QgsProject.instance().addMapLayers([layerUS], False)
             else:
-                QMessageBox.warning(self, "TESTER", "OK Layer US non valido", QMessageBox.Ok)
+                QMessageBox.warning(self, "Pyarchinit", "OK Layer US non valido", QMessageBox.Ok)
 
             
             
@@ -1183,7 +1196,7 @@ class Pyarchinit_pyqgis(QDialog):
             
 
             if layerUS.isValid():
-                #QMessageBox.warning(self, "TESTER", "OK Layer US valido", QMessageBox.Ok)
+                #QMessageBox.warning(self, "Pyarchinit", "OK Layer US valido", QMessageBox.Ok)
 
                 # self.USLayerId = layerUS.getLayerID()
                 style_path = '{}{}'.format(self.LAYER_STYLE_PATH_SPATIALITE, 'us_view.qml')
@@ -1191,7 +1204,7 @@ class Pyarchinit_pyqgis(QDialog):
                 group.insertChildNode(-1, QgsLayerTreeLayer(layerUS))
                 QgsProject.instance().addMapLayers([layerUS], False)
             else:
-                QMessageBox.warning(self, "TESTER", "OK Layer US non valido", QMessageBox.Ok)
+                QMessageBox.warning(self, "Pyarchinit", "OK Layer US non valido", QMessageBox.Ok)
 
             
             
@@ -1228,7 +1241,7 @@ class Pyarchinit_pyqgis(QDialog):
                 group.insertChildNode(-1, QgsLayerTreeLayer(layerUS))
                 QgsProject.instance().addMapLayers([layerUS], False)
             else:
-                QMessageBox.warning(self, "TESTER", "OK Layer US non valido", QMessageBox.Ok)
+                QMessageBox.warning(self, "Pyarchinit", "OK Layer US non valido", QMessageBox.Ok)
 
             
                         
@@ -1284,27 +1297,27 @@ class Pyarchinit_pyqgis(QDialog):
             layerQUOTE = QgsVectorLayer(uri.uri(), 'pyarchinit_quote_view', 'spatialite')
 
             if layerQUOTE.isValid():
-                ###QMessageBox.warning(self, "TESTER", "OK Layer Quote valido",#QMessageBox.Ok)
+                ###QMessageBox.warning(self, "Pyarchinit", "OK Layer Quote valido",#QMessageBox.Ok)
                 style_path = '{}{}'.format(self.LAYER_STYLE_PATH_SPATIALITE, 'quote_us_view.qml')
                 layerQUOTE.loadNamedStyle(style_path)
                 QgsProject.instance().addMapLayers([layerQUOTE], False)
                 layerToSet.append(layerQUOTE)
             else:
                 pass
-                # QMessageBox.warning(self, "TESTER", "OK Layer Quote non valido",   #QMessageBox.Ok)
+                # QMessageBox.warning(self, "Pyarchinit", "OK Layer Quote non valido",   #QMessageBox.Ok)
 
             uri.setDataSource('', 'pyarchinit_us_view', 'the_geom', gidstr, "ROWID")
             layerUS = QgsVectorLayer(uri.uri(), 'pyarchinit_us_view', 'spatialite')
 
             if layerUS.isValid():
-                # QMessageBox.warning(self, "TESTER", "OK ayer US valido",   #QMessageBox.Ok)
+                # QMessageBox.warning(self, "Pyarchinit", "OK ayer US valido",   #QMessageBox.Ok)
                 style_path = '{}{}'.format(self.LAYER_STYLE_PATH_SPATIALITE, 'us_view.qml')
                 layerUS.loadNamedStyle(style_path)
                 QgsProject.instance().addMapLayers([layerUS], False)
                 layerToSet.append(layerUS)
             else:
                 pass
-                # QMessageBox.warning(self, "TESTER", "NOT! Layer US not valid",#QMessageBox.Ok)
+                # QMessageBox.warning(self, "Pyarchinit", "NOT! Layer US not valid",#QMessageBox.Ok)
 
             return layerToSet
 
@@ -1367,13 +1380,13 @@ class Pyarchinit_pyqgis(QDialog):
             layerUS = QgsVectorLayer(uri.uri(), 'pyarchinit_us_view', 'spatialite')
 
             if layerUS.isValid():
-                QMessageBox.warning(self, "TESTER", "OK ayer US valido", QMessageBox.Ok)
+                QMessageBox.warning(self, "Pyarchinit", "OK ayer US valido", QMessageBox.Ok)
                 ##              style_path = '{}{}'.format(self.LAYER_STYLE_PATH_SPATIALITE, 'us_view.qml')
                 ##              layerUS.loadNamedStyle(style_path)
                 QgsProject.instance().addMapLayers([layerUS], False)
                 layerToSet.append(layerUS)
             else:
-                QMessageBox.warning(self, "TESTER", "NOT! Layer US not valid", QMessageBox.Ok)
+                QMessageBox.warning(self, "Pyarchinit", "NOT! Layer US not valid", QMessageBox.Ok)
 
             
 
@@ -1387,7 +1400,7 @@ class Pyarchinit_pyqgis(QDialog):
         rlayer = QgsRasterLayer(fileName, baseName)
 
         if not rlayer.isValid():
-            #QMessageBox.warning(self, "TESTER", "PROBLEMA DI CARICAMENTO RASTER" + str(baseName),   #QMessageBox.Ok)
+            #QMessageBox.warning(self, "Pyarchinit", "PROBLEMA DI CARICAMENTO RASTER" + str(baseName),   #QMessageBox.Ok)
 
         srs = QgsCoordinateReferenceSystem(3004, QgsCoordinateReferenceSystem.PostgisCrsId)
         rlayer.setCrs(srs)
@@ -1487,7 +1500,7 @@ class Pyarchinit_pyqgis(QDialog):
                 myGroup1.insertChildNode(-1, QgsLayerTreeLayer(layer))
                 QgsProject.instance().addMapLayers([layer], False)
             else:
-                QMessageBox.warning(self, "TESTER", "Layer not valid", QMessageBox.Ok)
+                QMessageBox.warning(self, "Pyarchinit", "Layer not valid", QMessageBox.Ok)
             
             
             layer_name = 'pyarchinit_linee_rif'
@@ -1507,7 +1520,7 @@ class Pyarchinit_pyqgis(QDialog):
                 myGroup2.insertChildNode(-1, QgsLayerTreeLayer(layer))
                 QgsProject.instance().addMapLayers([layer], False)
             else:
-                QMessageBox.warning(self, "TESTER", "Layer not valid", QMessageBox.Ok)
+                QMessageBox.warning(self, "Pyarchinit", "Layer not valid", QMessageBox.Ok)
             
             layer_name = 'pyarchinit_punti_rif'
             layer_name_conv = "'" + str(layer_name) + "'"
@@ -1526,7 +1539,7 @@ class Pyarchinit_pyqgis(QDialog):
                 myGroup1.insertChildNode(-1, QgsLayerTreeLayer(layer))
                 QgsProject.instance().addMapLayers([layer], False)
             else:
-                QMessageBox.warning(self, "TESTER", "Layer not valid", QMessageBox.Ok)
+                QMessageBox.warning(self, "Pyarchinit", "Layer not valid", QMessageBox.Ok)
             
             
             layer_name = 'pyarchinit_campionature'
@@ -1546,7 +1559,7 @@ class Pyarchinit_pyqgis(QDialog):
                 myGroup1.insertChildNode(-1, QgsLayerTreeLayer(layer))
                 QgsProject.instance().addMapLayers([layer], False)
             else:
-                QMessageBox.warning(self, "TESTER", "Layer not valid", QMessageBox.Ok)
+                QMessageBox.warning(self, "Pyarchinit", "Layer not valid", QMessageBox.Ok)
             
             
             layer_name = 'pyarchinit_documentazione'
@@ -1566,7 +1579,7 @@ class Pyarchinit_pyqgis(QDialog):
                 myGroup2.insertChildNode(-1, QgsLayerTreeLayer(layer))
                 QgsProject.instance().addMapLayers([layer], False)
             else:
-                QMessageBox.warning(self, "TESTER", "Layer not valid", QMessageBox.Ok)
+                QMessageBox.warning(self, "Pyarchinit", "Layer not valid", QMessageBox.Ok)
             
             layer_name = 'pyunitastratigrafiche'
             layer_name_conv = "'" + str(layer_name) + "'"
@@ -1585,7 +1598,7 @@ class Pyarchinit_pyqgis(QDialog):
                 myGroup3.insertChildNode(-1, QgsLayerTreeLayer(layer))
                 QgsProject.instance().addMapLayers([layer], False)
             else:
-                QMessageBox.warning(self, "TESTER", "Layer not valid", QMessageBox.Ok)
+                QMessageBox.warning(self, "Pyarchinit", "Layer not valid", QMessageBox.Ok)
 
             layer_name = 'pyarchinit_quote'
             layer_name_conv = "'" + str(layer_name) + "'"
@@ -1604,7 +1617,7 @@ class Pyarchinit_pyqgis(QDialog):
                 myGroup1.insertChildNode(-1, QgsLayerTreeLayer(layer))
                 QgsProject.instance().addMapLayers([layer], False)
             else:
-                QMessageBox.warning(self, "TESTER", "Layer not valid", QMessageBox.Ok)
+                QMessageBox.warning(self, "Pyarchinit", "Layer not valid", QMessageBox.Ok)
 
             layer_name = 'pyarchinit_strutture_ipotesi'
             layer_name_conv = "'" + str(layer_name) + "'"
@@ -1620,7 +1633,7 @@ class Pyarchinit_pyqgis(QDialog):
                 myGroup3.insertChildNode(-1, QgsLayerTreeLayer(layer))
                 QgsProject.instance().addMapLayers([layer], False)
             else:
-                QMessageBox.warning(self, "TESTER", "Layer not valid", QMessageBox.Ok)
+                QMessageBox.warning(self, "Pyarchinit", "Layer not valid", QMessageBox.Ok)
             
             layer_name = 'pyarchinit_reperti'
             layer_name_conv = "'" + str(layer_name) + "'"
@@ -1636,7 +1649,7 @@ class Pyarchinit_pyqgis(QDialog):
                 myGroup1.insertChildNode(-1, QgsLayerTreeLayer(layer))
                 QgsProject.instance().addMapLayers([layer], False)
             else:
-                QMessageBox.warning(self, "TESTER", "Layer not valid", QMessageBox.Ok)
+                QMessageBox.warning(self, "Pyarchinit", "Layer not valid", QMessageBox.Ok)
             
             layer_name = 'pyarchinit_siti'
             layer_name_conv = "'" + str(layer_name) + "'"
@@ -1652,7 +1665,7 @@ class Pyarchinit_pyqgis(QDialog):
                 myGroup1.insertChildNode(-1, QgsLayerTreeLayer(layer))
                 QgsProject.instance().addMapLayers([layer], False)
             else:
-                QMessageBox.warning(self, "TESTER", "Layer not valid", QMessageBox.Ok)
+                QMessageBox.warning(self, "Pyarchinit", "Layer not valid", QMessageBox.Ok)
             
             
                 
@@ -1670,7 +1683,7 @@ class Pyarchinit_pyqgis(QDialog):
                 myGroup1.insertChildNode(-1, QgsLayerTreeLayer(layer))
                 QgsProject.instance().addMapLayers([layer], False)
             else:
-                QMessageBox.warning(self, "TESTER", "Layer not valid", QMessageBox.Ok)    
+                QMessageBox.warning(self, "Pyarchinit", "Layer not valid", QMessageBox.Ok)    
             
             
             layer_name = 'pyarchinit_siti_polygonal'
@@ -1687,7 +1700,7 @@ class Pyarchinit_pyqgis(QDialog):
                 myGroup3.insertChildNode(-1, QgsLayerTreeLayer(layer))
                 QgsProject.instance().addMapLayers([layer], False)
             else:
-                QMessageBox.warning(self, "TESTER", "Layer not valid", QMessageBox.Ok)
+                QMessageBox.warning(self, "Pyarchinit", "Layer not valid", QMessageBox.Ok)
             
             layer_name = 'pyarchinit_us_negative_doc'
             layer_name_conv = "'" + str(layer_name) + "'"
@@ -1706,7 +1719,7 @@ class Pyarchinit_pyqgis(QDialog):
                 myGroup2.insertChildNode(-1, QgsLayerTreeLayer(layer))
                 QgsProject.instance().addMapLayers([layer], False)
             else:
-                QMessageBox.warning(self, "TESTER", "Layer not valid", QMessageBox.Ok)
+                QMessageBox.warning(self, "Pyarchinit", "Layer not valid", QMessageBox.Ok)
             
             
             
@@ -1724,7 +1737,7 @@ class Pyarchinit_pyqgis(QDialog):
                 myGroup3.insertChildNode(-1, QgsLayerTreeLayer(layer))
                 QgsProject.instance().addMapLayers([layer], False)
             else:
-                QMessageBox.warning(self, "TESTER", "Layer not valid", QMessageBox.Ok)
+                QMessageBox.warning(self, "Pyarchinit", "Layer not valid", QMessageBox.Ok)
             
             layer_name = 'pyarchinit_sezioni'
             layer_name_conv = "'" + str(layer_name) + "'"
@@ -1740,7 +1753,7 @@ class Pyarchinit_pyqgis(QDialog):
                 myGroup2.insertChildNode(-1, QgsLayerTreeLayer(layer))
                 QgsProject.instance().addMapLayers([layer], False)
             else:
-                QMessageBox.warning(self, "TESTER", "Layer not valid", QMessageBox.Ok)
+                QMessageBox.warning(self, "Pyarchinit", "Layer not valid", QMessageBox.Ok)
             # for option in self.options:
                 # layer_name = self.LAYERS_DIZ[option]
                 # layer_name_conv = "'" + str(layer_name) + "'"
@@ -1758,7 +1771,7 @@ class Pyarchinit_pyqgis(QDialog):
                     # group.insertChildNode(-1, QgsLayerTreeLayer(layer))
                     # QgsProject.instance().addMapLayers([layer], False)
                 # else:
-                    # QMessageBox.warning(self, "TESTER", "Layer not valid: " + str(layer_name), QMessageBox.Ok)
+                    # QMessageBox.warning(self, "Pyarchinit", "Layer not valid: " + str(layer_name), QMessageBox.Ok)
 
                 ###AGGIUNGERE IL SISTEMA PER POSTGRES#####
         elif settings.SERVER == 'postgres':
@@ -1792,7 +1805,7 @@ class Pyarchinit_pyqgis(QDialog):
                     # group.insertChildNode(-1, QgsLayerTreeLayer(layer))
                     # QgsProject.instance().addMapLayers([layer], False)
                 # else:
-                    # QMessageBox.warning(self, "TESTER", "Layer not valid", QMessageBox.Ok)
+                    # QMessageBox.warning(self, "Pyarchinit", "Layer not valid", QMessageBox.Ok)
             layer_name = 'pyarchinit_individui'
             layer_name_conv = "'" + str(layer_name) + "'"
             ##value_conv = ('"sito = %s"') % ("'" + str(self.val) + "'")
@@ -1810,7 +1823,7 @@ class Pyarchinit_pyqgis(QDialog):
                 myGroup1.insertChildNode(-1, QgsLayerTreeLayer(layer))
                 QgsProject.instance().addMapLayers([layer], False)
             else:
-                QMessageBox.warning(self, "TESTER", "Layer not valid", QMessageBox.Ok)
+                QMessageBox.warning(self, "Pyarchinit", "Layer not valid", QMessageBox.Ok)
             
             
             layer_name = 'pyarchinit_linee_rif'
@@ -1830,7 +1843,7 @@ class Pyarchinit_pyqgis(QDialog):
                 myGroup2.insertChildNode(-1, QgsLayerTreeLayer(layer))
                 QgsProject.instance().addMapLayers([layer], False)
             else:
-                QMessageBox.warning(self, "TESTER", "Layer not valid", QMessageBox.Ok)
+                QMessageBox.warning(self, "Pyarchinit", "Layer not valid", QMessageBox.Ok)
             
             layer_name = 'pyarchinit_punti_rif'
             layer_name_conv = "'" + str(layer_name) + "'"
@@ -1849,7 +1862,7 @@ class Pyarchinit_pyqgis(QDialog):
                 myGroup1.insertChildNode(-1, QgsLayerTreeLayer(layer))
                 QgsProject.instance().addMapLayers([layer], False)
             else:
-                QMessageBox.warning(self, "TESTER", "Layer not valid", QMessageBox.Ok)
+                QMessageBox.warning(self, "Pyarchinit", "Layer not valid", QMessageBox.Ok)
             
             
             layer_name = 'pyarchinit_campionature'
@@ -1869,7 +1882,7 @@ class Pyarchinit_pyqgis(QDialog):
                 myGroup1.insertChildNode(-1, QgsLayerTreeLayer(layer))
                 QgsProject.instance().addMapLayers([layer], False)
             else:
-                QMessageBox.warning(self, "TESTER", "Layer not valid", QMessageBox.Ok)
+                QMessageBox.warning(self, "Pyarchinit", "Layer not valid", QMessageBox.Ok)
             
             
             layer_name = 'pyarchinit_documentazione'
@@ -1889,7 +1902,7 @@ class Pyarchinit_pyqgis(QDialog):
                 myGroup2.insertChildNode(-1, QgsLayerTreeLayer(layer))
                 QgsProject.instance().addMapLayers([layer], False)
             else:
-                QMessageBox.warning(self, "TESTER", "Layer not valid", QMessageBox.Ok)
+                QMessageBox.warning(self, "Pyarchinit", "Layer not valid", QMessageBox.Ok)
             
             layer_name = 'pyunitastratigrafiche'
             layer_name_conv = "'" + str(layer_name) + "'"
@@ -1908,7 +1921,7 @@ class Pyarchinit_pyqgis(QDialog):
                 myGroup3.insertChildNode(-1, QgsLayerTreeLayer(layer))
                 QgsProject.instance().addMapLayers([layer], False)
             else:
-                QMessageBox.warning(self, "TESTER", "Layer not valid", QMessageBox.Ok)
+                QMessageBox.warning(self, "Pyarchinit", "Layer not valid", QMessageBox.Ok)
 
             layer_name = 'pyarchinit_quote'
             layer_name_conv = "'" + str(layer_name) + "'"
@@ -1927,7 +1940,7 @@ class Pyarchinit_pyqgis(QDialog):
                 myGroup1.insertChildNode(-1, QgsLayerTreeLayer(layer))
                 QgsProject.instance().addMapLayers([layer], False)
             else:
-                QMessageBox.warning(self, "TESTER", "Layer not valid", QMessageBox.Ok)
+                QMessageBox.warning(self, "Pyarchinit", "Layer not valid", QMessageBox.Ok)
 
             layer_name = 'pyarchinit_strutture_ipotesi'
             layer_name_conv = "'" + str(layer_name) + "'"
@@ -1943,7 +1956,7 @@ class Pyarchinit_pyqgis(QDialog):
                 myGroup3.insertChildNode(-1, QgsLayerTreeLayer(layer))
                 QgsProject.instance().addMapLayers([layer], False)
             else:
-                QMessageBox.warning(self, "TESTER", "Layer not valid", QMessageBox.Ok)
+                QMessageBox.warning(self, "Pyarchinit", "Layer not valid", QMessageBox.Ok)
             
             layer_name = 'pyarchinit_reperti'
             layer_name_conv = "'" + str(layer_name) + "'"
@@ -1959,7 +1972,7 @@ class Pyarchinit_pyqgis(QDialog):
                 myGroup1.insertChildNode(-1, QgsLayerTreeLayer(layer))
                 QgsProject.instance().addMapLayers([layer], False)
             else:
-                QMessageBox.warning(self, "TESTER", "Layer not valid", QMessageBox.Ok)
+                QMessageBox.warning(self, "Pyarchinit", "Layer not valid", QMessageBox.Ok)
             
             layer_name = 'pyarchinit_siti'
             layer_name_conv = "'" + str(layer_name) + "'"
@@ -1975,7 +1988,7 @@ class Pyarchinit_pyqgis(QDialog):
                 myGroup1.insertChildNode(-1, QgsLayerTreeLayer(layer))
                 QgsProject.instance().addMapLayers([layer], False)
             else:
-                QMessageBox.warning(self, "TESTER", "Layer not valid", QMessageBox.Ok)
+                QMessageBox.warning(self, "Pyarchinit", "Layer not valid", QMessageBox.Ok)
             
             
                 
@@ -1993,7 +2006,7 @@ class Pyarchinit_pyqgis(QDialog):
                 myGroup1.insertChildNode(-1, QgsLayerTreeLayer(layer))
                 QgsProject.instance().addMapLayers([layer], False)
             else:
-                QMessageBox.warning(self, "TESTER", "Layer not valid", QMessageBox.Ok)    
+                QMessageBox.warning(self, "Pyarchinit", "Layer not valid", QMessageBox.Ok)    
             
             
             layer_name = 'pyarchinit_siti_polygonal'
@@ -2010,7 +2023,7 @@ class Pyarchinit_pyqgis(QDialog):
                 myGroup3.insertChildNode(-1, QgsLayerTreeLayer(layer))
                 QgsProject.instance().addMapLayers([layer], False)
             else:
-                QMessageBox.warning(self, "TESTER", "Layer not valid", QMessageBox.Ok)
+                QMessageBox.warning(self, "Pyarchinit", "Layer not valid", QMessageBox.Ok)
             
             layer_name = 'pyarchinit_us_negative_doc'
             layer_name_conv = "'" + str(layer_name) + "'"
@@ -2029,7 +2042,7 @@ class Pyarchinit_pyqgis(QDialog):
                 myGroup2.insertChildNode(-1, QgsLayerTreeLayer(layer))
                 QgsProject.instance().addMapLayers([layer], False)
             else:
-                QMessageBox.warning(self, "TESTER", "Layer not valid", QMessageBox.Ok)
+                QMessageBox.warning(self, "Pyarchinit", "Layer not valid", QMessageBox.Ok)
             
             
             
@@ -2047,7 +2060,7 @@ class Pyarchinit_pyqgis(QDialog):
                 myGroup3.insertChildNode(-1, QgsLayerTreeLayer(layer))
                 QgsProject.instance().addMapLayers([layer], False)
             else:
-                QMessageBox.warning(self, "TESTER", "Layer not valid", QMessageBox.Ok)
+                QMessageBox.warning(self, "Pyarchinit", "Layer not valid", QMessageBox.Ok)
             
             layer_name = 'pyarchinit_sezioni'
             layer_name_conv = "'" + str(layer_name) + "'"
@@ -2063,7 +2076,7 @@ class Pyarchinit_pyqgis(QDialog):
                 myGroup2.insertChildNode(-1, QgsLayerTreeLayer(layer))
                 QgsProject.instance().addMapLayers([layer], False)
             else:
-                QMessageBox.warning(self, "TESTER", "Layer not valid", QMessageBox.Ok)
+                QMessageBox.warning(self, "Pyarchinit", "Layer not valid", QMessageBox.Ok)
     def charge_sites_geometry(self, options, col, val):
         self.options = options
         self.col = col
@@ -2113,7 +2126,7 @@ class Pyarchinit_pyqgis(QDialog):
                     # group.insertChildNode(-1, QgsLayerTreeLayer(layer))
                     # QgsProject.instance().addMapLayers([layer], False)
                 # else:
-                    # QMessageBox.warning(self, "TESTER", "Layer not valid: {}".format(layer.name()), QMessageBox.Ok)
+                    # QMessageBox.warning(self, "Pyarchinit", "Layer not valid: {}".format(layer.name()), QMessageBox.Ok)
 
                     # # pyunitastratigrafiche e pyarchinit_quote nn possono essere aggiornate dinamicamente perche non hanno il campo sito. Da moficare?
             
@@ -2134,7 +2147,7 @@ class Pyarchinit_pyqgis(QDialog):
                 myGroup1.insertChildNode(-1, QgsLayerTreeLayer(layer))
                 QgsProject.instance().addMapLayers([layer], False)
             else:
-                QMessageBox.warning(self, "TESTER", "Layer not valid", QMessageBox.Ok)
+                QMessageBox.warning(self, "Pyarchinit", "Layer not valid", QMessageBox.Ok)
             
             
             layer_name = 'pyarchinit_linee_rif'
@@ -2154,7 +2167,7 @@ class Pyarchinit_pyqgis(QDialog):
                 myGroup2.insertChildNode(-1, QgsLayerTreeLayer(layer))
                 QgsProject.instance().addMapLayers([layer], False)
             else:
-                QMessageBox.warning(self, "TESTER", "Layer not valid", QMessageBox.Ok)
+                QMessageBox.warning(self, "Pyarchinit", "Layer not valid", QMessageBox.Ok)
             
             layer_name = 'pyarchinit_punti_rif'
             layer_name_conv = "'" + str(layer_name) + "'"
@@ -2173,7 +2186,7 @@ class Pyarchinit_pyqgis(QDialog):
                 myGroup1.insertChildNode(-1, QgsLayerTreeLayer(layer))
                 QgsProject.instance().addMapLayers([layer], False)
             else:
-                QMessageBox.warning(self, "TESTER", "Layer not valid", QMessageBox.Ok)
+                QMessageBox.warning(self, "Pyarchinit", "Layer not valid", QMessageBox.Ok)
             
             
             layer_name = 'pyarchinit_campionature'
@@ -2193,7 +2206,7 @@ class Pyarchinit_pyqgis(QDialog):
                 myGroup1.insertChildNode(-1, QgsLayerTreeLayer(layer))
                 QgsProject.instance().addMapLayers([layer], False)
             else:
-                QMessageBox.warning(self, "TESTER", "Layer not valid", QMessageBox.Ok)
+                QMessageBox.warning(self, "Pyarchinit", "Layer not valid", QMessageBox.Ok)
             
             
             layer_name = 'pyarchinit_documentazione'
@@ -2213,7 +2226,7 @@ class Pyarchinit_pyqgis(QDialog):
                 myGroup2.insertChildNode(-1, QgsLayerTreeLayer(layer))
                 QgsProject.instance().addMapLayers([layer], False)
             else:
-                QMessageBox.warning(self, "TESTER", "Layer not valid", QMessageBox.Ok)
+                QMessageBox.warning(self, "Pyarchinit", "Layer not valid", QMessageBox.Ok)
             
             layer_name = 'pyunitastratigrafiche'
             layer_name_conv = "'" + str(layer_name) + "'"
@@ -2232,7 +2245,7 @@ class Pyarchinit_pyqgis(QDialog):
                 myGroup3.insertChildNode(-1, QgsLayerTreeLayer(layer))
                 QgsProject.instance().addMapLayers([layer], False)
             else:
-                QMessageBox.warning(self, "TESTER", "Layer not valid", QMessageBox.Ok)
+                QMessageBox.warning(self, "Pyarchinit", "Layer not valid", QMessageBox.Ok)
 
             layer_name = 'pyarchinit_quote'
             layer_name_conv = "'" + str(layer_name) + "'"
@@ -2251,7 +2264,7 @@ class Pyarchinit_pyqgis(QDialog):
                 myGroup1.insertChildNode(-1, QgsLayerTreeLayer(layer))
                 QgsProject.instance().addMapLayers([layer], False)
             else:
-                QMessageBox.warning(self, "TESTER", "Layer not valid", QMessageBox.Ok)
+                QMessageBox.warning(self, "Pyarchinit", "Layer not valid", QMessageBox.Ok)
 
             layer_name = 'pyarchinit_strutture_ipotesi'
             layer_name_conv = "'" + str(layer_name) + "'"
@@ -2267,7 +2280,7 @@ class Pyarchinit_pyqgis(QDialog):
                 myGroup3.insertChildNode(-1, QgsLayerTreeLayer(layer))
                 QgsProject.instance().addMapLayers([layer], False)
             else:
-                QMessageBox.warning(self, "TESTER", "Layer not valid", QMessageBox.Ok)
+                QMessageBox.warning(self, "Pyarchinit", "Layer not valid", QMessageBox.Ok)
             
             layer_name = 'pyarchinit_reperti'
             layer_name_conv = "'" + str(layer_name) + "'"
@@ -2283,7 +2296,7 @@ class Pyarchinit_pyqgis(QDialog):
                 myGroup1.insertChildNode(-1, QgsLayerTreeLayer(layer))
                 QgsProject.instance().addMapLayers([layer], False)
             else:
-                QMessageBox.warning(self, "TESTER", "Layer not valid", QMessageBox.Ok)
+                QMessageBox.warning(self, "Pyarchinit", "Layer not valid", QMessageBox.Ok)
             
             layer_name = 'pyarchinit_siti'
             layer_name_conv = "'" + str(layer_name) + "'"
@@ -2299,7 +2312,7 @@ class Pyarchinit_pyqgis(QDialog):
                 myGroup1.insertChildNode(-1, QgsLayerTreeLayer(layer))
                 QgsProject.instance().addMapLayers([layer], False)
             else:
-                QMessageBox.warning(self, "TESTER", "Layer not valid", QMessageBox.Ok)
+                QMessageBox.warning(self, "Pyarchinit", "Layer not valid", QMessageBox.Ok)
             
             
                 
@@ -2317,7 +2330,7 @@ class Pyarchinit_pyqgis(QDialog):
                 myGroup1.insertChildNode(-1, QgsLayerTreeLayer(layer))
                 QgsProject.instance().addMapLayers([layer], False)
             else:
-                QMessageBox.warning(self, "TESTER", "Layer not valid", QMessageBox.Ok)    
+                QMessageBox.warning(self, "Pyarchinit", "Layer not valid", QMessageBox.Ok)    
             
             
             layer_name = 'pyarchinit_siti_polygonal'
@@ -2334,7 +2347,7 @@ class Pyarchinit_pyqgis(QDialog):
                 myGroup3.insertChildNode(-1, QgsLayerTreeLayer(layer))
                 QgsProject.instance().addMapLayers([layer], False)
             else:
-                QMessageBox.warning(self, "TESTER", "Layer not valid", QMessageBox.Ok)
+                QMessageBox.warning(self, "Pyarchinit", "Layer not valid", QMessageBox.Ok)
             
             layer_name = 'pyarchinit_us_negative_doc'
             layer_name_conv = "'" + str(layer_name) + "'"
@@ -2353,7 +2366,7 @@ class Pyarchinit_pyqgis(QDialog):
                 myGroup2.insertChildNode(-1, QgsLayerTreeLayer(layer))
                 QgsProject.instance().addMapLayers([layer], False)
             else:
-                QMessageBox.warning(self, "TESTER", "Layer not valid", QMessageBox.Ok)
+                QMessageBox.warning(self, "Pyarchinit", "Layer not valid", QMessageBox.Ok)
             
             
             
@@ -2371,7 +2384,7 @@ class Pyarchinit_pyqgis(QDialog):
                 myGroup3.insertChildNode(-1, QgsLayerTreeLayer(layer))
                 QgsProject.instance().addMapLayers([layer], False)
             else:
-                QMessageBox.warning(self, "TESTER", "Layer not valid", QMessageBox.Ok)
+                QMessageBox.warning(self, "Pyarchinit", "Layer not valid", QMessageBox.Ok)
             
             layer_name = 'pyarchinit_sezioni'
             layer_name_conv = "'" + str(layer_name) + "'"
@@ -2387,7 +2400,7 @@ class Pyarchinit_pyqgis(QDialog):
                 myGroup2.insertChildNode(-1, QgsLayerTreeLayer(layer))
                 QgsProject.instance().addMapLayers([layer], False)
             else:
-                QMessageBox.warning(self, "TESTER", "Layer not valid", QMessageBox.Ok)
+                QMessageBox.warning(self, "Pyarchinit", "Layer not valid", QMessageBox.Ok)
 
             ###AGGIUNGERE IL SISTEMA PER POSTGRES#####
         elif settings.SERVER == 'postgres':
@@ -2416,7 +2429,7 @@ class Pyarchinit_pyqgis(QDialog):
                     # group.insertChildNode(-1, QgsLayerTreeLayer(layer))
                     # QgsProject.instance().addMapLayers([layer], False)
                 # else:
-                    # QMessageBox.warning(self, "TESTER", "Layer not valid", QMessageBox.Ok)
+                    # QMessageBox.warning(self, "Pyarchinit", "Layer not valid", QMessageBox.Ok)
 
                     # # pyunitastratigrafiche e pyarchinit_quote nn possono essere aggiornate dinamicamente perche non hanno il campo sito. Da moficare?
             
@@ -2437,7 +2450,7 @@ class Pyarchinit_pyqgis(QDialog):
                 myGroup1.insertChildNode(-1, QgsLayerTreeLayer(layer))
                 QgsProject.instance().addMapLayers([layer], False)
             else:
-                QMessageBox.warning(self, "TESTER", "Layer not valid", QMessageBox.Ok)
+                QMessageBox.warning(self, "Pyarchinit", "Layer not valid", QMessageBox.Ok)
             
             
             layer_name = 'pyarchinit_linee_rif'
@@ -2457,7 +2470,7 @@ class Pyarchinit_pyqgis(QDialog):
                 myGroup2.insertChildNode(-1, QgsLayerTreeLayer(layer))
                 QgsProject.instance().addMapLayers([layer], False)
             else:
-                QMessageBox.warning(self, "TESTER", "Layer not valid", QMessageBox.Ok)
+                QMessageBox.warning(self, "Pyarchinit", "Layer not valid", QMessageBox.Ok)
             
             layer_name = 'pyarchinit_punti_rif'
             layer_name_conv = "'" + str(layer_name) + "'"
@@ -2476,7 +2489,7 @@ class Pyarchinit_pyqgis(QDialog):
                 myGroup1.insertChildNode(-1, QgsLayerTreeLayer(layer))
                 QgsProject.instance().addMapLayers([layer], False)
             else:
-                QMessageBox.warning(self, "TESTER", "Layer not valid", QMessageBox.Ok)
+                QMessageBox.warning(self, "Pyarchinit", "Layer not valid", QMessageBox.Ok)
             
             
             layer_name = 'pyarchinit_campionature'
@@ -2496,7 +2509,7 @@ class Pyarchinit_pyqgis(QDialog):
                 myGroup1.insertChildNode(-1, QgsLayerTreeLayer(layer))
                 QgsProject.instance().addMapLayers([layer], False)
             else:
-                QMessageBox.warning(self, "TESTER", "Layer not valid", QMessageBox.Ok)
+                QMessageBox.warning(self, "Pyarchinit", "Layer not valid", QMessageBox.Ok)
             
             
             layer_name = 'pyarchinit_documentazione'
@@ -2516,7 +2529,7 @@ class Pyarchinit_pyqgis(QDialog):
                 myGroup2.insertChildNode(-1, QgsLayerTreeLayer(layer))
                 QgsProject.instance().addMapLayers([layer], False)
             else:
-                QMessageBox.warning(self, "TESTER", "Layer not valid", QMessageBox.Ok)
+                QMessageBox.warning(self, "Pyarchinit", "Layer not valid", QMessageBox.Ok)
             
             layer_name = 'pyunitastratigrafiche'
             layer_name_conv = "'" + str(layer_name) + "'"
@@ -2535,7 +2548,7 @@ class Pyarchinit_pyqgis(QDialog):
                 myGroup3.insertChildNode(-1, QgsLayerTreeLayer(layer))
                 QgsProject.instance().addMapLayers([layer], False)
             else:
-                QMessageBox.warning(self, "TESTER", "Layer not valid", QMessageBox.Ok)
+                QMessageBox.warning(self, "Pyarchinit", "Layer not valid", QMessageBox.Ok)
 
             layer_name = 'pyarchinit_quote'
             layer_name_conv = "'" + str(layer_name) + "'"
@@ -2554,7 +2567,7 @@ class Pyarchinit_pyqgis(QDialog):
                 myGroup1.insertChildNode(-1, QgsLayerTreeLayer(layer))
                 QgsProject.instance().addMapLayers([layer], False)
             else:
-                QMessageBox.warning(self, "TESTER", "Layer not valid", QMessageBox.Ok)
+                QMessageBox.warning(self, "Pyarchinit", "Layer not valid", QMessageBox.Ok)
 
             layer_name = 'pyarchinit_strutture_ipotesi'
             layer_name_conv = "'" + str(layer_name) + "'"
@@ -2570,7 +2583,7 @@ class Pyarchinit_pyqgis(QDialog):
                 myGroup3.insertChildNode(-1, QgsLayerTreeLayer(layer))
                 QgsProject.instance().addMapLayers([layer], False)
             else:
-                QMessageBox.warning(self, "TESTER", "Layer not valid", QMessageBox.Ok)
+                QMessageBox.warning(self, "Pyarchinit", "Layer not valid", QMessageBox.Ok)
             
             layer_name = 'pyarchinit_reperti'
             layer_name_conv = "'" + str(layer_name) + "'"
@@ -2586,7 +2599,7 @@ class Pyarchinit_pyqgis(QDialog):
                 myGroup1.insertChildNode(-1, QgsLayerTreeLayer(layer))
                 QgsProject.instance().addMapLayers([layer], False)
             else:
-                QMessageBox.warning(self, "TESTER", "Layer not valid", QMessageBox.Ok)
+                QMessageBox.warning(self, "Pyarchinit", "Layer not valid", QMessageBox.Ok)
             
             layer_name = 'pyarchinit_siti'
             layer_name_conv = "'" + str(layer_name) + "'"
@@ -2602,7 +2615,7 @@ class Pyarchinit_pyqgis(QDialog):
                 myGroup1.insertChildNode(-1, QgsLayerTreeLayer(layer))
                 QgsProject.instance().addMapLayers([layer], False)
             else:
-                QMessageBox.warning(self, "TESTER", "Layer not valid", QMessageBox.Ok)
+                QMessageBox.warning(self, "Pyarchinit", "Layer not valid", QMessageBox.Ok)
             
             
                 
@@ -2620,7 +2633,7 @@ class Pyarchinit_pyqgis(QDialog):
                 myGroup1.insertChildNode(-1, QgsLayerTreeLayer(layer))
                 QgsProject.instance().addMapLayers([layer], False)
             else:
-                QMessageBox.warning(self, "TESTER", "Layer not valid", QMessageBox.Ok)    
+                QMessageBox.warning(self, "Pyarchinit", "Layer not valid", QMessageBox.Ok)    
             
             
             layer_name = 'pyarchinit_siti_polygonal'
@@ -2637,7 +2650,7 @@ class Pyarchinit_pyqgis(QDialog):
                 myGroup3.insertChildNode(-1, QgsLayerTreeLayer(layer))
                 QgsProject.instance().addMapLayers([layer], False)
             else:
-                QMessageBox.warning(self, "TESTER", "Layer not valid", QMessageBox.Ok)
+                QMessageBox.warning(self, "Pyarchinit", "Layer not valid", QMessageBox.Ok)
             
             layer_name = 'pyarchinit_us_negative_doc'
             layer_name_conv = "'" + str(layer_name) + "'"
@@ -2656,7 +2669,7 @@ class Pyarchinit_pyqgis(QDialog):
                 myGroup2.insertChildNode(-1, QgsLayerTreeLayer(layer))
                 QgsProject.instance().addMapLayers([layer], False)
             else:
-                QMessageBox.warning(self, "TESTER", "Layer not valid", QMessageBox.Ok)
+                QMessageBox.warning(self, "Pyarchinit", "Layer not valid", QMessageBox.Ok)
             
             
             
@@ -2674,7 +2687,7 @@ class Pyarchinit_pyqgis(QDialog):
                 myGroup3.insertChildNode(-1, QgsLayerTreeLayer(layer))
                 QgsProject.instance().addMapLayers([layer], False)
             else:
-                QMessageBox.warning(self, "TESTER", "Layer not valid", QMessageBox.Ok)
+                QMessageBox.warning(self, "Pyarchinit", "Layer not valid", QMessageBox.Ok)
             
             layer_name = 'pyarchinit_sezioni'
             layer_name_conv = "'" + str(layer_name) + "'"
@@ -2690,7 +2703,7 @@ class Pyarchinit_pyqgis(QDialog):
                 myGroup2.insertChildNode(-1, QgsLayerTreeLayer(layer))
                 QgsProject.instance().addMapLayers([layer], False)
             else:
-                QMessageBox.warning(self, "TESTER", "Layer not valid", QMessageBox.Ok)
+                QMessageBox.warning(self, "Pyarchinit", "Layer not valid", QMessageBox.Ok)
 
             
             
@@ -2731,13 +2744,13 @@ class Pyarchinit_pyqgis(QDialog):
             layerSITE = QgsVectorLayer(uri.uri(), 'pyarchinit_site_view', 'spatialite')
 
             if layerSITE.isValid():
-                QMessageBox.warning(self, "TESTER", "OK Layer Sito valido", QMessageBox.Ok)
+                QMessageBox.warning(self, "Pyarchinit", "OK Layer Sito valido", QMessageBox.Ok)
 
                 self.iface.mapCanvas().setExtent(layerSITE.extent())
                 group.insertChildNode(-1, QgsLayerTreeLayer(layerSITE))
                 QgsProject.instance().addMapLayers([layerSITE], False)
             else:
-                QMessageBox.warning(self, "TESTER", "Layer US non valido", QMessageBox.Ok)
+                QMessageBox.warning(self, "Pyarchinit", "Layer US non valido", QMessageBox.Ok)
 
         elif settings.SERVER == 'postgres':
 
@@ -2753,7 +2766,7 @@ class Pyarchinit_pyqgis(QDialog):
             layerSITE = QgsVectorLayer(uri.uri(), 'pyarchinit_site_view', 'postgres')
 
             if layerSITE.isValid():
-                QMessageBox.warning(self, "TESTER", "OK Layer Sito valido", QMessageBox.Ok)
+                QMessageBox.warning(self, "Pyarchinit", "OK Layer Sito valido", QMessageBox.Ok)
 
                 # self.USLayerId = layerUS.getLayerID()
                 ##              style_path = '{}{}'.format(self.LAYER_STYLE_PATH_SPATIALITE, 'us_view.qml')
@@ -2762,7 +2775,7 @@ class Pyarchinit_pyqgis(QDialog):
                 group.insertChildNode(-1, QgsLayerTreeLayer(layerSITE))
                 QgsProject.instance().addMapLayers([layerSITE], False)
             else:
-                QMessageBox.warning(self, "TESTER", "Layer US non valido", QMessageBox.Ok)
+                QMessageBox.warning(self, "Pyarchinit", "Layer US non valido", QMessageBox.Ok)
     def charge_reperti_layers(self, data):
         # Clean Qgis Map Later Registry
         # QgsProject.instance().removeAllMapLayers()
@@ -2804,14 +2817,14 @@ class Pyarchinit_pyqgis(QDialog):
             layerUS = QgsVectorLayer(uri.uri(), name_layer, 'spatialite')
 
             if layerUS.isValid():
-                QMessageBox.warning(self, "TESTER", "OK Layer US valido", QMessageBox.Ok)
+                QMessageBox.warning(self, "Pyarchinit", "OK Layer US valido", QMessageBox.Ok)
 
                 
 
                 group.insertChildNode(-1, QgsLayerTreeLayer(layerUS))
                 QgsProject.instance().addMapLayers([layerUS], False)
             else:
-                QMessageBox.warning(self, "TESTER", "OK Layer not valid", QMessageBox.Ok)    
+                QMessageBox.warning(self, "Pyarchinit", "OK Layer not valid", QMessageBox.Ok)    
             
 
         elif settings.SERVER == 'postgres':
@@ -2838,7 +2851,7 @@ class Pyarchinit_pyqgis(QDialog):
                 QgsProject.instance().addMapLayers([layerUS], False)
            
             else:
-                QMessageBox.warning(self, "TESTER", "OK Layer not valid", QMessageBox.Ok)
+                QMessageBox.warning(self, "Pyarchinit", "OK Layer not valid", QMessageBox.Ok)
     
     def charge_tomba_layers(self, data):
         # Clean Qgis Map Later Registry
@@ -2881,14 +2894,14 @@ class Pyarchinit_pyqgis(QDialog):
             layerUS = QgsVectorLayer(uri.uri(), name_layer, 'spatialite')
 
             if layerUS.isValid():
-                QMessageBox.warning(self, "TESTER", "OK Layer US valido", QMessageBox.Ok)
+                QMessageBox.warning(self, "Pyarchinit", "OK Layer US valido", QMessageBox.Ok)
 
                 
 
                 group.insertChildNode(-1, QgsLayerTreeLayer(layerUS))
                 QgsProject.instance().addMapLayers([layerUS], False)
             else:
-                QMessageBox.warning(self, "TESTER", "OK Layer not valid", QMessageBox.Ok)    
+                QMessageBox.warning(self, "Pyarchinit", "OK Layer not valid", QMessageBox.Ok)    
             
 
         elif settings.SERVER == 'postgres':
@@ -2915,7 +2928,7 @@ class Pyarchinit_pyqgis(QDialog):
                 QgsProject.instance().addMapLayers([layerUS], False)
            
             else:
-                QMessageBox.warning(self, "TESTER", "OK Layer not valid", QMessageBox.Ok)
+                QMessageBox.warning(self, "Pyarchinit", "OK Layer not valid", QMessageBox.Ok)
     
     #def dothejob(group_name):
         
@@ -2962,13 +2975,13 @@ class Pyarchinit_pyqgis(QDialog):
             layerSTRUTTURA = QgsVectorLayer(uri.uri(), 'pyarchinit_strutture_view', 'spatialite')
 
             if layerSTRUTTURA.isValid():
-                #QMessageBox.warning(self, "TESTER", "OK Layer Struttura valido", QMessageBox.Ok)
+                #QMessageBox.warning(self, "Pyarchinit", "OK Layer Struttura valido", QMessageBox.Ok)
 
                 self.iface.mapCanvas().setExtent(layerSTRUTTURA.extent())
                 group.insertChildNode(-1, QgsLayerTreeLayer(layerSTRUTTURA))
                 QgsProject.instance().addMapLayers([layerSTRUTTURA], False)
             else:
-                QMessageBox.warning(self, "TESTER", "Layer Struttura non valido", QMessageBox.Ok)
+                QMessageBox.warning(self, "Pyarchinit", "Layer Struttura non valido", QMessageBox.Ok)
 
         elif settings.SERVER == 'postgres':
 
@@ -2978,7 +2991,7 @@ class Pyarchinit_pyqgis(QDialog):
             try:
                 string = "sito = '" + self.sito_p + "' AND  sigla_struttura = '" + self.sigla_st + "' AND numero_struttura= '" + self.n_st + "'"
             except Exception as e:
-                QMessageBox.warning(self, "TESTER", str(e), QMessageBox.Ok)
+                QMessageBox.warning(self, "Pyarchinit", str(e), QMessageBox.Ok)
             #gidstr = "id_struttura = '" + str(self.data[0].id_struttura) + "'"
             # if len(data) > 1:
                 # for i in range(len(data)):
@@ -2988,13 +3001,13 @@ class Pyarchinit_pyqgis(QDialog):
             layerSTRUTTURA = QgsVectorLayer(uri.uri(), 'pyarchinit_strutture_view', 'postgres')
 
             if layerSTRUTTURA.isValid():
-                #QMessageBox.warning(self, "TESTER", "OK Layer Struttura valido", QMessageBox.Ok)
+                #QMessageBox.warning(self, "Pyarchinit", "OK Layer Struttura valido", QMessageBox.Ok)
 
                 self.iface.mapCanvas().setExtent(layerSTRUTTURA.extent())
                 group.insertChildNode(-1, QgsLayerTreeLayer(layerSTRUTTURA))
                 QgsProject.instance().addMapLayers([layerSTRUTTURA], False)
             else:
-                pass#QMessageBox.warning(self, "TESTER", "Layer Struttura non valido", QMessageBox.Ok)
+                pass#QMessageBox.warning(self, "Pyarchinit", "Layer Struttura non valido", QMessageBox.Ok)
 
     
     def charge_structure_from_research(self, data):
@@ -3032,13 +3045,13 @@ class Pyarchinit_pyqgis(QDialog):
             layerSTRUTTURA = QgsVectorLayer(uri.uri(), 'pyarchinit_strutture_view', 'spatialite')
 
             if layerSTRUTTURA.isValid():
-                QMessageBox.warning(self, "TESTER", "OK Layer Struttura valido", QMessageBox.Ok)
+                QMessageBox.warning(self, "Pyarchinit", "OK Layer Struttura valido", QMessageBox.Ok)
 
                 self.iface.mapCanvas().setExtent(layerSTRUTTURA.extent())
                 group.insertChildNode(-1, QgsLayerTreeLayer(layerSTRUTTURA))
                 QgsProject.instance().addMapLayers([layerSTRUTTURA], False)
             else:
-                QMessageBox.warning(self, "TESTER", "Layer Struttura non valido", QMessageBox.Ok)
+                QMessageBox.warning(self, "Pyarchinit", "Layer Struttura non valido", QMessageBox.Ok)
 
         elif settings.SERVER == 'postgres':
 
@@ -3055,13 +3068,13 @@ class Pyarchinit_pyqgis(QDialog):
             layerSTRUTTURA = QgsVectorLayer(uri.uri(), 'pyarchinit_strutture_view', 'postgres')
 
             if layerSTRUTTURA.isValid():
-                QMessageBox.warning(self, "TESTER", "OK Layer Struttura valido", QMessageBox.Ok)
+                QMessageBox.warning(self, "Pyarchinit", "OK Layer Struttura valido", QMessageBox.Ok)
 
                 self.iface.mapCanvas().setExtent(layerSTRUTTURA.extent())
                 group.insertChildNode(-1, QgsLayerTreeLayer(layerSTRUTTURA))
                 QgsProject.instance().addMapLayers([layerSTRUTTURA], False)
             else:
-                QMessageBox.warning(self, "TESTER", "Layer Struttura non valido", QMessageBox.Ok)
+                QMessageBox.warning(self, "Pyarchinit", "Layer Struttura non valido", QMessageBox.Ok)
     
     def charge_individui_from_research(self, data):
         # Clean Qgis Map Later Registry
@@ -3098,7 +3111,7 @@ class Pyarchinit_pyqgis(QDialog):
             layerIndividui = QgsVectorLayer(uri.uri(), 'pyarchinit_individui_view', 'spatialite')
 
             if layerIndividui.isValid():
-                QMessageBox.warning(self, "TESTER", "OK Layer Individui valido", QMessageBox.Ok)
+                QMessageBox.warning(self, "Pyarchinit", "OK Layer Individui valido", QMessageBox.Ok)
 
                 # self.USLayerId = layerUS.getLayerID()
                 ##              style_path = '{}{}'.format(self.LAYER_STYLE_PATH_SPATIALITE, 'us_view.qml')
@@ -3107,7 +3120,7 @@ class Pyarchinit_pyqgis(QDialog):
                 group.insertChildNode(-1, QgsLayerTreeLayer(layerIndividui))
                 QgsProject.instance().addMapLayers([layerIndividui], False)
             else:
-                QMessageBox.warning(self, "TESTER", "Layer Individui non valido", QMessageBox.Ok)
+                QMessageBox.warning(self, "Pyarchinit", "Layer Individui non valido", QMessageBox.Ok)
 
         elif settings.SERVER == 'postgres':
 
@@ -3127,7 +3140,7 @@ class Pyarchinit_pyqgis(QDialog):
             layerIndividui = QgsVectorLayer(uri.uri(), 'pyarchinit_individui_view', 'postgres')
 
             if layerIndividui.isValid():
-                QMessageBox.warning(self, "TESTER", "OK Layer Individui valido", QMessageBox.Ok)
+                QMessageBox.warning(self, "Pyarchinit", "OK Layer Individui valido", QMessageBox.Ok)
 
                 # self.USLayerId = layerUS.getLayerID()
                 ##              style_path = '{}{}'.format(self.LAYER_STYLE_PATH_SPATIALITE, 'us_view.qml')
@@ -3136,7 +3149,7 @@ class Pyarchinit_pyqgis(QDialog):
                 group.insertChildNode(-1, QgsLayerTreeLayer(layerIndividui))
                 QgsProject.instance().addMapLayers([layerIndividui], False)
             else:
-                QMessageBox.warning(self, "TESTER", "Layer Individui non valido", QMessageBox.Ok)
+                QMessageBox.warning(self, "Pyarchinit", "Layer Individui non valido", QMessageBox.Ok)
 
 
 class Order_layers_DEPRECATED(object):
@@ -3175,7 +3188,7 @@ class Order_layers_DEPRECATED(object):
 
         while bool(self.LISTA_RAPPORTI) == True and self.stop_while == '':
             # viene eseguito il ciclo per ogni US contenuto nella lista delle US
-            # QMessageBox.warning(self, "TESTER", str(self.LISTA_RAPPORTI), #QMessageBox.Ok)
+            # QMessageBox.warning(self, "Pyarchinit", str(self.LISTA_RAPPORTI), #QMessageBox.Ok)
             self.loop_on_lista_us()
             # dovrebbero rimanere le US che non hanno altre US, dopo
         if bool(self.LISTA_RAPPORTI) == False and bool(self.LISTA_US) == True:
