@@ -24,10 +24,13 @@ import os
 from builtins import object
 from builtins import range
 from builtins import str
-from qgis.PyQt.QtWidgets import *#QDialog, QMessageBox, QFileDialog
+from PyQt5.QtCore import *
+from PyQt5.QtGui import *
+from PyQt5.QtWidgets import *
 from qgis.core import *
 from qgis.gui import *
-
+import qgis.utils
+import requests
 
 from ..utility.settings import Settings
 
@@ -40,6 +43,7 @@ class Pyarchinit_pyqgis(QDialog):
     SRS = 3004
     L=QgsSettings().value("locale/userLocale")[0:2]
     USLayerId = ""
+    
     LAYERS_DIZ = {"1": "pyarchinit_campionature",
                   "2": "pyarchinit_individui",
                   "3": "pyarchinit_linee_rif",
@@ -162,7 +166,7 @@ class Pyarchinit_pyqgis(QDialog):
     def __init__(self, iface):
         super().__init__()
         self.iface = iface
-
+    
     def remove_USlayer_from_registry(self):
         QgsProject.instance().removeMapLayer(self.USLayerId)
         return 0
@@ -1092,8 +1096,19 @@ class Pyarchinit_pyqgis(QDialog):
                 group.insertChildNode(-1, QgsLayerTreeLayer(layerUS))
                 # a=QgsLayerTreeUtils.setLegendFilterByExpression(QgsLayerTreeLayer(layerUS),str('a'),True)
                 
+                # view = QgsLayerTreeView()
+                # view.setModel(a)
+                # view.currentLayer()
                 QgsProject.instance().addMapLayers([layerUS], False)
+                # s= QgsMapSettings()
+                # s.setExtent(s.visibleExtent())
+                # s.outputSize()
+                # s.layers()
+                # QgsLayerTreeModel(root).setLegendFilterByMap(s)## This one should filter the legend on base map content?
+                #b=QgsLayerTreeModel(root).refreshLayerLegend(QgsLayerTreeLayer(a))
                 
+                QMessageBox.warning(self, "Pyarchinit", str(s), QMessageBox.Ok)
+            
             else:
                 QMessageBox.warning(self, "Pyarchinit", "OK Layer US non valido", QMessageBox.Ok)
 
@@ -1470,13 +1485,15 @@ class Pyarchinit_pyqgis(QDialog):
         root = QgsProject.instance().layerTreeRoot()
         group = root.addGroup(groupName)
         group.setExpanded(False)
+        
         myGroup1 = group.insertGroup(1, "Riferimenti di localizzazione")
         myGroup2 = group.insertGroup(2, "Linee di riferimento")        
         myGroup3 = group.insertGroup(3, "Ingombri")
+        myGroup4 = group.insertGroup(4, "Base Map")
         myGroup1.setExpanded(False)
         myGroup2.setExpanded(False)
         myGroup3.setExpanded(False)
-            
+        myGroup4.setExpanded(False)    
         if settings.SERVER == 'sqlite':
             sqliteDB_path = os.path.join(os.sep, 'pyarchinit_DB_folder', settings.DATABASE)
             db_file_path = '{}{}'.format(self.HOME, sqliteDB_path)
@@ -1591,13 +1608,14 @@ class Pyarchinit_pyqgis(QDialog):
             layer_label_conv = "'" + layer_label + "'"
             cmq_set_vector_layer = "QgsVectorLayer(uri.uri(), %s, 'spatialite')" % (layer_label_conv)
             layer = eval(cmq_set_vector_layer)
-
+            
             if layer.isValid():
                 # self.USLayerId = layerUS.getLayerID()
                 ##style_path = '{}{}'.format(self.LAYER_STYLE_PATH_SPATIALITE, 'us_view.qml')
                 ##ayerUS.loadNamedStyle(style_path)
                 myGroup3.insertChildNode(-1, QgsLayerTreeLayer(layer))
                 QgsProject.instance().addMapLayers([layer], False)
+                
             else:
                 QMessageBox.warning(self, "Pyarchinit", "Layer not valid", QMessageBox.Ok)
 
@@ -1755,26 +1773,27 @@ class Pyarchinit_pyqgis(QDialog):
                 QgsProject.instance().addMapLayers([layer], False)
             else:
                 QMessageBox.warning(self, "Pyarchinit", "Layer not valid", QMessageBox.Ok)
-            # for option in self.options:
-                # layer_name = self.LAYERS_DIZ[option]
-                # layer_name_conv = "'" + str(layer_name) + "'"
-                # cmq_set_uri_data_source = "uri.setDataSource('',%s, %s)" % (layer_name_conv, "'the_geom'")
-                # eval(cmq_set_uri_data_source)
-                # layer_label = self.LAYERS_CONVERT_DIZ[layer_name]
-                # layer_label_conv = "'" + layer_label + "'"
-                # cmq_set_vector_layer = "QgsVectorLayer(uri.uri(), %s, 'spatialite')" % (layer_label_conv)
-                # layer = eval(cmq_set_vector_layer)
+            
+            basemap_name = 'Google Maps'
+            basemap_wiki = 'Wikimedia Maps'
+            
+            basemap_url = 'mt1.google.com/vt/lyrs=s&x={x}&y={y}&z={z}'
+            basemap_url_wiki = 'maps.wikimedia.org/osm-intl/{z}/{x}/{y}.png'
+            basemap_uri = "type=xyz&zmin=0&zmax=22&url=http://"+requests.utils.quote(basemap_url)
+            basemap_uri_wiki = "type=xyz&zmin=0&zmax=22&url=http://"+requests.utils.quote(basemap_url_wiki)
+            rlayer= QgsRasterLayer(basemap_uri, basemap_name,'wms')
+            rlayer_wiki= QgsRasterLayer(basemap_uri_wiki, basemap_wiki,'wms')
+            
+            
+            
+            if rlayer.isValid() and rlayer_wiki.isValid():
                 
-                # if layer.isValid():
-                    # # self.USLayerId = layerUS.getLayerID()
-                    # ##style_path = '{}{}'.format(self.LAYER_STYLE_PATH_SPATIALITE, 'us_view.qml')
-                    # ##ayerUS.loadNamedStyle(style_path)
-                    # group.insertChildNode(-1, QgsLayerTreeLayer(layer))
-                    # QgsProject.instance().addMapLayers([layer], False)
-                # else:
-                    # QMessageBox.warning(self, "Pyarchinit", "Layer not valid: " + str(layer_name), QMessageBox.Ok)
-
-                ###AGGIUNGERE IL SISTEMA PER POSTGRES#####
+                myGroup4.insertChildNode(-1, QgsLayerTreeLayer(rlayer))
+                myGroup4.insertChildNode(-1, QgsLayerTreeLayer(rlayer_wiki))
+                QgsProject.instance().addMapLayers([rlayer,rlayer_wiki],False)
+        
+            else:
+                QMessageBox.warning(self, "Pyarchinit", "Base Map not valid", QMessageBox.Ok)
         elif settings.SERVER == 'postgres':
 
             uri = QgsDataSourceUri()
@@ -1782,31 +1801,6 @@ class Pyarchinit_pyqgis(QDialog):
             uri.setConnection(settings.HOST, settings.PORT, settings.DATABASE, settings.USER, settings.PASSWORD)
             srs = QgsCoordinateReferenceSystem(self.SRS, QgsCoordinateReferenceSystem.PostgisCrsId)
 
-            # for option in self.options:
-                # layer_name = self.LAYERS_DIZ[option]
-                # layer_name_conv = "'" + str(layer_name) + "'"
-                # cmq_set_uri_data_source = "uri.setDataSource('',%s, %s)" % (layer_name_conv, "'the_geom'")
-                # eval(cmq_set_uri_data_source)
-                # layer_label = self.LAYERS_CONVERT_DIZ[layer_name]
-                # layer_label_conv = "'" + layer_label + "'"
-                # cmq_set_vector_layer = "QgsVectorLayer(uri.uri(), %s, 'postgres')" % (layer_label_conv)
-                # layer = eval(cmq_set_vector_layer)
-                # #fieldIndex = layer.fields().indexFromName( 'scavo_s' )
-                # #editor_widget_setup = QgsEditorWidgetSetup( 'ValueMap', {
-                # #                         'map': {u'Description 1': u'value1',
-                # #                                 u'Description 2': u'value2'}
-                # #                        }
-                # #                      )
-                # #layer.setEditorWidgetSetup( fieldIndex, editor_widget_setup )
-                # if layer.isValid():
-                    # layer.setCrs(srs)
-                    # # self.USLayerId = layerUS.getLayerID()
-                    # ##style_path = '{}{}'.format(self.LAYER_STYLE_PATH_SPATIALITE, 'us_view.qml')
-                    # ##ayerUS.loadNamedStyle(style_path)
-                    # group.insertChildNode(-1, QgsLayerTreeLayer(layer))
-                    # QgsProject.instance().addMapLayers([layer], False)
-                # else:
-                    # QMessageBox.warning(self, "Pyarchinit", "Layer not valid", QMessageBox.Ok)
             layer_name = 'pyarchinit_individui'
             layer_name_conv = "'" + str(layer_name) + "'"
             ##value_conv = ('"sito = %s"') % ("'" + str(self.val) + "'")
@@ -2078,6 +2072,26 @@ class Pyarchinit_pyqgis(QDialog):
                 QgsProject.instance().addMapLayers([layer], False)
             else:
                 QMessageBox.warning(self, "Pyarchinit", "Layer not valid", QMessageBox.Ok)
+            basemap_name = 'Google Maps'
+            basemap_wiki = 'Wikimedia Maps'
+            
+            basemap_url = 'mt1.google.com/vt/lyrs=s&x={x}&y={y}&z={z}'
+            basemap_url_wiki = 'maps.wikimedia.org/osm-intl/{z}/{x}/{y}.png'
+            basemap_uri = "type=xyz&zmin=0&zmax=22&url=http://"+requests.utils.quote(basemap_url)
+            basemap_uri_wiki = "type=xyz&zmin=0&zmax=22&url=http://"+requests.utils.quote(basemap_url_wiki)
+            rlayer= QgsRasterLayer(basemap_uri, basemap_name,'wms')
+            rlayer_wiki= QgsRasterLayer(basemap_uri_wiki, basemap_wiki,'wms')
+            
+            
+            
+            if rlayer.isValid() and rlayer_wiki.isValid():
+                
+                myGroup4.insertChildNode(-1, QgsLayerTreeLayer(rlayer))
+                myGroup4.insertChildNode(-1, QgsLayerTreeLayer(rlayer_wiki))
+                QgsProject.instance().addMapLayers([rlayer,rlayer_wiki],False)
+        
+            else:
+                QMessageBox.warning(self, "Pyarchinit", "Base Map not valid", QMessageBox.Ok)
     def charge_sites_geometry(self, options, col, val):
         self.options = options
         self.col = col
@@ -2098,9 +2112,11 @@ class Pyarchinit_pyqgis(QDialog):
         myGroup1 = group.insertGroup(1, "Riferimenti di localizzazione")
         myGroup2 = group.insertGroup(2, "Linee di riferimento")        
         myGroup3 = group.insertGroup(3, "Ingombri")
+        myGroup4 = group.insertGroup(4, "Base Map")
         myGroup1.setExpanded(False)
         myGroup2.setExpanded(False)
         myGroup3.setExpanded(False)
+        myGroup4.setExpanded(False)
         if settings.SERVER == 'sqlite':
             sqliteDB_path = os.path.join(os.sep, 'pyarchinit_DB_folder', settings.DATABASE)
             db_file_path = '{}{}'.format(self.HOME, sqliteDB_path)
@@ -2402,8 +2418,26 @@ class Pyarchinit_pyqgis(QDialog):
                 QgsProject.instance().addMapLayers([layer], False)
             else:
                 QMessageBox.warning(self, "Pyarchinit", "Layer not valid", QMessageBox.Ok)
-
-            ###AGGIUNGERE IL SISTEMA PER POSTGRES#####
+            basemap_name = 'Google Maps'
+            basemap_wiki = 'Wikimedia Maps'
+            
+            basemap_url = 'mt1.google.com/vt/lyrs=s&x={x}&y={y}&z={z}'
+            basemap_url_wiki = 'maps.wikimedia.org/osm-intl/{z}/{x}/{y}.png'
+            basemap_uri = "type=xyz&zmin=0&zmax=22&url=http://"+requests.utils.quote(basemap_url)
+            basemap_uri_wiki = "type=xyz&zmin=0&zmax=22&url=http://"+requests.utils.quote(basemap_url_wiki)
+            rlayer= QgsRasterLayer(basemap_uri, basemap_name,'wms')
+            rlayer_wiki= QgsRasterLayer(basemap_uri_wiki, basemap_wiki,'wms')
+            
+            
+            
+            if rlayer.isValid() and rlayer_wiki.isValid():
+                
+                myGroup4.insertChildNode(-1, QgsLayerTreeLayer(rlayer))
+                myGroup4.insertChildNode(-1, QgsLayerTreeLayer(rlayer_wiki))
+                QgsProject.instance().addMapLayers([rlayer,rlayer_wiki],False)
+        
+            else:
+                QMessageBox.warning(self, "Pyarchinit", "Base Map not valid", QMessageBox.Ok)
         elif settings.SERVER == 'postgres':
 
             uri = QgsDataSourceUri()
@@ -2705,10 +2739,26 @@ class Pyarchinit_pyqgis(QDialog):
                 QgsProject.instance().addMapLayers([layer], False)
             else:
                 QMessageBox.warning(self, "Pyarchinit", "Layer not valid", QMessageBox.Ok)
-
+            basemap_name = 'Google Maps'
+            basemap_wiki = 'Wikimedia Maps'
+            
+            basemap_url = 'mt1.google.com/vt/lyrs=s&x={x}&y={y}&z={z}'
+            basemap_url_wiki = 'maps.wikimedia.org/osm-intl/{z}/{x}/{y}.png'
+            basemap_uri = "type=xyz&zmin=0&zmax=22&url=http://"+requests.utils.quote(basemap_url)
+            basemap_uri_wiki = "type=xyz&zmin=0&zmax=22&url=http://"+requests.utils.quote(basemap_url_wiki)
+            rlayer= QgsRasterLayer(basemap_uri, basemap_name,'wms')
+            rlayer_wiki= QgsRasterLayer(basemap_uri_wiki, basemap_wiki,'wms')
             
             
-
+            
+            if rlayer.isValid() and rlayer_wiki.isValid():
+                
+                myGroup4.insertChildNode(-1, QgsLayerTreeLayer(rlayer))
+                myGroup4.insertChildNode(-1, QgsLayerTreeLayer(rlayer_wiki))
+                QgsProject.instance().addMapLayers([rlayer,rlayer_wiki],False)
+        
+            else:
+                QMessageBox.warning(self, "Pyarchinit", "Base Map not valid", QMessageBox.Ok)
     def charge_sites_from_research(self, data):
         # Clean Qgis Map Later Registry
         # QgsProject.instance().removeAllMapLayers()
@@ -3152,7 +3202,29 @@ class Pyarchinit_pyqgis(QDialog):
             else:
                 QMessageBox.warning(self, "Pyarchinit", "Layer Individui non valido", QMessageBox.Ok)
 
+    def pyarchinit_basemap(basemap_name):
+        basemap_name = 'Google Maps'
+        basemap_url = 'mt1.google.com/vt/lyrs=s&x={x}&y={y}&z={z}'
+        
+        
+        
+        basemap_uri = "type=xyz&zmin=0&zmax=22&url=http://"+requests.utils.quote(basemap_url)
+        xyz_layer = qgis.utils.iface.addRasterLayer(basemap_uri, basemap_name, "wms") 
+        if not xyz_layer.isValid():
+             QMessageBox.warning(None, "Basemap", 'Basemap loaded error!')        
 
+        basemap_uri1 = "http://"+basemap_url
+        source = ["connections-xyz",basemap_name,"","","",basemap_uri1,"","22","0"]   
+        connectionType = source[0]
+        connectionName = source[1]
+        QSettings().setValue("qgis/%s/%s/authcfg" % (connectionType, connectionName), source[2])
+        QSettings().setValue("qgis/%s/%s/password" % (connectionType, connectionName), source[3])
+        QSettings().setValue("qgis/%s/%s/referer" % (connectionType, connectionName), source[4])
+        QSettings().setValue("qgis/%s/%s/url" % (connectionType, connectionName), source[5])
+        QSettings().setValue("qgis/%s/%s/username" % (connectionType, connectionName), source[6])
+        QSettings().setValue("qgis/%s/%s/zmax" % (connectionType, connectionName), source[7])
+        QSettings().setValue("qgis/%s/%s/zmin" % (connectionType, connectionName), source[8])
+        qgis.utils.iface.reloadConnections()     
 class Order_layers_DEPRECATED(object):
     HOME = os.environ['PYARCHINIT_HOME']
 
@@ -3291,7 +3363,7 @@ class Order_layers_DEPRECATED(object):
         self.DIZ_ORDER_LAYERS[
             self.MAX_VALUE_KEYS] = self.num_us_value  # viene assegnata una nuova coppia di chiavi-valori
 
-
+    
 class Order_layer_v2(object):
     order_dict = {}
     order_count = 0
