@@ -72,7 +72,7 @@ CREATE TABLE public.campioni_table (
     nr_campione integer,
     tipo_campione text,
     descrizione text,
-    area character varying(4),
+    area character varying(20),
     us integer,
     numero_inventario_materiale integer,
     nr_cassa integer,
@@ -339,7 +339,7 @@ ALTER SEQUENCE public.documentazione_table_id_documentazione_seq OWNED BY public
 CREATE TABLE public.individui_table (
     id_scheda_ind integer NOT NULL,
     sito text,
-    area character varying(4),
+    area character varying(20),
     us text,
     nr_individuo integer,
     data_schedatura character varying(100),
@@ -647,7 +647,7 @@ CREATE TABLE public.media_to_us_table (
     "id_mediaToUs" integer NOT NULL,
     id_us integer,
     sito text,
-    area character varying(4),
+    area character varying(20),
     us integer,
     id_media integer,
     filepath text
@@ -972,7 +972,7 @@ ALTER TABLE public.pyuscarlinee OWNER TO postgres;
 CREATE TABLE public.us_table (
     id_us integer NOT NULL,
     sito text,
-    area character varying(4),
+    area character varying(20),
     us integer,
     d_stratigrafica character varying(100),
     d_interpretativa character varying(100),
@@ -1987,7 +1987,7 @@ ALTER TABLE public.pyarchinit_reperti
 CREATE TABLE public.us_table_toimp (
     id_us integer NOT NULL,
     sito text,
-    area character varying(4),
+    area character varying(20),
     us integer,
     d_stratigrafica character varying(100),
     d_interpretativa character varying(100),

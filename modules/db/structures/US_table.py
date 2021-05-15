@@ -21,7 +21,7 @@ class US_table:
     us_table = Table('us_table', metadata,
                      Column('id_us', Integer, primary_key=True),  # 0
                      Column('sito', Text),  # 1
-                     Column('area', String(4)),  # 2
+                     Column('area', String(20)),  # 2
                      Column('us', Integer),  # 3
                      Column('d_stratigrafica', String(100)),  # 4
                      Column('d_interpretativa', String(100)),  # 5
