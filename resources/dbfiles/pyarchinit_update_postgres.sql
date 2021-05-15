@@ -599,7 +599,7 @@ ALTER TABLE ONLY public.tomba_table  ADD CONSTRAINT  "ID_tomba_unico" UNIQUE (si
 ALTER TABLE ONLY public.tomba_table  ADD CONSTRAINT  tomba_table_pkey PRIMARY KEY (id_tomba);	
 	
 
-INSERT INTO tomba_table (
+/* INSERT INTO tomba_table (
             id_tomba,
 			sito,
 			nr_scheda_taf ,
@@ -651,7 +651,7 @@ INSERT INTO tomba_table (
 					datazione_estesa 
 
                   FROM tafonomia_table
-				  ON CONFLICT (sito, nr_scheda_taf) DO NOTHING;
+				  ON CONFLICT (sito, nr_scheda_taf) DO NOTHING; */
 				  
 				  
 /* INSERT INTO individui_table (

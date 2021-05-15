@@ -136,7 +136,8 @@ class DB_update(object):
 
         for i in table.columns:
             table_column_names_list.append(str(i.name))
-
+        
+        
         if not table_column_names_list.__contains__('cont_per'):
             self.engine.execute("ALTER TABLE us_table ADD COLUMN cont_per varchar DEFAULT")
 
