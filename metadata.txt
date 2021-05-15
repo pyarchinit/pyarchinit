@@ -23,7 +23,7 @@ tracker=https://github.com/pyarchinit/pyarchinit/issues
 repository=https://github.com/pyarchinit/pyarchinit
 
 changelog= release3.8.3
-
+    -update area
     -timeout basemap
    -------------------------------------------------------------------------------
 
