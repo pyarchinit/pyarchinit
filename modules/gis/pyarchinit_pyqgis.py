@@ -1806,7 +1806,7 @@ class Pyarchinit_pyqgis(QDialog):
             
             nome_Mappe='Mappe'
             url_Mappe ='wms.cartografia.agenziaentrate.gov.it/inspire/wms/ows01.php'
-            uri_Mappe ='contextualWMSLegend=0&crs=EPSG:6706&dpiMode=7&featureCount=10&format=image/png&layers=CP.CadastralZoning&styles&url=https://'+requests.utils.quote(url_Mappe)
+            uri_Mappe ='crs=EPSG:6706&dpiMode=7&format=image/png&layers=CP.CadastralZoning&styles&url=https://'+requests.utils.quote(url_Mappe)
             rlayer8= QgsRasterLayer(uri_Mappe, nome_Mappe,'wms')
             myGroup4.insertChildNode(-1, QgsLayerTreeLayer(rlayer8))
             
@@ -2148,7 +2148,7 @@ class Pyarchinit_pyqgis(QDialog):
             
             nome_Mappe='Mappe'
             url_Mappe ='wms.cartografia.agenziaentrate.gov.it/inspire/wms/ows01.php'
-            uri_Mappe ='contextualWMSLegend=0&crs=EPSG:6706&dpiMode=7&featureCount=10&format=image/png&layers=CP.CadastralZoning&styles&url=https://'+requests.utils.quote(url_Mappe)
+            uri_Mappe ='crs=EPSG:6706&dpiMode=7&format=image/png&layers=CP.CadastralZoning&styles&url=https://'+requests.utils.quote(url_Mappe)
             rlayer8= QgsRasterLayer(uri_Mappe, nome_Mappe,'wms')
             myGroup4.insertChildNode(-1, QgsLayerTreeLayer(rlayer8))
             
@@ -2538,7 +2538,7 @@ class Pyarchinit_pyqgis(QDialog):
             
             nome_Mappe='Mappe'
             url_Mappe ='wms.cartografia.agenziaentrate.gov.it/inspire/wms/ows01.php'
-            uri_Mappe ='contextualWMSLegend=0&crs=EPSG:6706&dpiMode=7&featureCount=10&format=image/png&layers=CP.CadastralZoning&styles&url=https://'+requests.utils.quote(url_Mappe)
+            uri_Mappe ='crs=EPSG:6706&dpiMode=7&format=image/png&layers=CP.CadastralZoning&styles&url=https://'+requests.utils.quote(url_Mappe)
             rlayer8= QgsRasterLayer(uri_Mappe, nome_Mappe,'wms')
             myGroup4.insertChildNode(-1, QgsLayerTreeLayer(rlayer8))
             
@@ -2903,7 +2903,7 @@ class Pyarchinit_pyqgis(QDialog):
             
             nome_Mappe='Mappe'
             url_Mappe ='wms.cartografia.agenziaentrate.gov.it/inspire/wms/ows01.php'
-            uri_Mappe ='contextualWMSLegend=0&crs=EPSG:6706&dpiMode=7&featureCount=10&format=image/png&layers=CP.CadastralZoning&styles&url=https://'+requests.utils.quote(url_Mappe)
+            uri_Mappe ='crs=EPSG:6706&dpiMode=7&format=image/png&layers=CP.CadastralZoning&styles&url=https://'+requests.utils.quote(url_Mappe)
             rlayer8= QgsRasterLayer(uri_Mappe, nome_Mappe,'wms')
             myGroup4.insertChildNode(-1, QgsLayerTreeLayer(rlayer8))
             
