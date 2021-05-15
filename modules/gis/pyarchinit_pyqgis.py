@@ -1831,9 +1831,9 @@ class Pyarchinit_pyqgis(QDialog):
             
             
             if rlayer.isValid() and rlayer_wiki.isValid():
-                
-                myGroup4.insertChildNode(-1, QgsLayerTreeLayer(rlayer))
                 myGroup4.insertChildNode(-1, QgsLayerTreeLayer(rlayer_wiki))
+                myGroup4.insertChildNode(-1, QgsLayerTreeLayer(rlayer))
+                
                 QgsProject.instance().addMapLayers([rlayer3,rlayer4,rlayer5,rlayer6,rlayer7,rlayer8,rlayer9,rlayer_wiki,rlayer],False)
         
             else:
@@ -2174,8 +2174,8 @@ class Pyarchinit_pyqgis(QDialog):
             
             if rlayer.isValid() and rlayer_wiki.isValid():
                 
-                myGroup4.insertChildNode(-1, QgsLayerTreeLayer(rlayer))
                 myGroup4.insertChildNode(-1, QgsLayerTreeLayer(rlayer_wiki))
+                myGroup4.insertChildNode(-1, QgsLayerTreeLayer(rlayer))
                 QgsProject.instance().addMapLayers([rlayer3,rlayer4,rlayer5,rlayer6,rlayer7,rlayer8,rlayer9,rlayer_wiki,rlayer],False)
         
             else:
@@ -2564,8 +2564,8 @@ class Pyarchinit_pyqgis(QDialog):
             
             if rlayer.isValid() and rlayer_wiki.isValid():
                 
-                myGroup4.insertChildNode(-1, QgsLayerTreeLayer(rlayer))
                 myGroup4.insertChildNode(-1, QgsLayerTreeLayer(rlayer_wiki))
+                myGroup4.insertChildNode(-1, QgsLayerTreeLayer(rlayer))
                 QgsProject.instance().addMapLayers([rlayer3,rlayer4,rlayer5,rlayer6,rlayer7,rlayer8,rlayer9,rlayer_wiki,rlayer],False)
         
             else:
@@ -2929,8 +2929,8 @@ class Pyarchinit_pyqgis(QDialog):
             
             if rlayer.isValid() and rlayer_wiki.isValid():
                 
-                myGroup4.insertChildNode(-1, QgsLayerTreeLayer(rlayer))
                 myGroup4.insertChildNode(-1, QgsLayerTreeLayer(rlayer_wiki))
+                myGroup4.insertChildNode(-1, QgsLayerTreeLayer(rlayer))
                 QgsProject.instance().addMapLayers([rlayer3,rlayer4,rlayer5,rlayer6,rlayer7,rlayer8,rlayer9,rlayer_wiki,rlayer],False)
         
             else:
