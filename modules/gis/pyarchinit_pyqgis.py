@@ -1812,7 +1812,7 @@ class Pyarchinit_pyqgis(QDialog):
             
             nome_Province='Province'
             url_Province ='wms.cartografia.agenziaentrate.gov.it/inspire/wms/ows01.php'
-            uri_Province ='contextualWMSLegend=0&crs=EPSG:6706&dpiMode=7&featureCount=10&format=image/png&layers=province&styles&url=https://'+requests.utils.quote(url_Province)
+            uri_Province ='crs=EPSG:6706&dpiMode=7&format=image/png&layers=province&styles&url=https://'+requests.utils.quote(url_Province)
             rlayer9= QgsRasterLayer(uri_Province, nome_Province,'wms')
             myGroup4.insertChildNode(-1, QgsLayerTreeLayer(rlayer9))
             
@@ -2154,7 +2154,7 @@ class Pyarchinit_pyqgis(QDialog):
             
             nome_Province='Province'
             url_Province ='wms.cartografia.agenziaentrate.gov.it/inspire/wms/ows01.php'
-            uri_Province ='contextualWMSLegend=0&crs=EPSG:6706&dpiMode=7&featureCount=10&format=image/png&layers=province&styles&url=https://'+requests.utils.quote(url_Province)
+            uri_Province ='crs=EPSG:6706&dpiMode=7&format=image/png&layers=province&styles&url=https://'+requests.utils.quote(url_Province)
             rlayer9= QgsRasterLayer(uri_Province, nome_Province,'wms')
             myGroup4.insertChildNode(-1, QgsLayerTreeLayer(rlayer9))
             
@@ -2544,7 +2544,7 @@ class Pyarchinit_pyqgis(QDialog):
             
             nome_Province='Province'
             url_Province ='wms.cartografia.agenziaentrate.gov.it/inspire/wms/ows01.php'
-            uri_Province ='contextualWMSLegend=0&crs=EPSG:6706&dpiMode=7&featureCount=10&format=image/png&layers=province&styles&url=https://'+requests.utils.quote(url_Province)
+            uri_Province ='crs=EPSG:6706&dpiMode=7&format=image/png&layers=province&styles&url=https://'+requests.utils.quote(url_Province)
             rlayer9= QgsRasterLayer(uri_Province, nome_Province,'wms')
             myGroup4.insertChildNode(-1, QgsLayerTreeLayer(rlayer9))
             
@@ -2909,7 +2909,7 @@ class Pyarchinit_pyqgis(QDialog):
             
             nome_Province='Province'
             url_Province ='wms.cartografia.agenziaentrate.gov.it/inspire/wms/ows01.php'
-            uri_Province ='contextualWMSLegend=0&crs=EPSG:6706&dpiMode=7&featureCount=10&format=image/png&layers=province&styles&url=https://'+requests.utils.quote(url_Province)
+            uri_Province ='crs=EPSG:6706&dpiMode=7&format=image/png&layers=province&styles&url=https://'+requests.utils.quote(url_Province)
             rlayer9= QgsRasterLayer(uri_Province, nome_Province,'wms')
             myGroup4.insertChildNode(-1, QgsLayerTreeLayer(rlayer9))
             
