@@ -3399,7 +3399,7 @@ class Pyarchinit_pyqgis(QDialog):
     
     def internet_on(self):
         try:
-            urllib.request.urlopen('https://wms.cartografia.agenziaentrate.gov.it/inspire/wms/ows01.php?SERVICE=WMS&VERSION=1.3.0&REQUEST=GetCapabilities', timeout=5)
+            urllib.request.urlopen('https://wms.cartografia.agenziaentrate.gov.it/inspire/wms/ows01.php?SERVICE=WMS&VERSION=1.3.0&REQUEST=GetCapabilities', timeout=0.5)
             return True
         except urllib.error.URLError:
             
