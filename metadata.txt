@@ -25,6 +25,7 @@ repository=https://github.com/pyarchinit/pyarchinit
 changelog=release3.8.2
 
     -add base map
+    -add wms map
 
    -------------------------------------------------------------------------------
 
