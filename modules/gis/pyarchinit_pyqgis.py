@@ -1774,23 +1774,67 @@ class Pyarchinit_pyqgis(QDialog):
             else:
                 QMessageBox.warning(self, "Pyarchinit", "Layer not valid", QMessageBox.Ok)
             
+            nome_vestizione='Vestizione'
+            url_vestizione ='wms.cartografia.agenziaentrate.gov.it/inspire/wms/ows01.php'
+            uri_vestizione ='contextualWMSLegend=0&crs=EPSG:25832&dpiMode=7&featureCount=10&format=image/png&layers=vestizioni&styles&url=https://'+requests.utils.quote(url_vestizione)
+            rlayer3= QgsRasterLayer(uri_vestizione, nome_vestizione,'wms')
+            myGroup4.insertChildNode(-1, QgsLayerTreeLayer(rlayer3))
+            
+            nome_fabbricati='Fabbricati'
+            url_fabbricati ='wms.cartografia.agenziaentrate.gov.it/inspire/wms/ows01.php'
+            uri_fabbricati ='contextualWMSLegend=0&crs=EPSG:6706&dpiMode=7&featureCount=10&format=image/png&layers=fabbricati&styles&url=https://'+requests.utils.quote(url_vestizione)
+            rlayer4= QgsRasterLayer(uri_fabbricati, nome_fabbricati,'wms')
+            myGroup4.insertChildNode(-1, QgsLayerTreeLayer(rlayer4))
+            
+            nome_Particelle='Particelle'
+            url_Particelle ='wms.cartografia.agenziaentrate.gov.it/inspire/wms/ows01.php'
+            uri_Particelle ='contextualWMSLegend=0&crs=EPSG:6706&dpiMode=7&featureCount=10&format=image/png&layers=CP.CadastralParcel&styles&url=https://'+requests.utils.quote(url_Particelle)
+            rlayer5= QgsRasterLayer(uri_Particelle, nome_Particelle,'wms')
+            myGroup4.insertChildNode(-1, QgsLayerTreeLayer(rlayer5))
+            
+            nome_Strade='Strade'
+            url_Strade ='wms.cartografia.agenziaentrate.gov.it/inspire/wms/ows01.php'
+            uri_Strade ='contextualWMSLegend=0&crs=EPSG:6706&dpiMode=7&featureCount=10&format=image/png&layers=strade&styles&url=https://'+requests.utils.quote(url_Strade)
+            rlayer6= QgsRasterLayer(uri_Strade, nome_Strade,'wms')
+            myGroup4.insertChildNode(-1, QgsLayerTreeLayer(rlayer6))
+            
+            nome_Acque='Acque'
+            url_Acque ='wms.cartografia.agenziaentrate.gov.it/inspire/wms/ows01.php'
+            uri_Acque ='contextualWMSLegend=0&crs=EPSG:6706&dpiMode=7&featureCount=10&format=image/png&layers=acque&styles&url=https://'+requests.utils.quote(url_Acque)
+            rlayer7= QgsRasterLayer(uri_Acque, nome_Acque,'wms')
+            myGroup4.insertChildNode(-1, QgsLayerTreeLayer(rlayer7))
+            
+            nome_Mappe='Mappe'
+            url_Mappe ='wms.cartografia.agenziaentrate.gov.it/inspire/wms/ows01.php'
+            uri_Mappe ='contextualWMSLegend=0&crs=EPSG:6706&dpiMode=7&featureCount=10&format=image/png&layers=CP.CadastralZoning&styles&url=https://'+requests.utils.quote(url_Mappe)
+            rlayer8= QgsRasterLayer(uri_Mappe, nome_Mappe,'wms')
+            myGroup4.insertChildNode(-1, QgsLayerTreeLayer(rlayer8))
+            
+            nome_Province='Province'
+            url_Province ='wms.cartografia.agenziaentrate.gov.it/inspire/wms/ows01.php'
+            uri_Province ='contextualWMSLegend=0&crs=EPSG:6706&dpiMode=7&featureCount=10&format=image/png&layers=province&styles&url=https://'+requests.utils.quote(url_Province)
+            rlayer9= QgsRasterLayer(uri_Province, nome_Province,'wms')
+            myGroup4.insertChildNode(-1, QgsLayerTreeLayer(rlayer9))
+            
+            
+            
+            
             basemap_name = 'Google Maps'
             basemap_wiki = 'Wikimedia Maps'
-            
             basemap_url = 'mt1.google.com/vt/lyrs=s&x={x}&y={y}&z={z}'
             basemap_url_wiki = 'maps.wikimedia.org/osm-intl/{z}/{x}/{y}.png'
             basemap_uri = "type=xyz&zmin=0&zmax=22&url=http://"+requests.utils.quote(basemap_url)
             basemap_uri_wiki = "type=xyz&zmin=0&zmax=22&url=http://"+requests.utils.quote(basemap_url_wiki)
-            rlayer= QgsRasterLayer(basemap_uri, basemap_name,'wms')
-            rlayer_wiki= QgsRasterLayer(basemap_uri_wiki, basemap_wiki,'wms')
             
+            rlayer_wiki= QgsRasterLayer(basemap_uri_wiki, basemap_wiki,'wms')
+            rlayer= QgsRasterLayer(basemap_uri, basemap_name,'wms')
             
             
             if rlayer.isValid() and rlayer_wiki.isValid():
                 
                 myGroup4.insertChildNode(-1, QgsLayerTreeLayer(rlayer))
                 myGroup4.insertChildNode(-1, QgsLayerTreeLayer(rlayer_wiki))
-                QgsProject.instance().addMapLayers([rlayer,rlayer_wiki],False)
+                QgsProject.instance().addMapLayers([rlayer3,rlayer4,rlayer5,rlayer6,rlayer7,rlayer8,rlayer9,rlayer_wiki,rlayer],False)
         
             else:
                 QMessageBox.warning(self, "Pyarchinit", "Base Map not valid", QMessageBox.Ok)
@@ -2072,23 +2116,67 @@ class Pyarchinit_pyqgis(QDialog):
                 QgsProject.instance().addMapLayers([layer], False)
             else:
                 QMessageBox.warning(self, "Pyarchinit", "Layer not valid", QMessageBox.Ok)
+            nome_vestizione='Vestizione'
+            url_vestizione ='wms.cartografia.agenziaentrate.gov.it/inspire/wms/ows01.php'
+            uri_vestizione ='contextualWMSLegend=0&crs=EPSG:25832&dpiMode=7&featureCount=10&format=image/png&layers=vestizioni&styles&url=https://'+requests.utils.quote(url_vestizione)
+            rlayer3= QgsRasterLayer(uri_vestizione, nome_vestizione,'wms')
+            myGroup4.insertChildNode(-1, QgsLayerTreeLayer(rlayer3))
+            
+            nome_fabbricati='Fabbricati'
+            url_fabbricati ='wms.cartografia.agenziaentrate.gov.it/inspire/wms/ows01.php'
+            uri_fabbricati ='contextualWMSLegend=0&crs=EPSG:6706&dpiMode=7&featureCount=10&format=image/png&layers=fabbricati&styles&url=https://'+requests.utils.quote(url_vestizione)
+            rlayer4= QgsRasterLayer(uri_fabbricati, nome_fabbricati,'wms')
+            myGroup4.insertChildNode(-1, QgsLayerTreeLayer(rlayer4))
+            
+            nome_Particelle='Particelle'
+            url_Particelle ='wms.cartografia.agenziaentrate.gov.it/inspire/wms/ows01.php'
+            uri_Particelle ='contextualWMSLegend=0&crs=EPSG:6706&dpiMode=7&featureCount=10&format=image/png&layers=CP.CadastralParcel&styles&url=https://'+requests.utils.quote(url_Particelle)
+            rlayer5= QgsRasterLayer(uri_Particelle, nome_Particelle,'wms')
+            myGroup4.insertChildNode(-1, QgsLayerTreeLayer(rlayer5))
+            
+            nome_Strade='Strade'
+            url_Strade ='wms.cartografia.agenziaentrate.gov.it/inspire/wms/ows01.php'
+            uri_Strade ='contextualWMSLegend=0&crs=EPSG:6706&dpiMode=7&featureCount=10&format=image/png&layers=strade&styles&url=https://'+requests.utils.quote(url_Strade)
+            rlayer6= QgsRasterLayer(uri_Strade, nome_Strade,'wms')
+            myGroup4.insertChildNode(-1, QgsLayerTreeLayer(rlayer6))
+            
+            nome_Acque='Acque'
+            url_Acque ='wms.cartografia.agenziaentrate.gov.it/inspire/wms/ows01.php'
+            uri_Acque ='contextualWMSLegend=0&crs=EPSG:6706&dpiMode=7&featureCount=10&format=image/png&layers=acque&styles&url=https://'+requests.utils.quote(url_Acque)
+            rlayer7= QgsRasterLayer(uri_Acque, nome_Acque,'wms')
+            myGroup4.insertChildNode(-1, QgsLayerTreeLayer(rlayer7))
+            
+            nome_Mappe='Mappe'
+            url_Mappe ='wms.cartografia.agenziaentrate.gov.it/inspire/wms/ows01.php'
+            uri_Mappe ='contextualWMSLegend=0&crs=EPSG:6706&dpiMode=7&featureCount=10&format=image/png&layers=CP.CadastralZoning&styles&url=https://'+requests.utils.quote(url_Mappe)
+            rlayer8= QgsRasterLayer(uri_Mappe, nome_Mappe,'wms')
+            myGroup4.insertChildNode(-1, QgsLayerTreeLayer(rlayer8))
+            
+            nome_Province='Province'
+            url_Province ='wms.cartografia.agenziaentrate.gov.it/inspire/wms/ows01.php'
+            uri_Province ='contextualWMSLegend=0&crs=EPSG:6706&dpiMode=7&featureCount=10&format=image/png&layers=province&styles&url=https://'+requests.utils.quote(url_Province)
+            rlayer9= QgsRasterLayer(uri_Province, nome_Province,'wms')
+            myGroup4.insertChildNode(-1, QgsLayerTreeLayer(rlayer9))
+            
+            
+            
+            
             basemap_name = 'Google Maps'
             basemap_wiki = 'Wikimedia Maps'
-            
             basemap_url = 'mt1.google.com/vt/lyrs=s&x={x}&y={y}&z={z}'
             basemap_url_wiki = 'maps.wikimedia.org/osm-intl/{z}/{x}/{y}.png'
             basemap_uri = "type=xyz&zmin=0&zmax=22&url=http://"+requests.utils.quote(basemap_url)
             basemap_uri_wiki = "type=xyz&zmin=0&zmax=22&url=http://"+requests.utils.quote(basemap_url_wiki)
-            rlayer= QgsRasterLayer(basemap_uri, basemap_name,'wms')
-            rlayer_wiki= QgsRasterLayer(basemap_uri_wiki, basemap_wiki,'wms')
             
+            rlayer_wiki= QgsRasterLayer(basemap_uri_wiki, basemap_wiki,'wms')
+            rlayer= QgsRasterLayer(basemap_uri, basemap_name,'wms')
             
             
             if rlayer.isValid() and rlayer_wiki.isValid():
                 
                 myGroup4.insertChildNode(-1, QgsLayerTreeLayer(rlayer))
                 myGroup4.insertChildNode(-1, QgsLayerTreeLayer(rlayer_wiki))
-                QgsProject.instance().addMapLayers([rlayer,rlayer_wiki],False)
+                QgsProject.instance().addMapLayers([rlayer3,rlayer4,rlayer5,rlayer6,rlayer7,rlayer8,rlayer9,rlayer_wiki,rlayer],False)
         
             else:
                 QMessageBox.warning(self, "Pyarchinit", "Base Map not valid", QMessageBox.Ok)
@@ -2405,7 +2493,7 @@ class Pyarchinit_pyqgis(QDialog):
             
             layer_name = 'pyarchinit_sezioni'
             layer_name_conv = "'" + str(layer_name) + "'"
-            value_conv = ('"siti = %s"') % ("'" + str(self.val) + "'")
+            value_conv = ('"sito = %s"') % ("'" + str(self.val) + "'")
             cmq_set_uri_data_source = "uri.setDataSource('',%s, %s, %s)" % (layer_name_conv, "'the_geom'", value_conv)
             eval(cmq_set_uri_data_source)
             layer_label = self.LAYERS_CONVERT_DIZ[layer_name]
@@ -2418,23 +2506,67 @@ class Pyarchinit_pyqgis(QDialog):
                 QgsProject.instance().addMapLayers([layer], False)
             else:
                 QMessageBox.warning(self, "Pyarchinit", "Layer not valid", QMessageBox.Ok)
+            nome_vestizione='Vestizione'
+            url_vestizione ='wms.cartografia.agenziaentrate.gov.it/inspire/wms/ows01.php'
+            uri_vestizione ='contextualWMSLegend=0&crs=EPSG:25832&dpiMode=7&featureCount=10&format=image/png&layers=vestizioni&styles&url=https://'+requests.utils.quote(url_vestizione)
+            rlayer3= QgsRasterLayer(uri_vestizione, nome_vestizione,'wms')
+            myGroup4.insertChildNode(-1, QgsLayerTreeLayer(rlayer3))
+            
+            nome_fabbricati='Fabbricati'
+            url_fabbricati ='wms.cartografia.agenziaentrate.gov.it/inspire/wms/ows01.php'
+            uri_fabbricati ='contextualWMSLegend=0&crs=EPSG:6706&dpiMode=7&featureCount=10&format=image/png&layers=fabbricati&styles&url=https://'+requests.utils.quote(url_vestizione)
+            rlayer4= QgsRasterLayer(uri_fabbricati, nome_fabbricati,'wms')
+            myGroup4.insertChildNode(-1, QgsLayerTreeLayer(rlayer4))
+            
+            nome_Particelle='Particelle'
+            url_Particelle ='wms.cartografia.agenziaentrate.gov.it/inspire/wms/ows01.php'
+            uri_Particelle ='contextualWMSLegend=0&crs=EPSG:6706&dpiMode=7&featureCount=10&format=image/png&layers=CP.CadastralParcel&styles&url=https://'+requests.utils.quote(url_Particelle)
+            rlayer5= QgsRasterLayer(uri_Particelle, nome_Particelle,'wms')
+            myGroup4.insertChildNode(-1, QgsLayerTreeLayer(rlayer5))
+            
+            nome_Strade='Strade'
+            url_Strade ='wms.cartografia.agenziaentrate.gov.it/inspire/wms/ows01.php'
+            uri_Strade ='contextualWMSLegend=0&crs=EPSG:6706&dpiMode=7&featureCount=10&format=image/png&layers=strade&styles&url=https://'+requests.utils.quote(url_Strade)
+            rlayer6= QgsRasterLayer(uri_Strade, nome_Strade,'wms')
+            myGroup4.insertChildNode(-1, QgsLayerTreeLayer(rlayer6))
+            
+            nome_Acque='Acque'
+            url_Acque ='wms.cartografia.agenziaentrate.gov.it/inspire/wms/ows01.php'
+            uri_Acque ='contextualWMSLegend=0&crs=EPSG:6706&dpiMode=7&featureCount=10&format=image/png&layers=acque&styles&url=https://'+requests.utils.quote(url_Acque)
+            rlayer7= QgsRasterLayer(uri_Acque, nome_Acque,'wms')
+            myGroup4.insertChildNode(-1, QgsLayerTreeLayer(rlayer7))
+            
+            nome_Mappe='Mappe'
+            url_Mappe ='wms.cartografia.agenziaentrate.gov.it/inspire/wms/ows01.php'
+            uri_Mappe ='contextualWMSLegend=0&crs=EPSG:6706&dpiMode=7&featureCount=10&format=image/png&layers=CP.CadastralZoning&styles&url=https://'+requests.utils.quote(url_Mappe)
+            rlayer8= QgsRasterLayer(uri_Mappe, nome_Mappe,'wms')
+            myGroup4.insertChildNode(-1, QgsLayerTreeLayer(rlayer8))
+            
+            nome_Province='Province'
+            url_Province ='wms.cartografia.agenziaentrate.gov.it/inspire/wms/ows01.php'
+            uri_Province ='contextualWMSLegend=0&crs=EPSG:6706&dpiMode=7&featureCount=10&format=image/png&layers=province&styles&url=https://'+requests.utils.quote(url_Province)
+            rlayer9= QgsRasterLayer(uri_Province, nome_Province,'wms')
+            myGroup4.insertChildNode(-1, QgsLayerTreeLayer(rlayer9))
+            
+            
+            
+            
             basemap_name = 'Google Maps'
             basemap_wiki = 'Wikimedia Maps'
-            
             basemap_url = 'mt1.google.com/vt/lyrs=s&x={x}&y={y}&z={z}'
             basemap_url_wiki = 'maps.wikimedia.org/osm-intl/{z}/{x}/{y}.png'
             basemap_uri = "type=xyz&zmin=0&zmax=22&url=http://"+requests.utils.quote(basemap_url)
             basemap_uri_wiki = "type=xyz&zmin=0&zmax=22&url=http://"+requests.utils.quote(basemap_url_wiki)
-            rlayer= QgsRasterLayer(basemap_uri, basemap_name,'wms')
-            rlayer_wiki= QgsRasterLayer(basemap_uri_wiki, basemap_wiki,'wms')
             
+            rlayer_wiki= QgsRasterLayer(basemap_uri_wiki, basemap_wiki,'wms')
+            rlayer= QgsRasterLayer(basemap_uri, basemap_name,'wms')
             
             
             if rlayer.isValid() and rlayer_wiki.isValid():
                 
                 myGroup4.insertChildNode(-1, QgsLayerTreeLayer(rlayer))
                 myGroup4.insertChildNode(-1, QgsLayerTreeLayer(rlayer_wiki))
-                QgsProject.instance().addMapLayers([rlayer,rlayer_wiki],False)
+                QgsProject.instance().addMapLayers([rlayer3,rlayer4,rlayer5,rlayer6,rlayer7,rlayer8,rlayer9,rlayer_wiki,rlayer],False)
         
             else:
                 QMessageBox.warning(self, "Pyarchinit", "Base Map not valid", QMessageBox.Ok)
@@ -2726,7 +2858,7 @@ class Pyarchinit_pyqgis(QDialog):
             
             layer_name = 'pyarchinit_sezioni'
             layer_name_conv = "'" + str(layer_name) + "'"
-            value_conv = ('"siti = %s"') % ("'" + str(self.val) + "'")
+            value_conv = ('"sito = %s"') % ("'" + str(self.val) + "'")
             cmq_set_uri_data_source = "uri.setDataSource('',%s, %s, %s)" % (layer_name_conv, "'the_geom'", value_conv)
             eval(cmq_set_uri_data_source)
             layer_label = self.LAYERS_CONVERT_DIZ[layer_name]
@@ -2739,23 +2871,67 @@ class Pyarchinit_pyqgis(QDialog):
                 QgsProject.instance().addMapLayers([layer], False)
             else:
                 QMessageBox.warning(self, "Pyarchinit", "Layer not valid", QMessageBox.Ok)
+            nome_vestizione='Vestizione'
+            url_vestizione ='wms.cartografia.agenziaentrate.gov.it/inspire/wms/ows01.php'
+            uri_vestizione ='contextualWMSLegend=0&crs=EPSG:25832&dpiMode=7&featureCount=10&format=image/png&layers=vestizioni&styles&url=https://'+requests.utils.quote(url_vestizione)
+            rlayer3= QgsRasterLayer(uri_vestizione, nome_vestizione,'wms')
+            myGroup4.insertChildNode(-1, QgsLayerTreeLayer(rlayer3))
+            
+            nome_fabbricati='Fabbricati'
+            url_fabbricati ='wms.cartografia.agenziaentrate.gov.it/inspire/wms/ows01.php'
+            uri_fabbricati ='contextualWMSLegend=0&crs=EPSG:6706&dpiMode=7&featureCount=10&format=image/png&layers=fabbricati&styles&url=https://'+requests.utils.quote(url_vestizione)
+            rlayer4= QgsRasterLayer(uri_fabbricati, nome_fabbricati,'wms')
+            myGroup4.insertChildNode(-1, QgsLayerTreeLayer(rlayer4))
+            
+            nome_Particelle='Particelle'
+            url_Particelle ='wms.cartografia.agenziaentrate.gov.it/inspire/wms/ows01.php'
+            uri_Particelle ='contextualWMSLegend=0&crs=EPSG:6706&dpiMode=7&featureCount=10&format=image/png&layers=CP.CadastralParcel&styles&url=https://'+requests.utils.quote(url_Particelle)
+            rlayer5= QgsRasterLayer(uri_Particelle, nome_Particelle,'wms')
+            myGroup4.insertChildNode(-1, QgsLayerTreeLayer(rlayer5))
+            
+            nome_Strade='Strade'
+            url_Strade ='wms.cartografia.agenziaentrate.gov.it/inspire/wms/ows01.php'
+            uri_Strade ='contextualWMSLegend=0&crs=EPSG:6706&dpiMode=7&featureCount=10&format=image/png&layers=strade&styles&url=https://'+requests.utils.quote(url_Strade)
+            rlayer6= QgsRasterLayer(uri_Strade, nome_Strade,'wms')
+            myGroup4.insertChildNode(-1, QgsLayerTreeLayer(rlayer6))
+            
+            nome_Acque='Acque'
+            url_Acque ='wms.cartografia.agenziaentrate.gov.it/inspire/wms/ows01.php'
+            uri_Acque ='contextualWMSLegend=0&crs=EPSG:6706&dpiMode=7&featureCount=10&format=image/png&layers=acque&styles&url=https://'+requests.utils.quote(url_Acque)
+            rlayer7= QgsRasterLayer(uri_Acque, nome_Acque,'wms')
+            myGroup4.insertChildNode(-1, QgsLayerTreeLayer(rlayer7))
+            
+            nome_Mappe='Mappe'
+            url_Mappe ='wms.cartografia.agenziaentrate.gov.it/inspire/wms/ows01.php'
+            uri_Mappe ='contextualWMSLegend=0&crs=EPSG:6706&dpiMode=7&featureCount=10&format=image/png&layers=CP.CadastralZoning&styles&url=https://'+requests.utils.quote(url_Mappe)
+            rlayer8= QgsRasterLayer(uri_Mappe, nome_Mappe,'wms')
+            myGroup4.insertChildNode(-1, QgsLayerTreeLayer(rlayer8))
+            
+            nome_Province='Province'
+            url_Province ='wms.cartografia.agenziaentrate.gov.it/inspire/wms/ows01.php'
+            uri_Province ='contextualWMSLegend=0&crs=EPSG:6706&dpiMode=7&featureCount=10&format=image/png&layers=province&styles&url=https://'+requests.utils.quote(url_Province)
+            rlayer9= QgsRasterLayer(uri_Province, nome_Province,'wms')
+            myGroup4.insertChildNode(-1, QgsLayerTreeLayer(rlayer9))
+            
+            
+            
+            
             basemap_name = 'Google Maps'
             basemap_wiki = 'Wikimedia Maps'
-            
             basemap_url = 'mt1.google.com/vt/lyrs=s&x={x}&y={y}&z={z}'
             basemap_url_wiki = 'maps.wikimedia.org/osm-intl/{z}/{x}/{y}.png'
             basemap_uri = "type=xyz&zmin=0&zmax=22&url=http://"+requests.utils.quote(basemap_url)
             basemap_uri_wiki = "type=xyz&zmin=0&zmax=22&url=http://"+requests.utils.quote(basemap_url_wiki)
-            rlayer= QgsRasterLayer(basemap_uri, basemap_name,'wms')
-            rlayer_wiki= QgsRasterLayer(basemap_uri_wiki, basemap_wiki,'wms')
             
+            rlayer_wiki= QgsRasterLayer(basemap_uri_wiki, basemap_wiki,'wms')
+            rlayer= QgsRasterLayer(basemap_uri, basemap_name,'wms')
             
             
             if rlayer.isValid() and rlayer_wiki.isValid():
                 
                 myGroup4.insertChildNode(-1, QgsLayerTreeLayer(rlayer))
                 myGroup4.insertChildNode(-1, QgsLayerTreeLayer(rlayer_wiki))
-                QgsProject.instance().addMapLayers([rlayer,rlayer_wiki],False)
+                QgsProject.instance().addMapLayers([rlayer3,rlayer4,rlayer5,rlayer6,rlayer7,rlayer8,rlayer9,rlayer_wiki,rlayer],False)
         
             else:
                 QMessageBox.warning(self, "Pyarchinit", "Base Map not valid", QMessageBox.Ok)
@@ -3202,55 +3378,55 @@ class Pyarchinit_pyqgis(QDialog):
             else:
                 QMessageBox.warning(self, "Pyarchinit", "Layer Individui non valido", QMessageBox.Ok)
 
-    def pyarchinit_basemap(basemap_name):
-        basemap_name = 'Google Maps'
-        basemap_url = 'mt1.google.com/vt/lyrs=s&x={x}&y={y}&z={z}'
+    # def pyarchinit_basemap(basemap_name):
+        # basemap_name = 'Google Maps'
+        # basemap_url = 'mt1.google.com/vt/lyrs=s&x={x}&y={y}&z={z}'
         
         
         
-        basemap_uri = "type=xyz&zmin=0&zmax=22&url=http://"+requests.utils.quote(basemap_url)
-        xyz_layer = qgis.utils.iface.addRasterLayer(basemap_uri, basemap_name, "wms") 
-        if not xyz_layer.isValid():
-             QMessageBox.warning(None, "Basemap", 'Basemap loaded error!')        
+        # basemap_uri = "type=xyz&zmin=0&zmax=22&url=http://"+requests.utils.quote(basemap_url)
+        # xyz_layer = qgis.utils.iface.addRasterLayer(basemap_uri, basemap_name, "wms") 
+        # if not xyz_layer.isValid():
+             # QMessageBox.warning(None, "Basemap", 'Basemap loaded error!')        
 
-        basemap_uri1 = "http://"+basemap_url
-        source = ["connections-xyz",basemap_name,"","","",basemap_uri1,"","22","0"]   
-        connectionType = source[0]
-        connectionName = source[1]
-        QSettings().setValue("qgis/%s/%s/authcfg" % (connectionType, connectionName), source[2])
-        QSettings().setValue("qgis/%s/%s/password" % (connectionType, connectionName), source[3])
-        QSettings().setValue("qgis/%s/%s/referer" % (connectionType, connectionName), source[4])
-        QSettings().setValue("qgis/%s/%s/url" % (connectionType, connectionName), source[5])
-        QSettings().setValue("qgis/%s/%s/username" % (connectionType, connectionName), source[6])
-        QSettings().setValue("qgis/%s/%s/zmax" % (connectionType, connectionName), source[7])
-        QSettings().setValue("qgis/%s/%s/zmin" % (connectionType, connectionName), source[8])
-        qgis.utils.iface.reloadConnections()     
-class Order_layers_DEPRECATED(object):
-    HOME = os.environ['PYARCHINIT_HOME']
+        # basemap_uri1 = "http://"+basemap_url
+        # source = ["connections-xyz",basemap_name,"","","",basemap_uri1,"","22","0"]   
+        # connectionType = source[0]
+        # connectionName = source[1]
+        # QSettings().setValue("qgis/%s/%s/authcfg" % (connectionType, connectionName), source[2])
+        # QSettings().setValue("qgis/%s/%s/password" % (connectionType, connectionName), source[3])
+        # QSettings().setValue("qgis/%s/%s/referer" % (connectionType, connectionName), source[4])
+        # QSettings().setValue("qgis/%s/%s/url" % (connectionType, connectionName), source[5])
+        # QSettings().setValue("qgis/%s/%s/username" % (connectionType, connectionName), source[6])
+        # QSettings().setValue("qgis/%s/%s/zmax" % (connectionType, connectionName), source[7])
+        # QSettings().setValue("qgis/%s/%s/zmin" % (connectionType, connectionName), source[8])
+        # qgis.utils.iface.reloadConnections()     
+# class Order_layers_DEPRECATED(object):
+    # HOME = os.environ['PYARCHINIT_HOME']
 
-    REPORT_PATH = '{}{}{}'.format(HOME, os.sep, "pyarchinit_Report_folder")
+    # REPORT_PATH = '{}{}{}'.format(HOME, os.sep, "pyarchinit_Report_folder")
 
-    LISTA_US = []  # lista che contiene tutte le US singole prese dai singoli rapporti stratigrafici
-    DIZ_ORDER_LAYERS = {}  # contiene una serie di chiavi valori dove la chiave e' il livello di ordinamento e il valore l'US relativa
-    MAX_VALUE_KEYS = -1  # contiene l'indice progressivo dei livelli del dizionario
-    TUPLE_TO_REMOVING = []  # contiene le tuple da rimuovere dai rapporti stratigrafici man mano che si passa ad un livello successivo
-    LISTA_RAPPORTI = ""
+    # LISTA_US = []  # lista che contiene tutte le US singole prese dai singoli rapporti stratigrafici
+    # DIZ_ORDER_LAYERS = {}  # contiene una serie di chiavi valori dove la chiave e' il livello di ordinamento e il valore l'US relativa
+    # MAX_VALUE_KEYS = -1  # contiene l'indice progressivo dei livelli del dizionario
+    # TUPLE_TO_REMOVING = []  # contiene le tuple da rimuovere dai rapporti stratigrafici man mano che si passa ad un livello successivo
+    # LISTA_RAPPORTI = ""
 
-    """variabili di controllo di paradossi nei rapporti stratigrafici"""
-    status = 0  # contiene lo stato della lunghezza della lista dei rapporti stratigrafici
-    check_status = 0  # il valore aumenta se la lunghezza della lista dei rapporti stratigrafici non cambia. Va in errore dopo 4000 ripetizioni del loop stratigraficocambia
-    stop_while = ''  # assume il valore 'stop' dopo 4000 ripetizioni ed esce dal loop
+    # """variabili di controllo di paradossi nei rapporti stratigrafici"""
+    # status = 0  # contiene lo stato della lunghezza della lista dei rapporti stratigrafici
+    # check_status = 0  # il valore aumenta se la lunghezza della lista dei rapporti stratigrafici non cambia. Va in errore dopo 4000 ripetizioni del loop stratigraficocambia
+    # stop_while = ''  # assume il valore 'stop' dopo 4000 ripetizioni ed esce dal loop
 
-    def __init__(self, lr):
-        self.LISTA_RAPPORTI = lr  # istanzia la classe con una lista di tuple rappresentanti i rapporti stratigrafici
-        # f = open('C:\\test_matrix_1.txt', 'w') #to delete
-        # f.write(str(self.lista_rapporti))
-        # f.close()
-        self.LISTA_RAPPORTI.sort()  # ordina la lista dei rapporti stratigrafici E' IN POSIZIONE GIUSTA??? MEGLIO DENTRO AL WHILE?
-        self.status = len(
-            self.LISTA_RAPPORTI)  # assegna la lunghezza della lista dei rapporti per verificare se cambia nel corso del loop
+    # def __init__(self, lr):
+        # self.LISTA_RAPPORTI = lr  # istanzia la classe con una lista di tuple rappresentanti i rapporti stratigrafici
+        # # f = open('C:\\test_matrix_1.txt', 'w') #to delete
+        # # f.write(str(self.lista_rapporti))
+        # # f.close()
+        # self.LISTA_RAPPORTI.sort()  # ordina la lista dei rapporti stratigrafici E' IN POSIZIONE GIUSTA??? MEGLIO DENTRO AL WHILE?
+        # self.status = len(
+            # self.LISTA_RAPPORTI)  # assegna la lunghezza della lista dei rapporti per verificare se cambia nel corso del loop
 
-        # print self.lista_rapporti
+        # # print self.lista_rapporti
 
     def main(self):
         # esegue la funzione per creare la lista valori delle US dai singoli rapporti stratigrafici
