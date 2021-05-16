@@ -23,8 +23,8 @@ class US_table:
                      Column('sito', Text),  # 1
                      Column('area', String(20)),  # 2
                      Column('us', Integer),  # 3
-                     Column('d_stratigrafica', String(100)),  # 4
-                     Column('d_interpretativa', String(100)),  # 5
+                     Column('d_stratigrafica', String(255)),  # 4
+                     Column('d_interpretativa', String(255)),  # 5
                      Column('descrizione', Text),  # 6
                      Column('interpretazione', Text),  # 7
                      Column('periodo_iniziale', String(4)),  # 8
