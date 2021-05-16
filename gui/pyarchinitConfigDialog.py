@@ -24,6 +24,7 @@ import traceback
 import os
 import sqlite3
 import time
+import sqlalchemy as sa
 from sqlalchemy.event import listen
 import platform
 from builtins import range
@@ -347,10 +348,12 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
                     else:
                         #if the connection is postgresql
                         ck = insert_srt.table.constraints
-                        pk = insert_srt.table.primary_key
+                        # pk = insert_srt.table.primary_key
                         insert = compiler.visit_insert(insert_srt, **kw)
-                        s= " ".join(str(c.name).replace('None','').replace(',','').replace('id','ID') for c in ck)
-                        ondup = f'ON CONFLICT ON CONSTRAINT {s} DO NOTHING'
+                        c = next(x for x in ck if isinstance(x, sa.UniqueConstraint))
+                        column_names = [col.name for col in c.columns]
+                        s= ", ".join(column_names)
+                        ondup = f'ON CONFLICT ({s})DO NOTHING'
                     
                         upsert = ' '.join((insert, ondup))
                         return upsert
@@ -369,10 +372,15 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
                         return compiler.visit_insert(insert_srt.prefix_with('OR REPLACE'), **kw)
                     else:
                         #return compiler.visit_insert(insert.prefix_with(''), **kw)
-                        pk = insert_srt.table.primary_key
+                        ck = insert_srt.table.constraints
                         insert = compiler.visit_insert(insert_srt, **kw)
-                        ondup = f"ON CONFLICT ({','.join(c.name for c in pk)}) DO UPDATE SET"
-                        updates = ", ".join(f'{c.name}=EXCLUDED.{c.name}' for c in insert_srt.table.columns)
+                        c = next(x for x in ck if isinstance(x, sa.UniqueConstraint))
+                        column_names = [col.name for col in c.columns]
+                        s= ", ".join(column_names)
+                        
+                        
+                        ondup = f"ON CONFLICT ({s}) DO UPDATE SET"
+                        updates = ", ".join(f'{column_names}=EXCLUDED.{column_names}' for c in insert_srt.table.columns)
                         upsert = " ".join((insert, ondup, updates))
                         return upsert
         
