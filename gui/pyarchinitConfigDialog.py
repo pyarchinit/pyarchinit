@@ -345,13 +345,17 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
                     if test_conn == 0:
                         return compiler.visit_insert(insert_srt.prefix_with('OR IGNORE'), **kw)
                     else:
-                        #return compiler.visit_insert(insert.prefix_with(''), **kw)
+                        #if the connection is postgresql
+                        ck = insert_srt.table.constraints
                         pk = insert_srt.table.primary_key
                         insert = compiler.visit_insert(insert_srt, **kw)
-                        ondup = f'ON CONFLICT ({",".join(c.name for c in pk)}) DO NOTHING'
-                        #updates = ', '.join(f"{c.name}=EXCLUDED.{c.name}" for c in insert_srt.table.columns)
+                        s= " ".join(str(c.name).replace('None','').replace(',','').replace('id','ID') for c in ck)
+                        ondup = f'ON CONFLICT ON CONSTRAINT {s} DO NOTHING'
+                    
                         upsert = ' '.join((insert, ondup))
                         return upsert
+                       
+                        
            
             if self.checkBox_replace.isChecked():
 
@@ -367,9 +371,9 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
                         #return compiler.visit_insert(insert.prefix_with(''), **kw)
                         pk = insert_srt.table.primary_key
                         insert = compiler.visit_insert(insert_srt, **kw)
-                        ondup = f'ON CONFLICT ({",".join(c.name for c in pk)}) DO UPDATE SET'
-                        updates = ', '.join(f"{c.name}=EXCLUDED.{c.name}" for c in insert_srt.table.columns)
-                        upsert = ' '.join((insert, ondup, updates))
+                        ondup = f"ON CONFLICT ({','.join(c.name for c in pk)}) DO UPDATE SET"
+                        updates = ", ".join(f'{c.name}=EXCLUDED.{c.name}' for c in insert_srt.table.columns)
+                        upsert = " ".join((insert, ondup, updates))
                         return upsert
         
             if self.checkBox_abort.isChecked():
@@ -389,7 +393,7 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
                         ondup = f'ON CONFLICT ({",".join(c.name for c in pk)}) DO NOTHING'
                         #updates = ', '.join(f"{c.name}=EXCLUDED.{c.name}" for c in insert_srt.table.columns)
                         upsert = ' '.join((insert, ondup))
-                        return upsert
+                        return insert
         
         
         except:

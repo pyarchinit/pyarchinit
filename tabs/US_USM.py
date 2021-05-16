@@ -3821,6 +3821,8 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
             consistenza = self.comboBox_consistenza.currentText()
             struttura = self.comboBox_struttura.currentText()
             cont_per = self.lineEdit_codice_periodo.text()
+            d_interpretativa=self.comboBox_def_intepret.currentText()
+            d_stratigrafica=self.comboBox_def_strat.currentText()
             if attivita != "":
                 if EC.data_lenght(attivita, 3) == 0:
                     QMessageBox.warning(self, "ATTENZIONE",
@@ -3831,6 +3833,21 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
             # if EC.data_lenght(anno_scavo,3) == 0:
             #       QMessageBox.warning(self, "ATTENZIONE", "Campo Anno. \n immettere una sola data (es. 2014)",  QMessageBox.Ok)
             #       test = 1
+            
+            if formazione != "":
+                if EC.data_lenght(d_interpretativa, 254) == 0:
+                    QMessageBox.warning(self, "ATTENZIONE",
+                                        "Campo definizione interpreta. \n Il valore non deve superare i 255 caratteri alfanumerici",
+                                        QMessageBox.Ok)
+                    test = 1
+            
+            if formazione != "":
+                if EC.data_lenght(d_stratigrafica, 254) == 0:
+                    QMessageBox.warning(self, "ATTENZIONE",
+                                        "Campo definizione stratigrafica. \n Il valore non deve superare i 255 caratteri alfanumerici",
+                                        QMessageBox.Ok)
+                    test = 1
+            
             if formazione != "":
                 if EC.data_lenght(formazione, 19) == 0:
                     QMessageBox.warning(self, "ATTENZIONE",
