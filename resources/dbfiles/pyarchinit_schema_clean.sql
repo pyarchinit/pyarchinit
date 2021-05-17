@@ -1472,7 +1472,7 @@ CREATE TABLE public.tomba_table (
     nr_scheda_taf integer,
     sigla_struttura text,
     nr_struttura integer,
-    nr_individuo integer,
+    nr_individuo text,
     rito text,
     descrizione_taf text,
     interpretazione_taf text,
