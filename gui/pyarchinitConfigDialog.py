@@ -372,6 +372,7 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
                         return compiler.visit_insert(insert_srt.prefix_with('OR REPLACE'), **kw)
                     else:
                         #return compiler.visit_insert(insert.prefix_with(''), **kw)
+                        
                         ck = insert_srt.table.constraints
                         insert = compiler.visit_insert(insert_srt, **kw)
                         c = next(x for x in ck if isinstance(x, sa.UniqueConstraint))
@@ -380,7 +381,7 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
                         
                         
                         ondup = f"ON CONFLICT ({s}) DO UPDATE SET"
-                        updates = ", ".join(f'{column_names}=EXCLUDED.{column_names}' for c in insert_srt.table.columns)
+                        updates = ", ".join(f'{c.name}=EXCLUDED.{c.name}' for c in insert_srt.table.columns)
                         upsert = " ".join((insert, ondup, updates))
                         return upsert
         
