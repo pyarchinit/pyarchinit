@@ -1240,7 +1240,7 @@
            </item>
            <item>
             <property name="text">
-             <string>MEIDA_THUMB</string>
+             <string>MEDIA_THUMB</string>
             </property>
             <property name="icon">
              <iconset resource="../../resources/resources.qrc">
