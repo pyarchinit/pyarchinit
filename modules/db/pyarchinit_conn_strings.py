@@ -57,7 +57,7 @@ class Connection(object):
                 conn_str_dict["port"], conn_str_dict["db_name"], "?sslmode=allow")
                 test=True
             except:
-                #QMessageBox.warning(self, "Attenzione", 'Problema', QMessageBox.Ok)
+                QMessageBox.warning(self, "Attenzione", 'Problema', QMessageBox.Ok)
                 conn_str = "%s://%s:%s@%s:%d/%s" % (
                 "postgresql", conn_str_dict["user"], conn_str_dict["password"], conn_str_dict["host"],
                 conn_str_dict["port"], conn_str_dict["db_name"])

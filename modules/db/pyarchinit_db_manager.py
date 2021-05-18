@@ -94,7 +94,7 @@ class Pyarchinit_db_management(object):
             conn = self.engine.connect()
             
         except Exception as e:
-            QMessageBox.warning(None, "Message", "Eroore: "+str(e), QMessageBox.Ok)
+            QMessageBox.warning(None, "Message", "Error: "+str(e), QMessageBox.Ok)
             test = False
         finally:
             conn.close()
@@ -103,7 +103,7 @@ class Pyarchinit_db_management(object):
             db_upd = DB_update(self.conn_str)
             db_upd.update_table()
         except Exception as e:
-            QMessageBox.warning(None, "Message", "Eroore: "+str(e), QMessageBox.Ok)
+            QMessageBox.warning(None, "Message", "Error: "+str(e), QMessageBox.Ok)
             test = False
         return test
 
