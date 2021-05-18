@@ -24,7 +24,7 @@ class pycampioni:
 
     # define tables check per verifica fill fields 20/10/2016 OK
     pycampioni = Table('pyarchinit_campionature', metadata,
-                     Column('id', Integer, primary_key=True),  # 0
+                     Column('gid', Integer, primary_key=True),  # 0
                      Column('id_campion', Integer),
                      Column('sito', Text),
                      Column('tipo_camp', Text),
@@ -34,7 +34,7 @@ class pycampioni:
                      Column('sigla_camp', Text),
                      Column('the_geom', Geometry('POINT',-1)),
                      # explicit/composite unique constraint.  'name' is optional.
-                     UniqueConstraint('id')
+                     UniqueConstraint('gid')
                      )
 
     metadata.create_all(engine)

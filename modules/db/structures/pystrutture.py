@@ -24,7 +24,7 @@ class pystrutture:
 
     # define tables check per verifica fill fields 20/10/2016 OK
     pystrutture = Table('pyarchinit_strutture_ipotesi', metadata,
-                     Column('id', Integer, primary_key=True),  # 0
+                     Column('gid', Integer, primary_key=True),  # 0
                      Column('sito', Text),
                      Column('id_strutt', Text),
                      Column('per_iniz', Integer),
@@ -37,7 +37,7 @@ class pystrutture:
                      Column('sigla_strut', Text),
                      Column('nr_strut', Integer),
                      # explicit/composite unique constraint.  'name' is optional.
-                     UniqueConstraint('id')
+                     UniqueConstraint('gid')
                      )
 
     metadata.create_all(engine)

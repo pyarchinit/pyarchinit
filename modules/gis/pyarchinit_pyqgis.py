@@ -1095,20 +1095,27 @@ class Pyarchinit_pyqgis(QDialog):
                 layerUS.loadNamedStyle(style_path)
                 
                 group.insertChildNode(-1, QgsLayerTreeLayer(layerUS))
+                
                 # a=QgsLayerTreeUtils.setLegendFilterByExpression(QgsLayerTreeLayer(layerUS),str('a'),True)
                 
                 # view = QgsLayerTreeView()
                 # view.setModel(a)
                 # view.currentLayer()
-                QgsProject.instance().addMapLayers([layerUS], False)
-                # s= QgsMapSettings()
-                # s.setExtent(s.visibleExtent())
-                # s.outputSize()
-                # s.layers()
-                # QgsLayerTreeModel(root).setLegendFilterByMap(s)## This one should filter the legend on base map content?
-                #b=QgsLayerTreeModel(root).refreshLayerLegend(QgsLayerTreeLayer(a))
+                #s= QgsMapSettings()
                 
-                QMessageBox.warning(self, "Pyarchinit", str(s), QMessageBox.Ok)
+                
+                # tree_model = view.layerTreeModel()
+                
+                # proxy_items = []
+                # for r in range(proxy_model.rowCount()):
+                    # proxy_items.append(proxy_model.data(proxy_model.index(r, 0)))
+                QgsProject.instance().addMapLayers([layerUS], False)
+                # self.model = QgsLayerTreeModel(root)
+                
+                # view = QgsMapLayerLegend().createLayerTreeModelLegendNodes(QgsLayerTreeLayer(layerUS))
+                
+                # s = v.currentLegendNode()
+                # self.model.filterLegendNodes(s)
             
             else:
                 QMessageBox.warning(self, "Pyarchinit", "OK Layer US non valido", QMessageBox.Ok)

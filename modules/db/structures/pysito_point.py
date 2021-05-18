@@ -24,11 +24,11 @@ class pysito_point:
 
     # define tables check per verifica fill fields 20/10/2016 OK
     pysito_point = Table('pyarchinit_siti', metadata,
-                     Column('id', Integer, primary_key=True),  # 0
+                     Column('gid', Integer, primary_key=True),  # 0
                      Column('sito_nome', Text),
                      Column('the_geom', Geometry('POINT',-1)),
                      # explicit/composite unique constraint.  'name' is optional.
-                     UniqueConstraint('id')
+                     UniqueConstraint('gid')
                      )
 
     metadata.create_all(engine)
