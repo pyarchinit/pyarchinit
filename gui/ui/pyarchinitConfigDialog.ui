@@ -1485,7 +1485,7 @@
          <item row="4" column="6" colspan="3">
           <widget class="QLabel" name="label_42">
            <property name="text">
-            <string>Inserisci il nome del campo e/o il valore da importare</string>
+            <string>Inserisci il nome del campo e/o il valore da importare (opzionale)</string>
            </property>
           </widget>
          </item>
