@@ -1286,6 +1286,11 @@
            </property>
            <item>
             <property name="text">
+             <string/>
+            </property>
+           </item>
+           <item>
+            <property name="text">
              <string>sqlite</string>
             </property>
            </item>
@@ -1364,6 +1369,11 @@
          </item>
          <item row="3" column="0" colspan="3">
           <widget class="QComboBox" name="comboBox_server_rd">
+           <item>
+            <property name="text">
+             <string/>
+            </property>
+           </item>
            <item>
             <property name="text">
              <string>sqlite</string>
@@ -2377,17 +2387,17 @@
   </connection>
   <connection>
    <sender>tabWidget</sender>
-   <signal>tabBarClicked(int)</signal>
-   <receiver>checkBox_ignore</receiver>
-   <slot>toggle()</slot>
+   <signal>tabBarDoubleClicked(int)</signal>
+   <receiver>comboBox_server_rd</receiver>
+   <slot>setCurrentIndex(int)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>303</x>
-     <y>18</y>
+     <x>306</x>
+     <y>22</y>
     </hint>
     <hint type="destinationlabel">
-     <x>92</x>
-     <y>114</y>
+     <x>229</x>
+     <y>128</y>
     </hint>
    </hints>
   </connection>
