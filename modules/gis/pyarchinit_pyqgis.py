@@ -1101,7 +1101,7 @@ class Pyarchinit_pyqgis(QDialog):
                 # view = QgsLayerTreeView()
                 # view.setModel(a)
                 # view.currentLayer()
-                #s= QgsMapSettings()
+                
                 
                 
                 # tree_model = view.layerTreeModel()
@@ -1110,12 +1110,10 @@ class Pyarchinit_pyqgis(QDialog):
                 # for r in range(proxy_model.rowCount()):
                     # proxy_items.append(proxy_model.data(proxy_model.index(r, 0)))
                 QgsProject.instance().addMapLayers([layerUS], False)
-                # self.model = QgsLayerTreeModel(root)
-                
-                # view = QgsMapLayerLegend().createLayerTreeModelLegendNodes(QgsLayerTreeLayer(layerUS))
-                
-                # s = v.currentLegendNode()
-                # self.model.filterLegendNodes(s)
+                # a=QgsLayerTreeModel(root)
+                # view=QgsLayerTreeView().setModel(a)
+                # view.layerTreeModel()
+                # view.legendFilterMapSettings()
             
             else:
                 QMessageBox.warning(self, "Pyarchinit", "OK Layer US non valido", QMessageBox.Ok)

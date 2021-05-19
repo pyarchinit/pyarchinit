@@ -97,10 +97,12 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
         self.comboBox_sito.currentIndexChanged.connect(self.summary)
         self.comboBox_Database.currentIndexChanged.connect(self.db_active)
         self.comboBox_Database.currentIndexChanged.connect(self.set_db_parameter)
-
-
-        self.comboBox_server_rd.editTextChanged.connect(self.set_db_import_from_parameter)
-        self.comboBox_server_wt.editTextChanged.connect(self.set_db_import_to_parameter)
+        
+        # if self.comboBox_server_rd.currentText=='sqlite':
+            # self.set_db_import_from_parameter()
+        
+        self.comboBox_server_rd.currentTextChanged.connect(self.set_db_import_from_parameter)
+        self.comboBox_server_wt.currentTextChanged.connect(self.set_db_import_to_parameter)
 
         self.pushButton_save.clicked.connect(self.summary)
         self.pushButton_save.clicked.connect(self.on_pushButton_save_pressed)
@@ -2312,42 +2314,50 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
             self.lineEdit_User.setText('')
 
     def set_db_import_from_parameter(self):
-        QMessageBox.warning(self, "ok", "entered in read.", QMessageBox.Ok)
+        #QMessageBox.warning(self, "ok", "entered in read.", QMessageBox.Ok)
 
         if self.comboBox_server_rd.currentText() == 'postgres':
-            QMessageBox.warning(self, "ok", "entered in if", QMessageBox.Ok)
-            self.lineEdit_host_rd.setText('127.0.0.1')
+            
+            self.lineEdit_host_rd.setText('localhost')
             self.lineEdit_username_rd.setText('postgres')
             self.lineEdit_database_rd.setText('pyarchinit')
             self.lineEdit_port_rd.setText('5432')
 
         if self.comboBox_server_rd.currentText() == 'sqlite':
-            QMessageBox.warning(self, "ok", "entered in if", QMessageBox.Ok)
+            #QMessageBox.warning(self, "ok", "entered in if", QMessageBox.Ok)
 
-            self.lineEdit_host_rd.setText.setText('')
+            self.lineEdit_host_rd.setText('')
             self.lineEdit_username_rd.setText('')
-            self.lineEdit_lineEdit_pass_rd.setText('')
+            self.lineEdit_pass_rd.setText('')
             self.lineEdit_database_rd.setText('pyarchinit_db.sqlite')
             self.lineEdit_port_rd.setText('')
 
     def set_db_import_to_parameter(self):
-        QMessageBox.warning(self, "ok", "entered in write", QMessageBox.Ok)
+        #QMessageBox.warning(self, "ok", "entered in write", QMessageBox.Ok)
+        #self.comboBox_server_wt.clear()
+        if self.comboBox_server_wt.currentText() == 'postgres' and not self.comboBox_Database.currentText()=='postgres':
+            QMessageBox.warning(self, "Attenzione", "Devi essere connesso\n prima al db di postgres", QMessageBox.Ok)
+            #self.comboBox_server_wt.clear()
+        if self.comboBox_server_wt.currentText() == 'postgres' and self.comboBox_Database.currentText()=='postgres':   
+            
+            self.lineEdit_host_wt.setText(str(self.lineEdit_Host.text()))
+            
+            self.lineEdit_database_wt.setText(str(self.lineEdit_DBname.text()))
+           
+            self.lineEdit_username_wt.setText(str(self.lineEdit_User.text()))
+            
+            self.lineEdit_port_wt.setText(str(self.lineEdit_Port.text()))
+            
+            self.lineEdit_pass_wt.setText(str(self.lineEdit_Password.text()))
 
-        if self.comboBox_server_wt.currentText() == 'postgres':
-            QMessageBox.warning(self, "ok", "entered in if", QMessageBox.Ok)
-
-            self.lineEdit_host_wt.setText('127.0.0.1')
-            self.lineEdit_username_wt.setText('postgres')
-            self.lineEdit_database_wt.setText('pyarchinit')
-            self.lineEdit_port_wt.setText('5432')
-
-        if self.comboBox_server_wt.currentText() == 'sqlite':
-            QMessageBox.warning(self, "ok", "entered in if", QMessageBox.Ok)
-
-            self.lineEdit_host_wt.setText.setText('')
+        
+        if self.comboBox_server_wt.currentText() == 'sqlite':   
+            #QMessageBox.warning(self, "ok", "entered in if", QMessageBox.Ok)
+            #self.self.comboBox_server_wt.clear()
+            self.lineEdit_host_wt.setText('')
             self.lineEdit_username_wt.setText('')
-            self.lineEdit_lineEdit_pass_wt.setText('')
-            self.lineEdit_database_wt.setText('pyarchinit_db.sqlite')
+            self.lineEdit_pass_wt.setText('')
+            self.lineEdit_database_wt.setText(str(self.lineEdit_DBname.text()))
             self.lineEdit_port_wt.setText('')
 
     def load_dict(self):
@@ -4131,7 +4141,7 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
                         value = (float(sing_rec)/float(len(data_list_toimp)))*100
                         self.progress_bar.setValue(value)
                         QApplication.processEvents()
-                    except Exception as e :
+                    except AssertionError as e :
                         QMessageBox.warning(self, "Errore", "Error ! \n"+ str(e),  QMessageBox.Ok)
                         return 0
                 self.progress_bar.reset()
