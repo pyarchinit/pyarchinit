@@ -22,15 +22,16 @@ from __future__ import absolute_import
 
 import os
 from datetime import date
-
-import sys
+import requests
+import urllib
+from socket import timeout
 from builtins import range
 from builtins import str
 from qgis.PyQt.QtGui import QDesktopServices
 from qgis.PyQt.QtCore import QUrl, QVariant
 from qgis.PyQt.QtWidgets import QDialog, QMessageBox, QFileDialog
 from qgis.PyQt.uic import loadUiType
-from qgis.core import QgsSettings
+from qgis.core import *
 
 from ..modules.db.pyarchinit_conn_strings import Connection
 from ..modules.db.pyarchinit_db_manager import Pyarchinit_db_management
@@ -222,6 +223,31 @@ class pyarchinit_Site(QDialog, MAIN_DIALOG_CLASS):
             QMessageBox.warning(self, "INFO", "Directory not found",
                                 QMessageBox.Ok)
 
+    def on_wms_vincoli_pressed(self):
+        groupName="Vincoli Archelogici"
+        root = QgsProject.instance().layerTreeRoot()
+        group = root.addGroup(groupName)
+        group.setExpanded(False)
+        myGroup5 = group.insertGroup(5, "Vincoli")
+        nome_vestizione='Vincoli puntuali'
+        url_vestizione ='http://vincoliinrete.beniculturali.it/geoserver/wms_public/ows?width=20&height=20&layer=geo_aree_archeol_vincolate'
+        uri_vestizione ='contextualWMSLegend=0&crs=EPSG:6875&dpiMode=7&featureCount=10&format=image/png&layers=v_geo_anagrafica_beni_puntuali&styles&url='+requests.utils.quote(url_vestizione)
+        rlayer3= QgsRasterLayer(uri_vestizione, nome_vestizione,'wms')
+        myGroup5.insertChildNode(-1, QgsLayerTreeLayer(rlayer3))
+        
+        
+        nome_vestizione='Vincoli Lineari'
+        url_vestizione ='http://vincoliinrete.beniculturali.it/geoserver/wms_public/ows?width=20&height=20&layer=geo_aree_archeol_vincolate'
+        uri_vestizione ='contextualWMSLegend=0&crs=EPSG:6875&dpiMode=7&featureCount=10&format=image/png&layers=v_geo_anagrafica_beni_lineari&styles&url='+requests.utils.quote(url_vestizione)
+        rlayer4= QgsRasterLayer(uri_vestizione, nome_vestizione,'wms')
+        myGroup5.insertChildNode(-1, QgsLayerTreeLayer(rlayer4))
+        
+        nome_vestizione='Vincoli poligonali'
+        url_vestizione ='http://vincoliinrete.beniculturali.it/geoserver/wms_public/ows?width=20&height=20&layer=geo_aree_archeol_vincolate'
+        uri_vestizione ='contextualWMSLegend=0&crs=EPSG:6875&dpiMode=7&featureCount=10&format=image/png&layers=v_geo_anagrafica_beni_poligonali&styles&url='+requests.utils.quote(url_vestizione)
+        rlayer5= QgsRasterLayer(uri_vestizione, nome_vestizione,'wms')
+        myGroup5.insertChildNode(-1, QgsLayerTreeLayer(rlayer5))
+        QgsProject.instance().addMapLayers([rlayer3,rlayer4,rlayer5],False)
     def enable_button(self, n):
         """This method Unable or Enable the GUI buttons on browse modality"""
 
