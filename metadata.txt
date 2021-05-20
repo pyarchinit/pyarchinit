@@ -12,7 +12,7 @@
 name=pyArchInit
 qgisMinimumVersion=3.0
 description=pyarchinit an tool for archaeological works
-version=3.9.1
+version=3.9.2
 author=Luca Mandolesi&Enzo Cocca
 email=pyarchinit@gmail.com
 
@@ -22,7 +22,12 @@ about=https://github.com/pyarchinit/pyarchinit
 tracker=https://github.com/pyarchinit/pyarchinit/issues
 repository=https://github.com/pyarchinit/pyarchinit
 
-changelog=release3.9.1
+changelog=release3.9.2
+    -wms vincoli archeologici
+
+   -------------------------------------------------------------------------------
+
+   release3.9.1
     -update connessione
 
    -------------------------------------------------------------------------------
