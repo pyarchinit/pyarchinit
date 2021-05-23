@@ -1049,12 +1049,10 @@ class Pyarchinit_pyqgis(QDialog):
         groupName="%s " % (self.dat)
         
         root = QgsProject.instance().layerTreeRoot()
+
         
         group = root.addGroup(groupName)
         group.setExpanded(False)  
-        
-        #group.setItemVisibilityChecked(False)
-        #a.legendFilterMapSettings()
         
         if self.L=='it':
             layer_name_label_us = "Unita Stratigrafiche" 
@@ -1096,25 +1094,8 @@ class Pyarchinit_pyqgis(QDialog):
                 
                 group.insertChildNode(-1, QgsLayerTreeLayer(layerUS))
                 
-                # a=QgsLayerTreeUtils.setLegendFilterByExpression(QgsLayerTreeLayer(layerUS),str('a'),True)
-                
-                # view = QgsLayerTreeView()
-                # view.setModel(a)
-                # view.currentLayer()
-                
-                
-                
-                # tree_model = view.layerTreeModel()
-                
-                # proxy_items = []
-                # for r in range(proxy_model.rowCount()):
-                    # proxy_items.append(proxy_model.data(proxy_model.index(r, 0)))
                 QgsProject.instance().addMapLayers([layerUS], False)
-                # a=QgsLayerTreeModel(root)
-                # view=QgsLayerTreeView().setModel(a)
-                # view.layerTreeModel()
-                # view.legendFilterMapSettings()
-            
+                
             else:
                 QMessageBox.warning(self, "Pyarchinit", "OK Layer US non valido", QMessageBox.Ok)
 
