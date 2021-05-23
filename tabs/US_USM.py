@@ -5870,7 +5870,7 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
         col_materiale_usm = self.table2dict("self.tableWidget_colore_materiale_usm")
         #list_foto = self.table2dict("self.tableWidget_foto")
         if self.lineEditOrderLayer.text() == "":
-            order_layer = None
+            order_layer = 0
         else:
             order_layer = self.lineEditOrderLayer.text()
         if self.lineEdit_qmin_usm.text() == "":
