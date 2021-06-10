@@ -2835,6 +2835,7 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
                 str(self.DATA_LIST[i].uso_primario_usm),  #95 uso primario
                 str(self.DATA_LIST[i].tipologia_opera),
                 str(self.DATA_LIST[i].sezione_muraria),
+                str(self.DATA_LIST[i].superficie_analizzata),    
                 str(self.DATA_LIST[i].orientamento),
                 str(self.DATA_LIST[i].materiali_lat),
                 str(self.DATA_LIST[i].lavorazione_lat),
