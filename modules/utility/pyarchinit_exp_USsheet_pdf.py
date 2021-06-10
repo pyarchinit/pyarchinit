@@ -878,7 +878,48 @@ class single_US_pdf_sheet(object):
                 if len(string_inclusi_usm) == 1:
                     self.inclusi_usm_print += str(string_inclusi_usm[0]) + "<br/>"
 
-    def datestrfdate(self):
+    def unzip_inerti_usm(self):
+       
+        inorg = eval(self.aggreg_legante)
+        
+        inorganici = ''
+        
+
+        if len(inorg) > 0:
+            for item in inorg:
+                inorganici += "" + str(item)[2:len(str(item)) - 2] + ", "  # trasforma item da ['Stringa'] a Stringa
+            inorganici = inorganici[0:len(inorganici) - 2]  # tolgo la virgola in più
+
+         #   if len(org) > 1:
+         #       i=1
+         #       while i < len(org):
+         #           organici += ", "+org[i]
+         #           i=i+1
+
+        return inorganici
+    
+    
+    def unzip_colore_usm(self):
+        inorg = eval(self.col_legante)
+        
+        inorganici = ''
+        
+
+        if len(inorg) > 0:
+            for item in inorg:
+                inorganici += "" + str(item)[2:len(str(item)) - 2] + ", "  # trasforma item da ['Stringa'] a Stringa
+            inorganici = inorganici[0:len(inorganici) - 2]  # tolgo la virgola in più
+
+         #   if len(org) > 1:
+         #       i=1
+         #       while i < len(org):
+         #           organici += ", "+org[i]
+         #           i=i+1
+
+        return inorganici 
+
+
+   def datestrfdate(self):
         now = date.today()
         today = now.strftime("%d-%m-%Y")
         return today
@@ -1443,8 +1484,10 @@ class single_US_pdf_sheet(object):
             label_legante= Paragraph("<b>LEGANTE</b>", styVerticale)
             tipo_1 =Paragraph(self.tipo_legante_usm,styNormal)
             consistenza_2 =Paragraph(self.cons_legante,styNormal)
-            colore_3 =Paragraph(self.col_legante,styNormal)
-            inerti_4 =Paragraph(self.aggreg_legante,styNormal)
+            colore_aaa =self.unzip_colore_usm()
+            inerti_aaa =self.unzip_inerti_usm()
+            colore_3 =Paragraph(colore_aaa,styNormal)
+            inerti_4 =Paragraph(inerti_aaa,styNormal)
             spessore_5 =Paragraph(self.spessore_usm,styNormal)
             rifinitura_6 =Paragraph(self.rifinitura_usm,styNormal)
             
