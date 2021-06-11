@@ -1182,7 +1182,7 @@ class pyarchinit_Periodizzazione(QDialog, MAIN_DIALOG_CLASS):
             fas_label = self.comboBox_fase.currentText()
             dat=self.lineEdit_per_estesa.text()
             self.pyQGIS.charge_vector_layers_periodo(sito_p, int(cont_per), per_label, fas_label,dat)
-
+            self.pyQGIS.charge_vector_usm_layers_periodo(sito_p, int(cont_per), per_label, fas_label,dat)
     def on_pushButton_all_period_pressed(self):
         #self.set_sito()
         if not self.lineEdit_codice_periodo.text():
@@ -1211,11 +1211,41 @@ class pyarchinit_Periodizzazione(QDialog, MAIN_DIALOG_CLASS):
                     fas_label = e.fase
                     dat=e.datazione_estesa
                     self.pyQGIS.charge_vector_layers_all_period(sito_p, str(cont_per),per_label,fas_label,dat)
-    
+                    #self.pyQGIS.charge_vector_layers_usm_all_period(sito_p, str(cont_per),per_label,fas_label,dat)
             except Exception as e:
                 print(str(e))    
     
-    
+    def on_pushButton_all_period_usm_pressed(self):
+        #self.set_sito()
+        if not self.lineEdit_codice_periodo.text():
+            QMessageBox.warning(self, "Message", "Period code not add", QMessageBox.Ok)
+        else:
+            lista=[]
+            conn = Connection()
+            sito_set= conn.sito_set()
+            sito_set_str = sito_set['sito_set']
+            try:
+                if bool (sito_set_str):
+                    search_dict = {
+                        'sito': "'" + str(sito_set_str) + "'"}  # 1 - Sito
+                    u = Utility()
+                    search_dict = u.remove_empty_items_fr_dict(search_dict)
+                    res = self.DB_MANAGER.query_bool(search_dict, self.MAPPER_TABLE_CLASS)
+                    self.DATA_LIST = []
+                for i in res:
+                    self.DATA_LIST.append(i)
+            
+            
+                for e in self.DATA_LIST:
+                    sito_p = e.sito
+                    cont_per = e.cont_per
+                    per_label = e.periodo
+                    fas_label = e.fase
+                    dat=e.datazione_estesa
+                    #self.pyQGIS.charge_vector_layers_all_period(sito_p, str(cont_per),per_label,fas_label,dat)
+                    self.pyQGIS.charge_vector_layers_usm_all_period(sito_p, str(cont_per),per_label,fas_label,dat)
+            except Exception as e:
+                print(str(e))    
     def update_if(self, msg):
         rec_corr = self.REC_CORR
         if msg == QMessageBox.Ok:

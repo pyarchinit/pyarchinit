@@ -55,7 +55,7 @@ from ..modules.db.pyarchinit_utility import Utility
 from ..modules.gis.pyarchinit_pyqgis import Pyarchinit_pyqgis, Order_layer_v2
 from ..modules.utility.delegateComboBox import ComboBoxDelegate
 from ..modules.utility.pyarchinit_error_check import Error_check
-from ..modules.utility.pyarchinit_exp_Periodosheet_pdf import generate_US_pdf
+#from ..modules.utility.pyarchinit_exp_Periodosheet_pdf import generate_US_pdf
 from ..modules.utility.pyarchinit_exp_USsheet_pdf import generate_US_pdf
 from ..modules.utility.pyarchinit_print_utility import Print_utility
 from ..modules.utility.settings import Settings
@@ -1380,6 +1380,9 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
                         strings = ("has been found", self.REC_TOT, "record")
                     if self.toolButtonGis.isChecked():
                         self.pyQGIS.charge_vector_layers(self.DATA_LIST)
+                
+                    if self.toolButton_usm.isChecked():
+                        self.pyQGIS.charge_usm_layers(self.DATA_LIST)
                 else:
                     if self.L=='it':
                         strings = ("Sono stati trovati", self.REC_TOT, "records")
@@ -1389,6 +1392,9 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
                         strings = ("Have been found", self.REC_TOT, "records")
                     if self.toolButtonGis.isChecked():
                         self.pyQGIS.charge_vector_layers(self.DATA_LIST)
+                    if self.toolButton_usm.isChecked():
+                        self.pyQGIS.charge_usm_layers(self.DATA_LIST)
+                
                 self.setComboBoxEnable(["self.comboBox_sito"], "False")
                 self.setComboBoxEnable(["self.comboBox_area"], "False")
                 self.setComboBoxEnable(["self.lineEdit_us"], "False")
@@ -2835,7 +2841,7 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
                 str(self.DATA_LIST[i].uso_primario_usm),  #95 uso primario
                 str(self.DATA_LIST[i].tipologia_opera),
                 str(self.DATA_LIST[i].sezione_muraria),
-                str(self.DATA_LIST[i].superficie_analizzata),    
+                str(self.DATA_LIST[i].superficie_analizzata),
                 str(self.DATA_LIST[i].orientamento),
                 str(self.DATA_LIST[i].materiali_lat),
                 str(self.DATA_LIST[i].lavorazione_lat),
@@ -4872,6 +4878,7 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
         """
         sing_layer = [self.DATA_LIST[self.REC_CORR]]
         self.pyQGIS.charge_vector_layers(sing_layer)
+        self.pyQGIS.charge_usm_layers(sing_layer)
     def on_pushButton_crea_codice_periodo_pressed(self):
         try:
             self.set_sito()
@@ -5163,28 +5170,41 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
                             strings = ("E' stato trovato", self.REC_TOT, "record")
                             if self.toolButtonGis.isChecked():
                                 self.pyQGIS.charge_vector_layers(self.DATA_LIST)
+                            if self.toolButton_usm.isChecked():    
+                                self.pyQGIS.charge_usm_layers(self.DATA_LIST)
                         else:
                             strings = ("Sono stati trovati", self.REC_TOT, "records")
                             if self.toolButtonGis.isChecked():
                                 self.pyQGIS.charge_vector_layers(self.DATA_LIST)
+                            if self.toolButton_usm.isChecked():    
+                                self.pyQGIS.charge_usm_layers(self.DATA_LIST)
                     elif self.L=='de':
                         if self.REC_TOT == 1:
                             strings = ("Es wurde gefunden", self.REC_TOT, "record")
                             if self.toolButtonGis.isChecked():
                                 self.pyQGIS.charge_vector_layers(self.DATA_LIST)
+                            if self.toolButton_usm.isChecked():    
+                                self.pyQGIS.charge_usm_layers(self.DATA_LIST)
                         else:
                             strings = ("Sie wurden gefunden", self.REC_TOT, "records")
                             if self.toolButtonGis.isChecked():
                                 self.pyQGIS.charge_vector_layers(self.DATA_LIST)
+                            if self.toolButton_usm.isChecked():    
+                                self.pyQGIS.charge_usm_layers(self.DATA_LIST)
                     else:
                         if self.REC_TOT == 1:
                             strings = ("It has been found", self.REC_TOT, "record")
                             if self.toolButtonGis.isChecked():
                                 self.pyQGIS.charge_vector_layers(self.DATA_LIST)
+                            if self.toolButton_usm.isChecked():    
+                                self.pyQGIS.charge_usm_layers(self.DATA_LIST)
                         else:
                             strings = ("They have been found", self.REC_TOT, "records")
                             if self.toolButtonGis.isChecked():
                                 self.pyQGIS.charge_vector_layers(self.DATA_LIST)
+                            if self.toolButton_usm.isChecked():    
+                                self.pyQGIS.charge_usm_layers(self.DATA_LIST)
+                    
                     self.setComboBoxEnable(["self.comboBox_sito"], "False")
                     self.setComboBoxEnable(["self.comboBox_area"], "False")
                     self.setComboBoxEnable(["self.lineEdit_us"], "False")
