@@ -72,7 +72,11 @@ class Pyarchinit_pyqgis(QDialog):
                   "25": "pyarchinit_doc_view_b",
                   "26": "pyarchinit_reperti",
                   "27": "pyarchinit_reperti_view",
-                  "28": "pyarchinit_sezioni_view"
+                  "28": "pyarchinit_sezioni_view",
+                  "29": "pyunitastratigrafiche_usm",
+                  "30": "pyarchinit_usm_view",
+                  "31": "pyarchinit_quote_usm",
+                  "32": "pyarchinit_quote_usm_view"
                   }
     if L=='it':
         LAYERS_CONVERT_DIZ = {"pyarchinit_campionature": "Punti di campionatura",
@@ -102,6 +106,10 @@ class Pyarchinit_pyqgis(QDialog):
                               "pyarchinit_reperti": "Reperti",
                               "pyarchinit_reperti_view": "Reperti view",
                               "pyarchinit_sezioni_view": "Sezioni di scavo Vista",
+                              "pyunitastratigrafiche_usm":"Unità Stratigrafiche Verticali disegno",
+                              "pyarchinit_usm_view":"USM Vista",
+                              "pyarchinit_quote_usm":"Quote Verticali disegno",
+                              "pyarchinit_quote_usm_view":"Quote USM Vista"
 
                               }
     elif L=='de':
@@ -132,6 +140,10 @@ class Pyarchinit_pyqgis(QDialog):
                               "pyarchinit_reperti": "Artefakt",
                               "pyarchinit_reperti_view": "Artefakt view",
                               "pyarchinit_sezioni_view": "Profile view",
+                              "pyunitastratigrafiche_usm":"SEW",
+                              "pyarchinit_usm_view":"SEW Ansicht",
+                              "pyarchinit_quote_usm":"Nivellements Ansicht der SEW",
+                              "pyarchinit_quote_usm_view":"Nivellements Ansicht der SEW"
 
                               }
     else:
@@ -162,6 +174,10 @@ class Pyarchinit_pyqgis(QDialog):
                               "pyarchinit_reperti": "Artefact",
                               "pyarchinit_reperti_view": "Artefact view",
                               "pyarchinit_sezioni_view": "Excavation section view",
+                              "pyunitastratigrafiche_usm":"SUW drawing",
+                              "pyarchinit_usm_view":"SUW View",
+                              "pyarchinit_quote_usm":"SUW Elevation",
+                              "pyarchinit_quote_usm_view":"SUW Elevation View"
                               }
 
     def __init__(self, iface):
@@ -540,7 +556,18 @@ class Pyarchinit_pyqgis(QDialog):
                 self.canvas = QgsMapCanvas()
                 self.canvas.setExtent(layerPos.extent())
             
+            layer_name_pos = "USM - "+ str(data[0].tipo_documentazione) + ": " + str(data[0].nome_doc)
+
+            uri.setDataSource("public", 'pyarchinit_usm_view', 'the_geom', docstr, "ROWID")
             
+            layerPos = QgsVectorLayer(uri.uri(), layer_name_pos, 'spatialite')
+
+            if layerPos.isValid():
+                QMessageBox.warning(self, "Pyarchinit", "OK Layer USM valido", QMessageBox.Ok)
+                group.insertChildNode(-1, QgsLayerTreeLayer(layerPos))
+                QgsProject.instance().addMapLayers([layerPos], False)
+                self.canvas = QgsMapCanvas()
+                self.canvas.setExtent(layerPos.extent())
         elif settings.SERVER == 'postgres':
             
 
@@ -578,7 +605,20 @@ class Pyarchinit_pyqgis(QDialog):
                 self.canvas = QgsMapCanvas()
                 self.canvas.setExtent(layerPos.extent())
 
+            layer_name_pos = str(data[0].tipo_documentazione) + ": " + str(data[0].nome_doc)
 
+            uri.setDataSource("", 'pyarchinit_usm_view', 'the_geom', docstr, "gid")
+            
+            layerPos = QgsVectorLayer(uri.uri(), layer_name_pos, 'postgres')
+
+            if layerPos.isValid():
+                QMessageBox.warning(self, "Pyarchinit", "OK Layer USM valido", QMessageBox.Ok)
+                group.insertChildNode(-1, QgsLayerTreeLayer(layerPos))
+                QgsProject.instance().addMapLayers([layerPos], False)
+                self.canvas = QgsMapCanvas()
+                self.canvas.setExtent(layerPos.extent())
+            
+            
             layer_name_neg = str(data[0].tipo_documentazione) + ": " + str(data[0].nome_doc) + " - negative"
 
             '''docstrn = "sito_n = '" + str(data[0].sito) + "' AND nome_doc_n = '" + str(
@@ -640,7 +680,7 @@ class Pyarchinit_pyqgis(QDialog):
                 QMessageBox.warning(self, "Pyarchinit", "Layer US non valido", QMessageBox.Ok)
                 
 
-          
+            
 
     def charge_vector_layers_doc_from_scheda_US(self, lista_draw_doc):
         # data riceve 5 valori che saranno: sito, area, US, nome_doc e tipo_doc
@@ -674,6 +714,15 @@ class Pyarchinit_pyqgis(QDialog):
         else:
             name_layer_s='SU view'
         if self.L=='it':
+            name_layer_sw='USM view'
+        elif self.L=='de':
+            name_layer_sw='SEW view'
+        else:
+            name_layer_sw='SUW view'
+        
+        
+        
+        if self.L=='it':
             name_layer_d='Sezione view'
         elif self.L=='de':
             name_layer_d='Profile view'
@@ -685,6 +734,14 @@ class Pyarchinit_pyqgis(QDialog):
             name_layer_q='Hoch view'
         else:
             name_layer_q='Elevation view'
+        
+        if self.L=='it':
+            name_layer_qw='Quote USM view'
+        elif self.L=='de':
+            name_layer_qw='Hoch SEW view'
+        else:
+            name_layer_qw='Elevation SUW view'
+        
         if self.L=='it':
             name_layer_s_n='US negative view'
         elif self.L=='de':
@@ -782,6 +839,39 @@ class Pyarchinit_pyqgis(QDialog):
                 QMessageBox.warning(self, "Pyarchinit", "Layer US non valido", QMessageBox.Ok)
 
                 # implementare sistema per quote se si vogliono visualizzare sulle piante
+            
+            
+            
+            doc_from_us_str = "sito = '" + sito + "' AND tipo_doc = '" + tipo_documentazione + "' AND nome_doc = '" + nome_doc + "'"
+            # if len(data) > 1:
+            # for i in range(len(data)):
+            # doc_from_us_str += " OR (sito = '" + str(data[i].sito) +" AND tipo_documentazione = '" + str(data[i].tipo_documentazione) +" AND nome_doc = '"+ str(data[i].nome_doc)
+
+            uri = QgsDataSourceUri()
+            uri.setDatabase(db_file_path)
+
+            uri.setDataSource('', 'pyarchinit_usm_view', 'the_geom', doc_from_us_str, "ROWID")
+            layerUS = QgsVectorLayer(uri.uri(), name_layer_sw, 'spatialite')
+
+            if layerUS.isValid():
+                QMessageBox.warning(self, "Pyarchinit", "OK Layer valid", QMessageBox.Ok)
+
+                # self.USLayerId = layerUS.getLayerID()
+                # style_path = '{}{}'.format(self.LAYER_STYLE_PATH_SPATIALITE, 'us_view.qml')
+                # style_path = QtGui.QFileDialog.getOpenFileName(self, 'Open file',self.LAYER_STYLE_PATH)
+
+                # layerUS.loadNamedStyle(style_path)
+                group.insertChildNode(-1, QgsLayerTreeLayer(layerUS))
+                QgsProject.instance().addMapLayers([layerUS], False)
+                # originalSubsetString = layerUS.subsetString() 4D dimension
+                # newSubSetString = "%s OR id_us = '0'" % (originalSubsetString) 4D dimension
+
+                # layerUS.setSubsetString(newSubSetString)
+
+            else:
+                QMessageBox.warning(self, "Pyarchinit", "Layer USM non valido", QMessageBox.Ok)
+            
+            
             """
             uri.setDataSource('','pyarchinit_quote_view', 'the_geom', gidstr.tipodoc(pianta), "ROWID")
             layerQUOTE=QgsVectorLayer(uri.uri(), 'pyarchinit_quote_view', 'spatialite')
@@ -882,6 +972,38 @@ class Pyarchinit_pyqgis(QDialog):
                 QMessageBox.warning(self, "Pyarchinit", "Layer US non valido", QMessageBox.Ok)
 
                 # implementare sistema per quote se si vogliono visualizzare sulle piante
+            
+            
+            doc_from_us_str = "sito = '" + sito + "' AND tipo_doc = '" + tipo_documentazione + "' AND nome_doc = '" + nome_doc + "'"
+            # if len(data) > 1:
+            # for i in range(len(data)):
+            # doc_from_us_str += " OR (sito = '" + str(data[i].sito) +" AND tipo_documentazione = '" + str(data[i].tipo_documentazione) +" AND nome_doc = '"+ str(data[i].nome_doc)
+
+            #uri = QgsDataSourceUri()
+            #uri.setDatabase(db_file_path)
+
+            uri.setDataSource('', 'pyarchinit_usm_view', 'the_geom', doc_from_us_str, "gid")
+            layerUS = QgsVectorLayer(uri.uri(), name_layer_sw, 'postgres')
+
+            if layerUS.isValid():
+                QMessageBox.warning(self, "Pyarchinit", "OK Layer valid", QMessageBox.Ok)
+
+                # self.USLayerId = layerUS.getLayerID()
+                # style_path = '{}{}'.format(self.LAYER_STYLE_PATH_SPATIALITE, 'us_view.qml')
+                # style_path = QtGui.QFileDialog.getOpenFileName(self, 'Open file',self.LAYER_STYLE_PATH)
+
+                # layerUS.loadNamedStyle(style_path)
+                group.insertChildNode(-1, QgsLayerTreeLayer(layerUS))
+                QgsProject.instance().addMapLayers([layerUS], False)
+                # originalSubsetString = layerUS.subsetString() 4D dimension
+                # newSubSetString = "%s OR id_us = '0'" % (originalSubsetString) 4D dimension
+
+                # layerUS.setSubsetString(newSubSetString)
+
+            else:
+                QMessageBox.warning(self, "Pyarchinit", "Layer USM non valido", QMessageBox.Ok)
+            
+            
             """
             uri.setDataSource('','pyarchinit_quote_view', 'the_geom', gidstr.tipodoc(pianta), "ROWID")
             layerQUOTE=QgsVectorLayer(uri.uri(), 'pyarchinit_quote_view', 'spatialite')
@@ -924,6 +1046,9 @@ class Pyarchinit_pyqgis(QDialog):
             name_layer_q='Hoch view'
         else:
             name_layer_q='Elevation view'
+        
+        
+        
         groupName="View scheda US"
         root = QgsProject.instance().layerTreeRoot()
         group = root.addGroup(groupName)
@@ -1024,7 +1149,134 @@ class Pyarchinit_pyqgis(QDialog):
                 QMessageBox.warning(self, "Pyarchinit", "OK Layer US non valido", QMessageBox.Ok)
 
             
-    
+    def charge_usm_layers(self, data):
+        # Clean Qgis Map Later Registry
+        # QgsProject.instance().removeAllMapLayers()
+        # Get the user input, starting with the table name
+
+        # self.find_us_cutted(data)
+
+        cfg_rel_path = os.path.join(os.sep, 'pyarchinit_DB_folder', 'config.cfg')
+        file_path = '{}{}'.format(self.HOME, cfg_rel_path)
+        conf = open(file_path, "r")
+        con_sett = conf.read()
+        conf.close()
+
+        settings = Settings(con_sett)
+        settings.set_configuration()
+        if self.L=='it':
+            name_layer_s='Stratigrafia Verticale view'
+        elif self.L=='de':
+            name_layer_s='SEW view'
+        else:
+            name_layer_s='SUW view'
+        if self.L=='it':
+            name_layer_q='Quote Verticali view'
+        elif self.L=='de':
+            name_layer_q='Hoch SEW view'
+        else:
+            name_layer_q='Elevation SUW view'
+        
+        
+        
+        groupName="View scheda USM"
+        root = QgsProject.instance().layerTreeRoot()
+        group = root.addGroup(groupName)
+        group.setExpanded(False)  
+        if settings.SERVER == 'sqlite':
+            sqliteDB_path = os.path.join(os.sep, 'pyarchinit_DB_folder', settings.DATABASE)
+            db_file_path = '{}{}'.format(self.HOME, sqliteDB_path)
+
+            gidstr = "id_us = '" + str(data[0].id_us) + "'"
+            if len(data) > 1:
+                for i in range(len(data)):
+                    gidstr += " OR id_us = '" + str(data[i].id_us) + "'"
+
+            uri = QgsDataSourceUri()
+            uri.setDatabase(db_file_path)
+            
+            uri.setDataSource('', 'pyarchinit_quote_usm_view', 'the_geom', gidstr, "ROWID")
+            layerQUOTE = QgsVectorLayer(uri.uri(), name_layer_q, 'spatialite')
+
+            if layerQUOTE.isValid():
+                # self.USLayerId = layerUS.getLayerID()
+                style_path = '{}{}'.format(self.LAYER_STYLE_PATH_SPATIALITE, 'quote_us_view.qml')
+                group.insertChildNode(-1, QgsLayerTreeLayer(layerQUOTE))
+                layerQUOTE.loadNamedStyle(style_path)
+                QgsProject.instance().addMapLayers([layerQUOTE], False)
+            else:
+                QMessageBox.warning(self, "Pyarchinit", "OK Layer not valid", QMessageBox.Ok)
+            
+            uri.setDataSource('', 'pyarchinit_usm_view', 'the_geom', gidstr, "ROWID")
+            layerUS = QgsVectorLayer(uri.uri(), name_layer_s, 'spatialite')
+
+            if layerUS.isValid():
+                QMessageBox.warning(self, "Pyarchinit", "OK Layer USM valido", QMessageBox.Ok)
+
+                # self.USLayerId = layerUS.getLayerID()
+                style_path = '{}{}'.format(self.LAYER_STYLE_PATH_SPATIALITE, 'us_view.qml')
+                # style_path = QtGui.QFileDialog.getOpenFileName(self, 'Open file',self.LAYER_STYLE_PATH)
+                
+
+                group.insertChildNode(-1, QgsLayerTreeLayer(layerUS))
+                layerUS.loadNamedStyle(style_path)
+                QgsProject.instance().addMapLayers([layerUS], False)
+                # originalSubsetString = layerUS.subsetString() 4D dimension
+                # newSubSetString = "%s OR id_us = '0'" % (originalSubsetString) 4D dimension
+
+                # layerUS.setSubsetString(newSubSetString)
+
+            else:
+                QMessageBox.warning(self, "Pyarchinit", "Layer not valid", QMessageBox.Ok)
+
+            
+
+        elif settings.SERVER == 'postgres':
+
+            uri = QgsDataSourceUri()
+            # set host name, port, database name, username and password
+
+            uri.setConnection(settings.HOST, settings.PORT, settings.DATABASE, settings.USER, settings.PASSWORD)
+
+            gidstr = id_us = "id_us = " + str(data[0].id_us)
+            if len(data) > 1:
+                for i in range(len(data)):
+                    gidstr += " OR id_us = " + str(data[i].id_us)
+
+            srs = QgsCoordinateReferenceSystem(self.SRS, QgsCoordinateReferenceSystem.PostgisCrsId)
+            
+            uri.setDataSource("public", "pyarchinit_quote_usm_view", "the_geom", gidstr, "gid")
+            layerQUOTE = QgsVectorLayer(uri.uri(), name_layer_q, "postgres")
+
+            if layerQUOTE.isValid():
+                layerQUOTE.setCrs(srs)
+                style_path = '{}{}'.format(self.LAYER_STYLE_PATH, 'stile_quote.qml')
+                layerQUOTE.loadNamedStyle(style_path)
+                try:
+                    group.insertChildNode(-1, QgsLayerTreeLayer(layerQUOTE))
+                    QgsProject.instance().addMapLayers([layerQUOTE], False)
+                except Exception as e:
+                    pass
+                    # f = open('/test_ok.txt','w')
+                    # f.write(str(e))
+                    # f.close()
+            else:
+                QMessageBox.warning(self, "Pyarchinit", "OK Layer not valide", QMessageBox.Ok)
+            
+            
+            uri.setDataSource("public", "pyarchinit_usm_view", "the_geom", gidstr, "gid")
+            layerUS = QgsVectorLayer(uri.uri(), name_layer_s, "postgres")
+
+            if layerUS.isValid():
+                layerUS.setCrs(srs)
+                # self.USLayerId = layerUS.getLayersID()
+                style_path = '{}{}'.format(self.LAYER_STYLE_PATH, 'us_caratterizzazioni.qml')
+                # style_path = QFileDialog.getOpenFileName(self, 'Open file', self.LAYER_STYLE_PATH)
+                layerUS.loadNamedStyle(style_path)
+                group.insertChildNode(-1, QgsLayerTreeLayer(layerUS))
+                QgsProject.instance().addMapLayers([layerUS], False)
+            else:
+                QMessageBox.warning(self, "Pyarchinit", "OK Layer USM non valido", QMessageBox.Ok)
     def charge_vector_layers_periodo(self, sito_p, cont_per, per_label, fas_label, dat):
         
         # a = QgsProject.instance().layerTreeRoot()
@@ -1046,7 +1298,7 @@ class Pyarchinit_pyqgis(QDialog):
         conf.close()
         settings = Settings(con_sett)
         settings.set_configuration()
-        groupName="%s " % (self.dat)
+        groupName="Stratigrafie Orizzontali  - %s " % (self.dat)
         
         root = QgsProject.instance().layerTreeRoot()
 
@@ -1136,7 +1388,115 @@ class Pyarchinit_pyqgis(QDialog):
                 QMessageBox.warning(self, "Pyarchinit", "OK Layer US non valido", QMessageBox.Ok)
 
             
+    def charge_vector_usm_layers_periodo(self, sito_p, cont_per, per_label, fas_label, dat):
+        
+        # a = QgsProject.instance().layerTreeRoot()
+        # QgsLayoutItemLegend(a).legendFilterByMapEnabled(True) 
+        
+        self.sito_p = sito_p
+        self.cont_per = str(cont_per)
+        self.per_label = per_label
+        self.fas_label = fas_label
+        self.dat = dat
+        # Clean Qgis Map Later Registry
+        # QgsProject.instance().removeAllMapLayers()
+        # Get the user input, starting with the table name
+        # self.find_us_cutted(data)
+        cfg_rel_path = os.path.join(os.sep, 'pyarchinit_DB_folder', 'config.cfg')
+        file_path = '{}{}'.format(self.HOME, cfg_rel_path)
+        conf = open(file_path, "r")
+        con_sett = conf.read()
+        conf.close()
+        settings = Settings(con_sett)
+        settings.set_configuration()
+        groupName=" Stratigrafie Verticali %s " % (self.dat)
+        
+        root = QgsProject.instance().layerTreeRoot()
+
+        
+        group = root.addGroup(groupName)
+        group.setExpanded(False)  
+        
+        if self.L=='it':
+            layer_name_label_us = "Unita Stratigrafiche Verticali" 
+            layer_name_label_quote = "Quote USM"
+        elif self.L=='de':
+            layer_name_label_us = "Wand Stratigraphischen Einheiten" 
+            layer_name_label_quote = "Nivellements der SEW"
+        else:
+            layer_name_label_us = "Mansory Stratigraphic Units "
+            layer_name_label_quote = "Elevations SUW"
+        
+        if settings.SERVER == 'sqlite':
+            sqliteDB_path = os.path.join(os.sep, 'pyarchinit_DB_folder', settings.DATABASE)
+            db_file_path = '{}{}'.format(self.HOME, sqliteDB_path)
+
+            uri = QgsDataSourceUri()
+            uri.setDatabase(db_file_path)
+
+            cont_per_string = "sito = '" + self.sito_p + "' AND (" + " cont_per = '" + self.cont_per + "' OR cont_per LIKE '" + self.cont_per + "/%' OR cont_per LIKE '%/" + self.cont_per + "' OR cont_per LIKE '%/" + self.cont_per + "/%')"
             
+            uri.setDataSource('', 'pyarchinit_quote_usm_view', 'the_geom', cont_per_string, "ROWID")
+            layerQUOTE = QgsVectorLayer(uri.uri(), layer_name_label_quote, 'spatialite')
+
+            if layerQUOTE.isValid():
+                # self.USLayerId = layerUS.getLayerID()
+                style_path = '{}{}'.format(self.LAYER_STYLE_PATH_SPATIALITE, 'quote_view.qml')
+                layerQUOTE.loadNamedStyle(style_path)
+                group.insertChildNode(-1, QgsLayerTreeLayer(layerQUOTE))
+                QgsProject.instance().addMapLayers([layerQUOTE], False)
+            
+            uri.setDataSource('', 'pyarchinit_usm_view', 'the_geom', cont_per_string, "ROWID")
+            layerUS = QgsVectorLayer(uri.uri(), layer_name_label_us, 'spatialite')
+            
+            srs = QgsCoordinateReferenceSystem(self.SRS, QgsCoordinateReferenceSystem.PostgisCrsId)
+
+            if layerUS.isValid():
+                style_path = '{}{}'.format(self.LAYER_STYLE_PATH_SPATIALITE, 'us_view.qml')
+                layerUS.loadNamedStyle(style_path)
+                
+                group.insertChildNode(-1, QgsLayerTreeLayer(layerUS))
+                
+                QgsProject.instance().addMapLayers([layerUS], False)
+                
+            else:
+                QMessageBox.warning(self, "Pyarchinit", "OK Layer USM non valido", QMessageBox.Ok)
+
+            
+
+        elif settings.SERVER == 'postgres':
+            uri = QgsDataSourceUri()
+            # set host name, port, database name, username and password
+            uri.setConnection(settings.HOST, settings.PORT, settings.DATABASE, settings.USER, settings.PASSWORD)
+            cont_per_string = "sito = '" + self.sito_p + "' AND (" + " cont_per = '" + self.cont_per + "' OR cont_per LIKE '" + self.cont_per + "/%' OR cont_per LIKE '%/" + self.cont_per + "' OR cont_per LIKE '%/" + self.cont_per + "/%')"
+
+            srs = QgsCoordinateReferenceSystem(self.SRS, QgsCoordinateReferenceSystem.PostgisCrsId)
+            
+            uri.setDataSource("public", "pyarchinit_quote_usm_view", "the_geom", cont_per_string, "gid")
+            layerQUOTE = QgsVectorLayer(uri.uri(), layer_name_label_quote, "postgres")
+            if layerQUOTE.isValid():
+                layerQUOTE.setCrs(srs)
+                style_path = '{}{}'.format(self.LAYER_STYLE_PATH, 'stile_quote.qml')
+                layerQUOTE.loadNamedStyle(style_path)
+                try:
+                    group.insertChildNode(-1, QgsLayerTreeLayer(layerQUOTE))
+                    QgsProject.instance().addMapLayers([layerQUOTE], False)
+                except Exception as e:
+                    pass
+            
+            uri.setDataSource("public", "pyarchinit_usm_view", "the_geom", cont_per_string, "gid")
+            layerUS = QgsVectorLayer(uri.uri(), layer_name_label_us, "postgres")
+            if layerUS.isValid():
+                layerUS.setCrs(srs)
+                # self.USLayerId = layerUS.getLayerID()
+                style_path = '{}{}'.format(self.LAYER_STYLE_PATH, 'us_caratterizzazioni.qml')
+                # style_path = QFileDialog.getOpenFileName(self, 'Open file', self.LAYER_STYLE_PATH)
+                layerUS.loadNamedStyle(style_path)
+                
+                group.insertChildNode(-1, QgsLayerTreeLayer(layerUS))
+                QgsProject.instance().addMapLayers([layerUS], False)
+            else:
+                QMessageBox.warning(self, "Pyarchinit", "OK Layer USM non valido", QMessageBox.Ok)        
     
     def charge_vector_layers_all_period(self, sito_p, cont_per, per_label, fas_label,dat):
         self.sito_p = sito_p
@@ -1155,7 +1515,7 @@ class Pyarchinit_pyqgis(QDialog):
         
         
         
-        groupName="%s" % (self.dat)
+        groupName="Stratigrafie Orizzontali - %s" % (self.dat)
         root = QgsProject.instance().layerTreeRoot()
        
         group = root.addGroup(groupName)
@@ -1247,7 +1607,113 @@ class Pyarchinit_pyqgis(QDialog):
                 QMessageBox.warning(self, "Pyarchinit", "OK Layer US non valido", QMessageBox.Ok)
 
             
-                        
+    def charge_vector_layers_usm_all_period(self, sito_p, cont_per, per_label, fas_label,dat):
+        self.sito_p = sito_p
+        self.cont_per = str(cont_per)
+        self.per_label = per_label
+        self.fas_label = fas_label
+        self.dat=dat
+        cfg_rel_path = os.path.join(os.sep, 'pyarchinit_DB_folder', 'config.cfg')
+        file_path = '{}{}'.format(self.HOME, cfg_rel_path)
+        conf = open(file_path, "r")
+        con_sett = conf.read()
+        conf.close()
+        settings = Settings(con_sett)
+        settings.set_configuration()
+        
+        
+        
+        
+        groupName="Stratigrafie Verticali  - %s" % (self.dat)
+        root = QgsProject.instance().layerTreeRoot()
+       
+        group = root.addGroup(groupName)
+        
+        group.setExpanded(False)    
+        
+        
+        if self.L=='it':
+            layer_name_label_us = "Unita Stratigrafiche Verticali" 
+            layer_name_label_quote = "Quote USM"
+        elif self.L=='de':
+            layer_name_label_us = "Wand Stratigraphischen Einheiten" 
+            layer_name_label_quote = "Nivellements der SEW"
+        else:
+            layer_name_label_us = "Mansory Stratigraphic Units "
+            layer_name_label_quote = "Elevations SUW"
+        
+        if settings.SERVER == 'sqlite':
+            sqliteDB_path = os.path.join(os.sep, 'pyarchinit_DB_folder', settings.DATABASE)
+            db_file_path = '{}{}'.format(self.HOME, sqliteDB_path)
+
+            uri = QgsDataSourceUri()
+            uri.setDatabase(db_file_path)
+
+            
+            cont_per_string = "sito = '" + self.sito_p + "' AND (" + " cont_per = '" + self.cont_per + "' OR cont_per LIKE '" + self.cont_per + "/%' OR cont_per LIKE '%/" + self.cont_per + "' OR cont_per LIKE '%/" + self.cont_per + "/%')"
+            
+            
+            uri.setDataSource('', 'pyarchinit_quote_usm_view', 'the_geom', cont_per_string, "ROWID")
+            layerQUOTE = QgsVectorLayer(uri.uri(), layer_name_label_quote, 'spatialite')
+
+            if layerQUOTE.isValid():
+                # self.USLayerId = layerUS.getLayerID()
+                style_path = '{}{}'.format(self.LAYER_STYLE_PATH_SPATIALITE, 'quote_us_view.qml')
+                layerQUOTE.loadNamedStyle(style_path)
+                group.insertChildNode(-1, QgsLayerTreeLayer(layerQUOTE))
+                QgsProject.instance().addMapLayers([layerQUOTE], False)
+            uri.setDataSource('', 'pyarchinit_usm_view', 'the_geom', cont_per_string, "ROWID")
+            layerUS = QgsVectorLayer(uri.uri(), layer_name_label_us, 'spatialite')
+
+            
+
+            if layerUS.isValid():
+                #QMessageBox.warning(self, "Pyarchinit", "OK Layer US valido", QMessageBox.Ok)
+
+                # self.USLayerId = layerUS.getLayerID()
+                style_path = '{}{}'.format(self.LAYER_STYLE_PATH_SPATIALITE, 'us_view.qml')
+                layerUS.loadNamedStyle(style_path)
+                group.insertChildNode(-1, QgsLayerTreeLayer(layerUS))
+                QgsProject.instance().addMapLayers([layerUS], False)
+            else:
+                QMessageBox.warning(self, "Pyarchinit", "OK Layer USM non valido", QMessageBox.Ok)
+
+            
+            
+            srs = QgsCoordinateReferenceSystem(self.SRS, QgsCoordinateReferenceSystem.PostgisCrsId)
+
+        elif settings.SERVER == 'postgres':
+            uri = QgsDataSourceUri()
+            # set host name, port, database name, username and password
+            uri.setConnection(settings.HOST, settings.PORT, settings.DATABASE, settings.USER, settings.PASSWORD)
+            cont_per_string = "sito = '" + self.sito_p + "' AND (" + " cont_per = '" + self.cont_per + "' OR cont_per LIKE '" + self.cont_per + "/%' OR cont_per LIKE '%/" + self.cont_per + "' OR cont_per LIKE '%/" + self.cont_per + "/%')"
+
+            srs = QgsCoordinateReferenceSystem(self.SRS, QgsCoordinateReferenceSystem.PostgisCrsId)
+            
+            uri.setDataSource("public", "pyarchinit_quote_usm_view", "the_geom", cont_per_string, "gid")
+            layerQUOTE = QgsVectorLayer(uri.uri(), layer_name_label_quote, "postgres")
+            if layerQUOTE.isValid():
+                layerQUOTE.setCrs(srs)
+                style_path = '{}{}'.format(self.LAYER_STYLE_PATH, 'stile_quote.qml')
+                layerQUOTE.loadNamedStyle(style_path)
+                try:
+                    group.insertChildNode(-1, QgsLayerTreeLayer(layerQUOTE))
+                    QgsProject.instance().addMapLayers([layerQUOTE], False)
+                except Exception as e:
+                    pass
+            
+            uri.setDataSource("public", "pyarchinit_usm_view", "the_geom", cont_per_string, "gid")
+            layerUS = QgsVectorLayer(uri.uri(), layer_name_label_us, "postgres")
+            if layerUS.isValid():
+                layerUS.setCrs(srs)
+                # self.USLayerId = layerUS.getLayerID()
+                style_path = '{}{}'.format(self.LAYER_STYLE_PATH, 'us_caratterizzazioni.qml')
+                # style_path = QFileDialog.getOpenFileName(self, 'Open file', self.LAYER_STYLE_PATH)
+                layerUS.loadNamedStyle(style_path)
+                group.insertChildNode(-1, QgsLayerTreeLayer(layerUS))
+                QgsProject.instance().addMapLayers([layerUS], False)
+            else:
+                QMessageBox.warning(self, "Pyarchinit", "OK Layer US non valido", QMessageBox.Ok)                    
     def loadMapPreview(self, gidstr):
         """ if has geometry column load to map canvas """
         layerToSet = []
@@ -1625,6 +2091,50 @@ class Pyarchinit_pyqgis(QDialog):
             else:
                 QMessageBox.warning(self, "Pyarchinit", "Layer not valid", QMessageBox.Ok)
 
+            
+            
+            layer_name = 'pyunitastratigrafiche_usm'
+            layer_name_conv = "'" + str(layer_name) + "'"
+            #value_conv = ('"scavo_s = %s"') % ("'" + str(self.val) + "'")
+            cmq_set_uri_data_source = "uri.setDataSource('',%s, %s)" % (layer_name_conv, "'the_geom'")
+            eval(cmq_set_uri_data_source)
+            layer_label = self.LAYERS_CONVERT_DIZ[layer_name]
+            layer_label_conv = "'" + layer_label + "'"
+            cmq_set_vector_layer = "QgsVectorLayer(uri.uri(), %s, 'spatialite')" % (layer_label_conv)
+            layer = eval(cmq_set_vector_layer)
+            
+            if layer.isValid():
+                # self.USLayerId = layerUS.getLayerID()
+                ##style_path = '{}{}'.format(self.LAYER_STYLE_PATH_SPATIALITE, 'us_view.qml')
+                ##ayerUS.loadNamedStyle(style_path)
+                myGroup3.insertChildNode(-1, QgsLayerTreeLayer(layer))
+                QgsProject.instance().addMapLayers([layer], False)
+                
+            else:
+                QMessageBox.warning(self, "Pyarchinit", "Layer not valid", QMessageBox.Ok)
+
+            layer_name = 'pyarchinit_quote_usm'
+            layer_name_conv = "'" + str(layer_name) + "'"
+            #value_conv = ('"sito_q = %s"') % ("'" + str(self.val) + "'")
+            cmq_set_uri_data_source = "uri.setDataSource('',%s, %s)" % (layer_name_conv, "'the_geom'")
+            eval(cmq_set_uri_data_source)
+            layer_label = self.LAYERS_CONVERT_DIZ[layer_name]
+            layer_label_conv = "'" + layer_label + "'"
+            cmq_set_vector_layer = "QgsVectorLayer(uri.uri(), %s, 'spatialite')" % (layer_label_conv)
+            layer = eval(cmq_set_vector_layer)
+
+            if layer.isValid():
+                # self.USLayerId = layerUS.getLayerID()
+                ##style_path = '{}{}'.format(self.LAYER_STYLE_PATH_SPATIALITE, 'us_view.qml')
+                ##ayerUS.loadNamedStyle(style_path)
+                myGroup1.insertChildNode(-1, QgsLayerTreeLayer(layer))
+                QgsProject.instance().addMapLayers([layer], False)
+            else:
+                QMessageBox.warning(self, "Pyarchinit", "Layer not valid", QMessageBox.Ok)
+            
+            
+            
+            
             layer_name = 'pyarchinit_strutture_ipotesi'
             layer_name_conv = "'" + str(layer_name) + "'"
             #value_conv = ('"sito = %s"') % ("'" + str(self.val) + "'")
@@ -1968,6 +2478,45 @@ class Pyarchinit_pyqgis(QDialog):
             else:
                 QMessageBox.warning(self, "Pyarchinit", "Layer not valid", QMessageBox.Ok)
 
+            layer_name = 'pyunitastratigrafiche_usm'
+            layer_name_conv = "'" + str(layer_name) + "'"
+            #value_conv = ('"scavo_s = %s"') % ("'" + str(self.val) + "'")
+            cmq_set_uri_data_source = "uri.setDataSource('',%s, %s)" % (layer_name_conv, "'the_geom'")
+            eval(cmq_set_uri_data_source)
+            layer_label = self.LAYERS_CONVERT_DIZ[layer_name]
+            layer_label_conv = "'" + layer_label + "'"
+            cmq_set_vector_layer = "QgsVectorLayer(uri.uri(), %s, 'postgres')" % (layer_label_conv)
+            layer = eval(cmq_set_vector_layer)
+
+            if layer.isValid():
+                # self.USLayerId = layerUS.getLayerID()
+                ##style_path = '{}{}'.format(self.LAYER_STYLE_PATH_SPATIALITE, 'us_view.qml')
+                ##ayerUS.loadNamedStyle(style_path)
+                myGroup3.insertChildNode(-1, QgsLayerTreeLayer(layer))
+                QgsProject.instance().addMapLayers([layer], False)
+            else:
+                QMessageBox.warning(self, "Pyarchinit", "Layer not valid", QMessageBox.Ok)
+
+            layer_name = 'pyarchinit_quote_usm'
+            layer_name_conv = "'" + str(layer_name) + "'"
+            #value_conv = ('"sito_q = %s"') % ("'" + str(self.val) + "'")
+            cmq_set_uri_data_source = "uri.setDataSource('',%s, %s)" % (layer_name_conv, "'the_geom'")
+            eval(cmq_set_uri_data_source)
+            layer_label = self.LAYERS_CONVERT_DIZ[layer_name]
+            layer_label_conv = "'" + layer_label + "'"
+            cmq_set_vector_layer = "QgsVectorLayer(uri.uri(), %s, 'postgres')" % (layer_label_conv)
+            layer = eval(cmq_set_vector_layer)
+
+            if layer.isValid():
+                # self.USLayerId = layerUS.getLayerID()
+                ##style_path = '{}{}'.format(self.LAYER_STYLE_PATH_SPATIALITE, 'us_view.qml')
+                ##ayerUS.loadNamedStyle(style_path)
+                myGroup1.insertChildNode(-1, QgsLayerTreeLayer(layer))
+                QgsProject.instance().addMapLayers([layer], False)
+            else:
+                QMessageBox.warning(self, "Pyarchinit", "Layer not valid", QMessageBox.Ok)
+            
+            
             layer_name = 'pyarchinit_strutture_ipotesi'
             layer_name_conv = "'" + str(layer_name) + "'"
             #value_conv = ('"sito = %s"') % ("'" + str(self.val) + "'")
@@ -2364,6 +2913,46 @@ class Pyarchinit_pyqgis(QDialog):
             else:
                 QMessageBox.warning(self, "Pyarchinit", "Layer not valid", QMessageBox.Ok)
 
+            
+            layer_name = 'pyunitastratigrafiche_usm'
+            layer_name_conv = "'" + str(layer_name) + "'"
+            value_conv = ('"scavo_s = %s"') % ("'" + str(self.val) + "'")
+            cmq_set_uri_data_source = "uri.setDataSource('',%s, %s, %s)" % (layer_name_conv, "'the_geom'", value_conv)
+            eval(cmq_set_uri_data_source)
+            layer_label = self.LAYERS_CONVERT_DIZ[layer_name]
+            layer_label_conv = "'" + layer_label + "'"
+            cmq_set_vector_layer = "QgsVectorLayer(uri.uri(), %s, 'spatialite')" % (layer_label_conv)
+            layer = eval(cmq_set_vector_layer)
+
+            if layer.isValid():
+                # self.USLayerId = layerUS.getLayerID()
+                ##style_path = '{}{}'.format(self.LAYER_STYLE_PATH_SPATIALITE, 'us_view.qml')
+                ##ayerUS.loadNamedStyle(style_path)
+                myGroup3.insertChildNode(-1, QgsLayerTreeLayer(layer))
+                QgsProject.instance().addMapLayers([layer], False)
+            else:
+                QMessageBox.warning(self, "Pyarchinit", "Layer not valid", QMessageBox.Ok)
+
+            layer_name = 'pyarchinit_quote_usm'
+            layer_name_conv = "'" + str(layer_name) + "'"
+            value_conv = ('"sito_q = %s"') % ("'" + str(self.val) + "'")
+            cmq_set_uri_data_source = "uri.setDataSource('',%s, %s, %s)" % (layer_name_conv, "'the_geom'", value_conv)
+            eval(cmq_set_uri_data_source)
+            layer_label = self.LAYERS_CONVERT_DIZ[layer_name]
+            layer_label_conv = "'" + layer_label + "'"
+            cmq_set_vector_layer = "QgsVectorLayer(uri.uri(), %s, 'spatialite')" % (layer_label_conv)
+            layer = eval(cmq_set_vector_layer)
+
+            if layer.isValid():
+                # self.USLayerId = layerUS.getLayerID()
+                ##style_path = '{}{}'.format(self.LAYER_STYLE_PATH_SPATIALITE, 'us_view.qml')
+                ##ayerUS.loadNamedStyle(style_path)
+                myGroup1.insertChildNode(-1, QgsLayerTreeLayer(layer))
+                QgsProject.instance().addMapLayers([layer], False)
+            else:
+                QMessageBox.warning(self, "Pyarchinit", "Layer not valid", QMessageBox.Ok)
+            
+            
             layer_name = 'pyarchinit_strutture_ipotesi'
             layer_name_conv = "'" + str(layer_name) + "'"
             value_conv = ('"sito = %s"') % ("'" + str(self.val) + "'")
@@ -2731,6 +3320,48 @@ class Pyarchinit_pyqgis(QDialog):
             else:
                 QMessageBox.warning(self, "Pyarchinit", "Layer not valid", QMessageBox.Ok)
 
+            
+            layer_name = 'pyunitastratigrafiche_usm'
+            layer_name_conv = "'" + str(layer_name) + "'"
+            value_conv = ('"scavo_s = %s"') % ("'" + str(self.val) + "'")
+            cmq_set_uri_data_source = "uri.setDataSource('',%s, %s, %s)" % (layer_name_conv, "'the_geom'", value_conv)
+            eval(cmq_set_uri_data_source)
+            layer_label = self.LAYERS_CONVERT_DIZ[layer_name]
+            layer_label_conv = "'" + layer_label + "'"
+            cmq_set_vector_layer = "QgsVectorLayer(uri.uri(), %s, 'postgres')" % (layer_label_conv)
+            layer = eval(cmq_set_vector_layer)
+
+            if layer.isValid():
+                # self.USLayerId = layerUS.getLayerID()
+                ##style_path = '{}{}'.format(self.LAYER_STYLE_PATH_SPATIALITE, 'us_view.qml')
+                ##ayerUS.loadNamedStyle(style_path)
+                myGroup3.insertChildNode(-1, QgsLayerTreeLayer(layer))
+                QgsProject.instance().addMapLayers([layer], False)
+            else:
+                QMessageBox.warning(self, "Pyarchinit", "Layer not valid", QMessageBox.Ok)
+
+            layer_name = 'pyarchinit_quote_usm'
+            layer_name_conv = "'" + str(layer_name) + "'"
+            value_conv = ('"sito_q = %s"') % ("'" + str(self.val) + "'")
+            cmq_set_uri_data_source = "uri.setDataSource('',%s, %s, %s)" % (layer_name_conv, "'the_geom'", value_conv)
+            eval(cmq_set_uri_data_source)
+            layer_label = self.LAYERS_CONVERT_DIZ[layer_name]
+            layer_label_conv = "'" + layer_label + "'"
+            cmq_set_vector_layer = "QgsVectorLayer(uri.uri(), %s, 'postgres')" % (layer_label_conv)
+            layer = eval(cmq_set_vector_layer)
+
+            if layer.isValid():
+                # self.USLayerId = layerUS.getLayerID()
+                ##style_path = '{}{}'.format(self.LAYER_STYLE_PATH_SPATIALITE, 'us_view.qml')
+                ##ayerUS.loadNamedStyle(style_path)
+                myGroup1.insertChildNode(-1, QgsLayerTreeLayer(layer))
+                QgsProject.instance().addMapLayers([layer], False)
+            else:
+                QMessageBox.warning(self, "Pyarchinit", "Layer not valid", QMessageBox.Ok)
+            
+            
+            
+            
             layer_name = 'pyarchinit_strutture_ipotesi'
             layer_name_conv = "'" + str(layer_name) + "'"
             value_conv = ('"sito = %s"') % ("'" + str(self.val) + "'")
