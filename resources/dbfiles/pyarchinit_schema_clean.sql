@@ -1087,6 +1087,21 @@ CREATE SEQUENCE public.pyarchinit_quote_gid_seq
 ALTER TABLE public.pyarchinit_quote_gid_seq OWNER TO postgres;
 
 --
+-- TOC entry 349 (class 1259 OID 32814)
+-- Name: pyarchinit_quote_gid_seq; Type: SEQUENCE; Schema: public; Owner: postgres
+--
+
+CREATE SEQUENCE public.pyarchinit_quote_usm_gid_seq
+    START WITH 73833
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+ALTER TABLE public.pyarchinit_quote_usm_gid_seq OWNER TO postgres;
+
+--
 -- TOC entry 350 (class 1259 OID 32816)
 -- Name: pyarchinit_quote; Type: TABLE; Schema: public; Owner: postgres
 --
@@ -1106,7 +1121,26 @@ CREATE TABLE public.pyarchinit_quote (
 
 
 ALTER TABLE public.pyarchinit_quote OWNER TO postgres;
+--
+-- TOC entry 350 (class 1259 OID 32816)
+-- Name: pyarchinit_quote; Type: TABLE; Schema: public; Owner: postgres
+--
 
+CREATE TABLE public.pyarchinit_quote_usm (
+    gid integer DEFAULT nextval('public.pyarchinit_quote_usm_gid_seq'::regclass) NOT NULL,
+    sito_q character varying(80),
+    area_q integer,
+    us_q integer,
+    unita_misu_q character varying(80),
+    quota_q double precision,
+    the_geom public.geometry(Point,-1),
+    data character varying,
+    disegnatore character varying,
+    rilievo_originale character varying
+);
+
+
+ALTER TABLE public.pyarchinit_quote_usm OWNER TO postgres;
 --
 -- TOC entry 352 (class 1259 OID 32828)
 -- Name: pyarchinit_ripartizioni_spaziali_gid_seq; Type: SEQUENCE; Schema: public; Owner: postgres
@@ -1649,6 +1683,21 @@ CREATE SEQUENCE public.pyunitastratigrafiche_gid_seq
 ALTER TABLE public.pyunitastratigrafiche_gid_seq OWNER TO postgres;
 
 --
+-- TOC entry 378 (class 1259 OID 32946)
+-- Name: pyunitastratigrafiche_gid_seq; Type: SEQUENCE; Schema: public; Owner: postgres
+--
+
+CREATE SEQUENCE public.pyunitastratigrafiche_usm_gid_seq
+    START WITH 61400
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+ALTER TABLE public.pyunitastratigrafiche_usm_gid_seq OWNER TO postgres;
+
+--
 -- TOC entry 379 (class 1259 OID 32948)
 -- Name: pyunitastratigrafiche; Type: TABLE; Schema: public; Owner: postgres
 --
@@ -1672,6 +1721,29 @@ CREATE TABLE public.pyunitastratigrafiche (
 
 ALTER TABLE public.pyunitastratigrafiche OWNER TO postgres;
 
+--
+-- TOC entry 379 (class 1259 OID 32948)
+-- Name: pyunitastratigrafiche; Type: TABLE; Schema: public; Owner: postgres
+--
+
+CREATE TABLE public.pyunitastratigrafiche_usm (
+    gid integer DEFAULT nextval('public.pyunitastratigrafiche_usm_gid_seq'::regclass) NOT NULL,
+    area_s integer,
+    scavo_s character varying(80),
+    us_s integer,
+    stratigraph_index_us integer,
+    tipo_us_s character varying(250),
+    rilievo_originale character varying(250),
+    disegnatore character varying(250),
+    data date,
+    tipo_doc character varying(250),
+    nome_doc character varying(250),
+	coord text,
+	the_geom public.geometry(MultiPolygon,-1)
+);
+
+
+ALTER TABLE public.pyunitastratigrafiche_usm OWNER TO postgres;
 
 --
 -- TOC entry 384 (class 1259 OID 32975)
@@ -2804,6 +2876,13 @@ ALTER TABLE ONLY public.pyarchinit_individui
 ALTER TABLE ONLY public.pyarchinit_quote
     ADD CONSTRAINT pyarchinit_quote_pkey PRIMARY KEY (gid);
 
+--
+-- TOC entry 4740 (class 2606 OID 41144)
+-- Name: pyarchinit_quote pyarchinit_quote_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.pyarchinit_quote_usm
+    ADD CONSTRAINT pyarchinit_quote_usm_pkey PRIMARY KEY (gid);
 
 --
 -- TOC entry 4742 (class 2606 OID 41146)
@@ -2900,6 +2979,14 @@ ALTER TABLE ONLY public.pyarchinit_punti_rif
 
 ALTER TABLE ONLY public.pyunitastratigrafiche
     ADD CONSTRAINT pyunitastratigrafiche_pkey PRIMARY KEY (gid);
+
+--
+-- TOC entry 4774 (class 2606 OID 41164)
+-- Name: pyunitastratigrafiche pyunitastratigrafiche_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.pyunitastratigrafiche_usm
+    ADD CONSTRAINT pyunitastratigrafiche_usm_pkey PRIMARY KEY (gid);
 
 
 --
@@ -3072,7 +3159,12 @@ CREATE INDEX sidx_pyarchinit_us_negative_doc_geom ON public.pyarchinit_us_negati
 
 CREATE INDEX sidx_pyunitastratigrafiche_geom ON public.pyunitastratigrafiche USING gist (the_geom);
 
+--
+-- TOC entry 4775 (class 1259 OID 41215)
+-- Name: sidx_pyunitastratigrafiche_geom; Type: INDEX; Schema: public; Owner: postgres
+--
 
+CREATE INDEX sidx_pyunitastratigrafiche_usm_geom ON public.pyunitastratigrafiche_usm USING gist (the_geom);
 --
 -- TOC entry 4825 (class 1259 OID 66368)
 -- Name: sidx_riipartizione_territoriale_geom; Type: INDEX; Schema: public; Owner: postgres
