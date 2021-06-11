@@ -21,7 +21,7 @@
 
 import os
 import sqlalchemy as db
-from sqlalchemy.ext.compiler import compiles
+
 from sqlalchemy.sql.expression import *
 from sqlalchemy.event import listen
 import psycopg2
@@ -44,13 +44,13 @@ from sqlalchemy.dialects.postgresql import insert
 from modules.db.pyarchinit_db_mapper import US, UT, SITE, PERIODIZZAZIONE, \
     STRUTTURA, SCHEDAIND, INVENTARIO_MATERIALI, DETSESSO, DOCUMENTAZIONE, DETETA, MEDIA, \
     MEDIA_THUMB, MEDIATOENTITY, MEDIAVIEW, TOMBA, CAMPIONI, PYARCHINIT_THESAURUS_SIGLE, \
-    ARCHEOZOOLOGY, INVENTARIO_LAPIDEI, PDF_ADMINISTRATOR,PYUS,PYSITO_POINT,PYSITO_POLYGON,PYQUOTE, \
+    ARCHEOZOOLOGY, INVENTARIO_LAPIDEI, PDF_ADMINISTRATOR,PYUS ,PYUSM,PYSITO_POINT,PYSITO_POLYGON,PYQUOTE,PYQUOTEUSM, \
     PYUS_NEGATIVE, PYSTRUTTURE, PYREPERTI, PYINDIVIDUI, PYCAMPIONI, PYTOMBA, PYDOCUMENTAZIONE, PYLINEERIFERIMENTO, \
     PYRIPARTIZIONI_SPAZIALI, PYSEZIONI
 from modules.db.pyarchinit_db_update import DB_update
 from modules.db.pyarchinit_utility import Utility
 from sqlalchemy.ext.compiler import compiles
-from sqlalchemy.sql.expression import Insert
+
 from modules.db.pyarchinit_conn_strings import Connection
 
         
@@ -123,7 +123,21 @@ class Pyarchinit_db_management(object):
                 arg[11],
                 arg[12])
         return pyus
-    
+    def insert_pyusm(self, *arg):
+        pyusm = PYUSM(arg[0],
+                arg[1],
+                arg[2],
+                arg[3],
+                arg[4],
+                arg[5],
+                arg[6],
+                arg[7],
+                arg[8],
+                arg[9],
+                arg[10],
+                arg[11],
+                arg[12])
+        return pyusm
     def insert_pysito_point(self, *arg):
         pysito_point = PYSITO_POINT(arg[0],
                 arg[1],
@@ -149,7 +163,18 @@ class Pyarchinit_db_management(object):
                 arg[8],
                 arg[9])
         return pyquote    
-    
+    def insert_pyquote_usm(self, *arg):
+        pyquote_usm = PYQUOTEUSM(arg[0],
+                arg[1],
+                arg[2],
+                arg[3],
+                arg[4],
+                arg[5],
+                arg[6],
+                arg[7],
+                arg[8],
+                arg[9])
+        return pyquote_usm    
     def insert_pyus_negative(self, *arg):
         pyus_negative = PYUS_NEGATIVE(arg[0],
                 arg[1],
@@ -1575,6 +1600,11 @@ class Pyarchinit_db_management(object):
         
         
         return
+    
+    
+    
+    
+    
     def insert_number_of_tomba_records(self, sito, nr_scheda_taf):
         id_tomba = self.max_num_id('TOMBA', 'id_tomba')
         

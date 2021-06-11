@@ -486,6 +486,10 @@ class DB_update(object):
                 self.engine.execute("ALTER TABLE individui_table ALTER COLUMN eta_max TYPE text")
         except:
             pass
+        
+        
+        
+        
         ####aggiornamento tabelle geografiche
         ####pyunitastratigrafiche
         table = Table("pyunitastratigrafiche", self.metadata, autoload=True)
