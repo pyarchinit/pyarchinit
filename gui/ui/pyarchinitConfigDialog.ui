@@ -13,7 +13,7 @@
     <x>0</x>
     <y>0</y>
     <width>728</width>
-    <height>751</height>
+    <height>755</height>
    </rect>
   </property>
   <property name="minimumSize">
@@ -1002,7 +1002,25 @@
            </item>
            <item>
             <property name="text">
+             <string>PYUSM</string>
+            </property>
+            <property name="icon">
+             <iconset resource="../../resources/resources.qrc">
+              <normaloff>:/icons/IconPAI.png</normaloff>:/icons/IconPAI.png</iconset>
+            </property>
+           </item>
+           <item>
+            <property name="text">
              <string>PYQUOTE</string>
+            </property>
+            <property name="icon">
+             <iconset resource="../../resources/resources.qrc">
+              <normaloff>:/icons/IconPAI.png</normaloff>:/icons/IconPAI.png</iconset>
+            </property>
+           </item>
+           <item>
+            <property name="text">
+             <string>PYQUOTEUSM</string>
             </property>
             <property name="icon">
              <iconset resource="../../resources/resources.qrc">
@@ -1097,15 +1115,6 @@
             <property name="icon">
              <iconset resource="../../resources/resources.qrc">
               <normaloff>:/icons/tracking-icon.png</normaloff>:/icons/tracking-icon.png</iconset>
-            </property>
-           </item>
-           <item>
-            <property name="text">
-             <string>ALL</string>
-            </property>
-            <property name="icon">
-             <iconset resource="../../resources/resources.qrc">
-              <normaloff>:/icons/GIS.png</normaloff>:/icons/GIS.png</iconset>
             </property>
            </item>
           </widget>
@@ -2376,8 +2385,8 @@
    <slot>toggleUserVisible()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>593</x>
-     <y>687</y>
+     <x>588</x>
+     <y>682</y>
     </hint>
     <hint type="destinationlabel">
      <x>680</x>
@@ -2396,8 +2405,8 @@
      <y>22</y>
     </hint>
     <hint type="destinationlabel">
-     <x>229</x>
-     <y>128</y>
+     <x>241</x>
+     <y>167</y>
     </hint>
    </hints>
   </connection>
