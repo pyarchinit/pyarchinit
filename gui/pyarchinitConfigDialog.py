@@ -4039,6 +4039,8 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
                 'PYSITO_POLYGON':'gid',
                 'PYUS':'gid',
                 'PYQUOTE':'gid',
+                'PYUSM':'gid',
+                'PYQUOTEUSM':'gid',
                 'PYUS_NEGATIVE':'gid',
                 'PYSTRUTTURE':'gid',
                 'PYREPERTI':'gid',
@@ -4157,6 +4159,34 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
                         return 0
                 self.progress_bar.reset()
                 QMessageBox.information(self, "Message", "Data Loaded")
+            elif mapper_class_write == 'PYUSM' :
+                for sing_rec in range(len(data_list_toimp)):
+                    try:
+                        data = self.DB_MANAGER_write.insert_pyusm(
+                            self.DB_MANAGER_write.max_num_id(mapper_class_write,
+                                                             id_table_class_mapper_conv_dict[mapper_class_write]) + 1,
+                            data_list_toimp[sing_rec].area_s,
+                            data_list_toimp[sing_rec].scavo_s,
+                            data_list_toimp[sing_rec].us_s,
+                            data_list_toimp[sing_rec].stratigraph_index_us,
+                            data_list_toimp[sing_rec].tipo_us_s,
+                            data_list_toimp[sing_rec].rilievo_originale,
+                            data_list_toimp[sing_rec].disegnatore,
+                            data_list_toimp[sing_rec].data,
+                            data_list_toimp[sing_rec].tipo_doc,
+                            data_list_toimp[sing_rec].nome_doc,
+                            data_list_toimp[sing_rec].coord,
+                            data_list_toimp[sing_rec].the_geom)
+                        self.DB_MANAGER_write.insert_data_session(data)
+                        value = (float(sing_rec)/float(len(data_list_toimp)))*100
+                        self.progress_bar.setValue(value)
+                        QApplication.processEvents()
+                    except Exception as e :
+                        QMessageBox.warning(self, "Errore", "Error ! \n"+ str(e),  QMessageBox.Ok)
+                        return 0
+                self.progress_bar.reset()
+                QMessageBox.information(self, "Message", "Data Loaded")
+            
             elif mapper_class_write == 'PYSITO_POINT' :
                 for sing_rec in range(len(data_list_toimp)):
                     try:
@@ -4215,6 +4245,31 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
                         return 0
                 self.progress_bar.reset()
                 QMessageBox.information(self, "Message", "Data Loaded")
+            elif mapper_class_write == 'PYQUOTEUSM' :
+                for sing_rec in range(len(data_list_toimp)):
+                    try:
+                        data = self.DB_MANAGER_write.insert_pyquote_usm(
+                            self.DB_MANAGER_write.max_num_id(mapper_class_write,
+                                                             id_table_class_mapper_conv_dict[mapper_class_write]) + 1,
+                            data_list_toimp[sing_rec].sito_q,
+                            data_list_toimp[sing_rec].area_q ,
+                            data_list_toimp[sing_rec].us_q ,
+                            data_list_toimp[sing_rec].unita_misu_q ,
+                            data_list_toimp[sing_rec].quota_q ,
+                            data_list_toimp[sing_rec].data ,
+                            data_list_toimp[sing_rec].disegnatore ,
+                            data_list_toimp[sing_rec].rilievo_originale ,
+                            data_list_toimp[sing_rec].the_geom)
+                        self.DB_MANAGER_write.insert_data_session(data)
+                        value = (float(sing_rec)/float(len(data_list_toimp)))*100
+                        self.progress_bar.setValue(value)
+                        QApplication.processEvents()
+                    except Exception as e :
+                        QMessageBox.warning(self, "Errore", "Error ! \n"+ str(e),  QMessageBox.Ok)
+                        return 0
+                self.progress_bar.reset()
+                QMessageBox.information(self, "Message", "Data Loaded")
+            
             elif mapper_class_write == 'PYUS_NEGATIVE' :
                 for sing_rec in range(len(data_list_toimp)):
                     try:
