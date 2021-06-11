@@ -878,6 +878,7 @@ class single_US_pdf_sheet(object):
                 if len(string_inclusi_usm) == 1:
                     self.inclusi_usm_print += str(string_inclusi_usm[0]) + "<br/>"
 
+    
     def unzip_inerti_usm(self):
        
         inorg = eval(self.aggreg_legante)
@@ -916,10 +917,9 @@ class single_US_pdf_sheet(object):
          #           organici += ", "+org[i]
          #           i=i+1
 
-        return inorganici 
-
-
-   def datestrfdate(self):
+        return inorganici
+    
+    def datestrfdate(self):
         now = date.today()
         today = now.strftime("%d-%m-%Y")
         return today
@@ -927,7 +927,8 @@ class single_US_pdf_sheet(object):
     def create_sheet_archeo3_usm_fields_2(self): #scheda us in stile ICCD Italiano
         self.unzip_rapporti_stratigrafici()
         self.unzip_documentazione()
-
+        self.unzip_colore_usm()
+        self.unzip_inerti_usm()
         styleSheet = getSampleStyleSheet()
         styNormal = styleSheet['Normal']
         styNormal.spaceBefore = 20
@@ -1492,7 +1493,7 @@ class single_US_pdf_sheet(object):
             rifinitura_6 =Paragraph(self.rifinitura_usm,styNormal)
             
             note_legante = Paragraph("<b>NOTE SPECIFICHE DEL LEGANTE</b><br/>" , styDescrizione)
-            note_materiali = Paragraph("<b>NOTE SPECIFICHE SUI MATERIALI</b><br/>" , styDescrizione)
+            note_materiali = Paragraph("<b>NOTE SPECIFICHE SUI MATERIALI</b><br/><br/><br/><br/><br/><br/>" , styDescrizione)
             
 
             #13-22 row
