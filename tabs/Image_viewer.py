@@ -64,7 +64,7 @@ class Main(QDialog,MAIN_DIALOG_CLASS):
     MAPPER_TABLE_CLASS = "MEDIA"
     ID_TABLE = "id_media"
     MAPPER_TABLE_CLASS_mediatoentity = "MEDIATOENTITY"
-    ID_TABLE_mediatoentity = 'id_mediaToEntity'
+    ID_TABLE_mediatoentity = "id_mediaToEntity"
     MAPPER_TABLE_CLASS_us = 'US'
     ID_TABLE_US = "id_us"
     MAPPER_TABLE_CLASS_mat = 'INVENTARIO_MATERIALI'

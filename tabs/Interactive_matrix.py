@@ -279,6 +279,10 @@ class pyarchinit_Interactive_Matrix(QDialog, MAIN_DIALOG_CLASS):
         periodizz_data_list = self.DB_MANAGER.query_bool(search_dict, 'PERIODIZZAZIONE')
 
         periodi_data_values = []
+        
+        
+        
+        
         for a in periodizz_data_list:
             periodi_data_values.append([a.periodo, a.fase,a.datazione_estesa])
 
