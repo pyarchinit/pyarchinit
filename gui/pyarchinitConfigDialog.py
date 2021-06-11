@@ -168,6 +168,8 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
             self.setComboBoxEnable(["self.lineEdit_DBname"], "True")
         self.comboBox_Database.currentIndexChanged.connect(self.customize)
         self.test()
+    
+    
     def test(self):
         try:
             
@@ -180,10 +182,19 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
             
             con = sqlite3.connect(sqlite_DB_path +os.sep+ conn_sqlite["db_name"])
             cur = con.cursor()
+            drop_ = '''DROP TABLE IF EXISTS sqlitestudio_temp_table2;'''
+            cur.execute(drop_)
+            drop_2 = '''DROP TABLE IF EXISTS sqlitestudio_temp_table;'''
+            # cur.execute(drop_2)
+            # drop_3 = '''DROP VIEW IF EXISTS pyarchinit_strutture_view;'''
+            # cur.execute(drop_3)
+            # drop_4 = '''DROP VIEW IF EXISTS pyarchinit_site_view;'''
+            # cur.execute(drop_4)
             cur.executescript('''
             PRAGMA foreign_keys = 0;
-
-                CREATE TABLE sqlitestudio_temp_table AS SELECT *
+                
+                
+                CREATE TABLE sqlitestudio_temp_table2 AS SELECT *
                                                           FROM pyarchinit_us_negative_doc;
 
                 DROP TABLE pyarchinit_us_negative_doc;
@@ -214,9 +225,9 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
                                                               tipo_doc_n,
                                                               nome_doc_n,
                                                               the_geom
-                                                         FROM sqlitestudio_temp_table;
+                                                         FROM sqlitestudio_temp_table2;
 
-                DROP TABLE sqlitestudio_temp_table;
+                DROP TABLE sqlitestudio_temp_table2;
 
                 CREATE TRIGGER ggi_pyarchinit_us_negative_doc_the_geom
                         BEFORE INSERT
@@ -1605,7 +1616,9 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
                            site_table AS b ON (a.sito_id = b.sito) 
                      ORDER BY b.sito,
                               b.descrizione;
-                DROP VIEW pyarchinit_strutture_view;
+                              
+                DROP VIEW IF EXISTS pyarchinit_strutture_view;
+                DROP TABLE IF EXISTS pyarchinit_strutture_view;
 
                 CREATE VIEW pyarchinit_strutture_view AS
                     SELECT a.ROWID AS ROWID,
@@ -1794,8 +1807,8 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
                                              a.us_n = b.us);
                         
                         ''')
-        except:
-            pass
+        except Exception as e:
+            pass#QMessageBox.warning(self, "ok", "entered in if", QMessageBox.Ok)
     
     def setComboBoxEnable(self, f, v):
         field_names = f
@@ -1928,6 +1941,9 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
                 c.execute(sql_upd2)  
                 c.execute(sql_upd3)  
                 c.execute(sql_upd4)              
+                
+                
+            
             except Exception as e:
                 QMessageBox.warning(self, "Warning", str(e), QMessageBox.Ok)
         else:
@@ -2644,15 +2660,22 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
             # else:
                 # pass
             try:
-                 
+                drop_2 = '''DROP TABLE IF EXISTS sqlitestudio_temp_table;'''
+                c.execute(drop_2)
+                
+                # drop_ = '''DROP TABLE IF EXISTS sqlitestudio_temp_table2;'''
+                # c.execute(drop_)
                 pyquote='''CREATE TABLE sqlitestudio_temp_table AS SELECT *
                                                               FROM pyarchinit_quote;'''
 
                 c.execute(pyquote)    
 
-                py2='''    DROP TABLE pyarchinit_quote;'''
+                py2='''DROP TABLE pyarchinit_quote;'''
                 c.execute(py2)
-                py3='''    CREATE TABLE pyarchinit_quote (
+                
+                
+                
+                py3='''CREATE TABLE pyarchinit_quote (
                         gid               INTEGER                  NOT NULL
                                                                    PRIMARY KEY AUTOINCREMENT,
                         sito_q            TEXT,
@@ -2666,6 +2689,117 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
                         the_geom          POINT
                     );'''
                 c.execute(py3)
+                
+                py3_usm='''CREATE TABLE IF NOT EXISTS pyarchinit_quote_usm (
+                        gid               INTEGER                  NOT NULL
+                                                                   PRIMARY KEY AUTOINCREMENT,
+                        sito_q            TEXT,
+                        area_q            INTEGER,
+                        us_q              INTEGER,
+                        unita_misu_q      TEXT,
+                        quota_q           [DOUBLE PRECISION],
+                        data              TEXT,
+                        disegnatore       TEXT,
+                        rilievo_originale TEXT
+                    );'''
+                c.execute(py3_usm)
+                
+                sql_pyus_geom = """select AddGeometryColumn('pyarchinit_quote_usm', 'the_geom',"""+ self.lineEdit_crs.text()+""" ,'POINT', 'XY');"""
+                c.execute(sql_pyus_geom)
+                
+                sql_pyus_geom_spatial =""" select CreateSpatialIndex('pyarchinit_quote_usm', 'the_geom');"""
+                c.execute(sql_pyus_geom_spatial)
+                
+                a = ("""CREATE TRIGGER IF NOT EXISTS "ggi_pyarchinit_quote_usm_the_geom" BEFORE INSERT ON "pyarchinit_quote_usm"
+                FOR EACH ROW BEGIN
+                SELECT RAISE(ROLLBACK, 'pyarchinit_quote_usm.the_geom violates Geometry constraint [geom-type or SRID not allowed]')
+                WHERE (SELECT type FROM geometry_columns
+                WHERE f_table_name = 'pyarchinit_quote_usm' AND f_geometry_column = 'the_geom'
+                AND GeometryConstraints(NEW."the_geom", type, srid, 'XY') = 1) IS NULL;
+                END;  """)
+                b = ("""CREATE TRIGGER IF NOT EXISTS "ggu_pyarchinit_quote_usm_the_geom" BEFORE UPDATE ON "pyarchinit_quote_usm"
+                FOR EACH ROW BEGIN
+                SELECT RAISE(ROLLBACK, 'pyarchinit_quote_usm.the_geom violates Geometry constraint [geom-type or SRID not allowed]')
+                WHERE (SELECT type FROM geometry_columns
+                WHERE f_table_name = 'pyarchinit_quote_usm' AND f_geometry_column = 'the_geom'
+                AND GeometryConstraints(NEW."the_geom", type, srid, 'XY') = 1) IS NULL;
+                END;  """)
+                # cc=(""" CREATE TRIGGER IF NOT EXISTS "gii_pyarchinit_quote_usm_the_geom" AFTER INSERT ON "pyarchinit_quote_usm"
+                # FOR EACH ROW BEGIN
+                # DELETE FROM "idx_pyarchinit_quote_usm_the_geom" WHERE gid=NEW.ROWID;
+                # SELECT RTreeAlign('idx_pyarchinit_quote_usm_the_geom', NEW.ROWID, NEW."the_geom");
+                # END; """)
+                # d = ("""CREATE TRIGGER IF NOT EXISTS "giu_pyarchinit_quote_usm_the_geom" AFTER UPDATE ON "pyarchinit_quote_usm"
+                # FOR EACH ROW BEGIN
+                # DELETE FROM "idx_pyarchinit_quote_usm_the_geom" WHERE gid=NEW.ROWID;
+                # SELECT RTreeAlign('idx_pyarchinit_quote_usm_the_geom', NEW.ROWID, NEW."the_geom");
+                # END;  """)
+                # e=(""" CREATE TRIGGER  IF NOT EXISTS "gid_pyarchinit_quote_usm_the_geom" AFTER DELETE ON "pyarchinit_quote_usm"
+                # FOR EACH ROW BEGIN
+                # DELETE FROM "idx_pyarchinit_quote_usm_the_geom" WHERE gid=OLD.ROWID;
+                # END; """)
+                c.execute(a)
+                c.execute(b)
+                # c.execute(cc)
+                # c.execute(d)
+                # c.execute(e)
+                py8='''DROP VIEW if exists pyarchinit_quote_usm_view;'''
+                c.execute(py8)
+                py9='''    CREATE VIEW if not exists pyarchinit_quote_usm_view AS
+                        SELECT a.ROWID AS ROWID,
+                               a.id_us AS id_us,
+                               a.sito AS sito,
+                               a.area AS area,
+                               a.us AS us,
+                               a.d_stratigrafica AS d_stratigrafica,
+                               a.d_interpretativa AS d_interpretativa,
+                               a.descrizione AS descrizione,
+                               a.interpretazione AS interpretazione,
+                               a.periodo_iniziale AS periodo_iniziale,
+                               a.fase_iniziale AS fase_iniziale,
+                               a.periodo_finale AS periodo_finale,
+                               a.fase_finale AS fase_finale,
+                               a.scavato AS scavato,
+                               a.attivita AS attivita,
+                               a.anno_scavo AS anno_scavo,
+                               a.metodo_di_scavo AS metodo_di_scavo,
+                               a.inclusi AS inclusi,
+                               a.campioni AS campioni,
+                               a.rapporti AS rapporti,
+                               a.data_schedatura AS data_schedatura,
+                               a.schedatore AS schedatore,
+                               a.formazione AS formazione,
+                               a.stato_di_conservazione AS stato_di_conservazione,
+                               a.colore AS colore,
+                               a.consistenza AS consistenza,
+                               a.struttura AS struttura,
+                               a.cont_per AS cont_per,
+                               a.order_layer AS order_layer,
+                               a.documentazione AS documentazione,
+                               b.ROWID AS ROWID_1,
+                               b.sito_q AS sito_q,
+                               b.area_q AS area_q,
+                               b.us_q AS us_q,
+                               b.unita_misu_q AS unita_misu_q,
+                               b.quota_q AS quota_q,
+                               b.data AS data,
+                               b.disegnatore AS disegnatore,
+                               b.rilievo_originale AS rilievo_originale,
+                               b.the_geom AS the_geom
+                          FROM us_table AS a
+                               JOIN
+                               pyarchinit_quote_usm AS b ON (a.sito = b.sito_q AND 
+                                                         a.area = b.area_q AND 
+                                                         a.us = b.us_q) 
+                         ORDER BY a.order_layer DESC;'''
+                c.execute(py9)
+                sql_view_py10= ("""INSERT OR REPLACE INTO views_geometry_columns
+                    (view_name, view_geometry, view_rowid, f_table_name, f_geometry_column)
+                    VALUES ('pyarchinit_quote_usm_view', 'the_geom', 'ROWID', 'pyarchinit_quote_usm', 'the_geom')""")
+           
+                
+                c.execute(sql_view_py10)
+                
                 try:
                     py4='''    INSERT INTO pyarchinit_quote (
                                                          gid,
@@ -2837,139 +2971,140 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
             sql_drop_tafbaview_doc= """DROP view if EXISTS pyarchinit_tomba_view;"""
             c.execute(sql_drop_tafbaview_doc)
 
-
-            sql_und = ("""CREATE TABLE IF NOT EXISTS "pyarchinit_us_negative_doc" (
-                "pkuid" integer PRIMARY KEY AUTOINCREMENT,
-                "sito_n" text,
-                "area_n" text,
-                "us_n" integer,
-                "tipo_doc_n" text,
-                "nome_doc_n" text);""")
-            c.execute(sql_und)
-            sql_und_geom = """ select AddGeometryColumn('pyarchinit_us_negative_doc', 'the_geom',"""+ self.lineEdit_crs.text()+""" ,'LINESTRING', 'XY'); """
-            c.execute(sql_und_geom)
-            sql_und_geom_spatial =""" select CreateSpatialIndex('pyarchinit_us_negative_doc', 'the_geom');"""
-            c.execute(sql_und_geom_spatial)
-
+            try:
+                sql_und = ("""CREATE TABLE IF NOT EXISTS "pyarchinit_us_negative_doc" (
+                    "gid" integer PRIMARY KEY AUTOINCREMENT,
+                    "sito_n" text,
+                    "area_n" text,
+                    "us_n" integer,
+                    "tipo_doc_n" text,
+                    "nome_doc_n" text);""")
+                c.execute(sql_und)
+                sql_und_geom = """ select AddGeometryColumn('pyarchinit_us_negative_doc', 'the_geom',"""+ self.lineEdit_crs.text()+""" ,'LINESTRING', 'XY'); """
+                c.execute(sql_und_geom)
+                sql_und_geom_spatial =""" select CreateSpatialIndex('pyarchinit_us_negative_doc', 'the_geom');"""
+                c.execute(sql_und_geom_spatial)
+            except:
+                pass
             sql_drop_view_doc= """DROP view if EXISTS pyarchinit_doc_view;"""
             c.execute(sql_drop_view_doc)
 
+            try:
+                sql_doc = ("""CREATE TABLE IF NOT EXISTS "pyarchinit_documentazione" (
+                    "gid" integer PRIMARY KEY AUTOINCREMENT,
+                    "sito" text,
+                    "nome_doc" text,
+                    "tipo_doc" text,
+                    "path_qgis_pj" text);""")
+                c.execute(sql_doc)
+                sql_doc_geom = """ select AddGeometryColumn('pyarchinit_documentazione', 'the_geom',"""+ self.lineEdit_crs.text()+""" ,'LINESTRING', 'XY'); """
+                c.execute(sql_doc_geom)
+                sql_doc_geom_spatial =""" select CreateSpatialIndex('pyarchinit_documentazione', 'the_geom');"""
+                c.execute(sql_doc_geom_spatial)
 
-            sql_doc = ("""CREATE TABLE IF NOT EXISTS "pyarchinit_documentazione" (
-                "pkuid" integer PRIMARY KEY AUTOINCREMENT,
-                "sito" text,
-                "nome_doc" text,
-                "tipo_doc" text,
-                "path_qgis_pj" text);""")
-            c.execute(sql_doc)
-            sql_doc_geom = """ select AddGeometryColumn('pyarchinit_documentazione', 'the_geom',"""+ self.lineEdit_crs.text()+""" ,'LINESTRING', 'XY'); """
-            c.execute(sql_doc_geom)
-            sql_doc_geom_spatial =""" select CreateSpatialIndex('pyarchinit_documentazione', 'the_geom');"""
-            c.execute(sql_doc_geom_spatial)
-
-            ad = ("""CREATE TRIGGER IF NOT EXISTS "ggi_pyarchinit_documentazione_the_geom" BEFORE INSERT ON "pyarchinit_documentazione"
-            FOR EACH ROW BEGIN
-            SELECT RAISE(ROLLBACK, 'pyarchinit_documentazione.the_geom violates Geometry constraint [geom-type or SRID not allowed]')
-            WHERE (SELECT type FROM geometry_columns
-            WHERE f_table_name = 'pyarchinit_documentazione' AND f_geometry_column = 'the_geom'
-            AND GeometryConstraints(NEW."the_geom", type, srid, 'XY') = 1) IS NULL;
-            END;  """)
-            bd = ("""CREATE TRIGGER IF NOT EXISTS "ggu_pyarchinit_documentazione_the_geom" BEFORE UPDATE ON "pyarchinit_documentazione"
-            FOR EACH ROW BEGIN
-            SELECT RAISE(ROLLBACK, 'pyarchinit_documentazione.the_geom violates Geometry constraint [geom-type or SRID not allowed]')
-            WHERE (SELECT type FROM geometry_columns
-            WHERE f_table_name = 'pyarchinit_documentazione' AND f_geometry_column = 'the_geom'
-            AND GeometryConstraints(NEW."the_geom", type, srid, 'XY') = 1) IS NULL;
-            END;  """)
-            ccd=(""" CREATE TRIGGER IF NOT EXISTS "gii_pyarchinit_documentazione_the_geom" AFTER INSERT ON "pyarchinit_documentazione"
-            FOR EACH ROW BEGIN
-            DELETE FROM "idx_pyarchinit_documentazione_the_geom" WHERE pkid=NEW.ROWID;
-            SELECT RTreeAlign('idx_pyarchinit_documentazione_the_geom', NEW.ROWID, NEW."the_geom");
-            END; """)
-            dd = ("""CREATE TRIGGER IF NOT EXISTS "giu_pyarchinit_documentazione_the_geom" AFTER UPDATE ON "pyarchinit_documentazione"
-            FOR EACH ROW BEGIN
-            DELETE FROM "idx_pyarchinit_documentazione_the_geom" WHERE pkid=NEW.ROWID;
-            SELECT RTreeAlign('idx_pyarchinit_documentazione_the_geom', NEW.ROWID, NEW."the_geom");
-            END;  """)
-            ed=(""" CREATE TRIGGER  IF NOT EXISTS "gid_pyarchinit_documentazione_the_geom" AFTER DELETE ON "pyarchinit_documentazione"
-            FOR EACH ROW BEGIN
-            DELETE FROM "idx_pyarchinit_documentazione_the_geom" WHERE pkid=OLD.ROWID;
-            END; """)
-            c.execute(ad)
-            c.execute(bd)
-            c.execute(ccd)
-            c.execute(dd)
-            c.execute(ed)
-
+                ad = ("""CREATE TRIGGER IF NOT EXISTS "ggi_pyarchinit_documentazione_the_geom" BEFORE INSERT ON "pyarchinit_documentazione"
+                FOR EACH ROW BEGIN
+                SELECT RAISE(ROLLBACK, 'pyarchinit_documentazione.the_geom violates Geometry constraint [geom-type or SRID not allowed]')
+                WHERE (SELECT type FROM geometry_columns
+                WHERE f_table_name = 'pyarchinit_documentazione' AND f_geometry_column = 'the_geom'
+                AND GeometryConstraints(NEW."the_geom", type, srid, 'XY') = 1) IS NULL;
+                END;  """)
+                bd = ("""CREATE TRIGGER IF NOT EXISTS "ggu_pyarchinit_documentazione_the_geom" BEFORE UPDATE ON "pyarchinit_documentazione"
+                FOR EACH ROW BEGIN
+                SELECT RAISE(ROLLBACK, 'pyarchinit_documentazione.the_geom violates Geometry constraint [geom-type or SRID not allowed]')
+                WHERE (SELECT type FROM geometry_columns
+                WHERE f_table_name = 'pyarchinit_documentazione' AND f_geometry_column = 'the_geom'
+                AND GeometryConstraints(NEW."the_geom", type, srid, 'XY') = 1) IS NULL;
+                END;  """)
+                ccd=(""" CREATE TRIGGER IF NOT EXISTS "gii_pyarchinit_documentazione_the_geom" AFTER INSERT ON "pyarchinit_documentazione"
+                FOR EACH ROW BEGIN
+                DELETE FROM "idx_pyarchinit_documentazione_the_geom" WHERE gid=NEW.ROWID;
+                SELECT RTreeAlign('idx_pyarchinit_documentazione_the_geom', NEW.ROWID, NEW."the_geom");
+                END; """)
+                dd = ("""CREATE TRIGGER IF NOT EXISTS "giu_pyarchinit_documentazione_the_geom" AFTER UPDATE ON "pyarchinit_documentazione"
+                FOR EACH ROW BEGIN
+                DELETE FROM "idx_pyarchinit_documentazione_the_geom" WHERE gid=NEW.ROWID;
+                SELECT RTreeAlign('idx_pyarchinit_documentazione_the_geom', NEW.ROWID, NEW."the_geom");
+                END;  """)
+                ed=(""" CREATE TRIGGER  IF NOT EXISTS "gid_pyarchinit_documentazione_the_geom" AFTER DELETE ON "pyarchinit_documentazione"
+                FOR EACH ROW BEGIN
+                DELETE FROM "idx_pyarchinit_documentazione_the_geom" WHERE gid=OLD.ROWID;
+                END; """)
+                c.execute(ad)
+                c.execute(bd)
+                c.execute(ccd)
+                c.execute(dd)
+                c.execute(ed)
+            except:
+                pass
             sql_drop_sezioniview_doc= """DROP view if EXISTS pyarchinit_sezioni_view;"""
             c.execute(sql_drop_sezioniview_doc)
 
-
-
-
-
-
-
-            sql_rep = ("""CREATE TABLE if not exists "pyarchinit_reperti" (
-            "ROWIND" INTEGER PRIMARY KEY AUTOINCREMENT, 
-            "id_rep" INTEGER, 
-            "siti" TEXT, 
-            "link" TEXT);""")
-            c.execute(sql_rep)
-            sql_rep_geom = """ select AddGeometryColumn('pyarchinit_reperti', 'the_geom',"""+ self.lineEdit_crs.text()+""" ,'POINT', 'XY'); """
-            c.execute(sql_rep_geom)
-            sql_rep_geom_spatial =""" select CreateSpatialIndex('pyarchinit_reperti', 'the_geom');"""
-            c.execute(sql_rep_geom_spatial)
-
-            sql_view_ndv=("""CREATE VIEW IF NOT EXISTS "pyarchinit_us_negative_doc_view" AS
-                SELECT "a"."ROWID" AS "ROWID", "a"."pkuid" AS "pkuid",
-                "a"."sito_n" AS "sito_n", "a"."area_n" AS "area_n",
-                "a"."us_n" AS "us_n", "a"."tipo_doc_n" AS "tipo_doc_n",
-                "a"."nome_doc_n" AS "nome_doc_n", "a"."the_geom" AS "the_geom",
-                "b"."ROWID" AS "ROWID_1", "b"."id_us" AS "id_us",
-                "b"."sito" AS "sito", "b"."area" AS "area", "b"."us" AS "us",
-                "b"."d_stratigrafica" AS "d_stratigrafica", "b"."d_interpretativa" AS "d_interpretativa",
-                "b"."descrizione" AS "descrizione", "b"."interpretazione" AS "interpretazione",
-                "b"."periodo_iniziale" AS "periodo_iniziale", "b"."fase_iniziale" AS "fase_iniziale",
-                "b"."periodo_finale" AS "periodo_finale", "b"."fase_finale" AS "fase_finale",
-                "b"."scavato" AS "scavato", "b"."attivita" AS "attivita",
-                "b"."anno_scavo" AS "anno_scavo", "b"."metodo_di_scavo" AS "metodo_di_scavo",
-                "b"."inclusi" AS "inclusi", "b"."campioni" AS "campioni",
-                "b"."rapporti" AS "rapporti", "b"."data_schedatura" AS "data_schedatura",
-                "b"."schedatore" AS "schedatore", "b"."formazione" AS "formazione",
-                "b"."stato_di_conservazione" AS "stato_di_conservazione",
-                "b"."colore" AS "colore", "b"."consistenza" AS "consistenza",
-                "b"."struttura" AS "struttura", "b"."cont_per" AS "cont_per",
-                "b"."order_layer" AS "order_layer", "b"."documentazione" AS "documentazione"
-                FROM "pyarchinit_us_negative_doc" AS "a"
-                JOIN "us_table" AS "b" ON ("a"."sito_n" = "b"."sito" AND "a"."area_n" = "b"."area"
-                AND "a"."us_n" = "b"."us");""")
-            c.execute(sql_view_ndv)
-            sql_view_ndv_geom= ("""INSERT OR REPLACE INTO views_geometry_columns
-                    (view_name, view_geometry, view_rowid, f_table_name, f_geometry_column)
-                    VALUES ('pyarchinit_us_negative_doc_view', 'the_geom', 'ROWID', 'pyarchinit_us_negative_doc', 'the_geom')""")
-            c.execute(sql_view_ndv_geom)
-
-            sql_doc_view= ("""CREATE VIEW IF NOT EXISTS "pyarchinit_doc_view" AS
-                    SELECT "a"."ROWID" AS "ROWID", "a"."id_documentazione" AS "id_documentazione",
-                    "a"."sito" AS "sito", "a"."nome_doc" AS "nome_doc",
-                    "a"."data" AS "data", "a"."tipo_documentazione" AS "tipo_documentazione",
-                    "a"."sorgente" AS "sorgente", "a"."scala" AS "scala",
-                    "a"."disegnatore" AS "disegnatore", "a"."note" AS "note",
-                    "b"."ROWID" AS "ROWID_1", "b"."pkuid" AS "pkuid",
-                    "b"."sito" AS "sito_1", "b"."nome_doc" AS "nome_doc_1",
-                    "b"."tipo_doc" AS "tipo_doc", "b"."path_qgis_pj" AS "path_qgis_pj",
-                    "b"."the_geom" AS "the_geom"
-                    FROM "documentazione_table" AS "a"
-                    JOIN "pyarchinit_documentazione" AS "b" ON ("a"."sito" = "b"."sito" AND "a"."nome_doc" = "b"."nome_doc"
-                    AND "a"."tipo_documentazione" = "b"."tipo_doc");""")
-            c.execute(sql_doc_view)
-            sql_view_doc_geom = ("""INSERT OR REPLACE INTO views_geometry_columns
-                    (view_name, view_geometry, view_rowid, f_table_name, f_geometry_column)
-                    VALUES ('pyarchinit_doc_view', 'the_geom', 'rowid', 'pyarchinit_documentazione', 'the_geom')""")
-            c.execute(sql_view_doc_geom)
-
+            try:
+                sql_rep = ("""CREATE TABLE if not exists "pyarchinit_reperti" (
+                "ROWIND" INTEGER PRIMARY KEY AUTOINCREMENT, 
+                "id_rep" INTEGER, 
+                "siti" TEXT, 
+                "link" TEXT);""")
+                c.execute(sql_rep)
+                sql_rep_geom = """ select AddGeometryColumn('pyarchinit_reperti', 'the_geom',"""+ self.lineEdit_crs.text()+""" ,'POINT', 'XY'); """
+                c.execute(sql_rep_geom)
+                sql_rep_geom_spatial =""" select CreateSpatialIndex('pyarchinit_reperti', 'the_geom');"""
+                c.execute(sql_rep_geom_spatial)
+            except:
+                pass
             
+            try:
+                sql_view_ndv=("""CREATE VIEW IF NOT EXISTS "pyarchinit_us_negative_doc_view" AS
+                    SELECT "a"."ROWID" AS "ROWID", "a"."gid" AS "gid",
+                    "a"."sito_n" AS "sito_n", "a"."area_n" AS "area_n",
+                    "a"."us_n" AS "us_n", "a"."tipo_doc_n" AS "tipo_doc_n",
+                    "a"."nome_doc_n" AS "nome_doc_n", "a"."the_geom" AS "the_geom",
+                    "b"."ROWID" AS "ROWID_1", "b"."id_us" AS "id_us",
+                    "b"."sito" AS "sito", "b"."area" AS "area", "b"."us" AS "us",
+                    "b"."d_stratigrafica" AS "d_stratigrafica", "b"."d_interpretativa" AS "d_interpretativa",
+                    "b"."descrizione" AS "descrizione", "b"."interpretazione" AS "interpretazione",
+                    "b"."periodo_iniziale" AS "periodo_iniziale", "b"."fase_iniziale" AS "fase_iniziale",
+                    "b"."periodo_finale" AS "periodo_finale", "b"."fase_finale" AS "fase_finale",
+                    "b"."scavato" AS "scavato", "b"."attivita" AS "attivita",
+                    "b"."anno_scavo" AS "anno_scavo", "b"."metodo_di_scavo" AS "metodo_di_scavo",
+                    "b"."inclusi" AS "inclusi", "b"."campioni" AS "campioni",
+                    "b"."rapporti" AS "rapporti", "b"."data_schedatura" AS "data_schedatura",
+                    "b"."schedatore" AS "schedatore", "b"."formazione" AS "formazione",
+                    "b"."stato_di_conservazione" AS "stato_di_conservazione",
+                    "b"."colore" AS "colore", "b"."consistenza" AS "consistenza",
+                    "b"."struttura" AS "struttura", "b"."cont_per" AS "cont_per",
+                    "b"."order_layer" AS "order_layer", "b"."documentazione" AS "documentazione"
+                    FROM "pyarchinit_us_negative_doc" AS "a"
+                    JOIN "us_table" AS "b" ON ("a"."sito_n" = "b"."sito" AND "a"."area_n" = "b"."area"
+                    AND "a"."us_n" = "b"."us");""")
+                c.execute(sql_view_ndv)
+                sql_view_ndv_geom= ("""INSERT OR REPLACE INTO views_geometry_columns
+                        (view_name, view_geometry, view_rowid, f_table_name, f_geometry_column)
+                        VALUES ('pyarchinit_us_negative_doc_view', 'the_geom', 'ROWID', 'pyarchinit_us_negative_doc', 'the_geom')""")
+                c.execute(sql_view_ndv_geom)
+
+                sql_doc_view= ("""CREATE VIEW IF NOT EXISTS "pyarchinit_doc_view" AS
+                        SELECT "a"."ROWID" AS "ROWID", "a"."id_documentazione" AS "id_documentazione",
+                        "a"."sito" AS "sito", "a"."nome_doc" AS "nome_doc",
+                        "a"."data" AS "data", "a"."tipo_documentazione" AS "tipo_documentazione",
+                        "a"."sorgente" AS "sorgente", "a"."scala" AS "scala",
+                        "a"."disegnatore" AS "disegnatore", "a"."note" AS "note",
+                        "b"."ROWID" AS "ROWID_1", "b"."gid" AS "gid",
+                        "b"."sito" AS "sito_1", "b"."nome_doc" AS "nome_doc_1",
+                        "b"."tipo_doc" AS "tipo_doc", "b"."path_qgis_pj" AS "path_qgis_pj",
+                        "b"."the_geom" AS "the_geom"
+                        FROM "documentazione_table" AS "a"
+                        JOIN "pyarchinit_documentazione" AS "b" ON ("a"."sito" = "b"."sito" AND "a"."nome_doc" = "b"."nome_doc"
+                        AND "a"."tipo_documentazione" = "b"."tipo_doc");""")
+                c.execute(sql_doc_view)
+                sql_view_doc_geom = ("""INSERT OR REPLACE INTO views_geometry_columns
+                        (view_name, view_geometry, view_rowid, f_table_name, f_geometry_column)
+                        VALUES ('pyarchinit_doc_view', 'the_geom', 'rowid', 'pyarchinit_documentazione', 'the_geom')""")
+                c.execute(sql_view_doc_geom)
+
+            except:
+                pass
             # sql_s = ("""CREATE TABLE IF NOT EXISTS "pyarchinit_sezioni" (
                 # "id" integer PRIMARY KEY AUTOINCREMENT,
                 # "id_sezione" text,
@@ -2985,25 +3120,26 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
 
             
             
-            
-            sql_view_sezioni=("""CREATE VIEW IF NOT EXISTS "pyarchinit_sezioni_view" AS
-            SELECT  "a"."id" AS "id", "a"."sito" AS "sito",
-            "a"."area" AS "area", "a"."tipo_doc" AS "tipo_doc","a"."nome_doc" AS "nome_doc",
-            "a"."the_geom" AS "the_geom", "b"."ROWID" AS "ROWID", "b"."id_documentazione" AS "id_documentazione",
-            "b"."sito" AS "sito", "b"."nome_doc" AS "nome_doc",
-            "b"."data" AS "data", "b"."tipo_documentazione" AS "tipo_documentazione",
-            "b"."sorgente" AS "sorgente", "b"."scala" AS "scala",
-            "b"."disegnatore" AS "disegnatore", "b"."note" AS "note"
-            FROM "pyarchinit_sezioni" AS "a"
-            JOIN "documentazione_table" AS "b" ON ("a"."sito" = "b"."sito"  AND "a"."tipo_doc" = "b"."tipo_documentazione"
-                AND "b"."nome_doc" = "b"."nome_doc");""")
-            c.execute(sql_view_sezioni)
-            sql_view_sezioni_geom= ("""INSERT OR REPLACE INTO views_geometry_columns
-                    (view_name, view_geometry, view_rowid, f_table_name, f_geometry_column)
-                    VALUES ('pyarchinit_sezioni_view', 'the_geom', 'ROWID', 'pyarchinit_sezioni', 'the_geom')""")
-            c.execute(sql_view_sezioni_geom)
+            try:
+                sql_view_sezioni=("""CREATE VIEW IF NOT EXISTS "pyarchinit_sezioni_view" AS
+                SELECT  "a"."gid" AS "gid", "a"."sito" AS "sito",
+                "a"."area" AS "area", "a"."tipo_doc" AS "tipo_doc","a"."nome_doc" AS "nome_doc",
+                "a"."the_geom" AS "the_geom", "b"."ROWID" AS "ROWID", "b"."id_documentazione" AS "id_documentazione",
+                "b"."sito" AS "sito", "b"."nome_doc" AS "nome_doc",
+                "b"."data" AS "data", "b"."tipo_documentazione" AS "tipo_documentazione",
+                "b"."sorgente" AS "sorgente", "b"."scala" AS "scala",
+                "b"."disegnatore" AS "disegnatore", "b"."note" AS "note"
+                FROM "pyarchinit_sezioni" AS "a"
+                JOIN "documentazione_table" AS "b" ON ("a"."sito" = "b"."sito"  AND "a"."tipo_doc" = "b"."tipo_documentazione"
+                    AND "b"."nome_doc" = "b"."nome_doc");""")
+                c.execute(sql_view_sezioni)
+                sql_view_sezioni_geom= ("""INSERT OR REPLACE INTO views_geometry_columns
+                        (view_name, view_geometry, view_rowid, f_table_name, f_geometry_column)
+                        VALUES ('pyarchinit_sezioni_view', 'the_geom', 'ROWID', 'pyarchinit_sezioni', 'the_geom')""")
+                c.execute(sql_view_sezioni_geom)
 
-
+            except:
+                pass
             sql_drop_view_test_b= """DROP view if EXISTS test_b_view;"""
             c.execute(sql_drop_view_test_b)
 
@@ -3085,33 +3221,34 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
             c.execute(sql_trigger_delete_mediaentity)
 
 
+            try:
+                sql_view_rep="""CREATE VIEW if not exists "pyarchinit_reperti_view" AS
+                    SELECT "a"."ROWID" AS "ROWID", "a"."ROWIND" AS "ROWIND",
+                        "a"."the_geom" AS "the_geom",
+                        "a"."id_rep" AS "id_rep", "a"."siti" AS "siti", "a"."link" AS "link",
+                        "b"."ROWID" AS "ROWID_1", "b"."id_invmat" AS "id_invmat",
+                        "b"."sito" AS "sito", "b"."numero_inventario" AS "numero_inventario",
+                        "b"."tipo_reperto" AS "tipo_reperto", "b"."criterio_schedatura" AS "criterio_schedatura",
+                        "b"."definizione" AS "definizione", "b"."descrizione" AS "descrizione",
+                        "b"."area" AS "area", "b"."us" AS "us", "b"."lavato" AS "lavato",
+                        "b"."nr_cassa" AS "nr_cassa", "b"."luogo_conservazione" AS "luogo_conservazione",
+                        "b"."stato_conservazione" AS "stato_conservazione",
+                        "b"."datazione_reperto" AS "datazione_reperto",
+                        "b"."elementi_reperto" AS "elementi_reperto", "b"."misurazioni" AS "misurazioni",
+                        "b"."rif_biblio" AS "rif_biblio", "b"."tecnologie" AS "tecnologie",
+                        "b"."forme_minime" AS "forme_minime", "b"."forme_massime" AS "forme_massime",
+                        "b"."totale_frammenti" AS "totale_frammenti", "b"."corpo_ceramico" AS "corpo_ceramico",
+                        "b"."rivestimento" AS "rivestimento"
+                    FROM "pyarchinit_reperti" AS "a"
+                    JOIN "inventario_materiali_table" AS "b" ON ("a"."siti" = "b"."sito" AND "a"."id_rep" = "b"."numero_inventario")"""
+                c.execute(sql_view_rep)
 
-            sql_view_rep="""CREATE VIEW if not exists "pyarchinit_reperti_view" AS
-                SELECT "a"."ROWID" AS "ROWID", "a"."ROWIND" AS "ROWIND",
-                    "a"."the_geom" AS "the_geom",
-                    "a"."id_rep" AS "id_rep", "a"."siti" AS "siti", "a"."link" AS "link",
-                    "b"."ROWID" AS "ROWID_1", "b"."id_invmat" AS "id_invmat",
-                    "b"."sito" AS "sito", "b"."numero_inventario" AS "numero_inventario",
-                    "b"."tipo_reperto" AS "tipo_reperto", "b"."criterio_schedatura" AS "criterio_schedatura",
-                    "b"."definizione" AS "definizione", "b"."descrizione" AS "descrizione",
-                    "b"."area" AS "area", "b"."us" AS "us", "b"."lavato" AS "lavato",
-                    "b"."nr_cassa" AS "nr_cassa", "b"."luogo_conservazione" AS "luogo_conservazione",
-                    "b"."stato_conservazione" AS "stato_conservazione",
-                    "b"."datazione_reperto" AS "datazione_reperto",
-                    "b"."elementi_reperto" AS "elementi_reperto", "b"."misurazioni" AS "misurazioni",
-                    "b"."rif_biblio" AS "rif_biblio", "b"."tecnologie" AS "tecnologie",
-                    "b"."forme_minime" AS "forme_minime", "b"."forme_massime" AS "forme_massime",
-                    "b"."totale_frammenti" AS "totale_frammenti", "b"."corpo_ceramico" AS "corpo_ceramico",
-                    "b"."rivestimento" AS "rivestimento"
-                FROM "pyarchinit_reperti" AS "a"
-                JOIN "inventario_materiali_table" AS "b" ON ("a"."siti" = "b"."sito" AND "a"."id_rep" = "b"."numero_inventario")"""
-            c.execute(sql_view_rep)
-
-            sql_view_rep_geom= """INSERT OR REPLACE INTO views_geometry_columns
-                    (view_name, view_geometry, view_rowid, f_table_name, f_geometry_column)
-                    VALUES ('pyarchinit_reperti_view', 'the_geom', 'rowid', 'pyarchinit_reperti', 'the_geom')"""
-            c.execute(sql_view_rep_geom)
-
+                sql_view_rep_geom= """INSERT OR REPLACE INTO views_geometry_columns
+                        (view_name, view_geometry, view_rowid, f_table_name, f_geometry_column)
+                        VALUES ('pyarchinit_reperti_view', 'the_geom', 'rowid', 'pyarchinit_reperti', 'the_geom')"""
+                c.execute(sql_view_rep_geom)
+            except:
+                pass
 
             sql_drop_view_us=(
             """drop view if exists pyarchinit_us_view;""")
@@ -3148,7 +3285,7 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
             sql_pyusold_geom = """ select AddGeometryColumn('pyunitastratigrafiche_old', 'the_geom',"""+ self.lineEdit_crs.text()+""" ,'MULTIPOLYGON', 'XY'); """
             c.execute(sql_pyusold_geom)
             sql_pyusold_geom_spatial =""" select CreateSpatialIndex('pyunitastratigrafiche_old', 'the_geom');"""
-            c.execute(sql_pyusold_geom_spatial)
+            c.execute(sql_pyusold_geom_spatial)            
             sql_alter_table_us=(
             """CREATE TABLE if not exists pyunitastratigrafiche (
             "gid" integer PRIMARY KEY AUTOINCREMENT,
@@ -3269,25 +3406,25 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
             WHERE f_table_name = 'pyunitastratigrafiche' AND f_geometry_column = 'the_geom'
             AND GeometryConstraints(NEW."the_geom", type, srid, 'XY') = 1) IS NULL;
             END;  """)
-            cc=(""" CREATE TRIGGER IF NOT EXISTS "gii_pyunitastratigrafiche_the_geom" AFTER INSERT ON "pyunitastratigrafiche"
-            FOR EACH ROW BEGIN
-            DELETE FROM "idx_pyunitastratigrafiche_the_geom" WHERE pkid=NEW.ROWID;
-            SELECT RTreeAlign('idx_pyunitastratigrafiche_the_geom', NEW.ROWID, NEW."the_geom");
-            END; """)
-            d = ("""CREATE TRIGGER IF NOT EXISTS "giu_pyunitastratigrafiche_the_geom" AFTER UPDATE ON "pyunitastratigrafiche"
-            FOR EACH ROW BEGIN
-            DELETE FROM "idx_pyunitastratigrafiche_the_geom" WHERE pkid=NEW.ROWID;
-            SELECT RTreeAlign('idx_pyunitastratigrafiche_the_geom', NEW.ROWID, NEW."the_geom");
-            END;  """)
-            e=(""" CREATE TRIGGER  IF NOT EXISTS "gid_pyunitastratigrafiche_the_geom" AFTER DELETE ON "pyunitastratigrafiche"
-            FOR EACH ROW BEGIN
-            DELETE FROM "idx_pyunitastratigrafiche_the_geom" WHERE pkid=OLD.ROWID;
-            END; """)
+            # cc=(""" CREATE TRIGGER IF NOT EXISTS "gii_pyunitastratigrafiche_the_geom" AFTER INSERT ON "pyunitastratigrafiche"
+            # FOR EACH ROW BEGIN
+            # DELETE FROM "idx_pyunitastratigrafiche_the_geom" WHERE gid=NEW.ROWID;
+            # SELECT RTreeAlign('idx_pyunitastratigrafiche_the_geom', NEW.ROWID, NEW."the_geom");
+            # END; """)
+            # d = ("""CREATE TRIGGER IF NOT EXISTS "giu_pyunitastratigrafiche_the_geom" AFTER UPDATE ON "pyunitastratigrafiche"
+            # FOR EACH ROW BEGIN
+            # DELETE FROM "idx_pyunitastratigrafiche_the_geom" WHERE gid=NEW.ROWID;
+            # SELECT RTreeAlign('idx_pyunitastratigrafiche_the_geom', NEW.ROWID, NEW."the_geom");
+            # END;  """)
+            # e=(""" CREATE TRIGGER  IF NOT EXISTS "gid_pyunitastratigrafiche_the_geom" AFTER DELETE ON "pyunitastratigrafiche"
+            # FOR EACH ROW BEGIN
+            # DELETE FROM "idx_pyunitastratigrafiche_the_geom" WHERE gid=OLD.ROWID;
+            # END; """)
             c.execute(a)
             c.execute(b)
-            c.execute(cc)
-            c.execute(d)
-            c.execute(e)
+            # c.execute(cc)
+            # c.execute(d)
+            # c.execute(e)
 
             sql_view_us=(
             """CREATE VIEW  IF NOT EXISTS "pyarchinit_us_view" AS
@@ -3388,6 +3525,147 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
                 
                 END;"""
             c.execute(sql_trigger_coord3)
+            ################################################################
+            sql_alter_table_us=(
+            """CREATE TABLE if not exists pyunitastratigrafiche_usm (
+            "gid" integer PRIMARY KEY AUTOINCREMENT,
+            "area_s" integer,
+            "scavo_s" text,
+            "us_s" integer,            
+            "stratigraph_index_us" integer,
+            "tipo_us_s" text,
+            "rilievo_originale" text,
+            "disegnatore" text,
+            "data" date,
+            "tipo_doc" text,
+            "nome_doc" text,
+            "coord" text); """ )
+            c.execute(sql_alter_table_us)
+            sql_pyus_geom = """ select AddGeometryColumn('pyunitastratigrafiche_usm', 'the_geom',"""+ self.lineEdit_crs.text()+""" ,'MULTIPOLYGON', 'XY'); """
+            c.execute(sql_pyus_geom)
+            sql_pyus_geom_spatial =""" select CreateSpatialIndex('pyunitastratigrafiche_usm', 'the_geom');"""
+            c.execute(sql_pyus_geom_spatial)
+            
+            a = ("""CREATE TRIGGER IF NOT EXISTS "ggi_pyunitastratigrafiche_usm_the_geom" BEFORE INSERT ON "pyunitastratigrafiche_usm"
+            FOR EACH ROW BEGIN
+            SELECT RAISE(ROLLBACK, 'pyunitastratigrafiche_usm.the_geom violates Geometry constraint [geom-type or SRID not allowed]')
+            WHERE (SELECT type FROM geometry_columns
+            WHERE f_table_name = 'pyunitastratigrafiche_usm' AND f_geometry_column = 'the_geom'
+            AND GeometryConstraints(NEW."the_geom", type, srid, 'XY') = 1) IS NULL;
+            END;  """)
+            b = ("""CREATE TRIGGER IF NOT EXISTS "ggu_pyunitastratigrafiche_usm_the_geom" BEFORE UPDATE ON "pyunitastratigrafiche_usm"
+            FOR EACH ROW BEGIN
+            SELECT RAISE(ROLLBACK, 'pyunitastratigrafiche_usm.the_geom violates Geometry constraint [geom-type or SRID not allowed]')
+            WHERE (SELECT type FROM geometry_columns
+            WHERE f_table_name = 'pyunitastratigrafiche_usm' AND f_geometry_column = 'the_geom'
+            AND GeometryConstraints(NEW."the_geom", type, srid, 'XY') = 1) IS NULL;
+            END;  """)
+            # cc=(""" CREATE TRIGGER IF NOT EXISTS "gii_pyunitastratigrafiche_usm_the_geom" AFTER INSERT ON "pyunitastratigrafiche_usm"
+            # FOR EACH ROW BEGIN
+            # DELETE FROM "idx_pyunitastratigrafiche_usm_the_geom" WHERE gid=NEW.ROWID;
+            # SELECT RTreeAlign('idx_pyunitastratigrafiche_usm_the_geom', NEW.ROWID, NEW."the_geom");
+            # END; """)
+            # d = ("""CREATE TRIGGER IF NOT EXISTS "giu_pyunitastratigrafiche_usm_the_geom" AFTER UPDATE ON "pyunitastratigrafiche_usm"
+            # FOR EACH ROW BEGIN
+            # DELETE FROM "idx_pyunitastratigrafiche_usm_the_geom" WHERE gid=NEW.ROWID;
+            # SELECT RTreeAlign('idx_pyunitastratigrafiche_usm_the_geom', NEW.ROWID, NEW."the_geom");
+            # END;  """)
+            # e=(""" CREATE TRIGGER  IF NOT EXISTS "gid_pyunitastratigrafiche_usm_the_geom" AFTER DELETE ON "pyunitastratigrafiche_usm"
+            # FOR EACH ROW BEGIN
+            # DELETE FROM "idx_pyunitastratigrafiche_usm_the_geom" WHERE gid=OLD.ROWID;
+            # END; """)
+            c.execute(a)
+            c.execute(b)
+            # c.execute(cc)
+            # c.execute(d)
+            # c.execute(e)
+            ##############################################
+            
+            sql_view_us=("""CREATE VIEW  IF NOT EXISTS "pyarchinit_usm_view" AS
+            
+            SELECT "a"."ROWID" AS "ROWID", "a"."gid" AS "gid", "a"."area_s" AS "area_s",
+            "a"."scavo_s" AS "scavo_s", "a"."us_s" AS "us_s",
+            "a"."stratigraph_index_us" AS "stratigraph_index_us",
+            "a"."tipo_us_s" AS "tipo_us_s", "a"."rilievo_originale" AS "rilievo_originale",
+            "a"."disegnatore" AS "disegnatore", "a"."data" AS "data",
+            "a"."the_geom" AS "the_geom", "a"."tipo_doc" AS "tipo_doc",
+            "a"."nome_doc" AS "nome_doc", "b"."id_us" AS "id_us", "b"."sito" AS "sito", "b"."area" AS "area",
+            "b"."us" AS "us", "b"."d_stratigrafica" AS "d_stratigrafica",
+            "b"."d_interpretativa" AS "d_interpretativa", "b"."descrizione" AS "descrizione",
+            "b"."interpretazione" AS "interpretazione", "b"."periodo_iniziale" AS "periodo_iniziale",
+            "b"."fase_iniziale" AS "fase_iniziale", "b"."periodo_finale" AS "periodo_finale",
+            "b"."fase_finale" AS "fase_finale", "b"."scavato" AS "scavato",
+            "b"."attivita" AS "attivita", "b"."anno_scavo" AS "anno_scavo",
+            "b"."metodo_di_scavo" AS "metodo_di_scavo", "b"."inclusi" AS "inclusi",
+            "b"."campioni" AS "campioni", "b"."rapporti" AS "rapporti",
+            "b"."data_schedatura" AS "data_schedatura", "b"."schedatore" AS "schedatore",
+            "b"."formazione" AS "formazione", "b"."stato_di_conservazione" AS "stato_di_conservazione",
+            "b"."colore" AS "colore", "b"."consistenza" AS "consistenza",
+            "b"."struttura" AS "struttura", "b"."cont_per" AS "cont_per",
+            "b"."order_layer" AS "order_layer", "b"."documentazione" AS "documentazione",
+            "b"."unita_tipo" AS "unita_tipo", "b"."settore" AS "settore",
+            "b"."quad_par" AS "quad_par", "b"."ambient" AS "ambient",
+            "b"."saggio" AS "saggio", "b"."elem_datanti" AS "elem_datanti",
+            "b"."funz_statica" AS "funz_statica", "b"."lavorazione" AS "lavorazione",
+            "b"."spess_giunti" AS "spess_giunti", "b"."letti_posa" AS "letti_posa",
+            "b"."alt_mod" AS "alt_mod", "b"."un_ed_riass" AS "un_ed_riass",
+            "b"."reimp" AS "reimp", "b"."posa_opera" AS "posa_opera",
+            "b"."quota_min_usm" AS "quota_min_usm", "b"."quota_max_usm" AS "quota_max_usm",
+            "b"."cons_legante" AS "cons_legante", "b"."col_legante" AS "col_legante",
+            "b"."aggreg_legante" AS "aggreg_legante", "b"."con_text_mat" AS "con_text_mat",
+            "b"."col_materiale" AS "col_materiale", "b"."inclusi_materiali_usm" AS "inclusi_materiali_usm",
+            "b"."n_catalogo_generale" AS "n_catalogo_generale",
+            "b"."n_catalogo_interno" AS "n_catalogo_interno",
+            "b"."n_catalogo_internazionale" AS "n_catalogo_internazionale",
+            "b"."soprintendenza" AS "soprintendenza", "b"."quota_relativa" AS "quota_relativa",
+            "b"."quota_abs" AS "quota_abs", "b"."ref_tm" AS "ref_tm",
+            "b"."ref_ra" AS "ref_ra", "b"."ref_n" AS "ref_n",
+            "b"."posizione" AS "posizione", "b"."criteri_distinzione" AS "criteri_distinzione",
+            "b"."modo_formazione" AS "modo_formazione", "b"."componenti_organici" AS "componenti_organici",
+            "b"."componenti_inorganici" AS "componenti_inorganici",
+            "b"."lunghezza_max" AS "lunghezza_max", "b"."altezza_max" AS "altezza_max",
+            "b"."altezza_min" AS "altezza_min", "b"."profondita_max" AS "profondita_max",
+            "b"."profondita_min" AS "profondita_min", "b"."larghezza_media" AS "larghezza_media",
+            "b"."quota_max_abs" AS "quota_max_abs", "b"."quota_max_rel" AS "quota_max_rel",
+            "b"."quota_min_abs" AS "quota_min_abs", "b"."quota_min_rel" AS "quota_min_rel",
+            "b"."osservazioni" AS "osservazioni", "b"."datazione" AS "datazione",
+            "b"."flottazione" AS "flottazione", "b"."setacciatura" AS "setacciatura",
+            "b"."affidabilita" AS "affidabilita", "b"."direttore_us" AS "direttore_us",
+            "b"."responsabile_us" AS "responsabile_us", "b"."cod_ente_schedatore" AS "cod_ente_schedatore",
+            "b"."data_rilevazione" AS "data_rilevazione", "b"."data_rielaborazione" AS "data_rielaborazione",
+            "b"."lunghezza_usm" AS "lunghezza_usm", "b"."altezza_usm" AS "altezza_usm",
+            "b"."spessore_usm" AS "spessore_usm", "b"."tecnica_muraria_usm" AS "tecnica_muraria_usm",
+            "b"."modulo_usm" AS "modulo_usm", "b"."campioni_malta_usm" AS "campioni_malta_usm",
+            "b"."campioni_mattone_usm" AS "campioni_mattone_usm",
+            "b"."campioni_pietra_usm" AS "campioni_pietra_usm",
+            "b"."provenienza_materiali_usm" AS "provenienza_materiali_usm",
+            "b"."criteri_distinzione_usm" AS "criteri_distinzione_usm",
+            "b"."uso_primario_usm" AS "uso_primario_usm"
+            FROM "pyunitastratigrafiche_usm" AS "a"
+            JOIN "us_table" AS "b" ON ("a"."area_s" = "b"."area" AND "a"."scavo_s" = "b"."sito"
+            AND "a"."us_s" = "b"."us")
+            ORDER BY "b"."order_layer" asc ;""")
+
+
+            c.execute(sql_view_us)
+
+            sql_view_us_geom= """INSERT OR REPLACE INTO views_geometry_columns
+                    (view_name, view_geometry, view_rowid, f_table_name, f_geometry_column)
+                    VALUES ('pyarchinit_usm_view', 'the_geom', 'rowid', 'pyunitastratigrafiche_usm', 'the_geom')"""
+            c.execute(sql_view_us_geom)
+
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
             sql_alter_table_tb=(
             """CREATE TABLE if not exists tomba_table (
             
@@ -3524,7 +3802,7 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
             "a"."corredo_presenza" AS "corredo_presenza", "a"."corredo_tipo" AS "corredo_tipo",
             "a"."corredo_descrizione" AS "corredo_descrizione",
             "b"."ROWID" AS "ROWID",
-            "b"."id_tafonomia_pk" AS "id_tafonomia_pk", "b"."sito" AS "sito_1",
+            "b"."gid" AS "gid", "b"."sito" AS "sito_1",
             "b"."nr_scheda" AS "nr_scheda", "b"."the_geom" AS "the_geom"
             FROM "tomba_table" AS "a"
             JOIN "pyarchinit_tafonomia" AS "b" ON ("a"."sito" = "b"."sito" AND "a"."nr_scheda_taf" = "b"."nr_scheda")
