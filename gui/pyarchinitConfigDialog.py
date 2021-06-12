@@ -168,7 +168,7 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
             self.setComboBoxEnable(["self.lineEdit_DBname"], "True")
         self.comboBox_Database.currentIndexChanged.connect(self.customize)
         self.test()
-    
+        self.test2()
     
     def test(self):
         try:
@@ -185,12 +185,13 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
             drop_ = '''DROP TABLE IF EXISTS sqlitestudio_temp_table2;'''
             cur.execute(drop_)
             drop_2 = '''DROP TABLE IF EXISTS sqlitestudio_temp_table;'''
-            # cur.execute(drop_2)
-            # drop_3 = '''DROP VIEW IF EXISTS pyarchinit_strutture_view;'''
-            # cur.execute(drop_3)
-            # drop_4 = '''DROP VIEW IF EXISTS pyarchinit_site_view;'''
-            # cur.execute(drop_4)
+            
+            
+            
+            
             cur.executescript('''
+            
+            
             PRAGMA foreign_keys = 0;
                 
                 
@@ -675,80 +676,7 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
                 END;
 
                 PRAGMA foreign_keys = 1;
-                PRAGMA foreign_keys = 0;
-
-                CREATE TABLE sqlitestudio_temp_table AS SELECT *
-                                                          FROM pyarchinit_sezioni;
-
-                DROP TABLE pyarchinit_sezioni;
-
-                CREATE TABLE pyarchinit_sezioni (
-                    gid        INTEGER                  NOT NULL
-                                                        PRIMARY KEY AUTOINCREMENT,
-                    id_sezione [CHARACTER VARYING] (80),
-                    sito       [CHARACTER VARYING] (80),
-                    area       INTEGER,
-                    descr      [CHARACTER VARYING] (80),
-                    the_geom   LINESTRING,
-                    tipo_doc   TEXT,
-                    nome_doc   TEXT
-                );
-
-                INSERT INTO pyarchinit_sezioni (
-                                                   gid,
-                                                   id_sezione,
-                                                   sito,
-                                                   area,
-                                                   descr,
-                                                   the_geom,
-                                                   tipo_doc,
-                                                   nome_doc
-                                               )
-                                               SELECT id,
-                                                      id_sezione,
-                                                      sito,
-                                                      area,
-                                                      descr,
-                                                      the_geom,
-                                                      tipo_doc,
-                                                      nome_doc
-                                                 FROM sqlitestudio_temp_table;
-
-                DROP TABLE sqlitestudio_temp_table;
-
-                CREATE TRIGGER ggi_pyarchinit_sezioni_the_geom
-                        BEFORE INSERT
-                            ON pyarchinit_sezioni
-                      FOR EACH ROW
-                BEGIN
-                    SELECT RAISE(ROLLBACK, "pyarchinit_sezioni.the_geom violates Geometry constraint [geom-type or SRID not allowed]") 
-                     WHERE (
-                               SELECT type
-                                 FROM geometry_columns
-                                WHERE f_table_name = 'pyarchinit_sezioni' AND 
-                                      f_geometry_column = 'the_geom' AND 
-                                      GeometryConstraints(NEW.the_geom, type, srid, 'XY') = 1
-                           )
-                           IS NULL;
-                END;
-
-                CREATE TRIGGER ggu_pyarchinit_sezioni_the_geom
-                        BEFORE UPDATE
-                            ON pyarchinit_sezioni
-                      FOR EACH ROW
-                BEGIN
-                    SELECT RAISE(ROLLBACK, "pyarchinit_sezioni.the_geom violates Geometry constraint [geom-type or SRID not allowed]") 
-                     WHERE (
-                               SELECT type
-                                 FROM geometry_columns
-                                WHERE f_table_name = 'pyarchinit_sezioni' AND 
-                                      f_geometry_column = 'the_geom' AND 
-                                      GeometryConstraints(NEW.the_geom, type, srid, 'XY') = 1
-                           )
-                           IS NULL;
-                END;
-
-                PRAGMA foreign_keys = 1;
+                
                 PRAGMA foreign_keys = 0;
 
                 CREATE TABLE sqlitestudio_temp_table AS SELECT *
@@ -1366,11 +1294,113 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
                 END;
 
                 PRAGMA foreign_keys = 1;
-                DROP VIEW inventario_materiali_view;
+                PRAGMA foreign_keys = 0;
 
+                CREATE TABLE sqlitestudio_temp_table AS SELECT *
+                                                          FROM pyarchinit_sezioni;
+
+                DROP TABLE pyarchinit_sezioni;
+
+                CREATE TABLE pyarchinit_sezioni (
+                    gid        INTEGER                  NOT NULL
+                                                        PRIMARY KEY AUTOINCREMENT,
+                    id_sezione [CHARACTER VARYING] (80),
+                    sito       [CHARACTER VARYING] (80),
+                    area       INTEGER,
+                    descr      [CHARACTER VARYING] (80),
+                    the_geom   LINESTRING,
+                    tipo_doc   TEXT,
+                    nome_doc   TEXT
+                );
+
+                INSERT INTO pyarchinit_sezioni (
+                                                   gid,
+                                                   id_sezione,
+                                                   sito,
+                                                   area,
+                                                   descr,
+                                                   the_geom,
+                                                   tipo_doc,
+                                                   nome_doc
+                                               )
+                                               SELECT id,
+                                                      id_sezione,
+                                                      sito,
+                                                      area,
+                                                      descr,
+                                                      the_geom,
+                                                      tipo_doc,
+                                                      nome_doc
+                                                 FROM sqlitestudio_temp_table;
+
+                DROP TABLE sqlitestudio_temp_table;
+
+                CREATE TRIGGER ggi_pyarchinit_sezioni_the_geom
+                        BEFORE INSERT
+                            ON pyarchinit_sezioni
+                      FOR EACH ROW
+                BEGIN
+                    SELECT RAISE(ROLLBACK, "pyarchinit_sezioni.the_geom violates Geometry constraint [geom-type or SRID not allowed]") 
+                     WHERE (
+                               SELECT type
+                                 FROM geometry_columns
+                                WHERE f_table_name = 'pyarchinit_sezioni' AND 
+                                      f_geometry_column = 'the_geom' AND 
+                                      GeometryConstraints(NEW.the_geom, type, srid, 'XY') = 1
+                           )
+                           IS NULL;
+                END;
+
+                CREATE TRIGGER ggu_pyarchinit_sezioni_the_geom
+                        BEFORE UPDATE
+                            ON pyarchinit_sezioni
+                      FOR EACH ROW
+                BEGIN
+                    SELECT RAISE(ROLLBACK, "pyarchinit_sezioni.the_geom violates Geometry constraint [geom-type or SRID not allowed]") 
+                     WHERE (
+                               SELECT type
+                                 FROM geometry_columns
+                                WHERE f_table_name = 'pyarchinit_sezioni' AND 
+                                      f_geometry_column = 'the_geom' AND 
+                                      GeometryConstraints(NEW.the_geom, type, srid, 'XY') = 1
+                           )
+                           IS NULL;
+                END;
+
+                PRAGMA foreign_keys = 1;
+                
+                
+                
+                        ''')
+        except Exception as e:
+            pass#QMessageBox.warning(self, "ok", "entered in if", QMessageBox.Ok)
+    
+    
+    def test2(self):
+        try:
+            
+            conn = Connection()
+            conn_str = conn.conn_str()
+            conn_sqlite = conn.databasename()
+            
+            sqlite_DB_path = '{}{}{}'.format(self.HOME, os.sep,
+                                           "pyarchinit_DB_folder")
+            
+            con = sqlite3.connect(sqlite_DB_path +os.sep+ conn_sqlite["db_name"])
+            cur = con.cursor()
+            drop_ = '''DROP TABLE IF EXISTS sqlitestudio_temp_table2;'''
+            cur.execute(drop_)
+            drop_2 = '''DROP TABLE IF EXISTS sqlitestudio_temp_table;'''
+            # cur.execute(drop_2)
+            # drop_3 = '''DROP VIEW IF EXISTS pyarchinit_strutture_view;'''
+            # cur.execute(drop_3)
+            # drop_4 = '''DROP VIEW IF EXISTS pyarchinit_site_view;'''
+            # cur.execute(drop_4)
+            cur.executescript('''PRAGMA foreign_keys = 0;
+                
+                DROP VIEW if EXISTS inventario_materiali_view;
                 CREATE VIEW inventario_materiali_view AS
-                    SELECT a.ROWID AS ROWID,
-                           a.gid AS gid,
+                    SELECT 
                            a.id_sito AS id_sito,
                            a.sito_nome AS sito_nome,
                            a.descr_sito AS descr_sito,
@@ -1409,8 +1439,11 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
                       FROM pyarchinit_siti AS a
                            JOIN
                            inventario_materiali_table AS b ON (a.sito_nome = b.sito);
-                DROP VIEW pyarchinit_doc_view;
-
+                PRAGMA foreign_keys = 1;
+                PRAGMA foreign_keys = 0;
+                DROP VIEW if EXISTS pyarchinit_doc_view;
+                PRAGMA foreign_keys = 1;
+                PRAGMA foreign_keys = 0;
                 CREATE VIEW pyarchinit_doc_view AS
                     SELECT a.ROWID AS ROWID,
                            a.id_documentazione AS id_documentazione,
@@ -1423,7 +1456,7 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
                            a.disegnatore AS disegnatore,
                            a.note AS note,
                            b.ROWID AS ROWID_1,
-                           b.gid AS gid,
+                           
                            b.sito AS sito_1,
                            b.nome_doc AS nome_doc_1,
                            b.tipo_doc AS tipo_doc,
@@ -1434,8 +1467,12 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
                            pyarchinit_documentazione AS b ON (a.sito = b.sito AND 
                                                               a.nome_doc = b.nome_doc AND 
                                                               a.tipo_documentazione = b.tipo_doc);
-                DROP VIEW pyarchinit_individui_view;
-
+                
+                PRAGMA foreign_keys = 1;
+                PRAGMA foreign_keys = 0;
+                DROP VIEW if EXISTS pyarchinit_individui_view;
+                PRAGMA foreign_keys = 1;
+                PRAGMA foreign_keys = 0;
                 CREATE VIEW pyarchinit_individui_view AS
                     SELECT a.ROWID AS ROWID,
                            a.id_scheda_ind AS id_scheda_ind,
@@ -1451,7 +1488,7 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
                            a.classi_eta AS classi_eta,
                            a.osservazioni AS osservazioni,
                            b.ROWID AS ROWID_1,
-                           b.gid AS gid,
+                          
                            b.sito AS sito_1,
                            b.sigla_struttura AS sigla_struttura,
                            b.note AS note,
@@ -1461,8 +1498,11 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
                            JOIN
                            pyarchinit_individui AS b ON (a.sito = b.sito AND 
                                                          a.nr_individuo = b.id_individuo);
-                DROP VIEW pyarchinit_quote_view;
-
+                PRAGMA foreign_keys = 1;
+                PRAGMA foreign_keys = 0;
+                DROP VIEW if EXISTS pyarchinit_quote_view;
+                PRAGMA foreign_keys = 1;
+                PRAGMA foreign_keys = 0;
                 CREATE VIEW pyarchinit_quote_view AS
                     SELECT a.ROWID AS ROWID,
                            a.id_us AS id_us,
@@ -1495,7 +1535,7 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
                            a.order_layer AS order_layer,
                            a.documentazione AS documentazione,
                            b.ROWID AS ROWID_1,
-                           b.gid AS gid,
+                           
                            b.sito_q AS sito_q,
                            b.area_q AS area_q,
                            b.us_q AS us_q,
@@ -1511,11 +1551,14 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
                                                      a.area = b.area_q AND 
                                                      a.us = b.us_q) 
                      ORDER BY a.order_layer DESC;
-                DROP VIEW pyarchinit_reperti_view;
-
+                
+                PRAGMA foreign_keys = 1;
+                PRAGMA foreign_keys = 0;
+                DROP VIEW if EXISTS pyarchinit_reperti_view;
+                PRAGMA foreign_keys = 1;
+                PRAGMA foreign_keys = 0;
                 CREATE VIEW pyarchinit_reperti_view AS
-                    SELECT a.ROWID AS gid,
-                           a.gid AS ROWIND,
+                    SELECT a.ROWID AS ROWID,
                            a.the_geom AS the_geom,
                            a.id_rep AS id_rep,
                            a.siti AS siti,
@@ -1548,11 +1591,16 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
                            JOIN
                            inventario_materiali_table_toimp AS b ON (a.siti = b.sito AND 
                                                                      a.id_rep = b.numero_inventario);
-                DROP VIEW pyarchinit_sezioni_view;
-
+                
+                
+                PRAGMA foreign_keys = 1;
+                PRAGMA foreign_keys = 0;
+                DROP VIEW if EXISTS pyarchinit_sezioni_view;
+                PRAGMA foreign_keys = 1;
+                PRAGMA foreign_keys = 0;
                 CREATE VIEW pyarchinit_sezioni_view AS
                     SELECT a.ROWID AS ROWID,
-                           a.gid AS gid,
+                           
                            a.sito AS sito,
                            a.area AS area,
                            a.the_geom AS the_geom,
@@ -1573,11 +1621,15 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
                            documentazione_table AS b ON (a.sito = b.sito AND 
                                                          a.tipo_doc = b.tipo_documentazione AND 
                                                          a.nome_doc = b.nome_doc);
-                DROP VIEW pyarchinit_site_view;
-
+                
+                PRAGMA foreign_keys = 1;
+                PRAGMA foreign_keys = 0;
+                DROP VIEW IF EXISTS pyarchinit_site_view;
+                PRAGMA foreign_keys = 1;
+                PRAGMA foreign_keys = 0;
                 CREATE VIEW pyarchinit_site_view AS
                     SELECT a.ROWID AS ROWID,
-                           a.gid AS gid,
+                           
                            a.id_sito AS id_sito,
                            a.sito_nome AS sito_nome,
                            a.descr_sito AS descr_sito,
@@ -1595,11 +1647,16 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
                            JOIN
                            site_table AS b ON (a.sito_nome = b.sito) 
                      ORDER BY b.definizione_sito;
-                DROP VIEW pyarchinit_siti_polygonal_view;
-
+                
+                
+                PRAGMA foreign_keys = 1;
+                PRAGMA foreign_keys = 0;
+                DROP VIEW IF EXISTS pyarchinit_siti_polygonal_view;
+                PRAGMA foreign_keys = 1;
+                PRAGMA foreign_keys = 0;
                 CREATE VIEW pyarchinit_siti_polygonal_view AS
                     SELECT a.ROWID AS ROWID,
-                           a.gid AS gid,
+                           
                            a.sito_id AS sito_id,
                            a.the_geom AS the_geom,
                            b.ROWID AS ROWID_1,
@@ -1617,12 +1674,16 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
                      ORDER BY b.sito,
                               b.descrizione;
                               
+                
+                
+                PRAGMA foreign_keys = 1;
+                PRAGMA foreign_keys = 0;
                 DROP VIEW IF EXISTS pyarchinit_strutture_view;
-                DROP TABLE IF EXISTS pyarchinit_strutture_view;
-
+                PRAGMA foreign_keys = 1;
+                PRAGMA foreign_keys = 0;
                 CREATE VIEW pyarchinit_strutture_view AS
                     SELECT a.ROWID AS ROWID,
-                           a.gid AS gid,
+                           
                            a.sito AS sito,
                            a.id_strutt AS id_strutt,
                            a.per_iniz AS per_iniz,
@@ -1658,8 +1719,12 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
                            struttura_table AS b ON (a.sito = b.sito AND 
                                                     a.sigla_strut = b.sigla_struttura AND 
                                                     a.nr_strut = b.numero_struttura);
+                
+                PRAGMA foreign_keys = 1;
+                PRAGMA foreign_keys = 0;
                 DROP VIEW pyarchinit_tomba_view;
-
+                PRAGMA foreign_keys = 1;
+                PRAGMA foreign_keys = 0;
                 CREATE VIEW pyarchinit_tomba_view AS
                     SELECT a.id_tomba AS id_tomba,
                            a.sito AS sito,
@@ -1683,7 +1748,7 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
                            a.corredo_tipo AS corredo_tipo,
                            a.corredo_descrizione AS corredo_descrizione,
                            b.ROWID AS ROWID,
-                           b.gid AS gid,
+                           
                            b.sito AS sito_1,
                            b.nr_scheda AS nr_scheda,
                            b.the_geom AS the_geom
@@ -1692,11 +1757,15 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
                            pyarchinit_tafonomia AS b ON (a.sito = b.sito AND 
                                                          a.nr_scheda_taf = b.nr_scheda) 
                      ORDER BY a.nr_scheda_taf;
-                DROP VIEW pyarchinit_us_negative_doc_view;
-
+                
+                PRAGMA foreign_keys = 1;
+                PRAGMA foreign_keys = 0;
+                DROP VIEW IF EXISTS pyarchinit_us_negative_doc_view;
+                PRAGMA foreign_keys = 1;
+                PRAGMA foreign_keys = 0;
                 CREATE VIEW pyarchinit_us_negative_doc_view AS
                     SELECT a.ROWID AS ROWID,
-                           a.gid AS gid,
+                           
                            a.sito_n AS sito_n,
                            a.area_n AS area_n,
                            a.us_n AS us_n,
@@ -1806,10 +1875,10 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
                                              a.area_n = b.area AND 
                                              a.us_n = b.us);
                         
-                        ''')
+                        PRAGMA foreign_keys = 1;
+            ''')
         except Exception as e:
             pass#QMessageBox.warning(self, "ok", "entered in if", QMessageBox.Ok)
-    
     def setComboBoxEnable(self, f, v):
         field_names = f
         value = v
@@ -1948,6 +2017,9 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
                 QMessageBox.warning(self, "Warning", str(e), QMessageBox.Ok)
         else:
             pass
+    
+    
+    
     def geometry_conn(self):
         if self.comboBox_server_rd.currentText()!='sqlite':
             self.pushButton_import_geometry.setEnabled(False)
@@ -3056,8 +3128,7 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
             
             try:
                 sql_view_ndv=("""CREATE VIEW IF NOT EXISTS "pyarchinit_us_negative_doc_view" AS
-                    SELECT "a"."ROWID" AS "ROWID", "a"."gid" AS "gid",
-                    "a"."sito_n" AS "sito_n", "a"."area_n" AS "area_n",
+                    SELECT "a"."ROWID" AS "ROWID",                     "a"."sito_n" AS "sito_n", "a"."area_n" AS "area_n",
                     "a"."us_n" AS "us_n", "a"."tipo_doc_n" AS "tipo_doc_n",
                     "a"."nome_doc_n" AS "nome_doc_n", "a"."the_geom" AS "the_geom",
                     "b"."ROWID" AS "ROWID_1", "b"."id_us" AS "id_us",
