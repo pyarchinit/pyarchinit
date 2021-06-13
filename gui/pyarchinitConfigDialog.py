@@ -230,7 +230,7 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
 
                 DROP TABLE sqlitestudio_temp_table2;
 
-                CREATE TRIGGER ggi_pyarchinit_us_negative_doc_the_geom
+                CREATE TRIGGER IF NOT EXISTS ggi_pyarchinit_us_negative_doc_the_geom
                         BEFORE INSERT
                             ON pyarchinit_us_negative_doc
                       FOR EACH ROW
@@ -246,7 +246,7 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
                            IS NULL;
                 END;
 
-                CREATE TRIGGER ggu_pyarchinit_us_negative_doc_the_geom
+                CREATE TRIGGER IF NOT EXISTS ggu_pyarchinit_us_negative_doc_the_geom
                         BEFORE UPDATE
                             ON pyarchinit_us_negative_doc
                       FOR EACH ROW
@@ -262,7 +262,7 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
                            IS NULL;
                 END;
 
-                CREATE TRIGGER gii_pyarchinit_us_negative_doc_the_geom
+                CREATE TRIGGER IF NOT EXISTS gii_pyarchinit_us_negative_doc_the_geom
                          AFTER INSERT
                             ON pyarchinit_us_negative_doc
                       FOR EACH ROW
@@ -271,7 +271,7 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
                           WHERE pkid = NEW.ROWID;
                 END;
 
-                CREATE TRIGGER giu_pyarchinit_us_negative_doc_the_geom
+                CREATE TRIGGER IF NOT EXISTS giu_pyarchinit_us_negative_doc_the_geom
                          AFTER UPDATE
                             ON pyarchinit_us_negative_doc
                       FOR EACH ROW
@@ -280,7 +280,7 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
                           WHERE pkid = NEW.ROWID;
                 END;
 
-                CREATE TRIGGER gid_pyarchinit_us_negative_doc_the_geom
+                CREATE TRIGGER IF NOT EXISTS gid_pyarchinit_us_negative_doc_the_geom
                          AFTER DELETE
                             ON pyarchinit_us_negative_doc
                       FOR EACH ROW
@@ -3477,25 +3477,25 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
             WHERE f_table_name = 'pyunitastratigrafiche' AND f_geometry_column = 'the_geom'
             AND GeometryConstraints(NEW."the_geom", type, srid, 'XY') = 1) IS NULL;
             END;  """)
-            # cc=(""" CREATE TRIGGER IF NOT EXISTS "gii_pyunitastratigrafiche_the_geom" AFTER INSERT ON "pyunitastratigrafiche"
-            # FOR EACH ROW BEGIN
-            # DELETE FROM "idx_pyunitastratigrafiche_the_geom" WHERE gid=NEW.ROWID;
-            # SELECT RTreeAlign('idx_pyunitastratigrafiche_the_geom', NEW.ROWID, NEW."the_geom");
-            # END; """)
-            # d = ("""CREATE TRIGGER IF NOT EXISTS "giu_pyunitastratigrafiche_the_geom" AFTER UPDATE ON "pyunitastratigrafiche"
-            # FOR EACH ROW BEGIN
-            # DELETE FROM "idx_pyunitastratigrafiche_the_geom" WHERE gid=NEW.ROWID;
-            # SELECT RTreeAlign('idx_pyunitastratigrafiche_the_geom', NEW.ROWID, NEW."the_geom");
-            # END;  """)
-            # e=(""" CREATE TRIGGER  IF NOT EXISTS "gid_pyunitastratigrafiche_the_geom" AFTER DELETE ON "pyunitastratigrafiche"
-            # FOR EACH ROW BEGIN
-            # DELETE FROM "idx_pyunitastratigrafiche_the_geom" WHERE gid=OLD.ROWID;
-            # END; """)
+            cc=(""" CREATE TRIGGER IF NOT EXISTS "gii_pyunitastratigrafiche_the_geom" AFTER INSERT ON "pyunitastratigrafiche"
+            FOR EACH ROW BEGIN
+            DELETE FROM "idx_pyunitastratigrafiche_the_geom" WHERE pkid=NEW.ROWID;
+            SELECT RTreeAlign('idx_pyunitastratigrafiche_the_geom', NEW.ROWID, NEW."the_geom");
+            END; """)
+            d = ("""CREATE TRIGGER IF NOT EXISTS "giu_pyunitastratigrafiche_the_geom" AFTER UPDATE ON "pyunitastratigrafiche"
+            FOR EACH ROW BEGIN
+            DELETE FROM "idx_pyunitastratigrafiche_the_geom" WHERE pkid=NEW.ROWID;
+            SELECT RTreeAlign('idx_pyunitastratigrafiche_the_geom', NEW.ROWID, NEW."the_geom");
+            END;  """)
+            e=(""" CREATE TRIGGER  IF NOT EXISTS "gid_pyunitastratigrafiche_the_geom" AFTER DELETE ON "pyunitastratigrafiche"
+            FOR EACH ROW BEGIN
+            DELETE FROM "idx_pyunitastratigrafiche_the_geom" WHERE pkid=OLD.ROWID;
+            END; """)
             c.execute(a)
             c.execute(b)
-            # c.execute(cc)
-            # c.execute(d)
-            # c.execute(e)
+            c.execute(cc)
+            c.execute(d)
+            c.execute(e)
 
             sql_view_us=(
             """CREATE VIEW  IF NOT EXISTS "pyarchinit_us_view" AS
