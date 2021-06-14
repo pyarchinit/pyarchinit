@@ -35,7 +35,7 @@ if not packages:
         'SQLAlchemy-Utils',
         'geoalchemy2',
         'reportlab',
-        'pdf2docx',
+        'pdf2docx==0.4.6',
         'matplotlib',
         'PypeR',
         'graphviz',
