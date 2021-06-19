@@ -33,7 +33,7 @@ class pystrutture:
                      Column('fase_iniz', Integer),
                      Column('fase_fin', Integer),
                      Column('descrizione', Text),
-                     Column('the_geom', Geometry('POLYGON',-1)),
+                     Column('the_geom', Text),
                      Column('sigla_strut', Text),
                      Column('nr_strut', Integer),
                      # explicit/composite unique constraint.  'name' is optional.
