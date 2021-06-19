@@ -29,7 +29,7 @@ class pyindividui:
                      Column('sigla_struttura', Text),
                      Column('note', Text),
                      Column('id_individuo', Integer),
-                     Column('the_geom', Geometry('POINT',-1)),
+                     Column('the_geom', Text),
                      # explicit/composite unique constraint.  'name' is optional.
                      UniqueConstraint('gid')
                      )
