@@ -29,7 +29,7 @@ class pydocumentazione():
                      Column('nome_doc', Text),
                      Column('tipo_doc', Text),
                      Column('path_qgis_pj', Text),
-                     #Column('the_geom', Geometry('LINESTRING', -1)),
+                     Column('the_geom', Text),
                      # explicit/composite unique constraint.  'name' is optional.
                      UniqueConstraint('gid')
                      )
