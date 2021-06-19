@@ -33,7 +33,7 @@ class pyquote:
                      Column('data', Integer),
                      Column('disegnatore', Text),
                      Column('rilievo_originale', Text),
-                     Column('the_geom', Geometry('POINT',-1)),
+                     Column('the_geom', Text),
                      # explicit/composite unique constraint.  'name' is optional.
                      UniqueConstraint('gid')
                      )
