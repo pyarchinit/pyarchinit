@@ -27,7 +27,7 @@ class pytomba:
                      Column('gid', Integer, primary_key=True),  # 0
                      Column('sito', Text),
                      Column('nr_scheda', Integer),
-                     Column('the_geom', Geometry('POINT',-1)),
+                     Column('the_geom', Text),
                      # explicit/composite unique constraint.  'name' is optional.
                      UniqueConstraint('gid')
                      )
