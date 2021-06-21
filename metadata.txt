@@ -22,7 +22,7 @@ about=https://github.com/pyarchinit/pyarchinit
 tracker=https://github.com/pyarchinit/pyarchinit/issues
 repository=https://github.com/pyarchinit/pyarchinit
 
-changelog=release3.9.5
+changelog=release3.9.6
     
     -fix gemetry as text in Structure folder
   -------------------------------------------------------------------------------  
