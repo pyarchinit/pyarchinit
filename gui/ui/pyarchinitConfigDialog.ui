@@ -12,7 +12,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>728</width>
+    <width>716</width>
     <height>755</height>
    </rect>
   </property>
@@ -1872,11 +1872,13 @@
                  </property>
                  <property name="font">
                   <font>
+                   <family>MS Shell Dlg 2</family>
                    <pointsize>10</pointsize>
                    <weight>50</weight>
                    <italic>false</italic>
                    <bold>false</bold>
                    <underline>true</underline>
+                   <kerning>true</kerning>
                   </font>
                  </property>
                  <property name="text">
@@ -1906,8 +1908,10 @@
                    <family>MS Shell Dlg 2</family>
                    <pointsize>10</pointsize>
                    <weight>50</weight>
+                   <italic>false</italic>
                    <bold>false</bold>
                    <underline>true</underline>
+                   <kerning>true</kerning>
                   </font>
                  </property>
                  <property name="text">
@@ -1937,6 +1941,10 @@
                <property name="font">
                 <font>
                  <family>8514oem</family>
+                 <weight>50</weight>
+                 <italic>false</italic>
+                 <bold>false</bold>
+                 <kerning>true</kerning>
                 </font>
                </property>
                <property name="url" stdset="0">
@@ -1971,9 +1979,12 @@
                </property>
                <property name="font">
                 <font>
+                 <family>MS Shell Dlg 2</family>
                  <pointsize>17</pointsize>
                  <weight>75</weight>
+                 <italic>false</italic>
                  <bold>true</bold>
+                 <kerning>true</kerning>
                 </font>
                </property>
                <property name="orientation">
@@ -2262,7 +2273,7 @@
     <widget class="QgsDockWidget" name="mDockWidget">
      <property name="minimumSize">
       <size>
-       <width>95</width>
+       <width>152</width>
        <height>150</height>
       </size>
      </property>
@@ -2280,9 +2291,9 @@
       <widget class="QLabel" name="label_22">
        <property name="geometry">
         <rect>
-         <x>20</x>
-         <y>10</y>
-         <width>361</width>
+         <x>9</x>
+         <y>9</y>
+         <width>134</width>
          <height>16</height>
         </rect>
        </property>
@@ -2293,8 +2304,8 @@
       <widget class="QPushButton" name="pushButton_compare">
        <property name="geometry">
         <rect>
-         <x>20</x>
-         <y>110</y>
+         <x>10</x>
+         <y>60</y>
          <width>75</width>
          <height>23</height>
         </rect>
@@ -2306,10 +2317,10 @@
       <widget class="QComboBox" name="comboBox_compare">
        <property name="geometry">
         <rect>
-         <x>20</x>
-         <y>40</y>
-         <width>121</width>
-         <height>22</height>
+         <x>10</x>
+         <y>30</y>
+         <width>108</width>
+         <height>20</height>
         </rect>
        </property>
        <property name="editable">
@@ -2330,6 +2341,32 @@
          <string>--changeset FILE</string>
         </property>
        </item>
+      </widget>
+      <widget class="QPushButton" name="pushButton_convertdb">
+       <property name="geometry">
+        <rect>
+         <x>10</x>
+         <y>130</y>
+         <width>75</width>
+         <height>23</height>
+        </rect>
+       </property>
+       <property name="text">
+        <string>Convert</string>
+       </property>
+      </widget>
+      <widget class="QLabel" name="label_44">
+       <property name="geometry">
+        <rect>
+         <x>10</x>
+         <y>110</y>
+         <width>131</width>
+         <height>16</height>
+        </rect>
+       </property>
+       <property name="text">
+        <string>Converti in  Spatialite v5</string>
+       </property>
       </widget>
      </widget>
     </widget>
