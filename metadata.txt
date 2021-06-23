@@ -12,7 +12,7 @@
 name=pyArchInit
 qgisMinimumVersion=3.0
 description=pyarchinit an tool for archaeological works
-version=3.9.6
+version=3.9.7
 author=Luca Mandolesi&Enzo Cocca
 email=pyarchinit@gmail.com
 
@@ -22,10 +22,12 @@ about=https://github.com/pyarchinit/pyarchinit
 tracker=https://github.com/pyarchinit/pyarchinit/issues
 repository=https://github.com/pyarchinit/pyarchinit
 
-changelog=release3.9.6
-    
-    -fix gemetry as text in Structure folder
-  -------------------------------------------------------------------------------  
+changelog=release3.9.7
+
+    -function for convert db for spatialite 5
+  -------------------------------------------------------------------------------
+
+
 
 
   release3.9.5
