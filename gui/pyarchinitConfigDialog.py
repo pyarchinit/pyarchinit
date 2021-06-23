@@ -173,34 +173,45 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
     
     
     def test3(self):
-        if Qgis.QGIS_VERSION_INT >=32000:
-            home_DB_path = '{}{}{}'.format(self.HOME, os.sep, 'pyarchinit_DB_folder')
+        
+        home_DB_path = '{}{}{}'.format(self.HOME, os.sep, 'pyarchinit_DB_folder')
 
-            sl_name = '{}.sqlite'.format(self.lineEdit_dbname_sl.text())
-            db_path = os.path.join(home_DB_path, sl_name)
+        sl_name = '{}.sqlite'.format(self.lineEdit_dbname_sl.text())
+        db_path = os.path.join(home_DB_path, sl_name)
 
-            conn = Connection()
-            db_url = conn.conn_str()
-            test_conn = db_url.find('sqlite')
-            if test_conn == 0:
-                try:
-                    engine = create_engine(db_url, echo=True)
+        conn = Connection()
+        db_url = conn.conn_str()
+        test_conn = db_url.find('sqlite')
+        if test_conn == 0:
+            
+            
+            
+            engine = create_engine(db_url, echo=True)
 
-                    listen(engine, 'connect', self.load_spatialite)
-                    c = engine.connect()
+            listen(engine, 'connect', self.load_spatialite)
+            c = engine.connect()
+            
+            tabl=str('SELECT name FROM sqlite_master WHERE type="table" AND name="pyarchinit_quote_usm";') 
+            b=c.execute(tabl).fetchone()
+            
+            if b==None:
+                QMessageBox.warning(self, 'Attenzione','Aggiorna il db per inserire i layer per le unità stratigrafiche verticali',QMessageBox.Ok)
+                
+                
+            try:    
+                if Qgis.QGIS_VERSION_INT >=32000:
                     version_sl=str('SELECT CheckSpatialMetaData();')
                     a=c.execute(version_sl).fetchall()
                     for row in a:
                         print(row[0])
-                    
-                except:
-                    pass
-                if str(row[0])=='1':
-                    QMessageBox.warning(self, 'Attenzione','Versione DB:'+ str(row[0])+'\n'+' '+ 'La versione spatilalite di questo db dveve essere aggiornata',QMessageBox.Ok)
-                else:
-                   pass
-        else:
-            pass
+                    if str(row[0])=='1':
+                        QMessageBox.warning(self, 'Attenzione','Versione DB:'+ str(row[0])+'\n'+' '+ 'La versione spatilalite di questo db dveve essere convertito',QMessageBox.Ok)
+                    else:
+                       pass
+            except:
+                pass
+                
+        
     def test(self):
         try:
             
