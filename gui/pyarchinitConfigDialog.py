@@ -48,7 +48,7 @@ from qgis.PyQt.QtCore import  pyqtSlot, pyqtSignal,QThread,QUrl
 from qgis.PyQt.QtWidgets import QApplication, QDialog, QMessageBox, QFileDialog,QLineEdit,QWidget,QCheckBox
 from qgis.PyQt.QtSql import *
 from qgis.PyQt.uic import loadUiType
-from qgis.core import QgsApplication, QgsSettings, QgsProject
+from qgis.core import QgsApplication, QgsSettings, QgsProject, Qgis
 from modules.db.pyarchinit_conn_strings import Connection
 from modules.db.pyarchinit_db_manager import Pyarchinit_db_management
 from modules.db.pyarchinit_utility import Utility
@@ -169,7 +169,38 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
         self.comboBox_Database.currentIndexChanged.connect(self.customize)
         self.test()
         self.test2()
+        self.test3()
     
+    
+    def test3(self):
+        if Qgis.QGIS_VERSION_INT >=32000:
+            home_DB_path = '{}{}{}'.format(self.HOME, os.sep, 'pyarchinit_DB_folder')
+
+            sl_name = '{}.sqlite'.format(self.lineEdit_dbname_sl.text())
+            db_path = os.path.join(home_DB_path, sl_name)
+
+            conn = Connection()
+            db_url = conn.conn_str()
+            test_conn = db_url.find('sqlite')
+            if test_conn == 0:
+                try:
+                    engine = create_engine(db_url, echo=True)
+
+                    listen(engine, 'connect', self.load_spatialite)
+                    c = engine.connect()
+                    version_sl=str('SELECT CheckSpatialMetaData();')
+                    a=c.execute(version_sl).fetchall()
+                    for row in a:
+                        print(row[0])
+                    
+                except:
+                    pass
+                if str(row[0])=='1':
+                    QMessageBox.warning(self, 'Attenzione','Versione DB:'+ str(row[0])+'\n'+' '+ 'La versione spatilalite di questo db dveve essere aggiornata',QMessageBox.Ok)
+                else:
+                   pass
+        else:
+            pass
     def test(self):
         try:
             
@@ -182,6 +213,11 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
             
             con = sqlite3.connect(sqlite_DB_path +os.sep+ conn_sqlite["db_name"])
             cur = con.cursor()
+            
+          
+            
+            delete_tab='''DELETE FROM geometry_columns WHERE f_geometry_column = 'geom';'''
+            cur.execute(delete_tab)
             drop_ = '''DROP TABLE IF EXISTS sqlitestudio_temp_table2;'''
             cur.execute(drop_)
             drop_2 = '''DROP TABLE IF EXISTS sqlitestudio_temp_table;'''
@@ -5646,3 +5682,29 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
        # srv = pysftp.Connection(host=self.ip, username=self.user, password=self.pwd,cnopts =cnopts )
        # self.lineEdit_2.insert("Connection Close ............. ")
        # srv.close()
+    def on_pushButton_convertdb_pressed(self):
+        if self.comboBox_Database.currentText() == 'sqlite':
+
+            if platform.system() == "Windows":
+                cmd = os.path.join(os.sep, self.HOME, 'bin', 'spatialite_convert.exe')
+                #db1 = os.path.join(os.sep, self.HOME, 'bin', 'pyarchinit.sqlite')
+                
+            
+            else:
+                QMessageBox.warning(self, "Attenzione",
+                                     "Funzione abilitata solo per windows",
+                                     QMessageBox.Ok)
+
+            db1 = os.path.join(os.sep, self.HOME, 'pyarchinit_DB_folder', self.lineEdit_DBname.text())
+
+            # text_ = cmd, self.comboBox_compare.currentText(), db1 + ' ', db2
+            # result = subprocess.check_output([text_], stderr=subprocess.STDOUT)
+            os.system("start cmd /k" + cmd + ' --db-path ' + ' ' +db1 +' '+ '-tv 4' )
+            os.system("start cmd /k" + cmd + ' --db-path ' + ' ' + db1 +' '+ '-tv 5' )
+            
+
+        else:
+            QMessageBox.warning(self, "Attenzione",
+                                     "ops qualcosa è andato storto",
+                                     QMessageBox.Ok)
+    
