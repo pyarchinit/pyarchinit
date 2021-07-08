@@ -35,7 +35,7 @@ if not packages:
         'SQLAlchemy-Utils',
         'geoalchemy2',
         'reportlab',
-        'pdf2docx',
+        'pdf2docx==0.4.6',
         'matplotlib',
         'pyper',
         'graphviz',
@@ -61,5 +61,5 @@ else:
 #
 for p in packages:
     
-    subprocess.check_call(['pip', 'install',  p ], shell=False)
+    subprocess.check_call(['pip', 'install',  p ], shell=True)
     
