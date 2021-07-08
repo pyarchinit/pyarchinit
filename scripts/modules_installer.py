@@ -38,7 +38,7 @@ if not packages:
         'tk',
         'pdf2docx',
         'matplotlib',
-        'PypeR',
+        'pyper',
         'graphviz',
         'pysftp',
         'xlsxwriter',        

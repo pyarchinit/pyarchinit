@@ -519,6 +519,9 @@
      </item>
      <item row="0" column="4">
       <widget class="QLineEdit" name="lineEdit_dpi">
+       <property name="text">
+        <string>300</string>
+       </property>
        <property name="placeholderText">
         <string>insert dpi value</string>
        </property>

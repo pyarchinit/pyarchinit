@@ -810,6 +810,29 @@
        </property>
       </widget>
      </item>
+     <item row="2" column="5">
+      <widget class="QPushButton" name="pushButton_mc">
+       <property name="sizePolicy">
+        <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
+         <horstretch>0</horstretch>
+         <verstretch>0</verstretch>
+        </sizepolicy>
+       </property>
+       <property name="maximumSize">
+        <size>
+         <width>30</width>
+         <height>30</height>
+        </size>
+       </property>
+       <property name="text">
+        <string/>
+       </property>
+       <property name="icon">
+        <iconset resource="../../resources/resources.qrc">
+         <normaloff>:/icons/movecost.png</normaloff>:/icons/movecost.png</iconset>
+       </property>
+      </widget>
+     </item>
     </layout>
    </item>
    <item row="3" column="0" colspan="2">
@@ -1369,6 +1392,7 @@
            </property>
            <property name="font">
             <font>
+             <pointsize>9</pointsize>
              <weight>75</weight>
              <bold>true</bold>
             </font>
@@ -1623,6 +1647,81 @@ Step 3 - Riavviare Qgis e cliccare sul pulsante Run Test per verificare l'output
             <bool>true</bool>
            </property>
           </widget>
+          <widget class="QgsDockWidget" name="mDockWidget">
+           <property name="geometry">
+            <rect>
+             <x>279</x>
+             <y>60</y>
+             <width>561</width>
+             <height>271</height>
+            </rect>
+           </property>
+           <property name="windowIcon">
+            <iconset resource="../../resources/resources.qrc">
+             <normaloff>:/icons/movecost.png</normaloff>:/icons/movecost.png</iconset>
+           </property>
+           <property name="floating">
+            <bool>true</bool>
+           </property>
+           <property name="windowTitle">
+            <string>MovecostToPyarchinit</string>
+           </property>
+           <widget class="QWidget" name="dockWidgetContents">
+            <widget class="QPushButton" name="pushButton_movecost">
+             <property name="geometry">
+              <rect>
+               <x>30</x>
+               <y>200</y>
+               <width>93</width>
+               <height>23</height>
+              </rect>
+             </property>
+             <property name="text">
+              <string>movecost</string>
+             </property>
+            </widget>
+            <widget class="QgsMapLayerComboBox" name="mMapLayerComboBox">
+             <property name="geometry">
+              <rect>
+               <x>30</x>
+               <y>20</y>
+               <width>160</width>
+               <height>27</height>
+              </rect>
+             </property>
+            </widget>
+            <widget class="QgsMapLayerComboBox" name="mMapLayerComboBox_2">
+             <property name="geometry">
+              <rect>
+               <x>30</x>
+               <y>60</y>
+               <width>160</width>
+               <height>27</height>
+              </rect>
+             </property>
+            </widget>
+            <widget class="QgsMapLayerComboBox" name="mMapLayerComboBox_3">
+             <property name="geometry">
+              <rect>
+               <x>30</x>
+               <y>100</y>
+               <width>160</width>
+               <height>27</height>
+              </rect>
+             </property>
+            </widget>
+            <widget class="QgsMapLayerComboBox" name="mMapLayerComboBox_4">
+             <property name="geometry">
+              <rect>
+               <x>30</x>
+               <y>140</y>
+               <width>160</width>
+               <height>27</height>
+              </rect>
+             </property>
+            </widget>
+           </widget>
+          </widget>
          </widget>
          <widget class="QWidget" name="tab">
           <attribute name="title">
@@ -1640,6 +1739,7 @@ Step 3 - Riavviare Qgis e cliccare sul pulsante Run Test per verificare l'output
              <property name="font">
               <font>
                <family>MS Shell Dlg 2</family>
+               <pointsize>9</pointsize>
                <weight>50</weight>
                <italic>false</italic>
                <bold>false</bold>
@@ -1686,11 +1786,13 @@ Step 3 - Riavviare Qgis e cliccare sul pulsante Run Test per verificare l'output
                      </property>
                      <property name="font">
                       <font>
+                       <family>MS Shell Dlg 2</family>
                        <pointsize>10</pointsize>
                        <weight>50</weight>
                        <italic>false</italic>
                        <bold>false</bold>
                        <underline>true</underline>
+                       <kerning>true</kerning>
                       </font>
                      </property>
                      <property name="text">
@@ -1720,8 +1822,10 @@ Step 3 - Riavviare Qgis e cliccare sul pulsante Run Test per verificare l'output
                        <family>MS Shell Dlg 2</family>
                        <pointsize>10</pointsize>
                        <weight>50</weight>
+                       <italic>false</italic>
                        <bold>false</bold>
                        <underline>true</underline>
+                       <kerning>true</kerning>
                       </font>
                      </property>
                      <property name="text">
@@ -1751,6 +1855,11 @@ Step 3 - Riavviare Qgis e cliccare sul pulsante Run Test per verificare l'output
                    <property name="font">
                     <font>
                      <family>8514oem</family>
+                     <pointsize>9</pointsize>
+                     <weight>50</weight>
+                     <italic>false</italic>
+                     <bold>false</bold>
+                     <kerning>true</kerning>
                     </font>
                    </property>
                    <property name="url" stdset="0">
@@ -1785,9 +1894,12 @@ Step 3 - Riavviare Qgis e cliccare sul pulsante Run Test per verificare l'output
                    </property>
                    <property name="font">
                     <font>
+                     <family>MS Shell Dlg 2</family>
                      <pointsize>17</pointsize>
                      <weight>75</weight>
+                     <italic>false</italic>
                      <bold>true</bold>
+                     <kerning>true</kerning>
                     </font>
                    </property>
                    <property name="orientation">
@@ -1819,6 +1931,17 @@ Step 3 - Riavviare Qgis e cliccare sul pulsante Run Test per verificare l'output
    <container>1</container>
   </customwidget>
   <customwidget>
+   <class>QgsDockWidget</class>
+   <extends>QDockWidget</extends>
+   <header>qgsdockwidget.h</header>
+   <container>1</container>
+  </customwidget>
+  <customwidget>
+   <class>QgsMapLayerComboBox</class>
+   <extends>QComboBox</extends>
+   <header>qgsmaplayercombobox.h</header>
+  </customwidget>
+  <customwidget>
    <class>QWebView</class>
    <extends>QWidget</extends>
    <header>QtWebKit/QWebView</header>
@@ -1827,5 +1950,22 @@ Step 3 - Riavviare Qgis e cliccare sul pulsante Run Test per verificare l'output
  <resources>
   <include location="../../resources/resources.qrc"/>
  </resources>
- <connections/>
+ <connections>
+  <connection>
+   <sender>pushButton_mc</sender>
+   <signal>pressed()</signal>
+   <receiver>mDockWidget</receiver>
+   <slot>toggleUserVisible()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>402</x>
+     <y>101</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>446</x>
+     <y>238</y>
+    </hint>
+   </hints>
+  </connection>
+ </connections>
 </ui>

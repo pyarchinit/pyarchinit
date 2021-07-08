@@ -84,5 +84,6 @@
     <file>icons/site_point.png</file>
     <file>icons/site_point2.png</file>
 	<file>icons/GIS3.png</file>
+	<file>icons/movecost.png</file>
   </qresource>
 </RCC>
