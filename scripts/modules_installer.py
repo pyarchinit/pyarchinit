@@ -35,6 +35,7 @@ if not packages:
         'SQLAlchemy-Utils',
         'geoalchemy2',
         'reportlab',
+        'tk',
         'pdf2docx',
         'matplotlib',
         'PypeR',
@@ -59,12 +60,12 @@ else:
 
 # install pip if it is not found
 try:
-    subprocess.check_call([cmd, '-m', 'ensurepip'], shell=False)
+    subprocess.check_call([cmd, ' -m ', 'ensurepip'], shell=False)
 except:
     pass
-subprocess.check_call([cmd, '-m', 'pip', 'install', '--upgrade', 'pip','--user'], shell=False) 
+subprocess.check_call([cmd, ' -m ', ' pip ', ' install ', ' --upgrade ', ' pip ',' --user'], shell=False) 
 for p in packages:
     try:
-        subprocess.check_call([cmd, '-m', 'pip', 'install', '--upgrade', p,'--user'], shell=False)
+        subprocess.check_call([cmd, ' -m ', ' pip ', ' install ', ' --upgrade ', p ,' --user'], shell=False)
     except Exception as e:
         print(str(e))
