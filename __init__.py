@@ -92,7 +92,9 @@ except Exception as e:
 
 
 try:
-    import pdf2docx
+    import pkg_resources
+
+    pkg_resources.require("pdf2docx==0.4.6")
 except Exception as e:
     missing_libraries.append(str(e))
 
