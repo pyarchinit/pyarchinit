@@ -90,10 +90,6 @@ try:
 except Exception as e:
     missing_libraries.append(str(e))
 
-try:
-    import tkinter
-except Exception as e:
-    missing_libraries.append(str(e))
 
 try:
     import pdf2docx
