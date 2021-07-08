@@ -44,7 +44,7 @@ class HarrisMatrix:
         self.negative = negative
         self.periodi=periodi
         self.conteporene=conteporene
-       
+        
     @property
     def export_matrix(self):
         
@@ -60,7 +60,7 @@ class HarrisMatrix:
         G.graph_attr['nodesep']="1"
         G.graph_attr['ranksep']="1.5"
         G.graph_attr['splines'] = 'ortho'
-        #G.graph_attr['dpi'] = 
+        G.graph_attr['dpi'] = str(dialog.lineEdit_dpi.text())
         
         
         elist1 = []
@@ -268,7 +268,7 @@ class HarrisMatrix:
         G.graph_attr['nodesep']="1"
         G.graph_attr['ranksep']="1.5"
         G.graph_attr['splines'] = 'ortho'
-        # G.graph_attr['dpi'] = '50'
+        G.graph_attr['dpi'] = str(dialog.lineEdit_dpi.text())
         
         elist1 = []
         elist2 = []

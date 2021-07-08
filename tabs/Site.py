@@ -27,11 +27,14 @@ import urllib
 from socket import timeout
 from builtins import range
 from builtins import str
-from qgis.PyQt.QtGui import QDesktopServices
-from qgis.PyQt.QtCore import QUrl, QVariant
-from qgis.PyQt.QtWidgets import QDialog, QMessageBox, QFileDialog
-from qgis.PyQt.uic import loadUiType
+import pyper as pr
+from pyper import *
+from qgis.PyQt.QtGui import *
+from qgis.PyQt.QtCore import *
+from qgis.PyQt.QtWidgets import *
+from qgis.PyQt.uic import *
 from qgis.core import *
+from qgis.gui import QgsMapLayerComboBox
 
 from ..modules.db.pyarchinit_conn_strings import Connection
 from ..modules.db.pyarchinit_db_manager import Pyarchinit_db_management
@@ -185,12 +188,19 @@ class pyarchinit_Site(QDialog, MAIN_DIALOG_CLASS):
     }
 
     DB_SERVER = "not defined"  ####nuovo sistema sort
-
+    
     def __init__(self, iface):
         super().__init__()
         self.iface = iface
         self.pyQGIS = Pyarchinit_pyqgis(iface)
         self.setupUi(self)
+        self.mDockWidget.setHidden(True)
+        # self.comboBox_rst = QgsMapLayerComboBox(self)
+        # self.verticalLayout_1.addWidget(self.comboBox_rst)
+        self.mMapLayerComboBox.setFilters(QgsMapLayerProxyModel.RasterLayer)
+        self.mMapLayerComboBox_2.setFilters(QgsMapLayerProxyModel.PointLayer)
+        self.mMapLayerComboBox_3.setFilters(QgsMapLayerProxyModel.PointLayer)
+        self.mMapLayerComboBox_4.setFilters(QgsMapLayerProxyModel.PolygonLayer)
         self.currentLayerId = None
         self.HOME = os.environ['PYARCHINIT_HOME']
         try:
@@ -202,6 +212,46 @@ class pyarchinit_Site(QDialog, MAIN_DIALOG_CLASS):
         self.pbn_browse_folder.clicked.connect(self.setPathToSites)
         self.set_sito()
         self.msg_sito()
+    
+    def on_pushButton_movecost_pressed(self):#####modifiche apportate per il calcolo statistico con R
+        HOME = os.environ['PYARCHINIT_HOME']
+        RFOLDER = '{}{}{}'.format(HOME, os.sep, "pyarchinit_Report_folder")
+        r = R()
+        
+        # r('getwd()')#QMessageBox.warning(self, "Connection system", str(), QMessageBox.Ok)
+        # # eval(dir)
+        r('library(movecost)')
+        
+        #r('setwd()') #%(str(RFOLDER))
+        
+        # v=r('movecost')
+        # QMessageBox.warning(self, "Connection system", str(v), QMessageBox.Ok)
+        
+        #r('dem <- impShp()')
+        #eval(e)
+        dem=str(self.mMapLayerComboBox.currentLayer())
+        A=str(self.mMapLayerComboBox_2.currentLayer())
+        B=str(self.mMapLayerComboBox_3.currentLayer())
+        
+        
+        r('data("'+str(dem)+'")')
+        
+        r('data("'+str(A)+'")')
+        r('data("'+str(B)+'")')
+        
+        #try:
+        r('movecost(dtm="'+str(dem)+'", origin="'+str(A)+'", destin="'+str(B)+'", move=8, breaks=1, export=TRUE)')
+        a=r('log (-1)')
+        #except Exception as e:
+        QMessageBox.warning(self, "Connection system", str(a), QMessageBox.Ok)
+        
+
+        # result <- movecost(dtm=dem, origin=A, destin=B, funct="icmonp", move=8, breaks=1, export=TRUE)
+        
+
+        # results <- movecost(dtm=dem, origin=A, destin=B[3,], move=8, return.base = TRUE, export=TRUE)''')
+        
+        
     def setPathToSites(self):
         s = QgsSettings()
         self.siti_path = QFileDialog.getExistingDirectory(

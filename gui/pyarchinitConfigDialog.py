@@ -48,7 +48,7 @@ from qgis.PyQt.QtCore import  pyqtSlot, pyqtSignal,QThread,QUrl
 from qgis.PyQt.QtWidgets import QApplication, QDialog, QMessageBox, QFileDialog,QLineEdit,QWidget,QCheckBox
 from qgis.PyQt.QtSql import *
 from qgis.PyQt.uic import loadUiType
-from qgis.core import QgsApplication, QgsSettings, QgsProject, Qgis
+from qgis.core import  *
 from modules.db.pyarchinit_conn_strings import Connection
 from modules.db.pyarchinit_db_manager import Pyarchinit_db_management
 from modules.db.pyarchinit_utility import Utility
@@ -88,6 +88,7 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
 
         s = QgsSettings()
         self.mDockWidget.setHidden(True)
+        
         self.load_dict()
         self.charge_data()
         self.db_active()
@@ -133,14 +134,14 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
             self.pbnSaveEnvironPath.setEnabled(False)
             self.lineEditGraphviz.setEnabled(False)
 
-        self.r_bin = s.value('pyArchInit/rBinPath', None, type=str)
-        if self.r_bin:
-            self.lineEditR.setText(self.r_bin)
+        # self.r_bin = s.value('pyArchInit/rBinPath', None, type=str)
+        # if self.r_bin:
+            # self.lineEditR.setText(self.r_bin)
 
-        if Pyarchinit_OS_Utility.checkRInstallation():
-            self.pushButtonR.setEnabled(False)
-            self.pbnSaveEnvironPathR.setEnabled(False)
-            self.lineEditR.setEnabled(False)
+        # if Pyarchinit_OS_Utility.checkRInstallation():
+            # self.pushButtonR.setEnabled(False)
+            # self.pbnSaveEnvironPathR.setEnabled(False)
+            # self.lineEditR.setEnabled(False)
 
 
 

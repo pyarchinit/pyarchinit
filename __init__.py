@@ -187,15 +187,15 @@ if not Pyarchinit_OS_Utility.checkGraphvizInstallation() and s.value('pyArchInit
 
 
 packages = [
-    'PypeR',
+    'pyaper',
     'graphviz',
 ]
 for p in packages:
     from qgis.PyQt.QtWidgets import QMessageBox
 
-    # if p.startswith('PypeR'):
+    # if p.startswith('pyper'):
         # try:
-            # subprocess.call(['R', '--version'])
+            # subprocess.call(['R', '--vanilla'])
         # except Exception as e:
             # if L=='it':
                 # QMessageBox.warning(None, 'Pyarchinit',
