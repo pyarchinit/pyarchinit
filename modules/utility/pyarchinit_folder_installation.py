@@ -51,6 +51,15 @@ class pyarchinit_Folder_installation(object):
         db_copy_from_bin = '{}{}'.format(self.RESOURCES_PATH, db_copy_from_bin_rel)
         db_copy_to_bin = '{}{}{}'.format(home_bin_export_path, os.sep, 'pyarchinit.sqlite')
 
+        em_copy_from_path_rel = os.path.join(os.sep, 'dbfiles', 'EM_palette.graphml')
+        em_copy_from_path = '{}{}'.format(self.RESOURCES_PATH, em_copy_from_path_rel)
+        em_copy_to_path = '{}{}{}'.format(home_bin_export_path, os.sep, 'EM_palette.graphml')
+
+
+        wc_copy_from_path_rel = os.path.join(os.sep, 'dbfiles', 'spatialite_convert.exe')
+        wc_copy_from_path = '{}{}'.format(self.RESOURCES_PATH, wc_copy_from_path_rel)
+        wc_copy_to_path = '{}{}{}'.format(home_bin_export_path, os.sep, 'spatialite_convert.exe')
+
         w_copy_from_path_rel = os.path.join(os.sep, 'dbfiles', 'sqldiff.exe')
         w_copy_from_path = '{}{}'.format(self.RESOURCES_PATH, w_copy_from_path_rel)
         w_copy_to_path = '{}{}{}'.format(home_bin_export_path, os.sep, 'sqldiff.exe')
@@ -76,6 +85,8 @@ class pyarchinit_Folder_installation(object):
         X11Colors_copy_to_path = '{}{}{}'.format(home_bin_export_path, os.sep, 'X11Colors.py')
         
         self.OS_UTILITY.copy_file(db_copy_from_bin, db_copy_to_bin)
+        self.OS_UTILITY.copy_file(em_copy_from_path, em_copy_to_path)
+        self.OS_UTILITY.copy_file(wc_copy_from_path, wc_copy_to_path)
         self.OS_UTILITY.copy_file(w_copy_from_path, w_copy_to_path)
         self.OS_UTILITY.copy_file(linux_copy_from_path, linux_copy_to_path)
         self.OS_UTILITY.copy_file(osx_copy_from_path, osx_copy_to_path)
@@ -175,6 +186,14 @@ class pyarchinit_Folder_installation(object):
         db_copy_from_bin = '{}{}'.format(self.RESOURCES_PATH, db_copy_from_bin_rel)
         db_copy_to_bin = '{}{}{}'.format(home_bin_export_path, os.sep, 'pyarchinit.sqlite')
 
+        em_copy_from_path_rel = os.path.join(os.sep, 'dbfiles', 'EM_palette.graphml')
+        em_copy_from_path = '{}{}'.format(self.RESOURCES_PATH, em_copy_from_path_rel)
+        em_copy_to_path = '{}{}{}'.format(home_bin_export_path, os.sep, 'EM_palette.graphml')
+
+        wc_copy_from_path_rel = os.path.join(os.sep, 'dbfiles', 'spatialite_convert.exe')
+        wc_copy_from_path = '{}{}'.format(self.RESOURCES_PATH, wc_copy_from_path_rel)
+        wc_copy_to_path = '{}{}{}'.format(home_bin_export_path, os.sep, 'spatialite_convert.exe')
+
         w_copy_from_path_rel = os.path.join(os.sep, 'dbfiles', 'sqldiff.exe')
         w_copy_from_path = '{}{}'.format(self.RESOURCES_PATH, w_copy_from_path_rel)
         w_copy_to_path = '{}{}{}'.format(home_bin_export_path, os.sep, 'sqldiff.exe')
@@ -211,6 +230,8 @@ class pyarchinit_Folder_installation(object):
         
         
         self.OS_UTILITY.copy_file(db_copy_from_bin, db_copy_to_bin)
+        self.OS_UTILITY.copy_file(em_copy_from_path, em_copy_to_path)
+        self.OS_UTILITY.copy_file(wc_copy_from_path, wc_copy_to_path)
         self.OS_UTILITY.copy_file(w_copy_from_path, w_copy_to_path)
         self.OS_UTILITY.copy_file(linux_copy_from_path, linux_copy_to_path)
         self.OS_UTILITY.copy_file(osx_copy_from_path, osx_copy_to_path)
