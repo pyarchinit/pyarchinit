@@ -216,19 +216,19 @@ class pyarchinit_Site(QDialog, MAIN_DIALOG_CLASS):
         processing.execAlgorithmDialog('r:movecost')
         
     def on_pushButton_movecost_p_pressed(self):#####modifiche apportate per il calcolo statistico con R
-        processing.execAlgorithmDialog('r:movecost_by_polygon')
+        processing.execAlgorithmDialog('r:movecostbypolygon')
         
     def on_pushButton_movebound_pressed(self):#####modifiche apportate per il calcolo statistico con R
         processing.execAlgorithmDialog('r:movebound')
     
     def on_pushButton_movebound_p_pressed(self):#####modifiche apportate per il calcolo statistico con R
-        processing.execAlgorithmDialog('r:movebound_by_polygon')
+        processing.execAlgorithmDialog('r:moveboundbypolygon')
     
     def on_pushButton_movecorr_pressed(self):#####modifiche apportate per il calcolo statistico con R
         processing.execAlgorithmDialog('r:movecorr')
     
     def on_pushButton_movecorr_p_pressed(self):#####modifiche apportate per il calcolo statistico con R
-        processing.execAlgorithmDialog('r:movecorr_by_polygon')
+        processing.execAlgorithmDialog('r:movecorrbypolygon')
     
     def defaultScriptsFolder():
         folder = str(os.path.join(userFolder(), "rscripts"))
