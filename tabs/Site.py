@@ -35,7 +35,9 @@ from qgis.PyQt.QtWidgets import *
 from qgis.PyQt.uic import *
 from qgis.core import *
 from qgis.gui import QgsMapLayerComboBox
-
+from distutils.dir_util import copy_tree
+from processing.tools.system import mkdir, userFolder
+import processing
 from ..modules.db.pyarchinit_conn_strings import Connection
 from ..modules.db.pyarchinit_db_manager import Pyarchinit_db_management
 from ..modules.db.pyarchinit_utility import Utility
@@ -197,10 +199,7 @@ class pyarchinit_Site(QDialog, MAIN_DIALOG_CLASS):
         self.mDockWidget.setHidden(True)
         # self.comboBox_rst = QgsMapLayerComboBox(self)
         # self.verticalLayout_1.addWidget(self.comboBox_rst)
-        self.mMapLayerComboBox.setFilters(QgsMapLayerProxyModel.RasterLayer)
-        self.mMapLayerComboBox_2.setFilters(QgsMapLayerProxyModel.PointLayer)
-        self.mMapLayerComboBox_3.setFilters(QgsMapLayerProxyModel.PointLayer)
-        self.mMapLayerComboBox_4.setFilters(QgsMapLayerProxyModel.PolygonLayer)
+        
         self.currentLayerId = None
         self.HOME = os.environ['PYARCHINIT_HOME']
         try:
@@ -214,44 +213,37 @@ class pyarchinit_Site(QDialog, MAIN_DIALOG_CLASS):
         self.msg_sito()
     
     def on_pushButton_movecost_pressed(self):#####modifiche apportate per il calcolo statistico con R
-        HOME = os.environ['PYARCHINIT_HOME']
-        RFOLDER = '{}{}{}'.format(HOME, os.sep, "pyarchinit_Report_folder")
-        r = R()
+        processing.execAlgorithmDialog('r:movecost')
         
-        # r('getwd()')#QMessageBox.warning(self, "Connection system", str(), QMessageBox.Ok)
-        # # eval(dir)
-        r('library(movecost)')
+    def on_pushButton_movecost_p_pressed(self):#####modifiche apportate per il calcolo statistico con R
+        processing.execAlgorithmDialog('r:movecost_by_polygon')
         
-        #r('setwd()') #%(str(RFOLDER))
-        
-        # v=r('movecost')
-        # QMessageBox.warning(self, "Connection system", str(v), QMessageBox.Ok)
-        
-        #r('dem <- impShp()')
-        #eval(e)
-        dem=str(self.mMapLayerComboBox.currentLayer())
-        A=str(self.mMapLayerComboBox_2.currentLayer())
-        B=str(self.mMapLayerComboBox_3.currentLayer())
-        
-        
-        r('data("'+str(dem)+'")')
-        
-        r('data("'+str(A)+'")')
-        r('data("'+str(B)+'")')
-        
-        #try:
-        r('movecost(dtm="'+str(dem)+'", origin="'+str(A)+'", destin="'+str(B)+'", move=8, breaks=1, export=TRUE)')
-        a=r('log (-1)')
-        #except Exception as e:
-        QMessageBox.warning(self, "Connection system", str(a), QMessageBox.Ok)
-        
+    def on_pushButton_movebound_pressed(self):#####modifiche apportate per il calcolo statistico con R
+        processing.execAlgorithmDialog('r:movebound')
+    
+    def on_pushButton_movebound_p_pressed(self):#####modifiche apportate per il calcolo statistico con R
+        processing.execAlgorithmDialog('r:movebound_by_polygon')
+    
+    def on_pushButton_movecorr_pressed(self):#####modifiche apportate per il calcolo statistico con R
+        processing.execAlgorithmDialog('r:movecorr')
+    
+    def on_pushButton_movecorr_p_pressed(self):#####modifiche apportate per il calcolo statistico con R
+        processing.execAlgorithmDialog('r:movecorr_by_polygon')
+    
+    def defaultScriptsFolder():
+        folder = str(os.path.join(userFolder(), "rscripts"))
+        mkdir(folder)
+        return os.path.abspath(folder)
+    
+    def on_pushButton_add_script_pressed(self):# Paths to source files and qgis profile directory
+        source_profile = os.path.join(self.HOME,'bin', 'rscripts')
+        profile_home = QgsApplication.qgisSettingsDirPath()
+        rs=os.path.join(profile_home,'processing','rscripts')
 
-        # result <- movecost(dtm=dem, origin=A, destin=B, funct="icmonp", move=8, breaks=1, export=TRUE)
-        
-
-        # results <- movecost(dtm=dem, origin=A, destin=B[3,], move=8, return.base = TRUE, export=TRUE)''')
-        
-        
+        # The acutal "copy" with or without overwrite (update)
+        ##if button_pressed == QMessageBox.Yes:
+        copy_tree(source_profile,rs)
+    
     def setPathToSites(self):
         s = QgsSettings()
         self.siti_path = QFileDialog.getExistingDirectory(

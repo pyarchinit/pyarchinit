@@ -824,6 +824,9 @@
          <height>30</height>
         </size>
        </property>
+       <property name="toolTip">
+        <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;R script for least cost path&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+       </property>
        <property name="text">
         <string/>
        </property>
@@ -881,7 +884,7 @@
           </font>
          </property>
          <property name="currentIndex">
-          <number>0</number>
+          <number>1</number>
          </property>
          <property name="documentMode">
           <bool>true</bool>
@@ -1650,10 +1653,10 @@ Step 3 - Riavviare Qgis e cliccare sul pulsante Run Test per verificare l'output
           <widget class="QgsDockWidget" name="mDockWidget">
            <property name="geometry">
             <rect>
-             <x>279</x>
-             <y>60</y>
-             <width>561</width>
-             <height>271</height>
+             <x>280</x>
+             <y>40</y>
+             <width>371</width>
+             <height>171</height>
             </rect>
            </property>
            <property name="windowIcon">
@@ -1667,57 +1670,132 @@ Step 3 - Riavviare Qgis e cliccare sul pulsante Run Test per verificare l'output
             <string>MovecostToPyarchinit</string>
            </property>
            <widget class="QWidget" name="dockWidgetContents">
+            <widget class="QPushButton" name="pushButton_movecorr_p">
+             <property name="geometry">
+              <rect>
+               <x>180</x>
+               <y>80</y>
+               <width>141</width>
+               <height>23</height>
+              </rect>
+             </property>
+             <property name="toolTip">
+              <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;R function for calculating least-cost corridor between point locations using a polygon area to download the dtm&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+             </property>
+             <property name="styleSheet">
+              <string notr="true">background-color: rgb(255, 170, 127);</string>
+             </property>
+             <property name="text">
+              <string>movecorr by polygon</string>
+             </property>
+            </widget>
             <widget class="QPushButton" name="pushButton_movecost">
              <property name="geometry">
               <rect>
                <x>30</x>
-               <y>200</y>
-               <width>93</width>
+               <y>20</y>
+               <width>141</width>
                <height>23</height>
               </rect>
+             </property>
+             <property name="toolTip">
+              <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;R function for calculating accumulated anisotropic slope-dependant cost of movement across the terrain and least-cost paths from a point origin&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+             </property>
+             <property name="styleSheet">
+              <string notr="true">alternate-background-color: rgb(255, 255, 127);
+background-color: rgb(255, 255, 127);</string>
              </property>
              <property name="text">
               <string>movecost</string>
              </property>
             </widget>
-            <widget class="QgsMapLayerComboBox" name="mMapLayerComboBox">
+            <widget class="QPushButton" name="pushButton_movecost_p">
              <property name="geometry">
               <rect>
-               <x>30</x>
+               <x>180</x>
                <y>20</y>
-               <width>160</width>
-               <height>27</height>
+               <width>141</width>
+               <height>23</height>
               </rect>
              </property>
+             <property name="toolTip">
+              <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;R function for calculating accumulated anisotropic slope-dependant cost of movement across the terrain and least-cost paths from a point origin using a polygon area to download the dtm&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+             </property>
+             <property name="styleSheet">
+              <string notr="true">background-color: rgb(255, 255, 127);</string>
+             </property>
+             <property name="text">
+              <string>movecost by polygon</string>
+             </property>
             </widget>
-            <widget class="QgsMapLayerComboBox" name="mMapLayerComboBox_2">
+            <widget class="QPushButton" name="pushButton_movebound">
              <property name="geometry">
               <rect>
                <x>30</x>
-               <y>60</y>
-               <width>160</width>
-               <height>27</height>
+               <y>50</y>
+               <width>141</width>
+               <height>23</height>
               </rect>
              </property>
+             <property name="toolTip">
+              <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;R function for calculating slope-dependant walking cost boundary(ies) around point location(s)&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+             </property>
+             <property name="styleSheet">
+              <string notr="true">background-color: rgb(85, 255, 127);</string>
+             </property>
+             <property name="text">
+              <string>movebound</string>
+             </property>
             </widget>
-            <widget class="QgsMapLayerComboBox" name="mMapLayerComboBox_3">
+            <widget class="QPushButton" name="pushButton_movebound_p">
+             <property name="geometry">
+              <rect>
+               <x>180</x>
+               <y>50</y>
+               <width>141</width>
+               <height>23</height>
+              </rect>
+             </property>
+             <property name="toolTip">
+              <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;R function for calculating slope-dependant walking cost boundary(ies) around point location(s) using a polygon area to download the dtm&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+             </property>
+             <property name="styleSheet">
+              <string notr="true">background-color: rgb(85, 255, 127);</string>
+             </property>
+             <property name="text">
+              <string>movebound by polygon</string>
+             </property>
+            </widget>
+            <widget class="QPushButton" name="pushButton_movecorr">
              <property name="geometry">
               <rect>
                <x>30</x>
-               <y>100</y>
-               <width>160</width>
-               <height>27</height>
+               <y>80</y>
+               <width>141</width>
+               <height>23</height>
               </rect>
              </property>
+             <property name="toolTip">
+              <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;R function for calculating least-cost corridor between point locations&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+             </property>
+             <property name="styleSheet">
+              <string notr="true">background-color: rgb(255, 170, 127);</string>
+             </property>
+             <property name="text">
+              <string>movcorr</string>
+             </property>
             </widget>
-            <widget class="QgsMapLayerComboBox" name="mMapLayerComboBox_4">
+            <widget class="QPushButton" name="pushButton_add_script">
              <property name="geometry">
               <rect>
-               <x>30</x>
-               <y>140</y>
-               <width>160</width>
-               <height>27</height>
+               <x>140</x>
+               <y>110</y>
+               <width>75</width>
+               <height>23</height>
               </rect>
+             </property>
+             <property name="text">
+              <string>Add scripts</string>
              </property>
             </widget>
            </widget>
@@ -1935,11 +2013,6 @@ Step 3 - Riavviare Qgis e cliccare sul pulsante Run Test per verificare l'output
    <extends>QDockWidget</extends>
    <header>qgsdockwidget.h</header>
    <container>1</container>
-  </customwidget>
-  <customwidget>
-   <class>QgsMapLayerComboBox</class>
-   <extends>QComboBox</extends>
-   <header>qgsmaplayercombobox.h</header>
   </customwidget>
   <customwidget>
    <class>QWebView</class>
