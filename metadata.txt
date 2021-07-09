@@ -12,7 +12,7 @@
 name=pyArchInit
 qgisMinimumVersion=3.0
 description=pyarchinit an tool for archaeological works
-version=3.9.8.1
+version=3.9.8.2
 author=Luca Mandolesi&Enzo Cocca
 email=pyarchinit@gmail.com
 
@@ -22,7 +22,13 @@ about=https://github.com/pyarchinit/pyarchinit
 tracker=https://github.com/pyarchinit/pyarchinit/issues
 repository=https://github.com/pyarchinit/pyarchinit
 
-changelog=release3.9.8.1
+changelog=release3.9.8.2
+
+    -add r script to least cost path
+  -------------------------------------------------------------------------------
+
+
+  release3.9.8.1
 
     -remove tkinter module
     -update folder installation: add spatialite_convert and EM_palette
