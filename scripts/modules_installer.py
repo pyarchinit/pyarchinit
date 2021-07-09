@@ -58,7 +58,7 @@ else:
     cmd = '{}/bin/python{}'.format(python_path, python_version)
 
 # install pip if it is not found
-#
+
 for p in packages:
     
     subprocess.check_call(['pip', 'install',  p ], shell=True)
