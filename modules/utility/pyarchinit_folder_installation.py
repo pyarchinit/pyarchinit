@@ -227,7 +227,14 @@ class pyarchinit_Folder_installation(object):
         else:
             pass
         
-        
+        rs_zip = os.path.join(os.sep, 'dbfiles', 'rscripts.zip')
+        rs_zip_copy_from_path = '{}{}'.format(self.RESOURCES_PATH, rs_zip)
+        test2=os.path.join(home_bin_export_path,'rscripts')
+        if not os.path.exists(test2):
+            with zipfile.ZipFile(rs_zip_copy_from_path, 'r') as zip1_ref:
+                zip1_ref.extractall(home_bin_export_path)
+        else:
+            pass
         
         self.OS_UTILITY.copy_file(db_copy_from_bin, db_copy_to_bin)
         self.OS_UTILITY.copy_file(em_copy_from_path, em_copy_to_path)

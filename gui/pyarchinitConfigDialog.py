@@ -4119,7 +4119,7 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
                     self.toolButton_db.setEnabled(True)
                     self.pushButton_upd_postgres.setEnabled(False)
                     self.pushButton_upd_sqlite.setEnabled(True)
-                if self.comboBox_Database.currentText() == 'postgres':
+                elif self.comboBox_Database.currentText() == 'postgres':
                     #self.comboBox_Database.currentIndexChanged.connect(self.set_db_parameter)
                     self.toolButton_db.setEnabled(False)
                     self.pushButton_upd_sqlite.setEnabled(False)
@@ -4131,26 +4131,50 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
                                     QMessageBox.Ok)
         elif self.L=='de':
             if test:
-                QMessageBox.warning(self, "Message", "Erfolgreich verbunden", QMessageBox.Ok)
-            # elif test.find("create_engine") != -1:
-            #     QMessageBox.warning(self, "Alert",
-            #                         "Verifica i parametri di connessione. <br> Se sono corretti RIAVVIA QGIS",
-            #                         QMessageBox.Ok)
+                QMessageBox.information(self, "Messaggio", "Connessione avvenuta con successo", QMessageBox.Ok)
+                self.pushButton_upd_postgres.setEnabled(False)
+                self.pushButton_upd_sqlite.setEnabled(True)
             else:
-                QMessageBox.warning(self, "Alert", "Verbindungsfehler: <br>" +
-                    "Ändern Sie die Parameter und versuchen Sie, sich erneut zu verbinden. Wenn Sie den Server wechseln (Postgres oder Sqlite), denken Sie daran, auf Verbinden zu klicken und Qgis erneut anzusehen.",
+                self.comboBox_Database.update()
+                self.comboBox_sito.clear()
+                if self.comboBox_Database.currentText() == 'sqlite':
+                    #self.comboBox_Database.editTextChanged.connect(self.set_db_parameter)
+                    self.toolButton_db.setEnabled(True)
+                    self.pushButton_upd_postgres.setEnabled(False)
+                    self.pushButton_upd_sqlite.setEnabled(True)
+                elif self.comboBox_Database.currentText() == 'postgres':
+                    #self.comboBox_Database.currentIndexChanged.connect(self.set_db_parameter)
+                    self.toolButton_db.setEnabled(False)
+                    self.pushButton_upd_sqlite.setEnabled(False)
+                    self.pushButton_upd_postgres.setEnabled(True)
+                self.comboBox_sito.clear()
+
+                QMessageBox.warning(self, "Alert", "Errore di connessione: <br>" +
+                    "Cambia i parametri e riprova a connetterti. Oppure aggiorna il database con l'apposita funzione che trovi in basso a sinistra",
                                     QMessageBox.Ok)
 
         else:
             if test:
-                QMessageBox.warning(self, "Message", "Successfully connected", QMessageBox.Ok)
-            # elif test.find("create_engine") != -1:
-            #     QMessageBox.warning(self, "Alert",
-            #                         "Verifica i parametri di connessione. <br> Se sono corretti RIAVVIA QGIS",
-            #                         QMessageBox.Ok)
+                QMessageBox.information(self, "Messaggio", "Connessione avvenuta con successo", QMessageBox.Ok)
+                self.pushButton_upd_postgres.setEnabled(False)
+                self.pushButton_upd_sqlite.setEnabled(True)
             else:
-                QMessageBox.warning(self, "Alert", "Connection error: <br>" +
-                    "Change the parameters and try to connect again. If you change servers (Postgres or Sqlite) remember to click on connect and REVIEW Qgis",
+                self.comboBox_Database.update()
+                self.comboBox_sito.clear()
+                if self.comboBox_Database.currentText() == 'sqlite':
+                    #self.comboBox_Database.editTextChanged.connect(self.set_db_parameter)
+                    self.toolButton_db.setEnabled(True)
+                    self.pushButton_upd_postgres.setEnabled(False)
+                    self.pushButton_upd_sqlite.setEnabled(True)
+                elif self.comboBox_Database.currentText() == 'postgres':
+                    #self.comboBox_Database.currentIndexChanged.connect(self.set_db_parameter)
+                    self.toolButton_db.setEnabled(False)
+                    self.pushButton_upd_sqlite.setEnabled(False)
+                    self.pushButton_upd_postgres.setEnabled(True)
+                self.comboBox_sito.clear()
+
+                QMessageBox.warning(self, "Alert", "Errore di connessione: <br>" +
+                    "Cambia i parametri e riprova a connetterti. Oppure aggiorna il database con l'apposita funzione che trovi in basso a sinistra",
                                     QMessageBox.Ok)
     def charge_data(self):
         # load data from config.cfg file
@@ -5695,6 +5719,9 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
        # self.lineEdit_2.insert("Connection Close ............. ")
        # srv.close()
     def on_pushButton_convertdb_pressed(self):
+        QMessageBox.warning(self, "Attenzione",
+                                     "Assicurati che il nome del db non abbia parentesi o caratteri spaciali, altrimenti la conversione fallisce",
+                                     QMessageBox.Ok)
         if self.comboBox_Database.currentText() == 'sqlite':
 
             if platform.system() == "Windows":
