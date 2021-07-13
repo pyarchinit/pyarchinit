@@ -61,5 +61,5 @@ else:
 
 for p in packages:
     
-    subprocess.check_call(['pip', 'install',  p ], shell=False)
+    subprocess.check_call(['python','-m','pip', 'install',  p ], shell=False)
     
