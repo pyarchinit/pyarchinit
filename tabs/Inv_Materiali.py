@@ -419,7 +419,7 @@ class pyarchinit_Inventario_reperti(QDialog, MAIN_DIALOG_CLASS):
             self.lineEdit_tipo_contenitore.clear()
             self.lineEdit_tipo_contenitore.setText('')
             self.lineEdit_tipo_contenitore.update()
-        if self.lineEdit_n_reperto.text()=='None' or None:
+        if self.lineEdit_n_reperto.text()=='None' or None or 'NULL':
             self.lineEdit_n_reperto.setText('')
         if self.comboBox_struttura.currentText=='None' or None:
             self.comboBox_struttura.clear()
@@ -1540,10 +1540,9 @@ class pyarchinit_Inventario_reperti(QDialog, MAIN_DIALOG_CLASS):
                         self.update_if(QMessageBox.warning(self, 'Error',
                                                            "The record has been changed. Do you want to save the changes?",
                                                            QMessageBox.Ok | QMessageBox.Cancel))
+                    self.empty_fields()
                     self.SORT_STATUS = "n"
                     self.label_sort.setText(self.SORTED_ITEMS[self.SORT_STATUS])
-                    
-                    self.fill_fields(self.REC_CORR)
                     self.enable_button(1)
                 else:
                     if self.L=='it':
@@ -1573,7 +1572,13 @@ class pyarchinit_Inventario_reperti(QDialog, MAIN_DIALOG_CLASS):
 
                     self.fill_fields(self.REC_CORR)
                     self.enable_button(1)
-
+            else:
+                if self.L=='it':
+                    QMessageBox.warning(self, "ATTENZIONE", "Problema nell'inserimento dati", QMessageBox.Ok)
+                elif self.L=='de':
+                    QMessageBox.warning(self, "ACHTUNG", "Problem der Dateneingabe", QMessageBox.Ok)
+                else:
+                    QMessageBox.warning(self, "Warning", "Problem with data entry", QMessageBox.Ok) 
     def on_toolButtonGis_toggled(self):
         if self.L=='it':
             if self.toolButtonGis.isChecked():
@@ -3470,10 +3475,10 @@ class pyarchinit_Inventario_reperti(QDialog, MAIN_DIALOG_CLASS):
         else:
             eve_orlo = self.lineEdit_eve_orlo.text()
         
-        # if self.lineEdit_n_reperto.text() == "":
-            # n_reperto = None
-        # else:
-            #n_reperto = self.lineEdit_n_reperto.text()
+        if self.lineEdit_n_reperto.text() == "":
+            n_reperto = None
+        else:
+            n_reperto = self.lineEdit_n_reperto.text()
             # data
         self.DATA_LIST_REC_TEMP = [
             str(self.comboBox_sito.currentText()),  # 1 - Sito
@@ -3504,7 +3509,7 @@ class pyarchinit_Inventario_reperti(QDialog, MAIN_DIALOG_CLASS):
             str(eve_orlo),  # 26 - eve orlo
             str(self.comboBox_repertato.currentText()),  # 27 - repertato
             str(self.comboBox_diagnostico.currentText()),
-            str(self.lineEdit_n_reperto.text()),
+            str(n_reperto),
             str(self.lineEdit_tipo_contenitore.text()),# 28 - diagnostico
             str(self.comboBox_struttura.currentText()),
         ]
