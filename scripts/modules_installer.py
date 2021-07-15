@@ -61,7 +61,7 @@ else:
 
 for p in packages:
     try:
-        subprocess.check_call([ 'pip', 'install',  p ], shell=False)
+        subprocess.check_call([cmd,'-m','pip', 'install',  p ], shell=False)
     except Exception as e:
         print(str(e))
     
