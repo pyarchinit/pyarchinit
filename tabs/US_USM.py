@@ -3290,7 +3290,7 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
                 us = sing_rec.us
                 rapporti_stratigrafici = eval(sing_rec.rapporti)
                 for sing_rapp in rapporti_stratigrafici:
-                    if len(sing_rapp) != 2:
+                    if len(sing_rapp) != 5:
                         if self.L=='it':
                             msg_nr_rapp = msg_nr_rapp + str(sing_rapp) + "relativo a: " + str(us) + " \n"
                         elif self.L=='de':
@@ -4095,7 +4095,7 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
             rapporti = eval(rapporti)
             for sing_rapp in rapporti:  # itera sulla serie di rapporti
                 report = ''
-                if len(sing_rapp) == 2:
+                if len(sing_rapp) == 5:
                     try:
                         rapp_converted = conversion_dict[sing_rapp[0]]
                         serch_dict_rapp = {'sito': sito, 'area': area, 'us': sing_rapp[1]}
