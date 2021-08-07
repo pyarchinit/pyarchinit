@@ -4134,8 +4134,7 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
                             us_rapp_check=('%s') % str(us)
                                 # #us_rapp_check = str(us)
                                 
-                            QMessageBox.warning(self,"WELCOME HFF user", str(rapporti_check),
-                                    QMessageBox.Ok)    
+                            
                             if rapporti_check.count([rapp_converted, us_rapp_check]) == 1:
                                 report = "Errore generico. Probabile presenza di rapporti vuoti o scritti non correttamente: " + eval([rapp_converted, us_rapp_check])
                             else:
