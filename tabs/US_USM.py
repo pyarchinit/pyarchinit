@@ -4094,15 +4094,23 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
             rapporti = records[rec].rapporti  # caricati i rapporti nella variabile
             rapporti = eval(rapporti)
             for sing_rapp in rapporti:  # itera sulla serie di rapporti
+                sing_rapp.pop(4)
+                sing_rapp.pop(3)
+                sing_rapp.pop(2)
+                
+            
                 report = ''
-                if len(sing_rapp) == 5:
+                if len(sing_rapp) == 2:
                     try:
                         rapp_converted = conversion_dict[sing_rapp[0]]
+                        
                         serch_dict_rapp = {'sito': sito, 'area': area, 'us': sing_rapp[1]}
                         us_rapp = self.DB_MANAGER.query_bool(serch_dict_rapp, self.MAPPER_TABLE_CLASS)
+                        # QMessageBox.warning(self,"WELCOME HFF user", str(us_rapp),
+                                    # QMessageBox.Ok)
                         if not bool(us_rapp):
                             if self.L=='it':
-                                report = '\bSito: %s, \bArea: %s, \bUS: %d %s US: %d: Scheda US non esistente' % (
+                                report = 'Sito: %s, Area: %s, US: %d %s US: %d: Scheda US non esistente' % (
                                     sito, area, int(us), sing_rapp[0], int(sing_rapp[1]))
                             elif self.L=='de':
                                 report = '\bAusgrabungsstätte: %s, \bAreal: %s, \bSE: %d %s SE: %d: SE formular nicht existent' % (
@@ -4113,12 +4121,26 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
                             # new system rapp_check
                         else:
                             rapporti_check = eval(us_rapp[0].rapporti)
-                            us_rapp_check = ('%s') % str(us)
+                            
+                            
+                            [l.pop(4) for l in rapporti_check]
+                            [l.pop(3) for l in rapporti_check]
+                            [l.pop(2) for l in rapporti_check]
+                            
+                            #rapporti_check =[x for x in rapporti_check if x[0:2]]
+                                #=eval(str(rapporti_check_[0:2]))
+                            # for a in rapporti_check:
+                                # rapporti_check=a[0:2]
+                            us_rapp_check=('%s') % str(us)
+                                # #us_rapp_check = str(us)
+                                
+                            QMessageBox.warning(self,"WELCOME HFF user", str(rapporti_check),
+                                    QMessageBox.Ok)    
                             if rapporti_check.count([rapp_converted, us_rapp_check]) == 1:
-                                report = ""  # "Errore generico. Probabile presenza di rapporti vuoti o scritti non correttamente: " + str([rapp_converted, us_rapp_check])
+                                report = "Errore generico. Probabile presenza di rapporti vuoti o scritti non correttamente: " + eval([rapp_converted, us_rapp_check])
                             else:
                                 if self.L=='it':
-                                    report = '\bSito: %s, \bArea: %s, \bUS: %d %s US: %d: Rapporto non verificato' % (
+                                    report = 'Sito: %s, Area: %s, US: %d %s US: %d: Rapporto non verificato' % (
                                         sito, area, int(us), sing_rapp[0], int(sing_rapp[1]))
                                 elif self.L=='de':
                                     report = '\bAusgrabungsstätte: %s, \bAreal: %s, \bSE: %d %s SE: %d: nicht geprüfter Bericht' % (
