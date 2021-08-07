@@ -4136,7 +4136,7 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
                                 
                             
                             if rapporti_check.count([rapp_converted, us_rapp_check]) == 1:
-                                report = "Errore generico. Probabile presenza di rapporti vuoti o scritti non correttamente: " + eval([rapp_converted, us_rapp_check])
+                                report = ""
                             else:
                                 if self.L=='it':
                                     report = 'Sito: %s, Area: %s, US: %d %s US: %d: Rapporto non verificato' % (
