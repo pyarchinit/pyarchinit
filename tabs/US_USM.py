@@ -3296,7 +3296,11 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
                 us = sing_rec.us
                 rapporti_stratigrafici = eval(sing_rec.rapporti)
                 for sing_rapp in rapporti_stratigrafici:
-                    if len(sing_rapp) != 5:##cambiato da 2 a 5
+                    sing_rapp.pop(4)
+                    sing_rapp.pop(3)
+                    sing_rapp.pop(2)
+                    
+                    if len(sing_rapp) != 2:##cambiato da 2 a 5
                         if self.L=='it':
                             msg_nr_rapp = msg_nr_rapp + str(sing_rapp) + "relativo a: " + str(us) + " \n"
                         elif self.L=='de':
