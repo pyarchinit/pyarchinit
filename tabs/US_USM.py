@@ -4105,49 +4105,70 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
         records = self.DB_MANAGER.query_bool(search_dict,
                                              self.MAPPER_TABLE_CLASS)  # carica tutti i dati di uno scavo ordinati per numero di US
         if self.L=='it':
-            report_rapporti = '\bReport controllo Rapporti Stratigrafici - Sito: %s \n' % (sito_check)
+            report_rapporti = 'Report controllo Rapporti Stratigrafici - Sito: %s \n' % (sito_check)
         elif self.L=='de':
-            report_rapporti = '\bKontrollbericht Stratigraphische Beziehungen - Ausgrabungsstätte: %s \n' % (sito_check)
+            report_rapporti = 'Kontrollbericht Stratigraphische Beziehungen - Ausgrabungsstätte: %s \n' % (sito_check)
         else:
-            report_rapporti = '\bControl report Stratigraphic relationships - Site: %s \n' % (sito_check)   
+            report_rapporti = 'Control report Stratigraphic relationships - Site: %s \n' % (sito_check)   
         for rec in range(len(records)):
             sito = "'" + str(records[rec].sito) + "'"
             area = "'" + str(records[rec].area) + "'"
             us = int(records[rec].us)
-            rapporti_ = records[rec].rapporti  # caricati i rapporti nella variabile
-            rapporti = eval(rapporti_)
+            rapporti = records[rec].rapporti  # caricati i rapporti nella variabile
+            rapporti = eval(rapporti)
             for sing_rapp in rapporti:  # itera sulla serie di rapporti
+                sing_rapp.pop(4)
+                sing_rapp.pop(3)
+                sing_rapp.pop(2)
+                
+            
                 report = ''
-                if len(sing_rapp) == 5:
+                if len(sing_rapp) == 2:
                     try:
                         rapp_converted = conversion_dict[sing_rapp[0]]
+                        
                         serch_dict_rapp = {'sito': sito, 'area': area, 'us': sing_rapp[1]}
                         us_rapp = self.DB_MANAGER.query_bool(serch_dict_rapp, self.MAPPER_TABLE_CLASS)
+                        # QMessageBox.warning(self,"WELCOME HFF user", str(us_rapp),
+                                    # QMessageBox.Ok)
                         if not bool(us_rapp):
                             if self.L=='it':
-                                report = '\bSito: %s, \bArea: %s, \bUS: %d %s US: %d: Scheda US non esistente' % (
+                                report = 'Sito: %s, Area: %s, US: %d %s US: %d: Scheda US non esistente' % (
                                     sito, area, int(us), sing_rapp[0], int(sing_rapp[1]))
                             elif self.L=='de':
-                                report = '\bAusgrabungsstätte: %s, \bAreal: %s, \bSE: %d %s SE: %d: SE formular nicht existent' % (
+                                report = 'Ausgrabungsstätte: %s, Areal: %s, SE: %d %s SE: %d: SE formular nicht existent' % (
                                     sito, area, int(us), sing_rapp[0], int(sing_rapp[1]))
                             else:
-                                report = '\bSite: %s, \bArea: %s, \bSU: %d %s SU: %d: SU form not-existent' % (
+                                report = 'Site: %s, Area: %s, SU: %d %s SU: %d: SU form not-existent' % (
                                     sito, area, int(us), sing_rapp[0], int(sing_rapp[1]))       
                             # new system rapp_check
                         else:
                             rapporti_check = eval(us_rapp[0].rapporti)
-                            us_rapp_check = ('%s') % str(us)
+                            
+                            
+                            [l.pop(4) for l in rapporti_check]
+                            [l.pop(3) for l in rapporti_check]
+                            [l.pop(2) for l in rapporti_check]
+                            
+                            #rapporti_check =[x for x in rapporti_check if x[0:2]]
+                                #=eval(str(rapporti_check_[0:2]))
+                            # for a in rapporti_check:
+                                # rapporti_check=a[0:2]
+                            us_rapp_check=('%s') % str(us)
+                                # #us_rapp_check = str(us)
+                                
+                            
                             if rapporti_check.count([rapp_converted, us_rapp_check]) == 1:
-                                report = ""  # "Errore generico. Probabile presenza di rapporti vuoti o scritti non correttamente: " + str([rapp_converted, us_rapp_check])
+                                report = ""
                             else:
                                 if self.L=='it':
-                                    report = '\bSito: %s, \bArea: %s, \bUS: %d %s US: %d: Rapporto non verificato' % (
+                                    report = 'Sito: %s, Area: %s, US: %d %s US: %d: Rapporto non verificato' % (
                                         sito, area, int(us), sing_rapp[0], int(sing_rapp[1]))
                                 elif self.L=='de':
-                                    report = '\bAusgrabungsstätte: %s, \bAreal: %s, \bSE: %d %s SE: %d: nicht geprüfter Bericht' % (
+                                    report = 'Ausgrabungsstätte: %s, Areal: %s, SE: %d %s SE: %d: nicht geprüfter Bericht' % (
                                         sito, area, int(us), sing_rapp[0], int(sing_rapp[1]))
                                 else:
-                                    report = '\bSite: %s, \bArea: %s, \bSU: %d %s SU: %d: relashionships not verified' % (
+                                    report = 'Site: %s, Area: %s, SU: %d %s SU: %d: relashionships not verified' % (
                                         sito, area, int(us), sing_rapp[0], int(sing_rapp[1]))       
                     except Exception as e:
                         report = "Problem of conversion: " + str(e)
@@ -4200,13 +4221,13 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
         records = self.DB_MANAGER.query_bool(search_dict,
                                              self.MAPPER_TABLE_CLASS)  # carica tutti i dati di uno scavo ordinati per numero di US
         if self.L=='it':
-            report_rapporti = '\bReport controllo Definizione Stratigrafica a Rapporti Stratigrafici - Sito: %s \n' % (
+            report_rapporti = 'Report controllo Definizione Stratigrafica a Rapporti Stratigrafici - Sito: %s \n' % (
                 sito_check)
         elif self.L=='de':
-            report_rapporti = '\bKontrollbericht Definition Stratigraphische zu Stratigraphische Berichte - Ausgrabungsstätte: %s \n' % (
+            report_rapporti = 'Kontrollbericht Definition Stratigraphische zu Stratigraphische Berichte - Ausgrabungsstätte: %s \n' % (
                 sito_check)
         else:
-            report_rapporti = '\bControl report Definition Stratigraphic to Stratigraphic Reports - Site: %s \n' % (
+            report_rapporti = 'Control report Definition Stratigraphic to Stratigraphic Reports - Site: %s \n' % (
                 sito_check)     
         for rec in range(len(records)):
             sito = "'" + str(records[rec].sito) + "'"
@@ -4219,45 +4240,45 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
                 report = ""
                 if def_stratigrafica.find('Strato') >= 0:  # Paradosso strati che tagliano o si legano
                     if sing_rapp[0] == 'Taglia' or sing_rapp[0] == 'Si lega a':
-                        report = '\bSito: %s, \bArea: %s, \bUS: %d - %s: lo strato %s US: %d: ' % (
+                        report = 'Sito: %s, Area: %s, US: %d - %s: lo strato %s US: %d: ' % (
                             sito, area, int(us), def_stratigrafica, sing_rapp[0], int(sing_rapp[1]))
                 if def_stratigrafica.find('Riempimento') >= 0:  # Paradosso riempimentiche tagliano o si legano
                     if sing_rapp[0] == 'Taglia' or sing_rapp[0] == 'Si lega a'or sing_rapp[0] == 'Si appoggia a' or sing_rapp[0] == 'Gli si appoggia' or sing_rapp[0] == 'Taglia':
-                        report = '\bSito: %s, \bArea: %s, \bUS: %d - %s: lo strato %s US: %d: ' % (
+                        report = 'Sito: %s, Area: %s, US: %d - %s: lo strato %s US: %d: ' % (
                             sito, area, int(us), def_stratigrafica, sing_rapp[0], int(sing_rapp[1]))
                 if def_stratigrafica.find('Taglio') >= 0:  # Paradosso riempimentiche tagliano o si legano
                     if sing_rapp[0] == 'Riempie' or sing_rapp[0] == 'Si lega a' or sing_rapp[0] == 'Si appoggia a'  or sing_rapp[0] == 'Gli si appoggia':
-                        report = '\bSito: %s, \bArea: %s, \bUS: %d - %s: lo strato %s US: %d: ' % (
+                        report = 'Sito: %s, Area: %s, US: %d - %s: lo strato %s US: %d: ' % (
                             sito, area, int(us), def_stratigrafica, sing_rapp[0], int(sing_rapp[1]))
                 if report != "":
                     report_rapporti = report_rapporti + report + '\n'
                 #versione inglese
                 elif def_stratigrafica.find('Stratum') >= 0:  # Paradosso strati che tagliano o si legano
                     if sing_rapp[0] == 'Cuts' or sing_rapp[0] == 'Connected to':
-                        report = '\bSite: %s, \bArea: %s, \bSU: %d - %s: the stratum %s SU: %d: ' % (
+                        report = 'Site: %s, Area: %s, SU: %d - %s: the stratum %s SU: %d: ' % (
                             sito, area, int(us), def_stratigrafica, sing_rapp[0], int(sing_rapp[1]))
                 if def_stratigrafica.find('Filling') >= 0:  # Paradosso riempimentiche tagliano o si legano
                     if sing_rapp[0] == 'Cuts' or sing_rapp[0] == 'Connected to':
-                        report = '\bSite: %s, \bArea: %s, \bSU: %d - %s: the startum %s SU: %d: ' % (
+                        report = 'Site: %s, Area: %s, SU: %d - %s: the startum %s SU: %d: ' % (
                             sito, area, int(us), def_stratigrafica, sing_rapp[0], int(sing_rapp[1]))
                 # if def_stratigrafica.find('Filling') >= 0:  # Paradosso riempimentiche tagliano o si legano
                     # if sing_rapp[0] == 'Cuts' or sing_rapp[0] == 'Connected to':
-                        # report = '\bSite: %s, \bArea: %s, \bSU: %d - %s: the stratum %s SU: %d: ' % (
+                        # report = 'Site: %s, Area: %s, SU: %d - %s: the stratum %s SU: %d: ' % (
                             # sito, area, int(us), def_stratigrafica, sing_rapp[0], int(sing_rapp[1]))
                 if report != "":
                     report_rapporti = report_rapporti + report + '\n'
                 #versione tedesca   
                 elif def_stratigrafica.find('Stratum') >= 0:  # Paradosso strati che tagliano o si legano
                     if sing_rapp[0] == 'Schneidet' or sing_rapp[0] == 'Bindet an':
-                        report = '\bSito: %s, \bArea: %s, \bSE: %d - %s: die startum %s US: %d: ' % (
+                        report = 'Sito: %s, Area: %s, SE: %d - %s: die startum %s US: %d: ' % (
                             sito, area, int(us), def_stratigrafica, sing_rapp[0], int(sing_rapp[1]))
                 if def_stratigrafica.find('Verfullüng') >= 0:  # Paradosso riempimentiche tagliano o si legano
                     if sing_rapp[0] == 'Schneidet' or sing_rapp[0] == 'Bindet an':
-                        report = '\bSito: %s, \bArea: %s, \bSE: %d - %s: die stratum %s US: %d: ' % (
+                        report = 'Sito: %s, Area: %s, SE: %d - %s: die stratum %s US: %d: ' % (
                             sito, area, int(us), def_stratigrafica, sing_rapp[0], int(sing_rapp[1]))
                 # if def_stratigrafica.find('Verfullüng') >= 0:  # Paradosso riempimentiche tagliano o si legano
                     # if sing_rapp[0] == 'Schneidet' or sing_rapp[0] == 'Bindet an':
-                        # report = '\bSito: %s, \bArea: %s, \bSE: %d - %s: die startum %s US: %d: ' % (
+                        # report = 'Sito: %s, Area: %s, SE: %d - %s: die startum %s US: %d: ' % (
                             # sito, area, int(us), def_stratigrafica, sing_rapp[0], int(sing_rapp[1]))
                 if report != "":
                     report_rapporti = report_rapporti + report + '\n'   
