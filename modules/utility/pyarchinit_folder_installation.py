@@ -225,8 +225,8 @@ class pyarchinit_Folder_installation(object):
             with zipfile.ZipFile(profile_zip_copy_from_path, 'r') as zip_ref:
                 zip_ref.extractall(home_bin_export_path)
         else:
-            with zipfile.ZipFile(rs_zip_copy_from_path, 'r') as zip1_ref:
-                zip1_ref.extractall(test)
+            pass# with zipfile.ZipFile(profile_zip_copy_from_path, 'r') as zip_ref:
+                # zip_ref.extractall(test)
         
         rs_zip = os.path.join(os.sep, 'dbfiles', 'rscripts.zip')
         rs_zip_copy_from_path = '{}{}'.format(self.RESOURCES_PATH, rs_zip)
