@@ -1656,7 +1656,7 @@ Step 3 - Riavviare Qgis e cliccare sul pulsante Run Test per verificare l'output
              <x>280</x>
              <y>40</y>
              <width>371</width>
-             <height>171</height>
+             <height>221</height>
             </rect>
            </property>
            <property name="windowIcon">
@@ -1789,13 +1789,51 @@ background-color: rgb(255, 255, 127);</string>
              <property name="geometry">
               <rect>
                <x>140</x>
-               <y>110</y>
+               <y>150</y>
                <width>75</width>
                <height>23</height>
               </rect>
              </property>
              <property name="text">
               <string>Add scripts</string>
+             </property>
+            </widget>
+            <widget class="QPushButton" name="pushButton_movealloc_p">
+             <property name="geometry">
+              <rect>
+               <x>180</x>
+               <y>110</y>
+               <width>141</width>
+               <height>23</height>
+              </rect>
+             </property>
+             <property name="toolTip">
+              <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;R function for calculating least-cost corridor between point locations using a polygon area to download the dtm&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+             </property>
+             <property name="styleSheet">
+              <string notr="true">background-color: rgb(255, 170, 127);</string>
+             </property>
+             <property name="text">
+              <string>movealloc by polygon</string>
+             </property>
+            </widget>
+            <widget class="QPushButton" name="pushButton_movealloc">
+             <property name="geometry">
+              <rect>
+               <x>30</x>
+               <y>110</y>
+               <width>141</width>
+               <height>23</height>
+              </rect>
+             </property>
+             <property name="toolTip">
+              <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;R function for calculating least-cost corridor between point locations&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+             </property>
+             <property name="styleSheet">
+              <string notr="true">background-color: rgb(255, 170, 127);</string>
+             </property>
+             <property name="text">
+              <string>movalloc</string>
              </property>
             </widget>
            </widget>
