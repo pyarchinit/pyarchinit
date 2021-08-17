@@ -814,9 +814,9 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
         self.show()
         self.checkBox_query.update()
         self.checkBox_query.stateChanged.connect(self.listview_us)###anche questo
-        self.tableWidget_rapporti.itemSelectionChanged.connect(self.unitatipo)
-        self.tableWidget_rapporti.itemSelectionChanged.connect(self.defin)
-        self.tableWidget_rapporti.itemSelectionChanged.connect(self.datazione)
+        # self.tableWidget_rapporti.itemSelectionChanged.connect(self.unitatipo)
+        # self.tableWidget_rapporti.itemSelectionChanged.connect(self.defin)
+        # self.tableWidget_rapporti.itemSelectionChanged.connect(self.datazione)
         
         
     
@@ -1245,88 +1245,88 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
                 pass
                 
         
-    def unitatipo(self):
-        try:
-            table_name = "self.tableWidget_rapporti"
-            rowSelected_cmd = ("%s.selectedIndexes()") % (table_name)
-            rowSelected = eval(rowSelected_cmd)
-            rowIndex = (rowSelected[0].row())
+    # def unitatipo(self):
+        # try:
+            # table_name = "self.tableWidget_rapporti"
+            # rowSelected_cmd = ("%s.selectedIndexes()") % (table_name)
+            # rowSelected = eval(rowSelected_cmd)
+            # rowIndex = (rowSelected[0].row())
             
             
-            sito = str(self.comboBox_sito.currentText())
-            area = str(self.comboBox_area.currentText())
+            # sito = str(self.comboBox_sito.currentText())
+            # area = str(self.comboBox_area.currentText())
             
-            us_item = self.tableWidget_rapporti.item(rowIndex, 1)
-            us = str(us_item.text())
+            # us_item = self.tableWidget_rapporti.item(rowIndex, 1)
+            # us = str(us_item.text())
             
-            search_dict = {'sito': "'" + str(sito) + "'",
-                           'area': "'" + str(area) + "'",
-                           'us': us}
-            u = Utility()
-            search_dict = u.remove_empty_items_fr_dict(search_dict)
-            res = self.DB_MANAGER.query_bool(search_dict, self.MAPPER_TABLE_CLASS)
+            # search_dict = {'sito': "'" + str(sito) + "'",
+                           # 'area': "'" + str(area) + "'",
+                           # 'us': us}
+            # u = Utility()
+            # search_dict = u.remove_empty_items_fr_dict(search_dict)
+            # res = self.DB_MANAGER.query_bool(search_dict, self.MAPPER_TABLE_CLASS)
             
-            for p in res:
-                self.tableWidget_rapporti.setItem(rowIndex, 2,QtWidgets.QTableWidgetItem(p.unita_tipo))
-            self.tableWidget_rapporti.update()
-        except :
-            pass#QMessageBox.warning(self, "ATTENZIONE", str(e), QMessageBox.Ok)
-    def defin(self):
-        try:
-            table_name = "self.tableWidget_rapporti"
-            rowSelected_cmd = ("%s.selectedIndexes()") % (table_name)
-            rowSelected = eval(rowSelected_cmd)
-            rowIndex = (rowSelected[0].row())
-            
-            
-            sito = str(self.comboBox_sito.currentText())
-            area = str(self.comboBox_area.currentText())
-            
-            us_item = self.tableWidget_rapporti.item(rowIndex, 1)
-            us = str(us_item.text())
-            
-            search_dict = {'sito': "'" + str(sito) + "'",
-                           'area': "'" + str(area) + "'",
-                           'us': us}
-            u = Utility()
-            search_dict = u.remove_empty_items_fr_dict(search_dict)
-            res = self.DB_MANAGER.query_bool(search_dict, self.MAPPER_TABLE_CLASS)
-            
-            for p in res:
-                self.tableWidget_rapporti.setItem(rowIndex, 3,QtWidgets.QTableWidgetItem(p.d_interpretativa))
-            
-           
-            self.tableWidget_rapporti.update()
-        except :
-            pass#QMessageBox.warning(self, "ATTENZIONE", str(e), QMessageBox.Ok)
-    def datazione(self):
-        try:
-            table_name = "self.tableWidget_rapporti"
-            rowSelected_cmd = ("%s.selectedIndexes()") % (table_name)
-            rowSelected = eval(rowSelected_cmd)
-            rowIndex = (rowSelected[0].row())
+            # for p in res:
+                # self.tableWidget_rapporti.setItem(rowIndex, 2,QtWidgets.QTableWidgetItem(p.unita_tipo))
+            # self.tableWidget_rapporti.update()
+        # except :
+            # pass#QMessageBox.warning(self, "ATTENZIONE", str(e), QMessageBox.Ok)
+    # def defin(self):
+        # try:
+            # table_name = "self.tableWidget_rapporti"
+            # rowSelected_cmd = ("%s.selectedIndexes()") % (table_name)
+            # rowSelected = eval(rowSelected_cmd)
+            # rowIndex = (rowSelected[0].row())
             
             
-            sito = str(self.comboBox_sito.currentText())
-            area = str(self.comboBox_area.currentText())
+            # sito = str(self.comboBox_sito.currentText())
+            # area = str(self.comboBox_area.currentText())
             
-            us_item = self.tableWidget_rapporti.item(rowIndex, 1)
-            us = str(us_item.text())
+            # us_item = self.tableWidget_rapporti.item(rowIndex, 1)
+            # us = str(us_item.text())
             
-            search_dict = {'sito': "'" + str(sito) + "'",
-                           'area': "'" + str(area) + "'",
-                           'us': us}
-            u = Utility()
-            search_dict = u.remove_empty_items_fr_dict(search_dict)
-            res = self.DB_MANAGER.query_bool(search_dict, self.MAPPER_TABLE_CLASS)
+            # search_dict = {'sito': "'" + str(sito) + "'",
+                           # 'area': "'" + str(area) + "'",
+                           # 'us': us}
+            # u = Utility()
+            # search_dict = u.remove_empty_items_fr_dict(search_dict)
+            # res = self.DB_MANAGER.query_bool(search_dict, self.MAPPER_TABLE_CLASS)
             
-            for p in res:
-                self.tableWidget_rapporti.setItem(rowIndex, 4,QtWidgets.QTableWidgetItem(p.periodo_iniziale+'-'+p.fase_iniziale))
+            # for p in res:
+                # self.tableWidget_rapporti.setItem(rowIndex, 3,QtWidgets.QTableWidgetItem(p.d_interpretativa))
             
            
-            self.tableWidget_rapporti.update()
-        except :
-            pass#QMessageBox.warning(self, "ATTENZIONE", str(e), QMessageBox.Ok)
+            # self.tableWidget_rapporti.update()
+        # except :
+            # pass#QMessageBox.warning(self, "ATTENZIONE", str(e), QMessageBox.Ok)
+    # def datazione(self):
+        # try:
+            # table_name = "self.tableWidget_rapporti"
+            # rowSelected_cmd = ("%s.selectedIndexes()") % (table_name)
+            # rowSelected = eval(rowSelected_cmd)
+            # rowIndex = (rowSelected[0].row())
+            
+            
+            # sito = str(self.comboBox_sito.currentText())
+            # area = str(self.comboBox_area.currentText())
+            
+            # us_item = self.tableWidget_rapporti.item(rowIndex, 1)
+            # us = str(us_item.text())
+            
+            # search_dict = {'sito': "'" + str(sito) + "'",
+                           # 'area': "'" + str(area) + "'",
+                           # 'us': us}
+            # u = Utility()
+            # search_dict = u.remove_empty_items_fr_dict(search_dict)
+            # res = self.DB_MANAGER.query_bool(search_dict, self.MAPPER_TABLE_CLASS)
+            
+            # for p in res:
+                # self.tableWidget_rapporti.setItem(rowIndex, 4,QtWidgets.QTableWidgetItem(p.periodo_iniziale+'-'+p.fase_iniziale))
+            
+           
+            # self.tableWidget_rapporti.update()
+        # except :
+            # pass#QMessageBox.warning(self, "ATTENZIONE", str(e), QMessageBox.Ok)
     
     def on_pushButton_go_to_us_pressed(self):    
         #self.save_us()
@@ -4094,9 +4094,9 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
             rapporti = records[rec].rapporti  # caricati i rapporti nella variabile
             rapporti = eval(rapporti)
             for sing_rapp in rapporti:  # itera sulla serie di rapporti
-                sing_rapp.pop(4)
-                sing_rapp.pop(3)
-                sing_rapp.pop(2)
+                # sing_rapp.pop(4)
+                # sing_rapp.pop(3)
+                # sing_rapp.pop(2)
                 
             
                 report = ''
@@ -4123,9 +4123,9 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
                             rapporti_check = eval(us_rapp[0].rapporti)
                             
                             
-                            [l.pop(4) for l in rapporti_check]
-                            [l.pop(3) for l in rapporti_check]
-                            [l.pop(2) for l in rapporti_check]
+                            # [l.pop(4) for l in rapporti_check]
+                            # [l.pop(3) for l in rapporti_check]
+                            # [l.pop(2) for l in rapporti_check]
                             
                             #rapporti_check =[x for x in rapporti_check if x[0:2]]
                                 #=eval(str(rapporti_check_[0:2]))
