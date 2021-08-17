@@ -345,6 +345,10 @@ class DB_update(object):
 
         if not table_column_names_list.__contains__('uso_primario_usm'):
             self.engine.execute("ALTER TABLE us_table ADD COLUMN uso_primario_usm text DEFAULT '' ")
+        
+        if not table_column_names_list.__contains__('rapporti2'):
+            self.engine.execute("ALTER TABLE us_table ADD COLUMN rapporti2 text DEFAULT '' ")
+        
         #############nuovi##############################################################
         if not table_column_names_list.__contains__('tipologia_opera'):
             self.engine.execute("ALTER TABLE us_table ADD COLUMN tipologia_opera text DEFAULT '' ")

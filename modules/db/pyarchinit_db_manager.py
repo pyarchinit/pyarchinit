@@ -34,7 +34,7 @@ from geoalchemy2 import *
 from sqlalchemy.engine import create_engine
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.sql.schema import MetaData
-from qgis.core import QgsMessageLog, Qgis, QgsSettings
+from qgis.core import *
 from qgis.utils import iface
 from qgis.PyQt.QtWidgets import QMessageBox
 from modules.utility.pyarchinit_OS_utility import Pyarchinit_OS_Utility
@@ -394,6 +394,7 @@ class Pyarchinit_db_management(object):
                 arg[112],
                 arg[113],
                 arg[114],
+                arg[115],
                 )
 
         return us
@@ -1197,9 +1198,9 @@ class Pyarchinit_db_management(object):
         session_exec_str = 'session.query(%s).filter(and_(%s.%s == %s)).update(values = %s)' % (
         self.table_class_str, self.table_class_str, self.id_table_str, self.value_id_list[0], changes_dict)
 
-        # f = open('/test_update.txt', "w")
-        # f.write(str(session_exec_str))
-        # f.close()
+        f = open("C:\\Users\\Utente\\pyarchinit\\pyarchinit_Report_folder\\test_update.txt", "w")
+        f.write(str(session_exec_str))
+        f.close()
 
         eval(session_exec_str)
         session.close()
@@ -1538,12 +1539,13 @@ class Pyarchinit_db_management(object):
     
     def query_in_contains(self, value_list, sitof, areaf):
         self.value_list = value_list
-
+       
         Session = sessionmaker(bind=self.engine, autoflush=True, autocommit=True)
         session = Session()
 
         res_list = []
         n = len(self.value_list) - 1
+        # QMessageBox.warning(None, "Messaggio", str(n), QMessageBox.Ok)
         while self.value_list:
             chunk = self.value_list[0:n]
             self.value_list = self.value_list[n:]
@@ -1563,7 +1565,7 @@ class Pyarchinit_db_management(object):
 
             data_ins = self.insert_values(id_us, sito, area, n_us, '', '', '', '', '', '', '', '', '', '', '', '', '[]',
                                           '[]', '[]', '', '', '', '', '', '', '', '', '0', '[]', unita_tipo, '', '', '', '',
-                                          '', '', '', '', '', '', '', '', '', None, None, '', '[]','[]', '[]', '[]', '[]','','','','',None,None,'','','','','','','[]','[]',None,None,None,None,None,None,None,None,None,None,'','','','','','','','','','',None,None,None,'','','','','','','','','','','','','','','','','','','','','','','','','','','','')
+                                          '', '', '', '', '', '', '', '', '', None, None, '', '[]','[]', '[]', '[]', '[]','','','','',None,None,'','','','','','','[]','[]',None,None,None,None,None,None,None,None,None,None,'','','','','','','','','','',None,None,None,'','','','','','','','','','','','','','','','','','','','','','','','','','','','','')
                                            
             self.insert_data_session(data_ins)
             n_us += 1
@@ -1580,7 +1582,7 @@ class Pyarchinit_db_management(object):
 
         data_ins = self.insert_values(id_us, sito, area, n_us, '', '', '', '', '', '', '', '', '', '', '', '', '[]',
                                       '[]', '[]', '', '', '', '', '', '', '', '', '0', '[]', unita_tipo, '', '', '', '',
-                                      '', '', '', '', '', '', '', '', '', None, None, '', '[]','[]', '[]', '[]', '[]','','','','',None,None,'','','','','','','[]','[]',None,None,None,None,None,None,None,None,None,None,'','','','','','','','','','',None,None,None,'','','','','','','','','','','','','','','','','','','','','','','','','','','','')
+                                      '', '', '', '', '', '', '', '', '', None, None, '', '[]','[]', '[]', '[]', '[]','','','','',None,None,'','','','','','','[]','[]',None,None,None,None,None,None,None,None,None,None,'','','','','','','','','','',None,None,None,'','','','','','','','','','','','','','','','','','','','','','','','','','','','','')
                                            
         self.insert_data_session(data_ins)
         
@@ -1683,6 +1685,7 @@ class Pyarchinit_db_management(object):
                      ~US.rapporti.like("%'Liegt über'%"), ~US.rapporti.like("%'Verfüllt'%")))
             # MyModel.query.filter(sqlalchemy.not_(Mymodel.name.contains('a_string')))
         session.close()
+        #QMessageBox.warning(None, "Messaggio", "DATA LIST" + str(res), QMessageBox.Ok)
         return res
         
     def query_in_idusb(self):

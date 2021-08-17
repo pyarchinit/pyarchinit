@@ -106,11 +106,13 @@ class pyarchinit_Interactive_Matrix(QDialog, MAIN_DIALOG_CLASS):
             datazione = str(sing_rec.periodo_iniziale)+'-'+str(sing_rec.fase_iniziale)##per inserire la datazione estesa
             defin = str(sing_rec.d_interpretativa.replace(' ','_'))##per inserire la definizione startigrafica
             
-            rapporti_stratigrafici = eval(sing_rec.rapporti)
-            
+            rapporti_stratigrafici = eval(sing_rec.rapporti2)
+            #rapporti_stratigrafici2 = eval(sing_rec.rapporti2)
             try:
-                for  sing_rapp in rapporti_stratigrafici:
+                
                     
+                for  sing_rapp in rapporti_stratigrafici:
+                
                     if   sing_rapp[0] == 'Covers' or  sing_rapp[0] == 'Abuts' or  sing_rapp[0] == 'Fills' or  sing_rapp[0] == 'Copre' or  sing_rapp[0] == 'Si appoggia a' or  sing_rapp[0] == 'Riempie'   or  sing_rapp[0] == 'Verfüllt' or sing_rapp[0] == 'Bindet an' or  sing_rapp[0] == 'Entspricht' :
                         if sing_rapp[1] != '':
                             harris_rapp = (un_t+us+'_'+defin+'_'+datazione,str(sing_rapp[2])+str(sing_rapp[1])+'_'+str(sing_rapp[3].replace(' ','_')+'_'+str(sing_rapp[4])))
