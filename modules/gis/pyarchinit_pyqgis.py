@@ -4051,32 +4051,33 @@ class Pyarchinit_pyqgis(QDialog):
         # QSettings().setValue("qgis/%s/%s/zmax" % (connectionType, connectionName), source[7])
         # QSettings().setValue("qgis/%s/%s/zmin" % (connectionType, connectionName), source[8])
         # qgis.utils.iface.reloadConnections()     
-# class Order_layers_DEPRECATED(object):
-    # HOME = os.environ['PYARCHINIT_HOME']
+class Order_layers_DEPRECATED(object):
+    HOME = os.environ['PYARCHINIT_HOME']
 
-    # REPORT_PATH = '{}{}{}'.format(HOME, os.sep, "pyarchinit_Report_folder")
+    REPORT_PATH = '{}{}{}'.format(HOME, os.sep, "pyarchinit_Report_folder")
 
-    # LISTA_US = []  # lista che contiene tutte le US singole prese dai singoli rapporti stratigrafici
-    # DIZ_ORDER_LAYERS = {}  # contiene una serie di chiavi valori dove la chiave e' il livello di ordinamento e il valore l'US relativa
-    # MAX_VALUE_KEYS = -1  # contiene l'indice progressivo dei livelli del dizionario
-    # TUPLE_TO_REMOVING = []  # contiene le tuple da rimuovere dai rapporti stratigrafici man mano che si passa ad un livello successivo
-    # LISTA_RAPPORTI = ""
+    LISTA_US = []  # lista che contiene tutte le US singole prese dai singoli rapporti stratigrafici
+    DIZ_ORDER_LAYERS = {}  # contiene una serie di chiavi valori dove la chiave e' il livello di ordinamento e il valore l'US relativa
+    MAX_VALUE_KEYS = -1  # contiene l'indice progressivo dei livelli del dizionario
+    TUPLE_TO_REMOVING = []  # contiene le tuple da rimuovere dai rapporti stratigrafici man mano che si passa ad un livello successivo
+    LISTA_RAPPORTI = ""
 
-    # """variabili di controllo di paradossi nei rapporti stratigrafici"""
-    # status = 0  # contiene lo stato della lunghezza della lista dei rapporti stratigrafici
-    # check_status = 0  # il valore aumenta se la lunghezza della lista dei rapporti stratigrafici non cambia. Va in errore dopo 4000 ripetizioni del loop stratigraficocambia
-    # stop_while = ''  # assume il valore 'stop' dopo 4000 ripetizioni ed esce dal loop
+    """variabili di controllo di paradossi nei rapporti stratigrafici"""
+    status = 0  # contiene lo stato della lunghezza della lista dei rapporti stratigrafici
+    check_status = 0  # il valore aumenta se la lunghezza della lista dei rapporti stratigrafici non cambia. Va in errore dopo 4000 ripetizioni del loop stratigraficocambia
+    stop_while = ''  # assume il valore 'stop' dopo 4000 ripetizioni ed esce dal loop
 
-    # def __init__(self, lr):
-        # self.LISTA_RAPPORTI = lr  # istanzia la classe con una lista di tuple rappresentanti i rapporti stratigrafici
-        # # f = open('C:\\test_matrix_1.txt', 'w') #to delete
-        # # f.write(str(self.lista_rapporti))
-        # # f.close()
-        # self.LISTA_RAPPORTI.sort()  # ordina la lista dei rapporti stratigrafici E' IN POSIZIONE GIUSTA??? MEGLIO DENTRO AL WHILE?
-        # self.status = len(
-            # self.LISTA_RAPPORTI)  # assegna la lunghezza della lista dei rapporti per verificare se cambia nel corso del loop
+    def __init__(self, lr):
+        self.LISTA_RAPPORTI = lr  # istanzia la classe con una lista di tuple rappresentanti i rapporti stratigrafici
+        
+        # f = open('C:\\test_matrix_1.txt', 'w') #to delete
+        # f.write(str(self.lista_rapporti))
+        # f.close()
+        self.LISTA_RAPPORTI.sort()  # ordina la lista dei rapporti stratigrafici E' IN POSIZIONE GIUSTA??? MEGLIO DENTRO AL WHILE?
+        self.status = len(
+            self.LISTA_RAPPORTI)  # assegna la lunghezza della lista dei rapporti per verificare se cambia nel corso del loop
 
-        # # print self.lista_rapporti
+        # print self.lista_rapporti
 
     def main(self):
         # esegue la funzione per creare la lista valori delle US dai singoli rapporti stratigrafici
@@ -4207,7 +4208,7 @@ class Order_layer_v2(object):
     def main_order_layer(self):
         # ricava la base delle us del matrix a cui non succedono altre US
         matrix_us_level = self.find_base_matrix()
-
+        
         self.insert_into_dict(matrix_us_level)
         # il test per il ciclo while viene settato a 0(zero)
         test = 0
@@ -4216,6 +4217,7 @@ class Order_layer_v2(object):
             for i in matrix_us_level:
                 rec_list_str.append(str(i))
                 # cerca prima di tutto se ci sono us uguali o che si legano alle US sottostanti
+                #QMessageBox.warning(None, "Messaggio", "DATA LIST" + str(i), QMessageBox.Ok)
             if self.L=='it':
                 value_list_equal = self.create_list_values(['Uguale a', 'Si lega a'], rec_list_str)
             elif self.L=='de':
@@ -4249,13 +4251,14 @@ class Order_layer_v2(object):
             matrix_us_level = []
             for e in res_t:
                 matrix_us_level.append(str(e.us))
-                #QMessageBox.warning(self, "Errore", str(matrix_us_level), QMessageBox.Ok)
+                
             if not matrix_us_level:
                 test = 1
+                
                 return self.order_dict
-            elif self.order_count >=500:
+            elif self.order_count >=1000:
                 test = 1
-                #QMessageBox.warning(self, "Errore", str(self.order_dict), QMessageBox.Ok)
+                #
 
                 return "error"
             else:
@@ -4263,9 +4266,11 @@ class Order_layer_v2(object):
 
     def find_base_matrix(self):
         res = self.db.select_not_like_from_db_sql(self.SITO, self.AREA)
+        
         rec_list = []
         for rec in res:
             rec_list.append(str(rec.us))
+        #QMessageBox.warning(None, "Messaggio", "DATA LIST" + str(rec_list), QMessageBox.Ok)
         return rec_list
 
     def create_list_values(self, rapp_type_list, value_list):
@@ -4275,8 +4280,12 @@ class Order_layer_v2(object):
         value_list_to_find = []
         for sing_value in self.value_list:
             for sing_rapp in self.rapp_type_list:
+                
                 sql_query_string = "['%s', '%s']" % (sing_rapp, sing_value)  # funziona!!!
+               
                 value_list_to_find.append(sql_query_string)
+        
+        #QMessageBox.warning(None, "rapp1", str(rapp_type_list), QMessageBox.Ok)
         return value_list_to_find
 
     def us_extractor(self, res):
