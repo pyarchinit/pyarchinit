@@ -4,6 +4,9 @@
 [![HitCount](http://hits.dwyl.io/pyarchinit/pyarchinit.svg)](http://hits.dwyl.io/pyarchinit/pyarchinit)
 [![Donate to QGIS](https://img.shields.io/badge/donate%20to-QGIS-green.svg?style=flat-square)](http://qgis.org/en/site/getinvolved/donations.html)
 
+## ATTENZIONE ATTUALMENTE (SETTEMBRE 2021) PYARCHINIT NON E' COMPATIBILE CON SPATIALITE 5 E I NUOVI REPOSITORY E VERSIONI DI QGIS 3.16 e 3.20. E' NECESSARIO INSTALLARE LE VECCHIE VERSIONI TRAMITE OSGEO4w64bit. IN CASO DI PROBLEMI SCRIVETECI SU TELEGRAM @pyarchinit_group
+
+
 ## Installing adding pyarchinit repository into QGIS
 
 # Video per installazione plugin -> [Video](https://www.adarteinfo.it/archivio/pyarchinit-download/install.gif)
