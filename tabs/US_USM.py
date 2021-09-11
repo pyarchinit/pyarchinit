@@ -18,6 +18,7 @@
  ***************************************************************************/
 """
 from __future__ import absolute_import
+from pathlib import Path
 from builtins import range
 from builtins import str
 import psycopg2
@@ -38,12 +39,12 @@ import cv2
 from distutils.dir_util import copy_tree
 from random import randrange as rand
 from PyQt5 import QtCore, QtGui, QtWidgets
-#from PyQt5.QtXml import QDomDocument
+from qgis import processing
 from qgis.PyQt.QtCore import *
 from qgis.PyQt.QtGui import QColor, QIcon
 from qgis.PyQt.QtWidgets import *
 from qgis.PyQt.uic import loadUiType
-from qgis.core import Qgis, QgsSettings,QgsGeometry,QgsProject,QgsApplication
+from qgis.core import Qgis, QgsSettings,QgsGeometry,QgsProject,QgsApplication,QgsVectorFileWriter,QgsMapLayer,QgsVectorLayer
 from qgis.gui import QgsMapCanvas, QgsMapToolPan
 from qgis.PyQt.QtSql import QSqlDatabase, QSqlTableModel
 import re
@@ -821,6 +822,7 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
         self.tableWidget_rapporti.itemSelectionChanged.connect(self.us_t)
         # self.tableWidget_rapporti.itemSelectionChanged.connect(self.rapp)
         self.refresh()
+    
     
     def refresh(self):
         
