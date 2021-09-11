@@ -52,6 +52,7 @@ from .tabs.Thesaurus import pyarchinit_Thesaurus
 from .tabs.US_USM import pyarchinit_US
 from .tabs.UT import pyarchinit_UT
 from .tabs.PRINTMAP import pyarchinit_PRINTMAP
+from .tabs.gpkg_export import pyarchinit_GPKG
 from .gui.pyarchinitConfigDialog import pyArchInitDialog_Config
 from .gui.dbmanagment import pyarchinit_dbmanagment
 from .gui.pyarchinitInfoDialog import pyArchInitDialog_Info
@@ -327,6 +328,26 @@ class PyArchInitPlugin(object):
             ######  Section dedicated to the plugin management
 
             self.manageToolButton = QToolButton(self.toolBar)
+            #self.manageToolButton.setPopupMode(QToolButton.MenuButtonPopup)
+
+            icon_gpkg = '{}{}'.format(filepath, os.path.join(os.sep, 'resources', 'icons', 'gpkg.png'))
+            self.actionGpkg = QAction(QIcon(icon_gpkg), "Impacchetta per geopackage", self.iface.mainWindow())
+            self.actionGpkg.setWhatsThis("Impacchetta per geopackage")
+            self.actionGpkg.triggered.connect(self.runGpkg)
+            
+           
+            self.manageToolButton.addActions(
+                [self.actionGpkg])
+            self.manageToolButton.setDefaultAction(self.actionGpkg)
+
+            self.toolBar.addWidget(self.manageToolButton)
+
+            self.toolBar.addSeparator()
+            
+            
+            ######  Section dedicated to the plugin management
+
+            self.manageToolButton = QToolButton(self.toolBar)
             self.manageToolButton.setPopupMode(QToolButton.MenuButtonPopup)
 
             icon_thesaurus = '{}{}'.format(filepath, os.path.join(os.sep, 'resources', 'icons', 'thesaurusicon.png'))
@@ -387,6 +408,7 @@ class PyArchInitPlugin(object):
                 self.iface.addPluginToMenu("&pyArchInit - Archaeological GIS Tools", self.actionComparision)
                 
             self.iface.addPluginToMenu("&pyArchInit - Archaeological GIS Tools", self.actionPrint)
+            self.iface.addPluginToMenu("&pyArchInit - Archaeological GIS Tools", self.actionGpkg)
             self.iface.addPluginToMenu("&pyArchInit - Archaeological GIS Tools", self.actionConf)
             self.iface.addPluginToMenu("&pyArchInit - Archaeological GIS Tools", self.actionThesaurus)
             self.iface.addPluginToMenu("&pyArchInit - Archaeological GIS Tools", self.actionDbmanagment)
@@ -1095,7 +1117,10 @@ class PyArchInitPlugin(object):
         pluginPrint = pyarchinit_PRINTMAP(self.iface)
         pluginPrint.show()
         self.pluginGui = pluginPrint  # save
-    
+    def runGpkg(self):
+        pluginGpkg = pyarchinit_GPKG(self.iface)
+        pluginGpkg.show()
+        self.pluginGui = pluginGpkg  # save
     def runConf(self):
         pluginConfGui = pyArchInitDialog_Config()
         pluginConfGui.show()
@@ -1200,7 +1225,8 @@ class PyArchInitPlugin(object):
                 self.iface.removePluginMenu("&pyArchInit - Archaeological GIS Tools", self.actionpdfExp)
                 self.iface.removePluginMenu("&pyArchInit - Archaeological GIS Tools", self.actionComparision)
                 self.iface.removePluginMenu("&pyArchInit - Archaeological GIS Tools", self.actionGisTimeController)
-            self.iface.removePluginMenu("&pyArchInit - Archaeological GIS Tools", self.actionPrint)    
+            self.iface.removePluginMenu("&pyArchInit - Archaeological GIS Tools", self.actionPrint)
+            self.iface.removePluginMenu("&pyArchInit - Archaeological GIS Tools", self.actionGpkg) 
             self.iface.removePluginMenu("&pyArchInit - Archaeological GIS Tools", self.actionConf)
             self.iface.removePluginMenu("&pyArchInit - Archaeological GIS Tools", self.actionThesaurus)
             self.iface.removePluginMenu("&pyArchInit - Archaeological GIS Tools", self.actionInfo)
@@ -1229,6 +1255,7 @@ class PyArchInitPlugin(object):
                 self.iface.removeToolBarIcon(self.actionComparision)
                 self.iface.removeToolBarIcon(self.actionGisTimeController)
             self.iface.removeToolBarIcon(self.actionPrint)
+            self.iface.removeToolBarIcon(self.actionGpkg)
             self.iface.removeToolBarIcon(self.actionConf)
             self.iface.removeToolBarIcon(self.actionThesaurus)
             self.iface.removeToolBarIcon(self.actionInfo)
