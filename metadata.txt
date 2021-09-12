@@ -25,6 +25,8 @@ repository=https://github.com/pyarchinit/pyarchinit
 changelog=release3.9.8.8
 
     -add form to export to gpkg (vector and raster)
+    - ui gpkg on the top
+    -change background color ui
   -------------------------------------------------------------------------------
 
 
