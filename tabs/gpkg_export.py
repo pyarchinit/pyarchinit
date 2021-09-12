@@ -81,8 +81,11 @@ class pyarchinit_GPKG(QDialog, MAIN_DIALOG_CLASS):
     def __init__(self, iface):
         super().__init__()
         self.iface = iface
-        
+        QDialog.__init__(self, None,Qt.WindowStaysOnTopHint)
         self.setupUi(self)
+        # Create the dialog (after translation) and keep reference
+        #self.dlg = pyarchinit_GPKG(self)
+        #QtGui.QMainWindow.__init__(self, None, QtCore.Qt.WindowStaysOnTopHint)
         self.toolButton.clicked.connect(self.setPath)
     
     def setPath(self):
@@ -112,30 +115,34 @@ class pyarchinit_GPKG(QDialog, MAIN_DIALOG_CLASS):
         if lyrs:
             
 
-            # p = Path(gpkgPath)
-            # if p.exists():
-            QgsVectorFileWriter.writeAsVectorFormat(lyrs[0],gpkgPath,"GPKG")    
-            for lyr in filter(lambda l: l.type() == QgsMapLayer.VectorLayer, lyrs):
-                options = QgsVectorFileWriter.SaveVectorOptions()
-                options.actionOnExistingFile = QgsVectorFileWriter.CreateOrOverwriteLayer 
-                options.layerName = "_".join(lyr.name().split(' '))
-                _writer = QgsVectorFileWriter.writeAsVectorFormat(lyr, gpkgPath, options,"GPKG")
-            if _writer:
-                
-                QMessageBox.warning(self, "OK","Importazione completata\n",QMessageBox.Ok ) # print(lyr.name(), _writer)
-            else:
-                
-                QMessageBox.warning(self, "Ops","Importazione fallita\n",QMessageBox.Ok ) # print(lyr.name(), _writer)
+            p = Path(gpkgPath)
+            if p.exists():
+                #QgsVectorFileWriter.writeAsVectorFormat(lyrs[0],gpkgPath,"GPKG")    
+                for lyr in filter(lambda l: l.type() == QgsMapLayer.VectorLayer, lyrs):
+                    options = QgsVectorFileWriter.SaveVectorOptions()
+                    options.actionOnExistingFile = QgsVectorFileWriter.CreateOrOverwriteLayer 
+                    options.layerName = "_".join(lyr.name().split(' '))
+                    _writer = QgsVectorFileWriter.writeAsVectorFormat(lyr, gpkgPath, options,"GPKG")
+                if _writer:
+                    
+                    QMessageBox.warning(self, "OK","Importazione completata\n",QMessageBox.Ok ) # print(lyr.name(), _writer)
+                else:
+                    
+                    QMessageBox.warning(self, "Ops","Importazione fallita\n",QMessageBox.Ok ) # print(lyr.name(), _writer)
             
-            # else:
-                # for lyr in filter(lambda l: l.type() == QgsMapLayer.VectorLayer, lyrs):
-                    # _writer2 = QgsVectorFileWriter.writeAsVectorFormat(lyr,gpkgPath,"GPKG")
-                # if _writer2:
+            else:
+                QgsVectorFileWriter.writeAsVectorFormat(lyrs[0],gpkgPath,"GPKG")    
+                for lyr in filter(lambda l: l.type() == QgsMapLayer.VectorLayer, lyrs):
+                    options = QgsVectorFileWriter.SaveVectorOptions()
+                    options.actionOnExistingFile = QgsVectorFileWriter.CreateOrOverwriteLayer 
+                    options.layerName = "_".join(lyr.name().split(' '))
+                    _writer = QgsVectorFileWriter.writeAsVectorFormat(lyr, gpkgPath, options,"GPKG")
+                if _writer:
                     
-                    # QMessageBox.warning(self, "OK","Importazione completata\n",QMessageBox.Ok ) # print(lyr.name(), _writer)
-                # else:
+                    QMessageBox.warning(self, "OK","Importazione completata\n",QMessageBox.Ok ) # print(lyr.name(), _writer)
+                else:
                     
-                    # QMessageBox.warning(self, "Ops","Importazione fallita\n",QMessageBox.Ok ) # print(lyr.name(), _writer)
+                    QMessageBox.warning(self, "Ops","Importazione fallita\n",QMessageBox.Ok ) # print(lyr.name(), _writer)
         else:
             QMessageBox.warning(self, "Attenzione","Non hai selezionato nessun layer da importare\n",QMessageBox.Ok ) # print(lyr.name(), _writer)
              
@@ -200,3 +207,5 @@ class pyarchinit_GPKG(QDialog, MAIN_DIALOG_CLASS):
                     else:
                         QMessageBox.warning(self, "Ops","Importazione fallita\n",QMessageBox.Ok ) # print(lyr.name(), _writer)
         ds = None    
+        
+      
