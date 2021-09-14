@@ -154,15 +154,6 @@
        </color>
       </brush>
      </colorrole>
-     <colorrole role="PlaceholderText">
-      <brush brushstyle="SolidPattern">
-       <color alpha="128">
-        <red>0</red>
-        <green>0</green>
-        <blue>0</blue>
-       </color>
-      </brush>
-     </colorrole>
     </active>
     <inactive>
      <colorrole role="WindowText">
@@ -300,15 +291,6 @@
        </color>
       </brush>
      </colorrole>
-     <colorrole role="PlaceholderText">
-      <brush brushstyle="SolidPattern">
-       <color alpha="128">
-        <red>0</red>
-        <green>0</green>
-        <blue>0</blue>
-       </color>
-      </brush>
-     </colorrole>
     </inactive>
     <disabled>
      <colorrole role="WindowText">
@@ -440,15 +422,6 @@
      <colorrole role="ToolTipText">
       <brush brushstyle="SolidPattern">
        <color alpha="255">
-        <red>0</red>
-        <green>0</green>
-        <blue>0</blue>
-       </color>
-      </brush>
-     </colorrole>
-     <colorrole role="PlaceholderText">
-      <brush brushstyle="SolidPattern">
-       <color alpha="128">
         <red>0</red>
         <green>0</green>
         <blue>0</blue>
@@ -938,8 +911,8 @@
        <rect>
         <x>0</x>
         <y>0</y>
-        <width>602</width>
-        <height>535</height>
+        <width>598</width>
+        <height>504</height>
        </rect>
       </property>
       <layout class="QFormLayout" name="formLayout">
@@ -956,8 +929,8 @@
            <rect>
             <x>0</x>
             <y>0</y>
-            <width>584</width>
-            <height>103</height>
+            <width>576</width>
+            <height>85</height>
            </rect>
           </property>
           <attribute name="label">
@@ -989,8 +962,8 @@
            <rect>
             <x>0</x>
             <y>0</y>
-            <width>584</width>
-            <height>103</height>
+            <width>576</width>
+            <height>85</height>
            </rect>
           </property>
           <attribute name="label">
