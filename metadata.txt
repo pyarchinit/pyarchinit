@@ -12,7 +12,7 @@
 name=pyArchInit
 qgisMinimumVersion=3.0
 description=pyarchinit an tool for archaeological works
-version=2.6.2
+version=2.6.3
 author=Luca Mandolesi&Enzo Cocca
 email=pyarchinit@gmail.com
 
@@ -22,7 +22,13 @@ about=https://github.com/pyarchinit/pyarchinit
 tracker=https://github.com/pyarchinit/pyarchinit/issues
 repository=https://github.com/pyarchinit/pyarchinit
 
-changelog=release2.6.2
+changelog=release2.6.3
+  
+  	-fix bug #439
+   ------------------------------------------------------------------------------- 
+
+
+  release2.6.2
   
   	-change system table widget rapporti
 	-disable matrix for EM
