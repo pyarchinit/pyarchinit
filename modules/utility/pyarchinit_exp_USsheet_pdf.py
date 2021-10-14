@@ -894,7 +894,7 @@ class single_US_pdf_sheet(object):
          #           i=i+1
 
         return inorganici
-	
+    
     #Aggiunta campi USM
     def unzip_inclusi(self):
         if self.inclusi == '':
@@ -1411,7 +1411,7 @@ class single_US_pdf_sheet(object):
             modulo = Paragraph("<b>MODULO</b><br/>"+ str(self.modulo_usm), styNormal)
             
             
-	    	if bool(self.lunghezza_usm) and bool(self.altezza_usm):
+            if bool(self.lunghezza_usm) and bool(self.altezza_usm):
                 misure = Paragraph("<b>MISURE</b><br/>" + 'Lun. '+ self.lunghezza_usm + ' x '+ 'Alt. ' + self.altezza_usm + 'm', styNormal)
             elif bool(self.lunghezza_usm) and  not bool(self.altezza_usm):
                 misure = Paragraph("<b>MISURE</b><br/>" + 'Lun. ' + self.lunghezza_usm + 'm', styNormal)
@@ -1572,8 +1572,8 @@ class single_US_pdf_sheet(object):
                 [n, tipo, '02', '03', consistenza_l,'05' , '06',inerti, '08','09' , colore_l, '11', spessore, '13', '14', rifinitura, '16', '17'],
                 [label_legante, tipo_1, '02', '03', consistenza_2, '05', '06', inerti_4, '08', '09', colore_3, '11', spessore_5, '13', '14', rifinitura_6, '16', '17'],
                 [note_legante, '01', '02', '03', '04', '05', '06', '07', '08', '09', '10', '11', '12', '13', '14', '15', '16', '17'],
-				
-				[uguale_a, '01', '02', '03', '04', '05', si_lega_a, '07', '08', '09', '10', '11', label_sequenza_stratigrafica, posteriore_a, '14', '15', '16', '17'],
+                
+                [uguale_a, '01', '02', '03', '04', '05', si_lega_a, '07', '08', '09', '10', '11', label_sequenza_stratigrafica, posteriore_a, '14', '15', '16', '17'],
                 ['00', '01', '02', '03', '04', '05', '06', '07', '08', '09', '10', '11', '12', '13', '14', '15', '16', '17'],
                 [gli_si_appoggia, '01', '02', '03', '04', '05', si_appoggia_a, '07', '08', '09', '10', '11', '12', '13', '14', '15', '16', '17'],
                 ['00', '01', '02', '03', '04', '05', '06', '07', '08', '09', '10', '11', '12', '13', '14', '15', '16', '17'],
@@ -1584,8 +1584,8 @@ class single_US_pdf_sheet(object):
                 [riempito_da, '01', '02', '03', '04', '05', riempie, '07', '08', '09', '10', '11', '12', '13', '14', '15', '16', '17'],
                 ['00', '01', '02', '03', '04', '05', '06', '07', '08', '09', '10', '11', '12', '13', '14', '15', '16', '17'],
                 
-				[descrizione, '01', '02', '03', '04', '05', '06', '07', '08', '09', '10', '11', '12', '13', '14', '15', '16', '17'],
-				[osservazioni, '01', '02', '03', '04', '05', '06', '07', '08', '09', '10', '11', '12', '13', '14', '15', '16', '17'],
+                [descrizione, '01', '02', '03', '04', '05', '06', '07', '08', '09', '10', '11', '12', '13', '14', '15', '16', '17'],
+                [osservazioni, '01', '02', '03', '04', '05', '06', '07', '08', '09', '10', '11', '12', '13', '14', '15', '16', '17'],
                 [interpretazione, '01', '02', '03', '04', '05', '06', '07', '08', '09', '10', '11', '12', '13', '14', '15', '16', '17'],
                 
                 [datazione_ipotesi, '01', '02', '03', '04', '05', periodo_o_fase, '07', '08', '09', '10', '11', attivita, '13', '14', '15', '16', '17'],
@@ -1684,7 +1684,7 @@ class single_US_pdf_sheet(object):
 
                 # 11-12 row
                 ('SPAN', (0, 15), (0, 15)),  # label componenti
-				('SPAN', (1, 15), (2, 15)),  # label componenti
+                ('SPAN', (1, 15), (2, 15)),  # label componenti
                 ('SPAN', (3, 15), (4, 15)),  # label geologici
                 ('SPAN', (5, 15), (7, 15)),  # label organici
                 ('SPAN', (8, 15), (9, 15)),  # label artificiali
@@ -1695,7 +1695,7 @@ class single_US_pdf_sheet(object):
 
                 # 13-14 row
                 ('SPAN', (0, 16), (0, 16)),  # label componenti
-				('SPAN', (1, 16), (2, 16)),  # label componenti
+                ('SPAN', (1, 16), (2, 16)),  # label componenti
                 ('SPAN', (3, 16), (4, 16)),  # label geologici
                 ('SPAN', (5, 16), (7, 16)),  # label organici
                 ('SPAN', (8, 16), (9, 16)),  # label artificiali
@@ -1710,26 +1710,26 @@ class single_US_pdf_sheet(object):
                 
                 # 15 row
                 ('SPAN', (0, 18), (0, 18)),  # label componenti
-				('SPAN', (1, 18), (3, 18)),  # label componenti
+                ('SPAN', (1, 18), (3, 18)),  # label componenti
                 ('SPAN', (4, 18), (6, 18)),  # label geologici
                 ('SPAN', (7, 18), (9, 18)),  # label organici
                 ('SPAN', (10, 18), (11, 18)),  # label artificiali
                 ('SPAN', (12, 18), (14, 18)),  #  geologici
                 ('SPAN', (15, 18), (17, 18)),  #  organici
                 ('VALIGN', (0, 18), (17, 18), 'TOP'),
-				
-				# 16 row
+                
+                # 16 row
                 ('SPAN', (0, 19), (0, 19)),  # label componenti
-				('SPAN', (1, 19), (3, 19)),  # label componenti
+                ('SPAN', (1, 19), (3, 19)),  # label componenti
                 ('SPAN', (4, 19), (6, 19)),  # label geologici
                 ('SPAN', (7, 19), (9, 19)),  # label organici
                 ('SPAN', (10, 19), (11, 19)),  # label artificiali
                 ('SPAN', (12, 19), (14, 19)),  #  geologici
                 ('SPAN', (15, 19), (17, 19)),  #  organici
                 ('VALIGN', (0, 19), (17, 19), 'TOP'),
-				
-				
-				# 17-21 row
+                
+                
+                # 17-21 row
                 ('SPAN', (0, 20), (17, 20)),  # descrizione
                 ('VALIGN', (0, 20), (17, 20), 'TOP'),
 
@@ -2461,8 +2461,8 @@ class single_US_pdf_sheet(object):
                 [n, tipo, '02', '03', consistenza_l,'05' , '06',inerti, '08','09' , colore_l, '11', spessore, '13', '14', rifinitura, '16', '17'],
                 [label_legante, tipo_1, '02', '03', consistenza_2, '05', '06', inerti_4, '08', '09', colore_3, '11', spessore_5, '13', '14', rifinitura_6, '16', '17'],
                 [note_legante, '01', '02', '03', '04', '05', '06', '07', '08', '09', '10', '11', '12', '13', '14', '15', '16', '17'],
-				
-				[uguale_a, '01', '02', '03', '04', '05', si_lega_a, '07', '08', '09', '10', '11', label_sequenza_stratigrafica, posteriore_a, '14', '15', '16', '17'],
+                
+                [uguale_a, '01', '02', '03', '04', '05', si_lega_a, '07', '08', '09', '10', '11', label_sequenza_stratigrafica, posteriore_a, '14', '15', '16', '17'],
                 ['00', '01', '02', '03', '04', '05', '06', '07', '08', '09', '10', '11', '12', '13', '14', '15', '16', '17'],
                 [gli_si_appoggia, '01', '02', '03', '04', '05', si_appoggia_a, '07', '08', '09', '10', '11', '12', '13', '14', '15', '16', '17'],
                 ['00', '01', '02', '03', '04', '05', '06', '07', '08', '09', '10', '11', '12', '13', '14', '15', '16', '17'],
@@ -2473,8 +2473,8 @@ class single_US_pdf_sheet(object):
                 [riempito_da, '01', '02', '03', '04', '05', riempie, '07', '08', '09', '10', '11', '12', '13', '14', '15', '16', '17'],
                 ['00', '01', '02', '03', '04', '05', '06', '07', '08', '09', '10', '11', '12', '13', '14', '15', '16', '17'],
                 
-				[descrizione, '01', '02', '03', '04', '05', '06', '07', '08', '09', '10', '11', '12', '13', '14', '15', '16', '17'],
-				[osservazioni, '01', '02', '03', '04', '05', '06', '07', '08', '09', '10', '11', '12', '13', '14', '15', '16', '17'],
+                [descrizione, '01', '02', '03', '04', '05', '06', '07', '08', '09', '10', '11', '12', '13', '14', '15', '16', '17'],
+                [osservazioni, '01', '02', '03', '04', '05', '06', '07', '08', '09', '10', '11', '12', '13', '14', '15', '16', '17'],
                 [interpretazione, '01', '02', '03', '04', '05', '06', '07', '08', '09', '10', '11', '12', '13', '14', '15', '16', '17'],
                 
                 [datazione_ipotesi, '01', '02', '03', '04', '05', periodo_o_fase, '07', '08', '09', '10', '11', attivita, '13', '14', '15', '16', '17'],
@@ -2573,7 +2573,7 @@ class single_US_pdf_sheet(object):
 
                 # 11-12 row
                 ('SPAN', (0, 15), (0, 15)),  # label componenti
-				('SPAN', (1, 15), (2, 15)),  # label componenti
+                ('SPAN', (1, 15), (2, 15)),  # label componenti
                 ('SPAN', (3, 15), (4, 15)),  # label geologici
                 ('SPAN', (5, 15), (7, 15)),  # label organici
                 ('SPAN', (8, 15), (9, 15)),  # label artificiali
@@ -2584,7 +2584,7 @@ class single_US_pdf_sheet(object):
 
                 # 13-14 row
                 ('SPAN', (0, 16), (0, 16)),  # label componenti
-				('SPAN', (1, 16), (2, 16)),  # label componenti
+                ('SPAN', (1, 16), (2, 16)),  # label componenti
                 ('SPAN', (3, 16), (4, 16)),  # label geologici
                 ('SPAN', (5, 16), (7, 16)),  # label organici
                 ('SPAN', (8, 16), (9, 16)),  # label artificiali
@@ -2599,26 +2599,26 @@ class single_US_pdf_sheet(object):
                 
                 # 15 row
                 ('SPAN', (0, 18), (0, 18)),  # label componenti
-				('SPAN', (1, 18), (3, 18)),  # label componenti
+                ('SPAN', (1, 18), (3, 18)),  # label componenti
                 ('SPAN', (4, 18), (6, 18)),  # label geologici
                 ('SPAN', (7, 18), (9, 18)),  # label organici
                 ('SPAN', (10, 18), (11, 18)),  # label artificiali
                 ('SPAN', (12, 18), (14, 18)),  #  geologici
                 ('SPAN', (15, 18), (17, 18)),  #  organici
                 ('VALIGN', (0, 18), (17, 18), 'TOP'),
-				
-				# 16 row
+                
+                # 16 row
                 ('SPAN', (0, 19), (0, 19)),  # label componenti
-				('SPAN', (1, 19), (3, 19)),  # label componenti
+                ('SPAN', (1, 19), (3, 19)),  # label componenti
                 ('SPAN', (4, 19), (6, 19)),  # label geologici
                 ('SPAN', (7, 19), (9, 19)),  # label organici
                 ('SPAN', (10, 19), (11, 19)),  # label artificiali
                 ('SPAN', (12, 19), (14, 19)),  #  geologici
                 ('SPAN', (15, 19), (17, 19)),  #  organici
                 ('VALIGN', (0, 19), (17, 19), 'TOP'),
-				
-				
-				# 17-21 row
+                
+                
+                # 17-21 row
                 ('SPAN', (0, 20), (17, 20)),  # descrizione
                 ('VALIGN', (0, 20), (17, 20), 'TOP'),
 
@@ -3340,8 +3340,8 @@ class single_US_pdf_sheet(object):
                 [n, tipo, '02', '03', consistenza_l,'05' , '06',inerti, '08','09' , colore_l, '11', spessore, '13', '14', rifinitura, '16', '17'],
                 [label_legante, tipo_1, '02', '03', consistenza_2, '05', '06', inerti_4, '08', '09', colore_3, '11', spessore_5, '13', '14', rifinitura_6, '16', '17'],
                 [note_legante, '01', '02', '03', '04', '05', '06', '07', '08', '09', '10', '11', '12', '13', '14', '15', '16', '17'],
-				
-				[uguale_a, '01', '02', '03', '04', '05', si_lega_a, '07', '08', '09', '10', '11', label_sequenza_stratigrafica, posteriore_a, '14', '15', '16', '17'],
+                
+                [uguale_a, '01', '02', '03', '04', '05', si_lega_a, '07', '08', '09', '10', '11', label_sequenza_stratigrafica, posteriore_a, '14', '15', '16', '17'],
                 ['00', '01', '02', '03', '04', '05', '06', '07', '08', '09', '10', '11', '12', '13', '14', '15', '16', '17'],
                 [gli_si_appoggia, '01', '02', '03', '04', '05', si_appoggia_a, '07', '08', '09', '10', '11', '12', '13', '14', '15', '16', '17'],
                 ['00', '01', '02', '03', '04', '05', '06', '07', '08', '09', '10', '11', '12', '13', '14', '15', '16', '17'],
@@ -3352,8 +3352,8 @@ class single_US_pdf_sheet(object):
                 [riempito_da, '01', '02', '03', '04', '05', riempie, '07', '08', '09', '10', '11', '12', '13', '14', '15', '16', '17'],
                 ['00', '01', '02', '03', '04', '05', '06', '07', '08', '09', '10', '11', '12', '13', '14', '15', '16', '17'],
                 
-				[descrizione, '01', '02', '03', '04', '05', '06', '07', '08', '09', '10', '11', '12', '13', '14', '15', '16', '17'],
-				[osservazioni, '01', '02', '03', '04', '05', '06', '07', '08', '09', '10', '11', '12', '13', '14', '15', '16', '17'],
+                [descrizione, '01', '02', '03', '04', '05', '06', '07', '08', '09', '10', '11', '12', '13', '14', '15', '16', '17'],
+                [osservazioni, '01', '02', '03', '04', '05', '06', '07', '08', '09', '10', '11', '12', '13', '14', '15', '16', '17'],
                 [interpretazione, '01', '02', '03', '04', '05', '06', '07', '08', '09', '10', '11', '12', '13', '14', '15', '16', '17'],
                 
                 [datazione_ipotesi, '01', '02', '03', '04', '05', periodo_o_fase, '07', '08', '09', '10', '11', attivita, '13', '14', '15', '16', '17'],
@@ -3452,7 +3452,7 @@ class single_US_pdf_sheet(object):
 
                 # 11-12 row
                 ('SPAN', (0, 15), (0, 15)),  # label componenti
-				('SPAN', (1, 15), (2, 15)),  # label componenti
+                ('SPAN', (1, 15), (2, 15)),  # label componenti
                 ('SPAN', (3, 15), (4, 15)),  # label geologici
                 ('SPAN', (5, 15), (7, 15)),  # label organici
                 ('SPAN', (8, 15), (9, 15)),  # label artificiali
@@ -3463,7 +3463,7 @@ class single_US_pdf_sheet(object):
 
                 # 13-14 row
                 ('SPAN', (0, 16), (0, 16)),  # label componenti
-				('SPAN', (1, 16), (2, 16)),  # label componenti
+                ('SPAN', (1, 16), (2, 16)),  # label componenti
                 ('SPAN', (3, 16), (4, 16)),  # label geologici
                 ('SPAN', (5, 16), (7, 16)),  # label organici
                 ('SPAN', (8, 16), (9, 16)),  # label artificiali
@@ -3478,26 +3478,26 @@ class single_US_pdf_sheet(object):
                 
                 # 15 row
                 ('SPAN', (0, 18), (0, 18)),  # label componenti
-				('SPAN', (1, 18), (3, 18)),  # label componenti
+                ('SPAN', (1, 18), (3, 18)),  # label componenti
                 ('SPAN', (4, 18), (6, 18)),  # label geologici
                 ('SPAN', (7, 18), (9, 18)),  # label organici
                 ('SPAN', (10, 18), (11, 18)),  # label artificiali
                 ('SPAN', (12, 18), (14, 18)),  #  geologici
                 ('SPAN', (15, 18), (17, 18)),  #  organici
                 ('VALIGN', (0, 18), (17, 18), 'TOP'),
-				
-				# 16 row
+                
+                # 16 row
                 ('SPAN', (0, 19), (0, 19)),  # label componenti
-				('SPAN', (1, 19), (3, 19)),  # label componenti
+                ('SPAN', (1, 19), (3, 19)),  # label componenti
                 ('SPAN', (4, 19), (6, 19)),  # label geologici
                 ('SPAN', (7, 19), (9, 19)),  # label organici
                 ('SPAN', (10, 19), (11, 19)),  # label artificiali
                 ('SPAN', (12, 19), (14, 19)),  #  geologici
                 ('SPAN', (15, 19), (17, 19)),  #  organici
                 ('VALIGN', (0, 19), (17, 19), 'TOP'),
-				
-				
-				# 17-21 row
+                
+                
+                # 17-21 row
                 ('SPAN', (0, 20), (17, 20)),  # descrizione
                 ('VALIGN', (0, 20), (17, 20), 'TOP'),
 
