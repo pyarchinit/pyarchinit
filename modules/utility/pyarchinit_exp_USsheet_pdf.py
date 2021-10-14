@@ -1411,11 +1411,12 @@ class single_US_pdf_sheet(object):
             modulo = Paragraph("<b>MODULO</b><br/>"+ str(self.modulo_usm), styNormal)
             
             
-            if bool(self.lunghezza_max) and bool(self.larghezza_media) and bool(self.altezza_usm):
-                misure = Paragraph("<b>MISURE</b><br/>" + 'Lun. '+ self.lunghezza_usm + ' x '+ 'Alt. ' + self.altezza_usm + ' x '+ 'Sp. ' + self.spessore_usm + 'm', styNormal)
-            elif bool(self.lunghezza_max) and bool(self.larghezza_media) and not bool(self.altezza_usm):
-                misure = Paragraph("<b>MISURE</b><br/>" + 'Lun. ' + self.lunghezza_usm + ' x '+ 'Alt. '+ self.altezza_usm + 'm', styNormal)
-            
+	    if bool(self.lunghezza_usm) and bool(self.altezza_usm):
+                misure = Paragraph("<b>MISURE</b><br/>" + 'Lun. '+ self.lunghezza_usm + ' x '+ 'Alt. ' + self.altezza_usm + 'm', styNormal)
+            elif bool(self.lunghezza_usm) and  not bool(self.altezza_usm):
+                misure = Paragraph("<b>MISURE</b><br/>" + 'Lun. ' + self.lunghezza_usm + 'm', styNormal)
+            elif bool(self.altezza_usm) and  not bool(self.lunghezza_usm):
+                misure = Paragraph("<b>MISURE</b><br/>" + 'Alt. ' + self.altezza_usm + 'm', styNormal)
             else:
                 misure = Paragraph("<b>MISURE</b><br/>", styNormal)
 
