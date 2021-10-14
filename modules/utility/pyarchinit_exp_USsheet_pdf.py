@@ -1413,11 +1413,12 @@ class single_US_pdf_sheet(object):
             modulo = Paragraph("<b>MODULO</b><br/>"+ str(self.modulo_usm), styNormal)
             
             
-            if bool(self.lunghezza_max) and bool(self.larghezza_media) and bool(self.altezza_usm):
-                misure = Paragraph("<b>MISURE</b><br/>" + 'Lun. '+ self.lunghezza_usm + ' x '+ 'Alt. ' + self.altezza_usm + ' x '+ 'Sp. ' + self.spessore_usm + 'm', styNormal)
-            elif bool(self.lunghezza_max) and bool(self.larghezza_media) and not bool(self.altezza_usm):
-                misure = Paragraph("<b>MISURE</b><br/>" + 'Lun. ' + self.lunghezza_usm + ' x '+ 'Alt. '+ self.altezza_usm + 'm', styNormal)
-            
+            if bool(self.lunghezza_usm) and bool(self.altezza_usm):
+                misure = Paragraph("<b>MISURE</b><br/>" + 'Lun. '+ self.lunghezza_usm + ' x '+ 'Alt. ' + self.altezza_usm + 'm', styNormal)
+            elif bool(self.lunghezza_usm) and  not bool(self.altezza_usm):
+                misure = Paragraph("<b>MISURE</b><br/>" + 'Lun. ' + self.lunghezza_usm + 'm', styNormal)
+            elif bool(self.altezza_usm) and  not bool(self.lunghezza_usm):
+                misure = Paragraph("<b>MISURE</b><br/>" + 'Alt. ' + self.altezza_usm + 'm', styNormal)
             else:
                 misure = Paragraph("<b>MISURE</b><br/>", styNormal)
 
@@ -2304,14 +2305,14 @@ class single_US_pdf_sheet(object):
             modulo = Paragraph("<b>MODULE</b><br/>"+ str(self.modulo_usm), styNormal)
             
             
-            if bool(self.lunghezza_max) and bool(self.larghezza_media) and bool(self.altezza_usm):
-                misure = Paragraph("<b>MEASURES</b><br/>" + 'Len. '+ self.lunghezza_usm + ' x '+ 'Elev. ' + self.altezza_usm + ' x '+ 'Thick. ' + self.spessore_usm + 'm', styNormal)
-            elif bool(self.lunghezza_max) and bool(self.larghezza_media) and not bool(self.altezza_usm):
-                misure = Paragraph("<b>MEASURES</b><br/>" + 'Len. ' + self.lunghezza_usm + ' x '+ 'Elev. '+ self.altezza_usm + 'm', styNormal)
-            
+            if bool(self.lunghezza_usm) and bool(self.altezza_usm):
+                misure = Paragraph("<b>MEASURES</b><br/>" + 'Len. '+ self.lunghezza_usm + ' x '+ 'Elev. ' + self.altezza_usm + 'm', styNormal)
+            elif bool(self.lunghezza_usm) and  not bool(self.altezza_usm):
+                misure = Paragraph("<b>MEASURES</b><br/>" + 'Len. ' + self.lunghezza_usm + 'm', styNormal)
+            elif bool(self.altezza_usm) and  not bool(self.lunghezza_usm):
+                misure = Paragraph("<b>MEASURES</b><br/>" + 'Elev. ' + self.altezza_usm + 'm', styNormal)
             else:
                 misure = Paragraph("<b>MEASURES</b><br/>", styNormal)
-
             superficie_analizzata = Paragraph("<b>ANALYSED SURFACE</b><br/>"+ str(self.superficie_analizzata), styNormal)
             
             d_stratigrafica = Paragraph("<b>DEFINITION AND POSITION</b><br/>" + self.d_stratigrafica+"<br/>"+self.d_interpretativa, styNormal)
@@ -2870,6 +2871,9 @@ class single_US_pdf_sheet(object):
             
             else:
                 misure = Paragraph("<b>MASSNAHMEN</b><br/>", styNormal)
+
+
+
             #11 row
 
             stato_conservazione = Paragraph("<b>ERHALTUNGSZUSTAND</b><br/>" + self.stato_di_conservazione, styNormal)
@@ -3183,11 +3187,12 @@ class single_US_pdf_sheet(object):
             modulo = Paragraph("<b>MODUL</b><br/>"+ str(self.modulo_usm), styNormal)
             
             
-            if bool(self.lunghezza_max) and bool(self.larghezza_media) and bool(self.altezza_max):
-                misure = Paragraph("<b>MASSNAHMEN</b><br/>" + 'Länge '+ self.lunghezza_max + ' x '+ 'Breite ' + self.larghezza_media + ' x '+ 'Dicke ' + self.altezza_max + 'm', styNormal)
-            elif bool(self.lunghezza_max) and bool(self.larghezza_media) and not bool(self.altezza_max):
-                misure = Paragraph("<b>MASSNAHMEN</b><br/>" + 'Länge ' + self.lunghezza_max + ' x '+ 'Breite '+ self.larghezza_media + 'm', styNormal)
-            
+            if bool(self.lunghezza_usm) and bool(self.altezza_usm):
+                misure = Paragraph("<b>MASSNAHMEN</b><br/>" + 'Länge '+ self.lunghezza_usm + ' x '+ 'Breite ' + self.altezza_usm + 'm', styNormal)
+            elif bool(self.lunghezza_usm) and  not bool(self.altezza_usm):
+                misure = Paragraph("<b>MASSNAHMEN</b><br/>" + 'Länge ' + self.lunghezza_usm + 'm', styNormal)
+            elif bool(self.altezza_usm) and  not bool(self.lunghezza_usm):
+                misure = Paragraph("<b>MASSNAHMEN</b><br/>" + 'Breite ' + self.altezza_usm + 'm', styNormal)
             else:
                 misure = Paragraph("<b>MASSNAHMEN</b><br/>", styNormal)
 
