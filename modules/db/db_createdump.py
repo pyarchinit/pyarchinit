@@ -114,7 +114,7 @@ class RestoreSchema(object):
         return True
 
     def update_geom_srid_sl(self, crs):
-        sql_query_string = ("SELECT f_table_name, type, f_geometry_column FROM {}".format('geometry_columns'))
+        sql_query_string = ("SELECT f_table_name, geometry_type, f_geometry_column FROM {}".format('geometry_columns'))
         engine = create_engine(self.db_url, echo=True)
         Session = sessionmaker(bind=engine)
         session = Session()

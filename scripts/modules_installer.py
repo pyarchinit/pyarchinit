@@ -40,7 +40,7 @@ if not packages:
         'pyper',
         'graphviz',
         'pysftp',
-        'xlsxwriter',        
+        'xlsxwriter',
         'pandas',
         'opencv-python',
         'pytesseract'
@@ -51,7 +51,7 @@ python_path = sys.exec_prefix
 python_version = sys.version[:3]
 
 if platform.system()=='Windows':
-    cmd = '{}\python'.format(python_path)
+    cmd = '{}\\python'.format(python_path)
 elif platform.system()=='Darwin':
     cmd = '{}/bin/python{}'.format(python_path, python_version)
 else:
