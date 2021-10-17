@@ -25,7 +25,7 @@ import os
 import sqlite3
 import time
 import sqlalchemy as sa
-
+from osgeo import ogr
 from sqlalchemy.event import listen
 import platform
 from builtins import range
@@ -172,12 +172,10 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
         self.test2()
         self.test3()
         self.comboBox_mapper_read.currentIndexChanged.connect(self.check_table)
+        self.comboBox_geometry_read.currentIndexChanged.connect(self.check_geometry_table)
         self.mFeature_field_rd.currentTextChanged.connect(self.value_check)
     
-    # def on_pushButton_convert_db(self):
-        # path_rel = os.path.join(os.sep, str(self.HOME), 'pyarchinit_DB_folder', self.lineEdit_database_rd.text())
-        # subprocess_check_call('ogr2ogr --config PG_LIST_ALL_TABLES YES --config PG_SKIP_VIEWS YES -f "SQLite"', path_rel, '-progress PG:"dbname='pyarchinit' active_schema=myschema schemas=myschema host='10.0.1.5' port='5432' user='admin' password='xanu8ese' " -lco LAUNDER=yes  -dsco SPATIALITE=yes -lco SPATIAL_INDEX=yes -gt 65536')
-    def check_table(self):
+    def on_pushButton_convert_db_pressed(self):
         self.comboBox_Database.update()
         conn = Connection()
         conn_str = conn.conn_str()
@@ -199,10 +197,41 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
         if test_conn == 0:
             sqlite_DB_path = '{}{}{}'.format(self.HOME, os.sep,
                                            "pyarchinit_DB_folder")
+            path=sqlite_DB_path +os.sep+ conn_sqlite["db_name"]
+        
+        try:
+            process= os.system('start cmd /k ogr2ogr --config PG_LIST_ALL_TABLES YES --config PG_SKIP_VIEWS YES  -f SQLite '+ path + ' -progress PG:"dbname=pyarchinit active_schema=public schemas=public host=localhost port=5432 user=postgres password=postgres" -lco LAUNDER=yes -dsco SPATIALITE=yes -lco SPATIAL_INDEX=yes -gt 65536 -update -overwrite')
+            
+
+
+        except KeyError as e:
+            QMessageBox.warning(self, "Attenzione", str(e), QMessageBox.Ok)
+    def check_table(self):
+        self.comboBox_mapper_read.update()
+        self.comboBox_Database.update()
+        conn = Connection()
+        conn_str = conn.conn_str()
+        conn_sqlite = conn.databasename()
+        conn_user = conn.datauser()
+        conn_host = conn.datahost()
+        conn_port = conn.dataport()
+        port_int  = conn_port["port"]
+        port_int.replace("'", "")
+        #QMessageBox.warning(self, "Attenzione", port_int, QMessageBox.Ok)
+        conn_password = conn.datapassword()
+
+
+        
+        self.DB_MANAGER = Pyarchinit_db_management(conn_str)
+        self.DB_MANAGER.connection()
+        test_conn = conn_str.find('sqlite')
+        if test_conn == 0:
+            sqlite_DB_path = '{}{}{}'.format(self.HOME, os.sep,
+                                           "pyarchinit_DB_folder")
             uri = QgsDataSourceUri()
             uri.setDatabase(sqlite_DB_path +os.sep+ conn_sqlite["db_name"])
             schema = ''
-            if self.comboBox_mapper_read.currentText()=='SITE':
+            if self.comboBox_mapper_read.currentIndex()==1:
                 try:
                     table = 'site_table'
                     geom_column = ''
@@ -215,7 +244,7 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
                     self.mFeature_field_rd.addItems(fi)
                 except:
                     pass
-            elif self.comboBox_mapper_read.currentText()=='US':
+            elif self.comboBox_mapper_read.currentIndex()==2:
                 
                 table = 'us_table'
                 geom_column = ''
@@ -226,31 +255,826 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
                 
                 self.mFeature_field_rd.clear()
                 self.mFeature_field_rd.addItems(fi)    
-                                    
+            
+            elif self.comboBox_mapper_read.currentIndex()==3:
+                
+                table = 'periodizzazione_table'
+                geom_column = ''
+                uri.setDataSource(schema, table,geom_column)
+                vlayer = QgsVectorLayer(uri.uri(), table, 'spatialite')
+                pr = vlayer.dataProvider()
+                fi= pr.fields().names()[1:-1]
+                
+                self.mFeature_field_rd.clear()
+                self.mFeature_field_rd.addItems(fi)                        
+            elif self.comboBox_mapper_read.currentIndex()==4:
+                
+                table = 'inventario_materiali_table'
+                geom_column = ''
+                uri.setDataSource(schema, table,geom_column)
+                vlayer = QgsVectorLayer(uri.uri(), table, 'spatialite')
+                pr = vlayer.dataProvider()
+                fi= pr.fields().names()[1:-1]
+                
+                self.mFeature_field_rd.clear()
+                self.mFeature_field_rd.addItems(fi) 
+            elif self.comboBox_mapper_read.currentIndex()==5:
+                
+                table = 'struttura_table'
+                geom_column = ''
+                uri.setDataSource(schema, table,geom_column)
+                vlayer = QgsVectorLayer(uri.uri(), table, 'spatialite')
+                pr = vlayer.dataProvider()
+                fi= pr.fields().names()[1:-1]
+                
+                self.mFeature_field_rd.clear()
+                self.mFeature_field_rd.addItems(fi)
+            elif self.comboBox_mapper_read.currentIndex()==6:
+                
+                table = 'tomba_table'
+                geom_column = ''
+                uri.setDataSource(schema, table,geom_column)
+                vlayer = QgsVectorLayer(uri.uri(), table, 'spatialite')
+                pr = vlayer.dataProvider()
+                fi= pr.fields().names()[1:-1]
+                
+                self.mFeature_field_rd.clear()
+                self.mFeature_field_rd.addItems(fi)
+            elif self.comboBox_mapper_read.currentIndex()==7:
+                
+                table = 'pyarchinit_thesaurus_sigle'
+                geom_column = ''
+                uri.setDataSource(schema, table,geom_column)
+                vlayer = QgsVectorLayer(uri.uri(), table, 'spatialite')
+                pr = vlayer.dataProvider()
+                fi= pr.fields().names()[1:-1]
+                
+                self.mFeature_field_rd.clear()
+                self.mFeature_field_rd.addItems(fi)
+            elif self.comboBox_mapper_read.currentIndex()==8:
+                
+                table = 'individui_table'
+                geom_column = ''
+                uri.setDataSource(schema, table,geom_column)
+                vlayer = QgsVectorLayer(uri.uri(), table, 'spatialite')
+                pr = vlayer.dataProvider()
+                fi= pr.fields().names()[1:-1]
+                
+                self.mFeature_field_rd.clear()
+                self.mFeature_field_rd.addItems(fi)
+            elif self.comboBox_mapper_read.currentIndex()==9:
+                
+                table = 'detsesso_table'
+                geom_column = ''
+                uri.setDataSource(schema, table,geom_column)
+                vlayer = QgsVectorLayer(uri.uri(), table, 'spatialite')
+                pr = vlayer.dataProvider()
+                fi= pr.fields().names()[1:-1]
+                
+                self.mFeature_field_rd.clear()
+                self.mFeature_field_rd.addItems(fi)
+            elif self.comboBox_mapper_read.currentIndex()==10:
+                
+                table = 'deteta_table'
+                geom_column = ''
+                uri.setDataSource(schema, table,geom_column)
+                vlayer = QgsVectorLayer(uri.uri(), table, 'spatialite')
+                pr = vlayer.dataProvider()
+                fi= pr.fields().names()[1:-1]
+                
+                self.mFeature_field_rd.clear()
+                self.mFeature_field_rd.addItems(fi)
+            elif self.comboBox_mapper_read.currentIndex()==11:
+                
+                table = 'archeozoology_table'
+                geom_column = ''
+                uri.setDataSource(schema, table,geom_column)
+                vlayer = QgsVectorLayer(uri.uri(), table, 'spatialite')
+                pr = vlayer.dataProvider()
+                fi= pr.fields().names()[1:-1]
+                
+                self.mFeature_field_rd.clear()
+                self.mFeature_field_rd.addItems(fi)
+            elif self.comboBox_mapper_read.currentIndex()==12:
+                
+                table = 'campioni_table'
+                geom_column = ''
+                uri.setDataSource(schema, table,geom_column)
+                vlayer = QgsVectorLayer(uri.uri(), table, 'spatialite')
+                pr = vlayer.dataProvider()
+                fi= pr.fields().names()[1:-1]
+                
+                self.mFeature_field_rd.clear()
+                self.mFeature_field_rd.addItems(fi)
+            elif self.comboBox_mapper_read.currentIndex()==13:
+                
+                table = 'documentazione_table'
+                geom_column = ''
+                uri.setDataSource(schema, table,geom_column)
+                vlayer = QgsVectorLayer(uri.uri(), table, 'spatialite')
+                pr = vlayer.dataProvider()
+                fi= pr.fields().names()[1:-1]
+                
+                self.mFeature_field_rd.clear()
+                self.mFeature_field_rd.addItems(fi)
+            elif self.comboBox_mapper_read.currentIndex()==14:
+                
+                table = 'media_table'
+                geom_column = ''
+                uri.setDataSource(schema, table,geom_column)
+                vlayer = QgsVectorLayer(uri.uri(), table, 'spatialite')
+                pr = vlayer.dataProvider()
+                fi= pr.fields().names()[1:-1]
+                
+                self.mFeature_field_rd.clear()
+                self.mFeature_field_rd.addItems(fi)
+            elif self.comboBox_mapper_read.currentIndex()==15:
+                
+                table = 'media_thumb_table'
+                geom_column = ''
+                uri.setDataSource(schema, table,geom_column)
+                vlayer = QgsVectorLayer(uri.uri(), table, 'spatialite')
+                pr = vlayer.dataProvider()
+                fi= pr.fields().names()[1:-1]
+                
+                self.mFeature_field_rd.clear()
+                self.mFeature_field_rd.addItems(fi)
+            elif self.comboBox_mapper_read.currentIndex()==16:
+                
+                table = 'media_to_entity_table'
+                geom_column = ''
+                uri.setDataSource(schema, table,geom_column)
+                vlayer = QgsVectorLayer(uri.uri(), table, 'spatialite')
+                pr = vlayer.dataProvider()
+                fi= pr.fields().names()[1:-1]
+                
+                self.mFeature_field_rd.clear()
+                self.mFeature_field_rd.addItems(fi)
+                
+            elif self.comboBox_mapper_read.currentIndex()==17:
+                
+                table = 'ut_table'
+                geom_column = ''
+                uri.setDataSource(schema, table,geom_column)
+                vlayer = QgsVectorLayer(uri.uri(), table, 'spatialite')
+                pr = vlayer.dataProvider()
+                fi= pr.fields().names()[1:-1]
+                
+                self.mFeature_field_rd.clear()
+                self.mFeature_field_rd.addItems(fi)    
+            
             try:
                 self.mFeature_value_rd.clearEditText()
                 self.mFeature_value_rd.update()
                 self.value_check()
             except:
                 pass
+        else:
+            uri = QgsDataSourceUri()
+            uri.setConnection(conn_host["host"], conn_port["port"], conn_sqlite["db_name"], conn_user['user'], conn_password['password'])
+            schema = 'public'
+            if self.comboBox_mapper_read.currentIndex()==1:
+                try:
+                    table = 'site_table'
+                    geom_column = ''
+                    uri.setDataSource(schema, table,geom_column)
+                    vlayer = QgsVectorLayer(uri.uri(), table, 'postgres')
+                    pr = vlayer.dataProvider()
+                    fi= pr.fields().names()[1:-1]
+                    
+                    self.mFeature_field_rd.clear()
+                    self.mFeature_field_rd.addItems(fi)
+                except:
+                    pass
+            elif self.comboBox_mapper_read.currentIndex()==2:
+                
+                table = 'us_table'
+                geom_column = ''
+                uri.setDataSource(schema, table,geom_column)
+                vlayer = QgsVectorLayer(uri.uri(), table, 'postgres')
+                pr = vlayer.dataProvider()
+                fi= pr.fields().names()[1:-1]
+                
+                self.mFeature_field_rd.clear()
+                self.mFeature_field_rd.addItems(fi)    
+            
+            elif self.comboBox_mapper_read.currentIndex()==3:
+                
+                table = 'periodizzazione_table'
+                geom_column = ''
+                uri.setDataSource(schema, table,geom_column)
+                vlayer = QgsVectorLayer(uri.uri(), table, 'postgres')
+                pr = vlayer.dataProvider()
+                fi= pr.fields().names()[1:-1]
+                
+                self.mFeature_field_rd.clear()
+                self.mFeature_field_rd.addItems(fi)                        
+            elif self.comboBox_mapper_read.currentIndex()==4:
+                
+                table = 'inventario_materiali_table'
+                geom_column = ''
+                uri.setDataSource(schema, table,geom_column)
+                vlayer = QgsVectorLayer(uri.uri(), table, 'postgres')
+                pr = vlayer.dataProvider()
+                fi= pr.fields().names()[1:-1]
+                
+                self.mFeature_field_rd.clear()
+                self.mFeature_field_rd.addItems(fi) 
+            elif self.comboBox_mapper_read.currentIndex()==5:
+                
+                table = 'struttura_table'
+                geom_column = ''
+                uri.setDataSource(schema, table,geom_column)
+                vlayer = QgsVectorLayer(uri.uri(), table, 'postgres')
+                pr = vlayer.dataProvider()
+                fi= pr.fields().names()[1:-1]
+                
+                self.mFeature_field_rd.clear()
+                self.mFeature_field_rd.addItems(fi)
+            elif self.comboBox_mapper_read.currentIndex()==6:
+                
+                table = 'tomba_table'
+                geom_column = ''
+                uri.setDataSource(schema, table,geom_column)
+                vlayer = QgsVectorLayer(uri.uri(), table, 'postgres')
+                pr = vlayer.dataProvider()
+                fi= pr.fields().names()[1:-1]
+                
+                self.mFeature_field_rd.clear()
+                self.mFeature_field_rd.addItems(fi)
+            elif self.comboBox_mapper_read.currentIndex()==7:
+                
+                table = 'pyarchinit_thesaurus_sigle'
+                geom_column = ''
+                uri.setDataSource(schema, table,geom_column)
+                vlayer = QgsVectorLayer(uri.uri(), table, 'postgres')
+                pr = vlayer.dataProvider()
+                fi= pr.fields().names()[1:-1]
+                
+                self.mFeature_field_rd.clear()
+                self.mFeature_field_rd.addItems(fi)
+            elif self.comboBox_mapper_read.currentIndex()==8:
+                
+                table = 'individui_table'
+                geom_column = ''
+                uri.setDataSource(schema, table,geom_column)
+                vlayer = QgsVectorLayer(uri.uri(), table, 'postgres')
+                pr = vlayer.dataProvider()
+                fi= pr.fields().names()[1:-1]
+                
+                self.mFeature_field_rd.clear()
+                self.mFeature_field_rd.addItems(fi)
+            elif self.comboBox_mapper_read.currentIndex()==9:
+                
+                table = 'detsesso_table'
+                geom_column = ''
+                uri.setDataSource(schema, table,geom_column)
+                vlayer = QgsVectorLayer(uri.uri(), table, 'postgres')
+                pr = vlayer.dataProvider()
+                fi= pr.fields().names()[1:-1]
+                
+                self.mFeature_field_rd.clear()
+                self.mFeature_field_rd.addItems(fi)
+            elif self.comboBox_mapper_read.currentIndex()==10:
+                
+                table = 'deteta_table'
+                geom_column = ''
+                uri.setDataSource(schema, table,geom_column)
+                vlayer = QgsVectorLayer(uri.uri(), table, 'postgres')
+                pr = vlayer.dataProvider()
+                fi= pr.fields().names()[1:-1]
+                
+                self.mFeature_field_rd.clear()
+                self.mFeature_field_rd.addItems(fi)
+            elif self.comboBox_mapper_read.currentIndex()==11:
+                
+                table = 'archeozoology_table'
+                geom_column = ''
+                uri.setDataSource(schema, table,geom_column)
+                vlayer = QgsVectorLayer(uri.uri(), table, 'postgres')
+                pr = vlayer.dataProvider()
+                fi= pr.fields().names()[1:-1]
+                
+                self.mFeature_field_rd.clear()
+                self.mFeature_field_rd.addItems(fi)
+            elif self.comboBox_mapper_read.currentIndex()==12:
+                
+                table = 'campioni_table'
+                geom_column = ''
+                uri.setDataSource(schema, table,geom_column)
+                vlayer = QgsVectorLayer(uri.uri(), table, 'postgres')
+                pr = vlayer.dataProvider()
+                fi= pr.fields().names()[1:-1]
+                
+                self.mFeature_field_rd.clear()
+                self.mFeature_field_rd.addItems(fi)
+            elif self.comboBox_mapper_read.currentIndex()==13:
+                
+                table = 'documentazione_table'
+                geom_column = ''
+                uri.setDataSource(schema, table,geom_column)
+                vlayer = QgsVectorLayer(uri.uri(), table, 'postgres')
+                pr = vlayer.dataProvider()
+                fi= pr.fields().names()[1:-1]
+                
+                self.mFeature_field_rd.clear()
+                self.mFeature_field_rd.addItems(fi)
+            elif self.comboBox_mapper_read.currentIndex()==14:
+                
+                table = 'media_table'
+                geom_column = ''
+                uri.setDataSource(schema, table,geom_column)
+                vlayer = QgsVectorLayer(uri.uri(), table, 'postgres')
+                pr = vlayer.dataProvider()
+                fi= pr.fields().names()[1:-1]
+                
+                self.mFeature_field_rd.clear()
+                self.mFeature_field_rd.addItems(fi)
+            elif self.comboBox_mapper_read.currentIndex()==15:
+                
+                table = 'media_thumb_table'
+                geom_column = ''
+                uri.setDataSource(schema, table,geom_column)
+                vlayer = QgsVectorLayer(uri.uri(), table, 'postgres')
+                pr = vlayer.dataProvider()
+                fi= pr.fields().names()[1:-1]
+                
+                self.mFeature_field_rd.clear()
+                self.mFeature_field_rd.addItems(fi)
+            elif self.comboBox_mapper_read.currentIndex()==16:
+                
+                table = 'media_to_entity_table'
+                geom_column = ''
+                uri.setDataSource(schema, table,geom_column)
+                vlayer = QgsVectorLayer(uri.uri(), table, 'postgres')
+                pr = vlayer.dataProvider()
+                fi= pr.fields().names()[1:-1]
+                
+                self.mFeature_field_rd.clear()
+                self.mFeature_field_rd.addItems(fi)
+                
+            elif self.comboBox_mapper_read.currentIndex()==17:
+                
+                table = 'ut_table'
+                geom_column = ''
+                uri.setDataSource(schema, table,geom_column)
+                vlayer = QgsVectorLayer(uri.uri(), table, 'postgres')
+                pr = vlayer.dataProvider()
+                fi= pr.fields().names()[1:-1]
+                
+                self.mFeature_field_rd.clear()
+                self.mFeature_field_rd.addItems(fi)    
+            
+        try:
+            self.mFeature_value_rd.clearEditText()
+            self.mFeature_value_rd.update()
+            self.value_check()
+        except:
+            pass
     def value_check(self):
         try:
             self.mFeature_value_rd.clear()
             self.mFeature_value_rd.update()
             if self.mFeature_field_rd.currentTextChanged:
-                sito_vl = self.UTILITY.tup_2_list_III(self.DB_MANAGER.group_by(table, self.mFeature_field_rd.currentText(), self.comboBox_mapper_read.currentText()))
+                sito_vl2 = self.UTILITY.tup_2_list_III(self.DB_MANAGER.group_by(table, self.mFeature_field_rd.currentText(), self.comboBox_mapper_read.currentText()))
 
             try:
-                sito_vl.remove('')
+                sito_vl2.remove('')
             except:
                 pass
             self.mFeature_value_rd.clear()
-            sito_vl.sort()
+            sito_vl2.sort()
             
-            self.mFeature_value_rd.addItems(sito_vl)
+            self.mFeature_value_rd.addItems(sito_vl2)
             self.mFeature_value_rd.update()
+        except :
+            pass#QMessageBox.warning(self, "Attenzione", str(e), QMessageBox.Ok)        
+    def check_geometry_table(self):
+        self.comboBox_geometry_read.update()
+        self.comboBox_Database.update()
+        conn = Connection()
+        conn_str = conn.conn_str()
+        conn_sqlite = conn.databasename()
+        conn_user = conn.datauser()
+        conn_host = conn.datahost()
+        conn_port = conn.dataport()
+        port_int  = conn_port["port"]
+        port_int.replace("'", "")
+        #QMessageBox.warning(self, "Attenzione", port_int, QMessageBox.Ok)
+        conn_password = conn.datapassword()
+
+
+        
+        self.DB_MANAGER = Pyarchinit_db_management(conn_str)
+        self.DB_MANAGER.connection()
+        test_conn = conn_str.find('sqlite')
+        if test_conn == 0:
+            sqlite_DB_path = '{}{}{}'.format(self.HOME, os.sep,
+                                           "pyarchinit_DB_folder")
+            uri = QgsDataSourceUri()
+            uri.setDatabase(sqlite_DB_path +os.sep+ conn_sqlite["db_name"])
+            schema = ''
+            
+            ##############################################################################################
+            if self.comboBox_geometry_read.currentIndex()==1:
+                
+                    table = 'pyarchinit_siti_polygonal'
+                    geom_column = 'the_geom'
+                    uri.setDataSource(schema, table,geom_column)
+                    vlayer = QgsVectorLayer(uri.uri(), table, 'spatialite')
+                    pr = vlayer.dataProvider()
+                    fi= pr.fields().names()[1:-1]
+                    
+                    self.mFeature_field_rd.clear()
+                    self.mFeature_field_rd.addItems(fi)
+                
+            elif self.comboBox_geometry_read.currentIndex()==2:
+                
+                table = 'pyarchinit_siti'
+                geom_column = 'the_geom'
+                uri.setDataSource(schema, table,geom_column)
+                vlayer = QgsVectorLayer(uri.uri(), table, 'spatialite')
+                pr = vlayer.dataProvider()
+                fi= pr.fields().names()[1:-1]
+                
+                self.mFeature_field_rd.clear()
+                self.mFeature_field_rd.addItems(fi)    
+            
+            elif self.comboBox_geometry_read.currentIndex()==3:
+                
+                table = 'pyunitastratigrafiche'
+                geom_column = 'the_geom'
+                uri.setDataSource(schema, table,geom_column)
+                vlayer = QgsVectorLayer(uri.uri(), table, 'spatialite')
+                pr = vlayer.dataProvider()
+                fi= pr.fields().names()[1:-1]
+                
+                self.mFeature_field_rd.clear()
+                self.mFeature_field_rd.addItems(fi)                        
+            elif self.comboBox_geometry_read.currentIndex()==4:
+                
+                table = 'pyunitastratigrafiche_usm'
+                geom_column = 'the_geom'
+                uri.setDataSource(schema, table,geom_column)
+                vlayer = QgsVectorLayer(uri.uri(), table, 'spatialite')
+                pr = vlayer.dataProvider()
+                fi= pr.fields().names()[1:-1]
+                
+                self.mFeature_field_rd.clear()
+                self.mFeature_field_rd.addItems(fi) 
+            elif self.comboBox_geometry_read.currentIndex()==5:
+                
+                table = 'pyarchinit_quote'
+                geom_column = 'the_geom'
+                uri.setDataSource(schema, table,geom_column)
+                vlayer = QgsVectorLayer(uri.uri(), table, 'spatialite')
+                pr = vlayer.dataProvider()
+                fi= pr.fields().names()[1:-1]
+                
+                self.mFeature_field_rd.clear()
+                self.mFeature_field_rd.addItems(fi)
+            elif self.comboBox_geometry_read.currentIndex()==6:
+                
+                table = 'pyarchinit_quote_usm'
+                geom_column = 'the_geom'
+                uri.setDataSource(schema, table,geom_column)
+                vlayer = QgsVectorLayer(uri.uri(), table, 'spatialite')
+                pr = vlayer.dataProvider()
+                fi= pr.fields().names()[1:-1]
+                
+                self.mFeature_field_rd.clear()
+                self.mFeature_field_rd.addItems(fi)
+            elif self.comboBox_geometry_read.currentIndex()==7:
+                
+                table = 'pyarchinit_us_negative_doc'
+                uri.setDataSource(schema, table,geom_column)
+                vlayer = QgsVectorLayer(uri.uri(), table, 'spatialite')
+                pr = vlayer.dataProvider()
+                fi= pr.fields().names()[1:-1]
+                
+                self.mFeature_field_rd.clear()
+                self.mFeature_field_rd.addItems(fi)
+            elif self.comboBox_geometry_read.currentIndex()==8:
+                
+                table = 'pyarchinit_strutture_ipotesi'
+                geom_column = 'the_geom'
+                uri.setDataSource(schema, table,geom_column)
+                vlayer = QgsVectorLayer(uri.uri(), table, 'spatialite')
+                pr = vlayer.dataProvider()
+                fi= pr.fields().names()[1:-1]
+                
+                self.mFeature_field_rd.clear()
+                self.mFeature_field_rd.addItems(fi)
+            elif self.comboBox_geometry_read.currentIndex()==9:
+                
+                table = 'pyarchinit_reperti'
+                geom_column = 'the_geom'
+                uri.setDataSource(schema, table,geom_column)
+                vlayer = QgsVectorLayer(uri.uri(), table, 'spatialite')
+                pr = vlayer.dataProvider()
+                fi= pr.fields().names()[1:-1]
+                
+                self.mFeature_field_rd.clear()
+                self.mFeature_field_rd.addItems(fi)
+            elif self.comboBox_geometry_read.currentIndex()==10:
+                
+                table = 'pyarchinit_individui'
+                geom_column = 'the_geom'
+                uri.setDataSource(schema, table,geom_column)
+                vlayer = QgsVectorLayer(uri.uri(), table, 'spatialite')
+                pr = vlayer.dataProvider()
+                fi= pr.fields().names()[1:-1]
+                
+                self.mFeature_field_rd.clear()
+                self.mFeature_field_rd.addItems(fi)
+            elif self.comboBox_geometry_read.currentIndex()==11:
+                
+                table = 'pyarchinit_campionature'
+                geom_column = 'the_geom'
+                uri.setDataSource(schema, table,geom_column)
+                vlayer = QgsVectorLayer(uri.uri(), table, 'spatialite')
+                pr = vlayer.dataProvider()
+                fi= pr.fields().names()[1:-1]
+                
+                self.mFeature_field_rd.clear()
+                self.mFeature_field_rd.addItems(fi)
+            elif self.comboBox_geometry_read.currentIndex()==12:
+                
+                table = 'pyarchinit_tafonomia'
+                geom_column = 'the_geom'
+                uri.setDataSource(schema, table,geom_column)
+                vlayer = QgsVectorLayer(uri.uri(), table, 'spatialite')
+                pr = vlayer.dataProvider()
+                fi= pr.fields().names()[1:-1]
+                
+                self.mFeature_field_rd.clear()
+                self.mFeature_field_rd.addItems(fi)
+            elif self.comboBox_geometry_read.currentIndex()==13:
+                
+                table = 'pyarchinit_sezioni'
+                geom_column = 'the_geom'
+                uri.setDataSource(schema, table,geom_column)
+                vlayer = QgsVectorLayer(uri.uri(), table, 'spatialite')
+                pr = vlayer.dataProvider()
+                fi= pr.fields().names()[1:-1]
+                
+                self.mFeature_field_rd.clear()
+                self.mFeature_field_rd.addItems(fi)
+            elif self.comboBox_geometry_read.currentIndex()==14:
+                
+                table = 'pyarchinit_documentazione'
+                geom_column = 'the_geom'
+                uri.setDataSource(schema, table,geom_column)
+                vlayer = QgsVectorLayer(uri.uri(), table, 'spatialite')
+                pr = vlayer.dataProvider()
+                fi= pr.fields().names()[1:-1]
+                
+                self.mFeature_field_rd.clear()
+                self.mFeature_field_rd.addItems(fi)
+            elif self.comboBox_geometry_read.currentIndex()==15:
+                
+                table = 'pyarchinit_punti_rif'
+                geom_column = 'the_geom'
+                uri.setDataSource(schema, table,geom_column)
+                vlayer = QgsVectorLayer(uri.uri(), table, 'spatialite')
+                pr = vlayer.dataProvider()
+                fi= pr.fields().names()[1:-1]
+                
+                self.mFeature_field_rd.clear()
+                self.mFeature_field_rd.addItems(fi)
+            elif self.comboBox_geometry_read.currentIndex()==16:
+                
+                table = 'pyarchinit_ripartizioni_spaziali'
+                geom_column = 'the_geom'
+                uri.setDataSource(schema, table,geom_column)
+                vlayer = QgsVectorLayer(uri.uri(), table, 'spatialite')
+                pr = vlayer.dataProvider()
+                fi= pr.fields().names()[1:-1]
+                
+                self.mFeature_field_rd.clear()
+                self.mFeature_field_rd.addItems(fi)
+                
+            
+            
+            try:
+                self.mFeature_value_rd.clearEditText()
+                self.mFeature_value_rd.update()
+                self.value_check_geometry()
+            except:
+                pass
+    
+        else:
+            uri = QgsDataSourceUri()
+            uri.setConnection(conn_host["host"], conn_port["port"], conn_sqlite["db_name"], conn_user['user'], conn_password['password'])
+            schema='public'
+            ##############################################################################################
+            if self.comboBox_geometry_read.currentIndex()==1:
+                
+                table = 'pyarchinit_siti_polygonal'
+                geom_column = 'the_geom'
+                uri.setDataSource(schema, table,geom_column)
+                vlayer = QgsVectorLayer(uri.uri(), table, 'postgres')
+                pr = vlayer.dataProvider()
+                fi= pr.fields().names()[1:-1]
+                
+                self.mFeature_field_rd.clear()
+                self.mFeature_field_rd.addItems(fi)
+                
+            elif self.comboBox_geometry_read.currentIndex()==2:
+                
+                table = 'pyarchinit_siti'
+                geom_column = 'the_geom'
+                uri.setDataSource(schema, table,geom_column)
+                vlayer = QgsVectorLayer(uri.uri(), table, 'postgres')
+                pr = vlayer.dataProvider()
+                fi= pr.fields().names()[1:-1]
+                
+                self.mFeature_field_rd.clear()
+                self.mFeature_field_rd.addItems(fi)    
+            
+            elif self.comboBox_geometry_read.currentIndex()==3:
+                
+                table = 'pyunitastratigrafiche'
+                geom_column = 'the_geom'
+                uri.setDataSource(schema, table,geom_column)
+                vlayer = QgsVectorLayer(uri.uri(), table, 'postgres')
+                pr = vlayer.dataProvider()
+                fi= pr.fields().names()[2:-1]
+                
+                self.mFeature_field_rd.clear()
+                self.mFeature_field_rd.addItems(fi)                        
+            elif self.comboBox_geometry_read.currentIndex()==4:
+                
+                table = 'pyunitastratigrafiche_usm'
+                geom_column = 'the_geom'
+                uri.setDataSource(schema, table,geom_column)
+                vlayer = QgsVectorLayer(uri.uri(), table, 'postgres')
+                pr = vlayer.dataProvider()
+                fi= pr.fields().names()[1:-1]
+                
+                self.mFeature_field_rd.clear()
+                self.mFeature_field_rd.addItems(fi) 
+            elif self.comboBox_geometry_read.currentIndex()==5:
+                
+                table = 'pyarchinit_quote'
+                geom_column = 'the_geom'
+                uri.setDataSource(schema, table,geom_column)
+                vlayer = QgsVectorLayer(uri.uri(), table, 'postgres')
+                pr = vlayer.dataProvider()
+                fi= pr.fields().names()[1:-1]
+                
+                self.mFeature_field_rd.clear()
+                self.mFeature_field_rd.addItems(fi)
+            elif self.comboBox_geometry_read.currentIndex()==6:
+                
+                table = 'pyarchinit_quote_usm'
+                geom_column = 'the_geom'
+                uri.setDataSource(schema, table,geom_column)
+                vlayer = QgsVectorLayer(uri.uri(), table, 'postgres')
+                pr = vlayer.dataProvider()
+                fi= pr.fields().names()[1:-1]
+                
+                self.mFeature_field_rd.clear()
+                self.mFeature_field_rd.addItems(fi)
+            elif self.comboBox_geometry_read.currentIndex()==7:
+                
+                table = 'pyarchinit_us_negative_doc'
+                uri.setDataSource(schema, table,geom_column)
+                vlayer = QgsVectorLayer(uri.uri(), table, 'postgres')
+                pr = vlayer.dataProvider()
+                fi= pr.fields().names()[1:-1]
+                
+                self.mFeature_field_rd.clear()
+                self.mFeature_field_rd.addItems(fi)
+            elif self.comboBox_geometry_read.currentIndex()==8:
+                
+                table = 'pyarchinit_strutture_ipotesi'
+                geom_column = 'the_geom'
+                uri.setDataSource(schema, table,geom_column)
+                vlayer = QgsVectorLayer(uri.uri(), table, 'postgres')
+                pr = vlayer.dataProvider()
+                fi= pr.fields().names()[1:-1]
+                
+                self.mFeature_field_rd.clear()
+                self.mFeature_field_rd.addItems(fi)
+            elif self.comboBox_geometry_read.currentIndex()==9:
+                
+                table = 'pyarchinit_reperti'
+                geom_column = 'the_geom'
+                uri.setDataSource(schema, table,geom_column)
+                vlayer = QgsVectorLayer(uri.uri(), table, 'postgres')
+                pr = vlayer.dataProvider()
+                fi= pr.fields().names()[1:-1]
+                
+                self.mFeature_field_rd.clear()
+                self.mFeature_field_rd.addItems(fi)
+            elif self.comboBox_geometry_read.currentIndex()==10:
+                
+                table = 'pyarchinit_individui'
+                geom_column = 'the_geom'
+                uri.setDataSource(schema, table,geom_column)
+                vlayer = QgsVectorLayer(uri.uri(), table, 'postgres')
+                pr = vlayer.dataProvider()
+                fi= pr.fields().names()[1:-1]
+                
+                self.mFeature_field_rd.clear()
+                self.mFeature_field_rd.addItems(fi)
+            elif self.comboBox_geometry_read.currentIndex()==11:
+                
+                table = 'pyarchinit_campionature'
+                geom_column = 'the_geom'
+                uri.setDataSource(schema, table,geom_column)
+                vlayer = QgsVectorLayer(uri.uri(), table, 'postgres')
+                pr = vlayer.dataProvider()
+                fi= pr.fields().names()[1:-1]
+                
+                self.mFeature_field_rd.clear()
+                self.mFeature_field_rd.addItems(fi)
+            elif self.comboBox_geometry_read.currentIndex()==12:
+                
+                table = 'pyarchinit_tafonomia'
+                geom_column = 'the_geom'
+                uri.setDataSource(schema, table,geom_column)
+                vlayer = QgsVectorLayer(uri.uri(), table, 'postgres')
+                pr = vlayer.dataProvider()
+                fi= pr.fields().names()[1:-1]
+                
+                self.mFeature_field_rd.clear()
+                self.mFeature_field_rd.addItems(fi)
+            elif self.comboBox_geometry_read.currentIndex()==13:
+                
+                table = 'pyarchinit_sezioni'
+                geom_column = 'the_geom'
+                uri.setDataSource(schema, table,geom_column)
+                vlayer = QgsVectorLayer(uri.uri(), table, 'postgres')
+                pr = vlayer.dataProvider()
+                fi= pr.fields().names()[1:-1]
+                
+                self.mFeature_field_rd.clear()
+                self.mFeature_field_rd.addItems(fi)
+            elif self.comboBox_geometry_read.currentIndex()==14:
+                
+                table = 'pyarchinit_documentazione'
+                geom_column = 'the_geom'
+                uri.setDataSource(schema, table,geom_column)
+                vlayer = QgsVectorLayer(uri.uri(), table, 'postgres')
+                pr = vlayer.dataProvider()
+                fi= pr.fields().names()[1:-1]
+                
+                self.mFeature_field_rd.clear()
+                self.mFeature_field_rd.addItems(fi)
+            elif self.comboBox_geometry_read.currentIndex()==15:
+                
+                table = 'pyarchinit_punti_rif'
+                geom_column = 'the_geom'
+                uri.setDataSource(schema, table,geom_column)
+                vlayer = QgsVectorLayer(uri.uri(), table, 'postgres')
+                pr = vlayer.dataProvider()
+                fi= pr.fields().names()[1:-1]
+                
+                self.mFeature_field_rd.clear()
+                self.mFeature_field_rd.addItems(fi)
+            elif self.comboBox_geometry_read.currentIndex()==16:
+                
+                table = 'pyarchinit_ripartizioni_spaziali'
+                geom_column = 'the_geom'
+                uri.setDataSource(schema, table,geom_column)
+                vlayer = QgsVectorLayer(uri.uri(), table, 'postgres')
+                pr = vlayer.dataProvider()
+                fi= pr.fields().names()[1:-1]
+                
+                self.mFeature_field_rd.clear()
+                self.mFeature_field_rd.addItems(fi)
+                
+            
+            
+        try:
+            self.mFeature_value_rd.clearEditText()
+            self.mFeature_value_rd.update()
+            self.value_check_geometry()
         except:
             pass
+    
+    
+    def value_check_geometry(self):
+        try:
+            self.mFeature_value_rd.clear()
+            self.mFeature_value_rd.update()
+            if self.mFeature_field_rd.currentTextChanged:
+                sito_vl = self.UTILITY.tup_2_list_III(self.DB_MANAGER.group_by(table, self.mFeature_field_rd.currentText(), self.comboBox_geometry_read.currentText()))
+
+                try:
+                    sito_vl.remove('')
+                except:
+                    pass
+                self.mFeature_value_rd.clear()
+                sito_vl.sort()
+                
+                self.mFeature_value_rd.addItems(sito_vl)
+                self.mFeature_value_rd.update()
+        except:
+            pass
+    
     
     def test3(self):
         
@@ -2010,10 +2834,11 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
     
     
     def geometry_conn(self):
-        if self.comboBox_server_rd.currentText()!='sqlite':
-            self.pushButton_import_geometry.setEnabled(False)
-        else:
-            self.pushButton_import_geometry.setEnabled(True)
+        pass
+        # if self.comboBox_server_rd.currentText()!='sqlite':
+            # self.pushButton_import_geometry.setEnabled(False)
+        # else:
+            # self.pushButton_import_geometry.setEnabled(True)
 
     def message(self):
         if self.checkBox_abort.isChecked():
@@ -3364,10 +4189,13 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
             ####PYUNITASTRATIGRAFICHE TABLE
             if mapper_class_write == 'PYUS' :
                 for sing_rec in range(len(data_list_toimp)):
+                    
                     try:
                         data = self.DB_MANAGER_write.insert_pyus(
                             self.DB_MANAGER_write.max_num_id(mapper_class_write,
                                                              id_table_class_mapper_conv_dict[mapper_class_write]) + 1,
+                            
+                            
                             data_list_toimp[sing_rec].area_s,
                             data_list_toimp[sing_rec].scavo_s,
                             data_list_toimp[sing_rec].us_s,
