@@ -695,7 +695,7 @@ ALTER TABLE ONLY public.tomba_table  ADD CONSTRAINT  tomba_table_pkey PRIMARY KE
 				  
 
 CREATE SEQUENCE IF NOT EXISTS public.pyarchinit_quote_usm_gid_seq
-    START WITH 73833
+    START WITH 1
     INCREMENT BY 1
     NO MINVALUE
     NO MAXVALUE
@@ -729,7 +729,7 @@ ALTER TABLE public.pyarchinit_quote_usm OWNER TO postgres;
 
 
 CREATE SEQUENCE IF NOT EXISTS public.pyunitastratigrafiche_usm_gid_seq
-    START WITH 61400
+    START WITH 1
     INCREMENT BY 1
     NO MINVALUE
     NO MAXVALUE
