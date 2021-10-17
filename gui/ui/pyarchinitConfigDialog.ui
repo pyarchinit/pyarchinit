@@ -520,7 +520,7 @@
       <enum>QTabWidget::Rounded</enum>
      </property>
      <property name="currentIndex">
-      <number>2</number>
+      <number>0</number>
      </property>
      <property name="elideMode">
       <enum>Qt::ElideMiddle</enum>
@@ -2932,8 +2932,8 @@
    <slot>toggleUserVisible()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>525</x>
-     <y>691</y>
+     <x>515</x>
+     <y>688</y>
     </hint>
     <hint type="destinationlabel">
      <x>680</x>
@@ -2952,8 +2952,8 @@
      <y>22</y>
     </hint>
     <hint type="destinationlabel">
-     <x>245</x>
-     <y>141</y>
+     <x>250</x>
+     <y>167</y>
     </hint>
    </hints>
   </connection>
@@ -2964,12 +2964,12 @@
    <slot>clearEditText()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>433</x>
-     <y>52</y>
+     <x>529</x>
+     <y>73</y>
     </hint>
     <hint type="destinationlabel">
-     <x>443</x>
-     <y>75</y>
+     <x>529</x>
+     <y>109</y>
     </hint>
    </hints>
   </connection>
@@ -2980,12 +2980,12 @@
    <slot>clearEditText()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>409</x>
-     <y>81</y>
+     <x>529</x>
+     <y>109</y>
     </hint>
     <hint type="destinationlabel">
-     <x>417</x>
-     <y>57</y>
+     <x>529</x>
+     <y>73</y>
     </hint>
    </hints>
   </connection>
@@ -2996,12 +2996,12 @@
    <slot>clearEditText()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>400</x>
-     <y>181</y>
+     <x>470</x>
+     <y>227</y>
     </hint>
     <hint type="destinationlabel">
-     <x>403</x>
-     <y>200</y>
+     <x>529</x>
+     <y>257</y>
     </hint>
    </hints>
   </connection>
@@ -3012,12 +3012,12 @@
    <slot>clearEditText()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>414</x>
-     <y>229</y>
+     <x>470</x>
+     <y>287</y>
     </hint>
     <hint type="destinationlabel">
-     <x>417</x>
-     <y>251</y>
+     <x>529</x>
+     <y>317</y>
     </hint>
    </hints>
   </connection>
