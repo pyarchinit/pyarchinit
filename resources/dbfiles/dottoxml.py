@@ -70,22 +70,29 @@ def exportGraphml(o, nodes, edges, options):
     doc.appendChild(root)        
     
     key = doc.createElement('key')
-    key.setAttribute('for','port')    
+    key.setAttribute('attr.name','Description') 
+    key.setAttribute('for','graph')    
+    key.setAttribute('attr.type','string')
     key.setAttribute('id','d0')    
-    key.setAttribute('yfiles.type','portgraphics')    
     root.appendChild(key)
     
     key = doc.createElement('key')
     key.setAttribute('for','port')    
     key.setAttribute('id','d1')    
-    key.setAttribute('yfiles.type','portgeometry')    
+    key.setAttribute('yfiles.type','portgraphics')    
     root.appendChild(key)
     
     key = doc.createElement('key')
     key.setAttribute('for','port')    
     key.setAttribute('id','d2')    
-    key.setAttribute('yfiles.type','portuserdata')    
+    key.setAttribute('yfiles.type','portgeometry')    
     root.appendChild(key)
+    
+    # key = doc.createElement('key')
+    # key.setAttribute('for','port')    
+    # key.setAttribute('id','d3')    
+    # key.setAttribute('yfiles.type','portuserdata')    
+    # root.appendChild(key)
    
     key = doc.createElement('key')
     key.setAttribute('attr.name','url')    
@@ -93,14 +100,14 @@ def exportGraphml(o, nodes, edges, options):
     key.setAttribute('for','node')    
     key.setAttribute('id','d3')    
     root.appendChild(key)
-
+        
     key = doc.createElement('key')
     key.setAttribute('attr.name','description')    
     key.setAttribute('attr.type','string')    
     key.setAttribute('for','node')    
     key.setAttribute('id','d4')    
-    root.appendChild(key)
-    
+    root.appendChild(key) 
+        
     key = doc.createElement('key')
     key.setAttribute('for','node')    
     key.setAttribute('id','d5')    

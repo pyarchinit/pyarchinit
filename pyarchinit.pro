@@ -23,6 +23,9 @@ SOURCES = 	 tabs/__init__.py\
 			 tabs/Upd.py\
 			 tabs/US_USM.py\
 			 tabs/UT.py\
+			 tabs/PRINTMAP.py\
+			 tabs/gpkg_export.py\
+			 tabs/Excel_export.py\
 			 tabs/pyarchinit_setting_matrix.py\
 			 gui/__init__.py\
 			 gui/dbmanagment.py\
@@ -63,7 +66,7 @@ SOURCES = 	 tabs/__init__.py\
 			 modules/utility/pyarchinit_print_utility.py\
 			 modules/utility/settings.py\
 			 modules/utility/test_dirname.py\
-			 modules/utility/testtable_checkbox.py			
+			 modules/utility/testtable_checkbox.py		
 
 FORMS =   	gui/ui/Archeozoology.ui\
 			gui/ui/Campioni.ui\
@@ -100,6 +103,8 @@ FORMS =   	gui/ui/Archeozoology.ui\
 			gui/ui/US_USM.ui\
 			gui/ui/UT_ui.ui\
 			gui/ui/Setting_Matrix.ui\
+			gui/ui/gpkg_export.ui\
+			gui/ui/Print_map.ui
 
 TRANSLATIONS = i18n/pyarchinit_plugin_it_IT.ts \
                i18n/pyarchinit_plugin_de_DE.ts \

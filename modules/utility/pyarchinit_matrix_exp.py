@@ -291,22 +291,21 @@ class HarrisMatrix:
                     c.node(aa[2])           
                     
         for bb in self.sequence:
-            a = (bb[0],bb[1])
+            a = (bb[0],bb[1])            
             elist1.append(a)
             
         with G.subgraph(name='main') as e:
             e.attr(rankdir='TB')
-            e.edges(elist1)
-            
+            e.edges(elist1)            
             e.node_attr['shape'] = str(dialog.combo_box_3.currentText())
             e.node_attr['style'] = str(dialog.combo_box_4.currentText())
             e.node_attr.update(style='filled', fillcolor=str(dialog.combo_box.currentText()))
-            e.node_attr['color'] = 'black'    
+            e.node_attr['color'] = 'black'
             e.node_attr['penwidth'] = str(dialog.combo_box_5.currentText())
             e.edge_attr['penwidth'] = str(dialog.combo_box_5.currentText())
             e.edge_attr['style'] = str(dialog.combo_box_10.currentText())
             e.edge_attr.update(arrowhead=str(dialog.combo_box_11.currentText()), arrowsize=str(dialog.combo_box_12.currentText()))
-            
+        
             for cc in self.conteporene:
                 a = (cc[0],cc[1])
                 elist3.append(a)
@@ -319,7 +318,7 @@ class HarrisMatrix:
                 b.node_attr['shape'] = str(dialog.combo_box_18.currentText())
                 b.node_attr['style'] = str(dialog.combo_box_22.currentText())
                 b.node_attr.update(style='filled', fillcolor=str(dialog.combo_box_17.currentText()))
-                b.node_attr['color'] = 'black'    
+                b.node_attr['color'] = 'black'  
                 b.node_attr['penwidth'] = str(dialog.combo_box_19.currentText())
                 b.edge_attr['penwidth'] = str(dialog.combo_box_19.currentText())
                 b.edge_attr['style'] = str(dialog.combo_box_23.currentText())
