@@ -108,4 +108,7 @@ FORMS =   	gui/ui/Archeozoology.ui\
 
 TRANSLATIONS = i18n/pyarchinit_plugin_it_IT.ts \
                i18n/pyarchinit_plugin_de_DE.ts \
-               i18n/pyarchinit_plugin_en_US.ts 
+               i18n/pyarchinit_plugin_en_US.ts \
+			   i18n/pyarchinit_plugin_fr_FR.ts \
+			   i18n/pyarchinit_plugin_ar_LB.ts \
+			   i18n/pyarchinit_plugin_es_ES.ts \

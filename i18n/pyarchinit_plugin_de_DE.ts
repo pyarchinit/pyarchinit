@@ -1,5 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!DOCTYPE TS><TS version="2.0" language="de_DE" sourcelanguage="">
+<!DOCTYPE TS>
+<TS version="2.1" language="de_DE">
+    <extra-po-header-language>de_DE</extra-po-header-language>
+    <extra-po-header-language_team></extra-po-header-language_team>
+    <extra-po-header-last_translator></extra-po-header-last_translator>
+    <extra-po-header-po_revision_date></extra-po-header-po_revision_date>
+    <extra-po-header-pot_creation_date></extra-po-header-pot_creation_date>
+    <extra-po-header-project_id_version></extra-po-header-project_id_version>
+    <extra-po-header-x_generator>Poedit 3.0</extra-po-header-x_generator>
+    <extra-po-headers>MIME-Version,Content-Type,Content-Transfer-Encoding,Plural-Forms,X-Language,X-Source-Language,X-Qt-Contexts,Project-Id-Version,POT-Creation-Date,PO-Revision-Date,Language-Team,X-Generator,Last-Translator,Language</extra-po-headers>
 <context>
     <name>DBmanagment</name>
     <message>
@@ -78,7 +87,7 @@
     <message>
         <location filename="../gui/ui/Archeozoology.ui" line="140"/>
         <source>US</source>
-        <translation>SE</translation>
+        <translation>US</translation>
     </message>
     <message>
         <location filename="../gui/ui/Archeozoology.ui" line="156"/>
@@ -996,11 +1005,6 @@
         <translation>Größe</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Archeozoology.ui" line="1597"/>
-        <source>Et&#xe0;</source>
-        <translation type="obsolete">Alter</translation>
-    </message>
-    <message>
         <location filename="../gui/ui/Archeozoology.ui" line="1620"/>
         <source>Porzione</source>
         <translation>Teil</translation>
@@ -1238,19 +1242,6 @@ p, li { Leerzeichen: Vorverpackung; }
         <location filename="../gui/ui/Archeozoology.ui" line="2086"/>
         <source>run!</source>
         <translation>laufen Sie!</translation>
-    </message>
-    <message>
-        <location filename="../gui/ui/Archeozoology.ui" line="2112"/>
-        <source>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
-&lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
-p, li { white-space: pre-wrap; }
-&lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:&apos;MS Shell Dlg 2&apos;; font-size:7.8pt; font-weight:400; font-style:normal;&quot;&gt;
-&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-family:&apos;Sans&apos;; font-size:10pt;&quot;&gt;Crea un confronto a 4 variabili con istogramma di frequenza, curva di densit&#xe0; e curva cumulativa&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="obsolete">&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
-&lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
-p, li { Leerzeichen: Vorverpackung; }
-&lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:&apos;MS Shell Dlg 2&apos;; font-size:7.8pt; font-weight:400; font-style:normal;&quot;&gt;
-&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-family:&apos;Sans&apos;; font-size:10pt;&quot;&gt;Erstellen Sie einen 4-Variablen-Vergleich mit Frequenzhistogramm, Dichtekurve und Summenkurve&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <location filename="../gui/ui/Archeozoology.ui" line="3908"/>
@@ -1658,19 +1649,21 @@ p, li { Leerzeichen: Vorverpackung; }
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;bello&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
         <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;schön&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
-    <message encoding="UTF-8">
-        <location filename="../gui/ui/Archeozoology.ui" line="1597"/>
+    <message>
         <source>Età</source>
-        <translation type="unfinished"></translation>
+        <translation>Alter</translation>
     </message>
-    <message encoding="UTF-8">
-        <location filename="../gui/ui/Archeozoology.ui" line="2112"/>
+    <message>
         <source>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
 &lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
 p, li { white-space: pre-wrap; }
 &lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:&apos;MS Shell Dlg 2&apos;; font-size:7.8pt; font-weight:400; font-style:normal;&quot;&gt;
 &lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-family:&apos;Sans&apos;; font-size:10pt;&quot;&gt;Crea un confronto a 4 variabili con istogramma di frequenza, curva di densità e curva cumulativa&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
+&lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
+p, li { Leerzeichen: Vorverpackung; }
+&lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:&apos;MS Shell Dlg 2&apos;; font-size:7.8pt; font-weight:400; font-style:normal;&quot;&gt;
+&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-family:&apos;Sans&apos;; font-size:10pt;&quot;&gt;Erstellen Sie einen 4-Variablen-Vergleich mit Frequenzhistogramm, Dichtekurve und Summenkurve&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
 </context>
 <context>
@@ -1818,7 +1811,7 @@ p, li { white-space: pre-wrap; }
     <message>
         <location filename="../gui/ui/Campioni.ui" line="1081"/>
         <source>US</source>
-        <translation>SE</translation>
+        <translation>US</translation>
     </message>
     <message>
         <location filename="../gui/ui/Campioni.ui" line="1103"/>
@@ -2252,11 +2245,6 @@ p, li { Leerzeichen: Vorverpackung; }
         <translation>Superciliarbogen</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Detsesso.ui" line="1641"/>
-        <source>Tuberosit&#xe0; front. e par.</source>
-        <translation type="obsolete">Tuberosity Front. und Par.</translation>
-    </message>
-    <message>
         <location filename="../gui/ui/Detsesso.ui" line="2859"/>
         <source>Maschio</source>
         <translation>Männlich</translation>
@@ -2424,10 +2412,9 @@ p, li { Leerzeichen: Vorverpackung; }
         <source>Relazione tra il contorno dell&apos;arco dell&apos;ischio e della sup. auricolare</source>
         <translation>Beziehung zwischen der Kontur des Bogens des Sitzbeins und der sup</translation>
     </message>
-    <message encoding="UTF-8">
-        <location filename="../gui/ui/Detsesso.ui" line="2056"/>
+    <message>
         <source>Tuberosità front. e par.</source>
-        <translation type="unfinished"></translation>
+        <translation>Tuberosity Front. und Par.</translation>
     </message>
 </context>
 <context>
@@ -2656,21 +2643,6 @@ p, li { Leerzeichen: Vorverpackung; }
         <translation>Absolutes Chronologiesystem</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Gis_Time_controller.ui" line="58"/>
-        <source>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
-&lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
-p, li { white-space: pre-wrap; }
-&lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:&apos;.SF NS Text&apos;; font-size:13pt; font-weight:400; font-style:normal;&quot;&gt;
-&lt;p align=&quot;justify&quot; style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-family:&apos;MS Shell Dlg 2&apos;; font-size:9pt; font-weight:600;&quot;&gt;Per funzionare il sistema di ricerca per cronologie assolute richiede la creazione dei periodi di scavo nella scheda Periodizzazione. La cronologia assoluta qui utilizzata viene riferita ai termini &amp;quot;avanti Cristo&amp;quot; e &amp;quot;dopo Cristo&amp;quot;. Per settare valori avanti Cristo utilizzare il segno &amp;quot;-&amp;quot; davanti all&apos;anno (ex: 268 a.C. = -268). Per settare valori dopo Cristo utilizzare non e&apos; necessario utilizzare alcun segno (1400 d.C. = 1440).&lt;/span&gt;&lt;/p&gt;
-&lt;p align=&quot;justify&quot; style=&quot;-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px; font-family:&apos;MS Shell Dlg 2&apos;; font-size:9pt; font-weight:600;&quot;&gt;&lt;br /&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="obsolete">&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
-&lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
-p, li { Leerzeichen: Vorverpackung; }
-&lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:&apos;.SF NS Text&apos;; font-size:13pt; font-weight:400; font-style:normal;&quot;&gt;
-&lt;p align=&quot;justify&quot; style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-family:&apos;MS Shell Dlg 2&apos;; font-size:9pt; font-weight:600;&quot;&gt;Für die Arbeit mit dem Suchsystem für absolute Chronologien ist die Erstellung der Grabungsperioden in der Registerkarte Periodisierung erforderlich. Die hier verwendete absolute Chronologie bezieht sich auf die Begriffe &quot;vor Christus&quot; und &quot;nach Christus&quot;. Um Werte vor Christus festzulegen, verwenden Sie das Zeichen &quot;-&quot; vor der Jahreszahl (Bsp.: 268 v. Chr. = -268). Um Werte nach Christus einzustellen, verwenden Sie kein Vorzeichen (1400 n. Chr. = 1440).&lt;/span&gt;&lt;/p&gt;
-&lt;p align=&quot;justify&quot; style=&quot;-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px; font-family:&apos;MS Shell Dlg 2&apos;; font-size:9pt; font-weight:600;&quot;&gt;&lt;br /&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
-    </message>
-    <message>
         <location filename="../gui/ui/Gis_Time_controller.ui" line="485"/>
         <source>Visualizza l&apos;intervallo di tempo compreso tra l&apos;anno:</source>
         <translation>Zeigt das Zeitintervall zwischen dem Jahr an:</translation>
@@ -2713,7 +2685,26 @@ p, li { white-space: pre-wrap; }
 &lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:&apos;MS Shell Dlg 2&apos;; font-size:7.8pt; font-weight:400; font-style:normal;&quot;&gt;
 &lt;p align=&quot;justify&quot; style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:9pt; font-weight:600;&quot;&gt;Per funzionare il sistema di ricerca per cronologie assolute richiede la creazione dei periodi di scavo nella scheda Periodizzazione. La cronologia assoluta qui utilizzata viene riferita ai termini &amp;quot;avanti Cristo&amp;quot; e &amp;quot;dopo Cristo&amp;quot;. Per settare valori avanti Cristo utilizzare il segno &amp;quot;-&amp;quot; davanti all&apos;anno (ex: 268 a.C. = -268). Per settare valori dopo Cristo utilizzare non e&apos; necessario utilizzare alcun segno (1400 d.C. = 1440).&lt;/span&gt;&lt;/p&gt;
 &lt;p align=&quot;justify&quot; style=&quot;-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px; font-size:9pt; font-weight:600;&quot;&gt;&lt;br /&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
+&lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
+p, li { white-space: pre-wrap; }
+&lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:&apos;MS Shell Dlg 2&apos;; font-size:7.8pt; font-weight:400; font-style:normal;&quot;&gt;
+&lt;p align=&quot;justify&quot; style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:9pt; font-weight:600;&quot;&gt;Damit das Suchsystem für die absolute Chronologie funktioniert, müssen auf der Registerkarte Periodisierung Ausgrabungsperioden angelegt werden. Die hier verwendete absolute Chronologie wird als &apos;vor Christus&apos; und &apos;nach Christus&apos; bezeichnet. Um Werte vor Christus einzustellen, verwenden Sie das &apos;-&apos;-Zeichen vor der Jahreszahl (z.B.: 268 v. Chr. = -268). Um Werte nach Christus festzulegen, verwenden Sie kein Vorzeichen (1400 AD = 1440).&lt;/span&gt;&lt;/p&gt;
+&lt;p align=&quot;justify&quot; style=&quot;-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px; font-size:9pt; font-weight:600;&quot;&gt;&lt;br /&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
+    </message>
+    <message>
+        <source>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
+&lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
+p, li { white-space: pre-wrap; }
+&lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:&apos;.SF NS Text&apos;; font-size:13pt; font-weight:400; font-style:normal;&quot;&gt;
+&lt;p align=&quot;justify&quot; style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-family:&apos;MS Shell Dlg 2&apos;; font-size:9pt; font-weight:600;&quot;&gt;Per funzionare il sistema di ricerca per cronologie assolute richiede la creazione dei periodi di scavo nella scheda Periodizzazione. La cronologia assoluta qui utilizzata viene riferita ai termini &amp;quot;avanti Cristo&amp;quot; e &amp;quot;dopo Cristo&amp;quot;. Per settare valori avanti Cristo utilizzare il segno &amp;quot;-&amp;quot; davanti all&apos;anno (ex: 268 a.C. = -268). Per settare valori dopo Cristo utilizzare non e&apos; necessario utilizzare alcun segno (1400 d.C. = 1440).&lt;/span&gt;&lt;/p&gt;
+&lt;p align=&quot;justify&quot; style=&quot;-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px; font-family:&apos;MS Shell Dlg 2&apos;; font-size:9pt; font-weight:600;&quot;&gt;&lt;br /&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
+        <translation>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
+&lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
+p, li { Leerzeichen: Vorverpackung; }
+&lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:&apos;.SF NS Text&apos;; font-size:13pt; font-weight:400; font-style:normal;&quot;&gt;
+&lt;p align=&quot;justify&quot; style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-family:&apos;MS Shell Dlg 2&apos;; font-size:9pt; font-weight:600;&quot;&gt;Für die Arbeit mit dem Suchsystem für absolute Chronologien ist die Erstellung der Grabungsperioden in der Registerkarte Periodisierung erforderlich. Die hier verwendete absolute Chronologie bezieht sich auf die Begriffe &quot;vor Christus&quot; und &quot;nach Christus&quot;. Um Werte vor Christus festzulegen, verwenden Sie das Zeichen &quot;-&quot; vor der Jahreszahl (Bsp.: 268 v. Chr. = -268). Um Werte nach Christus einzustellen, verwenden Sie kein Vorzeichen (1400 n. Chr. = 1440).&lt;/span&gt;&lt;/p&gt;
+&lt;p align=&quot;justify&quot; style=&quot;-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px; font-family:&apos;MS Shell Dlg 2&apos;; font-size:9pt; font-weight:600;&quot;&gt;&lt;br /&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
 </context>
 <context>
@@ -2799,11 +2790,6 @@ p, li { white-space: pre-wrap; }
         <translation>Tag</translation>
     </message>
     <message>
-        <location filename="../gui/ui/pyarchinit_image_viewer_dialog.ui" line="443"/>
-        <source>Tags Unit&#xe0; Stratigrafiche</source>
-        <translation type="obsolete">Tags Stratigraphische Einheiten</translation>
-    </message>
-    <message>
         <location filename="../gui/ui/pyarchinit_image_viewer_dialog.ui" line="870"/>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Con questo bottone si assegna il tag alla foto selezionata corrispondente al sito area e us indicato&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
         <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Mit dieser Schaltfläche weisen Sie dem ausgewählten Foto den Tag zu, der dem Bereich der Ausgrabungsstätte entspricht und von uns angegeben wurde&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
@@ -2836,7 +2822,7 @@ p, li { white-space: pre-wrap; }
     <message>
         <location filename="../gui/ui/pyarchinit_image_viewer_dialog.ui" line="1065"/>
         <source>US</source>
-        <translation>SE</translation>
+        <translation>US</translation>
     </message>
     <message>
         <location filename="../gui/ui/pyarchinit_image_viewer_dialog.ui" line="1012"/>
@@ -2857,11 +2843,6 @@ p, li { white-space: pre-wrap; }
         <location filename="../gui/ui/pyarchinit_image_viewer_dialog.ui" line="1072"/>
         <source>Materiali</source>
         <translation>Materialien</translation>
-    </message>
-    <message>
-        <location filename="../gui/ui/pyarchinit_image_viewer_dialog.ui" line="684"/>
-        <source>Unit&#xe0; Stratigrafiche</source>
-        <translation type="obsolete">Stratigraphische Einheiten</translation>
     </message>
     <message>
         <location filename="../gui/ui/pyarchinit_image_viewer_dialog.ui" line="1694"/>
@@ -2968,15 +2949,13 @@ p, li { white-space: pre-wrap; }
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Rimuovi un tag alla volta selezionandolo dalla TabWidget TAG&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
         <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Entfernen Sie ein Tag nach dem anderen, indem Sie es aus dem TAG-TabWidget auswählen&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
-    <message encoding="UTF-8">
-        <location filename="../gui/ui/pyarchinit_image_viewer_dialog.ui" line="858"/>
+    <message>
         <source>Tags Unità Stratigrafiche</source>
-        <translation type="unfinished"></translation>
+        <translation>Tags Stratigraphische Einheiten</translation>
     </message>
-    <message encoding="UTF-8">
-        <location filename="../gui/ui/pyarchinit_image_viewer_dialog.ui" line="1099"/>
+    <message>
         <source>Unità Stratigrafiche</source>
-        <translation type="unfinished"></translation>
+        <translation>Stratigraphische Einheiten</translation>
     </message>
 </context>
 <context>
@@ -3295,34 +3274,9 @@ p, li { white-space: pre-wrap; }
         <translation>0</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Schedaind.ui" line="958"/>
-        <source>Tools</source>
-        <translation type="obsolete">Werkzeuge</translation>
-    </message>
-    <message>
-        <location filename="../gui/ui/Schedaind.ui" line="970"/>
-        <source>Toolbar</source>
-        <translation type="obsolete">Symbolleiste</translation>
-    </message>
-    <message>
-        <location filename="../gui/ui/Schedaind.ui" line="985"/>
-        <source>Attivazione Preview pianta US</source>
-        <translation type="obsolete">Aktivierungsanlage SE-Vorschau</translation>
-    </message>
-    <message>
-        <location filename="../gui/ui/Schedaind.ui" line="998"/>
-        <source>Preview pianta US</source>
-        <translation type="obsolete">Vorschau US-Anlage</translation>
-    </message>
-    <message>
         <location filename="../gui/ui/Schedaind.ui" line="2190"/>
         <source>Ctrl+G</source>
         <translation>Strg+G</translation>
-    </message>
-    <message>
-        <location filename="../gui/ui/Schedaind.ui" line="1033"/>
-        <source>Pan tool</source>
-        <translation type="obsolete">Pan-Werkzeug</translation>
     </message>
     <message>
         <location filename="../gui/ui/Schedaind.ui" line="2941"/>
@@ -3362,7 +3316,7 @@ p, li { white-space: pre-wrap; }
     <message>
         <location filename="../gui/ui/Schedaind.ui" line="3025"/>
         <source>to</source>
-        <translation>an</translation>
+        <translation>zu</translation>
     </message>
     <message>
         <location filename="../gui/ui/Schedaind.ui" line="2349"/>
@@ -3437,17 +3391,12 @@ p, li { white-space: pre-wrap; }
     <message>
         <location filename="../gui/ui/Schedaind.ui" line="2878"/>
         <source>US</source>
-        <translation>SE</translation>
+        <translation>US</translation>
     </message>
     <message>
         <location filename="../gui/ui/Schedaind.ui" line="2756"/>
         <source>N. Individuo</source>
         <translation>Einzelne Nr</translation>
-    </message>
-    <message>
-        <location filename="../gui/ui/Schedaind.ui" line="1810"/>
-        <source>Rif Struttura</source>
-        <translation type="obsolete">Struktur ref</translation>
     </message>
     <message>
         <location filename="../gui/ui/Schedaind.ui" line="2799"/>
@@ -3567,87 +3516,111 @@ p, li { white-space: pre-wrap; }
     <message>
         <location filename="../gui/ui/Schedaind.ui" line="1473"/>
         <source>2</source>
-        <translation type="unfinished">2</translation>
+        <translation>2</translation>
     </message>
     <message>
         <location filename="../gui/ui/Schedaind.ui" line="1478"/>
         <source>3</source>
-        <translation type="unfinished">3</translation>
+        <translation>3</translation>
     </message>
     <message>
         <location filename="../gui/ui/Schedaind.ui" line="1483"/>
         <source>4</source>
-        <translation type="unfinished">4</translation>
+        <translation>4</translation>
     </message>
     <message>
         <location filename="../gui/ui/Schedaind.ui" line="1488"/>
         <source>5</source>
-        <translation type="unfinished">5</translation>
+        <translation>5</translation>
     </message>
     <message>
         <location filename="../gui/ui/Schedaind.ui" line="1493"/>
         <source>6</source>
-        <translation type="unfinished">6</translation>
+        <translation>6</translation>
     </message>
     <message>
         <location filename="../gui/ui/Schedaind.ui" line="1498"/>
         <source>7</source>
-        <translation type="unfinished">7</translation>
+        <translation>7</translation>
     </message>
     <message>
         <location filename="../gui/ui/Schedaind.ui" line="1503"/>
         <source>8</source>
-        <translation type="unfinished">8</translation>
+        <translation>8</translation>
     </message>
     <message>
         <location filename="../gui/ui/Schedaind.ui" line="1508"/>
         <source>9</source>
-        <translation type="unfinished">9</translation>
+        <translation>9</translation>
     </message>
     <message>
         <location filename="../gui/ui/Schedaind.ui" line="1513"/>
         <source>10</source>
-        <translation type="unfinished">10</translation>
+        <translation>10</translation>
     </message>
     <message>
         <location filename="../gui/ui/Schedaind.ui" line="1518"/>
         <source>20</source>
-        <translation type="unfinished">20</translation>
+        <translation>20</translation>
     </message>
     <message>
         <location filename="../gui/ui/Schedaind.ui" line="1523"/>
         <source>30</source>
-        <translation type="unfinished"></translation>
+        <translation>1 : 30</translation>
     </message>
     <message>
         <location filename="../gui/ui/Schedaind.ui" line="1528"/>
         <source>40</source>
-        <translation type="unfinished"></translation>
+        <translation>40</translation>
     </message>
     <message>
         <location filename="../gui/ui/Schedaind.ui" line="1533"/>
         <source>50</source>
-        <translation type="unfinished"></translation>
+        <translation>1 : 50</translation>
     </message>
     <message>
         <location filename="../gui/ui/Schedaind.ui" line="1538"/>
         <source>60</source>
-        <translation type="unfinished"></translation>
+        <translation>60</translation>
     </message>
     <message>
         <location filename="../gui/ui/Schedaind.ui" line="1543"/>
         <source>70</source>
-        <translation type="unfinished"></translation>
+        <translation>70</translation>
     </message>
     <message>
         <location filename="../gui/ui/Schedaind.ui" line="1548"/>
         <source>80</source>
-        <translation type="unfinished"></translation>
+        <translation>80</translation>
     </message>
     <message>
         <location filename="../gui/ui/Schedaind.ui" line="1553"/>
         <source>90</source>
-        <translation type="unfinished"></translation>
+        <translation>90</translation>
+    </message>
+    <message>
+        <source>Tools</source>
+        <translation>Werkzeuge</translation>
+    </message>
+    <message>
+        <source>Toolbar</source>
+        <translation>Symbolleiste</translation>
+    </message>
+    <message>
+        <source>Attivazione Preview pianta US</source>
+        <translation>Aktivierungsanlage SE-Vorschau</translation>
+    </message>
+    <message>
+        <source>Preview pianta US</source>
+        <translation>Vorschau US-Anlage</translation>
+    </message>
+    <message>
+        <source>Pan tool</source>
+        <translation>Pan-Werkzeug</translation>
+    </message>
+    <message>
+        <source>Rif Struttura</source>
+        <translation>Struktur ref</translation>
     </message>
 </context>
 <context>
@@ -3746,7 +3719,7 @@ p, li { white-space: pre-wrap; }
     <message>
         <location filename="../gui/ui/Inv_Materiali.ui" line="663"/>
         <source>US</source>
-        <translation>SE</translation>
+        <translation>US</translation>
     </message>
     <message>
         <location filename="../gui/ui/Inv_Materiali.ui" line="903"/>
@@ -4069,21 +4042,6 @@ p, li { white-space: pre-wrap; }
         <translation>Standort</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Inv_Materiali.ui" line="2005"/>
-        <source>Tipo quantit&#xe0; </source>
-        <translation type="obsolete">Menge Typ </translation>
-    </message>
-    <message>
-        <location filename="../gui/ui/Inv_Materiali.ui" line="2010"/>
-        <source>Unit&#xe0; di misura </source>
-        <translation type="obsolete">Maßeinheit </translation>
-    </message>
-    <message>
-        <location filename="../gui/ui/Inv_Materiali.ui" line="2015"/>
-        <source>Quantit&#xe0;</source>
-        <translation type="obsolete">Anzahl</translation>
-    </message>
-    <message>
         <location filename="../gui/ui/Inv_Materiali.ui" line="2352"/>
         <source>Corpo ceramico</source>
         <translation>Keramischer Körper</translation>
@@ -4216,27 +4174,24 @@ p, li { white-space: pre-wrap; }
     <message>
         <location filename="../gui/ui/Inv_Materiali.ui" line="2863"/>
         <source>to</source>
-        <translation>an</translation>
-    </message>
-    <message encoding="UTF-8">
-        <location filename="../gui/ui/Inv_Materiali.ui" line="2297"/>
-        <source>Tipo quantità </source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message encoding="UTF-8">
-        <location filename="../gui/ui/Inv_Materiali.ui" line="2302"/>
-        <source>Unità di misura </source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message encoding="UTF-8">
-        <location filename="../gui/ui/Inv_Materiali.ui" line="2307"/>
-        <source>Quantità</source>
-        <translation type="unfinished"></translation>
+        <translation>zu</translation>
     </message>
     <message>
         <location filename="../gui/ui/Inv_Materiali.ui" line="3008"/>
         <source>Rif. Struttura</source>
-        <translation type="unfinished"></translation>
+        <translation>Struktur ref</translation>
+    </message>
+    <message>
+        <source>Tipo quantità </source>
+        <translation>Menge Typ </translation>
+    </message>
+    <message>
+        <source>Unità di misura </source>
+        <translation>Maßeinheit </translation>
+    </message>
+    <message>
+        <source>Quantità</source>
+        <translation>Anzahl</translation>
     </message>
 </context>
 <context>
@@ -4244,32 +4199,32 @@ p, li { white-space: pre-wrap; }
     <message>
         <location filename="../gui/ui/Print_map.ui" line="444"/>
         <source>Crea la tua Mappa</source>
-        <translation type="unfinished"></translation>
+        <translation>Erstellen Sie Ihre eigene Karte</translation>
     </message>
     <message>
         <location filename="../gui/ui/Print_map.ui" line="466"/>
         <source>Aggiungi titolo</source>
-        <translation type="unfinished"></translation>
+        <translation>Titel hinzufügen</translation>
     </message>
     <message>
         <location filename="../gui/ui/Print_map.ui" line="500"/>
         <source>Preview del template</source>
-        <translation type="unfinished"></translation>
+        <translation>Vorschau der Vorlage</translation>
     </message>
     <message>
         <location filename="../gui/ui/Print_map.ui" line="507"/>
         <source>Seleziona il template da usare</source>
-        <translation type="unfinished"></translation>
+        <translation>Wählen Sie die zu verwendende Vorlage</translation>
     </message>
     <message>
         <location filename="../gui/ui/Print_map.ui" line="622"/>
         <source>Help</source>
-        <translation type="unfinished">Hilfe</translation>
+        <translation>Hilfe</translation>
     </message>
     <message>
         <location filename="../gui/ui/Print_map.ui" line="587"/>
         <source>Nome Layout o crea nuovo layout</source>
-        <translation type="unfinished"></translation>
+        <translation>Layoutname oder neues Layout erstellen</translation>
     </message>
     <message>
         <location filename="../gui/ui/Print_map.ui" line="641"/>
@@ -4284,7 +4239,17 @@ p, li { white-space: pre-wrap; }
 &lt;p style=&quot; margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:8pt;&quot;&gt;Le view delle US  si possono richiamare dalla scheda US attivando il gis viewer &lt;/span&gt;&lt;img src=&quot;:/icons/GIS2.png&quot; /&gt;&lt;span style=&quot; font-size:8pt;&quot;&gt; e poi facendo una ricerca&lt;/span&gt;&lt;/p&gt;
 &lt;p style=&quot;-qt-paragraph-type:empty; margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px; font-size:8pt;&quot;&gt;&lt;br /&gt;&lt;/p&gt;
 &lt;p style=&quot; margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:8pt;&quot;&gt;e dalla scheda periodizzazione con il tasto &lt;/span&gt;&lt;img src=&quot;:/icons/GIS2.png&quot; /&gt;&lt;span style=&quot; font-size:8pt;&quot;&gt; per visualizzare il periodo/fase corrente  e il tasto  &lt;/span&gt;&lt;img src=&quot;:/icons/layers-icon2.png&quot; /&gt;&lt;span style=&quot; font-size:8pt;&quot;&gt; per caricare tutti i periodi&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
+&lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
+p, li { white-space: pre-wrap; }
+&lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:&apos;MS Shell Dlg 2&apos;; font-size:7.8pt; font-weight:400; font-style:normal;&quot;&gt;
+&lt;p style=&quot; margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:8.25pt;&quot;&gt;Um die adArte-Vorlagen korrekt verwenden zu können, müssen die Punktansicht der Website und die US-Ansicht in das TOC geladen werden.&lt;/span&gt;&lt;/p&gt;
+&lt;p style=&quot; margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:8.25pt;&quot;&gt;&lt;br /&gt;&lt;/span&gt;&lt;/p&gt;
+&lt;p style=&quot; margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:8.25pt;&quot;&gt;Die Punktansicht der Website wird über die Registerkarte Website mit der Schaltfläche &lt;/span&gt;&lt;img src=&quot;:/icons/site_point2.png&quot; /&gt;&lt;/p&gt;
+&lt;p style=&quot;-qt-paragraph-type:empty; margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px; font-size:8pt;&quot;&gt;&lt;br /&gt;&lt;/p&gt;
+&lt;p style=&quot; margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:8pt;&quot;&gt;Die US-Ansichten können über die Registerkarte US aufgerufen werden, indem Sie den Gis-Viewer aktivieren &lt;/span&gt;&lt;img src=&quot;:/icons/GIS2.png&quot; /&gt;&lt;span style=&quot; font-size:8pt;&quot;&gt; und dann eine Suche durchführen&lt;/span&gt;&lt;/p&gt;
+&lt;p style=&quot;-qt-paragraph-type:empty; margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px; font-size:8pt;&quot;&gt;&lt;br /&gt;&lt;/p&gt;
+&lt;p style=&quot; margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:8pt;&quot;&gt;und auf der Registerkarte Periodisierung mit der Taste &lt;/span&gt;&lt;img src=&quot;:/icons/GIS2.png&quot; /&gt;&lt;span style=&quot; font-size:8pt;&quot;&gt; taste, um die aktuelle Periode/Phase anzuzeigen und die  &lt;/span&gt;&lt;img src=&quot;:/icons/layers-icon2.png&quot; /&gt;&lt;span style=&quot; font-size:8pt;&quot;&gt; taste, um alle Zeiträume zu laden&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
 </context>
 <context>
@@ -4543,11 +4508,6 @@ p, li { white-space: pre-wrap; }
         <translation>DB-Informationen</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Periodizzazione.ui" line="77"/>
-        <source>Connection test</source>
-        <translation type="obsolete">Verbindungstest</translation>
-    </message>
-    <message>
         <location filename="../gui/ui/Periodizzazione.ui" line="512"/>
         <source>Status</source>
         <translation>Stand</translation>
@@ -4631,21 +4591,6 @@ p, li { white-space: pre-wrap; }
         <location filename="../gui/ui/Periodizzazione.ui" line="937"/>
         <source>Sito</source>
         <translation>Ausgrabungsstätte</translation>
-    </message>
-    <message>
-        <location filename="../gui/ui/Periodizzazione.ui" line="552"/>
-        <source>Area</source>
-        <translation type="obsolete">Bereich</translation>
-    </message>
-    <message>
-        <location filename="../gui/ui/Periodizzazione.ui" line="565"/>
-        <source>Scheda PDF</source>
-        <translation type="obsolete">PDF-Karte</translation>
-    </message>
-    <message>
-        <location filename="../gui/ui/Periodizzazione.ui" line="582"/>
-        <source>Elenco PDF</source>
-        <translation type="obsolete">PDF-Liste</translation>
     </message>
     <message>
         <location filename="../gui/ui/Periodizzazione.ui" line="1471"/>
@@ -4758,34 +4703,49 @@ p, li { white-space: pre-wrap; }
         <translation>Finale </translation>
     </message>
     <message>
-        <location filename="../gui/ui/Periodizzazione.ui" line="942"/>
-        <source>Estesa letterale </source>
-        <translation type="obsolete">Wörtliche Erweiterung </translation>
-    </message>
-    <message>
         <location filename="../gui/ui/Periodizzazione.ui" line="920"/>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Carica Viewer per tutti i Periodi e Fasi&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Viewer für alle Perioden und Phasen laden&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <location filename="../gui/ui/Periodizzazione.ui" line="1081"/>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Carica viewer per singolo Periodo e Fase&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Viewer für einzelne Perioden und Phasen hochladen&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <location filename="../gui/ui/Periodizzazione.ui" line="1363"/>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Datazione estesa del periodo culturale (Timespan).&lt;/p&gt;&lt;p&gt;es: I sec. a.C.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Erweiterte Datierung der Kulturperiode (Zeitspanne).&lt;/p&gt;&lt;p&gt;z.B.: 1. Jahrhundert v. Chr.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <location filename="../gui/ui/Periodizzazione.ui" line="1379"/>
         <source>Datazione</source>
-        <translation type="unfinished">Verabredung</translation>
+        <translation>Verabredung</translation>
     </message>
     <message>
         <location filename="../gui/ui/Periodizzazione.ui" line="1493"/>
         <source>C</source>
-        <translation type="unfinished">C</translation>
+        <translation>C</translation>
+    </message>
+    <message>
+        <source>Connection test</source>
+        <translation>Verbindungstest</translation>
+    </message>
+    <message>
+        <source>Area</source>
+        <translation>Bereich</translation>
+    </message>
+    <message>
+        <source>Scheda PDF</source>
+        <translation>PDF-Karte</translation>
+    </message>
+    <message>
+        <source>Elenco PDF</source>
+        <translation>PDF-Liste</translation>
+    </message>
+    <message>
+        <source>Estesa letterale </source>
+        <translation>Wörtliche Erweiterung </translation>
     </message>
 </context>
 <context>
@@ -4926,7 +4886,7 @@ p, li { white-space: pre-wrap; }
     <message>
         <location filename="../gui/ui/pyarchinit_rel_check_ui.ui" line="1190"/>
         <source>US</source>
-        <translation>SE</translation>
+        <translation>US</translation>
     </message>
     <message>
         <location filename="../gui/ui/pyarchinit_rel_check_ui.ui" line="1073"/>
@@ -5515,11 +5475,6 @@ p, li { white-space: pre-wrap; }
         <translation>DBMS-Symbolleiste</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Site.ui" line="137"/>
-        <source>Connection test</source>
-        <translation type="obsolete">Verbindungstest</translation>
-    </message>
-    <message>
         <location filename="../gui/ui/Site.ui" line="500"/>
         <source>DB Info</source>
         <translation>DB-Informationen</translation>
@@ -5615,24 +5570,9 @@ p, li { white-space: pre-wrap; }
         <translation>Erzeugt eine beliebige Anzahl von SE-Formulare für die aktuelle Ausgrbungstätte</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Site.ui" line="870"/>
-        <source>Carica tutti layer che contengono geometrie relative a questo sito</source>
-        <translation type="obsolete">Laden Sie alle Layer hoch, die Geometrien mit Bezug zu dieser Ausgrabungsstätte enthalten</translation>
-    </message>
-    <message>
-        <location filename="../gui/ui/Site.ui" line="873"/>
-        <source>Carica i layer per questo sito</source>
-        <translation type="obsolete">Laden Sie Layer für diese Site Ausgrbungstätte</translation>
-    </message>
-    <message>
         <location filename="../gui/ui/Site.ui" line="2039"/>
         <source>Carica tutti i layer per poter inserire nuove geometrie</source>
         <translation>Laden Sie alle layer, um neue Geometrien einfügen zu können</translation>
-    </message>
-    <message>
-        <location filename="../gui/ui/Site.ui" line="917"/>
-        <source>Carica layer per il disegno</source>
-        <translation type="obsolete">Lade den layer zum Zeichnen</translation>
     </message>
     <message>
         <location filename="../gui/ui/Site.ui" line="2007"/>
@@ -5645,11 +5585,6 @@ p, li { white-space: pre-wrap; }
         <translation>Exportieren</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Site.ui" line="980"/>
-        <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;GIS Tools&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="obsolete">&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;GIS-Werkzeuge&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
-    </message>
-    <message>
         <location filename="../gui/ui/Site.ui" line="2058"/>
         <source>Abilita il caricamento delle ricerche</source>
         <translation>Aktivieren Sie das Laden von Suchen</translation>
@@ -5658,11 +5593,6 @@ p, li { white-space: pre-wrap; }
         <location filename="../gui/ui/Site.ui" line="2042"/>
         <source>Gis viewer</source>
         <translation>Gis Betrachter</translation>
-    </message>
-    <message>
-        <location filename="../gui/ui/Site.ui" line="1052"/>
-        <source>Carica il puntuale del sito</source>
-        <translation type="obsolete">Pünktliches Hochladen der Ausgrabungsstätte</translation>
     </message>
     <message>
         <location filename="../gui/ui/Site.ui" line="1872"/>
@@ -5680,14 +5610,9 @@ p, li { white-space: pre-wrap; }
         <translation>US-Kartennummer zum Start</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Site.ui" line="1127"/>
-        <source>Tipo di unit&#xe0; stratigrafica</source>
-        <translation type="obsolete">Typ der stratigraphischen Einheit</translation>
-    </message>
-    <message>
         <location filename="../gui/ui/Site.ui" line="1896"/>
         <source>US</source>
-        <translation>SE</translation>
+        <translation>US</translation>
     </message>
     <message>
         <location filename="../gui/ui/Site.ui" line="1901"/>
@@ -5695,40 +5620,9 @@ p, li { white-space: pre-wrap; }
         <translation>MSE</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Site.ui" line="1154"/>
-        <source>Genera US (Azione irreversibile)</source>
-        <translation type="obsolete">US erzeugen (unumkehrbare Aktion)</translation>
-    </message>
-    <message>
-        <location filename="../gui/ui/Site.ui" line="1164"/>
-        <source>Python test area</source>
-        <translation type="obsolete">Python-Testgebiet</translation>
-    </message>
-    <message>
         <location filename="../gui/ui/Site.ui" line="1832"/>
         <source>Run test</source>
         <translation>Test durchführen</translation>
-    </message>
-    <message>
-        <location filename="../gui/ui/Site.ui" line="1180"/>
-        <source>Questa &#xe8; una sezione di testing per sperimentare funzioni.
-
-
-Procedura
-Step 1 - Aprire il file test_area.py dentro alla cartella pyarchinit (la cartella si trova dentro al vostro utente /.qgis/python/plugins/pyarchinit)
-
-Step 2 - editare la funzione def run_test e salvare il file.
-
-Step 3 - Riavviare Qgis e cliccare sul pulsante Run Test per verificare l&apos;output della vostra funzione.</source>
-        <translation type="obsolete">Dies ist ein Testabschnitt zum Testen von Funktionen.
-
-
-Verfahren
-Schritt 1 - Öffnen Sie die Datei test_area.py innerhalb des Pyarchinit-Ordners (der Ordner befindet sich innerhalb Ihres Benutzerordners /.qgis/python/plugins/pyarchinit)
-
-Schritt 2 - Bearbeiten Sie die Funktion def run_test und speichern Sie die Datei.
-
-Schritt 3 - Starten Sie Qgis neu und klicken Sie auf die Schaltfläche Test ausführen, um die Ausgabe Ihrer Funktion zu überprüfen.</translation>
     </message>
     <message>
         <location filename="../gui/ui/Site.ui" line="2291"/>
@@ -5803,35 +5697,155 @@ Schritt 3 - Starten Sie Qgis neu und klicken Sie auf die Schaltfläche Test ausf
     <message>
         <location filename="../gui/ui/Site.ui" line="844"/>
         <source>C</source>
-        <translation type="unfinished">C</translation>
+        <translation>C</translation>
     </message>
     <message>
         <location filename="../gui/ui/Site.ui" line="925"/>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Carica il view puntuale del sito&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Lädt die Website-Ansicht rechtzeitig hoch&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <location filename="../gui/ui/Site.ui" line="1041"/>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Layer archeologici da vettorializzare (sito corrente)&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Zu vektorisierende archäologische Schichten (aktueller Standort)&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <location filename="../gui/ui/Site.ui" line="1067"/>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Layer archeologici da vettorializzare (tutti i siti)&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Zu vektorisierende archäologische Schichten (alle Standorte)&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <location filename="../gui/ui/Site.ui" line="1217"/>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;WMS Vincoli archeoligici&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;WMS Archäologische Zwänge&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <location filename="../gui/ui/Site.ui" line="1243"/>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;R script for least cost path&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;R-Skript für den Weg der geringsten Kosten&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
-    <message encoding="UTF-8">
-        <location filename="../gui/ui/Site.ui" line="1848"/>
+    <message>
+        <location filename="../gui/ui/Site.ui" line="1988"/>
+        <source>Genera US</source>
+        <translation>US erzeugen (unumkehrbare Aktion)</translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/Site.ui" line="2085"/>
+        <source>MovecostToPyarchinit</source>
+        <translation>MovecostToPyarchinit</translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/Site.ui" line="2226"/>
+        <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;R function for calculating least-cost corridor between point locations using a polygon area to download the dtm&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;R-Funktion zur Berechnung des kostengünstigsten Korridors zwischen Punkten unter Verwendung eines Polygons zum Herunterladen der dtm&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/Site.ui" line="2104"/>
+        <source>movecorr by polygon</source>
+        <translation>movecorr nach Polygon</translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/Site.ui" line="2117"/>
+        <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;R function for calculating accumulated anisotropic slope-dependant cost of movement across the terrain and least-cost paths from a point origin&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;R-Funktion zur Berechnung der akkumulierten anisotropen neigungsabhängigen Kosten der Bewegung über das Gelände und der kostengünstigsten Wege von einem Ausgangspunkt aus&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/Site.ui" line="2124"/>
+        <source>movecost</source>
+        <translation>umzugskosten</translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/Site.ui" line="2137"/>
+        <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;R function for calculating accumulated anisotropic slope-dependant cost of movement across the terrain and least-cost paths from a point origin using a polygon area to download the dtm&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;R-Funktion zur Berechnung der akkumulierten anisotropen neigungsabhängigen Kosten der Bewegung über das Gelände und der kostengünstigsten Pfade von einem Ursprungspunkt aus unter Verwendung eines Polygonbereichs zum Herunterladen der dtm&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/Site.ui" line="2143"/>
+        <source>movecost by polygon</source>
+        <translation>umzugskosten nach Polygon</translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/Site.ui" line="2156"/>
+        <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;R function for calculating slope-dependant walking cost boundary(ies) around point location(s)&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;R-Funktion zur Berechnung der steigungsabhängigen Gehkostengrenze(n) um den/die Punkt(e)&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/Site.ui" line="2162"/>
+        <source>movebound</source>
+        <translation>movebound</translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/Site.ui" line="2175"/>
+        <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;R function for calculating slope-dependant walking cost boundary(ies) around point location(s) using a polygon area to download the dtm&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;R-Funktion zur Berechnung der steigungsabhängigen Gehkostengrenze(n) um den/die Punkt(e) unter Verwendung einer Polygonfläche zum Herunterladen der dtm&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/Site.ui" line="2181"/>
+        <source>movebound by polygon</source>
+        <translation>bewegung durch Polygon</translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/Site.ui" line="2245"/>
+        <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;R function for calculating least-cost corridor between point locations&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;R-Funktion zur Berechnung des kostengünstigsten Korridors zwischen Punkten&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/Site.ui" line="2200"/>
+        <source>movcorr</source>
+        <translation>movcorr</translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/Site.ui" line="2213"/>
+        <source>Add scripts</source>
+        <translation>Skripte hinzufügen</translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/Site.ui" line="2232"/>
+        <source>movealloc by polygon</source>
+        <translation>movealloc nach Polygon</translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/Site.ui" line="2251"/>
+        <source>movalloc</source>
+        <translation>movalloc</translation>
+    </message>
+    <message>
+        <source>Connection test</source>
+        <translation>Verbindungstest</translation>
+    </message>
+    <message>
+        <source>Carica tutti layer che contengono geometrie relative a questo sito</source>
+        <translation>Laden Sie alle Layer hoch, die Geometrien mit Bezug zu dieser Ausgrabungsstätte enthalten</translation>
+    </message>
+    <message>
+        <source>Carica i layer per questo sito</source>
+        <translation>Laden Sie Layer für diese Site Ausgrbungstätte</translation>
+    </message>
+    <message>
+        <source>Carica layer per il disegno</source>
+        <translation>Lade den layer zum Zeichnen</translation>
+    </message>
+    <message>
+        <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;GIS Tools&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;GIS-Werkzeuge&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
+    </message>
+    <message>
+        <source>Carica il puntuale del sito</source>
+        <translation>Pünktliches Hochladen der Ausgrabungsstätte</translation>
+    </message>
+    <message>
+        <source>Tipo di unità stratigrafica</source>
+        <translation>Typ der stratigraphischen Einheit</translation>
+    </message>
+    <message>
+        <source>Genera US (Azione irreversibile)</source>
+        <translation>US erzeugen (unumkehrbare Aktion)</translation>
+    </message>
+    <message>
+        <source>Python test area</source>
+        <translation>Python-Testgebiet</translation>
+    </message>
+    <message>
         <source>Questa è una sezione di testing per sperimentare funzioni.
 
 
@@ -5841,97 +5855,15 @@ Step 1 - Aprire il file test_area.py dentro alla cartella pyarchinit (la cartell
 Step 2 - editare la funzione def run_test e salvare il file.
 
 Step 3 - Riavviare Qgis e cliccare sul pulsante Run Test per verificare l&apos;output della vostra funzione.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message encoding="UTF-8">
-        <location filename="../gui/ui/Site.ui" line="1909"/>
-        <source>Tipo di unità stratigrafica</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../gui/ui/Site.ui" line="1988"/>
-        <source>Genera US</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../gui/ui/Site.ui" line="2085"/>
-        <source>MovecostToPyarchinit</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../gui/ui/Site.ui" line="2226"/>
-        <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;R function for calculating least-cost corridor between point locations using a polygon area to download the dtm&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../gui/ui/Site.ui" line="2104"/>
-        <source>movecorr by polygon</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../gui/ui/Site.ui" line="2117"/>
-        <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;R function for calculating accumulated anisotropic slope-dependant cost of movement across the terrain and least-cost paths from a point origin&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../gui/ui/Site.ui" line="2124"/>
-        <source>movecost</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../gui/ui/Site.ui" line="2137"/>
-        <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;R function for calculating accumulated anisotropic slope-dependant cost of movement across the terrain and least-cost paths from a point origin using a polygon area to download the dtm&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../gui/ui/Site.ui" line="2143"/>
-        <source>movecost by polygon</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../gui/ui/Site.ui" line="2156"/>
-        <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;R function for calculating slope-dependant walking cost boundary(ies) around point location(s)&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../gui/ui/Site.ui" line="2162"/>
-        <source>movebound</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../gui/ui/Site.ui" line="2175"/>
-        <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;R function for calculating slope-dependant walking cost boundary(ies) around point location(s) using a polygon area to download the dtm&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../gui/ui/Site.ui" line="2181"/>
-        <source>movebound by polygon</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../gui/ui/Site.ui" line="2245"/>
-        <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;R function for calculating least-cost corridor between point locations&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../gui/ui/Site.ui" line="2200"/>
-        <source>movcorr</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../gui/ui/Site.ui" line="2213"/>
-        <source>Add scripts</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../gui/ui/Site.ui" line="2232"/>
-        <source>movealloc by polygon</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../gui/ui/Site.ui" line="2251"/>
-        <source>movalloc</source>
-        <translation type="unfinished"></translation>
+        <translation>Dies ist ein Testabschnitt zum Testen von Funktionen.
+
+
+Verfahren
+Schritt 1 - Öffnen Sie die Datei test_area.py innerhalb des Pyarchinit-Ordners (der Ordner befindet sich innerhalb Ihres Benutzerordners /.qgis/python/plugins/pyarchinit)
+
+Schritt 2 - Bearbeiten Sie die Funktion def run_test und speichern Sie die Datei.
+
+Schritt 3 - Starten Sie Qgis neu und klicken Sie auf die Schaltfläche Test ausführen, um die Ausgabe Ihrer Funktion zu überprüfen.</translation>
     </message>
 </context>
 <context>
@@ -6050,11 +5982,6 @@ Step 3 - Riavviare Qgis e cliccare sul pulsante Run Test per verificare l&apos;o
         <translation>Vorherige rec</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Struttura.ui" line="286"/>
-        <source>PDF indice exp</source>
-        <translation type="obsolete">PDF-Exp-Index</translation>
-    </message>
-    <message>
         <location filename="../gui/ui/Struttura.ui" line="732"/>
         <source>Connection test</source>
         <translation>Verbindungstest</translation>
@@ -6098,11 +6025,6 @@ Step 3 - Riavviare Qgis e cliccare sul pulsante Run Test per verificare l&apos;o
         <location filename="../gui/ui/Struttura.ui" line="1151"/>
         <source>Sigla struttura</source>
         <translation>Struktur-Code</translation>
-    </message>
-    <message>
-        <location filename="../gui/ui/Struttura.ui" line="728"/>
-        <source>N&#xb0;</source>
-        <translation type="obsolete">N°</translation>
     </message>
     <message>
         <location filename="../gui/ui/Struttura.ui" line="1221"/>
@@ -6248,11 +6170,6 @@ p, li { Leerzeichen: Vorverpackung; }
         <translation>Elementtyp</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Struttura.ui" line="1337"/>
-        <source>Quantit&#xe0; </source>
-        <translation type="obsolete">Anzahl </translation>
-    </message>
-    <message>
         <location filename="../gui/ui/Struttura.ui" line="1826"/>
         <source>Misure</source>
         <translation>Maßnahmen</translation>
@@ -6300,17 +6217,19 @@ p, li { Leerzeichen: Vorverpackung; }
     <message>
         <location filename="../gui/ui/Struttura.ui" line="770"/>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Carica tutte vie per singole strutture&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Alle Routen für einzelne Strukturen laden&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
-    <message encoding="UTF-8">
-        <location filename="../gui/ui/Struttura.ui" line="1163"/>
+    <message>
+        <source>PDF indice exp</source>
+        <translation>PDF-Exp-Index</translation>
+    </message>
+    <message>
         <source>N°</source>
-        <translation type="unfinished"></translation>
+        <translation>N°</translation>
     </message>
-    <message encoding="UTF-8">
-        <location filename="../gui/ui/Struttura.ui" line="1776"/>
+    <message>
         <source>Quantità </source>
-        <translation type="unfinished"></translation>
+        <translation>Anzahl </translation>
     </message>
 </context>
 <context>
@@ -6548,7 +6467,7 @@ p, li { Leerzeichen: Vorverpackung; }
     <message>
         <location filename="../gui/ui/Thesaurus.ui" line="1202"/>
         <source>it_IT</source>
-        <translation>de_EN</translation>
+        <translation>en_DE</translation>
     </message>
     <message>
         <location filename="../gui/ui/Thesaurus.ui" line="1207"/>
@@ -6612,11 +6531,6 @@ p, li { Leerzeichen: Vorverpackung; }
         <location filename="../gui/ui/US_USM.ui" line="15140"/>
         <source>Singole schede US</source>
         <translation>Einzelne US-Karten</translation>
-    </message>
-    <message>
-        <location filename="../gui/ui/US_USM.ui" line="337"/>
-        <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;GIS Viewer&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="obsolete">&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;GIS-Betrachter&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <location filename="../gui/ui/US_USM.ui" line="10401"/>
@@ -6691,7 +6605,7 @@ p, li { Leerzeichen: Vorverpackung; }
     <message>
         <location filename="../gui/ui/US_USM.ui" line="30794"/>
         <source>US</source>
-        <translation>SE</translation>
+        <translation>US</translation>
     </message>
     <message>
         <location filename="../gui/ui/US_USM.ui" line="24280"/>
@@ -7212,11 +7126,6 @@ p, li { Leerzeichen: Vorverpackung; }
         <translation>Gehen Sie in die SE</translation>
     </message>
     <message>
-        <location filename="../gui/ui/US_USM.ui" line="2689"/>
-        <source>Dati Fisici - Dati Schedatore</source>
-        <translation type="obsolete">Physikalische Daten - Indexer-Daten</translation>
-    </message>
-    <message>
         <location filename="../gui/ui/US_USM.ui" line="30853"/>
         <source>Flottazione</source>
         <translation>Börsengang</translation>
@@ -7377,11 +7286,6 @@ p, li { Leerzeichen: Vorverpackung; }
         <translation>Datum der Anmeldung</translation>
     </message>
     <message>
-        <location filename="../gui/ui/US_USM.ui" line="3634"/>
-        <source>Luca Mandolesi</source>
-        <translation type="obsolete">Luca Mandolesi</translation>
-    </message>
-    <message>
         <location filename="../gui/ui/US_USM.ui" line="31704"/>
         <source>Cod. Ente Schedatore</source>
         <translation>Cod. registrierte Stelle</translation>
@@ -7424,27 +7328,12 @@ p, li { Leerzeichen: Vorverpackung; }
     <message>
         <location filename="../gui/ui/US_USM.ui" line="31884"/>
         <source>; </source>
-        <translation>; </translation>
+        <translation></translation>
     </message>
     <message>
         <location filename="../gui/ui/US_USM.ui" line="32025"/>
         <source>Misure US</source>
         <translation>US-Maßnahmen</translation>
-    </message>
-    <message>
-        <location filename="../gui/ui/US_USM.ui" line="3678"/>
-        <source>Lunghezza (metri)</source>
-        <translation type="obsolete">Länge (Meter)</translation>
-    </message>
-    <message>
-        <location filename="../gui/ui/US_USM.ui" line="3701"/>
-        <source>Larghezza (metri)</source>
-        <translation type="obsolete">Breite (Meter)</translation>
-    </message>
-    <message>
-        <location filename="../gui/ui/US_USM.ui" line="3724"/>
-        <source>Altezza (metri)</source>
-        <translation type="obsolete">Höhe (Meter)</translation>
     </message>
     <message>
         <location filename="../gui/ui/US_USM.ui" line="32131"/>
@@ -7480,16 +7369,6 @@ p, li { Leerzeichen: Vorverpackung; }
         <location filename="../gui/ui/US_USM.ui" line="32311"/>
         <source>Altezza min. (metri)</source>
         <translation>Höhe min. (Meter)</translation>
-    </message>
-    <message>
-        <location filename="../gui/ui/US_USM.ui" line="3976"/>
-        <source>Profondit&#xe0; min. (metri) </source>
-        <translation type="obsolete">Tiefe min. (Meter) </translation>
-    </message>
-    <message>
-        <location filename="../gui/ui/US_USM.ui" line="4005"/>
-        <source>Profondit&#xe0; max. (metri) </source>
-        <translation type="obsolete">Max. Tiefe (Meter) </translation>
     </message>
     <message>
         <location filename="../gui/ui/US_USM.ui" line="32399"/>
@@ -8219,7 +8098,7 @@ p, li { Leerzeichen: Vorverpackung; }
     <message>
         <location filename="../gui/ui/US_USM.ui" line="57678"/>
         <source>to</source>
-        <translation>an</translation>
+        <translation>zu</translation>
     </message>
     <message>
         <location filename="../gui/ui/US_USM.ui" line="18916"/>
@@ -8249,107 +8128,129 @@ p, li { Leerzeichen: Vorverpackung; }
     <message>
         <location filename="../gui/ui/US_USM.ui" line="10398"/>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;GIS Viewer US&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;GIS Viewer US&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <location filename="../gui/ui/US_USM.ui" line="14174"/>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;GIS VIEW USM&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;GIS-ANSICHT USM&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <location filename="../gui/ui/US_USM.ui" line="14184"/>
         <source>Shift+B</source>
-        <translation type="unfinished"></translation>
+        <translation>Umschalt+B</translation>
     </message>
     <message>
         <location filename="../gui/ui/US_USM.ui" line="30789"/>
         <source>Rapp</source>
-        <translation type="unfinished"></translation>
+        <translation>Rapp</translation>
     </message>
-    <message encoding="UTF-8">
+    <message>
         <location filename="../gui/ui/US_USM.ui" line="30799"/>
         <source>Unità tipo</source>
-        <translation type="unfinished"></translation>
+        <translation>Einheit Typ</translation>
     </message>
     <message>
         <location filename="../gui/ui/US_USM.ui" line="30809"/>
         <source>Periodizzazione</source>
-        <translation type="unfinished">Periodisierung</translation>
+        <translation>Periodisierung</translation>
     </message>
     <message>
         <location filename="../gui/ui/US_USM.ui" line="30820"/>
         <source>Dati Fisici - Dati Schedatura</source>
-        <translation type="unfinished"></translation>
+        <translation>Physische Daten - Registrierungsdaten</translation>
     </message>
     <message>
         <location filename="../gui/ui/US_USM.ui" line="31529"/>
         <source>Buona</source>
-        <translation type="unfinished"></translation>
+        <translation>Gut</translation>
     </message>
     <message>
         <location filename="../gui/ui/US_USM.ui" line="31534"/>
         <source>Discreta</source>
-        <translation type="unfinished"></translation>
+        <translation>Diskret</translation>
     </message>
     <message>
         <location filename="../gui/ui/US_USM.ui" line="31539"/>
         <source>Ottima</source>
-        <translation type="unfinished"></translation>
+        <translation>Ausgezeichnet</translation>
     </message>
     <message>
         <location filename="../gui/ui/US_USM.ui" line="32042"/>
         <source>Lunghezza media (metri)</source>
-        <translation type="unfinished"></translation>
+        <translation>Durchschnittliche Länge (Meter)</translation>
     </message>
     <message>
         <location filename="../gui/ui/US_USM.ui" line="32065"/>
         <source>Larghezza max (metri)</source>
-        <translation type="unfinished"></translation>
+        <translation>Maximale Breite (Meter)</translation>
     </message>
     <message>
         <location filename="../gui/ui/US_USM.ui" line="32088"/>
         <source>Spessore (metri)</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message encoding="UTF-8">
-        <location filename="../gui/ui/US_USM.ui" line="32340"/>
-        <source>Profondità min. (metri) </source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message encoding="UTF-8">
-        <location filename="../gui/ui/US_USM.ui" line="32369"/>
-        <source>Profondità max. (metri) </source>
-        <translation type="unfinished"></translation>
+        <translation>Mächtigkeit (Meter)</translation>
     </message>
     <message>
         <location filename="../gui/ui/US_USM.ui" line="45507"/>
         <source>Graphml</source>
-        <translation type="unfinished"></translation>
+        <translation>Graphml</translation>
     </message>
     <message>
         <location filename="../gui/ui/US_USM.ui" line="46873"/>
         <source>Export to Extended Matrix</source>
-        <translation type="unfinished"></translation>
+        <translation>In die erweiterte Matrix exportieren</translation>
     </message>
     <message>
         <location filename="../gui/ui/US_USM.ui" line="50839"/>
         <source>Dot2Graphml</source>
-        <translation type="unfinished"></translation>
+        <translation>Dot2Graphml</translation>
     </message>
     <message>
         <location filename="../gui/ui/US_USM.ui" line="51288"/>
         <source>path output graphml</source>
-        <translation type="unfinished"></translation>
+        <translation>pfad Ausgabe graphml</translation>
     </message>
     <message>
         <location filename="../gui/ui/US_USM.ui" line="52635"/>
         <source>path input dot file</source>
-        <translation type="unfinished"></translation>
+        <translation>pfad Eingabepunkt Datei</translation>
     </message>
     <message>
         <location filename="../gui/ui/US_USM.ui" line="53084"/>
         <source>export to graphml</source>
-        <translation type="unfinished"></translation>
+        <translation>in graphml exportieren</translation>
+    </message>
+    <message>
+        <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;GIS Viewer&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;GIS-Betrachter&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
+    </message>
+    <message>
+        <source>Dati Fisici - Dati Schedatore</source>
+        <translation>Physikalische Daten - Indexer-Daten</translation>
+    </message>
+    <message>
+        <source>Luca Mandolesi</source>
+        <translation>Luca Mandolesi</translation>
+    </message>
+    <message>
+        <source>Lunghezza (metri)</source>
+        <translation>Länge (Meter)</translation>
+    </message>
+    <message>
+        <source>Larghezza (metri)</source>
+        <translation>Breite (Meter)</translation>
+    </message>
+    <message>
+        <source>Altezza (metri)</source>
+        <translation>Höhe (Meter)</translation>
+    </message>
+    <message>
+        <source>Profondità min. (metri) </source>
+        <translation>Tiefe min. (Meter) </translation>
+    </message>
+    <message>
+        <source>Profondità max. (metri) </source>
+        <translation>Max. Tiefe (Meter) </translation>
     </message>
 </context>
 <context>
@@ -8984,19 +8885,9 @@ p, li { Leerzeichen: Vorverpackung; }
         <translation>Pfad für Miniaturansichten</translation>
     </message>
     <message>
-        <location filename="../gui/ui/pyarchinitConfigDialog.ui" line="321"/>
-        <source>choose path thumbnail</source>
-        <translation type="obsolete">pfad-Miniaturansicht wählen</translation>
-    </message>
-    <message>
         <location filename="../gui/ui/pyarchinitConfigDialog.ui" line="1019"/>
         <source>Image resize</source>
         <translation>Bildgröße ändern</translation>
-    </message>
-    <message>
-        <location filename="../gui/ui/pyarchinitConfigDialog.ui" line="356"/>
-        <source>choose path for the resize images</source>
-        <translation type="obsolete">wählen Sie den Pfad für die Bilder mit Größenänderung</translation>
     </message>
     <message>
         <location filename="../gui/ui/pyarchinitConfigDialog.ui" line="1053"/>
@@ -9027,11 +8918,6 @@ p, li { Leerzeichen: Vorverpackung; }
         <location filename="../gui/ui/pyarchinitConfigDialog.ui" line="612"/>
         <source>No</source>
         <translation>Nein</translation>
-    </message>
-    <message>
-        <location filename="../gui/ui/pyarchinitConfigDialog.ui" line="615"/>
-        <source>Installazione layers</source>
-        <translation type="obsolete">Installation der Schichten</translation>
     </message>
     <message>
         <location filename="../gui/ui/pyarchinitConfigDialog.ui" line="1167"/>
@@ -9309,11 +9195,6 @@ p, li { Leerzeichen: Vorverpackung; }
         <translation>MEDIA</translation>
     </message>
     <message>
-        <location filename="../gui/ui/pyarchinitConfigDialog.ui" line="1429"/>
-        <source>MEIDA_THUMB</source>
-        <translation type="obsolete">MEIDA_THUMB</translation>
-    </message>
-    <message>
         <location filename="../gui/ui/pyarchinitConfigDialog.ui" line="2079"/>
         <source>MEDIATOENTITY</source>
         <translation>MEDIATOENTITY</translation>
@@ -9332,26 +9213,6 @@ p, li { Leerzeichen: Vorverpackung; }
         <location filename="../gui/ui/pyarchinitConfigDialog.ui" line="1658"/>
         <source>Nome campo</source>
         <translation>Feldname</translation>
-    </message>
-    <message>
-        <location filename="../gui/ui/pyarchinitConfigDialog.ui" line="1508"/>
-        <source>Inserisci il nome del campo e/o il valore da importare</source>
-        <translation type="obsolete">Geben Sie den Namen des Feldes und/oder den zu importierenden Wert ein</translation>
-    </message>
-    <message>
-        <location filename="../gui/ui/pyarchinitConfigDialog.ui" line="1518"/>
-        <source>Esportazione directories</source>
-        <translation type="obsolete">Verzeichnisse exportieren</translation>
-    </message>
-    <message>
-        <location filename="../gui/ui/pyarchinitConfigDialog.ui" line="1528"/>
-        <source>Esportazione experimental</source>
-        <translation type="obsolete">Experimenteller Export</translation>
-    </message>
-    <message>
-        <location filename="../gui/ui/pyarchinitConfigDialog.ui" line="1538"/>
-        <source>Ignora dati esistenti</source>
-        <translation type="obsolete">Vorhandene Daten ignorieren</translation>
     </message>
     <message>
         <location filename="../gui/ui/pyarchinitConfigDialog.ui" line="2214"/>
@@ -9466,137 +9327,169 @@ p, li { Leerzeichen: Vorverpackung; }
     <message>
         <location filename="../gui/ui/pyarchinitConfigDialog.ui" line="830"/>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Funzione per allineare e aggiornare db postgres&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Funktion zum Abgleichen und Aktualisieren der Postgres-DB&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <location filename="../gui/ui/pyarchinitConfigDialog.ui" line="833"/>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Funzione per allinere e aggiornare db postgres&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Funktion zum Ausrichten und Aktualisieren der Postgres-DB&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <location filename="../gui/ui/pyarchinitConfigDialog.ui" line="880"/>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Funzione per aggiornare e allineare i database sqlite&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Funktion zum Aktualisieren und Abgleichen von Sqlite-Datenbanken&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <location filename="../gui/ui/pyarchinitConfigDialog.ui" line="915"/>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Inserire l&apos;EPSG del database. funzione da utilizzare quando si deve aggiornare /allineare il database&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Geben Sie die EPSG der Datenbank ein. Funktion, die bei der Aktualisierung/Abgleichung der Datenbank verwendet werden soll&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <location filename="../gui/ui/pyarchinitConfigDialog.ui" line="976"/>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Advance setting per comparare il databse sqlite in uso e verificare il mismatch per poter correggere manualmente in caso l&apos;allineamento automatico non funzioni&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Erweiterte Einstellung, um die verwendeten Sqlite-Datenbanken zu vergleichen und auf Unstimmigkeiten zu prüfen, so dass eine manuelle Korrektur vorgenommen werden kann, wenn der automatische Abgleich nicht funktioniert&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <location filename="../gui/ui/pyarchinitConfigDialog.ui" line="979"/>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Advance setting per comparare  il databse sqlite in uso e verificare il mismatch per poter correggere manualmente in caso l&apos;allineamento automatico non funzioni&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Erweiterte Einstellung, um die verwendeten Sqlite-Datenbanken zu vergleichen und auf Unstimmigkeiten zu prüfen, so dass eine manuelle Korrektur vorgenommen werden kann, wenn der automatische Abgleich nicht funktioniert&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <location filename="../gui/ui/pyarchinitConfigDialog.ui" line="1050"/>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Attivazione del sito che si vuole usare&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Freischaltung der Website, die Sie nutzen möchten&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <location filename="../gui/ui/pyarchinitConfigDialog.ui" line="1066"/>
         <source>Logo path</source>
-        <translation type="unfinished"></translation>
+        <translation>Logo-Pfad</translation>
     </message>
     <message>
         <location filename="../gui/ui/pyarchinitConfigDialog.ui" line="1161"/>
         <source>Installazione DB</source>
-        <translation type="unfinished"></translation>
+        <translation>DB-Installation</translation>
     </message>
     <message>
         <location filename="../gui/ui/pyarchinitConfigDialog.ui" line="1464"/>
         <source>Abort</source>
-        <translation type="unfinished"></translation>
+        <translation>Abbrechen</translation>
     </message>
     <message>
         <location filename="../gui/ui/pyarchinitConfigDialog.ui" line="1490"/>
         <source>Converti db</source>
-        <translation type="unfinished"></translation>
+        <translation>Db konvertieren</translation>
     </message>
     <message>
         <location filename="../gui/ui/pyarchinitConfigDialog.ui" line="2204"/>
         <source>Del</source>
-        <translation type="unfinished"></translation>
+        <translation>EINSCHÄTZUNG DES GESCHLECHTS</translation>
     </message>
     <message>
         <location filename="../gui/ui/pyarchinitConfigDialog.ui" line="1668"/>
         <source>Ignore</source>
-        <translation type="unfinished"></translation>
+        <translation>Ignorieren Sie</translation>
     </message>
     <message>
         <location filename="../gui/ui/pyarchinitConfigDialog.ui" line="1767"/>
         <source>PYUSM</source>
-        <translation type="unfinished"></translation>
+        <translation>PYUSM</translation>
     </message>
     <message>
         <location filename="../gui/ui/pyarchinitConfigDialog.ui" line="1785"/>
         <source>PYQUOTEUSM</source>
-        <translation type="unfinished"></translation>
+        <translation>PYQUOTEUSM</translation>
     </message>
     <message>
         <location filename="../gui/ui/pyarchinitConfigDialog.ui" line="2070"/>
         <source>MEDIA_THUMB</source>
-        <translation type="unfinished"></translation>
+        <translation>MEDIEN_THUMB</translation>
     </message>
     <message>
         <location filename="../gui/ui/pyarchinitConfigDialog.ui" line="2157"/>
         <source>Inserisci il nome del campo e/o il valore da importare (opzionale)</source>
-        <translation type="unfinished"></translation>
+        <translation>Geben Sie den Namen des Feldes und/oder den zu importierenden Wert ein (optional)</translation>
     </message>
     <message>
         <location filename="../gui/ui/pyarchinitConfigDialog.ui" line="2171"/>
         <source>Replace</source>
-        <translation type="unfinished"></translation>
+        <translation>Ersetzen Sie</translation>
     </message>
     <message>
         <location filename="../gui/ui/pyarchinitConfigDialog.ui" line="2785"/>
         <source>Advance Setting to compare db sqlite</source>
-        <translation type="unfinished"></translation>
+        <translation>Erweiterte Einstellung zum Vergleich von db sqlite</translation>
     </message>
     <message>
         <location filename="../gui/ui/pyarchinitConfigDialog.ui" line="2798"/>
         <source>Scegli un opzione e premi ok</source>
-        <translation type="unfinished"></translation>
+        <translation>Wählen Sie eine Option und drücken Sie ok</translation>
     </message>
     <message>
         <location filename="../gui/ui/pyarchinitConfigDialog.ui" line="2811"/>
         <source>OK</source>
-        <translation type="unfinished"></translation>
+        <translation>OK</translation>
     </message>
     <message>
         <location filename="../gui/ui/pyarchinitConfigDialog.ui" line="2828"/>
         <source>--schema</source>
-        <translation type="unfinished"></translation>
+        <translation>Gitterschema</translation>
     </message>
     <message>
         <location filename="../gui/ui/pyarchinitConfigDialog.ui" line="2833"/>
         <source>--summary</source>
-        <translation type="unfinished"></translation>
+        <translation>Zusammenfassung</translation>
     </message>
     <message>
         <location filename="../gui/ui/pyarchinitConfigDialog.ui" line="2838"/>
         <source>--changeset FILE</source>
-        <translation type="unfinished"></translation>
+        <translation>--Änderungssatz DATEI</translation>
     </message>
     <message>
         <location filename="../gui/ui/pyarchinitConfigDialog.ui" line="2852"/>
         <source>Convert</source>
-        <translation type="unfinished">Konvertieren</translation>
+        <translation>Konvertieren</translation>
     </message>
     <message>
         <location filename="../gui/ui/pyarchinitConfigDialog.ui" line="2865"/>
         <source>Converti in Spatialite v5</source>
-        <translation type="unfinished"></translation>
+        <translation>Zu Spatialite v5 konvertieren</translation>
     </message>
     <message>
         <location filename="../gui/ui/pyarchinitConfigDialog.ui" line="2878"/>
         <source>Confronta db</source>
-        <translation type="unfinished"></translation>
+        <translation>Vergleiche db</translation>
+    </message>
+    <message>
+        <source>choose path thumbnail</source>
+        <translation>pfad-Miniaturansicht wählen</translation>
+    </message>
+    <message>
+        <source>choose path for the resize images</source>
+        <translation>wählen Sie den Pfad für die Bilder mit Größenänderung</translation>
+    </message>
+    <message>
+        <source>Installazione layers</source>
+        <translation>Installation der Schichten</translation>
+    </message>
+    <message>
+        <source>MEIDA_THUMB</source>
+        <translation>MEIDA_THUMB</translation>
+    </message>
+    <message>
+        <source>Inserisci il nome del campo e/o il valore da importare</source>
+        <translation>Geben Sie den Namen des Feldes und/oder den zu importierenden Wert ein</translation>
+    </message>
+    <message>
+        <source>Esportazione directories</source>
+        <translation>Verzeichnisse exportieren</translation>
+    </message>
+    <message>
+        <source>Esportazione experimental</source>
+        <translation>Experimenteller Export</translation>
+    </message>
+    <message>
+        <source>Ignora dati esistenti</source>
+        <translation>Vorhandene Daten ignorieren</translation>
     </message>
 </context>
 <context>
@@ -9828,32 +9721,36 @@ p, li { Leerzeichen: Vorverpackung; }
     <message>
         <location filename="../gui/ui/Setting_Matrix.ui" line="1718"/>
         <source>normal</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
+&lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
+p, li { Leerzeichen: Vorverpackung; }
+&lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:&apos;MS Shell Dlg 2&apos;; font-size:8.25pt; font-weight:400; font-style:normal;&quot;&gt;
+&lt;p</translation>
     </message>
     <message>
         <location filename="../gui/ui/Setting_Matrix.ui" line="1869"/>
         <source>.8</source>
-        <translation type="unfinished">.8</translation>
+        <translation>8</translation>
     </message>
     <message>
         <location filename="../gui/ui/Setting_Matrix.ui" line="918"/>
         <source>Print Periodizzazione</source>
-        <translation type="unfinished"></translation>
+        <translation>Periodisierung drucken</translation>
     </message>
     <message>
         <location filename="../gui/ui/Setting_Matrix.ui" line="928"/>
         <source>Print legenda</source>
-        <translation type="unfinished"></translation>
+        <translation>Legende drucken</translation>
     </message>
     <message>
         <location filename="../gui/ui/Setting_Matrix.ui" line="938"/>
         <source>300</source>
-        <translation type="unfinished"></translation>
+        <translation>300</translation>
     </message>
     <message>
         <location filename="../gui/ui/Setting_Matrix.ui" line="1767"/>
         <source>US conteporanee</source>
-        <translation type="unfinished"></translation>
+        <translation>US-Zeitgenosse</translation>
     </message>
 </context>
 <context>
@@ -9904,11 +9801,6 @@ p, li { Leerzeichen: Vorverpackung; }
         <translation>Zeitraum</translation>
     </message>
     <message>
-        <location filename="../gui/ui/pyarchinit_directory_creator_ui.ui" line="286"/>
-        <source>Unit&#xe0; Stratigrafiche</source>
-        <translation type="obsolete">Stratigraphische Einheiten</translation>
-    </message>
-    <message>
         <location filename="../gui/ui/pyarchinit_directory_creator_ui.ui" line="708"/>
         <source>Struttura</source>
         <translation>Struktur</translation>
@@ -9918,19 +9810,13 @@ p, li { Leerzeichen: Vorverpackung; }
         <source>Reperti</source>
         <translation>Ergebnisse</translation>
     </message>
-    <message encoding="UTF-8">
-        <location filename="../gui/ui/pyarchinit_directory_creator_ui.ui" line="701"/>
+    <message>
         <source>Unità Stratigrafiche</source>
-        <translation type="unfinished"></translation>
+        <translation>Stratigraphische Einheiten</translation>
     </message>
 </context>
 <context>
     <name>Dialog_eta</name>
-    <message>
-        <location filename="../gui/ui/Deteta.ui" line="20"/>
-        <source>pyArchInit Gestione Scavi - Scheda Determinazione Et&#xe0; di Morte</source>
-        <translation type="obsolete">pyArchInit Grabungsmanagement - Registerkarte zur Bestimmung des Todesalters</translation>
-    </message>
     <message>
         <location filename="../gui/ui/Deteta.ui" line="455"/>
         <source>DBMS Toolbar</source>
@@ -10217,37 +10103,9 @@ p, li { Leerzeichen: Vorverpackung; }
         <translation>SCORE 1</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Deteta.ui" line="1359"/>
-        <source>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
-&lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
-p, li { white-space: pre-wrap; }
-&lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:&apos;Lucida Grande&apos;; font-size:13pt; font-weight:400; font-style:normal;&quot;&gt;
-&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-family:&apos;MS Shell Dlg 2&apos;; font-size:10pt;&quot;&gt; Assenza di granulosit&#xe0;; &#xe8; possibile un&apos;isolata e fine porosit&#xe0;.&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="obsolete">&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
-&lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
-p, li { Leerzeichen: Vorverpackung; }
-&lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:&apos;Lucida Grande&apos;; font-size:13pt; font-weight:400; font-style:normal;&quot;&gt;
-&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-family:&apos;MS Shell Dlg 2&apos;; font-size:10pt;&quot;&gt; Abwesenheit von Körnigkeit; isolierte und feine Porosität ist möglich.&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
-    </message>
-    <message>
         <location filename="../gui/ui/Deteta.ui" line="2036"/>
         <source>SCORE 2</source>
         <translation>SCORE 2</translation>
-    </message>
-    <message>
-        <location filename="../gui/ui/Deteta.ui" line="1507"/>
-        <source>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
-&lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
-p, li { white-space: pre-wrap; }
-&lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:&apos;Lucida Grande&apos;; font-size:13pt; font-weight:400; font-style:normal;&quot;&gt;
-&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-family:&apos;MS Shell Dlg 2&apos;; font-size:10pt;&quot;&gt;Il bordo &#xe8; fine e pu&#xf2; essere a filo con la superficie auricolare, &lt;/span&gt;&lt;/p&gt;
-&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-family:&apos;MS Shell Dlg 2&apos;; font-size:10pt;&quot;&gt;o leggermente sollevato e forma un angolo.&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="obsolete">&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
-&lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
-p, li { Leerzeichen: Vorverpackung; }
-&lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:&apos;Lucida Grande&apos;; font-size:13pt; font-weight:400; font-style:normal;&quot;&gt;
-&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-family:&apos;MS Shell Dlg 2&apos;; font-size:10pt;&quot;&gt;Der Rand ist fein und kann bündig mit der Ohroberfläche abschließen, &lt;/span&gt;&lt;/p&gt;
-&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-family:&apos;MS Shell Dlg 2&apos;; font-size:10pt;&quot;&gt;oder leicht erhöht und bilden einen Winkel.&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <location filename="../gui/ui/Deteta.ui" line="1607"/>
@@ -10311,11 +10169,6 @@ p, li { Leerzeichen: Vorverpackung; }
         <location filename="../gui/ui/Deteta.ui" line="1969"/>
         <source>SSPIC</source>
         <translation>SSPIC</translation>
-    </message>
-    <message>
-        <location filename="../gui/ui/Deteta.ui" line="1567"/>
-        <source>Modificazione della tuberosit&#xe0; iliaca</source>
-        <translation type="obsolete">Modifikation der Tuberositas iliaca</translation>
     </message>
     <message>
         <location filename="../gui/ui/Deteta.ui" line="2016"/>
@@ -10601,43 +10454,42 @@ p, li { Leerzeichen: Vorverpackung; }
         <translation>BEREICH EKTOKRANIELLE NÄHTE</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Deteta.ui" line="3860"/>
-        <source>Acsadi e Nemesk&#xe9;ri, 1970</source>
-        <translation type="obsolete">Acsadi und Nemeskéri, 1970</translation>
-    </message>
-    <message encoding="UTF-8">
-        <location filename="../gui/ui/Deteta.ui" line="435"/>
         <source>pyArchInit Gestione Scavi - Scheda Determinazione Età di Morte</source>
-        <translation type="unfinished"></translation>
+        <translation>pyArchInit Grabungsmanagement - Registerkarte zur Bestimmung des Todesalters</translation>
     </message>
-    <message encoding="UTF-8">
-        <location filename="../gui/ui/Deteta.ui" line="1774"/>
+    <message>
         <source>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
 &lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
 p, li { white-space: pre-wrap; }
 &lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:&apos;Lucida Grande&apos;; font-size:13pt; font-weight:400; font-style:normal;&quot;&gt;
 &lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-family:&apos;MS Shell Dlg 2&apos;; font-size:10pt;&quot;&gt; Assenza di granulosità; è possibile un&apos;isolata e fine porosità.&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
+&lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
+p, li { Leerzeichen: Vorverpackung; }
+&lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:&apos;Lucida Grande&apos;; font-size:13pt; font-weight:400; font-style:normal;&quot;&gt;
+&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-family:&apos;MS Shell Dlg 2&apos;; font-size:10pt;&quot;&gt; Abwesenheit von Körnigkeit; isolierte und feine Porosität ist möglich.&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
-    <message encoding="UTF-8">
-        <location filename="../gui/ui/Deteta.ui" line="1922"/>
+    <message>
         <source>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
 &lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
 p, li { white-space: pre-wrap; }
 &lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:&apos;Lucida Grande&apos;; font-size:13pt; font-weight:400; font-style:normal;&quot;&gt;
 &lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-family:&apos;MS Shell Dlg 2&apos;; font-size:10pt;&quot;&gt;Il bordo è fine e può essere a filo con la superficie auricolare, &lt;/span&gt;&lt;/p&gt;
 &lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-family:&apos;MS Shell Dlg 2&apos;; font-size:10pt;&quot;&gt;o leggermente sollevato e forma un angolo.&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
+&lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
+p, li { Leerzeichen: Vorverpackung; }
+&lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:&apos;Lucida Grande&apos;; font-size:13pt; font-weight:400; font-style:normal;&quot;&gt;
+&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-family:&apos;MS Shell Dlg 2&apos;; font-size:10pt;&quot;&gt;Der Rand ist fein und kann bündig mit der Ohroberfläche abschließen, &lt;/span&gt;&lt;/p&gt;
+&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-family:&apos;MS Shell Dlg 2&apos;; font-size:10pt;&quot;&gt;oder leicht erhöht und bilden einen Winkel.&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
-    <message encoding="UTF-8">
-        <location filename="../gui/ui/Deteta.ui" line="1982"/>
+    <message>
         <source>Modificazione della tuberosità iliaca</source>
-        <translation type="unfinished"></translation>
+        <translation>Modifikation der Tuberositas iliaca</translation>
     </message>
-    <message encoding="UTF-8">
-        <location filename="../gui/ui/Deteta.ui" line="4275"/>
+    <message>
         <source>Acsadi e Nemeskéri, 1970</source>
-        <translation type="unfinished"></translation>
+        <translation>Acsadi und Nemeskéri, 1970</translation>
     </message>
 </context>
 <context>
@@ -10645,22 +10497,22 @@ p, li { white-space: pre-wrap; }
     <message>
         <location filename="../gui/ui/gpkg_export.ui" line="432"/>
         <source>Impacchetta per GPKG</source>
-        <translation type="unfinished"></translation>
+        <translation>Verpackung für GPKG</translation>
     </message>
     <message>
         <location filename="../gui/ui/gpkg_export.ui" line="450"/>
         <source>Vector</source>
-        <translation type="unfinished"></translation>
+        <translation>Vektor</translation>
     </message>
     <message>
         <location filename="../gui/ui/gpkg_export.ui" line="473"/>
         <source>...</source>
-        <translation type="unfinished">...</translation>
+        <translation>...</translation>
     </message>
     <message>
         <location filename="../gui/ui/gpkg_export.ui" line="486"/>
         <source>Raster</source>
-        <translation type="unfinished"></translation>
+        <translation>Raster</translation>
     </message>
 </context>
 <context>
@@ -10681,19 +10533,9 @@ p, li { white-space: pre-wrap; }
         <translation>Bild-Export-System</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Images_directory_export.ui" line="152"/>
-        <source>Tutte le immagini \ in periodi e fasi</source>
-        <translation type="obsolete">Alle Bilder \ in Perioden und Phasen</translation>
-    </message>
-    <message>
         <location filename="../gui/ui/Images_directory_export.ui" line="1025"/>
         <source>US</source>
-        <translation>SE</translation>
-    </message>
-    <message>
-        <location filename="../gui/ui/Images_directory_export.ui" line="166"/>
-        <source>US / in periodi e fasi</source>
-        <translation type="obsolete">SE / in Perioden und Phasen</translation>
+        <translation>US</translation>
     </message>
     <message>
         <location filename="../gui/ui/pyarchinit_images_export_ui.ui" line="755"/>
@@ -10701,34 +10543,14 @@ p, li { white-space: pre-wrap; }
         <translation>Ergebnisse</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Images_directory_export.ui" line="184"/>
-        <source>Reperti \ in Definizione materiali</source>
-        <translation type="obsolete">Ergebnisse \ in der Materialdefinition</translation>
-    </message>
-    <message>
-        <location filename="../gui/ui/Images_directory_export.ui" line="193"/>
-        <source>Reperti \ in Tipo reperto</source>
-        <translation type="obsolete">Suchen \ in Suchen Typ</translation>
-    </message>
-    <message>
         <location filename="../gui/ui/pyarchinit_images_export_ui.ui" line="735"/>
         <source>Tomba</source>
         <translation>Grab</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Images_directory_export.ui" line="211"/>
-        <source>Tomba / in periodi e fasi</source>
-        <translation type="obsolete">Grab / in Perioden und Phasen</translation>
-    </message>
-    <message>
         <location filename="../gui/ui/Images_directory_export.ui" line="1055"/>
         <source>Strutture</source>
         <translation>Einrichtungen</translation>
-    </message>
-    <message>
-        <location filename="../gui/ui/Images_directory_export.ui" line="229"/>
-        <source>Strutture / in periodi e fasi</source>
-        <translation type="obsolete">Strukturen / in Perioden und Phasen</translation>
     </message>
     <message>
         <location filename="../gui/ui/pyarchinit_images_export_ui.ui" line="35"/>
@@ -10771,44 +10593,62 @@ p, li { white-space: pre-wrap; }
         <translation>Zeitraum</translation>
     </message>
     <message>
-        <location filename="../gui/ui/pyarchinit_images_export_ui.ui" line="286"/>
-        <source>Unit&#xe0; Stratigrafiche</source>
-        <translation type="obsolete">Stratigraphische Einheiten</translation>
-    </message>
-    <message>
         <location filename="../gui/ui/Images_directory_export.ui" line="1015"/>
         <source>Tutte le immagini in periodi e fasi</source>
-        <translation type="unfinished"></translation>
+        <translation>Alle Bilder \ in Perioden und Phasen</translation>
     </message>
     <message>
         <location filename="../gui/ui/Images_directory_export.ui" line="1020"/>
         <source>US in periodi e fasi</source>
-        <translation type="unfinished"></translation>
+        <translation>SE / in Perioden und Phasen</translation>
     </message>
     <message>
         <location filename="../gui/ui/Images_directory_export.ui" line="1035"/>
         <source>Reperti in Definizione materiali</source>
-        <translation type="unfinished"></translation>
+        <translation>Ergebnisse \ in der Materialdefinition</translation>
     </message>
     <message>
         <location filename="../gui/ui/Images_directory_export.ui" line="1040"/>
         <source>Reperti in Tipo reperto</source>
-        <translation type="unfinished"></translation>
+        <translation>Suchen \ in Suchen Typ</translation>
     </message>
     <message>
         <location filename="../gui/ui/Images_directory_export.ui" line="1050"/>
         <source>Tomba in periodi e fasi</source>
-        <translation type="unfinished"></translation>
+        <translation>Grab / in Perioden und Phasen</translation>
     </message>
     <message>
         <location filename="../gui/ui/Images_directory_export.ui" line="1060"/>
         <source>Strutture in periodi e fasi</source>
-        <translation type="unfinished"></translation>
+        <translation>Strukturen / in Perioden und Phasen</translation>
     </message>
-    <message encoding="UTF-8">
-        <location filename="../gui/ui/pyarchinit_images_export_ui.ui" line="728"/>
+    <message>
+        <source>Tutte le immagini \ in periodi e fasi</source>
+        <translation>Alle Bilder \ in Perioden und Phasen</translation>
+    </message>
+    <message>
+        <source>US / in periodi e fasi</source>
+        <translation>SE / in Perioden und Phasen</translation>
+    </message>
+    <message>
+        <source>Reperti \ in Definizione materiali</source>
+        <translation>Ergebnisse \ in der Materialdefinition</translation>
+    </message>
+    <message>
+        <source>Reperti \ in Tipo reperto</source>
+        <translation>Suchen \ in Suchen Typ</translation>
+    </message>
+    <message>
+        <source>Tomba / in periodi e fasi</source>
+        <translation>Grab / in Perioden und Phasen</translation>
+    </message>
+    <message>
+        <source>Strutture / in periodi e fasi</source>
+        <translation>Strukturen / in Perioden und Phasen</translation>
+    </message>
+    <message>
         <source>Unità Stratigrafiche</source>
-        <translation type="unfinished"></translation>
+        <translation>Stratigraphische Einheiten</translation>
     </message>
 </context>
 <context>
@@ -10837,11 +10677,6 @@ p, li { white-space: pre-wrap; }
         <location filename="../gui/ui/Pdf_export.ui" line="659"/>
         <source>Scheda US</source>
         <translation>US-Karte</translation>
-    </message>
-    <message>
-        <location filename="../gui/ui/Pdf_export.ui" line="231"/>
-        <source>Unit&#xe0; Stratigrafiche</source>
-        <translation type="obsolete">Stratigraphische Einheiten</translation>
     </message>
     <message>
         <location filename="../gui/ui/Pdf_export.ui" line="696"/>
@@ -10883,10 +10718,9 @@ p, li { white-space: pre-wrap; }
         <source>Strutture</source>
         <translation>Einrichtungen</translation>
     </message>
-    <message encoding="UTF-8">
-        <location filename="../gui/ui/Pdf_export.ui" line="646"/>
+    <message>
         <source>Unità Stratigrafiche</source>
-        <translation type="unfinished"></translation>
+        <translation>Stratigraphische Einheiten</translation>
     </message>
 </context>
 <context>
@@ -11245,7 +11079,7 @@ p, li { Leerzeichen: Vorverpackung; }
     <message>
         <location filename="../gui/ui/Tomba.ui" line="2925"/>
         <source>; </source>
-        <translation type="unfinished">; </translation>
+        <translation></translation>
     </message>
     <message>
         <location filename="../gui/ui/Tomba.ui" line="2211"/>
@@ -11340,7 +11174,7 @@ p, li { Leerzeichen: Vorverpackung; }
     <message>
         <location filename="../gui/ui/Tomba.ui" line="2627"/>
         <source>to</source>
-        <translation>an</translation>
+        <translation>zu</translation>
     </message>
     <message>
         <location filename="../gui/ui/Tomba.ui" line="2645"/>
@@ -11436,7 +11270,7 @@ p, li { Leerzeichen: Vorverpackung; }
 <context>
     <name>GdalTools</name>
     <message>
-        <location filename="../tabs/Archeozoology.py" line="2314"/>
+        <location filename="../tabs/Archeozoology.py" line="2427"/>
         <source>Clipper</source>
         <translation>Clipper</translation>
     </message>
