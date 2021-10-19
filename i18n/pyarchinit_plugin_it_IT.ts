@@ -11009,7 +11009,7 @@ p, li { white-space: pre-wrap; }
 <context>
     <name>GdalTools</name>
     <message>
-        <location filename="../tabs/Archeozoology.py" line="2314"/>
+        <location filename="../tabs/Archeozoology.py" line="2427"/>
         <source>Clipper</source>
         <translation type="unfinished"></translation>
     </message>
