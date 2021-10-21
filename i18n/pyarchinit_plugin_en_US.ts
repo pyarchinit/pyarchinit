@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!DOCTYPE TS><TS version="2.0" language="en_GB" sourcelanguage="">
+<!DOCTYPE TS>
+<TS version="2.1" language="en_GB">
 <context>
     <name>DBmanagment</name>
     <message>
@@ -997,7 +998,7 @@
     </message>
     <message>
         <location filename="../gui/ui/Archeozoology.ui" line="1597"/>
-        <source>Et&#xe0;</source>
+        <source>Età</source>
         <translation type="obsolete">Age</translation>
     </message>
     <message>
@@ -1237,7 +1238,7 @@ p, li { white-space: pre-wrap; }
 &lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
 p, li { white-space: pre-wrap; }
 &lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:&apos;MS Shell Dlg 2&apos;; font-size:7.8pt; font-weight:400; font-style:normal;&quot;&gt;
-&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-family:&apos;Sans&apos;; font-size:10pt;&quot;&gt;Crea un confronto a 4 variabili con istogramma di frequenza, curva di densit&#xe0; e curva cumulativa&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
+&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-family:&apos;Sans&apos;; font-size:10pt;&quot;&gt;Crea un confronto a 4 variabili con istogramma di frequenza, curva di densità e curva cumulativa&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
         <translation type="obsolete">&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
 &lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
 p, li { white-space: pre-wrap; }
@@ -1649,20 +1650,6 @@ p, li { white-space: pre-wrap; }
         <location filename="../gui/ui/Archeozoology.ui" line="7041"/>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;bello&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
         <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;nice&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
-    </message>
-    <message encoding="UTF-8">
-        <location filename="../gui/ui/Archeozoology.ui" line="1597"/>
-        <source>Età</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message encoding="UTF-8">
-        <location filename="../gui/ui/Archeozoology.ui" line="2112"/>
-        <source>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
-&lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
-p, li { white-space: pre-wrap; }
-&lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:&apos;MS Shell Dlg 2&apos;; font-size:7.8pt; font-weight:400; font-style:normal;&quot;&gt;
-&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-family:&apos;Sans&apos;; font-size:10pt;&quot;&gt;Crea un confronto a 4 variabili con istogramma di frequenza, curva di densità e curva cumulativa&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -2241,7 +2228,7 @@ p, li { white-space: pre-wrap; }
     </message>
     <message>
         <location filename="../gui/ui/Detsesso.ui" line="2056"/>
-        <source>Tuberosit&#xe0; front. e par.</source>
+        <source>Tuberosità front. e par.</source>
         <translation type="obsolete">Tuberosity front. and par.</translation>
     </message>
     <message>
@@ -2411,11 +2398,6 @@ p, li { white-space: pre-wrap; }
         <location filename="../gui/ui/Detsesso.ui" line="2941"/>
         <source>Relazione tra il contorno dell&apos;arco dell&apos;ischio e della sup. auricolare</source>
         <translation>Relationship between the contour of the arc of the ischium and the sup. earpiece</translation>
-    </message>
-    <message encoding="UTF-8">
-        <location filename="../gui/ui/Detsesso.ui" line="2056"/>
-        <source>Tuberosità front. e par.</source>
-        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -2778,7 +2760,7 @@ p, li { white-space: pre-wrap; }
     </message>
     <message>
         <location filename="../gui/ui/pyarchinit_image_viewer_dialog.ui" line="858"/>
-        <source>Tags Unit&#xe0; Stratigrafiche</source>
+        <source>Tags Unità Stratigrafiche</source>
         <translation type="obsolete">Tags Stratigraphic Units</translation>
     </message>
     <message>
@@ -2838,7 +2820,7 @@ p, li { white-space: pre-wrap; }
     </message>
     <message>
         <location filename="../gui/ui/pyarchinit_image_viewer_dialog.ui" line="1099"/>
-        <source>Unit&#xe0; Stratigrafiche</source>
+        <source>Unità Stratigrafiche</source>
         <translation type="obsolete">Stratigraphic Units</translation>
     </message>
     <message>
@@ -2945,16 +2927,6 @@ p, li { white-space: pre-wrap; }
         <location filename="../gui/ui/pyarchinit_image_viewer_dialog.ui" line="2068"/>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Rimuovi un tag alla volta selezionandolo dalla TabWidget TAG&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
         <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Remove one tag at a time by selecting it from the TAG TabWidget&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
-    </message>
-    <message encoding="UTF-8">
-        <location filename="../gui/ui/pyarchinit_image_viewer_dialog.ui" line="858"/>
-        <source>Tags Unità Stratigrafiche</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message encoding="UTF-8">
-        <location filename="../gui/ui/pyarchinit_image_viewer_dialog.ui" line="1099"/>
-        <source>Unità Stratigrafiche</source>
-        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -4008,17 +3980,17 @@ p, li { white-space: pre-wrap; }
     </message>
     <message>
         <location filename="../gui/ui/Inv_Materiali.ui" line="2297"/>
-        <source>Tipo quantit&#xe0; </source>
+        <source>Tipo quantità </source>
         <translation type="obsolete">Quantity </translation>
     </message>
     <message>
         <location filename="../gui/ui/Inv_Materiali.ui" line="2302"/>
-        <source>Unit&#xe0; di misura </source>
+        <source>Unità di misura </source>
         <translation type="obsolete">Unit of measurement </translation>
     </message>
     <message>
         <location filename="../gui/ui/Inv_Materiali.ui" line="2307"/>
-        <source>Quantit&#xe0;</source>
+        <source>Quantità</source>
         <translation type="obsolete">Quantity</translation>
     </message>
     <message>
@@ -4170,21 +4142,6 @@ p, li { white-space: pre-wrap; }
         <location filename="../gui/ui/Inv_Materiali.ui" line="3020"/>
         <source>Nr. Cassa</source>
         <translation>Box No</translation>
-    </message>
-    <message encoding="UTF-8">
-        <location filename="../gui/ui/Inv_Materiali.ui" line="2297"/>
-        <source>Tipo quantità </source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message encoding="UTF-8">
-        <location filename="../gui/ui/Inv_Materiali.ui" line="2302"/>
-        <source>Unità di misura </source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message encoding="UTF-8">
-        <location filename="../gui/ui/Inv_Materiali.ui" line="2307"/>
-        <source>Quantità</source>
-        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -5629,7 +5586,7 @@ p, li { white-space: pre-wrap; }
     </message>
     <message>
         <location filename="../gui/ui/Site.ui" line="1848"/>
-        <source>Questa &#xe8; una sezione di testing per sperimentare funzioni.
+        <source>Questa è una sezione di testing per sperimentare funzioni.
 
 
 Procedura
@@ -5665,7 +5622,7 @@ Step 3 - Restart Qgis and click on the Run Test button to check the output of yo
     </message>
     <message>
         <location filename="../gui/ui/Site.ui" line="1909"/>
-        <source>Tipo di unit&#xe0; stratigrafica</source>
+        <source>Tipo di unità stratigrafica</source>
         <translation type="obsolete">Type of stratigraphic unit</translation>
     </message>
     <message>
@@ -5807,24 +5764,6 @@ Step 3 - Restart Qgis and click on the Run Test button to check the output of yo
         <location filename="../gui/ui/Site.ui" line="2398"/>
         <source>https://pyarchinit.github.io/pyarchinit_doc/03_ilplugin.html#scheda-sito</source>
         <translation>https://pyarchinit.github.io/pyarchinit_doc/03_ilplugin.html#scheda-sito</translation>
-    </message>
-    <message encoding="UTF-8">
-        <location filename="../gui/ui/Site.ui" line="1848"/>
-        <source>Questa è una sezione di testing per sperimentare funzioni.
-
-
-Procedura
-Step 1 - Aprire il file test_area.py dentro alla cartella pyarchinit (la cartella si trova dentro al vostro utente /.qgis/python/plugins/pyarchinit)
-
-Step 2 - editare la funzione def run_test e salvare il file.
-
-Step 3 - Riavviare Qgis e cliccare sul pulsante Run Test per verificare l&apos;output della vostra funzione.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message encoding="UTF-8">
-        <location filename="../gui/ui/Site.ui" line="1909"/>
-        <source>Tipo di unità stratigrafica</source>
-        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -5994,7 +5933,7 @@ Step 3 - Riavviare Qgis e cliccare sul pulsante Run Test per verificare l&apos;o
     </message>
     <message>
         <location filename="../gui/ui/Struttura.ui" line="1163"/>
-        <source>N&#xb0;</source>
+        <source>N°</source>
         <translation type="obsolete">N°</translation>
     </message>
     <message>
@@ -6142,7 +6081,7 @@ p, li { white-space: pre-wrap; }
     </message>
     <message>
         <location filename="../gui/ui/Struttura.ui" line="1776"/>
-        <source>Quantit&#xe0; </source>
+        <source>Quantità </source>
         <translation type="obsolete">Quantity </translation>
     </message>
     <message>
@@ -6189,16 +6128,6 @@ p, li { white-space: pre-wrap; }
         <location filename="../gui/ui/Struttura.ui" line="1949"/>
         <source>Gis viewer</source>
         <translation>Gis viewer</translation>
-    </message>
-    <message encoding="UTF-8">
-        <location filename="../gui/ui/Struttura.ui" line="1163"/>
-        <source>N°</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message encoding="UTF-8">
-        <location filename="../gui/ui/Struttura.ui" line="1776"/>
-        <source>Quantità </source>
-        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -7031,7 +6960,7 @@ p, li { white-space: pre-wrap; }
     </message>
     <message>
         <location filename="../gui/ui/US_USM.ui" line="30799"/>
-        <source>Unit&#xe0; tipo</source>
+        <source>Unità tipo</source>
         <translation type="obsolete">Unit type</translation>
     </message>
     <message>
@@ -7436,12 +7365,12 @@ p, li { white-space: pre-wrap; }
     </message>
     <message>
         <location filename="../gui/ui/US_USM.ui" line="32340"/>
-        <source>Profondit&#xe0; min. (metri) </source>
+        <source>Profondità min. (metri) </source>
         <translation type="obsolete">Depth min. (meters) </translation>
     </message>
     <message>
         <location filename="../gui/ui/US_USM.ui" line="32369"/>
-        <source>Profondit&#xe0; max. (metri) </source>
+        <source>Profondità max. (metri) </source>
         <translation type="obsolete">Max. depth (meters) </translation>
     </message>
     <message>
@@ -8198,21 +8127,6 @@ p, li { white-space: pre-wrap; }
         <location filename="../gui/ui/US_USM.ui" line="57678"/>
         <source>to</source>
         <translation>to</translation>
-    </message>
-    <message encoding="UTF-8">
-        <location filename="../gui/ui/US_USM.ui" line="30799"/>
-        <source>Unità tipo</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message encoding="UTF-8">
-        <location filename="../gui/ui/US_USM.ui" line="32340"/>
-        <source>Profondità min. (metri) </source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message encoding="UTF-8">
-        <location filename="../gui/ui/US_USM.ui" line="32369"/>
-        <source>Profondità max. (metri) </source>
-        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -9724,7 +9638,7 @@ p, li { white-space: pre-wrap; }
     </message>
     <message>
         <location filename="../gui/ui/pyarchinit_directory_creator_ui.ui" line="701"/>
-        <source>Unit&#xe0; Stratigrafiche</source>
+        <source>Unità Stratigrafiche</source>
         <translation type="obsolete">Stratigraphic Units</translation>
     </message>
     <message>
@@ -9737,17 +9651,12 @@ p, li { white-space: pre-wrap; }
         <source>Reperti</source>
         <translation>Artifact</translation>
     </message>
-    <message encoding="UTF-8">
-        <location filename="../gui/ui/pyarchinit_directory_creator_ui.ui" line="701"/>
-        <source>Unità Stratigrafiche</source>
-        <translation type="unfinished"></translation>
-    </message>
 </context>
 <context>
     <name>Dialog_eta</name>
     <message>
         <location filename="../gui/ui/Deteta.ui" line="435"/>
-        <source>pyArchInit Gestione Scavi - Scheda Determinazione Et&#xe0; di Morte</source>
+        <source>pyArchInit Gestione Scavi - Scheda Determinazione Età di Morte</source>
         <translation type="obsolete">pyArchInit Excavation Management - Death Age Determination</translation>
     </message>
     <message>
@@ -10041,7 +9950,7 @@ p, li { white-space: pre-wrap; }
 &lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
 p, li { white-space: pre-wrap; }
 &lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:&apos;Lucida Grande&apos;; font-size:13pt; font-weight:400; font-style:normal;&quot;&gt;
-&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-family:&apos;MS Shell Dlg 2&apos;; font-size:10pt;&quot;&gt; Assenza di granulosit&#xe0;; &#xe8; possibile un&apos;isolata e fine porosit&#xe0;.&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
+&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-family:&apos;MS Shell Dlg 2&apos;; font-size:10pt;&quot;&gt; Assenza di granulosità; è possibile un&apos;isolata e fine porosità.&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
         <translation type="obsolete">&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
 &lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
 p, li { white-space: pre-wrap; }
@@ -10059,7 +9968,7 @@ p, li { white-space: pre-wrap; }
 &lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
 p, li { white-space: pre-wrap; }
 &lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:&apos;Lucida Grande&apos;; font-size:13pt; font-weight:400; font-style:normal;&quot;&gt;
-&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-family:&apos;MS Shell Dlg 2&apos;; font-size:10pt;&quot;&gt;Il bordo &#xe8; fine e pu&#xf2; essere a filo con la superficie auricolare, &lt;/span&gt;&lt;/p&gt;
+&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-family:&apos;MS Shell Dlg 2&apos;; font-size:10pt;&quot;&gt;Il bordo è fine e può essere a filo con la superficie auricolare, &lt;/span&gt;&lt;/p&gt;
 &lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-family:&apos;MS Shell Dlg 2&apos;; font-size:10pt;&quot;&gt;o leggermente sollevato e forma un angolo.&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
         <translation type="obsolete">&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
 &lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
@@ -10133,7 +10042,7 @@ p, li { white-space: pre-wrap; }
     </message>
     <message>
         <location filename="../gui/ui/Deteta.ui" line="1982"/>
-        <source>Modificazione della tuberosit&#xe0; iliaca</source>
+        <source>Modificazione della tuberosità iliaca</source>
         <translation type="obsolete">Modification of iliac tuberosity</translation>
     </message>
     <message>
@@ -10421,42 +10330,8 @@ p, li { white-space: pre-wrap; }
     </message>
     <message>
         <location filename="../gui/ui/Deteta.ui" line="4275"/>
-        <source>Acsadi e Nemesk&#xe9;ri, 1970</source>
-        <translation type="obsolete">Acsadi and Nemeskéri, 1970</translation>
-    </message>
-    <message encoding="UTF-8">
-        <location filename="../gui/ui/Deteta.ui" line="435"/>
-        <source>pyArchInit Gestione Scavi - Scheda Determinazione Età di Morte</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message encoding="UTF-8">
-        <location filename="../gui/ui/Deteta.ui" line="1774"/>
-        <source>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
-&lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
-p, li { white-space: pre-wrap; }
-&lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:&apos;Lucida Grande&apos;; font-size:13pt; font-weight:400; font-style:normal;&quot;&gt;
-&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-family:&apos;MS Shell Dlg 2&apos;; font-size:10pt;&quot;&gt; Assenza di granulosità; è possibile un&apos;isolata e fine porosità.&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message encoding="UTF-8">
-        <location filename="../gui/ui/Deteta.ui" line="1922"/>
-        <source>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
-&lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
-p, li { white-space: pre-wrap; }
-&lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:&apos;Lucida Grande&apos;; font-size:13pt; font-weight:400; font-style:normal;&quot;&gt;
-&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-family:&apos;MS Shell Dlg 2&apos;; font-size:10pt;&quot;&gt;Il bordo è fine e può essere a filo con la superficie auricolare, &lt;/span&gt;&lt;/p&gt;
-&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-family:&apos;MS Shell Dlg 2&apos;; font-size:10pt;&quot;&gt;o leggermente sollevato e forma un angolo.&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message encoding="UTF-8">
-        <location filename="../gui/ui/Deteta.ui" line="1982"/>
-        <source>Modificazione della tuberosità iliaca</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message encoding="UTF-8">
-        <location filename="../gui/ui/Deteta.ui" line="4275"/>
         <source>Acsadi e Nemeskéri, 1970</source>
-        <translation type="unfinished"></translation>
+        <translation type="obsolete">Acsadi and Nemeskéri, 1970</translation>
     </message>
 </context>
 <context>
@@ -10591,13 +10466,8 @@ p, li { white-space: pre-wrap; }
     </message>
     <message>
         <location filename="../gui/ui/pyarchinit_images_export_ui.ui" line="728"/>
-        <source>Unit&#xe0; Stratigrafiche</source>
-        <translation type="obsolete">Stratigraphic Units</translation>
-    </message>
-    <message encoding="UTF-8">
-        <location filename="../gui/ui/pyarchinit_images_export_ui.ui" line="728"/>
         <source>Unità Stratigrafiche</source>
-        <translation type="unfinished"></translation>
+        <translation type="obsolete">Stratigraphic Units</translation>
     </message>
 </context>
 <context>
@@ -10629,7 +10499,7 @@ p, li { white-space: pre-wrap; }
     </message>
     <message>
         <location filename="../gui/ui/Pdf_export.ui" line="646"/>
-        <source>Unit&#xe0; Stratigrafiche</source>
+        <source>Unità Stratigrafiche</source>
         <translation type="obsolete">Stratigraphic Units</translation>
     </message>
     <message>
@@ -10671,11 +10541,6 @@ p, li { white-space: pre-wrap; }
         <location filename="../gui/ui/Pdf_export.ui" line="913"/>
         <source>Strutture</source>
         <translation>Architecture</translation>
-    </message>
-    <message encoding="UTF-8">
-        <location filename="../gui/ui/Pdf_export.ui" line="646"/>
-        <source>Unità Stratigrafiche</source>
-        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
