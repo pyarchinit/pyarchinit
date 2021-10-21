@@ -174,7 +174,7 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
         self.comboBox_mapper_read.currentIndexChanged.connect(self.check_table)
         self.comboBox_geometry_read.currentIndexChanged.connect(self.check_geometry_table)
         self.mFeature_field_rd.currentTextChanged.connect(self.value_check)
-    
+        self.mFeature_field_rd.currentTextChanged.connect(self.value_check_geometry)
     def on_pushButton_convert_db_pressed(self):
         self.comboBox_Database.update()
         conn = Connection()
