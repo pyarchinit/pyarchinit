@@ -15,13 +15,18 @@ Into QGIS add this link for the master version:
 http://pyarchinit.org/pyarchinit.xml
 
 Testing version #mich (no debugged):
+
 http://pyarchinit.org/pyarchinit2em.xml
 
 ### ATTENTION FOR FIRST INSTALLATION!!! ###
+
 If you run QGIS as administrator, and after you received this message:
+
 ![immagine](https://user-images.githubusercontent.com/1929829/138441433-58fe0436-d737-44a5-ae10-a0a4a9a69e2a.png)
 
+
 You see this Warning
+
 ![immagine](https://user-images.githubusercontent.com/1929829/138441554-05e3b06c-aa45-47c8-88c4-1cdc690815a3.png)
 
 This means you have not installad pip3 on your PC. 
@@ -29,13 +34,17 @@ This means you have not installad pip3 on your PC.
 NOOOO PANIC
 
 Open your OsGeo4W as administrator and type: setup 
+
 press enter and choose Advanced:
+
 ![immagine](https://user-images.githubusercontent.com/1929829/138441766-bff799e4-7733-4134-b7ef-2f7ee0e02041.png)
 
 Go on still Select Packages and looking for pip
+
 ![immagine](https://user-images.githubusercontent.com/1929829/138441911-c8b35448-39f7-4bdd-a6c8-3eca0733be30.png)
 
 Click on "skip". It will change in the number of current version.
+
 ![immagine](https://user-images.githubusercontent.com/1929829/138442028-76a2cda4-b4b2-4e84-9c6a-f8ef6b9ced3d.png)
 
 Then presso Go On.....
