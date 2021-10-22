@@ -29,7 +29,7 @@ You see this Warning
 
 ![immagine](https://user-images.githubusercontent.com/1929829/138441554-05e3b06c-aa45-47c8-88c4-1cdc690815a3.png)
 
-This means you have not installad pip3 on your PC. 
+This means you have not installed pip3 on your PC. 
 
 NOOOO PANIC
 
