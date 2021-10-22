@@ -51,7 +51,16 @@ Then presso Go On.....
 
 ... END .....
 
-Now restart QGIS and install pyArchInit
+Now restart QGIS and install pyArchInit....and...
+
+If it still doesn't run ... install anything by hand.
+
+Oper Osgeo4W Shell as administrator and type
+
+pip3 install "module name"  [ENTER]
+
+![immagine](https://user-images.githubusercontent.com/1929829/138447680-05672eff-a470-4bdf-b940-3f51af7c4931.png)
+
 
 
 ## Installing from zip
