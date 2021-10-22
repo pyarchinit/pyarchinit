@@ -61,7 +61,9 @@ pip3 install "module name"  [ENTER]
 
 ![immagine](https://user-images.githubusercontent.com/1929829/138447680-05672eff-a470-4bdf-b940-3f51af7c4931.png)
 
+For each module...
 
+https://user-images.githubusercontent.com/1929829/138441433-58fe0436-d737-44a5-ae10-a0a4a9a69e2a.png
 
 ## Installing from zip
 
