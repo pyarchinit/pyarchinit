@@ -772,7 +772,9 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
         self.mDockWidget_export.setHidden(True)
         self.mDockWidget_3.setHidden(True)
         self.mDockWidget_4.setHidden(True)
+        
         self.mDockWidget_5.setHidden(True)
+        
         self.currentLayerId = None
         self.search = SearchLayers(iface)
         
@@ -823,7 +825,10 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
         # self.tableWidget_rapporti.itemSelectionChanged.connect(self.rapp)
         self.refresh()
     
-    
+    def on_pushButton2_pressed(self):
+        self.mDockWidget_4.setWindowFlags(Qt.WindowStaysOnTopHint)
+    def on_pushButton3_pressed(self):
+        self.mDockWidget_5.setWindowFlags(Qt.WindowStaysOnTopHint)
     def refresh(self):
         
         for i in self.DATA_LIST:
