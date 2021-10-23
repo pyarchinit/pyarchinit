@@ -7836,22 +7836,22 @@ p, li { white-space: pre-wrap; }
     <message>
         <location filename="../gui/ui/US_USM.ui" line="35635"/>
         <source>descrizione</source>
-        <translation>description</translation>
+        <translation>descrizione</translation>
     </message>
     <message>
         <location filename="../gui/ui/US_USM.ui" line="35640"/>
         <source>d_stratigrafica</source>
-        <translation>d_stratigraphic</translation>
+        <translation>d_stratigrafica</translation>
     </message>
     <message>
         <location filename="../gui/ui/US_USM.ui" line="35645"/>
         <source>d_interpretativa</source>
-        <translation>d_interpretative</translation>
+        <translation>d_interpretativa</translation>
     </message>
     <message>
         <location filename="../gui/ui/US_USM.ui" line="35650"/>
         <source>unita_tipo</source>
-        <translation>unit_type</translation>
+        <translation>unita_tipo</translation>
     </message>
     <message>
         <location filename="../gui/ui/US_USM.ui" line="35658"/>
@@ -8949,7 +8949,7 @@ p, li { white-space: pre-wrap; }
     <message>
         <location filename="../gui/ui/pyarchinitConfigDialog.ui" line="2204"/>
         <source>Del</source>
-        <translation>Body orientation and position</translation>
+        <translation>Del</translation>
     </message>
     <message>
         <location filename="../gui/ui/pyarchinitConfigDialog.ui" line="1542"/>
