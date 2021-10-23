@@ -44,7 +44,7 @@ from qgis.PyQt.QtCore import *
 from qgis.PyQt.QtGui import QColor, QIcon
 from qgis.PyQt.QtWidgets import *
 from qgis.PyQt.uic import loadUiType
-from qgis.core import Qgis, QgsSettings,QgsGeometry,QgsProject,QgsApplication,QgsVectorFileWriter,QgsMapLayer,QgsVectorLayer
+from qgis.core import *
 from qgis.gui import QgsMapCanvas, QgsMapToolPan
 from qgis.PyQt.QtSql import QSqlDatabase, QSqlTableModel
 import re
@@ -802,7 +802,7 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
         self.comboBox_sito.currentIndexChanged.connect(self.charge_insert_ra)
         self.comboBox_sito.currentTextChanged.connect(self.charge_insert_ra)
         #self.charge_insert_ra()
-        self.search_1.textChanged.connect(self.update_filter)
+        self.search_1.currentTextChanged.connect(self.update_filter)
         self.comboBox_per_fin.currentIndexChanged.connect(self.charge_fase_fin_list)
         self.toolButton_pdfpath.clicked.connect(self.setPathpdf)
         self.toolButton_input.clicked.connect(self.setPathdot)
@@ -824,7 +824,7 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
         self.tableWidget_rapporti.itemSelectionChanged.connect(self.us_t)
         # self.tableWidget_rapporti.itemSelectionChanged.connect(self.rapp)
         self.refresh()
-    
+        self.field.currentTextChanged.connect(self.value_check)
 
     def refresh(self):
         
@@ -880,7 +880,8 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
             test_conn = conn_str.find('sqlite')
             if test_conn == 0:
                 sqlite_DB_path = '{}{}{}'.format(self.HOME, os.sep,
-                                               "pyarchinit_DB_folder") 
+                                           "pyarchinit_DB_folder")
+                
                 db = QSqlDatabase("QSQLITE") 
                 db.setDatabaseName(sqlite_DB_path +os.sep+ conn_sqlite["db_name"])
                 db.open()
@@ -903,7 +904,28 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
                     self.model_a.select() 
                 else:
                     self.model_a.select() 
+            
+                uri = QgsDataSourceUri()
+                uri.setDatabase(sqlite_DB_path +os.sep+ conn_sqlite["db_name"])
+                schema = ''
+                table = 'us_table'
+                geom_column = ''
+                uri.setDataSource(schema, table,geom_column)
+                vlayer = QgsVectorLayer(uri.uri(), table, 'spatialite')
+                pr = vlayer.dataProvider()
+                fi= pr.fields().names()[1:-1]
+                
+                self.field.clear()
+                self.field.addItems(fi)
+                try:
+                    self.search_1.clearEditText()
+                    self.search_1.update()
+                    self.value_check()
+                except:
+                    pass
             else:
+                
+                
                 db = QSqlDatabase.addDatabase("QPSQL")
                 db.setHostName(conn_host["host"])
                 db.setDatabaseName(conn_sqlite["db_name"])
@@ -923,6 +945,27 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
                     self.model_a.select()
                 else:
                     self.model_a.select() 
+        
+                uri = QgsDataSourceUri()
+                uri.setConnection(conn_host["host"], conn_port["port"], conn_sqlite["db_name"], conn_user['user'], conn_password['password'])
+                schema = 'public'                
+                table = 'us_table'
+                geom_column = ''
+                uri.setDataSource(schema, table,geom_column)
+                vlayer = QgsVectorLayer(uri.uri(), table, 'postgres')
+                pr = vlayer.dataProvider()
+                fi= pr.fields().names()[1:-1]
+                pr = vlayer.dataProvider()
+                fi= pr.fields().names()[1:-1]
+                
+                self.field.clear()
+                self.field.addItems(fi)
+                try:
+                    self.search_1.clearEditText()
+                    self.search_1.update()
+                    self.value_check()
+                except:
+                    pass
         else:
             self.checkBox_query.setChecked(False)
     def submit(self):
@@ -953,25 +996,55 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
         
         else:    
             self.checkBox_query.setChecked(False)
+    
+    
+    def value_check(self):
+        try:
+            
+            if self.field.currentTextChanged:
+                sito_vl2 = self.UTILITY.tup_2_list_III(self.DB_MANAGER.group_by('us_table', self.field.currentText(),'US'))
+
+            try:
+                sito_vl2.remove('')
+            except:
+                pass
+            self.search_1.clear()
+            sito_vl2.sort()
+            
+            self.search_1.addItems(sito_vl2)
+            self.search_1.update()
+        except :
+            pass#QMessageBox.warning(self, "Attenzione", str(e), QMessageBox.Ok)  
     def update_filter(self, s): 
         if self.checkBox_query.isChecked():
-            conn = Connection()
+            conn = Connection()            
             conn_str = conn.conn_str()    
             sito_set= conn.sito_set()
             sito_set_str = sito_set['sito_set']
             test_conn = conn_str.find('sqlite')
             s_field = self.field.currentText()
-            s = re.sub("[\W_] +", "", s)
+            s = re.sub("[\w_][\W_] +", "", s)
             if test_conn == 0:
+                
+                
                 try:
                     if bool(sito_set_str):
                         filter_str = "{} LIKE '%{}%' and sito = '{}'".format(s_field,s,str(self.comboBox_sito.currentText())) 
-                        self.model_a.setFilter(filter_str)
+                        if bool(filter_str):
+                            self.model_a.setFilter(filter_str)
+                            self.model_a.select()
+                        else:
+                            pass
+                    
                     else:
                         filter_str = "{} LIKE '%{}%'".format(s_field,s) 
-                        self.model_a.setFilter(filter_str)
-                except Exception as e:
-                    QMessageBox.warning(self, "Warniong", str(e), QMessageBox.Ok)
+                        if bool(filter_str):
+                            self.model_a.setFilter(filter_str)
+                            self.model_a.select() 
+                        else:
+                            pass
+                except :
+                    pass#QMessageBox.warning(self, "Warning", str(e), QMessageBox.Ok)
             else:
                 try:
                     if bool(sito_set_str):
@@ -988,8 +1061,8 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
                             self.model_a.select() 
                         else:
                             pass
-                except Exception as e:
-                    QMessageBox.warning(self, "Warning", str(e), QMessageBox.Ok)
+                except :
+                    pass#QMessageBox.warning(self, "Warning", str(e), QMessageBox.Ok)
         else:    
             self.checkBox_query.setChecked(False)
     def on_pushButton_globalsearch_pressed(self):
