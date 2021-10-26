@@ -1491,11 +1491,11 @@ class pyarchinit_Site(QDialog, MAIN_DIALOG_CLASS):
         try:
             result = geocoder.geocode(unicode(self.address.text()).encode('utf-8'))
         except Exception as e:
-            QMessageBox.information(self.iface.mainWindow(), QCoreApplication.translate('pyarchinit geocoding', "pyarchinit geocoding plugin error"), QCoreApplication.translate('GeoCoding', "There was an error with the geocoding service:<br><strong>%s</strong>" % e))
+            QMessageBox.information(self.iface.mainWindow(), QCoreApplication.translate('pyarchinit geocoding', "pyarchinit geocoding plugin error"), QCoreApplication.translate('GeoCoding', "Sembra esserci un errore con il servizio geocoding:<br><strong>%s</strong>"% e+"\n\n Controlla l'indirizzo" ))
             return
 
         if not result:
-            QMessageBox.information(self.iface.mainWindow(), QCoreApplication.translate('pyarchinit geocoding', "Not found"), QCoreApplication.translate('pyarchinit geocoding', "The geocoder service returned no data for the searched address: <strong>%s</strong>." % self.address.text()))
+            QMessageBox.information(self.iface.mainWindow(), QCoreApplication.translate('pyarchinit geocoding', "Not found"), QCoreApplication.translate('pyarchinit geocoding', "Questo indirizzo non esiste: <strong>%s</strong>." % self.address.text()))
             return
 
         places = {}
@@ -1594,7 +1594,7 @@ class pyarchinit_Site(QDialog, MAIN_DIALOG_CLASS):
             self.provider = self.layer.dataProvider()
 
             # add fields
-            self.provider.addAttributes([QgsField("address", QVariant.String)])
+            self.provider.addAttributes([QgsField("Indirizzo", QVariant.String)])
 
             # BUG: need to explicitly call it, should be automatic!
             self.layer.updateFields()
@@ -1602,7 +1602,7 @@ class pyarchinit_Site(QDialog, MAIN_DIALOG_CLASS):
             # Labels on
             try:
                 label_settings = QgsPalLayerSettings()
-                label_settings.fieldName = "address"
+                label_settings.fieldName = "Indirizzo"
                 self.layer.setLabeling(QgsVectorLayerSimpleLabeling(label_settings))
                 self.layer.setLabelsEnabled(True)
             except:
@@ -1613,7 +1613,7 @@ class pyarchinit_Site(QDialog, MAIN_DIALOG_CLASS):
                 self.layer.setCustomProperty("labeling/multilineAlign", "0" )
                 self.layer.layer.setCustomProperty("labeling/bufferDraw", True)
                 self.layer.setCustomProperty("labeling/namedStyle", "Bold")
-                self.layer.setCustomProperty("labeling/fieldName", "address")
+                self.layer.setCustomProperty("labeling/fieldName", "Indirizzo")
                 self.layer.setCustomProperty("labeling/placement", "2")
 
             # add layer if not already
@@ -1638,7 +1638,7 @@ class pyarchinit_Site(QDialog, MAIN_DIALOG_CLASS):
         try: # QGIS < 1.9
             fet.setAttributeMap({0 : address})
         except: # QGIS >= 1.9
-            fet['address'] = address
+            fet['Indirizzo'] = address
 
         self.layer.startEditing()
         self.layer.addFeatures([ fet ])
