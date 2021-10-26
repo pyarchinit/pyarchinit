@@ -44,10 +44,15 @@ from ..modules.db.pyarchinit_utility import Utility
 from ..modules.gis.pyarchinit_pyqgis import Pyarchinit_pyqgis
 from ..modules.utility.print_relazione_pdf import exp_rel_pdf
 from ..modules.utility.pyarchinit_error_check import Error_check
+from ..modules.utility.Utils import *
 from ..test_area import Test_area
 from ..gui.sortpanelmain import SortPanelMain
 from ..gui.pyarchinitConfigDialog import pyArchInitDialog_Config
+from .PlaceSelectionDialog import PlaceSelectionDialog
+from .networkaccessmanager import NetworkAccessManager
+import sys,  json
 
+NAM = NetworkAccessManager()
 MAIN_DIALOG_CLASS, _ = loadUiType(os.path.join(os.path.dirname(__file__), os.pardir, 'gui', 'ui', 'Site.ui'))
 
 
@@ -197,9 +202,10 @@ class pyarchinit_Site(QDialog, MAIN_DIALOG_CLASS):
         self.pyQGIS = Pyarchinit_pyqgis(iface)
         self.setupUi(self)
         self.mDockWidget.setHidden(True)
-        # self.comboBox_rst = QgsMapLayerComboBox(self)
-        # self.verticalLayout_1.addWidget(self.comboBox_rst)
         
+        self.canvas = iface.mapCanvas()
+        self.layerid = ''
+        #self.layer = None
         self.currentLayerId = None
         self.HOME = os.environ['PYARCHINIT_HOME']
         try:
@@ -211,7 +217,9 @@ class pyarchinit_Site(QDialog, MAIN_DIALOG_CLASS):
         self.pbn_browse_folder.clicked.connect(self.setPathToSites)
         self.set_sito()
         self.msg_sito()
-    
+        self.config = QgsSettings()
+        self.previous_map_tool = self.iface.mapCanvas().mapTool()
+        
     def on_pushButton_movecost_pressed(self):#####modifiche apportate per il calcolo statistico con R
         processing.execAlgorithmDialog('r:movecost')
         
@@ -1417,10 +1425,267 @@ class pyarchinit_Site(QDialog, MAIN_DIALOG_CLASS):
         f = open(str(name_file), 'w')
         f.write(str(message))
         f.close()
+    def get_config(self,  key, default=''):
+        # return a config parameter
+        return self.config.value('PythonPlugins/pyarchinit/' + key, default )
 
 
+    def set_config(self,  key,  value):
+        # set a config parameter
+        return self.config.setValue('PythonPlugins/pyarchinit/' + key, value)
+
+    def reverse(self):
+        # Reverse geocoding
+        chk = self.check_settings()
+        if len(chk) :
+            QMessageBox.information(self.iface.mainWindow(), QCoreApplication.translate('pyarchinit geocoding', "pyarchinit geocoding plugin error"), chk)
+            return
+        sb = self.iface.mainWindow().statusBar()
+        sb.showMessage(QCoreApplication.translate('pyarchinit geocoding', "Click on the map to obtain the address"))
+        ct = ClickTool(self.iface,  self.reverse_action);
+        self.previous_map_tool = self.iface.mapCanvas().mapTool()
+        self.iface.mapCanvas().setMapTool(ct)
+
+
+   # change settings
+    def reverse_action(self, point):
+
+        
+        geocoder = self.get_geocoder_instance()
+
+        try:
+            # reverse lat/lon
+            self.logMessage('Reverse clicked point ' + str(point[0]) + ' ' + str(point[1]))
+            pt = pointToWGS84(point, self._get_canvas_crs())
+            self.logMessage('Reverse transformed point ' + str(pt[0]) + ' ' + str(pt[1]))
+            address = geocoder.reverse(pt[0],pt[1])
+            self.logMessage(str(address))
+            if len(address) == 0:
+                QMessageBox.information(self.iface.mainWindow(), QCoreApplication.translate('pyarchinit geocoding', "Reverse pyarchinit geocoding error"), unicode(QCoreApplication.translate('pyarchinit geocoding', "<strong>Empty result</strong>.<br>")))
+            else:
+                QMessageBox.information(self.iface.mainWindow(), QCoreApplication.translate('GeoCoding', "Reverse pyarchinit geocoding"),  unicode(QCoreApplication.translate('v', "Reverse geocoding found the following address:<br><strong>%s</strong>")) %  address[0][0])
+                # save point
+                self.save_point(point, address[0][0])
+        except Exception as e:
+            QMessageBox.information(self.iface.mainWindow(), QCoreApplication.translate('pyarchinit geocoding', "Reverse pyarchinit geocoding error"), unicode(QCoreApplication.translate('pyarchinit geocoding', "<strong>Unhandled exception</strong>.<br>%s" % e)))
+        return
+    def on_pushButton_locate_pressed(self):
+        
+        if self.previous_map_tool:
+            self.iface.mapCanvas().setMapTool(self.previous_map_tool)
+        chk = self.check_settings()
+        if len(chk) :
+            QMessageBox.information(self.iface.mainWindow(),QCoreApplication.translate('pyarchinit geocoding', "pyarchinit geocoding error"), chk)
+            return
+
+        geocoder = self.get_geocoder_instance()
+        
+        # # create and show the dialog
+        # dlg = GeoCodingDialog()
+        # # show the dialog
+        # dlg.adjustSize()
+        # dlg.show()
+        #result = DialogSita.exec_()
+        # # See if OK was pressed
+        # if result == 1 :
+        try:
+            result = geocoder.geocode(unicode(self.address.text()).encode('utf-8'))
+        except Exception as e:
+            QMessageBox.information(self.iface.mainWindow(), QCoreApplication.translate('pyarchinit geocoding', "pyarchinit geocoding plugin error"), QCoreApplication.translate('GeoCoding', "There was an error with the geocoding service:<br><strong>%s</strong>" % e))
+            return
+
+        if not result:
+            QMessageBox.information(self.iface.mainWindow(), QCoreApplication.translate('pyarchinit geocoding', "Not found"), QCoreApplication.translate('pyarchinit geocoding', "The geocoder service returned no data for the searched address: <strong>%s</strong>." % self.address.text()))
+            return
+
+        places = {}
+        for place, point in result:
+            places[place] = point
+
+        if len(places) == 1:
+            self.process_point(place, point)
+        else:
+            all_str = QCoreApplication.translate('pyarchinit geocoding', 'Tutti')
+            place_dlg = PlaceSelectionDialog()
+            place_dlg.placesComboBox.addItem(all_str)
+            place_dlg.placesComboBox.addItems(places.keys())
+            place_dlg.show()
+            result = place_dlg.exec_()
+            if result == 1 :
+                if place_dlg.placesComboBox.currentText() == all_str:
+                    for place in places:
+                        self.process_point(place, places[place])
+                else:
+                    point = places[unicode(place_dlg.placesComboBox.currentText())]
+                    self.process_point(place_dlg.placesComboBox.currentText(), point)
+        return
+    
+    def logMessage(self, msg):
+        if self.get_config('writeDebug'):
+            QgsMessageLog.logMessage(msg, 'GeoCoding')
+    def get_geocoder_instance(self):
+        """
+        Loads a concrete Geocoder class
+        """
+
+        #geocoder_class = str(self.get_config('GeocoderClass'))
+
+        #if not geocoder_class:
+        geocoder_class ='Nominatim'
+
+        #if geocoder_class == 'Nominatim':
+        return OsmGeoCoder()
+        # else:
+            # return GoogleGeoCoder(self.get_config('googleKey'))
+
+
+
+    def process_point(self, place, point):
+        """
+        Transforms the point and save
+        """
+        # lon lat and transform
+        point = QgsPoint(float(point[0]), float(point[1]))
+        point = pointFromWGS84(point, self._get_layer_crs())
+        
+        # Set the extent to our new point
+        self.canvas.setCenter(point)
+
+        scale = float(self.get_config('ZoomScale', 200))
+        # adjust scale to display correct scale in qgis
+        if scale:
+            self.canvas.zoomScale(scale)
+
+        # Refresh the map
+        self.canvas.refresh()
+        # save point
+        self.save_point(point, unicode(place))
+
+    def _get_layer_crs(self):
+        """get CRS from destination layer or from canvas if the layer does not exist"""
+        try:
+            return self.currentLayerId.crs()
+        except:
+            return self._get_canvas_crs()
+
+
+    def _get_canvas_crs(self):
+        """compat"""
+        try:
+            return self.iface.mapCanvas().mapRenderer().destinationCrs()
+        except:
+            return self.iface.mapCanvas().mapSettings().destinationCrs()
+
+    def _get_registry(self):
+        """compat"""
+        try:
+            return QgsMapLayerRegistry.instance()
+        except:
+            return QgsProject.instance()
+
+    # save point to file, point is in project's crs
+    def save_point(self, point, address):
+        self.logMessage('Saving point ' + str(point[0])  + ' ' + str(point[1]))
+        # create and add the point layer if not exists or not set
+        if not self._get_registry().mapLayer(self.layerid) :
+            # create layer with same CRS as map canvas
+            crs = self._get_canvas_crs()
+            self.layer = QgsVectorLayer("Point?crs=" + crs.authid(), "Pyrchinit localizzazione trovata", "memory")
+            self.provider = self.layer.dataProvider()
+
+            # add fields
+            self.provider.addAttributes([QgsField("address", QVariant.String)])
+
+            # BUG: need to explicitly call it, should be automatic!
+            self.layer.updateFields()
+
+            # Labels on
+            try:
+                label_settings = QgsPalLayerSettings()
+                label_settings.fieldName = "address"
+                self.layer.setLabeling(QgsVectorLayerSimpleLabeling(label_settings))
+                self.layer.setLabelsEnabled(True)
+            except:
+                self.layer.setCustomProperty("labeling", "pal")
+                self.layer.setCustomProperty("labeling/enabled", "true")
+                self.layer.setCustomProperty("labeling/fontFamily", "Arial")
+                self.layer.setCustomProperty("labeling/fontSize", "12")
+                self.layer.setCustomProperty("labeling/multilineAlign", "0" )
+                self.layer.layer.setCustomProperty("labeling/bufferDraw", True)
+                self.layer.setCustomProperty("labeling/namedStyle", "Bold")
+                self.layer.setCustomProperty("labeling/fieldName", "address")
+                self.layer.setCustomProperty("labeling/placement", "2")
+
+            # add layer if not already
+            self._get_registry().addMapLayer(self.layer)
+
+            # store layer id
+            self.layerid = self.layer.id()
+
+
+        # add a feature
+        try:
+            fields=self.layer.pendingFields()
+        except:
+            fields=self.layer.fields()
+
+        fet = QgsFeature(fields)
+        try:
+            fet.setGeometry(QgsGeometry.fromPoint(point))
+        except:
+            fet.setGeometry(QgsGeometry.fromPointXY(QgsPointXY(point)))
+
+        try: # QGIS < 1.9
+            fet.setAttributeMap({0 : address})
+        except: # QGIS >= 1.9
+            fet['address'] = address
+
+        self.layer.startEditing()
+        self.layer.addFeatures([ fet ])
+        self.layer.commitChanges()
+
+
+    # check config and project settings before geocoding,
+    # return an error string
+    def check_settings (self):
+        p = QgsProject.instance()
+        error = ''
+        if QT_VERSION==4:
+            if not self.iface.mapCanvas().hasCrsTransformEnabled() and self.iface.mapCanvas().mapRenderer().destinationCrs().authid() != 'EPSG:4326':
+                error = QCoreApplication.translate('pyarchinit geocoding', "On-the-fly reprojection must be enabled if the destination CRS is not EPSG:4326. Please enable on-the-fly reprojection.")
+
+        return error
 ## Class end
 
+
+def logMessage(msg):
+    if QgsSettings().value('PythonPlugins/pyarchinit/writeDebug'):
+        QgsMessageLog.logMessage(msg, 'GeoCoding')
+class GeoCodeException(Exception):
+    pass
+class OsmGeoCoder():
+
+    url = 'https://nominatim.openstreetmap.org/search?format=json&q={address}'
+    reverse_url = 'https://nominatim.openstreetmap.org/reverse?format=json&lat={lat}&lon={lon}'
+
+    def geocode(self, address):
+        try: 
+            url = self.url.format(**{'address': address.decode('utf8')})
+            logMessage(url)
+            results = json.loads(NAM.request(url, blocking=True)[1].decode('utf8'))
+            return [(rec['display_name'], (rec['lon'], rec['lat'])) for rec in results]
+        except Exception as e:
+            raise GeoCodeException(str(e))
+
+    def reverse(self, lon, lat):
+        """single result"""
+        try: 
+            url = self.reverse_url.format(**{'lon': lon, 'lat': lat})
+            logMessage(url)
+            rec = json.loads(NAM.request(url, blocking=True)[1].decode('utf8'))
+            return [(rec['display_name'], (rec['lon'], rec['lat']))]
+        except Exception as e:
+            raise GeoCodeException(str(e))
 if __name__ == "__main__":
     app = QApplication(sys.argv)
     ui = pyarchinit_US()
