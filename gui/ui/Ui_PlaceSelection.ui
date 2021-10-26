@@ -19,7 +19,7 @@
      <item>
       <widget class="QLabel" name="label">
        <property name="text">
-        <string>The server found more than one places, please choose one or all</string>
+        <string>Il sistema ha trovato più di una località, scegline una o tutte</string>
        </property>
       </widget>
      </item>
