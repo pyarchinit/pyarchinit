@@ -1329,7 +1329,14 @@
        </rect>
       </property>
       <layout class="QGridLayout" name="gridLayout_2">
-       <item row="0" column="0">
+       <item row="0" column="1">
+        <widget class="QLineEdit" name="address">
+         <property name="placeholderText">
+          <string>Inserisci un indirizzo per ricercarlo e schiaccia zoom on</string>
+         </property>
+        </widget>
+       </item>
+       <item row="3" column="1">
         <widget class="QTabWidget" name="tabWidget">
          <property name="sizePolicy">
           <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
@@ -1465,11 +1472,6 @@
                <property name="editable">
                 <bool>true</bool>
                </property>
-               <item>
-                <property name="text">
-                 <string>Italia</string>
-                </property>
-               </item>
               </widget>
              </item>
              <item row="3" column="1">
@@ -1613,7 +1615,7 @@
                 <property name="minimumSize">
                  <size>
                   <width>500</width>
-                  <height>30</height>
+                  <height>20</height>
                  </size>
                 </property>
                 <property name="font">
@@ -2498,6 +2500,19 @@ background-color: rgb(255, 255, 127);</string>
          </widget>
         </widget>
        </item>
+       <item row="1" column="1">
+        <widget class="QPushButton" name="pushButton_locate">
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+           <horstretch>0</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
+         </property>
+         <property name="text">
+          <string>Zoom on</string>
+         </property>
+        </widget>
+       </item>
       </layout>
      </widget>
     </widget>
@@ -2538,8 +2553,8 @@ background-color: rgb(255, 255, 127);</string>
      <y>101</y>
     </hint>
     <hint type="destinationlabel">
-     <x>446</x>
-     <y>238</y>
+     <x>455</x>
+     <y>442</y>
     </hint>
    </hints>
   </connection>
