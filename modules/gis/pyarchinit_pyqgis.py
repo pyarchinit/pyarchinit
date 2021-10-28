@@ -1957,7 +1957,7 @@ class Pyarchinit_pyqgis(QDialog):
         myGroup1.setExpanded(False)
         myGroup2.setExpanded(False)
         myGroup3.setExpanded(False)
-        myGroup4.setExpanded(False)    
+        #myGroup4.setExpanded(False)    
         if settings.SERVER == 'sqlite':
             sqliteDB_path = os.path.join(os.sep, 'pyarchinit_DB_folder', settings.DATABASE)
             db_file_path = '{}{}'.format(self.HOME, sqliteDB_path)
