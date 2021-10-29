@@ -162,14 +162,14 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
             self.checkBox_replace.stateChanged.connect(self.message)    
         
         self.check()
-        self.upd_individui_table()
+        #self.upd_individui_table()
         if self.comboBox_Database.currentText()=='sqlite':
             self.setComboBoxEnable(["self.lineEdit_DBname"], "False")
         elif self.comboBox_Database.currentText()=='postgres':
             self.setComboBoxEnable(["self.lineEdit_DBname"], "True")
         self.comboBox_Database.currentIndexChanged.connect(self.customize)
         self.test()
-        self.test2()
+        #self.test2()
         self.test3()
         self.comboBox_mapper_read.currentIndexChanged.connect(self.check_table)
         self.comboBox_geometry_read.currentIndexChanged.connect(self.check_geometry_table)
@@ -2185,6 +2185,7 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
                 
                 
                         ''')
+            
         except Exception as e:
             pass#QMessageBox.warning(self, "ok", "entered in if", QMessageBox.Ok)
     
@@ -2690,6 +2691,7 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
                         
                         PRAGMA foreign_keys = 1;
             ''')
+            c.close()
         except KeyError as e:
             pass#QMessageBox.warning(self, "ok", str(e), QMessageBox.Ok)
     def setComboBoxEnable(self, f, v):
@@ -2823,7 +2825,7 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
                 c.execute(sql_upd2)  
                 c.execute(sql_upd3)  
                 c.execute(sql_upd4)              
-                
+                c.close()
                 
             
             except Exception as e:

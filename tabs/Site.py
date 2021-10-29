@@ -1503,19 +1503,19 @@ class pyarchinit_Site(QDialog, MAIN_DIALOG_CLASS):
         if len(places) == 1:
             self.process_point(place, point)
         else:
-            all_str = QCoreApplication.translate('pyarchinit geocoding', 'Tutti')
+            #all_str = QCoreApplication.translate('pyarchinit geocoding', 'Tutti')
             place_dlg = PlaceSelectionDialog()
-            place_dlg.placesComboBox.addItem(all_str)
+            #place_dlg.placesComboBox.addItem(all_str)
             place_dlg.placesComboBox.addItems(places.keys())
             place_dlg.show()
             result = place_dlg.exec_()
-            if result == 1 :
-                if place_dlg.placesComboBox.currentText() == all_str:
-                    for place in places:
-                        self.process_point(place, places[place])
-                else:
-                    point = places[unicode(place_dlg.placesComboBox.currentText())]
-                    self.process_point(place_dlg.placesComboBox.currentText(), point)
+            # if result == 1 :
+                # if place_dlg.placesComboBox.currentText() == 'Tutti':
+                    # for place in places:
+                        # self.process_point(place, places[place])
+                # else:
+            point = places[unicode(place_dlg.placesComboBox.currentText())]
+            self.process_point(place_dlg.placesComboBox.currentText(), point)
         return
     
     def logMessage(self, msg):
@@ -1597,6 +1597,7 @@ class pyarchinit_Site(QDialog, MAIN_DIALOG_CLASS):
             self.provider = self.layer.dataProvider()
 
             # add fields
+            self.provider.addAttributes([QgsField("id", QVariant.Int)])
             self.provider.addAttributes([QgsField("indirizzo", QVariant.String)])
 
             # BUG: need to explicitly call it, should be automatic!
@@ -1605,7 +1606,7 @@ class pyarchinit_Site(QDialog, MAIN_DIALOG_CLASS):
             # Labels on
             try:
                 label_settings = QgsPalLayerSettings()
-                label_settings.fieldName = "indirizzo"
+                label_settings.fieldName = "sito"
                 self.layer.setLabeling(QgsVectorLayerSimpleLabeling(label_settings))
                 self.layer.setLabelsEnabled(True)
             except:
@@ -1616,7 +1617,7 @@ class pyarchinit_Site(QDialog, MAIN_DIALOG_CLASS):
                 self.layer.setCustomProperty("labeling/multilineAlign", "0" )
                 self.layer.layer.setCustomProperty("labeling/bufferDraw", True)
                 self.layer.setCustomProperty("labeling/namedStyle", "Bold")
-                self.layer.setCustomProperty("labeling/fieldName", "indirizzo")
+                self.layer.setCustomProperty("labeling/fieldName", "sito")
                 self.layer.setCustomProperty("labeling/placement", "2")
 
             # add layer if not already
@@ -1639,198 +1640,197 @@ class pyarchinit_Site(QDialog, MAIN_DIALOG_CLASS):
             fet.setGeometry(QgsGeometry.fromPointXY(QgsPointXY(point)))
 
         try: # QGIS < 1.9
-            fet.setAttributeMap({0 : address})
+            
+            fet.setAttributeMap({0 : 1})
+            fet.setAttributeMap({1 : address})
         except: # QGIS >= 1.9
+            fet['id']=1
             fet['indirizzo'] = address
 
         self.layer.startEditing()
         self.layer.addFeatures([ fet ])
-
-        res = QMessageBox.information(self, 'PyArchInit',"Vuoi settarlo come sito?\n Schiaccia ok altrimenti verrà visualizzato solo la localizzazione", QMessageBox.Ok | QMessageBox.Cancel)
+        self.layer.commitChanges()
+        self.canvas.refresh()
+        # res = QMessageBox.information(self, 'PyArchInit',"Vuoi settarlo come sito?\n Schiaccia ok altrimenti verrà visualizzato solo la localizzazione", QMessageBox.Ok | QMessageBox.Cancel)
             
-        if res==QMessageBox.Ok:
-            self.set_sito()
-            conn = Connection()
-            conn_str = conn.conn_str()
-            conn_sqlite = conn.databasename()
-            conn_user = conn.datauser()
-            conn_host = conn.datahost()
-            conn_port = conn.dataport()
-            port_int  = conn_port["port"]
-            port_int.replace("'", "")
-            #QMessageBox.warning(self, "Attenzione", port_int, QMessageBox.Ok)
-            conn_password = conn.datapassword()
+        # if res==QMessageBox.Ok:
+            # conn = Connection()
+            # conn_str = conn.conn_str()
+            # conn_sqlite = conn.databasename()
+            # conn_user = conn.datauser()
+            # conn_host = conn.datahost()
+            # conn_port = conn.dataport()
+            # port_int  = conn_port["port"]
+            # port_int.replace("'", "")
+            
 
 
             
-            self.DB_MANAGER = Pyarchinit_db_management(conn_str)
-            self.DB_MANAGER.connection()
-            test_conn = conn_str.find('sqlite')
-            if test_conn == 0:
-                sqlite_DB_path = '{}{}{}'.format(self.HOME, os.sep,
-                                               "pyarchinit_DB_folder")
-                uri = QgsDataSourceUri()
-                uri.setDatabase(sqlite_DB_path +os.sep+ conn_sqlite["db_name"])
-                schema = ''
+            # self.DB_MANAGER = Pyarchinit_db_management(conn_str)
+            # self.DB_MANAGER.connection()
+            # test_conn = conn_str.find('sqlite')
+            # if test_conn == 0:
+                # sqlite_DB_path = '{}{}{}'.format(self.HOME, os.sep,
+                                               # "pyarchinit_DB_folder")
+                # uri = QgsDataSourceUri()
+                # uri.setDatabase(sqlite_DB_path +os.sep+ conn_sqlite["db_name"])
+                # schema = ''
                 
                     
-                table = 'site_table'
+                # table = 'site_table'
                 
-                uri.setDataSource(schema, table,'')
-                sourceLYR = QgsProject.instance().mapLayersByName('Pyrchinit localizzazione trovata')[0]
-                puntiLYR2 = QgsProject.instance().mapLayersByName('Localizzazione siti puntuale')[0]
-                layer_provider = sourceLYR.dataProvider()
-                layer_provider.addAttributes([QgsField("sito", QVariant.String)])     
-                layer_provider.addAttributes([QgsField("nazione", QVariant.String)])                
-                layer_provider.addAttributes([QgsField("regione", QVariant.String)])
-                layer_provider.addAttributes([QgsField("comune", QVariant.String)])
-                layer_provider.addAttributes([QgsField("descrizione", QVariant.String)])
-                layer_provider.addAttributes([QgsField("provincia", QVariant.String)])
+                # uri.setDataSource(schema, table,'')
+                #sourceLYR = QgsProject.instance().mapLayersByName('Pyrchinit localizzazione trovata')[0]
+                #puntiLYR2 = QgsProject.instance().mapLayersByName('Localizzazione siti puntuale')[0]
+        layer_provider = self.layer.dataProvider()
+        layer_provider.addAttributes([QgsField("sito", QVariant.String)])     
+        layer_provider.addAttributes([QgsField("nazione", QVariant.String)])                
+        layer_provider.addAttributes([QgsField("regione", QVariant.String)])
+        layer_provider.addAttributes([QgsField("comune", QVariant.String)])
+        layer_provider.addAttributes([QgsField("descrizione", QVariant.String)])
+        layer_provider.addAttributes([QgsField("provincia", QVariant.String)])
+        
+        self.layer.updateFields()
+
+       
+        self.layer.startEditing()
+        # ID_Sito = QInputDialog.getText(None, 'Sito', 'Input Nome del sito archeologico')
+        # Sito = str(ID_Sito[0])
+        features = []
+        for f in self.layer.getFeatures():
+            s = {2: f['indirizzo'].split(',')[0]}
+            layer_provider.changeAttributeValues({f.id(): s})
+            nazione = {3: f['indirizzo'].split(',')[-1]}
+            layer_provider.changeAttributeValues({f.id(): nazione})
+            regione = {4: f['indirizzo'].split(',')[-3]}
+            layer_provider.changeAttributeValues({f.id(): regione})                    
+            comune = {5: f['indirizzo'].split(',')[1]}
+            layer_provider.changeAttributeValues({f.id(): comune})
+            provincia = {7: f['indirizzo'].split(',')[-4]}
+            layer_provider.changeAttributeValues({f.id(): provincia})
+        
+        for feature in self.layer.getFeatures():
+            
+            sito=feature.attributes()[2]
+            feature.setAttribute('sito', sito)
+            na=feature.attributes()[3]
+            feature.setAttribute('nazione', na)
+            r=feature.attributes()[4]
+            feature.setAttribute('regione', r)             
+            comune=feature.attributes()[5]
+            feature.setAttribute('comune', comune)
+            pr=feature.attributes()[6]
+            feature.setAttribute('descrizione','')
+            pr=feature.attributes()[7]
+            feature.setAttribute('provincia', pr)
+            
+            self.layer.updateFeature(feature)
+            
+            features.append(feature)
+        self.layer.commitChanges()    
+                # destLYR1 = QgsVectorLayer(uri.uri(), table, 'spatialite') 
+                # destLYR1.commitChanges()
+                # destLYR1.startEditing()
+                # data_provider = destLYR1.dataProvider()
+                # data_provider.addFeatures(features)
+                # destLYR1.commitChanges()
                 
-                sourceLYR.updateFields()
+                # res = QMessageBox.information(self, 'PyArchInit',"Vuoi salvare il sito", QMessageBox.Ok | QMessageBox.Cancel)
+                # if res==QMessageBox.Ok:
+                    # f=[]
+                    # for feature in self.layer.getFeatures():
+                        # f.append(feature)
+                    # puntiLYR2 = QgsProject.instance().mapLayersByName('Localizzazione siti puntuale')[0]
+                    # puntiLYR2.startEditing()
+                    # data_provider2 = puntiLYR2.dataProvider()
+                    # data_provider2.addFeatures(f)
+                    # puntiLYR2.commitChanges()
+                    
+            # else:
+                # uri = QgsDataSourceUri()
+                # uri.setConnection(conn_host["host"], conn_port["port"], conn_sqlite["db_name"], conn_user['user'], conn_password['password'])
+                # schema = 'public'
+                # table = 'site_table'
+                # geom_column = ''
+                # uri.setDataSource(schema, table,geom_column)
+                # sourceLYR = QgsProject.instance().mapLayersByName('Pyrchinit localizzazione trovata')[0]
+                # puntiLYR2 = QgsProject.instance().mapLayersByName('Localizzazione siti puntuale')[0]
+                # layer_provider = sourceLYR.dataProvider()
+                # layer_provider.addAttributes([QgsField("sito", QVariant.String)])     
+                # layer_provider.addAttributes([QgsField("nazione", QVariant.String)])                
+                # layer_provider.addAttributes([QgsField("regione", QVariant.String)])
+                # layer_provider.addAttributes([QgsField("comune", QVariant.String)])
+                # layer_provider.addAttributes([QgsField("descrizione", QVariant.String)])
+                # layer_provider.addAttributes([QgsField("provincia", QVariant.String)])
+                
+                # sourceLYR.updateFields()
 
                
-                sourceLYR.startEditing()
-                # ID_Sito = QInputDialog.getText(None, 'Sito', 'Input Nome del sito archeologico')
-                # Sito = str(ID_Sito[0])
-                features = []
-                for f in sourceLYR.getFeatures():
-                    s = {1: f['indirizzo'].split(',')[0]}
-                    layer_provider.changeAttributeValues({f.id(): s})
-                    nazione = {2: f['indirizzo'].split(',')[-1]}
-                    layer_provider.changeAttributeValues({f.id(): nazione})
-                    regione = {3: f['indirizzo'].split(',')[-3]}
-                    layer_provider.changeAttributeValues({f.id(): regione})                    
-                    comune = {4: f['indirizzo'].split(',')[1]}
-                    layer_provider.changeAttributeValues({f.id(): comune})
-                    provincia = {6: f['indirizzo'].split(',')[-4]}
-                    layer_provider.changeAttributeValues({f.id(): provincia})
+                # # sourceLYR.startEditing()
+                # # ID_Sito = QInputDialog.getText(None, 'Sito', 'Input Nome del sito archeologico')
+                # # Sito = str(ID_Sito[0])
+                # features = []
+                # for f in sourceLYR.getFeatures():
+                    # s = {1: f['indirizzo'].split(',')[0]}
+                    # layer_provider.changeAttributeValues({f.id(): s})
+                    # nazione = {2: f['indirizzo'].split(',')[-1]}
+                    # layer_provider.changeAttributeValues({f.id(): nazione})
+                    # regione = {3: f['indirizzo'].split(',')[-3]}
+                    # layer_provider.changeAttributeValues({f.id(): regione})                    
+                    # comune = {4: f['indirizzo'].split(',')[1]}
+                    # layer_provider.changeAttributeValues({f.id(): comune})
+                    # provincia = {6: f['indirizzo'].split(',')[-4]}
+                    # layer_provider.changeAttributeValues({f.id(): provincia})
+                # sourceLYR.commitChanges()    
+                # for feature in sourceLYR.getFeatures():
                     
-                
-                for feature in sourceLYR.getFeatures():
-                    
-                    #sito=feature.attributes()[0]
-                    #feature.setAttribute('sito', sito)
-                    na=feature.attributes()[2]
-                    feature.setAttribute('nazione', na)
-                    r=feature.attributes()[3]
-                    feature.setAttribute('regione', r)             
-                    comune=feature.attributes()[4]
-                    feature.setAttribute('comune', comune)
+                    # sito=feature.attributes()[1]
+                    # feature.setAttribute('sito', sito)            
+                    # na=feature.attributes()[2]
+                    # feature.setAttribute('nazione', na)
+                    # r=feature.attributes()[3]
+                    # feature.setAttribute('regione', r)             
+                    # comune=feature.attributes()[4]
+                    # feature.setAttribute('comune', comune)
                     # pr=feature.attributes()[5]
-                    #feature.setAttribute('descrizione','')
-                    pr=feature.attributes()[6]
-                    feature.setAttribute('provincia', pr)
+                    # feature.setAttribute('descrizione','')
+                    # pr=feature.attributes()[6]
+                    # feature.setAttribute('provincia', pr)
+                    # features.append(feature)
+                    # sourceLYR.updateFeature(feature)
                     
-                    sourceLYR.updateFeature(feature)
-                    features.append(feature)
                 
-                destLYR = QgsVectorLayer(uri.uri(), table, 'spatialite')    
-                destLYR.startEditing()
-                data_provider = destLYR.dataProvider()
-                data_provider.addFeatures(features)
-                destLYR.commitChanges()
-                
-                table2 = 'pyarchinit_siti'
-                geom_column = 'the_geom'
-                uri.setDataSource(schema, table2,geom_column)
-                features2=[]
-                for feature in sourceLYR.getFeatures():
-                    feature.setAttribute(None, '')
-                    feature.setAttribute(None, '')
-                    sito=feature.attributes()[2]
-                    feature.setAttribute('sito', sito)            
-                    
-                    sourceLYR.updateFeature(feature)
-                    features2.append(feature)
-                #puntiLYR2 = QgsVectorLayer(uri.uri(), table2, 'spatialite')
-                puntiLYR2.startEditing()
-                data_provider2 = puntiLYR2.dataProvider()
-                data_provider2.addFeatures(features2)
-                puntiLYR2.commitChanges()
-                
-            else:
-                uri = QgsDataSourceUri()
-                uri.setConnection(conn_host["host"], conn_port["port"], conn_sqlite["db_name"], conn_user['user'], conn_password['password'])
-                schema = 'public'
-                table = 'site_table'
-                geom_column = ''
-                uri.setDataSource(schema, table,geom_column)
-                sourceLYR = QgsProject.instance().mapLayersByName('Pyrchinit localizzazione trovata')[0]
-                puntiLYR2 = QgsProject.instance().mapLayersByName('Localizzazione siti puntuale')[0]
-                layer_provider = sourceLYR.dataProvider()
-                layer_provider.addAttributes([QgsField("sito", QVariant.String)])     
-                layer_provider.addAttributes([QgsField("nazione", QVariant.String)])                
-                layer_provider.addAttributes([QgsField("regione", QVariant.String)])
-                layer_provider.addAttributes([QgsField("comune", QVariant.String)])
-                layer_provider.addAttributes([QgsField("descrizione", QVariant.String)])
-                layer_provider.addAttributes([QgsField("provincia", QVariant.String)])
-                
-                sourceLYR.updateFields()
+                # destLYR = QgsVectorLayer(uri.uri(), table, 'postgres')    
+                # destLYR.startEditing()
+                # data_provider = destLYR.dataProvider()
+                # data_provider.addFeatures(features)
+                # destLYR.commitChanges()
 
-               
-                sourceLYR.startEditing()
-                # ID_Sito = QInputDialog.getText(None, 'Sito', 'Input Nome del sito archeologico')
-                # Sito = str(ID_Sito[0])
-                features = []
-                for f in sourceLYR.getFeatures():
-                    s = {1: f['indirizzo'].split(',')[0]}
-                    layer_provider.changeAttributeValues({f.id(): s})
-                    nazione = {2: f['indirizzo'].split(',')[-1]}
-                    layer_provider.changeAttributeValues({f.id(): nazione})
-                    regione = {3: f['indirizzo'].split(',')[-3]}
-                    layer_provider.changeAttributeValues({f.id(): regione})                    
-                    comune = {4: f['indirizzo'].split(',')[1]}
-                    layer_provider.changeAttributeValues({f.id(): comune})
-                    provincia = {6: f['indirizzo'].split(',')[-4]}
-                    layer_provider.changeAttributeValues({f.id(): provincia})
-               
-                for feature in sourceLYR.getFeatures():
-                    
-                    sito=feature.attributes()[1]
-                    feature.setAttribute('sito', sito)            
-                    na=feature.attributes()[2]
-                    feature.setAttribute('nazione', na)
-                    r=feature.attributes()[3]
-                    feature.setAttribute('regione', r)             
-                    comune=feature.attributes()[4]
-                    feature.setAttribute('comune', comune)
-                    # pr=feature.attributes()[5]
-                    #feature.setAttribute('descrizione','')
-                    pr=feature.attributes()[6]
-                    feature.setAttribute('provincia', pr)
-                    
-                    sourceLYR.updateFeature(feature)
-                    features.append(feature)
-                
-                destLYR = QgsVectorLayer(uri.uri(), table, 'postgres')    
-                destLYR.startEditing()
-                data_provider = destLYR.dataProvider()
-                data_provider.addFeatures(features)
-                destLYR.commitChanges()
+                # table2 = 'pyarchinit_siti'
+                # geom_column = 'the_geom'
+                # uri.setDataSource(schema, table2, geom_column)
+                # features2 = []
+                # for feature in sourceLYR.getFeatures():
+                    # features2.append(feature)
+                    # feature.setAttribute('comune', '')
+                    # feature.setAttribute('nazione', '')
+                    # sito = feature.attributes()[1]
+                    # feature.setAttribute('sito', sito)
 
-                table2 = 'pyarchinit_siti'
-                geom_column = 'the_geom'
-                uri.setDataSource(schema, table2, geom_column)
-                features2 = []
-                for feature in sourceLYR.getFeatures():
-                    feature.setAttribute('comune', '')
-                    feature.setAttribute('nazione', '')
-                    sito = feature.attributes()[1]
-                    feature.setAttribute('sito', sito)
-
-                    sourceLYR.updateFeature(feature)
-                    features2.append(feature)
-                #puntiLYR2 = QgsVectorLayer(uri.uri(), table2, 'spatialite')
-                puntiLYR2.startEditing()
-                data_provider2 = puntiLYR2.dataProvider()
-                data_provider2.addFeatures(features2)
-                puntiLYR2.commitChanges()
-            QgsProject.instance().removeMapLayer(sourceLYR)          
-        else:
-            pass
+                    # sourceLYR.updateFeature(feature)
+                    
+                # #puntiLYR2 = QgsVectorLayer(uri.uri(), table2, 'spatialite')
+                # puntiLYR2.startEditing()
+                # data_provider2 = puntiLYR2.dataProvider()
+                # data_provider2.addFeatures(features2)
+                # puntiLYR2.commitChanges()
+            # destLYR1.commitChanges()
+            
+            # #QgsProject.instance().removeMapLayer(sourceLYR)          
+        # else:
+            # pass
    
-    
+        
     def check_settings (self):
         p = QgsProject.instance()
         error = ''
