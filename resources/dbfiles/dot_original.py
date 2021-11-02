@@ -330,19 +330,20 @@ class Node:
 
     def exportGraphml(self, doc, parent, conf):        
         """ export the node in Graphml format and append it to the parent XML node """
-        
         node = doc.createElement('node')
-        node.setAttribute('id','n0::n%d' % self.id)
+        node.setAttribute('id','n%d' % self.id)
+        #node.setAttribute('yfiles.foldertype','group')
         data0 = doc.createElement('data')
-        data0.setAttribute('key', 'd6')
+        data0.setAttribute('key', 'd5')
+
         snode = doc.createElement('y:ShapeNode')
         geom = doc.createElement('y:Geometry')
         geom.setAttribute('height','30.0')
-        geom.setAttribute('width','90.1038716577541')
-        #geom.setAttribute('x','0.0')
-        #geom.setAttribute('y','0.0')
+        geom.setAttribute('width','90.0')
+        geom.setAttribute('x','0.0')
+        geom.setAttribute('y','0.0')
         snode.appendChild(geom)
-        # tablenode.appendChild(snode)
+       
         fill = doc.createElement('y:Fill')
         fill.setAttribute('color','#ffffff')
         fill.setAttribute('transparent','false')
@@ -362,8 +363,8 @@ class Node:
         label.setAttribute('fontStyle','plain')
         label.setAttribute('hasBackgroundColor','false')
         label.setAttribute('hasLineColor','false')
-        label.setAttribute('modelName','SmartFree')
-        label.setAttribute('modelPosition','Anywhere')
+        label.setAttribute('modelName','custom')
+        label.setAttribute('modelPosition','c')
         label.setAttribute('textColor','%s' % color)
         label.setAttribute('visible','true')
         label.setAttribute('width','80.0')
@@ -398,20 +399,17 @@ class Node:
         shape = doc.createElement('y:Shape')
         shape.setAttribute('type','rectangle')
         snode.appendChild(shape)
-        
-        #tablenode.appendChild(snode)
         data0.appendChild(snode)
         
         LabelText = self.getLabel(conf, True)
         bb = LabelText.rsplit('_',)[1:]
         b = ' '.join(map(str, bb))
         data1 = doc.createElement('data')
-        data1.setAttribute('key', 'd5')
+        data1.setAttribute('key', 'd4')
         data1.setAttribute('xml:space','preserve')
         data1.appendChild(doc.createTextNode('{}'.format(b))) 
-         
-        node.appendChild(data1)        
-        node.appendChild(data0)        
+        node.appendChild(data1)
+        node.appendChild(data0) 
         parent.appendChild(node)
         
 class Edge:
@@ -510,12 +508,12 @@ class Edge:
     def exportGraphml(self, doc, parent, nodes, conf):
         """ export the edge in Graphml format and append it to the parent XML node """
         edge = doc.createElement('edge')
-        edge.setAttribute('id','n0::e%d' % self.id)
-        edge.setAttribute('source','n0::n%d'% nodes[self.src].id)
-        edge.setAttribute('target','n0::n%d'% nodes[self.dest].id)
+        edge.setAttribute('id','e%d' % self.id)
+        edge.setAttribute('source','n%d'% nodes[self.src].id)
+        edge.setAttribute('target','n%d'% nodes[self.dest].id)
         
         data2 = doc.createElement('data')
-        data2.setAttribute('key', 'd10')
+        data2.setAttribute('key', 'd9')
 
         pedge = doc.createElement('y:PolyLineEdge')
         line = doc.createElement('y:LineStyle')
@@ -565,7 +563,7 @@ class Edge:
         edge.appendChild(data2)
 
         data3 = doc.createElement('data')
-        data3.setAttribute('key', 'd9')
+        data3.setAttribute('key', 'd8')
         edge.appendChild(data3)
         
         parent.appendChild(edge)
