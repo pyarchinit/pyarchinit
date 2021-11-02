@@ -59,14 +59,14 @@ def exportGraphml(o, nodes, edges, options):
     
     doc = F.Document()
     root = doc.createElement('graphml')
-    root.setAttribute('xmlns','http://graphml.graphdrawing.org/download.html')
+    root.setAttribute('xmlns','http://graphml.graphdrawing.org/xmlns')
     root.setAttribute('xmlns:java','http://www.yworks.com/xml/yfiles-common/1.0/java')
     root.setAttribute('xmlns:sys','http://www.yworks.com/xml/yfiles-common/markup/primitives/2.0')
     root.setAttribute('xmlns:x','http://www.yworks.com/xml/yfiles-common/markup/2.0')
     root.setAttribute('xmlns:xsi','http://www.w3.org/2001/XMLSchema-instance')
     root.setAttribute('xmlns:y','http://www.yworks.com/xml/graphml')
     root.setAttribute('xmlns:yed','http://www.yworks.com/xml/yed/3')
-    root.setAttribute('xsi:schemaLocation','http://graphml.graphdrawing.org/xmlns http://www.yworks.com/xml/schema/graphml/1.0/ygraphml.xsd')
+    root.setAttribute('xsi:schemaLocation','http://www.yworks.com/xml/schema/graphml/1.0/ygraphml.xsd')
     doc.appendChild(root)        
     
     key = doc.createElement('key')
@@ -88,35 +88,35 @@ def exportGraphml(o, nodes, edges, options):
     key.setAttribute('yfiles.type','portgeometry')    
     root.appendChild(key)
     
-    key = doc.createElement('key')
-    key.setAttribute('for','port')    
-    key.setAttribute('id','d3')    
-    key.setAttribute('yfiles.type','portuserdata')    
-    root.appendChild(key)
+    # key = doc.createElement('key')
+    # key.setAttribute('for','port')    
+    # key.setAttribute('id','d3')    
+    # key.setAttribute('yfiles.type','portuserdata')    
+    # root.appendChild(key)
    
     key = doc.createElement('key')
     key.setAttribute('attr.name','url')    
     key.setAttribute('attr.type','string')    
     key.setAttribute('for','node')    
-    key.setAttribute('id','d4')    
+    key.setAttribute('id','d3')    
     root.appendChild(key)
         
     key = doc.createElement('key')
     key.setAttribute('attr.name','description')    
     key.setAttribute('attr.type','string')    
     key.setAttribute('for','node')    
-    key.setAttribute('id','d5')    
+    key.setAttribute('id','d4')    
     root.appendChild(key) 
         
     key = doc.createElement('key')
     key.setAttribute('for','node')    
-    key.setAttribute('id','d6')    
+    key.setAttribute('id','d5')    
     key.setAttribute('yfiles.type','nodegraphics')    
     root.appendChild(key)
 
     key = doc.createElement('key')
     key.setAttribute('for','graphml')    
-    key.setAttribute('id','d7') 
+    key.setAttribute('id','d6') 
     key.setAttribute('yfiles.folder','group')
     key.setAttribute('yfiles.type','resources')    
     root.appendChild(key)
@@ -125,327 +125,44 @@ def exportGraphml(o, nodes, edges, options):
     key.setAttribute('attr.name','url')    
     key.setAttribute('attr.type','string')    
     key.setAttribute('for','edge')    
-    key.setAttribute('id','d8')    
+    key.setAttribute('id','d7')    
     root.appendChild(key)
 
     key = doc.createElement('key')
     key.setAttribute('attr.name','description')    
     key.setAttribute('attr.type','string')    
     key.setAttribute('for','edge')    
-    key.setAttribute('id','d9')    
+    key.setAttribute('id','d8')    
     root.appendChild(key)
 
     key = doc.createElement('key')
     key.setAttribute('for','edge')    
-    key.setAttribute('id','d10')    
+    key.setAttribute('id','d9')    
     key.setAttribute('yfiles.type','edgegraphics')    
     root.appendChild(key)
     
     graph = doc.createElement('graph')
     graph.setAttribute('edgedefault','directed')    
-    graph.setAttribute('id','G') 
-    data01 = doc.createElement('data')
-    data01.setAttribute('key', 'd0')   
-    graph.appendChild(data01)
-    node1 = doc.createElement('node')        
-    node1.setAttribute('id','n0')
-    node1.setAttribute('yfiles.foldertype','group')    
-    #LabelText = self.getLabel(conf, True)
-    data1 = doc.createElement('data')
-    data1.setAttribute('key', 'd5')
-    data1.setAttribute('xml:space','preserve')
-    data1.appendChild(doc.createTextNode('![CDATA[Stratigrafia]]'))  
-    node1.appendChild(data1)    
-    data0 = doc.createElement('data')
-    data0.setAttribute('key', 'd6')    
-    tablenode= doc.createElement('y:TableNode')
-    tablenode.setAttribute('configuration','YED_TABLE_NODE')
-    geom = doc.createElement('y:Geometry')
-    geom.setAttribute('height','1044')
-    geom.setAttribute('width','4066')
-    geom.setAttribute('x','-29.0')
-    geom.setAttribute('y','-596.1141011840689')
-    tablenode.appendChild(geom)
-    
-    fill = doc.createElement('y:Fill')
-    fill.setAttribute('color','#ecf5ff')
-    fill.setAttribute('color2','#0042F440')
-    fill.setAttribute('transparent','false')
-    tablenode.appendChild(fill)
-    
-    border = doc.createElement('y:BorderStyle')
-    border.setAttribute('color','#000000')
-    border.setAttribute('type','line')
-    border.setAttribute('width','1.0')
-    tablenode.appendChild(border)
-    label = doc.createElement('y:NodeLabel')
-    label.setAttribute('alignment','center')
-    label.setAttribute('autoSizePolicy','content')
-    label.setAttribute('fontFamily','Dialog')
-    label.setAttribute('fontSize','12')
-    label.setAttribute('fontStyle','plain')
-    label.setAttribute('hasBackgroundColor','false')
-    label.setAttribute('hasLineColor','false')
-    label.setAttribute('height','22.37646484375')
-    label.setAttribute('horizontalTextPosition','center')
-    label.setAttribute('iconTextGap','4')
-    label.setAttribute('modelName','internal')        
-    label.setAttribute('modelPosition','t')
-    label.setAttribute('textColor','#000000')
-    label.setAttribute('verticalTextPosition','bottom')
-    label.setAttribute('visible','true')
-    
-    
-    label.setAttribute('width','0.0')
-    label.setAttribute('x','0.0')
-    label.setAttribute('xml:space','preserve')
-    label.setAttribute('y','4.0')
-    nodeLabelText = 'Scavo archeologico'
-    # a = nodeLabelText.rsplit('_',)[0]
-   
-    # label.appendChild(doc.createTextNode('{}'.format(a)))        
-    labelz = doc.createElement('y:LabelModel')
-    labelz2 = doc.createElement('y:ModelParameter')
-    labelz3 = doc.createElement('y:RowNodeLabelModelParameter')
-    labelz3.setAttribute('horizontalPosition','0.0')
-    labelz3.setAttribute('id','row_0')
-    labelz3.setAttribute('inside','true')
-    tablenode.appendChild(labelz3)
-    tablenode.appendChild(labelz2)
-    tablenode.appendChild(labelz)
-    tablenode.appendChild(label)
-    #data0.appendChild(tablenode)
-    
-    propertyStyle=doc.createElement('y:StyleProperties')
-    property=doc.createElement('y:Property')
-    property.setAttribute('name','y.view.tabular.TableNodePainter.ALTERNATE_ROW_STYLE')
-    simplestyle=doc.createElement('y:SimpleStyle')
-    simplestyle.setAttribute('fillColor','#474A4340')
-    simplestyle.setAttribute('lineColor','#000000')
-    simplestyle.setAttribute('lineType','line')
-    simplestyle.setAttribute('lineWidth','1.0')
-    tablenode.appendChild(simplestyle)
-    tablenode.appendChild(property)
-    
-    property1=doc.createElement('y:Property')
-    property1.setAttribute('name','y.view.tabular.TableNodePainter.ALTERNATE_COLUMN_SELECTION_STYLE')
-    simplestyle1=doc.createElement('y:SimpleStyle')
-    simplestyle1.setAttribute('fillColor','#474A4340')
-    simplestyle1.setAttribute('lineColor','#000000')
-    simplestyle1.setAttribute('lineType','line')
-    simplestyle1.setAttribute('lineWidth','3.0')
-    tablenode.appendChild(simplestyle1)
-    tablenode.appendChild(property1)
-    
-    property2=doc.createElement('y:Property')
-    property2.setAttribute('name','y.view.tabular.TableNodePainter.ALTERNATE_ROW_SELECTION_STYLE')
-    simplestyle2=doc.createElement('y:SimpleStyle')
-    simplestyle2.setAttribute('fillColor','#474A4340')
-    simplestyle2.setAttribute('lineColor','#000000')
-    simplestyle2.setAttribute('lineType','line')
-    simplestyle2.setAttribute('lineWidth','3.0')
-    tablenode.appendChild(simplestyle2)
-    tablenode.appendChild(property2)
-    
-    property3=doc.createElement('y:Property')
-    property3.setAttribute('class','java.awt.Color')
-    property3.setAttribute('name','yed.table.section.color')
-    property3.setAttribute('value','#7192b2')
-    tablenode.appendChild(property3)
-    
-    property4=doc.createElement('y:Property')
-    property4.setAttribute('class','java.lang.Double')
-    property4.setAttribute('name','yed.table.header.height')
-    property4.setAttribute('value','24.0')
-    tablenode.appendChild(property4)
-    
-    
-    property5=doc.createElement('y:Property')
-    property5.setAttribute('class','java.lang.Integer')
-    property5.setAttribute('name','yed.table.header.font.size')
-    property5.setAttribute('value','12')
-    tablenode.appendChild(property5)
-    
-    
-    property6=doc.createElement('y:Property')
-    property6.setAttribute('class','java.awt.Color')
-    property6.setAttribute('name','yed.table.lane.color.main')
-    property6.setAttribute('value','#c4d7ed')
-    tablenode.appendChild(property6)
-    
-    property7=doc.createElement('y:Property')
-    property7.setAttribute('class','java.awt.Color')
-    property7.setAttribute('name','yed.table.lane.color.alternating')
-    property7.setAttribute('value','#abc8e2')
-    tablenode.appendChild(property7)
-    
-    property8=doc.createElement('y:Property')
-    property8.setAttribute('class','java.awt.Color')
-    property8.setAttribute('name','yed.table.lane.color.alternating')
-    property8.setAttribute('value','#abc8e2')
-    tablenode.appendChild(property8)
-    
-    property9=doc.createElement('y:Property')
-    property9.setAttribute('class','java.lang.String')
-    property9.setAttribute('name','yed.table.lane.style')
-    property9.setAttribute('value','lane.style.rows')
-    tablenode.appendChild(property9)
-    
-    property11=doc.createElement('y:Property')
-    property11.setAttribute('name','y.view.tabular.TableNodePainter.ALTERNATE_COLUMN_SELECTION_STYLE')
-    simplestyle11=doc.createElement('y:SimpleStyle')
-    simplestyle11.setAttribute('fillColor','#474A4340')
-    simplestyle11.setAttribute('lineColor','#000000')
-    simplestyle11.setAttribute('lineType','line')
-    simplestyle11.setAttribute('lineWidth','1.0')
-    tablenode.appendChild(simplestyle11)
-    tablenode.appendChild(property11)
-    
-    property12=doc.createElement('y:Property')
-    property12.setAttribute('class','java.awt.Color')
-    property12.setAttribute('name','yed.table.lane.color.main')
-    property12.setAttribute('value','#c4d7ed')
-    tablenode.appendChild(property12)
-    
-    
-    #inserire per ultimo##############
-    tablenode.appendChild(propertyStyle)
-    
-    
-    state=doc.createElement('y:State')
-    state.setAttribute('autoResize','true')
-    state.setAttribute('closed','false')
-    state.setAttribute('closedHeight','80.0')
-    state.setAttribute('closedWidth','100.0')
-    tablenode.appendChild(state)
-    
-    
-    
-    insets=doc.createElement('y:Insets')
-    insets.setAttribute('bottom','0')
-    insets.setAttribute('bottomF','0.0')
-    insets.setAttribute('left','0')
-    insets.setAttribute('leftF','0.0')
-    insets.setAttribute('right','0')
-    insets.setAttribute('rightF','0.0')
-    insets.setAttribute('top','0')
-    insets.setAttribute('topF','0.0')
-    tablenode.appendChild(insets)
-    
-    
-    borderinsets=doc.createElement('y:BorderInsets')
-    borderinsets.setAttribute('bottom','62')
-    borderinsets.setAttribute('bottomF','61.8')
-    borderinsets.setAttribute('left','40')
-    borderinsets.setAttribute('leftF','40.0')
-    borderinsets.setAttribute('right','40')
-    borderinsets.setAttribute('rightF','40.0')
-    borderinsets.setAttribute('top','70')
-    borderinsets.setAttribute('topF','71.0')
-    tablenode.appendChild(borderinsets)
-    
-    table=doc.createElement('y:Table')
-    table.setAttribute('autoResizeTable','true' )
-    table.setAttribute('defaultColumnWidth','120.0')
-    table.setAttribute('defaultMinimumColumnWidth','80.0')
-    table.setAttribute('defaultMinimumRowHeight','50.0')
-    table.setAttribute('defaultRowHeight','80.0')
-    
-    
-    
-    defaultcomment=doc.createElement('y:DefaultColumnInsets')
-    defaultcomment.setAttribute('bottom','0.0')
-    defaultcomment.setAttribute('left','0.0')
-    defaultcomment.setAttribute('right','0.0')
-    defaultcomment.setAttribute('top','0.0')
-    tablenode.appendChild(defaultcomment)
-    
-    defaultrowinsets=doc.createElement('y:DefaultRowInsets')
-    defaultrowinsets.setAttribute('bottom','0.0')
-    defaultrowinsets.setAttribute('left','24.0')
-    defaultrowinsets.setAttribute('right','0.0')
-    defaultrowinsets.setAttribute('top','0.0')
-    tablenode.appendChild(defaultrowinsets)
-    
-    
-    
-    
-    insets=doc.createElement('y:Insets')
-    insets.setAttribute('bottom','0.0')
-    insets.setAttribute('left','0.0')
-    insets.setAttribute('right','0.0')
-    insets.setAttribute('top','30.0')
-    tablenode.appendChild(insets)
-    
-    
-    columns=doc.createElement('y:Columns')
-    column=doc.createElement('y:Column')
-    column.setAttribute('id','column_0')
-    column.setAttribute('minimumWidth','80.0')
-    column.setAttribute('width','1020.0')
-    
-    insets2=doc.createElement('y:Insets')
-    insets2.setAttribute('bottom','0.0')
-    insets2.setAttribute('left','0.0')
-    insets2.setAttribute('right','0.0')
-    insets2.setAttribute('top','0.0')
-    
-    
-    
-    tablenode.appendChild(insets2)
-    tablenode.appendChild(column)
-    tablenode.appendChild(columns)
-    
-    
-    
-    rows=doc.createElement('y:Rows')
-    
-    row=doc.createElement('y:Row')
-    row.setAttribute('height','column_0')
-    row.setAttribute('id','row_0')
-    row.setAttribute('minimumHeight','50.0')
-    
-    
-    insets3=doc.createElement('y:Insets')
-    insets3.setAttribute('bottom','0.0')
-    insets3.setAttribute('left','24.0')
-    insets3.setAttribute('right','0.0')
-    insets3.setAttribute('top','0.0')
-    tablenode.appendChild(insets3)
-    
-    tablenode.appendChild(row)
-    tablenode.appendChild(rows)
-    tablenode.appendChild(table)
-    data0.appendChild(tablenode)
-    
-    node1.appendChild(data0)
-    graph.appendChild(node1)
-    # graph.setAttribute('parse.edges','%d' % len(edges))   
-    # graph.setAttribute('parse.nodes','%d' % len(nodes))
-    # graph.setAttribute('parse.order', 'free')    
+    graph.setAttribute('id','G')    
+    graph.setAttribute('parse.edges','%d' % len(edges))   
+    graph.setAttribute('parse.nodes','%d' % len(nodes))
+    graph.setAttribute('parse.order', 'free')    
    
     for k,nod in nodes.items():
         nod.exportGraphml(doc, graph, options)
     for el in edges:
         el.exportGraphml(doc, graph, nodes, options)
-    
+
     root.appendChild(graph)
     
     data = doc.createElement('data')
-    data.setAttribute('key','d7')    
+    data.setAttribute('key','d6')    
     res = doc.createElement('y:Resources')
     data.appendChild(res)    
     root.appendChild(data)
     
-    xml_string='{}'.format(doc.toxml(encoding='UTF-8').decode())
+    o.write('{}'.format(doc.toxml(encoding='UTF-8').decode()))
     
-
-    parsed_xml = xml.dom.minidom.parseString(xml_string)
-    pretty_xml_as_string = parsed_xml.toprettyxml()
-
-    #file = open("./content_new.xml", 'w')
-    o.write(pretty_xml_as_string)
-    o.close()
 def exportGDF(o, nodes, edges, options):
     o.write("nodedef> name\n")
     for k,nod in nodes.items():
@@ -481,7 +198,7 @@ def main():
                       action='store_false', dest='Colors', default=True,
                       help='do not output any colors [Graphml]')
     parser.add_option('--la', '--lump-attributes',
-                      action='store_true', dest='LumpAttributes', default=True,
+                      action='store_true', dest='LumpAttributes', default=False,
                       help='lump class attributes/methods together with the node label [Graphml]')
     parser.add_option('--sc', '--separator-char',
                       action='store', dest='SepChar', default='_', metavar='SEPCHAR',
