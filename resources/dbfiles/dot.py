@@ -214,6 +214,8 @@ class Node:
         self.attribs = {}
         self.referenced = False
         self.sections = []
+        self.x=0.0
+        self.y=0.0
     # def listToString(list):
     # """ converte la lista in stringa"""    
         # str1 = " "
@@ -331,6 +333,8 @@ class Node:
     def exportGraphml(self, doc, parent, conf):        
         """ export the node in Graphml format and append it to the parent XML node """
         
+
+        
         node = doc.createElement('node')
         node.setAttribute('id','n0::n%d' % self.id)
         data0 = doc.createElement('data')
@@ -338,9 +342,9 @@ class Node:
         snode = doc.createElement('y:ShapeNode')
         geom = doc.createElement('y:Geometry')
         geom.setAttribute('height','30.0')
-        geom.setAttribute('width','90.1038716577541')
-        #geom.setAttribute('x','0.0')
-        #geom.setAttribute('y','0.0')
+        geom.setAttribute('width','90.0')
+        geom.setAttribute('x','%r' % self.x)
+        geom.setAttribute('y','%r' % self.y)
         snode.appendChild(geom)
         # tablenode.appendChild(snode)
         fill = doc.createElement('y:Fill')
@@ -362,37 +366,40 @@ class Node:
         label.setAttribute('fontStyle','plain')
         label.setAttribute('hasBackgroundColor','false')
         label.setAttribute('hasLineColor','false')
-        label.setAttribute('modelName','SmartFree')
-        label.setAttribute('modelPosition','Anywhere')
+        label.setAttribute('height','18.701171875')
+        label.setAttribute('horizontalTextPosition','center')
+        label.setAttribute('iconTextGap','4')
+        label.setAttribute('modelName','internal')
+        label.setAttribute('modelPosition','c')
         label.setAttribute('textColor','%s' % color)
         label.setAttribute('visible','true')
-        label.setAttribute('width','80.0')
-        label.setAttribute('x','0.0')
+        label.setAttribute('width','34.017578125')
+        label.setAttribute('x','27.9912109375')
         label.setAttribute('xml:space','preserve')
-        label.setAttribute('y','0.0')
+        label.setAttribute('y','5.6494140625')
         nodeLabelText = escapeNewlines(self.getLabel(conf, True))
         a = nodeLabelText.rsplit('_',)[0]
        
         label.appendChild(doc.createTextNode('{}'.format(a)))        
-        labelz = doc.createElement('y:LabelModel')
-        labelz1 = doc.createElement('y:SmartNodeLabelModel')
-        labelz1.setAttribute('distance','4.0')
+        # labelz = doc.createElement('y:LabelModel')
+        # labelz1 = doc.createElement('y:SmartNodeLabelModel')
+        # labelz1.setAttribute('distance','4.0')
         
-        labelz2 = doc.createElement('y:ModelParameter')
-        labelz3 = doc.createElement('y:SmartNodeLabelModelParameter')
-        labelz3.setAttribute('labelRatioX','0.0')
-        labelz3.setAttribute('labelRatioY','0.0')
-        labelz3.setAttribute('nodeRatioX','0.0')
-        labelz3.setAttribute('nodeRatioY','0.0' )
-        labelz3.setAttribute('offsetX','0.0')
-        labelz3.setAttribute('offsetY','0.0')
-        labelz3.setAttribute('upX','0.0')
-        labelz3.setAttribute('upY','-1.0')
+        # labelz2 = doc.createElement('y:ModelParameter')
+        # labelz3 = doc.createElement('y:SmartNodeLabelModelParameter')
+        # labelz3.setAttribute('labelRatioX','0.0')
+        # labelz3.setAttribute('labelRatioY','0.0')
+        # labelz3.setAttribute('nodeRatioX','0.0')
+        # labelz3.setAttribute('nodeRatioY','0.0' )
+        # labelz3.setAttribute('offsetX','0.0')
+        # labelz3.setAttribute('offsetY','0.0')
+        # labelz3.setAttribute('upX','0.0')
+        # labelz3.setAttribute('upY','-1.0')
         
-        snode.appendChild(labelz3)
-        snode.appendChild(labelz2)
-        snode.appendChild(labelz1)
-        snode.appendChild(labelz)
+        # snode.appendChild(labelz3)
+        # snode.appendChild(labelz2)
+        # snode.appendChild(labelz1)
+        # snode.appendChild(labelz)
         snode.appendChild(label)
         
         shape = doc.createElement('y:Shape')
@@ -411,8 +418,10 @@ class Node:
         data1.appendChild(doc.createTextNode('{}'.format(b))) 
          
         node.appendChild(data1)        
-        node.appendChild(data0)        
+        node.appendChild(data0) 
+        
         parent.appendChild(node)
+        
         
 class Edge:
     """ a single edge in the graph """
