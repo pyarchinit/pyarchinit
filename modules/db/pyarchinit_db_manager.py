@@ -1198,10 +1198,7 @@ class Pyarchinit_db_management(object):
         session_exec_str = 'session.query(%s).filter(and_(%s.%s == %s)).update(values = %s)' % (
         self.table_class_str, self.table_class_str, self.id_table_str, self.value_id_list[0], changes_dict)
 
-        f = open("C:\\Users\\Utente\\pyarchinit\\pyarchinit_Report_folder\\test_update.txt", "w")
-        f.write(str(session_exec_str))
-        f.close()
-
+        
         eval(session_exec_str)
         session.close()
     def update_find_check(self, table_class_str, id_table_str, value_id, find_check_value):
