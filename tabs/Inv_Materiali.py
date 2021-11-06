@@ -402,7 +402,7 @@ class pyarchinit_Inventario_reperti(QDialog, MAIN_DIALOG_CLASS):
             self.on_pushButton_connect_pressed()
         except Exception as e:
             QMessageBox.warning(self, "Connection system", str(e), QMessageBox.Ok)
-        #self.setnone()
+        self.setnone()
         self.fill_fields()
         self.lineEdit_num_inv.setText('')
         self.lineEdit_num_inv.textChanged.connect(self.update)
@@ -2307,35 +2307,35 @@ class pyarchinit_Inventario_reperti(QDialog, MAIN_DIALOG_CLASS):
         tecnologie = self.table2dict("self.tableWidget_tecnologie")
 
         try:
-            if self.lineEdit_area.text() == "":
-                area = ''
-            else:
-                area = str(self.lineEdit_area.text())
+            # if self.lineEdit_area.text() == "":
+                # area = ''
+            # else:
+                # area = str(self.lineEdit_area.text())
 
-            if self.lineEdit_us.text() == "":
-                us = ''
-            else:
-                us = int(self.lineEdit_us.text())
+            # if self.lineEdit_us.text() == "":
+                # us = ''
+            # else:
+                # us = str(self.lineEdit_us.text())
 
-            if self.lineEdit_nr_cassa.text() == "":
-                nr_cassa = ''
-            else:
-                nr_cassa = int(self.lineEdit_nr_cassa.text())
+            # if self.lineEdit_nr_cassa.text() == "":
+                # nr_cassa = ''
+            # else:
+                # nr_cassa = str(self.lineEdit_nr_cassa.text())
 
-            if self.lineEditFormeMin.text() == "":
-                forme_minime = ''
-            else:
-                forme_minime = int(self.lineEditFormeMin.text())
+            # if self.lineEditFormeMin.text() == "":
+                # forme_minime = ''
+            # else:
+                # forme_minime = str(self.lineEditFormeMin.text())
 
-            if self.lineEditFormeMax.text() == "":
-                forme_massime = ''
-            else:
-                forme_massime = int(self.lineEditFormeMax.text())
+            # if self.lineEditFormeMax.text() == "":
+                # forme_massime = ''
+            # else:
+                # forme_massime = str(self.lineEditFormeMax.text())
 
-            if self.lineEditTotFram.text() == "":
-                totale_frammenti = ''
-            else:
-                totale_frammenti = int(self.lineEditTotFram.text())
+            # if self.lineEditTotFram.text() == "":
+                # totale_frammenti = ''
+            # else:
+                # totale_frammenti = str(self.lineEditTotFram.text())
 
             if self.lineEdit_diametro_orlo.text() == "":
                 diametro_orlo = None
@@ -2353,23 +2353,23 @@ class pyarchinit_Inventario_reperti(QDialog, MAIN_DIALOG_CLASS):
                 eve_orlo = float(self.lineEdit_eve_orlo.text())
 
             
-            if self.lineEdit_n_reperto.text() == "":
-                n_reperto = ''
-            else:
-                n_reperto = int(self.lineEdit_n_reperto.text())
+            # if self.lineEdit_n_reperto.text() == "":
+                # n_reperto = ''
+            # else:
+                # n_reperto = str(self.lineEdit_n_reperto.text())
 
             data = self.DB_MANAGER.insert_values_reperti(
                 self.DB_MANAGER.max_num_id(self.MAPPER_TABLE_CLASS, self.ID_TABLE) + 1,  # 0 - IDsito
                 str(self.comboBox_sito.currentText()),  # 1 - Sito
-                int(self.lineEdit_num_inv.text()),  # 2 - num_inv
+                str(self.lineEdit_num_inv.text()),  # 2 - num_inv
                 str(self.comboBox_tipo_reperto.currentText()),  # 3 - tipo_reperto
                 str(self.comboBox_criterio_schedatura.currentText()),  # 4 - criterio
                 str(self.comboBox_definizione.currentText()),  # 5 - definizione
                 str(self.textEdit_descrizione_reperto.toPlainText()),  # 6 - descrizione
-                area,  # 7 - area
-                us,  # 8 - us
+                str(self.lineEdit_area.text()),
+                str(self.lineEdit_us.text()),
                 str(self.comboBox_lavato.currentText()),  # 9 - lavato
-                nr_cassa,  # 10 - nr cassa
+                str(self.lineEdit_nr_cassa.text()),
                 str(self.lineEdit_luogo_conservazione.text()),  # 11 - luogo conservazione
                 str(self.comboBox_conservazione.currentText()),  # 12 - stato di conservazione
                 str(self.lineEdit_datazione_rep.text()),  # 13 - datazione reperto
@@ -2377,9 +2377,9 @@ class pyarchinit_Inventario_reperti(QDialog, MAIN_DIALOG_CLASS):
                 str(misurazioni),  # 15 - misurazioni
                 str(rif_biblio),  # 16 - rif biblio
                 str(tecnologie),  # 17 - tecnologie
-                forme_minime,  # 18 - forme minime
-                forme_massime,  # 18-  forme massime
-                totale_frammenti,  # 19 - totale frammenti
+                str(self.lineEditFormeMin.text()),
+                str(self.lineEditFormeMax.text()),
+                str(self.lineEditTotFram.text()),
                 str(self.lineEditCorpoCeramico.text()),  # 20 - corpo ceramico
                 str(self.lineEditRivestimento.text()),  # 21   rivestimento
                 diametro_orlo,  # 22 - diametro orlo
@@ -2388,7 +2388,7 @@ class pyarchinit_Inventario_reperti(QDialog, MAIN_DIALOG_CLASS):
                 eve_orlo,  # 25 - eve_orlo,
                 str(self.comboBox_repertato.currentText()),  # 9 - lavato
                 str(self.comboBox_diagnostico.currentText()),  # 9 - lavato
-                n_reperto,
+                str(self.lineEdit_n_reperto.text()),
                 str(self.lineEdit_tipo_contenitore.text()),
                 str(self.comboBox_struttura.currentText()),
             )
@@ -3419,8 +3419,8 @@ class pyarchinit_Inventario_reperti(QDialog, MAIN_DIALOG_CLASS):
                 self.loadMediaPreview()
             self.comboBox_struttura.setEditText(
                 str(self.DATA_LIST[self.rec_num].struttura))
-        except KeyError as e:
-            QMessageBox.warning(self, "Error Fill Fields", str(e), QMessageBox.Ok)
+        except:
+            pass#QMessageBox.warning(self, "Error Fill Fields", str(e), QMessageBox.Ok)
 
     def set_rec_counter(self, t, c):
         self.rec_tot = t
