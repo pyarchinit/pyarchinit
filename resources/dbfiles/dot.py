@@ -330,23 +330,25 @@ class Node:
         o.write("    \"%s\"\n" % self.getLabel(conf).encode(latinenc, errors="ignore"))
         o.write("  ]\n")
 
+    
     def exportGraphml(self, doc, parent, conf):        
         """ export the node in Graphml format and append it to the parent XML node """
         
-
-        
+        #self.order()
         node = doc.createElement('node')
         node.setAttribute('id','n0::n%d' % self.id)
         data0 = doc.createElement('data')
         data0.setAttribute('key', 'd6')
         snode = doc.createElement('y:ShapeNode')
+        
+        
         geom = doc.createElement('y:Geometry')
         geom.setAttribute('height','30.0')
         geom.setAttribute('width','90.0')
         geom.setAttribute('x','%r' % self.x)
         geom.setAttribute('y','%r' % self.y)
         snode.appendChild(geom)
-        # tablenode.appendChild(snode)
+        
         fill = doc.createElement('y:Fill')
         fill.setAttribute('color','#ffffff')
         fill.setAttribute('transparent','false')
@@ -381,32 +383,13 @@ class Node:
         a = nodeLabelText.rsplit('_',)[0]
        
         label.appendChild(doc.createTextNode('{}'.format(a)))        
-        # labelz = doc.createElement('y:LabelModel')
-        # labelz1 = doc.createElement('y:SmartNodeLabelModel')
-        # labelz1.setAttribute('distance','4.0')
         
-        # labelz2 = doc.createElement('y:ModelParameter')
-        # labelz3 = doc.createElement('y:SmartNodeLabelModelParameter')
-        # labelz3.setAttribute('labelRatioX','0.0')
-        # labelz3.setAttribute('labelRatioY','0.0')
-        # labelz3.setAttribute('nodeRatioX','0.0')
-        # labelz3.setAttribute('nodeRatioY','0.0' )
-        # labelz3.setAttribute('offsetX','0.0')
-        # labelz3.setAttribute('offsetY','0.0')
-        # labelz3.setAttribute('upX','0.0')
-        # labelz3.setAttribute('upY','-1.0')
-        
-        # snode.appendChild(labelz3)
-        # snode.appendChild(labelz2)
-        # snode.appendChild(labelz1)
-        # snode.appendChild(labelz)
         snode.appendChild(label)
         
         shape = doc.createElement('y:Shape')
         shape.setAttribute('type','rectangle')
         snode.appendChild(shape)
         
-        #tablenode.appendChild(snode)
         data0.appendChild(snode)
         
         LabelText = self.getLabel(conf, True)
@@ -516,6 +499,7 @@ class Edge:
         o.write("    \"%s\"\n" % self.getLabel(nodes, conf).encode(latinenc, errors="ignore"))
         o.write("  ]\n")
 
+    
     def exportGraphml(self, doc, parent, nodes, conf):
         """ export the edge in Graphml format and append it to the parent XML node """
         edge = doc.createElement('edge')
