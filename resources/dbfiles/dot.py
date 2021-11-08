@@ -393,7 +393,7 @@ class Node:
         data0.appendChild(snode)
         
         LabelText = self.getLabel(conf, True)
-        bb = LabelText.rsplit('_',)[1:]
+        bb = sorted(LabelText.rsplit('_',)[1:])
         b = ' '.join(map(str, bb))
         data1 = doc.createElement('data')
         data1.setAttribute('key', 'd5')
