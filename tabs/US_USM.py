@@ -3247,7 +3247,7 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
                 cmd = '{}/bin/python{}'.format(python_path, python_version)
             else:
                 cmd = '{}/bin/python{}'.format(python_path, python_version)
-            subprocess.check_call([cmd, dottoxml,'-f', 'Graphml', input_file, output_file], shell=False)
+            subprocess.call([cmd, dottoxml,'-f', 'Graphml',input_file, output_file], shell=False)
             
             with open(output_file, 'r') as file :
                 filedata = file.read()
@@ -3375,7 +3375,7 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
                 writer.save()
             QMessageBox.information(self, "INFO", "Conversion completed",
                                     QMessageBox.Ok)
-        except Exception as e:
+        except KeyError as e:
             QMessageBox.warning(self, "Error", str(e),
                                 QMessageBox.Ok)
        
@@ -5100,7 +5100,7 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
                 QMessageBox.warning(self, "INFO", "Der Zeitstellungscode wurde für die Ausgrabung hochgeladen %s" % (sito), QMessageBox.Ok)
             elif self.L=='en':   
                 QMessageBox.warning(self, "INFO", "Updated period code for excavation %s" % (sito), QMessageBox.Ok)
-        except Exception as e:
+        except KeyError as e:
             if self.L=='it':
                 QMessageBox.warning(self, "Attenzione", str(e), QMessageBox.Ok)
             elif self.L=='de':
