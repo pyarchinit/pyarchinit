@@ -20,7 +20,7 @@
 """
 
 import re
-
+import random
 import X11Colors
 
 r_label = re.compile(r'label\s*=\s*"\s*\{[^\}]*\}\s*"\s*')
@@ -329,12 +329,36 @@ class Node:
         o.write("    label\n")
         o.write("    \"%s\"\n" % self.getLabel(conf).encode(latinenc, errors="ignore"))
         o.write("  ]\n")
-
-    
-    def exportGraphml(self, doc, parent, conf):        
-        """ export the node in Graphml format and append it to the parent XML node """
+    # def random(self,conf):
+        # epoch=[]
+        # LabelText = self.getLabel(conf, True)
+        # bb = LabelText.rsplit('_',)[1:]
+        # b = ' '.join(map(str, bb))
+        # for i in b[-3:]:
+            # epoch.append(i)
         
-        #self.order()
+        # ###rimuove i duplicati###
+        # seen = set()
+        # seen_add = seen.add
+        # return [x for x in epoch if not (x in seen or seen_add(x))]
+            
+
+    def get_y(self,epoch, nome_us) :
+        index=0
+        y_value=0
+        while index <len(epoch):
+            if epoch[index] in nome_us:
+                #if nome_ex.startswith(epoch[index]):
+                y_value=(index)*1000
+
+            index+=1
+            #print(str(y_value))
+        return y_value
+    
+    def exportGraphml(self, doc, parent, conf, epoch_sigla):        
+        """ export the node in Graphml format and append it to the parent XML node """
+        LabelText = self.getLabel(conf, True)
+        
         node = doc.createElement('node')
         node.setAttribute('id','n0::n%d' % self.id)
         data0 = doc.createElement('data')
@@ -345,8 +369,9 @@ class Node:
         geom = doc.createElement('y:Geometry')
         geom.setAttribute('height','30.0')
         geom.setAttribute('width','90.0')
-        geom.setAttribute('x','%r' % self.x)
-        geom.setAttribute('y','%r' % self.y)
+        geom.setAttribute('x','520.0')
+        geom.setAttribute('y','%r'% self.get_y(epoch_sigla, LabelText))
+        #print(str(self.get_y(epoch_sigla)))
         snode.appendChild(geom)
         
         fill = doc.createElement('y:Fill')
@@ -393,7 +418,7 @@ class Node:
         data0.appendChild(snode)
         
         LabelText = self.getLabel(conf, True)
-        bb = sorted(LabelText.rsplit('_',)[1:])
+        bb = LabelText.rsplit('_',)[:-1]
         b = ' '.join(map(str, bb))
         data1 = doc.createElement('data')
         data1.setAttribute('key', 'd5')

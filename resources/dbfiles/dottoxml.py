@@ -209,9 +209,22 @@ def exportGraphml(o, nodes, edges, options,ff=0):
     x=700
     w=200
     epoch=[]
+
+    epoch_sigla = []
     for i in sorted(nodes):
         if i.startswith('Periodo'):
             epoch.append(i)
+        elif i.startswith('US'):
+            descrizione_us, singola_epoca = i.rsplit('_',1)
+            #print(singola_epoca)
+            nome_us, descrizione_us= descrizione_us.split('_',1)
+            #print(f"La US {nome_us}, {descrizione_us}, appartiene all'epoca {singola_epoca}")
+            if singola_epoca not in epoch_sigla:
+                epoch_sigla.append(singola_epoca)
+                #print(epoch_sigla)
+
+    #print(epoch_sigla)
+
     for i in sorted(epoch, reverse=True):
         s=i.split(' : ')
         a=len(i)
@@ -319,8 +332,6 @@ def exportGraphml(o, nodes, edges, options,ff=0):
     
     propertyStyle.appendChild(property)
     
-    
-    
     property3=doc.createElement('y:Property')
     property3.setAttribute('class','java.awt.Color')
     property3.setAttribute('name','yed.table.section.color')
@@ -349,7 +360,6 @@ def exportGraphml(o, nodes, edges, options,ff=0):
     
     propertyStyle.appendChild(property9)
     
-    
     property11=doc.createElement('y:Property')
     property11.setAttribute('name','y.view.tabular.TableNodePainter.ALTERNATE_COLUMN_SELECTION_STYLE')
     simplestyle11=doc.createElement('y:SimpleStyle')
@@ -360,8 +370,6 @@ def exportGraphml(o, nodes, edges, options,ff=0):
     property11.appendChild(simplestyle11)
     
     propertyStyle.appendChild(property11)
-    
-    
     
     
     #inserire per ultimo##############
@@ -476,25 +484,15 @@ def exportGraphml(o, nodes, edges, options,ff=0):
         table.appendChild(rows)
     tablenode.appendChild(table)
     data0.appendChild(tablenode)
-    
-    graph1 = doc.createElement('graph')
-    graph1.setAttribute('edgedefault','directed')    
-    graph1.setAttribute('id','n0:')
-    
-    
-    
-    
-    
-    
     node1.appendChild(data0)
     
     graph.appendChild(node1)
-    
     for k,nod in nodes.items():
-        nod.exportGraphml(doc, graph, options)
+        nod.exportGraphml(doc, graph, options, sorted(epoch_sigla, reverse=True))
+    
     for el in edges:
         el.exportGraphml(doc, graph, nodes, options)
-    
+    #graph.appendChild(graph1) 
     root.appendChild(graph)
     
     data = doc.createElement('data')
@@ -678,7 +676,7 @@ def main():
                         print("Info: Picked up input encoding '%s' from the DOT file." % ienc)
         idx += 1
             
-                
+    #print(nodes)
     # Add single nodes, if required
     for e in edges:
         if e.src not in nodes:
