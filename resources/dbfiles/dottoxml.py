@@ -141,12 +141,19 @@ def exportGraphml(o, nodes, edges, options,ff=0):
     key.setAttribute('yfiles.type','edgegraphics')    
     root.appendChild(key)
     
+    
+    
+    
     graph = doc.createElement('graph')
     graph.setAttribute('edgedefault','directed')    
     graph.setAttribute('id','G') 
     data01 = doc.createElement('data')
-    data01.setAttribute('key', 'd0')   
+    data01.setAttribute('key', 'd0')
+    data01.setAttribute('xml:space','preserve')    
     graph.appendChild(data01)
+    
+    
+    
     node1 = doc.createElement('node')        
     node1.setAttribute('id','n0')
     node1.setAttribute('yfiles.foldertype','group')    
@@ -161,7 +168,7 @@ def exportGraphml(o, nodes, edges, options,ff=0):
     tablenode= doc.createElement('y:TableNode')
     tablenode.setAttribute('configuration','YED_TABLE_NODE')
     geom = doc.createElement('y:Geometry')
-    geom.setAttribute('height','4066.2706350074')
+    geom.setAttribute('height','10000.86965344368')
     geom.setAttribute('width','1044.0')
     geom.setAttribute('x','-29.0')
     geom.setAttribute('y','-596.1141011840689')
@@ -458,7 +465,7 @@ def exportGraphml(o, nodes, edges, options,ff=0):
     
     #n.initFromString(l)
     rows=doc.createElement('y:Rows')
-    x=400.0
+    x=1000.0
     
     
     for i in sorted(epoch,reverse=True):
@@ -466,7 +473,7 @@ def exportGraphml(o, nodes, edges, options,ff=0):
         
         s=i.split(' : ')
         a=len(i)
-        a=x/a*100
+        a=x/100*94
             
         row=doc.createElement('y:Row')
         
@@ -486,13 +493,21 @@ def exportGraphml(o, nodes, edges, options,ff=0):
     data0.appendChild(tablenode)
     node1.appendChild(data0)
     
-    graph.appendChild(node1)
+    graph1 = doc.createElement('graph')
+    graph1.setAttribute('edgedefault','directed')    
+    graph1.setAttribute('id','n0:')
+    
+    
+    
     for k,nod in nodes.items():
-        nod.exportGraphml(doc, graph, options, sorted(epoch_sigla, reverse=True))
+        nod.exportGraphml(doc, graph1, options, sorted(epoch_sigla, reverse=True))
+    node1.appendChild(graph1)
+   
+    graph.appendChild(node1)
     
     for el in edges:
         el.exportGraphml(doc, graph, nodes, options)
-    #graph.appendChild(graph1) 
+    
     root.appendChild(graph)
     
     data = doc.createElement('data')
