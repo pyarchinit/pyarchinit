@@ -22,7 +22,7 @@ about=https://github.com/pyarchinit/pyarchinit
 tracker=https://github.com/pyarchinit/pyarchinit/issues
 repository=https://github.com/pyarchinit/pyarchinit
 
-changelog=release3.9.8.12
+changelog=release3.9.8.13
 
     -fix matrix for ED
   -------------------------------------------------------------------------------
