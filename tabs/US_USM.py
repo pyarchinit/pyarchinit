@@ -3247,7 +3247,7 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
                 cmd = '{}/bin/python{}'.format(python_path, python_version)
             else:
                 cmd = '{}/bin/python{}'.format(python_path, python_version)
-            subprocess.call([cmd, dottoxml,'-f', 'Graphml',input_file, output_file], shell=False)
+            subprocess.call(['python', dottoxml,'-f', 'Graphml',input_file, output_file], shell=True)
             
             with open(output_file, 'r') as file :
                 filedata = file.read()
