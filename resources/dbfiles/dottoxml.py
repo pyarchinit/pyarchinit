@@ -26,6 +26,8 @@ import optparse
 import dot
 import xml.dom.minidom as F
 from xml.dom.minidom import *
+
+from PyQt5.QtWidgets import QInputDialog, QApplication
 # Usage message
 usgmsg = "Usage: dottoxml.py [options] infile.dot outfile.graphml"
 
@@ -54,6 +56,14 @@ def exportGML(o, nodes, edges, options):
         el.exportGML(o,nodes,options)
 
     o.write("]\n")
+
+def intes():
+    try: 
+        ID_Sito = QInputDialog.getText(None, 'Intestazione', 'Input Text')
+        Sito = str(ID_Sito[0])
+        return Sito
+    except KeyError as e:
+        print(str(e))
 
 def exportGraphml(o, nodes, edges, options,ff=0):
     
@@ -205,7 +215,7 @@ def exportGraphml(o, nodes, edges, options,ff=0):
     label01.setAttribute('x','454.54345703125')
     label01.setAttribute('xml:space','preserve')
     label01.setAttribute('y','0.0')
-    nodelabel01Text = 'Scavo archeologico'
+    nodelabel01Text = '%s' % intes()
     label01.appendChild(doc.createTextNode(nodelabel01Text))        
     tablenode.appendChild(label01)
     n = dot.Node()
@@ -740,4 +750,7 @@ def main():
         print("\nDone.")
 
 if __name__ == '__main__':
+    app=QApplication(sys.argv)
+    # #app.show()
+    # sys.exit(app.exec_())
     main()

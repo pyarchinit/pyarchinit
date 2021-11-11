@@ -540,6 +540,12 @@ class Edge:
         data2.setAttribute('key', 'd10')
 
         pedge = doc.createElement('y:PolyLineEdge')
+        path=doc.createElement('y:Path')
+        path.setAttribute('sx','0.0')
+        path.setAttribute('sy','15.0')
+        path.setAttribute('tx','0.0')
+        path.setAttribute('ty','-15.0')
+        pedge.appendChild(path)
         line = doc.createElement('y:LineStyle')
         color = getColorAttribute(self.attribs, 'color', conf.DefaultEdgeColor, conf)
         line.setAttribute('color','%s' % color)
