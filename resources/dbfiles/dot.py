@@ -357,6 +357,10 @@ class Node:
     
     def exportGraphml(self, doc, parent, conf, epoch_sigla):        
         """ export the node in Graphml format and append it to the parent XML node """
+        graph1 = doc.createElement('graph')
+        graph1.setAttribute('edgedefault','directed')    
+        graph1.setAttribute('id','n0:')
+        
         LabelText = self.getLabel(conf, True)
         
         node = doc.createElement('node')
@@ -427,7 +431,7 @@ class Node:
          
         node.appendChild(data1)        
         node.appendChild(data0) 
-        
+        #graph1.appendChild(node)
         parent.appendChild(node)
         
         
