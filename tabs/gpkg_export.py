@@ -30,11 +30,11 @@ MAIN_DIALOG_CLASS, _ = loadUiType(
     os.path.join(os.path.dirname(__file__), os.pardir, 'gui', 'ui', 'gpkg_export.ui'))
 class pyarchinit_GPKG(QDialog, MAIN_DIALOG_CLASS):
     L=QgsSettings().value("locale/userLocale")[0:2]
-    if L=='it':
+    if self.L=='it':
         MSG_BOX_TITLE = "PyArchInit - Importa in Geopackge"
-    elif L=='en':
+    elif self.L=='en':
         MSG_BOX_TITLE = "PyArchInit - Import into Geopackage"
-    elif L=='de':
+    elif self.L=='de':
         MSG_BOX_TITLE = "PyArchInit - Import ain Geopackage"  
     HOME = os.environ['PYARCHINIT_HOME']
     BIN = '{}{}{}'.format(HOME, os.sep, "pyarchinit_DB_folder")
@@ -68,12 +68,12 @@ class pyarchinit_GPKG(QDialog, MAIN_DIALOG_CLASS):
                     options.layerName = "_".join(lyr.name().split(' '))
                     _writer = QgsVectorFileWriter.writeAsVectorFormat(lyr, gpkgPath, options,"GPKG")
                 if _writer:
-                    if L=='it':
+                    if self.L=='it':
                         QMessageBox.warning(self, "OK","Importazione completata\n",QMessageBox.Ok ) 
                     else:
                         QMessageBox.warning(self, "OK","Import completed\n",QMessageBox.Ok )
                 else:
-                    if L=='it':
+                    if self.L=='it':
                         QMessageBox.warning(self, "Ops","Importazione fallita\n",QMessageBox.Ok )
                     else:
                         QMessageBox.warning(self, "OK","Import completed\n",QMessageBox.Ok )
@@ -85,17 +85,17 @@ class pyarchinit_GPKG(QDialog, MAIN_DIALOG_CLASS):
                     options.layerName = "_".join(lyr.name().split(' '))
                     _writer = QgsVectorFileWriter.writeAsVectorFormat(lyr, gpkgPath, options,"GPKG")
                 if _writer:
-                    if L=='it':
+                    if self.L=='it':
                         QMessageBox.warning(self, "OK","Importazione completata\n",QMessageBox.Ok ) # print(lyr.name(), _writer)
                     else:
                         QMessageBox.warning(self, "OK","Import completed\n",QMessageBox.Ok )
                 else:
-                    if L=='it':
+                    if self.L=='it':
                         QMessageBox.warning(self, "Ops","Importazione fallita\n",QMessageBox.Ok ) # print(lyr.name(), _writer)
                     else:
                         QMessageBox.warning(self, "OK","Import completed\n",QMessageBox.Ok )
         else:
-            if L=='it':
+            if self.L=='it':
                 QMessageBox.warning(self, "Attenzione","Non è stato selezionato nessun layer\n",QMessageBox.Ok )
             else:
                 QMessageBox.warning(self, "Warning","No layer selected\n",QMessageBox.Ok )
