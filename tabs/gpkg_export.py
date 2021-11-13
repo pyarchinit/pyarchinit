@@ -30,11 +30,11 @@ MAIN_DIALOG_CLASS, _ = loadUiType(
     os.path.join(os.path.dirname(__file__), os.pardir, 'gui', 'ui', 'gpkg_export.ui'))
 class pyarchinit_GPKG(QDialog, MAIN_DIALOG_CLASS):
     L=QgsSettings().value("locale/userLocale")[0:2]
-    if self.L=='it':
+    if L=='it':
         MSG_BOX_TITLE = "PyArchInit - Importa in Geopackge"
-    elif self.L=='en':
+    elif L=='en':
         MSG_BOX_TITLE = "PyArchInit - Import into Geopackage"
-    elif self.L=='de':
+    elif L=='de':
         MSG_BOX_TITLE = "PyArchInit - Import ain Geopackage"  
     HOME = os.environ['PYARCHINIT_HOME']
     BIN = '{}{}{}'.format(HOME, os.sep, "pyarchinit_DB_folder")
