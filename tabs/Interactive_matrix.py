@@ -177,7 +177,7 @@ class pyarchinit_Interactive_Matrix(QDialog, MAIN_DIALOG_CLASS):
             cluster_label = "cluster%s" % (clust_number)
 
             if self.L=='it':
-                periodo_label = "Periodo %s - Fase %s - %s" % (str(i[0]), str(i[1]),str(i[2]))
+                periodo_label = "Periodo %s : Fase %s : %s" % (str(i[0]), str(i[1]),str(i[2]))
                 
                 sing_per = [cluster_label, periodo_label]
                 
@@ -185,7 +185,7 @@ class pyarchinit_Interactive_Matrix(QDialog, MAIN_DIALOG_CLASS):
                 sing_ut=[]
                 
             elif self.L=='de':
-                periodo_label = "Period %s - Phase %s - %s" % (str(i[0]), str(i[1]),str(i[2]))
+                periodo_label = "Period %s : Phase %s : %s" % (str(i[0]), str(i[1]),str(i[2]))
 
                 sing_per = [cluster_label, periodo_label]
                 
@@ -194,7 +194,7 @@ class pyarchinit_Interactive_Matrix(QDialog, MAIN_DIALOG_CLASS):
             
             
             else:
-                periodo_label = "Period %s - Phase %s - %s" % (str(i[0]), str(i[1]), str(i[2]))
+                periodo_label = "Period %s : Phase %s : %s" % (str(i[0]), str(i[1]), str(i[2]))
 
                 sing_per = [cluster_label, periodo_label]
 
@@ -308,7 +308,7 @@ class pyarchinit_Interactive_Matrix(QDialog, MAIN_DIALOG_CLASS):
             cluster_label = "cluster%s" % (clust_number)
 
             if self.L=='it':
-                periodo_label = "Periodo %s - Fase %s - %s" % (str(i[0]), str(i[1]),str(i[2]))
+                periodo_label = "Periodo %s : Fase %s : %s" % (str(i[0]), str(i[1]),str(i[2]))
                 
                 sing_per = [cluster_label, periodo_label]
                 
@@ -316,7 +316,7 @@ class pyarchinit_Interactive_Matrix(QDialog, MAIN_DIALOG_CLASS):
                 sing_ut=[]
                 
             elif self.L=='de':
-                periodo_label = "Period %s - Phase %s - %s" % (str(i[0]), str(i[1]),str(i[2]))
+                periodo_label = "Period %s : Phase %s : %s" % (str(i[0]), str(i[1]),str(i[2]))
 
                 sing_per = [cluster_label, periodo_label]
                 
@@ -325,7 +325,7 @@ class pyarchinit_Interactive_Matrix(QDialog, MAIN_DIALOG_CLASS):
             
             
             else:
-                periodo_label = "Period %s - Phase %s - %s" % (str(i[0]), str(i[1]), str(i[2]))
+                periodo_label = "Period %s : Phase %s : %s" % (str(i[0]), str(i[1]), str(i[2]))
 
                 sing_per = [cluster_label, periodo_label]
 

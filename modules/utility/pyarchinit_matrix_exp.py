@@ -430,6 +430,6 @@ class HarrisMatrix:
         # return g,f
         # # return f
     
-    def on_pushButton_graphml_pressed(self):
-        provo= dottoxml, tred, graphml_file
-        return provo
+    # def on_pushButton_graphml_pressed(self):
+        # provo#= dottoxml, tred, graphml_file
+        # return provo
