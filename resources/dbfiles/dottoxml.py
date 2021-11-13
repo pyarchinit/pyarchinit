@@ -26,7 +26,7 @@ import optparse
 import dot
 import xml.dom.minidom as F
 from xml.dom.minidom import *
-
+from PyQt5 import QtCore
 from PyQt5.QtWidgets import QInputDialog, QApplication
 # Usage message
 usgmsg = "Usage: dottoxml.py [options] infile.dot outfile.graphml"
@@ -59,14 +59,29 @@ def exportGML(o, nodes, edges, options):
 
 def intes():
     try: 
-        ID_Sito = QInputDialog.getText(None, 'Intestazione', 'Input Text')
+        dialog = QInputDialog()
+        dialog.resize(QtCore.QSize(700, 100))
+        ID_Sito = dialog.getText(None, 'Intestazione', "Aggiungi una intestazione al tuo diagramma stratigrafico")
         Sito = str(ID_Sito[0])
         return Sito
     except KeyError as e:
         print(str(e))
-
+def reverse():
+    '''return true or false about the order epoch  '''
+    try: 
+        dialog = QInputDialog()
+        dialog.resize(QtCore.QSize(700, 100))
+        ID_rev = dialog.getText(None, 'Ordinamento', "Scrivi true se il Periodo 1 corrisponde all'utima epoca scavata.\n Altrimeti lascia vuoto e clicca 'ok'")
+        rev = str(ID_rev[0])
+        if rev=='true':
+            return 1
+        else:
+            return 0
+    except KeyError as e:
+        print(str(e))
 def exportGraphml(o, nodes, edges, options,ff=0):
-    
+    tf=reverse()
+    ints=intes()
     doc = F.Document()
     root = doc.createElement('graphml')
     root.setAttribute('xmlns','http://graphml.graphdrawing.org/download.html')
@@ -215,7 +230,7 @@ def exportGraphml(o, nodes, edges, options,ff=0):
     label01.setAttribute('x','454.54345703125')
     label01.setAttribute('xml:space','preserve')
     label01.setAttribute('y','0.0')
-    nodelabel01Text = '%s' % intes()
+    nodelabel01Text = '{}'.format(ints)
     label01.appendChild(doc.createTextNode(nodelabel01Text))        
     tablenode.appendChild(label01)
     n = dot.Node()
@@ -241,8 +256,8 @@ def exportGraphml(o, nodes, edges, options,ff=0):
                 #print(epoch_sigla)
 
     #print(epoch_sigla)
-
-    for i in sorted(epoch, reverse=True):
+    
+    for i in sorted(epoch, reverse=tf):
         s=i.split(' : ')
         a=len(i)
         a=x/a*100
@@ -478,7 +493,7 @@ def exportGraphml(o, nodes, edges, options,ff=0):
     x=1000.0
     
     
-    for i in sorted(epoch,reverse=True):
+    for i in sorted(epoch,reverse=tf):
         
         
         s=i.split(' : ')
@@ -510,7 +525,7 @@ def exportGraphml(o, nodes, edges, options,ff=0):
     
     
     for k,nod in nodes.items():
-        nod.exportGraphml(doc, graph1, options, sorted(epoch_sigla, reverse=True))
+        nod.exportGraphml(doc, graph1, options, sorted(epoch_sigla, reverse=tf))
     node1.appendChild(graph1)
    
     graph.appendChild(node1)
