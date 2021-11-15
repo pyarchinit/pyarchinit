@@ -26,10 +26,13 @@ import optparse
 import dot
 import xml.dom.minidom as F
 from xml.dom.minidom import *
+
 from PyQt5 import QtCore
 from PyQt5.QtWidgets import QInputDialog, QApplication
 # Usage message
 usgmsg = "Usage: dottoxml.py [options] infile.dot outfile.graphml"
+
+
 
 def usage():
     print("dottoxml 1.6, 2014-04-10, Dirk Baechle\n")
@@ -763,9 +766,11 @@ def main():
     
     if options.verbose:
         print("\nDone.")
-
+   
+    
 if __name__ == '__main__':
     app=QApplication(sys.argv)
     # #app.show()
     # sys.exit(app.exec_())
     main()
+    

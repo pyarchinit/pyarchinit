@@ -346,8 +346,7 @@ class DB_update(object):
         if not table_column_names_list.__contains__('uso_primario_usm'):
             self.engine.execute("ALTER TABLE us_table ADD COLUMN uso_primario_usm text DEFAULT '' ")
         
-        if not table_column_names_list.__contains__('rapporti2'):
-            self.engine.execute("ALTER TABLE us_table ADD COLUMN rapporti2 text DEFAULT '' ")
+        
         
         #############nuovi##############################################################
         if not table_column_names_list.__contains__('tipologia_opera'):
@@ -390,8 +389,11 @@ class DB_update(object):
         if not table_column_names_list.__contains__('materiale_p'):
                 self.engine.execute("ALTER TABLE us_table ADD COLUMN materiale_p text DEFAULT '' ")
         if not table_column_names_list.__contains__('consistenza_p'):
-                self.engine.execute("ALTER TABLE us_table ADD COLUMN consistenza_p text DEFAULT '' ")
-                    
+                self.engine.execute("ALTER TABLE us_table ADD COLUMN consistenza_p text DEFAULT '' ")                    
+        if not table_column_names_list.__contains__('rapporti2'):
+            self.engine.execute("ALTER TABLE us_table ADD COLUMN rapporti2 text DEFAULT '' ")
+        
+        
         
         ####pyarchinit_thesaurus_sigle
         table = Table("pyarchinit_thesaurus_sigle", self.metadata, autoload=True)

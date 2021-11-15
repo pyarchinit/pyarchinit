@@ -31,9 +31,9 @@ packages = sys.argv[1].split(',') if len(sys.argv) >= 2 else []
 
 if not packages:
     packages = [
-        'SQLAlchemy==1.3.23',
+        'SQLAlchemy==1.4.27',
         'SQLAlchemy-Utils',
-        'geoalchemy2',
+        'geoalchemy2=0.9.4',
         'reportlab',
         'pdf2docx==0.4.6',
         'matplotlib',
@@ -51,7 +51,7 @@ python_path = sys.exec_prefix
 python_version = sys.version[:3]
 
 if platform.system()=='Windows':
-    cmd = '{}\\python'.format(python_path)
+    cmd = 'python'
 elif platform.system()=='Darwin':
     cmd = '{}/bin/python{}'.format(python_path, python_version)
 else:
@@ -61,5 +61,5 @@ else:
 
 for p in packages:
     
-    subprocess.check_call(['python','-m','pip', 'install',  p ], shell=False)
+    subprocess.call([cmd,'-m','pip', 'install', p, '--user' ], shell=False)
     

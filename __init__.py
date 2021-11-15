@@ -71,13 +71,14 @@ except Exception as e:
 try:
     import pkg_resources
 
-    pkg_resources.require("sqlalchemy==1.3.23")
-except Exception as e:
-    missing_libraries.append(str(e))
+    pkg_resources.require("sqlalchemy==1.4.27")
+
 except Exception as e:
     missing_libraries.append(str(e))
 try:
-    import geoalchemy2
+    import pkg_resources
+
+    pkg_resources.require("geoalchemy2==0.9.4")
 except Exception as e:
     missing_libraries.append(str(e))
 try:
