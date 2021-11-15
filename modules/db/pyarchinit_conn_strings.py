@@ -52,7 +52,7 @@ class Connection(object):
         if conn_str_dict["server"] == 'postgres':
             try:
                 
-                conn_str = "%s://%s:%s@%s:%s/%s%s?charset=utf8" % (
+                conn_str = "%s://%s:%s@%s:%s/%s%s" % (
                 "postgresql", conn_str_dict["user"], conn_str_dict["password"], conn_str_dict["host"],
                 conn_str_dict["port"], conn_str_dict["db_name"], "?sslmode=allow")
                 test=True

@@ -825,7 +825,7 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
         # self.tableWidget_rapporti.itemSelectionChanged.connect(self.rapp)
         self.refresh()
         self.field.currentTextChanged.connect(self.value_check)
-
+    
     def refresh(self):
         
         for i in self.DATA_LIST:
@@ -3379,7 +3379,7 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
             QMessageBox.warning(self, "Error", str(e),
                                 QMessageBox.Ok)
        
-  
+        
     def openpdfDir(self):
         HOME = os.environ['PYARCHINIT_HOME']
         path = '{}{}{}'.format(HOME, os.sep, "pyarchinit_PDF_folder")
