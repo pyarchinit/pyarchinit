@@ -12,7 +12,7 @@
 name=pyArchInit
 qgisMinimumVersion=3.0
 description=pyarchinit an tool for archaeological works
-version=3.9.8.12
+version=3.9.8.14
 author=Luca Mandolesi&Enzo Cocca
 email=pyarchinit@gmail.com
 
@@ -23,6 +23,13 @@ tracker=https://github.com/pyarchinit/pyarchinit/issues
 repository=https://github.com/pyarchinit/pyarchinit
 
 changelog=release3.9.8.9
+
+    -fix export matrid to ED
+    -update sqlalchemy to 1.4.27
+    -fix update database to import data
+
+
+  release3.9.8.9
 
     -add form to export to gpkg (vector and raster)
     - ui gpkg on the top
