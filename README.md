@@ -12,7 +12,7 @@ Into QGIS add this link for the master version:
 http://pyarchinit.org/pyarchinit.xml
 
 Testing version #mich (no debugged):
-http://pyarchinit.org/pyarchinit2em.xml
+http://pyarchinit.org/pyarchinit3.xml
 
 
 ## Installing from zip
@@ -35,12 +35,10 @@ http://pyarchinit.org/pyarchinit2em.xml
 #### Dependencies
 * SQLAlchemy
 * reportlab
-* PypeR (for R)
-* [R Software](https://www.r-project.org/)
 * [Graphviz Visualization Software](https://www.graphviz.org/)*(see note)
 * [graphviz python module](https://github.com/xflr6/graphviz)
 * matplotlib
-* pdf2docx
+* pdf2docx==0.4.6
 * pysftp
 
 **Note6:** _Indtruction to install Graphviz on Windows OS (first installation)_
