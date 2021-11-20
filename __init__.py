@@ -133,7 +133,7 @@ if install_libraries:
     from qgis.PyQt.QtWidgets import QMessageBox
     if L=='it':
         res = QMessageBox.warning(None, 'PyArchInit',
-                              "Se vedete questo messaggio significa che alcuni dei pacchetti richiesti mancano dalla vostra macchina:\n{}\n\n"
+                              "Se vedi questo messaggio significa che alcuni dei pacchetti richiesti mancano dal tuo PC:\n{}\n\n"
                               "Vuoi installare i pacchetti mancanti? Ricordate che è necessario avviare QGIS come Admin".format(
                                   ',\n'.join(missing_libraries)), QMessageBox.Ok | QMessageBox.Cancel)
     
