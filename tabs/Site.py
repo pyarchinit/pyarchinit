@@ -284,21 +284,21 @@ class pyarchinit_Site(QDialog, MAIN_DIALOG_CLASS):
         group.setExpanded(False)
         myGroup5 = group.insertGroup(5, "Vincoli")
         nome_vestizione='Vincoli puntuali'
-        url_vestizione ='http://vincoliinrete.beniculturali.it/geoserver/wms_public/ows?width=20&height=20&layer=geo_aree_archeol_vincolate'
-        uri_vestizione ='contextualWMSLegend=0&crs=EPSG:6875&dpiMode=7&featureCount=10&format=image/png&layers=v_geo_anagrafica_beni_puntuali&styles&url='+requests.utils.quote(url_vestizione)
+        url_vestizione ='http://vincoliinrete.beniculturali.it/geoserver/wms_public/ows?layers=v_layer_anagrafica_beniculturali:comune&CQL_FILTER=comune=%27{}%27'.format(self.comboBox_comune.currentText())
+        uri_vestizione ='IgnoreGetFeatureInfoUrl=1&IgnoreGetMapUrl=1&contextualWMSLegend=0&crs=EPSG:6875&dpiMode=7&featureCount=10&format=image/png&layers=v_geo_anagrafica_beni_puntuali&styles&url='+requests.utils.quote(url_vestizione)
         rlayer3= QgsRasterLayer(uri_vestizione, nome_vestizione,'wms')
         myGroup5.insertChildNode(-1, QgsLayerTreeLayer(rlayer3))
         
         
         nome_vestizione='Vincoli Lineari'
-        url_vestizione ='http://vincoliinrete.beniculturali.it/geoserver/wms_public/ows?width=20&height=20&layer=geo_aree_archeol_vincolate'
-        uri_vestizione ='contextualWMSLegend=0&crs=EPSG:6875&dpiMode=7&featureCount=10&format=image/png&layers=v_geo_anagrafica_beni_lineari&styles&url='+requests.utils.quote(url_vestizione)
+        url_vestizione ='http://vincoliinrete.beniculturali.it/geoserver/wms_public/ows?layers=v_layer_anagrafica_beniculturali:comune&CQL_FILTER=comune=%27{}%27'.format(self.comboBox_comune.currentText())
+        uri_vestizione ='IgnoreGetFeatureInfoUrl=1&IgnoreGetMapUrl=1&contextualWMSLegend=0&crs=EPSG:6875&dpiMode=7&featureCount=10&format=image/png&layers=v_geo_anagrafica_beni_lineari&styles&url='+requests.utils.quote(url_vestizione)
         rlayer4= QgsRasterLayer(uri_vestizione, nome_vestizione,'wms')
         myGroup5.insertChildNode(-1, QgsLayerTreeLayer(rlayer4))
         
         nome_vestizione='Vincoli poligonali'
-        url_vestizione ='http://vincoliinrete.beniculturali.it/geoserver/wms_public/ows?width=20&height=20&layer=geo_aree_archeol_vincolate'
-        uri_vestizione ='contextualWMSLegend=0&crs=EPSG:6875&dpiMode=7&featureCount=10&format=image/png&layers=v_geo_anagrafica_beni_poligonali&styles&url='+requests.utils.quote(url_vestizione)
+        url_vestizione ='http://vincoliinrete.beniculturali.it/geoserver/wms_public/ows?layers=v_layer_anagrafica_beniculturali:comune&CQL_FILTER=comune=%27{}%27'.format(self.comboBox_comune.currentText())
+        uri_vestizione ='IgnoreGetFeatureInfoUrl=1&IgnoreGetMapUrl=1&contextualWMSLegend=0&crs=EPSG:6875&dpiMode=7&featureCount=10&format=image/png&layers=v_geo_anagrafica_beni_poligonali&styles&url='+requests.utils.quote(url_vestizione)
         rlayer5= QgsRasterLayer(uri_vestizione, nome_vestizione,'wms')
         myGroup5.insertChildNode(-1, QgsLayerTreeLayer(rlayer5))
         QgsProject.instance().addMapLayers([rlayer3,rlayer4,rlayer5],False)
