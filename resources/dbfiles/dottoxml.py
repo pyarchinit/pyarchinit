@@ -19,20 +19,17 @@
   %dottoxml.py [options] <infile.dot> <outfile.graphml>
   convert a DOT file to Graphml XML (and various other formats)
 """
-
+import random
 import sys
 import locale
 import optparse
 import dot
 import xml.dom.minidom as F
 from xml.dom.minidom import *
-
 from PyQt5 import QtCore
 from PyQt5.QtWidgets import QInputDialog, QApplication
 # Usage message
 usgmsg = "Usage: dottoxml.py [options] infile.dot outfile.graphml"
-
-
 
 def usage():
     print("dottoxml 1.6, 2014-04-10, Dirk Baechle\n")
@@ -82,7 +79,8 @@ def reverse():
             return 0
     except KeyError as e:
         print(str(e))
-def exportGraphml(o, nodes, edges, options,ff=0):
+
+def exportGraphml(o, nodes, edges, options,ff=0):    
     tf=reverse()
     ints=intes()
     doc = F.Document()
@@ -261,6 +259,7 @@ def exportGraphml(o, nodes, edges, options,ff=0):
     #print(epoch_sigla)
     
     for i in sorted(epoch, reverse=tf):
+        color = "#"+''.join([random.choice('0123456789ABCDEF') for j in range(6)])
         s=i.split(' : ')
         a=len(i)
         a=x/a*100
@@ -271,7 +270,7 @@ def exportGraphml(o, nodes, edges, options,ff=0):
         label02.setAttribute('fontFamily','DialogInput')
         label02.setAttribute('fontSize','24')
         label02.setAttribute('fontStyle','bold')
-        label02.setAttribute('backgroundColor','#CCFFCC')
+        label02.setAttribute('backgroundColor','{}'.format(color))
         label02.setAttribute('hasLineColor','false')
         label02.setAttribute('height','18.701171875')
         label02.setAttribute('horizontalTextPosition','center')
@@ -766,11 +765,9 @@ def main():
     
     if options.verbose:
         print("\nDone.")
-   
-    
+
 if __name__ == '__main__':
     app=QApplication(sys.argv)
     # #app.show()
     # sys.exit(app.exec_())
     main()
-    
