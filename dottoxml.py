@@ -19,7 +19,7 @@
   %dottoxml.py [options] <infile.dot> <outfile.graphml>
   convert a DOT file to Graphml XML (and various other formats)
 """
-
+import random
 import sys
 import locale
 import optparse
@@ -79,7 +79,12 @@ def reverse():
             return 0
     except KeyError as e:
         print(str(e))
+def color():
+    color = "#"+''.join([random.choice('0123456789ABCDEF') for j in range(6)]
+    return color
+
 def exportGraphml(o, nodes, edges, options,ff=0):
+    color = "#"+''.join([random.choice('0123456789ABCDEF') for j in range(6)]
     tf=reverse()
     ints=intes()
     doc = F.Document()
@@ -268,7 +273,7 @@ def exportGraphml(o, nodes, edges, options,ff=0):
         label02.setAttribute('fontFamily','DialogInput')
         label02.setAttribute('fontSize','24')
         label02.setAttribute('fontStyle','bold')
-        label02.setAttribute('backgroundColor','#CCFFCC')
+        label02.setAttribute('backgroundColor','{}'.format(color))
         label02.setAttribute('hasLineColor','false')
         label02.setAttribute('height','18.701171875')
         label02.setAttribute('horizontalTextPosition','center')
