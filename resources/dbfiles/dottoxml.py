@@ -525,8 +525,9 @@ def exportGraphml(o, nodes, edges, options,ff=0):
     graph1.setAttribute('id','n0:')
     
     
-    
     for k,nod in nodes.items():
+        
+        
         nod.exportGraphml(doc, graph1, options, sorted(epoch_sigla, reverse=tf))
     node1.appendChild(graph1)
    
