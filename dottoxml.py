@@ -79,12 +79,8 @@ def reverse():
             return 0
     except KeyError as e:
         print(str(e))
-def color():
-    color = "#"+''.join([random.choice('0123456789ABCDEF') for j in range(6)]
-    return color
 
-def exportGraphml(o, nodes, edges, options,ff=0):
-    color = "#"+''.join([random.choice('0123456789ABCDEF') for j in range(6)]
+def exportGraphml(o, nodes, edges, options,ff=0):    
     tf=reverse()
     ints=intes()
     doc = F.Document()
@@ -263,6 +259,7 @@ def exportGraphml(o, nodes, edges, options,ff=0):
     #print(epoch_sigla)
     
     for i in sorted(epoch, reverse=tf):
+        color = "#"+''.join([random.choice('0123456789ABCDEF') for j in range(6)])
         s=i.split(' : ')
         a=len(i)
         a=x/a*100
