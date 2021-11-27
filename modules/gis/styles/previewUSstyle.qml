@@ -4,8 +4,8 @@
     <edittype type="0" name="anno_scavo" />
     <edittype type="0" name="area" />
     <edittype type="0" name="area_s" />
-    <edittype type="0" name="definizione_interpretativa" />
-    <edittype type="0" name="definizione_stratigrafica" />
+    <edittype type="0" name="d_interpretativa" />
+    <edittype type="0" name="d_stratigrafica" />
     <edittype type="0" name="descrizione" />
     <edittype type="0" name="fase_finale" />
     <edittype type="0" name="fase_iniziale" />
