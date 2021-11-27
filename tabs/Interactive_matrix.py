@@ -110,7 +110,7 @@ class pyarchinit_Interactive_Matrix(QDialog, MAIN_DIALOG_CLASS):
                 rapporti_stratigrafici = eval(sing_rec.rapporti2)
             except (NameError, SyntaxError) as e: 
                 if self.L=='it':
-                    QMessageBox.warning(self, 'ATTENZIONE','Mancani i valori unita tipo e interpretazione startigrafica nella tablewidget dei rapporti startigrafici. affinchè il matrix sia esportato correttamente devi inserirli',
+                    QMessageBox.warning(self, 'ATTENZIONE','Mancano i valori unita tipo e interpretazione startigrafica nella tablewidget dei rapporti startigrafici. affinchè il matrix sia esportato correttamente devi inserirli',
                             QMessageBox.Ok)
                     break        
                 elif self.L=='de':
@@ -148,7 +148,7 @@ class pyarchinit_Interactive_Matrix(QDialog, MAIN_DIALOG_CLASS):
             except Exception as e:
                     
                     if self.L=='it':
-                        QMessageBox.warning(self, 'ATTENZIONE','Mancani i valori unita tipo e interpretazione startigrafica nella tablewidget dei rapporti startigrafici. affinchè il matrix sia esportato correttamente devi inserirli',
+                        QMessageBox.warning(self, 'ATTENZIONE','Mancano i valori unita tipo e interpretazione startigrafica nella tablewidget dei rapporti startigrafici. affinchè il matrix sia esportato correttamente devi inserirli',
                                 QMessageBox.Ok)
                     elif self.L=='de':
                         QMessageBox.warning(self, "Warnung", "Sie müssen den Einheitentyp und die startigraphische Interpretation im Tabellenwidget startigraphic reports eingeben",
