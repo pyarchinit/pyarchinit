@@ -327,37 +327,37 @@ class pyarchinit_Site(QDialog, MAIN_DIALOG_CLASS):
                 
                 nome_fabbricati='Fabbricati'
                 url_fabbricati ='wms.cartografia.agenziaentrate.gov.it/inspire/wms/ows01.php'
-                uri_fabbricati ='contextualWMSLegend=0&crs=EPSG:6706&dpiMode=7&featureCount=10&format=image/png&layers=fabbricati&styles&url=https://'+requests.utils.quote(url_vestizione)
+                uri_fabbricati ='contextualWMSLegend=0&crs=EPSG:4258&dpiMode=7&featureCount=10&format=image/png&layers=fabbricati&styles&url=https://'+requests.utils.quote(url_vestizione)
                 rlayer4= QgsRasterLayer(uri_fabbricati, nome_fabbricati,'wms')
                 myGroup4.insertChildNode(-1, QgsLayerTreeLayer(rlayer4))
                 
                 nome_Particelle='Particelle'
                 url_Particelle ='wms.cartografia.agenziaentrate.gov.it/inspire/wms/ows01.php'
-                uri_Particelle ='contextualWMSLegend=0&crs=EPSG:6706&dpiMode=7&featureCount=10&format=image/png&layers=CP.CadastralParcel&styles&url=https://'+requests.utils.quote(url_Particelle)
+                uri_Particelle ='contextualWMSLegend=0&crs=EPSG:4258&dpiMode=7&featureCount=10&format=image/png&layers=CP.CadastralParcel&styles&url=https://'+requests.utils.quote(url_Particelle)
                 rlayer5= QgsRasterLayer(uri_Particelle, nome_Particelle,'wms')
                 myGroup4.insertChildNode(-1, QgsLayerTreeLayer(rlayer5))
                 
                 nome_Strade='Strade'
                 url_Strade ='wms.cartografia.agenziaentrate.gov.it/inspire/wms/ows01.php'
-                uri_Strade ='contextualWMSLegend=0&crs=EPSG:6706&dpiMode=7&featureCount=10&format=image/png&layers=strade&styles&url=https://'+requests.utils.quote(url_Strade)
+                uri_Strade ='contextualWMSLegend=0&crs=EPSG:4258&dpiMode=7&featureCount=10&format=image/png&layers=strade&styles&url=https://'+requests.utils.quote(url_Strade)
                 rlayer6= QgsRasterLayer(uri_Strade, nome_Strade,'wms')
                 myGroup4.insertChildNode(-1, QgsLayerTreeLayer(rlayer6))
                 
                 nome_Acque='Acque'
                 url_Acque ='wms.cartografia.agenziaentrate.gov.it/inspire/wms/ows01.php'
-                uri_Acque ='contextualWMSLegend=0&crs=EPSG:6706&dpiMode=7&featureCount=10&format=image/png&layers=acque&styles&url=https://'+requests.utils.quote(url_Acque)
+                uri_Acque ='contextualWMSLegend=0&crs=EPSG:4258&dpiMode=7&featureCount=10&format=image/png&layers=acque&styles&url=https://'+requests.utils.quote(url_Acque)
                 rlayer7= QgsRasterLayer(uri_Acque, nome_Acque,'wms')
                 myGroup4.insertChildNode(-1, QgsLayerTreeLayer(rlayer7))
                 
                 nome_Mappe='Mappe'
                 url_Mappe ='wms.cartografia.agenziaentrate.gov.it/inspire/wms/ows01.php'
-                uri_Mappe ='crs=EPSG:6706&dpiMode=7&format=image/png&layers=CP.CadastralZoning&styles&url=https://'+requests.utils.quote(url_Mappe)
+                uri_Mappe ='crs=EPSG:4326&dpiMode=7&format=image/png&layers=CP.CadastralZoning&styles&url=https://'+requests.utils.quote(url_Mappe)
                 rlayer8= QgsRasterLayer(uri_Mappe, nome_Mappe,'wms')
                 myGroup4.insertChildNode(-1, QgsLayerTreeLayer(rlayer8))
                 
                 nome_Province='Province'
                 url_Province ='wms.cartografia.agenziaentrate.gov.it/inspire/wms/ows01.php'
-                uri_Province ='crs=EPSG:6706&dpiMode=7&format=image/png&layers=province&styles&url=https://'+requests.utils.quote(url_Province)
+                uri_Province ='crs=EPSG:4258&dpiMode=7&format=image/png&layers=province&styles&url=https://'+requests.utils.quote(url_Province)
                 rlayer9= QgsRasterLayer(uri_Province, nome_Province,'wms')
                 myGroup4.insertChildNode(-1, QgsLayerTreeLayer(rlayer9))
             else:
