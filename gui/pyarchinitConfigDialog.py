@@ -95,6 +95,7 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
         self.lineEdit_DBname.textChanged.connect(self.db_uncheck)
         self.pushButton_upd_postgres.setEnabled(True)
         self.pushButton_upd_sqlite.setEnabled(False)
+        self.comboBox_sito.setCurrentText(self.sito_active())
         self.comboBox_sito.currentIndexChanged.connect(self.summary)
         self.comboBox_Database.currentIndexChanged.connect(self.db_active)
         self.comboBox_Database.currentIndexChanged.connect(self.set_db_parameter)
@@ -206,6 +207,12 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
 
         except KeyError as e:
             QMessageBox.warning(self, "Attenzione", str(e), QMessageBox.Ok)
+    def sito_active(self):
+        conn = Connection()
+        conn_str = conn.conn_str()
+        sito_set= conn.sito_set()
+        sito_set_str = sito_set['sito_set']
+        return sito_set_str
     def check_table(self):
         self.comboBox_mapper_read.update()
         self.comboBox_Database.update()
