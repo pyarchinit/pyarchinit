@@ -930,7 +930,7 @@
              <bool>true</bool>
             </property>
             <property name="editable">
-             <bool>false</bool>
+             <bool>true</bool>
             </property>
             <property name="currentIndex">
              <number>-1</number>
@@ -1054,6 +1054,9 @@
             </property>
             <property name="checkable">
              <bool>true</bool>
+            </property>
+            <property name="checked">
+             <bool>false</bool>
             </property>
             <property name="autoRaise">
              <bool>false</bool>
@@ -2952,8 +2955,8 @@
      <y>22</y>
     </hint>
     <hint type="destinationlabel">
-     <x>250</x>
-     <y>167</y>
+     <x>118</x>
+     <y>141</y>
     </hint>
    </hints>
   </connection>
@@ -2964,12 +2967,12 @@
    <slot>clearEditText()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>529</x>
-     <y>73</y>
+     <x>462</x>
+     <y>59</y>
     </hint>
     <hint type="destinationlabel">
-     <x>529</x>
-     <y>109</y>
+     <x>462</x>
+     <y>89</y>
     </hint>
    </hints>
   </connection>
@@ -2980,12 +2983,12 @@
    <slot>clearEditText()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>529</x>
-     <y>109</y>
+     <x>462</x>
+     <y>89</y>
     </hint>
     <hint type="destinationlabel">
-     <x>529</x>
-     <y>73</y>
+     <x>462</x>
+     <y>59</y>
     </hint>
    </hints>
   </connection>
@@ -2996,12 +2999,12 @@
    <slot>clearEditText()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>470</x>
-     <y>227</y>
+     <x>421</x>
+     <y>192</y>
     </hint>
     <hint type="destinationlabel">
-     <x>529</x>
-     <y>257</y>
+     <x>462</x>
+     <y>218</y>
     </hint>
    </hints>
   </connection>
@@ -3012,12 +3015,12 @@
    <slot>clearEditText()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>470</x>
-     <y>287</y>
+     <x>421</x>
+     <y>243</y>
     </hint>
     <hint type="destinationlabel">
-     <x>529</x>
-     <y>317</y>
+     <x>462</x>
+     <y>269</y>
     </hint>
    </hints>
   </connection>

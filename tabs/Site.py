@@ -360,6 +360,14 @@ class pyarchinit_Site(QDialog, MAIN_DIALOG_CLASS):
                 uri_Province ='crs=EPSG:4258&dpiMode=7&format=image/png&layers=province&styles&url=https://'+requests.utils.quote(url_Province)
                 rlayer9= QgsRasterLayer(uri_Province, nome_Province,'wms')
                 myGroup4.insertChildNode(-1, QgsLayerTreeLayer(rlayer9))
+                
+                myGroup6 = group.insertGroup(6, "IGM 2500")
+                nome_igm='IGM 25000'
+                url_igm ='wms.pcn.minambiente.it/ogc?map=/ms_ogc/WMS_v1.3/raster/IGM_25000.map'
+                uri_igm ='crs=EPSG:4806&dpiMode=7&featureCount=10&format=image/png&layers=CB.IGM25000.32&layers=CB.IGM25000.33&styles&styles&url=http://'+requests.utils.quote(url_igm)
+                rlayer10= QgsRasterLayer(uri_igm, nome_igm,'wms')
+                myGroup6.insertChildNode(-1, QgsLayerTreeLayer(rlayer10))
+            
             else:
                 pass
             basemap_name = 'Google Maps'
@@ -377,7 +385,7 @@ class pyarchinit_Site(QDialog, MAIN_DIALOG_CLASS):
                 myGroup5.insertChildNode(-1, QgsLayerTreeLayer(rlayer_wiki))
                 myGroup5.insertChildNode(-1, QgsLayerTreeLayer(rlayer))
                 if self.L=='it':
-                    QgsProject.instance().addMapLayers([rlayer_wiki,rlayer,rlayer3,rlayer4,rlayer5,rlayer6,rlayer7,rlayer8,rlayer9],False)
+                    QgsProject.instance().addMapLayers([rlayer_wiki,rlayer,rlayer3,rlayer4,rlayer5,rlayer6,rlayer7,rlayer8,rlayer9,rlayer10],False)
                 else:
                     QgsProject.instance().addMapLayers([rlayer_wiki,rlayer],False)
         
