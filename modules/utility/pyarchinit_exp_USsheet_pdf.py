@@ -931,7 +931,7 @@ class single_US_pdf_sheet(object):
         styNormal = styleSheet['Normal']
         styNormal.spaceBefore = 20
         styNormal.spaceAfter = 20
-        styNormal.fontSize = 5
+        styNormal.fontSize = 8
         styNormal.fontName='Times-Roman'
         styNormal.alignment = 0  # LEFT
 
@@ -939,9 +939,9 @@ class single_US_pdf_sheet(object):
         styNormal2 = styleSheet['Normal']
         styNormal2.spaceBefore = 20
         styNormal2.spaceAfter = 20
-        styNormal2.fontSize = 5
+        styNormal2.fontSize = 7
         styNormal2.fontName='Times-Roman'
-        styNormal2.alignment = 1  # LEFT
+        styNormal2.alignment = 0  # LEFT
         
         
         styleSheet = getSampleStyleSheet()
@@ -957,7 +957,7 @@ class single_US_pdf_sheet(object):
         styDescrizione = styleSheet['Normal']
         styDescrizione.spaceBefore = 20
         styDescrizione.spaceAfter = 20
-        styDescrizione.fontSize = 5
+        styDescrizione.fontSize = 8
         styDescrizione.fontName='Times-Roman'
         styDescrizione.alignment = 4  # Justified
 
@@ -974,7 +974,7 @@ class single_US_pdf_sheet(object):
         styTitoloComponenti.spaceBefore = 20
         styTitoloComponenti.spaceAfter = 20
         styTitoloComponenti. rowHeights=0.5
-        styTitoloComponenti.fontSize = 5
+        styTitoloComponenti.fontSize = 8
         styTitoloComponenti.fontName='Times-Roman'
         styTitoloComponenti.alignment = 1  # CENTER
 
@@ -982,7 +982,7 @@ class single_US_pdf_sheet(object):
         styVerticale = styleSheet['Normal']
         styVerticale.spaceBefore = 20
         styVerticale.spaceAfter = 20
-        styVerticale.fontSize = 5
+        styVerticale.fontSize = 8
         styVerticale.fontName='Times-Roman'
         styVerticale.alignment = 1  # CENTER
         styVerticale.leading=8
@@ -1004,11 +1004,11 @@ class single_US_pdf_sheet(object):
         lst.append(logo)
         if str(self.unita_tipo)== 'US':
             unita_tipo = Paragraph(str(self.unita_tipo), styUnitaTipo)
-            label_ente_responsabile = Paragraph("<b>ENTE RESPONSABILE</b>", styNormal)
+            label_ente_responsabile = Paragraph("<b>ENTE RESPONSABILE</b>", styNormal2)
             #label_catalogo_internazionale = Paragraph("<b>N. CATALOGO INTERNAZIONALE</b>", styNormal)
             ente_responsabile = Paragraph(str(self.n_catalogo_generale), styNormal)
             #catalogo_internazionale = Paragraph(str(self.n_catalogo_internazionale), styNormal)
-            sop =  Paragraph("<b>SOPRINTENDENZA MIBACT COMPETENTE PER TUTELA</b><br/>" +str(self.soprintendenza), styNormal)
+            sop =  Paragraph("<b>SOPRINTENDENZA MIBACT COMPETENTE PER TUTELA</b><br/>" +str(self.soprintendenza), styNormal2)
             #2-3 row
 
             sito = Paragraph("<b>LOCALITÀ</b><br/>" + str(self.sito), styNormal)
@@ -1026,8 +1026,8 @@ class single_US_pdf_sheet(object):
             settore = Paragraph("<b>SETTORE/I</b><br/>" + self.settore, styNormal)
             quadrato = Paragraph("<b>QUADRATO/I</b><br/>" + self.quad_par, styNormal)
             quote = Paragraph("<b>QUOTE</b><br/>min: " + self.quota_min + "<br/>max: "+self.quota_max, styNormal)
-            label_unita_stratigrafica = Paragraph("<b>NUMERO/CODICE IDENTIFICATIVO DELL’UNITÀ STRATIGRAFICA</b><br/>"+ str(self.us), styNormal)
-            label_sas = Paragraph("<b>NUMERO/CODICE IDENTIFICATIVO DEL SAGGIO STRATIGRAFICO/DELL’EDIFICIO/DELLA STRUTTURA/DELLA DEPOSIZIONE FUNERARIA DI RIFERIMENTO</b><br/>", styNormal)
+            label_unita_stratigrafica = Paragraph("<b>NUMERO/CODICE IDENTIFICATIVO DELL’UNITÀ STRATIGRAFICA</b><br/>"+ str(self.us), styNormal2)
+            label_sas = Paragraph("<b>NUMERO/CODICE IDENTIFICATIVO DEL SAGGIO STRATIGRAFICO/DELL’EDIFICIO/DELLA STRUTTURA/DELLA DEPOSIZIONE FUNERARIA DI RIFERIMENTO</b><br/>", styNormal2)
             
             if self.formazione == 'Naturale':
                 label_NAT = Paragraph("<i>NAT.</i><br/>" + self.formazione, styNormal)
@@ -3843,7 +3843,7 @@ class US_index_pdf_sheet(object):
         styNormal.spaceBefore = 20
         styNormal.spaceAfter = 20
         styNormal.alignment = 0  # LEFT
-        styNormal.fontSize = 6
+        styNormal.fontSize = 8
 
         self.unzip_rapporti_stratigrafici()
 
@@ -4664,7 +4664,7 @@ class generate_US_pdf(object):
             table_data.append(exp_index.getTable())
 
         styles = exp_index.makeStyles()
-        colWidths = [28, 28, 120, 45, 58, 45, 58, 55, 64, 64, 52, 52, 52]
+        colWidths = [30, 28, 118, 45, 58, 45, 58, 55, 64, 64, 52, 52, 52]
 
         table_data_formatted = Table(table_data, colWidths, style=styles)
         table_data_formatted.hAlign = "LEFT"
