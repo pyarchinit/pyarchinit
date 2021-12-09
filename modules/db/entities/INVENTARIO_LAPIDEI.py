@@ -1,3 +1,8 @@
+'''
+Created on 15 feb 2018
+
+@author: Enzo Cocca <enzo.ccc@gmail.com>
+'''
 class INVENTARIO_LAPIDEI(object):
     # def __init__"
     def __init__(self,
