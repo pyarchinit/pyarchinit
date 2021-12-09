@@ -1,7 +1,7 @@
 '''
 Created on 15 feb 2018
 
-@author: Serena Sensini
+@author: Serena Sensini; Enzo Cocca <enzo.ccc@gmail.com>
 '''
 from sqlalchemy import Table, Column, Integer, Text, MetaData, create_engine, UniqueConstraint
 

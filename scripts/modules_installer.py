@@ -5,7 +5,7 @@
     stored in Postgres
     -------------------
     begin                : 2018-04-22
-    copyright            : (C) 2008 by Salvatore Larosa
+    copyright            : (C) 2008 by Salvatore Larosa; Enzo Cocca <enzo.ccc@gmail.com>
     email                : lrssvtml (at) gmail (dot) com
  ***************************************************************************/
 
