@@ -35,6 +35,13 @@ from reportlab.platypus.paragraph import Paragraph
 from reportlab.pdfbase import pdfmetrics
 from reportlab.pdfbase.pdfmetrics import registerFontFamily
 from reportlab.pdfbase.ttfonts import TTFont
+# Registered font family
+pdfmetrics.registerFont(TTFont('Calibri', 'Calibri.ttf'))
+# pdfmetrics.registerFont(TTFont('VeraBd', 'VeraBd.ttf'))
+# pdfmetrics.registerFont(TTFont('VeraIt', 'VeraIt.ttf'))
+# pdfmetrics.registerFont(TTFont('VeraBI', 'VeraBI.ttf'))
+# Registered fontfamily
+registerFontFamily('Calibri',normal='Calibri')
 from qgis.core import QgsSettings
 from .pyarchinit_OS_utility import *
 from ..db.pyarchinit_utility import Utility

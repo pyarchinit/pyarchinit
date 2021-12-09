@@ -25,11 +25,22 @@ from builtins import object
 from builtins import range
 from builtins import str
 from reportlab.lib import colors
+from reportlab.lib.pagesizes import (A4,A3)
 from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
 from reportlab.lib.units import inch, cm, mm
 from reportlab.pdfgen import canvas
-from reportlab.platypus import Table, PageBreak, SimpleDocTemplate, TableStyle, Image
+from reportlab.platypus import Table, PageBreak, SimpleDocTemplate, Spacer, TableStyle, Image
 from reportlab.platypus.paragraph import Paragraph
+from reportlab.pdfbase import pdfmetrics
+from reportlab.pdfbase.pdfmetrics import registerFontFamily
+from reportlab.pdfbase.ttfonts import TTFont
+# Registered font family
+pdfmetrics.registerFont(TTFont('Calibri', 'Calibri.ttf'))
+# pdfmetrics.registerFont(TTFont('VeraBd', 'VeraBd.ttf'))
+# pdfmetrics.registerFont(TTFont('VeraIt', 'VeraIt.ttf'))
+# pdfmetrics.registerFont(TTFont('VeraBI', 'VeraBI.ttf'))
+# Registered fontfamily
+registerFontFamily('Calibri',normal='Calibri')
 from ..db.pyarchinit_conn_strings import Connection
 from .pyarchinit_OS_utility import *
 
