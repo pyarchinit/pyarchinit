@@ -2571,7 +2571,7 @@ class pyarchinit_Inventario_reperti(QDialog, MAIN_DIALOG_CLASS):
             pass
         else:
             self.REC_CORR = self.REC_CORR - 1
-            if self.REC_CORR == -1:
+            if self.REC_CORR <= -1:
                 self.REC_CORR = 0
                 if self.L=='it':
                     QMessageBox.warning(self, "Attenzione", "Sei al primo record!", QMessageBox.Ok)
