@@ -412,7 +412,7 @@ class pyarchinit_Inventario_reperti(QDialog, MAIN_DIALOG_CLASS):
         #self.comboBox_repertato.currentTextChanged.connect(self.numero_reperto)
         #self.numero_invetario()
         self.toolButton_pdfpath.clicked.connect(self.setPathpdf)
-    
+        self.customize_gui()
     
     def setnone(self):
         if self.lineEdit_tipo_contenitore.text=='None' or None:
@@ -878,25 +878,25 @@ class pyarchinit_Inventario_reperti(QDialog, MAIN_DIALOG_CLASS):
         lang = "'" + lang + "'"
 
         # media prevew system
-        self.iconListWidget = QListWidget(self)
-        self.iconListWidget.setFrameShape(QFrame.StyledPanel)
-        self.iconListWidget.setFrameShadow(QFrame.Sunken)
+
+        #self.iconListWidget.setFrameShape(QFrame.StyledPanel)
+        #self.iconListWidget.setFrameShadow(QFrame.Sunken)
         self.iconListWidget.setLineWidth(2)
         self.iconListWidget.setMidLineWidth(2)
-        self.iconListWidget.setProperty("showDropIndicator", False)
+        #self.iconListWidget.setProperty("showDropIndicator", False)
         self.iconListWidget.setIconSize(QSize(150, 150))
-        self.iconListWidget.setMovement(QListView.Snap)
-        self.iconListWidget.setResizeMode(QListView.Adjust)
-        self.iconListWidget.setLayoutMode(QListView.Batched)
-        self.iconListWidget.setGridSize(QSize(160, 160))
-        self.iconListWidget.setViewMode(QListView.IconMode)
-        self.iconListWidget.setUniformItemSizes(True)
-        self.iconListWidget.setBatchSize(1000)
-        self.iconListWidget.setObjectName("iconListWidget")
-        self.iconListWidget.SelectionMode()
-        self.iconListWidget.setSelectionMode(QAbstractItemView.ExtendedSelection)
+        #self.iconListWidget.setMovement(QListView.Snap)
+        #self.iconListWidget.setResizeMode(QListView.Adjust)
+        #self.iconListWidget.setLayoutMode(QListView.Batched)
+        #self.iconListWidget.setGridSize(QSize(160, 160))
+        #self.iconListWidget.setViewMode(QListView.IconMode)
+        #self.iconListWidget.setUniformItemSizes(True)
+        #self.iconListWidget.setBatchSize(1000)
+        #self.iconListWidget.setObjectName("iconListWidget")
+        #self.iconListWidget.SelectionMode()
+        #self.iconListWidget.setSelectionMode(QAbstractItemView.ExtendedSelection)
         self.iconListWidget.itemDoubleClicked.connect(self.openWide_image)
-        self.tabWidget.addTab(self.iconListWidget, "Media")
+
 
         if self.L=='it':
             valuesTE = ["frammento", "frammenti", "intero", "integro"]
