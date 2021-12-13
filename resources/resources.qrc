@@ -87,5 +87,6 @@
 	<file>icons/movecost.png</file>
 	<file>icons/gpkg.png</file>
     <file>icons/basemap.png</file>
+	<file>icons/tops.png</file>
   </qresource>
 </RCC>

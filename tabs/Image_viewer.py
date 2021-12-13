@@ -1088,12 +1088,14 @@ class Main(QDialog,MAIN_DIALOG_CLASS):
                                 self.iconListWidget.addItem(item)
                             except:
                                 pass
-                      
+                    
                     for i in enumerate(image):
                         image_list.append(i[0])
+                        
                     for n in range(len(image_list)):
-                        #a.append(n)
+                        
                         value = (float(n)/float(len(image_list)))*100
+                        #QMessageBox.information(self, "Info", str(n)+''+str(len(image_list)))
                         self.progressBar.setValue(value)
                         QApplication.processEvents()
                     

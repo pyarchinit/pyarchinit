@@ -122,7 +122,15 @@ try:
     import pandas
 except Exception as e:
     missing_libraries.append(str(e))
+try:
+    
 
+    import totalopenstation
+
+    
+
+except Exception as e:
+    missing_libraries.append(str(e))
 
 install_libraries = []
 for l in missing_libraries:
