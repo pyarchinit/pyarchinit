@@ -27,6 +27,7 @@ SOURCES = 	 tabs/__init__.py\
 			 tabs/gpkg_export.py\
 			 tabs/Excel_export.py\
 			 tabs/pyarchinit_setting_matrix.py\
+			 tabs/tops_pyarchinit.py\
 			 gui/__init__.py\
 			 gui/dbmanagment.py\
 			 gui/imageViewer.py\
@@ -105,6 +106,7 @@ FORMS =   	gui/ui/Archeozoology.ui\
 			gui/ui/Setting_Matrix.ui\
 			gui/ui/gpkg_export.ui\
 			gui/ui/Print_map.ui
+			gui/ui/Tops2pyarchinit.ui
 
 TRANSLATIONS = i18n/pyarchinit_plugin_it_IT.ts \
                i18n/pyarchinit_plugin_de_DE.ts \

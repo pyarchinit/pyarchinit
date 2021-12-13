@@ -24,7 +24,7 @@ import platform
 #from .. modules.utility.pyarchinit_OS_utility import Pyarchinit_OS_Utility
 
 packages = sys.argv[1].split(',') if len(sys.argv) >= 2 else []
-
+l = sys.argv[1].split(',') if len(sys.argv) >= 2 else []
 # Adding the dependencies python modules in
 # package list in order to install via pip module
 
@@ -43,10 +43,14 @@ if not packages:
         'xlsxwriter',
         'pandas',
         'opencv-python',
-        'pytesseract'
+        'pytesseract']
+if not l:    
+    l=[
+        'totalopenstation'
         
     ]
 
+   
 python_path = sys.exec_prefix
 python_version = sys.version[:3]
 
@@ -57,9 +61,28 @@ elif platform.system()=='Darwin':
 else:
     cmd = '{}/bin/python{}'.format(python_path, python_version)
 
-# install pip if it is not found
 
 for p in packages:
     
     subprocess.call(['python','-m','pip', 'install', p, '--user' ], shell=True)
-    
+for t in l:    
+    if platform.system() == 'Windows':
+        cmd = '{}\python'.format(python_path)
+        try:
+            subprocess.call(['python','-m','pip', 'install', 'https://github.com/enzococca/totalopenstation/zipball/main'], shell=True)
+        except KeyError as e:
+            print(e)
+        else:
+            subprocess.call(
+                [cmd, '-m', 'pip', 'install', 'https://github.com/enzococca/totalopenstation/zipball/main'], shell=True)
+
+
+    else:
+        cmd = '{}/bin/python{}'.format(python_path, python_version)
+        try:
+            subprocess.call([cmd,'-m','pip', 'install', 'https://github.com/enzococca/totalopenstation/zipball/main'], shell=True)
+        except KeyError as e:
+            print(e)
+        else:
+            subprocess.call(
+                [cmd, '-m', 'pip', 'install', 'https://github.com/enzococca/totalopenstation/zipball/main'], shell=False)
