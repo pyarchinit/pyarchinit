@@ -315,9 +315,17 @@ class pyarchinit_Site(QDialog, MAIN_DIALOG_CLASS):
             root = QgsProject.instance().layerTreeRoot()
             group = root.addGroup(groupName)
             group.setExpanded(False)
-            myGroup5 = group.insertGroup(4, "BaseMap")
+
             if self.L=='it':
-                myGroup4 = group.insertGroup(5, "Catasto")         
+                myGroup7 = group.insertGroup(4, "Toponomastica")
+                nome_igm_t = ' Toponomastica IGM 25000'
+                url_igm_t = "http://wms.pcn.minambiente.it/ogc?map=/ms_ogc/wfs/Toponimi_2011.map&version=1.1.0&service=wfs&request=getFeature&typename=NG.TOPONIMI.&Filter=%3CFilter%3E%3CPropertyIsEqualTo%3E%3CPropertyName%3Ecomune%3C/PropertyName%3E%3CLiteral%3E{}%3C/Literal%3E%3C/PropertyIsEqualTo%3E%3C/Filter%3E".format(
+                    self.comboBox_comune.currentText().upper())
+
+                rlayer11 = QgsVectorLayer(url_igm_t, nome_igm_t, 'wfs')
+                myGroup7.insertChildNode(-1, QgsLayerTreeLayer(rlayer11))
+
+                myGroup4 = group.insertGroup(6, "Catasto")
                 
                 nome_vestizione='Vestizione'
                 url_vestizione ='wms.cartografia.agenziaentrate.gov.it/inspire/wms/ows01.php'
@@ -361,15 +369,18 @@ class pyarchinit_Site(QDialog, MAIN_DIALOG_CLASS):
                 rlayer9= QgsRasterLayer(uri_Province, nome_Province,'wms')
                 myGroup4.insertChildNode(-1, QgsLayerTreeLayer(rlayer9))
                 
-                myGroup6 = group.insertGroup(6, "IGM 2500")
+                myGroup6 = group.insertGroup(7, "IGM 2500")
                 nome_igm='IGM 25000'
                 url_igm ='wms.pcn.minambiente.it/ogc?map=/ms_ogc/WMS_v1.3/raster/IGM_25000.map'
                 uri_igm ='crs=EPSG:4806&dpiMode=7&featureCount=10&format=image/png&layers=CB.IGM25000.32&layers=CB.IGM25000.33&styles&styles&url=http://'+requests.utils.quote(url_igm)
                 rlayer10= QgsRasterLayer(uri_igm, nome_igm,'wms')
                 myGroup6.insertChildNode(-1, QgsLayerTreeLayer(rlayer10))
+
+
             
             else:
                 pass
+            myGroup5 = group.insertGroup(5, "BaseMap")
             basemap_name = 'Google Maps'
             basemap_wiki = 'Wikimedia Maps'
             basemap_url = 'mt1.google.com/vt/lyrs=s&x={x}&y={y}&z={z}'
@@ -385,7 +396,7 @@ class pyarchinit_Site(QDialog, MAIN_DIALOG_CLASS):
                 myGroup5.insertChildNode(-1, QgsLayerTreeLayer(rlayer_wiki))
                 myGroup5.insertChildNode(-1, QgsLayerTreeLayer(rlayer))
                 if self.L=='it':
-                    QgsProject.instance().addMapLayers([rlayer_wiki,rlayer,rlayer3,rlayer4,rlayer5,rlayer6,rlayer7,rlayer8,rlayer9,rlayer10],False)
+                    QgsProject.instance().addMapLayers([rlayer11,rlayer_wiki,rlayer,rlayer3,rlayer4,rlayer5,rlayer6,rlayer7,rlayer8,rlayer9,rlayer10],False)
                 else:
                     QgsProject.instance().addMapLayers([rlayer_wiki,rlayer],False)
         
