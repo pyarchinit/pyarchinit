@@ -958,7 +958,7 @@ class single_Tomba_pdf_sheet(object):
         # format labels
 
         # 0 row
-        intestazione = Paragraph("<b>SCHEDA TOMBA<br/></b>", styTitoloComponenti)
+        intestazione = Paragraph("<b>SCHEDA TOMBA<br/></b>", styNormal)
 
         # intestazione2 = Paragraph("<b>pyArchInit</b><br/>pyarchinit", styNormal)
 
