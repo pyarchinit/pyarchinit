@@ -6,7 +6,7 @@
                              stored in Postgres
                              -------------------
     begin                : 2007-12-01
-    copyright            : (C) 2008 by Luca Mandolesi
+    copyright            : (C) 2008 by Luca Mandolesi; Enzo Cocca <enzo.ccc@gmail.com>
     email                : mandoluca at gmail.com
  ***************************************************************************/
 
@@ -23,7 +23,8 @@ from __future__ import absolute_import
 
 import os
 from datetime import date
-
+import platform
+from pdf2docx import parse
 import sys
 from builtins import range
 from builtins import str
@@ -224,6 +225,9 @@ class pyarchinit_Struttura(QDialog, MAIN_DIALOG_CLASS):
         self.pyQGIS = Pyarchinit_pyqgis(iface)
         self.setupUi(self)
         self.currentLayerId = None
+        self.mDockWidget_export.setHidden(True)
+        self.mDockWidget_3.setHidden(True)
+        
         try:
             self.on_pushButton_connect_pressed()
         except Exception as e:
@@ -239,12 +243,190 @@ class pyarchinit_Struttura(QDialog, MAIN_DIALOG_CLASS):
         self.comboBox_per_fin.currentIndexChanged.connect(self.charge_fase_fin_list)
         self.comboBox_per_iniz.currentIndexChanged.connect(self.charge_datazione_list)
         self.comboBox_fas_iniz.currentIndexChanged.connect(self.charge_datazione_list)
+        self.toolButton_pdfpath.clicked.connect(self.setPathpdf)
+        self.pbnOpenpdfDirectory.clicked.connect(self.openpdfDir)
         sito = self.comboBox_sito.currentText()
         self.comboBox_sito.setEditText(sito)
         self.fill_fields()
         self.customize_GUI()
         self.set_sito()
         self.msg_sito()
+    def on_pushButton_print_pressed(self):
+        if self.L=='it':
+            if self.checkBox_s_us.isChecked():
+                US_pdf_sheet = generate_struttura_pdf()
+                data_list = self.generate_list_pdf()
+                US_pdf_sheet.build_Struttura_sheets(data_list)
+                QMessageBox.warning(self, 'Ok',"Esportazione terminata Schede Strutture",QMessageBox.Ok)
+            else:   
+                pass
+            if self.checkBox_e_us.isChecked() :
+                US_index_pdf = generate_struttura_pdf()
+                data_list = self.generate_list_pdf()
+                
+                US_index_pdf.build_index_Struttura(data_list, data_list[0][0])
+                QMessageBox.warning(self, 'Ok',"Esportazione terminata Elenco Strutture",QMessageBox.Ok)
+                    
+            else:
+                pass
+            # if self.checkBox_e_foto_t.isChecked():
+                # US_index_pdf = generate_US_pdf()
+                # data_list_foto = self.generate_list_foto()
+                # try:
+                        # if bool(data_list_foto):
+                            # US_index_pdf.build_index_Foto(data_list_foto, data_list_foto[0][0])
+                            # QMessageBox.warning(self, 'Ok',"Esportazione terminata Elenco Foto",QMessageBox.Ok)
+                        # else:
+                            # QMessageBox.warning(self, 'ATTENZIONE',"L'elenco foto non può essere esportato perchè non hai immagini taggate.",QMessageBox.Ok)
+                # except Exception as e :
+                    # QMessageBox.warning(self, 'ATTENZIONE',str(e),QMessageBox.Ok)
+            # if self.checkBox_e_foto.isChecked():
+                # US_index_pdf = generate_US_pdf()
+                # data_list_foto = self.generate_list_foto()
+                # try:
+                        # if bool(data_list_foto):
+                            # US_index_pdf.build_index_Foto_2(data_list_foto, data_list_foto[0][0])
+                            # QMessageBox.warning(self, 'Ok',"Esportazione terminata Elenco Foto senza thumbanil",QMessageBox.Ok)
+                        # else:
+                            # QMessageBox.warning(self, 'ATTENZIONE',"L'elenco foto non può essere esportato perchè non hai immagini taggate.",QMessageBox.Ok)
+                # except Exception as e :
+                    # QMessageBox.warning(self, 'ATTENZIONE',str(e),QMessageBox.Ok)
+        # elif self.L=='en':  
+            # if self.checkBox_s_us.isChecked():
+                # US_pdf_sheet = generate_US_pdf()
+                # data_list = self.generate_list_pdf()
+                # US_pdf_sheet.build_US_sheets_en(data_list)
+                # QMessageBox.warning(self, 'Ok',"Export finished Forms",QMessageBox.Ok)
+            # else:   
+                # pass
+            # if self.checkBox_e_us.isChecked() :
+                # US_index_pdf = generate_US_pdf()
+                # data_list = self.generate_list_pdf()
+                # try:               
+                    # if bool(data_list):
+                        # US_index_pdf.build_index_US_en(data_list, data_list[0][0])
+                        # QMessageBox.warning(self, 'Ok',"Export finished Grave List",QMessageBox.Ok)
+                    # else:
+                        # QMessageBox.warning(self, 'WARNING',"The Grave list cannot be exported you have to fill in the Grave tabs first",QMessageBox.Ok)
+                # except Exception as e :
+                    # QMessageBox.warning(self, 'WARNING',str(e),QMessageBox.Ok)
+            # else:
+                # pass
+            # if self.checkBox_e_foto_t.isChecked():
+                # US_index_pdf = generate_US_pdf()
+                # data_list_foto = self.generate_list_foto()
+                # try:
+                        # if bool(data_list_foto):
+                            # US_index_pdf.build_index_Foto_en(data_list_foto, data_list_foto[0][0])
+                            # QMessageBox.warning(self, 'Ok',"Export finished Grave List",QMessageBox.Ok)
+                        # else:
+                            # QMessageBox.warning(self, 'WARNING', 'The photo list cannot be exported because you do not have tagged images.',QMessageBox.Ok)
+                # except Exception as e :
+                    # QMessageBox.warning(self, 'WARNING',str(e),QMessageBox.Ok)
+            # if self.checkBox_e_foto.isChecked():
+                # US_index_pdf = generate_US_pdf()
+                # data_list_foto = self.generate_list_foto()
+                # try:
+                        # if bool(data_list_foto):
+                            # US_index_pdf.build_index_Foto_2_en(data_list_foto, data_list_foto[0][0])
+                            # QMessageBox.warning(self, 'Ok', "Export finished Photo List without thumbanil",QMessageBox.Ok)
+                        # else:
+                            # QMessageBox.warning(self, 'WARNING', "The photo list cannot be exported because you do not have tagged images.",QMessageBox.Ok)
+                # except Exception as e :
+                    # QMessageBox.warning(self, 'WARNING',str(e),QMessageBox.Ok)
+        # elif self.L=='de':
+            # if self.checkBox_s_us.isChecked():
+                # US_pdf_sheet = generate_US_pdf()
+                # data_list = self.generate_list_pdf()
+                # US_pdf_sheet.build_US_sheets_de(data_list)
+                # QMessageBox.warning(self, 'Ok',"Esportazione terminata Schede US",QMessageBox.Ok)
+            # else:   
+                # pass
+            # if self.checkBox_e_us.isChecked() :
+                # US_index_pdf = generate_US_pdf()
+                # data_list = self.generate_list_pdf()
+                # try:               
+                    # if bool(data_list):
+                        # US_index_pdf.build_index_US_de(data_list, data_list[0][0])
+                        # QMessageBox.warning(self, "Okay", "Export beendet",QMessageBox.Ok)
+                    # else:
+                        # QMessageBox.warning(self, 'WARNUNG', 'Die Liste kann nicht exportiert werden, Sie müssen zuerst die Formulare ausfüllen',QMessageBox.Ok)
+                # except Exception as e :
+                    # QMessageBox.warning(self, 'WARNUNG',str(e),QMessageBox.Ok)
+            # else:
+                # pass
+            # if self.checkBox_e_foto_t.isChecked():
+                # US_index_pdf = generate_US_pdf()
+                # data_list_foto = self.generate_list_foto()
+                # try:
+                        # if bool(data_list_foto):
+                            # US_index_pdf.build_index_Foto_de(data_list_foto, data_list_foto[0][0])
+                            # QMessageBox.warning(self, "Okay", "Fertige Fotoliste exportieren",QMessageBox.Ok)
+                        # else:
+                            # QMessageBox.warning(self, 'WARNUNG', 'Die Fotoliste kann nicht exportiert werden, da Sie keine markierten Bilder haben.',QMessageBox.Ok)
+                # except Exception as e :
+                    # QMessageBox.warning(self, 'WARNUNG',str(e),QMessageBox.Ok)
+            # if self.checkBox_e_foto.isChecked():
+                # US_index_pdf = generate_US_pdf()
+                # data_list_foto = self.generate_list_foto()
+                # try:
+                        # if bool(data_list_foto):
+                            # US_index_pdf.build_index_Foto_2_de(data_list_foto, data_list_foto[0][0])
+                            # QMessageBox.warning(self, 'Ok', 'Fertige Fotoliste ohne Daumenballen exportieren',QMessageBox.Ok)
+                        # else:
+                            # QMessageBox.warning(self, 'WARNUNG', 'Die Fotoliste kann nicht exportiert werden, da Sie keine markierten Bilder haben.',QMessageBox.Ok)
+                # except Exception as e :
+                    # QMessageBox.warning(self, 'WARNUNG',str(e),QMessageBox.Ok)
+    def on_pushButton_convert_pressed(self):
+        # if not bool(self.setPathpdf()):    
+            # QMessageBox.warning(self, "INFO", "devi scegliere un file pdf",
+                                # QMessageBox.Ok)
+        try:
+            pdf_file = self.lineEdit_pdf_path.text()
+            filename=pdf_file.split("/")[-1]
+            docx_file = self.PDFFOLDER+'/'+filename+'.docx'
+            # convert pdf to docx
+            parse(pdf_file, docx_file, start=self.lineEdit_pag1.text(), end=self.lineEdit_pag2.text())
+            QMessageBox.information(self, "INFO", "Conversion completed",
+                                QMessageBox.Ok)
+        except Exception as e:
+            QMessageBox.warning(self, "Error", str(e),
+                                QMessageBox.Ok)
+    
+    def openpdfDir(self):
+        HOME = os.environ['PYARCHINIT_HOME']
+        path = '{}{}{}'.format(HOME, os.sep, "pyarchinit_PDF_folder")
+        if platform.system() == "Windows":
+            os.startfile(path)
+        elif platform.system() == "Darwin":
+            subprocess.Popen(["open", path])
+        else:
+            subprocess.Popen(["xdg-open", path])
+    
+    def on_pushButton_open_dir_pressed(self):
+        HOME = os.environ['PYARCHINIT_HOME']
+        path = '{}{}{}'.format(HOME, os.sep, "pyarchinit_PDF_folder")
+        if platform.system() == "Windows":
+            os.startfile(path)
+        elif platform.system() == "Darwin":
+            subprocess.Popen(["open", path])
+        else:
+            subprocess.Popen(["xdg-open", path])
+
+    
+    def setPathpdf(self):
+        s = QgsSettings()
+        dbpath = QFileDialog.getOpenFileName(
+            self,
+            "Set file name",
+            self.PDFFOLDER,
+            " PDF (*.pdf)"
+        )[0]
+        #filename=dbpath.split("/")[-1]
+        if dbpath:
+            self.lineEdit_pdf_path.setText(dbpath)
+            s.setValue('',dbpath)
+    
     def enable_button(self, n):
         self.pushButton_connect.setEnabled(n)
 
