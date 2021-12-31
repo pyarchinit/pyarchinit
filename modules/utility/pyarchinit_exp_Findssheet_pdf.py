@@ -36,12 +36,12 @@ from reportlab.pdfbase import pdfmetrics
 from reportlab.pdfbase.pdfmetrics import registerFontFamily
 from reportlab.pdfbase.ttfonts import TTFont
 # Registered font family
-pdfmetrics.registerFont(TTFont('Calibri', 'Calibri.ttf'))
-# pdfmetrics.registerFont(TTFont('VeraBd', 'VeraBd.ttf'))
+pdfmetrics.registerFont(TTFont('Cambria', 'Cambria.ttc'))
+pdfmetrics.registerFont(TTFont('cambriab', 'cambriab.ttf'))
 # pdfmetrics.registerFont(TTFont('VeraIt', 'VeraIt.ttf'))
 # pdfmetrics.registerFont(TTFont('VeraBI', 'VeraBI.ttf'))
 # Registered fontfamily
-registerFontFamily('Calibri',normal='Calibri')
+registerFontFamily('Cambria',normal='Cambria')
 from ..db.pyarchinit_conn_strings import Connection
 
 from .pyarchinit_OS_utility import *
@@ -69,7 +69,7 @@ class NumberedCanvas_Findssheet(canvas.Canvas):
         canvas.Canvas.save(self)
 
     def draw_page_number(self, page_count):
-        self.setFont("Helvetica", 8)
+        self.setFont("Cambria", 5)
         self.drawRightString(200 * mm, 20 * mm,
                              "Pag. %d di %d" % (self._pageNumber, page_count))  # scheda us verticale 200mm x 20 mm
 
@@ -96,7 +96,7 @@ class NumberedCanvas_FINDSindex(canvas.Canvas):
         canvas.Canvas.save(self)
 
     def draw_page_number(self, page_count):
-        self.setFont("Helvetica", 8)
+        self.setFont("Cambria", 5)
         self.drawRightString(270 * mm, 10 * mm,
                              "Pag. %d di %d" % (self._pageNumber, page_count))  # scheda us verticale 200mm x 20 mm
 
@@ -123,7 +123,7 @@ class NumberedCanvas_CASSEindex(canvas.Canvas):
         canvas.Canvas.save(self)
 
     def draw_page_number(self, page_count):
-        self.setFont("Helvetica", 8)
+        self.setFont("Cambria", 5)
         self.drawRightString(270 * mm, 10 * mm,
                              "Pag. %d di %d" % (self._pageNumber, page_count))  # scheda us verticale 200mm x 20 mm
 
@@ -163,17 +163,20 @@ class single_Finds_pdf_sheet(object):
         styNormal.spaceBefore = 20
         styNormal.spaceAfter = 20
         styNormal.alignment = 0  # LEFT
-
+        styNormal.fontSize = 8
+        styNormal.fontName = 'Cambria'
         styleSheet = getSampleStyleSheet()
         styDescrizione = styleSheet['Normal']
         styDescrizione.spaceBefore = 20
         styDescrizione.spaceAfter = 20
         styDescrizione.alignment = 4  # Justified
+        styDescrizione.fontSize = 8
+        styDescrizione.fontName = 'Cambria'
 
         # format labels
 
         # 0 row
-        intestazione = Paragraph("<b>SCHEDA INVENTARIO REPERTI<br/>" + str(self.datestrfdate()) + "</b>", styNormal)
+        intestazione = Paragraph("<b>SCHEDA REPERTI<br/></b>", styNormal)
         # intestazione2 = Paragraph("<b>pyArchInit</b>", styNormal)
 
         home = os.environ['PYARCHINIT_HOME']
@@ -197,7 +200,7 @@ class single_Finds_pdf_sheet(object):
         else:
             # 1 row
             sito = Paragraph("<b>Sito</b><br/>" + str(self.sito), styNormal)
-            n_reperto = Paragraph("<b>Nr. Reperto</b><br/>" + str(self.n_reperto) +"<br/>" "<b>(n. inv.: </b>" + str(self.numero_inventario)+"<b>)</b>", styNormal)
+            n_reperto = Paragraph("<b>N. reperto</b><br/>" + str(self.n_reperto) +"<br/>" "<b>(n. inv.: </b>" + str(self.numero_inventario)+"<b>)</b>", styNormal)
 
             # 2 row
             riferimenti_stratigrafici = Paragraph("<b>Riferimenti stratigrafici</b>", styNormal)
@@ -303,7 +306,7 @@ class single_Finds_pdf_sheet(object):
 
             # 12 row
             lavato = Paragraph("<b>Lavato</b><br/>" + self.lavato, styNormal)
-            nr_cassa = Paragraph("<b>Nr. Cassa</b><br/>" + self.nr_cassa, styNormal)
+            nr_cassa = Paragraph("<b>N. cassa</b><br/>" + self.nr_cassa, styNormal)
             luogo_conservazione = Paragraph("<b>Luogo di conservazione</b><br/>" + self.luogo_conservazione, styNormal)
 
             # schema
@@ -864,6 +867,7 @@ class Box_labels_Finds_pdf_sheet(object):
         styCassaLabel.leading = 25
         styCassaLabel.fontSize = 30
 
+        styCassaLabel.fontName = 'Cambria'
         stySitoLabel = styleSheet['Sito Label']
         stySitoLabel.spaceBefore = 0
         stySitoLabel.spaceAfter = 0
@@ -871,13 +875,14 @@ class Box_labels_Finds_pdf_sheet(object):
         stySitoLabel.leading = 25
         stySitoLabel.fontSize = 18
         stySitoLabel.fontStyle = 'bold'
-
+        stySitoLabel.fontName = 'Cambria'
         styNormal = styleSheet['Normal']
         styNormal.spaceBefore = 10
         styNormal.spaceAfter = 10
         styNormal.alignment = 0  # LEFT
         styNormal.fontSize = 14
         styNormal.leading = 15
+        styNormal.fontName = 'Cambria'
 
         # format labels
         home = os.environ['PYARCHINIT_HOME']
@@ -899,15 +904,15 @@ class Box_labels_Finds_pdf_sheet(object):
         sito = Paragraph("<b>Sito: </b>" + str(self.sito), stySitoLabel)
 
         if self.elenco_inv_tip_rep == None:
-            elenco_inv_tip_rep = Paragraph("<b>Elenco N. Inv. / Tipo materiale</b><br/>", styNormal)
+            elenco_inv_tip_rep = Paragraph("<b>Elenco n. inv. / Tipo materiale</b><br/>", styNormal)
         else:
-            elenco_inv_tip_rep = Paragraph("<b>Elenco N. Inv. / Tipo materiale</b><br/>" + str(self.elenco_inv_tip_rep),
+            elenco_inv_tip_rep = Paragraph("<b>Elenco n. inv. / Tipo materiale</b><br/>" + str(self.elenco_inv_tip_rep),
                                            styNormal)
 
         if self.elenco_us == None:
-            elenco_us = Paragraph("<b>Elenco US/(Struttura)</b>", styNormal)
+            elenco_us = Paragraph("<b>Elenco US/(struttura)</b>", styNormal)
         else:
-            elenco_us = Paragraph("<b>Elenco US/(Struttura)</b><br/>" + str(self.elenco_us), styNormal)
+            elenco_us = Paragraph("<b>Elenco US/(struttura)</b><br/>" + str(self.elenco_us), styNormal)
 
             # luogo_conservazione = Paragraph("<b>Luogo di conservazione</b><br/>" + str(self.luogo_conservazione),styNormal)
 
@@ -1156,21 +1161,21 @@ class CASSE_index_pdf_sheet(object):
         styNormal.spaceAfter = 20
         styNormal.alignment = 0  # LEFT
         styNormal.fontSize = 10
-
+        styNormal.fontName = 'Cambria'
         # self.unzip_rapporti_stratigrafici()
 
-        num_cassa = Paragraph("<b>Nr.</b><br/>" + str(self.cassa), styNormal)
+        num_cassa = Paragraph("<b>N.</b><br/>" + str(self.cassa), styNormal)
 
         if self.elenco_inv_tip_rep == None:
-            elenco_inv_tip_rep = Paragraph("<b>N. Inv./Tipo materiale</b><br/>", styNormal)
+            elenco_inv_tip_rep = Paragraph("<b>N. inv./Tipo materiale</b><br/>", styNormal)
         else:
-            elenco_inv_tip_rep = Paragraph("<b>N. Inv./Tipo materiale</b><br/>" + str(self.elenco_inv_tip_rep),
+            elenco_inv_tip_rep = Paragraph("<b>N. inv./Tipo materiale</b><br/>" + str(self.elenco_inv_tip_rep),
                                            styNormal)
 
         if self.elenco_us == 'None':
-            elenco_us = Paragraph("<b>US(Struttura)</b><br/>", styNormal)
+            elenco_us = Paragraph("<b>US(struttura)</b><br/>", styNormal)
         else:
-            elenco_us = Paragraph("<b>US(Struttura)</b><br/>" + str(self.elenco_us), styNormal)
+            elenco_us = Paragraph("<b>US(struttura)</b><br/>" + str(self.elenco_us), styNormal)
 
         luogo_conservazione = Paragraph("<b>Luogo di conservazione</b><br/>" + str(self.luogo_conservazione), styNormal)
 
@@ -1273,10 +1278,10 @@ class FINDS_index_pdf_sheet(object):
         styNormal.spaceAfter = 20
         styNormal.alignment = 0  # LEFT
         styNormal.fontSize = 9
-
+        styNormal.fontName = 'Cambria'
         # self.unzip_rapporti_stratigrafici()
 
-        num_inventario = Paragraph("<b>N. Inv.</b><br/>" + str(self.num_inventario), styNormal)
+        num_inventario = Paragraph("<b>N. inv.</b><br/>" + str(self.num_inventario), styNormal)
 
         if self.tipo_reperto == None:
             tipo_reperto = Paragraph("<b>Tipo reperto</b><br/>", styNormal)
@@ -1319,14 +1324,14 @@ class FINDS_index_pdf_sheet(object):
             diagnostico = Paragraph("<b>Diagnostico</b><br/>" + str(self.diagnostico), styNormal)
 
         if str(self.numero_cassa) == "None":
-            nr_cassa = Paragraph("<b>Nr. Cassa</b><br/>", styNormal)
+            nr_cassa = Paragraph("<b>N. cassa</b><br/>", styNormal)
         else:
-            nr_cassa = Paragraph("<b>Nr. Cassa</b><br/>" + str(self.numero_cassa), styNormal)
+            nr_cassa = Paragraph("<b>N. cassa</b><br/>" + str(self.numero_cassa), styNormal)
         
         if str(self.n_reperto) == "None":
-            n_reperto = Paragraph("<b>Nr. Reperto</b><br/>", styNormal)
+            n_reperto = Paragraph("<b>N. reperto</b><br/>", styNormal)
         else:
-            n_reperto = Paragraph("<b>Nr. Reperto</b><br/>" + str(self.n_reperto), styNormal)
+            n_reperto = Paragraph("<b>N. reperto</b><br/>" + str(self.n_reperto), styNormal)
         
         data = [num_inventario,
                 tipo_reperto,
@@ -1349,7 +1354,7 @@ class FINDS_index_pdf_sheet(object):
         styNormal.spaceAfter = 20
         styNormal.alignment = 0  # LEFT
         styNormal.fontSize = 9
-
+        styNormal.fontName = 'Cambria'
         # self.unzip_rapporti_stratigrafici()
 
         num_inventario = Paragraph("<b>Nr. Inv.</b><br/>" + str(self.num_inventario), styNormal)
@@ -1513,7 +1518,7 @@ class FOTO_index_pdf_sheet(object):
         styNormal.spaceAfter = 20
         styNormal.alignment = 0  # LEFT
         styNormal.fontSize = 6
-
+        styNormal.fontName = 'Cambria'
         
 
         # conn = Connection()
@@ -1661,7 +1666,7 @@ class FOTO_index_pdf_sheet_2(object):
         styNormal.spaceAfter = 20
         styNormal.alignment = 0  # LEFT
         styNormal.fontSize = 6
-
+        styNormal.fontName = 'Cambria'
         
 
         
@@ -1827,7 +1832,7 @@ class generate_reperti_pdf(object):
         styNormal = styleSheet['Normal']
         styBackground = ParagraphStyle('background', parent=styNormal, backColor=colors.pink)
         styH1 = styleSheet['Heading3']
-
+        styH1.fontName='Cambria'
         data = self.datestrfdate()
 
         lst = []
@@ -1835,7 +1840,7 @@ class generate_reperti_pdf(object):
         lst.append(logo)
         #lst2.append(logo_2)
         lst.append(
-            Paragraph("<b>ELENCO INVENTARIO REPERTATI</b><br/><b> Scavo: %s </b><br/><b>  Data: %s</b>" % (sito, data), styH1))
+            Paragraph("<b>ELENCO REPERTI</b><br/><b> Scavo: %s </b><br/>" % ('h'), styH1))
 
         table_data = []
         for i in range(len(records)):
@@ -1852,8 +1857,8 @@ class generate_reperti_pdf(object):
         lst.append(Spacer(0, 2))
 
         dt = datetime.datetime.now()
-        filename = ('%s%s%s_%s_%s_%s_%s_%s_%s%s') % (
-        self.PDF_path, os.sep, 'Elenco_Reperti', dt.day, dt.month, dt.year, dt.hour, dt.minute, dt.second, ".pdf")
+        filename = ('%s%s%s') % (
+        self.PDF_path, os.sep, 'Elenco Reperti.pdf')
         f = open(filename, "wb")
 
         doc = SimpleDocTemplate(f, pagesize=(29 * cm, 21 * cm), showBoundary=0, topMargin=15, bottomMargin=40,
@@ -2009,7 +2014,7 @@ class generate_reperti_pdf(object):
         styNormal = styleSheet['Normal']
         styBackground = ParagraphStyle('background', parent=styNormal, backColor=colors.pink)
         styH1 = styleSheet['Heading3']
-
+        styH1.fontName='Cambria'
         data = self.datestrfdate()
 
         lst = []
@@ -2017,7 +2022,7 @@ class generate_reperti_pdf(object):
         lst.append(logo)
         #lst2.append(logo_2)
         lst.append(
-            Paragraph("<b>ELENCO INVENTARIO</b><br/><b> Scavo: %s </b><br/><b>  Data: %s</b>" % (sito, data), styH1))
+            Paragraph("<b>ELENCO INVENTARIO</b><br/><b> Scavo: %s </b><br/>" % ('l'), styH1))
 
         table_data = []
         for i in range(len(records)):
@@ -2034,8 +2039,8 @@ class generate_reperti_pdf(object):
         lst.append(Spacer(0, 2))
 
         dt = datetime.datetime.now()
-        filename = ('%s%s%s_%s_%s_%s_%s_%s_%s%s') % (
-        self.PDF_path, os.sep, 'Elenco_invetario', dt.day, dt.month, dt.year, dt.hour, dt.minute, dt.second, ".pdf")
+        filename = ('%s%s%s') % (
+        self.PDF_path, os.sep, 'Elenco Invetario.pdf')
         f = open(filename, "wb")
 
         doc = SimpleDocTemplate(f, pagesize=(29 * cm, 21 * cm), showBoundary=0, topMargin=15, bottomMargin=40,
@@ -2173,7 +2178,7 @@ class generate_reperti_pdf(object):
             single_finds_sheet = single_Finds_pdf_sheet(records[i])
             elements.append(single_finds_sheet.create_sheet())
             elements.append(PageBreak())
-        filename = '{}{}{}'.format(self.PDF_path, os.sep,'scheda_materiali.pdf')
+        filename = '{}{}{}'.format(self.PDF_path, os.sep,'Scheda Materiali.pdf')
         f = open(filename, "wb")
         doc = SimpleDocTemplate(f)
         doc.build(elements, canvasmaker=NumberedCanvas_Findssheet)
@@ -2221,12 +2226,12 @@ class generate_reperti_pdf(object):
         styNormal = styleSheet['Normal']
         styBackground = ParagraphStyle('background', parent=styNormal, backColor=colors.pink)
         styH1 = styleSheet['Heading3']
-
+        styH1.fontName='Cambria'
         data = self.datestrfdate()
 
         lst = []
         lst.append(logo)
-        lst.append(Paragraph("<b>ELENCO MATERIALI</b><br/><b>Scavo: %s,  Data: %s</b>" % (sito, data), styH1))
+        lst.append(Paragraph("<b>ELENCO MATERIALI</b><br/><b>Scavo: %s</b>" % ('l'), styH1))
 
         table_data = []
         for i in range(len(records)):
@@ -2242,7 +2247,7 @@ class generate_reperti_pdf(object):
         lst.append(table_data_formatted)
         lst.append(Spacer(0, 0))
 
-        filename = '{}{}{}'.format(self.PDF_path, os.sep, 'elenco_materiali.pdf')
+        filename = '{}{}{}'.format(self.PDF_path, os.sep, 'Elenco Materiali.pdf')
         f = open(filename, "wb")
 
         doc = SimpleDocTemplate(f, pagesize=(29 * cm, 21 * cm), showBoundary=0, topMargin=15, bottomMargin=40,
@@ -2372,7 +2377,7 @@ class generate_reperti_pdf(object):
         styNormal = styleSheet['Normal']
         styBackground = ParagraphStyle('background', parent=styNormal, backColor=colors.pink)
         styH1 = styleSheet['Heading3']
-
+        styH1.fontName='Cambria'
         data = self.datestrfdate()
 
         lst = []
@@ -2380,7 +2385,7 @@ class generate_reperti_pdf(object):
         lst.append(logo)
         #lst2.append(logo_2)
         lst.append(
-            Paragraph("<b>ELENCO CASSE</b><br/><b> Scavo: %s </b><br/><b>  Data: %s</b>" % (sito, data), styH1))
+            Paragraph("<b>ELENCO CASSE</b><br/><b> Scavo: %s </b><br/>" % (sito), styH1))
 
         table_data = []
         for i in range(len(records)):
@@ -2388,7 +2393,7 @@ class generate_reperti_pdf(object):
             table_data.append(exp_index.getTable())
 
         styles = exp_index.makeStyles()
-        colWidths = [50, 350, 250, 100]
+        colWidths = [50, 350, 300, 300]
 
         table_data_formatted = Table(table_data, colWidths, style=styles)
         table_data_formatted.hAlign = "LEFT"
@@ -2397,8 +2402,8 @@ class generate_reperti_pdf(object):
         lst.append(Spacer(0, 2))
 
         dt = datetime.datetime.now()
-        filename = ('%s%s%s_%s_%s_%s_%s_%s_%s%s') % (
-        self.PDF_path, os.sep, 'Elenco_Casse', dt.day, dt.month, dt.year, dt.hour, dt.minute, dt.second, ".pdf")
+        filename = ('%s%s%s') % (
+        self.PDF_path, os.sep, 'Elenco Casse.pdf')
         f = open(filename, "wb")
         doc = SimpleDocTemplate(f, pagesize=(41 * cm, 29 * cm), showBoundary=0, topMargin=15, bottomMargin=40,leftMargin=30, rightMargin=30)
         # doc.build(lst, canvasmaker=NumberedCanvas_Sindex)
@@ -2513,7 +2518,7 @@ class generate_reperti_pdf(object):
             single_finds_sheet = Box_labels_Finds_pdf_sheet(records[i], sito)
             elements.append(single_finds_sheet.create_sheet())
             elements.append(PageBreak())
-        filename = '{}{}{}'.format(self.PDF_path, os.sep, 'etichette_casse_materiali.pdf')
+        filename = '{}{}{}'.format(self.PDF_path, os.sep, 'Etichette Casse Materiali.pdf')
         f = open(filename, "wb")
         doc = SimpleDocTemplate(f, pagesize=(29 * cm, 21 * cm), showBoundary=0.0, topMargin=20, bottomMargin=20,
                                 leftMargin=20, rightMargin=20)

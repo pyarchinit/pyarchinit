@@ -39,12 +39,12 @@ from reportlab.pdfbase import pdfmetrics
 from reportlab.pdfbase.pdfmetrics import registerFontFamily
 from reportlab.pdfbase.ttfonts import TTFont
 # Registered font family
-pdfmetrics.registerFont(TTFont('Times-Roman', 'Calibri.ttf'))
+pdfmetrics.registerFont(TTFont('Cambria', 'Cambria.ttc'))
 # pdfmetrics.registerFont(TTFont('VeraBd', 'VeraBd.ttf'))
 # pdfmetrics.registerFont(TTFont('VeraIt', 'VeraIt.ttf'))
 # pdfmetrics.registerFont(TTFont('VeraBI', 'VeraBI.ttf'))
 # Registered fontfamily
-registerFontFamily('Times-Roman',normal='Times-Roman')
+registerFontFamily('Cambria',normal='Cambria')
 
 
 
@@ -56,7 +56,7 @@ class NumberedCanvas_USsheet(canvas.Canvas):
     def __init__(self, *args, **kwargs):
         canvas.Canvas.__init__(self, *args, **kwargs)
         self._saved_page_states = []
-
+        
     def define_position(self, pos):
         self.page_position(pos)
 
@@ -74,7 +74,7 @@ class NumberedCanvas_USsheet(canvas.Canvas):
         canvas.Canvas.save(self)
 
     def draw_page_number(self, page_count):
-        self.setFont("Times-Roman", 5)
+        self.setFont("Cambria", 5)
         self.drawRightString(200 * mm, 8 * mm,
                              "Pag. %d di %d" % (self._pageNumber, page_count))  # scheda us verticale 200mm x 20 mm
 
@@ -101,7 +101,7 @@ class NumberedCanvas_USindex(canvas.Canvas):
         canvas.Canvas.save(self)
 
     def draw_page_number(self, page_count):
-        self.setFont("Times-Roman", 5)
+        self.setFont("Cambria", 5)
         self.drawRightString(270 * mm, 10 * mm,
                              "Pag. %d di %d" % (self._pageNumber, page_count))  # scheda us verticale 200mm x 20 mm
 
@@ -934,7 +934,7 @@ class single_US_pdf_sheet(object):
         styNormal.spaceBefore = 20
         styNormal.spaceAfter = 20
         styNormal.fontSize = 8
-        styNormal.fontName='Times-Roman'
+        styNormal.fontName='Cambria'
         styNormal.alignment = 0  # LEFT
 
         styleSheet = getSampleStyleSheet()
@@ -942,7 +942,7 @@ class single_US_pdf_sheet(object):
         styNormal2.spaceBefore = 20
         styNormal2.spaceAfter = 20
         styNormal2.fontSize = 7
-        styNormal2.fontName='Times-Roman'
+        styNormal2.fontName='Cambria'
         styNormal2.alignment = 0  # LEFT
         
         
@@ -951,7 +951,7 @@ class single_US_pdf_sheet(object):
         styL.spaceBefore = 20
         styL.spaceAfter = 20
         styL.fontSize = 2
-        styL.fontName='Times-Roman'
+        styL.fontName='Cambria'
         styL.alignment = 1
         
         
@@ -960,7 +960,7 @@ class single_US_pdf_sheet(object):
         styDescrizione.spaceBefore = 20
         styDescrizione.spaceAfter = 20
         styDescrizione.fontSize = 8
-        styDescrizione.fontName='Times-Roman'
+        styDescrizione.fontName='Cambria'
         styDescrizione.alignment = 4  # Justified
 
         styleSheet = getSampleStyleSheet()
@@ -968,7 +968,7 @@ class single_US_pdf_sheet(object):
         styUnitaTipo.spaceBefore = 20
         styUnitaTipo.spaceAfter = 20
         styUnitaTipo.fontSize = 14
-        styUnitaTipo.fontName='Times-Roman'
+        styUnitaTipo.fontName='Cambria'
         styUnitaTipo.alignment = 1  # CENTER
 
         styleSheet = getSampleStyleSheet()
@@ -977,7 +977,7 @@ class single_US_pdf_sheet(object):
         styTitoloComponenti.spaceAfter = 20
         styTitoloComponenti. rowHeights=0.5
         styTitoloComponenti.fontSize = 8
-        styTitoloComponenti.fontName='Times-Roman'
+        styTitoloComponenti.fontName='Cambria'
         styTitoloComponenti.alignment = 1  # CENTER
 
         styleSheet = getSampleStyleSheet()
@@ -985,7 +985,7 @@ class single_US_pdf_sheet(object):
         styVerticale.spaceBefore = 20
         styVerticale.spaceAfter = 20
         styVerticale.fontSize = 8
-        styVerticale.fontName='Times-Roman'
+        styVerticale.fontName='Cambria'
         styVerticale.alignment = 1  # CENTER
         styVerticale.leading=8
 
@@ -1817,7 +1817,7 @@ class single_US_pdf_sheet(object):
         styNormal.spaceBefore = 20
         styNormal.spaceAfter = 20
         styNormal.fontSize = 8
-        styNormal.fontName='Times-Roman'
+        styNormal.fontName='Cambria'
         styNormal.alignment = 0  # LEFT
 
         styleSheet = getSampleStyleSheet()
@@ -1825,7 +1825,7 @@ class single_US_pdf_sheet(object):
         styNormal2.spaceBefore = 20
         styNormal2.spaceAfter = 20
         styNormal2.fontSize = 7
-        styNormal2.fontName='Times-Roman'
+        styNormal2.fontName='Cambria'
         styNormal2.alignment = 0  # LEFT
         
         
@@ -1834,7 +1834,7 @@ class single_US_pdf_sheet(object):
         styL.spaceBefore = 20
         styL.spaceAfter = 20
         styL.fontSize = 2
-        styL.fontName='Times-Roman'
+        styL.fontName='Cambria'
         styL.alignment = 1
         
         
@@ -1843,7 +1843,7 @@ class single_US_pdf_sheet(object):
         styDescrizione.spaceBefore = 20
         styDescrizione.spaceAfter = 20
         styDescrizione.fontSize = 8
-        styDescrizione.fontName='Times-Roman'
+        styDescrizione.fontName='Cambria'
         styDescrizione.alignment = 4  # Justified
 
         styleSheet = getSampleStyleSheet()
@@ -1851,7 +1851,7 @@ class single_US_pdf_sheet(object):
         styUnitaTipo.spaceBefore = 20
         styUnitaTipo.spaceAfter = 20
         styUnitaTipo.fontSize = 14
-        styUnitaTipo.fontName='Times-Roman'
+        styUnitaTipo.fontName='Cambria'
         styUnitaTipo.alignment = 1  # CENTER
 
         styleSheet = getSampleStyleSheet()
@@ -1860,7 +1860,7 @@ class single_US_pdf_sheet(object):
         styTitoloComponenti.spaceAfter = 20
         styTitoloComponenti. rowHeights=0.5
         styTitoloComponenti.fontSize = 8
-        styTitoloComponenti.fontName='Times-Roman'
+        styTitoloComponenti.fontName='Cambria'
         styTitoloComponenti.alignment = 1  # CENTER
 
         styleSheet = getSampleStyleSheet()
@@ -1868,7 +1868,7 @@ class single_US_pdf_sheet(object):
         styVerticale.spaceBefore = 20
         styVerticale.spaceAfter = 20
         styVerticale.fontSize = 8
-        styVerticale.fontName='Times-Roman'
+        styVerticale.fontName='Cambria'
         styVerticale.alignment = 1  # CENTER
         styVerticale.leading=8
 
@@ -2705,7 +2705,7 @@ class single_US_pdf_sheet(object):
         styNormal.spaceBefore = 20
         styNormal.spaceAfter = 20
         styNormal.fontSize = 8
-        styNormal.fontName='Times-Roman'
+        styNormal.fontName='Cambria'
         styNormal.alignment = 0  # LEFT
 
         styleSheet = getSampleStyleSheet()
@@ -2713,7 +2713,7 @@ class single_US_pdf_sheet(object):
         styNormal2.spaceBefore = 20
         styNormal2.spaceAfter = 20
         styNormal2.fontSize = 8
-        styNormal2.fontName='Times-Roman'
+        styNormal2.fontName='Cambria'
         styNormal2.alignment = 0  # LEFT
         
         
@@ -2722,7 +2722,7 @@ class single_US_pdf_sheet(object):
         styL.spaceBefore = 20
         styL.spaceAfter = 20
         styL.fontSize = 2
-        styL.fontName='Times-Roman'
+        styL.fontName='Cambria'
         styL.alignment = 1
         
         
@@ -2731,7 +2731,7 @@ class single_US_pdf_sheet(object):
         styDescrizione.spaceBefore = 20
         styDescrizione.spaceAfter = 20
         styDescrizione.fontSize = 8
-        styDescrizione.fontName='Times-Roman'
+        styDescrizione.fontName='Cambria'
         styDescrizione.alignment = 4  # Justified
 
         styleSheet = getSampleStyleSheet()
@@ -2739,7 +2739,7 @@ class single_US_pdf_sheet(object):
         styUnitaTipo.spaceBefore = 20
         styUnitaTipo.spaceAfter = 20
         styUnitaTipo.fontSize = 14
-        styUnitaTipo.fontName='Times-Roman'
+        styUnitaTipo.fontName='Cambria'
         styUnitaTipo.alignment = 1  # CENTER
 
         styleSheet = getSampleStyleSheet()
@@ -2748,7 +2748,7 @@ class single_US_pdf_sheet(object):
         styTitoloComponenti.spaceAfter = 20
         styTitoloComponenti. rowHeights=0.5
         styTitoloComponenti.fontSize = 8
-        styTitoloComponenti.fontName='Times-Roman'
+        styTitoloComponenti.fontName='Cambria'
         styTitoloComponenti.alignment = 1  # CENTER
 
         styleSheet = getSampleStyleSheet()
@@ -2756,7 +2756,7 @@ class single_US_pdf_sheet(object):
         styVerticale.spaceBefore = 20
         styVerticale.spaceAfter = 20
         styVerticale.fontSize = 8
-        styVerticale.fontName='Times-Roman'
+        styVerticale.fontName='Cambria'
         styVerticale.alignment = 1  # CENTER
         styVerticale.leading=8
 
@@ -3850,12 +3850,12 @@ class US_index_pdf_sheet(object):
         styNormal.spaceAfter = 20
         styNormal.alignment = 0  # LEFT
         styNormal.fontSize = 8
-
+        styNormal.fontName = 'Cambria'
         self.unzip_rapporti_stratigrafici()
 
         area = Paragraph("<b>Area</b><br/>" + str(self.area), styNormal)
         us = Paragraph("<b>US</b><br/>" + str(self.us), styNormal)
-        d_stratigrafica = Paragraph("<b>Def. Stratigr.</b><br/>" + str(self.d_stratigrafica), styNormal)
+        d_stratigrafica = Paragraph("<b>Def. stratigr.</b><br/>" + str(self.d_stratigrafica), styNormal)
         copre = Paragraph("<b>Copre</b><br/>" + str(self.copre), styNormal)
         coperto_da = Paragraph("<b>Coperto da</b><br/>" + str(self.coperto_da), styNormal)
         taglia = Paragraph("<b>Taglia</b><br/>" + str(self.taglia), styNormal)
@@ -3976,7 +3976,7 @@ class US_index_pdf_sheet(object):
         styNormal.spaceAfter = 20
         styNormal.alignment = 0  # LEFT
         styNormal.fontSize = 8
-
+        styNormal.fontName = 'Cambria'
         self.unzip_rapporti_stratigrafici_en()
 
         area = Paragraph("<b>Area</b><br/>" + str(self.area), styNormal)
@@ -4100,7 +4100,7 @@ class US_index_pdf_sheet(object):
         styNormal.spaceAfter = 20
         styNormal.alignment = 0  # LEFT
         styNormal.fontSize = 8
-
+        styNormal.fontName = 'Cambria'
         self.unzip_rapporti_stratigrafici_de()
 
         area = Paragraph("<b>Bereich</b><br/>" + str(self.area), styNormal)
@@ -4174,7 +4174,7 @@ class FOTO_index_pdf_sheet(object):
         styNormal.spaceAfter = 20
         styNormal.alignment = 0  # LEFT
         styNormal.fontSize = 8
-
+        styNormal.fontName = 'Cambria'
         
 
         conn = Connection()
@@ -4215,7 +4215,7 @@ class FOTO_index_pdf_sheet(object):
         styNormal.spaceAfter = 20
         styNormal.alignment = 0  # LEFT
         styNormal.fontSize = 8
-
+        styNormal.fontName = 'Cambria'
         
 
         conn = Connection()
@@ -4254,7 +4254,7 @@ class FOTO_index_pdf_sheet(object):
         styNormal.spaceAfter = 20
         styNormal.alignment = 0  # LEFT
         styNormal.fontSize = 8
-
+        styNormal.fontName = 'Cambria'
         
 
         conn = Connection()
@@ -4310,7 +4310,7 @@ class FOTO_index_pdf_sheet_2(object):
         styNormal.spaceAfter = 20
         styNormal.alignment = 0  # LEFT
         styNormal.fontSize = 8
-
+        styNormal.fontName = 'Cambria'
         
 
         conn = Connection()
@@ -4489,8 +4489,8 @@ class generate_US_pdf(object):
         # f.close()
 
         #usICCD
-        filename = ('%s%s%s_%s_%s_%s_%s_%s_%s%s') % (
-        self.PDF_path, os.sep, 'scheda_USICCD', dt.day, dt.month, dt.year, dt.hour, dt.minute, dt.second, ".pdf")
+        filename = ('%s%s%s') % (
+        self.PDF_path, os.sep, 'Scheda USICCD.pdf')
         f = open(filename, "wb")
 
         doc = SimpleDocTemplate(f, pagesize=(21 * cm, 29 * cm),  topMargin=10, bottomMargin=20,
@@ -4654,15 +4654,16 @@ class generate_US_pdf(object):
 
         styleSheet = getSampleStyleSheet()
         styNormal = styleSheet['Normal']
+        styNormal.fontName='Cambria'
         styBackground = ParagraphStyle('background', parent=styNormal, backColor=colors.pink)
         styH1 = styleSheet['Heading3']
-
+        styH1.fontName='Cambria'
         data = self.datestrfdate()
 
         lst = []
         lst.append(logo)
         lst.append(
-            Paragraph("<b>ELENCO UNITA' STRATIGRAFICHE</b><br/><b>Scavo: %s,  Data: %s</b>" % (sito, data), styH1))
+            Paragraph("<b>ELENCO UNITA' STRATIGRAFICHE</b><br/><b>Scavo: %s</b>" % (sito), styH1))
 
         table_data = []
         for i in range(len(records)):
@@ -4679,8 +4680,8 @@ class generate_US_pdf(object):
         lst.append(Spacer(0, 2))
 
         dt = datetime.datetime.now()
-        filename = ('%s%s%s_%s_%s_%s_%s_%s_%s%s') % (
-        self.PDF_path, os.sep, 'Elenco_us', dt.day, dt.month, dt.year, dt.hour, dt.minute, dt.second, ".pdf")
+        filename = ('%s%s%s') % (
+        self.PDF_path, os.sep, 'Elenco US.pdf')
         f = open(filename, "wb")
 
         doc = SimpleDocTemplate(f, pagesize=(A3), showBoundary=0)
@@ -4708,13 +4709,13 @@ class generate_US_pdf(object):
         styNormal = styleSheet['Normal']
         styBackground = ParagraphStyle('background', parent=styNormal, backColor=colors.pink)
         styH1 = styleSheet['Heading3']
-
+        styH1.fontName='Cambria'
         data = self.datestrfdate()
 
         lst = []
         lst.append(logo)
         lst.append(
-            Paragraph("<b>ELENCO FOTO STRATIGRAFICHE</b><br/><b> Scavo: %s,  Data: %s</b>" % (sito, data), styH1))
+            Paragraph("<b>ELENCO FOTO STRATIGRAFICHE</b><br/><b> Scavo: %s</b>" % (sito), styH1))
 
         table_data = []
         for i in range(len(records)):
@@ -4731,8 +4732,8 @@ class generate_US_pdf(object):
         lst.append(Spacer(0, 2))
 
         dt = datetime.datetime.now()
-        filename = ('%s%s%s_%s_%s_%s_%s_%s_%s%s') % (
-        self.PDF_path, os.sep, 'Elenco_foto', dt.day, dt.month, dt.year, dt.hour, dt.minute, dt.second, ".pdf")
+        filename = ('%s%s%s') % (
+        self.PDF_path, os.sep, 'Elenco Foto.pdf')
         f = open(filename, "wb")
 
         doc = SimpleDocTemplate(f, pagesize=A4)
@@ -4759,13 +4760,13 @@ class generate_US_pdf(object):
         styNormal = styleSheet['Normal']
         styBackground = ParagraphStyle('background', parent=styNormal, backColor=colors.pink)
         styH1 = styleSheet['Heading3']
-
+        styH1.fontName='Cambria'
         data = self.datestrfdate()
 
         lst = []
         lst.append(logo)
         lst.append(
-            Paragraph("<b>ELENCO FOTO STRATIGRAFICHE</b><br/><b> Scavo: %s,  Data: %s</b>" % (sito, data), styH1))
+            Paragraph("<b>ELENCO FOTO STRATIGRAFICHE</b><br/><b> Scavo: %s</b>" % (sito), styH1))
 
         table_data = []
         for i in range(len(records)):
@@ -4782,8 +4783,8 @@ class generate_US_pdf(object):
         lst.append(Spacer(0, 2))
 
         dt = datetime.datetime.now()
-        filename = ('%s%s%s_%s_%s_%s_%s_%s_%s%s') % (
-        self.PDF_path, os.sep, 'Elenco_foto', dt.day, dt.month, dt.year, dt.hour, dt.minute, dt.second, ".pdf")
+        filename = ('%s%s%s') % (
+        self.PDF_path, os.sep, 'Elenco Foto.pdf')
         f = open(filename, "wb")
 
         doc = SimpleDocTemplate(f, pagesize=A4)
