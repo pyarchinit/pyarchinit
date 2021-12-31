@@ -36,12 +36,12 @@ from reportlab.pdfbase import pdfmetrics
 from reportlab.pdfbase.pdfmetrics import registerFontFamily
 from reportlab.pdfbase.ttfonts import TTFont
 # Registered font family
-pdfmetrics.registerFont(TTFont('Calibri', 'Calibri.ttf'))
-# pdfmetrics.registerFont(TTFont('VeraBd', 'VeraBd.ttf'))
+pdfmetrics.registerFont(TTFont('Cambria', 'Cambria.ttc'))
+pdfmetrics.registerFont(TTFont('cambriab', 'cambriab.ttf'))
 # pdfmetrics.registerFont(TTFont('VeraIt', 'VeraIt.ttf'))
 # pdfmetrics.registerFont(TTFont('VeraBI', 'VeraBI.ttf'))
 # Registered fontfamily
-registerFontFamily('Calibri',normal='Calibri')
+registerFontFamily('Cambria',normal='Cambria')
 from qgis.core import QgsSettings
 from .pyarchinit_OS_utility import *
 from ..db.pyarchinit_utility import Utility
@@ -129,7 +129,7 @@ class Tomba_index_pdf_sheet(object):
         styNormal.spaceAfter = 20
         styNormal.alignment = 0  # LEFT
         styNormal.fontSize = 9
-
+        styNormal.fontName='Cambria'
         # self.unzip_rapporti_stratigrafici()
 
         num_scheda = Paragraph("<b>Nr. Scheda</b><br/>" + str(self.nr_scheda_taf), styNormal)

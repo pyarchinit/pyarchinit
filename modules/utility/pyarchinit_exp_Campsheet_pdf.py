@@ -36,12 +36,13 @@ from reportlab.pdfbase import pdfmetrics
 from reportlab.pdfbase.pdfmetrics import registerFontFamily
 from reportlab.pdfbase.ttfonts import TTFont
 # Registered font family
-pdfmetrics.registerFont(TTFont('Calibri', 'Calibri.ttf'))
-# pdfmetrics.registerFont(TTFont('VeraBd', 'VeraBd.ttf'))
+pdfmetrics.registerFont(TTFont('Cambria', 'Cambria.ttc'))
+pdfmetrics.registerFont(TTFont('cambriab', 'cambriab.ttf'))
 # pdfmetrics.registerFont(TTFont('VeraIt', 'VeraIt.ttf'))
 # pdfmetrics.registerFont(TTFont('VeraBI', 'VeraBI.ttf'))
 # Registered fontfamily
-registerFontFamily('Calibri',normal='Calibri')
+registerFontFamily('Cambria',normal='Cambria')
+
 from ..db.pyarchinit_conn_strings import Connection
 from .pyarchinit_OS_utility import *
 
@@ -68,7 +69,7 @@ class NumberedCanvas_Campionisheet(canvas.Canvas):
         canvas.Canvas.save(self)
 
     def draw_page_number(self, page_count):
-        self.setFont("Helvetica", 8)
+        self.setFont("Cambria", 5)
         self.drawRightString(200 * mm, 20 * mm,
                              "Pag. %d di %d" % (self._pageNumber, page_count))  # scheda us verticale 200mm x 20 mm
 
@@ -95,7 +96,7 @@ class NumberedCanvas_Campioniindex(canvas.Canvas):
         canvas.Canvas.save(self)
 
     def draw_page_number(self, page_count):
-        self.setFont("Helvetica", 8)
+        self.setFont("Cambria", 5)
         self.drawRightString(270 * mm, 10 * mm,
                              "Pag. %d di %d" % (self._pageNumber, page_count))  # scheda us verticale 200mm x 20 mm
 
@@ -122,7 +123,7 @@ class NumberedCanvas_CASSEindex(canvas.Canvas):
         canvas.Canvas.save(self)
 
     def draw_page_number(self, page_count):
-        self.setFont("Helvetica", 8)
+        self.setFont("Cambria", 5)
         self.drawRightString(270 * mm, 10 * mm,
                              "Pag. %d di %d" % (self._pageNumber, page_count))  # scheda us verticale 200mm x 20 mm
 
@@ -150,17 +151,19 @@ class single_Campioni_pdf_sheet(object):
         styNormal.spaceBefore = 20
         styNormal.spaceAfter = 20
         styNormal.alignment = 0  # LEFT
-
+        styNormal.fontSize = 8
+        styNormal.fontName = 'Cambria'
         styleSheet = getSampleStyleSheet()
         styDescrizione = styleSheet['Normal']
         styDescrizione.spaceBefore = 20
         styDescrizione.spaceAfter = 20
         styDescrizione.alignment = 4  # Justified
-
+        styDescrizione.fontSize = 8
+        styDescrizione.fontName = 'Cambria'
         # format labels
 
         # 0 row
-        intestazione = Paragraph("<b>SCHEDA CAMPIONI<br/>" + str(self.datestrfdate()) + "</b>", styNormal)
+        intestazione = Paragraph("<b>SCHEDA CAMPIONI<br/></b>", styNormal)
 
         home = os.environ['PYARCHINIT_HOME']
 
@@ -182,20 +185,20 @@ class single_Campioni_pdf_sheet(object):
 
         # 1 row
         sito = Paragraph("<b>Sito</b><br/>" + str(self.sito), styNormal)
-        tipo_campione = Paragraph("<b>Tipo Campione</b><br/>" + str(self.tipo_campione), styNormal)
-        nr_campione = Paragraph("<b>Nr. Campione</b><br/>" + str(self.numero_campione), styNormal)
+        tipo_campione = Paragraph("<b>Tipo campione</b><br/>" + str(self.tipo_campione), styNormal)
+        nr_campione = Paragraph("<b>N. campione</b><br/>" + str(self.numero_campione), styNormal)
 
         # 2 row
         area = Paragraph("<b>Area</b><br/>" + str(self.area), styNormal)
         us = Paragraph("<b>US</b><br/>" + str(self.us), styNormal)
-        nr_inventario = Paragraph("<b>Nr. Inventario</b><br/>" + str(self.numero_inventario), styNormal)
+        nr_inventario = Paragraph("<b>N. inventario</b><br/>" + str(self.numero_inventario), styNormal)
 
         # 4 row
         descrizione = Paragraph("<b>Descrizione</b><br/>" + str(self.descrizione), styDescrizione)
 
         # 4 row
-        luogo_conservazione = Paragraph("<b>Luogo conservazione</b><br/>" + str(self.luogo_conservazione), styNormal)
-        nr_cassa = Paragraph("<b>Nr. Cassa</b><br/>" + str(self.nr_cassa), styNormal)
+        luogo_conservazione = Paragraph("<b>Luogo di conservazione</b><br/>" + str(self.luogo_conservazione), styNormal)
+        nr_cassa = Paragraph("<b>N. cassa</b><br/>" + str(self.nr_cassa), styNormal)
 
         # schema
         cell_schema = [  # 00, 01, 02, 03, 04, 05, 06, 07, 08, 09 rows
@@ -249,12 +252,15 @@ class single_Campioni_pdf_sheet(object):
         styNormal.spaceBefore = 20
         styNormal.spaceAfter = 20
         styNormal.alignment = 0  # LEFT
-
+        styNormal.fontSize = 8
+        styNormal.fontName = 'Cambria'
         styleSheet = getSampleStyleSheet()
         styDescrizione = styleSheet['Normal']
         styDescrizione.spaceBefore = 20
         styDescrizione.spaceAfter = 20
         styDescrizione.alignment = 4  # Justified
+        styDescrizione.fontSize = 8
+        styDescrizione.fontName = 'Cambria'
 
         # format labels
 
@@ -282,19 +288,19 @@ class single_Campioni_pdf_sheet(object):
         # 1 row
         sito = Paragraph("<b>Ausgrabungsstätte</b><br/>" + str(self.sito), styNormal)
         tipo_campione = Paragraph("<b>Probentyp</b><br/>" + str(self.tipo_campione), styNormal)
-        nr_campione = Paragraph("<b>Nr. Proben</b><br/>" + str(self.numero_campione), styNormal)
+        nr_campione = Paragraph("<b>N. Proben</b><br/>" + str(self.numero_campione), styNormal)
 
         # 2 row
         area = Paragraph("<b>Areal</b><br/>" + str(self.area), styNormal)
         us = Paragraph("<b>SE</b><br/>" + str(self.us), styNormal)
-        nr_inventario = Paragraph("<b>Nr. Inventar</b><br/>" + str(self.numero_inventario), styNormal)
+        nr_inventario = Paragraph("<b>N. Inventar</b><br/>" + str(self.numero_inventario), styNormal)
 
         # 4 row
         descrizione = Paragraph("<b>Beschreibung</b><br/>" + str(self.descrizione), styDescrizione)
 
         # 4 row
         luogo_conservazione = Paragraph("<b>Ort der Erhaltung</b><br/>" + str(self.luogo_conservazione), styNormal)
-        nr_cassa = Paragraph("<b>Nr. Box</b><br/>" + str(self.nr_cassa), styNormal)
+        nr_cassa = Paragraph("<b>N. Box</b><br/>" + str(self.nr_cassa), styNormal)
 
         # schema
         cell_schema = [  # 00, 01, 02, 03, 04, 05, 06, 07, 08, 09 rows
@@ -348,12 +354,15 @@ class single_Campioni_pdf_sheet(object):
         styNormal.spaceBefore = 20
         styNormal.spaceAfter = 20
         styNormal.alignment = 0  # LEFT
-
+        styNormal.fontSize = 8
+        styNormal.fontName = 'Cambria'
         styleSheet = getSampleStyleSheet()
         styDescrizione = styleSheet['Normal']
         styDescrizione.spaceBefore = 20
         styDescrizione.spaceAfter = 20
         styDescrizione.alignment = 4  # Justified
+        styDescrizione.fontSize = 8
+        styDescrizione.fontName = 'Cambria'
 
         # format labels
 
@@ -381,19 +390,19 @@ class single_Campioni_pdf_sheet(object):
         # 1 row
         sito = Paragraph("<b>Site</b><br/>" + str(self.sito), styNormal)
         tipo_campione = Paragraph("<b>Sample Type</b><br/>" + str(self.tipo_campione), styNormal)
-        nr_campione = Paragraph("<b>Sample Nr.</b><br/>" + str(self.numero_campione), styNormal)
+        nr_campione = Paragraph("<b>Sample N.</b><br/>" + str(self.numero_campione), styNormal)
 
         # 2 row
         area = Paragraph("<b>Area</b><br/>" + str(self.area), styNormal)
         us = Paragraph("<b>SU</b><br/>" + str(self.us), styNormal)
-        nr_inventario = Paragraph("<b>Invatary Nr.</b><br/>" + str(self.numero_inventario), styNormal)
+        nr_inventario = Paragraph("<b>Invatary N.</b><br/>" + str(self.numero_inventario), styNormal)
 
         # 4 row
         descrizione = Paragraph("<b>Description</b><br/>" + str(self.descrizione), styDescrizione)
 
         # 4 row
         luogo_conservazione = Paragraph("<b>Place of conservation</b><br/>" + str(self.luogo_conservazione), styNormal)
-        nr_cassa = Paragraph("<b>Box Nr.</b><br/>" + str(self.nr_cassa), styNormal)
+        nr_cassa = Paragraph("<b>Box N.</b><br/>" + str(self.nr_cassa), styNormal)
 
         # schema
         cell_schema = [  # 00, 01, 02, 03, 04, 05, 06, 07, 08, 09 rows
@@ -467,6 +476,7 @@ class Box_labels_Campioni_pdf_sheet(object):
         styCassaLabel.leading = 25
         styCassaLabel.fontSize = 30
 
+        styCassaLabel.fontName = 'Cambria'
         stySitoLabel = styleSheet['Sito Label']
         stySitoLabel.spaceBefore = 0
         stySitoLabel.spaceAfter = 0
@@ -474,14 +484,14 @@ class Box_labels_Campioni_pdf_sheet(object):
         stySitoLabel.leading = 25
         stySitoLabel.fontSize = 18
         stySitoLabel.fontStyle = 'bold'
-
+        stySitoLabel.fontName = 'Cambria'
         styNormal = styleSheet['Normal']
         styNormal.spaceBefore = 10
         styNormal.spaceAfter = 10
         styNormal.alignment = 0  # LEFT
         styNormal.fontSize = 14
         styNormal.leading = 15
-
+        styNormal.fontName = 'Cambria'
         # format labels
         
         home = os.environ['PYARCHINIT_HOME']
@@ -506,15 +516,15 @@ class Box_labels_Campioni_pdf_sheet(object):
         sito = Paragraph("<b>Sito: </b>" + str(self.sito), stySitoLabel)
 
         if self.elenco_inv_tip_rep == None:
-            elenco_inv_tip_rep = Paragraph("<b>Elenco N. Inv. / Tipo campione</b><br/>", styNormal)
+            elenco_inv_tip_rep = Paragraph("<b>Elenco n. inv. / Tipo campione</b><br/>", styNormal)
         else:
-            elenco_inv_tip_rep = Paragraph("<b>Elenco N. Inv. / Tipo campione</b><br/>" + str(self.elenco_inv_tip_rep),
+            elenco_inv_tip_rep = Paragraph("<b>Elenco n. inv. / Tipo campione</b><br/>" + str(self.elenco_inv_tip_rep),
                                            styNormal)
 
         if self.elenco_us == None:
-            elenco_us = Paragraph("<b>Elenco US/(Struttura)</b>", styNormal)
+            elenco_us = Paragraph("<b>Elenco US/(struttura)</b>", styNormal)
         else:
-            elenco_us = Paragraph("<b>Elenco US/(Struttura)</b><br/>" + str(self.elenco_us), styNormal)
+            elenco_us = Paragraph("<b>Elenco US/(struttura)</b><br/>" + str(self.elenco_us), styNormal)
 
             # luogo_conservazione = Paragraph("<b>Luogo di conservazione</b><br/>" + str(self.luogo_conservazione),styNormal)
 
@@ -568,6 +578,7 @@ class Box_labels_Campioni_pdf_sheet(object):
         styCassaLabel.leading = 25
         styCassaLabel.fontSize = 30
 
+        styCassaLabel.fontName = 'Cambria'
         stySitoLabel = styleSheet['Sito Label']
         stySitoLabel.spaceBefore = 0
         stySitoLabel.spaceAfter = 0
@@ -575,13 +586,14 @@ class Box_labels_Campioni_pdf_sheet(object):
         stySitoLabel.leading = 25
         stySitoLabel.fontSize = 18
         stySitoLabel.fontStyle = 'bold'
-
+        stySitoLabel.fontName = 'Cambria'
         styNormal = styleSheet['Normal']
         styNormal.spaceBefore = 10
         styNormal.spaceAfter = 10
         styNormal.alignment = 0  # LEFT
         styNormal.fontSize = 14
         styNormal.leading = 15
+        styNormal.fontName = 'Cambria'
 
         # format labels
         home = os.environ['PYARCHINIT_HOME']
@@ -602,7 +614,7 @@ class Box_labels_Campioni_pdf_sheet(object):
         logo.drawHeight = 1.5 * inch * logo.drawHeight / logo.drawWidth
         logo.drawWidth = 1.5 * inch
 
-        num_cassa = Paragraph("<b>Box Nr.</b>" + str(self.cassa), styCassaLabel)
+        num_cassa = Paragraph("<b>Box N.</b>" + str(self.cassa), styCassaLabel)
         sito = Paragraph("<b>Ausgrabungsstätte: </b>" + str(self.sito), stySitoLabel)
 
         if self.elenco_inv_tip_rep == None:
@@ -668,6 +680,7 @@ class Box_labels_Campioni_pdf_sheet(object):
         styCassaLabel.leading = 25
         styCassaLabel.fontSize = 30
 
+        styCassaLabel.fontName = 'Cambria'
         stySitoLabel = styleSheet['Sito Label']
         stySitoLabel.spaceBefore = 0
         stySitoLabel.spaceAfter = 0
@@ -675,13 +688,14 @@ class Box_labels_Campioni_pdf_sheet(object):
         stySitoLabel.leading = 25
         stySitoLabel.fontSize = 18
         stySitoLabel.fontStyle = 'bold'
-
+        stySitoLabel.fontName = 'Cambria'
         styNormal = styleSheet['Normal']
         styNormal.spaceBefore = 10
         styNormal.spaceAfter = 10
         styNormal.alignment = 0  # LEFT
         styNormal.fontSize = 14
         styNormal.leading = 15
+        styNormal.fontName = 'Cambria'
 
         # format labels
         home = os.environ['PYARCHINIT_HOME']
@@ -701,7 +715,7 @@ class Box_labels_Campioni_pdf_sheet(object):
         logo.drawHeight = 1.5 * inch * logo.drawHeight / logo.drawWidth
         logo.drawWidth = 1.5 * inch
 
-        num_cassa = Paragraph("<b>Box Nr.</b>" + str(self.cassa), styCassaLabel)
+        num_cassa = Paragraph("<b>Box N.</b>" + str(self.cassa), styCassaLabel)
         sito = Paragraph("<b>Site: </b>" + str(self.sito), stySitoLabel)
 
         if self.elenco_inv_tip_rep == None:
@@ -768,21 +782,21 @@ class CASSE_index_pdf_sheet(object):
         styNormal.spaceAfter = 20
         styNormal.alignment = 0  # LEFT
         styNormal.fontSize = 10
-
+        styNormal.fontName = 'Cambria'
         # self.unzip_rapporti_stratigrafici()
 
-        num_cassa = Paragraph("<b>Nr.</b><br/>" + str(self.cassa), styNormal)
+        num_cassa = Paragraph("<b>N.</b><br/>" + str(self.cassa), styNormal)
 
         if self.elenco_inv_tip_camp == None:
-            elenco_inv_tip_camp = Paragraph("<b>N. Inv./Tipo campione</b><br/>", styNormal)
+            elenco_inv_tip_camp = Paragraph('<b>N. inv./Tipo campione</b><br/>', styNormal)
         else:
-            elenco_inv_tip_camp = Paragraph("<b>N. Inv./Tipo campione</b><br/>" + str(self.elenco_inv_tip_camp),
+            elenco_inv_tip_camp = Paragraph("<b>N. inv./Tipo campione</b><br/>" + str(self.elenco_inv_tip_camp),
                                             styNormal)
 
         if self.elenco_us == None:
-            elenco_us = Paragraph("<b>US(Struttura)</b><br/>", styNormal)
+            elenco_us = Paragraph("<b>US(struttura)</b><br/>", styNormal)
         else:
-            elenco_us = Paragraph("<b>US(Struttura)</b><br/>" + str(self.elenco_us), styNormal)
+            elenco_us = Paragraph("<b>US(struttura)</b><br/>" + str(self.elenco_us), styNormal)
 
         luogo_conservazione = Paragraph("<b>Luogo di conservazione</b><br/>" + str(self.luogo_conservazione), styNormal)
 
@@ -799,10 +813,11 @@ class CASSE_index_pdf_sheet(object):
         styNormal.spaceAfter = 20
         styNormal.alignment = 0  # LEFT
         styNormal.fontSize = 10
+        styNormal.fontName = 'Cambria'
 
         # self.unzip_rapporti_stratigrafici()
 
-        num_cassa = Paragraph("<b>Nr.</b><br/>" + str(self.cassa), styNormal)
+        num_cassa = Paragraph("<b>N.</b><br/>" + str(self.cassa), styNormal)
 
         if self.elenco_inv_tip_camp == None:
             elenco_inv_tip_camp = Paragraph("<b>N. Inv./Probentyp</b><br/>", styNormal)
@@ -831,10 +846,11 @@ class CASSE_index_pdf_sheet(object):
         styNormal.spaceAfter = 20
         styNormal.alignment = 0  # LEFT
         styNormal.fontSize = 10
+        styNormal.fontName = 'Cambria'
 
         # self.unzip_rapporti_stratigrafici()
 
-        num_cassa = Paragraph("<b>Nr.</b><br/>" + str(self.cassa), styNormal)
+        num_cassa = Paragraph("<b>N.</b><br/>" + str(self.cassa), styNormal)
 
         if self.elenco_inv_tip_camp == None:
             elenco_inv_tip_camp = Paragraph("<b>Inv. N. /Sample Type</b><br/>", styNormal)
@@ -881,6 +897,7 @@ class Campioni_index_pdf_sheet(object):
         styNormal.spaceAfter = 20
         styNormal.alignment = 0  # LEFT
         styNormal.fontSize = 9
+        styNormal.fontName = 'Cambria'
 
         # self.unzip_rapporti_stratigrafici()
 
@@ -902,21 +919,21 @@ class Campioni_index_pdf_sheet(object):
             us = Paragraph("<b>US</b><br/>" + str(self.us), styNormal)
 
         if self.numero_inventario_materiale == None:
-            numero_inventario_materiale = Paragraph("<b>N. Inv. Materiale</b><br/>", styNormal)
+            numero_inventario_materiale = Paragraph("<b>N. inv. materiale</b><br/>", styNormal)
         else:
             numero_inventario_materiale = Paragraph(
-                "<b>N. Inv. Materiale</b><br/>" + str(self.numero_inventario_materiale), styNormal)
+                "<b>N. inv. materiale</b><br/>" + str(self.numero_inventario_materiale), styNormal)
 
         if self.luogo_conservazione == None:
-            luogo_conservazione = Paragraph("<b>Luogo Conservazione</b><br/>", styNormal)
+            luogo_conservazione = Paragraph("<b>Luogo di conservazione</b><br/>", styNormal)
         else:
-            luogo_conservazione = Paragraph("<b>Luogo Conservazione</b><br/>" + str(self.luogo_conservazione),
+            luogo_conservazione = Paragraph("<b>Luogo di conservazione</b><br/>" + str(self.luogo_conservazione),
                                             styNormal)
 
         if self.nr_cassa == None:
-            nr_cassa = Paragraph("<b>Nr. Cassa</b><br/>", styNormal)
+            nr_cassa = Paragraph("<b>N. cassa</b><br/>", styNormal)
         else:
-            nr_cassa = Paragraph("<b>Nr. Cassa</b><br/>" + str(self.nr_cassa), styNormal)
+            nr_cassa = Paragraph("<b>N. cassa</b><br/>" + str(self.nr_cassa), styNormal)
 
         data = [num_campione,
                 tipo_campione,
@@ -934,10 +951,11 @@ class Campioni_index_pdf_sheet(object):
         styNormal.spaceAfter = 20
         styNormal.alignment = 0  # LEFT
         styNormal.fontSize = 9
+        styNormal.fontName = 'Cambria'
 
         # self.unzip_rapporti_stratigrafici()
 
-        num_campione = Paragraph("<b>Nr. Proben</b><br/>" + str(self.numero_campione), styNormal)
+        num_campione = Paragraph("<b>N. Proben</b><br/>" + str(self.numero_campione), styNormal)
 
         if self.tipo_campione == None:
             tipo_campione = Paragraph("<b>Probentyp</b><br/>", styNormal)
@@ -955,10 +973,10 @@ class Campioni_index_pdf_sheet(object):
             us = Paragraph("<b>SE</b><br/>" + str(self.us), styNormal)
 
         if self.numero_inventario_materiale == None:
-            numero_inventario_materiale = Paragraph("<b>Nr. Inv. Material</b><br/>", styNormal)
+            numero_inventario_materiale = Paragraph("<b>N. Inv. Material</b><br/>", styNormal)
         else:
             numero_inventario_materiale = Paragraph(
-                "<b>Nr. Inv. Material</b><br/>" + str(self.numero_inventario_materiale), styNormal)
+                "<b>N. Inv. Material</b><br/>" + str(self.numero_inventario_materiale), styNormal)
 
         if self.luogo_conservazione == None:
             luogo_conservazione = Paragraph("<b>Ort der Erhaltung</b><br/>", styNormal)
@@ -967,9 +985,9 @@ class Campioni_index_pdf_sheet(object):
                                             styNormal)
 
         if self.nr_cassa == None:
-            nr_cassa = Paragraph("<b>Nr. Box</b><br/>", styNormal)
+            nr_cassa = Paragraph("<b>N. Box</b><br/>", styNormal)
         else:
-            nr_cassa = Paragraph("<b>Nr. Box</b><br/>" + str(self.nr_cassa), styNormal)
+            nr_cassa = Paragraph("<b>N. Box</b><br/>" + str(self.nr_cassa), styNormal)
 
         data = [num_campione,
                 tipo_campione,
@@ -987,10 +1005,11 @@ class Campioni_index_pdf_sheet(object):
         styNormal.spaceAfter = 20
         styNormal.alignment = 0  # LEFT
         styNormal.fontSize = 9
+        styNormal.fontName = 'Cambria'
 
         # self.unzip_rapporti_stratigrafici()
 
-        num_campione = Paragraph("<b>Sample Nr.</b><br/>" + str(self.numero_campione), styNormal)
+        num_campione = Paragraph("<b>Sample N.</b><br/>" + str(self.numero_campione), styNormal)
 
         if self.tipo_campione == None:
             tipo_campione = Paragraph("<b>Sample Type</b><br/>", styNormal)
@@ -1020,9 +1039,9 @@ class Campioni_index_pdf_sheet(object):
                                             styNormal)
 
         if self.nr_cassa == None:
-            nr_cassa = Paragraph("<b>Box Nr.</b><br/>", styNormal)
+            nr_cassa = Paragraph("<b>Box N.</b><br/>", styNormal)
         else:
-            nr_cassa = Paragraph("<b>Box Nr.</b><br/>" + str(self.nr_cassa), styNormal)
+            nr_cassa = Paragraph("<b>Box N.</b><br/>" + str(self.nr_cassa), styNormal)
 
         data = [num_campione,
                 tipo_campione,
@@ -1056,7 +1075,7 @@ class generate_campioni_pdf(object):
             single_Campioni_sheet = single_Campioni_pdf_sheet(records[i])
             elements.append(single_Campioni_sheet.create_sheet())
             elements.append(PageBreak())
-        filename = '{}{}{}'.format(self.PDF_path, os.sep, 'scheda_Campioni.pdf')
+        filename = '{}{}{}'.format(self.PDF_path, os.sep, 'Scheda Campioni.pdf')
         f = open(filename, "wb")
         doc = SimpleDocTemplate(f)
         doc.build(elements, canvasmaker=NumberedCanvas_Campionisheet)
@@ -1104,12 +1123,12 @@ class generate_campioni_pdf(object):
         styNormal = styleSheet['Normal']
         styBackground = ParagraphStyle('background', parent=styNormal, backColor=colors.pink)
         styH1 = styleSheet['Heading3']
-
+        styH1.fontName='Cambria'
         data = self.datestrfdate()
 
         lst = []
         lst.append(logo)
-        lst.append(Paragraph("<b>ELENCO CAMPIONI</b><br/><b>Scavo: %s,  Data: %s</b>" % (sito, data), styH1))
+        lst.append(Paragraph("<b>ELENCO CAMPIONI</b><br/><b>Scavo: %s</b>" % (sito), styH1))
 
         table_data = []
         for i in range(len(records)):
@@ -1125,7 +1144,7 @@ class generate_campioni_pdf(object):
         lst.append(table_data_formatted)
         # lst.append(Spacer(0,2))
 
-        filename = '{}{}{}'.format(self.PDF_path, os.sep, 'elenco_campioni.pdf')
+        filename = '{}{}{}'.format(self.PDF_path, os.sep, 'Elenco Campioni.pdf')
         f = open(filename, "wb")
 
         doc = SimpleDocTemplate(f, pagesize=(29 * cm, 21 * cm), showBoundary=0)
@@ -1251,10 +1270,10 @@ class generate_campioni_pdf(object):
         styNormal = styleSheet['Normal']
         styBackground = ParagraphStyle('background', parent=styNormal, backColor=colors.pink)
         styH1 = styleSheet['Heading3']
-
+        styH1.fontName='Cambria'
         data = self.datestrfdate()
         lst = [logo]
-        lst.append(Paragraph("<b>ELENCO CASSE CAMPIONI</b><br/><b>Scavo: %s,  Data: %s</b>" % (sito, data), styH1))
+        lst.append(Paragraph("<b>ELENCO CASSE CAMPIONI</b><br/><b>Scavo: %s</b>" % (sito), styH1))
 
         table_data = []
         for i in range(len(records)):
@@ -1272,7 +1291,7 @@ class generate_campioni_pdf(object):
         lst.append(table_data_formatted)
         lst.append(Spacer(0, 0))
 
-        filename = '{}{}{}'.format(self.PDF_path, os.sep, 'elenco_casse_campioni.pdf')
+        filename = '{}{}{}'.format(self.PDF_path, os.sep, 'Elenco Casse Campioni.pdf')
         f = open(filename, "wb")
 
         doc = SimpleDocTemplate(f, pagesize=(29 * cm, 21 * cm), showBoundary=0, topMargin=15, bottomMargin=40,
@@ -1389,7 +1408,7 @@ class generate_campioni_pdf(object):
             single_finds_sheet = Box_labels_Campioni_pdf_sheet(records[i], sito)
             elements.append(single_finds_sheet.create_sheet())
             elements.append(PageBreak())
-        filename = '{}{}{}'.format(self.PDF_path, os.sep, 'etichette_casse_campioni.pdf')
+        filename = '{}{}{}'.format(self.PDF_path, os.sep, 'Etichette Casse Campioni.pdf')
         f = open(filename, "wb")
         doc = SimpleDocTemplate(f, pagesize=(29 * cm, 21 * cm), showBoundary=0.0, topMargin=20, bottomMargin=20,
                                 leftMargin=20, rightMargin=20)
