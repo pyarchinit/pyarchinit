@@ -6,7 +6,7 @@
                              stored in Postgres
                              -------------------
     begin                : 2007-12-01
-    copyright            : (C) 2008 by Luca Mandolesi
+    copyright            : (C) 2008 by Luca Mandolesi; Enzo Cocca <enzo.ccc@gmail.com>
     email                : mandoluca at gmail.com
  ***************************************************************************/
 
@@ -23,11 +23,22 @@
 from datetime import date
 
 from reportlab.lib import colors
-from reportlab.lib.styles import getSampleStyleSheet
-from reportlab.lib.units import inch, mm
+from reportlab.lib.pagesizes import (A4,A3)
+from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
+from reportlab.lib.units import inch, cm, mm
 from reportlab.pdfgen import canvas
-from reportlab.platypus import Table, PageBreak, SimpleDocTemplate, Image
+from reportlab.platypus import Table, PageBreak, SimpleDocTemplate, Spacer, TableStyle, Image
 from reportlab.platypus.paragraph import Paragraph
+from reportlab.pdfbase import pdfmetrics
+from reportlab.pdfbase.pdfmetrics import registerFontFamily
+from reportlab.pdfbase.ttfonts import TTFont
+# Registered font family
+pdfmetrics.registerFont(TTFont('Cambria', 'Cambria.ttc'))
+pdfmetrics.registerFont(TTFont('cambriab', 'cambriab.ttf'))
+# pdfmetrics.registerFont(TTFont('VeraIt', 'VeraIt.ttf'))
+# pdfmetrics.registerFont(TTFont('VeraBI', 'VeraBI.ttf'))
+# Registered fontfamily
+registerFontFamily('Cambria',normal='Cambria')
 from ..db.pyarchinit_conn_strings import Connection
 from .pyarchinit_OS_utility import *
 
@@ -54,7 +65,7 @@ class NumberedCanvas_Invlapsheet(canvas.Canvas):
         canvas.Canvas.save(self)
 
     def draw_page_number(self, page_count):
-        self.setFont("Helvetica", 8)
+        self.setFont("Cambria", 5)
         self.drawRightString(200 * mm, 20 * mm,
                              "Pag. %d di %d" % (self._pageNumber, page_count))  # scheda us verticale 200mm x 20 mm
 

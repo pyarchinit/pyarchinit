@@ -6,7 +6,7 @@
         					 stored in Postgres
                              -------------------
     begin                : 2007-12-01
-    copyright            : (C) 2008 by Luca Mandolesi
+    copyright            : (C) 2008 by Luca Mandolesi; Enzo Cocca <enzo.ccc@gmail.com>
     email                : mandoluca at gmail.com
  ***************************************************************************/
 
@@ -26,12 +26,23 @@ from builtins import object
 from builtins import range
 from builtins import str
 from reportlab.lib import colors
-from reportlab.lib.pagesizes import (A4)
+from reportlab.lib.pagesizes import (A4,A3)
 from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
 from reportlab.lib.units import inch, cm, mm
 from reportlab.pdfgen import canvas
 from reportlab.platypus import Table, PageBreak, SimpleDocTemplate, Spacer, TableStyle, Image
 from reportlab.platypus.paragraph import Paragraph
+from reportlab.pdfbase import pdfmetrics
+from reportlab.pdfbase.pdfmetrics import registerFontFamily
+from reportlab.pdfbase.ttfonts import TTFont
+# Registered font family
+pdfmetrics.registerFont(TTFont('Cambria', 'Cambria.ttc'))
+pdfmetrics.registerFont(TTFont('cambriab', 'cambriab.ttf'))
+# pdfmetrics.registerFont(TTFont('VeraIt', 'VeraIt.ttf'))
+# pdfmetrics.registerFont(TTFont('VeraBI', 'VeraBI.ttf'))
+# Registered fontfamily
+registerFontFamily('Cambria',normal='Cambria')
+from ..db.pyarchinit_conn_strings import Connection
 
 from .pyarchinit_OS_utility import *
 
@@ -58,7 +69,7 @@ class NumberedCanvas_USsheet(canvas.Canvas):
         canvas.Canvas.save(self)
 
     def draw_page_number(self, page_count):
-        self.setFont("Helvetica", 8)
+        self.setFont("Cambria", 5)
         self.drawRightString(200 * mm, 20 * mm,
                              "Pag. %d di %d" % (self._pageNumber, page_count))  # scheda us verticale 200mm x 20 mm
 
@@ -85,7 +96,7 @@ class NumberedCanvas_USindex(canvas.Canvas):
         canvas.Canvas.save(self)
 
     def draw_page_number(self, page_count):
-        self.setFont("Helvetica", 8)
+        self.setFont("Cambria", 5)
         self.drawRightString(270 * mm, 10 * mm,
                              "Pag. %d di %d" % (self._pageNumber, page_count))  # scheda us verticale 200mm x 20 mm
 
@@ -223,17 +234,20 @@ class single_US_pdf_sheet(object):
         styNormal.spaceBefore = 20
         styNormal.spaceAfter = 20
         styNormal.alignment = 0  # LEFT
-
+        styNormal.fontSize = 8
+        styNormal.fontName = 'Cambria'
         styleSheet = getSampleStyleSheet()
         styDescrizione = styleSheet['Normal']
         styDescrizione.spaceBefore = 20
         styDescrizione.spaceAfter = 20
         styDescrizione.alignment = 4  # Justified
+        styDescrizione.fontSize = 8
+        styDescrizione.fontName = 'Cambria'
 
         # format labels
 
         # 0 row
-        intestazione = Paragraph("<b>SCHEDA DI UNITA' STRATIGRAFICA<br/>" + str(self.datestrfdate()) + "</b>",
+        intestazione = Paragraph("<b>SCHEDA DI UNITA' STRATIGRAFICA<br/></b>",
                                  styNormal)
         # intestazione2 = Paragraph("<b>Pyarchinit</b><br/>https://sites.google.com/site/pyarchinit/", styNormal)
 
@@ -255,7 +269,7 @@ class single_US_pdf_sheet(object):
 
         # 2 row
         d_stratigrafica = Paragraph("<b>Definizione stratigrafica</b><br/>" + self.d_stratigrafica, styNormal)
-        d_interpretativa = Paragraph("<b>Definizione Interpretativa</b><br/>" + self.d_interpretativa, styNormal)
+        d_interpretativa = Paragraph("<b>Definizione interpretativa</b><br/>" + self.d_interpretativa, styNormal)
 
         # 3 row
         stato_conservazione = Paragraph("<b>Stato di conservazione</b><br/>" + self.stato_di_conservazione, styNormal)
@@ -566,6 +580,8 @@ class US_index_pdf_sheet(object):
         styNormal.spaceAfter = 20
         styNormal.alignment = 0  # LEFT
         styNormal.fontSize = 9
+        styNormal.fontName = 'Cambria'
+        
 
         self.unzip_rapporti_stratigrafici()
 
@@ -640,7 +656,7 @@ class generate_US_pdf(object):
             elements.append(single_us_sheet.create_sheet())
             elements.append(PageBreak())
 
-        filename = '{}{}{}'.format(self.PDF_path, os.sep, 'scheda_US.pdf')
+        filename = '{}{}{}'.format(self.PDF_path, os.sep, 'Scheda US.pdf')
         f = open(filename, "wb")
 
         doc = SimpleDocTemplate(f, pagesize=A4)
@@ -663,13 +679,13 @@ class generate_US_pdf(object):
         styNormal = styleSheet['Normal']
         styBackground = ParagraphStyle('background', parent=styNormal, backColor=colors.pink)
         styH1 = styleSheet['Heading3']
-
+        styH1.fontName='Cambria'
         data = self.datestrfdate()
 
         lst = []
         lst.append(logo)
         lst.append(
-            Paragraph("<b>ELENCO UNITA' STRATIGRAFICHE</b><br/><b>Scavo: %s,  Data: %s</b>" % (sito, data), styH1))
+            Paragraph("<b>ELENCO UNITA' STRATIGRAFICHE</b><br/><b>Scavo: %s</b>" % (sito), styH1))
 
         table_data = []
         for i in range(len(records)):
@@ -685,7 +701,7 @@ class generate_US_pdf(object):
         lst.append(table_data_formatted)
         lst.append(Spacer(0, 2))
 
-        filename = '{}{}{}'.format(self.PDF_path, os.sep, 'elenco_us.pdf')
+        filename = '{}{}{}'.format(self.PDF_path, os.sep, 'Elenco US.pdf')
         f = open(filename, "wb")
 
         doc = SimpleDocTemplate(f, pagesize=(29 * cm, 21 * cm), showBoundary=0)

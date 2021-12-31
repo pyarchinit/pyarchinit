@@ -6,7 +6,7 @@
                              stored in Postgres
                              -------------------
     begin                : 2007-12-01
-    copyright            : (C) 2008 by Luca Mandolesi
+    copyright            : (C) 2008 by Luca Mandolesi; Enzo Cocca <enzo.ccc@gmail.com>
     email                : mandoluca at gmail.com
  ***************************************************************************/
 
@@ -39,12 +39,12 @@ from reportlab.pdfbase import pdfmetrics
 from reportlab.pdfbase.pdfmetrics import registerFontFamily
 from reportlab.pdfbase.ttfonts import TTFont
 # Registered font family
-pdfmetrics.registerFont(TTFont('Calibri', 'Calibri.ttf'))
+pdfmetrics.registerFont(TTFont('Cambria', 'Cambria.ttc'))
 # pdfmetrics.registerFont(TTFont('VeraBd', 'VeraBd.ttf'))
 # pdfmetrics.registerFont(TTFont('VeraIt', 'VeraIt.ttf'))
 # pdfmetrics.registerFont(TTFont('VeraBI', 'VeraBI.ttf'))
 # Registered fontfamily
-registerFontFamily('Calibri',normal='Calibri')
+registerFontFamily('Cambria',normal='Cambria')
 
 
 
@@ -56,7 +56,7 @@ class NumberedCanvas_USsheet(canvas.Canvas):
     def __init__(self, *args, **kwargs):
         canvas.Canvas.__init__(self, *args, **kwargs)
         self._saved_page_states = []
-
+        
     def define_position(self, pos):
         self.page_position(pos)
 
@@ -74,7 +74,7 @@ class NumberedCanvas_USsheet(canvas.Canvas):
         canvas.Canvas.save(self)
 
     def draw_page_number(self, page_count):
-        self.setFont("Times-Roman", 6)
+        self.setFont("Cambria", 5)
         self.drawRightString(200 * mm, 8 * mm,
                              "Pag. %d di %d" % (self._pageNumber, page_count))  # scheda us verticale 200mm x 20 mm
 
@@ -101,7 +101,7 @@ class NumberedCanvas_USindex(canvas.Canvas):
         canvas.Canvas.save(self)
 
     def draw_page_number(self, page_count):
-        self.setFont("Times-Roman", 7)
+        self.setFont("Cambria", 5)
         self.drawRightString(270 * mm, 10 * mm,
                              "Pag. %d di %d" % (self._pageNumber, page_count))  # scheda us verticale 200mm x 20 mm
 
@@ -855,6 +855,30 @@ class single_US_pdf_sheet(object):
     
     
     #Aggiunta campi USM
+    #Aggiunta campi USM
+    def unzip_inclusi(self):
+        if self.inclusi == '':
+            pass
+        else:
+            self.inclusi_print = ""
+            for string_inclusi in eval(self.inclusi):
+                if len(string_inclusi) == 2:
+                    self.inclusi_print += str(string_inclusi[0]) + ": " + str(string_inclusi[1]) + "<br/>"
+                if len(string_inclusi) == 1:
+                    self.inclusi_print += str(string_inclusi[0]) + "<br/>"
+
+    def unzip_inclusi_usm(self):
+        if self.inclusi_usm == '':
+            pass
+        else:
+            self.inclusi_usm_print = ""
+            for string_inclusi_usm in eval(self.inclusi_materiali_usm):
+                if len(string_inclusi_usm) == 2:
+                    self.inclusi_usm_print += str(string_inclusi_usm[0]) + ": " + str(string_inclusi_usm[1]) + "<br/>"
+                if len(string_inclusi_usm) == 1:
+                    self.inclusi_usm_print += str(string_inclusi_usm[0]) + "<br/>"
+
+    
     def unzip_inerti_usm(self):
        
         inorg = eval(self.aggreg_legante)
@@ -895,29 +919,6 @@ class single_US_pdf_sheet(object):
 
         return inorganici
     
-    #Aggiunta campi USM
-    def unzip_inclusi(self):
-        if self.inclusi == '':
-            pass
-        else:
-            self.inclusi_print = ""
-            for string_inclusi in eval(self.inclusi):
-                if len(string_inclusi) == 2:
-                    self.inclusi_print += str(string_inclusi[0]) + ": " + str(string_inclusi[1]) + "<br/>"
-                if len(string_inclusi) == 1:
-                    self.inclusi_print += str(string_inclusi[0]) + "<br/>"
-
-    def unzip_inclusi_usm(self):
-        if self.inclusi_usm == '':
-            pass
-        else:
-            self.inclusi_usm_print = ""
-            for string_inclusi_usm in eval(self.inclusi_materiali_usm):
-                if len(string_inclusi_usm) == 2:
-                    self.inclusi_usm_print += str(string_inclusi_usm[0]) + ": " + str(string_inclusi_usm[1]) + "<br/>"
-                if len(string_inclusi_usm) == 1:
-                    self.inclusi_usm_print += str(string_inclusi_usm[0]) + "<br/>"
-
     def datestrfdate(self):
         now = date.today()
         today = now.strftime("%d-%m-%Y")
@@ -926,13 +927,14 @@ class single_US_pdf_sheet(object):
     def create_sheet_archeo3_usm_fields_2(self): #scheda us in stile ICCD Italiano
         self.unzip_rapporti_stratigrafici()
         self.unzip_documentazione()
-
+        self.unzip_colore_usm()
+        self.unzip_inerti_usm()
         styleSheet = getSampleStyleSheet()
         styNormal = styleSheet['Normal']
         styNormal.spaceBefore = 20
         styNormal.spaceAfter = 20
         styNormal.fontSize = 8
-        styNormal.fontName='Times-Roman'
+        styNormal.fontName='Cambria'
         styNormal.alignment = 0  # LEFT
 
         styleSheet = getSampleStyleSheet()
@@ -940,7 +942,7 @@ class single_US_pdf_sheet(object):
         styNormal2.spaceBefore = 20
         styNormal2.spaceAfter = 20
         styNormal2.fontSize = 7
-        styNormal2.fontName='Times-Roman'
+        styNormal2.fontName='Cambria'
         styNormal2.alignment = 0  # LEFT
         
         
@@ -949,7 +951,7 @@ class single_US_pdf_sheet(object):
         styL.spaceBefore = 20
         styL.spaceAfter = 20
         styL.fontSize = 2
-        styL.fontName='Times-Roman'
+        styL.fontName='Cambria'
         styL.alignment = 1
         
         
@@ -958,7 +960,7 @@ class single_US_pdf_sheet(object):
         styDescrizione.spaceBefore = 20
         styDescrizione.spaceAfter = 20
         styDescrizione.fontSize = 8
-        styDescrizione.fontName='Times-Roman'
+        styDescrizione.fontName='Cambria'
         styDescrizione.alignment = 4  # Justified
 
         styleSheet = getSampleStyleSheet()
@@ -966,7 +968,7 @@ class single_US_pdf_sheet(object):
         styUnitaTipo.spaceBefore = 20
         styUnitaTipo.spaceAfter = 20
         styUnitaTipo.fontSize = 14
-        styUnitaTipo.fontName='Times-Roman'
+        styUnitaTipo.fontName='Cambria'
         styUnitaTipo.alignment = 1  # CENTER
 
         styleSheet = getSampleStyleSheet()
@@ -975,7 +977,7 @@ class single_US_pdf_sheet(object):
         styTitoloComponenti.spaceAfter = 20
         styTitoloComponenti. rowHeights=0.5
         styTitoloComponenti.fontSize = 8
-        styTitoloComponenti.fontName='Times-Roman'
+        styTitoloComponenti.fontName='Cambria'
         styTitoloComponenti.alignment = 1  # CENTER
 
         styleSheet = getSampleStyleSheet()
@@ -983,7 +985,7 @@ class single_US_pdf_sheet(object):
         styVerticale.spaceBefore = 20
         styVerticale.spaceAfter = 20
         styVerticale.fontSize = 8
-        styVerticale.fontName='Times-Roman'
+        styVerticale.fontName='Cambria'
         styVerticale.alignment = 1  # CENTER
         styVerticale.leading=8
 
@@ -1492,7 +1494,7 @@ class single_US_pdf_sheet(object):
             rifinitura_6 =Paragraph(self.rifinitura_usm,styNormal)
             
             note_legante = Paragraph("<b>NOTE SPECIFICHE DEL LEGANTE</b><br/>" , styDescrizione)
-            note_materiali = Paragraph("<b>NOTE SPECIFICHE SUI MATERIALI</b><br/>" , styDescrizione)
+            note_materiali = Paragraph("<b>NOTE SPECIFICHE SUI MATERIALI</b><br/><br/><br/><br/><br/><br/>" , styDescrizione)
             
 
             #13-22 row
@@ -1572,8 +1574,8 @@ class single_US_pdf_sheet(object):
                 [n, tipo, '02', '03', consistenza_l,'05' , '06',inerti, '08','09' , colore_l, '11', spessore, '13', '14', rifinitura, '16', '17'],
                 [label_legante, tipo_1, '02', '03', consistenza_2, '05', '06', inerti_4, '08', '09', colore_3, '11', spessore_5, '13', '14', rifinitura_6, '16', '17'],
                 [note_legante, '01', '02', '03', '04', '05', '06', '07', '08', '09', '10', '11', '12', '13', '14', '15', '16', '17'],
-                
-                [uguale_a, '01', '02', '03', '04', '05', si_lega_a, '07', '08', '09', '10', '11', label_sequenza_stratigrafica, posteriore_a, '14', '15', '16', '17'],
+				
+				[uguale_a, '01', '02', '03', '04', '05', si_lega_a, '07', '08', '09', '10', '11', label_sequenza_stratigrafica, posteriore_a, '14', '15', '16', '17'],
                 ['00', '01', '02', '03', '04', '05', '06', '07', '08', '09', '10', '11', '12', '13', '14', '15', '16', '17'],
                 [gli_si_appoggia, '01', '02', '03', '04', '05', si_appoggia_a, '07', '08', '09', '10', '11', '12', '13', '14', '15', '16', '17'],
                 ['00', '01', '02', '03', '04', '05', '06', '07', '08', '09', '10', '11', '12', '13', '14', '15', '16', '17'],
@@ -1584,8 +1586,8 @@ class single_US_pdf_sheet(object):
                 [riempito_da, '01', '02', '03', '04', '05', riempie, '07', '08', '09', '10', '11', '12', '13', '14', '15', '16', '17'],
                 ['00', '01', '02', '03', '04', '05', '06', '07', '08', '09', '10', '11', '12', '13', '14', '15', '16', '17'],
                 
-                [descrizione, '01', '02', '03', '04', '05', '06', '07', '08', '09', '10', '11', '12', '13', '14', '15', '16', '17'],
-                [osservazioni, '01', '02', '03', '04', '05', '06', '07', '08', '09', '10', '11', '12', '13', '14', '15', '16', '17'],
+				[descrizione, '01', '02', '03', '04', '05', '06', '07', '08', '09', '10', '11', '12', '13', '14', '15', '16', '17'],
+				[osservazioni, '01', '02', '03', '04', '05', '06', '07', '08', '09', '10', '11', '12', '13', '14', '15', '16', '17'],
                 [interpretazione, '01', '02', '03', '04', '05', '06', '07', '08', '09', '10', '11', '12', '13', '14', '15', '16', '17'],
                 
                 [datazione_ipotesi, '01', '02', '03', '04', '05', periodo_o_fase, '07', '08', '09', '10', '11', attivita, '13', '14', '15', '16', '17'],
@@ -1684,7 +1686,7 @@ class single_US_pdf_sheet(object):
 
                 # 11-12 row
                 ('SPAN', (0, 15), (0, 15)),  # label componenti
-                ('SPAN', (1, 15), (2, 15)),  # label componenti
+				('SPAN', (1, 15), (2, 15)),  # label componenti
                 ('SPAN', (3, 15), (4, 15)),  # label geologici
                 ('SPAN', (5, 15), (7, 15)),  # label organici
                 ('SPAN', (8, 15), (9, 15)),  # label artificiali
@@ -1695,7 +1697,7 @@ class single_US_pdf_sheet(object):
 
                 # 13-14 row
                 ('SPAN', (0, 16), (0, 16)),  # label componenti
-                ('SPAN', (1, 16), (2, 16)),  # label componenti
+				('SPAN', (1, 16), (2, 16)),  # label componenti
                 ('SPAN', (3, 16), (4, 16)),  # label geologici
                 ('SPAN', (5, 16), (7, 16)),  # label organici
                 ('SPAN', (8, 16), (9, 16)),  # label artificiali
@@ -1710,26 +1712,26 @@ class single_US_pdf_sheet(object):
                 
                 # 15 row
                 ('SPAN', (0, 18), (0, 18)),  # label componenti
-                ('SPAN', (1, 18), (3, 18)),  # label componenti
+				('SPAN', (1, 18), (3, 18)),  # label componenti
                 ('SPAN', (4, 18), (6, 18)),  # label geologici
                 ('SPAN', (7, 18), (9, 18)),  # label organici
                 ('SPAN', (10, 18), (11, 18)),  # label artificiali
                 ('SPAN', (12, 18), (14, 18)),  #  geologici
                 ('SPAN', (15, 18), (17, 18)),  #  organici
                 ('VALIGN', (0, 18), (17, 18), 'TOP'),
-                
-                # 16 row
+				
+				# 16 row
                 ('SPAN', (0, 19), (0, 19)),  # label componenti
-                ('SPAN', (1, 19), (3, 19)),  # label componenti
+				('SPAN', (1, 19), (3, 19)),  # label componenti
                 ('SPAN', (4, 19), (6, 19)),  # label geologici
                 ('SPAN', (7, 19), (9, 19)),  # label organici
                 ('SPAN', (10, 19), (11, 19)),  # label artificiali
                 ('SPAN', (12, 19), (14, 19)),  #  geologici
                 ('SPAN', (15, 19), (17, 19)),  #  organici
                 ('VALIGN', (0, 19), (17, 19), 'TOP'),
-                
-                
-                # 17-21 row
+				
+				
+				# 17-21 row
                 ('SPAN', (0, 20), (17, 20)),  # descrizione
                 ('VALIGN', (0, 20), (17, 20), 'TOP'),
 
@@ -1814,17 +1816,17 @@ class single_US_pdf_sheet(object):
         styNormal = styleSheet['Normal']
         styNormal.spaceBefore = 20
         styNormal.spaceAfter = 20
-        styNormal.fontSize = 5
-        styNormal.fontName='Times-Roman'
+        styNormal.fontSize = 8
+        styNormal.fontName='Cambria'
         styNormal.alignment = 0  # LEFT
 
         styleSheet = getSampleStyleSheet()
         styNormal2 = styleSheet['Normal']
         styNormal2.spaceBefore = 20
         styNormal2.spaceAfter = 20
-        styNormal2.fontSize = 5
-        styNormal2.fontName='Times-Roman'
-        styNormal2.alignment = 1  # LEFT
+        styNormal2.fontSize = 7
+        styNormal2.fontName='Cambria'
+        styNormal2.alignment = 0  # LEFT
         
         
         styleSheet = getSampleStyleSheet()
@@ -1832,7 +1834,7 @@ class single_US_pdf_sheet(object):
         styL.spaceBefore = 20
         styL.spaceAfter = 20
         styL.fontSize = 2
-        styL.fontName='Times-Roman'
+        styL.fontName='Cambria'
         styL.alignment = 1
         
         
@@ -1840,8 +1842,8 @@ class single_US_pdf_sheet(object):
         styDescrizione = styleSheet['Normal']
         styDescrizione.spaceBefore = 20
         styDescrizione.spaceAfter = 20
-        styDescrizione.fontSize = 5
-        styDescrizione.fontName='Times-Roman'
+        styDescrizione.fontSize = 8
+        styDescrizione.fontName='Cambria'
         styDescrizione.alignment = 4  # Justified
 
         styleSheet = getSampleStyleSheet()
@@ -1849,7 +1851,7 @@ class single_US_pdf_sheet(object):
         styUnitaTipo.spaceBefore = 20
         styUnitaTipo.spaceAfter = 20
         styUnitaTipo.fontSize = 14
-        styUnitaTipo.fontName='Times-Roman'
+        styUnitaTipo.fontName='Cambria'
         styUnitaTipo.alignment = 1  # CENTER
 
         styleSheet = getSampleStyleSheet()
@@ -1857,16 +1859,16 @@ class single_US_pdf_sheet(object):
         styTitoloComponenti.spaceBefore = 20
         styTitoloComponenti.spaceAfter = 20
         styTitoloComponenti. rowHeights=0.5
-        styTitoloComponenti.fontSize = 5
-        styTitoloComponenti.fontName='Times-Roman'
+        styTitoloComponenti.fontSize = 8
+        styTitoloComponenti.fontName='Cambria'
         styTitoloComponenti.alignment = 1  # CENTER
 
         styleSheet = getSampleStyleSheet()
         styVerticale = styleSheet['Normal']
         styVerticale.spaceBefore = 20
         styVerticale.spaceAfter = 20
-        styVerticale.fontSize = 5
-        styVerticale.fontName='Times-Roman'
+        styVerticale.fontSize = 8
+        styVerticale.fontName='Cambria'
         styVerticale.alignment = 1  # CENTER
         styVerticale.leading=8
 
@@ -2303,14 +2305,14 @@ class single_US_pdf_sheet(object):
             modulo = Paragraph("<b>MODULE</b><br/>"+ str(self.modulo_usm), styNormal)
             
             
-            if bool(self.lunghezza_max) and bool(self.larghezza_media) and bool(self.altezza_usm):
-                misure = Paragraph("<b>MEASURES</b><br/>" + 'Len. '+ self.lunghezza_usm + ' x '+ 'Elev. ' + self.altezza_usm + ' x '+ 'Thick. ' + self.spessore_usm + 'm', styNormal)
-            elif bool(self.lunghezza_max) and bool(self.larghezza_media) and not bool(self.altezza_usm):
-                misure = Paragraph("<b>MEASURES</b><br/>" + 'Len. ' + self.lunghezza_usm + ' x '+ 'Elev. '+ self.altezza_usm + 'm', styNormal)
-            
+            if bool(self.lunghezza_usm) and bool(self.altezza_usm):
+                misure = Paragraph("<b>MEASURES</b><br/>" + 'Len. '+ self.lunghezza_usm + ' x '+ 'Elev. ' + self.altezza_usm + 'm', styNormal)
+            elif bool(self.lunghezza_usm) and  not bool(self.altezza_usm):
+                misure = Paragraph("<b>MEASURES</b><br/>" + 'Len. ' + self.lunghezza_usm + 'm', styNormal)
+            elif bool(self.altezza_usm) and  not bool(self.lunghezza_usm):
+                misure = Paragraph("<b>MEASURES</b><br/>" + 'Elev. ' + self.altezza_usm + 'm', styNormal)
             else:
                 misure = Paragraph("<b>MEASURES</b><br/>", styNormal)
-
             superficie_analizzata = Paragraph("<b>ANALYSED SURFACE</b><br/>"+ str(self.superficie_analizzata), styNormal)
             
             d_stratigrafica = Paragraph("<b>DEFINITION AND POSITION</b><br/>" + self.d_stratigrafica+"<br/>"+self.d_interpretativa, styNormal)
@@ -2461,8 +2463,8 @@ class single_US_pdf_sheet(object):
                 [n, tipo, '02', '03', consistenza_l,'05' , '06',inerti, '08','09' , colore_l, '11', spessore, '13', '14', rifinitura, '16', '17'],
                 [label_legante, tipo_1, '02', '03', consistenza_2, '05', '06', inerti_4, '08', '09', colore_3, '11', spessore_5, '13', '14', rifinitura_6, '16', '17'],
                 [note_legante, '01', '02', '03', '04', '05', '06', '07', '08', '09', '10', '11', '12', '13', '14', '15', '16', '17'],
-                
-                [uguale_a, '01', '02', '03', '04', '05', si_lega_a, '07', '08', '09', '10', '11', label_sequenza_stratigrafica, posteriore_a, '14', '15', '16', '17'],
+				
+				[uguale_a, '01', '02', '03', '04', '05', si_lega_a, '07', '08', '09', '10', '11', label_sequenza_stratigrafica, posteriore_a, '14', '15', '16', '17'],
                 ['00', '01', '02', '03', '04', '05', '06', '07', '08', '09', '10', '11', '12', '13', '14', '15', '16', '17'],
                 [gli_si_appoggia, '01', '02', '03', '04', '05', si_appoggia_a, '07', '08', '09', '10', '11', '12', '13', '14', '15', '16', '17'],
                 ['00', '01', '02', '03', '04', '05', '06', '07', '08', '09', '10', '11', '12', '13', '14', '15', '16', '17'],
@@ -2473,8 +2475,8 @@ class single_US_pdf_sheet(object):
                 [riempito_da, '01', '02', '03', '04', '05', riempie, '07', '08', '09', '10', '11', '12', '13', '14', '15', '16', '17'],
                 ['00', '01', '02', '03', '04', '05', '06', '07', '08', '09', '10', '11', '12', '13', '14', '15', '16', '17'],
                 
-                [descrizione, '01', '02', '03', '04', '05', '06', '07', '08', '09', '10', '11', '12', '13', '14', '15', '16', '17'],
-                [osservazioni, '01', '02', '03', '04', '05', '06', '07', '08', '09', '10', '11', '12', '13', '14', '15', '16', '17'],
+				[descrizione, '01', '02', '03', '04', '05', '06', '07', '08', '09', '10', '11', '12', '13', '14', '15', '16', '17'],
+				[osservazioni, '01', '02', '03', '04', '05', '06', '07', '08', '09', '10', '11', '12', '13', '14', '15', '16', '17'],
                 [interpretazione, '01', '02', '03', '04', '05', '06', '07', '08', '09', '10', '11', '12', '13', '14', '15', '16', '17'],
                 
                 [datazione_ipotesi, '01', '02', '03', '04', '05', periodo_o_fase, '07', '08', '09', '10', '11', attivita, '13', '14', '15', '16', '17'],
@@ -2573,7 +2575,7 @@ class single_US_pdf_sheet(object):
 
                 # 11-12 row
                 ('SPAN', (0, 15), (0, 15)),  # label componenti
-                ('SPAN', (1, 15), (2, 15)),  # label componenti
+				('SPAN', (1, 15), (2, 15)),  # label componenti
                 ('SPAN', (3, 15), (4, 15)),  # label geologici
                 ('SPAN', (5, 15), (7, 15)),  # label organici
                 ('SPAN', (8, 15), (9, 15)),  # label artificiali
@@ -2584,7 +2586,7 @@ class single_US_pdf_sheet(object):
 
                 # 13-14 row
                 ('SPAN', (0, 16), (0, 16)),  # label componenti
-                ('SPAN', (1, 16), (2, 16)),  # label componenti
+				('SPAN', (1, 16), (2, 16)),  # label componenti
                 ('SPAN', (3, 16), (4, 16)),  # label geologici
                 ('SPAN', (5, 16), (7, 16)),  # label organici
                 ('SPAN', (8, 16), (9, 16)),  # label artificiali
@@ -2599,26 +2601,26 @@ class single_US_pdf_sheet(object):
                 
                 # 15 row
                 ('SPAN', (0, 18), (0, 18)),  # label componenti
-                ('SPAN', (1, 18), (3, 18)),  # label componenti
+				('SPAN', (1, 18), (3, 18)),  # label componenti
                 ('SPAN', (4, 18), (6, 18)),  # label geologici
                 ('SPAN', (7, 18), (9, 18)),  # label organici
                 ('SPAN', (10, 18), (11, 18)),  # label artificiali
                 ('SPAN', (12, 18), (14, 18)),  #  geologici
                 ('SPAN', (15, 18), (17, 18)),  #  organici
                 ('VALIGN', (0, 18), (17, 18), 'TOP'),
-                
-                # 16 row
+				
+				# 16 row
                 ('SPAN', (0, 19), (0, 19)),  # label componenti
-                ('SPAN', (1, 19), (3, 19)),  # label componenti
+				('SPAN', (1, 19), (3, 19)),  # label componenti
                 ('SPAN', (4, 19), (6, 19)),  # label geologici
                 ('SPAN', (7, 19), (9, 19)),  # label organici
                 ('SPAN', (10, 19), (11, 19)),  # label artificiali
                 ('SPAN', (12, 19), (14, 19)),  #  geologici
                 ('SPAN', (15, 19), (17, 19)),  #  organici
                 ('VALIGN', (0, 19), (17, 19), 'TOP'),
-                
-                
-                # 17-21 row
+				
+				
+				# 17-21 row
                 ('SPAN', (0, 20), (17, 20)),  # descrizione
                 ('VALIGN', (0, 20), (17, 20), 'TOP'),
 
@@ -2702,17 +2704,17 @@ class single_US_pdf_sheet(object):
         styNormal = styleSheet['Normal']
         styNormal.spaceBefore = 20
         styNormal.spaceAfter = 20
-        styNormal.fontSize = 5
-        styNormal.fontName='Times-Roman'
+        styNormal.fontSize = 8
+        styNormal.fontName='Cambria'
         styNormal.alignment = 0  # LEFT
 
         styleSheet = getSampleStyleSheet()
         styNormal2 = styleSheet['Normal']
         styNormal2.spaceBefore = 20
         styNormal2.spaceAfter = 20
-        styNormal2.fontSize = 5
-        styNormal2.fontName='Times-Roman'
-        styNormal2.alignment = 1  # LEFT
+        styNormal2.fontSize = 8
+        styNormal2.fontName='Cambria'
+        styNormal2.alignment = 0  # LEFT
         
         
         styleSheet = getSampleStyleSheet()
@@ -2720,7 +2722,7 @@ class single_US_pdf_sheet(object):
         styL.spaceBefore = 20
         styL.spaceAfter = 20
         styL.fontSize = 2
-        styL.fontName='Times-Roman'
+        styL.fontName='Cambria'
         styL.alignment = 1
         
         
@@ -2728,8 +2730,8 @@ class single_US_pdf_sheet(object):
         styDescrizione = styleSheet['Normal']
         styDescrizione.spaceBefore = 20
         styDescrizione.spaceAfter = 20
-        styDescrizione.fontSize = 5
-        styDescrizione.fontName='Times-Roman'
+        styDescrizione.fontSize = 8
+        styDescrizione.fontName='Cambria'
         styDescrizione.alignment = 4  # Justified
 
         styleSheet = getSampleStyleSheet()
@@ -2737,7 +2739,7 @@ class single_US_pdf_sheet(object):
         styUnitaTipo.spaceBefore = 20
         styUnitaTipo.spaceAfter = 20
         styUnitaTipo.fontSize = 14
-        styUnitaTipo.fontName='Times-Roman'
+        styUnitaTipo.fontName='Cambria'
         styUnitaTipo.alignment = 1  # CENTER
 
         styleSheet = getSampleStyleSheet()
@@ -2745,16 +2747,16 @@ class single_US_pdf_sheet(object):
         styTitoloComponenti.spaceBefore = 20
         styTitoloComponenti.spaceAfter = 20
         styTitoloComponenti. rowHeights=0.5
-        styTitoloComponenti.fontSize = 5
-        styTitoloComponenti.fontName='Times-Roman'
+        styTitoloComponenti.fontSize = 8
+        styTitoloComponenti.fontName='Cambria'
         styTitoloComponenti.alignment = 1  # CENTER
 
         styleSheet = getSampleStyleSheet()
         styVerticale = styleSheet['Normal']
         styVerticale.spaceBefore = 20
         styVerticale.spaceAfter = 20
-        styVerticale.fontSize = 5
-        styVerticale.fontName='Times-Roman'
+        styVerticale.fontSize = 8
+        styVerticale.fontName='Cambria'
         styVerticale.alignment = 1  # CENTER
         styVerticale.leading=8
 
@@ -2869,6 +2871,9 @@ class single_US_pdf_sheet(object):
             
             else:
                 misure = Paragraph("<b>MASSNAHMEN</b><br/>", styNormal)
+
+
+
             #11 row
 
             stato_conservazione = Paragraph("<b>ERHALTUNGSZUSTAND</b><br/>" + self.stato_di_conservazione, styNormal)
@@ -3182,11 +3187,12 @@ class single_US_pdf_sheet(object):
             modulo = Paragraph("<b>MODUL</b><br/>"+ str(self.modulo_usm), styNormal)
             
             
-            if bool(self.lunghezza_max) and bool(self.larghezza_media) and bool(self.altezza_max):
-                misure = Paragraph("<b>MASSNAHMEN</b><br/>" + 'Länge '+ self.lunghezza_max + ' x '+ 'Breite ' + self.larghezza_media + ' x '+ 'Dicke ' + self.altezza_max + 'm', styNormal)
-            elif bool(self.lunghezza_max) and bool(self.larghezza_media) and not bool(self.altezza_max):
-                misure = Paragraph("<b>MASSNAHMEN</b><br/>" + 'Länge ' + self.lunghezza_max + ' x '+ 'Breite '+ self.larghezza_media + 'm', styNormal)
-            
+            if bool(self.lunghezza_usm) and bool(self.altezza_usm):
+                misure = Paragraph("<b>MASSNAHMEN</b><br/>" + 'Länge '+ self.lunghezza_usm + ' x '+ 'Breite ' + self.altezza_usm + 'm', styNormal)
+            elif bool(self.lunghezza_usm) and  not bool(self.altezza_usm):
+                misure = Paragraph("<b>MASSNAHMEN</b><br/>" + 'Länge ' + self.lunghezza_usm + 'm', styNormal)
+            elif bool(self.altezza_usm) and  not bool(self.lunghezza_usm):
+                misure = Paragraph("<b>MASSNAHMEN</b><br/>" + 'Breite ' + self.altezza_usm + 'm', styNormal)
             else:
                 misure = Paragraph("<b>MASSNAHMEN</b><br/>", styNormal)
 
@@ -3340,8 +3346,8 @@ class single_US_pdf_sheet(object):
                 [n, tipo, '02', '03', consistenza_l,'05' , '06',inerti, '08','09' , colore_l, '11', spessore, '13', '14', rifinitura, '16', '17'],
                 [label_legante, tipo_1, '02', '03', consistenza_2, '05', '06', inerti_4, '08', '09', colore_3, '11', spessore_5, '13', '14', rifinitura_6, '16', '17'],
                 [note_legante, '01', '02', '03', '04', '05', '06', '07', '08', '09', '10', '11', '12', '13', '14', '15', '16', '17'],
-                
-                [uguale_a, '01', '02', '03', '04', '05', si_lega_a, '07', '08', '09', '10', '11', label_sequenza_stratigrafica, posteriore_a, '14', '15', '16', '17'],
+				
+				[uguale_a, '01', '02', '03', '04', '05', si_lega_a, '07', '08', '09', '10', '11', label_sequenza_stratigrafica, posteriore_a, '14', '15', '16', '17'],
                 ['00', '01', '02', '03', '04', '05', '06', '07', '08', '09', '10', '11', '12', '13', '14', '15', '16', '17'],
                 [gli_si_appoggia, '01', '02', '03', '04', '05', si_appoggia_a, '07', '08', '09', '10', '11', '12', '13', '14', '15', '16', '17'],
                 ['00', '01', '02', '03', '04', '05', '06', '07', '08', '09', '10', '11', '12', '13', '14', '15', '16', '17'],
@@ -3352,8 +3358,8 @@ class single_US_pdf_sheet(object):
                 [riempito_da, '01', '02', '03', '04', '05', riempie, '07', '08', '09', '10', '11', '12', '13', '14', '15', '16', '17'],
                 ['00', '01', '02', '03', '04', '05', '06', '07', '08', '09', '10', '11', '12', '13', '14', '15', '16', '17'],
                 
-                [descrizione, '01', '02', '03', '04', '05', '06', '07', '08', '09', '10', '11', '12', '13', '14', '15', '16', '17'],
-                [osservazioni, '01', '02', '03', '04', '05', '06', '07', '08', '09', '10', '11', '12', '13', '14', '15', '16', '17'],
+				[descrizione, '01', '02', '03', '04', '05', '06', '07', '08', '09', '10', '11', '12', '13', '14', '15', '16', '17'],
+				[osservazioni, '01', '02', '03', '04', '05', '06', '07', '08', '09', '10', '11', '12', '13', '14', '15', '16', '17'],
                 [interpretazione, '01', '02', '03', '04', '05', '06', '07', '08', '09', '10', '11', '12', '13', '14', '15', '16', '17'],
                 
                 [datazione_ipotesi, '01', '02', '03', '04', '05', periodo_o_fase, '07', '08', '09', '10', '11', attivita, '13', '14', '15', '16', '17'],
@@ -3452,7 +3458,7 @@ class single_US_pdf_sheet(object):
 
                 # 11-12 row
                 ('SPAN', (0, 15), (0, 15)),  # label componenti
-                ('SPAN', (1, 15), (2, 15)),  # label componenti
+				('SPAN', (1, 15), (2, 15)),  # label componenti
                 ('SPAN', (3, 15), (4, 15)),  # label geologici
                 ('SPAN', (5, 15), (7, 15)),  # label organici
                 ('SPAN', (8, 15), (9, 15)),  # label artificiali
@@ -3463,7 +3469,7 @@ class single_US_pdf_sheet(object):
 
                 # 13-14 row
                 ('SPAN', (0, 16), (0, 16)),  # label componenti
-                ('SPAN', (1, 16), (2, 16)),  # label componenti
+				('SPAN', (1, 16), (2, 16)),  # label componenti
                 ('SPAN', (3, 16), (4, 16)),  # label geologici
                 ('SPAN', (5, 16), (7, 16)),  # label organici
                 ('SPAN', (8, 16), (9, 16)),  # label artificiali
@@ -3478,26 +3484,26 @@ class single_US_pdf_sheet(object):
                 
                 # 15 row
                 ('SPAN', (0, 18), (0, 18)),  # label componenti
-                ('SPAN', (1, 18), (3, 18)),  # label componenti
+				('SPAN', (1, 18), (3, 18)),  # label componenti
                 ('SPAN', (4, 18), (6, 18)),  # label geologici
                 ('SPAN', (7, 18), (9, 18)),  # label organici
                 ('SPAN', (10, 18), (11, 18)),  # label artificiali
                 ('SPAN', (12, 18), (14, 18)),  #  geologici
                 ('SPAN', (15, 18), (17, 18)),  #  organici
                 ('VALIGN', (0, 18), (17, 18), 'TOP'),
-                
-                # 16 row
+				
+				# 16 row
                 ('SPAN', (0, 19), (0, 19)),  # label componenti
-                ('SPAN', (1, 19), (3, 19)),  # label componenti
+				('SPAN', (1, 19), (3, 19)),  # label componenti
                 ('SPAN', (4, 19), (6, 19)),  # label geologici
                 ('SPAN', (7, 19), (9, 19)),  # label organici
                 ('SPAN', (10, 19), (11, 19)),  # label artificiali
                 ('SPAN', (12, 19), (14, 19)),  #  geologici
                 ('SPAN', (15, 19), (17, 19)),  #  organici
                 ('VALIGN', (0, 19), (17, 19), 'TOP'),
-                
-                
-                # 17-21 row
+				
+				
+				# 17-21 row
                 ('SPAN', (0, 20), (17, 20)),  # descrizione
                 ('VALIGN', (0, 20), (17, 20), 'TOP'),
 
@@ -3844,12 +3850,12 @@ class US_index_pdf_sheet(object):
         styNormal.spaceAfter = 20
         styNormal.alignment = 0  # LEFT
         styNormal.fontSize = 8
-
+        styNormal.fontName = 'Cambria'
         self.unzip_rapporti_stratigrafici()
 
         area = Paragraph("<b>Area</b><br/>" + str(self.area), styNormal)
         us = Paragraph("<b>US</b><br/>" + str(self.us), styNormal)
-        d_stratigrafica = Paragraph("<b>Def. Stratigr.</b><br/>" + str(self.d_stratigrafica), styNormal)
+        d_stratigrafica = Paragraph("<b>Def. stratigr.</b><br/>" + str(self.d_stratigrafica), styNormal)
         copre = Paragraph("<b>Copre</b><br/>" + str(self.copre), styNormal)
         coperto_da = Paragraph("<b>Coperto da</b><br/>" + str(self.coperto_da), styNormal)
         taglia = Paragraph("<b>Taglia</b><br/>" + str(self.taglia), styNormal)
@@ -3969,8 +3975,8 @@ class US_index_pdf_sheet(object):
         styNormal.spaceBefore = 20
         styNormal.spaceAfter = 20
         styNormal.alignment = 0  # LEFT
-        styNormal.fontSize = 6
-
+        styNormal.fontSize = 8
+        styNormal.fontName = 'Cambria'
         self.unzip_rapporti_stratigrafici_en()
 
         area = Paragraph("<b>Area</b><br/>" + str(self.area), styNormal)
@@ -4093,8 +4099,8 @@ class US_index_pdf_sheet(object):
         styNormal.spaceBefore = 20
         styNormal.spaceAfter = 20
         styNormal.alignment = 0  # LEFT
-        styNormal.fontSize = 6
-
+        styNormal.fontSize = 8
+        styNormal.fontName = 'Cambria'
         self.unzip_rapporti_stratigrafici_de()
 
         area = Paragraph("<b>Bereich</b><br/>" + str(self.area), styNormal)
@@ -4167,8 +4173,8 @@ class FOTO_index_pdf_sheet(object):
         styNormal.spaceBefore = 20
         styNormal.spaceAfter = 20
         styNormal.alignment = 0  # LEFT
-        styNormal.fontSize = 6
-
+        styNormal.fontSize = 8
+        styNormal.fontName = 'Cambria'
         
 
         conn = Connection()
@@ -4208,8 +4214,8 @@ class FOTO_index_pdf_sheet(object):
         styNormal.spaceBefore = 20
         styNormal.spaceAfter = 20
         styNormal.alignment = 0  # LEFT
-        styNormal.fontSize = 6
-
+        styNormal.fontSize = 8
+        styNormal.fontName = 'Cambria'
         
 
         conn = Connection()
@@ -4247,8 +4253,8 @@ class FOTO_index_pdf_sheet(object):
         styNormal.spaceBefore = 20
         styNormal.spaceAfter = 20
         styNormal.alignment = 0  # LEFT
-        styNormal.fontSize = 6
-
+        styNormal.fontSize = 8
+        styNormal.fontName = 'Cambria'
         
 
         conn = Connection()
@@ -4303,8 +4309,8 @@ class FOTO_index_pdf_sheet_2(object):
         styNormal.spaceBefore = 20
         styNormal.spaceAfter = 20
         styNormal.alignment = 0  # LEFT
-        styNormal.fontSize = 6
-
+        styNormal.fontSize = 8
+        styNormal.fontName = 'Cambria'
         
 
         conn = Connection()
@@ -4342,7 +4348,7 @@ class FOTO_index_pdf_sheet_2(object):
         styNormal.spaceBefore = 20
         styNormal.spaceAfter = 20
         styNormal.alignment = 0  # LEFT
-        styNormal.fontSize = 6
+        styNormal.fontSize = 8
 
         
 
@@ -4380,7 +4386,7 @@ class FOTO_index_pdf_sheet_2(object):
         styNormal.spaceBefore = 20
         styNormal.spaceAfter = 20
         styNormal.alignment = 0  # LEFT
-        styNormal.fontSize = 6
+        styNormal.fontSize = 8
 
         
 
@@ -4483,8 +4489,8 @@ class generate_US_pdf(object):
         # f.close()
 
         #usICCD
-        filename = ('%s%s%s_%s_%s_%s_%s_%s_%s%s') % (
-        self.PDF_path, os.sep, 'scheda_USICCD', dt.day, dt.month, dt.year, dt.hour, dt.minute, dt.second, ".pdf")
+        filename = ('%s%s%s') % (
+        self.PDF_path, os.sep, 'Scheda USICCD.pdf')
         f = open(filename, "wb")
 
         doc = SimpleDocTemplate(f, pagesize=(21 * cm, 29 * cm),  topMargin=10, bottomMargin=20,
@@ -4648,15 +4654,16 @@ class generate_US_pdf(object):
 
         styleSheet = getSampleStyleSheet()
         styNormal = styleSheet['Normal']
+        styNormal.fontName='Cambria'
         styBackground = ParagraphStyle('background', parent=styNormal, backColor=colors.pink)
         styH1 = styleSheet['Heading3']
-
+        styH1.fontName='Cambria'
         data = self.datestrfdate()
 
         lst = []
         lst.append(logo)
         lst.append(
-            Paragraph("<b>ELENCO UNITA' STRATIGRAFICHE</b><br/><b>Scavo: %s,  Data: %s</b>" % (sito, data), styH1))
+            Paragraph("<b>ELENCO UNITA' STRATIGRAFICHE</b><br/><b>Scavo: %s</b>" % (sito), styH1))
 
         table_data = []
         for i in range(len(records)):
@@ -4673,8 +4680,8 @@ class generate_US_pdf(object):
         lst.append(Spacer(0, 2))
 
         dt = datetime.datetime.now()
-        filename = ('%s%s%s_%s_%s_%s_%s_%s_%s%s') % (
-        self.PDF_path, os.sep, 'Elenco_us', dt.day, dt.month, dt.year, dt.hour, dt.minute, dt.second, ".pdf")
+        filename = ('%s%s%s') % (
+        self.PDF_path, os.sep, 'Elenco US.pdf')
         f = open(filename, "wb")
 
         doc = SimpleDocTemplate(f, pagesize=(A3), showBoundary=0)
@@ -4702,13 +4709,13 @@ class generate_US_pdf(object):
         styNormal = styleSheet['Normal']
         styBackground = ParagraphStyle('background', parent=styNormal, backColor=colors.pink)
         styH1 = styleSheet['Heading3']
-
+        styH1.fontName='Cambria'
         data = self.datestrfdate()
 
         lst = []
         lst.append(logo)
         lst.append(
-            Paragraph("<b>ELENCO FOTO STRATIGRAFICHE</b><br/><b> Scavo: %s,  Data: %s</b>" % (sito, data), styH1))
+            Paragraph("<b>ELENCO FOTO STRATIGRAFICHE</b><br/><b> Scavo: %s</b>" % (sito), styH1))
 
         table_data = []
         for i in range(len(records)):
@@ -4725,8 +4732,8 @@ class generate_US_pdf(object):
         lst.append(Spacer(0, 2))
 
         dt = datetime.datetime.now()
-        filename = ('%s%s%s_%s_%s_%s_%s_%s_%s%s') % (
-        self.PDF_path, os.sep, 'Elenco_foto', dt.day, dt.month, dt.year, dt.hour, dt.minute, dt.second, ".pdf")
+        filename = ('%s%s%s') % (
+        self.PDF_path, os.sep, 'Elenco Foto.pdf')
         f = open(filename, "wb")
 
         doc = SimpleDocTemplate(f, pagesize=A4)
@@ -4753,13 +4760,13 @@ class generate_US_pdf(object):
         styNormal = styleSheet['Normal']
         styBackground = ParagraphStyle('background', parent=styNormal, backColor=colors.pink)
         styH1 = styleSheet['Heading3']
-
+        styH1.fontName='Cambria'
         data = self.datestrfdate()
 
         lst = []
         lst.append(logo)
         lst.append(
-            Paragraph("<b>ELENCO FOTO STRATIGRAFICHE</b><br/><b> Scavo: %s,  Data: %s</b>" % (sito, data), styH1))
+            Paragraph("<b>ELENCO FOTO STRATIGRAFICHE</b><br/><b> Scavo: %s</b>" % (sito), styH1))
 
         table_data = []
         for i in range(len(records)):
@@ -4776,8 +4783,8 @@ class generate_US_pdf(object):
         lst.append(Spacer(0, 2))
 
         dt = datetime.datetime.now()
-        filename = ('%s%s%s_%s_%s_%s_%s_%s_%s%s') % (
-        self.PDF_path, os.sep, 'Elenco_foto', dt.day, dt.month, dt.year, dt.hour, dt.minute, dt.second, ".pdf")
+        filename = ('%s%s%s') % (
+        self.PDF_path, os.sep, 'Elenco Foto.pdf')
         f = open(filename, "wb")
 
         doc = SimpleDocTemplate(f, pagesize=A4)

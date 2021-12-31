@@ -6,7 +6,7 @@
                              stored in Postgres
                              -------------------
     begin                : 2007-12-01
-    copyright            : (C) 2008 by Luca Mandolesi
+    copyright            : (C) 2008 by Luca Mandolesi; Enzo Cocca <enzo.ccc@gmail.com>
     email                : mandoluca at gmail.com
  ***************************************************************************/
 
@@ -20,20 +20,36 @@
  ***************************************************************************/
 """
 
+import datetime
 from datetime import date
+from numpy import *
+import io
 
 from builtins import object
 from builtins import range
 from builtins import str
 from reportlab.lib import colors
-from reportlab.lib.styles import getSampleStyleSheet
-from reportlab.lib.units import inch, mm
+from reportlab.lib.pagesizes import (A4,A3)
+from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
+from reportlab.lib.units import inch, cm, mm 
 from reportlab.pdfgen import canvas
-from reportlab.platypus import Table, PageBreak, SimpleDocTemplate, TableStyle, Image
+from reportlab.platypus import Table, PageBreak, SimpleDocTemplate, Spacer, TableStyle, Image
 from reportlab.platypus.paragraph import Paragraph
+from reportlab.pdfbase import pdfmetrics
+from reportlab.pdfbase.pdfmetrics import registerFontFamily
+from reportlab.pdfbase.ttfonts import TTFont
+# Registered font family
+pdfmetrics.registerFont(TTFont('Cambria', 'Cambria.ttc'))
+pdfmetrics.registerFont(TTFont('cambriab', 'cambriab.ttf'))
+# pdfmetrics.registerFont(TTFont('VeraIt', 'VeraIt.ttf'))
+# pdfmetrics.registerFont(TTFont('VeraBI', 'VeraBI.ttf'))
+# Registered fontfamily
+registerFontFamily('Cambria',normal='Cambria')
+
 from ..db.pyarchinit_conn_strings import Connection
 from .pyarchinit_OS_utility import *
-
+from PIL import Image as giggino
+from reportlab.lib.utils import ImageReader
 
 class NumberedCanvas_UTsheet(canvas.Canvas):
     def __init__(self, *args, **kwargs):
@@ -57,7 +73,7 @@ class NumberedCanvas_UTsheet(canvas.Canvas):
         canvas.Canvas.save(self)
 
     def draw_page_number(self, page_count):
-        self.setFont("Helvetica", 8)
+        self.setFont("Times-Roman", 6)
         self.drawRightString(200 * mm, 20 * mm,
                              "Pag. %d di %d" % (self._pageNumber, page_count))  # scheda us verticale 200mm x 20 mm
 
@@ -85,7 +101,7 @@ class NumberedCanvas_UTindex(canvas.Canvas):
 
     def draw_page_number(self, page_count):
         self.setFont("Helvetica", 8)
-        self.drawRightString(270 * mm, 20 * mm,
+        self.drawRightString(270 * mm, 10 * mm,
                              "Pag. %d di %d" % (self._pageNumber, page_count))  # scheda us verticale 200mm x 20 mm
 
 
@@ -93,7 +109,7 @@ class single_UT_pdf_sheet(object):
     def __init__(self, data):
         self.progetto = data[0]  # 1
         self.nr_ut = data[1]  # 2
-        self.ut_letterale = data[2]  # 3
+        #self.ut_letterale = data[2]  # 3
         self.def_ut = data[3]  # 4
         self.descrizione_ut = data[4]  # 5
         self.interpretazione_ut = data[5]  # 6
@@ -144,13 +160,61 @@ class single_UT_pdf_sheet(object):
         styNormal = styleSheet['Normal']
         styNormal.spaceBefore = 20
         styNormal.spaceAfter = 20
+        styNormal.fontSize = 5
+        styNormal.fontName='Times-Roman'
         styNormal.alignment = 0  # LEFT
 
+        styleSheet = getSampleStyleSheet()
+        styNormal2 = styleSheet['Normal']
+        styNormal2.spaceBefore = 20
+        styNormal2.spaceAfter = 20
+        styNormal2.fontSize = 5
+        styNormal2.fontName='Times-Roman'
+        styNormal2.alignment = 1  # LEFT
+        
+        
+        styleSheet = getSampleStyleSheet()
+        styL = styleSheet['Normal']
+        styL.spaceBefore = 20
+        styL.spaceAfter = 20
+        styL.fontSize = 2
+        styL.fontName='Times-Roman'
+        styL.alignment = 1
+        
+        
         styleSheet = getSampleStyleSheet()
         styDescrizione = styleSheet['Normal']
         styDescrizione.spaceBefore = 20
         styDescrizione.spaceAfter = 20
+        styDescrizione.fontSize = 5
+        styDescrizione.fontName='Times-Roman'
         styDescrizione.alignment = 4  # Justified
+
+        styleSheet = getSampleStyleSheet()
+        styUnitaTipo = styleSheet['Normal']
+        styUnitaTipo.spaceBefore = 20
+        styUnitaTipo.spaceAfter = 20
+        styUnitaTipo.fontSize = 14
+        styUnitaTipo.fontName='Times-Roman'
+        styUnitaTipo.alignment = 1  # CENTER
+
+        styleSheet = getSampleStyleSheet()
+        styTitoloComponenti = styleSheet['Normal']
+        styTitoloComponenti.spaceBefore = 20
+        styTitoloComponenti.spaceAfter = 20
+        styTitoloComponenti. rowHeights=0.5
+        styTitoloComponenti.fontSize = 5
+        styTitoloComponenti.fontName='Times-Roman'
+        styTitoloComponenti.alignment = 1  # CENTER
+
+        styleSheet = getSampleStyleSheet()
+        styVerticale = styleSheet['Normal']
+        styVerticale.spaceBefore = 20
+        styVerticale.spaceAfter = 20
+        styVerticale.fontSize = 5
+        styVerticale.fontName='Times-Roman'
+        styVerticale.alignment = 1  # CENTER
+        styVerticale.leading=8
 
         # format labels
 
@@ -171,78 +235,78 @@ class single_UT_pdf_sheet(object):
 
         ##      if test_image.drawWidth < 800:
 
-        logo.drawHeight = 1.5 * inch * logo.drawHeight / logo.drawWidth
-        logo.drawWidth = 1.5 * inch
-
+        logo.drawHeight = 2 * inch * logo.drawHeight / logo.drawWidth
+        logo.drawWidth = 2 * inch
+        logo.hAlign = 'CENTER'
+        lst = []
+        lst2=[]
+        lst.append(logo)
         # intestazione2 = Paragraph("<b>pyArchInit</b><br/>www.pyarchinit.blogspot.com", styNormal)
 
         # 1 row
-        progetto = Paragraph("<b>Progetto</b><br/>" + str(self.progetto), styNormal)
+        progetto = Paragraph("<b>PROGETTO</b><br/>" + str(self.progetto), styNormal)
         UT = Paragraph("<b>Nr. UT</b><br/>" + str(self.nr_ut), styNormal)
-        UTletterale = Paragraph("<b>UT letterale</b><br/>" + str(self.ut_letterale), styNormal)
+        #UTletterale = Paragraph("<b>UT letterale</b><br/>" + str(self.ut_letterale), styNormal)
 
         # 2 row
-        descrizione_ut = Paragraph("<b>Descrizione UT</b><br/>" + self.descrizione_ut, styNormal)
-        interpretazione_ut = Paragraph("<b>Intepretazione UT</b><br/>" + self.interpretazione_ut, styNormal)
+        descrizione_ut = Paragraph("<b>DESCRIZIONE UT</b><br/>" + self.descrizione_ut, styNormal)
+        interpretazione_ut = Paragraph("<b>INTEPRETAZIONE UT</b><br/>" + self.interpretazione_ut, styNormal)
 
         # 3 row
-        nazione = Paragraph("<b>Nazione</b><br/>" + self.nazione, styNormal)
-        regione = Paragraph("<b>Regione</b><br/>" + self.regione, styNormal)
-        provincia = Paragraph("<b>Provincia</b><br/>" + self.provincia, styNormal)
-        comune = Paragraph("<b>Comune</b><br/>" + self.comune, styNormal)
-        frazione = Paragraph("<b>Frazione</b><br/>" + self.frazione, styNormal)
-        localita = Paragraph("<b>Localizzazione</b><br/>" + self.localita, styNormal)
-        indirizzo = Paragraph("<b>Indirizzo</b><br/>" + self.indirizzo, styNormal)
-        nr_civico = Paragraph("<b>Nr civico</b><br/>" + self.nr_civico, styNormal)
+        nazione = Paragraph("<b>NAZIONE</b><br/>" + self.nazione, styNormal)
+        regione = Paragraph("<b>REGIONE</b><br/>" + self.regione, styNormal)
+        provincia = Paragraph("<b>PROVINCIA</b><br/>" + self.provincia, styNormal)
+        comune = Paragraph("<b>COMUNE</b><br/>" + self.comune, styNormal)
+        frazione = Paragraph("<b>FRAZIONE</b><br/>" + self.frazione, styNormal)
+        localita = Paragraph("<b>LOCALIZZAZIONE</b><br/>" + self.localita, styNormal)
+        indirizzo = Paragraph("<b>INDIRIZZO</b><br/>" + self.indirizzo, styNormal)
+        nr_civico = Paragraph("<b>NR CIVICO</b><br/>" + self.nr_civico, styNormal)
         carta_topo_igm = Paragraph("<b>IGM</b><br/>" + self.carta_topo_igm, styNormal)
         carta_ctr = Paragraph("<b>CTR</b><br/>" + self.carta_ctr, styNormal)
-        coord_geografiche = Paragraph("<b>Coordinate geografiche</b><br/>" + self.coord_geografiche, styNormal)
-        coord_piane = Paragraph("<b>Coordinate piane</b><br/>" + self.coord_piane, styNormal)
-        quota = Paragraph("<b>Quota</b><br/>" + self.quota, styNormal)
-        andamento_terreno_pendenza = Paragraph("<b>Pendenza</b><br/>" + self.andamento_terreno_pendenza, styNormal)
-        utilizzo_suolo_vegetazione = Paragraph("<b>Utilizzo suolo</b><br/>" + self.utilizzo_suolo_vegetazione,
+        coord_geografiche = Paragraph("<b>COORDINATE GEOGRAFICHE</b><br/>" + self.coord_geografiche, styNormal)
+        coord_piane = Paragraph("<b>COORDINATE PIANE</b><br/>" + self.coord_piane, styNormal)
+        quota = Paragraph("<b>QUOTA</b><br/>" + self.quota, styNormal)
+        andamento_terreno_pendenza = Paragraph("<b>PENDENZA</b><br/>" + self.andamento_terreno_pendenza, styNormal)
+        utilizzo_suolo_vegetazione = Paragraph("<b>UTILIZZO SUOLO</b><br/>" + self.utilizzo_suolo_vegetazione,
                                                styNormal)
         descrizione_empirica_suolo = Paragraph(
-            "<b>Descrizione empirica suolo</b><br/>" + self.descrizione_empirica_suolo, styNormal)
-        descrizione_luogo = Paragraph("<b>Descrizione suolo</b><br/>" + self.descrizione_luogo, styNormal)
-        metodo_rilievo_e_ricognizione = Paragraph("<b>Tipo ricognizione</b><br/>" + self.metodo_rilievo_e_ricognizione,
+            "<b>DESCRIZIONE EMPIRICA SUOLO</b><br/>" + self.descrizione_empirica_suolo, styNormal)
+        descrizione_luogo = Paragraph("<b>DESCRIZIONE SUOLO</b><br/>" + self.descrizione_luogo, styNormal)
+        metodo_rilievo_e_ricognizione = Paragraph("<b>TIPO RICOGNIZIONE</b><br/>" + self.metodo_rilievo_e_ricognizione,
                                                   styNormal)
-        geometria = Paragraph("<b>Geometria</b><br/>" + self.geometria, styNormal)
-        bibliografia = Paragraph("<b>Bibliografia</b><br/>" + self.bibliografia, styNormal)
-        data = Paragraph("<b>Data</b><br/>" + self.data, styNormal)
-        ora_meteo = Paragraph("<b>Ora e Meteo</b><br/>" + self.ora_meteo, styNormal)
-        responsabile = Paragraph("<b>Responsabile</b><br/>" + self.responsabile, styNormal)
-        dimensioni_ut = Paragraph("<b>Dimensioni UT</b><br/>" + self.dimensioni_ut, styNormal)
-        rep_per_mq = Paragraph("<b>Q.t&agrave; per mq </b><br/>" + self.rep_per_mq, styNormal)
-        rep_datanti = Paragraph("<b>Q.t&agrave; datanti</b><br/>" + self.rep_datanti, styNormal)
-        periodo_I = Paragraph("<b>Periodo I</b><br/>" + self.periodo_I, styNormal)
-        datazione_I = Paragraph("<b>Datazione I</b><br/>" + self.frazione, styNormal)
-        interpretazione_I = Paragraph("<b>Interpretazione I</b><br/>" + self.interpretazione_I, styNormal)
-        periodo_II = Paragraph("<b>Periodo II</b><br/>" + self.periodo_II, styNormal)
-        datazione_II = Paragraph("<b>Datazione II</b><br/>" + self.datazione_II, styNormal)
-        interpretazione_II = Paragraph("<b>Interpretazione II</b><br/>" + self.interpretazione_II, styNormal)
-        documentazione = Paragraph("<b>Documentazione II</b><br/>" + self.documentazione, styNormal)
-        enti_tutela_vincoli = Paragraph("<b>Ente tutela vincoli</b><br/>" + self.enti_tutela_vincoli, styNormal)
-        indagini_preliminari = Paragraph("<b>Indagini preliminari</b><br/>" + self.indagini_preliminari, styNormal)
+        geometria = Paragraph("<b>GEOMETRIA</b><br/>" + self.geometria, styNormal)
+        bibliografia = Paragraph("<b>BIBLIOGRAFIA</b><br/>" + self.bibliografia, styNormal)
+        data = Paragraph("<b>DATA</b><br/>" + self.data, styNormal)
+        ora_meteo = Paragraph("<b>ORA E METEO</b><br/>" + self.ora_meteo, styNormal)
+        responsabile = Paragraph("<b>RESPONSABILE</b><br/>" + self.responsabile, styNormal)
+        dimensioni_ut = Paragraph("<b>DIMENSIONI UT</b><br/>" + self.dimensioni_ut, styNormal)
+        rep_per_mq = Paragraph("<b>Q.T&Agrave; PER MQ </b><br/>" + self.rep_per_mq, styNormal)
+        rep_datanti = Paragraph("<b>Q.T&Agrave; DATANTI</b><br/>" + self.rep_datanti, styNormal)
+        periodo_I = Paragraph("<b>DATAZIONE</b><br/>" + self.periodo_I, styNormal)
+        # datazione_I = Paragraph("<b>Datazione I</b><br/>" + self.frazione, styNormal)
+        # interpretazione_I = Paragraph("<b>Interpretazione I</b><br/>" + self.interpretazione_I, styNormal)
+        # periodo_II = Paragraph("<b>Periodo II</b><br/>" + self.periodo_II, styNormal)
+        # datazione_II = Paragraph("<b>Datazione II</b><br/>" + self.datazione_II, styNormal)
+        # interpretazione_II = Paragraph("<b>Interpretazione II</b><br/>" + self.interpretazione_II, styNormal)
+        # documentazione = Paragraph("<b>Documentazione II</b><br/>" + self.documentazione, styNormal)
+        # enti_tutela_vincoli = Paragraph("<b>Ente tutela vincoli</b><br/>" + self.enti_tutela_vincoli, styNormal)
+        # indagini_preliminari = Paragraph("<b>Indagini preliminari</b><br/>" + self.indagini_preliminari, styNormal)
 
         # schema
         cell_schema = [  # 00, 01, 02, 03, 04, 05, 06, 07, 08, 09 rows
-            [intestazione, '01', '02', '03', '04', '05', '06', logo, '08', '09'],  # 0 row ok
-            [progetto, '01', '02', '03', '04', UT, '06', '07', UTletterale, '09'],  # 1 row ok
-            [descrizione_ut, '01', '02', '03', '04'],
-            [interpretazione_ut, '01', '02', '03', '04', '05', '06', '07', '08'],  # 2 row ok
-            [nazione, '01', provincia, '03', regione, '06', comune, '9'],  # 3
-            [frazione, '01', localita, '03', indirizzo, '05', nr_civico, '08', '09'],  # 4
-            [carta_topo_igm, '01', carta_ctr, '03', coord_geografiche, '05', coord_piane, '08', '09'],  # 5
-            [quota, '01', andamento_terreno_pendenza, '03', utilizzo_suolo_vegetazione, '05',
-             descrizione_empirica_suolo, '08', '09'],
-            # 6
-            [descrizione_luogo, '01', metodo_rilievo_e_ricognizione, '03', geometria, '05', bibliografia, '08', '09'],
-            [data, '01', ora_meteo, '03', responsabile, '05', dimensioni_ut, '08', '09'],  # 7
-            [rep_per_mq, '01', rep_datanti, '03', periodo_I, '05', datazione_I, '08', '09'],  # 8
-            [interpretazione_I, '01', periodo_II, '03', datazione_II, '05', interpretazione_II, '08', '09'],
-            # 9
-            [documentazione, '01', '02', enti_tutela_vincoli, '03', '04', indagini_preliminari, '09']
+            [intestazione, '01', '02', '03', '04', '05', '06', logo, '08', '09','10','11','12','13','14','15','16','17'],  # 0 row ok
+            [progetto, '01', '02', '03', '04', UT, '06', '07','08', '09','10','11','12','13','14','15','16','17'],  # 1 row ok
+            [descrizione_ut, '01', '02', '03', '04','04', '05', '06', '07','08', '09','10','11','12','13','14','15','16','17'],
+            [interpretazione_ut, '01', '02', '03', '04', '05', '06', '07', '08', '09','10','11','12','13','14','15','16','17'],  # 2 row ok
+            [nazione, '01', provincia, '03', regione,'05', '06', comune, '08', '9', '10','11','12','13','14','15','16','17'],  # 3
+            [frazione, '01', localita, '03', indirizzo, '05', nr_civico,'07', '08', '09', '10','11','12','13','14','15','16','17'],  # 4
+            [carta_topo_igm, '01', carta_ctr, '03', coord_geografiche, '05', coord_piane,'07', '08', '09', '10','11','12','13','14','15','16','17'],  # 5
+            [quota, '01', andamento_terreno_pendenza, '03', utilizzo_suolo_vegetazione, '05',descrizione_empirica_suolo, '07','08', '09', '10','11','12','13','14','15','16','17'],
+            [descrizione_luogo, '01', metodo_rilievo_e_ricognizione, '03', geometria, '05', bibliografia, '07','08', '09', '10','11','12','13','14','15','16','17'],
+            [data, '01', ora_meteo, '03', responsabile, '05', dimensioni_ut, '07','08', '09', '10','11','12','13','14','15','16','17'],  # 7
+            [rep_per_mq, '01', rep_datanti, '03', periodo_I, '05', datazione_I,'07', '08', '09', '10','11','12','13','14','15','16','17'],  # 8
+            [interpretazione_I, '01', periodo_II, '03', datazione_II, '05', interpretazione_II, '07','08', '09', '10','11','12','13','14','15','16','17'],
+            [documentazione, '01', '02', enti_tutela_vincoli,  '04', indagini_preliminari,'06', '07', '08','09', '10','11','12','13','14','15','16','17']
             # 10 row ok
         ]
 
