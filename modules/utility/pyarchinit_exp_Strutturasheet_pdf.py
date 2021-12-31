@@ -6,7 +6,7 @@
                              stored in Postgres
                              -------------------
     begin                : 2007-12-01
-    copyright            : (C) 2008 by Luca Mandolesi
+    copyright            : (C) 2008 by Luca Mandolesi; Enzo Cocca <enzo.ccc@gmail.com>
     email                : mandoluca at gmail.com
  ***************************************************************************/
 
@@ -26,11 +26,22 @@ from builtins import object
 from builtins import range
 from builtins import str
 from reportlab.lib import colors
+from reportlab.lib.pagesizes import (A4,A3)
 from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
 from reportlab.lib.units import inch, cm, mm
 from reportlab.pdfgen import canvas
-from reportlab.platypus import Table, PageBreak, SimpleDocTemplate, TableStyle, Image
+from reportlab.platypus import Table, PageBreak, SimpleDocTemplate, Spacer, TableStyle, Image
 from reportlab.platypus.paragraph import Paragraph
+from reportlab.pdfbase import pdfmetrics
+from reportlab.pdfbase.pdfmetrics import registerFontFamily
+from reportlab.pdfbase.ttfonts import TTFont
+# Registered font family
+pdfmetrics.registerFont(TTFont('Cambria', 'Cambria.ttc'))
+pdfmetrics.registerFont(TTFont('cambriab', 'cambriab.ttf'))
+# pdfmetrics.registerFont(TTFont('VeraIt', 'VeraIt.ttf'))
+# pdfmetrics.registerFont(TTFont('VeraBI', 'VeraBI.ttf'))
+# Registered fontfamily
+registerFontFamily('Cambria',normal='Cambria')
 from ..db.pyarchinit_conn_strings import Connection
 from .pyarchinit_OS_utility import *
 
@@ -57,7 +68,7 @@ class NumberedCanvas_STRUTTURAindex(canvas.Canvas):
         canvas.Canvas.save(self)
 
     def draw_page_number(self, page_count):
-        self.setFont("Helvetica", 8)
+        self.setFont("Cambria", 5)
         self.drawRightString(270 * mm, 10 * mm,
                              "Pag. %d di %d" % (self._pageNumber, page_count))  # scheda us verticale 200mm x 20 mm
 
@@ -84,7 +95,7 @@ class NumberedCanvas_STRUTTURAsheet(canvas.Canvas):
         canvas.Canvas.save(self)
 
     def draw_page_number(self, page_count):
-        self.setFont("Helvetica", 8)
+        self.setFont("Cambria", 5)
         self.drawRightString(200 * mm, 20 * mm,
                              "Pag. %d di %d" % (self._pageNumber, page_count))  # scheda us verticale 200mm x 20 mm
 
@@ -109,12 +120,14 @@ class Struttura_index_pdf_sheet(object):
         styNormal.spaceAfter = 20
         styNormal.alignment = 0  # LEFT
         styNormal.fontSize = 9
+        styNormal.fontName = 'Cambria'
+        
 
         # self.unzip_rapporti_stratigrafici()
 
         sigla = Paragraph("<b>Sigla</b><br/>" + str(self.sigla_struttura), styNormal)
 
-        nr_struttura = Paragraph("<b>Nr. struttura</b><br/>" + str(self.numero_struttura), styNormal)
+        nr_struttura = Paragraph("<b>N. struttura</b><br/>" + str(self.numero_struttura), styNormal)
 
         categoria_struttura = Paragraph("<b>Categoria</b><br/>" + str(self.categoria_struttura), styNormal)
 
@@ -279,17 +292,20 @@ class single_Struttura_pdf_sheet(object):
         styNormal.spaceBefore = 20
         styNormal.spaceAfter = 20
         styNormal.alignment = 0  # LEFT
-
+        styNormal.fontSize = 8
+        styNormal.fontName = 'Cambria'
         styleSheet = getSampleStyleSheet()
         styDescrizione = styleSheet['Normal']
         styDescrizione.spaceBefore = 20
         styDescrizione.spaceAfter = 20
         styDescrizione.alignment = 4  # Justified
+        styDescrizione.fontSize = 8
+        styDescrizione.fontName = 'Cambria'
 
         # format labels
 
         # 0 row
-        intestazione = Paragraph("<b>SCHEDA STRUTTURA<br/>" + str(self.datestrfdate()) + "</b>", styNormal)
+        intestazione = Paragraph("<b>SCHEDA STRUTTURA<br/></b>", styNormal)
         # intestazione2 = Paragraph("<b>pyArchInit</b><br/>www.pyarchinit.blogspot.com", styNormal)
         home = os.environ['PYARCHINIT_HOME']
 
@@ -311,7 +327,7 @@ class single_Struttura_pdf_sheet(object):
         # 1 row
         sito = Paragraph("<b>Sito</b><br/>" + str(self.sito), styNormal)
         sigla_struttura = Paragraph(
-            "<b>Sigla/Nr.</b><br/> %s%s" % (str(self.sigla_struttura), str(self.numero_struttura)), styNormal)
+            "<b>Sigla/N.</b><br/> %s%s" % (str(self.sigla_struttura), str(self.numero_struttura)), styNormal)
 
         # 2 row
         categoria = Paragraph("<b>Categoria</b><br/>" + self.categoria_struttura, styNormal)
@@ -382,12 +398,12 @@ class single_Struttura_pdf_sheet(object):
             for i in eval(self.elementi_strutturali):
                 if elementi_strutturali == '':
                     try:
-                        elementi_strutturali += ("Tipologia elemento: %s, quantita: %s") % (str(i[0]), str(i[1]))
+                        elementi_strutturali += ("Tipologia elemento: %s, quantità: %s") % (str(i[0]), str(i[1]))
                     except:
                         pass
                 else:
                     try:
-                        elementi_strutturali += ("<br/>Tipologia elemento: %s, quantita: %s") % (str(i[0]), str(i[1]))
+                        elementi_strutturali += ("<br/>Tipologia elemento: %s, quantità: %s") % (str(i[0]), str(i[1]))
                     except:
                         pass
 
@@ -399,13 +415,13 @@ class single_Struttura_pdf_sheet(object):
             for i in eval(self.rapporti_struttura):
                 if rapporti_struttura == '':
                     try:
-                        rapporti_struttura += ("Tipo rapporto: %s, sito: %s, sigla: %s, nr.: %s") % (
+                        rapporti_struttura += ("Tipo rapporto: %s, sito: %s, sigla: %s, n.: %s") % (
                         str(i[0]), str(i[1]), str(i[2]), str(i[3]))
                     except:
                         pass
                 else:
                     try:
-                        rapporti_struttura += ("<br/>Tipo rapporto: %s, sito: %s, sigla: %s, nr.: %s") % (
+                        rapporti_struttura += ("<br/>Tipo rapporto: %s, sito: %s, sigla: %s, n.: %s") % (
                         str(i[0]), str(i[1]), str(i[2]), str(i[3]))
                     except:
                         pass
@@ -1013,7 +1029,7 @@ class generate_struttura_pdf(object):
             single_struttura_sheet = single_Struttura_pdf_sheet(records[i])
             elements.append(single_struttura_sheet.create_sheet())
             elements.append(PageBreak())
-        filename = '{}{}{}'.format(self.PDF_path, os.sep, 'scheda_Struttura.pdf')
+        filename = '{}{}{}'.format(self.PDF_path, os.sep, 'Scheda Struttura.pdf')
         f = open(filename, "wb")
         doc = SimpleDocTemplate(f)
         doc.build(elements, canvasmaker=NumberedCanvas_STRUTTURAsheet)
@@ -1040,12 +1056,12 @@ class generate_struttura_pdf(object):
         styNormal = styleSheet['Normal']
         styBackground = ParagraphStyle('background', parent=styNormal, backColor=colors.pink)
         styH1 = styleSheet['Heading3']
-
+        styH1.fontName='Cambria'
         data = self.datestrfdate()
 
         lst = []
         lst.append(logo)
-        lst.append(Paragraph("<b>ELENCO STRUTTURE</b><br/><b>Scavo: %s,  Data: %s</b>" % (sito, data), styH1))
+        lst.append(Paragraph("<b>ELENCO STRUTTURE</b><br/><b>Scavo: %s</b>" % (sito), styH1))
 
         table_data = []
         for i in range(len(records)):
@@ -1061,7 +1077,7 @@ class generate_struttura_pdf(object):
         lst.append(table_data_formatted)
         # lst.append(Spacer(0,2))
 
-        filename = '{}{}{}'.format(self.PDF_path, os.sep, 'elenco_strutture.pdf')
+        filename = '{}{}{}'.format(self.PDF_path, os.sep, 'Elenco Strutture.pdf')
         f = open(filename, "wb")
 
         doc = SimpleDocTemplate(f, pagesize=(29 * cm, 21 * cm), showBoundary=0)

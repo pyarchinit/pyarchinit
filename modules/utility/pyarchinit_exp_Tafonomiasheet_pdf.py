@@ -6,7 +6,7 @@
                              stored in Postgres
                              -------------------
     begin                : 2007-12-01
-    copyright            : (C) 2008 by Luca Mandolesi
+    copyright            : (C) 2008 by Luca Mandolesi; Enzo Cocca <enzo.ccc@gmail.com>
     email                : mandoluca at gmail.com
  ***************************************************************************/
 
@@ -26,11 +26,22 @@ from builtins import object
 from builtins import range
 from builtins import str
 from reportlab.lib import colors
+from reportlab.lib.pagesizes import (A4,A3)
 from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
 from reportlab.lib.units import inch, cm, mm
 from reportlab.pdfgen import canvas
-from reportlab.platypus import Table, PageBreak, SimpleDocTemplate, TableStyle, Image
+from reportlab.platypus import Table, PageBreak, SimpleDocTemplate, Spacer, TableStyle, Image
 from reportlab.platypus.paragraph import Paragraph
+from reportlab.pdfbase import pdfmetrics
+from reportlab.pdfbase.pdfmetrics import registerFontFamily
+from reportlab.pdfbase.ttfonts import TTFont
+# Registered font family
+pdfmetrics.registerFont(TTFont('Cambria', 'Cambria.ttc'))
+pdfmetrics.registerFont(TTFont('cambriab', 'cambriab.ttf'))
+# pdfmetrics.registerFont(TTFont('VeraIt', 'VeraIt.ttf'))
+# pdfmetrics.registerFont(TTFont('VeraBI', 'VeraBI.ttf'))
+# Registered fontfamily
+registerFontFamily('Cambria',normal='Cambria')
 from qgis.core import QgsSettings
 from .pyarchinit_OS_utility import *
 from ..db.pyarchinit_utility import Utility
@@ -118,7 +129,7 @@ class Tomba_index_pdf_sheet(object):
         styNormal.spaceAfter = 20
         styNormal.alignment = 0  # LEFT
         styNormal.fontSize = 9
-
+        styNormal.fontName='Cambria'
         # self.unzip_rapporti_stratigrafici()
 
         num_scheda = Paragraph("<b>Nr. Scheda</b><br/>" + str(self.nr_scheda_taf), styNormal)

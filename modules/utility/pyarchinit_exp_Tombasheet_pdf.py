@@ -6,7 +6,7 @@
                              stored in Postgres
                              -------------------
     begin                : 2007-12-01
-    copyright            : (C) 2008 by Luca Mandolesi
+    copyright            : (C) 2008 by Luca Mandolesi; Enzo Cocca <enzo.ccc@gmail.com>
     email                : mandoluca at gmail.com
  ***************************************************************************/
 
@@ -35,6 +35,13 @@ from reportlab.platypus.paragraph import Paragraph
 from reportlab.pdfbase import pdfmetrics
 from reportlab.pdfbase.pdfmetrics import registerFontFamily
 from reportlab.pdfbase.ttfonts import TTFont
+# Registered font family
+pdfmetrics.registerFont(TTFont('Cambria', 'Cambria.ttc'))
+pdfmetrics.registerFont(TTFont('cambriab', 'cambriab.ttf'))
+# pdfmetrics.registerFont(TTFont('VeraIt', 'VeraIt.ttf'))
+# pdfmetrics.registerFont(TTFont('VeraBI', 'VeraBI.ttf'))
+# Registered fontfamily
+registerFontFamily('Cambria',normal='Cambria')
 from qgis.core import QgsSettings
 from .pyarchinit_OS_utility import *
 from ..db.pyarchinit_utility import Utility
@@ -62,7 +69,7 @@ class NumberedCanvas_TOMBAsheet(canvas.Canvas):
         canvas.Canvas.save(self)
 
     def draw_page_number(self, page_count):
-        self.setFont("Times-Roman", 6)
+        self.setFont("Cambria", 5)
         self.drawRightString(200 * mm, 20 * mm,
                              "Pag. %d di %d" % (self._pageNumber, page_count))  # scheda us verticale 200mm x 20 mm
 
@@ -89,7 +96,7 @@ class NumberedCanvas_TOMBAindex(canvas.Canvas):
         canvas.Canvas.save(self)
 
     def draw_page_number(self, page_count):
-        self.setFont("Times-Roman", 7)
+        self.setFont("Cambria", 5)
         self.drawRightString(270 * mm, 10 * mm,
                              "Pag. %d di %d" % (self._pageNumber, page_count))  # scheda us verticale 200mm x 20 mm
 
@@ -123,16 +130,16 @@ class Tomba_index_pdf_sheet(object):
         styNormal.spaceAfter = 20
         styNormal.alignment = 0  # LEFT
         styNormal.fontSize = 9
-
+        styNormal.fontName='Cambria'
         
 
-        num_scheda = Paragraph("<b>Nr. Scheda</b><br/>" + str(self.nr_scheda_taf), styNormal)
+        num_scheda = Paragraph("<b>N. scheda</b><br/>" + str(self.nr_scheda_taf), styNormal)
 
-        sigla_struttura = Paragraph("<b>Sigla Struttura</b><br/>" + str(self.sigla_struttura)+'-'+ str(self.nr_struttura), styNormal)
+        sigla_struttura = Paragraph("<b>Sigla struttura</b><br/>" + str(self.sigla_struttura)+'-'+ str(self.nr_struttura), styNormal)
 
         #numero_struttura = Paragraph("<b>Nr. Struttura</b><br/>" + str(self.nr_struttura), styNormal)
 
-        numero_individuo = Paragraph("<b>Nr. Individuo</b><br/>" + str(self.nr_individuo), styNormal)
+        numero_individuo = Paragraph("<b>N. individuo</b><br/>" + str(self.nr_individuo), styNormal)
 
         if self.rito == None:
             rito = Paragraph("<b>Rito</b><br/>", styNormal)
@@ -146,32 +153,32 @@ class Tomba_index_pdf_sheet(object):
                                                styNormal)
 
         if self.deposizione == None:
-            deposizione = Paragraph("<b>Tipo Deposizione</b><br/>", styNormal)
+            deposizione = Paragraph("<b>Tipo deposizione</b><br/>", styNormal)
         else:
-            deposizione = Paragraph("<b>Tipo Deposizione</b><br/>" + str(self.deposizione), styNormal)
+            deposizione = Paragraph("<b>Tipo deposizione</b><br/>" + str(self.deposizione), styNormal)
 
         if self.sepoltura == None:
-            sepoltura = Paragraph("<b>Tipo Sepoltura</b><br/>", styNormal)
+            sepoltura = Paragraph("<b>Tipo sepoltura</b><br/>", styNormal)
         else:
-            sepoltura = Paragraph("<b>Tipo Sepoltura</b><br/>" + str(self.sepoltura), styNormal)
+            sepoltura = Paragraph("<b>Tipo sepoltura</b><br/>" + str(self.sepoltura), styNormal)
         
         materiali = ''
         if eval(self.materiali):
             for i in eval(self.materiali):  # gigi
                 if materiali == '':
                     try:
-                        materiali += ("N. Ind: %s- Rif RA: %s - Materiale: %s<br/>") % (
+                        materiali += ("N. ind: %s- Rif RA: %s - Materiale: %s<br/>") % (
                         str(i[1]), str(i[0]), str(i[2]))
                     except Exception as e:
                         str(e)
                 else:
                     try:
-                        materiali += ("N. Ind: %s- Rif RA: %s - Materiale: %s<br/>") % (
+                        materiali += ("N. ind: %s- Rif RA: %s - Materiale: %s<br/>") % (
                         str(i[1]), str(i[0]), str(i[2]))
                     except Exception as e:
                         str(e)
         
-        materiali = Paragraph("<b> Individuo  E Corredo</b><br/>" + str(materiali), styNormal)
+        materiali = Paragraph("<b> Individuo e corredo</b><br/>" + str(materiali), styNormal)
 
         
         if self.periodo_iniziale == None:
@@ -216,7 +223,7 @@ class Tomba_index_pdf_sheet(object):
         styNormal.spaceAfter = 20
         styNormal.alignment = 0  # LEFT
         styNormal.fontSize = 9
-
+        styNormal.fontName='Cambria'
         
 
         num_scheda = Paragraph("<b>Nr. Form</b><br/>" + str(self.nr_scheda_taf), styNormal)
@@ -637,15 +644,15 @@ class Tomba_index_II_pdf_sheet(object):
         styNormal.spaceAfter = 20
         styNormal.alignment = 0  # LEFT
         styNormal.fontSize = 9
-
+        styNormal.fontName='Cambria'
         # self.unzip_rapporti_stratigrafici()
 
-        num_scheda = Paragraph("<b>Nr.Scheda</b><br/>" + str(self.nr_scheda_taf), styNormal)
+        num_scheda = Paragraph("<b>N. scheda</b><br/>" + str(self.nr_scheda_taf), styNormal)
 
-        sigla_num_struttura = Paragraph("<b>Sigla Str.</b><br/>" + str(self.sigla_struttura) +'-'+ str(self.nr_struttura),
+        sigla_num_struttura = Paragraph("<b>Sigla str.</b><br/>" + str(self.sigla_struttura) +'-'+ str(self.nr_struttura),
                                         styNormal)
 
-        numero_individuo = Paragraph("<b>Nr.Ind</b><br/>" + str(self.nr_individuo), styNormal)
+        numero_individuo = Paragraph("<b>N. ind</b><br/>" + str(self.nr_individuo), styNormal)
 
         if self.rito == None:
             rito = Paragraph("<b>Rito</b><br/>", styNormal)
@@ -676,9 +683,9 @@ class Tomba_index_II_pdf_sheet(object):
                 else:
                     us_ind_temp += ',<br/>' + '%s/%s' % (us_ind[1], us_ind[2])
 
-            self.us_ind_print = Paragraph("<b>US Ind.<br/>(Area/US)</b><br/>" + str(us_ind_temp) + "<br/>", styNormal)
+            self.us_ind_print = Paragraph("<b>US ind.<br/>(Area/US)</b><br/>" + str(us_ind_temp) + "<br/>", styNormal)
         else:
-            self.us_ind_print = Paragraph("<b>US Ind.<br/>(Area/US)</b><br/>", styNormal)
+            self.us_ind_print = Paragraph("<b>US ind.<br/>(Area/US)</b><br/>", styNormal)
 
         if self.us_str_list:
             us_str_temp = ""
@@ -688,9 +695,9 @@ class Tomba_index_II_pdf_sheet(object):
                 else:
                     us_str_temp += ',<br/>' + 'Area: %s - US: %s' % (us_str[1], us_str[2])
 
-            self.us_str_print = Paragraph("<b>Riferimento US Strutture</b><br/>" + str(us_str_temp) + "<br/>", styNormal)
+            self.us_str_print = Paragraph("<b>Riferimento US strutture</b><br/>" + str(us_str_temp) + "<br/>", styNormal)
         else:
-            self.us_str_print = Paragraph("<b>Riferimento US Strutture</b><br/>", styNormal)
+            self.us_str_print = Paragraph("<b>Riferimento US strutture</b><br/>", styNormal)
 
         quota_min_max = Paragraph("<b>Quota Min-max:</b><br/>" + self.quota_min_strutt + "-" + self.quota_max_strutt,
                                   styNormal)
@@ -931,24 +938,27 @@ class single_Tomba_pdf_sheet(object):
         styNormal.spaceBefore = 20
         styNormal.spaceAfter = 20
         styNormal.alignment = 0  # LEFT
-
+        styNormal.fontSize=9
+        styNormal.fontName='Cambria'
         styleSheet = getSampleStyleSheet()
         styDescrizione = styleSheet['Normal']
         styDescrizione.spaceBefore = 20
         styDescrizione.spaceAfter = 20
         styDescrizione.alignment = 4  # Justified
-        
+        styDescrizione.fontSize=9
+        styDescrizione.fontName='Cambria'
         styleSheet = getSampleStyleSheet()
         styTitoloComponenti = styleSheet['Normal']
         styTitoloComponenti.spaceBefore = 20
         styTitoloComponenti.spaceAfter = 20
         styTitoloComponenti.alignment = 1  # CENTER
-
+        styTitoloComponenti.fontSize=9
+        styTitoloComponenti.fontName='Cambria'
         
         # format labels
 
         # 0 row
-        intestazione = Paragraph("<b>SCHEDA TOMBA<br/>" + str(self.datestrfdate()) + "</b>", styTitoloComponenti)
+        intestazione = Paragraph("<b>SCHEDA TOMBA<br/></b>", styNormal)
 
         # intestazione2 = Paragraph("<b>pyArchInit</b><br/>pyarchinit", styNormal)
 
@@ -974,8 +984,8 @@ class single_Tomba_pdf_sheet(object):
         sito = Paragraph("<b>Sito</b><br/>" + str(self.sito), styNormal)
         sigla_struttura = Paragraph("<b>Sigla struttura</b><br/>" + str(self.sigla_struttura) +'-'+ str(self.nr_struttura),
                                     styNormal)
-        nr_individuo = Paragraph("<b>Nr. Individuo</b><br/>" + str(self.nr_individuo), styNormal)
-        nr_scheda = Paragraph("<b>Nr. Scheda</b><br/>" + str(self.nr_scheda_taf), styNormal)
+        nr_individuo = Paragraph("<b>N. individuo</b><br/>" + str(self.nr_individuo), styNormal)
+        nr_scheda = Paragraph("<b>N. scheda</b><br/>" + str(self.nr_scheda_taf), styNormal)
 
         # 2 row
         periodizzazione = Paragraph("<b>PERIODIZZAZIONE DEL RITO DI SEPOLTURA</b><br/>", styTitoloComponenti)
@@ -1022,9 +1032,9 @@ class single_Tomba_pdf_sheet(object):
 
         # 8 row
         rito = Paragraph("<b>Tipo rituale</b><br/>" + self.rito, styNormal)
-        deposizione = Paragraph("<b>Tipo Deposizione</b><br/>" + str(self.deposizione), styNormal)
+        deposizione = Paragraph("<b>Tipo deposizione</b><br/>" + str(self.deposizione), styNormal)
        
-        sepoltura = Paragraph("<b>Tipo Sepoltura</b><br/>" + str(self.sepoltura), styNormal)
+        sepoltura = Paragraph("<b>Tipo sepoltura</b><br/>" + str(self.sepoltura), styNormal)
        
      
 
@@ -1064,18 +1074,18 @@ class single_Tomba_pdf_sheet(object):
             for i in eval(self.corredo_tipo):
                 if corredo_tipo == '':
                     try:
-                        corredo_tipo += ("Nr. reperto %s, Nr. individuo %s, Materiale: %s, Posizione del corredo: %s, Posizione nel corredo: %s<br/> ") % (
+                        corredo_tipo += ("N. reperto %s, N. individuo %s, Materiale: %s, Posizione del corredo: %s, Posizione nel corredo: %s<br/> ") % (
                         str(i[0]), str(i[1]), str(i[2]),str(i[3]),str(i[4]))
                     except:
                         pass
                 else:
                     try:
-                        corredo_tipo += ("Nr. reperto %s, Nr. individuo %s, Materiale: %s, Posizione del corredo: %s, Posizione nel corredo: %s<br/> ") % (
+                        corredo_tipo += ("N. reperto %s, N. individuo %s, Materiale: %s, Posizione del corredo: %s, Posizione nel corredo: %s<br/> ") % (
                         str(i[0]), str(i[1]), str(i[2]),str(i[3]),str(i[4]))
                     except:
                         pass
 
-        corredo_tipo_txt = Paragraph("<b>Elementi Corredo</b><br/>" + corredo_tipo, styNormal)
+        corredo_tipo_txt = Paragraph("<b>Elementi corredo</b><br/>" + corredo_tipo, styNormal)
 
         
 
@@ -1201,17 +1211,19 @@ class single_Tomba_pdf_sheet(object):
         styNormal.spaceBefore = 20
         styNormal.spaceAfter = 20
         styNormal.alignment = 0  # LEFT
-
+        styNormal.fontSize = 9
+        styNormal.fontName='Cambria'
         styleSheet = getSampleStyleSheet()
         styDescrizione = styleSheet['Normal']
         styDescrizione.spaceBefore = 20
         styDescrizione.spaceAfter = 20
         styDescrizione.alignment = 4  # Justified
-
+        styDescrizione.fontSize = 9
+        styDescrizione.fontName='Cambria'
         # format labels
 
         # 0 row
-        intestazione = Paragraph("<b>FELD THAPHONOMIE<br/>" + str(self.datestrfdate()) + "</b>", styNormal)
+        intestazione = Paragraph("<b>FELD THAPHONOMIE<br/></b>", styNormal)
 
         # intestazione2 = Paragraph("<b>pyArchInit</b><br/>pyarchinit", styNormal)
 
@@ -1928,7 +1940,7 @@ class generate_tomba_pdf(object):
         styNormal.fontSize = 6
         styBackground = ParagraphStyle('background', parent=styNormal, backColor=colors.pink)
         styH1 = styleSheet['Heading3']
-
+        styH1.fontName='Cambria'
         data = self.datestrfdate()
 
         ###################### ELENCO SCHEDE TAFONOMICHE ###########
@@ -1937,7 +1949,7 @@ class generate_tomba_pdf(object):
         lst.append(logo)
         if self.L=='it':
         
-            lst.append(Paragraph("<b>ELENCO TOMBE</b><br/><b>Scavo: %s<br/>  Data: %s</b><br/>" % (sito, data), styH1))
+            lst.append(Paragraph("<b>ELENCO TOMBE</b><br/><b>Scavo: %s<br/></b><br/>" % (sito), styH1))
         elif self.L=='de':
         
             lst.append(Paragraph("<b>LISTE FORMULAR TAPHOMIE</b><br/><b>Ausgrabungsstätte: %s,  Datum: %s</b>" % (sito, data), styH1))
@@ -1971,7 +1983,7 @@ class generate_tomba_pdf(object):
         lst.append(Spacer(0,2))
 
         if self.L=='it':
-            filename = '{}{}{}'.format(self.PDF_path, os.sep, 'Elenco_tomba.pdf')
+            filename = '{}{}{}'.format(self.PDF_path, os.sep, 'Elenco Tomba.pdf')
         elif self.L=='it':
             filename = '{}{}{}'.format(self.PDF_path, os.sep, 'Listen_thaphonomie.pdf')
         else:
@@ -1991,7 +2003,7 @@ class generate_tomba_pdf(object):
 
         if self.L=='it':
         
-            lst.append(Paragraph("<b>ELENCO RIFERIMETI STRATIGRAFICI TOMBA</b><br/><b>Scavo: %s<br/>Data: %s</b><br/>" % (sito, data), styH1))
+            lst.append(Paragraph("<b>ELENCO RIFERIMENTI STRATIGRAFICI TOMBA</b><br/><b>Scavo: %s<br/></b><br/>" % (sito), styH1))
         elif self.L=='de':
         
             lst.append(Paragraph("<b>LISTEN FORMULAR TAPHONOMIE</b><br/><b>Ausgrabungsstätte: %s,  Datum: %s</b>" % (sito, data), styH1))
@@ -2025,7 +2037,7 @@ class generate_tomba_pdf(object):
         lst.append(table_data_formatted)
         # lst.append(Spacer(0,2))
         if self.L=='it':
-            filename = '{}{}{}'.format(self.PDF_path, os.sep, 'Elenco riferimeti stratigrafici tomba.pdf')
+            filename = '{}{}{}'.format(self.PDF_path, os.sep, 'Elenco riferimenti stratigrafici tomba.pdf')
         elif self.L=='it':
             filename = '{}{}{}'.format(self.PDF_path, os.sep, 'listen_thaphonomie_struktur.pdf')
         else:
