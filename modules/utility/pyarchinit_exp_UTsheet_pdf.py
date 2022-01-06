@@ -41,8 +41,8 @@ from reportlab.pdfbase.ttfonts import TTFont
 # Registered font family
 pdfmetrics.registerFont(TTFont('Cambria', 'Cambria.ttc'))
 pdfmetrics.registerFont(TTFont('cambriab', 'cambriab.ttf'))
-# pdfmetrics.registerFont(TTFont('VeraIt', 'VeraIt.ttf'))
-# pdfmetrics.registerFont(TTFont('VeraBI', 'VeraBI.ttf'))
+pdfmetrics.registerFont(TTFont('VeraIt', 'VeraIt.ttf'))
+pdfmetrics.registerFont(TTFont('VeraBI', 'VeraBI.ttf'))
 # Registered fontfamily
 registerFontFamily('Cambria',normal='Cambria')
 
@@ -73,7 +73,7 @@ class NumberedCanvas_UTsheet(canvas.Canvas):
         canvas.Canvas.save(self)
 
     def draw_page_number(self, page_count):
-        self.setFont("Times-Roman", 6)
+        self.setFont("Cambria", 6)
         self.drawRightString(200 * mm, 20 * mm,
                              "Pag. %d di %d" % (self._pageNumber, page_count))  # scheda us verticale 200mm x 20 mm
 
@@ -161,7 +161,7 @@ class single_UT_pdf_sheet(object):
         styNormal.spaceBefore = 20
         styNormal.spaceAfter = 20
         styNormal.fontSize = 5
-        styNormal.fontName='Times-Roman'
+        styNormal.fontName='Cambria'
         styNormal.alignment = 0  # LEFT
 
         styleSheet = getSampleStyleSheet()
@@ -169,7 +169,7 @@ class single_UT_pdf_sheet(object):
         styNormal2.spaceBefore = 20
         styNormal2.spaceAfter = 20
         styNormal2.fontSize = 5
-        styNormal2.fontName='Times-Roman'
+        styNormal2.fontName='Cambria'
         styNormal2.alignment = 1  # LEFT
         
         
@@ -178,7 +178,7 @@ class single_UT_pdf_sheet(object):
         styL.spaceBefore = 20
         styL.spaceAfter = 20
         styL.fontSize = 2
-        styL.fontName='Times-Roman'
+        styL.fontName='Cambria'
         styL.alignment = 1
         
         
@@ -187,7 +187,7 @@ class single_UT_pdf_sheet(object):
         styDescrizione.spaceBefore = 20
         styDescrizione.spaceAfter = 20
         styDescrizione.fontSize = 5
-        styDescrizione.fontName='Times-Roman'
+        styDescrizione.fontName='Cambria'
         styDescrizione.alignment = 4  # Justified
 
         styleSheet = getSampleStyleSheet()
@@ -195,7 +195,7 @@ class single_UT_pdf_sheet(object):
         styUnitaTipo.spaceBefore = 20
         styUnitaTipo.spaceAfter = 20
         styUnitaTipo.fontSize = 14
-        styUnitaTipo.fontName='Times-Roman'
+        styUnitaTipo.fontName='Cambria'
         styUnitaTipo.alignment = 1  # CENTER
 
         styleSheet = getSampleStyleSheet()
@@ -204,7 +204,7 @@ class single_UT_pdf_sheet(object):
         styTitoloComponenti.spaceAfter = 20
         styTitoloComponenti. rowHeights=0.5
         styTitoloComponenti.fontSize = 5
-        styTitoloComponenti.fontName='Times-Roman'
+        styTitoloComponenti.fontName='Cambria'
         styTitoloComponenti.alignment = 1  # CENTER
 
         styleSheet = getSampleStyleSheet()
@@ -212,7 +212,7 @@ class single_UT_pdf_sheet(object):
         styVerticale.spaceBefore = 20
         styVerticale.spaceAfter = 20
         styVerticale.fontSize = 5
-        styVerticale.fontName='Times-Roman'
+        styVerticale.fontName='Cambria'
         styVerticale.alignment = 1  # CENTER
         styVerticale.leading=8
 
@@ -245,7 +245,7 @@ class single_UT_pdf_sheet(object):
 
         # 1 row
         progetto = Paragraph("<b>PROGETTO</b><br/>" + str(self.progetto), styNormal)
-        UT = Paragraph("<b>Nr. UT</b><br/>" + str(self.nr_ut), styNormal)
+        UT = Paragraph("<b>N° UT</b><br/>" + str(self.nr_ut), styNormal)
         #UTletterale = Paragraph("<b>UT letterale</b><br/>" + str(self.ut_letterale), styNormal)
 
         # 2 row
@@ -415,7 +415,7 @@ class single_UT_pdf_sheet(object):
 
         # 1 row
         progetto = Paragraph("<b>Project</b><br/>" + str(self.progetto), styNormal)
-        UT = Paragraph("<b>Nr. TE</b><br/>" + str(self.nr_ut), styNormal)
+        UT = Paragraph("<b>N° TE</b><br/>" + str(self.nr_ut), styNormal)
         UTletterale = Paragraph("<b>TE<br/>" + str(self.ut_letterale), styNormal)
 
         # 2 row
@@ -594,7 +594,7 @@ class single_UT_pdf_sheet(object):
 
         # 1 row
         progetto = Paragraph("<b>Project</b><br/>" + str(self.progetto), styNormal)
-        UT = Paragraph("<b>Nr. TU</b><br/>" + str(self.nr_ut), styNormal)
+        UT = Paragraph("<b>N° TU</b><br/>" + str(self.nr_ut), styNormal)
         UTletterale = Paragraph("<b>TU</b><br/>" + str(self.ut_letterale), styNormal)
 
         # 2 row
@@ -739,7 +739,7 @@ class single_UT_pdf_sheet(object):
         styNormal.spaceBefore = 20
         styNormal.spaceAfter = 20
         styNormal.alignment = 0  # LEFT
-        styNormal.fontSize = 9
+        styNormal.fontSize = 7
 
     def makeStyles(self):
         styles = TableStyle([('GRID', (0, 0), (-1, -1), 0.0, colors.black), ('VALIGN', (0, 0), (-1, -1), 'TOP')

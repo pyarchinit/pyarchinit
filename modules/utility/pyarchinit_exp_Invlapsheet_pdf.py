@@ -35,8 +35,8 @@ from reportlab.pdfbase.ttfonts import TTFont
 # Registered font family
 pdfmetrics.registerFont(TTFont('Cambria', 'Cambria.ttc'))
 pdfmetrics.registerFont(TTFont('cambriab', 'cambriab.ttf'))
-# pdfmetrics.registerFont(TTFont('VeraIt', 'VeraIt.ttf'))
-# pdfmetrics.registerFont(TTFont('VeraBI', 'VeraBI.ttf'))
+pdfmetrics.registerFont(TTFont('VeraIt', 'VeraIt.ttf'))
+pdfmetrics.registerFont(TTFont('VeraBI', 'VeraBI.ttf'))
 # Registered fontfamily
 registerFontFamily('Cambria',normal='Cambria')
 from ..db.pyarchinit_conn_strings import Connection
@@ -336,7 +336,7 @@ class single_Invlap_pdf_sheet:
 
         # 1 row
         sito = Paragraph("<b>Kontext-Herkunft</b><br/>" + str(self.sito), styNormal)
-        scheda_numero = Paragraph("<b>Nr. Feld</b><br/>" + str(self.scheda_numero), styNormal)
+        scheda_numero = Paragraph("<b>N° Feld</b><br/>" + str(self.scheda_numero), styNormal)
 
         # 2 row
         collocazione = Paragraph("<b>Lage</b><br/>" + str(self.collocazione), styNormal)
@@ -539,7 +539,7 @@ class single_Invlap_pdf_sheet:
 
         # 1 row
         sito = Paragraph("<b>Context</b><br/>" + str(self.sito), styNormal)
-        scheda_numero = Paragraph("<b>Nr. Form</b><br/>" + str(self.scheda_numero), styNormal)
+        scheda_numero = Paragraph("<b>N° Form</b><br/>" + str(self.scheda_numero), styNormal)
 
         # 2 row
         collocazione = Paragraph("<b>Place</b><br/>" + str(self.collocazione), styNormal)
