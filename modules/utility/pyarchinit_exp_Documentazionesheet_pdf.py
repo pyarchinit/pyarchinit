@@ -37,8 +37,8 @@ from reportlab.pdfbase.ttfonts import TTFont
 # Registered font family
 pdfmetrics.registerFont(TTFont('Cambria', 'Cambria.ttc'))
 pdfmetrics.registerFont(TTFont('cambriab', 'cambriab.ttf'))
-# pdfmetrics.registerFont(TTFont('VeraIt', 'VeraIt.ttf'))
-# pdfmetrics.registerFont(TTFont('VeraBI', 'VeraBI.ttf'))
+pdfmetrics.registerFont(TTFont('VeraIt', 'VeraIt.ttf'))
+pdfmetrics.registerFont(TTFont('VeraBI', 'VeraBI.ttf'))
 # Registered fontfamily
 registerFontFamily('Cambria',normal='Cambria')
 from ..db.pyarchinit_conn_strings import Connection
@@ -151,14 +151,14 @@ class single_Documentazione_pdf_sheet:
         styNormal.spaceBefore = 20
         styNormal.spaceAfter = 20
         styNormal.alignment = 0  # LEFT
-        styNormal.fontSize = 8
+        styNormal.fontSize = 7
         styNormal.fontName = 'Cambria'
         styleSheet = getSampleStyleSheet()
         styDescrizione = styleSheet['Normal']
         styDescrizione.spaceBefore = 20
         styDescrizione.spaceAfter = 20
         styDescrizione.alignment = 4  # Justified
-        styDescrizione.fontSize = 8
+        styDescrizione.fontSize = 7
         styDescrizione.fontName = 'Cambria'
 
         # format labels
@@ -198,7 +198,7 @@ class single_Documentazione_pdf_sheet:
 
         # 4 row
         note = Paragraph("<b>Note</b><br/>" + str(self.note), styDescrizione)
-        #       nr_cassa = Paragraph("<b>Nr. Cassa</b><br/>" + unicode(self.nr_cassa), styNormal)
+        #       nr_cassa = Paragraph("<b>N° Cassa</b><br/>" + unicode(self.nr_cassa), styNormal)
 
         # schema
         cell_schema = [  # 00, 01, 02, 03, 04, 05, 06, 07, 08, 09 rows
@@ -293,7 +293,7 @@ class single_Documentazione_pdf_sheet:
 
         # 4 row
         note = Paragraph("<b>Notes</b><br/>" + str(self.note), styDescrizione)
-        #       nr_cassa = Paragraph("<b>Nr. Cassa</b><br/>" + unicode(self.nr_cassa), styNormal)
+        #       nr_cassa = Paragraph("<b>N° Cassa</b><br/>" + unicode(self.nr_cassa), styNormal)
 
         # schema
         cell_schema = [  # 00, 01, 02, 03, 04, 05, 06, 07, 08, 09 rows
@@ -388,7 +388,7 @@ class single_Documentazione_pdf_sheet:
 
         # 4 row
         note = Paragraph("<b>Note</b><br/>" + str(self.note), styDescrizione)
-        #       nr_cassa = Paragraph("<b>Nr. Cassa</b><br/>" + unicode(self.nr_cassa), styNormal)
+        #       nr_cassa = Paragraph("<b>N° Cassa</b><br/>" + unicode(self.nr_cassa), styNormal)
 
         # schema
         cell_schema = [  # 00, 01, 02, 03, 04, 05, 06, 07, 08, 09 rows
@@ -493,13 +493,13 @@ class Box_labels_Campioni_pdf_sheet:
         logo.drawWidth = 1.5*inch
         
 
-        num_cassa = Paragraph("<b>N. Cassa </b>" + str(self.cassa),styCassaLabel)
+        num_cassa = Paragraph("<b>N° Cassa </b>" + str(self.cassa),styCassaLabel)
         sito = Paragraph("<b>Sito: </b>" + str(self.sito),stySitoLabel)
 
         if self.elenco_inv_tip_rep == None:
-            elenco_inv_tip_rep = Paragraph("<b>Elenco N. Inv. / Tipo campione</b><br/>",styNormal)
+            elenco_inv_tip_rep = Paragraph("<b>Elenco N° Inv. / Tipo campione</b><br/>",styNormal)
         else:
-            elenco_inv_tip_rep = Paragraph("<b>Elenco N. Inv. / Tipo campione</b><br/>" + str(self.elenco_inv_tip_rep ),styNormal)
+            elenco_inv_tip_rep = Paragraph("<b>Elenco N° Inv. / Tipo campione</b><br/>" + str(self.elenco_inv_tip_rep ),styNormal)
 
         if self.elenco_us == None:
             elenco_us = Paragraph("<b>Elenco US/(Struttura)</b>",styNormal)
@@ -572,9 +572,9 @@ class CASSE_index_pdf_sheet:
         num_cassa = Paragraph("<b>Nr.</b><br/>" + str(self.cassa),styNormal)
 
         if self.elenco_inv_tip_camp == None:
-            elenco_inv_tip_camp = Paragraph("<b>N. Inv./Tipo campione</b><br/>",styNormal)
+            elenco_inv_tip_camp = Paragraph("<b>N° Inv./Tipo campione</b><br/>",styNormal)
         else:
-            elenco_inv_tip_camp = Paragraph("<b>N. Inv./Tipo campione</b><br/>" + str(self.elenco_inv_tip_camp ),styNormal)
+            elenco_inv_tip_camp = Paragraph("<b>N° Inv./Tipo campione</b><br/>" + str(self.elenco_inv_tip_camp ),styNormal)
 
         if self.elenco_us == None:
             elenco_us = Paragraph("<b>US(Struttura)</b><br/>",styNormal)
@@ -617,11 +617,11 @@ class Documentazione_index_pdf_sheet:
         styNormal.spaceBefore = 20
         styNormal.spaceAfter = 20
         styNormal.alignment = 0  # LEFT
-        styNormal.fontSize = 9
+        styNormal.fontSize = 7
         styNormal.fontName = 'Cambria'
         # self.unzip_rapporti_stratigrafici()
 
-        #       num_campione = Paragraph("<b>N. Camp.</b><br/>" + str(self.numero_campione),styNormal)
+        #       num_campione = Paragraph("<b>N° Camp.</b><br/>" + str(self.numero_campione),styNormal)
 
 
         if self.tipo_documentazione == "":
@@ -674,11 +674,11 @@ class Documentazione_index_pdf_sheet:
         styNormal.spaceBefore = 20
         styNormal.spaceAfter = 20
         styNormal.alignment = 0  # LEFT
-        styNormal.fontSize = 9
+        styNormal.fontSize = 7
 
         # self.unzip_rapporti_stratigrafici()
 
-        #       num_campione = Paragraph("<b>N. Camp.</b><br/>" + str(self.numero_campione),styNormal)
+        #       num_campione = Paragraph("<b>N° Camp.</b><br/>" + str(self.numero_campione),styNormal)
 
 
         if self.tipo_documentazione == "":
@@ -732,11 +732,11 @@ class Documentazione_index_pdf_sheet:
         styNormal.spaceBefore = 20
         styNormal.spaceAfter = 20
         styNormal.alignment = 0  # LEFT
-        styNormal.fontSize = 9
+        styNormal.fontSize = 7
 
         # self.unzip_rapporti_stratigrafici()
 
-        #       num_campione = Paragraph("<b>N. Camp.</b><br/>" + str(self.numero_campione),styNormal)
+        #       num_campione = Paragraph("<b>N° Camp.</b><br/>" + str(self.numero_campione),styNormal)
 
 
         if self.tipo_documentazione == "":

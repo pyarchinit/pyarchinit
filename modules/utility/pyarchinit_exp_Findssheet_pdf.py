@@ -38,8 +38,8 @@ from reportlab.pdfbase.ttfonts import TTFont
 # Registered font family
 pdfmetrics.registerFont(TTFont('Cambria', 'Cambria.ttc'))
 pdfmetrics.registerFont(TTFont('cambriab', 'cambriab.ttf'))
-# pdfmetrics.registerFont(TTFont('VeraIt', 'VeraIt.ttf'))
-# pdfmetrics.registerFont(TTFont('VeraBI', 'VeraBI.ttf'))
+pdfmetrics.registerFont(TTFont('VeraIt', 'VeraIt.ttf'))
+pdfmetrics.registerFont(TTFont('VeraBI', 'VeraBI.ttf'))
 # Registered fontfamily
 registerFontFamily('Cambria',normal='Cambria')
 from ..db.pyarchinit_conn_strings import Connection
@@ -163,14 +163,14 @@ class single_Finds_pdf_sheet(object):
         styNormal.spaceBefore = 20
         styNormal.spaceAfter = 20
         styNormal.alignment = 0  # LEFT
-        styNormal.fontSize = 8
+        styNormal.fontSize = 7
         styNormal.fontName = 'Cambria'
         styleSheet = getSampleStyleSheet()
         styDescrizione = styleSheet['Normal']
         styDescrizione.spaceBefore = 20
         styDescrizione.spaceAfter = 20
         styDescrizione.alignment = 4  # Justified
-        styDescrizione.fontSize = 8
+        styDescrizione.fontSize = 7
         styDescrizione.fontName = 'Cambria'
 
         # format labels
@@ -200,7 +200,7 @@ class single_Finds_pdf_sheet(object):
         else:
             # 1 row
             sito = Paragraph("<b>Sito</b><br/>" + str(self.sito), styNormal)
-            n_reperto = Paragraph("<b>N. reperto</b><br/>" + str(self.n_reperto) +"<br/>" "<b>(n. inv.: </b>" + str(self.numero_inventario)+"<b>)</b>", styNormal)
+            n_reperto = Paragraph("<b>N° reperto</b><br/>" + str(self.n_reperto) +"<br/>" "<b>(n. inv.: </b>" + str(self.numero_inventario)+"<b>)</b>", styNormal)
 
             # 2 row
             riferimenti_stratigrafici = Paragraph("<b>Riferimenti stratigrafici</b>", styNormal)
@@ -306,7 +306,7 @@ class single_Finds_pdf_sheet(object):
 
             # 12 row
             lavato = Paragraph("<b>Lavato</b><br/>" + self.lavato, styNormal)
-            nr_cassa = Paragraph("<b>N. cassa</b><br/>" + self.nr_cassa, styNormal)
+            nr_cassa = Paragraph("<b>N° cassa</b><br/>" + self.nr_cassa, styNormal)
             luogo_conservazione = Paragraph("<b>Luogo di conservazione</b><br/>" + self.luogo_conservazione, styNormal)
 
             # schema
@@ -531,7 +531,7 @@ class single_Finds_pdf_sheet(object):
 
         # 13 row
         lavato = Paragraph("<b>Gewaschen</b><br/>" + self.lavato, styNormal)
-        nr_cassa = Paragraph("<b>Nr. Box</b><br/>" + self.nr_cassa, styNormal)
+        nr_cassa = Paragraph("<b>N° Box</b><br/>" + self.nr_cassa, styNormal)
         luogo_conservazione = Paragraph("<b>Ort der Erhaltung</b><br/>" + self.luogo_conservazione, styNormal)
 
         # schema
@@ -900,7 +900,7 @@ class Box_labels_Finds_pdf_sheet(object):
         logo.drawHeight = 1.5 * inch * logo.drawHeight / logo.drawWidth
         logo.drawWidth = 1.5 * inch
 
-        num_cassa = Paragraph("<b>N. Cassa </b>" + str(self.cassa), styCassaLabel)
+        num_cassa = Paragraph("<b>N° Cassa </b>" + str(self.cassa), styCassaLabel)
         sito = Paragraph("<b>Sito: </b>" + str(self.sito), stySitoLabel)
 
         if self.elenco_inv_tip_rep == None:
@@ -996,13 +996,13 @@ class Box_labels_Finds_pdf_sheet(object):
         logo = Image(logo_path)
         logo.drawHeight = 1.5 * inch * logo.drawHeight / logo.drawWidth
         logo.drawWidth = 1.5 * inch
-        num_cassa = Paragraph("<b>Nr. Box</b>" + str(self.cassa), styCassaLabel)
+        num_cassa = Paragraph("<b>N° Box</b>" + str(self.cassa), styCassaLabel)
         sito = Paragraph("<b>Ausgrabungsstättesstätte: </b>" + str(self.sito), stySitoLabel)
 
         if self.elenco_inv_tip_rep == None:
-            elenco_inv_tip_rep = Paragraph("<b>Liste N. Inv. / Art material</b><br/>", styNormal)
+            elenco_inv_tip_rep = Paragraph("<b>Liste N° Inv. / Art material</b><br/>", styNormal)
         else:
-            elenco_inv_tip_rep = Paragraph("<b>Liste N. Inv. / Art material</b><br/>" + str(self.elenco_inv_tip_rep),
+            elenco_inv_tip_rep = Paragraph("<b>Liste N° Inv. / Art material</b><br/>" + str(self.elenco_inv_tip_rep),
                                            styNormal)
 
         if self.elenco_us == None:
@@ -1098,9 +1098,9 @@ class Box_labels_Finds_pdf_sheet(object):
         sito = Paragraph("<b>Site: </b>" + str(self.sito), stySitoLabel)
 
         if self.elenco_inv_tip_rep == None:
-            elenco_inv_tip_rep = Paragraph("<b>List N. Inv. / Material type</b><br/>", styNormal)
+            elenco_inv_tip_rep = Paragraph("<b>List N° Inv. / Material type</b><br/>", styNormal)
         else:
-            elenco_inv_tip_rep = Paragraph("<b>List N. Inv. / Material type</b><br/>" + str(self.elenco_inv_tip_rep),
+            elenco_inv_tip_rep = Paragraph("<b>List N° Inv. / Material type</b><br/>" + str(self.elenco_inv_tip_rep),
                                            styNormal)
 
         if self.elenco_us == None:
@@ -1167,9 +1167,9 @@ class CASSE_index_pdf_sheet(object):
         num_cassa = Paragraph("<b>N.</b><br/>" + str(self.cassa), styNormal)
 
         if self.elenco_inv_tip_rep == None:
-            elenco_inv_tip_rep = Paragraph("<b>N. inv./Tipo materiale</b><br/>", styNormal)
+            elenco_inv_tip_rep = Paragraph("<b>N° inv./Tipo materiale</b><br/>", styNormal)
         else:
-            elenco_inv_tip_rep = Paragraph("<b>N. inv./Tipo materiale</b><br/>" + str(self.elenco_inv_tip_rep),
+            elenco_inv_tip_rep = Paragraph("<b>N° inv./Tipo materiale</b><br/>" + str(self.elenco_inv_tip_rep),
                                            styNormal)
 
         if self.elenco_us == 'None':
@@ -1199,9 +1199,9 @@ class CASSE_index_pdf_sheet(object):
         num_cassa = Paragraph("<b>Nr.</b><br/>" + str(self.cassa), styNormal)
 
         if self.elenco_inv_tip_rep == None:
-            elenco_inv_tip_rep = Paragraph("<b>Liste N. Inv. / Art material</b><br/>", styNormal)
+            elenco_inv_tip_rep = Paragraph("<b>Liste N° Inv. / Art material</b><br/>", styNormal)
         else:
-            elenco_inv_tip_rep = Paragraph("<b>Liste N. Inv. / Art material</b><br/>" + str(self.elenco_inv_tip_rep),
+            elenco_inv_tip_rep = Paragraph("<b>Liste N° Inv. / Art material</b><br/>" + str(self.elenco_inv_tip_rep),
                                            styNormal)
 
         if self.elenco_us == None:
@@ -1231,9 +1231,9 @@ class CASSE_index_pdf_sheet(object):
         num_cassa = Paragraph("<b>Nr.</b><br/>" + str(self.cassa), styNormal)
 
         if self.elenco_inv_tip_rep == None:
-            elenco_inv_tip_rep = Paragraph("<b>N. Inv. / Material type</b><br/>", styNormal)
+            elenco_inv_tip_rep = Paragraph("<b>N° Inv. / Material type</b><br/>", styNormal)
         else:
-            elenco_inv_tip_rep = Paragraph("<b>N. Inv. / Material type</b><br/>" + str(self.elenco_inv_tip_rep),
+            elenco_inv_tip_rep = Paragraph("<b>N° Inv. / Material type</b><br/>" + str(self.elenco_inv_tip_rep),
                                            styNormal)
 
         if self.elenco_us == None:
@@ -1277,11 +1277,11 @@ class FINDS_index_pdf_sheet(object):
         styNormal.spaceBefore = 20
         styNormal.spaceAfter = 20
         styNormal.alignment = 0  # LEFT
-        styNormal.fontSize = 9
+        styNormal.fontSize = 7
         styNormal.fontName = 'Cambria'
         # self.unzip_rapporti_stratigrafici()
 
-        num_inventario = Paragraph("<b>N. inv.</b><br/>" + str(self.num_inventario), styNormal)
+        num_inventario = Paragraph("<b>N° inv.</b><br/>" + str(self.num_inventario), styNormal)
 
         if self.tipo_reperto == None:
             tipo_reperto = Paragraph("<b>Tipo reperto</b><br/>", styNormal)
@@ -1324,14 +1324,14 @@ class FINDS_index_pdf_sheet(object):
             diagnostico = Paragraph("<b>Diagnostico</b><br/>" + str(self.diagnostico), styNormal)
 
         if str(self.numero_cassa) == "None":
-            nr_cassa = Paragraph("<b>N. cassa</b><br/>", styNormal)
+            nr_cassa = Paragraph("<b>N° cassa</b><br/>", styNormal)
         else:
-            nr_cassa = Paragraph("<b>N. cassa</b><br/>" + str(self.numero_cassa), styNormal)
+            nr_cassa = Paragraph("<b>N° cassa</b><br/>" + str(self.numero_cassa), styNormal)
         
         if str(self.n_reperto) == "None":
-            n_reperto = Paragraph("<b>N. reperto</b><br/>", styNormal)
+            n_reperto = Paragraph("<b>N° reperto</b><br/>", styNormal)
         else:
-            n_reperto = Paragraph("<b>N. reperto</b><br/>" + str(self.n_reperto), styNormal)
+            n_reperto = Paragraph("<b>N° reperto</b><br/>" + str(self.n_reperto), styNormal)
         
         data = [num_inventario,
                 tipo_reperto,
@@ -1353,11 +1353,11 @@ class FINDS_index_pdf_sheet(object):
         styNormal.spaceBefore = 20
         styNormal.spaceAfter = 20
         styNormal.alignment = 0  # LEFT
-        styNormal.fontSize = 9
+        styNormal.fontSize = 7
         styNormal.fontName = 'Cambria'
         # self.unzip_rapporti_stratigrafici()
 
-        num_inventario = Paragraph("<b>Nr. Inv.</b><br/>" + str(self.num_inventario), styNormal)
+        num_inventario = Paragraph("<b>N° Inv.</b><br/>" + str(self.num_inventario), styNormal)
 
         if self.tipo_reperto == None:
             tipo_reperto = Paragraph("<b>Funde Art</b><br/>", styNormal)
@@ -1400,9 +1400,9 @@ class FINDS_index_pdf_sheet(object):
             diagnostico = Paragraph("<b>Diagnose</b><br/>" + str(self.diagnostico), styNormal)
 
         if str(self.numero_cassa) == "None":
-            nr_cassa = Paragraph("<b>Nr. Box</b><br/>", styNormal)
+            nr_cassa = Paragraph("<b>N° Box</b><br/>", styNormal)
         else:
-            nr_cassa = Paragraph("<b>Nr. Box</b><br/>" + str(self.numero_cassa), styNormal)
+            nr_cassa = Paragraph("<b>N° Box</b><br/>" + str(self.numero_cassa), styNormal)
 
         data = [num_inventario,
                 tipo_reperto,
@@ -1423,7 +1423,7 @@ class FINDS_index_pdf_sheet(object):
         styNormal.spaceBefore = 20
         styNormal.spaceAfter = 20
         styNormal.alignment = 0  # LEFT
-        styNormal.fontSize = 9
+        styNormal.fontSize = 7
 
         # self.unzip_rapporti_stratigrafici()
 
@@ -1840,7 +1840,7 @@ class generate_reperti_pdf(object):
         lst.append(logo)
         #lst2.append(logo_2)
         lst.append(
-            Paragraph("<b>ELENCO REPERTI</b><br/><b> Scavo: %s </b><br/>" % ('h'), styH1))
+            Paragraph("<b>ELENCO REPERTI</b><br/><b> Scavo: %s </b><br/>" % (sito), styH1))
 
         table_data = []
         for i in range(len(records)):
@@ -2022,7 +2022,7 @@ class generate_reperti_pdf(object):
         lst.append(logo)
         #lst2.append(logo_2)
         lst.append(
-            Paragraph("<b>ELENCO INVENTARIO</b><br/><b> Scavo: %s </b><br/>" % ('l'), styH1))
+            Paragraph("<b>ELENCO INVENTARIO</b><br/><b> Scavo: %s </b><br/>" % (sito), styH1))
 
         table_data = []
         for i in range(len(records)):
@@ -2040,7 +2040,7 @@ class generate_reperti_pdf(object):
 
         dt = datetime.datetime.now()
         filename = ('%s%s%s') % (
-        self.PDF_path, os.sep, 'Elenco Invetario.pdf')
+        self.PDF_path, os.sep, 'Elenco Inventario.pdf')
         f = open(filename, "wb")
 
         doc = SimpleDocTemplate(f, pagesize=(29 * cm, 21 * cm), showBoundary=0, topMargin=15, bottomMargin=40,
@@ -2178,7 +2178,7 @@ class generate_reperti_pdf(object):
             single_finds_sheet = single_Finds_pdf_sheet(records[i])
             elements.append(single_finds_sheet.create_sheet())
             elements.append(PageBreak())
-        filename = '{}{}{}'.format(self.PDF_path, os.sep,'Scheda Materiali.pdf')
+        filename = '{}{}{}'.format(self.PDF_path, os.sep,'Scheda Reperti.pdf')
         f = open(filename, "wb")
         doc = SimpleDocTemplate(f)
         doc.build(elements, canvasmaker=NumberedCanvas_Findssheet)

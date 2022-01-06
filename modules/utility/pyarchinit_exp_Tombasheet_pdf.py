@@ -38,8 +38,8 @@ from reportlab.pdfbase.ttfonts import TTFont
 # Registered font family
 pdfmetrics.registerFont(TTFont('Cambria', 'Cambria.ttc'))
 pdfmetrics.registerFont(TTFont('cambriab', 'cambriab.ttf'))
-# pdfmetrics.registerFont(TTFont('VeraIt', 'VeraIt.ttf'))
-# pdfmetrics.registerFont(TTFont('VeraBI', 'VeraBI.ttf'))
+pdfmetrics.registerFont(TTFont('VeraIt', 'VeraIt.ttf'))
+pdfmetrics.registerFont(TTFont('VeraBI', 'VeraBI.ttf'))
 # Registered fontfamily
 registerFontFamily('Cambria',normal='Cambria')
 from qgis.core import QgsSettings
@@ -129,17 +129,17 @@ class Tomba_index_pdf_sheet(object):
         styNormal.spaceBefore = 20
         styNormal.spaceAfter = 20
         styNormal.alignment = 0  # LEFT
-        styNormal.fontSize = 9
+        styNormal.fontSize = 7
         styNormal.fontName='Cambria'
         
 
-        num_scheda = Paragraph("<b>N. scheda</b><br/>" + str(self.nr_scheda_taf), styNormal)
+        num_scheda = Paragraph("<b>N° scheda</b><br/>" + str(self.nr_scheda_taf), styNormal)
 
         sigla_struttura = Paragraph("<b>Sigla struttura</b><br/>" + str(self.sigla_struttura)+'-'+ str(self.nr_struttura), styNormal)
 
-        #numero_struttura = Paragraph("<b>Nr. Struttura</b><br/>" + str(self.nr_struttura), styNormal)
+        #numero_struttura = Paragraph("<b>N° Struttura</b><br/>" + str(self.nr_struttura), styNormal)
 
-        numero_individuo = Paragraph("<b>N. individuo</b><br/>" + str(self.nr_individuo), styNormal)
+        numero_individuo = Paragraph("<b>N° individuo</b><br/>" + str(self.nr_individuo), styNormal)
 
         if self.rito == None:
             rito = Paragraph("<b>Rito</b><br/>", styNormal)
@@ -167,13 +167,13 @@ class Tomba_index_pdf_sheet(object):
             for i in eval(self.materiali):  # gigi
                 if materiali == '':
                     try:
-                        materiali += ("N. ind: %s- Rif RA: %s - Materiale: %s<br/>") % (
+                        materiali += ("N° ind: %s- Rif RA: %s - Materiale: %s<br/>") % (
                         str(i[1]), str(i[0]), str(i[2]))
                     except Exception as e:
                         str(e)
                 else:
                     try:
-                        materiali += ("N. ind: %s- Rif RA: %s - Materiale: %s<br/>") % (
+                        materiali += ("N° ind: %s- Rif RA: %s - Materiale: %s<br/>") % (
                         str(i[1]), str(i[0]), str(i[2]))
                     except Exception as e:
                         str(e)
@@ -222,17 +222,17 @@ class Tomba_index_pdf_sheet(object):
         styNormal.spaceBefore = 20
         styNormal.spaceAfter = 20
         styNormal.alignment = 0  # LEFT
-        styNormal.fontSize = 9
+        styNormal.fontSize = 7
         styNormal.fontName='Cambria'
         
 
-        num_scheda = Paragraph("<b>Nr. Form</b><br/>" + str(self.nr_scheda_taf), styNormal)
+        num_scheda = Paragraph("<b>N° Form</b><br/>" + str(self.nr_scheda_taf), styNormal)
 
         sigla_struttura = Paragraph("<b>Structure code</b><br/>" + str(self.sigla_struttura)+'-'+ str(self.nr_struttura), styNormal)
 
-        #numero_struttura = Paragraph("<b>Nr. Struttura</b><br/>" + str(self.nr_struttura), styNormal)
+        #numero_struttura = Paragraph("<b>N° Struttura</b><br/>" + str(self.nr_struttura), styNormal)
 
-        numero_individuo = Paragraph("<b>Nr. Ind</b><br/>" + str(self.nr_individuo), styNormal)
+        numero_individuo = Paragraph("<b>N° Ind</b><br/>" + str(self.nr_individuo), styNormal)
 
         if self.rito == None:
             rito = Paragraph("<b>Rite</b><br/>", styNormal)
@@ -260,13 +260,13 @@ class Tomba_index_pdf_sheet(object):
             for i in eval(self.materiali):  # gigi
                 if materiali == '':
                     try:
-                        materiali += ("N. Ind: %s- Rif AA: %s - Material: %s<br/>") % (
+                        materiali += ("N° Ind: %s- Rif AA: %s - Material: %s<br/>") % (
                         str(i[1]), str(i[0]), str(i[2]))
                     except Exception as e:
                         str(e)
                 else:
                     try:
-                        materiali += ("N. Ind: %s- Rif AA: %s - Material: %s<br/>") % (
+                        materiali += ("N° Ind: %s- Rif AA: %s - Material: %s<br/>") % (
                         str(i[1]), str(i[0]), str(i[2]))
                     except Exception as e:
                         str(e)
@@ -315,7 +315,7 @@ class Tomba_index_pdf_sheet(object):
         styNormal.spaceBefore = 20
         styNormal.spaceAfter = 20
         styNormal.alignment = 0  # LEFT
-        styNormal.fontSize = 9
+        styNormal.fontSize = 7
 
         
 
@@ -323,9 +323,9 @@ class Tomba_index_pdf_sheet(object):
 
         sigla_struttura = Paragraph("<b>Struktur-Code</b><br/>" + str(self.sigla_struttura)+'-'+ str(self.nr_struttura), styNormal)
 
-        #numero_struttura = Paragraph("<b>Nr. Struttura</b><br/>" + str(self.nr_struttura), styNormal)
+        #numero_struttura = Paragraph("<b>N° Struttura</b><br/>" + str(self.nr_struttura), styNormal)
 
-        numero_individuo = Paragraph("<b>Nr. Individuell</b><br/>" + str(self.nr_individuo), styNormal)
+        numero_individuo = Paragraph("<b>N° Individuell</b><br/>" + str(self.nr_individuo), styNormal)
 
         if self.rito == None:
             rito = Paragraph("<b>Ritus</b><br/>", styNormal)
@@ -353,13 +353,13 @@ class Tomba_index_pdf_sheet(object):
             for i in eval(self.materiali):  # gigi
                 if materiali == '':
                     try:
-                        materiali += ("N. Ind: %s- Rif EA: %s - Material: %s<br/>") % (
+                        materiali += ("N° Ind: %s- Rif EA: %s - Material: %s<br/>") % (
                         str(i[1]), str(i[0]), str(i[2]))
                     except Exception as e:
                         str(e)
                 else:
                     try:
-                        materiali += ("N. Ind: %s- Rif EA: %s - Material: %s<br/>") % (
+                        materiali += ("N° Ind: %s- Rif EA: %s - Material: %s<br/>") % (
                         str(i[1]), str(i[0]), str(i[2]))
                     except Exception as e:
                         str(e)
@@ -413,10 +413,10 @@ class Tomba_index_pdf_sheet(object):
         # styNormal.spaceBefore = 20
         # styNormal.spaceAfter = 20
         # styNormal.alignment = 0  # LEFT
-        # styNormal.fontSize = 9
+        # styNormal.fontSize = 7
 
         
-        # num_scheda = Paragraph("<b>Nr. Feld</b><br/>" + str(self.nr_scheda_taf), styNormal)
+        # num_scheda = Paragraph("<b>N° Feld</b><br/>" + str(self.nr_scheda_taf), styNormal)
 
         # sigla_struttura = Paragraph("<b>Strukturcode</b><br/>" + str(self.sigla_struttura), styNormal)
 
@@ -509,7 +509,7 @@ class Tomba_index_pdf_sheet(object):
         # styNormal.spaceBefore = 20
         # styNormal.spaceAfter = 20
         # styNormal.alignment = 0  # LEFT
-        # styNormal.fontSize = 9
+        # styNormal.fontSize = 7
 
         # # self.unzip_rapporti_stratigrafici()
 
@@ -643,16 +643,16 @@ class Tomba_index_II_pdf_sheet(object):
         styNormal.spaceBefore = 20
         styNormal.spaceAfter = 20
         styNormal.alignment = 0  # LEFT
-        styNormal.fontSize = 9
+        styNormal.fontSize = 7
         styNormal.fontName='Cambria'
         # self.unzip_rapporti_stratigrafici()
 
-        num_scheda = Paragraph("<b>N. scheda</b><br/>" + str(self.nr_scheda_taf), styNormal)
+        num_scheda = Paragraph("<b>N° scheda</b><br/>" + str(self.nr_scheda_taf), styNormal)
 
         sigla_num_struttura = Paragraph("<b>Sigla str.</b><br/>" + str(self.sigla_struttura) +'-'+ str(self.nr_struttura),
                                         styNormal)
 
-        numero_individuo = Paragraph("<b>N. ind</b><br/>" + str(self.nr_individuo), styNormal)
+        numero_individuo = Paragraph("<b>N° ind</b><br/>" + str(self.nr_individuo), styNormal)
 
         if self.rito == None:
             rito = Paragraph("<b>Rito</b><br/>", styNormal)
@@ -721,11 +721,11 @@ class Tomba_index_II_pdf_sheet(object):
         styNormal.spaceBefore = 20
         styNormal.spaceAfter = 20
         styNormal.alignment = 0  # LEFT
-        styNormal.fontSize = 9
+        styNormal.fontSize = 7
 
         # self.unzip_rapporti_stratigrafici()
 
-        num_scheda = Paragraph("<b>Nr. Feld</b><br/>" + str(self.nr_scheda_taf), styNormal)
+        num_scheda = Paragraph("<b>N° Feld</b><br/>" + str(self.nr_scheda_taf), styNormal)
 
         sigla_num_struttura = Paragraph("<b>Strukturcode</b><br/>" + str(self.sigla_struttura) + str(self.nr_struttura),
                                         styNormal)
@@ -805,7 +805,7 @@ class Tomba_index_II_pdf_sheet(object):
         styNormal.spaceBefore = 20
         styNormal.spaceAfter = 20
         styNormal.alignment = 0  # LEFT
-        styNormal.fontSize = 9
+        styNormal.fontSize = 7
 
         # self.unzip_rapporti_stratigrafici()
 
@@ -938,21 +938,21 @@ class single_Tomba_pdf_sheet(object):
         styNormal.spaceBefore = 20
         styNormal.spaceAfter = 20
         styNormal.alignment = 0  # LEFT
-        styNormal.fontSize=9
+        styNormal.fontSize=7
         styNormal.fontName='Cambria'
         styleSheet = getSampleStyleSheet()
         styDescrizione = styleSheet['Normal']
         styDescrizione.spaceBefore = 20
         styDescrizione.spaceAfter = 20
         styDescrizione.alignment = 4  # Justified
-        styDescrizione.fontSize=9
+        styDescrizione.fontSize=7
         styDescrizione.fontName='Cambria'
         styleSheet = getSampleStyleSheet()
         styTitoloComponenti = styleSheet['Normal']
         styTitoloComponenti.spaceBefore = 20
         styTitoloComponenti.spaceAfter = 20
         styTitoloComponenti.alignment = 1  # CENTER
-        styTitoloComponenti.fontSize=9
+        styTitoloComponenti.fontSize=7
         styTitoloComponenti.fontName='Cambria'
         
         # format labels
@@ -984,8 +984,8 @@ class single_Tomba_pdf_sheet(object):
         sito = Paragraph("<b>Sito</b><br/>" + str(self.sito), styNormal)
         sigla_struttura = Paragraph("<b>Sigla struttura</b><br/>" + str(self.sigla_struttura) +'-'+ str(self.nr_struttura),
                                     styNormal)
-        nr_individuo = Paragraph("<b>N. individuo</b><br/>" + str(self.nr_individuo), styNormal)
-        nr_scheda = Paragraph("<b>N. scheda</b><br/>" + str(self.nr_scheda_taf), styNormal)
+        nr_individuo = Paragraph("<b>N° individuo</b><br/>" + str(self.nr_individuo), styNormal)
+        nr_scheda = Paragraph("<b>N° scheda</b><br/>" + str(self.nr_scheda_taf), styNormal)
 
         # 2 row
         periodizzazione = Paragraph("<b>PERIODIZZAZIONE DEL RITO DI SEPOLTURA</b><br/>", styTitoloComponenti)
@@ -1074,13 +1074,13 @@ class single_Tomba_pdf_sheet(object):
             for i in eval(self.corredo_tipo):
                 if corredo_tipo == '':
                     try:
-                        corredo_tipo += ("N. reperto %s, N. individuo %s, Materiale: %s, Posizione del corredo: %s, Posizione nel corredo: %s<br/> ") % (
+                        corredo_tipo += ("N° reperto %s, N° individuo %s, Materiale: %s, Posizione del corredo: %s, Posizione nel corredo: %s<br/> ") % (
                         str(i[0]), str(i[1]), str(i[2]),str(i[3]),str(i[4]))
                     except:
                         pass
                 else:
                     try:
-                        corredo_tipo += ("N. reperto %s, N. individuo %s, Materiale: %s, Posizione del corredo: %s, Posizione nel corredo: %s<br/> ") % (
+                        corredo_tipo += ("N° reperto %s, N° individuo %s, Materiale: %s, Posizione del corredo: %s, Posizione nel corredo: %s<br/> ") % (
                         str(i[0]), str(i[1]), str(i[2]),str(i[3]),str(i[4]))
                     except:
                         pass
@@ -1211,14 +1211,14 @@ class single_Tomba_pdf_sheet(object):
         styNormal.spaceBefore = 20
         styNormal.spaceAfter = 20
         styNormal.alignment = 0  # LEFT
-        styNormal.fontSize = 9
+        styNormal.fontSize = 7
         styNormal.fontName='Cambria'
         styleSheet = getSampleStyleSheet()
         styDescrizione = styleSheet['Normal']
         styDescrizione.spaceBefore = 20
         styDescrizione.spaceAfter = 20
         styDescrizione.alignment = 4  # Justified
-        styDescrizione.fontSize = 9
+        styDescrizione.fontSize = 7
         styDescrizione.fontName='Cambria'
         # format labels
 
@@ -1250,7 +1250,7 @@ class single_Tomba_pdf_sheet(object):
         sigla_struttura = Paragraph("<b>Nr struktur</b><br/>" + str(self.sigla_struttura) + str(self.nr_struttura),
                                     styNormal)
         nr_individuo = Paragraph("<b>Nr Individuel</b><br/>" + str(self.nr_individuo), styNormal)
-        nr_scheda = Paragraph("<b>Nr. Feld</b><br/>" + str(self.nr_scheda_taf), styNormal)
+        nr_scheda = Paragraph("<b>N° Feld</b><br/>" + str(self.nr_scheda_taf), styNormal)
 
         # 2 row
         periodizzazione = Paragraph("<b>PERIODISIERUNG BESTATTUNGEN</b><br/>", styNormal)
@@ -1370,13 +1370,13 @@ class single_Tomba_pdf_sheet(object):
             for i in eval(self.corredo_tipo):
                 if corredo_tipo == '':
                     try:
-                        corredo_tipo += ("<br/>Nr. finden %s, Grabbeigabetyp: %s, Beschreibung: %s") % (
+                        corredo_tipo += ("<br/>N° finden %s, Grabbeigabetyp: %s, Beschreibung: %s") % (
                         str(i[0]), str(i[1]), str(i[2]))
                     except:
                         pass
                 else:
                     try:
-                        corredo_tipo += ("<br/>Nr. finden %s, Grabbeigabetyp: %s, Beschreibung: %s") % (
+                        corredo_tipo += ("<br/>N° finden %s, Grabbeigabetyp: %s, Beschreibung: %s") % (
                         str(i[0]), str(i[1]), str(i[2]))
                     except:
                         pass
@@ -1701,13 +1701,13 @@ class single_Tomba_pdf_sheet(object):
             for i in eval(self.corredo_tipo):
                 if corredo_tipo == '':
                     try:
-                        corredo_tipo += ("<br/>Artefact Nr. %s, Trousseau type: %s, Description: %s") % (
+                        corredo_tipo += ("<br/>Artefact N° %s, Trousseau type: %s, Description: %s") % (
                         str(i[0]), str(i[1]), str(i[2]))
                     except:
                         pass
                 else:
                     try:
-                        corredo_tipo += ("<br/>Artefact Nr. %s, Trousseau type: %s, Description: %s") % (
+                        corredo_tipo += ("<br/>Artefact N° %s, Trousseau type: %s, Description: %s") % (
                         str(i[0]), str(i[1]), str(i[2]))
                     except:
                         pass
