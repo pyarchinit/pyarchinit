@@ -40,10 +40,10 @@ from reportlab.pdfbase.pdfmetrics import registerFontFamily
 from reportlab.pdfbase.ttfonts import TTFont
 # Registered font family
 pdfmetrics.registerFont(TTFont('Cambria', 'Cambria.ttc'))
-# pdfmetrics.registerFont(TTFont('VeraBd', 'VeraBd.ttf'))
-# pdfmetrics.registerFont(TTFont('VeraIt', 'VeraIt.ttf'))
-# pdfmetrics.registerFont(TTFont('VeraBI', 'VeraBI.ttf'))
-# Registered fontfamily
+pdfmetrics.registerFont(TTFont('CambriaBd', 'cambriab.ttf'))
+pdfmetrics.registerFont(TTFont('CambriaI', 'cambriai.ttf'))
+pdfmetrics.registerFont(TTFont('CambriaZ', 'cambriaz.ttf'))
+# #Registered fontfamily
 registerFontFamily('Cambria',normal='Cambria')
 
 
@@ -933,7 +933,7 @@ class single_US_pdf_sheet(object):
         styNormal = styleSheet['Normal']
         styNormal.spaceBefore = 20
         styNormal.spaceAfter = 20
-        styNormal.fontSize = 8
+        styNormal.fontSize = 7
         styNormal.fontName='Cambria'
         styNormal.alignment = 0  # LEFT
 
@@ -959,7 +959,7 @@ class single_US_pdf_sheet(object):
         styDescrizione = styleSheet['Normal']
         styDescrizione.spaceBefore = 20
         styDescrizione.spaceAfter = 20
-        styDescrizione.fontSize = 8
+        styDescrizione.fontSize = 7
         styDescrizione.fontName='Cambria'
         styDescrizione.alignment = 4  # Justified
 
@@ -976,15 +976,15 @@ class single_US_pdf_sheet(object):
         styTitoloComponenti.spaceBefore = 20
         styTitoloComponenti.spaceAfter = 20
         styTitoloComponenti. rowHeights=0.5
-        styTitoloComponenti.fontSize = 8
+        styTitoloComponenti.fontSize = 7
         styTitoloComponenti.fontName='Cambria'
         styTitoloComponenti.alignment = 1  # CENTER
 
         styleSheet = getSampleStyleSheet()
         styVerticale = styleSheet['Normal']
-        styVerticale.spaceBefore = 20
+        styVerticale.spaceBefore = 10
         styVerticale.spaceAfter = 20
-        styVerticale.fontSize = 8
+        styVerticale.fontSize = 7
         styVerticale.fontName='Cambria'
         styVerticale.alignment = 1  # CENTER
         styVerticale.leading=8
@@ -1007,7 +1007,7 @@ class single_US_pdf_sheet(object):
         if str(self.unita_tipo)== 'US':
             unita_tipo = Paragraph(str(self.unita_tipo), styUnitaTipo)
             label_ente_responsabile = Paragraph("<b>ENTE RESPONSABILE</b>", styNormal2)
-            #label_catalogo_internazionale = Paragraph("<b>N. CATALOGO INTERNAZIONALE</b>", styNormal)
+            #label_catalogo_internazionale = Paragraph("<b>N° CATALOGO INTERNAZIONALE</b>", styNormal)
             ente_responsabile = Paragraph(str(self.n_catalogo_generale), styNormal)
             #catalogo_internazionale = Paragraph(str(self.n_catalogo_internazionale), styNormal)
             sop =  Paragraph("<b>SOPRINTENDENZA MIBACT COMPETENTE PER TUTELA</b><br/>" +str(self.soprintendenza), styNormal2)
@@ -1024,7 +1024,7 @@ class single_US_pdf_sheet(object):
             
             saggio = Paragraph("<b>SAGGIO</b><br/>" + self.saggio, styNormal)
             ambiente = Paragraph("<b>AMBIENTE</b><br/>" + self.ambient, styNormal)
-            posizione = Paragraph("<b>POSIZIONE NELL'AMBIENTE</b><br/>" + self.posizione, styNormal)
+            posizione = Paragraph("<b>POS. NELL'AMBIENTE</b><br/>" + self.posizione, styNormal)
             settore = Paragraph("<b>SETTORE/I</b><br/>" + self.settore, styNormal)
             quadrato = Paragraph("<b>QUADRATO/I</b><br/>" + self.quad_par, styNormal)
             quote = Paragraph("<b>QUOTE</b><br/>min: " + self.quota_min + "<br/>max: "+self.quota_max, styNormal)
@@ -1078,7 +1078,7 @@ class single_US_pdf_sheet(object):
                     except:
                         pass
 
-            label_componenti = Paragraph("<b>COMPONENTI</b>",styVerticale)
+            label_componenti = Paragraph("<b>COMPONENTI<br/></b>",styVerticale)
 
             label_inorganici = Paragraph("<i>INORGANICI</i>",styTitoloComponenti) #inorganici
             label_organici = Paragraph("<i>ORGANICI</i>", styTitoloComponenti) #organici
@@ -1373,7 +1373,7 @@ class single_US_pdf_sheet(object):
         elif str(self.unita_tipo)=='USM':
             unita_tipo = Paragraph(str(self.unita_tipo), styUnitaTipo)
             label_ente_responsabile = Paragraph("<b>ENTE RESPONSABILE</b>", styNormal)
-            #label_catalogo_internazionale = Paragraph("<b>N. CATALOGO INTERNAZIONALE</b>", styNormal)
+            #label_catalogo_internazionale = Paragraph("<b>N° CATALOGO INTERNAZIONALE</b>", styNormal)
             ente_responsabile = Paragraph(str(self.n_catalogo_generale), styNormal)
             #catalogo_internazionale = Paragraph(str(self.n_catalogo_internazionale), styNormal)
             sop =  Paragraph("<b>SOPRINTENDENZA MIBACT COMPETENTE PER TUTELA</b><br/>" +str(self.soprintendenza), styNormal)
@@ -1390,7 +1390,7 @@ class single_US_pdf_sheet(object):
             
             saggio = Paragraph("<b>SAGGIO</b><br/>" + self.saggio, styNormal)
             ambiente = Paragraph("<b>AMBIENTE</b><br/>" + self.ambient, styNormal)
-            posizione = Paragraph("<b>POSIZIONE NELL'AMBIENTE</b><br/>" + self.posizione, styNormal)
+            posizione = Paragraph("<b>POS. NELL'AMBIENTE</b><br/>" + self.posizione, styNormal)
             settore = Paragraph("<b>SETTORE/I</b><br/>" + self.settore, styNormal)
             quadrato = Paragraph("<b>QUADRATO/I</b><br/>" + self.quad_par, styNormal)
             quote = Paragraph("<b>QUOTE</b><br/>min: " + self.quota_min + "<br/>max: "+self.quota_max, styNormal)
@@ -1446,14 +1446,14 @@ class single_US_pdf_sheet(object):
             
             
            
-            label_laterizi = Paragraph("<b>LATERIZI</b>", styVerticale)
-            materiali = Paragraph("<b>MATERIALI</b><br/>", styNormal)
-            lavorazione = Paragraph("<b>LAVORAZIONE</b><br/>",  styNormal)
-            consistenza = Paragraph("<b>CONSISTENZA</b><br/>", styNormal)
-            forma = Paragraph("<b>FORMA</b><br/>", styNormal)
-            colore = Paragraph("<b>COLORE</b><br/>", styNormal)
-            impasto = Paragraph("<b>IMPASTO</b><br/>", styNormal)
-            posa_opera= Paragraph("<b>POSA IN OPERA</b><br/>", styNormal)
+            label_laterizi = Paragraph("<b>LATERIZI<br/></b>", styVerticale)
+            materiali = Paragraph("<b>MATERIALI</b><br/>", styNormal2)
+            lavorazione = Paragraph("<b>LAVORAZIONE</b><br/>",  styNormal2)
+            consistenza = Paragraph("<b>CONSISTENZA</b><br/>", styNormal2)
+            forma = Paragraph("<b>FORMA</b><br/>", styNormal2)
+            colore = Paragraph("<b>COLORE</b><br/>", styNormal2)
+            impasto = Paragraph("<b>IMPASTO</b><br/>", styNormal2)
+            posa_opera= Paragraph("<b>POSA IN OPERA</b><br/>", styNormal2)
             
             
             materiali_1 =Paragraph(self.materiali_lat,styNormal)
@@ -1464,7 +1464,7 @@ class single_US_pdf_sheet(object):
             impasto_1 =Paragraph(self.impasto_lat,styNormal)
             posa_opera_1 =Paragraph(self.posa_opera,styNormal)
             #taglio_l = Paragraph(self.taglio_p,styNormal)
-            label_pietra = Paragraph("<b>ELEMENTI LITICI</b>", styVerticale)
+            label_pietra = Paragraph("<b>ELEMENTI<br/>LITICI</b>", styVerticale)
             p_1 =Paragraph(self.materiale_p,styNormal)
             p_2 =Paragraph(self.lavorazione,styNormal)
             p_3 =Paragraph(self.consistenza_p,styNormal)
@@ -1483,7 +1483,7 @@ class single_US_pdf_sheet(object):
             spessore = Paragraph("<b>SPESSORE</b><br/>", styNormal)
             rifinitura = Paragraph("<b>RIFINITURA</b><br/>", styNormal)
             
-            label_legante= Paragraph("<b>LEGANTE</b>", styVerticale)
+            label_legante= Paragraph("<b>LEGANTE<br/></b>", styVerticale)
             tipo_1 =Paragraph(self.tipo_legante_usm,styNormal)
             consistenza_2 =Paragraph(self.cons_legante,styNormal)
             colore_aaa =self.unzip_colore_usm()
@@ -1816,7 +1816,7 @@ class single_US_pdf_sheet(object):
         styNormal = styleSheet['Normal']
         styNormal.spaceBefore = 20
         styNormal.spaceAfter = 20
-        styNormal.fontSize = 8
+        styNormal.fontSize = 7
         styNormal.fontName='Cambria'
         styNormal.alignment = 0  # LEFT
 
@@ -1842,7 +1842,7 @@ class single_US_pdf_sheet(object):
         styDescrizione = styleSheet['Normal']
         styDescrizione.spaceBefore = 20
         styDescrizione.spaceAfter = 20
-        styDescrizione.fontSize = 8
+        styDescrizione.fontSize = 7
         styDescrizione.fontName='Cambria'
         styDescrizione.alignment = 4  # Justified
 
@@ -1859,7 +1859,7 @@ class single_US_pdf_sheet(object):
         styTitoloComponenti.spaceBefore = 20
         styTitoloComponenti.spaceAfter = 20
         styTitoloComponenti. rowHeights=0.5
-        styTitoloComponenti.fontSize = 8
+        styTitoloComponenti.fontSize = 7
         styTitoloComponenti.fontName='Cambria'
         styTitoloComponenti.alignment = 1  # CENTER
 
@@ -1867,7 +1867,7 @@ class single_US_pdf_sheet(object):
         styVerticale = styleSheet['Normal']
         styVerticale.spaceBefore = 20
         styVerticale.spaceAfter = 20
-        styVerticale.fontSize = 8
+        styVerticale.fontSize = 7
         styVerticale.fontName='Cambria'
         styVerticale.alignment = 1  # CENTER
         styVerticale.leading=8
@@ -1890,7 +1890,7 @@ class single_US_pdf_sheet(object):
         if str(self.unita_tipo)== 'SU':
             unita_tipo = Paragraph(str(self.unita_tipo), styUnitaTipo)
             label_ente_responsabile = Paragraph("<b>RESPONSIBLE INSTITUTION</b>", styNormal)
-            #label_catalogo_internazionale = Paragraph("<b>N. CATALOGO INTERNAZIONALE</b>", styNormal)
+            #label_catalogo_internazionale = Paragraph("<b>N° CATALOGO INTERNAZIONALE</b>", styNormal)
             ente_responsabile = Paragraph(str(self.n_catalogo_generale), styNormal)
             #catalogo_internazionale = Paragraph(str(self.n_catalogo_internazionale), styNormal)
             sop =  Paragraph("<b>SUPERINTENDENCE RESPONSIBLE FOR PROTECTION</b><br/>" +str(self.soprintendenza), styNormal)
@@ -2256,7 +2256,7 @@ class single_US_pdf_sheet(object):
         elif str(self.unita_tipo)=='WSU':
             unita_tipo = Paragraph(str(self.unita_tipo), styUnitaTipo)
             label_ente_responsabile = Paragraph("<b>RESPONSIBLE INSTITUTION</b>", styNormal)
-            #label_catalogo_internazionale = Paragraph("<b>N. CATALOGO INTERNAZIONALE</b>", styNormal)
+            #label_catalogo_internazionale = Paragraph("<b>N° CATALOGO INTERNAZIONALE</b>", styNormal)
             ente_responsabile = Paragraph(str(self.n_catalogo_generale), styNormal)
             #catalogo_internazionale = Paragraph(str(self.n_catalogo_internazionale), styNormal)
             sop =  Paragraph("<b>SUPERINTENDENCE RESPONSIBLE FOR PROTECTION</b><br/>" +str(self.soprintendenza), styNormal)
@@ -2704,7 +2704,7 @@ class single_US_pdf_sheet(object):
         styNormal = styleSheet['Normal']
         styNormal.spaceBefore = 20
         styNormal.spaceAfter = 20
-        styNormal.fontSize = 8
+        styNormal.fontSize = 7
         styNormal.fontName='Cambria'
         styNormal.alignment = 0  # LEFT
 
@@ -2712,7 +2712,7 @@ class single_US_pdf_sheet(object):
         styNormal2 = styleSheet['Normal']
         styNormal2.spaceBefore = 20
         styNormal2.spaceAfter = 20
-        styNormal2.fontSize = 8
+        styNormal2.fontSize = 7
         styNormal2.fontName='Cambria'
         styNormal2.alignment = 0  # LEFT
         
@@ -2730,7 +2730,7 @@ class single_US_pdf_sheet(object):
         styDescrizione = styleSheet['Normal']
         styDescrizione.spaceBefore = 20
         styDescrizione.spaceAfter = 20
-        styDescrizione.fontSize = 8
+        styDescrizione.fontSize = 7
         styDescrizione.fontName='Cambria'
         styDescrizione.alignment = 4  # Justified
 
@@ -2747,7 +2747,7 @@ class single_US_pdf_sheet(object):
         styTitoloComponenti.spaceBefore = 20
         styTitoloComponenti.spaceAfter = 20
         styTitoloComponenti. rowHeights=0.5
-        styTitoloComponenti.fontSize = 8
+        styTitoloComponenti.fontSize = 7
         styTitoloComponenti.fontName='Cambria'
         styTitoloComponenti.alignment = 1  # CENTER
 
@@ -2755,7 +2755,7 @@ class single_US_pdf_sheet(object):
         styVerticale = styleSheet['Normal']
         styVerticale.spaceBefore = 20
         styVerticale.spaceAfter = 20
-        styVerticale.fontSize = 8
+        styVerticale.fontSize = 7
         styVerticale.fontName='Cambria'
         styVerticale.alignment = 1  # CENTER
         styVerticale.leading=8
@@ -2777,8 +2777,8 @@ class single_US_pdf_sheet(object):
         lst.append(logo)
         if str(self.unita_tipo)== 'SE':
             unita_tipo = Paragraph(str(self.unita_tipo), styUnitaTipo)
-            label_ente_responsabile = Paragraph("<b>VERANTWORTLICHE STELLE</b>", styNormal)
-            #label_catalogo_internazionale = Paragraph("<b>N. CATALOGO INTERNAZIONALE</b>", styNormal)
+            label_ente_responsabile = Paragraph("<b>CambriaNTWORTLICHE STELLE</b>", styNormal)
+            #label_catalogo_internazionale = Paragraph("<b>N° CATALOGO INTERNAZIONALE</b>", styNormal)
             ente_responsabile = Paragraph(str(self.n_catalogo_generale), styNormal)
             #catalogo_internazionale = Paragraph(str(self.n_catalogo_internazionale), styNormal)
             sop =  Paragraph("<b>ZUSTÄNDIGE AUFSICHTSBEHÖRDE FÜR DEN SCHUTZ</b><br/>" +str(self.soprintendenza), styNormal)
@@ -2944,8 +2944,8 @@ class single_US_pdf_sheet(object):
 
             affidabilita = Paragraph("<b>STRATIGRAPHISCHE SICHERHEIT</b><br/>" + self.affidabilita, styNormal)
             direttore = Paragraph("<b>WISSENSCHAFTLICHER LEITER DER UNTERSUCHUNGEN</b><br/>" + self.direttore_us, styNormal)
-            responsabile2 = Paragraph("<b>VERANTWORTLICH FÜR DIE ZUSAMMENSTELLUNG IM FELD</b><br/>" + self.schedatore, styNormal)
-            responsabile = Paragraph("<b>VERANTWORTLICH FÜR DIE NACHARBEIT</b><br/>" + self.responsabile_us, styNormal)
+            responsabile2 = Paragraph("<b>CambriaNTWORTLICH FÜR DIE ZUSAMMENSTELLUNG IM FELD</b><br/>" + self.schedatore, styNormal)
+            responsabile = Paragraph("<b>CambriaNTWORTLICH FÜR DIE NACHARBEIT</b><br/>" + self.responsabile_us, styNormal)
             data_rilievo = Paragraph("<b>DATUM FELDARBEIT</b><br/>" + self.data_rilevazione, styNormal)
             data_rielaborazione = Paragraph("<b>ÜBERARBEITUNGSDATUM</b><br/>" + self.data_rielaborazione, styNormal)
             attivita = Paragraph("<b>AKTIVITÄTEN</b><br/>" + self.attivita, styNormal)
@@ -3146,8 +3146,8 @@ class single_US_pdf_sheet(object):
             return t
         elif str(self.unita_tipo)=='MSE':
             unita_tipo = Paragraph(str(self.unita_tipo), styUnitaTipo)
-            label_ente_responsabile = Paragraph("<b>VERANTWORTLICHE STELLE</b>", styNormal)
-            #label_catalogo_internazionale = Paragraph("<b>N. CATALOGO INTERNAZIONALE</b>", styNormal)
+            label_ente_responsabile = Paragraph("<b>CambriaNTWORTLICHE STELLE</b>", styNormal)
+            #label_catalogo_internazionale = Paragraph("<b>N° CATALOGO INTERNAZIONALE</b>", styNormal)
             ente_responsabile = Paragraph(str(self.n_catalogo_generale), styNormal)
             #catalogo_internazionale = Paragraph(str(self.n_catalogo_internazionale), styNormal)
             sop =  Paragraph("<b>ZUSTÄNDIGE AUFSICHTSBEHÖRDE FÜR DEN SCHUTZ</b><br/>" +str(self.soprintendenza), styNormal)
@@ -3222,7 +3222,7 @@ class single_US_pdf_sheet(object):
            
             label_laterizi = Paragraph("<b>LATERIZI</b>", styVerticale)
             materiali = Paragraph("<b>MATERIALIEN</b><br/>", styNormal)
-            lavorazione = Paragraph("<b>VERARBEITUNG</b><br/>",  styNormal)
+            lavorazione = Paragraph("<b>CambriaRBEITUNG</b><br/>",  styNormal)
             consistenza = Paragraph("<b>KONSISTENZ</b><br/>", styNormal)
             forma = Paragraph("<b>FORM</b><br/>", styNormal)
             colore = Paragraph("<b>FARBE</b><br/>", styNormal)
@@ -3308,8 +3308,8 @@ class single_US_pdf_sheet(object):
 
             affidabilita = Paragraph("<b>STRATIGRAPHISCHE SICHERHEIT</b><br/>" + self.affidabilita, styNormal)
             direttore = Paragraph("<b>WISSENSCHAFTLICHER LEITER DER UNTERSUCHUNGEN</b><br/>" + self.direttore_us, styNormal)
-            responsabile2 = Paragraph("<b>VERANTWORTLICH FÜR DIE ZUSAMMENSTELLUNG IM FELD</b><br/>" + self.schedatore, styNormal)
-            responsabile = Paragraph("<b>VERANTWORTLICH FÜR DIE NACHARBEIT</b><br/>" + self.responsabile_us, styNormal)
+            responsabile2 = Paragraph("<b>CambriaNTWORTLICH FÜR DIE ZUSAMMENSTELLUNG IM FELD</b><br/>" + self.schedatore, styNormal)
+            responsabile = Paragraph("<b>CambriaNTWORTLICH FÜR DIE NACHARBEIT</b><br/>" + self.responsabile_us, styNormal)
             data_rilievo = Paragraph("<b>DATUM FELDARBEIT</b><br/>" + self.data_rilevazione, styNormal)
             data_rielaborazione = Paragraph("<b>ÜBERARBEITUNGSDATUM</b><br/>" + self.data_rielaborazione, styNormal)
             attivita = Paragraph("<b>AKTIVITÄTEN</b><br/>" + self.attivita, styNormal)
@@ -3847,15 +3847,15 @@ class US_index_pdf_sheet(object):
         styleSheet = getSampleStyleSheet()
         styNormal = styleSheet['Normal']
         styNormal.spaceBefore = 20
-        styNormal.spaceAfter = 20
+        styNormal.spaceAfter = 10
         styNormal.alignment = 0  # LEFT
-        styNormal.fontSize = 8
+        styNormal.fontSize = 6
         styNormal.fontName = 'Cambria'
         self.unzip_rapporti_stratigrafici()
 
         area = Paragraph("<b>Area</b><br/>" + str(self.area), styNormal)
         us = Paragraph("<b>US</b><br/>" + str(self.us), styNormal)
-        d_stratigrafica = Paragraph("<b>Def. stratigr.</b><br/>" + str(self.d_stratigrafica), styNormal)
+        d_stratigrafica = Paragraph("<b>Definizione stratigrafica</b><br/>" + str(self.d_stratigrafica), styNormal)
         copre = Paragraph("<b>Copre</b><br/>" + str(self.copre), styNormal)
         coperto_da = Paragraph("<b>Coperto da</b><br/>" + str(self.coperto_da), styNormal)
         taglia = Paragraph("<b>Taglia</b><br/>" + str(self.taglia), styNormal)
@@ -3975,7 +3975,7 @@ class US_index_pdf_sheet(object):
         styNormal.spaceBefore = 20
         styNormal.spaceAfter = 20
         styNormal.alignment = 0  # LEFT
-        styNormal.fontSize = 8
+        styNormal.fontSize = 7
         styNormal.fontName = 'Cambria'
         self.unzip_rapporti_stratigrafici_en()
 
@@ -4099,7 +4099,7 @@ class US_index_pdf_sheet(object):
         styNormal.spaceBefore = 20
         styNormal.spaceAfter = 20
         styNormal.alignment = 0  # LEFT
-        styNormal.fontSize = 8
+        styNormal.fontSize = 7
         styNormal.fontName = 'Cambria'
         self.unzip_rapporti_stratigrafici_de()
 
@@ -4173,7 +4173,7 @@ class FOTO_index_pdf_sheet(object):
         styNormal.spaceBefore = 20
         styNormal.spaceAfter = 20
         styNormal.alignment = 0  # LEFT
-        styNormal.fontSize = 8
+        styNormal.fontSize = 7
         styNormal.fontName = 'Cambria'
         
 
@@ -4214,7 +4214,7 @@ class FOTO_index_pdf_sheet(object):
         styNormal.spaceBefore = 20
         styNormal.spaceAfter = 20
         styNormal.alignment = 0  # LEFT
-        styNormal.fontSize = 8
+        styNormal.fontSize = 7
         styNormal.fontName = 'Cambria'
         
 
@@ -4253,7 +4253,7 @@ class FOTO_index_pdf_sheet(object):
         styNormal.spaceBefore = 20
         styNormal.spaceAfter = 20
         styNormal.alignment = 0  # LEFT
-        styNormal.fontSize = 8
+        styNormal.fontSize = 7
         styNormal.fontName = 'Cambria'
         
 
@@ -4309,7 +4309,7 @@ class FOTO_index_pdf_sheet_2(object):
         styNormal.spaceBefore = 20
         styNormal.spaceAfter = 20
         styNormal.alignment = 0  # LEFT
-        styNormal.fontSize = 8
+        styNormal.fontSize = 7
         styNormal.fontName = 'Cambria'
         
 
@@ -4348,7 +4348,7 @@ class FOTO_index_pdf_sheet_2(object):
         styNormal.spaceBefore = 20
         styNormal.spaceAfter = 20
         styNormal.alignment = 0  # LEFT
-        styNormal.fontSize = 8
+        styNormal.fontSize = 7
 
         
 
@@ -4386,7 +4386,7 @@ class FOTO_index_pdf_sheet_2(object):
         styNormal.spaceBefore = 20
         styNormal.spaceAfter = 20
         styNormal.alignment = 0  # LEFT
-        styNormal.fontSize = 8
+        styNormal.fontSize = 7
 
         
 

@@ -415,7 +415,7 @@ class pyarchinit_pdf_export(QDialog, MAIN_DIALOG_CLASS):
         for i in range(len(self.DATA_LIST)):
             # assegnazione valori di quota mn e max
             id_us = str(self.DATA_LIST[i].id_us)
-            sito = str(self.DATA_LIST[i].sito)
+            sito = str(self.DATA_LIST[i].sito.replace('_',' '))
             area = str(self.DATA_LIST[i].area)
             us = str(self.DATA_LIST[i].us)
             res = self.DB_MANAGER.select_quote_from_db_sql(sito, area, us)
@@ -536,7 +536,7 @@ class pyarchinit_pdf_export(QDialog, MAIN_DIALOG_CLASS):
             else:
                 spessore_usm = str(self.DATA_LIST[i].spessore_usm)  # 87 spessore usm
             data_list.append([
-                str(self.DATA_LIST[i].sito),  # 0 - Sito
+                str(self.DATA_LIST[i].sito.replace('_',' ')),  # 0 - Sito
                 str(self.DATA_LIST[i].area),  # 1 - Area
                 int(self.DATA_LIST[i].us),  # 2 - US
                 str(self.DATA_LIST[i].d_stratigrafica),  # 3 - definizione stratigrafica
@@ -687,7 +687,7 @@ class pyarchinit_pdf_export(QDialog, MAIN_DIALOG_CLASS):
                 cron_fin = str(self.DATA_LIST[i].cron_finale)
 
             data_list.append([
-                str(self.DATA_LIST[i].sito),  # 1 - Sito
+                str(self.DATA_LIST[i].sito.replace('_',' ')),  # 1 - Sito
                 str(periodo),  # 2 - Area
                 str(fase),  # 3 - US
                 str(cron_iniz),  # 4 - definizione stratigrafica
@@ -701,7 +701,7 @@ class pyarchinit_pdf_export(QDialog, MAIN_DIALOG_CLASS):
         data_list = []
 
         for i in range(len(self.DATA_LIST)):
-            sito = str(self.DATA_LIST[i].sito)
+            sito = str(self.DATA_LIST[i].sito.replace('_',' '))
             sigla_struttura = '{}{}'.format(
                 str(self.DATA_LIST[i].sigla_struttura), str(self.DATA_LIST[i].numero_struttura))
 
@@ -744,7 +744,7 @@ class pyarchinit_pdf_export(QDialog, MAIN_DIALOG_CLASS):
                     quota_max_strutt = "Not inserted in GIS  "
 
             data_list.append([
-                str(self.DATA_LIST[i].sito),  # 1 - Sito
+                str(self.DATA_LIST[i].sito.replace('_',' ')),  # 1 - Sito
                 str(self.DATA_LIST[i].sigla_struttura),  # 2 -  sigla struttura
                 int(self.DATA_LIST[i].numero_struttura),  # 3 - numero struttura
                 str(self.DATA_LIST[i].categoria_struttura),  # 4 - categoria
@@ -771,7 +771,7 @@ class pyarchinit_pdf_export(QDialog, MAIN_DIALOG_CLASS):
         for i in range(len(self.DATA_LIST)):
             data_list.append([
                 str(self.DATA_LIST[i].id_invmat),  # 1 - id_invmat
-                str(self.DATA_LIST[i].sito),  # 2 - sito
+                str(self.DATA_LIST[i].sito.replace('_',' ')),  # 2 - sito
                 int(self.DATA_LIST[i].numero_inventario),  # 3 - numero_inventario
                 str(self.DATA_LIST[i].tipo_reperto),  # 4 - tipo_reperto
                 str(self.DATA_LIST[i].criterio_schedatura),  # 5 - criterio_schedatura
@@ -801,7 +801,7 @@ class pyarchinit_pdf_export(QDialog, MAIN_DIALOG_CLASS):
         data_list = []
         for i in range(len(self.DATA_LIST)):
             data_list.append([
-                str(self.DATA_LIST[i].sito),  # 1 - Sito
+                str(self.DATA_LIST[i].sito.replace('_',' ')),  # 1 - Sito
                 str(self.DATA_LIST[i].area),  # 2 - Area
                 str(self.DATA_LIST[i].us),  # 3 - us
                 str(self.DATA_LIST[i].nr_individuo),  # 4 -  nr individuo
@@ -831,7 +831,7 @@ class pyarchinit_pdf_export(QDialog, MAIN_DIALOG_CLASS):
     def generate_list_tomba_pdf(self):
         data_list = []
         for i in range(len(self.DATA_LIST)):
-            sito = str(self.DATA_LIST[i].sito)
+            sito = str(self.DATA_LIST[i].sito.replace('_',' '))
             nr_individuo = str(self.DATA_LIST[i].nr_individuo)
             nr_individuo_find = str(self.DATA_LIST[i].nr_individuo)
             sigla_struttura = '{}{}{}'.format(str(self.DATA_LIST[i].sigla_struttura),'-', str(self.DATA_LIST[i].nr_struttura))
@@ -919,7 +919,7 @@ class pyarchinit_pdf_export(QDialog, MAIN_DIALOG_CLASS):
                     quota_max_strutt = "Not inserted in GIS  "
 
             data_list.append([
-                str(self.DATA_LIST[i].sito),  # 0 - Sito
+                str(self.DATA_LIST[i].sito.replace('_',' ')),  # 0 - Sito
                 str(self.DATA_LIST[i].nr_scheda_taf),  # 1 - numero scheda taf
                 str(self.DATA_LIST[i].sigla_struttura),  # 2 - sigla struttura
                 str(self.DATA_LIST[i].nr_struttura),  # 3 - nr struttura
@@ -976,7 +976,7 @@ class pyarchinit_pdf_export(QDialog, MAIN_DIALOG_CLASS):
                 nr_cassa = str(self.DATA_LIST[i].nr_cassa)
 
             data_list.append([
-                str(self.DATA_LIST[i].sito),  # 1 - Sito
+                str(self.DATA_LIST[i].sito.replace('_',' ')),  # 1 - Sito
                 str(numero_campione),  # 2 - Numero campione
                 str(self.DATA_LIST[i].tipo_campione),  # 3 - Tipo campione
                 str(self.DATA_LIST[i].descrizione),  # 4 - Descrizione

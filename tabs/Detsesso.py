@@ -467,7 +467,7 @@ class pyarchinit_Detsesso(QDialog, MAIN_DIALOG_CLASS):
         data_list = []
         for i in range(len(self.DATA_LIST)):
             data_list.append([
-                str(self.DATA_LIST[i].sito),  # 1 - Sito
+                str(self.DATA_LIST[i].sito.replace('_',' ')),  # 1 - Sito
                 int(self.DATA_LIST[i].num_individuo),  # 2 - numero individuo
                 int(self.DATA_LIST[i].glab_grado_imp),  # 3 - glabella grado imp
                 int(self.DATA_LIST[i].pmast_grado_imp),  # 4 - processo mastoideo	grado imp

@@ -786,7 +786,7 @@ class pyarchinit_Schedaind(QDialog, MAIN_DIALOG_CLASS):
         data_list = []
         for i in range(len(self.DATA_LIST)):
             data_list.append([
-                str(self.DATA_LIST[i].sito),  # 1 - Sito
+                str(self.DATA_LIST[i].sito.replace('_',' ')),  # 1 - Sito
                 str(self.DATA_LIST[i].area),  # 2 - Area
                 str(self.DATA_LIST[i].us),  # 3 - us
                 str(self.DATA_LIST[i].nr_individuo),  # 4 -  nr individuo

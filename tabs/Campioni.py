@@ -1253,7 +1253,7 @@ class pyarchinit_Campioni(QDialog, MAIN_DIALOG_CLASS):
                 nr_cassa = str(self.DATA_LIST[i].nr_cassa)
 
             data_list.append([
-                str(self.DATA_LIST[i].sito),  # 1 - Sito
+                str(self.DATA_LIST[i].sito.replace('_',' ')),  # 1 - Sito
                 str(numero_campione),  # 2 - Numero campione
                 str(self.DATA_LIST[i].tipo_campione),  # 3 - Tipo campione
                 str(self.DATA_LIST[i].descrizione),  # 4 - Descrizione

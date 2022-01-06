@@ -448,7 +448,7 @@ class pyarchinit_Periodizzazione(QDialog, MAIN_DIALOG_CLASS):
                 cron_fin = str(self.DATA_LIST[i].cron_finale)
 
             data_list.append([
-                str(self.DATA_LIST[i].sito),  # 1 - Sito
+                str(self.DATA_LIST[i].sito.replace('_',' ')),  # 1 - Sito
                 str(periodo),  # 2 - periodo
                 str(fase),  # 3 - fase
                 str(cron_iniz),  # 4 - cron iniz
