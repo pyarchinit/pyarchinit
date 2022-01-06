@@ -12,7 +12,7 @@
 name=pyArchInit
 qgisMinimumVersion=3.0
 description=pyarchinit an tool for archaeological works
-version=2.7.0
+version=2.7.1
 author=Luca Mandolesi&Enzo Cocca
 email=pyarchinit@gmail.com
 
@@ -22,26 +22,31 @@ about=https://github.com/pyarchinit/pyarchinit
 tracker=https://github.com/pyarchinit/pyarchinit/issues
 repository=https://github.com/pyarchinit/pyarchinit
 
-changelog=release2.7.0
+changelog=release2.7.1
+  
+  	-fix bug form pdf
+   -------------------------------------------------------------------------------  
+
+  release2.7.0
   
   	-update export form pdf
    -------------------------------------------------------------------------------  
 
 
- release2.6.9
+  release2.6.9
   
   	-update font pdf form us
    -------------------------------------------------------------------------------  
 
 
 
- release2.6.8
+  release2.6.8
   
   	-fix bug #446
    -------------------------------------------------------------------------------  
 
 
- release2.6.7
+  release2.6.7
   
   	-fix bug #446
    ------------------------------------------------------------------------------- 
