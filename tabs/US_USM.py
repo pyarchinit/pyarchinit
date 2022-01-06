@@ -2597,7 +2597,7 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
                     # d_stratigrafica= ''
                     # unita_tipo = (media.unita_tipo)
                     data_list_foto.append([
-                        str(self.DATA_LIST[i].sito), #0
+                        str(self.DATA_LIST[i].sito.replace('_',' ')), #0
                         str(self.DATA_LIST[i].area), #1
                         str(self.DATA_LIST[i].us),    #2
                         str(self.DATA_LIST[i].unita_tipo),#3
@@ -2612,7 +2612,7 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
         for i in range(len(self.DATA_LIST)):
             # assegnazione valori di quota mn e max
             id_us = str(self.DATA_LIST[i].id_us)
-            sito = str(self.DATA_LIST[i].sito)
+            sito = str(self.DATA_LIST[i].sito.replace('_',' '))
             area = str(self.DATA_LIST[i].area)
             us = str(self.DATA_LIST[i].us)
             res = self.DB_MANAGER.select_quote_from_db_sql(sito, area, us)
@@ -2733,7 +2733,7 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
             else:
                 spessore_usm = str(self.DATA_LIST[i].spessore_usm)  # 87 spessore usm
             data_list.append([
-                str(self.DATA_LIST[i].sito),  # 0 - Sito
+                str(self.DATA_LIST[i].sito.replace('_',' ')),  # 0 - Sito
                 str(self.DATA_LIST[i].area),  # 1 - Area
                 int(self.DATA_LIST[i].us),  # 2 - US
                 str(self.DATA_LIST[i].d_stratigrafica),  # 3 - definizione stratigrafica
