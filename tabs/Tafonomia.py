@@ -1958,7 +1958,7 @@ class pyarchinit_Tomba(QDialog, MAIN_DIALOG_CLASS):
     def generate_list_pdf(self):
         data_list = []
         for i in range(len(self.DATA_LIST)):
-            sito = str(self.DATA_LIST[i].sito)
+            sito = str(self.DATA_LIST[i].sito.replace('_',' '))
             nr_individuo = str(self.DATA_LIST[i].nr_individuo)
             nr_individuo_find = int(self.DATA_LIST[i].nr_individuo)
             sigla_struttura = '{}{}'.format(str(self.DATA_LIST[i].sigla_struttura), str(self.DATA_LIST[i].nr_struttura))
@@ -2048,7 +2048,7 @@ class pyarchinit_Tomba(QDialog, MAIN_DIALOG_CLASS):
                     quota_max_strutt = "Not inserted in GIS  "
 
             data_list.append([
-                str(self.DATA_LIST[i].sito),  # 0 - Sito
+                str(self.DATA_LIST[i].sito.replace('_',' ')),  # 0 - Sito
                 str(self.DATA_LIST[i].nr_scheda_taf),  # 1 - numero scheda taf
                 str(self.DATA_LIST[i].sigla_struttura),  # 2 - sigla struttura
                 str(self.DATA_LIST[i].nr_struttura),  # 3 - nr struttura

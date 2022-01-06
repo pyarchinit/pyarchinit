@@ -37,8 +37,8 @@ from reportlab.pdfbase.ttfonts import TTFont
 # Registered font family
 pdfmetrics.registerFont(TTFont('Cambria', 'Cambria.ttc'))
 pdfmetrics.registerFont(TTFont('cambriab', 'cambriab.ttf'))
-# pdfmetrics.registerFont(TTFont('VeraIt', 'VeraIt.ttf'))
-# pdfmetrics.registerFont(TTFont('VeraBI', 'VeraBI.ttf'))
+pdfmetrics.registerFont(TTFont('VeraIt', 'VeraIt.ttf'))
+pdfmetrics.registerFont(TTFont('VeraBI', 'VeraBI.ttf'))
 # Registered fontfamily
 registerFontFamily('Cambria',normal='Cambria')
 from ..db.pyarchinit_conn_strings import Connection
@@ -118,11 +118,11 @@ class Individui_index_pdf_sheet(object):
         styNormal.spaceBefore = 20
         styNormal.spaceAfter = 20
         styNormal.alignment = 0  # LEFT
-        styNormal.fontSize = 9
+        styNormal.fontSize = 7
         styNormal.fonName='Cambria'
         # self.unzip_rapporti_stratigrafici()
 
-        individuo = Paragraph("<b>N. individuo</b><br/>" + str(self.nr_individuo), styNormal)
+        individuo = Paragraph("<b>N° individuo</b><br/>" + str(self.nr_individuo), styNormal)
         sigla = Paragraph("<b>Struttura</b><br/>" + str(self.sigla_struttura) +'-'+ str(self.nr_struttura), styNormal)
         
         if self.area == None:
@@ -165,7 +165,7 @@ class Individui_index_pdf_sheet(object):
         styNormal.spaceBefore = 20
         styNormal.spaceAfter = 20
         styNormal.alignment = 0  # LEFT
-        styNormal.fontSize = 9
+        styNormal.fontSize = 7
         styNormal.fonName='Cambria'
         # self.unzip_rapporti_stratigrafici()
 
@@ -210,8 +210,8 @@ class Individui_index_pdf_sheet(object):
         styNormal.spaceBefore = 20
         styNormal.spaceAfter = 20
         styNormal.alignment = 0  # LEFT
-        styNormal.fontSize = 9
-        styNormal.fonName='Cambria'
+        styNormal.fontSize = 7
+        styNormal.fontName='Cambria'
         # self.unzip_rapporti_stratigrafici()
 
         individuo = Paragraph("<b>Individal Nr.</b><br/>" + str(self.nr_individuo), styNormal)
@@ -294,13 +294,15 @@ class single_Individui_pdf_sheet(object):
         styNormal.spaceBefore = 20
         styNormal.spaceAfter = 20
         styNormal.alignment = 0  # LEFT
-
+        styNormal.fontName='Cambria'
+        styNormal.fontSize= 7
         styleSheet = getSampleStyleSheet()
         styDescrizione = styleSheet['Normal']
         styDescrizione.spaceBefore = 20
         styDescrizione.spaceAfter = 20
         styDescrizione.alignment = 4  # Justified
-
+        styDescrizione.fontName='Cambria'
+        styDescrizione.fontSize=7
         """
         #format labels
         self.id_scheda_ind = data[0]
@@ -317,7 +319,7 @@ class single_Individui_pdf_sheet(object):
         self.osservazioni = data[11]
         """
         # 0 row
-        intestazione = Paragraph("<b>SCHEDA INDIVIDUI<br/>" + str(self.datestrfdate()) + "</b>", styNormal)
+        intestazione = Paragraph("<b>SCHEDA INDIVIDUI</b>", styNormal)
         # intestazione2 = Paragraph("<b>pyArchInit</b>", styNormal)
 
         home = os.environ['PYARCHINIT_HOME']
@@ -341,7 +343,7 @@ class single_Individui_pdf_sheet(object):
         sito = Paragraph("<b>Sito</b><br/>" + str(self.sito), styNormal)
         area = Paragraph("<b>Area</b><br/>" + str(self.area), styNormal)
         us = Paragraph("<b>US</b><br/>" + str(self.us), styNormal)
-        nr_inventario = Paragraph("<b>N. Individuo</b><br/>" + str(self.nr_individuo), styNormal)
+        nr_inventario = Paragraph("<b>N° Individuo</b><br/>" + str(self.nr_individuo), styNormal)
 
         # 2 row
         sesso = Paragraph("<b>Sesso</b><br/>" + self.sesso, styNormal)
@@ -381,7 +383,7 @@ class single_Individui_pdf_sheet(object):
         data_schedatura = Paragraph("<b>Data schedatura</b><br/>" + self.data_schedatura, styNormal)
         schedatore = Paragraph("<b>Schedatore</b><br/>" + self.schedatore, styNormal)
         sigla_struttura = Paragraph("<b>Sigla struttura</b><br/>" + self.sigla_struttura, styNormal)
-        nr_struttura = Paragraph("<b>N. Struttura</b><br/>" + self.nr_struttura, styNormal)
+        nr_struttura = Paragraph("<b>N° Struttura</b><br/>" + self.nr_struttura, styNormal)
         completo = Paragraph("<b>Completo</b><br/>" + self.completo, styNormal)
         disturbato = Paragraph("<b>Disturbato</b><br/>" + self.disturbato, styNormal)
         connessione = Paragraph("<b>In connessione</b><br/>" + self.connessione, styNormal)
@@ -526,7 +528,7 @@ class single_Individui_pdf_sheet(object):
         sito = Paragraph("<b>Ausgrabungsstätte</b><br/>" + str(self.sito), styNormal)
         area = Paragraph("<b>Areal</b><br/>" + str(self.area), styNormal)
         us = Paragraph("<b>SE</b><br/>" + str(self.us), styNormal)
-        nr_inventario = Paragraph("<b>Nr. Individuel</b><br/>" + str(self.nr_individuo), styNormal)
+        nr_inventario = Paragraph("<b>N° Individuel</b><br/>" + str(self.nr_individuo), styNormal)
 
         # 2 row
         sesso = Paragraph("<b>Sesso</b><br/>" + self.sesso, styNormal)
@@ -810,7 +812,7 @@ class generate_pdf(object):
 
         lst = []
         lst.append(logo)
-        lst.append(Paragraph("<b>ELENCO INDIVIDUI</b><br/><b>Scavo: %s<br/>" % (sito), styH1))
+        lst.append(Paragraph("<b>ELENCO INDIVIDUI</b><br/><b>Scavo: %s</b>" % (sito), styH1))
 
         table_data = []
         for i in range(len(records)):

@@ -38,8 +38,8 @@ from reportlab.pdfbase.ttfonts import TTFont
 # Registered font family
 pdfmetrics.registerFont(TTFont('Cambria', 'Cambria.ttc'))
 pdfmetrics.registerFont(TTFont('cambriab', 'cambriab.ttf'))
-# pdfmetrics.registerFont(TTFont('VeraIt', 'VeraIt.ttf'))
-# pdfmetrics.registerFont(TTFont('VeraBI', 'VeraBI.ttf'))
+pdfmetrics.registerFont(TTFont('VeraIt', 'VeraIt.ttf'))
+pdfmetrics.registerFont(TTFont('VeraBI', 'VeraBI.ttf'))
 # Registered fontfamily
 registerFontFamily('Cambria',normal='Cambria')
 from ..db.pyarchinit_conn_strings import Connection
@@ -119,7 +119,7 @@ class Struttura_index_pdf_sheet(object):
         styNormal.spaceBefore = 20
         styNormal.spaceAfter = 20
         styNormal.alignment = 0  # LEFT
-        styNormal.fontSize = 9
+        styNormal.fontSize = 7
         styNormal.fontName = 'Cambria'
         
 
@@ -127,7 +127,7 @@ class Struttura_index_pdf_sheet(object):
 
         sigla = Paragraph("<b>Sigla</b><br/>" + str(self.sigla_struttura), styNormal)
 
-        nr_struttura = Paragraph("<b>N. struttura</b><br/>" + str(self.numero_struttura), styNormal)
+        nr_struttura = Paragraph("<b>N° struttura</b><br/>" + str(self.numero_struttura), styNormal)
 
         categoria_struttura = Paragraph("<b>Categoria</b><br/>" + str(self.categoria_struttura), styNormal)
 
@@ -165,13 +165,13 @@ class Struttura_index_pdf_sheet(object):
         styNormal.spaceBefore = 20
         styNormal.spaceAfter = 20
         styNormal.alignment = 0  # LEFT
-        styNormal.fontSize = 9
+        styNormal.fontSize = 7
 
         # self.unzip_rapporti_stratigrafici()
 
         sigla = Paragraph("<b>Code</b><br/>" + str(self.sigla_struttura), styNormal)
 
-        nr_struttura = Paragraph("<b>Nr. Struktur</b><br/>" + str(self.numero_struttura), styNormal)
+        nr_struttura = Paragraph("<b>N° Struktur</b><br/>" + str(self.numero_struttura), styNormal)
 
         categoria_struttura = Paragraph("<b>Kategorie</b><br/>" + str(self.categoria_struttura), styNormal)
 
@@ -208,7 +208,7 @@ class Struttura_index_pdf_sheet(object):
         styNormal.spaceBefore = 20
         styNormal.spaceAfter = 20
         styNormal.alignment = 0  # LEFT
-        styNormal.fontSize = 9
+        styNormal.fontSize = 7
 
         # self.unzip_rapporti_stratigrafici()
 
@@ -292,14 +292,14 @@ class single_Struttura_pdf_sheet(object):
         styNormal.spaceBefore = 20
         styNormal.spaceAfter = 20
         styNormal.alignment = 0  # LEFT
-        styNormal.fontSize = 8
+        styNormal.fontSize = 7
         styNormal.fontName = 'Cambria'
         styleSheet = getSampleStyleSheet()
         styDescrizione = styleSheet['Normal']
         styDescrizione.spaceBefore = 20
         styDescrizione.spaceAfter = 20
         styDescrizione.alignment = 4  # Justified
-        styDescrizione.fontSize = 8
+        styDescrizione.fontSize = 7
         styDescrizione.fontName = 'Cambria'
 
         # format labels

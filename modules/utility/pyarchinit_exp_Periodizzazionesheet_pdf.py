@@ -38,8 +38,8 @@ from reportlab.pdfbase.ttfonts import TTFont
 # Registered font family
 pdfmetrics.registerFont(TTFont('Cambria', 'Cambria.ttc'))
 pdfmetrics.registerFont(TTFont('cambriab', 'cambriab.ttf'))
-# pdfmetrics.registerFont(TTFont('VeraIt', 'VeraIt.ttf'))
-# pdfmetrics.registerFont(TTFont('VeraBI', 'VeraBI.ttf'))
+pdfmetrics.registerFont(TTFont('VeraIt', 'VeraIt.ttf'))
+pdfmetrics.registerFont(TTFont('VeraBI', 'VeraBI.ttf'))
 # Registered fontfamily
 registerFontFamily('Cambria',normal='Cambria')
 from ..db.pyarchinit_conn_strings import Connection
@@ -114,7 +114,7 @@ class Periodizzazione_index_pdf_sheet(object):
         styNormal.spaceBefore = 20
         styNormal.spaceAfter = 20
         styNormal.alignment = 0  # LEFT
-        styNormal.fontSize = 9
+        styNormal.fontSize = 7
         styNormal.fontName = 'Cambria'
         
 
@@ -150,7 +150,7 @@ class Periodizzazione_index_pdf_sheet(object):
         styNormal.spaceBefore = 20
         styNormal.spaceAfter = 20
         styNormal.alignment = 0  # LEFT
-        styNormal.fontSize = 9
+        styNormal.fontSize = 7
 
         # self.unzip_rapporti_stratigrafici()
 
@@ -184,7 +184,7 @@ class Periodizzazione_index_pdf_sheet(object):
         styNormal.spaceBefore = 20
         styNormal.spaceAfter = 20
         styNormal.alignment = 0  # LEFT
-        styNormal.fontSize = 9
+        styNormal.fontSize = 7
 
         # self.unzip_rapporti_stratigrafici()
 
@@ -240,20 +240,20 @@ class single_Periodizzazione_pdf_sheet(object):
         styNormal.spaceBefore = 20
         styNormal.spaceAfter = 20
         styNormal.alignment = 0  # LEFT
-        styNormal.fontSize = 8
+        styNormal.fontSize = 7
         styNormal.fontName = 'Cambria'
         styleSheet = getSampleStyleSheet()
         styDescrizione = styleSheet['Normal']
         styDescrizione.spaceBefore = 20
         styDescrizione.spaceAfter = 20
         styDescrizione.alignment = 4  # Justified
-        styDescrizione.fontSize = 8
+        styDescrizione.fontSize = 7
         styDescrizione.fontName = 'Cambria'
 
         # format labels
 
         # 0 row
-        intestazione = Paragraph("<b>SCHEDA PERIODIZZAZIONE<br/>", styNormal)
+        intestazione = Paragraph("<b>SCHEDA PERIODIZZAZIONE</b>", styNormal)
 
         home = os.environ['PYARCHINIT_HOME']
 
@@ -341,14 +341,14 @@ class single_Periodizzazione_pdf_sheet(object):
         styNormal.spaceBefore = 20
         styNormal.spaceAfter = 20
         styNormal.alignment = 0  # LEFT
-        styNormal.fontSize = 8
+        styNormal.fontSize = 7
         styNormal.fontName = 'Cambria'
         styleSheet = getSampleStyleSheet()
         styDescrizione = styleSheet['Normal']
         styDescrizione.spaceBefore = 20
         styDescrizione.spaceAfter = 20
         styDescrizione.alignment = 4  # Justified
-        styDescrizione.fontSize = 8
+        styDescrizione.fontSize = 7
         styDescrizione.fontName = 'Cambria'
 
         # format labels
