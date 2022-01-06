@@ -1807,7 +1807,7 @@ class pyarchinit_Struttura(QDialog, MAIN_DIALOG_CLASS):
                     quota_max_strutt = "Not inserted in GIS  "
 
             data_list.append([
-                str(self.DATA_LIST[i].sito),  # 1 - Sito
+                str(self.DATA_LIST[i].sito.replace('_',' ')),  # 1 - Sito
                 str(self.DATA_LIST[i].sigla_struttura),  # 2 -  sigla struttura
                 int(self.DATA_LIST[i].numero_struttura),  # 3 - numero struttura
                 str(self.DATA_LIST[i].categoria_struttura),  # 4 - categoria
