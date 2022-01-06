@@ -276,18 +276,18 @@
           </widget>
          </item>
          <item row="1" column="6">
-          <widget class="QPushButton" name="pushButton_pdf_index_exp">
+          <widget class="QPushButton" name="pushButton_open_dir">
            <property name="font">
             <font>
              <pointsize>8</pointsize>
             </font>
            </property>
            <property name="text">
-            <string>PDF indice exp</string>
+            <string/>
            </property>
            <property name="icon">
             <iconset resource="../../resources/resources.qrc">
-             <normaloff>:/icons/sheet.png</normaloff>:/icons/sheet.png</iconset>
+             <normaloff>:/icons/directoryExp.png</normaloff>:/icons/directoryExp.png</iconset>
            </property>
           </widget>
          </item>
@@ -918,6 +918,7 @@ p, li { white-space: pre-wrap; }
           <widget class="QLabel" name="label_12">
            <property name="font">
             <font>
+             <pointsize>8</pointsize>
              <weight>75</weight>
              <bold>true</bold>
             </font>
@@ -1159,6 +1160,7 @@ p, li { white-space: pre-wrap; }
        </property>
        <property name="font">
         <font>
+         <pointsize>8</pointsize>
          <weight>75</weight>
          <bold>true</bold>
         </font>
@@ -1172,7 +1174,7 @@ p, li { white-space: pre-wrap; }
       <attribute name="title">
        <string>Elementi costruttivi</string>
       </attribute>
-      <widget class="QWidget" name="">
+      <widget class="QWidget" name="layoutWidget">
        <property name="geometry">
         <rect>
          <x>9</x>
@@ -1186,6 +1188,7 @@ p, li { white-space: pre-wrap; }
          <widget class="QLabel" name="label_8">
           <property name="font">
            <font>
+            <pointsize>8</pointsize>
             <weight>75</weight>
             <bold>true</bold>
            </font>
@@ -1274,7 +1277,7 @@ p, li { white-space: pre-wrap; }
         </item>
        </layout>
       </widget>
-      <widget class="QWidget" name="">
+      <widget class="QWidget" name="layoutWidget">
        <property name="geometry">
         <rect>
          <x>430</x>
@@ -1288,6 +1291,7 @@ p, li { white-space: pre-wrap; }
          <widget class="QLabel" name="label_11">
           <property name="font">
            <font>
+            <pointsize>8</pointsize>
             <weight>75</weight>
             <bold>true</bold>
            </font>
@@ -1381,6 +1385,212 @@ p, li { white-space: pre-wrap; }
         </item>
        </layout>
       </widget>
+      <widget class="QgsDockWidget" name="mDockWidget_3">
+       <property name="geometry">
+        <rect>
+         <x>120</x>
+         <y>20</y>
+         <width>600</width>
+         <height>240</height>
+        </rect>
+       </property>
+       <property name="sizePolicy">
+        <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
+         <horstretch>0</horstretch>
+         <verstretch>0</verstretch>
+        </sizepolicy>
+       </property>
+       <property name="minimumSize">
+        <size>
+         <width>600</width>
+         <height>240</height>
+        </size>
+       </property>
+       <property name="floating">
+        <bool>true</bool>
+       </property>
+       <property name="windowTitle">
+        <string>Pdf2Word</string>
+       </property>
+       <widget class="QWidget" name="dockWidgetContents_3">
+        <layout class="QGridLayout" name="gridLayout_13">
+         <item row="0" column="0">
+          <widget class="QLabel" name="label_52">
+           <property name="text">
+            <string>PDF path</string>
+           </property>
+          </widget>
+         </item>
+         <item row="0" column="1" colspan="3">
+          <widget class="QLineEdit" name="lineEdit_pdf_path">
+           <property name="acceptDrops">
+            <bool>true</bool>
+           </property>
+           <property name="text">
+            <string/>
+           </property>
+           <property name="placeholderText">
+            <string>choose the pdf convert to word</string>
+           </property>
+          </widget>
+         </item>
+         <item row="0" column="4">
+          <widget class="QToolButton" name="toolButton_pdfpath">
+           <property name="text">
+            <string>...</string>
+           </property>
+          </widget>
+         </item>
+         <item row="0" column="5">
+          <widget class="QPushButton" name="pushButton_convert">
+           <property name="text">
+            <string>Convert</string>
+           </property>
+          </widget>
+         </item>
+         <item row="0" column="6" rowspan="2">
+          <widget class="QPushButton" name="pbnOpenpdfDirectory">
+           <property name="text">
+            <string/>
+           </property>
+           <property name="icon">
+            <iconset resource="../../resources/resources.qrc">
+             <normaloff>:/icons/open-folder.png</normaloff>:/icons/open-folder.png</iconset>
+           </property>
+          </widget>
+         </item>
+         <item row="1" column="1" colspan="5">
+          <widget class="QgsDockWidget" name="mDockWidget_export">
+           <property name="minimumSize">
+            <size>
+             <width>336</width>
+             <height>145</height>
+            </size>
+           </property>
+           <property name="floating">
+            <bool>true</bool>
+           </property>
+           <property name="windowTitle">
+            <string>Esportazioni Strutture</string>
+           </property>
+           <widget class="QWidget" name="dockWidgetContents_4">
+            <layout class="QGridLayout" name="gridLayout_32">
+             <item row="2" column="0">
+              <widget class="QPushButton" name="pushButton_print">
+               <property name="minimumSize">
+                <size>
+                 <width>0</width>
+                 <height>0</height>
+                </size>
+               </property>
+               <property name="maximumSize">
+                <size>
+                 <width>81</width>
+                 <height>20</height>
+                </size>
+               </property>
+               <property name="text">
+                <string>Stampa</string>
+               </property>
+               <property name="icon">
+                <iconset resource="../../resources/resources.qrc">
+                 <normaloff>:/icons/pdf-icon.png</normaloff>:/icons/pdf-icon.png</iconset>
+               </property>
+               <property name="iconSize">
+                <size>
+                 <width>10</width>
+                 <height>10</height>
+                </size>
+               </property>
+              </widget>
+             </item>
+             <item row="1" column="0">
+              <widget class="QCheckBox" name="checkBox_s_us">
+               <property name="text">
+                <string>Schede Strutture</string>
+               </property>
+              </widget>
+             </item>
+             <item row="0" column="0">
+              <widget class="QCheckBox" name="checkBox_e_us">
+               <property name="text">
+                <string>Elenco Strutture</string>
+               </property>
+              </widget>
+             </item>
+             <item row="2" column="1">
+              <widget class="QPushButton" name="pushButton_word">
+               <property name="maximumSize">
+                <size>
+                 <width>122</width>
+                 <height>16777215</height>
+                </size>
+               </property>
+               <property name="text">
+                <string>Converti in Word</string>
+               </property>
+               <property name="icon">
+                <iconset resource="../../resources/resources.qrc">
+                 <normaloff>:/icons/word.png</normaloff>:/icons/word.png</iconset>
+               </property>
+              </widget>
+             </item>
+            </layout>
+           </widget>
+          </widget>
+         </item>
+         <item row="2" column="0">
+          <widget class="QLabel" name="label_53">
+           <property name="text">
+            <string>Pagg.</string>
+           </property>
+          </widget>
+         </item>
+         <item row="2" column="1">
+          <widget class="QLineEdit" name="lineEdit_pag1">
+           <property name="minimumSize">
+            <size>
+             <width>0</width>
+             <height>0</height>
+            </size>
+           </property>
+           <property name="maximumSize">
+            <size>
+             <width>40</width>
+             <height>16777215</height>
+            </size>
+           </property>
+           <property name="toolTip">
+            <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Lo &amp;quot;0&amp;quot; indica la prima pagina da convertire&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+           </property>
+           <property name="inputMask">
+            <string extracomment="Lo&quot;0&quot; indica la prima pagina"/>
+           </property>
+           <property name="text">
+            <string>0</string>
+           </property>
+          </widget>
+         </item>
+         <item row="2" column="2">
+          <widget class="QLabel" name="label_59">
+           <property name="text">
+            <string>to</string>
+           </property>
+          </widget>
+         </item>
+         <item row="2" column="3">
+          <widget class="QLineEdit" name="lineEdit_pag2">
+           <property name="maximumSize">
+            <size>
+             <width>40</width>
+             <height>16777215</height>
+            </size>
+           </property>
+          </widget>
+         </item>
+        </layout>
+       </widget>
+      </widget>
      </widget>
      <widget class="QWidget" name="tab_6">
       <attribute name="title">
@@ -1391,6 +1601,7 @@ p, li { white-space: pre-wrap; }
         <widget class="QLabel" name="label_15">
          <property name="font">
           <font>
+           <pointsize>8</pointsize>
            <weight>75</weight>
            <bold>true</bold>
           </font>
@@ -1485,78 +1696,54 @@ p, li { white-space: pre-wrap; }
        </item>
       </layout>
      </widget>
-     <widget class="QWidget" name="tab_4">
-      <attribute name="title">
-       <string>Tools</string>
-      </attribute>
-      <layout class="QGridLayout" name="gridLayout_13">
-       <item row="2" column="0" colspan="2">
-        <widget class="QLabel" name="label_18">
-         <property name="toolTip">
-          <string>Carica tutti i layer per poter inserire nuove geometrie</string>
-         </property>
-         <property name="text">
-          <string>Carica i poligoni di struttura</string>
-         </property>
-        </widget>
-       </item>
-       <item row="4" column="0">
-        <widget class="QLabel" name="label_20">
-         <property name="toolTip">
-          <string>Carica tutti i layer per poter inserire nuove geometrie</string>
-         </property>
-         <property name="text">
-          <string>Gis viewer</string>
-         </property>
-        </widget>
-       </item>
-       <item row="6" column="0">
-        <spacer name="verticalSpacer_2">
-         <property name="orientation">
-          <enum>Qt::Vertical</enum>
-         </property>
-         <property name="sizeHint" stdset="0">
-          <size>
-           <width>20</width>
-           <height>136</height>
-          </size>
-         </property>
-        </spacer>
-       </item>
-       <item row="0" column="3">
-        <spacer name="horizontalSpacer_3">
-         <property name="orientation">
-          <enum>Qt::Horizontal</enum>
-         </property>
-         <property name="sizeHint" stdset="0">
-          <size>
-           <width>272</width>
-           <height>20</height>
-          </size>
-         </property>
-        </spacer>
-       </item>
-       <item row="3" column="2" colspan="2">
-        <spacer name="horizontalSpacer_4">
-         <property name="orientation">
-          <enum>Qt::Horizontal</enum>
-         </property>
-         <property name="sizeHint" stdset="0">
-          <size>
-           <width>312</width>
-           <height>20</height>
-          </size>
-         </property>
-        </spacer>
-       </item>
-      </layout>
-     </widget>
     </widget>
    </item>
   </layout>
  </widget>
+ <customwidgets>
+  <customwidget>
+   <class>QgsDockWidget</class>
+   <extends>QDockWidget</extends>
+   <header>qgsdockwidget.h</header>
+   <container>1</container>
+  </customwidget>
+ </customwidgets>
  <resources>
   <include location="../../resources/resources.qrc"/>
+  <include location="../../../pyarchinit/resources/resources.qrc"/>
  </resources>
- <connections/>
+ <connections>
+  <connection>
+   <sender>pushButton_pdf_exp</sender>
+   <signal>pressed()</signal>
+   <receiver>mDockWidget_export</receiver>
+   <slot>toggleUserVisible()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>103</x>
+     <y>106</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>291</x>
+     <y>336</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>pushButton_word</sender>
+   <signal>pressed()</signal>
+   <receiver>mDockWidget_3</receiver>
+   <slot>toggleUserVisible()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>454</x>
+     <y>648</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>700</x>
+     <y>340</y>
+    </hint>
+   </hints>
+  </connection>
+ </connections>
 </ui>
