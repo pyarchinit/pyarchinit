@@ -1637,7 +1637,7 @@ class pyarchinit_Inventario_reperti(QDialog, MAIN_DIALOG_CLASS):
                 
             data_list_foto.append([
                 
-                str(self.DATA_LIST[i].sito), #1
+                str(self.DATA_LIST[i].sito.replace('_',' ')), #1
                 str(self.DATA_LIST[i].n_reperto),  #6 
                 #str(thumbnail),
                 str(self.DATA_LIST[i].us),    #3
@@ -1657,7 +1657,7 @@ class pyarchinit_Inventario_reperti(QDialog, MAIN_DIALOG_CLASS):
                 
             
             data_list.append([
-                str(self.DATA_LIST[i].sito), #0
+                str(self.DATA_LIST[i].sito.replace('_',' ')), #0
                 str(self.DATA_LIST[i].numero_inventario), #1
                 str(self.DATA_LIST[i].area), #2
                 str(self.DATA_LIST[i].us),    #3
@@ -1675,7 +1675,7 @@ class pyarchinit_Inventario_reperti(QDialog, MAIN_DIALOG_CLASS):
         for i in range(len(self.DATA_LIST)):
             data_list.append([
                 str(self.DATA_LIST[i].id_invmat),  # 1 - id_invmat
-                str(self.DATA_LIST[i].sito),  # 2 - sito
+                str(self.DATA_LIST[i].sito.replace('_',' ')),  # 2 - sito
                 int(self.DATA_LIST[i].numero_inventario),  # 3 - numero_inventario
                 str(self.DATA_LIST[i].tipo_reperto),  # 4 - tipo_reperto
                 str(self.DATA_LIST[i].criterio_schedatura),  # 5 - criterio_schedatura

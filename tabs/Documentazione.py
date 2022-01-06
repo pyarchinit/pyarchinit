@@ -399,7 +399,7 @@ class pyarchinit_Documentazione(QDialog, MAIN_DIALOG_CLASS):
         data_list = []
         for i in range(len(self.DATA_LIST)):
 
-            sito = str(self.DATA_LIST[i].sito)
+            sito = str(self.DATA_LIST[i].sito.replace('_',' '))
             tipo_doc = str(self.DATA_LIST[i].tipo_documentazione)
             nome_doc = str(self.DATA_LIST[i].nome_doc)
             note = str(self.DATA_LIST[i].note)
@@ -476,7 +476,7 @@ class pyarchinit_Documentazione(QDialog, MAIN_DIALOG_CLASS):
                 pass
 
             data_list.append([
-                str(self.DATA_LIST[i].sito),  # 1 - Sito
+                str(self.DATA_LIST[i].sito.replace('_',' ')),  # 1 - Sito
                 str(self.DATA_LIST[i].nome_doc),  # 2 - Area
                 str(self.DATA_LIST[i].data),  # 4 - definizione stratigrafica
                 str(self.DATA_LIST[i].tipo_documentazione),  # 5 - definizione intepretata
