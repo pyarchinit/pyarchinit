@@ -1179,6 +1179,7 @@ class pyarchinit_Inventario_reperti(QDialog, MAIN_DIALOG_CLASS):
         
     def numero_invetario(self):
         if self.checkBox_auto_inv.isChecked():
+            QMessageBox.information(self, "Attenzione", "Hai attivato l'opzione autoincrementante Numero Inventario", QMessageBox.Ok)
             self.lineEdit_num_inv.setText('')
             self.lineEdit_num_inv.textChanged.connect(self.update)
             # self.set_sito()
