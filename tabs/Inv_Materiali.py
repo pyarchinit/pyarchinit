@@ -1178,25 +1178,29 @@ class pyarchinit_Inventario_reperti(QDialog, MAIN_DIALOG_CLASS):
         
         
     def numero_invetario(self):
-        # self.set_sito()
-        contatore = 0
-        list=[]
-        if self.lineEdit_num_inv.text()=='':
-            
-            for i in range(len(self.DATA_LIST)):
-                #self.lineEdit_n_reperto.clear()
-                contatore = int(self.DATA_LIST[i].numero_inventario)
-                #contatore.sort(reverse=False)
-                list.append(contatore)
+        if self.checkBox_auto_inv.isChecked():
+            self.lineEdit_num_inv.setText('')
+            self.lineEdit_num_inv.textChanged.connect(self.update)
+            # self.set_sito()
+            contatore = 0
+            list=[]
+            if self.lineEdit_num_inv.text()=='':
                 
-               
-                list[-1]+=1
-                
-                list.sort()
-            for e in list:    
-                
-                self.lineEdit_num_inv.setText(str(e))
-       
+                for i in range(len(self.DATA_LIST)):
+                    #self.lineEdit_n_reperto.clear()
+                    contatore = int(self.DATA_LIST[i].numero_inventario)
+                    #contatore.sort(reverse=False)
+                    list.append(contatore)
+                    
+                   
+                    list[-1]+=1
+                    
+                    list.sort()
+                for e in list:    
+                    
+                    self.lineEdit_num_inv.setText(str(e))
+        else:
+            pass
     def charge_list(self):
         
         l = QgsSettings().value("locale/userLocale", QVariant)
@@ -1511,7 +1515,7 @@ class pyarchinit_Inventario_reperti(QDialog, MAIN_DIALOG_CLASS):
                 self.label_status.setText(self.STATUS_ITEMS[self.BROWSE_STATUS])
                 self.set_rec_counter('', '')
                 self.label_sort.setText(self.SORTED_ITEMS["n"])
-                #self.numero_invetario()
+                self.numero_invetario()
                 #self.numero_reperto()
             else:
                 self.BROWSE_STATUS = "n"
