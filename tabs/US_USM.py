@@ -822,6 +822,7 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
         # self.tableWidget_rapporti.itemSelectionChanged.connect(self.defin)
         # self.tableWidget_rapporti.itemSelectionChanged.connect(self.datazione)
         self.tableWidget_rapporti.itemSelectionChanged.connect(self.us_t)
+        
         # self.tableWidget_rapporti.itemSelectionChanged.connect(self.rapp)
         self.refresh()
         self.field.currentTextChanged.connect(self.value_check)
@@ -1438,6 +1439,7 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
             res = self.DB_MANAGER.query_bool(search_dict, self.MAPPER_TABLE_CLASS)
             
             for p in res:
+                #
                 self.tableWidget_rapporti2.setItem(rowIndex,1,QtWidgets.QTableWidgetItem(us_))
                 self.tableWidget_rapporti2.setItem(rowIndex,4,QtWidgets.QTableWidgetItem(p.periodo_iniziale+'-'+p.fase_iniziale))
                 self.tableWidget_rapporti2.setItem(rowIndex,3,QtWidgets.QTableWidgetItem(p.d_interpretativa))

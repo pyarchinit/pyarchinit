@@ -37,7 +37,7 @@ import numpy as np
 from PIL import ImageGrab
 import time
 from pytesseract import Output
-pytesseract.pytesseract.tesseract_cmd = 'C:\\Program Files (x86)\\Tesseract-OCR\\tesseract.exe'# funziona meglio 
+pytesseract.pytesseract.tesseract_cmd = 'C:\\Program Files\\Tesseract-OCR\\tesseract.exe'# funziona meglio 
 ###############################
 from qgis import PyQt
 from qgis.PyQt.QtCore import *
