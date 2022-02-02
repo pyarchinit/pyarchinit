@@ -2777,7 +2777,7 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
         for i in range(len(self.DATA_LIST)):
             # assegnazione valori di quota mn e max
             id_us = str(self.DATA_LIST[i].id_us)
-            sito = str(self.DATA_LIST[i].sito.replace('_',' '))
+            sito = str(self.DATA_LIST[i].sito)#.replace('_',' '))
             area = str(self.DATA_LIST[i].area)
             us = str(self.DATA_LIST[i].us)
             res = self.DB_MANAGER.select_quote_from_db_sql(sito, area, us)
@@ -2791,9 +2791,11 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
                 sing_quota = [sing_quota_value, sing_us[4]]
                 quote.append(sing_quota)
             quote.sort()
+            #QMessageBox.information(self, "Message", str(quote))
             if bool(quote):
                 quota_min = '%s %s' % (quote[0][0], quote[0][1])
                 quota_max = '%s %s' % (quote[-1][0], quote[-1][1])
+                
             else:
                 if self.L=='it':
                     quota_min = ""
