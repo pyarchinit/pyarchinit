@@ -6,7 +6,7 @@
                              stored in Postgres
                              -------------------
     begin                : 2007-12-01
-    copyright            : (C) 2008 by Luca Mandolesi
+    copyright            : (C) 2008 by Luca Mandolesi; Enzo Cocca <enzo.ccc@gmail.com>
     email                : mandoluca at gmail.com
  ***************************************************************************/
 
@@ -281,9 +281,9 @@ class pyarchinit_excel_export(QDialog, MAIN_DIALOG_CLASS):
             cur = conn.cursor()
             
             if self.checkBox_site.isChecked():
-                name_= '%s' % (sito_location+'_site-table_' +  time.strftime('%Y%m%d_') + '.xlsx')
+                name_= '%s' % (sito_location+'_Site_' +  time.strftime('%Y%m%d_') + '.xlsx')
                 dump_dir=os.path.join(sito_path, name_)
-                cur.execute("SELECT * FROM site_table where location_='%s';" % sito_location)
+                cur.execute("SELECT * FROM site_table where sito='%s';" % sito_location)
                 rows = cur.fetchall()
                 col_names = []
                 for i in cur.description:
@@ -291,14 +291,14 @@ class pyarchinit_excel_export(QDialog, MAIN_DIALOG_CLASS):
                   
                 a=pd.DataFrame(rows,columns=col_names)
                 writer = pd.ExcelWriter(dump_dir, engine='xlsxwriter')
-                a.to_excel(writer, sheet_name='Sheet1')
+                b=a.to_excel(writer, sheet_name='Sheet1')
                 writer.save()
                 #QMessageBox.warning(self, "Message","ok" , QMessageBox.Ok)
                         
             if self.checkBox_uw.isChecked():
-                divelog_= '%s' % (sito_location+'_divelog_' +  time.strftime('%Y%m%d_') + '.xlsx')
+                divelog_= '%s' % (sito_location+'_US_' +  time.strftime('%Y%m%d_') + '.xlsx')
                 dump_dir=os.path.join(sito_path, divelog_)
-                cur.execute("SELECT * FROM dive_log where sito='%s';" % sito_location)
+                cur.execute("SELECT * FROM us_table where sito='%s';" % sito_location)
                 rows = cur.fetchall()
                 col_names = []
                 for i in cur.description:
@@ -313,7 +313,7 @@ class pyarchinit_excel_export(QDialog, MAIN_DIALOG_CLASS):
             if self.checkBox_art.isChecked():
                 art_= '%s' % (sito_location+'_artefact_' +  time.strftime('%Y%m%d_') + '.xlsx')
                 dump_dir=os.path.join(sito_path, art_)
-                cur.execute("SELECT * FROM artefact_log where site='%s';" % sito_location)
+                cur.execute("SELECT * FROM inventario_materiali_table where sito='%s';" % sito_location)
                 rows = cur.fetchall()
                 col_names = []
                 for i in cur.description:
@@ -326,9 +326,9 @@ class pyarchinit_excel_export(QDialog, MAIN_DIALOG_CLASS):
                 #QMessageBox.warning(self, "Message","ok" , QMessageBox.Ok)                
                     
             if self.checkBox_pottery.isChecked():
-                pottery_= '%s' % (sito_location+'_pottery_' +  time.strftime('%Y%m%d_') + '.xlsx')
+                pottery_= '%s' % (sito_location+'_Structures_' +  time.strftime('%Y%m%d_') + '.xlsx')
                 dump_dir=os.path.join(sito_path, pottery_)
-                cur.execute("SELECT * FROM pottery_table where sito='%s';" % sito_location)
+                cur.execute("SELECT * FROM struttura_table where sito='%s';" % sito_location)
                 rows = cur.fetchall()
                 col_names = []
                 for i in cur.description:
@@ -341,9 +341,9 @@ class pyarchinit_excel_export(QDialog, MAIN_DIALOG_CLASS):
                 #QMessageBox.warning(self, "Message","ok" , QMessageBox.Ok)                      
             
             if self.checkBox_anchor.isChecked():
-                anchor_= '%s' % (sito_location+'_anchor_' +  time.strftime('%Y%m%d_') + '.xlsx')
+                anchor_= '%s' % (sito_location+'_Taphonomy_' +  time.strftime('%Y%m%d_') + '.xlsx')
                 dump_dir=os.path.join(sito_path, anchor_)
-                cur.execute("SELECT * FROM anchor_table where site='%s';" % sito_location)
+                cur.execute("SELECT * FROM tomba_table where sito='%s';" % sito_location)
                 rows = cur.fetchall()
                 col_names = []
                 for i in cur.description:
@@ -353,19 +353,10 @@ class pyarchinit_excel_export(QDialog, MAIN_DIALOG_CLASS):
                 writer = pd.ExcelWriter(dump_dir, engine='xlsxwriter')
                 a.to_excel(writer, sheet_name='Sheet1',index=True)
                 writer.save()
-                         
+                #QMessageBox.warning(self, "Message","ok" , QMessageBox.Ok)         
                     # for i in temp_data_list:
                     # self.DATA_LIST.append(i)
-            QMessageBox.warning(self, "Message","Exported completed" , QMessageBox.Ok)    
-            
-            
-            
-    
-
-        
-            if self.checkBox_anchor.isChecked():
-                engine = create_engine('postgresql+psycopg2://%s:%s@%s:%s/%s')
-                df.to_sql(name=Your_table_name_in_single_quotes, con=engine, if_exists='append',index=False)
+            QMessageBox.warning(self, "Message","Exported completed" , QMessageBox.Ok)
             
     
 
