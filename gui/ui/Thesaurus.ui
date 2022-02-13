@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>540</width>
+    <width>1013</width>
     <height>750</height>
    </rect>
   </property>
@@ -154,6 +154,15 @@
        </color>
       </brush>
      </colorrole>
+     <colorrole role="PlaceholderText">
+      <brush brushstyle="NoBrush">
+       <color alpha="128">
+        <red>0</red>
+        <green>0</green>
+        <blue>0</blue>
+       </color>
+      </brush>
+     </colorrole>
     </active>
     <inactive>
      <colorrole role="WindowText">
@@ -285,6 +294,15 @@
      <colorrole role="ToolTipText">
       <brush brushstyle="SolidPattern">
        <color alpha="255">
+        <red>0</red>
+        <green>0</green>
+        <blue>0</blue>
+       </color>
+      </brush>
+     </colorrole>
+     <colorrole role="PlaceholderText">
+      <brush brushstyle="NoBrush">
+       <color alpha="128">
         <red>0</red>
         <green>0</green>
         <blue>0</blue>
@@ -428,6 +446,15 @@
        </color>
       </brush>
      </colorrole>
+     <colorrole role="PlaceholderText">
+      <brush brushstyle="NoBrush">
+       <color alpha="128">
+        <red>0</red>
+        <green>0</green>
+        <blue>0</blue>
+       </color>
+      </brush>
+     </colorrole>
     </disabled>
    </palette>
   </property>
@@ -439,7 +466,7 @@
     <normaloff>:/icons/iconSite.png</normaloff>:/icons/iconSite.png</iconset>
   </property>
   <layout class="QGridLayout" name="gridLayout_7">
-   <item row="0" column="0" colspan="3">
+   <item row="0" column="0">
     <layout class="QHBoxLayout" name="horizontalLayout">
      <item>
       <layout class="QGridLayout" name="gridLayout_2">
@@ -901,27 +928,91 @@
      </item>
     </layout>
    </item>
-   <item row="1" column="0" colspan="3">
+   <item row="1" column="0">
     <widget class="QgsCollapsibleGroupBox" name="groupBox">
      <property name="title">
       <string>Thesaurus</string>
      </property>
-     <layout class="QGridLayout" name="gridLayout_6">
-      <item row="5" column="1">
-       <widget class="QLabel" name="label_3">
-        <property name="text">
-         <string>Lingua</string>
+     <layout class="QGridLayout" name="gridLayout_8">
+      <item row="0" column="0">
+       <widget class="QComboBox" name="comboBox_sigla">
+        <property name="enabled">
+         <bool>false</bool>
+        </property>
+        <property name="minimumSize">
+         <size>
+          <width>100</width>
+          <height>0</height>
+         </size>
+        </property>
+        <property name="font">
+         <font>
+          <pointsize>12</pointsize>
+          <weight>75</weight>
+          <bold>true</bold>
+         </font>
+        </property>
+        <property name="mouseTracking">
+         <bool>true</bool>
+        </property>
+        <property name="editable">
+         <bool>true</bool>
+        </property>
+        <property name="maxVisibleItems">
+         <number>99999</number>
+        </property>
+        <property name="maxCount">
+         <number>2147483647</number>
         </property>
        </widget>
       </item>
-      <item row="1" column="2">
+      <item row="0" column="1">
+       <widget class="QComboBox" name="comboBox_sigla_estesa">
+        <property name="enabled">
+         <bool>false</bool>
+        </property>
+        <property name="minimumSize">
+         <size>
+          <width>150</width>
+          <height>0</height>
+         </size>
+        </property>
+        <property name="font">
+         <font>
+          <pointsize>12</pointsize>
+          <weight>75</weight>
+          <bold>true</bold>
+         </font>
+        </property>
+        <property name="mouseTracking">
+         <bool>true</bool>
+        </property>
+        <property name="editable">
+         <bool>true</bool>
+        </property>
+        <property name="maxVisibleItems">
+         <number>99999</number>
+        </property>
+        <property name="maxCount">
+         <number>2147483647</number>
+        </property>
+       </widget>
+      </item>
+      <item row="1" column="0">
+       <widget class="QLabel" name="label">
+        <property name="text">
+         <string>Sigla</string>
+        </property>
+       </widget>
+      </item>
+      <item row="1" column="1">
        <widget class="QLabel" name="label_2">
         <property name="text">
          <string>Sigla estesa</string>
         </property>
        </widget>
       </item>
-      <item row="2" column="1">
+      <item row="2" column="0">
        <widget class="QComboBox" name="comboBox_nome_tabella">
         <property name="enabled">
          <bool>false</bool>
@@ -996,92 +1087,7 @@
         </item>
        </widget>
       </item>
-      <item row="3" column="2">
-       <widget class="QLabel" name="label_11">
-        <property name="text">
-         <string>Tipologia sigla</string>
-        </property>
-       </widget>
-      </item>
-      <item row="3" column="1">
-       <widget class="QLabel" name="label_10">
-        <property name="text">
-         <string>Nome tabella</string>
-        </property>
-       </widget>
-      </item>
-      <item row="0" column="1">
-       <widget class="QComboBox" name="comboBox_sigla">
-        <property name="enabled">
-         <bool>false</bool>
-        </property>
-        <property name="minimumSize">
-         <size>
-          <width>100</width>
-          <height>0</height>
-         </size>
-        </property>
-        <property name="font">
-         <font>
-          <pointsize>12</pointsize>
-          <weight>75</weight>
-          <bold>true</bold>
-         </font>
-        </property>
-        <property name="mouseTracking">
-         <bool>true</bool>
-        </property>
-        <property name="editable">
-         <bool>true</bool>
-        </property>
-        <property name="maxVisibleItems">
-         <number>99999</number>
-        </property>
-        <property name="maxCount">
-         <number>2147483647</number>
-        </property>
-       </widget>
-      </item>
-      <item row="0" column="2">
-       <widget class="QComboBox" name="comboBox_sigla_estesa">
-        <property name="enabled">
-         <bool>false</bool>
-        </property>
-        <property name="minimumSize">
-         <size>
-          <width>150</width>
-          <height>0</height>
-         </size>
-        </property>
-        <property name="font">
-         <font>
-          <pointsize>12</pointsize>
-          <weight>75</weight>
-          <bold>true</bold>
-         </font>
-        </property>
-        <property name="mouseTracking">
-         <bool>true</bool>
-        </property>
-        <property name="editable">
-         <bool>true</bool>
-        </property>
-        <property name="maxVisibleItems">
-         <number>99999</number>
-        </property>
-        <property name="maxCount">
-         <number>2147483647</number>
-        </property>
-       </widget>
-      </item>
-      <item row="1" column="1">
-       <widget class="QLabel" name="label">
-        <property name="text">
-         <string>Sigla</string>
-        </property>
-       </widget>
-      </item>
-      <item row="2" column="2">
+      <item row="2" column="1">
        <widget class="QComboBox" name="comboBox_tipologia_sigla">
         <property name="enabled">
          <bool>false</bool>
@@ -1173,7 +1179,21 @@
         </item>
        </widget>
       </item>
-      <item row="4" column="1">
+      <item row="3" column="0">
+       <widget class="QLabel" name="label_10">
+        <property name="text">
+         <string>Nome tabella</string>
+        </property>
+       </widget>
+      </item>
+      <item row="3" column="1">
+       <widget class="QLabel" name="label_11">
+        <property name="text">
+         <string>Tipologia sigla</string>
+        </property>
+       </widget>
+      </item>
+      <item row="4" column="0">
        <widget class="QComboBox" name="comboBox_lingua">
         <property name="enabled">
          <bool>false</bool>
@@ -1209,7 +1229,7 @@
         </item>
        </widget>
       </item>
-      <item row="4" column="2">
+      <item row="4" column="1">
        <widget class="QPushButton" name="pushButton_sigle">
         <property name="font">
          <font>
@@ -1223,13 +1243,26 @@
         </property>
        </widget>
       </item>
+      <item row="5" column="0">
+       <widget class="QLabel" name="label_3">
+        <property name="text">
+         <string>Lingua</string>
+        </property>
+       </widget>
+      </item>
      </layout>
     </widget>
    </item>
-   <item row="2" column="0" colspan="3">
-    <layout class="QVBoxLayout" name="verticalLayout_3">
-     <item>
+   <item row="2" column="0">
+    <layout class="QGridLayout" name="gridLayout_6">
+     <item row="0" column="0">
       <widget class="QLabel" name="label_13">
+       <property name="maximumSize">
+        <size>
+         <width>16777215</width>
+         <height>10</height>
+        </size>
+       </property>
        <property name="font">
         <font>
          <weight>75</weight>
@@ -1241,24 +1274,47 @@
        </property>
       </widget>
      </item>
-     <item>
+     <item row="1" column="0">
       <widget class="QTextEdit" name="textEdit_descrizione_sigla">
        <property name="minimumSize">
         <size>
          <width>0</width>
-         <height>20</height>
+         <height>60</height>
         </size>
        </property>
        <property name="maximumSize">
         <size>
          <width>16777215</width>
-         <height>16000000</height>
+         <height>100</height>
         </size>
        </property>
        <property name="font">
         <font>
          <pointsize>10</pointsize>
         </font>
+       </property>
+      </widget>
+     </item>
+     <item row="2" column="0">
+      <widget class="QWebView" name="webView_adarte" native="true">
+       <property name="sizePolicy">
+        <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+         <horstretch>0</horstretch>
+         <verstretch>0</verstretch>
+        </sizepolicy>
+       </property>
+       <property name="font">
+        <font>
+         <family>8514oem</family>
+        </font>
+       </property>
+       <property name="url" stdset="0">
+        <url>
+         <string>https://vast-lab.org/thesaurus/ra/vocab/index.php</string>
+        </url>
+       </property>
+       <property name="zoomFactor" stdset="0">
+        <double>1.000000000000000</double>
        </property>
       </widget>
      </item>
@@ -1272,6 +1328,11 @@
    <extends>QGroupBox</extends>
    <header>qgscollapsiblegroupbox.h</header>
    <container>1</container>
+  </customwidget>
+  <customwidget>
+   <class>QWebView</class>
+   <extends>QWidget</extends>
+   <header>QtWebKit/QWebView</header>
   </customwidget>
  </customwidgets>
  <tabstops>
