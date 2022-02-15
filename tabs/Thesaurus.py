@@ -22,13 +22,16 @@ from __future__ import absolute_import
 
 import os
 from datetime import date
+import urllib
 
 import sys
 from builtins import range
 from builtins import str
-from qgis.PyQt.QtWidgets import QDialog, QMessageBox
+from qgis.PyQt.QtCore import QUrl
+from qgis.PyQt.QtWidgets import QDialog, QMessageBox,QCompleter,QComboBox
 from qgis.PyQt.uic import loadUiType
 from qgis.core import QgsSettings
+# from qgis.PyQt.QtWebKitWidgets.QWebView import *
 from ..modules.db.pyarchinit_conn_strings import Connection
 from ..modules.db.pyarchinit_db_manager import Pyarchinit_db_management
 from ..modules.db.pyarchinit_utility import Utility
@@ -166,7 +169,20 @@ class pyarchinit_Thesaurus(QDialog, MAIN_DIALOG_CLASS):
             self.on_pushButton_connect_pressed()
         except Exception as e:
             QMessageBox.warning(self, "Connection system", str(e), QMessageBox.Ok)
-
+        self.comboBox_sigla_estesa.editTextChanged.connect(self.find_text)
+    
+    def find_text(self):
+        
+        if self.comboBox_sigla_estesa.currentText()=='':
+            uri= 'https://vast-lab.org/thesaurus/ra/vocab/index.php?'
+        else:
+            
+            uri= 'https://vast-lab.org/thesaurus/ra/vocab/index.php?ws=t&xstring='+ self.comboBox_sigla_estesa.currentText()+'&hasTopTerm=&hasNote=NA&fromDate=&termDeep=&boton=Conferma&xsearch=1#xstring'
+            self.comboBox_sigla_estesa.completer().setCompletionMode(QCompleter.PopupCompletion) 
+            self.comboBox_sigla_estesa.setInsertPolicy(QComboBox.NoInsert) 
+        self.webView_adarte.load(QUrl(uri))
+        self.webView_adarte.show()
+        
     def enable_button(self, n):
         self.pushButton_connect.setEnabled(n)
 
