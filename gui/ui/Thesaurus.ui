@@ -1242,7 +1242,7 @@
        <property name="minimumSize">
         <size>
          <width>0</width>
-         <height>2200</height>
+         <height>0</height>
         </size>
        </property>
        <property name="font">
@@ -1256,7 +1256,7 @@
         </url>
        </property>
        <property name="zoomFactor" stdset="0">
-        <double>0.700000000000000</double>
+        <double>1.000000000000000</double>
        </property>
       </widget>
      </item>
