@@ -834,15 +834,17 @@ class pyarchinit_Thesaurus(QDialog, MAIN_DIALOG_CLASS):
     def on_pushButton_sigle_pressed(self):
         if self.L=='it':    
             filepath = os.path.dirname(__file__)
-            filepath = os.path.join(filepath, 'codici_it.pdf')
-            os.startfile(filepath)
+            filepath = os.path.join(filepath, 'codici_it.html')
+            #os.startfile(filepath)
+            self.webView_adarte.load(QUrl.fromLocalFile(filepath))
+            self.webView_adarte.show()
         elif self.L=='de':  
             filepath = os.path.dirname(__file__)
-            filepath = os.path.join(filepath, 'codici_de.pdf')
+            filepath = os.path.join(filepath, 'codici_de.html')
             os.startfile(filepath)
         else:
             filepath = os.path.dirname(__file__)
-            filepath = os.path.join(filepath, 'codici_en.pdf')
+            filepath = os.path.join(filepath, 'codici_en.html')
             os.startfile(filepath)
     def on_pushButton_new_search_pressed(self):
         if self.check_record_state() == 1:
