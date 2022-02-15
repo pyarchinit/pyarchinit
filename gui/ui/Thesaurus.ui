@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>1013</width>
+    <width>976</width>
     <height>750</height>
    </rect>
   </property>
@@ -465,804 +465,11 @@
    <iconset resource="../../resources/resources.qrc">
     <normaloff>:/icons/iconSite.png</normaloff>:/icons/iconSite.png</iconset>
   </property>
-  <layout class="QGridLayout" name="gridLayout_7">
+  <layout class="QGridLayout" name="gridLayout_9">
    <item row="0" column="0">
-    <layout class="QHBoxLayout" name="horizontalLayout">
-     <item>
-      <layout class="QGridLayout" name="gridLayout_2">
-       <item row="0" column="0">
-        <widget class="QLabel" name="label_29">
-         <property name="font">
-          <font>
-           <weight>75</weight>
-           <bold>true</bold>
-          </font>
-         </property>
-         <property name="text">
-          <string>DBMS Toolbar</string>
-         </property>
-        </widget>
-       </item>
-       <item row="0" column="1">
-        <widget class="QPushButton" name="pushButton_connect">
-         <property name="text">
-          <string>Connection test</string>
-         </property>
-        </widget>
-       </item>
-       <item row="1" column="0" colspan="2">
-        <layout class="QGridLayout" name="gridLayout">
-         <item row="0" column="5">
-          <widget class="QPushButton" name="pushButton_first_rec">
-           <property name="toolTip">
-            <string>First rec</string>
-           </property>
-           <property name="text">
-            <string/>
-           </property>
-           <property name="icon">
-            <iconset resource="../../resources/resources.qrc">
-             <normaloff>:/icons/5_leftArrows.png</normaloff>:/icons/5_leftArrows.png</iconset>
-           </property>
-          </widget>
-         </item>
-         <item row="0" column="7">
-          <widget class="QPushButton" name="pushButton_next_rec">
-           <property name="toolTip">
-            <string>Next rec</string>
-           </property>
-           <property name="text">
-            <string/>
-           </property>
-           <property name="icon">
-            <iconset resource="../../resources/resources.qrc">
-             <normaloff>:/icons/6_rightArrow.png</normaloff>:/icons/6_rightArrow.png</iconset>
-           </property>
-          </widget>
-         </item>
-         <item row="0" column="8">
-          <widget class="QPushButton" name="pushButton_last_rec">
-           <property name="toolTip">
-            <string>Last rec</string>
-           </property>
-           <property name="text">
-            <string/>
-           </property>
-           <property name="icon">
-            <iconset resource="../../resources/resources.qrc">
-             <normaloff>:/icons/7_rightArrows.png</normaloff>:/icons/7_rightArrows.png</iconset>
-           </property>
-          </widget>
-         </item>
-         <item row="0" column="9">
-          <widget class="QPushButton" name="pushButton_new_rec">
-           <property name="font">
-            <font>
-             <pointsize>9</pointsize>
-            </font>
-           </property>
-           <property name="toolTip">
-            <string>New record</string>
-           </property>
-           <property name="text">
-            <string/>
-           </property>
-           <property name="icon">
-            <iconset resource="../../resources/resources.qrc">
-             <normaloff>:/icons/newrec.png</normaloff>:/icons/newrec.png</iconset>
-           </property>
-          </widget>
-         </item>
-         <item row="0" column="10">
-          <widget class="QPushButton" name="pushButton_save">
-           <property name="font">
-            <font>
-             <pointsize>9</pointsize>
-            </font>
-           </property>
-           <property name="toolTip">
-            <string>Save</string>
-           </property>
-           <property name="text">
-            <string/>
-           </property>
-           <property name="icon">
-            <iconset resource="../../resources/resources.qrc">
-             <normaloff>:/icons/b_save.png</normaloff>:/icons/b_save.png</iconset>
-           </property>
-           <property name="autoDefault">
-            <bool>false</bool>
-           </property>
-          </widget>
-         </item>
-         <item row="1" column="7">
-          <widget class="QPushButton" name="pushButton_new_search">
-           <property name="font">
-            <font>
-             <pointsize>9</pointsize>
-            </font>
-           </property>
-           <property name="toolTip">
-            <string>new search</string>
-           </property>
-           <property name="text">
-            <string/>
-           </property>
-           <property name="icon">
-            <iconset resource="../../resources/resources.qrc">
-             <normaloff>:/icons/new_search.png</normaloff>:/icons/new_search.png</iconset>
-           </property>
-          </widget>
-         </item>
-         <item row="1" column="8">
-          <widget class="QPushButton" name="pushButton_search_go">
-           <property name="font">
-            <font>
-             <pointsize>9</pointsize>
-            </font>
-           </property>
-           <property name="toolTip">
-            <string>search !!!</string>
-           </property>
-           <property name="text">
-            <string/>
-           </property>
-           <property name="icon">
-            <iconset resource="../../resources/resources.qrc">
-             <normaloff>:/icons/search.png</normaloff>:/icons/search.png</iconset>
-           </property>
-          </widget>
-         </item>
-         <item row="1" column="9">
-          <widget class="QPushButton" name="pushButton_sort">
-           <property name="font">
-            <font>
-             <pointsize>9</pointsize>
-            </font>
-           </property>
-           <property name="toolTip">
-            <string>Order by</string>
-           </property>
-           <property name="text">
-            <string/>
-           </property>
-           <property name="icon">
-            <iconset resource="../../resources/resources.qrc">
-             <normaloff>:/icons/sort.png</normaloff>:/icons/sort.png</iconset>
-           </property>
-          </widget>
-         </item>
-         <item row="1" column="10">
-          <widget class="QPushButton" name="pushButton_view_all">
-           <property name="font">
-            <font>
-             <pointsize>9</pointsize>
-            </font>
-           </property>
-           <property name="toolTip">
-            <string>View alls records</string>
-           </property>
-           <property name="text">
-            <string/>
-           </property>
-           <property name="icon">
-            <iconset resource="../../resources/resources.qrc">
-             <normaloff>:/icons/view_all.png</normaloff>:/icons/view_all.png</iconset>
-           </property>
-          </widget>
-         </item>
-         <item row="1" column="2">
-          <widget class="QPushButton" name="pushButton_delete">
-           <property name="enabled">
-            <bool>true</bool>
-           </property>
-           <property name="font">
-            <font>
-             <pointsize>9</pointsize>
-            </font>
-           </property>
-           <property name="toolTip">
-            <string>Delete record</string>
-           </property>
-           <property name="text">
-            <string/>
-           </property>
-           <property name="icon">
-            <iconset resource="../../resources/resources.qrc">
-             <normaloff>:/icons/delete.png</normaloff>:/icons/delete.png</iconset>
-           </property>
-          </widget>
-         </item>
-         <item row="0" column="6">
-          <widget class="QPushButton" name="pushButton_prev_rec">
-           <property name="toolTip">
-            <string>Prev rec</string>
-           </property>
-           <property name="text">
-            <string/>
-           </property>
-           <property name="icon">
-            <iconset resource="../../resources/resources.qrc">
-             <normaloff>:/icons/4_leftArrow.png</normaloff>:/icons/4_leftArrow.png</iconset>
-           </property>
-          </widget>
-         </item>
-        </layout>
-       </item>
-      </layout>
-     </item>
-     <item>
-      <widget class="Line" name="line_6">
-       <property name="orientation">
-        <enum>Qt::Vertical</enum>
-       </property>
-      </widget>
-     </item>
-     <item>
-      <layout class="QGridLayout" name="gridLayout_5">
-       <item row="0" column="0">
-        <widget class="QLabel" name="label_42">
-         <property name="font">
-          <font>
-           <weight>75</weight>
-           <bold>true</bold>
-          </font>
-         </property>
-         <property name="autoFillBackground">
-          <bool>true</bool>
-         </property>
-         <property name="text">
-          <string>DB Info</string>
-         </property>
-        </widget>
-       </item>
-       <item row="1" column="0">
-        <layout class="QGridLayout" name="gridLayout_4">
-         <item row="0" column="1">
-          <widget class="QLabel" name="label_43">
-           <property name="font">
-            <font>
-             <pointsize>9</pointsize>
-             <weight>75</weight>
-             <bold>true</bold>
-            </font>
-           </property>
-           <property name="text">
-            <string>Ordinamento</string>
-           </property>
-           <property name="margin">
-            <number>0</number>
-           </property>
-          </widget>
-         </item>
-         <item row="1" column="0">
-          <widget class="QLabel" name="label_status">
-           <property name="minimumSize">
-            <size>
-             <width>40</width>
-             <height>0</height>
-            </size>
-           </property>
-           <property name="font">
-            <font>
-             <pointsize>10</pointsize>
-             <weight>75</weight>
-             <bold>true</bold>
-            </font>
-           </property>
-           <property name="cursor">
-            <cursorShape>ForbiddenCursor</cursorShape>
-           </property>
-           <property name="mouseTracking">
-            <bool>false</bool>
-           </property>
-           <property name="contextMenuPolicy">
-            <enum>Qt::DefaultContextMenu</enum>
-           </property>
-           <property name="frameShape">
-            <enum>QFrame::Box</enum>
-           </property>
-           <property name="frameShadow">
-            <enum>QFrame::Sunken</enum>
-           </property>
-           <property name="text">
-            <string/>
-           </property>
-           <property name="alignment">
-            <set>Qt::AlignCenter</set>
-           </property>
-           <property name="margin">
-            <number>0</number>
-           </property>
-          </widget>
-         </item>
-         <item row="1" column="1">
-          <widget class="QLabel" name="label_sort">
-           <property name="font">
-            <font>
-             <pointsize>10</pointsize>
-             <weight>75</weight>
-             <bold>true</bold>
-            </font>
-           </property>
-           <property name="cursor">
-            <cursorShape>ForbiddenCursor</cursorShape>
-           </property>
-           <property name="mouseTracking">
-            <bool>false</bool>
-           </property>
-           <property name="contextMenuPolicy">
-            <enum>Qt::DefaultContextMenu</enum>
-           </property>
-           <property name="frameShape">
-            <enum>QFrame::Box</enum>
-           </property>
-           <property name="frameShadow">
-            <enum>QFrame::Sunken</enum>
-           </property>
-           <property name="text">
-            <string/>
-           </property>
-           <property name="alignment">
-            <set>Qt::AlignCenter</set>
-           </property>
-           <property name="margin">
-            <number>0</number>
-           </property>
-          </widget>
-         </item>
-         <item row="0" column="0">
-          <widget class="QLabel" name="label_34">
-           <property name="font">
-            <font>
-             <pointsize>9</pointsize>
-             <weight>75</weight>
-             <bold>true</bold>
-            </font>
-           </property>
-           <property name="text">
-            <string>Status</string>
-           </property>
-           <property name="margin">
-            <number>0</number>
-           </property>
-          </widget>
-         </item>
-        </layout>
-       </item>
-       <item row="2" column="0">
-        <layout class="QGridLayout" name="gridLayout_3">
-         <item row="0" column="0">
-          <widget class="QLabel" name="label_27">
-           <property name="font">
-            <font>
-             <pointsize>9</pointsize>
-             <weight>75</weight>
-             <bold>true</bold>
-            </font>
-           </property>
-           <property name="text">
-            <string>record n.</string>
-           </property>
-           <property name="margin">
-            <number>0</number>
-           </property>
-          </widget>
-         </item>
-         <item row="0" column="1">
-          <widget class="QLabel" name="label_rec_corrente">
-           <property name="font">
-            <font>
-             <family>Microsoft Sans Serif</family>
-             <pointsize>12</pointsize>
-            </font>
-           </property>
-           <property name="cursor">
-            <cursorShape>ForbiddenCursor</cursorShape>
-           </property>
-           <property name="mouseTracking">
-            <bool>false</bool>
-           </property>
-           <property name="contextMenuPolicy">
-            <enum>Qt::DefaultContextMenu</enum>
-           </property>
-           <property name="frameShape">
-            <enum>QFrame::Box</enum>
-           </property>
-           <property name="frameShadow">
-            <enum>QFrame::Sunken</enum>
-           </property>
-           <property name="text">
-            <string>1</string>
-           </property>
-          </widget>
-         </item>
-         <item row="1" column="0">
-          <widget class="QLabel" name="label_28">
-           <property name="font">
-            <font>
-             <pointsize>9</pointsize>
-             <weight>75</weight>
-             <bold>true</bold>
-            </font>
-           </property>
-           <property name="text">
-            <string>record tot.</string>
-           </property>
-           <property name="margin">
-            <number>0</number>
-           </property>
-          </widget>
-         </item>
-         <item row="1" column="1">
-          <widget class="QLabel" name="label_rec_tot">
-           <property name="font">
-            <font>
-             <family>Microsoft Sans Serif</family>
-             <pointsize>12</pointsize>
-            </font>
-           </property>
-           <property name="cursor">
-            <cursorShape>ForbiddenCursor</cursorShape>
-           </property>
-           <property name="mouseTracking">
-            <bool>false</bool>
-           </property>
-           <property name="contextMenuPolicy">
-            <enum>Qt::DefaultContextMenu</enum>
-           </property>
-           <property name="frameShape">
-            <enum>QFrame::Box</enum>
-           </property>
-           <property name="frameShadow">
-            <enum>QFrame::Sunken</enum>
-           </property>
-           <property name="text">
-            <string>1</string>
-           </property>
-          </widget>
-         </item>
-        </layout>
-       </item>
-      </layout>
-     </item>
-    </layout>
-   </item>
-   <item row="1" column="0">
-    <widget class="QgsCollapsibleGroupBox" name="groupBox">
-     <property name="title">
-      <string>Thesaurus</string>
-     </property>
-     <layout class="QGridLayout" name="gridLayout_8">
-      <item row="0" column="0">
-       <widget class="QComboBox" name="comboBox_sigla">
-        <property name="enabled">
-         <bool>false</bool>
-        </property>
-        <property name="minimumSize">
-         <size>
-          <width>100</width>
-          <height>0</height>
-         </size>
-        </property>
-        <property name="font">
-         <font>
-          <pointsize>12</pointsize>
-          <weight>75</weight>
-          <bold>true</bold>
-         </font>
-        </property>
-        <property name="mouseTracking">
-         <bool>true</bool>
-        </property>
-        <property name="editable">
-         <bool>true</bool>
-        </property>
-        <property name="maxVisibleItems">
-         <number>99999</number>
-        </property>
-        <property name="maxCount">
-         <number>2147483647</number>
-        </property>
-       </widget>
-      </item>
-      <item row="0" column="1">
-       <widget class="QComboBox" name="comboBox_sigla_estesa">
-        <property name="enabled">
-         <bool>false</bool>
-        </property>
-        <property name="minimumSize">
-         <size>
-          <width>150</width>
-          <height>0</height>
-         </size>
-        </property>
-        <property name="font">
-         <font>
-          <pointsize>12</pointsize>
-          <weight>75</weight>
-          <bold>true</bold>
-         </font>
-        </property>
-        <property name="mouseTracking">
-         <bool>true</bool>
-        </property>
-        <property name="editable">
-         <bool>true</bool>
-        </property>
-        <property name="maxVisibleItems">
-         <number>99999</number>
-        </property>
-        <property name="maxCount">
-         <number>2147483647</number>
-        </property>
-       </widget>
-      </item>
-      <item row="1" column="0">
-       <widget class="QLabel" name="label">
-        <property name="text">
-         <string>Sigla</string>
-        </property>
-       </widget>
-      </item>
-      <item row="1" column="1">
-       <widget class="QLabel" name="label_2">
-        <property name="text">
-         <string>Sigla estesa</string>
-        </property>
-       </widget>
-      </item>
-      <item row="2" column="0">
-       <widget class="QComboBox" name="comboBox_nome_tabella">
-        <property name="enabled">
-         <bool>false</bool>
-        </property>
-        <property name="minimumSize">
-         <size>
-          <width>100</width>
-          <height>0</height>
-         </size>
-        </property>
-        <property name="font">
-         <font>
-          <pointsize>12</pointsize>
-          <weight>75</weight>
-          <bold>true</bold>
-         </font>
-        </property>
-        <property name="mouseTracking">
-         <bool>true</bool>
-        </property>
-        <property name="toolTip">
-         <string/>
-        </property>
-        <property name="editable">
-         <bool>true</bool>
-        </property>
-        <property name="maxVisibleItems">
-         <number>99999</number>
-        </property>
-        <property name="maxCount">
-         <number>2147483647</number>
-        </property>
-        <item>
-         <property name="text">
-          <string>site_table</string>
-         </property>
-        </item>
-        <item>
-         <property name="text">
-          <string>us_table</string>
-         </property>
-        </item>
-        <item>
-         <property name="text">
-          <string>inventario_materiali_table</string>
-         </property>
-        </item>
-        <item>
-         <property name="text">
-          <string>campioni_table</string>
-         </property>
-        </item>
-        <item>
-         <property name="text">
-          <string>inventario_lapidei_table</string>
-         </property>
-        </item>
-        <item>
-         <property name="text">
-          <string>struttura_table</string>
-         </property>
-        </item>
-        <item>
-         <property name="text">
-          <string>tomba_table</string>
-         </property>
-        </item>
-        <item>
-         <property name="text">
-          <string>individui_table</string>
-         </property>
-        </item>
-       </widget>
-      </item>
-      <item row="2" column="1">
-       <widget class="QComboBox" name="comboBox_tipologia_sigla">
-        <property name="enabled">
-         <bool>false</bool>
-        </property>
-        <property name="minimumSize">
-         <size>
-          <width>100</width>
-          <height>0</height>
-         </size>
-        </property>
-        <property name="font">
-         <font>
-          <pointsize>12</pointsize>
-          <weight>75</weight>
-          <bold>true</bold>
-         </font>
-        </property>
-        <property name="mouseTracking">
-         <bool>true</bool>
-        </property>
-        <property name="editable">
-         <bool>true</bool>
-        </property>
-        <property name="maxVisibleItems">
-         <number>99999</number>
-        </property>
-        <property name="maxCount">
-         <number>2147483647</number>
-        </property>
-        <item>
-         <property name="text">
-          <string>1.1</string>
-         </property>
-        </item>
-        <item>
-         <property name="text">
-          <string>2.1</string>
-         </property>
-        </item>
-        <item>
-         <property name="text">
-          <string>2.2</string>
-         </property>
-        </item>
-        <item>
-         <property name="text">
-          <string>2.3</string>
-         </property>
-        </item>
-        <item>
-         <property name="text">
-          <string>2.4</string>
-         </property>
-        </item>
-        <item>
-         <property name="text">
-          <string>2.5</string>
-         </property>
-        </item>
-        <item>
-         <property name="text">
-          <string>2.6</string>
-         </property>
-        </item>
-        <item>
-         <property name="text">
-          <string>2.7</string>
-         </property>
-        </item>
-        <item>
-         <property name="text">
-          <string>3.1</string>
-         </property>
-        </item>
-        <item>
-         <property name="text">
-          <string>3.2</string>
-         </property>
-        </item>
-        <item>
-         <property name="text">
-          <string>3.3</string>
-         </property>
-        </item>
-        <item>
-         <property name="text">
-          <string>3.4</string>
-         </property>
-        </item>
-       </widget>
-      </item>
-      <item row="3" column="0">
-       <widget class="QLabel" name="label_10">
-        <property name="text">
-         <string>Nome tabella</string>
-        </property>
-       </widget>
-      </item>
-      <item row="3" column="1">
-       <widget class="QLabel" name="label_11">
-        <property name="text">
-         <string>Tipologia sigla</string>
-        </property>
-       </widget>
-      </item>
-      <item row="4" column="0">
-       <widget class="QComboBox" name="comboBox_lingua">
-        <property name="enabled">
-         <bool>false</bool>
-        </property>
-        <property name="minimumSize">
-         <size>
-          <width>100</width>
-          <height>0</height>
-         </size>
-        </property>
-        <property name="font">
-         <font>
-          <pointsize>12</pointsize>
-          <weight>75</weight>
-          <bold>true</bold>
-         </font>
-        </property>
-        <property name="mouseTracking">
-         <bool>true</bool>
-        </property>
-        <property name="editable">
-         <bool>true</bool>
-        </property>
-        <item>
-         <property name="text">
-          <string>it_IT</string>
-         </property>
-        </item>
-        <item>
-         <property name="text">
-          <string>en_US</string>
-         </property>
-        </item>
-       </widget>
-      </item>
-      <item row="4" column="1">
-       <widget class="QPushButton" name="pushButton_sigle">
-        <property name="font">
-         <font>
-          <pointsize>9</pointsize>
-          <weight>50</weight>
-          <bold>false</bold>
-         </font>
-        </property>
-        <property name="text">
-         <string>Visualizza elenco sigle</string>
-        </property>
-       </widget>
-      </item>
-      <item row="5" column="0">
-       <widget class="QLabel" name="label_3">
-        <property name="text">
-         <string>Lingua</string>
-        </property>
-       </widget>
-      </item>
-     </layout>
-    </widget>
-   </item>
-   <item row="2" column="0">
-    <layout class="QGridLayout" name="gridLayout_6">
+    <layout class="QGridLayout" name="gridLayout_2">
      <item row="0" column="0">
-      <widget class="QLabel" name="label_13">
-       <property name="maximumSize">
-        <size>
-         <width>16777215</width>
-         <height>10</height>
-        </size>
-       </property>
+      <widget class="QLabel" name="label_29">
        <property name="font">
         <font>
          <weight>75</weight>
@@ -1270,38 +477,773 @@
         </font>
        </property>
        <property name="text">
-        <string>Dati descrittivi</string>
+        <string>DBMS Toolbar</string>
+       </property>
+      </widget>
+     </item>
+     <item row="0" column="1">
+      <widget class="QPushButton" name="pushButton_connect">
+       <property name="text">
+        <string>Connection test</string>
+       </property>
+      </widget>
+     </item>
+     <item row="1" column="0" colspan="2">
+      <layout class="QGridLayout" name="gridLayout">
+       <item row="0" column="7">
+        <widget class="QPushButton" name="pushButton_next_rec">
+         <property name="toolTip">
+          <string>Next rec</string>
+         </property>
+         <property name="text">
+          <string/>
+         </property>
+         <property name="icon">
+          <iconset resource="../../resources/resources.qrc">
+           <normaloff>:/icons/6_rightArrow.png</normaloff>:/icons/6_rightArrow.png</iconset>
+         </property>
+        </widget>
+       </item>
+       <item row="0" column="8">
+        <widget class="QPushButton" name="pushButton_last_rec">
+         <property name="toolTip">
+          <string>Last rec</string>
+         </property>
+         <property name="text">
+          <string/>
+         </property>
+         <property name="icon">
+          <iconset resource="../../resources/resources.qrc">
+           <normaloff>:/icons/7_rightArrows.png</normaloff>:/icons/7_rightArrows.png</iconset>
+         </property>
+        </widget>
+       </item>
+       <item row="0" column="9">
+        <widget class="QPushButton" name="pushButton_new_rec">
+         <property name="font">
+          <font>
+           <pointsize>9</pointsize>
+          </font>
+         </property>
+         <property name="toolTip">
+          <string>New record</string>
+         </property>
+         <property name="text">
+          <string/>
+         </property>
+         <property name="icon">
+          <iconset resource="../../resources/resources.qrc">
+           <normaloff>:/icons/newrec.png</normaloff>:/icons/newrec.png</iconset>
+         </property>
+        </widget>
+       </item>
+       <item row="0" column="10">
+        <widget class="QPushButton" name="pushButton_save">
+         <property name="font">
+          <font>
+           <pointsize>9</pointsize>
+          </font>
+         </property>
+         <property name="toolTip">
+          <string>Save</string>
+         </property>
+         <property name="text">
+          <string/>
+         </property>
+         <property name="icon">
+          <iconset resource="../../resources/resources.qrc">
+           <normaloff>:/icons/b_save.png</normaloff>:/icons/b_save.png</iconset>
+         </property>
+         <property name="autoDefault">
+          <bool>false</bool>
+         </property>
+        </widget>
+       </item>
+       <item row="1" column="7">
+        <widget class="QPushButton" name="pushButton_new_search">
+         <property name="font">
+          <font>
+           <pointsize>9</pointsize>
+          </font>
+         </property>
+         <property name="toolTip">
+          <string>new search</string>
+         </property>
+         <property name="text">
+          <string/>
+         </property>
+         <property name="icon">
+          <iconset resource="../../resources/resources.qrc">
+           <normaloff>:/icons/new_search.png</normaloff>:/icons/new_search.png</iconset>
+         </property>
+        </widget>
+       </item>
+       <item row="1" column="8">
+        <widget class="QPushButton" name="pushButton_search_go">
+         <property name="font">
+          <font>
+           <pointsize>9</pointsize>
+          </font>
+         </property>
+         <property name="toolTip">
+          <string>search !!!</string>
+         </property>
+         <property name="text">
+          <string/>
+         </property>
+         <property name="icon">
+          <iconset resource="../../resources/resources.qrc">
+           <normaloff>:/icons/search.png</normaloff>:/icons/search.png</iconset>
+         </property>
+        </widget>
+       </item>
+       <item row="1" column="9">
+        <widget class="QPushButton" name="pushButton_sort">
+         <property name="font">
+          <font>
+           <pointsize>9</pointsize>
+          </font>
+         </property>
+         <property name="toolTip">
+          <string>Order by</string>
+         </property>
+         <property name="text">
+          <string/>
+         </property>
+         <property name="icon">
+          <iconset resource="../../resources/resources.qrc">
+           <normaloff>:/icons/sort.png</normaloff>:/icons/sort.png</iconset>
+         </property>
+        </widget>
+       </item>
+       <item row="1" column="10">
+        <widget class="QPushButton" name="pushButton_view_all">
+         <property name="font">
+          <font>
+           <pointsize>9</pointsize>
+          </font>
+         </property>
+         <property name="toolTip">
+          <string>View alls records</string>
+         </property>
+         <property name="text">
+          <string/>
+         </property>
+         <property name="icon">
+          <iconset resource="../../resources/resources.qrc">
+           <normaloff>:/icons/view_all.png</normaloff>:/icons/view_all.png</iconset>
+         </property>
+        </widget>
+       </item>
+       <item row="0" column="6">
+        <widget class="QPushButton" name="pushButton_prev_rec">
+         <property name="toolTip">
+          <string>Prev rec</string>
+         </property>
+         <property name="text">
+          <string/>
+         </property>
+         <property name="icon">
+          <iconset resource="../../resources/resources.qrc">
+           <normaloff>:/icons/4_leftArrow.png</normaloff>:/icons/4_leftArrow.png</iconset>
+         </property>
+        </widget>
+       </item>
+       <item row="0" column="2">
+        <widget class="QPushButton" name="pushButton_first_rec">
+         <property name="toolTip">
+          <string>First rec</string>
+         </property>
+         <property name="text">
+          <string/>
+         </property>
+         <property name="icon">
+          <iconset resource="../../resources/resources.qrc">
+           <normaloff>:/icons/5_leftArrows.png</normaloff>:/icons/5_leftArrows.png</iconset>
+         </property>
+        </widget>
+       </item>
+       <item row="1" column="6">
+        <widget class="QPushButton" name="pushButton_delete">
+         <property name="enabled">
+          <bool>true</bool>
+         </property>
+         <property name="font">
+          <font>
+           <pointsize>9</pointsize>
+          </font>
+         </property>
+         <property name="toolTip">
+          <string>Delete record</string>
+         </property>
+         <property name="text">
+          <string/>
+         </property>
+         <property name="icon">
+          <iconset resource="../../resources/resources.qrc">
+           <normaloff>:/icons/delete.png</normaloff>:/icons/delete.png</iconset>
+         </property>
+        </widget>
+       </item>
+      </layout>
+     </item>
+    </layout>
+   </item>
+   <item row="0" column="1">
+    <layout class="QGridLayout" name="gridLayout_5">
+     <item row="0" column="0">
+      <widget class="QLabel" name="label_42">
+       <property name="font">
+        <font>
+         <weight>75</weight>
+         <bold>true</bold>
+        </font>
+       </property>
+       <property name="autoFillBackground">
+        <bool>true</bool>
+       </property>
+       <property name="text">
+        <string>DB Info</string>
        </property>
       </widget>
      </item>
      <item row="1" column="0">
-      <widget class="QTextEdit" name="textEdit_descrizione_sigla">
-       <property name="minimumSize">
-        <size>
-         <width>0</width>
-         <height>60</height>
-        </size>
-       </property>
-       <property name="maximumSize">
-        <size>
-         <width>16777215</width>
-         <height>100</height>
-        </size>
-       </property>
-       <property name="font">
-        <font>
-         <pointsize>10</pointsize>
-        </font>
-       </property>
-      </widget>
+      <layout class="QGridLayout" name="gridLayout_4">
+       <item row="0" column="1">
+        <widget class="QLabel" name="label_43">
+         <property name="font">
+          <font>
+           <pointsize>9</pointsize>
+           <weight>75</weight>
+           <bold>true</bold>
+          </font>
+         </property>
+         <property name="text">
+          <string>Ordinamento</string>
+         </property>
+         <property name="margin">
+          <number>0</number>
+         </property>
+        </widget>
+       </item>
+       <item row="1" column="0">
+        <widget class="QLabel" name="label_status">
+         <property name="minimumSize">
+          <size>
+           <width>40</width>
+           <height>0</height>
+          </size>
+         </property>
+         <property name="font">
+          <font>
+           <pointsize>10</pointsize>
+           <weight>75</weight>
+           <bold>true</bold>
+          </font>
+         </property>
+         <property name="cursor">
+          <cursorShape>ForbiddenCursor</cursorShape>
+         </property>
+         <property name="mouseTracking">
+          <bool>false</bool>
+         </property>
+         <property name="contextMenuPolicy">
+          <enum>Qt::DefaultContextMenu</enum>
+         </property>
+         <property name="frameShape">
+          <enum>QFrame::Box</enum>
+         </property>
+         <property name="frameShadow">
+          <enum>QFrame::Sunken</enum>
+         </property>
+         <property name="text">
+          <string/>
+         </property>
+         <property name="alignment">
+          <set>Qt::AlignCenter</set>
+         </property>
+         <property name="margin">
+          <number>0</number>
+         </property>
+        </widget>
+       </item>
+       <item row="1" column="1">
+        <widget class="QLabel" name="label_sort">
+         <property name="font">
+          <font>
+           <pointsize>10</pointsize>
+           <weight>75</weight>
+           <bold>true</bold>
+          </font>
+         </property>
+         <property name="cursor">
+          <cursorShape>ForbiddenCursor</cursorShape>
+         </property>
+         <property name="mouseTracking">
+          <bool>false</bool>
+         </property>
+         <property name="contextMenuPolicy">
+          <enum>Qt::DefaultContextMenu</enum>
+         </property>
+         <property name="frameShape">
+          <enum>QFrame::Box</enum>
+         </property>
+         <property name="frameShadow">
+          <enum>QFrame::Sunken</enum>
+         </property>
+         <property name="text">
+          <string/>
+         </property>
+         <property name="alignment">
+          <set>Qt::AlignCenter</set>
+         </property>
+         <property name="margin">
+          <number>0</number>
+         </property>
+        </widget>
+       </item>
+       <item row="0" column="0">
+        <widget class="QLabel" name="label_34">
+         <property name="font">
+          <font>
+           <pointsize>9</pointsize>
+           <weight>75</weight>
+           <bold>true</bold>
+          </font>
+         </property>
+         <property name="text">
+          <string>Status</string>
+         </property>
+         <property name="margin">
+          <number>0</number>
+         </property>
+        </widget>
+       </item>
+      </layout>
      </item>
      <item row="2" column="0">
+      <layout class="QGridLayout" name="gridLayout_3">
+       <item row="0" column="0">
+        <widget class="QLabel" name="label_27">
+         <property name="font">
+          <font>
+           <pointsize>9</pointsize>
+           <weight>75</weight>
+           <bold>true</bold>
+          </font>
+         </property>
+         <property name="text">
+          <string>record n.</string>
+         </property>
+         <property name="margin">
+          <number>0</number>
+         </property>
+        </widget>
+       </item>
+       <item row="0" column="1">
+        <widget class="QLabel" name="label_rec_corrente">
+         <property name="font">
+          <font>
+           <family>Microsoft Sans Serif</family>
+           <pointsize>12</pointsize>
+          </font>
+         </property>
+         <property name="cursor">
+          <cursorShape>ForbiddenCursor</cursorShape>
+         </property>
+         <property name="mouseTracking">
+          <bool>false</bool>
+         </property>
+         <property name="contextMenuPolicy">
+          <enum>Qt::DefaultContextMenu</enum>
+         </property>
+         <property name="frameShape">
+          <enum>QFrame::Box</enum>
+         </property>
+         <property name="frameShadow">
+          <enum>QFrame::Sunken</enum>
+         </property>
+         <property name="text">
+          <string>1</string>
+         </property>
+        </widget>
+       </item>
+       <item row="1" column="0">
+        <widget class="QLabel" name="label_28">
+         <property name="font">
+          <font>
+           <pointsize>9</pointsize>
+           <weight>75</weight>
+           <bold>true</bold>
+          </font>
+         </property>
+         <property name="text">
+          <string>record tot.</string>
+         </property>
+         <property name="margin">
+          <number>0</number>
+         </property>
+        </widget>
+       </item>
+       <item row="1" column="1">
+        <widget class="QLabel" name="label_rec_tot">
+         <property name="font">
+          <font>
+           <family>Microsoft Sans Serif</family>
+           <pointsize>12</pointsize>
+          </font>
+         </property>
+         <property name="cursor">
+          <cursorShape>ForbiddenCursor</cursorShape>
+         </property>
+         <property name="mouseTracking">
+          <bool>false</bool>
+         </property>
+         <property name="contextMenuPolicy">
+          <enum>Qt::DefaultContextMenu</enum>
+         </property>
+         <property name="frameShape">
+          <enum>QFrame::Box</enum>
+         </property>
+         <property name="frameShadow">
+          <enum>QFrame::Sunken</enum>
+         </property>
+         <property name="text">
+          <string>1</string>
+         </property>
+        </widget>
+       </item>
+      </layout>
+     </item>
+    </layout>
+   </item>
+   <item row="1" column="0" colspan="2">
+    <layout class="QGridLayout" name="gridLayout_7">
+     <item row="0" column="0">
+      <layout class="QGridLayout" name="gridLayout_6">
+       <item row="0" column="0" rowspan="2">
+        <widget class="QgsCollapsibleGroupBox" name="groupBox">
+         <property name="title">
+          <string>Thesaurus</string>
+         </property>
+         <layout class="QGridLayout" name="gridLayout_8">
+          <item row="2" column="0">
+           <widget class="QComboBox" name="comboBox_nome_tabella">
+            <property name="enabled">
+             <bool>false</bool>
+            </property>
+            <property name="minimumSize">
+             <size>
+              <width>100</width>
+              <height>0</height>
+             </size>
+            </property>
+            <property name="font">
+             <font>
+              <pointsize>12</pointsize>
+              <weight>75</weight>
+              <bold>true</bold>
+             </font>
+            </property>
+            <property name="mouseTracking">
+             <bool>true</bool>
+            </property>
+            <property name="toolTip">
+             <string/>
+            </property>
+            <property name="editable">
+             <bool>true</bool>
+            </property>
+            <property name="maxVisibleItems">
+             <number>99999</number>
+            </property>
+            <property name="maxCount">
+             <number>2147483647</number>
+            </property>
+            <item>
+             <property name="text">
+              <string>site_table</string>
+             </property>
+            </item>
+            <item>
+             <property name="text">
+              <string>us_table</string>
+             </property>
+            </item>
+            <item>
+             <property name="text">
+              <string>inventario_materiali_table</string>
+             </property>
+            </item>
+            <item>
+             <property name="text">
+              <string>campioni_table</string>
+             </property>
+            </item>
+            <item>
+             <property name="text">
+              <string>inventario_lapidei_table</string>
+             </property>
+            </item>
+            <item>
+             <property name="text">
+              <string>struttura_table</string>
+             </property>
+            </item>
+            <item>
+             <property name="text">
+              <string>tomba_table</string>
+             </property>
+            </item>
+            <item>
+             <property name="text">
+              <string>individui_table</string>
+             </property>
+            </item>
+           </widget>
+          </item>
+          <item row="5" column="1">
+           <widget class="QLabel" name="label_2">
+            <property name="text">
+             <string>Sigla estesa</string>
+            </property>
+           </widget>
+          </item>
+          <item row="6" column="1">
+           <widget class="QComboBox" name="comboBox_sigla_estesa">
+            <property name="enabled">
+             <bool>true</bool>
+            </property>
+            <property name="minimumSize">
+             <size>
+              <width>150</width>
+              <height>0</height>
+             </size>
+            </property>
+            <property name="font">
+             <font>
+              <pointsize>12</pointsize>
+              <weight>75</weight>
+              <bold>true</bold>
+             </font>
+            </property>
+            <property name="mouseTracking">
+             <bool>true</bool>
+            </property>
+            <property name="editable">
+             <bool>true</bool>
+            </property>
+            <property name="maxVisibleItems">
+             <number>99999</number>
+            </property>
+            <property name="maxCount">
+             <number>2147483647</number>
+            </property>
+           </widget>
+          </item>
+          <item row="1" column="0">
+           <widget class="QLabel" name="label_10">
+            <property name="text">
+             <string>Nome tabella</string>
+            </property>
+           </widget>
+          </item>
+          <item row="9" column="1">
+           <widget class="QPushButton" name="pushButton_sigle">
+            <property name="font">
+             <font>
+              <pointsize>9</pointsize>
+              <weight>50</weight>
+              <bold>false</bold>
+             </font>
+            </property>
+            <property name="text">
+             <string>Visualizza elenco sigle</string>
+            </property>
+           </widget>
+          </item>
+          <item row="9" column="0">
+           <widget class="QComboBox" name="comboBox_lingua">
+            <property name="enabled">
+             <bool>false</bool>
+            </property>
+            <property name="minimumSize">
+             <size>
+              <width>100</width>
+              <height>0</height>
+             </size>
+            </property>
+            <property name="font">
+             <font>
+              <pointsize>12</pointsize>
+              <weight>75</weight>
+              <bold>true</bold>
+             </font>
+            </property>
+            <property name="mouseTracking">
+             <bool>true</bool>
+            </property>
+            <property name="editable">
+             <bool>true</bool>
+            </property>
+            <item>
+             <property name="text">
+              <string>it_IT</string>
+             </property>
+            </item>
+            <item>
+             <property name="text">
+              <string>en_US</string>
+             </property>
+            </item>
+           </widget>
+          </item>
+          <item row="6" column="0">
+           <widget class="QComboBox" name="comboBox_sigla">
+            <property name="enabled">
+             <bool>true</bool>
+            </property>
+            <property name="minimumSize">
+             <size>
+              <width>100</width>
+              <height>0</height>
+             </size>
+            </property>
+            <property name="font">
+             <font>
+              <pointsize>12</pointsize>
+              <weight>75</weight>
+              <bold>true</bold>
+             </font>
+            </property>
+            <property name="mouseTracking">
+             <bool>true</bool>
+            </property>
+            <property name="editable">
+             <bool>true</bool>
+            </property>
+            <property name="maxVisibleItems">
+             <number>99999</number>
+            </property>
+            <property name="maxCount">
+             <number>2147483647</number>
+            </property>
+           </widget>
+          </item>
+          <item row="5" column="0">
+           <widget class="QLabel" name="label">
+            <property name="text">
+             <string>Sigla</string>
+            </property>
+           </widget>
+          </item>
+          <item row="1" column="1">
+           <widget class="QLabel" name="label_11">
+            <property name="text">
+             <string>Tipologia sigla</string>
+            </property>
+           </widget>
+          </item>
+          <item row="2" column="1">
+           <widget class="QComboBox" name="comboBox_tipologia_sigla">
+            <property name="enabled">
+             <bool>true</bool>
+            </property>
+            <property name="minimumSize">
+             <size>
+              <width>100</width>
+              <height>0</height>
+             </size>
+            </property>
+            <property name="font">
+             <font>
+              <pointsize>12</pointsize>
+              <weight>75</weight>
+              <bold>true</bold>
+             </font>
+            </property>
+            <property name="mouseTracking">
+             <bool>true</bool>
+            </property>
+            <property name="editable">
+             <bool>true</bool>
+            </property>
+            <property name="maxVisibleItems">
+             <number>99999</number>
+            </property>
+            <property name="maxCount">
+             <number>2147483647</number>
+            </property>
+            <property name="placeholderText">
+             <string>Vedi lista codici</string>
+            </property>
+           </widget>
+          </item>
+          <item row="7" column="0">
+           <widget class="QLabel" name="label_3">
+            <property name="text">
+             <string>Lingua</string>
+            </property>
+           </widget>
+          </item>
+         </layout>
+        </widget>
+       </item>
+       <item row="0" column="1">
+        <widget class="QLabel" name="label_13">
+         <property name="maximumSize">
+          <size>
+           <width>16777215</width>
+           <height>10</height>
+          </size>
+         </property>
+         <property name="font">
+          <font>
+           <weight>75</weight>
+           <bold>true</bold>
+          </font>
+         </property>
+         <property name="text">
+          <string>Dati descrittivi</string>
+         </property>
+        </widget>
+       </item>
+       <item row="1" column="1">
+        <widget class="QTextEdit" name="textEdit_descrizione_sigla">
+         <property name="minimumSize">
+          <size>
+           <width>0</width>
+           <height>60</height>
+          </size>
+         </property>
+         <property name="maximumSize">
+          <size>
+           <width>16777215</width>
+           <height>100</height>
+          </size>
+         </property>
+         <property name="font">
+          <font>
+           <pointsize>10</pointsize>
+          </font>
+         </property>
+        </widget>
+       </item>
+      </layout>
+     </item>
+     <item row="1" column="0">
       <widget class="QWebView" name="webView_adarte" native="true">
        <property name="sizePolicy">
         <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
          <horstretch>0</horstretch>
          <verstretch>0</verstretch>
         </sizepolicy>
+       </property>
+       <property name="minimumSize">
+        <size>
+         <width>0</width>
+         <height>2200</height>
+        </size>
        </property>
        <property name="font">
         <font>
@@ -1310,11 +1252,11 @@
        </property>
        <property name="url" stdset="0">
         <url>
-         <string>https://vast-lab.org/thesaurus/ra/vocab/index.php</string>
+         <string/>
         </url>
        </property>
        <property name="zoomFactor" stdset="0">
-        <double>1.000000000000000</double>
+        <double>0.700000000000000</double>
        </property>
       </widget>
      </item>
@@ -1337,24 +1279,17 @@
  </customwidgets>
  <tabstops>
   <tabstop>pushButton_connect</tabstop>
-  <tabstop>pushButton_first_rec</tabstop>
   <tabstop>pushButton_prev_rec</tabstop>
   <tabstop>pushButton_next_rec</tabstop>
   <tabstop>pushButton_last_rec</tabstop>
   <tabstop>pushButton_new_rec</tabstop>
   <tabstop>pushButton_save</tabstop>
-  <tabstop>pushButton_delete</tabstop>
   <tabstop>pushButton_new_search</tabstop>
   <tabstop>pushButton_search_go</tabstop>
   <tabstop>pushButton_sort</tabstop>
   <tabstop>pushButton_view_all</tabstop>
   <tabstop>groupBox</tabstop>
-  <tabstop>comboBox_sigla</tabstop>
-  <tabstop>comboBox_sigla_estesa</tabstop>
-  <tabstop>comboBox_nome_tabella</tabstop>
-  <tabstop>comboBox_tipologia_sigla</tabstop>
   <tabstop>comboBox_lingua</tabstop>
-  <tabstop>textEdit_descrizione_sigla</tabstop>
  </tabstops>
  <resources>
   <include location="../../resources/resources.qrc"/>
@@ -1362,7 +1297,7 @@
  <connections>
   <connection>
    <sender>comboBox_nome_tabella</sender>
-   <signal>currentTextChanged(QString)</signal>
+   <signal>editTextChanged(QString)</signal>
    <receiver>comboBox_tipologia_sigla</receiver>
    <slot>update()</slot>
    <hints>
@@ -1371,8 +1306,24 @@
      <y>235</y>
     </hint>
     <hint type="destinationlabel">
-     <x>302</x>
-     <y>234</y>
+     <x>812</x>
+     <y>239</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>comboBox_sigla_estesa</sender>
+   <signal>editTextChanged(QString)</signal>
+   <receiver>webView_adarte</receiver>
+   <slot>update()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>551</x>
+     <y>173</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>552</x>
+     <y>506</y>
     </hint>
    </hints>
   </connection>
