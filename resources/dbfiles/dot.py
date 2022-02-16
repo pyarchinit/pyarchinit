@@ -369,18 +369,25 @@ class Node:
         data0.setAttribute('key', 'd6')
         snode = doc.createElement('y:ShapeNode')
         
-        
-        
-        
-        geom = doc.createElement('y:Geometry')
-        geom.setAttribute('height','30.0')
-        geom.setAttribute('width','90.0')
-        geom.setAttribute('x','520.0')
-        geom.setAttribute('y','%r'% self.get_y(epoch_sigla, LabelText))
-        #print(str(self.get_y(epoch_sigla)))
-        snode.appendChild(geom)
         nodeLabelText = escapeNewlines(self.getLabel(conf, True))
         a = nodeLabelText.rsplit('_',)[0]
+        
+        geom = doc.createElement('y:Geometry')
+        if 'CON' in a:
+        
+            geom.setAttribute('height','30.0')
+            geom.setAttribute('width','30.0')
+            geom.setAttribute('x','520.0')
+            geom.setAttribute('y','%r'% self.get_y(epoch_sigla, LabelText))
+            #print(str(self.get_y(epoch_sigla)))
+        else:
+            geom.setAttribute('height','30.0')
+            geom.setAttribute('width','90.0')
+            geom.setAttribute('x','520.0')
+            geom.setAttribute('y','%r'% self.get_y(epoch_sigla, LabelText))
+        
+        snode.appendChild(geom)
+        
         fill = doc.createElement('y:Fill')
         border = doc.createElement('y:BorderStyle')
         label = doc.createElement('y:NodeLabel')
@@ -437,14 +444,42 @@ class Node:
             label.setAttribute('xml:space','preserve')
             label.setAttribute('y','5.6494140625')
         
+        elif 'CON' in a:
+            
+            fill.setAttribute('color','#000000')
+            fill.setAttribute('transparent','false')
+            border.setAttribute('color','#000000')
+            border.setAttribute('type','line')
+            border.setAttribute('width','1.0')
+            label.setAttribute('alignment','center')
+            label.setAttribute('autoSizePolicy','content')
+            label.setAttribute('fontFamily','Dialog')
+            label.setAttribute('fontSize','0')
+            label.setAttribute('fontStyle','plain')
+            label.setAttribute('hasBackgroundColor','false')
+            label.setAttribute('hasLineColor','false')
+            label.setAttribute('height','18.701171875')
+            label.setAttribute('horizontalTextPosition','center')
+            label.setAttribute('iconTextGap','4')
+            label.setAttribute('modelName','sandwich')
+            label.setAttribute('modelPosition','s')
+            label.setAttribute('textColor','#000000')
+            label.setAttribute('visible','true')
+            label.setAttribute('width','34.017578125')
+            label.setAttribute('x','27.9912109375')
+            label.setAttribute('xml:space','preserve')
+            label.setAttribute('y','5.6494140625')
+            
+        
         
         snode.appendChild(fill)
         snode.appendChild(border)
-        label.appendChild(doc.createTextNode('{}'.format(a).replace('A','').replace('B','').replace('C','').replace('D','')))        
+        label.appendChild(doc.createTextNode('{}'.format(a).replace('USVA','USV').replace('USVB','USV').replace('USVC','USV').replace('USVD','USV')))        
         
         snode.appendChild(label)
         
         shape = doc.createElement('y:Shape')
+        
         if 'USVA' in a:
             
             shape.setAttribute('type','parallelogram')
@@ -463,6 +498,11 @@ class Node:
         elif 'USM' in a:
             #shape = doc.createElement('y:Shape')
             shape.setAttribute('type','rectangle')
+        elif 'CON' in a:
+            #shape = doc.createElement('y:Shape')
+            shape.setAttribute('type','diamond')
+        
+        
         snode.appendChild(shape)
         
         data0.appendChild(snode)
