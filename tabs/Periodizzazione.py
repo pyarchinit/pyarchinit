@@ -535,8 +535,8 @@ class pyarchinit_Periodizzazione(QDialog, MAIN_DIALOG_CLASS):
                 ###
 
                 #self.setComboBoxEditable(["self.comboBox_sito"], 0)
-                self.setComboBoxEditable(["self.comboBox_periodo"], 0)
-                self.setComboBoxEditable(["self.comboBox_fase"], 0)
+                self.setComboBoxEditable(["self.comboBox_periodo"], 1)
+                self.setComboBoxEditable(["self.comboBox_fase"], 1)
                 self.setComboBoxEnable(["self.comboBox_sito"], "False")
                 self.setComboBoxEnable(["self.comboBox_periodo"], "True")
                 self.setComboBoxEnable(["self.comboBox_fase"], "True")
@@ -555,8 +555,8 @@ class pyarchinit_Periodizzazione(QDialog, MAIN_DIALOG_CLASS):
                 ###
 
                 self.setComboBoxEditable(["self.comboBox_sito"], 0)
-                self.setComboBoxEditable(["self.comboBox_periodo"], 0)
-                self.setComboBoxEditable(["self.comboBox_fase"], 0)
+                self.setComboBoxEditable(["self.comboBox_periodo"], 1)
+                self.setComboBoxEditable(["self.comboBox_fase"], 1)
                 self.setComboBoxEnable(["self.comboBox_sito"], "True")
                 self.setComboBoxEnable(["self.comboBox_periodo"], "True")
                 self.setComboBoxEnable(["self.comboBox_fase"], "True")
