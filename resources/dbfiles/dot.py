@@ -370,6 +370,8 @@ class Node:
         snode = doc.createElement('y:ShapeNode')
         
         
+        
+        
         geom = doc.createElement('y:Geometry')
         geom.setAttribute('height','30.0')
         geom.setAttribute('width','90.0')
@@ -377,46 +379,90 @@ class Node:
         geom.setAttribute('y','%r'% self.get_y(epoch_sigla, LabelText))
         #print(str(self.get_y(epoch_sigla)))
         snode.appendChild(geom)
-        
-        fill = doc.createElement('y:Fill')
-        fill.setAttribute('color','#ffffff')
-        fill.setAttribute('transparent','false')
-        snode.appendChild(fill)
-        border = doc.createElement('y:BorderStyle')
-        border.setAttribute('color','#000000')
-        border.setAttribute('type','line')
-        border.setAttribute('width','1.0')
-        snode.appendChild(border)
-        color = getColorAttribute(self.attribs, 'fontcolor', conf.DefaultNodeTextColor, conf)        
-        
-        label = doc.createElement('y:NodeLabel')
-        label.setAttribute('alignment','center')
-        label.setAttribute('autoSizePolicy','content')
-        label.setAttribute('fontFamily','DialogInput')
-        label.setAttribute('fontSize','24')
-        label.setAttribute('fontStyle','bold')
-        label.setAttribute('hasBackgroundColor','false')
-        label.setAttribute('hasLineColor','false')
-        label.setAttribute('height','18.701171875')
-        label.setAttribute('horizontalTextPosition','center')
-        label.setAttribute('iconTextGap','4')
-        label.setAttribute('modelName','internal')
-        label.setAttribute('modelPosition','c')
-        label.setAttribute('textColor','%s' % color)
-        label.setAttribute('visible','true')
-        label.setAttribute('width','34.017578125')
-        label.setAttribute('x','27.9912109375')
-        label.setAttribute('xml:space','preserve')
-        label.setAttribute('y','5.6494140625')
         nodeLabelText = escapeNewlines(self.getLabel(conf, True))
         a = nodeLabelText.rsplit('_',)[0]
-       
-        label.appendChild(doc.createTextNode('{}'.format(a)))        
+        fill = doc.createElement('y:Fill')
+        border = doc.createElement('y:BorderStyle')
+        label = doc.createElement('y:NodeLabel')
+        
+        if 'USV' in a:    
+            
+            fill.setAttribute('color','#000000')
+            fill.setAttribute('transparent','false')
+            border.setAttribute('color','#000000')
+            border.setAttribute('type','line')
+            border.setAttribute('width','1.0')
+            label.setAttribute('alignment','center')
+            label.setAttribute('autoSizePolicy','content')
+            label.setAttribute('fontFamily','Dialog')
+            label.setAttribute('fontSize','12')
+            label.setAttribute('fontStyle','plain')
+            label.setAttribute('hasBackgroundColor','false')
+            label.setAttribute('hasLineColor','false')
+            label.setAttribute('height','18.701171875')
+            label.setAttribute('horizontalTextPosition','center')
+            label.setAttribute('iconTextGap','4')
+            label.setAttribute('modelName','custom')
+            label.setAttribute('modelPosition','c')
+            label.setAttribute('textColor','#FFFFFF')
+            label.setAttribute('visible','true')
+            label.setAttribute('width','34.017578125')
+            label.setAttribute('x','27.9912109375')
+            label.setAttribute('xml:space','preserve')
+            label.setAttribute('y','5.6494140625')
+        
+        elif 'US' in a:
+            
+            fill.setAttribute('color','#FFFFFF')
+            fill.setAttribute('transparent','false')
+            border.setAttribute('color','#000000')
+            border.setAttribute('type','line')
+            border.setAttribute('width','1.0')
+            label.setAttribute('alignment','center')
+            label.setAttribute('autoSizePolicy','content')
+            label.setAttribute('fontFamily','DialogInput')
+            label.setAttribute('fontSize','24')
+            label.setAttribute('fontStyle','bold')
+            label.setAttribute('hasBackgroundColor','false')
+            label.setAttribute('hasLineColor','false')
+            label.setAttribute('height','18.701171875')
+            label.setAttribute('horizontalTextPosition','center')
+            label.setAttribute('iconTextGap','4')
+            label.setAttribute('modelName','internal')
+            label.setAttribute('modelPosition','c')
+            label.setAttribute('textColor','#000000')
+            label.setAttribute('visible','true')
+            label.setAttribute('width','34.017578125')
+            label.setAttribute('x','27.9912109375')
+            label.setAttribute('xml:space','preserve')
+            label.setAttribute('y','5.6494140625')
+        
+        
+        snode.appendChild(fill)
+        snode.appendChild(border)
+        label.appendChild(doc.createTextNode('{}'.format(a).replace('A','').replace('B','').replace('C','').replace('D','')))        
         
         snode.appendChild(label)
         
         shape = doc.createElement('y:Shape')
-        shape.setAttribute('type','rectangle')
+        if 'USVA' in a:
+            
+            shape.setAttribute('type','parallelogram')
+        elif 'USVB' in a:
+            #shape = doc.createElement('y:Shape')
+            shape.setAttribute('type','hexagon')
+        elif 'USVC' in a:
+            #shape = doc.createElement('y:Shape')
+            shape.setAttribute('type','ellipse')
+        elif 'USVD' in a:
+            #shape = doc.createElement('y:Shape')
+            shape.setAttribute('type','octagon')    
+        elif 'US' in a:
+            #shape = doc.createElement('y:Shape')
+            shape.setAttribute('type','rectangle')
+        elif 'USM' in a:
+            #shape = doc.createElement('y:Shape')
+            shape.setAttribute('type','rectangle')
         snode.appendChild(shape)
         
         data0.appendChild(snode)

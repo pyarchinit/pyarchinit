@@ -31,7 +31,7 @@ class PERIODIZZAZIONE(object):
 
     # def __repr__"
     def __repr__(self):
-        return "<PERIODIZZAZIONE('%d', '%s', '%d', '%d', '%d', '%d', '%s', '%s', '%d')>" % (
+        return "<PERIODIZZAZIONE('%d', '%s', '%r', '%r', '%d', '%d', '%s', '%s', '%d')>" % (
             self.id_perfas,
             self.sito,
             self.periodo,
