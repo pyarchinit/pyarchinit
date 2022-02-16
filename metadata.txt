@@ -25,7 +25,7 @@ repository=https://github.com/pyarchinit/pyarchinit
 changelog=release3.9.12
 
     -add vocabulary online into thesaurus form
-
+    -update matrix for EM
   release3.9.11
 
     -fix quote export pdf
