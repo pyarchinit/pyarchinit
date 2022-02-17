@@ -508,12 +508,13 @@ class Node:
         data0.appendChild(snode)
         
         LabelText = self.getLabel(conf, True)
-        bb = LabelText.rsplit('_',)[:-1]
+        bb = LabelText.rsplit('_',)[:-1]        
         b = ' '.join(map(str, bb))
+        c=' '.join(b.split()[1:])
         data1 = doc.createElement('data')
         data1.setAttribute('key', 'd5')
         data1.setAttribute('xml:space','preserve')
-        data1.appendChild(doc.createTextNode('{}'.format(b))) 
+        data1.appendChild(doc.createTextNode('{}'.format(c))) 
          
         node.appendChild(data1)        
         node.appendChild(data0) 
