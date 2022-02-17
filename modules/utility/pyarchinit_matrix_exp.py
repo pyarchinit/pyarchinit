@@ -39,11 +39,13 @@ class HarrisMatrix:
     ID_TABLE = "id_us"
     MATRIX = Setting_Matrix()
     #s=pyqtSignal(str)
-    def __init__(self, sequence,negative,conteporene,periodi):
+    def __init__(self, sequence,negative,conteporene,connection,connection_to,periodi):
         self.sequence = sequence
         self.negative = negative
         self.periodi=periodi
         self.conteporene=conteporene
+        self.connection=connection
+        self.connection_to=connection_to
         
     @property
     def export_matrix(self):
@@ -66,6 +68,8 @@ class HarrisMatrix:
         elist1 = []
         elist2 = []
         elist3 = []
+        elist4 = []
+        elist5 = []
         
         
         
@@ -162,8 +166,40 @@ class HarrisMatrix:
                 a.edge_attr['style'] = str(dialog.combo_box_15.currentText())
                 a.edge_attr.update(arrowhead=str(dialog.combo_box_14.currentText()), arrowsize=str(dialog.combo_box_16.currentText()))    
                 
-            
+            for ee in self.connection:
+                a = (ee[0],ee[1])
+                elist4.append(a)
         
+            with G.subgraph(name='main3') as tr:
+                #a.attr(rank='same')
+                a.edges(elist4)
+                
+                a.node_attr['shape'] = str(dialog.combo_box_3.currentText())
+                a.node_attr['style'] = str(dialog.combo_box_4.currentText())
+                a.node_attr.update(style='filled', fillcolor=str(dialog.combo_box_2.currentText()))
+                a.node_attr['color'] = 'black'    
+                a.node_attr['penwidth'] = str(dialog.combo_box_5.currentText())
+                a.edge_attr['penwidth'] = str(dialog.combo_box_5.currentText())
+                a.edge_attr['style'] = str(dialog.combo_box_10.currentText())
+                a.edge_attr.update(arrowhead=str(dialog.combo_box_11.currentText()), arrowsize=str(dialog.combo_box_16.currentText()))    
+            
+            
+            for ff in self.connection_to:
+                a = (ff[0],ff[1])
+                elist5.append(a)
+        
+            with G.subgraph(name='main4') as tb:
+                #a.attr(rank='same')
+                a.edges(elist5)
+                
+                a.node_attr['shape'] = str(dialog.combo_box_6.currentText())
+                a.node_attr['style'] = str(dialog.combo_box_8.currentText())
+                a.node_attr.update(style='filled', fillcolor=str(dialog.combo_box_2.currentText()))
+                a.node_attr['color'] = 'black'    
+                a.node_attr['penwidth'] = str(dialog.combo_box_7.currentText())
+                a.edge_attr['penwidth'] = str(dialog.combo_box_7.currentText())
+                a.edge_attr['style'] = 'dashed'
+                a.edge_attr.update(arrowhead=str(dialog.combo_box_14.currentText()), arrowsize=str(dialog.combo_box_16.currentText()))    
         
         if bool(dialog.checkBox_legend.isChecked()):
             with G.subgraph(name='cluster3') as j:
@@ -273,6 +309,8 @@ class HarrisMatrix:
         elist1 = []
         elist2 = []
         elist3 = []
+        elist4 = []
+        elist5 = []
        
         if bool(dialog.checkBox_period.isChecked()):         
             for aa in self.periodi:
@@ -341,7 +379,40 @@ class HarrisMatrix:
                 a.edge_attr['style'] = str(dialog.combo_box_15.currentText())
                 a.edge_attr.update(arrowhead=str(dialog.combo_box_14.currentText()), arrowsize=str(dialog.combo_box_16.currentText()))    
                 
+            for ee in self.connection:
+                a = (ee[0],ee[1])
+                elist4.append(a)
+        
+            with G.subgraph(name='main3') as r:
+                #a.attr(rank='same')
+                r.edges(elist4)
+                
+                r.node_attr['shape'] = str(dialog.combo_box_3.currentText())
+                r.node_attr['style'] = str(dialog.combo_box_4.currentText())
+                r.node_attr.update(style='filled', fillcolor=str(dialog.combo_box_2.currentText()))
+                r.node_attr['color'] = 'black'    
+                r.node_attr['penwidth'] = str(dialog.combo_box_5.currentText())
+                r.edge_attr['penwidth'] = str(dialog.combo_box_5.currentText())
+                r.edge_attr['style'] = str(dialog.combo_box_31.currentText())
+                r.edge_attr.update(arrowhead=str(dialog.combo_box_11.currentText()), arrowsize=str(dialog.combo_box_16.currentText()))    
             
+            
+            for ff in self.connection_to:
+                a = (ff[0],ff[1])
+                elist5.append(a)
+        
+            with G.subgraph(name='main4') as t:
+                #a.attr(rank='same')
+                t.edges(elist5)
+                
+                t.node_attr['shape'] = str(dialog.combo_box_6.currentText())
+                t.node_attr['style'] = str(dialog.combo_box_8.currentText())
+                t.node_attr.update(style='filled', fillcolor=str(dialog.combo_box_2.currentText()))
+                t.node_attr['color'] = 'black'    
+                t.node_attr['penwidth'] = str(dialog.combo_box_7.currentText())
+                t.edge_attr['penwidth'] = str(dialog.combo_box_7.currentText())
+                t.edge_attr['style'] = str(dialog.combo_box_39.currentText())
+                t.edge_attr.update(arrowhead=str(dialog.combo_box_14.currentText()), arrowsize=str(dialog.combo_box_16.currentText()))    
         
         
         if bool(dialog.checkBox_legend.isChecked()):
