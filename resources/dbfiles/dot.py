@@ -1,24 +1,22 @@
-# coding: latin-1
-# Copyright (c) 2009,2010,2011,2012,2013,2014 Dirk Baechle.
-# www: https://bitbucket.org/dirkbaechle/dottoxml
-# mail: dl9obn AT darc.de
-#
-# This program is free software; you can redistribute it and/or modify it under
-# the terms of the GNU General Public License as published by the Free Software
-# Foundation; either version 2 of the License, or (at your option) any later
-# version.
-#
-# This program is distributed in the hope that it will be useful, but WITHOUT
-# ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
-# FOR A PARTICULAR PURPOSE. See the GNU General Public License for more details.
-#
-# You should have received a copy of the GNU General Public License along with
-# this program; if not, write to the Free Software Foundation, Inc.,
-# 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
+#! /usr/bin/env python
+# -*- coding: utf 8 -*-
 """
-  Helper classes and functions for the dottoxml.py tool
-"""
+/***************************************************************************
+        pyArchInit Plugin  - A QGIS plugin to manage archaeological dataset
+                             stored in Postgres
+                             -------------------
+    begin                : 2021-12-01
+    copyright            : Enzo Cocca <enzo.ccc@gmail.com>
 
+ ***************************************************************************/
+/***************************************************************************
+ *                                                                          *
+ *   This program is free software; you can redistribute it and/or modify   *
+ *   it under the terms of the GNU General Public License as published by   *
+ *   the Free Software Foundation; either version 2 of the License, or      *
+ *   (at your option) any later version.                                    *                                                                       *
+ ***************************************************************************/
+"""
 import re
 import random
 import X11Colors
@@ -470,18 +468,183 @@ class Node:
             label.setAttribute('xml:space','preserve')
             label.setAttribute('y','5.6494140625')
             
+        elif 'SF' in a:    
+            
+            fill.setAttribute('color','#FFFFFF')
+            fill.setAttribute('transparent','false')
+            border.setAttribute('color','#000000')
+            border.setAttribute('type','line')
+            border.setAttribute('width','1.0')
+            label.setAttribute('alignment','center')
+            label.setAttribute('autoSizePolicy','content')
+            label.setAttribute('fontFamily','DialogInput')
+            label.setAttribute('fontSize','12')
+            label.setAttribute('fontStyle','bold')
+            label.setAttribute('hasBackgroundColor','false')
+            label.setAttribute('hasLineColor','false')
+            label.setAttribute('height','18.701171875')
+            label.setAttribute('horizontalTextPosition','center')
+            label.setAttribute('iconTextGap','4')
+            label.setAttribute('modelName','internal')
+            label.setAttribute('modelPosition','c')
+            label.setAttribute('textColor','#000000')
+            label.setAttribute('visible','true')
+            label.setAttribute('width','34.017578125')
+            label.setAttribute('x','27.9912109375')
+            label.setAttribute('xml:space','preserve')
+            label.setAttribute('y','5.6494140625')
         
+        elif 'SUS' in a:    
+            
+            fill.setAttribute('color','#FFFFFF')
+            fill.setAttribute('transparent','false')
+            border.setAttribute('color','#000000')
+            border.setAttribute('type','line')
+            border.setAttribute('width','1.0')
+            label.setAttribute('alignment','center')
+            label.setAttribute('autoSizePolicy','content')
+            label.setAttribute('fontFamily','DialogInput')
+            label.setAttribute('fontSize','12')
+            label.setAttribute('fontStyle','bold')
+            label.setAttribute('hasBackgroundColor','false')
+            label.setAttribute('hasLineColor','false')
+            label.setAttribute('height','18.701171875')
+            label.setAttribute('horizontalTextPosition','center')
+            label.setAttribute('iconTextGap','4')
+            label.setAttribute('modelName','internal')
+            label.setAttribute('modelPosition','c')
+            label.setAttribute('textColor','#000000')
+            label.setAttribute('visible','true')
+            label.setAttribute('width','34.017578125')
+            label.setAttribute('x','27.9912109375')
+            label.setAttribute('xml:space','preserve')
+            label.setAttribute('y','5.6494140625')
+        
+        elif 'Extractor' in a:    
+            
+            fill.setAttribute('color','#FFFFFF')
+            fill.setAttribute('transparent','false')
+            border.setAttribute('color','#000000')
+            border.setAttribute('type','line')
+            border.setAttribute('width','1.0')
+            label.setAttribute('alignment','center')
+            label.setAttribute('autoSizePolicy','content')
+            label.setAttribute('fontFamily','DialogInput')
+            label.setAttribute('fontSize','12')
+            label.setAttribute('fontStyle','bold')
+            label.setAttribute('hasBackgroundColor','false')
+            label.setAttribute('hasLineColor','false')
+            label.setAttribute('height','18.701171875')
+            label.setAttribute('horizontalTextPosition','center')
+            label.setAttribute('iconTextGap','4')
+            label.setAttribute('modelName','internal')
+            label.setAttribute('modelPosition','c')
+            label.setAttribute('textColor','#000000')
+            label.setAttribute('visible','true')
+            label.setAttribute('width','34.017578125')
+            label.setAttribute('x','27.9912109375')
+            label.setAttribute('xml:space','preserve')
+            label.setAttribute('y','5.6494140625')
+        
+        elif 'Combinar' in a:    
+            
+            fill.setAttribute('color','#FFFFFF')
+            fill.setAttribute('transparent','false')
+            border.setAttribute('color','#000000')
+            border.setAttribute('type','line')
+            border.setAttribute('width','1.0')
+            label.setAttribute('alignment','center')
+            label.setAttribute('autoSizePolicy','content')
+            label.setAttribute('fontFamily','DialogInput')
+            label.setAttribute('fontSize','12')
+            label.setAttribute('fontStyle','bold')
+            label.setAttribute('hasBackgroundColor','false')
+            label.setAttribute('hasLineColor','false')
+            label.setAttribute('height','18.701171875')
+            label.setAttribute('horizontalTextPosition','center')
+            label.setAttribute('iconTextGap','4')
+            label.setAttribute('modelName','internal')
+            label.setAttribute('modelPosition','c')
+            label.setAttribute('textColor','#000000')
+            label.setAttribute('visible','true')
+            label.setAttribute('width','34.017578125')
+            label.setAttribute('x','27.9912109375')
+            label.setAttribute('xml:space','preserve')
+            label.setAttribute('y','5.6494140625')
+        
+        elif 'DOC' in a:    
+            
+            fill.setAttribute('color','#FFFFFF')
+            fill.setAttribute('transparent','false')
+            border.setAttribute('color','#000000')
+            border.setAttribute('type','line')
+            border.setAttribute('width','1.0')
+            label.setAttribute('alignment','center')
+            label.setAttribute('autoSizePolicy','content')
+            label.setAttribute('fontFamily','DialogInput')
+            label.setAttribute('fontSize','12')
+            label.setAttribute('fontStyle','bold')
+            label.setAttribute('hasBackgroundColor','false')
+            label.setAttribute('hasLineColor','false')
+            label.setAttribute('height','18.701171875')
+            label.setAttribute('horizontalTextPosition','center')
+            label.setAttribute('iconTextGap','4')
+            label.setAttribute('modelName','internal')
+            label.setAttribute('modelPosition','c')
+            label.setAttribute('textColor','#000000')
+            label.setAttribute('visible','true')
+            label.setAttribute('width','34.017578125')
+            label.setAttribute('x','27.9912109375')
+            label.setAttribute('xml:space','preserve')
+            label.setAttribute('y','5.6494140625')
+        
+        elif 'property' in a:    
+            
+            fill.setAttribute('color','#FFFFFF')
+            fill.setAttribute('transparent','false')
+            border.setAttribute('color','#000000')
+            border.setAttribute('type','line')
+            border.setAttribute('width','1.0')
+            label.setAttribute('alignment','center')
+            label.setAttribute('autoSizePolicy','content')
+            label.setAttribute('fontFamily','DialogInput')
+            label.setAttribute('fontSize','12')
+            label.setAttribute('fontStyle','bold')
+            label.setAttribute('hasBackgroundColor','false')
+            label.setAttribute('hasLineColor','false')
+            label.setAttribute('height','18.701171875')
+            label.setAttribute('horizontalTextPosition','center')
+            label.setAttribute('iconTextGap','4')
+            label.setAttribute('modelName','internal')
+            label.setAttribute('modelPosition','c')
+            label.setAttribute('textColor','#000000')
+            label.setAttribute('visible','true')
+            label.setAttribute('width','34.017578125')
+            label.setAttribute('x','27.9912109375')
+            label.setAttribute('xml:space','preserve')
+            label.setAttribute('y','5.6494140625')
         
         snode.appendChild(fill)
         snode.appendChild(border)
+        if a.startswith('Extractor'):       
+            a = "".join('D.')
+        if a.startswith('Combinar'):       
+            a = "".join('C.')
+        if a.startswith('DOC'):       
+            a = "".join('D.')
+        if a.startswith('property'):       
+            a = "".join('property')    
+        if a.startswith('SF'):       
+            a = "".join('SF')     
+        if a.startswith('CON'):       
+            a = "".join('') 
         label.appendChild(doc.createTextNode('{}'.format(a).replace('USVA','USV').replace('USVB','USV').replace('USVC','USV').replace('USVD','USV')))        
         
         snode.appendChild(label)
         
         shape = doc.createElement('y:Shape')
         
-        if 'USVA' in a:
-            
+        if 'USVA' in a:         
             shape.setAttribute('type','parallelogram')
         elif 'USVB' in a:
             #shape = doc.createElement('y:Shape')
@@ -501,7 +664,24 @@ class Node:
         elif 'CON' in a:
             #shape = doc.createElement('y:Shape')
             shape.setAttribute('type','diamond')
-        
+        elif 'SF' in a:
+            #shape = doc.createElement('y:Shape')
+            shape.setAttribute('type','octagon')
+        elif 'SUS' in a:
+            #shape = doc.createElement('y:Shape')
+            shape.setAttribute('type','ellipse')
+        elif 'Extractor' in a:
+            #shape = doc.createElement('y:Shape')
+            shape.setAttribute('type','rectangle')
+        elif 'Combinar' in a:
+            #shape = doc.createElement('y:Shape')
+            shape.setAttribute('type','rectangle')
+        elif 'DOC' in a:
+            #shape = doc.createElement('y:Shape')
+            shape.setAttribute('type','rectangle')    
+        elif 'property' in a:
+            #shape = doc.createElement('y:Shape')
+            shape.setAttribute('type','rectangle')    
         
         snode.appendChild(shape)
         
@@ -636,7 +816,14 @@ class Edge:
         line = doc.createElement('y:LineStyle')
         color = getColorAttribute(self.attribs, 'color', conf.DefaultEdgeColor, conf)
         line.setAttribute('color','%s' % color)
-        line.setAttribute('type', 'line')
+        
+        
+        if 'style' in self.attribs:
+            line.setAttribute('type', '%s' % self.attribs['style'])
+        else:
+            line.setAttribute('type', 'line')
+        
+        
         if 'penwidth' in self.attribs:
             line.setAttribute('width', '%s' % self.attribs['penwidth'])
         else:

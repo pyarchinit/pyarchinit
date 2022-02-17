@@ -99,7 +99,8 @@ class pyarchinit_Interactive_Matrix(QDialog, MAIN_DIALOG_CLASS):
         data = []
         negative =[]
         conteporane=[]
-        
+        connection=[]
+        connection_to=[]
         for sing_rec in self.DATA_LIST:
             try:
                 us = str(sing_rec.us)
@@ -144,7 +145,14 @@ class pyarchinit_Interactive_Matrix(QDialog, MAIN_DIALOG_CLASS):
                             harris_rapp2 = (un_t+us+'_'+defin+'_'+datazione,str(sing_rapp[2])+str(sing_rapp[1])+'_'+str(sing_rapp[3].replace(' ','_')+'_'+str(sing_rapp[4])))
                             conteporane.append(harris_rapp2)
                     
-                    
+                    if sing_rapp[0] == '>' :
+                        if sing_rapp[1] != '':
+                            harris_rapp3 = (un_t+us+'_'+defin+'_'+datazione,str(sing_rapp[2])+str(sing_rapp[1])+'_'+str(sing_rapp[3].replace(' ','_')+'_'+str(sing_rapp[4])))
+                            connection.append(harris_rapp3)
+                    if sing_rapp[0] == '>>' :
+                        if sing_rapp[1] != '':
+                            harris_rapp4 = (un_t+us+'_'+defin+'_'+datazione,str(sing_rapp[2])+str(sing_rapp[1])+'_'+str(sing_rapp[3].replace(' ','_')+'_'+str(sing_rapp[4])))
+                            connection_to.append(harris_rapp4)        
             except Exception as e:
                     
                     if self.L=='it':
@@ -226,7 +234,7 @@ class pyarchinit_Interactive_Matrix(QDialog, MAIN_DIALOG_CLASS):
 
             clust_number += 1
         
-        matrix_exp = HarrisMatrix(data,negative,conteporane, periodi_us_list)
+        matrix_exp = HarrisMatrix(data,negative,conteporane,connection,connection_to, periodi_us_list)
         
         data_plotting_2 = matrix_exp.export_matrix_2
         if self.L=='it':
