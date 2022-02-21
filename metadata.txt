@@ -12,7 +12,7 @@
 name=pyArchInit
 qgisMinimumVersion=3.22
 description=pyarchinit an tool for archaeological works
-version=3.9.12
+version=3.9.13
 author=Luca Mandolesi&Enzo Cocca
 email=pyarchinit@gmail.com
 
@@ -22,7 +22,12 @@ about=https://github.com/pyarchinit/pyarchinit
 tracker=https://github.com/pyarchinit/pyarchinit/issues
 repository=https://github.com/pyarchinit/pyarchinit
 
-changelog=release3.9.12
+changelog=release3.9.13
+
+    -fixed svg symbol for EM
+    -add unita_tipo column into pyunitastartigrafiche, pyunitastartigrafiche_usm e pyarchinit_quote, pyarchinit_quote_usm
+
+  release3.9.12
 
     -add vocabulary online into thesaurus form
     -update matrix for EM
