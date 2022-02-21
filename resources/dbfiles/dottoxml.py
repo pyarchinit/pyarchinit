@@ -83,14 +83,14 @@ def exportGraphml(o, nodes, edges, options,ff=0):
     ints=intes()
     doc = F.Document()
     root = doc.createElement('graphml')
-    root.setAttribute('xmlns','http://graphml.graphdrawing.org/download.html')
+    root.setAttribute('xmlns','http://graphml.graphdrawing.org/xmlns')
     root.setAttribute('xmlns:java','http://www.yworks.com/xml/yfiles-common/1.0/java')
     root.setAttribute('xmlns:sys','http://www.yworks.com/xml/yfiles-common/markup/primitives/2.0')
     root.setAttribute('xmlns:x','http://www.yworks.com/xml/yfiles-common/markup/2.0')
     root.setAttribute('xmlns:xsi','http://www.w3.org/2001/XMLSchema-instance')
     root.setAttribute('xmlns:y','http://www.yworks.com/xml/graphml')
     root.setAttribute('xmlns:yed','http://www.yworks.com/xml/yed/3')
-    root.setAttribute('xsi:schemaLocation','http://graphml.graphdrawing.org/xmlns http://www.yworks.com/xml/schema/graphml/1.0/ygraphml.xsd')
+    root.setAttribute('xsi:schemaLocation','http://graphml.graphdrawing.org/xmlns http://www.yworks.com/xml/schema/graphml/1.1/ygraphml.xsd')
     doc.appendChild(root)        
     
     key = doc.createElement('key')
@@ -141,7 +141,7 @@ def exportGraphml(o, nodes, edges, options,ff=0):
     key = doc.createElement('key')
     key.setAttribute('for','graphml')    
     key.setAttribute('id','d7') 
-    key.setAttribute('yfiles.folder','group')
+    #key.setAttribute('yfiles.folder','group')
     key.setAttribute('yfiles.type','resources')    
     root.appendChild(key)
     
@@ -536,10 +536,195 @@ def exportGraphml(o, nodes, edges, options,ff=0):
     
     root.appendChild(graph)
     
+    # data = doc.createElement('data')
+    # data.setAttribute('key','d7')    
+    # res = doc.createElement('y:Resources')
+    # data.appendChild(res)    
+    
     data = doc.createElement('data')
     data.setAttribute('key','d7')    
     res = doc.createElement('y:Resources')
-    data.appendChild(res)    
+    
+    res2 = doc.createElement('y:Resource')
+    #if 'Extractor' in node:
+    res2.setAttribute('id','1')
+    res2.setAttribute('xml:space','preserve')
+    
+    res2.appendChild(doc.createTextNode('''
+
+<svg
+   xmlns:dc="http://purl.org/dc/elements/1.1/"
+   xmlns:cc="http://creativecommons.org/ns#"
+   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+   xmlns:svg="http://www.w3.org/2000/svg"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   width="48px"
+   height="48px"
+   id="svg4050"
+   version="1.1"
+   inkscape:version="0.48.4 r9939"
+   sodipodi:docname="New document 13">
+ <defs
+     id="defs4052" />
+ <sodipodi:namedview
+     id="base"
+     pagecolor="#ffffff"
+     bordercolor="#666666"
+     borderopacity="1.0"
+     inkscape:pageopacity="0.0"
+     inkscape:pageshadow="2"
+     inkscape:zoom="9.8994949"
+     inkscape:cx="18.095997"
+     inkscape:cy="17.278115"
+     inkscape:current-layer="layer1"
+     showgrid="true"
+     inkscape:grid-bbox="true"
+     inkscape:document-units="px"
+     inkscape:window-width="1920"
+     inkscape:window-height="1025"
+     inkscape:window-x="-2"
+     inkscape:window-y="-3"
+     inkscape:window-maximized="1" />
+ <metadata
+     id="metadata4055">
+   <rdf:RDF>
+     <cc:Work
+         rdf:about="">
+       <dc:format>image/svg+xml</dc:format>
+       <dc:type
+           rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
+       <dc:title></dc:title>
+     </cc:Work>
+   </rdf:RDF>
+ </metadata>
+ <g
+     id="layer1"
+     inkscape:label="Layer 1"
+     inkscape:groupmode="layer">
+   <g
+       transform="matrix(0.41470954,0,0,0.41438764,-58.075087,96.197996)"
+       id="g3932">
+     <path
+         transform="translate(-176.7767,-1080.8632)"
+         d="m 430.32499,906.90021 c 0,30.68405 -24.87434,55.55839 -55.55839,55.55839 -30.68405,0 -55.55839,-24.87434 -55.55839,-55.55839 0,-30.68405 24.87434,-55.55839 55.55839,-55.55839 30.68405,0 55.55839,24.87434 55.55839,55.55839 z"
+         sodipodi:ry="55.558392"
+         sodipodi:rx="55.558392"
+         sodipodi:cy="906.90021"
+         sodipodi:cx="374.7666"
+         id="path2996-3"
+         style="fill:#ffffff;fill-opacity:1;stroke:#000000;stroke-width:4;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none;stroke-dashoffset:0"
+         sodipodi:type="arc" />
+     <path
+         inkscape:connector-curvature="0"
+         id="path3795"
+         d="m 195.82737,-229.48049 c -29.75104,1.0602 -53.53125,25.52148 -53.53125,55.53125 0,30.00977 23.78021,54.4398 53.53125,55.5 l 0,-38.875 -18.1875,0 0,-32.8125 18.1875,0 0,-39.34375 z"
+         style="fill:#7d7d7d;fill-opacity:1;stroke:#000000;stroke-width:4;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none;stroke-dashoffset:0" />
+     <rect
+         y="-187.49332"
+         x="212.49696"
+         height="27.142857"
+         width="26.071428"
+         id="rect3805"
+         style="fill:#7d7d7d;fill-opacity:1;stroke:#000000;stroke-width:4;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none;stroke-dashoffset:0" />
+     <path
+         inkscape:connector-curvature="0"
+         id="path3807"
+         d="m 180.35416,-173.20759 c 29.28571,0 29.28571,0 29.28571,0"
+         style="fill:none;stroke:#000000;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1" />
+   </g>
+ </g>
+</svg>'''))
+    
+    res.appendChild(res2)
+    res3 = doc.createElement('y:Resource')
+    #if 'Extractor' in node:
+    res3.setAttribute('id','2')
+    res3.setAttribute('xml:space','preserve')
+    
+    
+    res3.appendChild(doc.createTextNode('''
+
+<svg
+xmlns:dc="http://purl.org/dc/elements/1.1/"
+xmlns:cc="http://creativecommons.org/ns#"
+xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+xmlns:svg="http://www.w3.org/2000/svg"
+xmlns="http://www.w3.org/2000/svg"
+xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+width="48px"
+height="48px"
+id="svg4192"
+version="1.1"
+inkscape:version="0.48.4 r9939"
+sodipodi:docname="New document 20">
+<defs id="defs4194" />
+<sodipodi:namedview
+ id="base"
+ pagecolor="#ffffff"
+ bordercolor="#666666"
+ borderopacity="1.0"
+ inkscape:pageopacity="0.0"
+ inkscape:pageshadow="2"
+ inkscape:zoom="14"
+ inkscape:cx="24.612064"
+ inkscape:cy="28.768962"
+ inkscape:current-layer="layer1"
+ showgrid="true"
+ inkscape:grid-bbox="true"
+ inkscape:document-units="px"
+ inkscape:window-width="1920"
+ inkscape:window-height="1025"
+ inkscape:window-x="-2"
+ inkscape:window-y="-3"
+ inkscape:window-maximized="1" />
+<metadata id="metadata4197">
+<rdf:RDF>
+  <cc:Work
+     rdf:about="">
+    <dc:format>image/svg+xml</dc:format>
+    <dc:type
+       rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
+    <dc:title></dc:title>
+  </cc:Work>
+</rdf:RDF>
+</metadata>
+<g 
+ id="layer1"
+ inkscape:label="Layer 1"
+ inkscape:groupmode="layer">
+<g
+   transform="matrix(0.40828104,0,0,0.41346794,-201.56174,97.998396)"
+   id="g3922">
+  <path
+     sodipodi:type="arc"
+     style="fill:#ffffff;fill-opacity:1;stroke:#000000;stroke-width:4;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none;stroke-dashoffset:0"
+     id="path3912"
+     sodipodi:cx="374.7666"
+     sodipodi:cy="906.90021"
+     sodipodi:rx="55.558392"
+     sodipodi:ry="55.558392"
+     d="m 430.32499,906.90021 c 0,30.68405 -24.87434,55.55839 -55.55839,55.55839 -30.68405,0 -55.55839,-24.87434 -55.55839,-55.55839 0,-30.68405 24.87434,-55.55839 55.55839,-55.55839 30.68405,0 55.55839,24.87434 55.55839,55.55839 z"
+     transform="translate(177.55723,-1085.7479)" />
+  <path
+     sodipodi:nodetypes="ccsccc"
+     inkscape:connector-curvature="0"
+     id="path3914"
+     d="m 543.53146,-169.98986 63.36579,-17.50001 c 0,0 0.71429,3.97312 0.71429,11.68875 0,7.71563 -2.93748,15.70661 -2.93748,15.70661 l -61.1426,17.05358 z"
+     style="fill:#7b7b7b;fill-opacity:1;stroke:#000000;stroke-width:4;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none;stroke-dashoffset:0" />
+  <path
+     sodipodi:nodetypes="ccccsc"
+     inkscape:connector-curvature="0"
+     id="path3916"
+     d="m 501.52478,-201.54471 54.88091,-14.27148 0,26.94893 -59.23348,15.97426 c 0,0 -0.15898,-6.266 0.10274,-12.48413 0.34368,-8.16509 4.24983,-16.16758 4.24983,-16.16758 z"
+     style="fill:#7b7b7b;fill-opacity:1;stroke:#000000;stroke-width:4;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none;stroke-dashoffset:0" />
+</g>
+</g>
+</svg> '''))
+    res.appendChild(res3)
+    data.appendChild(res)
     root.appendChild(data)
     
     o.write('{}'.format(doc.toxml(encoding='UTF-8').decode()))
@@ -548,8 +733,8 @@ def exportGraphml(o, nodes, edges, options,ff=0):
     # parsed_xml = xml.dom.minidom.parseString(xml_string)
     # pretty_xml_as_string = parsed_xml.toprettyxml()
 
-    #file = open("./content_new.xml", 'w')
-    #o.write(xml_string)
+    # file = open("./content_new.xml", 'w')
+    # o.write(xml_string)
     
 def exportGDF(o, nodes, edges, options):
     o.write("nodedef> name\n")

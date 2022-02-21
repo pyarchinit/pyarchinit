@@ -357,39 +357,87 @@ class Node:
         """ export the node in Graphml format and append it to the parent XML node """
         graph1 = doc.createElement('graph')
         graph1.setAttribute('edgedefault','directed')    
-        graph1.setAttribute('id','n0:')
-        
-        LabelText = self.getLabel(conf, True)
-        
+        graph1.setAttribute('id','n0:')     
         node = doc.createElement('node')
         node.setAttribute('id','n0::n%d' % self.id)
         data0 = doc.createElement('data')
         data0.setAttribute('key', 'd6')
         snode = doc.createElement('y:ShapeNode')
-        
+        shape = doc.createElement('y:Shape')
+        #labal in description#
+        LabelText = self.getLabel(conf, True)
+        #label in generic info#
         nodeLabelText = escapeNewlines(self.getLabel(conf, True))
-        a = nodeLabelText.rsplit('_',)[0]
+        a = nodeLabelText.rsplit('_',)[0]        
         
+        data1 = doc.createElement('data')
         geom = doc.createElement('y:Geometry')
-        if 'CON' in a:
+        #elementi per  il DOC#
+        generic_node=doc.createElement('y:GenericNode')
+        style_prop=doc.createElement('y:StyleProperties')
+        style_prop2=doc.createElement('y:StyleProperties')
+        prop=doc.createElement('y:Property')
+        prop1=doc.createElement('y:Property')
+        prop2=doc.createElement('y:Property')
+        prop3=doc.createElement('y:Property')
+        prop4=doc.createElement('y:Property')
+        prop5=doc.createElement('y:Property')
         
+        
+        svg_node=doc.createElement('y:SVGNode')
+        svg_node_p=doc.createElement('y:SVGNodeProperties')
+        svg_model=doc.createElement('y:SVGModel')
+        svg_content=doc.createElement('y:SVGContent')
+        if 'DOC' in a:
+            snode=generic_node
+            snode.setAttribute('configuration','com.yworks.bpmn.Artifact.withShadow')
+        if 'property' in a:
+            snode=generic_node
+            snode.setAttribute('configuration','com.yworks.bpmn.Artifact.withShadow')
+        if 'Combinar' in a:
+            snode=svg_node
+        if 'Extractor' in a:
+            snode=svg_node
+        if 'CON' in a:        
             geom.setAttribute('height','30.0')
-            geom.setAttribute('width','30.0')
-            geom.setAttribute('x','520.0')
-            geom.setAttribute('y','%r'% self.get_y(epoch_sigla, LabelText))
-            #print(str(self.get_y(epoch_sigla)))
+            geom.setAttribute('width','50.0')        
+        elif 'DOC' in a:        
+            geom.setAttribute('height','55.0')
+            geom.setAttribute('width','35.0')    
+        elif 'Extractor' in a :
+            geom.setAttribute('height','25.0')
+            geom.setAttribute('width','25.0') 
+        elif 'Combinar' in a :
+            geom.setAttribute('height','25.0')
+            geom.setAttribute('width','25.0')         
         else:
             geom.setAttribute('height','30.0')
             geom.setAttribute('width','90.0')
-            geom.setAttribute('x','520.0')
-            geom.setAttribute('y','%r'% self.get_y(epoch_sigla, LabelText))
+        
+        geom.setAttribute('x','520.0')
+        geom.setAttribute('y','%r'% self.get_y(epoch_sigla, LabelText))
         
         snode.appendChild(geom)
         
         fill = doc.createElement('y:Fill')
         border = doc.createElement('y:BorderStyle')
+        #elementi per  il property#
+        la=doc.createElement('y:LabelModel')
+        sn=doc.createElement('y:SmartNodeLabelModel')
+        mp=doc.createElement('y:ModelParameter')
+        mps=doc.createElement('y:SmartNodeLabelModelParameter')
         label = doc.createElement('y:NodeLabel')
-        
+        bb = LabelText.rsplit('_',)[:-1]        
+        b = ' '.join(map(str, bb))
+        if a.startswith('CON'):       
+            #a = "CON".join('')
+            label.appendChild(doc.createTextNode('{}'.format(a)))
+        elif a.startswith('Property'):   
+            
+            #a =' '.join(b.split()[1:-1])
+            label.appendChild(doc.createTextNode('property'))
+        else:
+            label.appendChild(doc.createTextNode('{}'.format(a).replace('USVA','USV').replace('USVB','USV').replace('USVC','USV').replace('USVD','USV').replace('Extractor','D.').replace('Combinar','#').replace('DOC','D.')))     
         if 'USV' in a:    
             
             fill.setAttribute('color','#000000')
@@ -410,6 +458,32 @@ class Node:
             label.setAttribute('modelName','custom')
             label.setAttribute('modelPosition','c')
             label.setAttribute('textColor','#FFFFFF')
+            label.setAttribute('visible','true')
+            label.setAttribute('width','34.017578125')
+            label.setAttribute('x','27.9912109375')
+            label.setAttribute('xml:space','preserve')
+            label.setAttribute('y','5.6494140625')
+        
+        elif 'USM' in a:
+            
+            fill.setAttribute('color','#C0C0C0')
+            fill.setAttribute('transparent','false')
+            border.setAttribute('color','#000000')
+            border.setAttribute('type','line')
+            border.setAttribute('width','1.0')
+            label.setAttribute('alignment','center')
+            label.setAttribute('autoSizePolicy','content')
+            label.setAttribute('fontFamily','DialogInput')
+            label.setAttribute('fontSize','24')
+            label.setAttribute('fontStyle','bold')
+            label.setAttribute('hasBackgroundColor','false')
+            label.setAttribute('hasLineColor','false')
+            label.setAttribute('height','18.701171875')
+            label.setAttribute('horizontalTextPosition','center')
+            label.setAttribute('iconTextGap','4')
+            label.setAttribute('modelName','internal')
+            label.setAttribute('modelPosition','c')
+            label.setAttribute('textColor','#000000')
             label.setAttribute('visible','true')
             label.setAttribute('width','34.017578125')
             label.setAttribute('x','27.9912109375')
@@ -442,6 +516,8 @@ class Node:
             label.setAttribute('xml:space','preserve')
             label.setAttribute('y','5.6494140625')
         
+        
+        
         elif 'CON' in a:
             
             fill.setAttribute('color','#000000')
@@ -468,8 +544,7 @@ class Node:
             label.setAttribute('xml:space','preserve')
             label.setAttribute('y','5.6494140625')
             
-        elif 'SF' in a:    
-            
+        elif 'SF' in a:            
             fill.setAttribute('color','#FFFFFF')
             fill.setAttribute('transparent','false')
             border.setAttribute('color','#000000')
@@ -494,8 +569,7 @@ class Node:
             label.setAttribute('xml:space','preserve')
             label.setAttribute('y','5.6494140625')
         
-        elif 'SUS' in a:    
-            
+        elif 'SUS' in a:            
             fill.setAttribute('color','#FFFFFF')
             fill.setAttribute('transparent','false')
             border.setAttribute('color','#000000')
@@ -520,52 +594,56 @@ class Node:
             label.setAttribute('xml:space','preserve')
             label.setAttribute('y','5.6494140625')
         
-        elif 'Extractor' in a:    
-            
-            fill.setAttribute('color','#FFFFFF')
+        elif 'Extractor' in a:            
+            fill.setAttribute('color','#CCCCFF')
             fill.setAttribute('transparent','false')
             border.setAttribute('color','#000000')
             border.setAttribute('type','line')
             border.setAttribute('width','1.0')
             label.setAttribute('alignment','center')
             label.setAttribute('autoSizePolicy','content')
-            label.setAttribute('fontFamily','DialogInput')
-            label.setAttribute('fontSize','12')
-            label.setAttribute('fontStyle','bold')
+            label.setAttribute('borderDistance','0.0')
+            label.setAttribute('fontFamily','Dialog')
+            label.setAttribute('fontSize','10')
+            label.setAttribute('fontStyle','plain')
             label.setAttribute('hasBackgroundColor','false')
             label.setAttribute('hasLineColor','false')
             label.setAttribute('height','18.701171875')
             label.setAttribute('horizontalTextPosition','center')
             label.setAttribute('iconTextGap','4')
-            label.setAttribute('modelName','internal')
-            label.setAttribute('modelPosition','c')
+            label.setAttribute('modelName','corners')
+            label.setAttribute('modelPosition','nw')
             label.setAttribute('textColor','#000000')
+            label.setAttribute('underlinedText','true')
+            label.setAttribute('verticalTextPosition','bottom')
             label.setAttribute('visible','true')
             label.setAttribute('width','34.017578125')
             label.setAttribute('x','27.9912109375')
             label.setAttribute('xml:space','preserve')
             label.setAttribute('y','5.6494140625')
-        
+            
         elif 'Combinar' in a:    
-            
-            fill.setAttribute('color','#FFFFFF')
+            fill.setAttribute('color','#CCCCFF')
             fill.setAttribute('transparent','false')
             border.setAttribute('color','#000000')
             border.setAttribute('type','line')
             border.setAttribute('width','1.0')
             label.setAttribute('alignment','center')
             label.setAttribute('autoSizePolicy','content')
-            label.setAttribute('fontFamily','DialogInput')
-            label.setAttribute('fontSize','12')
-            label.setAttribute('fontStyle','bold')
+            label.setAttribute('borderDistance','0.0')
+            label.setAttribute('fontFamily','Dialog')
+            label.setAttribute('fontSize','10')
+            label.setAttribute('fontStyle','plain')
             label.setAttribute('hasBackgroundColor','false')
             label.setAttribute('hasLineColor','false')
             label.setAttribute('height','18.701171875')
             label.setAttribute('horizontalTextPosition','center')
             label.setAttribute('iconTextGap','4')
-            label.setAttribute('modelName','internal')
-            label.setAttribute('modelPosition','c')
+            label.setAttribute('modelName','corners')
+            label.setAttribute('modelPosition','nw')
             label.setAttribute('textColor','#000000')
+            label.setAttribute('underlinedText','true')
+            label.setAttribute('verticalTextPosition','bottom')
             label.setAttribute('visible','true')
             label.setAttribute('width','34.017578125')
             label.setAttribute('x','27.9912109375')
@@ -600,16 +678,18 @@ class Node:
         
         elif 'property' in a:    
             
-            fill.setAttribute('color','#FFFFFF')
+            fill.setAttribute('color','#FFFFFFE6')
             fill.setAttribute('transparent','false')
+            
             border.setAttribute('color','#000000')
             border.setAttribute('type','line')
             border.setAttribute('width','1.0')
+            
             label.setAttribute('alignment','center')
             label.setAttribute('autoSizePolicy','content')
             label.setAttribute('fontFamily','DialogInput')
             label.setAttribute('fontSize','12')
-            label.setAttribute('fontStyle','bold')
+            label.setAttribute('fontStyle','plain')
             label.setAttribute('hasBackgroundColor','false')
             label.setAttribute('hasLineColor','false')
             label.setAttribute('height','18.701171875')
@@ -618,89 +698,189 @@ class Node:
             label.setAttribute('modelName','internal')
             label.setAttribute('modelPosition','c')
             label.setAttribute('textColor','#000000')
+            label.setAttribute('verticalTextPosition','bottom')
             label.setAttribute('visible','true')
             label.setAttribute('width','34.017578125')
             label.setAttribute('x','27.9912109375')
             label.setAttribute('xml:space','preserve')
             label.setAttribute('y','5.6494140625')
-        
+            # sn.setAttribute('distance','4.0')
+            # la.appendChild(sn)
+            # snode.appendChild(la)
+            # mps.setAttribute('labelRatioX','0.0')
+            # mps.setAttribute('labelRatioY','0.0')
+            # mps.setAttribute('nodeRatioX','0.0')
+            # mps.setAttribute('nodeRatioY','0.0')
+            # mps.setAttribute('offsetX','0.0')
+            # mps.setAttribute('offsetY','0.0')
+            # mps.setAttribute('upX','0.0')
+            # mps.setAttribute('upy','-1.0')
+            # mp.appendChild(mps)
+            # snode.appendChild(mp)
+            
+            
+            
         snode.appendChild(fill)
-        snode.appendChild(border)
-        if a.startswith('Extractor'):       
-            a = "".join('D.')
-        if a.startswith('Combinar'):       
-            a = "".join('C.')
-        if a.startswith('DOC'):       
-            a = "".join('D.')
-        if a.startswith('property'):       
-            a = "".join('property')    
-        if a.startswith('SF'):       
-            a = "".join('SF')     
-        if a.startswith('CON'):       
-            a = "".join('') 
-        label.appendChild(doc.createTextNode('{}'.format(a).replace('USVA','USV').replace('USVB','USV').replace('USVC','USV').replace('USVD','USV')))        
+        snode.appendChild(border)           
         
         snode.appendChild(label)
         
-        shape = doc.createElement('y:Shape')
+        
         
         if 'USVA' in a:         
             shape.setAttribute('type','parallelogram')
+            snode.appendChild(shape)
         elif 'USVB' in a:
             #shape = doc.createElement('y:Shape')
             shape.setAttribute('type','hexagon')
+            snode.appendChild(shape)
         elif 'USVC' in a:
             #shape = doc.createElement('y:Shape')
             shape.setAttribute('type','ellipse')
+            snode.appendChild(shape)
         elif 'USVD' in a:
             #shape = doc.createElement('y:Shape')
-            shape.setAttribute('type','octagon')    
+            shape.setAttribute('type','octagon')
+            snode.appendChild(shape)    
         elif 'US' in a:
             #shape = doc.createElement('y:Shape')
             shape.setAttribute('type','rectangle')
+            snode.appendChild(shape)
         elif 'USM' in a:
             #shape = doc.createElement('y:Shape')
             shape.setAttribute('type','rectangle')
+            snode.appendChild(shape)
         elif 'CON' in a:
             #shape = doc.createElement('y:Shape')
-            shape.setAttribute('type','diamond')
+            shape.setAttribute('type','rectangle')
+            snode.appendChild(shape)
         elif 'SF' in a:
             #shape = doc.createElement('y:Shape')
             shape.setAttribute('type','octagon')
+            snode.appendChild(shape)
         elif 'SUS' in a:
             #shape = doc.createElement('y:Shape')
             shape.setAttribute('type','ellipse')
+            snode.appendChild(shape)
         elif 'Extractor' in a:
-            #shape = doc.createElement('y:Shape')
-            shape.setAttribute('type','rectangle')
+            
+            svg_node_p.setAttribute('usingVisualBounds','true')
+            snode.appendChild(svg_node_p)   
+            svg_model.setAttribute('svgBoundsPolicy','0')
+            
+            svg_content.setAttribute('refid','1')
+            svg_model.appendChild(svg_content)
+            snode.appendChild(svg_model)
         elif 'Combinar' in a:
-            #shape = doc.createElement('y:Shape')
-            shape.setAttribute('type','rectangle')
-        elif 'DOC' in a:
-            #shape = doc.createElement('y:Shape')
-            shape.setAttribute('type','rectangle')    
+            svg_node_p.setAttribute('usingVisualBounds','true')
+            snode.appendChild(svg_node_p)   
+            svg_model.setAttribute('svgBoundsPolicy','0')
+            svg_content.setAttribute('refid','2')
+            svg_model.appendChild(svg_content)
+            snode.appendChild(svg_model)
         elif 'property' in a:
-            #shape = doc.createElement('y:Shape')
-            shape.setAttribute('type','rectangle')    
+            shape = style_prop2
+            prop.setAttribute('class','java.awt.Color')
+            prop.setAttribute('name','com.yworks.bpmn.icon.line.color')
+            prop.setAttribute('value','#000000')
+            shape.appendChild(prop)
+            
+            prop1.setAttribute('class','java.awt.Color')
+            prop1.setAttribute('name','com.yworks.bpmn.icon.fill2')
+            prop1.setAttribute('value','#d4d4d4cc')
+            shape.appendChild(prop1)
+            
+            prop2.setAttribute('class','java.awt.Color')
+            prop2.setAttribute('name','com.yworks.bpmn.icon.fill')
+            prop2.setAttribute('value','#ffffffe6')
+            shape.appendChild(prop2)
+            
+            prop5.setAttribute('class','com.yworks.yfiles.bpmn.view.BPMNTypeEnum')
+            prop5.setAttribute('name','com.yworks.bpmn.type')
+            prop5.setAttribute('value','ARTIFACT_TYPE_ANNOTATION')
+            shape.appendChild(prop5)
+            snode.appendChild(shape)    
+            
+        elif 'DOC' in a:
+            shape = style_prop
+            prop.setAttribute('class','java.awt.Color')
+            prop.setAttribute('name','com.yworks.bpmn.icon.line.color')
+            prop.setAttribute('value','#000000')
+            shape.appendChild(prop)
+            
+            prop1.setAttribute('class','java.awt.Color')
+            prop1.setAttribute('name','com.yworks.bpmn.icon.fill2')
+            prop1.setAttribute('value','#d4d4d4cc')
+            shape.appendChild(prop1)
+            
+            prop2.setAttribute('class','java.awt.Color')
+            prop2.setAttribute('name','com.yworks.bpmn.icon.fill')
+            prop2.setAttribute('value','#ffffffe6')
+            shape.appendChild(prop2)
+            
+            prop3.setAttribute('class','com.yworks.yfiles.bpmn.view.BPMNTypeEnum')
+            prop3.setAttribute('name','com.yworks.bpmn.type')
+            prop3.setAttribute('value','ARTIFACT_TYPE_DATA_OBJECT')
+            shape.appendChild(prop3)
+            
+            prop4.setAttribute('class','com.yworks.yfiles.bpmn.view.DataObjectTypeEnum')
+            prop4.setAttribute('name','com.yworks.bpmn.dataObjectType')
+            prop4.setAttribute('value','DATA_OBJECT_TYPE_PLAIN')
+            shape.appendChild(prop4)        
         
-        snode.appendChild(shape)
+            snode.appendChild(shape)
         
         data0.appendChild(snode)
         
-        LabelText = self.getLabel(conf, True)
-        bb = LabelText.rsplit('_',)[:-1]        
-        b = ' '.join(map(str, bb))
-        c=' '.join(b.split()[1:])
-        data1 = doc.createElement('data')
-        data1.setAttribute('key', 'd5')
-        data1.setAttribute('xml:space','preserve')
-        data1.appendChild(doc.createTextNode('{}'.format(c))) 
-         
-        node.appendChild(data1)        
-        node.appendChild(data0) 
-        #graph1.appendChild(node)
-        parent.appendChild(node)
         
+        
+        
+        if 'USVA' in a:         
+            data1.setAttribute('key', 'd5')
+            data1.setAttribute('xml:space','preserve') 
+        elif 'USVB' in a:
+            data1.setAttribute('key', 'd5')
+            data1.setAttribute('xml:space','preserve') 
+        elif 'USVC' in a:
+            data1.setAttribute('key', 'd5')
+            data1.setAttribute('xml:space','preserve') 
+        elif 'USVD' in a:
+            data1.setAttribute('key', 'd5')
+            data1.setAttribute('xml:space','preserve')  
+        elif 'US' in a:
+            data1.setAttribute('key', 'd5')
+            data1.setAttribute('xml:space','preserve') 
+        elif 'USM' in a:
+            data1.setAttribute('key', 'd5')
+            data1.setAttribute('xml:space','preserve') 
+        elif 'CON' in a:
+            data1.setAttribute('key', 'd5')
+            data1.setAttribute('xml:space','preserve') 
+            
+        elif 'SUS' in a:
+            data1.setAttribute('key', 'd5')
+            data1.setAttribute('xml:space','preserve') 
+        elif 'Extractor' in a:
+            data1.setAttribute('key', 'd5')
+            data1.setAttribute('xml:space','preserve') 
+        elif 'Combinar' in a:
+            data1.setAttribute('key', 'd7')
+            data1.setAttribute('xml:space','preserve') 
+        elif 'DOC' in a:
+            data1.setAttribute('key', 'd4')
+            data1.setAttribute('xml:space','preserve') 
+        elif 'property' in a:
+            data1.setAttribute('key', 'd5')
+            data1.setAttribute('xml:space','preserve') 
+            
+        
+        c=' '.join(b.split()[1:])
+        
+        data1.appendChild(doc.createTextNode('{}'.format(c)))
+        node.appendChild(data1)        
+        node.appendChild(data0)            
+        parent.appendChild(node)
+        #parent.appendChild(data_r)
         
 class Edge:
     """ a single edge in the graph """
@@ -871,3 +1051,4 @@ class Edge:
         edge.appendChild(data3)
         
         parent.appendChild(edge)
+       
