@@ -22,7 +22,7 @@ class Periodizzazione_table:
                                   Column('id_perfas', Integer, primary_key=True),
                                   Column('sito', Text),
                                   Column('periodo', Integer),
-                                  Column('fase', Integer),
+                                  Column('fase', Text),
                                   Column('cron_iniziale', Integer),
                                   Column('cron_finale', Integer),
                                   Column('descrizione', Text),

@@ -2656,7 +2656,7 @@ ALTER TABLE ONLY public.pyarchinit_documentazione
 --
 
 ALTER TABLE ONLY public.us_table
-    ADD CONSTRAINT "ID_us_unico" UNIQUE (sito, area, us);
+    ADD CONSTRAINT "ID_us_unico" UNIQUE (sito, area, us, unita_tipo);
 
 
 --

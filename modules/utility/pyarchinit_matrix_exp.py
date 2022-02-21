@@ -387,14 +387,14 @@ class HarrisMatrix:
                 #a.attr(rank='same')
                 r.edges(elist4)
                 
-                r.node_attr['shape'] = str(dialog.combo_box_3.currentText())
-                r.node_attr['style'] = str(dialog.combo_box_4.currentText())
-                r.node_attr.update(style='filled', fillcolor=str(dialog.combo_box_2.currentText()))
+                r.node_attr['shape'] = str(dialog.combo_box_26.currentText())
+                r.node_attr['style'] = str(dialog.combo_box_30.currentText())
+                r.node_attr.update(style='filled', fillcolor=str(dialog.combo_box_28.currentText()))
                 r.node_attr['color'] = 'black'    
-                r.node_attr['penwidth'] = str(dialog.combo_box_5.currentText())
-                r.edge_attr['penwidth'] = str(dialog.combo_box_5.currentText())
+                r.node_attr['penwidth'] = str(dialog.combo_box_27.currentText())
+                r.edge_attr['penwidth'] = str(dialog.combo_box_27.currentText())
                 r.edge_attr['style'] = str(dialog.combo_box_31.currentText())
-                r.edge_attr.update(arrowhead=str(dialog.combo_box_11.currentText()), arrowsize=str(dialog.combo_box_16.currentText()))    
+                r.edge_attr.update(arrowhead=str(dialog.combo_box_29.currentText()), arrowsize=str(dialog.combo_box_32.currentText()))    
             
             
             for ff in self.connection_to:
@@ -405,14 +405,14 @@ class HarrisMatrix:
                 #a.attr(rank='same')
                 t.edges(elist5)
                 
-                t.node_attr['shape'] = str(dialog.combo_box_6.currentText())
-                t.node_attr['style'] = str(dialog.combo_box_8.currentText())
-                t.node_attr.update(style='filled', fillcolor=str(dialog.combo_box_2.currentText()))
+                t.node_attr['shape'] = str(dialog.combo_box_34.currentText())
+                t.node_attr['style'] = str(dialog.combo_box_38.currentText())
+                t.node_attr.update(style='filled', fillcolor=str(dialog.combo_box_36.currentText()))
                 t.node_attr['color'] = 'black'    
-                t.node_attr['penwidth'] = str(dialog.combo_box_7.currentText())
-                t.edge_attr['penwidth'] = str(dialog.combo_box_7.currentText())
+                t.node_attr['penwidth'] = str(dialog.combo_box_35.currentText())
+                t.edge_attr['penwidth'] = str(dialog.combo_box_35.currentText())
                 t.edge_attr['style'] = str(dialog.combo_box_39.currentText())
-                t.edge_attr.update(arrowhead=str(dialog.combo_box_14.currentText()), arrowsize=str(dialog.combo_box_16.currentText()))    
+                t.edge_attr.update(arrowhead=str(dialog.combo_box_37.currentText()), arrowsize=str(dialog.combo_box_40.currentText()))    
         
         
         if bool(dialog.checkBox_legend.isChecked()):
