@@ -137,7 +137,7 @@ class US_table:
                      Column('rapporti2', Text),  #95 ok
 
                      # explicit/composite unique constraint.  'name' is optional.
-                     UniqueConstraint('sito', 'area', 'us', name='ID_us_unico')
+                     UniqueConstraint('sito', 'area', 'us','unita_tipo', name='ID_us_unico')
                      )
 
     metadata.create_all(engine)
