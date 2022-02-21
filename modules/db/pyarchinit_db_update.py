@@ -529,7 +529,7 @@ class DB_update(object):
             table_column_names_list.append(str(i.name))
         
         if not table_column_names_list.__contains__('unita_tipo_q'):
-            self.engine.execute("ALTER TABLE pyunitastratigrafiche_usm ADD COLUMN unita_tipo_q text")
+            self.engine.execute("ALTER TABLE pyarchinit_quote_usm ADD COLUMN unita_tipo_q text")
        
         
         table = Table("pyarchinit_quote", self.metadata, autoload=True)
@@ -538,7 +538,7 @@ class DB_update(object):
             table_column_names_list.append(str(i.name))
         
         if not table_column_names_list.__contains__('unita_tipo_q'):
-            self.engine.execute("ALTER TABLE pyunitastratigrafiche_usm ADD COLUMN unita_tipo_q text")
+            self.engine.execute("ALTER TABLE pyarchinit_quote ADD COLUMN unita_tipo_q text")
         
         table = Table("pyarchinit_strutture_ipotesi", self.metadata, autoload=True)
         table_column_names_list = []

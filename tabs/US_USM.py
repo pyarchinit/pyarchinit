@@ -811,6 +811,7 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
         self.progressBar.setTextVisible(True)
         sito = self.comboBox_sito.currentText()
         self.comboBox_sito.setEditText(sito)
+        self.change_label()
         self.fill_fields()
         self.customize_GUI()
         self.msg_sito()
@@ -824,9 +825,29 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
         self.tableWidget_rapporti.itemSelectionChanged.connect(self.us_t)
         
         # self.tableWidget_rapporti.itemSelectionChanged.connect(self.rapp)
-        self.refresh()
+        self.comboBox_unita_tipo.currentTextChanged.connect(self.change_label)
         self.field.currentTextChanged.connect(self.value_check)
-    
+    def change_label(self):
+        if self.comboBox_unita_tipo.currentText()=='DOC':
+            self.label_5.setText('Riferimento documentazione')
+        if self.comboBox_unita_tipo.currentText()=='property':
+            self.label_5.setText('Descrizione della proprietà')
+        if self.comboBox_unita_tipo.currentText().startswith('USV'):
+            self.label_5.setText('Descrizione della Unità Str. Virtuale')
+        if self.comboBox_unita_tipo.currentText()=='CON':
+            self.label_5.setText('Riferimento alla Unità Continuativa')
+        if self.comboBox_unita_tipo.currentText()=='CON':
+            self.label_5.setText('Riferimento alla Unità Continuativa')
+        if self.comboBox_unita_tipo.currentText()=='Combinar':
+            self.label_5.setText('Descrizione connettore')
+        if self.comboBox_unita_tipo.currentText()=='Extractor':
+            self.label_5.setText('Descrizione estrattore')
+        if self.comboBox_unita_tipo.currentText()=='SUS':
+            self.label_5.setText('Descrizione')    
+        if self.comboBox_unita_tipo.currentText()=='SF':
+            self.label_5.setText('Descrizione')
+        
+        
     def refresh(self):
         
         for i in self.DATA_LIST:
