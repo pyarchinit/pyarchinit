@@ -107,6 +107,7 @@ class pyarchinit_Interactive_Matrix(QDialog, MAIN_DIALOG_CLASS):
                 un_t = str(sing_rec.unita_tipo)##per inserire il termine US o USM
                 datazione = str(sing_rec.periodo_iniziale)+'-'+str(sing_rec.fase_iniziale)##per inserire la datazione estesa
                 defin = str(sing_rec.d_interpretativa.replace(' ','_'))##per inserire la definizione startigrafica
+                doc = str(sing_rec.doc_usv.replace(' ','_'))##per inserire la definizione startigrafica
             
                 rapporti_stratigrafici = eval(sing_rec.rapporti2)
             except (NameError, SyntaxError) as e: 
@@ -149,10 +150,17 @@ class pyarchinit_Interactive_Matrix(QDialog, MAIN_DIALOG_CLASS):
                         if sing_rapp[1] != '':
                             harris_rapp3 = (un_t+us+'_'+defin+'_'+datazione,str(sing_rapp[2])+str(sing_rapp[1])+'_'+str(sing_rapp[3].replace(' ','_')+'_'+str(sing_rapp[4])))
                             connection.append(harris_rapp3)
+                    
+                    
                     if sing_rapp[0] == '>>' :
                         if sing_rapp[1] != '':
                             harris_rapp4 = (un_t+us+'_'+defin+'_'+datazione,str(sing_rapp[2])+str(sing_rapp[1])+'_'+str(sing_rapp[3].replace(' ','_')+'_'+str(sing_rapp[4])))
                             connection_to.append(harris_rapp4)        
+            
+                    # if sing_rapp[0] == '<->' :
+                        # if sing_rapp[1] != '':
+                            # harris_rapp4 = (un_t+us+'_'+doc+'_'+datazione,str(sing_rapp[2])+str(sing_rapp[1])+'_'+str(sing_rapp[3].replace(' ','_')+'_'+str(sing_rapp[4])))
+                            # connection_to.append(harris_rapp4)      
             except Exception as e:
                     
                     if self.L=='it':
@@ -224,8 +232,15 @@ class pyarchinit_Interactive_Matrix(QDialog, MAIN_DIALOG_CLASS):
             for rec in us_group:
                 #sing_ut.append(rec.unita_tipo)
                 #sing_ut.append(rec.unita_tipo)
-                
+                # try: 
+                    # if 'DOC' in rec.unita_tipo:
+                        # sing_us.append(rec.unita_tipo+str(rec.us)+'_'+rec.doc_usv.replace(' ','_')+'_'+rec.periodo_iniziale+'-'+rec.fase_iniziale)
+                    # else:
                 sing_us.append(rec.unita_tipo+str(rec.us)+'_'+rec.d_interpretativa.replace(' ','_')+'_'+rec.periodo_iniziale+'-'+rec.fase_iniziale)
+                # except:
+                    # pass
+                # else:
+                    # sing_us.append(rec.unita_tipo+str(rec.us)+'_'+rec.d_interpretativa.replace(' ','_')+'_'+rec.periodo_iniziale+'-'+rec.fase_iniziale)
                 #sing_def.append(rec.d_stratigrafica)
             
             sing_per.insert(0, sing_us )
@@ -235,8 +250,12 @@ class pyarchinit_Interactive_Matrix(QDialog, MAIN_DIALOG_CLASS):
             clust_number += 1
         
         matrix_exp = HarrisMatrix(data,negative,conteporane,connection,connection_to, periodi_us_list)
-        
-        data_plotting_2 = matrix_exp.export_matrix_2
+        try: 
+            data_plotting_2 = matrix_exp.export_matrix_2
+        except Exception as e :
+            QMessageBox.information(self, "Info", str(e), QMessageBox.Ok)
+        finally:
+            data_plotting_2 = matrix_exp.export_matrix_2
         if self.L=='it':
             QMessageBox.information(self, "Info", "Esportazione completata", QMessageBox.Ok)
         elif self.L=='de':

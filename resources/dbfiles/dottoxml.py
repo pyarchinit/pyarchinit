@@ -536,17 +536,14 @@ def exportGraphml(o, nodes, edges, options,ff=0):
     
     root.appendChild(graph)
     
-    # data = doc.createElement('data')
-    # data.setAttribute('key','d7')    
-    # res = doc.createElement('y:Resources')
-    # data.appendChild(res)    
     
+    #######creo i simboli  svg per gli estrattori, i combinar e le continuity########
     data = doc.createElement('data')
     data.setAttribute('key','d7')    
     res = doc.createElement('y:Resources')
     
     res2 = doc.createElement('y:Resource')
-    #if 'Extractor' in node:
+    
     res2.setAttribute('id','1')
     res2.setAttribute('xml:space','preserve')
     
@@ -724,6 +721,81 @@ sodipodi:docname="New document 20">
 </g>
 </svg> '''))
     res.appendChild(res3)
+    res4 = doc.createElement('y:Resource')
+    #if 'Extractor' in node:
+    res4.setAttribute('id','3')
+    res4.setAttribute('xml:space','preserve')
+    
+    
+    res4.appendChild(doc.createTextNode('''
+
+<svg
+   xmlns:dc="http://purl.org/dc/elements/1.1/"
+   xmlns:cc="http://creativecommons.org/ns#"
+   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+   xmlns:svg="http://www.w3.org/2000/svg"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   width="7mm"
+   height="7mm"
+   viewBox="0 0 7 7"
+   version="1.1"
+   id="svg8"
+   inkscape:version="0.92.2 5c3e80d, 2017-08-06"
+   sodipodi:docname="continuity.svg">
+  <defs
+     id="defs2" />
+  <sodipodi:namedview
+     id="base"
+     pagecolor="#ffffff"
+     bordercolor="#666666"
+     borderopacity="1.0"
+     inkscape:pageopacity="0.0"
+     inkscape:pageshadow="2"
+     inkscape:zoom="1.8181416"
+     inkscape:cx="-10.002405"
+     inkscape:cy="-64.860066"
+     inkscape:document-units="mm"
+     inkscape:current-layer="layer1"
+     showgrid="false"
+     fit-margin-top="0"
+     fit-margin-left="0"
+     fit-margin-right="0"
+     fit-margin-bottom="0"
+     inkscape:window-width="1440"
+     inkscape:window-height="800"
+     inkscape:window-x="0"
+     inkscape:window-y="1"
+     inkscape:window-maximized="1" />
+  <metadata
+     id="metadata5">
+    <rdf:RDF>
+      <cc:Work
+         rdf:about="">
+        <dc:format>image/svg+xml</dc:format>
+        <dc:type
+           rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
+        <dc:title></dc:title>
+      </cc:Work>
+    </rdf:RDF>
+  </metadata>
+  <g
+     inkscape:label="Livello 1"
+     inkscape:groupmode="layer"
+     id="layer1"
+     transform="translate(-82.089519,-139.87478)">
+    <rect
+       id="rect12"
+       width="4.9497476"
+       height="4.9497476"
+       x="159.42734"
+       y="38.385479"
+       style="stroke-width:0.01220008"
+       transform="rotate(45)" />
+  </g>
+</svg> '''))
+    res.appendChild(res4)
     data.appendChild(res)
     root.appendChild(data)
     
@@ -952,6 +1024,5 @@ def main():
 
 if __name__ == '__main__':
     app=QApplication(sys.argv)
-    # #app.show()
-    # sys.exit(app.exec_())
+    
     main()

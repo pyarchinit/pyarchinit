@@ -214,10 +214,7 @@ class Node:
         self.sections = []
         self.x=0.0
         self.y=0.0
-    # def listToString(list):
-    # """ converte la lista in stringa"""    
-        # str1 = " "
-        # return (str1.join(list))
+    
     def initFromString(self, line):
         """ extract node info from the given text line """
         spos = findUnquoted(line, '[')
@@ -327,20 +324,7 @@ class Node:
         o.write("    label\n")
         o.write("    \"%s\"\n" % self.getLabel(conf).encode(latinenc, errors="ignore"))
         o.write("  ]\n")
-    # def random(self,conf):
-        # epoch=[]
-        # LabelText = self.getLabel(conf, True)
-        # bb = LabelText.rsplit('_',)[1:]
-        # b = ' '.join(map(str, bb))
-        # for i in b[-3:]:
-            # epoch.append(i)
-        
-        # ###rimuove i duplicati###
-        # seen = set()
-        # seen_add = seen.add
-        # return [x for x in epoch if not (x in seen or seen_add(x))]
-            
-
+    
     def get_y(self,epoch, nome_us) :
         index=0
         y_value=0
@@ -399,8 +383,9 @@ class Node:
         if 'Extractor' in a:
             snode=svg_node
         if 'CON' in a:        
-            geom.setAttribute('height','30.0')
-            geom.setAttribute('width','50.0')        
+            snode=svg_node
+            geom.setAttribute('height','26.0')
+            geom.setAttribute('width','26.0')        
         elif 'DOC' in a:        
             geom.setAttribute('height','55.0')
             geom.setAttribute('width','35.0')    
@@ -429,15 +414,26 @@ class Node:
         label = doc.createElement('y:NodeLabel')
         bb = LabelText.rsplit('_',)[:-1]        
         b = ' '.join(map(str, bb))
+        
+        
         if a.startswith('CON'):       
-            #a = "CON".join('')
-            label.appendChild(doc.createTextNode('{}'.format(a)))
-        elif a.startswith('Property'):   
             
-            #a =' '.join(b.split()[1:-1])
-            label.appendChild(doc.createTextNode('property'))
+            label.appendChild(doc.createTextNode('{}'.format(a)))
+        elif a.startswith('property'):   
+            a=b
+            l =' '.join(a.split()[1:2])
+            label.appendChild(doc.createTextNode(l))
+        
+        
+        elif a.startswith('DOC'):   
+            
+            ##inserisco il punto prima dell'ultimo carattere(questo sognifica che i doc non devono essere più di 9 per estrattore)###
+            a=a[:-1] + "."+a[-1:]
+            ##scrivo il nome della doc cambiando le iniziali DOC in D.###
+            label.appendChild(doc.createTextNode('{}'.format(a).replace('DOC','D.')))
+        
         else:
-            label.appendChild(doc.createTextNode('{}'.format(a).replace('USVA','USV').replace('USVB','USV').replace('USVC','USV').replace('USVD','USV').replace('Extractor','D.').replace('Combinar','#').replace('DOC','D.')))     
+            label.appendChild(doc.createTextNode('{}'.format(a).replace('USVA','USV').replace('USVB','USV').replace('USVC','USV').replace('USVD','USV').replace('Extractor','D.').replace('Combinar','C.')))     
         if 'USV' in a:    
             
             fill.setAttribute('color','#000000')
@@ -704,21 +700,6 @@ class Node:
             label.setAttribute('x','27.9912109375')
             label.setAttribute('xml:space','preserve')
             label.setAttribute('y','5.6494140625')
-            # sn.setAttribute('distance','4.0')
-            # la.appendChild(sn)
-            # snode.appendChild(la)
-            # mps.setAttribute('labelRatioX','0.0')
-            # mps.setAttribute('labelRatioY','0.0')
-            # mps.setAttribute('nodeRatioX','0.0')
-            # mps.setAttribute('nodeRatioY','0.0')
-            # mps.setAttribute('offsetX','0.0')
-            # mps.setAttribute('offsetY','0.0')
-            # mps.setAttribute('upX','0.0')
-            # mps.setAttribute('upy','-1.0')
-            # mp.appendChild(mps)
-            # snode.appendChild(mp)
-            
-            
             
         snode.appendChild(fill)
         snode.appendChild(border)           
@@ -731,35 +712,38 @@ class Node:
             shape.setAttribute('type','parallelogram')
             snode.appendChild(shape)
         elif 'USVB' in a:
-            #shape = doc.createElement('y:Shape')
+            
             shape.setAttribute('type','hexagon')
             snode.appendChild(shape)
         elif 'USVC' in a:
-            #shape = doc.createElement('y:Shape')
+            
             shape.setAttribute('type','ellipse')
             snode.appendChild(shape)
         elif 'USVD' in a:
-            #shape = doc.createElement('y:Shape')
+            
             shape.setAttribute('type','octagon')
             snode.appendChild(shape)    
         elif 'US' in a:
-            #shape = doc.createElement('y:Shape')
+           
             shape.setAttribute('type','rectangle')
             snode.appendChild(shape)
         elif 'USM' in a:
-            #shape = doc.createElement('y:Shape')
+            
             shape.setAttribute('type','rectangle')
             snode.appendChild(shape)
         elif 'CON' in a:
-            #shape = doc.createElement('y:Shape')
-            shape.setAttribute('type','rectangle')
-            snode.appendChild(shape)
+            svg_node_p.setAttribute('usingVisualBounds','true')
+            snode.appendChild(svg_node_p)   
+            svg_model.setAttribute('svgBoundsPolicy','0')            
+            svg_content.setAttribute('refid','3')
+            svg_model.appendChild(svg_content)
+            snode.appendChild(svg_model)
         elif 'SF' in a:
-            #shape = doc.createElement('y:Shape')
+            
             shape.setAttribute('type','octagon')
             snode.appendChild(shape)
         elif 'SUS' in a:
-            #shape = doc.createElement('y:Shape')
+            
             shape.setAttribute('type','ellipse')
             snode.appendChild(shape)
         elif 'Extractor' in a:

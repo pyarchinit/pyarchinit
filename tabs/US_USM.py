@@ -751,6 +751,7 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
         'materiale_p',
         'consistenza_p',
         'rapporti2',
+        'doc_usv',
         ]
     LANG = {
         "IT": ['it_IT', 'IT', 'it', 'IT_IT'],
@@ -772,7 +773,8 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
         self.mDockWidget_export.setHidden(True)
         self.mDockWidget_3.setHidden(True)
         self.mDockWidget_4.setHidden(True)
-        
+        self.mQgsFileWidget.setHidden(True)
+        self.toolButton_file_doc.setHidden(True)
         self.mDockWidget_5.setHidden(True)
         
         self.currentLayerId = None
@@ -807,11 +809,11 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
         self.toolButton_pdfpath.clicked.connect(self.setPathpdf)
         self.toolButton_input.clicked.connect(self.setPathdot)
         self.toolButton_output.clicked.connect(self.setPathgraphml)
+        self.toolButton_file_doc.clicked.connect(self.setDoc_ref)
         self.pbnOpenpdfDirectory.clicked.connect(self.openpdfDir)
         self.progressBar.setTextVisible(True)
         sito = self.comboBox_sito.currentText()
         self.comboBox_sito.setEditText(sito)
-        self.change_label()
         self.fill_fields()
         self.customize_GUI()
         self.msg_sito()
@@ -830,6 +832,14 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
     def change_label(self):
         if self.comboBox_unita_tipo.currentText()=='DOC':
             self.label_5.setText('Riferimento documentazione')
+            self.comboBox_def_intepret.setHidden(True)
+            self.mQgsFileWidget.setGeometry(486,128,334,20)
+            self.mQgsFileWidget.show()
+            self.toolButton_file_doc.show()
+        else:
+            self.mQgsFileWidget.setHidden(True)
+            self.toolButton_file_doc.setHidden(True)
+            self.comboBox_def_intepret.show()
         if self.comboBox_unita_tipo.currentText()=='property':
             self.label_5.setText('Descrizione della proprietà')
         if self.comboBox_unita_tipo.currentText().startswith('USV'):
@@ -1449,6 +1459,8 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
             area = str(self.comboBox_area.currentText())
             
             us_item = self.tableWidget_rapporti.item(rowIndex, 1)
+            # doc=self.tableWidget_rapporti2.item(rowIndex, 2)
+            # d=str(doc.text())
             us_ = str(us_item.text())
             rapp_item = self.tableWidget_rapporti.item(rowIndex, 0)
             rapp_ = str(rapp_item.text())
@@ -1463,6 +1475,9 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
                 #
                 self.tableWidget_rapporti2.setItem(rowIndex,1,QtWidgets.QTableWidgetItem(us_))
                 self.tableWidget_rapporti2.setItem(rowIndex,4,QtWidgets.QTableWidgetItem(p.periodo_iniziale+'-'+p.fase_iniziale))
+                # if 'DOC' in d:
+                    # self.tableWidget_rapporti2.setItem(rowIndex,3,QtWidgets.QTableWidgetItem(p.doc_usv))
+                # else:
                 self.tableWidget_rapporti2.setItem(rowIndex,3,QtWidgets.QTableWidgetItem(p.d_interpretativa))
                 self.tableWidget_rapporti2.setItem(rowIndex,2,QtWidgets.QTableWidgetItem(p.unita_tipo))
                 self.tableWidget_rapporti2.setItem(rowIndex,0,QtWidgets.QTableWidgetItem(rapp_))
@@ -1768,7 +1783,7 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
         self.setComboBoxEditable(["self.comboBox_datazione"],1)
         # lista tipo rapporti stratigrafici
         if self.L=='it':
-            valuesRS = ["Uguale a", "Si lega a", "Copre", "Coperto da", "Riempie", "Riempito da", "Taglia", "Tagliato da", "Si appoggia a", "Gli si appoggia", ">","<","<<",">>",""]
+            valuesRS = ["Uguale a", "Si lega a", "Copre", "Coperto da", "Riempie", "Riempito da", "Taglia", "Tagliato da", "Si appoggia a", "Gli si appoggia", ">","<","<<",">>","<->",""]
             self.delegateRS = ComboBoxDelegate()
             self.delegateRS.def_values(valuesRS)
             self.delegateRS.def_editable('False')
@@ -3242,6 +3257,19 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
         if dbpath:
             self.lineEdit_output.setText(dbpath)
             s.setValue('',dbpath)
+    
+    def setDoc_ref(self):
+        s = QgsSettings()
+        dbpath = QFileDialog.getSaveFileName(
+            self,
+            "Set file name",
+            self.MATRIX_PATH,
+            " All files (*.*)"
+        )[0]
+        filename=dbpath.split("/")[-1]
+        if dbpath:
+            self.mQgsFileWidget.setText('DosCo\\'+filename)
+            s.setValue('',dbpath)
     def list2pipe(self,x):
         lista =[]
         if isinstance(x,str) and x.startswith('[') and '], ['  and ', ' in x:
@@ -3907,7 +3935,7 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
                     QMessageBox.warning(self, "ATTENZIONE", "Campo Area. \n Il valore deve essere di tipo numerico",
                                         QMessageBox.Ok)
                     test = 1
-            if us != "":
+            if us != "" :
                 if EC.data_is_int(us) == 0:
                     QMessageBox.warning(self, "ATTENZIONE", "Campo US. \n Il valore deve essere di tipo numerico",
                                         QMessageBox.Ok)
@@ -4727,7 +4755,8 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
                 str(self.comboBox_rifinitura_usm.currentText()),  # 95 uso primario usm
                 str(self.comboBox_materiale_p.currentText()),  # 95 uso primario usm
                 str(self.comboBox_consistenza_p.currentText()),  # 95 uso primario usm
-                str(rapporti2)
+                str(rapporti2),
+                str(self.mQgsFileWidget.text())
                 )
             # todelete
             # f = open("C:\\Users\\Luca\\pyarchinit_Report_folder\\data_insert_list.txt", "w")
@@ -5758,7 +5787,7 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
         self.comboBox_rifinitura_usm.setEditText("")  # 95 uso primario usm
         self.comboBox_materiale_p.setEditText("")  # 95 uso primario usm
         self.comboBox_consistenza_p.setEditText("")  # 95 uso primario usm
-    
+        self.mQgsFileWidget.clear()
     def empty_fields_nosite(self):
         rapporti_row_count = self.tableWidget_rapporti.rowCount()
         rapporti_row_count2 = self.tableWidget_rapporti2.rowCount()
@@ -5921,6 +5950,7 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
         self.comboBox_rifinitura_usm.setEditText("")  # 95 uso primario usm
         self.comboBox_materiale_p.setEditText("")  # 95 uso primario usm
         self.comboBox_consistenza_p.setEditText("")  # 95 uso primario usm
+        self.mQgsFileWidget.clear()
     def fill_fields(self, n=0):
         self.rec_num = n
         try:
@@ -6099,7 +6129,8 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
             str(self.comboBox_rifinitura_usm.setEditText(self.DATA_LIST[self.rec_num].rifinitura_usm)) 
             str(self.comboBox_materiale_p.setEditText(self.DATA_LIST[self.rec_num].materiale_p)) 
             str(self.comboBox_consistenza_p.setEditText(self.DATA_LIST[self.rec_num].consistenza_p)) 
-            self.tableInsertData("self.tableWidget_rapporti2", self.DATA_LIST[self.rec_num].rapporti2)  # 18 - rapporti
+            self.tableInsertData("self.tableWidget_rapporti2", self.DATA_LIST[self.rec_num].rapporti2)
+            str(self.mQgsFileWidget.setText(self.DATA_LIST[self.rec_num].doc_usv)) # 18 - rapporti
             # gestione tool
             if self.toolButtonPreview.isChecked():
                 self.loadMapPreview()
@@ -6342,7 +6373,8 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
             str(self.comboBox_rifinitura_usm.currentText()),  # 95 uso primario usm
             str(self.comboBox_materiale_p.currentText()),  # 95 uso primario usm
             str(self.comboBox_consistenza_p.currentText()),  # 95 uso primario usm
-            str(rapporti2),  # 18 - rapporti
+            str(rapporti2),
+            str(self.mQgsFileWidget.text()),# 18 - rapporti
         ]
     def set_LIST_REC_CORR(self):
         self.DATA_LIST_REC_CORR = []
