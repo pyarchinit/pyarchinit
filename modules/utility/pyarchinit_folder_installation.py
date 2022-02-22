@@ -46,6 +46,9 @@ class pyarchinit_Folder_installation(object):
 
         home_bin_export_path = '{}{}{}'.format(self.HOME, os.sep, 'bin')
         self.OS_UTILITY.create_dir(home_bin_export_path)
+        
+        doc_bin_export_path = '{}{}{}'.format(self.HOME, os.sep, 'DosCo')
+        self.OS_UTILITY.create_dir(doc_bin_export_path)
 
         db_copy_from_bin_rel = os.path.join(os.sep, 'dbfiles', 'pyarchinit.sqlite')
         db_copy_from_bin = '{}{}'.format(self.RESOURCES_PATH, db_copy_from_bin_rel)
@@ -181,6 +184,9 @@ class pyarchinit_Folder_installation(object):
 
         home_bin_export_path = '{}{}{}'.format(self.HOME, os.sep, 'bin')
         self.OS_UTILITY.create_dir(home_bin_export_path)
+        
+        doc_bin_export_path = '{}{}{}'.format(self.HOME, os.sep, 'DosCo')
+        self.OS_UTILITY.create_dir(doc_bin_export_path)
 
         db_copy_from_bin_rel = os.path.join(os.sep, 'dbfiles', 'pyarchinit.sqlite')
         db_copy_from_bin = '{}{}'.format(self.RESOURCES_PATH, db_copy_from_bin_rel)

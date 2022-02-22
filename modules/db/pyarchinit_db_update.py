@@ -346,7 +346,8 @@ class DB_update(object):
         if not table_column_names_list.__contains__('uso_primario_usm'):
             self.engine.execute("ALTER TABLE us_table ADD COLUMN uso_primario_usm text DEFAULT '' ")
         
-        
+        if not table_column_names_list.__contains__('doc_usv'):
+            self.engine.execute("ALTER TABLE us_table ADD COLUMN doc_usv text DEFAULT '' ")
         
         #############nuovi##############################################################
         if not table_column_names_list.__contains__('tipologia_opera'):
@@ -393,10 +394,10 @@ class DB_update(object):
         if not table_column_names_list.__contains__('rapporti2'):
             self.engine.execute("ALTER TABLE us_table ADD COLUMN rapporti2 text DEFAULT '' ")
         
-        try:
-            self.engine.execute("ALTER TABLE us_table ADD CONSTRAINT ID_us_unico UNIQUE (unita_tipo);")
-        except:
-            pass
+        # try:
+            # self.engine.execute("ALTER TABLE us_table ADD CONSTRAINT ID_us_unico UNIQUE (unita_tipo);")
+        # except:
+            # pass
         ####pyarchinit_thesaurus_sigle
         table = Table("pyarchinit_thesaurus_sigle", self.metadata, autoload=True)
         table_column_names_list = []
@@ -497,7 +498,16 @@ class DB_update(object):
         
         
         
-        
+        ####periodizzazione_table
+        table = Table("periodizzazione_table", self.metadata, autoload=True)
+        table_column_names_list = []
+        for i in table.columns:
+            table_column_names_list.append(str(i.name))
+        try: 
+            if table_column_names_list.__contains__('fase'):
+                self.engine.execute("ALTER TABLE periodizzazione_table ALTER COLUMN fase TYPE text")
+        except:
+            pass
         ####aggiornamento tabelle geografiche
         ####pyunitastratigrafiche
         table = Table("pyunitastratigrafiche", self.metadata, autoload=True)

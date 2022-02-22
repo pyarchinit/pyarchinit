@@ -724,7 +724,7 @@ CREATE TABLE public.periodizzazione_table (
     id_perfas integer NOT NULL,
     sito text,
     periodo integer,
-    fase integer,
+    fase text,
     cron_iniziale integer,
     cron_finale integer,
     descrizione text,
@@ -1065,7 +1065,8 @@ CREATE TABLE public.us_table (
     campioni_pietra_usm text DEFAULT ''::text,
     provenienza_materiali_usm text DEFAULT ''::text,
     criteri_distinzione_usm text DEFAULT ''::text,
-    uso_primario_usm text DEFAULT ''::text
+    uso_primario_usm text DEFAULT ''::text,
+	doc_usv text DEFAULT ''::text
 );
 
 
@@ -1116,7 +1117,8 @@ CREATE TABLE public.pyarchinit_quote (
     the_geom public.geometry(Point,-1),
     data character varying,
     disegnatore character varying,
-    rilievo_originale character varying
+    rilievo_originale character varying,
+	unita_tipo_q character varying
 );
 
 
@@ -1136,7 +1138,8 @@ CREATE TABLE public.pyarchinit_quote_usm (
     the_geom public.geometry(Point,-1),
     data character varying,
     disegnatore character varying,
-    rilievo_originale character varying
+    rilievo_originale character varying,
+	unita_tipo_q character varying
 );
 
 
@@ -1715,7 +1718,8 @@ CREATE TABLE public.pyunitastratigrafiche (
     tipo_doc character varying(250),
     nome_doc character varying(250),
 	coord text,
-	the_geom public.geometry(MultiPolygon,-1)
+	the_geom public.geometry(MultiPolygon,-1),
+	unita_tipo_s character varying
 );
 
 
@@ -1739,7 +1743,8 @@ CREATE TABLE public.pyunitastratigrafiche_usm (
     tipo_doc character varying(250),
     nome_doc character varying(250),
 	coord text,
-	the_geom public.geometry(MultiPolygon,-1)
+	the_geom public.geometry(MultiPolygon,-1),
+	unita_tipo_s character varying
 );
 
 
@@ -3293,6 +3298,39 @@ END IF;
 END
 $$;  
 
+CREATE OR REPLACE FUNCTION public.create_doc()
+    RETURNS trigger
+    LANGUAGE 'plpgsql'
+    COST 100
+    VOLATILE NOT LEAKPROOF
+AS $BODY$
+BEGIN
+ if new.d_interpretativa is null or new.d_interpretativa = '' or new.d_interpretativa!= old.d_interpretativa then
+
+  update us_table set d_interpretativa = doc_usv where sito=New.sito and area=New.area and us=New.us and unita_tipo='DOC' ;
+END IF;
+RETURN NEW;
+END;
+$BODY$;
+
+ALTER FUNCTION public.create_doc()
+    OWNER TO postgres;
+
+COMMENT ON FUNCTION public.create_doc()
+    IS 'When a new record is added to write coordinates if coord is null in coord field';
+DO $$
+BEGIN
+    IF NOT EXISTS (SELECT 1 FROM pg_trigger WHERE tgname = 'create_doc') THEN
+CREATE TRIGGER create_doc
+    AFTER INSERT OR UPDATE 
+    ON public.us_table
+    FOR EACH ROW
+    EXECUTE PROCEDURE public.create_doc();
+
+
+END IF;
+END
+$$;  
 
 REVOKE ALL ON SCHEMA public FROM PUBLIC;
 REVOKE ALL ON SCHEMA public FROM postgres;

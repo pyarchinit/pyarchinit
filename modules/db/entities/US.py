@@ -123,7 +123,8 @@ class US(object):
                  rifinitura_usm,
                  materiale_p,
                  consistenza_p,
-                 rapporti2
+                 rapporti2,
+                 doc_usv
                  ):
         self.id_us = id_us  # 0
         self.sito = sito  # 1
@@ -241,10 +242,11 @@ class US(object):
         self.materiale_p=materiale_p
         self.consistenza_p=consistenza_p
         self.rapporti2=rapporti2
+        self.doc_usv=doc_usv
     # def __repr__"
     @property
     def __repr__(self):
-        return "<US('%d','%s', '%s', '%d','%s','%s','%s','%s','%s','%s','%s','%s','%s','%s','%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%d', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s','%r','%r','%s','%s','%s','%s','%s','%s','%s','%s','%s','%s','%r','%r','%s','%s','%s','%s','%s','%s','%s','%s','%r','%r','%r','%r','%r','%r','%r','%r','%r','%r','%s','%s','%s','%s','%s','%s','%s','%s','%s','%s','%r','%r','%r','%s','%s','%s','%s','%s','%s','%s','%s','%s','%s','%s','%s','%s','%s','%s','%s','%s','%s','%s','%s','%s','%s','%s','%s','%s','%s','%s','%s')>" % (
+        return "<US('%d','%s', '%s', '%d','%s','%s','%s','%s','%s','%s','%s','%s','%s','%s','%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%d', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s','%r','%r','%s','%s','%s','%s','%s','%s','%s','%s','%s','%s','%r','%r','%s','%s','%s','%s','%s','%s','%s','%s','%r','%r','%r','%r','%r','%r','%r','%r','%r','%r','%s','%s','%s','%s','%s','%s','%s','%s','%s','%s','%r','%r','%r','%s','%s','%s','%s','%s','%s','%s','%s','%s','%s','%s','%s','%s','%s','%s','%s','%s','%s','%s','%s','%s','%s','%s','%s','%s','%s','%s','%s','%s')>" % (
             self.id_us,  # 0
             self.sito,  # 1
             self.area,  # 2
@@ -360,6 +362,7 @@ class US(object):
             self.rifinitura_usm,
             self.materiale_p,
             self.consistenza_p,
-            self.rapporti2
+            self.rapporti2,
+            self.doc_usv
             
         )

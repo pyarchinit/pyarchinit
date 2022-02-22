@@ -4890,7 +4890,8 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
                             data_list_toimp[sing_rec].rifinitura_usm,
                             data_list_toimp[sing_rec].materiale_p ,
                             data_list_toimp[sing_rec].consistenza_p,
-                            data_list_toimp[sing_rec].rapporti2
+                            data_list_toimp[sing_rec].rapporti2,
+                            data_list_toimp[sing_rec].doc_usv
 
                         )
 

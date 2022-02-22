@@ -121,7 +121,8 @@ class Pyarchinit_db_management(object):
                 arg[9],
                 arg[10],
                 arg[11],
-                arg[12])
+                arg[12],
+                arg[13])
         return pyus
     def insert_pyusm(self, *arg):
         pyusm = PYUSM(arg[0],
@@ -136,7 +137,8 @@ class Pyarchinit_db_management(object):
                 arg[9],
                 arg[10],
                 arg[11],
-                arg[12])
+                arg[12],
+                arg[13])
         return pyusm
     def insert_pysito_point(self, *arg):
         pysito_point = PYSITO_POINT(arg[0],
@@ -161,7 +163,8 @@ class Pyarchinit_db_management(object):
                 arg[6],
                 arg[7],
                 arg[8],
-                arg[9])
+                arg[9],
+                arg[10])
         return pyquote    
     def insert_pyquote_usm(self, *arg):
         pyquote_usm = PYQUOTEUSM(arg[0],
@@ -173,7 +176,8 @@ class Pyarchinit_db_management(object):
                 arg[6],
                 arg[7],
                 arg[8],
-                arg[9])
+                arg[9],
+                arg[10])
         return pyquote_usm    
     def insert_pyus_negative(self, *arg):
         pyus_negative = PYUS_NEGATIVE(arg[0],
@@ -395,6 +399,7 @@ class Pyarchinit_db_management(object):
                 arg[113],
                 arg[114],
                 arg[115],
+                arg[116],
                 )
 
         return us
