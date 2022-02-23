@@ -176,7 +176,19 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
         self.comboBox_geometry_read.currentIndexChanged.connect(self.check_geometry_table)
         self.mFeature_field_rd.currentTextChanged.connect(self.value_check)
         self.mFeature_field_rd.currentTextChanged.connect(self.value_check_geometry)
+        
+        self.comboBox_server_rd.currentTextChanged.connect(self.convert_db)
+        self.pushButton_convert_db.setHidden(True)
+        
+    
+    def convert_db(self):
+        if self.comboBox_server_rd.currentText()=='postgres':
+            self.pushButton_convert_db.setHidden(False)
+        else:
+            self.pushButton_convert_db.setHidden(True)
     def on_pushButton_convert_db_pressed(self):
+        
+        
         self.comboBox_Database.update()
         conn = Connection()
         conn_str = conn.conn_str()
@@ -198,15 +210,15 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
         if test_conn == 0:
             sqlite_DB_path = '{}{}{}'.format(self.HOME, os.sep,
                                            "pyarchinit_DB_folder")
-            path=sqlite_DB_path +os.sep+ conn_sqlite["db_name"]
+            path=sqlite_DB_path+os.sep+self.lineEdit_database_wt.text()
         
-        try:
-            process= os.system('start cmd /k ogr2ogr --config PG_LIST_ALL_TABLES YES --config PG_SKIP_VIEWS YES  -f SQLite '+ path + ' -progress PG:"dbname=pyarchinit active_schema=public schemas=public host=localhost port=5432 user=postgres password=postgres" -lco LAUNDER=yes -dsco SPATIALITE=yes -lco SPATIAL_INDEX=yes -gt 65536 -update -overwrite')
-            
+            try:
+                process= os.system('start cmd /k ogr2ogr --config PG_LIST_ALL_TABLES YES --config PG_SKIP_VIEWS YES  -f SQLite '+ path + ' -progress PG:"dbname='+self.lineEdit_database_rd.text()+' active_schema=public schemas=public host='+self.lineEdit_host_rd.text()+' port='+self.lineEdit_port_rd.text()+' user='+self.lineEdit_username_rd.text()+' password='+self.lineEdit_pass_rd.text()+'" -lco LAUNDER=yes -dsco SPATIALITE=yes -lco SPATIAL_INDEX=yes -gt 65536 -update -overwrite')
+                
 
 
-        except KeyError as e:
-            QMessageBox.warning(self, "Attenzione", str(e), QMessageBox.Ok)
+            except KeyError as e:
+                QMessageBox.warning(self, "Attenzione", str(e), QMessageBox.Ok)
     def sito_active(self):
         conn = Connection()
         conn_str = conn.conn_str()
@@ -4216,7 +4228,8 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
                             data_list_toimp[sing_rec].tipo_doc,
                             data_list_toimp[sing_rec].nome_doc,
                             data_list_toimp[sing_rec].coord,
-                            data_list_toimp[sing_rec].the_geom)
+                            data_list_toimp[sing_rec].the_geom,
+                            data_list_toimp[sing_rec].unita_tipo_s)
                         self.DB_MANAGER_write.insert_data_session(data)
                         value = (float(sing_rec)/float(len(data_list_toimp)))*100
                         self.progress_bar.setValue(value)
@@ -4243,7 +4256,8 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
                             data_list_toimp[sing_rec].tipo_doc,
                             data_list_toimp[sing_rec].nome_doc,
                             data_list_toimp[sing_rec].coord,
-                            data_list_toimp[sing_rec].the_geom)
+                            data_list_toimp[sing_rec].the_geom,
+                            data_list_toimp[sing_rec].unita_tipo_s)
                         self.DB_MANAGER_write.insert_data_session(data)
                         value = (float(sing_rec)/float(len(data_list_toimp)))*100
                         self.progress_bar.setValue(value)
@@ -4302,7 +4316,8 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
                             data_list_toimp[sing_rec].data ,
                             data_list_toimp[sing_rec].disegnatore ,
                             data_list_toimp[sing_rec].rilievo_originale ,
-                            data_list_toimp[sing_rec].the_geom)
+                            data_list_toimp[sing_rec].the_geom,
+                            data_list_toimp[sing_rec].unita_tipo_q)
                         self.DB_MANAGER_write.insert_data_session(data)
                         value = (float(sing_rec)/float(len(data_list_toimp)))*100
                         self.progress_bar.setValue(value)
@@ -4326,7 +4341,8 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
                             data_list_toimp[sing_rec].data ,
                             data_list_toimp[sing_rec].disegnatore ,
                             data_list_toimp[sing_rec].rilievo_originale ,
-                            data_list_toimp[sing_rec].the_geom)
+                            data_list_toimp[sing_rec].the_geom,
+                            data_list_toimp[sing_rec].unita_tipo_q)
                         self.DB_MANAGER_write.insert_data_session(data)
                         value = (float(sing_rec)/float(len(data_list_toimp)))*100
                         self.progress_bar.setValue(value)
