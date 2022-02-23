@@ -309,7 +309,7 @@ CREATE OR REPLACE VIEW pyarchinit_us_view AS
     pyunitastratigrafiche.data,
     pyunitastratigrafiche.tipo_doc,
     pyunitastratigrafiche.nome_doc,
-	pyunitastratigrafiche.unita_tipo,
+	pyunitastratigrafiche.unita_tipo_s,
     us_table.id_us,
     us_table.sito,
 	us_table.area,
@@ -752,9 +752,9 @@ CREATE TABLE IF NOT EXISTS public.pyunitastratigrafiche_usm (
     data date,
     tipo_doc character varying(250),
     nome_doc character varying(250),
-	coord text,
-	unita_tipo_s character varying(250),
+	coord text,	
 	the_geom public.geometry(MultiPolygon,-1),
+	unita_tipo_s character varying(250),
     CONSTRAINT pyunitastratigrafiche_usm_pkey PRIMARY KEY (gid)
 )
 WITH (
@@ -1008,9 +1008,9 @@ CREATE OR REPLACE VIEW public.pyarchinit_quote_usm_view AS
     pyarchinit_quote_usm.area_q,
     pyarchinit_quote_usm.us_q,
     pyarchinit_quote_usm.unita_misu_q,
-    pyarchinit_quote_usm.quota_q,
-	pyarchinit_quote_usm.unita_tipo_q,
-    pyarchinit_quote_usm.the_geom,	
+    pyarchinit_quote_usm.quota_q,	
+    pyarchinit_quote_usm.the_geom,
+	pyarchinit_quote_usm.unita_tipo_q,	
     us_table.id_us,
     us_table.sito,
     us_table.area,
