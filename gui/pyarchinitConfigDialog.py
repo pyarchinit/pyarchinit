@@ -178,15 +178,25 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
         self.mFeature_field_rd.currentTextChanged.connect(self.value_check_geometry)
         
         self.comboBox_server_rd.currentTextChanged.connect(self.convert_db)
-        self.pushButton_convert_db.setHidden(True)
-        
+        self.comboBox_server_wt.currentTextChanged.connect(self.convert_db)
+        self.pushButton_convert_db_sl.setHidden(True)
+        self.pushButton_convert_db_pg.setHidden(True)
     
     def convert_db(self):
         if self.comboBox_server_rd.currentText()=='postgres':
-            self.pushButton_convert_db.setHidden(False)
-        else:
-            self.pushButton_convert_db.setHidden(True)
-    def on_pushButton_convert_db_pressed(self):
+            self.pushButton_convert_db_pg.setHidden(True)
+            self.pushButton_convert_db_sl.show()
+        if self.comboBox_server_rd.currentText()=='sqlite':
+            self.pushButton_convert_db_sl.setHidden(True)
+            self.pushButton_convert_db_pg.show()
+    
+        if self.comboBox_server_rd.currentText()=='postgres' and self.comboBox_server_wt.currentText()=='postgres' or self.comboBox_server_rd.currentText()=='':
+            self.pushButton_convert_db_sl.setHidden(True)
+            self.pushButton_convert_db_pg.setHidden(True)
+        if self.comboBox_server_rd.currentText()=='sqlite' and self.comboBox_server_wt.currentText()=='sqlite' or self.comboBox_server_rd.currentText()=='':
+            self.pushButton_convert_db_sl.setHidden(True)
+            self.pushButton_convert_db_pg.setHidden(True)
+    def on_pushButton_convert_db_sl_pressed(self):
         
         
         self.comboBox_Database.update()
@@ -207,18 +217,54 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
         self.DB_MANAGER = Pyarchinit_db_management(conn_str)
         self.DB_MANAGER.connection()
         test_conn = conn_str.find('sqlite')
-        if test_conn == 0:
-            sqlite_DB_path = '{}{}{}'.format(self.HOME, os.sep,
+        # if test_conn == 0:
+        sqlite_DB_path = '{}{}{}'.format(self.HOME, os.sep,
                                            "pyarchinit_DB_folder")
-            path=sqlite_DB_path+os.sep+self.lineEdit_database_wt.text()
+        path=sqlite_DB_path+os.sep+self.lineEdit_database_wt.text()
+    
+        try:
+            process= subprocess.call(['ogr2ogr', '--config', 'PG_LIST_ALL_TABLES YES', '--config', 'PG_SKIP_VIEWS YES',  '-f', 'SQLite', path, '-progress', 'PG:dbname=',self.lineEdit_database_rd.text(),'active_schema=public', 'schemas=public', 'host=',self.lineEdit_host_rd.text(),'port=',self.lineEdit_port_rd.text(),'user=',self.lineEdit_username_rd.text(),'password=',self.lineEdit_pass_rd.text(),'-lco', 'LAUNDER=yes', '-dsco', 'SPATIALITE=yes', '-lco', 'SPATIAL_INDEX=yes', '-gt', '65536', '-skipfailures', '-update', '-overwrite'],shell=False)
+            
+
+
+        except KeyError as e:
+            QMessageBox.warning(self, "Attenzione", str(e), QMessageBox.Ok)
+    
+    def on_pushButton_convert_db_pg_pressed(self):
         
-            try:
-                process= os.system('start cmd /k ogr2ogr --config PG_LIST_ALL_TABLES YES --config PG_SKIP_VIEWS YES  -f SQLite '+ path + ' -progress PG:"dbname='+self.lineEdit_database_rd.text()+' active_schema=public schemas=public host='+self.lineEdit_host_rd.text()+' port='+self.lineEdit_port_rd.text()+' user='+self.lineEdit_username_rd.text()+' password='+self.lineEdit_pass_rd.text()+'" -lco LAUNDER=yes -dsco SPATIALITE=yes -lco SPATIAL_INDEX=yes -gt 65536 -update -overwrite')
-                
+        
+        self.comboBox_Database.update()
+        conn = Connection()
+        conn_str = conn.conn_str()
+        conn_sqlite = conn.databasename()
+        conn_user = conn.datauser()
+        conn_host = conn.datahost()
+        conn_port = conn.dataport()
+        port_int  = conn_port["port"]
+        port_int.replace("'", "")
+        #QMessageBox.warning(self, "Attenzione", port_int, QMessageBox.Ok)
+        conn_password = conn.datapassword()
 
 
-            except KeyError as e:
-                QMessageBox.warning(self, "Attenzione", str(e), QMessageBox.Ok)
+        sito_set= conn.sito_set()
+        sito_set_str = sito_set['sito_set']
+        self.DB_MANAGER = Pyarchinit_db_management(conn_str)
+        self.DB_MANAGER.connection()
+        test_conn = conn_str.find('sqlite')
+        # if test_conn == 0:
+        sqlite_DB_path = '{}{}{}'.format(self.HOME, os.sep,
+                                           "pyarchinit_DB_folder")
+        #path=sqlite_DB_path+os.sep+self.lineEdit_database_wt.text()
+        path=sqlite_DB_path+os.sep+self.lineEdit_database_rd.text()
+    
+        try:
+            process= os.system('start cmd /k ogr2ogr  --config SQLITE_LIST_ALL_TABLES YES -f PostgreSQL  PG:"dbname='+self.lineEdit_database_wt.text()+' active_schema=public schemas=public host='+self.lineEdit_host_wt.text()+' port='+self.lineEdit_port_wt.text()+' user='+self.lineEdit_username_wt.text()+' password='+self.lineEdit_pass_wt.text()+'" -lco GEOMETRY_NAME="the_geom" -lco SPATIAL_INDEX="YES" -progress  '+ path +' -skipfailures -update -overwrite')
+            
+
+
+        except KeyError as e:
+            QMessageBox.warning(self, "Attenzione", str(e), QMessageBox.Ok)
+    
     def sito_active(self):
         conn = Connection()
         conn_str = conn.conn_str()

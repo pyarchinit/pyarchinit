@@ -3472,8 +3472,8 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
         #                                               QMessageBox.Ok | QMessageBox.Cancel))
         if self.L=='it':
             self.launch_order_layer_if(QMessageBox.warning(self, 'ATTENZIONE',
-                                                       "Sei sicuro di voler proseguire? Se saranno presenti paradossi stratigrafici il sistema potrebbe andare in crush!",
-                                                       QMessageBox.Ok | QMessageBox.Cancel))
+                                                       "Se saranno presenti paradossi stratigrafici l'order layer non andrà a buon fine",
+                                                       QMessageBox.Ok))
         elif self.L=='de':
             self.launch_order_layer_if(QMessageBox.warning(self, 'ACHTUNG',
                                                        "Bist du sicher das du fortfahren möchtest? Wenn aktuell stratigraphische Paradoxa auftauchen Könnte das System zusammenbrechen!",
@@ -3555,7 +3555,7 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
             OL = Order_layer_v2(self.DB_MANAGER, sito, area)
             # QMessageBox.warning(None, "Messaggio", "DATA LIST" + str(OL), QMessageBox.Ok)
             order_layer_dict = OL.main_order_layer()
-            QMessageBox.warning(None, "Messaggio", "DATA LIST" + str(order_layer_dict), QMessageBox.Ok)
+            #QMessageBox.warning(None, "Messaggio", "DATA LIST" + str(order_layer_dict), QMessageBox.Ok)
             # order_number = ""
             # us = ""
             for k, v in order_layer_dict.items():#era iteritems prima 
