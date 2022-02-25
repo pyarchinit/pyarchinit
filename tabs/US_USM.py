@@ -1448,29 +1448,53 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
             # pass#QMessageBox.warning(self, "ATTENZIONE", str(e), QMessageBox.Ok)
     
     def us_t(self):
+        # self.data=self.tableWidget_rapporti.item()
+        # horHeaders = []
+        # for n, key in enumerate(sorted(self.data.keys())):
+            # horHeaders.append(key)
+            # for m, item in enumerate(self.data[key]):
+                # newitem = self.tableWidget_rapporti2(item)
+                # self.setItem(m, n, newitem)
+        # self.setHorizontalHeaderLabels(horHeaders)      
+        #####da vedere######################        
+        # a=self.tableWidget_rapporti.isItemSelected()
+        # self.tableWidget_rapporti.setSelected(a)
+    
         try:
             table_name = "self.tableWidget_rapporti"
-            rowSelected_cmd = ("%s.selectedIndexes()") % (table_name)
+            
+            rowSelected_cmd = ("%s.selectedItems()") % (table_name)
             rowSelected = eval(rowSelected_cmd)
+            
+                
+            #self.tableWidget_rapporti2.setRowCount(len(table_name))
+                
+                
+            #for i  in rowSelected:
+            #self.tableWidget_rapporti2.setRowCount(i)
             rowIndex = (rowSelected[0].row())
-            
-            
+            #self.tableWidget_rapporti2.setRowCount(len(i))
+        
             sito = str(self.comboBox_sito.currentText())
             area = str(self.comboBox_area.currentText())
-            
+        
             us_item = self.tableWidget_rapporti.item(rowIndex, 1)
             # doc=self.tableWidget_rapporti2.item(rowIndex, 2)
             # d=str(doc.text())
+            
             us_ = str(us_item.text())
             rapp_item = self.tableWidget_rapporti.item(rowIndex, 0)
             rapp_ = str(rapp_item.text())
+        
             search_dict = {'sito': "'" + str(sito) + "'",
                            'area': "'" + str(area) + "'",
                            'us': us_}
             u = Utility()
-            search_dict = u.remove_empty_items_fr_dict(search_dict)
+            #search_dict = u.remove_empty_items_fr_dict(search_dict)
             res = self.DB_MANAGER.query_bool(search_dict, self.MAPPER_TABLE_CLASS)
             
+           
+        
             for p in res:
                 #
                 self.tableWidget_rapporti2.setItem(rowIndex,1,QtWidgets.QTableWidgetItem(us_))
@@ -1481,10 +1505,12 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
                 self.tableWidget_rapporti2.setItem(rowIndex,3,QtWidgets.QTableWidgetItem(p.d_interpretativa))
                 self.tableWidget_rapporti2.setItem(rowIndex,2,QtWidgets.QTableWidgetItem(p.unita_tipo))
                 self.tableWidget_rapporti2.setItem(rowIndex,0,QtWidgets.QTableWidgetItem(rapp_))
-            self.tableWidget_rapporti2.update()
-            self.tableWidget_rapporti.update()
-        except :
-            pass#QMessageBox.warning(self, "ATTENZIONE", str(e), QMessageBox.Ok)
+                self.tableWidget_rapporti2.update()
+                self.tableWidget_rapporti.update()
+        except:
+            pass
+        # except Exception as e :
+            # QMessageBox.warning(self, "ATTENZIONE", str(e), QMessageBox.Ok)
     
     # def rapp(self):
         # try:
@@ -4859,6 +4885,7 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
             return 0  
             # records surf functions
     def on_pushButton_view_all_pressed(self):
+        
         self.checkBox_query.setChecked(False)
         if self.checkBox_query.isChecked():
             self.model_a.database().close()

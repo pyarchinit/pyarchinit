@@ -197,7 +197,7 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
             self.pushButton_convert_db_sl.setHidden(True)
             self.pushButton_convert_db_pg.setHidden(True)
     def on_pushButton_convert_db_sl_pressed(self):
-        
+        ok=QMessageBox.warning(self, "Attenzione", 'Vuoi sovrascrivere il db.\n clicca ok oppure Annulla per aggiornare', QMessageBox.Ok | QMessageBox.Cancel)
         
         self.comboBox_Database.update()
         conn = Connection()
@@ -221,17 +221,23 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
         sqlite_DB_path = '{}{}{}'.format(self.HOME, os.sep,
                                            "pyarchinit_DB_folder")
         path=sqlite_DB_path+os.sep+self.lineEdit_database_wt.text()
-    
-        try:
-            process= subprocess.call(['ogr2ogr', '--config', 'PG_LIST_ALL_TABLES YES', '--config', 'PG_SKIP_VIEWS YES',  '-f', 'SQLite', path, '-progress', 'PG:','dbname=',self.lineEdit_database_rd.text(),'active_schema=public', 'schemas=public', 'host=',self.lineEdit_host_rd.text(),'port=', self.lineEdit_port_rd.text(),'user=',self.lineEdit_username_rd.text(),'password=',self.lineEdit_pass_rd.text(),'-lco', 'LAUNDER=yes', '-dsco', 'SPATIALITE=yes', '-lco', 'SPATIAL_INDEX=yes', '-gt', '65536', '-skipfailures', '-update', '-overwrite'],shell=False)
+        if ok==QMessageBox.Ok:
+            try:
+                process= os.system('start cmd /k ogr2ogr --config PG_LIST_ALL_TABLES YES --config PG_SKIP_VIEWS YES -f SQLite '+path+' -progress PG:"dbname='+self.lineEdit_database_rd.text()+' active_schema=public schemas=public host='+self.lineEdit_host_rd.text()+' port='+ self.lineEdit_port_rd.text()+' user='+self.lineEdit_username_rd.text()+' password='+self.lineEdit_pass_rd.text()+'" -lco LAUNDER=yes -dsco SPATIALITE=yes -lco SPATIAL_INDEX=yes -gt 65536 -skipfailures -update -overwrite')
+                
+
+
+            except KeyError as e:
+                QMessageBox.warning(self, "Attenzione", str(e), QMessageBox.Ok)
+        else:
             
-
-
-        except KeyError as e:
-            QMessageBox.warning(self, "Attenzione", str(e), QMessageBox.Ok)
+            
+            process= os.system('start cmd /k ogr2ogr --config PG_LIST_ALL_TABLES YES --config PG_SKIP_VIEWS YES -f SQLite '+path+' -progress PG:"dbname='+self.lineEdit_database_rd.text()+' active_schema=public schemas=public host='+self.lineEdit_host_rd.text()+' port='+ self.lineEdit_port_rd.text()+' user='+self.lineEdit_username_rd.text()+' password='+self.lineEdit_pass_rd.text()+'" -lco LAUNDER=yes -dsco SPATIALITE=yes -lco SPATIAL_INDEX=yes -gt 65536 -skipfailures -update -append')
+    
+    
     
     def on_pushButton_convert_db_pg_pressed(self):
-        
+        ok=QMessageBox.warning(self, "Attenzione", 'Vuoi sovrascrivere il db.\n clicca ok oppure cancell per aggiornare', QMessageBox.Ok | QMessageBox.Cancel)
         
         self.comboBox_Database.update()
         conn = Connection()
@@ -256,14 +262,17 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
                                            "pyarchinit_DB_folder")
         #path=sqlite_DB_path+os.sep+self.lineEdit_database_wt.text()
         path=sqlite_DB_path+os.sep+self.lineEdit_database_rd.text()
-    
-        try:
-            process= os.system('start cmd /k ogr2ogr  --config SQLITE_LIST_ALL_TABLES YES -f PostgreSQL  PG:"dbname='+self.lineEdit_database_wt.text()+' active_schema=public schemas=public host='+self.lineEdit_host_wt.text()+' port='+self.lineEdit_port_wt.text()+' user='+self.lineEdit_username_wt.text()+' password='+self.lineEdit_pass_wt.text()+'" -lco GEOMETRY_NAME="the_geom" -lco SPATIAL_INDEX="YES" -progress  '+ path +' -skipfailures -update -overwrite')
+        if ok==QMessageBox.Ok:
+            try:
+                process= os.system('start cmd /k ogr2ogr  --config SQLITE_LIST_ALL_TABLES YES -progress  -f PostgreSQL  PG:"dbname='+self.lineEdit_database_wt.text()+' active_schema=public schemas=public host='+self.lineEdit_host_wt.text()+' port='+self.lineEdit_port_wt.text()+' user='+self.lineEdit_username_wt.text()+' password='+self.lineEdit_pass_wt.text()+'" -lco GEOMETRY_NAME="the_geom" -lco SPATIAL_INDEX=YES '+ path +' -skipfailures -update -overwrite')
+                
+
+
+            except KeyError as e:
+                QMessageBox.warning(self, "Attenzione", str(e), QMessageBox.Ok)
+        else:
             
-
-
-        except KeyError as e:
-            QMessageBox.warning(self, "Attenzione", str(e), QMessageBox.Ok)
+            process= os.system('start cmd /k ogr2ogr  --config SQLITE_LIST_ALL_TABLES YES -progress  -f PostgreSQL  PG:"dbname='+self.lineEdit_database_wt.text()+' active_schema=public schemas=public host='+self.lineEdit_host_wt.text()+' port='+self.lineEdit_port_wt.text()+' user='+self.lineEdit_username_wt.text()+' password='+self.lineEdit_pass_wt.text()+'" -lco GEOMETRY_NAME="the_geom" -lco SPATIAL_INDEX=YES '+ path +' -skipfailures -update -append')
     
     def sito_active(self):
         conn = Connection()
