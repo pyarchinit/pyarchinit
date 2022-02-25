@@ -223,7 +223,7 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
         path=sqlite_DB_path+os.sep+self.lineEdit_database_wt.text()
     
         try:
-            process= subprocess.call(['ogr2ogr', '--config', 'PG_LIST_ALL_TABLES YES', '--config', 'PG_SKIP_VIEWS YES',  '-f', 'SQLite', path, '-progress', 'PG:dbname=',self.lineEdit_database_rd.text(),'active_schema=public', 'schemas=public', 'host=',self.lineEdit_host_rd.text(),'port=',self.lineEdit_port_rd.text(),'user=',self.lineEdit_username_rd.text(),'password=',self.lineEdit_pass_rd.text(),'-lco', 'LAUNDER=yes', '-dsco', 'SPATIALITE=yes', '-lco', 'SPATIAL_INDEX=yes', '-gt', '65536', '-skipfailures', '-update', '-overwrite'],shell=False)
+            process= subprocess.call(['ogr2ogr', '--config', 'PG_LIST_ALL_TABLES YES', '--config', 'PG_SKIP_VIEWS YES',  '-f', 'SQLite', path, '-progress', 'PG:','dbname=',self.lineEdit_database_rd.text(),'active_schema=public', 'schemas=public', 'host=',self.lineEdit_host_rd.text(),'port=', self.lineEdit_port_rd.text(),'user=',self.lineEdit_username_rd.text(),'password=',self.lineEdit_pass_rd.text(),'-lco', 'LAUNDER=yes', '-dsco', 'SPATIALITE=yes', '-lco', 'SPATIAL_INDEX=yes', '-gt', '65536', '-skipfailures', '-update', '-overwrite'],shell=False)
             
 
 
