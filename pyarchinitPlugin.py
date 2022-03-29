@@ -476,7 +476,12 @@ class PyArchInitPlugin(object):
             self.actionpdfExp = QAction(QIcon(icon_pdf_exp), "Pdf exportation", self.iface.mainWindow())
             self.actionpdfExp.setWhatsThis("Pdf exportation")
             self.actionpdfExp.triggered.connect(self.runPdfexp)
-            self.docToolButton.addActions([self.actionDocumentazione,self.actionpdfExp, self.actionimageViewer, self.actionpdfExp, self.actionImages_Directory_export, self.actionExcel])
+            icon_GisTimeController = '{}{}'.format(filepath, os.path.join(os.sep, 'resources', 'icons', 'iconTimeControll.png'))
+            self.actionGisTimeController = QAction(QIcon(icon_GisTimeController), "Time Manager",
+                                                   self.iface.mainWindow())
+            self.actionGisTimeController.setWhatsThis("Time Manager")
+            self.actionGisTimeController.triggered.connect(self.runGisTimeController)
+            self.docToolButton.addActions([self.actionDocumentazione,self.actionpdfExp, self.actionimageViewer, self.actionpdfExp, self.actionImages_Directory_export, self.actionExcel, self.actionGisTimeController])
             self.docToolButton.setDefaultAction(self.actionDocumentazione)
             self.toolBar.addWidget(self.docToolButton)
             self.toolBar.addSeparator()
@@ -581,10 +586,11 @@ class PyArchInitPlugin(object):
             self.iface.addPluginToMenu("&pyArchInit - Archaeological GIS Tools", self.actionimageViewer)
             self.iface.addPluginToMenu("&pyArchInit - Archaeological GIS Tools", self.actionpdfExp)
             self.iface.addPluginToMenu("&pyArchInit - Archaeological GIS Tools", self.actionImages_Directory_export)
+            self.iface.addPluginToMenu("&pyArchInit - Archaeological GIS Tools", self.actionGisTimeController)
             if self.PARAMS_DICT['EXPERIMENTAL'] == 'Yes':
                 self.iface.addPluginToMenu("&pyArchInit - Archaeological GIS Tools", self.actionArcheozoology)
                 self.iface.addPluginToMenu("&pyArchInit - Archaeological GIS Tools", self.actionComparision)
-                self.iface.addPluginToMenu("&pyArchInit - Archaeological GIS Tools", self.actionGisTimeController)
+                
             self.iface.addPluginToMenu("&pyArchInit - Archaeological GIS Tools", self.actionTops)
             self.iface.addPluginToMenu("&pyArchInit - Archaeological GIS Tools", self.actionPrint)
             self.iface.addPluginToMenu("&pyArchInit - Archaeological GIS Tools", self.actionGpkg)
