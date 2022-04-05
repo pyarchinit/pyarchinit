@@ -384,7 +384,7 @@ class pyarchinit_Interactive_Matrix(QDialog, MAIN_DIALOG_CLASS):
 
             clust_number += 1
         
-        matrix_exp = HarrisMatrix(data,negative,conteporane, periodi_us_list)
+        matrix_exp = HarrisMatrix(data,negative,conteporane,'','',periodi_us_list)
         
         data_plotting = matrix_exp.export_matrix
         if self.L=='it':

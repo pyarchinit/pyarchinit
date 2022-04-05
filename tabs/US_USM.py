@@ -3362,7 +3362,7 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
             data_plot = dlg.generate_matrix_2()
             
         
-        else:
+        if not self.checkBox_ED.isChecked():
             id_us_dict = {}
             for i in range(len(self.DATA_LIST)):
                 id_us_dict[self.DATA_LIST[i].us] = self.DATA_LIST[i].id_us
