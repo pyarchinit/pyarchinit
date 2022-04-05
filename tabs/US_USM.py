@@ -778,11 +778,14 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
         self.mQgsFileWidget.setHidden(True)
         self.toolButton_file_doc.setHidden(True)
         self.mDockWidget_5.setHidden(True)
-        if self.comboBox_per_iniz.currentText() =='':
-            self.checkBox_validate.setHidden(True)
-        else:
-            self.checkBox_validate.setHidden(False)
-        lstSelection = [0,1]
+        self.tableWidget_rapporti2.setHidden(True)
+        self.pushButton_insert_row_rapporti2.setHidden(True)
+        self.pushButton_remove_row_rapporti2.setHidden(True)
+        # if self.comboBox_per_iniz.currentText() =='':
+            # self.checkBox_validate.setHidden(True)
+        # else:
+            # self.checkBox_validate.setHidden(False)
+        # lstSelection = [0,1]
         #self.pushButton_next_rec.pressed.connect(self.selectRows(lstSelection))
         self.currentLayerId = None
         self.search = SearchLayers(iface)
