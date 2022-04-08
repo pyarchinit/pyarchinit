@@ -4844,6 +4844,9 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
         if self.checkBox_query.isChecked():
             self.model_a.database().close()
         rec_goto = int(self.lineEdit_goto.text())
+        
+        
+        
         if self.check_record_state() == 1:
             pass
         else:
@@ -4862,7 +4865,16 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
     
         if self.checkBox_validate.isChecked():
             self.selectRows()
-            
+            # while True:
+                # try:
+                    # self.empty_fields()
+                    # self.fill_fields(self.REC_CORR)
+                    # self.set_rec_counter(self.REC_TOT, self.REC_CORR + 1)
+                # except :#Exception as e:
+                    # pass#QMessageBox.warning(self, "Error", str(e), QMessageBox.Ok)
+                # #continue
+                # else:
+                    # break
     def on_pushButton_delete_pressed(self):
         self.checkBox_query.setChecked(False)
         if self.checkBox_query.isChecked():
