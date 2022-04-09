@@ -756,7 +756,7 @@ class pyarchinit_Tomba(QDialog, MAIN_DIALOG_CLASS):
         rito_vl = []
 
         for i in range(len(rito)):
-            rito_vl.append(rito[i].sigla)
+            rito_vl.append(rito[i].sigla_estesa)
 
         rito_vl.sort()
         self.comboBox_rito.addItems(rito_vl)
