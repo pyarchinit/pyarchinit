@@ -407,7 +407,7 @@ class single_Individui_pdf_sheet(object):
             [classi_eta, '01', '02', '03', '04', '05', '06', '07', '08', '09'],  # 4 row ok
             
             [sigla_struttura, '01', '02', '03', nr_struttura, '05', '06', '07', '08', '09'],  # 4 row ok
-            [completo, '01', '02', disturbato, '04', '05', connessione, '07', '08', '09'],  # 4 row ok
+            [completo, '01', '02', disturbato, '04', '05', connessione, '07', lunghezza_scheletro, '09'],  # 4 row ok
             [posizione_scheletro, '01', '02', '03', '04', posizione_cranio, '06', '07', '08', '09'],  # 4 row ok
             [posizione_arti_sup, '01', '02', '03', '04', posizione_arti_inf, '06', '07', '08', '09'],  
             [orientamento_asse, '01', '02', '03', '04', orientamento_azimut, '06', '07', '08', '09'],  
@@ -447,7 +447,8 @@ class single_Individui_pdf_sheet(object):
             # 2 row
             ('SPAN', (0, 6), (2, 6)),  # sesso
             ('SPAN', (3, 6), (5, 6)),  # eta_min
-            ('SPAN', (6, 6), (9, 6)),  # eta_max
+            ('SPAN', (6, 6), (7, 6)),  # eta_max
+            ('SPAN', (8, 6), (9, 6)),  # eta_max
             
             #
             ('SPAN', (0, 7), (4, 7)),  # data_schedatura
