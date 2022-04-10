@@ -25,8 +25,8 @@ repository=https://github.com/pyarchinit/pyarchinit
 changelog=release3.9.17
 
 
-    -fix bug #458
-
+    -fix bug #458 #459
+    -fix bug  #459
   release3.9.17
 
     -fix bug #456
