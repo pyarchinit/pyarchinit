@@ -1996,7 +1996,7 @@ class pyarchinit_Schedaind(QDialog, MAIN_DIALOG_CLASS):
 
         data_list_id_us = []
         for us in range(len(data_list_us)):
-            data_list_id_us.append(data_list_us[us][0].id_scheda_ind)
+            data_list_id_us.append(data_list_us[us][0].us)
 
         return data_list_id_us
 
