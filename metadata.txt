@@ -24,7 +24,7 @@ repository=https://github.com/pyarchinit/pyarchinit
 
 changelog=release3.9.18
 
-
+    -fix #460
     -pyarchinit_tomba_view
 
   release3.9.17
