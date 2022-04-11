@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>867</width>
-    <height>776</height>
+    <height>820</height>
    </rect>
   </property>
   <property name="minimumSize">
@@ -1195,6 +1195,30 @@
      </item>
      <item>
       <layout class="QGridLayout" name="gridLayout_6">
+       <item row="0" column="1">
+        <widget class="QLabel" name="label_5">
+         <property name="font">
+          <font>
+           <pointsize>8</pointsize>
+          </font>
+         </property>
+         <property name="text">
+          <string>Tipologia</string>
+         </property>
+        </widget>
+       </item>
+       <item row="0" column="0">
+        <widget class="QLabel" name="label_4">
+         <property name="font">
+          <font>
+           <pointsize>8</pointsize>
+          </font>
+         </property>
+         <property name="text">
+          <string>Categoria</string>
+         </property>
+        </widget>
+       </item>
        <item row="1" column="1">
         <widget class="QComboBox" name="comboBox_tipologia_struttura">
          <property name="font">
@@ -1206,6 +1230,18 @@
          </property>
          <property name="editable">
           <bool>true</bool>
+         </property>
+        </widget>
+       </item>
+       <item row="0" column="2">
+        <widget class="QLabel" name="label_9">
+         <property name="font">
+          <font>
+           <pointsize>8</pointsize>
+          </font>
+         </property>
+         <property name="text">
+          <string>Definizione</string>
          </property>
         </widget>
        </item>
@@ -1234,42 +1270,6 @@
          </property>
          <property name="editable">
           <bool>true</bool>
-         </property>
-        </widget>
-       </item>
-       <item row="0" column="0">
-        <widget class="QLabel" name="label_4">
-         <property name="font">
-          <font>
-           <pointsize>8</pointsize>
-          </font>
-         </property>
-         <property name="text">
-          <string>Categoria</string>
-         </property>
-        </widget>
-       </item>
-       <item row="0" column="1">
-        <widget class="QLabel" name="label_5">
-         <property name="font">
-          <font>
-           <pointsize>8</pointsize>
-          </font>
-         </property>
-         <property name="text">
-          <string>Tipologia</string>
-         </property>
-        </widget>
-       </item>
-       <item row="0" column="2">
-        <widget class="QLabel" name="label_9">
-         <property name="font">
-          <font>
-           <pointsize>8</pointsize>
-          </font>
-         </property>
-         <property name="text">
-          <string>Definizione</string>
          </property>
         </widget>
        </item>
@@ -1646,21 +1646,7 @@ p, li { white-space: pre-wrap; }
         </rect>
        </property>
        <layout class="QGridLayout" name="gridLayout_12">
-        <item row="0" column="0">
-         <widget class="QLabel" name="label_8">
-          <property name="font">
-           <font>
-            <pointsize>8</pointsize>
-            <weight>75</weight>
-            <bold>true</bold>
-           </font>
-          </property>
-          <property name="text">
-           <string>Materiali impiegati</string>
-          </property>
-         </widget>
-        </item>
-        <item row="1" column="0">
+        <item row="1" column="2">
          <widget class="QTableWidget" name="tableWidget_materiali_impiegati">
           <property name="frameShape">
            <enum>QFrame::StyledPanel</enum>
@@ -1697,45 +1683,58 @@ p, li { white-space: pre-wrap; }
           </column>
          </widget>
         </item>
+        <item row="0" column="2">
+         <widget class="QLabel" name="label_8">
+          <property name="font">
+           <font>
+            <pointsize>8</pointsize>
+            <weight>75</weight>
+            <bold>true</bold>
+           </font>
+          </property>
+          <property name="text">
+           <string>Materiali impiegati</string>
+          </property>
+         </widget>
+        </item>
         <item row="2" column="0">
-         <layout class="QGridLayout" name="gridLayout_14">
-          <item row="0" column="0">
-           <widget class="QPushButton" name="pushButton_insert_row_materiali">
-            <property name="maximumSize">
-             <size>
-              <width>20</width>
-              <height>16777215</height>
-             </size>
-            </property>
-            <property name="font">
-             <font>
-              <pointsize>9</pointsize>
-             </font>
-            </property>
-            <property name="text">
-             <string>+</string>
-            </property>
-           </widget>
-          </item>
-          <item row="0" column="1">
-           <widget class="QPushButton" name="pushButton_remove_row_materiali">
-            <property name="maximumSize">
-             <size>
-              <width>20</width>
-              <height>16777215</height>
-             </size>
-            </property>
-            <property name="font">
-             <font>
-              <pointsize>9</pointsize>
-             </font>
-            </property>
-            <property name="text">
-             <string>-</string>
-            </property>
-           </widget>
-          </item>
-         </layout>
+         <widget class="QPushButton" name="pushButton_insert_row_materiali">
+          <property name="maximumSize">
+           <size>
+            <width>20</width>
+            <height>16777215</height>
+           </size>
+          </property>
+          <property name="font">
+           <font>
+            <pointsize>9</pointsize>
+           </font>
+          </property>
+          <property name="text">
+           <string>+</string>
+          </property>
+         </widget>
+        </item>
+        <item row="2" column="2">
+         <layout class="QGridLayout" name="gridLayout_14"/>
+        </item>
+        <item row="2" column="1">
+         <widget class="QPushButton" name="pushButton_remove_row_materiali">
+          <property name="maximumSize">
+           <size>
+            <width>20</width>
+            <height>16777215</height>
+           </size>
+          </property>
+          <property name="font">
+           <font>
+            <pointsize>9</pointsize>
+           </font>
+          </property>
+          <property name="text">
+           <string>-</string>
+          </property>
+         </widget>
         </item>
        </layout>
       </widget>
@@ -1807,7 +1806,7 @@ p, li { white-space: pre-wrap; }
         </item>
         <item row="2" column="0">
          <layout class="QGridLayout" name="gridLayout_16">
-          <item row="0" column="0">
+          <item row="0" column="1">
            <widget class="QPushButton" name="pushButton_insert_row_elementi">
             <property name="maximumSize">
              <size>
@@ -1825,7 +1824,7 @@ p, li { white-space: pre-wrap; }
             </property>
            </widget>
           </item>
-          <item row="0" column="1">
+          <item row="0" column="2">
            <widget class="QPushButton" name="pushButton_remove_row_elementi">
             <property name="maximumSize">
              <size>
@@ -1853,7 +1852,7 @@ p, li { white-space: pre-wrap; }
          <x>50</x>
          <y>20</y>
          <width>600</width>
-         <height>240</height>
+         <height>259</height>
         </rect>
        </property>
        <property name="sizePolicy">
@@ -1865,7 +1864,7 @@ p, li { white-space: pre-wrap; }
        <property name="minimumSize">
         <size>
          <width>600</width>
-         <height>240</height>
+         <height>259</height>
         </size>
        </property>
        <property name="floating">
