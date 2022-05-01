@@ -1,0 +1,14 @@
+<changelist name="Uncommitted_changes_before_Update_at_04_10_2021_20_43_[Changes]" date="1633373031634" recycled="false" toDelete="true">
+  <option name="PATH" value="$PROJECT_DIR$/.idea/shelf/Uncommitted_changes_before_Update_at_04_10_2021_20_43_[Changes]/shelved.patch" />
+  <option name="DESCRIPTION" value="Uncommitted changes before Update at 04/10/2021 20:43 [Changes]" />
+  <binary>
+    <option name="BEFORE_PATH" value="../totalopenstation_/sample_data/carlson_rw5/Trav_19leg.rw5" />
+    <option name="AFTER_PATH" value="../totalopenstation_/sample_data/carlson_rw5/Trav_19leg.rw5" />
+    <option name="SHELVED_PATH" value="$PROJECT_DIR$/.idea/shelf/Uncommitted_changes_before_Update_at_04_10_2021_20_43_[Changes]/Trav_19leg.rw5" />
+  </binary>
+  <binary>
+    <option name="BEFORE_PATH" value="../totalopenstation_/sample_data/trimble/051012-1.RAW" />
+    <option name="AFTER_PATH" value="../totalopenstation_/sample_data/trimble/051012-1.RAW" />
+    <option name="SHELVED_PATH" value="$PROJECT_DIR$/.idea/shelf/Uncommitted_changes_before_Update_at_04_10_2021_20_43_[Changes]/051012-1.RAW" />
+  </binary>
+</changelist>
