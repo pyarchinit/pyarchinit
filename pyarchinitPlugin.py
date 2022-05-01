@@ -53,6 +53,7 @@ from .gui.pyarchinitConfigDialog import pyArchInitDialog_Config
 from .gui.dbmanagment import pyarchinit_dbmanagment
 from .gui.pyarchinitInfoDialog import pyArchInitDialog_Info
 filepath = os.path.dirname(__file__)
+
 class PyArchInitPlugin(object):
     HOME = os.environ['PYARCHINIT_HOME']
     PARAMS_DICT = {'SERVER': '',
@@ -84,6 +85,7 @@ class PyArchInitPlugin(object):
             self.translator = QTranslator()
             self.translator.load(self.localePath)
             QCoreApplication.installTranslator(self.translator)
+        
     def initGui(self):
         l=QgsSettings().value("locale/userLocale")[0:2] 
         if l == 'it':

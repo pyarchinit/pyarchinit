@@ -24,7 +24,6 @@ import subprocess
 import sys
 import traceback
 from qgis.core import QgsMessageLog, Qgis, QgsSettings
-
 from .modules.utility.pyarchinit_OS_utility import Pyarchinit_OS_Utility
 from .modules.utility.pyarchinit_folder_installation import pyarchinit_Folder_installation
 L=QgsSettings().value("locale/userLocale")[0:2]
@@ -138,87 +137,23 @@ for l in missing_libraries:
     install_libraries.append(p[0])
 
 if install_libraries:
-    from qgis.PyQt.QtWidgets import QMessageBox
-    if L=='it':
-        res = QMessageBox.warning(None, 'PyArchInit',
-                              "Se vedi questo messaggio significa che alcuni dei pacchetti richiesti mancano dal tuo PC:\n{}\n\n"
-                              "Vuoi installare i pacchetti mancanti? Ricordate che è necessario avviare QGIS come Admin".format(
-                                  ',\n'.join(missing_libraries)), QMessageBox.Ok | QMessageBox.Cancel)
-    
-    elif L=='de':
-        res = QMessageBox.warning(None, 'PyArchInit',
-                              "Wenn Sie diese Meldung sehen, bedeutet dies, dass einige der erforderlichen Pakete auf Ihrem Rechner fehlen:\n{}\n\n\n"
-                              "Möchten Sie die fehlenden Pakete installieren? Denken Sie daran, dass Sie QGIS wie Admin starten müssen".format(
-                                  ',\n'.join(missing_libraries)), QMessageBox.Ok | QMessageBox.Cancel)
-    
-    else:
-        res = QMessageBox.warning(None, 'PyArchInit',
-                              "If you see this message it means some of the required packages are missing from your machine:\n{}\n\n"
-                              "Do you want install the missing packages? Remember you need start QGIS like Admin".format(
-                                  ',\n'.join(missing_libraries)), QMessageBox.Ok | QMessageBox.Cancel)
+    '''legge le librerie mancanti dalla cartella ext-libs'''
+    import site
+    site.addsitedir(os.path.abspath(os.path.dirname(__file__) + '/ext-libs'))
     
     
-    if res == QMessageBox.Ok:
-        import subprocess
-
-        python_path = sys.exec_prefix
-        python_version = sys.version[:3]
-        if Pyarchinit_OS_Utility.isWindows():
-            cmd = '{}/python'.format(python_path)
-        else:
-            cmd = '{}/bin/python{}'.format(python_path, python_version)
-        try:
-            subprocess.call(
-                [cmd, '{}'.format(os.path.join(os.path.dirname(__file__), 'scripts', 'modules_installer.py')),
-                 ','.join(install_libraries)], shell=True if Pyarchinit_OS_Utility.isWindows() else False)
-        except Exception as e:
-            if Pyarchinit_OS_Utility.isMac():
-                library_path = '/Library/Frameworks/Python.framework/Versions/{}/bin'.format(python_version)
-                cmd = '{}/python{}'.format(library_path, python_version)
-                subprocess.call(
-                    [cmd, '{}'.format(os.path.join(os.path.dirname(__file__), 'scripts', 'modules_installer.py')),
-                     ','.join(install_libraries)])
-            else:
-                error = traceback.format_exc()
-                QgsMessageLog.logMessage(error, tag="PyArchInit", level=Qgis.Critical)
-    else:
-        pass
-
 
 s = QgsSettings()
 if not Pyarchinit_OS_Utility.checkGraphvizInstallation() and s.value('pyArchInit/graphvizBinPath'):
     os.environ['PATH'] += os.pathsep + os.path.normpath(s.value('pyArchInit/graphvizBinPath'))
-# if not Pyarchinit_OS_Utility.checkRInstallation() and s.value('pyArchInit/rBinPath'):
-    # os.environ['PATH'] += os.pathsep + os.path.normpath(s.value('pyArchInit/rBinPath'))
-
 
 packages = [
-    'pyaper',
+    #'pyaper',
     'graphviz',
 ]
 for p in packages:
     from qgis.PyQt.QtWidgets import QMessageBox
 
-    # if p.startswith('pyper'):
-        # try:
-            # subprocess.call(['R', '--vanilla'])
-        # except Exception as e:
-            # if L=='it':
-                # QMessageBox.warning(None, 'Pyarchinit',
-                                # "INFO: Sembra che R non sia installato sul vostro sistema o che non abbiate impostato il percorso in Pyarchinit config. In ogni caso il modulo pyper sarà installato sul vostro sistema, ma non è possibile utilizzare la funzione di archeologia.",
-                                # QMessageBox.Ok | QMessageBox.Cancel)
-    
-            # elif L=='de':
-                # QMessageBox.warning(None, 'Pyarchinit',
-                                # "INFO: Es scheint, dass R nicht auf Ihrem System installiert ist oder dass Sie den Pfad in der Pyarchinit-Konfiguration nicht festgelegt haben. Wie auch immer, das pyper-Modul wird auf Ihrem System installiert sein, aber Sie können die Archäologie-Funktion nicht benutzen.",
-                                # QMessageBox.Ok | QMessageBox.Cancel)
-    
-    
-            # else:
-                # QMessageBox.warning(None, 'Pyarchinit',
-                                # "INFO: It seems that R is not installed on your system or you don't have set the path in Pyarchinit config. Anyway the pyper module will be installed on your system, but you can not use archaezoology function.",
-                                # QMessageBox.Ok | QMessageBox.Cancel)
-    
     
     if p.startswith('graphviz'):
         try:
@@ -226,7 +161,7 @@ for p in packages:
         except Exception as e:
             if L=='it':
                 QMessageBox.warning(None, 'Pyarchinit',
-                                "INFO: Sembra che Graphviz non sia installato sul vostro sistema o che non abbiate impostato il percorso in Pyarchinit config. In ogni caso il modulo python di graphviz sarà installato sul vostro sistema, ma la funzionalità di esportazione della matrice dal plugin pyarchinit sarà disabilitata.",
+                                "INFO: Sembra che Graphviz non sia installato sul vostro sistema o che non abbiate impostato il percorso in Pyarchinit config. In ogni caso il modulo python di graphviz sarà installato sul vostro sistema, ma la funzionalità di esportazione del matrix dal plugin pyarchinit sarà disabilitata.",
                                 QMessageBox.Ok | QMessageBox.Cancel)
             elif L=='de':
                 QMessageBox.warning(None, 'Pyarchinit',

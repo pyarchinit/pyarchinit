@@ -33,7 +33,7 @@ if not packages:
     packages = [
         'SQLAlchemy==1.4.27',
         'SQLAlchemy-Utils',
-        'geoalchemy2=0.9.4',
+        'geoalchemy2==0.9.4',
         'reportlab',
         'pdf2docx==0.4.6',
         'matplotlib',
