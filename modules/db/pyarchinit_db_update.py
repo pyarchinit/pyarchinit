@@ -5,7 +5,7 @@
         					 stored in Postgres
                              -------------------
     begin                : 2007-12-01
-    copyright            : (C) 2008 by Luca Mandolesi
+    copyright            : (C) 2008 by Luca Mandolesi; Enzo Cocca <enzo.ccc@gmail.com>
     email                : mandoluca at gmail.com
  ***************************************************************************/
 
@@ -136,7 +136,8 @@ class DB_update(object):
 
         for i in table.columns:
             table_column_names_list.append(str(i.name))
-
+        
+        
         if not table_column_names_list.__contains__('cont_per'):
             self.engine.execute("ALTER TABLE us_table ADD COLUMN cont_per varchar DEFAULT")
 
@@ -344,6 +345,10 @@ class DB_update(object):
 
         if not table_column_names_list.__contains__('uso_primario_usm'):
             self.engine.execute("ALTER TABLE us_table ADD COLUMN uso_primario_usm text DEFAULT '' ")
+        
+        if not table_column_names_list.__contains__('doc_usv'):
+            self.engine.execute("ALTER TABLE us_table ADD COLUMN doc_usv text DEFAULT '' ")
+        
         #############nuovi##############################################################
         if not table_column_names_list.__contains__('tipologia_opera'):
             self.engine.execute("ALTER TABLE us_table ADD COLUMN tipologia_opera text DEFAULT '' ")
@@ -385,9 +390,14 @@ class DB_update(object):
         if not table_column_names_list.__contains__('materiale_p'):
                 self.engine.execute("ALTER TABLE us_table ADD COLUMN materiale_p text DEFAULT '' ")
         if not table_column_names_list.__contains__('consistenza_p'):
-                self.engine.execute("ALTER TABLE us_table ADD COLUMN consistenza_p text DEFAULT '' ")
-                    
+                self.engine.execute("ALTER TABLE us_table ADD COLUMN consistenza_p text DEFAULT '' ")                    
+        if not table_column_names_list.__contains__('rapporti2'):
+            self.engine.execute("ALTER TABLE us_table ADD COLUMN rapporti2 text DEFAULT '' ")
         
+        # try:
+            # self.engine.execute("ALTER TABLE us_table ADD CONSTRAINT ID_us_unico UNIQUE (unita_tipo);")
+        # except:
+            # pass
         ####pyarchinit_thesaurus_sigle
         table = Table("pyarchinit_thesaurus_sigle", self.metadata, autoload=True)
         table_column_names_list = []
@@ -485,6 +495,19 @@ class DB_update(object):
                 self.engine.execute("ALTER TABLE individui_table ALTER COLUMN eta_max TYPE text")
         except:
             pass
+        
+        
+        
+        ####periodizzazione_table
+        table = Table("periodizzazione_table", self.metadata, autoload=True)
+        table_column_names_list = []
+        for i in table.columns:
+            table_column_names_list.append(str(i.name))
+        try: 
+            if table_column_names_list.__contains__('fase'):
+                self.engine.execute("ALTER TABLE periodizzazione_table ALTER COLUMN fase TYPE text")
+        except:
+            pass
         ####aggiornamento tabelle geografiche
         ####pyunitastratigrafiche
         table = Table("pyunitastratigrafiche", self.metadata, autoload=True)
@@ -496,10 +519,36 @@ class DB_update(object):
         
         if not table_column_names_list.__contains__('coord'):
             self.engine.execute("ALTER TABLE pyunitastratigrafiche ADD COLUMN coord text")
-        
+        if not table_column_names_list.__contains__('unita_tipo_s'):
+            self.engine.execute("ALTER TABLE pyunitastratigrafiche ADD COLUMN unita_tipo_s text")
         # if table_column_names_list.__contains__('id'):
             # self.engine.execute("ALTER TABLE pyunitastratigrafiche RENAME COLUMN id TO gid")
 
+        table = Table("pyunitastratigrafiche_usm", self.metadata, autoload=True)
+        table_column_names_list = []
+        for i in table.columns:
+            table_column_names_list.append(str(i.name))
+        
+        if not table_column_names_list.__contains__('unita_tipo_s'):
+            self.engine.execute("ALTER TABLE pyunitastratigrafiche_usm ADD COLUMN unita_tipo_s text")
+       
+        
+        table = Table("pyarchinit_quote_usm", self.metadata, autoload=True)
+        table_column_names_list = []
+        for i in table.columns:
+            table_column_names_list.append(str(i.name))
+        
+        if not table_column_names_list.__contains__('unita_tipo_q'):
+            self.engine.execute("ALTER TABLE pyarchinit_quote_usm ADD COLUMN unita_tipo_q text")
+       
+        
+        table = Table("pyarchinit_quote", self.metadata, autoload=True)
+        table_column_names_list = []
+        for i in table.columns:
+            table_column_names_list.append(str(i.name))
+        
+        if not table_column_names_list.__contains__('unita_tipo_q'):
+            self.engine.execute("ALTER TABLE pyarchinit_quote ADD COLUMN unita_tipo_q text")
         
         table = Table("pyarchinit_strutture_ipotesi", self.metadata, autoload=True)
         table_column_names_list = []

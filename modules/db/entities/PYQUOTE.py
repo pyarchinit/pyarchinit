@@ -1,7 +1,7 @@
 '''
 Created on 19 feb 2018
 
-@author: Serena Sensini
+@author: Serena Sensini; Enzo Cocca <enzo.ccc@gmail.com>
 '''
 
 
@@ -17,7 +17,8 @@ class PYQUOTE(object):
                 data ,
                 disegnatore ,
                 rilievo_originale ,
-                the_geom 
+                the_geom,
+                unita_tipo_q,
                 ):
         self.id=id
         self.sito_q= sito_q
@@ -29,10 +30,11 @@ class PYQUOTE(object):
         self.disegnatore =disegnatore
         self.rilievo_originale =rilievo_originale
         self.the_geom = the_geom
+        self.unita_tipo_q=unita_tipo_q
     # def __repr__"
     @property
     def __repr__(self):
-        return "<PYQUOTE('%d','%s', '%d', '%d', '%s', '%r', '%s', '%s', '%s', '%s')>" % (
+        return "<PYQUOTE('%d','%s', '%d', '%d', '%s', '%r', '%s', '%s', '%s', '%s', '%s')>" % (
             self.id,
             self.sito_q,
             self.area_q,
@@ -42,4 +44,5 @@ class PYQUOTE(object):
             self.data,
             self.disegnatore,
             self.rilievo_originale,
-            self.the_geom)
+            self.the_geom,
+            self.unita_tipo_q)

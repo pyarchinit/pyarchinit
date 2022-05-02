@@ -1,3 +1,4 @@
+
 #! /usr/bin/env python
 # -*- coding: utf-8 -*-
 """
@@ -650,8 +651,187 @@ class single_US_pdf_sheet(object):
                     else:
                         self.gli_si_appoggia += ', ' + str(rapporto[1])
     
+            if len(rapporto) == 4:
+                if rapporto[0] == 'Connected to' or rapporto[0] == 'Connected to':
+                    if self.si_lega_a == '':
+                        self.si_lega_a += str(rapporto[1])
+                    else:
+                        self.si_lega_a += ', ' + str(rapporto[1])
+
+                if rapporto[0] == 'Same as' or rapporto[0] == 'same as':
+                    if self.uguale_a == '':
+                        self.uguale_a += str(rapporto[1])
+                    else:
+                        self.uguale_a += ', ' + str(rapporto[1])
+
+                if rapporto[0] == 'Covers' or rapporto[0] == 'cover':
+                    if self.copre == '':
+                        self.copre += str(rapporto[1])
+                    else:
+                        self.copre += ', ' + str(rapporto[1])
+
+                if rapporto[0] == 'Covered by' or rapporto[0] == 'covered by':
+                    if self.coperto_da == '':
+                        self.coperto_da += str(rapporto[1])
+                    else:
+                        self.coperto_da += ', ' + str(rapporto[1])
+
+                if rapporto[0] == 'Fills' or rapporto[0] == 'fill':
+                    if self.riempie == '':
+                        self.riempie += str(rapporto[1])
+                    else:
+                        self.riempie += ', ' + str(rapporto[1])
+
+                if rapporto[0] == 'Filled by' or rapporto[0] == 'filled by':
+                    if self.riempito_da == '':
+                        self.riempito_da += str(rapporto[1])
+                    else:
+                        self.riempito_da += ', ' + str(rapporto[1])
+
+                if rapporto[0] == 'Cuts' or rapporto[0] == 'cuts':
+                    if self.taglia == '':
+                        self.taglia += str(rapporto[1])
+                    else:
+                        self.taglia += ', ' + str(rapporto[1])
+
+                if rapporto[0] == 'Cutted by' or rapporto[0] == 'cutted by':
+                    if self.tagliato_da == '':
+                        self.tagliato_da += str(rapporto[1])
+                    else:
+                        self.tagliato_da += ', ' + str(rapporto[1])
+
+                if rapporto[0] == 'Abuts' or rapporto[0] == 'abuts':
+                    if self.si_appoggia_a == '':
+                        self.si_appoggia_a += str(rapporto[1])
+                    else:
+                        self.si_appoggia_a += ', ' + str(rapporto[1])
+
+                if rapporto[0] == 'Support' or rapporto[0] == 'Support':
+                    if self.gli_si_appoggia == '':
+                        self.gli_si_appoggia += str(rapporto[1])
+                    else:
+                        self.gli_si_appoggia += ', ' + str(rapporto[1])
+            if len(rapporto) == 3:
+                if rapporto[0] == 'Connected to' or rapporto[0] == 'Connected to':
+                    if self.si_lega_a == '':
+                        self.si_lega_a += str(rapporto[1])
+                    else:
+                        self.si_lega_a += ', ' + str(rapporto[1])
+
+                if rapporto[0] == 'Same as' or rapporto[0] == 'same as':
+                    if self.uguale_a == '':
+                        self.uguale_a += str(rapporto[1])
+                    else:
+                        self.uguale_a += ', ' + str(rapporto[1])
+
+                if rapporto[0] == 'Covers' or rapporto[0] == 'cover':
+                    if self.copre == '':
+                        self.copre += str(rapporto[1])
+                    else:
+                        self.copre += ', ' + str(rapporto[1])
+
+                if rapporto[0] == 'Covered by' or rapporto[0] == 'covered by':
+                    if self.coperto_da == '':
+                        self.coperto_da += str(rapporto[1])
+                    else:
+                        self.coperto_da += ', ' + str(rapporto[1])
+
+                if rapporto[0] == 'Fills' or rapporto[0] == 'fill':
+                    if self.riempie == '':
+                        self.riempie += str(rapporto[1])
+                    else:
+                        self.riempie += ', ' + str(rapporto[1])
+
+                if rapporto[0] == 'Filled by' or rapporto[0] == 'filled by':
+                    if self.riempito_da == '':
+                        self.riempito_da += str(rapporto[1])
+                    else:
+                        self.riempito_da += ', ' + str(rapporto[1])
+
+                if rapporto[0] == 'Cuts' or rapporto[0] == 'cuts':
+                    if self.taglia == '':
+                        self.taglia += str(rapporto[1])
+                    else:
+                        self.taglia += ', ' + str(rapporto[1])
+
+                if rapporto[0] == 'Cutted by' or rapporto[0] == 'cutted by':
+                    if self.tagliato_da == '':
+                        self.tagliato_da += str(rapporto[1])
+                    else:
+                        self.tagliato_da += ', ' + str(rapporto[1])
+
+                if rapporto[0] == 'Abuts' or rapporto[0] == 'abuts':
+                    if self.si_appoggia_a == '':
+                        self.si_appoggia_a += str(rapporto[1])
+                    else:
+                        self.si_appoggia_a += ', ' + str(rapporto[1])
+
+                if rapporto[0] == 'Support' or rapporto[0] == 'Support':
+                    if self.gli_si_appoggia == '':
+                        self.gli_si_appoggia += str(rapporto[1])
+                    else:
+                        self.gli_si_appoggia += ', ' + str(rapporto[1])
     
-    
+            if len(rapporto) == 2:
+                if rapporto[0] == 'Connected to' or rapporto[0] == 'Connected to':
+                    if self.si_lega_a == '':
+                        self.si_lega_a += str(rapporto[1])
+                    else:
+                        self.si_lega_a += ', ' + str(rapporto[1])
+
+                if rapporto[0] == 'Same as' or rapporto[0] == 'same as':
+                    if self.uguale_a == '':
+                        self.uguale_a += str(rapporto[1])
+                    else:
+                        self.uguale_a += ', ' + str(rapporto[1])
+
+                if rapporto[0] == 'Covers' or rapporto[0] == 'cover':
+                    if self.copre == '':
+                        self.copre += str(rapporto[1])
+                    else:
+                        self.copre += ', ' + str(rapporto[1])
+
+                if rapporto[0] == 'Covered by' or rapporto[0] == 'covered by':
+                    if self.coperto_da == '':
+                        self.coperto_da += str(rapporto[1])
+                    else:
+                        self.coperto_da += ', ' + str(rapporto[1])
+
+                if rapporto[0] == 'Fills' or rapporto[0] == 'fill':
+                    if self.riempie == '':
+                        self.riempie += str(rapporto[1])
+                    else:
+                        self.riempie += ', ' + str(rapporto[1])
+
+                if rapporto[0] == 'Filled by' or rapporto[0] == 'filled by':
+                    if self.riempito_da == '':
+                        self.riempito_da += str(rapporto[1])
+                    else:
+                        self.riempito_da += ', ' + str(rapporto[1])
+
+                if rapporto[0] == 'Cuts' or rapporto[0] == 'cuts':
+                    if self.taglia == '':
+                        self.taglia += str(rapporto[1])
+                    else:
+                        self.taglia += ', ' + str(rapporto[1])
+
+                if rapporto[0] == 'Cutted by' or rapporto[0] == 'cutted by':
+                    if self.tagliato_da == '':
+                        self.tagliato_da += str(rapporto[1])
+                    else:
+                        self.tagliato_da += ', ' + str(rapporto[1])
+
+                if rapporto[0] == 'Abuts' or rapporto[0] == 'abuts':
+                    if self.si_appoggia_a == '':
+                        self.si_appoggia_a += str(rapporto[1])
+                    else:
+                        self.si_appoggia_a += ', ' + str(rapporto[1])
+
+                if rapporto[0] == 'Support' or rapporto[0] == 'Support':
+                    if self.gli_si_appoggia == '':
+                        self.gli_si_appoggia += str(rapporto[1])
+                    else:
+                        self.gli_si_appoggia += ', ' + str(rapporto[1])
     def unzip_documentazione(self):  #nuova gestione documentazione per ICCD TEST PUSH
 
         if self.documentazione == '':
@@ -3968,7 +4148,188 @@ class US_index_pdf_sheet(object):
                     else:
                         self.gli_si_appoggia += ', ' + str(rapporto[1])
     
-    
+            elif len(rapporto) == 4:
+                if rapporto[0] == 'Connected to' or rapporto[0] == 'Connected to':
+                    if self.si_lega_a == '':
+                        self.si_lega_a += str(rapporto[1])
+                    else:
+                        self.si_lega_a += ', ' + str(rapporto[1])
+
+                if rapporto[0] == 'Same as' or rapporto[0] == 'same as':
+                    if self.uguale_a == '':
+                        self.uguale_a += str(rapporto[1])
+                    else:
+                        self.uguale_a += ', ' + str(rapporto[1])
+
+                if rapporto[0] == 'Covers' or rapporto[0] == 'cover':
+                    if self.copre == '':
+                        self.copre += str(rapporto[1])
+                    else:
+                        self.copre += ', ' + str(rapporto[1])
+
+                if rapporto[0] == 'Covered by' or rapporto[0] == 'covered by':
+                    if self.coperto_da == '':
+                        self.coperto_da += str(rapporto[1])
+                    else:
+                        self.coperto_da += ', ' + str(rapporto[1])
+
+                if rapporto[0] == 'Fills' or rapporto[0] == 'fill':
+                    if self.riempie == '':
+                        self.riempie += str(rapporto[1])
+                    else:
+                        self.riempie += ', ' + str(rapporto[1])
+
+                if rapporto[0] == 'Filled by' or rapporto[0] == 'filled by':
+                    if self.riempito_da == '':
+                        self.riempito_da += str(rapporto[1])
+                    else:
+                        self.riempito_da += ', ' + str(rapporto[1])
+
+                if rapporto[0] == 'Cuts' or rapporto[0] == 'cuts':
+                    if self.taglia == '':
+                        self.taglia += str(rapporto[1])
+                    else:
+                        self.taglia += ', ' + str(rapporto[1])
+
+                if rapporto[0] == 'Cutted by' or rapporto[0] == 'cutted by':
+                    if self.tagliato_da == '':
+                        self.tagliato_da += str(rapporto[1])
+                    else:
+                        self.tagliato_da += ', ' + str(rapporto[1])
+
+                if rapporto[0] == 'Abuts' or rapporto[0] == 'abuts':
+                    if self.si_appoggia_a == '':
+                        self.si_appoggia_a += str(rapporto[1])
+                    else:
+                        self.si_appoggia_a += ', ' + str(rapporto[1])
+
+                if rapporto[0] == 'Support' or rapporto[0] == 'Support':
+                    if self.gli_si_appoggia == '':
+                        self.gli_si_appoggia += str(rapporto[1])
+                    else:
+                        self.gli_si_appoggia += ', ' + str(rapporto[1])
+                        
+            elif len(rapporto) == 3:
+                if rapporto[0] == 'Connected to' or rapporto[0] == 'Connected to':
+                    if self.si_lega_a == '':
+                        self.si_lega_a += str(rapporto[1])
+                    else:
+                        self.si_lega_a += ', ' + str(rapporto[1])
+
+                if rapporto[0] == 'Same as' or rapporto[0] == 'same as':
+                    if self.uguale_a == '':
+                        self.uguale_a += str(rapporto[1])
+                    else:
+                        self.uguale_a += ', ' + str(rapporto[1])
+
+                if rapporto[0] == 'Covers' or rapporto[0] == 'cover':
+                    if self.copre == '':
+                        self.copre += str(rapporto[1])
+                    else:
+                        self.copre += ', ' + str(rapporto[1])
+
+                if rapporto[0] == 'Covered by' or rapporto[0] == 'covered by':
+                    if self.coperto_da == '':
+                        self.coperto_da += str(rapporto[1])
+                    else:
+                        self.coperto_da += ', ' + str(rapporto[1])
+
+                if rapporto[0] == 'Fills' or rapporto[0] == 'fill':
+                    if self.riempie == '':
+                        self.riempie += str(rapporto[1])
+                    else:
+                        self.riempie += ', ' + str(rapporto[1])
+
+                if rapporto[0] == 'Filled by' or rapporto[0] == 'filled by':
+                    if self.riempito_da == '':
+                        self.riempito_da += str(rapporto[1])
+                    else:
+                        self.riempito_da += ', ' + str(rapporto[1])
+
+                if rapporto[0] == 'Cuts' or rapporto[0] == 'cuts':
+                    if self.taglia == '':
+                        self.taglia += str(rapporto[1])
+                    else:
+                        self.taglia += ', ' + str(rapporto[1])
+
+                if rapporto[0] == 'Cutted by' or rapporto[0] == 'cutted by':
+                    if self.tagliato_da == '':
+                        self.tagliato_da += str(rapporto[1])
+                    else:
+                        self.tagliato_da += ', ' + str(rapporto[1])
+
+                if rapporto[0] == 'Abuts' or rapporto[0] == 'abuts':
+                    if self.si_appoggia_a == '':
+                        self.si_appoggia_a += str(rapporto[1])
+                    else:
+                        self.si_appoggia_a += ', ' + str(rapporto[1])
+
+                if rapporto[0] == 'Support' or rapporto[0] == 'Support':
+                    if self.gli_si_appoggia == '':
+                        self.gli_si_appoggia += str(rapporto[1])
+                    else:
+                        self.gli_si_appoggia += ', ' + str(rapporto[1])     
+                        
+            elif len(rapporto) == 2:
+                if rapporto[0] == 'Connected to' or rapporto[0] == 'Connected to':
+                    if self.si_lega_a == '':
+                        self.si_lega_a += str(rapporto[1])
+                    else:
+                        self.si_lega_a += ', ' + str(rapporto[1])
+
+                if rapporto[0] == 'Same as' or rapporto[0] == 'same as':
+                    if self.uguale_a == '':
+                        self.uguale_a += str(rapporto[1])
+                    else:
+                        self.uguale_a += ', ' + str(rapporto[1])
+
+                if rapporto[0] == 'Covers' or rapporto[0] == 'cover':
+                    if self.copre == '':
+                        self.copre += str(rapporto[1])
+                    else:
+                        self.copre += ', ' + str(rapporto[1])
+
+                if rapporto[0] == 'Covered by' or rapporto[0] == 'covered by':
+                    if self.coperto_da == '':
+                        self.coperto_da += str(rapporto[1])
+                    else:
+                        self.coperto_da += ', ' + str(rapporto[1])
+
+                if rapporto[0] == 'Fills' or rapporto[0] == 'fill':
+                    if self.riempie == '':
+                        self.riempie += str(rapporto[1])
+                    else:
+                        self.riempie += ', ' + str(rapporto[1])
+
+                if rapporto[0] == 'Filled by' or rapporto[0] == 'filled by':
+                    if self.riempito_da == '':
+                        self.riempito_da += str(rapporto[1])
+                    else:
+                        self.riempito_da += ', ' + str(rapporto[1])
+
+                if rapporto[0] == 'Cuts' or rapporto[0] == 'cuts':
+                    if self.taglia == '':
+                        self.taglia += str(rapporto[1])
+                    else:
+                        self.taglia += ', ' + str(rapporto[1])
+
+                if rapporto[0] == 'Cutted by' or rapporto[0] == 'cutted by':
+                    if self.tagliato_da == '':
+                        self.tagliato_da += str(rapporto[1])
+                    else:
+                        self.tagliato_da += ', ' + str(rapporto[1])
+
+                if rapporto[0] == 'Abuts' or rapporto[0] == 'abuts':
+                    if self.si_appoggia_a == '':
+                        self.si_appoggia_a += str(rapporto[1])
+                    else:
+                        self.si_appoggia_a += ', ' + str(rapporto[1])
+
+                if rapporto[0] == 'Support' or rapporto[0] == 'Support':
+                    if self.gli_si_appoggia == '':
+                        self.gli_si_appoggia += str(rapporto[1])
+                    else:
+                        self.gli_si_appoggia += ', ' + str(rapporto[1])            
     def getTable_en(self):
         styleSheet = getSampleStyleSheet()
         styNormal = styleSheet['Normal']
@@ -3981,7 +4342,7 @@ class US_index_pdf_sheet(object):
 
         area = Paragraph("<b>Area</b><br/>" + str(self.area), styNormal)
         us = Paragraph("<b>SU</b><br/>" + str(self.us), styNormal)
-        d_stratigrafica = Paragraph("<b>Def. Stratigr.</b><br/>" + str(self.d_stratigrafica), styNormal)
+        d_stratigrafica = Paragraph("<b>SU Definition</b><br/>" + str(self.d_stratigrafica), styNormal)
         copre = Paragraph("<b>Covers</b><br/>" + str(self.copre), styNormal)
         coperto_da = Paragraph("<b>Covered by</b><br/>" + str(self.coperto_da), styNormal)
         taglia = Paragraph("<b>Cuts</b><br/>" + str(self.taglia), styNormal)
@@ -5105,4 +5466,5 @@ class generate_US_pdf(object):
         f.close()
     
     
+
    

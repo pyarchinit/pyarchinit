@@ -24,13 +24,13 @@ class pylineeriferimento:
 
     # define tables check per verifica fill fields 20/10/2016 OK
     pylineeriferimento = Table('pyarchinit_linee_rif', metadata,
-                     Column('id', Integer, primary_key=True),  # 0
+                     Column('gid', Integer, primary_key=True),  # 0
                      Column('sito', Text),
                      Column('definizion', Text),
                      Column('descrizion', Text),
-                     Column('the_geom', Geometry('LINESTRING',-1)),
+                     Column('the_geom', Text),
                      # explicit/composite unique constraint.  'name' is optional.
-                     UniqueConstraint('id')
+                     UniqueConstraint('gid')
                      )
 
     metadata.create_all(engine)

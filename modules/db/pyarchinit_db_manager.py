@@ -5,7 +5,7 @@
         pyArchInit Plugin  - A QGIS plugin to manage archaeological dataset
                              -------------------
         begin                : 2007-12-01
-        copyright            : (C) 2008 by Luca Mandolesi
+        copyright            : (C) 2008 by Luca Mandolesi; Enzo Cocca <enzo.ccc@gmail.com>
         email                : mandoluca at gmail.com
  ***************************************************************************/
 
@@ -21,7 +21,7 @@
 
 import os
 import sqlalchemy as db
-from sqlalchemy.ext.compiler import compiles
+
 from sqlalchemy.sql.expression import *
 from sqlalchemy.event import listen
 import psycopg2
@@ -34,7 +34,7 @@ from geoalchemy2 import *
 from sqlalchemy.engine import create_engine
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.sql.schema import MetaData
-from qgis.core import QgsMessageLog, Qgis, QgsSettings
+from qgis.core import *
 from qgis.utils import iface
 from qgis.PyQt.QtWidgets import QMessageBox
 from modules.utility.pyarchinit_OS_utility import Pyarchinit_OS_Utility
@@ -44,13 +44,13 @@ from sqlalchemy.dialects.postgresql import insert
 from modules.db.pyarchinit_db_mapper import US, UT, SITE, PERIODIZZAZIONE, \
     STRUTTURA, SCHEDAIND, INVENTARIO_MATERIALI, DETSESSO, DOCUMENTAZIONE, DETETA, MEDIA, \
     MEDIA_THUMB, MEDIATOENTITY, MEDIAVIEW, TOMBA, CAMPIONI, PYARCHINIT_THESAURUS_SIGLE, \
-    ARCHEOZOOLOGY, INVENTARIO_LAPIDEI, PDF_ADMINISTRATOR,PYUS,PYSITO_POINT,PYSITO_POLYGON,PYQUOTE, \
+    ARCHEOZOOLOGY, INVENTARIO_LAPIDEI, PDF_ADMINISTRATOR,PYUS ,PYUSM,PYSITO_POINT,PYSITO_POLYGON,PYQUOTE,PYQUOTEUSM, \
     PYUS_NEGATIVE, PYSTRUTTURE, PYREPERTI, PYINDIVIDUI, PYCAMPIONI, PYTOMBA, PYDOCUMENTAZIONE, PYLINEERIFERIMENTO, \
     PYRIPARTIZIONI_SPAZIALI, PYSEZIONI
 from modules.db.pyarchinit_db_update import DB_update
 from modules.db.pyarchinit_utility import Utility
 from sqlalchemy.ext.compiler import compiles
-from sqlalchemy.sql.expression import Insert
+
 from modules.db.pyarchinit_conn_strings import Connection
 
         
@@ -76,7 +76,7 @@ class Pyarchinit_db_management(object):
             dbapi_conn.load_extension('mod_spatialite.dll')
         
         elif Pyarchinit_OS_Utility.isMac()== True:
-            dbapi_conn.load_extension('mod_spatialite.dylib')
+            dbapi_conn.load_extension('mod_spatialite')
         else:
             dbapi_conn.load_extension('mod_spatialite.so')  
     def connection(self):
@@ -94,7 +94,7 @@ class Pyarchinit_db_management(object):
             conn = self.engine.connect()
             
         except Exception as e:
-            QMessageBox.warning(None, "Message", "Eroore: "+str(e), QMessageBox.Ok)
+            QMessageBox.warning(None, "Message", "Error: "+str(e), QMessageBox.Ok)
             test = False
         finally:
             conn.close()
@@ -103,7 +103,7 @@ class Pyarchinit_db_management(object):
             db_upd = DB_update(self.conn_str)
             db_upd.update_table()
         except Exception as e:
-            QMessageBox.warning(None, "Message", "Eroore: "+str(e), QMessageBox.Ok)
+            QMessageBox.warning(None, "Message", "Error: "+str(e), QMessageBox.Ok)
             test = False
         return test
 
@@ -121,9 +121,25 @@ class Pyarchinit_db_management(object):
                 arg[9],
                 arg[10],
                 arg[11],
-                arg[12])
+                arg[12],
+                arg[13])
         return pyus
-    
+    def insert_pyusm(self, *arg):
+        pyusm = PYUSM(arg[0],
+                arg[1],
+                arg[2],
+                arg[3],
+                arg[4],
+                arg[5],
+                arg[6],
+                arg[7],
+                arg[8],
+                arg[9],
+                arg[10],
+                arg[11],
+                arg[12],
+                arg[13])
+        return pyusm
     def insert_pysito_point(self, *arg):
         pysito_point = PYSITO_POINT(arg[0],
                 arg[1],
@@ -147,9 +163,22 @@ class Pyarchinit_db_management(object):
                 arg[6],
                 arg[7],
                 arg[8],
-                arg[9])
+                arg[9],
+                arg[10])
         return pyquote    
-    
+    def insert_pyquote_usm(self, *arg):
+        pyquote_usm = PYQUOTEUSM(arg[0],
+                arg[1],
+                arg[2],
+                arg[3],
+                arg[4],
+                arg[5],
+                arg[6],
+                arg[7],
+                arg[8],
+                arg[9],
+                arg[10])
+        return pyquote_usm    
     def insert_pyus_negative(self, *arg):
         pyus_negative = PYUS_NEGATIVE(arg[0],
                 arg[1],
@@ -369,6 +398,8 @@ class Pyarchinit_db_management(object):
                 arg[112],
                 arg[113],
                 arg[114],
+                arg[115],
+                arg[116],
                 )
 
         return us
@@ -1172,10 +1203,7 @@ class Pyarchinit_db_management(object):
         session_exec_str = 'session.query(%s).filter(and_(%s.%s == %s)).update(values = %s)' % (
         self.table_class_str, self.table_class_str, self.id_table_str, self.value_id_list[0], changes_dict)
 
-        # f = open('/test_update.txt', "w")
-        # f.write(str(session_exec_str))
-        # f.close()
-
+        
         eval(session_exec_str)
         session.close()
     def update_find_check(self, table_class_str, id_table_str, value_id, find_check_value):
@@ -1513,12 +1541,13 @@ class Pyarchinit_db_management(object):
     
     def query_in_contains(self, value_list, sitof, areaf):
         self.value_list = value_list
-
+       
         Session = sessionmaker(bind=self.engine, autoflush=True, autocommit=True)
         session = Session()
 
         res_list = []
         n = len(self.value_list) - 1
+        # QMessageBox.warning(None, "Messaggio", str(n), QMessageBox.Ok)
         while self.value_list:
             chunk = self.value_list[0:n]
             self.value_list = self.value_list[n:]
@@ -1538,7 +1567,7 @@ class Pyarchinit_db_management(object):
 
             data_ins = self.insert_values(id_us, sito, area, n_us, '', '', '', '', '', '', '', '', '', '', '', '', '[]',
                                           '[]', '[]', '', '', '', '', '', '', '', '', '0', '[]', unita_tipo, '', '', '', '',
-                                          '', '', '', '', '', '', '', '', '', None, None, '', '[]','[]', '[]', '[]', '[]','','','','',None,None,'','','','','','','[]','[]',None,None,None,None,None,None,None,None,None,None,'','','','','','','','','','',None,None,None,'','','','','','','','','','','','','','','','','','','','','','','','','','','','')
+                                          '', '', '', '', '', '', '', '', '', None, None, '', '[]','[]', '[]', '[]', '[]','','','','',None,None,'','','','','','','[]','[]',None,None,None,None,None,None,None,None,None,None,'','','','','','','','','','',None,None,None,'','','','','','','','','','','','','','','','','','','','','','','','','','','','','')
                                            
             self.insert_data_session(data_ins)
             n_us += 1
@@ -1555,7 +1584,7 @@ class Pyarchinit_db_management(object):
 
         data_ins = self.insert_values(id_us, sito, area, n_us, '', '', '', '', '', '', '', '', '', '', '', '', '[]',
                                       '[]', '[]', '', '', '', '', '', '', '', '', '0', '[]', unita_tipo, '', '', '', '',
-                                      '', '', '', '', '', '', '', '', '', None, None, '', '[]','[]', '[]', '[]', '[]','','','','',None,None,'','','','','','','[]','[]',None,None,None,None,None,None,None,None,None,None,'','','','','','','','','','',None,None,None,'','','','','','','','','','','','','','','','','','','','','','','','','','','','')
+                                      '', '', '', '', '', '', '', '', '', None, None, '', '[]','[]', '[]', '[]', '[]','','','','',None,None,'','','','','','','[]','[]',None,None,None,None,None,None,None,None,None,None,'','','','','','','','','','',None,None,None,'','','','','','','','','','','','','','','','','','','','','','','','','','','','','')
                                            
         self.insert_data_session(data_ins)
         
@@ -1575,6 +1604,11 @@ class Pyarchinit_db_management(object):
         
         
         return
+    
+    
+    
+    
+    
     def insert_number_of_tomba_records(self, sito, nr_scheda_taf):
         id_tomba = self.max_num_id('TOMBA', 'id_tomba')
         
@@ -1653,6 +1687,7 @@ class Pyarchinit_db_management(object):
                      ~US.rapporti.like("%'Liegt über'%"), ~US.rapporti.like("%'Verfüllt'%")))
             # MyModel.query.filter(sqlalchemy.not_(Mymodel.name.contains('a_string')))
         session.close()
+        #QMessageBox.warning(None, "Messaggio", "DATA LIST" + str(res), QMessageBox.Ok)
         return res
         
     def query_in_idusb(self):

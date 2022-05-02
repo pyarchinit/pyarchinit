@@ -5,7 +5,7 @@
                              stored in Postgres
                              -------------------
     begin                : 2007-12-01
-    copyright            : (C) 2008 by Luca Mandolesi
+    copyright            : (C) 2008 by Luca Mandolesi; Enzo Cocca <enzo.ccc@gmail.com>
     email                : mandoluca at gmail.com
  ***************************************************************************/
 
@@ -43,9 +43,11 @@ from modules.db.entities.US import US
 from modules.db.entities.US_TOIMP import US_TOIMP
 from modules.db.entities.UT import UT
 from modules.db.entities.PYUS import PYUS
+from modules.db.entities.PYUSM import PYUSM
 from modules.db.entities.PYSITO_POINT import PYSITO_POINT
 from modules.db.entities.PYSITO_POLYGON import PYSITO_POLYGON
 from modules.db.entities.PYQUOTE import PYQUOTE
+from modules.db.entities.PYQUOTEUSM import PYQUOTEUSM
 from modules.db.entities.PYUS_NEGATIVE import PYUS_NEGATIVE
 from modules.db.entities.PYSTRUTTURE import PYSTRUTTURE
 from modules.db.entities.PYREPERTI import PYREPERTI
@@ -78,9 +80,11 @@ from modules.db.structures.US_table import US_table
 from modules.db.structures.US_table_toimp import US_table_toimp
 from modules.db.structures.UT_table import UT_table
 from modules.db.structures.pyunitastratigrafiche import pyunitastratigrafiche
+from modules.db.structures.pyunitastratigrafiche_usm import pyunitastratigrafiche_usm
 from modules.db.structures.pysito_point import pysito_point
 from modules.db.structures.pysito_polygon import pysito_polygon
-from modules.db.structures.pyquote import pyquote 
+from modules.db.structures.pyquote import pyquote
+from modules.db.structures.pyquote_usm import pyquote_usm  
 from modules.db.structures.pyus_negative import pyus_negative
 from modules.db.structures.pystrutture import pystrutture
 from modules.db.structures.pyreperti import pyreperti
@@ -163,6 +167,9 @@ try:
     mapper(PYUS, pyunitastratigrafiche.pyunitastratigrafiche)
     
     # mapper
+    mapper(PYUSM, pyunitastratigrafiche_usm.pyunitastratigrafiche_usm)
+    
+    # mapper
     mapper(PYSITO_POINT, pysito_point.pysito_point)
     
     # mapper
@@ -170,6 +177,9 @@ try:
     
     # mapper
     mapper(PYQUOTE, pyquote.pyquote)
+    
+    # mapper
+    mapper(PYQUOTEUSM, pyquote_usm.pyquote_usm)
     
     # mapper
     mapper(PYUS_NEGATIVE, pyus_negative.pyus_negative)

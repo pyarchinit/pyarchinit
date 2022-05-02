@@ -6,7 +6,7 @@
                              stored in Postgres
                              -------------------
     begin                : 2007-12-01
-    copyright            : (C) 2008 by Luca Mandolesi
+    copyright            : (C) 2008 by Luca Mandolesi; Enzo Cocca <enzo.ccc@gmail.com>
     email                : mandoluca at gmail.com
  ***************************************************************************/
 
@@ -138,7 +138,7 @@ class single_Finds_pdf_sheet(object):
         sito = Paragraph("<b>Sito</b><br/>" + str(self.sito), styNormal)
         area = Paragraph("<b>Tomba</b><br/>" + str(self.area), styNormal)
         us = Paragraph("<b>US</b><br/>" + str(self.us), styNormal)
-        nr_inventario = Paragraph("<b>Nr. Inventario</b><br/>" + str(self.numero_inventario), styNormal)
+        nr_inventario = Paragraph("<b>N° Inventario</b><br/>" + str(self.numero_inventario), styNormal)
 
         # 2 row
         criterio_schedatura = Paragraph("<b>Classe</b><br/>" + self.criterio_schedatura, styNormal)
@@ -236,7 +236,7 @@ class single_Finds_pdf_sheet(object):
 
         # 12 row
         lavato = Paragraph("<b>Lavato</b><br/>" + self.lavato, styNormal)
-        nr_cassa = Paragraph("<b>Nr. Cassa</b><br/>" + self.nr_cassa, styNormal)
+        nr_cassa = Paragraph("<b>N° Cassa</b><br/>" + self.nr_cassa, styNormal)
         luogo_conservazione = Paragraph("<b>Luogo di conservazione</b><br/>" + self.luogo_conservazione, styNormal)
 
         # 13 row

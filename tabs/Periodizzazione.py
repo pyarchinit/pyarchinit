@@ -6,7 +6,7 @@
                              stored in Postgres
                              -------------------
     begin                : 2007-12-01
-    copyright            : (C) 2008 by Luca Mandolesi
+    copyright            : (C) 2008 by Luca Mandolesi; Enzo Cocca <enzo.ccc@gmail.com>
     email                : mandoluca at gmail.com
  ***************************************************************************/
 
@@ -359,10 +359,10 @@ class pyarchinit_Periodizzazione(QDialog, MAIN_DIALOG_CLASS):
                 QMessageBox.information(self, "Attenzione" ,"Non esiste questo sito: "'"'+ str(sito_set_str) +'"'" in questa scheda, Per favore distattiva la 'scelta sito' dalla scheda di configurazione plugin per vedere tutti i record oppure crea la scheda",QMessageBox.Ok) 
             elif self.L=='de':
             
-                QMessageBox.information(self, "Warnung" , "Es gibt keine solche archäologische Stätte: "'""'+ str(site_set_str) +'"'" in dieser Registerkarte, Bitte deaktivieren Sie die 'Site-Wahl' in der Plugin-Konfigurationsregisterkarte, um alle Datensätze zu sehen oder die Registerkarte zu erstellen",QMessageBox.Ok) 
+                QMessageBox.information(self, "Warnung" , "Es gibt keine solche archäologische Stätte: "'""'+ str(sito_set_str) +'"'" in dieser Registerkarte, Bitte deaktivieren Sie die 'Site-Wahl' in der Plugin-Konfigurationsregisterkarte, um alle Datensätze zu sehen oder die Registerkarte zu erstellen",QMessageBox.Ok) 
             else:
             
-                QMessageBox.information(self, "Warning" , "There is no such site: "'"'+ str(site_set_str) +'"'" in this tab, Please disable the 'site choice' from the plugin configuration tab to see all records or create the tab",QMessageBox.Ok)  
+                QMessageBox.information(self, "Warning" , "There is no such site: "'"'+ str(sito_set_str) +'"'" in this tab, Please disable the 'site choice' from the plugin configuration tab to see all records or create the tab",QMessageBox.Ok)  
     def on_pushButton_pdf_scheda_exp_pressed(self):
         if self.L=='it':    
             Periodizzazione_pdf_sheet = generate_Periodizzazione_pdf()
@@ -535,8 +535,8 @@ class pyarchinit_Periodizzazione(QDialog, MAIN_DIALOG_CLASS):
                 ###
 
                 #self.setComboBoxEditable(["self.comboBox_sito"], 0)
-                self.setComboBoxEditable(["self.comboBox_periodo"], 0)
-                self.setComboBoxEditable(["self.comboBox_fase"], 0)
+                self.setComboBoxEditable(["self.comboBox_periodo"], 1)
+                self.setComboBoxEditable(["self.comboBox_fase"], 1)
                 self.setComboBoxEnable(["self.comboBox_sito"], "False")
                 self.setComboBoxEnable(["self.comboBox_periodo"], "True")
                 self.setComboBoxEnable(["self.comboBox_fase"], "True")
@@ -555,8 +555,8 @@ class pyarchinit_Periodizzazione(QDialog, MAIN_DIALOG_CLASS):
                 ###
 
                 self.setComboBoxEditable(["self.comboBox_sito"], 0)
-                self.setComboBoxEditable(["self.comboBox_periodo"], 0)
-                self.setComboBoxEditable(["self.comboBox_fase"], 0)
+                self.setComboBoxEditable(["self.comboBox_periodo"], 1)
+                self.setComboBoxEditable(["self.comboBox_fase"], 1)
                 self.setComboBoxEnable(["self.comboBox_sito"], "True")
                 self.setComboBoxEnable(["self.comboBox_periodo"], "True")
                 self.setComboBoxEnable(["self.comboBox_fase"], "True")
@@ -1180,8 +1180,9 @@ class pyarchinit_Periodizzazione(QDialog, MAIN_DIALOG_CLASS):
             cont_per = self.lineEdit_codice_periodo.text()
             per_label = self.comboBox_periodo.currentText()
             fas_label = self.comboBox_fase.currentText()
-            self.pyQGIS.charge_vector_layers_periodo(sito_p, int(cont_per), per_label, fas_label)
-
+            dat=self.lineEdit_per_estesa.text()
+            self.pyQGIS.charge_vector_layers_periodo(sito_p, int(cont_per), per_label, fas_label,dat)
+            self.pyQGIS.charge_vector_usm_layers_periodo(sito_p, int(cont_per), per_label, fas_label,dat)
     def on_pushButton_all_period_pressed(self):
         #self.set_sito()
         if not self.lineEdit_codice_periodo.text():
@@ -1208,13 +1209,43 @@ class pyarchinit_Periodizzazione(QDialog, MAIN_DIALOG_CLASS):
                     cont_per = e.cont_per
                     per_label = e.periodo
                     fas_label = e.fase
-                    
-                    self.pyQGIS.charge_vector_layers_all_period(sito_p, str(cont_per),per_label,fas_label)
-    
+                    dat=e.datazione_estesa
+                    self.pyQGIS.charge_vector_layers_all_period(sito_p, str(cont_per),per_label,fas_label,dat)
+                    #self.pyQGIS.charge_vector_layers_usm_all_period(sito_p, str(cont_per),per_label,fas_label,dat)
             except Exception as e:
                 print(str(e))    
     
-    
+    def on_pushButton_all_period_usm_pressed(self):
+        #self.set_sito()
+        if not self.lineEdit_codice_periodo.text():
+            QMessageBox.warning(self, "Message", "Period code not add", QMessageBox.Ok)
+        else:
+            lista=[]
+            conn = Connection()
+            sito_set= conn.sito_set()
+            sito_set_str = sito_set['sito_set']
+            try:
+                if bool (sito_set_str):
+                    search_dict = {
+                        'sito': "'" + str(sito_set_str) + "'"}  # 1 - Sito
+                    u = Utility()
+                    search_dict = u.remove_empty_items_fr_dict(search_dict)
+                    res = self.DB_MANAGER.query_bool(search_dict, self.MAPPER_TABLE_CLASS)
+                    self.DATA_LIST = []
+                for i in res:
+                    self.DATA_LIST.append(i)
+            
+            
+                for e in self.DATA_LIST:
+                    sito_p = e.sito
+                    cont_per = e.cont_per
+                    per_label = e.periodo
+                    fas_label = e.fase
+                    dat=e.datazione_estesa
+                    #self.pyQGIS.charge_vector_layers_all_period(sito_p, str(cont_per),per_label,fas_label,dat)
+                    self.pyQGIS.charge_vector_layers_usm_all_period(sito_p, str(cont_per),per_label,fas_label,dat)
+            except Exception as e:
+                print(str(e))    
     def update_if(self, msg):
         rec_corr = self.REC_CORR
         if msg == QMessageBox.Ok:

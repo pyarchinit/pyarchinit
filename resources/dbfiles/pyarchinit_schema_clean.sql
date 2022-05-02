@@ -72,7 +72,7 @@ CREATE TABLE public.campioni_table (
     nr_campione integer,
     tipo_campione text,
     descrizione text,
-    area character varying(4),
+    area character varying(20),
     us integer,
     numero_inventario_materiale integer,
     nr_cassa integer,
@@ -339,7 +339,7 @@ ALTER SEQUENCE public.documentazione_table_id_documentazione_seq OWNED BY public
 CREATE TABLE public.individui_table (
     id_scheda_ind integer NOT NULL,
     sito text,
-    area character varying(4),
+    area character varying(20),
     us text,
     nr_individuo integer,
     data_schedatura character varying(100),
@@ -408,8 +408,8 @@ CREATE TABLE public.inventario_materiali_table (
     lavato character varying(3),
     nr_cassa integer,
     luogo_conservazione text,
-    stato_conservazione character varying DEFAULT ''::character varying,
-    datazione_reperto character varying(30) DEFAULT ''::character varying,
+    stato_conservazione character varying (200) DEFAULT ''::character varying,
+    datazione_reperto character varying(200) DEFAULT ''::character varying,
     elementi_reperto text,
     misurazioni text,
     rif_biblio text,
@@ -417,11 +417,11 @@ CREATE TABLE public.inventario_materiali_table (
     forme_minime integer DEFAULT 0,
     forme_massime integer DEFAULT 0,
     totale_frammenti integer DEFAULT 0,
-    corpo_ceramico character varying(20),
-    rivestimento character varying(20),
+    corpo_ceramico character varying(200),
+    rivestimento character varying(200),
     diametro_orlo numeric(7,3) DEFAULT 0,
     peso numeric(9,3) DEFAULT 0,
-    tipo character varying(20),
+    tipo character varying(200),
     eve_orlo numeric(7,3) DEFAULT 0,
     repertato character varying(3),
     diagnostico character varying(3),
@@ -647,7 +647,7 @@ CREATE TABLE public.media_to_us_table (
     "id_mediaToUs" integer NOT NULL,
     id_us integer,
     sito text,
-    area character varying(4),
+    area character varying(20),
     us integer,
     id_media integer,
     filepath text
@@ -724,7 +724,7 @@ CREATE TABLE public.periodizzazione_table (
     id_perfas integer NOT NULL,
     sito text,
     periodo integer,
-    fase integer,
+    fase text,
     cron_iniziale integer,
     cron_finale integer,
     descrizione text,
@@ -972,10 +972,10 @@ ALTER TABLE public.pyuscarlinee OWNER TO postgres;
 CREATE TABLE public.us_table (
     id_us integer NOT NULL,
     sito text,
-    area character varying(4),
+    area character varying(20),
     us integer,
-    d_stratigrafica character varying(100),
-    d_interpretativa character varying(100),
+    d_stratigrafica character varying(255),
+    d_interpretativa character varying(255),
     descrizione text,
     interpretazione text,
     periodo_iniziale character varying(4),
@@ -1065,7 +1065,8 @@ CREATE TABLE public.us_table (
     campioni_pietra_usm text DEFAULT ''::text,
     provenienza_materiali_usm text DEFAULT ''::text,
     criteri_distinzione_usm text DEFAULT ''::text,
-    uso_primario_usm text DEFAULT ''::text
+    uso_primario_usm text DEFAULT ''::text,
+	doc_usv text DEFAULT ''::text
 );
 
 
@@ -1087,6 +1088,21 @@ CREATE SEQUENCE public.pyarchinit_quote_gid_seq
 ALTER TABLE public.pyarchinit_quote_gid_seq OWNER TO postgres;
 
 --
+-- TOC entry 349 (class 1259 OID 32814)
+-- Name: pyarchinit_quote_gid_seq; Type: SEQUENCE; Schema: public; Owner: postgres
+--
+
+CREATE SEQUENCE public.pyarchinit_quote_usm_gid_seq
+    START WITH 73833
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+ALTER TABLE public.pyarchinit_quote_usm_gid_seq OWNER TO postgres;
+
+--
 -- TOC entry 350 (class 1259 OID 32816)
 -- Name: pyarchinit_quote; Type: TABLE; Schema: public; Owner: postgres
 --
@@ -1101,12 +1117,33 @@ CREATE TABLE public.pyarchinit_quote (
     the_geom public.geometry(Point,-1),
     data character varying,
     disegnatore character varying,
-    rilievo_originale character varying
+    rilievo_originale character varying,
+	unita_tipo_q character varying
 );
 
 
 ALTER TABLE public.pyarchinit_quote OWNER TO postgres;
+--
+-- TOC entry 350 (class 1259 OID 32816)
+-- Name: pyarchinit_quote; Type: TABLE; Schema: public; Owner: postgres
+--
 
+CREATE TABLE public.pyarchinit_quote_usm (
+    gid integer DEFAULT nextval('public.pyarchinit_quote_usm_gid_seq'::regclass) NOT NULL,
+    sito_q character varying(80),
+    area_q integer,
+    us_q integer,
+    unita_misu_q character varying(80),
+    quota_q double precision,
+    the_geom public.geometry(Point,-1),
+    data character varying,
+    disegnatore character varying,
+    rilievo_originale character varying,
+	unita_tipo_q character varying
+);
+
+
+ALTER TABLE public.pyarchinit_quote_usm OWNER TO postgres;
 --
 -- TOC entry 352 (class 1259 OID 32828)
 -- Name: pyarchinit_ripartizioni_spaziali_gid_seq; Type: SEQUENCE; Schema: public; Owner: postgres
@@ -1472,7 +1509,7 @@ CREATE TABLE public.tomba_table (
     nr_scheda_taf integer,
     sigla_struttura text,
     nr_struttura integer,
-    nr_individuo integer,
+    nr_individuo text,
     rito text,
     descrizione_taf text,
     interpretazione_taf text,
@@ -1649,6 +1686,21 @@ CREATE SEQUENCE public.pyunitastratigrafiche_gid_seq
 ALTER TABLE public.pyunitastratigrafiche_gid_seq OWNER TO postgres;
 
 --
+-- TOC entry 378 (class 1259 OID 32946)
+-- Name: pyunitastratigrafiche_gid_seq; Type: SEQUENCE; Schema: public; Owner: postgres
+--
+
+CREATE SEQUENCE public.pyunitastratigrafiche_usm_gid_seq
+    START WITH 61400
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+ALTER TABLE public.pyunitastratigrafiche_usm_gid_seq OWNER TO postgres;
+
+--
 -- TOC entry 379 (class 1259 OID 32948)
 -- Name: pyunitastratigrafiche; Type: TABLE; Schema: public; Owner: postgres
 --
@@ -1666,12 +1718,37 @@ CREATE TABLE public.pyunitastratigrafiche (
     tipo_doc character varying(250),
     nome_doc character varying(250),
 	coord text,
-	the_geom public.geometry(MultiPolygon,-1)
+	the_geom public.geometry(MultiPolygon,-1),
+	unita_tipo_s character varying
 );
 
 
 ALTER TABLE public.pyunitastratigrafiche OWNER TO postgres;
 
+--
+-- TOC entry 379 (class 1259 OID 32948)
+-- Name: pyunitastratigrafiche; Type: TABLE; Schema: public; Owner: postgres
+--
+
+CREATE TABLE public.pyunitastratigrafiche_usm (
+    gid integer DEFAULT nextval('public.pyunitastratigrafiche_usm_gid_seq'::regclass) NOT NULL,
+    area_s integer,
+    scavo_s character varying(80),
+    us_s integer,
+    stratigraph_index_us integer,
+    tipo_us_s character varying(250),
+    rilievo_originale character varying(250),
+    disegnatore character varying(250),
+    data date,
+    tipo_doc character varying(250),
+    nome_doc character varying(250),
+	coord text,
+	the_geom public.geometry(MultiPolygon,-1),
+	unita_tipo_s character varying
+);
+
+
+ALTER TABLE public.pyunitastratigrafiche_usm OWNER TO postgres;
 
 --
 -- TOC entry 384 (class 1259 OID 32975)
@@ -1987,10 +2064,10 @@ ALTER TABLE public.pyarchinit_reperti
 CREATE TABLE public.us_table_toimp (
     id_us integer NOT NULL,
     sito text,
-    area character varying(4),
+    area character varying(20),
     us integer,
-    d_stratigrafica character varying(100),
-    d_interpretativa character varying(100),
+    d_stratigrafica character varying(255),
+    d_interpretativa character varying(255),
     descrizione text,
     interpretazione text,
     periodo_iniziale character varying(4),
@@ -2584,7 +2661,7 @@ ALTER TABLE ONLY public.pyarchinit_documentazione
 --
 
 ALTER TABLE ONLY public.us_table
-    ADD CONSTRAINT "ID_us_unico" UNIQUE (sito, area, us);
+    ADD CONSTRAINT "ID_us_unico" UNIQUE (sito, area, us, unita_tipo);
 
 
 --
@@ -2804,6 +2881,13 @@ ALTER TABLE ONLY public.pyarchinit_individui
 ALTER TABLE ONLY public.pyarchinit_quote
     ADD CONSTRAINT pyarchinit_quote_pkey PRIMARY KEY (gid);
 
+--
+-- TOC entry 4740 (class 2606 OID 41144)
+-- Name: pyarchinit_quote pyarchinit_quote_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.pyarchinit_quote_usm
+    ADD CONSTRAINT pyarchinit_quote_usm_pkey PRIMARY KEY (gid);
 
 --
 -- TOC entry 4742 (class 2606 OID 41146)
@@ -2900,6 +2984,14 @@ ALTER TABLE ONLY public.pyarchinit_punti_rif
 
 ALTER TABLE ONLY public.pyunitastratigrafiche
     ADD CONSTRAINT pyunitastratigrafiche_pkey PRIMARY KEY (gid);
+
+--
+-- TOC entry 4774 (class 2606 OID 41164)
+-- Name: pyunitastratigrafiche pyunitastratigrafiche_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.pyunitastratigrafiche_usm
+    ADD CONSTRAINT pyunitastratigrafiche_usm_pkey PRIMARY KEY (gid);
 
 
 --
@@ -3072,7 +3164,12 @@ CREATE INDEX sidx_pyarchinit_us_negative_doc_geom ON public.pyarchinit_us_negati
 
 CREATE INDEX sidx_pyunitastratigrafiche_geom ON public.pyunitastratigrafiche USING gist (the_geom);
 
+--
+-- TOC entry 4775 (class 1259 OID 41215)
+-- Name: sidx_pyunitastratigrafiche_geom; Type: INDEX; Schema: public; Owner: postgres
+--
 
+CREATE INDEX sidx_pyunitastratigrafiche_usm_geom ON public.pyunitastratigrafiche_usm USING gist (the_geom);
 --
 -- TOC entry 4825 (class 1259 OID 66368)
 -- Name: sidx_riipartizione_territoriale_geom; Type: INDEX; Schema: public; Owner: postgres
@@ -3201,6 +3298,39 @@ END IF;
 END
 $$;  
 
+CREATE OR REPLACE FUNCTION public.create_doc()
+    RETURNS trigger
+    LANGUAGE 'plpgsql'
+    COST 100
+    VOLATILE NOT LEAKPROOF
+AS $BODY$
+BEGIN
+ if new.d_interpretativa is null or new.d_interpretativa = '' or new.d_interpretativa!= old.d_interpretativa then
+
+  update us_table set d_interpretativa = doc_usv where sito=New.sito and area=New.area and us=New.us and unita_tipo='DOC' ;
+END IF;
+RETURN NEW;
+END;
+$BODY$;
+
+ALTER FUNCTION public.create_doc()
+    OWNER TO postgres;
+
+COMMENT ON FUNCTION public.create_doc()
+    IS 'When a new record is added to write coordinates if coord is null in coord field';
+DO $$
+BEGIN
+    IF NOT EXISTS (SELECT 1 FROM pg_trigger WHERE tgname = 'create_doc') THEN
+CREATE TRIGGER create_doc
+    AFTER INSERT OR UPDATE 
+    ON public.us_table
+    FOR EACH ROW
+    EXECUTE PROCEDURE public.create_doc();
+
+
+END IF;
+END
+$$;  
 
 REVOKE ALL ON SCHEMA public FROM PUBLIC;
 REVOKE ALL ON SCHEMA public FROM postgres;

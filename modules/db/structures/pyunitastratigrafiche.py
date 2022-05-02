@@ -1,7 +1,7 @@
 '''
 Created on 19 feb 2018
 
-@author: Serena Sensini
+@author: Serena Sensini; Enzo Cocca <enzo.ccc@gmail.com>
 '''
 
 from sqlalchemy import Table, Column, Integer, String, Text, Numeric, MetaData, create_engine, UniqueConstraint
@@ -36,7 +36,8 @@ class pyunitastratigrafiche:
                      Column('tipo_doc', Text),  # 9
                      Column('nome_doc', Text),  # 10
                      Column('coord', Text),
-                     Column('the_geom', Geometry('MULTIPOLYGON',-1)),
+                     Column('the_geom', Text),
+                     Column('unita_tipo_s', Text),
                      # explicit/composite unique constraint.  'name' is optional.
                      UniqueConstraint('gid', name='ID_us_unico_s')
                      )
@@ -49,7 +50,7 @@ class pyunitastratigrafiche:
             # dbapi_conn.load_extension('mod_spatialite.dll')
         
         # elif Pyarchinit_OS_Utility.isMac()== True:
-            # dbapi_conn.load_extension('mod_spatialite.dylib')
+            # dbapi_conn.load_extension('mod_spatialite')
         # else:
             # dbapi_conn.load_extension('mod_spatialite.so')
             

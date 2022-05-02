@@ -1,31 +1,31 @@
-# coding: utf-8
-# Copyright (c) 2009,2010,2011,2012,2013,2014 Dirk Baechle.
-# www: https://bitbucket.org/dirkbaechle/dottoxml
-# mail: dl9obn AT darc.de
-#
-# This program is free software; you can redistribute it and/or modify it under
-# the terms of the GNU General Public License as published by the Free Software
-# Foundation; either version 2 of the License, or (at your option) any later
-# version.
-#
-# This program is distributed in the hope that it will be useful, but WITHOUT
-# ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
-# FOR A PARTICULAR PURPOSE. See the GNU General Public License for more details.
-#
-# You should have received a copy of the GNU General Public License along with
-# this program; if not, write to the Free Software Foundation, Inc.,
-# 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
+#! /usr/bin/env python
+# -*- coding: utf 8 -*-
 """
-  %dottoxml.py [options] <infile.dot> <outfile.graphml>
-  convert a DOT file to Graphml XML (and various other formats)
-"""
+/***************************************************************************
+        pyArchInit Plugin  - A QGIS plugin to manage archaeological dataset
+                             stored in Postgres
+                             -------------------
+    begin                : 2021-12-01
+    copyright            : Enzo Cocca <enzo.ccc@gmail.com>
 
+ ***************************************************************************/
+/***************************************************************************
+ *                                                                          *
+ *   This program is free software; you can redistribute it and/or modify   *
+ *   it under the terms of the GNU General Public License as published by   *
+ *   the Free Software Foundation; either version 2 of the License, or      *
+ *   (at your option) any later version.                                    *                                                                       *
+ ***************************************************************************/
+"""
+import random
 import sys
 import locale
 import optparse
 import dot
 import xml.dom.minidom as F
 from xml.dom.minidom import *
+from PyQt5 import QtCore
+from PyQt5.QtWidgets import QInputDialog, QApplication
 # Usage message
 usgmsg = "Usage: dottoxml.py [options] infile.dot outfile.graphml"
 
@@ -55,18 +55,42 @@ def exportGML(o, nodes, edges, options):
 
     o.write("]\n")
 
-def exportGraphml(o, nodes, edges, options,ff=0):
-    
+def intes():
+    try: 
+        dialog = QInputDialog()
+        dialog.resize(QtCore.QSize(700, 100))
+        ID_Sito = dialog.getText(None, 'Intestazione', "Aggiungi una intestazione al tuo diagramma stratigrafico")
+        Sito = str(ID_Sito[0])
+        return Sito
+    except KeyError as e:
+        print(str(e))
+def reverse():
+    '''return true or false about the order epoch  '''
+    try: 
+        dialog = QInputDialog()
+        dialog.resize(QtCore.QSize(700, 100))
+        ID_rev = dialog.getText(None, 'Ordinamento', "Scrivi true se il Periodo 1 corrisponde all'utima epoca scavata.\n Altrimeti lascia vuoto e clicca 'ok'")
+        rev = str(ID_rev[0])
+        if rev=='true':
+            return 1
+        else:
+            return 0
+    except KeyError as e:
+        print(str(e))
+
+def exportGraphml(o, nodes, edges, options,ff=0):    
+    tf=reverse()
+    ints=intes()
     doc = F.Document()
     root = doc.createElement('graphml')
-    root.setAttribute('xmlns','http://graphml.graphdrawing.org/download.html')
+    root.setAttribute('xmlns','http://graphml.graphdrawing.org/xmlns')
     root.setAttribute('xmlns:java','http://www.yworks.com/xml/yfiles-common/1.0/java')
     root.setAttribute('xmlns:sys','http://www.yworks.com/xml/yfiles-common/markup/primitives/2.0')
     root.setAttribute('xmlns:x','http://www.yworks.com/xml/yfiles-common/markup/2.0')
     root.setAttribute('xmlns:xsi','http://www.w3.org/2001/XMLSchema-instance')
     root.setAttribute('xmlns:y','http://www.yworks.com/xml/graphml')
     root.setAttribute('xmlns:yed','http://www.yworks.com/xml/yed/3')
-    root.setAttribute('xsi:schemaLocation','http://graphml.graphdrawing.org/xmlns http://www.yworks.com/xml/schema/graphml/1.0/ygraphml.xsd')
+    root.setAttribute('xsi:schemaLocation','http://graphml.graphdrawing.org/xmlns http://www.yworks.com/xml/schema/graphml/1.1/ygraphml.xsd')
     doc.appendChild(root)        
     
     key = doc.createElement('key')
@@ -117,7 +141,7 @@ def exportGraphml(o, nodes, edges, options,ff=0):
     key = doc.createElement('key')
     key.setAttribute('for','graphml')    
     key.setAttribute('id','d7') 
-    key.setAttribute('yfiles.folder','group')
+    #key.setAttribute('yfiles.folder','group')
     key.setAttribute('yfiles.type','resources')    
     root.appendChild(key)
     
@@ -141,12 +165,19 @@ def exportGraphml(o, nodes, edges, options,ff=0):
     key.setAttribute('yfiles.type','edgegraphics')    
     root.appendChild(key)
     
+    
+    
+    
     graph = doc.createElement('graph')
     graph.setAttribute('edgedefault','directed')    
     graph.setAttribute('id','G') 
     data01 = doc.createElement('data')
-    data01.setAttribute('key', 'd0')   
+    data01.setAttribute('key', 'd0')
+    data01.setAttribute('xml:space','preserve')    
     graph.appendChild(data01)
+    
+    
+    
     node1 = doc.createElement('node')        
     node1.setAttribute('id','n0')
     node1.setAttribute('yfiles.foldertype','group')    
@@ -161,7 +192,7 @@ def exportGraphml(o, nodes, edges, options,ff=0):
     tablenode= doc.createElement('y:TableNode')
     tablenode.setAttribute('configuration','YED_TABLE_NODE')
     geom = doc.createElement('y:Geometry')
-    geom.setAttribute('height','4066.2706350074')
+    geom.setAttribute('height','10000.86965344368')
     geom.setAttribute('width','1044.0')
     geom.setAttribute('x','-29.0')
     geom.setAttribute('y','-596.1141011840689')
@@ -198,380 +229,76 @@ def exportGraphml(o, nodes, edges, options,ff=0):
     label01.setAttribute('x','454.54345703125')
     label01.setAttribute('xml:space','preserve')
     label01.setAttribute('y','0.0')
-    nodelabel01Text = 'Scavo archeologico'
+    nodelabel01Text = '{}'.format(ints)
     label01.appendChild(doc.createTextNode(nodelabel01Text))        
     tablenode.appendChild(label01)
+    n = dot.Node()
+    # for s in nodes:
+        # n.label
+    # if not 'US' in s:
+        # s
+    x=700
+    w=200
+    epoch=[]
+
+    epoch_sigla = []
+    for i in sorted(nodes):
+        if i.startswith('Periodo') or i.startswith('Period'):
+            epoch.append(i)
+        elif i.startswith('US') or i.startswith('SU') or i.startswith('WSU'):
+            descrizione_us, singola_epoca = i.rsplit('_',1)
+            #print(singola_epoca)
+            nome_us, descrizione_us= descrizione_us.split('_',1)
+            #print(f"La US {nome_us}, {descrizione_us}, appartiene all'epoca {singola_epoca}")
+            if singola_epoca not in epoch_sigla:
+                epoch_sigla.append(singola_epoca)
+                #print(epoch_sigla)
+
+    #print(epoch_sigla)
     
-    label02 = doc.createElement('y:NodeLabel')
-    label02.setAttribute('alignment','center')
-    label02.setAttribute('autoSizePolicy','content')
-    label02.setAttribute('fontFamily','DialogInput')
-    label02.setAttribute('fontSize','24')
-    label02.setAttribute('fontStyle','bold')
-    label02.setAttribute('backgroundColor','#CCFFCC')
-    label02.setAttribute('hasLineColor','false')
-    label02.setAttribute('height','18.701171875')
-    label02.setAttribute('horizontalTextPosition','center')
-    label02.setAttribute('iconTextGap','4')
-    label02.setAttribute('modelName','custom')        
-    label02.setAttribute('rotationAngle','270.0')
-    label02.setAttribute('textColor','#000000')
-    label02.setAttribute('verticalTextPosition','bottom')
-    label02.setAttribute('visible','true')    
-    label02.setAttribute('width','74.998046875')
-    label02.setAttribute('x','3.0')
-    label02.setAttribute('xml:space','preserve')
-    label02.setAttribute('y','492.7377903407562')
-    nodelabel02Text = 'Età Moderna'
-    label02.appendChild(doc.createTextNode(nodelabel02Text)) 
-    labelz = doc.createElement('y:LabelModel')
-    labelz1 = doc.createElement('y:RowNodeLabelModel')
-    labelz1.setAttribute('offset','3.0')
-    labelz.appendChild(labelz1)
-    labelz2 = doc.createElement('y:ModelParameter')
-    labelz3 = doc.createElement('y:RowNodeLabelModelParameter')
-    labelz3.setAttribute('horizontalPosition','0.0')
-    labelz3.setAttribute('id','row_0')
-    labelz3.setAttribute('inside','true')
+    for i in sorted(epoch, reverse=tf):
+        color = "#"+''.join([random.choice('0123456789ABCDEF') for j in range(6)])
+        s=i.split(' : ')
+        a=len(i)
+        a=x/a*100
+        b=w/a*100
+        label02 = doc.createElement('y:NodeLabel')
+        label02.setAttribute('alignment','center')
+        label02.setAttribute('autoSizePolicy','content')
+        label02.setAttribute('fontFamily','DialogInput')
+        label02.setAttribute('fontSize','24')
+        label02.setAttribute('fontStyle','bold')
+        label02.setAttribute('backgroundColor','{}'.format(color))
+        label02.setAttribute('hasLineColor','false')
+        label02.setAttribute('height','18.701171875')
+        label02.setAttribute('horizontalTextPosition','center')
+        label02.setAttribute('iconTextGap','4')
+        label02.setAttribute('modelName','custom')        
+        label02.setAttribute('rotationAngle','270.0')
+        label02.setAttribute('textColor','#000000')
+        label02.setAttribute('verticalTextPosition','bottom')
+        label02.setAttribute('visible','true')    
+        label02.setAttribute('width','%r'%b)
+        label02.setAttribute('x','3.0')
+        label02.setAttribute('xml:space','preserve')
+        label02.setAttribute('y','%r'%a)
+        nodelabel02Text = '%s'%s[-1]
+        label02.appendChild(doc.createTextNode(nodelabel02Text)) 
+        labelz = doc.createElement('y:LabelModel')
+        labelz1 = doc.createElement('y:RowNodeLabelModel')
+        labelz1.setAttribute('offset','3.0')
+        labelz.appendChild(labelz1)
+        labelz2 = doc.createElement('y:ModelParameter')
+        labelz3 = doc.createElement('y:RowNodeLabelModelParameter')
+        labelz3.setAttribute('horizontalPosition','0.0')
+        labelz3.setAttribute('id','row_%s'%s[-1].replace(' ','_'))
+        labelz3.setAttribute('inside','true')
+        
+        labelz2.appendChild(labelz3)
+        label02.appendChild(labelz)    
+        label02.appendChild(labelz2)    
+        tablenode.appendChild(label02)
     
-    labelz2.appendChild(labelz3)
-    label02.appendChild(labelz)    
-    label02.appendChild(labelz2)    
-    tablenode.appendChild(label02)
-    
-    label03 = doc.createElement('y:NodeLabel')
-    label03.setAttribute('alignment','center')
-    label03.setAttribute('autoSizePolicy','content')
-    label03.setAttribute('fontFamily','DialogInput')
-    label03.setAttribute('fontSize','24')
-    label03.setAttribute('fontStyle','bold')
-    label03.setAttribute('backgroundColor','#FF99CC')
-    label03.setAttribute('hasLineColor','false')
-    label03.setAttribute('height','18.701171875')
-    label03.setAttribute('horizontalTextPosition','center')
-    label03.setAttribute('iconTextGap','4')
-    label03.setAttribute('modelName','custom')        
-    label03.setAttribute('rotationAngle','270.0')
-    label03.setAttribute('textColor','#000000')
-    label03.setAttribute('verticalTextPosition','bottom')
-    label03.setAttribute('visible','true')    
-    label03.setAttribute('width','147.68359375')
-    label03.setAttribute('x','3.0')
-    label03.setAttribute('xml:space','preserve')
-    label03.setAttribute('y','1088.6480275329657')
-    nodelabel03Text = 'Prima metà del XVI secolo'
-    label03.appendChild(doc.createTextNode(nodelabel03Text)) 
-    labelz = doc.createElement('y:LabelModel')
-    labelz1 = doc.createElement('y:RowNodeLabelModel')
-    labelz1.setAttribute('offset','3.0')
-    labelz.appendChild(labelz1)
-    labelz2 = doc.createElement('y:ModelParameter')
-    labelz3 = doc.createElement('y:RowNodeLabelModelParameter')
-    labelz3.setAttribute('horizontalPosition','0.0')
-    labelz3.setAttribute('id','row_1')
-    labelz3.setAttribute('inside','true')
-    
-    labelz2.appendChild(labelz3)
-    label03.appendChild(labelz)    
-    label03.appendChild(labelz2)    
-    tablenode.appendChild(label03)
-    
-    label04 = doc.createElement('y:NodeLabel')
-    label04.setAttribute('alignment','center')
-    label04.setAttribute('autoSizePolicy','content')
-    label04.setAttribute('fontFamily','DialogInput')
-    label04.setAttribute('fontSize','24')
-    label04.setAttribute('fontStyle','bold')
-    label04.setAttribute('backgroundColor','#ccffff')
-    label04.setAttribute('hasLineColor','false')
-    label04.setAttribute('height','18.701171875')
-    label04.setAttribute('horizontalTextPosition','center')
-    label04.setAttribute('iconTextGap','4')
-    label04.setAttribute('modelName','custom')        
-    label04.setAttribute('rotationAngle','270.0')
-    label04.setAttribute('textColor','#000000')
-    label04.setAttribute('verticalTextPosition','bottom')
-    label04.setAttribute('visible','true')    
-    label04.setAttribute('width','111.02734375')
-    label04.setAttribute('x','3.0')
-    label04.setAttribute('xml:space','preserve')
-    label04.setAttribute('y','145.67039701628096')
-    nodelabel04Text = 'Età contemporanea'
-    label04.appendChild(doc.createTextNode(nodelabel04Text)) 
-    labelz = doc.createElement('y:LabelModel')
-    labelz1 = doc.createElement('y:RowNodeLabelModel')
-    labelz1.setAttribute('offset','3.0')
-    labelz.appendChild(labelz1)
-    labelz2 = doc.createElement('y:ModelParameter')
-    labelz3 = doc.createElement('y:RowNodeLabelModelParameter')
-    labelz3.setAttribute('horizontalPosition','0.0')
-    labelz3.setAttribute('id','row_2')
-    labelz3.setAttribute('inside','true')
-    
-    labelz2.appendChild(labelz3)
-    label04.appendChild(labelz)    
-    label04.appendChild(labelz2)    
-    tablenode.appendChild(label04)
-    
-    label05 = doc.createElement('y:NodeLabel')
-    label05.setAttribute('alignment','center')
-    label05.setAttribute('autoSizePolicy','content')
-    label05.setAttribute('fontFamily','DialogInput')
-    label05.setAttribute('fontSize','24')
-    label05.setAttribute('fontStyle','bold')
-    label05.setAttribute('backgroundColor','#800080')
-    label05.setAttribute('hasLineColor','false')
-    label05.setAttribute('height','18.701171875')
-    label05.setAttribute('horizontalTextPosition','center')
-    label05.setAttribute('iconTextGap','4')
-    label05.setAttribute('modelName','custom')        
-    label05.setAttribute('rotationAngle','270.0')
-    label05.setAttribute('textColor','#000000')
-    label05.setAttribute('verticalTextPosition','bottom')
-    label05.setAttribute('visible','true')    
-    label05.setAttribute('width','58.029296875')
-    label05.setAttribute('x','3.0')
-    label05.setAttribute('xml:space','preserve')
-    label05.setAttribute('y','1661.1393309758478')
-    nodelabel05Text = 'XV secolo'
-    label05.appendChild(doc.createTextNode(nodelabel05Text)) 
-    labelz = doc.createElement('y:LabelModel')
-    labelz1 = doc.createElement('y:RowNodeLabelModel')
-    labelz1.setAttribute('offset','3.0')
-    labelz.appendChild(labelz1)
-    labelz2 = doc.createElement('y:ModelParameter')
-    labelz3 = doc.createElement('y:RowNodeLabelModelParameter')
-    labelz3.setAttribute('horizontalPosition','0.0')
-    labelz3.setAttribute('id','row_3')
-    labelz3.setAttribute('inside','true')
-    
-    labelz2.appendChild(labelz3)
-    label05.appendChild(labelz)    
-    label05.appendChild(labelz2)    
-    tablenode.appendChild(label05)
-    
-    
-    label06 = doc.createElement('y:NodeLabel')
-    label06.setAttribute('alignment','center')
-    label06.setAttribute('autoSizePolicy','content')
-    label06.setAttribute('fontFamily','DialogInput')
-    label06.setAttribute('fontSize','24')
-    label06.setAttribute('fontStyle','bold')
-    label06.setAttribute('backgroundColor','#CC99FF')
-    label06.setAttribute('hasLineColor','false')
-    label06.setAttribute('height','18.701171875')
-    label06.setAttribute('horizontalTextPosition','center')
-    label06.setAttribute('iconTextGap','4')
-    label06.setAttribute('modelName','custom')        
-    label06.setAttribute('rotationAngle','270.0')
-    label06.setAttribute('textColor','#000000')
-    label06.setAttribute('verticalTextPosition','bottom')
-    label06.setAttribute('visible','true')    
-    label06.setAttribute('width','184.076171875')
-    label06.setAttribute('x','3.0')
-    label06.setAttribute('xml:space','preserve')
-    label06.setAttribute('y','750.0717095415097')
-    nodelabel06Text = 'Fine XVI secolo - Inizi XVII secolo'
-    label06.appendChild(doc.createTextNode(nodelabel06Text)) 
-    labelz = doc.createElement('y:LabelModel')
-    labelz1 = doc.createElement('y:RowNodeLabelModel')
-    labelz1.setAttribute('offset','3.0')
-    labelz.appendChild(labelz1)
-    labelz2 = doc.createElement('y:ModelParameter')
-    labelz3 = doc.createElement('y:RowNodeLabelModelParameter')
-    labelz3.setAttribute('horizontalPosition','0.0')
-    labelz3.setAttribute('id','row_4')
-    labelz3.setAttribute('inside','true')
-    
-    labelz2.appendChild(labelz3)
-    label06.appendChild(labelz)    
-    label06.appendChild(labelz2)    
-    tablenode.appendChild(label06)
-    
-    label07 = doc.createElement('y:NodeLabel')
-    label07.setAttribute('alignment','center')
-    label07.setAttribute('autoSizePolicy','content')
-    label07.setAttribute('fontFamily','DialogInput')
-    label07.setAttribute('fontSize','24')
-    label07.setAttribute('fontStyle','bold')
-    label07.setAttribute('backgroundColor','#FFFF99')
-    label07.setAttribute('hasLineColor','false')
-    label07.setAttribute('height','18.701171875')
-    label07.setAttribute('horizontalTextPosition','center')
-    label07.setAttribute('iconTextGap','4')
-    label07.setAttribute('modelName','custom')        
-    label07.setAttribute('rotationAngle','270.0')
-    label07.setAttribute('textColor','#000000')
-    label07.setAttribute('verticalTextPosition','bottom')
-    label07.setAttribute('visible','true')    
-    label07.setAttribute('width','144.349609375')
-    label07.setAttribute('x','3.0')
-    label07.setAttribute('xml:space','preserve')
-    label07.setAttribute('y','2177.7011540046424')
-    nodelabel07Text = 'Prima metà del XV secolo'
-    label07.appendChild(doc.createTextNode(nodelabel07Text)) 
-    labelz = doc.createElement('y:LabelModel')
-    labelz1 = doc.createElement('y:RowNodeLabelModel')
-    labelz1.setAttribute('offset','3.0')
-    labelz.appendChild(labelz1)
-    labelz2 = doc.createElement('y:ModelParameter')
-    labelz3 = doc.createElement('y:RowNodeLabelModelParameter')
-    labelz3.setAttribute('horizontalPosition','0.0')
-    labelz3.setAttribute('id','row_5')
-    labelz3.setAttribute('inside','true')
-    
-    labelz2.appendChild(labelz3)
-    label07.appendChild(labelz)    
-    label07.appendChild(labelz2)    
-    tablenode.appendChild(label07)
-    
-    label08 = doc.createElement('y:NodeLabel')
-    label08.setAttribute('alignment','center')
-    label08.setAttribute('autoSizePolicy','content')
-    label08.setAttribute('fontFamily','DialogInput')
-    label08.setAttribute('fontSize','24')
-    label08.setAttribute('fontStyle','bold')
-    label08.setAttribute('backgroundColor','#FFCC7F')
-    label08.setAttribute('hasLineColor','false')
-    label08.setAttribute('height','18.701171875')
-    label08.setAttribute('horizontalTextPosition','center')
-    label08.setAttribute('iconTextGap','4')
-    label08.setAttribute('modelName','custom')        
-    label08.setAttribute('rotationAngle','270.0')
-    label08.setAttribute('textColor','#000000')
-    label08.setAttribute('verticalTextPosition','bottom')
-    label08.setAttribute('visible','true')    
-    label08.setAttribute('width','82.703125')
-    label08.setAttribute('x','3.0')
-    label08.setAttribute('xml:space','preserve')
-    label08.setAttribute('y','2581.749149581203')
-    nodelabel08Text = 'Inizi XV secolo'
-    label08.appendChild(doc.createTextNode(nodelabel08Text)) 
-    labelz = doc.createElement('y:LabelModel')
-    labelz1 = doc.createElement('y:RowNodeLabelModel')
-    labelz1.setAttribute('offset','3.0')
-    labelz.appendChild(labelz1)
-    labelz2 = doc.createElement('y:ModelParameter')
-    labelz3 = doc.createElement('y:RowNodeLabelModelParameter')
-    labelz3.setAttribute('horizontalPosition','0.0')
-    labelz3.setAttribute('id','row_6')
-    labelz3.setAttribute('inside','true')
-    
-    labelz2.appendChild(labelz3)
-    label08.appendChild(labelz)    
-    label08.appendChild(labelz2)    
-    tablenode.appendChild(label08)
-    
-    label09 = doc.createElement('y:NodeLabel')
-    label09.setAttribute('alignment','center')
-    label09.setAttribute('autoSizePolicy','content')
-    label09.setAttribute('fontFamily','DialogInput')
-    label09.setAttribute('fontSize','24')
-    label09.setAttribute('fontStyle','bold')
-    label09.setAttribute('backgroundColor','#CCFFFF')
-    label09.setAttribute('hasLineColor','false')
-    label09.setAttribute('height','18.701171875')
-    label09.setAttribute('horizontalTextPosition','center')
-    label09.setAttribute('iconTextGap','4')
-    label09.setAttribute('modelName','custom')        
-    label09.setAttribute('rotationAngle','270.0')
-    label09.setAttribute('textColor','#000000')
-    label09.setAttribute('verticalTextPosition','bottom')
-    label09.setAttribute('visible','true')    
-    label09.setAttribute('width','88.041015625')
-    label09.setAttribute('x','3.0')
-    label09.setAttribute('xml:space','preserve')
-    label09.setAttribute('y','2991.9117256879044')
-    nodelabel09Text = 'Fine XIV secolo'
-    label09.appendChild(doc.createTextNode(nodelabel09Text)) 
-    labelz = doc.createElement('y:LabelModel')
-    labelz1 = doc.createElement('y:RowNodeLabelModel')
-    labelz1.setAttribute('offset','3.0')
-    labelz.appendChild(labelz1)
-    labelz2 = doc.createElement('y:ModelParameter')
-    labelz3 = doc.createElement('y:RowNodeLabelModelParameter')
-    labelz3.setAttribute('horizontalPosition','0.0')
-    labelz3.setAttribute('id','row_7')
-    labelz3.setAttribute('inside','true')
-    
-    labelz2.appendChild(labelz3)
-    label09.appendChild(labelz)    
-    label09.appendChild(labelz2)    
-    tablenode.appendChild(label09)
-    
-    label00 = doc.createElement('y:NodeLabel')
-    label00.setAttribute('alignment','center')
-    label00.setAttribute('autoSizePolicy','content')
-    label00.setAttribute('fontFamily','DialogInput')
-    label00.setAttribute('fontSize','24')
-    label00.setAttribute('fontStyle','bold')
-    label00.setAttribute('backgroundColor','#C0C0C0')
-    label00.setAttribute('hasLineColor','false')
-    label00.setAttribute('height','18.701171875')
-    label00.setAttribute('horizontalTextPosition','center')
-    label00.setAttribute('iconTextGap','4')
-    label00.setAttribute('modelName','custom')        
-    label00.setAttribute('rotationAngle','270.0')
-    label00.setAttribute('textColor','#000000')
-    label00.setAttribute('verticalTextPosition','bottom')
-    label00.setAttribute('visible','true')    
-    label00.setAttribute('width','163.720703125')
-    label00.setAttribute('x','3.0')
-    label00.setAttribute('xml:space','preserve')
-    label00.setAttribute('y','3399.0268433799793')
-    nodelabel00Text = 'Seconda metà del XIV secolo'
-    label00.appendChild(doc.createTextNode(nodelabel00Text)) 
-    labelz = doc.createElement('y:LabelModel')
-    labelz1 = doc.createElement('y:RowNodeLabelModel')
-    labelz1.setAttribute('offset','3.0')
-    labelz.appendChild(labelz1)
-    labelz2 = doc.createElement('y:ModelParameter')
-    labelz3 = doc.createElement('y:RowNodeLabelModelParameter')
-    labelz3.setAttribute('horizontalPosition','0.0')
-    labelz3.setAttribute('id','row_8')
-    labelz3.setAttribute('inside','true')
-    
-    labelz2.appendChild(labelz3)
-    label00.appendChild(labelz)    
-    label00.appendChild(labelz2)    
-    tablenode.appendChild(label00)
-    
-    label001 = doc.createElement('y:NodeLabel')
-    label001.setAttribute('alignment','center')
-    label001.setAttribute('autoSizePolicy','content')
-    label001.setAttribute('fontFamily','DialogInput')
-    label001.setAttribute('fontSize','24')
-    label001.setAttribute('fontStyle','bold')
-    label001.setAttribute('backgroundColor','#FF9900')
-    label001.setAttribute('hasLineColor','false')
-    label001.setAttribute('height','18.701171875')
-    label001.setAttribute('horizontalTextPosition','center')
-    label001.setAttribute('iconTextGap','4')
-    label001.setAttribute('modelName','custom')        
-    label001.setAttribute('rotationAngle','270.0')
-    label001.setAttribute('textColor','#000000')
-    label001.setAttribute('verticalTextPosition','bottom')
-    label001.setAttribute('visible','true')    
-    label001.setAttribute('width','230.08984375')
-    label001.setAttribute('x','3.0')
-    label001.setAttribute('xml:space','preserve')
-    label001.setAttribute('y','3761.9913160572523')
-    nodelabel001Text = 'Generico XIII secolo - Primi del XIV secolo'
-    label001.appendChild(doc.createTextNode(nodelabel001Text)) 
-    labelz = doc.createElement('y:LabelModel')
-    labelz1 = doc.createElement('y:RowNodeLabelModel')
-    labelz1.setAttribute('offset','3.0')
-    labelz.appendChild(labelz1)
-    labelz2 = doc.createElement('y:ModelParameter')
-    labelz3 = doc.createElement('y:RowNodeLabelModelParameter')
-    labelz3.setAttribute('horizontalPosition','0.0')
-    labelz3.setAttribute('id','row_9')
-    labelz3.setAttribute('inside','true')
-    
-    labelz2.appendChild(labelz3)
-    label001.appendChild(labelz)    
-    label001.appendChild(labelz2)    
-    tablenode.appendChild(label001)
     
     propertyStyle=doc.createElement('y:StyleProperties')
     
@@ -637,8 +364,6 @@ def exportGraphml(o, nodes, edges, options,ff=0):
     
     propertyStyle.appendChild(property)
     
-    
-    
     property3=doc.createElement('y:Property')
     property3.setAttribute('class','java.awt.Color')
     property3.setAttribute('name','yed.table.section.color')
@@ -667,7 +392,6 @@ def exportGraphml(o, nodes, edges, options,ff=0):
     
     propertyStyle.appendChild(property9)
     
-    
     property11=doc.createElement('y:Property')
     property11.setAttribute('name','y.view.tabular.TableNodePainter.ALTERNATE_COLUMN_SELECTION_STYLE')
     simplestyle11=doc.createElement('y:SimpleStyle')
@@ -678,8 +402,6 @@ def exportGraphml(o, nodes, edges, options,ff=0):
     property11.appendChild(simplestyle11)
     
     propertyStyle.appendChild(property11)
-    
-    
     
     
     #inserire per ultimo##############
@@ -766,197 +488,315 @@ def exportGraphml(o, nodes, edges, options,ff=0):
     column.appendChild(insets2)    
     table.appendChild(columns)
     
+    #n.initFromString(l)
+    rows=doc.createElement('y:Rows')
+    x=1000.0
     
     
-    rows=doc.createElement('y:Rows')    
-    row=doc.createElement('y:Row')
-    row.setAttribute('height','342.3681377825619')
-    row.setAttribute('id','row_2')
-    row.setAttribute('minimumHeight','50.0')    
-    insets3=doc.createElement('y:Insets')
-    insets3.setAttribute('bottom','0.0')
-    insets3.setAttribute('left','54.0')
-    insets3.setAttribute('right','0.0')
-    insets3.setAttribute('top','0.0')
-    rows.appendChild(row)
-    row.appendChild(insets3)   
-    #table.appendChild(rows)
+    for i in sorted(epoch,reverse=tf):
+        
+        
+        s=i.split(' : ')
+        a=len(i)
+        a=x/100*94
+            
+        row=doc.createElement('y:Row')
+        
+        row.setAttribute('height','%r'%a)
+        
+        row.setAttribute('id','row_%s' % s[-1].replace(' ','_'))
+        row.setAttribute('minimumHeight','50.0')    
+        insets3=doc.createElement('y:Insets')
+        insets3.setAttribute('bottom','0.0')
+        insets3.setAttribute('left','54.0')
+        insets3.setAttribute('right','0.0')
+        insets3.setAttribute('top','0.0')
+        rows.appendChild(row)
+        row.appendChild(insets3)   
+        table.appendChild(rows)
     tablenode.appendChild(table)
     data0.appendChild(tablenode)
+    node1.appendChild(data0)
     
-    #rows=doc.createElement('y:Rows')    
-    row=doc.createElement('y:Row')
-    row.setAttribute('height','315.73735199138855')
-    row.setAttribute('id','row_0')
-    row.setAttribute('minimumHeight','50.0')    
-    insets3=doc.createElement('y:Insets')
-    insets3.setAttribute('bottom','0.0')
-    insets3.setAttribute('left','54.0')
-    insets3.setAttribute('right','0.0')
-    insets3.setAttribute('top','0.0')
-    rows.appendChild(row)
-    row.appendChild(insets3)   
-    #table.appendChild(rows)
-    tablenode.appendChild(table)
-    data0.appendChild(tablenode)
-    
-    
-    #rows=doc.createElement('y:Rows')    
-    row=doc.createElement('y:Row')
-    row.setAttribute('height','308.0086114101184')
-    row.setAttribute('id','row_4')
-    row.setAttribute('minimumHeight','50.0')    
-    insets3=doc.createElement('y:Insets')
-    insets3.setAttribute('bottom','0.0')
-    insets3.setAttribute('left','54.0')
-    insets3.setAttribute('right','0.0')
-    insets3.setAttribute('top','0.0')
-    rows.appendChild(row)
-    row.appendChild(insets3)   
-    #table.appendChild(rows)
-    tablenode.appendChild(table)
-    data0.appendChild(tablenode)
-    
-    #rows=doc.createElement('y:Rows')    
-    row=doc.createElement('y:Row')
-    row.setAttribute('height','332.75144644779346')
-    row.setAttribute('id','row_1')
-    row.setAttribute('minimumHeight','50.0')    
-    insets3=doc.createElement('y:Insets')
-    insets3.setAttribute('bottom','0.0')
-    insets3.setAttribute('left','54.0')
-    insets3.setAttribute('right','0.0')
-    insets3.setAttribute('top','0.0')
-    rows.appendChild(row)
-    row.appendChild(insets3)   
-    #table.appendChild(rows)
-    tablenode.appendChild(table)
-    data0.appendChild(tablenode)
-    
-    #rows=doc.createElement('y:Rows')    
-    row=doc.createElement('y:Row')
-    row.setAttribute('height','722.576863562971')
-    row.setAttribute('id','row_3')
-    row.setAttribute('minimumHeight','50.0')    
-    insets3=doc.createElement('y:Insets')
-    insets3.setAttribute('bottom','0.0')
-    insets3.setAttribute('left','54.0')
-    insets3.setAttribute('right','0.0')
-    insets3.setAttribute('top','0.0')
-    rows.appendChild(row)
-    row.appendChild(insets3)   
-    #table.appendChild(rows)
-    tablenode.appendChild(table)
-    data0.appendChild(tablenode)
-    
-    #rows=doc.createElement('y:Rows')    
-    row=doc.createElement('y:Row')
-    row.setAttribute('height','396.8670949946179')
-    row.setAttribute('id','row_5')
-    row.setAttribute('minimumHeight','50.0')    
-    insets3=doc.createElement('y:Insets')
-    insets3.setAttribute('bottom','0.0')
-    insets3.setAttribute('left','54.0')
-    insets3.setAttribute('right','0.0')
-    insets3.setAttribute('top','0.0')
-    rows.appendChild(row)
-    row.appendChild(insets3)   
-    #table.appendChild(rows)
-    tablenode.appendChild(table)
-    data0.appendChild(tablenode)
-    
-    
-    #rows=doc.createElement('y:Rows')    
-    row=doc.createElement('y:Row')
-    row.setAttribute('height','349.5824117835043')
-    row.setAttribute('id','row_6')
-    row.setAttribute('minimumHeight','50.0')    
-    insets3=doc.createElement('y:Insets')
-    insets3.setAttribute('bottom','0.0')
-    insets3.setAttribute('left','54.0')
-    insets3.setAttribute('right','0.0')
-    insets3.setAttribute('top','0.0')
-    rows.appendChild(row)
-    row.appendChild(insets3)   
-    #table.appendChild(rows)
-    tablenode.appendChild(table)
-    data0.appendChild(tablenode)
-    
-    #rows=doc.createElement('y:Rows')    
-    row=doc.createElement('y:Row')
-    row.setAttribute('height','476.0806310548976')
-    row.setAttribute('id','row_7')
-    row.setAttribute('minimumHeight','50.0')    
-    insets3=doc.createElement('y:Insets')
-    insets3.setAttribute('bottom','0.0')
-    insets3.setAttribute('left','54.0')
-    insets3.setAttribute('right','0.0')
-    insets3.setAttribute('top','0.0')
-    rows.appendChild(row)
-    row.appendChild(insets3)   
-    table.appendChild(rows)
-    tablenode.appendChild(table)
-    data0.appendChild(tablenode)
-    
-    #rows=doc.createElement('y:Rows')    
-    row=doc.createElement('y:Row')
-    row.setAttribute('height','413.8292918292518')
-    row.setAttribute('id','row_8')
-    row.setAttribute('minimumHeight','50.0')    
-    insets3=doc.createElement('y:Insets')
-    insets3.setAttribute('bottom','0.0')
-    insets3.setAttribute('left','54.0')
-    insets3.setAttribute('right','0.0')
-    insets3.setAttribute('top','0.0')
-    rows.appendChild(row)
-    row.appendChild(insets3)   
-    #table.appendChild(rows)
-    tablenode.appendChild(table)
-    data0.appendChild(tablenode)
-    
-    #rows=doc.createElement('y:Rows')    
-    row=doc.createElement('y:Row')
-    row.setAttribute('height','378.4687941502948')
-    row.setAttribute('id','row_9')
-    row.setAttribute('minimumHeight','50.0')    
-    insets3=doc.createElement('y:Insets')
-    insets3.setAttribute('bottom','0.0')
-    insets3.setAttribute('left','54.0')
-    insets3.setAttribute('right','0.0')
-    insets3.setAttribute('top','0.0')
-    rows.appendChild(row)
-    row.appendChild(insets3)   
-    table.appendChild(rows)
-    tablenode.appendChild(table)
-    data0.appendChild(tablenode)
     graph1 = doc.createElement('graph')
     graph1.setAttribute('edgedefault','directed')    
     graph1.setAttribute('id','n0:')
     
     
-    
-    
-    
-    
-    node1.appendChild(data0)
-    #graph.appendChild(node1)
-    #graph1.appendChild(node1)
-    graph.appendChild(node1)
-    # graph.setAttribute('parse.edges','%d' % len(edges))   
-    # graph.setAttribute('parse.nodes','%d' % len(nodes))
-    # graph.setAttribute('parse.order', 'free')    
-   
     for k,nod in nodes.items():
-        nod.exportGraphml(doc, graph, options)
+        
+        
+        nod.exportGraphml(doc, graph1, options, sorted(epoch_sigla, reverse=tf))
+    node1.appendChild(graph1)
+   
+    graph.appendChild(node1)
+    
     for el in edges:
         el.exportGraphml(doc, graph, nodes, options)
     
     root.appendChild(graph)
     
+    
+    #######creo i simboli  svg per gli estrattori, i combinar e le continuity########
     data = doc.createElement('data')
     data.setAttribute('key','d7')    
     res = doc.createElement('y:Resources')
-    data.appendChild(res)    
+    
+    res2 = doc.createElement('y:Resource')
+    
+    res2.setAttribute('id','1')
+    res2.setAttribute('xml:space','preserve')
+    
+    res2.appendChild(doc.createTextNode('''
+
+<svg
+   xmlns:dc="http://purl.org/dc/elements/1.1/"
+   xmlns:cc="http://creativecommons.org/ns#"
+   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+   xmlns:svg="http://www.w3.org/2000/svg"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   width="48px"
+   height="48px"
+   id="svg4050"
+   version="1.1"
+   inkscape:version="0.48.4 r9939"
+   sodipodi:docname="New document 13">
+ <defs
+     id="defs4052" />
+ <sodipodi:namedview
+     id="base"
+     pagecolor="#ffffff"
+     bordercolor="#666666"
+     borderopacity="1.0"
+     inkscape:pageopacity="0.0"
+     inkscape:pageshadow="2"
+     inkscape:zoom="9.8994949"
+     inkscape:cx="18.095997"
+     inkscape:cy="17.278115"
+     inkscape:current-layer="layer1"
+     showgrid="true"
+     inkscape:grid-bbox="true"
+     inkscape:document-units="px"
+     inkscape:window-width="1920"
+     inkscape:window-height="1025"
+     inkscape:window-x="-2"
+     inkscape:window-y="-3"
+     inkscape:window-maximized="1" />
+ <metadata
+     id="metadata4055">
+   <rdf:RDF>
+     <cc:Work
+         rdf:about="">
+       <dc:format>image/svg+xml</dc:format>
+       <dc:type
+           rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
+       <dc:title></dc:title>
+     </cc:Work>
+   </rdf:RDF>
+ </metadata>
+ <g
+     id="layer1"
+     inkscape:label="Layer 1"
+     inkscape:groupmode="layer">
+   <g
+       transform="matrix(0.41470954,0,0,0.41438764,-58.075087,96.197996)"
+       id="g3932">
+     <path
+         transform="translate(-176.7767,-1080.8632)"
+         d="m 430.32499,906.90021 c 0,30.68405 -24.87434,55.55839 -55.55839,55.55839 -30.68405,0 -55.55839,-24.87434 -55.55839,-55.55839 0,-30.68405 24.87434,-55.55839 55.55839,-55.55839 30.68405,0 55.55839,24.87434 55.55839,55.55839 z"
+         sodipodi:ry="55.558392"
+         sodipodi:rx="55.558392"
+         sodipodi:cy="906.90021"
+         sodipodi:cx="374.7666"
+         id="path2996-3"
+         style="fill:#ffffff;fill-opacity:1;stroke:#000000;stroke-width:4;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none;stroke-dashoffset:0"
+         sodipodi:type="arc" />
+     <path
+         inkscape:connector-curvature="0"
+         id="path3795"
+         d="m 195.82737,-229.48049 c -29.75104,1.0602 -53.53125,25.52148 -53.53125,55.53125 0,30.00977 23.78021,54.4398 53.53125,55.5 l 0,-38.875 -18.1875,0 0,-32.8125 18.1875,0 0,-39.34375 z"
+         style="fill:#7d7d7d;fill-opacity:1;stroke:#000000;stroke-width:4;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none;stroke-dashoffset:0" />
+     <rect
+         y="-187.49332"
+         x="212.49696"
+         height="27.142857"
+         width="26.071428"
+         id="rect3805"
+         style="fill:#7d7d7d;fill-opacity:1;stroke:#000000;stroke-width:4;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none;stroke-dashoffset:0" />
+     <path
+         inkscape:connector-curvature="0"
+         id="path3807"
+         d="m 180.35416,-173.20759 c 29.28571,0 29.28571,0 29.28571,0"
+         style="fill:none;stroke:#000000;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1" />
+   </g>
+ </g>
+</svg>'''))
+    
+    res.appendChild(res2)
+    res3 = doc.createElement('y:Resource')
+    #if 'Extractor' in node:
+    res3.setAttribute('id','2')
+    res3.setAttribute('xml:space','preserve')
+    
+    
+    res3.appendChild(doc.createTextNode('''
+
+<svg
+xmlns:dc="http://purl.org/dc/elements/1.1/"
+xmlns:cc="http://creativecommons.org/ns#"
+xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+xmlns:svg="http://www.w3.org/2000/svg"
+xmlns="http://www.w3.org/2000/svg"
+xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+width="48px"
+height="48px"
+id="svg4192"
+version="1.1"
+inkscape:version="0.48.4 r9939"
+sodipodi:docname="New document 20">
+<defs id="defs4194" />
+<sodipodi:namedview
+ id="base"
+ pagecolor="#ffffff"
+ bordercolor="#666666"
+ borderopacity="1.0"
+ inkscape:pageopacity="0.0"
+ inkscape:pageshadow="2"
+ inkscape:zoom="14"
+ inkscape:cx="24.612064"
+ inkscape:cy="28.768962"
+ inkscape:current-layer="layer1"
+ showgrid="true"
+ inkscape:grid-bbox="true"
+ inkscape:document-units="px"
+ inkscape:window-width="1920"
+ inkscape:window-height="1025"
+ inkscape:window-x="-2"
+ inkscape:window-y="-3"
+ inkscape:window-maximized="1" />
+<metadata id="metadata4197">
+<rdf:RDF>
+  <cc:Work
+     rdf:about="">
+    <dc:format>image/svg+xml</dc:format>
+    <dc:type
+       rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
+    <dc:title></dc:title>
+  </cc:Work>
+</rdf:RDF>
+</metadata>
+<g 
+ id="layer1"
+ inkscape:label="Layer 1"
+ inkscape:groupmode="layer">
+<g
+   transform="matrix(0.40828104,0,0,0.41346794,-201.56174,97.998396)"
+   id="g3922">
+  <path
+     sodipodi:type="arc"
+     style="fill:#ffffff;fill-opacity:1;stroke:#000000;stroke-width:4;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none;stroke-dashoffset:0"
+     id="path3912"
+     sodipodi:cx="374.7666"
+     sodipodi:cy="906.90021"
+     sodipodi:rx="55.558392"
+     sodipodi:ry="55.558392"
+     d="m 430.32499,906.90021 c 0,30.68405 -24.87434,55.55839 -55.55839,55.55839 -30.68405,0 -55.55839,-24.87434 -55.55839,-55.55839 0,-30.68405 24.87434,-55.55839 55.55839,-55.55839 30.68405,0 55.55839,24.87434 55.55839,55.55839 z"
+     transform="translate(177.55723,-1085.7479)" />
+  <path
+     sodipodi:nodetypes="ccsccc"
+     inkscape:connector-curvature="0"
+     id="path3914"
+     d="m 543.53146,-169.98986 63.36579,-17.50001 c 0,0 0.71429,3.97312 0.71429,11.68875 0,7.71563 -2.93748,15.70661 -2.93748,15.70661 l -61.1426,17.05358 z"
+     style="fill:#7b7b7b;fill-opacity:1;stroke:#000000;stroke-width:4;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none;stroke-dashoffset:0" />
+  <path
+     sodipodi:nodetypes="ccccsc"
+     inkscape:connector-curvature="0"
+     id="path3916"
+     d="m 501.52478,-201.54471 54.88091,-14.27148 0,26.94893 -59.23348,15.97426 c 0,0 -0.15898,-6.266 0.10274,-12.48413 0.34368,-8.16509 4.24983,-16.16758 4.24983,-16.16758 z"
+     style="fill:#7b7b7b;fill-opacity:1;stroke:#000000;stroke-width:4;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none;stroke-dashoffset:0" />
+</g>
+</g>
+</svg> '''))
+    res.appendChild(res3)
+    res4 = doc.createElement('y:Resource')
+    #if 'Extractor' in node:
+    res4.setAttribute('id','3')
+    res4.setAttribute('xml:space','preserve')
+    
+    
+    res4.appendChild(doc.createTextNode('''
+
+<svg
+   xmlns:dc="http://purl.org/dc/elements/1.1/"
+   xmlns:cc="http://creativecommons.org/ns#"
+   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+   xmlns:svg="http://www.w3.org/2000/svg"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   width="7mm"
+   height="7mm"
+   viewBox="0 0 7 7"
+   version="1.1"
+   id="svg8"
+   inkscape:version="0.92.2 5c3e80d, 2017-08-06"
+   sodipodi:docname="continuity.svg">
+  <defs
+     id="defs2" />
+  <sodipodi:namedview
+     id="base"
+     pagecolor="#ffffff"
+     bordercolor="#666666"
+     borderopacity="1.0"
+     inkscape:pageopacity="0.0"
+     inkscape:pageshadow="2"
+     inkscape:zoom="1.8181416"
+     inkscape:cx="-10.002405"
+     inkscape:cy="-64.860066"
+     inkscape:document-units="mm"
+     inkscape:current-layer="layer1"
+     showgrid="false"
+     fit-margin-top="0"
+     fit-margin-left="0"
+     fit-margin-right="0"
+     fit-margin-bottom="0"
+     inkscape:window-width="1440"
+     inkscape:window-height="800"
+     inkscape:window-x="0"
+     inkscape:window-y="1"
+     inkscape:window-maximized="1" />
+  <metadata
+     id="metadata5">
+    <rdf:RDF>
+      <cc:Work
+         rdf:about="">
+        <dc:format>image/svg+xml</dc:format>
+        <dc:type
+           rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
+        <dc:title></dc:title>
+      </cc:Work>
+    </rdf:RDF>
+  </metadata>
+  <g
+     inkscape:label="Livello 1"
+     inkscape:groupmode="layer"
+     id="layer1"
+     transform="translate(-82.089519,-139.87478)">
+    <rect
+       id="rect12"
+       width="4.9497476"
+       height="4.9497476"
+       x="159.42734"
+       y="38.385479"
+       style="stroke-width:0.01220008"
+       transform="rotate(45)" />
+  </g>
+</svg> '''))
+    res.appendChild(res4)
+    data.appendChild(res)
     root.appendChild(data)
     
     o.write('{}'.format(doc.toxml(encoding='UTF-8').decode()))
@@ -965,8 +805,8 @@ def exportGraphml(o, nodes, edges, options,ff=0):
     # parsed_xml = xml.dom.minidom.parseString(xml_string)
     # pretty_xml_as_string = parsed_xml.toprettyxml()
 
-    #file = open("./content_new.xml", 'w')
-    #o.write(xml_string)
+    # file = open("./content_new.xml", 'w')
+    # o.write(xml_string)
     
 def exportGDF(o, nodes, edges, options):
     o.write("nodedef> name\n")
@@ -1134,7 +974,7 @@ def main():
                         print("Info: Picked up input encoding '%s' from the DOT file." % ienc)
         idx += 1
             
-                
+    #print(nodes)
     # Add single nodes, if required
     for e in edges:
         if e.src not in nodes:
@@ -1183,4 +1023,6 @@ def main():
         print("\nDone.")
 
 if __name__ == '__main__':
+    app=QApplication(sys.argv)
+    
     main()

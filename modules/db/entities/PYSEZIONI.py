@@ -1,7 +1,7 @@
 '''
 Created on 19 feb 2018
 
-@author: Serena Sensini
+@author: Serena Sensini; Enzo Cocca <enzo.ccc@gmail.com>
 '''
 
 
@@ -23,7 +23,7 @@ class PYSEZIONI(object):
         self.area=area
         self.descr=descr
         self.the_geom=the_geom
-        self.tipo_doc=tipo=doc
+        self.tipo_doc=tipo_doc
         self.nome_doc=nome_doc
     # def __repr__"
     @property

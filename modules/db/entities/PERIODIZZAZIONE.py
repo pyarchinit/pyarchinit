@@ -1,7 +1,7 @@
 '''
 Created on 15 feb 2018
 
-@author: Serena Sensini
+@author: Serena Sensini; Enzo Cocca <enzo.ccc@gmail.com>
 '''
 
 
@@ -31,7 +31,7 @@ class PERIODIZZAZIONE(object):
 
     # def __repr__"
     def __repr__(self):
-        return "<PERIODIZZAZIONE('%d', '%s', '%d', '%d', '%d', '%d', '%s', '%s', '%d')>" % (
+        return "<PERIODIZZAZIONE('%d', '%s', '%d', '%s', '%d', '%d', '%s', '%s', '%d')>" % (
             self.id_perfas,
             self.sito,
             self.periodo,

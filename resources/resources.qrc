@@ -1,5 +1,7 @@
 <RCC>
   <qresource prefix="/">
+    <file>icons/layers-icon2.png</file>
+    <file>icons/GIS2.png</file>
     <file>icons/layers-icon.png</file>
     <file>icons/tracking-icon.png</file>
     <file>resources.qrc</file>
@@ -59,22 +61,32 @@
     <file>icons/iconANC.png</file>
     <file>icons/excel-export.png</file>
     <file>icons/import-excel.png</file>
-	<file>icons/remove_tag.png</file>
+    <file>icons/remove_tag.png</file>
     <file>icons/add_tag.png</file>
-	<file>icons/word.png</file>
-	<file>icons/toolbox.png</file>
-	<file>icons/matrix.png</file>
-	<file>icons/insert_geometry.png</file>
-	<file>icons/insert_table.png</file>
-	<file>icons/install_db.png</file>
-	<file>icons/open-folder.png</file>
-	<file>icons/db_update_postgres.png</file>
-	<file>icons/db_update_sqlite.png</file>
-	<file>icons/postgres.png</file>
-	<file>icons/spatialite.png</file>
-	<file>icons/save_setting.png</file>
-	<file>icons/video.png</file>
-	<file>icons/photo2.png</file>
-	<file>icons/find.png</file>
+    <file>icons/word.png</file>
+    <file>icons/toolbox.png</file>
+    <file>icons/matrix.png</file>
+    <file>icons/insert_geometry.png</file>
+    <file>icons/insert_table.png</file>
+    <file>icons/install_db.png</file>
+    <file>icons/open-folder.png</file>
+    <file>icons/db_update_postgres.png</file>
+    <file>icons/db_update_sqlite.png</file>
+    <file>icons/postgres.png</file>
+    <file>icons/spatialite.png</file>
+    <file>icons/save_setting.png</file>
+    <file>icons/video.png</file>
+    <file>icons/photo2.png</file>
+    <file>icons/find.png</file>
+    <file>icons/print_map.png</file>
+    <file>icons/layers-icon_d.png</file>
+    <file>icons/Layer_plus.png</file>
+    <file>icons/site_point.png</file>
+    <file>icons/site_point2.png</file>
+	<file>icons/GIS3.png</file>
+	<file>icons/movecost.png</file>
+	<file>icons/gpkg.png</file>
+    <file>icons/basemap.png</file>
+	<file>icons/tops.png</file>
   </qresource>
 </RCC>

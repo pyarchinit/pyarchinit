@@ -24,15 +24,15 @@ class pyus_negative:
 
     # define tables check per verifica fill fields 20/10/2016 OK
     pyus_negative = Table('pyarchinit_us_negative_doc', metadata,
-                     Column('pkuid', Integer, primary_key=True),  # 0
+                     Column('gid', Integer, primary_key=True),  # 0
                      Column('sito_n', Text),
                      Column('area_n', Integer),
                      Column('us_n', Integer),
                      Column('tipo_doc_n', Text),
                      Column('nome_doc_n', Text),
-                     Column('the_geom', Geometry('LINESTRING',-1)),
+                     Column('the_geom', Text),
                      # explicit/composite unique constraint.  'name' is optional.
-                     UniqueConstraint('pkuid')
+                     UniqueConstraint('gid')
                      )
 
     metadata.create_all(engine)

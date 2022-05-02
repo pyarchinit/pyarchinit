@@ -6,7 +6,7 @@
                              stored in Postgres
                              -------------------
     begin                : 2007-12-01
-    copyright            : (C) 2008 by Luca Mandolesi
+    copyright            : (C) 2008 by Luca Mandolesi; Enzo Cocca <enzo.ccc@gmail.com>
     email                : mandoluca at gmail.com
  ***************************************************************************/
 
@@ -22,26 +22,35 @@ from __future__ import absolute_import
 
 import os
 from datetime import date
-
-import sys
+import requests
+import urllib
 from builtins import range
 from builtins import str
-from qgis.PyQt.QtGui import QDesktopServices
-from qgis.PyQt.QtCore import QUrl, QVariant
-from qgis.PyQt.QtWidgets import QDialog, QMessageBox, QFileDialog
-from qgis.PyQt.uic import loadUiType
-from qgis.core import QgsSettings
-
+#from pyper import *
+from qgis.PyQt.QtGui import *
+from qgis.PyQt.QtCore import *
+from qgis.PyQt.QtWidgets import *
+from qgis.PyQt.uic import *
+from qgis.core import *
+#from qgis.gui import QgsMapLayerComboBox
+from distutils.dir_util import copy_tree
+from processing.tools.system import mkdir, userFolder
+import processing
 from ..modules.db.pyarchinit_conn_strings import Connection
 from ..modules.db.pyarchinit_db_manager import Pyarchinit_db_management
 from ..modules.db.pyarchinit_utility import Utility
 from ..modules.gis.pyarchinit_pyqgis import Pyarchinit_pyqgis
 from ..modules.utility.print_relazione_pdf import exp_rel_pdf
 from ..modules.utility.pyarchinit_error_check import Error_check
+from ..modules.utility.Utils import *
 from ..test_area import Test_area
 from ..gui.sortpanelmain import SortPanelMain
 from ..gui.pyarchinitConfigDialog import pyArchInitDialog_Config
+from .PlaceSelectionDialog import PlaceSelectionDialog
+from .networkaccessmanager import NetworkAccessManager
+import sys,  json
 
+NAM = NetworkAccessManager()
 MAIN_DIALOG_CLASS, _ = loadUiType(os.path.join(os.path.dirname(__file__), os.pardir, 'gui', 'ui', 'Site.ui'))
 
 
@@ -184,12 +193,17 @@ class pyarchinit_Site(QDialog, MAIN_DIALOG_CLASS):
     }
 
     DB_SERVER = "not defined"  ####nuovo sistema sort
-
+    
     def __init__(self, iface):
         super().__init__()
         self.iface = iface
         self.pyQGIS = Pyarchinit_pyqgis(iface)
         self.setupUi(self)
+        self.mDockWidget.setHidden(True)
+        
+        self.canvas = iface.mapCanvas()
+        self.layerid = ''
+        #self.layer = None
         self.currentLayerId = None
         self.HOME = os.environ['PYARCHINIT_HOME']
         try:
@@ -201,6 +215,47 @@ class pyarchinit_Site(QDialog, MAIN_DIALOG_CLASS):
         self.pbn_browse_folder.clicked.connect(self.setPathToSites)
         self.set_sito()
         self.msg_sito()
+        self.config = QgsSettings()
+        self.previous_map_tool = self.iface.mapCanvas().mapTool()
+        
+    def on_pushButton_movecost_pressed(self):#####modifiche apportate per il calcolo statistico con R
+        processing.execAlgorithmDialog('r:movecost')
+        
+    def on_pushButton_movecost_p_pressed(self):#####modifiche apportate per il calcolo statistico con R
+        processing.execAlgorithmDialog('r:movecostbypolygon')
+        
+    def on_pushButton_movebound_pressed(self):#####modifiche apportate per il calcolo statistico con R
+        processing.execAlgorithmDialog('r:movebound')
+    
+    def on_pushButton_movebound_p_pressed(self):#####modifiche apportate per il calcolo statistico con R
+        processing.execAlgorithmDialog('r:moveboundbypolygon')
+    
+    def on_pushButton_movecorr_pressed(self):#####modifiche apportate per il calcolo statistico con R
+        processing.execAlgorithmDialog('r:movecorr')
+    
+    def on_pushButton_movecorr_p_pressed(self):#####modifiche apportate per il calcolo statistico con R
+        processing.execAlgorithmDialog('r:movecorrbypolygon')
+    
+    def on_pushButton_movealloc_pressed(self):#####modifiche apportate per il calcolo statistico con R
+        processing.execAlgorithmDialog('r:movealloc')
+    
+    def on_pushButton_movealloc_p_pressed(self):#####modifiche apportate per il calcolo statistico con R
+        processing.execAlgorithmDialog('r:moveallocbypolygon')
+    
+    def defaultScriptsFolder():
+        folder = str(os.path.join(userFolder(), "rscripts"))
+        mkdir(folder)
+        return os.path.abspath(folder)
+    
+    def on_pushButton_add_script_pressed(self):# Paths to source files and qgis profile directory
+        source_profile = os.path.join(self.HOME,'bin', 'rscripts')
+        profile_home = QgsApplication.qgisSettingsDirPath()
+        rs=os.path.join(profile_home,'processing','rscripts')
+
+        # The acutal "copy" with or without overwrite (update)
+        ##if button_pressed == QMessageBox.Yes:
+        copy_tree(source_profile,rs)
+    
     def setPathToSites(self):
         s = QgsSettings()
         self.siti_path = QFileDialog.getExistingDirectory(
@@ -222,6 +277,132 @@ class pyarchinit_Site(QDialog, MAIN_DIALOG_CLASS):
             QMessageBox.warning(self, "INFO", "Directory not found",
                                 QMessageBox.Ok)
 
+    def on_wms_vincoli_pressed(self):
+        groupName="Vincoli Archelogici"
+        root = QgsProject.instance().layerTreeRoot()
+        group = root.addGroup(groupName)
+        group.setExpanded(False)
+        myGroup5 = group.insertGroup(5, "Vincoli")
+        nome_vestizione='Vincoli puntuali'
+        url_vestizione ='http://vincoliinrete.beniculturali.it/geoserver/wms_public/ows?layers=v_layer_anagrafica_beniculturali:comune&CQL_FILTER=comune=%27{}%27'.format(self.comboBox_comune.currentText())
+        uri_vestizione ='IgnoreGetFeatureInfoUrl=1&IgnoreGetMapUrl=1&contextualWMSLegend=0&crs=EPSG:6875&dpiMode=7&featureCount=10&format=image/png&layers=v_geo_anagrafica_beni_puntuali&styles&url='+requests.utils.quote(url_vestizione)
+        rlayer3= QgsRasterLayer(uri_vestizione, nome_vestizione,'wms')
+        myGroup5.insertChildNode(-1, QgsLayerTreeLayer(rlayer3))
+        
+        
+        nome_vestizione='Vincoli Lineari'
+        url_vestizione ='http://vincoliinrete.beniculturali.it/geoserver/wms_public/ows?layers=v_layer_anagrafica_beniculturali:comune&CQL_FILTER=comune=%27{}%27'.format(self.comboBox_comune.currentText())
+        uri_vestizione ='IgnoreGetFeatureInfoUrl=1&IgnoreGetMapUrl=1&contextualWMSLegend=0&crs=EPSG:6875&dpiMode=7&featureCount=10&format=image/png&layers=v_geo_anagrafica_beni_lineari&styles&url='+requests.utils.quote(url_vestizione)
+        rlayer4= QgsRasterLayer(uri_vestizione, nome_vestizione,'wms')
+        myGroup5.insertChildNode(-1, QgsLayerTreeLayer(rlayer4))
+        
+        nome_vestizione='Vincoli poligonali'
+        url_vestizione ='http://vincoliinrete.beniculturali.it/geoserver/wms_public/ows?layers=v_layer_anagrafica_beniculturali:comune&CQL_FILTER=comune=%27{}%27'.format(self.comboBox_comune.currentText())
+        uri_vestizione ='IgnoreGetFeatureInfoUrl=1&IgnoreGetMapUrl=1&contextualWMSLegend=0&crs=EPSG:6875&dpiMode=7&featureCount=10&format=image/png&layers=v_geo_anagrafica_beni_poligonali&styles&url='+requests.utils.quote(url_vestizione)
+        rlayer5= QgsRasterLayer(uri_vestizione, nome_vestizione,'wms')
+        myGroup5.insertChildNode(-1, QgsLayerTreeLayer(rlayer5))
+        QgsProject.instance().addMapLayers([rlayer3,rlayer4,rlayer5],False)
+    def internet_on(self):
+        try:
+            urllib.request.urlopen('https://wms.cartografia.agenziaentrate.gov.it/inspire/wms/ows01.php?SERVICE=WMS&VERSION=1.3.0&REQUEST=GetCapabilities', timeout=0.5)
+            return True
+        except urllib.error.URLError:
+            
+            return False
+    def on_basemap_pressed(self):
+        if self.internet_on():
+            groupName="BaseMap"
+            root = QgsProject.instance().layerTreeRoot()
+            group = root.addGroup(groupName)
+            group.setExpanded(False)
+
+            if self.L=='it':
+                myGroup7 = group.insertGroup(4, "Toponomastica")
+                nome_igm_t = ' Toponomastica IGM 25000'
+                url_igm_t = "http://wms.pcn.minambiente.it/ogc?map=/ms_ogc/wfs/Toponimi_2011.map&version=1.1.0&service=wfs&request=getFeature&typename=NG.TOPONIMI.&Filter=%3CFilter%3E%3CPropertyIsEqualTo%3E%3CPropertyName%3Ecomune%3C/PropertyName%3E%3CLiteral%3E{}%3C/Literal%3E%3C/PropertyIsEqualTo%3E%3C/Filter%3E".format(
+                    self.comboBox_comune.currentText().upper())
+
+                rlayer11 = QgsVectorLayer(url_igm_t, nome_igm_t, 'wfs')
+                myGroup7.insertChildNode(-1, QgsLayerTreeLayer(rlayer11))
+
+                myGroup4 = group.insertGroup(6, "Catasto")
+                
+                nome_vestizione='Vestizione'
+                url_vestizione ='wms.cartografia.agenziaentrate.gov.it/inspire/wms/ows01.php'
+                uri_vestizione ='contextualWMSLegend=0&crs=EPSG:25832&dpiMode=7&featureCount=10&format=image/png&layers=vestizioni&styles&url=https://'+requests.utils.quote(url_vestizione)
+                rlayer3= QgsRasterLayer(uri_vestizione, nome_vestizione,'wms')
+                myGroup4.insertChildNode(-1, QgsLayerTreeLayer(rlayer3))
+                
+                nome_fabbricati='Fabbricati'
+                url_fabbricati ='wms.cartografia.agenziaentrate.gov.it/inspire/wms/ows01.php'
+                uri_fabbricati ='contextualWMSLegend=0&crs=EPSG:4258&dpiMode=7&featureCount=10&format=image/png&layers=fabbricati&styles&url=https://'+requests.utils.quote(url_vestizione)
+                rlayer4= QgsRasterLayer(uri_fabbricati, nome_fabbricati,'wms')
+                myGroup4.insertChildNode(-1, QgsLayerTreeLayer(rlayer4))
+                
+                nome_Particelle='Particelle'
+                url_Particelle ='wms.cartografia.agenziaentrate.gov.it/inspire/wms/ows01.php'
+                uri_Particelle ='contextualWMSLegend=0&crs=EPSG:4258&dpiMode=7&featureCount=10&format=image/png&layers=CP.CadastralParcel&styles&url=https://'+requests.utils.quote(url_Particelle)
+                rlayer5= QgsRasterLayer(uri_Particelle, nome_Particelle,'wms')
+                myGroup4.insertChildNode(-1, QgsLayerTreeLayer(rlayer5))
+                
+                nome_Strade='Strade'
+                url_Strade ='wms.cartografia.agenziaentrate.gov.it/inspire/wms/ows01.php'
+                uri_Strade ='contextualWMSLegend=0&crs=EPSG:4258&dpiMode=7&featureCount=10&format=image/png&layers=strade&styles&url=https://'+requests.utils.quote(url_Strade)
+                rlayer6= QgsRasterLayer(uri_Strade, nome_Strade,'wms')
+                myGroup4.insertChildNode(-1, QgsLayerTreeLayer(rlayer6))
+                
+                nome_Acque='Acque'
+                url_Acque ='wms.cartografia.agenziaentrate.gov.it/inspire/wms/ows01.php'
+                uri_Acque ='contextualWMSLegend=0&crs=EPSG:4258&dpiMode=7&featureCount=10&format=image/png&layers=acque&styles&url=https://'+requests.utils.quote(url_Acque)
+                rlayer7= QgsRasterLayer(uri_Acque, nome_Acque,'wms')
+                myGroup4.insertChildNode(-1, QgsLayerTreeLayer(rlayer7))
+                
+                nome_Mappe='Mappe'
+                url_Mappe ='wms.cartografia.agenziaentrate.gov.it/inspire/wms/ows01.php'
+                uri_Mappe ='crs=EPSG:4326&dpiMode=7&format=image/png&layers=CP.CadastralZoning&styles&url=https://'+requests.utils.quote(url_Mappe)
+                rlayer8= QgsRasterLayer(uri_Mappe, nome_Mappe,'wms')
+                myGroup4.insertChildNode(-1, QgsLayerTreeLayer(rlayer8))
+                
+                nome_Province='Province'
+                url_Province ='wms.cartografia.agenziaentrate.gov.it/inspire/wms/ows01.php'
+                uri_Province ='crs=EPSG:4258&dpiMode=7&format=image/png&layers=province&styles&url=https://'+requests.utils.quote(url_Province)
+                rlayer9= QgsRasterLayer(uri_Province, nome_Province,'wms')
+                myGroup4.insertChildNode(-1, QgsLayerTreeLayer(rlayer9))
+                
+                myGroup6 = group.insertGroup(7, "IGM 2500")
+                nome_igm='IGM 25000'
+                url_igm ='wms.pcn.minambiente.it/ogc?map=/ms_ogc/WMS_v1.3/raster/IGM_25000.map'
+                uri_igm ='crs=EPSG:4806&dpiMode=7&featureCount=10&format=image/png&layers=CB.IGM25000.32&layers=CB.IGM25000.33&styles&styles&url=http://'+requests.utils.quote(url_igm)
+                rlayer10= QgsRasterLayer(uri_igm, nome_igm,'wms')
+                myGroup6.insertChildNode(-1, QgsLayerTreeLayer(rlayer10))
+
+
+            
+            else:
+                pass
+            myGroup5 = group.insertGroup(5, "BaseMap")
+            basemap_name = 'Google Maps'
+            basemap_wiki = 'Wikimedia Maps'
+            basemap_url = 'mt1.google.com/vt/lyrs=s&x={x}&y={y}&z={z}'
+            basemap_url_wiki = 'maps.wikimedia.org/osm-intl/{z}/{x}/{y}.png'
+            basemap_uri = "type=xyz&zmin=0&zmax=22&url=http://"+requests.utils.quote(basemap_url)
+            basemap_uri_wiki = "type=xyz&zmin=0&zmax=22&url=http://"+requests.utils.quote(basemap_url_wiki)
+            
+            rlayer_wiki= QgsRasterLayer(basemap_uri_wiki, basemap_wiki,'wms')
+            rlayer= QgsRasterLayer(basemap_uri, basemap_name,'wms')
+            
+            
+            if rlayer.isValid() and rlayer_wiki.isValid():
+                myGroup5.insertChildNode(-1, QgsLayerTreeLayer(rlayer_wiki))
+                myGroup5.insertChildNode(-1, QgsLayerTreeLayer(rlayer))
+                if self.L=='it':
+                    QgsProject.instance().addMapLayers([rlayer11,rlayer_wiki,rlayer,rlayer3,rlayer4,rlayer5,rlayer6,rlayer7,rlayer8,rlayer9,rlayer10],False)
+                else:
+                    QgsProject.instance().addMapLayers([rlayer_wiki,rlayer],False)
+        
+        else:
+            QMessageBox.warning(self, "Pyarchinit", "Internet Assente o Lento\n Non verranno caricate le Base Map", QMessageBox.Ok)
+    
     def enable_button(self, n):
         """This method Unable or Enable the GUI buttons on browse modality"""
 
@@ -890,10 +1071,10 @@ class pyarchinit_Site(QDialog, MAIN_DIALOG_CLASS):
                 QMessageBox.information(self, "Attenzione" ,"Non esiste questo sito: "'"'+ str(sito_set_str) +'"'" in questa scheda, Per favore distattiva la 'scelta sito' dalla scheda di configurazione plugin per vedere tutti i record oppure crea la scheda",QMessageBox.Ok) 
             elif self.L=='de':
             
-                QMessageBox.information(self, "Warnung" , "Es gibt keine solche archäologische Stätte: "'""'+ str(site_set_str) +'"'" in dieser Registerkarte, Bitte deaktivieren Sie die 'Site-Wahl' in der Plugin-Konfigurationsregisterkarte, um alle Datensätze zu sehen oder die Registerkarte zu erstellen",QMessageBox.Ok) 
+                QMessageBox.information(self, "Warnung" , "Es gibt keine solche archäologische Stätte: "'""'+ str(sito_set_str) +'"'" in dieser Registerkarte, Bitte deaktivieren Sie die 'Site-Wahl' in der Plugin-Konfigurationsregisterkarte, um alle Datensätze zu sehen oder die Registerkarte zu erstellen",QMessageBox.Ok) 
             else:
             
-                QMessageBox.information(self, "Warning" , "There is no such site: "'"'+ str(site_set_str) +'"'" in this tab, Please disable the 'site choice' from the plugin configuration tab to see all records or create the tab",QMessageBox.Ok)   
+                QMessageBox.information(self, "Warning" , "There is no such site: "'"'+ str(sito_set_str) +'"'" in this tab, Please disable the 'site choice' from the plugin configuration tab to see all records or create the tab",QMessageBox.Ok)   
     def on_pushButton_search_go_pressed(self):
         if self.BROWSE_STATUS != "f":
             if self.L=='it':
@@ -1261,10 +1442,453 @@ class pyarchinit_Site(QDialog, MAIN_DIALOG_CLASS):
         f = open(str(name_file), 'w')
         f.write(str(message))
         f.close()
+    def get_config(self,  key, default=''):
+        # return a config parameter
+        return self.config.value('PythonPlugins/pyarchinit/' + key, default )
 
 
+    def set_config(self,  key,  value):
+        # set a config parameter
+        return self.config.setValue('PythonPlugins/pyarchinit/' + key, value)
+
+    def reverse(self):
+        # Reverse geocoding
+        chk = self.check_settings()
+        if len(chk) :
+            QMessageBox.information(self.iface.mainWindow(), QCoreApplication.translate('pyarchinit geocoding', "pyarchinit geocoding plugin error"), chk)
+            return
+        sb = self.iface.mainWindow().statusBar()
+        sb.showMessage(QCoreApplication.translate('pyarchinit geocoding', "Click on the map to obtain the address"))
+        ct = ClickTool(self.iface,  self.reverse_action);
+        self.previous_map_tool = self.iface.mapCanvas().mapTool()
+        self.iface.mapCanvas().setMapTool(ct)
+
+
+   # change settings
+    def reverse_action(self, point):
+
+        
+        geocoder = self.get_geocoder_instance()
+
+        try:
+            # reverse lat/lon
+            self.logMessage('Reverse clicked point ' + str(point[0]) + ' ' + str(point[1]))
+            pt = pointToWGS84(point, self._get_canvas_crs())
+            self.logMessage('Reverse transformed point ' + str(pt[0]) + ' ' + str(pt[1]))
+            address = geocoder.reverse(pt[0],pt[1])
+            self.logMessage(str(address))
+            if len(address) == 0:
+                QMessageBox.information(self.iface.mainWindow(), QCoreApplication.translate('pyarchinit geocoding', "Reverse pyarchinit geocoding error"), unicode(QCoreApplication.translate('pyarchinit geocoding', "<strong>Empty result</strong>.<br>")))
+            else:
+                QMessageBox.information(self.iface.mainWindow(), QCoreApplication.translate('GeoCoding', "Reverse pyarchinit geocoding"),  unicode(QCoreApplication.translate('v', "Reverse geocoding found the following address:<br><strong>%s</strong>")) %  address[0][0])
+                # save point
+                self.save_point(point, address[0][0])
+        except Exception as e:
+            QMessageBox.information(self.iface.mainWindow(), QCoreApplication.translate('pyarchinit geocoding', "Reverse pyarchinit geocoding error"), unicode(QCoreApplication.translate('pyarchinit geocoding', "<strong>Unhandled exception</strong>.<br>%s" % e)))
+        return
+    def on_pushButton_locate_pressed(self):
+        
+        if self.previous_map_tool:
+            self.iface.mapCanvas().setMapTool(self.previous_map_tool)
+        chk = self.check_settings()
+        if len(chk) :
+            QMessageBox.information(self.iface.mainWindow(),QCoreApplication.translate('pyarchinit geocoding', "pyarchinit geocoding error"), chk)
+            return
+
+        geocoder = self.get_geocoder_instance()
+        
+        # # create and show the dialog
+        # dlg = GeoCodingDialog()
+        # # show the dialog
+        # dlg.adjustSize()
+        # dlg.show()
+        #result = DialogSita.exec_()
+        # # See if OK was pressed
+        # if result == 1 :
+        try:
+            result = geocoder.geocode(unicode(self.address.text()).encode('utf-8'))
+        except Exception as e:
+            QMessageBox.information(self.iface.mainWindow(), QCoreApplication.translate('pyarchinit geocoding', "pyarchinit geocoding plugin error"), QCoreApplication.translate('GeoCoding', "Sembra esserci un errore con il servizio geocoding:<br><strong>%s</strong>"% e+"\n\n Controlla l'indirizzo" ))
+            return
+
+        if not result:
+            QMessageBox.information(self.iface.mainWindow(), QCoreApplication.translate('pyarchinit geocoding', "Not found"), QCoreApplication.translate('pyarchinit geocoding', "Questo indirizzo non esiste: <strong>%s</strong>." % self.address.text()))
+            return
+
+        places = {}
+        for place, point in result:
+            places[place] = point
+
+        if len(places) == 1:
+            self.process_point(place, point)
+        else:
+            #all_str = QCoreApplication.translate('pyarchinit geocoding', 'Tutti')
+            place_dlg = PlaceSelectionDialog()
+            #place_dlg.placesComboBox.addItem(all_str)
+            place_dlg.placesComboBox.addItems(places.keys())
+            place_dlg.show()
+            result = place_dlg.exec_()
+            # if result == 1 :
+                # if place_dlg.placesComboBox.currentText() == 'Tutti':
+                    # for place in places:
+                        # self.process_point(place, places[place])
+                # else:
+            point = places[unicode(place_dlg.placesComboBox.currentText())]
+            self.process_point(place_dlg.placesComboBox.currentText(), point)
+        return
+    
+    def logMessage(self, msg):
+        if self.get_config('writeDebug'):
+            QgsMessageLog.logMessage(msg, 'GeoCoding')
+    def get_geocoder_instance(self):
+        """
+        Loads a concrete Geocoder class
+        """
+
+        #geocoder_class = str(self.get_config('GeocoderClass'))
+
+        #if not geocoder_class:
+        geocoder_class ='Nominatim'
+
+        #if geocoder_class == 'Nominatim':
+        return OsmGeoCoder()
+        # else:
+            # return GoogleGeoCoder(self.get_config('googleKey'))
+
+
+
+    def process_point(self, place, point):
+        """
+        Transforms the point and save
+        """
+        # lon lat and transform
+        point = QgsPoint(float(point[0]), float(point[1]))
+        point = pointFromWGS84(point, self._get_layer_crs())
+        
+        # Set the extent to our new point
+        self.canvas.setCenter(point)
+
+        scale = float(self.get_config('ZoomScale', 200))
+        # adjust scale to display correct scale in qgis
+        if scale:
+            self.canvas.zoomScale(scale)
+
+        # Refresh the map
+        self.canvas.refresh()
+        # save point
+        self.save_point(point, unicode(place))
+
+    def _get_layer_crs(self):
+        """get CRS from destination layer or from canvas if the layer does not exist"""
+        try:
+            return self.currentLayerId.crs()
+        except:
+            return self._get_canvas_crs()
+
+
+    def _get_canvas_crs(self):
+        """compat"""
+        try:
+            return self.iface.mapCanvas().mapRenderer().destinationCrs()
+        except:
+            return self.iface.mapCanvas().mapSettings().destinationCrs()
+
+    def _get_registry(self):
+        """compat"""
+        try:
+            return QgsMapLayerRegistry.instance()
+        except:
+            return QgsProject.instance()
+
+    # save point to file, point is in project's crs
+    def save_point(self, point, address):
+        try:
+            sourceLYR = QgsProject.instance().mapLayersByName('Pyrchinit localizzazione trovata')[0]
+            QgsProject.instance().removeMapLayer(sourceLYR)  
+        except:
+            pass
+        self.logMessage('Saving point ' + str(point[0])  + ' ' + str(point[1]))
+        # create and add the point layer if not exists or not set
+        if not self._get_registry().mapLayer(self.layerid) :
+            # create layer with same CRS as map canvas
+            crs = self._get_canvas_crs()
+            self.layer = QgsVectorLayer("Point?crs=" + crs.authid(), "Pyrchinit localizzazione trovata", "memory")
+            self.provider = self.layer.dataProvider()
+
+            # add fields
+            self.provider.addAttributes([QgsField("id", QVariant.Int)])
+            self.provider.addAttributes([QgsField("indirizzo", QVariant.String)])
+
+            # BUG: need to explicitly call it, should be automatic!
+            self.layer.updateFields()
+
+            # Labels on
+            try:
+                label_settings = QgsPalLayerSettings()
+                label_settings.fieldName = "sito"
+                self.layer.setLabeling(QgsVectorLayerSimpleLabeling(label_settings))
+                self.layer.setLabelsEnabled(True)
+            except:
+                self.layer.setCustomProperty("labeling", "pal")
+                self.layer.setCustomProperty("labeling/enabled", "true")
+                self.layer.setCustomProperty("labeling/fontFamily", "Arial")
+                self.layer.setCustomProperty("labeling/fontSize", "12")
+                self.layer.setCustomProperty("labeling/multilineAlign", "0" )
+                self.layer.layer.setCustomProperty("labeling/bufferDraw", True)
+                self.layer.setCustomProperty("labeling/namedStyle", "Bold")
+                self.layer.setCustomProperty("labeling/fieldName", "sito")
+                self.layer.setCustomProperty("labeling/placement", "2")
+
+            # add layer if not already
+            self._get_registry().addMapLayer(self.layer)
+
+            # store layer id
+            self.layerid = self.layer.id()
+
+
+        # add a feature
+        try:
+            fields=self.layer.pendingFields()
+        except:
+            fields=self.layer.fields()
+
+        fet = QgsFeature(fields)
+        try:
+            fet.setGeometry(QgsGeometry.fromPoint(point))
+        except:
+            fet.setGeometry(QgsGeometry.fromPointXY(QgsPointXY(point)))
+
+        try: # QGIS < 1.9
+            
+            fet.setAttributeMap({0 : 1})
+            fet.setAttributeMap({1 : address})
+        except: # QGIS >= 1.9
+            fet['id']=1
+            fet['indirizzo'] = address
+
+        self.layer.startEditing()
+        self.layer.addFeatures([ fet ])
+        self.layer.commitChanges()
+        self.canvas.refresh()
+        # res = QMessageBox.information(self, 'PyArchInit',"Vuoi settarlo come sito?\n Schiaccia ok altrimenti verrà visualizzato solo la localizzazione", QMessageBox.Ok | QMessageBox.Cancel)
+            
+        # if res==QMessageBox.Ok:
+            # conn = Connection()
+            # conn_str = conn.conn_str()
+            # conn_sqlite = conn.databasename()
+            # conn_user = conn.datauser()
+            # conn_host = conn.datahost()
+            # conn_port = conn.dataport()
+            # port_int  = conn_port["port"]
+            # port_int.replace("'", "")
+            
+
+
+            
+            # self.DB_MANAGER = Pyarchinit_db_management(conn_str)
+            # self.DB_MANAGER.connection()
+            # test_conn = conn_str.find('sqlite')
+            # if test_conn == 0:
+                # sqlite_DB_path = '{}{}{}'.format(self.HOME, os.sep,
+                                               # "pyarchinit_DB_folder")
+                # uri = QgsDataSourceUri()
+                # uri.setDatabase(sqlite_DB_path +os.sep+ conn_sqlite["db_name"])
+                # schema = ''
+                
+                    
+                # table = 'site_table'
+                
+                # uri.setDataSource(schema, table,'')
+                #sourceLYR = QgsProject.instance().mapLayersByName('Pyrchinit localizzazione trovata')[0]
+                #puntiLYR2 = QgsProject.instance().mapLayersByName('Localizzazione siti puntuale')[0]
+        layer_provider = self.layer.dataProvider()
+        layer_provider.addAttributes([QgsField("sito", QVariant.String)])     
+        layer_provider.addAttributes([QgsField("nazione", QVariant.String)])                
+        layer_provider.addAttributes([QgsField("regione", QVariant.String)])
+        layer_provider.addAttributes([QgsField("comune", QVariant.String)])
+        layer_provider.addAttributes([QgsField("descrizione", QVariant.String)])
+        layer_provider.addAttributes([QgsField("provincia", QVariant.String)])
+        
+        self.layer.updateFields()
+
+       
+        self.layer.startEditing()
+        # ID_Sito = QInputDialog.getText(None, 'Sito', 'Input Nome del sito archeologico')
+        # Sito = str(ID_Sito[0])
+        features = []
+        for f in self.layer.getFeatures():
+            s = {2: f['indirizzo'].split(',')[0]}
+            layer_provider.changeAttributeValues({f.id(): s})
+            nazione = {3: f['indirizzo'].split(',')[-1]}
+            layer_provider.changeAttributeValues({f.id(): nazione})
+            regione = {4: f['indirizzo'].split(',')[-3]}
+            layer_provider.changeAttributeValues({f.id(): regione})                    
+            comune = {5: f['indirizzo'].split(',')[1]}
+            layer_provider.changeAttributeValues({f.id(): comune})
+            provincia = {7: f['indirizzo'].split(',')[-4]}
+            layer_provider.changeAttributeValues({f.id(): provincia})
+        
+        for feature in self.layer.getFeatures():
+            
+            sito=feature.attributes()[2]
+            feature.setAttribute('sito', sito)
+            na=feature.attributes()[3]
+            feature.setAttribute('nazione', na)
+            r=feature.attributes()[4]
+            feature.setAttribute('regione', r)             
+            comune=feature.attributes()[5]
+            feature.setAttribute('comune', comune)
+            pr=feature.attributes()[6]
+            feature.setAttribute('descrizione','')
+            pr=feature.attributes()[7]
+            feature.setAttribute('provincia', pr)
+            
+            self.layer.updateFeature(feature)
+            
+            features.append(feature)
+        self.layer.commitChanges()    
+                # destLYR1 = QgsVectorLayer(uri.uri(), table, 'spatialite') 
+                # destLYR1.commitChanges()
+                # destLYR1.startEditing()
+                # data_provider = destLYR1.dataProvider()
+                # data_provider.addFeatures(features)
+                # destLYR1.commitChanges()
+                
+                # res = QMessageBox.information(self, 'PyArchInit',"Vuoi salvare il sito", QMessageBox.Ok | QMessageBox.Cancel)
+                # if res==QMessageBox.Ok:
+                    # f=[]
+                    # for feature in self.layer.getFeatures():
+                        # f.append(feature)
+                    # puntiLYR2 = QgsProject.instance().mapLayersByName('Localizzazione siti puntuale')[0]
+                    # puntiLYR2.startEditing()
+                    # data_provider2 = puntiLYR2.dataProvider()
+                    # data_provider2.addFeatures(f)
+                    # puntiLYR2.commitChanges()
+                    
+            # else:
+                # uri = QgsDataSourceUri()
+                # uri.setConnection(conn_host["host"], conn_port["port"], conn_sqlite["db_name"], conn_user['user'], conn_password['password'])
+                # schema = 'public'
+                # table = 'site_table'
+                # geom_column = ''
+                # uri.setDataSource(schema, table,geom_column)
+                # sourceLYR = QgsProject.instance().mapLayersByName('Pyrchinit localizzazione trovata')[0]
+                # puntiLYR2 = QgsProject.instance().mapLayersByName('Localizzazione siti puntuale')[0]
+                # layer_provider = sourceLYR.dataProvider()
+                # layer_provider.addAttributes([QgsField("sito", QVariant.String)])     
+                # layer_provider.addAttributes([QgsField("nazione", QVariant.String)])                
+                # layer_provider.addAttributes([QgsField("regione", QVariant.String)])
+                # layer_provider.addAttributes([QgsField("comune", QVariant.String)])
+                # layer_provider.addAttributes([QgsField("descrizione", QVariant.String)])
+                # layer_provider.addAttributes([QgsField("provincia", QVariant.String)])
+                
+                # sourceLYR.updateFields()
+
+               
+                # # sourceLYR.startEditing()
+                # # ID_Sito = QInputDialog.getText(None, 'Sito', 'Input Nome del sito archeologico')
+                # # Sito = str(ID_Sito[0])
+                # features = []
+                # for f in sourceLYR.getFeatures():
+                    # s = {1: f['indirizzo'].split(',')[0]}
+                    # layer_provider.changeAttributeValues({f.id(): s})
+                    # nazione = {2: f['indirizzo'].split(',')[-1]}
+                    # layer_provider.changeAttributeValues({f.id(): nazione})
+                    # regione = {3: f['indirizzo'].split(',')[-3]}
+                    # layer_provider.changeAttributeValues({f.id(): regione})                    
+                    # comune = {4: f['indirizzo'].split(',')[1]}
+                    # layer_provider.changeAttributeValues({f.id(): comune})
+                    # provincia = {6: f['indirizzo'].split(',')[-4]}
+                    # layer_provider.changeAttributeValues({f.id(): provincia})
+                # sourceLYR.commitChanges()    
+                # for feature in sourceLYR.getFeatures():
+                    
+                    # sito=feature.attributes()[1]
+                    # feature.setAttribute('sito', sito)            
+                    # na=feature.attributes()[2]
+                    # feature.setAttribute('nazione', na)
+                    # r=feature.attributes()[3]
+                    # feature.setAttribute('regione', r)             
+                    # comune=feature.attributes()[4]
+                    # feature.setAttribute('comune', comune)
+                    # pr=feature.attributes()[5]
+                    # feature.setAttribute('descrizione','')
+                    # pr=feature.attributes()[6]
+                    # feature.setAttribute('provincia', pr)
+                    # features.append(feature)
+                    # sourceLYR.updateFeature(feature)
+                    
+                
+                # destLYR = QgsVectorLayer(uri.uri(), table, 'postgres')    
+                # destLYR.startEditing()
+                # data_provider = destLYR.dataProvider()
+                # data_provider.addFeatures(features)
+                # destLYR.commitChanges()
+
+                # table2 = 'pyarchinit_siti'
+                # geom_column = 'the_geom'
+                # uri.setDataSource(schema, table2, geom_column)
+                # features2 = []
+                # for feature in sourceLYR.getFeatures():
+                    # features2.append(feature)
+                    # feature.setAttribute('comune', '')
+                    # feature.setAttribute('nazione', '')
+                    # sito = feature.attributes()[1]
+                    # feature.setAttribute('sito', sito)
+
+                    # sourceLYR.updateFeature(feature)
+                    
+                # #puntiLYR2 = QgsVectorLayer(uri.uri(), table2, 'spatialite')
+                # puntiLYR2.startEditing()
+                # data_provider2 = puntiLYR2.dataProvider()
+                # data_provider2.addFeatures(features2)
+                # puntiLYR2.commitChanges()
+            # destLYR1.commitChanges()
+            
+            # #QgsProject.instance().removeMapLayer(sourceLYR)          
+        # else:
+            # pass
+   
+        
+    def check_settings (self):
+        p = QgsProject.instance()
+        error = ''
+        if QT_VERSION==4:
+            if not self.iface.mapCanvas().hasCrsTransformEnabled() and self.iface.mapCanvas().mapRenderer().destinationCrs().authid() != 'EPSG:4326':
+                error = QCoreApplication.translate('pyarchinit geocoding', "On-the-fly reprojection must be enabled if the destination CRS is not EPSG:4326. Please enable on-the-fly reprojection.")
+
+        return error
 ## Class end
 
+
+def logMessage(msg):
+    if QgsSettings().value('PythonPlugins/pyarchinit/writeDebug'):
+        QgsMessageLog.logMessage(msg, 'GeoCoding')
+class GeoCodeException(Exception):
+    pass
+class OsmGeoCoder():
+
+    url = 'https://nominatim.openstreetmap.org/search?format=json&q={address}'
+    reverse_url = 'https://nominatim.openstreetmap.org/reverse?format=json&lat={lat}&lon={lon}'
+
+    def geocode(self, address):
+        try: 
+            url = self.url.format(**{'address': address.decode('utf8')})
+            logMessage(url)
+            results = json.loads(NAM.request(url, blocking=True)[1].decode('utf8'))
+            return [(rec['display_name'], (rec['lon'], rec['lat'])) for rec in results]
+        except Exception as e:
+            raise GeoCodeException(str(e))
+
+    def reverse(self, lon, lat):
+        """single result"""
+        try: 
+            url = self.reverse_url.format(**{'lon': lon, 'lat': lat})
+            logMessage(url)
+            rec = json.loads(NAM.request(url, blocking=True)[1].decode('utf8'))
+            return [(rec['display_name'], (rec['lon'], rec['lat']))]
+        except Exception as e:
+            raise GeoCodeException(str(e))
 if __name__ == "__main__":
     app = QApplication(sys.argv)
     ui = pyarchinit_US()

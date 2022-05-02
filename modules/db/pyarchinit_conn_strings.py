@@ -5,7 +5,7 @@
                              stored in Postgres
                              -------------------
     begin                : 2007-12-01
-    copyright            : (C) 2008 by Luca Mandolesi
+    copyright            : (C) 2008 by Luca Mandolesi; Enzo Cocca <enzo.ccc@gmail.com>
     email                : mandoluca at gmail.com
  ***************************************************************************/
 
@@ -52,12 +52,12 @@ class Connection(object):
         if conn_str_dict["server"] == 'postgres':
             try:
                 
-                conn_str = "%s://%s:%s@%s:%s/%s%s?charset=utf8" % (
+                conn_str = "%s://%s:%s@%s:%s/%s%s" % (
                 "postgresql", conn_str_dict["user"], conn_str_dict["password"], conn_str_dict["host"],
                 conn_str_dict["port"], conn_str_dict["db_name"], "?sslmode=allow")
                 test=True
             except:
-                #QMessageBox.warning(self, "Attenzione", 'Problema', QMessageBox.Ok)
+                QMessageBox.warning(self, "Attenzione", 'Problema', QMessageBox.Ok)
                 conn_str = "%s://%s:%s@%s:%d/%s" % (
                 "postgresql", conn_str_dict["user"], conn_str_dict["password"], conn_str_dict["host"],
                 conn_str_dict["port"], conn_str_dict["db_name"])

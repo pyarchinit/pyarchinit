@@ -6,7 +6,7 @@
                              stored in Postgres
                              -------------------
     begin                : 2007-12-01
-    copyright            : (C) 2008 by Luca Mandolesi
+    copyright            : (C) 2008 by Luca Mandolesi; Enzo Cocca <enzo.ccc@gmail.com>
     email                : mandoluca at gmail.com
  ***************************************************************************/
 
@@ -519,7 +519,7 @@ class pyarchinit_UT(QDialog, MAIN_DIALOG_CLASS):
 
     def charge_list(self):
         # lista sito
-        sito_vl = self.UTILITY.tup_2_list_III(self.DB_MANAGER.group_by('site_table', 'sito', 'SITE'))
+        sito_vl = self.UTILITY.tup_2_list_III(self.DB_MANAGER.group_by('site_table', 'progetto', 'SITE'))
         try:
             sito_vl.remove('')
         except Exception as e:
@@ -571,7 +571,7 @@ class pyarchinit_UT(QDialog, MAIN_DIALOG_CLASS):
         sito_set= conn.sito_set()
         sito_set_str = sito_set['sito_set']
         
-        if bool(self.comboBox_sito.currentText()) and self.comboBox_sito.currentText()==sito_set_str:
+        if bool(self.comboBox_progetto.currentText()) and self.comboBox_progetto.currentText()==sito_set_str:
             QMessageBox.information(self, "OK" ,"Sei connesso al sito: %s" % str(sito_set_str),QMessageBox.Ok) 
        
         elif sito_set_str=='':    
@@ -592,7 +592,7 @@ class pyarchinit_UT(QDialog, MAIN_DIALOG_CLASS):
            
             
                 search_dict = {
-                    'sito': "'" + str(sito_set_str) + "'"}  # 1 - Sito
+                    'progetto': "'" + str(sito_set_str) + "'"}  # 1 - Sito
                 u = Utility()
                 search_dict = u.remove_empty_items_fr_dict(search_dict)
                 res = self.DB_MANAGER.query_bool(search_dict, self.MAPPER_TABLE_CLASS)
@@ -609,7 +609,7 @@ class pyarchinit_UT(QDialog, MAIN_DIALOG_CLASS):
                 self.label_status.setText(self.STATUS_ITEMS[self.BROWSE_STATUS])
                 self.set_rec_counter(len(self.DATA_LIST), self.REC_CORR + 1)
 
-                self.setComboBoxEnable(["self.comboBox_sito"], "False")
+                self.setComboBoxEnable(["self.comboBox_progetto"], "False")
                 
             else:
                 
