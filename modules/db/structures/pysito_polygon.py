@@ -24,11 +24,11 @@ class pysito_polygon:
 
     # define tables check per verifica fill fields 20/10/2016 OK
     pysito_polygon = Table('pyarchinit_siti_polygonal', metadata,
-                     Column('pkuid', Integer, primary_key=True),  # 0
+                     Column('gid', Integer, primary_key=True),  # 0
                      Column('sito_id', Text),
-                     Column('the_geom', Geometry('POLYGON',-1)),
+                     Column('the_geom', Text),
                      # explicit/composite unique constraint.  'name' is optional.
-                     UniqueConstraint('pkuid')
+                     UniqueConstraint('gid')
                      )
 
     metadata.create_all(engine)

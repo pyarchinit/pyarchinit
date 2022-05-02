@@ -1,7 +1,7 @@
 '''
 Created on 19 feb 2018
 
-@author: Serena Sensini
+@author: Serena Sensini; Enzo Cocca <enzo.ccc@gmail.com>
 '''
 from sqlalchemy import Table, Column, Integer, String, Text, Numeric, MetaData, create_engine, UniqueConstraint
 
@@ -21,10 +21,10 @@ class US_table:
     us_table = Table('us_table', metadata,
                      Column('id_us', Integer, primary_key=True),  # 0
                      Column('sito', Text),  # 1
-                     Column('area', String(4)),  # 2
+                     Column('area', String(20)),  # 2
                      Column('us', Integer),  # 3
-                     Column('d_stratigrafica', String(100)),  # 4
-                     Column('d_interpretativa', String(100)),  # 5
+                     Column('d_stratigrafica', String(255)),  # 4
+                     Column('d_interpretativa', String(255)),  # 5
                      Column('descrizione', Text),  # 6
                      Column('interpretazione', Text),  # 7
                      Column('periodo_iniziale', String(4)),  # 8
@@ -134,9 +134,11 @@ class US_table:
                      Column('rifinitura_usm', Text),  #95 ok
                      Column('materiale_p', Text),  #95 ok
                      Column('consistenza_p', Text),  #95 ok
+                     Column('rapporti2', Text),  #95 ok
+                     Column('doc_usv', Text),  #95 ok
 
                      # explicit/composite unique constraint.  'name' is optional.
-                     UniqueConstraint('sito', 'area', 'us', name='ID_us_unico')
+                     UniqueConstraint('sito', 'area', 'us','unita_tipo', name='ID_us_unico')
                      )
 
     metadata.create_all(engine)

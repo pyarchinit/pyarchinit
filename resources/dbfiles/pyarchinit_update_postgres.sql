@@ -2,7 +2,7 @@ drop view if exists mediaentity_view;
 DROP TABLE IF EXISTS mediaentity_view;
 DROP VIEW IF EXISTS pyarchinit_us_view;
 DROP VIEW IF EXISTS pyarchinit_tafonomia_view;
-CREATE UNIQUE INDEX IF NOT EXISTS idx_n_reperto ON inventario_materiali_table(sito, n_reperto)
+CREATE UNIQUE INDEX IF NOT EXISTS idx_n_reperto ON inventario_materiali_table(sito, n_reperto);
 
 CREATE OR REPLACE FUNCTION delete_media_table()
   RETURNS trigger AS
@@ -309,6 +309,7 @@ CREATE OR REPLACE VIEW pyarchinit_us_view AS
     pyunitastratigrafiche.data,
     pyunitastratigrafiche.tipo_doc,
     pyunitastratigrafiche.nome_doc,
+	pyunitastratigrafiche.unita_tipo_s,
     us_table.id_us,
     us_table.sito,
 	us_table.area,
@@ -406,7 +407,7 @@ CREATE OR REPLACE VIEW pyarchinit_us_view AS
 	us_table.criteri_distinzione_usm,
 	us_table.uso_primario_usm
    FROM pyunitastratigrafiche
-     JOIN us_table ON pyunitastratigrafiche.scavo_s::text = us_table.sito AND pyunitastratigrafiche.area_s::text = us_table.area::text AND pyunitastratigrafiche.us_s = us_table.us
+     JOIN us_table ON pyunitastratigrafiche.scavo_s::text = us_table.sito AND pyunitastratigrafiche.area_s::text = us_table.area::text AND pyunitastratigrafiche.us_s = us_table.us AND pyunitastratigrafiche.unita_tipo_s = us_table.unita_tipo
   ORDER BY us_table.order_layer, pyunitastratigrafiche.stratigraph_index_us DESC, pyunitastratigrafiche.gid;
 
 ALTER TABLE pyarchinit_us_view
@@ -593,11 +594,13 @@ CREATE SEQUENCE IF NOT EXISTS public.tomba_table_id_tomba_seq
 ALTER TABLE public.tomba_table_id_tomba_seq OWNER TO postgres;
 
 ALTER TABLE ONLY public.tomba_table ALTER COLUMN id_tomba SET DEFAULT nextval('public.tomba_table_id_tomba_seq'::regclass);
-ALTER TABLE ONLY public.tomba_table ADD CONSTRAINT  "ID_tomba_unico" UNIQUE (sito, nr_scheda_taf);
-ALTER TABLE ONLY public.tomba_table ADD CONSTRAINT  tomba_table_pkey PRIMARY KEY (id_tomba);	
+ALTER TABLE ONLY public.tomba_table DROP CONSTRAINT IF EXISTS "ID_tomba_unico";
+ALTER TABLE ONLY public.tomba_table DROP CONSTRAINT IF EXISTS tomba_table_pkey;
+ALTER TABLE ONLY public.tomba_table  ADD CONSTRAINT  "ID_tomba_unico" UNIQUE (sito, nr_scheda_taf);
+ALTER TABLE ONLY public.tomba_table  ADD CONSTRAINT  tomba_table_pkey PRIMARY KEY (id_tomba);	
 	
 
-INSERT INTO tomba_table (
+/* INSERT INTO tomba_table (
             id_tomba,
 			sito,
 			nr_scheda_taf ,
@@ -649,7 +652,7 @@ INSERT INTO tomba_table (
 					datazione_estesa 
 
                   FROM tafonomia_table
-				  ON CONFLICT (sito, nr_scheda_taf) DO NOTHING;
+				  ON CONFLICT (sito, nr_scheda_taf) DO NOTHING; */
 				  
 				  
 /* INSERT INTO individui_table (
@@ -691,6 +694,115 @@ INSERT INTO tomba_table (
 				  /* ON CONFLICT (id_scheda_ind,nr_individuo) DO UPDATE
 				  set sito=EXCLUDED.sito, nr_individuo=EXCLUDED.nr_individuo; */
 				  
+
+CREATE SEQUENCE IF NOT EXISTS public.pyarchinit_quote_usm_gid_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+ALTER TABLE public.pyarchinit_quote_usm_gid_seq OWNER TO postgres;
+
+
+CREATE TABLE IF NOT EXISTS public.pyarchinit_quote_usm (
+    gid integer DEFAULT nextval('public.pyarchinit_quote_usm_gid_seq'::regclass) NOT NULL,
+    sito_q character varying(80),
+    area_q integer,
+    us_q integer,
+    unita_misu_q character varying(80),
+    quota_q double precision,
+    the_geom public.geometry(Point,-1),
+    data character varying,
+    disegnatore character varying,
+    rilievo_originale character varying,
+	unita_tipo_q character varying(250),
+	CONSTRAINT pyarchinit_quote_usm_pkey PRIMARY KEY (gid)
+)
+WITH (
+    OIDS = FALSE
+)
+TABLESPACE pg_default;
+
+
+
+ALTER TABLE public.pyarchinit_quote_usm OWNER TO postgres;
+
+
+CREATE SEQUENCE IF NOT EXISTS public.pyunitastratigrafiche_usm_gid_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+ALTER TABLE public.pyunitastratigrafiche_usm_gid_seq OWNER TO postgres;
+
+CREATE TABLE IF NOT EXISTS public.pyunitastratigrafiche_usm (
+    gid integer DEFAULT nextval('public.pyunitastratigrafiche_usm_gid_seq'::regclass) NOT NULL,
+    area_s integer,
+    scavo_s character varying(80),
+    us_s integer,
+    stratigraph_index_us integer,
+    tipo_us_s character varying(250),
+    rilievo_originale character varying(250),
+    disegnatore character varying(250),
+    data date,
+    tipo_doc character varying(250),
+    nome_doc character varying(250),
+	coord text,	
+	the_geom public.geometry(MultiPolygon,-1),
+	unita_tipo_s character varying(250),
+    CONSTRAINT pyunitastratigrafiche_usm_pkey PRIMARY KEY (gid)
+)
+WITH (
+    OIDS = FALSE
+)
+TABLESPACE pg_default;
+
+
+ALTER TABLE public.pyunitastratigrafiche_usm OWNER TO postgres;
+
+
+
+CREATE OR REPLACE VIEW public.pyarchinit_strutture_view AS
+ SELECT a.gid,
+    a.sito,
+    a.id_strutt,
+    a.per_iniz,
+    a.per_fin,
+    a.dataz_ext,
+    a.fase_iniz,
+    a.fase_fin,
+    a.descrizione,
+    a.the_geom,
+    a.sigla_strut,
+    a.nr_strut,
+    b.id_struttura,
+    b.sito AS sito_1,
+    b.sigla_struttura,
+    b.numero_struttura,
+    b.categoria_struttura,
+    b.tipologia_struttura,
+    b.definizione_struttura,
+    b.descrizione AS descrizione_1,
+    b.interpretazione,
+    b.periodo_iniziale,
+    b.fase_iniziale,
+    b.periodo_finale,
+    b.fase_finale,
+    b.datazione_estesa,
+    b.materiali_impiegati,
+    b.elementi_strutturali,
+    b.rapporti_struttura,
+    b.misure_struttura
+   FROM pyarchinit_strutture_ipotesi a
+     JOIN struttura_table b ON a.sito::text = b.sito AND a.sigla_strut::text = b.sigla_struttura AND a.nr_strut = b.numero_struttura;
+
+ALTER TABLE public.pyarchinit_strutture_view
+    OWNER TO postgres;
 CREATE OR REPLACE VIEW public.pyarchinit_individui_view AS
  SELECT pyarchinit_individui.gid,
     pyarchinit_individui.the_geom,
@@ -770,4 +882,153 @@ FROM pyarchinit_sezioni
 JOIN documentazione_table  ON pyarchinit_sezioni.sito::text=documentazione_table.sito and pyarchinit_sezioni.tipo_doc::text=documentazione_table.tipo_documentazione and pyarchinit_sezioni.nome_doc::text=documentazione_table.nome_doc;
 ALTER TABLE pyarchinit_sezioni_view
     OWNER TO postgres;
-		
+
+
+
+CREATE OR REPLACE VIEW public.pyarchinit_usm_view AS
+ SELECT pyunitastratigrafiche_usm.gid,
+    pyunitastratigrafiche_usm.the_geom,
+    pyunitastratigrafiche_usm.area_s,
+	pyunitastratigrafiche_usm.scavo_s,
+    pyunitastratigrafiche_usm.us_s,
+    pyunitastratigrafiche_usm.stratigraph_index_us,
+    pyunitastratigrafiche_usm.tipo_us_s,
+	pyunitastratigrafiche_usm.rilievo_originale,
+    pyunitastratigrafiche_usm.disegnatore,
+    pyunitastratigrafiche_usm.data,
+    pyunitastratigrafiche_usm.tipo_doc,
+    pyunitastratigrafiche_usm.nome_doc,
+	pyunitastratigrafiche_usm.unita_tipo_s,
+    us_table.id_us,
+    us_table.sito,
+	us_table.area,
+	us_table.us,
+	us_table.d_stratigrafica,
+	us_table.d_interpretativa,
+	us_table.descrizione,
+	us_table.interpretazione,
+	us_table.periodo_iniziale,
+	us_table.fase_iniziale,
+	us_table.periodo_finale,
+	us_table.fase_finale,
+	us_table.scavato,
+	us_table.attivita,
+	us_table.anno_scavo,
+	us_table.metodo_di_scavo,
+	us_table.inclusi,
+	us_table.campioni,
+	us_table.rapporti,
+	us_table.data_schedatura,
+	us_table.schedatore,
+	us_table.formazione,
+	us_table.stato_di_conservazione,
+	us_table.colore,
+	us_table.consistenza,
+	us_table.struttura,
+	us_table.cont_per,
+	us_table.order_layer,
+	us_table.documentazione,
+	us_table.unita_tipo,
+	us_table.settore,
+	us_table.quad_par,
+	us_table.ambient,
+	us_table.saggio,
+	us_table.elem_datanti,
+	us_table.funz_statica,
+	us_table.lavorazione,
+	us_table.spess_giunti,
+	us_table.letti_posa,
+	us_table.alt_mod,
+	us_table.un_ed_riass,
+	us_table.reimp,
+	us_table.posa_opera,
+	us_table.quota_min_usm,
+	us_table.quota_max_usm,
+	us_table.cons_legante,
+	us_table.col_legante,
+	us_table.aggreg_legante,
+	us_table.con_text_mat,
+	us_table.col_materiale,
+	us_table.inclusi_materiali_usm,
+	us_table.n_catalogo_generale,
+	us_table.n_catalogo_interno,
+	us_table.n_catalogo_internazionale,
+	us_table.soprintendenza,
+	us_table.quota_relativa,
+	us_table.quota_abs,
+	us_table.ref_tm,
+	us_table.ref_ra,
+	us_table.ref_n,
+	us_table.posizione,
+	us_table.criteri_distinzione,
+	us_table.modo_formazione,
+	us_table.componenti_organici,
+	us_table.componenti_inorganici,
+	us_table.lunghezza_max,
+	us_table.altezza_max,
+	us_table.altezza_min,
+	us_table.profondita_max,
+	us_table.profondita_min,
+	us_table.larghezza_media,
+	us_table.quota_max_abs,
+	us_table.quota_max_rel,
+	us_table.quota_min_abs,
+	us_table.quota_min_rel,
+	us_table.osservazioni,
+	us_table.datazione,
+	us_table.flottazione,
+	us_table.setacciatura,
+	us_table.affidabilita,
+	us_table.direttore_us,
+	us_table.responsabile_us,
+	us_table.cod_ente_schedatore,
+	us_table.data_rilevazione,
+	us_table.data_rielaborazione,
+	us_table.lunghezza_usm,
+	us_table.altezza_usm,
+	us_table.spessore_usm,
+	us_table.tecnica_muraria_usm,
+	us_table.modulo_usm,
+	us_table.campioni_malta_usm,
+	us_table.campioni_mattone_usm,
+	us_table.campioni_pietra_usm,
+	us_table.provenienza_materiali_usm,
+	us_table.criteri_distinzione_usm,
+	us_table.uso_primario_usm
+   FROM pyunitastratigrafiche_usm
+     JOIN us_table ON pyunitastratigrafiche_usm.scavo_s::text = us_table.sito AND pyunitastratigrafiche_usm.area_s::text = us_table.area::text AND pyunitastratigrafiche_usm.us_s = us_table.us AND pyunitastratigrafiche_usm.unita_tipo_s::text = us_table.unita_tipo::text
+  ORDER BY us_table.order_layer, pyunitastratigrafiche_usm.stratigraph_index_us DESC, pyunitastratigrafiche_usm.gid;
+
+ALTER TABLE public.pyarchinit_usm_view
+    OWNER TO postgres;
+
+CREATE OR REPLACE VIEW public.pyarchinit_quote_usm_view AS
+ SELECT pyarchinit_quote_usm.gid,
+    pyarchinit_quote_usm.sito_q,
+    pyarchinit_quote_usm.area_q,
+    pyarchinit_quote_usm.us_q,
+    pyarchinit_quote_usm.unita_misu_q,
+    pyarchinit_quote_usm.quota_q,	
+    pyarchinit_quote_usm.the_geom,
+	pyarchinit_quote_usm.unita_tipo_q,	
+    us_table.id_us,
+    us_table.sito,
+    us_table.area,
+    us_table.us,
+    us_table.struttura,
+    us_table.d_stratigrafica,
+    us_table.d_interpretativa,
+    us_table.descrizione,
+    us_table.interpretazione,
+    us_table.rapporti,
+    us_table.periodo_iniziale,
+    us_table.fase_iniziale,
+    us_table.periodo_finale,
+    us_table.fase_finale,
+    us_table.anno_scavo,
+    us_table.cont_per
+   FROM pyarchinit_quote_usm
+     JOIN us_table ON pyarchinit_quote_usm.sito_q::text = us_table.sito AND pyarchinit_quote_usm.area_q::text = us_table.area::text AND pyarchinit_quote_usm.us_q::text = us_table.us::text AND pyarchinit_quote_usm.unita_tipo_q::text = us_table.unita_tipo::text ;
+
+ALTER TABLE public.pyarchinit_quote_usm_view
+    OWNER TO postgres;	

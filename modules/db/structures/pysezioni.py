@@ -24,17 +24,17 @@ class pysezioni:
     try:
         # define tables check per verifica fill fields 20/10/2016 OK
         pysezioni = Table('pyarchinit_sezioni', metadata,
-                         Column('id', Integer, primary_key=True),  # 0
+                         Column('gid', Integer, primary_key=True),  # 0
                          Column('id_sezione', Text),
                          Column('sito', Text),
                          Column('area', Integer),
                          Column('descr', Text),
                          
-                         Column('the_geom', Geometry('LINESTRING',-1)),
+                         Column('the_geom', Text),
                          Column('tipo_doc', Text),
                          Column('nome_doc', Text),
                          # explicit/composite unique constraint.  'name' is optional.
-                         UniqueConstraint('id')
+                         UniqueConstraint('gid')
                          )
     except:
         pass

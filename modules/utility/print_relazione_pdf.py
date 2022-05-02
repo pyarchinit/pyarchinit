@@ -6,7 +6,7 @@
                              stored in Postgres
                              -------------------
     begin                : 2007-12-01
-    copyright            : (C) 2008 by Luca Mandolesi
+    copyright            : (C) 2008 by Luca Mandolesi; Enzo Cocca <enzo.ccc@gmail.com>
     email                : mandoluca at gmail.com
  ***************************************************************************/
 
@@ -181,7 +181,7 @@ class exp_rel_pdf(object):
         canvas.saveState()
         canvas.setFont('Times-Bold', 16)
         canvas.drawCentredString(self.PAGE_WIDTH / 2.0, self.PAGE_HEIGHT - 108, str(self.SITO).replace("_",' '))
-        canvas.setFont('Times-Roman', 9)
+        canvas.setFont('Cambria', 9)
         canvas.drawString(inch, 0.75 * inch, "First Page / %s" % self.pageinfo)
         canvas.restoreState()
 

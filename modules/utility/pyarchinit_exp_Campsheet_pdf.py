@@ -1,3 +1,4 @@
+
 #! /usr/bin/env python
 # -*- coding: utf-8 -*-
 """
@@ -1438,3 +1439,5 @@ class generate_campioni_pdf(object):
                                 leftMargin=20, rightMargin=20)
         doc.build(elements)
         f.close()   
+
+

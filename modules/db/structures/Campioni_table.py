@@ -1,7 +1,7 @@
 '''
 Created on 15 feb 2018
 
-@author: Serena Sensini
+@author: Serena Sensini; Enzo Cocca <enzo.ccc@gmail.com>
 '''
 from sqlalchemy import Table, Column, Integer, String, Text, MetaData, create_engine, UniqueConstraint
 
@@ -24,7 +24,7 @@ class Campioni_table:
                            Column('nr_campione', Integer),
                            Column('tipo_campione', Text),
                            Column('descrizione', Text),
-                           Column('area', String(4)),
+                           Column('area', String(20)),
                            Column('us', Integer),
                            Column('numero_inventario_materiale', Integer),
                            Column('nr_cassa', Integer),

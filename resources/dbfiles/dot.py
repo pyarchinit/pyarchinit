@@ -1,26 +1,24 @@
-# coding: latin-1
-# Copyright (c) 2009,2010,2011,2012,2013,2014 Dirk Baechle.
-# www: https://bitbucket.org/dirkbaechle/dottoxml
-# mail: dl9obn AT darc.de
-#
-# This program is free software; you can redistribute it and/or modify it under
-# the terms of the GNU General Public License as published by the Free Software
-# Foundation; either version 2 of the License, or (at your option) any later
-# version.
-#
-# This program is distributed in the hope that it will be useful, but WITHOUT
-# ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
-# FOR A PARTICULAR PURPOSE. See the GNU General Public License for more details.
-#
-# You should have received a copy of the GNU General Public License along with
-# this program; if not, write to the Free Software Foundation, Inc.,
-# 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
+#! /usr/bin/env python
+# -*- coding: utf 8 -*-
 """
-  Helper classes and functions for the dottoxml.py tool
-"""
+/***************************************************************************
+        pyArchInit Plugin  - A QGIS plugin to manage archaeological dataset
+                             stored in Postgres
+                             -------------------
+    begin                : 2021-12-01
+    copyright            : Enzo Cocca <enzo.ccc@gmail.com>
 
+ ***************************************************************************/
+/***************************************************************************
+ *                                                                          *
+ *   This program is free software; you can redistribute it and/or modify   *
+ *   it under the terms of the GNU General Public License as published by   *
+ *   the Free Software Foundation; either version 2 of the License, or      *
+ *   (at your option) any later version.                                    *                                                                       *
+ ***************************************************************************/
+"""
 import re
-
+import random
 import X11Colors
 
 r_label = re.compile(r'label\s*=\s*"\s*\{[^\}]*\}\s*"\s*')
@@ -214,10 +212,9 @@ class Node:
         self.attribs = {}
         self.referenced = False
         self.sections = []
-    # def listToString(list):
-    # """ converte la lista in stringa"""    
-        # str1 = " "
-        # return (str1.join(list))
+        self.x=0.0
+        self.y=0.0
+    
     def initFromString(self, line):
         """ extract node info from the given text line """
         spos = findUnquoted(line, '[')
@@ -327,90 +324,547 @@ class Node:
         o.write("    label\n")
         o.write("    \"%s\"\n" % self.getLabel(conf).encode(latinenc, errors="ignore"))
         o.write("  ]\n")
+    
+    def get_y(self,epoch, nome_us) :
+        index=0
+        y_value=0
+        while index <len(epoch):
+            if epoch[index] in nome_us:
+                #if nome_ex.startswith(epoch[index]):
+                y_value=(index)*1000
 
-    def exportGraphml(self, doc, parent, conf):        
+            index+=1
+            #print(str(y_value))
+        return y_value
+    
+    def exportGraphml(self, doc, parent, conf, epoch_sigla):        
         """ export the node in Graphml format and append it to the parent XML node """
+        graph1 = doc.createElement('graph')
+        graph1.setAttribute('edgedefault','directed')    
+        graph1.setAttribute('id','n0:')     
         node = doc.createElement('node')
-        node.setAttribute('id','n%d' % self.id)
-        #node.setAttribute('yfiles.foldertype','group')
+        node.setAttribute('id','n0::n%d' % self.id)
         data0 = doc.createElement('data')
-        data0.setAttribute('key', 'd5')
-
+        data0.setAttribute('key', 'd6')
         snode = doc.createElement('y:ShapeNode')
-        geom = doc.createElement('y:Geometry')
-        geom.setAttribute('height','30.0')
-        geom.setAttribute('width','90.0')
-        geom.setAttribute('x','0.0')
-        geom.setAttribute('y','0.0')
-        snode.appendChild(geom)
-       
-        fill = doc.createElement('y:Fill')
-        fill.setAttribute('color','#ffffff')
-        fill.setAttribute('transparent','false')
-        snode.appendChild(fill)
-        border = doc.createElement('y:BorderStyle')
-        border.setAttribute('color','#000000')
-        border.setAttribute('type','line')
-        border.setAttribute('width','1.0')
-        snode.appendChild(border)
-        color = getColorAttribute(self.attribs, 'fontcolor', conf.DefaultNodeTextColor, conf)        
-        
-        label = doc.createElement('y:NodeLabel')
-        label.setAttribute('alignment','center')
-        label.setAttribute('autoSizePolicy','content')
-        label.setAttribute('fontFamily','Dialog')
-        label.setAttribute('fontSize','12')
-        label.setAttribute('fontStyle','plain')
-        label.setAttribute('hasBackgroundColor','false')
-        label.setAttribute('hasLineColor','false')
-        label.setAttribute('modelName','custom')
-        label.setAttribute('modelPosition','c')
-        label.setAttribute('textColor','%s' % color)
-        label.setAttribute('visible','true')
-        label.setAttribute('width','80.0')
-        label.setAttribute('x','0.0')
-        label.setAttribute('xml:space','preserve')
-        label.setAttribute('y','0.0')
+        shape = doc.createElement('y:Shape')
+        #labal in description#
+        LabelText = self.getLabel(conf, True)
+        #label in generic info#
         nodeLabelText = escapeNewlines(self.getLabel(conf, True))
-        a = nodeLabelText.rsplit('_',)[0]
-       
-        label.appendChild(doc.createTextNode('{}'.format(a)))        
-        labelz = doc.createElement('y:LabelModel')
-        labelz1 = doc.createElement('y:SmartNodeLabelModel')
-        labelz1.setAttribute('distance','4.0')
+        a = nodeLabelText.rsplit('_',)[0]        
         
-        labelz2 = doc.createElement('y:ModelParameter')
-        labelz3 = doc.createElement('y:SmartNodeLabelModelParameter')
-        labelz3.setAttribute('labelRatioX','0.0')
-        labelz3.setAttribute('labelRatioY','0.0')
-        labelz3.setAttribute('nodeRatioX','0.0')
-        labelz3.setAttribute('nodeRatioY','0.0' )
-        labelz3.setAttribute('offsetX','0.0')
-        labelz3.setAttribute('offsetY','0.0')
-        labelz3.setAttribute('upX','0.0')
-        labelz3.setAttribute('upY','-1.0')
+        data1 = doc.createElement('data')
+        geom = doc.createElement('y:Geometry')
+        #elementi per  il DOC#
+        generic_node=doc.createElement('y:GenericNode')
+        style_prop=doc.createElement('y:StyleProperties')
+        style_prop2=doc.createElement('y:StyleProperties')
+        prop=doc.createElement('y:Property')
+        prop1=doc.createElement('y:Property')
+        prop2=doc.createElement('y:Property')
+        prop3=doc.createElement('y:Property')
+        prop4=doc.createElement('y:Property')
+        prop5=doc.createElement('y:Property')
         
-        snode.appendChild(labelz3)
-        snode.appendChild(labelz2)
-        snode.appendChild(labelz1)
-        snode.appendChild(labelz)
+        
+        svg_node=doc.createElement('y:SVGNode')
+        svg_node_p=doc.createElement('y:SVGNodeProperties')
+        svg_model=doc.createElement('y:SVGModel')
+        svg_content=doc.createElement('y:SVGContent')
+        if 'DOC' in a:
+            snode=generic_node
+            snode.setAttribute('configuration','com.yworks.bpmn.Artifact.withShadow')
+        if 'property' in a:
+            snode=generic_node
+            snode.setAttribute('configuration','com.yworks.bpmn.Artifact.withShadow')
+        if 'Combinar' in a:
+            snode=svg_node
+        if 'Extractor' in a:
+            snode=svg_node
+        if 'CON' in a:        
+            snode=svg_node
+            geom.setAttribute('height','26.0')
+            geom.setAttribute('width','26.0')        
+        elif 'DOC' in a:        
+            geom.setAttribute('height','55.0')
+            geom.setAttribute('width','35.0')    
+        elif 'Extractor' in a :
+            geom.setAttribute('height','25.0')
+            geom.setAttribute('width','25.0') 
+        elif 'Combinar' in a :
+            geom.setAttribute('height','25.0')
+            geom.setAttribute('width','25.0')         
+        else:
+            geom.setAttribute('height','30.0')
+            geom.setAttribute('width','90.0')
+        
+        geom.setAttribute('x','520.0')
+        geom.setAttribute('y','%r'% self.get_y(epoch_sigla, LabelText))
+        
+        snode.appendChild(geom)
+        
+        fill = doc.createElement('y:Fill')
+        border = doc.createElement('y:BorderStyle')
+        #elementi per  il property#
+        la=doc.createElement('y:LabelModel')
+        sn=doc.createElement('y:SmartNodeLabelModel')
+        mp=doc.createElement('y:ModelParameter')
+        mps=doc.createElement('y:SmartNodeLabelModelParameter')
+        label = doc.createElement('y:NodeLabel')
+        bb = LabelText.rsplit('_',)[:-1]        
+        b = ' '.join(map(str, bb))
+        
+        
+        if a.startswith('CON'):       
+            
+            label.appendChild(doc.createTextNode('{}'.format(a)))
+        elif a.startswith('property'):   
+            a=b
+            l =' '.join(a.split()[1:2])
+            label.appendChild(doc.createTextNode(l))
+        
+        
+        elif a.startswith('DOC'):   
+            
+            ##inserisco il punto prima dell'ultimo carattere(questo sognifica che i doc non devono essere più di 9 per estrattore)###
+            a=a[:-1] + "."+a[-1:]
+            ##scrivo il nome della doc cambiando le iniziali DOC in D.###
+            label.appendChild(doc.createTextNode('{}'.format(a).replace('DOC','D.')))
+        
+        else:
+            label.appendChild(doc.createTextNode('{}'.format(a).replace('USVA','USV').replace('USVB','USV').replace('USVC','USV').replace('USVD','USV').replace('Extractor','D.').replace('Combinar','C.')))     
+        if 'USV' in a:    
+            
+            fill.setAttribute('color','#000000')
+            fill.setAttribute('transparent','false')
+            border.setAttribute('color','#000000')
+            border.setAttribute('type','line')
+            border.setAttribute('width','1.0')
+            label.setAttribute('alignment','center')
+            label.setAttribute('autoSizePolicy','content')
+            label.setAttribute('fontFamily','Dialog')
+            label.setAttribute('fontSize','12')
+            label.setAttribute('fontStyle','plain')
+            label.setAttribute('hasBackgroundColor','false')
+            label.setAttribute('hasLineColor','false')
+            label.setAttribute('height','18.701171875')
+            label.setAttribute('horizontalTextPosition','center')
+            label.setAttribute('iconTextGap','4')
+            label.setAttribute('modelName','custom')
+            label.setAttribute('modelPosition','c')
+            label.setAttribute('textColor','#FFFFFF')
+            label.setAttribute('visible','true')
+            label.setAttribute('width','34.017578125')
+            label.setAttribute('x','27.9912109375')
+            label.setAttribute('xml:space','preserve')
+            label.setAttribute('y','5.6494140625')
+        
+        elif 'USM' in a:
+            
+            fill.setAttribute('color','#C0C0C0')
+            fill.setAttribute('transparent','false')
+            border.setAttribute('color','#000000')
+            border.setAttribute('type','line')
+            border.setAttribute('width','1.0')
+            label.setAttribute('alignment','center')
+            label.setAttribute('autoSizePolicy','content')
+            label.setAttribute('fontFamily','DialogInput')
+            label.setAttribute('fontSize','24')
+            label.setAttribute('fontStyle','bold')
+            label.setAttribute('hasBackgroundColor','false')
+            label.setAttribute('hasLineColor','false')
+            label.setAttribute('height','18.701171875')
+            label.setAttribute('horizontalTextPosition','center')
+            label.setAttribute('iconTextGap','4')
+            label.setAttribute('modelName','internal')
+            label.setAttribute('modelPosition','c')
+            label.setAttribute('textColor','#000000')
+            label.setAttribute('visible','true')
+            label.setAttribute('width','34.017578125')
+            label.setAttribute('x','27.9912109375')
+            label.setAttribute('xml:space','preserve')
+            label.setAttribute('y','5.6494140625')
+        
+        elif 'US' in a:
+            
+            fill.setAttribute('color','#FFFFFF')
+            fill.setAttribute('transparent','false')
+            border.setAttribute('color','#000000')
+            border.setAttribute('type','line')
+            border.setAttribute('width','1.0')
+            label.setAttribute('alignment','center')
+            label.setAttribute('autoSizePolicy','content')
+            label.setAttribute('fontFamily','DialogInput')
+            label.setAttribute('fontSize','24')
+            label.setAttribute('fontStyle','bold')
+            label.setAttribute('hasBackgroundColor','false')
+            label.setAttribute('hasLineColor','false')
+            label.setAttribute('height','18.701171875')
+            label.setAttribute('horizontalTextPosition','center')
+            label.setAttribute('iconTextGap','4')
+            label.setAttribute('modelName','internal')
+            label.setAttribute('modelPosition','c')
+            label.setAttribute('textColor','#000000')
+            label.setAttribute('visible','true')
+            label.setAttribute('width','34.017578125')
+            label.setAttribute('x','27.9912109375')
+            label.setAttribute('xml:space','preserve')
+            label.setAttribute('y','5.6494140625')
+        
+        
+        
+        elif 'CON' in a:
+            
+            fill.setAttribute('color','#000000')
+            fill.setAttribute('transparent','false')
+            border.setAttribute('color','#000000')
+            border.setAttribute('type','line')
+            border.setAttribute('width','1.0')
+            label.setAttribute('alignment','center')
+            label.setAttribute('autoSizePolicy','content')
+            label.setAttribute('fontFamily','Dialog')
+            label.setAttribute('fontSize','0')
+            label.setAttribute('fontStyle','plain')
+            label.setAttribute('hasBackgroundColor','false')
+            label.setAttribute('hasLineColor','false')
+            label.setAttribute('height','18.701171875')
+            label.setAttribute('horizontalTextPosition','center')
+            label.setAttribute('iconTextGap','4')
+            label.setAttribute('modelName','sandwich')
+            label.setAttribute('modelPosition','s')
+            label.setAttribute('textColor','#000000')
+            label.setAttribute('visible','true')
+            label.setAttribute('width','34.017578125')
+            label.setAttribute('x','27.9912109375')
+            label.setAttribute('xml:space','preserve')
+            label.setAttribute('y','5.6494140625')
+            
+        elif 'SF' in a:            
+            fill.setAttribute('color','#FFFFFF')
+            fill.setAttribute('transparent','false')
+            border.setAttribute('color','#000000')
+            border.setAttribute('type','line')
+            border.setAttribute('width','1.0')
+            label.setAttribute('alignment','center')
+            label.setAttribute('autoSizePolicy','content')
+            label.setAttribute('fontFamily','DialogInput')
+            label.setAttribute('fontSize','12')
+            label.setAttribute('fontStyle','bold')
+            label.setAttribute('hasBackgroundColor','false')
+            label.setAttribute('hasLineColor','false')
+            label.setAttribute('height','18.701171875')
+            label.setAttribute('horizontalTextPosition','center')
+            label.setAttribute('iconTextGap','4')
+            label.setAttribute('modelName','internal')
+            label.setAttribute('modelPosition','c')
+            label.setAttribute('textColor','#000000')
+            label.setAttribute('visible','true')
+            label.setAttribute('width','34.017578125')
+            label.setAttribute('x','27.9912109375')
+            label.setAttribute('xml:space','preserve')
+            label.setAttribute('y','5.6494140625')
+        
+        elif 'SUS' in a:            
+            fill.setAttribute('color','#FFFFFF')
+            fill.setAttribute('transparent','false')
+            border.setAttribute('color','#000000')
+            border.setAttribute('type','line')
+            border.setAttribute('width','1.0')
+            label.setAttribute('alignment','center')
+            label.setAttribute('autoSizePolicy','content')
+            label.setAttribute('fontFamily','DialogInput')
+            label.setAttribute('fontSize','12')
+            label.setAttribute('fontStyle','bold')
+            label.setAttribute('hasBackgroundColor','false')
+            label.setAttribute('hasLineColor','false')
+            label.setAttribute('height','18.701171875')
+            label.setAttribute('horizontalTextPosition','center')
+            label.setAttribute('iconTextGap','4')
+            label.setAttribute('modelName','internal')
+            label.setAttribute('modelPosition','c')
+            label.setAttribute('textColor','#000000')
+            label.setAttribute('visible','true')
+            label.setAttribute('width','34.017578125')
+            label.setAttribute('x','27.9912109375')
+            label.setAttribute('xml:space','preserve')
+            label.setAttribute('y','5.6494140625')
+        
+        elif 'Extractor' in a:            
+            fill.setAttribute('color','#CCCCFF')
+            fill.setAttribute('transparent','false')
+            border.setAttribute('color','#000000')
+            border.setAttribute('type','line')
+            border.setAttribute('width','1.0')
+            label.setAttribute('alignment','center')
+            label.setAttribute('autoSizePolicy','content')
+            label.setAttribute('borderDistance','0.0')
+            label.setAttribute('fontFamily','Dialog')
+            label.setAttribute('fontSize','10')
+            label.setAttribute('fontStyle','plain')
+            label.setAttribute('hasBackgroundColor','false')
+            label.setAttribute('hasLineColor','false')
+            label.setAttribute('height','18.701171875')
+            label.setAttribute('horizontalTextPosition','center')
+            label.setAttribute('iconTextGap','4')
+            label.setAttribute('modelName','corners')
+            label.setAttribute('modelPosition','nw')
+            label.setAttribute('textColor','#000000')
+            label.setAttribute('underlinedText','true')
+            label.setAttribute('verticalTextPosition','bottom')
+            label.setAttribute('visible','true')
+            label.setAttribute('width','34.017578125')
+            label.setAttribute('x','27.9912109375')
+            label.setAttribute('xml:space','preserve')
+            label.setAttribute('y','5.6494140625')
+            
+        elif 'Combinar' in a:    
+            fill.setAttribute('color','#CCCCFF')
+            fill.setAttribute('transparent','false')
+            border.setAttribute('color','#000000')
+            border.setAttribute('type','line')
+            border.setAttribute('width','1.0')
+            label.setAttribute('alignment','center')
+            label.setAttribute('autoSizePolicy','content')
+            label.setAttribute('borderDistance','0.0')
+            label.setAttribute('fontFamily','Dialog')
+            label.setAttribute('fontSize','10')
+            label.setAttribute('fontStyle','plain')
+            label.setAttribute('hasBackgroundColor','false')
+            label.setAttribute('hasLineColor','false')
+            label.setAttribute('height','18.701171875')
+            label.setAttribute('horizontalTextPosition','center')
+            label.setAttribute('iconTextGap','4')
+            label.setAttribute('modelName','corners')
+            label.setAttribute('modelPosition','nw')
+            label.setAttribute('textColor','#000000')
+            label.setAttribute('underlinedText','true')
+            label.setAttribute('verticalTextPosition','bottom')
+            label.setAttribute('visible','true')
+            label.setAttribute('width','34.017578125')
+            label.setAttribute('x','27.9912109375')
+            label.setAttribute('xml:space','preserve')
+            label.setAttribute('y','5.6494140625')
+        
+        elif 'DOC' in a:    
+            
+            fill.setAttribute('color','#FFFFFF')
+            fill.setAttribute('transparent','false')
+            border.setAttribute('color','#000000')
+            border.setAttribute('type','line')
+            border.setAttribute('width','1.0')
+            label.setAttribute('alignment','center')
+            label.setAttribute('autoSizePolicy','content')
+            label.setAttribute('fontFamily','DialogInput')
+            label.setAttribute('fontSize','12')
+            label.setAttribute('fontStyle','bold')
+            label.setAttribute('hasBackgroundColor','false')
+            label.setAttribute('hasLineColor','false')
+            label.setAttribute('height','18.701171875')
+            label.setAttribute('horizontalTextPosition','center')
+            label.setAttribute('iconTextGap','4')
+            label.setAttribute('modelName','internal')
+            label.setAttribute('modelPosition','c')
+            label.setAttribute('textColor','#000000')
+            label.setAttribute('visible','true')
+            label.setAttribute('width','34.017578125')
+            label.setAttribute('x','27.9912109375')
+            label.setAttribute('xml:space','preserve')
+            label.setAttribute('y','5.6494140625')
+        
+        elif 'property' in a:    
+            
+            fill.setAttribute('color','#FFFFFFE6')
+            fill.setAttribute('transparent','false')
+            
+            border.setAttribute('color','#000000')
+            border.setAttribute('type','line')
+            border.setAttribute('width','1.0')
+            
+            label.setAttribute('alignment','center')
+            label.setAttribute('autoSizePolicy','content')
+            label.setAttribute('fontFamily','DialogInput')
+            label.setAttribute('fontSize','12')
+            label.setAttribute('fontStyle','plain')
+            label.setAttribute('hasBackgroundColor','false')
+            label.setAttribute('hasLineColor','false')
+            label.setAttribute('height','18.701171875')
+            label.setAttribute('horizontalTextPosition','center')
+            label.setAttribute('iconTextGap','4')
+            label.setAttribute('modelName','internal')
+            label.setAttribute('modelPosition','c')
+            label.setAttribute('textColor','#000000')
+            label.setAttribute('verticalTextPosition','bottom')
+            label.setAttribute('visible','true')
+            label.setAttribute('width','34.017578125')
+            label.setAttribute('x','27.9912109375')
+            label.setAttribute('xml:space','preserve')
+            label.setAttribute('y','5.6494140625')
+            
+        snode.appendChild(fill)
+        snode.appendChild(border)           
+        
         snode.appendChild(label)
         
-        shape = doc.createElement('y:Shape')
-        shape.setAttribute('type','rectangle')
-        snode.appendChild(shape)
+        
+        
+        if 'USVA' in a:         
+            shape.setAttribute('type','parallelogram')
+            snode.appendChild(shape)
+        elif 'USVB' in a:
+            
+            shape.setAttribute('type','hexagon')
+            snode.appendChild(shape)
+        elif 'USVC' in a:
+            
+            shape.setAttribute('type','ellipse')
+            snode.appendChild(shape)
+        elif 'USVD' in a:
+            
+            shape.setAttribute('type','octagon')
+            snode.appendChild(shape)    
+        elif 'US' in a:
+           
+            shape.setAttribute('type','rectangle')
+            snode.appendChild(shape)
+        elif 'USM' in a:
+            
+            shape.setAttribute('type','rectangle')
+            snode.appendChild(shape)
+        elif 'CON' in a:
+            svg_node_p.setAttribute('usingVisualBounds','true')
+            snode.appendChild(svg_node_p)   
+            svg_model.setAttribute('svgBoundsPolicy','0')            
+            svg_content.setAttribute('refid','3')
+            svg_model.appendChild(svg_content)
+            snode.appendChild(svg_model)
+        elif 'SF' in a:
+            
+            shape.setAttribute('type','octagon')
+            snode.appendChild(shape)
+        elif 'SUS' in a:
+            
+            shape.setAttribute('type','ellipse')
+            snode.appendChild(shape)
+        elif 'Extractor' in a:
+            
+            svg_node_p.setAttribute('usingVisualBounds','true')
+            snode.appendChild(svg_node_p)   
+            svg_model.setAttribute('svgBoundsPolicy','0')
+            
+            svg_content.setAttribute('refid','1')
+            svg_model.appendChild(svg_content)
+            snode.appendChild(svg_model)
+        elif 'Combinar' in a:
+            svg_node_p.setAttribute('usingVisualBounds','true')
+            snode.appendChild(svg_node_p)   
+            svg_model.setAttribute('svgBoundsPolicy','0')
+            svg_content.setAttribute('refid','2')
+            svg_model.appendChild(svg_content)
+            snode.appendChild(svg_model)
+        elif 'property' in a:
+            shape = style_prop2
+            prop.setAttribute('class','java.awt.Color')
+            prop.setAttribute('name','com.yworks.bpmn.icon.line.color')
+            prop.setAttribute('value','#000000')
+            shape.appendChild(prop)
+            
+            prop1.setAttribute('class','java.awt.Color')
+            prop1.setAttribute('name','com.yworks.bpmn.icon.fill2')
+            prop1.setAttribute('value','#d4d4d4cc')
+            shape.appendChild(prop1)
+            
+            prop2.setAttribute('class','java.awt.Color')
+            prop2.setAttribute('name','com.yworks.bpmn.icon.fill')
+            prop2.setAttribute('value','#ffffffe6')
+            shape.appendChild(prop2)
+            
+            prop5.setAttribute('class','com.yworks.yfiles.bpmn.view.BPMNTypeEnum')
+            prop5.setAttribute('name','com.yworks.bpmn.type')
+            prop5.setAttribute('value','ARTIFACT_TYPE_ANNOTATION')
+            shape.appendChild(prop5)
+            snode.appendChild(shape)    
+            
+        elif 'DOC' in a:
+            shape = style_prop
+            prop.setAttribute('class','java.awt.Color')
+            prop.setAttribute('name','com.yworks.bpmn.icon.line.color')
+            prop.setAttribute('value','#000000')
+            shape.appendChild(prop)
+            
+            prop1.setAttribute('class','java.awt.Color')
+            prop1.setAttribute('name','com.yworks.bpmn.icon.fill2')
+            prop1.setAttribute('value','#d4d4d4cc')
+            shape.appendChild(prop1)
+            
+            prop2.setAttribute('class','java.awt.Color')
+            prop2.setAttribute('name','com.yworks.bpmn.icon.fill')
+            prop2.setAttribute('value','#ffffffe6')
+            shape.appendChild(prop2)
+            
+            prop3.setAttribute('class','com.yworks.yfiles.bpmn.view.BPMNTypeEnum')
+            prop3.setAttribute('name','com.yworks.bpmn.type')
+            prop3.setAttribute('value','ARTIFACT_TYPE_DATA_OBJECT')
+            shape.appendChild(prop3)
+            
+            prop4.setAttribute('class','com.yworks.yfiles.bpmn.view.DataObjectTypeEnum')
+            prop4.setAttribute('name','com.yworks.bpmn.dataObjectType')
+            prop4.setAttribute('value','DATA_OBJECT_TYPE_PLAIN')
+            shape.appendChild(prop4)        
+        
+            snode.appendChild(shape)
+        
         data0.appendChild(snode)
         
-        LabelText = self.getLabel(conf, True)
-        bb = LabelText.rsplit('_',)[1:]
-        b = ' '.join(map(str, bb))
-        data1 = doc.createElement('data')
-        data1.setAttribute('key', 'd4')
-        data1.setAttribute('xml:space','preserve')
-        data1.appendChild(doc.createTextNode('{}'.format(b))) 
-        node.appendChild(data1)
-        node.appendChild(data0) 
+        
+        
+        
+        if 'USVA' in a:         
+            data1.setAttribute('key', 'd5')
+            data1.setAttribute('xml:space','preserve') 
+        elif 'USVB' in a:
+            data1.setAttribute('key', 'd5')
+            data1.setAttribute('xml:space','preserve') 
+        elif 'USVC' in a:
+            data1.setAttribute('key', 'd5')
+            data1.setAttribute('xml:space','preserve') 
+        elif 'USVD' in a:
+            data1.setAttribute('key', 'd5')
+            data1.setAttribute('xml:space','preserve')  
+        elif 'US' in a:
+            data1.setAttribute('key', 'd5')
+            data1.setAttribute('xml:space','preserve') 
+        elif 'USM' in a:
+            data1.setAttribute('key', 'd5')
+            data1.setAttribute('xml:space','preserve') 
+        elif 'CON' in a:
+            data1.setAttribute('key', 'd5')
+            data1.setAttribute('xml:space','preserve') 
+            
+        elif 'SUS' in a:
+            data1.setAttribute('key', 'd5')
+            data1.setAttribute('xml:space','preserve') 
+        elif 'Extractor' in a:
+            data1.setAttribute('key', 'd5')
+            data1.setAttribute('xml:space','preserve') 
+        elif 'Combinar' in a:
+            data1.setAttribute('key', 'd7')
+            data1.setAttribute('xml:space','preserve') 
+        elif 'DOC' in a:
+            data1.setAttribute('key', 'd4')
+            data1.setAttribute('xml:space','preserve') 
+        elif 'property' in a:
+            data1.setAttribute('key', 'd5')
+            data1.setAttribute('xml:space','preserve') 
+            
+        
+        c=' '.join(b.split()[1:])
+        
+        data1.appendChild(doc.createTextNode('{}'.format(c)))
+        node.appendChild(data1)        
+        node.appendChild(data0)            
         parent.appendChild(node)
+        #parent.appendChild(data_r)
         
 class Edge:
     """ a single edge in the graph """
@@ -505,21 +959,35 @@ class Edge:
         o.write("    \"%s\"\n" % self.getLabel(nodes, conf).encode(latinenc, errors="ignore"))
         o.write("  ]\n")
 
+    
     def exportGraphml(self, doc, parent, nodes, conf):
         """ export the edge in Graphml format and append it to the parent XML node """
         edge = doc.createElement('edge')
-        edge.setAttribute('id','e%d' % self.id)
-        edge.setAttribute('source','n%d'% nodes[self.src].id)
-        edge.setAttribute('target','n%d'% nodes[self.dest].id)
+        edge.setAttribute('id','n0::e%d' % self.id)
+        edge.setAttribute('source','n0::n%d'% nodes[self.src].id)
+        edge.setAttribute('target','n0::n%d'% nodes[self.dest].id)
         
         data2 = doc.createElement('data')
-        data2.setAttribute('key', 'd9')
+        data2.setAttribute('key', 'd10')
 
         pedge = doc.createElement('y:PolyLineEdge')
+        path=doc.createElement('y:Path')
+        path.setAttribute('sx','0.0')
+        path.setAttribute('sy','15.0')
+        path.setAttribute('tx','0.0')
+        path.setAttribute('ty','-15.0')
+        pedge.appendChild(path)
         line = doc.createElement('y:LineStyle')
         color = getColorAttribute(self.attribs, 'color', conf.DefaultEdgeColor, conf)
         line.setAttribute('color','%s' % color)
-        line.setAttribute('type', 'line')
+        
+        
+        if 'style' in self.attribs:
+            line.setAttribute('type', '%s' % self.attribs['style'])
+        else:
+            line.setAttribute('type', 'line')
+        
+        
         if 'penwidth' in self.attribs:
             line.setAttribute('width', '%s' % self.attribs['penwidth'])
         else:
@@ -542,10 +1010,10 @@ class Edge:
                 label = doc.createElement('y:EdgeLabel')
                 color = getColorAttribute(self.attribs, 'fontcolor', conf.DefaultEdgeTextColor, conf)
                 label.setAttribute('alignment','center')
-                label.setAttribute('distance','2.0')
-                label.setAttribute('fontFamily','Dialog')
+                label.setAttribute('distance','0.0')
+                label.setAttribute('fontFamily','DialogInput')
                 label.setAttribute('fontSize','12')
-                label.setAttribute('fontStyle','plain')
+                label.setAttribute('fontStyle','bold')
                 label.setAttribute('hasBackgroundColor','false')
                 label.setAttribute('hasLineColor','false')
                 label.setAttribute('modelName','six_pos')
@@ -563,7 +1031,8 @@ class Edge:
         edge.appendChild(data2)
 
         data3 = doc.createElement('data')
-        data3.setAttribute('key', 'd8')
+        data3.setAttribute('key', 'd9')
         edge.appendChild(data3)
         
         parent.appendChild(edge)
+       

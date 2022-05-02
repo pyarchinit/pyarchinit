@@ -5,7 +5,7 @@
                              stored in Postgres
                              -------------------
     begin                : 2007-12-01
-    copyright            : (C) 2008 by Luca Mandolesi
+    copyright            : (C) 2008 by Luca Mandolesi; Enzo Cocca <enzo.ccc@gmail.com>
     email                : mandoluca at gmail.com
  ***************************************************************************/
 
@@ -22,13 +22,16 @@ from __future__ import absolute_import
 
 import os
 from datetime import date
+import urllib
 
 import sys
 from builtins import range
 from builtins import str
-from qgis.PyQt.QtWidgets import QDialog, QMessageBox
+from qgis.PyQt.QtCore import QUrl
+from qgis.PyQt.QtWidgets import QDialog, QMessageBox,QCompleter,QComboBox
 from qgis.PyQt.uic import loadUiType
 from qgis.core import QgsSettings
+# from qgis.PyQt.QtWebKitWidgets.QWebView import *
 from ..modules.db.pyarchinit_conn_strings import Connection
 from ..modules.db.pyarchinit_db_manager import Pyarchinit_db_management
 from ..modules.db.pyarchinit_utility import Utility
@@ -166,7 +169,20 @@ class pyarchinit_Thesaurus(QDialog, MAIN_DIALOG_CLASS):
             self.on_pushButton_connect_pressed()
         except Exception as e:
             QMessageBox.warning(self, "Connection system", str(e), QMessageBox.Ok)
-
+        self.comboBox_sigla_estesa.editTextChanged.connect(self.find_text)
+    
+    def find_text(self):
+        
+        if self.comboBox_sigla_estesa.currentText()=='':
+            uri= 'https://vast-lab.org/thesaurus/ra/vocab/index.php?'
+        else:
+            
+            uri= 'https://vast-lab.org/thesaurus/ra/vocab/index.php?ws=t&xstring='+ self.comboBox_sigla_estesa.currentText()+'&hasTopTerm=&hasNote=NA&fromDate=&termDeep=&boton=Conferma&xsearch=1#xstring'
+            self.comboBox_sigla_estesa.completer().setCompletionMode(QCompleter.PopupCompletion) 
+            self.comboBox_sigla_estesa.setInsertPolicy(QComboBox.NoInsert) 
+        self.webView_adarte.load(QUrl(uri))
+        self.webView_adarte.show()
+        
     def enable_button(self, n):
         self.pushButton_connect.setEnabled(n)
 
@@ -818,15 +834,17 @@ class pyarchinit_Thesaurus(QDialog, MAIN_DIALOG_CLASS):
     def on_pushButton_sigle_pressed(self):
         if self.L=='it':    
             filepath = os.path.dirname(__file__)
-            filepath = os.path.join(filepath, 'codici_it.pdf')
-            os.startfile(filepath)
+            filepath = os.path.join(filepath, 'codici_it.html')
+            #os.startfile(filepath)
+            self.webView_adarte.load(QUrl.fromLocalFile(filepath))
+            self.webView_adarte.show()
         elif self.L=='de':  
             filepath = os.path.dirname(__file__)
-            filepath = os.path.join(filepath, 'codici_de.pdf')
+            filepath = os.path.join(filepath, 'codici_de.html')
             os.startfile(filepath)
         else:
             filepath = os.path.dirname(__file__)
-            filepath = os.path.join(filepath, 'codici_en.pdf')
+            filepath = os.path.join(filepath, 'codici_en.html')
             os.startfile(filepath)
     def on_pushButton_new_search_pressed(self):
         if self.check_record_state() == 1:

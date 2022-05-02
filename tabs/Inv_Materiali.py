@@ -1178,25 +1178,30 @@ class pyarchinit_Inventario_reperti(QDialog, MAIN_DIALOG_CLASS):
         
         
     def numero_invetario(self):
-        # self.set_sito()
-        contatore = 0
-        list=[]
-        if self.lineEdit_num_inv.text()=='':
-            
-            for i in range(len(self.DATA_LIST)):
-                #self.lineEdit_n_reperto.clear()
-                contatore = int(self.DATA_LIST[i].numero_inventario)
-                #contatore.sort(reverse=False)
-                list.append(contatore)
+        if self.checkBox_auto_inv.isChecked():
+            QMessageBox.information(self, "Attenzione", "Hai attivato l'opzione autoincrementante Numero Inventario", QMessageBox.Ok)
+            self.lineEdit_num_inv.setText('')
+            self.lineEdit_num_inv.textChanged.connect(self.update)
+            # self.set_sito()
+            contatore = 0
+            list=[]
+            if self.lineEdit_num_inv.text()=='':
                 
-               
-                list[-1]+=1
-                
-                list.sort()
-            for e in list:    
-                
-                self.lineEdit_num_inv.setText(str(e))
-       
+                for i in range(len(self.DATA_LIST)):
+                    #self.lineEdit_n_reperto.clear()
+                    contatore = int(self.DATA_LIST[i].numero_inventario)
+                    #contatore.sort(reverse=False)
+                    list.append(contatore)
+                    
+                   
+                    list[-1]+=1
+                    
+                    list.sort()
+                for e in list:    
+                    
+                    self.lineEdit_num_inv.setText(str(e))
+        else:
+            pass
     def charge_list(self):
         
         l = QgsSettings().value("locale/userLocale", QVariant)
@@ -1397,10 +1402,10 @@ class pyarchinit_Inventario_reperti(QDialog, MAIN_DIALOG_CLASS):
                 QMessageBox.information(self, "Attenzione" ,"Non esiste questo sito: "'"'+ str(sito_set_str) +'"'" in questa scheda, Per favore distattiva la 'scelta sito' dalla scheda di configurazione plugin per vedere tutti i record oppure crea la scheda",QMessageBox.Ok) 
             elif self.L=='de':
             
-                QMessageBox.information(self, "Warnung" , "Es gibt keine solche archäologische Stätte: "'""'+ str(site_set_str) +'"'" in dieser Registerkarte, Bitte deaktivieren Sie die 'Site-Wahl' in der Plugin-Konfigurationsregisterkarte, um alle Datensätze zu sehen oder die Registerkarte zu erstellen",QMessageBox.Ok) 
+                QMessageBox.information(self, "Warnung" , "Es gibt keine solche archäologische Stätte: "'""'+ str(sito_set_str) +'"'" in dieser Registerkarte, Bitte deaktivieren Sie die 'Site-Wahl' in der Plugin-Konfigurationsregisterkarte, um alle Datensätze zu sehen oder die Registerkarte zu erstellen",QMessageBox.Ok) 
             else:
             
-                QMessageBox.information(self, "Warning" , "There is no such site: "'"'+ str(site_set_str) +'"'" in this tab, Please disable the 'site choice' from the plugin configuration tab to see all records or create the tab",QMessageBox.Ok)  
+                QMessageBox.information(self, "Warning" , "There is no such site: "'"'+ str(sito_set_str) +'"'" in this tab, Please disable the 'site choice' from the plugin configuration tab to see all records or create the tab",QMessageBox.Ok)  
 
     def on_pushButton_sort_pressed(self):
         if self.check_record_state() == 1:
@@ -1511,7 +1516,7 @@ class pyarchinit_Inventario_reperti(QDialog, MAIN_DIALOG_CLASS):
                 self.label_status.setText(self.STATUS_ITEMS[self.BROWSE_STATUS])
                 self.set_rec_counter('', '')
                 self.label_sort.setText(self.SORTED_ITEMS["n"])
-                #self.numero_invetario()
+                self.numero_invetario()
                 #self.numero_reperto()
             else:
                 self.BROWSE_STATUS = "n"

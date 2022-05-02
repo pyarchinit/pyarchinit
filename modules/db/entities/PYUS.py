@@ -1,7 +1,7 @@
 '''
 Created on 19 feb 2018
 
-@author: Serena Sensini
+@author: Serena Sensini; Enzo Cocca <enzo.ccc@gmail.com>
 '''
 
 
@@ -20,7 +20,8 @@ class PYUS(object):
                  tipo_doc,  # 10
                  nome_doc,  # 11
                  coord,
-                 the_geom,  # 4
+                 the_geom,
+                 unita_tipo_s,# 4
                  ):
         self.gid=gid  # 0
         self.area_s=area_s  # 1
@@ -35,10 +36,11 @@ class PYUS(object):
         self.nome_doc=nome_doc  # 11
         self.coord=coord
         self.the_geom= the_geom # 4
+        self.unita_tipo_s=unita_tipo_s
     # def __repr__"
     @property
     def __repr__(self):
-        return "<PYUS('%d','%d', '%s', '%d','%d','%s','%s','%s','%s','%s','%s','%s','%s')>" % (
+        return "<PYUS('%d','%d', '%s', '%d','%d','%s','%s','%s','%s','%s','%s','%s','%s','%s')>" % (
             self.gid,
             self.area_s,
             self.scavo_s,
@@ -51,5 +53,7 @@ class PYUS(object):
             self.tipo_doc,
             self.nome_doc,
             self.coord,
-            self.the_geom
+            self.the_geom,
+            self.unita_tipo_s
         )
+

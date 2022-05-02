@@ -24,14 +24,14 @@ class pydocumentazione():
 
     # define tables check per verifica fill fields 20/10/2016 OK
     pydocumentazione = Table('pyarchinit_documentazione', metadata,
-                     Column('pkuid', Integer, primary_key=True),  # 0
+                     Column('gid', Integer, primary_key=True),  # 0
                      Column('sito', Text),
                      Column('nome_doc', Text),
                      Column('tipo_doc', Text),
                      Column('path_qgis_pj', Text),
-                     #Column('the_geom', Geometry('LINESTRING', -1)),
+                     Column('the_geom', Text),
                      # explicit/composite unique constraint.  'name' is optional.
-                     UniqueConstraint('pkuid')
+                     UniqueConstraint('gid')
                      )
 
     metadata.create_all(engine)

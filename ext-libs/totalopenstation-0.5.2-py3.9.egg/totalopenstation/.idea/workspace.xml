@@ -1,0 +1,315 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="ChangeListManager">
+    <list default="true" id="146a77cf-d117-4398-b581-33a2ad914cb6" name="Changes" comment="pyarchinit">
+      <change afterPath="$PROJECT_DIR$/../totalopenstation_/.idea/inspectionProfiles/Project_Default.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../totalopenstation_/.idea/totalopenstation_.iml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../totalopenstation_/.idea/vcs.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../totalopenstation_/totalopenstation/.idea/inspectionProfiles/Project_Default.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../totalopenstation_/totalopenstation/.idea/inspectionProfiles/profiles_settings.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../totalopenstation_/totalopenstation/.idea/vcs.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../totalopenstation_/totalopenstation/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../totalopenstation_/totalopenstation/formats/topcon_gt7.py" beforeDir="false" afterPath="$PROJECT_DIR$/../totalopenstation_/totalopenstation/formats/topcon_gt7.py" afterDir="false" />
+    </list>
+    <option name="SHOW_DIALOG" value="false" />
+    <option name="HIGHLIGHT_CONFLICTS" value="true" />
+    <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
+    <option name="LAST_RESOLUTION" value="IGNORE" />
+  </component>
+  <component name="Git.Settings">
+    <favorite-branches>
+      <branch-storage>
+        <map>
+          <entry type="LOCAL">
+            <value>
+              <list>
+                <branch-info repo="$PROJECT_DIR$/../totalopenstation_" source="main" />
+              </list>
+            </value>
+          </entry>
+        </map>
+      </branch-storage>
+    </favorite-branches>
+    <option name="PUSH_TAGS">
+      <GitPushTagMode>
+        <option name="argument" value="--follow-tags" />
+        <option name="title" value="Current Branch" />
+      </GitPushTagMode>
+    </option>
+    <option name="RECENT_BRANCH_BY_REPOSITORY">
+      <map>
+        <entry key="$PROJECT_DIR$/../totalopenstation_" value="fix_format" />
+      </map>
+    </option>
+    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$/../totalopenstation_" />
+    <option name="UPDATE_TYPE" value="REBASE" />
+  </component>
+  <component name="GithubDefaultAccount">
+    <option name="defaultAccountId" value="5458fade-6e24-407f-b44e-a07a0a68bad4" />
+  </component>
+  <component name="ProjectId" id="1yZy7YfLLB8DcOTAkmqKy56iZdb" />
+  <component name="ProjectLevelVcsManager" settingsEditedManually="true">
+    <ConfirmationsSetting value="2" id="Add" />
+  </component>
+  <component name="ProjectViewState">
+    <option name="hideEmptyMiddlePackages" value="true" />
+    <option name="showLibraryContents" value="true" />
+  </component>
+  <component name="PropertiesComponent">
+    <property name="ASKED_ADD_EXTERNAL_FILES" value="true" />
+    <property name="RunOnceActivity.OpenProjectViewOnStart" value="true" />
+    <property name="RunOnceActivity.ShowReadmeOnStart" value="true" />
+    <property name="last_opened_file_path" value="$PROJECT_DIR$/../totalopenstation_/totalopenstation/tests" />
+    <property name="settings.editor.selected.configurable" value="project.propVCSSupport.Mappings" />
+  </component>
+  <component name="ReaderModeSettings">
+    <option name="enabled" value="false" />
+  </component>
+  <component name="RecentsManager">
+    <key name="CopyFile.RECENT_KEYS">
+      <recent name="C:\OSGeo4W\apps\Python39\Lib\site-packages\totalopenstation-0.5.2-py3.9.egg\totalopenstation_\totalopenstation\tests" />
+      <recent name="C:\OSGeo4W\apps\Python39\Lib\site-packages\totalopenstation-0.5.2-py3.9.egg\totalopenstation\sample_data" />
+      <recent name="C:\OSGeo4W\apps\Python39\Lib\site-packages\totalopenstation-0.5.2-py3.9.egg\totalopenstation\totalopenstation\formats" />
+      <recent name="C:\OSGeo4W\apps\Python39\Lib\site-packages\totalopenstation-0.5.2-py3.9.egg\totalopenstation\totalopenstation\models" />
+    </key>
+  </component>
+  <component name="RunManager" selected="Python tests.pytest in totalopenstation_">
+    <configuration name="trimble_are" type="PythonConfigurationType" factoryName="Python" nameIsGenerated="true">
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <envs>
+        <env name="PYTHONUNBUFFERED" value="1" />
+      </envs>
+      <option name="SDK_HOME" value="C:\OSGeo4W\apps\Python39\python.exe" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/formats" />
+      <option name="IS_MODULE_SDK" value="false" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <module name="" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/formats/trimble_are.py" />
+      <option name="PARAMETERS" value="" />
+      <option name="SHOW_COMMAND_LINE" value="false" />
+      <option name="EMULATE_TERMINAL" value="false" />
+      <option name="MODULE_MODE" value="false" />
+      <option name="REDIRECT_INPUT" value="false" />
+      <option name="INPUT_FILE" value="" />
+      <method v="2" />
+    </configuration>
+    <configuration name="pytest in totalopenstation_" type="tests" factoryName="py.test" nameIsGenerated="true">
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <option name="SDK_HOME" value="C:\OSGeo4W\apps\Python39\python.exe" />
+      <option name="WORKING_DIRECTORY" value="" />
+      <option name="IS_MODULE_SDK" value="false" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <module name="" />
+      <option name="_new_keywords" value="&quot;&quot;" />
+      <option name="_new_parameters" value="&quot;&quot;" />
+      <option name="_new_additionalArguments" value="&quot;&quot;" />
+      <option name="_new_target" value="&quot;$PROJECT_DIR$/../totalopenstation_&quot;" />
+      <option name="_new_targetType" value="&quot;PATH&quot;" />
+      <method v="2" />
+    </configuration>
+    <configuration name="pytest in trimble_are.py" type="tests" factoryName="py.test" nameIsGenerated="true">
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <option name="SDK_HOME" value="C:\OSGeo4W\apps\Python39\python.exe" />
+      <option name="WORKING_DIRECTORY" value="" />
+      <option name="IS_MODULE_SDK" value="false" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <module name="" />
+      <option name="_new_keywords" value="&quot;&quot;" />
+      <option name="_new_parameters" value="&quot;&quot;" />
+      <option name="_new_additionalArguments" value="&quot;&quot;" />
+      <option name="_new_target" value="&quot;$PROJECT_DIR$/formats/trimble_are.py&quot;" />
+      <option name="_new_targetType" value="&quot;PATH&quot;" />
+      <method v="2" />
+    </configuration>
+    <list>
+      <item itemvalue="Python.trimble_are" />
+      <item itemvalue="Python tests.pytest in totalopenstation_" />
+      <item itemvalue="Python tests.pytest in trimble_are.py" />
+    </list>
+  </component>
+  <component name="SpellCheckerSettings" RuntimeDictionaries="0" Folders="0" CustomDictionaries="0" DefaultDictionary="application-level" UseSingleDictionary="true" transferred="true" />
+  <component name="SvnConfiguration">
+    <configuration>C:\Users\Utente\AppData\Roaming\Subversion</configuration>
+  </component>
+  <component name="TaskManager">
+    <task active="true" id="Default" summary="Default task">
+      <changelist id="146a77cf-d117-4398-b581-33a2ad914cb6" name="Changes" comment="" />
+      <created>1632473237609</created>
+      <option name="number" value="Default" />
+      <option name="presentableId" value="Default" />
+      <updated>1632473237609</updated>
+    </task>
+    <task id="LOCAL-00001" summary="Add sokkia sdr33 polar format">
+      <created>1632476108140</created>
+      <option name="number" value="00001" />
+      <option name="presentableId" value="LOCAL-00001" />
+      <option name="project" value="LOCAL" />
+      <updated>1632476108140</updated>
+    </task>
+    <task id="LOCAL-00002" summary="Add sokkia rku 630 model">
+      <created>1632476130080</created>
+      <option name="number" value="00002" />
+      <option name="presentableId" value="LOCAL-00002" />
+      <option name="project" value="LOCAL" />
+      <updated>1632476130080</updated>
+    </task>
+    <task id="LOCAL-00003" summary="Add sokkia rku 630 model">
+      <created>1632476145146</created>
+      <option name="number" value="00003" />
+      <option name="presentableId" value="LOCAL-00003" />
+      <option name="project" value="LOCAL" />
+      <updated>1632476145146</updated>
+    </task>
+    <task id="LOCAL-00004" summary="Add sokkia rku 630 model">
+      <created>1632476158123</created>
+      <option name="number" value="00004" />
+      <option name="presentableId" value="LOCAL-00004" />
+      <option name="project" value="LOCAL" />
+      <updated>1632476158123</updated>
+    </task>
+    <task id="LOCAL-00005" summary="fix bug topcon gpt 3005">
+      <created>1632476187272</created>
+      <option name="number" value="00005" />
+      <option name="presentableId" value="LOCAL-00005" />
+      <option name="project" value="LOCAL" />
+      <updated>1632476187272</updated>
+    </task>
+    <task id="LOCAL-00006" summary="add sokkia sdr33 polar format">
+      <created>1632476258239</created>
+      <option name="number" value="00006" />
+      <option name="presentableId" value="LOCAL-00006" />
+      <option name="project" value="LOCAL" />
+      <updated>1632476258239</updated>
+    </task>
+    <task id="LOCAL-00007" summary="add sokkia sdr33 polar format example">
+      <created>1632477213860</created>
+      <option name="number" value="00007" />
+      <option name="presentableId" value="LOCAL-00007" />
+      <option name="project" value="LOCAL" />
+      <updated>1632477213860</updated>
+    </task>
+    <task id="LOCAL-00008" summary="add sokkia sdr33 polar format example">
+      <created>1632477228371</created>
+      <option name="number" value="00008" />
+      <option name="presentableId" value="LOCAL-00008" />
+      <option name="project" value="LOCAL" />
+      <updated>1632477228371</updated>
+    </task>
+    <task id="LOCAL-00009" summary="add information into the doc about sdr33 O7TP">
+      <created>1632477409548</created>
+      <option name="number" value="00009" />
+      <option name="presentableId" value="LOCAL-00009" />
+      <option name="project" value="LOCAL" />
+      <updated>1632477409548</updated>
+    </task>
+    <task id="LOCAL-00010" summary="fix trimble output">
+      <created>1633026142855</created>
+      <option name="number" value="00010" />
+      <option name="presentableId" value="LOCAL-00010" />
+      <option name="project" value="LOCAL" />
+      <updated>1633026142855</updated>
+    </task>
+    <task id="LOCAL-00011" summary="fix sokkia test">
+      <created>1633026318451</created>
+      <option name="number" value="00011" />
+      <option name="presentableId" value="LOCAL-00011" />
+      <option name="project" value="LOCAL" />
+      <updated>1633026318451</updated>
+    </task>
+    <task id="LOCAL-00012" summary="fix rw5 test">
+      <created>1633027567245</created>
+      <option name="number" value="00012" />
+      <option name="presentableId" value="LOCAL-00012" />
+      <option name="project" value="LOCAL" />
+      <updated>1633027567245</updated>
+    </task>
+    <task id="LOCAL-00013" summary="pyarchinit">
+      <created>1633373162032</created>
+      <option name="number" value="00013" />
+      <option name="presentableId" value="LOCAL-00013" />
+      <option name="project" value="LOCAL" />
+      <updated>1633373162032</updated>
+    </task>
+    <option name="localTasksCounter" value="14" />
+    <servers />
+  </component>
+  <component name="Vcs.Log.Tabs.Properties">
+    <option name="TAB_STATES">
+      <map>
+        <entry key="MAIN">
+          <value>
+            <State>
+              <option name="CUSTOM_BOOLEAN_PROPERTIES">
+                <map>
+                  <entry key="Show.Git.Branches" value="true" />
+                </map>
+              </option>
+              <option name="FILTERS">
+                <map>
+                  <entry key="branch">
+                    <value>
+                      <list>
+                        <option value="master" />
+                      </list>
+                    </value>
+                  </entry>
+                </map>
+              </option>
+            </State>
+          </value>
+        </entry>
+        <entry key="f88b3e1e-ad60-4e63-919a-491e0e5b693b">
+          <value>
+            <State>
+              <option name="CUSTOM_BOOLEAN_PROPERTIES">
+                <map>
+                  <entry key="Show.Git.Branches" value="true" />
+                </map>
+              </option>
+            </State>
+          </value>
+        </entry>
+      </map>
+    </option>
+    <option name="OPEN_GENERIC_TABS">
+      <map>
+        <entry key="f88b3e1e-ad60-4e63-919a-491e0e5b693b" value="TOOL_WINDOW" />
+      </map>
+    </option>
+    <option name="oldMeFiltersMigrated" value="true" />
+  </component>
+  <component name="VcsManagerConfiguration">
+    <option name="ADD_EXTERNAL_FILES_SILENTLY" value="true" />
+    <ignored-roots>
+      <path value="$PROJECT_DIR$" />
+    </ignored-roots>
+    <MESSAGE value="Add sokkia sdr33 polar format" />
+    <MESSAGE value="Add sokkia rku 630 model" />
+    <MESSAGE value="fix bug topcon gpt 3005" />
+    <MESSAGE value="add sokkia sdr33 polar format" />
+    <MESSAGE value="add sokkia sdr33 polar format example" />
+    <MESSAGE value="add information into the doc about sdr33 O7TP" />
+    <MESSAGE value="fix trimble output" />
+    <MESSAGE value="fix sokkia test" />
+    <MESSAGE value="fix rw5 test" />
+    <MESSAGE value="pyarchinit" />
+    <option name="LAST_COMMIT_MESSAGE" value="pyarchinit" />
+  </component>
+  <component name="XDebuggerManager">
+    <breakpoint-manager>
+      <default-breakpoints>
+        <breakpoint type="python-exception">
+          <properties notifyOnTerminate="true" exception="BaseException">
+            <option name="notifyOnTerminate" value="true" />
+          </properties>
+        </breakpoint>
+      </default-breakpoints>
+    </breakpoint-manager>
+  </component>
+</project>

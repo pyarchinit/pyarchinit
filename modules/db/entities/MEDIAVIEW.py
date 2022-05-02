@@ -1,8 +1,9 @@
 '''
-Created on 22 gennaio 2019
+Created on 15 feb 2018
 
-@author: enzo cocca
+@author:  Enzo Cocca <enzo.ccc@gmail.com>
 '''
+
 
 
 class MEDIAVIEW(object):

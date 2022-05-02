@@ -24,14 +24,14 @@ class pyindividui:
 
     # define tables check per verifica fill fields 20/10/2016 OK
     pyindividui = Table('pyarchinit_individui', metadata,
-                     Column('id', Integer, primary_key=True),  # 0
+                     Column('gid', Integer, primary_key=True),  # 0
                      Column('sito', Text),
                      Column('sigla_struttura', Text),
                      Column('note', Text),
                      Column('id_individuo', Integer),
-                     Column('the_geom', Geometry('POINT',-1)),
+                     Column('the_geom', Text),
                      # explicit/composite unique constraint.  'name' is optional.
-                     UniqueConstraint('id')
+                     UniqueConstraint('gid')
                      )
 
     metadata.create_all(engine)

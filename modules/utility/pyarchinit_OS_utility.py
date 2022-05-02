@@ -6,7 +6,7 @@
                              stored in Postgres
                              -------------------
     begin                : 2007-12-01
-    copyright            : (C) 2008 by Luca Mandolesi
+    copyright            : (C) 2008 by Luca Mandolesi; Enzo Cocca <enzo.ccc@gmail.com>
     email                : mandoluca at gmail.com
  ***************************************************************************/
 
@@ -72,7 +72,7 @@ class Pyarchinit_OS_Utility(object):
     @staticmethod
     def checkRInstallation():
         try:
-            subprocess.call(['R', '--version'])
+            subprocess.call(['R', '--vanilla'])
             return True
         except Exception as e:
             return False

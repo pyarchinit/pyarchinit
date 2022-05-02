@@ -24,14 +24,14 @@ class pyripartizioni_spaziali:
 
     # define tables check per verifica fill fields 20/10/2016 OK
     pyripartizioni_spaziali = Table('pyarchinit_ripartizioni_spaziali', metadata,
-                     Column('id', Integer, primary_key=True),  # 0
+                     Column('gid', Integer, primary_key=True),  # 0
                      Column('id_rs', Text),
                      Column('sito_rs', Text),
                      Column('tip_rip', Text),
                      Column('descr_rs', Text),
-                     Column('the_geom', Geometry('POLYGON',-1)),
+                     Column('the_geom', Text),
                      # explicit/composite unique constraint.  'name' is optional.
-                     UniqueConstraint('id')
+                     UniqueConstraint('gid')
                      )
 
     metadata.create_all(engine)

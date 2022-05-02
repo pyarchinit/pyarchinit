@@ -6,7 +6,7 @@
                              stored in Postgres
                              -------------------
     begin                : 2007-12-01
-    copyright            : (C) 2008 by Luca Mandolesi
+    copyright            : (C) 2008 by Luca Mandolesi; Enzo Cocca <enzo.ccc@gmail.com>
     email                : mandoluca at gmail.com
  ***************************************************************************/
 /***************************************************************************
@@ -99,18 +99,35 @@ class pyarchinit_Interactive_Matrix(QDialog, MAIN_DIALOG_CLASS):
         data = []
         negative =[]
         conteporane=[]
-        
+        connection=[]
+        connection_to=[]
         for sing_rec in self.DATA_LIST:
-            us = str(sing_rec.us)
-            un_t = str(sing_rec.unita_tipo)##per inserire il termine US o USM
-            datazione = str(sing_rec.periodo_iniziale)+'-'+str(sing_rec.fase_iniziale)##per inserire la datazione estesa
-            defin = str(sing_rec.d_interpretativa.replace(' ','_'))##per inserire la definizione startigrafica
-            
-            rapporti_stratigrafici = eval(sing_rec.rapporti)
-            
             try:
-                for  sing_rapp in rapporti_stratigrafici:
+                us = str(sing_rec.us)
+                un_t = str(sing_rec.unita_tipo)##per inserire il termine US o USM
+                datazione = str(sing_rec.periodo_iniziale)+'-'+str(sing_rec.fase_iniziale)##per inserire la datazione estesa
+                defin = str(sing_rec.d_interpretativa.replace(' ','_'))##per inserire la definizione startigrafica
+                doc = str(sing_rec.doc_usv.replace(' ','_'))##per inserire la definizione startigrafica
+            
+                rapporti_stratigrafici = eval(sing_rec.rapporti2)
+            except (NameError, SyntaxError) as e: 
+                if self.L=='it':
+                    QMessageBox.warning(self, 'ATTENZIONE','Mancano i valori unita tipo e interpretazione startigrafica nella tablewidget dei rapporti startigrafici. affinchè il matrix sia esportato correttamente devi inserirli',
+                            QMessageBox.Ok)
+                    break        
+                elif self.L=='de':
+                    QMessageBox.warning(self, "Warnung", "Sie müssen den Einheitentyp und die startigraphische Interpretation im Tabellenwidget startigraphic reports eingeben",
+                                    QMessageBox.Ok)
+                    break                
+                else:
+                    QMessageBox.warning(self, "Warning", "You have to enter the unit type and startigraphic interpretation in the startigraphic reports tablewidget",
+                                    QMessageBox.Ok)           
+                    break
+            try:
+                
                     
+                for  sing_rapp in rapporti_stratigrafici:
+                
                     if   sing_rapp[0] == 'Covers' or  sing_rapp[0] == 'Abuts' or  sing_rapp[0] == 'Fills' or  sing_rapp[0] == 'Copre' or  sing_rapp[0] == 'Si appoggia a' or  sing_rapp[0] == 'Riempie'   or  sing_rapp[0] == 'Verfüllt' or sing_rapp[0] == 'Bindet an' or  sing_rapp[0] == 'Entspricht' :
                         if sing_rapp[1] != '':
                             harris_rapp = (un_t+us+'_'+defin+'_'+datazione,str(sing_rapp[2])+str(sing_rapp[1])+'_'+str(sing_rapp[3].replace(' ','_')+'_'+str(sing_rapp[4])))
@@ -129,11 +146,25 @@ class pyarchinit_Interactive_Matrix(QDialog, MAIN_DIALOG_CLASS):
                             harris_rapp2 = (un_t+us+'_'+defin+'_'+datazione,str(sing_rapp[2])+str(sing_rapp[1])+'_'+str(sing_rapp[3].replace(' ','_')+'_'+str(sing_rapp[4])))
                             conteporane.append(harris_rapp2)
                     
+                    if sing_rapp[0] == '>' :
+                        if sing_rapp[1] != '':
+                            harris_rapp3 = (un_t+us+'_'+defin+'_'+datazione,str(sing_rapp[2])+str(sing_rapp[1])+'_'+str(sing_rapp[3].replace(' ','_')+'_'+str(sing_rapp[4])))
+                            connection.append(harris_rapp3)
                     
+                    
+                    if sing_rapp[0] == '>>' :
+                        if sing_rapp[1] != '':
+                            harris_rapp4 = (un_t+us+'_'+defin+'_'+datazione,str(sing_rapp[2])+str(sing_rapp[1])+'_'+str(sing_rapp[3].replace(' ','_')+'_'+str(sing_rapp[4])))
+                            connection_to.append(harris_rapp4)        
+            
+                    # if sing_rapp[0] == '<->' :
+                        # if sing_rapp[1] != '':
+                            # harris_rapp4 = (un_t+us+'_'+doc+'_'+datazione,str(sing_rapp[2])+str(sing_rapp[1])+'_'+str(sing_rapp[3].replace(' ','_')+'_'+str(sing_rapp[4])))
+                            # connection_to.append(harris_rapp4)      
             except Exception as e:
                     
                     if self.L=='it':
-                        QMessageBox.warning(self, 'ATTENZIONE','Mancani i valori unita tipo e interpretazione startigrafica nella tablewidget dei rapporti startigrafici. affinchè il matrix sia esportato correttamente devi inserirli',
+                        QMessageBox.warning(self, 'ATTENZIONE','Mancano i valori unita tipo e interpretazione startigrafica nella tablewidget dei rapporti startigrafici. affinchè il matrix sia esportato correttamente devi inserirli',
                                 QMessageBox.Ok)
                     elif self.L=='de':
                         QMessageBox.warning(self, "Warnung", "Sie müssen den Einheitentyp und die startigraphische Interpretation im Tabellenwidget startigraphic reports eingeben",
@@ -175,7 +206,7 @@ class pyarchinit_Interactive_Matrix(QDialog, MAIN_DIALOG_CLASS):
             cluster_label = "cluster%s" % (clust_number)
 
             if self.L=='it':
-                periodo_label = "Periodo %s - Fase %s - %s" % (str(i[0]), str(i[1]),str(i[2]))
+                periodo_label = "Periodo %s : Fase %s : %s" % (str(i[0]), str(i[1]),str(i[2]))
                 
                 sing_per = [cluster_label, periodo_label]
                 
@@ -183,7 +214,7 @@ class pyarchinit_Interactive_Matrix(QDialog, MAIN_DIALOG_CLASS):
                 sing_ut=[]
                 
             elif self.L=='de':
-                periodo_label = "Period %s - Phase %s - %s" % (str(i[0]), str(i[1]),str(i[2]))
+                periodo_label = "Period %s : Phase %s : %s" % (str(i[0]), str(i[1]),str(i[2]))
 
                 sing_per = [cluster_label, periodo_label]
                 
@@ -192,7 +223,7 @@ class pyarchinit_Interactive_Matrix(QDialog, MAIN_DIALOG_CLASS):
             
             
             else:
-                periodo_label = "Period %s - Phase %s - %s" % (str(i[0]), str(i[1]), str(i[2]))
+                periodo_label = "Period %s : Phase %s : %s" % (str(i[0]), str(i[1]), str(i[2]))
 
                 sing_per = [cluster_label, periodo_label]
 
@@ -201,8 +232,15 @@ class pyarchinit_Interactive_Matrix(QDialog, MAIN_DIALOG_CLASS):
             for rec in us_group:
                 #sing_ut.append(rec.unita_tipo)
                 #sing_ut.append(rec.unita_tipo)
-                
+                # try: 
+                    # if 'DOC' in rec.unita_tipo:
+                        # sing_us.append(rec.unita_tipo+str(rec.us)+'_'+rec.doc_usv.replace(' ','_')+'_'+rec.periodo_iniziale+'-'+rec.fase_iniziale)
+                    # else:
                 sing_us.append(rec.unita_tipo+str(rec.us)+'_'+rec.d_interpretativa.replace(' ','_')+'_'+rec.periodo_iniziale+'-'+rec.fase_iniziale)
+                # except:
+                    # pass
+                # else:
+                    # sing_us.append(rec.unita_tipo+str(rec.us)+'_'+rec.d_interpretativa.replace(' ','_')+'_'+rec.periodo_iniziale+'-'+rec.fase_iniziale)
                 #sing_def.append(rec.d_stratigrafica)
             
             sing_per.insert(0, sing_us )
@@ -211,9 +249,13 @@ class pyarchinit_Interactive_Matrix(QDialog, MAIN_DIALOG_CLASS):
 
             clust_number += 1
         
-        matrix_exp = HarrisMatrix(data,negative,conteporane, periodi_us_list)
-        
-        data_plotting_2 = matrix_exp.export_matrix_2
+        matrix_exp = HarrisMatrix(data,negative,conteporane,connection,connection_to, periodi_us_list)
+        try: 
+            data_plotting_2 = matrix_exp.export_matrix_2
+        except Exception as e :
+            QMessageBox.information(self, "Info", str(e), QMessageBox.Ok)
+        finally:
+            data_plotting_2 = matrix_exp.export_matrix_2
         if self.L=='it':
             QMessageBox.information(self, "Info", "Esportazione completata", QMessageBox.Ok)
         elif self.L=='de':
@@ -279,6 +321,10 @@ class pyarchinit_Interactive_Matrix(QDialog, MAIN_DIALOG_CLASS):
         periodizz_data_list = self.DB_MANAGER.query_bool(search_dict, 'PERIODIZZAZIONE')
 
         periodi_data_values = []
+        
+        
+        
+        
         for a in periodizz_data_list:
             periodi_data_values.append([a.periodo, a.fase,a.datazione_estesa])
 
@@ -302,7 +348,7 @@ class pyarchinit_Interactive_Matrix(QDialog, MAIN_DIALOG_CLASS):
             cluster_label = "cluster%s" % (clust_number)
 
             if self.L=='it':
-                periodo_label = "Periodo %s - Fase %s - %s" % (str(i[0]), str(i[1]),str(i[2]))
+                periodo_label = "Periodo %s : Fase %s : %s" % (str(i[0]), str(i[1]),str(i[2]))
                 
                 sing_per = [cluster_label, periodo_label]
                 
@@ -310,7 +356,7 @@ class pyarchinit_Interactive_Matrix(QDialog, MAIN_DIALOG_CLASS):
                 sing_ut=[]
                 
             elif self.L=='de':
-                periodo_label = "Period %s - Phase %s - %s" % (str(i[0]), str(i[1]),str(i[2]))
+                periodo_label = "Period %s : Phase %s : %s" % (str(i[0]), str(i[1]),str(i[2]))
 
                 sing_per = [cluster_label, periodo_label]
                 
@@ -319,7 +365,7 @@ class pyarchinit_Interactive_Matrix(QDialog, MAIN_DIALOG_CLASS):
             
             
             else:
-                periodo_label = "Period %s - Phase %s - %s" % (str(i[0]), str(i[1]), str(i[2]))
+                periodo_label = "Period %s : Phase %s : %s" % (str(i[0]), str(i[1]), str(i[2]))
 
                 sing_per = [cluster_label, periodo_label]
 
@@ -338,7 +384,7 @@ class pyarchinit_Interactive_Matrix(QDialog, MAIN_DIALOG_CLASS):
 
             clust_number += 1
         
-        matrix_exp = HarrisMatrix(data,negative,conteporane, periodi_us_list)
+        matrix_exp = HarrisMatrix(data,negative,conteporane,'','',periodi_us_list)
         
         data_plotting = matrix_exp.export_matrix
         if self.L=='it':

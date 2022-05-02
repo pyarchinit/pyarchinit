@@ -24,7 +24,7 @@ class pyquote:
 
     # define tables check per verifica fill fields 20/10/2016 OK
     pyquote = Table('pyarchinit_quote', metadata,
-                     Column('id', Integer, primary_key=True),  # 0
+                     Column('gid', Integer, primary_key=True),  # 0
                      Column('sito_q', Text),
                      Column('area_q', Integer),
                      Column('us_q', Integer),
@@ -33,9 +33,10 @@ class pyquote:
                      Column('data', Integer),
                      Column('disegnatore', Text),
                      Column('rilievo_originale', Text),
-                     Column('the_geom', Geometry('POINT',-1)),
+                     Column('the_geom', Text),
+                     Column('unita_tipo_q', Text),
                      # explicit/composite unique constraint.  'name' is optional.
-                     UniqueConstraint('id')
+                     UniqueConstraint('gid')
                      )
 
     metadata.create_all(engine)

@@ -6,7 +6,7 @@
         					 stored in Postgres
                              -------------------
     begin                : 2007-12-01
-    copyright            : (C) 2008 by Luca Mandolesi
+    copyright            : (C) 2008 by Luca Mandolesi; Enzo Cocca <enzo.ccc@gmail.com>
     email                : mandoluca at gmail.com
  ***************************************************************************/
 
@@ -25,7 +25,7 @@ from modules.db.pyarchinit_db_manager import Pyarchinit_db_management
 
 
 def convert_cell_schema(s, c):
-    cell_schema = s  # riceve lo schema delle celle in formato lista di liste [['Nr. US: /us', '02', '03', 'Area: /area','05', '06', '07', '09']]
+    cell_schema = s  # riceve lo schema delle celle in formato lista di liste [['N° US: /us', '02', '03', 'Area: /area','05', '06', '07', '09']]
     campi = c  # riceve la lista dei campi con slash davanti
 
     cell_schema_res = []

@@ -4,7 +4,7 @@
         pyArchInit Plugin  - A QGIS plugin to manage archaeological dataset
                              -------------------
         begin                : 2007-12-01
-        copyright            : (C) 2008 by Luca Mandolesi
+        copyright            : (C) 2008 by Luca Mandolesi; Enzo Cocca <enzo.ccc@gmail.com>
         email                : mandoluca at gmail.com
  ***************************************************************************/
 
@@ -19,8 +19,10 @@
 """
 
 import os
+from os import path
 from os.path import expanduser
 import shutil
+import zipfile
 from builtins import object
 from builtins import str
 
@@ -36,6 +38,7 @@ class pyarchinit_Folder_installation(object):
     OS_UTILITY = Pyarchinit_OS_Utility()
 
     def install_dir(self):
+        
         home_DB_path = '{}{}{}'.format(self.HOME, os.sep, 'pyarchinit_DB_folder')
         self.OS_UTILITY.create_dir(home_DB_path)
 
@@ -43,10 +46,22 @@ class pyarchinit_Folder_installation(object):
 
         home_bin_export_path = '{}{}{}'.format(self.HOME, os.sep, 'bin')
         self.OS_UTILITY.create_dir(home_bin_export_path)
+        
+        doc_bin_export_path = '{}{}{}'.format(self.HOME, os.sep, 'DosCo')
+        self.OS_UTILITY.create_dir(doc_bin_export_path)
 
         db_copy_from_bin_rel = os.path.join(os.sep, 'dbfiles', 'pyarchinit.sqlite')
         db_copy_from_bin = '{}{}'.format(self.RESOURCES_PATH, db_copy_from_bin_rel)
         db_copy_to_bin = '{}{}{}'.format(home_bin_export_path, os.sep, 'pyarchinit.sqlite')
+
+        em_copy_from_path_rel = os.path.join(os.sep, 'dbfiles', 'EM_palette.graphml')
+        em_copy_from_path = '{}{}'.format(self.RESOURCES_PATH, em_copy_from_path_rel)
+        em_copy_to_path = '{}{}{}'.format(home_bin_export_path, os.sep, 'EM_palette.graphml')
+
+
+        wc_copy_from_path_rel = os.path.join(os.sep, 'dbfiles', 'spatialite_convert.exe')
+        wc_copy_from_path = '{}{}'.format(self.RESOURCES_PATH, wc_copy_from_path_rel)
+        wc_copy_to_path = '{}{}{}'.format(home_bin_export_path, os.sep, 'spatialite_convert.exe')
 
         w_copy_from_path_rel = os.path.join(os.sep, 'dbfiles', 'sqldiff.exe')
         w_copy_from_path = '{}{}'.format(self.RESOURCES_PATH, w_copy_from_path_rel)
@@ -73,6 +88,8 @@ class pyarchinit_Folder_installation(object):
         X11Colors_copy_to_path = '{}{}{}'.format(home_bin_export_path, os.sep, 'X11Colors.py')
         
         self.OS_UTILITY.copy_file(db_copy_from_bin, db_copy_to_bin)
+        self.OS_UTILITY.copy_file(em_copy_from_path, em_copy_to_path)
+        self.OS_UTILITY.copy_file(wc_copy_from_path, wc_copy_to_path)
         self.OS_UTILITY.copy_file(w_copy_from_path, w_copy_to_path)
         self.OS_UTILITY.copy_file(linux_copy_from_path, linux_copy_to_path)
         self.OS_UTILITY.copy_file(osx_copy_from_path, osx_copy_to_path)
@@ -167,10 +184,21 @@ class pyarchinit_Folder_installation(object):
 
         home_bin_export_path = '{}{}{}'.format(self.HOME, os.sep, 'bin')
         self.OS_UTILITY.create_dir(home_bin_export_path)
+        
+        doc_bin_export_path = '{}{}{}'.format(self.HOME, os.sep, 'DosCo')
+        self.OS_UTILITY.create_dir(doc_bin_export_path)
 
         db_copy_from_bin_rel = os.path.join(os.sep, 'dbfiles', 'pyarchinit.sqlite')
         db_copy_from_bin = '{}{}'.format(self.RESOURCES_PATH, db_copy_from_bin_rel)
         db_copy_to_bin = '{}{}{}'.format(home_bin_export_path, os.sep, 'pyarchinit.sqlite')
+
+        em_copy_from_path_rel = os.path.join(os.sep, 'dbfiles', 'EM_palette.graphml')
+        em_copy_from_path = '{}{}'.format(self.RESOURCES_PATH, em_copy_from_path_rel)
+        em_copy_to_path = '{}{}{}'.format(home_bin_export_path, os.sep, 'EM_palette.graphml')
+
+        wc_copy_from_path_rel = os.path.join(os.sep, 'dbfiles', 'spatialite_convert.exe')
+        wc_copy_from_path = '{}{}'.format(self.RESOURCES_PATH, wc_copy_from_path_rel)
+        wc_copy_to_path = '{}{}{}'.format(home_bin_export_path, os.sep, 'spatialite_convert.exe')
 
         w_copy_from_path_rel = os.path.join(os.sep, 'dbfiles', 'sqldiff.exe')
         w_copy_from_path = '{}{}'.format(self.RESOURCES_PATH, w_copy_from_path_rel)
@@ -196,7 +224,29 @@ class pyarchinit_Folder_installation(object):
         X11Colors_copy_from_path = '{}{}'.format(self.RESOURCES_PATH, X11Colors_copy_from_path_rel)
         X11Colors_copy_to_path = '{}{}{}'.format(home_bin_export_path, os.sep, 'X11Colors.py')
         
+        profile_zip = os.path.join(os.sep, 'dbfiles', 'profile.zip')
+        profile_zip_copy_from_path = '{}{}'.format(self.RESOURCES_PATH, profile_zip)
+        test=os.path.join(home_bin_export_path,'profile')
+        if not os.path.exists(test):
+            with zipfile.ZipFile(profile_zip_copy_from_path, 'r') as zip_ref:
+                zip_ref.extractall(home_bin_export_path)
+        else:
+            pass# with zipfile.ZipFile(profile_zip_copy_from_path, 'r') as zip_ref:
+                # zip_ref.extractall(test)
+        
+        rs_zip = os.path.join(os.sep, 'dbfiles', 'rscripts.zip')
+        rs_zip_copy_from_path = '{}{}'.format(self.RESOURCES_PATH, rs_zip)
+        test2=os.path.join(home_bin_export_path,'rscripts')
+        if not os.path.exists(test2):
+            with zipfile.ZipFile(rs_zip_copy_from_path, 'r') as zip1_ref:
+                zip1_ref.extractall(home_bin_export_path)
+        else:
+            with zipfile.ZipFile(rs_zip_copy_from_path, 'r') as zip1_ref:
+                zip1_ref.extractall(test2)
+        
         self.OS_UTILITY.copy_file(db_copy_from_bin, db_copy_to_bin)
+        self.OS_UTILITY.copy_file(em_copy_from_path, em_copy_to_path)
+        self.OS_UTILITY.copy_file(wc_copy_from_path, wc_copy_to_path)
         self.OS_UTILITY.copy_file(w_copy_from_path, w_copy_to_path)
         self.OS_UTILITY.copy_file(linux_copy_from_path, linux_copy_to_path)
         self.OS_UTILITY.copy_file(osx_copy_from_path, osx_copy_to_path)

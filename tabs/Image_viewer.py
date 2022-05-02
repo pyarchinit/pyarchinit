@@ -6,7 +6,7 @@
                              stored in Postgres
                              -------------------
     begin                : 2007-12-01
-    copyright            : (C) 2008 by Luca Mandolesi
+    copyright            : (C) 2008 by Luca Mandolesi; Enzo Cocca <enzo.ccc@gmail.com>
     email                : mandoluca at gmail.com
  ***************************************************************************/
 /***************************************************************************
@@ -37,7 +37,7 @@ import numpy as np
 from PIL import ImageGrab
 import time
 from pytesseract import Output
-pytesseract.pytesseract.tesseract_cmd = 'C:\\Program Files (x86)\\Tesseract-OCR\\tesseract.exe'# funziona meglio 
+pytesseract.pytesseract.tesseract_cmd = 'C:\\Program Files\\Tesseract-OCR\\tesseract.exe'# funziona meglio 
 ###############################
 from qgis import PyQt
 from qgis.PyQt.QtCore import *
@@ -958,7 +958,7 @@ class Main(QDialog,MAIN_DIALOG_CLASS):
                             icon = QIcon(str(thumb_path_str)+filepath_thumb)
                             item.setIcon(icon)
                             self.iconListWidget.addItem(item)
-                            self.progressBar.reset()
+                            
                         elif bool(idunique_video_check):
                             data = idunique_video_check
                             id_media = data[0].id_media
@@ -975,6 +975,13 @@ class Main(QDialog,MAIN_DIALOG_CLASS):
                                 self.iconListWidget.addItem(item)
                             except:
                                 pass
+                
+                    for i in enumerate(image):
+                        image_list.append(i[0])
+                    for n in range(len(image_list)):
+                        value = (float(n)/float(len(image_list)))*100
+                        self.progressBar.setValue(value)
+                        QApplication.processEvents()
                 if bool(idunique_video_check):
                     if self.L=='it':
                         QMessageBox.information(self, "Info", "I video sono già caricati nel database")
@@ -989,6 +996,7 @@ class Main(QDialog,MAIN_DIALOG_CLASS):
                         QMessageBox.information(self, "Message", "Hochgeladene Videos! Sie können sie taggen")
                     else:
                         QMessageBox.information(self, "Message", "Uploaded videos! You can tag them")    
+            
             except:
                 if self.L=='it':
                     QMessageBox.warning(self, "Warning", "controlla che il nome del file non abbia caratteri speciali", QMessageBox.Ok)
@@ -996,7 +1004,7 @@ class Main(QDialog,MAIN_DIALOG_CLASS):
                     QMessageBox.warning(self, "Warning", "prüfen, ob der Dateiname keine Sonderzeichen enthält", QMessageBox.Ok)
                 else:
                     QMessageBox.warning(self, "Warning", "check that the file name has no special characters", QMessageBox.Ok)    
-            
+            self.progressBar.reset()
             self.charge_data ()
             self.view_num_rec()
             self.open_images()
@@ -1054,12 +1062,7 @@ class Main(QDialog,MAIN_DIALOG_CLASS):
                                 QMessageBox.warning(self, "Cucu", str(e), QMessageBox.Ok)
                                 # progressBAr
                             
-                            for i in enumerate(image):
-                                image_list.append(i[0])
-                            for n in range(len(image_list)):
-                                value = (float(n)/float(len(image_list)))*100
-                                self.progressBar.setValue(value)
-                                QApplication.processEvents()
+                            
                             
                             self.insert_record_mediathumb(media_max_num_id, mediatype, filename, filename_thumb, filetype,
                                                           filepath_thumb, filepath_resize)
@@ -1068,7 +1071,7 @@ class Main(QDialog,MAIN_DIALOG_CLASS):
                             icon = QIcon(str(thumb_path_str)+filepath_thumb)
                             item.setIcon(icon)
                             self.iconListWidget.addItem(item)
-                            self.progressBar.reset()
+                            #self.progressBar.reset()
                         elif bool(idunique_image_check):
                             data = idunique_image_check
                             id_media = data[0].id_media
@@ -1085,8 +1088,17 @@ class Main(QDialog,MAIN_DIALOG_CLASS):
                                 self.iconListWidget.addItem(item)
                             except:
                                 pass
+                    
+                    for i in enumerate(image):
+                        image_list.append(i[0])
                         
-                
+                    for n in range(len(image_list)):
+                        
+                        value = (float(n)/float(len(image_list)))*100
+                        #QMessageBox.information(self, "Info", str(n)+''+str(len(image_list)))
+                        self.progressBar.setValue(value)
+                        QApplication.processEvents()
+                    
                 if bool(idunique_image_check):
                     if self.L=='it':
                         QMessageBox.information(self, "Info", "Le immagini sono già caricate nel database")
@@ -1109,7 +1121,7 @@ class Main(QDialog,MAIN_DIALOG_CLASS):
                 else:
                     QMessageBox.warning(self, "Warning", "check that the file name has no special characters", QMessageBox.Ok)    
             
-            
+            self.progressBar.reset()
             #####codice da sviluppare per lautotag#########################################
             # for root, directories, files in os.walk(directory, topdown=False):
                 # for name in files:

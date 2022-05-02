@@ -10,9 +10,11 @@
 
 [general]
 name=pyArchInit
-qgisMinimumVersion=3.0
+qgisMinimumVersion=3.22
 description=pyarchinit an tool for archaeological works
-version=2.7.3
+
+version=4.0.0
+
 author=Luca Mandolesi&Enzo Cocca
 email=pyarchinit@gmail.com
 
@@ -22,101 +24,255 @@ about=https://github.com/pyarchinit/pyarchinit
 tracker=https://github.com/pyarchinit/pyarchinit/issues
 repository=https://github.com/pyarchinit/pyarchinit
 
-changelog=release2.7.3
-  
-  	-fix bug pdf export US
+
+changelog=release4.0.0
+
+
+    -create ext-libs
+
+
+  release3.9.19
+
+
+    -create ext-libs
+
+  release3.9.18
+
+    -fix #460
+    -pyarchinit_tomba_view
+
+  release3.9.17
+
+
+    -fix bug #458 #459
+    -fix bug  #459
+  release3.9.17
+
+    -fix bug #456
+    -fix bug #458
+  release3.9.15
+
+    -fixed minor bug
+
+  release3.9.14
+
+    -fixed exportmatix pyarchinit
+
+  release3.9.13
+
+    -fixed svg symbol for EM
+    -add unita_tipo column into pyunitastartigrafiche, pyunitastartigrafiche_usm e pyarchinit_quote, pyarchinit_quote_usm
+
+  release3.9.12
+
+    -add vocabulary online into thesaurus form
+    -update matrix for EM
+  release3.9.11
+
+    -fix quote export pdf
+
+  release3.9.10
+
+    -add option autoincrement invetario materiali
+    -fix minor bugs
+
+  release3.9.9
+
+    -update export form pdf
+
+  release3.9.8.18
+
+    -add totalopenstaion2pyarchinit form
+
+
+  release3.9.8.17
+
+    -add wms igm 25000
+    -update pregressbar in media manager
+    -fix combox_sito in config form
+
+
+
+  release3.9.8.16
+
+    -update wms vincoli on base of the comune attribute
+
+  release3.9.8.15
+
+    -fix install python packages
+
+  release3.9.8.14
+
+    -fix export matrid to ED
+    -update sqlalchemy to 1.4.27
+    -fix update database to import data
+
+
+  release3.9.8.9
+
+    -add form to export to gpkg (vector and raster)
+    - ui gpkg on the top
+    -change background color ui
+  -------------------------------------------------------------------------------
+
+
+  release3.9.8.7
+
+    -update table widget rapporti
+  -------------------------------------------------------------------------------
+
+
+  release3.9.8.6
+
+    -change table widget rapporti
+  -------------------------------------------------------------------------------
+
+  release3.9.8.5
+
+    -rscript update
+  -------------------------------------------------------------------------------
+
+  release3.9.8.4
+
+    -fix bug rapport check
+  -------------------------------------------------------------------------------
+
+  release3.9.8.3
+
+    -fix bug inventario materiali
+  -------------------------------------------------------------------------------
+
+  release3.9.8.2
+
+    -add r script to least cost path
+  -------------------------------------------------------------------------------
+
+
+  release3.9.8.1
+
+    -remove tkinter module
+    -update folder installation: add spatialite_convert and EM_palette
+  -------------------------------------------------------------------------------
+
+
+  release3.9.8
+
+    -add tkinter module
+  -------------------------------------------------------------------------------
+
+
+
+  release3.9.7
+
+    -function for convert db for spatialite 5
+  -------------------------------------------------------------------------------
+
+
+
+
+  release3.9.5
+    -fix db sqlite
+  ------------------------------------------------------------------------------- 
+   release3.9.4
+    -update db sqlite / postgres
+    -add layer pyunitasreatigrafiche_usm e pyarchinit_quote_usm
+    -add view pyarchinit_usm_view pyarchinit_quote_usm_view
+    -update grpups layer
    ------------------------------------------------------------------------------- 
 
-  release2.7.2
-  
-  	-fix bug form excel form
-   -------------------------------------------------------------------------------  
+   release3.9.3
+    -fix bug esportazione pdf usm
 
-  release2.7.1
-  
-  	-fix bug form pdf
-   -------------------------------------------------------------------------------  
+   -------------------------------------------------------------------------------
 
-  release2.7.0
-  
-  	-update export form pdf
-   -------------------------------------------------------------------------------  
+   release3.9.2
+    -wms vincoli archeologici
 
+   -------------------------------------------------------------------------------
 
-  release2.6.9
-  
-  	-update font pdf form us
-   -------------------------------------------------------------------------------  
+   release3.9.1
+    -update connessione
 
+   -------------------------------------------------------------------------------
 
+  release3.9
+    -update area
+    -timeout basemap
+   -------------------------------------------------------------------------------
 
-  release2.6.8
-  
-  	-fix bug #446
-   -------------------------------------------------------------------------------  
+   release3.8.3
+    -update area
+    -timeout basemap
+   -------------------------------------------------------------------------------
 
+   release3.8.2
 
-  release2.6.7
-  
-  	-fix bug #446
-   ------------------------------------------------------------------------------- 
+    -add base map
+    -add wms map
 
+   -------------------------------------------------------------------------------
 
-  release2.6.6
-  
-  	-fix bug #442
-   ------------------------------------------------------------------------------- 
+   release3.8.1
 
-  release2.6.5
-  
-  	-fix bug #440
-   ------------------------------------------------------------------------------- 
+    -uneditable combobox active site
 
+   -------------------------------------------------------------------------------
 
-  release2.6.4
-  
-  	-fix bug #439
-   ------------------------------------------------------------------------------- 
+   release3.8
 
-  release2.6.3
-  
-  	-fix bug #439
-   ------------------------------------------------------------------------------- 
+    -new icon
+	-update template qpt
+	-fix bug create view postgres
 
+   -------------------------------------------------------------------------------
 
-  release2.6.2
-  
-  	-change system table widget rapporti
-	-disable matrix for EM
-   ------------------------------------------------------------------------------- 
+   release3.7
 
+    -new icon
+	-update form site
+	-update pyarchinit_pyqgis
 
-  release2.6.1
-  
-  	-fix bug rapporti check
-   ------------------------------------------------------------------------------- 
-
-  release2.6.0
-  
-  	-fix bug rapporti check
-   ------------------------------------------------------------------------------- 
-  
-  release2.5.9
-        -fix bug inventaio materiali
    -------------------------------------------------------------------------------
 
 
-   release2.5.8
-        -fix bug esportazione usm pdf
+
+   release3.6
+
+        -deleting area from periodizzazione form
+
    -------------------------------------------------------------------------------
 
+   release3.5
 
-   release2.5.7
-        -fix bug area periodizzazione
+        -add print map dialog
+
+   -------------------------------------------------------------------------------
+   release3.4
+
+        -fix bug struttura e periodi view
+        -fix bug postgres update
+
    -------------------------------------------------------------------------------
 
-   release2.5.6
-        -rimosso area da periodizzazione
+   release3.3
+        -update template qpt
+        -view all period in subfolder
+        -fix bug struttura
+        -view structures
+   -------------------------------------------------------------------------------
+
+   release3.2
+        -add template qpt
+        -make your map system
+   -------------------------------------------------------------------------------
+
+   release3.1
+        -add subgroup layer
+        -group view period and phase
+   -------------------------------------------------------------------------------
+
+   release3
+        -add group layer
    -------------------------------------------------------------------------------
 
    release2.5.5
@@ -602,4 +758,3 @@ category=Plugins
 icon=icon.png
 experimental=False
 deprecated=False
-
