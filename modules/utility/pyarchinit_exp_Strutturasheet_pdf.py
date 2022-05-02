@@ -1,3 +1,4 @@
+
 #! /usr/bin/env python
 # -*- coding: utf-8 -*-
 """
@@ -1206,3 +1207,4 @@ class generate_struttura_pdf(object):
         doc.build(lst, canvasmaker=NumberedCanvas_STRUTTURAindex)
 
         f.close()
+

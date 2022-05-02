@@ -1,3 +1,4 @@
+
 #! /usr/bin/env python
 # -*- coding: utf-8 -*-
 """
@@ -237,3 +238,4 @@ if __name__ == '__main__':
     ##	print "gigi"
     gen_pdf = generate_pdf()
     gen_pdf.build_Individui_sheets([["a", "pyArchInit", "c", "d", "e", "f", "g", "h", "i", "l", "m"]])
+
