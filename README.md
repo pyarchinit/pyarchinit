@@ -4,6 +4,9 @@
 [![HitCount](http://hits.dwyl.io/pyarchinit/pyarchinit.svg)](http://hits.dwyl.io/pyarchinit/pyarchinit)
 [![Donate to QGIS](https://img.shields.io/badge/donate%20to-QGIS-green.svg?style=flat-square)](http://qgis.org/en/site/getinvolved/donations.html)
 
+## ATTENZIONE ATTUALMENTE (SETTEMBRE 2021) PYARCHINIT NON E' COMPATIBILE CON SPATIALITE 5 E I NUOVI REPOSITORY E VERSIONI DI QGIS 3.16 e 3.20. E' NECESSARIO INSTALLARE LE VECCHIE VERSIONI TRAMITE OSGEO4w64bit. IN CASO DI PROBLEMI SCRIVETECI SU TELEGRAM @pyarchinit_group
+
+
 ## Installing adding pyarchinit repository into QGIS
 
 # Video per installazione plugin -> [Video](https://www.adarteinfo.it/archivio/pyarchinit-download/install.gif)
@@ -12,8 +15,55 @@ Into QGIS add this link for the master version:
 http://pyarchinit.org/pyarchinit.xml
 
 Testing version #mich (no debugged):
-http://pyarchinit.org/pyarchinit3.xml
 
+http://pyarchinit.org/pyarchinit2em.xml
+
+### ATTENTION FOR FIRST INSTALLATION!!! ###
+
+If you run QGIS as administrator, and after you received this message:
+
+![immagine](https://user-images.githubusercontent.com/1929829/138441433-58fe0436-d737-44a5-ae10-a0a4a9a69e2a.png)
+
+
+You see this Warning
+
+![immagine](https://user-images.githubusercontent.com/1929829/138441554-05e3b06c-aa45-47c8-88c4-1cdc690815a3.png)
+
+This means you have not installed pip3 on your PC. 
+
+NOOOO PANIC
+
+Open your OsGeo4W as administrator and type: setup 
+
+press enter and choose Advanced:
+
+![immagine](https://user-images.githubusercontent.com/1929829/138441766-bff799e4-7733-4134-b7ef-2f7ee0e02041.png)
+
+Go on still Select Packages and looking for pip
+
+![immagine](https://user-images.githubusercontent.com/1929829/138441911-c8b35448-39f7-4bdd-a6c8-3eca0733be30.png)
+
+Click on "skip". It will change in the number of current version.
+
+![immagine](https://user-images.githubusercontent.com/1929829/138442028-76a2cda4-b4b2-4e84-9c6a-f8ef6b9ced3d.png)
+
+Then presso Go On.....
+
+... END .....
+
+Now restart QGIS and install pyArchInit....and...
+
+If it still doesn't run ... install anything by hand.
+
+Oper Osgeo4W Shell as administrator and type
+
+pip3 install "module name"  [ENTER]
+
+![immagine](https://user-images.githubusercontent.com/1929829/138447680-05672eff-a470-4bdf-b940-3f51af7c4931.png)
+
+For each module...
+
+https://user-images.githubusercontent.com/1929829/138441433-58fe0436-d737-44a5-ae10-a0a4a9a69e2a.png
 
 ## Installing from zip
 
@@ -35,10 +85,12 @@ http://pyarchinit.org/pyarchinit3.xml
 #### Dependencies
 * SQLAlchemy
 * reportlab
+* PypeR (for R)
+* [R Software](https://www.r-project.org/)
 * [Graphviz Visualization Software](https://www.graphviz.org/)*(see note)
 * [graphviz python module](https://github.com/xflr6/graphviz)
 * matplotlib
-* pdf2docx==0.4.6
+* pdf2docx
 * pysftp
 
 **Note6:** _Indtruction to install Graphviz on Windows OS (first installation)_
@@ -58,6 +110,19 @@ The dependencies can be installed using the [modules_installer.py](/scripts/modu
 4. Create a pull request: ```git push -u origin <your_branch>```
 
 ![PR](https://services.github.com/on-demand/images/gifs/github-cli/push-and-pull.gif)
+
+When you're installing the modules, if you see not
+
+![immagine](https://user-images.githubusercontent.com/1929829/138449101-32f8a92b-5f3e-48e5-add8-68e897cd5fdf.png)
+
+No module named setuptools
+
+install it by and typing
+
+![immagine](https://user-images.githubusercontent.com/1929829/138449239-2ddffa42-d887-45f0-bea3-38ee1b4d139c.png)
+
+Then continue to install alls the modules
+
 
 ## pyArchInit is used by:
 
@@ -83,3 +148,4 @@ The dependencies can be installed using the [modules_installer.py](/scripts/modu
 * Scavi della villa di Poggio Gramignano, Lugnano in Teverina TR
 * Scavi della necropoli etrusca di Trocchi, Bomarzo, VT
 * Maasser el-Shouf Archaeological Project in Libano
+* Università di Pisa - Villa dei Vetti o anche dell'Oratorio a Capraia e Limite, professor Federico Cantini
