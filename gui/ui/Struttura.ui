@@ -724,6 +724,8 @@
              <pointsize>8</pointsize>
             </font>
            </property>
+
+
            <property name="icon">
             <iconset resource="../../resources/resources.qrc">
              <normaloff>:/icons/directoryExp.png</normaloff>:/icons/directoryExp.png</iconset>
@@ -1646,7 +1648,9 @@ p, li { white-space: pre-wrap; }
         </rect>
        </property>
        <layout class="QGridLayout" name="gridLayout_12">
+
         <item row="1" column="2">
+
          <widget class="QTableWidget" name="tableWidget_materiali_impiegati">
           <property name="frameShape">
            <enum>QFrame::StyledPanel</enum>
@@ -1849,10 +1853,12 @@ p, li { white-space: pre-wrap; }
       <widget class="QgsDockWidget" name="mDockWidget_3">
        <property name="geometry">
         <rect>
+
          <x>50</x>
          <y>20</y>
          <width>600</width>
          <height>259</height>
+
         </rect>
        </property>
        <property name="sizePolicy">
@@ -1864,7 +1870,9 @@ p, li { white-space: pre-wrap; }
        <property name="minimumSize">
         <size>
          <width>600</width>
+
          <height>259</height>
+
         </size>
        </property>
        <property name="floating">
@@ -2171,22 +2179,26 @@ p, li { white-space: pre-wrap; }
  </customwidgets>
  <resources>
   <include location="../../resources/resources.qrc"/>
+
   <include location="../../../pyarchinit-master/resources/resources.qrc"/>
  </resources>
  <connections>
   <connection>
    <sender>pushButton_open_dir</sender>
+
    <signal>pressed()</signal>
    <receiver>mDockWidget_export</receiver>
    <slot>toggleUserVisible()</slot>
    <hints>
     <hint type="sourcelabel">
+
      <x>157</x>
      <y>111</y>
     </hint>
     <hint type="destinationlabel">
      <x>259</x>
      <y>346</y>
+
     </hint>
    </hints>
   </connection>
@@ -2197,12 +2209,14 @@ p, li { white-space: pre-wrap; }
    <slot>toggleUserVisible()</slot>
    <hints>
     <hint type="sourcelabel">
+
      <x>400</x>
      <y>652</y>
     </hint>
     <hint type="destinationlabel">
      <x>615</x>
      <y>608</y>
+
     </hint>
    </hints>
   </connection>

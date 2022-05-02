@@ -1,3 +1,4 @@
+
 #! /usr/bin/env python
 # -*- coding: utf-8 -*-
 """
@@ -751,3 +752,4 @@ class generate_reperti_pdf:
         doc = SimpleDocTemplate(f)
         doc.build(elements, canvasmaker=NumberedCanvas_Invlapsheet)
         f.close()   
+
