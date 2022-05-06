@@ -16,6 +16,12 @@
     <height>755</height>
    </rect>
   </property>
+  <property name="sizePolicy">
+   <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
+    <horstretch>0</horstretch>
+    <verstretch>0</verstretch>
+   </sizepolicy>
+  </property>
   <property name="minimumSize">
    <size>
     <width>450</width>
@@ -3009,12 +3015,12 @@
    <slot>clearEditText()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>421</x>
-     <y>192</y>
+     <x>470</x>
+     <y>222</y>
     </hint>
     <hint type="destinationlabel">
-     <x>462</x>
-     <y>218</y>
+     <x>529</x>
+     <y>252</y>
     </hint>
    </hints>
   </connection>
@@ -3025,12 +3031,12 @@
    <slot>clearEditText()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>421</x>
-     <y>243</y>
+     <x>470</x>
+     <y>282</y>
     </hint>
     <hint type="destinationlabel">
-     <x>462</x>
-     <y>269</y>
+     <x>529</x>
+     <y>312</y>
     </hint>
    </hints>
   </connection>
