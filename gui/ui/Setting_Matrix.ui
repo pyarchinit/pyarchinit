@@ -461,8 +461,18 @@
     </disabled>
    </palette>
   </property>
+  <property name="contextMenuPolicy">
+   <enum>Qt::CustomContextMenu</enum>
+  </property>
   <property name="windowTitle">
    <string>Setting matrix</string>
+  </property>
+  <property name="windowIcon">
+   <iconset resource="../../resources/resources.qrc">
+    <normaloff>:/icons/matrix.png</normaloff>:/icons/matrix.png</iconset>
+  </property>
+  <property name="autoFillBackground">
+   <bool>true</bool>
   </property>
   <property name="sizeGripEnabled">
    <bool>true</bool>
@@ -2905,28 +2915,12 @@
    <slot>close()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>298</x>
-     <y>40</y>
+     <x>312</x>
+     <y>31</y>
     </hint>
     <hint type="destinationlabel">
-     <x>250</x>
-     <y>0</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>set_matrix</sender>
-   <signal>pressed()</signal>
-   <receiver>Dialog_Matrix</receiver>
-   <slot>deleteLater()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>272</x>
-     <y>22</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>25</x>
-     <y>-12</y>
+     <x>197</x>
+     <y>-6</y>
     </hint>
    </hints>
   </connection>
