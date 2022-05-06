@@ -33,17 +33,4 @@ class Setting_Matrix(QDialog,MAIN_DIALOG_CLASS):
     def __init__(self):
         super().__init__()
         self.setupUi(self) 
-        
-        # self.combo_box.currentTextChanged.connect(self.idx_)
-        # # #self.idx_('')
-    
-    # # @pyqtSlot(str)
-    # # def idx_(self,s=''):
-        # # self.s=s
-        # # self.combo_box.setCurrentText(s)
-        # # return self.combo_box.currentText()
-    # def color(self):
-        
-        # return self.idx_()
-    
     
