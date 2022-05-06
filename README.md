@@ -1,4 +1,4 @@
-# ![](icon.png) PyArchInit3 by Luca Mandolesi & Enzo Cocca - QGIS plugin for archaeology - #MICH
+# ![](icon.png) PyArchInit4 by Luca Mandolesi & Enzo Cocca - QGIS plugin for archaeology - #MICH
 [![GitHub release](https://img.shields.io/github/release/pyarchinit/pyarchinit.svg?style=flat-square)](https://github.com/pyarchinit/pyarchinit)
 [![GitHub repo size in bytes](https://img.shields.io/github/repo-size/pyarchinit/pyarchinit.svg?style=flat-square)](https://github.com/pyarchinit/pyarchinit)
 [![HitCount](http://hits.dwyl.io/pyarchinit/pyarchinit.svg)](http://hits.dwyl.io/pyarchinit/pyarchinit)
