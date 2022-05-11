@@ -49,6 +49,10 @@ class pyarchinit_Folder_installation(object):
         
         doc_bin_export_path = '{}{}{}'.format(self.HOME, os.sep, 'DosCo')
         self.OS_UTILITY.create_dir(doc_bin_export_path)
+        
+        f_copy_from_bin_rel = os.path.join(os.sep, 'dbfiles', 'cambria.ttc')
+        f_copy_from_bin = '{}{}'.format(self.RESOURCES_PATH, f_copy_from_bin_rel)
+        f_copy_to_bin = '{}{}{}'.format(home_bin_export_path, os.sep, 'cambria.ttc')
 
         db_copy_from_bin_rel = os.path.join(os.sep, 'dbfiles', 'pyarchinit.sqlite')
         db_copy_from_bin = '{}{}'.format(self.RESOURCES_PATH, db_copy_from_bin_rel)
@@ -87,6 +91,7 @@ class pyarchinit_Folder_installation(object):
         X11Colors_copy_from_path = '{}{}'.format(self.RESOURCES_PATH, X11Colors_copy_from_path_rel)
         X11Colors_copy_to_path = '{}{}{}'.format(home_bin_export_path, os.sep, 'X11Colors.py')
         
+        self.OS_UTILITY.copy_file(f_copy_from_bin, f_copy_to_bin)
         self.OS_UTILITY.copy_file(db_copy_from_bin, db_copy_to_bin)
         self.OS_UTILITY.copy_file(em_copy_from_path, em_copy_to_path)
         self.OS_UTILITY.copy_file(wc_copy_from_path, wc_copy_to_path)
@@ -188,6 +193,10 @@ class pyarchinit_Folder_installation(object):
         doc_bin_export_path = '{}{}{}'.format(self.HOME, os.sep, 'DosCo')
         self.OS_UTILITY.create_dir(doc_bin_export_path)
 
+        f_copy_from_bin_rel = os.path.join(os.sep, 'dbfiles', 'cambria.ttc')
+        f_copy_from_bin = '{}{}'.format(self.RESOURCES_PATH, f_copy_from_bin_rel)
+        f_copy_to_bin = '{}{}{}'.format(home_bin_export_path, os.sep, 'cambria.ttc')
+        
         db_copy_from_bin_rel = os.path.join(os.sep, 'dbfiles', 'pyarchinit.sqlite')
         db_copy_from_bin = '{}{}'.format(self.RESOURCES_PATH, db_copy_from_bin_rel)
         db_copy_to_bin = '{}{}{}'.format(home_bin_export_path, os.sep, 'pyarchinit.sqlite')
@@ -243,7 +252,7 @@ class pyarchinit_Folder_installation(object):
         else:
             with zipfile.ZipFile(rs_zip_copy_from_path, 'r') as zip1_ref:
                 zip1_ref.extractall(test2)
-        
+        self.OS_UTILITY.copy_file(f_copy_from_bin, f_copy_to_bin)
         self.OS_UTILITY.copy_file(db_copy_from_bin, db_copy_to_bin)
         self.OS_UTILITY.copy_file(em_copy_from_path, em_copy_to_path)
         self.OS_UTILITY.copy_file(wc_copy_from_path, wc_copy_to_path)
