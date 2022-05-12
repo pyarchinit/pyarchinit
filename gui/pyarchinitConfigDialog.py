@@ -3571,7 +3571,7 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
             dbapi_conn.load_extension('mod_spatialite.dll')
 
         elif Pyarchinit_OS_Utility.isMac()== True:
-            dbapi_conn.load_extension('mod_spatialite')
+            dbapi_conn.load_extension('mod_spatialite.so')
         else:
             dbapi_conn.load_extension('mod_spatialite.so')
 
