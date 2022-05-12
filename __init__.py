@@ -19,10 +19,12 @@
 """
 
 import os
+from os import path
 import re
 import subprocess
 import sys
 import traceback
+import platform
 from qgis.core import QgsMessageLog, Qgis, QgsSettings
 from .modules.utility.pyarchinit_OS_utility import Pyarchinit_OS_Utility
 from .modules.utility.pyarchinit_folder_installation import pyarchinit_Folder_installation
@@ -173,6 +175,29 @@ for p in packages:
                                 "INFO: It seems that Graphviz is not installed on your system or you don't have set the path in Pyarchinit config. Anyway the graphviz python module will be installed on your system, but the export matrix functionality from pyarchinit plugin will be disabled.",
                                 QMessageBox.Ok | QMessageBox.Cancel)                    
     
+        if platform.system() == "Darwin":
+            location =  os.path.expanduser("~/Library/Fonts")
+                     
+                    
+            if not path.exists(location+'/cambria.ttc'):
+                
+            
+                QMessageBox.warning(None, 'Pyarchinit',
+                    "INFO: Il font Cambria sembra non essere installato. per installarlo clicca Ok\n e poi doppio click su cambria.ttc\Dopo ricarica il plugin",
+                    QMessageBox.Ok)   
+                   
+                if QMessageBox.Ok:
+                    
+                    HOME = os.environ['PYARCHINIT_HOME']
+                    path = '{}{}{}'.format(HOME, os.sep, "bin")
+                    
+                    subprocess.Popen(["open", path])
+               
+                    
+        
+        
 def classFactory(iface):
+    
+                
     from .pyarchinitPlugin import PyArchInitPlugin
     return PyArchInitPlugin(iface)
