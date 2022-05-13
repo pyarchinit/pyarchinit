@@ -1,21 +1,20 @@
 # -*- coding: utf-8 -*-
 
-'''
-A group of Line objects.
-
-@created: 2020-07-24
-@author: train8808@gmail.com
+'''A group of Line objects.
 '''
 
-from docx.shared import Pt
+
+import string
 from .Line import Line
-from ..common.utils import get_main_bbox
+from .TextSpan import TextSpan
+from ..image.ImageSpan import ImageSpan
+from ..common.Collection import ElementCollection
+from ..common.share import TextAlignment
 from ..common import constants
-from ..common.Collection import Collection
-from ..common import docx
 
-class Lines(Collection):
-    '''Text line list.'''
+
+class Lines(ElementCollection):
+    '''Collection of text lines.'''
 
     @property
     def unique_parent(self):
@@ -23,23 +22,16 @@ class Lines(Collection):
         if not bool(self): return False
 
         first_line = self._instances[0]
-        return all(line.same_parent_with(first_line) for line in self._instances)
-
-    def append(self, line:Line):
-        '''Override. Append a line and update line pid and parent bbox.'''
-        super().append(line)
-
-        # update original parent id
-        if not self._parent is None:
-            line.pid = id(self._parent)
+        return all(line.same_source_parent(first_line) for line in self._instances)
 
 
-    def from_dicts(self, raws:list):
+    def restore(self, raws:list):
         '''Construct lines from raw dicts list.'''
         for raw in raws:
             line = Line(raw)
             self.append(line)
         return self
+
 
     @property
     def image_spans(self):
@@ -49,188 +41,215 @@ class Lines(Collection):
             spans.extend(line.image_spans)
         return spans
 
-
-    def intersects(self, line:Line, threshold:float):
-        ''' Get the index of intersected line. Return -1 if no intersection.'''
-        is_image_line = bool(line.image_spans)
-
-        f = threshold
-        for i, instance in enumerate(self._instances):
-            # for image line, reduce the intersection threshold
-            if instance.image_spans or is_image_line: f = threshold/2.0
-            
-            if get_main_bbox(instance.bbox, line.bbox, threshold=f): return i
-        
-        return -1
-
     
-    def join(self):
-        ''' Merge lines aligned horizontally in a block. The main purposes:
-            - remove overlapped lines, e.g. floating images
-            - make inline image as a span in text line logically
+    def split_vertically_by_text(self, line_break_free_space_ratio:float, new_paragraph_free_space_ratio:float):
+        '''Split lines into separate paragraph by checking text. The parent text block consists of 
+        lines with similar line spacing, while lines in other paragraph might be counted when the
+        paragraph spacing is relatively small. So, it's necessary to split those lines by checking
+        the text contents.
+
+        .. note::
+            Considered only normal reading direction, from left to right, from top
+            to bottom.
         '''
-        # skip if empty
-        if not self._instances: return self
-    
-        # sort lines
-        self.sort()
+        rows = self.group_by_physical_rows()
 
-        # check each line
+        # skip if only one row
+        num = len(rows)
+        if num==1: return rows
+
+        # standard row width with first row excluded, considering potential indentation of fist line
+        W = max(row[-1].bbox[2]-row[0].bbox[0] for row in rows[1:])
+        H = sum(row[0].bbox[3]-row[0].bbox[1] for row in rows) / num
+
+        # check row by row
+        res = []
         lines = Lines()
-        for line in self._instances:
-            
-            # first line
-            if not lines:
-                lines.append(line)
-                continue
-            
-            # keep the larger line if intersection exists (with margin considered)
-            i = lines.intersects(line, threshold=constants.FACTOR_A_HALF)
-            if i != -1:
-                if lines[i].bbox.getArea() < line.bbox.getArea():
-                    lines.pop(i)
-                    lines.append(line)
-                continue            
+        punc = tuple(constants.SENTENSE_END_PUNC)
+        start_of_para = end_of_para = False # start/end of paragraph
+        start_of_sen = end_of_sen = False   # start/end of sentense
+        for row in rows:
+            end_of_sen = row[-1].text.strip().endswith(punc)
+            w =  row[-1].bbox[2]-row[0].bbox[0]
 
-            # add line directly if not aligned horizontally with previous line
-            if not line.horizontally_align_with(lines[-1]):
-                lines.append(line)
-                continue
+            # end of a sentense and free space at the end -> end of paragraph
+            if end_of_sen and w/W <= 1.0-line_break_free_space_ratio:
+                end_of_para = True
 
-            # if it exists x-distance obviously to previous line,
-            # take it as a separate line as it is
-            if abs(line.bbox.x0-lines[-1].bbox.x1) > constants.MINOR_DIST:
-                lines.append(line)
-                continue
+            # start of sentense and free space at the start -> start of paragraph
+            elif start_of_sen and (W-w)/H >= new_paragraph_free_space_ratio:
+                start_of_para = True
 
-            # now, this line will be append to previous line as a span
-            lines[-1].add(list(line.spans))
-
-        # update lines in block
-        self.reset(lines)
-
-
-    def split(self, threshold:float):
-        ''' Split vertical lines and try to make lines in same original text block grouped together.
-
-            To the first priority considering docx recreation, horizontally aligned lines must be assigned to same group.
-            After that, if only one line in each group, lines in same original text block can be group together again 
-            even though they are in different physical lines.
-        '''
-        # split vertically
-        # set a non-zero but small factor to avoid just overlaping in same edge
-        fun = lambda a,b: a.horizontally_align_with(b, factor=threshold)
-        groups = self.group(fun) 
-
-        # check count of lines in each group
-        for group in groups:
-            if len(group) > 1: # first priority
-                break
-        
-        # now one line per group -> docx recreation is fullfilled, 
-        # then consider lines in same original text block
-        else:
-            fun = lambda a,b: a.same_parent_with(b)
-            groups = self.group(fun)
-
-        # NOTE: group() may destroy the order of lines, so sort in line level
-        for group in groups: group.sort()
-
-        return groups
-
-
-    def sort(self):
-        ''' Sort lines considering text direction.
-            Taking natural reading direction for example:
-            reading order for rows, from left to right for lines in row.
-
-            In the following example, A should come before B.
-            ```
-                             +-----------+
-                +---------+  |           |
-                |   A     |  |     B     |
-                +---------+  +-----------+
-            ```
-            Steps:
-              - sort lines in reading order, i.e. from top to bottom, from left to right.
-              - group lines in row
-              - sort lines in row: from left to right
-        '''
-        # sort in reading order
-        self.sort_in_reading_order()
-
-        # split lines in separate row
-        lines_in_rows = [] # type: list[list[Line]]
-
-        for line in self._instances:
-
-            # add lines to a row group if not in same row with previous line
-            if not lines_in_rows or not line.in_same_row(lines_in_rows[-1][-1]):
-                lines_in_rows.append([line])
-            
-            # otherwise, append current row group
+            # take action
+            if end_of_para:
+                lines.extend(row)
+                res.append(lines)
+                lines = Lines()
+            elif start_of_para:
+                res.append(lines)
+                lines = Lines()
+                lines.extend(row)
             else:
-                lines_in_rows[-1].append(line)
+                lines.extend(row)
+
+            # for next round
+            start_of_sen = end_of_sen
+            start_of_para = end_of_para = False
         
-        # sort lines in each row: consider text direction
-        idx = 0 if self.is_horizontal_text else 3
-        self._instances = []
-        for row in lines_in_rows:
-            row.sort(key=lambda line: line.bbox[idx])
-            self._instances.extend(row)
+        # close the action
+        if lines: res.append(lines)
+
+        return res
 
 
-    def group_by_columns(self):
-        ''' Group lines into columns.'''
-        # split in columns
-        fun = lambda a,b: a.vertically_align_with(b, text_direction=False)
-        groups = self.group(fun)
+    def adjust_last_word(self, delete_end_line_hyphen:bool):
+        '''Adjust word at the end of line:
+        # - it might miss blank between words from adjacent lines
+        # - it's optional to delete hyphen since it might not at the the end 
+           of line after conversion
+        '''
+        punc_ex_hyphen = ''.join(c for c in string.punctuation if c!='-')
+        def is_end_of_english_word(c):
+            return c.isalnum() or (c and c in punc_ex_hyphen)
         
-        # NOTE: increasing in x-direction is required!
-        groups.sort(key=lambda group: group.bbox.x0)
-        return groups
+        for i, line in enumerate(self._instances[:-1]):
+            # last char in this line
+            end_span = line.spans[-1]
+            if not isinstance(end_span, TextSpan): continue
+            end_chars = end_span.chars
+            if not end_chars: continue 
+            end_char = end_chars[-1]
+
+            # first char in next line
+            start_span = self._instances[i+1].spans[0]
+            if not isinstance(start_span, TextSpan): continue
+            start_chars = start_span.chars
+            if not start_chars: continue 
+            next_start_char = start_chars[0]            
+
+            # delete hyphen if next line starts with lower case letter
+            if delete_end_line_hyphen and \
+                end_char.c.endswith('-') and next_start_char.c.islower(): 
+                end_char.c = '' # delete hyphen in a tricky way
 
 
-    def group_by_rows(self):
-        ''' Group lines into rows.'''
-        # split in rows, with original text block considered
-        groups = self.split(threshold=0.0)
-
-        # NOTE: increasing in y-direction is required!
-        groups.sort(key=lambda group: group.bbox.y0)
-
-        return groups
+            # add a space if both the last char and the first char in next line are alphabet,  
+            # number, or English punctuation (excepting hyphen)
+            if is_end_of_english_word(end_char.c) and is_end_of_english_word(next_start_char.c):
+                end_char.c += ' ' # add blank in a tricky way
 
 
-    def make_docx(self, p):
-        '''Create lines in paragraph.'''
+    def parse_text_format(self, shape):
+        '''Parse text format with style represented by rectangle shape.
+        
+        Args:
+            shape (Shape): Potential style shape applied on blocks.
+        
+        Returns:
+            bool: Whether a valid text style.
+        '''
+        flag = False
+
+        for line in self._instances:
+            # any intersection in this line?
+            expanded_bbox = line.get_expand_bbox(constants.MAJOR_DIST)
+            if not shape.bbox.intersects(expanded_bbox): 
+                if shape.bbox.y1 < line.bbox.y0: break # lines must be sorted in advance
+                continue
+
+            # yes, then try to split the spans in this line
+            split_spans = []
+            for span in line.spans: 
+                # include image span directly
+                if isinstance(span, ImageSpan): split_spans.append(span)                   
+
+                # split text span with the format rectangle: span-intersection-span
+                else:
+                    spans = span.split(shape, line.is_horizontal_text)
+                    split_spans.extend(spans)
+                    flag = True
+                                            
+            # update line spans                
+            line.spans.reset(split_spans)
+
+        return flag
+
+
+    def parse_line_break(self, bbox, 
+                line_break_width_ratio:float, 
+                line_break_free_space_ratio:float):
+        '''Whether hard break each line. 
+
+        Args:
+            bbox (Rect): bbox of parent layout, e.g. page or cell.
+            line_break_width_ratio (float): user defined threshold, break line if smaller than this value.
+            line_break_free_space_ratio (float): user defined threshold, break line if exceeds this value.
+
+        Hard line break helps ensure paragraph structure, but pdf-based layout calculation may
+        change in docx due to different rendering mechanism like font, spacing. For instance, when
+        one paragraph row can't accommodate a Line, the hard break leads to an unnecessary empty row.
+        Since we can't 100% ensure a same structure, it's better to focus on the content - add line
+        break only when it's necessary to, e.g. short lines.
+        '''
+
         block = self.parent        
-        idx = 0 if block.is_horizontal_text else 3
-        current_pos = block.left_space
+        idx0, idx1 = (0, 2) if block.is_horizontal_text else (3, 1)
+        block_width = abs(block.bbox[idx1]-block.bbox[idx0])
+        layout_width = bbox[idx1] - bbox[idx0]
 
-        for i, line in enumerate(self._instances):
+        # hard break if exceed the width ratio
+        line_break = block_width/layout_width <= line_break_width_ratio
 
-            # left indentation implemented with tab
-            pos = block.left_space + (line.bbox[idx]-block.bbox[idx])
-            if pos>block.left_space:
-                docx.add_stop(p, Pt(pos), Pt(current_pos))
+        # check by each physical row
+        rows = self.group_by_physical_rows()
+        for lines in rows:
+            for line in lines: line.line_break = 0
 
-            # add line
-            line.make_docx(p)
-
-            # hard line break is necessary, otherwise the paragraph structure may change in docx,
-            # which leads to the pdf-based layout calculation becomes wrong
-            line_break = True
-
-            # no more lines after last line
-            if line==self._instances[-1]: line_break = False            
-            
-            # do not break line if they're indeed in same line
-            elif line.in_same_row(self._instances[i+1]):
-                line_break = False
-            
-            if line_break:
-                p.add_run('\n')
-                current_pos = block.left_space
+            # check the end line depending on text alignment
+            if block.alignment == TextAlignment.RIGHT:
+                end_line = lines[0]
+                free_space = abs(block.bbox[idx0]-end_line.bbox[idx0])
             else:
-                current_pos = pos + line.bbox.width
+                end_line = lines[-1]
+                free_space = abs(block.bbox[idx1]-end_line.bbox[idx1])
+            
+            if block.alignment == TextAlignment.CENTER: free_space *= 2 # two side space
+            
+            # break line if 
+            # - width ratio lower than the threshold; or 
+            # - free space exceeds the threshold
+            if line_break or free_space/block_width > line_break_free_space_ratio:
+                end_line.line_break = 1
+        
+        # no break for last row
+        for line in rows[-1]: line.line_break = 0
+
+
+    def parse_tab_stop(self, line_separate_threshold:float):
+        '''Calculate tab stops for parent block and whether add TAB stop before each line. 
+
+        Args:
+            line_separate_threshold (float): Don't need a tab stop if the line gap less than this value.
+        '''
+        # set all tab stop positions for parent block
+        # Note these values are relative to the left boundary of parent block
+        block = self.parent        
+        idx0, idx1 = (0, 2) if block.is_horizontal_text else (3, 1)
+        fun = lambda line: round(abs(line.bbox[idx0]-block.bbox[idx0]), 1)
+        all_pos = set(map(fun, self._instances))
+        block.tab_stops = list(filter(lambda pos: pos>=constants.MINOR_DIST, all_pos))
+
+        # no tab stop need
+        if not block.tab_stops: return
+
+        # otherwise, set tab stop option for each line
+        ref = block.bbox[idx0]
+        for i, line in enumerate(self._instances):
+            # left indentation implemented with tab
+            distance = line.bbox[idx0] - ref
+            if distance>line_separate_threshold:
+                line.tab_stop = 1
+
+            # update stop reference position
+            if line==self._instances[-1]: break
+            ref = line.bbox[idx1] if line.in_same_row(self._instances[i+1]) else block.bbox[idx0]

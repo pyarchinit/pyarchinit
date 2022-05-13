@@ -95,7 +95,7 @@ except Exception as e:
 try:
     import pkg_resources
 
-    pkg_resources.require("pdf2docx==0.4.6")
+    pkg_resources.require("pdf2docx==0.5.3")
 
 except Exception as e:
     missing_libraries.append(str(e))
@@ -110,7 +110,7 @@ except Exception as e:
         pip_path=sys.exec_prefix
         
         cmd = '{}/bin/pip3'.format(pip_path)
-        subprocess.call([cmd, 'install', 'pdf2docx==0.4.6' ], shell=False)
+        subprocess.call([cmd, 'install', 'pdf2docx==0.5.3' ], shell=False)
 
 try:
     import sqlalchemy_utils
