@@ -179,11 +179,11 @@ for p in packages:
             location =  os.path.expanduser("~/Library/Fonts")
                      
                     
-            if not path.exists(location+'/cambria.ttc'):
+            if not path.exists(location+'/cambria.ttc') or path.exists(location+'/Cambria.ttf') or path.exists(location+'/cambriab.ttf') or path.exists(location+'/cambriai.ttf') or path.exists(location+'/cambriaz.ttc'):
                 
             
                 QMessageBox.warning(None, 'Pyarchinit',
-                    "INFO: Il font Cambria sembra non essere installato. per installarlo clicca Ok\n e poi doppio click su cambria.ttc\Dopo ricarica il plugin",
+                    "INFO: Il font Cambria sembra non essere installato. per installarlo clicca Ok\n e poi doppio click su cambria.*\Dopo ricarica il plugin",
                     QMessageBox.Ok)   
                    
                 if QMessageBox.Ok:
