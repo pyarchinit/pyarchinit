@@ -1,3 +1,0 @@
-[console_scripts]
-pdf2docx = pdf2docx.main:main
-
