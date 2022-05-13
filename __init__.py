@@ -179,7 +179,7 @@ for p in packages:
             location =  os.path.expanduser("~/Library/Fonts")
                      
                     
-            if not path.exists(location+'/cambria.ttc') or path.exists(location+'/Cambria.ttf') or path.exists(location+'/cambriab.ttf') or path.exists(location+'/cambriai.ttf') or path.exists(location+'/cambriaz.ttc'):
+            if not path.exists(location+'/cambria.ttc') or not path.exists(location+'/Cambria.ttf') or not  path.exists(location+'/cambriab.ttf') or not path.exists(location+'/cambriai.ttf') or not path.exists(location+'/cambriaz.ttc'):
                 
             
                 QMessageBox.warning(None, 'Pyarchinit',
