@@ -4,7 +4,223 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="13d9711e-af47-4516-9a74-091c329d410d" name="Changes" comment="#471 fix bug for mac" />
+    <list default="true" id="13d9711e-af47-4516-9a74-091c329d410d" name="Changes" comment="#471 fix bug for mac">
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/__init__.py" beforeDir="false" afterPath="$PROJECT_DIR$/__init__.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/ext-libs/PyMuPDF-1.19.1.dist-info/COPYING" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/ext-libs/PyMuPDF-1.19.1.dist-info/INSTALLER" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/ext-libs/PyMuPDF-1.19.1.dist-info/METADATA" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/ext-libs/PyMuPDF-1.19.1.dist-info/RECORD" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/ext-libs/PyMuPDF-1.19.1.dist-info/WHEEL" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/ext-libs/cv2/cv2.cpython-39-darwin.so" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/ext-libs/cv2/opencv_videoio_ffmpeg453_64.dll" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/ext-libs/docx/__init__.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/ext-libs/docx/api.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/ext-libs/docx/blkcntnr.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/ext-libs/docx/compat.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/ext-libs/docx/dml/__init__.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/ext-libs/docx/dml/color.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/ext-libs/docx/document.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/ext-libs/docx/enum/__init__.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/ext-libs/docx/enum/base.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/ext-libs/docx/enum/dml.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/ext-libs/docx/enum/section.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/ext-libs/docx/enum/shape.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/ext-libs/docx/enum/style.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/ext-libs/docx/enum/table.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/ext-libs/docx/enum/text.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/ext-libs/docx/exceptions.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/ext-libs/docx/image/__init__.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/ext-libs/docx/image/bmp.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/ext-libs/docx/image/constants.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/ext-libs/docx/image/exceptions.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/ext-libs/docx/image/gif.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/ext-libs/docx/image/helpers.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/ext-libs/docx/image/image.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/ext-libs/docx/image/jpeg.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/ext-libs/docx/image/png.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/ext-libs/docx/image/tiff.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/ext-libs/docx/opc/__init__.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/ext-libs/docx/opc/compat.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/ext-libs/docx/opc/constants.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/ext-libs/docx/opc/coreprops.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/ext-libs/docx/opc/exceptions.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/ext-libs/docx/opc/oxml.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/ext-libs/docx/opc/package.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/ext-libs/docx/opc/packuri.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/ext-libs/docx/opc/part.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/ext-libs/docx/opc/parts/__init__.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/ext-libs/docx/opc/parts/coreprops.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/ext-libs/docx/opc/phys_pkg.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/ext-libs/docx/opc/pkgreader.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/ext-libs/docx/opc/pkgwriter.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/ext-libs/docx/opc/rel.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/ext-libs/docx/opc/shared.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/ext-libs/docx/opc/spec.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/ext-libs/docx/oxml/__init__.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/ext-libs/docx/oxml/coreprops.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/ext-libs/docx/oxml/document.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/ext-libs/docx/oxml/exceptions.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/ext-libs/docx/oxml/ns.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/ext-libs/docx/oxml/numbering.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/ext-libs/docx/oxml/section.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/ext-libs/docx/oxml/settings.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/ext-libs/docx/oxml/shape.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/ext-libs/docx/oxml/shared.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/ext-libs/docx/oxml/simpletypes.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/ext-libs/docx/oxml/styles.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/ext-libs/docx/oxml/table.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/ext-libs/docx/oxml/text/__init__.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/ext-libs/docx/oxml/text/font.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/ext-libs/docx/oxml/text/paragraph.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/ext-libs/docx/oxml/text/parfmt.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/ext-libs/docx/oxml/text/run.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/ext-libs/docx/oxml/xmlchemy.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/ext-libs/docx/package.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/ext-libs/docx/parts/__init__.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/ext-libs/docx/parts/document.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/ext-libs/docx/parts/hdrftr.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/ext-libs/docx/parts/image.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/ext-libs/docx/parts/numbering.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/ext-libs/docx/parts/settings.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/ext-libs/docx/parts/story.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/ext-libs/docx/parts/styles.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/ext-libs/docx/section.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/ext-libs/docx/settings.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/ext-libs/docx/shape.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/ext-libs/docx/shared.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/ext-libs/docx/styles/__init__.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/ext-libs/docx/styles/latent.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/ext-libs/docx/styles/style.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/ext-libs/docx/styles/styles.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/ext-libs/docx/table.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/ext-libs/docx/templates/default-footer.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/ext-libs/docx/templates/default-header.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/ext-libs/docx/templates/default-settings.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/ext-libs/docx/templates/default-styles.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/ext-libs/docx/templates/default.docx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/ext-libs/docx/text/__init__.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/ext-libs/docx/text/font.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/ext-libs/docx/text/paragraph.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/ext-libs/docx/text/parfmt.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/ext-libs/docx/text/run.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/ext-libs/docx/text/tabstops.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/ext-libs/fire/__init__.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/ext-libs/fire/__main__.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/ext-libs/fire/completion.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/ext-libs/fire/completion_test.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/ext-libs/fire/console/__init__.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/ext-libs/fire/console/console_attr.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/ext-libs/fire/console/console_attr_os.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/ext-libs/fire/console/console_io.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/ext-libs/fire/console/console_pager.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/ext-libs/fire/console/encoding.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/ext-libs/fire/console/files.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/ext-libs/fire/console/platforms.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/ext-libs/fire/console/text.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/ext-libs/fire/core.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/ext-libs/fire/core_test.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/ext-libs/fire/custom_descriptions.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/ext-libs/fire/custom_descriptions_test.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/ext-libs/fire/decorators.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/ext-libs/fire/decorators_test.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/ext-libs/fire/docstrings.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/ext-libs/fire/docstrings_fuzz_test.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/ext-libs/fire/docstrings_test.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/ext-libs/fire/fire_import_test.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/ext-libs/fire/fire_test.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/ext-libs/fire/formatting.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/ext-libs/fire/formatting_test.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/ext-libs/fire/formatting_windows.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/ext-libs/fire/helptext.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/ext-libs/fire/helptext_test.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/ext-libs/fire/inspectutils.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/ext-libs/fire/inspectutils_test.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/ext-libs/fire/interact.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/ext-libs/fire/interact_test.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/ext-libs/fire/main_test.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/ext-libs/fire/parser.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/ext-libs/fire/parser_fuzz_test.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/ext-libs/fire/parser_test.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/ext-libs/fire/test_components.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/ext-libs/fire/test_components_bin.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/ext-libs/fire/test_components_py3.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/ext-libs/fire/test_components_test.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/ext-libs/fire/testutils.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/ext-libs/fire/testutils_test.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/ext-libs/fire/trace.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/ext-libs/fire/trace_test.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/ext-libs/fire/value_types.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/ext-libs/fitz/__init__.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/ext-libs/fitz/__main__.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/ext-libs/fitz/_fitz.cpython-39-darwin.so" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/ext-libs/fitz/_fitz.pyd" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/ext-libs/fitz/fitz.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/ext-libs/fitz/utils.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/ext-libs/opencv_python-4.5.1.48.dist-info/INSTALLER" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/ext-libs/opencv_python-4.5.1.48.dist-info/LICENSE-3RD-PARTY.txt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/ext-libs/opencv_python-4.5.1.48.dist-info/LICENSE.txt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/ext-libs/opencv_python-4.5.1.48.dist-info/METADATA" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/ext-libs/opencv_python-4.5.1.48.dist-info/RECORD" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/ext-libs/opencv_python-4.5.1.48.dist-info/REQUESTED" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/ext-libs/opencv_python-4.5.1.48.dist-info/WHEEL" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/ext-libs/opencv_python-4.5.1.48.dist-info/top_level.txt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/ext-libs/opencv_python_headless-4.5.3.56.dist-info/INSTALLER" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/ext-libs/opencv_python_headless-4.5.3.56.dist-info/LICENSE-3RD-PARTY.txt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/ext-libs/opencv_python_headless-4.5.3.56.dist-info/LICENSE.txt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/ext-libs/opencv_python_headless-4.5.3.56.dist-info/METADATA" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/ext-libs/opencv_python_headless-4.5.3.56.dist-info/RECORD" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/ext-libs/opencv_python_headless-4.5.3.56.dist-info/WHEEL" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/ext-libs/opencv_python_headless-4.5.3.56.dist-info/top_level.txt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/ext-libs/pdf2docx-0.4.6.dist-info/INSTALLER" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/ext-libs/pdf2docx-0.4.6.dist-info/LICENSE" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/ext-libs/pdf2docx-0.4.6.dist-info/METADATA" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/ext-libs/pdf2docx-0.4.6.dist-info/RECORD" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/ext-libs/pdf2docx-0.4.6.dist-info/REQUESTED" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/ext-libs/pdf2docx-0.4.6.dist-info/WHEEL" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/ext-libs/pdf2docx-0.4.6.dist-info/entry_points.txt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/ext-libs/pdf2docx-0.4.6.dist-info/top_level.txt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/ext-libs/pdf2docx/__init__.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/ext-libs/pdf2docx/common/BBox.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/ext-libs/pdf2docx/common/Block.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/ext-libs/pdf2docx/common/Collection.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/ext-libs/pdf2docx/common/__init__.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/ext-libs/pdf2docx/common/base.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/ext-libs/pdf2docx/common/constants.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/ext-libs/pdf2docx/common/docx.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/ext-libs/pdf2docx/common/pdf.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/ext-libs/pdf2docx/common/rect_intersection.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/ext-libs/pdf2docx/common/utils.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/ext-libs/pdf2docx/converter.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/ext-libs/pdf2docx/image/Image.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/ext-libs/pdf2docx/image/ImageBlock.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/ext-libs/pdf2docx/image/ImageSpan.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/ext-libs/pdf2docx/image/__init__.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/ext-libs/pdf2docx/layout/Blocks.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/ext-libs/pdf2docx/layout/Layout.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/ext-libs/pdf2docx/layout/__init__.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/ext-libs/pdf2docx/main.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/ext-libs/pdf2docx/shape/Path.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/ext-libs/pdf2docx/shape/Shape.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/ext-libs/pdf2docx/shape/Shapes.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/ext-libs/pdf2docx/shape/__init__.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/ext-libs/pdf2docx/table/Border.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/ext-libs/pdf2docx/table/Cell.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/ext-libs/pdf2docx/table/Cells.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/ext-libs/pdf2docx/table/Row.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/ext-libs/pdf2docx/table/Rows.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/ext-libs/pdf2docx/table/TableBlock.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/ext-libs/pdf2docx/table/TableStructure.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/ext-libs/pdf2docx/table/TablesConstructor.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/ext-libs/pdf2docx/table/__init__.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/ext-libs/pdf2docx/text/Char.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/ext-libs/pdf2docx/text/Line.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/ext-libs/pdf2docx/text/Lines.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/ext-libs/pdf2docx/text/Spans.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/ext-libs/pdf2docx/text/TextBlock.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/ext-libs/pdf2docx/text/TextSpan.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/ext-libs/pdf2docx/text/__init__.py" beforeDir="false" />
+    </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -21,6 +237,18 @@
   </component>
   <component name="GithubDefaultAccount">
     <option name="defaultAccountId" value="3716b4d5-8ed8-402e-a24e-43894efbf059" />
+  </component>
+  <component name="HighlightingSettingsPerFile">
+    <setting file="file://$PROJECT_DIR$/tabs/networkaccessmanager.py" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/__init__.py" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/tabs/US_USM.py" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/modules/utility/settings.py" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/scripts/modules_installer.py" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/modules/utility/pyarchinit_folder_installation.py" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/metadata.txt" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/resources/dbfiles/dottoxml.py" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/tabs/gpkg_export.py" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/tabs/Site.py" root0="FORCE_HIGHLIGHTING" />
   </component>
   <component name="ProblemsViewState">
     <option name="showPreview" value="true" />
@@ -49,6 +277,27 @@
     </option>
   </component>
   <component name="RunManager">
+    <configuration default="true" type="PythonConfigurationType" factoryName="Python">
+      <module name="pyarchinit" />
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <envs>
+        <env name="PYTHONUNBUFFERED" value="1" />
+      </envs>
+      <option name="SDK_HOME" value="" />
+      <option name="WORKING_DIRECTORY" value="" />
+      <option name="IS_MODULE_SDK" value="false" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <option name="SCRIPT_NAME" value="" />
+      <option name="PARAMETERS" value="" />
+      <option name="SHOW_COMMAND_LINE" value="false" />
+      <option name="EMULATE_TERMINAL" value="false" />
+      <option name="MODULE_MODE" value="false" />
+      <option name="REDIRECT_INPUT" value="false" />
+      <option name="INPUT_FILE" value="" />
+      <method v="2" />
+    </configuration>
     <configuration name="test" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
       <module name="pyarchinit" />
       <option name="INTERPRETER_OPTIONS" value="" />
