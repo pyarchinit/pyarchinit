@@ -1,145 +1,74 @@
 # -*- coding: utf-8 -*-
 
-'''
-Table Cell object.
-
-@created: 2020-07-23
-@author: train8808@gmail.com
+'''Table Cell object.
 '''
 
 from docx.shared import Pt
-from ..text.TextBlock import TextBlock
-from ..common.BBox import BBox
-from ..common.utils import RGB_component
+from ..common.Element import Element
+from ..layout.Layout import Layout
 from ..common import docx
-from ..layout import Blocks # avoid import conflict
 
 
-class Cell(BBox):
-    ''' Cell object.'''
-    def __init__(self, raw:dict={}):
-        if raw is None: raw = {}
-        super().__init__(raw)
+class Cell(Element, Layout):
+    '''Cell object.'''
+    def __init__(self, raw:dict=None):
+        raw = raw or {}
+        Element.__init__(self, raw=raw)
         self.bg_color     = raw.get('bg_color', None) # type: int
         self.border_color = raw.get('border_color', (0,0,0,0)) # type: tuple [int]
         self.border_width = raw.get('border_width', (0,0,0,0)) # type: tuple [float]
         self.merged_cells = raw.get('merged_cells', (1,1)) # type: tuple [int]
 
-        # collect blocks
-        self.blocks = Blocks.Blocks(parent=self).from_dicts(raw.get('blocks', []))
+        # restore layout
+        Layout.__init__(self, blocks=None, shapes=None) # init empty layout
+        self.restore(raw)
 
 
     @property
     def text(self):
         '''Text contained in this cell.'''
-        return '\n'.join([block.text for block in self.blocks]) if bool(self) else None
+        if not self: return None
+        # NOTE: sub-table may exists in 
+        return '\n'.join([block.text if block.is_text_block else '<NEST TABLE>'
+                                 for block in self.blocks])
 
-    
-    def compare(self, cell, threshold:float=0.9):
-        '''whether has same structure with given Cell.
-            ---
-            Args:
-              - cell: Cell instance to compare
-              - threshold: two bboxes are considered same if the overlap area exceeds threshold.
-        '''
-        # bbox
-        res, msg = super().compare(cell, threshold)
-        if not res: return res, msg
 
-        # cell style        
-        if self.bg_color != cell.bg_color:
-            return False, f'Inconsistent background color @ Cell {self.bbox}:\n{self.bg_color} v.s. {cell.bg_color} (expected)'
-
-        if tuple(self.border_color) != tuple(cell.border_color):
-            return False, f'Inconsistent border color @ Cell {self.bbox}:\n{self.border_color} v.s. {cell.border_color} (expected)'
-
-        if tuple(self.border_width) != tuple(cell.border_width):
-            return False, f'Inconsistent border width @ Cell {self.bbox}:\n{self.border_width} v.s. {cell.border_width} (expected)'
-
-        if tuple(self.merged_cells) != tuple(cell.merged_cells):
-            return False, f'Inconsistent count of merged cells @ Cell {self.bbox}:\n{self.merged_cells} v.s. {cell.merged_cells} (expected)'
-
-        return True, ''
+    @property
+    def working_bbox(self):
+        '''Inner bbox with border excluded.'''
+        x0, y0, x1, y1 = self.bbox
+        w_top, w_right, w_bottom, w_left = self.border_width
+        bbox = (x0+w_left/2.0, y0+w_top/2.0, x1-w_right/2.0, y1-w_bottom/2.0)
+        return Element().update_bbox(bbox).bbox # convert to fitz.Rect
 
 
     def store(self):
         if bool(self):
-            res = super().store()
+            res = super().store() # Element
             res.update({
                 'bg_color': self.bg_color,
                 'border_color': self.border_color,
                 'border_width': self.border_width,
-                'merged_cells': self.merged_cells,
-                'blocks': self.blocks.store()
+                'merged_cells': self.merged_cells
             })
+            res.update(Layout.store(self))
             return res
         else:
             return None
 
 
-    def plot(self, page, content:bool=True, style:bool=True, color:tuple=None):
-        '''Plot cell.
-            ---
-            Args:
-              - page: fitz.Page object
-              - content: plot text blocks if True
-              - style: plot cell style if True, e.g. border width, shading; otherwise draw table border only
-              - color: table border color when style=False              
-        '''        
-        # plot cell style
-        if style:
-            # border color and width
-            bc = [x/255.0 for x in RGB_component(self.border_color[0])]
-            w = self.border_width[0]
-
-            # shading color
-            if self.bg_color != None:
-                sc = [x/255.0 for x in RGB_component(self.bg_color)] 
-            else:
-                sc = None
-            super().plot(page, stroke=bc, fill=sc, width=w)
-        
-        # or just cell borders for illustration
-        else:
-            super().plot(page, stroke=color, fill=None)
-
-        # plot blocks contained in cell
-        if content: self.blocks.plot(page)
-
-
-    def add(self, block):
-        ''' Add block to this cell. 
-            ---
-            Arg:
-            - block: text block or table block
-
-            Note: If it's a text block and partly contained in a cell, it must deep into line -> span -> char.
-        '''
-        # add block directly if fully contained in cell
-        if self.bbox.contains(block.bbox):
-            self.blocks.append(block)
-            return
-        
-        # add nothing if no intersection
-        if not self.bbox & block.bbox: return
-
-        # otherwise, further check lines in text block
-        if not block.is_text_block():  return
-        
-        # NOTE: add each line as a single text block to avoid overlap between table block and combined lines
-        split_block = TextBlock()
-        for line in block.lines:
-            L = line.intersects(self.bbox)
-            split_block.add(L)
-        self.blocks.append(split_block)
+    def plot(self, page):
+        '''Plot cell and its sub-layout.'''        
+        super().plot(page)
+        self.blocks.plot(page)
 
 
     def make_docx(self, table, indexes):
         '''Set cell style and assign contents.
-            ---
-            Args:
-              - table: docx table instance
-              - indexes: (i, j), row and column indexes
+        
+        Args:
+            table (Table): ``python-docx`` table instance.
+            indexes (tuple): Row and column indexes, ``(i, j)``.
         '''        
         # set cell style, e.g. border, shading, cell width
         self._set_style(table, indexes)
@@ -168,16 +97,16 @@ class Cell(BBox):
         # But, docx requires at least one paragraph in each cell, otherwise resulting in a repair error. 
         if self.blocks:
             docx_cell._element.clear_content()
-            self.blocks.make_page(docx_cell)
+            self.blocks.make_docx(docx_cell)
 
 
     def _set_style(self, table, indexes):
-        ''' Set python-docx cell style, e.g. border, shading, width, row height, 
-            based on cell block parsed from PDF.
-            ---
-            Args:
-              - table: python-docx table object
-              - indexes: (i, j) index of current cell in table
+        '''Set ``python-docx`` cell style, e.g. border, shading, width, row height, 
+        based on cell block parsed from PDF.
+        
+        Args:
+            table (Table): ``python-docx`` table object.
+            indexes (tuple): ``(i, j)`` index of current cell in table.
         '''
         i, j = indexes
         docx_cell = table.cell(i, j)

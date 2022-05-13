@@ -1,12 +1,8 @@
 # -*- coding: utf-8 -*-
 
-'''
-Text block objects based on PDF raw dict extracted with PyMuPDF.
+'''Text block objects based on PDF raw dict extracted with ``PyMuPDF``.
 
-@created: 2020-07-22
-@author: train8808@gmail.com
----
-https://pymupdf.readthedocs.io/en/latest/textpage.html
+Data structure based on this `link <https://pymupdf.readthedocs.io/en/latest/textpage.html>`_::
 
     {
         # raw dict
@@ -29,51 +25,78 @@ https://pymupdf.readthedocs.io/en/latest/textpage.html
     }
 '''
 
-from docx.shared import Pt
+from docx.shared import (Pt,Inches)
 from docx.enum.text import WD_ALIGN_PARAGRAPH
-
-from .Line import Line
 from .Lines import Lines
 from ..image.ImageSpan import ImageSpan
-from ..common.base import TextDirection, TextAlignment
+from ..common.share import (RectType, TextAlignment, lower_round)
 from ..common.Block import Block
-from ..common.utils import RGB_component_from_name
+from ..common.share import (rgb_component_from_name, lower_round)
 from ..common import constants
 from ..common import docx
 
 
 class TextBlock(Block):
     '''Text block.'''
-    def __init__(self, raw:dict={}):
-        # bbox is calculated from contained lines
-        # so remove key 'bbox' here
+    def __init__(self, raw:dict=None):
+        raw = raw or {}
+        
+        # remove key 'bbox' since it is calculated from contained lines
         if 'bbox' in raw: raw.pop('bbox') 
         super().__init__(raw)
 
         # collect lines
-        self.lines = Lines(parent=self).from_dicts(raw.get('lines', []))
+        self.lines = Lines(parent=self).restore(raw.get('lines', []))
 
         # set type
         self.set_text_block()
 
+
     @property
     def text(self):
-        '''Get text content in block, joning each line with `\n`.'''
+        '''Text content in block. Note image is counted as a placeholder ``<image>``.'''
         lines_text = [line.text for line in self.lines]
-        return '\n'.join(lines_text)
+        return ''.join(lines_text)
 
-    
+    @property
+    def raw_text(self):
+        '''Raw text content in block without considering images.'''
+        lines_text = [line.raw_text for line in self.lines]
+        return ''.join(lines_text)
+
+    @property
+    def white_space_only(self):
+        '''If this block contains only white space or not. If True, this block is safe to be removed.'''
+        return all(line.white_space_only for line in self.lines)
+
     @property
     def text_direction(self):
-        '''All lines contained in text block must have same text direction. Otherwise, set normal direction'''            
-        res = set(line.text_direction for line in self.lines)
-        # consider two text direction only:  left-right, bottom-top
-        if TextDirection.IGNORE in res:
-            return TextDirection.IGNORE
-        elif len(res)==1:
-            return list(res)[0]
-        else:
-            return TextDirection.LEFT_RIGHT
+        '''All lines contained in text block must have same text direction. 
+        Otherwise, set normal direction.
+        '''            
+        return self.lines.text_direction
+
+    @property
+    def average_row_gap(self):
+        '''Average distance between adjacent two physical rows.'''
+        idx = 1 if self.is_horizontal_text else 0
+        rows = self.lines.group_by_physical_rows()
+        num = len(rows)
+
+        # no gap if single row
+        if num==1: return None
+        
+        # multi-lines block
+        block_height = self.bbox[idx+2]-self.bbox[idx]
+        f_max_row_height = lambda row: max(abs(line.bbox[idx+2]-line.bbox[idx]) for line in row)
+        sum_row_height = sum(map(f_max_row_height, rows))
+        return (block_height-sum_row_height) / (num-1)
+    
+
+    @property
+    def row_count(self):
+        '''Count of physical rows.'''
+        return len(self.lines.group_by_physical_rows())
 
 
     def store(self):
@@ -84,187 +107,167 @@ class TextBlock(Block):
         return res
 
 
-    def add(self, line:Line):
-        '''Add line to TextBlock.'''
-        self.lines.append(line)
-
-
-    def split(self):
-        ''' Split contained lines vertically and create associated text blocks.'''
-        blocks = [] # type: list[TextBlock]
-        for lines in self.lines.split(threshold=constants.FACTOR_A_FEW):
-            text_block = TextBlock()
-            text_block.lines.reset(list(lines))
-            blocks.append(text_block)
-        
-        return blocks
+    def add(self, line_or_lines):
+        '''Add line or lines to TextBlock.'''        
+        if isinstance(line_or_lines, (Lines, list, tuple)):
+            for line in line_or_lines:
+                self.lines.append(line)
+        else:
+            self.lines.append(line_or_lines)
 
 
     def plot(self, page):
-        '''Plot block/line/span area, in PDF page.
-           ---
-            Args: 
-              - page: fitz.Page object
+        '''Plot block/line/span area for debug purpose.
+        
+        Args:
+            page (fitz.Page): pdf page.
         '''
         # block border in blue
-        blue = RGB_component_from_name('blue')   
-        super().plot(page, stroke=blue)
+        blue = rgb_component_from_name('blue')   
+        super().plot(page, stroke=blue, dashes='[3.0 3.0] 0')
 
         # lines and spans
         for line in self.lines:
             # line border in red
-            red = RGB_component_from_name('red')
+            red = rgb_component_from_name('red')
             line.plot(page, stroke=red)
 
             # span regions in random color
             for span in line.spans:
-                c = RGB_component_from_name('')                
+                c = rgb_component_from_name('')                
                 span.plot(page, color=c)
 
 
-    def contains_discrete_lines(self, distance:float=25, threshold:int=2):
-        ''' Check whether lines in block are discrete: 
-              - the count of lines with a distance larger than `distance` is greater then `threshold`.
-              - ImageSpan exists
-              - vertical text exists
-        '''
-        num = len(self.lines)
-        if num==1: return False
-
-        # check image spans
-        if self.lines.image_spans: return True
-
-        # check text direction
-        if self.is_vertical_text: return True
-
-        # check the count of discrete lines
-        cnt = 1
-        for i in range(num-1):
-            line = self.lines[i]
-            next_line = self.lines[i+1]
-
-            if line.horizontally_align_with(next_line):
-                # if two lines are intersected each other, it's of no use to detect table cells
-                if line.bbox & next_line.bbox:
-                    continue
-
-                # horizontally aligned but not in a same row -> discrete block
-                elif not line.in_same_row(next_line): return True
-                
-                # otherwise, check the distance only
-                elif abs(line.bbox.x1-next_line.bbox.x0) > distance:
-                    cnt += 1
-
-        return cnt >= threshold
-
-    
-    def parse_text_format(self, rects):
-        '''parse text format with style represented by rectangles.
-            ---
-            Args:
-              - rects: Shapes, potential styles applied on blocks
+    def parse_text_format(self, shapes):
+        '''Parse text format with style represented by rectangles.
+        
+        Args:
+            shapes (Shapes): Shapes representing potential styles applied on blocks.
         '''
         flag = False
 
         # use each rectangle (a specific text format) to split line spans
-        for rect in rects:
+        for shape in shapes:
 
-            # a same style rect applies on only one block
-            if rect.is_determined: continue
+            # a same style shape applies on only one block
+            # EXCEPTION: hyperlink shape is determined in advance
+            if not shape.equal_to_type(RectType.HYPERLINK) and shape.is_determined: continue
 
             # any intersection with current block?
-            if not self.bbox.intersects(rect.bbox): continue
+            if not self.bbox.intersects(shape.bbox): continue
 
-            # yes, then go further to lines in block            
-            for line in self.lines:
-                # any intersection in this line?
-                intsec = rect.bbox & line.get_expand_bbox(constants.TINY_DIST)
-                
-                if not intsec: 
-                    if rect.bbox.y1 < line.bbox.y0: break # lines must be sorted in advance
-                    continue
-
-                # yes, then try to split the spans in this line
-                split_spans = []
-                for span in line.spans: 
-                    # include image span directly
-                    if isinstance(span, ImageSpan): split_spans.append(span)                   
-
-                    # split text span with the format rectangle: span-intersection-span
-                    else:
-                        spans = span.split(rect, line.is_horizontal_text)
-                        split_spans.extend(spans)
-                        flag = True
-                                                
-                # update line spans                
-                line.spans.reset(split_spans)
+            # yes, then go further to lines in block
+            if self.lines.parse_text_format(shape):
+                flag = True
 
         return flag
 
 
-    def parse_horizontal_spacing(self, bbox):
+    def parse_horizontal_spacing(self, bbox,
+                    line_separate_threshold:float,
+                    line_break_width_ratio:float,
+                    line_break_free_space_ratio:float,
+                    lines_left_aligned_threshold:float,
+                    lines_right_aligned_threshold:float,
+                    lines_center_aligned_threshold:float):
         ''' Set horizontal spacing based on lines layout and page bbox.
-            - The general spacing is determined by paragraph alignment and indentation.
-            - The detailed spacing of block lines is determined by tab stops.
+        
+        * The general spacing is determined by paragraph alignment and indentation.
+        * The detailed spacing of block lines is determined by tab stops.
 
-            Multiple alignment modes may exist in block (due to improper organized lines
-            from PyMuPDF), e.g. some lines align left, and others right. In this case,
-            LEFT alignment is set, and use TAB to position each line.
+        Multiple alignment modes may exist in block (due to improper organized lines
+        from ``PyMuPDF``), e.g. some lines align left, and others right. In this case,
+        **LEFT** alignment is set, and use ``TAB`` to position each line.
         '''
         # NOTE: in PyMuPDF CS, horizontal text direction is same with positive x-axis,
         # while vertical text is on the contrary, so use f = -1 here
         idx0, idx1, f = (0, 2, 1.0) if self.is_horizontal_text else (3, 1, -1.0)
         
-        # the idea is to detect alignments based on internal lines and external bbox,
-        # the alignment mode fulfilled with both these two criteria is preferred.
-        int_mode = self._internal_alignments((idx0, idx1, f))
-        ext_mode = self._external_alignments(bbox, (idx0, idx1, f)) # set horizontal space additionally
-        mode = int_mode & ext_mode
+        # text alignment
+        self.alignment = self._parse_alignment(bbox, 
+            (idx0, idx1, f),
+            line_separate_threshold,
+            lines_left_aligned_threshold,
+            lines_right_aligned_threshold,
+            lines_center_aligned_threshold)
 
-        # now, decide the alignment accordingly
-        for align_mode in TextAlignment:
-            if align_mode.value==mode:
-                self.alignment = align_mode
-                break
-        else:
-            self.alignment = TextAlignment.LEFT # LEFT by default
+        # if still can't decide, set LEFT by default and ensure position by TAB stops        
+        if self.alignment == TextAlignment.NONE:
+            self.alignment = TextAlignment.LEFT
+            self.lines.parse_tab_stop(line_separate_threshold)
+        
+        # adjust left/right indentation:
+        # - set single side indentation if single line
+        # - add minor space if multi-lines
+        row_count = self.row_count
+        if row_count==1 and self.alignment == TextAlignment.LEFT:
+            self.right_space = 0
 
-        # tab stops for block lines
-        if self.alignment != TextAlignment.LEFT: return
+        elif row_count==1 and self.alignment == TextAlignment.RIGHT:
+            self.left_space = 0
+        
+        elif row_count==1 and self.alignment == TextAlignment.CENTER:
+            self.left_space = 0
+            self.right_space = 0
+        
+        # parse line break
+        self.lines.parse_line_break(bbox, 
+            line_break_width_ratio, 
+            line_break_free_space_ratio)
 
-        # NOTE: relative stop position to left boundary of block is calculated, so block.left_space is required
-        fun = lambda line: round((line.bbox[idx0]-self.bbox[idx0])*f, 1) # relative position to block
-        all_pos = set(map(fun, self.lines))
-        self.tab_stops = list(filter(lambda pos: pos>=constants.MINOR_DIST, all_pos))        
+
+    def parse_relative_line_spacing(self):
+        '''Calculate relative line spacing, e.g. `spacing = 1.02`.  Relative line spacing is based on standard 
+        single line height, which is font-related. 
+
+        .. note::
+            The line spacing could be updated automatically when changing the font size, while the layout might
+            be broken in exact spacing mode, e.g. overlapping of lines.
+        '''
+        # return default line spacing if any images exists
+        for line in self.lines:
+            if list(span for span in line.spans if isinstance(span, ImageSpan)):
+                self.line_space = constants.DEFULT_LINE_SPACING
+                return
+
+        # otherwise, calculate average line spacing
+        idx = 1 if self.is_horizontal_text else 0
+        block_height = self.bbox[idx+2]-self.bbox[idx]
+        
+        # An approximate expression: 
+        # standard_line_height * relative_line_spacing = block_height
+        rows = self.lines.group_by_physical_rows()        
+        fun_max_line_height = lambda line: max(span.line_height for span in line.spans)
+        fun_max_row_height = lambda row: max(fun_max_line_height(line) for line in row)
+        standard_height = sum(fun_max_row_height(row) for row in rows)
+        line_space = block_height/standard_height
+
+        # overlap may exist when multi-rows, so set minimum spacing  -> default spacing
+        if len(rows)>1: line_space = max(line_space, constants.DEFULT_LINE_SPACING)
+        self.line_space = line_space
 
 
-    def parse_line_spacing(self):
-        '''Calculate average line spacing.
+    def parse_exact_line_spacing(self):
+        '''Calculate exact line spacing, e.g. `spacing = Pt(12)`. 
 
-            The layout of pdf text block: line-space-line-space-line, excepting space before first line, 
-            i.e. space-line-space-line, when creating paragraph in docx. So, an average line height = space+line.
+        The layout of pdf text block: line-space-line-space-line, excepting space before first line, 
+        i.e. space-line-space-line, when creating paragraph in docx. So, an average line height is 
+        ``space+line``. Then, the height of first line can be adjusted by updating paragraph before-spacing.
 
-            Then, the height of first line can be adjusted by updating paragraph before-spacing.
+        .. note::
+            Compared with the relative spacing mode, it has a more precise layout, but less flexible editing
+            ability, especially changing the font size.
         '''
 
         # check text direction
-        idx = 1 if self.is_horizontal_text else 0
+        idx = 1 if self.is_horizontal_text else 0       
 
-        ref_line = None
-        count = 0
-
-        for line in self.lines:
-            # count of lines
-            if not line.in_same_row(ref_line): count += 1
-
-            # update reference line
-            ref_line = line            
-        
         bbox = self.lines[0].bbox   # first line
         first_line_height = bbox[idx+2] - bbox[idx]
         block_height = self.bbox[idx+2]-self.bbox[idx]
         
         # average line spacing
+        count = self.row_count # count of rows
         if count > 1:
             line_space = (block_height-first_line_height)/(count-1)
         else:
@@ -283,161 +286,186 @@ class TextBlock(Block):
 
 
     def make_docx(self, p):
-        ''' Create paragraph for a text block.
-            ---
-            Args:
-              - p: docx paragraph instance
+        '''Create paragraph for a text block.
 
-            NOTE:
-            - the left position of paragraph set by paragraph indent, rather than TAB stop
-            - hard line break is used for line in block.
+        Refer to ``python-docx`` doc for details on text format:
 
-            Generally, a pdf block is a docx paragraph, with block->line as line in paragraph.
-            But without the context, it's not able to recognize a block line as word wrap, or a 
-            separate line instead. A rough rule used here: block line will be treated as separate 
-            line, except this line and next line are indeed in the same line.
+        * https://python-docx.readthedocs.io/en/latest/user/text.html
+        * https://python-docx.readthedocs.io/en/latest/api/enum/WdAlignParagraph.html#wdparagraphalignment
+        
+        Args:
+            p (Paragraph): ``python-docx`` paragraph instance.
 
-            Refer to python-docx doc for details on text format:
-            - https://python-docx.readthedocs.io/en/latest/user/text.html
-            - https://python-docx.readthedocs.io/en/latest/api/enum/WdAlignParagraph.html#wdparagraphalignment
+        .. note::
+            The left position of paragraph is set by paragraph indent, rather than ``TAB`` stop.
         '''
         pf = docx.reset_paragraph_format(p)
 
+        # ------------------------------------
         # vertical spacing
+        # ------------------------------------
         before_spacing = max(round(self.before_space, 1), 0.0)
         after_spacing = max(round(self.after_space, 1), 0.0)
-
         pf.space_before = Pt(before_spacing)
         pf.space_after = Pt(after_spacing)        
 
         # line spacing
-        pf.line_spacing = Pt(round(self.line_space, 1))
+        if self.line_space_type==0: # exact line spacing
+            pf.line_spacing = Pt(round(self.line_space, 1))
+        else: # relative line spacing
+            pf.line_spacing = round(self.line_space, 2)
 
+        # ------------------------------------
         # horizontal alignment
-        if self.alignment==TextAlignment.LEFT:
-            pf.alignment = WD_ALIGN_PARAGRAPH.LEFT
-            pf.left_indent  = Pt(self.left_space)
+        # ------------------------------------
+        # (1) set paragraph indentation
+        # NOTE: different left spacing setting in case first line indent and hanging
+        left_space  = self.left_space        
+        if self.first_line_space<0: # in case hanging
+            left_space -= self.first_line_space           
+        
+        pf.left_indent  = Pt(left_space)
+        pf.right_indent  = Pt(self.right_space)
+        pf.first_line_indent = Pt(self.first_line_space)
 
+        # (2) set alignment mode and adjust indentation:
+        # round indention on the opposite side to lower bound (inches), so it saves more space to 
+        # avoid unexpected line break
+        if self.alignment==TextAlignment.LEFT:
+            pf.alignment = WD_ALIGN_PARAGRAPH.LEFT            
             # set tab stops to ensure line position
             for pos in self.tab_stops:
                 pf.tab_stops.add_tab_stop(Pt(self.left_space + pos))
+            
+            # adjust right indent
+            d = lower_round(self.right_space/constants.ITP, 1)
+            pf.right_indent = Inches(d)
 
         elif self.alignment==TextAlignment.RIGHT:
             pf.alignment = WD_ALIGN_PARAGRAPH.RIGHT
-            pf.right_indent  = Pt(self.right_space)
+            
+            # adjust left indent
+            d = lower_round(left_space/constants.ITP, 1)
+            pf.left_indent = Inches(d)
 
         elif self.alignment==TextAlignment.CENTER:
             pf.alignment = WD_ALIGN_PARAGRAPH.CENTER
 
+            # adjust both left and right indent
+            d = lower_round(left_space/constants.ITP, 1)
+            pf.left_indent = Inches(d)
+            d = lower_round(self.right_space/constants.ITP, 1)
+            pf.right_indent = Inches(d)
+
         else:
             pf.alignment = WD_ALIGN_PARAGRAPH.JUSTIFY
-            pf.left_indent  = Pt(self.left_space)
-            pf.right_indent  = Pt(self.right_space)
 
-        # add lines        
-        self.lines.make_docx(p)
+        # ------------------------------------
+        # add lines
+        # ------------------------------------
+        for line in self.lines: line.make_docx(p)
 
         return p
 
 
 
-    def _internal_alignments(self, text_direction_param:tuple):
-        ''' Detect text alignment mode based on layout of internal lines. 
-            Return possibility of the alignments, left-center-right-justify e.g. 
-            - 0b1000 = left align
-            - 0b0100 = center align
-            - 0b1111 = possible to any alignment mode
-            ---
-            Args:
-            - text_direction_param: (x0_index, x1_index, direction_factor), e.g. (0, 2, 1) for horizontal text, 
-            while (3, 1, -1) for vertical text.
-        '''
-        # get lines in each physical row
-        fun = lambda a,b: a.in_same_row(b)
-        rows = self.lines.group(fun)
-
-        # just one row -> can't decide -> full possibility
-        if len(rows) < 2: return 0b1111
-
-        # indexes based on text direction
-        idx0, idx1, f = text_direction_param
-
-        # --------------------------------------------------------------------------
-        # First priority: significant distance exists in any two adjacent lines -> align left
-        # --------------------------------------------------------------------------
-        for row in rows:
-            if len(row)==1: continue
-            for i in range(1, len(row)):
-                dis = (row[i].bbox[idx0]-row[i-1].bbox[idx1])*f
-                if dis >= constants.MAJOR_DIST:
-                    return 0b1000
-
-        # --------------------------------------------------------------------------
-        # Then check alignment of internal lines
-        # --------------------------------------------------------------------------
-        X0 = [lines[0].bbox[idx0]  for lines in rows]
-        X1 = [lines[-1].bbox[idx1] for lines in rows]
-        X  = [(x0+x1)/2.0 for (x0, x1) in zip(X0, X1)]
-
-        left_aligned   = abs(max(X0)-min(X0))<=constants.MINOR_DIST
-        right_aligned  = abs(max(X1)-min(X1))<=constants.MINOR_DIST
-        center_aligned = abs(max(X)-min(X))  <=constants.MINOR_DIST * 2.0 # coarse margin ofr center alignment
-
-        # Note the case that all lines aligned left, but with last line removed, it becomes justify mode.
-        if left_aligned and len(rows)>=3: # at least 2 lines excepting the last line
-            X1 = X1[0:-1]
-            right_aligned = abs(max(X1)-min(X1))<=constants.MINOR_DIST
-            if right_aligned: return 0b0001
-
-        # use bits to represent alignment status
-        mode = (int(left_aligned), int(center_aligned), int(right_aligned), 0)
-        res = 0
-        for i, x in enumerate(mode): res += x * 2**(3-i)
+    def _parse_alignment(self, bbox,
+                    text_direction_param:tuple, 
+                    line_separate_threshold:float,
+                    lines_left_aligned_threshold:float,
+                    lines_right_aligned_threshold:float,
+                    lines_center_aligned_threshold:float):
+        '''Detect text alignment mode based on layout of internal lines. It can't decide when only
+        one line, in such case, the alignment mode is determined by externally check.
         
-        return res
-
-
-    def _external_alignments(self, bbox:list, text_direction_param:tuple):
-        ''' Detect text alignment mode based on the position to external bbox. 
-            Return possibility of the alignments, left-center-right-justify, e.g. 
-            - 0b1000 = left align
-            - 0b0100 = center align
-            - 0b1111 = possible to any alignment mode
-            ---
-            Args:
-            - bbox: page or cell bbox where this text block locates in.
-            - text_direction_param: (x0_index, x1_index, direction_factor), e.g. (0, 2, 1) for horizontal text, 
-            while (3, 1, -1) for vertical text.
+        Args:
+            text_direction_param (tuple): ``(x0_index, x1_index, direction_factor)``, 
+                e.g. ``(0, 2, 1)`` for horizontal text, while ``(3, 1, -1)`` for vertical text.
         '''
         # indexes based on text direction
         idx0, idx1, f = text_direction_param
 
-        # position to the bbox
+        # check external position: text block to parent layout
         d_left   = round((self.bbox[idx0]-bbox[idx0])*f, 1) # left margin
         d_right  = round((bbox[idx1]-self.bbox[idx1])*f, 1) # right margin
         d_center = round((d_left-d_right)/2.0, 1)           # center margin
         d_left   = max(d_left, 0.0)
         d_right  = max(d_right, 0.0)
+        W = abs(bbox[idx1]-bbox[idx0]) # bbox width
 
         # NOTE: set horizontal space
         self.left_space  = d_left
         self.right_space = d_right
 
-        # first priority -> overall layout of block and bbox: 
-        # - when the width is as long as the bbox -> we can't decide the mode
-        # - when the width is half lower than the bbox -> check close to left or right side
-        width_ratio = (self.bbox[idx1]-self.bbox[idx0]) / (bbox[idx1]-bbox[idx0])
-        if width_ratio >= constants.FACTOR_MOST: 
-            return 0b1111
-        
-        elif width_ratio < 0.5:
-            return 0b1000 if abs(d_left) <= abs(d_right) else 0b0010
-        
-        # then, check if align center precisely
-        elif abs(d_center) < constants.MINOR_DIST * 3.0: 
-            return 0b0100
+        # --------------------------------------------------------------------------
+        # First priority: 
+        # significant distance exists in any two adjacent lines -> set NONE temporarily. 
+        # Assign left-align to it later and ensure exact position of each line by TAB stop. 
+        # --------------------------------------------------------------------------
+        rows = self.lines.group_by_physical_rows() # lines in each physical row
+        for row in rows:
+            if len(row)==1: continue
+            dis = [(row[i].bbox[idx0]-row[i-1].bbox[idx1])*f>=line_separate_threshold \
+                        for i in range(1, len(row))]
+            if any(dis):
+                return TextAlignment.NONE
 
-        # otherwise, we can't decide it
-        else:
-            return 0b1111
+        # --------------------------------------------------------------------------
+        # determined by position to external bbox if one line only
+        # the priority: center > left > right
+        # --------------------------------------------------------------------------
+        # |    ============    | -> center
+        # |   ================ | -> left
+        # |        =========== | -> right
+        def external_alignment():         
+            if abs(d_center) < lines_center_aligned_threshold: 
+                return TextAlignment.CENTER
+            elif d_left <= 0.25*W:
+                return TextAlignment.LEFT
+            else:
+                return TextAlignment.RIGHT
         
+        if len(rows) == 1: return external_alignment()
+
+        # --------------------------------------------------------------------------
+        # Check alignment of internal lines:
+        # When count of lines >= 3:
+        # - left-alignment based on lines excepting the first line
+        # - right-alignment based on lines excepting the last line
+        # the exact position of first line is considered by first-line-indent
+        # =========     =======   =========  | =========   =========
+        # =========   =========     =======  |   =======   =======
+        # =========   =========     =======  |
+        # ======      =========     =====    |
+        # --------------------------------------------------------------------------
+        X0 = [lines[0].bbox[idx0]  for lines in rows]
+        X1 = [lines[-1].bbox[idx1] for lines in rows]
+        X  = [(x0+x1)/2.0 for (x0, x1) in zip(X0, X1)]
+
+        if len(rows) >= 3: X0, X1 = X0[1:], X1[0:-1]
+        left_aligned   = abs(max(X0)-min(X0))<=lines_left_aligned_threshold
+        right_aligned  = abs(max(X1)-min(X1))<=lines_right_aligned_threshold
+        center_aligned = abs(max(X)-min(X))<=lines_center_aligned_threshold # coarse margin for center alignment
+
+        if left_aligned and right_aligned:
+            # need further external check if two lines only
+            alignment = TextAlignment.JUSTIFY if len(rows)>=3 else external_alignment()
+
+        elif center_aligned:
+            alignment = TextAlignment.CENTER
+
+        elif left_aligned:            
+            alignment = TextAlignment.LEFT
+
+        elif right_aligned:
+            # change right alignment to left if two lines only
+            alignment = TextAlignment.RIGHT if len(rows)>=3 else TextAlignment.LEFT
+
+        else:
+            alignment = TextAlignment.NONE
+        
+        # set first line space in case left/justify
+        if alignment==TextAlignment.LEFT or alignment==TextAlignment.JUSTIFY:
+            self.first_line_space = rows[0][0].bbox[idx0] - rows[1][0].bbox[idx0]
+        
+        return alignment

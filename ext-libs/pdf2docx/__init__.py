@@ -1,3 +1,3 @@
 from .converter import Converter
-from .layout.Layout import Layout
-from .main import parse, extract_tables
+from .page.Page import Page
+from .main import parse

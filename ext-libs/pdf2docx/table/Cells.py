@@ -1,19 +1,20 @@
 # -*- coding: utf-8 -*-
 
-'''
-Collection of Cell instances.
-
-@created: 2020-08-15
-@author: train8808@gmail.com
+'''Collection of Cell instances.
 '''
 
 from .Cell import Cell
-from ..common.Collection import Collection
+from ..common.Collection import ElementCollection
 
 
-class Cells(Collection):
+class Cells(ElementCollection):
     '''A group of Cells.'''
-    def from_dicts(self, raws:list):
+    def restore(self, raws:list):
+        '''Restore Cells from source dict.
+
+        Args:
+            raws (list): A list of source dict.
+        '''
         for raw in raws:
             cell = Cell(raw)
             self.append(cell)
@@ -23,3 +24,4 @@ class Cells(Collection):
         '''Override. Append a cell (allow empty cell, i.e. merged cells) and update bbox accordingly.'''
         self._instances.append(cell)
         self._update_bbox(cell)
+        cell.parent = self._parent # set parent
