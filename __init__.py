@@ -100,7 +100,11 @@ try:
 except Exception as e:
     missing_libraries.append(str(e))
 
+    if platform.system() == 'Windows':
+        #pip_path = sys.exec_prefix
 
+        #cmd = '{}\bin/pip3'.format(pip_path)
+        subprocess.call(['pip', 'install', 'pdf2docx==0.4.6'], shell=False)
     if platform.system() == 'Darwin':
         
         pip_path=sys.exec_prefix
@@ -126,7 +130,18 @@ try:
     pkg_resources.require("opencv-python")
     import cv2 
 except Exception as e:
-    missing_libraries.append(str(e))    
+    missing_libraries.append(str(e))
+    if platform.system() == 'Windows':
+        #pip_path = sys.exec_prefix
+
+        #cmd = '{}\bin/pip3'.format(pip_path)
+        subprocess.call(['pip', 'install', 'opencv-python'], shell=False)
+
+    if platform.system() == 'Darwin':
+        pip_path = sys.exec_prefix
+
+        cmd = '{}/bin/pip3'.format(pip_path)
+        subprocess.call([cmd, 'install', 'opencv-python'], shell=False)
 
 try:
     import pandas
