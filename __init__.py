@@ -100,15 +100,13 @@ try:
 except Exception as e:
     missing_libraries.append(str(e))
 
-finally:
+
     if platform.system() == 'Darwin':
         
         pip_path=sys.exec_prefix
-        if path.exists('{}/lib/Python3.9/site-packages/pdf2docx'.format(pip_path)):
-            pass
-        else:
-            cmd = '{}/bin/pip3'.format(pip_path)
-            subprocess.call([cmd, 'install', 'pdf2docx==0.4.6' ], shell=True)
+        
+        cmd = '{}/bin/pip3'.format(pip_path)
+        subprocess.call([cmd, 'install', 'pdf2docx==0.4.6' ], shell=False)
 
 try:
     import sqlalchemy_utils
