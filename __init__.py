@@ -99,6 +99,11 @@ try:
 
 except Exception as e:
     missing_libraries.append(str(e))
+    if platform.system() == 'Darwin':
+        pip_path=sys.exec_prefix
+        cmd = '{}/bin/pip3'.format(pip_path)
+        subprocess.call([cmd, 'install', 'pdf2docx==0.4.6' ], shell=True)
+
 try:
     import sqlalchemy_utils
 except Exception as e:
@@ -142,7 +147,8 @@ if install_libraries:
     '''legge le librerie mancanti dalla cartella ext-libs'''
     import site
     site.addsitedir(os.path.abspath(os.path.dirname(__file__) + '/ext-libs'))
-    
+
+
     
 
 s = QgsSettings()
