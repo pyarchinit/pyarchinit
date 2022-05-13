@@ -1,30 +1,25 @@
 # -*- coding: utf-8 -*-
 
-'''
-Row in a table.
-
-@created: 2020-08-15
-@author: train8808@gmail.com
+'''Row in a table.
 '''
 
 from docx.enum.table import WD_ROW_HEIGHT
 from docx.shared import Pt
-
-from .Cell import Cell
 from .Cells import Cells
-from ..common.BBox import BBox
+from ..common.Element import Element
 
 
-class Row(BBox):
+class Row(Element):
     '''Row in a table.'''
-    def __init__(self, raw:dict={}):
+    def __init__(self, raw:dict=None):
+        if raw is None: raw = {}
         super().__init__(raw)
 
         # logical row height
         self.height = raw.get('height', 0.0)
 
         # cells in row
-        self._cells = Cells(parent=self).from_dicts(raw.get('cells', []))
+        self._cells = Cells(parent=self).restore(raw.get('cells', []))
 
 
     def __getitem__(self, idx):
@@ -43,7 +38,7 @@ class Row(BBox):
         return len(self._cells)
 
 
-    def append(self, cell:Cell):
+    def append(self, cell):
         '''Append cell to row and update bbox accordingly.'''
         self._cells.append(cell)
 
@@ -58,12 +53,12 @@ class Row(BBox):
         return res
 
 
-    def make_docx(self, table, idx_row):
-        '''Create docx table.
-            ---
-            Args:
-              - table: docx table instance
-              - idx_row: current row index
+    def make_docx(self, table, idx_row:int):
+        '''Create row of docx table.
+        
+        Args:
+            table (Table): ``python-docx`` table instance.
+            idx_row (int): Current row index.
         '''  
         # set row height
         docx_row = table.rows[idx_row]
