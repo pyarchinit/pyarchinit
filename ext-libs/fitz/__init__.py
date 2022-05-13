@@ -1,3 +1,11 @@
+# ------------------------------------------------------------------------
+# Copyright 2020-2022, Harald Lieder, mailto:harald.lieder@outlook.com
+# License: GNU AFFERO GPL 3.0, https://www.gnu.org/licenses/agpl-3.0.html
+#
+# Part of "PyMuPDF", a Python binding for "MuPDF" (http://mupdf.com), a
+# lightweight PDF, XPS, and E-book viewer, renderer and toolkit which is
+# maintained and developed by Artifex Software, Inc. https://artifex.com.
+# ------------------------------------------------------------------------
 import sys
 from fitz.fitz import *
 
@@ -63,6 +71,7 @@ fitz.Document.tobytes = fitz.Document.write
 fitz.Document.subset_fonts = fitz.utils.subset_fonts
 fitz.Document.get_oc = fitz.utils.get_oc
 fitz.Document.set_oc = fitz.utils.set_oc
+fitz.Document.xref_copy = fitz.utils.xref_copy
 
 
 # ------------------------------------------------------------------------------
@@ -100,6 +109,7 @@ fitz.Page.update_link = fitz.utils.update_link
 fitz.Page.write_text = fitz.utils.write_text
 fitz.Page.get_label = fitz.utils.get_label
 fitz.Page.get_image_rects = fitz.utils.get_image_rects
+fitz.Page.get_textpage_ocr = fitz.utils.get_textpage_ocr
 
 # ------------------------------------------------------------------------
 # Annot
@@ -151,7 +161,7 @@ def restore_aliases():
         if callable(fname):
 
             def deprecated_function(*args, **kw):
-                msg = "'%s' removed from %s after v1.19.0 - use '%s'." % (
+                msg = "'%s' removed from %s after v1.19 - use '%s'." % (
                     old,
                     objname,
                     new,
@@ -174,9 +184,7 @@ def restore_aliases():
         try:
             if callable(fname) or type(fname) is property:
                 eigen.__doc__ = (
-                    "*** Deprecated and removed in version following 1.19.0 - use '%s'. ***\n"
-                    % new
-                    + x
+                    "*** Deprecated and removed after v1.19 - use '%s'. ***\n" % new + x
                 )
         except:
             pass
@@ -216,7 +224,8 @@ def restore_aliases():
     _alias(fitz.Document, "isPDF", "is_pdf")
     _alias(fitz.Document, "isReflowable", "is_reflowable")
     _alias(fitz.Document, "isRepaired", "is_repaired")
-    _alias(fitz.Document, "isStream", "is_stream")
+    _alias(fitz.Document, "isStream", "xref_is_stream")
+    _alias(fitz.Document, "is_stream", "xref_is_stream")
     _alias(fitz.Document, "lastLocation", "last_location")
     _alias(fitz.Document, "loadPage", "load_page")
     _alias(fitz.Document, "makeBookmark", "make_bookmark")
@@ -405,14 +414,20 @@ def restore_aliases():
     _alias(fitz.Matrix, "preTranslate", "pretranslate")
 
     # deprecated other aliases
+    _alias(fitz.Outline, "isExternal", "is_external")
+    _alias(fitz.Outline, "isOpen", "is_open")
+    _alias(fitz.Link, "isExternal", "is_external")
+    _alias(fitz.Link, "setBorder", "set_border")
+    _alias(fitz.Link, "setColors", "set_colors")
     _alias(fitz, "getPDFstr", "get_pdf_str")
     _alias(fitz, "getPDFnow", "get_pdf_now")
     _alias(fitz, "PaperSize", "paper_size")
     _alias(fitz, "PaperRect", "paper_rect")
     _alias(fitz, "paperSizes", "paper_sizes")
-    _alias(fitz, "ImageProperties", "image_properties")
+    _alias(fitz, "ImageProperties", "image_profile")
     _alias(fitz, "planishLine", "planish_line")
     _alias(fitz, "getTextLength", "get_text_length")
+    _alias(fitz, "getTextlength", "get_text_length")
 
 
 fitz.__doc__ = """
@@ -426,7 +441,15 @@ Built for Python %i.%i on %s (%i-bit).
     sys.version_info[0],
     sys.version_info[1],
     sys.platform,
-    64 if sys.maxsize > 2 ** 32 else 32,
+    64 if sys.maxsize > 2**32 else 32,
 )
 
-restore_aliases()
+if VersionBind.startswith("1.19"):  # don't generate aliases after v1.19.*
+    restore_aliases()
+
+pdfcolor = dict(
+    [
+        (k, (r / 255, g / 255, b / 255))
+        for k, (r, g, b) in fitz.utils.getColorInfoDict().items()
+    ]
+)

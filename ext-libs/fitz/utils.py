@@ -1,13 +1,25 @@
+# ------------------------------------------------------------------------
+# Copyright 2020-2022, Harald Lieder, mailto:harald.lieder@outlook.com
+# License: GNU AFFERO GPL 3.0, https://www.gnu.org/licenses/agpl-3.0.html
+#
+# Part of "PyMuPDF", a Python binding for "MuPDF" (http://mupdf.com), a
+# lightweight PDF, XPS, and E-book viewer, renderer and toolkit which is
+# maintained and developed by Artifex Software, Inc. https://artifex.com.
+# ------------------------------------------------------------------------
 import io
 import json
 import math
 import os
+import random
 import string
 import typing
 import warnings
+import tempfile
 
 from fitz import *
 
+
+TESSDATA_PREFIX = os.environ.get("TESSDATA_PREFIX")
 point_like = "point_like"
 rect_like = "rect_like"
 matrix_like = "matrix_like"
@@ -122,7 +134,6 @@ def show_pdf_page(*args, **kwargs) -> int:
     keep_proportion = bool(kwargs.get("keep_proportion", True))
     rotate = float(kwargs.get("rotate", 0))
     oc = int(kwargs.get("oc", 0))
-    reuse_xref = int(kwargs.get("reuse_xref", 0))
     clip = kwargs.get("clip")
 
     def calc_matrix(sr, tr, keep=True, rotate=0):
@@ -163,14 +174,10 @@ def show_pdf_page(*args, **kwargs) -> int:
     doc = page.parent
 
     if not doc.is_pdf or not src.is_pdf:
-        raise ValueError("not a PDF")
+        raise ValueError("is no PDF")
 
-    rect = page.rect & rect  # intersect with page rectangle
     if rect.is_empty or rect.is_infinite:
         raise ValueError("rect must be finite and not empty")
-
-    if reuse_xref > 0:
-        warnings.warn("ignoring 'reuse_xref'", DeprecationWarning)
 
     while pno < 0:  # support negative page numbers
         pno += src.page_count
@@ -262,7 +269,7 @@ def insert_image(page, rect, **kwargs):
     CheckParent(page)
     doc = page.parent
     if not doc.is_pdf:
-        raise ValueError("not a PDF")
+        raise ValueError("is no PDF")
 
     valid_keys = {
         "alpha",
@@ -374,6 +381,7 @@ def search_for(*args, **kwargs) -> list:
         clip: restrict search to this rectangle
         quads: (bool) return quads instead of rectangles
         flags: bit switches, default: join hyphened words
+        textpage: a pre-created TextPage
     Returns:
         a list of rectangles or quads, each containing one occurrence.
     """
@@ -382,14 +390,26 @@ def search_for(*args, **kwargs) -> list:
     page, text = args
     quads = kwargs.get("quads", 0)
     clip = kwargs.get("clip")
-    flags = kwargs.get("flags", TEXT_DEHYPHENATE)
+    textpage = kwargs.get("textpage")
+    if clip != None:
+        clip = Rect(clip)
+    flags = kwargs.get(
+        "flags",
+        TEXT_DEHYPHENATE
+        | TEXT_PRESERVE_WHITESPACE
+        | TEXT_PRESERVE_LIGATURES
+        | TEXT_MEDIABOX_CLIP,
+    )
 
     CheckParent(page)
-    if flags is None:
-        flags = TEXT_DEHYPHENATE
-    tp = page.get_textpage(clip=clip, flags=flags)  # create TextPage
+    tp = textpage
+    if tp is None:
+        tp = page.get_textpage(clip=clip, flags=flags)  # create TextPage
+    elif getattr(tp, "parent") != page:
+        raise ValueError("not a textpage of this page")
     rlist = tp.search(text, quads=quads)
-    tp = None
+    if textpage is None:
+        del tp
     return rlist
 
 
@@ -397,10 +417,13 @@ def search_page_for(
     doc: Document,
     pno: int,
     text: str,
-    hit_max: int = 0,
     quads: bool = False,
     clip: rect_like = None,
-    flags: int = TEXT_DEHYPHENATE,
+    flags: int = TEXT_DEHYPHENATE
+    | TEXT_PRESERVE_LIGATURES
+    | TEXT_PRESERVE_WHITESPACE
+    | TEXT_MEDIABOX_CLIP,
+    textpage: TextPage = None,
 ) -> list:
     """Search for a string on a page.
 
@@ -410,6 +433,7 @@ def search_page_for(
         clip: restrict search to this rectangle
         quads: (bool) return quads instead of rectangles
         flags: bit switches, default: join hyphened words
+        textpage: reuse a prepared textpage
     Returns:
         a list of rectangles or quads, each containing an occurrence.
     """
@@ -419,6 +443,7 @@ def search_page_for(
         quads=quads,
         clip=clip,
         flags=flags,
+        textpage=textpage,
     )
 
 
@@ -426,6 +451,8 @@ def get_text_blocks(
     page: Page,
     clip: rect_like = None,
     flags: OptInt = None,
+    textpage: TextPage = None,
+    sort: bool = False,
 ) -> list:
     """Return the text blocks on a page.
 
@@ -439,10 +466,23 @@ def get_text_blocks(
     """
     CheckParent(page)
     if flags is None:
-        flags = TEXT_PRESERVE_WHITESPACE + TEXT_PRESERVE_IMAGES
-    tp = page.get_textpage(clip=clip, flags=flags)
+        flags = (
+            TEXT_PRESERVE_WHITESPACE
+            | TEXT_PRESERVE_IMAGES
+            | TEXT_PRESERVE_LIGATURES
+            | TEXT_MEDIABOX_CLIP
+        )
+    tp = textpage
+    if tp is None:
+        tp = page.get_textpage(clip=clip, flags=flags)
+    elif getattr(tp, "parent") != page:
+        raise ValueError("not a textpage of this page")
+
     blocks = tp.extractBLOCKS()
-    del tp
+    if textpage is None:
+        del tp
+    if sort is True:
+        blocks.sort(key=lambda b: (b[3], b[0]))
     return blocks
 
 
@@ -450,6 +490,8 @@ def get_text_words(
     page: Page,
     clip: rect_like = None,
     flags: OptInt = None,
+    textpage: TextPage = None,
+    sort: bool = False,
 ) -> list:
     """Return the text words as a list with the bbox for each word.
 
@@ -458,20 +500,33 @@ def get_text_words(
     """
     CheckParent(page)
     if flags is None:
-        flags = TEXT_PRESERVE_WHITESPACE
-    tp = page.get_textpage(clip=clip, flags=flags)
+        flags = TEXT_PRESERVE_WHITESPACE | TEXT_PRESERVE_LIGATURES | TEXT_MEDIABOX_CLIP
+    tp = textpage
+    if tp is None:
+        tp = page.get_textpage(clip=clip, flags=flags)
+    elif getattr(tp, "parent") != page:
+        raise ValueError("not a textpage of this page")
     words = tp.extractWORDS()
-    del tp
+    if textpage is None:
+        del tp
+    if sort is True:
+        words.sort(key=lambda w: (w[3], w[0]))
     return words
 
 
 def get_textbox(
     page: Page,
     rect: rect_like,
+    textpage: TextPage = None,
 ) -> str:
-    rc = page.get_text("text", clip=rect, flags=0)
-    if rc.endswith("\n"):
-        rc = rc[:-1]
+    tp = textpage
+    if tp is None:
+        tp = page.get_textpage()
+    elif getattr(tp, "parent") != page:
+        raise ValueError("not a textpage of this page")
+    rc = tp.extractTextbox(rect)
+    if textpage is None:
+        del tp
     return rc
 
 
@@ -480,12 +535,90 @@ def get_text_selection(
     p1: point_like,
     p2: point_like,
     clip: rect_like = None,
+    textpage: TextPage = None,
 ):
     CheckParent(page)
-    tp = page.get_textpage(clip=clip, flags=TEXT_DEHYPHENATE)
+    tp = textpage
+    if tp is None:
+        tp = page.get_textpage(clip=clip, flags=TEXT_DEHYPHENATE)
+    elif getattr(tp, "parent") != page:
+        raise ValueError("not a textpage of this page")
     rc = tp.extractSelection(p1, p2)
-    del tp
+    if textpage is None:
+        del tp
     return rc
+
+
+def get_textpage_ocr(
+    page: Page,
+    flags: int = 0,
+    language: str = "eng",
+    dpi: int = 72,
+    full: bool = False,
+) -> TextPage:
+    """Create a Textpage from combined results of normal and OCR text parsing.
+
+    Args:
+        flags: (int) control content becoming part of the result.
+        language: (str) specify expected language(s). Deafault is "eng" (English).
+        dpi: (int) resolution in dpi, default 72.
+        full: (bool) whether to OCR the full page image, or only its images (default)
+    """
+    CheckParent(page)
+    if not TESSDATA_PREFIX:
+        raise RuntimeError("No OCR support: TESSDATA_PREFIX not set")
+
+    def full_ocr(page, dpi, language, flags):
+        zoom = dpi / 72
+        mat = Matrix(zoom, zoom)
+        pix = page.get_pixmap(matrix=mat)
+        ocr_pdf = Document("pdf", pix.pdfocr_tobytes(compress=False, language=language))
+        ocr_page = ocr_pdf.load_page(0)
+        unzoom = page.rect.width / ocr_page.rect.width
+        ctm = Matrix(unzoom, unzoom) * page.derotation_matrix
+        tpage = ocr_page.get_textpage(flags=flags, matrix=ctm)
+        ocr_pdf.close()
+        pix = None
+        tpage.parent = weakref.proxy(page)
+        return tpage
+
+    # if OCR for the full page, OCR its pixmap @ desired dpi
+    if full is True:
+        return full_ocr(page, dpi, language, flags)
+
+    # For partial OCR, make a normal textpage, then extend it with text that
+    # is OCRed from each image.
+    # Because of this, we need the images flag bit set ON.
+    tpage = page.get_textpage(flags=flags)
+    for block in page.get_text("dict", flags=TEXT_PRESERVE_IMAGES)["blocks"]:
+        if block["type"] != 1:  # only look at images
+            continue
+        bbox = Rect(block["bbox"])
+        if bbox.width <= 3 or bbox.height <= 3:  # ignore tiny stuff
+            continue
+        try:
+            pix = Pixmap(block["image"])  # get image pixmap
+            if pix.n - pix.alpha != 3:  # we need to convert this to RGB!
+                pix = Pixmap(csRGB, pix)
+            if pix.alpha:  # must remove alpha channel
+                pix = Pixmap(pix, 0)
+            imgdoc = Document(
+                "pdf", pix.pdfocr_tobytes(language=language)
+            )  # pdf with OCRed page
+            imgpage = imgdoc.load_page(0)  # read image as a page
+            pix = None
+            # compute matrix to transform coordinates back to that of 'page'
+            imgrect = imgpage.rect  # page size of image PDF
+            shrink = Matrix(1 / imgrect.width, 1 / imgrect.height)
+            mat = shrink * block["transform"]
+            imgpage.extend_textpage(tpage, flags=0, matrix=mat)
+            imgdoc.close()
+        except RuntimeError:
+            tpage = None
+            print("Falling back to full page OCR")
+            return full_ocr(page, dpi, language, flags)
+
+    return tpage
 
 
 def get_image_info(page: Page, hashes: bool = False, xrefs: bool = False) -> list:
@@ -534,7 +667,8 @@ def get_image_rects(page: Page, name, transform=False) -> list:
               item of the page's image list or an xref.
         transform: (bool) whether to also return the transformation matrix.
     Returns:
-        A list of Rect or tuples of (Rect, Matrix) for all image locations on the page.
+        A list of Rect objects or tuples of (Rect, Matrix) for all image
+        locations on the page.
     """
     if type(name) in (list, tuple):
         xref = name[0]
@@ -547,7 +681,7 @@ def get_image_rects(page: Page, name, transform=False) -> list:
         elif len(imglist) != 1:
             raise ValueError("multiple image names found")
         xref = imglist[0][0]
-    pix = Pixmap(page.parent, xref)
+    pix = Pixmap(page.parent, xref)  # make pixmap of the image to compute MD5
     digest = pix.digest
     del pix
     infos = page.get_image_info(hashes=True)
@@ -567,6 +701,8 @@ def get_text(
     option: str = "text",
     clip: rect_like = None,
     flags: OptInt = None,
+    textpage: TextPage = None,
+    sort: bool = False,
 ):
     """Extract text from a page or an annotation.
 
@@ -575,7 +711,9 @@ def get_text(
     Args:
         option: (str) text, words, blocks, html, dict, json, rawdict, xhtml or xml.
         clip: (rect-like) restrict output to this area.
-        flags: bit switches to e.g. exclude images or decompose ligatures
+        flags: bit switches to e.g. exclude images or decompose ligatures.
+        textpage: reuse this TextPage and make no new one. If specified,
+            'flags' and 'clip' are ignored.
 
     Returns:
         the output of methods get_text_words / get_text_blocks or TextPage
@@ -599,14 +737,18 @@ def get_text(
     if option not in formats:
         option = "text"
     if flags is None:
-        flags = TEXT_PRESERVE_WHITESPACE
+        flags = TEXT_PRESERVE_WHITESPACE | TEXT_PRESERVE_LIGATURES | TEXT_MEDIABOX_CLIP
         if formats[option] == 1:
-            flags += TEXT_PRESERVE_IMAGES
+            flags |= TEXT_PRESERVE_IMAGES
 
     if option == "words":
-        return get_text_words(page, clip=clip, flags=flags)
+        return get_text_words(
+            page, clip=clip, flags=flags, textpage=textpage, sort=sort
+        )
     if option == "blocks":
-        return get_text_blocks(page, clip=clip, flags=flags)
+        return get_text_blocks(
+            page, clip=clip, flags=flags, textpage=textpage, sort=sort
+        )
     CheckParent(page)
     cb = None
     if option in ("html", "xml", "xhtml"):  # no clipping for MuPDF functions
@@ -617,16 +759,20 @@ def get_text(
     elif type(page) is Page:
         cb = page.cropbox
     # TextPage with or without images
-    tp = page.get_textpage(clip=clip, flags=flags)
+    tp = textpage
+    if tp is None:
+        tp = page.get_textpage(clip=clip, flags=flags)
+    elif getattr(tp, "parent") != page:
+        raise ValueError("not a textpage of this page")
 
     if option == "json":
-        t = tp.extractJSON(cb=cb)
+        t = tp.extractJSON(cb=cb, sort=sort)
     elif option == "rawjson":
-        t = tp.extractRAWJSON(cb=cb)
+        t = tp.extractRAWJSON(cb=cb, sort=sort)
     elif option == "dict":
-        t = tp.extractDICT(cb=cb)
+        t = tp.extractDICT(cb=cb, sort=sort)
     elif option == "rawdict":
-        t = tp.extractRAWDICT(cb=cb)
+        t = tp.extractRAWDICT(cb=cb, sort=sort)
     elif option == "html":
         t = tp.extractHTML()
     elif option == "xml":
@@ -634,9 +780,10 @@ def get_text(
     elif option == "xhtml":
         t = tp.extractXHTML()
     else:
-        t = tp.extractText()
+        t = tp.extractText(sort=sort)
 
-    del tp
+    if textpage is None:
+        del tp
     return t
 
 
@@ -646,6 +793,8 @@ def get_page_text(
     option: str = "text",
     clip: rect_like = None,
     flags: OptInt = None,
+    textpage: TextPage = None,
+    sort: bool = False,
 ) -> typing.Any:
     """Extract a document page's text by page number.
 
@@ -657,21 +806,28 @@ def get_page_text(
     Returns:
         output from page.TextPage().
     """
-    return doc[pno].get_text(option, clip=clip, flags=flags)
+    return doc[pno].get_text(option, clip=clip, flags=flags, sort=sort)
 
 
-def get_pixmap(page: Page, **kw) -> Pixmap:
+def get_pixmap(page: Page, *args, **kw) -> Pixmap:
     """Create pixmap of page.
 
-    Args:
+    Keyword args:
         matrix: Matrix for transformation (default: Identity).
+        dpi: desired dots per inch. If given, matrix is ignored.
         colorspace: (str/Colorspace) cmyk, rgb, gray - case ignored, default csRGB.
         clip: (irect-like) restrict rendering to this area.
         alpha: (bool) whether to include alpha channel
         annots: (bool) whether to also render annotations
     """
+    if args:
+        raise ValueError("method accepts keywords only")
     CheckParent(page)
     matrix = kw.get("matrix", Identity)
+    dpi = kw.get("dpi", None)
+    if dpi:
+        zoom = dpi / 72
+        matrix = Matrix(zoom, zoom)
     colorspace = kw.get("colorspace", csRGB)
     clip = kw.get("clip")
     alpha = bool(kw.get("alpha", False))
@@ -690,9 +846,9 @@ def get_pixmap(page: Page, **kw) -> Pixmap:
     dl = page.get_displaylist(annots=annots)
     pix = dl.get_pixmap(matrix=matrix, colorspace=colorspace, alpha=alpha, clip=clip)
     dl = None
+    if dpi:
+        pix.set_dpi(dpi, dpi)
     return pix
-    # doc = page.parent
-    # return page._makePixmap(doc, matrix, colorspace, alpha, annots, clip)
 
 
 def get_page_pixmap(
@@ -782,7 +938,7 @@ def get_links(page: Page) -> list:
         nl = getLinkDict(ln)
         links.append(nl)
         ln = ln.next
-    if links != []:
+    if links != [] and page.parent.is_pdf:
         linkxrefs = [x for x in page.annot_xrefs() if x[1] == PDF_ANNOT_LINK]
         if len(linkxrefs) == len(links):
             for i in range(len(linkxrefs)):
@@ -809,7 +965,7 @@ def get_toc(
             else:
                 title = " "
 
-            if not olItem.isExternal:
+            if not olItem.is_external:
                 if olItem.uri:
                     if olItem.page == -1:
                         resolve = doc.resolve_link(olItem.uri)
@@ -973,7 +1129,7 @@ def set_metadata(doc: Document, m: dict) -> None:
         m: a dictionary like doc.metadata.
     """
     if not doc.is_pdf:
-        raise ValueError("not a PDF")
+        raise ValueError("is no PDF")
     if doc.is_closed or doc.is_encrypted:
         raise ValueError("document closed or encrypted")
     if type(m) is not dict:
@@ -1002,26 +1158,21 @@ def set_metadata(doc: Document, m: dict) -> None:
         info_xref = 0
     else:
         info_xref = int(temp.replace("0 R", ""))
-    if m == {} and info_xref == 0:
+
+    if m == {} and info_xref == 0:  # nothing to do
         return
 
-    if info_xref == 0:
-        info_xref = doc.get_new_xref()  # get a new xref
+    if info_xref == 0:  # no prev metadata: get new xref
+        info_xref = doc.get_new_xref()
         doc.update_object(info_xref, "<<>>")  # fill it with empty object
         doc.xref_set_key(-1, "Info", "%i 0 R" % info_xref)
-    elif m == {}:
+    elif m == {}:  # remove existing metadata
         doc.xref_set_key(-1, "Info", "null")
+        return
 
-    for v in keymap.values():
-        if v == None:
-            continue
-        doc.xref_set_key(info_xref, v, "null")
-    for k in m.keys():
-        if keymap[k] == None:
-            continue
-        pdf_key = keymap[k]
-        val = m[k]
-        if not bool(val) or not type(val) is str or val == "none":
+    for key, val in [(k, v) for k, v in m.items() if keymap[k] != None]:
+        pdf_key = keymap[key]
+        if not bool(val) or val in ("none", "null"):
             val = "null"
         else:
             val = get_pdf_str(val)
@@ -1106,7 +1257,7 @@ def set_toc(
     if doc.is_closed or doc.is_encrypted:
         raise ValueError("document closed or encrypted")
     if not doc.is_pdf:
-        raise ValueError("not a PDF")
+        raise ValueError("is no PDF")
     if not toc:  # remove all entries
         return len(doc._delToC())
 
@@ -1289,7 +1440,7 @@ def do_links(
             txt = annot_skel["goto1"]  # annot_goto
             idx = pno_src.index(lnk["page"])
             p = lnk["to"] * ctm  # target point in PDF coordinates
-            annot = txt % (xref_dst[idx], p.x, p.y, rect)
+            annot = txt % (xref_dst[idx], p.x, p.y, lnk["zoom"], rect)
 
         elif lnk["kind"] == LINK_GOTOR:
             if lnk["page"] >= 0:
@@ -1301,6 +1452,7 @@ def do_links(
                     lnk["page"],
                     pnt.x,
                     pnt.y,
+                    lnk["zoom"],
                     lnk["file"],
                     lnk["file"],
                     rect,
@@ -1403,7 +1555,7 @@ def getLinkText(page: Page, lnk: dict) -> str:
             xref = page.parent.page_xref(pno)
             pnt = lnk.get("to", Point(0, 0))  # destination point
             ipnt = pnt * ictm
-            annot = txt % (xref, ipnt.x, ipnt.y, rect)
+            annot = txt % (xref, ipnt.x, ipnt.y, lnk.get("zoom", 0), rect)
         else:
             txt = annot_skel["goto2"]  # annot_goto_n
             annot = txt % (get_pdf_str(lnk["to"]), rect)
@@ -1414,7 +1566,15 @@ def getLinkText(page: Page, lnk: dict) -> str:
             pnt = lnk.get("to", Point(0, 0))  # destination point
             if type(pnt) is not Point:
                 pnt = Point(0, 0)
-            annot = txt % (lnk["page"], pnt.x, pnt.y, lnk["file"], lnk["file"], rect)
+            annot = txt % (
+                lnk["page"],
+                pnt.x,
+                pnt.y,
+                lnk.get("zoom", 0),
+                lnk["file"],
+                lnk["file"],
+                rect,
+            )
         else:
             txt = annot_skel["gotor2"]  # annot_gotor_n
             annot = txt % (get_pdf_str(lnk["to"]), lnk["file"], rect)
@@ -1473,7 +1633,7 @@ def delete_widget(page: Page, widget: Widget) -> Widget:
 
 
 def update_link(page: Page, lnk: dict) -> None:
-    """ Update a link on the current page. """
+    """Update a link on the current page."""
     CheckParent(page)
     annot = getLinkText(page, lnk)
     if annot == "":
@@ -1484,7 +1644,7 @@ def update_link(page: Page, lnk: dict) -> None:
 
 
 def insert_link(page: Page, lnk: dict, mark: bool = True) -> None:
-    """ Insert a new link for the current page. """
+    """Insert a new link for the current page."""
     CheckParent(page)
     annot = getLinkText(page, lnk)
     if annot == "":
@@ -2867,7 +3027,7 @@ class Shape(object):
         self.page = page
         self.doc = page.parent
         if not self.doc.is_pdf:
-            raise ValueError("not a PDF")
+            raise ValueError("is no PDF")
         self.height = page.mediabox_size.y
         self.width = page.mediabox_size.x
         self.x = page.cropbox_position.x
@@ -3106,7 +3266,7 @@ class Shape(object):
         if cnt < 4:
             raise ValueError("points too close")
         mb = rad / cnt  # revised breadth
-        matrix = TOOLS._hor_matrix(p1, p2)  # normalize line to x-axis
+        matrix = Matrix(util_hor_matrix(p1, p2))  # normalize line to x-axis
         i_mat = ~matrix  # get original position
         points = []  # stores edges
         for i in range(1, cnt):
@@ -3135,7 +3295,7 @@ class Shape(object):
         if cnt < 4:
             raise ValueError("points too close")
         mb = rad / cnt  # revised breadth
-        matrix = Matrix(TOOLS._hor_matrix(p1, p2))  # normalize line to x-axis
+        matrix = Matrix(util_hor_matrix(p1, p2))  # normalize line to x-axis
         i_mat = ~matrix  # get original position
         k = 2.4142135623765633  # y of draw_curve helper point
 
@@ -3601,8 +3761,8 @@ class Shape(object):
         nres = "\nq\n%s%sBT\n" % (bdc, alpha) + cm  # initialize output buffer
         templ = "1 0 0 1 %g %g Tm /%s %g Tf "
         # center, right, justify: output each line with its own specifics
-        spacing = 0
         text_t = text.splitlines()  # split text in lines again
+        just_tab[-1] = False  # never justify last line
         for i, t in enumerate(text_t):
             pl = maxwidth - pixlen(t)  # length of empty line part
             pnt = point + c_pnt * (i * lheight_factor)  # text start of line
@@ -3637,8 +3797,9 @@ class Shape(object):
             nres += templ % (left, top, fname, fontsize)
             if render_mode > 0:
                 nres += "%i Tr " % render_mode
-            if spacing != 0:
+            if align == 3:
                 nres += "%g Tw " % spacing
+
             if color is not None:
                 nres += color_str
             if fill is not None:
@@ -3680,8 +3841,10 @@ class Shape(object):
 
         if width == 0:  # border color makes no sense then
             color = None
-        elif color is None:  # vice versa
+        elif color == None:  # vice versa
             width = 0
+        # if color == None and fill == None:
+        #     raise ValueError("at least one of 'color' or 'fill' must be given")
         color_str = ColorCode(color, "c")  # ensure proper color string
         fill_str = ColorCode(fill, "f")  # ensure proper fill string
 
@@ -3696,7 +3859,7 @@ class Shape(object):
         if alpha != None:
             self.draw_cont = "/%s gs\n" % alpha + self.draw_cont
 
-        if width != 1:
+        if width != 1 and width != 0:
             self.draw_cont += "%g w\n" % width
 
         if lineCap != 0:
@@ -3824,7 +3987,7 @@ def apply_redactions(page: Page, images: int = 2) -> bool:
     if doc.is_encrypted or doc.is_closed:
         raise ValueError("document closed or encrypted")
     if not doc.is_pdf:
-        raise ValueError("not a PDF")
+        raise ValueError("is no PDF")
 
     redact_annots = []  # storage of annot values
     for annot in page.annots(types=(PDF_ANNOT_REDACT,)):  # loop redactions
@@ -3846,19 +4009,24 @@ def apply_redactions(page: Page, images: int = 2) -> bool:
             shape.draw_rect(annot_rect)  # colorize the rect background
             shape.finish(fill=fill, color=fill)
         if "text" in redact.keys():  # if we also have text
-            trect = center_rect(  # try finding vertical centered sub-rect
-                annot_rect, redact["text"], redact["fontname"], redact["fontsize"]
-            )
-            fsize = redact["fontsize"]  # start with stored fontsize
+            text = redact["text"]
+            align = redact.get("align", 0)
+            fname = redact["fontname"]
+            fsize = redact["fontsize"]
+            color = redact["text_color"]
+            # try finding vertical centered sub-rect
+            trect = center_rect(annot_rect, text, fname, fsize)
+
             rc = -1
             while rc < 0 and fsize >= 4:  # while not enough room
-                rc = shape.insert_textbox(  # (re-) try insertion
+                # (re-) try insertion
+                rc = shape.insert_textbox(
                     trect,
-                    redact["text"],
-                    fontname=redact["fontname"],
+                    text,
+                    fontname=fname,
                     fontsize=fsize,
-                    color=redact["text_color"],
-                    align=redact["align"],
+                    color=color,
+                    align=align,
                 )
                 fsize -= 0.5  # reduce font if unsuccessful
     shape.commit()  # append new contents object
@@ -3935,7 +4103,7 @@ def scrub(
             return None
 
     if not doc.is_pdf:  # only works for PDF
-        raise ValueError("not a PDF")
+        raise ValueError("is no PDF")
     if doc.is_encrypted or doc.is_closed:
         raise ValueError("closed or encrypted doc")
 
@@ -3944,19 +4112,18 @@ def scrub(
         redactions = False
 
     if metadata:
-        doc.setMetadata({})  # remove standard metadata
+        doc.set_metadata({})  # remove standard metadata
 
     for page in doc:
         if reset_fields:
             # reset form fields (widgets)
             for widget in page.widgets():
                 widget.reset()
-                widget.update()
 
         if remove_links:
             links = page.get_links()  # list of all links on page
             for link in links:  # remove all links
-                page.deleteLink(link)
+                page.delete_link(link)
 
         found_redacts = False
         for annot in page.annots():
@@ -4001,6 +4168,9 @@ def scrub(
     else:
         xref_limit = doc.xref_length()
     for xref in range(1, xref_limit):
+        if not doc.xref_object(xref):
+            msg = "bad xref %i - clean PDF before scrubbing" % xref
+            raise ValueError(msg)
         if javascript and doc.xref_get_key(xref, "S")[1] == "/JavaScript":
             # a /JavaScript action object
             obj = "<</S/JavaScript/JS()>>"  # replace with a null JavaScript
@@ -4030,7 +4200,8 @@ def fill_textbox(
     lineheight: OptFloat = None,
     align: int = 0,
     warn: bool = None,
-    right_to_left=False,
+    right_to_left: bool = False,
+    small_caps: bool = False,
 ) -> tuple:
     """Fill a rectangle with text.
 
@@ -4047,19 +4218,25 @@ def fill_textbox(
         right_to_left: (bool) indicate right-to-left language.
     """
     rect = Rect(rect)
-    if rect.is_empty or rect.is_infinite:
-        raise ValueError("fill rect must be finite and not empty.")
+    if rect.is_empty:
+        raise ValueError("fill rect must not empty.")
     if type(font) is not Font:
         font = Font("helv")
 
     def textlen(x):
-        return font.text_length(x, fontsize=fontsize)  # abbreviation
+        """Return length of a string."""
+        return font.text_length(
+            x, fontsize=fontsize, small_caps=small_caps
+        )  # abbreviation
 
     def char_lengths(x):
-        return font.char_lengths(x, fontsize=fontsize)
+        """Return list of single character lengths for a string."""
+        return font.char_lengths(x, fontsize=fontsize, small_caps=small_caps)
 
     def append_this(pos, text):
-        return writer.append(pos, text, font=font, fontsize=fontsize)
+        return writer.append(
+            pos, text, font=font, fontsize=fontsize, small_caps=small_caps
+        )
 
     tolerance = fontsize * 0.2  # extra distance to left border
     space_len = textlen(" ")
@@ -4120,6 +4297,7 @@ def fill_textbox(
     else:
         lheight = lineheight
 
+    LINEHEIGHT = fontsize * lheight  # effective line height
     width = std_width  # available horizontal space
 
     # starting point of text
@@ -4146,7 +4324,7 @@ def fill_textbox(
         for line in text:
             textlines.extend(line.splitlines())
 
-    max_lines = int((rect.y1 - pos.y) / (lheight * fontsize))
+    max_lines = int((rect.y1 - pos.y) / LINEHEIGHT) + 1
 
     new_lines = []  # the final list of textbox lines
     no_justify = []  # no justify for these line numbers
@@ -4191,6 +4369,11 @@ def fill_textbox(
             if len(words) == 0:
                 break
 
+    # -------------------------------------------------------------------------
+    # List of lines created. Each item is (text, tl), where 'tl' is the PDF
+    # output length (float) and 'text' is the text. Except for justified text,
+    # this is output-ready.
+    # -------------------------------------------------------------------------
     nlines = len(new_lines)
     if nlines > max_lines:
         msg = "Only fitting %i of %i lines." % (max_lines, nlines)
@@ -4199,10 +4382,12 @@ def fill_textbox(
         elif warn == False:
             raise ValueError(msg)
 
-    lh = fontsize * lheight
     start = Point()
-    for i, (line, tl) in enumerate(new_lines):
-        if i > max_lines:  # do not exceed space
+    no_justify += [len(new_lines) - 1]  # no justifying of last line
+    for i in range(max_lines):
+        try:
+            line, tl = new_lines.pop(0)
+        except IndexError:
             break
 
         if right_to_left:  # Arabic, Hebrew
@@ -4214,7 +4399,7 @@ def fill_textbox(
         if align == TEXT_ALIGN_JUSTIFY and i not in no_justify and tl < std_width:
             output_justify(start, line)
             start.x = std_start
-            start.y += lh
+            start.y += LINEHEIGHT
             continue
 
         if i > 0 or pos.x == std_start:  # left, center, right alignments
@@ -4222,9 +4407,9 @@ def fill_textbox(
 
         append_this(start, line)
         start.x = std_start
-        start.y += lh
+        start.y += LINEHEIGHT
 
-    return new_lines[max_lines:]  # return non-written lines
+    return new_lines  # return non-written lines
 
 
 # ------------------------------------------------------------------------
@@ -4655,7 +4840,7 @@ def has_links(doc: Document) -> bool:
     if doc.is_closed:
         raise ValueError("document closed")
     if not doc.is_pdf:
-        raise ValueError("not a PDF")
+        raise ValueError("is no PDF")
     for i in range(doc.page_count):
         for item in doc.page_annot_xrefs(i):
             if item[1] == PDF_ANNOT_LINK:
@@ -4668,7 +4853,7 @@ def has_annots(doc: Document) -> bool:
     if doc.is_closed:
         raise ValueError("document closed")
     if not doc.is_pdf:
-        raise ValueError("not a PDF")
+        raise ValueError("is no PDF")
     for i in range(doc.page_count):
         for item in doc.page_annot_xrefs(i):
             if not (item[1] == PDF_ANNOT_LINK or item[1] == PDF_ANNOT_WIDGET):
@@ -4685,12 +4870,14 @@ def recover_bbox_quad(line_dir: tuple, span: dict, bbox: tuple) -> Quad:
     The bbox may be any of the resp. tuples occurring inside the given span.
 
     Args:
-        line_dir: (tuple) 'line["dir"]' of the owning line.
-        span: (dict) the span.
+        line_dir: (tuple) 'line["dir"]' of the owning line or None.
+        span: (dict) the span. May be from get_texttrace() method.
         bbox: (tuple) the bbox of the span or any of its characters.
     Returns:
         The quad which is wrapped by the bbox.
     """
+    if line_dir == None:
+        line_dir = span["dir"]
     cos, sin = line_dir
     bbox = Rect(bbox)  # make it a rect
     if TOOLS.set_small_glyph_heights():  # ==> just fontsize as height
@@ -4806,9 +4993,11 @@ def recover_span_quad(line_dir: tuple, span: dict, chars: list = None) -> Quad:
     Returns:
         Quad covering selected characters.
     """
+    if line_dir == None:  # must be a span from get_texttrace()
+        line_dir = span["dir"]
     if chars == None:  # no sub-selection
         return recover_quad(line_dir, span)
-    if not hasattr(span, "chars"):
+    if not "chars" in span.keys():
         raise ValueError("need 'rawdict' option to sub-select chars")
 
     q0 = recover_char_quad(line_dir, span, chars[0])  # quad of first char
@@ -4844,13 +5033,19 @@ def recover_char_quad(line_dir: tuple, span: dict, char: dict) -> Quad:
     Returns:
         The quadrilateral envelopping the character.
     """
+    if line_dir == None:
+        line_dir = span["dir"]
     if type(line_dir) is not tuple or len(line_dir) != 2:
         raise ValueError("bad line dir argument")
     if type(span) is not dict:
         raise ValueError("bad span argument")
-    if type(char) is not dict:
+    if type(char) is dict:
+        bbox = Rect(char["bbox"])
+    elif type(char) is tuple:
+        bbox = Rect(char[3])
+    else:
         raise ValueError("bad span argument")
-    bbox = Rect(char["bbox"])
+
     return recover_bbox_quad(line_dir, span, bbox)
 
 
@@ -4864,21 +5059,84 @@ def subset_fonts(doc: Document) -> None:
     NOT rewritten and thus should retain properties like being hidden or
     controlled by optional content.
     """
-    # Used unicodes by font -  "fontname" -> unicode-list
-    font_subsets = {}
-
-    # Font subset binaries -  "font_xref" -> buffer
+    # Font binaries: -  "buffer" -> (names, xrefs, (unicodes, glyphs))
+    # An embedded font is uniquely defined by its fontbuffer only. It may have
+    # multiple names and xrefs.
+    # Once the sets of used unicodes and glyphs are known, we compute a
+    # smaller version of the buffer user package fontTools.
     font_buffers = {}
 
-    # Maps fontnames to font xref -  "fontname" -> xref
-    new_fontnames = {}
+    def get_old_widths(xref):
+        """Retrieve old font '/W' and '/DW' values."""
+        df = doc.xref_get_key(xref, "DescendantFonts")
+        if df[0] != "array":  # only handle xref specifications
+            return None, None
+        df_xref = int(df[1][1:-1].replace("0 R", ""))
+        widths = doc.xref_get_key(df_xref, "W")
+        if widths[0] != "array":  # no widths key found
+            widths = None
+        else:
+            widths = widths[1]
+        dwidths = doc.xref_get_key(df_xref, "DW")
+        if dwidths[0] != "int":
+            dwidths = None
+        else:
+            dwidths = dwidths[1]
+        return widths, dwidths
 
-    def build_subset(buffer, unc_set):
+    def set_old_widths(xref, widths, dwidths):
+        """Restore the old '/W' and '/DW' in subsetted font.
+
+        If either parameter is None or evaluates to False, the corresponding
+        dictionary key will be set to null.
+        """
+        df = doc.xref_get_key(xref, "DescendantFonts")
+        if df[0] != "array":  # only handle xref specs
+            return None
+        df_xref = int(df[1][1:-1].replace("0 R", ""))
+        if (type(widths) is not str or not widths) and doc.xref_get_key(df_xref, "W")[
+            0
+        ] != "null":
+            doc.xref_set_key(df_xref, "W", "null")
+        else:
+            doc.xref_set_key(df_xref, "W", widths)
+        if (type(dwidths) is not str or not dwidths) and doc.xref_get_key(
+            df_xref, "DW"
+        )[0] != "null":
+            doc.xref_set_key(df_xref, "DW", "null")
+        else:
+            doc.xref_set_key(df_xref, "DW", dwidths)
+        return None
+
+    def set_subset_fontname(new_xref):
+        """Generate a name prefix to tag a font as subset.
+
+        We use a random generator to select 6 upper case ASCII characters.
+        The prefixed name must be put in the font xref as the "/BaseFont" value
+        and in the FontDescriptor object as the '/FontName' value.
+        """
+        # The following generates a prefix like 'ABCDEF+'
+        prefix = "".join(random.choices(tuple(string.ascii_uppercase), k=6)) + "+"
+        font_str = doc.xref_object(new_xref, compressed=True)
+        font_str = font_str.replace("/BaseFont/", "/BaseFont/" + prefix)
+        df = doc.xref_get_key(new_xref, "DescendantFonts")
+        if df[0] == "array":
+            df_xref = int(df[1][1:-1].replace("0 R", ""))
+            fd = doc.xref_get_key(df_xref, "FontDescriptor")
+            if fd[0] == "xref":
+                fd_xref = int(fd[1].replace("0 R", ""))
+                fd_str = doc.xref_object(fd_xref, compressed=True)
+                fd_str = fd_str.replace("/FontName/", "/FontName/" + prefix)
+                doc.update_object(fd_xref, fd_str)
+        doc.update_object(new_xref, font_str)
+        return None
+
+    def build_subset(buffer, unc_set, gid_set):
         """Build font subset using fontTools.
 
         Args:
             buffer: (bytes) the font given as a binary buffer.
-            unc_set: (set) required unicodes.
+            unc_set: (set) required glyph ids.
         Returns:
             Either None if subsetting is unsuccessful or the subset font buffer.
         """
@@ -4887,45 +5145,69 @@ def subset_fonts(doc: Document) -> None:
         except ImportError:
             print("This method requires fontTools to be installed.")
             raise
+        tmp_dir = tempfile.gettempdir()
+        oldfont_path = f"{tmp_dir}/oldfont.ttf"
+        newfont_path = f"{tmp_dir}/newfont.ttf"
+        uncfile_path = f"{tmp_dir}/uncfile.txt"
+        args = [
+            oldfont_path,
+            "--retain-gids",
+            f"--output-file={newfont_path}",
+            "--layout-features='*'",
+            "--passthrough-tables",
+            "--ignore-missing-glyphs",
+            "--ignore-missing-unicodes",
+            "--symbol-cmap",
+        ]
 
-        unc_list = list(unc_set)
-        unc_list.sort()
-        if unc_list[-1] < 255:
-            unc_list.append(255)
-        unc_file = open("uncfile.txt", "w")  # store unicodes as text file
-        for unc in unc_list:
-            unc_file.write("%04x\n" % unc)
+        unc_file = open(
+            f"{tmp_dir}/uncfile.txt", "w"
+        )  # store glyph ids or unicodes as file
+        if 0xFFFD in unc_set:  # error unicode exists -> use glyphs
+            args.append(f"--gids-file={uncfile_path}")
+            gid_set.add(189)
+            unc_list = list(gid_set)
+            for unc in unc_list:
+                unc_file.write("%i\n" % unc)
+        else:
+            args.append(f"--unicodes-file={uncfile_path}")
+            unc_set.add(255)
+            unc_list = list(unc_set)
+            for unc in unc_list:
+                unc_file.write("%04x\n" % unc)
+
         unc_file.close()
-        fontfile = open("oldfont.ttf", "wb")  # store fontbuffer as a file
+        fontfile = open(oldfont_path, "wb")  # store fontbuffer as a file
         fontfile.write(buffer)
         fontfile.close()
         try:
-            os.remove("newfont.ttf")  # remove old file
+            os.remove(newfont_path)  # remove old file
         except:
             pass
         try:  # invoke fontTools subsetter
-            fts.main(
-                [
-                    "oldfont.ttf",
-                    "--unicodes-file=uncfile.txt",
-                    "--output-file=newfont.ttf",
-                    "--retain-gids",
-                    "--passthrough-tables",
-                ]
-            )
-            new_buffer = open("newfont.ttf", "rb").read()  # subset binary
+            fts.main(args)
+            font = Font(fontfile=newfont_path)
+            new_buffer = font.buffer
+            if len(font.valid_codepoints()) == 0:
+                new_buffer = None
         except:
             new_buffer = None
         try:
-            os.remove("uncfile.txt")
-            os.remove("oldfont.ttf")
-            os.remove("newfont.ttf")
+            os.remove(uncfile_path)
+        except:
+            pass
+        try:
+            os.remove(oldfont_path)
+        except:
+            pass
+        try:
+            os.remove(newfont_path)
         except:
             pass
         return new_buffer
 
     def repl_fontnames(doc):
-        """Populate 'font_buffers' and 'new_fontnames'.
+        """Populate 'font_buffers'.
 
         For each font candidate, store its xref and the list of names
         by which PDF text may refer to it (there may be multiple).
@@ -4934,14 +5216,13 @@ def subset_fonts(doc: Document) -> None:
         def norm_name(name):
             """Recreate font name that contains PDF hex codes.
 
-            E.g. #20 -> space
+            E.g. #20 -> space, chr(32)
             """
             while "#" in name:
                 p = name.find("#")
                 c = int(name[p + 1 : p + 3], 16)
                 name = name.replace(name[p : p + 3], chr(c))
-            p = name.find("+") + 1
-            return name[p:]
+            return name
 
         def get_fontnames(doc, item):
             """Return a list of fontnames for an item of page.get_fonts().
@@ -4977,32 +5258,42 @@ def subset_fonts(doc: Document) -> None:
                 font_ext = f[1]  # font file extension
                 basename = f[3]  # font basename
 
-                if font_ext not in (  # supported by subsetting
+                if font_ext not in (  # skip if not supported by fontTools
                     "otf",
                     "ttf",
                     "woff",
                     "woff2",
                 ):
                     continue
-                # skip font subsets
+                # skip fonts which already are subsets
                 if len(basename) > 6 and basename[6] == "+":
                     continue
 
+                extr = doc.extract_font(font_xref)
+                fontbuffer = extr[-1]
                 names = get_fontnames(doc, f)
-                if font_xref not in font_buffers.keys():
-                    # store a new valid font buffer
-                    extr = doc.extract_font(font_xref)
-                    fontbuffer = extr[-1]
-                    font = Font(fontbuffer=fontbuffer)
-                    if font.name not in names:
-                        names.append(font.name)
-                    del font
-                    font_buffers[font_xref] = fontbuffer
-                for _fontname in names:
-                    # all fontname alternatives point to font xref
-                    new_fontnames[_fontname[:33]] = font_xref
+                name_set, xref_set, subsets = font_buffers.get(
+                    fontbuffer, (set(), set(), (set(), set()))
+                )
+                xref_set.add(font_xref)
+                for name in names:
+                    name_set.add(name)
+                font = Font(fontbuffer=fontbuffer)
+                name_set.add(font.name)
+                del font
+                font_buffers[fontbuffer] = (name_set, xref_set, subsets)
         return None
 
+    def find_buffer_by_name(name):
+        for buffer in font_buffers.keys():
+            name_set, _, _ = font_buffers[buffer]
+            if name in name_set:
+                return buffer
+        return None
+
+    # -----------------
+    # main function
+    # -----------------
     repl_fontnames(doc)  # populate font information
     if not font_buffers:  # nothing found to do
         print("No fonts to subset.")
@@ -5010,57 +5301,94 @@ def subset_fonts(doc: Document) -> None:
 
     old_fontsize = 0
     new_fontsize = 0
-    for fontbuffer in font_buffers.values():
+    for fontbuffer in font_buffers.keys():
         old_fontsize += len(fontbuffer)
-
-    extr_flags = TEXT_PRESERVE_LIGATURES | TEXT_PRESERVE_WHITESPACE
 
     # Scan page text for usage of subsettable fonts
     for page in doc:
-        # page fontlist must at least reference a candidate xref
-        if [
-            f[0] for f in page.get_fonts() if f[0] in font_buffers.keys()
-        ] == []:  # no relevant xref found
-            continue
-        # go through the text and extend set of used unicodes by font
-        for block in page.get_text("dict", flags=extr_flags)["blocks"]:
-            for line in block["lines"]:
-                for span in line["spans"]:
-                    fontname = span["font"][:33]  # only first 32 bytes
-                    if fontname not in new_fontnames.keys():  # don't subset
-                        continue
-                    # extend collection of used unicodes
-                    subset = font_subsets.get(fontname, set())
-                    for c in span["text"]:
-                        subset.add(ord(c))  # add any new unicode values
-                    font_subsets[fontname] = subset  # store back extended set
+        # go through the text and extend set of used glyphs by font
+        # we use a modified MuPDF trace device, which delivers us glyph ids.
+        for span in page.get_texttrace():
+            if type(span) is not dict:  # skip useless information
+                continue
+            fontname = span["font"][:33]  # fontname for the span
+            buffer = find_buffer_by_name(fontname)
+            if buffer is None:
+                continue
+            name_set, xref_set, (set_ucs, set_gid) = font_buffers[buffer]
+            for c in span["chars"]:
+                set_ucs.add(c[0])  # unicode
+                set_gid.add(c[1])  # glyph id
+            font_buffers[buffer] = (name_set, xref_set, (set_ucs, set_gid))
 
     # build the font subsets
-    for fontname in font_subsets.keys():
-        font_xref = new_fontnames[fontname]
-        old_buffer = font_buffers[font_xref]
-        new_buffer = build_subset(old_buffer, font_subsets[fontname])
-        if (
-            type(new_buffer) is bytes and new_buffer != font_buffers[font_xref]
-        ):  # subset was created and with a different binary
-            font_buffers[font_xref] = new_buffer
-            print("Subset built for '%s'." % fontname)
-        else:  # some error or no true subset - remove
-            del font_buffers[font_xref]
-        del old_buffer
-
-    # walk through the original font xrefs and replace each by its subset def
-    for font_xref, new_buffer in font_buffers.items():
-        val = doc._insert_font(fontbuffer=new_buffer)  # insert subset font
-        new_xref = val[0]  # xref of subset font
+    for old_buffer in font_buffers.keys():
+        name_set, xref_set, subsets = font_buffers[old_buffer]
+        new_buffer = build_subset(old_buffer, subsets[0], subsets[1])
+        fontname = list(name_set)[0]
+        if new_buffer == None or len(new_buffer) >= len(old_buffer):
+            # subset was not created or did not get smaller
+            print("Cannot subset '%s'." % fontname)
+            continue
+        print("Built subset of font '%s'." % fontname)
+        val = doc._insert_font(fontbuffer=new_buffer)  # store subset font in PDF
+        new_xref = val[0]  # get its xref
+        set_subset_fontname(new_xref)  # tag fontname as subset font
         font_str = doc.xref_object(  # get its object definition
             new_xref,
             compressed=True,
         )
-        # ... and replace original font xref with it
-        doc.update_object(font_xref, font_str)
-        # 'new_xref' remains unused in the PDF and will be removed
+        # walk through the original font xrefs and replace each by the subset def
+        for font_xref in xref_set:
+            # we need the original '/W' and '/DW' width values
+            width_table, def_width = get_old_widths(font_xref)
+            # ... and replace original font definition at xref with it
+            doc.update_object(font_xref, font_str)
+            # now copy over old '/W' and '/DW' values
+            if width_table or def_width:
+                set_old_widths(font_xref, width_table, def_width)
+        # 'new_xref' remains unused in the PDF and must be removed
         # by garbage collection.
         new_fontsize += len(new_buffer)
 
     return old_fontsize - new_fontsize
+
+
+# -------------------------------------------------------------------
+# Copy XREF object to another XREF
+# -------------------------------------------------------------------
+def xref_copy(doc: Document, source: int, target: int, *, keep: list = None) -> None:
+    """Copy a PDF dictionary object to another one given their xref numbers.
+
+    Args:
+        doc: PDF document object
+        source: source xref number
+        target: target xref number, the xref must already exist
+        keep: an optional list of 1st level keys in target that should not be
+              removed before copying.
+    Notes:
+        This works similar to the copy() method of dictionaries in Python. The
+        source may be a stream object.
+    """
+    if doc.xref_is_stream(source):
+        # read new xref stream, maintaining compression
+        stream = doc.xref_stream_raw(source)
+        doc.update_stream(
+            target,
+            stream,
+            compress=False,  # keeps source compression
+            new=True,  # in case target is no stream
+        )
+
+    # empty the target completely, observe exceptions
+    if keep is None:
+        keep = []
+    for key in doc.xref_get_keys(target):
+        if key in keep:
+            continue
+        doc.xref_set_key(target, key, "null")
+    # copy over all source dict items
+    for key in doc.xref_get_keys(source):
+        item = doc.xref_get_key(source, key)
+        doc.xref_set_key(target, key, item[1])
+    return None

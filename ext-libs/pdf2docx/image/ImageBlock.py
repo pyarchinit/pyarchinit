@@ -1,32 +1,34 @@
 # -*- coding: utf-8 -*-
 
-'''
-Definition of Image block objects. 
+'''Definition of Image block objects. 
 
-Note the raw image block will be merged into text block: Text > Line > Span.
-
-@created: 2020-07-22
-@author: train8808@gmail.com
+**The raw image block will be merged into TextBlock > Line > Span.**
 '''
 
+from io import BytesIO
 from ..text.Line import Line
 from ..text.TextBlock import TextBlock
 from .Image import Image
 from .ImageSpan import ImageSpan
 from ..common.Block import Block
+from ..common.docx import add_float_image
 
 
-class ImageBlock(Image, Block): # to get Image.plot() in first priority
+class ImageBlock(Image, Block):
     '''Image block.'''
-    def __init__(self, raw: dict):
+    def __init__(self, raw:dict=None):
         super().__init__(raw)
 
-        # set type
-        self.set_image_block()
+        # inline image type by default
+        self.set_inline_image_block()
 
 
     def to_text_block(self):
-        '''convert image block to text block: a span'''
+        """Convert image block to a span under text block.
+
+        Returns:
+            TextBlock: New TextBlock instance containing this image.
+        """
         # image span
         span = ImageSpan().from_image(self)
 
@@ -35,18 +37,45 @@ class ImageBlock(Image, Block): # to get Image.plot() in first priority
         image_line.add(span)
         
         # insert line to block
-        block = TextBlock()
+        block = TextBlock()        
         block.add(image_line)
 
-        # set text block
-        block.set_text_block()
+        # NOTE: it's an image block even though in TextBlock type
+        block.set_inline_image_block() 
 
         return block
-
+ 
 
     def store(self):
-        res = super().store()
+        '''Store ImageBlock instance in raw dict.'''
+        res = Block.store(self)
         res.update(
-            super().store_image()
+            Image.store(self)
         )
         return res
+
+    
+    def plot(self, page):
+        '''Plot image bbox with diagonal lines (for debug purpose).
+        
+        Args: 
+            page (fitz.Page): pdf page to plot.
+        '''
+        super().plot(page, color=(1,0,0))
+
+
+    def make_docx(self, p):
+        '''Create floating image behind text. 
+        
+        Args:
+            p (Paragraph): ``python-docx`` paragraph instance.
+        
+        .. note::
+            Inline image is created within TextBlock.
+        '''
+        if self.is_float_image_block:
+            x0, y0, x1, y1 = self.bbox
+            add_float_image(p, BytesIO(self.image), width=x1-x0, pos_x=x0, pos_y=y0)
+        else:
+            super().make_docx(p)
+        return p
