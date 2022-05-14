@@ -4,87 +4,13 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="4fcc9f68-23da-4b24-88d8-c90bbba6380a" name="Changes" comment="">
-      <change beforePath="$PROJECT_DIR$/.idea/vcs.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/vcs.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/__init__.py" beforeDir="false" afterPath="$PROJECT_DIR$/__init__.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/ext-libs/PyMuPDF-1.18.14.dist-info/COPYING" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/ext-libs/PyMuPDF-1.18.14.dist-info/INSTALLER" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/ext-libs/PyMuPDF-1.18.14.dist-info/METADATA" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/ext-libs/PyMuPDF-1.18.14.dist-info/RECORD" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/ext-libs/PyMuPDF-1.18.14.dist-info/WHEEL" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/ext-libs/docx/__init__.py" beforeDir="false" afterPath="$PROJECT_DIR$/ext-libs/docx/__init__.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/ext-libs/docx/compat.py" beforeDir="false" afterPath="$PROJECT_DIR$/ext-libs/docx/compat.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/ext-libs/docx/opc/compat.py" beforeDir="false" afterPath="$PROJECT_DIR$/ext-libs/docx/opc/compat.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/ext-libs/docx/oxml/ns.py" beforeDir="false" afterPath="$PROJECT_DIR$/ext-libs/docx/oxml/ns.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/ext-libs/docx/section.py" beforeDir="false" afterPath="$PROJECT_DIR$/ext-libs/docx/section.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/ext-libs/fire-0.4.0-py3.9.egg-info/PKG-INFO" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/ext-libs/fire-0.4.0-py3.9.egg-info/SOURCES.txt" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/ext-libs/fire-0.4.0-py3.9.egg-info/dependency_links.txt" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/ext-libs/fire-0.4.0-py3.9.egg-info/installed-files.txt" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/ext-libs/fire-0.4.0-py3.9.egg-info/requires.txt" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/ext-libs/fire-0.4.0-py3.9.egg-info/top_level.txt" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/ext-libs/fitz/__init__.py" beforeDir="false" afterPath="$PROJECT_DIR$/ext-libs/fitz/__init__.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/ext-libs/fitz/__main__.py" beforeDir="false" afterPath="$PROJECT_DIR$/ext-libs/fitz/__main__.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/ext-libs/fitz/_fitz.pyd" beforeDir="false" afterPath="$PROJECT_DIR$/ext-libs/fitz/_fitz.pyd" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/ext-libs/fitz/fitz.py" beforeDir="false" afterPath="$PROJECT_DIR$/ext-libs/fitz/fitz.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/ext-libs/fitz/utils.py" beforeDir="false" afterPath="$PROJECT_DIR$/ext-libs/fitz/utils.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/ext-libs/pdf2docx-0.4.6.dist-info/INSTALLER" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/ext-libs/pdf2docx-0.4.6.dist-info/LICENSE" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/ext-libs/pdf2docx-0.4.6.dist-info/METADATA" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/ext-libs/pdf2docx-0.4.6.dist-info/RECORD" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/ext-libs/pdf2docx-0.4.6.dist-info/REQUESTED" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/ext-libs/pdf2docx-0.4.6.dist-info/WHEEL" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/ext-libs/pdf2docx-0.4.6.dist-info/entry_points.txt" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/ext-libs/pdf2docx-0.4.6.dist-info/top_level.txt" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/ext-libs/pdf2docx/__init__.py" beforeDir="false" afterPath="$PROJECT_DIR$/ext-libs/pdf2docx/__init__.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/ext-libs/pdf2docx/common/BBox.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/ext-libs/pdf2docx/common/Block.py" beforeDir="false" afterPath="$PROJECT_DIR$/ext-libs/pdf2docx/common/Block.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/ext-libs/pdf2docx/common/Collection.py" beforeDir="false" afterPath="$PROJECT_DIR$/ext-libs/pdf2docx/common/Collection.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/ext-libs/pdf2docx/common/base.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/ext-libs/pdf2docx/common/constants.py" beforeDir="false" afterPath="$PROJECT_DIR$/ext-libs/pdf2docx/common/constants.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/ext-libs/pdf2docx/common/docx.py" beforeDir="false" afterPath="$PROJECT_DIR$/ext-libs/pdf2docx/common/docx.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/ext-libs/pdf2docx/common/pdf.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/ext-libs/pdf2docx/common/rect_intersection.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/ext-libs/pdf2docx/common/utils.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/ext-libs/pdf2docx/converter.py" beforeDir="false" afterPath="$PROJECT_DIR$/ext-libs/pdf2docx/converter.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/ext-libs/pdf2docx/image/Image.py" beforeDir="false" afterPath="$PROJECT_DIR$/ext-libs/pdf2docx/image/Image.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/ext-libs/pdf2docx/image/ImageBlock.py" beforeDir="false" afterPath="$PROJECT_DIR$/ext-libs/pdf2docx/image/ImageBlock.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/ext-libs/pdf2docx/image/ImageSpan.py" beforeDir="false" afterPath="$PROJECT_DIR$/ext-libs/pdf2docx/image/ImageSpan.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/ext-libs/pdf2docx/layout/Blocks.py" beforeDir="false" afterPath="$PROJECT_DIR$/ext-libs/pdf2docx/layout/Blocks.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/ext-libs/pdf2docx/layout/Layout.py" beforeDir="false" afterPath="$PROJECT_DIR$/ext-libs/pdf2docx/layout/Layout.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/ext-libs/pdf2docx/main.py" beforeDir="false" afterPath="$PROJECT_DIR$/ext-libs/pdf2docx/main.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/ext-libs/pdf2docx/shape/Path.py" beforeDir="false" afterPath="$PROJECT_DIR$/ext-libs/pdf2docx/shape/Path.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/ext-libs/pdf2docx/shape/Shape.py" beforeDir="false" afterPath="$PROJECT_DIR$/ext-libs/pdf2docx/shape/Shape.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/ext-libs/pdf2docx/shape/Shapes.py" beforeDir="false" afterPath="$PROJECT_DIR$/ext-libs/pdf2docx/shape/Shapes.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/ext-libs/pdf2docx/table/Border.py" beforeDir="false" afterPath="$PROJECT_DIR$/ext-libs/pdf2docx/table/Border.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/ext-libs/pdf2docx/table/Cell.py" beforeDir="false" afterPath="$PROJECT_DIR$/ext-libs/pdf2docx/table/Cell.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/ext-libs/pdf2docx/table/Cells.py" beforeDir="false" afterPath="$PROJECT_DIR$/ext-libs/pdf2docx/table/Cells.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/ext-libs/pdf2docx/table/Row.py" beforeDir="false" afterPath="$PROJECT_DIR$/ext-libs/pdf2docx/table/Row.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/ext-libs/pdf2docx/table/Rows.py" beforeDir="false" afterPath="$PROJECT_DIR$/ext-libs/pdf2docx/table/Rows.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/ext-libs/pdf2docx/table/TableBlock.py" beforeDir="false" afterPath="$PROJECT_DIR$/ext-libs/pdf2docx/table/TableBlock.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/ext-libs/pdf2docx/table/TableStructure.py" beforeDir="false" afterPath="$PROJECT_DIR$/ext-libs/pdf2docx/table/TableStructure.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/ext-libs/pdf2docx/table/TablesConstructor.py" beforeDir="false" afterPath="$PROJECT_DIR$/ext-libs/pdf2docx/table/TablesConstructor.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/ext-libs/pdf2docx/text/Char.py" beforeDir="false" afterPath="$PROJECT_DIR$/ext-libs/pdf2docx/text/Char.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/ext-libs/pdf2docx/text/Line.py" beforeDir="false" afterPath="$PROJECT_DIR$/ext-libs/pdf2docx/text/Line.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/ext-libs/pdf2docx/text/Lines.py" beforeDir="false" afterPath="$PROJECT_DIR$/ext-libs/pdf2docx/text/Lines.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/ext-libs/pdf2docx/text/Spans.py" beforeDir="false" afterPath="$PROJECT_DIR$/ext-libs/pdf2docx/text/Spans.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/ext-libs/pdf2docx/text/TextBlock.py" beforeDir="false" afterPath="$PROJECT_DIR$/ext-libs/pdf2docx/text/TextBlock.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/ext-libs/pdf2docx/text/TextSpan.py" beforeDir="false" afterPath="$PROJECT_DIR$/ext-libs/pdf2docx/text/TextSpan.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/ext-libs/python_docx-0.8.10-py3.9.egg-info/PKG-INFO" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/ext-libs/python_docx-0.8.10-py3.9.egg-info/SOURCES.txt" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/ext-libs/python_docx-0.8.10-py3.9.egg-info/dependency_links.txt" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/ext-libs/python_docx-0.8.10-py3.9.egg-info/installed-files.txt" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/ext-libs/python_docx-0.8.10-py3.9.egg-info/requires.txt" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/ext-libs/python_docx-0.8.10-py3.9.egg-info/top_level.txt" beforeDir="false" />
-    </list>
+    <list default="true" id="13d9711e-af47-4516-9a74-091c329d410d" name="Changes" comment="#471 fix bug for mac" />
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
     <option name="LAST_RESOLUTION" value="IGNORE" />
   </component>
   <component name="Git.Settings">
-    <option name="PREVIEW_PUSH_PROTECTED_ONLY" value="true" />
     <option name="RECENT_BRANCH_BY_REPOSITORY">
       <map>
         <entry key="$PROJECT_DIR$" value="master" />
@@ -93,17 +19,8 @@
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
     <option name="UPDATE_TYPE" value="REBASE" />
   </component>
-  <component name="HighlightingSettingsPerFile">
-    <setting file="file://$PROJECT_DIR$/tabs/networkaccessmanager.py" root0="FORCE_HIGHLIGHTING" />
-    <setting file="file://$PROJECT_DIR$/__init__.py" root0="FORCE_HIGHLIGHTING" />
-    <setting file="file://$PROJECT_DIR$/tabs/US_USM.py" root0="FORCE_HIGHLIGHTING" />
-    <setting file="file://$PROJECT_DIR$/modules/utility/settings.py" root0="FORCE_HIGHLIGHTING" />
-    <setting file="file://$PROJECT_DIR$/scripts/modules_installer.py" root0="FORCE_HIGHLIGHTING" />
-    <setting file="file://$PROJECT_DIR$/modules/utility/pyarchinit_folder_installation.py" root0="FORCE_HIGHLIGHTING" />
-    <setting file="file://$PROJECT_DIR$/metadata.txt" root0="FORCE_HIGHLIGHTING" />
-    <setting file="file://$PROJECT_DIR$/resources/dbfiles/dottoxml.py" root0="FORCE_HIGHLIGHTING" />
-    <setting file="file://$PROJECT_DIR$/tabs/gpkg_export.py" root0="FORCE_HIGHLIGHTING" />
-    <setting file="file://$PROJECT_DIR$/tabs/Site.py" root0="FORCE_HIGHLIGHTING" />
+  <component name="GithubDefaultAccount">
+    <option name="defaultAccountId" value="3716b4d5-8ed8-402e-a24e-43894efbf059" />
   </component>
   <component name="ProblemsViewState">
     <option name="showPreview" value="true" />
@@ -121,7 +38,7 @@
     <property name="RunOnceActivity.OpenProjectViewOnStart" value="true" />
     <property name="RunOnceActivity.ShowReadmeOnStart" value="true" />
     <property name="last_opened_file_path" value="$USER_HOME$/Desktop/test.py" />
-    <property name="settings.editor.selected.configurable" value="vcs.Git" />
+    <property name="settings.editor.selected.configurable" value="terminal" />
   </component>
   <component name="PyConsoleOptionsProvider">
     <option name="myPythonConsoleState">
@@ -163,7 +80,7 @@
   <component name="SpellCheckerSettings" RuntimeDictionaries="0" Folders="0" CustomDictionaries="0" DefaultDictionary="application-level" UseSingleDictionary="true" transferred="true" />
   <component name="TaskManager">
     <task active="true" id="Default" summary="Default task">
-      <changelist id="4fcc9f68-23da-4b24-88d8-c90bbba6380a" name="Changes" comment="" />
+      <changelist id="13d9711e-af47-4516-9a74-091c329d410d" name="Changes" comment="" />
       <created>1636816115136</created>
       <option name="number" value="Default" />
       <option name="presentableId" value="Default" />
@@ -463,14 +380,7 @@
       <option name="project" value="LOCAL" />
       <updated>1652365504495</updated>
     </task>
-    <task id="LOCAL-00043" summary="#471 fix bug for mac">
-      <created>1652463738351</created>
-      <option name="number" value="00043" />
-      <option name="presentableId" value="LOCAL-00043" />
-      <option name="project" value="LOCAL" />
-      <updated>1652463738351</updated>
-    </task>
-    <option name="localTasksCounter" value="44" />
+    <option name="localTasksCounter" value="43" />
     <servers />
   </component>
   <component name="Vcs.Log.Tabs.Properties">
