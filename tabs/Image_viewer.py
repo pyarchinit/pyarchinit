@@ -1433,7 +1433,7 @@ class Main(QDialog,MAIN_DIALOG_CLASS):
                     os.startfile(str(thumb_resize_str+file_path_3))
             
                 else:
-                    os.system('open' + str(thumb_resize_str+file_path_3))
+                    os.system('open ' + str(thumb_resize_str+file_path_3))
             else:
                 pass
             if bool(res_2):
