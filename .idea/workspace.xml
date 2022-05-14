@@ -4,7 +4,7 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="13d9711e-af47-4516-9a74-091c329d410d" name="Changes" comment="#471 fix bug for mac" />
+    <list default="true" id="13d9711e-af47-4516-9a74-091c329d410d" name="Changes" comment="fix bug load video for mac" />
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -380,7 +380,14 @@
       <option name="project" value="LOCAL" />
       <updated>1652365504495</updated>
     </task>
-    <option name="localTasksCounter" value="43" />
+    <task id="LOCAL-00043" summary="fix bug load video for mac">
+      <created>1652507626723</created>
+      <option name="number" value="00043" />
+      <option name="presentableId" value="LOCAL-00043" />
+      <option name="project" value="LOCAL" />
+      <updated>1652507626723</updated>
+    </task>
+    <option name="localTasksCounter" value="44" />
     <servers />
   </component>
   <component name="Vcs.Log.Tabs.Properties">
@@ -419,7 +426,8 @@
     <MESSAGE value="v4.0.1" />
     <MESSAGE value="update _mod_spatialite.so for mac" />
     <MESSAGE value="#471 fix bug for mac" />
-    <option name="LAST_COMMIT_MESSAGE" value="#471 fix bug for mac" />
+    <MESSAGE value="fix bug load video for mac" />
+    <option name="LAST_COMMIT_MESSAGE" value="fix bug load video for mac" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
