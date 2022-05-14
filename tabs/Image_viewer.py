@@ -29,7 +29,7 @@ import PIL as Image
 from PIL import *
 import shutil
 
-
+import platform
 import cv2
 import pytesseract
 import numpy as np
@@ -1429,8 +1429,11 @@ class Main(QDialog,MAIN_DIALOG_CLASS):
             
             file_path_3 = str(res_3[0].path_resize)
             if bool(res):
+                if platform.system=='Windows':
+                    os.startfile(str(thumb_resize_str+file_path_3))
             
-                os.startfile(str(thumb_resize_str+file_path_3))
+                else:
+                    os.system('open' + str(thumb_resize_str+file_path_3))
             else:
                 pass
             if bool(res_2):
