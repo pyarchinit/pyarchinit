@@ -1061,22 +1061,22 @@ class pyarchinit_Struttura(QDialog, MAIN_DIALOG_CLASS):
         if bool(self.DATA_LIST):
             if self.data_error_check() == 1:
                 pass
-            else:
-                if self.BROWSE_STATUS == "b":
-                    if bool(self.DATA_LIST):
-                        if self.records_equal_check() == 1:
-                            if self.L=='it':
-                                self.update_if(QMessageBox.warning(self, 'Errore',
-                                                                   "Il record e' stato modificato. Vuoi salvare le modifiche?",QMessageBox.Ok | QMessageBox.Cancel))
-                            elif self.L=='de':
-                                self.update_if(QMessageBox.warning(self, 'Error',
-                                                                   "Der Record wurde geändert. Möchtest du die Änderungen speichern?",
-                                                                   QMessageBox.Ok | QMessageBox.Cancel))
+            # else:
+                # if self.BROWSE_STATUS == "b":
+                    # if bool(self.DATA_LIST):
+                        # if self.records_equal_check() == 1:
+                            # if self.L=='it':
+                                # self.update_if(QMessageBox.warning(self, 'Errore',
+                                                                   # "Il record e' stato modificato. Vuoi salvare le modifiche?",QMessageBox.Ok | QMessageBox.Cancel))
+                            # elif self.L=='de':
+                                # self.update_if(QMessageBox.warning(self, 'Error',
+                                                                   # "Der Record wurde geändert. Möchtest du die Änderungen speichern?",
+                                                                   # QMessageBox.Ok | QMessageBox.Cancel))
                                                                    
-                            else:
-                                self.update_if(QMessageBox.warning(self, 'Error',
-                                                                   "The record has been changed. Do you want to save the changes?",
-                                                                   QMessageBox.Ok | QMessageBox.Cancel))
+                            # else:
+                                # self.update_if(QMessageBox.warning(self, 'Error',
+                                                                   # "The record has been changed. Do you want to save the changes?",
+                                                                   # QMessageBox.Ok | QMessageBox.Cancel))
                             # set the GUI for a new record
         if self.BROWSE_STATUS != "n":
             if bool(self.comboBox_sito.currentText()) and self.comboBox_sito.currentText()==sito_set_str:
@@ -1084,7 +1084,7 @@ class pyarchinit_Struttura(QDialog, MAIN_DIALOG_CLASS):
                 self.label_status.setText(self.STATUS_ITEMS[self.BROWSE_STATUS])
                 self.empty_fields_nosite()
                 self.label_sort.setText(self.SORTED_ITEMS["n"])
-
+                self.SORT_STATUS = "n"
                 #self.setComboBoxEditable(["self.comboBox_sito"], 1)
                 self.setComboBoxEditable(["self.comboBox_sigla_struttura"], 0)
                 self.setComboBoxEnable(["self.comboBox_sito"], False)
@@ -1095,6 +1095,7 @@ class pyarchinit_Struttura(QDialog, MAIN_DIALOG_CLASS):
             else:
                 self.BROWSE_STATUS = "n"
                 self.label_status.setText(self.STATUS_ITEMS[self.BROWSE_STATUS])
+                self.label_sort.setText(self.SORTED_ITEMS[self.SORT_STATUS])
                 self.empty_fields()
                 self.label_sort.setText(self.SORTED_ITEMS["n"])
 
@@ -1125,6 +1126,7 @@ class pyarchinit_Struttura(QDialog, MAIN_DIALOG_CLASS):
                         self.update_if(QMessageBox.warning(self, 'Error',
                                                            "The record has been changed. Do you want to save the changes?",
                                                            QMessageBox.Ok | QMessageBox.Cancel))
+                    self.empty_fields()
                     self.SORT_STATUS = "n"
                     self.label_sort.setText(self.SORTED_ITEMS[self.SORT_STATUS])
                     self.enable_button(1)
@@ -1973,9 +1975,10 @@ class pyarchinit_Struttura(QDialog, MAIN_DIALOG_CLASS):
             sub_list = []
             for c in range(col):
                 value = eval(self.tablename + ".item(r,c)")
-                if bool(value):
+                if value != None:
                     sub_list.append(str(value.text()))
-            lista.append(sub_list)
+            if bool(sub_list):
+                lista.append(sub_list)
         return lista
 
     def setTableEnable(self, t, v):

@@ -724,8 +724,6 @@
              <pointsize>8</pointsize>
             </font>
            </property>
-
-
            <property name="icon">
             <iconset resource="../../resources/resources.qrc">
              <normaloff>:/icons/directoryExp.png</normaloff>:/icons/directoryExp.png</iconset>
@@ -953,23 +951,6 @@
        </item>
        <item row="2" column="0">
         <layout class="QGridLayout" name="gridLayout_3">
-         <item row="0" column="0">
-          <widget class="QLabel" name="label_27">
-           <property name="font">
-            <font>
-             <pointsize>8</pointsize>
-             <weight>75</weight>
-             <bold>true</bold>
-            </font>
-           </property>
-           <property name="text">
-            <string>record n.</string>
-           </property>
-           <property name="margin">
-            <number>0</number>
-           </property>
-          </widget>
-         </item>
          <item row="0" column="1">
           <widget class="QLabel" name="label_rec_corrente">
            <property name="font">
@@ -998,23 +979,6 @@
            </property>
           </widget>
          </item>
-         <item row="1" column="0">
-          <widget class="QLabel" name="label_28">
-           <property name="font">
-            <font>
-             <pointsize>8</pointsize>
-             <weight>75</weight>
-             <bold>true</bold>
-            </font>
-           </property>
-           <property name="text">
-            <string>record tot.</string>
-           </property>
-           <property name="margin">
-            <number>0</number>
-           </property>
-          </widget>
-         </item>
          <item row="1" column="1">
           <widget class="QLabel" name="label_rec_tot">
            <property name="font">
@@ -1040,6 +1004,40 @@
            </property>
            <property name="text">
             <string>1</string>
+           </property>
+          </widget>
+         </item>
+         <item row="0" column="0">
+          <widget class="QLabel" name="label_27">
+           <property name="font">
+            <font>
+             <pointsize>8</pointsize>
+             <weight>75</weight>
+             <bold>true</bold>
+            </font>
+           </property>
+           <property name="text">
+            <string>record n.</string>
+           </property>
+           <property name="margin">
+            <number>0</number>
+           </property>
+          </widget>
+         </item>
+         <item row="1" column="0">
+          <widget class="QLabel" name="label_28">
+           <property name="font">
+            <font>
+             <pointsize>8</pointsize>
+             <weight>75</weight>
+             <bold>true</bold>
+            </font>
+           </property>
+           <property name="text">
+            <string>record tot.</string>
+           </property>
+           <property name="margin">
+            <number>0</number>
            </property>
           </widget>
          </item>
@@ -1579,7 +1577,7 @@ p, li { white-space: pre-wrap; }
             <bool>true</bool>
            </property>
            <property name="rowCount">
-            <number>1</number>
+            <number>0</number>
            </property>
            <property name="columnCount">
             <number>4</number>
@@ -1587,7 +1585,6 @@ p, li { white-space: pre-wrap; }
            <attribute name="horizontalHeaderDefaultSectionSize">
             <number>196</number>
            </attribute>
-           <row/>
            <column>
             <property name="text">
              <string>Tipo di rapporto</string>
@@ -1648,9 +1645,7 @@ p, li { white-space: pre-wrap; }
         </rect>
        </property>
        <layout class="QGridLayout" name="gridLayout_12">
-
         <item row="1" column="2">
-
          <widget class="QTableWidget" name="tableWidget_materiali_impiegati">
           <property name="frameShape">
            <enum>QFrame::StyledPanel</enum>
@@ -1671,7 +1666,7 @@ p, li { white-space: pre-wrap; }
            <bool>true</bool>
           </property>
           <property name="rowCount">
-           <number>1</number>
+           <number>0</number>
           </property>
           <property name="columnCount">
            <number>1</number>
@@ -1679,7 +1674,6 @@ p, li { white-space: pre-wrap; }
           <attribute name="horizontalHeaderDefaultSectionSize">
            <number>360</number>
           </attribute>
-          <row/>
           <column>
            <property name="text">
             <string>Materiali</string>
@@ -1787,7 +1781,7 @@ p, li { white-space: pre-wrap; }
            <bool>true</bool>
           </property>
           <property name="rowCount">
-           <number>1</number>
+           <number>0</number>
           </property>
           <property name="columnCount">
            <number>2</number>
@@ -1795,7 +1789,6 @@ p, li { white-space: pre-wrap; }
           <attribute name="horizontalHeaderDefaultSectionSize">
            <number>180</number>
           </attribute>
-          <row/>
           <column>
            <property name="text">
             <string>Tipologia elemento</string>
@@ -1853,12 +1846,10 @@ p, li { white-space: pre-wrap; }
       <widget class="QgsDockWidget" name="mDockWidget_3">
        <property name="geometry">
         <rect>
-
          <x>50</x>
          <y>20</y>
          <width>600</width>
          <height>259</height>
-
         </rect>
        </property>
        <property name="sizePolicy">
@@ -1870,9 +1861,7 @@ p, li { white-space: pre-wrap; }
        <property name="minimumSize">
         <size>
          <width>600</width>
-
          <height>259</height>
-
         </size>
        </property>
        <property name="floating">
@@ -2179,26 +2168,22 @@ p, li { white-space: pre-wrap; }
  </customwidgets>
  <resources>
   <include location="../../resources/resources.qrc"/>
-
   <include location="../../../pyarchinit-master/resources/resources.qrc"/>
  </resources>
  <connections>
   <connection>
    <sender>pushButton_open_dir</sender>
-
    <signal>pressed()</signal>
    <receiver>mDockWidget_export</receiver>
    <slot>toggleUserVisible()</slot>
    <hints>
     <hint type="sourcelabel">
-
      <x>157</x>
      <y>111</y>
     </hint>
     <hint type="destinationlabel">
      <x>259</x>
      <y>346</y>
-
     </hint>
    </hints>
   </connection>
@@ -2209,14 +2194,12 @@ p, li { white-space: pre-wrap; }
    <slot>toggleUserVisible()</slot>
    <hints>
     <hint type="sourcelabel">
-
      <x>400</x>
      <y>652</y>
     </hint>
     <hint type="destinationlabel">
      <x>615</x>
      <y>608</y>
-
     </hint>
    </hints>
   </connection>
