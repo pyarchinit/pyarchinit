@@ -3711,10 +3711,10 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
                 
                 self.setComboBoxEditable(["self.comboBox_area"], 1)
                 self.setComboBoxEditable(["self.comboBox_unita_tipo"], 1)
-                self.setComboBoxEnable(["self.comboBox_sito"], "False")
-                self.setComboBoxEnable(["self.comboBox_area"], "True")
-                self.setComboBoxEnable(["self.lineEdit_us"], "True")
-                self.setComboBoxEnable(["self.comboBox_unita_tipo"], "True")
+                self.setComboBoxEnable(["self.comboBox_sito"], False)
+                self.setComboBoxEnable(["self.comboBox_area"], True)
+                self.setComboBoxEnable(["self.lineEdit_us"], True)
+                self.setComboBoxEnable(["self.comboBox_unita_tipo"], True)
                 self.SORT_STATUS = "n"
                 self.label_sort.setText(self.SORTED_ITEMS[self.SORT_STATUS])
                 self.label_status.setText(self.STATUS_ITEMS[self.BROWSE_STATUS])
@@ -3734,7 +3734,7 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
                 self.setComboBoxEnable(["self.comboBox_unita_tipo"], "True")
                 self.SORT_STATUS = "n"
                 self.label_sort.setText(self.SORTED_ITEMS[self.SORT_STATUS])
-                self.label_status.setText(self.STATUS_ITEMS[self.BROWSE_STATUS])
+                
                 self.set_rec_counter('', '')
                 self.label_sort.setText(self.SORTED_ITEMS["n"])
                 
