@@ -4,8 +4,7 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="13d9711e-af47-4516-9a74-091c329d410d" name="Changes" comment="fix bug load video for mac">
-      <change beforePath="$PROJECT_DIR$/.idea/vcs.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/vcs.xml" afterDir="false" />
+    <list default="true" id="13d9711e-af47-4516-9a74-091c329d410d" name="Changes" comment="fix bug #486">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
@@ -397,7 +396,21 @@
       <option name="project" value="LOCAL" />
       <updated>1652508073598</updated>
     </task>
-    <option name="localTasksCounter" value="45" />
+    <task id="LOCAL-00045" summary="fix bug #486">
+      <created>1652853371901</created>
+      <option name="number" value="00045" />
+      <option name="presentableId" value="LOCAL-00045" />
+      <option name="project" value="LOCAL" />
+      <updated>1652853371901</updated>
+    </task>
+    <task id="LOCAL-00046" summary="fix bug #486">
+      <created>1652853567183</created>
+      <option name="number" value="00046" />
+      <option name="presentableId" value="LOCAL-00046" />
+      <option name="project" value="LOCAL" />
+      <updated>1652853567183</updated>
+    </task>
+    <option name="localTasksCounter" value="47" />
     <servers />
   </component>
   <component name="Vcs.Log.Tabs.Properties">
@@ -440,7 +453,8 @@
     <MESSAGE value="update _mod_spatialite.so for mac" />
     <MESSAGE value="#471 fix bug for mac" />
     <MESSAGE value="fix bug load video for mac" />
-    <option name="LAST_COMMIT_MESSAGE" value="fix bug load video for mac" />
+    <MESSAGE value="fix bug #486" />
+    <option name="LAST_COMMIT_MESSAGE" value="fix bug #486" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
