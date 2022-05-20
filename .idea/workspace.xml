@@ -24,6 +24,14 @@
   <component name="GithubDefaultAccount">
     <option name="defaultAccountId" value="3716b4d5-8ed8-402e-a24e-43894efbf059" />
   </component>
+  <component name="GithubPullRequestsUISettings">
+    <option name="selectedUrlAndAccountId">
+      <UrlAndAccount>
+        <option name="accountId" value="fbeabf17-dfef-4802-bd10-e0de1b65fbb3" />
+        <option name="url" value="https://github.com/pyarchinit/pyarchinit.git" />
+      </UrlAndAccount>
+    </option>
+  </component>
   <component name="ProblemsViewState">
     <option name="showPreview" value="true" />
   </component>
@@ -74,6 +82,7 @@
     </configuration>
     <recent_temporary>
       <list>
+        <item itemvalue="Python.test" />
         <item itemvalue="Python.test" />
         <item itemvalue="Python.test" />
       </list>
