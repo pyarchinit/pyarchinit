@@ -62,17 +62,7 @@ The dependencies can be installed using the [modules_installer.py](/scripts/modu
 
 ![PR](https://services.github.com/on-demand/images/gifs/github-cli/push-and-pull.gif)
 
-When you're installing the modules, if you see not
 
-![immagine](https://user-images.githubusercontent.com/1929829/138449101-32f8a92b-5f3e-48e5-add8-68e897cd5fdf.png)
-
-No module named setuptools
-
-install it by and typing
-
-![immagine](https://user-images.githubusercontent.com/1929829/138449239-2ddffa42-d887-45f0-bea3-38ee1b4d139c.png)
-
-Then continue to install alls the modules
 
 
 ## pyArchInit is used by:
