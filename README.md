@@ -23,15 +23,9 @@ _http://pyarchinit.org/pyarchinit.xml_
 2. Install the python packages requirements (see [Dependencies](#dependencies) paragraph)
 3. Open QGIS and then from Plugin manager use Install from ZIP to install the plugin
 
-**Note:** _While installing a message box could be prompted to warn you about missing python packages required from the plugin._
 
-**Note2:** _Under Windows is necessary to start QGIS as Administrator when you install the plugin for the first time in order to install all the dependencies properly._
+**Note1:** _If you use PostgreSQL, we raccomend to install PostgreSQL >=9.6_
 
-**Note3:** _If you use PostgreSQL, we raccomend to install PostgreSQL >=9.6_
-
-**Note4:** _If you have already an pyarchinit db, use "update posgres" or "update sqlite" tool in pyarchinit configuration  form to update  your db to the new release._
-
-**Note5:** _If you have already installed pyarchinit before of the 01/02/2019, to install the new version, delete the file config.cfg in pyarchinit_DB_folder and restart as admin._
 
 #### Dependencies
 * SQLAlchemy
@@ -44,13 +38,33 @@ _http://pyarchinit.org/pyarchinit.xml_
 * pdf2docx
 * pysftp
 
-**Note6:** _Indtruction to install Graphviz on Windows OS (first installation)_
-- Download zip file of the [last release of Graphviz (2.44.1)](https://www2.graphviz.org/Packages/stable/windows/10/msbuild/Release/Win32/graphviz-2.44.1-win32.zip)
-- unzip file and save it in some location ( example in C:/) and enjoy.
+**Note2:** _Note for Mac_
 
-_If you have already installed a previus version of Graphviz, uninstall it before to continue with new version, if not you can't set the path of the new version of Graphviz into pyarchinit_
+you need install Cambria font. If you don't have already installed, automatically the folder with cambria font  will open 
 
-The dependencies can be installed using the [modules_installer.py](/scripts/modules_installer.py) by running it from within a python shell:
+you need just double click on all file with cambria name.
+* cambria.ttc
+* Cambria.ttf
+* cambriab.ttf
+* cambriai.ttf
+* cambriaz.ttf
+
+**Note3:** _Indtruction to install Graphviz on windows and OSx (first installation)_
+
+Windows
+- Download zip file of the [last release of Graphviz (2.50)](https://www.graphviz.org/download/)
+- install .exe.
+
+Mac
+- Install homwbrew via console (copy and past this): 
+
+  **/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"**
+- install graphviz (copy and past this):
+
+  **brew install graphviz**
+
+
+The dependencies can be installed also using the [modules_installer.py](/scripts/modules_installer.py) by running it from within a python shell:
 
 ```python modules_installer.py```
 
