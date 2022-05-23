@@ -4,8 +4,9 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="13d9711e-af47-4516-9a74-091c329d410d" name="Changes" comment="fix bug #486">
+    <list default="true" id="13d9711e-af47-4516-9a74-091c329d410d" name="Changes" comment="readme update">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/README.md" beforeDir="false" afterPath="$PROJECT_DIR$/README.md" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -24,6 +25,14 @@
   <component name="GithubDefaultAccount">
     <option name="defaultAccountId" value="3716b4d5-8ed8-402e-a24e-43894efbf059" />
   </component>
+  <component name="GithubPullRequestsUISettings">
+    <option name="selectedUrlAndAccountId">
+      <UrlAndAccount>
+        <option name="accountId" value="fbeabf17-dfef-4802-bd10-e0de1b65fbb3" />
+        <option name="url" value="https://github.com/pyarchinit/pyarchinit.git" />
+      </UrlAndAccount>
+    </option>
+  </component>
   <component name="ProblemsViewState">
     <option name="showPreview" value="true" />
   </component>
@@ -37,6 +46,7 @@
   </component>
   <component name="PropertiesComponent">
     <property name="ASKED_ADD_EXTERNAL_FILES" value="true" />
+    <property name="ASKED_MARK_IGNORED_FILES_AS_EXCLUDED" value="true" />
     <property name="RunOnceActivity.OpenProjectViewOnStart" value="true" />
     <property name="RunOnceActivity.ShowReadmeOnStart" value="true" />
     <property name="last_opened_file_path" value="$USER_HOME$/Desktop/test.py" />
@@ -74,6 +84,7 @@
     </configuration>
     <recent_temporary>
       <list>
+        <item itemvalue="Python.test" />
         <item itemvalue="Python.test" />
         <item itemvalue="Python.test" />
       </list>
@@ -410,7 +421,28 @@
       <option name="project" value="LOCAL" />
       <updated>1652853567183</updated>
     </task>
-    <option name="localTasksCounter" value="47" />
+    <task id="LOCAL-00047" summary="fix bug #486">
+      <created>1653023334687</created>
+      <option name="number" value="00047" />
+      <option name="presentableId" value="LOCAL-00047" />
+      <option name="project" value="LOCAL" />
+      <updated>1653023334687</updated>
+    </task>
+    <task id="LOCAL-00048" summary="readme update">
+      <created>1653290385894</created>
+      <option name="number" value="00048" />
+      <option name="presentableId" value="LOCAL-00048" />
+      <option name="project" value="LOCAL" />
+      <updated>1653290385894</updated>
+    </task>
+    <task id="LOCAL-00049" summary="readme update">
+      <created>1653290451547</created>
+      <option name="number" value="00049" />
+      <option name="presentableId" value="LOCAL-00049" />
+      <option name="project" value="LOCAL" />
+      <updated>1653290451547</updated>
+    </task>
+    <option name="localTasksCounter" value="50" />
     <servers />
   </component>
   <component name="Vcs.Log.Tabs.Properties">
@@ -454,7 +486,8 @@
     <MESSAGE value="#471 fix bug for mac" />
     <MESSAGE value="fix bug load video for mac" />
     <MESSAGE value="fix bug #486" />
-    <option name="LAST_COMMIT_MESSAGE" value="fix bug #486" />
+    <MESSAGE value="readme update" />
+    <option name="LAST_COMMIT_MESSAGE" value="readme update" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
