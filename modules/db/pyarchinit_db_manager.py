@@ -1394,13 +1394,13 @@ class Pyarchinit_db_management(object):
         for i in lista_us:
             if not i.periodo_finale and i.periodo_iniziale:
                     periodiz = self.query_bool(
-                        {'sito': "'" + str(self.sito) + "'", 'periodo': i.periodo_iniziale, 'fase': i.fase_iniziale},
+                        {'sito': "'" + str(self.sito) + "'", 'periodo': i.periodo_iniziale, 'fase': "'" +str(i.fase_iniziale)+ "'"},
                         'PERIODIZZAZIONE')
                     self.update('US', 'id_us', [int(i.id_us)], ['cont_per'], [periodiz[0].cont_per])
             elif i.periodo_finale and i.periodo_iniziale:
                 cod_cont_iniz_temp = self.query_bool(
                     {'sito': "'" + str(self.sito) + "'", 'periodo': int(i.periodo_iniziale),
-                     'fase': int(i.fase_iniziale)}, 'PERIODIZZAZIONE')
+                     'fase': int(i.fase_iniziale+'::text')}, 'PERIODIZZAZIONE')
                 cod_cont_fin_temp = self.query_bool(
                     {'sito': "'" + str(self.sito) + "'", 'periodo': int(i.periodo_finale), 'fase': int(i.fase_finale)},
                     'PERIODIZZAZIONE')
