@@ -100,3 +100,4 @@ The dependencies can be installed also using the [modules_installer.py](/scripts
 * Scavi della necropoli etrusca di Trocchi, Bomarzo, VT
 * Maasser el-Shouf Archaeological Project in Libano
 * Università di Pisa - Villa dei Vetti o anche dell'Oratorio a Capraia e Limite, professor Federico Cantini
+* Università di Chieti - Castelseprio Casa Piccoli (Varese) - Prof. Vasco La Salvia, Dott. Marco Moderato
