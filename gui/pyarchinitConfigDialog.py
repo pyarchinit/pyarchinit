@@ -120,8 +120,8 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
         self.pbnOpenresizeDirectory.clicked.connect(self.openresizeDir)
         
         self.toolButton_db.clicked.connect(self.setPathDB)
-        self.pushButtonR.clicked.connect(self.setPathR)
-        self.pbnSaveEnvironPathR.clicked.connect(self.setEnvironPathR)
+        self.pushButtonPostgres.clicked.connect(self.setPathPostgres)
+        self.pbnSaveEnvironPathPostgres.clicked.connect(self.setEnvironPathPostgres)
         self.comboBox_server_rd.currentTextChanged.connect(self.geometry_conn)
         self.pushButton_compare.clicked.connect(self.compare)
         self.pushButton_import.clicked.connect(self.on_pushButton_import_pressed)
@@ -135,14 +135,14 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
             self.pbnSaveEnvironPath.setEnabled(False)
             self.lineEditGraphviz.setEnabled(False)
 
-        # self.r_bin = s.value('pyArchInit/rBinPath', None, type=str)
-        # if self.r_bin:
-            # self.lineEditR.setText(self.r_bin)
+        self.postgres_bin = s.value('pyArchInit/postgresBinPath', None, type=str)
+        if self.postgres_bin:
+            self.lineEditPostgres.setText(self.postgres_bin)
 
-        # if Pyarchinit_OS_Utility.checkRInstallation():
-            # self.pushButtonR.setEnabled(False)
-            # self.pbnSaveEnvironPathR.setEnabled(False)
-            # self.lineEditR.setEnabled(False)
+        if Pyarchinit_OS_Utility.checkPostgresInstallation():
+            self.pushButtonPostgres.setEnabled(False)
+            self.pbnSaveEnvironPathPostgres.setEnabled(False)
+            self.lineEditPostgres.setEnabled(False)
 
 
 
@@ -3243,18 +3243,18 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
             self.lineEditGraphviz.setText(self.graphviz_bin)
             s.setValue('pyArchInit/graphvizBinPath', self.graphviz_bin)
 
-    def setPathR(self):
+    def setPathPostgres(self):
         s = QgsSettings()
-        self.r_bin = QFileDialog.getExistingDirectory(
+        self.postgres_bin = QFileDialog.getExistingDirectory(
             self,
             "Set path directory",
             self.HOME,
             QFileDialog.ShowDirsOnly
         )
 
-        if self.r_bin:
-            self.lineEditR.setText(self.r_bin)
-            s.setValue('pyArchInit/rBinPath', self.r_bin)
+        if self.postgres_bin:
+            self.lineEditPostgres.setText(self.postgres_bin)
+            s.setValue('pyArchInit/postgresBinPath', self.postgres_bin)
 
 
     def setEnvironPath(self):
@@ -3267,8 +3267,8 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
             QMessageBox.warning(self, "Umweltvariable setzen", "Der Weg wurde erfolgreich eingeschlagen", QMessageBox.Ok)
         else:
             QMessageBox.warning(self, "Set Environmental Variable", "The path has been set successful", QMessageBox.Ok)
-    def setEnvironPathR(self):
-        os.environ['PATH'] += os.pathsep + os.path.normpath(self.r_bin)
+    def setEnvironPathPostgres(self):
+        os.environ['PATH'] += os.pathsep + os.path.normpath(self.postgres_bin)
 
         if self.L=='it':
             QMessageBox.warning(self, "Imposta variabile ambientale", "Il percorso è stato impostato con successo", QMessageBox.Ok)

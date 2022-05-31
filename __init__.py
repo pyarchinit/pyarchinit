@@ -25,6 +25,7 @@ import subprocess
 import sys
 import traceback
 import platform
+from qgis.PyQt.QtWidgets import QMessageBox,QCheckBox
 from qgis.core import QgsMessageLog, Qgis, QgsSettings
 from .modules.utility.pyarchinit_OS_utility import Pyarchinit_OS_Utility
 from .modules.utility.pyarchinit_folder_installation import pyarchinit_Folder_installation
@@ -173,15 +174,20 @@ if install_libraries:
 s = QgsSettings()
 if not Pyarchinit_OS_Utility.checkGraphvizInstallation() and s.value('pyArchInit/graphvizBinPath'):
     os.environ['PATH'] += os.pathsep + os.path.normpath(s.value('pyArchInit/graphvizBinPath'))
+    
+if not Pyarchinit_OS_Utility.checkPostgresInstallation() and s.value('pyArchInit/postgresBinPath'):
+    os.environ['PATH'] += os.pathsep + os.path.normpath(s.value('pyArchInit/postgresBinPath'))    
+
+
 
 packages = [
     #'pyaper',
     'graphviz',
 ]
-for p in packages:
-    from qgis.PyQt.QtWidgets import QMessageBox
 
-    
+
+for p in packages:
+            
     if p.startswith('graphviz'):
         try:
             subprocess.call(['dot', '-V'])
