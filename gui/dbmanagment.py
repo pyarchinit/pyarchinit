@@ -51,10 +51,7 @@ class pyarchinit_dbmanagment(QDialog, MAIN_DIALOG_CLASS):
         super().__init__()
         self.iface = iface
         self.setupUi(self)
-        QMessageBox.warning(self, 'Alert',
-                            'Sistema sperimentale solo per lo sviluppo'
-                            , QMessageBox.Ok)
-
+        
         # self.customize_GUI() #call for GUI customizations
 
         self.currentLayerId = None
@@ -80,12 +77,35 @@ class pyarchinit_dbmanagment(QDialog, MAIN_DIALOG_CLASS):
         # conn_import = '%s%s%s' % (home, os.sep,
                                   # 'pyarchinit_DB_folder/pyarchinit_db.sqlite'
                                   # )
-        conn_export = '%s%s%s' % (home, os.sep,
-                                  'pyarchinit_db_backup/pyarchinit_db_'
-                                  + time.strftime('%Y%m%d_%H_%M_%S_')
-                                  + '.sqlite')
+        
+        
+        
+        #conn_export = '%s%s%s' % (home, os.sep,
+                                  #'pyarchinit_db_backup/pyarchinit_db_'
+                                  #+ time.strftime('%Y%m%d_%H_%M_%S_')
+                                  #+ '.sqlite')
        
         
+        PDF_path = '%s%s%s' % (home, os.sep, 'pyarchinit_db_backup/')
+        
+        cfg_rel_path = os.path.join(os.sep, 'pyarchinit_DB_folder', 'config.cfg')
+        file_path = '{}{}'.format(home, cfg_rel_path)
+        conf = open(file_path, "r")
+
+        data = conf.read()
+        settings = Settings(data)
+        settings.set_configuration()
+        conf.close()    
+        
+        dump_dir = PDF_path
+        db_username = settings.USER
+        host = settings.HOST
+        port = settings.PORT
+        database_password=settings.PASSWORD
+        
+        db_names = settings.DATABASE
+        conn_export = '%s' % (dump_dir+'backup_'+db_names)
+                                 
         b=shutil.copy(a,conn_export)
     
         i = 0
@@ -142,19 +162,19 @@ class pyarchinit_dbmanagment(QDialog, MAIN_DIALOG_CLASS):
         
         db_names = settings.DATABASE
 
-        file_path = ''
-        dumper = ' -U %s -Z 9 -f %s -F c %s  '
+        
+        dumper = '-U %s -h %s -p %s -Z 9 -f %s -Fc %s'
 
         bkp_file = '%s_%s.backup' % (db_names,
                                   time.strftime('%Y%m%d_%H_%M'))
 
         file_path = os.path.join(dump_dir, bkp_file)
-        command = 'pg_dump' + dumper % (db_username, file_path,
-                                        db_names)
-        subprocess.call(command, shell=True)
-        # return p.communicate('{}\n'.format(database_password))
-
-        subprocess.call('gzip ' + file_path, shell=True)
+        command = 'pg_dump ' + dumper % (db_username, host, port, file_path,db_names)
+        try:
+            p=subprocess.Popen(command, shell=False)
+        except Exception as e :
+            QMessageBox.warning(self, "INFO", str(e), QMessageBox.Ok)
+        #subprocess.call('gzip ' + file_path, shell=False)
         
         i = 0
     
@@ -243,6 +263,7 @@ class pyarchinit_dbmanagment(QDialog, MAIN_DIALOG_CLASS):
                                     # 'Backup fallito!!' + str(e),
                                     # QMessageBox.Ok)
 
+    
     def on_upload_pressed(self):
         self.percorso = QFileDialog.getOpenFileName(self,
                                                           'Open file', '/')

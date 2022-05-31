@@ -70,9 +70,9 @@ class Pyarchinit_OS_Utility(object):
             return False
     
     @staticmethod
-    def checkRInstallation():
+    def checkPostgresInstallation():
         try:
-            subprocess.call(['R', '--vanilla'])
+            subprocess.call(['pg_dump','-V'])
             return True
         except Exception as e:
             return False
