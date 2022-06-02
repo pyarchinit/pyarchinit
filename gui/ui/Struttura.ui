@@ -2172,14 +2172,14 @@ p, li { white-space: pre-wrap; }
  </resources>
  <connections>
   <connection>
-   <sender>pushButton_open_dir</sender>
+   <sender>pushButton_pdf_exp</sender>
    <signal>pressed()</signal>
    <receiver>mDockWidget_export</receiver>
    <slot>toggleUserVisible()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>157</x>
-     <y>111</y>
+     <x>99</x>
+     <y>135</y>
     </hint>
     <hint type="destinationlabel">
      <x>259</x>
@@ -2194,12 +2194,12 @@ p, li { white-space: pre-wrap; }
    <slot>toggleUserVisible()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>400</x>
-     <y>652</y>
+     <x>175</x>
+     <y>367</y>
     </hint>
     <hint type="destinationlabel">
-     <x>615</x>
-     <y>608</y>
+     <x>628</x>
+     <y>587</y>
     </hint>
    </hints>
   </connection>
