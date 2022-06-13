@@ -1661,7 +1661,7 @@
       </font>
      </property>
      <property name="currentIndex">
-      <number>0</number>
+      <number>1</number>
      </property>
      <widget class="QWidget" name="tab">
       <attribute name="title">
@@ -1808,7 +1808,7 @@
            </column>
            <column>
             <property name="text">
-             <string>Unita' di misura</string>
+             <string>Tipo di quantità</string>
             </property>
            </column>
            <column>
