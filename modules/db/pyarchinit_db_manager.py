@@ -1405,25 +1405,49 @@ class Pyarchinit_db_management(object):
                 self.update('US', 'id_us', [int(i.id_us)], ['cont_per'], [periodiz[0].cont_per])
                 continue
             elif i.periodo_finale and i.periodo_iniziale:
-                cod_cont_iniz_temp = self.query_bool(
-                    {'sito': "'" + str(self.sito) + "'", 'periodo': int(i.periodo_iniziale),
-                     'fase': int(i.fase_iniziale+'::text')}, 'PERIODIZZAZIONE')
-                cod_cont_fin_temp = self.query_bool(
-                    {'sito': "'" + str(self.sito) + "'", 'periodo': int(i.periodo_finale), 'fase': int(i.fase_finale)},
-                    'PERIODIZZAZIONE')
+                try:
+                    cod_cont_iniz_temp = self.query_bool(
+                        {'sito': "'" + str(self.sito) + "'", 'periodo': int(i.periodo_iniziale),
+                         'fase': int(i.fase_iniziale+'::text')}, 'PERIODIZZAZIONE')
+                
+                    cod_cont_fin_temp = self.query_bool(
+                        {'sito': "'" + str(self.sito) + "'", 'periodo': int(i.periodo_finale), 'fase': int(i.fase_finale)},
+                        'PERIODIZZAZIONE')
 
-                cod_cont_iniz = cod_cont_iniz_temp[0].cont_per
-                cod_cont_fin = cod_cont_fin_temp[0].cont_per
+                    cod_cont_iniz = cod_cont_iniz_temp[0].cont_per
+                    cod_cont_fin = cod_cont_fin_temp[0].cont_per
 
-                cod_cont_var_n = cod_cont_iniz
-                cod_cont_var_txt = str(cod_cont_iniz)
+                    cod_cont_var_n = cod_cont_iniz
+                    cod_cont_var_txt = str(cod_cont_iniz)
+                    while cod_cont_var_n != cod_cont_fin:
+                        cod_cont_var_n += 1
 
-                while cod_cont_var_n != cod_cont_fin:
-                    cod_cont_var_n += 1
+                        cod_cont_var_txt = cod_cont_var_txt + "/" + str(cod_cont_var_n)
 
-                    cod_cont_var_txt = cod_cont_var_txt + "/" + str(cod_cont_var_n)
+                    self.update('US', 'id_us', [int(i.id_us)], ['cont_per'], [cod_cont_var_txt])
+                except:
+                    pass
+                else:
+                    cod_cont_iniz_temp = self.query_bool(
+                        {'sito': "'" + str(self.sito) + "'", 'periodo': int(i.periodo_iniziale),
+                         'fase': int(i.fase_iniziale)}, 'PERIODIZZAZIONE')
+                
+                    cod_cont_fin_temp = self.query_bool(
+                        {'sito': "'" + str(self.sito) + "'", 'periodo': int(i.periodo_finale), 'fase': int(i.fase_finale)},
+                        'PERIODIZZAZIONE')
 
-                self.update('US', 'id_us', [int(i.id_us)], ['cont_per'], [cod_cont_var_txt])
+                    cod_cont_iniz = cod_cont_iniz_temp[0].cont_per
+                    cod_cont_fin = cod_cont_fin_temp[0].cont_per
+
+                    cod_cont_var_n = cod_cont_iniz
+                    cod_cont_var_txt = str(cod_cont_iniz)
+                    while cod_cont_var_n != cod_cont_fin:
+                        cod_cont_var_n += 1
+
+                        cod_cont_var_txt = cod_cont_var_txt + "/" + str(cod_cont_var_n)
+
+                    self.update('US', 'id_us', [int(i.id_us)], ['cont_per'], [cod_cont_var_txt])
+                
 
     def remove_alltags_from_db_sql(self,s):
         sql_query_string = ("DELETE FROM media_to_entity_table WHERE media_name  = '%s'") % (s)

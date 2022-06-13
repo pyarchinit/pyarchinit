@@ -21,11 +21,11 @@
 from __future__ import absolute_import
 
 import os
-
-# import networkx as nx
+import random
+import networkx as nx
 from builtins import range
 from builtins import str
-# from networkx.drawing.nx_agraph import graphviz_layout
+from networkx.drawing.nx_agraph import graphviz_layout
 from qgis.PyQt.QtWidgets import QDialog, QMessageBox
 from qgis.PyQt.uic import loadUiType
 from qgis.core import QgsSettings
@@ -397,3 +397,62 @@ class pyarchinit_Interactive_Matrix(QDialog, MAIN_DIALOG_CLASS):
         return data_plotting
 
     
+    
+
+        
+    
+    
+    
+    def plot_matrix(self, dp):
+        self.data_plot = dp
+        G1 = nx.DiGraph(dp) # now make it a Graph
+        
+        #nx.write_dot(G1,'test.dot')
+        # plt.title("draw_networkx")
+        pos = graphviz_layout(G1, prog='dot')
+        # fig = plt.figure()
+
+        # self.widgetMatrix.canvas.ax = self.fig.add_subplot(111)
+
+        self.widgetMatrix.canvas.ax.set_title('click su una US per disegnarla a video', picker=True)
+        self.widgetMatrix.canvas.ax.set_ylabel('ylabel', picker=True, bbox=dict(facecolor='red'))
+
+        points = []
+        key = []
+        for k, v in list(pos.items()):
+            key.append(k)
+            points.append(v)
+
+        for i in range(len(key)):
+            self.widgetMatrix.canvas.ax.text(points[i][0], points[i][1], key[i], picker=True, ha='center', alpha=0)
+
+        self.widgetMatrix.canvas.ax.plot(nx.draw(G1, pos,
+                                                 with_labels=True,
+                                                 arrows=True,
+                                                 node_color='w',
+                                                 node_shape='s',
+                                                 node_size=400), 'o', picker=1000)
+
+        # self.widgetMatrix.canvas.fig.canvas.mpl_connect('pick_event', self.on_pick)
+        self.widgetMatrix.canvas.mpl_connect('pick_event', self.on_pick)
+        self.widgetMatrix.canvas.draw()
+
+    def on_pick(self, event):
+        # The event received here is of the type
+        # matplotlib.backend_bases.PickEvent
+        # .canvas
+        # It carries lots of information, of which we're using
+        # only a small amount here.
+        #       def onpick1(event):
+        # if isinstance(event.artist, Text):
+        text = event.artist
+        value = text.get_prop_tup()
+        text_to_pass = value[2]
+        ##              print('Hai selezionato l\'US:', text.get_text())
+        ##      box_points = event.artist.get_bbox().get_points()
+        idus = self.ID_US_DICT[int(text_to_pass)]
+        self.pyQGIS.charge_vector_layers_from_matrix(idus)
+
+        # msg = "'Hai selezionato l\'US:' %s" % text_to_pass #str(dir(text.get_label))
+
+        # QMessageBox.information(self, "Click!", msg)
