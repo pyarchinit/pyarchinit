@@ -494,7 +494,7 @@ class pyarchinit_Interactive_Matrix(QDialog, MAIN_DIALOG_CLASS):
         
         self.widgetMatrix.canvas.mpl_connect('pick_event', self.on_pick)
         self.widgetMatrix.canvas.draw()
-
+        
     def on_pick(self, event):
         
         text = event.artist
