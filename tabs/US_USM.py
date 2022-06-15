@@ -48,7 +48,7 @@ from qgis.core import *
 from qgis.gui import QgsMapCanvas, QgsMapToolPan
 from qgis.PyQt.QtSql import QSqlDatabase, QSqlTableModel
 import re
-from .Interactive_matrix import pyarchinit_Interactive_Matrix
+from .Interactive_matrix import *
 from ..modules.utility.pyarchinit_OS_utility import Pyarchinit_OS_Utility
 from ..modules.db.pyarchinit_conn_strings import Connection
 from ..modules.db.pyarchinit_db_manager import Pyarchinit_db_management
@@ -67,8 +67,6 @@ from ..gui.imageViewer import ImageViewer
 from ..gui.pyarchinitConfigDialog import pyArchInitDialog_Config
 from ..gui.sortpanelmain import SortPanelMain
 from ..resources.resources_rc import *
-
-
 
 MAIN_DIALOG_CLASS, _ = loadUiType(
     os.path.join(os.path.dirname(__file__), os.pardir, 'gui', 'ui', 'US_USM.ui'))
@@ -3361,20 +3359,32 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
             id_us_dict = {}
             for i in range(len(self.DATA_LIST)):
                 id_us_dict[self.DATA_LIST[i].us] = self.DATA_LIST[i].id_us
+                
             dlg = pyarchinit_Interactive_Matrix(self.iface, self.DATA_LIST, id_us_dict)
-            data_plot = dlg.generate_matrix_2()
-            #dlg.plot_matrix(data_plot)
-            #dlg.exec_()
-        
+            data_plot=dlg.generate_matrix_2()
+            
+            # ###interactive matrix###
+            # matrix_path = '{}{}{}'.format(self.HOME, os.sep, "pyarchinit_Matrix_folder")
+            # filename='Harris_matrix2ED_graphml.dot'
+            # hm=os.path.join(matrix_path, filename)
+            # gv = pgv.AGraph(hm, strict=False, directed=False)
+            # dlg.plot_matrix(gv)
+            # dlg.exec_()
         if not self.checkBox_ED.isChecked():
             id_us_dict = {}
             for i in range(len(self.DATA_LIST)):
                 id_us_dict[self.DATA_LIST[i].us] = self.DATA_LIST[i].id_us
             dlg = pyarchinit_Interactive_Matrix(self.iface, self.DATA_LIST, id_us_dict)
-            data_plot = dlg.generate_matrix()
+            data_plot=dlg.generate_matrix()
             
-            #dlg.plot_matrix(data_plot)
-            #dlg.exec_()
+            ###interactive matrix###
+        if self.checkBox_IM.isChecked():    
+            matrix_path = '{}{}{}'.format(self.HOME, os.sep, "pyarchinit_Matrix_folder")
+            filename='Harris_matrix_tred.dot'
+            hm=os.path.join(matrix_path, filename)
+            gv = pgv.AGraph(hm, strict=False, directed=True)
+            dlg.plot_matrix(gv)
+            dlg.exec_()
     def launch_matrix_exp_if(self, msg):
         if msg == QMessageBox.Ok:
             self.on_pushButton_export_matrix_pressed()

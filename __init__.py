@@ -66,6 +66,13 @@ except Exception as e:
     missing_libraries.append(str(e))
 
 try:
+    
+    import pygraphviz
+
+except Exception as e:
+    missing_libraries.append(str(e))
+
+try:
     import pyper
 except Exception as e:
     missing_libraries.append(str(e))
