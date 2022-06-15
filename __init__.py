@@ -65,12 +65,7 @@ try:
 except Exception as e:
     missing_libraries.append(str(e))
 
-try:
-    
-    import pygraphviz
 
-except Exception as e:
-    missing_libraries.append(str(e))
 
 try:
     import pyper
@@ -159,11 +154,20 @@ try:
     
 
     import totalopenstation
-
     
 
 except Exception as e:
     missing_libraries.append(str(e))
+
+    
+try:
+    import pkg_resources
+
+    pkg_resources.require("pygraphviz==1.9.0")
+
+except Exception as e:
+    missing_libraries.append(str(e))
+
 
 install_libraries = []
 for l in missing_libraries:
