@@ -773,6 +773,7 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
         self.mDockWidget_export.setHidden(True)
         self.mDockWidget_3.setHidden(True)
         self.mDockWidget_4.setHidden(True)
+        self.mDockWidget_h_check.setHidden(True)
         self.mQgsFileWidget.setHidden(True)
         self.toolButton_file_doc.setHidden(True)
         self.mDockWidget_5.setHidden(True)
@@ -4058,6 +4059,25 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
             else:
                 QMessageBox.warning(self, "Message",
                                     "Monitoring of stratigraphic relationships. \n Control performed successfully", QMessageBox.Ok)                     
+    
+    def on_pushButton_h_check_pressed(self):
+        self.listWidget_rapp.clear()
+        sito_check = str(self.comboBox_sito.currentText())
+        area_check = str(self.comboBox_area.currentText())
+        try:
+            self.rapporti_stratigrafici_check(sito_check, area_check)
+            self.def_strati_to_rapporti_stratigrafici_check(sito_check, area_check)  # SPERIMENTALE
+        except Exception as e:
+            self.listWidget_rapp.addItem(str(e))
+        else:
+            if self.L=='it':
+                self.listWidget_rapp.addItem("Controllo Rapporti Stratigrafici.\nControllo eseguito con successo.")
+            elif self.L=='de':
+                Qself.listWidget_rapp.addItem("Prüfen der stratigraphischen Beziehung.  Kontrolle erfolgereich")
+            else:
+                self.listWidget_rapp.addItem("Monitoring of stratigraphic relationships. \n Control performed successfully")  
+    
+    
     def data_error_check(self):
         test = 0
         EC = Error_check()
@@ -4446,6 +4466,7 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
         """
         return test
     def rapporti_stratigrafici_check(self, sito_check, area_check):
+        self.listWidget_rapp.clear()
         conversion_dict = {'Covers':'Covered by',
                            'Covered by': 'Covers',
                            'Fills': 'Filled by',
@@ -4475,7 +4496,12 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
                            'Stützt sich auf':'Wird gestüzt von',
                            'Wird gestüzt von':'Stützt sich auf',
                            'Bindet an':'Bindet an',
-                           'Entspricht':'Entspricht'
+                           'Entspricht':'Entspricht',
+                           '>>':'<<',
+                           '<<':'>>',
+                           '<':'>',
+                           '>':'<',
+                           '<->':'<->'
                            }
         search_dict = {'sito': "'" + str(sito_check) + "'", 'area': "'" + str(area_check) + "'"}
         records = self.DB_MANAGER.query_bool(search_dict,
@@ -4550,6 +4576,8 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
                         report = "Problem of conversion: " + str(e)
                     if report != "":
                         report_rapporti = report_rapporti + report + '\n'
+                        #self.listWidget_rapp.item(1).setForeground(QtCore.Qt.red)
+                        self.listWidget_rapp.addItem(report_rapporti)
         HOME = os.environ['PYARCHINIT_HOME']
         report_path = '{}{}{}'.format(HOME, os.sep, "pyarchinit_Report_folder")
         if self.L=='it':
@@ -4591,7 +4619,12 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
                            'Stützt sich auf':'Wird gestüzt von',
                            'Wird gestüzt von':'Stützt sich auf',
                            'Bindet an':'Bindet an',
-                           'Entspricht':'Entspricht'
+                           'Entspricht':'Entspricht',
+                           '>>':'<<',
+                           '<<':'>>',
+                           '<':'>',
+                           '>':'<',
+                           '<->':'<->'
                            }
         search_dict = {'sito': "'" + str(sito_check) + "'", 'area': "'" + str(area_check) + "'"}
         records = self.DB_MANAGER.query_bool(search_dict,
@@ -4615,7 +4648,7 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
             for sing_rapp in rapporti:  # itera sulla serie di rapporti
                 report = ""
                 if def_stratigrafica.find('Strato') >= 0:  # Paradosso strati che tagliano o si legano
-                    if sing_rapp[0] == 'Taglia' or sing_rapp[0] == 'Si lega a':
+                    if sing_rapp[0] == 'Si lega a':
                         report = 'Sito: %s, Area: %s, US: %d - %s: lo strato %s US: %d: ' % (
                             sito, area, int(us), def_stratigrafica, sing_rapp[0], int(sing_rapp[1]))
                 if def_stratigrafica.find('Riempimento') >= 0:  # Paradosso riempimentiche tagliano o si legano
@@ -4657,7 +4690,10 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
                         # report = 'Sito: %s, Area: %s, SE: %d - %s: die startum %s US: %d: ' % (
                             # sito, area, int(us), def_stratigrafica, sing_rapp[0], int(sing_rapp[1]))
                 if report != "":
-                    report_rapporti = report_rapporti + report + '\n'   
+                    report_rapporti = report_rapporti + report + '\n' 
+                    # self.listWidget_rapp.item(0).setForeground(QtCore.Qt.blue)
+                    # self.listWidget_rapp.item(1).setForeground(QtCore.Qt.blue)
+                    self.listWidget_rapp.addItem(report_rapporti)    
         HOME = os.environ['PYARCHINIT_HOME']
         report_path = '{}{}{}'.format(HOME, os.sep, "pyarchinit_Report_folder")
         if self.L=='it':
