@@ -4663,7 +4663,7 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
                     report_rapporti = report_rapporti + report + '\n'
                 #versione inglese
                 elif def_stratigrafica.find('Stratum') >= 0:  # Paradosso strati che tagliano o si legano
-                    if sing_rapp[0] == 'Cuts' or sing_rapp[0] == 'Connected to':
+                    if sing_rapp[0] == 'Connected to':
                         report = 'Site: %s, Area: %s, SU: %d - %s: the stratum %s SU: %d: ' % (
                             sito, area, int(us), def_stratigrafica, sing_rapp[0], int(sing_rapp[1]))
                 if def_stratigrafica.find('Filling') >= 0:  # Paradosso riempimentiche tagliano o si legano
@@ -4678,7 +4678,7 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
                     report_rapporti = report_rapporti + report + '\n'
                 #versione tedesca   
                 elif def_stratigrafica.find('Stratum') >= 0:  # Paradosso strati che tagliano o si legano
-                    if sing_rapp[0] == 'Schneidet' or sing_rapp[0] == 'Bindet an':
+                    if sing_rapp[0] == 'Bindet an':
                         report = 'Sito: %s, Area: %s, SE: %d - %s: die startum %s US: %d: ' % (
                             sito, area, int(us), def_stratigrafica, sing_rapp[0], int(sing_rapp[1]))
                 if def_stratigrafica.find('Verfullüng') >= 0:  # Paradosso riempimentiche tagliano o si legano
