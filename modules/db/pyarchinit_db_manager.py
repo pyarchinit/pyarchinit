@@ -1605,6 +1605,23 @@ class Pyarchinit_db_management(object):
         return
 
     
+    # def insert_number_of_rapp_records(self, sito, area, us, rapp_n, unita_tipo):
+        # id_us = self.max_num_id('US', 'id_us')
+        
+        # l=QgsSettings().value("locale/userLocale")[0:2]
+
+        
+        # id_us += 1
+
+        # data_ins = self.insert_values(id_us, sito, area, us, '', '', '', '', '', '', '', '', '', '', '', '', '[]',
+                                      # '[]', 
+                                      # '[['+rapp_n+']]', '', '', '', '', '', '', '', '', '0', '[]', unita_tipo, '', '', '', '',
+                                      # '', '', '', '', '', '', '', '', '', None, None, '', '[]','[]', '[]', '[]', '[]','','','','',None,None,'','','','','','','[]','[]',None,None,None,None,None,None,None,None,None,None,'','','','','','','','','','',None,None,None,'','','','','','','','','','','','','','','','','','','','','','','','','','','','','')
+                                           
+        # self.insert_data_session(data_ins)
+        
+        # return
+    
     def insert_number_of_us_records(self, sito, area, n_us, unita_tipo):
         id_us = self.max_num_id('US', 'id_us')
         

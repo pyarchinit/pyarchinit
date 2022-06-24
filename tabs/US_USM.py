@@ -837,6 +837,154 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
         
         
         self.comboBox_per_iniz.currentTextChanged.connect(self.check_v)
+        # self.checkBox_validation_rapp.update()
+        # self.checkBox_validation_rapp.stateChanged.connect(self.check_listoflist)
+        self.tableWidget_rapporti.itemChanged.connect(self.check_listoflist)
+        # self.tableWidget_rapporti.itemChanged.connect(self.search_l)
+    
+    def unit_type_select(self):
+        try: 
+            dialog = QInputDialog()
+            dialog.resize(QtCore.QSize(200, 100))
+            if self.L=='it':
+                items_st=('US','USM','USVA''USVB','USVC','USVD','CON','SF','SUS','Combonar','Extractor','property')
+            else:
+                items_st=('SU','WSU','USVA''USVB','USVC','USVD','CON','SF','SUS','Combonar','Extractor','property')
+            ID_U = dialog.getItem(self, 'Type Unit', "Insert Unit Type",items_st, 0, False)
+            Unit = str(ID_U[0])
+            return Unit
+        except KeyError as e:
+            print(str(e))
+    
+    def search_rapp(self):
+        # Clear current selection.
+        #self.tableWidget_rapporti.setCurrentItem(None)
+
+        if not s:
+            # Empty string, don't search.
+            return
+
+        matching_items = self.tableWidget_rapporti.findItems('1',MatchContains)
+        if matching_items:
+            # We have found something.
+            item = matching_items[0]  # Take the first.
+            self.tableWidget_rapporti.setCurrentItem(item)
+
+    def check_listoflist(self):
+        if self.checkBox_validation_rapp.isChecked():
+            try:
+                
+                
+                table_name = "self.tableWidget_rapporti"
+                rowSelected_cmd = ("%s.selectedItems()") % (table_name)
+                rowSelected = eval(rowSelected_cmd)
+                rowIndex = (rowSelected[0].row())
+                sito = str(self.comboBox_sito.currentText())
+                area = str(self.comboBox_area.currentText())
+                us_current=str(self.lineEdit_us.text())
+                print(us_current)
+                unit = str(self.comboBox_unita_tipo.currentText())
+                us_item = self.tableWidget_rapporti.item(rowIndex, 1)
+                us = str(us_item.text())
+                #print(us)
+                rapp_item = self.tableWidget_rapporti.item(rowIndex,0)
+                rapp = str(rapp_item.text())
+                
+                
+                self.save_rapp()
+                
+                if rapp =='Riempito da':
+                    rapp='Riempie'             
+                elif rapp =='Tagliato da':
+                    rapp='Taglia' 
+                elif rapp =='Coperto da':
+                    rapp='Copre' 
+                elif rapp =='Si appoggia':
+                    rapp='Gli si appoggia' 
+                elif rapp =='Riempie':
+                    rapp='Riempito da'             
+                elif rapp =='Taglia':
+                    rapp='Tagliato da' 
+                elif rapp =='Copre':
+                    rapp='Coperto da' 
+                elif rapp =='Gli si appoggia':
+                    rapp='Si appoggia'             
+                elif rapp =='>>':
+                    rapp='<<'     
+                elif rapp =='<<':
+                    rapp='>>'
+                elif rapp =='>':
+                    rapp='<'     
+                elif rapp =='<':
+                    rapp='>'
+                search_dict = {'sito': "'" + str(sito) + "'",
+                               'area': "'" + str(area) + "'",
+                               'us': us}
+                u = Utility()
+                search_dict = u.remove_empty_items_fr_dict(search_dict)
+                res = self.DB_MANAGER.query_bool(search_dict, self.MAPPER_TABLE_CLASS)
+                
+                
+                if bool(res):
+                    #self.tableWidget_rapporti.setCurrentItem(None)
+                    #items = self.tableWidget_rapporti.findItems(us, Qt.MatchCase)
+                    items = self.tableWidget_rapporti.findItems(us,Qt.MatchExactly)
+                    #QMessageBox.warning(self,'',str(len(items)))
+                    
+                    self.on_pushButton_go_to_us_pressed()
+                    self.checkBox_validation_rapp.setChecked(False)
+                    items2 = self.tableWidget_rapporti.findItems(us_current,Qt.MatchExactly)
+                    #QMessageBox.warning(self,'',str(len(items2)))
+                    
+                    if str(len(items))=='1' and str(len(items2))=='1':
+                        try:
+                            item=items2[0]
+                            self.tableWidget_rapporti.setCurrentItem(item)
+                        except:
+                            pass
+                        y=self.tableWidget_rapporti.currentRow()
+                        self.tableWidget_rapporti.setItem(y,0,QtWidgets.QTableWidgetItem(rapp))
+                        self.tableWidget_rapporti.setItem(y,1,QtWidgets.QTableWidgetItem(us_current))
+                        self.save_rapp()
+                        
+                        self.tableWidget_rapporti.selectRow(y)
+                        self.on_pushButton_go_to_us_pressed() 
+                        #self.checkBox_validation_rapp.setChecked(False)
+                        
+                    elif str(len(items))=='1' and str(len(items2))=='0':
+                    
+                        self.on_pushButton_insert_row_rapporti_pressed()
+                        self.tableWidget_rapporti.currentRow()
+                        self.tableWidget_rapporti.setItem(0,0,QtWidgets.QTableWidgetItem(rapp))
+                        self.tableWidget_rapporti.setItem(0,1,QtWidgets.QTableWidgetItem(us_current))
+                        self.save_rapp()
+                        self.tableWidget_rapporti.selectRow(0)
+                        self.on_pushButton_go_to_us_pressed()    
+                    else:
+                        QMessageBox.warning(self,'','controlla hai US duplicata')
+                    
+                elif not bool(res): 
+                    
+                    tf=self.unit_type_select()
+                            
+                    self.DB_MANAGER.insert_number_of_us_records(sito,area,us,tf)
+                    
+                    self.on_pushButton_go_to_us_pressed() 
+                    self.on_pushButton_insert_row_rapporti_pressed()
+                    self.tableWidget_rapporti.currentRow()
+                    
+                    a=self.tableWidget_rapporti.setItem(0,0,QtWidgets.QTableWidgetItem(rapp))
+                    b=self.tableWidget_rapporti.setItem(0,1,QtWidgets.QTableWidgetItem(us_current))
+                    
+                    self.save_rapp()
+                    self.tableWidget_rapporti.selectRow(0)
+                    self.on_pushButton_go_to_us_pressed()
+                    
+            except:         
+                pass
+    
+        else:
+            pass
     def check_v(self):
         if self.comboBox_per_iniz.currentText() =='':
             self.checkBox_validate.setHidden(True)
@@ -1430,6 +1578,15 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
                 pass
         else:
             pass
+    
+    
+    
+    
+    
+    
+    
+    
+    
     def on_pushButton_go_to_us_pressed(self):    
         #self.save_us()
         try:
@@ -1448,8 +1605,12 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
             search_dict = u.remove_empty_items_fr_dict(search_dict)
             res = self.DB_MANAGER.query_bool(search_dict, self.MAPPER_TABLE_CLASS)
             if not bool(res):
+                
+                #self.DB_MANAGER.insert_number_of_us_records(sito,area,us,'US')
+                        
                 if self.L=='it':
                     QMessageBox.warning(self, "ATTENZIONE", "Non e' stato trovato alcun record!", QMessageBox.Ok)
+                    
                 elif self.L=='de':
                     QMessageBox.warning(self, "ACHTUNG", "kein Eintrag gefunden!", QMessageBox.Ok)
                 else:
@@ -3540,41 +3701,45 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
         self.mapPreview.setMapTool(self.toolPan)
     def on_pushButton_showSelectedFeatures_pressed(self):
         # field_position = self.pyQGIS.findFieldFrDict(self.ID_TABLE) #ricava la posizione del campo
-        layer = self.iface.mapCanvas().currentLayer()
-        fieldname = self.ID_TABLE
-        if not layer:
-            if self.L=='it':
-                QMessageBox.warning(self, 'ATTENZIONE', "Nessun elemento selezionato", QMessageBox.Ok)
-            elif self.L=='de':
-                QMessageBox.warning(self, 'ACHTUNG', "keine Elemente ausgewählt", QMessageBox.Ok)
+        try:
+            layer = self.iface.mapCanvas().currentLayer()
+            fieldname = self.ID_TABLE
+            if not layer:
+                if self.L=='it':
+                    QMessageBox.warning(self, 'ATTENZIONE', "Nessun elemento selezionato", QMessageBox.Ok)
+                elif self.L=='de':
+                    QMessageBox.warning(self, 'ACHTUNG', "keine Elemente ausgewählt", QMessageBox.Ok)
+                else:
+                    QMessageBox.warning(self, 'WARNING', "No items selected", QMessageBox.Ok)
+            features_list = layer.selectedFeatures()
+            field_position = ""
+            for single in layer.getFeatures():
+                field_position = single.fieldNameIndex(fieldname)
+            id_list = []
+            for feat in features_list:
+                attr_list = feat.attributes()
+                id_list.append(attr_list[field_position])
+                # viene impostata la query per il database
+            items, order_type = [self.ID_TABLE], "asc"
+            self.empty_fields()
+            self.DATA_LIST = []
+            temp_data_list = self.DB_MANAGER.query_sort(id_list, items, order_type, self.MAPPER_TABLE_CLASS, self.ID_TABLE)
+            for us in temp_data_list:
+                self.DATA_LIST.append(us)
+                # vengono riempiti i campi con i dati trovati
+            self.fill_fields()
+            self.BROWSE_STATUS = 'b'
+            self.label_status.setText(self.STATUS_ITEMS[self.BROWSE_STATUS])
+            if type(self.REC_CORR) == "<type 'str'>":
+                corr = 0
             else:
-                QMessageBox.warning(self, 'WARNING', "No items selected", QMessageBox.Ok)
-        features_list = layer.selectedFeatures()
-        field_position = ""
-        for single in layer.getFeatures():
-            field_position = single.fieldNameIndex(fieldname)
-        id_list = []
-        for feat in features_list:
-            attr_list = feat.attributes()
-            id_list.append(attr_list[field_position])
-            # viene impostata la query per il database
-        items, order_type = [self.ID_TABLE], "asc"
-        self.empty_fields()
-        self.DATA_LIST = []
-        temp_data_list = self.DB_MANAGER.query_sort(id_list, items, order_type, self.MAPPER_TABLE_CLASS, self.ID_TABLE)
-        for us in temp_data_list:
-            self.DATA_LIST.append(us)
-            # vengono riempiti i campi con i dati trovati
-        self.fill_fields()
-        self.BROWSE_STATUS = 'b'
-        self.label_status.setText(self.STATUS_ITEMS[self.BROWSE_STATUS])
-        if type(self.REC_CORR) == "<type 'str'>":
-            corr = 0
-        else:
-            corr = self.REC_CORR
-        self.set_rec_counter(len(self.DATA_LIST), self.REC_CORR + 1)
-        self.REC_TOT, self.REC_CORR = len(self.DATA_LIST), 0
-        self.DATA_LIST_REC_TEMP = self.DATA_LIST_REC_CORR = self.DATA_LIST[0]
+                corr = self.REC_CORR
+            self.set_rec_counter(len(self.DATA_LIST), self.REC_CORR + 1)
+            self.REC_TOT, self.REC_CORR = len(self.DATA_LIST), 0
+            self.DATA_LIST_REC_TEMP = self.DATA_LIST_REC_CORR = self.DATA_LIST[0]
+        except Exception as e:
+            QMessageBox.warning(self, 'ATTENZIONE', str(e), QMessageBox.Ok)
+    
     def on_pushButton_sort_pressed(self):
         self.checkBox_query.setChecked(False)
         if self.checkBox_query.isChecked():
@@ -3755,7 +3920,63 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
             
             self.enable_button(0)
     
-    
+    def save_rapp(self):
+        
+        
+        self.checkBox_query.setChecked(False)
+        if self.checkBox_query.isChecked():
+            self.model_a.database().close()
+        if self.BROWSE_STATUS == "b":
+            if self.data_error_check() == 0:
+                if self.records_equal_check() == 1:
+                    
+                    if self.update_if(QMessageBox.Ok):
+                        QMessageBox.Ok
+                        
+                    
+                    # self.empty_fields()
+                    # self.SORT_STATUS = "n"
+                    # self.label_sort.setText(self.SORTED_ITEMS[self.SORT_STATUS])
+                    # self.enable_button(1)
+                    
+                    # self.fill_fields(self.REC_CORR)
+                # else:
+                    # if self.L=='it':
+                        # QMessageBox.warning(self, "ATTENZIONE", "Non è stata realizzata alcuna modifica.", QMessageBox.Ok)
+                    # elif self.L=='de':
+                        # QMessageBox.warning(self, "ACHTUNG", "Keine Änderung vorgenommen", QMessageBox.Ok)
+                    # else:
+                        # QMessageBox.warning(self, "Warning", "No changes have been made", QMessageBox.Ok)       
+        # else:
+            # if self.data_error_check() == 0:
+                # test_insert = self.insert_new_rec()
+                # if test_insert == 1:
+                    # self.empty_fields()
+                    # self.SORT_STATUS = "n"
+                    # self.label_sort.setText(self.SORTED_ITEMS[self.SORT_STATUS])
+                    # self.charge_records()
+                    # self.charge_list()
+                    # self.set_sito()
+                    # self.BROWSE_STATUS = "b"
+                    # self.label_status.setText(self.STATUS_ITEMS[self.BROWSE_STATUS])
+                    # self.REC_TOT, self.REC_CORR = len(self.DATA_LIST), len(self.DATA_LIST) - 1
+                    # self.set_rec_counter(self.REC_TOT, self.REC_CORR + 1)
+                    # self.setComboBoxEditable(["self.comboBox_sito"], 1)
+                    # self.setComboBoxEditable(["self.comboBox_area"], 1)
+                    # self.setComboBoxEditable(["self.comboBox_unita_tipo"], 1)
+                    # self.setComboBoxEnable(["self.comboBox_sito"], "False")
+                    # self.setComboBoxEnable(["self.comboBox_area"], "False")
+                    # self.setComboBoxEnable(["self.lineEdit_us"], "False")
+                    # self.setComboBoxEnable(["self.comboBox_unita_tipo"], "True")
+                    # self.fill_fields(self.REC_CORR)
+                    # self.enable_button(1)
+            # else:
+                # if self.L=='it':
+                    # QMessageBox.warning(self, "ATTENZIONE", "Problema nell'inserimento dati", QMessageBox.Ok)
+                # elif self.L=='de':
+                    # QMessageBox.warning(self, "ACHTUNG", "Problem der Dateneingabe", QMessageBox.Ok)
+                # else:
+                    # QMessageBox.warning(self, "Warning", "Problem with data entry", QMessageBox.Ok) 
     def on_pushButton_save_pressed(self):
         
         
