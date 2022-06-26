@@ -900,7 +900,7 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
                     rapp='Taglia' 
                 elif rapp =='Coperto da':
                     rapp='Copre' 
-                elif rapp =='Si appoggia':
+                elif rapp =='Si appoggia a':
                     rapp='Gli si appoggia' 
                 elif rapp =='Riempie':
                     rapp='Riempito da'             
@@ -1534,6 +1534,19 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
             row_id = row_data
             self.tableWidget_rapporti.selectRow(row)  
 
+    def on_pushButton_update_pressed(self):
+        sito = "'"+self.comboBox_sito.currentText()+"'"
+        area = "'"+self.comboBox_area.currentText()+"'"
+        search_dict = {'sito': sito, 'area': area}
+        records = self.DB_MANAGER.query_bool(search_dict,
+                                             self.MAPPER_TABLE_CLASS)  # carica tutti i dati di uno scavo ordinati per numero di US
+        self.selectRows()
+        for rec in range(len(records)):
+            self.selectRows()
+            self.on_pushButton_next_rec_pressed()
+            self.us_t()
+                
+            self.save_rapp()
     def us_t(self):
         if self.checkBox_validate.isChecked():
             try:
@@ -4067,6 +4080,7 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
         try:
             self.rapporti_stratigrafici_check(sito_check, area_check)
             self.def_strati_to_rapporti_stratigrafici_check(sito_check, area_check)  # SPERIMENTALE
+            self.periodi_to_rapporti_stratigrafici_check(sito_check, area_check)
         except Exception as e:
             self.listWidget_rapp.addItem(str(e))
         else:
@@ -4525,55 +4539,56 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
                 
             
                 report = ''
-                if len(sing_rapp) == 2:
-                    try:
-                        rapp_converted = conversion_dict[sing_rapp[0]]
-                        
-                        serch_dict_rapp = {'sito': sito, 'area': area, 'us': sing_rapp[1]}
-                        us_rapp = self.DB_MANAGER.query_bool(serch_dict_rapp, self.MAPPER_TABLE_CLASS)
-                        # QMessageBox.warning(self,"WELCOME HFF user", str(us_rapp),
-                                    # QMessageBox.Ok)
-                        if not bool(us_rapp):
-                            if self.L=='it':
-                                report = 'Sito: %s, Area: %s, US: %d %s US: %d: Scheda US non esistente' % (
-                                    sito, area, int(us), sing_rapp[0], int(sing_rapp[1]))
-                            elif self.L=='de':
-                                report = 'Ausgrabungsstätte: %s, Areal: %s, SE: %d %s SE: %d: SE formular nicht existent' % (
-                                    sito, area, int(us), sing_rapp[0], int(sing_rapp[1]))
-                            else:
-                                report = 'Site: %s, Area: %s, SU: %d %s SU: %d: SU form not-existent' % (
-                                    sito, area, int(us), sing_rapp[0], int(sing_rapp[1]))       
-                            # new system rapp_check
-                        else:
-                            rapporti_check = eval(us_rapp[0].rapporti)
+                if str(us).find('1')>=0:
+                    if len(sing_rapp) == 2:
+                        try:
+                            rapp_converted = conversion_dict[sing_rapp[0]]
                             
-                            
-                            # [l.pop(4) for l in rapporti_check]
-                            # [l.pop(3) for l in rapporti_check]
-                            # [l.pop(2) for l in rapporti_check]
-                            
-                            #rapporti_check =[x for x in rapporti_check if x[0:2]]
-                                #=eval(str(rapporti_check_[0:2]))
-                            # for a in rapporti_check:
-                                # rapporti_check=a[0:2]
-                            us_rapp_check=('%s') % str(us)
-                                # #us_rapp_check = str(us)
-                                
-                            
-                            if rapporti_check.count([rapp_converted, us_rapp_check]) == 1:
-                                report = ""
-                            else:
+                            serch_dict_rapp = {'sito': sito, 'area': area, 'us': sing_rapp[1]}
+                            us_rapp = self.DB_MANAGER.query_bool(serch_dict_rapp, self.MAPPER_TABLE_CLASS)
+                            # QMessageBox.warning(self,"WELCOME HFF user", str(us_rapp),
+                                        # QMessageBox.Ok)
+                            if not bool(us_rapp):
                                 if self.L=='it':
-                                    report = 'Sito: %s, Area: %s, US: %d %s US: %d: Rapporto non verificato' % (
+                                    report = 'Sito: %s, Area: %s, US: %d %s US: %d: Scheda US non esistente' % (
                                         sito, area, int(us), sing_rapp[0], int(sing_rapp[1]))
                                 elif self.L=='de':
-                                    report = 'Ausgrabungsstätte: %s, Areal: %s, SE: %d %s SE: %d: nicht geprüfter Bericht' % (
+                                    report = 'Ausgrabungsstätte: %s, Areal: %s, SE: %d %s SE: %d: SE formular nicht existent' % (
                                         sito, area, int(us), sing_rapp[0], int(sing_rapp[1]))
                                 else:
-                                    report = 'Site: %s, Area: %s, SU: %d %s SU: %d: relashionships not verified' % (
+                                    report = 'Site: %s, Area: %s, SU: %d %s SU: %d: SU form not-existent' % (
                                         sito, area, int(us), sing_rapp[0], int(sing_rapp[1]))       
-                    except Exception as e:
-                        report = "Problem of conversion: " + str(e)
+                                # new system rapp_check
+                            else:
+                                rapporti_check = eval(us_rapp[0].rapporti)
+                                
+                                
+                                # [l.pop(4) for l in rapporti_check]
+                                # [l.pop(3) for l in rapporti_check]
+                                # [l.pop(2) for l in rapporti_check]
+                                
+                                #rapporti_check =[x for x in rapporti_check if x[0:2]]
+                                    #=eval(str(rapporti_check_[0:2]))
+                                # for a in rapporti_check:
+                                    # rapporti_check=a[0:2]
+                                us_rapp_check=('%s') % str(us)
+                                    # #us_rapp_check = str(us)
+                                    
+                                
+                                if rapporti_check.count([rapp_converted, us_rapp_check]) == 1:
+                                    report = ""
+                                else:
+                                    if self.L=='it':
+                                        report = 'Sito: %s, Area: %s, US: %d %s US: %d: Rapporto non verificato' % (
+                                            sito, area, int(us), sing_rapp[0], int(sing_rapp[1]))
+                                    elif self.L=='de':
+                                        report = 'Ausgrabungsstätte: %s, Areal: %s, SE: %d %s SE: %d: nicht geprüfter Bericht' % (
+                                            sito, area, int(us), sing_rapp[0], int(sing_rapp[1]))
+                                    else:
+                                        report = 'Site: %s, Area: %s, SU: %d %s SU: %d: relashionships not verified' % (
+                                            sito, area, int(us), sing_rapp[0], int(sing_rapp[1]))       
+                        except Exception as e:
+                            report = "Problem of conversion: " + str(e)
                     if report != "":
                         report_rapporti = report_rapporti + report + '\n'
                         #self.listWidget_rapp.item(1).setForeground(QtCore.Qt.red)
@@ -4630,13 +4645,13 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
         records = self.DB_MANAGER.query_bool(search_dict,
                                              self.MAPPER_TABLE_CLASS)  # carica tutti i dati di uno scavo ordinati per numero di US
         if self.L=='it':
-            report_rapporti = 'Report controllo Definizione Stratigrafica a Rapporti Stratigrafici - Sito: %s \n' % (
+            report_rapporti1 = 'Report controllo Definizione Stratigrafica a Rapporti Stratigrafici - Sito: %s \n' % (
                 sito_check)
         elif self.L=='de':
-            report_rapporti = 'Kontrollbericht Definition Stratigraphische zu Stratigraphische Berichte - Ausgrabungsstätte: %s \n' % (
+            report_rapporti1 = 'Kontrollbericht Definition Stratigraphische zu Stratigraphische Berichte - Ausgrabungsstätte: %s \n' % (
                 sito_check)
         else:
-            report_rapporti = 'Control report Definition Stratigraphic to Stratigraphic Reports - Site: %s \n' % (
+            report_rapporti1 = 'Control report Definition Stratigraphic to Stratigraphic Reports - Site: %s \n' % (
                 sito_check)     
         for rec in range(len(records)):
             sito = "'" + str(records[rec].sito) + "'"
@@ -4660,7 +4675,7 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
                         report = 'Sito: %s, Area: %s, US: %d - %s: lo strato %s US: %d: ' % (
                             sito, area, int(us), def_stratigrafica, sing_rapp[0], int(sing_rapp[1]))
                 if report != "":
-                    report_rapporti = report_rapporti + report + '\n'
+                    report_rapporti1 = report_rapporti1 + report + '\n'
                 #versione inglese
                 elif def_stratigrafica.find('Stratum') >= 0:  # Paradosso strati che tagliano o si legano
                     if sing_rapp[0] == 'Connected to':
@@ -4675,7 +4690,7 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
                         # report = 'Site: %s, Area: %s, SU: %d - %s: the stratum %s SU: %d: ' % (
                             # sito, area, int(us), def_stratigrafica, sing_rapp[0], int(sing_rapp[1]))
                 if report != "":
-                    report_rapporti = report_rapporti + report + '\n'
+                    report_rapporti1 = report_rapporti1 + report + '\n'
                 #versione tedesca   
                 elif def_stratigrafica.find('Stratum') >= 0:  # Paradosso strati che tagliano o si legano
                     if sing_rapp[0] == 'Bindet an':
@@ -4690,10 +4705,10 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
                         # report = 'Sito: %s, Area: %s, SE: %d - %s: die startum %s US: %d: ' % (
                             # sito, area, int(us), def_stratigrafica, sing_rapp[0], int(sing_rapp[1]))
                 if report != "":
-                    report_rapporti = report_rapporti + report + '\n' 
+                    report_rapporti1 = report_rapporti1 + report + '\n' 
                     # self.listWidget_rapp.item(0).setForeground(QtCore.Qt.blue)
                     # self.listWidget_rapp.item(1).setForeground(QtCore.Qt.blue)
-                    self.listWidget_rapp.addItem(report_rapporti)    
+                    self.listWidget_rapp.addItem(report_rapporti1)    
         HOME = os.environ['PYARCHINIT_HOME']
         report_path = '{}{}{}'.format(HOME, os.sep, "pyarchinit_Report_folder")
         if self.L=='it':
@@ -4703,8 +4718,168 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
         elif self.L=='en':
             filename = '{}{}{}'.format(report_path, os.sep, 'strat_def_to_SU relation.txt') 
         f = open(filename, "w")
-        f.write(report_rapporti)
+        f.write(report_rapporti1)
         f.close()
+    
+    def periodi_to_rapporti_stratigrafici_check(self, sito_check, area_check):
+        conversion_dict = {'Covers':'Covered by',
+                           'Covered by': 'Covers',
+                           'Fills': 'Filled by',
+                           'Filled by':'Fills', 
+                           'Cuts': 'Cutted by',
+                           'Cutted by': 'Cuts',
+                           'Abuts': 'Supports',
+                           'Supports': 'Abuts', 
+                           'Connected to': 'Connected to',
+                           'Same as':'Same as',
+                           'Copre':'Coperto da',
+                           'Coperto da': 'Copre',
+                           'Riempie': 'Riempito da',
+                           'Riempito da' : 'Riempie',
+                           'Taglia': 'Tagliato da',
+                           'Tagliato da': 'Taglia',
+                           'Si appoggia a': 'Gli si appoggia',
+                           'Gli si appoggia': 'Si appoggia a',
+                           'Si lega a': 'Si lega a',
+                           'Uguale a':'Uguale a',
+                           'Liegt über':'Liegt unter',
+                           'Liegt unter':'Liegt über',
+                           'Schneidet':'Wird geschnitten',
+                           'Wird geschnitten':'Schneidet',
+                           'Verfüllt':'Wird verfüllt durch',
+                           'Wird verfüllt durch':'Verfüllt',
+                           'Stützt sich auf':'Wird gestüzt von',
+                           'Wird gestüzt von':'Stützt sich auf',
+                           'Bindet an':'Bindet an',
+                           'Entspricht':'Entspricht',
+                           '>>':'<<',
+                           '<<':'>>',
+                           '<':'>',
+                           '>':'<',
+                           '<->':'<->'
+                           }
+        search_dict = {'sito': "'" + str(sito_check) + "'", 'area': "'" + str(area_check) + "'"}
+        records = self.DB_MANAGER.query_bool(search_dict,
+                                             self.MAPPER_TABLE_CLASS)  # carica tutti i dati di uno scavo ordinati per numero di US
+        if self.L=='it':
+            report_rapporti2 = 'Report controllo Periodi/Unità Tipo a Rapporti Stratigrafici - Sito: %s \n' % (
+                sito_check)
+        elif self.L=='de':
+            report_rapporti2 = 'Kontrollbericht Periodization/Type Unit zu Stratigraphische Berichte - Ausgrabungsstätte: %s \n' % (
+                sito_check)
+        else:
+            report_rapporti2 = 'Control report Periodization/Type Unit to Stratigraphic Reports - Site: %s \n' % (
+                sito_check)     
+        for rec in range(len(records)):
+            sito = "'" + str(records[rec].sito) + "'"
+            area = "'" + str(records[rec].area) + "'"
+            us = int(records[rec].us)
+            periodo_in = int(records[rec].periodo_iniziale)
+            fase_in = int(records[rec].fase_iniziale)
+            periodo_fin = "'" + str(records[rec].periodo_finale) + "'"
+            fase_fin = "'" + str(records[rec].fase_iniziale) + "'"
+            ut="'" + str(records[rec].unita_tipo) + "'"
+            rapporti = records[rec].rapporti  # caricati i rapporti nella variabile
+            rapporti = eval(rapporti)
+            rapporti2 = records[rec].rapporti2  # caricati i rapporti nella variabile
+            rapporti2 = eval(rapporti2)
+            for sing_rapp in rapporti2:  # itera sulla serie di rapporti
+                report = ""
+                report2 = ""
+                if self.L=='it':
+                    if str(periodo_in).find('1' or '2' or'3'or'4'or'5'or'6'or'7'or'8'or'9'or'10' or'11' or'12' or'13' or'14' or'15')>=0:
+                        if str(periodo_in)+'-'+str(fase_in)!=sing_rapp[4]:
+                            if sing_rapp[0] == 'Si lega a' or sing_rapp[0] == 'Uguale a':
+                                report = 'Sito: %s, Area: %s, %s: %d -  Il periodo e fase iniziale %s: deve essere: %s corrispondente con la %s : %d: ' % (
+                                    sito, area, ut, int(us), str(periodo_in)+'-'+str(fase_in), sing_rapp[0], sing_rapp[2], int(sing_rapp[1]))
+                        if sing_rapp[0] == 'Si lega a' and sing_rapp[2]=='US':
+                        
+                            report2 = '%s : %d - %s : %d: devono essere USM' % (
+                                ut, int(us), sing_rapp[2], int(sing_rapp[1]))
+                        
+                        if sing_rapp[0] == 'Uguale a' and sing_rapp[2]=='USM':
+                        
+                            report2 = '%s : %d - %s : %d: devono essere US' % (
+                                ut, int(us), sing_rapp[2], int(sing_rapp[1]))
+                
+                        if sing_rapp[0] == 'Si appoggia a' and sing_rapp[2]=='USM':
+                        
+                            report2 = '%s : %d - %s : %d: devono essere USM' % (
+                                ut, int(us), sing_rapp[2], int(sing_rapp[1]))
+                                
+                        if sing_rapp[0] == 'Gli si appoggia' and sing_rapp[2]=='USM':
+                        
+                            report2 = '%s : %d - %s : %d: devono essere USM' % (
+                                ut, int(us), sing_rapp[2], int(sing_rapp[1]))
+                
+                if self.L=='en':
+                    if str(periodo_in).find('1' or '2' or'3'or'4'or'5'or'6'or'7'or'8'or'9'or'10' or'11' or'12' or'13' or'14' or'15')>=0:
+                        if str(periodo_in)+'-'+str(fase_in)!=sing_rapp[4]:
+                            if sing_rapp[0] == 'Si lega a' or sing_rapp[0] == 'Uguale a':
+                                report = 'Sito: %s, Area: %s, %s: %d -  Il Periodo iniziale %s: deve essere: %s con la %s : %d: ' % (
+                                    sito, area, ut, int(us), str(periodo_in)+'-'+str(fase_in), sing_rapp[0], sing_rapp[2], int(sing_rapp[1]))
+                        if sing_rapp[0] == 'Si lega a' and sing_rapp[2]=='US':
+                        
+                            report2 = '%s : %d - %s : %d: devono essere USM' % (
+                                ut, int(us), sing_rapp[2], int(sing_rapp[1]))
+                        
+                        if sing_rapp[0] == 'Uguale a' and sing_rapp[2]=='USM':
+                        
+                            report2 = '%s : %d - %s : %d: devono essere US' % (
+                                ut, int(us), sing_rapp[2], int(sing_rapp[1]))
+                
+                        if sing_rapp[0] == 'Si appoggia a' and sing_rapp[2]=='USM':
+                        
+                            report2 = '%s : %d - %s : %d: devono essere US' % (
+                                ut, int(us), sing_rapp[2], int(sing_rapp[1]))
+                                
+                        if sing_rapp[0] == 'Gli si appoggia' and sing_rapp[2]=='USM':
+                        
+                            report2 = '%s : %d - %s : %d: devono essere US' % (
+                                ut, int(us), sing_rapp[2], int(sing_rapp[1]))
+                
+                if self.L=='de':
+                    if str(periodo_in).find('1' or '2' or'3'or'4'or'5'or'6'or'7'or'8'or'9'or'10' or'11' or'12' or'13' or'14' or'15')>=0:
+                        if str(periodo_in)+'-'+str(fase_in)!=sing_rapp[4]:
+                            if sing_rapp[0] == 'Bindet an' or sing_rapp[0] == 'Entspricht':
+                                report = 'Site: %s, Area: %s, %s: %d -  Il periodo e fase iniziale %s: deve essere: %s con la %s : %d: ' % (
+                                    sito, area, ut, int(us), str(periodo_in)+'-'+str(fase_in), sing_rapp[0], sing_rapp[2], int(sing_rapp[1]))
+                        if sing_rapp[0] == 'Si lega a' and sing_rapp[2]=='US':
+                        
+                            report2 = '%s : %d - %s : %d: devono essere USM' % (
+                                ut, int(us), sing_rapp[2], int(sing_rapp[1]))
+                        
+                        if sing_rapp[0] == 'Uguale a' and sing_rapp[2]=='USM':
+                        
+                            report2 = '%s : %d - %s : %d: devono essere US' % (
+                                ut, int(us), sing_rapp[2], int(sing_rapp[1]))
+                
+                        if sing_rapp[0] == 'Si appoggia a' and sing_rapp[2]=='USM':
+                        
+                            report2 = '%s : %d - %s : %d: devono essere US' % (
+                                ut, int(us), sing_rapp[2], int(sing_rapp[1]))
+                                
+                        if sing_rapp[0] == 'Gli si appoggia' and sing_rapp[2]=='USM':
+                        
+                            report2 = '%s : %d - %s : %d: devono essere US' % (
+                                ut, int(us), sing_rapp[2], int(sing_rapp[1]))
+                
+                if report2 != "":
+                    report_rapporti2 = report_rapporti2 + report + report2+'\n'
+                
+                    self.listWidget_rapp.addItem(report_rapporti2)    
+        HOME = os.environ['PYARCHINIT_HOME']
+        report_path = '{}{}{}'.format(HOME, os.sep, "pyarchinit_Report_folder")
+        if self.L=='it':
+            filename = '{}{}{}'.format(report_path, os.sep, 'def_strat_a_rapporti_US.txt')
+        elif self.L=='de':
+            filename = '{}{}{}'.format(report_path, os.sep, 'def_strat_to_SE relation.txt')
+        elif self.L=='en':
+            filename = '{}{}{}'.format(report_path, os.sep, 'strat_def_to_SU relation.txt') 
+        f = open(filename, "w")
+        f.write(report_rapporti2)
+        f.close()
+    
     def insert_new_rec(self):
         # TableWidget
         #Rapporti
