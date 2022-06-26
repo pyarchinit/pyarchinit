@@ -25,7 +25,12 @@ tracker=https://github.com/pyarchinit/pyarchinit/issues
 repository=https://github.com/pyarchinit/pyarchinit
 
 
-changelog=release4.0.9
+changelog=release4.1.0
+
+    -validazione e inserimento rapporti per EM
+
+
+  release4.0.9
 
     -validazione e inserimento rapporti inversi
 
