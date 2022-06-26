@@ -781,6 +781,7 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
         self.pushButton_insert_row_rapporti2.setHidden(True)
         self.pushButton_remove_row_rapporti2.setHidden(True)
         self.pushButton_update.setHidden(True)
+        
         # if self.comboBox_per_iniz.currentText() =='':
             # self.checkBox_validate.setHidden(True)
         # else:
@@ -843,7 +844,17 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
         # self.checkBox_validation_rapp.stateChanged.connect(self.check_listoflist)
         self.tableWidget_rapporti.itemChanged.connect(self.check_listoflist)
         # self.tableWidget_rapporti.itemChanged.connect(self.search_l)
-    
+    def on_pushButton_fix_pressed(self):
+        sito = "'"+self.comboBox_sito.currentText()+"'"
+        area = "'"+self.comboBox_area.currentText()+"'"
+        search_dict = {'sito': sito, 'area': area}
+        records = self.DB_MANAGER.query_bool(search_dict,
+                                             self.MAPPER_TABLE_CLASS)
+                                           
+        for rec in range(len(records)):
+            #for i in self.selectRows():
+                
+            self.check_listoflist()
     def unit_type_select(self):
         try: 
             dialog = QInputDialog()
@@ -4775,11 +4786,11 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
             sito = "'" + str(records[rec].sito) + "'"
             area = "'" + str(records[rec].area) + "'"
             us = int(records[rec].us)
-            periodo_in = int(records[rec].periodo_iniziale)
-            fase_in = int(records[rec].fase_iniziale)
+            periodo_in = str(records[rec].periodo_iniziale)
+            fase_in = str(records[rec].fase_iniziale)
             periodo_fin = "'" + str(records[rec].periodo_finale) + "'"
             fase_fin = "'" + str(records[rec].fase_iniziale) + "'"
-            ut="'" + str(records[rec].unita_tipo) + "'"
+            ut=str(records[rec].unita_tipo)
             rapporti = records[rec].rapporti  # caricati i rapporti nella variabile
             rapporti = eval(rapporti)
             rapporti2 = records[rec].rapporti2  # caricati i rapporti nella variabile
@@ -4788,7 +4799,7 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
                 report = ""
                 report2 = ""
                 if self.L=='it':
-                    if str(periodo_in).find('1' or '2' or'3'or'4'or'5'or'6'or'7'or'8'or'9'or'10' or'11' or'12' or'13' or'14' or'15')>=0:
+                    if str(periodo_in).find('1') or str(periodo_in).find('2') or str(periodo_in).find('3') or str(periodo_in).find('4') or str(periodo_in).find('5') or str(periodo_in).find('6') or str(periodo_in).find('7') or str(periodo_in).find('8') or str(periodo_in).find('9') or str(periodo_in).find('10') or str(periodo_in).find('11') or str(periodo_in).find('12') or str(periodo_in).find('13') or str(periodo_in).find('14') or str(periodo_in).find('15')>=0:
                         if str(periodo_in)+'-'+str(fase_in)!=sing_rapp[4]:
                             if sing_rapp[0] == 'Si lega a' or sing_rapp[0] == 'Uguale a':
                                 report = 'Sito: %s, Area: %s, %s: %d -  Il periodo e fase iniziale %s: deve essere: %s corrispondente con la %s : %d: ' % (
@@ -4803,18 +4814,19 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
                             report2 = '%s : %d - %s : %d: devono essere US' % (
                                 ut, int(us), sing_rapp[2], int(sing_rapp[1]))
                 
-                        if sing_rapp[0] == 'Si appoggia a' and sing_rapp[2]=='USM':
+                        if sing_rapp[0] == 'Si appoggia a' and sing_rapp[2]=='US':
                         
                             report2 = '%s : %d - %s : %d: devono essere USM' % (
                                 ut, int(us), sing_rapp[2], int(sing_rapp[1]))
                                 
-                        if sing_rapp[0] == 'Gli si appoggia' and sing_rapp[2]=='USM':
+                        if sing_rapp[0] == 'Gli si appoggia' and sing_rapp[2]=='US':
                         
                             report2 = '%s : %d - %s : %d: devono essere USM' % (
                                 ut, int(us), sing_rapp[2], int(sing_rapp[1]))
-                
+                    # if str(periodo_in).find('')<<0:
+                        # report2 = 'Mancano i periodi per il controlo periodi'
                 if self.L=='en':
-                    if str(periodo_in).find('1' or '2' or'3'or'4'or'5'or'6'or'7'or'8'or'9'or'10' or'11' or'12' or'13' or'14' or'15')>=0:
+                    if str(periodo_in).find('1') or str(periodo_in).find('2') or str(periodo_in).find('3') or str(periodo_in).find('4') or str(periodo_in).find('5') or str(periodo_in).find('6') or str(periodo_in).find('7') or str(periodo_in).find('8') or str(periodo_in).find('9') or str(periodo_in).find('10') or str(periodo_in).find('11') or str(periodo_in).find('12') or str(periodo_in).find('13') or str(periodo_in).find('14') or str(periodo_in).find('15')>=0:
                         if str(periodo_in)+'-'+str(fase_in)!=sing_rapp[4]:
                             if sing_rapp[0] == 'Si lega a' or sing_rapp[0] == 'Uguale a':
                                 report = 'Sito: %s, Area: %s, %s: %d -  Il Periodo iniziale %s: deve essere: %s con la %s : %d: ' % (
@@ -4840,7 +4852,7 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
                                 ut, int(us), sing_rapp[2], int(sing_rapp[1]))
                 
                 if self.L=='de':
-                    if str(periodo_in).find('1' or '2' or'3'or'4'or'5'or'6'or'7'or'8'or'9'or'10' or'11' or'12' or'13' or'14' or'15')>=0:
+                    if str(periodo_in).find('1') or str(periodo_in).find('2') or str(periodo_in).find('3') or str(periodo_in).find('4') or str(periodo_in).find('5') or str(periodo_in).find('6') or str(periodo_in).find('7') or str(periodo_in).find('8') or str(periodo_in).find('9') or str(periodo_in).find('10') or str(periodo_in).find('11') or str(periodo_in).find('12') or str(periodo_in).find('13') or str(periodo_in).find('14') or str(periodo_in).find('15')>=0:
                         if str(periodo_in)+'-'+str(fase_in)!=sing_rapp[4]:
                             if sing_rapp[0] == 'Bindet an' or sing_rapp[0] == 'Entspricht':
                                 report = 'Site: %s, Area: %s, %s: %d -  Il periodo e fase iniziale %s: deve essere: %s con la %s : %d: ' % (
