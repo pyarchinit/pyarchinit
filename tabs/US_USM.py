@@ -780,6 +780,7 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
         self.tableWidget_rapporti2.setHidden(True)
         self.pushButton_insert_row_rapporti2.setHidden(True)
         self.pushButton_remove_row_rapporti2.setHidden(True)
+        self.pushButton_update.setHidden(True)
         # if self.comboBox_per_iniz.currentText() =='':
             # self.checkBox_validate.setHidden(True)
         # else:
