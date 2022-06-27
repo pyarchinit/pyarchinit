@@ -4900,6 +4900,10 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
                                 ut, int(us),str(sing_rapp[4]), sing_rapp[1], str(periodo_in),str(fase_in))
                     if sing_rapp[4]=='-':
                         report2 = 'Manca la peridizzazione  %s %s'% (sing_rapp[2], sing_rapp[1])
+                
+                
+                
+                
                 if report2 != "":
                     report_rapporti2 = report_rapporti2 + report + report2+'\n'
                     self.listWidget_rapp.clear()
