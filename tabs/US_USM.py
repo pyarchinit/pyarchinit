@@ -1574,7 +1574,7 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
                 rowSelected = eval(rowSelected_cmd)
                 
                 for i  in rowSelected:
-                    self.tableWidget_rapporti2.setRowCount(len(table_name))
+                    self.tableWidget_rapporti2.setRowCount(200)
                     rowIndex = (i.row())
                     sito = str(self.comboBox_sito.currentText())
                     area = str(self.comboBox_area.currentText())
@@ -1605,8 +1605,8 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
                         
                     self.tableWidget_rapporti2.update()
                     
-            except:
-                pass
+            except Exception as e:
+                QMessageBox.warning(self,'',str(e))
         else:
             pass
     
@@ -4738,6 +4738,9 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
         f.write(report_rapporti1)
         f.close()
     
+    def concat(self,a, b):
+        return eval(f"{a}{b}")
+    
     def periodi_to_rapporti_stratigrafici_check(self, sito_check, area_check):
         conversion_dict = {'Covers':'Covered by',
                            'Covered by': 'Covers',
@@ -4800,10 +4803,12 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
             rapporti = eval(rapporti)
             rapporti2 = records[rec].rapporti2  # caricati i rapporti nella variabile
             rapporti2 = eval(rapporti2)
+            
             for sing_rapp in rapporti2:  # itera sulla serie di rapporti
                 report = ""
                 report2 = ""
-                
+                # rapp_sing=sing_rapp[4].split()
+                # QMessageBox.information(self,'',str(rapp_sing))
                 if str(periodo_in).find('1') or str(periodo_in).find('2') or str(periodo_in).find('3') or str(periodo_in).find('4') or str(periodo_in).find('5') or str(periodo_in).find('6') or str(periodo_in).find('7') or str(periodo_in).find('8') or str(periodo_in).find('9') or str(periodo_in).find('10') or str(periodo_in).find('11') or str(periodo_in).find('12') or str(periodo_in).find('13') or str(periodo_in).find('14') or str(periodo_in).find('15')>=0:
                     
                     if str(periodo_in)+'-'+str(fase_in)!=sing_rapp[4]:
@@ -4847,12 +4852,54 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
                         report2 = '%s : %d - %s : %d: should be WSU' % (
                             ut, int(us), sing_rapp[2], int(sing_rapp[1]))
                             
-                    if sing_rapp[0] == 'Support' and sing_rapp[2]=='SU':
+                    if sing_rapp[0] == 'Supports' and sing_rapp[2]=='SU':
                     
                         report2 = '%s : %d - %s : %d: should be WSU' % (
                             ut, int(us), sing_rapp[2], int(sing_rapp[1]))
                 
-                
+                    if sing_rapp[4]!='-':
+                    
+                        if sing_rapp[0] == 'Covers' and int(sing_rapp[4].replace('-',''))<self.concat(int(periodo_in),int(fase_in)):
+                            
+                            report2 = '%s : %d : %s- should be Covered by %s : %s-%s' % (
+                                ut, int(us),str(sing_rapp[4]), sing_rapp[1],  str(periodo_in),str(fase_in))
+                                
+                        if sing_rapp[0] == 'Covered by' and int(sing_rapp[4].replace('-',''))>self.concat(int(periodo_in),int(fase_in)):
+                        
+                            report2 = '%s : %d : %s- should be Covers %s : %s-%s' % (
+                                ut, int(us),str(sing_rapp[4]), sing_rapp[1], str(periodo_in),str(fase_in))
+                    
+                        if sing_rapp[0] == 'Copre' and int(sing_rapp[4].replace('-',''))<self.concat(int(periodo_in),int(fase_in)):
+                            
+                            report2 = '%s : %d : %s- Dovrebbe essere Coperto da %s : %s-%s' % (
+                                ut, int(us),str(sing_rapp[4]), sing_rapp[1],  str(periodo_in),str(fase_in))
+                                
+                        if sing_rapp[0] == 'Coperto da' and int(sing_rapp[4].replace('-',''))>self.concat(int(periodo_in),int(fase_in)):
+                        
+                            report2 = '%s : %d : %s- Dovrebbe Coprire %s : %s-%s' % (
+                                ut, int(us),str(sing_rapp[4]), sing_rapp[1], str(periodo_in),str(fase_in))
+                    
+                        if sing_rapp[0] == 'Riempie' and int(sing_rapp[4].replace('-',''))<self.concat(int(periodo_in),int(fase_in)):
+                            
+                            report2 = '%s : %d : %s- Dovrebbe essere Riempito da %s : %s-%s' % (
+                                ut, int(us),str(sing_rapp[4]), sing_rapp[1],  str(periodo_in),str(fase_in))
+                                
+                        if sing_rapp[0] == 'Riempito da' and int(sing_rapp[4].replace('-',''))>self.concat(int(periodo_in),int(fase_in)):
+                        
+                            report2 = '%s : %d : %s- Dovrebbe Riempire %s : %s-%s' % (
+                                ut, int(us),str(sing_rapp[4]), sing_rapp[1], str(periodo_in),str(fase_in))
+                    
+                        if sing_rapp[0] == 'Taglia' and int(sing_rapp[4].replace('-',''))<self.concat(int(periodo_in),int(fase_in)):
+                            
+                            report2 = '%s : %d : %s- Dovrebbe essere Tagliato da %s : %s-%s' % (
+                                ut, int(us),str(sing_rapp[4]), sing_rapp[1],  str(periodo_in),str(fase_in))
+                                
+                        if sing_rapp[0] == 'Tagliato da' and int(sing_rapp[4].replace('-',''))>self.concat(int(periodo_in),int(fase_in)):
+                        
+                            report2 = '%s : %d : %s- Dovrebbe Tagliare %s : %s-%s' % (
+                                ut, int(us),str(sing_rapp[4]), sing_rapp[1], str(periodo_in),str(fase_in))
+                    if sing_rapp[4]=='-':
+                        report2 = 'Manca la peridizzazione  %s %s'% (sing_rapp[2], sing_rapp[1])
                 if report2 != "":
                     report_rapporti2 = report_rapporti2 + report + report2+'\n'
                     self.listWidget_rapp.clear()
