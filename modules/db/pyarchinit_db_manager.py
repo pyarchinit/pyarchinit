@@ -1624,13 +1624,13 @@ class Pyarchinit_db_management(object):
     
     def insert_number_of_us_records(self, sito, area, n_us, unita_tipo):
         id_us = self.max_num_id('US', 'id_us')
-        
+        text = "SCHEDA CREATA IN AUTOMATICO" 
         l=QgsSettings().value("locale/userLocale")[0:2]
 
         
         id_us += 1
 
-        data_ins = self.insert_values(id_us, sito, area, n_us, '', '', '', '', '', '', '', '', '', '', '', '', '[]',
+        data_ins = self.insert_values(id_us, sito, area, n_us, text, '', '', '', '', '', '', '', '', '', '', '', '[]',
                                       '[]', '[]', '', '', '', '', '', '', '', '', '0', '[]', unita_tipo, '', '', '', '',
                                       '', '', '', '', '', '', '', '', '', None, None, '', '[]','[]', '[]', '[]', '[]','','','','',None,None,'','','','','','','[]','[]',None,None,None,None,None,None,None,None,None,None,'','','','','','','','','','',None,None,None,'','','','','','','','','','','','','','','','','','','','','','','','','','','','','')
                                            
@@ -1751,3 +1751,14 @@ class Pyarchinit_db_management(object):
 
 # if __name__ == '__main__':
     # main()
+class ANSI():
+    def background(code):
+        return "\33[{code}m".format(code=code)
+  
+    def style_text(code):
+        return "\33[{code}m".format(code=code)
+  
+    def color_text(code):
+        return "\33[{code}m".format(code=code)
+  
+  
