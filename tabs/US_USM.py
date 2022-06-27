@@ -781,6 +781,7 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
         self.pushButton_insert_row_rapporti2.setHidden(True)
         self.pushButton_remove_row_rapporti2.setHidden(True)
         self.pushButton_update.setHidden(True)
+        self.progressBar_2.setHidden(True)
         
         # if self.comboBox_per_iniz.currentText() =='':
             # self.checkBox_validate.setHidden(True)
@@ -992,7 +993,7 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
                     self.save_rapp()
                     self.tableWidget_rapporti.selectRow(0)
                     self.on_pushButton_go_to_us_pressed()
-                    
+                   
             except:         
                 pass
     
@@ -1559,6 +1560,10 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
             self.us_t()
                 
             self.save_rapp()
+            value = (float(rec)/float(len(records)))*100
+            self.progressBar_2.setValue(value)
+            QApplication.processEvents()
+        self.progressBar_2.reset()        
     def us_t(self):
         if self.checkBox_validate.isChecked():
             try:
@@ -4689,11 +4694,11 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
                 if report != "":
                     report_rapporti1 = report_rapporti1 + report + '\n'
                 #versione inglese
-                elif def_stratigrafica.find('Stratum') >= 0:  # Paradosso strati che tagliano o si legano
+                elif def_stratigrafica.find('Stra') >= 0:  # Paradosso strati che tagliano o si legano
                     if sing_rapp[0] == 'Connected to':
                         report = 'Site: %s, Area: %s, SU: %d - %s: the stratum %s SU: %d: ' % (
                             sito, area, int(us), def_stratigrafica, sing_rapp[0], int(sing_rapp[1]))
-                if def_stratigrafica.find('Filling') >= 0:  # Paradosso riempimentiche tagliano o si legano
+                if def_stratigrafica.find('Fill') >= 0:  # Paradosso riempimentiche tagliano o si legano
                     if sing_rapp[0] == 'Cuts' or sing_rapp[0] == 'Connected to':
                         report = 'Site: %s, Area: %s, SU: %d - %s: the startum %s SU: %d: ' % (
                             sito, area, int(us), def_stratigrafica, sing_rapp[0], int(sing_rapp[1]))
@@ -4788,8 +4793,8 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
             us = int(records[rec].us)
             periodo_in = str(records[rec].periodo_iniziale)
             fase_in = str(records[rec].fase_iniziale)
-            periodo_fin = "'" + str(records[rec].periodo_finale) + "'"
-            fase_fin = "'" + str(records[rec].fase_iniziale) + "'"
+            periodo_fin =  str(records[rec].periodo_finale) 
+            fase_fin =  str(records[rec].fase_iniziale) 
             ut=str(records[rec].unita_tipo)
             rapporti = records[rec].rapporti  # caricati i rapporti nella variabile
             rapporti = eval(rapporti)
@@ -4798,88 +4803,59 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
             for sing_rapp in rapporti2:  # itera sulla serie di rapporti
                 report = ""
                 report2 = ""
-                if self.L=='it':
-                    if str(periodo_in).find('1') or str(periodo_in).find('2') or str(periodo_in).find('3') or str(periodo_in).find('4') or str(periodo_in).find('5') or str(periodo_in).find('6') or str(periodo_in).find('7') or str(periodo_in).find('8') or str(periodo_in).find('9') or str(periodo_in).find('10') or str(periodo_in).find('11') or str(periodo_in).find('12') or str(periodo_in).find('13') or str(periodo_in).find('14') or str(periodo_in).find('15')>=0:
-                        if str(periodo_in)+'-'+str(fase_in)!=sing_rapp[4]:
-                            if sing_rapp[0] == 'Si lega a' or sing_rapp[0] == 'Uguale a':
-                                report = 'Sito: %s, Area: %s, %s: %d -  Il periodo e fase iniziale %s: deve essere: %s corrispondente con la %s : %d: ' % (
-                                    sito, area, ut, int(us), str(periodo_in)+'-'+str(fase_in), sing_rapp[0], sing_rapp[2], int(sing_rapp[1]))
-                        if sing_rapp[0] == 'Si lega a' and sing_rapp[2]=='US':
-                        
-                            report2 = '%s : %d - %s : %d: devono essere USM' % (
-                                ut, int(us), sing_rapp[2], int(sing_rapp[1]))
-                        
-                        if sing_rapp[0] == 'Uguale a' and sing_rapp[2]=='USM':
-                        
-                            report2 = '%s : %d - %s : %d: devono essere US' % (
-                                ut, int(us), sing_rapp[2], int(sing_rapp[1]))
                 
-                        if sing_rapp[0] == 'Si appoggia a' and sing_rapp[2]=='US':
-                        
-                            report2 = '%s : %d - %s : %d: devono essere USM' % (
-                                ut, int(us), sing_rapp[2], int(sing_rapp[1]))
-                                
-                        if sing_rapp[0] == 'Gli si appoggia' and sing_rapp[2]=='US':
-                        
-                            report2 = '%s : %d - %s : %d: devono essere USM' % (
-                                ut, int(us), sing_rapp[2], int(sing_rapp[1]))
-                    # if str(periodo_in).find('')<<0:
-                        # report2 = 'Mancano i periodi per il controlo periodi'
-                if self.L=='en':
-                    if str(periodo_in).find('1') or str(periodo_in).find('2') or str(periodo_in).find('3') or str(periodo_in).find('4') or str(periodo_in).find('5') or str(periodo_in).find('6') or str(periodo_in).find('7') or str(periodo_in).find('8') or str(periodo_in).find('9') or str(periodo_in).find('10') or str(periodo_in).find('11') or str(periodo_in).find('12') or str(periodo_in).find('13') or str(periodo_in).find('14') or str(periodo_in).find('15')>=0:
-                        if str(periodo_in)+'-'+str(fase_in)!=sing_rapp[4]:
-                            if sing_rapp[0] == 'Si lega a' or sing_rapp[0] == 'Uguale a':
-                                report = 'Sito: %s, Area: %s, %s: %d -  Il Periodo iniziale %s: deve essere: %s con la %s : %d: ' % (
-                                    sito, area, ut, int(us), str(periodo_in)+'-'+str(fase_in), sing_rapp[0], sing_rapp[2], int(sing_rapp[1]))
-                        if sing_rapp[0] == 'Si lega a' and sing_rapp[2]=='US':
-                        
-                            report2 = '%s : %d - %s : %d: devono essere USM' % (
-                                ut, int(us), sing_rapp[2], int(sing_rapp[1]))
-                        
-                        if sing_rapp[0] == 'Uguale a' and sing_rapp[2]=='USM':
-                        
-                            report2 = '%s : %d - %s : %d: devono essere US' % (
-                                ut, int(us), sing_rapp[2], int(sing_rapp[1]))
+                if str(periodo_in).find('1') or str(periodo_in).find('2') or str(periodo_in).find('3') or str(periodo_in).find('4') or str(periodo_in).find('5') or str(periodo_in).find('6') or str(periodo_in).find('7') or str(periodo_in).find('8') or str(periodo_in).find('9') or str(periodo_in).find('10') or str(periodo_in).find('11') or str(periodo_in).find('12') or str(periodo_in).find('13') or str(periodo_in).find('14') or str(periodo_in).find('15')>=0:
+                    
+                    if str(periodo_in)+'-'+str(fase_in)!=sing_rapp[4]:
+                        if sing_rapp[0] == 'Si lega a' or sing_rapp[0] == 'Uguale a' or sing_rapp[0] == 'Same as' or sing_rapp[0] == 'Connected to':
+                            report = 'Sito: %s, Area: %s, %s: %d -  Il periodo e fase iniziale %s: deve essere: %s corrispondente con la %s : %d: ' % (
+                                sito, area, ut, int(us), str(periodo_in)+'-'+str(fase_in), sing_rapp[0], sing_rapp[2], int(sing_rapp[1]))
+                    
+                    
+                    if sing_rapp[0] == 'Si lega a' and sing_rapp[2]=='US':
+                    
+                        report2 = '%s : %d - %s : %d: devono essere USM' % (
+                            ut, int(us), sing_rapp[2], int(sing_rapp[1]))
+                    
+                    if sing_rapp[0] == 'Connected to' and sing_rapp[2]=='SU':
+                    
+                        report2 = '%s : %d - %s : %d: should be WSU' % (
+                            ut, int(us), sing_rapp[2], int(sing_rapp[1]))
+                    
+                    if sing_rapp[0] == 'Uguale a' and sing_rapp[2]=='USM':
+                    
+                        report2 = '%s : %d - %s : %d: devono essere US' % (
+                            ut, int(us), sing_rapp[2], int(sing_rapp[1]))
+            
+                    if sing_rapp[0] == 'Same as' and sing_rapp[2]=='WSU':
+                    
+                        report2 = '%s : %d - %s : %d: should be SU' % (
+                            ut, int(us), sing_rapp[2], int(sing_rapp[1]))
+                    
+                    if sing_rapp[0] == 'Si appoggia a' and sing_rapp[2]=='US':
+                    
+                        report2 = '%s : %d - %s : %d: devono essere USM' % (
+                            ut, int(us), sing_rapp[2], int(sing_rapp[1]))
+                            
+                    if sing_rapp[0] == 'Gli si appoggia' and sing_rapp[2]=='US':
+                    
+                        report2 = '%s : %d - %s : %d: devono essere USM' % (
+                            ut, int(us), sing_rapp[2], int(sing_rapp[1]))
                 
-                        if sing_rapp[0] == 'Si appoggia a' and sing_rapp[2]=='USM':
-                        
-                            report2 = '%s : %d - %s : %d: devono essere US' % (
-                                ut, int(us), sing_rapp[2], int(sing_rapp[1]))
-                                
-                        if sing_rapp[0] == 'Gli si appoggia' and sing_rapp[2]=='USM':
-                        
-                            report2 = '%s : %d - %s : %d: devono essere US' % (
-                                ut, int(us), sing_rapp[2], int(sing_rapp[1]))
+                    if sing_rapp[0] == 'Abuts' and sing_rapp[2]=='SU':
+                    
+                        report2 = '%s : %d - %s : %d: should be WSU' % (
+                            ut, int(us), sing_rapp[2], int(sing_rapp[1]))
+                            
+                    if sing_rapp[0] == 'Support' and sing_rapp[2]=='SU':
+                    
+                        report2 = '%s : %d - %s : %d: should be WSU' % (
+                            ut, int(us), sing_rapp[2], int(sing_rapp[1]))
                 
-                if self.L=='de':
-                    if str(periodo_in).find('1') or str(periodo_in).find('2') or str(periodo_in).find('3') or str(periodo_in).find('4') or str(periodo_in).find('5') or str(periodo_in).find('6') or str(periodo_in).find('7') or str(periodo_in).find('8') or str(periodo_in).find('9') or str(periodo_in).find('10') or str(periodo_in).find('11') or str(periodo_in).find('12') or str(periodo_in).find('13') or str(periodo_in).find('14') or str(periodo_in).find('15')>=0:
-                        if str(periodo_in)+'-'+str(fase_in)!=sing_rapp[4]:
-                            if sing_rapp[0] == 'Bindet an' or sing_rapp[0] == 'Entspricht':
-                                report = 'Site: %s, Area: %s, %s: %d -  Il periodo e fase iniziale %s: deve essere: %s con la %s : %d: ' % (
-                                    sito, area, ut, int(us), str(periodo_in)+'-'+str(fase_in), sing_rapp[0], sing_rapp[2], int(sing_rapp[1]))
-                        if sing_rapp[0] == 'Si lega a' and sing_rapp[2]=='US':
-                        
-                            report2 = '%s : %d - %s : %d: devono essere USM' % (
-                                ut, int(us), sing_rapp[2], int(sing_rapp[1]))
-                        
-                        if sing_rapp[0] == 'Uguale a' and sing_rapp[2]=='USM':
-                        
-                            report2 = '%s : %d - %s : %d: devono essere US' % (
-                                ut, int(us), sing_rapp[2], int(sing_rapp[1]))
-                
-                        if sing_rapp[0] == 'Si appoggia a' and sing_rapp[2]=='USM':
-                        
-                            report2 = '%s : %d - %s : %d: devono essere US' % (
-                                ut, int(us), sing_rapp[2], int(sing_rapp[1]))
-                                
-                        if sing_rapp[0] == 'Gli si appoggia' and sing_rapp[2]=='USM':
-                        
-                            report2 = '%s : %d - %s : %d: devono essere US' % (
-                                ut, int(us), sing_rapp[2], int(sing_rapp[1]))
                 
                 if report2 != "":
                     report_rapporti2 = report_rapporti2 + report + report2+'\n'
-                
+                    self.listWidget_rapp.clear()
                     self.listWidget_rapp.addItem(report_rapporti2)    
         HOME = os.environ['PYARCHINIT_HOME']
         report_path = '{}{}{}'.format(HOME, os.sep, "pyarchinit_Report_folder")
