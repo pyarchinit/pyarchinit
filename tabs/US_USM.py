@@ -924,7 +924,7 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
                 elif rapp =='Copre':
                     rapp='Coperto da' 
                 elif rapp =='Gli si appoggia':
-                    rapp='Si appoggia'             
+                    rapp='Si appoggia a'             
                 elif rapp =='Filled by':
                     rapp='Fills'             
                 elif rapp =='Cutted by':
@@ -4117,7 +4117,7 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
             self.rapporti_stratigrafici_check(sito_check, area_check)
             self.def_strati_to_rapporti_stratigrafici_check(sito_check, area_check)  # SPERIMENTALE
             self.periodi_to_rapporti_stratigrafici_check(sito_check, area_check)
-            self.automaticform_check(sito_check, area_check)
+            #self.automaticform_check(sito_check, area_check)
         except Exception as e:
             self.listWidget_rapp.addItem(str(e))
         else:
@@ -4718,7 +4718,7 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
                     if sing_rapp[0] == 'Connected to':
                         report = 'Site: %s, Area: %s, SU: %d - %s: the stratum %s SU: %d: ' % (
                             sito, area, int(us), def_stratigrafica, sing_rapp[0], int(sing_rapp[1]))
-                if def_stratigrafica.find('Fill') >= 0:  # Paradosso riempimentiche tagliano o si legano
+                if def_stratigrafica.find('Fills') >= 0:  # Paradosso riempimentiche tagliano o si legano
                     if sing_rapp[0] == 'Cuts' or sing_rapp[0] == 'Connected to':
                         report = 'Site: %s, Area: %s, SU: %d - %s: the startum %s SU: %d: ' % (
                             sito, area, int(us), def_stratigrafica, sing_rapp[0], int(sing_rapp[1]))
@@ -4824,9 +4824,11 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
             rapporti2 = records[rec].rapporti2  # caricati i rapporti nella variabile
             rapporti2 = eval(rapporti2)
             
+            
             for sing_rapp in rapporti2:  # itera sulla serie di rapporti
                 report = ""
                 report2 = ""
+                
                 # rapp_sing=sing_rapp[4].split()
                 # QMessageBox.information(self,'',str(rapp_sing))
                 if str(periodo_in).find('1') or str(periodo_in).find('2') or str(periodo_in).find('3') or str(periodo_in).find('4') or str(periodo_in).find('5') or str(periodo_in).find('6') or str(periodo_in).find('7') or str(periodo_in).find('8') or str(periodo_in).find('9') or str(periodo_in).find('10') or str(periodo_in).find('11') or str(periodo_in).find('12') or str(periodo_in).find('13') or str(periodo_in).find('14') or str(periodo_in).find('15')>=0:
@@ -4836,7 +4838,8 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
                             report = 'Sito: %s, Area: %s, %s: %d -  Il periodo e fase iniziale %s: deve essere: %s corrispondente con la %s : %d: ' % (
                                 sito, area, ut, int(us), str(periodo_in)+'-'+str(fase_in), sing_rapp[0], sing_rapp[2], int(sing_rapp[1]))
                     
-                    
+                    # if not bool(sing_rapp):
+                        # report2:'la table widget deve essere riempita' 
                     if sing_rapp[0] == 'Si lega a' and sing_rapp[2]=='US':
                     
                         report2 = '%s : %d - %s : %d: devono essere USM' % (
@@ -4968,7 +4971,7 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
                 
                 if report2 != "":
                     report_rapporti2 = report_rapporti2 + report + report2+'\n'
-                    self.listWidget_rapp.clear()
+                    #self.listWidget_rapp.clear()
                     self.listWidget_rapp.addItem(report_rapporti2)    
         HOME = os.environ['PYARCHINIT_HOME']
         report_path = '{}{}{}'.format(HOME, os.sep, "pyarchinit_Report_folder")
@@ -4988,13 +4991,13 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
         records = self.DB_MANAGER.query_bool(search_dict,
                                              self.MAPPER_TABLE_CLASS)  # carica tutti i dati di uno scavo ordinati per numero di US
         if self.L=='it':
-            report_rapporti1 = 'Report controllo e conteggio delle Schede create automatcamente - Sito: %s \n' % (
+            report_rapporti3 = 'Report controllo e conteggio delle Schede create automatcamente - Sito: %s \n' % (
                 sito_check)
         elif self.L=='de':
-            report_rapporti1 = 'Kontrollbericht Definition Stratigraphische zu Stratigraphische Berichte - Ausgrabungsstätte: %s \n' % (
+            report_rapporti3 = 'Kontrollbericht Definition Stratigraphische zu Stratigraphische Berichte - Ausgrabungsstätte: %s \n' % (
                 sito_check)
         else:
-            report_rapporti1 = 'Control and count of forms automatically created - Site: %s \n' % (
+            report_rapporti3 = 'Control and count of forms automatically created - Site: %s \n' % (
                 sito_check)     
         for rec in range(len(records)):
             sito = "'" + str(records[rec].sito) + "'"
@@ -5004,18 +5007,19 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
             rapporti = records[rec].rapporti  # caricati i rapporti nella variabile
             rapporti = eval(def_stratigrafica)
             #for sing_rapp in range(len(records)):  # itera sulla serie di rapporti
-            report = ""
+            report3 = ""
             if def_stratigrafica.find('SCHEDA CREATA IN AUTOMATICO')>=0:
                 
                     
-                report = 'Sito: %s, Area: %s, US: %d - %s. Da rivedere ' % (
+                report3 = 'Sito: %s, Area: %s, US: %d - %s. Da rivedere ' % (
                     sito, area, int(us), def_stratigrafica)
             
-            if report != "":
-                report_rapporti1 = report_rapporti1 + report + '\n' 
+            if report3 != "":
+                report_rapporti3 = report_rapporti3 + report3 + '\n' 
                 # self.listWidget_rapp.item(0).setForeground(QtCore.Qt.blue)
                 # self.listWidget_rapp.item(1).setForeground(QtCore.Qt.blue)
-                self.listWidget_rapp.addItem(report_rapporti1)    
+                #self.listWidget_rapp.clear() 
+                self.listWidget_rapp.addItem(report_rapporti3)    
         HOME = os.environ['PYARCHINIT_HOME']
         report_path = '{}{}{}'.format(HOME, os.sep, "pyarchinit_Report_folder")
         if self.L=='it':
@@ -5025,7 +5029,7 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
         elif self.L=='en':
             filename = '{}{}{}'.format(report_path, os.sep, 'log_strat_def_to_SU relation.txt') 
         f = open(filename, "w")
-        f.write(report_rapporti1)
+        f.write(report_rapporti3)
         f.close()
     
     
