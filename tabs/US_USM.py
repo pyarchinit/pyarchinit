@@ -4127,10 +4127,11 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
         sito_check = str(self.comboBox_sito.currentText())
         area_check = str(self.comboBox_area.currentText())
         try:
+            
             self.rapporti_stratigrafici_check(sito_check, area_check)
             self.def_strati_to_rapporti_stratigrafici_check(sito_check, area_check)  # SPERIMENTALE
             self.periodi_to_rapporti_stratigrafici_check(sito_check, area_check)
-            #self.automaticform_check(sito_check, area_check)
+            self.automaticform_check(sito_check, area_check)
         except Exception as e:
             self.listWidget_rapp.addItem(str(e))
         else:
@@ -4529,6 +4530,54 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
                 test = 1
         """
         return test
+    
+    def automaticform_check(self, sito_check, area_check):
+        
+        search_dict = {'sito': "'" + str(sito_check) + "'", 'area': "'" + str(area_check) + "'"}
+        records = self.DB_MANAGER.query_bool(search_dict,
+                                             self.MAPPER_TABLE_CLASS)  # carica tutti i dati di uno scavo ordinati per numero di US
+        if self.L=='it':
+            report_rapporti3 = 'Report controllo e conteggio delle Schede create automatcamente - Sito: %s \n' % (
+                sito_check)
+        elif self.L=='de':
+            report_rapporti3 = 'Kontrollbericht Definition Stratigraphische zu Stratigraphische Berichte - Ausgrabungsstätte: %s \n' % (
+                sito_check)
+        else:
+            report_rapporti3 = 'Control and count of forms automatically created - Site: %s \n' % (
+                sito_check)     
+        for rec in range(len(records)):
+            sito = "'" + str(records[rec].sito) + "'"
+            area = "'" + str(records[rec].area) + "'"
+            us = int(records[rec].us)
+            def_stratigrafica = "'" + str(records[rec].d_stratigrafica) + "'"
+            rapporti = records[rec].rapporti  # caricati i rapporti nella variabile
+            rapporti = eval(def_stratigrafica)
+            #for sing_rapp in range(len(records)):  # itera sulla serie di rapporti
+            report3 = ""
+            if def_stratigrafica.find('SCHEDA CREATA IN AUTOMATICO')>=0:
+                
+                    
+                report3 = 'Sito: %s, Area: %s, US: %d - %s. Da rivedere ' % (
+                    sito, area, int(us), def_stratigrafica)
+            
+            if report3 != "":
+                report_rapporti3 = report_rapporti3 + report3 + '\n' 
+                # self.listWidget_rapp.item(0).setForeground(QtCore.Qt.blue)
+                # self.listWidget_rapp.item(1).setForeground(QtCore.Qt.blue)
+                #self.listWidget_rapp.clear() 
+        self.listWidget_rapp.addItem(report_rapporti3)    
+        HOME = os.environ['PYARCHINIT_HOME']
+        report_path = '{}{}{}'.format(HOME, os.sep, "pyarchinit_Report_folder")
+        if self.L=='it':
+            filename = '{}{}{}'.format(report_path, os.sep, 'log_schedeautomatiche.txt')
+        elif self.L=='de':
+            filename = '{}{}{}'.format(report_path, os.sep, 'log_def_strat_to_SE relation.txt')
+        elif self.L=='en':
+            filename = '{}{}{}'.format(report_path, os.sep, 'log_strat_def_to_SU relation.txt') 
+        f = open(filename, "w")
+        f.write(report_rapporti3)
+        f.close()
+    
     def rapporti_stratigrafici_check(self, sito_check, area_check):
         self.listWidget_rapp.clear()
         conversion_dict = {'Covers':'Covered by',
@@ -4582,67 +4631,58 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
             us = int(records[rec].us)
             rapporti = records[rec].rapporti  # caricati i rapporti nella variabile
             rapporti = eval(rapporti)
+            report = ''
             for sing_rapp in rapporti:  # itera sulla serie di rapporti
-                # sing_rapp.pop(4)
-                # sing_rapp.pop(3)
-                # sing_rapp.pop(2)
                 
-            
-                report = ''
+                
                 if str(us).find('0') or str(us).find('1') >=0:
                     if len(sing_rapp) == 2:
-                        try:
-                            rapp_converted = conversion_dict[sing_rapp[0]]
+                        
+                        rapp_converted = conversion_dict[sing_rapp[0]]
+                        
+                        serch_dict_rapp = {'sito': sito, 'area': area, 'us': sing_rapp[1]}
+                        us_rapp = self.DB_MANAGER.query_bool(serch_dict_rapp, self.MAPPER_TABLE_CLASS)
+                        
+                        if not bool(us_rapp):
+                            if self.L=='it':
+                                report = 'Sito: %s, Area: %s, US: %d %s US: %d: Scheda US non esistente' % (
+                                    sito, area, int(us), sing_rapp[0], int(sing_rapp[1]))
+                            elif self.L=='de':
+                                report = 'Ausgrabungsstätte: %s, Areal: %s, SE: %d %s SE: %d: SE formular nicht existent' % (
+                                    sito, area, int(us), sing_rapp[0], int(sing_rapp[1]))
+                            else:
+                                report = 'Site: %s, Area: %s, SU: %d %s SU: %d: SU form not-existent' % (
+                                    sito, area, int(us), sing_rapp[0], int(sing_rapp[1]))       
+                            # new system rapp_check
+                        else:
+                            rapporti_check = eval(us_rapp[0].rapporti)
                             
-                            serch_dict_rapp = {'sito': sito, 'area': area, 'us': sing_rapp[1]}
-                            us_rapp = self.DB_MANAGER.query_bool(serch_dict_rapp, self.MAPPER_TABLE_CLASS)
-                            # QMessageBox.warning(self,"WELCOME HFF user", str(us_rapp),
-                                        # QMessageBox.Ok)
-                            if not bool(us_rapp):
+                            us_rapp_check=('%s') % str(us)
+                            
+                            if rapporti_check.count([rapp_converted, us_rapp_check]) == 1:
+                                report = ""
+                            else:
                                 if self.L=='it':
-                                    report = 'Sito: %s, Area: %s, US: %d %s US: %d: Scheda US non esistente' % (
+                                    report = 'Sito: %s, Area: %s, US: %d %s US: %d: Rapporto non verificato' % (
                                         sito, area, int(us), sing_rapp[0], int(sing_rapp[1]))
                                 elif self.L=='de':
-                                    report = 'Ausgrabungsstätte: %s, Areal: %s, SE: %d %s SE: %d: SE formular nicht existent' % (
+                                    report = 'Ausgrabungsstätte: %s, Areal: %s, SE: %d %s SE: %d: nicht geprüfter Bericht' % (
                                         sito, area, int(us), sing_rapp[0], int(sing_rapp[1]))
                                 else:
-                                    report = 'Site: %s, Area: %s, SU: %d %s SU: %d: SU form not-existent' % (
+                                    report = 'Site: %s, Area: %s, SU: %d %s SU: %d: relashionships not verified' % (
                                         sito, area, int(us), sing_rapp[0], int(sing_rapp[1]))       
-                                # new system rapp_check
-                            else:
-                                rapporti_check = eval(us_rapp[0].rapporti)
-                                
-                                
-                                # [l.pop(4) for l in rapporti_check]
-                                # [l.pop(3) for l in rapporti_check]
-                                # [l.pop(2) for l in rapporti_check]
-                                
-                                #rapporti_check =[x for x in rapporti_check if x[0:2]]
-                                    #=eval(str(rapporti_check_[0:2]))
-                                # for a in rapporti_check:
-                                    # rapporti_check=a[0:2]
-                                us_rapp_check=('%s') % str(us)
-                                    # #us_rapp_check = str(us)
-                                    
-                                
-                                if rapporti_check.count([rapp_converted, us_rapp_check]) == 1:
-                                    report = ""
-                                else:
-                                    if self.L=='it':
-                                        report = 'Sito: %s, Area: %s, US: %d %s US: %d: Rapporto non verificato' % (
-                                            sito, area, int(us), sing_rapp[0], int(sing_rapp[1]))
-                                    elif self.L=='de':
-                                        report = 'Ausgrabungsstätte: %s, Areal: %s, SE: %d %s SE: %d: nicht geprüfter Bericht' % (
-                                            sito, area, int(us), sing_rapp[0], int(sing_rapp[1]))
-                                    else:
-                                        report = 'Site: %s, Area: %s, SU: %d %s SU: %d: relashionships not verified' % (
-                                            sito, area, int(us), sing_rapp[0], int(sing_rapp[1]))       
-                        except Exception as e:
-                            report = "Problem of conversion: " + str(e)
-                    if report != "":
-                        report_rapporti = report_rapporti + report + '\n'
-                        #self.listWidget_rapp.item(1).setForeground(QtCore.Qt.red)
-                        self.listWidget_rapp.addItem(report_rapporti)
+                        
+                if report != "":
+                    report_rapporti = report_rapporti + report + '\n'
+                   
+        self.listWidget_rapp.addItem(report_rapporti)
+            
+            # self.progressBar_3.setHidden(False)
+            # value = (float(rec)/float(len(records)))*100
+            # self.progressBar_3.setValue(value)
+            # QApplication.processEvents()
+        # self.progressBar_3.reset()           
+        
         HOME = os.environ['PYARCHINIT_HOME']
         report_path = '{}{}{}'.format(HOME, os.sep, "pyarchinit_Report_folder")
         if self.L=='it':
@@ -4710,6 +4750,8 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
             def_stratigrafica = "'" + str(records[rec].d_stratigrafica) + "'"
             rapporti = records[rec].rapporti  # caricati i rapporti nella variabile
             rapporti = eval(rapporti)
+            
+           
             for sing_rapp in rapporti:  # itera sulla serie di rapporti
                 report = ""
                 if def_stratigrafica.find('Strato') >= 0:  # Paradosso strati che tagliano o si legano
@@ -4756,9 +4798,9 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
                             # sito, area, int(us), def_stratigrafica, sing_rapp[0], int(sing_rapp[1]))
                 if report != "":
                     report_rapporti1 = report_rapporti1 + report + '\n' 
-                    # self.listWidget_rapp.item(0).setForeground(QtCore.Qt.blue)
-                    # self.listWidget_rapp.item(1).setForeground(QtCore.Qt.blue)
-                    self.listWidget_rapp.addItem(report_rapporti1)    
+                
+        self.listWidget_rapp.addItem(report_rapporti1)    
+             
         HOME = os.environ['PYARCHINIT_HOME']
         report_path = '{}{}{}'.format(HOME, os.sep, "pyarchinit_Report_folder")
         if self.L=='it':
@@ -4984,8 +5026,11 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
                 
                 if report2 != "":
                     report_rapporti2 = report_rapporti2 + report + report2+'\n'
-                    #self.listWidget_rapp.clear()
-                    self.listWidget_rapp.addItem(report_rapporti2)    
+                
+        self.listWidget_rapp.addItem(report_rapporti2)    
+        
+           
+          
         HOME = os.environ['PYARCHINIT_HOME']
         report_path = '{}{}{}'.format(HOME, os.sep, "pyarchinit_Report_folder")
         if self.L=='it':
@@ -4997,56 +5042,7 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
         f = open(filename, "w")
         f.write(report_rapporti2)
         f.close()
-    
-    def automaticform_check(self, sito_check, area_check):
-        
-        search_dict = {'sito': "'" + str(sito_check) + "'", 'area': "'" + str(area_check) + "'"}
-        records = self.DB_MANAGER.query_bool(search_dict,
-                                             self.MAPPER_TABLE_CLASS)  # carica tutti i dati di uno scavo ordinati per numero di US
-        if self.L=='it':
-            report_rapporti3 = 'Report controllo e conteggio delle Schede create automatcamente - Sito: %s \n' % (
-                sito_check)
-        elif self.L=='de':
-            report_rapporti3 = 'Kontrollbericht Definition Stratigraphische zu Stratigraphische Berichte - Ausgrabungsstätte: %s \n' % (
-                sito_check)
-        else:
-            report_rapporti3 = 'Control and count of forms automatically created - Site: %s \n' % (
-                sito_check)     
-        for rec in range(len(records)):
-            sito = "'" + str(records[rec].sito) + "'"
-            area = "'" + str(records[rec].area) + "'"
-            us = int(records[rec].us)
-            def_stratigrafica = "'" + str(records[rec].d_stratigrafica) + "'"
-            rapporti = records[rec].rapporti  # caricati i rapporti nella variabile
-            rapporti = eval(def_stratigrafica)
-            #for sing_rapp in range(len(records)):  # itera sulla serie di rapporti
-            report3 = ""
-            if def_stratigrafica.find('SCHEDA CREATA IN AUTOMATICO')>=0:
-                
-                    
-                report3 = 'Sito: %s, Area: %s, US: %d - %s. Da rivedere ' % (
-                    sito, area, int(us), def_stratigrafica)
-            
-            if report3 != "":
-                report_rapporti3 = report_rapporti3 + report3 + '\n' 
-                # self.listWidget_rapp.item(0).setForeground(QtCore.Qt.blue)
-                # self.listWidget_rapp.item(1).setForeground(QtCore.Qt.blue)
-                #self.listWidget_rapp.clear() 
-                self.listWidget_rapp.addItem(report_rapporti3)    
-        HOME = os.environ['PYARCHINIT_HOME']
-        report_path = '{}{}{}'.format(HOME, os.sep, "pyarchinit_Report_folder")
-        if self.L=='it':
-            filename = '{}{}{}'.format(report_path, os.sep, 'log_schedeautomatiche.txt')
-        elif self.L=='de':
-            filename = '{}{}{}'.format(report_path, os.sep, 'log_def_strat_to_SE relation.txt')
-        elif self.L=='en':
-            filename = '{}{}{}'.format(report_path, os.sep, 'log_strat_def_to_SU relation.txt') 
-        f = open(filename, "w")
-        f.write(report_rapporti3)
-        f.close()
-    
-    
-    
+   
     def insert_new_rec(self):
         # TableWidget
         #Rapporti
