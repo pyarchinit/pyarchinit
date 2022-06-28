@@ -4589,7 +4589,7 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
                 
             
                 report = ''
-                if str(us).find('1')>=0:
+                if str(us).find('0') or str(us).find('1') >=0:
                     if len(sing_rapp) == 2:
                         try:
                             rapp_converted = conversion_dict[sing_rapp[0]]
