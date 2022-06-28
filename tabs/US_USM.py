@@ -782,7 +782,7 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
         self.pushButton_remove_row_rapporti2.setHidden(True)
         self.pushButton_update.setHidden(True)
         self.progressBar_2.setHidden(True)
-        
+        self.progressBar_3.setHidden(True)
         # if self.comboBox_per_iniz.currentText() =='':
             # self.checkBox_validate.setHidden(True)
         # else:
@@ -853,11 +853,24 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
         search_dict = {'sito': sito, 'area': area}
         records = self.DB_MANAGER.query_bool(search_dict,
                                              self.MAPPER_TABLE_CLASS)
-                                           
+                                          
+        #self.on_pushButton_next_rec_pressed()
         for rec in range(len(records)):
-            #for i in self.selectRows():
+            self.checkBox_validation_rapp.setChecked(True)
+            #self.on_pushButton_next_rec_pressed()
+            for row in range(self.tableWidget_rapporti.rowCount()):
+                table_item = self.tableWidget_rapporti.item(row, 1)
+                # row_data = table_item.data(QtCore.Qt.UserRole)
+                # row_id = row_data
+                self.tableWidget_rapporti.selectRow(row)  
                 
             self.check_listoflist()
+            #self.on_pushButton_next_rec_pressed()
+                
+            value = (float(row)/float(self.tableWidget_rapporti.rowCount()))*100
+            self.progressBar_3.setValue(value)
+            QApplication.processEvents()
+        self.progressBar_3.reset()       
     def unit_type_select(self):
         try: 
             dialog = QInputDialog()
