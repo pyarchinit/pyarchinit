@@ -801,6 +801,8 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
             self.comboBox_sito.setCurrentIndex(0)
         else:
             self.comboBox_sito.setCurrentIndex(1)
+        
+            
         self.comboBox_sito.currentIndexChanged.connect(self.charge_periodo_iniz_list)
         self.comboBox_sito.currentTextChanged.connect(self.charge_periodo_iniz_list)
         self.comboBox_per_iniz.currentIndexChanged.connect(self.charge_periodo_fin_list)
@@ -923,6 +925,23 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
                     rapp='Coperto da' 
                 elif rapp =='Gli si appoggia':
                     rapp='Si appoggia'             
+                elif rapp =='Filled by':
+                    rapp='Fills'             
+                elif rapp =='Cutted by':
+                    rapp='Cuts' 
+                elif rapp =='Covered by':
+                    rapp='Covers' 
+                elif rapp =='Abuts':
+                    rapp='Supports' 
+                elif rapp =='Fills':
+                    rapp='Filled by'             
+                elif rapp =='Cuts':
+                    rapp='Cutted by' 
+                elif rapp =='Covers':
+                    rapp='Covered by' 
+                elif rapp =='Supports':
+                    rapp='Abuts'    
+                
                 elif rapp =='>>':
                     rapp='<<'     
                 elif rapp =='<<':
@@ -3570,13 +3589,13 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
             data_plot=dlg.generate_matrix()
             
             ###interactive matrix###
-        if self.checkBox_IM.isChecked():    
-            matrix_path = '{}{}{}'.format(self.HOME, os.sep, "pyarchinit_Matrix_folder")
-            filename='Harris_matrix_tred.dot'
-            hm=os.path.join(matrix_path, filename)
-            gv = pgv.AGraph(hm, strict=False, directed=True)
-            dlg.plot_matrix(gv)
-            dlg.exec_()
+        # if self.checkBox_IM.isChecked():    
+            # matrix_path = '{}{}{}'.format(self.HOME, os.sep, "pyarchinit_Matrix_folder")
+            # filename='Harris_matrix_tred.dot'
+            # hm=os.path.join(matrix_path, filename)
+            # gv = pgv.AGraph(hm, strict=False, directed=True)
+            # dlg.plot_matrix(gv)
+            # dlg.exec_()
     def launch_matrix_exp_if(self, msg):
         if msg == QMessageBox.Ok:
             self.on_pushButton_export_matrix_pressed()
@@ -4098,6 +4117,7 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
             self.rapporti_stratigrafici_check(sito_check, area_check)
             self.def_strati_to_rapporti_stratigrafici_check(sito_check, area_check)  # SPERIMENTALE
             self.periodi_to_rapporti_stratigrafici_check(sito_check, area_check)
+            self.automaticform_check(sito_check, area_check)
         except Exception as e:
             self.listWidget_rapp.addItem(str(e))
         else:
@@ -4613,11 +4633,11 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
         HOME = os.environ['PYARCHINIT_HOME']
         report_path = '{}{}{}'.format(HOME, os.sep, "pyarchinit_Report_folder")
         if self.L=='it':
-            filename = '{}{}{}'.format(report_path, os.sep, 'rapporti_US.txt')
+            filename = '{}{}{}'.format(report_path, os.sep, 'log_rapporti_US.txt')
         elif self.L=='de':
-            filename = '{}{}{}'.format(report_path, os.sep, 'SE.txt')
+            filename = '{}{}{}'.format(report_path, os.sep, 'log_SE.txt')
         else:
-            filename = '{}{}{}'.format(report_path, os.sep, 'SU_relations.txt')     
+            filename = '{}{}{}'.format(report_path, os.sep, 'log_SU_relations.txt')     
         f = open(filename, "w")
         f.write(report_rapporti)
         f.close()
@@ -4729,11 +4749,11 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
         HOME = os.environ['PYARCHINIT_HOME']
         report_path = '{}{}{}'.format(HOME, os.sep, "pyarchinit_Report_folder")
         if self.L=='it':
-            filename = '{}{}{}'.format(report_path, os.sep, 'def_strat_a_rapporti_US.txt')
+            filename = '{}{}{}'.format(report_path, os.sep, 'log_def_strat_a_rapporti_US.txt')
         elif self.L=='de':
-            filename = '{}{}{}'.format(report_path, os.sep, 'def_strat_to_SE relation.txt')
+            filename = '{}{}{}'.format(report_path, os.sep, 'log_def_strat_to_SE relation.txt')
         elif self.L=='en':
-            filename = '{}{}{}'.format(report_path, os.sep, 'strat_def_to_SU relation.txt') 
+            filename = '{}{}{}'.format(report_path, os.sep, 'log_strat_def_to_SU relation.txt') 
         f = open(filename, "w")
         f.write(report_rapporti1)
         f.close()
@@ -4869,6 +4889,36 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
                             report2 = '%s : %d : %s- should be Covers %s : %s-%s' % (
                                 ut, int(us),str(sing_rapp[4]), sing_rapp[1], str(periodo_in),str(fase_in))
                     
+                        if sing_rapp[0] == 'Fills' and int(sing_rapp[4].replace('-',''))<self.concat(int(periodo_in),int(fase_in)):
+                            
+                            report2 = '%s : %d : %s- Should be Filled by %s : %s-%s' % (
+                                ut, int(us),str(sing_rapp[4]), sing_rapp[1],  str(periodo_in),str(fase_in))
+                                
+                        if sing_rapp[0] == 'Filled by' and int(sing_rapp[4].replace('-',''))>self.concat(int(periodo_in),int(fase_in)):
+                        
+                            report2 = '%s : %d : %s- Shuld be Fills %s : %s-%s' % (
+                                ut, int(us),str(sing_rapp[4]), sing_rapp[1], str(periodo_in),str(fase_in))
+                    
+                        if sing_rapp[0] == 'Cuts' and int(sing_rapp[4].replace('-',''))<self.concat(int(periodo_in),int(fase_in)):
+                            
+                            report2 = '%s : %d : %s- Shuld be Cutted by %s : %s-%s' % (
+                                ut, int(us),str(sing_rapp[4]), sing_rapp[1],  str(periodo_in),str(fase_in))
+                                
+                        if sing_rapp[0] == 'Cutted by' and int(sing_rapp[4].replace('-',''))>self.concat(int(periodo_in),int(fase_in)):
+                        
+                            report2 = '%s : %d : %s- Shuld be Cuts %s : %s-%s' % (
+                                ut, int(us),str(sing_rapp[4]), sing_rapp[1], str(periodo_in),str(fase_in))
+                        
+                        if sing_rapp[0] == 'Abuts' and int(sing_rapp[4].replace('-',''))<self.concat(int(periodo_in),int(fase_in)):
+                            
+                            report2 = '%s : %d : %s- Shuld be Supports %s : %s-%s' % (
+                                ut, int(us),str(sing_rapp[4]), sing_rapp[1],  str(periodo_in),str(fase_in))
+                                
+                        if sing_rapp[0] == 'Supports' and int(sing_rapp[4].replace('-',''))>self.concat(int(periodo_in),int(fase_in)):
+                        
+                            report2 = '%s : %d : %s- Shuld be Abuts %s : %s-%s' % (
+                                ut, int(us),str(sing_rapp[4]), sing_rapp[1], str(periodo_in),str(fase_in))
+                                          
                         if sing_rapp[0] == 'Copre' and int(sing_rapp[4].replace('-',''))<self.concat(int(periodo_in),int(fase_in)):
                             
                             report2 = '%s : %d : %s- Dovrebbe essere Coperto da %s : %s-%s' % (
@@ -4898,9 +4948,21 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
                         
                             report2 = '%s : %d : %s- Dovrebbe Tagliare %s : %s-%s' % (
                                 ut, int(us),str(sing_rapp[4]), sing_rapp[1], str(periodo_in),str(fase_in))
+                    
+                        if sing_rapp[0] == 'Si appoggia a' and int(sing_rapp[4].replace('-',''))<self.concat(int(periodo_in),int(fase_in)):
+                            
+                            report2 = '%s : %d : %s- Dovrebbe essere Gli si appoggia %s : %s-%s' % (
+                                ut, int(us),str(sing_rapp[4]), sing_rapp[1],  str(periodo_in),str(fase_in))
+                                
+                        if sing_rapp[0] == 'Gli si appoggia' and int(sing_rapp[4].replace('-',''))>self.concat(int(periodo_in),int(fase_in)):
+                        
+                            report2 = '%s : %d : %s- Dovrebbe Si appoggia a %s : %s-%s' % (
+                                ut, int(us),str(sing_rapp[4]), sing_rapp[1], str(periodo_in),str(fase_in))
                     if sing_rapp[4]=='-':
-                        report2 = 'Manca la peridizzazione  %s %s'% (sing_rapp[2], sing_rapp[1])
-                
+                        if self.L=='it':
+                            report2 = 'Manca la peridizzazione in %s %s'% (sing_rapp[2], sing_rapp[1])
+                        else:
+                            report2 = 'Missing the periodization in %s %s'% (sing_rapp[2], sing_rapp[1])
                 
                 
                 
@@ -4911,14 +4973,62 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
         HOME = os.environ['PYARCHINIT_HOME']
         report_path = '{}{}{}'.format(HOME, os.sep, "pyarchinit_Report_folder")
         if self.L=='it':
-            filename = '{}{}{}'.format(report_path, os.sep, 'def_strat_a_rapporti_US.txt')
+            filename = '{}{}{}'.format(report_path, os.sep, 'log_per_ut_a_rapporti_US.txt')
         elif self.L=='de':
-            filename = '{}{}{}'.format(report_path, os.sep, 'def_strat_to_SE relation.txt')
+            filename = '{}{}{}'.format(report_path, os.sep, 'log_per_ut_to_SE relation.txt')
         elif self.L=='en':
-            filename = '{}{}{}'.format(report_path, os.sep, 'strat_def_to_SU relation.txt') 
+            filename = '{}{}{}'.format(report_path, os.sep, 'log_per_ut_to_SU relation.txt') 
         f = open(filename, "w")
         f.write(report_rapporti2)
         f.close()
+    
+    def automaticform_check(self, sito_check, area_check):
+        
+        search_dict = {'sito': "'" + str(sito_check) + "'", 'area': "'" + str(area_check) + "'"}
+        records = self.DB_MANAGER.query_bool(search_dict,
+                                             self.MAPPER_TABLE_CLASS)  # carica tutti i dati di uno scavo ordinati per numero di US
+        if self.L=='it':
+            report_rapporti1 = 'Report controllo e conteggio delle Schede create automatcamente - Sito: %s \n' % (
+                sito_check)
+        elif self.L=='de':
+            report_rapporti1 = 'Kontrollbericht Definition Stratigraphische zu Stratigraphische Berichte - Ausgrabungsstätte: %s \n' % (
+                sito_check)
+        else:
+            report_rapporti1 = 'Control and count of forms automatically created - Site: %s \n' % (
+                sito_check)     
+        for rec in range(len(records)):
+            sito = "'" + str(records[rec].sito) + "'"
+            area = "'" + str(records[rec].area) + "'"
+            us = int(records[rec].us)
+            def_stratigrafica = "'" + str(records[rec].d_stratigrafica) + "'"
+            rapporti = records[rec].rapporti  # caricati i rapporti nella variabile
+            rapporti = eval(def_stratigrafica)
+            #for sing_rapp in range(len(records)):  # itera sulla serie di rapporti
+            report = ""
+            if def_stratigrafica.find('SCHEDA CREATA IN AUTOMATICO')>=0:
+                
+                    
+                report = 'Sito: %s, Area: %s, US: %d - %s. Da rivedere ' % (
+                    sito, area, int(us), def_stratigrafica)
+            
+            if report != "":
+                report_rapporti1 = report_rapporti1 + report + '\n' 
+                # self.listWidget_rapp.item(0).setForeground(QtCore.Qt.blue)
+                # self.listWidget_rapp.item(1).setForeground(QtCore.Qt.blue)
+                self.listWidget_rapp.addItem(report_rapporti1)    
+        HOME = os.environ['PYARCHINIT_HOME']
+        report_path = '{}{}{}'.format(HOME, os.sep, "pyarchinit_Report_folder")
+        if self.L=='it':
+            filename = '{}{}{}'.format(report_path, os.sep, 'log_schedeautomatiche.txt')
+        elif self.L=='de':
+            filename = '{}{}{}'.format(report_path, os.sep, 'log_def_strat_to_SE relation.txt')
+        elif self.L=='en':
+            filename = '{}{}{}'.format(report_path, os.sep, 'log_strat_def_to_SU relation.txt') 
+        f = open(filename, "w")
+        f.write(report_rapporti1)
+        f.close()
+    
+    
     
     def insert_new_rec(self):
         # TableWidget

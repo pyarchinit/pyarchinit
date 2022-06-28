@@ -24,7 +24,7 @@ import os
 import random
 import networkx as nx
 import graphviz
-import pygraphviz as pgv
+# import pygraphviz as pgv
 from graphviz import Digraph, Source
 #from networkx.drawing.nx_pydot import graphviz_layout
 
