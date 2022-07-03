@@ -150,7 +150,7 @@ selection-color: rgb(140, 140, 105);</string>
               </property>
               <property name="url" stdset="0">
                <url>
-                <string>https://enzococca.github.io/pyarchinitDOC/html/index.html</string>
+                <string>https://pyarchinitdoc.readthedocs.io/it/latest/</string>
                </url>
               </property>
               <property name="zoomFactor" stdset="0">
