@@ -512,7 +512,57 @@ class Node:
             label.setAttribute('xml:space','preserve')
             label.setAttribute('y','5.6494140625')
         
+        elif 'SU' in a:
+            
+            fill.setAttribute('color','#FFFFFF')
+            fill.setAttribute('transparent','false')
+            border.setAttribute('color','#000000')
+            border.setAttribute('type','line')
+            border.setAttribute('width','1.0')
+            label.setAttribute('alignment','center')
+            label.setAttribute('autoSizePolicy','content')
+            label.setAttribute('fontFamily','DialogInput')
+            label.setAttribute('fontSize','24')
+            label.setAttribute('fontStyle','bold')
+            label.setAttribute('hasBackgroundColor','false')
+            label.setAttribute('hasLineColor','false')
+            label.setAttribute('height','18.701171875')
+            label.setAttribute('horizontalTextPosition','center')
+            label.setAttribute('iconTextGap','4')
+            label.setAttribute('modelName','internal')
+            label.setAttribute('modelPosition','c')
+            label.setAttribute('textColor','#000000')
+            label.setAttribute('visible','true')
+            label.setAttribute('width','34.017578125')
+            label.setAttribute('x','27.9912109375')
+            label.setAttribute('xml:space','preserve')
+            label.setAttribute('y','5.6494140625')
         
+        elif 'WSU' in a:
+            
+            fill.setAttribute('color','#C0C0C0')
+            fill.setAttribute('transparent','false')
+            border.setAttribute('color','#000000')
+            border.setAttribute('type','line')
+            border.setAttribute('width','1.0')
+            label.setAttribute('alignment','center')
+            label.setAttribute('autoSizePolicy','content')
+            label.setAttribute('fontFamily','DialogInput')
+            label.setAttribute('fontSize','24')
+            label.setAttribute('fontStyle','bold')
+            label.setAttribute('hasBackgroundColor','false')
+            label.setAttribute('hasLineColor','false')
+            label.setAttribute('height','18.701171875')
+            label.setAttribute('horizontalTextPosition','center')
+            label.setAttribute('iconTextGap','4')
+            label.setAttribute('modelName','internal')
+            label.setAttribute('modelPosition','c')
+            label.setAttribute('textColor','#000000')
+            label.setAttribute('visible','true')
+            label.setAttribute('width','34.017578125')
+            label.setAttribute('x','27.9912109375')
+            label.setAttribute('xml:space','preserve')
+            label.setAttribute('y','5.6494140625')
         
         elif 'CON' in a:
             
@@ -731,6 +781,15 @@ class Node:
             
             shape.setAttribute('type','rectangle')
             snode.appendChild(shape)
+        elif 'SU' in a:
+           
+            shape.setAttribute('type','rectangle')
+            snode.appendChild(shape)
+        elif 'WSU' in a:
+            
+            shape.setAttribute('type','rectangle')
+            snode.appendChild(shape)
+        
         elif 'CON' in a:
             svg_node_p.setAttribute('usingVisualBounds','true')
             snode.appendChild(svg_node_p)   
@@ -837,6 +896,13 @@ class Node:
         elif 'USM' in a:
             data1.setAttribute('key', 'd5')
             data1.setAttribute('xml:space','preserve') 
+        elif 'SU' in a:
+            data1.setAttribute('key', 'd5')
+            data1.setAttribute('xml:space','preserve') 
+        elif 'WSU' in a:
+            data1.setAttribute('key', 'd5')
+            data1.setAttribute('xml:space','preserve') 
+        
         elif 'CON' in a:
             data1.setAttribute('key', 'd5')
             data1.setAttribute('xml:space','preserve') 

@@ -3969,7 +3969,7 @@ class Order_layer_v2(object):
                 test = 1
                 
                 return self.order_dict
-            elif self.order_count >=1000:
+            elif self.order_count >=10000000:
                 test = 1
                 #
 

@@ -1405,25 +1405,49 @@ class Pyarchinit_db_management(object):
                 self.update('US', 'id_us', [int(i.id_us)], ['cont_per'], [periodiz[0].cont_per])
                 continue
             elif i.periodo_finale and i.periodo_iniziale:
-                cod_cont_iniz_temp = self.query_bool(
-                    {'sito': "'" + str(self.sito) + "'", 'periodo': int(i.periodo_iniziale),
-                     'fase': int(i.fase_iniziale+'::text')}, 'PERIODIZZAZIONE')
-                cod_cont_fin_temp = self.query_bool(
-                    {'sito': "'" + str(self.sito) + "'", 'periodo': int(i.periodo_finale), 'fase': int(i.fase_finale)},
-                    'PERIODIZZAZIONE')
+                try:
+                    cod_cont_iniz_temp = self.query_bool(
+                        {'sito': "'" + str(self.sito) + "'", 'periodo': int(i.periodo_iniziale),
+                         'fase': int(i.fase_iniziale+'::text')}, 'PERIODIZZAZIONE')
+                
+                    cod_cont_fin_temp = self.query_bool(
+                        {'sito': "'" + str(self.sito) + "'", 'periodo': int(i.periodo_finale), 'fase': int(i.fase_finale)},
+                        'PERIODIZZAZIONE')
 
-                cod_cont_iniz = cod_cont_iniz_temp[0].cont_per
-                cod_cont_fin = cod_cont_fin_temp[0].cont_per
+                    cod_cont_iniz = cod_cont_iniz_temp[0].cont_per
+                    cod_cont_fin = cod_cont_fin_temp[0].cont_per
 
-                cod_cont_var_n = cod_cont_iniz
-                cod_cont_var_txt = str(cod_cont_iniz)
+                    cod_cont_var_n = cod_cont_iniz
+                    cod_cont_var_txt = str(cod_cont_iniz)
+                    while cod_cont_var_n != cod_cont_fin:
+                        cod_cont_var_n += 1
 
-                while cod_cont_var_n != cod_cont_fin:
-                    cod_cont_var_n += 1
+                        cod_cont_var_txt = cod_cont_var_txt + "/" + str(cod_cont_var_n)
 
-                    cod_cont_var_txt = cod_cont_var_txt + "/" + str(cod_cont_var_n)
+                    self.update('US', 'id_us', [int(i.id_us)], ['cont_per'], [cod_cont_var_txt])
+                except:
+                    pass
+                else:
+                    cod_cont_iniz_temp = self.query_bool(
+                        {'sito': "'" + str(self.sito) + "'", 'periodo': int(i.periodo_iniziale),
+                         'fase': int(i.fase_iniziale)}, 'PERIODIZZAZIONE')
+                
+                    cod_cont_fin_temp = self.query_bool(
+                        {'sito': "'" + str(self.sito) + "'", 'periodo': int(i.periodo_finale), 'fase': int(i.fase_finale)},
+                        'PERIODIZZAZIONE')
 
-                self.update('US', 'id_us', [int(i.id_us)], ['cont_per'], [cod_cont_var_txt])
+                    cod_cont_iniz = cod_cont_iniz_temp[0].cont_per
+                    cod_cont_fin = cod_cont_fin_temp[0].cont_per
+
+                    cod_cont_var_n = cod_cont_iniz
+                    cod_cont_var_txt = str(cod_cont_iniz)
+                    while cod_cont_var_n != cod_cont_fin:
+                        cod_cont_var_n += 1
+
+                        cod_cont_var_txt = cod_cont_var_txt + "/" + str(cod_cont_var_n)
+
+                    self.update('US', 'id_us', [int(i.id_us)], ['cont_per'], [cod_cont_var_txt])
+                
 
     def remove_alltags_from_db_sql(self,s):
         sql_query_string = ("DELETE FROM media_to_entity_table WHERE media_name  = '%s'") % (s)
@@ -1581,15 +1605,32 @@ class Pyarchinit_db_management(object):
         return
 
     
+    # def insert_number_of_rapp_records(self, sito, area, us, rapp_n, unita_tipo):
+        # id_us = self.max_num_id('US', 'id_us')
+        
+        # l=QgsSettings().value("locale/userLocale")[0:2]
+
+        
+        # id_us += 1
+
+        # data_ins = self.insert_values(id_us, sito, area, us, '', '', '', '', '', '', '', '', '', '', '', '', '[]',
+                                      # '[]', 
+                                      # '[['+rapp_n+']]', '', '', '', '', '', '', '', '', '0', '[]', unita_tipo, '', '', '', '',
+                                      # '', '', '', '', '', '', '', '', '', None, None, '', '[]','[]', '[]', '[]', '[]','','','','',None,None,'','','','','','','[]','[]',None,None,None,None,None,None,None,None,None,None,'','','','','','','','','','',None,None,None,'','','','','','','','','','','','','','','','','','','','','','','','','','','','','')
+                                           
+        # self.insert_data_session(data_ins)
+        
+        # return
+    
     def insert_number_of_us_records(self, sito, area, n_us, unita_tipo):
         id_us = self.max_num_id('US', 'id_us')
-        
+        text = "SCHEDA CREATA IN AUTOMATICO" 
         l=QgsSettings().value("locale/userLocale")[0:2]
 
         
         id_us += 1
 
-        data_ins = self.insert_values(id_us, sito, area, n_us, '', '', '', '', '', '', '', '', '', '', '', '', '[]',
+        data_ins = self.insert_values(id_us, sito, area, n_us, text, '', '', '', '', '', '', '', '', '', '', '', '[]',
                                       '[]', '[]', '', '', '', '', '', '', '', '', '0', '[]', unita_tipo, '', '', '', '',
                                       '', '', '', '', '', '', '', '', '', None, None, '', '[]','[]', '[]', '[]', '[]','','','','',None,None,'','','','','','','[]','[]',None,None,None,None,None,None,None,None,None,None,'','','','','','','','','','',None,None,None,'','','','','','','','','','','','','','','','','','','','','','','','','','','','','')
                                            
@@ -1710,3 +1751,14 @@ class Pyarchinit_db_management(object):
 
 # if __name__ == '__main__':
     # main()
+class ANSI():
+    def background(code):
+        return "\33[{code}m".format(code=code)
+  
+    def style_text(code):
+        return "\33[{code}m".format(code=code)
+  
+    def color_text(code):
+        return "\33[{code}m".format(code=code)
+  
+  
