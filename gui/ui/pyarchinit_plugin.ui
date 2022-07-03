@@ -67,8 +67,8 @@ background-color: rgb(168, 168, 168);</string>
         <rect>
          <x>0</x>
          <y>0</y>
-         <width>330</width>
-         <height>587</height>
+         <width>326</width>
+         <height>579</height>
         </rect>
        </property>
        <layout class="QGridLayout" name="gridLayout_6">
@@ -150,11 +150,11 @@ selection-color: rgb(140, 140, 105);</string>
               </property>
               <property name="url" stdset="0">
                <url>
-                <string>https://www.adarteinfo.it/</string>
+                <string>https://enzococca.github.io/pyarchinitDOC/html/index.html</string>
                </url>
               </property>
               <property name="zoomFactor" stdset="0">
-               <double>0.500000000000000</double>
+               <double>1.000000000000000</double>
               </property>
              </widget>
             </item>

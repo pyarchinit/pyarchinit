@@ -52,6 +52,7 @@ from .tabs.tops_pyarchinit import pyarchinit_TOPS
 from .gui.pyarchinitConfigDialog import pyArchInitDialog_Config
 from .gui.dbmanagment import pyarchinit_dbmanagment
 from .gui.pyarchinitInfoDialog import pyArchInitDialog_Info
+
 filepath = os.path.dirname(__file__)
 
 class PyArchInitPlugin(object):
@@ -94,6 +95,7 @@ class PyArchInitPlugin(object):
             self.action = QAction(QIcon(icon_paius), "pyArchInit Main Panel",
                                   self.iface.mainWindow())
             self.action.triggered.connect(self.showHideDockWidget)
+            
             # dock widget
             self.dockWidget = PyarchinitPluginDialog(self.iface)
             self.iface.addDockWidget(Qt.LeftDockWidgetArea, self.dockWidget)
