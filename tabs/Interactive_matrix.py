@@ -22,7 +22,7 @@ from __future__ import absolute_import
 
 import os
 import random
-import networkx as nx
+#import networkx as nx
 import graphviz
 # import pygraphviz as pgv
 from graphviz import Digraph, Source
@@ -32,7 +32,7 @@ from builtins import range
 from builtins import str
 import matplotlib.pyplot as plt
 from matplotlib.figure import Figure
-from networkx.drawing.nx_agraph import *
+#from networkx.drawing.nx_agraph import *
 from qgis.PyQt.QtWidgets import QDialog, QMessageBox
 from qgis.PyQt.uic import loadUiType
 from qgis.core import QgsSettings
@@ -470,36 +470,36 @@ class pyarchinit_Interactive_Matrix(QDialog, MAIN_DIALOG_CLASS):
         # return _hierarchy_pos(G, root, width, vert_gap, vert_loc, xcenter)
     
     
-    def plot_matrix(self,dp):
+    # def plot_matrix(self,dp):
         
-        G1 = nx.DiGraph(dp)  # now make it a Graph
-        #nx.communicability(G1)
-        pos = graphviz_layout(G1,prog='dot')
-        #assert_equal(nx.flow_hierarchy(G1))
-        nx.draw(G1,pos,with_labels=True, arrows=True)
+        # G1 = nx.DiGraph(dp)  # now make it a Graph
+        # #nx.communicability(G1)
+        # pos = graphviz_layout(G1,prog='dot')
+        # #assert_equal(nx.flow_hierarchy(G1))
+        # nx.draw(G1,pos,with_labels=True, arrows=True)
         
-        limits=plt.axis('on')
-        #plt.show()
-        self.widgetMatrix.canvas.ax.set_title('click su una US per disegnarla a video', picker=True)
+        # limits=plt.axis('on')
+        # #plt.show()
+        # self.widgetMatrix.canvas.ax.set_title('click su una US per disegnarla a video', picker=True)
         
-        points = []
-        key = []
-        for k, v in list(pos.items()):
-            key.append(k)
-            points.append(v)
+        # points = []
+        # key = []
+        # for k, v in list(pos.items()):
+            # key.append(k)
+            # points.append(v)
 
-        for i in range(len(key)):
-            self.widgetMatrix.canvas.ax.text(points[i][0], points[i][1], key[i], picker=True, ha='center', alpha=0)
+        # for i in range(len(key)):
+            # self.widgetMatrix.canvas.ax.text(points[i][0], points[i][1], key[i], picker=True, ha='center', alpha=0)
         
         
-        self.widgetMatrix.canvas.mpl_connect('pick_event', self.on_pick)
-        self.widgetMatrix.canvas.draw()
+        # self.widgetMatrix.canvas.mpl_connect('pick_event', self.on_pick)
+        # self.widgetMatrix.canvas.draw()
         
-    def on_pick(self, event):
+    # def on_pick(self, event):
         
-        text = event.artist
-        value = text.get_prop_tup()
-        text_to_pass = value[2]
-        idus = self.ID_US_DICT[int(text_to_pass)]
-        self.pyQGIS.charge_vector_layers_from_matrix(idus)
+        # text = event.artist
+        # value = text.get_prop_tup()
+        # text_to_pass = value[2]
+        # idus = self.ID_US_DICT[int(text_to_pass)]
+        # self.pyQGIS.charge_vector_layers_from_matrix(idus)
         
