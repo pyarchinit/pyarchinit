@@ -135,7 +135,7 @@ class pyarchinit_Thesaurus(QDialog, MAIN_DIALOG_CLASS):
         ]   
     LANG = {
         "IT": ['it_IT', 'IT', 'it', 'IT_IT'],
-        "EN_US": ['en_US','EN_US'],
+        "EN_US": ['en_US','EN_US','en','EN','EN_EN'],
         "DE": ['de_DE','de','DE', 'DE_DE'],
         "FR": ['fr_FR','fr','FR', 'FR_FR'],
         "ES": ['es_ES','es','ES', 'ES_ES'],
