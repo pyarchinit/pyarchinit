@@ -911,7 +911,7 @@ class pyarchinit_Inventario_reperti(QDialog, MAIN_DIALOG_CLASS):
             self.delegateTE.def_editable('False')
             self.tableWidget_elementi_reperto.setItemDelegateForColumn(1, self.delegateTE)
         else:
-            valuesTE = ["fragment," "fragments," "whole," " intact"]
+            valuesTE = ["fragment", "fragments" ,"whole", " intact"]
             self.delegateTE = ComboBoxDelegate()
             self.delegateTE.def_values(valuesTE)
             self.delegateTE.def_editable('False')
