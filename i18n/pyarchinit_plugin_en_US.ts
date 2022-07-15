@@ -6250,37 +6250,37 @@ p, li { white-space: pre-wrap; }
     <message>
         <location filename="../gui/ui/Thesaurus.ui" line="959"/>
         <source>site_table</source>
-        <translation>site_table</translation>
+        <translation type="unfinished">site_table</translation>
     </message>
     <message>
         <location filename="../gui/ui/Thesaurus.ui" line="964"/>
         <source>us_table</source>
-        <translation>us_table</translation>
+        <translation type="unfinished">us_table</translation>
     </message>
     <message>
         <location filename="../gui/ui/Thesaurus.ui" line="969"/>
         <source>inventario_materiali_table</source>
-        <translation>inventory_materials_table</translation>
+        <translation type="unfinished">inventario_materiali_table</translation>
     </message>
     <message>
         <location filename="../gui/ui/Thesaurus.ui" line="974"/>
         <source>campioni_table</source>
-        <translation>samples_table</translation>
+        <translation type="unfinished">campioni_table</translation>
     </message>
     <message>
         <location filename="../gui/ui/Thesaurus.ui" line="979"/>
         <source>inventario_lapidei_table</source>
-        <translation>inventory_table</translation>
+        <translation type="unfinished">inventario_lapidei_table</translation>
     </message>
     <message>
         <location filename="../gui/ui/Thesaurus.ui" line="984"/>
         <source>struttura_table</source>
-        <translation>structure_table</translation>
+        <translation type="unfinished">struttura_table</translation>
     </message>
     <message>
         <location filename="../gui/ui/Thesaurus.ui" line="989"/>
         <source>tomba_table</source>
-        <translation>tomb_table</translation>
+        <translation type="unfinished">tomba_table</translation>
     </message>
     <message>
         <location filename="../gui/ui/Thesaurus.ui" line="994"/>
