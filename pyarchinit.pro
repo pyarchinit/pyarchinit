@@ -105,8 +105,8 @@ FORMS =   	gui/ui/Archeozoology.ui\
 			gui/ui/UT_ui.ui\
 			gui/ui/Setting_Matrix.ui\
 			gui/ui/gpkg_export.ui\
-			gui/ui/Print_map.ui
-			gui/ui/Tops2pyarchinit.ui
+			gui/ui/Print_map.ui\
+			gui/ui/Tops2pyarchinit.ui\
 
 TRANSLATIONS = i18n/pyarchinit_plugin_it_IT.ts \
                i18n/pyarchinit_plugin_de_DE.ts \
