@@ -1431,13 +1431,25 @@ p, li { white-space: pre-wrap; }
           </widget>
          </item>
          <item row="3" column="1">
-          <widget class="QComboBox" name="comboBox_fas_iniz"/>
+          <widget class="QComboBox" name="comboBox_fas_iniz">
+           <property name="editable">
+            <bool>false</bool>
+           </property>
+          </widget>
          </item>
          <item row="3" column="3">
-          <widget class="QComboBox" name="comboBox_per_fin"/>
+          <widget class="QComboBox" name="comboBox_per_fin">
+           <property name="editable">
+            <bool>false</bool>
+           </property>
+          </widget>
          </item>
          <item row="3" column="4">
-          <widget class="QComboBox" name="comboBox_fas_fin"/>
+          <widget class="QComboBox" name="comboBox_fas_fin">
+           <property name="editable">
+            <bool>false</bool>
+           </property>
+          </widget>
          </item>
          <item row="4" column="1">
           <widget class="QLabel" name="label_16">
@@ -1454,7 +1466,11 @@ p, li { white-space: pre-wrap; }
           </widget>
          </item>
          <item row="3" column="0">
-          <widget class="QComboBox" name="comboBox_per_iniz"/>
+          <widget class="QComboBox" name="comboBox_per_iniz">
+           <property name="editable">
+            <bool>false</bool>
+           </property>
+          </widget>
          </item>
         </layout>
        </item>

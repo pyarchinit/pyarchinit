@@ -236,7 +236,10 @@ class pyarchinit_Struttura(QDialog, MAIN_DIALOG_CLASS):
 
             # SIGNALS & SLOTS Functions
         self.comboBox_sigla_struttura.editTextChanged.connect(self.add_value_to_categoria)
-
+        if len(self.DATA_LIST)==0:
+            self.comboBox_sito.setCurrentIndex(0)
+        else:
+            self.comboBox_sito.setCurrentIndex(1)
         # SIGNALS & SLOTS Functions
         self.comboBox_sito.currentIndexChanged.connect(self.charge_periodo_iniz_list)
         self.comboBox_sito.currentIndexChanged.connect(self.charge_periodo_fin_list)
@@ -255,19 +258,48 @@ class pyarchinit_Struttura(QDialog, MAIN_DIALOG_CLASS):
     def on_pushButton_print_pressed(self):
         if self.L=='it':
             if self.checkBox_s_us.isChecked():
-                US_pdf_sheet = generate_struttura_pdf()
-                data_list = self.generate_list_pdf()
-                US_pdf_sheet.build_Struttura_sheets(data_list)
-                QMessageBox.warning(self, 'Ok',"Esportazione terminata Schede Strutture",QMessageBox.Ok)
+                Struttura_pdf_sheet = generate_struttura_pdf()  # deve essere importata la classe
+                data_list = self.generate_list_pdf()  # deve essere aggiunta la funzione
+                Struttura_pdf_sheet.build_Struttura_sheets(data_list)  # deve essere aggiunto il file per generare i pdf
+                QMessageBox.warning(self, 'Ok',"Esportazione terminata Schede Struttura",QMessageBox.Ok)
             else:   
                 pass
             if self.checkBox_e_us.isChecked() :
-                US_index_pdf = generate_struttura_pdf()
+                Struttura_index_pdf = generate_struttura_pdf()
                 data_list = self.generate_list_pdf()
-                
-                US_index_pdf.build_index_Struttura(data_list, data_list[0][0])
-                QMessageBox.warning(self, 'Ok',"Esportazione terminata Elenco Strutture",QMessageBox.Ok)
-                    
+            
+                try:               
+                    if bool(data_list):
+                        Struttura_index_pdf.build_index_Struttura(data_list, data_list[0][0])
+                        QMessageBox.warning(self, 'Ok',"Esportazione terminata Elenco Struttura",QMessageBox.Ok)
+                    else:
+                        QMessageBox.warning(self, 'ATTENZIONE',"L'elenco Struttura non può essere esportato devi riempire prima la scheda Struttura",QMessageBox.Ok)
+                except Exception as e :
+                    QMessageBox.warning(self, 'ATTENZIONE',str(e),QMessageBox.Ok)
+            else:
+                pass
+            
+        
+        else:
+            if self.checkBox_s_us.isChecked():
+                Struttura_pdf_sheet = generate_struttura_pdf()  # deve essere importata la classe
+                data_list = self.generate_list_pdf()  # deve essere aggiunta la funzione
+                Struttura_pdf_sheet.build_Struttura_sheets(data_list)  # deve essere aggiunto il file per generare i pdf
+                QMessageBox.warning(self, 'Ok',"Exportation Done",QMessageBox.Ok)
+            else:   
+                pass
+            if self.checkBox_e_us.isChecked() :
+                Struttura_index_pdf = generate_struttura_pdf()
+                data_list = self.generate_list_pdf()
+            
+                try:               
+                    if bool(data_list):
+                        Struttura_index_pdf.build_index_Struttura(data_list, data_list[0][0])
+                        QMessageBox.warning(self, 'Ok',"Exportation list done",QMessageBox.Ok)
+                    else:
+                        QMessageBox.warning(self, 'Warning',"The Structure list cannot be exported you have to fill in the Structure tabs before",QMessageBox.Ok)
+                except Exception as e :
+                    QMessageBox.warning(self, 'Warning',str(e),QMessageBox.Ok)
             else:
                 pass
             # if self.checkBox_e_foto_t.isChecked():
@@ -1749,53 +1781,53 @@ class pyarchinit_Struttura(QDialog, MAIN_DIALOG_CLASS):
             # Struttura_index_pdf = generate_struttura_pdf()
             # data_list = self.generate_list_pdf()
             # Struttura_index_pdf.build_index_Struttura_en(data_list, data_list[0][0])
-    def on_pushButton_pdf_exp_pressed(self):
-        if self.L=='it':
-            if self.checkBox_s_us.isChecked():
-                Struttura_pdf_sheet = generate_struttura_pdf()  # deve essere importata la classe
-                data_list = self.generate_list_pdf()  # deve essere aggiunta la funzione
-                Struttura_pdf_sheet.build_Struttura_sheets(data_list)  # deve essere aggiunto il file per generare i pdf
-                QMessageBox.warning(self, 'Ok',"Esportazione terminata Schede Struttura",QMessageBox.Ok)
-            else:   
-                pass
-            if self.checkBox_e_us.isChecked() :
-                Struttura_index_pdf = generate_struttura_pdf()
-                data_list = self.generate_list_pdf()
+    # def on_pushButton_pdf_exp_pressed(self):
+        # if self.L=='it':
+            # if self.checkBox_s_us.isChecked():
+                # Struttura_pdf_sheet = generate_struttura_pdf()  # deve essere importata la classe
+                # data_list = self.generate_list_pdf()  # deve essere aggiunta la funzione
+                # Struttura_pdf_sheet.build_Struttura_sheets(data_list)  # deve essere aggiunto il file per generare i pdf
+                # QMessageBox.warning(self, 'Ok',"Esportazione terminata Schede Struttura",QMessageBox.Ok)
+            # else:   
+                # pass
+            # if self.checkBox_e_us.isChecked() :
+                # Struttura_index_pdf = generate_struttura_pdf()
+                # data_list = self.generate_list_pdf()
             
-                try:               
-                    if bool(data_list):
-                        Struttura_index_pdf.build_index_Struttura(data_list, data_list[0][0])
-                        QMessageBox.warning(self, 'Ok',"Esportazione terminata Elenco Struttura",QMessageBox.Ok)
-                    else:
-                        QMessageBox.warning(self, 'ATTENZIONE',"L'elenco Struttura non può essere esportato devi riempire prima la scheda Struttura",QMessageBox.Ok)
-                except Exception as e :
-                    QMessageBox.warning(self, 'ATTENZIONE',str(e),QMessageBox.Ok)
-            else:
-                pass
+                # try:               
+                    # if bool(data_list):
+                        # Struttura_index_pdf.build_index_Struttura(data_list, data_list[0][0])
+                        # QMessageBox.warning(self, 'Ok',"Esportazione terminata Elenco Struttura",QMessageBox.Ok)
+                    # else:
+                        # QMessageBox.warning(self, 'ATTENZIONE',"L'elenco Struttura non può essere esportato devi riempire prima la scheda Struttura",QMessageBox.Ok)
+                # except Exception as e :
+                    # QMessageBox.warning(self, 'ATTENZIONE',str(e),QMessageBox.Ok)
+            # else:
+                # pass
             
         
-        else:
-            if self.checkBox_s_us.isChecked():
-                Struttura_pdf_sheet = generate_struttura_pdf()  # deve essere importata la classe
-                data_list = self.generate_list_pdf()  # deve essere aggiunta la funzione
-                Struttura_pdf_sheet.build_Struttura_sheets(data_list)  # deve essere aggiunto il file per generare i pdf
-                QMessageBox.warning(self, 'Ok',"Exportation Done",QMessageBox.Ok)
-            else:   
-                pass
-            if self.checkBox_e_us.isChecked() :
-                Struttura_index_pdf = generate_struttura_pdf()
-                data_list = self.generate_list_pdf()
+        # else:
+            # if self.checkBox_s_us.isChecked():
+                # Struttura_pdf_sheet = generate_struttura_pdf()  # deve essere importata la classe
+                # data_list = self.generate_list_pdf()  # deve essere aggiunta la funzione
+                # Struttura_pdf_sheet.build_Struttura_sheets(data_list)  # deve essere aggiunto il file per generare i pdf
+                # QMessageBox.warning(self, 'Ok',"Exportation Done",QMessageBox.Ok)
+            # else:   
+                # pass
+            # if self.checkBox_e_us.isChecked() :
+                # Struttura_index_pdf = generate_struttura_pdf()
+                # data_list = self.generate_list_pdf()
             
-                try:               
-                    if bool(data_list):
-                        Struttura_index_pdf.build_index_Struttura(data_list, data_list[0][0])
-                        QMessageBox.warning(self, 'Ok',"Exportation list done",QMessageBox.Ok)
-                    else:
-                        QMessageBox.warning(self, 'Warning',"The Structure list cannot be exported you have to fill in the Structure tabs before",QMessageBox.Ok)
-                except Exception as e :
-                    QMessageBox.warning(self, 'Warning',str(e),QMessageBox.Ok)
-            else:
-                pass
+                # try:               
+                    # if bool(data_list):
+                        # Struttura_index_pdf.build_index_Struttura(data_list, data_list[0][0])
+                        # QMessageBox.warning(self, 'Ok',"Exportation list done",QMessageBox.Ok)
+                    # else:
+                        # QMessageBox.warning(self, 'Warning',"The Structure list cannot be exported you have to fill in the Structure tabs before",QMessageBox.Ok)
+                # except Exception as e :
+                    # QMessageBox.warning(self, 'Warning',str(e),QMessageBox.Ok)
+            # else:
+                # pass
             
     def generate_list_pdf(self):
         data_list = []
