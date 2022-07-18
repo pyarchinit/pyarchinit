@@ -3268,7 +3268,7 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
                         US_index_pdf.build_index_US_en(data_list, data_list[0][0])
                         QMessageBox.warning(self, 'Ok',"Export finished SU List",QMessageBox.Ok)
                     else:
-                        QMessageBox.warning(self, 'WARNING',"The SU list cannot be exported you have to fill in the SU tabs first",QMessageBox.Ok)
+                        QMessageBox.warning(self, 'WARNING',"The SU list cannot be exported you have to fill in the SU tabs before",QMessageBox.Ok)
                 except Exception as e :
                     QMessageBox.warning(self, 'WARNING',str(e),QMessageBox.Ok)
             else:
