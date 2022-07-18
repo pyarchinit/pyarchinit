@@ -452,7 +452,7 @@ class pyarchinit_Inventario_reperti(QDialog, MAIN_DIALOG_CLASS):
 
         parameter1 = dlg.TYPE_QUANT
         parameters2 = dlg.ITEMS
-        # QMessageBox.warning(self, "Test Parametri Quant", str(parameters2),  QMessageBox.Ok)
+        #QMessageBox.warning(self, "Test Parametri Quant", str(parameters2),  QMessageBox.Ok)
 
         contatore = 0
         # tipi di quantificazione

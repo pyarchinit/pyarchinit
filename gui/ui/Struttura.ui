@@ -2178,12 +2178,12 @@ p, li { white-space: pre-wrap; }
    <slot>toggleUserVisible()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>99</x>
-     <y>135</y>
+     <x>124</x>
+     <y>124</y>
     </hint>
     <hint type="destinationlabel">
-     <x>259</x>
-     <y>346</y>
+     <x>373</x>
+     <y>510</y>
     </hint>
    </hints>
   </connection>
@@ -2194,12 +2194,12 @@ p, li { white-space: pre-wrap; }
    <slot>toggleUserVisible()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>175</x>
-     <y>367</y>
+     <x>422</x>
+     <y>486</y>
     </hint>
     <hint type="destinationlabel">
-     <x>628</x>
-     <y>587</y>
+     <x>639</x>
+     <y>545</y>
     </hint>
    </hints>
   </connection>
