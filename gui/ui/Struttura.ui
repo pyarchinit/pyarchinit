@@ -2182,8 +2182,8 @@ p, li { white-space: pre-wrap; }
      <y>124</y>
     </hint>
     <hint type="destinationlabel">
-     <x>373</x>
-     <y>510</y>
+     <x>384</x>
+     <y>446</y>
     </hint>
    </hints>
   </connection>
@@ -2194,8 +2194,8 @@ p, li { white-space: pre-wrap; }
    <slot>toggleUserVisible()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>422</x>
-     <y>486</y>
+     <x>409</x>
+     <y>463</y>
     </hint>
     <hint type="destinationlabel">
      <x>639</x>
