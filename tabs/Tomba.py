@@ -2054,35 +2054,38 @@ class pyarchinit_Tomba(QDialog, MAIN_DIALOG_CLASS):
     def generate_list_pdf(self):
         data_list = []
         for i in range(len(self.DATA_LIST)):
-            sito = str(self.DATA_LIST[i].sito.replace('_',' '))
+            sito = str(self.DATA_LIST[i].sito)#str(self.DATA_LIST[i].sito.replace('_',' '))
             nr_individuo = str(self.DATA_LIST[i].nr_individuo)
             nr_individuo_find = str(self.DATA_LIST[i].nr_individuo)
-            sigla_struttura = '{}{}{}'.format(str(self.DATA_LIST[i].sigla_struttura),'-', str(self.DATA_LIST[i].nr_struttura))
+            sigla_struttura = '{}{}{}'.format(str(self.DATA_LIST[i].sigla_struttura), '-',
+                                              str(self.DATA_LIST[i].nr_struttura))
+            res_strutt = self.DB_MANAGER.query_bool(
+                {"sito": "'" + str(sito) + "'", "struttura": "'" + str(sigla_struttura) + "'"}, "US")
 
             res_ind = self.DB_MANAGER.query_bool({"sito": "'" + sito + "'"},
                                                  "SCHEDAIND")
 
             us_ind_list = []
-            if bool(res_ind):
-                for ri in res_ind:
-                    us_ind_list.append([str(ri.sito), str(ri.area), str(ri.us)])
-                us_ind_list.sort()
 
+            for ri in res_ind:
+                us_ind_list.append([str(ri.sito), str(ri.area), str(ri.us)])
+            QMessageBox.warning(self, "Messaggio",str(us_ind_list))
+            res_quote_ind = ''
             quote_ind = []
             if bool(us_ind_list):
                 res_quote_ind = self.DB_MANAGER.select_quote_from_db_sql(us_ind_list[0][0], us_ind_list[0][1],
                                                                          us_ind_list[0][2])
 
-                for sing_us in res_quote_ind:
-                    sing_quota_value = str(sing_us[5])
-                    if sing_quota_value[0] == '-':
-                        sing_quota_value = sing_quota_value[:7]
-                    else:
-                        sing_quota_value = sing_quota_value[:6]
+            for sing_us in res_quote_ind:
+                sing_quota_value = str(sing_us[5])
+                if sing_quota_value[0] == '-':
+                    sing_quota_value = sing_quota_value[:7]
+                else:
+                    sing_quota_value = sing_quota_value[:6]
 
-                    sing_quota = [sing_quota_value, sing_us[4]]
-                    quote_ind.append(sing_quota)
-                quote_ind.sort()
+                sing_quota = [sing_quota_value, sing_us[4]]
+                quote_ind.append(sing_quota)
+            quote_ind.sort()
 
             if bool(quote_ind):
                 quota_min_ind = '%s %s' % (quote_ind[0][0], quote_ind[0][1])
@@ -2101,30 +2104,28 @@ class pyarchinit_Tomba(QDialog, MAIN_DIALOG_CLASS):
 
             ##########################################################################
 
-            res_strutt = self.DB_MANAGER.query_bool(
-                {"sito": "'" + str(sito) + "'", "struttura": "'" + str(sigla_struttura) + "'"}, "US")
-            
+            res_quote_strutt=''
             us_strutt_list = []
-            if bool(res_strutt):
-                for rs in res_strutt:
-                    us_strutt_list.append([str(rs.sito), str(rs.area), str(rs.us)])
-                us_strutt_list.sort()
-
+            #if bool(res_strutt):
+            for rs in res_strutt:
+                us_strutt_list.append([str(rs.sito), str(rs.area), str(rs.us)])
+                #us_strutt_list.sort()
+            res_quote_strutt=''
             quote_strutt = []
-            if bool(us_strutt_list):
-                for sing_us in us_strutt_list:
-                    res_quote_strutt = self.DB_MANAGER.select_quote_from_db_sql(sing_us[0], sing_us[1], sing_us[2])
-                    if bool(res_quote_strutt):
-                        for sing_us in res_quote_strutt:
-                            sing_quota_value = str(sing_us[5])
-                            if sing_quota_value[0] == '-':
-                                sing_quota_value = sing_quota_value[:7]
-                            else:
-                                sing_quota_value = sing_quota_value[:6]
+            #if bool(us_strutt_list):
+            for sing_us in us_strutt_list:
+                res_quote_strutt = self.DB_MANAGER.select_quote_from_db_sql(sing_us[0], sing_us[1], sing_us[2])
+            #if bool(res_quote_strutt):
+            for sing_us in res_quote_strutt:
+                sing_quota_value = str(sing_us[5])
+                if sing_quota_value[0] == '-':
+                    sing_quota_value = sing_quota_value[:7]
+                else:
+                    sing_quota_value = sing_quota_value[:6]
 
-                            sing_quota = [sing_quota_value, sing_us[4]]
-                            quote_strutt.append(sing_quota)
-                        quote_strutt.sort()
+                sing_quota = [sing_quota_value, sing_us[4]]
+                quote_strutt.append(sing_quota)
+            quote_strutt.sort()
 
             if bool(quote_strutt):
                 quota_min_strutt = '%s %s' % (quote_strutt[0][0], quote_strutt[0][1])
