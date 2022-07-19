@@ -25,7 +25,11 @@ tracker=https://github.com/pyarchinit/pyarchinit/issues
 repository=https://github.com/pyarchinit/pyarchinit
 
 
-changelog=release4.2.0
+changelog=release4.3.0
+
+    -#509 issue
+
+  release4.2.0
 
     -#507 issue
     -#508 issue
