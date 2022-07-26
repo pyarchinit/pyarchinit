@@ -876,9 +876,9 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
             dialog = QInputDialog()
             dialog.resize(QtCore.QSize(200, 100))
             if self.L=='it':
-                items_st=('US','USM','USVA''USVB','USVC','USVD','CON','SF','SUS','Combonar','Extractor','property')
+                items_st=('US','USM','USVA','USVB','USVC','USD','CON','VSF','SF','SUS','Combonar','Extractor','property')
             else:
-                items_st=('SU','WSU','USVA''USVB','USVC','USVD','CON','SF','SUS','Combonar','Extractor','property')
+                items_st=('SU','WSU','USVA','USVB','USVC','USD','CON','VSF','SF','SUS','Combonar','Extractor','property')
             ID_U = dialog.getItem(self, 'Type Unit', "Insert Unit Type",items_st, 0, False)
             Unit = str(ID_U[0])
             return Unit
