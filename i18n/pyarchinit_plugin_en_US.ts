@@ -9089,12 +9089,12 @@ p, li { white-space: pre-wrap; }
     <message>
         <location filename="../gui/ui/pyarchinitConfigDialog.ui" line="1953"/>
         <source>US</source>
-        <translation>SU</translation>
+        <translation>US</translation>
     </message>
     <message>
         <location filename="../gui/ui/pyarchinitConfigDialog.ui" line="1962"/>
         <source>PERIODIZZAZIONE</source>
-        <translation>Periodization</translation>
+        <translation>PERIODIZZAZIONE</translation>
     </message>
     <message>
         <location filename="../gui/ui/pyarchinitConfigDialog.ui" line="1971"/>
