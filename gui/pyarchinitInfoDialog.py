@@ -57,6 +57,11 @@ class pyArchInitDialog_Info(QDialog, MAIN_DIALOG_CLASS):
                         adArte srl - Rimini - www.adarteinfo.it<br><br><br>
                         """
         self.text += """<b>Special thanks for testing to:</b><br>
+                        Tutti i soci e collaboratori di adArte srl<br>
+                        Roberto Montagnetti<br>
+                        Paolo Rosati<br>
+                        Michele Fait<br>
+                        UNAQUANTUM<br>
                         Giovanni Manghi<br>
                         Jerzy Sikora<br>
                         Michele Zappitelli<br>
