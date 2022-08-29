@@ -84,7 +84,7 @@ class pyArchInitDialog_Info(QDialog, MAIN_DIALOG_CLASS):
                         or email me pyarchinit@gmail.com<br><br>
                         """
         self.text += """<b>Site:</b><br>
-                        <a href="https://github.com/pyarchinit/pyarchinit">https://github.com/pyarchinit/pyarchinit</a>
+                        <a href="http://pyarchinit.org">http://pyarchinit.org</a>
         """
         self.textBrowser.setText(self.img+self.text)
 
