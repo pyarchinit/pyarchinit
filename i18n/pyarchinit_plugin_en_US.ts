@@ -8959,7 +8959,7 @@ p, li { white-space: pre-wrap; }
     <message>
         <location filename="../gui/ui/pyarchinitConfigDialog.ui" line="2204"/>
         <source>Del</source>
-        <translation>Body orientation and position</translation>
+        <translation>Delete</translation>
     </message>
     <message>
         <location filename="../gui/ui/pyarchinitConfigDialog.ui" line="1542"/>
