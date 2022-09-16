@@ -38,10 +38,11 @@ class HarrisMatrix:
     ID_TABLE = "id_us"
     MATRIX = Setting_Matrix()
     #s=pyqtSignal(str)
-    def __init__(self, sequence,negative,conteporene,connection,connection_to,periodi):
+    def __init__(self, sequence,negative,conteporene,connection,connection_to,periodi,area):
         self.sequence = sequence
         self.negative = negative
         self.periodi=periodi
+        self.area=area
         self.conteporene=conteporene
         self.connection=connection
         self.connection_to=connection_to
@@ -227,6 +228,15 @@ class HarrisMatrix:
         elist4 = []
         elist5 = []
         if bool(self.dialog.checkBox_period.isChecked()):         
+            for ab in self.area:
+                with G.subgraph(name=ab[1]) as s:
+                    for n in ab[0]:
+                        s.attr('node',shape='record', label =str(n))
+                        s.node(str(n))
+                    s.attr(color='green')
+                    s.attr('node', shape='record', fillcolor='white', style='filled', gradientangle='90',label=ab[2])
+                    s.node(ab[2])   
+            
             for aa in self.periodi:
                 with G.subgraph(name=aa[1]) as c:
                     for n in aa[0]:
@@ -235,6 +245,8 @@ class HarrisMatrix:
                     c.attr(color='blue')
                     c.attr('node', shape='record', fillcolor='white', style='filled', gradientangle='90',label=aa[2])
                     c.node(aa[2])           
+                    
+        
         for bb in self.sequence:
             a = (bb[0],bb[1])            
             elist1.append(a)
@@ -353,8 +365,10 @@ class HarrisMatrix:
             subprocess.Popen(['tred',dot_file],
                              #shell=True,
                              stdout=out)
-                             
-    
+        tred_file = os.path.join(matrix_path, filename + '_graphml.dot')                     
+        g = Source.from_file(tred_file, format='jpg')
+        g.render()
+        return g
 
         
 # class IntHarrisMatrix:

@@ -1610,7 +1610,8 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
                     rowIndex = (i.row())
                     sito = str(self.comboBox_sito.currentText())
                     area = str(self.comboBox_area.currentText())
-                
+                    area_item = self.tableWidget_rapporti.item(rowIndex, 2)
+                    area_ = str(area_item.text())
                     us_item = self.tableWidget_rapporti.item(rowIndex, 1)
                    
                     us_ = str(us_item.text())
@@ -1618,7 +1619,7 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
                     rapp_ = str(rapp_item.text())
                 
                     search_dict = {'sito': "'" + str(sito) + "'",
-                                   'area': "'" + str(area) + "'",
+                                   'area': area_,
                                    'us': us_}
                     u = Utility()
                     search_dict = u.remove_empty_items_fr_dict(search_dict)
@@ -1634,7 +1635,14 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
                         self.tableWidget_rapporti2.setItem(rowIndex,2,QtWidgets.QTableWidgetItem(p.unita_tipo))
                         self.tableWidget_rapporti2.setItem(rowIndex,3,QtWidgets.QTableWidgetItem(p.d_interpretativa))
                         self.tableWidget_rapporti2.setItem(rowIndex,4,QtWidgets.QTableWidgetItem(p.periodo_iniziale+'-'+p.fase_iniziale))
-                        
+                        if area_!='':
+                            self.tableWidget_rapporti2.setItem(rowIndex,5,QtWidgets.QTableWidgetItem(area_))
+                        else:
+                            pass
+                        if p.struttura !='':
+                            self.tableWidget_rapporti2.setItem(rowIndex,6,QtWidgets.QTableWidgetItem(p.struttura))
+                        else:
+                            pass
                     self.tableWidget_rapporti2.update()
                     
             except Exception as e:
@@ -1881,11 +1889,14 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
             self.pushButton_export_matrix.setToolTip("Funzione disabilitata")
         self.tableWidget_rapporti.setColumnWidth(0, 120)
         self.tableWidget_rapporti.setColumnWidth(1, 80)
+        self.tableWidget_rapporti.setColumnWidth(2, 80)
         self.tableWidget_rapporti2.setColumnWidth(0, 80)
         self.tableWidget_rapporti2.setColumnWidth(1, 50)
-        self.tableWidget_rapporti2.setColumnWidth(2, 50)
+        self.tableWidget_rapporti2.setColumnWidth(2, 80)
         self.tableWidget_rapporti2.setColumnWidth(3, 200)
         self.tableWidget_rapporti2.setColumnWidth(4, 100)
+        self.tableWidget_rapporti2.setColumnWidth(5, 50)
+        self.tableWidget_rapporti2.setColumnWidth(6, 120)
         # self.tableWidget_rapporti2.sortItems(0,QtCore.Qt.AscendingOrder)
         # self.tableWidget_rapporti.sortItems(0,QtCore.Qt.AscendingOrder)
         self.tableWidget_documentazione.setColumnWidth(0, 150)

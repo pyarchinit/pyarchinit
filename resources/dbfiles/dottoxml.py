@@ -240,11 +240,15 @@ def exportGraphml(o, nodes, edges, options,ff=0):
     x=700
     w=200
     epoch=[]
-
     epoch_sigla = []
+    area=[]
+    area_sigla=[]
+    
     for i in sorted(nodes):
         if i.startswith('Periodo') or i.startswith('Period'):
             epoch.append(i)
+        elif i.startswith('Area'):
+            area.append(i)
         elif i.startswith('US') or i.startswith('SU') or i.startswith('WSU'):
             descrizione_us, singola_epoca = i.rsplit('_',1)
             #print(singola_epoca)
@@ -252,9 +256,53 @@ def exportGraphml(o, nodes, edges, options,ff=0):
             #print(f"La US {nome_us}, {descrizione_us}, appartiene all'epoca {singola_epoca}")
             if singola_epoca not in epoch_sigla:
                 epoch_sigla.append(singola_epoca)
+            if singola_epoca not in area_sigla:    
+                area_sigla.append(singola_epoca)
                 #print(epoch_sigla)
 
+   
+
     #print(epoch_sigla)
+    for i in sorted(area):
+        color = "#"+''.join([random.choice('0123456789ABCDEF') for j in range(6)])
+        s=i.split(' : ')
+        a=len(i)
+        a=x/a*100
+        b=w/a*100
+        label02 = doc.createElement('y:NodeLabel')
+        label02.setAttribute('alignment','center')
+        label02.setAttribute('autoSizePolicy','content')
+        label02.setAttribute('fontFamily','DialogInput')
+        label02.setAttribute('fontSize','30')
+        label02.setAttribute('fontStyle','bold')
+        label02.setAttribute('backgroundColor','{}'.format(color))
+        label02.setAttribute('hasLineColor','false')
+        label02.setAttribute('height','43.169921875')
+        label02.setAttribute('horizontalTextPosition','center')
+        label02.setAttribute('iconTextGap','4')
+        label02.setAttribute('modelName','custom')        
+        label02.setAttribute('textColor','#000000')
+        label02.setAttribute('verticalTextPosition','bottom')
+        label02.setAttribute('visible','true')    
+        label02.setAttribute('width','%r'%b)
+        label02.setAttribute('x','%r'%a)
+        label02.setAttribute('xml:space','preserve')
+        label02.setAttribute('y','93.0')
+        nodelabel02Text = '%s'%s[-1]
+        label02.appendChild(doc.createTextNode(nodelabel02Text)) 
+        labelz = doc.createElement('y:LabelModel')
+        labelz1 = doc.createElement('y:ColumnNodeLabelModel')
+        labelz1.setAttribute('offset','3.0')
+        labelz.appendChild(labelz1)
+        labelz2 = doc.createElement('y:ModelParameter')
+        labelz3 = doc.createElement('y:ColumnNodeLabelModelParameter')
+        labelz3.setAttribute('id','column_%s'%s[-1].replace(' ','_'))
+        labelz3.setAttribute('inside','true')
+        labelz3.setAttribute('verticalPosition','0.0')
+        labelz2.appendChild(labelz3)
+        label02.appendChild(labelz)    
+        label02.appendChild(labelz2)    
+        tablenode.appendChild(label02)
     
     for i in sorted(epoch, reverse=tf):
         color = "#"+''.join([random.choice('0123456789ABCDEF') for j in range(6)])
@@ -475,22 +523,29 @@ def exportGraphml(o, nodes, edges, options,ff=0):
     
     
     columns=doc.createElement('y:Columns')
-    column=doc.createElement('y:Column')
-    column.setAttribute('id','column_0')
-    column.setAttribute('minimumWidth','80.0')
-    column.setAttribute('width','1020.0')    
-    insets2=doc.createElement('y:Insets')
-    insets2.setAttribute('bottom','0.0')
-    insets2.setAttribute('left','0.0')
-    insets2.setAttribute('right','0.0')
-    insets2.setAttribute('top','0.0')   
-    columns.appendChild(column)
-    column.appendChild(insets2)    
-    table.appendChild(columns)
+    x=1000.0
+    for i in sorted(area):
+        s=i.split(':')
+        a=len(i)
+        a=x/100*94
+        column=doc.createElement('y:Column')
+        column.setAttribute('id','column_%s' % s[-1].replace(' ','_'))
+        column.setAttribute('minimumWidth','80.0')
+        column.setAttribute('width','1020.0')    
+        insets2=doc.createElement('y:Insets')
+        insets2.setAttribute('bottom','0.0')
+        insets2.setAttribute('left','0.0')
+        insets2.setAttribute('right','0.0')
+        insets2.setAttribute('top','0.0')   
+        columns.appendChild(column)
+        column.appendChild(insets2)    
+        table.appendChild(columns)
+    
+    
     
     #n.initFromString(l)
     rows=doc.createElement('y:Rows')
-    x=1000.0
+    
     
     
     for i in sorted(epoch,reverse=tf):
@@ -526,7 +581,9 @@ def exportGraphml(o, nodes, edges, options,ff=0):
     for k,nod in nodes.items():
         
         
-        nod.exportGraphml(doc, graph1, options, sorted(epoch_sigla, reverse=tf))
+        nod.exportGraphml(doc, graph1, options, sorted(area_sigla),sorted(epoch_sigla, reverse=tf))
+        
+    
     node1.appendChild(graph1)
    
     graph.appendChild(node1)

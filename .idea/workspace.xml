@@ -4,9 +4,9 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="13d9711e-af47-4516-9a74-091c329d410d" name="Changes" comment="readme update">
+    <list default="true" id="13d9711e-af47-4516-9a74-091c329d410d" name="Changes" comment="v4.3.1">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/README.md" beforeDir="false" afterPath="$PROJECT_DIR$/README.md" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/gui/ui/US_USM.ui" beforeDir="false" afterPath="$PROJECT_DIR$/gui/ui/US_USM.ui" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -32,6 +32,9 @@
         <option name="url" value="https://github.com/pyarchinit/pyarchinit.git" />
       </UrlAndAccount>
     </option>
+  </component>
+  <component name="MarkdownSettingsMigration">
+    <option name="stateVersion" value="1" />
   </component>
   <component name="ProblemsViewState">
     <option name="showPreview" value="true" />
@@ -98,41 +101,6 @@
       <option name="number" value="Default" />
       <option name="presentableId" value="Default" />
       <updated>1636816115136</updated>
-    </task>
-    <task id="LOCAL-00001" summary="update">
-      <created>1636817896543</created>
-      <option name="number" value="00001" />
-      <option name="presentableId" value="LOCAL-00001" />
-      <option name="project" value="LOCAL" />
-      <updated>1636817896543</updated>
-    </task>
-    <task id="LOCAL-00002" summary="update">
-      <created>1636819456153</created>
-      <option name="number" value="00002" />
-      <option name="presentableId" value="LOCAL-00002" />
-      <option name="project" value="LOCAL" />
-      <updated>1636819456153</updated>
-    </task>
-    <task id="LOCAL-00003" summary="update">
-      <created>1636973296140</created>
-      <option name="number" value="00003" />
-      <option name="presentableId" value="LOCAL-00003" />
-      <option name="project" value="LOCAL" />
-      <updated>1636973296140</updated>
-    </task>
-    <task id="LOCAL-00004" summary="v3.9.8.14">
-      <created>1636973432082</created>
-      <option name="number" value="00004" />
-      <option name="presentableId" value="LOCAL-00004" />
-      <option name="project" value="LOCAL" />
-      <updated>1636973432082</updated>
-    </task>
-    <task id="LOCAL-00005" summary="v3.9.8.15">
-      <created>1637133507021</created>
-      <option name="number" value="00005" />
-      <option name="presentableId" value="LOCAL-00005" />
-      <option name="project" value="LOCAL" />
-      <updated>1637133507021</updated>
     </task>
     <task id="LOCAL-00006" summary="fix install python packages">
       <created>1637133535128</created>
@@ -442,7 +410,42 @@
       <option name="project" value="LOCAL" />
       <updated>1653290451547</updated>
     </task>
-    <option name="localTasksCounter" value="50" />
+    <task id="LOCAL-00050" summary="v4.3.0">
+      <created>1659364683270</created>
+      <option name="number" value="00050" />
+      <option name="presentableId" value="LOCAL-00050" />
+      <option name="project" value="LOCAL" />
+      <updated>1659364683270</updated>
+    </task>
+    <task id="LOCAL-00051" summary="v4.3.0">
+      <created>1661754685523</created>
+      <option name="number" value="00051" />
+      <option name="presentableId" value="LOCAL-00051" />
+      <option name="project" value="LOCAL" />
+      <updated>1661754685523</updated>
+    </task>
+    <task id="LOCAL-00052" summary="v4.3.0">
+      <created>1661754721075</created>
+      <option name="number" value="00052" />
+      <option name="presentableId" value="LOCAL-00052" />
+      <option name="project" value="LOCAL" />
+      <updated>1661754721075</updated>
+    </task>
+    <task id="LOCAL-00053" summary="v4.3.1">
+      <created>1661755039172</created>
+      <option name="number" value="00053" />
+      <option name="presentableId" value="LOCAL-00053" />
+      <option name="project" value="LOCAL" />
+      <updated>1661755039172</updated>
+    </task>
+    <task id="LOCAL-00054" summary="v4.3.1">
+      <created>1661755201501</created>
+      <option name="number" value="00054" />
+      <option name="presentableId" value="LOCAL-00054" />
+      <option name="project" value="LOCAL" />
+      <updated>1661755201501</updated>
+    </task>
+    <option name="localTasksCounter" value="55" />
     <servers />
   </component>
   <component name="Vcs.Log.Tabs.Properties">
@@ -455,15 +458,12 @@
         </entry>
       </map>
     </option>
-    <option name="oldMeFiltersMigrated" value="true" />
   </component>
   <component name="VcsManagerConfiguration">
     <option name="ADD_EXTERNAL_FILES_SILENTLY" value="true" />
     <ignored-roots>
       <path value="$PROJECT_DIR$/ext-libs/totalopenstation-0.5.2-py3.9.egg/totalopenstation_" />
     </ignored-roots>
-    <MESSAGE value="v3.9.8.14" />
-    <MESSAGE value="v3.9.8.15" />
     <MESSAGE value="fix install python packages" />
     <MESSAGE value="min version 3.22" />
     <MESSAGE value="v3.9.8.16" />
@@ -487,7 +487,9 @@
     <MESSAGE value="fix bug load video for mac" />
     <MESSAGE value="fix bug #486" />
     <MESSAGE value="readme update" />
-    <option name="LAST_COMMIT_MESSAGE" value="readme update" />
+    <MESSAGE value="v4.3.0" />
+    <MESSAGE value="v4.3.1" />
+    <option name="LAST_COMMIT_MESSAGE" value="v4.3.1" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
