@@ -228,15 +228,9 @@ class HarrisMatrix:
         elist4 = []
         elist5 = []
         if bool(self.dialog.checkBox_period.isChecked()):         
-            for ab in self.area:
-                with G.subgraph(name=ab[1]) as s:
-                    for n in ab[0]:
-                        s.attr('node',shape='record', label =str(n))
-                        s.node(str(n))
-                    s.attr(color='green')
-                    s.attr('node', shape='record', fillcolor='white', style='filled', gradientangle='90',label=ab[2])
-                    s.node(ab[2])   
             
+            
+                      
             for aa in self.periodi:
                 with G.subgraph(name=aa[1]) as c:
                     for n in aa[0]:
@@ -245,8 +239,15 @@ class HarrisMatrix:
                     c.attr(color='blue')
                     c.attr('node', shape='record', fillcolor='white', style='filled', gradientangle='90',label=aa[2])
                     c.node(aa[2])           
-                    
-        
+                   
+        for ab in self.area:
+            with G.subgraph(name=ab[1]) as s:
+                for n in ab[0]:
+                    s.attr('node',shape='record', label =str(n))
+                    s.node(str(n))
+                s.attr(color='green')
+                s.attr('node', shape='record', fillcolor='white', style='filled', gradientangle='90',label=ab[2])
+                s.node(ab[2])    
         for bb in self.sequence:
             a = (bb[0],bb[1])            
             elist1.append(a)

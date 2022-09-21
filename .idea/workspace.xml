@@ -4,14 +4,17 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="13d9711e-af47-4516-9a74-091c329d410d" name="Changes" comment="v4.3.1">
+    <list default="true" id="13d9711e-af47-4516-9a74-091c329d410d" name="Changes" comment="v4.3.1_seper">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/gui/ui/US_USM.ui" beforeDir="false" afterPath="$PROJECT_DIR$/gui/ui/US_USM.ui" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/tabs/Interactive_matrix.py" beforeDir="false" afterPath="$PROJECT_DIR$/tabs/Interactive_matrix.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
     <option name="LAST_RESOLUTION" value="IGNORE" />
+  </component>
+  <component name="Git.Rebase.Settings">
+    <option name="NEW_BASE" value="pyarchinit_multimatrix" />
   </component>
   <component name="Git.Settings">
     <option name="RECENT_BRANCH_BY_REPOSITORY">

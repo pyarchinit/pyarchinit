@@ -115,7 +115,9 @@ class pyarchinit_Interactive_Matrix(QDialog, MAIN_DIALOG_CLASS):
                 datazione = str(sing_rec.periodo_iniziale)+'-'+str(sing_rec.fase_iniziale)##per inserire la datazione estesa
                 defin = str(sing_rec.d_interpretativa.replace(' ','_'))##per inserire la definizione startigrafica
                 doc = str(sing_rec.doc_usv.replace(' ','_'))##per inserire la definizione startigrafica
-            
+                area=str(sing_rec.area)
+                
+                
                 rapporti_stratigrafici = eval(sing_rec.rapporti2)
             except (NameError, SyntaxError) as e: 
                 if self.L=='it':
@@ -137,31 +139,30 @@ class pyarchinit_Interactive_Matrix(QDialog, MAIN_DIALOG_CLASS):
                 
                     if   sing_rapp[0] == 'Covers' or  sing_rapp[0] == 'Abuts' or  sing_rapp[0] == 'Fills' or  sing_rapp[0] == 'Copre' or  sing_rapp[0] == 'Si appoggia a' or  sing_rapp[0] == 'Riempie'   or  sing_rapp[0] == 'Verfüllt' or sing_rapp[0] == 'Bindet an' or  sing_rapp[0] == 'Entspricht' :
                         if sing_rapp[1] != '':
-                            harris_rapp = (un_t+us+'_'+defin+'_'+datazione,str(sing_rapp[2])+str(sing_rapp[1])+'_'+str(sing_rapp[3].replace(' ','_')+'_'+str(sing_rapp[4])))
+                            harris_rapp = (un_t+us+'_'+defin+'_'+datazione+'_'+area,str(sing_rapp[2])+str(sing_rapp[1])+'_'+str(sing_rapp[3].replace(' ','_')+'_'+str(sing_rapp[4]))+'_'+str(sing_rapp[5]))
                             data.append(harris_rapp)
                         
                         
                     
                     if sing_rapp[0] == 'Taglia' or sing_rapp[0] == 'Cuts' or sing_rapp[0] == 'Schneidet':
                         if sing_rapp[1] != '':
-                            harris_rapp1 = (un_t+us+'_'+defin+'_'+datazione,str(sing_rapp[2])+str(sing_rapp[1])+'_'+str(sing_rapp[3].replace(' ','_')+'_'+str(sing_rapp[4])))
-                            negative.append(harris_rapp1)
+                            harris_rapp1 = (un_t+us+'_'+defin+'_'+datazione+'_'+area,str(sing_rapp[2])+str(sing_rapp[1])+'_'+str(sing_rapp[3].replace(' ','_')+'_'+str(sing_rapp[4]))+'_'+str(sing_rapp[5]))
                             
                     
                     if sing_rapp[0] == 'Si lega a' or  sing_rapp[0] == 'Uguale a' or sing_rapp[0] == 'Connected to' or  sing_rapp[0] == 'Same as'or sing_rapp[0] == 'Liegt über' or  sing_rapp[0] == 'Stützt sich auf':
                         if sing_rapp[1] != '':
-                            harris_rapp2 = (un_t+us+'_'+defin+'_'+datazione,str(sing_rapp[2])+str(sing_rapp[1])+'_'+str(sing_rapp[3].replace(' ','_')+'_'+str(sing_rapp[4])))
+                            harris_rapp2 = (un_t+us+'_'+defin+'_'+datazione+'_'+area,str(sing_rapp[2])+str(sing_rapp[1])+'_'+str(sing_rapp[3].replace(' ','_')+'_'+str(sing_rapp[4]))+'_'+str(sing_rapp[5]))
                             conteporane.append(harris_rapp2)
                     
                     if sing_rapp[0] == '>' :
                         if sing_rapp[1] != '':
-                            harris_rapp3 = (un_t+us+'_'+defin+'_'+datazione,str(sing_rapp[2])+str(sing_rapp[1])+'_'+str(sing_rapp[3].replace(' ','_')+'_'+str(sing_rapp[4])))
+                            harris_rapp3 = (un_t+us+'_'+defin+'_'+datazione+'_'+area,str(sing_rapp[2])+str(sing_rapp[1])+'_'+str(sing_rapp[3].replace(' ','_')+'_'+str(sing_rapp[4]))+'_'+str(sing_rapp[5]))
                             connection.append(harris_rapp3)
                     
                     
                     if sing_rapp[0] == '>>' :
                         if sing_rapp[1] != '':
-                            harris_rapp4 = (un_t+us+'_'+defin+'_'+datazione,str(sing_rapp[2])+str(sing_rapp[1])+'_'+str(sing_rapp[3].replace(' ','_')+'_'+str(sing_rapp[4])))
+                            harris_rapp4 = (un_t+us+'_'+defin+'_'+datazione+'_'+area,str(sing_rapp[2])+str(sing_rapp[1])+'_'+str(sing_rapp[3].replace(' ','_')+'_'+str(sing_rapp[4]))+'_'+str(sing_rapp[5]))
                             connection_to.append(harris_rapp4)        
             
                     # if sing_rapp[0] == '<->' :
@@ -203,6 +204,7 @@ class pyarchinit_Interactive_Matrix(QDialog, MAIN_DIALOG_CLASS):
         periodi_us_list = []
         area_us_list =[]
         clust_number = 0
+        clust_number_area = 0
         for s in area_data_values:
             search_dict2 = {
                 'sito': "'" + str(sito) + "'",
@@ -211,86 +213,83 @@ class pyarchinit_Interactive_Matrix(QDialog, MAIN_DIALOG_CLASS):
             }
             area_group = self.DB_MANAGER.query_bool(search_dict2, 'US')
 
-            cluster_label = "cluster%s" % (clust_number)
+            cluster_label_a = "cluster%s" % (clust_number_area)
 
             if self.L=='it':
                 area_label = "Area %s " % (str(s[0]))
-                sing_per = [cluster_label,  area_label]
-                sing_us = []
+                sing_per_area = [cluster_label_a,  area_label]
+                sing_us_area = []
             for rec in area_group:
-                #sing_ut.append(rec.unita_tipo)
-                #sing_ut.append(rec.unita_tipo)
-                # try: 
-                    # if 'DOC' in rec.unita_tipo:
-                        # sing_us.append(rec.unita_tipo+str(rec.us)+'_'+rec.doc_usv.replace(' ','_')+'_'+rec.periodo_iniziale+'-'+rec.fase_iniziale)
-                    # else:
-                sing_us.append(rec.unita_tipo+str(rec.us)+'_'+rec.d_interpretativa.replace(' ','_')+'_'+rec.periodo_iniziale+'-'+rec.fase_iniziale)
-            sing_per.insert(0, sing_us )
-                #sing_per.insert(0, sing_ut )
-            area_us_list.append(sing_per)
-            clust_number += 1
-            for i in periodi_data_values:
-                search_dict = {
-                    'sito': "'" + str(sito) + "'",
-                    'periodo_iniziale': "'" + str(i[0]) + "'",
-                    'fase_iniziale': "'" + str(i[1]) + "'",
-                    'datazione':"'" + str(i[2]) + "'"
-                }
-                search_dict2 = {
-                    'sito': "'" + str(sito) + "'",
-                    'area': "'" + str(s[0]) + "'",
-                    'periodo_iniziale': "'" + str(i[0]) + "'",
-                    'fase_iniziale': "'" + str(i[1]) + "'"
-                }
-                us_group = self.DB_MANAGER.query_bool(search_dict2, 'US')
-
-                cluster_label = "cluster%s" % (clust_number)
-
-                if self.L=='it':
-                    
-                    periodo_label = "Periodo %s : Fase %s : %s" % (str(i[0]), str(i[1]),str(i[2]))
-                    
-                    sing_per = [cluster_label,  periodo_label]
-                    
-                    sing_us = []
-                    sing_ut=[]
-                    
-                elif self.L=='de':
-                    periodo_label = "Period %s : Phase %s : %s" % (str(i[0]), str(i[1]),str(i[2]))
-
-                    sing_per = [cluster_label, periodo_label]
-                    
-                    sing_us = []
-                    sing_ut=[]
                 
-                
-                else:
-                    periodo_label = "Period %s : Phase %s : %s" % (str(i[0]), str(i[1]), str(i[2]))
-
-                    sing_per = [cluster_label, periodo_label]
-
-                    sing_us = []  
-                    sing_ut = []
-                for rec in us_group:
-                    #sing_ut.append(rec.unita_tipo)
-                    #sing_ut.append(rec.unita_tipo)
-                    # try: 
-                        # if 'DOC' in rec.unita_tipo:
-                            # sing_us.append(rec.unita_tipo+str(rec.us)+'_'+rec.doc_usv.replace(' ','_')+'_'+rec.periodo_iniziale+'-'+rec.fase_iniziale)
-                        # else:
-                    sing_us.append(rec.unita_tipo+str(rec.us)+'_'+rec.d_interpretativa.replace(' ','_')+'_'+rec.periodo_iniziale+'-'+rec.fase_iniziale)
-                    # except:
-                        # pass
-                    # else:
-                        # sing_us.append(rec.unita_tipo+str(rec.us)+'_'+rec.d_interpretativa.replace(' ','_')+'_'+rec.periodo_iniziale+'-'+rec.fase_iniziale)
-                    #sing_def.append(rec.d_stratigrafica)
-                
-                sing_per.insert(0, sing_us )
-                #sing_per.insert(0, sing_ut )
-                area_us_list.append(sing_per)
-                periodi_us_list.append(sing_per)
-                clust_number += 1
+                sing_us_area.append(rec.area)
+          
         
+                for i in periodi_data_values:
+                    search_dict = {
+                        'sito': "'" + str(sito) + "'",
+                        'periodo_iniziale': "'" + str(i[0]) + "'",
+                        'fase_iniziale': "'" + str(i[1]) + "'",
+                        'datazione':"'" + str(i[2]) + "'"
+                    }
+                    search_dict2 = {
+                        'sito': "'" + str(sito) + "'",
+                        'area': "'" + str(s[0]) + "'",
+                        'periodo_iniziale': "'" + str(i[0]) + "'",
+                        'fase_iniziale': "'" + str(i[1]) + "'"
+                    }
+                    us_group = self.DB_MANAGER.query_bool(search_dict2, 'US')
+
+                    cluster_label = "cluster%s" % (clust_number)
+
+                    if self.L=='it':
+                        
+                        periodo_label = "Periodo %s : Fase %s : %s" % (str(i[0]), str(i[1]),str(i[2]))
+                        
+                        sing_per = [cluster_label,  periodo_label]
+                        
+                        sing_us = []
+                        sing_ut=[]
+                        
+                    elif self.L=='de':
+                        periodo_label = "Period %s : Phase %s : %s" % (str(i[0]), str(i[1]),str(i[2]))
+
+                        sing_per = [cluster_label, periodo_label]
+                        
+                        sing_us = []
+                        sing_ut=[]
+                    
+                    
+                    else:
+                        periodo_label = "Period %s : Phase %s : %s" % (str(i[0]), str(i[1]), str(i[2]))
+
+                        sing_per = [cluster_label, periodo_label]
+
+                        sing_us = []  
+                        sing_ut = []
+                    for rec in us_group:
+                       
+                        sing_us.append(rec.unita_tipo+str(rec.us)+'_'+rec.d_interpretativa.replace(' ','_')+'_'+rec.periodo_iniziale+'-'+rec.fase_iniziale+'_'+rec.area)
+                    
+               
+                    
+                    sing_per.insert(0, sing_us )
+                      
+                        
+                    periodi_us_list.append(sing_per)
+                    clust_number += 1
+            
+            
+        
+            sing_per_area.insert(0,'')
+            
+            area_us_list.append(sing_per_area)
+            
+            
+            clust_number_area += 1  
+            
+        
+            
+                
         matrix_exp = HarrisMatrix(data,negative,conteporane,connection,connection_to, periodi_us_list,area_us_list)
         try: 
             data_plotting_2 = matrix_exp.export_matrix_2

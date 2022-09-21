@@ -336,6 +336,8 @@ class Node:
             index+=1
             #print(str(y_value))
         return y_value
+    
+        
     def get_x(self,area, nome_us) :
         index=0
         x_value=0
@@ -343,9 +345,8 @@ class Node:
             if area[index] in nome_us:
                 #if nome_ex.startswith(epoch[index]):
                 x_value=(index)*1000
-
-            index+=1
-            
+            #index+=1
+            #print(str(x_value))
         return x_value
     def exportGraphml(self, doc, parent, conf, epoch_sigla,area_sigla):        
         """ export the node in Graphml format and append it to the parent XML node """
@@ -409,12 +410,12 @@ class Node:
             geom.setAttribute('height','30.0')
             geom.setAttribute('width','90.0')
         
-        geom.setAttribute('x','520.0')
+             
         
-        geom.setAttribute('y','%r'% self.get_y(epoch_sigla, LabelText))
-    
         #geom.setAttribute('x','%r'% self.get_x(area_sigla, LabelText))
-        #geom.setAttribute('y','520.0')
+        geom.setAttribute('y','%r'% self.get_y(epoch_sigla, LabelText))  
+        
+        geom.setAttribute('x','520.0')
         snode.appendChild(geom)
         
         fill = doc.createElement('y:Fill')
