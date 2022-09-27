@@ -182,30 +182,40 @@ class pyarchinit_Interactive_Matrix(QDialog, MAIN_DIALOG_CLASS):
                         QMessageBox.warning(self, "Warning", "You have to enter the unit type and startigraphic interpretation in the startigraphic reports tablewidget",
                                         QMessageBox.Ok)                    
         sito = self.DATA_LIST[0].sito
-        #area = self.DATA_LIST[1].area
-        search_dict = {
+        area = self.DATA_LIST[1].area
+        search_dict_period = {
             'sito': "'" + str(sito) + "'",
             #'area': "'" + str(area) + "'"
         }
-
-        periodizz_data_list = self.DB_MANAGER.query_bool(search_dict, 'PERIODIZZAZIONE')
+        search_dict_area = {
+            'sito': "'" + str(sito) + "'",
+            'area': "'" + str(area) + "'"
+        }
+        periodizz_data_list = self.DB_MANAGER.query_bool(search_dict_period, 'US')
 
         periodi_data_values = []
         
-        area_data_list = self.DB_MANAGER.query_bool(search_dict, 'US')
+        area_data_list = self.DB_MANAGER.query_bool(search_dict_area, 'US')
 
         area_data_values = []
         
-        for a in periodizz_data_list:
-            periodi_data_values.append([a.periodo, a.fase,a.datazione_estesa])
         
-        for b in area_data_list:
-            area_data_values.append([b.area])
         periodi_us_list = []
         area_us_list =[]
         clust_number = 0
         clust_number_area = 0
+        
+        for b in area_data_list:
+            
+            area_data_values.append([b.area])
+        for a in periodizz_data_list:
+                
+            periodi_data_values.append([a.periodo_iniziale, a.fase_iniziale,a.datazione, a.area])  
+            
+        
+        
         for s in area_data_values:
+            
             search_dict2 = {
                 'sito': "'" + str(sito) + "'",
                 'area': "'" + str(s[0]) + "'",
@@ -215,80 +225,82 @@ class pyarchinit_Interactive_Matrix(QDialog, MAIN_DIALOG_CLASS):
 
             cluster_label_a = "cluster%s" % (clust_number_area)
 
-            if self.L=='it':
-                area_label = "Area %s " % (str(s[0]))
-                sing_per_area = [cluster_label_a,  area_label]
-                sing_us_area = []
+            
+            area_label = "Area %s " % (str(s[0]))
+            sing_per_area = [cluster_label_a,  area_label]
+            sing_us_area = []
+              
             for rec in area_group:
-                
-                sing_us_area.append(rec.area)
-          
-        
-                for i in periodi_data_values:
-                    search_dict = {
-                        'sito': "'" + str(sito) + "'",
-                        'periodo_iniziale': "'" + str(i[0]) + "'",
-                        'fase_iniziale': "'" + str(i[1]) + "'",
-                        'datazione':"'" + str(i[2]) + "'"
-                    }
-                    search_dict2 = {
-                        'sito': "'" + str(sito) + "'",
-                        'area': "'" + str(s[0]) + "'",
-                        'periodo_iniziale': "'" + str(i[0]) + "'",
-                        'fase_iniziale': "'" + str(i[1]) + "'"
-                    }
-                    us_group = self.DB_MANAGER.query_bool(search_dict2, 'US')
-
-                    cluster_label = "cluster%s" % (clust_number)
-
-                    if self.L=='it':
                         
-                        periodo_label = "Periodo %s : Fase %s : %s" % (str(i[0]), str(i[1]),str(i[2]))
-                        
-                        sing_per = [cluster_label,  periodo_label]
-                        
-                        sing_us = []
-                        sing_ut=[]
-                        
-                    elif self.L=='de':
-                        periodo_label = "Period %s : Phase %s : %s" % (str(i[0]), str(i[1]),str(i[2]))
-
-                        sing_per = [cluster_label, periodo_label]
-                        
-                        sing_us = []
-                        sing_ut=[]
-                    
-                    
-                    else:
-                        periodo_label = "Period %s : Phase %s : %s" % (str(i[0]), str(i[1]), str(i[2]))
-
-                        sing_per = [cluster_label, periodo_label]
-
-                        sing_us = []  
-                        sing_ut = []
-                    for rec in us_group:
-                       
-                        sing_us.append(rec.unita_tipo+str(rec.us)+'_'+rec.d_interpretativa.replace(' ','_')+'_'+rec.periodo_iniziale+'-'+rec.fase_iniziale+'_'+rec.area)
-                    
-               
-                    
-                    sing_per.insert(0, sing_us )
-                      
-                        
-                    periodi_us_list.append(sing_per)
-                    clust_number += 1
-            
-            
+                sing_us_area.append(rec.area) 
         
             sing_per_area.insert(0,'')
             
+
+                
+                    
+            
+                         
+            
+        for i in periodi_data_values:
+            # search_dict = {
+                # 'sito': "'" + str(sito) + "'",
+                # 'periodo_iniziale': "'" + str(i[0]) + "'",
+                # 'fase_iniziale': "'" + str(i[1]) + "'",
+                # 'datazione':"'" + str(i[2]) + "'"
+            # }
+            search_dict2 = {
+                'sito': "'" + str(sito) + "'",
+                'area': "'" + str(i[3]) + "'",
+                'periodo_iniziale': "'" + str(i[0]) + "'",
+                'fase_iniziale': "'" + str(i[1]) + "'"
+            }
+            us_group = self.DB_MANAGER.query_bool(search_dict2, 'US')
+
+            cluster_label = "cluster%s" % (clust_number)
+
+            # if self.L=='it':
+                
+                # periodo_label = "Periodo %s : Fase %s : %s" % (str(i[0]), str(i[1]),str(i[2]))
+                
+                # sing_per = [cluster_label,  periodo_label]
+                
+                # sing_us = []
+                # sing_ut=[]
+                
+            
+            # else:
+                # periodo_label = "Period %s : Phase %s : %s" % (str(i[0]), str(i[1]), str(i[2]))
+
+                # sing_per = [cluster_label, periodo_label]
+            periodo_label = "Periodo %s : Fase %s : %s" % (str(i[0]), str(i[1]),str(i[2]))
+                    
+            sing_per = [cluster_label,  periodo_label]
+            sing_us = []  
+                
+                
+                       
+            for rec in us_group:
+                
+                sing_us.append(rec.unita_tipo+str(rec.us)+'_'+rec.d_interpretativa.replace(' ','_')+'_'+rec.periodo_iniziale+'-'+rec.fase_iniziale+'_'+rec.area)
+                    
+            
+                
+            sing_per.insert(0, sing_us )
+                  
+        
+            periodi_us_list.append(sing_per)
+            # area_us_list.append(periodi_us_list)
+            clust_number+= 1
+                
             area_us_list.append(sing_per_area)
-            
-            
-            clust_number_area += 1  
-            
+            clust_number_area += 1    
+        
         
             
+                    
+                
+       
                 
         matrix_exp = HarrisMatrix(data,negative,conteporane,connection,connection_to, periodi_us_list,area_us_list)
         try: 

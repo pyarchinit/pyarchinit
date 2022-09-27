@@ -25,7 +25,7 @@ from qgis.PyQt.QtCore import *
 from qgis.core import QgsSettings
 import datetime
 from datetime import date
-from graphviz import Digraph, Source
+from graphviz import Digraph, Source, Graph
 from .pyarchinit_OS_utility import Pyarchinit_OS_Utility
 from ..db.pyarchinit_db_manager import Pyarchinit_db_management
 from ...tabs.pyarchinit_setting_matrix import *
@@ -227,27 +227,34 @@ class HarrisMatrix:
         elist3 = []
         elist4 = []
         elist5 = []
+        elist6 = []
         if bool(self.dialog.checkBox_period.isChecked()):         
-            
-            
-                      
-            for aa in self.periodi:
-                with G.subgraph(name=aa[1]) as c:
-                    for n in aa[0]:
+            for ab in self.area:  
+                # a = (ab[0],ab[1])            
+                # elist6.append(a)                    
+                    
+                with G.subgraph(name=ab[1]) as d:
+                    d.attr(rankdir='TB')
+                    for n in ab[0]:
                         c.attr('node',shape='record', label =str(n))
-                        c.node(str(n))
-                    c.attr(color='blue')
-                    c.attr('node', shape='record', fillcolor='white', style='filled', gradientangle='90',label=aa[2])
-                    c.node(aa[2])           
-                   
-        for ab in self.area:
-            with G.subgraph(name=ab[1]) as s:
-                for n in ab[0]:
-                    s.attr('node',shape='record', label =str(n))
-                    s.node(str(n))
-                s.attr(color='green')
-                s.attr('node', shape='record', fillcolor='white', style='filled', gradientangle='90',label=ab[2])
-                s.node(ab[2])    
+                        c.node(str(n))  
+            
+                    for aa in self.periodi:                
+                        with d.subgraph(name=aa[1]) as c:
+                            for n in aa[0]:
+                                c.attr('node',shape='record', label =str(n))
+                                c.node(str(n))
+                            c.attr(color='blue')
+                            c.attr('node', shape='record', fillcolor='white', style='filled', gradientangle='90',label=aa[2])
+                            c.node(aa[2])       
+                    d.attr(color='green')
+                    d.attr('node', shape='record', fillcolor='white', style='filled', gradientangle='90',label=ab[2])
+                    d.node(ab[2])  
+                
+                
+                           
+                               
+                
         for bb in self.sequence:
             a = (bb[0],bb[1])            
             elist1.append(a)
@@ -317,6 +324,8 @@ class HarrisMatrix:
                 t.edge_attr['penwidth'] = str(self.dialog.combo_box_35.currentText())
                 t.edge_attr['style'] = str(self.dialog.combo_box_39.currentText())
                 t.edge_attr.update(arrowhead=str(self.dialog.combo_box_37.currentText()), arrowsize=str(self.dialog.combo_box_40.currentText()))    
+        
+
         if bool(self.dialog.checkBox_legend.isChecked()):
             with G.subgraph(name='cluster3') as j:
                 j.attr(rank='max')
