@@ -230,28 +230,34 @@ class HarrisMatrix:
         elist6 = []
         if bool(self.dialog.checkBox_period.isChecked()):         
             for ab in self.area:  
-                a = (ab[0],ab[1])            
-                elist6.append(a)                    
-                    
+                # f = open("C:\\Users\\enzoc\\pyarchinit\\pyarchinit_Matrix_folder\\data_insert_list.txt", "a")
+                # f.write(str(ab))
+                # f.close
                 with G.subgraph(name=ab[1]) as d:
                     d.attr(rankdir='TB')
-                    # for n in ab[0]:
-                        # d.attr('node',shape='record', label =str(n))
-                        # d.node(str(n))  
-                    d.attr(color='green')
-                    d.attr('node', shape='record', fillcolor='white', style='filled', gradientangle='90',label=ab[2])
-                    d.node(ab[2])
+                    # f = open("C:\\Users\\enzoc\\pyarchinit\\pyarchinit_Matrix_folder\\data_insert_list.txt", "a")
+                    # f.write(str(ab))
+                    # f.close
+                    for nn in ab[0]:
+                        d.attr('node',shape='record', label =str(nn))
+                        d.node(str(nn))  
+                    
+               
                     for aa in self.periodi:                
                         with d.subgraph(name=aa[1]) as c:
+                            # f = open("C:\\Users\\enzoc\\pyarchinit\\pyarchinit_Matrix_folder\\data_insert_list2.txt", "a")
+                            # f.write(str(aa))
+                            # f.close
                             for n in aa[0]:
                                 c.attr('node',shape='record', label =str(n))
                                 c.node(str(n))
                             c.attr(color='blue')
                             c.attr('node', shape='record', fillcolor='white', style='filled', gradientangle='90',label=aa[2])
                             c.node(aa[2])       
-                      
+                    d.attr(color='green')
+                    d.attr('node', shape='record', fillcolor='white', style='filled', gradientangle='90',label=ab[2])
                     
-                
+                    d.node(ab[2])
                            
                                
                 
@@ -324,7 +330,7 @@ class HarrisMatrix:
                 t.edge_attr['penwidth'] = str(self.dialog.combo_box_35.currentText())
                 t.edge_attr['style'] = str(self.dialog.combo_box_39.currentText())
                 t.edge_attr.update(arrowhead=str(self.dialog.combo_box_37.currentText()), arrowsize=str(self.dialog.combo_box_40.currentText()))    
-        
+
 
         if bool(self.dialog.checkBox_legend.isChecked()):
             with G.subgraph(name='cluster3') as j:

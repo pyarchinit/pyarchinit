@@ -181,66 +181,49 @@ class pyarchinit_Interactive_Matrix(QDialog, MAIN_DIALOG_CLASS):
                     else:
                         QMessageBox.warning(self, "Warning", "You have to enter the unit type and startigraphic interpretation in the startigraphic reports tablewidget",
                                         QMessageBox.Ok)                    
+        
+        
+        
         sito = self.DATA_LIST[0].sito
         area = self.DATA_LIST[0].area
-        us = self.DATA_LIST[0].us
-        
-        # search_dict_period = {
-            # 'sito': "'" + str(sito) + "'"
-        # }
-        search_dict_area = {
-            'sito': "'" + str(sito) + "'",
-            'area': "'" + str(area) + "'",
-            #'us': "'" + str(us) + "'"
+        search_dict = {
+            'sito': "'" + str(sito) + "'"
         }
-        periodizz_data_list = self.DB_MANAGER.query_bool(search_dict_area, 'US')
-
-        
-        
-        area_data_list = self.DB_MANAGER.query_bool(search_dict_area, 'US')
-        
+        search_dict2 = {
+            'sito': "'" + str(sito) + "'",
+            #'area': "'" + str(area) + "'"
+        }
+        periodizz_data_list = self.DB_MANAGER.query_bool(search_dict, 'PERIODIZZAZIONE')
+        area_data_list = self.DB_MANAGER.query_bool(search_dict2, 'US')
         area_data_values = []
-        # QMessageBox.warning(self, "area data list", str(area_data_list),   QMessageBox.Ok)
-        
-        periodi_us_list = []
-        area_us_list =[]
         periodi_data_values = []
+        periodi_us_list = []
+        area_us_list =[]        
         clust_number_area = 0
-        clust_number = 0
+        clust_number = 0       
+        for a in periodizz_data_list:                
+            periodi_data_values.append([a.periodo, a.fase,a.datazione_estesa])
         for b in area_data_list:
-            area_data_values.append([b.area])
-            
-        for a in periodizz_data_list:
-                
-                periodi_data_values.append([a.periodo_iniziale, a.fase_iniziale,a.datazione, a.area])
-            
-    
-        
-    
-        
+            area_data_values.append(b.area)    
         for s in area_data_values:
+            
             search_dict_area = {
                 'sito': "'" + str(sito) + "'",
-                'area': "'" + str(area) + "'",
-                #'us': "'" + str(us) + "'"
+                #'area': "'" + str(s) + "'",
+                #'periodo_iniziale': "'" + str(s[0]) + "'",
+                #'fase_iniziale': "'" + str(s[1]) + "'",              
             }
             area_group = self.DB_MANAGER.query_bool(search_dict_area, 'US')
-
-            cluster_label_a = "cluster_area%s" % (clust_number_area)
-
-            
-            area_label = "Area %s " % (str(s[0]))
+            cluster_label_a = "cluster_area%s" % (clust_number_area)            
+            area_label = "Area %s " % (str(s))
             sing_per_area = [cluster_label_a,  area_label]
-            sing_us_area=[]
-            for rec_area in area_group:
-                sing_us_area.append(rec_area.area)
-            sing_per_area.insert(0,sing_us_area)
-            for i in periodi_data_values:
-                
+                  
+            
+            for  i in periodi_data_values:
+             
                 search_dict_per = {
                     'sito': "'" + str(sito) + "'",
-                    'area': "'" + str(i[3]) + "'",
-                    # 'us': "'" + str(us) + "'",
+                    'area': "'" + str(s) + "'",
                     'periodo_iniziale': "'" + str(i[0]) + "'",
                     'fase_iniziale': "'" + str(i[1]) + "'",
                     
@@ -251,35 +234,31 @@ class pyarchinit_Interactive_Matrix(QDialog, MAIN_DIALOG_CLASS):
                 cluster_label = "cluster%s" % (clust_number)
 
                
-                periodo_label = "Periodo %s : Fase %s : %s" % (str(i[0]), str(i[1]),str(i[2]))
+                periodo_label = "Periodo %s : Fase %s : %s" % (str(i[0]), str(i[1]), str(i[2]))
                         
                 sing_per = [cluster_label,  periodo_label]
-                
-                sing_us = []
-                    
-                    
-                           
+                 
+                sing_us = []           
                 for rec in us_group:
                     
                     sing_us.append(rec.unita_tipo+str(rec.us)+'_'+rec.d_interpretativa.replace(' ','_')+'_'+rec.periodo_iniziale+'-'+rec.fase_iniziale+'_'+rec.area)
                         
                     
-                            
+                           
                 sing_per.insert(0, sing_us )
-                      
+                 
+                periodi_us_list.append(sing_per)   
+                               
+                clust_number+= 1         
             
-                periodi_us_list.append(sing_per)
-                
-                clust_number+= 1
-                        
-                            
-                    
-        
             
-                    
-                
+            sing_per_area.insert(0,'') 
             area_us_list.append(sing_per_area)
-            clust_number_area += 1             
+            
+            clust_number_area += 1
+            
+                
+                       
        
                 
         matrix_exp = HarrisMatrix(data,negative,conteporane,connection,connection_to, periodi_us_list,area_us_list)
