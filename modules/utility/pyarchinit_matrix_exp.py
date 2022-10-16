@@ -38,11 +38,18 @@ class HarrisMatrix:
     ID_TABLE = "id_us"
     MATRIX = Setting_Matrix()
     #s=pyqtSignal(str)
-    def __init__(self, sequence,negative,conteporene,connection,connection_to,periodi,area):
+    def __init__(self, sequence,negative,conteporene,connection,connection_to,periodi,area):#,periodi_2,area_2,periodi_3,area_3,periodi_4,area_4):
         self.sequence = sequence
         self.negative = negative
-        self.periodi=periodi
-        self.area=area
+        self.periodi = periodi
+        #self.periodi_2=periodi_2
+        self.area=area 
+        #self.area_2=area_2
+        #self.periodi_3 = periodi_3
+        #self.periodi_4=periodi_4
+        #self.area_3=area_3
+        #self.area_4=area_4
+        #self.DATA_LIST = data_list
         self.conteporene=conteporene
         self.connection=connection
         self.connection_to=connection_to
@@ -212,6 +219,10 @@ class HarrisMatrix:
         g.render()
         return g,f
         # return f
+    
+    
+        
+        
     @property
     def export_matrix_2(self):
         G = Digraph(engine='dot',strict=False)
@@ -228,39 +239,121 @@ class HarrisMatrix:
         elist4 = []
         elist5 = []
         elist6 = []
+        
+        
         if bool(self.dialog.checkBox_period.isChecked()):         
+            
+              
             for ab in self.area:  
-                # f = open("C:\\Users\\enzoc\\pyarchinit\\pyarchinit_Matrix_folder\\data_insert_list.txt", "a")
-                # f.write(str(ab))
-                # f.close
+                f = open("C:\\Users\\enzoc\\pyarchinit\\pyarchinit_Matrix_folder\\area.txt", "w")
+                f.write(str(self.area))
+                f.close
+                              
                 with G.subgraph(name=ab[1]) as d:
                     d.attr(rankdir='TB')
-                    # f = open("C:\\Users\\enzoc\\pyarchinit\\pyarchinit_Matrix_folder\\data_insert_list.txt", "a")
-                    # f.write(str(ab))
-                    # f.close
+                    
                     for nn in ab[0]:
                         d.attr('node',shape='record', label =str(nn))
                         d.node(str(nn))  
+                    d.attr(color='green')
+                    d.attr('node', shape='record', fillcolor='white', style='filled', gradientangle='90',label=ab[2])
                     
-               
+                    d.node(ab[2])              
+                    
+                    
                     for aa in self.periodi:                
                         with d.subgraph(name=aa[1]) as c:
-                            # f = open("C:\\Users\\enzoc\\pyarchinit\\pyarchinit_Matrix_folder\\data_insert_list2.txt", "a")
-                            # f.write(str(aa))
-                            # f.close
+                            f = open("C:\\Users\\enzoc\\pyarchinit\\pyarchinit_Matrix_folder\\data_insert_p.txt", "w")
+                            f.write(str(self.periodi))
+                            f.close
                             for n in aa[0]:
                                 c.attr('node',shape='record', label =str(n))
                                 c.node(str(n))
                             c.attr(color='blue')
                             c.attr('node', shape='record', fillcolor='white', style='filled', gradientangle='90',label=aa[2])
                             c.node(aa[2])       
+                
+            for ab in self.area:  
+                # f = open("C:\\Users\\enzoc\\pyarchinit\\pyarchinit_Matrix_folder\\data_insert_list.txt", "a")
+                # f.write(str(ab))
+                # f.close
+                with G.subgraph(name=ab[1]) as d:
+                    d.attr(rankdir='TB')
+                    f = open("C:\\Users\\enzoc\\pyarchinit\\pyarchinit_Matrix_folder\\data_insert_area.txt", "a")
+                    f.write(str(ab))
+                    f.close
+                    for nn in ab[0]:
+                        d.attr('node',shape='record', label =str(nn))
+                        d.node(str(nn))  
                     d.attr(color='green')
                     d.attr('node', shape='record', fillcolor='white', style='filled', gradientangle='90',label=ab[2])
                     
-                    d.node(ab[2])
-                           
-                               
-                
+                    d.node(ab[2])              
+                    for aa in self.periodi:                
+                        with d.subgraph(name=aa[1]) as c:
+                            f = open("C:\\Users\\enzoc\\pyarchinit\\pyarchinit_Matrix_folder\\data_insert_p.txt", "a")
+                            f.write(str(aa))
+                            f.close
+                            for n in aa[0]:
+                                c.attr('node',shape='record', label =str(n))
+                                c.node(str(n))
+                            c.attr(color='blue')
+                            c.attr('node', shape='record', fillcolor='white', style='filled', gradientangle='90',label=aa[2])
+                            c.node(aa[2])                  
+            for ab in self.area:  
+                # f = open("C:\\Users\\enzoc\\pyarchinit\\pyarchinit_Matrix_folder\\data_insert_list.txt", "a")
+                # f.write(str(ab))
+                # f.close
+                with G.subgraph(name=ab[1]) as d:
+                    d.attr(rankdir='TB')
+                    f = open("C:\\Users\\enzoc\\pyarchinit\\pyarchinit_Matrix_folder\\data_insert_area.txt", "a")
+                    f.write(str(ab))
+                    f.close
+                    for nn in ab[0]:
+                        d.attr('node',shape='record', label =str(nn))
+                        d.node(str(nn))  
+                    d.attr(color='green')
+                    d.attr('node', shape='record', fillcolor='white', style='filled', gradientangle='90',label=ab[2])
+                    
+                    d.node(ab[2])              
+                    for aa in self.periodi:                
+                        with d.subgraph(name=aa[1]) as c:
+                            f = open("C:\\Users\\enzoc\\pyarchinit\\pyarchinit_Matrix_folder\\data_insert_p.txt", "a")
+                            f.write(str(aa))
+                            f.close
+                            for n in aa[0]:
+                                c.attr('node',shape='record', label =str(n))
+                                c.node(str(n))
+                            c.attr(color='blue')
+                            c.attr('node', shape='record', fillcolor='white', style='filled', gradientangle='90',label=aa[2])
+                            c.node(aa[2])                          
+            for ab in self.area:  
+                # f = open("C:\\Users\\enzoc\\pyarchinit\\pyarchinit_Matrix_folder\\data_insert_list.txt", "a")
+                # f.write(str(ab))
+                # f.close
+                with G.subgraph(name=ab[1]) as d:
+                    d.attr(rankdir='TB')
+                    f = open("C:\\Users\\enzoc\\pyarchinit\\pyarchinit_Matrix_folder\\data_insert_area.txt", "a")
+                    f.write(str(ab))
+                    f.close
+                    for nn in ab[0]:
+                        d.attr('node',shape='record', label =str(nn))
+                        d.node(str(nn))  
+                    d.attr(color='green')
+                    d.attr('node', shape='record', fillcolor='white', style='filled', gradientangle='90',label=ab[2])
+                    
+                    d.node(ab[2])              
+                    for aa in self.periodi:                
+                        with d.subgraph(name=aa[1]) as c:
+                            f = open("C:\\Users\\enzoc\\pyarchinit\\pyarchinit_Matrix_folder\\data_insert_p.txt", "a")
+                            f.write(str(aa))
+                            f.close
+                            for n in aa[0]:
+                                c.attr('node',shape='record', label =str(n))
+                                c.node(str(n))
+                            c.attr(color='blue')
+                            c.attr('node', shape='record', fillcolor='white', style='filled', gradientangle='90',label=aa[2])
+                            c.node(aa[2])                      
         for bb in self.sequence:
             a = (bb[0],bb[1])            
             elist1.append(a)
