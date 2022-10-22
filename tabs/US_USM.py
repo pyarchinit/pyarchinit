@@ -18,28 +18,21 @@
  ***************************************************************************/
 """
 from __future__ import absolute_import
-from pathlib import Path
-from builtins import range
-from builtins import str
+
 import psycopg2
-import sqlite3  as sq
-from sqlite3 import Error
-import os
+import sqlite3 as sq
+from xml.etree.ElementTree import ElementTree as ET
+import csv
 import sys
-import subprocess
+
 import platform
 import time
 import pandas as pd
-import numpy as np
+
 from pdf2docx import parse
-from datetime import date
-import xml.etree.ElementTree as ET
-from lxml import etree
-import cv2
-from distutils.dir_util import copy_tree
-from random import randrange as rand
+
 from PyQt5 import QtCore, QtGui, QtWidgets
-from qgis import processing
+
 from qgis.PyQt.QtCore import *
 from qgis.PyQt.QtGui import QColor, QIcon
 from qgis.PyQt.QtWidgets import *
@@ -847,6 +840,155 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
         # self.checkBox_validation_rapp.stateChanged.connect(self.check_listoflist)
         self.tableWidget_rapporti.itemChanged.connect(self.check_listoflist)
         # self.tableWidget_rapporti.itemChanged.connect(self.search_l)
+
+    def clean_comments(self,text_to_clean):
+        clean_text = text_to_clean.split("##")[0].replace("\n", "")
+        return clean_text
+
+    def EM_extract_node_name(self, node_element):
+        is_d4 = False
+        is_d5 = False
+        node_y_pos = None
+        nodeshape = None
+        nodeurl = None
+        nodedescription = None
+        nodename = ''
+        fillcolor = None
+        noderel2 = ''
+        attrib_ = None
+        for subnode in node_element.findall('.//{http://graphml.graphdrawing.org/xmlns}data'):
+            attrib = subnode.attrib
+            if attrib == {'{http://www.w3.org/XML/1998/namespace}space': 'preserve', 'key': 'd4'}:
+                is_d4 = True
+                nodeurl = subnode.text
+            if attrib == {'{http://www.w3.org/XML/1998/namespace}space': 'preserve', 'key': 'd5'}:
+                is_d5 = True
+                nodedescription = self.clean_comments(subnode.text)
+            if attrib == {'key': 'd6'}:
+                for USname in subnode.findall('.//{http://www.yworks.com/xml/graphml}NodeLabel'):
+                    nodename = self.check_if_empty(USname.text)
+                for fill_color in subnode.findall('.//{http://www.yworks.com/xml/graphml}Fill'):
+                    fillcolor = fill_color.attrib['color']
+                for USshape in subnode.findall('.//{http://www.yworks.com/xml/graphml}Shape'):
+                    nodeshape = USshape.attrib['type']
+                for geometry in subnode.findall(
+                        './{http://www.yworks.com/xml/graphml}ShapeNode/{http://www.yworks.com/xml/graphml}Geometry'):
+                    # for geometry in subnode.findall('./{http://www.yworks.com/xml/graphml}Geometry'):
+                    node_y_pos = geometry.attrib['y']
+
+        if not is_d4:
+            nodeurl = '--None--'
+        if not is_d5:
+            nodedescription = '--None--'
+
+        return nodename, nodedescription, nodeurl, nodeshape, node_y_pos, fillcolor
+
+
+    def check_if_empty(self,name):
+        if name == None:
+            name = "--None--"
+        return name
+
+    ###Apri file graphml
+    def on_pushButton_graphml2csv_pressed(self):
+        s = QgsSettings()
+        sqlite_DB_path = '{}{}{}'.format(self.HOME, os.sep,
+                                         "pyarchinit_DB_folder")
+        dbpath = QFileDialog.getOpenFileName(
+            self,
+            "Set file name",
+            '',
+            " graphml (*.graphml)"
+        )[0]
+        filval = dbpath  # .split("/")[-1]
+        xmltree = ET()
+
+        xmltree.parse(filval)
+        konton = xmltree
+
+        # crea CSV FILE
+        csvfile = open(sqlite_DB_path+'/graphml2csv.csv', 'w', encoding='utf-8')
+        csvfile_writer = csv.writer(csvfile)
+
+        # aggiungi intestazione al csv CSV FILE
+        csvfile_writer.writerow(["site", "area", "us", "unit_type", "i_stratigrafica"])
+
+
+        ###funzione per stampare il valore della stringa
+
+        for i in konton.iter():
+            # print(EM_extract_node_name(i)[0])
+            m = re.match(r"(?P<l>[a-zA-Z]+)(?P<n>.+)$", str(self.EM_extract_node_name(i)[0]))
+            if m is not None:
+
+                ### AGGIUNGO AL CSV
+
+                csv_line = ['sito', '1', m.group('n'), m.group('l'), str(self.EM_extract_node_name(i)[1])]
+
+                if csv_line[2].count('.') == 1:
+                    csv_line[3] = csv_line[3].replace('D', 'DOC')
+                if csv_line[2].count('.') > 1:
+                    csv_line[3] = csv_line[3].replace('D', 'Extractor')
+                if csv_line[3].startswith('C'):
+                    csv_line[3] = csv_line[3].replace('C', 'Combinar')
+                elif not csv_line[3].startswith('C') and not csv_line[3].startswith('D') and not csv_line[3].startswith(
+                        'E') and not csv_line[3].startswith('US'):
+                    csv_line[3] = 'property'
+                elif csv_line[2].startswith('.'):
+                    csv_line[2] = csv_line[2].replace('.', '')
+                print(csv_line[3], csv_line[2])
+                csvfile_writer.writerow(csv_line)
+            else:
+                pass
+            # print(EM_extract_node_name(i)[6])
+        csvfile.close()
+
+    def on_pushButton_csv2us_pressed(self):
+        #s = QgsSettings()
+        sqlite_DB_path = '{}{}{}'.format(self.HOME, os.sep,
+                                         "pyarchinit_DB_folder")
+        dbpath = QFileDialog.getOpenFileName(
+            self,
+            "Set file name",
+            '',
+            " csv pyarchinit us_table (*.csv)"
+        )[0]
+        filename = dbpath  # .split("/")[-1]
+        s = sqlite_DB_path + '/export_csv2us.csv'
+        try:
+            conn = Connection()
+            conn_str = conn.conn_str()
+            conn_sqlite = conn.databasename()
+
+
+
+            con = sq.connect(sqlite_DB_path + os.sep + conn_sqlite["db_name"])
+            cur = con.cursor()
+
+
+            with open(filename, 'r') as in_file, open(s, 'r+') as out_file:
+                seen = set()  # set for fast O(1) amortized lookup
+                for line in in_file:
+                    if line in seen:
+                        continue  # skip duplicate
+
+                    seen.add(line)
+                    out_file.write(line)
+                dr = csv.DictReader(out_file)  # comma is default delimiter
+                to_db = [(i['site'], i['area'], i['us'], i['unit_type'], i['i_stratigrafica']) for i in dr]
+
+            cur.executemany(
+                "INSERT INTO us_table (sito, area, us, unita_tipo,d_interpretativa ) VALUES (?, ?,?,?,?);",
+                to_db)
+            con.commit()
+            con.close()
+
+        except AssertionError as e:
+            QMessageBox.warning(self, 'error', str(e), QMessageBox.Ok)
+        else:
+            QMessageBox.information(self, 'error', 'done', QMessageBox.Ok)
+        self.pushButton_view_all.click()
+
     def on_pushButton_fix_pressed(self):
         sito = "'"+self.comboBox_sito.currentText()+"'"
         area = "'"+self.comboBox_area.currentText()+"'"

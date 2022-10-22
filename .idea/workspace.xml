@@ -4,11 +4,12 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="13d9711e-af47-4516-9a74-091c329d410d" name="Changes" comment="v4.3.2_seper">
+    <list default="true" id="13d9711e-af47-4516-9a74-091c329d410d" name="Changes" comment="conversion">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/gui/ui/Thesaurus.ui" beforeDir="false" afterPath="$PROJECT_DIR$/gui/ui/Thesaurus.ui" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/metadata.txt" beforeDir="false" afterPath="$PROJECT_DIR$/metadata.txt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/tabs/Thesaurus.py" beforeDir="false" afterPath="$PROJECT_DIR$/tabs/Thesaurus.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/gui/pyarchinitConfigDialog.py" beforeDir="false" afterPath="$PROJECT_DIR$/gui/pyarchinitConfigDialog.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/gui/ui/US_USM.ui" beforeDir="false" afterPath="$PROJECT_DIR$/gui/ui/US_USM.ui" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/gui/ui/pyarchinitConfigDialog.ui" beforeDir="false" afterPath="$PROJECT_DIR$/gui/ui/pyarchinitConfigDialog.ui" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/tabs/US_USM.py" beforeDir="false" afterPath="$PROJECT_DIR$/tabs/US_USM.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -18,7 +19,7 @@
   <component name="Git.Settings">
     <option name="RECENT_BRANCH_BY_REPOSITORY">
       <map>
-        <entry key="$PROJECT_DIR$" value="pyarchinit_multimatrix" />
+        <entry key="$PROJECT_DIR$" value="master" />
       </map>
     </option>
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
@@ -478,7 +479,6 @@
     <ignored-roots>
       <path value="$PROJECT_DIR$/ext-libs/totalopenstation-0.5.2-py3.9.egg/totalopenstation_" />
     </ignored-roots>
-    <MESSAGE value="v3.9.8.15" />
     <MESSAGE value="fix install python packages" />
     <MESSAGE value="min version 3.22" />
     <MESSAGE value="v3.9.8.16" />
@@ -503,7 +503,8 @@
     <MESSAGE value="fix bug #486" />
     <MESSAGE value="readme update" />
     <MESSAGE value="v4.3.2_seper" />
-    <option name="LAST_COMMIT_MESSAGE" value="v4.3.2_seper" />
+    <MESSAGE value="conversion" />
+    <option name="LAST_COMMIT_MESSAGE" value="conversion" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
