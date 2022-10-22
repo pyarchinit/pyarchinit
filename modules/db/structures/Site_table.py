@@ -20,18 +20,17 @@ class Site_table:
     # define tables
     site_table = Table('site_table', metadata,
                        Column('id_sito', Integer, primary_key=True),
-                       Column('sito', Text),
-                       Column('nazione', String(100)),
-                       Column('regione', String(100)),
-                       Column('comune', String(100)),
-                       Column('descrizione', Text),
-                       Column('provincia', Text),
-                       Column('definizione_sito', Text),
-                       Column('sito_path', Text),
+                       Column('site', Text),
+                       Column('nation', String(100)),
+                       Column('region', String(100)),
+                       Column('municipality', String(100)),
+                       Column('description', Text),
+                       Column('province', Text),
+                       Column('site_type', Text),                       
                        Column('find_check', Integer),
-
+                       Column('site_path', Text),
                        # explicit/composite unique constraint.  'name' is optional.
-                       UniqueConstraint('sito', name='ID_sito_unico')
+                       UniqueConstraint('site', name='ID_sito_unico')
                        )
 
     metadata.create_all(engine)
