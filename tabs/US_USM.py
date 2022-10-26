@@ -1149,7 +1149,7 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
                         self.tableWidget_rapporti.selectRow(0)
                         self.on_pushButton_go_to_us_pressed()    
                     else:
-                        QMessageBox.warning(self,'','controlla hai US duplicata')
+                        QMessageBox.warning(self,'','Check if you are duplicate SU or WSU')
                     
                 elif not bool(res): 
                     
@@ -1741,14 +1741,15 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
     def us_t(self):
         if self.checkBox_validate.isChecked():
             try:
-                
+
                 table_name = "self.tableWidget_rapporti"
                 
                 rowSelected_cmd = ("%s.selectedItems()") % (table_name)
                 rowSelected = eval(rowSelected_cmd)
                 
                 for i  in rowSelected:
-                    self.tableWidget_rapporti2.setRowCount(200)
+                    s= self.tableWidget_rapporti.rowCount()
+                    self.tableWidget_rapporti2.setRowCount(s)
                     rowIndex = (i.row())
                     sito = str(self.comboBox_sito.currentText())
                     area = str(self.comboBox_area.currentText())
@@ -4696,12 +4697,19 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
             rapporti = eval(def_stratigrafica)
             #for sing_rapp in range(len(records)):  # itera sulla serie di rapporti
             report3 = ""
-            if def_stratigrafica.find('SCHEDA CREATA IN AUTOMATICO')>=0:
-                
-                    
-                report3 = 'Sito: %s, Area: %s, US: %d - %s. Da rivedere ' % (
-                    sito, area, int(us), def_stratigrafica)
-            
+
+            if self.L=='it':
+                if def_stratigrafica.find('SCHEDA CREATA IN AUTOMATICO')  >=0:
+
+
+                    report3 = 'Sito: %s, Area: %s, US: %d - %s. Da rivedere ' % (
+                        sito, area, int(us), def_stratigrafica)
+            else:
+                if def_stratigrafica.find('FORM MADE AUTOMATIC') >= 0:
+
+
+                    report3 = 'Sito: %s, Area: %s, US: %d - %s. Review it ' % (
+                        sito, area, int(us), def_stratigrafica)
             if report3 != "":
                 report_rapporti3 = report_rapporti3 + report3 + '\n' 
                 # self.listWidget_rapp.item(0).setForeground(QtCore.Qt.blue)
@@ -5455,7 +5463,7 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
         
     def on_pushButton_remove_row_rapporti_pressed(self):
         self.remove_row('self.tableWidget_rapporti')
-        
+
     def on_pushButton_insert_row_rapporti2_pressed(self):
        
         self.insert_new_row('self.tableWidget_rapporti2')
@@ -5582,7 +5590,7 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
             self.REC_CORR = self.REC_CORR - rec_goto
         if self.REC_CORR <= -1:
             self.REC_CORR = self.REC_CORR + rec_goto
-            QMessageBox.warning(self, "Attenzione", "Numero Rec Step troppo elevato", QMessageBox.Ok)
+            #QMessageBox.information(self, "Warning", "you are to the first record", QMessageBox.Ok)
         else:
             try:
                 self.empty_fields()
@@ -5604,7 +5612,7 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
             self.REC_CORR = self.REC_CORR + rec_goto
         if self.REC_CORR >= self.REC_TOT:
             self.REC_CORR = self.REC_CORR - rec_goto
-            QMessageBox.warning(self, "Attenzione", "Numero Rec Step troppo elevato", QMessageBox.Ok)
+            #QMessageBox.information(self, "Warning", "you are to the last record", QMessageBox.Ok)
         else:
             try:
                 self.empty_fields()
